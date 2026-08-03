@@ -3,9 +3,11 @@
 Docker code-sandbox provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-code-sandbox-docker @molecule/api-bond @molecule/api-code-sandbox @molecule/api-i18n
 ```
@@ -119,7 +121,16 @@ duplicate container. If `onRetry` returns non-null, that value is used and the
 operation is not re-issued.
 
 ```typescript
-function withTransientRetry(op: () => Promise<T>, opts: { label: string; attempts?: number; onRetry?: () => Promise<T | null>; delayMs?: (attempt: number) => number; log?: { warn: (message: string, meta?: unknown) => void; }; }): Promise<T>
+function withTransientRetry(
+  op: () => Promise<T>,
+  opts: {
+    label: string
+    attempts?: number
+    onRetry?: () => Promise<T | null>
+    delayMs?: (attempt: number) => number
+    log?: { warn: (message: string, meta?: unknown) => void }
+  },
+): Promise<T>
 ```
 
 - `op` — the operation to attempt.
@@ -143,6 +154,7 @@ const provider: SandboxProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-code-sandbox` interface.
 
 ## Bond Wiring
@@ -163,6 +175,7 @@ export function setupCodeSandboxDocker(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-code-sandbox` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

@@ -3,6 +3,7 @@
 React KPI / metric card primitives.
 
 Exports:
+
 - `<KpiCard>` — single metric card. Props: `title`, `value`, `subtitle?`, `icon?`,
   `trend?`, `action?`, `accentSide?` (`'left' | 'top' | 'none'`, default `'none'`),
   `accentColor?` (Tailwind border-color class, default `'border-primary'`),
@@ -19,7 +20,7 @@ Exports:
 ```tsx
 import { KpiCard, KpiCardGrid, KpiCardTrend } from '@molecule/app-kpi-card-react'
 
-<KpiCardGrid columns={3}>
+;<KpiCardGrid columns={3}>
   <KpiCard
     title="Monthly Revenue"
     value="$48,200"
@@ -34,9 +35,11 @@ import { KpiCard, KpiCardGrid, KpiCardTrend } from '@molecule/app-kpi-card-react
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-kpi-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -171,6 +174,7 @@ Apps use this for dashboard metrics, report summaries, and admin
 overviews.
 
 Visual variants follow the polished flagship apps:
+
 - blog/helpdesk-ticketing: `accentSide="left"` + `upperLabel` + `emphasizeValue`
 - crm/project-management: `accentSide="top"` + `upperLabel` + `emphasizeValue` + `hoverLift`
 - personal-finance/online-store: `accentSide="none"` (default)
@@ -219,12 +223,7 @@ The `direction` only picks the arrow glyph — no color is applied; pass a
 semantic text color via `className` for red/green deltas.
 
 ```typescript
-function KpiCardTrend({
-  delta,
-  direction,
-  suffix = '%',
-  className,
-}: KpiCardTrendProps): JSX.Element
+function KpiCardTrend({ delta, direction, suffix = '%', className }: KpiCardTrendProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link KpiCardTrendProps}).
@@ -234,6 +233,7 @@ function KpiCardTrend({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

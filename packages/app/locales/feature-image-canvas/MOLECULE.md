@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-image-canvas-react` package
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-image-canvas'
-import type { ImageCanvasTranslationKey, ImageCanvasTranslations } from '@molecule/app-locales-feature-image-canvas'
+import type {
+  ImageCanvasTranslationKey,
+  ImageCanvasTranslations,
+} from '@molecule/app-locales-feature-image-canvas'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `imageCanvas.aria.region` | Image canvas |
+| Key                       | English                     |
+| ------------------------- | --------------------------- |
+| `imageCanvas.aria.region` | Image canvas                |
 | `imageCanvas.aria.canvas` | Drag to pan, scroll to zoom |
-| `imageCanvas.loading` | Loading image… |
-| `imageCanvas.error` | Image failed to load. |
+| `imageCanvas.loading`     | Loading image…              |
+| `imageCanvas.error`       | Image failed to load.       |
 
 ## Metadata
 

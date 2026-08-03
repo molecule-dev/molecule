@@ -34,11 +34,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `icons.error.noIconSet` | No IconSet has been set. Call setIconSet() at app startup with an icon library (e.g., @molecule/app-icons-molecule). |
+| Key                      | English                                                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `icons.error.noIconSet`  | No IconSet has been set. Call setIconSet() at app startup with an icon library (e.g., @molecule/app-icons-molecule).            |
 | `icons.error.noProvider` | @molecule/app-icons: No icon set bonded. Call setIconSet() with an IconSet (e.g. the export from @molecule/app-icons-molecule). |
-| `icons.error.notFound` | Icon  |
+| `icons.error.notFound`   | Icon                                                                                                                            |
 
 ## Metadata
 

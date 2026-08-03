@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-moderation-queue-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-moderation-queue'
-import type { ModerationQueueTranslationKey, ModerationQueueTranslations } from '@molecule/app-locales-moderation-queue'
+import type {
+  ModerationQueueTranslationKey,
+  ModerationQueueTranslations,
+} from '@molecule/app-locales-moderation-queue'
 ```
 
 ## Registration
@@ -34,38 +37,38 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `moderationQueue.aria.region` | Moderation queue |
-| `moderationQueue.aria.bulkToolbar` | Bulk moderation actions |
-| `moderationQueue.aria.selectAll` | Select all |
-| `moderationQueue.aria.selectRow` | Select item |
-| `moderationQueue.aria.approve` | Approve |
-| `moderationQueue.aria.reject` | Reject |
-| `moderationQueue.aria.escalate` | Escalate |
-| `moderationQueue.aria.mute` | Mute |
-| `moderationQueue.loading` | Loading moderation queue… |
-| `moderationQueue.empty` | No items awaiting moderation. |
-| `moderationQueue.selectAll` | Select all |
-| `moderationQueue.selectedCount` | {{count}} selected |
-| `moderationQueue.reportedBy` | Reported by |
-| `moderationQueue.reason` | Reason |
-| `moderationQueue.action.approve` | Approve |
-| `moderationQueue.action.reject` | Reject |
-| `moderationQueue.action.escalate` | Escalate |
-| `moderationQueue.action.mute` | Mute |
-| `moderationQueue.bulk.approve` | Approve |
-| `moderationQueue.bulk.reject` | Reject |
-| `moderationQueue.bulk.escalate` | Escalate |
-| `moderationQueue.bulk.mute` | Mute |
-| `moderationQueue.kind.post` | Post |
-| `moderationQueue.kind.comment` | Comment |
-| `moderationQueue.kind.image` | Image |
-| `moderationQueue.kind.message` | Message |
-| `moderationQueue.kind.profile` | Profile |
-| `moderationQueue.severity.low` | Low |
-| `moderationQueue.severity.medium` | Medium |
-| `moderationQueue.severity.high` | High |
+| Key                                | English                       |
+| ---------------------------------- | ----------------------------- |
+| `moderationQueue.aria.region`      | Moderation queue              |
+| `moderationQueue.aria.bulkToolbar` | Bulk moderation actions       |
+| `moderationQueue.aria.selectAll`   | Select all                    |
+| `moderationQueue.aria.selectRow`   | Select item                   |
+| `moderationQueue.aria.approve`     | Approve                       |
+| `moderationQueue.aria.reject`      | Reject                        |
+| `moderationQueue.aria.escalate`    | Escalate                      |
+| `moderationQueue.aria.mute`        | Mute                          |
+| `moderationQueue.loading`          | Loading moderation queue…     |
+| `moderationQueue.empty`            | No items awaiting moderation. |
+| `moderationQueue.selectAll`        | Select all                    |
+| `moderationQueue.selectedCount`    | {{count}} selected            |
+| `moderationQueue.reportedBy`       | Reported by                   |
+| `moderationQueue.reason`           | Reason                        |
+| `moderationQueue.action.approve`   | Approve                       |
+| `moderationQueue.action.reject`    | Reject                        |
+| `moderationQueue.action.escalate`  | Escalate                      |
+| `moderationQueue.action.mute`      | Mute                          |
+| `moderationQueue.bulk.approve`     | Approve                       |
+| `moderationQueue.bulk.reject`      | Reject                        |
+| `moderationQueue.bulk.escalate`    | Escalate                      |
+| `moderationQueue.bulk.mute`        | Mute                          |
+| `moderationQueue.kind.post`        | Post                          |
+| `moderationQueue.kind.comment`     | Comment                       |
+| `moderationQueue.kind.image`       | Image                         |
+| `moderationQueue.kind.message`     | Message                       |
+| `moderationQueue.kind.profile`     | Profile                       |
+| `moderationQueue.severity.low`     | Low                           |
+| `moderationQueue.severity.medium`  | Medium                        |
+| `moderationQueue.severity.high`    | High                          |
 
 ## Metadata
 

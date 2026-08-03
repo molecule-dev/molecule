@@ -16,18 +16,17 @@ range sliders, checkbox lists, selects, etc.
 ## Quick Start
 
 ```tsx
-import {
-  FacetedSearchBar,
-  SegmentedControl,
-  FilterPill,
-} from '@molecule/app-faceted-search-react'
+import { FacetedSearchBar, SegmentedControl, FilterPill } from '@molecule/app-faceted-search-react'
 
 // PriceRangePanel / MoreFiltersPanel are your own panel components.
-<FacetedSearchBar topOffsetPx={64}>
+;<FacetedSearchBar topOffsetPx={64}>
   <SegmentedControl
     value={listingType}
     onChange={setListingType}
-    options={[{ value: 'buy', label: 'Buy' }, { value: 'rent', label: 'Rent' }]}
+    options={[
+      { value: 'buy', label: 'Buy' },
+      { value: 'rent', label: 'Rent' },
+    ]}
   />
   <FilterPill label="Price" active={hasPriceFilter}>
     <PriceRangePanel filters={filters} onChange={onFilterChange} />
@@ -39,9 +38,11 @@ import {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-faceted-search-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -146,6 +147,7 @@ function SegmentedControl({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

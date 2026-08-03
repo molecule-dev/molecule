@@ -19,16 +19,17 @@ import { setupI18nDefault } from '@molecule/app-i18n-default-react'
 // in your app: `import { ui as en } from '../locales/en/ui.js'`.
 // The lazy loader MUST stay in the app so Vite can code-split
 // each locale's ui.ts into its own chunk.
-const lazyLoadUi = (code: string) =>
-  import(`../locales/${code}/ui.ts`).then((m) => m.ui)
+const lazyLoadUi = (code: string) => import(`../locales/${code}/ui.ts`).then((m) => m.ui)
 
 setupI18nDefault({ enUi: en, lazyLoadUi })
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-i18n-default-react @molecule/app-i18n @molecule/app-locales-common @molecule/app-storage
 ```
@@ -64,7 +65,7 @@ the consuming app). `lazyLoadUi` is a per-locale loader the app
 provides — it MUST remain in the app so Vite can code-split the
 per-language `ui.ts` bundles correctly.
 
-```typescript
+````typescript
 interface SetupI18nDefaultOptions {
   /** Eagerly-imported English ui.ts translations. */
   enUi: Record<string, string>
@@ -127,7 +128,7 @@ interface SetupI18nDefaultOptions {
    */
   supportedLocales?: readonly string[]
 }
-```
+````
 
 ### Types
 
@@ -188,6 +189,7 @@ const LANGUAGE_DEFINITIONS: readonly LanguageDefinition[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-locales-common` ^1.0.0
 - `@molecule/app-storage` ^1.0.0

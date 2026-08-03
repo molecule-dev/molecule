@@ -17,9 +17,11 @@ setStore(store)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-database-sqlite @molecule/api-bond @molecule/api-database @molecule/api-secrets better-sqlite3
 npm install -D @types/better-sqlite3
@@ -91,7 +93,7 @@ Convert PostgreSQL-style positional placeholders ($1, $2, ...) to SQLite-style (
 Also reorders values array to match the placeholder order.
 
 ```typescript
-function convertPlaceholders(text: string, values?: unknown[]): { text: string; values: unknown[]; }
+function convertPlaceholders(text: string, values?: unknown[]): { text: string; values: unknown[] }
 ```
 
 - `text` — SQL query text with $N placeholders.
@@ -158,8 +160,8 @@ Translate PostgreSQL-dialect DDL to SQLite-compatible DDL at migration time.
 
 Resource/template setup migrations are authored in PostgreSQL dialect, but a
 SQLite project applies them raw via the migrator's `db.exec()`. SQLite
-tolerates Postgres *type* names through affinity (`uuid`, `timestamptz`,
-`jsonb`, `boolean`), but it rejects Postgres *function/cast/index* SYNTAX,
+tolerates Postgres _type_ names through affinity (`uuid`, `timestamptz`,
+`jsonb`, `boolean`), but it rejects Postgres _function/cast/index_ SYNTAX,
 which raises `near "(": syntax error` and aborts the whole migration. This
 rewrites the handful of constructs that actually appear across the resource
 library so those migrations apply on SQLite:
@@ -215,6 +217,7 @@ const store: DataStore
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-database` interface.
 
 ## Bond Wiring
@@ -236,13 +239,14 @@ export function setupDatabaseSqlite(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `SQLITE_PATH` *(optional)* — SQLite database path — default: `./data/app.db`
+- `SQLITE_PATH` _(optional)_ — SQLite database path — default: `./data/app.db`
   - Setup: Filesystem path of the SQLite database file (created on first run).
   - Example: `./data/app.db`
 
@@ -255,6 +259,7 @@ Peer dependencies:
 
 Configure via the SQLITE_PATH environment variable (default: ./data/app.db).
 WAL mode and foreign key constraints are enabled by default.
+
 - **`pool.transaction()` calls and plain `pool.query()` calls are serialized**
   behind an internal FIFO queue (better-sqlite3 has only ONE shared connection
   — there is no per-transaction isolation). A `transaction()` holds the queue

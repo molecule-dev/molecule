@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-screen-orientation` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-screen-orientation'
-import type { ScreenOrientationTranslationKey, ScreenOrientationTranslations } from '@molecule/app-locales-screen-orientation'
+import type {
+  ScreenOrientationTranslationKey,
+  ScreenOrientationTranslations,
+} from '@molecule/app-locales-screen-orientation'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                                  | English                                                                                                                |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
 | `screenOrientation.error.noProvider` | @molecule/app-screen-orientation: No provider set. Call setProvider() with a ScreenOrientationProvider implementation. |
 
 ## Metadata

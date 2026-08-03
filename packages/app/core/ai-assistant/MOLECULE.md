@@ -27,9 +27,11 @@ await assistant.sendMessage('Why is this invoice overdue?', config, (event) => {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ai-assistant @molecule/app-bond
 ```
@@ -306,8 +308,8 @@ function setProvider(provider: AIAssistantProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider     | Package                              |
+| ------------ | ------------------------------------ |
 | Ai Assistant | `@molecule/app-ai-assistant-default` |
 
 ## Injection Notes
@@ -315,6 +317,7 @@ function setProvider(provider: AIAssistantProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -340,29 +343,30 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Opening the panel (`open`/`toggle` → `getState().isOpen` is true) and
-  sending a message through `sendMessage` renders the user turn immediately,
-  then the assistant reply below it — both present in `getState().messages`.
+      sending a message through `sendMessage` renders the user turn immediately,
+      then the assistant reply below it — both present in `getState().messages`.
 - [ ] The reply STREAMS: `text` events append the assistant message
-  progressively (token by token) while its `isStreaming` stays true, and
-  `isStreaming` clears when the `done` event lands — not one atomic blob at
-  the end.
+      progressively (token by token) while its `isStreaming` stays true, and
+      `isStreaming` clears when the `done` event lands — not one atomic blob at
+      the end.
 - [ ] A stop/cancel control mid-stream calls `abort()` and actually halts the
-  reply: the message stops growing and is marked `aborted`, not left spinning.
+      reply: the message stops growing and is marked `aborted`, not left spinning.
 - [ ] A thinking/loading indicator driven by `getState().isLoading` shows
-  while a response is in flight and clears once it settles — on `done` AND on
-  `abort`.
+      while a response is in flight and clears once it settles — on `done` AND on
+      `abort`.
 - [ ] A provider failure surfaces `getState().error` (from the `error` stream
-  event) as a visible message in the panel — never a blank or perpetually
-  spinning panel.
+      event) as a visible message in the panel — never a blank or perpetually
+      spinning panel.
 - [ ] Suggestions from `getState().suggestions` render as chips, and clicking
-  one sends THAT chip's own `action` string — the suggestion's wired message,
-  not a generic prompt.
+      one sends THAT chip's own `action` string — the suggestion's wired message,
+      not a generic prompt.
 - [ ] Context set via `setContext` (the selected code / current page) is
-  actually attached to the request so the answer is context-aware;
-  `clearContext` drops it, and one user's context never bleeds into another
-  user's session.
+      actually attached to the request so the answer is context-aware;
+      `clearContext` drops it, and one user's context never bleeds into another
+      user's session.
 - [ ] Conversation history persists across turns and reloads — `loadHistory`
-  rehydrates `getState().messages` and `clearHistory` empties the panel — and
-  model output renders through the app's sanitizing markdown renderer, never
-  as raw or executable HTML.
+      rehydrates `getState().messages` and `clearHistory` empties the panel — and
+      model output renders through the app's sanitizing markdown renderer, never
+      as raw or executable HTML.

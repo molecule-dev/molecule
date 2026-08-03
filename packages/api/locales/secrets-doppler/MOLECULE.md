@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-secrets-doppler` package which has 
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-secrets-doppler'
-import type { SecretsDopplerTranslationKey, SecretsDopplerTranslations } from '@molecule/api-locales-secrets-doppler'
+import type {
+  SecretsDopplerTranslationKey,
+  SecretsDopplerTranslations,
+} from '@molecule/api-locales-secrets-doppler'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                                        | English                                                               |
+| ------------------------------------------ | --------------------------------------------------------------------- |
 | `secrets.doppler.error.tokenNotConfigured` | Doppler token not configured. Set DOPPLER_TOKEN or pass token option. |
-| `secrets.doppler.error.apiError` | Doppler API error: {{status}} {{error}} |
+| `secrets.doppler.error.apiError`           | Doppler API error: {{status}} {{error}}                               |
 
 ## Metadata
 

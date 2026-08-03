@@ -8,6 +8,7 @@ Designed for the spreadsheet flagship app and for ad-hoc line-item
 math (e.g. invoice/billing computed columns).
 
 Capabilities:
+
 - **Arithmetic**: `+ - * / % ^` (with Excel-compatible coercions).
 - **Comparison**: `= <> < <= > >=` (numbers, strings, dates, booleans).
 - **String**: `&` and `CONCAT()` / `CONCATENATE()`.
@@ -49,15 +50,15 @@ sheet.getValue('A3') // → 120 (auto-recomputed)
 
 // Stateless: ad-hoc evaluation against a lookup function.
 const ast = parseFormula('=A1 * 1.0875')
-const lineTotal = evaluate(ast, (coord) =>
-  coord.col === 0 && coord.row === 0 ? 49.99 : null,
-)
+const lineTotal = evaluate(ast, (coord) => (coord.col === 0 && coord.row === 0 ? 49.99 : null))
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-formula-engine
 ```
@@ -286,8 +287,7 @@ Binary operators. `^` = power, `&` = string concat,
 `=`/`<>` = equality, `<`/`<=`/`>`/`>=` = ordering.
 
 ```typescript
-type BinaryOperator =
-  '+' | '-' | '*' | '/' | '^' | '&' | '=' | '<>' | '<' | '<=' | '>' | '>='
+type BinaryOperator = '+' | '-' | '*' | '/' | '^' | '&' | '=' | '<>' | '<' | '<=' | '>' | '>='
 ```
 
 #### `CellValue`
@@ -307,8 +307,7 @@ arithmetic or function call involving a `FormulaError` returns the
 left-most error unchanged (Excel-compatible semantics).
 
 ```typescript
-type FormulaErrorCode =
-  '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#CIRC!'
+type FormulaErrorCode = '#DIV/0!' | '#VALUE!' | '#REF!' | '#NAME?' | '#NUM!' | '#N/A' | '#CIRC!'
 ```
 
 #### `FormulaFunction`
@@ -597,7 +596,7 @@ function toBoolean(value: CellValue): boolean | FormulaError
 #### `tokenize(input)`
 
 Tokenize a formula string. The leading `=` (if present) is stripped
-by the caller — pass the *body* of the formula here.
+by the caller — pass the _body_ of the formula here.
 
 ```typescript
 function tokenize(input: string): Token[]
@@ -636,7 +635,10 @@ returned in `cycle` and excluded from `order` — callers typically
 mark cycle members with a `#CIRC!` error.
 
 ```typescript
-function topologicalSort(dependents: ReadonlyMap<string, ReadonlySet<string>>, keys: readonly string[]): { order: string[]; cycle: Set<string>; }
+function topologicalSort(
+  dependents: ReadonlyMap<string, ReadonlySet<string>>,
+  keys: readonly string[],
+): { order: string[]; cycle: Set<string> }
 ```
 
 - `dependents` — Map from a key to the set of keys that depend on it. (i.e. forward edges in the recompute order.)

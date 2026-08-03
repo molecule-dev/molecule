@@ -3,9 +3,11 @@
 Stripe payment provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-payments-stripe @molecule/api-bond @molecule/api-i18n @molecule/api-jwt @molecule/api-payments @molecule/api-secrets stripe
 ```
@@ -240,30 +242,30 @@ Normalized purchase information (for one-time purchases).
 
 ```typescript
 interface NormalizedPurchase {
-    /**
-     * The payment provider.
-     */
-    provider: PaymentProviderName;
-    /**
-     * The purchase/transaction ID.
-     */
-    purchaseId: string;
-    /**
-     * The product ID.
-     */
-    productId: string;
-    /**
-     * Whether the purchase is valid.
-     */
-    isValid: boolean;
-    /**
-     * When the purchase was made (Unix timestamp in ms).
-     */
-    purchaseDate: number;
-    /**
-     * Raw data from the provider.
-     */
-    rawData: unknown;
+  /**
+   * The payment provider.
+   */
+  provider: PaymentProviderName
+  /**
+   * The purchase/transaction ID.
+   */
+  purchaseId: string
+  /**
+   * The product ID.
+   */
+  productId: string
+  /**
+   * Whether the purchase is valid.
+   */
+  isValid: boolean
+  /**
+   * When the purchase was made (Unix timestamp in ms).
+   */
+  purchaseDate: number
+  /**
+   * Raw data from the provider.
+   */
+  rawData: unknown
 }
 ```
 
@@ -275,46 +277,46 @@ Use this interface to abstract away provider-specific differences.
 
 ```typescript
 interface NormalizedSubscription {
-    /**
-     * The payment provider.
-     */
-    provider: PaymentProviderName;
-    /**
-     * The subscription ID from the provider.
-     */
-    subscriptionId: string;
-    /**
-     * The product/plan ID.
-     */
-    productId: string;
-    /**
-     * Current subscription status.
-     */
-    status: SubscriptionStatus;
-    /**
-     * Whether the subscription is currently active.
-     */
-    isActive: boolean;
-    /**
-     * When the current period started (Unix timestamp in ms).
-     */
-    currentPeriodStart?: number;
-    /**
-     * When the current period ends (Unix timestamp in ms).
-     */
-    currentPeriodEnd?: number;
-    /**
-     * Whether the subscription will auto-renew.
-     */
-    willRenew?: boolean;
-    /**
-     * When the subscription was canceled (if applicable).
-     */
-    canceledAt?: number;
-    /**
-     * Raw data from the provider.
-     */
-    rawData: unknown;
+  /**
+   * The payment provider.
+   */
+  provider: PaymentProviderName
+  /**
+   * The subscription ID from the provider.
+   */
+  subscriptionId: string
+  /**
+   * The product/plan ID.
+   */
+  productId: string
+  /**
+   * Current subscription status.
+   */
+  status: SubscriptionStatus
+  /**
+   * Whether the subscription is currently active.
+   */
+  isActive: boolean
+  /**
+   * When the current period started (Unix timestamp in ms).
+   */
+  currentPeriodStart?: number
+  /**
+   * When the current period ends (Unix timestamp in ms).
+   */
+  currentPeriodEnd?: number
+  /**
+   * Whether the subscription will auto-renew.
+   */
+  willRenew?: boolean
+  /**
+   * When the subscription was canceled (if applicable).
+   */
+  canceledAt?: number
+  /**
+   * Raw data from the provider.
+   */
+  rawData: unknown
 }
 ```
 
@@ -404,7 +406,7 @@ Each payment provider implements the methods relevant to its platform.
 All methods are optional since different platforms use different flows.
 
 ```typescript
-type PaymentProvider = PaymentProviderInterface;
+type PaymentProvider = PaymentProviderInterface
 ```
 
 #### `SubscriptionStatus`
@@ -412,7 +414,8 @@ type PaymentProvider = PaymentProviderInterface;
 Subscription status across providers.
 
 ```typescript
-type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'past_due' | 'trialing' | 'paused' | 'pending' | 'unknown';
+type SubscriptionStatus =
+  'active' | 'canceled' | 'expired' | 'past_due' | 'trialing' | 'paused' | 'pending' | 'unknown'
 ```
 
 ### Functions
@@ -447,7 +450,14 @@ function createAccountLink(params: CreateAccountLinkParams): Promise<CreateAccou
 Creates a Stripe Checkout session for a new subscription.
 
 ```typescript
-function createCheckoutSession(options: { priceId: string; successUrl: string; cancelUrl: string; customerId?: string; metadata?: Record<string, string>; idempotencyKey?: string; }): Promise<CheckoutSessionResult>
+function createCheckoutSession(options: {
+  priceId: string
+  successUrl: string
+  cancelUrl: string
+  customerId?: string
+  metadata?: Record<string, string>
+  idempotencyKey?: string
+}): Promise<CheckoutSessionResult>
 ```
 
 - `options` — Checkout configuration.
@@ -465,7 +475,9 @@ function createCheckoutSession(options: { priceId: string; successUrl: string; c
 Creates a Stripe connected account for a marketplace seller / driver / provider.
 
 ```typescript
-function createConnectedAccount(params: CreateConnectedAccountParams): Promise<CreateConnectedAccountResult>
+function createConnectedAccount(
+  params: CreateConnectedAccountParams,
+): Promise<CreateConnectedAccountResult>
 ```
 
 - `params` — Connected-account creation parameters.
@@ -493,7 +505,10 @@ subscription (update payment method, cancel, view invoices) in Stripe's
 hosted portal.
 
 ```typescript
-function createPortalSession(options: { customerId: string; returnUrl?: string; }): Promise<{ id: string; url: string; } | null>
+function createPortalSession(options: {
+  customerId: string
+  returnUrl?: string
+}): Promise<{ id: string; url: string } | null>
 ```
 
 - `options` — Portal configuration.
@@ -511,7 +526,11 @@ ID is returned alongside the SetupIntent so the resource layer can persist
 the customer ID for future SetupIntents and detachments.
 
 ```typescript
-function createSetupIntent(options: { customerId?: string; metadata?: Record<string, string>; idempotencyKey?: string; }): Promise<{ id: string; clientSecret: string; customerId: string; }>
+function createSetupIntent(options: {
+  customerId?: string
+  metadata?: Record<string, string>
+  idempotencyKey?: string
+}): Promise<{ id: string; clientSecret: string; customerId: string }>
 ```
 
 - `options` — SetupIntent creation options.
@@ -630,7 +649,10 @@ arrive on the same webhook endpoint when the platform's webhook is
 configured to receive Connect events.
 
 ```typescript
-function processConnectWebhook(headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike>): ConnectWebhookEvent
+function processConnectWebhook(
+  headers: Record<string, string | string[] | undefined>,
+  body: string | Buffer<ArrayBufferLike>,
+): ConnectWebhookEvent
 ```
 
 - `headers` — Request headers (looks up `stripe-signature`).
@@ -662,7 +684,16 @@ over budget?) lives entirely in the molecule-dev billing module, which is
 the single inert/opt-in gate (safety invariants 1 + 2).
 
 ```typescript
-function reportUsageOverage(options: { customerId: string; amountCents: number; currency?: string; priceId: string; subscriptionId?: string; description?: string; metadata?: Record<string, string>; idempotencyKey: string; }): Promise<{ id: string; amountCents: number; }>
+function reportUsageOverage(options: {
+  customerId: string
+  amountCents: number
+  currency?: string
+  priceId: string
+  subscriptionId?: string
+  description?: string
+  metadata?: Record<string, string>
+  idempotencyKey: string
+}): Promise<{ id: string; amountCents: number }>
 ```
 
 - `options` — Overage reporting options.
@@ -682,7 +713,9 @@ function reportUsageOverage(options: { customerId: string; amountCents: number; 
 Retrieves a saved Stripe payment method (card) and returns normalized metadata.
 
 ```typescript
-function retrievePaymentMethod(paymentMethodId: string): Promise<{ id: string; brand: string; last4: string; expMonth: number; expYear: number; } | null>
+function retrievePaymentMethod(
+  paymentMethodId: string,
+): Promise<{ id: string; brand: string; last4: string; expMonth: number; expYear: number } | null>
 ```
 
 - `paymentMethodId` — The Stripe payment method ID (`pm_...`).
@@ -694,7 +727,10 @@ function retrievePaymentMethod(paymentMethodId: string): Promise<{ id: string; b
 Updates a Stripe subscription (e.g. changes plan, sets cancel_at_period_end).
 
 ```typescript
-function updateSubscription(subscriptionId: string, params: SubscriptionUpdateParams): Promise<SubscriptionResult>
+function updateSubscription(
+  subscriptionId: string,
+  params: SubscriptionUpdateParams,
+): Promise<SubscriptionResult>
 ```
 
 - `subscriptionId` — The Stripe subscription ID to update.
@@ -708,7 +744,10 @@ Verifies a Stripe webhook signature and parses the event payload.
 Requires `STRIPE_WEBHOOK_SECRET` env var.
 
 ```typescript
-function verifyWebhookSignature(payload: string | Buffer<ArrayBufferLike>, signature: string): WebhookEventResult
+function verifyWebhookSignature(
+  payload: string | Buffer<ArrayBufferLike>,
+  signature: string,
+): WebhookEventResult
 ```
 
 - `payload` — The raw request body (string or Buffer).
@@ -739,6 +778,7 @@ const stripeSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-payments` interface.
 
 ## Bond Wiring
@@ -759,6 +799,7 @@ export function setupPaymentsStripe(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
@@ -767,11 +808,11 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+- `STRIPE_SECRET_KEY` _(required)_ — Stripe secret key
   - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
   - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
   - Example: `sk_test_...`
-- `STRIPE_WEBHOOK_SECRET` *(required)* — Stripe webhook signing secret
+- `STRIPE_WEBHOOK_SECRET` _(required)_ — Stripe webhook signing secret
   - Setup: Stripe Dashboard → Developers → Webhooks → Add endpoint pointing at {apiUrl}/api/users/payment-notification/stripe, then copy its signing secret.
   - Get it here: [https://dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
   - Example: `whsec_...`
@@ -844,22 +885,23 @@ Integration checklist — drive the real UI (live preview, no mocks; use the
 provider's TEST mode — test cards/sandbox accounts, never a live charge),
 adapt each item to this app's actual screens/flows, and check every box off
 one by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Starting an upgrade/subscribe from the pricing or billing surface creates a
-  checkout session and hands off to the provider flow (redirect or embedded
-  element) — the button does something real, not a dead click.
+      checkout session and hands off to the provider flow (redirect or embedded
+      element) — the button does something real, not a dead click.
 - [ ] Returning from a canceled/abandoned checkout leaves the user on their
-  original plan with a sane UI (no phantom entitlement, no error page).
+      original plan with a sane UI (no phantom entitlement, no error page).
 - [ ] Entitlement flips ONLY after server-side verification (webhook or verify
-  call) — reloading after a client-side-only "success" must NOT show a paid
-  plan unless the server verified it. The sandbox CAPTURES webhook deliveries
-  — read them with the `read_activity` tool (filter type 'webhook'); never
-  mock the event or modify production code to fake an entitlement.
+      call) — reloading after a client-side-only "success" must NOT show a paid
+      plan unless the server verified it. The sandbox CAPTURES webhook deliveries
+      — read them with the `read_activity` tool (filter type 'webhook'); never
+      mock the event or modify production code to fake an entitlement.
 - [ ] The current subscription status (plan name, renewal/expiry) renders on the
-  account/billing screen, and canceling updates that status visibly.
+      account/billing screen, and canceling updates that status visibly.
 - [ ] With payment secrets unconfigured, the flow surfaces an actionable
-  "credentials not configured" message — not a silent no-op or generic 500.
+      "credentials not configured" message — not a silent no-op or generic 500.
 - [ ] The provider SECRET key never reaches the browser (page + network traffic
-  contain only the publishable key).
+      contain only the publishable key).
 
 ## Translations
 

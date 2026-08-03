@@ -24,9 +24,11 @@ console.log(result.state.current_streak)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-streak @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
@@ -195,12 +197,13 @@ Pure streak transition — computes the next state for a (previous,
 config, when) tuple without touching any I/O.
 
 Rules:
- - No previous state → `current_streak = 1`.
- - Same period as previous → no change to streak (idempotent).
- - Continuation period → `current_streak + 1`.
- - Gap, but a freeze is available → consume freeze, treat as
-   continuation.
- - Gap, no freeze available → reset to `1`.
+
+- No previous state → `current_streak = 1`.
+- Same period as previous → no change to streak (idempotent).
+- Continuation period → `current_streak + 1`.
+- Gap, but a freeze is available → consume freeze, treat as
+  continuation.
+- Gap, no freeze available → reset to `1`.
 
 ```typescript
 function computeStreakUpdate(input: StreakUpdateInput): StreakUpdateResult
@@ -350,7 +353,11 @@ without bumping the counter. Out-of-window gaps reset the streak
 (or consume a freeze when configured).
 
 ```typescript
-function recordActivity(userId: string, config: StreakConfig, when?: Date): Promise<StreakUpdateResult>
+function recordActivity(
+  userId: string,
+  config: StreakConfig,
+  when?: Date,
+): Promise<StreakUpdateResult>
 ```
 
 - `userId` — The user ID.
@@ -393,7 +400,11 @@ function setStreakConfigResolver(next: StreakConfigResolver): void
 Handler map for streak routes (`record`, `read`, `freeze`).
 
 ```typescript
-const requestHandlerMap: { readonly record: typeof record; readonly read: typeof read; readonly freeze: typeof freeze; }
+const requestHandlerMap: {
+  readonly record: typeof record
+  readonly read: typeof read
+  readonly freeze: typeof freeze
+}
 ```
 
 #### `routes`
@@ -403,7 +414,26 @@ authenticated session — the user ID is derived from `res.locals.session`,
 never from the request body or path.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/streaks/:activityKind"; readonly handler: "record"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/streaks/:activityKind"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/streaks/:activityKind/freeze"; readonly handler: "freeze"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/streaks/:activityKind'
+    readonly handler: 'record'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/streaks/:activityKind'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/streaks/:activityKind/freeze'
+    readonly handler: 'freeze'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 ## Injection Notes
@@ -411,6 +441,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/streaks/:act
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -460,35 +491,36 @@ multi-day behavior without waiting real days, drive the trusted service —
 call `recordActivity(userId, config, when)` with an explicit `when` (or unit
 test the pure `computeStreakUpdate`) — and read `current_streak` /
 `longest_streak` back via `read`:
+
 - [ ] Consecutive periods INCREMENT by exactly one: a first-ever record starts
-  `current_streak` at 1; each later activity 24-48h after the last (one
-  `reset_after_hours` window, default 24h) bumps it 1 -> 2 -> 3. `current_streak`
-  equals the count of unbroken consecutive periods ending at the last activity.
+      `current_streak` at 1; each later activity 24-48h after the last (one
+      `reset_after_hours` window, default 24h) bumps it 1 -> 2 -> 3. `current_streak`
+      equals the count of unbroken consecutive periods ending at the last activity.
 - [ ] Same period counts ONCE, not twice: a second activity < one window
-  (< 24h) after the last leaves `current_streak` unchanged (only
-  `last_activity_date` advances). The boundary is a ROLLING `reset_after_hours`
-  delta measured off `last_activity_date` in absolute epoch time (UTC millis via
-  `Date.getTime()`) — NOT a calendar day and NOT the user's timezone. So 23:00
-  and 01:00-next-day (2h apart) fall in the SAME period though the calendar date
-  changed, and DST / the user's tz never shift the boundary — verify an activity
-  just before vs just after local midnight lands in the right period by delta.
+      (< 24h) after the last leaves `current_streak` unchanged (only
+      `last_activity_date` advances). The boundary is a ROLLING `reset_after_hours`
+      delta measured off `last_activity_date` in absolute epoch time (UTC millis via
+      `Date.getTime()`) — NOT a calendar day and NOT the user's timezone. So 23:00
+      and 01:00-next-day (2h apart) fall in the SAME period though the calendar date
+      changed, and DST / the user's tz never shift the boundary — verify an activity
+      just before vs just after local midnight lands in the right period by delta.
 - [ ] Missing a period RESETS: a gap of >= 2x the window (>= 48h, no freeze)
-  resets `current_streak` to 1 on the next activity (or to 0 via the
-  `auditStreak` cron sweep before any new activity), while `longest_streak` is
-  RETAINED at its high-water mark. Rebuilding past the old peak raises
-  `longest_streak`; a shorter new run leaves it unchanged.
+      resets `current_streak` to 1 on the next activity (or to 0 via the
+      `auditStreak` cron sweep before any new activity), while `longest_streak` is
+      RETAINED at its high-water mark. Rebuilding past the old peak raises
+      `longest_streak`; a shorter new run leaves it unchanged.
 - [ ] A freeze absorbs ONE missed period (only when `freezes_per_period` > 0):
-  with a freeze available, a single missed period (gap ~2x window) still
-  increments `current_streak`, sets `freezeConsumed: true`, and bumps
-  `freezes_used` instead of resetting; a further gap with no freeze left resets.
+      with a freeze available, a single missed period (gap ~2x window) still
+      increments `current_streak`, sets `freezeConsumed: true`, and bumps
+      `freezes_used` instead of resetting; a further gap with no freeze left resets.
 - [ ] AUTHORIZATION — streaks are per-user and server-derived: the row is keyed
-  by `(user_id, activity_kind)` where `user_id` comes ONLY from
-  `res.locals.session.userId` (401 fail-closed), never the body or `:activityKind`
-  path, so no caller can read or grow another user's streak. `current_streak` /
-  `longest_streak` are computed from real recorded activity, never client-set:
-  the stock `record` / `freeze` routes read NO streak levers from the body —
-  the event time is the server clock and the config (`reset_after_hours`,
-  `freezes_per_period`) comes from the server-side {@link resolveStreakConfig}
-  (register via {@link setStreakConfigResolver}; default window 24h, freeze
-  cap 0). Confirm a body claiming an inflated count/window/freeze-cap is
-  ignored and the server-computed value wins.
+      by `(user_id, activity_kind)` where `user_id` comes ONLY from
+      `res.locals.session.userId` (401 fail-closed), never the body or `:activityKind`
+      path, so no caller can read or grow another user's streak. `current_streak` /
+      `longest_streak` are computed from real recorded activity, never client-set:
+      the stock `record` / `freeze` routes read NO streak levers from the body —
+      the event time is the server clock and the config (`reset_after_hours`,
+      `freezes_per_period`) comes from the server-side {@link resolveStreakConfig}
+      (register via {@link setStreakConfigResolver}; default window 24h, freeze
+      cap 0). Confirm a body claiming an inflated count/window/freeze-cap is
+      ignored and the server-computed value wins.

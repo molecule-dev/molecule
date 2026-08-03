@@ -3,9 +3,11 @@
 Password hashing provider using bcryptjs for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-password-bcrypt @molecule/api-password bcryptjs
 ```
@@ -23,6 +25,7 @@ const provider: PasswordProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-password` interface.
 
 ## Bond Wiring
@@ -43,6 +46,7 @@ export function setupPasswordBcrypt(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-password` ^1.0.0
 
 ### Runtime Dependencies

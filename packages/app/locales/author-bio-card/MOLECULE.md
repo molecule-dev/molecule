@@ -16,7 +16,10 @@ Provides translations for the `@molecule/app-author-bio-card-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-author-bio-card'
-import type { AuthorBioCardTranslationKey, AuthorBioCardTranslations } from '@molecule/app-locales-author-bio-card'
+import type {
+  AuthorBioCardTranslationKey,
+  AuthorBioCardTranslations,
+} from '@molecule/app-locales-author-bio-card'
 ```
 
 ## Registration
@@ -36,20 +39,20 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `authorBioCard.follow` | Follow |
-| `authorBioCard.following` | Following |
-| `authorBioCard.social.twitter.label` | Twitter |
-| `authorBioCard.social.github.label` | GitHub |
-| `authorBioCard.social.linkedin.label` | LinkedIn |
-| `authorBioCard.social.mastodon.label` | Mastodon |
-| `authorBioCard.social.website.label` | Website |
-| `authorBioCard.social.twitter` | {{name}} on Twitter |
-| `authorBioCard.social.github` | {{name}} on GitHub |
-| `authorBioCard.social.linkedin` | {{name}} on LinkedIn |
-| `authorBioCard.social.mastodon` | {{name}} on Mastodon |
-| `authorBioCard.social.website` | {{name}} |
+| Key                                   | English              |
+| ------------------------------------- | -------------------- |
+| `authorBioCard.follow`                | Follow               |
+| `authorBioCard.following`             | Following            |
+| `authorBioCard.social.twitter.label`  | Twitter              |
+| `authorBioCard.social.github.label`   | GitHub               |
+| `authorBioCard.social.linkedin.label` | LinkedIn             |
+| `authorBioCard.social.mastodon.label` | Mastodon             |
+| `authorBioCard.social.website.label`  | Website              |
+| `authorBioCard.social.twitter`        | {{name}} on Twitter  |
+| `authorBioCard.social.github`         | {{name}} on GitHub   |
+| `authorBioCard.social.linkedin`       | {{name}} on LinkedIn |
+| `authorBioCard.social.mastodon`       | {{name}} on Mastodon |
+| `authorBioCard.social.website`        | {{name}}             |
 
 ## Metadata
 

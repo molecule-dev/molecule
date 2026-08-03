@@ -12,13 +12,15 @@ visibility + height state, and show/hide events.
 import { setProvider } from '@molecule/app-keyboard'
 import { provider } from '@molecule/app-keyboard-react-native'
 
-setProvider(provider)   // once, at app startup
+setProvider(provider) // once, at app startup
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-keyboard-react-native @molecule/app-i18n @molecule/app-keyboard @molecule/app-logger react-native
 ```
@@ -48,6 +50,7 @@ const provider: KeyboardProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-keyboard` interface.
 
 ## Bond Wiring
@@ -68,6 +71,7 @@ export function setupNativeKeyboardReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-keyboard` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

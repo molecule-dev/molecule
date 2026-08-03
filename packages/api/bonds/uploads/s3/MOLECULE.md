@@ -5,9 +5,11 @@ AWS S3 upload provider for molecule.dev.
 Handles file uploads to AWS S3.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-uploads-s3 @aws-sdk/client-s3 @aws-sdk/lib-storage @molecule/api-bond @molecule/api-i18n @molecule/api-secrets @molecule/api-uploads uuid
 ```
@@ -38,18 +40,18 @@ or other multipart parsers should adapt to this interface.
 
 ```typescript
 interface FileInfo {
-    /**
-     * The original filename - e.g., `some-image.jpg`.
-     */
-    filename: string;
-    /**
-     * The file's encoding - e.g., `7bit`, `binary`.
-     */
-    encoding: string;
-    /**
-     * The file's MIME type - e.g., `image/jpeg`.
-     */
-    mimeType: string;
+  /**
+   * The original filename - e.g., `some-image.jpg`.
+   */
+  filename: string
+  /**
+   * The file's encoding - e.g., `7bit`, `binary`.
+   */
+  encoding: string
+  /**
+   * The file's MIME type - e.g., `image/jpeg`.
+   */
+  mimeType: string
 }
 ```
 
@@ -59,47 +61,47 @@ Properties describing an uploading/uploaded file.
 
 ```typescript
 interface UploadedFile {
-    /**
-     * The unique file identifier.
-     */
-    id: string;
-    /**
-     * The file's fieldname from the form.
-     * Used as the key for the file within `req.files` - e.g., `req.files[fieldname] = file`.
-     */
-    fieldname: string;
-    /**
-     * The original filename - e.g., `some-image.jpg`.
-     */
-    filename: string;
-    /**
-     * The file's encoding - e.g., `binary`.
-     */
-    encoding: string;
-    /**
-     * The file's mimetype - e.g., `image/jpeg`.
-     */
-    mimetype: string;
-    /**
-     * The file's size in bytes.
-     */
-    size: number;
-    /**
-     * The source stream (available during upload).
-     */
-    stream?: NodeJS.ReadableStream;
-    /**
-     * A promise that resolves when the upload completes.
-     */
-    uploadPromise?: Promise<void>;
-    /**
-     * Whether the upload has completed.
-     */
-    uploaded: boolean;
-    /**
-     * The URL/location of the uploaded file (if available).
-     */
-    location?: string;
+  /**
+   * The unique file identifier.
+   */
+  id: string
+  /**
+   * The file's fieldname from the form.
+   * Used as the key for the file within `req.files` - e.g., `req.files[fieldname] = file`.
+   */
+  fieldname: string
+  /**
+   * The original filename - e.g., `some-image.jpg`.
+   */
+  filename: string
+  /**
+   * The file's encoding - e.g., `binary`.
+   */
+  encoding: string
+  /**
+   * The file's mimetype - e.g., `image/jpeg`.
+   */
+  mimetype: string
+  /**
+   * The file's size in bytes.
+   */
+  size: number
+  /**
+   * The source stream (available during upload).
+   */
+  stream?: NodeJS.ReadableStream
+  /**
+   * A promise that resolves when the upload completes.
+   */
+  uploadPromise?: Promise<void>
+  /**
+   * Whether the upload has completed.
+   */
+  uploaded: boolean
+  /**
+   * The URL/location of the uploaded file (if available).
+   */
+  location?: string
 }
 ```
 
@@ -145,7 +147,12 @@ Streams a file upload to AWS S3 using the `@aws-sdk/lib-storage` multipart Uploa
 Creates a UUID key in the configured S3 bucket and pipes the readable stream into it.
 
 ```typescript
-function upload(fieldname: string, stream: NodeJS.ReadableStream, info: FileInfo, onError: (error: Error) => void): File
+function upload(
+  fieldname: string,
+  stream: NodeJS.ReadableStream,
+  info: FileInfo,
+  onError: (error: Error) => void,
+): File
 ```
 
 - `fieldname` — The form field name this file was submitted under.
@@ -183,6 +190,7 @@ const uploadsS3SecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-uploads` interface.
 
 ## Bond Wiring
@@ -203,6 +211,7 @@ export function setupUploadsS3(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
@@ -210,24 +219,24 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `AWS_ACCESS_KEY_ID` *(required)* — AWS access key ID
+- `AWS_ACCESS_KEY_ID` _(required)_ — AWS access key ID
   - Setup: Create an IAM user with the needed policy (SES/S3/SQS) and create an access key under Security credentials.
   - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
   - Example: `AKIA...`
-- `AWS_SECRET_ACCESS_KEY` *(required)* — AWS secret access key
+- `AWS_SECRET_ACCESS_KEY` _(required)_ — AWS secret access key
   - Setup: Shown once when creating the IAM access key — store it immediately.
   - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
-- `AWS_S3_BUCKET` *(required)* — S3 bucket name
+- `AWS_S3_BUCKET` _(required)_ — S3 bucket name
   - Setup: Name of the S3 bucket to store uploads in (create one in the S3 console).
   - Get it here: [https://console.aws.amazon.com/s3/](https://console.aws.amazon.com/s3/)
   - Example: `my-app-uploads`
-- `AWS_S3_REGION` *(optional)* — S3 bucket region — default: `us-east-1`
+- `AWS_S3_REGION` _(optional)_ — S3 bucket region — default: `us-east-1`
   - Setup: The AWS region of your uploads bucket.
   - Example: `us-east-1`
-- `AWS_S3_ENDPOINT` *(optional)* — S3 endpoint override
+- `AWS_S3_ENDPOINT` _(optional)_ — S3 endpoint override
   - Setup: Endpoint URL for S3-compatible stores (MinIO, Cloudflare R2, DigitalOcean Spaces) — molecule's managed storage sets this automatically; leave empty for real AWS S3.
   - Example: `http://localhost:9000`
-- `AWS_S3_FORCE_PATH_STYLE` *(optional)* — S3 path-style addressing
+- `AWS_S3_FORCE_PATH_STYLE` _(optional)_ — S3 path-style addressing
   - Setup: Set to 'true' for MinIO-style path addressing (http://host/bucket instead of virtual-hosted buckets); set automatically by molecule's managed storage. Leave unset for real AWS S3.
   - Example: `true`
 
@@ -277,15 +286,16 @@ the own-every-file / validate rules). Config is all ENV, server-side: `AWS_ACCES
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Uploading a valid file through the UI shows progress/confirmation and the
-  file appears in the user's file list.
+      file appears in the user's file list.
 - [ ] The uploaded content is retrievable: opening/downloading it returns the
-  same content (an uploaded image actually renders).
+      same content (an uploaded image actually renders).
 - [ ] A disallowed file type is rejected with a visible error and does NOT
-  appear in the list.
+      appear in the list.
 - [ ] An over-the-cap file is rejected cleanly (visible error, no partial
-  phantom entry).
+      phantom entry).
 - [ ] Ownership is enforced: a second signed-in user cannot retrieve the first
-  user's file by its id/URL (404 — not the file).
+      user's file by its id/URL (404 — not the file).
 - [ ] Deleting a file removes it from the list, and it stays gone (and
-  unretrievable) after a full reload.
+      unretrievable) after a full reload.

@@ -12,8 +12,10 @@ any embeddable widget — 3d-model-viewer, chat-widget, charts, status-page.
 ```tsx
 import { EmbedSnippet } from '@molecule/app-embed-snippet-react'
 
-<EmbedSnippet
-  template={'<iframe src="https://example.com/embed" width="{{width}}" height="{{height}}" data-theme="{{theme}}" />'}
+;<EmbedSnippet
+  template={
+    '<iframe src="https://example.com/embed" width="{{width}}" height="{{height}}" data-theme="{{theme}}" />'
+  }
   controls={{ width: true, height: true, theme: true }}
   values={values}
   onChange={setValues}
@@ -22,9 +24,11 @@ import { EmbedSnippet } from '@molecule/app-embed-snippet-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-embed-snippet-react @molecule/app-i18n @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -155,7 +159,9 @@ resolves through `useTranslation()` — no hardcoded UI strings or
 styling-library class names.
 
 ```typescript
-function EmbedSnippet(props: EmbedSnippetProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function EmbedSnippet(
+  props: EmbedSnippetProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — {@link EmbedSnippetProps}.
@@ -184,6 +190,7 @@ function substituteTemplate(template: string, values?: EmbedSnippetValues): stri
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

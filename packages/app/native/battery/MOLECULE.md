@@ -28,9 +28,11 @@ stop()
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-battery @molecule/app-bond @molecule/app-i18n
 ```
@@ -203,7 +205,10 @@ type ChargingState =
 Create a battery-aware task executor
 
 ```typescript
-function createBatteryAwareExecutor(minimumLevel?: number): { execute<T>(task: () => T | Promise<T>, fallback?: () => T | Promise<T>): Promise<T | undefined>; canExecute(): Promise<boolean>; }
+function createBatteryAwareExecutor(minimumLevel?: number): {
+  execute<T>(task: () => T | Promise<T>, fallback?: () => T | Promise<T>): Promise<T | undefined>
+  canExecute(): Promise<boolean>
+}
 ```
 
 - `minimumLevel` — Minimum battery level to execute (0-1)
@@ -215,7 +220,14 @@ function createBatteryAwareExecutor(minimumLevel?: number): { execute<T>(task: (
 Format remaining time
 
 ```typescript
-function formatRemainingTime(seconds: number, t?: ((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string; }) => string)): string
+function formatRemainingTime(
+  seconds: number,
+  t?: (
+    key: string,
+    values?: Record<string, unknown>,
+    options?: { defaultValue?: string },
+  ) => string,
+): string
 ```
 
 - `seconds` — Remaining time in seconds
@@ -250,7 +262,14 @@ function getCapabilities(): Promise<BatteryCapabilities>
 Get charging state description
 
 ```typescript
-function getChargingStateText(state: ChargingState, t?: ((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string; }) => string)): string
+function getChargingStateText(
+  state: ChargingState,
+  t?: (
+    key: string,
+    values?: Record<string, unknown>,
+    options?: { defaultValue?: string },
+  ) => string,
+): string
 ```
 
 - `state` — Charging state
@@ -420,7 +439,10 @@ function toPercentage(level: number): number
 Wait for battery to reach a level
 
 ```typescript
-function waitForLevel(targetLevel: number, options?: { timeout?: number; checkInterval?: number; }): Promise<boolean>
+function waitForLevel(
+  targetLevel: number,
+  options?: { timeout?: number; checkInterval?: number },
+): Promise<boolean>
 ```
 
 - `targetLevel` — Target level (0-1)
@@ -435,6 +457,7 @@ function waitForLevel(targetLevel: number, options?: { timeout?: number; checkIn
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

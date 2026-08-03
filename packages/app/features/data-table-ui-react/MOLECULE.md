@@ -4,6 +4,7 @@ React data-table UI primitives (standalone — they render plain table
 elements and do not require `<Table>` from `@molecule/app-ui-react`).
 
 Exports:
+
 - `<DataTableCard>` — full polished-pattern data table (card wrapper +
   title + uppercase headers + divided rows + loading skeleton + empty
   state). Drop-in for the most common dashboard CRUD use case.
@@ -36,9 +37,11 @@ const columns = [
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-data-table-ui-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -168,6 +171,7 @@ interface TableToolbarProps {
 Drop-in card-shaped data table matching the polished flagship pattern.
 
 Renders:
+
 1. Optional title + action row
 2. Card-wrapped table with:
    - `bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm` outer
@@ -254,6 +258,7 @@ function TableToolbar({ left, right, below, className }: TableToolbarProps): JSX
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

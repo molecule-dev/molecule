@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                 | English               |
+| ------------------- | --------------------- |
 | `qrCode.aria.label` | QR code for {{value}} |
 
 ## Metadata

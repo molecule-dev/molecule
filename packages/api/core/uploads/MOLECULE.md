@@ -15,7 +15,9 @@ router.post('/files', async (req, res) => {
   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
   // busboy/multer yields (fieldname, stream, info) — validate BEFORE trusting it.
   if (!ALLOWED_TYPES.has(info.mimeType)) return res.status(415).json({ error: 'Unsupported type.' })
-  const file = getProvider().upload(fieldname, stream, info, (e) => res.status(500).json({ error: e.message }))
+  const file = getProvider().upload(fieldname, stream, info, (e) =>
+    res.status(500).json({ error: e.message }),
+  )
   await saveFileRow({ id: file.id, userId, name: info.filename }) // own it
   res.json({ id: file.id })
 })
@@ -30,9 +32,11 @@ router.get('/files/:id', async (req, res) => {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-uploads @molecule/api-bond @molecule/api-i18n
 ```
@@ -241,16 +245,17 @@ function setProvider(provider: UploadProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Local Filesystem | `@molecule/api-uploads-filesystem` |
-| AWS S3 / S3-compatible | `@molecule/api-uploads-s3` |
+| Provider               | Package                            |
+| ---------------------- | ---------------------------------- |
+| Local Filesystem       | `@molecule/api-uploads-filesystem` |
+| AWS S3 / S3-compatible | `@molecule/api-uploads-s3`         |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -302,18 +307,19 @@ handler around {@link UploadProvider.upload} / {@link UploadProvider.getFile} /
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Uploading a valid file through the UI shows progress/confirmation and the
-  file appears in the user's file list.
+      file appears in the user's file list.
 - [ ] The uploaded content is retrievable: opening/downloading it returns the
-  same content (an uploaded image actually renders).
+      same content (an uploaded image actually renders).
 - [ ] A disallowed file type is rejected with a visible error and does NOT
-  appear in the list.
+      appear in the list.
 - [ ] An over-the-cap file is rejected cleanly (visible error, no partial
-  phantom entry).
+      phantom entry).
 - [ ] Ownership is enforced: a second signed-in user cannot retrieve the first
-  user's file by its id/URL (404 — not the file).
+      user's file by its id/URL (404 — not the file).
 - [ ] Deleting a file removes it from the list, and it stays gone (and
-  unretrievable) after a full reload.
+      unretrievable) after a full reload.
 
 ## Translations
 

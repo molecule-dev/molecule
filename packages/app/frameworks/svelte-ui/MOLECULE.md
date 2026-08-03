@@ -28,9 +28,11 @@ generator family per `@molecule/app-ui` component interface.
 ```
 
 ## Type
+
 `framework`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui-svelte @molecule/app-i18n @molecule/app-icons @molecule/app-ui svelte
 ```
@@ -55,22 +57,22 @@ A single item in an Accordion component.
 
 ```typescript
 interface AccordionItem<T = string> {
-    /**
-     * Item value/id.
-     */
-    value: T;
-    /**
-     * Item header/trigger.
-     */
-    header: Children;
-    /**
-     * Item content.
-     */
-    content: Children;
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean;
+  /**
+   * Item value/id.
+   */
+  value: T
+  /**
+   * Item header/trigger.
+   */
+  header: Children
+  /**
+   * Item content.
+   */
+  content: Children
+  /**
+   * Whether the item is disabled.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -80,30 +82,30 @@ Props for the Accordion component.
 
 ```typescript
 interface AccordionProps<T = string> extends BaseProps {
-    /**
-     * Accordion items.
-     */
-    items: AccordionItem<T>[];
-    /**
-     * Expanded item(s).
-     */
-    value?: T | T[];
-    /**
-     * Default expanded item(s).
-     */
-    defaultValue?: T | T[];
-    /**
-     * Change handler.
-     */
-    onChange?: (value: T | T[]) => void;
-    /**
-     * Whether multiple items can be expanded.
-     */
-    multiple?: boolean;
-    /**
-     * Whether items can be collapsed.
-     */
-    collapsible?: boolean;
+  /**
+   * Accordion items.
+   */
+  items: AccordionItem<T>[]
+  /**
+   * Expanded item(s).
+   */
+  value?: T | T[]
+  /**
+   * Default expanded item(s).
+   */
+  defaultValue?: T | T[]
+  /**
+   * Change handler.
+   */
+  onChange?: (value: T | T[]) => void
+  /**
+   * Whether multiple items can be expanded.
+   */
+  multiple?: boolean
+  /**
+   * Whether items can be collapsed.
+   */
+  collapsible?: boolean
 }
 ```
 
@@ -124,39 +126,39 @@ Props for the Alert component.
 
 ```typescript
 interface AlertProps extends HTMLElementProps {
-    /**
-     * Alert content.
-     */
-    children?: Children;
-    /**
-     * Alert title.
-     */
-    title?: string;
-    /**
-     * Alert status/type.
-     */
-    status?: ColorVariant;
-    /**
-     * Alert variant.
-     */
-    variant?: 'solid' | 'subtle' | 'outline' | 'left-accent';
-    /**
-     * Whether the alert is dismissible.
-     */
-    dismissible?: boolean;
-    /**
-     * Called when dismissed.
-     */
-    onDismiss?: () => void;
-    /**
-     * Icon to display.
-     */
-    icon?: Children;
-    /**
-     * Accessible label for the dismiss button.
-     * @default 'Dismiss'
-     */
-    dismissLabel?: string;
+  /**
+   * Alert content.
+   */
+  children?: Children
+  /**
+   * Alert title.
+   */
+  title?: string
+  /**
+   * Alert status/type.
+   */
+  status?: ColorVariant
+  /**
+   * Alert variant.
+   */
+  variant?: 'solid' | 'subtle' | 'outline' | 'left-accent'
+  /**
+   * Whether the alert is dismissible.
+   */
+  dismissible?: boolean
+  /**
+   * Called when dismissed.
+   */
+  onDismiss?: () => void
+  /**
+   * Icon to display.
+   */
+  icon?: Children
+  /**
+   * Accessible label for the dismiss button.
+   * @default 'Dismiss'
+   */
+  dismissLabel?: string
 }
 ```
 
@@ -178,30 +180,30 @@ Props for the Avatar component.
 
 ```typescript
 interface AvatarProps extends HTMLElementProps {
-    /**
-     * Image source URL.
-     */
-    src?: string;
-    /**
-     * Alt text for the image.
-     */
-    alt?: string;
-    /**
-     * Name for fallback initials.
-     */
-    name?: string;
-    /**
-     * Avatar size.
-     */
-    size?: Size | number;
-    /**
-     * Whether the avatar is rounded.
-     */
-    rounded?: boolean;
-    /**
-     * Fallback element when no image.
-     */
-    fallback?: Children;
+  /**
+   * Image source URL.
+   */
+  src?: string
+  /**
+   * Alt text for the image.
+   */
+  alt?: string
+  /**
+   * Name for fallback initials.
+   */
+  name?: string
+  /**
+   * Avatar size.
+   */
+  size?: Size | number
+  /**
+   * Whether the avatar is rounded.
+   */
+  rounded?: boolean
+  /**
+   * Fallback element when no image.
+   */
+  fallback?: Children
 }
 ```
 
@@ -225,26 +227,26 @@ Props for the Badge component (status labels, counts, tags).
 
 ```typescript
 interface BadgeProps extends HTMLElementProps {
-    /**
-     * Badge content.
-     */
-    children?: Children;
-    /**
-     * Badge color.
-     */
-    color?: ColorVariant;
-    /**
-     * Badge variant.
-     */
-    variant?: 'solid' | 'outline' | 'subtle';
-    /**
-     * Badge size.
-     */
-    size?: Size;
-    /**
-     * Whether the badge is rounded.
-     */
-    rounded?: boolean;
+  /**
+   * Badge content.
+   */
+  children?: Children
+  /**
+   * Badge color.
+   */
+  color?: ColorVariant
+  /**
+   * Badge variant.
+   */
+  variant?: 'solid' | 'outline' | 'subtle'
+  /**
+   * Badge size.
+   */
+  size?: Size
+  /**
+   * Whether the badge is rounded.
+   */
+  rounded?: boolean
 }
 ```
 
@@ -254,29 +256,29 @@ Base props shared by all components.
 
 ```typescript
 interface BaseProps {
-    /**
-     * Additional CSS class name(s).
-     */
-    className?: string;
-    /**
-     * Inline styles.
-     */
-    style?: CSSProperties;
-    /**
-     * Test ID for automated testing.
-     */
-    testId?: string;
-    /**
-     * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
-     * HTML attribute. Use `molId()` from `./automation.js` to generate
-     * semantic IDs. (Tooling only — screen readers do not expose `data-*`
-     * attributes; accessible names come from labels/`aria-*`.)
-     */
-    automationId?: string;
-    /**
-     * Whether the component is disabled.
-     */
-    disabled?: boolean;
+  /**
+   * Additional CSS class name(s).
+   */
+  className?: string
+  /**
+   * Inline styles.
+   */
+  style?: CSSProperties
+  /**
+   * Test ID for automated testing.
+   */
+  testId?: string
+  /**
+   * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
+   * HTML attribute. Use `molId()` from `./automation.js` to generate
+   * semantic IDs. (Tooling only — screen readers do not expose `data-*`
+   * attributes; accessible names come from labels/`aria-*`.)
+   */
+  automationId?: string
+  /**
+   * Whether the component is disabled.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -302,10 +304,10 @@ Base props for button elements.
 
 ```typescript
 interface ButtonElementProps extends HTMLElementProps {
-    type?: 'button' | 'submit' | 'reset';
-    name?: string;
-    value?: string;
-    form?: string;
+  type?: 'button' | 'submit' | 'reset'
+  name?: string
+  value?: string
+  form?: string
 }
 ```
 
@@ -315,42 +317,42 @@ Props for the Button component.
 
 ```typescript
 interface ButtonProps extends ButtonElementProps {
-    /**
-     * Button content.
-     */
-    children?: Children;
-    /**
-     * Visual variant.
-     */
-    variant?: ButtonVariant;
-    /**
-     * Color scheme.
-     */
-    color?: ColorVariant;
-    /**
-     * Button size.
-     */
-    size?: ButtonSize;
-    /**
-     * Whether the button is in a loading state.
-     */
-    loading?: boolean;
-    /**
-     * Loading text to display.
-     */
-    loadingText?: string;
-    /**
-     * Whether the button takes full width.
-     */
-    fullWidth?: boolean;
-    /**
-     * Icon to display before the label.
-     */
-    leftIcon?: Children;
-    /**
-     * Icon to display after the label.
-     */
-    rightIcon?: Children;
+  /**
+   * Button content.
+   */
+  children?: Children
+  /**
+   * Visual variant.
+   */
+  variant?: ButtonVariant
+  /**
+   * Color scheme.
+   */
+  color?: ColorVariant
+  /**
+   * Button size.
+   */
+  size?: ButtonSize
+  /**
+   * Whether the button is in a loading state.
+   */
+  loading?: boolean
+  /**
+   * Loading text to display.
+   */
+  loadingText?: string
+  /**
+   * Whether the button takes full width.
+   */
+  fullWidth?: boolean
+  /**
+   * Icon to display before the label.
+   */
+  leftIcon?: Children
+  /**
+   * Icon to display after the label.
+   */
+  rightIcon?: Children
 }
 ```
 
@@ -373,22 +375,22 @@ Props for the Card container component (elevated, outlined, or filled surface).
 
 ```typescript
 interface CardProps extends HTMLElementProps {
-    /**
-     * Card content.
-     */
-    children?: Children;
-    /**
-     * Card variant.
-     */
-    variant?: 'elevated' | 'outlined' | 'filled';
-    /**
-     * Whether the card is interactive (clickable).
-     */
-    interactive?: boolean;
-    /**
-     * Padding size.
-     */
-    padding?: Size | 'none';
+  /**
+   * Card content.
+   */
+  children?: Children
+  /**
+   * Card variant.
+   */
+  variant?: 'elevated' | 'outlined' | 'filled'
+  /**
+   * Whether the card is interactive (clickable).
+   */
+  interactive?: boolean
+  /**
+   * Padding size.
+   */
+  padding?: Size | 'none'
 }
 ```
 
@@ -409,26 +411,26 @@ Props for the Checkbox component.
 
 ```typescript
 interface CheckboxProps extends InputElementProps {
-    /**
-     * Checkbox label.
-     */
-    label?: Children;
-    /**
-     * Whether the checkbox is checked.
-     */
-    checked?: boolean;
-    /**
-     * Whether the checkbox is in an indeterminate state.
-     */
-    indeterminate?: boolean;
-    /**
-     * Checkbox size.
-     */
-    size?: Size;
-    /**
-     * Error message.
-     */
-    error?: string;
+  /**
+   * Checkbox label.
+   */
+  label?: Children
+  /**
+   * Whether the checkbox is checked.
+   */
+  checked?: boolean
+  /**
+   * Whether the checkbox is in an indeterminate state.
+   */
+  indeterminate?: boolean
+  /**
+   * Checkbox size.
+   */
+  size?: Size
+  /**
+   * Error message.
+   */
+  error?: string
 }
 ```
 
@@ -450,22 +452,22 @@ Props for the Container layout component.
 
 ```typescript
 interface ContainerProps extends HTMLElementProps {
-    /**
-     * Container content.
-     */
-    children?: Children;
-    /**
-     * Maximum width.
-     */
-    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string;
-    /**
-     * Whether to center the container.
-     */
-    centered?: boolean;
-    /**
-     * Horizontal padding.
-     */
-    paddingX?: Size | string;
+  /**
+   * Container content.
+   */
+  children?: Children
+  /**
+   * Maximum width.
+   */
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string
+  /**
+   * Whether to center the container.
+   */
+  centered?: boolean
+  /**
+   * Horizontal padding.
+   */
+  paddingX?: Size | string
 }
 ```
 
@@ -476,7 +478,7 @@ Mirrors React.CSSProperties but without React dependency.
 
 ```typescript
 interface CSSProperties {
-    [key: string]: string | number | undefined;
+  [key: string]: string | number | undefined
 }
 ```
 
@@ -496,34 +498,34 @@ Dropdown menu item.
 
 ```typescript
 interface DropdownItem<T = string> {
-    /**
-     * Item value/id.
-     */
-    value: T;
-    /**
-     * Display label.
-     */
-    label: Children;
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean;
-    /**
-     * Icon to display.
-     */
-    icon?: Children;
-    /**
-     * Keyboard shortcut display.
-     */
-    shortcut?: string;
-    /**
-     * Whether this is a separator.
-     */
-    separator?: boolean;
-    /**
-     * Nested items (for submenus).
-     */
-    items?: DropdownItem<T>[];
+  /**
+   * Item value/id.
+   */
+  value: T
+  /**
+   * Display label.
+   */
+  label: Children
+  /**
+   * Whether the item is disabled.
+   */
+  disabled?: boolean
+  /**
+   * Icon to display.
+   */
+  icon?: Children
+  /**
+   * Keyboard shortcut display.
+   */
+  shortcut?: string
+  /**
+   * Whether this is a separator.
+   */
+  separator?: boolean
+  /**
+   * Nested items (for submenus).
+   */
+  items?: DropdownItem<T>[]
 }
 ```
 
@@ -544,38 +546,39 @@ Props for the Dropdown menu component.
 
 ```typescript
 interface DropdownProps<T = string> extends BaseProps {
-    /**
-     * Dropdown trigger element.
-     */
-    trigger: Children;
-    /**
-     * Dropdown items.
-     */
-    items: DropdownItem<T>[];
-    /**
-     * Called when an item is selected.
-     */
-    onSelect?: (value: T) => void;
-    /**
-     * Dropdown placement.
-     */
-    placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right';
-    /**
-     * Whether the dropdown is open (controlled).
-     */
-    open?: boolean;
-    /**
-     * Called when open state changes.
-     */
-    onOpenChange?: (open: boolean) => void;
-    /**
-     * Menu alignment.
-     */
-    align?: 'start' | 'center' | 'end';
-    /**
-     * Menu width.
-     */
-    width?: 'trigger' | 'auto' | number | string;
+  /**
+   * Dropdown trigger element.
+   */
+  trigger: Children
+  /**
+   * Dropdown items.
+   */
+  items: DropdownItem<T>[]
+  /**
+   * Called when an item is selected.
+   */
+  onSelect?: (value: T) => void
+  /**
+   * Dropdown placement.
+   */
+  placement?:
+    'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'right'
+  /**
+   * Whether the dropdown is open (controlled).
+   */
+  open?: boolean
+  /**
+   * Called when open state changes.
+   */
+  onOpenChange?: (open: boolean) => void
+  /**
+   * Menu alignment.
+   */
+  align?: 'start' | 'center' | 'end'
+  /**
+   * Menu width.
+   */
+  width?: 'trigger' | 'auto' | number | string
 }
 ```
 
@@ -600,30 +603,30 @@ Flex container props.
 
 ```typescript
 interface FlexProps extends HTMLElementProps {
-    /**
-     * Flex content.
-     */
-    children?: Children;
-    /**
-     * Flex direction.
-     */
-    direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
-    /**
-     * Justify content.
-     */
-    justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
-    /**
-     * Align items.
-     */
-    align?: 'start' | 'end' | 'center' | 'baseline' | 'stretch';
-    /**
-     * Flex wrap.
-     */
-    wrap?: 'wrap' | 'nowrap' | 'wrap-reverse';
-    /**
-     * Gap between items.
-     */
-    gap?: Size | string | number;
+  /**
+   * Flex content.
+   */
+  children?: Children
+  /**
+   * Flex direction.
+   */
+  direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
+  /**
+   * Justify content.
+   */
+  justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly'
+  /**
+   * Align items.
+   */
+  align?: 'start' | 'end' | 'center' | 'baseline' | 'stretch'
+  /**
+   * Flex wrap.
+   */
+  wrap?: 'wrap' | 'nowrap' | 'wrap-reverse'
+  /**
+   * Gap between items.
+   */
+  gap?: Size | string | number
 }
 ```
 
@@ -633,14 +636,14 @@ Base props for form elements.
 
 ```typescript
 interface FormElementProps extends HTMLElementProps {
-    action?: string;
-    method?: 'get' | 'post';
-    encType?: string;
-    target?: string;
-    noValidate?: boolean;
-    autoComplete?: 'on' | 'off';
-    onSubmit?: FormEventHandler;
-    onReset?: FormEventHandler;
+  action?: string
+  method?: 'get' | 'post'
+  encType?: string
+  target?: string
+  noValidate?: boolean
+  autoComplete?: 'on' | 'off'
+  onSubmit?: FormEventHandler
+  onReset?: FormEventHandler
 }
 ```
 
@@ -660,30 +663,30 @@ Form field wrapper props.
 
 ```typescript
 interface FormFieldProps extends HTMLElementProps {
-    /**
-     * Field content.
-     */
-    children?: Children;
-    /**
-     * Field label.
-     */
-    label?: string;
-    /**
-     * Field name.
-     */
-    name?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Whether the field is required.
-     */
-    required?: boolean;
+  /**
+   * Field content.
+   */
+  children?: Children
+  /**
+   * Field label.
+   */
+  label?: string
+  /**
+   * Field name.
+   */
+  name?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Whether the field is required.
+   */
+  required?: boolean
 }
 ```
 
@@ -693,18 +696,18 @@ Props for the Form component (wraps inputs with submission handling and validati
 
 ```typescript
 interface FormProps extends FormElementProps {
-    /**
-     * Form content.
-     */
-    children?: Children;
-    /**
-     * Submit handler with form data.
-     */
-    onFormSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
-    /**
-     * Whether the form is submitting.
-     */
-    submitting?: boolean;
+  /**
+   * Form content.
+   */
+  children?: Children
+  /**
+   * Submit handler with form data.
+   */
+  onFormSubmit?: (data: Record<string, unknown>) => void | Promise<void>
+  /**
+   * Whether the form is submitting.
+   */
+  submitting?: boolean
 }
 ```
 
@@ -729,30 +732,30 @@ Grid container props.
 
 ```typescript
 interface GridProps extends HTMLElementProps {
-    /**
-     * Grid content.
-     */
-    children?: Children;
-    /**
-     * Number of columns.
-     */
-    columns?: number | string;
-    /**
-     * Number of rows.
-     */
-    rows?: number | string;
-    /**
-     * Gap between items.
-     */
-    gap?: Size | string | number;
-    /**
-     * Column gap.
-     */
-    columnGap?: Size | string | number;
-    /**
-     * Row gap.
-     */
-    rowGap?: Size | string | number;
+  /**
+   * Grid content.
+   */
+  children?: Children
+  /**
+   * Number of columns.
+   */
+  columns?: number | string
+  /**
+   * Number of rows.
+   */
+  rows?: number | string
+  /**
+   * Gap between items.
+   */
+  gap?: Size | string | number
+  /**
+   * Column gap.
+   */
+  columnGap?: Size | string | number
+  /**
+   * Row gap.
+   */
+  rowGap?: Size | string | number
 }
 ```
 
@@ -763,33 +766,33 @@ Framework bindings should extend this with framework-specific attributes.
 
 ```typescript
 interface HTMLElementProps extends BaseProps {
-    id?: string;
-    title?: string;
-    tabIndex?: number;
-    role?: string;
-    'aria-label'?: string;
-    'aria-labelledby'?: string;
-    'aria-describedby'?: string;
-    'aria-hidden'?: boolean;
-    'aria-disabled'?: boolean;
-    'aria-expanded'?: boolean;
-    'aria-selected'?: boolean;
-    'aria-checked'?: boolean | 'mixed';
-    'aria-pressed'?: boolean | 'mixed';
-    'aria-invalid'?: boolean;
-    'aria-required'?: boolean;
-    'aria-readonly'?: boolean;
-    'aria-busy'?: boolean;
-    'aria-live'?: 'off' | 'polite' | 'assertive';
-    onClick?: MouseEventHandler;
-    onDoubleClick?: MouseEventHandler;
-    onMouseEnter?: MouseEventHandler;
-    onMouseLeave?: MouseEventHandler;
-    onFocus?: FocusEventHandler;
-    onBlur?: FocusEventHandler;
-    onKeyDown?: KeyboardEventHandler;
-    onKeyUp?: KeyboardEventHandler;
-    onKeyPress?: KeyboardEventHandler;
+  id?: string
+  title?: string
+  tabIndex?: number
+  role?: string
+  'aria-label'?: string
+  'aria-labelledby'?: string
+  'aria-describedby'?: string
+  'aria-hidden'?: boolean
+  'aria-disabled'?: boolean
+  'aria-expanded'?: boolean
+  'aria-selected'?: boolean
+  'aria-checked'?: boolean | 'mixed'
+  'aria-pressed'?: boolean | 'mixed'
+  'aria-invalid'?: boolean
+  'aria-required'?: boolean
+  'aria-readonly'?: boolean
+  'aria-busy'?: boolean
+  'aria-live'?: 'off' | 'polite' | 'assertive'
+  onClick?: MouseEventHandler
+  onDoubleClick?: MouseEventHandler
+  onMouseEnter?: MouseEventHandler
+  onMouseLeave?: MouseEventHandler
+  onFocus?: FocusEventHandler
+  onBlur?: FocusEventHandler
+  onKeyDown?: KeyboardEventHandler
+  onKeyUp?: KeyboardEventHandler
+  onKeyPress?: KeyboardEventHandler
 }
 ```
 
@@ -816,19 +819,19 @@ Base props for input elements.
 
 ```typescript
 interface InputElementProps extends HTMLElementProps {
-    name?: string;
-    value?: string | number | readonly string[];
-    defaultValue?: string | number | readonly string[];
-    placeholder?: string;
-    required?: boolean;
-    readOnly?: boolean;
-    autoFocus?: boolean;
-    autoComplete?: string;
-    maxLength?: number;
-    minLength?: number;
-    pattern?: string;
-    onChange?: ChangeEventHandler;
-    onInput?: FormEventHandler;
+  name?: string
+  value?: string | number | readonly string[]
+  defaultValue?: string | number | readonly string[]
+  placeholder?: string
+  required?: boolean
+  readOnly?: boolean
+  autoFocus?: boolean
+  autoComplete?: string
+  maxLength?: number
+  minLength?: number
+  pattern?: string
+  onChange?: ChangeEventHandler
+  onInput?: FormEventHandler
 }
 ```
 
@@ -838,52 +841,52 @@ Props for the Input component (text field, email, password, etc.).
 
 ```typescript
 interface InputProps extends InputElementProps {
-    /**
-     * Input type.
-     */
-    type?: InputType;
-    /**
-     * Input size.
-     */
-    size?: Size;
-    /**
-     * Horizontal text alignment inside the input (see
-     * {@link InputClassOptions.align}). Defaults to the bond's own style.
-     */
-    align?: 'left' | 'center';
-    /**
-     * Label text.
-     */
-    label?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Element to display on the left.
-     */
-    leftElement?: Children;
-    /**
-     * Element to display on the right.
-     */
-    rightElement?: Children;
-    /**
-     * Whether to show a clear button.
-     */
-    clearable?: boolean;
-    /**
-     * Called when the clear button is clicked.
-     */
-    onClear?: () => void;
-    /**
-     * Accessible label for the clear button.
-     * @default 'Clear'
-     */
-    clearLabel?: string;
+  /**
+   * Input type.
+   */
+  type?: InputType
+  /**
+   * Input size.
+   */
+  size?: Size
+  /**
+   * Horizontal text alignment inside the input (see
+   * {@link InputClassOptions.align}). Defaults to the bond's own style.
+   */
+  align?: 'left' | 'center'
+  /**
+   * Label text.
+   */
+  label?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Element to display on the left.
+   */
+  leftElement?: Children
+  /**
+   * Element to display on the right.
+   */
+  rightElement?: Children
+  /**
+   * Whether to show a clear button.
+   */
+  clearable?: boolean
+  /**
+   * Called when the clear button is clicked.
+   */
+  onClear?: () => void
+  /**
+   * Accessible label for the clear button.
+   * @default 'Clear'
+   */
+  clearLabel?: string
 }
 ```
 
@@ -904,55 +907,55 @@ Props for the Modal/Dialog component.
 
 ```typescript
 interface ModalProps extends HTMLElementProps {
-    /**
-     * Whether the modal is open.
-     */
-    open: boolean;
-    /**
-     * Called when the modal should close.
-     */
-    onClose: () => void;
-    /**
-     * Modal title.
-     */
-    title?: string;
-    /**
-     * Modal content.
-     */
-    children?: Children;
-    /**
-     * Modal size.
-     */
-    size?: ModalSize;
-    /**
-     * Whether to show a close button.
-     */
-    showCloseButton?: boolean;
-    /**
-     * Whether clicking the overlay closes the modal.
-     */
-    closeOnOverlayClick?: boolean;
-    /**
-     * Whether pressing Escape closes the modal.
-     */
-    closeOnEscape?: boolean;
-    /**
-     * Footer content (typically action buttons).
-     */
-    footer?: Children;
-    /**
-     * Whether the modal is centered vertically.
-     */
-    centered?: boolean;
-    /**
-     * Whether to prevent body scroll when open.
-     */
-    preventScroll?: boolean;
-    /**
-     * Accessible label for the close button.
-     * @default 'Close'
-     */
-    closeLabel?: string;
+  /**
+   * Whether the modal is open.
+   */
+  open: boolean
+  /**
+   * Called when the modal should close.
+   */
+  onClose: () => void
+  /**
+   * Modal title.
+   */
+  title?: string
+  /**
+   * Modal content.
+   */
+  children?: Children
+  /**
+   * Modal size.
+   */
+  size?: ModalSize
+  /**
+   * Whether to show a close button.
+   */
+  showCloseButton?: boolean
+  /**
+   * Whether clicking the overlay closes the modal.
+   */
+  closeOnOverlayClick?: boolean
+  /**
+   * Whether pressing Escape closes the modal.
+   */
+  closeOnEscape?: boolean
+  /**
+   * Footer content (typically action buttons).
+   */
+  footer?: Children
+  /**
+   * Whether the modal is centered vertically.
+   */
+  centered?: boolean
+  /**
+   * Whether to prevent body scroll when open.
+   */
+  preventScroll?: boolean
+  /**
+   * Accessible label for the close button.
+   * @default 'Close'
+   */
+  closeLabel?: string
 }
 ```
 
@@ -972,49 +975,49 @@ Props for the Pagination component (page navigation with current page, total, pa
 
 ```typescript
 interface PaginationProps extends BaseProps {
-    /**
-     * Current page (1-indexed).
-     */
-    page: number;
-    /**
-     * Total number of pages.
-     */
-    totalPages: number;
-    /**
-     * Page change handler.
-     */
-    onChange: (page: number) => void;
-    /**
-     * Number of sibling pages to show.
-     */
-    siblings?: number;
-    /**
-     * Number of boundary pages to show.
-     */
-    boundaries?: number;
-    /**
-     * Pagination size.
-     */
-    size?: Size;
-    /**
-     * Whether to show first/last buttons.
-     */
-    showFirstLast?: boolean;
-    /**
-     * Whether to show previous/next buttons.
-     */
-    showPrevNext?: boolean;
-    /**
-     * Accessible labels for pagination controls.
-     */
-    labels?: {
-        nav?: string;
-        first?: string;
-        previous?: string;
-        next?: string;
-        last?: string;
-        goToPage?: (page: number) => string;
-    };
+  /**
+   * Current page (1-indexed).
+   */
+  page: number
+  /**
+   * Total number of pages.
+   */
+  totalPages: number
+  /**
+   * Page change handler.
+   */
+  onChange: (page: number) => void
+  /**
+   * Number of sibling pages to show.
+   */
+  siblings?: number
+  /**
+   * Number of boundary pages to show.
+   */
+  boundaries?: number
+  /**
+   * Pagination size.
+   */
+  size?: Size
+  /**
+   * Whether to show first/last buttons.
+   */
+  showFirstLast?: boolean
+  /**
+   * Whether to show previous/next buttons.
+   */
+  showPrevNext?: boolean
+  /**
+   * Accessible labels for pagination controls.
+   */
+  labels?: {
+    nav?: string
+    first?: string
+    previous?: string
+    next?: string
+    last?: string
+    goToPage?: (page: number) => string
+  }
 }
 ```
 
@@ -1048,43 +1051,43 @@ Props for the RadioGroup component.
 
 ```typescript
 interface RadioGroupProps<T = string> extends BaseProps {
-    /**
-     * Radio options.
-     */
-    options: RadioOption<T>[];
-    /**
-     * Current value.
-     */
-    value?: T;
-    /**
-     * Change handler.
-     */
-    onChange?: (value: T) => void;
-    /**
-     * Radio size.
-     */
-    size?: Size;
-    /**
-     * Group label.
-     */
-    label?: string;
-    /**
-     * Shared `name` attribute for the group's radio inputs (used for native
-     * form submission). When omitted, a unique per-instance name is generated
-     * so separate groups never merge — the visible `label` is deliberately
-     * NOT used as the name, because two groups with the same label (e.g. two
-     * "Size" pickers) would otherwise form ONE native radio group and
-     * deselect each other.
-     */
-    name?: string;
-    /**
-     * Layout direction.
-     */
-    direction?: 'horizontal' | 'vertical';
-    /**
-     * Error message.
-     */
-    error?: string;
+  /**
+   * Radio options.
+   */
+  options: RadioOption<T>[]
+  /**
+   * Current value.
+   */
+  value?: T
+  /**
+   * Change handler.
+   */
+  onChange?: (value: T) => void
+  /**
+   * Radio size.
+   */
+  size?: Size
+  /**
+   * Group label.
+   */
+  label?: string
+  /**
+   * Shared `name` attribute for the group's radio inputs (used for native
+   * form submission). When omitted, a unique per-instance name is generated
+   * so separate groups never merge — the visible `label` is deliberately
+   * NOT used as the name, because two groups with the same label (e.g. two
+   * "Size" pickers) would otherwise form ONE native radio group and
+   * deselect each other.
+   */
+  name?: string
+  /**
+   * Layout direction.
+   */
+  direction?: 'horizontal' | 'vertical'
+  /**
+   * Error message.
+   */
+  error?: string
 }
 ```
 
@@ -1094,18 +1097,18 @@ A single option in a RadioGroup.
 
 ```typescript
 interface RadioOption<T = string> {
-    /**
-     * Option value.
-     */
-    value: T;
-    /**
-     * Display label.
-     */
-    label: Children;
-    /**
-     * Whether the option is disabled.
-     */
-    disabled?: boolean;
+  /**
+   * Option value.
+   */
+  value: T
+  /**
+   * Display label.
+   */
+  label: Children
+  /**
+   * Whether the option is disabled.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -1128,11 +1131,11 @@ Base props for select elements.
 
 ```typescript
 interface SelectElementProps extends HTMLElementProps {
-    name?: string;
-    required?: boolean;
-    autoFocus?: boolean;
-    multiple?: boolean;
-    onChange?: ChangeEventHandler;
+  name?: string
+  required?: boolean
+  autoFocus?: boolean
+  multiple?: boolean
+  onChange?: ChangeEventHandler
 }
 ```
 
@@ -1142,22 +1145,22 @@ A single option in a Select dropdown.
 
 ```typescript
 interface SelectOption<T = string> {
-    /**
-     * Option value.
-     */
-    value: T;
-    /**
-     * Display label.
-     */
-    label: string;
-    /**
-     * Whether the option is disabled.
-     */
-    disabled?: boolean;
-    /**
-     * Option group (for grouped selects).
-     */
-    group?: string;
+  /**
+   * Option value.
+   */
+  value: T
+  /**
+   * Display label.
+   */
+  label: string
+  /**
+   * Whether the option is disabled.
+   */
+  disabled?: boolean
+  /**
+   * Option group (for grouped selects).
+   */
+  group?: string
 }
 ```
 
@@ -1167,42 +1170,42 @@ Props for the Select dropdown component (single or multi-select).
 
 ```typescript
 interface SelectProps<T = string> extends SelectElementProps {
-    /**
-     * Select options.
-     */
-    options: SelectOption<T>[];
-    /**
-     * Current value.
-     */
-    value?: T;
-    /**
-     * Change handler (with typed value).
-     */
-    onValueChange?: (value: T) => void;
-    /**
-     * Select size.
-     */
-    size?: Size;
-    /**
-     * Label text.
-     */
-    label?: string;
-    /**
-     * Placeholder text.
-     */
-    placeholder?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Whether to allow clearing the selection.
-     */
-    clearable?: boolean;
+  /**
+   * Select options.
+   */
+  options: SelectOption<T>[]
+  /**
+   * Current value.
+   */
+  value?: T
+  /**
+   * Change handler (with typed value).
+   */
+  onValueChange?: (value: T) => void
+  /**
+   * Select size.
+   */
+  size?: Size
+  /**
+   * Label text.
+   */
+  label?: string
+  /**
+   * Placeholder text.
+   */
+  placeholder?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Whether to allow clearing the selection.
+   */
+  clearable?: boolean
 }
 ```
 
@@ -1223,14 +1226,14 @@ Props for the Separator/Divider component.
 
 ```typescript
 interface SeparatorProps extends BaseProps {
-    /**
-     * Separator orientation.
-     */
-    orientation?: 'horizontal' | 'vertical';
-    /**
-     * Whether the separator is decorative only.
-     */
-    decorative?: boolean;
+  /**
+   * Separator orientation.
+   */
+  orientation?: 'horizontal' | 'vertical'
+  /**
+   * Whether the separator is decorative only.
+   */
+  decorative?: boolean
 }
 ```
 
@@ -1252,26 +1255,26 @@ Props for the Skeleton loading placeholder component.
 
 ```typescript
 interface SkeletonProps extends BaseProps {
-    /**
-     * Skeleton width.
-     */
-    width?: string | number;
-    /**
-     * Skeleton height.
-     */
-    height?: string | number;
-    /**
-     * Whether the skeleton is circular.
-     */
-    circle?: boolean;
-    /**
-     * Border radius.
-     */
-    borderRadius?: string | number;
-    /**
-     * Animation type.
-     */
-    animation?: 'pulse' | 'wave' | 'none';
+  /**
+   * Skeleton width.
+   */
+  width?: string | number
+  /**
+   * Skeleton height.
+   */
+  height?: string | number
+  /**
+   * Whether the skeleton is circular.
+   */
+  circle?: boolean
+  /**
+   * Border radius.
+   */
+  borderRadius?: string | number
+  /**
+   * Animation type.
+   */
+  animation?: 'pulse' | 'wave' | 'none'
 }
 ```
 
@@ -1293,14 +1296,14 @@ Props for the Spacer layout component (adds whitespace between elements).
 
 ```typescript
 interface SpacerProps extends BaseProps {
-    /**
-     * Space size.
-     */
-    size?: Size | string | number;
-    /**
-     * Whether the spacer is horizontal.
-     */
-    horizontal?: boolean;
+  /**
+   * Space size.
+   */
+  size?: Size | string | number
+  /**
+   * Whether the spacer is horizontal.
+   */
+  horizontal?: boolean
 }
 ```
 
@@ -1322,22 +1325,22 @@ Props for the Spinner/loading indicator component.
 
 ```typescript
 interface SpinnerProps extends BaseProps {
-    /**
-     * Spinner size.
-     */
-    size?: Size;
-    /**
-     * Spinner color.
-     */
-    color?: ColorVariant | string;
-    /**
-     * Loading label (for accessibility).
-     */
-    label?: string;
-    /**
-     * Spinner thickness.
-     */
-    thickness?: number;
+  /**
+   * Spinner size.
+   */
+  size?: Size
+  /**
+   * Spinner color.
+   */
+  color?: ColorVariant | string
+  /**
+   * Loading label (for accessibility).
+   */
+  label?: string
+  /**
+   * Spinner thickness.
+   */
+  thickness?: number
 }
 ```
 
@@ -1360,22 +1363,22 @@ Props for the Switch/Toggle component.
 
 ```typescript
 interface SwitchProps extends InputElementProps {
-    /**
-     * Switch label.
-     */
-    label?: Children;
-    /**
-     * Whether the switch is on.
-     */
-    checked?: boolean;
-    /**
-     * Switch size.
-     */
-    size?: Size;
-    /**
-     * Color when on.
-     */
-    color?: ColorVariant;
+  /**
+   * Switch label.
+   */
+  label?: Children
+  /**
+   * Whether the switch is on.
+   */
+  checked?: boolean
+  /**
+   * Switch size.
+   */
+  size?: Size
+  /**
+   * Color when on.
+   */
+  color?: ColorVariant
 }
 ```
 
@@ -1385,26 +1388,26 @@ A single tab in a Tabs component.
 
 ```typescript
 interface TabItem<T = string> {
-    /**
-     * Tab value/id.
-     */
-    value: T;
-    /**
-     * Tab label.
-     */
-    label: Children;
-    /**
-     * Tab content.
-     */
-    content?: Children;
-    /**
-     * Whether the tab is disabled.
-     */
-    disabled?: boolean;
-    /**
-     * Icon to display.
-     */
-    icon?: Children;
+  /**
+   * Tab value/id.
+   */
+  value: T
+  /**
+   * Tab label.
+   */
+  label: Children
+  /**
+   * Tab content.
+   */
+  content?: Children
+  /**
+   * Whether the tab is disabled.
+   */
+  disabled?: boolean
+  /**
+   * Icon to display.
+   */
+  icon?: Children
 }
 ```
 
@@ -1425,30 +1428,30 @@ Table column definition.
 
 ```typescript
 interface TableColumn<T> {
-    /**
-     * Column key (data property).
-     */
-    key: keyof T | string;
-    /**
-     * Column header.
-     */
-    header: Children;
-    /**
-     * Custom cell renderer.
-     */
-    render?: (value: unknown, row: T, index: number) => Children;
-    /**
-     * Column width.
-     */
-    width?: string | number;
-    /**
-     * Whether the column is sortable.
-     */
-    sortable?: boolean;
-    /**
-     * Text alignment.
-     */
-    align?: 'left' | 'center' | 'right';
+  /**
+   * Column key (data property).
+   */
+  key: keyof T | string
+  /**
+   * Column header.
+   */
+  header: Children
+  /**
+   * Custom cell renderer.
+   */
+  render?: (value: unknown, row: T, index: number) => Children
+  /**
+   * Column width.
+   */
+  width?: string | number
+  /**
+   * Whether the column is sortable.
+   */
+  sortable?: boolean
+  /**
+   * Text alignment.
+   */
+  align?: 'left' | 'center' | 'right'
 }
 ```
 
@@ -1458,57 +1461,57 @@ Props for the Table component.
 
 ```typescript
 interface TableProps<T> extends HTMLElementProps {
-    /**
-     * Table data.
-     */
-    data: T[];
-    /**
-     * Column definitions.
-     */
-    columns: TableColumn<T>[];
-    /**
-     * Row key extractor.
-     */
-    rowKey?: keyof T | ((row: T) => string | number);
-    /**
-     * Whether to show borders.
-     */
-    bordered?: boolean;
-    /**
-     * Whether rows are striped.
-     */
-    striped?: boolean;
-    /**
-     * Whether rows are hoverable.
-     */
-    hoverable?: boolean;
-    /**
-     * Table size.
-     */
-    size?: Size;
-    /**
-     * Empty state content.
-     */
-    emptyContent?: Children;
-    /**
-     * Loading state.
-     */
-    loading?: boolean;
-    /**
-     * Sort configuration.
-     */
-    sort?: {
-        key: string;
-        direction: 'asc' | 'desc';
-    };
-    /**
-     * Sort change handler.
-     */
-    onSort?: (key: string, direction: 'asc' | 'desc') => void;
-    /**
-     * Row click handler.
-     */
-    onRowClick?: (row: T, index: number) => void;
+  /**
+   * Table data.
+   */
+  data: T[]
+  /**
+   * Column definitions.
+   */
+  columns: TableColumn<T>[]
+  /**
+   * Row key extractor.
+   */
+  rowKey?: keyof T | ((row: T) => string | number)
+  /**
+   * Whether to show borders.
+   */
+  bordered?: boolean
+  /**
+   * Whether rows are striped.
+   */
+  striped?: boolean
+  /**
+   * Whether rows are hoverable.
+   */
+  hoverable?: boolean
+  /**
+   * Table size.
+   */
+  size?: Size
+  /**
+   * Empty state content.
+   */
+  emptyContent?: Children
+  /**
+   * Loading state.
+   */
+  loading?: boolean
+  /**
+   * Sort configuration.
+   */
+  sort?: {
+    key: string
+    direction: 'asc' | 'desc'
+  }
+  /**
+   * Sort change handler.
+   */
+  onSort?: (key: string, direction: 'asc' | 'desc') => void
+  /**
+   * Row click handler.
+   */
+  onRowClick?: (row: T, index: number) => void
 }
 ```
 
@@ -1529,34 +1532,34 @@ Props for the Tabs component (switchable tabbed content panels).
 
 ```typescript
 interface TabsProps<T = string> extends BaseProps {
-    /**
-     * Tab items.
-     */
-    items: TabItem<T>[];
-    /**
-     * Current active tab.
-     */
-    value?: T;
-    /**
-     * Default active tab.
-     */
-    defaultValue?: T;
-    /**
-     * Change handler.
-     */
-    onChange?: (value: T) => void;
-    /**
-     * Tab variant.
-     */
-    variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded';
-    /**
-     * Tab size.
-     */
-    size?: Size;
-    /**
-     * Whether tabs are fitted (take full width).
-     */
-    fitted?: boolean;
+  /**
+   * Tab items.
+   */
+  items: TabItem<T>[]
+  /**
+   * Current active tab.
+   */
+  value?: T
+  /**
+   * Default active tab.
+   */
+  defaultValue?: T
+  /**
+   * Change handler.
+   */
+  onChange?: (value: T) => void
+  /**
+   * Tab variant.
+   */
+  variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'
+  /**
+   * Tab size.
+   */
+  size?: Size
+  /**
+   * Whether tabs are fitted (take full width).
+   */
+  fitted?: boolean
 }
 ```
 
@@ -1578,20 +1581,20 @@ Base props for textarea elements.
 
 ```typescript
 interface TextareaElementProps extends HTMLElementProps {
-    name?: string;
-    value?: string;
-    defaultValue?: string;
-    placeholder?: string;
-    required?: boolean;
-    readOnly?: boolean;
-    autoFocus?: boolean;
-    rows?: number;
-    cols?: number;
-    maxLength?: number;
-    minLength?: number;
-    wrap?: 'hard' | 'soft' | 'off';
-    onChange?: ChangeEventHandler;
-    onInput?: FormEventHandler;
+  name?: string
+  value?: string
+  defaultValue?: string
+  placeholder?: string
+  required?: boolean
+  readOnly?: boolean
+  autoFocus?: boolean
+  rows?: number
+  cols?: number
+  maxLength?: number
+  minLength?: number
+  wrap?: 'hard' | 'soft' | 'off'
+  onChange?: ChangeEventHandler
+  onInput?: FormEventHandler
 }
 ```
 
@@ -1601,35 +1604,35 @@ Props for the Textarea component.
 
 ```typescript
 interface TextareaProps extends TextareaElementProps {
-    /**
-     * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
-     * `size` as a neighboring Input for identical font sizes.
-     */
-    size?: Size;
-    /**
-     * Label text.
-     */
-    label?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Whether the textarea auto-resizes.
-     */
-    autoResize?: boolean;
-    /**
-     * Minimum number of rows.
-     */
-    minRows?: number;
-    /**
-     * Maximum number of rows.
-     */
-    maxRows?: number;
+  /**
+   * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
+   * `size` as a neighboring Input for identical font sizes.
+   */
+  size?: Size
+  /**
+   * Label text.
+   */
+  label?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Whether the textarea auto-resizes.
+   */
+  autoResize?: boolean
+  /**
+   * Minimum number of rows.
+   */
+  minRows?: number
+  /**
+   * Maximum number of rows.
+   */
+  maxRows?: number
 }
 ```
 
@@ -1665,43 +1668,43 @@ Props for the Toast/notification component.
 
 ```typescript
 interface ToastProps extends HTMLElementProps {
-    /**
-     * Toast content.
-     */
-    children?: Children;
-    /**
-     * Toast title.
-     */
-    title?: string;
-    /**
-     * Toast description.
-     */
-    description?: string;
-    /**
-     * Toast status/type.
-     */
-    status?: ColorVariant;
-    /**
-     * Duration in milliseconds (0 for persistent).
-     */
-    duration?: number;
-    /**
-     * Whether the toast is dismissible.
-     */
-    dismissible?: boolean;
-    /**
-     * Called when dismissed.
-     */
-    onDismiss?: () => void;
-    /**
-     * Toast position.
-     */
-    position?: 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left';
-    /**
-     * Accessible label for the close button.
-     * @default 'Close'
-     */
-    closeLabel?: string;
+  /**
+   * Toast content.
+   */
+  children?: Children
+  /**
+   * Toast title.
+   */
+  title?: string
+  /**
+   * Toast description.
+   */
+  description?: string
+  /**
+   * Toast status/type.
+   */
+  status?: ColorVariant
+  /**
+   * Duration in milliseconds (0 for persistent).
+   */
+  duration?: number
+  /**
+   * Whether the toast is dismissible.
+   */
+  dismissible?: boolean
+  /**
+   * Called when dismissed.
+   */
+  onDismiss?: () => void
+  /**
+   * Toast position.
+   */
+  position?: 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
+  /**
+   * Accessible label for the close button.
+   * @default 'Close'
+   */
+  closeLabel?: string
 }
 ```
 
@@ -1732,26 +1735,26 @@ Props for the Tooltip component (hover/focus popover with informational text).
 
 ```typescript
 interface TooltipProps extends HTMLElementProps {
-    /**
-     * Tooltip content.
-     */
-    content: Children;
-    /**
-     * Element that triggers the tooltip.
-     */
-    children: Children;
-    /**
-     * Tooltip placement.
-     */
-    placement?: TooltipPlacement;
-    /**
-     * Delay before showing (ms).
-     */
-    delay?: number;
-    /**
-     * Whether the tooltip has an arrow.
-     */
-    hasArrow?: boolean;
+  /**
+   * Tooltip content.
+   */
+  content: Children
+  /**
+   * Element that triggers the tooltip.
+   */
+  children: Children
+  /**
+   * Tooltip placement.
+   */
+  placement?: TooltipPlacement
+  /**
+   * Delay before showing (ms).
+   */
+  delay?: number
+  /**
+   * Whether the tooltip has an arrow.
+   */
+  hasArrow?: boolean
 }
 ```
 
@@ -1762,7 +1765,7 @@ interface TooltipProps extends HTMLElementProps {
 Button visual variant styles.
 
 ```typescript
-type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link';
+type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link'
 ```
 
 #### `ChangeEventHandler`
@@ -1770,7 +1773,7 @@ type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link';
 Framework-agnostic change event handler.
 
 ```typescript
-type ChangeEventHandler = EventHandler<Event>;
+type ChangeEventHandler = EventHandler<Event>
 ```
 
 #### `Children`
@@ -1779,7 +1782,7 @@ Framework-agnostic child content.
 Use `unknown` to allow any framework's node type (ReactNode, VNode, etc.).
 
 ```typescript
-type Children = unknown;
+type Children = unknown
 ```
 
 #### `ColorVariant`
@@ -1787,7 +1790,7 @@ type Children = unknown;
 Semantic color variants used across components for status indication.
 
 ```typescript
-type ColorVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+type ColorVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
 ```
 
 #### `DropdownAlign`
@@ -1812,7 +1815,7 @@ type DropdownPlacement =
 Framework-agnostic event handler.
 
 ```typescript
-type EventHandler<E = Event> = (event: E) => void;
+type EventHandler<E = Event> = (event: E) => void
 ```
 
 #### `FocusEventHandler`
@@ -1820,7 +1823,7 @@ type EventHandler<E = Event> = (event: E) => void;
 Framework-agnostic focus event handler.
 
 ```typescript
-type FocusEventHandler = EventHandler<FocusEvent>;
+type FocusEventHandler = EventHandler<FocusEvent>
 ```
 
 #### `FormEventHandler`
@@ -1828,7 +1831,7 @@ type FocusEventHandler = EventHandler<FocusEvent>;
 Framework-agnostic form event handler.
 
 ```typescript
-type FormEventHandler = EventHandler<Event>;
+type FormEventHandler = EventHandler<Event>
 ```
 
 #### `InputType`
@@ -1836,7 +1839,17 @@ type FormEventHandler = EventHandler<Event>;
 Allowed HTML input type attribute values for the Input component.
 
 ```typescript
-type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time' | 'datetime-local';
+type InputType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
+  | 'tel'
+  | 'url'
+  | 'search'
+  | 'date'
+  | 'time'
+  | 'datetime-local'
 ```
 
 #### `KeyboardEventHandler`
@@ -1844,7 +1857,7 @@ type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'sea
 Framework-agnostic keyboard event handler.
 
 ```typescript
-type KeyboardEventHandler = EventHandler<KeyboardEvent>;
+type KeyboardEventHandler = EventHandler<KeyboardEvent>
 ```
 
 #### `ModalSize`
@@ -1852,7 +1865,7 @@ type KeyboardEventHandler = EventHandler<KeyboardEvent>;
 Modal size variants including full-screen.
 
 ```typescript
-type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 ```
 
 #### `MouseEventHandler`
@@ -1860,7 +1873,7 @@ type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 Framework-agnostic mouse event handler.
 
 ```typescript
-type MouseEventHandler = EventHandler<MouseEvent>;
+type MouseEventHandler = EventHandler<MouseEvent>
 ```
 
 #### `Size`
@@ -1868,7 +1881,7 @@ type MouseEventHandler = EventHandler<MouseEvent>;
 Standard size scale used across all molecule UI components (buttons, inputs, badges, etc.).
 
 ```typescript
-type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 ```
 
 #### `ToastPosition`
@@ -1876,8 +1889,7 @@ type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 Toast position type.
 
 ```typescript
-type ToastPosition =
-  'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
+type ToastPosition = 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 ```
 
 #### `TooltipPlacement`
@@ -1885,7 +1897,8 @@ type ToastPosition =
 Position where a tooltip renders relative to its trigger element (top, bottom, left, right, and corner variants).
 
 ```typescript
-type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
+type TooltipPlacement =
+  'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'
 ```
 
 ### Functions
@@ -1895,7 +1908,13 @@ type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top
 Calculate dropdown menu position based on trigger element and placement.
 
 ```typescript
-function calculateDropdownPosition(triggerRect: DOMRect, menuRect: DOMRect, placement: DropdownPlacement, align?: DropdownAlign, offset?: number): DropdownPosition
+function calculateDropdownPosition(
+  triggerRect: DOMRect,
+  menuRect: DOMRect,
+  placement: DropdownPlacement,
+  align?: DropdownAlign,
+  offset?: number,
+): DropdownPosition
 ```
 
 - `triggerRect` — The bounding rect of the trigger element.
@@ -1911,7 +1930,12 @@ function calculateDropdownPosition(triggerRect: DOMRect, menuRect: DOMRect, plac
 Calculate tooltip position based on trigger and tooltip element rects.
 
 ```typescript
-function calculateTooltipPosition(triggerRect: DOMRect, tooltipRect: DOMRect, placement: TooltipPlacement, offset?: number): TooltipPosition
+function calculateTooltipPosition(
+  triggerRect: DOMRect,
+  tooltipRect: DOMRect,
+  placement: TooltipPlacement,
+  offset?: number,
+): TooltipPosition
 ```
 
 - `triggerRect` — The bounding rect of the trigger element.
@@ -1926,6 +1950,7 @@ function calculateTooltipPosition(triggerRect: DOMRect, tooltipRect: DOMRect, pl
 Merge class names, filtering out falsy values.
 
 Use this in Svelte components to conditionally combine classes:
+
 ```svelte
 <script>
   import { cn } from '@molecule/app-ui-svelte'
@@ -1950,7 +1975,11 @@ Create a toast store helper for Svelte stores.
 Returns functions for managing toast state in a Svelte writable store.
 
 ```typescript
-function createToastHelpers(): { getToasts(): ToastData[]; addToast(toast: Omit<ToastData, "id">): string; removeToast(id: string): void; }
+function createToastHelpers(): {
+  getToasts(): ToastData[]
+  addToast(toast: Omit<ToastData, 'id'>): string
+  removeToast(id: string): void
+}
 ```
 
 **Returns:** An object with getToasts, addToast, and removeToast methods.
@@ -1961,7 +1990,12 @@ Generate a pagination range with page numbers and 'ellipsis' markers.
 Used by pagination components to render page navigation controls.
 
 ```typescript
-function generatePaginationRange(currentPage: number, totalPages: number, siblings: number, boundaries: number): (number | "ellipsis")[]
+function generatePaginationRange(
+  currentPage: number,
+  totalPages: number,
+  siblings: number,
+  boundaries: number,
+): (number | 'ellipsis')[]
 ```
 
 - `currentPage` — The currently active page number (1-indexed).
@@ -2006,6 +2040,7 @@ function getAccordionChevronIconData(): IconData
 Generate classes for the accordion container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import {
@@ -2088,6 +2123,7 @@ function getAccordionTriggerClasses(className?: string): string
 Generate classes for an alert container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getAlertClasses, getAlertTitleClass, getAlertDescriptionClass } from '@molecule/app-ui-svelte'
@@ -2175,6 +2211,7 @@ function getAlertTitleClass(): string
 Generate classes for the avatar container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getAvatarClasses, getAvatarImageClass, getAvatarFallbackClass, getAvatarCustomSize } from '@molecule/app-ui-svelte'
@@ -2264,6 +2301,7 @@ function getAvatarInitialsClass(): string
 Generate classes for a badge element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getBadgeClasses } from '@molecule/app-ui-svelte'
@@ -2287,6 +2325,7 @@ function getBadgeClasses(options?: BadgeClassOptions): string
 Generate classes for a button component.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getButtonClasses } from '@molecule/app-ui-svelte'
@@ -2312,6 +2351,7 @@ function getButtonClasses(options?: ButtonClassOptions): string
 Generate classes for a card container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getCardClasses, getCardHeaderClass, getCardTitleClass, getCardContentClass, getCardFooterClass } from '@molecule/app-ui-svelte'
@@ -2378,7 +2418,7 @@ function getCardHeaderClass(): string
 Gets the card padding map.
 
 ```typescript
-function getCardPaddingMap(): Record<Size | "none", string>
+function getCardPaddingMap(): Record<Size | 'none', string>
 ```
 
 **Returns:** The result.
@@ -2398,6 +2438,7 @@ function getCardTitleClass(): string
 Generate classes for a checkbox input element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getCheckboxClasses, checkboxLabelWrapperClass } from '@molecule/app-ui-svelte'
@@ -2458,6 +2499,7 @@ function getCheckboxLabelWrapperClass(): string
 Generate classes for a container element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getContainerClasses, getContainerCustomStyle } from '@molecule/app-ui-svelte'
@@ -2497,6 +2539,7 @@ function getContainerCustomStyle(maxWidth: string): Record<string, string> | und
 Generate classes for the dropdown menu content container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import {
@@ -2542,7 +2585,7 @@ function getDropdownContentClasses(options?: DropdownContentClassOptions): strin
 Generate classes for a dropdown menu item.
 
 ```typescript
-function getDropdownItemClasses(options?: { disabled?: boolean; className?: string; }): string
+function getDropdownItemClasses(options?: { disabled?: boolean; className?: string }): string
 ```
 
 - `options` — The options.
@@ -2616,6 +2659,7 @@ function getDropdownTriggerClass(): string
 Generate classes for a flex container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getFlexClasses, getFlexGapStyle } from '@molecule/app-ui-svelte'
@@ -2666,6 +2710,7 @@ function getFormErrorClass(): string
 Generate classes for a form field wrapper.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getFormFieldClasses, getFormLabelClasses, getFormErrorClass, getFormHintClass } from '@molecule/app-ui-svelte'
@@ -2715,7 +2760,7 @@ function getFormHintClass(): string
 Generate classes for a form label.
 
 ```typescript
-function getFormLabelClasses(options?: { required?: boolean; className?: string; }): string
+function getFormLabelClasses(options?: { required?: boolean; className?: string }): string
 ```
 
 - `options` — The options.
@@ -2729,6 +2774,7 @@ function getFormLabelClasses(options?: { required?: boolean; className?: string;
 Generate classes for a grid container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getGridClasses, getGridStyle } from '@molecule/app-ui-svelte'
@@ -2793,6 +2839,7 @@ function getInitials(name: string): string
 Generate classes for an input element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getInputClasses } from '@molecule/app-ui-svelte'
@@ -2856,7 +2903,7 @@ function getInputInnerClass(): string
 Generate classes for an input label.
 
 ```typescript
-function getInputLabelClasses(options?: { required?: boolean; className?: string; }): string
+function getInputLabelClasses(options?: { required?: boolean; className?: string }): string
 ```
 
 - `options` — The options.
@@ -2920,6 +2967,7 @@ function getModalCloseClass(): string
 Generate classes for the modal content container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getModalContentClasses, getModalOverlayClass, getModalWrapperClass, getModalHeaderClass, getModalTitleClass, getModalCloseClass, getModalBodyClass } from '@molecule/app-ui-svelte'
@@ -3018,6 +3066,7 @@ is expressed via the one inline-style exception the workspace styling rule
 allows for values ClassMap genuinely cannot express.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getModalWrapperClass, getModalWrapperStyle } from '@molecule/app-ui-svelte'
@@ -3042,6 +3091,7 @@ function getModalWrapperStyle(centered?: boolean): Record<string, string> | unde
 Generate classes for the pagination nav container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import {
@@ -3118,7 +3168,11 @@ function getPaginationIconData(direction: string): IconData
 Generate classes for a pagination button item.
 
 ```typescript
-function getPaginationItemClasses(options?: { active?: boolean; size?: Size; className?: string; }): string
+function getPaginationItemClasses(options?: {
+  active?: boolean
+  size?: Size
+  className?: string
+}): string
 ```
 
 - `options` — The options.
@@ -3133,6 +3187,7 @@ function getPaginationItemClasses(options?: { active?: boolean; size?: Size; cla
 Generate classes for the progress bar track.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getProgressClasses, getProgressIndicatorClasses, getProgressPercentage } from '@molecule/app-ui-svelte'
@@ -3164,7 +3219,11 @@ function getProgressClasses(options?: ProgressClassOptions): string
 Generate classes for the progress indicator bar.
 
 ```typescript
-function getProgressIndicatorClasses(options?: { color?: ColorVariant; indeterminate?: boolean; className?: string; }): string
+function getProgressIndicatorClasses(options?: {
+  color?: ColorVariant
+  indeterminate?: boolean
+  className?: string
+}): string
 ```
 
 - `options` — The options.
@@ -3222,6 +3281,7 @@ function getProgressWrapperClass(): string
 Generate classes for a radio input element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getRadioClasses, getRadioGroupClasses } from '@molecule/app-ui-svelte'
@@ -3257,7 +3317,7 @@ function getRadioErrorClass(className?: string): string
 Generate the flex container class for the radio options.
 
 ```typescript
-function getRadioGroupClasses(direction?: "horizontal" | "vertical"): string
+function getRadioGroupClasses(direction?: 'horizontal' | 'vertical'): string
 ```
 
 - `direction` — The layout direction of the radio group.
@@ -3313,6 +3373,7 @@ function getSelectChevronIconData(): IconData
 Generate classes for a select element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getSelectClasses } from '@molecule/app-ui-svelte'
@@ -3368,7 +3429,7 @@ function getSelectInnerClass(): string
 Generate classes for a select label.
 
 ```typescript
-function getSelectLabelClasses(options?: { required?: boolean; className?: string; }): string
+function getSelectLabelClasses(options?: { required?: boolean; className?: string }): string
 ```
 
 - `options` — The options.
@@ -3392,6 +3453,7 @@ function getSelectWrapperClass(): string
 Generate classes for a separator element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getSeparatorClasses } from '@molecule/app-ui-svelte'
@@ -3419,6 +3481,7 @@ function getSeparatorClasses(options?: SeparatorClassOptions): string
 Generate classes for a skeleton element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getSkeletonClasses, getSkeletonStyle } from '@molecule/app-ui-svelte'
@@ -3445,7 +3508,12 @@ function getSkeletonClasses(options?: SkeletonClassOptions): string
 Generate inline style for a skeleton element.
 
 ```typescript
-function getSkeletonStyle(options: { width?: string | number; height?: string | number; circle?: boolean; borderRadius?: string | number; }): string
+function getSkeletonStyle(options: {
+  width?: string | number
+  height?: string | number
+  circle?: boolean
+  borderRadius?: string | number
+}): string
 ```
 
 - `options` — The style options.
@@ -3461,7 +3529,7 @@ function getSkeletonStyle(options: { width?: string | number; height?: string | 
 Generate classes and style for a SkeletonText component (multiple lines).
 
 ```typescript
-function getSkeletonTextConfig(lines?: number): { width: string; height: number; }[]
+function getSkeletonTextConfig(lines?: number): { width: string; height: number }[]
 ```
 
 - `lines` — The lines.
@@ -3483,7 +3551,7 @@ function getSkeletonTextContainerClass(): string
 Get icon data for a table sort direction indicator.
 
 ```typescript
-function getSortIconData(direction: "asc" | "desc"): IconData
+function getSortIconData(direction: 'asc' | 'desc'): IconData
 ```
 
 - `direction` — Sort direction ('asc' or 'desc')
@@ -3495,6 +3563,7 @@ function getSortIconData(direction: "asc" | "desc"): IconData
 Generate classes for a spacer element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getSpacerClasses, getSpacerStyle } from '@molecule/app-ui-svelte'
@@ -3531,6 +3600,7 @@ function getSpacerStyle(options?: SpacerClassOptions): string
 Generate classes for a spinner element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getSpinnerClasses, getSpinnerColorStyle } from '@molecule/app-ui-svelte'
@@ -3581,6 +3651,7 @@ function getSpinnerSrOnlyClass(): string
 Generate classes for the switch track element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getSwitchClasses, getSwitchThumbClasses, getSwitchWrapperClasses } from '@molecule/app-ui-svelte'
@@ -3623,7 +3694,7 @@ function getSwitchLabelTextClass(): string
 Generate classes for the switch thumb element.
 
 ```typescript
-function getSwitchThumbClasses(options?: { size?: Size; }): string
+function getSwitchThumbClasses(options?: { size?: Size }): string
 ```
 
 - `options` — The options.
@@ -3636,7 +3707,7 @@ function getSwitchThumbClasses(options?: { size?: Size; }): string
 Generate classes for the switch wrapper (label element).
 
 ```typescript
-function getSwitchWrapperClasses(options?: { disabled?: boolean; }): string
+function getSwitchWrapperClasses(options?: { disabled?: boolean }): string
 ```
 
 - `options` — The options.
@@ -3659,7 +3730,10 @@ function getTableBodyClass(): string
 Generate classes for a table data cell.
 
 ```typescript
-function getTableCellClasses(options?: { align?: "left" | "center" | "right"; className?: string; }): string
+function getTableCellClasses(options?: {
+  align?: 'left' | 'center' | 'right'
+  className?: string
+}): string
 ```
 
 - `options` — The options.
@@ -3673,6 +3747,7 @@ function getTableCellClasses(options?: { align?: "left" | "center" | "right"; cl
 Generate classes for the table element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import {
@@ -3729,7 +3804,11 @@ function getTableEmptyCellClass(): string
 Generate classes for a table header cell.
 
 ```typescript
-function getTableHeadClasses(options?: { align?: "left" | "center" | "right"; sortable?: boolean; className?: string; }): string
+function getTableHeadClasses(options?: {
+  align?: 'left' | 'center' | 'right'
+  sortable?: boolean
+  className?: string
+}): string
 ```
 
 - `options` — The options.
@@ -3764,7 +3843,13 @@ function getTableLoadingOverlayClass(): string
 Generate classes for a table row.
 
 ```typescript
-function getTableRowClasses(options?: { striped?: boolean; hoverable?: boolean; index?: number; clickable?: boolean; className?: string; }): string
+function getTableRowClasses(options?: {
+  striped?: boolean
+  hoverable?: boolean
+  index?: number
+  clickable?: boolean
+  className?: string
+}): string
 ```
 
 - `options` — The options.
@@ -3821,6 +3906,7 @@ function getTabsContentClass(): string
 Generate classes for the tabs list container.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getTabsListClasses, getTabsTriggerClasses, getTabsContentClass } from '@molecule/app-ui-svelte'
@@ -3861,7 +3947,7 @@ function getTabsListClasses(options?: TabsListClassOptions): string
 Generate classes for a tab trigger button.
 
 ```typescript
-function getTabsTriggerClasses(options?: { fitted?: boolean; className?: string; }): string
+function getTabsTriggerClasses(options?: { fitted?: boolean; className?: string }): string
 ```
 
 - `options` — The options.
@@ -3875,6 +3961,7 @@ function getTabsTriggerClasses(options?: { fitted?: boolean; className?: string;
 Generate classes for a textarea element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getTextareaClasses } from '@molecule/app-ui-svelte'
@@ -3917,7 +4004,7 @@ function getTextareaHintClass(): string
 Generate classes for a textarea label.
 
 ```typescript
-function getTextareaLabelClasses(options?: { required?: boolean; className?: string; }): string
+function getTextareaLabelClasses(options?: { required?: boolean; className?: string }): string
 ```
 
 - `options` — The options.
@@ -3941,6 +4028,7 @@ function getTextareaWrapperClass(): string
 Generate classes for a toast element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getToastClasses, getToastTitleClass, getToastDescriptionClass, getToastCloseClass } from '@molecule/app-ui-svelte'
@@ -4067,6 +4155,7 @@ sets `overflow-hidden`, which would clip an arrow meant to poke past the
 box's own edge.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getTooltipClasses, getTooltipArrowStyle } from '@molecule/app-ui-svelte'
@@ -4094,6 +4183,7 @@ function getTooltipArrowStyle(placement: TooltipPlacement): Record<string, strin
 Generate classes for the tooltip content element.
 
 Usage in Svelte:
+
 ```svelte
 <script>
   import { getTooltipClasses, calculateTooltipPosition } from '@molecule/app-ui-svelte'
@@ -4149,7 +4239,11 @@ Helper to manage accordion expanded state.
 Handles single/multiple expansion and collapsibility logic.
 
 ```typescript
-function toggleAccordionItem(expandedItems: string[], itemValue: string, options?: { multiple?: boolean; collapsible?: boolean; }): string[]
+function toggleAccordionItem(
+  expandedItems: string[],
+  itemValue: string,
+  options?: { multiple?: boolean; collapsible?: boolean },
+): string[]
 ```
 
 - `expandedItems` — The currently expanded item values.
@@ -4162,7 +4256,7 @@ function toggleAccordionItem(expandedItems: string[], itemValue: string, options
 
 ### Constants
 
-#### `accordionChevronClass` *(deprecated)*
+#### `accordionChevronClass` _(deprecated)_
 
 Accordion chevron class constant.
 
@@ -4170,7 +4264,7 @@ Accordion chevron class constant.
 const accordionChevronClass: string
 ```
 
-#### `alertContentClass` *(deprecated)*
+#### `alertContentClass` _(deprecated)_
 
 Alert content class constant.
 
@@ -4178,7 +4272,7 @@ Alert content class constant.
 const alertContentClass: string
 ```
 
-#### `alertDismissClass` *(deprecated)*
+#### `alertDismissClass` _(deprecated)_
 
 Alert dismiss class constant.
 
@@ -4199,10 +4293,13 @@ const alertIconClass: string
 Re-export status variant map for direct access.
 
 ```typescript
-const alertStatusVariantMap: Record<ColorVariant, "success" | "warning" | "error" | "info" | "default">
+const alertStatusVariantMap: Record<
+  ColorVariant,
+  'success' | 'warning' | 'error' | 'info' | 'default'
+>
 ```
 
-#### `avatarInitialsClass` *(deprecated)*
+#### `avatarInitialsClass` _(deprecated)_
 
 Avatar initials class constant.
 
@@ -4215,7 +4312,7 @@ const avatarInitialsClass: string
 Map of card padding.
 
 ```typescript
-const cardPaddingMap: Record<Size | "none", string>
+const cardPaddingMap: Record<Size | 'none', string>
 ```
 
 #### `checkboxContainerClass`
@@ -4226,7 +4323,7 @@ Container class for the checkbox component.
 const checkboxContainerClass: string
 ```
 
-#### `checkboxLabelWrapperClass` *(deprecated)*
+#### `checkboxLabelWrapperClass` _(deprecated)_
 
 Checkbox label wrapper class constant.
 
@@ -4234,7 +4331,7 @@ Checkbox label wrapper class constant.
 const checkboxLabelWrapperClass: string
 ```
 
-#### `dropdownItemIconClass` *(deprecated)*
+#### `dropdownItemIconClass` _(deprecated)_
 
 Dropdown item icon class constant.
 
@@ -4242,7 +4339,7 @@ Dropdown item icon class constant.
 const dropdownItemIconClass: string
 ```
 
-#### `dropdownItemLabelClass` *(deprecated)*
+#### `dropdownItemLabelClass` _(deprecated)_
 
 Dropdown item label class constant.
 
@@ -4266,7 +4363,7 @@ The dropdown trigger class.
 const dropdownTriggerClass: string
 ```
 
-#### `formFieldsetClass` *(deprecated)*
+#### `formFieldsetClass` _(deprecated)_
 
 Form fieldset class constant.
 
@@ -4274,7 +4371,7 @@ Form fieldset class constant.
 const formFieldsetClass: string
 ```
 
-#### `inputClearButtonClass` *(deprecated)*
+#### `inputClearButtonClass` _(deprecated)_
 
 Input clear button class constant.
 
@@ -4282,7 +4379,7 @@ Input clear button class constant.
 const inputClearButtonClass: string
 ```
 
-#### `inputLeftElementClass` *(deprecated)*
+#### `inputLeftElementClass` _(deprecated)_
 
 Input left element class constant.
 
@@ -4290,7 +4387,7 @@ Input left element class constant.
 const inputLeftElementClass: string
 ```
 
-#### `inputRelativeClass` *(deprecated)*
+#### `inputRelativeClass` _(deprecated)_
 
 Input relative class constant.
 
@@ -4298,7 +4395,7 @@ Input relative class constant.
 const inputRelativeClass: string
 ```
 
-#### `inputRightElementClass` *(deprecated)*
+#### `inputRightElementClass` _(deprecated)_
 
 Input right element class constant.
 
@@ -4314,7 +4411,7 @@ The input wrapper class.
 const inputWrapperClass: string
 ```
 
-#### `modalBodyClass` *(deprecated)*
+#### `modalBodyClass` _(deprecated)_
 
 Modal body class.
 
@@ -4322,7 +4419,7 @@ Modal body class.
 const modalBodyClass: string
 ```
 
-#### `progressColorMap` *(deprecated)*
+#### `progressColorMap` _(deprecated)_
 
 Progress color map constant.
 
@@ -4330,7 +4427,7 @@ Progress color map constant.
 const progressColorMap: Record<ColorVariant, string>
 ```
 
-#### `progressLabelClass` *(deprecated)*
+#### `progressLabelClass` _(deprecated)_
 
 Progress label class constant.
 
@@ -4346,7 +4443,7 @@ The progress label container class.
 const progressLabelContainerClass: string
 ```
 
-#### `progressSizeHeightMap` *(deprecated)*
+#### `progressSizeHeightMap` _(deprecated)_
 
 Progress size height map constant.
 
@@ -4354,7 +4451,7 @@ Progress size height map constant.
 const progressSizeHeightMap: Record<Size, string>
 ```
 
-#### `progressWrapperClass` *(deprecated)*
+#### `progressWrapperClass` _(deprecated)_
 
 Progress wrapper class constant.
 
@@ -4362,7 +4459,7 @@ Progress wrapper class constant.
 const progressWrapperClass: string
 ```
 
-#### `radioOptionTextClass` *(deprecated)*
+#### `radioOptionTextClass` _(deprecated)_
 
 Radio option text class constant.
 
@@ -4370,7 +4467,7 @@ Radio option text class constant.
 const radioOptionTextClass: string
 ```
 
-#### `selectRelativeClass` *(deprecated)*
+#### `selectRelativeClass` _(deprecated)_
 
 Select relative class constant.
 
@@ -4410,7 +4507,7 @@ Status icon name mapping for Alert/Toast components.
 const statusIconMap: Record<string, string>
 ```
 
-#### `switchLabelTextClass` *(deprecated)*
+#### `switchLabelTextClass` _(deprecated)_
 
 Switch label text class constant.
 
@@ -4418,7 +4515,7 @@ Switch label text class constant.
 const switchLabelTextClass: string
 ```
 
-#### `tableEmptyCellClass` *(deprecated)*
+#### `tableEmptyCellClass` _(deprecated)_
 
 Table empty cell class constant.
 
@@ -4434,7 +4531,7 @@ The table loading overlay class.
 const tableLoadingOverlayClass: string
 ```
 
-#### `tableSortIconClass` *(deprecated)*
+#### `tableSortIconClass` _(deprecated)_
 
 Table sort icon class constant.
 
@@ -4442,7 +4539,7 @@ Table sort icon class constant.
 const tableSortIconClass: string
 ```
 
-#### `tableSortIndicatorClass` *(deprecated)*
+#### `tableSortIndicatorClass` _(deprecated)_
 
 Table sort indicator class constant.
 
@@ -4450,7 +4547,7 @@ Table sort indicator class constant.
 const tableSortIndicatorClass: string
 ```
 
-#### `tableWrapperClass` *(deprecated)*
+#### `tableWrapperClass` _(deprecated)_
 
 Table wrapper class constant.
 
@@ -4458,7 +4555,7 @@ Table wrapper class constant.
 const tableWrapperClass: string
 ```
 
-#### `textareaWrapperClass` *(deprecated)*
+#### `textareaWrapperClass` _(deprecated)_
 
 Textarea wrapper class constant.
 
@@ -4474,7 +4571,7 @@ The toast content class.
 const toastContentClass: string
 ```
 
-#### `toastIconClass` *(deprecated)*
+#### `toastIconClass` _(deprecated)_
 
 Toast icon class constant.
 
@@ -4495,10 +4592,13 @@ const toastPositionClasses: Record<ToastPosition, string>
 Re-export status variant map for direct access.
 
 ```typescript
-const toastStatusVariantMap: Record<ColorVariant, "success" | "warning" | "error" | "info" | "default">
+const toastStatusVariantMap: Record<
+  ColorVariant,
+  'success' | 'warning' | 'error' | 'info' | 'default'
+>
 ```
 
-#### `tooltipTriggerClass` *(deprecated)*
+#### `tooltipTriggerClass` _(deprecated)_
 
 Tooltip trigger class constant.
 
@@ -4511,6 +4611,7 @@ const tooltipTriggerClass: string
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

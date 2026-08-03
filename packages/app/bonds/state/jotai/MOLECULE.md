@@ -20,9 +20,11 @@ store.setState((s) => ({ count: s.count + 1 })) // shallow-merged
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-state-jotai @molecule/app-state jotai
 ```
@@ -35,19 +37,19 @@ npm install @molecule/app-state-jotai @molecule/app-state jotai
 
 ```typescript
 interface Atom<Value> {
-    toString: () => string;
-    read: Read<Value>;
-    debugLabel?: string;
-    /**
-     * To ONLY be used by Jotai libraries to mark atoms as private. Subject to change.
-     * @private
-     */
-    debugPrivate?: boolean;
-    /**
-     * Fires after atom is referenced by the store for the first time
-     * This is an internal API and subject to change without notice.
-     */
-    INTERNAL_onInit?: (store: Store) => void;
+  toString: () => string
+  read: Read<Value>
+  debugLabel?: string
+  /**
+   * To ONLY be used by Jotai libraries to mark atoms as private. Subject to change.
+   * @private
+   */
+  debugPrivate?: boolean
+  /**
+   * Fires after atom is referenced by the store for the first time
+   * This is an internal API and subject to change without notice.
+   */
+  INTERNAL_onInit?: (store: Store) => void
 }
 ```
 
@@ -83,10 +85,10 @@ must implement. Provides the store creation factory.
 
 ```typescript
 interface StateProvider {
-    /**
-     * Creates a new store.
-     */
-    createStore<T>(config: StoreConfig<T>): Store<T>;
+  /**
+   * Creates a new store.
+   */
+  createStore<T>(config: StoreConfig<T>): Store<T>
 }
 ```
 
@@ -98,23 +100,23 @@ All state management providers must implement this interface.
 
 ```typescript
 interface Store<T> {
-    /**
-     * Gets the current state.
-     */
-    getState(): T;
-    /**
-     * Sets the state (partial or via updater function).
-     */
-    setState(partial: Partial<T> | ((state: T) => Partial<T>)): void;
-    /**
-     * Subscribes to state changes.
-     * Returns an unsubscribe function.
-     */
-    subscribe(listener: StateListener<T>): () => void;
-    /**
-     * Destroys the store and cleans up subscriptions.
-     */
-    destroy(): void;
+  /**
+   * Gets the current state.
+   */
+  getState(): T
+  /**
+   * Sets the state (partial or via updater function).
+   */
+  setState(partial: Partial<T> | ((state: T) => Partial<T>)): void
+  /**
+   * Subscribes to state changes.
+   * Returns an unsubscribe function.
+   */
+  subscribe(listener: StateListener<T>): () => void
+  /**
+   * Destroys the store and cleans up subscriptions.
+   */
+  destroy(): void
 }
 ```
 
@@ -124,18 +126,18 @@ Configuration for creating a store (initial state, optional name, and middleware
 
 ```typescript
 interface StoreConfig<T> {
-    /**
-     * Initial state value.
-     */
-    initialState: T;
-    /**
-     * Optional name for debugging.
-     */
-    name?: string;
-    /**
-     * Optional middleware functions.
-     */
-    middleware?: StoreMiddleware<T>[];
+  /**
+   * Initial state value.
+   */
+  initialState: T
+  /**
+   * Optional name for debugging.
+   */
+  name?: string
+  /**
+   * Optional middleware functions.
+   */
+  middleware?: StoreMiddleware<T>[]
 }
 ```
 
@@ -146,7 +148,7 @@ interface StoreConfig<T> {
 Get state function type.
 
 ```typescript
-type GetState<T> = () => T;
+type GetState<T> = () => T
 ```
 
 #### `JotaiStore`
@@ -160,9 +162,7 @@ type JotaiStore = ReturnType<typeof createJotaiStore>
 #### `PrimitiveAtom`
 
 ```typescript
-type PrimitiveAtom<Value> = WritableAtom<Value, [
-    SetStateAction<Value>
-], void>;
+type PrimitiveAtom<Value> = WritableAtom<Value, [SetStateAction<Value>], void>
 ```
 
 #### `SetState`
@@ -170,7 +170,7 @@ type PrimitiveAtom<Value> = WritableAtom<Value, [
 Function to update store state with a partial object or updater function.
 
 ```typescript
-type SetState<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void;
+type SetState<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void
 ```
 
 #### `StateListener`
@@ -178,7 +178,7 @@ type SetState<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void;
 Callback invoked whenever store state changes.
 
 ```typescript
-type StateListener<T> = (state: T, prevState: T) => void;
+type StateListener<T> = (state: T, prevState: T) => void
 ```
 
 #### `StoreMiddleware`
@@ -187,7 +187,7 @@ Store middleware function. Wraps the `set` function to intercept
 state updates (e.g. for logging, persistence, or devtools).
 
 ```typescript
-type StoreMiddleware<T> = (set: SetState<T>, get: GetState<T>) => SetState<T>;
+type StoreMiddleware<T> = (set: SetState<T>, get: GetState<T>) => SetState<T>
 ```
 
 ### Functions
@@ -195,7 +195,10 @@ type StoreMiddleware<T> = (set: SetState<T>, get: GetState<T>) => SetState<T>;
 #### `atom(read, write)`
 
 ```typescript
-function atom(read: Read<Value, SetAtom<Args, unknown>>, write: Write<Args, Result>): WritableAtom<Value, Args, Result>
+function atom(
+  read: Read<Value, SetAtom<Args, unknown>>,
+  write: Write<Args, Result>,
+): WritableAtom<Value, Args, Result>
 ```
 
 #### `combineAtoms(atoms)`
@@ -204,7 +207,7 @@ Combine multiple atoms into a single derived atom whose value is an object
 with the resolved values of all input atoms.
 
 ```typescript
-function combineAtoms(atoms: T): Atom<{ [K in keyof T]: T[K] extends Atom<infer V> ? V : never; }>
+function combineAtoms(atoms: T): Atom<{ [K in keyof T]: T[K] extends Atom<infer V> ? V : never }>
 ```
 
 - `atoms` — A record of named atoms to combine.
@@ -318,7 +321,14 @@ function createStore(config: JotaiStoreConfig<T>): Store<T>
 Create a writable derived atom with both computed read and custom write logic.
 
 ```typescript
-function createWritableDerivedAtom(read: (get: <V>(atom: Atom<V>) => V) => T, write: (get: <V>(atom: Atom<V>) => V, set: <V>(atom: PrimitiveAtom<V>, value: V) => void, ...args: Args) => void): Atom<T> & { write: typeof write; }
+function createWritableDerivedAtom(
+  read: (get: <V>(atom: Atom<V>) => V) => T,
+  write: (
+    get: <V>(atom: Atom<V>) => V,
+    set: <V>(atom: PrimitiveAtom<V>, value: V) => void,
+    ...args: Args
+  ) => void,
+): Atom<T> & { write: typeof write }
 ```
 
 - `read` — A function that receives `get` and derives a value from other atoms.
@@ -345,6 +355,7 @@ const provider: StateProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-state` interface.
 
 ## Bond Wiring
@@ -365,6 +376,7 @@ export function setupStateJotai(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-state` ^1.0.0
 
 ### Runtime Dependencies

@@ -16,14 +16,16 @@ import { setFont } from '@molecule/app-fonts'
 import { font as sans } from '@molecule/app-fonts-inter'
 import { font as mono } from '@molecule/app-fonts-jetbrains-mono'
 
-setFont(sans)   // once, at app startup — before first paint
+setFont(sans) // once, at app startup — before first paint
 setFont(mono)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-fonts @molecule/app-bond
 ```
@@ -233,32 +235,33 @@ const systemSerif: FontDefinition
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Arimo | `@molecule/app-fonts-arimo` |
-| DM Sans | `@molecule/app-fonts-dm-sans` |
-| DM Serif Display | `@molecule/app-fonts-dm-serif-display` |
-| IBM Plex Mono | `@molecule/app-fonts-ibm-plex-mono` |
-| IBM Plex Sans | `@molecule/app-fonts-ibm-plex-sans` |
-| Inter | `@molecule/app-fonts-inter` |
-| JetBrains Mono | `@molecule/app-fonts-jetbrains-mono` |
-| Lato | `@molecule/app-fonts-lato` |
-| Lora | `@molecule/app-fonts-lora` |
-| Manrope | `@molecule/app-fonts-manrope` |
-| Material Symbols Outlined | `@molecule/app-fonts-material-symbols` |
-| Merriweather | `@molecule/app-fonts-merriweather` |
-| Newsreader | `@molecule/app-fonts-newsreader` |
-| Playfair Display | `@molecule/app-fonts-playfair-display` |
-| Plus Jakarta Sans | `@molecule/app-fonts-plus-jakarta-sans` |
-| Source Serif 4 | `@molecule/app-fonts-source-serif-4` |
-| Space Grotesk | `@molecule/app-fonts-space-grotesk` |
-| System | `@molecule/app-fonts-system` |
+| Provider                  | Package                                 |
+| ------------------------- | --------------------------------------- |
+| Arimo                     | `@molecule/app-fonts-arimo`             |
+| DM Sans                   | `@molecule/app-fonts-dm-sans`           |
+| DM Serif Display          | `@molecule/app-fonts-dm-serif-display`  |
+| IBM Plex Mono             | `@molecule/app-fonts-ibm-plex-mono`     |
+| IBM Plex Sans             | `@molecule/app-fonts-ibm-plex-sans`     |
+| Inter                     | `@molecule/app-fonts-inter`             |
+| JetBrains Mono            | `@molecule/app-fonts-jetbrains-mono`    |
+| Lato                      | `@molecule/app-fonts-lato`              |
+| Lora                      | `@molecule/app-fonts-lora`              |
+| Manrope                   | `@molecule/app-fonts-manrope`           |
+| Material Symbols Outlined | `@molecule/app-fonts-material-symbols`  |
+| Merriweather              | `@molecule/app-fonts-merriweather`      |
+| Newsreader                | `@molecule/app-fonts-newsreader`        |
+| Playfair Display          | `@molecule/app-fonts-playfair-display`  |
+| Plus Jakarta Sans         | `@molecule/app-fonts-plus-jakarta-sans` |
+| Source Serif 4            | `@molecule/app-fonts-source-serif-4`    |
+| Space Grotesk             | `@molecule/app-fonts-space-grotesk`     |
+| System                    | `@molecule/app-fonts-system`            |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

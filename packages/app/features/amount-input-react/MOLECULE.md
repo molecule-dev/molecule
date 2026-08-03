@@ -3,6 +3,7 @@
 React amount input with type toggle.
 
 Exports:
+
 - `<AmountInput>` — large currency input with income/expense toggle.
 - `AmountType` — `'income' | 'expense' | 'transfer' | 'other'`.
 - `formatCurrency` — convenience re-export.
@@ -26,9 +27,11 @@ const [type, setType] = useState<'income' | 'expense'>('expense')
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-amount-input-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -122,6 +125,7 @@ function formatCurrency(amount: number, currency?: string, locale?: string): str
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

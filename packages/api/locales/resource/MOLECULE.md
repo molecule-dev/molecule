@@ -34,15 +34,15 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `resource.error.unknownError` | Unknown error. |
+| Key                             | English                    |
+| ------------------------------- | -------------------------- |
+| `resource.error.unknownError`   | Unknown error.             |
 | `resource.error.unableToCreate` | Unable to create {{name}}. |
 | `resource.error.unableToUpdate` | Unable to update {{name}}. |
 | `resource.error.unableToDelete` | Unable to delete {{name}}. |
-| `resource.error.notFound` | Not found. |
-| `resource.error.badRequest` | Bad request. |
-| `resource.error.unauthorized` | Unauthorized. |
+| `resource.error.notFound`       | Not found.                 |
+| `resource.error.badRequest`     | Bad request.               |
+| `resource.error.unauthorized`   | Unauthorized.              |
 
 ## Metadata
 

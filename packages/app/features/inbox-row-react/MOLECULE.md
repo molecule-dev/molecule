@@ -9,7 +9,7 @@ Exports `<InboxRow>`.
 ```tsx
 import { InboxRow } from '@molecule/app-inbox-row-react'
 
-<InboxRow
+;<InboxRow
   sender="Alice Johnson"
   senderAvatarSrc="https://example.com/alice.jpg"
   subject="Q3 report is ready"
@@ -24,9 +24,11 @@ import { InboxRow } from '@molecule/app-inbox-row-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-inbox-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -104,6 +106,7 @@ function InboxRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

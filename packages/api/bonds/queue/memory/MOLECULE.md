@@ -30,9 +30,11 @@ await emails.send({ body: { to: 'later@b.c' }, delaySeconds: 60 })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-queue-memory @molecule/api-bond @molecule/api-queue
 ```
@@ -171,35 +173,35 @@ Handle for a named queue, providing send, receive, and subscribe operations.
 
 ```typescript
 interface Queue {
-    /**
-     * Queue name.
-     */
-    name: string;
-    /**
-     * Sends a message to the queue.
-     */
-    send<T = unknown>(message: QueueMessage<T>): Promise<string>;
-    /**
-     * Sends multiple messages to the queue.
-     */
-    sendBatch?<T = unknown>(messages: QueueMessage<T>[]): Promise<string[]>;
-    /**
-     * Receives messages from the queue.
-     */
-    receive<T = unknown>(options?: ReceiveOptions): Promise<ReceivedMessage<T>[]>;
-    /**
-     * Subscribes to messages from the queue.
-     * Returns a function to unsubscribe.
-     */
-    subscribe<T = unknown>(handler: MessageHandler<T>, options?: ReceiveOptions): () => void;
-    /**
-     * Gets the approximate number of messages in the queue.
-     */
-    size?(): Promise<number>;
-    /**
-     * Purges all messages from the queue.
-     */
-    purge?(): Promise<void>;
+  /**
+   * Queue name.
+   */
+  name: string
+  /**
+   * Sends a message to the queue.
+   */
+  send<T = unknown>(message: QueueMessage<T>): Promise<string>
+  /**
+   * Sends multiple messages to the queue.
+   */
+  sendBatch?<T = unknown>(messages: QueueMessage<T>[]): Promise<string[]>
+  /**
+   * Receives messages from the queue.
+   */
+  receive<T = unknown>(options?: ReceiveOptions): Promise<ReceivedMessage<T>[]>
+  /**
+   * Subscribes to messages from the queue.
+   * Returns a function to unsubscribe.
+   */
+  subscribe<T = unknown>(handler: MessageHandler<T>, options?: ReceiveOptions): () => void
+  /**
+   * Gets the approximate number of messages in the queue.
+   */
+  size?(): Promise<number>
+  /**
+   * Purges all messages from the queue.
+   */
+  purge?(): Promise<void>
 }
 ```
 
@@ -210,29 +212,29 @@ retention periods, and dead-letter queue configuration.
 
 ```typescript
 interface QueueCreateOptions {
-    /**
-     * Whether this is a FIFO queue.
-     */
-    fifo?: boolean;
-    /**
-     * Default visibility timeout in seconds.
-     */
-    visibilityTimeout?: number;
-    /**
-     * Message retention period in seconds.
-     */
-    messageRetentionSeconds?: number;
-    /**
-     * Maximum message size in bytes.
-     */
-    maxMessageSize?: number;
-    /**
-     * Dead letter queue configuration.
-     */
-    deadLetterQueue?: {
-        name: string;
-        maxReceiveCount: number;
-    };
+  /**
+   * Whether this is a FIFO queue.
+   */
+  fifo?: boolean
+  /**
+   * Default visibility timeout in seconds.
+   */
+  visibilityTimeout?: number
+  /**
+   * Message retention period in seconds.
+   */
+  messageRetentionSeconds?: number
+  /**
+   * Maximum message size in bytes.
+   */
+  maxMessageSize?: number
+  /**
+   * Dead letter queue configuration.
+   */
+  deadLetterQueue?: {
+    name: string
+    maxReceiveCount: number
+  }
 }
 ```
 
@@ -242,30 +244,30 @@ Message to be sent to a queue.
 
 ```typescript
 interface QueueMessage<T = unknown> {
-    /**
-     * Message payload.
-     */
-    body: T;
-    /**
-     * Message ID (auto-generated if not provided).
-     */
-    id?: string;
-    /**
-     * Delay in seconds before the message becomes visible.
-     */
-    delaySeconds?: number;
-    /**
-     * Message attributes/headers.
-     */
-    attributes?: Record<string, string | number | boolean>;
-    /**
-     * Message group ID (for FIFO queues).
-     */
-    groupId?: string;
-    /**
-     * Deduplication ID (for FIFO queues).
-     */
-    deduplicationId?: string;
+  /**
+   * Message payload.
+   */
+  body: T
+  /**
+   * Message ID (auto-generated if not provided).
+   */
+  id?: string
+  /**
+   * Delay in seconds before the message becomes visible.
+   */
+  delaySeconds?: number
+  /**
+   * Message attributes/headers.
+   */
+  attributes?: Record<string, string | number | boolean>
+  /**
+   * Message group ID (for FIFO queues).
+   */
+  groupId?: string
+  /**
+   * Deduplication ID (for FIFO queues).
+   */
+  deduplicationId?: string
 }
 ```
 
@@ -276,26 +278,26 @@ Provides queue handle creation and optional queue management operations.
 
 ```typescript
 interface QueueProvider {
-    /**
-     * Gets or creates a queue by name.
-     */
-    queue(name: string): Queue;
-    /**
-     * Lists all available queues.
-     */
-    listQueues?(): Promise<string[]>;
-    /**
-     * Creates a new queue.
-     */
-    createQueue?(name: string, options?: QueueCreateOptions): Promise<Queue>;
-    /**
-     * Deletes a queue.
-     */
-    deleteQueue?(name: string): Promise<void>;
-    /**
-     * Closes all connections.
-     */
-    close?(): Promise<void>;
+  /**
+   * Gets or creates a queue by name.
+   */
+  queue(name: string): Queue
+  /**
+   * Lists all available queues.
+   */
+  listQueues?(): Promise<string[]>
+  /**
+   * Creates a new queue.
+   */
+  createQueue?(name: string, options?: QueueCreateOptions): Promise<Queue>
+  /**
+   * Deletes a queue.
+   */
+  deleteQueue?(name: string): Promise<void>
+  /**
+   * Closes all connections.
+   */
+  close?(): Promise<void>
 }
 ```
 
@@ -305,38 +307,38 @@ Received message from a queue.
 
 ```typescript
 interface ReceivedMessage<T = unknown> {
-    /**
-     * Message ID.
-     */
-    id: string;
-    /**
-     * Message payload.
-     */
-    body: T;
-    /**
-     * Receipt handle for acknowledging the message.
-     */
-    receiptHandle: string;
-    /**
-     * Message attributes/headers.
-     */
-    attributes?: Record<string, string | number | boolean>;
-    /**
-     * Number of times this message has been received.
-     */
-    receiveCount?: number;
-    /**
-     * Timestamp when the message was sent.
-     */
-    sentTimestamp?: Date;
-    /**
-     * Acknowledges (deletes) the message from the queue.
-     */
-    ack(): Promise<void>;
-    /**
-     * Rejects the message (returns it to the queue).
-     */
-    nack?(): Promise<void>;
+  /**
+   * Message ID.
+   */
+  id: string
+  /**
+   * Message payload.
+   */
+  body: T
+  /**
+   * Receipt handle for acknowledging the message.
+   */
+  receiptHandle: string
+  /**
+   * Message attributes/headers.
+   */
+  attributes?: Record<string, string | number | boolean>
+  /**
+   * Number of times this message has been received.
+   */
+  receiveCount?: number
+  /**
+   * Timestamp when the message was sent.
+   */
+  sentTimestamp?: Date
+  /**
+   * Acknowledges (deletes) the message from the queue.
+   */
+  ack(): Promise<void>
+  /**
+   * Rejects the message (returns it to the queue).
+   */
+  nack?(): Promise<void>
 }
 ```
 
@@ -346,18 +348,18 @@ Options for receiving messages.
 
 ```typescript
 interface ReceiveOptions {
-    /**
-     * Maximum number of messages to receive.
-     */
-    maxMessages?: number;
-    /**
-     * Visibility timeout in seconds.
-     */
-    visibilityTimeout?: number;
-    /**
-     * Wait time in seconds for long polling.
-     */
-    waitTimeSeconds?: number;
+  /**
+   * Maximum number of messages to receive.
+   */
+  maxMessages?: number
+  /**
+   * Visibility timeout in seconds.
+   */
+  visibilityTimeout?: number
+  /**
+   * Wait time in seconds for long polling.
+   */
+  waitTimeSeconds?: number
 }
 ```
 
@@ -368,7 +370,7 @@ interface ReceiveOptions {
 Async callback invoked for each message received from a queue subscription.
 
 ```typescript
-type MessageHandler<T = unknown> = (message: ReceivedMessage<T>) => Promise<void>;
+type MessageHandler<T = unknown> = (message: ReceivedMessage<T>) => Promise<void>
 ```
 
 ### Functions
@@ -399,6 +401,7 @@ const provider: QueueProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-queue` interface.
 
 ## Bond Wiring
@@ -419,6 +422,7 @@ export function setupQueueMemory(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-queue` ^1.0.0
 
@@ -458,28 +462,29 @@ Integration checklist — exercise the REAL behavior end-to-end (drive the app
 action that enqueues/consumes work in the live preview, no mocks), adapt each
 item to this app's actual screens/flows, and check every box off one by one. A
 box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The action that enqueues work responds fast — `send()` returns a message
-  id immediately and the request/response does NOT block on the job. The #1
-  trap: the executor awaits the heavy work inline (defeating the queue);
-  confirm the triggering UI action returns quickly and the work happens in the
-  background.
+      id immediately and the request/response does NOT block on the job. The #1
+      trap: the executor awaits the heavy work inline (defeating the queue);
+      confirm the triggering UI action returns quickly and the work happens in the
+      background.
 - [ ] The enqueued job actually RUNS — a `subscribe()` consumer (a
-  `MessageHandler`) is wired and running, so the message's real side effect
-  (email sent, file processed, notification delivered — whatever the app does)
-  actually appears in the UI/data. A message enqueued with no worker wired is
-  the silent failure.
+      `MessageHandler`) is wired and running, so the message's real side effect
+      (email sent, file processed, notification delivered — whatever the app does)
+      actually appears in the UI/data. A message enqueued with no worker wired is
+      the silent failure.
 - [ ] Payload round-trips intact — the `ReceivedMessage.body` the handler sees
-  equals the `QueueMessage.body` that was sent, with no dropped or renamed
-  fields.
+      equals the `QueueMessage.body` that was sent, with no dropped or renamed
+      fields.
 - [ ] Failure is handled — a handler that throws is redelivered (up to
-  `QueueCreateOptions.deadLetterQueue.maxReceiveCount`, tracked via
-  `receiveCount`) or dead-lettered, never silently lost. Delivery is
-  at-least-once, so the handler is idempotent (dedupe on the job/record id) — a
-  redelivery must not double-charge or double-send.
+      `QueueCreateOptions.deadLetterQueue.maxReceiveCount`, tracked via
+      `receiveCount`) or dead-lettered, never silently lost. Delivery is
+      at-least-once, so the handler is idempotent (dedupe on the job/record id) — a
+      redelivery must not double-charge or double-send.
 - [ ] Ordering/concurrency is not assumed — the app does not rely on strict
-  FIFO (`QueueMessage.groupId`/`fifo`) or exactly-once delivery unless the
-  bonded provider actually guarantees it.
+      FIFO (`QueueMessage.groupId`/`fifo`) or exactly-once delivery unless the
+      bonded provider actually guarantees it.
 - [ ] Least-authority payloads — the `body` carries only the ids/refs the job
-  needs (never a secret or stale authority); the consumer re-loads and
-  re-scopes on the CURRENT data (owner id from `body`, re-checked server-side)
-  so one user's job cannot act on another user's resource.
+      needs (never a secret or stale authority); the consumer re-loads and
+      re-scopes on the CURRENT data (owner id from `body`, re-checked server-side)
+      so one user's job cannot act on another user's resource.

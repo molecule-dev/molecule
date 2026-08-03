@@ -10,13 +10,15 @@ first paint. Exports a ready-made `FontDefinition` (`font`, role `sans`).
 import { setFont } from '@molecule/app-fonts'
 import { font } from '@molecule/app-fonts-system'
 
-setFont(font)   // once, at app startup
+setFont(font) // once, at app startup
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-fonts-system @molecule/app-fonts
 ```
@@ -34,6 +36,7 @@ const font: FontDefinition
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-fonts` interface.
 
 ## Injection Notes
@@ -41,6 +44,7 @@ Implements `@molecule/app-fonts` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-fonts` ^1.0.0
 
 ### Runtime Dependencies

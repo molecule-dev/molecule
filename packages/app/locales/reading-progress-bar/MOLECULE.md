@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-reading-progress-bar-react` package
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-reading-progress-bar'
-import type { ReadingProgressBarTranslationKey, ReadingProgressBarTranslations } from '@molecule/app-locales-reading-progress-bar'
+import type {
+  ReadingProgressBarTranslationKey,
+  ReadingProgressBarTranslations,
+} from '@molecule/app-locales-reading-progress-bar'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                             | English          |
+| ------------------------------- | ---------------- |
 | `readingProgressBar.aria.label` | Reading progress |
 
 ## Metadata

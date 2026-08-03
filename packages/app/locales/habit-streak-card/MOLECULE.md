@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-habit-streak-card-react` package wh
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-habit-streak-card'
-import type { HabitStreakCardTranslationKey, HabitStreakCardTranslations } from '@molecule/app-locales-habit-streak-card'
+import type {
+  HabitStreakCardTranslationKey,
+  HabitStreakCardTranslations,
+} from '@molecule/app-locales-habit-streak-card'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                   | English    |
+| --------------------- | ---------- |
 | `habit.currentStreak` | day streak |
-| `habit.bestStreak` | best |
-| `habit.total` | total |
+| `habit.bestStreak`    | best       |
+| `habit.total`         | total      |
 
 ## Metadata
 

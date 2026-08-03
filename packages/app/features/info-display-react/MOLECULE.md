@@ -3,6 +3,7 @@
 React InfoCard and DefinitionList for structured label/value metadata.
 
 Exports:
+
 - `<InfoCard>` — Card-wrapped DefinitionList with title, icon, actions.
 - `<DefinitionList>` — standalone label/value grid.
 - `DefinitionField` type.
@@ -12,7 +13,7 @@ Exports:
 ```tsx
 import { InfoCard, DefinitionList } from '@molecule/app-info-display-react'
 
-<InfoCard
+;<InfoCard
   title="Company Details"
   fields={[
     { label: 'Industry', value: 'Technology' },
@@ -25,9 +26,11 @@ import { InfoCard, DefinitionList } from '@molecule/app-info-display-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-info-display-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -99,11 +102,7 @@ Structured label/value pair list. Use standalone or inside
 status pills, etc.) as ReactNodes.
 
 ```typescript
-function DefinitionList({
-  fields,
-  columns = 1,
-  className,
-}: DefinitionListProps): JSX.Element
+function DefinitionList({ fields, columns = 1, className }: DefinitionListProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link DefinitionListProps}).
@@ -135,6 +134,7 @@ function InfoCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

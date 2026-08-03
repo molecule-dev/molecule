@@ -14,11 +14,10 @@ import { provider } from '@molecule/api-calendar-google'
 
 setProvider(provider)
 
-const { data, credentials } = await listEvents(
-  userCreds,
-  'primary',
-  { timeMin: '2026-05-01T00:00:00Z', timeMax: '2026-05-08T00:00:00Z' },
-)
+const { data, credentials } = await listEvents(userCreds, 'primary', {
+  timeMin: '2026-05-01T00:00:00Z',
+  timeMax: '2026-05-08T00:00:00Z',
+})
 
 if (credentials) {
   await persistRefreshedCredentials(userId, credentials)
@@ -26,9 +25,11 @@ if (credentials) {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-calendar @molecule/api-bond @molecule/api-i18n
 ```
@@ -319,7 +320,11 @@ interface ListEventsOptions {
 Convenience wrapper that delegates to the bonded provider.
 
 ```typescript
-function createEvent(credentials: CalendarUserCredentials, calendarId: string, event: CalendarEvent): Promise<CalendarOperationResult<CalendarEvent>>
+function createEvent(
+  credentials: CalendarUserCredentials,
+  calendarId: string,
+  event: CalendarEvent,
+): Promise<CalendarOperationResult<CalendarEvent>>
 ```
 
 - `credentials` — The user's OAuth credentials.
@@ -331,7 +336,11 @@ function createEvent(credentials: CalendarUserCredentials, calendarId: string, e
 Convenience wrapper that delegates to the bonded provider.
 
 ```typescript
-function deleteEvent(credentials: CalendarUserCredentials, calendarId: string, eventId: string): Promise<CalendarOperationResult<void>>
+function deleteEvent(
+  credentials: CalendarUserCredentials,
+  calendarId: string,
+  eventId: string,
+): Promise<CalendarOperationResult<void>>
 ```
 
 - `credentials` — The user's OAuth credentials.
@@ -343,7 +352,11 @@ function deleteEvent(credentials: CalendarUserCredentials, calendarId: string, e
 Convenience wrapper that delegates to the bonded provider.
 
 ```typescript
-function findFreeSlots(credentials: CalendarUserCredentials, calendarIds: string[], options: FindFreeSlotsOptions): Promise<CalendarOperationResult<FreeBusyResult>>
+function findFreeSlots(
+  credentials: CalendarUserCredentials,
+  calendarIds: string[],
+  options: FindFreeSlotsOptions,
+): Promise<CalendarOperationResult<FreeBusyResult>>
 ```
 
 - `credentials` — The user's OAuth credentials.
@@ -385,7 +398,9 @@ function hasProvider(): boolean
 Convenience wrapper that delegates to the bonded provider.
 
 ```typescript
-function listCalendars(credentials: CalendarUserCredentials): Promise<CalendarOperationResult<CalendarSummary[]>>
+function listCalendars(
+  credentials: CalendarUserCredentials,
+): Promise<CalendarOperationResult<CalendarSummary[]>>
 ```
 
 - `credentials` — The user's OAuth credentials.
@@ -397,7 +412,11 @@ function listCalendars(credentials: CalendarUserCredentials): Promise<CalendarOp
 Convenience wrapper that delegates to the bonded provider.
 
 ```typescript
-function listEvents(credentials: CalendarUserCredentials, calendarId: string, options: ListEventsOptions): Promise<CalendarOperationResult<CalendarEvent[]>>
+function listEvents(
+  credentials: CalendarUserCredentials,
+  calendarId: string,
+  options: ListEventsOptions,
+): Promise<CalendarOperationResult<CalendarEvent[]>>
 ```
 
 - `credentials` — The user's OAuth credentials.
@@ -420,7 +439,12 @@ function setProvider(provider: CalendarProvider): void
 Convenience wrapper that delegates to the bonded provider.
 
 ```typescript
-function updateEvent(credentials: CalendarUserCredentials, calendarId: string, eventId: string, updates: Partial<Omit<CalendarEvent, "id">>): Promise<CalendarOperationResult<CalendarEvent>>
+function updateEvent(
+  credentials: CalendarUserCredentials,
+  calendarId: string,
+  eventId: string,
+  updates: Partial<Omit<CalendarEvent, 'id'>>,
+): Promise<CalendarOperationResult<CalendarEvent>>
 ```
 
 - `credentials` — The user's OAuth credentials.
@@ -430,9 +454,9 @@ function updateEvent(credentials: CalendarUserCredentials, calendarId: string, e
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Google Calendar | `@molecule/api-calendar-google` |
+| Provider           | Package                            |
+| ------------------ | ---------------------------------- |
+| Google Calendar    | `@molecule/api-calendar-google`    |
 | Microsoft Calendar | `@molecule/api-calendar-microsoft` |
 
 ## Injection Notes
@@ -440,6 +464,7 @@ function updateEvent(credentials: CalendarUserCredentials, calendarId: string, e
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -468,20 +493,21 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating an event through the UI (title + start/end) persists it and
-  it appears on the calendar view / event list at the right date AND time —
-  reload the page and it is still there.
+      it appears on the calendar view / event list at the right date AND time —
+      reload the page and it is still there.
 - [ ] Editing or moving an event (new time, new title) reflects immediately
-  in the view, and deleting one removes it from both the view and the list.
+      in the view, and deleting one removes it from both the view and the list.
 - [ ] Timezone is correct: an event created for a local time shows at THAT
-  local time, not shifted by hours — events carry an IANA `timeZone` and
-  ISO 8601 start/end, so a UTC/offset bug surfaces as a wrong displayed hour.
+      local time, not shifted by hours — events carry an IANA `timeZone` and
+      ISO 8601 start/end, so a UTC/offset bug surfaces as a wrong displayed hour.
 - [ ] If the app surfaces availability / free slots (findFreeSlots), a slot
-  that overlaps an existing event no longer shows as free.
+      that overlaps an existing event no longer shows as free.
 - [ ] External-OAuth caveat: bonds sync to a real Google/Microsoft/iCloud
-  calendar via per-user OAuth, which the sandbox usually cannot drive —
-  verify against the app's OWN stored events (its DB-backed calendar), not
-  the live external provider.
+      calendar via per-user OAuth, which the sandbox usually cannot drive —
+      verify against the app's OWN stored events (its DB-backed calendar), not
+      the live external provider.
 - [ ] Authorization: a user sees and edits only their own events — no UI or
-  endpoint returns or mutates another user's calendar/event by id, and the
-  per-user OAuth credentials never reach the client.
+      endpoint returns or mutates another user's calendar/event by id, and the
+      per-user OAuth credentials never reach the client.

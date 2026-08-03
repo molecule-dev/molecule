@@ -3,13 +3,13 @@
 Drop-in pricing page used by every paid molecule.dev flagship app.
 
 Components:
-  `<PricingPage />`      — Renders one card per tier, with optional
-                           monthly/yearly toggle and Stripe Checkout
-                           CTA. Reads tiers from `usePricingTiers()`
-                           unless an explicit `tiers` prop is passed.
+`<PricingPage />` — Renders one card per tier, with optional
+monthly/yearly toggle and Stripe Checkout
+CTA. Reads tiers from `usePricingTiers()`
+unless an explicit `tiers` prop is passed.
 
-  `<PlanUpdatedPage />`  — Post-checkout success page rendered at
-                           Stripe's `success_url` redirect target.
+`<PlanUpdatedPage />` — Post-checkout success page rendered at
+Stripe's `success_url` redirect target.
 
 Translations live in the companion locale bond
 `@molecule/app-locales-pricing-page`. The checkout transport lives in
@@ -39,9 +39,11 @@ const Pricing = () => <PricingPage />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-pricing-page-react @molecule/app-billing-react @molecule/app-react @molecule/app-subscription-plan-card-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -149,7 +151,9 @@ flagship apps). All copy is i18n-driven so apps can localise the
 heading without overriding the component.
 
 ```typescript
-function PlanUpdatedPage(props: PlanUpdatedPageProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function PlanUpdatedPage(
+  props: PlanUpdatedPageProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see `PlanUpdatedPageProps`).
@@ -163,7 +167,9 @@ Drop-in pricing page. Renders one card per tier from `tiers` (or
 yearly toggle and a Stripe Checkout CTA per card.
 
 ```typescript
-function PricingPage(props: PricingPageProps<TLimits>): ReactElement<unknown, string | JSXElementConstructor<any>>
+function PricingPage(
+  props: PricingPageProps<TLimits>,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see `PricingPageProps`).
@@ -175,6 +181,7 @@ function PricingPage(props: PricingPageProps<TLimits>): ReactElement<unknown, st
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-billing-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-subscription-plan-card-react` ^1.0.0

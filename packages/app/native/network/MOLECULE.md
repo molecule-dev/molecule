@@ -12,17 +12,9 @@ offline-tolerant helpers (`waitForConnection`, `whenOnline`,
 ## Quick Start
 
 ```typescript
-import {
-  hasProvider,
-  isConnected,
-  onOffline,
-  onOnline,
-} from '@molecule/app-network'
+import { hasProvider, isConnected, onOffline, onOnline } from '@molecule/app-network'
 
-async function wireOfflineBanner(
-  show: () => void,
-  hideBanner: () => void,
-): Promise<() => void> {
+async function wireOfflineBanner(show: () => void, hideBanner: () => void): Promise<() => void> {
   if (!hasProvider()) return () => {} // nothing wired — see remarks
   if (!(await isConnected())) show()
   const offOffline = onOffline(show)
@@ -35,9 +27,11 @@ async function wireOfflineBanner(
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-network @molecule/app-bond @molecule/app-i18n
 ```
@@ -216,7 +210,11 @@ are either queued (if `queueOfflineRequests` is true) or immediately rejected.
 Queued requests are automatically sent when connectivity is restored.
 
 ```typescript
-function createNetworkAwareFetch(options?: { onOffline?: () => void; onReconnect?: () => void; queueOfflineRequests?: boolean; }): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+function createNetworkAwareFetch(options?: {
+  onOffline?: () => void
+  onReconnect?: () => void
+  queueOfflineRequests?: boolean
+}): (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 ```
 
 - `options` — Configuration for offline behavior.
@@ -252,7 +250,14 @@ Get a human-readable display name for a connection type. Supports optional i18n
 translation via a provided `t` function, falling back to English defaults.
 
 ```typescript
-function getConnectionTypeName(type: ConnectionType, t?: ((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string; }) => string)): string
+function getConnectionTypeName(
+  type: ConnectionType,
+  t?: (
+    key: string,
+    values?: Record<string, unknown>,
+    options?: { defaultValue?: string },
+  ) => string,
+): string
 ```
 
 - `type` — The connection type to get a name for.
@@ -392,6 +397,7 @@ function whenOnline(callback: () => T | Promise<T>, timeout?: number): Promise<T
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

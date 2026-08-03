@@ -11,21 +11,23 @@ navigation.
 ```tsx
 import { ChapterList } from '@molecule/app-feature-chapter-list-react'
 
-<ChapterList
+;<ChapterList
   chapters={[
     { id: 'c1', title: 'Intro', startTime: 0 },
     { id: 'c2', title: 'Topic A', startTime: 120, thumbnail: '/a.jpg' },
     { id: 'c3', title: 'Outro', startTime: 1800 },
   ]}
   currentTime={150}
-  onSeek={(s) => audio.currentTime = s}
+  onSeek={(s) => (audio.currentTime = s)}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-chapter-list-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -144,6 +146,7 @@ function formatTimestamp(seconds: number): string
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

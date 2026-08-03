@@ -20,9 +20,11 @@ server.listen(3000)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-realtime-socketio @molecule/api-bond @molecule/api-realtime engine.io socket.io socket.io-adapter
 ```
@@ -94,6 +96,7 @@ function createProvider(config?: SocketioRealtimeConfig): RealtimeProvider
 **Returns:** A fully initialised `RealtimeProvider` backed by Socket.io.
 
 ## Core Interface
+
 Implements `@molecule/api-realtime` interface.
 
 ## Injection Notes
@@ -101,6 +104,7 @@ Implements `@molecule/api-realtime` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 
@@ -133,14 +137,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] With the app open in TWO sessions (separate browser contexts/users), an
-  action in one (send a message, update a shared record) appears in the
-  other WITHOUT a manual reload.
+      action in one (send a message, update a shared record) appears in the
+      other WITHOUT a manual reload.
 - [ ] Updates reach only the sessions in the same room/scope — a session
-  viewing a different room/record receives nothing.
+      viewing a different room/record receives nothing.
 - [ ] Private rooms enforce the join guard: an unauthorized session's join is
-  denied and no data leaks to it. If ANY client can join any private room,
-  `onJoinRequest` was never registered — an integration bug.
+      denied and no data leaks to it. If ANY client can join any private room,
+      `onJoinRequest` was never registered — an integration bug.
 - [ ] Presence (if surfaced) updates when a participant joins and leaves.
 - [ ] After a dropped connection (offline/online toggle or server restart),
-  the client reconnects and live events flow again.
+      the client reconnects and live events flow again.

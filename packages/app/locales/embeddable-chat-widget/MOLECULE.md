@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-embeddable-chat-widget` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-embeddable-chat-widget'
-import type { EmbeddableChatWidgetTranslationKey, EmbeddableChatWidgetTranslations } from '@molecule/app-locales-embeddable-chat-widget'
+import type {
+  EmbeddableChatWidgetTranslationKey,
+  EmbeddableChatWidgetTranslations,
+} from '@molecule/app-locales-embeddable-chat-widget'
 ```
 
 ## Registration
@@ -34,16 +37,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `embeddableChatWidget.launcher.openLabel` | Open chat |
-| `embeddableChatWidget.panel.headerLabel` | Chat with {{brandName}} |
-| `embeddableChatWidget.panel.closeLabel` | Close chat |
-| `embeddableChatWidget.panel.emptyState` | Ask a question to get started. |
-| `embeddableChatWidget.panel.assistantTyping` | Assistant is typing… |
-| `embeddableChatWidget.composer.placeholder` | Type your message… |
-| `embeddableChatWidget.composer.send` | Send |
-| `embeddableChatWidget.error.streamError` | Something went wrong. Please try again. |
+| Key                                          | English                                 |
+| -------------------------------------------- | --------------------------------------- |
+| `embeddableChatWidget.launcher.openLabel`    | Open chat                               |
+| `embeddableChatWidget.panel.headerLabel`     | Chat with {{brandName}}                 |
+| `embeddableChatWidget.panel.closeLabel`      | Close chat                              |
+| `embeddableChatWidget.panel.emptyState`      | Ask a question to get started.          |
+| `embeddableChatWidget.panel.assistantTyping` | Assistant is typing…                    |
+| `embeddableChatWidget.composer.placeholder`  | Type your message…                      |
+| `embeddableChatWidget.composer.send`         | Send                                    |
+| `embeddableChatWidget.error.streamError`     | Something went wrong. Please try again. |
 
 ## Metadata
 

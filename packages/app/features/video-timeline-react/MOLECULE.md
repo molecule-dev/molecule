@@ -15,7 +15,7 @@ fan-out.
 ```tsx
 import { VideoTimeline } from '@molecule/app-feature-video-timeline-react'
 
-<VideoTimeline
+;<VideoTimeline
   tracks={[
     { id: 'v1', kind: 'video', clips: [{ id: 'a', startTime: 0, duration: 5, label: 'Intro' }] },
     { id: 'a1', kind: 'audio', clips: [{ id: 'b', startTime: 0, duration: 12 }] },
@@ -32,9 +32,11 @@ import { VideoTimeline } from '@molecule/app-feature-video-timeline-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-video-timeline-react @molecule/app-feature-track-lane-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -161,7 +163,11 @@ Negative deltas are clamped so no clip's `startTime` goes below 0
 cross zero before it does, since they all started later).
 
 ```typescript
-function computeRippleUpdates(clips: Clip[], draggedClipId: string, proposedStartTime: number): { id: string; startTime: number; }[]
+function computeRippleUpdates(
+  clips: Clip[],
+  draggedClipId: string,
+  proposedStartTime: number,
+): { id: string; startTime: number }[]
 ```
 
 - `clips` — All clips on the lane (any order).
@@ -178,7 +184,10 @@ Compute time tick marks for the ruler. Picks an interval (1, 2, 5, 10,
 stops at the last tick `<= duration`.
 
 ```typescript
-function computeRulerTicks(duration: number, pixelsPerSecond: number): { time: number; pixel: number; }[]
+function computeRulerTicks(
+  duration: number,
+  pixelsPerSecond: number,
+): { time: number; pixel: number }[]
 ```
 
 - `duration` — Total duration in seconds.
@@ -306,6 +315,7 @@ const ZOOM_WHEEL_FACTOR: 1.1
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-feature-track-lane-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

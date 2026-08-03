@@ -20,10 +20,10 @@ without breaking the SM-2 API.
 import { initialSm2State, reviewSm2 } from '@molecule/api-spaced-repetition'
 
 let state = initialSm2State()
-state = reviewSm2(state, 5)        // first correct review → interval 1d
-state = reviewSm2(state, 4)        // second correct review → interval 6d
-state = reviewSm2(state, 5)        // mature card → interval ≈ 6 * EF
-state = reviewSm2(state, 1)        // failure → reps reset, interval = 1d, lapse++
+state = reviewSm2(state, 5) // first correct review → interval 1d
+state = reviewSm2(state, 4) // second correct review → interval 6d
+state = reviewSm2(state, 5) // mature card → interval ≈ 6 * EF
+state = reviewSm2(state, 1) // failure → reps reset, interval = 1d, lapse++
 ```
 
 ```ts
@@ -33,9 +33,11 @@ const state = reviewSm2(card, 3, { now: new Date('2026-01-01T00:00:00Z') })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-spaced-repetition
 ```
@@ -153,7 +155,11 @@ Algorithm:
 4. `next_review = now + interval * 24h`.
 
 ```typescript
-function reviewSm2(state: SpacedRepetitionState, quality: SpacedRepetitionGrade, options?: ReviewOptions): SpacedRepetitionState
+function reviewSm2(
+  state: SpacedRepetitionState,
+  quality: SpacedRepetitionGrade,
+  options?: ReviewOptions,
+): SpacedRepetitionState
 ```
 
 - `state` — Current persisted state of the item being reviewed.

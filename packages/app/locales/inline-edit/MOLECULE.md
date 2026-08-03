@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-inline-edit-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-inline-edit'
-import type { InlineEditTranslationKey, InlineEditTranslations } from '@molecule/app-locales-inline-edit'
+import type {
+  InlineEditTranslationKey,
+  InlineEditTranslations,
+} from '@molecule/app-locales-inline-edit'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `inlineEdit.empty` | Click to edit |
-| `inlineEdit.cancel` | Cancel |
-| `inlineEdit.saving` | Saving… |
-| `inlineEdit.save` | Save |
+| Key                 | English       |
+| ------------------- | ------------- |
+| `inlineEdit.empty`  | Click to edit |
+| `inlineEdit.cancel` | Cancel        |
+| `inlineEdit.saving` | Saving…       |
+| `inlineEdit.save`   | Save          |
 
 ## Metadata
 

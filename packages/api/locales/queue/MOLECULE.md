@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                      | English                                                  |
+| ------------------------ | -------------------------------------------------------- |
 | `queue.error.noProvider` | Queue provider not configured. Call setProvider() first. |
 
 ## Metadata

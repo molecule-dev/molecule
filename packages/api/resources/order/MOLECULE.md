@@ -12,9 +12,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-order'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-order @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
@@ -400,7 +402,11 @@ registered via {@link setOrderMerchantAuthorizer} AND that authorizer allows
 this returns `false` — the merchant-only handlers respond 403.
 
 ```typescript
-function canDriveOrderLifecycle(orderRow: OrderRow, userId: string, req?: MoleculeRequest): Promise<boolean>
+function canDriveOrderLifecycle(
+  orderRow: OrderRow,
+  userId: string,
+  req?: MoleculeRequest,
+): Promise<boolean>
 ```
 
 - `orderRow` — The order being acted on.
@@ -414,7 +420,7 @@ function canDriveOrderLifecycle(orderRow: OrderRow, userId: string, req?: Molecu
 Computes the subtotal from a list of order items (price × quantity).
 
 ```typescript
-function computeSubtotal(items: { price: number; quantity: number; }[]): number
+function computeSubtotal(items: { price: number; quantity: number }[]): number
 ```
 
 - `items` — The order items.
@@ -609,7 +615,15 @@ const ORDER_STATUSES: readonly OrderStatus[]
 Handler map for the order resource routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly updateStatus: typeof updateStatus; readonly cancel: typeof cancel; readonly refund: typeof refund; readonly getHistory: typeof getHistory; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly updateStatus: typeof updateStatus
+  readonly cancel: typeof cancel
+  readonly refund: typeof refund
+  readonly getHistory: typeof getHistory
+}
 ```
 
 #### `routes`
@@ -619,7 +633,50 @@ mutations (updateStatus/refund/cancel) additionally gate merchant-only
 operations behind `setOrderMerchantAuthorizer` (see the module SECURITY note).
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/orders"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/orders"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/orders/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/orders/:id/status"; readonly handler: "updateStatus"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/orders/:id/cancel"; readonly handler: "cancel"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/orders/:id/refund"; readonly handler: "refund"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/orders/:id/history"; readonly handler: "getHistory"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/orders'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/orders'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/orders/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'put'
+    readonly path: '/orders/:id/status'
+    readonly handler: 'updateStatus'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/orders/:id/cancel'
+    readonly handler: 'cancel'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/orders/:id/refund'
+    readonly handler: 'refund'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/orders/:id/history'
+    readonly handler: 'getHistory'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `STATUS_TRANSITIONS`
@@ -635,6 +692,7 @@ const STATUS_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -680,32 +738,33 @@ off one by one. A box you can't check is an integration bug to fix — not a
 skip. Ground every check in the REAL statuses
 (pending/confirmed/processing/shipped/delivered/cancelled/refunded) and the
 defined transitions — never a status the interface lacks:
+
 - [ ] Placing an order creates it `pending` with the exact line items
-  submitted (productId, name, price, quantity) and a correctly-computed
-  total: `subtotal` = the sum of price x quantity across items, and `total`
-  = subtotal - discount + tax + shipping. The amount the UI shows matches
-  that formula to the cent.
+      submitted (productId, name, price, quantity) and a correctly-computed
+      total: `subtotal` = the sum of price x quantity across items, and `total`
+      = subtotal - discount + tax + shipping. The amount the UI shows matches
+      that formula to the cent.
 - [ ] The fulfillment lifecycle advances ONLY through the defined
-  transitions — pending -> confirmed -> processing -> shipped -> delivered.
-  An illegal jump (e.g. pending -> shipped, or shipped -> pending) is
-  rejected 409 and the order's stored status is left unchanged.
+      transitions — pending -> confirmed -> processing -> shipped -> delivered.
+      An illegal jump (e.g. pending -> shipped, or shipped -> pending) is
+      rejected 409 and the order's stored status is left unchanged.
 - [ ] Cancel is honored only from a cancellable state (pending, confirmed,
-  or processing); cancelling a shipped, delivered, cancelled, or already
-  refunded order is rejected 409 — you cannot cancel or ship a cancelled
-  order.
+      or processing); cancelling a shipped, delivered, cancelled, or already
+      refunded order is rejected 409 — you cannot cancel or ship a cancelled
+      order.
 - [ ] Refund is honored ONLY from `delivered` (the sole state whose
-  transitions include `refunded`); refunding an unpaid/`pending` or a merely
-  shipped order is rejected 409, and a refund amount <= 0 or greater than the
-  order `total` is rejected 400.
+      transitions include `refunded`); refunding an unpaid/`pending` or a merely
+      shipped order is rejected 409, and a refund amount <= 0 or greater than the
+      order `total` is rejected 400.
 - [ ] Line items and money stay consistent across the flow: a status change
-  never alters the stored items, subtotal, or total, and a refund records
-  its amount (<= total) without corrupting the order total.
+      never alters the stored items, subtotal, or total, and a refund records
+      its amount (<= total) without corrupting the order total.
 - [ ] AUTHORIZATION — a user sees and mutates only their OWN orders. The
-  list returns just the caller's orders; reading or acting on another user's
-  order id returns 403 (or 404 when it does not exist) — guessing an id never
-  leaks or mutates someone else's order.
+      list returns just the caller's orders; reading or acting on another user's
+      order id returns 403 (or 404 when it does not exist) — guessing an id never
+      leaks or mutates someone else's order.
 - [ ] AUTHORIZATION — no endpoint lets a normal user push an order into a
-  privileged merchant state. Marking an order confirmed/processing/shipped/
-  delivered, or issuing a refund, is DENIED 403 unless a merchant authorizer
-  (`setOrderMerchantAuthorizer`) approves the caller — deny by default. The
-  only buyer-driven lifecycle action is cancelling a still-`pending` order.
+      privileged merchant state. Marking an order confirmed/processing/shipped/
+      delivered, or issuing a refund, is DENIED 403 unless a merchant authorizer
+      (`setOrderMerchantAuthorizer`) approves the caller — deny by default. The
+      only buyer-driven lifecycle action is cancelling a still-`pending` order.

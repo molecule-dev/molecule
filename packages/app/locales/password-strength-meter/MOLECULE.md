@@ -19,7 +19,10 @@ Provides translations for the `@molecule/app-password-strength-meter-react` pack
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-password-strength-meter'
-import type { PasswordStrengthMeterTranslationKey, PasswordStrengthMeterTranslations } from '@molecule/app-locales-password-strength-meter'
+import type {
+  PasswordStrengthMeterTranslationKey,
+  PasswordStrengthMeterTranslations,
+} from '@molecule/app-locales-password-strength-meter'
 ```
 
 ## Registration
@@ -39,20 +42,20 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `passwordStrengthMeter.label.0` | Very weak |
-| `passwordStrengthMeter.label.1` | Weak |
-| `passwordStrengthMeter.label.2` | Fair |
-| `passwordStrengthMeter.label.3` | Good |
-| `passwordStrengthMeter.label.4` | Strong |
+| Key                                   | English                                       |
+| ------------------------------------- | --------------------------------------------- |
+| `passwordStrengthMeter.label.0`       | Very weak                                     |
+| `passwordStrengthMeter.label.1`       | Weak                                          |
+| `passwordStrengthMeter.label.2`       | Fair                                          |
+| `passwordStrengthMeter.label.3`       | Good                                          |
+| `passwordStrengthMeter.label.4`       | Strong                                        |
 | `passwordStrengthMeter.ariaValueText` | Password strength: {{label}} ({{score}} of 4) |
-| `passwordStrengthMeter.rule.length` | At least 12 characters |
-| `passwordStrengthMeter.rule.upper` | Contains an uppercase letter |
-| `passwordStrengthMeter.rule.lower` | Contains a lowercase letter |
-| `passwordStrengthMeter.rule.digit` | Contains a digit |
-| `passwordStrengthMeter.rule.symbol` | Contains a symbol |
-| `passwordStrengthMeter.rule.noCommon` | Not a common password |
+| `passwordStrengthMeter.rule.length`   | At least 12 characters                        |
+| `passwordStrengthMeter.rule.upper`    | Contains an uppercase letter                  |
+| `passwordStrengthMeter.rule.lower`    | Contains a lowercase letter                   |
+| `passwordStrengthMeter.rule.digit`    | Contains a digit                              |
+| `passwordStrengthMeter.rule.symbol`   | Contains a symbol                             |
+| `passwordStrengthMeter.rule.noCommon` | Not a common password                         |
 
 ## Metadata
 

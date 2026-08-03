@@ -28,9 +28,11 @@ async function matchStatusBarToTheme(dark: boolean): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-status-bar @molecule/app-bond @molecule/app-i18n
 ```
@@ -181,7 +183,7 @@ type StatusBarStyle = 'dark' | 'light' | 'default'
 Apply a named preset configuration to the status bar.
 
 ```typescript
-function applyPreset(preset: "dark" | "light" | "transparent" | "hidden"): Promise<void>
+function applyPreset(preset: 'dark' | 'light' | 'transparent' | 'hidden'): Promise<void>
 ```
 
 - `preset` — The preset name: 'light', 'dark', 'transparent', or 'hidden'.
@@ -380,7 +382,27 @@ function show(animation?: StatusBarAnimation): Promise<void>
 Preset status bar configurations
 
 ```typescript
-const presets: { readonly light: { readonly backgroundColor: "#ffffff"; readonly style: StatusBarStyle; readonly visible: true; readonly overlaysWebView: false; }; readonly dark: { readonly backgroundColor: "#000000"; readonly style: StatusBarStyle; readonly visible: true; readonly overlaysWebView: false; }; readonly transparent: { readonly backgroundColor: "#00000000"; readonly style: StatusBarStyle; readonly visible: true; readonly overlaysWebView: true; }; readonly hidden: { readonly visible: false; }; }
+const presets: {
+  readonly light: {
+    readonly backgroundColor: '#ffffff'
+    readonly style: StatusBarStyle
+    readonly visible: true
+    readonly overlaysWebView: false
+  }
+  readonly dark: {
+    readonly backgroundColor: '#000000'
+    readonly style: StatusBarStyle
+    readonly visible: true
+    readonly overlaysWebView: false
+  }
+  readonly transparent: {
+    readonly backgroundColor: '#00000000'
+    readonly style: StatusBarStyle
+    readonly visible: true
+    readonly overlaysWebView: true
+  }
+  readonly hidden: { readonly visible: false }
+}
 ```
 
 ## Injection Notes
@@ -388,6 +410,7 @@ const presets: { readonly light: { readonly backgroundColor: "#ffffff"; readonly
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

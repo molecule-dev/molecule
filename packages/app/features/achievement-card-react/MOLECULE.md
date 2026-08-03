@@ -9,7 +9,7 @@ Exports `<AchievementCard>`.
 ```tsx
 import { AchievementCard } from '@molecule/app-achievement-card-react'
 
-<AchievementCard
+;<AchievementCard
   icon={<span>🏆</span>}
   name="First Login"
   description="Signed in for the first time."
@@ -20,9 +20,11 @@ import { AchievementCard } from '@molecule/app-achievement-card-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-achievement-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -96,6 +98,7 @@ function AchievementCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

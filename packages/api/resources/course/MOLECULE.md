@@ -33,9 +33,11 @@ await assertCourseStaff(req.userId, course.id)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-course @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-course @molecule/api-resource
 ```
@@ -175,10 +177,7 @@ type CreateModuleInput = Pick<Module, 'course_id' | 'title' | 'sort_order'>
 Input shape for {@link createModuleItem}.
 
 ```typescript
-type CreateModuleItemInput = Pick<
-  ModuleItem,
-  'module_id' | 'kind' | 'payload' | 'sort_order'
->
+type CreateModuleItemInput = Pick<ModuleItem, 'module_id' | 'kind' | 'payload' | 'sort_order'>
 ```
 
 #### `EnrollmentRole`
@@ -464,7 +463,10 @@ function isEnrolled(userId: string, courseId: string): Promise<boolean>
 Lists courses for an org, ordered most-recent first.
 
 ```typescript
-function listCourses(orgId: string, options?: { limit?: number; offset?: number; status?: Course["status"]; }): Promise<{ data: Course[]; total: number; limit: number; offset: number; }>
+function listCourses(
+  orgId: string,
+  options?: { limit?: number; offset?: number; status?: Course['status'] },
+): Promise<{ data: Course[]; total: number; limit: number; offset: number }>
 ```
 
 - `orgId` — The owning org id.
@@ -480,7 +482,10 @@ function listCourses(orgId: string, options?: { limit?: number; offset?: number;
 Lists enrollments in a course, optionally filtered by role.
 
 ```typescript
-function listEnrollments(courseId: string, options?: { role?: Enrollment["role"]; status?: Enrollment["status"]; }): Promise<Enrollment[]>
+function listEnrollments(
+  courseId: string,
+  options?: { role?: Enrollment['role']; status?: Enrollment['status'] },
+): Promise<Enrollment[]>
 ```
 
 - `courseId` — The course id.
@@ -531,7 +536,10 @@ function requireCourse(courseId: string): Promise<Course>
 Updates a course.
 
 ```typescript
-function updateCourse(courseId: string, patch: Partial<Pick<Course, "title" | "description" | "slug" | "status">>): Promise<Course | null>
+function updateCourse(
+  courseId: string,
+  patch: Partial<Pick<Course, 'title' | 'description' | 'slug' | 'status'>>,
+): Promise<Course | null>
 ```
 
 - `courseId` — The course id.
@@ -544,7 +552,10 @@ function updateCourse(courseId: string, patch: Partial<Pick<Course, "title" | "d
 Updates an enrollment.
 
 ```typescript
-function updateEnrollment(enrollmentId: string, patch: Partial<Pick<Enrollment, "status" | "role">>): Promise<Enrollment | null>
+function updateEnrollment(
+  enrollmentId: string,
+  patch: Partial<Pick<Enrollment, 'status' | 'role'>>,
+): Promise<Enrollment | null>
 ```
 
 - `enrollmentId` — The enrollment id.
@@ -557,7 +568,10 @@ function updateEnrollment(enrollmentId: string, patch: Partial<Pick<Enrollment, 
 Updates a module.
 
 ```typescript
-function updateModule(moduleId: string, patch: Partial<Pick<Module, "title" | "sort_order">>): Promise<Module | null>
+function updateModule(
+  moduleId: string,
+  patch: Partial<Pick<Module, 'title' | 'sort_order'>>,
+): Promise<Module | null>
 ```
 
 - `moduleId` — The module id.
@@ -570,7 +584,10 @@ function updateModule(moduleId: string, patch: Partial<Pick<Module, "title" | "s
 Updates a module item.
 
 ```typescript
-function updateModuleItem(itemId: string, patch: Partial<Pick<ModuleItem, "sort_order" | "kind" | "payload">>): Promise<ModuleItem | null>
+function updateModuleItem(
+  itemId: string,
+  patch: Partial<Pick<ModuleItem, 'sort_order' | 'kind' | 'payload'>>,
+): Promise<ModuleItem | null>
 ```
 
 - `itemId` — The item id.
@@ -585,7 +602,7 @@ function updateModuleItem(itemId: string, patch: Partial<Pick<ModuleItem, "sort_
 Database table for {@link Enrollment} records.
 
 ```typescript
-const COURSE_ENROLLMENTS_TABLE: "course_enrollments"
+const COURSE_ENROLLMENTS_TABLE: 'course_enrollments'
 ```
 
 #### `COURSE_MODULE_ITEMS_TABLE`
@@ -593,7 +610,7 @@ const COURSE_ENROLLMENTS_TABLE: "course_enrollments"
 Database table for {@link ModuleItem} records.
 
 ```typescript
-const COURSE_MODULE_ITEMS_TABLE: "course_module_items"
+const COURSE_MODULE_ITEMS_TABLE: 'course_module_items'
 ```
 
 #### `COURSE_MODULES_TABLE`
@@ -601,7 +618,7 @@ const COURSE_MODULE_ITEMS_TABLE: "course_module_items"
 Database table for {@link Module} records.
 
 ```typescript
-const COURSE_MODULES_TABLE: "course_modules"
+const COURSE_MODULES_TABLE: 'course_modules'
 ```
 
 #### `COURSES_TABLE`
@@ -609,7 +626,7 @@ const COURSE_MODULES_TABLE: "course_modules"
 Database table for {@link Course} records.
 
 ```typescript
-const COURSES_TABLE: "courses"
+const COURSES_TABLE: 'courses'
 ```
 
 #### `i18nRegistered`
@@ -625,6 +642,7 @@ const i18nRegistered: true
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource-course` ^1.0.0
@@ -665,41 +683,42 @@ a skip. Ground every check in the REAL model (course status
 draft/published/archived; enrollment role student/instructor/ta/observer and
 status active/invited/completed/dropped; content = modules -> module items of
 kind video/reading/quiz/assignment) — never a field the interface lacks:
+
 - [ ] An instructor CREATING a course persists its real fields (title,
-  description, and its modules + module items) and the course then appears in
-  the instructor's own list at the exact title/structure entered — not
-  renamed, not missing its modules.
+      description, and its modules + module items) and the course then appears in
+      the instructor's own list at the exact title/structure entered — not
+      renamed, not missing its modules.
 - [ ] Only PUBLISHED courses are visible to students: a course left `draft`
-  is hidden from the student catalog and cannot be enrolled in (enrolling in
-  a draft is rejected), while publishing it (status -> published) makes it
-  appear and become enrollable. An archived course likewise drops out of the
-  catalog.
+      is hidden from the student catalog and cannot be enrolled in (enrolling in
+      a draft is rejected), while publishing it (status -> published) makes it
+      appear and become enrollable. An archived course likewise drops out of the
+      catalog.
 - [ ] A student ENROLLING in a published course gains access to its content
-  and the enrollment is recorded once — a role `student`, status `active`
-  row keyed to that (user, course); re-enrolling is idempotent (no duplicate
-  enrollment), and the student can now read the modules/items they could not
-  see before.
+      and the enrollment is recorded once — a role `student`, status `active`
+      row keyed to that (user, course); re-enrolling is idempotent (no duplicate
+      enrollment), and the student can now read the modules/items they could not
+      see before.
 - [ ] PROGRESS tracking advances correctly as the student completes lessons:
-  finishing 2 of 4 module items reads 50% (progress is a fraction of the
-  course's real item count, never a hardcoded number), and completing every
-  item flips the enrollment to status `completed` (issuing a certificate if
-  the app models one). Progress only moves by actually completing items — a
-  student cannot self-mark `completed` without doing the lessons.
+      finishing 2 of 4 module items reads 50% (progress is a fraction of the
+      course's real item count, never a hardcoded number), and completing every
+      item flips the enrollment to status `completed` (issuing a certificate if
+      the app models one). Progress only moves by actually completing items — a
+      student cannot self-mark `completed` without doing the lessons.
 - [ ] Un-enrolled / gated access is denied SERVER-SIDE: a student with no
-  active enrollment who requests the course's member-only (paid/gated)
-  content is rejected 403 (assertEnrolled -> NotEnrolledError), never served
-  the gated lessons by client-side hiding alone; a `dropped`/`invited`
-  enrollment is not `active` and is treated as un-enrolled.
+      active enrollment who requests the course's member-only (paid/gated)
+      content is rejected 403 (assertEnrolled -> NotEnrolledError), never served
+      the gated lessons by client-side hiding alone; a `dropped`/`invited`
+      enrollment is not `active` and is treated as un-enrolled.
 - [ ] AUTHORIZATION (staff) — only the course owner (`created_by`) or an
-  active instructor/ta may edit content, publish/unpublish, delete the
-  course, or view the enrollment roster: a student or observer attempting any
-  of these is denied 403 (assertCourseStaff -> NotCourseStaffError), and a
-  missing course id returns 404 (CourseNotFoundError), not a 500.
+      active instructor/ta may edit content, publish/unpublish, delete the
+      course, or view the enrollment roster: a student or observer attempting any
+      of these is denied 403 (assertCourseStaff -> NotCourseStaffError), and a
+      missing course id returns 404 (CourseNotFoundError), not a 500.
 - [ ] AUTHORIZATION (per-student) — enrollment and progress are scoped to the
-  session user: the enrollment/progress a student sees is their OWN, and
-  reading or mutating another student's enrollment/progress by guessing its
-  id is denied 403 — a caller can never enroll, advance, or complete on
-  behalf of another user (the subject is the session, never the request body).
+      session user: the enrollment/progress a student sees is their OWN, and
+      reading or mutating another student's enrollment/progress by guessing its
+      id is denied 403 — a caller can never enroll, advance, or complete on
+      behalf of another user (the subject is the session, never the request body).
 
 ## Translations
 

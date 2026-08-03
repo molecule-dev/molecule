@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-search-autocomplete-react` package 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-search-autocomplete'
-import type { SearchAutocompleteTranslationKey, SearchAutocompleteTranslations } from '@molecule/app-locales-search-autocomplete'
+import type {
+  SearchAutocompleteTranslationKey,
+  SearchAutocompleteTranslations,
+} from '@molecule/app-locales-search-autocomplete'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                  | English |
+| -------------------- | ------- |
 | `search.placeholder` | Search… |
 
 ## Metadata

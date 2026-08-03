@@ -13,7 +13,7 @@ startup. Application code retrieves icons via {@link getIcon} /
 import { setIconSet, getIconDataUrl } from '@molecule/app-icons'
 import { iconSet } from '@molecule/app-icons-molecule'
 
-setIconSet(iconSet)   // once, at app startup — before anything renders an icon
+setIconSet(iconSet) // once, at app startup — before anything renders an icon
 
 // In components, prefer your framework UI's Icon component
 // (e.g. <Icon name="check-circle" /> from the app's UI bundle), which reads
@@ -22,9 +22,11 @@ const url = getIconDataUrl('check-circle', '#16a34a')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-icons @molecule/app-bond @molecule/app-i18n
 ```
@@ -280,8 +282,8 @@ function setIconSet(iconSet: IconSet): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider | Package                        |
+| -------- | ------------------------------ |
 | Molecule | `@molecule/app-icons-molecule` |
 
 ## Injection Notes
@@ -289,6 +291,7 @@ function setIconSet(iconSet: IconSet): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

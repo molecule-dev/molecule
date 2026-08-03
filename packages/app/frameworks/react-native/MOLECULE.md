@@ -23,9 +23,7 @@ function Shell() {
   const { isActive } = useAppState()
   const insets = useSafeArea()
   return (
-    <View style={{ paddingTop: insets.top }}>
-      {isAuthenticated && isActive ? <View /> : null}
-    </View>
+    <View style={{ paddingTop: insets.top }}>{isAuthenticated && isActive ? <View /> : null}</View>
   )
 }
 
@@ -41,9 +39,11 @@ function App() {
 ```
 
 ## Type
+
 `framework`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-react-native @molecule/app-keyboard @molecule/app-lifecycle @molecule/app-react react react-native react-native-safe-area-context
 ```
@@ -61,10 +61,10 @@ shared packages fall back to {@link DEFAULT_AGENT_IDENTITY} when it does not.
 
 ```typescript
 interface AgentIdentity {
-    /** Display name of the AI coding agent. Defaults to {@link DEFAULT_AGENT_NAME}. */
-    agentName: string;
-    /** Display name of the host product / IDE. Defaults to {@link DEFAULT_PRODUCT_NAME}. */
-    productName: string;
+  /** Display name of the AI coding agent. Defaults to {@link DEFAULT_AGENT_NAME}. */
+  agentName: string
+  /** Display name of the host product / IDE. Defaults to {@link DEFAULT_PRODUCT_NAME}. */
+  productName: string
 }
 ```
 
@@ -76,97 +76,97 @@ updates, and auth state subscription.
 
 ```typescript
 interface AuthClient<T = UserProfile> {
-    /**
-     * Returns the current authentication state snapshot.
-     */
-    getState(): AuthState<T>;
-    /**
-     * Returns whether the user is currently authenticated.
-     */
-    isAuthenticated(): boolean;
-    /**
-     * Gets the current user.
-     */
-    getUser(): T | null;
-    /**
-     * Updates the cached user object (state + persistent storage) without
-     * hitting the network. Intended for local refreshes after a per-app
-     * mutation (e.g., the user just PATCHed their own profile and the
-     * server returned the canonical row). Does NOT change tokens.
-     */
-    setUser(user: T | null): void;
-    /**
-     * Gets the current access token.
-     */
-    getAccessToken(): string | null;
-    /**
-     * Stores the access token in the configured token storage adapter (in-memory
-     * by default). Use this to seed the token after an out-of-band exchange (e.g.
-     * the OAuth code→token redirect) instead of writing to `localStorage` directly,
-     * which would violate the in-memory-default storage contract and make the bearer
-     * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
-     */
-    setAccessToken(token: string | null): void;
-    /**
-     * Gets the refresh token.
-     */
-    getRefreshToken(): string | null;
-    /**
-     * Logs in with credentials.
-     */
-    login(credentials: LoginCredentials): Promise<AuthResult<T>>;
-    /**
-     * Logs out the current user.
-     */
-    logout(): Promise<void>;
-    /**
-     * Registers a new user.
-     */
-    register(data: RegisterData): Promise<AuthResult<T>>;
-    /**
-     * Refreshes the access token.
-     */
-    refresh(): Promise<AuthResult<T>>;
-    /**
-     * Requests a password reset.
-     */
-    requestPasswordReset(data: PasswordResetRequest): Promise<void>;
-    /**
-     * Confirms a password reset.
-     */
-    confirmPasswordReset(data: PasswordResetConfirm): Promise<void>;
-    /**
-     * Updates the current user's profile.
-     */
-    updateProfile(data: Partial<T>): Promise<T>;
-    /**
-     * Changes the current user's password.
-     */
-    changePassword(oldPassword: string, newPassword: string): Promise<void>;
-    /**
-     * Initializes auth state (e.g., from stored tokens).
-     */
-    initialize(): Promise<void>;
-    /**
-     * Subscribes to auth state changes.
-     */
-    subscribe(callback: (state: AuthState<T>) => void): () => void;
-    /**
-     * Subscribes to auth state changes (alias for subscribe).
-     */
-    onAuthChange(callback: (state: AuthState<T>) => void): () => void;
-    /**
-     * Gets the current access token (alias for getAccessToken).
-     */
-    getToken?(): string | null;
-    /**
-     * Adds an auth event listener.
-     */
-    addEventListener(listener: AuthEventListener): () => void;
-    /**
-     * Destroys the auth client.
-     */
-    destroy(): void;
+  /**
+   * Returns the current authentication state snapshot.
+   */
+  getState(): AuthState<T>
+  /**
+   * Returns whether the user is currently authenticated.
+   */
+  isAuthenticated(): boolean
+  /**
+   * Gets the current user.
+   */
+  getUser(): T | null
+  /**
+   * Updates the cached user object (state + persistent storage) without
+   * hitting the network. Intended for local refreshes after a per-app
+   * mutation (e.g., the user just PATCHed their own profile and the
+   * server returned the canonical row). Does NOT change tokens.
+   */
+  setUser(user: T | null): void
+  /**
+   * Gets the current access token.
+   */
+  getAccessToken(): string | null
+  /**
+   * Stores the access token in the configured token storage adapter (in-memory
+   * by default). Use this to seed the token after an out-of-band exchange (e.g.
+   * the OAuth code→token redirect) instead of writing to `localStorage` directly,
+   * which would violate the in-memory-default storage contract and make the bearer
+   * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+   */
+  setAccessToken(token: string | null): void
+  /**
+   * Gets the refresh token.
+   */
+  getRefreshToken(): string | null
+  /**
+   * Logs in with credentials.
+   */
+  login(credentials: LoginCredentials): Promise<AuthResult<T>>
+  /**
+   * Logs out the current user.
+   */
+  logout(): Promise<void>
+  /**
+   * Registers a new user.
+   */
+  register(data: RegisterData): Promise<AuthResult<T>>
+  /**
+   * Refreshes the access token.
+   */
+  refresh(): Promise<AuthResult<T>>
+  /**
+   * Requests a password reset.
+   */
+  requestPasswordReset(data: PasswordResetRequest): Promise<void>
+  /**
+   * Confirms a password reset.
+   */
+  confirmPasswordReset(data: PasswordResetConfirm): Promise<void>
+  /**
+   * Updates the current user's profile.
+   */
+  updateProfile(data: Partial<T>): Promise<T>
+  /**
+   * Changes the current user's password.
+   */
+  changePassword(oldPassword: string, newPassword: string): Promise<void>
+  /**
+   * Initializes auth state (e.g., from stored tokens).
+   */
+  initialize(): Promise<void>
+  /**
+   * Subscribes to auth state changes.
+   */
+  subscribe(callback: (state: AuthState<T>) => void): () => void
+  /**
+   * Subscribes to auth state changes (alias for subscribe).
+   */
+  onAuthChange(callback: (state: AuthState<T>) => void): () => void
+  /**
+   * Gets the current access token (alias for getAccessToken).
+   */
+  getToken?(): string | null
+  /**
+   * Adds an auth event listener.
+   */
+  addEventListener(listener: AuthEventListener): () => void
+  /**
+   * Destroys the auth client.
+   */
+  destroy(): void
 }
 ```
 
@@ -176,7 +176,7 @@ Props for auth provider component.
 
 ```typescript
 interface AuthProviderProps<T = unknown> extends ProviderProps {
-    client: AuthClient<T>;
+  client: AuthClient<T>
 }
 ```
 
@@ -186,26 +186,26 @@ Reactive authentication state snapshot (initialized, authenticated, user, loadin
 
 ```typescript
 interface AuthState<T = UserProfile> {
-    /**
-     * Whether auth state has been initialized.
-     */
-    initialized: boolean;
-    /**
-     * Whether the user is authenticated.
-     */
-    authenticated: boolean;
-    /**
-     * Current user (if authenticated).
-     */
-    user: T | null;
-    /**
-     * Whether an auth operation is in progress.
-     */
-    loading: boolean;
-    /**
-     * Last auth error (if any).
-     */
-    error: string | null;
+  /**
+   * Whether auth state has been initialized.
+   */
+  initialized: boolean
+  /**
+   * Whether the user is authenticated.
+   */
+  authenticated: boolean
+  /**
+   * Current user (if authenticated).
+   */
+  user: T | null
+  /**
+   * Whether an auth operation is in progress.
+   */
+  loading: boolean
+  /**
+   * Last auth error (if any).
+   */
+  error: string | null
 }
 ```
 
@@ -215,7 +215,7 @@ Props for the ChatProvider React component.
 
 ```typescript
 interface ChatProviderProps extends ProviderProps {
-    provider: ChatProvider;
+  provider: ChatProvider
 }
 ```
 
@@ -225,7 +225,7 @@ Props for editor provider component.
 
 ```typescript
 interface EditorProviderProps extends ProviderProps {
-    provider: EditorProvider;
+  provider: EditorProvider
 }
 ```
 
@@ -237,91 +237,99 @@ All form providers must implement this interface.
 
 ```typescript
 interface FormController<T extends Record<string, unknown> = Record<string, unknown>> {
-    /**
-     * Gets the current form state.
-     */
-    getState(): FormState<T>;
-    /**
-     * Gets the value of a specific field.
-     */
-    getValue(name: string): unknown;
-    getValue<K extends keyof T>(name: K): T[K];
-    /**
-     * Gets all form values.
-     */
-    getValues(): T;
-    /**
-     * Sets the value of a specific field.
-     */
-    setValue(name: string, value: unknown, options?: {
-        shouldValidate?: boolean;
-        shouldDirty?: boolean;
-        shouldTouch?: boolean;
-    }): void;
-    /**
-     * Sets multiple values at once.
-     */
-    setValues(values: Partial<T>, options?: {
-        shouldValidate?: boolean;
-    }): void;
-    /**
-     * Gets the error for a specific field.
-     */
-    getError(name: string): string | undefined;
-    /**
-     * Sets the error for a specific field.
-     */
-    setError(name: string, error: string | undefined): void;
-    /**
-     * Clears the error for a specific field.
-     */
-    clearError<K extends keyof T>(name: K): void;
-    /**
-     * Clears all errors.
-     */
-    clearErrors(): void;
-    /**
-     * Gets the field state for a specific field.
-     */
-    getFieldState<K extends keyof T>(name: K): FieldState<T[K]>;
-    /**
-     * Registers a field for form management.
-     */
-    register(nameOrOptions: string | RegisterOptions, options?: RegisterOptions): FieldRegistration;
-    /**
-     * Unregisters a field.
-     */
-    unregister(name: string): void;
-    /**
-     * Validates a specific field.
-     */
-    validateField<K extends keyof T>(name: K): Promise<boolean>;
-    /**
-     * Validates all fields.
-     */
-    validate(): Promise<boolean>;
-    /**
-     * Resets the form to initial values.
-     */
-    reset(values?: Partial<T>): void;
-    /**
-     * Handles form submission.
-     */
-    handleSubmit(onSubmit: (values: T) => void | Promise<void>, onError?: (errors: Partial<Record<keyof T, string>>) => void): (event?: {
-        preventDefault?: () => void;
-    }) => Promise<void>;
-    /**
-     * Sets focus to a field.
-     */
-    setFocus(name: keyof T): void;
-    /**
-     * Subscribes to form state changes.
-     */
-    subscribe(callback: (state: FormState<T>) => void): () => void;
-    /**
-     * Destroys the form controller.
-     */
-    destroy(): void;
+  /**
+   * Gets the current form state.
+   */
+  getState(): FormState<T>
+  /**
+   * Gets the value of a specific field.
+   */
+  getValue(name: string): unknown
+  getValue<K extends keyof T>(name: K): T[K]
+  /**
+   * Gets all form values.
+   */
+  getValues(): T
+  /**
+   * Sets the value of a specific field.
+   */
+  setValue(
+    name: string,
+    value: unknown,
+    options?: {
+      shouldValidate?: boolean
+      shouldDirty?: boolean
+      shouldTouch?: boolean
+    },
+  ): void
+  /**
+   * Sets multiple values at once.
+   */
+  setValues(
+    values: Partial<T>,
+    options?: {
+      shouldValidate?: boolean
+    },
+  ): void
+  /**
+   * Gets the error for a specific field.
+   */
+  getError(name: string): string | undefined
+  /**
+   * Sets the error for a specific field.
+   */
+  setError(name: string, error: string | undefined): void
+  /**
+   * Clears the error for a specific field.
+   */
+  clearError<K extends keyof T>(name: K): void
+  /**
+   * Clears all errors.
+   */
+  clearErrors(): void
+  /**
+   * Gets the field state for a specific field.
+   */
+  getFieldState<K extends keyof T>(name: K): FieldState<T[K]>
+  /**
+   * Registers a field for form management.
+   */
+  register(nameOrOptions: string | RegisterOptions, options?: RegisterOptions): FieldRegistration
+  /**
+   * Unregisters a field.
+   */
+  unregister(name: string): void
+  /**
+   * Validates a specific field.
+   */
+  validateField<K extends keyof T>(name: K): Promise<boolean>
+  /**
+   * Validates all fields.
+   */
+  validate(): Promise<boolean>
+  /**
+   * Resets the form to initial values.
+   */
+  reset(values?: Partial<T>): void
+  /**
+   * Handles form submission.
+   */
+  handleSubmit(
+    onSubmit: (values: T) => void | Promise<void>,
+    onError?: (errors: Partial<Record<keyof T, string>>) => void,
+  ): (event?: { preventDefault?: () => void }) => Promise<void>
+  /**
+   * Sets focus to a field.
+   */
+  setFocus(name: keyof T): void
+  /**
+   * Subscribes to form state changes.
+   */
+  subscribe(callback: (state: FormState<T>) => void): () => void
+  /**
+   * Destroys the form controller.
+   */
+  destroy(): void
 }
 ```
 
@@ -331,26 +339,28 @@ Form creation options.
 
 ```typescript
 interface FormOptions<T extends Record<string, unknown>> {
-    /**
-     * Default values.
-     */
-    defaultValues?: Partial<T>;
-    /**
-     * Validation mode.
-     */
-    mode?: 'onSubmit' | 'onChange' | 'onBlur' | 'all';
-    /**
-     * Revalidation mode.
-     */
-    reValidateMode?: 'onChange' | 'onBlur' | 'onSubmit';
-    /**
-     * Whether to focus the first error field on submit.
-     */
-    shouldFocusError?: boolean;
-    /**
-     * Form-level validation function.
-     */
-    validate?: (values: T) => Partial<Record<keyof T, string>> | Promise<Partial<Record<keyof T, string>>>;
+  /**
+   * Default values.
+   */
+  defaultValues?: Partial<T>
+  /**
+   * Validation mode.
+   */
+  mode?: 'onSubmit' | 'onChange' | 'onBlur' | 'all'
+  /**
+   * Revalidation mode.
+   */
+  reValidateMode?: 'onChange' | 'onBlur' | 'onSubmit'
+  /**
+   * Whether to focus the first error field on submit.
+   */
+  shouldFocusError?: boolean
+  /**
+   * Form-level validation function.
+   */
+  validate?: (
+    values: T,
+  ) => Partial<Record<keyof T, string>> | Promise<Partial<Record<keyof T, string>>>
 }
 ```
 
@@ -362,67 +372,67 @@ All HTTP providers must implement this interface.
 
 ```typescript
 interface HttpClient {
-    /**
-     * Base URL for all requests.
-     */
-    baseURL: string;
-    /**
-     * Default headers for all requests.
-     */
-    defaultHeaders: Record<string, string>;
-    /**
-     * Makes a generic HTTP request.
-     */
-    request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a GET request.
-     */
-    get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a POST request.
-     */
-    post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PUT request.
-     */
-    put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PATCH request.
-     */
-    patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a DELETE request.
-     */
-    delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Adds a request interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addRequestInterceptor(interceptor: RequestInterceptor): () => void;
-    /**
-     * Adds a response interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addResponseInterceptor(interceptor: ResponseInterceptor): () => void;
-    /**
-     * Adds an error interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addErrorInterceptor(interceptor: ErrorInterceptor): () => void;
-    /**
-     * Sets the authorization token.
-     */
-    setAuthToken(token: string | null): void;
-    /**
-     * Returns the current authorization token, or `null` if not set.
-     */
-    getAuthToken(): string | null;
-    /**
-     * Registers a handler for authentication errors (401).
-     *
-     * @returns An unsubscribe function.
-     */
-    onAuthError(handler: () => void): () => void;
+  /**
+   * Base URL for all requests.
+   */
+  baseURL: string
+  /**
+   * Default headers for all requests.
+   */
+  defaultHeaders: Record<string, string>
+  /**
+   * Makes a generic HTTP request.
+   */
+  request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a GET request.
+   */
+  get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a POST request.
+   */
+  post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a PUT request.
+   */
+  put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a PATCH request.
+   */
+  patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a DELETE request.
+   */
+  delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Adds a request interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addRequestInterceptor(interceptor: RequestInterceptor): () => void
+  /**
+   * Adds a response interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addResponseInterceptor(interceptor: ResponseInterceptor): () => void
+  /**
+   * Adds an error interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addErrorInterceptor(interceptor: ErrorInterceptor): () => void
+  /**
+   * Sets the authorization token.
+   */
+  setAuthToken(token: string | null): void
+  /**
+   * Returns the current authorization token, or `null` if not set.
+   */
+  getAuthToken(): string | null
+  /**
+   * Registers a handler for authentication errors (401).
+   *
+   * @returns An unsubscribe function.
+   */
+  onAuthError(handler: () => void): () => void
 }
 ```
 
@@ -432,7 +442,7 @@ Props for http provider component.
 
 ```typescript
 interface HttpProviderProps extends ProviderProps {
-    client: HttpClient;
+  client: HttpClient
 }
 ```
 
@@ -442,7 +452,7 @@ Props for i18n provider component.
 
 ```typescript
 interface I18nProviderProps extends ProviderProps {
-    provider: I18nProvider;
+  provider: I18nProvider
 }
 ```
 
@@ -452,7 +462,7 @@ Props for logger provider component.
 
 ```typescript
 interface LoggerProviderProps extends ProviderProps {
-    provider: LoggerProvider;
+  provider: LoggerProvider
 }
 ```
 
@@ -462,18 +472,18 @@ Properties for molecule provider.
 
 ```typescript
 interface MoleculeProviderProps extends ProviderProps {
-    state?: StateProvider;
-    auth?: AuthClient<unknown>;
-    theme?: ThemeProvider;
-    router?: Router;
-    i18n?: I18nProvider;
-    http?: HttpClient;
-    storage?: StorageProvider;
-    logger?: LoggerProvider;
-    chat?: ChatProvider;
-    workspace?: WorkspaceProvider;
-    editor?: EditorProvider;
-    preview?: PreviewProvider;
+  state?: StateProvider
+  auth?: AuthClient<unknown>
+  theme?: ThemeProvider
+  router?: Router
+  i18n?: I18nProvider
+  http?: HttpClient
+  storage?: StorageProvider
+  logger?: LoggerProvider
+  chat?: ChatProvider
+  workspace?: WorkspaceProvider
+  editor?: EditorProvider
+  preview?: PreviewProvider
 }
 ```
 
@@ -483,7 +493,7 @@ Props for preview provider component.
 
 ```typescript
 interface PreviewProviderProps extends ProviderProps {
-    provider: PreviewProvider;
+  provider: PreviewProvider
 }
 ```
 
@@ -493,7 +503,7 @@ Props for provider components.
 
 ```typescript
 interface ProviderProps {
-    children: ReactNode;
+  children: ReactNode
 }
 ```
 
@@ -505,92 +515,100 @@ All routing providers must implement this interface.
 
 ```typescript
 interface Router {
-    /**
-     * Returns the current route location (pathname, search, hash, state).
-     */
-    getLocation(): RouteLocation;
-    /**
-     * Gets the current route params.
-     */
-    getParams<T extends RouteParams = RouteParams>(): T;
-    /**
-     * Gets the current query params.
-     */
-    getQuery(): QueryParams;
-    /**
-     * Gets a specific query parameter.
-     */
-    getQueryParam(key: string): string | undefined;
-    /**
-     * Gets the current hash.
-     */
-    getHash(): string;
-    /**
-     * Navigates to a path.
-     */
-    navigate(path: string, options?: NavigateOptions): void;
-    /**
-     * Navigates to a named route.
-     */
-    navigateTo(name: string, params?: RouteParams, query?: QueryParams, options?: NavigateOptions): void;
-    /**
-     * Goes back in history.
-     */
-    back(): void;
-    /**
-     * Goes forward in history.
-     */
-    forward(): void;
-    /**
-     * Goes to a specific point in history.
-     */
-    go(delta: number): void;
-    /**
-     * Updates the current query params.
-     */
-    setQuery(params: QueryParams, options?: NavigateOptions): void;
-    /**
-     * Updates a specific query parameter.
-     */
-    setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void;
-    /**
-     * Updates the current hash.
-     */
-    setHash(hash: string, options?: NavigateOptions): void;
-    /**
-     * Checks if a path matches the current location.
-     *
-     * @returns `true` if the path matches the current route.
-     */
-    isActive(path: string, exact?: boolean): boolean;
-    /**
-     * Matches a path pattern against a pathname.
-     */
-    matchPath<Params extends RouteParams = RouteParams>(pattern: string, pathname: string): RouteMatch<Params> | null;
-    /**
-     * Generates a URL from a named route.
-     */
-    generatePath(name: string, params?: RouteParams, query?: QueryParams): string;
-    /**
-     * Subscribes to route changes.
-     */
-    subscribe(listener: RouteChangeListener): () => void;
-    /**
-     * Adds a navigation guard.
-     */
-    addGuard(guard: NavigationGuard): () => void;
-    /**
-     * Registers route definitions.
-     */
-    registerRoutes(routes: RouteDefinition[]): void;
-    /**
-     * Gets all registered routes.
-     */
-    getRoutes(): RouteDefinition[];
-    /**
-     * Destroys the router.
-     */
-    destroy(): void;
+  /**
+   * Returns the current route location (pathname, search, hash, state).
+   */
+  getLocation(): RouteLocation
+  /**
+   * Gets the current route params.
+   */
+  getParams<T extends RouteParams = RouteParams>(): T
+  /**
+   * Gets the current query params.
+   */
+  getQuery(): QueryParams
+  /**
+   * Gets a specific query parameter.
+   */
+  getQueryParam(key: string): string | undefined
+  /**
+   * Gets the current hash.
+   */
+  getHash(): string
+  /**
+   * Navigates to a path.
+   */
+  navigate(path: string, options?: NavigateOptions): void
+  /**
+   * Navigates to a named route.
+   */
+  navigateTo(
+    name: string,
+    params?: RouteParams,
+    query?: QueryParams,
+    options?: NavigateOptions,
+  ): void
+  /**
+   * Goes back in history.
+   */
+  back(): void
+  /**
+   * Goes forward in history.
+   */
+  forward(): void
+  /**
+   * Goes to a specific point in history.
+   */
+  go(delta: number): void
+  /**
+   * Updates the current query params.
+   */
+  setQuery(params: QueryParams, options?: NavigateOptions): void
+  /**
+   * Updates a specific query parameter.
+   */
+  setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void
+  /**
+   * Updates the current hash.
+   */
+  setHash(hash: string, options?: NavigateOptions): void
+  /**
+   * Checks if a path matches the current location.
+   *
+   * @returns `true` if the path matches the current route.
+   */
+  isActive(path: string, exact?: boolean): boolean
+  /**
+   * Matches a path pattern against a pathname.
+   */
+  matchPath<Params extends RouteParams = RouteParams>(
+    pattern: string,
+    pathname: string,
+  ): RouteMatch<Params> | null
+  /**
+   * Generates a URL from a named route.
+   */
+  generatePath(name: string, params?: RouteParams, query?: QueryParams): string
+  /**
+   * Subscribes to route changes.
+   */
+  subscribe(listener: RouteChangeListener): () => void
+  /**
+   * Adds a navigation guard.
+   */
+  addGuard(guard: NavigationGuard): () => void
+  /**
+   * Registers route definitions.
+   */
+  registerRoutes(routes: RouteDefinition[]): void
+  /**
+   * Gets all registered routes.
+   */
+  getRoutes(): RouteDefinition[]
+  /**
+   * Destroys the router.
+   */
+  destroy(): void
 }
 ```
 
@@ -600,18 +618,18 @@ Configuration options for creating a router instance.
 
 ```typescript
 interface RouterConfig {
-    /**
-     * Router mode.
-     */
-    mode?: 'history' | 'hash' | 'memory';
-    /**
-     * Base path.
-     */
-    basePath?: string;
-    /**
-     * Initial routes.
-     */
-    routes?: RouteDefinition[];
+  /**
+   * Router mode.
+   */
+  mode?: 'history' | 'hash' | 'memory'
+  /**
+   * Base path.
+   */
+  basePath?: string
+  /**
+   * Initial routes.
+   */
+  routes?: RouteDefinition[]
 }
 ```
 
@@ -621,7 +639,7 @@ Props for router provider component.
 
 ```typescript
 interface RouterProviderProps extends ProviderProps {
-    router: Router;
+  router: Router
 }
 ```
 
@@ -631,38 +649,38 @@ Options for {@link UseChatResult.sendMessage}.
 
 ```typescript
 interface SendMessageOptions {
-    /**
-     * Skip the optimistic local user-message bubble. The text is still sent to
-     * the server. Used for ask_user responses: the answer is folded into the
-     * ask_user tool card (a checkmark on the chosen option, or the custom text
-     * shown in-card) rather than echoed as a separate message below it.
-     */
-    suppressUserMessage?: boolean;
-    /**
-     * Mark this send as issued automatically on the user's behalf (e.g. an
-     * auto-fix prompt). The optimistic local bubble and the persisted message are
-     * flagged `automatic` so the chat renders it in the distinct auto-sent style
-     * (agent avatar + accent border) instead of looking like the user typed it.
-     */
-    automatic?: boolean;
-    /**
-     * Mark this send as the answer to the pending `ask_user` question. The most
-     * recent unanswered `ask_user` tool call in the store is resolved in place —
-     * its `output` is set to this answer — so the chosen option stays checked
-     * across remounts (e.g. the discovery→IDE transition) instead of relying on
-     * ephemeral component state that the answer's selection would otherwise lose.
-     * Distinct from {@link suppressUserMessage} (which the post-boot kickoff also
-     * sets) so resolving never misfires on a non-ask_user suppressed send.
-     */
-    askUserAnswer?: boolean;
-    /**
-     * Mark an {@link automatic} send as directly requested by the user (e.g. the
-     * editor's "Fix with AI" action, the broken-preview overlay's "Fix with AI"
-     * button) rather than dispatched autonomously by the platform. A user Stop
-     * suppresses autonomous automatic sends until the user re-engages; a
-     * user-initiated one IS that re-engagement — it clears the stop and sends.
-     */
-    userInitiated?: boolean;
+  /**
+   * Skip the optimistic local user-message bubble. The text is still sent to
+   * the server. Used for ask_user responses: the answer is folded into the
+   * ask_user tool card (a checkmark on the chosen option, or the custom text
+   * shown in-card) rather than echoed as a separate message below it.
+   */
+  suppressUserMessage?: boolean
+  /**
+   * Mark this send as issued automatically on the user's behalf (e.g. an
+   * auto-fix prompt). The optimistic local bubble and the persisted message are
+   * flagged `automatic` so the chat renders it in the distinct auto-sent style
+   * (agent avatar + accent border) instead of looking like the user typed it.
+   */
+  automatic?: boolean
+  /**
+   * Mark this send as the answer to the pending `ask_user` question. The most
+   * recent unanswered `ask_user` tool call in the store is resolved in place —
+   * its `output` is set to this answer — so the chosen option stays checked
+   * across remounts (e.g. the discovery→IDE transition) instead of relying on
+   * ephemeral component state that the answer's selection would otherwise lose.
+   * Distinct from {@link suppressUserMessage} (which the post-boot kickoff also
+   * sets) so resolving never misfires on a non-ask_user suppressed send.
+   */
+  askUserAnswer?: boolean
+  /**
+   * Mark an {@link automatic} send as directly requested by the user (e.g. the
+   * editor's "Fix with AI" action, the broken-preview overlay's "Fix with AI"
+   * button) rather than dispatched autonomously by the platform. A user Stop
+   * suppresses autonomous automatic sends until the user re-engages; a
+   * user-initiated one IS that re-engagement — it clears the stop and sends.
+   */
+  userInitiated?: boolean
 }
 ```
 
@@ -672,7 +690,7 @@ Props for state provider component.
 
 ```typescript
 interface StateProviderProps extends ProviderProps {
-    provider: StateProvider;
+  provider: StateProvider
 }
 ```
 
@@ -682,7 +700,7 @@ Props for storage provider component.
 
 ```typescript
 interface StorageProviderProps extends ProviderProps {
-    provider: StorageProvider;
+  provider: StorageProvider
 }
 ```
 
@@ -694,23 +712,23 @@ All state management providers must implement this interface.
 
 ```typescript
 interface Store<T> {
-    /**
-     * Gets the current state.
-     */
-    getState(): T;
-    /**
-     * Sets the state (partial or via updater function).
-     */
-    setState(partial: Partial<T> | ((state: T) => Partial<T>)): void;
-    /**
-     * Subscribes to state changes.
-     * Returns an unsubscribe function.
-     */
-    subscribe(listener: StateListener<T>): () => void;
-    /**
-     * Destroys the store and cleans up subscriptions.
-     */
-    destroy(): void;
+  /**
+   * Gets the current state.
+   */
+  getState(): T
+  /**
+   * Sets the state (partial or via updater function).
+   */
+  setState(partial: Partial<T> | ((state: T) => Partial<T>)): void
+  /**
+   * Subscribes to state changes.
+   * Returns an unsubscribe function.
+   */
+  subscribe(listener: StateListener<T>): () => void
+  /**
+   * Destroys the store and cleans up subscriptions.
+   */
+  destroy(): void
 }
 ```
 
@@ -720,18 +738,18 @@ Configuration for creating a store (initial state, optional name, and middleware
 
 ```typescript
 interface StoreConfig<T> {
-    /**
-     * Initial state value.
-     */
-    initialState: T;
-    /**
-     * Optional name for debugging.
-     */
-    name?: string;
-    /**
-     * Optional middleware functions.
-     */
-    middleware?: StoreMiddleware<T>[];
+  /**
+   * Initial state value.
+   */
+  initialState: T
+  /**
+   * Optional name for debugging.
+   */
+  name?: string
+  /**
+   * Optional middleware functions.
+   */
+  middleware?: StoreMiddleware<T>[]
 }
 ```
 
@@ -741,16 +759,16 @@ Complete theme definition.
 
 ```typescript
 interface Theme {
-    name: string;
-    mode: 'light' | 'dark';
-    colors: ThemeColors;
-    breakpoints: ThemeBreakpoints;
-    spacing: ThemeSpacing;
-    typography: ThemeTypography;
-    borderRadius: ThemeBorderRadius;
-    shadows: ThemeShadows;
-    transitions: ThemeTransitions;
-    zIndex: ThemeZIndex;
+  name: string
+  mode: 'light' | 'dark'
+  colors: ThemeColors
+  breakpoints: ThemeBreakpoints
+  spacing: ThemeSpacing
+  typography: ThemeTypography
+  borderRadius: ThemeBorderRadius
+  shadows: ThemeShadows
+  transitions: ThemeTransitions
+  zIndex: ThemeZIndex
 }
 ```
 
@@ -760,8 +778,8 @@ Props for theme provider component.
 
 ```typescript
 interface ThemeProviderProps extends ProviderProps {
-    provider: ThemeProvider;
-    initialTheme?: string;
+  provider: ThemeProvider
+  initialTheme?: string
 }
 ```
 
@@ -771,19 +789,19 @@ Result returned by `useAIModels`.
 
 ```typescript
 interface UseAIModelsResult {
-    /** Available models, or an empty array while loading. */
-    models: AppModelDefinition[];
-    /**
-     * Per-mode server default model ids for the requester's tier, or `undefined`
-     * while loading or on servers that don't provide them.
-     */
-    defaults: AppModeModelDefaults | undefined;
-    /** The single model marked `freeTier: true`, or `undefined`. */
-    freeTierModel: AppModelDefinition | undefined;
-    /** `true` while the initial fetch is in flight. */
-    loading: boolean;
-    /** Error from the initial fetch, or `null`. */
-    error: Error | null;
+  /** Available models, or an empty array while loading. */
+  models: AppModelDefinition[]
+  /**
+   * Per-mode server default model ids for the requester's tier, or `undefined`
+   * while loading or on servers that don't provide them.
+   */
+  defaults: AppModeModelDefaults | undefined
+  /** The single model marked `freeTier: true`, or `undefined`. */
+  freeTierModel: AppModelDefinition | undefined
+  /** `true` while the initial fetch is in flight. */
+  loading: boolean
+  /** Error from the initial fetch, or `null`. */
+  error: Error | null
 }
 ```
 
@@ -806,10 +824,10 @@ Hook options for useAuth.
 
 ```typescript
 interface UseAuthOptions {
-    /**
-     * Whether to automatically refresh the token on mount.
-     */
-    autoRefresh?: boolean;
+  /**
+   * Whether to automatically refresh the token on mount.
+   */
+  autoRefresh?: boolean
 }
 ```
 
@@ -819,15 +837,15 @@ Hook result for useAuth.
 
 ```typescript
 interface UseAuthResult<T = unknown> {
-    state: AuthState<T>;
-    login: AuthClient<T>['login'];
-    logout: AuthClient<T>['logout'];
-    register: AuthClient<T>['register'];
-    refresh: AuthClient<T>['refresh'];
-    setUser: AuthClient<T>['setUser'];
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    user: T | null;
+  state: AuthState<T>
+  login: AuthClient<T>['login']
+  logout: AuthClient<T>['logout']
+  register: AuthClient<T>['register']
+  refresh: AuthClient<T>['refresh']
+  setUser: AuthClient<T>['setUser']
+  isAuthenticated: boolean
+  isLoading: boolean
+  user: T | null
 }
 ```
 
@@ -848,10 +866,10 @@ Return type for useChangePassword hook.
 
 ```typescript
 interface UseChangePasswordReturn {
-    status: UsePromiseState<void>['status'];
-    error: UsePromiseState<void>['error'];
-    changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
-    reset: () => void;
+  status: UsePromiseState<void>['status']
+  error: UsePromiseState<void>['error']
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>
+  reset: () => void
 }
 ```
 
@@ -861,27 +879,27 @@ Hook options for useChat.
 
 ```typescript
 interface UseChatOptions {
-    /** Chat endpoint (e.g., '/projects/123/chat'). */
-    endpoint: string;
-    /** Project ID for context. */
-    projectId?: string;
-    /**
-     * Display name of the AI coding agent, interpolated into user-facing chat
-     * copy (e.g. the stalled-stream notice). The host passes its own agent brand
-     * name; defaults to the neutral `DEFAULT_AGENT_NAME` so the shared hook never
-     * names a specific product.
-     */
-    agentName?: string;
-    /** Load history on mount. */
-    loadOnMount?: boolean;
-    /** Called when a file is created or modified by a tool call (path + new content). */
-    onFileChange?: (path: string, content: string) => void;
-    /** Called when the AI switches between plan and execute modes. */
-    onModeChange?: (mode: 'plan' | 'execute') => void;
-    /** Called when the backend assigns or confirms a conversation ID. */
-    onConversationId?: (id: string) => void;
-    /** Called for every streaming event — useful for notifications, sounds, etc. */
-    onStreamEvent?: (event: ChatStreamEvent) => void;
+  /** Chat endpoint (e.g., '/projects/123/chat'). */
+  endpoint: string
+  /** Project ID for context. */
+  projectId?: string
+  /**
+   * Display name of the AI coding agent, interpolated into user-facing chat
+   * copy (e.g. the stalled-stream notice). The host passes its own agent brand
+   * name; defaults to the neutral `DEFAULT_AGENT_NAME` so the shared hook never
+   * names a specific product.
+   */
+  agentName?: string
+  /** Load history on mount. */
+  loadOnMount?: boolean
+  /** Called when a file is created or modified by a tool call (path + new content). */
+  onFileChange?: (path: string, content: string) => void
+  /** Called when the AI switches between plan and execute modes. */
+  onModeChange?: (mode: 'plan' | 'execute') => void
+  /** Called when the backend assigns or confirms a conversation ID. */
+  onConversationId?: (id: string) => void
+  /** Called for every streaming event — useful for notifications, sounds, etc. */
+  onStreamEvent?: (event: ChatStreamEvent) => void
 }
 ```
 
@@ -891,83 +909,91 @@ Hook result for useChat.
 
 ```typescript
 interface UseChatResult {
-    messages: ChatMessage[];
-    isLoading: boolean;
-    /**
-     * True while a backend turn for this conversation streams WITHOUT this client
-     * owning the request — a turn started in another tab, by a teammate, or any
-     * server-side continuation. Detected from pushed (broadcast) chat events and
-     * confirmed/cleared against the server's `streaming` history flag, so the Stop
-     * control can stay visible and functional whenever ANY backend turn is live —
-     * not only for sends this hook instance made.
-     */
-    isRemoteStreaming: boolean;
-    /**
-     * Tell the hook a pushed (broadcast) chat event arrived for this conversation.
-     * The host (ChatPanel) calls this from its push-channel handler; the hook then
-     * confirms against the server's `streaming` flag and, while a remote turn is
-     * live, keeps `isRemoteStreaming` true until the server reports it finished.
-     */
-    noteRemoteStreamEvent: () => void;
-    error: string | null;
-    /** Metadata about a limit-related error (for contextual upgrade CTAs). */
-    errorMeta: {
-        limitType?: string;
-        requiresSignup?: boolean;
-    } | null;
-    /** Current agent mode — plan (read-only research) or execute (full access). */
-    mode: 'plan' | 'execute';
-    /**
-     * Whether the conversation runs at the provider's fast/priority speed tier
-     * (server-persisted per conversation; hydrated from the history load's
-     * `fastMode` meta field, when the server provides one). Only meaningful for
-     * models that support a fast tier — the server ignores it otherwise.
-     */
-    fastMode: boolean;
-    /**
-     * Transient label for a background phase (e.g. the post-response verification
-     * pass — "Type-checking the API", "Linting"), set by `status` stream events.
-     * The UI shows it in place of the spinner's generic rotating messages; `null`
-     * when no such phase is active.
-     */
-    streamingStatus: string | null;
-    /**
-     * Active 5XX backoff-retry countdown, or `null` when none is pending. After a
-     * backend server error (HTTP 5XX) the hook does NOT surface a terminal error —
-     * it shows this cancelable countdown and, when it elapses, auto-resumes the
-     * turn where the user left off (`resume:true`). `secondsRemaining` ticks down
-     * once per second; `attempt` is the 1-based retry number (capped at 3). 4XX,
-     * limit/quota, and signup-required errors never auto-retry.
-     */
-    retryCountdown: {
-        secondsRemaining: number;
-        attempt: number;
-    } | null;
-    /** Update the local mode state (for instant mode toggle without an AI turn). */
-    setMode: (mode: 'plan' | 'execute') => void;
-    /** Update the local fast-mode state (for instant toggle without an AI turn). */
-    setFastMode: (fastMode: boolean) => void;
-    sendMessage: (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => Promise<void>;
-    abort: () => void;
-    /**
-     * Cancel a pending 5XX auto-retry. Clears the countdown and surfaces the
-     * original error (via `error`) so the user sees why the turn failed.
-     */
-    cancelRetry: () => void;
-    clearHistory: () => Promise<void>;
-    /** Edit the content of a queued (not yet sent) message. */
-    editQueuedMessage: (msgId: string, newContent: string) => void;
-    /** Remove a queued (not yet sent) message from the queue. */
-    deleteQueuedMessage: (msgId: string) => void;
-    /** Remove queued auto-fix messages whose content references the given file path. */
-    clearQueuedForFile: (filePath: string) => void;
-    /**
-     * Append an inline transcript card (model / mode / skills / custom notice) as a
-     * `role:'system'` card-message in the ONE message store. Used by the host (ChatPanel)
-     * to render a TEAMMATE's broadcast `card` event live — this client's OWN cards arrive
-     * through the stream and are appended internally. De-duped by the server-assigned id.
-     */
-    appendCardMessage: (id: string, timestamp: number, card: NonNullable<ChatMessage['cardEvent']>) => void;
+  messages: ChatMessage[]
+  isLoading: boolean
+  /**
+   * True while a backend turn for this conversation streams WITHOUT this client
+   * owning the request — a turn started in another tab, by a teammate, or any
+   * server-side continuation. Detected from pushed (broadcast) chat events and
+   * confirmed/cleared against the server's `streaming` history flag, so the Stop
+   * control can stay visible and functional whenever ANY backend turn is live —
+   * not only for sends this hook instance made.
+   */
+  isRemoteStreaming: boolean
+  /**
+   * Tell the hook a pushed (broadcast) chat event arrived for this conversation.
+   * The host (ChatPanel) calls this from its push-channel handler; the hook then
+   * confirms against the server's `streaming` flag and, while a remote turn is
+   * live, keeps `isRemoteStreaming` true until the server reports it finished.
+   */
+  noteRemoteStreamEvent: () => void
+  error: string | null
+  /** Metadata about a limit-related error (for contextual upgrade CTAs). */
+  errorMeta: {
+    limitType?: string
+    requiresSignup?: boolean
+  } | null
+  /** Current agent mode — plan (read-only research) or execute (full access). */
+  mode: 'plan' | 'execute'
+  /**
+   * Whether the conversation runs at the provider's fast/priority speed tier
+   * (server-persisted per conversation; hydrated from the history load's
+   * `fastMode` meta field, when the server provides one). Only meaningful for
+   * models that support a fast tier — the server ignores it otherwise.
+   */
+  fastMode: boolean
+  /**
+   * Transient label for a background phase (e.g. the post-response verification
+   * pass — "Type-checking the API", "Linting"), set by `status` stream events.
+   * The UI shows it in place of the spinner's generic rotating messages; `null`
+   * when no such phase is active.
+   */
+  streamingStatus: string | null
+  /**
+   * Active 5XX backoff-retry countdown, or `null` when none is pending. After a
+   * backend server error (HTTP 5XX) the hook does NOT surface a terminal error —
+   * it shows this cancelable countdown and, when it elapses, auto-resumes the
+   * turn where the user left off (`resume:true`). `secondsRemaining` ticks down
+   * once per second; `attempt` is the 1-based retry number (capped at 3). 4XX,
+   * limit/quota, and signup-required errors never auto-retry.
+   */
+  retryCountdown: {
+    secondsRemaining: number
+    attempt: number
+  } | null
+  /** Update the local mode state (for instant mode toggle without an AI turn). */
+  setMode: (mode: 'plan' | 'execute') => void
+  /** Update the local fast-mode state (for instant toggle without an AI turn). */
+  setFastMode: (fastMode: boolean) => void
+  sendMessage: (
+    message: string,
+    attachments?: ChatAttachment[],
+    options?: SendMessageOptions,
+  ) => Promise<void>
+  abort: () => void
+  /**
+   * Cancel a pending 5XX auto-retry. Clears the countdown and surfaces the
+   * original error (via `error`) so the user sees why the turn failed.
+   */
+  cancelRetry: () => void
+  clearHistory: () => Promise<void>
+  /** Edit the content of a queued (not yet sent) message. */
+  editQueuedMessage: (msgId: string, newContent: string) => void
+  /** Remove a queued (not yet sent) message from the queue. */
+  deleteQueuedMessage: (msgId: string) => void
+  /** Remove queued auto-fix messages whose content references the given file path. */
+  clearQueuedForFile: (filePath: string) => void
+  /**
+   * Append an inline transcript card (model / mode / skills / custom notice) as a
+   * `role:'system'` card-message in the ONE message store. Used by the host (ChatPanel)
+   * to render a TEAMMATE's broadcast `card` event live — this client's OWN cards arrive
+   * through the stream and are appended internally. De-duped by the server-assigned id.
+   */
+  appendCardMessage: (
+    id: string,
+    timestamp: number,
+    card: NonNullable<ChatMessage['cardEvent']>,
+  ) => void
 }
 ```
 
@@ -977,15 +1003,15 @@ Hook return type.
 
 ```typescript
 interface UseDeviceResult {
-    deviceInfo: DeviceInfo;
-    screenInfo: ScreenInfo;
-    hardwareInfo: HardwareInfo;
-    featureSupport: FeatureSupport;
-    supports: (feature: keyof FeatureSupport) => boolean;
-    isOnline: () => boolean;
-    isStandalone: () => boolean;
-    language: string;
-    languages: string[];
+  deviceInfo: DeviceInfo
+  screenInfo: ScreenInfo
+  hardwareInfo: HardwareInfo
+  featureSupport: FeatureSupport
+  supports: (feature: keyof FeatureSupport) => boolean
+  isOnline: () => boolean
+  isStandalone: () => boolean
+  language: string
+  languages: string[]
 }
 ```
 
@@ -995,21 +1021,21 @@ Hook result for useEditor.
 
 ```typescript
 interface UseEditorResult {
-    tabs: EditorTab[];
-    activeFile: string | null;
-    openFile: (file: EditorFile) => void;
-    closeFile: (path: string) => void;
-    getContent: () => string | null;
-    setContent: (path: string, content: string) => void;
-    setActiveTab: (path: string) => void;
-    mount: EditorProvider['mount'];
-    dispose: () => void;
-    focus: () => void;
-    openDiff: (file: DiffFile) => void;
-    closeDiff: () => void;
-    pinTab: (path: string) => void;
-    addExtraLib: (content: string, filePath: string) => void;
-    onFixWithAI: (callback: (request: FixWithAIRequest) => void) => () => void;
+  tabs: EditorTab[]
+  activeFile: string | null
+  openFile: (file: EditorFile) => void
+  closeFile: (path: string) => void
+  getContent: () => string | null
+  setContent: (path: string, content: string) => void
+  setActiveTab: (path: string) => void
+  mount: EditorProvider['mount']
+  dispose: () => void
+  focus: () => void
+  openDiff: (file: DiffFile) => void
+  closeDiff: () => void
+  pinTab: (path: string) => void
+  addExtraLib: (content: string, filePath: string) => void
+  onFixWithAI: (callback: (request: FixWithAIRequest) => void) => () => void
 }
 ```
 
@@ -1019,10 +1045,10 @@ Options for useForm hook.
 
 ```typescript
 interface UseFormOptions<T extends Record<string, unknown>> extends FormOptions<T> {
-    /**
-     * Form provider's createForm function.
-     */
-    createForm: (options: FormOptions<T>) => FormController<T>;
+  /**
+   * Form provider's createForm function.
+   */
+  createForm: (options: FormOptions<T>) => FormController<T>
 }
 ```
 
@@ -1032,19 +1058,19 @@ Result of useForm hook.
 
 ```typescript
 interface UseFormResult<T extends Record<string, unknown>> {
-    formState: FormState<T>;
-    isValid: boolean;
-    isDirty: boolean;
-    isSubmitting: boolean;
-    register: (name: keyof T, options?: RegisterOptions) => FieldRegistration;
-    getValue: <K extends keyof T>(name: K) => T[K];
-    setValue: <K extends keyof T>(name: K, value: T[K]) => void;
-    getError: (name: keyof T) => string | undefined;
-    setError: (name: keyof T, error: string | undefined) => void;
-    clearErrors: () => void;
-    handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (event?: React.FormEvent) => void;
-    reset: (values?: Partial<T>) => void;
-    validate: () => Promise<boolean>;
+  formState: FormState<T>
+  isValid: boolean
+  isDirty: boolean
+  isSubmitting: boolean
+  register: (name: keyof T, options?: RegisterOptions) => FieldRegistration
+  getValue: <K extends keyof T>(name: K) => T[K]
+  setValue: <K extends keyof T>(name: K, value: T[K]) => void
+  getError: (name: keyof T) => string | undefined
+  setError: (name: keyof T, error: string | undefined) => void
+  clearErrors: () => void
+  handleSubmit: (onSubmit: (values: T) => void | Promise<void>) => (event?: React.FormEvent) => void
+  reset: (values?: Partial<T>) => void
+  validate: () => Promise<boolean>
 }
 ```
 
@@ -1054,18 +1080,18 @@ Options for useHttp hook.
 
 ```typescript
 interface UseHttpOptions<T> extends RequestConfig {
-    /**
-     * Whether to execute the request immediately on mount.
-     */
-    immediate?: boolean;
-    /**
-     * Callback when request succeeds.
-     */
-    onSuccess?: (data: T) => void;
-    /**
-     * Callback when request fails.
-     */
-    onError?: (error: Error) => void;
+  /**
+   * Whether to execute the request immediately on mount.
+   */
+  immediate?: boolean
+  /**
+   * Callback when request succeeds.
+   */
+  onSuccess?: (data: T) => void
+  /**
+   * Callback when request fails.
+   */
+  onError?: (error: Error) => void
 }
 ```
 
@@ -1075,8 +1101,8 @@ Result of useHttp hook.
 
 ```typescript
 interface UseHttpResult<T> extends UseHttpState<T> {
-    execute: () => Promise<T | null>;
-    reset: () => void;
+  execute: () => Promise<T | null>
+  reset: () => void
 }
 ```
 
@@ -1086,9 +1112,9 @@ State for async HTTP operations.
 
 ```typescript
 interface UseHttpState<T> {
-    data: T | null;
-    loading: boolean;
-    error: Error | null;
+  data: T | null
+  loading: boolean
+  error: Error | null
 }
 ```
 
@@ -1111,11 +1137,11 @@ Return type for useLogin hook.
 
 ```typescript
 interface UseLoginReturn<T = unknown> {
-    status: UsePromiseState<AuthResult<T>>['status'];
-    value: UsePromiseState<AuthResult<T>>['value'];
-    error: UsePromiseState<AuthResult<T>>['error'];
-    login: (credentials: LoginCredentials) => Promise<AuthResult<T>>;
-    reset: () => void;
+  status: UsePromiseState<AuthResult<T>>['status']
+  value: UsePromiseState<AuthResult<T>>['value']
+  error: UsePromiseState<AuthResult<T>>['error']
+  login: (credentials: LoginCredentials) => Promise<AuthResult<T>>
+  reset: () => void
 }
 ```
 
@@ -1125,17 +1151,17 @@ Return type for useOAuth hook.
 
 ```typescript
 interface UseOAuthReturn {
-    providers: string[];
-    getOAuthUrl: (provider: string) => string;
-    /** Full-page redirect to the provider (default). The opener page navigates away. */
-    redirect: (provider: string) => void;
-    /**
-     * Open the provider in a popup so the opener page does NOT navigate. On success
-     * the session is established in the opener in place and `config.onSuccess` fires;
-     * on failure `config.onError` fires. Falls back to a full-page {@link redirect}
-     * when the popup is blocked.
-     */
-    loginViaPopup: (provider: string) => void;
+  providers: string[]
+  getOAuthUrl: (provider: string) => string
+  /** Full-page redirect to the provider (default). The opener page navigates away. */
+  redirect: (provider: string) => void
+  /**
+   * Open the provider in a popup so the opener page does NOT navigate. On success
+   * the session is established in the opener in place and `config.onSuccess` fires;
+   * on failure `config.onError` fires. Falls back to a full-page {@link redirect}
+   * when the popup is blocked.
+   */
+  loginViaPopup: (provider: string) => void
 }
 ```
 
@@ -1145,13 +1171,13 @@ Return type for usePasswordReset hook.
 
 ```typescript
 interface UsePasswordResetReturn {
-    requestStatus: UsePromiseState<void>['status'];
-    requestError: UsePromiseState<void>['error'];
-    confirmStatus: UsePromiseState<void>['status'];
-    confirmError: UsePromiseState<void>['error'];
-    requestReset: (data: PasswordResetRequest) => Promise<void>;
-    confirmReset: (data: PasswordResetConfirm) => Promise<void>;
-    reset: () => void;
+  requestStatus: UsePromiseState<void>['status']
+  requestError: UsePromiseState<void>['error']
+  confirmStatus: UsePromiseState<void>['status']
+  confirmError: UsePromiseState<void>['error']
+  requestReset: (data: PasswordResetRequest) => Promise<void>
+  confirmReset: (data: PasswordResetConfirm) => Promise<void>
+  reset: () => void
 }
 ```
 
@@ -1161,14 +1187,14 @@ Hook return type.
 
 ```typescript
 interface UsePlatformResult {
-    platform: Platform;
-    isNative: boolean;
-    isMobile: boolean;
-    isDesktop: boolean;
-    isWeb: boolean;
-    isDevelopment: boolean;
-    isProduction: boolean;
-    isPlatform: (...platforms: Platform[]) => boolean;
+  platform: Platform
+  isNative: boolean
+  isMobile: boolean
+  isDesktop: boolean
+  isWeb: boolean
+  isDevelopment: boolean
+  isProduction: boolean
+  isPlatform: (...platforms: Platform[]) => boolean
 }
 ```
 
@@ -1178,23 +1204,23 @@ Hook result for usePreview.
 
 ```typescript
 interface UsePreviewResult {
-    state: PreviewState;
-    setUrl: (url: string) => void;
-    refresh: () => void;
-    setDevice: (device: DeviceFrame) => void;
-    openExternal: () => void;
-    /**
-     * Records a navigation the running preview reported via its `molecule:navigate`
-     * message — updates the displayed current location without reloading the iframe.
-     * Pass `isReplace` when the preview REPLACED its current history entry (a
-     * `replaceState` redirect/canonicalization) so the forward stack is preserved
-     * instead of truncated (a `pushState`, the default, truncates forward).
-     */
-    recordNavigation: (url: string, isReplace?: boolean) => void;
-    /** Navigates the preview to the previous navigation-history entry (Back). */
-    back: () => void;
-    /** Navigates the preview to the next navigation-history entry (Forward). */
-    forward: () => void;
+  state: PreviewState
+  setUrl: (url: string) => void
+  refresh: () => void
+  setDevice: (device: DeviceFrame) => void
+  openExternal: () => void
+  /**
+   * Records a navigation the running preview reported via its `molecule:navigate`
+   * message — updates the displayed current location without reloading the iframe.
+   * Pass `isReplace` when the preview REPLACED its current history entry (a
+   * `replaceState` redirect/canonicalization) so the forward stack is preserved
+   * instead of truncated (a `pushState`, the default, truncates forward).
+   */
+  recordNavigation: (url: string, isReplace?: boolean) => void
+  /** Navigates the preview to the previous navigation-history entry (Back). */
+  back: () => void
+  /** Navigates the preview to the next navigation-history entry (Forward). */
+  forward: () => void
 }
 ```
 
@@ -1204,11 +1230,11 @@ Extended promise state with actions.
 
 ```typescript
 interface UsePromiseState<T> {
-    status: PromiseStatus;
-    value: T | null;
-    error: Error | null;
-    cancel: (message?: string) => void;
-    reset: () => void;
+  status: PromiseStatus
+  value: T | null
+  error: Error | null
+  cancel: (message?: string) => void
+  reset: () => void
 }
 ```
 
@@ -1218,10 +1244,10 @@ Options for the usePush hook (e.g. check permission on mount).
 
 ```typescript
 interface UsePushOptions {
-    /**
-     * Whether to check permission status on mount.
-     */
-    checkOnMount?: boolean;
+  /**
+   * Whether to check permission status on mount.
+   */
+  checkOnMount?: boolean
 }
 ```
 
@@ -1231,17 +1257,17 @@ Hook return type.
 
 ```typescript
 interface UsePushResult {
-    permission: PermissionStatus | null;
-    token: PushToken | null;
-    checkPermission: () => Promise<PermissionStatus>;
-    requestPermission: () => Promise<PermissionStatus>;
-    register: (options?: PushRegisterOptions) => Promise<PushToken>;
-    unregister: () => Promise<void>;
-    onNotificationReceived: (listener: NotificationReceivedListener) => () => void;
-    onNotificationAction: (listener: NotificationActionListener) => () => void;
-    onTokenChange: (listener: TokenChangeListener) => () => void;
-    setBadge: (count: number) => Promise<void>;
-    clearBadge: () => Promise<void>;
+  permission: PermissionStatus | null
+  token: PushToken | null
+  checkPermission: () => Promise<PermissionStatus>
+  requestPermission: () => Promise<PermissionStatus>
+  register: (options?: PushRegisterOptions) => Promise<PushToken>
+  unregister: () => Promise<void>
+  onNotificationReceived: (listener: NotificationReceivedListener) => () => void
+  onNotificationAction: (listener: NotificationActionListener) => () => void
+  onTokenChange: (listener: TokenChangeListener) => () => void
+  setBadge: (count: number) => Promise<void>
+  clearBadge: () => Promise<void>
 }
 ```
 
@@ -1251,14 +1277,14 @@ Hook result for useRouter.
 
 ```typescript
 interface UseRouterResult {
-    location: Router['getLocation'] extends () => infer R ? R : never;
-    params: Record<string, string>;
-    query: QueryParams;
-    navigate: Router['navigate'];
-    navigateTo: Router['navigateTo'];
-    back: Router['back'];
-    forward: Router['forward'];
-    isActive: Router['isActive'];
+  location: Router['getLocation'] extends () => infer R ? R : never
+  params: Record<string, string>
+  query: QueryParams
+  navigate: Router['navigate']
+  navigateTo: Router['navigateTo']
+  back: Router['back']
+  forward: Router['forward']
+  isActive: Router['isActive']
 }
 ```
 
@@ -1268,11 +1294,11 @@ Return type for useSignup hook.
 
 ```typescript
 interface UseSignupReturn<T = unknown> {
-    status: UsePromiseState<AuthResult<T>>['status'];
-    value: UsePromiseState<AuthResult<T>>['value'];
-    error: UsePromiseState<AuthResult<T>>['error'];
-    signup: (data: RegisterData) => Promise<AuthResult<T>>;
-    reset: () => void;
+  status: UsePromiseState<AuthResult<T>>['status']
+  value: UsePromiseState<AuthResult<T>>['value']
+  error: UsePromiseState<AuthResult<T>>['error']
+  signup: (data: RegisterData) => Promise<AuthResult<T>>
+  reset: () => void
 }
 ```
 
@@ -1282,14 +1308,14 @@ Options for useStorageValue hook.
 
 ```typescript
 interface UseStorageValueOptions<T> {
-    /**
-     * Default value if key doesn't exist.
-     */
-    defaultValue?: T;
-    /**
-     * Whether to sync across tabs/windows (if supported by storage provider).
-     */
-    sync?: boolean;
+  /**
+   * Default value if key doesn't exist.
+   */
+  defaultValue?: T
+  /**
+   * Whether to sync across tabs/windows (if supported by storage provider).
+   */
+  sync?: boolean
 }
 ```
 
@@ -1299,11 +1325,11 @@ Result of useStorageValue hook.
 
 ```typescript
 interface UseStorageValueResult<T> {
-    value: T | undefined;
-    setValue: (value: T) => Promise<void>;
-    removeValue: () => Promise<void>;
-    loading: boolean;
-    error: Error | null;
+  value: T | undefined
+  setValue: (value: T) => Promise<void>
+  removeValue: () => Promise<void>
+  loading: boolean
+  error: Error | null
 }
 ```
 
@@ -1313,8 +1339,8 @@ Hook options for useStore.
 
 ```typescript
 interface UseStoreOptions<T, S> {
-    selector?: (state: T) => S;
-    equalityFn?: (a: S, b: S) => boolean;
+  selector?: (state: T) => S
+  equalityFn?: (a: S, b: S) => boolean
 }
 ```
 
@@ -1324,11 +1350,11 @@ Hook result for useTheme.
 
 ```typescript
 interface UseThemeResult {
-    theme: Theme;
-    themeName: string;
-    setTheme: (name: string) => void;
-    toggleTheme: () => void;
-    mode: 'light' | 'dark';
+  theme: Theme
+  themeName: string
+  setTheme: (name: string) => void
+  toggleTheme: () => void
+  mode: 'light' | 'dark'
 }
 ```
 
@@ -1338,13 +1364,13 @@ Hook result for useTranslation.
 
 ```typescript
 interface UseTranslationResult {
-    t: I18nProvider['t'];
-    locale: string;
-    setLocale: I18nProvider['setLocale'];
-    locales: ReturnType<I18nProvider['getLocales']>;
-    formatNumber: I18nProvider['formatNumber'];
-    formatDate: I18nProvider['formatDate'];
-    direction: 'ltr' | 'rtl';
+  t: I18nProvider['t']
+  locale: string
+  setLocale: I18nProvider['setLocale']
+  locales: ReturnType<I18nProvider['getLocales']>
+  formatNumber: I18nProvider['formatNumber']
+  formatDate: I18nProvider['formatDate']
+  direction: 'ltr' | 'rtl'
 }
 ```
 
@@ -1354,18 +1380,16 @@ Hook return type.
 
 ```typescript
 interface UseVersionResult {
-    state: VersionState;
-    isUpdateAvailable: boolean;
-    isChecking: boolean;
-    isServiceWorkerWaiting: boolean;
-    newVersion: string | undefined;
-    checkForUpdates: () => Promise<boolean>;
-    applyUpdate: (options?: {
-        force?: boolean;
-    }) => void;
-    dismissUpdate: () => void;
-    startPeriodicChecks: (options?: UpdateCheckOptions) => void;
-    stopPeriodicChecks: () => void;
+  state: VersionState
+  isUpdateAvailable: boolean
+  isChecking: boolean
+  isServiceWorkerWaiting: boolean
+  newVersion: string | undefined
+  checkForUpdates: () => Promise<boolean>
+  applyUpdate: (options?: { force?: boolean }) => void
+  dismissUpdate: () => void
+  startPeriodicChecks: (options?: UpdateCheckOptions) => void
+  stopPeriodicChecks: () => void
 }
 ```
 
@@ -1375,13 +1399,13 @@ Hook result for useWorkspace.
 
 ```typescript
 interface UseWorkspaceResult {
-    layout: WorkspaceLayout;
-    activePanel: PanelId | null;
-    collapsedPanels: Set<PanelId>;
-    togglePanel: (panelId: PanelId) => void;
-    resizePanel: (panelId: PanelId, size: number) => void;
-    setActivePanel: (panelId: PanelId) => void;
-    resetLayout: () => void;
+  layout: WorkspaceLayout
+  activePanel: PanelId | null
+  collapsedPanels: Set<PanelId>
+  togglePanel: (panelId: PanelId) => void
+  resizePanel: (panelId: PanelId, size: number) => void
+  setActivePanel: (panelId: PanelId) => void
+  resetLayout: () => void
 }
 ```
 
@@ -1391,7 +1415,7 @@ Props for workspace provider component.
 
 ```typescript
 interface WorkspaceProviderProps extends ProviderProps {
-    provider: WorkspaceProvider;
+  provider: WorkspaceProvider
 }
 ```
 
@@ -1402,7 +1426,9 @@ interface WorkspaceProviderProps extends ProviderProps {
 Async-capable extendState function for partial updates.
 
 ```typescript
-type AsyncExtendState<T> = (partial: Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>) => void;
+type AsyncExtendState<T> = (
+  partial: Partial<T> | ((prev: T) => Partial<T>) | Promise<Partial<T> | ((prev: T) => Partial<T>)>,
+) => void
 ```
 
 #### `AsyncSetState`
@@ -1410,7 +1436,7 @@ type AsyncExtendState<T> = (partial: Partial<T> | ((prev: T) => Partial<T>) | Pr
 Async-capable setState function.
 
 ```typescript
-type AsyncSetState<T> = (value: T | ((prev: T) => T) | Promise<T | ((prev: T) => T)>) => void;
+type AsyncSetState<T> = (value: T | ((prev: T) => T) | Promise<T | ((prev: T) => T)>) => void
 ```
 
 #### `UseCapacitorAppResult`
@@ -1419,8 +1445,8 @@ Hook return type.
 
 ```typescript
 type UseCapacitorAppResult = CapacitorAppState & {
-    initialize: () => Promise<void>;
-};
+  initialize: () => Promise<void>
+}
 ```
 
 ### Functions
@@ -1430,7 +1456,10 @@ type UseCapacitorAppResult = CapacitorAppState & {
 Provider for authentication.
 
 ```typescript
-function AuthProvider({ client, children, }: AuthProviderProps<T>): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function AuthProvider({
+  client,
+  children,
+}: AuthProviderProps<T>): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link AuthProviderProps}).
@@ -1442,7 +1471,10 @@ function AuthProvider({ client, children, }: AuthProviderProps<T>): React.ReactE
 Provider for AI chat.
 
 ```typescript
-function ChatProvider({ provider, children }: ChatProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function ChatProvider({
+  provider,
+  children,
+}: ChatProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link ChatProviderProps}).
@@ -1454,7 +1486,10 @@ function ChatProvider({ provider, children }: ChatProviderProps): React.ReactEle
 Provider for code editor.
 
 ```typescript
-function EditorProvider({ provider, children }: EditorProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function EditorProvider({
+  provider,
+  children,
+}: EditorProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link EditorProviderProps}).
@@ -1466,7 +1501,10 @@ function EditorProvider({ provider, children }: EditorProviderProps): React.Reac
 Provider for HTTP client.
 
 ```typescript
-function HttpProvider({ client, children }: HttpProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function HttpProvider({
+  client,
+  children,
+}: HttpProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link HttpProviderProps}).
@@ -1478,7 +1516,10 @@ function HttpProvider({ client, children }: HttpProviderProps): React.ReactEleme
 Provider for internationalization.
 
 ```typescript
-function I18nProvider({ provider, children }: I18nProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function I18nProvider({
+  provider,
+  children,
+}: I18nProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link I18nProviderProps}).
@@ -1490,7 +1531,10 @@ function I18nProvider({ provider, children }: I18nProviderProps): React.ReactEle
 Provider for logging.
 
 ```typescript
-function LoggerProvider({ provider, children }: LoggerProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function LoggerProvider({
+  provider,
+  children,
+}: LoggerProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link LoggerProviderProps}).
@@ -1505,7 +1549,21 @@ Provides a convenient way to wrap your app with all molecule providers at once.
 Only providers that are passed will be included.
 
 ```typescript
-function MoleculeProvider({ children, state, auth, theme, router, i18n, http, storage, logger, chat, workspace, editor, preview, }: MoleculeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function MoleculeProvider({
+  children,
+  state,
+  auth,
+  theme,
+  router,
+  i18n,
+  http,
+  storage,
+  logger,
+  chat,
+  workspace,
+  editor,
+  preview,
+}: MoleculeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link MoleculeProviderProps}) — each service is optional, and ONLY the services passed are provided to the tree.
@@ -1517,7 +1575,10 @@ function MoleculeProvider({ children, state, auth, theme, router, i18n, http, st
 Provider for live preview.
 
 ```typescript
-function PreviewProvider({ provider, children }: PreviewProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function PreviewProvider({
+  provider,
+  children,
+}: PreviewProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link PreviewProviderProps}).
@@ -1548,7 +1609,10 @@ function resetChatStoresForTests(): void
 Provider for routing.
 
 ```typescript
-function RouterProvider({ router, children }: RouterProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function RouterProvider({
+  router,
+  children,
+}: RouterProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link RouterProviderProps}).
@@ -1560,7 +1624,10 @@ function RouterProvider({ router, children }: RouterProviderProps): React.ReactE
 Provider for state management.
 
 ```typescript
-function StateProvider({ provider, children }: StateProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function StateProvider({
+  provider,
+  children,
+}: StateProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link StateProviderProps}).
@@ -1572,7 +1639,10 @@ function StateProvider({ provider, children }: StateProviderProps): React.ReactE
 Provider for storage.
 
 ```typescript
-function StorageProvider({ provider, children }: StorageProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function StorageProvider({
+  provider,
+  children,
+}: StorageProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link StorageProviderProps}).
@@ -1584,7 +1654,10 @@ function StorageProvider({ provider, children }: StorageProviderProps): React.Re
 Provider for theming.
 
 ```typescript
-function ThemeProvider({ provider, children }: ThemeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function ThemeProvider({
+  provider,
+  children,
+}: ThemeProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link ThemeProviderProps}).
@@ -1758,7 +1831,7 @@ function useDevice(): UseDeviceResult
 Hook to get the text direction.
 
 ```typescript
-function useDirection(): "ltr" | "rtl"
+function useDirection(): 'ltr' | 'rtl'
 ```
 
 **Returns:** The text direction ('ltr' or 'rtl')
@@ -1826,7 +1899,11 @@ function useGet(url: string, options?: UseHttpOptions<T>): UseHttpResult<T>
 Hook for making HTTP requests with state management.
 
 ```typescript
-function useHttp(method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE", url: string, options?: UseHttpOptions<T>): UseHttpResult<T>
+function useHttp(
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
+  options?: UseHttpOptions<T>,
+): UseHttpResult<T>
 ```
 
 - `method` — HTTP method
@@ -1984,7 +2061,14 @@ URL parameters and exchanging them for a session — and, when the callback is
 running inside a popup we opened, relaying the result to the opener instead.
 
 ```typescript
-function useOAuth(config?: { baseURL?: string; oauthProviders?: string[]; oauthEndpoint?: string; loginEndpoint?: string; onSuccess?: () => void; onError?: (error: string) => void; }): UseOAuthReturn
+function useOAuth(config?: {
+  baseURL?: string
+  oauthProviders?: string[]
+  oauthEndpoint?: string
+  loginEndpoint?: string
+  onSuccess?: () => void
+  onError?: (error: string) => void
+}): UseOAuthReturn
 ```
 
 - `config` — Optional OAuth configuration override.
@@ -2195,7 +2279,13 @@ function useStateProvider(): StateProvider
 Hook for simple storage operations without React state sync.
 
 ```typescript
-function useStorage(): { get: <T>(key: string) => Promise<T | null>; set: <T>(key: string, value: T) => Promise<void>; remove: (key: string) => Promise<void>; clear: () => Promise<void>; keys: () => Promise<string[]>; }
+function useStorage(): {
+  get: <T>(key: string) => Promise<T | null>
+  set: <T>(key: string, value: T) => Promise<void>
+  remove: (key: string) => Promise<void>
+  clear: () => Promise<void>
+  keys: () => Promise<string[]>
+}
 ```
 
 **Returns:** Storage operation methods
@@ -2241,7 +2331,10 @@ function useStore(store: Store<T>, options?: UseStoreOptions<T, S>): S
 Hook to create a bound action for a store.
 
 ```typescript
-function useStoreAction(store: Store<T>, action: (setState: Store<T>["setState"], getState: Store<T>["getState"]) => (...args: Args) => R): (...args: Args) => R
+function useStoreAction(
+  store: Store<T>,
+  action: (setState: Store<T>['setState'], getState: Store<T>['getState']) => (...args: Args) => R,
+): (...args: Args) => R
 ```
 
 - `store` — The store to bind to
@@ -2254,7 +2347,11 @@ function useStoreAction(store: Store<T>, action: (setState: Store<T>["setState"]
 Hook to get just the translation function.
 
 ```typescript
-function useT(): (key: string, values?: InterpolationValues, options?: { defaultValue?: string; count?: number; }) => string
+function useT(): (
+  key: string,
+  values?: InterpolationValues,
+  options?: { defaultValue?: string; count?: number },
+) => string
 ```
 
 **Returns:** The translation function
@@ -2284,7 +2381,7 @@ function useThemeColors(): ThemeColors
 Hook to get just the theme mode (light/dark).
 
 ```typescript
-function useThemeMode(): "light" | "dark"
+function useThemeMode(): 'light' | 'dark'
 ```
 
 **Returns:** The current theme mode
@@ -2369,7 +2466,10 @@ function useWorkspaceProvider(): WorkspaceProvider
 Provider for IDE workspace.
 
 ```typescript
-function WorkspaceProvider({ provider, children, }: WorkspaceProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
+function WorkspaceProvider({
+  provider,
+  children,
+}: WorkspaceProviderProps): React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link WorkspaceProviderProps}).
@@ -2409,7 +2509,7 @@ const DEFAULT_AGENT_IDENTITY: AgentIdentity
 Neutral, product-agnostic agent name used when the host supplies none.
 
 ```typescript
-const DEFAULT_AGENT_NAME: "the assistant"
+const DEFAULT_AGENT_NAME: 'the assistant'
 ```
 
 #### `DEFAULT_PRODUCT_NAME`
@@ -2417,7 +2517,7 @@ const DEFAULT_AGENT_NAME: "the assistant"
 Neutral, product-agnostic product/IDE name used when the host supplies none.
 
 ```typescript
-const DEFAULT_PRODUCT_NAME: "the IDE"
+const DEFAULT_PRODUCT_NAME: 'the IDE'
 ```
 
 #### `EditorContext`
@@ -2505,7 +2605,12 @@ const useAsyncState: <T>(initialState: T) => [T, AsyncSetState<T>, AsyncExtendSt
 Hook that wraps an async function with state tracking.
 
 ```typescript
-const usePromise: <T extends (...args: any[]) => Promise<any>>(asyncFn: T) => [UsePromiseState<Awaited<ReturnType<T>>>, (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>]
+const usePromise: <T extends (...args: any[]) => Promise<any>>(
+  asyncFn: T,
+) => [
+  UsePromiseState<Awaited<ReturnType<T>>>,
+  (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>>,
+]
 ```
 
 #### `WorkspaceContext`
@@ -2521,6 +2626,7 @@ const WorkspaceContext: Context<WorkspaceProvider | null>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-keyboard` ^1.0.0
 - `@molecule/app-lifecycle` ^1.0.0
 - `@molecule/app-react` ^1.0.0

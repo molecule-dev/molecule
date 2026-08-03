@@ -27,9 +27,11 @@ await close()
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-cron @molecule/api-bond @molecule/api-i18n
 ```
@@ -292,7 +294,12 @@ function runNow(jobId: string): Promise<void>
 Schedules a new cron job.
 
 ```typescript
-function schedule(name: string, cron: string, handler: () => Promise<void>, options?: CronOptions): Promise<string>
+function schedule(
+  name: string,
+  cron: string,
+  handler: () => Promise<void>,
+  options?: CronOptions,
+): Promise<string>
 ```
 
 - `name` — Human-readable name for the job.
@@ -315,16 +322,17 @@ function setProvider(provider: CronProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Cron | `@molecule/api-cron-bullmq` |
-| Cron | `@molecule/api-cron-node-cron` |
+| Provider | Package                        |
+| -------- | ------------------------------ |
+| Cron     | `@molecule/api-cron-bullmq`    |
+| Cron     | `@molecule/api-cron-node-cron` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -346,23 +354,24 @@ bond's module docs.
 Integration checklist — drive the real flow (no mocks), adapt each item to
 this app's actual scheduled jobs, and check every box off one by one. A box
 you can't check is an integration bug to fix — not a skip:
+
 - [ ] Every job the app defines is REGISTERED at startup: after bootstrap,
-  `list()` returns each one (or its `schedule()` call ran without error) — a
-  job that never registers never fires.
+      `list()` returns each one (or its `schedule()` call ran without error) — a
+      job that never registers never fires.
 - [ ] Each job's REAL side effect happens when it runs — the digest row is
-  written, the cleanup deletes, the report is generated. Trigger it now with
-  `runNow(jobId)` (or invoke the handler directly) and assert the effect;
-  never stub the body. COUNTERPARTY: the sandbox process is short-lived, so a
-  real timed tick may never arrive — that is expected. Verify by direct
-  invocation, not by waiting minutes for the schedule to fire.
+      written, the cleanup deletes, the report is generated. Trigger it now with
+      `runNow(jobId)` (or invoke the handler directly) and assert the effect;
+      never stub the body. COUNTERPARTY: the sandbox process is short-lived, so a
+      real timed tick may never arrive — that is expected. Verify by direct
+      invocation, not by waiting minutes for the schedule to fire.
 - [ ] Re-running a job is safe: invoke it twice and confirm no double effect
-  (no double-charge, double-send, or duplicate row) — the handler is
-  idempotent or guards its own re-entry.
+      (no double-charge, double-send, or duplicate row) — the handler is
+      idempotent or guards its own re-entry.
 - [ ] A failing job is observable, not swallowed: force the handler to throw
-  and confirm the error is logged/surfaced and the job's `status` reflects it.
+      and confirm the error is logged/surfaced and the job's `status` reflects it.
 - [ ] The cadence is correct: read each job's `cron` expression and confirm it
-  matches the intended schedule (nightly, hourly, …) — verify by reading it,
-  not by waiting for a tick.
+      matches the intended schedule (nightly, hourly, …) — verify by reading it,
+      not by waiting for a tick.
 - [ ] Any user-facing trigger is locked down: if the app exposes a manual
-  "run now" or schedule-management endpoint, only an authorized caller can hit
-  it — an anonymous request can't fire jobs or register arbitrary schedules.
+      "run now" or schedule-management endpoint, only an authorized caller can hit
+      it — an anonymous request can't fire jobs or register arbitrary schedules.

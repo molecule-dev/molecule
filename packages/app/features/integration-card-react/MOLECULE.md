@@ -3,6 +3,7 @@
 React integration / connection card.
 
 Exports:
+
 - `<IntegrationCard>` — icon + title + description + status label + action button.
   Props: `icon?`, `title`, `description?`, `status?` (default `'disconnected'`),
   `action?` (`{ label, onClick?, href?, loading?, disabled? }`), `variant?`
@@ -16,19 +17,26 @@ Use for OAuth/API integrations, bank-connect CTAs, webhook setup cards.
 ```tsx
 import { IntegrationCard } from '@molecule/app-integration-card-react'
 
-<IntegrationCard
+;<IntegrationCard
   title="Slack"
   description="Send notifications to your team channels."
   status="disconnected"
-  action={{ label: 'Connect', onClick: () => { window.location.href = '/oauth/slack' } }}
+  action={{
+    label: 'Connect',
+    onClick: () => {
+      window.location.href = '/oauth/slack'
+    },
+  }}
   dataMolId="slack-integration-card"
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-integration-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -107,6 +115,7 @@ function IntegrationCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

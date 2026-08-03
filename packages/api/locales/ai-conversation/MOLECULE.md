@@ -10,7 +10,10 @@ Translations for molecule conversation resource in 79 languages
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-ai-conversation'
-import type { ConversationTranslationKey, ConversationTranslations } from '@molecule/api-locales-ai-conversation'
+import type {
+  ConversationTranslationKey,
+  ConversationTranslations,
+} from '@molecule/api-locales-ai-conversation'
 ```
 
 ## Registration
@@ -30,13 +33,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `conversation.error.messageRequired` | message is required |
+| Key                                  | English                    |
+| ------------------------------------ | -------------------------- |
+| `conversation.error.messageRequired` | message is required        |
 | `conversation.error.aiNotConfigured` | AI provider not configured |
-| `conversation.error.unknownAiError` | Unknown AI error |
-| `conversation.error.notFound` | No conversation found |
-| `conversation.error.streamError` | AI streaming error |
+| `conversation.error.unknownAiError`  | Unknown AI error           |
+| `conversation.error.notFound`        | No conversation found      |
+| `conversation.error.streamError`     | AI streaming error         |
 
 ## Metadata
 

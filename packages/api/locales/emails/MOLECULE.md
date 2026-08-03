@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                       | English                                                    |
+| ------------------------- | ---------------------------------------------------------- |
 | `emails.error.noProvider` | Email transport not configured. Call setTransport() first. |
 
 ## Metadata

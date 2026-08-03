@@ -12,9 +12,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-inventory'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-inventory @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
@@ -583,7 +585,7 @@ Session-claim permission string (`'inventory:manage'`) that, when present in a
 session's `permissions` array, grants inventory administration.
 
 ```typescript
-const INVENTORY_ADMIN_PERMISSION: "inventory:manage"
+const INVENTORY_ADMIN_PERMISSION: 'inventory:manage'
 ```
 
 #### `INVENTORY_PERMISSION_ACTION`
@@ -592,7 +594,7 @@ Permission action describing inventory administration, e.g. for an app's own
 `@molecule/api-permissions` wiring.
 
 ```typescript
-const INVENTORY_PERMISSION_ACTION: "manage"
+const INVENTORY_PERMISSION_ACTION: 'manage'
 ```
 
 #### `INVENTORY_PERMISSION_RESOURCE`
@@ -601,7 +603,7 @@ Permission resource describing inventory administration, e.g. for an app's own
 `@molecule/api-permissions` wiring.
 
 ```typescript
-const INVENTORY_PERMISSION_RESOURCE: "inventory"
+const INVENTORY_PERMISSION_RESOURCE: 'inventory'
 ```
 
 #### `requestHandlerMap`
@@ -615,7 +617,17 @@ string that isn't a handler-map key is silently dropped, which is exactly how
 the previous bare `'authenticate'` gate became inert.
 
 ```typescript
-const requestHandlerMap: { readonly getStock: typeof getStock; readonly updateStock: typeof updateStock; readonly reserve: typeof reserve; readonly release: typeof release; readonly confirm: typeof confirm; readonly getAlerts: typeof getAlerts; readonly getMovements: typeof getMovements; readonly bulkUpdate: typeof bulkUpdate; readonly requireInventoryAdmin: MoleculeRequestHandler; }
+const requestHandlerMap: {
+  readonly getStock: typeof getStock
+  readonly updateStock: typeof updateStock
+  readonly reserve: typeof reserve
+  readonly release: typeof release
+  readonly confirm: typeof confirm
+  readonly getAlerts: typeof getAlerts
+  readonly getMovements: typeof getMovements
+  readonly bulkUpdate: typeof bulkUpdate
+  readonly requireInventoryAdmin: MoleculeRequestHandler
+}
 ```
 
 #### `routes`
@@ -632,7 +644,56 @@ admin/reservation handler additionally re-checks authorization internally, so
 the gate holds even if a consumer wires the routes without these middlewares.
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/inventory/:productId"; readonly handler: "getStock"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/inventory/:productId"; readonly handler: "updateStock"; readonly middlewares: readonly ["requireInventoryAdmin"]; }, { readonly method: "post"; readonly path: "/inventory/:productId/reserve"; readonly handler: "reserve"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/inventory/reservations/:reservationId"; readonly handler: "release"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/reservations/:reservationId/confirm"; readonly handler: "confirm"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/inventory/alerts"; readonly handler: "getAlerts"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/inventory/:productId/movements"; readonly handler: "getMovements"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/inventory/bulk"; readonly handler: "bulkUpdate"; readonly middlewares: readonly ["requireInventoryAdmin"]; }]
+const routes: readonly [
+  {
+    readonly method: 'get'
+    readonly path: '/inventory/:productId'
+    readonly handler: 'getStock'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'put'
+    readonly path: '/inventory/:productId'
+    readonly handler: 'updateStock'
+    readonly middlewares: readonly ['requireInventoryAdmin']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/inventory/:productId/reserve'
+    readonly handler: 'reserve'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/inventory/reservations/:reservationId'
+    readonly handler: 'release'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/inventory/reservations/:reservationId/confirm'
+    readonly handler: 'confirm'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/inventory/alerts'
+    readonly handler: 'getAlerts'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/inventory/:productId/movements'
+    readonly handler: 'getMovements'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/inventory/bulk'
+    readonly handler: 'bulkUpdate'
+    readonly middlewares: readonly ['requireInventoryAdmin']
+  },
+]
 ```
 
 ## Injection Notes
@@ -640,6 +701,7 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/inventory/:pr
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -677,35 +739,36 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual stock/admin screens, and check every box off
 one by one. Correctness is the whole point here: a box you can't check is a
 bug to fix, not a skip.
+
 - [ ] Setting stock (`PUT /inventory/:productId`, `type:'set'`) then
-  reloading `GET /inventory/:productId` shows the exact `total`/`available`
-  you set — it persisted, not just optimistic UI. `available` = `total` -
-  `reserved`.
+      reloading `GET /inventory/:productId` shows the exact `total`/`available`
+      you set — it persisted, not just optimistic UI. `available` = `total` -
+      `reserved`.
 - [ ] `type:'add' N` raises `total` by exactly N and `type:'remove' N`
-  lowers it by exactly N — verify the arithmetic on the specific
-  `productId`/`variantId`; variant stock is tracked independently, so
-  adjusting one variant must not move another.
+      lowers it by exactly N — verify the arithmetic on the specific
+      `productId`/`variantId`; variant stock is tracked independently, so
+      adjusting one variant must not move another.
 - [ ] Stock never goes negative: removing or `set`ting below the currently
-  reserved quantity is rejected with a visible 409 error
-  (`inventory.error.insufficientStock`) and the stored `total` is unchanged
-  — never persisted as a negative; reserving more than `available` is
-  likewise rejected (409 `insufficientAvailable`).
+      reserved quantity is rejected with a visible 409 error
+      (`inventory.error.insufficientStock`) and the stored `total` is unchanged
+      — never persisted as a negative; reserving more than `available` is
+      likewise rejected (409 `insufficientAvailable`).
 - [ ] Low-stock crossing flags the item: when `available` falls to or below
-  `lowStockThreshold` (default 10) it reads `isLowStock:true` and appears in
-  `GET /inventory/alerts`; raising stock back above the threshold clears it.
+      `lowStockThreshold` (default 10) it reads `isLowStock:true` and appears in
+      `GET /inventory/alerts`; raising stock back above the threshold clears it.
 - [ ] Every mutation appends an `inventory_movements` row shown in
-  `GET /inventory/:productId/movements` with the signed delta (`+N`/`-N`),
-  type (adjustment/reservation/confirmation), timestamp, and `referenceId`
-  (orderId/reservationId); the acting user is recorded on the reservation.
-  The movement log must reconstruct the current total.
+      `GET /inventory/:productId/movements` with the signed delta (`+N`/`-N`),
+      type (adjustment/reservation/confirmation), timestamp, and `referenceId`
+      (orderId/reservationId); the acting user is recorded on the reservation.
+      The movement log must reconstruct the current total.
 - [ ] Concurrency: two reservations or removals fired at once that together
-  exceed `available` don't double-spend the last unit — exactly one
-  succeeds, and final `total`/`reserved` stay consistent (`available` never
-  goes negative).
+      exceed `available` don't double-spend the last unit — exactly one
+      succeeds, and final `total`/`reserved` stay consistent (`available` never
+      goes negative).
 - [ ] AUTHORIZATION — stock mutation is admin-only and denies by default:
-  `PUT /inventory/:productId` and `POST /inventory/bulk` return 403 for a
-  normal signed-in user (no `isAdmin`/`role:'admin'`/`roles`/`permissions`
-  claim) and 401 when signed out; only an admin session can change stock. A
-  customer cannot mutate the shared catalog stock through any endpoint, and
-  one user cannot release/confirm another user's reservation (403
-  `reservationForbidden`).
+      `PUT /inventory/:productId` and `POST /inventory/bulk` return 403 for a
+      normal signed-in user (no `isAdmin`/`role:'admin'`/`roles`/`permissions`
+      claim) and 401 when signed out; only an admin session can change stock. A
+      customer cannot mutate the shared catalog stock through any endpoint, and
+      one user cannot release/confirm another user's reservation (403
+      `reservationForbidden`).

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-day-timeline-react` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-day-timeline'
-import type { DayTimelineTranslationKey, DayTimelineTranslations } from '@molecule/app-locales-day-timeline'
+import type {
+  DayTimelineTranslationKey,
+  DayTimelineTranslations,
+} from '@molecule/app-locales-day-timeline'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                 | English      |
+| ------------------- | ------------ |
 | `dayTimeline.group` | Day timeline |
 
 ## Metadata

@@ -16,9 +16,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-search-meilisearch @molecule/api-search @molecule/api-secrets meilisearch
 ```
@@ -33,18 +35,18 @@ Result of a bulk index operation.
 
 ```typescript
 interface BulkIndexResult {
-    /**
-     * Number of documents successfully indexed.
-     */
-    indexed: number;
-    /**
-     * Number of documents that failed to index.
-     */
-    failed: number;
-    /**
-     * Errors encountered during bulk indexing, keyed by document id.
-     */
-    errors: Record<string, string>;
+  /**
+   * Number of documents successfully indexed.
+   */
+  indexed: number
+  /**
+   * Number of documents that failed to index.
+   */
+  failed: number
+  /**
+   * Errors encountered during bulk indexing, keyed by document id.
+   */
+  errors: Record<string, string>
 }
 ```
 
@@ -54,14 +56,14 @@ A single facet count entry.
 
 ```typescript
 interface FacetCount {
-    /**
-     * The facet value.
-     */
-    value: string;
-    /**
-     * Number of documents matching this facet value.
-     */
-    count: number;
+  /**
+   * The facet value.
+   */
+  value: string
+  /**
+   * Number of documents matching this facet value.
+   */
+  count: number
 }
 ```
 
@@ -71,14 +73,14 @@ A document to be indexed in a bulk operation.
 
 ```typescript
 interface IndexDocument {
-    /**
-     * Unique identifier for the document.
-     */
-    id: string;
-    /**
-     * The document fields and values.
-     */
-    document: Record<string, unknown>;
+  /**
+   * Unique identifier for the document.
+   */
+  id: string
+  /**
+   * The document fields and values.
+   */
+  document: Record<string, unknown>
 }
 ```
 
@@ -88,22 +90,22 @@ Schema definition for a search index, describing the fields and their roles.
 
 ```typescript
 interface IndexSchema {
-    /**
-     * Map of field names to their types.
-     */
-    fields: Record<string, FieldType>;
-    /**
-     * Fields that are searchable via full-text queries.
-     */
-    searchableFields?: string[];
-    /**
-     * Fields that can be used in filter expressions.
-     */
-    filterableFields?: string[];
-    /**
-     * Fields that can be used for sorting results.
-     */
-    sortableFields?: string[];
+  /**
+   * Map of field names to their types.
+   */
+  fields: Record<string, FieldType>
+  /**
+   * Fields that are searchable via full-text queries.
+   */
+  searchableFields?: string[]
+  /**
+   * Fields that can be used in filter expressions.
+   */
+  filterableFields?: string[]
+  /**
+   * Fields that can be used for sorting results.
+   */
+  sortableFields?: string[]
 }
 ```
 
@@ -145,22 +147,22 @@ A single search result hit.
 
 ```typescript
 interface SearchHit {
-    /**
-     * Document identifier.
-     */
-    id: string;
-    /**
-     * Relevance score.
-     */
-    score: number;
-    /**
-     * The matched document fields.
-     */
-    document: Record<string, unknown>;
-    /**
-     * Highlighted field snippets, keyed by field name.
-     */
-    highlights?: Record<string, string[]>;
+  /**
+   * Document identifier.
+   */
+  id: string
+  /**
+   * Relevance score.
+   */
+  score: number
+  /**
+   * The matched document fields.
+   */
+  document: Record<string, unknown>
+  /**
+   * Highlighted field snippets, keyed by field name.
+   */
+  highlights?: Record<string, string[]>
 }
 ```
 
@@ -173,67 +175,67 @@ search, indexing, and suggestion capabilities.
 
 ```typescript
 interface SearchProvider {
-    /**
-     * Creates a search index with an optional schema.
-     *
-     * @param name - Index name.
-     * @param schema - Optional schema describing field types and roles.
-     */
-    createIndex(name: string, schema?: IndexSchema): Promise<void>;
-    /**
-     * Deletes a search index and all its documents.
-     *
-     * @param name - Index name to delete.
-     */
-    deleteIndex(name: string): Promise<void>;
-    /**
-     * Indexes a single document.
-     *
-     * @param indexName - Target index name.
-     * @param id - Unique document identifier.
-     * @param document - The document fields and values.
-     */
-    index(indexName: string, id: string, document: Record<string, unknown>): Promise<void>;
-    /**
-     * Indexes multiple documents in a single operation.
-     *
-     * @param indexName - Target index name.
-     * @param documents - Array of documents to index.
-     * @returns Result with indexed/failed counts and errors.
-     */
-    bulkIndex(indexName: string, documents: IndexDocument[]): Promise<BulkIndexResult>;
-    /**
-     * Executes a full-text search query against an index.
-     *
-     * @param indexName - Index to search.
-     * @param query - Search query with text, filters, pagination, etc.
-     * @returns Search results with hits, total count, facets, and timing.
-     */
-    search(indexName: string, query: SearchQuery): Promise<SearchResult>;
-    /**
-     * Deletes a document from an index by id.
-     *
-     * @param indexName - Index containing the document.
-     * @param id - Document identifier to delete.
-     */
-    delete(indexName: string, id: string): Promise<void>;
-    /**
-     * Returns typeahead/autocomplete suggestions for a partial query.
-     *
-     * @param indexName - Index to generate suggestions from.
-     * @param query - Partial text to complete.
-     * @param options - Suggestion options (limit, fields, fuzzy).
-     * @returns Array of suggestions sorted by relevance.
-     */
-    suggest(indexName: string, query: string, options?: SuggestOptions): Promise<Suggestion[]>;
-    /**
-     * Retrieves a single document from an index by id.
-     *
-     * @param indexName - Index containing the document.
-     * @param id - Document identifier.
-     * @returns The document fields, or `null` if not found.
-     */
-    getDocument(indexName: string, id: string): Promise<Record<string, unknown> | null>;
+  /**
+   * Creates a search index with an optional schema.
+   *
+   * @param name - Index name.
+   * @param schema - Optional schema describing field types and roles.
+   */
+  createIndex(name: string, schema?: IndexSchema): Promise<void>
+  /**
+   * Deletes a search index and all its documents.
+   *
+   * @param name - Index name to delete.
+   */
+  deleteIndex(name: string): Promise<void>
+  /**
+   * Indexes a single document.
+   *
+   * @param indexName - Target index name.
+   * @param id - Unique document identifier.
+   * @param document - The document fields and values.
+   */
+  index(indexName: string, id: string, document: Record<string, unknown>): Promise<void>
+  /**
+   * Indexes multiple documents in a single operation.
+   *
+   * @param indexName - Target index name.
+   * @param documents - Array of documents to index.
+   * @returns Result with indexed/failed counts and errors.
+   */
+  bulkIndex(indexName: string, documents: IndexDocument[]): Promise<BulkIndexResult>
+  /**
+   * Executes a full-text search query against an index.
+   *
+   * @param indexName - Index to search.
+   * @param query - Search query with text, filters, pagination, etc.
+   * @returns Search results with hits, total count, facets, and timing.
+   */
+  search(indexName: string, query: SearchQuery): Promise<SearchResult>
+  /**
+   * Deletes a document from an index by id.
+   *
+   * @param indexName - Index containing the document.
+   * @param id - Document identifier to delete.
+   */
+  delete(indexName: string, id: string): Promise<void>
+  /**
+   * Returns typeahead/autocomplete suggestions for a partial query.
+   *
+   * @param indexName - Index to generate suggestions from.
+   * @param query - Partial text to complete.
+   * @param options - Suggestion options (limit, fields, fuzzy).
+   * @returns Array of suggestions sorted by relevance.
+   */
+  suggest(indexName: string, query: string, options?: SuggestOptions): Promise<Suggestion[]>
+  /**
+   * Retrieves a single document from an index by id.
+   *
+   * @param indexName - Index containing the document.
+   * @param id - Document identifier.
+   * @returns The document fields, or `null` if not found.
+   */
+  getDocument(indexName: string, id: string): Promise<Record<string, unknown> | null>
 }
 ```
 
@@ -243,41 +245,41 @@ A full-text search query with optional filters, facets, sorting, and pagination.
 
 ```typescript
 interface SearchQuery {
-    /**
-     * The search text.
-     *
-     * Empty or whitespace-only text is "browse" mode: bond implementations
-     * MUST match ALL documents (subject to `filters`, `sort`, and pagination)
-     * rather than erroring or returning zero hits. Every bundled bond
-     * (Elasticsearch, Meilisearch, Typesense, PostgreSQL) follows this
-     * contract, so swapping providers doesn't silently change what an empty
-     * search box shows.
-     */
-    text: string;
-    /**
-     * Filter expressions to narrow results.
-     */
-    filters?: Record<string, unknown>;
-    /**
-     * Fields to compute facet counts for.
-     */
-    facets?: string[];
-    /**
-     * Sort fields and directions.
-     */
-    sort?: SortField[];
-    /**
-     * Page number (1-based).
-     */
-    page?: number;
-    /**
-     * Number of results per page.
-     */
-    perPage?: number;
-    /**
-     * Whether to include highlighted snippets in results.
-     */
-    highlight?: boolean;
+  /**
+   * The search text.
+   *
+   * Empty or whitespace-only text is "browse" mode: bond implementations
+   * MUST match ALL documents (subject to `filters`, `sort`, and pagination)
+   * rather than erroring or returning zero hits. Every bundled bond
+   * (Elasticsearch, Meilisearch, Typesense, PostgreSQL) follows this
+   * contract, so swapping providers doesn't silently change what an empty
+   * search box shows.
+   */
+  text: string
+  /**
+   * Filter expressions to narrow results.
+   */
+  filters?: Record<string, unknown>
+  /**
+   * Fields to compute facet counts for.
+   */
+  facets?: string[]
+  /**
+   * Sort fields and directions.
+   */
+  sort?: SortField[]
+  /**
+   * Page number (1-based).
+   */
+  page?: number
+  /**
+   * Number of results per page.
+   */
+  perPage?: number
+  /**
+   * Whether to include highlighted snippets in results.
+   */
+  highlight?: boolean
 }
 ```
 
@@ -287,30 +289,30 @@ The result of a search query, including hits, pagination, facets, and timing.
 
 ```typescript
 interface SearchResult {
-    /**
-     * Matched documents.
-     */
-    hits: SearchHit[];
-    /**
-     * Total number of matching documents.
-     */
-    total: number;
-    /**
-     * Current page number.
-     */
-    page: number;
-    /**
-     * Number of results per page.
-     */
-    perPage: number;
-    /**
-     * Facet counts keyed by field name.
-     */
-    facets?: Record<string, FacetCount[]>;
-    /**
-     * Time taken to process the query in milliseconds.
-     */
-    processingTimeMs: number;
+  /**
+   * Matched documents.
+   */
+  hits: SearchHit[]
+  /**
+   * Total number of matching documents.
+   */
+  total: number
+  /**
+   * Current page number.
+   */
+  page: number
+  /**
+   * Number of results per page.
+   */
+  perPage: number
+  /**
+   * Facet counts keyed by field name.
+   */
+  facets?: Record<string, FacetCount[]>
+  /**
+   * Time taken to process the query in milliseconds.
+   */
+  processingTimeMs: number
 }
 ```
 
@@ -320,14 +322,14 @@ A field to sort search results by.
 
 ```typescript
 interface SortField {
-    /**
-     * The field name to sort on.
-     */
-    field: string;
-    /**
-     * Sort direction.
-     */
-    direction: SortDirection;
+  /**
+   * The field name to sort on.
+   */
+  field: string
+  /**
+   * Sort direction.
+   */
+  direction: SortDirection
 }
 ```
 
@@ -337,18 +339,18 @@ A single autocomplete suggestion.
 
 ```typescript
 interface Suggestion {
-    /**
-     * The suggested text.
-     */
-    text: string;
-    /**
-     * Relevance score for ranking suggestions.
-     */
-    score: number;
-    /**
-     * Optional highlighted version of the suggestion.
-     */
-    highlighted?: string;
+  /**
+   * The suggested text.
+   */
+  text: string
+  /**
+   * Relevance score for ranking suggestions.
+   */
+  score: number
+  /**
+   * Optional highlighted version of the suggestion.
+   */
+  highlighted?: string
 }
 ```
 
@@ -358,18 +360,18 @@ Options for typeahead / autocomplete suggestions.
 
 ```typescript
 interface SuggestOptions {
-    /**
-     * Maximum number of suggestions to return.
-     */
-    limit?: number;
-    /**
-     * Fields to generate suggestions from.
-     */
-    fields?: string[];
-    /**
-     * Whether to apply fuzzy matching.
-     */
-    fuzzy?: boolean;
+  /**
+   * Maximum number of suggestions to return.
+   */
+  limit?: number
+  /**
+   * Fields to generate suggestions from.
+   */
+  fields?: string[]
+  /**
+   * Whether to apply fuzzy matching.
+   */
+  fuzzy?: boolean
 }
 ```
 
@@ -380,7 +382,7 @@ interface SuggestOptions {
 Field type for index schema definitions.
 
 ```typescript
-type FieldType = 'text' | 'keyword' | 'number' | 'boolean' | 'date' | 'geo';
+type FieldType = 'text' | 'keyword' | 'number' | 'boolean' | 'date' | 'geo'
 ```
 
 #### `SortDirection`
@@ -388,7 +390,7 @@ type FieldType = 'text' | 'keyword' | 'number' | 'boolean' | 'date' | 'geo';
 Sort direction for search results.
 
 ```typescript
-type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc'
 ```
 
 ### Functions
@@ -425,6 +427,7 @@ const searchMeilisearchSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-search` interface.
 
 ## Bond Wiring
@@ -445,16 +448,17 @@ export function setupSearchMeilisearch(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-search` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MEILISEARCH_URL` *(optional)* — Meilisearch URL — default: `http://localhost:7700`
+- `MEILISEARCH_URL` _(optional)_ — Meilisearch URL — default: `http://localhost:7700`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Origin of your Meilisearch instance. molecule.dev runs Meilisearch inside your app's container automatically (dev and production) — set this only to use an external/managed instance; locally, run the official meilisearch Docker container or binary.
   - Example: `http://localhost:7700`
-- `MEILISEARCH_API_KEY` *(optional)* — Meilisearch API key
+- `MEILISEARCH_API_KEY` _(optional)_ — Meilisearch API key
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: The master key (or a scoped API key) you configured when launching Meilisearch (--master-key / MEILI_MASTER_KEY). Optional for keyless local or in-container instances.
 
@@ -490,14 +494,15 @@ Provider-specific behavior to know before debugging:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Searching a term that exists in seeded data returns the matching records
-  in the results UI.
+      in the results UI.
 - [ ] An empty search box shows the browse-everything view (empty `text` matches
-  ALL documents by contract) — not zero results and not an error.
+      ALL documents by contract) — not zero results and not an error.
 - [ ] A term with no matches shows a clear "no results" state.
 - [ ] Index-on-write is wired: create a new record through the UI, then search
-  for it — it must be findable without a manual reindex.
+      for it — it must be findable without a manual reindex.
 - [ ] If autocomplete/suggestions are surfaced, typing a prefix of a known
-  record shows relevant suggestions.
+      record shows relevant suggestions.
 - [ ] Search is scoped to the caller: one user's search never returns another
-  user's private records.
+      user's private records.

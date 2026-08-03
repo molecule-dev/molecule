@@ -10,13 +10,15 @@ locally-served TTF faces (regular 400, bold 700, variable 100-900).
 import { setFont } from '@molecule/app-fonts'
 import { font } from '@molecule/app-fonts-inter'
 
-setFont(font)   // once, at app startup — before first paint
+setFont(font) // once, at app startup — before first paint
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-fonts-inter @molecule/app-fonts
 ```
@@ -34,6 +36,7 @@ const font: FontDefinition
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-fonts` interface.
 
 ## Injection Notes
@@ -41,6 +44,7 @@ Implements `@molecule/app-fonts` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-fonts` ^1.0.0
 
 ### Runtime Dependencies

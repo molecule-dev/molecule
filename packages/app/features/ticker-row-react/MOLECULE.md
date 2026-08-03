@@ -12,8 +12,7 @@ market dashboards. Pair the `sparkline` slot with
 import { TickerRow } from '@molecule/app-ticker-row-react'
 
 declare function openAsset(id: string): void
-
-<TickerRow
+;<TickerRow
   symbol="BTC"
   name="Bitcoin"
   price="$67,420"
@@ -24,9 +23,11 @@ declare function openAsset(id: string): void
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ticker-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -94,6 +95,7 @@ function TickerRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -26,9 +26,11 @@ try {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-utilities
 ```
@@ -201,7 +203,11 @@ When a translation function `t` is provided, error messages are
 passed through it for i18n support.
 
 ```typescript
-function getErrorMessage(error: unknown, customMessages?: Record<string, string>, t?: TranslateFn): string
+function getErrorMessage(
+  error: unknown,
+  customMessages?: Record<string, string>,
+  t?: TranslateFn,
+): string
 ```
 
 - `error` — The error value (string, Error, or object with code/message).
@@ -297,7 +303,7 @@ Opens a URL by navigating in the current tab or opening a new
 window/tab with `noopener,noreferrer` for security.
 
 ```typescript
-function openUrl(url: string, options?: { newWindow?: boolean; target?: string; }): void
+function openUrl(url: string, options?: { newWindow?: boolean; target?: string }): void
 ```
 
 - `url` — The URL to open.
@@ -348,7 +354,15 @@ Retries an async function with exponential backoff. Each failed attempt
 waits `initialDelay * backoffFactor^(attempt-1)` ms, capped at `maxDelay`.
 
 ```typescript
-function retry(fn: () => Promise<T>, options?: { maxAttempts?: number; initialDelay?: number; maxDelay?: number; backoffFactor?: number; }): Promise<T>
+function retry(
+  fn: () => Promise<T>,
+  options?: {
+    maxAttempts?: number
+    initialDelay?: number
+    maxDelay?: number
+    backoffFactor?: number
+  },
+): Promise<T>
 ```
 
 - `fn` — The async function to retry.

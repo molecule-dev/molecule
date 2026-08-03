@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-annotation-pin-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-annotation-pin'
-import type { AnnotationPinTranslationKey, AnnotationPinTranslations } from '@molecule/app-locales-annotation-pin'
+import type {
+  AnnotationPinTranslationKey,
+  AnnotationPinTranslations,
+} from '@molecule/app-locales-annotation-pin'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `annotationPin.aria.layer` | Annotation layer |
-| `annotationPin.aria.marker` | Annotation pin |
-| `annotationPin.aria.popup` | Annotation details |
-| `annotationPin.empty` | No notes for this pin. |
+| Key                         | English                |
+| --------------------------- | ---------------------- |
+| `annotationPin.aria.layer`  | Annotation layer       |
+| `annotationPin.aria.marker` | Annotation pin         |
+| `annotationPin.aria.popup`  | Annotation details     |
+| `annotationPin.empty`       | No notes for this pin. |
 
 ## Metadata
 

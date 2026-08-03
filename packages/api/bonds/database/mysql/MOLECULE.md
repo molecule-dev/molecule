@@ -3,9 +3,11 @@
 MySQL database provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-database-mysql @molecule/api-bond @molecule/api-database @molecule/api-secrets mysql2
 ```
@@ -20,55 +22,57 @@ Database connection options (host, port, credentials, pool size, timeouts, SSL).
 
 ```typescript
 interface DatabaseConfig {
-    /**
-     * Database host.
-     */
-    host?: string;
-    /**
-     * Database port.
-     */
-    port?: number;
-    /**
-     * Database name.
-     */
-    database?: string;
-    /**
-     * Database user.
-     */
-    user?: string;
-    /**
-     * Database password.
-     */
-    password?: string;
-    /**
-     * Connection string (alternative to individual fields).
-     */
-    connectionString?: string;
-    /**
-     * Maximum number of connections in the pool.
-     */
-    max?: number;
-    /**
-     * Minimum number of connections in the pool.
-     */
-    min?: number;
-    /**
-     * Connection timeout in milliseconds.
-     */
-    connectionTimeoutMillis?: number;
-    /**
-     * Idle timeout in milliseconds.
-     */
-    idleTimeoutMillis?: number;
-    /**
-     * Enable SSL.
-     */
-    ssl?: boolean | {
-        rejectUnauthorized?: boolean;
-        ca?: string;
-        key?: string;
-        cert?: string;
-    };
+  /**
+   * Database host.
+   */
+  host?: string
+  /**
+   * Database port.
+   */
+  port?: number
+  /**
+   * Database name.
+   */
+  database?: string
+  /**
+   * Database user.
+   */
+  user?: string
+  /**
+   * Database password.
+   */
+  password?: string
+  /**
+   * Connection string (alternative to individual fields).
+   */
+  connectionString?: string
+  /**
+   * Maximum number of connections in the pool.
+   */
+  max?: number
+  /**
+   * Minimum number of connections in the pool.
+   */
+  min?: number
+  /**
+   * Connection timeout in milliseconds.
+   */
+  connectionTimeoutMillis?: number
+  /**
+   * Idle timeout in milliseconds.
+   */
+  idleTimeoutMillis?: number
+  /**
+   * Enable SSL.
+   */
+  ssl?:
+    | boolean
+    | {
+        rejectUnauthorized?: boolean
+        ca?: string
+        key?: string
+        cert?: string
+      }
 }
 ```
 
@@ -78,17 +82,17 @@ Database connection interface.
 
 ```typescript
 interface DatabaseConnection {
-    /**
-     * Executes a parameterized query.
-     *
-     * @param text - SQL query text with placeholders ($1, $2, etc.)
-     * @param values - Parameter values
-     */
-    query<T = Record<string, unknown>>(text: string, values?: unknown[]): Promise<QueryResult<T>>;
-    /**
-     * Releases the connection back to the pool.
-     */
-    release(): void;
+  /**
+   * Executes a parameterized query.
+   *
+   * @param text - SQL query text with placeholders ($1, $2, etc.)
+   * @param values - Parameter values
+   */
+  query<T = Record<string, unknown>>(text: string, values?: unknown[]): Promise<QueryResult<T>>
+  /**
+   * Releases the connection back to the pool.
+   */
+  release(): void
 }
 ```
 
@@ -100,33 +104,33 @@ All database providers must implement this interface.
 
 ```typescript
 interface DatabasePool {
-    /**
-     * Executes a parameterized query using a pool connection.
-     *
-     * @param text - SQL query text with placeholders ($1, $2, etc.)
-     * @param values - Parameter values
-     */
-    query<T = Record<string, unknown>>(text: string, values?: unknown[]): Promise<QueryResult<T>>;
-    /**
-     * Acquires a connection from the pool.
-     */
-    connect(): Promise<DatabaseConnection>;
-    /**
-     * Begins a transaction.
-     */
-    transaction?(): Promise<DatabaseTransaction>;
-    /**
-     * Closes all connections in the pool.
-     */
-    end(): Promise<void>;
-    /**
-     * Returns pool statistics (optional).
-     */
-    stats?(): {
-        total: number;
-        idle: number;
-        waiting: number;
-    };
+  /**
+   * Executes a parameterized query using a pool connection.
+   *
+   * @param text - SQL query text with placeholders ($1, $2, etc.)
+   * @param values - Parameter values
+   */
+  query<T = Record<string, unknown>>(text: string, values?: unknown[]): Promise<QueryResult<T>>
+  /**
+   * Acquires a connection from the pool.
+   */
+  connect(): Promise<DatabaseConnection>
+  /**
+   * Begins a transaction.
+   */
+  transaction?(): Promise<DatabaseTransaction>
+  /**
+   * Closes all connections in the pool.
+   */
+  end(): Promise<void>
+  /**
+   * Returns pool statistics (optional).
+   */
+  stats?(): {
+    total: number
+    idle: number
+    waiting: number
+  }
 }
 ```
 
@@ -136,14 +140,14 @@ Database transaction with commit and rollback (extends DatabaseConnection).
 
 ```typescript
 interface DatabaseTransaction extends DatabaseConnection {
-    /**
-     * Commits the transaction.
-     */
-    commit(): Promise<void>;
-    /**
-     * Rolls back the transaction.
-     */
-    rollback(): Promise<void>;
+  /**
+   * Commits the transaction.
+   */
+  commit(): Promise<void>
+  /**
+   * Rolls back the transaction.
+   */
+  rollback(): Promise<void>
 }
 ```
 
@@ -151,18 +155,18 @@ interface DatabaseTransaction extends DatabaseConnection {
 
 ```typescript
 interface Pool extends Connection {
-  getConnection(): Promise<PoolConnection>;
+  getConnection(): Promise<PoolConnection>
 
-  releaseConnection(connection: PoolConnection): void;
+  releaseConnection(connection: PoolConnection): void
 
-  on(event: 'connection', listener: (connection: PoolConnection) => any): this;
-  on(event: 'acquire', listener: (connection: PoolConnection) => any): this;
-  on(event: 'release', listener: (connection: PoolConnection) => any): this;
-  on(event: 'enqueue', listener: () => any): this;
+  on(event: 'connection', listener: (connection: PoolConnection) => any): this
+  on(event: 'acquire', listener: (connection: PoolConnection) => any): this
+  on(event: 'release', listener: (connection: PoolConnection) => any): this
+  on(event: 'enqueue', listener: () => any): this
 
-  end(): Promise<void>;
+  end(): Promise<void>
 
-  pool: CorePool;
+  pool: CorePool
 }
 ```
 
@@ -175,35 +179,35 @@ interface PoolOptions extends ConnectionOptions {
    * the connection request and call it when one becomes available. If false, the pool will immediately call back with an error.
    * (Default: true)
    */
-  waitForConnections?: boolean;
+  waitForConnections?: boolean
 
   /**
    * The maximum number of connections to create at once. (Default: 10)
    */
-  connectionLimit?: number;
+  connectionLimit?: number
 
   /**
    * The maximum number of idle connections. (Default: same as `connectionLimit`)
    */
-  maxIdle?: number;
+  maxIdle?: number
 
   /**
    * The idle connections timeout, in milliseconds. (Default: 60000)
    */
-  idleTimeout?: number;
+  idleTimeout?: number
 
   /**
    * The maximum number of connection requests the pool will queue before returning an error from getConnection. If set to 0, there
    * is no limit to the number of queued connection requests. (Default: 0)
    */
-  queueLimit?: number;
+  queueLimit?: number
 
   /**
    * Whether to reset the connection state (user variables, temporary tables, transactions, etc.) when
    * releasing the connection back to the pool. This ensures each connection starts clean for the next user.
    * Requires MySQL 5.7.3+. (Default: false)
    */
-  resetOnRelease?: boolean;
+  resetOnRelease?: boolean
 }
 ```
 
@@ -213,21 +217,21 @@ Query result with rows and metadata.
 
 ```typescript
 interface QueryResult<T = Record<string, unknown>> {
-    /**
-     * Array of rows returned by the query.
-     */
-    rows: T[];
-    /**
-     * Number of rows affected (for INSERT, UPDATE, DELETE).
-     */
-    rowCount: number | null;
-    /**
-     * Column metadata (optional, provider-dependent).
-     */
-    fields?: Array<{
-        name: string;
-        dataTypeID?: number;
-    }>;
+  /**
+   * Array of rows returned by the query.
+   */
+  rows: T[]
+  /**
+   * Number of rows affected (for INSERT, UPDATE, DELETE).
+   */
+  rowCount: number | null
+  /**
+   * Column metadata (optional, provider-dependent).
+   */
+  fields?: Array<{
+    name: string
+    dataTypeID?: number
+  }>
 }
 ```
 
@@ -236,19 +240,19 @@ interface QueryResult<T = Record<string, unknown>> {
 ```typescript
 declare interface ResultSetHeader {
   constructor: {
-    name: 'ResultSetHeader';
-  };
-  affectedRows: number;
-  fieldCount: number;
-  info: string;
-  insertId: number;
-  serverStatus: number;
-  warningStatus: number;
+    name: 'ResultSetHeader'
+  }
+  affectedRows: number
+  fieldCount: number
+  info: string
+  insertId: number
+  serverStatus: number
+  warningStatus: number
   /**
    * @deprecated
    * `changedRows` is deprecated and might be removed in the future major release. Please use `affectedRows` property instead.
    */
-  changedRows: number;
+  changedRows: number
 }
 ```
 
@@ -257,10 +261,10 @@ declare interface ResultSetHeader {
 ```typescript
 declare interface RowDataPacket {
   constructor: {
-    name: 'RowDataPacket';
-  };
-  [column: string]: any;
-  [column: number]: any;
+    name: 'RowDataPacket'
+  }
+  [column: string]: any
+  [column: number]: any
 }
 ```
 
@@ -339,6 +343,7 @@ const store: DataStore
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-database` interface.
 
 ## Bond Wiring
@@ -360,13 +365,14 @@ export function setupDatabaseMysql(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MYSQL_URL` *(required)* — MySQL connection URL
+- `MYSQL_URL` _(required)_ — MySQL connection URL
   - Setup: MySQL connection string for your database instance. Alternatively, set the discrete MYSQL_HOST / MYSQL_PORT / MYSQL_DATABASE / MYSQL_USER / MYSQL_PASSWORD vars instead — either form fully configures the connection on its own.
   - Example: `mysql://user:pass@localhost:3306/myapp`
 

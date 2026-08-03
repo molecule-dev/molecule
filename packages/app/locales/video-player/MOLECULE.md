@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-video-player-react` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-video-player'
-import type { VideoPlayerTranslationKey, VideoPlayerTranslations } from '@molecule/app-locales-video-player'
+import type {
+  VideoPlayerTranslationKey,
+  VideoPlayerTranslations,
+} from '@molecule/app-locales-video-player'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `video.pause` | Pause |
-| `video.play` | Play |
+| Key           | English |
+| ------------- | ------- |
+| `video.pause` | Pause   |
+| `video.play`  | Play    |
 
 ## Metadata
 

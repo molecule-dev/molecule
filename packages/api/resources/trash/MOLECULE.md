@@ -45,9 +45,11 @@ registerRestoreCallback('document', async (snapshot) => {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-trash @molecule/api-database @molecule/api-i18n @molecule/api-locales-trash @molecule/api-logger @molecule/api-resource zod
 ```
@@ -182,8 +184,7 @@ A JSON-serializable snapshot value. Constrained by what the underlying
 `JSONB` column can accept.
 
 ```typescript
-type JSONValue =
-  string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
+type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
 ```
 
 #### `RestoreCallback`
@@ -215,7 +216,9 @@ function clearRestoreCallbacks(): void
 Returns the count of active trash rows matching the optional filters.
 
 ```typescript
-function countTrashedItems(options?: Pick<ListTrashOptions, "resourceType" | "userId" | "includeInactive">): Promise<number>
+function countTrashedItems(
+  options?: Pick<ListTrashOptions, 'resourceType' | 'userId' | 'includeInactive'>,
+): Promise<number>
 ```
 
 - `options` — Filters (resourceType, userId).
@@ -431,7 +434,11 @@ If the callback throws, the trash row is left un-stamped (so the next
 call can retry) and the error is re-thrown.
 
 ```typescript
-function restoreFromTrash(trashId: string, userId: string | null, callback: RestoreCallback): Promise<RestoreResult | null>
+function restoreFromTrash(
+  trashId: string,
+  userId: string | null,
+  callback: RestoreCallback,
+): Promise<RestoreResult | null>
 ```
 
 - `trashId` — The trash row ID.
@@ -453,7 +460,7 @@ function trash(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 
 #### `trashAdmin()`
 
-Opt-in route middleware that *widens* an authenticated admin to cross-user
+Opt-in route middleware that _widens_ an authenticated admin to cross-user
 trash inspection by setting `res.locals.trashAdmin = true`. It never blocks:
 a non-admin (or anonymous) caller passes through unchanged and remains
 owner-scoped in the handlers, so composing this onto a route can only widen
@@ -522,7 +529,14 @@ const i18nRegistered: true
 Handler map for trash routes.
 
 ```typescript
-const requestHandlerMap: { readonly trash: typeof trash; readonly list: typeof list; readonly trashCount: typeof trashCount; readonly read: typeof read; readonly restore: typeof restore; readonly purge: typeof purge; }
+const requestHandlerMap: {
+  readonly trash: typeof trash
+  readonly list: typeof list
+  readonly trashCount: typeof trashCount
+  readonly read: typeof read
+  readonly restore: typeof restore
+  readonly purge: typeof purge
+}
 ```
 
 #### `restoreFromTrashSchema`
@@ -531,7 +545,10 @@ Schema for validating restore input. Body is optional — the trash row to
 restore is identified by URL params.
 
 ```typescript
-const restoreFromTrashSchema: z.ZodObject<{ reason: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>>; }, z.core.$strip>
+const restoreFromTrashSchema: z.ZodObject<
+  { reason: z.ZodOptional<z.ZodNullable<z.ZodOptional<z.ZodString>>> },
+  z.core.$strip
+>
 ```
 
 #### `routes`
@@ -540,7 +557,44 @@ Routes for the trash helper. All routes require `authenticate`; the
 handlers additionally scope every read/mutation to the caller's `userId`.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/trash"; readonly handler: "trash"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash/count"; readonly handler: "trashCount"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/trash/:trashId"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/trash/:trashId/restore"; readonly handler: "restore"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/trash/:trashId/purge"; readonly handler: "purge"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/:resourceType/:resourceId/trash'
+    readonly handler: 'trash'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/trash'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/trash/count'
+    readonly handler: 'trashCount'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/trash/:trashId'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/trash/:trashId/restore'
+    readonly handler: 'restore'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/trash/:trashId/purge'
+    readonly handler: 'purge'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `TRASH_ADMIN_PERMISSION`
@@ -549,7 +603,7 @@ Session-claim permission string (`'trash:manage'`) that, when present in a
 session's `permissions` array, marks the caller as a trash admin.
 
 ```typescript
-const TRASH_ADMIN_PERMISSION: "trash:manage"
+const TRASH_ADMIN_PERMISSION: 'trash:manage'
 ```
 
 #### `TRASH_PERMISSION_ACTION`
@@ -558,7 +612,7 @@ Permission action describing trash administration, e.g. for an app's own
 `@molecule/api-permissions` wiring.
 
 ```typescript
-const TRASH_PERMISSION_ACTION: "manage"
+const TRASH_PERMISSION_ACTION: 'manage'
 ```
 
 #### `TRASH_PERMISSION_RESOURCE`
@@ -567,7 +621,7 @@ Permission resource describing trash administration, e.g. for an app's own
 `@molecule/api-permissions` wiring.
 
 ```typescript
-const TRASH_PERMISSION_RESOURCE: "trash"
+const TRASH_PERMISSION_RESOURCE: 'trash'
 ```
 
 #### `trashItemSchema`
@@ -576,7 +630,14 @@ Schema for validating trash-item input (when soft-deleting via the HTTP
 route). Routes pass `resourceType` and `resourceId` via URL params.
 
 ```typescript
-const trashItemSchema: z.ZodObject<{ snapshot: z.ZodType<unknown, unknown, z.core.$ZodTypeInternals<unknown, unknown>>; reason: z.ZodNullable<z.ZodOptional<z.ZodString>>; ttlMs: z.ZodNullable<z.ZodOptional<z.ZodNumber>>; }, z.core.$strip>
+const trashItemSchema: z.ZodObject<
+  {
+    snapshot: z.ZodType<unknown, unknown, z.core.$ZodTypeInternals<unknown, unknown>>
+    reason: z.ZodNullable<z.ZodOptional<z.ZodString>>
+    ttlMs: z.ZodNullable<z.ZodOptional<z.ZodNumber>>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -584,6 +645,7 @@ const trashItemSchema: z.ZodObject<{ snapshot: z.ZodType<unknown, unknown, z.cor
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-trash` ^1.0.0
@@ -605,22 +667,21 @@ Peer dependencies:
   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
   the rows come back; reading the response as a bare array — or `res.data` alone (which is
   the envelope) — yields an EMPTY list.
-Session-auth prerequisite + owner-scoping: every route requires an
-authenticated session and is owner-scoped IN-HANDLER — the caller is
-re-derived from `res.locals.session.userId` (any client-supplied `userId`
-is ignored), `list`/`count`/`read` return only the caller's rows, and
-`restore`/`purge` act only on rows the caller owns. Legitimate cross-user
-access (an admin trash console) is opt-in by composing the `trashAdmin`
-middleware onto a route; without it there is no open endpoint. In your own
-code, always take the user from the session (e.g. `getUserId(res)`), never
-`req.body`.
+  Session-auth prerequisite + owner-scoping: every route requires an
+  authenticated session and is owner-scoped IN-HANDLER — the caller is
+  re-derived from `res.locals.session.userId` (any client-supplied `userId`
+  is ignored), `list`/`count`/`read` return only the caller's rows, and
+  `restore`/`purge` act only on rows the caller owns. Legitimate cross-user
+  access (an admin trash console) is opt-in by composing the `trashAdmin`
+  middleware onto a route; without it there is no open endpoint. In your own
+  code, always take the user from the session (e.g. `getUserId(res)`), never
+  `req.body`.
 
 The HTTP `restore` route is fail-closed on the callback registry: until
 `registerRestoreCallback(resourceType, cb)` runs at startup, restoring that
 resource type returns 501 — register a callback for EVERY resource type you
 trash. (Programmatic callers can pass the callback directly to
-`restoreFromTrash()`.) A row that was already restored or purged returns
-409. Handler errors flow through `t()` with English defaults; install
+`restoreFromTrash()`.) A row that was already restored or purged returns 409. Handler errors flow through `t()` with English defaults; install
 `@molecule/api-locales-trash` for translations.
 
 Tables: `src/__setup__/trashedItems.sql` creates `trashedItems`. An
@@ -633,35 +694,36 @@ Soft-delete lifecycle checklist — drive the real UI (live preview, no
 mocks), adapt each item to this app's actual delete / Trash / restore
 screens, and check every box off one by one. A box you can't check is a
 bug to fix — not a skip:
+
 - [ ] Soft-delete tombstones, it does not vanish: deleting an item in the
-  UI removes it from the normal/active view (the parent's list, search, and
-  any counts) yet it appears in the Trash view — the underlying trash row
-  still exists with `trashedAt` set and `restoredAt`/`purgedAt` null.
-  Confirm the same item is absent from active AND present in trash.
+      UI removes it from the normal/active view (the parent's list, search, and
+      any counts) yet it appears in the Trash view — the underlying trash row
+      still exists with `trashedAt` set and `restoredAt`/`purgedAt` null.
+      Confirm the same item is absent from active AND present in trash.
 - [ ] Restore returns it verbatim: restoring from the Trash view re-creates
-  the parent from its snapshot exactly as it was (same fields/content) and
-  removes it from Trash (`restoredAt`/`restoredBy` get stamped, so the
-  active-only trash list and count drop it). Restoring a row already
-  restored or purged is refused (409), never silently duplicated.
+      the parent from its snapshot exactly as it was (same fields/content) and
+      removes it from Trash (`restoredAt`/`restoredBy` get stamped, so the
+      active-only trash list and count drop it). Restoring a row already
+      restored or purged is refused (409), never silently duplicated.
 - [ ] Purge / empty-trash is distinct from soft-delete and irreversible:
-  permanently deleting a trashed item (or emptying trash) stamps `purgedAt`
-  / removes the row — it leaves BOTH the active view and the Trash view, and
-  a later restore is refused (409 already-resolved, or 404 once the row is
-  hard-removed). Soft-delete stays recoverable; purge does not.
+      permanently deleting a trashed item (or emptying trash) stamps `purgedAt`
+      / removes the row — it leaves BOTH the active view and the Trash view, and
+      a later restore is refused (409 already-resolved, or 404 once the row is
+      hard-removed). Soft-delete stays recoverable; purge does not.
 - [ ] Retention window (only if the app sets one): items trashed with a
-  `ttlMs` get an `expiresAt`; once past it they become eligible for
-  auto-purge (`purgeExpired`) and stop being restorable, matching the stated
-  policy (e.g. "kept 30 days"). Skip only if the app defines no window.
+      `ttlMs` get an `expiresAt`; once past it they become eligible for
+      auto-purge (`purgeExpired`) and stop being restorable, matching the stated
+      policy (e.g. "kept 30 days"). Skip only if the app defines no window.
 - [ ] No deleted data leaks as active: a soft-deleted item never shows in
-  normal listings, search results, or counts/badges — only in Trash. Verify
-  the active count drops by exactly one on delete and the item is unfindable
-  via search until it is restored.
+      normal listings, search results, or counts/badges — only in Trash. Verify
+      the active count drops by exactly one on delete and the item is unfindable
+      via search until it is restored.
 - [ ] Authorization — each user sees and restores/purges only THEIR OWN
-  trash: signed in as a second user, the Trash view shows none of the first
-  user's items, and guessing another user's `trashId` into read / restore /
-  purge returns 404 (existence is not leaked — not 403). The owner is taken
-  from the session (any client-supplied `userId` is ignored), so a restored
-  item returns to its original owner, never the caller.
+      trash: signed in as a second user, the Trash view shows none of the first
+      user's items, and guessing another user's `trashId` into read / restore /
+      purge returns 404 (existence is not leaked — not 403). The owner is taken
+      from the session (any client-supplied `userId` is ignored), so a restored
+      item returns to its original owner, never the caller.
 
 ## Translations
 

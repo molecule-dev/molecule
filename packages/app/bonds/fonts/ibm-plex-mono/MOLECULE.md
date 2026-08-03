@@ -3,9 +3,11 @@
 IBM Plex Mono font for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-fonts-ibm-plex-mono @molecule/app-fonts
 ```
@@ -23,6 +25,7 @@ const font: FontDefinition
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-fonts` interface.
 
 ## Injection Notes
@@ -30,6 +33,7 @@ Implements `@molecule/app-fonts` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-fonts` ^1.0.0
 
 ### Runtime Dependencies

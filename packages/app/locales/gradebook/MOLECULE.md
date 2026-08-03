@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-gradebook-react` package which has 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-gradebook'
-import type { GradebookTranslationKey, GradebookTranslations } from '@molecule/app-locales-gradebook'
+import type {
+  GradebookTranslationKey,
+  GradebookTranslations,
+} from '@molecule/app-locales-gradebook'
 ```
 
 ## Registration
@@ -34,22 +37,22 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `gradebook.aria.region` | Gradebook |
-| `gradebook.empty` | No grades yet. |
-| `gradebook.col.title` | Course |
-| `gradebook.col.letter` | Letter |
-| `gradebook.col.numeric` | Score |
-| `gradebook.col.numericPct` | Score (%) |
-| `gradebook.col.weight` | Weight |
+| Key                          | English          |
+| ---------------------------- | ---------------- |
+| `gradebook.aria.region`      | Gradebook        |
+| `gradebook.empty`            | No grades yet.   |
+| `gradebook.col.title`        | Course           |
+| `gradebook.col.letter`       | Letter           |
+| `gradebook.col.numeric`      | Score            |
+| `gradebook.col.numericPct`   | Score (%)        |
+| `gradebook.col.weight`       | Weight           |
 | `gradebook.col.contribution` | GPA contribution |
-| `gradebook.col.posted` | Posted |
-| `gradebook.gpa.title` | GPA |
-| `gradebook.gpa.outOf` | out of {{max}} |
-| `gradebook.gpa.trend.up` | Trending up |
-| `gradebook.gpa.trend.down` | Trending down |
-| `gradebook.gpa.trend.flat` | Steady |
+| `gradebook.col.posted`       | Posted           |
+| `gradebook.gpa.title`        | GPA              |
+| `gradebook.gpa.outOf`        | out of {{max}}   |
+| `gradebook.gpa.trend.up`     | Trending up      |
+| `gradebook.gpa.trend.down`   | Trending down    |
+| `gradebook.gpa.trend.flat`   | Steady           |
 
 ## Metadata
 

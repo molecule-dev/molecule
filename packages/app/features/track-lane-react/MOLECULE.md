@@ -13,7 +13,7 @@ back the pointer-event drag/resize math.
 ```tsx
 import { TrackLane } from '@molecule/app-feature-track-lane-react'
 
-<TrackLane
+;<TrackLane
   name="Drums"
   clips={[
     { id: 'a', startTime: 0, duration: 2, color: '#0af', label: 'Kick' },
@@ -28,9 +28,11 @@ import { TrackLane } from '@molecule/app-feature-track-lane-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-track-lane-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -117,7 +119,10 @@ function clampClipMove(proposedStartTime: number): number
 Convert a `Clip` to its on-lane pixel geometry.
 
 ```typescript
-function clipToPixels(clip: Pick<Clip, "startTime" | "duration">, pixelsPerSecond: number): { left: number; width: number; }
+function clipToPixels(
+  clip: Pick<Clip, 'startTime' | 'duration'>,
+  pixelsPerSecond: number,
+): { left: number; width: number }
 ```
 
 - `clip` — The clip to project.
@@ -179,6 +184,7 @@ const MIN_CLIP_DURATION_SECONDS: 0.05
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

@@ -3,6 +3,7 @@
 Video-call participant tile + controls bar.
 
 Exports:
+
 - `<VideoCallControls>` — bottom controls bar (mute/video/screen-share/leave).
 - `<ParticipantTile>` — single participant card with name, mute, hand-raised, speaking ring.
 
@@ -36,9 +37,11 @@ function CallBar() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-video-call-controls-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -142,6 +145,7 @@ function VideoCallControls({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

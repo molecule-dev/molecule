@@ -18,7 +18,10 @@ import { useState } from 'react'
 import { SearchAutocomplete } from '@molecule/app-search-autocomplete-react'
 import type { SuggestionItem } from '@molecule/app-search-autocomplete-react'
 
-function UserSearch({ fetchUsers, onPick }: {
+function UserSearch({
+  fetchUsers,
+  onPick,
+}: {
   fetchUsers: (q: string) => Promise<SuggestionItem<{ id: string }>[]>
   onPick: (id: string) => void
 }) {
@@ -36,9 +39,11 @@ function UserSearch({ fetchUsers, onPick }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-search-autocomplete-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -118,6 +123,7 @@ function SearchAutocomplete({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

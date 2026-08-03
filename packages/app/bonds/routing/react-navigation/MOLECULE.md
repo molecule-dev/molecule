@@ -20,18 +20,16 @@ export function App({ children }: { children: React.ReactNode }) {
   // @molecule/app-routing's navigate() drives THIS native navigator.
   useMoleculeRouter({ navigationRef, linking })
 
-  return (
-    <NavigationContainer ref={navigationRef}>
-      {children}
-    </NavigationContainer>
-  )
+  return <NavigationContainer ref={navigationRef}>{children}</NavigationContainer>
 }
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-routing-react-navigation @molecule/app-i18n @molecule/app-routing @react-navigation/native react react-native
 npm install -D @types/react
@@ -47,22 +45,22 @@ Options for programmatic navigation (replace vs push, carry state, preserve quer
 
 ```typescript
 interface NavigateOptions {
-    /**
-     * Replace current history entry instead of pushing.
-     */
-    replace?: boolean;
-    /**
-     * State to pass with navigation.
-     */
-    state?: unknown;
-    /**
-     * Preserve current query params.
-     */
-    preserveQuery?: boolean;
-    /**
-     * Preserve current hash.
-     */
-    preserveHash?: boolean;
+  /**
+   * Replace current history entry instead of pushing.
+   */
+  replace?: boolean
+  /**
+   * State to pass with navigation.
+   */
+  state?: unknown
+  /**
+   * Preserve current query params.
+   */
+  preserveQuery?: boolean
+  /**
+   * Preserve current hash.
+   */
+  preserveHash?: boolean
 }
 ```
 
@@ -131,34 +129,34 @@ Route configuration entry (path pattern, name, auth requirements, roles, childre
 
 ```typescript
 interface RouteDefinition {
-    /**
-     * Route path pattern.
-     */
-    path: string;
-    /**
-     * Route name (for named routes).
-     */
-    name?: string;
-    /**
-     * Whether the route requires exact matching.
-     */
-    exact?: boolean;
-    /**
-     * Whether the route requires authentication.
-     */
-    requiresAuth?: boolean;
-    /**
-     * Required roles/permissions.
-     */
-    roles?: string[];
-    /**
-     * Route metadata.
-     */
-    meta?: Record<string, unknown>;
-    /**
-     * Child routes.
-     */
-    children?: RouteDefinition[];
+  /**
+   * Route path pattern.
+   */
+  path: string
+  /**
+   * Route name (for named routes).
+   */
+  name?: string
+  /**
+   * Whether the route requires exact matching.
+   */
+  exact?: boolean
+  /**
+   * Whether the route requires authentication.
+   */
+  requiresAuth?: boolean
+  /**
+   * Required roles/permissions.
+   */
+  roles?: string[]
+  /**
+   * Route metadata.
+   */
+  meta?: Record<string, unknown>
+  /**
+   * Child routes.
+   */
+  children?: RouteDefinition[]
 }
 ```
 
@@ -168,26 +166,26 @@ Current URL decomposed into pathname, search string, hash, navigation state, and
 
 ```typescript
 interface RouteLocation {
-    /**
-     * Current pathname.
-     */
-    pathname: string;
-    /**
-     * Query string (including leading ?).
-     */
-    search: string;
-    /**
-     * Hash (including leading #).
-     */
-    hash: string;
-    /**
-     * State data passed with navigation.
-     */
-    state?: unknown;
-    /**
-     * Unique key for this location.
-     */
-    key?: string;
+  /**
+   * Current pathname.
+   */
+  pathname: string
+  /**
+   * Query string (including leading ?).
+   */
+  search: string
+  /**
+   * Hash (including leading #).
+   */
+  hash: string
+  /**
+   * State data passed with navigation.
+   */
+  state?: unknown
+  /**
+   * Unique key for this location.
+   */
+  key?: string
 }
 ```
 
@@ -197,22 +195,22 @@ Result of matching a URL against a route pattern (path, params, query string).
 
 ```typescript
 interface RouteMatch<Params extends RouteParams = RouteParams> {
-    /**
-     * Route path pattern.
-     */
-    path: string;
-    /**
-     * Matched URL pathname.
-     */
-    pathname: string;
-    /**
-     * Route parameters.
-     */
-    params: Params;
-    /**
-     * Whether this is an exact match.
-     */
-    isExact: boolean;
+  /**
+   * Route path pattern.
+   */
+  path: string
+  /**
+   * Matched URL pathname.
+   */
+  pathname: string
+  /**
+   * Route parameters.
+   */
+  params: Params
+  /**
+   * Whether this is an exact match.
+   */
+  isExact: boolean
 }
 ```
 
@@ -224,92 +222,100 @@ All routing providers must implement this interface.
 
 ```typescript
 interface Router {
-    /**
-     * Returns the current route location (pathname, search, hash, state).
-     */
-    getLocation(): RouteLocation;
-    /**
-     * Gets the current route params.
-     */
-    getParams<T extends RouteParams = RouteParams>(): T;
-    /**
-     * Gets the current query params.
-     */
-    getQuery(): QueryParams;
-    /**
-     * Gets a specific query parameter.
-     */
-    getQueryParam(key: string): string | undefined;
-    /**
-     * Gets the current hash.
-     */
-    getHash(): string;
-    /**
-     * Navigates to a path.
-     */
-    navigate(path: string, options?: NavigateOptions): void;
-    /**
-     * Navigates to a named route.
-     */
-    navigateTo(name: string, params?: RouteParams, query?: QueryParams, options?: NavigateOptions): void;
-    /**
-     * Goes back in history.
-     */
-    back(): void;
-    /**
-     * Goes forward in history.
-     */
-    forward(): void;
-    /**
-     * Goes to a specific point in history.
-     */
-    go(delta: number): void;
-    /**
-     * Updates the current query params.
-     */
-    setQuery(params: QueryParams, options?: NavigateOptions): void;
-    /**
-     * Updates a specific query parameter.
-     */
-    setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void;
-    /**
-     * Updates the current hash.
-     */
-    setHash(hash: string, options?: NavigateOptions): void;
-    /**
-     * Checks if a path matches the current location.
-     *
-     * @returns `true` if the path matches the current route.
-     */
-    isActive(path: string, exact?: boolean): boolean;
-    /**
-     * Matches a path pattern against a pathname.
-     */
-    matchPath<Params extends RouteParams = RouteParams>(pattern: string, pathname: string): RouteMatch<Params> | null;
-    /**
-     * Generates a URL from a named route.
-     */
-    generatePath(name: string, params?: RouteParams, query?: QueryParams): string;
-    /**
-     * Subscribes to route changes.
-     */
-    subscribe(listener: RouteChangeListener): () => void;
-    /**
-     * Adds a navigation guard.
-     */
-    addGuard(guard: NavigationGuard): () => void;
-    /**
-     * Registers route definitions.
-     */
-    registerRoutes(routes: RouteDefinition[]): void;
-    /**
-     * Gets all registered routes.
-     */
-    getRoutes(): RouteDefinition[];
-    /**
-     * Destroys the router.
-     */
-    destroy(): void;
+  /**
+   * Returns the current route location (pathname, search, hash, state).
+   */
+  getLocation(): RouteLocation
+  /**
+   * Gets the current route params.
+   */
+  getParams<T extends RouteParams = RouteParams>(): T
+  /**
+   * Gets the current query params.
+   */
+  getQuery(): QueryParams
+  /**
+   * Gets a specific query parameter.
+   */
+  getQueryParam(key: string): string | undefined
+  /**
+   * Gets the current hash.
+   */
+  getHash(): string
+  /**
+   * Navigates to a path.
+   */
+  navigate(path: string, options?: NavigateOptions): void
+  /**
+   * Navigates to a named route.
+   */
+  navigateTo(
+    name: string,
+    params?: RouteParams,
+    query?: QueryParams,
+    options?: NavigateOptions,
+  ): void
+  /**
+   * Goes back in history.
+   */
+  back(): void
+  /**
+   * Goes forward in history.
+   */
+  forward(): void
+  /**
+   * Goes to a specific point in history.
+   */
+  go(delta: number): void
+  /**
+   * Updates the current query params.
+   */
+  setQuery(params: QueryParams, options?: NavigateOptions): void
+  /**
+   * Updates a specific query parameter.
+   */
+  setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void
+  /**
+   * Updates the current hash.
+   */
+  setHash(hash: string, options?: NavigateOptions): void
+  /**
+   * Checks if a path matches the current location.
+   *
+   * @returns `true` if the path matches the current route.
+   */
+  isActive(path: string, exact?: boolean): boolean
+  /**
+   * Matches a path pattern against a pathname.
+   */
+  matchPath<Params extends RouteParams = RouteParams>(
+    pattern: string,
+    pathname: string,
+  ): RouteMatch<Params> | null
+  /**
+   * Generates a URL from a named route.
+   */
+  generatePath(name: string, params?: RouteParams, query?: QueryParams): string
+  /**
+   * Subscribes to route changes.
+   */
+  subscribe(listener: RouteChangeListener): () => void
+  /**
+   * Adds a navigation guard.
+   */
+  addGuard(guard: NavigationGuard): () => void
+  /**
+   * Registers route definitions.
+   */
+  registerRoutes(routes: RouteDefinition[]): void
+  /**
+   * Gets all registered routes.
+   */
+  getRoutes(): RouteDefinition[]
+  /**
+   * Destroys the router.
+   */
+  destroy(): void
 }
 ```
 
@@ -319,18 +325,18 @@ Configuration options for creating a router instance.
 
 ```typescript
 interface RouterConfig {
-    /**
-     * Router mode.
-     */
-    mode?: 'history' | 'hash' | 'memory';
-    /**
-     * Base path.
-     */
-    basePath?: string;
-    /**
-     * Initial routes.
-     */
-    routes?: RouteDefinition[];
+  /**
+   * Router mode.
+   */
+  mode?: 'history' | 'hash' | 'memory'
+  /**
+   * Base path.
+   */
+  basePath?: string
+  /**
+   * Initial routes.
+   */
+  routes?: RouteDefinition[]
 }
 ```
 
@@ -341,10 +347,14 @@ interface RouterConfig {
 Navigation guard result.
 
 ```typescript
-type GuardResult = boolean | string | {
-    path: string;
-    replace?: boolean;
-} | void;
+type GuardResult =
+  | boolean
+  | string
+  | {
+      path: string
+      replace?: boolean
+    }
+  | void
 ```
 
 #### `NavigationGuard`
@@ -353,7 +363,10 @@ Navigation guard function invoked before each navigation.
 Return `false` to cancel, a string/path to redirect, or void to allow.
 
 ```typescript
-type NavigationGuard = (to: RouteLocation, from: RouteLocation | null) => GuardResult | Promise<GuardResult>;
+type NavigationGuard = (
+  to: RouteLocation,
+  from: RouteLocation | null,
+) => GuardResult | Promise<GuardResult>
 ```
 
 #### `QueryParams`
@@ -361,7 +374,7 @@ type NavigationGuard = (to: RouteLocation, from: RouteLocation | null) => GuardR
 URL query string parameter map (single values or arrays for repeated keys).
 
 ```typescript
-type QueryParams = Record<string, string | string[] | undefined>;
+type QueryParams = Record<string, string | string[] | undefined>
 ```
 
 #### `RouteChangeListener`
@@ -370,7 +383,7 @@ Callback invoked on each route change with the new location and the
 navigation action that triggered it.
 
 ```typescript
-type RouteChangeListener = (location: RouteLocation, action: 'push' | 'replace' | 'pop') => void;
+type RouteChangeListener = (location: RouteLocation, action: 'push' | 'replace' | 'pop') => void
 ```
 
 #### `RouteParams`
@@ -378,7 +391,7 @@ type RouteChangeListener = (location: RouteLocation, action: 'push' | 'replace' 
 URL path parameter key-value map extracted from dynamic route segments (e.g. `{ id: '123' }`).
 
 ```typescript
-type RouteParams = Record<string, string>;
+type RouteParams = Record<string, string>
 ```
 
 ### Functions
@@ -443,7 +456,11 @@ function parseSearchString(search: string): QueryParams
 Resolves a URL path from a screen name using linking config.
 
 ```typescript
-function resolvePathFromScreen(screen: string, params: Record<string, unknown> | undefined, screens: Record<string, string>): string
+function resolvePathFromScreen(
+  screen: string,
+  params: Record<string, unknown> | undefined,
+  screens: Record<string, string>,
+): string
 ```
 
 - `screen` — The screen name to resolve.
@@ -457,7 +474,10 @@ function resolvePathFromScreen(screen: string, params: Record<string, unknown> |
 Resolves a screen name from a URL path using linking config.
 
 ```typescript
-function resolveScreenFromPath(path: string, screens: Record<string, string>): { screen: string; params?: Record<string, string>; } | null
+function resolveScreenFromPath(
+  path: string,
+  screens: Record<string, string>,
+): { screen: string; params?: Record<string, string> } | null
 ```
 
 - `path` — The URL path to resolve.
@@ -499,6 +519,7 @@ function useMoleculeRouter(config: ReactNavigationConfig): Router
 **Returns:** The bonded molecule Router.
 
 ## Core Interface
+
 Implements `@molecule/app-routing` interface.
 
 ## Injection Notes
@@ -506,6 +527,7 @@ Implements `@molecule/app-routing` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-routing` ^1.0.0
 - `@react-navigation/native` ^7.0.0

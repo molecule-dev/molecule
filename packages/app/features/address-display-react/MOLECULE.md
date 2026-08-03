@@ -11,7 +11,7 @@ Also exports the `Address` type.
 ```tsx
 import { AddressDisplay } from '@molecule/app-address-display-react'
 
-<AddressDisplay
+;<AddressDisplay
   name="Jane Smith"
   address={{
     line1: '123 Main St',
@@ -25,9 +25,11 @@ import { AddressDisplay } from '@molecule/app-address-display-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-address-display-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -108,6 +110,7 @@ function AddressDisplay({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

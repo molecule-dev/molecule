@@ -36,9 +36,11 @@ createApp(Panel).mount('#app')
 ```
 
 ## Type
+
 `framework`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui-vue @molecule/app-i18n @molecule/app-icons @molecule/app-ui vue
 ```
@@ -53,22 +55,22 @@ A single item in an Accordion component.
 
 ```typescript
 interface AccordionItem<T = string> {
-    /**
-     * Item value/id.
-     */
-    value: T;
-    /**
-     * Item header/trigger.
-     */
-    header: Children;
-    /**
-     * Item content.
-     */
-    content: Children;
-    /**
-     * Whether the item is disabled.
-     */
-    disabled?: boolean;
+  /**
+   * Item value/id.
+   */
+  value: T
+  /**
+   * Item header/trigger.
+   */
+  header: Children
+  /**
+   * Item content.
+   */
+  content: Children
+  /**
+   * Whether the item is disabled.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -78,30 +80,30 @@ Props for the Accordion component.
 
 ```typescript
 interface AccordionProps<T = string> extends BaseProps {
-    /**
-     * Accordion items.
-     */
-    items: AccordionItem<T>[];
-    /**
-     * Expanded item(s).
-     */
-    value?: T | T[];
-    /**
-     * Default expanded item(s).
-     */
-    defaultValue?: T | T[];
-    /**
-     * Change handler.
-     */
-    onChange?: (value: T | T[]) => void;
-    /**
-     * Whether multiple items can be expanded.
-     */
-    multiple?: boolean;
-    /**
-     * Whether items can be collapsed.
-     */
-    collapsible?: boolean;
+  /**
+   * Accordion items.
+   */
+  items: AccordionItem<T>[]
+  /**
+   * Expanded item(s).
+   */
+  value?: T | T[]
+  /**
+   * Default expanded item(s).
+   */
+  defaultValue?: T | T[]
+  /**
+   * Change handler.
+   */
+  onChange?: (value: T | T[]) => void
+  /**
+   * Whether multiple items can be expanded.
+   */
+  multiple?: boolean
+  /**
+   * Whether items can be collapsed.
+   */
+  collapsible?: boolean
 }
 ```
 
@@ -111,39 +113,39 @@ Props for the Alert component.
 
 ```typescript
 interface AlertProps extends HTMLElementProps {
-    /**
-     * Alert content.
-     */
-    children?: Children;
-    /**
-     * Alert title.
-     */
-    title?: string;
-    /**
-     * Alert status/type.
-     */
-    status?: ColorVariant;
-    /**
-     * Alert variant.
-     */
-    variant?: 'solid' | 'subtle' | 'outline' | 'left-accent';
-    /**
-     * Whether the alert is dismissible.
-     */
-    dismissible?: boolean;
-    /**
-     * Called when dismissed.
-     */
-    onDismiss?: () => void;
-    /**
-     * Icon to display.
-     */
-    icon?: Children;
-    /**
-     * Accessible label for the dismiss button.
-     * @default 'Dismiss'
-     */
-    dismissLabel?: string;
+  /**
+   * Alert content.
+   */
+  children?: Children
+  /**
+   * Alert title.
+   */
+  title?: string
+  /**
+   * Alert status/type.
+   */
+  status?: ColorVariant
+  /**
+   * Alert variant.
+   */
+  variant?: 'solid' | 'subtle' | 'outline' | 'left-accent'
+  /**
+   * Whether the alert is dismissible.
+   */
+  dismissible?: boolean
+  /**
+   * Called when dismissed.
+   */
+  onDismiss?: () => void
+  /**
+   * Icon to display.
+   */
+  icon?: Children
+  /**
+   * Accessible label for the dismiss button.
+   * @default 'Dismiss'
+   */
+  dismissLabel?: string
 }
 ```
 
@@ -153,30 +155,30 @@ Props for the Avatar component.
 
 ```typescript
 interface AvatarProps extends HTMLElementProps {
-    /**
-     * Image source URL.
-     */
-    src?: string;
-    /**
-     * Alt text for the image.
-     */
-    alt?: string;
-    /**
-     * Name for fallback initials.
-     */
-    name?: string;
-    /**
-     * Avatar size.
-     */
-    size?: Size | number;
-    /**
-     * Whether the avatar is rounded.
-     */
-    rounded?: boolean;
-    /**
-     * Fallback element when no image.
-     */
-    fallback?: Children;
+  /**
+   * Image source URL.
+   */
+  src?: string
+  /**
+   * Alt text for the image.
+   */
+  alt?: string
+  /**
+   * Name for fallback initials.
+   */
+  name?: string
+  /**
+   * Avatar size.
+   */
+  size?: Size | number
+  /**
+   * Whether the avatar is rounded.
+   */
+  rounded?: boolean
+  /**
+   * Fallback element when no image.
+   */
+  fallback?: Children
 }
 ```
 
@@ -186,26 +188,26 @@ Props for the Badge component (status labels, counts, tags).
 
 ```typescript
 interface BadgeProps extends HTMLElementProps {
-    /**
-     * Badge content.
-     */
-    children?: Children;
-    /**
-     * Badge color.
-     */
-    color?: ColorVariant;
-    /**
-     * Badge variant.
-     */
-    variant?: 'solid' | 'outline' | 'subtle';
-    /**
-     * Badge size.
-     */
-    size?: Size;
-    /**
-     * Whether the badge is rounded.
-     */
-    rounded?: boolean;
+  /**
+   * Badge content.
+   */
+  children?: Children
+  /**
+   * Badge color.
+   */
+  color?: ColorVariant
+  /**
+   * Badge variant.
+   */
+  variant?: 'solid' | 'outline' | 'subtle'
+  /**
+   * Badge size.
+   */
+  size?: Size
+  /**
+   * Whether the badge is rounded.
+   */
+  rounded?: boolean
 }
 ```
 
@@ -215,29 +217,29 @@ Base props shared by all components.
 
 ```typescript
 interface BaseProps {
-    /**
-     * Additional CSS class name(s).
-     */
-    className?: string;
-    /**
-     * Inline styles.
-     */
-    style?: CSSProperties;
-    /**
-     * Test ID for automated testing.
-     */
-    testId?: string;
-    /**
-     * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
-     * HTML attribute. Use `molId()` from `./automation.js` to generate
-     * semantic IDs. (Tooling only — screen readers do not expose `data-*`
-     * attributes; accessible names come from labels/`aria-*`.)
-     */
-    automationId?: string;
-    /**
-     * Whether the component is disabled.
-     */
-    disabled?: boolean;
+  /**
+   * Additional CSS class name(s).
+   */
+  className?: string
+  /**
+   * Inline styles.
+   */
+  style?: CSSProperties
+  /**
+   * Test ID for automated testing.
+   */
+  testId?: string
+  /**
+   * Automation ID for AI agents and E2E tests. Maps to the `data-mol-id`
+   * HTML attribute. Use `molId()` from `./automation.js` to generate
+   * semantic IDs. (Tooling only — screen readers do not expose `data-*`
+   * attributes; accessible names come from labels/`aria-*`.)
+   */
+  automationId?: string
+  /**
+   * Whether the component is disabled.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -247,10 +249,10 @@ Base props for button elements.
 
 ```typescript
 interface ButtonElementProps extends HTMLElementProps {
-    type?: 'button' | 'submit' | 'reset';
-    name?: string;
-    value?: string;
-    form?: string;
+  type?: 'button' | 'submit' | 'reset'
+  name?: string
+  value?: string
+  form?: string
 }
 ```
 
@@ -260,42 +262,42 @@ Props for the Button component.
 
 ```typescript
 interface ButtonProps extends ButtonElementProps {
-    /**
-     * Button content.
-     */
-    children?: Children;
-    /**
-     * Visual variant.
-     */
-    variant?: ButtonVariant;
-    /**
-     * Color scheme.
-     */
-    color?: ColorVariant;
-    /**
-     * Button size.
-     */
-    size?: ButtonSize;
-    /**
-     * Whether the button is in a loading state.
-     */
-    loading?: boolean;
-    /**
-     * Loading text to display.
-     */
-    loadingText?: string;
-    /**
-     * Whether the button takes full width.
-     */
-    fullWidth?: boolean;
-    /**
-     * Icon to display before the label.
-     */
-    leftIcon?: Children;
-    /**
-     * Icon to display after the label.
-     */
-    rightIcon?: Children;
+  /**
+   * Button content.
+   */
+  children?: Children
+  /**
+   * Visual variant.
+   */
+  variant?: ButtonVariant
+  /**
+   * Color scheme.
+   */
+  color?: ColorVariant
+  /**
+   * Button size.
+   */
+  size?: ButtonSize
+  /**
+   * Whether the button is in a loading state.
+   */
+  loading?: boolean
+  /**
+   * Loading text to display.
+   */
+  loadingText?: string
+  /**
+   * Whether the button takes full width.
+   */
+  fullWidth?: boolean
+  /**
+   * Icon to display before the label.
+   */
+  leftIcon?: Children
+  /**
+   * Icon to display after the label.
+   */
+  rightIcon?: Children
 }
 ```
 
@@ -305,22 +307,22 @@ Props for the Card container component (elevated, outlined, or filled surface).
 
 ```typescript
 interface CardProps extends HTMLElementProps {
-    /**
-     * Card content.
-     */
-    children?: Children;
-    /**
-     * Card variant.
-     */
-    variant?: 'elevated' | 'outlined' | 'filled';
-    /**
-     * Whether the card is interactive (clickable).
-     */
-    interactive?: boolean;
-    /**
-     * Padding size.
-     */
-    padding?: Size | 'none';
+  /**
+   * Card content.
+   */
+  children?: Children
+  /**
+   * Card variant.
+   */
+  variant?: 'elevated' | 'outlined' | 'filled'
+  /**
+   * Whether the card is interactive (clickable).
+   */
+  interactive?: boolean
+  /**
+   * Padding size.
+   */
+  padding?: Size | 'none'
 }
 ```
 
@@ -330,26 +332,26 @@ Props for the Checkbox component.
 
 ```typescript
 interface CheckboxProps extends InputElementProps {
-    /**
-     * Checkbox label.
-     */
-    label?: Children;
-    /**
-     * Whether the checkbox is checked.
-     */
-    checked?: boolean;
-    /**
-     * Whether the checkbox is in an indeterminate state.
-     */
-    indeterminate?: boolean;
-    /**
-     * Checkbox size.
-     */
-    size?: Size;
-    /**
-     * Error message.
-     */
-    error?: string;
+  /**
+   * Checkbox label.
+   */
+  label?: Children
+  /**
+   * Whether the checkbox is checked.
+   */
+  checked?: boolean
+  /**
+   * Whether the checkbox is in an indeterminate state.
+   */
+  indeterminate?: boolean
+  /**
+   * Checkbox size.
+   */
+  size?: Size
+  /**
+   * Error message.
+   */
+  error?: string
 }
 ```
 
@@ -359,22 +361,22 @@ Props for the Container layout component.
 
 ```typescript
 interface ContainerProps extends HTMLElementProps {
-    /**
-     * Container content.
-     */
-    children?: Children;
-    /**
-     * Maximum width.
-     */
-    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string;
-    /**
-     * Whether to center the container.
-     */
-    centered?: boolean;
-    /**
-     * Horizontal padding.
-     */
-    paddingX?: Size | string;
+  /**
+   * Container content.
+   */
+  children?: Children
+  /**
+   * Maximum width.
+   */
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string
+  /**
+   * Whether to center the container.
+   */
+  centered?: boolean
+  /**
+   * Horizontal padding.
+   */
+  paddingX?: Size | string
 }
 ```
 
@@ -385,7 +387,7 @@ Mirrors React.CSSProperties but without React dependency.
 
 ```typescript
 interface CSSProperties {
-    [key: string]: string | number | undefined;
+  [key: string]: string | number | undefined
 }
 ```
 
@@ -395,30 +397,30 @@ Flex container props.
 
 ```typescript
 interface FlexProps extends HTMLElementProps {
-    /**
-     * Flex content.
-     */
-    children?: Children;
-    /**
-     * Flex direction.
-     */
-    direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
-    /**
-     * Justify content.
-     */
-    justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly';
-    /**
-     * Align items.
-     */
-    align?: 'start' | 'end' | 'center' | 'baseline' | 'stretch';
-    /**
-     * Flex wrap.
-     */
-    wrap?: 'wrap' | 'nowrap' | 'wrap-reverse';
-    /**
-     * Gap between items.
-     */
-    gap?: Size | string | number;
+  /**
+   * Flex content.
+   */
+  children?: Children
+  /**
+   * Flex direction.
+   */
+  direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse'
+  /**
+   * Justify content.
+   */
+  justify?: 'start' | 'end' | 'center' | 'between' | 'around' | 'evenly'
+  /**
+   * Align items.
+   */
+  align?: 'start' | 'end' | 'center' | 'baseline' | 'stretch'
+  /**
+   * Flex wrap.
+   */
+  wrap?: 'wrap' | 'nowrap' | 'wrap-reverse'
+  /**
+   * Gap between items.
+   */
+  gap?: Size | string | number
 }
 ```
 
@@ -428,14 +430,14 @@ Base props for form elements.
 
 ```typescript
 interface FormElementProps extends HTMLElementProps {
-    action?: string;
-    method?: 'get' | 'post';
-    encType?: string;
-    target?: string;
-    noValidate?: boolean;
-    autoComplete?: 'on' | 'off';
-    onSubmit?: FormEventHandler;
-    onReset?: FormEventHandler;
+  action?: string
+  method?: 'get' | 'post'
+  encType?: string
+  target?: string
+  noValidate?: boolean
+  autoComplete?: 'on' | 'off'
+  onSubmit?: FormEventHandler
+  onReset?: FormEventHandler
 }
 ```
 
@@ -445,30 +447,30 @@ Form field wrapper props.
 
 ```typescript
 interface FormFieldProps extends HTMLElementProps {
-    /**
-     * Field content.
-     */
-    children?: Children;
-    /**
-     * Field label.
-     */
-    label?: string;
-    /**
-     * Field name.
-     */
-    name?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Whether the field is required.
-     */
-    required?: boolean;
+  /**
+   * Field content.
+   */
+  children?: Children
+  /**
+   * Field label.
+   */
+  label?: string
+  /**
+   * Field name.
+   */
+  name?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Whether the field is required.
+   */
+  required?: boolean
 }
 ```
 
@@ -478,18 +480,18 @@ Props for the Form component (wraps inputs with submission handling and validati
 
 ```typescript
 interface FormProps extends FormElementProps {
-    /**
-     * Form content.
-     */
-    children?: Children;
-    /**
-     * Submit handler with form data.
-     */
-    onFormSubmit?: (data: Record<string, unknown>) => void | Promise<void>;
-    /**
-     * Whether the form is submitting.
-     */
-    submitting?: boolean;
+  /**
+   * Form content.
+   */
+  children?: Children
+  /**
+   * Submit handler with form data.
+   */
+  onFormSubmit?: (data: Record<string, unknown>) => void | Promise<void>
+  /**
+   * Whether the form is submitting.
+   */
+  submitting?: boolean
 }
 ```
 
@@ -499,30 +501,30 @@ Grid container props.
 
 ```typescript
 interface GridProps extends HTMLElementProps {
-    /**
-     * Grid content.
-     */
-    children?: Children;
-    /**
-     * Number of columns.
-     */
-    columns?: number | string;
-    /**
-     * Number of rows.
-     */
-    rows?: number | string;
-    /**
-     * Gap between items.
-     */
-    gap?: Size | string | number;
-    /**
-     * Column gap.
-     */
-    columnGap?: Size | string | number;
-    /**
-     * Row gap.
-     */
-    rowGap?: Size | string | number;
+  /**
+   * Grid content.
+   */
+  children?: Children
+  /**
+   * Number of columns.
+   */
+  columns?: number | string
+  /**
+   * Number of rows.
+   */
+  rows?: number | string
+  /**
+   * Gap between items.
+   */
+  gap?: Size | string | number
+  /**
+   * Column gap.
+   */
+  columnGap?: Size | string | number
+  /**
+   * Row gap.
+   */
+  rowGap?: Size | string | number
 }
 ```
 
@@ -533,33 +535,33 @@ Framework bindings should extend this with framework-specific attributes.
 
 ```typescript
 interface HTMLElementProps extends BaseProps {
-    id?: string;
-    title?: string;
-    tabIndex?: number;
-    role?: string;
-    'aria-label'?: string;
-    'aria-labelledby'?: string;
-    'aria-describedby'?: string;
-    'aria-hidden'?: boolean;
-    'aria-disabled'?: boolean;
-    'aria-expanded'?: boolean;
-    'aria-selected'?: boolean;
-    'aria-checked'?: boolean | 'mixed';
-    'aria-pressed'?: boolean | 'mixed';
-    'aria-invalid'?: boolean;
-    'aria-required'?: boolean;
-    'aria-readonly'?: boolean;
-    'aria-busy'?: boolean;
-    'aria-live'?: 'off' | 'polite' | 'assertive';
-    onClick?: MouseEventHandler;
-    onDoubleClick?: MouseEventHandler;
-    onMouseEnter?: MouseEventHandler;
-    onMouseLeave?: MouseEventHandler;
-    onFocus?: FocusEventHandler;
-    onBlur?: FocusEventHandler;
-    onKeyDown?: KeyboardEventHandler;
-    onKeyUp?: KeyboardEventHandler;
-    onKeyPress?: KeyboardEventHandler;
+  id?: string
+  title?: string
+  tabIndex?: number
+  role?: string
+  'aria-label'?: string
+  'aria-labelledby'?: string
+  'aria-describedby'?: string
+  'aria-hidden'?: boolean
+  'aria-disabled'?: boolean
+  'aria-expanded'?: boolean
+  'aria-selected'?: boolean
+  'aria-checked'?: boolean | 'mixed'
+  'aria-pressed'?: boolean | 'mixed'
+  'aria-invalid'?: boolean
+  'aria-required'?: boolean
+  'aria-readonly'?: boolean
+  'aria-busy'?: boolean
+  'aria-live'?: 'off' | 'polite' | 'assertive'
+  onClick?: MouseEventHandler
+  onDoubleClick?: MouseEventHandler
+  onMouseEnter?: MouseEventHandler
+  onMouseLeave?: MouseEventHandler
+  onFocus?: FocusEventHandler
+  onBlur?: FocusEventHandler
+  onKeyDown?: KeyboardEventHandler
+  onKeyUp?: KeyboardEventHandler
+  onKeyPress?: KeyboardEventHandler
 }
 ```
 
@@ -569,19 +571,19 @@ Base props for input elements.
 
 ```typescript
 interface InputElementProps extends HTMLElementProps {
-    name?: string;
-    value?: string | number | readonly string[];
-    defaultValue?: string | number | readonly string[];
-    placeholder?: string;
-    required?: boolean;
-    readOnly?: boolean;
-    autoFocus?: boolean;
-    autoComplete?: string;
-    maxLength?: number;
-    minLength?: number;
-    pattern?: string;
-    onChange?: ChangeEventHandler;
-    onInput?: FormEventHandler;
+  name?: string
+  value?: string | number | readonly string[]
+  defaultValue?: string | number | readonly string[]
+  placeholder?: string
+  required?: boolean
+  readOnly?: boolean
+  autoFocus?: boolean
+  autoComplete?: string
+  maxLength?: number
+  minLength?: number
+  pattern?: string
+  onChange?: ChangeEventHandler
+  onInput?: FormEventHandler
 }
 ```
 
@@ -591,52 +593,52 @@ Props for the Input component (text field, email, password, etc.).
 
 ```typescript
 interface InputProps extends InputElementProps {
-    /**
-     * Input type.
-     */
-    type?: InputType;
-    /**
-     * Input size.
-     */
-    size?: Size;
-    /**
-     * Horizontal text alignment inside the input (see
-     * {@link InputClassOptions.align}). Defaults to the bond's own style.
-     */
-    align?: 'left' | 'center';
-    /**
-     * Label text.
-     */
-    label?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Element to display on the left.
-     */
-    leftElement?: Children;
-    /**
-     * Element to display on the right.
-     */
-    rightElement?: Children;
-    /**
-     * Whether to show a clear button.
-     */
-    clearable?: boolean;
-    /**
-     * Called when the clear button is clicked.
-     */
-    onClear?: () => void;
-    /**
-     * Accessible label for the clear button.
-     * @default 'Clear'
-     */
-    clearLabel?: string;
+  /**
+   * Input type.
+   */
+  type?: InputType
+  /**
+   * Input size.
+   */
+  size?: Size
+  /**
+   * Horizontal text alignment inside the input (see
+   * {@link InputClassOptions.align}). Defaults to the bond's own style.
+   */
+  align?: 'left' | 'center'
+  /**
+   * Label text.
+   */
+  label?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Element to display on the left.
+   */
+  leftElement?: Children
+  /**
+   * Element to display on the right.
+   */
+  rightElement?: Children
+  /**
+   * Whether to show a clear button.
+   */
+  clearable?: boolean
+  /**
+   * Called when the clear button is clicked.
+   */
+  onClear?: () => void
+  /**
+   * Accessible label for the clear button.
+   * @default 'Clear'
+   */
+  clearLabel?: string
 }
 ```
 
@@ -646,55 +648,55 @@ Props for the Modal/Dialog component.
 
 ```typescript
 interface ModalProps extends HTMLElementProps {
-    /**
-     * Whether the modal is open.
-     */
-    open: boolean;
-    /**
-     * Called when the modal should close.
-     */
-    onClose: () => void;
-    /**
-     * Modal title.
-     */
-    title?: string;
-    /**
-     * Modal content.
-     */
-    children?: Children;
-    /**
-     * Modal size.
-     */
-    size?: ModalSize;
-    /**
-     * Whether to show a close button.
-     */
-    showCloseButton?: boolean;
-    /**
-     * Whether clicking the overlay closes the modal.
-     */
-    closeOnOverlayClick?: boolean;
-    /**
-     * Whether pressing Escape closes the modal.
-     */
-    closeOnEscape?: boolean;
-    /**
-     * Footer content (typically action buttons).
-     */
-    footer?: Children;
-    /**
-     * Whether the modal is centered vertically.
-     */
-    centered?: boolean;
-    /**
-     * Whether to prevent body scroll when open.
-     */
-    preventScroll?: boolean;
-    /**
-     * Accessible label for the close button.
-     * @default 'Close'
-     */
-    closeLabel?: string;
+  /**
+   * Whether the modal is open.
+   */
+  open: boolean
+  /**
+   * Called when the modal should close.
+   */
+  onClose: () => void
+  /**
+   * Modal title.
+   */
+  title?: string
+  /**
+   * Modal content.
+   */
+  children?: Children
+  /**
+   * Modal size.
+   */
+  size?: ModalSize
+  /**
+   * Whether to show a close button.
+   */
+  showCloseButton?: boolean
+  /**
+   * Whether clicking the overlay closes the modal.
+   */
+  closeOnOverlayClick?: boolean
+  /**
+   * Whether pressing Escape closes the modal.
+   */
+  closeOnEscape?: boolean
+  /**
+   * Footer content (typically action buttons).
+   */
+  footer?: Children
+  /**
+   * Whether the modal is centered vertically.
+   */
+  centered?: boolean
+  /**
+   * Whether to prevent body scroll when open.
+   */
+  preventScroll?: boolean
+  /**
+   * Accessible label for the close button.
+   * @default 'Close'
+   */
+  closeLabel?: string
 }
 ```
 
@@ -704,49 +706,49 @@ Props for the Pagination component (page navigation with current page, total, pa
 
 ```typescript
 interface PaginationProps extends BaseProps {
-    /**
-     * Current page (1-indexed).
-     */
-    page: number;
-    /**
-     * Total number of pages.
-     */
-    totalPages: number;
-    /**
-     * Page change handler.
-     */
-    onChange: (page: number) => void;
-    /**
-     * Number of sibling pages to show.
-     */
-    siblings?: number;
-    /**
-     * Number of boundary pages to show.
-     */
-    boundaries?: number;
-    /**
-     * Pagination size.
-     */
-    size?: Size;
-    /**
-     * Whether to show first/last buttons.
-     */
-    showFirstLast?: boolean;
-    /**
-     * Whether to show previous/next buttons.
-     */
-    showPrevNext?: boolean;
-    /**
-     * Accessible labels for pagination controls.
-     */
-    labels?: {
-        nav?: string;
-        first?: string;
-        previous?: string;
-        next?: string;
-        last?: string;
-        goToPage?: (page: number) => string;
-    };
+  /**
+   * Current page (1-indexed).
+   */
+  page: number
+  /**
+   * Total number of pages.
+   */
+  totalPages: number
+  /**
+   * Page change handler.
+   */
+  onChange: (page: number) => void
+  /**
+   * Number of sibling pages to show.
+   */
+  siblings?: number
+  /**
+   * Number of boundary pages to show.
+   */
+  boundaries?: number
+  /**
+   * Pagination size.
+   */
+  size?: Size
+  /**
+   * Whether to show first/last buttons.
+   */
+  showFirstLast?: boolean
+  /**
+   * Whether to show previous/next buttons.
+   */
+  showPrevNext?: boolean
+  /**
+   * Accessible labels for pagination controls.
+   */
+  labels?: {
+    nav?: string
+    first?: string
+    previous?: string
+    next?: string
+    last?: string
+    goToPage?: (page: number) => string
+  }
 }
 ```
 
@@ -756,43 +758,43 @@ Props for the RadioGroup component.
 
 ```typescript
 interface RadioGroupProps<T = string> extends BaseProps {
-    /**
-     * Radio options.
-     */
-    options: RadioOption<T>[];
-    /**
-     * Current value.
-     */
-    value?: T;
-    /**
-     * Change handler.
-     */
-    onChange?: (value: T) => void;
-    /**
-     * Radio size.
-     */
-    size?: Size;
-    /**
-     * Group label.
-     */
-    label?: string;
-    /**
-     * Shared `name` attribute for the group's radio inputs (used for native
-     * form submission). When omitted, a unique per-instance name is generated
-     * so separate groups never merge — the visible `label` is deliberately
-     * NOT used as the name, because two groups with the same label (e.g. two
-     * "Size" pickers) would otherwise form ONE native radio group and
-     * deselect each other.
-     */
-    name?: string;
-    /**
-     * Layout direction.
-     */
-    direction?: 'horizontal' | 'vertical';
-    /**
-     * Error message.
-     */
-    error?: string;
+  /**
+   * Radio options.
+   */
+  options: RadioOption<T>[]
+  /**
+   * Current value.
+   */
+  value?: T
+  /**
+   * Change handler.
+   */
+  onChange?: (value: T) => void
+  /**
+   * Radio size.
+   */
+  size?: Size
+  /**
+   * Group label.
+   */
+  label?: string
+  /**
+   * Shared `name` attribute for the group's radio inputs (used for native
+   * form submission). When omitted, a unique per-instance name is generated
+   * so separate groups never merge — the visible `label` is deliberately
+   * NOT used as the name, because two groups with the same label (e.g. two
+   * "Size" pickers) would otherwise form ONE native radio group and
+   * deselect each other.
+   */
+  name?: string
+  /**
+   * Layout direction.
+   */
+  direction?: 'horizontal' | 'vertical'
+  /**
+   * Error message.
+   */
+  error?: string
 }
 ```
 
@@ -802,18 +804,18 @@ A single option in a RadioGroup.
 
 ```typescript
 interface RadioOption<T = string> {
-    /**
-     * Option value.
-     */
-    value: T;
-    /**
-     * Display label.
-     */
-    label: Children;
-    /**
-     * Whether the option is disabled.
-     */
-    disabled?: boolean;
+  /**
+   * Option value.
+   */
+  value: T
+  /**
+   * Display label.
+   */
+  label: Children
+  /**
+   * Whether the option is disabled.
+   */
+  disabled?: boolean
 }
 ```
 
@@ -823,11 +825,11 @@ Base props for select elements.
 
 ```typescript
 interface SelectElementProps extends HTMLElementProps {
-    name?: string;
-    required?: boolean;
-    autoFocus?: boolean;
-    multiple?: boolean;
-    onChange?: ChangeEventHandler;
+  name?: string
+  required?: boolean
+  autoFocus?: boolean
+  multiple?: boolean
+  onChange?: ChangeEventHandler
 }
 ```
 
@@ -837,22 +839,22 @@ A single option in a Select dropdown.
 
 ```typescript
 interface SelectOption<T = string> {
-    /**
-     * Option value.
-     */
-    value: T;
-    /**
-     * Display label.
-     */
-    label: string;
-    /**
-     * Whether the option is disabled.
-     */
-    disabled?: boolean;
-    /**
-     * Option group (for grouped selects).
-     */
-    group?: string;
+  /**
+   * Option value.
+   */
+  value: T
+  /**
+   * Display label.
+   */
+  label: string
+  /**
+   * Whether the option is disabled.
+   */
+  disabled?: boolean
+  /**
+   * Option group (for grouped selects).
+   */
+  group?: string
 }
 ```
 
@@ -862,42 +864,42 @@ Props for the Select dropdown component (single or multi-select).
 
 ```typescript
 interface SelectProps<T = string> extends SelectElementProps {
-    /**
-     * Select options.
-     */
-    options: SelectOption<T>[];
-    /**
-     * Current value.
-     */
-    value?: T;
-    /**
-     * Change handler (with typed value).
-     */
-    onValueChange?: (value: T) => void;
-    /**
-     * Select size.
-     */
-    size?: Size;
-    /**
-     * Label text.
-     */
-    label?: string;
-    /**
-     * Placeholder text.
-     */
-    placeholder?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Whether to allow clearing the selection.
-     */
-    clearable?: boolean;
+  /**
+   * Select options.
+   */
+  options: SelectOption<T>[]
+  /**
+   * Current value.
+   */
+  value?: T
+  /**
+   * Change handler (with typed value).
+   */
+  onValueChange?: (value: T) => void
+  /**
+   * Select size.
+   */
+  size?: Size
+  /**
+   * Label text.
+   */
+  label?: string
+  /**
+   * Placeholder text.
+   */
+  placeholder?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Whether to allow clearing the selection.
+   */
+  clearable?: boolean
 }
 ```
 
@@ -907,26 +909,26 @@ Props for the Skeleton loading placeholder component.
 
 ```typescript
 interface SkeletonProps extends BaseProps {
-    /**
-     * Skeleton width.
-     */
-    width?: string | number;
-    /**
-     * Skeleton height.
-     */
-    height?: string | number;
-    /**
-     * Whether the skeleton is circular.
-     */
-    circle?: boolean;
-    /**
-     * Border radius.
-     */
-    borderRadius?: string | number;
-    /**
-     * Animation type.
-     */
-    animation?: 'pulse' | 'wave' | 'none';
+  /**
+   * Skeleton width.
+   */
+  width?: string | number
+  /**
+   * Skeleton height.
+   */
+  height?: string | number
+  /**
+   * Whether the skeleton is circular.
+   */
+  circle?: boolean
+  /**
+   * Border radius.
+   */
+  borderRadius?: string | number
+  /**
+   * Animation type.
+   */
+  animation?: 'pulse' | 'wave' | 'none'
 }
 ```
 
@@ -936,14 +938,14 @@ Props for the Spacer layout component (adds whitespace between elements).
 
 ```typescript
 interface SpacerProps extends BaseProps {
-    /**
-     * Space size.
-     */
-    size?: Size | string | number;
-    /**
-     * Whether the spacer is horizontal.
-     */
-    horizontal?: boolean;
+  /**
+   * Space size.
+   */
+  size?: Size | string | number
+  /**
+   * Whether the spacer is horizontal.
+   */
+  horizontal?: boolean
 }
 ```
 
@@ -953,22 +955,22 @@ Props for the Spinner/loading indicator component.
 
 ```typescript
 interface SpinnerProps extends BaseProps {
-    /**
-     * Spinner size.
-     */
-    size?: Size;
-    /**
-     * Spinner color.
-     */
-    color?: ColorVariant | string;
-    /**
-     * Loading label (for accessibility).
-     */
-    label?: string;
-    /**
-     * Spinner thickness.
-     */
-    thickness?: number;
+  /**
+   * Spinner size.
+   */
+  size?: Size
+  /**
+   * Spinner color.
+   */
+  color?: ColorVariant | string
+  /**
+   * Loading label (for accessibility).
+   */
+  label?: string
+  /**
+   * Spinner thickness.
+   */
+  thickness?: number
 }
 ```
 
@@ -978,22 +980,22 @@ Props for the Switch/Toggle component.
 
 ```typescript
 interface SwitchProps extends InputElementProps {
-    /**
-     * Switch label.
-     */
-    label?: Children;
-    /**
-     * Whether the switch is on.
-     */
-    checked?: boolean;
-    /**
-     * Switch size.
-     */
-    size?: Size;
-    /**
-     * Color when on.
-     */
-    color?: ColorVariant;
+  /**
+   * Switch label.
+   */
+  label?: Children
+  /**
+   * Whether the switch is on.
+   */
+  checked?: boolean
+  /**
+   * Switch size.
+   */
+  size?: Size
+  /**
+   * Color when on.
+   */
+  color?: ColorVariant
 }
 ```
 
@@ -1003,26 +1005,26 @@ A single tab in a Tabs component.
 
 ```typescript
 interface TabItem<T = string> {
-    /**
-     * Tab value/id.
-     */
-    value: T;
-    /**
-     * Tab label.
-     */
-    label: Children;
-    /**
-     * Tab content.
-     */
-    content?: Children;
-    /**
-     * Whether the tab is disabled.
-     */
-    disabled?: boolean;
-    /**
-     * Icon to display.
-     */
-    icon?: Children;
+  /**
+   * Tab value/id.
+   */
+  value: T
+  /**
+   * Tab label.
+   */
+  label: Children
+  /**
+   * Tab content.
+   */
+  content?: Children
+  /**
+   * Whether the tab is disabled.
+   */
+  disabled?: boolean
+  /**
+   * Icon to display.
+   */
+  icon?: Children
 }
 ```
 
@@ -1032,30 +1034,30 @@ Table column definition.
 
 ```typescript
 interface TableColumn<T> {
-    /**
-     * Column key (data property).
-     */
-    key: keyof T | string;
-    /**
-     * Column header.
-     */
-    header: Children;
-    /**
-     * Custom cell renderer.
-     */
-    render?: (value: unknown, row: T, index: number) => Children;
-    /**
-     * Column width.
-     */
-    width?: string | number;
-    /**
-     * Whether the column is sortable.
-     */
-    sortable?: boolean;
-    /**
-     * Text alignment.
-     */
-    align?: 'left' | 'center' | 'right';
+  /**
+   * Column key (data property).
+   */
+  key: keyof T | string
+  /**
+   * Column header.
+   */
+  header: Children
+  /**
+   * Custom cell renderer.
+   */
+  render?: (value: unknown, row: T, index: number) => Children
+  /**
+   * Column width.
+   */
+  width?: string | number
+  /**
+   * Whether the column is sortable.
+   */
+  sortable?: boolean
+  /**
+   * Text alignment.
+   */
+  align?: 'left' | 'center' | 'right'
 }
 ```
 
@@ -1065,57 +1067,57 @@ Props for the Table component.
 
 ```typescript
 interface TableProps<T> extends HTMLElementProps {
-    /**
-     * Table data.
-     */
-    data: T[];
-    /**
-     * Column definitions.
-     */
-    columns: TableColumn<T>[];
-    /**
-     * Row key extractor.
-     */
-    rowKey?: keyof T | ((row: T) => string | number);
-    /**
-     * Whether to show borders.
-     */
-    bordered?: boolean;
-    /**
-     * Whether rows are striped.
-     */
-    striped?: boolean;
-    /**
-     * Whether rows are hoverable.
-     */
-    hoverable?: boolean;
-    /**
-     * Table size.
-     */
-    size?: Size;
-    /**
-     * Empty state content.
-     */
-    emptyContent?: Children;
-    /**
-     * Loading state.
-     */
-    loading?: boolean;
-    /**
-     * Sort configuration.
-     */
-    sort?: {
-        key: string;
-        direction: 'asc' | 'desc';
-    };
-    /**
-     * Sort change handler.
-     */
-    onSort?: (key: string, direction: 'asc' | 'desc') => void;
-    /**
-     * Row click handler.
-     */
-    onRowClick?: (row: T, index: number) => void;
+  /**
+   * Table data.
+   */
+  data: T[]
+  /**
+   * Column definitions.
+   */
+  columns: TableColumn<T>[]
+  /**
+   * Row key extractor.
+   */
+  rowKey?: keyof T | ((row: T) => string | number)
+  /**
+   * Whether to show borders.
+   */
+  bordered?: boolean
+  /**
+   * Whether rows are striped.
+   */
+  striped?: boolean
+  /**
+   * Whether rows are hoverable.
+   */
+  hoverable?: boolean
+  /**
+   * Table size.
+   */
+  size?: Size
+  /**
+   * Empty state content.
+   */
+  emptyContent?: Children
+  /**
+   * Loading state.
+   */
+  loading?: boolean
+  /**
+   * Sort configuration.
+   */
+  sort?: {
+    key: string
+    direction: 'asc' | 'desc'
+  }
+  /**
+   * Sort change handler.
+   */
+  onSort?: (key: string, direction: 'asc' | 'desc') => void
+  /**
+   * Row click handler.
+   */
+  onRowClick?: (row: T, index: number) => void
 }
 ```
 
@@ -1125,34 +1127,34 @@ Props for the Tabs component (switchable tabbed content panels).
 
 ```typescript
 interface TabsProps<T = string> extends BaseProps {
-    /**
-     * Tab items.
-     */
-    items: TabItem<T>[];
-    /**
-     * Current active tab.
-     */
-    value?: T;
-    /**
-     * Default active tab.
-     */
-    defaultValue?: T;
-    /**
-     * Change handler.
-     */
-    onChange?: (value: T) => void;
-    /**
-     * Tab variant.
-     */
-    variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded';
-    /**
-     * Tab size.
-     */
-    size?: Size;
-    /**
-     * Whether tabs are fitted (take full width).
-     */
-    fitted?: boolean;
+  /**
+   * Tab items.
+   */
+  items: TabItem<T>[]
+  /**
+   * Current active tab.
+   */
+  value?: T
+  /**
+   * Default active tab.
+   */
+  defaultValue?: T
+  /**
+   * Change handler.
+   */
+  onChange?: (value: T) => void
+  /**
+   * Tab variant.
+   */
+  variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'
+  /**
+   * Tab size.
+   */
+  size?: Size
+  /**
+   * Whether tabs are fitted (take full width).
+   */
+  fitted?: boolean
 }
 ```
 
@@ -1162,20 +1164,20 @@ Base props for textarea elements.
 
 ```typescript
 interface TextareaElementProps extends HTMLElementProps {
-    name?: string;
-    value?: string;
-    defaultValue?: string;
-    placeholder?: string;
-    required?: boolean;
-    readOnly?: boolean;
-    autoFocus?: boolean;
-    rows?: number;
-    cols?: number;
-    maxLength?: number;
-    minLength?: number;
-    wrap?: 'hard' | 'soft' | 'off';
-    onChange?: ChangeEventHandler;
-    onInput?: FormEventHandler;
+  name?: string
+  value?: string
+  defaultValue?: string
+  placeholder?: string
+  required?: boolean
+  readOnly?: boolean
+  autoFocus?: boolean
+  rows?: number
+  cols?: number
+  maxLength?: number
+  minLength?: number
+  wrap?: 'hard' | 'soft' | 'off'
+  onChange?: ChangeEventHandler
+  onInput?: FormEventHandler
 }
 ```
 
@@ -1185,35 +1187,35 @@ Props for the Textarea component.
 
 ```typescript
 interface TextareaProps extends TextareaElementProps {
-    /**
-     * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
-     * `size` as a neighboring Input for identical font sizes.
-     */
-    size?: Size;
-    /**
-     * Label text.
-     */
-    label?: string;
-    /**
-     * Error message.
-     */
-    error?: string;
-    /**
-     * Hint/help text.
-     */
-    hint?: string;
-    /**
-     * Whether the textarea auto-resizes.
-     */
-    autoResize?: boolean;
-    /**
-     * Minimum number of rows.
-     */
-    minRows?: number;
-    /**
-     * Maximum number of rows.
-     */
-    maxRows?: number;
+  /**
+   * Text size tier (see {@link TextareaClassOptions.size}) — pass the same
+   * `size` as a neighboring Input for identical font sizes.
+   */
+  size?: Size
+  /**
+   * Label text.
+   */
+  label?: string
+  /**
+   * Error message.
+   */
+  error?: string
+  /**
+   * Hint/help text.
+   */
+  hint?: string
+  /**
+   * Whether the textarea auto-resizes.
+   */
+  autoResize?: boolean
+  /**
+   * Minimum number of rows.
+   */
+  minRows?: number
+  /**
+   * Maximum number of rows.
+   */
+  maxRows?: number
 }
 ```
 
@@ -1223,43 +1225,43 @@ Props for the Toast/notification component.
 
 ```typescript
 interface ToastProps extends HTMLElementProps {
-    /**
-     * Toast content.
-     */
-    children?: Children;
-    /**
-     * Toast title.
-     */
-    title?: string;
-    /**
-     * Toast description.
-     */
-    description?: string;
-    /**
-     * Toast status/type.
-     */
-    status?: ColorVariant;
-    /**
-     * Duration in milliseconds (0 for persistent).
-     */
-    duration?: number;
-    /**
-     * Whether the toast is dismissible.
-     */
-    dismissible?: boolean;
-    /**
-     * Called when dismissed.
-     */
-    onDismiss?: () => void;
-    /**
-     * Toast position.
-     */
-    position?: 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left';
-    /**
-     * Accessible label for the close button.
-     * @default 'Close'
-     */
-    closeLabel?: string;
+  /**
+   * Toast content.
+   */
+  children?: Children
+  /**
+   * Toast title.
+   */
+  title?: string
+  /**
+   * Toast description.
+   */
+  description?: string
+  /**
+   * Toast status/type.
+   */
+  status?: ColorVariant
+  /**
+   * Duration in milliseconds (0 for persistent).
+   */
+  duration?: number
+  /**
+   * Whether the toast is dismissible.
+   */
+  dismissible?: boolean
+  /**
+   * Called when dismissed.
+   */
+  onDismiss?: () => void
+  /**
+   * Toast position.
+   */
+  position?: 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
+  /**
+   * Accessible label for the close button.
+   * @default 'Close'
+   */
+  closeLabel?: string
 }
 ```
 
@@ -1269,26 +1271,26 @@ Props for the Tooltip component (hover/focus popover with informational text).
 
 ```typescript
 interface TooltipProps extends HTMLElementProps {
-    /**
-     * Tooltip content.
-     */
-    content: Children;
-    /**
-     * Element that triggers the tooltip.
-     */
-    children: Children;
-    /**
-     * Tooltip placement.
-     */
-    placement?: TooltipPlacement;
-    /**
-     * Delay before showing (ms).
-     */
-    delay?: number;
-    /**
-     * Whether the tooltip has an arrow.
-     */
-    hasArrow?: boolean;
+  /**
+   * Tooltip content.
+   */
+  content: Children
+  /**
+   * Element that triggers the tooltip.
+   */
+  children: Children
+  /**
+   * Tooltip placement.
+   */
+  placement?: TooltipPlacement
+  /**
+   * Delay before showing (ms).
+   */
+  delay?: number
+  /**
+   * Whether the tooltip has an arrow.
+   */
+  hasArrow?: boolean
 }
 ```
 
@@ -1299,7 +1301,7 @@ interface TooltipProps extends HTMLElementProps {
 Button visual variant styles.
 
 ```typescript
-type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link';
+type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link'
 ```
 
 #### `ChangeEventHandler`
@@ -1307,7 +1309,7 @@ type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link';
 Framework-agnostic change event handler.
 
 ```typescript
-type ChangeEventHandler = EventHandler<Event>;
+type ChangeEventHandler = EventHandler<Event>
 ```
 
 #### `Children`
@@ -1316,7 +1318,7 @@ Framework-agnostic child content.
 Use `unknown` to allow any framework's node type (ReactNode, VNode, etc.).
 
 ```typescript
-type Children = unknown;
+type Children = unknown
 ```
 
 #### `ColorVariant`
@@ -1324,7 +1326,7 @@ type Children = unknown;
 Semantic color variants used across components for status indication.
 
 ```typescript
-type ColorVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+type ColorVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
 ```
 
 #### `EventHandler`
@@ -1332,7 +1334,7 @@ type ColorVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 
 Framework-agnostic event handler.
 
 ```typescript
-type EventHandler<E = Event> = (event: E) => void;
+type EventHandler<E = Event> = (event: E) => void
 ```
 
 #### `FocusEventHandler`
@@ -1340,7 +1342,7 @@ type EventHandler<E = Event> = (event: E) => void;
 Framework-agnostic focus event handler.
 
 ```typescript
-type FocusEventHandler = EventHandler<FocusEvent>;
+type FocusEventHandler = EventHandler<FocusEvent>
 ```
 
 #### `FormEventHandler`
@@ -1348,7 +1350,7 @@ type FocusEventHandler = EventHandler<FocusEvent>;
 Framework-agnostic form event handler.
 
 ```typescript
-type FormEventHandler = EventHandler<Event>;
+type FormEventHandler = EventHandler<Event>
 ```
 
 #### `InputType`
@@ -1356,7 +1358,17 @@ type FormEventHandler = EventHandler<Event>;
 Allowed HTML input type attribute values for the Input component.
 
 ```typescript
-type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' | 'date' | 'time' | 'datetime-local';
+type InputType =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'number'
+  | 'tel'
+  | 'url'
+  | 'search'
+  | 'date'
+  | 'time'
+  | 'datetime-local'
 ```
 
 #### `KeyboardEventHandler`
@@ -1364,7 +1376,7 @@ type InputType = 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'sea
 Framework-agnostic keyboard event handler.
 
 ```typescript
-type KeyboardEventHandler = EventHandler<KeyboardEvent>;
+type KeyboardEventHandler = EventHandler<KeyboardEvent>
 ```
 
 #### `ModalSize`
@@ -1372,7 +1384,7 @@ type KeyboardEventHandler = EventHandler<KeyboardEvent>;
 Modal size variants including full-screen.
 
 ```typescript
-type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 ```
 
 #### `MouseEventHandler`
@@ -1380,7 +1392,7 @@ type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
 Framework-agnostic mouse event handler.
 
 ```typescript
-type MouseEventHandler = EventHandler<MouseEvent>;
+type MouseEventHandler = EventHandler<MouseEvent>
 ```
 
 #### `Size`
@@ -1388,7 +1400,7 @@ type MouseEventHandler = EventHandler<MouseEvent>;
 Standard size scale used across all molecule UI components (buttons, inputs, badges, etc.).
 
 ```typescript
-type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 ```
 
 #### `TooltipPlacement`
@@ -1396,7 +1408,8 @@ type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 Position where a tooltip renders relative to its trigger element (top, bottom, left, right, and corner variants).
 
 ```typescript
-type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
+type TooltipPlacement =
+  'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'
 ```
 
 ### Functions
@@ -1430,7 +1443,48 @@ function useToast(): ToastContext
 Vue Accordion UI component with UIClassMap-driven styling.
 
 ```typescript
-const Accordion: DefineComponent<ExtractPropTypes<{ items: { type: PropType<AccordionItemType<string>[]>; required: true; }; modelValue: { type: PropType<string | string[]>; }; defaultValue: { type: PropType<string | string[]>; }; multiple: { type: BooleanConstructor; default: boolean; }; collapsible: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("update:modelValue" | "change")[], "update:modelValue" | "change", PublicProps, Readonly<ExtractPropTypes<{ items: { type: PropType<AccordionItemType<string>[]>; required: true; }; modelValue: { type: PropType<string | string[]>; }; defaultValue: { type: PropType<string | string[]>; }; multiple: { type: BooleanConstructor; default: boolean; }; collapsible: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; onChange?: ((...args: any[]) => any) | undefined; }>, { multiple: boolean; collapsible: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Accordion: DefineComponent<
+  ExtractPropTypes<{
+    items: { type: PropType<AccordionItemType<string>[]>; required: true }
+    modelValue: { type: PropType<string | string[]> }
+    defaultValue: { type: PropType<string | string[]> }
+    multiple: { type: BooleanConstructor; default: boolean }
+    collapsible: { type: BooleanConstructor; default: boolean }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('update:modelValue' | 'change')[],
+  'update:modelValue' | 'change',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      items: { type: PropType<AccordionItemType<string>[]>; required: true }
+      modelValue: { type: PropType<string | string[]> }
+      defaultValue: { type: PropType<string | string[]> }
+      multiple: { type: BooleanConstructor; default: boolean }
+      collapsible: { type: BooleanConstructor; default: boolean }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{
+      'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined
+      onChange?: ((...args: any[]) => any) | undefined
+    }>,
+  { multiple: boolean; collapsible: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Alert`
@@ -1438,7 +1492,45 @@ const Accordion: DefineComponent<ExtractPropTypes<{ items: { type: PropType<Acco
 Vue Alert UI component with UIClassMap-driven styling.
 
 ```typescript
-const Alert: DefineComponent<ExtractPropTypes<{ title: StringConstructor; status: { type: PropType<ColorVariant>; default: string; }; variant: PropType<"solid" | "subtle" | "outline" | "left-accent">; dismissible: BooleanConstructor; dismissLabel: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "dismiss"[], "dismiss", PublicProps, Readonly<ExtractPropTypes<{ title: StringConstructor; status: { type: PropType<ColorVariant>; default: string; }; variant: PropType<"solid" | "subtle" | "outline" | "left-accent">; dismissible: BooleanConstructor; dismissLabel: StringConstructor; class: StringConstructor; }>> & Readonly<{ onDismiss?: ((...args: any[]) => any) | undefined; }>, { dismissible: boolean; status: ColorVariant; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Alert: DefineComponent<
+  ExtractPropTypes<{
+    title: StringConstructor
+    status: { type: PropType<ColorVariant>; default: string }
+    variant: PropType<'solid' | 'subtle' | 'outline' | 'left-accent'>
+    dismissible: BooleanConstructor
+    dismissLabel: StringConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'dismiss'[],
+  'dismiss',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      title: StringConstructor
+      status: { type: PropType<ColorVariant>; default: string }
+      variant: PropType<'solid' | 'subtle' | 'outline' | 'left-accent'>
+      dismissible: BooleanConstructor
+      dismissLabel: StringConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ onDismiss?: ((...args: any[]) => any) | undefined }>,
+  { dismissible: boolean; status: ColorVariant },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Avatar`
@@ -1446,7 +1538,45 @@ const Alert: DefineComponent<ExtractPropTypes<{ title: StringConstructor; status
 Vue Avatar UI component with UIClassMap-driven styling.
 
 ```typescript
-const Avatar: DefineComponent<ExtractPropTypes<{ src: StringConstructor; alt: StringConstructor; name: StringConstructor; size: { type: PropType<Size | number>; default: string; }; rounded: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ src: StringConstructor; alt: StringConstructor; name: StringConstructor; size: { type: PropType<Size | number>; default: string; }; rounded: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>> & Readonly<{}>, { size: number | Size; rounded: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Avatar: DefineComponent<
+  ExtractPropTypes<{
+    src: StringConstructor
+    alt: StringConstructor
+    name: StringConstructor
+    size: { type: PropType<Size | number>; default: string }
+    rounded: { type: BooleanConstructor; default: boolean }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      src: StringConstructor
+      alt: StringConstructor
+      name: StringConstructor
+      size: { type: PropType<Size | number>; default: string }
+      rounded: { type: BooleanConstructor; default: boolean }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { size: number | Size; rounded: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Badge`
@@ -1454,7 +1584,43 @@ const Avatar: DefineComponent<ExtractPropTypes<{ src: StringConstructor; alt: St
 Vue Badge UI component with UIClassMap-driven styling.
 
 ```typescript
-const Badge: DefineComponent<ExtractPropTypes<{ color: { type: PropType<ColorVariant>; default: string; }; variant: { type: PropType<"solid" | "outline" | "subtle">; default: string; }; size: PropType<Size>; rounded: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ color: { type: PropType<ColorVariant>; default: string; }; variant: { type: PropType<"solid" | "outline" | "subtle">; default: string; }; size: PropType<Size>; rounded: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>> & Readonly<{}>, { variant: "solid" | "subtle" | "outline"; rounded: boolean; color: ColorVariant; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Badge: DefineComponent<
+  ExtractPropTypes<{
+    color: { type: PropType<ColorVariant>; default: string }
+    variant: { type: PropType<'solid' | 'outline' | 'subtle'>; default: string }
+    size: PropType<Size>
+    rounded: { type: BooleanConstructor; default: boolean }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      color: { type: PropType<ColorVariant>; default: string }
+      variant: { type: PropType<'solid' | 'outline' | 'subtle'>; default: string }
+      size: PropType<Size>
+      rounded: { type: BooleanConstructor; default: boolean }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { variant: 'solid' | 'subtle' | 'outline'; rounded: boolean; color: ColorVariant },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Button`
@@ -1462,7 +1628,59 @@ const Badge: DefineComponent<ExtractPropTypes<{ color: { type: PropType<ColorVar
 Vue Button UI component with UIClassMap-driven styling.
 
 ```typescript
-const Button: DefineComponent<ExtractPropTypes<{ variant: { type: PropType<ButtonVariant>; default: string; }; color: { type: PropType<ColorVariant>; default: string; }; size: { type: PropType<Size>; default: string; }; loading: { type: BooleanConstructor; default: boolean; }; loadingText: StringConstructor; fullWidth: { type: BooleanConstructor; default: boolean; }; disabled: { type: BooleanConstructor; default: boolean; }; type: { type: PropType<"button" | "submit" | "reset">; default: string; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "click"[], "click", PublicProps, Readonly<ExtractPropTypes<{ variant: { type: PropType<ButtonVariant>; default: string; }; color: { type: PropType<ColorVariant>; default: string; }; size: { type: PropType<Size>; default: string; }; loading: { type: BooleanConstructor; default: boolean; }; loadingText: StringConstructor; fullWidth: { type: BooleanConstructor; default: boolean; }; disabled: { type: BooleanConstructor; default: boolean; }; type: { type: PropType<"button" | "submit" | "reset">; default: string; }; class: StringConstructor; }>> & Readonly<{ onClick?: ((...args: any[]) => any) | undefined; }>, { type: "button" | "reset" | "submit"; disabled: boolean; size: Size; variant: ButtonVariant; color: ColorVariant; loading: boolean; fullWidth: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Button: DefineComponent<
+  ExtractPropTypes<{
+    variant: { type: PropType<ButtonVariant>; default: string }
+    color: { type: PropType<ColorVariant>; default: string }
+    size: { type: PropType<Size>; default: string }
+    loading: { type: BooleanConstructor; default: boolean }
+    loadingText: StringConstructor
+    fullWidth: { type: BooleanConstructor; default: boolean }
+    disabled: { type: BooleanConstructor; default: boolean }
+    type: { type: PropType<'button' | 'submit' | 'reset'>; default: string }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'click'[],
+  'click',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      variant: { type: PropType<ButtonVariant>; default: string }
+      color: { type: PropType<ColorVariant>; default: string }
+      size: { type: PropType<Size>; default: string }
+      loading: { type: BooleanConstructor; default: boolean }
+      loadingText: StringConstructor
+      fullWidth: { type: BooleanConstructor; default: boolean }
+      disabled: { type: BooleanConstructor; default: boolean }
+      type: { type: PropType<'button' | 'submit' | 'reset'>; default: string }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ onClick?: ((...args: any[]) => any) | undefined }>,
+  {
+    type: 'button' | 'reset' | 'submit'
+    disabled: boolean
+    size: Size
+    variant: ButtonVariant
+    color: ColorVariant
+    loading: boolean
+    fullWidth: boolean
+  },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Card`
@@ -1470,7 +1688,41 @@ const Button: DefineComponent<ExtractPropTypes<{ variant: { type: PropType<Butto
 Vue Card UI component with UIClassMap-driven styling.
 
 ```typescript
-const Card: DefineComponent<ExtractPropTypes<{ variant: { type: PropType<"elevated" | "outlined" | "filled">; default: string; }; padding: { type: PropType<Size | "none">; default: string; }; interactive: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "click"[], "click", PublicProps, Readonly<ExtractPropTypes<{ variant: { type: PropType<"elevated" | "outlined" | "filled">; default: string; }; padding: { type: PropType<Size | "none">; default: string; }; interactive: BooleanConstructor; class: StringConstructor; }>> & Readonly<{ onClick?: ((...args: any[]) => any) | undefined; }>, { variant: "elevated" | "outlined" | "filled"; interactive: boolean; padding: "none" | Size; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Card: DefineComponent<
+  ExtractPropTypes<{
+    variant: { type: PropType<'elevated' | 'outlined' | 'filled'>; default: string }
+    padding: { type: PropType<Size | 'none'>; default: string }
+    interactive: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'click'[],
+  'click',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      variant: { type: PropType<'elevated' | 'outlined' | 'filled'>; default: string }
+      padding: { type: PropType<Size | 'none'>; default: string }
+      interactive: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ onClick?: ((...args: any[]) => any) | undefined }>,
+  { variant: 'elevated' | 'outlined' | 'filled'; interactive: boolean; padding: 'none' | Size },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `CardContent`
@@ -1478,7 +1730,28 @@ const Card: DefineComponent<ExtractPropTypes<{ variant: { type: PropType<"elevat
 CardContent component.
 
 ```typescript
-const CardContent: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const CardContent: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `CardDescription`
@@ -1486,7 +1759,28 @@ const CardContent: DefineComponent<ExtractPropTypes<{ class: StringConstructor; 
 CardDescription component.
 
 ```typescript
-const CardDescription: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const CardDescription: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `CardFooter`
@@ -1494,7 +1788,28 @@ const CardDescription: DefineComponent<ExtractPropTypes<{ class: StringConstruct
 CardFooter component.
 
 ```typescript
-const CardFooter: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const CardFooter: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `CardHeader`
@@ -1502,7 +1817,28 @@ const CardFooter: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }
 CardHeader component.
 
 ```typescript
-const CardHeader: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const CardHeader: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `CardTitle`
@@ -1510,7 +1846,28 @@ const CardHeader: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }
 CardTitle component.
 
 ```typescript
-const CardTitle: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const CardTitle: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Checkbox`
@@ -1518,7 +1875,51 @@ const CardTitle: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>
 Vue Checkbox UI component with UIClassMap-driven styling.
 
 ```typescript
-const Checkbox: DefineComponent<ExtractPropTypes<{ modelValue: BooleanConstructor; label: StringConstructor; indeterminate: BooleanConstructor; size: PropType<Size>; error: StringConstructor; disabled: BooleanConstructor; name: StringConstructor; id: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "update:modelValue"[], "update:modelValue", PublicProps, Readonly<ExtractPropTypes<{ modelValue: BooleanConstructor; label: StringConstructor; indeterminate: BooleanConstructor; size: PropType<Size>; error: StringConstructor; disabled: BooleanConstructor; name: StringConstructor; id: StringConstructor; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; }>, { modelValue: boolean; disabled: boolean; indeterminate: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Checkbox: DefineComponent<
+  ExtractPropTypes<{
+    modelValue: BooleanConstructor
+    label: StringConstructor
+    indeterminate: BooleanConstructor
+    size: PropType<Size>
+    error: StringConstructor
+    disabled: BooleanConstructor
+    name: StringConstructor
+    id: StringConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'update:modelValue'[],
+  'update:modelValue',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      modelValue: BooleanConstructor
+      label: StringConstructor
+      indeterminate: BooleanConstructor
+      size: PropType<Size>
+      error: StringConstructor
+      disabled: BooleanConstructor
+      name: StringConstructor
+      id: StringConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ 'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined }>,
+  { modelValue: boolean; disabled: boolean; indeterminate: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Container`
@@ -1526,7 +1927,47 @@ const Checkbox: DefineComponent<ExtractPropTypes<{ modelValue: BooleanConstructo
 Container component with ClassMap styling.
 
 ```typescript
-const Container: DefineComponent<ExtractPropTypes<{ maxWidth: { type: PropType<"sm" | "md" | "lg" | "xl" | "2xl" | "full" | string>; default: string; }; centered: { type: BooleanConstructor; default: boolean; }; paddingX: PropType<Size | string>; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ maxWidth: { type: PropType<"sm" | "md" | "lg" | "xl" | "2xl" | "full" | string>; default: string; }; centered: { type: BooleanConstructor; default: boolean; }; paddingX: PropType<Size | string>; class: StringConstructor; }>> & Readonly<{}>, { maxWidth: string; centered: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Container: DefineComponent<
+  ExtractPropTypes<{
+    maxWidth: {
+      type: PropType<'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string>
+      default: string
+    }
+    centered: { type: BooleanConstructor; default: boolean }
+    paddingX: PropType<Size | string>
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      maxWidth: {
+        type: PropType<'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | string>
+        default: string
+      }
+      centered: { type: BooleanConstructor; default: boolean }
+      paddingX: PropType<Size | string>
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { maxWidth: string; centered: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Dropdown`
@@ -1534,7 +1975,48 @@ const Container: DefineComponent<ExtractPropTypes<{ maxWidth: { type: PropType<"
 Vue Dropdown UI component with UIClassMap-driven styling.
 
 ```typescript
-const Dropdown: DefineComponent<ExtractPropTypes<{ items: { type: PropType<DropdownItem<string>[]>; required: true; }; placement: { type: PropType<Placement>; default: string; }; open: { type: BooleanConstructor; default: undefined; }; align: { type: PropType<Align>; default: string; }; width: { type: PropType<"trigger" | "auto" | number | string>; default: string; }; class: StringConstructor; }>, () => VNodeArrayChildren, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("select" | "update:open")[], "select" | "update:open", PublicProps, Readonly<ExtractPropTypes<{ items: { type: PropType<DropdownItem<string>[]>; required: true; }; placement: { type: PropType<Placement>; default: string; }; open: { type: BooleanConstructor; default: undefined; }; align: { type: PropType<Align>; default: string; }; width: { type: PropType<"trigger" | "auto" | number | string>; default: string; }; class: StringConstructor; }>> & Readonly<{ onSelect?: ((...args: any[]) => any) | undefined; "onUpdate:open"?: ((...args: any[]) => any) | undefined; }>, { open: boolean; placement: Placement; align: Align; width: string | number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Dropdown: DefineComponent<
+  ExtractPropTypes<{
+    items: { type: PropType<DropdownItem<string>[]>; required: true }
+    placement: { type: PropType<Placement>; default: string }
+    open: { type: BooleanConstructor; default: undefined }
+    align: { type: PropType<Align>; default: string }
+    width: { type: PropType<'trigger' | 'auto' | number | string>; default: string }
+    class: StringConstructor
+  }>,
+  () => VNodeArrayChildren,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('select' | 'update:open')[],
+  'select' | 'update:open',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      items: { type: PropType<DropdownItem<string>[]>; required: true }
+      placement: { type: PropType<Placement>; default: string }
+      open: { type: BooleanConstructor; default: undefined }
+      align: { type: PropType<Align>; default: string }
+      width: { type: PropType<'trigger' | 'auto' | number | string>; default: string }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{
+      onSelect?: ((...args: any[]) => any) | undefined
+      'onUpdate:open'?: ((...args: any[]) => any) | undefined
+    }>,
+  { open: boolean; placement: Placement; align: Align; width: string | number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `DropdownLabel`
@@ -1542,7 +2024,28 @@ const Dropdown: DefineComponent<ExtractPropTypes<{ items: { type: PropType<Dropd
 Dropdown label component.
 
 ```typescript
-const DropdownLabel: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const DropdownLabel: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `DropdownSeparator`
@@ -1550,7 +2053,28 @@ const DropdownLabel: DefineComponent<ExtractPropTypes<{ class: StringConstructor
 Dropdown separator component.
 
 ```typescript
-const DropdownSeparator: DefineComponent<ExtractPropTypes<{ class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const DropdownSeparator: DefineComponent<
+  ExtractPropTypes<{ class: StringConstructor }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ class: StringConstructor }>> & Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Flex`
@@ -1558,7 +2082,51 @@ const DropdownSeparator: DefineComponent<ExtractPropTypes<{ class: StringConstru
 Flex container component with ClassMap styling.
 
 ```typescript
-const Flex: DefineComponent<ExtractPropTypes<{ direction: { type: PropType<"row" | "column" | "row-reverse" | "column-reverse">; default: string; }; justify: PropType<"start" | "end" | "center" | "between" | "around" | "evenly">; align: PropType<"start" | "end" | "center" | "baseline" | "stretch">; wrap: PropType<"wrap" | "nowrap" | "wrap-reverse">; gap: PropType<Size | string | number>; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "click"[], "click", PublicProps, Readonly<ExtractPropTypes<{ direction: { type: PropType<"row" | "column" | "row-reverse" | "column-reverse">; default: string; }; justify: PropType<"start" | "end" | "center" | "between" | "around" | "evenly">; align: PropType<"start" | "end" | "center" | "baseline" | "stretch">; wrap: PropType<"wrap" | "nowrap" | "wrap-reverse">; gap: PropType<Size | string | number>; class: StringConstructor; }>> & Readonly<{ onClick?: ((...args: any[]) => any) | undefined; }>, { direction: "row" | "column" | "row-reverse" | "column-reverse"; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Flex: DefineComponent<
+  ExtractPropTypes<{
+    direction: {
+      type: PropType<'row' | 'column' | 'row-reverse' | 'column-reverse'>
+      default: string
+    }
+    justify: PropType<'start' | 'end' | 'center' | 'between' | 'around' | 'evenly'>
+    align: PropType<'start' | 'end' | 'center' | 'baseline' | 'stretch'>
+    wrap: PropType<'wrap' | 'nowrap' | 'wrap-reverse'>
+    gap: PropType<Size | string | number>
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'click'[],
+  'click',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      direction: {
+        type: PropType<'row' | 'column' | 'row-reverse' | 'column-reverse'>
+        default: string
+      }
+      justify: PropType<'start' | 'end' | 'center' | 'between' | 'around' | 'evenly'>
+      align: PropType<'start' | 'end' | 'center' | 'baseline' | 'stretch'>
+      wrap: PropType<'wrap' | 'nowrap' | 'wrap-reverse'>
+      gap: PropType<Size | string | number>
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ onClick?: ((...args: any[]) => any) | undefined }>,
+  { direction: 'row' | 'column' | 'row-reverse' | 'column-reverse' },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Form`
@@ -1566,7 +2134,46 @@ const Flex: DefineComponent<ExtractPropTypes<{ direction: { type: PropType<"row"
 Vue Form UI component with UIClassMap-driven styling.
 
 ```typescript
-const Form: DefineComponent<ExtractPropTypes<{ action: StringConstructor; method: PropType<"get" | "post">; noValidate: BooleanConstructor; submitting: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("submit" | "formSubmit")[], "submit" | "formSubmit", PublicProps, Readonly<ExtractPropTypes<{ action: StringConstructor; method: PropType<"get" | "post">; noValidate: BooleanConstructor; submitting: BooleanConstructor; class: StringConstructor; }>> & Readonly<{ onSubmit?: ((...args: any[]) => any) | undefined; onFormSubmit?: ((...args: any[]) => any) | undefined; }>, { noValidate: boolean; submitting: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Form: DefineComponent<
+  ExtractPropTypes<{
+    action: StringConstructor
+    method: PropType<'get' | 'post'>
+    noValidate: BooleanConstructor
+    submitting: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('submit' | 'formSubmit')[],
+  'submit' | 'formSubmit',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      action: StringConstructor
+      method: PropType<'get' | 'post'>
+      noValidate: BooleanConstructor
+      submitting: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{
+      onSubmit?: ((...args: any[]) => any) | undefined
+      onFormSubmit?: ((...args: any[]) => any) | undefined
+    }>,
+  { noValidate: boolean; submitting: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `FormField`
@@ -1574,7 +2181,45 @@ const Form: DefineComponent<ExtractPropTypes<{ action: StringConstructor; method
 FormField component.
 
 ```typescript
-const FormField: DefineComponent<ExtractPropTypes<{ label: StringConstructor; name: StringConstructor; error: StringConstructor; hint: StringConstructor; required: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ label: StringConstructor; name: StringConstructor; error: StringConstructor; hint: StringConstructor; required: BooleanConstructor; class: StringConstructor; }>> & Readonly<{}>, { required: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const FormField: DefineComponent<
+  ExtractPropTypes<{
+    label: StringConstructor
+    name: StringConstructor
+    error: StringConstructor
+    hint: StringConstructor
+    required: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      label: StringConstructor
+      name: StringConstructor
+      error: StringConstructor
+      hint: StringConstructor
+      required: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { required: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Grid`
@@ -1582,7 +2227,45 @@ const FormField: DefineComponent<ExtractPropTypes<{ label: StringConstructor; na
 Grid container component with ClassMap styling.
 
 ```typescript
-const Grid: DefineComponent<ExtractPropTypes<{ columns: (StringConstructor | NumberConstructor)[]; rows: (StringConstructor | NumberConstructor)[]; gap: PropType<Size | string | number>; columnGap: PropType<Size | string | number>; rowGap: PropType<Size | string | number>; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ columns: (StringConstructor | NumberConstructor)[]; rows: (StringConstructor | NumberConstructor)[]; gap: PropType<Size | string | number>; columnGap: PropType<Size | string | number>; rowGap: PropType<Size | string | number>; class: StringConstructor; }>> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Grid: DefineComponent<
+  ExtractPropTypes<{
+    columns: (StringConstructor | NumberConstructor)[]
+    rows: (StringConstructor | NumberConstructor)[]
+    gap: PropType<Size | string | number>
+    columnGap: PropType<Size | string | number>
+    rowGap: PropType<Size | string | number>
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      columns: (StringConstructor | NumberConstructor)[]
+      rows: (StringConstructor | NumberConstructor)[]
+      gap: PropType<Size | string | number>
+      columnGap: PropType<Size | string | number>
+      rowGap: PropType<Size | string | number>
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  {},
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Input`
@@ -1590,7 +2273,66 @@ const Grid: DefineComponent<ExtractPropTypes<{ columns: (StringConstructor | Num
 Vue Input UI component with UIClassMap-driven styling.
 
 ```typescript
-const Input: DefineComponent<ExtractPropTypes<{ type: { type: PropType<InputType>; default: string; }; size: { type: PropType<Size>; default: string; }; modelValue: (StringConstructor | NumberConstructor)[]; label: StringConstructor; placeholder: StringConstructor; error: StringConstructor; hint: StringConstructor; disabled: BooleanConstructor; required: BooleanConstructor; name: StringConstructor; id: StringConstructor; class: StringConstructor; clearable: BooleanConstructor; clearLabel: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("update:modelValue" | "blur" | "focus" | "clear")[], "update:modelValue" | "blur" | "focus" | "clear", PublicProps, Readonly<ExtractPropTypes<{ type: { type: PropType<InputType>; default: string; }; size: { type: PropType<Size>; default: string; }; modelValue: (StringConstructor | NumberConstructor)[]; label: StringConstructor; placeholder: StringConstructor; error: StringConstructor; hint: StringConstructor; disabled: BooleanConstructor; required: BooleanConstructor; name: StringConstructor; id: StringConstructor; class: StringConstructor; clearable: BooleanConstructor; clearLabel: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; onBlur?: ((...args: any[]) => any) | undefined; onFocus?: ((...args: any[]) => any) | undefined; onClear?: ((...args: any[]) => any) | undefined; }>, { required: boolean; type: InputType; disabled: boolean; size: Size; clearable: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Input: DefineComponent<
+  ExtractPropTypes<{
+    type: { type: PropType<InputType>; default: string }
+    size: { type: PropType<Size>; default: string }
+    modelValue: (StringConstructor | NumberConstructor)[]
+    label: StringConstructor
+    placeholder: StringConstructor
+    error: StringConstructor
+    hint: StringConstructor
+    disabled: BooleanConstructor
+    required: BooleanConstructor
+    name: StringConstructor
+    id: StringConstructor
+    class: StringConstructor
+    clearable: BooleanConstructor
+    clearLabel: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('update:modelValue' | 'blur' | 'focus' | 'clear')[],
+  'update:modelValue' | 'blur' | 'focus' | 'clear',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      type: { type: PropType<InputType>; default: string }
+      size: { type: PropType<Size>; default: string }
+      modelValue: (StringConstructor | NumberConstructor)[]
+      label: StringConstructor
+      placeholder: StringConstructor
+      error: StringConstructor
+      hint: StringConstructor
+      disabled: BooleanConstructor
+      required: BooleanConstructor
+      name: StringConstructor
+      id: StringConstructor
+      class: StringConstructor
+      clearable: BooleanConstructor
+      clearLabel: StringConstructor
+    }>
+  > &
+    Readonly<{
+      'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined
+      onBlur?: ((...args: any[]) => any) | undefined
+      onFocus?: ((...args: any[]) => any) | undefined
+      onClear?: ((...args: any[]) => any) | undefined
+    }>,
+  { required: boolean; type: InputType; disabled: boolean; size: Size; clearable: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Label`
@@ -1598,7 +2340,39 @@ const Input: DefineComponent<ExtractPropTypes<{ type: { type: PropType<InputType
 Vue Label component for form fields, with optional required indicator.
 
 ```typescript
-const Label: DefineComponent<ExtractPropTypes<{ for: StringConstructor; required: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ for: StringConstructor; required: BooleanConstructor; class: StringConstructor; }>> & Readonly<{}>, { required: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Label: DefineComponent<
+  ExtractPropTypes<{
+    for: StringConstructor
+    required: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      for: StringConstructor
+      required: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { required: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Modal`
@@ -1610,7 +2384,60 @@ false` top-anchors it instead, via the sanctioned inline-style exception
 (see the `wrapperStyle` computation in `setup()`).
 
 ```typescript
-const Modal: DefineComponent<ExtractPropTypes<{ open: { type: BooleanConstructor; required: true; }; title: StringConstructor; size: { type: PropType<ModalSize>; default: string; }; showCloseButton: { type: BooleanConstructor; default: boolean; }; closeOnOverlayClick: { type: BooleanConstructor; default: boolean; }; closeOnEscape: { type: BooleanConstructor; default: boolean; }; centered: { type: BooleanConstructor; default: boolean; }; preventScroll: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }> | null, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "close"[], "close", PublicProps, Readonly<ExtractPropTypes<{ open: { type: BooleanConstructor; required: true; }; title: StringConstructor; size: { type: PropType<ModalSize>; default: string; }; showCloseButton: { type: BooleanConstructor; default: boolean; }; closeOnOverlayClick: { type: BooleanConstructor; default: boolean; }; closeOnEscape: { type: BooleanConstructor; default: boolean; }; centered: { type: BooleanConstructor; default: boolean; }; preventScroll: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>> & Readonly<{ onClose?: ((...args: any[]) => any) | undefined; }>, { size: ModalSize; centered: boolean; showCloseButton: boolean; closeOnOverlayClick: boolean; closeOnEscape: boolean; preventScroll: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Modal: DefineComponent<
+  ExtractPropTypes<{
+    open: { type: BooleanConstructor; required: true }
+    title: StringConstructor
+    size: { type: PropType<ModalSize>; default: string }
+    showCloseButton: { type: BooleanConstructor; default: boolean }
+    closeOnOverlayClick: { type: BooleanConstructor; default: boolean }
+    closeOnEscape: { type: BooleanConstructor; default: boolean }
+    centered: { type: BooleanConstructor; default: boolean }
+    preventScroll: { type: BooleanConstructor; default: boolean }
+    closeLabel: StringConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }> | null,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'close'[],
+  'close',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      open: { type: BooleanConstructor; required: true }
+      title: StringConstructor
+      size: { type: PropType<ModalSize>; default: string }
+      showCloseButton: { type: BooleanConstructor; default: boolean }
+      closeOnOverlayClick: { type: BooleanConstructor; default: boolean }
+      closeOnEscape: { type: BooleanConstructor; default: boolean }
+      centered: { type: BooleanConstructor; default: boolean }
+      preventScroll: { type: BooleanConstructor; default: boolean }
+      closeLabel: StringConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ onClose?: ((...args: any[]) => any) | undefined }>,
+  {
+    size: ModalSize
+    centered: boolean
+    showCloseButton: boolean
+    closeOnOverlayClick: boolean
+    closeOnEscape: boolean
+    preventScroll: boolean
+  },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Pagination`
@@ -1618,7 +2445,77 @@ const Modal: DefineComponent<ExtractPropTypes<{ open: { type: BooleanConstructor
 Vue Pagination UI component with UIClassMap-driven styling.
 
 ```typescript
-const Pagination: DefineComponent<ExtractPropTypes<{ page: { type: NumberConstructor; required: true; }; totalPages: { type: NumberConstructor; required: true; }; siblings: { type: NumberConstructor; default: number; }; boundaries: { type: NumberConstructor; default: number; }; size: { type: PropType<Size>; default: string; }; showFirstLast: { type: BooleanConstructor; default: boolean; }; showPrevNext: { type: BooleanConstructor; default: boolean; }; disabled: BooleanConstructor; labels: PropType<{ nav?: string; first?: string; previous?: string; next?: string; last?: string; goToPage?: (page: number) => string; }>; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("change" | "update:page")[], "change" | "update:page", PublicProps, Readonly<ExtractPropTypes<{ page: { type: NumberConstructor; required: true; }; totalPages: { type: NumberConstructor; required: true; }; siblings: { type: NumberConstructor; default: number; }; boundaries: { type: NumberConstructor; default: number; }; size: { type: PropType<Size>; default: string; }; showFirstLast: { type: BooleanConstructor; default: boolean; }; showPrevNext: { type: BooleanConstructor; default: boolean; }; disabled: BooleanConstructor; labels: PropType<{ nav?: string; first?: string; previous?: string; next?: string; last?: string; goToPage?: (page: number) => string; }>; class: StringConstructor; }>> & Readonly<{ onChange?: ((...args: any[]) => any) | undefined; "onUpdate:page"?: ((...args: any[]) => any) | undefined; }>, { disabled: boolean; size: Size; siblings: number; boundaries: number; showFirstLast: boolean; showPrevNext: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Pagination: DefineComponent<
+  ExtractPropTypes<{
+    page: { type: NumberConstructor; required: true }
+    totalPages: { type: NumberConstructor; required: true }
+    siblings: { type: NumberConstructor; default: number }
+    boundaries: { type: NumberConstructor; default: number }
+    size: { type: PropType<Size>; default: string }
+    showFirstLast: { type: BooleanConstructor; default: boolean }
+    showPrevNext: { type: BooleanConstructor; default: boolean }
+    disabled: BooleanConstructor
+    labels: PropType<{
+      nav?: string
+      first?: string
+      previous?: string
+      next?: string
+      last?: string
+      goToPage?: (page: number) => string
+    }>
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('change' | 'update:page')[],
+  'change' | 'update:page',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      page: { type: NumberConstructor; required: true }
+      totalPages: { type: NumberConstructor; required: true }
+      siblings: { type: NumberConstructor; default: number }
+      boundaries: { type: NumberConstructor; default: number }
+      size: { type: PropType<Size>; default: string }
+      showFirstLast: { type: BooleanConstructor; default: boolean }
+      showPrevNext: { type: BooleanConstructor; default: boolean }
+      disabled: BooleanConstructor
+      labels: PropType<{
+        nav?: string
+        first?: string
+        previous?: string
+        next?: string
+        last?: string
+        goToPage?: (page: number) => string
+      }>
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{
+      onChange?: ((...args: any[]) => any) | undefined
+      'onUpdate:page'?: ((...args: any[]) => any) | undefined
+    }>,
+  {
+    disabled: boolean
+    size: Size
+    siblings: number
+    boundaries: number
+    showFirstLast: boolean
+    showPrevNext: boolean
+  },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Progress`
@@ -1626,7 +2523,49 @@ const Pagination: DefineComponent<ExtractPropTypes<{ page: { type: NumberConstru
 Vue Progress UI component with UIClassMap-driven styling.
 
 ```typescript
-const Progress: DefineComponent<ExtractPropTypes<{ value: { type: NumberConstructor; required: true; }; max: { type: NumberConstructor; default: number; }; size: { type: PropType<Size>; default: string; }; color: { type: PropType<ColorVariant>; default: string; }; showValue: BooleanConstructor; label: StringConstructor; indeterminate: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ value: { type: NumberConstructor; required: true; }; max: { type: NumberConstructor; default: number; }; size: { type: PropType<Size>; default: string; }; color: { type: PropType<ColorVariant>; default: string; }; showValue: BooleanConstructor; label: StringConstructor; indeterminate: BooleanConstructor; class: StringConstructor; }>> & Readonly<{}>, { size: Size; color: ColorVariant; indeterminate: boolean; showValue: boolean; max: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Progress: DefineComponent<
+  ExtractPropTypes<{
+    value: { type: NumberConstructor; required: true }
+    max: { type: NumberConstructor; default: number }
+    size: { type: PropType<Size>; default: string }
+    color: { type: PropType<ColorVariant>; default: string }
+    showValue: BooleanConstructor
+    label: StringConstructor
+    indeterminate: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      value: { type: NumberConstructor; required: true }
+      max: { type: NumberConstructor; default: number }
+      size: { type: PropType<Size>; default: string }
+      color: { type: PropType<ColorVariant>; default: string }
+      showValue: BooleanConstructor
+      label: StringConstructor
+      indeterminate: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { size: Size; color: ColorVariant; indeterminate: boolean; showValue: boolean; max: number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `RadioGroup`
@@ -1634,7 +2573,49 @@ const Progress: DefineComponent<ExtractPropTypes<{ value: { type: NumberConstruc
 RadioGroup component.
 
 ```typescript
-const RadioGroup: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor; options: { type: PropType<RadioOption<string>[]>; required: true; }; size: PropType<Size>; label: StringConstructor; direction: { type: PropType<"horizontal" | "vertical">; default: string; }; error: StringConstructor; disabled: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "update:modelValue"[], "update:modelValue", PublicProps, Readonly<ExtractPropTypes<{ modelValue: StringConstructor; options: { type: PropType<RadioOption<string>[]>; required: true; }; size: PropType<Size>; label: StringConstructor; direction: { type: PropType<"horizontal" | "vertical">; default: string; }; error: StringConstructor; disabled: BooleanConstructor; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; }>, { disabled: boolean; direction: "horizontal" | "vertical"; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const RadioGroup: DefineComponent<
+  ExtractPropTypes<{
+    modelValue: StringConstructor
+    options: { type: PropType<RadioOption<string>[]>; required: true }
+    size: PropType<Size>
+    label: StringConstructor
+    direction: { type: PropType<'horizontal' | 'vertical'>; default: string }
+    error: StringConstructor
+    disabled: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'update:modelValue'[],
+  'update:modelValue',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      modelValue: StringConstructor
+      options: { type: PropType<RadioOption<string>[]>; required: true }
+      size: PropType<Size>
+      label: StringConstructor
+      direction: { type: PropType<'horizontal' | 'vertical'>; default: string }
+      error: StringConstructor
+      disabled: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ 'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined }>,
+  { disabled: boolean; direction: 'horizontal' | 'vertical' },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Select`
@@ -1642,7 +2623,59 @@ const RadioGroup: DefineComponent<ExtractPropTypes<{ modelValue: StringConstruct
 Vue Select UI component with UIClassMap-driven styling.
 
 ```typescript
-const Select: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor; options: { type: PropType<SelectOption<string>[]>; required: true; }; size: { type: PropType<Size>; default: string; }; label: StringConstructor; placeholder: StringConstructor; error: StringConstructor; hint: StringConstructor; disabled: BooleanConstructor; required: BooleanConstructor; clearable: BooleanConstructor; name: StringConstructor; id: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "update:modelValue"[], "update:modelValue", PublicProps, Readonly<ExtractPropTypes<{ modelValue: StringConstructor; options: { type: PropType<SelectOption<string>[]>; required: true; }; size: { type: PropType<Size>; default: string; }; label: StringConstructor; placeholder: StringConstructor; error: StringConstructor; hint: StringConstructor; disabled: BooleanConstructor; required: BooleanConstructor; clearable: BooleanConstructor; name: StringConstructor; id: StringConstructor; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; }>, { required: boolean; disabled: boolean; size: Size; clearable: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Select: DefineComponent<
+  ExtractPropTypes<{
+    modelValue: StringConstructor
+    options: { type: PropType<SelectOption<string>[]>; required: true }
+    size: { type: PropType<Size>; default: string }
+    label: StringConstructor
+    placeholder: StringConstructor
+    error: StringConstructor
+    hint: StringConstructor
+    disabled: BooleanConstructor
+    required: BooleanConstructor
+    clearable: BooleanConstructor
+    name: StringConstructor
+    id: StringConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'update:modelValue'[],
+  'update:modelValue',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      modelValue: StringConstructor
+      options: { type: PropType<SelectOption<string>[]>; required: true }
+      size: { type: PropType<Size>; default: string }
+      label: StringConstructor
+      placeholder: StringConstructor
+      error: StringConstructor
+      hint: StringConstructor
+      disabled: BooleanConstructor
+      required: BooleanConstructor
+      clearable: BooleanConstructor
+      name: StringConstructor
+      id: StringConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ 'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined }>,
+  { required: boolean; disabled: boolean; size: Size; clearable: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Separator`
@@ -1650,7 +2683,39 @@ const Select: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor; 
 Vue Separator UI component with UIClassMap-driven styling.
 
 ```typescript
-const Separator: DefineComponent<ExtractPropTypes<{ orientation: { type: PropType<"horizontal" | "vertical">; default: string; }; decorative: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ orientation: { type: PropType<"horizontal" | "vertical">; default: string; }; decorative: { type: BooleanConstructor; default: boolean; }; class: StringConstructor; }>> & Readonly<{}>, { orientation: "horizontal" | "vertical"; decorative: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Separator: DefineComponent<
+  ExtractPropTypes<{
+    orientation: { type: PropType<'horizontal' | 'vertical'>; default: string }
+    decorative: { type: BooleanConstructor; default: boolean }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      orientation: { type: PropType<'horizontal' | 'vertical'>; default: string }
+      decorative: { type: BooleanConstructor; default: boolean }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { orientation: 'horizontal' | 'vertical'; decorative: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Skeleton`
@@ -1658,7 +2723,45 @@ const Separator: DefineComponent<ExtractPropTypes<{ orientation: { type: PropTyp
 Vue Skeleton UI component with UIClassMap-driven styling.
 
 ```typescript
-const Skeleton: DefineComponent<ExtractPropTypes<{ width: (StringConstructor | NumberConstructor)[]; height: (StringConstructor | NumberConstructor)[]; circle: BooleanConstructor; borderRadius: (StringConstructor | NumberConstructor)[]; animation: { type: PropType<"pulse" | "wave" | "none">; default: string; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ width: (StringConstructor | NumberConstructor)[]; height: (StringConstructor | NumberConstructor)[]; circle: BooleanConstructor; borderRadius: (StringConstructor | NumberConstructor)[]; animation: { type: PropType<"pulse" | "wave" | "none">; default: string; }; class: StringConstructor; }>> & Readonly<{}>, { circle: boolean; animation: "none" | "pulse" | "wave"; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Skeleton: DefineComponent<
+  ExtractPropTypes<{
+    width: (StringConstructor | NumberConstructor)[]
+    height: (StringConstructor | NumberConstructor)[]
+    circle: BooleanConstructor
+    borderRadius: (StringConstructor | NumberConstructor)[]
+    animation: { type: PropType<'pulse' | 'wave' | 'none'>; default: string }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      width: (StringConstructor | NumberConstructor)[]
+      height: (StringConstructor | NumberConstructor)[]
+      circle: BooleanConstructor
+      borderRadius: (StringConstructor | NumberConstructor)[]
+      animation: { type: PropType<'pulse' | 'wave' | 'none'>; default: string }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { circle: boolean; animation: 'none' | 'pulse' | 'wave' },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `SkeletonCircle`
@@ -1666,7 +2769,37 @@ const Skeleton: DefineComponent<ExtractPropTypes<{ width: (StringConstructor | N
 SkeletonCircle component.
 
 ```typescript
-const SkeletonCircle: DefineComponent<ExtractPropTypes<{ size: { type: NumberConstructor; default: number; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ size: { type: NumberConstructor; default: number; }; class: StringConstructor; }>> & Readonly<{}>, { size: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const SkeletonCircle: DefineComponent<
+  ExtractPropTypes<{
+    size: { type: NumberConstructor; default: number }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      size: { type: NumberConstructor; default: number }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { size: number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `SkeletonText`
@@ -1674,7 +2807,37 @@ const SkeletonCircle: DefineComponent<ExtractPropTypes<{ size: { type: NumberCon
 SkeletonText component.
 
 ```typescript
-const SkeletonText: DefineComponent<ExtractPropTypes<{ lines: { type: NumberConstructor; default: number; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ lines: { type: NumberConstructor; default: number; }; class: StringConstructor; }>> & Readonly<{}>, { lines: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const SkeletonText: DefineComponent<
+  ExtractPropTypes<{
+    lines: { type: NumberConstructor; default: number }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      lines: { type: NumberConstructor; default: number }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { lines: number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Spacer`
@@ -1682,7 +2845,39 @@ const SkeletonText: DefineComponent<ExtractPropTypes<{ lines: { type: NumberCons
 Spacer component with ClassMap styling.
 
 ```typescript
-const Spacer: DefineComponent<ExtractPropTypes<{ size: { type: PropType<Size | string | number>; default: string; }; horizontal: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ size: { type: PropType<Size | string | number>; default: string; }; horizontal: BooleanConstructor; class: StringConstructor; }>> & Readonly<{}>, { size: string | number; horizontal: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Spacer: DefineComponent<
+  ExtractPropTypes<{
+    size: { type: PropType<Size | string | number>; default: string }
+    horizontal: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      size: { type: PropType<Size | string | number>; default: string }
+      horizontal: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { size: string | number; horizontal: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Spinner`
@@ -1690,7 +2885,41 @@ const Spacer: DefineComponent<ExtractPropTypes<{ size: { type: PropType<Size | s
 Vue Spinner UI component with UIClassMap-driven styling.
 
 ```typescript
-const Spinner: DefineComponent<ExtractPropTypes<{ size: { type: PropType<Size>; default: string; }; color: PropType<ColorVariant | string>; label: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ size: { type: PropType<Size>; default: string; }; color: PropType<ColorVariant | string>; label: StringConstructor; class: StringConstructor; }>> & Readonly<{}>, { size: Size; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Spinner: DefineComponent<
+  ExtractPropTypes<{
+    size: { type: PropType<Size>; default: string }
+    color: PropType<ColorVariant | string>
+    label: StringConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      size: { type: PropType<Size>; default: string }
+      color: PropType<ColorVariant | string>
+      label: StringConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { size: Size },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Switch`
@@ -1698,7 +2927,45 @@ const Spinner: DefineComponent<ExtractPropTypes<{ size: { type: PropType<Size>; 
 Vue Switch UI component with UIClassMap-driven styling.
 
 ```typescript
-const Switch: DefineComponent<ExtractPropTypes<{ modelValue: BooleanConstructor; label: StringConstructor; size: { type: PropType<Size>; default: string; }; color: PropType<ColorVariant>; disabled: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "update:modelValue"[], "update:modelValue", PublicProps, Readonly<ExtractPropTypes<{ modelValue: BooleanConstructor; label: StringConstructor; size: { type: PropType<Size>; default: string; }; color: PropType<ColorVariant>; disabled: BooleanConstructor; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; }>, { modelValue: boolean; disabled: boolean; size: Size; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Switch: DefineComponent<
+  ExtractPropTypes<{
+    modelValue: BooleanConstructor
+    label: StringConstructor
+    size: { type: PropType<Size>; default: string }
+    color: PropType<ColorVariant>
+    disabled: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'update:modelValue'[],
+  'update:modelValue',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      modelValue: BooleanConstructor
+      label: StringConstructor
+      size: { type: PropType<Size>; default: string }
+      color: PropType<ColorVariant>
+      disabled: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ 'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined }>,
+  { modelValue: boolean; disabled: boolean; size: Size },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Table`
@@ -1706,7 +2973,58 @@ const Switch: DefineComponent<ExtractPropTypes<{ modelValue: BooleanConstructor;
 Vue Table UI component with UIClassMap-driven styling.
 
 ```typescript
-const Table: DefineComponent<ExtractPropTypes<{ data: { type: PropType<Record<string, unknown>[]>; required: true; }; columns: { type: PropType<TableColumn<Record<string, unknown>>[]>; required: true; }; rowKey: PropType<string | ((row: Record<string, unknown>) => string | number)>; bordered: BooleanConstructor; striped: BooleanConstructor; hoverable: { type: BooleanConstructor; default: boolean; }; size: PropType<Size>; emptyContent: StringConstructor; loading: BooleanConstructor; sort: PropType<{ key: string; direction: "asc" | "desc"; }>; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("sort" | "row-click")[], "sort" | "row-click", PublicProps, Readonly<ExtractPropTypes<{ data: { type: PropType<Record<string, unknown>[]>; required: true; }; columns: { type: PropType<TableColumn<Record<string, unknown>>[]>; required: true; }; rowKey: PropType<string | ((row: Record<string, unknown>) => string | number)>; bordered: BooleanConstructor; striped: BooleanConstructor; hoverable: { type: BooleanConstructor; default: boolean; }; size: PropType<Size>; emptyContent: StringConstructor; loading: BooleanConstructor; sort: PropType<{ key: string; direction: "asc" | "desc"; }>; class: StringConstructor; }>> & Readonly<{ onSort?: ((...args: any[]) => any) | undefined; "onRow-click"?: ((...args: any[]) => any) | undefined; }>, { loading: boolean; bordered: boolean; striped: boolean; hoverable: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Table: DefineComponent<
+  ExtractPropTypes<{
+    data: { type: PropType<Record<string, unknown>[]>; required: true }
+    columns: { type: PropType<TableColumn<Record<string, unknown>>[]>; required: true }
+    rowKey: PropType<string | ((row: Record<string, unknown>) => string | number)>
+    bordered: BooleanConstructor
+    striped: BooleanConstructor
+    hoverable: { type: BooleanConstructor; default: boolean }
+    size: PropType<Size>
+    emptyContent: StringConstructor
+    loading: BooleanConstructor
+    sort: PropType<{ key: string; direction: 'asc' | 'desc' }>
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('sort' | 'row-click')[],
+  'sort' | 'row-click',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      data: { type: PropType<Record<string, unknown>[]>; required: true }
+      columns: { type: PropType<TableColumn<Record<string, unknown>>[]>; required: true }
+      rowKey: PropType<string | ((row: Record<string, unknown>) => string | number)>
+      bordered: BooleanConstructor
+      striped: BooleanConstructor
+      hoverable: { type: BooleanConstructor; default: boolean }
+      size: PropType<Size>
+      emptyContent: StringConstructor
+      loading: BooleanConstructor
+      sort: PropType<{ key: string; direction: 'asc' | 'desc' }>
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{
+      onSort?: ((...args: any[]) => any) | undefined
+      'onRow-click'?: ((...args: any[]) => any) | undefined
+    }>,
+  { loading: boolean; bordered: boolean; striped: boolean; hoverable: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Tabs`
@@ -1714,7 +3032,47 @@ const Table: DefineComponent<ExtractPropTypes<{ data: { type: PropType<Record<st
 Vue Tabs UI component with UIClassMap-driven styling.
 
 ```typescript
-const Tabs: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor; items: { type: PropType<TabItem<string>[]>; required: true; }; defaultValue: StringConstructor; variant: PropType<"line" | "enclosed" | "soft-rounded" | "solid-rounded">; size: PropType<Size>; fitted: BooleanConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "update:modelValue"[], "update:modelValue", PublicProps, Readonly<ExtractPropTypes<{ modelValue: StringConstructor; items: { type: PropType<TabItem<string>[]>; required: true; }; defaultValue: StringConstructor; variant: PropType<"line" | "enclosed" | "soft-rounded" | "solid-rounded">; size: PropType<Size>; fitted: BooleanConstructor; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; }>, { fitted: boolean; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Tabs: DefineComponent<
+  ExtractPropTypes<{
+    modelValue: StringConstructor
+    items: { type: PropType<TabItem<string>[]>; required: true }
+    defaultValue: StringConstructor
+    variant: PropType<'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'>
+    size: PropType<Size>
+    fitted: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'update:modelValue'[],
+  'update:modelValue',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      modelValue: StringConstructor
+      items: { type: PropType<TabItem<string>[]>; required: true }
+      defaultValue: StringConstructor
+      variant: PropType<'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded'>
+      size: PropType<Size>
+      fitted: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ 'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined }>,
+  { fitted: boolean },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Textarea`
@@ -1722,7 +3080,65 @@ const Tabs: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor; it
 Vue Textarea UI component with UIClassMap-driven styling.
 
 ```typescript
-const Textarea: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor; label: StringConstructor; placeholder: StringConstructor; error: StringConstructor; hint: StringConstructor; disabled: BooleanConstructor; required: BooleanConstructor; name: StringConstructor; id: StringConstructor; rows: NumberConstructor; autoResize: BooleanConstructor; minRows: { type: NumberConstructor; default: number; }; maxRows: NumberConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, ("update:modelValue" | "blur" | "focus")[], "update:modelValue" | "blur" | "focus", PublicProps, Readonly<ExtractPropTypes<{ modelValue: StringConstructor; label: StringConstructor; placeholder: StringConstructor; error: StringConstructor; hint: StringConstructor; disabled: BooleanConstructor; required: BooleanConstructor; name: StringConstructor; id: StringConstructor; rows: NumberConstructor; autoResize: BooleanConstructor; minRows: { type: NumberConstructor; default: number; }; maxRows: NumberConstructor; class: StringConstructor; }>> & Readonly<{ "onUpdate:modelValue"?: ((...args: any[]) => any) | undefined; onBlur?: ((...args: any[]) => any) | undefined; onFocus?: ((...args: any[]) => any) | undefined; }>, { required: boolean; disabled: boolean; autoResize: boolean; minRows: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Textarea: DefineComponent<
+  ExtractPropTypes<{
+    modelValue: StringConstructor
+    label: StringConstructor
+    placeholder: StringConstructor
+    error: StringConstructor
+    hint: StringConstructor
+    disabled: BooleanConstructor
+    required: BooleanConstructor
+    name: StringConstructor
+    id: StringConstructor
+    rows: NumberConstructor
+    autoResize: BooleanConstructor
+    minRows: { type: NumberConstructor; default: number }
+    maxRows: NumberConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  ('update:modelValue' | 'blur' | 'focus')[],
+  'update:modelValue' | 'blur' | 'focus',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      modelValue: StringConstructor
+      label: StringConstructor
+      placeholder: StringConstructor
+      error: StringConstructor
+      hint: StringConstructor
+      disabled: BooleanConstructor
+      required: BooleanConstructor
+      name: StringConstructor
+      id: StringConstructor
+      rows: NumberConstructor
+      autoResize: BooleanConstructor
+      minRows: { type: NumberConstructor; default: number }
+      maxRows: NumberConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{
+      'onUpdate:modelValue'?: ((...args: any[]) => any) | undefined
+      onBlur?: ((...args: any[]) => any) | undefined
+      onFocus?: ((...args: any[]) => any) | undefined
+    }>,
+  { required: boolean; disabled: boolean; autoResize: boolean; minRows: number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Toast`
@@ -1730,7 +3146,47 @@ const Textarea: DefineComponent<ExtractPropTypes<{ modelValue: StringConstructor
 Single Toast component.
 
 ```typescript
-const Toast: DefineComponent<ExtractPropTypes<{ title: StringConstructor; description: StringConstructor; status: { type: PropType<ColorVariant>; default: string; }; duration: { type: NumberConstructor; default: number; }; dismissible: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }> | null, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, "dismiss"[], "dismiss", PublicProps, Readonly<ExtractPropTypes<{ title: StringConstructor; description: StringConstructor; status: { type: PropType<ColorVariant>; default: string; }; duration: { type: NumberConstructor; default: number; }; dismissible: { type: BooleanConstructor; default: boolean; }; closeLabel: StringConstructor; class: StringConstructor; }>> & Readonly<{ onDismiss?: ((...args: any[]) => any) | undefined; }>, { dismissible: boolean; status: ColorVariant; duration: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Toast: DefineComponent<
+  ExtractPropTypes<{
+    title: StringConstructor
+    description: StringConstructor
+    status: { type: PropType<ColorVariant>; default: string }
+    duration: { type: NumberConstructor; default: number }
+    dismissible: { type: BooleanConstructor; default: boolean }
+    closeLabel: StringConstructor
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }> | null,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  'dismiss'[],
+  'dismiss',
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      title: StringConstructor
+      description: StringConstructor
+      status: { type: PropType<ColorVariant>; default: string }
+      duration: { type: NumberConstructor; default: number }
+      dismissible: { type: BooleanConstructor; default: boolean }
+      closeLabel: StringConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{ onDismiss?: ((...args: any[]) => any) | undefined }>,
+  { dismissible: boolean; status: ColorVariant; duration: number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `ToastContainer`
@@ -1738,7 +3194,37 @@ const Toast: DefineComponent<ExtractPropTypes<{ title: StringConstructor; descri
 Toast container component.
 
 ```typescript
-const ToastContainer: DefineComponent<ExtractPropTypes<{ position: { type: PropType<ToastPosition>; default: string; }; class: StringConstructor; }>, () => VNode<RendererNode, RendererElement, { [key: string]: any; }>, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ position: { type: PropType<ToastPosition>; default: string; }; class: StringConstructor; }>> & Readonly<{}>, { position: ToastPosition; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const ToastContainer: DefineComponent<
+  ExtractPropTypes<{
+    position: { type: PropType<ToastPosition>; default: string }
+    class: StringConstructor
+  }>,
+  () => VNode<RendererNode, RendererElement, { [key: string]: any }>,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      position: { type: PropType<ToastPosition>; default: string }
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { position: ToastPosition },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `ToastProvider`
@@ -1746,7 +3232,33 @@ const ToastContainer: DefineComponent<ExtractPropTypes<{ position: { type: PropT
 Toast provider component.
 
 ```typescript
-const ToastProvider: DefineComponent<ExtractPropTypes<{ position: { type: PropType<ToastPosition>; default: string; }; }>, () => (VNode<RendererNode, RendererElement, { [key: string]: any; }> | VNode<RendererNode, RendererElement, { [key: string]: any; }>[] | undefined)[], {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ position: { type: PropType<ToastPosition>; default: string; }; }>> & Readonly<{}>, { position: ToastPosition; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const ToastProvider: DefineComponent<
+  ExtractPropTypes<{ position: { type: PropType<ToastPosition>; default: string } }>,
+  () => (
+    | VNode<RendererNode, RendererElement, { [key: string]: any }>
+    | VNode<RendererNode, RendererElement, { [key: string]: any }>[]
+    | undefined
+  )[],
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<ExtractPropTypes<{ position: { type: PropType<ToastPosition>; default: string } }>> &
+    Readonly<{}>,
+  { position: ToastPosition },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 #### `Tooltip`
@@ -1756,7 +3268,43 @@ Vue Tooltip UI component with UIClassMap-driven styling.
 `hasArrow` renders a small themed pointer at the resolved `placement` edge.
 
 ```typescript
-const Tooltip: DefineComponent<ExtractPropTypes<{ content: { type: PropType<string | unknown>; required: true; }; placement: { type: PropType<TooltipPlacement>; default: string; }; delay: { type: NumberConstructor; default: number; }; hasArrow: BooleanConstructor; class: StringConstructor; }>, () => VNodeArrayChildren, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<{ content: { type: PropType<string | unknown>; required: true; }; placement: { type: PropType<TooltipPlacement>; default: string; }; delay: { type: NumberConstructor; default: number; }; hasArrow: BooleanConstructor; class: StringConstructor; }>> & Readonly<{}>, { placement: TooltipPlacement; hasArrow: boolean; delay: number; }, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>
+const Tooltip: DefineComponent<
+  ExtractPropTypes<{
+    content: { type: PropType<string | unknown>; required: true }
+    placement: { type: PropType<TooltipPlacement>; default: string }
+    delay: { type: NumberConstructor; default: number }
+    hasArrow: BooleanConstructor
+    class: StringConstructor
+  }>,
+  () => VNodeArrayChildren,
+  {},
+  {},
+  {},
+  ComponentOptionsMixin,
+  ComponentOptionsMixin,
+  {},
+  string,
+  PublicProps,
+  Readonly<
+    ExtractPropTypes<{
+      content: { type: PropType<string | unknown>; required: true }
+      placement: { type: PropType<TooltipPlacement>; default: string }
+      delay: { type: NumberConstructor; default: number }
+      hasArrow: BooleanConstructor
+      class: StringConstructor
+    }>
+  > &
+    Readonly<{}>,
+  { placement: TooltipPlacement; hasArrow: boolean; delay: number },
+  {},
+  {},
+  {},
+  string,
+  ComponentProvideOptions,
+  true,
+  {},
+  any
+>
 ```
 
 ## Injection Notes
@@ -1764,6 +3312,7 @@ const Tooltip: DefineComponent<ExtractPropTypes<{ content: { type: PropType<stri
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-icons` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

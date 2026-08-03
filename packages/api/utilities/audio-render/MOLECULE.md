@@ -48,9 +48,11 @@ const stop = startAudioRenderWorker({
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-audio-render @molecule/api-queue
 ```
@@ -379,8 +381,8 @@ interface StartAudioRenderWorkerOptions extends ProcessAudioRenderJobOptions {
 
 Supported output container/codec combinations.
 
-- `wav`  — uncompressed PCM, default 16-bit signed (`pcm_s16le`).
-- `mp3`  — lossy MPEG-1 Layer III via libmp3lame.
+- `wav` — uncompressed PCM, default 16-bit signed (`pcm_s16le`).
+- `mp3` — lossy MPEG-1 Layer III via libmp3lame.
 - `flac` — lossless FLAC.
 
 ```typescript
@@ -419,7 +421,13 @@ type SpawnFunction = (
 Construct the full ffmpeg argv for an {@link AudioSession}.
 
 ```typescript
-function buildFfmpegArgs(session: AudioSession, options: Required<Pick<AudioRenderOptions, "format" | "sampleRate" | "channels">> & { bitrate?: string; }, outputPath: string): FfmpegCommand
+function buildFfmpegArgs(
+  session: AudioSession,
+  options: Required<Pick<AudioRenderOptions, 'format' | 'sampleRate' | 'channels'>> & {
+    bitrate?: string
+  },
+  outputPath: string,
+): FfmpegCommand
 ```
 
 - `session` — The multi-track session to render.
@@ -551,7 +559,10 @@ Intended to be wired into a queue subscription via
 with custom queue topologies can drive the work directly.
 
 ```typescript
-function processAudioRenderJob(payload: AudioRenderJobPayload, processOptions?: ProcessAudioRenderJobOptions): Promise<ProcessAudioRenderJobResult>
+function processAudioRenderJob(
+  payload: AudioRenderJobPayload,
+  processOptions?: ProcessAudioRenderJobOptions,
+): Promise<ProcessAudioRenderJobResult>
 ```
 
 - `payload` — The job payload received from the queue.
@@ -669,7 +680,7 @@ function updateJob(jobId: string, patch: Partial<RenderJob>): RenderJob | undefi
 Default queue name jobs are dispatched to.
 
 ```typescript
-const DEFAULT_AUDIO_RENDER_QUEUE: "audio-render"
+const DEFAULT_AUDIO_RENDER_QUEUE: 'audio-render'
 ```
 
 ## Injection Notes
@@ -677,6 +688,7 @@ const DEFAULT_AUDIO_RENDER_QUEUE: "audio-render"
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-queue` ^1.0.0
 
 ### Runtime Dependencies

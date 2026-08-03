@@ -34,18 +34,18 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `network.wifi` | Wi-Fi |
-| `network.cellular` | Cellular |
-| `network.ethernet` | Ethernet |
-| `network.bluetooth` | Bluetooth |
-| `network.vpn` | VPN |
-| `network.other` | Other |
-| `network.none` | Disconnected |
-| `network.unknown` | Unknown |
+| Key                               | English                    |
+| --------------------------------- | -------------------------- |
+| `network.wifi`                    | Wi-Fi                      |
+| `network.cellular`                | Cellular                   |
+| `network.ethernet`                | Ethernet                   |
+| `network.bluetooth`               | Bluetooth                  |
+| `network.vpn`                     | VPN                        |
+| `network.other`                   | Other                      |
+| `network.none`                    | Disconnected               |
+| `network.unknown`                 | Unknown                    |
 | `network.error.connectionTimeout` | Network connection timeout |
-| `network.error.unavailable` | Network unavailable |
+| `network.error.unavailable`       | Network unavailable        |
 
 ## Metadata
 

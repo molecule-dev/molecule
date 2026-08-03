@@ -29,9 +29,11 @@ export function App() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-analytics-react @molecule/app-analytics react react-router
 npm install -D @types/react
@@ -60,6 +62,7 @@ function AnalyticsRouteListener(): null
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-analytics` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
 - `react-router` ^7.0.0 || ^8.0.0

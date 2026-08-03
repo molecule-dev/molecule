@@ -3,6 +3,7 @@
 React force-directed graph view (Obsidian-style).
 
 Exports:
+
 - `<GraphView>` — top-level node-and-edge visualization with built-in
   `force`, `circular`, and `grid` layouts, click + selection support,
   and pluggable node / edge renderers.
@@ -28,9 +29,11 @@ function NoteGraph({ notes, links }: { notes: Note[]; links: Link[] }) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-graph-view-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -190,7 +193,10 @@ Compute the world-space bounding box of a set of positioned nodes,
 with a small padding for visual breathing room.
 
 ```typescript
-function boundingBox(nodes: PositionedNode[], padding?: number): { minX: number; minY: number; maxX: number; maxY: number; } | null
+function boundingBox(
+  nodes: PositionedNode[],
+  padding?: number,
+): { minX: number; minY: number; maxX: number; maxY: number } | null
 ```
 
 - `nodes` — Positioned nodes.
@@ -229,6 +235,7 @@ function createRng(seed: number): () => number
 Run a minimal velocity-Verlet force-directed simulation.
 
 Implements:
+
 - Pairwise repulsion (Coulomb-like, O(n²)) between every node pair.
 - Spring (Hooke) attraction along each edge toward `restLength`.
 - Per-step velocity damping for stability.
@@ -238,7 +245,11 @@ Stops early once the maximum per-node displacement-squared drops below
 comes first.
 
 ```typescript
-function forceLayout(nodes: GraphNode[], edges: GraphEdge[], options?: ForceLayoutOptions): PositionedNode[]
+function forceLayout(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  options?: ForceLayoutOptions,
+): PositionedNode[]
 ```
 
 - `nodes` — Nodes to lay out.
@@ -261,7 +272,9 @@ SVG geometry — `transform`, viewBox computation, stroke widths — which
 classes can't express.
 
 ```typescript
-function GraphView(props: GraphViewProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function GraphView(
+  props: GraphViewProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props.
@@ -286,7 +299,12 @@ function gridLayout(nodes: GraphNode[], spacing: number): PositionedNode[]
 Compute world-space positions for every node using the chosen layout.
 
 ```typescript
-function layoutNodes(nodes: GraphNode[], edges: GraphEdge[], layout: GraphLayout, options?: ForceLayoutOptions): PositionedNode[]
+function layoutNodes(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+  layout: GraphLayout,
+  options?: ForceLayoutOptions,
+): PositionedNode[]
 ```
 
 - `nodes` — Nodes to position.
@@ -351,6 +369,7 @@ const DEFAULT_SPRING: 0.05
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

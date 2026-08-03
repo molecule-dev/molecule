@@ -28,9 +28,11 @@ if (devices[0]) {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-bluetooth @molecule/app-bond @molecule/app-i18n
 ```
@@ -556,7 +558,11 @@ function openSettings(): Promise<void>
 Read a characteristic value from a connected Bluetooth device.
 
 ```typescript
-function read(deviceId: string, serviceUuid: string, characteristicUuid: string): Promise<ArrayBuffer>
+function read(
+  deviceId: string,
+  serviceUuid: string,
+  characteristicUuid: string,
+): Promise<ArrayBuffer>
 ```
 
 - `deviceId` — The device ID/address.
@@ -612,7 +618,12 @@ function setProvider(provider: BluetoothProvider): void
 Start notifications for a characteristic on a connected Bluetooth device.
 
 ```typescript
-function startNotifications(deviceId: string, serviceUuid: string, characteristicUuid: string, callback: (value: ArrayBuffer) => void): () => void
+function startNotifications(
+  deviceId: string,
+  serviceUuid: string,
+  characteristicUuid: string,
+  callback: (value: ArrayBuffer) => void,
+): () => void
 ```
 
 - `deviceId` — The device ID/address.
@@ -652,7 +663,13 @@ function stringToBuffer(str: string): ArrayBuffer
 Write a value to a characteristic on a connected Bluetooth device.
 
 ```typescript
-function write(deviceId: string, serviceUuid: string, characteristicUuid: string, value: ArrayBuffer, options?: WriteOptions): Promise<void>
+function write(
+  deviceId: string,
+  serviceUuid: string,
+  characteristicUuid: string,
+  value: ArrayBuffer,
+  options?: WriteOptions,
+): Promise<void>
 ```
 
 - `deviceId` — The device ID/address.
@@ -670,7 +687,16 @@ function write(deviceId: string, serviceUuid: string, characteristicUuid: string
 Standard BLE characteristic UUIDs
 
 ```typescript
-const StandardCharacteristics: { readonly DEVICE_NAME: "00002a00-0000-1000-8000-00805f9b34fb"; readonly APPEARANCE: "00002a01-0000-1000-8000-00805f9b34fb"; readonly BATTERY_LEVEL: "00002a19-0000-1000-8000-00805f9b34fb"; readonly MANUFACTURER_NAME: "00002a29-0000-1000-8000-00805f9b34fb"; readonly MODEL_NUMBER: "00002a24-0000-1000-8000-00805f9b34fb"; readonly SERIAL_NUMBER: "00002a25-0000-1000-8000-00805f9b34fb"; readonly FIRMWARE_REVISION: "00002a26-0000-1000-8000-00805f9b34fb"; readonly HEART_RATE_MEASUREMENT: "00002a37-0000-1000-8000-00805f9b34fb"; }
+const StandardCharacteristics: {
+  readonly DEVICE_NAME: '00002a00-0000-1000-8000-00805f9b34fb'
+  readonly APPEARANCE: '00002a01-0000-1000-8000-00805f9b34fb'
+  readonly BATTERY_LEVEL: '00002a19-0000-1000-8000-00805f9b34fb'
+  readonly MANUFACTURER_NAME: '00002a29-0000-1000-8000-00805f9b34fb'
+  readonly MODEL_NUMBER: '00002a24-0000-1000-8000-00805f9b34fb'
+  readonly SERIAL_NUMBER: '00002a25-0000-1000-8000-00805f9b34fb'
+  readonly FIRMWARE_REVISION: '00002a26-0000-1000-8000-00805f9b34fb'
+  readonly HEART_RATE_MEASUREMENT: '00002a37-0000-1000-8000-00805f9b34fb'
+}
 ```
 
 #### `StandardServices`
@@ -678,7 +704,15 @@ const StandardCharacteristics: { readonly DEVICE_NAME: "00002a00-0000-1000-8000-
 Standard BLE service UUIDs
 
 ```typescript
-const StandardServices: { readonly GENERIC_ACCESS: "00001800-0000-1000-8000-00805f9b34fb"; readonly GENERIC_ATTRIBUTE: "00001801-0000-1000-8000-00805f9b34fb"; readonly DEVICE_INFORMATION: "0000180a-0000-1000-8000-00805f9b34fb"; readonly BATTERY: "0000180f-0000-1000-8000-00805f9b34fb"; readonly HEART_RATE: "0000180d-0000-1000-8000-00805f9b34fb"; readonly HEALTH_THERMOMETER: "00001809-0000-1000-8000-00805f9b34fb"; readonly BLOOD_PRESSURE: "00001810-0000-1000-8000-00805f9b34fb"; }
+const StandardServices: {
+  readonly GENERIC_ACCESS: '00001800-0000-1000-8000-00805f9b34fb'
+  readonly GENERIC_ATTRIBUTE: '00001801-0000-1000-8000-00805f9b34fb'
+  readonly DEVICE_INFORMATION: '0000180a-0000-1000-8000-00805f9b34fb'
+  readonly BATTERY: '0000180f-0000-1000-8000-00805f9b34fb'
+  readonly HEART_RATE: '0000180d-0000-1000-8000-00805f9b34fb'
+  readonly HEALTH_THERMOMETER: '00001809-0000-1000-8000-00805f9b34fb'
+  readonly BLOOD_PRESSURE: '00001810-0000-1000-8000-00805f9b34fb'
+}
 ```
 
 ## Injection Notes
@@ -686,6 +720,7 @@ const StandardServices: { readonly GENERIC_ACCESS: "00001800-0000-1000-8000-0080
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                  | English           |
+| -------------------- | ----------------- |
 | `video.source.label` | Source {{number}} |
 
 ## Metadata

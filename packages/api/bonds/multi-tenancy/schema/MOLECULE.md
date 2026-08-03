@@ -38,9 +38,11 @@ setProvider(secureProvider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-multi-tenancy-schema @molecule/api-multi-tenancy
 ```
@@ -53,7 +55,7 @@ npm install @molecule/api-multi-tenancy-schema @molecule/api-multi-tenancy
 
 Configuration options for the multi-tenancy provider.
 
-NOTE: this provider tracks tenant *context* only — it does no database work
+NOTE: this provider tracks tenant _context_ only — it does no database work
 and does not scope queries. There is intentionally no `schemaPrefix` option,
 because no schema is ever created or selected; per-tenant DATA isolation is
 the application's responsibility (filter queries by `getTenant()`).
@@ -109,7 +111,7 @@ interface SchemaConfig {
 
 #### `AuthorizedTenantResolver`
 
-Resolves the tenant id(s) the *authenticated principal* of a request is
+Resolves the tenant id(s) the _authenticated principal_ of a request is
 permitted to act as — typically read from a verified session/JWT on the
 request (e.g. `req.user.tenantIds`), never from the client-supplied header.
 
@@ -166,6 +168,7 @@ const provider: TenancyProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-multi-tenancy` interface.
 
 ## Bond Wiring
@@ -186,6 +189,7 @@ export function setupMultiTenancySchema(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-multi-tenancy` ^1.0.0
 
 ### Runtime Dependencies
@@ -216,7 +220,7 @@ Peer dependencies:
    schema is created or selected, and queries are NOT scoped for you:
    enforcing per-tenant DATA isolation is the application's job — read
    `getTenant()` in your data layer and filter every query by it (e.g. a
-   `tenant_id` column). The package name refers to the *intended*
+   `tenant_id` column). The package name refers to the _intended_
    schema-per-tenant strategy; the actual schema DDL / `search_path`
    scoping is not implemented here (there is no `schemaPrefix` option —
    it would only mislead), so treat this bond as a tenant-context tracker,
@@ -224,25 +228,26 @@ Peer dependencies:
 
 ## E2E Tests
 
-Integration checklist — this bond provides the tenant *context* + a secure
+Integration checklist — this bond provides the tenant _context_ + a secure
 header middleware; it does NOT isolate data, so the app must scope its own
 queries. Drive the real UI (live preview, no mocks) and check every box:
+
 - [ ] Secure header handling: with `resolveAuthorizedTenantIds` wired, a
-  request carrying a spoofed `x-tenant-id` for a tenant the authenticated
-  caller is NOT a member of is rejected (403) and never activates that
-  tenant; the same call with the caller's own tenant succeeds.
+      request carrying a spoofed `x-tenant-id` for a tenant the authenticated
+      caller is NOT a member of is rejected (403) and never activates that
+      tenant; the same call with the caller's own tenant succeeds.
 - [ ] Request-scoped context: inside a request `getTenant()` returns that
-  request's tenant across `await`s, and two concurrent requests never see
-  each other's tenant (no bleed).
+      request's tenant across `await`s, and two concurrent requests never see
+      each other's tenant (no bleed).
 - [ ] App-enforced data isolation (THIS bond does not do it for you): every
-  read/write path filters by `getTenant()` (e.g. a `tenant_id` column).
-  Create records as tenant A, then as tenant B confirm none of A's data is
-  visible or reachable anywhere B can look (lists, detail, search, exports),
-  and vice-versa. A box you can't check is an isolation bug in YOUR data
-  layer to fix, never a skip.
+      read/write path filters by `getTenant()` (e.g. a `tenant_id` column).
+      Create records as tenant A, then as tenant B confirm none of A's data is
+      visible or reachable anywhere B can look (lists, detail, search, exports),
+      and vice-versa. A box you can't check is an isolation bug in YOUR data
+      layer to fix, never a skip.
 - [ ] No IDOR across the boundary: as tenant B, hitting a record id that
-  belongs to A returns 403/404, never A's data — your handlers re-check
-  tenant membership server-side on every access, not just at list time.
+      belongs to A returns 403/404, never A's data — your handlers re-check
+      tenant membership server-side on every access, not just at list time.
 - [ ] Registry lifecycle: `createTenant`/`listTenants`/`deleteTenant` reflect
-  the in-process registry; tenants are per-process and lost on restart, so
-  back them with a persistent store before relying on them in production.
+      the in-process registry; tenants are per-process and lost on restart, so
+      back them with a persistent store before relying on them in production.

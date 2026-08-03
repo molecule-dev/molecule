@@ -9,7 +9,7 @@ Exports `<ComparisonRow>`.
 ```tsx
 import { ComparisonRow } from '@molecule/app-comparison-row-react'
 
-<ComparisonRow
+;<ComparisonRow
   label="Revenue"
   current="$24,800"
   previous="$21,300"
@@ -19,9 +19,11 @@ import { ComparisonRow } from '@molecule/app-comparison-row-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-comparison-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -81,6 +83,7 @@ function ComparisonRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

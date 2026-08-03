@@ -34,12 +34,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `auth.error.requestFailed` | Request failed |
-| `auth.error.loginFailed` | Login failed |
-| `auth.error.registrationFailed` | Registration failed |
-| `auth.error.noRefreshToken` | No refresh token available |
+| Key                             | English                    |
+| ------------------------------- | -------------------------- |
+| `auth.error.requestFailed`      | Request failed             |
+| `auth.error.loginFailed`        | Login failed               |
+| `auth.error.registrationFailed` | Registration failed        |
+| `auth.error.noRefreshToken`     | No refresh token available |
 
 ## Metadata
 

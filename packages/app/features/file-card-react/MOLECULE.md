@@ -3,6 +3,7 @@
 React file card primitives.
 
 Exports:
+
 - `<FileCard>` — file representation card (icon/thumbnail + name + size + modified date + optional actions).
   Two layouts: `'grid'` (square tile, default) and `'row'` (horizontal list line).
 - `<FileIcon>` — stroke-currentColor SVG glyph keyed by `FileKind`.
@@ -36,9 +37,11 @@ const file: FileSummary = {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-file-card-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -121,15 +124,7 @@ Supported file kinds. Drives icon selection and the "<kind>" portion of
 the aria label translation key (e.g. `file-card.kind.image`).
 
 ```typescript
-type FileKind =
-  | 'image'
-  | 'video'
-  | 'audio'
-  | 'document'
-  | 'archive'
-  | 'code'
-  | 'folder'
-  | 'other'
+type FileKind = 'image' | 'video' | 'audio' | 'document' | 'archive' | 'code' | 'folder' | 'other'
 ```
 
 #### `RelativeBucket`
@@ -177,6 +172,7 @@ cloud-file-manager grids/lists, social-media + email-client attachment
 previews, and document-collaboration sidebars.
 
 Two layouts:
+
 - `'grid'` (default) — square tile with the icon/thumbnail stacked above
   the metadata. Suitable for finder-style grids and attachment galleries.
 - `'row'` — horizontal line item with the icon on the left, metadata in
@@ -250,6 +246,7 @@ function relativeBucket(at: string | number | Date, now?: Date): RelativeBucket
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

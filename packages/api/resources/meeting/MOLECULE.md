@@ -29,9 +29,11 @@ await createActionItem(meeting.id, userId, { description: 'Send recap' })
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-meeting @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -100,7 +102,16 @@ type MeetingStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
 Creates a new action item under a meeting owned by the given owner; returns the inserted row or null if the meeting is not found/owned.
 
 ```typescript
-function createActionItem(meetingId: string, ownerId: string, data: { description: string; assignee?: string | null; due_date?: string | null; source_excerpt?: string | null; }): Promise<ActionItemRow | null>
+function createActionItem(
+  meetingId: string,
+  ownerId: string,
+  data: {
+    description: string
+    assignee?: string | null
+    due_date?: string | null
+    source_excerpt?: string | null
+  },
+): Promise<ActionItemRow | null>
 ```
 
 #### `createMeetingForOwner(ownerId, data)`
@@ -108,7 +119,15 @@ function createActionItem(meetingId: string, ownerId: string, data: { descriptio
 Creates a new meeting record owned by the given owner and returns the inserted row.
 
 ```typescript
-function createMeetingForOwner(ownerId: string, data: { title: string; description?: string | null; scheduled_at?: string | null; attendees?: Array<{ name: string; email?: string; }>; }): Promise<MeetingRow>
+function createMeetingForOwner(
+  ownerId: string,
+  data: {
+    title: string
+    description?: string | null
+    scheduled_at?: string | null
+    attendees?: Array<{ name: string; email?: string }>
+  },
+): Promise<MeetingRow>
 ```
 
 #### `createMeetingRouter()`
@@ -156,7 +175,10 @@ function listActionItems(meetingId: string, ownerId: string): Promise<ActionItem
 Returns a paginated list of meetings belonging to the given owner, optionally filtered by status.
 
 ```typescript
-function listMeetingsForOwner(ownerId: string, opts?: { status?: MeetingStatus; page?: number; limit?: number; }): Promise<{ data: MeetingRow[]; total: number; }>
+function listMeetingsForOwner(
+  ownerId: string,
+  opts?: { status?: MeetingStatus; page?: number; limit?: number },
+): Promise<{ data: MeetingRow[]; total: number }>
 ```
 
 #### `updateActionItem(itemId, meetingId, ownerId, patch)`
@@ -164,7 +186,12 @@ function listMeetingsForOwner(ownerId: string, opts?: { status?: MeetingStatus; 
 Applies a partial patch to an action item; returns the updated row or null if the meeting or item is not found/owned.
 
 ```typescript
-function updateActionItem(itemId: string, meetingId: string, ownerId: string, patch: Partial<ActionItemRow>): Promise<ActionItemRow | null>
+function updateActionItem(
+  itemId: string,
+  meetingId: string,
+  ownerId: string,
+  patch: Partial<ActionItemRow>,
+): Promise<ActionItemRow | null>
 ```
 
 #### `updateMeetingForOwner(meetingId, ownerId, patch)`
@@ -172,7 +199,11 @@ function updateActionItem(itemId: string, meetingId: string, ownerId: string, pa
 Applies a partial patch to a meeting, recomputing duration_seconds when both timestamps are present, and returns the updated row or null if not found/owned.
 
 ```typescript
-function updateMeetingForOwner(meetingId: string, ownerId: string, patch: Partial<MeetingRow>): Promise<MeetingRow | null>
+function updateMeetingForOwner(
+  meetingId: string,
+  ownerId: string,
+  patch: Partial<MeetingRow>,
+): Promise<MeetingRow | null>
 ```
 
 ### Constants
@@ -182,7 +213,15 @@ function updateMeetingForOwner(meetingId: string, ownerId: string, patch: Partia
 Zod schema for validating action item creation payloads.
 
 ```typescript
-const actionItemCreateSchema: z.ZodObject<{ description: z.ZodString; assignee: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; source_excerpt: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const actionItemCreateSchema: z.ZodObject<
+  {
+    description: z.ZodString
+    assignee: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    source_excerpt: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `actionItemUpdateSchema`
@@ -190,7 +229,16 @@ const actionItemCreateSchema: z.ZodObject<{ description: z.ZodString; assignee: 
 Zod schema for validating action item update payloads.
 
 ```typescript
-const actionItemUpdateSchema: z.ZodObject<{ description: z.ZodOptional<z.ZodString>; assignee: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; source_excerpt: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; is_completed: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const actionItemUpdateSchema: z.ZodObject<
+  {
+    description: z.ZodOptional<z.ZodString>
+    assignee: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    source_excerpt: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    is_completed: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `MEETING_STATUSES`
@@ -198,7 +246,7 @@ const actionItemUpdateSchema: z.ZodObject<{ description: z.ZodOptional<z.ZodStri
 All valid status values a meeting can be in.
 
 ```typescript
-const MEETING_STATUSES: readonly ["scheduled", "in_progress", "completed", "cancelled"]
+const MEETING_STATUSES: readonly ['scheduled', 'in_progress', 'completed', 'cancelled']
 ```
 
 #### `meetingCreateSchema`
@@ -206,7 +254,19 @@ const MEETING_STATUSES: readonly ["scheduled", "in_progress", "completed", "canc
 Zod schema for validating meeting creation payloads.
 
 ```typescript
-const meetingCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; attendees: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString>; }, z.core.$strip>>>; }, z.core.$strip>
+const meetingCreateSchema: z.ZodObject<
+  {
+    title: z.ZodString
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    attendees: z.ZodOptional<
+      z.ZodArray<
+        z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString> }, z.core.$strip>
+      >
+    >
+  },
+  z.core.$strip
+>
 ```
 
 #### `meetingUpdateSchema`
@@ -214,7 +274,32 @@ const meetingCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodO
 Zod schema for validating meeting update payloads.
 
 ```typescript
-const meetingUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; status: z.ZodOptional<z.ZodEnum<{ scheduled: "scheduled"; in_progress: "in_progress"; completed: "completed"; cancelled: "cancelled"; }>>; scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; started_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; ended_at: z.ZodOptional<z.ZodNullable<z.ZodString>>; recording_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; transcript: z.ZodOptional<z.ZodNullable<z.ZodString>>; summary: z.ZodOptional<z.ZodNullable<z.ZodString>>; attendees: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString>; }, z.core.$strip>>>; }, z.core.$strip>
+const meetingUpdateSchema: z.ZodObject<
+  {
+    title: z.ZodOptional<z.ZodString>
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    status: z.ZodOptional<
+      z.ZodEnum<{
+        scheduled: 'scheduled'
+        in_progress: 'in_progress'
+        completed: 'completed'
+        cancelled: 'cancelled'
+      }>
+    >
+    scheduled_at: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    started_at: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    ended_at: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    recording_url: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    transcript: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    summary: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    attendees: z.ZodOptional<
+      z.ZodArray<
+        z.ZodObject<{ name: z.ZodString; email: z.ZodOptional<z.ZodString> }, z.core.$strip>
+      >
+    >
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -222,6 +307,7 @@ const meetingUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; desc
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

@@ -25,7 +25,11 @@ without persisting state.
 ## Quick Start
 
 ```typescript
-import { expandOccurrences, nextOccurrence, type RecurrenceRule } from '@molecule/api-recurring-schedule'
+import {
+  expandOccurrences,
+  nextOccurrence,
+  type RecurrenceRule,
+} from '@molecule/api-recurring-schedule'
 
 const rule: RecurrenceRule = {
   frequency: 'WEEKLY',
@@ -45,9 +49,11 @@ expandOccurrences(rule, {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-recurring-schedule
 ```
@@ -173,7 +179,11 @@ Expands a rule into all occurrences that fall inside the half-open
 window `[window.start, window.end)`.
 
 ```typescript
-function expandOccurrences(rule: RecurrenceRule, window: OccurrenceWindow, options?: OccurrenceOptions): string[]
+function expandOccurrences(
+  rule: RecurrenceRule,
+  window: OccurrenceWindow,
+  options?: OccurrenceOptions,
+): string[]
 ```
 
 - `rule` — The recurrence rule.
@@ -190,7 +200,11 @@ has terminated (via `count`/`until`) before then.
 The seed `startDate` itself counts as the first occurrence.
 
 ```typescript
-function nextOccurrence(rule: RecurrenceRule, after?: string | Date, options?: OccurrenceOptions): string | null
+function nextOccurrence(
+  rule: RecurrenceRule,
+  after?: string | Date,
+  options?: OccurrenceOptions,
+): string | null
 ```
 
 - `rule` — The recurrence rule.

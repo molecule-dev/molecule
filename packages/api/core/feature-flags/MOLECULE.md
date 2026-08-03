@@ -27,9 +27,11 @@ const flags = await evaluateForUser('user-123')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-feature-flags @molecule/api-bond @molecule/api-i18n
 ```
@@ -303,8 +305,8 @@ function setProvider(provider: FeatureFlagProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider      | Package                                |
+| ------------- | -------------------------------------- |
 | Feature Flags | `@molecule/api-feature-flags-database` |
 
 ## Injection Notes
@@ -312,6 +314,7 @@ function setProvider(provider: FeatureFlagProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -342,26 +345,27 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A flag actually GATES behavior: with the flag OFF the feature it
-  guards is hidden/disabled in the UI; flip it ON from the admin screen (or
-  `setFlag`) and reload — the feature appears with no code change or rebuild.
-  Turn it back OFF and it disappears again.
+      guards is hidden/disabled in the UI; flip it ON from the admin screen (or
+      `setFlag`) and reload — the feature appears with no code change or rebuild.
+      Turn it back OFF and it disappears again.
 - [ ] Targeting evaluates PER USER: for a rule- or percentage-flag, a user
-  inside the segment (matching `attributes`/rollout) sees the feature and a
-  user outside it does not — verify by signing in as each and via
-  `isEnabled(flag, { userId, attributes })` / `evaluateForUser(userId)`
-  returning the right boolean for each. The same user's result is sticky
-  across reloads, not flickering between requests.
+      inside the segment (matching `attributes`/rollout) sees the feature and a
+      user outside it does not — verify by signing in as each and via
+      `isEnabled(flag, { userId, attributes })` / `evaluateForUser(userId)`
+      returning the right boolean for each. The same user's result is sticky
+      across reloads, not flickering between requests.
 - [ ] An UNDEFINED flag (never created) evaluates to the SAFE default:
-  `isEnabled('does-not-exist', ctx)` returns false and the guarded feature
-  stays hidden — it does NOT throw or fall open.
+      `isEnabled('does-not-exist', ctx)` returns false and the guarded feature
+      stays hidden — it does NOT throw or fall open.
 - [ ] Flag reads are cheap on the hot path — evaluation is server-side and
-  cached, not a DB round-trip per render — and a toggle propagates promptly
-  (within a reload / short cache window), not only after a restart.
+      cached, not a DB round-trip per render — and a toggle propagates promptly
+      (within a reload / short cache window), not only after a restart.
 - [ ] The gate is enforced SERVER-SIDE, not just in the UI: calling the API
-  route the flag protects with the flag OFF is rejected, not merely hidden
-  (a client-side flag gate is UX, not security).
+      route the flag protects with the flag OFF is rejected, not merely hidden
+      (a client-side flag gate is UX, not security).
 - [ ] ADMIN-ONLY writes: only an authorized admin can create/toggle/delete
-  flags. A normal signed-in user hitting the flag-CRUD endpoints
-  (`setFlag`/`deleteFlag`/`getAllFlags`) is rejected — they can't flip a flag
-  or read raw flag definitions/rules through any exposed route.
+      flags. A normal signed-in user hitting the flag-CRUD endpoints
+      (`setFlag`/`deleteFlag`/`getAllFlags`) is rejected — they can't flip a flag
+      or read raw flag definitions/rules through any exposed route.

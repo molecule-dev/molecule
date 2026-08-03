@@ -24,17 +24,21 @@ import { createProvider } from '@molecule/api-sms-twilio'
 setProvider(createProvider())
 
 // Or with explicit config
-setProvider(createProvider({
-  accountSid: 'AC...',
-  authToken: 'xxx',
-  defaultFrom: '+15551234567',
-}))
+setProvider(
+  createProvider({
+    accountSid: 'AC...',
+    authToken: 'xxx',
+    defaultFrom: '+15551234567',
+  }),
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-sms-twilio @molecule/api-logger @molecule/api-secrets @molecule/api-sms twilio
 ```
@@ -92,6 +96,7 @@ const smsTwilioSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-sms` interface.
 
 ## Injection Notes
@@ -99,20 +104,21 @@ Implements `@molecule/api-sms` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-sms` 1.0.0
 
 ### Environment Variables
 
-- `TWILIO_ACCOUNT_SID` *(required)* — Twilio account SID
+- `TWILIO_ACCOUNT_SID` _(required)_ — Twilio account SID
   - Setup: Copy the Account SID from the Twilio Console dashboard.
   - Get it here: [https://console.twilio.com/](https://console.twilio.com/)
   - Example: `AC...`
-- `TWILIO_AUTH_TOKEN` *(required)* — Twilio auth token
+- `TWILIO_AUTH_TOKEN` _(required)_ — Twilio auth token
   - Setup: Copy the Auth Token from the Twilio Console dashboard.
   - Get it here: [https://console.twilio.com/](https://console.twilio.com/)
-- `TWILIO_FROM_NUMBER` *(required)* — Twilio from number
+- `TWILIO_FROM_NUMBER` _(required)_ — Twilio from number
   - Setup: Buy or verify a phone number in Twilio and use it in E.164 format.
   - Get it here: [https://console.twilio.com/us1/develop/phone-numbers/manage/incoming](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming)
   - Example: `+15551234567`
@@ -138,13 +144,14 @@ category.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each SMS-triggering flow (phone verification, OTP login, alerts the
-  app defines) confirms the send in the UI and a message actually reaches
-  the transport. The sandbox CAPTURES outbound SMS instead of sending — read
-  it with the `read_activity` tool (filter type 'sms'); the code/link is in
-  its payload. Never mock the flow or modify production code to expose it.
+      app defines) confirms the send in the UI and a message actually reaches
+      the transport. The sandbox CAPTURES outbound SMS instead of sending — read
+      it with the `read_activity` tool (filter type 'sms'); the code/link is in
+      its payload. Never mock the flow or modify production code to expose it.
 - [ ] The OTP round-trip completes: request a code → read the captured
-  message's code → enter it in the UI → the flow advances; a wrong or
-  expired code is rejected with a visible error.
+      message's code → enter it in the UI → the flow advances; a wrong or
+      expired code is rejected with a visible error.
 - [ ] Messages go only to the authenticated user's own verified number — no
-  UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).
+      UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).

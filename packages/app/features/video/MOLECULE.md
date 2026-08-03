@@ -28,9 +28,11 @@ player.on('ended', () => console.log('Playback finished'))
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-video @molecule/app-bond @molecule/app-i18n
 ```
@@ -795,6 +797,7 @@ function setProvider(provider: VideoProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` 1.0.0
 

@@ -23,9 +23,11 @@ const dispatched = rankScore('reddit-hot', item, ctx)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-rank-score
 ```
@@ -167,11 +169,12 @@ Reddit's "best" ranking — Wilson score lower-bound of the 95% confidence
 interval for the proportion of upvotes. Time-independent.
 
 Edge cases:
-  - `ups + downs === 0` → returns `0`.
-  - All upvotes (downs=0) → bounded above by `<1`, but still grows with
-    more votes (more confidence).
-  - Tied votes → returns the lower bound of the 50% proportion at that
-    sample size.
+
+- `ups + downs === 0` → returns `0`.
+- All upvotes (downs=0) → bounded above by `<1`, but still grows with
+  more votes (more confidence).
+- Tied votes → returns the lower bound of the 50% proportion at that
+  sample size.
 
 ```typescript
 function redditBestScore(item: RankItem): number
@@ -203,7 +206,7 @@ function redditControversialScore(item: RankItem): number
 #### `redditHotScore(item, ctx)`
 
 Reddit's "hot" ranking — `log10(|score|) + sign(score) * t / 45000`,
-where `t` is the item's age in seconds *relative to a fixed epoch*
+where `t` is the item's age in seconds _relative to a fixed epoch_
 (Reddit uses `2005-12-08T07:46:43Z`). We approximate by using the
 provided `ctx.now` as the epoch — the **relative** ordering between
 items at the same `now` is what matters, which matches Reddit's

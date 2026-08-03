@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-analytics` package which has 2 tran
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-analytics'
-import type { AnalyticsTranslationKey, AnalyticsTranslations } from '@molecule/api-locales-analytics'
+import type {
+  AnalyticsTranslationKey,
+  AnalyticsTranslations,
+} from '@molecule/api-locales-analytics'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `analytics.error.noProvider` | Analytics provider not configured. Call setProvider() first. |
-| `analytics.error.noGroupSupport` | Analytics provider does not support group(). |
+| Key                              | English                                                      |
+| -------------------------------- | ------------------------------------------------------------ |
+| `analytics.error.noProvider`     | Analytics provider not configured. Call setProvider() first. |
+| `analytics.error.noGroupSupport` | Analytics provider does not support group().                 |
 
 ## Metadata
 

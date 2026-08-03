@@ -24,9 +24,11 @@ decode(token) // NOT verified — never use its output for an auth decision
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-jwt @molecule/api-bond
 ```
@@ -141,8 +143,7 @@ type JSONObject = { [key: string]: JSONValue }
 Recursive JSON value type representing any valid JSON primitive, array, or object.
 
 ```typescript
-type JSONValue =
-  string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
+type JSONValue = string | number | boolean | null | JSONValue[] | { [key: string]: JSONValue }
 ```
 
 #### `JwtAlgorithm`
@@ -186,7 +187,7 @@ function decode(token: string, options?: JwtDecodeOptions): string | JwtPayload 
 Generates an RSA-2048 key pair in PEM format for JWT signing and verification.
 
 ```typescript
-function generateKeyPairSync(): { publicKey: string; privateKey: string; }
+function generateKeyPairSync(): { publicKey: string; privateKey: string }
 ```
 
 **Returns:** An object containing `publicKey` and `privateKey` as PEM strings.
@@ -228,7 +229,11 @@ Signs a payload into a JWT string using the bonded provider. Uses the
 configured algorithm, expiry, and private key as defaults.
 
 ```typescript
-function sign(object: JSONObject, { algorithm = JWT_ALGORITHM, expiresIn = JWT_EXPIRES_TIME, ...rest }?: JwtSignOptions, privateKey?: string | Buffer<ArrayBufferLike>): string
+function sign(
+  object: JSONObject,
+  { algorithm = JWT_ALGORITHM, expiresIn = JWT_EXPIRES_TIME, ...rest }?: JwtSignOptions,
+  privateKey?: string | Buffer<ArrayBufferLike>,
+): string
 ```
 
 - `object` — The JSON payload to sign.
@@ -245,7 +250,11 @@ Verifies a JWT string and returns the decoded payload. Uses the configured
 algorithm and public key as defaults.
 
 ```typescript
-function verify(token: string, { algorithms = [JWT_ALGORITHM], ...rest }?: JwtVerifyOptions, publicKey?: string | Buffer<ArrayBufferLike>): string | JwtPayload
+function verify(
+  token: string,
+  { algorithms = [JWT_ALGORITHM], ...rest }?: JwtVerifyOptions,
+  publicKey?: string | Buffer<ArrayBufferLike>,
+): string | JwtPayload
 ```
 
 - `token` — The JWT string to verify.
@@ -327,8 +336,8 @@ const JWT_REFRESH_TIME: number
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider         | Package                          |
+| ---------------- | -------------------------------- |
 | JWT signing keys | `@molecule/api-jwt-jsonwebtoken` |
 
 ## Injection Notes
@@ -336,6 +345,7 @@ const JWT_REFRESH_TIME: number
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -361,7 +371,7 @@ anything security-relevant; `decode()` is only for reading a token you do NOT tr
   always sets `expiresIn` (default {@link JWT_EXPIRES_TIME}), and the underlying library
   throws (`Bad "options.expiresIn" option the payload already has an "exp" property`)
   when the payload still carries the old `exp` — so `const { exp, iat, ...claims } =
-  verify(oldToken) as JwtPayload; sign(claims)` is the correct refresh shape.
+verify(oldToken) as JwtPayload; sign(claims)` is the correct refresh shape.
 - Set `JWT_PRIVATE_KEY` and `JWT_PUBLIC_KEY` together (or neither). If only the private
   key is set, the matching public key is DERIVED from it automatically; setting only the
   public key is for verify-only deployments.

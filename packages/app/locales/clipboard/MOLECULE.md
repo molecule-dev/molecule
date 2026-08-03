@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-clipboard` package which has 2 tran
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-clipboard'
-import type { ClipboardTranslationKey, ClipboardTranslations } from '@molecule/app-locales-clipboard'
+import type {
+  ClipboardTranslationKey,
+  ClipboardTranslations,
+} from '@molecule/app-locales-clipboard'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `clipboard.error.noProvider` | @molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-react-native). |
-| `clipboard.warn.onChangeNotSupported` | @molecule/app-clipboard: onChange not supported by provider |
+| Key                                   | English                                                                                                                                                 |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `clipboard.error.noProvider`          | @molecule/app-clipboard: No provider set. Call setProvider() with a ClipboardProvider implementation (e.g., from @molecule/app-clipboard-react-native). |
+| `clipboard.warn.onChangeNotSupported` | @molecule/app-clipboard: onChange not supported by provider                                                                                             |
 
 ## Metadata
 

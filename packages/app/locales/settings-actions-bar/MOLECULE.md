@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-settings-actions-bar-react` package
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-settings-actions-bar'
-import type { SettingsActionsBarTranslationKey, SettingsActionsBarTranslations } from '@molecule/app-locales-settings-actions-bar'
+import type {
+  SettingsActionsBarTranslationKey,
+  SettingsActionsBarTranslations,
+} from '@molecule/app-locales-settings-actions-bar'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `settingsActions.cancel` | Cancel |
-| `settingsActions.saving` | Saving… |
-| `settingsActions.save` | Save changes |
-| `settingsActions.saved` | Saved {{at}} |
+| Key                      | English      |
+| ------------------------ | ------------ |
+| `settingsActions.cancel` | Cancel       |
+| `settingsActions.saving` | Saving…      |
+| `settingsActions.save`   | Save changes |
+| `settingsActions.saved`  | Saved {{at}} |
 
 ## Metadata
 

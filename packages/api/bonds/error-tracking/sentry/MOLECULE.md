@@ -20,9 +20,11 @@ captureException(new Error('boom'), { tags: { source: 'worker' } })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-error-tracking-sentry @molecule/api-bond @molecule/api-error-tracking @molecule/api-secrets @sentry/node
 ```
@@ -49,6 +51,7 @@ const sentrySecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-error-tracking` interface.
 
 ## Bond Wiring
@@ -69,20 +72,21 @@ export function setupErrorTrackingSentry(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-error-tracking` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `SENTRY_DSN` *(required)* — Sentry DSN
+- `SENTRY_DSN` _(required)_ — Sentry DSN
   - Setup: Sentry → Settings → Projects → your project → Client Keys (DSN); copy the DSN. Until it is set the bond is a no-op (no events are sent).
   - Get it here: [https://sentry.io/settings/projects/](https://sentry.io/settings/projects/)
   - Example: `https://examplePublicKey@o0.ingest.sentry.io/0`
-- `SENTRY_ENVIRONMENT` *(optional)* — Sentry environment
+- `SENTRY_ENVIRONMENT` _(optional)_ — Sentry environment
   - Setup: Environment tag applied to every event (e.g. production, staging); defaults to NODE_ENV when unset.
   - Example: `production`
-- `SENTRY_TRACES_SAMPLE_RATE` *(optional)* — Sentry traces sample rate
+- `SENTRY_TRACES_SAMPLE_RATE` _(optional)_ — Sentry traces sample rate
   - Setup: Fraction between 0 and 1 of transactions sampled for performance tracing (e.g. 0.1 = 10%); unset disables tracing.
   - Example: `0.1`
 

@@ -17,9 +17,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-import-export-csv @molecule/api-database @molecule/api-import-export
 ```
@@ -115,6 +117,7 @@ const provider: ImportExportProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-import-export` interface.
 
 ## Bond Wiring
@@ -135,6 +138,7 @@ export function setupImportExportCsv(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-import-export` ^1.0.0
 
@@ -148,16 +152,17 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Exporting from the UI downloads a file whose rows and columns match
-  the data on screen (spot-check at least one row's values).
+      the data on screen (spot-check at least one row's values).
 - [ ] Importing a valid file adds the records: they appear in the UI and
-  survive a full reload.
+      survive a full reload.
 - [ ] If the app surfaces column mapping, a file whose headers differ from
-  the field names imports into the RIGHT fields via the mapping.
+      the field names imports into the RIGHT fields via the mapping.
 - [ ] A malformed file (wrong columns, broken rows) is rejected with a
-  readable error — no silent partial import; per-row errors (if reported)
-  are truthful.
+      readable error — no silent partial import; per-row errors (if reported)
+      are truthful.
 - [ ] Re-importing the same file honors the app's duplicate policy (e.g.
-  skip-duplicates does not double the rows).
+      skip-duplicates does not double the rows).
 - [ ] Round-trip integrity: export, then re-import the same file — values,
-  encodings, and special characters come back unchanged.
+      encodings, and special characters come back unchanged.

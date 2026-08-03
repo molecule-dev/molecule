@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-danger-zone-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-danger-zone'
-import type { DangerZoneTranslationKey, DangerZoneTranslations } from '@molecule/app-locales-danger-zone'
+import type {
+  DangerZoneTranslationKey,
+  DangerZoneTranslations,
+} from '@molecule/app-locales-danger-zone'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `confirm.cancel` | Cancel |
+| Key               | English |
+| ----------------- | ------- |
+| `confirm.cancel`  | Cancel  |
 | `confirm.confirm` | Confirm |
 
 ## Metadata

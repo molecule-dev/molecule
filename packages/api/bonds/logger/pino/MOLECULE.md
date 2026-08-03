@@ -21,9 +21,11 @@ setLogger(createLogger({ name: 'api' }))
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-logger-pino @molecule/api-logger pino pino-pretty
 ```
@@ -38,11 +40,11 @@ Logger interface that all implementations must satisfy.
 
 ```typescript
 interface Logger {
-    trace(...args: unknown[]): void;
-    debug(...args: unknown[]): void;
-    info(...args: unknown[]): void;
-    warn(...args: unknown[]): void;
-    error(...args: unknown[]): void;
+  trace(...args: unknown[]): void
+  debug(...args: unknown[]): void
+  info(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
 }
 ```
 
@@ -96,7 +98,7 @@ interface PinoTransportTarget {
 Log levels supported by the logger.
 
 ```typescript
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent';
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'
 ```
 
 ### Functions
@@ -134,7 +136,9 @@ function createLogger(options?: PinoLoggerOptions): Logger
 #### `pino()`
 
 ```typescript
-function pino(optionsOrStream?: pino.LoggerOptions<CustomLevels, UseOnlyCustomLevels> | pino.DestinationStream): pino.Logger<CustomLevels, UseOnlyCustomLevels>
+function pino(
+  optionsOrStream?: pino.LoggerOptions<CustomLevels, UseOnlyCustomLevels> | pino.DestinationStream,
+): pino.Logger<CustomLevels, UseOnlyCustomLevels>
 ```
 
 **Returns:** a new logger instance.
@@ -152,6 +156,7 @@ const provider: Logger
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-logger` interface.
 
 ## Bond Wiring
@@ -172,6 +177,7 @@ export function setupLoggerPino(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 
 ### Runtime Dependencies

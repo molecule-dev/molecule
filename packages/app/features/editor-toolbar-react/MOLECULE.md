@@ -11,20 +11,28 @@ groups — and the `ToolbarAction` shape. Pair with `<EditorLayout>` from
 ```tsx
 import { EditorToolbar } from '@molecule/app-editor-toolbar-react'
 
-<EditorToolbar
+;<EditorToolbar
   title="My Blog Post"
   badge={<span>Draft</span>}
   primaryActions={[
     { id: 'save', label: 'Save', onClick: () => save(), variant: 'outline' },
-    { id: 'publish', label: 'Publish', onClick: () => publish(), variant: 'solid', color: 'primary' },
+    {
+      id: 'publish',
+      label: 'Publish',
+      onClick: () => publish(),
+      variant: 'solid',
+      color: 'primary',
+    },
   ]}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-editor-toolbar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -108,6 +116,7 @@ function EditorToolbar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

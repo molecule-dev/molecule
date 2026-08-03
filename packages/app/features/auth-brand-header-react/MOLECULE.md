@@ -29,9 +29,11 @@ export function MyAuthHeader() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-auth-brand-header-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -159,10 +161,7 @@ function AuthBrandHeaderChip({
 Renders the tagline `<p>` with a muted style and optional extra classes.
 
 ```typescript
-function AuthBrandHeaderTagline({
-  children,
-  className,
-}: AuthBrandHeaderTaglineProps): JSX.Element
+function AuthBrandHeaderTagline({ children, className }: AuthBrandHeaderTaglineProps): JSX.Element
 ```
 
 #### `AuthBrandHeaderWordmark(props)`
@@ -182,6 +181,7 @@ function AuthBrandHeaderWordmark({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

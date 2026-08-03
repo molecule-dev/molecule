@@ -26,8 +26,8 @@ bond('theme', themeProvider)
 bond('routing', 'react', routingProvider)
 
 // Retrieve providers
-const state = get<StateProvider>('state')          // undefined if not bonded
-const theme = bondRequire<ThemeProvider>('theme')  // throws if not bonded
+const state = get<StateProvider>('state') // undefined if not bonded
+const theme = bondRequire<ThemeProvider>('theme') // throws if not bonded
 const router = get('routing', 'react')
 
 // Check before using
@@ -37,9 +37,11 @@ if (isBonded('routing', 'react')) {
 ```
 
 ## Type
+
 `infrastructure`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-bond
 ```

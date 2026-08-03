@@ -23,9 +23,11 @@ import {
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-grade @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-grade @molecule/api-logger @molecule/api-permissions @molecule/api-resource
 ```
@@ -222,7 +224,7 @@ type UpdateGradeInput = Partial<
 
 #### `authenticate()`
 
-Route middleware that requires *any* authenticated session before a read route
+Route middleware that requires _any_ authenticated session before a read route
 runs (`list`, `read`, `courseAverage`). It does NOT itself scope to a user — the
 handler performs the per-row / per-resource ownership scoping (a student sees
 only their own grades; an admin sees all). Forwards `Unauthorized` to the error
@@ -246,7 +248,10 @@ Aggregate grades by an arbitrary key, summing points and counting rows.
 Internal helper — exported for tests.
 
 ```typescript
-function bucketByKey(grades: Grade[], keyOf: (g: Grade) => string): Map<string, { earnedPoints: number; possiblePoints: number; gradeCount: number; }>
+function bucketByKey(
+  grades: Grade[],
+  keyOf: (g: Grade) => string,
+): Map<string, { earnedPoints: number; possiblePoints: number; gradeCount: number }>
 ```
 
 #### `courseAverage(req, res)`
@@ -573,7 +578,7 @@ session's `permissions` array, grants grade administration without a bonded
 permissions provider.
 
 ```typescript
-const GRADE_ADMIN_PERMISSION: "grade:manage"
+const GRADE_ADMIN_PERMISSION: 'grade:manage'
 ```
 
 #### `GRADE_PERMISSION_ACTION`
@@ -582,7 +587,7 @@ Permission action checked against `@molecule/api-permissions` for grade
 administration.
 
 ```typescript
-const GRADE_PERMISSION_ACTION: "manage"
+const GRADE_PERMISSION_ACTION: 'manage'
 ```
 
 #### `GRADE_PERMISSION_RESOURCE`
@@ -591,7 +596,7 @@ Permission resource checked against `@molecule/api-permissions` for grade
 administration.
 
 ```typescript
-const GRADE_PERMISSION_RESOURCE: "grade"
+const GRADE_PERMISSION_RESOURCE: 'grade'
 ```
 
 #### `i18nRegistered`
@@ -614,7 +619,19 @@ bare middleware string that isn't a handler-map key is silently dropped, which
 is exactly what once left the entire read side unauthenticated.
 
 ```typescript
-const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonly create: typeof create; readonly del: typeof del; readonly gpa: typeof gpa; readonly list: typeof list; readonly read: typeof read; readonly transcript: typeof transcript; readonly update: typeof update; readonly authenticate: MoleculeRequestHandler; readonly requireAdmin: MoleculeRequestHandler; readonly requireSelfOrAdmin: MoleculeRequestHandler; }
+const requestHandlerMap: {
+  readonly courseAverage: typeof courseAverage
+  readonly create: typeof create
+  readonly del: typeof del
+  readonly gpa: typeof gpa
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly transcript: typeof transcript
+  readonly update: typeof update
+  readonly authenticate: MoleculeRequestHandler
+  readonly requireAdmin: MoleculeRequestHandler
+  readonly requireSelfOrAdmin: MoleculeRequestHandler
+}
 ```
 
 #### `routes`
@@ -622,7 +639,56 @@ const requestHandlerMap: { readonly courseAverage: typeof courseAverage; readonl
 Route array for grade CRUD plus aggregate endpoints (course average, GPA, transcript).
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/grades"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/grades"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/grades/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/grades/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/grades/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/enrollments/:enrollmentId/grade-average"; readonly handler: "courseAverage"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/users/:userId/gpa"; readonly handler: "gpa"; readonly middlewares: readonly ["requireSelfOrAdmin"]; }, { readonly method: "get"; readonly path: "/users/:userId/transcript"; readonly handler: "transcript"; readonly middlewares: readonly ["requireSelfOrAdmin"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/grades'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/grades'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/grades/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/grades/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/grades/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/enrollments/:enrollmentId/grade-average'
+    readonly handler: 'courseAverage'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/users/:userId/gpa'
+    readonly handler: 'gpa'
+    readonly middlewares: readonly ['requireSelfOrAdmin']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/users/:userId/transcript'
+    readonly handler: 'transcript'
+    readonly middlewares: readonly ['requireSelfOrAdmin']
+  },
+]
 ```
 
 ## Injection Notes
@@ -630,6 +696,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/grades"; rea
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource-grade` ^1.0.0
@@ -676,38 +743,39 @@ skip. Note that out of the box NO ONE may write grades — first grant your
 instructor/registrar role an admin session claim (isAdmin / role 'admin') or
 an `@molecule/api-permissions` `manage grade` grant, else every POST/PATCH/
 DELETE /grades correctly 403s and there is no instructor to test as.
+
 - [ ] As that instructor, enter a grade for a student on an assignment
-  (POST /grades with enrollmentId, assignmentId, the student's userId,
-  courseId, scorePoints, maxPoints); it persists (201) and — signed in AS THAT
-  STUDENT — the score and derived letter appear on their own grades view
-  (GET /grades, GET /grades/:id).
+      (POST /grades with enrollmentId, assignmentId, the student's userId,
+      courseId, scorePoints, maxPoints); it persists (201) and — signed in AS THAT
+      STUDENT — the score and derived letter appear on their own grades view
+      (GET /grades, GET /grades/:id).
 - [ ] Score is range-validated: a negative scorePoints, a scorePoints above
-  maxPoints, or maxPoints <= 0 is rejected (400 scoreOutOfRange /
-  maxPointsPositive) and nothing is persisted — a student can never end up with
-  an impossible negative or over-100% grade.
+      maxPoints, or maxPoints <= 0 is rejected (400 scoreOutOfRange /
+      maxPointsPositive) and nothing is persisted — a student can never end up with
+      an impossible negative or over-100% grade.
 - [ ] Aggregates are RIGHT, not just present: a course average
-  (GET /enrollments/:enrollmentId/grade-average) equals 100 * sum(scorePoints)
-  / sum(maxPoints) — so a big exam outweighs a small quiz because points ARE
-  the weight (there is no separate assignment-weight field) — and GPA
-  (GET /users/:userId/gpa) is the mean of each course's letter-rung gpaPoints
-  on the active scale (each course counts equally; not credit-hour weighted).
-  An assignment with NO grade row is EXCLUDED from the average, never counted
-  as zero (the defined policy); confirm adding then removing one grade moves
-  the average accordingly.
+      (GET /enrollments/:enrollmentId/grade-average) equals 100 * sum(scorePoints)
+      / sum(maxPoints) — so a big exam outweighs a small quiz because points ARE
+      the weight (there is no separate assignment-weight field) — and GPA
+      (GET /users/:userId/gpa) is the mean of each course's letter-rung gpaPoints
+      on the active scale (each course counts equally; not credit-hour weighted).
+      An assignment with NO grade row is EXCLUDED from the average, never counted
+      as zero (the defined policy); confirm adding then removing one grade moves
+      the average accordingly.
 - [ ] Editing a grade (PATCH /grades/:id) reflects immediately for the student
-  and re-derives the letter/average, and updatedAt advances. (This resource
-  stores no grader/updatedBy column — if your app audits WHO changed a grade,
-  verify that trail too; if it doesn't, don't claim an audit that isn't
-  modeled.)
+      and re-derives the letter/average, and updatedAt advances. (This resource
+      stores no grader/updatedBy column — if your app audits WHO changed a grade,
+      verify that trail too; if it doesn't, don't claim an audit that isn't
+      modeled.)
 - [ ] PRIVACY / AUTHORIZATION — a student sees ONLY their own grades: signed
-  in as student A, GET /grades never returns another student's rows (an
-  attacker-supplied ?userId= is ignored and force-scoped to A), and
-  id-guessing another student's grade / GPA / transcript / course-average
-  returns 403 (or 404), never their data.
+      in as student A, GET /grades never returns another student's rows (an
+      attacker-supplied ?userId= is ignored and force-scoped to A), and
+      id-guessing another student's grade / GPA / transcript / course-average
+      returns 403 (or 404), never their data.
 - [ ] Only the instructor/course-staff may enter or edit: as a plain student,
-  POST /grades (grading yourself or anyone else), PATCH /grades/:id to raise
-  your own score, and DELETE /grades/:id all 403 through every exposed
-  endpoint — a student can never write or alter a grade, only read their own.
+      POST /grades (grading yourself or anyone else), PATCH /grades/:id to raise
+      your own score, and DELETE /grades/:id all 403 through every exposed
+      endpoint — a student can never write or alter a grade, only read their own.
 
 ## Translations
 

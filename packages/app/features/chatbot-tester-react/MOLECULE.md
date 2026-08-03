@@ -22,7 +22,7 @@ const handleSend = async (text: string) => {
   setMessages((prev) => [...prev, { id: reply.id, role: 'assistant', content: reply.content }])
 }
 
-<ChatbotTester
+;<ChatbotTester
   messages={messages}
   onSend={handleSend}
   loading={sending}
@@ -34,9 +34,11 @@ const handleSend = async (text: string) => {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-chatbot-tester-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -177,6 +179,7 @@ function ChatbotTesterMessages({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

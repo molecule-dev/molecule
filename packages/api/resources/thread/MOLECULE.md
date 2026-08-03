@@ -25,9 +25,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-thread'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-thread @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -203,7 +205,11 @@ interface UpdateThreadInput {
 Adds a message to a thread.
 
 ```typescript
-function addMessage(threadId: string, userId: string, data: CreateMessageInput): Promise<ThreadMessage | null>
+function addMessage(
+  threadId: string,
+  userId: string,
+  data: CreateMessageInput,
+): Promise<ThreadMessage | null>
 ```
 
 - `threadId` — The thread ID to add the message to.
@@ -300,7 +306,10 @@ function deleteThread(threadId: string, userId: string): Promise<boolean>
 Retrieves paginated messages for a thread, ordered by creation date ascending.
 
 ```typescript
-function getMessages(threadId: string, options?: PaginationOptions): Promise<PaginatedResult<ThreadMessage>>
+function getMessages(
+  threadId: string,
+  options?: PaginationOptions,
+): Promise<PaginatedResult<ThreadMessage>>
 ```
 
 - `threadId` — The thread ID to get messages for.
@@ -430,7 +439,11 @@ function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Updates a message. Only the message author can update.
 
 ```typescript
-function updateMessage(messageId: string, userId: string, data: UpdateMessageInput): Promise<ThreadMessage | null>
+function updateMessage(
+  messageId: string,
+  userId: string,
+  data: UpdateMessageInput,
+): Promise<ThreadMessage | null>
 ```
 
 - `messageId` — The message ID to update.
@@ -455,7 +468,11 @@ function updateMsg(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Updates a thread. Only the thread creator can update.
 
 ```typescript
-function updateThread(threadId: string, userId: string, data: UpdateThreadInput): Promise<Thread | null>
+function updateThread(
+  threadId: string,
+  userId: string,
+  data: UpdateThreadInput,
+): Promise<Thread | null>
 ```
 
 - `threadId` — The thread ID to update.
@@ -471,7 +488,7 @@ function updateThread(threadId: string, userId: string, data: UpdateThreadInput)
 Schema for validating message creation input.
 
 ```typescript
-const createMessageSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
+const createMessageSchema: z.ZodObject<{ body: z.ZodString }, z.core.$strip>
 ```
 
 #### `createThreadSchema`
@@ -479,7 +496,14 @@ const createMessageSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
 Schema for validating thread creation input.
 
 ```typescript
-const createThreadSchema: z.ZodObject<{ title: z.ZodString; resourceType: z.ZodOptional<z.ZodString>; resourceId: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createThreadSchema: z.ZodObject<
+  {
+    title: z.ZodString
+    resourceType: z.ZodOptional<z.ZodString>
+    resourceId: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -487,7 +511,19 @@ const createThreadSchema: z.ZodObject<{ title: z.ZodString; resourceType: z.ZodO
 Handler map for thread routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly listMessages: typeof listMessages; readonly createMessage: typeof createMessage; readonly updateMsg: typeof updateMsg; readonly deleteMsg: typeof deleteMsg; readonly markThreadRead: typeof markThreadRead; readonly unread: typeof unread; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly listMessages: typeof listMessages
+  readonly createMessage: typeof createMessage
+  readonly updateMsg: typeof updateMsg
+  readonly deleteMsg: typeof deleteMsg
+  readonly markThreadRead: typeof markThreadRead
+  readonly unread: typeof unread
+}
 ```
 
 #### `routes`
@@ -495,7 +531,68 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 Routes for thread CRUD, messages, and read-tracking.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/threads"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/threads"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/threads/unread"; readonly handler: "unread"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/threads/:threadId"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/threads/:threadId"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/threads/:threadId"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/threads/:threadId/messages"; readonly handler: "listMessages"; }, { readonly method: "post"; readonly path: "/threads/:threadId/messages"; readonly handler: "createMessage"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/threads/messages/:messageId"; readonly handler: "updateMsg"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/threads/messages/:messageId"; readonly handler: "deleteMsg"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/threads/:threadId/read"; readonly handler: "markThreadRead"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/threads'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/threads'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/threads/unread'
+    readonly handler: 'unread'
+    readonly middlewares: readonly ['authenticate']
+  },
+  { readonly method: 'get'; readonly path: '/threads/:threadId'; readonly handler: 'read' },
+  {
+    readonly method: 'patch'
+    readonly path: '/threads/:threadId'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/threads/:threadId'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/threads/:threadId/messages'
+    readonly handler: 'listMessages'
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/threads/:threadId/messages'
+    readonly handler: 'createMessage'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'put'
+    readonly path: '/threads/messages/:messageId'
+    readonly handler: 'updateMsg'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/threads/messages/:messageId'
+    readonly handler: 'deleteMsg'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/threads/:threadId/read'
+    readonly handler: 'markThreadRead'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `updateMessageSchema`
@@ -503,7 +600,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/threads"; re
 Schema for validating message update input.
 
 ```typescript
-const updateMessageSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
+const updateMessageSchema: z.ZodObject<{ body: z.ZodString }, z.core.$strip>
 ```
 
 #### `updateThreadSchema`
@@ -511,7 +608,10 @@ const updateMessageSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
 Schema for validating thread update input.
 
 ```typescript
-const updateThreadSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; closed: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const updateThreadSchema: z.ZodObject<
+  { title: z.ZodOptional<z.ZodString>; closed: z.ZodOptional<z.ZodBoolean> },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -519,6 +619,7 @@ const updateThreadSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; close
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -538,15 +639,15 @@ Peer dependencies:
   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
   the rows come back; reading the response as a bare array — or `res.data` alone (which is
   the envelope) — yields an EMPTY list.
-SINGLE-USER BY DESIGN — a thread is PRIVATE to its creator. Every read and
-write, including `GET /threads/:threadId`, `GET /threads/:threadId/messages`,
-and POSTING a message, is authorized against `thread.creatorId === userId`;
-any other (or anonymous) caller gets 404 — existence is not leaked. Out of
-the box this resource does NOT support multi-participant conversations: for
-user-to-user messaging use `@molecule/api-resource-message` (participant
-model), or put your own participant/role gate (e.g. via
-`@molecule/api-resource-share`) in front of these handlers. Messages cannot
-be added to a `closed` thread.
+  SINGLE-USER BY DESIGN — a thread is PRIVATE to its creator. Every read and
+  write, including `GET /threads/:threadId`, `GET /threads/:threadId/messages`,
+  and POSTING a message, is authorized against `thread.creatorId === userId`;
+  any other (or anonymous) caller gets 404 — existence is not leaked. Out of
+  the box this resource does NOT support multi-participant conversations: for
+  user-to-user messaging use `@molecule/api-resource-message` (participant
+  model), or put your own participant/role gate (e.g. via
+  `@molecule/api-resource-share`) in front of these handlers. Messages cannot
+  be added to a `closed` thread.
 
 Session-auth prerequisite: handlers read the caller from
 `res.locals.session.userId` and fail closed with 401 — mount the routes

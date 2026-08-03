@@ -8,9 +8,11 @@ Note: For your files to remain on disk indefinitely, your server needs a permane
 Many "serverless" deployments have transient file systems, meaning that files written to them will not remain.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-uploads-filesystem @molecule/api-bond @molecule/api-i18n @molecule/api-uploads uuid
 ```
@@ -50,18 +52,18 @@ or other multipart parsers should adapt to this interface.
 
 ```typescript
 interface FileInfo {
-    /**
-     * The original filename - e.g., `some-image.jpg`.
-     */
-    filename: string;
-    /**
-     * The file's encoding - e.g., `7bit`, `binary`.
-     */
-    encoding: string;
-    /**
-     * The file's MIME type - e.g., `image/jpeg`.
-     */
-    mimeType: string;
+  /**
+   * The original filename - e.g., `some-image.jpg`.
+   */
+  filename: string
+  /**
+   * The file's encoding - e.g., `7bit`, `binary`.
+   */
+  encoding: string
+  /**
+   * The file's MIME type - e.g., `image/jpeg`.
+   */
+  mimeType: string
 }
 ```
 
@@ -71,47 +73,47 @@ Properties describing an uploading/uploaded file.
 
 ```typescript
 interface UploadedFile {
-    /**
-     * The unique file identifier.
-     */
-    id: string;
-    /**
-     * The file's fieldname from the form.
-     * Used as the key for the file within `req.files` - e.g., `req.files[fieldname] = file`.
-     */
-    fieldname: string;
-    /**
-     * The original filename - e.g., `some-image.jpg`.
-     */
-    filename: string;
-    /**
-     * The file's encoding - e.g., `binary`.
-     */
-    encoding: string;
-    /**
-     * The file's mimetype - e.g., `image/jpeg`.
-     */
-    mimetype: string;
-    /**
-     * The file's size in bytes.
-     */
-    size: number;
-    /**
-     * The source stream (available during upload).
-     */
-    stream?: NodeJS.ReadableStream;
-    /**
-     * A promise that resolves when the upload completes.
-     */
-    uploadPromise?: Promise<void>;
-    /**
-     * Whether the upload has completed.
-     */
-    uploaded: boolean;
-    /**
-     * The URL/location of the uploaded file (if available).
-     */
-    location?: string;
+  /**
+   * The unique file identifier.
+   */
+  id: string
+  /**
+   * The file's fieldname from the form.
+   * Used as the key for the file within `req.files` - e.g., `req.files[fieldname] = file`.
+   */
+  fieldname: string
+  /**
+   * The original filename - e.g., `some-image.jpg`.
+   */
+  filename: string
+  /**
+   * The file's encoding - e.g., `binary`.
+   */
+  encoding: string
+  /**
+   * The file's mimetype - e.g., `image/jpeg`.
+   */
+  mimetype: string
+  /**
+   * The file's size in bytes.
+   */
+  size: number
+  /**
+   * The source stream (available during upload).
+   */
+  stream?: NodeJS.ReadableStream
+  /**
+   * A promise that resolves when the upload completes.
+   */
+  uploadPromise?: Promise<void>
+  /**
+   * Whether the upload has completed.
+   */
+  uploaded: boolean
+  /**
+   * The URL/location of the uploaded file (if available).
+   */
+  location?: string
 }
 ```
 
@@ -159,7 +161,12 @@ Streams a file upload to the local file system. Creates a UUID-named file in `up
 and pipes the readable stream into it. Tracks upload progress via `file.size`.
 
 ```typescript
-function upload(fieldname: string, stream: NodeJS.ReadableStream, info: FileInfo, onError: (error: Error) => void): File
+function upload(
+  fieldname: string,
+  stream: NodeJS.ReadableStream,
+  info: FileInfo,
+  onError: (error: Error) => void,
+): File
 ```
 
 - `fieldname` — The form field name this file was submitted under.
@@ -189,6 +196,7 @@ const uploadPath: string
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-uploads` interface.
 
 ## Bond Wiring
@@ -209,6 +217,7 @@ export function setupUploadsFilesystem(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-uploads` ^1.0.0
@@ -243,15 +252,16 @@ full cross-provider contract.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Uploading a valid file through the UI shows progress/confirmation and the
-  file appears in the user's file list.
+      file appears in the user's file list.
 - [ ] The uploaded content is retrievable: opening/downloading it returns the
-  same content (an uploaded image actually renders).
+      same content (an uploaded image actually renders).
 - [ ] A disallowed file type is rejected with a visible error and does NOT
-  appear in the list.
+      appear in the list.
 - [ ] An over-the-cap file is rejected cleanly (visible error, no partial
-  phantom entry).
+      phantom entry).
 - [ ] Ownership is enforced: a second signed-in user cannot retrieve the first
-  user's file by its id/URL (404 — not the file).
+      user's file by its id/URL (404 — not the file).
 - [ ] Deleting a file removes it from the list, and it stays gone (and
-  unretrievable) after a full reload.
+      unretrievable) after a full reload.

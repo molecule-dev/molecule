@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-brightness` package which has 1 tra
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-brightness'
-import type { BrightnessTranslationKey, BrightnessTranslations } from '@molecule/app-locales-brightness'
+import type {
+  BrightnessTranslationKey,
+  BrightnessTranslations,
+} from '@molecule/app-locales-brightness'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                           | English                                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `brightness.error.noProvider` | @molecule/app-brightness: No provider set. Call setProvider() with a BrightnessProvider implementation. |
 
 ## Metadata

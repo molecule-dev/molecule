@@ -31,9 +31,11 @@ const palette = createPalette({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-command-palette @molecule/app-bond
 ```
@@ -304,8 +306,8 @@ function setProvider(provider: CommandPaletteProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider        | Package                              |
+| --------------- | ------------------------------------ |
 | Command Palette | `@molecule/app-command-palette-cmdk` |
 
 ## Injection Notes
@@ -313,6 +315,7 @@ function setProvider(provider: CommandPaletteProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -337,14 +340,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The palette opens with the keyboard shortcut (Cmd+K / Ctrl+K) and via any
-  visible trigger, and closes with Escape.
+      visible trigger, and closes with Escape.
 - [ ] Commands render in their groups, and typing fuzzy-filters them down to
-  matches.
+      matches.
 - [ ] Selecting a navigation command actually navigates (the URL/screen
-  changes) — not just closes the palette.
+      changes) — not just closes the palette.
 - [ ] Executing an action command performs the real action with a visible
-  effect.
+      effect.
 - [ ] The whole flow works keyboard-only: arrow keys move the highlight, Enter
-  executes the highlighted command.
+      executes the highlighted command.
 - [ ] A query with no matches shows an empty state, not a stale or broken list.

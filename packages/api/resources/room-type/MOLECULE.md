@@ -20,9 +20,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-room-type'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-room-type @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-permissions @molecule/api-resource @molecule/api-resource-property
 ```
@@ -408,7 +410,14 @@ mlcl injector's route scanner preserves it — a bare middleware string that
 isn't a handler-map key is silently dropped.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly requireAdmin: MoleculeRequestHandler; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly requireAdmin: MoleculeRequestHandler
+}
 ```
 
 #### `ROOM_TYPE_ADMIN_PERMISSION`
@@ -418,7 +427,7 @@ session's `permissions` array, grants room-type administration without a bonded
 permissions provider.
 
 ```typescript
-const ROOM_TYPE_ADMIN_PERMISSION: "roomType:manage"
+const ROOM_TYPE_ADMIN_PERMISSION: 'roomType:manage'
 ```
 
 #### `ROOM_TYPE_PERMISSION_ACTION`
@@ -427,7 +436,7 @@ Permission action checked against `@molecule/api-permissions` for room-type
 administration.
 
 ```typescript
-const ROOM_TYPE_PERMISSION_ACTION: "manage"
+const ROOM_TYPE_PERMISSION_ACTION: 'manage'
 ```
 
 #### `ROOM_TYPE_PERMISSION_RESOURCE`
@@ -436,7 +445,7 @@ Permission resource checked against `@molecule/api-permissions` for room-type
 administration.
 
 ```typescript
-const ROOM_TYPE_PERMISSION_RESOURCE: "roomType"
+const ROOM_TYPE_PERMISSION_RESOURCE: 'roomType'
 ```
 
 #### `routes`
@@ -444,7 +453,28 @@ const ROOM_TYPE_PERMISSION_RESOURCE: "roomType"
 Room-type resource routes.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/room-types"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/room-types"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/room-types/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/room-types/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/room-types/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/room-types'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  { readonly method: 'get'; readonly path: '/room-types'; readonly handler: 'list' },
+  { readonly method: 'get'; readonly path: '/room-types/:id'; readonly handler: 'read' },
+  {
+    readonly method: 'patch'
+    readonly path: '/room-types/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/room-types/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+]
 ```
 
 ## Injection Notes
@@ -452,6 +482,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/room-types";
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -495,32 +526,33 @@ anywhere else run it once — nothing at runtime creates them.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating a room type persists its real fields — `name`, `capacity`,
-  `baseRateCents`, `currency`, `totalUnits`, `amenities`, `photos` — and the
-  new type then appears in the listing under its own `propertyId` (scoped to
-  the right property, not shown globally).
+      `baseRateCents`, `currency`, `totalUnits`, `amenities`, `photos` — and the
+      new type then appears in the listing under its own `propertyId` (scoped to
+      the right property, not shown globally).
 - [ ] Price and capacity render correctly on the card/detail: the rate shows
-  as a per-night price in the room type's `currency` with `baseRateCents`
-  converted back to major units (cents → dollars, no off-by-100), and
-  capacity reads as the max guest count.
+      as a per-night price in the room type's `currency` with `baseRateCents`
+      converted back to major units (cents → dollars, no off-by-100), and
+      capacity reads as the max guest count.
 - [ ] Inventory (`totalUnits`) is respected end-to-end: where the app has a
-  booking/availability flow, available count = `totalUnits` minus units
-  already booked for the dates, and a booking that would push a room type
-  past its `totalUnits` is refused — no overbooking below zero available.
-  Editing `totalUnits` up or down changes what the availability view offers.
+      booking/availability flow, available count = `totalUnits` minus units
+      already booked for the dates, and a booking that would push a room type
+      past its `totalUnits` is refused — no overbooking below zero available.
+      Editing `totalUnits` up or down changes what the availability view offers.
 - [ ] Any per-night / seasonal rate layer the app models (rate plans are NOT
-  in this resource — `baseRateCents` is only the baseline) applies on top of
-  the baseline for the selected dates; with no such layer, the baseline rate
-  is what's quoted.
+      in this resource — `baseRateCents` is only the baseline) applies on top of
+      the baseline for the selected dates; with no such layer, the baseline rate
+      is what's quoted.
 - [ ] Toggling `active` controls bookability: an inactive room type is hidden
-  from the public/guest listing (or shown as unavailable) and cannot be
-  booked; flipping it back `active` makes it offered again, and `?activeOnly`
-  on the list endpoint returns only bookable types.
+      from the public/guest listing (or shown as unavailable) and cannot be
+      booked; flipping it back `active` makes it offered again, and `?activeOnly`
+      on the list endpoint returns only bookable types.
 - [ ] `amenities` and `photos` render — amenity codes map to labels/icons and
-  photos load from the app's own uploads/storage (not hotlinked externals).
+      photos load from the app's own uploads/storage (not hotlinked externals).
 - [ ] AUTHORIZATION: a public/guest visitor (no session) can browse and read
-  bookable room types, but every mutation is owner/manager-gated — a
-  non-admin or unauthenticated caller's create/edit/delete or inventory/price
-  change is refused (401 unauthenticated, 403 non-admin) — and a room type is
-  scoped to its property: an owner/manager of one property cannot
-  create/edit/delete another property's room types.
+      bookable room types, but every mutation is owner/manager-gated — a
+      non-admin or unauthenticated caller's create/edit/delete or inventory/price
+      change is refused (401 unauthenticated, 403 non-admin) — and a room type is
+      scoped to its property: an owner/manager of one property cannot
+      create/edit/delete another property's room types.

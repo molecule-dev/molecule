@@ -19,9 +19,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-crypto-prices-coingecko @molecule/api-crypto-prices
 ```
@@ -112,10 +114,11 @@ Catch on this constant rather than parsing error messages — the message
 text is for humans only.
 
 ```typescript
-const RATE_LIMITED: "RATE_LIMITED"
+const RATE_LIMITED: 'RATE_LIMITED'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-crypto-prices` interface.
 
 ## Bond Wiring
@@ -136,11 +139,12 @@ export function setupCryptoPricesCoingecko(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-crypto-prices` ^1.0.0
 
 ### Environment Variables
 
-- `COINGECKO_API_KEY` *(optional)* — CoinGecko Pro API key
+- `COINGECKO_API_KEY` _(optional)_ — CoinGecko Pro API key
   - Setup: Optional. Leave unset to use the free keyless public endpoint (conservative rate limits). Set a Pro key to switch to pro-api.coingecko.com with higher limits.
   - Get it here: [https://www.coingecko.com/en/api/pricing](https://www.coingecko.com/en/api/pricing)
   - Example: `CG-...`
@@ -154,26 +158,27 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A known coin's spot price renders in the UI: `getPrice(id, 'usd')` (id
-  from `listCoins()`/`listSupportedSymbols()`, never a hardcoded provider id)
-  returns a `CoinPriceQuote` with a PLAUSIBLE `price` (BTC is thousands of
-  USD, not 0/null/NaN) and it shows on screen, not "—".
+      from `listCoins()`/`listSupportedSymbols()`, never a hardcoded provider id)
+      returns a `CoinPriceQuote` with a PLAUSIBLE `price` (BTC is thousands of
+      USD, not 0/null/NaN) and it shows on screen, not "—".
 - [ ] The market list shows DISTINCT prices: `listCoins()` renders multiple
-  `CoinMarketRow`s and each coin's `price` is its own value (BTC ≠ ETH, not a
-  repeated copy), with `symbol`/`name` matching the row.
+      `CoinMarketRow`s and each coin's `price` is its own value (BTC ≠ ETH, not a
+      repeated copy), with `symbol`/`name` matching the row.
 - [ ] If a chart/detail screen is exposed, `getHistorical(id, days)` returns a
-  series of `CoinPricePoint` `(ts, price)` samples in chronological order that
-  render as a line/spark chart — not a single point or an empty box.
+      series of `CoinPricePoint` `(ts, price)` samples in chronological order that
+      render as a line/spark chart — not a single point or an empty box.
 - [ ] Switching the quote currency (USD→EUR) re-fetches with the new
-  `vsCurrency` and the displayed values CHANGE, shown with the right symbol
-  and precision ($/€, not a raw float).
+      `vsCurrency` and the displayed values CHANGE, shown with the right symbol
+      and precision ($/€, not a raw float).
 - [ ] Prices refresh: a later `getPrice`/`listCoins` can return a different
-  `price`/`change24h` and the UI updates (or shows an "as of" time from
-  `asOf`) — it isn't frozen at first paint.
+      `price`/`change24h` and the UI updates (or shows an "as of" time from
+      `asOf`) — it isn't frozen at first paint.
 - [ ] Edge/error: an unknown coin id or symbol surfaces a clear "not found" in
-  the UI, and a provider/rate-limit failure degrades gracefully (stale-but-
-  shown or an empty state) — never a crash, blank, or NaN.
+      the UI, and a provider/rate-limit failure degrades gracefully (stale-but-
+      shown or an empty state) — never a crash, blank, or NaN.
 - [ ] The provider API key (if the bonded provider needs one) stays
-  server-side: the browser calls the app's own endpoint, never the upstream
-  API directly, and that endpoint isn't an open proxy for arbitrary
-  coin/currency params.
+      server-side: the browser calls the app's own endpoint, never the upstream
+      API directly, and that endpoint isn't an open proxy for arbitrary
+      coin/currency params.

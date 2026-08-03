@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-survey-question-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-survey-question'
-import type { SurveyQuestionTranslationKey, SurveyQuestionTranslations } from '@molecule/app-locales-survey-question'
+import type {
+  SurveyQuestionTranslationKey,
+  SurveyQuestionTranslations,
+} from '@molecule/app-locales-survey-question'
 ```
 
 ## Registration
@@ -34,16 +37,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `surveyQuestion.required` | This question requires an answer. |
-| `surveyQuestion.requiredIndicator` | required |
-| `surveyQuestion.submit` | Submit |
-| `surveyQuestion.trueFalse.true` | True |
-| `surveyQuestion.trueFalse.false` | False |
-| `surveyQuestion.nps.low` | Not at all likely |
-| `surveyQuestion.nps.high` | Extremely likely |
-| `surveyQuestion.file.noFiles` | No files selected. |
+| Key                                | English                           |
+| ---------------------------------- | --------------------------------- |
+| `surveyQuestion.required`          | This question requires an answer. |
+| `surveyQuestion.requiredIndicator` | required                          |
+| `surveyQuestion.submit`            | Submit                            |
+| `surveyQuestion.trueFalse.true`    | True                              |
+| `surveyQuestion.trueFalse.false`   | False                             |
+| `surveyQuestion.nps.low`           | Not at all likely                 |
+| `surveyQuestion.nps.high`          | Extremely likely                  |
+| `surveyQuestion.file.noFiles`      | No files selected.                |
 
 ## Metadata
 

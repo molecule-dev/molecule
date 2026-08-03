@@ -12,7 +12,7 @@ cover the common shapes.
 ```tsx
 import { AuthorBioCard } from '@molecule/app-author-bio-card-react'
 
-<AuthorBioCard
+;<AuthorBioCard
   author={{
     id: 'alice',
     name: 'Alice Example',
@@ -28,9 +28,11 @@ import { AuthorBioCard } from '@molecule/app-author-bio-card-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-author-bio-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -129,7 +131,10 @@ default. Mastodon handles of the form `@user@instance` become
 `https://instance/@user`.
 
 ```typescript
-function resolveSocialHref(key: "twitter" | "github" | "linkedin" | "mastodon" | "website", value: string): string
+function resolveSocialHref(
+  key: 'twitter' | 'github' | 'linkedin' | 'mastodon' | 'website',
+  value: string,
+): string
 ```
 
 - `key` — Which platform the value is for.
@@ -142,6 +147,7 @@ function resolveSocialHref(key: "twitter" | "github" | "linkedin" | "mastodon" |
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

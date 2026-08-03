@@ -51,8 +51,8 @@ class DashboardComponent {
   private authService = inject(MoleculeAuthService)
   private themeService = inject(MoleculeThemeService)
 
-  user$ = this.authService.user$     // Observable<UserProfile | null>
-  theme$ = this.themeService.theme$  // Observable<Theme>
+  user$ = this.authService.user$ // Observable<UserProfile | null>
+  theme$ = this.themeService.theme$ // Observable<Theme>
 
   logout(): void {
     void this.authService.logout()
@@ -61,9 +61,11 @@ class DashboardComponent {
 ```
 
 ## Type
+
 `framework`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-angular @angular/core @molecule/app-auth @molecule/app-device @molecule/app-forms @molecule/app-http @molecule/app-i18n @molecule/app-logger @molecule/app-platform @molecule/app-push @molecule/app-routing @molecule/app-state @molecule/app-storage @molecule/app-theme @molecule/app-ui @molecule/app-utilities @molecule/app-version rxjs
 ```
@@ -97,97 +99,97 @@ updates, and auth state subscription.
 
 ```typescript
 interface AuthClient<T = UserProfile> {
-    /**
-     * Returns the current authentication state snapshot.
-     */
-    getState(): AuthState<T>;
-    /**
-     * Returns whether the user is currently authenticated.
-     */
-    isAuthenticated(): boolean;
-    /**
-     * Gets the current user.
-     */
-    getUser(): T | null;
-    /**
-     * Updates the cached user object (state + persistent storage) without
-     * hitting the network. Intended for local refreshes after a per-app
-     * mutation (e.g., the user just PATCHed their own profile and the
-     * server returned the canonical row). Does NOT change tokens.
-     */
-    setUser(user: T | null): void;
-    /**
-     * Gets the current access token.
-     */
-    getAccessToken(): string | null;
-    /**
-     * Stores the access token in the configured token storage adapter (in-memory
-     * by default). Use this to seed the token after an out-of-band exchange (e.g.
-     * the OAuth code→token redirect) instead of writing to `localStorage` directly,
-     * which would violate the in-memory-default storage contract and make the bearer
-     * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
-     */
-    setAccessToken(token: string | null): void;
-    /**
-     * Gets the refresh token.
-     */
-    getRefreshToken(): string | null;
-    /**
-     * Logs in with credentials.
-     */
-    login(credentials: LoginCredentials): Promise<AuthResult<T>>;
-    /**
-     * Logs out the current user.
-     */
-    logout(): Promise<void>;
-    /**
-     * Registers a new user.
-     */
-    register(data: RegisterData): Promise<AuthResult<T>>;
-    /**
-     * Refreshes the access token.
-     */
-    refresh(): Promise<AuthResult<T>>;
-    /**
-     * Requests a password reset.
-     */
-    requestPasswordReset(data: PasswordResetRequest): Promise<void>;
-    /**
-     * Confirms a password reset.
-     */
-    confirmPasswordReset(data: PasswordResetConfirm): Promise<void>;
-    /**
-     * Updates the current user's profile.
-     */
-    updateProfile(data: Partial<T>): Promise<T>;
-    /**
-     * Changes the current user's password.
-     */
-    changePassword(oldPassword: string, newPassword: string): Promise<void>;
-    /**
-     * Initializes auth state (e.g., from stored tokens).
-     */
-    initialize(): Promise<void>;
-    /**
-     * Subscribes to auth state changes.
-     */
-    subscribe(callback: (state: AuthState<T>) => void): () => void;
-    /**
-     * Subscribes to auth state changes (alias for subscribe).
-     */
-    onAuthChange(callback: (state: AuthState<T>) => void): () => void;
-    /**
-     * Gets the current access token (alias for getAccessToken).
-     */
-    getToken?(): string | null;
-    /**
-     * Adds an auth event listener.
-     */
-    addEventListener(listener: AuthEventListener): () => void;
-    /**
-     * Destroys the auth client.
-     */
-    destroy(): void;
+  /**
+   * Returns the current authentication state snapshot.
+   */
+  getState(): AuthState<T>
+  /**
+   * Returns whether the user is currently authenticated.
+   */
+  isAuthenticated(): boolean
+  /**
+   * Gets the current user.
+   */
+  getUser(): T | null
+  /**
+   * Updates the cached user object (state + persistent storage) without
+   * hitting the network. Intended for local refreshes after a per-app
+   * mutation (e.g., the user just PATCHed their own profile and the
+   * server returned the canonical row). Does NOT change tokens.
+   */
+  setUser(user: T | null): void
+  /**
+   * Gets the current access token.
+   */
+  getAccessToken(): string | null
+  /**
+   * Stores the access token in the configured token storage adapter (in-memory
+   * by default). Use this to seed the token after an out-of-band exchange (e.g.
+   * the OAuth code→token redirect) instead of writing to `localStorage` directly,
+   * which would violate the in-memory-default storage contract and make the bearer
+   * token JS-readable (XSS-exfiltratable). Pass `null` to clear it.
+   */
+  setAccessToken(token: string | null): void
+  /**
+   * Gets the refresh token.
+   */
+  getRefreshToken(): string | null
+  /**
+   * Logs in with credentials.
+   */
+  login(credentials: LoginCredentials): Promise<AuthResult<T>>
+  /**
+   * Logs out the current user.
+   */
+  logout(): Promise<void>
+  /**
+   * Registers a new user.
+   */
+  register(data: RegisterData): Promise<AuthResult<T>>
+  /**
+   * Refreshes the access token.
+   */
+  refresh(): Promise<AuthResult<T>>
+  /**
+   * Requests a password reset.
+   */
+  requestPasswordReset(data: PasswordResetRequest): Promise<void>
+  /**
+   * Confirms a password reset.
+   */
+  confirmPasswordReset(data: PasswordResetConfirm): Promise<void>
+  /**
+   * Updates the current user's profile.
+   */
+  updateProfile(data: Partial<T>): Promise<T>
+  /**
+   * Changes the current user's password.
+   */
+  changePassword(oldPassword: string, newPassword: string): Promise<void>
+  /**
+   * Initializes auth state (e.g., from stored tokens).
+   */
+  initialize(): Promise<void>
+  /**
+   * Subscribes to auth state changes.
+   */
+  subscribe(callback: (state: AuthState<T>) => void): () => void
+  /**
+   * Subscribes to auth state changes (alias for subscribe).
+   */
+  onAuthChange(callback: (state: AuthState<T>) => void): () => void
+  /**
+   * Gets the current access token (alias for getAccessToken).
+   */
+  getToken?(): string | null
+  /**
+   * Adds an auth event listener.
+   */
+  addEventListener(listener: AuthEventListener): () => void
+  /**
+   * Destroys the auth client.
+   */
+  destroy(): void
 }
 ```
 
@@ -197,26 +199,26 @@ Reactive authentication state snapshot (initialized, authenticated, user, loadin
 
 ```typescript
 interface AuthState<T = UserProfile> {
-    /**
-     * Whether auth state has been initialized.
-     */
-    initialized: boolean;
-    /**
-     * Whether the user is authenticated.
-     */
-    authenticated: boolean;
-    /**
-     * Current user (if authenticated).
-     */
-    user: T | null;
-    /**
-     * Whether an auth operation is in progress.
-     */
-    loading: boolean;
-    /**
-     * Last auth error (if any).
-     */
-    error: string | null;
+  /**
+   * Whether auth state has been initialized.
+   */
+  initialized: boolean
+  /**
+   * Whether the user is authenticated.
+   */
+  authenticated: boolean
+  /**
+   * Current user (if authenticated).
+   */
+  user: T | null
+  /**
+   * Whether an auth operation is in progress.
+   */
+  loading: boolean
+  /**
+   * Last auth error (if any).
+   */
+  error: string | null
 }
 ```
 
@@ -273,91 +275,99 @@ All form providers must implement this interface.
 
 ```typescript
 interface FormController<T extends Record<string, unknown> = Record<string, unknown>> {
-    /**
-     * Gets the current form state.
-     */
-    getState(): FormState<T>;
-    /**
-     * Gets the value of a specific field.
-     */
-    getValue(name: string): unknown;
-    getValue<K extends keyof T>(name: K): T[K];
-    /**
-     * Gets all form values.
-     */
-    getValues(): T;
-    /**
-     * Sets the value of a specific field.
-     */
-    setValue(name: string, value: unknown, options?: {
-        shouldValidate?: boolean;
-        shouldDirty?: boolean;
-        shouldTouch?: boolean;
-    }): void;
-    /**
-     * Sets multiple values at once.
-     */
-    setValues(values: Partial<T>, options?: {
-        shouldValidate?: boolean;
-    }): void;
-    /**
-     * Gets the error for a specific field.
-     */
-    getError(name: string): string | undefined;
-    /**
-     * Sets the error for a specific field.
-     */
-    setError(name: string, error: string | undefined): void;
-    /**
-     * Clears the error for a specific field.
-     */
-    clearError<K extends keyof T>(name: K): void;
-    /**
-     * Clears all errors.
-     */
-    clearErrors(): void;
-    /**
-     * Gets the field state for a specific field.
-     */
-    getFieldState<K extends keyof T>(name: K): FieldState<T[K]>;
-    /**
-     * Registers a field for form management.
-     */
-    register(nameOrOptions: string | RegisterOptions, options?: RegisterOptions): FieldRegistration;
-    /**
-     * Unregisters a field.
-     */
-    unregister(name: string): void;
-    /**
-     * Validates a specific field.
-     */
-    validateField<K extends keyof T>(name: K): Promise<boolean>;
-    /**
-     * Validates all fields.
-     */
-    validate(): Promise<boolean>;
-    /**
-     * Resets the form to initial values.
-     */
-    reset(values?: Partial<T>): void;
-    /**
-     * Handles form submission.
-     */
-    handleSubmit(onSubmit: (values: T) => void | Promise<void>, onError?: (errors: Partial<Record<keyof T, string>>) => void): (event?: {
-        preventDefault?: () => void;
-    }) => Promise<void>;
-    /**
-     * Sets focus to a field.
-     */
-    setFocus(name: keyof T): void;
-    /**
-     * Subscribes to form state changes.
-     */
-    subscribe(callback: (state: FormState<T>) => void): () => void;
-    /**
-     * Destroys the form controller.
-     */
-    destroy(): void;
+  /**
+   * Gets the current form state.
+   */
+  getState(): FormState<T>
+  /**
+   * Gets the value of a specific field.
+   */
+  getValue(name: string): unknown
+  getValue<K extends keyof T>(name: K): T[K]
+  /**
+   * Gets all form values.
+   */
+  getValues(): T
+  /**
+   * Sets the value of a specific field.
+   */
+  setValue(
+    name: string,
+    value: unknown,
+    options?: {
+      shouldValidate?: boolean
+      shouldDirty?: boolean
+      shouldTouch?: boolean
+    },
+  ): void
+  /**
+   * Sets multiple values at once.
+   */
+  setValues(
+    values: Partial<T>,
+    options?: {
+      shouldValidate?: boolean
+    },
+  ): void
+  /**
+   * Gets the error for a specific field.
+   */
+  getError(name: string): string | undefined
+  /**
+   * Sets the error for a specific field.
+   */
+  setError(name: string, error: string | undefined): void
+  /**
+   * Clears the error for a specific field.
+   */
+  clearError<K extends keyof T>(name: K): void
+  /**
+   * Clears all errors.
+   */
+  clearErrors(): void
+  /**
+   * Gets the field state for a specific field.
+   */
+  getFieldState<K extends keyof T>(name: K): FieldState<T[K]>
+  /**
+   * Registers a field for form management.
+   */
+  register(nameOrOptions: string | RegisterOptions, options?: RegisterOptions): FieldRegistration
+  /**
+   * Unregisters a field.
+   */
+  unregister(name: string): void
+  /**
+   * Validates a specific field.
+   */
+  validateField<K extends keyof T>(name: K): Promise<boolean>
+  /**
+   * Validates all fields.
+   */
+  validate(): Promise<boolean>
+  /**
+   * Resets the form to initial values.
+   */
+  reset(values?: Partial<T>): void
+  /**
+   * Handles form submission.
+   */
+  handleSubmit(
+    onSubmit: (values: T) => void | Promise<void>,
+    onError?: (errors: Partial<Record<keyof T, string>>) => void,
+  ): (event?: { preventDefault?: () => void }) => Promise<void>
+  /**
+   * Sets focus to a field.
+   */
+  setFocus(name: keyof T): void
+  /**
+   * Subscribes to form state changes.
+   */
+  subscribe(callback: (state: FormState<T>) => void): () => void
+  /**
+   * Destroys the form controller.
+   */
+  destroy(): void
 }
 ```
 
@@ -367,26 +377,28 @@ Form creation options.
 
 ```typescript
 interface FormOptions<T extends Record<string, unknown>> {
-    /**
-     * Default values.
-     */
-    defaultValues?: Partial<T>;
-    /**
-     * Validation mode.
-     */
-    mode?: 'onSubmit' | 'onChange' | 'onBlur' | 'all';
-    /**
-     * Revalidation mode.
-     */
-    reValidateMode?: 'onChange' | 'onBlur' | 'onSubmit';
-    /**
-     * Whether to focus the first error field on submit.
-     */
-    shouldFocusError?: boolean;
-    /**
-     * Form-level validation function.
-     */
-    validate?: (values: T) => Partial<Record<keyof T, string>> | Promise<Partial<Record<keyof T, string>>>;
+  /**
+   * Default values.
+   */
+  defaultValues?: Partial<T>
+  /**
+   * Validation mode.
+   */
+  mode?: 'onSubmit' | 'onChange' | 'onBlur' | 'all'
+  /**
+   * Revalidation mode.
+   */
+  reValidateMode?: 'onChange' | 'onBlur' | 'onSubmit'
+  /**
+   * Whether to focus the first error field on submit.
+   */
+  shouldFocusError?: boolean
+  /**
+   * Form-level validation function.
+   */
+  validate?: (
+    values: T,
+  ) => Partial<Record<keyof T, string>> | Promise<Partial<Record<keyof T, string>>>
 }
 ```
 
@@ -398,67 +410,67 @@ All HTTP providers must implement this interface.
 
 ```typescript
 interface HttpClient {
-    /**
-     * Base URL for all requests.
-     */
-    baseURL: string;
-    /**
-     * Default headers for all requests.
-     */
-    defaultHeaders: Record<string, string>;
-    /**
-     * Makes a generic HTTP request.
-     */
-    request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a GET request.
-     */
-    get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a POST request.
-     */
-    post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PUT request.
-     */
-    put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PATCH request.
-     */
-    patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a DELETE request.
-     */
-    delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Adds a request interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addRequestInterceptor(interceptor: RequestInterceptor): () => void;
-    /**
-     * Adds a response interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addResponseInterceptor(interceptor: ResponseInterceptor): () => void;
-    /**
-     * Adds an error interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addErrorInterceptor(interceptor: ErrorInterceptor): () => void;
-    /**
-     * Sets the authorization token.
-     */
-    setAuthToken(token: string | null): void;
-    /**
-     * Returns the current authorization token, or `null` if not set.
-     */
-    getAuthToken(): string | null;
-    /**
-     * Registers a handler for authentication errors (401).
-     *
-     * @returns An unsubscribe function.
-     */
-    onAuthError(handler: () => void): () => void;
+  /**
+   * Base URL for all requests.
+   */
+  baseURL: string
+  /**
+   * Default headers for all requests.
+   */
+  defaultHeaders: Record<string, string>
+  /**
+   * Makes a generic HTTP request.
+   */
+  request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a GET request.
+   */
+  get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a POST request.
+   */
+  post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a PUT request.
+   */
+  put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a PATCH request.
+   */
+  patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a DELETE request.
+   */
+  delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Adds a request interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addRequestInterceptor(interceptor: RequestInterceptor): () => void
+  /**
+   * Adds a response interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addResponseInterceptor(interceptor: ResponseInterceptor): () => void
+  /**
+   * Adds an error interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addErrorInterceptor(interceptor: ErrorInterceptor): () => void
+  /**
+   * Sets the authorization token.
+   */
+  setAuthToken(token: string | null): void
+  /**
+   * Returns the current authorization token, or `null` if not set.
+   */
+  getAuthToken(): string | null
+  /**
+   * Registers a handler for authentication errors (401).
+   *
+   * @returns An unsubscribe function.
+   */
+  onAuthError(handler: () => void): () => void
 }
 ```
 
@@ -482,145 +494,155 @@ All i18n providers must implement this interface.
 
 ```typescript
 interface I18nProvider {
-    /**
-     * Gets the current locale.
-     */
-    getLocale(): string;
-    /**
-     * Sets the current locale.
-     *
-     * **Fleet contract:** every conformant provider (the core simple provider,
-     * `@molecule/api-i18n-simple`, `@molecule/app-i18n-i18next`, and
-     * `@molecule/app-i18n-react-i18next`) MUST throw `Error('Locale "<code>"
-     * not found')` when `locale` is not registered — via the constructor's
-     * `initialLocales`/`locales` config, `addLocale()`, or `addTranslations()`
-     * (all three register a locale). It must NOT silently degrade to
-     * fallback-locale text while `getLocale()` reports the unregistered code —
-     * that divergence makes a misconfigured locale switch indistinguishable
-     * from a working one until a user notices the wrong language on screen.
-     */
-    setLocale(locale: string): Promise<void>;
-    /**
-     * Gets all available locales.
-     */
-    getLocales(): LocaleConfig[];
-    /**
-     * Adds a locale.
-     */
-    addLocale(config: LocaleConfig): void;
-    /**
-     * Removes a locale by code, notifying subscribers so language pickers
-     * built on `onLocaleChange` re-render their list. If the removed locale
-     * is currently active, the caller is responsible for switching to a
-     * fallback (e.g. `'en'`) BEFORE calling this — the provider will not
-     * auto-fall-back on its own.
-     *
-     * Returns `true` if the locale was registered and removed, `false`
-     * otherwise.
-     */
-    removeLocale(code: string): boolean;
-    /**
-     * Adds translations to a locale. Auto-creates the locale if it doesn't exist.
-     *
-     * **Fleet contract:** merges are DEEP, not a shallow spread — registering
-     * two calls (e.g. two modules) that share a top-level namespace key merges
-     * their subtrees instead of the second call clobbering the first's nested
-     * translations wholesale. `@molecule/api-i18n-simple` implements the same
-     * contract on the API side.
-     */
-    addTranslations(locale: string, translations: Translations, namespace?: string): void;
-    /**
-     * Translates a key with optional interpolation values and pluralization.
-     *
-     * **Fleet plural contract (matches i18next's own key resolution order):**
-     * when `options.count` is provided, the plural-suffixed key
-     * (`` `${key}_${pluralForm}` ``, e.g. `item_one`/`item_few`/…, falling back
-     * to `` `${key}_other` ``) is looked up FIRST and wins over the base `key`
-     * if BOTH are registered. Only when no plural-suffixed key exists at all
-     * does resolution fall back to the base key. A catalog that ships both
-     * `item` and `item_one`/`item_other` therefore pluralizes identically
-     * whichever provider is bonded.
-     *
-     * @returns The translated string, or the default value / key if not found.
-     */
-    t(key: string, values?: InterpolationValues, options?: {
-        defaultValue?: string;
-        count?: number;
-    }): string;
-    /**
-     * Checks if a translation key exists.
-     *
-     * **Fleet contract:** follows the SAME locale-resolution chain as `t()` —
-     * the active locale, then the English fallback — so `exists(key) === true`
-     * whenever `t(key)` would render real translated text (not the raw key or
-     * an inline `defaultValue`). Do not narrow this to "only the active
-     * locale's own catalog"; that made `exists()` return `false` for keys `t()`
-     * happily rendered via the English fallback, and the answer differed by
-     * provider.
-     *
-     * @returns `true` if the key has a translation.
-     */
-    exists(key: string): boolean;
-    /**
-     * Formats a number according to the current locale.
-     *
-     * @returns The locale-formatted number string.
-     */
-    formatNumber(value: number, options?: NumberFormatOptions): string;
-    /**
-     * Formats a date according to the current locale.
-     *
-     * @returns The locale-formatted date string.
-     */
-    formatDate(value: Date | number | string, options?: DateFormatOptions): string;
-    /**
-     * Formats a relative time (e.g. "2 hours ago").
-     *
-     * @returns The locale-formatted relative time string.
-     */
-    formatRelativeTime(value: Date | number, options?: {
-        unit?: Intl.RelativeTimeFormatUnit;
-    }): string;
-    /**
-     * Formats a list (e.g. "A, B, and C").
-     *
-     * @returns The locale-formatted list string.
-     */
-    formatList(values: string[], options?: {
-        type?: 'conjunction' | 'disjunction' | 'unit';
-    }): string;
-    /**
-     * Subscribes to locale changes.
-     *
-     * @returns An unsubscribe function.
-     */
-    onLocaleChange(listener: (locale: string) => void): () => void;
-    /**
-     * Gets the text direction for the current locale.
-     *
-     * @returns `'ltr'` or `'rtl'`.
-     */
-    getDirection(): 'ltr' | 'rtl';
-    /**
-     * Checks if a translation key exists (alias for exists).
-     */
-    hasKey?(key: string): boolean;
-    /**
-     * Checks if the provider is ready.
-     */
-    isReady?(): boolean;
-    /**
-     * Registers a callback for when the provider is ready.
-     */
-    onReady?(callback: () => void): () => void;
-    /**
-     * Registers a lazily-loaded content module for automatic reload on locale changes.
-     * All registered content is reloaded during `setLocale()` before listeners fire,
-     * ensuring content is available on the first re-render with no flash.
-     *
-     * Idempotent: registering the same module name twice is a no-op.
-     */
-    registerContent?(module: string, loader: (locale: string) => Promise<void>): void;
+  /**
+   * Gets the current locale.
+   */
+  getLocale(): string
+  /**
+   * Sets the current locale.
+   *
+   * **Fleet contract:** every conformant provider (the core simple provider,
+   * `@molecule/api-i18n-simple`, `@molecule/app-i18n-i18next`, and
+   * `@molecule/app-i18n-react-i18next`) MUST throw `Error('Locale "<code>"
+   * not found')` when `locale` is not registered — via the constructor's
+   * `initialLocales`/`locales` config, `addLocale()`, or `addTranslations()`
+   * (all three register a locale). It must NOT silently degrade to
+   * fallback-locale text while `getLocale()` reports the unregistered code —
+   * that divergence makes a misconfigured locale switch indistinguishable
+   * from a working one until a user notices the wrong language on screen.
+   */
+  setLocale(locale: string): Promise<void>
+  /**
+   * Gets all available locales.
+   */
+  getLocales(): LocaleConfig[]
+  /**
+   * Adds a locale.
+   */
+  addLocale(config: LocaleConfig): void
+  /**
+   * Removes a locale by code, notifying subscribers so language pickers
+   * built on `onLocaleChange` re-render their list. If the removed locale
+   * is currently active, the caller is responsible for switching to a
+   * fallback (e.g. `'en'`) BEFORE calling this — the provider will not
+   * auto-fall-back on its own.
+   *
+   * Returns `true` if the locale was registered and removed, `false`
+   * otherwise.
+   */
+  removeLocale(code: string): boolean
+  /**
+   * Adds translations to a locale. Auto-creates the locale if it doesn't exist.
+   *
+   * **Fleet contract:** merges are DEEP, not a shallow spread — registering
+   * two calls (e.g. two modules) that share a top-level namespace key merges
+   * their subtrees instead of the second call clobbering the first's nested
+   * translations wholesale. `@molecule/api-i18n-simple` implements the same
+   * contract on the API side.
+   */
+  addTranslations(locale: string, translations: Translations, namespace?: string): void
+  /**
+   * Translates a key with optional interpolation values and pluralization.
+   *
+   * **Fleet plural contract (matches i18next's own key resolution order):**
+   * when `options.count` is provided, the plural-suffixed key
+   * (`` `${key}_${pluralForm}` ``, e.g. `item_one`/`item_few`/…, falling back
+   * to `` `${key}_other` ``) is looked up FIRST and wins over the base `key`
+   * if BOTH are registered. Only when no plural-suffixed key exists at all
+   * does resolution fall back to the base key. A catalog that ships both
+   * `item` and `item_one`/`item_other` therefore pluralizes identically
+   * whichever provider is bonded.
+   *
+   * @returns The translated string, or the default value / key if not found.
+   */
+  t(
+    key: string,
+    values?: InterpolationValues,
+    options?: {
+      defaultValue?: string
+      count?: number
+    },
+  ): string
+  /**
+   * Checks if a translation key exists.
+   *
+   * **Fleet contract:** follows the SAME locale-resolution chain as `t()` —
+   * the active locale, then the English fallback — so `exists(key) === true`
+   * whenever `t(key)` would render real translated text (not the raw key or
+   * an inline `defaultValue`). Do not narrow this to "only the active
+   * locale's own catalog"; that made `exists()` return `false` for keys `t()`
+   * happily rendered via the English fallback, and the answer differed by
+   * provider.
+   *
+   * @returns `true` if the key has a translation.
+   */
+  exists(key: string): boolean
+  /**
+   * Formats a number according to the current locale.
+   *
+   * @returns The locale-formatted number string.
+   */
+  formatNumber(value: number, options?: NumberFormatOptions): string
+  /**
+   * Formats a date according to the current locale.
+   *
+   * @returns The locale-formatted date string.
+   */
+  formatDate(value: Date | number | string, options?: DateFormatOptions): string
+  /**
+   * Formats a relative time (e.g. "2 hours ago").
+   *
+   * @returns The locale-formatted relative time string.
+   */
+  formatRelativeTime(
+    value: Date | number,
+    options?: {
+      unit?: Intl.RelativeTimeFormatUnit
+    },
+  ): string
+  /**
+   * Formats a list (e.g. "A, B, and C").
+   *
+   * @returns The locale-formatted list string.
+   */
+  formatList(
+    values: string[],
+    options?: {
+      type?: 'conjunction' | 'disjunction' | 'unit'
+    },
+  ): string
+  /**
+   * Subscribes to locale changes.
+   *
+   * @returns An unsubscribe function.
+   */
+  onLocaleChange(listener: (locale: string) => void): () => void
+  /**
+   * Gets the text direction for the current locale.
+   *
+   * @returns `'ltr'` or `'rtl'`.
+   */
+  getDirection(): 'ltr' | 'rtl'
+  /**
+   * Checks if a translation key exists (alias for exists).
+   */
+  hasKey?(key: string): boolean
+  /**
+   * Checks if the provider is ready.
+   */
+  isReady?(): boolean
+  /**
+   * Registers a callback for when the provider is ready.
+   */
+  onReady?(callback: () => void): () => void
+  /**
+   * Registers a lazily-loaded content module for automatic reload on locale changes.
+   * All registered content is reloaded during `setLocale()` before listeners fire,
+   * ensuring content is available on the first re-render with no flash.
+   *
+   * Idempotent: registering the same module name twice is a no-op.
+   */
+  registerContent?(module: string, loader: (locale: string) => Promise<void>): void
 }
 ```
 
@@ -631,50 +653,50 @@ and transport management.
 
 ```typescript
 interface Logger {
-    /**
-     * Logs a trace message.
-     */
-    trace(message: string, ...args: unknown[]): void;
-    /**
-     * Logs a debug message.
-     */
-    debug(message: string, ...args: unknown[]): void;
-    /**
-     * Logs an info message.
-     */
-    info(message: string, ...args: unknown[]): void;
-    /**
-     * Logs a warning message.
-     */
-    warn(message: string, ...args: unknown[]): void;
-    /**
-     * Logs an error message.
-     */
-    error(message: string | Error, ...args: unknown[]): void;
-    /**
-     * Sets the log level.
-     */
-    setLevel(level: LogLevel): void;
-    /**
-     * Gets the current log level.
-     */
-    getLevel(): LogLevel;
-    /**
-     * Creates a child logger with a namespace.
-     */
-    child(name: string, context?: Record<string, unknown>): Logger;
-    /**
-     * Adds additional context to the logger.
-     */
-    withContext(context: Record<string, unknown>): Logger;
-    /**
-     * Adds a transport.
-     */
-    addTransport(transport: LogTransport): () => void;
-    /**
-     * Removes a transport.
-     */
-    removeTransport(transport: LogTransport): void;
+  /**
+   * Logs a trace message.
+   */
+  trace(message: string, ...args: unknown[]): void
+  /**
+   * Logs a debug message.
+   */
+  debug(message: string, ...args: unknown[]): void
+  /**
+   * Logs an info message.
+   */
+  info(message: string, ...args: unknown[]): void
+  /**
+   * Logs a warning message.
+   */
+  warn(message: string, ...args: unknown[]): void
+  /**
+   * Logs an error message.
+   */
+  error(message: string | Error, ...args: unknown[]): void
+  /**
+   * Sets the log level.
+   */
+  setLevel(level: LogLevel): void
+  /**
+   * Gets the current log level.
+   */
+  getLevel(): LogLevel
+  /**
+   * Creates a child logger with a namespace.
+   */
+  child(name: string, context?: Record<string, unknown>): Logger
+  /**
+   * Adds additional context to the logger.
+   */
+  withContext(context: Record<string, unknown>): Logger
+  /**
+   * Adds a transport.
+   */
+  addTransport(transport: LogTransport): () => void
+  /**
+   * Removes a transport.
+   */
+  removeTransport(transport: LogTransport): void
 }
 ```
 
@@ -685,40 +707,40 @@ Creates and manages logger instances and global log configuration.
 
 ```typescript
 interface LoggerProvider {
-    /**
-     * Gets a logger by name, or the root logger if no name given.
-     */
-    getLogger(name?: string): Logger;
-    /**
-     * Creates a named logger.
-     */
-    createLogger(nameOrConfig: string | LoggerConfig, config?: LoggerConfig): Logger;
-    /**
-     * Sets the global log level.
-     */
-    setLevel(level: LogLevel): void;
-    /**
-     * Gets the global log level.
-     */
-    getLevel(): LogLevel;
-    /**
-     * Adds a global transport.
-     */
-    addTransport(transport: LogTransport): () => void;
-    /**
-     * Enables logging.
-     */
-    enable(): void;
-    /**
-     * Disables logging.
-     */
-    disable(): void;
-    /**
-     * Checks if logging is enabled.
-     *
-     * @returns `true` if logging is currently enabled.
-     */
-    isEnabled(): boolean;
+  /**
+   * Gets a logger by name, or the root logger if no name given.
+   */
+  getLogger(name?: string): Logger
+  /**
+   * Creates a named logger.
+   */
+  createLogger(nameOrConfig: string | LoggerConfig, config?: LoggerConfig): Logger
+  /**
+   * Sets the global log level.
+   */
+  setLevel(level: LogLevel): void
+  /**
+   * Gets the global log level.
+   */
+  getLevel(): LogLevel
+  /**
+   * Adds a global transport.
+   */
+  addTransport(transport: LogTransport): () => void
+  /**
+   * Enables logging.
+   */
+  enable(): void
+  /**
+   * Disables logging.
+   */
+  disable(): void
+  /**
+   * Checks if logging is enabled.
+   *
+   * @returns `true` if logging is currently enabled.
+   */
+  isEnabled(): boolean
 }
 ```
 
@@ -917,26 +939,26 @@ Current URL decomposed into pathname, search string, hash, navigation state, and
 
 ```typescript
 interface RouteLocation {
-    /**
-     * Current pathname.
-     */
-    pathname: string;
-    /**
-     * Query string (including leading ?).
-     */
-    search: string;
-    /**
-     * Hash (including leading #).
-     */
-    hash: string;
-    /**
-     * State data passed with navigation.
-     */
-    state?: unknown;
-    /**
-     * Unique key for this location.
-     */
-    key?: string;
+  /**
+   * Current pathname.
+   */
+  pathname: string
+  /**
+   * Query string (including leading ?).
+   */
+  search: string
+  /**
+   * Hash (including leading #).
+   */
+  hash: string
+  /**
+   * State data passed with navigation.
+   */
+  state?: unknown
+  /**
+   * Unique key for this location.
+   */
+  key?: string
 }
 ```
 
@@ -948,92 +970,100 @@ All routing providers must implement this interface.
 
 ```typescript
 interface Router {
-    /**
-     * Returns the current route location (pathname, search, hash, state).
-     */
-    getLocation(): RouteLocation;
-    /**
-     * Gets the current route params.
-     */
-    getParams<T extends RouteParams = RouteParams>(): T;
-    /**
-     * Gets the current query params.
-     */
-    getQuery(): QueryParams;
-    /**
-     * Gets a specific query parameter.
-     */
-    getQueryParam(key: string): string | undefined;
-    /**
-     * Gets the current hash.
-     */
-    getHash(): string;
-    /**
-     * Navigates to a path.
-     */
-    navigate(path: string, options?: NavigateOptions): void;
-    /**
-     * Navigates to a named route.
-     */
-    navigateTo(name: string, params?: RouteParams, query?: QueryParams, options?: NavigateOptions): void;
-    /**
-     * Goes back in history.
-     */
-    back(): void;
-    /**
-     * Goes forward in history.
-     */
-    forward(): void;
-    /**
-     * Goes to a specific point in history.
-     */
-    go(delta: number): void;
-    /**
-     * Updates the current query params.
-     */
-    setQuery(params: QueryParams, options?: NavigateOptions): void;
-    /**
-     * Updates a specific query parameter.
-     */
-    setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void;
-    /**
-     * Updates the current hash.
-     */
-    setHash(hash: string, options?: NavigateOptions): void;
-    /**
-     * Checks if a path matches the current location.
-     *
-     * @returns `true` if the path matches the current route.
-     */
-    isActive(path: string, exact?: boolean): boolean;
-    /**
-     * Matches a path pattern against a pathname.
-     */
-    matchPath<Params extends RouteParams = RouteParams>(pattern: string, pathname: string): RouteMatch<Params> | null;
-    /**
-     * Generates a URL from a named route.
-     */
-    generatePath(name: string, params?: RouteParams, query?: QueryParams): string;
-    /**
-     * Subscribes to route changes.
-     */
-    subscribe(listener: RouteChangeListener): () => void;
-    /**
-     * Adds a navigation guard.
-     */
-    addGuard(guard: NavigationGuard): () => void;
-    /**
-     * Registers route definitions.
-     */
-    registerRoutes(routes: RouteDefinition[]): void;
-    /**
-     * Gets all registered routes.
-     */
-    getRoutes(): RouteDefinition[];
-    /**
-     * Destroys the router.
-     */
-    destroy(): void;
+  /**
+   * Returns the current route location (pathname, search, hash, state).
+   */
+  getLocation(): RouteLocation
+  /**
+   * Gets the current route params.
+   */
+  getParams<T extends RouteParams = RouteParams>(): T
+  /**
+   * Gets the current query params.
+   */
+  getQuery(): QueryParams
+  /**
+   * Gets a specific query parameter.
+   */
+  getQueryParam(key: string): string | undefined
+  /**
+   * Gets the current hash.
+   */
+  getHash(): string
+  /**
+   * Navigates to a path.
+   */
+  navigate(path: string, options?: NavigateOptions): void
+  /**
+   * Navigates to a named route.
+   */
+  navigateTo(
+    name: string,
+    params?: RouteParams,
+    query?: QueryParams,
+    options?: NavigateOptions,
+  ): void
+  /**
+   * Goes back in history.
+   */
+  back(): void
+  /**
+   * Goes forward in history.
+   */
+  forward(): void
+  /**
+   * Goes to a specific point in history.
+   */
+  go(delta: number): void
+  /**
+   * Updates the current query params.
+   */
+  setQuery(params: QueryParams, options?: NavigateOptions): void
+  /**
+   * Updates a specific query parameter.
+   */
+  setQueryParam(key: string, value: string | undefined, options?: NavigateOptions): void
+  /**
+   * Updates the current hash.
+   */
+  setHash(hash: string, options?: NavigateOptions): void
+  /**
+   * Checks if a path matches the current location.
+   *
+   * @returns `true` if the path matches the current route.
+   */
+  isActive(path: string, exact?: boolean): boolean
+  /**
+   * Matches a path pattern against a pathname.
+   */
+  matchPath<Params extends RouteParams = RouteParams>(
+    pattern: string,
+    pathname: string,
+  ): RouteMatch<Params> | null
+  /**
+   * Generates a URL from a named route.
+   */
+  generatePath(name: string, params?: RouteParams, query?: QueryParams): string
+  /**
+   * Subscribes to route changes.
+   */
+  subscribe(listener: RouteChangeListener): () => void
+  /**
+   * Adds a navigation guard.
+   */
+  addGuard(guard: NavigationGuard): () => void
+  /**
+   * Registers route definitions.
+   */
+  registerRoutes(routes: RouteDefinition[]): void
+  /**
+   * Gets all registered routes.
+   */
+  getRoutes(): RouteDefinition[]
+  /**
+   * Destroys the router.
+   */
+  destroy(): void
 }
 ```
 
@@ -1058,10 +1088,10 @@ must implement. Provides the store creation factory.
 
 ```typescript
 interface StateProvider {
-    /**
-     * Creates a new store.
-     */
-    createStore<T>(config: StoreConfig<T>): Store<T>;
+  /**
+   * Creates a new store.
+   */
+  createStore<T>(config: StoreConfig<T>): Store<T>
 }
 ```
 
@@ -1073,38 +1103,38 @@ All storage providers must implement this interface.
 
 ```typescript
 interface StorageProvider {
-    /**
-     * Gets a value from storage.
-     */
-    get<T = unknown>(key: string): Promise<T | null>;
-    /**
-     * Sets a value in storage.
-     */
-    set<T = unknown>(key: string, value: T): Promise<void>;
-    /**
-     * Removes a value from storage.
-     */
-    remove(key: string): Promise<void>;
-    /**
-     * Clears all values from storage.
-     */
-    clear(): Promise<void>;
-    /**
-     * Gets all keys in storage.
-     */
-    keys(): Promise<string[]>;
-    /**
-     * Gets multiple values from storage.
-     */
-    getMany?<T = unknown>(keys: string[]): Promise<Map<string, T | null>>;
-    /**
-     * Sets multiple values in storage.
-     */
-    setMany?<T = unknown>(entries: Array<[string, T]>): Promise<void>;
-    /**
-     * Removes multiple values from storage.
-     */
-    removeMany?(keys: string[]): Promise<void>;
+  /**
+   * Gets a value from storage.
+   */
+  get<T = unknown>(key: string): Promise<T | null>
+  /**
+   * Sets a value in storage.
+   */
+  set<T = unknown>(key: string, value: T): Promise<void>
+  /**
+   * Removes a value from storage.
+   */
+  remove(key: string): Promise<void>
+  /**
+   * Clears all values from storage.
+   */
+  clear(): Promise<void>
+  /**
+   * Gets all keys in storage.
+   */
+  keys(): Promise<string[]>
+  /**
+   * Gets multiple values from storage.
+   */
+  getMany?<T = unknown>(keys: string[]): Promise<Map<string, T | null>>
+  /**
+   * Sets multiple values in storage.
+   */
+  setMany?<T = unknown>(entries: Array<[string, T]>): Promise<void>
+  /**
+   * Removes multiple values from storage.
+   */
+  removeMany?(keys: string[]): Promise<void>
 }
 ```
 
@@ -1128,23 +1158,23 @@ All state management providers must implement this interface.
 
 ```typescript
 interface Store<T> {
-    /**
-     * Gets the current state.
-     */
-    getState(): T;
-    /**
-     * Sets the state (partial or via updater function).
-     */
-    setState(partial: Partial<T> | ((state: T) => Partial<T>)): void;
-    /**
-     * Subscribes to state changes.
-     * Returns an unsubscribe function.
-     */
-    subscribe(listener: StateListener<T>): () => void;
-    /**
-     * Destroys the store and cleans up subscriptions.
-     */
-    destroy(): void;
+  /**
+   * Gets the current state.
+   */
+  getState(): T
+  /**
+   * Sets the state (partial or via updater function).
+   */
+  setState(partial: Partial<T> | ((state: T) => Partial<T>)): void
+  /**
+   * Subscribes to state changes.
+   * Returns an unsubscribe function.
+   */
+  subscribe(listener: StateListener<T>): () => void
+  /**
+   * Destroys the store and cleans up subscriptions.
+   */
+  destroy(): void
 }
 ```
 
@@ -1154,18 +1184,18 @@ Configuration for creating a store (initial state, optional name, and middleware
 
 ```typescript
 interface StoreConfig<T> {
-    /**
-     * Initial state value.
-     */
-    initialState: T;
-    /**
-     * Optional name for debugging.
-     */
-    name?: string;
-    /**
-     * Optional middleware functions.
-     */
-    middleware?: StoreMiddleware<T>[];
+  /**
+   * Initial state value.
+   */
+  initialState: T
+  /**
+   * Optional name for debugging.
+   */
+  name?: string
+  /**
+   * Optional middleware functions.
+   */
+  middleware?: StoreMiddleware<T>[]
 }
 ```
 
@@ -1175,16 +1205,16 @@ Complete theme definition.
 
 ```typescript
 interface Theme {
-    name: string;
-    mode: 'light' | 'dark';
-    colors: ThemeColors;
-    breakpoints: ThemeBreakpoints;
-    spacing: ThemeSpacing;
-    typography: ThemeTypography;
-    borderRadius: ThemeBorderRadius;
-    shadows: ThemeShadows;
-    transitions: ThemeTransitions;
-    zIndex: ThemeZIndex;
+  name: string
+  mode: 'light' | 'dark'
+  colors: ThemeColors
+  breakpoints: ThemeBreakpoints
+  spacing: ThemeSpacing
+  typography: ThemeTypography
+  borderRadius: ThemeBorderRadius
+  shadows: ThemeShadows
+  transitions: ThemeTransitions
+  zIndex: ThemeZIndex
 }
 ```
 
@@ -1195,33 +1225,33 @@ and change subscriptions.
 
 ```typescript
 interface ThemeProvider {
-    /**
-     * Returns the currently active theme.
-     */
-    getTheme(): Theme;
-    /**
-     * Sets the active theme by reference or by name.
-     *
-     * @param theme - A `Theme` object or a theme name string to activate.
-     */
-    setTheme(theme: Theme | string): void;
-    /**
-     * Toggles between light and dark mode for the active theme.
-     */
-    toggleMode(): void;
-    /**
-     * Subscribes to theme changes. The callback fires whenever
-     * `setTheme()` or `toggleMode()` is called.
-     *
-     * @param callback - Invoked with the new theme after each change.
-     * @returns An unsubscribe function.
-     */
-    subscribe(callback: (theme: Theme) => void): () => void;
-    /**
-     * Returns all registered themes. Optional — not all providers
-     * support multiple themes.
-     */
-    getThemes?(): Theme[];
+  /**
+   * Returns the currently active theme.
+   */
+  getTheme(): Theme
+  /**
+   * Sets the active theme by reference or by name.
+   *
+   * @param theme - A `Theme` object or a theme name string to activate.
+   */
+  setTheme(theme: Theme | string): void
+  /**
+   * Toggles between light and dark mode for the active theme.
+   */
+  toggleMode(): void
+  /**
+   * Subscribes to theme changes. The callback fires whenever
+   * `setTheme()` or `toggleMode()` is called.
+   *
+   * @param callback - Invoked with the new theme after each change.
+   * @returns An unsubscribe function.
+   */
+  subscribe(callback: (theme: Theme) => void): () => void
+  /**
+   * Returns all registered themes. Optional — not all providers
+   * support multiple themes.
+   */
+  getThemes?(): Theme[]
 }
 ```
 
@@ -1253,7 +1283,7 @@ interface VersionService {
 URL query string parameter map (single values or arrays for repeated keys).
 
 ```typescript
-type QueryParams = Record<string, string | string[] | undefined>;
+type QueryParams = Record<string, string | string[] | undefined>
 ```
 
 #### `RouteParams`
@@ -1261,7 +1291,7 @@ type QueryParams = Record<string, string | string[] | undefined>;
 URL path parameter key-value map extracted from dynamic route segments (e.g. `{ id: '123' }`).
 
 ```typescript
-type RouteParams = Record<string, string>;
+type RouteParams = Record<string, string>
 ```
 
 ### Classes
@@ -1600,7 +1630,11 @@ dependency, so template bindings that call this function will be
 re-evaluated when the locale changes.
 
 ```typescript
-function t(key: string, values?: InterpolationValues, options?: { defaultValue?: string; count?: number; }): string
+function t(
+  key: string,
+  values?: InterpolationValues,
+  options?: { defaultValue?: string; count?: number },
+): string
 ```
 
 - `key` — Translation key
@@ -1682,6 +1716,7 @@ const THEME_PROVIDER: InjectionToken<ThemeProvider>
 ### Requirements
 
 Peer dependencies:
+
 - `@angular/core` 22.0.0
 - `@molecule/app-auth` ^1.0.0
 - `@molecule/app-device` ^1.0.0

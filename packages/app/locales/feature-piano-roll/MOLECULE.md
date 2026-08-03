@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-piano-roll-react` package w
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-piano-roll'
-import type { PianoRollTranslationKey, PianoRollTranslations } from '@molecule/app-locales-feature-piano-roll'
+import type {
+  PianoRollTranslationKey,
+  PianoRollTranslations,
+} from '@molecule/app-locales-feature-piano-roll'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `pianoRoll.aria.roll` | Piano roll |
-| `pianoRoll.aria.keys` | Piano keys |
-| `pianoRoll.aria.grid` | Note grid |
-| `pianoRoll.aria.resize` | Resize note |
-| `pianoRoll.aria.note` | Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats |
+| Key                     | English                                                                   |
+| ----------------------- | ------------------------------------------------------------------------- |
+| `pianoRoll.aria.roll`   | Piano roll                                                                |
+| `pianoRoll.aria.keys`   | Piano keys                                                                |
+| `pianoRoll.aria.grid`   | Note grid                                                                 |
+| `pianoRoll.aria.resize` | Resize note                                                               |
+| `pianoRoll.aria.note`   | Note {{pitch}} starting at beat {{startBeat}} for {{durationBeats}} beats |
 
 ## Metadata
 

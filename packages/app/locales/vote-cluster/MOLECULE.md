@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-vote-cluster-react` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-vote-cluster'
-import type { VoteClusterTranslationKey, VoteClusterTranslations } from '@molecule/app-locales-vote-cluster'
+import type {
+  VoteClusterTranslationKey,
+  VoteClusterTranslations,
+} from '@molecule/app-locales-vote-cluster'
 ```
 
 ## Registration
@@ -34,14 +37,14 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `vote-cluster.upvote` | Upvote |
-| `vote-cluster.removeUpvote` | Remove upvote |
-| `vote-cluster.downvote` | Downvote |
-| `vote-cluster.removeDownvote` | Remove downvote |
-| `vote-cluster.score` | Score: {{score}} |
-| `vote-cluster.group` | Vote cluster, current score {{score}} |
+| Key                           | English                               |
+| ----------------------------- | ------------------------------------- |
+| `vote-cluster.upvote`         | Upvote                                |
+| `vote-cluster.removeUpvote`   | Remove upvote                         |
+| `vote-cluster.downvote`       | Downvote                              |
+| `vote-cluster.removeDownvote` | Remove downvote                       |
+| `vote-cluster.score`          | Score: {{score}}                      |
+| `vote-cluster.group`          | Vote cluster, current score {{score}} |
 
 ## Metadata
 

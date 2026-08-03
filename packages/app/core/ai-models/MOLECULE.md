@@ -17,9 +17,11 @@ const { current, deprecated } = partitionByDeprecation(models)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ai-models @molecule/app-http
 ```
@@ -313,7 +315,7 @@ strings compare as dates). Models with a future `deprecatedAt` are still
 current — useful for scheduling deprecations.
 
 ```typescript
-function isDeprecated(model: Pick<AppModelDefinition, "deprecatedAt">, now?: string): boolean
+function isDeprecated(model: Pick<AppModelDefinition, 'deprecatedAt'>, now?: string): boolean
 ```
 
 - `model` — Model to check.
@@ -327,7 +329,11 @@ Fetches the AI model catalog from the API — the model list plus the server's
 per-mode default model ids (when provided).
 
 ```typescript
-function loadAIModelCatalog(http: HttpClient, path?: string, projectId?: string): Promise<AIModelCatalog>
+function loadAIModelCatalog(
+  http: HttpClient,
+  path?: string,
+  projectId?: string,
+): Promise<AIModelCatalog>
 ```
 
 - `http` — HTTP client bonded by the host app.
@@ -343,7 +349,11 @@ Thin back-compat wrapper over {@link loadAIModelCatalog} for callers that
 don't need the per-mode defaults.
 
 ```typescript
-function loadAIModels(http: HttpClient, path?: string, projectId?: string): Promise<AppModelDefinition[]>
+function loadAIModels(
+  http: HttpClient,
+  path?: string,
+  projectId?: string,
+): Promise<AppModelDefinition[]>
 ```
 
 - `http` — HTTP client bonded by the host app.
@@ -362,7 +372,10 @@ server-side `resolveEffortForModel` so the display always matches what the
 backend sends.
 
 ```typescript
-function nativeEffortName(model: AppModelDefinition | undefined, value: string | undefined): string | null
+function nativeEffortName(
+  model: AppModelDefinition | undefined,
+  value: string | undefined,
+): string | null
 ```
 
 - `model` — The active model (or `undefined`).
@@ -379,7 +392,10 @@ partition (the listing already excludes them, and they must not surface in
 the picker's current or "Older models" section).
 
 ```typescript
-function partitionByDeprecation(models: readonly AppModelDefinition[], now?: string): { current: AppModelDefinition[]; deprecated: AppModelDefinition[]; }
+function partitionByDeprecation(
+  models: readonly AppModelDefinition[],
+  now?: string,
+): { current: AppModelDefinition[]; deprecated: AppModelDefinition[] }
 ```
 
 - `models` — Loaded model catalog.
@@ -416,6 +432,7 @@ const PROVIDER_BRAND_COLORS: Readonly<Record<AIProviderID, string>>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-http` ^1.0.0
 
 ### Runtime Dependencies

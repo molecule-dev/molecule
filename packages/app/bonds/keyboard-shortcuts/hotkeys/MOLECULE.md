@@ -10,11 +10,11 @@ the `hotkeys-js` library. This bond attaches real global key listeners:
 import { provider } from '@molecule/app-keyboard-shortcuts-hotkeys'
 import { setProvider } from '@molecule/app-keyboard-shortcuts'
 
-setProvider(provider)   // once, at app startup (bonds.ts)
+setProvider(provider) // once, at app startup (bonds.ts)
 
 const unregister = provider.register({
   keys: 'ctrl+s',
-  handler: () => save(),   // fires on Ctrl+S; preventDefault is automatic
+  handler: () => save(), // fires on Ctrl+S; preventDefault is automatic
   description: 'Save document',
 })
 // ...later, when the owning screen unmounts:
@@ -22,9 +22,11 @@ unregister()
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-keyboard-shortcuts hotkeys-js
 ```
@@ -82,6 +84,7 @@ const provider: KeyboardShortcutsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-keyboard-shortcuts` interface.
 
 ## Bond Wiring
@@ -102,6 +105,7 @@ export function setupKeyboardShortcutsHotkeys(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-keyboard-shortcuts` ^1.0.0
 
 ### Runtime Dependencies
@@ -135,13 +139,14 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Every shortcut this app registers triggers its REAL action (find them
-  in the app's shortcut help/registration, then press each one).
+      in the app's shortcut help/registration, then press each one).
 - [ ] Shortcuts that collide with browser defaults (e.g. Ctrl+S) run the app
-  action and suppress the browser behavior (no save dialog).
+      action and suppress the browser behavior (no save dialog).
 - [ ] Shortcuts do NOT fire while typing in an input/textarea/contenteditable
-  unless the shortcut is deliberately global.
+      unless the shortcut is deliberately global.
 - [ ] Navigating away from a screen unregisters its shortcuts — pressing them
-  elsewhere causes no ghost actions.
+      elsewhere causes no ghost actions.
 - [ ] If a shortcuts help overlay exists, it lists the shortcuts that are
-  actually registered (no phantom or missing entries).
+      actually registered (no phantom or missing entries).

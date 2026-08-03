@@ -7,6 +7,7 @@
 Please report security vulnerabilities by emailing **security@molecule.dev**.
 
 Include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Affected package(s) and version(s)

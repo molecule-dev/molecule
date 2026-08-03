@@ -3,6 +3,7 @@
 React notification badge / dot / wrapper.
 
 Exports:
+
 - `<NotificationBadge>` — count pill with `max+` overflow handling.
 - `<NotificationDot>` — tiny presence indicator.
 - `<NotificationWrapper>` — positions a badge at the corner of any child.
@@ -22,9 +23,11 @@ import { NotificationBadge, NotificationDot, NotificationWrapper } from '@molecu
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-notification-badge-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -154,6 +157,7 @@ function NotificationWrapper({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

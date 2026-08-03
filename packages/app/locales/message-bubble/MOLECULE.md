@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-message-bubble-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-message-bubble'
-import type { MessageBubbleTranslationKey, MessageBubbleTranslations } from '@molecule/app-locales-message-bubble'
+import type {
+  MessageBubbleTranslationKey,
+  MessageBubbleTranslations,
+} from '@molecule/app-locales-message-bubble'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                    | English          |
+| ---------------------- | ---------------- |
 | `composer.placeholder` | Write a message… |
-| `composer.send` | Send |
+| `composer.send`        | Send             |
 
 ## Metadata
 

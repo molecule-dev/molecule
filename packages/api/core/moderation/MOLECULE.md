@@ -24,9 +24,11 @@ if (result.flagged) {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-content-moderation @molecule/api-bond @molecule/api-i18n
 ```
@@ -327,6 +329,7 @@ function setProvider(provider: ContentModerationProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -360,24 +363,25 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Every surface that accepts user-generated content (post, comment,
-  image upload, bio — whatever this app has) runs it through `check()` /
-  `checkImage()` SERVER-SIDE in the create/update handler, before persisting.
-  Confirm the moderation call is on the write path, not client-side or skipped.
+      image upload, bio — whatever this app has) runs it through `check()` /
+      `checkImage()` SERVER-SIDE in the create/update handler, before persisting.
+      Confirm the moderation call is on the write path, not client-side or skipped.
 - [ ] Assert BOTH directions with real samples: clearly-violating content
-  returns `flagged: true` and the UI rejects it with a visible reason; benign
-  content returns `flagged: false` and publishes normally. A moderator that
-  flags everything or nothing is broken.
+      returns `flagged: true` and the UI rejects it with a visible reason; benign
+      content returns `flagged: false` and publishes normally. A moderator that
+      flags everything or nothing is broken.
 - [ ] The decision gates persistence: a blocked item is NOT stored and is
-  absent when you view the feed as a second user. Tighten
-  `ModerationOptions.threshold` and a borderline item flips allowed → blocked.
+      absent when you view the feed as a second user. Tighten
+      `ModerationOptions.threshold` and a borderline item flips allowed → blocked.
 - [ ] The failure mode is deliberate: when the moderation/AI call errors the
-  request does NOT 500 — content is either published + logged (fail-open) or
-  held for review (fail-closed) per the surface's intent.
+      request does NOT 500 — content is either published + logged (fail-open) or
+      held for review (fail-closed) per the surface's intent.
 - [ ] If the app has reporting, the round-trip works: a user's `report()`
-  creates a 'pending' `Report`, it appears in the moderator queue via
-  `getReports()`, and `resolveReport()` (approve/reject/dismiss) visibly
-  changes its status and clears it from the pending queue.
+      creates a 'pending' `Report`, it appears in the moderator queue via
+      `getReports()`, and `resolveReport()` (approve/reject/dismiss) visibly
+      changes its status and clears it from the pending queue.
 - [ ] Moderator surfaces are privileged: a non-admin can't reach
-  `getReports()` / `resolveReport()` (403) and can't see other users' flagged
-  or pending content.
+      `getReports()` / `resolveReport()` (403) and can't see other users' flagged
+      or pending content.

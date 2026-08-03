@@ -13,19 +13,23 @@ import { NewsletterSignup } from '@molecule/app-newsletter-signup-react'
 
 declare const api: { subscribe: (email: string) => Promise<void> }
 
-<NewsletterSignup
+;<NewsletterSignup
   title="Stay in the loop"
   description="Get weekly updates delivered to your inbox."
-  onSubscribe={async (email) => { await api.subscribe(email) }}
+  onSubscribe={async (email) => {
+    await api.subscribe(email)
+  }}
   layout="inline"
   successContent={<p>Thanks for subscribing!</p>}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-newsletter-signup-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -87,6 +91,7 @@ function NewsletterSignup({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

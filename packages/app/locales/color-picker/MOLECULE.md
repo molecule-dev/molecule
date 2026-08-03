@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-color-picker` package which has 5 t
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-color-picker'
-import type { ColorPickerTranslationKey, ColorPickerTranslations } from '@molecule/app-locales-color-picker'
+import type {
+  ColorPickerTranslationKey,
+  ColorPickerTranslations,
+} from '@molecule/app-locales-color-picker'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `colorPicker.group` | Color picker |
-| `colorPicker.hex` | HEX color |
-| `colorPicker.hue` | Hue |
-| `colorPicker.saturation` | Saturation |
-| `colorPicker.value` | Value |
+| Key                      | English      |
+| ------------------------ | ------------ |
+| `colorPicker.group`      | Color picker |
+| `colorPicker.hex`        | HEX color    |
+| `colorPicker.hue`        | Hue          |
+| `colorPicker.saturation` | Saturation   |
+| `colorPicker.value`      | Value        |
 
 ## Metadata
 

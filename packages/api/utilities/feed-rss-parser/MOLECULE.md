@@ -24,9 +24,11 @@ for (const item of items) {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-feed-rss-parser fast-xml-parser
 ```
@@ -219,6 +221,7 @@ or the body is malformed.
 Detect the source format of a feed body.
 
 Detection runs in this order:
+
 1. If `contentType` includes `json`, OR the trimmed body begins with `{`/`[`,
    return `'json-feed'` without parsing XML.
 2. Otherwise the XML root element selects the format:
@@ -258,6 +261,7 @@ function parseFeed(body: string, options?: ParseFeedOptions): ParsedFeed
 Strip dangerous content from an HTML string. Returns plain text unchanged.
 
 Removes:
+
 - Complete `<script>...</script>` and `<style>...</style>` blocks.
 - Stray opening/closing tags of those elements (in malformed HTML).
 - Inline event handlers (`onclick="..."`, `onerror="..."`, etc.).

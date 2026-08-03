@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-video-call-controls-react` package 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-video-call-controls'
-import type { VideoCallControlsTranslationKey, VideoCallControlsTranslations } from '@molecule/app-locales-video-call-controls'
+import type {
+  VideoCallControlsTranslationKey,
+  VideoCallControlsTranslations,
+} from '@molecule/app-locales-video-call-controls'
 ```
 
 ## Registration
@@ -34,14 +37,14 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `call.muteOn` | 🎙 |
-| `call.muteOff` | 🔇 |
-| `call.cameraOn` | 📹 |
-| `call.cameraOff` | 🚫 |
-| `call.share` | 🖥 |
-| `call.leave` | Leave |
+| Key              | English |
+| ---------------- | ------- |
+| `call.muteOn`    | 🎙       |
+| `call.muteOff`   | 🔇      |
+| `call.cameraOn`  | 📹      |
+| `call.cameraOff` | 🚫      |
+| `call.share`     | 🖥       |
+| `call.leave`     | Leave   |
 
 ## Metadata
 

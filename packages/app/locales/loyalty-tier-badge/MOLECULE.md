@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-loyalty-tier-badge-react` package w
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-loyalty-tier-badge'
-import type { LoyaltyTierBadgeTranslationKey, LoyaltyTierBadgeTranslations } from '@molecule/app-locales-loyalty-tier-badge'
+import type {
+  LoyaltyTierBadgeTranslationKey,
+  LoyaltyTierBadgeTranslations,
+} from '@molecule/app-locales-loyalty-tier-badge'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `loyaltyTierBadge.group` | {{tier}} tier |
+| Key                         | English              |
+| --------------------------- | -------------------- |
+| `loyaltyTierBadge.group`    | {{tier}} tier        |
 | `loyaltyTierBadge.progress` | Progress to {{next}} |
 
 ## Metadata

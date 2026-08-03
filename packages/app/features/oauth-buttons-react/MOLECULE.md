@@ -37,21 +37,16 @@ import { oauthConfig } from '../config'
 
 function LoginPage() {
   const { providers, redirect } = useOAuth(oauthConfig)
-  return (
-    <OAuthButtons
-      providers={providers}
-      onSelect={redirect}
-      layout="grid"
-      showLabels
-    />
-  )
+  return <OAuthButtons providers={providers} onSelect={redirect} layout="grid" showLabels />
 }
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-oauth-buttons-react @molecule/app-oauth-logos-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -190,7 +185,17 @@ type OAuthButtonsLayout = 'horizontal' | 'vertical' | 'grid'
 Canonical list of supported providers.
 
 ```typescript
-type OAuthProviderId = 'github' | 'gitlab' | 'google' | 'twitter' | 'x' | 'apple' | 'facebook' | 'microsoft' | 'linkedin' | 'discord';
+type OAuthProviderId =
+  | 'github'
+  | 'gitlab'
+  | 'google'
+  | 'twitter'
+  | 'x'
+  | 'apple'
+  | 'facebook'
+  | 'microsoft'
+  | 'linkedin'
+  | 'discord'
 ```
 
 ### Functions
@@ -263,7 +268,7 @@ providers still render with a sensible English label rather than a
 raw key string.
 
 ```typescript
-function getProviderLabel(provider: string): { key: string; default: string; }
+function getProviderLabel(provider: string): { key: string; default: string }
 ```
 
 - `provider` — Canonical provider id (e.g. `'google'`).
@@ -346,7 +351,7 @@ Used by `<OAuthButtons />` to render the localized provider name
 companion locale bond `@molecule/app-locales-oauth-buttons`.
 
 ```typescript
-const PROVIDER_LABELS: Readonly<Record<OAuthProviderId, { key: string; default: string; }>>
+const PROVIDER_LABELS: Readonly<Record<OAuthProviderId, { key: string; default: string }>>
 ```
 
 ## Injection Notes
@@ -354,6 +359,7 @@ const PROVIDER_LABELS: Readonly<Record<OAuthProviderId, { key: string; default: 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-oauth-logos-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

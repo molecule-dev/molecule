@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-onboarding-modal-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-onboarding-modal'
-import type { OnboardingModalTranslationKey, OnboardingModalTranslations } from '@molecule/app-locales-onboarding-modal'
+import type {
+  OnboardingModalTranslationKey,
+  OnboardingModalTranslations,
+} from '@molecule/app-locales-onboarding-modal'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `onboarding.skip` | Skip |
-| `onboarding.back` | Back |
+| Key               | English     |
+| ----------------- | ----------- |
+| `onboarding.skip` | Skip        |
+| `onboarding.back` | Back        |
 | `onboarding.done` | Get started |
-| `onboarding.next` | Next |
+| `onboarding.next` | Next        |
 
 ## Metadata
 

@@ -24,9 +24,11 @@ if (availability.available) {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-biometrics @molecule/app-bond @molecule/app-logger
 ```
@@ -295,6 +297,7 @@ function setProvider(provider: BiometricsProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 

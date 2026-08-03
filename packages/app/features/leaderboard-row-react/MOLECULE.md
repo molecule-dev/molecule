@@ -12,7 +12,7 @@ rank-delta indicator, subtitle, and current-user highlight. Props: `rank`,
 ```tsx
 import { LeaderboardRow } from '@molecule/app-leaderboard-row-react'
 
-<LeaderboardRow
+;<LeaderboardRow
   rank={1}
   name="Alice Chen"
   avatarSrc="/avatars/alice.png"
@@ -25,9 +25,11 @@ import { LeaderboardRow } from '@molecule/app-leaderboard-row-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-leaderboard-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -92,6 +94,7 @@ function LeaderboardRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

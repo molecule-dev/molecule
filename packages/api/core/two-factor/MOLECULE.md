@@ -32,12 +32,16 @@ router.post('/enable', async (req, res) => {
   const rec = await store.get(userId)
   try {
     const { valid, timeStep, reason } = await verify({
-      secret: rec.secret, token: req.body.token, afterTimeStep: rec.last_time_step,
+      secret: rec.secret,
+      token: req.body.token,
+      afterTimeStep: rec.last_time_step,
     })
     if (!valid) {
       // reason === 'replay' means the code was ALREADY USED — tell the user to wait for
       // the next one; anything else is a wrong/expired code.
-      return res.status(400).json({ error: reason === 'replay' ? 'Code already used — wait for the next one' : 'Invalid code' })
+      return res.status(400).json({
+        error: reason === 'replay' ? 'Code already used — wait for the next one' : 'Invalid code',
+      })
     }
     await store.upsert(userId, { enabled: true, last_time_step: timeStep })
     res.json({ enabled: true })
@@ -69,11 +73,11 @@ setProvider(provider)
 test('2FA lifecycle: setup → enable → verify → wrong code rejects', async () => {
   const userId = `test-user-${Date.now()}`
   const secret = generateSecret()
-  await store.upsert(userId, { secret, enabled: false })        // pending, like /setup
+  await store.upsert(userId, { secret, enabled: false }) // pending, like /setup
 
-  const code = await generate({ secret })                       // a REAL, FRESH code
-  const enable = await verify({ secret, token: code })          // verify immediately
-  expect(enable.valid).toBe(true)                               // fails here if wiring is broken
+  const code = await generate({ secret }) // a REAL, FRESH code
+  const enable = await verify({ secret, token: code }) // verify immediately
+  expect(enable.valid).toBe(true) // fails here if wiring is broken
   await store.upsert(userId, { enabled: true, last_time_step: enable.timeStep })
 
   // Replay protection: the SAME code (same time step) must not verify twice — and the
@@ -83,14 +87,16 @@ test('2FA lifecycle: setup → enable → verify → wrong code rejects', async 
   // A wrong code must reject — a verify() that always passes is a broken integration.
   expect((await verify({ secret, token: '000000' })).valid).toBe(false)
 
-  await store.delete(userId)                                    // disable
+  await store.delete(userId) // disable
 })
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-two-factor @molecule/api-bond
 ```
@@ -307,15 +313,16 @@ function verify(params: TwoFactorVerifyParams): Promise<TwoFactorVerifyResult>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| otplib | `@molecule/api-two-factor-otplib` |
+| Provider | Package                           |
+| -------- | --------------------------------- |
+| otplib   | `@molecule/api-two-factor-otplib` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -333,15 +340,15 @@ send the raw secret, and must NEVER read or write the 2FA table directly.
 server-side and pass it in; do not accept a secret from the client. Expose these
 endpoints so the frontend never needs the database:
 
-- `GET  /2fa/status`  → `{ enabled }`, read from YOUR store. (This is the call a
+- `GET  /2fa/status` → `{ enabled }`, read from YOUR store. (This is the call a
   frontend most often wrongly points at the DB — keep it on the API.)
-- `POST /2fa/setup`   → `generateSecret()`, store it server-side as PENDING
+- `POST /2fa/setup` → `generateSecret()`, store it server-side as PENDING
   (`enabled:false`), and return ONLY `getUrls()`'s `{ keyUrl, QRImageUrl }` — the QR
   carries the secret to the user's authenticator app; you never hand the raw secret
   to the browser to persist.
-- `POST /2fa/enable`  → `verify()` the token against the PENDING secret; on success
+- `POST /2fa/enable` → `verify()` the token against the PENDING secret; on success
   set `enabled:true` and persist `timeStep`.
-- `POST /2fa/verify`  → `verify()` a login token against the STORED secret you load
+- `POST /2fa/verify` → `verify()` a login token against the STORED secret you load
   server-side; the browser sends only the token.
 - `POST /2fa/disable` → clear the secret + `enabled` server-side.
 
@@ -351,6 +358,7 @@ replay protection.
 
 **Code freshness — what a failed verify() actually means.** TOTP codes rotate every 30s;
 the default acceptance window is `[60, 30]` (≈60–90s of past validity). So:
+
 - Generate/read the code IMMEDIATELY before verifying. A code that sat through a slow flow
   legitimately expires — on `valid:false`, generate a FRESH code and retry ONCE before
   suspecting your wiring (or this library).
@@ -390,17 +398,18 @@ molecule.dev: navigate_preview → read_preview_ui → interact_preview, targeti
 elements by data-mol-id), adapt to this app's actual auth/settings screens, and
 check every box off one by one. A box you can't check is an integration bug to
 fix — not a skip:
+
 - [ ] Sign up + log in through the real auth screens still works — do this
-  FIRST; the most common 2FA-integration regression is a broken login.
+      FIRST; the most common 2FA-integration regression is a broken login.
 - [ ] Open security/settings → "Set up 2FA" → a QR code / secret key is
-  VISIBLE. An error here means the server-side setup route or 2FA store is broken.
+      VISIBLE. An error here means the server-side setup route or 2FA store is broken.
 - [ ] Entering a REAL TOTP code enables 2FA; a made-up `000000` must FAIL.
-  COUNTERPARTY: the secret is shown on screen during setup — compute the current
-  6-digit code from it with the preinstalled otplib (v13: `await generate({ secret })`;
-  both otplib's `generate()` and this package's `verify()` are async). NEVER add
-  an endpoint that leaks the stored secret to the client to obtain the code.
+      COUNTERPARTY: the secret is shown on screen during setup — compute the current
+      6-digit code from it with the preinstalled otplib (v13: `await generate({ secret })`;
+      both otplib's `generate()` and this package's `verify()` are async). NEVER add
+      an endpoint that leaks the stored secret to the client to obtain the code.
 - [ ] Log out, log back in → the 2FA challenge appears AFTER the password → a
-  valid code completes login; a wrong code is rejected with a clear error.
+      valid code completes login; a wrong code is rejected with a clear error.
 - [ ] Disable 2FA from settings → log out / log back in → no challenge.
-Keep a real-path integration test in the repo (the second `@example`) so the
-lifecycle stays covered on every later build.
+      Keep a real-path integration test in the repo (the second `@example`) so the
+      lifecycle stays covered on every later build.

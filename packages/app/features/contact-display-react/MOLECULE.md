@@ -9,7 +9,7 @@ Exports `<ContactDisplay>` — avatar + name + role + email/phone/address with c
 ```tsx
 import { ContactDisplay } from '@molecule/app-contact-display-react'
 
-<ContactDisplay
+;<ContactDisplay
   contact={{
     name: 'Jane Smith',
     email: 'jane@example.com',
@@ -23,9 +23,11 @@ import { ContactDisplay } from '@molecule/app-contact-display-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-contact-display-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -94,6 +96,7 @@ function ContactDisplay({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

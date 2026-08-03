@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-copy-link-field-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-copy-link-field'
-import type { CopyLinkFieldTranslationKey, CopyLinkFieldTranslations } from '@molecule/app-locales-copy-link-field'
+import type {
+  CopyLinkFieldTranslationKey,
+  CopyLinkFieldTranslations,
+} from '@molecule/app-locales-copy-link-field'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `copyLink.field` | Link |
+| Key               | English |
+| ----------------- | ------- |
+| `copyLink.field`  | Link    |
 | `copyLink.copied` | Copied! |
-| `copyLink.copy` | Copy |
+| `copyLink.copy`   | Copy    |
 
 ## Metadata
 

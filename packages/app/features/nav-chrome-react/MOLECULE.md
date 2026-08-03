@@ -3,6 +3,7 @@
 React nav-chrome shells.
 
 Exports:
+
 - `<AppShellTopNav>` — top bar with logo / items / right actions.
 - `<AppShellSideNav>` — vertical sidebar with items or groups, header/footer slots.
 - `<AppShellBottomNav>` — mobile bottom tab bar.
@@ -22,20 +23,23 @@ const navItems: NavItem[] = [
 ]
 
 declare function navigate(to: string): void
-
-<AppShellTopNav
+;<AppShellTopNav
   logo={<img src="/logo.svg" alt="App" />}
   items={navItems}
   activeId="home"
-  onItemClick={(item) => { if (item.to) navigate(item.to) }}
+  onItemClick={(item) => {
+    if (item.to) navigate(item.to)
+  }}
   right={<span>account menu slot</span>}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-nav-chrome-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -253,6 +257,7 @@ function AppShellTopNav({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

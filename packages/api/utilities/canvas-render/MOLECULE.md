@@ -18,10 +18,8 @@ const result = await renderCanvasDocument(
     height: 600,
     background: '#ffffff',
     layers: [
-      { kind: 'rect', x: 20, y: 20, width: 200, height: 80,
-        fill: '#3b82f6', radius: 8 },
-      { kind: 'text', x: 40, y: 70, text: 'Hello',
-        fontSize: 32, fill: '#ffffff' },
+      { kind: 'rect', x: 20, y: 20, width: 200, height: 80, fill: '#3b82f6', radius: 8 },
+      { kind: 'text', x: 40, y: 70, text: 'Hello', fontSize: 32, fill: '#ffffff' },
     ],
   },
   { format: 'png', dpi: 2 },
@@ -43,19 +41,29 @@ router.post('/canvas/render', async (req, res, next) => {
       { body: req.body },
       {
         setHeader: (n, v) => res.setHeader(n, v),
-        setStatus: (s) => { res.status(s) },
-        sendBuffer: (b) => { res.end(b) },
-        sendJson: (j) => { res.json(j) },
+        setStatus: (s) => {
+          res.status(s)
+        },
+        sendBuffer: (b) => {
+          res.end(b)
+        },
+        sendJson: (j) => {
+          res.json(j)
+        },
       },
     )
-  } catch (err) { next(err) }
+  } catch (err) {
+    next(err)
+  }
 })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-canvas-render @napi-rs/canvas
 ```
@@ -222,6 +230,7 @@ interface GroupLayer extends Transform {
 #### `ImageLayer`
 
 Image element. Source is one of:
+
 - `src` — an `http(s):` URL (raster) — only honoured by PNG output.
 - `data` — a `data:` URI (e.g. `data:image/png;base64,...`).
 - `buffer` — a raw `Buffer` of PNG/JPEG bytes (encoded to data URI).
@@ -412,8 +421,7 @@ type CanvasRenderFormat = 'png' | 'svg' | 'pdf'
 Discriminated union of every layer kind.
 
 ```typescript
-type Layer =
-  RectLayer | EllipseLayer | LineLayer | PathLayer | TextLayer | ImageLayer | GroupLayer
+type Layer = RectLayer | EllipseLayer | LineLayer | PathLayer | TextLayer | ImageLayer | GroupLayer
 ```
 
 ### Functions
@@ -424,7 +432,9 @@ Build a `(req, res) => Promise<void>` handler that invokes
 {@link renderCanvasDocument} and streams the resulting buffer back.
 
 ```typescript
-function createCanvasRenderHandler(handlerOptions?: CreateCanvasRenderHandlerOptions): (req: CanvasRenderRequest, res: CanvasRenderResponse) => Promise<void>
+function createCanvasRenderHandler(
+  handlerOptions?: CreateCanvasRenderHandlerOptions,
+): (req: CanvasRenderRequest, res: CanvasRenderResponse) => Promise<void>
 ```
 
 - `handlerOptions` — Optional pre-flight validator + filename default.
@@ -512,19 +522,19 @@ function setCanvasModule(mod: CanvasModule | undefined): void
 #### `PDF_CONTENT_TYPE`
 
 ```typescript
-const PDF_CONTENT_TYPE: "application/pdf"
+const PDF_CONTENT_TYPE: 'application/pdf'
 ```
 
 #### `PNG_CONTENT_TYPE`
 
 ```typescript
-const PNG_CONTENT_TYPE: "image/png"
+const PNG_CONTENT_TYPE: 'image/png'
 ```
 
 #### `SVG_CONTENT_TYPE`
 
 ```typescript
-const SVG_CONTENT_TYPE: "image/svg+xml"
+const SVG_CONTENT_TYPE: 'image/svg+xml'
 ```
 
 ## Injection Notes

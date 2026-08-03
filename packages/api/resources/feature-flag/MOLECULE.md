@@ -28,9 +28,11 @@ const flag = await createFlagForUser(userId, {
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-feature-flag @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -107,7 +109,18 @@ type FlagType = 'boolean' | 'multivariate' | 'string' | 'number'
 Appends a new targeting rule to a flag owned by the user and returns the persisted rule row.
 
 ```typescript
-function addRuleToFlag(flagId: string, userId: string, data: { attribute: string; operator: string; value?: unknown; serve_value?: unknown; priority?: number; description?: string; }): Promise<FeatureFlagTargetingRuleRow | null>
+function addRuleToFlag(
+  flagId: string,
+  userId: string,
+  data: {
+    attribute: string
+    operator: string
+    value?: unknown
+    serve_value?: unknown
+    priority?: number
+    description?: string
+  },
+): Promise<FeatureFlagTargetingRuleRow | null>
 ```
 
 #### `createFeatureFlagRouter()`
@@ -123,7 +136,21 @@ function createFeatureFlagRouter(): Router
 Creates a new feature flag owned by the given user and returns the persisted row.
 
 ```typescript
-function createFlagForUser(userId: string, data: { project_id?: string; key: string; name: string; description?: string; flag_type?: FlagType; default_value?: unknown; rollout_percentage?: number; is_enabled?: boolean; environment?: string; stale_days?: number; }): Promise<FeatureFlagRow>
+function createFlagForUser(
+  userId: string,
+  data: {
+    project_id?: string
+    key: string
+    name: string
+    description?: string
+    flag_type?: FlagType
+    default_value?: unknown
+    rollout_percentage?: number
+    is_enabled?: boolean
+    environment?: string
+    stale_days?: number
+  },
+): Promise<FeatureFlagRow>
 ```
 
 #### `deleteFlagForUser(flagId, userId)`
@@ -155,7 +182,16 @@ function getFlagForUser(flagId: string, userId: string): Promise<FeatureFlagRow 
 Returns a paginated list of feature flags owned by the given user, with optional project/environment/state filters.
 
 ```typescript
-function listFlagsForUser(userId: string, opts?: { page?: number; limit?: number; project_id?: string; environment?: string; state?: FlagState; }): Promise<{ data: FeatureFlagRow[]; total: number; page: number; limit: number; }>
+function listFlagsForUser(
+  userId: string,
+  opts?: {
+    page?: number
+    limit?: number
+    project_id?: string
+    environment?: string
+    state?: FlagState
+  },
+): Promise<{ data: FeatureFlagRow[]; total: number; page: number; limit: number }>
 ```
 
 #### `listRulesForFlag(flagId, userId)`
@@ -163,7 +199,10 @@ function listFlagsForUser(userId: string, opts?: { page?: number; limit?: number
 Returns all targeting rules for a flag in priority order, or null if the flag is not found or not owned by the user.
 
 ```typescript
-function listRulesForFlag(flagId: string, userId: string): Promise<FeatureFlagTargetingRuleRow[] | null>
+function listRulesForFlag(
+  flagId: string,
+  userId: string,
+): Promise<FeatureFlagTargetingRuleRow[] | null>
 ```
 
 #### `updateFlagForUser(flagId, userId, patch)`
@@ -171,7 +210,20 @@ function listRulesForFlag(flagId: string, userId: string): Promise<FeatureFlagTa
 Applies a partial patch to a feature flag owned by the user and returns the updated row, or null if not found.
 
 ```typescript
-function updateFlagForUser(flagId: string, userId: string, patch: Partial<{ name: string; description: string; default_value: unknown; rollout_percentage: number; is_enabled: boolean; state: FlagState; environment: string; stale_days: number; }>): Promise<FeatureFlagRow | null>
+function updateFlagForUser(
+  flagId: string,
+  userId: string,
+  patch: Partial<{
+    name: string
+    description: string
+    default_value: unknown
+    rollout_percentage: number
+    is_enabled: boolean
+    state: FlagState
+    environment: string
+    stale_days: number
+  }>,
+): Promise<FeatureFlagRow | null>
 ```
 
 ### Constants
@@ -181,7 +233,7 @@ function updateFlagForUser(flagId: string, userId: string, patch: Partial<{ name
 Allowed lifecycle states for a feature flag.
 
 ```typescript
-const FLAG_STATES: readonly ["on", "off", "killed", "scheduled"]
+const FLAG_STATES: readonly ['on', 'off', 'killed', 'scheduled']
 ```
 
 #### `FLAG_TYPES`
@@ -189,7 +241,7 @@ const FLAG_STATES: readonly ["on", "off", "killed", "scheduled"]
 Allowed value types for a feature flag.
 
 ```typescript
-const FLAG_TYPES: readonly ["boolean", "multivariate", "string", "number"]
+const FLAG_TYPES: readonly ['boolean', 'multivariate', 'string', 'number']
 ```
 
 #### `flagCreateSchema`
@@ -197,7 +249,28 @@ const FLAG_TYPES: readonly ["boolean", "multivariate", "string", "number"]
 Zod schema for validating a feature flag creation payload.
 
 ```typescript
-const flagCreateSchema: z.ZodObject<{ project_id: z.ZodOptional<z.ZodString>; key: z.ZodString; name: z.ZodString; description: z.ZodOptional<z.ZodString>; flag_type: z.ZodOptional<z.ZodEnum<{ string: "string"; number: "number"; boolean: "boolean"; multivariate: "multivariate"; }>>; default_value: z.ZodOptional<z.ZodUnknown>; rollout_percentage: z.ZodOptional<z.ZodNumber>; is_enabled: z.ZodOptional<z.ZodBoolean>; environment: z.ZodOptional<z.ZodString>; stale_days: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
+const flagCreateSchema: z.ZodObject<
+  {
+    project_id: z.ZodOptional<z.ZodString>
+    key: z.ZodString
+    name: z.ZodString
+    description: z.ZodOptional<z.ZodString>
+    flag_type: z.ZodOptional<
+      z.ZodEnum<{
+        string: 'string'
+        number: 'number'
+        boolean: 'boolean'
+        multivariate: 'multivariate'
+      }>
+    >
+    default_value: z.ZodOptional<z.ZodUnknown>
+    rollout_percentage: z.ZodOptional<z.ZodNumber>
+    is_enabled: z.ZodOptional<z.ZodBoolean>
+    environment: z.ZodOptional<z.ZodString>
+    stale_days: z.ZodOptional<z.ZodNumber>
+  },
+  z.core.$strip
+>
 ```
 
 #### `flagListQuerySchema`
@@ -205,7 +278,18 @@ const flagCreateSchema: z.ZodObject<{ project_id: z.ZodOptional<z.ZodString>; ke
 Zod schema for validating feature flag list query parameters.
 
 ```typescript
-const flagListQuerySchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; project_id: z.ZodOptional<z.ZodString>; environment: z.ZodOptional<z.ZodString>; state: z.ZodOptional<z.ZodEnum<{ on: "on"; off: "off"; killed: "killed"; scheduled: "scheduled"; }>>; }, z.core.$strip>
+const flagListQuerySchema: z.ZodObject<
+  {
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    project_id: z.ZodOptional<z.ZodString>
+    environment: z.ZodOptional<z.ZodString>
+    state: z.ZodOptional<
+      z.ZodEnum<{ on: 'on'; off: 'off'; killed: 'killed'; scheduled: 'scheduled' }>
+    >
+  },
+  z.core.$strip
+>
 ```
 
 #### `flagUpdateSchema`
@@ -213,7 +297,21 @@ const flagListQuerySchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<u
 Zod schema for validating a feature flag update payload.
 
 ```typescript
-const flagUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodString>; default_value: z.ZodOptional<z.ZodUnknown>; rollout_percentage: z.ZodOptional<z.ZodNumber>; is_enabled: z.ZodOptional<z.ZodBoolean>; state: z.ZodOptional<z.ZodEnum<{ on: "on"; off: "off"; killed: "killed"; scheduled: "scheduled"; }>>; environment: z.ZodOptional<z.ZodString>; stale_days: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
+const flagUpdateSchema: z.ZodObject<
+  {
+    name: z.ZodOptional<z.ZodString>
+    description: z.ZodOptional<z.ZodString>
+    default_value: z.ZodOptional<z.ZodUnknown>
+    rollout_percentage: z.ZodOptional<z.ZodNumber>
+    is_enabled: z.ZodOptional<z.ZodBoolean>
+    state: z.ZodOptional<
+      z.ZodEnum<{ on: 'on'; off: 'off'; killed: 'killed'; scheduled: 'scheduled' }>
+    >
+    environment: z.ZodOptional<z.ZodString>
+    stale_days: z.ZodOptional<z.ZodNumber>
+  },
+  z.core.$strip
+>
 ```
 
 #### `ruleSchema`
@@ -221,7 +319,17 @@ const flagUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; descript
 Zod schema for validating a targeting rule on a feature flag.
 
 ```typescript
-const ruleSchema: z.ZodObject<{ attribute: z.ZodString; operator: z.ZodString; value: z.ZodOptional<z.ZodUnknown>; serve_value: z.ZodOptional<z.ZodUnknown>; priority: z.ZodOptional<z.ZodNumber>; description: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const ruleSchema: z.ZodObject<
+  {
+    attribute: z.ZodString
+    operator: z.ZodString
+    value: z.ZodOptional<z.ZodUnknown>
+    serve_value: z.ZodOptional<z.ZodUnknown>
+    priority: z.ZodOptional<z.ZodNumber>
+    description: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -229,6 +337,7 @@ const ruleSchema: z.ZodObject<{ attribute: z.ZodString; operator: z.ZodString; v
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

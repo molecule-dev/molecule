@@ -25,9 +25,11 @@ const strict = createProvider({ url: 'redis://my-redis:6379', failMode: 'closed'
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-rate-limit-redis @molecule/api-bond @molecule/api-rate-limit ioredis
 ```
@@ -42,27 +44,27 @@ Configuration options for rate limiting.
 
 ```typescript
 interface RateLimitOptions {
-    /** Time window in milliseconds. */
-    windowMs: number;
-    /** Maximum number of requests allowed within the window. */
-    max: number;
-    /** Optional prefix for rate limit keys (useful for namespacing). */
-    keyPrefix?: string;
-    /**
-     * If `true`, a request that ends in failure (final HTTP status `>= 400`) is not
-     * counted against the limit — its consumed token is refunded once the response
-     * completes. Honored ONLY by {@link createRateLimitMiddleware}, which observes
-     * the response status; a direct `consume()` call cannot know the outcome, so it
-     * never rolls anything back.
-     */
-    skipFailedRequests?: boolean;
-    /**
-     * If `true`, a request that ends in success (final HTTP status `< 400`) is not
-     * counted against the limit — its consumed token is refunded once the response
-     * completes. Honored ONLY by {@link createRateLimitMiddleware}; a direct
-     * `consume()` call cannot know the outcome.
-     */
-    skipSuccessfulRequests?: boolean;
+  /** Time window in milliseconds. */
+  windowMs: number
+  /** Maximum number of requests allowed within the window. */
+  max: number
+  /** Optional prefix for rate limit keys (useful for namespacing). */
+  keyPrefix?: string
+  /**
+   * If `true`, a request that ends in failure (final HTTP status `>= 400`) is not
+   * counted against the limit — its consumed token is refunded once the response
+   * completes. Honored ONLY by {@link createRateLimitMiddleware}, which observes
+   * the response status; a direct `consume()` call cannot know the outcome, so it
+   * never rolls anything back.
+   */
+  skipFailedRequests?: boolean
+  /**
+   * If `true`, a request that ends in success (final HTTP status `< 400`) is not
+   * counted against the limit — its consumed token is refunded once the response
+   * completes. Honored ONLY by {@link createRateLimitMiddleware}; a direct
+   * `consume()` call cannot know the outcome.
+   */
+  skipSuccessfulRequests?: boolean
 }
 ```
 
@@ -74,56 +76,56 @@ All rate limit providers must implement this interface.
 
 ```typescript
 interface RateLimitProvider {
-    /**
-     * Checks whether a request identified by `key` is within the rate limit
-     * without consuming a token.
-     *
-     * @param key - Unique identifier for the rate limit bucket (e.g. IP, user ID).
-     * @returns The current rate limit state for the key.
-     */
-    check(key: string): Promise<RateLimitResult>;
-    /**
-     * Consumes one or more tokens from the rate limit bucket.
-     *
-     * @param key - Unique identifier for the rate limit bucket.
-     * @param cost - Number of tokens to consume (defaults to 1).
-     * @returns The updated rate limit state after consumption.
-     */
-    consume(key: string, cost?: number): Promise<RateLimitResult>;
-    /**
-     * Resets the rate limit state for a given key.
-     *
-     * @param key - Unique identifier for the rate limit bucket to reset.
-     */
-    reset(key: string): Promise<void>;
-    /**
-     * Returns the number of remaining tokens for a given key.
-     *
-     * @param key - Unique identifier for the rate limit bucket.
-     * @returns Number of remaining requests in the current window.
-     */
-    getRemaining(key: string): Promise<number>;
-    /**
-     * Refunds (un-consumes) previously consumed tokens for a key, rolling back a
-     * prior {@link consume}. Used by {@link createRateLimitMiddleware} to honor
-     * {@link RateLimitOptions.skipFailedRequests} /
-     * {@link RateLimitOptions.skipSuccessfulRequests}: once the response status is
-     * known, a request that should not count has its token rolled back.
-     *
-     * Providers refund the most recent consumption(s); the bucket never drops below
-     * zero, and refunding an unknown/expired bucket (or a non-positive `cost`) is a
-     * no-op.
-     *
-     * @param key - Unique identifier for the rate limit bucket.
-     * @param cost - Number of tokens to refund (defaults to 1).
-     */
-    refund(key: string, cost?: number): Promise<void>;
-    /**
-     * Applies new rate limit configuration to the provider.
-     *
-     * @param options - The rate limit options to apply.
-     */
-    configure(options: RateLimitOptions): void;
+  /**
+   * Checks whether a request identified by `key` is within the rate limit
+   * without consuming a token.
+   *
+   * @param key - Unique identifier for the rate limit bucket (e.g. IP, user ID).
+   * @returns The current rate limit state for the key.
+   */
+  check(key: string): Promise<RateLimitResult>
+  /**
+   * Consumes one or more tokens from the rate limit bucket.
+   *
+   * @param key - Unique identifier for the rate limit bucket.
+   * @param cost - Number of tokens to consume (defaults to 1).
+   * @returns The updated rate limit state after consumption.
+   */
+  consume(key: string, cost?: number): Promise<RateLimitResult>
+  /**
+   * Resets the rate limit state for a given key.
+   *
+   * @param key - Unique identifier for the rate limit bucket to reset.
+   */
+  reset(key: string): Promise<void>
+  /**
+   * Returns the number of remaining tokens for a given key.
+   *
+   * @param key - Unique identifier for the rate limit bucket.
+   * @returns Number of remaining requests in the current window.
+   */
+  getRemaining(key: string): Promise<number>
+  /**
+   * Refunds (un-consumes) previously consumed tokens for a key, rolling back a
+   * prior {@link consume}. Used by {@link createRateLimitMiddleware} to honor
+   * {@link RateLimitOptions.skipFailedRequests} /
+   * {@link RateLimitOptions.skipSuccessfulRequests}: once the response status is
+   * known, a request that should not count has its token rolled back.
+   *
+   * Providers refund the most recent consumption(s); the bucket never drops below
+   * zero, and refunding an unknown/expired bucket (or a non-positive `cost`) is a
+   * no-op.
+   *
+   * @param key - Unique identifier for the rate limit bucket.
+   * @param cost - Number of tokens to refund (defaults to 1).
+   */
+  refund(key: string, cost?: number): Promise<void>
+  /**
+   * Applies new rate limit configuration to the provider.
+   *
+   * @param options - The rate limit options to apply.
+   */
+  configure(options: RateLimitOptions): void
 }
 ```
 
@@ -133,16 +135,16 @@ Result of a rate limit check or consumption.
 
 ```typescript
 interface RateLimitResult {
-    /** Whether the request is allowed. */
-    allowed: boolean;
-    /** Number of requests remaining in the current window. */
-    remaining: number;
-    /** Total requests allowed in the window. */
-    total: number;
-    /** Date when the current window resets. */
-    resetAt: Date;
-    /** Seconds until the client should retry (present only when `allowed` is `false`). */
-    retryAfter?: number;
+  /** Whether the request is allowed. */
+  allowed: boolean
+  /** Number of requests remaining in the current window. */
+  remaining: number
+  /** Total requests allowed in the window. */
+  total: number
+  /** Date when the current window resets. */
+  resetAt: Date
+  /** Seconds until the client should retry (present only when `allowed` is `false`). */
+  retryAfter?: number
 }
 ```
 
@@ -232,6 +234,7 @@ const provider: RateLimitProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-rate-limit` interface.
 
 ## Bond Wiring
@@ -252,12 +255,13 @@ export function setupRateLimitRedis(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-rate-limit` ^1.0.0
 
 ### Environment Variables
 
-- `REDIS_URL` *(optional)* — Redis connection URL — default: `redis://localhost:6379`
+- `REDIS_URL` _(optional)_ — Redis connection URL — default: `redis://localhost:6379`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Redis connection string (redis:// or rediss:// for TLS). molecule.dev runs a Redis inside your app's container automatically (dev and production) — set this only to use an external/managed Redis; locally, the Docker Compose default works.
   - Example: `redis://localhost:6379`
@@ -289,28 +293,29 @@ Integration checklist — exercise the REAL behavior end-to-end (drive the
 protected app action in the live preview, no mocks), adapt each item to this
 app's actual screens/flows, and check every box off one by one. A box you
 can't check is an integration bug to fix — not a skip:
+
 - [ ] The limit is actually ENFORCED on the route: driving the protected
-  action up to `RateLimitOptions.max` times succeeds, and the NEXT request
-  within `windowMs` is REJECTED with the provider's limited response (HTTP
-  429 + `Retry-After` from `createRateLimitMiddleware`) — not silently
-  allowed. THE #1 TRAP: the middleware is defined but never actually mounted
-  on the route (or `consume(key)` is never called in the handler), so nothing
-  is limited.
+      action up to `RateLimitOptions.max` times succeeds, and the NEXT request
+      within `windowMs` is REJECTED with the provider's limited response (HTTP
+      429 + `Retry-After` from `createRateLimitMiddleware`) — not silently
+      allowed. THE #1 TRAP: the middleware is defined but never actually mounted
+      on the route (or `consume(key)` is never called in the handler), so nothing
+      is limited.
 - [ ] The limit is bucketed by the RIGHT identity — the `consume(key)` /
-  middleware `req.ip` key is per-user (or per-IP for anon), NOT one GLOBAL
-  bucket: two different users/IPs have INDEPENDENT budgets (user B is not
-  throttled by user A's traffic), and a per-user limit is not trivially
-  bypassed by rotating an unauthenticated path. A global bucket for a
-  per-user limit is both a DoS vector and a correctness bug.
+      middleware `req.ip` key is per-user (or per-IP for anon), NOT one GLOBAL
+      bucket: two different users/IPs have INDEPENDENT budgets (user B is not
+      throttled by user A's traffic), and a per-user limit is not trivially
+      bypassed by rotating an unauthenticated path. A global bucket for a
+      per-user limit is both a DoS vector and a correctness bug.
 - [ ] `RateLimitResult.remaining` (and `getRemaining(key)`) decrements
-  accurately with each `consume` and reads what's left, and
-  `RateLimitResult.resetAt` reports when the current window resets.
+      accurately with each `consume` and reads what's left, and
+      `RateLimitResult.resetAt` reports when the current window resets.
 - [ ] The window RESETS: after `RateLimitOptions.windowMs` elapses (or
-  `reset(key)` is called) the budget is restored and the action succeeds
-  again — a limit is never permanent.
+      `reset(key)` is called) the budget is restored and the action succeeds
+      again — a limit is never permanent.
 - [ ] The rejection is graceful and observable: the UI surfaces a "too many
-  requests / try again" state (ideally using `RateLimitResult.resetAt` /
-  `retryAfter`), not a blank error or a stuck spinner.
+      requests / try again" state (ideally using `RateLimitResult.resetAt` /
+      `retryAfter`), not a blank error or a stuck spinner.
 - [ ] `consume` is atomic under concurrency: N simultaneous requests cannot
-  all slip through above `RateLimitOptions.max` (no `check`-then-`consume`
-  race that lets the budget be exceeded).
+      all slip through above `RateLimitOptions.max` (no `check`-then-`consume`
+      race that lets the budget be exceeded).

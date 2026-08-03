@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                        | English                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
 | `haptics.error.noProvider` | @molecule/app-haptics: No provider set. Call setProvider() with a HapticsProvider implementation. |
 
 ## Metadata

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-photo-lightbox-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-photo-lightbox'
-import type { PhotoLightboxTranslationKey, PhotoLightboxTranslations } from '@molecule/app-locales-photo-lightbox'
+import type {
+  PhotoLightboxTranslationKey,
+  PhotoLightboxTranslations,
+} from '@molecule/app-locales-photo-lightbox'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `lightbox.close` | Close |
+| Key                 | English  |
+| ------------------- | -------- |
+| `lightbox.close`    | Close    |
 | `lightbox.previous` | Previous |
-| `lightbox.next` | Next |
+| `lightbox.next`     | Next     |
 
 ## Metadata
 

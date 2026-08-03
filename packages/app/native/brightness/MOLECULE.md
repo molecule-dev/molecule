@@ -10,7 +10,12 @@ discovery, plus conveniences (`setMax`, `setMin`, `increase`, `decrease`).
 
 ```ts
 import type { BrightnessProvider } from '@molecule/app-brightness'
-import { setProvider, setBrightness, setKeepScreenOn, getCapabilities } from '@molecule/app-brightness'
+import {
+  setProvider,
+  setBrightness,
+  setKeepScreenOn,
+  getCapabilities,
+} from '@molecule/app-brightness'
 
 // No prebuilt provider bond ships yet — supply your platform implementation.
 // This is a NATIVE capability: browsers cannot change physical screen brightness.
@@ -25,9 +30,11 @@ await setKeepScreenOn(true) // prevent sleep during the flow
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-brightness @molecule/app-bond @molecule/app-i18n
 ```
@@ -166,7 +173,11 @@ function clamp(brightness: number): number
 Create a brightness controller for smooth brightness animations using ease-out cubic easing.
 
 ```typescript
-function createBrightnessController(): { animateTo(target: number, duration?: number): Promise<void>; stop(): void; isAnimating(): boolean; }
+function createBrightnessController(): {
+  animateTo(target: number, duration?: number): Promise<void>
+  stop(): void
+  isAnimating(): boolean
+}
 ```
 
 **Returns:** A controller with `animateTo`, `stop`, and `isAnimating` methods.
@@ -394,6 +405,7 @@ function withBrightness(brightness: number, callback: () => T | Promise<T>): Pro
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

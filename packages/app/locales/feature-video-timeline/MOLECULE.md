@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-video-timeline-react` packa
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-video-timeline'
-import type { VideoTimelineTranslationKey, VideoTimelineTranslations } from '@molecule/app-locales-feature-video-timeline'
+import type {
+  VideoTimelineTranslationKey,
+  VideoTimelineTranslations,
+} from '@molecule/app-locales-feature-video-timeline'
 ```
 
 ## Registration
@@ -34,22 +37,22 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `videoTimeline.aria.root` | Video timeline |
-| `videoTimeline.aria.ruler` | Time ruler |
-| `videoTimeline.aria.playhead` | Playhead at {{time}}s |
-| `videoTimeline.aria.zoom` | Timeline zoom |
-| `videoTimeline.aria.mode` | Edit mode |
-| `videoTimeline.zoom.in` | Zoom in |
-| `videoTimeline.zoom.out` | Zoom out |
-| `videoTimeline.zoom.in.icon` | + |
-| `videoTimeline.zoom.out.icon` | − |
-| `videoTimeline.mode.ripple` | Ripple |
-| `videoTimeline.mode.insert` | Insert |
-| `videoTimeline.trackKind.video` | Video |
-| `videoTimeline.trackKind.audio` | Audio |
-| `videoTimeline.trackKind.subtitle` | Subtitle |
+| Key                                | English               |
+| ---------------------------------- | --------------------- |
+| `videoTimeline.aria.root`          | Video timeline        |
+| `videoTimeline.aria.ruler`         | Time ruler            |
+| `videoTimeline.aria.playhead`      | Playhead at {{time}}s |
+| `videoTimeline.aria.zoom`          | Timeline zoom         |
+| `videoTimeline.aria.mode`          | Edit mode             |
+| `videoTimeline.zoom.in`            | Zoom in               |
+| `videoTimeline.zoom.out`           | Zoom out              |
+| `videoTimeline.zoom.in.icon`       | +                     |
+| `videoTimeline.zoom.out.icon`      | −                     |
+| `videoTimeline.mode.ripple`        | Ripple                |
+| `videoTimeline.mode.insert`        | Insert                |
+| `videoTimeline.trackKind.video`    | Video                 |
+| `videoTimeline.trackKind.audio`    | Audio                 |
+| `videoTimeline.trackKind.subtitle` | Subtitle              |
 
 ## Metadata
 

@@ -9,7 +9,7 @@ Exports `<StatusSummary>`, `ComponentStatus`, `StatusComponent`, `StatusGroup` t
 ```tsx
 import { StatusSummary } from '@molecule/app-status-summary-react'
 
-<StatusSummary
+;<StatusSummary
   groups={[
     {
       id: 'api',
@@ -25,9 +25,11 @@ import { StatusSummary } from '@molecule/app-status-summary-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-status-summary-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -90,11 +92,7 @@ Union of possible component health states.
 
 ```typescript
 type ComponentStatus =
-  | 'operational'
-  | 'degraded'
-  | 'partial-outage'
-  | 'major-outage'
-  | 'maintenance'
+  'operational' | 'degraded' | 'partial-outage' | 'major-outage' | 'maintenance'
 ```
 
 ### Functions
@@ -121,6 +119,7 @@ function StatusSummary({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

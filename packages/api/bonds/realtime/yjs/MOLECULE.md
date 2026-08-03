@@ -51,9 +51,11 @@ doc.getMap('shapes').set('shape-1', { type: 'rect', x: 10, y: 20 })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-realtime-yjs @molecule/api-realtime y-protocols yjs
 ```
@@ -98,6 +100,7 @@ Outbound event delivered by the bond to a transport. The transport is
 responsible for fanning the payload out to clients connected to the room.
 
 Two kinds of payload are emitted:
+
 - `event = 'yjs:update'` with `data` being the binary CRDT update
   (`Uint8Array`) — this is the result of a successful update being applied
   to the room's Y.Doc and must be relayed to other clients to keep them in
@@ -272,7 +275,7 @@ user metadata) with this event; the bond applies them to the room's
 Awareness instance and rebroadcasts to other clients in the room.
 
 ```typescript
-const YJS_AWARENESS_EVENT: "yjs:awareness"
+const YJS_AWARENESS_EVENT: 'yjs:awareness'
 ```
 
 #### `YJS_UPDATE_EVENT`
@@ -283,10 +286,11 @@ Clients send `Uint8Array` updates with this event; the bond applies them
 to the room's Y.Doc and rebroadcasts to other clients in the room.
 
 ```typescript
-const YJS_UPDATE_EVENT: "yjs:update"
+const YJS_UPDATE_EVENT: 'yjs:update'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-realtime` interface.
 
 ## Injection Notes
@@ -294,6 +298,7 @@ Implements `@molecule/api-realtime` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-realtime` ^1.0.0
 
 ### Runtime Dependencies
@@ -329,14 +334,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] With the app open in TWO sessions (separate browser contexts/users), an
-  action in one (send a message, update a shared record) appears in the
-  other WITHOUT a manual reload.
+      action in one (send a message, update a shared record) appears in the
+      other WITHOUT a manual reload.
 - [ ] Updates reach only the sessions in the same room/scope — a session
-  viewing a different room/record receives nothing.
+      viewing a different room/record receives nothing.
 - [ ] Private rooms enforce the join guard: an unauthorized session's join is
-  denied and no data leaks to it. If ANY client can join any private room,
-  `onJoinRequest` was never registered — an integration bug.
+      denied and no data leaks to it. If ANY client can join any private room,
+      `onJoinRequest` was never registered — an integration bug.
 - [ ] Presence (if surfaced) updates when a participant joins and leaves.
 - [ ] After a dropped connection (offline/online toggle or server restart),
-  the client reconnects and live events flow again.
+      the client reconnects and live events flow again.

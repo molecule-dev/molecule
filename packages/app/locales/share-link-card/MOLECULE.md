@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-share-link-card-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-share-link-card'
-import type { ShareLinkCardTranslationKey, ShareLinkCardTranslations } from '@molecule/app-locales-share-link-card'
+import type {
+  ShareLinkCardTranslationKey,
+  ShareLinkCardTranslations,
+} from '@molecule/app-locales-share-link-card'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `copyLink.copied` | Copied! |
-| `copyLink.copy` | Copy |
+| Key                         | English          |
+| --------------------------- | ---------------- |
+| `copyLink.copied`           | Copied!          |
+| `copyLink.copy`             | Copy             |
 | `shareLink.passwordProtect` | Password protect |
 
 ## Metadata

@@ -23,9 +23,11 @@ setProvider(PROVIDER_NAME, fitbit)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-wearable-fitbit @molecule/api-bond @molecule/api-http @molecule/api-secrets @molecule/api-wearable
 ```
@@ -42,22 +44,22 @@ without null-checks.
 
 ```typescript
 interface DailyActivity {
-    /** Calendar day this rollup covers (`YYYY-MM-DD`). */
-    date: WearableDate;
-    /** Total step count for the day. */
-    steps: number;
-    /** Total distance traveled, in meters. */
-    distanceMeters: number;
-    /** Total calories burned (active + BMR), in kilocalories. */
-    caloriesOut: number;
-    /** Active minutes (provider-specific intensity definitions). */
-    activeMinutes: number;
-    /** Floors climbed, when reported. */
-    floors?: number;
-    /** Total elevation gain, in meters, when reported. */
-    elevationMeters?: number;
-    /** Resting heart-rate, in beats per minute, when reported. */
-    restingHeartRate?: number;
+  /** Calendar day this rollup covers (`YYYY-MM-DD`). */
+  date: WearableDate
+  /** Total step count for the day. */
+  steps: number
+  /** Total distance traveled, in meters. */
+  distanceMeters: number
+  /** Total calories burned (active + BMR), in kilocalories. */
+  caloriesOut: number
+  /** Active minutes (provider-specific intensity definitions). */
+  activeMinutes: number
+  /** Floors climbed, when reported. */
+  floors?: number
+  /** Total elevation gain, in meters, when reported. */
+  elevationMeters?: number
+  /** Resting heart-rate, in beats per minute, when reported. */
+  restingHeartRate?: number
 }
 ```
 
@@ -218,12 +220,12 @@ Daily heart-rate summary.
 
 ```typescript
 interface HeartRateSummary {
-    /** Calendar day this summary covers (`YYYY-MM-DD`). */
-    date: WearableDate;
-    /** Resting heart-rate, in beats per minute, when reported. */
-    restingHeartRate?: number;
-    /** Per-zone breakdown, when reported. */
-    zones?: HeartRateZone[];
+  /** Calendar day this summary covers (`YYYY-MM-DD`). */
+  date: WearableDate
+  /** Resting heart-rate, in beats per minute, when reported. */
+  restingHeartRate?: number
+  /** Per-zone breakdown, when reported. */
+  zones?: HeartRateZone[]
 }
 ```
 
@@ -233,16 +235,16 @@ Heart-rate zone definition (rest/fat-burn/cardio/peak or provider-named).
 
 ```typescript
 interface HeartRateZone {
-    /** Zone label as reported by the provider. */
-    name: string;
-    /** Lower bound of the zone, in beats per minute (inclusive). */
-    minBpm: number;
-    /** Upper bound of the zone, in beats per minute (exclusive). */
-    maxBpm: number;
-    /** Minutes spent in the zone for this period. */
-    minutes: number;
-    /** Calories burned in the zone, in kilocalories. */
-    caloriesOut?: number;
+  /** Zone label as reported by the provider. */
+  name: string
+  /** Lower bound of the zone, in beats per minute (inclusive). */
+  minBpm: number
+  /** Upper bound of the zone, in beats per minute (exclusive). */
+  maxBpm: number
+  /** Minutes spent in the zone for this period. */
+  minutes: number
+  /** Calories burned in the zone, in kilocalories. */
+  caloriesOut?: number
 }
 ```
 
@@ -253,26 +255,26 @@ report naps as separate sessions, so handlers must sum across the array.
 
 ```typescript
 interface SleepSession {
-    /** Provider-specific session id. */
-    id: string;
-    /** Calendar day this session is bucketed under (`YYYY-MM-DD`). */
-    date: WearableDate;
-    /** ISO 8601 sleep start. */
-    start: string;
-    /** ISO 8601 sleep end. */
-    end: string;
-    /** Total time in bed, in minutes. */
-    timeInBedMinutes: number;
-    /** Total time asleep, in minutes (excludes `awake` segments). */
-    timeAsleepMinutes: number;
-    /** Sleep efficiency percentage (0-100). */
-    efficiency?: number;
-    /** Whether this session is the user's primary sleep for the day. */
-    isMainSleep: boolean;
-    /** Per-stage minute totals when the provider reports stages. */
-    stageSummary?: SleepStageSummary;
-    /** Per-segment stage breakdown when the provider reports stages. */
-    segments?: SleepStageSegment[];
+  /** Provider-specific session id. */
+  id: string
+  /** Calendar day this session is bucketed under (`YYYY-MM-DD`). */
+  date: WearableDate
+  /** ISO 8601 sleep start. */
+  start: string
+  /** ISO 8601 sleep end. */
+  end: string
+  /** Total time in bed, in minutes. */
+  timeInBedMinutes: number
+  /** Total time asleep, in minutes (excludes `awake` segments). */
+  timeAsleepMinutes: number
+  /** Sleep efficiency percentage (0-100). */
+  efficiency?: number
+  /** Whether this session is the user's primary sleep for the day. */
+  isMainSleep: boolean
+  /** Per-stage minute totals when the provider reports stages. */
+  stageSummary?: SleepStageSummary
+  /** Per-segment stage breakdown when the provider reports stages. */
+  segments?: SleepStageSegment[]
 }
 ```
 
@@ -282,14 +284,14 @@ A contiguous block of a single sleep stage within a sleep session.
 
 ```typescript
 interface SleepStageSegment {
-    /** Normalized stage. */
-    stage: SleepStage;
-    /** ISO 8601 segment start. */
-    start: string;
-    /** ISO 8601 segment end. */
-    end: string;
-    /** Segment duration in seconds (provider-reported when available). */
-    durationSeconds: number;
+  /** Normalized stage. */
+  stage: SleepStage
+  /** ISO 8601 segment start. */
+  start: string
+  /** ISO 8601 segment end. */
+  end: string
+  /** Segment duration in seconds (provider-reported when available). */
+  durationSeconds: number
 }
 ```
 
@@ -301,16 +303,16 @@ that only report the coarse "asleep" classification will omit
 
 ```typescript
 interface SleepStageSummary {
-    /** Minutes spent awake during the session. */
-    awakeMinutes?: number;
-    /** Minutes in light sleep. */
-    lightMinutes?: number;
-    /** Minutes in deep sleep. */
-    deepMinutes?: number;
-    /** Minutes in REM sleep. */
-    remMinutes?: number;
-    /** Minutes restless (legacy classifications). */
-    restlessMinutes?: number;
+  /** Minutes spent awake during the session. */
+  awakeMinutes?: number
+  /** Minutes in light sleep. */
+  lightMinutes?: number
+  /** Minutes in deep sleep. */
+  deepMinutes?: number
+  /** Minutes in REM sleep. */
+  remMinutes?: number
+  /** Minutes restless (legacy classifications). */
+  restlessMinutes?: number
 }
 ```
 
@@ -325,20 +327,20 @@ messages — implementations must sanitize all error paths.
 
 ```typescript
 interface UserConnection {
-    /** The user owning the connection in the host application. */
-    userId: string;
-    /** Provider-specific account identifier (e.g. Fitbit `user_id`). */
-    providerAccountId: string;
-    /** Current access token. */
-    accessToken: string;
-    /** Refresh token used to mint new access tokens. */
-    refreshToken: string;
-    /** Optional epoch-millis timestamp at which the access token expires. */
-    expiresAt?: number;
-    /** Granted OAuth scopes (provider-specific names). */
-    scopes?: string[];
-    /** Epoch-millis timestamp at which the connection was first established. */
-    connectedAt: number;
+  /** The user owning the connection in the host application. */
+  userId: string
+  /** Provider-specific account identifier (e.g. Fitbit `user_id`). */
+  providerAccountId: string
+  /** Current access token. */
+  accessToken: string
+  /** Refresh token used to mint new access tokens. */
+  refreshToken: string
+  /** Optional epoch-millis timestamp at which the access token expires. */
+  expiresAt?: number
+  /** Granted OAuth scopes (provider-specific names). */
+  scopes?: string[]
+  /** Epoch-millis timestamp at which the connection was first established. */
+  connectedAt: number
 }
 ```
 
@@ -353,28 +355,28 @@ Withings, etc.) — segregation is by `(userId, providerName)` pair.
 
 ```typescript
 interface WearableCredentialsStore {
-    /**
-     * Looks up the connection for `(userId, providerName)`.
-     *
-     * @param userId - Host-app user identifier.
-     * @param providerName - Provider key, e.g. `"fitbit"`.
-     * @returns The stored connection or `null` if none.
-     */
-    read(userId: string, providerName: string): Promise<UserConnection | null>;
-    /**
-     * Persists a new or refreshed connection.
-     *
-     * @param providerName - Provider key, e.g. `"fitbit"`.
-     * @param connection - The connection record to write.
-     */
-    write(providerName: string, connection: UserConnection): Promise<void>;
-    /**
-     * Deletes the connection for `(userId, providerName)`.
-     *
-     * @param userId - Host-app user identifier.
-     * @param providerName - Provider key.
-     */
-    remove(userId: string, providerName: string): Promise<void>;
+  /**
+   * Looks up the connection for `(userId, providerName)`.
+   *
+   * @param userId - Host-app user identifier.
+   * @param providerName - Provider key, e.g. `"fitbit"`.
+   * @returns The stored connection or `null` if none.
+   */
+  read(userId: string, providerName: string): Promise<UserConnection | null>
+  /**
+   * Persists a new or refreshed connection.
+   *
+   * @param providerName - Provider key, e.g. `"fitbit"`.
+   * @param connection - The connection record to write.
+   */
+  write(providerName: string, connection: UserConnection): Promise<void>
+  /**
+   * Deletes the connection for `(userId, providerName)`.
+   *
+   * @param userId - Host-app user identifier.
+   * @param providerName - Provider key.
+   */
+  remove(userId: string, providerName: string): Promise<void>
 }
 ```
 
@@ -384,10 +386,10 @@ Inclusive date range.
 
 ```typescript
 interface WearableDateRange {
-    /** Lower-bound calendar day (`YYYY-MM-DD`), inclusive. */
-    start: WearableDate;
-    /** Upper-bound calendar day (`YYYY-MM-DD`), inclusive. */
-    end: WearableDate;
+  /** Lower-bound calendar day (`YYYY-MM-DD`), inclusive. */
+  start: WearableDate
+  /** Upper-bound calendar day (`YYYY-MM-DD`), inclusive. */
+  end: WearableDate
 }
 ```
 
@@ -408,72 +410,72 @@ error path must be sanitized.
 
 ```typescript
 interface WearableProvider {
-    /** Stable provider key used for credential-store segregation, e.g. `"fitbit"`. */
-    readonly providerName: string;
-    /**
-     * Reads the daily activity rollup for `(userId, date)`.
-     *
-     * @param userId - Host-app user identifier.
-     * @param date - Calendar day (`YYYY-MM-DD`).
-     * @returns Normalized daily activity.
-     */
-    getDailyActivity(userId: string, date: WearableDate): Promise<DailyActivity>;
-    /**
-     * Reads sleep sessions bucketed under `(userId, date)`. Most days return
-     * a single primary session; multi-nap days return multiple.
-     *
-     * @param userId - Host-app user identifier.
-     * @param date - Calendar day (`YYYY-MM-DD`).
-     * @returns All sleep sessions bucketed under that day.
-     */
-    getDailySleep(userId: string, date: WearableDate): Promise<SleepSession[]>;
-    /**
-     * Reads the daily heart-rate summary for `(userId, date)`.
-     *
-     * @param userId - Host-app user identifier.
-     * @param date - Calendar day (`YYYY-MM-DD`).
-     * @returns Normalized daily heart-rate summary.
-     */
-    getDailyHeartRate(userId: string, date: WearableDate): Promise<HeartRateSummary>;
-    /**
-     * Reads body-weight entries for the user across `range`. Providers cap
-     * how far back a single call may reach — implementations should clamp
-     * `range` to the provider's documented maximum and return only the
-     * available entries.
-     *
-     * @param userId - Host-app user identifier.
-     * @param range - Inclusive calendar-day range.
-     * @returns Weight entries, ordered by `recordedAt` ascending.
-     */
-    getWeight(userId: string, range: WearableDateRange): Promise<WeightEntry[]>;
-    /**
-     * Exchanges an OAuth authorization `code` for tokens and persists the
-     * resulting {@link UserConnection} via the bond's credentials store.
-     *
-     * @param userId - Host-app user identifier (the local user accepting the link).
-     * @param code - Authorization code from the OAuth redirect callback.
-     * @returns The freshly-minted connection (already persisted).
-     */
-    connect(userId: string, code: string): Promise<UserConnection>;
-    /**
-     * Forces a refresh of the user's access token using the stored refresh
-     * token. The rotated connection is persisted before being returned.
-     *
-     * @param userId - Host-app user identifier.
-     * @returns The rotated connection (already persisted).
-     */
-    refreshConnection(userId: string): Promise<UserConnection>;
-    /**
-     * Revokes (best-effort) and removes the user's connection record.
-     *
-     * Implementations SHOULD attempt to revoke the token at the provider but
-     * MUST always remove the local record even if revocation fails — leaking
-     * a record after `disconnect` is worse than a stranded provider-side
-     * token.
-     *
-     * @param userId - Host-app user identifier.
-     */
-    disconnect(userId: string): Promise<void>;
+  /** Stable provider key used for credential-store segregation, e.g. `"fitbit"`. */
+  readonly providerName: string
+  /**
+   * Reads the daily activity rollup for `(userId, date)`.
+   *
+   * @param userId - Host-app user identifier.
+   * @param date - Calendar day (`YYYY-MM-DD`).
+   * @returns Normalized daily activity.
+   */
+  getDailyActivity(userId: string, date: WearableDate): Promise<DailyActivity>
+  /**
+   * Reads sleep sessions bucketed under `(userId, date)`. Most days return
+   * a single primary session; multi-nap days return multiple.
+   *
+   * @param userId - Host-app user identifier.
+   * @param date - Calendar day (`YYYY-MM-DD`).
+   * @returns All sleep sessions bucketed under that day.
+   */
+  getDailySleep(userId: string, date: WearableDate): Promise<SleepSession[]>
+  /**
+   * Reads the daily heart-rate summary for `(userId, date)`.
+   *
+   * @param userId - Host-app user identifier.
+   * @param date - Calendar day (`YYYY-MM-DD`).
+   * @returns Normalized daily heart-rate summary.
+   */
+  getDailyHeartRate(userId: string, date: WearableDate): Promise<HeartRateSummary>
+  /**
+   * Reads body-weight entries for the user across `range`. Providers cap
+   * how far back a single call may reach — implementations should clamp
+   * `range` to the provider's documented maximum and return only the
+   * available entries.
+   *
+   * @param userId - Host-app user identifier.
+   * @param range - Inclusive calendar-day range.
+   * @returns Weight entries, ordered by `recordedAt` ascending.
+   */
+  getWeight(userId: string, range: WearableDateRange): Promise<WeightEntry[]>
+  /**
+   * Exchanges an OAuth authorization `code` for tokens and persists the
+   * resulting {@link UserConnection} via the bond's credentials store.
+   *
+   * @param userId - Host-app user identifier (the local user accepting the link).
+   * @param code - Authorization code from the OAuth redirect callback.
+   * @returns The freshly-minted connection (already persisted).
+   */
+  connect(userId: string, code: string): Promise<UserConnection>
+  /**
+   * Forces a refresh of the user's access token using the stored refresh
+   * token. The rotated connection is persisted before being returned.
+   *
+   * @param userId - Host-app user identifier.
+   * @returns The rotated connection (already persisted).
+   */
+  refreshConnection(userId: string): Promise<UserConnection>
+  /**
+   * Revokes (best-effort) and removes the user's connection record.
+   *
+   * Implementations SHOULD attempt to revoke the token at the provider but
+   * MUST always remove the local record even if revocation fails — leaking
+   * a record after `disconnect` is worse than a stranded provider-side
+   * token.
+   *
+   * @param userId - Host-app user identifier.
+   */
+  disconnect(userId: string): Promise<void>
 }
 ```
 
@@ -483,18 +485,18 @@ One body-weight reading.
 
 ```typescript
 interface WeightEntry {
-    /** ISO 8601 timestamp at which the reading was taken. */
-    recordedAt: string;
-    /** Calendar day of the reading (`YYYY-MM-DD`). */
-    date: WearableDate;
-    /** Weight in kilograms. */
-    weightKg: number;
-    /** Body-fat percentage (0-100), when reported. */
-    bodyFatPercent?: number;
-    /** BMI (kg / m²), when reported. */
-    bmi?: number;
-    /** Provider-specific entry id. */
-    id?: string;
+  /** ISO 8601 timestamp at which the reading was taken. */
+  recordedAt: string
+  /** Calendar day of the reading (`YYYY-MM-DD`). */
+  date: WearableDate
+  /** Weight in kilograms. */
+  weightKg: number
+  /** Body-fat percentage (0-100), when reported. */
+  bodyFatPercent?: number
+  /** BMI (kg / m²), when reported. */
+  bmi?: number
+  /** Provider-specific entry id. */
+  id?: string
 }
 ```
 
@@ -510,7 +512,7 @@ Sleep stage taxonomy normalized across providers.
 - `unknown` — fallback for unmapped values
 
 ```typescript
-type SleepStage = 'awake' | 'light' | 'deep' | 'rem' | 'restless' | 'asleep' | 'unknown';
+type SleepStage = 'awake' | 'light' | 'deep' | 'rem' | 'restless' | 'asleep' | 'unknown'
 ```
 
 #### `WearableDate`
@@ -520,7 +522,7 @@ universally bucket activity/sleep/HR data by local-day, so the core
 exchanges date strings (not absolute timestamps) for per-day reads.
 
 ```typescript
-type WearableDate = string;
+type WearableDate = string
 ```
 
 ### Functions
@@ -639,7 +641,7 @@ function sha256Base64Url(input: string): Promise<string>
 Stable provider key used in the credentials store and bond name.
 
 ```typescript
-const PROVIDER_NAME: "fitbit"
+const PROVIDER_NAME: 'fitbit'
 ```
 
 #### `wearableFitbitSecretDefinitions`
@@ -651,6 +653,7 @@ const wearableFitbitSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-wearable` interface.
 
 ## Injection Notes
@@ -658,6 +661,7 @@ Implements `@molecule/api-wearable` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
@@ -665,10 +669,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_FITBIT_CLIENT_ID` *(required)* — Fitbit OAuth client ID
+- `OAUTH_FITBIT_CLIENT_ID` _(required)_ — Fitbit OAuth client ID
   - Setup: Register an application at dev.fitbit.com and copy the OAuth 2.0 Client ID.
   - Get it here: [https://dev.fitbit.com/apps](https://dev.fitbit.com/apps)
-- `OAUTH_FITBIT_CLIENT_SECRET` *(optional)* — Fitbit client secret
+- `OAUTH_FITBIT_CLIENT_SECRET` _(optional)_ — Fitbit client secret
   - Setup: Shown on your registered Fitbit application page.
   - Get it here: [https://dev.fitbit.com/apps](https://dev.fitbit.com/apps)
 
@@ -701,32 +705,33 @@ vendor's OAuth consent screen and real sensor data can't be driven in the
 sandbox, so verify the connection lifecycle + the data mapping/display you own
 by wiring a stub/test provider (or feeding a sample payload) where the real
 grant/sync would occur — never mock the app's own handlers or UI:
+
 - [ ] Connecting a device from the UI runs the provider's `connect(userId, code)`,
-  which exchanges the OAuth code and persists a `UserConnection` via the
-  `WearableCredentialsStore` (`store.write`), keyed by `(userId, providerName)`.
-  Afterward `store.read(userId, name)` returns that connection and the device
-  shows "connected"; `disconnect(userId)` removes the record and the UI returns
-  to the unlinked state.
+      which exchanges the OAuth code and persists a `UserConnection` via the
+      `WearableCredentialsStore` (`store.write`), keyed by `(userId, providerName)`.
+      Afterward `store.read(userId, name)` returns that connection and the device
+      shows "connected"; `disconnect(userId)` removes the record and the UI returns
+      to the unlinked state.
 - [ ] Fetching a metric for a real date renders plausible, in-range values in a
-  chart/summary: `getDailyActivity().steps` in the thousands, `getDailyHeartRate()`
-  `restingHeartRate` ~40-200 bpm, `getDailySleep()` `timeAsleepMinutes` a sane
-  number of hours, `getWeight()` `weightKg` a human bodyweight — never
-  null/NaN/negative.
+      chart/summary: `getDailyActivity().steps` in the thousands, `getDailyHeartRate()`
+      `restingHeartRate` ~40-200 bpm, `getDailySleep()` `timeAsleepMinutes` a sane
+      number of hours, `getWeight()` `weightKg` a human bodyweight — never
+      null/NaN/negative.
 - [ ] Different days/ranges return different data and the dates line up with no
-  off-by-one/timezone shift: each rollup's `date` (a `YYYY-MM-DD` `WearableDate`)
-  equals the day requested, and every `getWeight(range)` entry's `date` falls
-  within `range.start`..`range.end` inclusive.
+      off-by-one/timezone shift: each rollup's `date` (a `YYYY-MM-DD` `WearableDate`)
+      equals the day requested, and every `getWeight(range)` entry's `date` falls
+      within `range.start`..`range.end` inclusive.
 - [ ] A day the device wasn't worn/synced shows as a GAP, not a celebrated zero.
-  The core zero-defaults `DailyActivity` (a missing day comes back as `steps: 0`,
-  `activeMinutes: 0`), so the UI must distinguish "no data" from a real 0 and
-  never present an unsynced day as "0 steps achieved".
+      The core zero-defaults `DailyActivity` (a missing day comes back as `steps: 0`,
+      `activeMinutes: 0`), so the UI must distinguish "no data" from a real 0 and
+      never present an unsynced day as "0 steps achieved".
 - [ ] This core is pull-based — the `WearableProvider` interface has no webhook
-  method; data is read on demand via the `getDaily*`/`getWeight` calls. If a
-  provider bond wires a sync/subscription callback, delivering a valid callback
-  updates the stored data and a forged/unsigned callback is rejected.
+      method; data is read on demand via the `getDaily*`/`getWeight` calls. If a
+      provider bond wires a sync/subscription callback, delivering a valid callback
+      updates the stored data and a forged/unsigned callback is rejected.
 - [ ] PRIVACY/SECURITY — health data is per-user: every `getDaily*`/`getWeight`
-  call is scoped by the caller's authenticated `userId` and the store is
-  segregated by `(userId, providerName)`, so no id-guessing reaches another
-  user's metrics. Device tokens (`accessToken`/`refreshToken`) and provider keys
-  stay server-side (the package is server-only) and are never logged in the
-  clear — error paths are sanitized so no token or health data leaks into logs.
+      call is scoped by the caller's authenticated `userId` and the store is
+      segregated by `(userId, providerName)`, so no id-guessing reaches another
+      user's metrics. Device tokens (`accessToken`/`refreshToken`) and provider keys
+      stay server-side (the package is server-only) and are never logged in the
+      clear — error paths are sanitized so no token or health data leaks into logs.

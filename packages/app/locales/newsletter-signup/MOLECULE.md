@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-newsletter-signup-react` package wh
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-newsletter-signup'
-import type { NewsletterSignupTranslationKey, NewsletterSignupTranslations } from '@molecule/app-locales-newsletter-signup'
+import type {
+  NewsletterSignupTranslationKey,
+  NewsletterSignupTranslations,
+} from '@molecule/app-locales-newsletter-signup'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `newsletter.placeholder` | Your email |
+| Key                      | English      |
+| ------------------------ | ------------ |
+| `newsletter.placeholder` | Your email   |
 | `newsletter.subscribing` | Subscribing… |
-| `newsletter.subscribe` | Subscribe |
+| `newsletter.subscribe`   | Subscribe    |
 
 ## Metadata
 

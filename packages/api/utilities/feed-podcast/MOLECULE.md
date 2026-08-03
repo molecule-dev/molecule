@@ -63,9 +63,11 @@ app.get('/podcasts/:id/feed.xml', async (req, res) => {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-feed-podcast
 ```
@@ -379,6 +381,7 @@ Create a framework-agnostic HTTP handler that responds to
 `GET /podcasts/:id/feed.xml` with serialized RSS XML.
 
 Behavior:
+
 - On loader return-value `null` → `404` with `text/plain` body.
 - On loader return-value {@link Podcast} → `200` with
   `application/rss+xml; charset=utf-8` body produced by
@@ -387,7 +390,9 @@ Behavior:
 Loader errors propagate — callers wrap in their own error middleware.
 
 ```typescript
-function createPodcastFeedHandler(options: CreatePodcastFeedHandlerOptions): (req: PodcastFeedRequest) => Promise<PodcastFeedResponse>
+function createPodcastFeedHandler(
+  options: CreatePodcastFeedHandlerOptions,
+): (req: PodcastFeedRequest) => Promise<PodcastFeedResponse>
 ```
 
 - `options` — Loader + optional serializer options.

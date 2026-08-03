@@ -18,9 +18,11 @@ if (result.pwned) {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-breach-check
 ```
@@ -154,7 +156,10 @@ enables `Add-Padding` to thwart traffic-analysis attacks and supports
 pluggable caching via the {@link CheckPasswordOptions.cache} option.
 
 ```typescript
-function checkPassword(plaintext: string, options?: CheckPasswordOptions): Promise<BreachCheckResult>
+function checkPassword(
+  plaintext: string,
+  options?: CheckPasswordOptions,
+): Promise<BreachCheckResult>
 ```
 
 - `plaintext` — The plaintext password to check.

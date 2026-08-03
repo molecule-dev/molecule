@@ -25,9 +25,11 @@ const bars = await getHistorical('AAPL', '1y')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-equity-prices @molecule/api-bond @molecule/api-i18n
 ```
@@ -365,17 +367,18 @@ function setProvider(provider: EquityPricesProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider                    | Package                                     |
+| --------------------------- | ------------------------------------------- |
 | Alpha Vantage Equity Prices | `@molecule/api-equity-prices-alpha-vantage` |
-| IEX Cloud | `@molecule/api-equity-prices-iex` |
-| Polygon.io Equity Prices | `@molecule/api-equity-prices-polygon` |
+| IEX Cloud                   | `@molecule/api-equity-prices-iex`           |
+| Polygon.io Equity Prices    | `@molecule/api-equity-prices-polygon`       |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -405,26 +408,27 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A known ticker (e.g. `getQuote('AAPL')`) renders a PLAUSIBLE quote in
-  the UI — a real `price` in a sane range, formatted with the quote's own
-  `currency` (never a hardcoded `$`), never `0` / `null` / `NaN` or a
-  spinner that never resolves.
+      the UI — a real `price` in a sane range, formatted with the quote's own
+      `currency` (never a hardcoded `$`), never `0` / `null` / `NaN` or a
+      spinner that never resolves.
 - [ ] Several distinct tickers (e.g. `AAPL` and `MSFT`) each render their
-  OWN price — not one shared placeholder or the same number repeated (a
-  stale-cache or wrong-symbol wiring bug).
+      OWN price — not one shared placeholder or the same number repeated (a
+      stale-cache or wrong-symbol wiring bug).
 - [ ] If the app charts history, `getHistorical(symbol, range)` returns an
-  ascending series of `{ ts, close }` that actually draws a line that moves
-  — not an empty array, a flat line, or points in reversed order.
+      ascending series of `{ ts, close }` that actually draws a line that moves
+      — not an empty array, a flat line, or points in reversed order.
 - [ ] An invalid / unknown ticker resolves to a clear "not found" in the UI
-  (empty `searchSymbol()` results, or a caught `getQuote` error) — never a
-  crash, a blank card, or a `NaN` price.
+      (empty `searchSymbol()` results, or a caught `getQuote` error) — never a
+      crash, a blank card, or a `NaN` price.
 - [ ] Staleness is honest: the quote's `ts` is surfaced (a timestamp or a
-  "delayed / last close" label) so an out-of-hours last-close price is NOT
-  presented as a live trade — the UI never dresses stale data up as real-time.
+      "delayed / last close" label) so an out-of-hours last-close price is NOT
+      presented as a live trade — the UI never dresses stale data up as real-time.
 - [ ] A provider rate-limit / outage (free tiers cap at a few calls) degrades
-  gracefully to last-known-cached data or an empty state with a message —
-  never a crashed page or a `NaN`; quotes are cached server-side, not
-  refetched per render.
+      gracefully to last-known-cached data or an empty state with a message —
+      never a crashed page or a `NaN`; quotes are cached server-side, not
+      refetched per render.
 - [ ] The provider API key stays server-side: quotes are served only through
-  the app's own authenticated endpoint, scoped to specific symbols — not an
-  open, unbounded proxy any caller can pass arbitrary tickers/params to.
+      the app's own authenticated endpoint, scoped to specific symbols — not an
+      open, unbounded proxy any caller can pass arbitrary tickers/params to.

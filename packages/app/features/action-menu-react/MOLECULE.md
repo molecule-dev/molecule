@@ -10,7 +10,7 @@ and Escape key support. `ActionMenuItem` type.
 ```tsx
 import { ActionMenu } from '@molecule/app-action-menu-react'
 
-<ActionMenu
+;<ActionMenu
   items={[
     { id: 'edit', label: 'Edit', onClick: () => console.log('edit') },
     { id: 'duplicate', label: 'Duplicate', onClick: () => console.log('duplicate'), divider: true },
@@ -21,9 +21,11 @@ import { ActionMenu } from '@molecule/app-action-menu-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-action-menu-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -108,6 +110,7 @@ function ActionMenu({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

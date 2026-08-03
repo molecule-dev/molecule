@@ -26,9 +26,11 @@ console.log(translations[0].text, translations[0].detectedSourceLang) // 'Hallo 
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-translation @molecule/api-bond
 ```
@@ -210,8 +212,8 @@ function setProvider(provider: AITranslationProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider       | Package                              |
+| -------------- | ------------------------------------ |
 | Ai Translation | `@molecule/api-ai-translation-deepl` |
 
 ## Injection Notes
@@ -219,6 +221,7 @@ function setProvider(provider: AITranslationProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -253,20 +256,21 @@ by one. A box you can't check is an integration bug to fix — not a skip.
 The sandbox has a live AI provider, so translations run for real; output is
 non-deterministic, so assert on the resulting LANGUAGE/meaning, never an
 exact string:
+
 - [ ] Translating real text to a target language through the UI returns text
-  ACTUALLY in that language — English→Spanish produces recognizably Spanish,
-  not the original echoed back or left in English.
+      ACTUALLY in that language — English→Spanish produces recognizably Spanish,
+      not the original echoed back or left in English.
 - [ ] Switching the target language (from the picker populated by
-  getSupportedLanguages('target')) changes the output language for the same
-  input — the same source re-translates into the newly chosen language.
+      getSupportedLanguages('target')) changes the output language for the same
+      input — the same source re-translates into the newly chosen language.
 - [ ] With sourceLang omitted the provider auto-detects: a known-language
-  input comes back with the correct detectedSourceLang, and if the UI shows
-  a detected-language label it names the right one.
+      input comes back with the correct detectedSourceLang, and if the UI shows
+      a detected-language label it names the right one.
 - [ ] Text already in the target language is left sensible — unchanged or a
-  valid paraphrase, never mangled, doubled, or emptied.
+      valid paraphrase, never mangled, doubled, or emptied.
 - [ ] Empty or untranslatable input (whitespace, emoji, a bare code snippet)
-  is handled gracefully — a clear UI state, nothing crashes.
+      is handled gracefully — a clear UI state, nothing crashes.
 - [ ] A provider failure (bad key, quota exhausted, network drop) surfaces a
-  visible error in the UI, not an unhandled 500 or a silently blank result.
+      visible error in the UI, not an unhandled 500 or a silently blank result.
 - [ ] The translate call runs server-side only — the provider key never
-  reaches the browser (check the network panel: no key in any request).
+      reaches the browser (check the network panel: no key in any request).

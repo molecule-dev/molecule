@@ -24,9 +24,11 @@ setProvider(perms)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-permissions-custom @molecule/api-permissions
 ```
@@ -41,12 +43,12 @@ Input for creating a new role.
 
 ```typescript
 interface CreateRole {
-    /** Human-readable name of the role. */
-    name: string;
-    /** Optional description of the role's purpose. */
-    description?: string;
-    /** Permissions to assign to the role. */
-    permissions: Permission[];
+  /** Human-readable name of the role. */
+  name: string
+  /** Optional description of the role's purpose. */
+  description?: string
+  /** Permissions to assign to the role. */
+  permissions: Permission[]
 }
 ```
 
@@ -73,14 +75,14 @@ A permission granting an action on a resource, optionally with conditions.
 
 ```typescript
 interface Permission {
-    /** Unique identifier for this permission. */
-    id: string;
-    /** The action this permission grants (e.g. `read`, `write`, `delete`). */
-    action: string;
-    /** The resource this permission applies to (e.g. `project`, `user`, `*`). */
-    resource: string;
-    /** Optional ABAC conditions that must be met for this permission to apply. */
-    conditions?: Record<string, unknown>;
+  /** Unique identifier for this permission. */
+  id: string
+  /** The action this permission grants (e.g. `read`, `write`, `delete`). */
+  action: string
+  /** The resource this permission applies to (e.g. `project`, `user`, `*`). */
+  resource: string
+  /** Optional ABAC conditions that must be met for this permission to apply. */
+  conditions?: Record<string, unknown>
 }
 ```
 
@@ -93,73 +95,78 @@ authorization checking, role management, and permission assignment.
 
 ```typescript
 interface PermissionsProvider {
-    /**
-     * Checks whether a subject is allowed to perform an action on a resource.
-     *
-     * @param subject - The entity requesting access (e.g. user ID).
-     * @param action - The action being requested (e.g. `read`, `write`).
-     * @param resource - The resource being accessed (e.g. `project`).
-     * @param context - Optional ABAC context attributes for condition evaluation.
-     * @returns `true` if the subject is authorized.
-     */
-    can(subject: string, action: string, resource: string, context?: Record<string, unknown>): Promise<boolean>;
-    /**
-     * Assigns a role to a subject, optionally within a scope.
-     *
-     * @param subject - The entity to assign the role to.
-     * @param role - The role name to assign.
-     * @param scope - Optional scope for the assignment (e.g. `org:123`).
-     */
-    assign(subject: string, role: string, scope?: string): Promise<void>;
-    /**
-     * Revokes a role from a subject, optionally within a scope.
-     *
-     * @param subject - The entity to revoke the role from.
-     * @param role - The role name to revoke.
-     * @param scope - Optional scope for the revocation.
-     */
-    revoke(subject: string, role: string, scope?: string): Promise<void>;
-    /**
-     * Retrieves all roles assigned to a subject.
-     *
-     * @param subject - The entity to look up roles for.
-     * @returns The roles assigned to the subject.
-     */
-    getRoles(subject: string): Promise<Role[]>;
-    /**
-     * Creates a new role definition.
-     *
-     * @param role - The role definition to create.
-     * @returns The created role with an assigned `id`.
-     */
-    createRole(role: CreateRole): Promise<Role>;
-    /**
-     * Deletes a role definition by ID.
-     *
-     * @param roleId - The ID of the role to delete.
-     */
-    deleteRole(roleId: string): Promise<void>;
-    /**
-     * Retrieves all permissions granted by a role.
-     *
-     * @param role - The role name to look up permissions for.
-     * @returns The permissions granted by the role.
-     */
-    getPermissions(role: string): Promise<Permission[]>;
-    /**
-     * Adds a permission to an existing role.
-     *
-     * @param role - The role name to add the permission to.
-     * @param permission - The permission to add.
-     */
-    addPermission(role: string, permission: Permission): Promise<void>;
-    /**
-     * Removes a permission from a role.
-     *
-     * @param role - The role name to remove the permission from.
-     * @param permissionId - The ID of the permission to remove.
-     */
-    removePermission(role: string, permissionId: string): Promise<void>;
+  /**
+   * Checks whether a subject is allowed to perform an action on a resource.
+   *
+   * @param subject - The entity requesting access (e.g. user ID).
+   * @param action - The action being requested (e.g. `read`, `write`).
+   * @param resource - The resource being accessed (e.g. `project`).
+   * @param context - Optional ABAC context attributes for condition evaluation.
+   * @returns `true` if the subject is authorized.
+   */
+  can(
+    subject: string,
+    action: string,
+    resource: string,
+    context?: Record<string, unknown>,
+  ): Promise<boolean>
+  /**
+   * Assigns a role to a subject, optionally within a scope.
+   *
+   * @param subject - The entity to assign the role to.
+   * @param role - The role name to assign.
+   * @param scope - Optional scope for the assignment (e.g. `org:123`).
+   */
+  assign(subject: string, role: string, scope?: string): Promise<void>
+  /**
+   * Revokes a role from a subject, optionally within a scope.
+   *
+   * @param subject - The entity to revoke the role from.
+   * @param role - The role name to revoke.
+   * @param scope - Optional scope for the revocation.
+   */
+  revoke(subject: string, role: string, scope?: string): Promise<void>
+  /**
+   * Retrieves all roles assigned to a subject.
+   *
+   * @param subject - The entity to look up roles for.
+   * @returns The roles assigned to the subject.
+   */
+  getRoles(subject: string): Promise<Role[]>
+  /**
+   * Creates a new role definition.
+   *
+   * @param role - The role definition to create.
+   * @returns The created role with an assigned `id`.
+   */
+  createRole(role: CreateRole): Promise<Role>
+  /**
+   * Deletes a role definition by ID.
+   *
+   * @param roleId - The ID of the role to delete.
+   */
+  deleteRole(roleId: string): Promise<void>
+  /**
+   * Retrieves all permissions granted by a role.
+   *
+   * @param role - The role name to look up permissions for.
+   * @returns The permissions granted by the role.
+   */
+  getPermissions(role: string): Promise<Permission[]>
+  /**
+   * Adds a permission to an existing role.
+   *
+   * @param role - The role name to add the permission to.
+   * @param permission - The permission to add.
+   */
+  addPermission(role: string, permission: Permission): Promise<void>
+  /**
+   * Removes a permission from a role.
+   *
+   * @param role - The role name to remove the permission from.
+   * @param permissionId - The ID of the permission to remove.
+   */
+  removePermission(role: string, permissionId: string): Promise<void>
 }
 ```
 
@@ -169,16 +176,16 @@ A role grouping one or more permissions, optionally scoped.
 
 ```typescript
 interface Role {
-    /** Unique identifier for this role. */
-    id: string;
-    /** Human-readable name of the role (e.g. `admin`, `editor`). */
-    name: string;
-    /** Optional description of the role's purpose. */
-    description?: string;
-    /** Permissions granted by this role. */
-    permissions: Permission[];
-    /** Optional scope restricting where this role applies (e.g. `org:123`). */
-    scope?: string;
+  /** Unique identifier for this role. */
+  id: string
+  /** Human-readable name of the role (e.g. `admin`, `editor`). */
+  name: string
+  /** Optional description of the role's purpose. */
+  description?: string
+  /** Permissions granted by this role. */
+  permissions: Permission[]
+  /** Optional scope restricting where this role applies (e.g. `org:123`). */
+  scope?: string
 }
 ```
 
@@ -210,6 +217,7 @@ const provider: PermissionsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-permissions` interface.
 
 ## Bond Wiring
@@ -230,6 +238,7 @@ export function setupPermissionsCustom(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-permissions` ^1.0.0
 
 ### Runtime Dependencies
@@ -241,14 +250,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A user whose role HAS a permission can perform the gated action through
-  the UI; a user whose role lacks it cannot.
+      the UI; a user whose role lacks it cannot.
 - [ ] Denial is enforced SERVER-SIDE: attempting the gated action anyway (or
-  reloading after the attempt) shows nothing changed — hiding the button
-  alone is not enforcement.
+      reloading after the attempt) shows nothing changed — hiding the button
+      alone is not enforcement.
 - [ ] Role-gated screens/navigation are unreachable for unauthorized roles
-  (redirect or clear denial — never a blank page or leaked data).
+      (redirect or clear denial — never a blank page or leaked data).
 - [ ] Assigning a role through the app's admin surface grants the new
-  abilities, and revoking it removes them.
+      abilities, and revoking it removes them.
 - [ ] The same checks hold against OWNED resources: a permitted role still
-  cannot act on another user's private records unless the app intends it.
+      cannot act on another user's private records unless the app intends it.

@@ -9,7 +9,7 @@ Exports `<CookieBanner>` and `CookieCategory` type.
 ```tsx
 import { CookieBanner } from '@molecule/app-cookie-banner-react'
 
-<CookieBanner
+;<CookieBanner
   visible={!consentGiven}
   policyHref="/privacy"
   categories={[
@@ -24,9 +24,11 @@ import { CookieBanner } from '@molecule/app-cookie-banner-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-cookie-banner-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -86,6 +88,7 @@ interface CookieCategory {
 #### `CookieBanner(props)`
 
 GDPR / cookie-consent banner. Two modes:
+
 - Simple: Accept / Reject buttons.
 - Granular: Per-category toggles + "Save preferences".
 
@@ -113,6 +116,7 @@ function CookieBanner({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

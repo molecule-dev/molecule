@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-now-playing-bar-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-now-playing-bar'
-import type { NowPlayingBarTranslationKey, NowPlayingBarTranslations } from '@molecule/app-locales-now-playing-bar'
+import type {
+  NowPlayingBarTranslationKey,
+  NowPlayingBarTranslations,
+} from '@molecule/app-locales-now-playing-bar'
 ```
 
 ## Registration
@@ -34,17 +37,17 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `nowPlaying.empty` | Nothing playing |
-| `nowPlaying.aria.region` | Now playing: {{title}} |
-| `nowPlaying.aria.artwork` | Artwork for {{title}} |
-| `nowPlaying.aria.play` | Play |
-| `nowPlaying.aria.pause` | Pause |
-| `nowPlaying.aria.next` | Next track |
-| `nowPlaying.aria.prev` | Previous track |
-| `nowPlaying.aria.seek` | Seek |
-| `nowPlaying.aria.volume` | Volume |
+| Key                       | English                |
+| ------------------------- | ---------------------- |
+| `nowPlaying.empty`        | Nothing playing        |
+| `nowPlaying.aria.region`  | Now playing: {{title}} |
+| `nowPlaying.aria.artwork` | Artwork for {{title}}  |
+| `nowPlaying.aria.play`    | Play                   |
+| `nowPlaying.aria.pause`   | Pause                  |
+| `nowPlaying.aria.next`    | Next track             |
+| `nowPlaying.aria.prev`    | Previous track         |
+| `nowPlaying.aria.seek`    | Seek                   |
+| `nowPlaying.aria.volume`  | Volume                 |
 
 ## Metadata
 

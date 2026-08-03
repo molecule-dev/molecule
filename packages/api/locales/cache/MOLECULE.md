@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                      | English                                                  |
+| ------------------------ | -------------------------------------------------------- |
 | `cache.error.noProvider` | Cache provider not configured. Call setProvider() first. |
 
 ## Metadata

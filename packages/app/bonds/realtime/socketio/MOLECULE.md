@@ -46,17 +46,21 @@ connection.sendTo('channel:general', 'message:created', { body: 'hi' })
 // Or with custom configuration:
 import { createSocketioProvider } from '@molecule/app-realtime-socketio'
 
-setProvider(createSocketioProvider({
-  transports: ['websocket'],
-  bufferEvents: true,
-  maxBufferSize: 200,
-}))
+setProvider(
+  createSocketioProvider({
+    transports: ['websocket'],
+    bufferEvents: true,
+    maxBufferSize: 200,
+  }),
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-realtime-socketio @molecule/app-realtime socket.io-client
 ```
@@ -291,6 +295,7 @@ const provider: RealtimeClientProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-realtime` interface.
 
 ## Bond Wiring
@@ -311,6 +316,7 @@ export function setupRealtimeSocketio(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-realtime` >=1.0.0
 
 ### Runtime Dependencies
@@ -346,13 +352,14 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The client connects when the relevant screen loads (no connection
-  errors in the console) and live data renders without a manual reload.
+      errors in the console) and live data renders without a manual reload.
 - [ ] Two sessions in the same room see each other's messages/updates appear
-  live (within about a second).
+      live (within about a second).
 - [ ] Presence indicators (if surfaced) update when a participant joins or
-  leaves.
+      leaves.
 - [ ] After a dropped connection (offline/online toggle), the client
-  auto-reconnects, the UI's connection state (if shown) is truthful, and
-  live updates resume.
+      auto-reconnects, the UI's connection state (if shown) is truthful, and
+      live updates resume.
 - [ ] Leaving a room/screen stops that room's events from affecting the UI.

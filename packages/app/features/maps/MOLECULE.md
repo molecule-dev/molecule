@@ -45,9 +45,11 @@ if (container) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-maps @molecule/app-bond @molecule/app-i18n
 ```
@@ -804,7 +806,7 @@ it draws a static grey panel that identifies itself as a placeholder and
 `console.warn`s once when it first engages, because no real map SDK ships with
 the fleet. Markers are tracked in memory but never drawn; overlays, popups,
 events and projection are no-ops; `getSnapshot()` returns an empty string. It
-exists only so map-using screens render *something honest* until a real
+exists only so map-using screens render _something honest_ until a real
 `MapProvider` (Mapbox GL / Google Maps / Leaflet / MapLibre) is implemented
 and bonded via `setProvider()`.
 
@@ -870,7 +872,16 @@ function setProvider(provider: MapProvider): void
 Default Mapbox style URLs for common map appearances.
 
 ```typescript
-const defaultStyles: { streets: string; outdoors: string; light: string; dark: string; satellite: string; satelliteStreets: string; navigationDay: string; navigationNight: string; }
+const defaultStyles: {
+  streets: string
+  outdoors: string
+  light: string
+  dark: string
+  satellite: string
+  satelliteStreets: string
+  navigationDay: string
+  navigationNight: string
+}
 ```
 
 #### `provider`
@@ -889,6 +900,7 @@ const provider: MapProvider
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` 1.0.0
 

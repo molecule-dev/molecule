@@ -3,9 +3,11 @@
 HTTP/SSE AI chat provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ai-chat-http @molecule/app-ai-chat @molecule/app-i18n
 ```
@@ -59,6 +61,7 @@ const provider: HttpChatProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-ai-chat` interface.
 
 ## Bond Wiring
@@ -79,6 +82,7 @@ export function setupAiChatHttp(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-ai-chat` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 
@@ -93,7 +97,6 @@ to an AI provider directly and holds NO AI key. Point `endpoint` at your own API
 provider key + `@molecule/api-ai` live; auth rides the session via the HTTP client
 (cookie/bearer), so never attach a provider key or an absolute AI-provider URL here. See
 `@molecule/app-ai-chat` for the safe-render rules.
-
 
 Server contract (all on the ONE `config.endpoint` route): POST
 `{ message, model?, attachments?, resume?, suppressUserMessage?,
@@ -116,17 +119,18 @@ returns `[]` on HTTP errors but REJECTS on network failure; wrap it.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Sending a message renders it in the thread and a streamed assistant
-  reply appears incrementally (visible tokens while generating — not a
-  frozen UI that dumps one blob).
+      reply appears incrementally (visible tokens while generating — not a
+      frozen UI that dumps one blob).
 - [ ] The reply flows through the app's OWN backend: the browser's network
-  log shows no direct calls to an AI provider and no provider key anywhere
-  client-side.
+      log shows no direct calls to an AI provider and no provider key anywhere
+      client-side.
 - [ ] Model output renders as sanitized markdown — a reply containing HTML
-  or `<script>` displays as text and never executes.
+      or `<script>` displays as text and never executes.
 - [ ] If the app claims conversation persistence, reloading restores the
-  thread history.
+      thread history.
 - [ ] A backend failure (endpoint down, missing API key) surfaces a readable,
-  actionable error — not an infinite spinner.
+      actionable error — not an infinite spinner.
 - [ ] Sending again while a reply streams is handled sanely (queued, blocked,
-  or parallel — never corrupted/interleaved text).
+      or parallel — never corrupted/interleaved text).

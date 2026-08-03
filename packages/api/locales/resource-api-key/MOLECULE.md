@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-resource-api-key` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-resource-api-key'
-import type { ResourceApiKeyTranslationKey, ResourceApiKeyTranslations } from '@molecule/api-locales-resource-api-key'
+import type {
+  ResourceApiKeyTranslationKey,
+  ResourceApiKeyTranslations,
+} from '@molecule/api-locales-resource-api-key'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `resourceApiKey.error.notFound` | API key not found. |
-| `resourceApiKey.error.revoked` | API key has been revoked. |
-| `resourceApiKey.error.expired` | API key has expired. |
-| `resourceApiKey.error.invalid` | Invalid API key. |
+| Key                             | English                   |
+| ------------------------------- | ------------------------- |
+| `resourceApiKey.error.notFound` | API key not found.        |
+| `resourceApiKey.error.revoked`  | API key has been revoked. |
+| `resourceApiKey.error.expired`  | API key has expired.      |
+| `resourceApiKey.error.invalid`  | Invalid API key.          |
 
 ## Metadata
 

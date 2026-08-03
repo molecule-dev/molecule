@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-filesystem` package which has 1 tra
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-filesystem'
-import type { FilesystemTranslationKey, FilesystemTranslations } from '@molecule/app-locales-filesystem'
+import type {
+  FilesystemTranslationKey,
+  FilesystemTranslations,
+} from '@molecule/app-locales-filesystem'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                           | English                                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
 | `filesystem.error.noProvider` | @molecule/app-filesystem: No provider set. Call setProvider() with a FilesystemProvider implementation. |
 
 ## Metadata

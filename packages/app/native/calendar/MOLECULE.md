@@ -45,9 +45,11 @@ async function addReminderToDeviceCalendar(): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-device-calendar @molecule/app-bond @molecule/app-i18n
 ```
@@ -543,6 +545,7 @@ function updateEvent(eventId: string, event: Partial<EventInput>): Promise<Calen
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

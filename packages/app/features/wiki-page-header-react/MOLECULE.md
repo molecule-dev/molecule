@@ -10,22 +10,29 @@ updated time/by, tags) + Edit/History action buttons.
 ```tsx
 import { WikiPageHeader } from '@molecule/app-wiki-page-header-react'
 
-<WikiPageHeader
+;<WikiPageHeader
   title="Getting Started"
   breadcrumb={<span>Docs / Guides</span>}
   version="v3"
   updatedAt="2 days ago"
   updatedBy="Alice"
-  tags={<><span>guide</span><span>setup</span></>}
+  tags={
+    <>
+      <span>guide</span>
+      <span>setup</span>
+    </>
+  }
   onEdit={() => console.log('edit')}
   onHistory={() => console.log('history')}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-wiki-page-header-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -94,6 +101,7 @@ function WikiPageHeader({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

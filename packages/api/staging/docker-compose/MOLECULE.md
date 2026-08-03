@@ -16,9 +16,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-staging-docker-compose @molecule/api-staging
 ```
@@ -190,7 +192,7 @@ function generateNginxConf(): string
 Checks a parsed Compose version against {@link REQUIRED_COMPOSE_VERSION}.
 
 ```typescript
-function isComposeVersionSufficient(version: { major: number; minor: number; }): boolean
+function isComposeVersionSufficient(version: { major: number; minor: number }): boolean
 ```
 
 - `version` — A parsed `{ major, minor }` version.
@@ -225,7 +227,7 @@ Exported for testing — no need to shell out to `docker` to verify the
 parsing logic against every version-string shape Compose has printed.
 
 ```typescript
-function parseComposeVersion(output: string): { major: number; minor: number; } | null
+function parseComposeVersion(output: string): { major: number; minor: number } | null
 ```
 
 - `output` — Raw stdout from `docker compose version`.
@@ -243,6 +245,7 @@ const provider: StagingDriver
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-staging` interface.
 
 ## Bond Wiring
@@ -263,6 +266,7 @@ export function setupStagingDockerCompose(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-staging` ^1.0.0
 
 ### Runtime Dependencies
@@ -274,7 +278,7 @@ Peer dependencies:
   or `.env.staging` must still stage) and a named `additional_contexts`
   build context (the generated `nginx.conf` lives in `.molecule/staging/`,
   outside the app build context). `checkPrerequisites()` parses `docker
-  compose version` and names `'docker-compose >= 2.24 (found X.Y)'` in
+compose version` and names `'docker-compose >= 2.24 (found X.Y)'` in
   `missing` when the installed engine predates this — before `up()` hits
   the engine's opaque compose parse error.
 - Inside the containers the API always listens on port 4000 and Postgres on

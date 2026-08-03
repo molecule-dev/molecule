@@ -9,7 +9,7 @@ Exports `<QuizCard>` and `QuizOption` type.
 ```tsx
 import { QuizCard } from '@molecule/app-quiz-card-react'
 
-<QuizCard
+;<QuizCard
   question="What is the capital of France?"
   options={[
     { id: 'a', label: 'London' },
@@ -24,9 +24,11 @@ import { QuizCard } from '@molecule/app-quiz-card-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-quiz-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -100,6 +102,7 @@ function QuizCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

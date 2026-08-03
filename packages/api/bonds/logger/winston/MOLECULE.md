@@ -26,9 +26,11 @@ setLogger(
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-logger-winston @molecule/api-logger winston
 ```
@@ -43,11 +45,11 @@ Logger interface that all implementations must satisfy.
 
 ```typescript
 interface Logger {
-    trace(...args: unknown[]): void;
-    debug(...args: unknown[]): void;
-    info(...args: unknown[]): void;
-    warn(...args: unknown[]): void;
-    error(...args: unknown[]): void;
+  trace(...args: unknown[]): void
+  debug(...args: unknown[]): void
+  info(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
 }
 ```
 
@@ -96,7 +98,7 @@ interface WinstonTransportConfig {
 Log levels supported by the logger.
 
 ```typescript
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent';
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'
 ```
 
 ### Functions
@@ -150,6 +152,7 @@ const transports: winston.transports.Transports
 #### `winston`
 
 ## Core Interface
+
 Implements `@molecule/api-logger` interface.
 
 ## Bond Wiring
@@ -170,6 +173,7 @@ export function setupLoggerWinston(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 
 ### Runtime Dependencies

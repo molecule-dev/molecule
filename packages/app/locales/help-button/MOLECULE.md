@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-help-button-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-help-button'
-import type { HelpButtonTranslationKey, HelpButtonTranslations } from '@molecule/app-locales-help-button'
+import type {
+  HelpButtonTranslationKey,
+  HelpButtonTranslations,
+} from '@molecule/app-locales-help-button'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `helpButton.label` | Help |
+| Key                | English |
+| ------------------ | ------- |
+| `helpButton.label` | Help    |
 
 ## Metadata
 

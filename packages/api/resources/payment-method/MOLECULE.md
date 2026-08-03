@@ -21,9 +21,11 @@ import {
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-payment-method @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-payments @molecule/api-resource @molecule/api-secrets
 ```
@@ -137,7 +139,10 @@ brand/last4/exp, then persists it. If the user has no other saved methods,
 the new method is marked as default.
 
 ```typescript
-function attachPaymentMethod(userId: string, providerPaymentMethodId: string): Promise<PaymentMethod>
+function attachPaymentMethod(
+  userId: string,
+  providerPaymentMethodId: string,
+): Promise<PaymentMethod>
 ```
 
 - `userId` — The owning user.
@@ -246,7 +251,7 @@ The provider name used by this resource. Currently fixed to `stripe` —
 a future cross-rail rollout would dispatch on the user's selection.
 
 ```typescript
-const PROVIDER_NAME: "stripe"
+const PROVIDER_NAME: 'stripe'
 ```
 
 #### `requestHandlerMap`
@@ -254,7 +259,12 @@ const PROVIDER_NAME: "stripe"
 Handler map for the payment-method resource routes.
 
 ```typescript
-const requestHandlerMap: { readonly createSetupIntent: typeof createSetupIntent; readonly listPaymentMethods: typeof listPaymentMethods; readonly setDefaultPaymentMethod: typeof setDefaultPaymentMethod; readonly deletePaymentMethod: typeof deletePaymentMethod; }
+const requestHandlerMap: {
+  readonly createSetupIntent: typeof createSetupIntent
+  readonly listPaymentMethods: typeof listPaymentMethods
+  readonly setDefaultPaymentMethod: typeof setDefaultPaymentMethod
+  readonly deletePaymentMethod: typeof deletePaymentMethod
+}
 ```
 
 #### `resourcePaymentMethodSecretDefinitions`
@@ -270,7 +280,32 @@ const resourcePaymentMethodSecretDefinitions: SecretDefinition[]
 Saved payment-method routes.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/me/payment-methods/setup-intent"; readonly handler: "createSetupIntent"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/me/payment-methods"; readonly handler: "listPaymentMethods"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/me/payment-methods/:id/default"; readonly handler: "setDefaultPaymentMethod"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/me/payment-methods/:id"; readonly handler: "deletePaymentMethod"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/me/payment-methods/setup-intent'
+    readonly handler: 'createSetupIntent'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/me/payment-methods'
+    readonly handler: 'listPaymentMethods'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'put'
+    readonly path: '/me/payment-methods/:id/default'
+    readonly handler: 'setDefaultPaymentMethod'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/me/payment-methods/:id'
+    readonly handler: 'deletePaymentMethod'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `TABLE_NAME`
@@ -278,7 +313,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/me/payment-m
 The database table name for saved payment methods.
 
 ```typescript
-const TABLE_NAME: "payment_methods"
+const TABLE_NAME: 'payment_methods'
 ```
 
 ## Injection Notes
@@ -286,6 +321,7 @@ const TABLE_NAME: "payment_methods"
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -296,7 +332,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+- `STRIPE_SECRET_KEY` _(required)_ — Stripe secret key
   - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
   - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
   - Example: `sk_test_...`
@@ -337,27 +373,28 @@ box off one by one; a box you can't check is a security bug to fix, not a
 skip. NEVER type a real card number anywhere — use the provider's TEST card
 (Stripe test mode, `4242 4242 4242 4242`), and it must go to the provider
 SDK, never to your API:
+
 - [ ] Adding a card via the SetupIntent flow stores only a provider TOKEN
-  (`providerPaymentMethodId` like `pm_…`, `providerCustomerId` like `cus_…`)
-  plus safe display fields (`brand`, `last4`, `expMonth`, `expYear`). Confirm
-  with `GET /me/payment-methods` that the response — and the `payment_methods`
-  table schema — carry NO full card number (PAN) and NO CVV: the raw PAN/CVV
-  must appear NOWHERE in the DB row, the API response, or the server logs.
+      (`providerPaymentMethodId` like `pm_…`, `providerCustomerId` like `cus_…`)
+      plus safe display fields (`brand`, `last4`, `expMonth`, `expYear`). Confirm
+      with `GET /me/payment-methods` that the response — and the `payment_methods`
+      table schema — carry NO full card number (PAN) and NO CVV: the raw PAN/CVV
+      must appear NOWHERE in the DB row, the API response, or the server logs.
 - [ ] The UI shows only the masked card (`brand` + `•••• 4242`) — never the
-  full number and never the CVV.
+      full number and never the CVV.
 - [ ] Setting a default makes exactly ONE default: the first card added is
-  auto-default; promoting a second card flips the old default's `isDefault`
-  to false, so only one method has `isDefault: true` (a partial unique index
-  enforces this at the DB level).
+      auto-default; promoting a second card flips the old default's `isDefault`
+      to false, so only one method has `isDefault: true` (a partial unique index
+      enforces this at the DB level).
 - [ ] Removing a method deletes it (`DELETE /me/payment-methods/:id` → 204,
-  gone from the list) AND detaches it at the provider, so it can no longer be
-  charged.
+      gone from the list) AND detaches it at the provider, so it can no longer be
+      charged.
 - [ ] AUTHORIZATION — every route is `/me/…`-scoped to the session user: a
-  user lists/adds/defaults/deletes only their OWN methods. Guessing another
-  user's payment-method id into `PUT /me/payment-methods/:id/default` or
-  `DELETE /me/payment-methods/:id` returns 404 (never touches their card),
-  and no endpoint accepts a target userId from the client.
+      user lists/adds/defaults/deletes only their OWN methods. Guessing another
+      user's payment-method id into `PUT /me/payment-methods/:id/default` or
+      `DELETE /me/payment-methods/:id` returns 404 (never touches their card),
+      and no endpoint accepts a target userId from the client.
 - [ ] The provider secret (`STRIPE_SECRET_KEY`) stays server-side only —
-  never shipped to the browser bundle (this package is server-only). The card
-  is tokenized client-side by the provider SDK using the SetupIntent client
-  secret, so the raw card never touches your server.
+      never shipped to the browser bundle (this package is server-only). The card
+      is tokenized client-side by the provider SDK using the SetupIntent client
+      secret, so the raw card never touches your server.

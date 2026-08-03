@@ -23,9 +23,11 @@ const created = await createTaskForOwner(userId, { title: 'Ship release', priori
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-task @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -98,7 +100,19 @@ type TaskPriority = 1 | 2 | 3 | 4
 Create a new task owned by the given user and return the serialised Task.
 
 ```typescript
-function createTaskForOwner(ownerId: string, data: { title: string; description?: string; parent_id?: string | null; priority?: number; due_date?: string | null; due_time?: string | null; recurrence_rule?: string | null; position?: number; }): Promise<Task>
+function createTaskForOwner(
+  ownerId: string,
+  data: {
+    title: string
+    description?: string
+    parent_id?: string | null
+    priority?: number
+    due_date?: string | null
+    due_time?: string | null
+    recurrence_rule?: string | null
+    position?: number
+  },
+): Promise<Task>
 ```
 
 #### `createTaskRouter()`
@@ -130,7 +144,17 @@ function getTaskForOwner(taskId: string, ownerId: string): Promise<Task | null>
 List tasks for an owner with optional filters.
 
 ```typescript
-function listTasksForOwner(ownerId: string, opts?: { parent_id?: string | null; completed?: boolean; due_date?: string; filter?: "today" | "upcoming"; limit?: number; offset?: number; }): Promise<Task[]>
+function listTasksForOwner(
+  ownerId: string,
+  opts?: {
+    parent_id?: string | null
+    completed?: boolean
+    due_date?: string
+    filter?: 'today' | 'upcoming'
+    limit?: number
+    offset?: number
+  },
+): Promise<Task[]>
 ```
 
 #### `reorderTasksForOwner(ownerId, items)`
@@ -138,7 +162,10 @@ function listTasksForOwner(ownerId: string, opts?: { parent_id?: string | null; 
 Update the position field for a batch of tasks owned by the given user; returns the count of rows updated.
 
 ```typescript
-function reorderTasksForOwner(ownerId: string, items: { id: string; position: number; }[]): Promise<number>
+function reorderTasksForOwner(
+  ownerId: string,
+  items: { id: string; position: number }[],
+): Promise<number>
 ```
 
 #### `toTask(row)`
@@ -154,7 +181,21 @@ function toTask(row: TaskRow): Task
 Apply a partial patch to a task owned by the given user; returns the updated Task or null if not found/owned.
 
 ```typescript
-function updateTaskForOwner(taskId: string, ownerId: string, patch: Partial<{ title: string; description: string | null; parent_id: string | null; priority: number; due_date: string | null; due_time: string | null; recurrence_rule: string | null; position: number; is_completed: boolean; }>): Promise<Task | null>
+function updateTaskForOwner(
+  taskId: string,
+  ownerId: string,
+  patch: Partial<{
+    title: string
+    description: string | null
+    parent_id: string | null
+    priority: number
+    due_date: string | null
+    due_time: string | null
+    recurrence_rule: string | null
+    position: number
+    is_completed: boolean
+  }>,
+): Promise<Task | null>
 ```
 
 ### Constants
@@ -164,7 +205,10 @@ function updateTaskForOwner(taskId: string, ownerId: string, patch: Partial<{ ti
 Validates the request body for bulk-reordering tasks (array of id + position pairs).
 
 ```typescript
-const reorderSchema: z.ZodObject<{ tasks: z.ZodArray<z.ZodObject<{ id: z.ZodString; position: z.ZodNumber; }, z.core.$strip>>; }, z.core.$strip>
+const reorderSchema: z.ZodObject<
+  { tasks: z.ZodArray<z.ZodObject<{ id: z.ZodString; position: z.ZodNumber }, z.core.$strip>> },
+  z.core.$strip
+>
 ```
 
 #### `taskCreateSchema`
@@ -172,7 +216,19 @@ const reorderSchema: z.ZodObject<{ tasks: z.ZodArray<z.ZodObject<{ id: z.ZodStri
 Validates the request body for creating a new task.
 
 ```typescript
-const taskCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; priority: z.ZodOptional<z.ZodNumber>; due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; due_time: z.ZodOptional<z.ZodNullable<z.ZodString>>; recurrence_rule: z.ZodOptional<z.ZodNullable<z.ZodString>>; position: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
+const taskCreateSchema: z.ZodObject<
+  {
+    title: z.ZodString
+    description: z.ZodOptional<z.ZodString>
+    parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    priority: z.ZodOptional<z.ZodNumber>
+    due_date: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    due_time: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    recurrence_rule: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    position: z.ZodOptional<z.ZodNumber>
+  },
+  z.core.$strip
+>
 ```
 
 #### `taskListQuerySchema`
@@ -180,7 +236,17 @@ const taskCreateSchema: z.ZodObject<{ title: z.ZodString; description: z.ZodOpti
 Validates query parameters for listing tasks (filtering, pagination, and due-date constraints).
 
 ```typescript
-const taskListQuerySchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; completed: z.ZodOptional<z.ZodCoercedBoolean<unknown>>; due_date: z.ZodOptional<z.ZodString>; filter: z.ZodOptional<z.ZodEnum<{ today: "today"; upcoming: "upcoming"; }>>; limit: z.ZodOptional<z.ZodCoercedNumber<unknown>>; offset: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
+const taskListQuerySchema: z.ZodObject<
+  {
+    parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    completed: z.ZodOptional<z.ZodCoercedBoolean<unknown>>
+    due_date: z.ZodOptional<z.ZodString>
+    filter: z.ZodOptional<z.ZodEnum<{ today: 'today'; upcoming: 'upcoming' }>>
+    limit: z.ZodOptional<z.ZodCoercedNumber<unknown>>
+    offset: z.ZodOptional<z.ZodCoercedNumber<unknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `taskRouter`
@@ -196,7 +262,20 @@ const taskRouter: Router
 Validates the request body for updating an existing task (all fields optional, plus completion flag).
 
 ```typescript
-const taskUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodString>>; parent_id: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; priority: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; due_time: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; recurrence_rule: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; is_completed: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const taskUpdateSchema: z.ZodObject<
+  {
+    title: z.ZodOptional<z.ZodString>
+    description: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    parent_id: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    priority: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+    due_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    due_time: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    recurrence_rule: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+    is_completed: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -204,6 +283,7 @@ const taskUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; descrip
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -238,27 +318,28 @@ once — nothing at runtime creates them.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating a task through the UI persists its real fields (title,
-  description, priority 1–4, due_date, due_time) and it appears in the
-  signed-in user's list immediately and after a full reload; a task created
-  with no priority defaults to 4.
+      description, priority 1–4, due_date, due_time) and it appears in the
+      signed-in user's list immediately and after a full reload; a task created
+      with no priority defaults to 4.
 - [ ] Toggling completion flips `completed` and stamps `completed_at`: the
-  task leaves the active list and shows in the completed view; toggling it
-  back clears `completed_at` and returns it to the active list.
+      task leaves the active list and shows in the completed view; toggling it
+      back clears `completed_at` and returns it to the active list.
 - [ ] Editing a task's title, description, priority, or due date via the
-  update flow reflects immediately in the UI and persists across a reload.
+      update flow reflects immediately in the UI and persists across a reload.
 - [ ] Ordering holds: the list sorts by priority (highest first) then
-  position, and reordering tasks (drag/move → the reorder action's position
-  writes) persists — a reload keeps the new order, not the pre-drag one.
+      position, and reordering tasks (drag/move → the reorder action's position
+      writes) persists — a reload keeps the new order, not the pre-drag one.
 - [ ] Filters narrow to exactly the right set: `today` shows only incomplete
-  tasks due today, `upcoming` only incomplete tasks that have a due date, the
-  completed view only completed tasks, and opening a task's subtasks lists
-  only its children (parent_id) — never the whole task list.
+      tasks due today, `upcoming` only incomplete tasks that have a due date, the
+      completed view only completed tasks, and opening a task's subtasks lists
+      only its children (parent_id) — never the whole task list.
 - [ ] If the app surfaces recurrence or overdue: a task with a recurrence
-  rule shows its recurring label (daily/weekly/monthly/yearly), and an
-  incomplete task whose due_date is in the past reads as overdue.
+      rule shows its recurring label (daily/weekly/monthly/yearly), and an
+      incomplete task whose due_date is in the past reads as overdue.
 - [ ] AUTHORIZATION — every path is owner-scoped to the session user
-  (`*ForOwner`): a user sees and mutates only their OWN tasks. Guessing or
-  tampering another user's task id on GET/PUT/DELETE `/:id` returns 404 and
-  never that task's data; slipping a foreign id into a reorder batch leaves
-  that task's position unchanged (it is skipped, not moved).
+      (`*ForOwner`): a user sees and mutates only their OWN tasks. Guessing or
+      tampering another user's task id on GET/PUT/DELETE `/:id` returns 404 and
+      never that task's data; slipping a foreign id into a reorder batch leaves
+      that task's position unchanged (it is skipped, not moved).

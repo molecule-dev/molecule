@@ -24,9 +24,11 @@ function PhotoMetadata({ exif }) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-exif-panel-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -133,7 +135,9 @@ resolves through `useTranslation()` — no hardcoded UI strings or
 styling-library class names.
 
 ```typescript
-function ExifPanel(props: ExifPanelProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function ExifPanel(
+  props: ExifPanelProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — {@link ExifPanelProps}.
@@ -174,7 +178,7 @@ Format a single GPS coordinate (latitude or longitude) as
 deg/min/sec with a hemisphere suffix.
 
 ```typescript
-function formatDms(value: number | undefined, axis: "lat" | "lon"): string | null
+function formatDms(value: number | undefined, axis: 'lat' | 'lon'): string | null
 ```
 
 - `value` — Signed decimal degrees.
@@ -252,6 +256,7 @@ function formatTimestamp(value: string | number | Date | undefined): string | nu
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

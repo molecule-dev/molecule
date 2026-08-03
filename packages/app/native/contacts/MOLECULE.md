@@ -37,9 +37,11 @@ async function pickOne(): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-contacts @molecule/app-bond @molecule/app-i18n
 ```
@@ -349,7 +351,14 @@ function deleteContact(id: string): Promise<void>
 Format a contact's display name from their name parts. Falls back to "Unknown" if no name parts exist.
 
 ```typescript
-function formatDisplayName(contact: Contact, t?: ((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string; }) => string)): string
+function formatDisplayName(
+  contact: Contact,
+  t?: (
+    key: string,
+    values?: Record<string, unknown>,
+    options?: { defaultValue?: string },
+  ) => string,
+): string
 ```
 
 - `contact` — The contact to format.
@@ -507,7 +516,7 @@ function requestPermission(): Promise<ContactsPermissionStatus>
 Search contacts by name, email, phone, or other fields.
 
 ```typescript
-function search(query: string, options?: Omit<ContactQueryOptions, "query">): Promise<Contact[]>
+function search(query: string, options?: Omit<ContactQueryOptions, 'query'>): Promise<Contact[]>
 ```
 
 - `query` — The search query string.
@@ -543,6 +552,7 @@ function update(id: string, contact: Partial<ContactInput>): Promise<Contact>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-settings-panel-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-settings-panel'
-import type { SettingsPanelTranslationKey, SettingsPanelTranslations } from '@molecule/app-locales-settings-panel'
+import type {
+  SettingsPanelTranslationKey,
+  SettingsPanelTranslations,
+} from '@molecule/app-locales-settings-panel'
 ```
 
 ## Registration
@@ -34,23 +37,23 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `settings.appearance` | Appearance |
-| `settings.darkMode` | Dark mode |
-| `theme.toggle` | Toggle theme |
-| `settings.logOut` | Sign out |
-| `settings.deleteAccount` | Delete account |
+| Key                               | English                   |
+| --------------------------------- | ------------------------- |
+| `settings.appearance`             | Appearance                |
+| `settings.darkMode`               | Dark mode                 |
+| `theme.toggle`                    | Toggle theme              |
+| `settings.logOut`                 | Sign out                  |
+| `settings.deleteAccount`          | Delete account            |
 | `settings.billing.checkoutFailed` | Could not start checkout. |
-| `settings.billing.cancelConfirm` | Cancel your subscription? |
-| `settings.billing.cancelFailed` | Could not cancel. |
-| `settings.billing` | Billing |
-| `settings.plan` | Plan:  |
-| `settings.upgrade` | Upgrade |
-| `settings.billing.cancel` | Cancel |
-| `settings.billing.upgradeTitle` | Upgrade your plan |
-| `settings.billing.noTiers` | No paid plans configured. |
-| `settings.billing.subscribe` | Subscribe |
+| `settings.billing.cancelConfirm`  | Cancel your subscription? |
+| `settings.billing.cancelFailed`   | Could not cancel.         |
+| `settings.billing`                | Billing                   |
+| `settings.plan`                   | Plan:                     |
+| `settings.upgrade`                | Upgrade                   |
+| `settings.billing.cancel`         | Cancel                    |
+| `settings.billing.upgradeTitle`   | Upgrade your plan         |
+| `settings.billing.noTiers`        | No paid plans configured. |
+| `settings.billing.subscribe`      | Subscribe                 |
 
 ## Metadata
 

@@ -38,9 +38,11 @@ const backendFor = (map: MapInstance): MapDrawingBackend => ({
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-map-drawing-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -314,6 +316,7 @@ component handles four drawing tools — polygon, circle, pin, line —
 plus a select / delete action group.
 
 Drawing semantics:
+
 - **polygon / line**: click adds vertices; double-click finalises.
 - **circle**: pointer-down sets the center; pointer-up commits with
   radius equal to the great-circle distance from center to release.
@@ -326,7 +329,9 @@ selection. All UI text routes through `t()` so the component
 translates via the companion locale bond.
 
 ```typescript
-function MapDrawing(props: MapDrawingProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function MapDrawing(
+  props: MapDrawingProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props.
@@ -340,7 +345,9 @@ All button labels route through `t()` so the toolbar translates via
 the companion `@molecule/app-locales-feature-map-drawing` bond.
 
 ```typescript
-function MapDrawingToolbar(props: MapDrawingToolbarProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function MapDrawingToolbar(
+  props: MapDrawingToolbarProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Toolbar props.
@@ -393,6 +400,7 @@ const identityBackend: MapDrawingBackend
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

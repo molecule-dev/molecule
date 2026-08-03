@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-rating-form-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-rating-form'
-import type { RatingFormTranslationKey, RatingFormTranslations } from '@molecule/app-locales-rating-form'
+import type {
+  RatingFormTranslationKey,
+  RatingFormTranslations,
+} from '@molecule/app-locales-rating-form'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `rating.label` | Rating |
+| Key                         | English                        |
+| --------------------------- | ------------------------------ |
+| `rating.label`              | Rating                         |
 | `rating.commentPlaceholder` | Share your thoughts (optional) |
-| `rating.submitting` | Submitting… |
-| `rating.submit` | Submit review |
+| `rating.submitting`         | Submitting…                    |
+| `rating.submit`             | Submit review                  |
 
 ## Metadata
 

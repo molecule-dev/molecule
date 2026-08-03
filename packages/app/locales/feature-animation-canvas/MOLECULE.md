@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-animation-canvas-react` pac
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-animation-canvas'
-import type { AnimationCanvasTranslationKey, AnimationCanvasTranslations } from '@molecule/app-locales-feature-animation-canvas'
+import type {
+  AnimationCanvasTranslationKey,
+  AnimationCanvasTranslations,
+} from '@molecule/app-locales-feature-animation-canvas'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                           | English          |
+| ----------------------------- | ---------------- |
 | `animationCanvas.aria.canvas` | Animation canvas |
-| `animationCanvas.aria.shape` | Animated shape |
+| `animationCanvas.aria.shape`  | Animated shape   |
 
 ## Metadata
 

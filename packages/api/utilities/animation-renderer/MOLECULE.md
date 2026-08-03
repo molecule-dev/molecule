@@ -62,7 +62,12 @@ const doc: AnimationDocument = {
       id: 'bg',
       kind: 'rect',
       shape: { x: 0, y: 0, width: 1080, height: 1920, fill: '#0ea5e9' },
-      tracks: { 'transform.opacity': [{ time: 0, value: 0 }, { time: 1, value: 1 }] },
+      tracks: {
+        'transform.opacity': [
+          { time: 0, value: 0 },
+          { time: 1, value: 1 },
+        ],
+      },
     },
   ],
 }
@@ -109,9 +114,11 @@ console.log(typeof shim, typeof submit, typeof status, typeof cancel)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-animation-renderer
 ```
@@ -632,7 +639,10 @@ or running job. Returns 404 if no such job exists or 409 if the job
 had already reached a terminal state.
 
 ```typescript
-function createAnimationCancelHandler(): (req: AnimationRenderRequest, res: AnimationRenderResponse) => Promise<void>
+function createAnimationCancelHandler(): (
+  req: AnimationRenderRequest,
+  res: AnimationRenderResponse,
+) => Promise<void>
 ```
 
 **Returns:** Async handler.
@@ -659,7 +669,9 @@ response is sent immediately — the caller polls
 {@link createAnimationStatusHandler} for completion.
 
 ```typescript
-function createAnimationRenderHandler(handlerOptions?: CreateAnimationRenderHandlerOptions): (req: AnimationRenderRequest, res: AnimationRenderResponse) => Promise<void>
+function createAnimationRenderHandler(
+  handlerOptions?: CreateAnimationRenderHandlerOptions,
+): (req: AnimationRenderRequest, res: AnimationRenderResponse) => Promise<void>
 ```
 
 - `handlerOptions` — Optional validator.
@@ -674,7 +686,10 @@ the appropriate content-type when the job has completed and the
 client requested it via `?download=1`.
 
 ```typescript
-function createAnimationStatusHandler(): (req: AnimationRenderRequest, res: AnimationRenderResponse) => Promise<void>
+function createAnimationStatusHandler(): (
+  req: AnimationRenderRequest,
+  res: AnimationRenderResponse,
+) => Promise<void>
 ```
 
 **Returns:** Async handler.
@@ -731,7 +746,20 @@ Exported so callers building a custom queue (e.g. Redis-backed) can
 compose the same render pipeline with their own scheduling layer.
 
 ```typescript
-function makeStandardRunner(adapters: { canvas?: CanvasRenderAdapter; ffmpeg?: FfmpegAdapter; toLottie: (doc: AnimationDocument, opts: { fps: number; width: number; height: number; }) => unknown; snapshotAtTime: (doc: AnimationDocument, t: number) => unknown; }): (doc: AnimationDocument, options: ResolvedRenderOptions, signal: AbortSignal, onProgress: (frame: number) => void) => Promise<RenderResult>
+function makeStandardRunner(adapters: {
+  canvas?: CanvasRenderAdapter
+  ffmpeg?: FfmpegAdapter
+  toLottie: (
+    doc: AnimationDocument,
+    opts: { fps: number; width: number; height: number },
+  ) => unknown
+  snapshotAtTime: (doc: AnimationDocument, t: number) => unknown
+}): (
+  doc: AnimationDocument,
+  options: ResolvedRenderOptions,
+  signal: AbortSignal,
+  onProgress: (frame: number) => void,
+) => Promise<RenderResult>
 ```
 
 - `adapters` — Canvas + ffmpeg adapters.
@@ -781,7 +809,10 @@ function snapshotAtTime(doc: AnimationDocument, t: number): SnapshotDocument
 Convert an {@link AnimationDocument} to a Lottie 5.x JSON document.
 
 ```typescript
-function toLottie(doc: AnimationDocument, options: { fps: number; width: number; height: number; }): LottieDocument
+function toLottie(
+  doc: AnimationDocument,
+  options: { fps: number; width: number; height: number },
+): LottieDocument
 ```
 
 - `doc` — Source animation document.

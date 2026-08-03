@@ -31,9 +31,11 @@ function ScanPanel() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-barcode-scanner-react @molecule/app-react @molecule/app-ui @zxing/library react
 npm install -D @types/react
@@ -256,7 +258,11 @@ scope so the heavy `@zxing/library` bundle stays lazily loaded — it is
 only pulled in on the fallback path.
 
 ```typescript
-function buildZxingHints(formats: BarcodeFormat[], zxingBarcodeFormat: Record<string, number>, decodeHintType: Record<string, number>): Map<number, number[]> | null
+function buildZxingHints(
+  formats: BarcodeFormat[],
+  zxingBarcodeFormat: Record<string, number>,
+  decodeHintType: Record<string, number>,
+): Map<number, number[]> | null
 ```
 
 - `formats` — The requested W3C symbologies.
@@ -280,6 +286,7 @@ const DEFAULT_FORMATS: BarcodeFormat[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

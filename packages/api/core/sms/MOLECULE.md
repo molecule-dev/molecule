@@ -23,9 +23,11 @@ console.log(status.status) // 'delivered'
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-sms @molecule/api-bond @molecule/api-i18n
 ```
@@ -235,17 +237,18 @@ function setProvider(provider: SMSProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Capture | `@molecule/api-sms-capture` |
-| Sms | `@molecule/api-sms-twilio` |
-| Sms | `@molecule/api-sms-vonage` |
+| Provider | Package                     |
+| -------- | --------------------------- |
+| Capture  | `@molecule/api-sms-capture` |
+| Sms      | `@molecule/api-sms-twilio`  |
+| Sms      | `@molecule/api-sms-vonage`  |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -257,6 +260,7 @@ Peer dependencies:
 Delivery-status polling (`getStatus()`) is PROVIDER-DEPENDENT, not a
 universal capability — the Quick Start's `getStatus()` call is not safe to
 assume for every bonded provider:
+
 - `@molecule/api-sms-twilio`: supported — polls the Twilio REST API.
 - `@molecule/api-sms-vonage`: NOT supported — `getStatus()` always throws
   `'Vonage SMS API does not support message status polling.'`. Vonage only
@@ -269,13 +273,14 @@ assume for every bonded provider:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each SMS-triggering flow (phone verification, OTP login, alerts the
-  app defines) confirms the send in the UI and a message actually reaches
-  the transport. The sandbox CAPTURES outbound SMS instead of sending — read
-  it with the `read_activity` tool (filter type 'sms'); the code/link is in
-  its payload. Never mock the flow or modify production code to expose it.
+      app defines) confirms the send in the UI and a message actually reaches
+      the transport. The sandbox CAPTURES outbound SMS instead of sending — read
+      it with the `read_activity` tool (filter type 'sms'); the code/link is in
+      its payload. Never mock the flow or modify production code to expose it.
 - [ ] The OTP round-trip completes: request a code → read the captured
-  message's code → enter it in the UI → the flow advances; a wrong or
-  expired code is rejected with a visible error.
+      message's code → enter it in the UI → the flow advances; a wrong or
+      expired code is rejected with a visible error.
 - [ ] Messages go only to the authenticated user's own verified number — no
-  UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).
+      UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).

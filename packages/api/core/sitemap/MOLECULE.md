@@ -28,9 +28,11 @@ const feed = await rss({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-sitemap @molecule/api-bond @molecule/api-i18n
 ```
@@ -298,8 +300,7 @@ interface SitemapUrl {
 Change frequency hint for search engines.
 
 ```typescript
-type ChangeFrequency =
-  'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
+type ChangeFrequency = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
 ```
 
 ### Functions
@@ -393,15 +394,16 @@ function setProvider(provider: SitemapProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Sitemap | `@molecule/api-sitemap-xml` |
+| Provider | Package                     |
+| -------- | --------------------------- |
+| Sitemap  | `@molecule/api-sitemap-xml` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

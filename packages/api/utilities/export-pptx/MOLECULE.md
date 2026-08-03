@@ -17,10 +17,8 @@ const result = await exportPptx({
     {
       background: '#ffffff',
       elements: [
-        { kind: 'text', x: 0.5, y: 0.5, w: 9, h: 1,
-          body: 'Welcome', fontSize: 36, bold: true },
-        { kind: 'shape', shape: 'rect', x: 0.5, y: 2, w: 4, h: 0.05,
-          fill: '#3b82f6' },
+        { kind: 'text', x: 0.5, y: 0.5, w: 9, h: 1, body: 'Welcome', fontSize: 36, bold: true },
+        { kind: 'shape', shape: 'rect', x: 0.5, y: 2, w: 4, h: 0.05, fill: '#3b82f6' },
       ],
     },
   ],
@@ -42,19 +40,29 @@ router.post('/export/pptx', async (req, res, next) => {
       { body: req.body },
       {
         setHeader: (n, v) => res.setHeader(n, v),
-        setStatus: (s) => { res.status(s) },
-        sendBuffer: (b) => { res.end(b) },
-        sendJson: (j) => { res.json(j) },
+        setStatus: (s) => {
+          res.status(s)
+        },
+        sendBuffer: (b) => {
+          res.end(b)
+        },
+        sendJson: (j) => {
+          res.json(j)
+        },
       },
     )
-  } catch (err) { next(err) }
+  } catch (err) {
+    next(err)
+  }
 })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-export-pptx pptxgenjs
 ```
@@ -184,6 +192,7 @@ interface ExportPptxResult {
 #### `ImageElement`
 
 An image element. Source is one of:
+
 - `src` — an `http(s):` URL or `file:` path resolvable by pptxgenjs
 - `data` — a `data:` URI (e.g. `data:image/png;base64,...`)
 - `buffer` — a raw `Buffer` of PNG/JPEG/GIF bytes (encoded to data URI)
@@ -380,7 +389,9 @@ Build a `(req, res) => Promise<void>` handler that:
 4. Streams the buffer back as the response body.
 
 ```typescript
-function createPptxExportHandler(handlerOptions?: CreatePptxExportHandlerOptions): (req: PptxRequest, res: PptxResponse) => Promise<void>
+function createPptxExportHandler(
+  handlerOptions?: CreatePptxExportHandlerOptions,
+): (req: PptxRequest, res: PptxResponse) => Promise<void>
 ```
 
 - `handlerOptions` — Optional pre-flight validator.
@@ -414,7 +425,7 @@ function sanitizeFilename(name: string): string
 #### `PPTX_CONTENT_TYPE`
 
 ```typescript
-const PPTX_CONTENT_TYPE: "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+const PPTX_CONTENT_TYPE: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
 ```
 
 ## Injection Notes

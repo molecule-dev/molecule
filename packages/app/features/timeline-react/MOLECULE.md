@@ -3,6 +3,7 @@
 React chronological timeline primitives.
 
 Exports:
+
 - `<Timeline>` — vertical list of events with optional date separators.
 - `<TimelineEvent>` — one event row with rail (marker + connector) + content.
 - `<TimelineRail>` — standalone rail (marker + connector) for custom rows.
@@ -16,7 +17,7 @@ Use for activity chronologies, deal timelines, order tracking, audit logs.
 ```tsx
 import { Timeline, TimelineDate } from '@molecule/app-timeline-react'
 
-<Timeline
+;<Timeline
   events={[
     { id: '1', timestamp: '2 hours ago', title: 'Order placed' },
     { id: '2', timestamp: 'Yesterday', title: 'Payment confirmed', body: 'Visa ending 4242' },
@@ -30,9 +31,11 @@ import { Timeline, TimelineDate } from '@molecule/app-timeline-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-timeline-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -168,11 +171,7 @@ Left-hand rail of a timeline row — renders the marker and an optional
 vertical connector extending downward.
 
 ```typescript
-function TimelineRail({
-  marker,
-  connector = true,
-  className,
-}: TimelineRailProps): JSX.Element
+function TimelineRail({ marker, connector = true, className }: TimelineRailProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link TimelineRailProps}).
@@ -182,6 +181,7 @@ function TimelineRail({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

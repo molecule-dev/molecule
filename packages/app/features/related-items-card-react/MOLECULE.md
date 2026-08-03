@@ -3,8 +3,9 @@
 React card container for cross-linked / related item lists.
 
 Exports `<RelatedItemsCard>` — titled Card with header + list + empty state
-+ "View all" link. Use for "Company → Deals", "Contact → Notes",
-"Ticket → Related Articles" panels.
+
+- "View all" link. Use for "Company → Deals", "Contact → Notes",
+  "Ticket → Related Articles" panels.
 
 Props: `title` (ReactNode), `items: T[]`, `renderItem(item, index)`,
 `icon?`, `onItemClick?(item, index)` (rows become clickable),
@@ -17,9 +18,15 @@ Props: `title` (ReactNode), `items: T[]`, `renderItem(item, index)`,
 ```tsx
 import { RelatedItemsCard } from '@molecule/app-related-items-card-react'
 
-interface Article { id: string; title: string }
+interface Article {
+  id: string
+  title: string
+}
 
-function RelatedArticles({ articles, onOpen }: {
+function RelatedArticles({
+  articles,
+  onOpen,
+}: {
   articles: Article[]
   onOpen: (id: string) => void
 }) {
@@ -37,9 +44,11 @@ function RelatedArticles({ articles, onOpen }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-related-items-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -111,6 +120,7 @@ function RelatedItemsCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

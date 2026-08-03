@@ -31,9 +31,11 @@ stepper.next()
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-stepper-default @molecule/app-stepper
 ```
@@ -78,6 +80,7 @@ const provider: StepperProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-stepper` interface.
 
 ## Bond Wiring
@@ -98,6 +101,7 @@ export function setupStepperDefault(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-stepper` ^1.0.0
 
 ### Runtime Dependencies
@@ -124,24 +128,25 @@ Integration checklist — drive the real rendered wizard in the live preview
 (no mocks), adapt each item to this app's actual steps/screens, and check
 every box off one by one. A box you can't check is an integration bug to
 fix — not a skip:
+
 - [ ] The wizard renders every configured step, the active step is visually
-  distinct (highlighted/current), and progress is shown (e.g. "Step 2 of 4"
-  or a filled indicator) — the count/order on screen matches the `steps`
-  config and `getActiveStep()`.
+      distinct (highlighted/current), and progress is shown (e.g. "Step 2 of 4"
+      or a filled indicator) — the count/order on screen matches the `steps`
+      config and `getActiveStep()`.
 - [ ] NEXT advances one step (content + indicator update to the next step)
-  and PREV/Back returns to the prior step; the first step offers no working
-  Back and the last step shows a Finish/Submit action instead of Next.
+      and PREV/Back returns to the prior step; the first step offers no working
+      Back and the last step shows a Finish/Submit action instead of Next.
 - [ ] A step that gates on input blocks NEXT until it is valid/complete —
-  leaving a required field empty keeps you on the step with a visible error
-  and the incomplete step cannot be skipped past; a step marked `optional`,
-  by contrast, CAN be advanced past without completing it.
+      leaving a required field empty keeps you on the step with a visible error
+      and the incomplete step cannot be skipped past; a step marked `optional`,
+      by contrast, CAN be advanced past without completing it.
 - [ ] A `linear` stepper refuses to jump ahead — clicking an unreached
-  future step in the indicator (or `goTo(futureIndex)`) does nothing and the
-  active step stays put; you reach it only by completing the steps before
-  it. A non-linear stepper lets you navigate directly to any step.
+      future step in the indicator (or `goTo(futureIndex)`) does nothing and the
+      active step stays put; you reach it only by completing the steps before
+      it. A non-linear stepper lets you navigate directly to any step.
 - [ ] Completing the final step fires the completion outcome (the form
-  submits / a success screen appears) and `isComplete()` is true — the
-  wizard doesn't advance past the end.
+      submits / a success screen appears) and `isComplete()` is true — the
+      wizard doesn't advance past the end.
 - [ ] Per-step data survives navigation: enter values on an early step, go
-  forward, then Back — the earlier step's values are still there, not reset,
-  and re-editing them and returning keeps the latest input.
+      forward, then Back — the earlier step's values are still there, not reset,
+      and re-editing them and returning keeps the latest input.

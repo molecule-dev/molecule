@@ -10,25 +10,37 @@ retention, and data category filtering for GDPR Article 15–20 compliance.
 ## Quick Start
 
 ```typescript
-import { setProvider, exportUserData, deleteUserData, getConsent, setConsent } from '@molecule/api-compliance'
+import {
+  setProvider,
+  exportUserData,
+  deleteUserData,
+  getConsent,
+  setConsent,
+} from '@molecule/api-compliance'
 import { createProvider } from '@molecule/api-compliance-gdpr'
 
-setProvider(createProvider({
-  legalObligationCategories: ['billing', 'authentication'],
-  dataCollectors: [
-    {
-      category: 'profile',
-      collect: async (userId) => findOne('users', { id: userId }),
-      delete: async (userId) => { await deleteById('users', userId) },
-    },
-  ],
-}))
+setProvider(
+  createProvider({
+    legalObligationCategories: ['billing', 'authentication'],
+    dataCollectors: [
+      {
+        category: 'profile',
+        collect: async (userId) => findOne('users', { id: userId }),
+        delete: async (userId) => {
+          await deleteById('users', userId)
+        },
+      },
+    ],
+  }),
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-compliance-gdpr @molecule/api-compliance
 ```
@@ -158,6 +170,7 @@ const provider: ComplianceProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-compliance` interface.
 
 ## Bond Wiring
@@ -178,6 +191,7 @@ export function setupComplianceGdpr(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-compliance` ^1.0.0
 
 ### Runtime Dependencies
@@ -207,12 +221,13 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A logged-in user can export their own data from the UI and the export
-  contains their data — and only theirs.
+      contains their data — and only theirs.
 - [ ] Requesting an export or deletion for a DIFFERENT user's id (e.g. by
-  editing the request) is rejected server-side — not merely hidden in the UI.
+      editing the request) is rejected server-side — not merely hidden in the UI.
 - [ ] The deletion flow requires an explicit confirmation, completes, and the
-  user's content is gone after a full reload; any retained categories are
-  stated in the UI.
+      user's content is gone after a full reload; any retained categories are
+      stated in the UI.
 - [ ] Toggling a consent purpose off persists (survives reload) and the
-  consent-scoped behavior actually stops.
+      consent-scoped behavior actually stops.

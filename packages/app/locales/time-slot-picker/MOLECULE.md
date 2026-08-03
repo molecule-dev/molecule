@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-time-slot-picker-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-time-slot-picker'
-import type { TimeSlotPickerTranslationKey, TimeSlotPickerTranslations } from '@molecule/app-locales-time-slot-picker'
+import type {
+  TimeSlotPickerTranslationKey,
+  TimeSlotPickerTranslations,
+} from '@molecule/app-locales-time-slot-picker'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key             | English    |
+| --------------- | ---------- |
 | `timeSlot.aria` | Time slots |
 
 ## Metadata

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-spreadsheet-grid-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-spreadsheet-grid'
-import type { SpreadsheetGridTranslationKey, SpreadsheetGridTranslations } from '@molecule/app-locales-spreadsheet-grid'
+import type {
+  SpreadsheetGridTranslationKey,
+  SpreadsheetGridTranslations,
+} from '@molecule/app-locales-spreadsheet-grid'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `spreadsheetGrid.label` | Spreadsheet |
+| Key                          | English           |
+| ---------------------------- | ----------------- |
+| `spreadsheetGrid.label`      | Spreadsheet       |
 | `spreadsheetGrid.cellEditor` | Edit cell {{ref}} |
 
 ## Metadata

@@ -3,6 +3,7 @@
 Visual condition / rule builder for React.
 
 Exports:
+
 - `<RuleBuilder>` — controlled tree editor for AND / OR groups of
   field-operator-value leaves.
 - `RuleSchema`, `RuleField`, `RuleOperator`, `Rule`, `RuleGroup`,
@@ -31,7 +32,12 @@ import {
 
 const schema: RuleSchema = {
   fields: [
-    { name: 'country', label: 'Country', type: 'select', options: [{ value: 'US', label: 'United States' }] },
+    {
+      name: 'country',
+      label: 'Country',
+      type: 'select',
+      options: [{ value: 'US', label: 'United States' }],
+    },
     { name: 'plan', label: 'Plan', type: 'text' },
     { name: 'spend', label: 'Spend', type: 'number' },
   ],
@@ -44,9 +50,11 @@ function Demo() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-rule-builder-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -160,6 +168,7 @@ Operator descriptor — `id` is what's stored on the leaf, `label` is
 what's shown in the operator dropdown.
 
 `arity` controls how many value inputs are rendered:
+
 - `'unary'` — no value input (e.g. `is empty`, `exists`)
 - `'binary'` — one value input (default)
 - `'between'` — two value inputs (rendered as `from`/`to`)
@@ -376,7 +385,27 @@ const defaultOperators: Record<RuleFieldType, RuleOperator[]>
 Operator id constants — exported so consumers can inspect leaves.
 
 ```typescript
-const OP: { readonly Equals: "eq"; readonly NotEquals: "neq"; readonly Contains: "contains"; readonly NotContains: "notContains"; readonly StartsWith: "startsWith"; readonly EndsWith: "endsWith"; readonly GreaterThan: "gt"; readonly GreaterThanOrEqual: "gte"; readonly LessThan: "lt"; readonly LessThanOrEqual: "lte"; readonly Between: "between"; readonly Before: "before"; readonly After: "after"; readonly IsTrue: "isTrue"; readonly IsFalse: "isFalse"; readonly IsEmpty: "isEmpty"; readonly IsNotEmpty: "isNotEmpty"; readonly In: "in"; readonly NotIn: "notIn"; }
+const OP: {
+  readonly Equals: 'eq'
+  readonly NotEquals: 'neq'
+  readonly Contains: 'contains'
+  readonly NotContains: 'notContains'
+  readonly StartsWith: 'startsWith'
+  readonly EndsWith: 'endsWith'
+  readonly GreaterThan: 'gt'
+  readonly GreaterThanOrEqual: 'gte'
+  readonly LessThan: 'lt'
+  readonly LessThanOrEqual: 'lte'
+  readonly Between: 'between'
+  readonly Before: 'before'
+  readonly After: 'after'
+  readonly IsTrue: 'isTrue'
+  readonly IsFalse: 'isFalse'
+  readonly IsEmpty: 'isEmpty'
+  readonly IsNotEmpty: 'isNotEmpty'
+  readonly In: 'in'
+  readonly NotIn: 'notIn'
+}
 ```
 
 ## Injection Notes
@@ -384,6 +413,7 @@ const OP: { readonly Equals: "eq"; readonly NotEquals: "neq"; readonly Contains:
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

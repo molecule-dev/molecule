@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-stage-timeline-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-stage-timeline'
-import type { StageTimelineTranslationKey, StageTimelineTranslations } from '@molecule/app-locales-stage-timeline'
+import type {
+  StageTimelineTranslationKey,
+  StageTimelineTranslations,
+} from '@molecule/app-locales-stage-timeline'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                   | English        |
+| --------------------- | -------------- |
 | `stageTimeline.group` | Stage timeline |
 
 ## Metadata

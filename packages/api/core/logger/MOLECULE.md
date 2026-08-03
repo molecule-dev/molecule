@@ -29,9 +29,11 @@ resetLogger()
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-logger @molecule/api-bond
 ```
@@ -137,18 +139,19 @@ const logger: Logger
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Console | `@molecule/api-logger-console` |
+| Provider | Package                         |
+| -------- | ------------------------------- |
+| Console  | `@molecule/api-logger-console`  |
 | Loglevel | `@molecule/api-logger-loglevel` |
-| Pino | `@molecule/api-logger-pino` |
-| Winston | `@molecule/api-logger-winston` |
+| Pino     | `@molecule/api-logger-pino`     |
+| Winston  | `@molecule/api-logger-winston`  |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

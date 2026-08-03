@@ -25,9 +25,11 @@ if (await isSupported()) {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-badge @molecule/app-bond @molecule/app-i18n
 ```
@@ -329,6 +331,7 @@ function syncBadge(getValue: () => number | Promise<number>, interval?: number):
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

@@ -7,9 +7,11 @@ and which prop combinations to test. Used by showcase templates in mlcl
 to generate minimal apps per framework, then screenshotted by Playwright.
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui-showcase @molecule/app-ui
 ```
@@ -70,6 +72,7 @@ Generate all combinations from a prop matrix.
 
 Given `{ variant: ['solid', 'outline'], color: ['primary', 'error'] }`,
 returns:
+
 ```
 [
   { variant: 'solid', color: 'primary' },
@@ -105,6 +108,7 @@ const showcaseComponents: ComponentShowcase[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-ui` ^1.0.0
 
 ### Runtime Dependencies

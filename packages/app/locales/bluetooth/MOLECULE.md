@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-bluetooth` package which has 1 tran
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-bluetooth'
-import type { BluetoothTranslationKey, BluetoothTranslations } from '@molecule/app-locales-bluetooth'
+import type {
+  BluetoothTranslationKey,
+  BluetoothTranslations,
+} from '@molecule/app-locales-bluetooth'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                          | English                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `bluetooth.error.noProvider` | @molecule/app-bluetooth: No provider set. Call setProvider() with a BluetoothProvider implementation. |
 
 ## Metadata

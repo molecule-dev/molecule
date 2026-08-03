@@ -20,9 +20,11 @@ function NavItem() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-safe-link-react react react-router
 npm install -D @types/react
@@ -47,7 +49,10 @@ function SafeLink({
   to,
   children,
   ...rest
-}: Omit<LinkProps & RefAttributes<HTMLAnchorElement>, "to"> & { to: string; children?: ReactNode; }): JSX.Element
+}: Omit<LinkProps & RefAttributes<HTMLAnchorElement>, 'to'> & {
+  to: string
+  children?: ReactNode
+}): JSX.Element
 ```
 
 ## Injection Notes
@@ -55,6 +60,7 @@ function SafeLink({
 ### Requirements
 
 Peer dependencies:
+
 - `react` ^18.0.0 || ^19.0.0
 - `react-router` ^7.0.0 || ^8.0.0
 

@@ -27,9 +27,11 @@ start()
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-scheduler-default @molecule/api-bond @molecule/api-scheduler
 ```
@@ -85,6 +87,7 @@ const provider: SchedulerProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-scheduler` interface.
 
 ## Bond Wiring
@@ -105,6 +108,7 @@ export function setupSchedulerDefault(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-scheduler` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 

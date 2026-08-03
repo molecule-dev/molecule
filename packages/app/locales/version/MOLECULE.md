@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                         | English                             |
+| --------------------------- | ----------------------------------- |
 | `version.error.fetchFailed` | Failed to fetch version: {{status}} |
 
 ## Metadata

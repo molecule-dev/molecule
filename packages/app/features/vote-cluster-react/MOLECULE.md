@@ -37,9 +37,11 @@ function PostRow({ post }: { post: { id: string; score: number; myVote?: VoteVal
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-vote-cluster-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -110,9 +112,10 @@ type VoteClusterDirection = 'vertical' | 'horizontal'
 #### `VoteValue`
 
 Allowed vote values:
-- `1`  — upvoted
+
+- `1` — upvoted
 - `-1` — downvoted
-- `0`  — no vote (cleared)
+- `0` — no vote (cleared)
 
 ```typescript
 type VoteValue = 1 | -1 | 0
@@ -157,6 +160,7 @@ function VoteCluster({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

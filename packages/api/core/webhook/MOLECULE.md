@@ -23,9 +23,11 @@ console.log(results[0].success) // true
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-webhook @molecule/api-bond @molecule/api-i18n
 ```
@@ -270,7 +272,11 @@ function list(): Promise<WebhookRegistration[]>
 Registers a new webhook endpoint to receive event notifications.
 
 ```typescript
-function register(url: string, events: string[], options?: WebhookOptions): Promise<WebhookRegistration>
+function register(
+  url: string,
+  events: string[],
+  options?: WebhookOptions,
+): Promise<WebhookRegistration>
 ```
 
 - `url` — Destination URL that will receive POST requests.
@@ -316,17 +322,18 @@ function unregister(webhookId: string): Promise<void>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Capture | `@molecule/api-webhook-capture` |
-| Webhook | `@molecule/api-webhook-http` |
-| Webhook | `@molecule/api-webhook-queue` |
+| Provider | Package                         |
+| -------- | ------------------------------- |
+| Capture  | `@molecule/api-webhook-capture` |
+| Webhook  | `@molecule/api-webhook-http`    |
+| Webhook  | `@molecule/api-webhook-queue`   |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -365,13 +372,14 @@ integration is an SSRF hole and a spoofable firehose:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Registering a webhook endpoint through the app's UI/API succeeds, and
-  an event the app dispatches actually produces a delivery. The sandbox
-  CAPTURES outbound deliveries instead of POSTing — read them with the
-  `read_activity` tool (filter type 'webhook'); never mock the dispatch or
-  modify production code to expose the payload.
+      an event the app dispatches actually produces a delivery. The sandbox
+      CAPTURES outbound deliveries instead of POSTing — read them with the
+      `read_activity` tool (filter type 'webhook'); never mock the dispatch or
+      modify production code to expose the payload.
 - [ ] The captured delivery carries the signature header (derived from the
-  registration's secret), a stable delivery-id header the receiver can dedup
-  on (at-least-once), and an event payload free of secrets/unrelated PII.
+      registration's secret), a stable delivery-id header the receiver can dedup
+      on (at-least-once), and an event payload free of secrets/unrelated PII.
 - [ ] A registration targeting a private/link-local/metadata destination
-  (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
+      (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.

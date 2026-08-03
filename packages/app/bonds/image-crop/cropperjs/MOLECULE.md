@@ -13,7 +13,7 @@ placeholder object.
 import { provider } from '@molecule/app-image-crop-cropperjs'
 import { setProvider, requireProvider } from '@molecule/app-image-crop'
 
-setProvider(provider)   // once, at app startup (bonds.ts)
+setProvider(provider) // once, at app startup (bonds.ts)
 
 const cropper = requireProvider().createCropper({ src: '/avatar.jpg', aspectRatio: 1 })
 const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 })
@@ -21,9 +21,11 @@ canvas.toBlob((blob) => uploadAvatar(blob), 'image/png')
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-image-crop-cropperjs @molecule/app-image-crop cropperjs
 npm install -D @types/cropperjs
@@ -88,6 +90,7 @@ const provider: ImageCropProvider
 #### `Cropper`
 
 ## Core Interface
+
 Implements `@molecule/app-image-crop` interface.
 
 ## Bond Wiring
@@ -108,6 +111,7 @@ export function setupImageCropCropperjs(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-image-crop` ^1.0.0
 
 ### Runtime Dependencies
@@ -145,24 +149,25 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt each
 item to this app's actual crop screen (avatar/photo upload, etc.), and check
 every box off one by one. A box you can't check is an integration bug to fix —
 not a skip. The cropper is headless, so verify the UI YOU rendered:
+
 - [ ] Opening the crop screen loads the source image (`createCropper({ src })`)
-  and renders it with a visible crop-box overlay + drag handles drawn from
-  `getCropData()` — not a blank or full-bleed image with no selection.
+      and renders it with a visible crop-box overlay + drag handles drawn from
+      `getCropData()` — not a blank or full-bleed image with no selection.
 - [ ] Dragging/resizing the crop box feeds the gesture into `setCropData()`,
-  `getCropData()` reflects the new x/y/width/height, and the on-page preview
-  (the `getCroppedCanvas()` output drawn into the page) updates to show ONLY
-  the selected area, not the whole image.
+      `getCropData()` reflects the new x/y/width/height, and the on-page preview
+      (the `getCroppedCanvas()` output drawn into the page) updates to show ONLY
+      the selected area, not the whole image.
 - [ ] With an aspect-ratio lock (e.g. `aspectRatio: 1` for an avatar) the crop
-  box stays that ratio while you resize — `getCropData()` width == height for
-  1:1 — and `circular: true` clips the preview to a circle.
+      box stays that ratio while you resize — `getCropData()` width == height for
+      1:1 — and `circular: true` clips the preview to a circle.
 - [ ] `rotate()` / `zoom()` transform the source and the crop overlay follows:
-  `getCropData().rotate` / `scaleX` change and the preview re-renders the
-  transformed region — the selection isn't stranded on the old orientation.
+      `getCropData().rotate` / `scaleX` change and the preview re-renders the
+      transformed region — the selection isn't stranded on the old orientation.
 - [ ] Applying the crop OUTPUTS the cropped image: `getCroppedCanvas()` pixels
-  match the selected region (not the full source), and downstream the SAVED
-  file is the cropped Blob (`canvas.toBlob` → upload) — re-fetch and render the
-  stored image and confirm it shows the crop, never the original.
+      match the selected region (not the full source), and downstream the SAVED
+      file is the cropped Blob (`canvas.toBlob` → upload) — re-fetch and render the
+      stored image and confirm it shows the crop, never the original.
 - [ ] Min/max crop size is enforced — you cannot drag the box smaller than
-  `minWidth`/`minHeight` or larger than `maxWidth`/`maxHeight`.
+      `minWidth`/`minHeight` or larger than `maxWidth`/`maxHeight`.
 - [ ] Cancel/close discards without mutating the source: the original image is
-  unchanged and no cropped result is saved.
+      unchanged and no cropped result is saved.

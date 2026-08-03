@@ -9,7 +9,7 @@ Exports `<Sparkline>`.
 ```tsx
 import { Sparkline } from '@molecule/app-sparkline-react'
 
-<Sparkline
+;<Sparkline
   values={[12, 18, 15, 22, 30, 27, 35]}
   variant="line"
   width={80}
@@ -19,9 +19,11 @@ import { Sparkline } from '@molecule/app-sparkline-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-sparkline-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -81,6 +83,7 @@ function Sparkline({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -16,10 +16,10 @@ recurring time-of-day grid.
 ```tsx
 import { ClassSchedule } from '@molecule/app-class-schedule-react'
 
-<ClassSchedule
+;<ClassSchedule
   events={[
-    { id: 'math',  weekday: 1, start: 9 * 60,  end: 10 * 60, title: 'Math 101', subtitle: 'Room 4B' },
-    { id: 'eng',   weekday: 3, start: 11 * 60, end: 12 * 60, title: 'English',  subtitle: 'Room 12' },
+    { id: 'math', weekday: 1, start: 9 * 60, end: 10 * 60, title: 'Math 101', subtitle: 'Room 4B' },
+    { id: 'eng', weekday: 3, start: 11 * 60, end: 12 * 60, title: 'English', subtitle: 'Room 12' },
   ]}
   onEventClick={(e) => console.log('clicked', e.id)}
   onSlotClick={(s) => console.log('empty slot', s)}
@@ -27,9 +27,11 @@ import { ClassSchedule } from '@molecule/app-class-schedule-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-class-schedule-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -117,7 +119,7 @@ group it belongs to so the caller can compute width/left as
 `width = (1/lanes) * 100%` / `left = (lane/lanes) * 100%`.
 
 ```typescript
-function assignLanes(events: E[]): { event: E; lane: number; lanes: number; }[]
+function assignLanes(events: E[]): { event: E; lane: number; lanes: number }[]
 ```
 
 - `events` — Events occurring on a single weekday.
@@ -179,6 +181,7 @@ function formatHourLabel(minutes: number): string
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

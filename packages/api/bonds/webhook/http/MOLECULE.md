@@ -15,17 +15,21 @@ import { createProvider } from '@molecule/api-webhook-http'
 setProvider(createProvider())
 
 // Or with custom configuration
-setProvider(createProvider({
-  timeout: 10_000,
-  retryCount: 5,
-  retryDelay: 2000,
-}))
+setProvider(
+  createProvider({
+    timeout: 10_000,
+    retryCount: 5,
+    retryDelay: 2000,
+  }),
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-webhook-http @molecule/api-logger @molecule/api-webhook undici
 ```
@@ -114,6 +118,7 @@ function safeFetch(rawUrl: string, init?: RequestInit): Promise<Response>
 **Returns:** The fetch Response.
 
 ## Core Interface
+
 Implements `@molecule/api-webhook` interface.
 
 ## Injection Notes
@@ -121,6 +126,7 @@ Implements `@molecule/api-webhook` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-webhook` 1.0.0
 
@@ -143,7 +149,7 @@ Peer dependencies:
   pinned lookup that refuses private/link-local/metadata addresses (no
   validate-then-connect rebinding window). `register()` itself does NOT
   validate the URL — a blocked destination surfaces as `status: 0,
-  success: false` delivery results. Still allowlist at registration time
+success: false` delivery results. Still allowlist at registration time
   for a friendly 4xx (see the core's remarks).
 - `dispatch()` never throws on delivery failure — check each result's
   `success` (network errors/timeouts appear as `status: 0`). Retries are
@@ -154,13 +160,14 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Registering a webhook endpoint through the app's UI/API succeeds, and
-  an event the app dispatches actually produces a delivery. The sandbox
-  CAPTURES outbound deliveries instead of POSTing — read them with the
-  `read_activity` tool (filter type 'webhook'); never mock the dispatch or
-  modify production code to expose the payload.
+      an event the app dispatches actually produces a delivery. The sandbox
+      CAPTURES outbound deliveries instead of POSTing — read them with the
+      `read_activity` tool (filter type 'webhook'); never mock the dispatch or
+      modify production code to expose the payload.
 - [ ] The captured delivery carries the signature header (derived from the
-  registration's secret), a stable delivery-id header the receiver can dedup
-  on (at-least-once), and an event payload free of secrets/unrelated PII.
+      registration's secret), a stable delivery-id header the receiver can dedup
+      on (at-least-once), and an event payload free of secrets/unrelated PII.
 - [ ] A registration targeting a private/link-local/metadata destination
-  (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
+      (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.

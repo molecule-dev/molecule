@@ -8,8 +8,16 @@ different platforms (iOS App Store, Google Play, web Stripe).
 ## Quick Start
 
 ```tsx
-import { createNoopIAPProvider, initialize, order, finish,
-  register, refresh, setProvider, verify } from '@molecule/app-iap'
+import {
+  createNoopIAPProvider,
+  initialize,
+  order,
+  finish,
+  register,
+  refresh,
+  setProvider,
+  verify,
+} from '@molecule/app-iap'
 
 // Wire the provider at app startup (swap for an iOS/Android bond in production)
 setProvider(createNoopIAPProvider())
@@ -25,9 +33,11 @@ if (result.success && result.product) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-iap @molecule/app-bond @molecule/app-i18n
 ```
@@ -525,7 +535,14 @@ function getAll(): Product[]
 Gets a user-friendly error message.
 
 ```typescript
-function getErrorMessage(error: unknown, t?: ((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string; }) => string)): string
+function getErrorMessage(
+  error: unknown,
+  t?: (
+    key: string,
+    values?: Record<string, unknown>,
+    options?: { defaultValue?: string },
+  ) => string,
+): string
 ```
 
 - `error` — The IAP error object or unknown thrown value to translate.
@@ -645,7 +662,11 @@ function setProvider(provider: IAPProvider): void
 Verifies a purchase receipt with a server endpoint.
 
 ```typescript
-function verify(product: Product, verifyUrl: string, additionalData?: Record<string, unknown>): Promise<VerificationResult>
+function verify(
+  product: Product,
+  verifyUrl: string,
+  additionalData?: Record<string, unknown>,
+): Promise<VerificationResult>
 ```
 
 - `product` — The product whose purchase receipt to verify.
@@ -670,6 +691,7 @@ const errorMessages: Record<string, string>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

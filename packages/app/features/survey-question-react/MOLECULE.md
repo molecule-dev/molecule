@@ -3,6 +3,7 @@
 Multi-type survey-question renderer.
 
 Exports:
+
 - `<SurveyQuestion>` — single component that dispatches on `question.kind`.
 - `SurveyQuestion` types — discriminated union covering 11 question kinds.
 
@@ -27,14 +28,23 @@ const question: SurveyQuestionDef = {
 
 function MyForm() {
   const [answer, setAnswer] = useState<SurveyAnswerValue>()
-  return <SurveyQuestion question={question} value={answer} onChange={setAnswer} onSubmit={(v) => console.log(v)} />
+  return (
+    <SurveyQuestion
+      question={question}
+      value={answer}
+      onChange={setAnswer}
+      onSubmit={(v) => console.log(v)}
+    />
+  )
 }
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-survey-question-react @molecule/app-file-dropzone-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -346,7 +356,9 @@ All styling goes through `getClassMap()`. All UI text goes through `t()`
 with English fallbacks; translations live in `@molecule/app-locales-survey-question`.
 
 ```typescript
-function SurveyQuestion(props: SurveyQuestionProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function SurveyQuestion(
+  props: SurveyQuestionProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props.
@@ -358,6 +370,7 @@ function SurveyQuestion(props: SurveyQuestionProps): ReactElement<unknown, strin
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-file-dropzone-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

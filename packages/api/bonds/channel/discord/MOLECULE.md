@@ -17,9 +17,11 @@ setProvider('discord', provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-channel-discord @molecule/api-channel @molecule/api-secrets discord.js
 ```
@@ -178,6 +180,7 @@ const provider: ChannelProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-channel` interface.
 
 ## Injection Notes
@@ -185,16 +188,17 @@ Implements `@molecule/api-channel` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-channel` ^1.0.0
 - `discord.js` ^14.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `CHANNEL_DISCORD_BOT_TOKEN` *(required)* — Discord bot token
+- `CHANNEL_DISCORD_BOT_TOKEN` _(required)_ — Discord bot token
   - Setup: Create an application → Bot → Reset Token, then copy the bot token.
   - Get it here: [https://discord.com/developers/applications](https://discord.com/developers/applications)
-- `CHANNEL_DISCORD_PUBLIC_KEY` *(required)* — Discord public key
+- `CHANNEL_DISCORD_PUBLIC_KEY` _(required)_ — Discord public key
   - Setup: Your application → General Information → Public Key (verifies interaction signatures).
   - Get it here: [https://discord.com/developers/applications](https://discord.com/developers/applications)
 
@@ -209,13 +213,14 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each channel-notifying flow the app defines (a Slack/Discord alert on
-  a new order, a status-change message) actually produces a message. The
-  sandbox CAPTURES channel messages instead of sending — read them with the
-  `read_activity` tool (filter type 'channel'); never mock the flow or
-  modify production code to expose the message.
+      a new order, a status-change message) actually produces a message. The
+      sandbox CAPTURES channel messages instead of sending — read them with the
+      `read_activity` tool (filter type 'channel'); never mock the flow or
+      modify production code to expose the message.
 - [ ] The captured message targets the configured channel/provider name and
-  carries the app's real content (readable text, no `undefined`
-  placeholders, no secrets).
+      carries the app's real content (readable text, no `undefined`
+      placeholders, no secrets).
 - [ ] A failed send (unbonded or misconfigured provider) is visible in
-  logs/UI — never silently swallowed.
+      logs/UI — never silently swallowed.

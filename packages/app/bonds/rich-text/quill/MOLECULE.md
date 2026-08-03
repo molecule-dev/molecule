@@ -14,9 +14,11 @@ setProvider(createQuillProvider())
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-rich-text-quill @molecule/app-rich-text dompurify quill
 ```
@@ -31,38 +33,38 @@ Configuration options for creating a new rich text editor instance.
 
 ```typescript
 interface EditorOptions {
-    /**
-     * Container element.
-     */
-    container: HTMLElement;
-    /**
-     * Initial value.
-     */
-    value?: RichTextValue;
-    /**
-     * Placeholder text.
-     */
-    placeholder?: string;
-    /**
-     * Toolbar configuration key or custom config.
-     */
-    toolbar?: string | ToolbarConfig;
-    /**
-     * Read-only mode.
-     */
-    readOnly?: boolean;
-    /**
-     * Custom formats to register.
-     */
-    formats?: FormatType[];
-    /**
-     * Theme name.
-     */
-    theme?: string;
-    /**
-     * Additional modules/plugins configuration.
-     */
-    modules?: Record<string, unknown>;
+  /**
+   * Container element.
+   */
+  container: HTMLElement
+  /**
+   * Initial value.
+   */
+  value?: RichTextValue
+  /**
+   * Placeholder text.
+   */
+  placeholder?: string
+  /**
+   * Toolbar configuration key or custom config.
+   */
+  toolbar?: string | ToolbarConfig
+  /**
+   * Read-only mode.
+   */
+  readOnly?: boolean
+  /**
+   * Custom formats to register.
+   */
+  formats?: FormatType[]
+  /**
+   * Theme name.
+   */
+  theme?: string
+  /**
+   * Additional modules/plugins configuration.
+   */
+  modules?: Record<string, unknown>
 }
 ```
 
@@ -118,102 +120,102 @@ Rich text editor instance with methods for content manipulation, formatting, and
 
 ```typescript
 interface RichTextEditor {
-    /**
-     * Gets the current content value.
-     */
-    getValue(): RichTextValue;
-    /**
-     * Sets the content value.
-     */
-    setValue(value: RichTextValue): void;
-    /**
-     * Gets the plain text content.
-     */
-    getText(): string;
-    /**
-     * Gets the HTML content.
-     */
-    getHTML(): string;
-    /**
-     * Gets the content length.
-     */
-    getLength(): number;
-    /**
-     * Inserts text at the current cursor position.
-     */
-    insertText(text: string, index?: number): void;
-    /**
-     * Inserts HTML at the current cursor position.
-     */
-    insertHTML(html: string, index?: number): void;
-    /**
-     * Inserts an embed (image, video, etc.).
-     */
-    insertEmbed(type: string, value: unknown, index?: number): void;
-    /**
-     * Deletes content.
-     */
-    deleteText(index: number, length: number): void;
-    /**
-     * Formats text.
-     */
-    format(format: FormatType, value?: unknown): void;
-    /**
-     * Formats text at a specific range.
-     */
-    formatText(index: number, length: number, format: FormatType, value?: unknown): void;
-    /**
-     * Removes formatting.
-     */
-    removeFormat(index: number, length: number): void;
-    /**
-     * Gets the current selection.
-     */
-    getSelection(): SelectionRange | null;
-    /**
-     * Sets the selection.
-     */
-    setSelection(index: number, length?: number): void;
-    /**
-     * Focuses the editor.
-     */
-    focus(): void;
-    /**
-     * Blurs the editor.
-     */
-    blur(): void;
-    /**
-     * Checks if the editor has focus.
-     */
-    hasFocus(): boolean;
-    /**
-     * Enables the editor.
-     */
-    enable(): void;
-    /**
-     * Disables the editor.
-     */
-    disable(): void;
-    /**
-     * Checks if the editor is enabled.
-     */
-    isEnabled(): boolean;
-    /**
-     * Subscribes to editor events.
-     */
-    on<T>(event: EditorEvent, handler: EditorEventHandler<T>): () => void;
-    /**
-     * Removes event handler.
-     */
-    off<T>(event: EditorEvent, handler: EditorEventHandler<T>): void;
-    /**
-     * Gets the underlying editor instance (for advanced usage).
-     */
-    getEditorInstance(): unknown;
-    /**
-     * Destroys the editor.
-     */
-    destroy(): void;
+  /**
+   * Gets the current content value.
+   */
+  getValue(): RichTextValue
+  /**
+   * Sets the content value.
+   */
+  setValue(value: RichTextValue): void
+  /**
+   * Gets the plain text content.
+   */
+  getText(): string
+  /**
+   * Gets the HTML content.
+   */
+  getHTML(): string
+  /**
+   * Gets the content length.
+   */
+  getLength(): number
+  /**
+   * Inserts text at the current cursor position.
+   */
+  insertText(text: string, index?: number): void
+  /**
+   * Inserts HTML at the current cursor position.
+   */
+  insertHTML(html: string, index?: number): void
+  /**
+   * Inserts an embed (image, video, etc.).
+   */
+  insertEmbed(type: string, value: unknown, index?: number): void
+  /**
+   * Deletes content.
+   */
+  deleteText(index: number, length: number): void
+  /**
+   * Formats text.
+   */
+  format(format: FormatType, value?: unknown): void
+  /**
+   * Formats text at a specific range.
+   */
+  formatText(index: number, length: number, format: FormatType, value?: unknown): void
+  /**
+   * Removes formatting.
+   */
+  removeFormat(index: number, length: number): void
+  /**
+   * Gets the current selection.
+   */
+  getSelection(): SelectionRange | null
+  /**
+   * Sets the selection.
+   */
+  setSelection(index: number, length?: number): void
+  /**
+   * Focuses the editor.
+   */
+  focus(): void
+  /**
+   * Blurs the editor.
+   */
+  blur(): void
+  /**
+   * Checks if the editor has focus.
+   */
+  hasFocus(): boolean
+  /**
+   * Enables the editor.
+   */
+  enable(): void
+  /**
+   * Disables the editor.
+   */
+  disable(): void
+  /**
+   * Checks if the editor is enabled.
+   */
+  isEnabled(): boolean
+  /**
+   * Subscribes to editor events.
+   */
+  on<T>(event: EditorEvent, handler: EditorEventHandler<T>): () => void
+  /**
+   * Removes event handler.
+   */
+  off<T>(event: EditorEvent, handler: EditorEventHandler<T>): void
+  /**
+   * Gets the underlying editor instance (for advanced usage).
+   */
+  getEditorInstance(): unknown
+  /**
+   * Destroys the editor.
+   */
+  destroy(): void
 }
 ```
 
@@ -223,36 +225,36 @@ Rich text editor provider interface for creating editors and converting content 
 
 ```typescript
 interface RichTextProvider {
-    /**
-     * Create a new rich text editor instance attached to a container element.
-     * @returns A RichTextEditor instance for controlling the editor.
-     */
-    createEditor(options: EditorOptions): RichTextEditor;
-    /**
-     * Get the name of this rich text provider (e.g., 'quill', 'tiptap', 'slate').
-     * @returns The provider name string.
-     */
-    getName(): string;
-    /**
-     * Get the available toolbar configuration presets (e.g., 'minimal', 'standard', 'full').
-     * @returns A map of preset names to their ToolbarConfig definitions.
-     */
-    getToolbarPresets(): Record<string, ToolbarConfig>;
-    /**
-     * Convert an HTML string to the editor's internal rich text format.
-     * @returns A RichTextValue in the provider's internal format.
-     */
-    htmlToValue(html: string): RichTextValue;
-    /**
-     * Convert a plain text string to the editor's internal rich text format.
-     * @returns A RichTextValue in the provider's internal format.
-     */
-    textToValue(text: string): RichTextValue;
-    /**
-     * Create an empty rich text value suitable for initializing an editor.
-     * @returns An empty RichTextValue.
-     */
-    createEmptyValue(): RichTextValue;
+  /**
+   * Create a new rich text editor instance attached to a container element.
+   * @returns A RichTextEditor instance for controlling the editor.
+   */
+  createEditor(options: EditorOptions): RichTextEditor
+  /**
+   * Get the name of this rich text provider (e.g., 'quill', 'tiptap', 'slate').
+   * @returns The provider name string.
+   */
+  getName(): string
+  /**
+   * Get the available toolbar configuration presets (e.g., 'minimal', 'standard', 'full').
+   * @returns A map of preset names to their ToolbarConfig definitions.
+   */
+  getToolbarPresets(): Record<string, ToolbarConfig>
+  /**
+   * Convert an HTML string to the editor's internal rich text format.
+   * @returns A RichTextValue in the provider's internal format.
+   */
+  htmlToValue(html: string): RichTextValue
+  /**
+   * Convert a plain text string to the editor's internal rich text format.
+   * @returns A RichTextValue in the provider's internal format.
+   */
+  textToValue(text: string): RichTextValue
+  /**
+   * Create an empty rich text value suitable for initializing an editor.
+   * @returns An empty RichTextValue.
+   */
+  createEmptyValue(): RichTextValue
 }
 ```
 
@@ -262,18 +264,18 @@ Rich text content value.
 
 ```typescript
 interface RichTextValue {
-    /**
-     * Plain text content.
-     */
-    text: string;
-    /**
-     * HTML content.
-     */
-    html: string;
-    /**
-     * Delta/JSON representation (if supported by the editor).
-     */
-    delta?: unknown;
+  /**
+   * Plain text content.
+   */
+  text: string
+  /**
+   * HTML content.
+   */
+  html: string
+  /**
+   * Delta/JSON representation (if supported by the editor).
+   */
+  delta?: unknown
 }
 ```
 
@@ -283,18 +285,18 @@ Data emitted when the editor selection changes.
 
 ```typescript
 interface SelectionChangeData {
-    /**
-     * New selection range.
-     */
-    range: SelectionRange | null;
-    /**
-     * Previous selection range.
-     */
-    previousRange: SelectionRange | null;
-    /**
-     * Source of the change.
-     */
-    source: 'user' | 'api' | 'silent';
+  /**
+   * New selection range.
+   */
+  range: SelectionRange | null
+  /**
+   * Previous selection range.
+   */
+  previousRange: SelectionRange | null
+  /**
+   * Source of the change.
+   */
+  source: 'user' | 'api' | 'silent'
 }
 ```
 
@@ -304,14 +306,14 @@ Selection range in the editor.
 
 ```typescript
 interface SelectionRange {
-    /**
-     * Start index.
-     */
-    index: number;
-    /**
-     * Length of selection.
-     */
-    length: number;
+  /**
+   * Start index.
+   */
+  index: number
+  /**
+   * Length of selection.
+   */
+  length: number
 }
 ```
 
@@ -321,18 +323,18 @@ Data emitted when the editor content changes.
 
 ```typescript
 interface TextChangeData {
-    /**
-     * New value.
-     */
-    value: RichTextValue;
-    /**
-     * Previous value.
-     */
-    previousValue: RichTextValue;
-    /**
-     * Source of the change.
-     */
-    source: 'user' | 'api' | 'silent';
+  /**
+   * New value.
+   */
+  value: RichTextValue
+  /**
+   * Previous value.
+   */
+  previousValue: RichTextValue
+  /**
+   * Source of the change.
+   */
+  source: 'user' | 'api' | 'silent'
 }
 ```
 
@@ -342,14 +344,14 @@ Rich text editor toolbar layout (named preset with grouped format buttons).
 
 ```typescript
 interface ToolbarConfig {
-    /**
-     * Toolbar name/key.
-     */
-    name: string;
-    /**
-     * Toolbar groups - each group is an array of format buttons.
-     */
-    groups: ToolbarGroup[];
+  /**
+   * Toolbar name/key.
+   */
+  name: string
+  /**
+   * Toolbar groups - each group is an array of format buttons.
+   */
+  groups: ToolbarGroup[]
 }
 ```
 
@@ -360,7 +362,7 @@ interface ToolbarConfig {
 Editor event types.
 
 ```typescript
-type EditorEvent = 'text-change' | 'selection-change' | 'focus' | 'blur';
+type EditorEvent = 'text-change' | 'selection-change' | 'focus' | 'blur'
 ```
 
 #### `EditorEventHandler`
@@ -368,7 +370,7 @@ type EditorEvent = 'text-change' | 'selection-change' | 'focus' | 'blur';
 Event handler for editor events.
 
 ```typescript
-type EditorEventHandler<T = unknown> = (data: T) => void;
+type EditorEventHandler<T = unknown> = (data: T) => void
 ```
 
 #### `FormatType`
@@ -376,7 +378,27 @@ type EditorEventHandler<T = unknown> = (data: T) => void;
 Editor format types.
 
 ```typescript
-type FormatType = 'bold' | 'italic' | 'underline' | 'strike' | 'link' | 'image' | 'video' | 'blockquote' | 'code-block' | 'header' | 'list' | 'indent' | 'align' | 'color' | 'background' | 'font' | 'size' | 'script' | 'direction' | 'clean';
+type FormatType =
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'strike'
+  | 'link'
+  | 'image'
+  | 'video'
+  | 'blockquote'
+  | 'code-block'
+  | 'header'
+  | 'list'
+  | 'indent'
+  | 'align'
+  | 'color'
+  | 'background'
+  | 'font'
+  | 'size'
+  | 'script'
+  | 'direction'
+  | 'clean'
 ```
 
 ### Classes
@@ -446,6 +468,7 @@ const quillToolbars: Record<string, ToolbarConfig>
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-rich-text` interface.
 
 ## Bond Wiring
@@ -466,6 +489,7 @@ export function setupRichTextQuill(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-rich-text` ^1.0.0
 
 ### Runtime Dependencies

@@ -18,9 +18,11 @@ for (const route of routes) {
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-notification @molecule/api-notification-center
 ```
@@ -46,16 +48,16 @@ Data required to create a new notification.
 
 ```typescript
 interface CreateNotification {
-    /** Notification category. */
-    type: string;
-    /** Notification headline. */
-    title: string;
-    /** Notification body text. */
-    body: string;
-    /** Arbitrary structured data to attach. */
-    data?: Record<string, unknown>;
-    /** Delivery channels for this notification. Defaults to `['inApp']`. */
-    channels?: ('inApp' | 'email' | 'push' | 'sms')[];
+  /** Notification category. */
+  type: string
+  /** Notification headline. */
+  title: string
+  /** Notification body text. */
+  body: string
+  /** Arbitrary structured data to attach. */
+  data?: Record<string, unknown>
+  /** Delivery channels for this notification. Defaults to `['inApp']`. */
+  channels?: ('inApp' | 'email' | 'push' | 'sms')[]
 }
 ```
 
@@ -65,22 +67,22 @@ An in-app notification.
 
 ```typescript
 interface Notification {
-    /** Provider-assigned notification identifier. */
-    id: string;
-    /** The user this notification belongs to. */
-    userId: string;
-    /** Notification category (e.g. 'system', 'message', 'alert'). */
-    type: string;
-    /** Notification headline. */
-    title: string;
-    /** Notification body text. */
-    body: string;
-    /** Whether the notification has been read. */
-    read: boolean;
-    /** Arbitrary structured data attached to the notification. */
-    data?: Record<string, unknown>;
-    /** When the notification was created. */
-    createdAt: Date;
+  /** Provider-assigned notification identifier. */
+  id: string
+  /** The user this notification belongs to. */
+  userId: string
+  /** Notification category (e.g. 'system', 'message', 'alert'). */
+  type: string
+  /** Notification headline. */
+  title: string
+  /** Notification body text. */
+  body: string
+  /** Whether the notification has been read. */
+  read: boolean
+  /** Arbitrary structured data attached to the notification. */
+  data?: Record<string, unknown>
+  /** When the notification was created. */
+  createdAt: Date
 }
 ```
 
@@ -90,14 +92,14 @@ User notification preferences.
 
 ```typescript
 interface NotificationPreferences {
-    /** Whether email notifications are enabled. */
-    email: boolean;
-    /** Whether push notifications are enabled. */
-    push: boolean;
-    /** Whether SMS notifications are enabled. */
-    sms: boolean;
-    /** Per-channel or per-type overrides. */
-    channels: Record<string, boolean>;
+  /** Whether email notifications are enabled. */
+  email: boolean
+  /** Whether push notifications are enabled. */
+  push: boolean
+  /** Whether SMS notifications are enabled. */
+  sms: boolean
+  /** Per-channel or per-type overrides. */
+  channels: Record<string, boolean>
 }
 ```
 
@@ -107,14 +109,14 @@ Query options for listing notifications.
 
 ```typescript
 interface NotificationQuery {
-    /** Maximum number of results to return. */
-    limit?: number;
-    /** Number of results to skip. */
-    offset?: number;
-    /** Filter by read status. */
-    read?: boolean;
-    /** Filter by notification type. */
-    type?: string;
+  /** Maximum number of results to return. */
+  limit?: number
+  /** Number of results to skip. */
+  offset?: number
+  /** Filter by read status. */
+  read?: boolean
+  /** Filter by notification type. */
+  type?: string
 }
 ```
 
@@ -124,14 +126,14 @@ Paginated result set.
 
 ```typescript
 interface PaginatedResult<T> {
-    /** The result items for this page. */
-    items: T[];
-    /** Total number of matching items. */
-    total: number;
-    /** Number of items skipped. */
-    offset: number;
-    /** Maximum items per page. */
-    limit: number;
+  /** The result items for this page. */
+  items: T[]
+  /** Total number of matching items. */
+  total: number
+  /** Number of items skipped. */
+  offset: number
+  /** Maximum items per page. */
+  limit: number
 }
 ```
 
@@ -146,7 +148,10 @@ notification — a notification belonging to another user (or a non-existent
 id) yields a 404, never deleting someone else's row (IDOR).
 
 ```typescript
-function del(req: Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function del(
+  req: Request<{ id: string }, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with notification id param.
@@ -157,7 +162,10 @@ function del(req: Request<{ id: string; }, any, any, ParsedQs, Record<string, an
 Handles GET /notifications/preferences requests.
 
 ```typescript
-function getPreferencesHandler(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function getPreferencesHandler(
+  _req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with authenticated user.
@@ -189,7 +197,10 @@ function getSessionUserId(res: Response<any, Record<string, any>>): string | nul
 Handles GET /notifications requests.
 
 ```typescript
-function list(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function list(
+  req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with optional query params: limit, offset, read, type.
@@ -200,7 +211,10 @@ function list(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, 
 Handles POST /notifications/read-all requests.
 
 ```typescript
-function markAllReadHandler(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function markAllReadHandler(
+  _req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with authenticated user.
@@ -215,7 +229,10 @@ notification — a notification belonging to another user (or a non-existent
 id) yields a 404, never silently mutating someone else's row (IDOR).
 
 ```typescript
-function markReadHandler(req: Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function markReadHandler(
+  req: Request<{ id: string }, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with notification id param.
@@ -226,7 +243,10 @@ function markReadHandler(req: Request<{ id: string; }, any, any, ParsedQs, Recor
 Handles GET /notifications/unread-count requests.
 
 ```typescript
-function unreadCount(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function unreadCount(
+  _req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with authenticated user.
@@ -237,7 +257,10 @@ function unreadCount(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<
 Handles PUT /notifications/preferences requests.
 
 ```typescript
-function updatePreferencesHandler(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void>
+function updatePreferencesHandler(
+  req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+): Promise<void>
 ```
 
 - `req` — Express request with preferences in body.
@@ -250,7 +273,15 @@ function updatePreferencesHandler(req: Request<ParamsDictionary, any, any, Parse
 Handler map for notification resource routes.
 
 ```typescript
-const requestHandlerMap: { readonly list: typeof list; readonly unreadCount: typeof unreadCount; readonly markRead: typeof markReadHandler; readonly markAllRead: typeof markAllReadHandler; readonly del: typeof del; readonly getPreferences: typeof getPreferencesHandler; readonly updatePreferences: typeof updatePreferencesHandler; }
+const requestHandlerMap: {
+  readonly list: typeof list
+  readonly unreadCount: typeof unreadCount
+  readonly markRead: typeof markReadHandler
+  readonly markAllRead: typeof markAllReadHandler
+  readonly del: typeof del
+  readonly getPreferences: typeof getPreferencesHandler
+  readonly updatePreferences: typeof updatePreferencesHandler
+}
 ```
 
 #### `routes`
@@ -258,7 +289,35 @@ const requestHandlerMap: { readonly list: typeof list; readonly unreadCount: typ
 Route definitions for the notification resource.
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/notifications"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/notifications/unread-count"; readonly handler: "unreadCount"; }, { readonly method: "get"; readonly path: "/notifications/preferences"; readonly handler: "getPreferences"; }, { readonly method: "post"; readonly path: "/notifications/:id/read"; readonly handler: "markRead"; }, { readonly method: "post"; readonly path: "/notifications/read-all"; readonly handler: "markAllRead"; }, { readonly method: "put"; readonly path: "/notifications/preferences"; readonly handler: "updatePreferences"; }, { readonly method: "delete"; readonly path: "/notifications/:id"; readonly handler: "del"; }]
+const routes: readonly [
+  { readonly method: 'get'; readonly path: '/notifications'; readonly handler: 'list' },
+  {
+    readonly method: 'get'
+    readonly path: '/notifications/unread-count'
+    readonly handler: 'unreadCount'
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/notifications/preferences'
+    readonly handler: 'getPreferences'
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/notifications/:id/read'
+    readonly handler: 'markRead'
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/notifications/read-all'
+    readonly handler: 'markAllRead'
+  },
+  {
+    readonly method: 'put'
+    readonly path: '/notifications/preferences'
+    readonly handler: 'updatePreferences'
+  },
+  { readonly method: 'delete'; readonly path: '/notifications/:id'; readonly handler: 'del' },
+]
 ```
 
 ## Injection Notes
@@ -266,6 +325,7 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/notifications
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-notification-center` 1.0.0
 
 ### Runtime Dependencies

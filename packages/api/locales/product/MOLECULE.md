@@ -30,20 +30,20 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `product.error.nameRequired` | Product name is required |
-| `product.error.invalidName` | Product name is invalid |
-| `product.error.invalidPrice` | A valid price is required |
-| `product.error.createFailed` | Failed to create product |
-| `product.error.notFound` | Product not found |
-| `product.error.forbidden` | Access denied |
-| `product.error.readFailed` | Failed to read product |
-| `product.error.listFailed` | Failed to list products |
-| `product.error.updateFailed` | Failed to update product |
-| `product.error.deleteFailed` | Failed to delete product |
-| `product.error.listVariantsFailed` | Failed to list product variants |
-| `product.error.variantNameRequired` | Variant name is required |
+| Key                                 | English                          |
+| ----------------------------------- | -------------------------------- |
+| `product.error.nameRequired`        | Product name is required         |
+| `product.error.invalidName`         | Product name is invalid          |
+| `product.error.invalidPrice`        | A valid price is required        |
+| `product.error.createFailed`        | Failed to create product         |
+| `product.error.notFound`            | Product not found                |
+| `product.error.forbidden`           | Access denied                    |
+| `product.error.readFailed`          | Failed to read product           |
+| `product.error.listFailed`          | Failed to list products          |
+| `product.error.updateFailed`        | Failed to update product         |
+| `product.error.deleteFailed`        | Failed to delete product         |
+| `product.error.listVariantsFailed`  | Failed to list product variants  |
+| `product.error.variantNameRequired` | Variant name is required         |
 | `product.error.createVariantFailed` | Failed to create product variant |
 
 ## Metadata

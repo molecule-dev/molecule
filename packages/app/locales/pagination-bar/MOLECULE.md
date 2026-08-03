@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-pagination-bar-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-pagination-bar'
-import type { PaginationBarTranslationKey, PaginationBarTranslations } from '@molecule/app-locales-pagination-bar'
+import type {
+  PaginationBarTranslationKey,
+  PaginationBarTranslations,
+} from '@molecule/app-locales-pagination-bar'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                   | English       |
+| --------------------- | ------------- |
 | `pagination.previous` | Previous page |
-| `pagination.next` | Next page |
-| `pagination.pageSize` | Page size |
+| `pagination.next`     | Next page     |
+| `pagination.pageSize` | Page size     |
 
 ## Metadata
 

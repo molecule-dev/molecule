@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-bulk-action-toolbar-react` package 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-bulk-action-toolbar'
-import type { BulkActionToolbarTranslationKey, BulkActionToolbarTranslations } from '@molecule/app-locales-bulk-action-toolbar'
+import type {
+  BulkActionToolbarTranslationKey,
+  BulkActionToolbarTranslations,
+} from '@molecule/app-locales-bulk-action-toolbar'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `bulkActions.clear` | Clear |
+| Key                 | English |
+| ------------------- | ------- |
+| `bulkActions.clear` | Clear   |
 
 ## Metadata
 

@@ -19,9 +19,11 @@ bond('payments', 'paypal', paymentProvider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-payments-paypal @molecule/api-bond @molecule/api-payments @molecule/api-secrets
 ```
@@ -49,30 +51,30 @@ Normalized purchase information (for one-time purchases).
 
 ```typescript
 interface NormalizedPurchase {
-    /**
-     * The payment provider.
-     */
-    provider: PaymentProviderName;
-    /**
-     * The purchase/transaction ID.
-     */
-    purchaseId: string;
-    /**
-     * The product ID.
-     */
-    productId: string;
-    /**
-     * Whether the purchase is valid.
-     */
-    isValid: boolean;
-    /**
-     * When the purchase was made (Unix timestamp in ms).
-     */
-    purchaseDate: number;
-    /**
-     * Raw data from the provider.
-     */
-    rawData: unknown;
+  /**
+   * The payment provider.
+   */
+  provider: PaymentProviderName
+  /**
+   * The purchase/transaction ID.
+   */
+  purchaseId: string
+  /**
+   * The product ID.
+   */
+  productId: string
+  /**
+   * Whether the purchase is valid.
+   */
+  isValid: boolean
+  /**
+   * When the purchase was made (Unix timestamp in ms).
+   */
+  purchaseDate: number
+  /**
+   * Raw data from the provider.
+   */
+  rawData: unknown
 }
 ```
 
@@ -84,46 +86,46 @@ Use this interface to abstract away provider-specific differences.
 
 ```typescript
 interface NormalizedSubscription {
-    /**
-     * The payment provider.
-     */
-    provider: PaymentProviderName;
-    /**
-     * The subscription ID from the provider.
-     */
-    subscriptionId: string;
-    /**
-     * The product/plan ID.
-     */
-    productId: string;
-    /**
-     * Current subscription status.
-     */
-    status: SubscriptionStatus;
-    /**
-     * Whether the subscription is currently active.
-     */
-    isActive: boolean;
-    /**
-     * When the current period started (Unix timestamp in ms).
-     */
-    currentPeriodStart?: number;
-    /**
-     * When the current period ends (Unix timestamp in ms).
-     */
-    currentPeriodEnd?: number;
-    /**
-     * Whether the subscription will auto-renew.
-     */
-    willRenew?: boolean;
-    /**
-     * When the subscription was canceled (if applicable).
-     */
-    canceledAt?: number;
-    /**
-     * Raw data from the provider.
-     */
-    rawData: unknown;
+  /**
+   * The payment provider.
+   */
+  provider: PaymentProviderName
+  /**
+   * The subscription ID from the provider.
+   */
+  subscriptionId: string
+  /**
+   * The product/plan ID.
+   */
+  productId: string
+  /**
+   * Current subscription status.
+   */
+  status: SubscriptionStatus
+  /**
+   * Whether the subscription is currently active.
+   */
+  isActive: boolean
+  /**
+   * When the current period started (Unix timestamp in ms).
+   */
+  currentPeriodStart?: number
+  /**
+   * When the current period ends (Unix timestamp in ms).
+   */
+  currentPeriodEnd?: number
+  /**
+   * Whether the subscription will auto-renew.
+   */
+  willRenew?: boolean
+  /**
+   * When the subscription was canceled (if applicable).
+   */
+  canceledAt?: number
+  /**
+   * Raw data from the provider.
+   */
+  rawData: unknown
 }
 ```
 
@@ -254,7 +256,7 @@ Each payment provider implements the methods relevant to its platform.
 All methods are optional since different platforms use different flows.
 
 ```typescript
-type PaymentProvider = PaymentProviderInterface;
+type PaymentProvider = PaymentProviderInterface
 ```
 
 #### `SubscriptionStatus`
@@ -262,7 +264,8 @@ type PaymentProvider = PaymentProviderInterface;
 Subscription status across providers.
 
 ```typescript
-type SubscriptionStatus = 'active' | 'canceled' | 'expired' | 'past_due' | 'trialing' | 'paused' | 'pending' | 'unknown';
+type SubscriptionStatus =
+  'active' | 'canceled' | 'expired' | 'past_due' | 'trialing' | 'paused' | 'pending' | 'unknown'
 ```
 
 ### Classes
@@ -315,7 +318,15 @@ the order is then captured server-side (see the bond adapter's
 `verifySubscription`, which captures an approved order on verify).
 
 ```typescript
-function createOrder(options: { amount: string; currency?: string; referenceId?: string; returnUrl: string; cancelUrl: string; customId?: string; idempotencyKey?: string; }): Promise<CheckoutSessionResult>
+function createOrder(options: {
+  amount: string
+  currency?: string
+  referenceId?: string
+  returnUrl: string
+  cancelUrl: string
+  customId?: string
+  idempotencyKey?: string
+}): Promise<CheckoutSessionResult>
 ```
 
 - `options` — Order options.
@@ -338,7 +349,14 @@ before a subscription can be created for it; create plans ahead of time
 catalogue with the `P-...` ids.
 
 ```typescript
-function createPlan(options: { productId: string; name: string; interval: "DAY" | "WEEK" | "MONTH" | "YEAR"; price: string; currency?: string; intervalCount?: number; }): Promise<{ id: string; }>
+function createPlan(options: {
+  productId: string
+  name: string
+  interval: 'DAY' | 'WEEK' | 'MONTH' | 'YEAR'
+  price: string
+  currency?: string
+  intervalCount?: number
+}): Promise<{ id: string }>
 ```
 
 - `options` — Plan options.
@@ -358,7 +376,11 @@ every billing plan. Only needed when provisioning plans from code; a plan
 created by hand in the dashboard already has one.
 
 ```typescript
-function createProduct(options: { name: string; description?: string; type?: "PHYSICAL" | "DIGITAL" | "SERVICE"; }): Promise<{ id: string; }>
+function createProduct(options: {
+  name: string
+  description?: string
+  type?: 'PHYSICAL' | 'DIGITAL' | 'SERVICE'
+}): Promise<{ id: string }>
 ```
 
 - `options` — Product options.
@@ -377,7 +399,13 @@ equivalent of a Stripe Checkout session. The buyer is redirected to
 `?subscription_id=I-...&ba_token=...&token=...` appended.
 
 ```typescript
-function createSubscription(options: { planId: string; returnUrl: string; cancelUrl: string; customId?: string; idempotencyKey?: string; }): Promise<CheckoutSessionResult>
+function createSubscription(options: {
+  planId: string
+  returnUrl: string
+  cancelUrl: string
+  customId?: string
+  idempotencyKey?: string
+}): Promise<CheckoutSessionResult>
 ```
 
 - `options` — Subscription options.
@@ -458,7 +486,10 @@ Normalizes a PayPal `PayPalSubscription` to the common
 `NormalizedSubscription` interface used across all payment providers.
 
 ```typescript
-function normalizeSubscription(subscription: PayPalSubscription, plan?: PayPalPlan): NormalizedSubscription
+function normalizeSubscription(
+  subscription: PayPalSubscription,
+  plan?: PayPalPlan,
+): NormalizedSubscription
 ```
 
 - `subscription` — The PayPal subscription to normalize.
@@ -496,7 +527,10 @@ to RE-APPROVE the revised terms, in which case the response carries an
 `approve` link the buyer must be sent through.
 
 ```typescript
-function reviseSubscription(subscriptionId: string, planId: string): Promise<{ subscription: PayPalSubscription; approveUrl: string | null; }>
+function reviseSubscription(
+  subscriptionId: string,
+  planId: string,
+): Promise<{ subscription: PayPalSubscription; approveUrl: string | null }>
 ```
 
 - `subscriptionId` — The subscription id (`I-...`).
@@ -513,7 +547,14 @@ the transmission headers + raw event + your `PAYPAL_WEBHOOK_ID` are posted
 back to PayPal, which answers `SUCCESS`/`FAILURE`.
 
 ```typescript
-function verifyWebhookSignature(params: { authAlgo: string; certUrl: string; transmissionId: string; transmissionSig: string; transmissionTime: string; webhookEvent: Record<string, unknown>; }): Promise<WebhookEventResult | null>
+function verifyWebhookSignature(params: {
+  authAlgo: string
+  certUrl: string
+  transmissionId: string
+  transmissionSig: string
+  transmissionTime: string
+  webhookEvent: Record<string, unknown>
+}): Promise<WebhookEventResult | null>
 ```
 
 - `params` — The webhook verification parameters.
@@ -535,7 +576,7 @@ via `PAYPAL_BASE_URL=https://api-m.paypal.com` so a misconfigured deploy
 fails safe (test charges) rather than silently billing real buyers.
 
 ```typescript
-const DEFAULT_BASE_URL: "https://api-m.sandbox.paypal.com"
+const DEFAULT_BASE_URL: 'https://api-m.sandbox.paypal.com'
 ```
 
 #### `paymentProvider`
@@ -560,6 +601,7 @@ const paypalSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-payments` interface.
 
 ## Bond Wiring
@@ -580,24 +622,25 @@ export function setupPaymentsPaypal(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `PAYPAL_CLIENT_ID` *(required)* — PayPal REST app client ID
+- `PAYPAL_CLIENT_ID` _(required)_ — PayPal REST app client ID
   - Setup: PayPal Developer Dashboard → Apps & Credentials → create (or select) a REST app in the Sandbox or Live tab; copy its Client ID.
   - Get it here: [https://developer.paypal.com/dashboard/applications/sandbox](https://developer.paypal.com/dashboard/applications/sandbox)
   - Example: `AXx...`
-- `PAYPAL_CLIENT_SECRET` *(required)* — PayPal REST app secret
+- `PAYPAL_CLIENT_SECRET` _(required)_ — PayPal REST app secret
   - Setup: PayPal Developer Dashboard → Apps & Credentials → your REST app; copy the Secret (shown under the Client ID).
   - Get it here: [https://developer.paypal.com/dashboard/applications/sandbox](https://developer.paypal.com/dashboard/applications/sandbox)
   - Example: `ELx...`
-- `PAYPAL_BASE_URL` *(optional)* — PayPal API base URL
+- `PAYPAL_BASE_URL` _(optional)_ — PayPal API base URL
   - Setup: Defaults to the sandbox host (https://api-m.sandbox.paypal.com); set to https://api-m.paypal.com for live. Must match the environment your REST app credentials came from.
   - Example: `https://api-m.sandbox.paypal.com`
-- `PAYPAL_WEBHOOK_ID` *(optional)* — PayPal webhook ID
+- `PAYPAL_WEBHOOK_ID` _(optional)_ — PayPal webhook ID
   - Setup: PayPal Developer Dashboard → Apps & Credentials → your REST app → Add Webhook pointing at {apiUrl}/api/users/payment-notification/paypal, then copy its webhook ID. Required only for webhook signature verification.
   - Get it here: [https://developer.paypal.com/dashboard/applications/sandbox](https://developer.paypal.com/dashboard/applications/sandbox)
   - Example: `5WH...`
@@ -667,19 +710,20 @@ Integration checklist — drive the real UI (live preview, no mocks; use the
 provider's TEST mode — test cards/sandbox accounts, never a live charge),
 adapt each item to this app's actual screens/flows, and check every box off
 one by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Starting an upgrade/subscribe from the pricing or billing surface creates a
-  checkout session and hands off to the provider flow (redirect or embedded
-  element) — the button does something real, not a dead click.
+      checkout session and hands off to the provider flow (redirect or embedded
+      element) — the button does something real, not a dead click.
 - [ ] Returning from a canceled/abandoned checkout leaves the user on their
-  original plan with a sane UI (no phantom entitlement, no error page).
+      original plan with a sane UI (no phantom entitlement, no error page).
 - [ ] Entitlement flips ONLY after server-side verification (webhook or verify
-  call) — reloading after a client-side-only "success" must NOT show a paid
-  plan unless the server verified it. The sandbox CAPTURES webhook deliveries
-  — read them with the `read_activity` tool (filter type 'webhook'); never
-  mock the event or modify production code to fake an entitlement.
+      call) — reloading after a client-side-only "success" must NOT show a paid
+      plan unless the server verified it. The sandbox CAPTURES webhook deliveries
+      — read them with the `read_activity` tool (filter type 'webhook'); never
+      mock the event or modify production code to fake an entitlement.
 - [ ] The current subscription status (plan name, renewal/expiry) renders on the
-  account/billing screen, and canceling updates that status visibly.
+      account/billing screen, and canceling updates that status visibly.
 - [ ] With payment secrets unconfigured, the flow surfaces an actionable
-  "credentials not configured" message — not a silent no-op or generic 500.
+      "credentials not configured" message — not a silent no-op or generic 500.
 - [ ] The provider SECRET key never reaches the browser (page + network traffic
-  contain only the publishable key).
+      contain only the publishable key).

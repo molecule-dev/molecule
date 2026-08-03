@@ -18,9 +18,11 @@ setExternalStateProvider(
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-project-archive-external-state-sqlite @molecule/api-project-archive
 ```
@@ -59,7 +61,9 @@ interface SqliteExternalStateConfig {
 Create the provider.
 
 ```typescript
-function createSqliteExternalStateProvider(config: SqliteExternalStateConfig): ProjectExternalStateProvider
+function createSqliteExternalStateProvider(
+  config: SqliteExternalStateConfig,
+): ProjectExternalStateProvider
 ```
 
 - `config` — How to find a project's database files.
@@ -71,7 +75,12 @@ function createSqliteExternalStateProvider(config: SqliteExternalStateConfig): P
 Run `command`, streaming its stdout into `destPath`.
 
 ```typescript
-function dumpToFile(command: string, args: readonly string[], destPath: string, env?: NodeJS.ProcessEnv): Promise<number>
+function dumpToFile(
+  command: string,
+  args: readonly string[],
+  destPath: string,
+  env?: NodeJS.ProcessEnv,
+): Promise<number>
 ```
 
 - `command` — The executable, e.g. `pg_dump`.
@@ -86,7 +95,12 @@ function dumpToFile(command: string, args: readonly string[], destPath: string, 
 Run `command`, streaming `srcPath` into its stdin.
 
 ```typescript
-function restoreFromFile(command: string, args: readonly string[], srcPath: string, env?: NodeJS.ProcessEnv): Promise<void>
+function restoreFromFile(
+  command: string,
+  args: readonly string[],
+  srcPath: string,
+  env?: NodeJS.ProcessEnv,
+): Promise<void>
 ```
 
 - `command` — The executable, e.g. `psql`.
@@ -101,10 +115,11 @@ function restoreFromFile(command: string, args: readonly string[], srcPath: stri
 Recorded on every record this provider produces; routes restores back here.
 
 ```typescript
-const KIND: "sqlite"
+const KIND: 'sqlite'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-project-archive` interface.
 
 ## Bond Wiring
@@ -125,14 +140,15 @@ export function setupProjectArchiveExternalStateSqlite(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-project-archive` ^1.0.0
 
 ### Environment Variables
 
-- `PROJECT_ARCHIVE_SQLITE_PATH` *(required)* — Project database path template
+- `PROJECT_ARCHIVE_SQLITE_PATH` _(required)_ — Project database path template
   - Setup: Filesystem path of each project's SQLite database. MUST contain {projectId} — without it every project resolves to the same file. Not needed if you inject your own locate function.
   - Example: `/var/lib/app/projects/{projectId}/app.db`
-- `PROJECT_ARCHIVE_SQLITE_ID` *(optional)* — Database id recorded in the archive — default: `main`
+- `PROJECT_ARCHIVE_SQLITE_ID` _(optional)_ — Database id recorded in the archive — default: `main`
   - Setup: Identifier recorded for the located database and used as its artifact part name. Defaults to "main".
   - Example: `main`
 

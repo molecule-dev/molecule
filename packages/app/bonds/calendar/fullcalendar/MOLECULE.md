@@ -18,9 +18,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-calendar-fullcalendar @molecule/app-calendar
 ```
@@ -165,6 +167,7 @@ const provider: CalendarProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-calendar` interface.
 
 ## Bond Wiring
@@ -185,6 +188,7 @@ export function setupCalendarFullcalendar(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-calendar` >=1.0.0
 
 ### Runtime Dependencies
@@ -206,13 +210,14 @@ pushed out. Both rules apply ONLY to the interactive `_handleEventDrop` /
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The calendar renders the seeded events on their correct dates/times.
 - [ ] Every view the app exposes (month/week/day/agenda) shows the same
-  events consistently when switching.
+      events consistently when switching.
 - [ ] Prev/next/today navigation lands on the right period with its events.
 - [ ] Creating an event through the app's flow (slot click or button) shows
-  it on the calendar and it persists across a full reload.
+      it on the calendar and it persists across a full reload.
 - [ ] Clicking an event opens its detail/edit, and an edit (time change, or
-  drag-and-drop if supported) sticks after reload.
+      drag-and-drop if supported) sticks after reload.
 - [ ] Multi-day and overlapping events render legibly (no clipped or
-  stacked-wrong entries).
+      stacked-wrong entries).

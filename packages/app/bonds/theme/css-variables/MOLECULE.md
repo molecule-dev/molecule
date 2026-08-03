@@ -26,6 +26,7 @@ setProvider(provider)
 ```
 
 Then use CSS variables in your stylesheets:
+
 ```css
 .button {
   background-color: var(--mol-color-primary);
@@ -37,9 +38,11 @@ Then use CSS variables in your stylesheets:
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-theme-css-variables @molecule/app-theme
 ```
@@ -137,6 +140,7 @@ const provider: ThemeProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-theme` interface.
 
 ## Bond Wiring
@@ -157,6 +161,7 @@ export function setupThemeCssVariables(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-theme` ^1.0.0
 
 ### Runtime Dependencies

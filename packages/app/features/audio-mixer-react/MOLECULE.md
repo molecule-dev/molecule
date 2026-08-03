@@ -18,7 +18,7 @@ used internally to constrain user input.
 ```tsx
 import { AudioMixer } from '@molecule/app-feature-audio-mixer-react'
 
-<AudioMixer
+;<AudioMixer
   channels={[
     { id: 'drums', name: 'Drums', level: 0.8, pan: -0.2, muted: false, solo: false },
     { id: 'bass', name: 'Bass', level: 0.7, pan: 0, muted: false, solo: false },
@@ -30,9 +30,11 @@ import { AudioMixer } from '@molecule/app-feature-audio-mixer-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-audio-mixer-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -241,6 +243,7 @@ const MIN_PAN: -1
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

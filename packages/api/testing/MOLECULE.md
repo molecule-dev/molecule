@@ -14,11 +14,7 @@ user/device/session fixture factories (`createUserFixture`,
 ```typescript
 import { setPool } from '@molecule/api-database'
 import { setTransport } from '@molecule/api-emails'
-import {
-  createMockDatabase,
-  createMockEmail,
-  createUserFixture,
-} from '@molecule/api-testing'
+import { createMockDatabase, createMockEmail, createUserFixture } from '@molecule/api-testing'
 
 // Fresh mocks per test file, wired exactly like a real bond — the code
 // under test needs zero changes.
@@ -32,16 +28,18 @@ db.setQueryResultOnce({ rows: [createUserFixture()], rowCount: 1 })
 db.setQueryResult({ rows: [], rowCount: 0 })
 
 // ...run the code under test, then assert on what it did:
-console.log(db.queries)          // every { text, values } issued
-console.log(email.sentMessages)  // every EmailMessage sent
+console.log(db.queries) // every { text, values } issued
+console.log(email.sentMessages) // every EmailMessage sent
 
 email.failNext(new Error('SMTP down')) // next sendMail() rejects once
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-testing @molecule/api-cache @molecule/api-database @molecule/api-emails @molecule/api-logger @molecule/api-queue
 ```
@@ -236,7 +234,10 @@ function createMany(factory: (index: number) => T, count: number): T[]
 Creates a mock cache provider for testing.
 
 ```typescript
-function createMockCache(): CacheProvider & { store: Map<string, { value: unknown; tags?: string[]; }>; reset: () => void; }
+function createMockCache(): CacheProvider & {
+  store: Map<string, { value: unknown; tags?: string[] }>
+  reset: () => void
+}
 ```
 
 **Returns:** The created instance.
@@ -246,7 +247,12 @@ function createMockCache(): CacheProvider & { store: Map<string, { value: unknow
 Creates a mock database pool for testing.
 
 ```typescript
-function createMockDatabase(): DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; setQueryResultOnce: <T>(result: QueryResult<T>) => void; reset: () => void; }
+function createMockDatabase(): DatabasePool & {
+  queries: Array<{ text: string; values?: unknown[] }>
+  setQueryResult: <T>(result: QueryResult<T>) => void
+  setQueryResultOnce: <T>(result: QueryResult<T>) => void
+  reset: () => void
+}
 ```
 
 **Returns:** The created instance.
@@ -256,7 +262,11 @@ function createMockDatabase(): DatabasePool & { queries: Array<{ text: string; v
 Creates a mock email transport for testing.
 
 ```typescript
-function createMockEmail(): EmailTransport & { sentMessages: EmailMessage[]; reset: () => void; failNext: (error: Error) => void; }
+function createMockEmail(): EmailTransport & {
+  sentMessages: EmailMessage[]
+  reset: () => void
+  failNext: (error: Error) => void
+}
 ```
 
 **Returns:** The created instance.
@@ -266,7 +276,13 @@ function createMockEmail(): EmailTransport & { sentMessages: EmailMessage[]; res
 Creates a mock Logger that captures all log entries for assertions.
 
 ```typescript
-function createMockLogger(): Logger & { logs: LogEntry[]; reset: () => void; getLogsByLevel: (level: LogEntry["level"]) => LogEntry[]; setLevel: (level: string) => void; getLevel: () => string; }
+function createMockLogger(): Logger & {
+  logs: LogEntry[]
+  reset: () => void
+  getLogsByLevel: (level: LogEntry['level']) => LogEntry[]
+  setLevel: (level: string) => void
+  getLevel: () => string
+}
 ```
 
 **Returns:** A Logger with exposed `logs` array, `reset()`, and `getLogsByLevel()` for test inspection.
@@ -276,7 +292,10 @@ function createMockLogger(): Logger & { logs: LogEntry[]; reset: () => void; get
 Creates a mock QueueProvider for testing, with lazily-created in-memory queues and a `reset()` method.
 
 ```typescript
-function createMockQueue(): QueueProvider & { queues: Map<string, ReturnType<typeof createMockQueueInstance>>; reset: () => void; }
+function createMockQueue(): QueueProvider & {
+  queues: Map<string, ReturnType<typeof createMockQueueInstance>>
+  reset: () => void
+}
 ```
 
 **Returns:** A QueueProvider with exposed `queues` map and `reset()` for test cleanup.
@@ -327,7 +346,10 @@ function createUserFixture(overrides?: Partial<UserFixtureOverrides>): UserFixtu
 Runs a function and asserts it throws. Optionally checks the error type.
 
 ```typescript
-function expectThrows(fn: () => Promise<unknown> | unknown, errorType?: (new (...args: unknown[]) => T)): Promise<T>
+function expectThrows(
+  fn: () => Promise<unknown> | unknown,
+  errorType?: new (...args: unknown[]) => T,
+): Promise<T>
 ```
 
 - `fn` — The function expected to throw (sync or async).
@@ -388,7 +410,10 @@ condition that becomes true during the last polling interval still resolves
 instead of being falsely reported as timed out.
 
 ```typescript
-function waitFor(condition: () => boolean | Promise<boolean>, options?: WaitForOptions): Promise<void>
+function waitFor(
+  condition: () => boolean | Promise<boolean>,
+  options?: WaitForOptions,
+): Promise<void>
 ```
 
 - `condition` — A function that returns `true` (or a Promise resolving to `true`) when the condition is met.
@@ -402,7 +427,10 @@ Pre-configured mock cache for quick setup. Shared module-level instance —
 call `reset()` in `beforeEach` so stored entries don't bleed between tests.
 
 ```typescript
-const mockCache: CacheProvider & { store: Map<string, { value: unknown; tags?: string[]; }>; reset: () => void; }
+const mockCache: CacheProvider & {
+  store: Map<string, { value: unknown; tags?: string[] }>
+  reset: () => void
+}
 ```
 
 #### `mockDatabase`
@@ -411,7 +439,12 @@ Pre-configured mock database for quick setup. Shared module-level instance —
 call `reset()` in `beforeEach` so recorded queries don't bleed between tests.
 
 ```typescript
-const mockDatabase: DatabasePool & { queries: Array<{ text: string; values?: unknown[]; }>; setQueryResult: <T>(result: QueryResult<T>) => void; setQueryResultOnce: <T>(result: QueryResult<T>) => void; reset: () => void; }
+const mockDatabase: DatabasePool & {
+  queries: Array<{ text: string; values?: unknown[] }>
+  setQueryResult: <T>(result: QueryResult<T>) => void
+  setQueryResultOnce: <T>(result: QueryResult<T>) => void
+  reset: () => void
+}
 ```
 
 #### `mockEmail`
@@ -420,7 +453,11 @@ Pre-configured mock email for quick setup. Shared module-level instance —
 call `reset()` in `beforeEach` so sent messages don't bleed between tests.
 
 ```typescript
-const mockEmail: EmailTransport & { sentMessages: EmailMessage[]; reset: () => void; failNext: (error: Error) => void; }
+const mockEmail: EmailTransport & {
+  sentMessages: EmailMessage[]
+  reset: () => void
+  failNext: (error: Error) => void
+}
 ```
 
 #### `mockLogger`
@@ -430,7 +467,13 @@ module-level instance — call `reset()` in `beforeEach` so captured log
 entries don't bleed between tests.
 
 ```typescript
-const mockLogger: Logger & { logs: LogEntry[]; reset: () => void; getLogsByLevel: (level: LogEntry["level"]) => LogEntry[]; setLevel: (level: string) => void; getLevel: () => string; }
+const mockLogger: Logger & {
+  logs: LogEntry[]
+  reset: () => void
+  getLogsByLevel: (level: LogEntry['level']) => LogEntry[]
+  setLevel: (level: string) => void
+  getLevel: () => string
+}
 ```
 
 #### `mockQueue`
@@ -440,7 +483,10 @@ module-level instance — call `reset()` in `beforeEach` so queued messages
 and subscribers don't bleed between tests.
 
 ```typescript
-const mockQueue: QueueProvider & { queues: Map<string, ReturnType<typeof createMockQueueInstance>>; reset: () => void; }
+const mockQueue: QueueProvider & {
+  queues: Map<string, ReturnType<typeof createMockQueueInstance>>
+  reset: () => void
+}
 ```
 
 ## Injection Notes
@@ -448,6 +494,7 @@ const mockQueue: QueueProvider & { queues: Map<string, ReturnType<typeof createM
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-cache` ^1.0.0
 - `@molecule/api-queue` ^1.0.0

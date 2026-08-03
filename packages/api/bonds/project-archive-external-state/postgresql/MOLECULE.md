@@ -19,9 +19,11 @@ setExternalStateProvider(
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-project-archive-external-state-postgresql @molecule/api-project-archive
 ```
@@ -65,7 +67,9 @@ interface PostgresqlExternalStateConfig {
 Create the provider.
 
 ```typescript
-function createPostgresqlExternalStateProvider(config: PostgresqlExternalStateConfig): ProjectExternalStateProvider
+function createPostgresqlExternalStateProvider(
+  config: PostgresqlExternalStateConfig,
+): ProjectExternalStateProvider
 ```
 
 - `config` — How to find a project's databases.
@@ -77,7 +81,12 @@ function createPostgresqlExternalStateProvider(config: PostgresqlExternalStateCo
 Run `command`, streaming its stdout into `destPath`.
 
 ```typescript
-function dumpToFile(command: string, args: readonly string[], destPath: string, env?: NodeJS.ProcessEnv): Promise<number>
+function dumpToFile(
+  command: string,
+  args: readonly string[],
+  destPath: string,
+  env?: NodeJS.ProcessEnv,
+): Promise<number>
 ```
 
 - `command` — The executable, e.g. `pg_dump`.
@@ -107,7 +116,12 @@ function parseConnection(url: string): Connection
 Run `command`, streaming `srcPath` into its stdin.
 
 ```typescript
-function restoreFromFile(command: string, args: readonly string[], srcPath: string, env?: NodeJS.ProcessEnv): Promise<void>
+function restoreFromFile(
+  command: string,
+  args: readonly string[],
+  srcPath: string,
+  env?: NodeJS.ProcessEnv,
+): Promise<void>
 ```
 
 - `command` — The executable, e.g. `psql`.
@@ -122,10 +136,11 @@ function restoreFromFile(command: string, args: readonly string[], srcPath: stri
 Recorded on every record this provider produces; routes restores back here.
 
 ```typescript
-const KIND: "postgresql"
+const KIND: 'postgresql'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-project-archive` interface.
 
 ## Bond Wiring
@@ -146,14 +161,15 @@ export function setupProjectArchiveExternalStatePostgresql(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-project-archive` ^1.0.0
 
 ### Environment Variables
 
-- `PROJECT_ARCHIVE_POSTGRESQL_URL` *(required)* — PostgreSQL connection URL (archiver)
+- `PROJECT_ARCHIVE_POSTGRESQL_URL` _(required)_ — PostgreSQL connection URL (archiver)
   - Setup: Connection string for the server holding project databases. Credentials reach pg_dump/pg_restore through the environment, never argv. Not needed if you inject resolveDatabaseUrls instead.
   - Example: `postgresql://archiver:secret@db.internal:5432/postgres`
-- `PROJECT_ARCHIVE_POSTGRESQL_DATABASE` *(required)* — Project database name template
+- `PROJECT_ARCHIVE_POSTGRESQL_DATABASE` _(required)_ — Project database name template
   - Setup: Database name for each project. MUST contain {projectId} — without it every project resolves to the same database, so one project's archive would hold another's data.
   - Example: `app_{projectId}`
 

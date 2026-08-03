@@ -37,9 +37,11 @@ captureMessage('Payment retry queue is backing up', 'warning')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-error-tracking @molecule/api-bond @molecule/api-i18n
 ```
@@ -198,7 +200,11 @@ Reports a standalone message to the bonded error tracking provider.
 Silent no-op when no provider is bonded; never throws.
 
 ```typescript
-function captureMessage(message: string, level?: ErrorTrackingLevel, context?: ErrorTrackingContext): string | undefined
+function captureMessage(
+  message: string,
+  level?: ErrorTrackingLevel,
+  context?: ErrorTrackingContext,
+): string | undefined
 ```
 
 - `message` — The message to report.
@@ -280,16 +286,17 @@ function setUser(user: ErrorTrackingUser | null): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Console | `@molecule/api-error-tracking-console` |
-| Sentry | `@molecule/api-error-tracking-sentry` |
+| Provider | Package                                |
+| -------- | -------------------------------------- |
+| Console  | `@molecule/api-error-tracking-console` |
+| Sentry   | `@molecule/api-error-tracking-sentry`  |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

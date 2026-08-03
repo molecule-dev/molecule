@@ -22,9 +22,11 @@ if (driver) {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-staging @molecule/api-bond
 ```
@@ -253,8 +255,8 @@ function setProvider(driver: StagingDriver): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider       | Package                                |
+| -------------- | -------------------------------------- |
 | Docker Compose | `@molecule/api-staging-docker-compose` |
 
 ## Injection Notes
@@ -262,6 +264,7 @@ function setProvider(driver: StagingDriver): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

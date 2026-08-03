@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-biometrics` package which has 11 tr
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-biometrics'
-import type { BiometricsTranslationKey, BiometricsTranslations } from '@molecule/app-locales-biometrics'
+import type {
+  BiometricsTranslationKey,
+  BiometricsTranslations,
+} from '@molecule/app-locales-biometrics'
 ```
 
 ## Registration
@@ -34,19 +37,19 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `biometrics.error.notSupported` | WebAuthn not supported |
-| `biometrics.error.noPlatformAuth` | No platform authenticator |
-| `biometrics.error.checkFailed` | Error checking availability |
-| `biometrics.error.noCredential` | No credential returned |
-| `biometrics.error.userCancel` | User cancelled authentication |
-| `biometrics.error.permissionDenied` | Permission denied |
-| `biometrics.error.unknown` | Unknown error |
-| `biometrics.device.fingerprint` | Fingerprint |
-| `biometrics.device.faceId` | Face ID |
-| `biometrics.device.touchId` | Touch ID |
-| `biometrics.device.windowsHello` | Windows Hello |
+| Key                                 | English                       |
+| ----------------------------------- | ----------------------------- |
+| `biometrics.error.notSupported`     | WebAuthn not supported        |
+| `biometrics.error.noPlatformAuth`   | No platform authenticator     |
+| `biometrics.error.checkFailed`      | Error checking availability   |
+| `biometrics.error.noCredential`     | No credential returned        |
+| `biometrics.error.userCancel`       | User cancelled authentication |
+| `biometrics.error.permissionDenied` | Permission denied             |
+| `biometrics.error.unknown`          | Unknown error                 |
+| `biometrics.device.fingerprint`     | Fingerprint                   |
+| `biometrics.device.faceId`          | Face ID                       |
+| `biometrics.device.touchId`         | Touch ID                      |
+| `biometrics.device.windowsHello`    | Windows Hello                 |
 
 ## Metadata
 

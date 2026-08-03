@@ -25,12 +25,7 @@ function SignupForm() {
   return (
     <>
       <input value={password} onChange={(e) => setPassword(e.target.value)} />
-      <PasswordStrengthMeter
-        password={password}
-        onScore={setScore}
-        minScore={2}
-        showChecklist
-      />
+      <PasswordStrengthMeter password={password} onScore={setScore} minScore={2} showChecklist />
       <button disabled={score < 2}>Sign up</button>
     </>
   )
@@ -38,9 +33,11 @@ function SignupForm() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-password-strength-meter-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -136,7 +133,9 @@ through `getClassMap()` so the meter restyles via the wired ClassMap
 bond. Colors come from molecule's `--mol-color-*` design tokens.
 
 ```typescript
-function PasswordStrengthMeter(props: PasswordStrengthMeterProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function PasswordStrengthMeter(
+  props: PasswordStrengthMeterProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — {@link PasswordStrengthMeterProps}.
@@ -179,6 +178,7 @@ const COMMON_PASSWORDS: readonly string[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

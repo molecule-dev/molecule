@@ -13,7 +13,7 @@ chat cards and `useKeyboardShortcuts()`.
 ```tsx
 import { ChatPanel, EditorPanel, PreviewPanel, WorkspaceLayout } from '@molecule/app-ide-react'
 
-<WorkspaceLayout>
+;<WorkspaceLayout>
   <ChatPanel
     projectId="proj_abc123"
     onFileOpen={(path) => console.log('open', path)}
@@ -29,9 +29,11 @@ import { ChatPanel, EditorPanel, PreviewPanel, WorkspaceLayout } from '@molecule
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ide-react @molecule/app-ai-chat @molecule/app-ai-models @molecule/app-ai-voice @molecule/app-code-editor @molecule/app-country-flags @molecule/app-i18n @molecule/app-icons @molecule/app-ide @molecule/app-live-preview @molecule/app-logger @molecule/app-react @molecule/app-storage @molecule/app-ui @molecule/app-ui-react material-file-icons react react-dom
 npm install -D @types/react
@@ -171,7 +173,7 @@ interface ChatEventCardAction {
 
 A non-interactive inline monospace code span in a card body — a command or identifier
 the prose refers to (`/report`, a skill name) that should read as code but isn't
-clickable. For a *clickable* command, use {@link ChatEventCardAction} with `code: true`.
+clickable. For a _clickable_ command, use {@link ChatEventCardAction} with `code: true`.
 
 ```typescript
 interface ChatEventCardCode {
@@ -672,10 +674,7 @@ attribute (`data-mol-id`, `aria-*`, `role`, event handlers, `style`) to the
 root `<svg>` without the component enumerating them.
 
 ```typescript
-interface IconProps extends Omit<
-  SVGProps<SVGSVGElement>,
-  'width' | 'height' | 'viewBox' | 'fill'
-> {
+interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'width' | 'height' | 'viewBox' | 'fill'> {
   /** Name of the glyph to look up in the bonded icon set (e.g. `'sync'`). */
   name: IconName
   /** Width and height of the rendered SVG in pixels. Defaults to 16. */
@@ -1291,9 +1290,7 @@ Turns a custom event's `data` payload into a chat card, or returns null to rende
 nothing for that event.
 
 ```typescript
-type ChatEventCardFactory = (
-  data: Record<string, unknown> | undefined,
-) => ChatEventCard | null
+type ChatEventCardFactory = (data: Record<string, unknown> | undefined) => ChatEventCard | null
 ```
 
 #### `ChatEventCardSegment`
@@ -1311,8 +1308,7 @@ type ChatEventCardSegment = string | ChatEventCardCode | ChatEventCardAction
 Category keys used to group commands in the menu and in `/help`.
 
 ```typescript
-type CommandCategoryKey =
-  'context' | 'code' | 'collaborate' | 'model' | 'settings' | 'support'
+type CommandCategoryKey = 'context' | 'code' | 'collaborate' | 'model' | 'settings' | 'support'
 ```
 
 #### `CommandId`
@@ -1432,7 +1428,14 @@ Maps a raw SSE `activity` event payload into a normalized {@link Activity}.
 Tolerates missing optional fields and supplies an id/timestamp if absent.
 
 ```typescript
-function activityFromEvent(raw: { id?: string; type?: string; status?: string; recipient?: string; summary?: string; timestamp?: string; }): Activity
+function activityFromEvent(raw: {
+  id?: string
+  type?: string
+  status?: string
+  recipient?: string
+  summary?: string
+  timestamp?: string
+}): Activity
 ```
 
 - `raw` — The `activity` field from the SSE event.
@@ -1468,7 +1471,7 @@ surface/text token set — the same approach `VerificationBadge` takes for its
 pass/fail coloring.
 
 ```typescript
-function activityStatusColors(status: ActivityStatus): { fg: string; bg: string; }
+function activityStatusColors(status: ActivityStatus): { fg: string; bg: string }
 ```
 
 - `status` — The activity status.
@@ -1495,7 +1498,7 @@ summary, with the recipient appended after an arrow when present
 type-specific default when no summary was captured.
 
 ```typescript
-function activitySummaryLine(activity: Pick<Activity, "type" | "recipient" | "summary">): string
+function activitySummaryLine(activity: Pick<Activity, 'type' | 'recipient' | 'summary'>): string
 ```
 
 - `activity` — The activity to summarize.
@@ -1550,7 +1553,7 @@ function buildReportPayload(form: ReportFormState, clientInfo?: ClientInfo): Rep
 Builds the `POST /projects/:projectId/shares` body for a role.
 
 ```typescript
-function buildSharePayload(role?: "viewer" | "commenter" | "editor" | "owner"): SharePayload
+function buildSharePayload(role?: 'viewer' | 'commenter' | 'editor' | 'owner'): SharePayload
 ```
 
 - `role` — The role to grant (defaults to {@link DEFAULT_SHARE_ROLE}).
@@ -1639,7 +1642,13 @@ function ChatPanel({
 Clamp a panel's new size after a pixel drag delta.
 
 ```typescript
-function clampPanelSize(currentSize: number, deltaPx: number, containerWidth: number, min?: number, max?: number): number
+function clampPanelSize(
+  currentSize: number,
+  deltaPx: number,
+  containerWidth: number,
+  min?: number,
+  max?: number,
+): number
 ```
 
 - `currentSize` — The panel's current size as a percentage.
@@ -1661,7 +1670,7 @@ could actually read, so the result may be partial or (in a headless
 environment) empty.
 
 ```typescript
-function collectClientInfo(opts?: { appVersion?: string; theme?: string; }): ClientInfo
+function collectClientInfo(opts?: { appVersion?: string; theme?: string }): ClientInfo
 ```
 
 - `opts` — Caller-supplied context.
@@ -1803,7 +1812,7 @@ which the caller fills in from the host's product identity (neutral default:
 "the IDE"). When the result is not `ok`, returns the failure message.
 
 ```typescript
-function formatReportConfirmation(result: ReportResult): { key: string; defaultValue: string; }
+function formatReportConfirmation(result: ReportResult): { key: string; defaultValue: string }
 ```
 
 - `result` — The `POST /projects/:id/report` response.
@@ -1830,7 +1839,10 @@ reference (and any other view that lists commands by section) so the
 grouping stays in sync with the registry automatically.
 
 ```typescript
-function groupCommandsByCategory(commands?: readonly CommandDef[], categories?: readonly CommandCategory[]): CommandGroup[]
+function groupCommandsByCategory(
+  commands?: readonly CommandDef[],
+  categories?: readonly CommandCategory[],
+): CommandGroup[]
 ```
 
 - `commands` — Command registry to group (defaults to {@link COMMANDS}).
@@ -1985,10 +1997,7 @@ function isShareRole(value: string): boolean
 Keyboard shortcuts reference panel.
 
 ```typescript
-function KeyboardShortcutsPanel({
-  shortcuts,
-  onDismiss,
-}: KeyboardShortcutsPanelProps): JSX.Element
+function KeyboardShortcutsPanel({ shortcuts, onDismiss }: KeyboardShortcutsPanelProps): JSX.Element
 ```
 
 - `props` — Component props.
@@ -2033,7 +2042,7 @@ caller shows usage/current state), `{ seconds: n }` for a non-negative integer
 argument (`0` cancels), or `null` when the input is not the command.
 
 ```typescript
-function parseAutoCommitCommand(input: string): { seconds: number | null; } | null
+function parseAutoCommitCommand(input: string): { seconds: number | null } | null
 ```
 
 - `input` — The raw chat input.
@@ -2047,7 +2056,7 @@ empty) trimmed title used to seed the modal when the input is one of those
 commands, else `null`.
 
 ```typescript
-function parseReportCommand(input: string): { title: string; } | null
+function parseReportCommand(input: string): { title: string } | null
 ```
 
 - `input` — The raw chat input.
@@ -2154,7 +2163,15 @@ function ReportModal({
   onSubmitted,
   productName = DEFAULT_PRODUCT_NAME,
   appVersion,
-}: { projectId: string; conversationId?: string | null; initialTitle?: string; onClose: () => void; onSubmitted: (result: ReportResult) => void; productName?: string; appVersion?: string; }): JSX.Element
+}: {
+  projectId: string
+  conversationId?: string | null
+  initialTitle?: string
+  onClose: () => void
+  onSubmitted: (result: ReportResult) => void
+  productName?: string
+  appVersion?: string
+}): JSX.Element
 ```
 
 - `props` — Component props.
@@ -2206,7 +2223,10 @@ the preview area (`width` from dims, `height: '100%'`). Fixed frames render
 at their pixel size in portrait and at the swapped size in landscape.
 
 ```typescript
-function resolveDeviceSize(device: DeviceFrame, orientation: DeviceOrientation): { width: string; height: string; }
+function resolveDeviceSize(
+  device: DeviceFrame,
+  orientation: DeviceOrientation,
+): { width: string; height: string }
 ```
 
 - `device` — The device frame.
@@ -2271,7 +2291,12 @@ function ShareModal({
   initialRole = DEFAULT_SHARE_ROLE,
   onClose,
   onCreated,
-}: { projectId: string; initialRole?: ShareRole; onClose: () => void; onCreated?: (result: ShareLinkResult) => void; }): JSX.Element
+}: {
+  projectId: string
+  initialRole?: ShareRole
+  onClose: () => void
+  onCreated?: (result: ShareLinkResult) => void
+}): JSX.Element
 ```
 
 - `props` — Component props.
@@ -2283,12 +2308,7 @@ function ShareModal({
 Sidebar tab strip with file explorer and search icons.
 
 ```typescript
-function SidebarTabs({
-  activeTab,
-  onTabChange,
-  children,
-  className,
-}: SidebarTabsProps): JSX.Element
+function SidebarTabs({ activeTab, onTabChange, children, className }: SidebarTabsProps): JSX.Element
 ```
 
 - `props` — Component props.
@@ -2426,7 +2446,7 @@ The touch-first media query — matches when the PRIMARY pointer is coarse
 (finger), i.e. phones/tablets, regardless of viewport width.
 
 ```typescript
-const COARSE_POINTER_QUERY: "(pointer: coarse)"
+const COARSE_POINTER_QUERY: '(pointer: coarse)'
 ```
 
 #### `COMMAND_CATEGORIES`
@@ -2472,7 +2492,18 @@ vendored/build dirs. MUST stay in sync with the API-side list in
 forces the duplication.
 
 ```typescript
-const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly ["node_modules", "bower_components", ".git", ".svn", ".hg", "CVS", "dist", ".next", ".vite", "molecule"]
+const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly [
+  'node_modules',
+  'bower_components',
+  '.git',
+  '.svn',
+  '.hg',
+  'CVS',
+  'dist',
+  '.next',
+  '.vite',
+  'molecule',
+]
 ```
 
 #### `DEFAULT_SHARE_ROLE`
@@ -2480,7 +2511,7 @@ const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly ["node_modules", "bower_components"
 The default (and safest) role when `/share` is run with no argument.
 
 ```typescript
-const DEFAULT_SHARE_ROLE: "viewer" | "commenter" | "editor" | "owner"
+const DEFAULT_SHARE_ROLE: 'viewer' | 'commenter' | 'editor' | 'owner'
 ```
 
 #### `DEVICE_DIMENSIONS`
@@ -2509,7 +2540,10 @@ Per-frame display metadata: the icon-set glyph name and the i18n label
 (key + English default) shown in the dropdown trigger + menu items.
 
 ```typescript
-const DEVICE_META: Record<DeviceFrame, { readonly icon: IconName; readonly labelKey: string; readonly label: string; }>
+const DEVICE_META: Record<
+  DeviceFrame,
+  { readonly icon: IconName; readonly labelKey: string; readonly label: string }
+>
 ```
 
 #### `EMPTY_REPORT_FORM`
@@ -2558,7 +2592,7 @@ The phone-width media query — matches viewports below 768px, mirroring the
 host workspace's single-pane mobile breakpoint.
 
 ```typescript
-const NARROW_VIEWPORT_QUERY: "(max-width: 767px)"
+const NARROW_VIEWPORT_QUERY: '(max-width: 767px)'
 ```
 
 #### `SETTINGS`
@@ -2581,7 +2615,7 @@ const SETTINGS: readonly SettingMeta[]
 Short English labels per role (the component wraps these in `t()` at render).
 
 ```typescript
-const SHARE_ROLE_LABELS: Record<"viewer" | "commenter" | "editor" | "owner", string>
+const SHARE_ROLE_LABELS: Record<'viewer' | 'commenter' | 'editor' | 'owner', string>
 ```
 
 #### `SHARE_ROLES`
@@ -2592,7 +2626,7 @@ than imported) because an `app-*` package may not import an `api-*` package
 across the stack boundary.
 
 ```typescript
-const SHARE_ROLES: readonly ["viewer", "commenter", "editor", "owner"]
+const SHARE_ROLES: readonly ['viewer', 'commenter', 'editor', 'owner']
 ```
 
 #### `ToolCallCard`
@@ -2600,7 +2634,24 @@ const SHARE_ROLES: readonly ["viewer", "commenter", "editor", "owner"]
 Compact tool-call row with status dot, label, summary, and expandable detail pane.
 
 ```typescript
-const ToolCallCard: MemoExoticComponent<({ id, name, input, output, status, fileDiff, isUndone: isUndoneProp, onUndoToggle, onFileOpen, onFileDoubleClick, onFileDiff, onFileRevert, onAskUserResponse, className, }: ToolCallCardProps) => JSX.Element | null>
+const ToolCallCard: MemoExoticComponent<
+  ({
+    id,
+    name,
+    input,
+    output,
+    status,
+    fileDiff,
+    isUndone: isUndoneProp,
+    onUndoToggle,
+    onFileOpen,
+    onFileDoubleClick,
+    onFileDiff,
+    onFileRevert,
+    onAskUserResponse,
+    className,
+  }: ToolCallCardProps) => JSX.Element | null
+>
 ```
 
 ## Injection Notes
@@ -2608,6 +2659,7 @@ const ToolCallCard: MemoExoticComponent<({ id, name, input, output, status, file
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-ai-chat` ^1.0.0
 - `@molecule/app-ai-models` ^1.0.0
 - `@molecule/app-ai-voice` ^1.0.0

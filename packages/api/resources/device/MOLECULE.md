@@ -11,11 +11,7 @@ stored subscriptions.
 
 ```typescript
 import { createRequestHandler } from '@molecule/api-resource'
-import {
-  createRequestHandlerMap,
-  resource,
-  routes,
-} from '@molecule/api-resource-device'
+import { createRequestHandlerMap, resource, routes } from '@molecule/api-resource-device'
 
 // Unlike newer resources, the handler map is a FACTORY — build it with the
 // createRequestHandler from @molecule/api-resource (mlcl inject does this):
@@ -23,9 +19,11 @@ const requestHandlerMap = createRequestHandlerMap(createRequestHandler)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-device @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-device @molecule/api-resource zod
 ```
@@ -120,7 +118,11 @@ route definitions) to Express middleware: `auth`, `authUser` (authorizers), and 
 `read`, `update` (CRUD handlers).
 
 ```typescript
-function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>): DeviceRequestHandlerMap
+function createRequestHandlerMap(
+  createRequestHandler: (
+    handler: Handler,
+  ) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>,
+): DeviceRequestHandlerMap
 ```
 
 - `createRequestHandler` — Factory from `@molecule/api-resource` that wraps handler configs into Express middleware.
@@ -134,7 +136,7 @@ function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (re
 APN push subscription schema.
 
 ```typescript
-const apnPushSubscriptionSchema: z.ZodObject<{ registrationId: z.ZodString; }, z.core.$strip>
+const apnPushSubscriptionSchema: z.ZodObject<{ registrationId: z.ZodString }, z.core.$strip>
 ```
 
 #### `createPropsSchema`
@@ -142,7 +144,37 @@ const apnPushSubscriptionSchema: z.ZodObject<{ registrationId: z.ZodString; }, z
 Schema for creating a device.
 
 ```typescript
-const createPropsSchema: z.ZodObject<{ userId: z.ZodString; name: z.ZodOptional<z.ZodString>; pushPlatform: z.ZodOptional<z.ZodEnum<{ fcm: "fcm"; apn: "apn"; }>>; pushSubscription: z.ZodOptional<z.ZodNullable<z.ZodUnion<readonly [z.ZodObject<{ endpoint: z.ZodOptional<z.ZodString>; keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>>; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; registrationType: z.ZodLiteral<"FCM">; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; }, z.core.$strip>]>>>; hasPushSubscription: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const createPropsSchema: z.ZodObject<
+  {
+    userId: z.ZodString
+    name: z.ZodOptional<z.ZodString>
+    pushPlatform: z.ZodOptional<z.ZodEnum<{ fcm: 'fcm'; apn: 'apn' }>>
+    pushSubscription: z.ZodOptional<
+      z.ZodNullable<
+        z.ZodUnion<
+          readonly [
+            z.ZodObject<
+              {
+                endpoint: z.ZodOptional<z.ZodString>
+                keys: z.ZodOptional<
+                  z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString }, z.core.$strip>
+                >
+              },
+              z.core.$strip
+            >,
+            z.ZodObject<
+              { registrationId: z.ZodString; registrationType: z.ZodLiteral<'FCM'> },
+              z.core.$strip
+            >,
+            z.ZodObject<{ registrationId: z.ZodString }, z.core.$strip>,
+          ]
+        >
+      >
+    >
+    hasPushSubscription: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `deviceService`
@@ -161,7 +193,10 @@ const deviceService: DeviceService
 FCM push subscription schema.
 
 ```typescript
-const fcmPushSubscriptionSchema: z.ZodObject<{ registrationId: z.ZodString; registrationType: z.ZodLiteral<"FCM">; }, z.core.$strip>
+const fcmPushSubscriptionSchema: z.ZodObject<
+  { registrationId: z.ZodString; registrationType: z.ZodLiteral<'FCM'> },
+  z.core.$strip
+>
 ```
 
 #### `i18nRegistered`
@@ -177,7 +212,40 @@ const i18nRegistered: true
 The full schema for device props.
 
 ```typescript
-const propsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; userId: z.ZodString; name: z.ZodOptional<z.ZodString>; pushPlatform: z.ZodOptional<z.ZodEnum<{ fcm: "fcm"; apn: "apn"; }>>; pushSubscription: z.ZodOptional<z.ZodNullable<z.ZodUnion<readonly [z.ZodObject<{ endpoint: z.ZodOptional<z.ZodString>; keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>>; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; registrationType: z.ZodLiteral<"FCM">; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; }, z.core.$strip>]>>>; hasPushSubscription: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const propsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    userId: z.ZodString
+    name: z.ZodOptional<z.ZodString>
+    pushPlatform: z.ZodOptional<z.ZodEnum<{ fcm: 'fcm'; apn: 'apn' }>>
+    pushSubscription: z.ZodOptional<
+      z.ZodNullable<
+        z.ZodUnion<
+          readonly [
+            z.ZodObject<
+              {
+                endpoint: z.ZodOptional<z.ZodString>
+                keys: z.ZodOptional<
+                  z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString }, z.core.$strip>
+                >
+              },
+              z.core.$strip
+            >,
+            z.ZodObject<
+              { registrationId: z.ZodString; registrationType: z.ZodLiteral<'FCM'> },
+              z.core.$strip
+            >,
+            z.ZodObject<{ registrationId: z.ZodString }, z.core.$strip>,
+          ]
+        >
+      >
+    >
+    hasPushSubscription: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `pushPropsSchema`
@@ -185,7 +253,35 @@ const propsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; update
 Zod schema for push notification properties (device ID, platform, subscription).
 
 ```typescript
-const pushPropsSchema: z.ZodObject<{ id: z.ZodString; pushPlatform: z.ZodOptional<z.ZodEnum<{ fcm: "fcm"; apn: "apn"; }>>; pushSubscription: z.ZodOptional<z.ZodNullable<z.ZodUnion<readonly [z.ZodObject<{ endpoint: z.ZodOptional<z.ZodString>; keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>>; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; registrationType: z.ZodLiteral<"FCM">; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; }, z.core.$strip>]>>>; }, z.core.$strip>
+const pushPropsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    pushPlatform: z.ZodOptional<z.ZodEnum<{ fcm: 'fcm'; apn: 'apn' }>>
+    pushSubscription: z.ZodOptional<
+      z.ZodNullable<
+        z.ZodUnion<
+          readonly [
+            z.ZodObject<
+              {
+                endpoint: z.ZodOptional<z.ZodString>
+                keys: z.ZodOptional<
+                  z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString }, z.core.$strip>
+                >
+              },
+              z.core.$strip
+            >,
+            z.ZodObject<
+              { registrationId: z.ZodString; registrationType: z.ZodLiteral<'FCM'> },
+              z.core.$strip
+            >,
+            z.ZodObject<{ registrationId: z.ZodString }, z.core.$strip>,
+          ]
+        >
+      >
+    >
+  },
+  z.core.$strip
+>
 ```
 
 #### `pushSubscriptionKeysSchema`
@@ -193,7 +289,10 @@ const pushPropsSchema: z.ZodObject<{ id: z.ZodString; pushPlatform: z.ZodOptiona
 Web Push subscription keys schema.
 
 ```typescript
-const pushSubscriptionKeysSchema: z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>
+const pushSubscriptionKeysSchema: z.ZodObject<
+  { p256dh: z.ZodString; auth: z.ZodString },
+  z.core.$strip
+>
 ```
 
 #### `pushSubscriptionSchema`
@@ -201,7 +300,28 @@ const pushSubscriptionKeysSchema: z.ZodObject<{ p256dh: z.ZodString; auth: z.Zod
 Combined push subscription schema (union of all types).
 
 ```typescript
-const pushSubscriptionSchema: z.ZodOptional<z.ZodNullable<z.ZodUnion<readonly [z.ZodObject<{ endpoint: z.ZodOptional<z.ZodString>; keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>>; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; registrationType: z.ZodLiteral<"FCM">; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; }, z.core.$strip>]>>>
+const pushSubscriptionSchema: z.ZodOptional<
+  z.ZodNullable<
+    z.ZodUnion<
+      readonly [
+        z.ZodObject<
+          {
+            endpoint: z.ZodOptional<z.ZodString>
+            keys: z.ZodOptional<
+              z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString }, z.core.$strip>
+            >
+          },
+          z.core.$strip
+        >,
+        z.ZodObject<
+          { registrationId: z.ZodString; registrationType: z.ZodLiteral<'FCM'> },
+          z.core.$strip
+        >,
+        z.ZodObject<{ registrationId: z.ZodString }, z.core.$strip>,
+      ]
+    >
+  >
+>
 ```
 
 #### `resource`
@@ -217,7 +337,11 @@ const resource: types.Resource<unknown>
 Declarative route definitions for the Device resource, used to generate the Express router.
 
 ```typescript
-const routes: ({ method: "get"; path: string; middlewares: string[]; handler: string; } | { method: "patch"; path: string; middlewares: string[]; handler: string; } | { method: "delete"; path: string; middlewares: string[]; handler: string; })[]
+const routes: (
+  | { method: 'get'; path: string; middlewares: string[]; handler: string }
+  | { method: 'patch'; path: string; middlewares: string[]; handler: string }
+  | { method: 'delete'; path: string; middlewares: string[]; handler: string }
+)[]
 ```
 
 #### `updatePropsSchema`
@@ -225,7 +349,38 @@ const routes: ({ method: "get"; path: string; middlewares: string[]; handler: st
 Zod schema for updating a device (partial pick of name, push platform, push subscription).
 
 ```typescript
-const updatePropsSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodOptional<z.ZodString>>; pushPlatform: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ fcm: "fcm"; apn: "apn"; }>>>; pushSubscription: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodUnion<readonly [z.ZodObject<{ endpoint: z.ZodOptional<z.ZodString>; keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>>; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; registrationType: z.ZodLiteral<"FCM">; }, z.core.$strip>, z.ZodObject<{ registrationId: z.ZodString; }, z.core.$strip>]>>>>; hasPushSubscription: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; }, z.core.$strip>
+const updatePropsSchema: z.ZodObject<
+  {
+    name: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    pushPlatform: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ fcm: 'fcm'; apn: 'apn' }>>>
+    pushSubscription: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodNullable<
+          z.ZodUnion<
+            readonly [
+              z.ZodObject<
+                {
+                  endpoint: z.ZodOptional<z.ZodString>
+                  keys: z.ZodOptional<
+                    z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString }, z.core.$strip>
+                  >
+                },
+                z.core.$strip
+              >,
+              z.ZodObject<
+                { registrationId: z.ZodString; registrationType: z.ZodLiteral<'FCM'> },
+                z.core.$strip
+              >,
+              z.ZodObject<{ registrationId: z.ZodString }, z.core.$strip>,
+            ]
+          >
+        >
+      >
+    >
+    hasPushSubscription: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `webPushSubscriptionSchema`
@@ -233,7 +388,13 @@ const updatePropsSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodOptional<z.ZodSt
 Web Push subscription schema.
 
 ```typescript
-const webPushSubscriptionSchema: z.ZodObject<{ endpoint: z.ZodOptional<z.ZodString>; keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString; }, z.core.$strip>>; }, z.core.$strip>
+const webPushSubscriptionSchema: z.ZodObject<
+  {
+    endpoint: z.ZodOptional<z.ZodString>
+    keys: z.ZodOptional<z.ZodObject<{ p256dh: z.ZodString; auth: z.ZodString }, z.core.$strip>>
+  },
+  z.core.$strip
+>
 ```
 
 ### Namespaces
@@ -571,6 +732,7 @@ bond('device', deviceService)
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-device` ^1.0.0
@@ -610,38 +772,39 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Registering a device persists a real row that appears in the signed-in
-  user's device list: sign in on a fresh browser/install, open GET /devices,
-  and the device shows with its `name` and timestamps — the current session's
-  device sorted first and flagged `isCurrent: true`. Rows are created by the
-  AUTH flow (signup/login → `createOrUpdate`), NOT a POST route; there is no
-  `POST /devices`.
+      user's device list: sign in on a fresh browser/install, open GET /devices,
+      and the device shows with its `name` and timestamps — the current session's
+      device sorted first and flagged `isCurrent: true`. Rows are created by the
+      AUTH flow (signup/login → `createOrUpdate`), NOT a POST route; there is no
+      `POST /devices`.
 - [ ] Re-registering the SAME device does not duplicate it: sign in again from
-  the same device (same user + device `name`) and the existing row is reused
-  with a bumped `updatedAt` — the list count is unchanged, no second row
-  appears. (The dedup key here is user + `name`, not a push token.)
+      the same device (same user + device `name`) and the existing row is reused
+      with a bumped `updatedAt` — the list count is unchanged, no second row
+      appears. (The dedup key here is user + `name`, not a push token.)
 - [ ] Saving a push subscription targets THIS device and only opted-in ones:
-  PATCH /devices/:id { pushSubscription, pushPlatform, hasPushSubscription:
-  true } stores the subscription (`pushSubscription` is what push actually
-  targets), and a real push fan-out reaches exactly the user's devices where
-  `hasPushSubscription` is true (`getWithPushSubscription`) — a device that
-  never subscribed receives nothing.
+      PATCH /devices/:id { pushSubscription, pushPlatform, hasPushSubscription:
+      true } stores the subscription (`pushSubscription` is what push actually
+      targets), and a real push fan-out reaches exactly the user's devices where
+      `hasPushSubscription` is true (`getWithPushSubscription`) — a device that
+      never subscribed receives nothing.
 - [ ] Refreshing the subscription replaces the stale one: PATCH the same
-  device with a new `pushSubscription` and the next push goes to the NEW value,
-  never the old — one current subscription per device, not a growing list.
-  Clearing it (`hasPushSubscription: false`) drops the device from the fan-out
-  set immediately, so it stops receiving.
+      device with a new `pushSubscription` and the next push goes to the NEW value,
+      never the old — one current subscription per device, not a growing list.
+      Clearing it (`hasPushSubscription: false`) drops the device from the fan-out
+      set immediately, so it stops receiving.
 - [ ] Last-seen tracks use: an active device's `updatedAt` advances on
-  re-registration / `updateLastSeen`, so the list reflects recency.
+      re-registration / `updateLastSeen`, so the list reflects recency.
 - [ ] Removing a device deletes it and it can no longer be targeted OR used:
-  DELETE /devices/:id removes the row, so it disappears from GET /devices, is
-  excluded from every push fan-out, AND its session is revoked — the JWT bound
-  to that `deviceId` is rejected on its very next request (`exists()` → false),
-  for every copy of the token.
+      DELETE /devices/:id removes the row, so it disappears from GET /devices, is
+      excluded from every push fan-out, AND its session is revoked — the JWT bound
+      to that `deviceId` is rejected on its very next request (`exists()` → false),
+      for every copy of the token.
 - [ ] AUTHORIZATION — devices are strictly per-user. GET /devices returns ONLY
-  the session user's own rows; reading, updating, or deleting via /devices/:id
-  is gated by `authUser`, which requires the device `id` AND its `userId` to
-  match the session — so guessing another user's device id is rejected (401,
-  no IDOR into their row or push subscription). The owner is always the session
-  user: a device is registered under the caller's own `userId`, and one user
-  can never PATCH a push subscription onto another user's device.
+      the session user's own rows; reading, updating, or deleting via /devices/:id
+      is gated by `authUser`, which requires the device `id` AND its `userId` to
+      match the session — so guessing another user's device id is rejected (401,
+      no IDOR into their row or push subscription). The owner is always the session
+      user: a device is registered under the caller's own `userId`, and one user
+      can never PATCH a push subscription onto another user's device.

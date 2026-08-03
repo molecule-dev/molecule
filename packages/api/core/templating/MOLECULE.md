@@ -23,9 +23,11 @@ const fast = await renderCompiled(compiled, { name: 'Fast' })
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-templating @molecule/api-bond @molecule/api-i18n
 ```
@@ -217,7 +219,11 @@ function registerPartial(name: string, template: string): void
 Renders a template string with the provided data.
 
 ```typescript
-function render(template: string, data: Record<string, unknown>, options?: RenderOptions): Promise<string>
+function render(
+  template: string,
+  data: Record<string, unknown>,
+  options?: RenderOptions,
+): Promise<string>
 ```
 
 - `template` — The template source string.
@@ -252,16 +258,17 @@ function setProvider(provider: TemplateProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider   | Package                               |
+| ---------- | ------------------------------------- |
 | Templating | `@molecule/api-templating-handlebars` |
-| Templating | `@molecule/api-templating-mjml` |
+| Templating | `@molecule/api-templating-mjml`       |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

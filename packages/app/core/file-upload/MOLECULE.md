@@ -24,9 +24,11 @@ const uploader = createUploader({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-file-upload @molecule/app-bond
 ```
@@ -321,8 +323,8 @@ function setProvider(provider: FileUploadProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider    | Package                              |
+| ----------- | ------------------------------------ |
 | File Upload | `@molecule/app-file-upload-filepond` |
 
 ## Injection Notes
@@ -330,6 +332,7 @@ function setProvider(provider: FileUploadProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -357,15 +360,16 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Picking a valid file via the picker starts the upload and shows
-  per-file progress through to a completed state.
+      per-file progress through to a completed state.
 - [ ] Dragging and dropping a file onto the drop zone uploads it the same
-  way.
+      way.
 - [ ] The completed upload appears wherever this app uses it (file list,
-  avatar, attachment) — completion is not just a toast.
+      avatar, attachment) — completion is not just a toast.
 - [ ] A file that fails validation (too large, wrong type) is rejected with
-  a visible message and is never sent to the server.
+      a visible message and is never sent to the server.
 - [ ] With multiple files (if enabled), each file's progress and completion
-  track independently and all complete.
+      track independently and all complete.
 - [ ] Canceling/removing a queued or in-flight file stops it and clears it
-  from the queue.
+      from the queue.

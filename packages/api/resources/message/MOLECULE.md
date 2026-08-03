@@ -24,9 +24,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-message'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-message @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource-message @molecule/api-logger @molecule/api-realtime @molecule/api-resource zod
 ```
@@ -127,8 +129,7 @@ interface Thread {
 Union of realtime event names.
 
 ```typescript
-type MessageRealtimeEvent =
-  (typeof MESSAGE_REALTIME_EVENTS)[keyof typeof MESSAGE_REALTIME_EVENTS]
+type MessageRealtimeEvent = (typeof MESSAGE_REALTIME_EVENTS)[keyof typeof MESSAGE_REALTIME_EVENTS]
 ```
 
 ### Functions
@@ -301,7 +302,10 @@ function listThreads(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Lists threads a participant is part of, ordered by most recent activity.
 
 ```typescript
-function listThreadsForParticipant(participantId: string, options?: { limit?: number; offset?: number; }): Promise<Thread[]>
+function listThreadsForParticipant(
+  participantId: string,
+  options?: { limit?: number; offset?: number },
+): Promise<Thread[]>
 ```
 
 - `participantId` — The user ID to list threads for.
@@ -353,7 +357,12 @@ recipient's `unreadCount*` counter, then broadcasts the new message
 over the bonded realtime provider (if any).
 
 ```typescript
-function sendMessage(threadId: string, senderId: string, body: string, attachments?: MessageAttachment[]): Promise<Message>
+function sendMessage(
+  threadId: string,
+  senderId: string,
+  body: string,
+  attachments?: MessageAttachment[],
+): Promise<Message>
 ```
 
 - `threadId` — The target thread ID.
@@ -405,7 +414,7 @@ function unreadCount(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Schema for `editMessage` request input.
 
 ```typescript
-const editMessageSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
+const editMessageSchema: z.ZodObject<{ body: z.ZodString }, z.core.$strip>
 ```
 
 #### `getOrCreateThreadSchema`
@@ -413,7 +422,7 @@ const editMessageSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
 Schema for `getOrCreateThread` request input.
 
 ```typescript
-const getOrCreateThreadSchema: z.ZodObject<{ participantId: z.ZodString; }, z.core.$strip>
+const getOrCreateThreadSchema: z.ZodObject<{ participantId: z.ZodString }, z.core.$strip>
 ```
 
 #### `i18nRegistered`
@@ -432,7 +441,10 @@ Subscribers should listen on the room ID returned from
 {@link threadRoomId} for the thread they care about.
 
 ```typescript
-const MESSAGE_REALTIME_EVENTS: { readonly messageSent: "message:sent"; readonly messageRead: "message:read"; }
+const MESSAGE_REALTIME_EVENTS: {
+  readonly messageSent: 'message:sent'
+  readonly messageRead: 'message:read'
+}
 ```
 
 #### `messageAttachmentSchema`
@@ -440,7 +452,7 @@ const MESSAGE_REALTIME_EVENTS: { readonly messageSent: "message:sent"; readonly 
 Schema for an individual message attachment.
 
 ```typescript
-const messageAttachmentSchema: z.ZodObject<{ url: z.ZodString; mime: z.ZodString; }, z.core.$strip>
+const messageAttachmentSchema: z.ZodObject<{ url: z.ZodString; mime: z.ZodString }, z.core.$strip>
 ```
 
 #### `requestHandlerMap`
@@ -448,7 +460,17 @@ const messageAttachmentSchema: z.ZodObject<{ url: z.ZodString; mime: z.ZodString
 Handler map for message resource routes.
 
 ```typescript
-const requestHandlerMap: { readonly createThread: typeof createThread; readonly listThreads: typeof listThreads; readonly readThread: typeof readThread; readonly listMessages: typeof listMessagesHandler; readonly sendMessage: typeof sendMessageHandler; readonly markRead: typeof markReadHandler; readonly editMessage: typeof editMessageHandler; readonly deleteMessage: typeof deleteMessageHandler; readonly unreadCount: typeof unreadCount; }
+const requestHandlerMap: {
+  readonly createThread: typeof createThread
+  readonly listThreads: typeof listThreads
+  readonly readThread: typeof readThread
+  readonly listMessages: typeof listMessagesHandler
+  readonly sendMessage: typeof sendMessageHandler
+  readonly markRead: typeof markReadHandler
+  readonly editMessage: typeof editMessageHandler
+  readonly deleteMessage: typeof deleteMessageHandler
+  readonly unreadCount: typeof unreadCount
+}
 ```
 
 #### `routes`
@@ -456,7 +478,62 @@ const requestHandlerMap: { readonly createThread: typeof createThread; readonly 
 Routes for 1:1 message threads, messages, and read-tracking.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/message-threads"; readonly handler: "createThread"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/message-threads"; readonly handler: "listThreads"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/message-threads/unread-count"; readonly handler: "unreadCount"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/message-threads/:threadId"; readonly handler: "readThread"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/message-threads/:threadId/messages"; readonly handler: "listMessages"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/message-threads/:threadId/messages"; readonly handler: "sendMessage"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/message-threads/:threadId/read"; readonly handler: "markRead"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/message-threads/messages/:messageId"; readonly handler: "editMessage"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/message-threads/messages/:messageId"; readonly handler: "deleteMessage"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/message-threads'
+    readonly handler: 'createThread'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/message-threads'
+    readonly handler: 'listThreads'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/message-threads/unread-count'
+    readonly handler: 'unreadCount'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/message-threads/:threadId'
+    readonly handler: 'readThread'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/message-threads/:threadId/messages'
+    readonly handler: 'listMessages'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/message-threads/:threadId/messages'
+    readonly handler: 'sendMessage'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/message-threads/:threadId/read'
+    readonly handler: 'markRead'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/message-threads/messages/:messageId'
+    readonly handler: 'editMessage'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/message-threads/messages/:messageId'
+    readonly handler: 'deleteMessage'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `sendMessageSchema`
@@ -464,7 +541,15 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/message-thre
 Schema for `sendMessage` request input.
 
 ```typescript
-const sendMessageSchema: z.ZodObject<{ body: z.ZodString; attachments: z.ZodOptional<z.ZodArray<z.ZodObject<{ url: z.ZodString; mime: z.ZodString; }, z.core.$strip>>>; }, z.core.$strip>
+const sendMessageSchema: z.ZodObject<
+  {
+    body: z.ZodString
+    attachments: z.ZodOptional<
+      z.ZodArray<z.ZodObject<{ url: z.ZodString; mime: z.ZodString }, z.core.$strip>>
+    >
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -472,6 +557,7 @@ const sendMessageSchema: z.ZodObject<{ body: z.ZodString; attachments: z.ZodOpti
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-resource-message` ^1.0.0
@@ -516,27 +602,28 @@ mocks), adapt each item to this app's actual threads/screens, and check
 every box off one by one. A box you can't check is an integration bug to
 fix — not a skip. Messaging PRIVACY is the point here, so the last item is
 not optional:
+
 - [ ] Sending a message in a thread persists it and it appears in that
-  thread for BOTH participants in chronological (`createdAt`) order, stamped
-  with the sender and a timestamp. Send from each side and confirm both see
-  the same ordered transcript.
+      thread for BOTH participants in chronological (`createdAt`) order, stamped
+      with the sender and a timestamp. Send from each side and confirm both see
+      the same ordered transcript.
 - [ ] Read / unread works: a message you send is unread for the recipient —
-  their thread badge and `GET /message-threads/unread-count` increment;
-  opening the thread and marking it read (`POST /message-threads/:threadId/read`)
-  clears that side's unread count to zero and the total badge drops to match.
+      their thread badge and `GET /message-threads/unread-count` increment;
+      opening the thread and marking it read (`POST /message-threads/:threadId/read`)
+      clears that side's unread count to zero and the total badge drops to match.
 - [ ] Editing a message shows an edited state (an "edited" marker /
-  `editedAt`) and deleting it removes it or renders a "message was deleted"
-  tombstone (`deletedAt`) — and ONLY the author can edit or delete their OWN
-  message: the other participant gets no edit/delete affordance and a forged
-  PATCH/DELETE on someone else's message is rejected, never applied.
+      `editedAt`) and deleting it removes it or renders a "message was deleted"
+      tombstone (`deletedAt`) — and ONLY the author can edit or delete their OWN
+      message: the other participant gets no edit/delete affordance and a forged
+      PATCH/DELETE on someone else's message is rejected, never applied.
 - [ ] Delivery to the other participant: with `@molecule/api-realtime`
-  bonded, a new message appears in their already-open thread WITHOUT a
-  reload; with no realtime bond it appears on their next load/refresh.
+      bonded, a new message appears in their already-open thread WITHOUT a
+      reload; with no realtime bond it appears on their next load/refresh.
 - [ ] PRIVACY / AUTHORIZATION — a thread and its messages are visible ONLY
-  to its two participants. Sign in as a THIRD user and confirm they cannot
-  read the thread or any message by guessing its id (403/404), cannot post
-  into a thread they are not part of (403), and cannot spoof the sender —
-  the sender is always the session user, never a request-body field.
+      to its two participants. Sign in as a THIRD user and confirm they cannot
+      read the thread or any message by guessing its id (403/404), cannot post
+      into a thread they are not part of (403), and cannot spoof the sender —
+      the sender is always the session user, never a request-body field.
 
 ## Translations
 

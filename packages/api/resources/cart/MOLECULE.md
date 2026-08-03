@@ -12,9 +12,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-cart'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-cart @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
@@ -378,7 +380,16 @@ const i18nRegistered: true
 Handler map for the cart resource routes.
 
 ```typescript
-const requestHandlerMap: { readonly getCart: typeof getCart; readonly addItem: typeof addItem; readonly updateQuantity: typeof updateQuantity; readonly removeItem: typeof removeItem; readonly clearCart: typeof clearCart; readonly applyCoupon: typeof applyCoupon; readonly removeCoupon: typeof removeCoupon; readonly getCartSummary: typeof getCartSummary; }
+const requestHandlerMap: {
+  readonly getCart: typeof getCart
+  readonly addItem: typeof addItem
+  readonly updateQuantity: typeof updateQuantity
+  readonly removeItem: typeof removeItem
+  readonly clearCart: typeof clearCart
+  readonly applyCoupon: typeof applyCoupon
+  readonly removeCoupon: typeof removeCoupon
+  readonly getCartSummary: typeof getCartSummary
+}
 ```
 
 #### `routes`
@@ -387,7 +398,56 @@ Shopping cart routes. The cart is a user-scoped singleton resource
 (one cart per authenticated user), so routes use `/cart` (singular).
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/cart"; readonly handler: "getCart"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/cart/items"; readonly handler: "addItem"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "put"; readonly path: "/cart/items/:itemId"; readonly handler: "updateQuantity"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/cart/items/:itemId"; readonly handler: "removeItem"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/cart"; readonly handler: "clearCart"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/cart/coupon"; readonly handler: "applyCoupon"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/cart/coupon"; readonly handler: "removeCoupon"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/cart/summary"; readonly handler: "getCartSummary"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'get'
+    readonly path: '/cart'
+    readonly handler: 'getCart'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/cart/items'
+    readonly handler: 'addItem'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'put'
+    readonly path: '/cart/items/:itemId'
+    readonly handler: 'updateQuantity'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/cart/items/:itemId'
+    readonly handler: 'removeItem'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/cart'
+    readonly handler: 'clearCart'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/cart/coupon'
+    readonly handler: 'applyCoupon'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/cart/coupon'
+    readonly handler: 'removeCoupon'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/cart/summary'
+    readonly handler: 'getCartSummary'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 ## Injection Notes
@@ -395,6 +455,7 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/cart"; readon
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -436,24 +497,25 @@ client — all routes operate on the caller's own cart.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Adding a product (`POST /cart/items`) puts a line in the cart at the
-  quantity requested, and the cart view + subtotal reflect it.
+      quantity requested, and the cart view + subtotal reflect it.
 - [ ] Adding the SAME product (same `productId`/`variantId`) again MERGES —
-  the existing line's quantity increments, it does NOT create a second
-  duplicate line; a different product stays its own line.
+      the existing line's quantity increments, it does NOT create a second
+      duplicate line; a different product stays its own line.
 - [ ] Changing a line's quantity (`PUT /cart/items/:itemId`) and removing a
-  line (`DELETE /cart/items/:itemId`) update the cart, and the computed
-  subtotal/total RECOMPUTE correctly: subtotal is the sum of price × quantity,
-  and total = subtotal - discount + tax (tax is 0 until you wire a rate).
-  Apply a coupon (`POST /cart/coupon`, looked up server-side in the `coupons`
-  table) and confirm discount + total drop; removing it restores them.
+      line (`DELETE /cart/items/:itemId`) update the cart, and the computed
+      subtotal/total RECOMPUTE correctly: subtotal is the sum of price × quantity,
+      and total = subtotal - discount + tax (tax is 0 until you wire a rate).
+      Apply a coupon (`POST /cart/coupon`, looked up server-side in the `coupons`
+      table) and confirm discount + total drop; removing it restores them.
 - [ ] An invalid quantity (0, negative, or non-integer) and a negative price
-  are REJECTED with a visible error and leave the cart unchanged — the totals
-  shown are for DISPLAY only; a real checkout must re-resolve prices server-side.
+      are REJECTED with a visible error and leave the cart unchanged — the totals
+      shown are for DISPLAY only; a real checkout must re-resolve prices server-side.
 - [ ] Clearing the cart (`DELETE /cart`) empties it — items and any applied
-  coupon gone, totals back to 0. If the app builds checkout, it hands off the
-  right items and a SERVER-recomputed total, never the client cart total.
+      coupon gone, totals back to 0. If the app builds checkout, it hands off the
+      right items and a SERVER-recomputed total, never the client cart total.
 - [ ] AUTHORIZATION — the cart is a per-user singleton keyed by the session;
-  no route takes a `cartId`/`userId`. A second signed-in user sees only their
-  own cart, and a line `itemId` from another user's cart is neither readable
-  nor mutable (update/remove return not-found) — no path to someone else's cart.
+      no route takes a `cartId`/`userId`. A second signed-in user sees only their
+      own cart, and a line `itemId` from another user's cart is neither readable
+      nor mutable (update/remove return not-found) — no path to someone else's cart.

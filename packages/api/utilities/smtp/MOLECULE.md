@@ -37,9 +37,11 @@ await client.disconnect()
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-smtp nodemailer
 npm install -D @types/nodemailer

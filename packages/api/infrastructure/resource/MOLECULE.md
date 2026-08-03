@@ -42,20 +42,20 @@ const deleteUser = del(userResource as types.Resource<UserProps>)
 // request fields (req.body, req.params.id) to its arguments, then wrap
 // with createRequestHandler for Express
 const requestHandlerMap = {
-  create: createRequestHandler(async (req: MoleculeRequest) =>
-    await createUser({ props: req.body }),
+  create: createRequestHandler(
+    async (req: MoleculeRequest) => await createUser({ props: req.body }),
   ),
-  read: createRequestHandler(async (req: MoleculeRequest) =>
-    await readUser({ id: req.params.id }),
-  ),
+  read: createRequestHandler(async (req: MoleculeRequest) => await readUser({ id: req.params.id })),
   // ...
 }
 ```
 
 ## Type
+
 `infrastructure`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-resource @molecule/api-utilities-validation uuid zod
 ```
@@ -247,6 +247,7 @@ Creates a handler to create a resource.
 Uses the bonded DataStore from `@molecule/api-database` for database-agnostic operations.
 
 Example usage:
+
 ```ts
 import { create as resourceCreate } from '@molecule/api-resource'
 import type * as types from '../../types.js'
@@ -263,10 +264,19 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
 
 ```typescript
 function create({
-    name,
-    tableName,
-    schema,
-  }: types.Resource<unknown>): ({ props: createProps, id, }: { props: CreateProps; id?: CreatedProps["id"]; }) => Promise<{ statusCode: number; body: { error: string; errorKey: string; props?: undefined; }; } | { statusCode: number; body: { props: CreatedProps; error?: undefined; errorKey?: undefined; }; }>
+  name,
+  tableName,
+  schema,
+}: types.Resource<unknown>): ({
+  props: createProps,
+  id,
+}: {
+  props: CreateProps
+  id?: CreatedProps['id']
+}) => Promise<
+  | { statusCode: number; body: { error: string; errorKey: string; props?: undefined } }
+  | { statusCode: number; body: { props: CreatedProps; error?: undefined; errorKey?: undefined } }
+>
 ```
 
 - `resource` — The resource descriptor.
@@ -284,7 +294,9 @@ returns null/undefined, calls `next()`. Catches errors and forwards them as
 i18n-translated error messages.
 
 ```typescript
-function createRequestHandler(handler: Handler): (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>
+function createRequestHandler(
+  handler: Handler,
+): (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>
 ```
 
 - `handler` — The resource handler function to wrap.
@@ -300,6 +312,7 @@ Creates a handler to delete a resource by its `id`.
 Uses the bonded DataStore from `@molecule/api-database` for database-agnostic operations.
 
 Example usage:
+
 ```ts
 import { del as resourceDel } from '@molecule/api-resource'
 import type * as types from '../../types.js'
@@ -315,10 +328,13 @@ export const del = ({ name, tableName, schema }: types.Resource) => {
 ```
 
 ```typescript
-function del({
-    name,
-    tableName,
-  }: DeletedResource): ({ id, }: { id: Props["id"]; }) => Promise<{ statusCode: number; body: { error: string; errorKey: string; props?: undefined; }; } | { statusCode: number; body: { props: { id: Props["id"]; }; error?: undefined; errorKey?: undefined; }; }>
+function del({ name, tableName }: DeletedResource): ({ id }: { id: Props['id'] }) => Promise<
+  | { statusCode: number; body: { error: string; errorKey: string; props?: undefined } }
+  | {
+      statusCode: number
+      body: { props: { id: Props['id'] }; error?: undefined; errorKey?: undefined }
+    }
+>
 ```
 
 - `resource` — The resource descriptor.
@@ -335,8 +351,13 @@ Uses the bonded DataStore from `@molecule/api-database` for database-agnostic op
 
 ```typescript
 function query({
-    tableName,
-  }: QueriedResource): (req: MoleculeRequest) => Promise<{ statusCode: number; body: { error: string; errorKey: string; }; } | { statusCode: number; body: Props[]; }>
+  tableName,
+}: QueriedResource): (
+  req: MoleculeRequest,
+) => Promise<
+  | { statusCode: number; body: { error: string; errorKey: string } }
+  | { statusCode: number; body: Props[] }
+>
 ```
 
 - `resource` — The resource descriptor.
@@ -351,6 +372,7 @@ Creates a handler to read a resource by its `id`.
 Uses the bonded DataStore from `@molecule/api-database` for database-agnostic operations.
 
 Example usage:
+
 ```ts
 import { read as resourceRead } from '@molecule/api-resource'
 import type * as types from '../../types.js'
@@ -367,8 +389,17 @@ export const read = ({ name, tableName, schema }: types.Resource) => {
 
 ```typescript
 function read({
-    tableName,
-  }: ReadResource): ({ id, props, }: { id: ReadProps["id"]; props?: ReadProps; }) => Promise<{ statusCode: number; body: { props: ReadProps; error?: undefined; errorKey?: undefined; }; } | { statusCode: number; body: { error: string; errorKey: string; props?: undefined; }; }>
+  tableName,
+}: ReadResource): ({
+  id,
+  props,
+}: {
+  id: ReadProps['id']
+  props?: ReadProps
+}) => Promise<
+  | { statusCode: number; body: { props: ReadProps; error?: undefined; errorKey?: undefined } }
+  | { statusCode: number; body: { error: string; errorKey: string; props?: undefined } }
+>
 ```
 
 - `resource` — The resource descriptor.
@@ -412,6 +443,7 @@ Creates a handler to update a resource by its `id` and some `props`.
 Uses the bonded DataStore from `@molecule/api-database` for database-agnostic operations.
 
 Example usage:
+
 ```ts
 import { update as resourceUpdate } from '@molecule/api-resource'
 import type * as types from '../../types.js'
@@ -429,10 +461,19 @@ export const update = ({ name, tableName, schema }: types.Resource) => {
 
 ```typescript
 function update({
-    name,
-    tableName,
-    schema,
-  }: types.Resource<unknown>): ({ id, props: updateProps, }: { id: UpdatedProps["id"] | types.Props["id"]; props: UpdateProps; }) => Promise<{ statusCode: number; body: { error: string; errorKey: string; props?: undefined; }; } | { statusCode: number; body: { props: UpdatedProps; error?: undefined; errorKey?: undefined; }; }>
+  name,
+  tableName,
+  schema,
+}: types.Resource<unknown>): ({
+  id,
+  props: updateProps,
+}: {
+  id: UpdatedProps['id'] | types.Props['id']
+  props: UpdateProps
+}) => Promise<
+  | { statusCode: number; body: { error: string; errorKey: string; props?: undefined } }
+  | { statusCode: number; body: { props: UpdatedProps; error?: undefined; errorKey?: undefined } }
+>
 ```
 
 - `resource` — The resource descriptor.
@@ -458,7 +499,26 @@ const i18nRegistered: true
 The resource query Zod schema.
 
 ```typescript
-const querySchema: z.ZodObject<{ limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; orderBy: z.ZodDefault<z.ZodEnum<{ createdAt: "createdAt"; updatedAt: "updatedAt"; }>>; orderDirection: z.ZodDefault<z.ZodEnum<{ asc: "asc"; desc: "desc"; }>>; before: z.ZodOptional<z.ZodObject<{ createdAt: z.ZodOptional<z.ZodString>; updatedAt: z.ZodOptional<z.ZodString>; }, z.core.$strip>>; after: z.ZodOptional<z.ZodObject<{ createdAt: z.ZodOptional<z.ZodString>; updatedAt: z.ZodOptional<z.ZodString>; }, z.core.$strip>>; }, z.core.$strip>
+const querySchema: z.ZodObject<
+  {
+    limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    orderBy: z.ZodDefault<z.ZodEnum<{ createdAt: 'createdAt'; updatedAt: 'updatedAt' }>>
+    orderDirection: z.ZodDefault<z.ZodEnum<{ asc: 'asc'; desc: 'desc' }>>
+    before: z.ZodOptional<
+      z.ZodObject<
+        { createdAt: z.ZodOptional<z.ZodString>; updatedAt: z.ZodOptional<z.ZodString> },
+        z.core.$strip
+      >
+    >
+    after: z.ZodOptional<
+      z.ZodObject<
+        { createdAt: z.ZodOptional<z.ZodString>; updatedAt: z.ZodOptional<z.ZodString> },
+        z.core.$strip
+      >
+    >
+  },
+  z.core.$strip
+>
 ```
 
 ### Namespaces
@@ -503,6 +563,7 @@ Members:
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

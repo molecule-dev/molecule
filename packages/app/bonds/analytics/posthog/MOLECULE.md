@@ -20,9 +20,11 @@ if (apiKey) {
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-analytics-posthog @molecule/app-analytics posthog-js
 ```
@@ -37,30 +39,30 @@ Event properties for analytics tracking.
 
 ```typescript
 interface AnalyticsEvent {
-    /** Event name (e.g. `"button_clicked"`, `"purchase_completed"`). */
-    name: string;
-    /** Arbitrary key-value properties for this event. */
-    properties?: Record<string, unknown>;
-    /**
-     * Event timestamp (defaults to now). Only honored where the underlying
-     * browser SDK supports client-set timestamps (PostHog does); the Mixpanel
-     * browser SDK always stamps the time of capture. For reliable historical
-     * timestamps use the API-side `@molecule/api-analytics` bonds.
-     */
-    timestamp?: Date;
-    /**
-     * Identified user who triggered the event. Browser analytics SDKs attribute
-     * events to the AMBIENT identified session — call `identify()` first;
-     * current browser bonds do not honor a per-event userId override. (Exists
-     * for interface parity with `@molecule/api-analytics`, where there is no
-     * ambient session and per-event IDs are required.)
-     */
-    userId?: string;
-    /**
-     * Anonymous identifier for unauthenticated users. Like `userId`, browser
-     * bonds use the SDK's own ambient anonymous identity instead of this field.
-     */
-    anonymousId?: string;
+  /** Event name (e.g. `"button_clicked"`, `"purchase_completed"`). */
+  name: string
+  /** Arbitrary key-value properties for this event. */
+  properties?: Record<string, unknown>
+  /**
+   * Event timestamp (defaults to now). Only honored where the underlying
+   * browser SDK supports client-set timestamps (PostHog does); the Mixpanel
+   * browser SDK always stamps the time of capture. For reliable historical
+   * timestamps use the API-side `@molecule/api-analytics` bonds.
+   */
+  timestamp?: Date
+  /**
+   * Identified user who triggered the event. Browser analytics SDKs attribute
+   * events to the AMBIENT identified session — call `identify()` first;
+   * current browser bonds do not honor a per-event userId override. (Exists
+   * for interface parity with `@molecule/api-analytics`, where there is no
+   * ambient session and per-event IDs are required.)
+   */
+  userId?: string
+  /**
+   * Anonymous identifier for unauthenticated users. Like `userId`, browser
+   * bonds use the SDK's own ambient anonymous identity instead of this field.
+   */
+  anonymousId?: string
 }
 ```
 
@@ -70,18 +72,18 @@ Page view event.
 
 ```typescript
 interface AnalyticsPageView {
-    /** Page name (e.g. `"Home"`, `"Settings"`). */
-    name?: string;
-    /** Page category (e.g. `"Dashboard"`, `"Marketing"`). */
-    category?: string;
-    /** Full page URL. */
-    url?: string;
-    /** Page path (e.g. `"/settings/profile"`). */
-    path?: string;
-    /** Referrer URL. */
-    referrer?: string;
-    /** Arbitrary key-value properties for this page view. */
-    properties?: Record<string, unknown>;
+  /** Page name (e.g. `"Home"`, `"Settings"`). */
+  name?: string
+  /** Page category (e.g. `"Dashboard"`, `"Marketing"`). */
+  category?: string
+  /** Full page URL. */
+  url?: string
+  /** Page path (e.g. `"/settings/profile"`). */
+  path?: string
+  /** Referrer URL. */
+  referrer?: string
+  /** Arbitrary key-value properties for this page view. */
+  properties?: Record<string, unknown>
 }
 ```
 
@@ -91,39 +93,39 @@ Analytics provider interface that all analytics bond packages must implement.
 
 ```typescript
 interface AnalyticsProvider {
-    /**
-     * Identifies a user and associates traits with them.
-     *
-     * @param user - User properties including userId and optional traits.
-     */
-    identify(user: AnalyticsUserProps): Promise<void>;
-    /**
-     * Tracks a named event with optional properties.
-     *
-     * @param event - The event name and properties to track.
-     */
-    track(event: AnalyticsEvent): Promise<void>;
-    /**
-     * Records a page view.
-     *
-     * @param pageView - Page view details (name, path, properties).
-     */
-    page(pageView: AnalyticsPageView): Promise<void>;
-    /**
-     * Associates a user with a group (e.g. company, team).
-     *
-     * @param groupId - The group identifier.
-     * @param traits - Arbitrary traits to associate with the group.
-     */
-    group?(groupId: string, traits?: Record<string, unknown>): Promise<void>;
-    /**
-     * Resets the current user identity and generates a new anonymous ID.
-     */
-    reset?(): Promise<void>;
-    /**
-     * Flushes any queued events to the analytics service immediately.
-     */
-    flush?(): Promise<void>;
+  /**
+   * Identifies a user and associates traits with them.
+   *
+   * @param user - User properties including userId and optional traits.
+   */
+  identify(user: AnalyticsUserProps): Promise<void>
+  /**
+   * Tracks a named event with optional properties.
+   *
+   * @param event - The event name and properties to track.
+   */
+  track(event: AnalyticsEvent): Promise<void>
+  /**
+   * Records a page view.
+   *
+   * @param pageView - Page view details (name, path, properties).
+   */
+  page(pageView: AnalyticsPageView): Promise<void>
+  /**
+   * Associates a user with a group (e.g. company, team).
+   *
+   * @param groupId - The group identifier.
+   * @param traits - Arbitrary traits to associate with the group.
+   */
+  group?(groupId: string, traits?: Record<string, unknown>): Promise<void>
+  /**
+   * Resets the current user identity and generates a new anonymous ID.
+   */
+  reset?(): Promise<void>
+  /**
+   * Flushes any queued events to the analytics service immediately.
+   */
+  flush?(): Promise<void>
 }
 ```
 
@@ -133,14 +135,14 @@ User properties for analytics identification.
 
 ```typescript
 interface AnalyticsUserProps {
-    /** Unique user identifier. */
-    userId: string;
-    /** User email address. */
-    email?: string;
-    /** User display name. */
-    name?: string;
-    /** Arbitrary key-value traits to associate with the user. */
-    traits?: Record<string, unknown>;
+  /** Unique user identifier. */
+  userId: string
+  /** User email address. */
+  email?: string
+  /** User display name. */
+  name?: string
+  /** Arbitrary key-value traits to associate with the user. */
+  traits?: Record<string, unknown>
 }
 ```
 
@@ -199,6 +201,7 @@ const provider: AnalyticsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-analytics` interface.
 
 ## Bond Wiring
@@ -227,15 +230,16 @@ if (apiKey) {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-analytics` ^1.0.0
 
 ### Environment Variables
 
-- `VITE_POSTHOG_KEY` *(required)* — PostHog project API key
+- `VITE_POSTHOG_KEY` _(required)_ — PostHog project API key
   - Setup: Copy the Project API key from PostHog → Project settings. This is a public browser-side key — Vite embeds it into the client bundle (VITE_ prefix required).
   - Get it here: [https://app.posthog.com/settings/project](https://app.posthog.com/settings/project)
   - Example: `phc_...`
-- `VITE_POSTHOG_HOST` *(optional)* — PostHog host — default: `https://app.posthog.com`
+- `VITE_POSTHOG_HOST` _(optional)_ — PostHog host — default: `https://app.posthog.com`
   - Setup: Origin of your PostHog instance (US cloud, EU cloud, or self-hosted). Browser-side (VITE_ prefix required).
   - Example: `https://us.i.posthog.com`
 

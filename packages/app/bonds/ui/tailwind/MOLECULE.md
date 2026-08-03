@@ -30,9 +30,11 @@ element.className = cm.button({ color: 'primary', size: 'md' })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui-tailwind @molecule/app-styling @molecule/app-ui
 ```
@@ -49,15 +51,17 @@ component's final class string from its props.
 
 ```typescript
 interface CVAConfig<T extends Record<string, Record<string, string>>> {
-    variants?: T;
-    defaultVariants?: {
-        [K in keyof T]?: keyof T[K];
-    };
-    compoundVariants?: Array<{
-        [K in keyof T]?: keyof T[K];
+  variants?: T
+  defaultVariants?: {
+    [K in keyof T]?: keyof T[K]
+  }
+  compoundVariants?: Array<
+    {
+      [K in keyof T]?: keyof T[K]
     } & {
-        class: string;
-    }>;
+      class: string
+    }
+  >
 }
 ```
 
@@ -68,7 +72,14 @@ interface CVAConfig<T extends Record<string, Record<string, string>>> {
 Class name value types accepted by {@link cn}.
 
 ```typescript
-type ClassValue = string | number | boolean | undefined | null | ClassValue[] | Record<string, boolean | undefined | null>;
+type ClassValue =
+  | string
+  | number
+  | boolean
+  | undefined
+  | null
+  | ClassValue[]
+  | Record<string, boolean | undefined | null>
 ```
 
 ### Constants
@@ -78,7 +89,7 @@ type ClassValue = string | number | boolean | undefined | null | ClassValue[] | 
 Accordion component classes.
 
 ```typescript
-const accordion: "w-full"
+const accordion: 'w-full'
 ```
 
 #### `accordionChevron`
@@ -86,7 +97,7 @@ const accordion: "w-full"
 Accordion chevron icon classes (rotates on open).
 
 ```typescript
-const accordionChevron: "h-4 w-4 shrink-0 transition-transform duration-200"
+const accordionChevron: 'h-4 w-4 shrink-0 transition-transform duration-200'
 ```
 
 #### `accordionContent`
@@ -94,7 +105,7 @@ const accordionChevron: "h-4 w-4 shrink-0 transition-transform duration-200"
 Accordion content wrapper classes with collapse animation.
 
 ```typescript
-const accordionContent: "overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+const accordionContent: 'overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down'
 ```
 
 #### `accordionContentInner`
@@ -102,7 +113,7 @@ const accordionContent: "overflow-hidden text-sm transition-all data-[state=clos
 The accordion content inner.
 
 ```typescript
-const accordionContentInner: "pb-4 pt-0"
+const accordionContentInner: 'pb-4 pt-0'
 ```
 
 #### `accordionItem`
@@ -110,7 +121,7 @@ const accordionContentInner: "pb-4 pt-0"
 The accordion item.
 
 ```typescript
-const accordionItem: "border-b"
+const accordionItem: 'border-b'
 ```
 
 #### `accordionTrigger`
@@ -118,7 +129,9 @@ const accordionItem: "border-b"
 The accordion trigger.
 
 ```typescript
-const accordionTrigger: (props?: ({ variant?: "default" | "bordered" | undefined; } & { class?: string; }) | undefined) => string
+const accordionTrigger: (
+  props?: ({ variant?: 'default' | 'bordered' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `accordionTriggerBase`
@@ -126,7 +139,7 @@ const accordionTrigger: (props?: ({ variant?: "default" | "bordered" | undefined
 The accordion trigger base.
 
 ```typescript
-const accordionTriggerBase: "w-full text-left"
+const accordionTriggerBase: 'w-full text-left'
 ```
 
 #### `actionSheet`
@@ -134,7 +147,7 @@ const accordionTriggerBase: "w-full text-left"
 Action sheet: bottom-anchored panel for pickers and action menus.
 
 ```typescript
-const actionSheet: "fixed bottom-0 left-0 right-0 z-[1300] bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden"
+const actionSheet: 'fixed bottom-0 left-0 right-0 z-[1300] bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden'
 ```
 
 #### `actionSheetHeader`
@@ -142,7 +155,7 @@ const actionSheet: "fixed bottom-0 left-0 right-0 z-[1300] bg-surface rounded-t-
 Action sheet header with bottom border.
 
 ```typescript
-const actionSheetHeader: "flex-shrink-0 px-4 py-3 border-b border-border"
+const actionSheetHeader: 'flex-shrink-0 px-4 py-3 border-b border-border'
 ```
 
 #### `alert`
@@ -150,7 +163,13 @@ const actionSheetHeader: "flex-shrink-0 px-4 py-3 border-b border-border"
 Alert component classes with variant support (default, info, success, warning, error).
 
 ```typescript
-const alert: (props?: ({ variant?: "default" | "success" | "warning" | "error" | "info" | undefined; } & { class?: string; }) | undefined) => string
+const alert: (
+  props?:
+    | ({ variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | undefined } & {
+        class?: string
+      })
+    | undefined,
+) => string
 ```
 
 #### `alertContent`
@@ -158,7 +177,7 @@ const alert: (props?: ({ variant?: "default" | "success" | "warning" | "error" |
 The alert content.
 
 ```typescript
-const alertContent: "flex-1"
+const alertContent: 'flex-1'
 ```
 
 #### `alertDescription`
@@ -166,7 +185,7 @@ const alertContent: "flex-1"
 The alert description.
 
 ```typescript
-const alertDescription: "text-sm [&_p]:leading-relaxed"
+const alertDescription: 'text-sm [&_p]:leading-relaxed'
 ```
 
 #### `alertDismiss`
@@ -174,7 +193,7 @@ const alertDescription: "text-sm [&_p]:leading-relaxed"
 The alert dismiss.
 
 ```typescript
-const alertDismiss: "flex-shrink-0 ml-2 p-1 rounded hover:bg-black/5 transition-colors"
+const alertDismiss: 'flex-shrink-0 ml-2 p-1 rounded hover:bg-black/5 transition-colors'
 ```
 
 #### `alertIconWrapper`
@@ -182,7 +201,7 @@ const alertDismiss: "flex-shrink-0 ml-2 p-1 rounded hover:bg-black/5 transition-
 Alert icon wrapper classes.
 
 ```typescript
-const alertIconWrapper: "flex-shrink-0"
+const alertIconWrapper: 'flex-shrink-0'
 ```
 
 #### `alertTitle`
@@ -190,7 +209,7 @@ const alertIconWrapper: "flex-shrink-0"
 The alert title.
 
 ```typescript
-const alertTitle: "mb-1 font-medium leading-none tracking-tight"
+const alertTitle: 'mb-1 font-medium leading-none tracking-tight'
 ```
 
 #### `appLayout`
@@ -198,7 +217,7 @@ const alertTitle: "mb-1 font-medium leading-none tracking-tight"
 Main app layout classes (min-height, padding for fixed header/footer).
 
 ```typescript
-const appLayout: "min-h-screen pt-[55px] px-[15px] pb-[55px]"
+const appLayout: 'min-h-screen pt-[55px] px-[15px] pb-[55px]'
 ```
 
 #### `authAfterSubmit`
@@ -206,7 +225,7 @@ const appLayout: "min-h-screen pt-[55px] px-[15px] pb-[55px]"
 The auth after submit.
 
 ```typescript
-const authAfterSubmit: "mt-[15px]"
+const authAfterSubmit: 'mt-[15px]'
 ```
 
 #### `authArrowIcon`
@@ -214,7 +233,7 @@ const authAfterSubmit: "mt-[15px]"
 The auth arrow icon.
 
 ```typescript
-const authArrowIcon: "ml-[2.5px]"
+const authArrowIcon: 'ml-[2.5px]'
 ```
 
 #### `authBackButton`
@@ -222,7 +241,7 @@ const authArrowIcon: "ml-[2.5px]"
 The auth back button.
 
 ```typescript
-const authBackButton: "w-[45px] mr-[10px]"
+const authBackButton: 'w-[45px] mr-[10px]'
 ```
 
 #### `authButtonRow`
@@ -230,7 +249,7 @@ const authBackButton: "w-[45px] mr-[10px]"
 Auth button row (flex container).
 
 ```typescript
-const authButtonRow: "flex"
+const authButtonRow: 'flex'
 ```
 
 #### `authField`
@@ -238,7 +257,7 @@ const authButtonRow: "flex"
 The auth field.
 
 ```typescript
-const authField: "mb-[15px]"
+const authField: 'mb-[15px]'
 ```
 
 #### `authFormError`
@@ -246,7 +265,7 @@ const authField: "mb-[15px]"
 Auth form error message classes.
 
 ```typescript
-const authFormError: "text-error mt-[15px]"
+const authFormError: 'text-error mt-[15px]'
 ```
 
 #### `authFormWrapper`
@@ -254,7 +273,7 @@ const authFormError: "text-error mt-[15px]"
 The auth form wrapper.
 
 ```typescript
-const authFormWrapper: "w-max min-w-[330px] max-w-[90vw] py-[30px] mx-auto text-center"
+const authFormWrapper: 'w-max min-w-[330px] max-w-[90vw] py-[30px] mx-auto text-center'
 ```
 
 #### `authHeaderInner`
@@ -262,7 +281,7 @@ const authFormWrapper: "w-max min-w-[330px] max-w-[90vw] py-[30px] mx-auto text-
 Auth page header inner container classes.
 
 ```typescript
-const authHeaderInner: "w-full h-10 p-[5px]"
+const authHeaderInner: 'w-full h-10 p-[5px]'
 ```
 
 #### `authHidden`
@@ -270,7 +289,7 @@ const authHeaderInner: "w-full h-10 p-[5px]"
 The auth hidden.
 
 ```typescript
-const authHidden: "hidden"
+const authHidden: 'hidden'
 ```
 
 #### `authLoginSignup`
@@ -278,7 +297,7 @@ const authHidden: "hidden"
 The auth login signup.
 
 ```typescript
-const authLoginSignup: "grow whitespace-nowrap mr-[10px]"
+const authLoginSignup: 'grow whitespace-nowrap mr-[10px]'
 ```
 
 #### `authLoginSubmit`
@@ -286,7 +305,7 @@ const authLoginSignup: "grow whitespace-nowrap mr-[10px]"
 The auth login submit.
 
 ```typescript
-const authLoginSubmit: "grow whitespace-nowrap"
+const authLoginSubmit: 'grow whitespace-nowrap'
 ```
 
 #### `authLoginSubmitFull`
@@ -294,7 +313,7 @@ const authLoginSubmit: "grow whitespace-nowrap"
 The auth login submit full.
 
 ```typescript
-const authLoginSubmitFull: "w-full whitespace-nowrap"
+const authLoginSubmitFull: 'w-full whitespace-nowrap'
 ```
 
 #### `authPageBody`
@@ -302,7 +321,7 @@ const authLoginSubmitFull: "w-full whitespace-nowrap"
 The auth page body.
 
 ```typescript
-const authPageBody: "flex flex-col flex-1 items-center justify-center px-4 pb-[30px]"
+const authPageBody: 'flex flex-col flex-1 items-center justify-center px-4 pb-[30px]'
 ```
 
 #### `authSubmitButton`
@@ -310,7 +329,7 @@ const authPageBody: "flex flex-col flex-1 items-center justify-center px-4 pb-[3
 The auth submit button.
 
 ```typescript
-const authSubmitButton: "grow whitespace-nowrap"
+const authSubmitButton: 'grow whitespace-nowrap'
 ```
 
 #### `avatar`
@@ -318,7 +337,9 @@ const authSubmitButton: "grow whitespace-nowrap"
 Avatar component classes.
 
 ```typescript
-const avatar: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | undefined; } & { class?: string; }) | undefined) => string
+const avatar: (
+  props?: ({ size?: 'sm' | 'md' | 'lg' | 'xl' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `avatarFallback`
@@ -326,7 +347,7 @@ const avatar: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | undefined; } & { cl
 Avatar fallback container classes (centered, rounded, secondary background).
 
 ```typescript
-const avatarFallback: "flex h-full w-full items-center justify-center rounded-full bg-surface-secondary text-foreground-secondary"
+const avatarFallback: 'flex h-full w-full items-center justify-center rounded-full bg-surface-secondary text-foreground-secondary'
 ```
 
 #### `avatarFallbackIcon`
@@ -334,7 +355,7 @@ const avatarFallback: "flex h-full w-full items-center justify-center rounded-fu
 The avatar fallback icon.
 
 ```typescript
-const avatarFallbackIcon: "h-1/2 w-1/2"
+const avatarFallbackIcon: 'h-1/2 w-1/2'
 ```
 
 #### `avatarImage`
@@ -342,7 +363,7 @@ const avatarFallbackIcon: "h-1/2 w-1/2"
 The avatar image.
 
 ```typescript
-const avatarImage: "aspect-square h-full w-full object-cover"
+const avatarImage: 'aspect-square h-full w-full object-cover'
 ```
 
 #### `avatarInitials`
@@ -350,7 +371,7 @@ const avatarImage: "aspect-square h-full w-full object-cover"
 Avatar initials text classes.
 
 ```typescript
-const avatarInitials: "text-sm font-medium"
+const avatarInitials: 'text-sm font-medium'
 ```
 
 #### `avatarSquare`
@@ -358,7 +379,7 @@ const avatarInitials: "text-sm font-medium"
 The avatar square.
 
 ```typescript
-const avatarSquare: "rounded-md"
+const avatarSquare: 'rounded-md'
 ```
 
 #### `badge`
@@ -366,7 +387,13 @@ const avatarSquare: "rounded-md"
 Badge component classes with variant support.
 
 ```typescript
-const badge: (props?: ({ variant?: "default" | "secondary" | "success" | "outline" | "warning" | "error" | undefined; } & { class?: string; }) | undefined) => string
+const badge: (
+  props?:
+    | ({
+        variant?: 'default' | 'secondary' | 'success' | 'outline' | 'warning' | 'error' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `badgeSquare`
@@ -374,7 +401,7 @@ const badge: (props?: ({ variant?: "default" | "secondary" | "success" | "outlin
 Badge with square (rounded-md) corners.
 
 ```typescript
-const badgeSquare: "rounded-md"
+const badgeSquare: 'rounded-md'
 ```
 
 #### `bgBorder`
@@ -382,7 +409,7 @@ const badgeSquare: "rounded-md"
 Tailwind class for a background matching the theme border color.
 
 ```typescript
-const bgBorder: "bg-border"
+const bgBorder: 'bg-border'
 ```
 
 #### `bgErrorSubtle`
@@ -390,7 +417,7 @@ const bgBorder: "bg-border"
 Subtle error background utility class.
 
 ```typescript
-const bgErrorSubtle: "bg-error-light"
+const bgErrorSubtle: 'bg-error-light'
 ```
 
 #### `bgPrimaryContainer`
@@ -398,7 +425,7 @@ const bgErrorSubtle: "bg-error-light"
 Primary-tinted container surface; pair with {@link textOnPrimaryContainer}.
 
 ```typescript
-const bgPrimaryContainer: "bg-primary-container"
+const bgPrimaryContainer: 'bg-primary-container'
 ```
 
 #### `borderAll`
@@ -406,7 +433,7 @@ const bgPrimaryContainer: "bg-primary-container"
 The border all.
 
 ```typescript
-const borderAll: "border border-border"
+const borderAll: 'border border-border'
 ```
 
 #### `borderB`
@@ -414,7 +441,7 @@ const borderAll: "border border-border"
 Bottom border with theme border color.
 
 ```typescript
-const borderB: "border-b border-border"
+const borderB: 'border-b border-border'
 ```
 
 #### `borderBPrimary`
@@ -422,7 +449,7 @@ const borderB: "border-b border-border"
 The border b primary.
 
 ```typescript
-const borderBPrimary: "border-b-2 border-b-primary"
+const borderBPrimary: 'border-b-2 border-b-primary'
 ```
 
 #### `borderR`
@@ -430,7 +457,7 @@ const borderBPrimary: "border-b-2 border-b-primary"
 Tailwind classes for a right border with the theme border color.
 
 ```typescript
-const borderR: "border-r border-border"
+const borderR: 'border-r border-border'
 ```
 
 #### `borderT`
@@ -438,7 +465,7 @@ const borderR: "border-r border-border"
 Tailwind classes for a top border with the theme border color.
 
 ```typescript
-const borderT: "border-t border-border"
+const borderT: 'border-t border-border'
 ```
 
 #### `button`
@@ -446,7 +473,23 @@ const borderT: "border-t border-border"
 Button component classes.
 
 ```typescript
-const button: (props?: ({ variant?: "default" | "secondary" | "success" | "outline" | "ghost" | "link" | "warning" | "danger" | undefined; size?: "sm" | "md" | "lg" | "icon" | undefined; } & { class?: string; }) | undefined) => string
+const button: (
+  props?:
+    | ({
+        variant?:
+          | 'default'
+          | 'secondary'
+          | 'success'
+          | 'outline'
+          | 'ghost'
+          | 'link'
+          | 'warning'
+          | 'danger'
+          | undefined
+        size?: 'sm' | 'md' | 'lg' | 'icon' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `buttonIconLeft`
@@ -454,7 +497,7 @@ const button: (props?: ({ variant?: "default" | "secondary" | "success" | "outli
 Button left icon spacing classes.
 
 ```typescript
-const buttonIconLeft: "mr-2"
+const buttonIconLeft: 'mr-2'
 ```
 
 #### `buttonIconRight`
@@ -462,7 +505,7 @@ const buttonIconLeft: "mr-2"
 The button icon right.
 
 ```typescript
-const buttonIconRight: "ml-2"
+const buttonIconRight: 'ml-2'
 ```
 
 #### `buttonSpinner`
@@ -470,7 +513,7 @@ const buttonIconRight: "ml-2"
 The button spinner.
 
 ```typescript
-const buttonSpinner: "mr-2"
+const buttonSpinner: 'mr-2'
 ```
 
 #### `card`
@@ -478,7 +521,11 @@ const buttonSpinner: "mr-2"
 Card component classes.
 
 ```typescript
-const card: (props?: ({ variant?: "default" | "outline" | "ghost" | "elevated" | undefined; } & { class?: string; }) | undefined) => string
+const card: (
+  props?:
+    | ({ variant?: 'default' | 'outline' | 'ghost' | 'elevated' | undefined } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `cardContent`
@@ -486,7 +533,7 @@ const card: (props?: ({ variant?: "default" | "outline" | "ghost" | "elevated" |
 The card content.
 
 ```typescript
-const cardContent: "p-6 pt-0"
+const cardContent: 'p-6 pt-0'
 ```
 
 #### `cardDescription`
@@ -494,7 +541,7 @@ const cardContent: "p-6 pt-0"
 The card description.
 
 ```typescript
-const cardDescription: "text-sm text-foreground-secondary"
+const cardDescription: 'text-sm text-foreground-secondary'
 ```
 
 #### `cardFooter`
@@ -502,7 +549,7 @@ const cardDescription: "text-sm text-foreground-secondary"
 The card footer.
 
 ```typescript
-const cardFooter: "flex items-center p-6 pt-0"
+const cardFooter: 'flex items-center p-6 pt-0'
 ```
 
 #### `cardHeader`
@@ -510,7 +557,7 @@ const cardFooter: "flex items-center p-6 pt-0"
 The card header.
 
 ```typescript
-const cardHeader: "flex flex-col space-y-1.5 p-6"
+const cardHeader: 'flex flex-col space-y-1.5 p-6'
 ```
 
 #### `cardInteractive`
@@ -518,7 +565,7 @@ const cardHeader: "flex flex-col space-y-1.5 p-6"
 Interactive card classes (hover shadow effect).
 
 ```typescript
-const cardInteractive: "cursor-pointer hover:shadow-md transition-shadow"
+const cardInteractive: 'cursor-pointer hover:shadow-md transition-shadow'
 ```
 
 #### `cardTitle`
@@ -526,7 +573,7 @@ const cardInteractive: "cursor-pointer hover:shadow-md transition-shadow"
 The card title.
 
 ```typescript
-const cardTitle: "text-lg font-semibold leading-none tracking-tight"
+const cardTitle: 'text-lg font-semibold leading-none tracking-tight'
 ```
 
 #### `center`
@@ -534,7 +581,7 @@ const cardTitle: "text-lg font-semibold leading-none tracking-tight"
 Center layout classes.
 
 ```typescript
-const center: "flex items-center justify-center"
+const center: 'flex items-center justify-center'
 ```
 
 #### `checkbox`
@@ -542,7 +589,9 @@ const center: "flex items-center justify-center"
 Checkbox component classes.
 
 ```typescript
-const checkbox: (props?: ({ variant?: "default" | "error" | undefined; } & { class?: string; }) | undefined) => string
+const checkbox: (
+  props?: ({ variant?: 'default' | 'error' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `classMap`
@@ -572,7 +621,11 @@ const cn: (...classes: ClassValue[]) => string
 Container component classes.
 
 ```typescript
-const container: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | "full" | "2xl" | undefined; } & { class?: string; }) | undefined) => string
+const container: (
+  props?:
+    | ({ size?: 'sm' | 'md' | 'lg' | 'xl' | 'full' | '2xl' | undefined } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `controlContainer`
@@ -580,7 +633,7 @@ const container: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | "full" | "2xl" |
 The control container.
 
 ```typescript
-const controlContainer: "flex items-center"
+const controlContainer: 'flex items-center'
 ```
 
 #### `controlDisabled`
@@ -588,7 +641,7 @@ const controlContainer: "flex items-center"
 The control disabled.
 
 ```typescript
-const controlDisabled: "opacity-50 cursor-not-allowed"
+const controlDisabled: 'opacity-50 cursor-not-allowed'
 ```
 
 #### `controlLabel`
@@ -596,7 +649,7 @@ const controlDisabled: "opacity-50 cursor-not-allowed"
 Control (checkbox/switch/radio) label wrapper classes.
 
 ```typescript
-const controlLabel: "flex items-center gap-2 cursor-pointer"
+const controlLabel: 'flex items-center gap-2 cursor-pointer'
 ```
 
 #### `controlText`
@@ -604,7 +657,7 @@ const controlLabel: "flex items-center gap-2 cursor-pointer"
 The control text.
 
 ```typescript
-const controlText: "text-sm"
+const controlText: 'text-sm'
 ```
 
 #### `cursorPointer`
@@ -612,7 +665,7 @@ const controlText: "text-sm"
 The cursor pointer.
 
 ```typescript
-const cursorPointer: "cursor-pointer"
+const cursorPointer: 'cursor-pointer'
 ```
 
 #### `cva`
@@ -622,7 +675,10 @@ Given a base class and variant configuration, returns a function that
 resolves the final class string based on selected variants.
 
 ```typescript
-const cva: <T extends Record<string, Record<string, string>>>(base: string, config?: CVAConfig<T>) => (props?: { [K in keyof T]?: keyof T[K]; } & { class?: string; }) => string
+const cva: <T extends Record<string, Record<string, string>>>(
+  base: string,
+  config?: CVAConfig<T>,
+) => (props?: { [K in keyof T]?: keyof T[K] } & { class?: string }) => string
 ```
 
 #### `dialogBody`
@@ -630,7 +686,7 @@ const cva: <T extends Record<string, Record<string, string>>>(base: string, conf
 The dialog body.
 
 ```typescript
-const dialogBody: "flex-1 min-h-0 overflow-y-auto px-6 py-6"
+const dialogBody: 'flex-1 min-h-0 overflow-y-auto px-6 py-6'
 ```
 
 #### `dialogClose`
@@ -638,7 +694,7 @@ const dialogBody: "flex-1 min-h-0 overflow-y-auto px-6 py-6"
 Dialog close button classes.
 
 ```typescript
-const dialogClose: "flex-shrink-0 ml-4 -mr-4 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none"
+const dialogClose: 'flex-shrink-0 ml-4 -mr-4 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
 ```
 
 #### `dialogCloseFloating`
@@ -648,7 +704,7 @@ the dialog box (`dialogContent` is `relative`) instead of rendering a
 header row that pushes the body down.
 
 ```typescript
-const dialogCloseFloating: "absolute right-3 top-3 z-10 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none"
+const dialogCloseFloating: 'absolute right-3 top-3 z-10 p-1.5 cursor-pointer text-foreground-secondary hover:text-foreground transition-colors focus:outline-none'
 ```
 
 #### `dialogContent`
@@ -656,7 +712,10 @@ const dialogCloseFloating: "absolute right-3 top-3 z-10 p-1.5 cursor-pointer tex
 The dialog content.
 
 ```typescript
-const dialogContent: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | "full" | undefined; } & { class?: string; }) | undefined) => string
+const dialogContent: (
+  props?:
+    ({ size?: 'sm' | 'md' | 'lg' | 'xl' | 'full' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `dialogDescription`
@@ -664,7 +723,7 @@ const dialogContent: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | "full" | und
 The dialog description.
 
 ```typescript
-const dialogDescription: "text-sm text-foreground-secondary"
+const dialogDescription: 'text-sm text-foreground-secondary'
 ```
 
 #### `dialogFooter`
@@ -672,7 +731,7 @@ const dialogDescription: "text-sm text-foreground-secondary"
 Dialog footer classes.
 
 ```typescript
-const dialogFooter: "flex-shrink-0 flex flex-col-reverse px-6 py-4 border-t border-border sm:flex-row sm:justify-end sm:space-x-2"
+const dialogFooter: 'flex-shrink-0 flex flex-col-reverse px-6 py-4 border-t border-border sm:flex-row sm:justify-end sm:space-x-2'
 ```
 
 #### `dialogHeader`
@@ -680,7 +739,7 @@ const dialogFooter: "flex-shrink-0 flex flex-col-reverse px-6 py-4 border-t bord
 The dialog header.
 
 ```typescript
-const dialogHeader: "flex-shrink-0 flex items-center justify-between px-6 py-2"
+const dialogHeader: 'flex-shrink-0 flex items-center justify-between px-6 py-2'
 ```
 
 #### `dialogOverlay`
@@ -694,7 +753,7 @@ blurring the dialog itself. A parent's backdrop-filter can never affect its
 children, by spec.
 
 ```typescript
-const dialogOverlay: "fixed inset-0 z-[1300] bg-overlay pointer-events-none"
+const dialogOverlay: 'fixed inset-0 z-[1300] bg-overlay pointer-events-none'
 ```
 
 #### `dialogTitle`
@@ -702,7 +761,7 @@ const dialogOverlay: "fixed inset-0 z-[1300] bg-overlay pointer-events-none"
 The dialog title.
 
 ```typescript
-const dialogTitle: "text-xl font-semibold leading-tight tracking-tight"
+const dialogTitle: 'text-xl font-semibold leading-tight tracking-tight'
 ```
 
 #### `dialogWrapper`
@@ -712,7 +771,7 @@ why it must be on the dialog's parent, not a sibling) and sits one z above
 the tint overlay so the dialog's stacking never depends on DOM order.
 
 ```typescript
-const dialogWrapper: "fixed inset-0 z-[1301] flex items-center justify-center px-4 py-10 backdrop-blur-[2px]"
+const dialogWrapper: 'fixed inset-0 z-[1301] flex items-center justify-center px-4 py-10 backdrop-blur-[2px]'
 ```
 
 #### `displayBlock`
@@ -720,7 +779,7 @@ const dialogWrapper: "fixed inset-0 z-[1301] flex items-center justify-center px
 Display block utility class.
 
 ```typescript
-const displayBlock: "block"
+const displayBlock: 'block'
 ```
 
 #### `displayContents`
@@ -728,7 +787,7 @@ const displayBlock: "block"
 The display contents.
 
 ```typescript
-const displayContents: "contents"
+const displayContents: 'contents'
 ```
 
 #### `displayInlineBlock`
@@ -736,7 +795,7 @@ const displayContents: "contents"
 The display inline block.
 
 ```typescript
-const displayInlineBlock: "inline-block"
+const displayInlineBlock: 'inline-block'
 ```
 
 #### `dropdownContent`
@@ -744,7 +803,7 @@ const displayInlineBlock: "inline-block"
 Dropdown menu content container classes.
 
 ```typescript
-const dropdownContent: "z-[1000] min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95"
+const dropdownContent: 'z-[1000] min-w-[8rem] overflow-hidden rounded-md border bg-surface p-1 text-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95'
 ```
 
 #### `dropdownItem`
@@ -752,7 +811,7 @@ const dropdownContent: "z-[1000] min-w-[8rem] overflow-hidden rounded-md border 
 Dropdown menu item classes.
 
 ```typescript
-const dropdownItem: "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-surface-secondary focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+const dropdownItem: 'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-surface-secondary focus:text-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
 ```
 
 #### `dropdownItemDisabled`
@@ -760,7 +819,7 @@ const dropdownItem: "relative flex cursor-pointer select-none items-center round
 The dropdown item disabled.
 
 ```typescript
-const dropdownItemDisabled: "opacity-50 cursor-not-allowed"
+const dropdownItemDisabled: 'opacity-50 cursor-not-allowed'
 ```
 
 #### `dropdownItemIcon`
@@ -768,7 +827,7 @@ const dropdownItemDisabled: "opacity-50 cursor-not-allowed"
 The dropdown item icon.
 
 ```typescript
-const dropdownItemIcon: "mr-2 flex-shrink-0"
+const dropdownItemIcon: 'mr-2 flex-shrink-0'
 ```
 
 #### `dropdownItemLabel`
@@ -776,7 +835,7 @@ const dropdownItemIcon: "mr-2 flex-shrink-0"
 The dropdown item label.
 
 ```typescript
-const dropdownItemLabel: "flex-1"
+const dropdownItemLabel: 'flex-1'
 ```
 
 #### `dropdownItemShortcut`
@@ -784,7 +843,7 @@ const dropdownItemLabel: "flex-1"
 The dropdown item shortcut.
 
 ```typescript
-const dropdownItemShortcut: "ml-auto text-xs text-foreground-tertiary"
+const dropdownItemShortcut: 'ml-auto text-xs text-foreground-tertiary'
 ```
 
 #### `dropdownLabel`
@@ -792,7 +851,7 @@ const dropdownItemShortcut: "ml-auto text-xs text-foreground-tertiary"
 The dropdown label.
 
 ```typescript
-const dropdownLabel: "px-2 py-1.5 text-sm font-semibold"
+const dropdownLabel: 'px-2 py-1.5 text-sm font-semibold'
 ```
 
 #### `dropdownSeparator`
@@ -800,7 +859,7 @@ const dropdownLabel: "px-2 py-1.5 text-sm font-semibold"
 The dropdown separator.
 
 ```typescript
-const dropdownSeparator: "-mx-1 my-1 h-px bg-border"
+const dropdownSeparator: '-mx-1 my-1 h-px bg-border'
 ```
 
 #### `dropdownTrigger`
@@ -808,7 +867,7 @@ const dropdownSeparator: "-mx-1 my-1 h-px bg-border"
 Dropdown trigger wrapper classes.
 
 ```typescript
-const dropdownTrigger: "inline-block"
+const dropdownTrigger: 'inline-block'
 ```
 
 #### `emptyState`
@@ -816,7 +875,7 @@ const dropdownTrigger: "inline-block"
 EmptyState root — centered column layout.
 
 ```typescript
-const emptyState: "flex flex-col items-center justify-center py-16 px-4 text-center"
+const emptyState: 'flex flex-col items-center justify-center py-16 px-4 text-center'
 ```
 
 #### `emptyStateAction`
@@ -824,7 +883,7 @@ const emptyState: "flex flex-col items-center justify-center py-16 px-4 text-cen
 EmptyState action slot.
 
 ```typescript
-const emptyStateAction: ""
+const emptyStateAction: ''
 ```
 
 #### `emptyStateDescription`
@@ -832,7 +891,7 @@ const emptyStateAction: ""
 EmptyState description.
 
 ```typescript
-const emptyStateDescription: "text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md"
+const emptyStateDescription: 'text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-md'
 ```
 
 #### `emptyStateIcon`
@@ -840,7 +899,7 @@ const emptyStateDescription: "text-sm text-gray-500 dark:text-gray-400 mb-6 max-
 EmptyState icon wrapper.
 
 ```typescript
-const emptyStateIcon: "mb-4 text-gray-400 dark:text-gray-500"
+const emptyStateIcon: 'mb-4 text-gray-400 dark:text-gray-500'
 ```
 
 #### `emptyStateTitle`
@@ -848,7 +907,7 @@ const emptyStateIcon: "mb-4 text-gray-400 dark:text-gray-500"
 EmptyState heading.
 
 ```typescript
-const emptyStateTitle: "text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2"
+const emptyStateTitle: 'text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2'
 ```
 
 #### `flex`
@@ -856,7 +915,17 @@ const emptyStateTitle: "text-lg font-semibold text-gray-900 dark:text-gray-100 m
 Flex layout classes.
 
 ```typescript
-const flex: (props?: ({ direction?: "row" | "row-reverse" | "col" | "col-reverse" | undefined; align?: "center" | "start" | "end" | "stretch" | "baseline" | undefined; justify?: "center" | "start" | "end" | "between" | "around" | "evenly" | undefined; wrap?: "wrap" | "nowrap" | "wrap-reverse" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const flex: (
+  props?:
+    | ({
+        direction?: 'row' | 'row-reverse' | 'col' | 'col-reverse' | undefined
+        align?: 'center' | 'start' | 'end' | 'stretch' | 'baseline' | undefined
+        justify?: 'center' | 'start' | 'end' | 'between' | 'around' | 'evenly' | undefined
+        wrap?: 'wrap' | 'nowrap' | 'wrap-reverse' | undefined
+        gap?: 'sm' | 'md' | 'lg' | 'xl' | 'none' | 'xs' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `flex1`
@@ -864,7 +933,7 @@ const flex: (props?: ({ direction?: "row" | "row-reverse" | "col" | "col-reverse
 Flex grow utility class (flex-1).
 
 ```typescript
-const flex1: "flex-1"
+const flex1: 'flex-1'
 ```
 
 #### `floatingInput`
@@ -872,7 +941,7 @@ const flex1: "flex-1"
 The floating input.
 
 ```typescript
-const floatingInput: "peer"
+const floatingInput: 'peer'
 ```
 
 #### `floatingInputWrapper`
@@ -880,7 +949,7 @@ const floatingInput: "peer"
 Floating input wrapper classes (relative container).
 
 ```typescript
-const floatingInputWrapper: "relative inline-block align-middle w-full"
+const floatingInputWrapper: 'relative inline-block align-middle w-full'
 ```
 
 #### `floatingLabel`
@@ -888,7 +957,7 @@ const floatingInputWrapper: "relative inline-block align-middle w-full"
 Floating label classes (absolute positioned, animated on focus).
 
 ```typescript
-const floatingLabel: "absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] leading-none whitespace-nowrap text-foreground pointer-events-none transition-all duration-250 peer-hover:bg-input-background peer-focus:text-primary peer-focus:[text-shadow:0_0_var(--color-primary)] peer-focus:bg-input-background"
+const floatingLabel: 'absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] leading-none whitespace-nowrap text-foreground pointer-events-none transition-all duration-250 peer-hover:bg-input-background peer-focus:text-primary peer-focus:[text-shadow:0_0_var(--color-primary)] peer-focus:bg-input-background'
 ```
 
 #### `footerBar`
@@ -896,7 +965,7 @@ const floatingLabel: "absolute top-0 left-0 right-0 w-full p-[3px] text-[11px] l
 Footer bar classes (full-width). Position is determined by the consuming layout, not forced here.
 
 ```typescript
-const footerBar: "w-full flex flex-wrap items-center justify-around p-[5px] bg-background text-[12px] text-foreground-secondary"
+const footerBar: 'w-full flex flex-wrap items-center justify-around p-[5px] bg-background text-[12px] text-foreground-secondary'
 ```
 
 #### `footerButton`
@@ -904,7 +973,7 @@ const footerBar: "w-full flex flex-wrap items-center justify-around p-[5px] bg-b
 Footer button classes.
 
 ```typescript
-const footerButton: "inline-flex items-center gap-1 border-0 m-0 p-[5px] text-[12px] text-foreground-secondary hover:text-foreground bg-transparent cursor-pointer"
+const footerButton: 'inline-flex items-center gap-1 border-0 m-0 p-[5px] text-[12px] text-foreground-secondary hover:text-foreground bg-transparent cursor-pointer'
 ```
 
 #### `footerLink`
@@ -912,7 +981,7 @@ const footerButton: "inline-flex items-center gap-1 border-0 m-0 p-[5px] text-[1
 Footer link classes.
 
 ```typescript
-const footerLink: "p-[5px] text-[12px] text-foreground-secondary hover:text-foreground no-underline"
+const footerLink: 'p-[5px] text-[12px] text-foreground-secondary hover:text-foreground no-underline'
 ```
 
 #### `forgotPasswordLink`
@@ -920,7 +989,7 @@ const footerLink: "p-[5px] text-[12px] text-foreground-secondary hover:text-fore
 Forgot password link classes.
 
 ```typescript
-const forgotPasswordLink: "border-0 p-0 m-0 bg-transparent text-foreground-secondary text-[12px] cursor-pointer hover:text-primary"
+const forgotPasswordLink: 'border-0 p-0 m-0 bg-transparent text-foreground-secondary text-[12px] cursor-pointer hover:text-primary'
 ```
 
 #### `formError`
@@ -928,7 +997,7 @@ const forgotPasswordLink: "border-0 p-0 m-0 bg-transparent text-foreground-secon
 Form error message classes.
 
 ```typescript
-const formError: "text-sm text-error mt-1"
+const formError: 'text-sm text-error mt-1'
 ```
 
 #### `formField`
@@ -936,7 +1005,7 @@ const formError: "text-sm text-error mt-1"
 The form field.
 
 ```typescript
-const formField: "space-y-1.5"
+const formField: 'space-y-1.5'
 ```
 
 #### `formFieldset`
@@ -944,7 +1013,7 @@ const formField: "space-y-1.5"
 The form fieldset.
 
 ```typescript
-const formFieldset: "space-y-4"
+const formFieldset: 'space-y-4'
 ```
 
 #### `formFieldsetContents`
@@ -952,7 +1021,7 @@ const formFieldset: "space-y-4"
 The form fieldset contents.
 
 ```typescript
-const formFieldsetContents: "contents"
+const formFieldsetContents: 'contents'
 ```
 
 #### `formFieldWrapper`
@@ -960,7 +1029,7 @@ const formFieldsetContents: "contents"
 The form field wrapper.
 
 ```typescript
-const formFieldWrapper: "flex flex-col"
+const formFieldWrapper: 'flex flex-col'
 ```
 
 #### `formHint`
@@ -968,7 +1037,7 @@ const formFieldWrapper: "flex flex-col"
 Form hint message classes.
 
 ```typescript
-const formHint: "text-sm text-foreground-secondary mt-1"
+const formHint: 'text-sm text-foreground-secondary mt-1'
 ```
 
 #### `grid`
@@ -982,7 +1051,14 @@ and single-column paths; by DEFAULT it emits the mobile-first ramp in
 {@link gridResponsiveCols} instead.
 
 ```typescript
-const grid: (props?: ({ cols?: 1 | 2 | 3 | 4 | 5 | 6 | 12 | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const grid: (
+  props?:
+    | ({
+        cols?: 1 | 2 | 3 | 4 | 5 | 6 | 12 | undefined
+        gap?: 'sm' | 'md' | 'lg' | 'xl' | 'none' | 'xs' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `gridResponsiveCols`
@@ -1010,7 +1086,7 @@ const gridResponsiveCols: Record<number, string>
 Header container classes (full-width). Position is determined by the consuming layout, not forced here.
 
 ```typescript
-const headerFixed: "top-0 left-0 right-0 w-full"
+const headerFixed: 'top-0 left-0 right-0 w-full'
 ```
 
 #### `headerInner`
@@ -1018,7 +1094,7 @@ const headerFixed: "top-0 left-0 right-0 w-full"
 The header inner.
 
 ```typescript
-const headerInner: "w-full max-w-[1280px] mx-auto h-10 p-[5px]"
+const headerInner: 'w-full max-w-[1280px] mx-auto h-10 p-[5px]'
 ```
 
 #### `hstack`
@@ -1026,7 +1102,14 @@ const headerInner: "w-full max-w-[1280px] mx-auto h-10 p-[5px]"
 HStack layout classes (horizontal flexbox).
 
 ```typescript
-const hstack: (props?: ({ justify?: "center" | "start" | "end" | "between" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const hstack: (
+  props?:
+    | ({
+        justify?: 'center' | 'start' | 'end' | 'between' | undefined
+        gap?: 'sm' | 'md' | 'lg' | 'xl' | 'none' | 'xs' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `iconMd`
@@ -1034,7 +1117,7 @@ const hstack: (props?: ({ justify?: "center" | "start" | "end" | "between" | und
 Tailwind classes for medium icons (20x20).
 
 ```typescript
-const iconMd: "h-5 w-5"
+const iconMd: 'h-5 w-5'
 ```
 
 #### `iconSm`
@@ -1042,7 +1125,7 @@ const iconMd: "h-5 w-5"
 Tailwind classes for small icons (16x16).
 
 ```typescript
-const iconSm: "h-4 w-4"
+const iconSm: 'h-4 w-4'
 ```
 
 #### `iconXs`
@@ -1050,7 +1133,7 @@ const iconSm: "h-4 w-4"
 Icon extra-small size classes (12×12).
 
 ```typescript
-const iconXs: "h-3 w-3"
+const iconXs: 'h-3 w-3'
 ```
 
 #### `input`
@@ -1058,7 +1141,15 @@ const iconXs: "h-3 w-3"
 Input component classes.
 
 ```typescript
-const input: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" | "md" | "lg" | undefined; align?: "left" | "center" | undefined; } & { class?: string; }) | undefined) => string
+const input: (
+  props?:
+    | ({
+        variant?: 'default' | 'error' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+        align?: 'left' | 'center' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `inputClearButton`
@@ -1066,7 +1157,7 @@ const input: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" 
 The input clear button.
 
 ```typescript
-const inputClearButton: "text-foreground-secondary hover:text-foreground"
+const inputClearButton: 'text-foreground-secondary hover:text-foreground'
 ```
 
 #### `inputInner`
@@ -1074,7 +1165,7 @@ const inputClearButton: "text-foreground-secondary hover:text-foreground"
 The input inner.
 
 ```typescript
-const inputInner: "relative"
+const inputInner: 'relative'
 ```
 
 #### `inputLeftElement`
@@ -1082,7 +1173,7 @@ const inputInner: "relative"
 Input left addon/icon container classes.
 
 ```typescript
-const inputLeftElement: "absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-foreground-secondary"
+const inputLeftElement: 'absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-foreground-secondary'
 ```
 
 #### `inputPadLeft`
@@ -1090,7 +1181,7 @@ const inputLeftElement: "absolute inset-y-0 left-0 flex items-center pl-3 pointe
 The input pad left.
 
 ```typescript
-const inputPadLeft: "pl-10"
+const inputPadLeft: 'pl-10'
 ```
 
 #### `inputPadRight`
@@ -1098,7 +1189,7 @@ const inputPadLeft: "pl-10"
 The input pad right.
 
 ```typescript
-const inputPadRight: "pr-10"
+const inputPadRight: 'pr-10'
 ```
 
 #### `inputRightElement`
@@ -1106,7 +1197,7 @@ const inputPadRight: "pr-10"
 The input right element.
 
 ```typescript
-const inputRightElement: "absolute inset-y-0 right-0 flex items-center pr-3"
+const inputRightElement: 'absolute inset-y-0 right-0 flex items-center pr-3'
 ```
 
 #### `inputWrapper`
@@ -1114,7 +1205,7 @@ const inputRightElement: "absolute inset-y-0 right-0 flex items-center pr-3"
 Input wrapper classes.
 
 ```typescript
-const inputWrapper: "w-full"
+const inputWrapper: 'w-full'
 ```
 
 #### `label`
@@ -1122,7 +1213,9 @@ const inputWrapper: "w-full"
 Label component classes.
 
 ```typescript
-const label: (props?: ({ required?: "true" | "false" | undefined; } & { class?: string; }) | undefined) => string
+const label: (
+  props?: ({ required?: 'true' | 'false' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `labelBlock`
@@ -1130,7 +1223,7 @@ const label: (props?: ({ required?: "true" | "false" | undefined; } & { class?: 
 Block-level label classes.
 
 ```typescript
-const labelBlock: "mb-1.5 block"
+const labelBlock: 'mb-1.5 block'
 ```
 
 #### `languageActive`
@@ -1138,7 +1231,7 @@ const labelBlock: "mb-1.5 block"
 Language option (active/selected) classes. Same coarse-pointer touch floor as {@link languageOption}.
 
 ```typescript
-const languageActive: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center"
+const languageActive: 'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors bg-primary/15 text-primary font-medium pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center'
 ```
 
 #### `languageGrid`
@@ -1146,7 +1239,7 @@ const languageActive: "px-3 py-2 rounded-md text-sm cursor-pointer text-center t
 Language selector grid container classes.
 
 ```typescript
-const languageGrid: "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-96 overflow-y-auto p-2"
+const languageGrid: 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-96 overflow-y-auto p-2'
 ```
 
 #### `languageOption`
@@ -1157,7 +1250,7 @@ cannot center flex items, hence `justify-center`); fine-pointer rendering is
 unchanged.
 
 ```typescript
-const languageOption: "px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center"
+const languageOption: 'px-3 py-2 rounded-md text-sm cursor-pointer text-center transition-colors hover:bg-surface-secondary pointer-coarse:min-h-[44px] pointer-coarse:flex pointer-coarse:items-center pointer-coarse:justify-center'
 ```
 
 #### `languagePickerTrigger`
@@ -1167,7 +1260,7 @@ Inherits surface/foreground tokens so it sits cleanly inside Settings
 cards, header chrome, or footers without forcing a specific background.
 
 ```typescript
-const languagePickerTrigger: "inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-transparent text-foreground-secondary hover:text-foreground hover:bg-surface-secondary border border-border-secondary cursor-pointer transition-colors"
+const languagePickerTrigger: 'inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-transparent text-foreground-secondary hover:text-foreground hover:bg-surface-secondary border border-border-secondary cursor-pointer transition-colors'
 ```
 
 #### `logoIcon`
@@ -1175,7 +1268,7 @@ const languagePickerTrigger: "inline-flex items-center gap-2 px-3 py-2 rounded-m
 Tailwind class for the logo icon color.
 
 ```typescript
-const logoIcon: "text-primary"
+const logoIcon: 'text-primary'
 ```
 
 #### `logoText`
@@ -1183,7 +1276,7 @@ const logoIcon: "text-primary"
 Logo text classes (tracked, 26px).
 
 ```typescript
-const logoText: "text-[26px] leading-[26px] tracking-[-1px]"
+const logoText: 'text-[26px] leading-[26px] tracking-[-1px]'
 ```
 
 #### `mxAuto`
@@ -1191,7 +1284,7 @@ const logoText: "text-[26px] leading-[26px] tracking-[-1px]"
 Horizontal auto-margin centering utility class.
 
 ```typescript
-const mxAuto: "mx-auto"
+const mxAuto: 'mx-auto'
 ```
 
 #### `notSrOnly`
@@ -1199,7 +1292,7 @@ const mxAuto: "mx-auto"
 The not sr only.
 
 ```typescript
-const notSrOnly: "not-sr-only"
+const notSrOnly: 'not-sr-only'
 ```
 
 #### `oauthButton`
@@ -1207,7 +1300,7 @@ const notSrOnly: "not-sr-only"
 OAuth provider button classes.
 
 ```typescript
-const oauthButton: "group grow basis-[40px] flex flex-col justify-center items-center min-h-[60px] bg-surface border-0 rounded-[3px] cursor-pointer p-0 transition-all duration-250 hover:bg-surface-hover"
+const oauthButton: 'group grow basis-[40px] flex flex-col justify-center items-center min-h-[60px] bg-surface border-0 rounded-[3px] cursor-pointer p-0 transition-all duration-250 hover:bg-surface-hover'
 ```
 
 #### `oauthButtonGroup`
@@ -1215,7 +1308,7 @@ const oauthButton: "group grow basis-[40px] flex flex-col justify-center items-c
 OAuth provider button group container classes.
 
 ```typescript
-const oauthButtonGroup: "flex flex-wrap gap-[15px] w-full max-w-[330px] mx-auto justify-center items-center"
+const oauthButtonGroup: 'flex flex-wrap gap-[15px] w-full max-w-[330px] mx-auto justify-center items-center'
 ```
 
 #### `oauthButtonIcon`
@@ -1223,7 +1316,7 @@ const oauthButtonGroup: "flex flex-wrap gap-[15px] w-full max-w-[330px] mx-auto 
 OAuth provider button icon classes.
 
 ```typescript
-const oauthButtonIcon: "opacity-75 group-hover:opacity-100 text-foreground transition-opacity"
+const oauthButtonIcon: 'opacity-75 group-hover:opacity-100 text-foreground transition-opacity'
 ```
 
 #### `oauthDivider`
@@ -1231,7 +1324,7 @@ const oauthButtonIcon: "opacity-75 group-hover:opacity-100 text-foreground trans
 OAuth divider classes (horizontal line with text).
 
 ```typescript
-const oauthDivider: "relative mt-[45px] mb-[15px] text-[15px] text-center uppercase text-foreground-secondary"
+const oauthDivider: 'relative mt-[45px] mb-[15px] text-[15px] text-center uppercase text-foreground-secondary'
 ```
 
 #### `oauthDividerLine`
@@ -1239,7 +1332,7 @@ const oauthDivider: "relative mt-[45px] mb-[15px] text-[15px] text-center upperc
 OAuth divider horizontal line classes.
 
 ```typescript
-const oauthDividerLine: "absolute top-1/2 left-0 right-0 w-full h-[1px] border-t border-[rgba(170,170,170,0.33)]"
+const oauthDividerLine: 'absolute top-1/2 left-0 right-0 w-full h-[1px] border-t border-[rgba(170,170,170,0.33)]'
 ```
 
 #### `oauthDividerText`
@@ -1247,7 +1340,7 @@ const oauthDividerLine: "absolute top-1/2 left-0 right-0 w-full h-[1px] border-t
 The oauth divider text.
 
 ```typescript
-const oauthDividerText: "relative px-[15px] bg-background"
+const oauthDividerText: 'relative px-[15px] bg-background'
 ```
 
 #### `oauthProviderLabel`
@@ -1255,7 +1348,7 @@ const oauthDividerText: "relative px-[15px] bg-background"
 OAuth provider label (fallback when no icon).
 
 ```typescript
-const oauthProviderLabel: "text-sm font-medium"
+const oauthProviderLabel: 'text-sm font-medium'
 ```
 
 #### `pageHeader`
@@ -1263,7 +1356,7 @@ const oauthProviderLabel: "text-sm font-medium"
 PageHeader root container.
 
 ```typescript
-const pageHeader: "mb-6"
+const pageHeader: 'mb-6'
 ```
 
 #### `pageHeaderActions`
@@ -1271,7 +1364,7 @@ const pageHeader: "mb-6"
 PageHeader action buttons container.
 
 ```typescript
-const pageHeaderActions: "flex gap-2 mt-4 sm:mt-0"
+const pageHeaderActions: 'flex gap-2 mt-4 sm:mt-0'
 ```
 
 #### `pageHeaderBreadcrumbItem`
@@ -1279,7 +1372,7 @@ const pageHeaderActions: "flex gap-2 mt-4 sm:mt-0"
 PageHeader breadcrumb item.
 
 ```typescript
-const pageHeaderBreadcrumbItem: "hover:text-gray-700 dark:hover:text-gray-200"
+const pageHeaderBreadcrumbItem: 'hover:text-gray-700 dark:hover:text-gray-200'
 ```
 
 #### `pageHeaderBreadcrumbs`
@@ -1287,7 +1380,7 @@ const pageHeaderBreadcrumbItem: "hover:text-gray-700 dark:hover:text-gray-200"
 PageHeader breadcrumb trail.
 
 ```typescript
-const pageHeaderBreadcrumbs: "flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-2"
+const pageHeaderBreadcrumbs: 'flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-2'
 ```
 
 #### `pageHeaderBreadcrumbSeparator`
@@ -1295,7 +1388,7 @@ const pageHeaderBreadcrumbs: "flex items-center gap-1 text-sm text-gray-500 dark
 PageHeader breadcrumb separator.
 
 ```typescript
-const pageHeaderBreadcrumbSeparator: "mx-1"
+const pageHeaderBreadcrumbSeparator: 'mx-1'
 ```
 
 #### `pageHeaderDescription`
@@ -1303,7 +1396,7 @@ const pageHeaderBreadcrumbSeparator: "mx-1"
 PageHeader description.
 
 ```typescript
-const pageHeaderDescription: "mt-1 text-sm text-gray-500 dark:text-gray-400"
+const pageHeaderDescription: 'mt-1 text-sm text-gray-500 dark:text-gray-400'
 ```
 
 #### `pageHeaderTitle`
@@ -1311,7 +1404,7 @@ const pageHeaderDescription: "mt-1 text-sm text-gray-500 dark:text-gray-400"
 PageHeader title.
 
 ```typescript
-const pageHeaderTitle: "text-2xl font-bold text-gray-900 dark:text-gray-100"
+const pageHeaderTitle: 'text-2xl font-bold text-gray-900 dark:text-gray-100'
 ```
 
 #### `pageShell`
@@ -1326,7 +1419,7 @@ under fixed headers / near the bottom. Prefer `pageShell` + `pageShellSidebar`,
 or a `fixed inset-y-0` sidebar plus horizontal offset on main.
 
 ```typescript
-const pageShell: "flex h-screen overflow-hidden"
+const pageShell: 'flex h-screen overflow-hidden'
 ```
 
 #### `pageShellContent`
@@ -1334,7 +1427,7 @@ const pageShell: "flex h-screen overflow-hidden"
 PageShell main content area.
 
 ```typescript
-const pageShellContent: "flex-1 overflow-y-auto"
+const pageShellContent: 'flex-1 overflow-y-auto'
 ```
 
 #### `pageShellSidebar`
@@ -1342,7 +1435,7 @@ const pageShellContent: "flex-1 overflow-y-auto"
 PageShell sidebar — fixed-width left panel.
 
 ```typescript
-const pageShellSidebar: "w-60 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto transition-all duration-300"
+const pageShellSidebar: 'w-60 flex-shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 overflow-y-auto transition-all duration-300'
 ```
 
 #### `pageShellSidebarCollapsed`
@@ -1350,7 +1443,7 @@ const pageShellSidebar: "w-60 flex-shrink-0 border-r border-gray-200 dark:border
 PageShell sidebar collapsed modifier — narrow width.
 
 ```typescript
-const pageShellSidebarCollapsed: "w-16"
+const pageShellSidebarCollapsed: 'w-16'
 ```
 
 #### `pageShellSidebarToggle`
@@ -1358,7 +1451,7 @@ const pageShellSidebarCollapsed: "w-16"
 PageShell sidebar collapse/expand toggle button.
 
 ```typescript
-const pageShellSidebarToggle: "p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+const pageShellSidebarToggle: 'p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
 ```
 
 #### `pageShellTopbar`
@@ -1366,7 +1459,7 @@ const pageShellSidebarToggle: "p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gr
 PageShell top bar — horizontal strip above content.
 
 ```typescript
-const pageShellTopbar: "h-14 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center px-4 gap-3"
+const pageShellTopbar: 'h-14 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center px-4 gap-3'
 ```
 
 #### `pagination`
@@ -1374,7 +1467,7 @@ const pageShellTopbar: "h-14 border-b border-gray-200 dark:border-gray-700 bg-wh
 Pagination component classes.
 
 ```typescript
-const pagination: "mx-auto flex w-full justify-center"
+const pagination: 'mx-auto flex w-full justify-center'
 ```
 
 #### `paginationContent`
@@ -1382,7 +1475,7 @@ const pagination: "mx-auto flex w-full justify-center"
 The pagination content.
 
 ```typescript
-const paginationContent: "flex flex-row items-center gap-1"
+const paginationContent: 'flex flex-row items-center gap-1'
 ```
 
 #### `paginationEllipsis`
@@ -1390,7 +1483,7 @@ const paginationContent: "flex flex-row items-center gap-1"
 The pagination ellipsis.
 
 ```typescript
-const paginationEllipsis: "flex h-9 w-9 items-center justify-center"
+const paginationEllipsis: 'flex h-9 w-9 items-center justify-center'
 ```
 
 #### `paginationInteractive`
@@ -1398,7 +1491,7 @@ const paginationEllipsis: "flex h-9 w-9 items-center justify-center"
 Pagination interactive item (cursor pointer).
 
 ```typescript
-const paginationInteractive: "cursor-pointer"
+const paginationInteractive: 'cursor-pointer'
 ```
 
 #### `paginationItem`
@@ -1406,7 +1499,13 @@ const paginationInteractive: "cursor-pointer"
 The pagination item.
 
 ```typescript
-const paginationItem: (props?: ({ variant?: "default" | "active" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const paginationItem: (
+  props?:
+    | ({ variant?: 'default' | 'active' | undefined; size?: 'sm' | 'md' | 'lg' | undefined } & {
+        class?: string
+      })
+    | undefined,
+) => string
 ```
 
 #### `paginationLink`
@@ -1414,7 +1513,7 @@ const paginationItem: (props?: ({ variant?: "default" | "active" | undefined; si
 The pagination link.
 
 ```typescript
-const paginationLink: "cursor-pointer"
+const paginationLink: 'cursor-pointer'
 ```
 
 #### `paginationNext`
@@ -1422,7 +1521,7 @@ const paginationLink: "cursor-pointer"
 The pagination next.
 
 ```typescript
-const paginationNext: "gap-1 pr-2.5"
+const paginationNext: 'gap-1 pr-2.5'
 ```
 
 #### `paginationPrevious`
@@ -1430,7 +1529,7 @@ const paginationNext: "gap-1 pr-2.5"
 The pagination previous.
 
 ```typescript
-const paginationPrevious: "gap-1 pl-2.5"
+const paginationPrevious: 'gap-1 pl-2.5'
 ```
 
 #### `progress`
@@ -1438,7 +1537,7 @@ const paginationPrevious: "gap-1 pl-2.5"
 Progress component classes.
 
 ```typescript
-const progress: "relative h-2 w-full overflow-hidden rounded-full bg-surface-secondary"
+const progress: 'relative h-2 w-full overflow-hidden rounded-full bg-surface-secondary'
 ```
 
 #### `progressIndeterminate`
@@ -1446,7 +1545,7 @@ const progress: "relative h-2 w-full overflow-hidden rounded-full bg-surface-sec
 The progress indeterminate.
 
 ```typescript
-const progressIndeterminate: "animate-indeterminate-progress"
+const progressIndeterminate: 'animate-indeterminate-progress'
 ```
 
 #### `progressIndicator`
@@ -1454,7 +1553,7 @@ const progressIndeterminate: "animate-indeterminate-progress"
 The progress indicator.
 
 ```typescript
-const progressIndicator: "h-full w-full flex-1 bg-primary transition-all"
+const progressIndicator: 'h-full w-full flex-1 bg-primary transition-all'
 ```
 
 #### `progressLabelContainer`
@@ -1462,7 +1561,7 @@ const progressIndicator: "h-full w-full flex-1 bg-primary transition-all"
 The progress label container.
 
 ```typescript
-const progressLabelContainer: "flex justify-between mb-1 text-sm"
+const progressLabelContainer: 'flex justify-between mb-1 text-sm'
 ```
 
 #### `progressLabelText`
@@ -1470,7 +1569,7 @@ const progressLabelContainer: "flex justify-between mb-1 text-sm"
 The progress label text.
 
 ```typescript
-const progressLabelText: "text-foreground-secondary"
+const progressLabelText: 'text-foreground-secondary'
 ```
 
 #### `progressWrapper`
@@ -1478,7 +1577,7 @@ const progressLabelText: "text-foreground-secondary"
 Progress bar wrapper classes.
 
 ```typescript
-const progressWrapper: "w-full"
+const progressWrapper: 'w-full'
 ```
 
 #### `radio`
@@ -1486,7 +1585,9 @@ const progressWrapper: "w-full"
 Radio component classes.
 
 ```typescript
-const radio: (props?: ({ variant?: "default" | "error" | undefined; } & { class?: string; }) | undefined) => string
+const radio: (
+  props?: ({ variant?: 'default' | 'error' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `radioGroupLabel`
@@ -1494,7 +1595,7 @@ const radio: (props?: ({ variant?: "default" | "error" | undefined; } & { class?
 Radio group label classes.
 
 ```typescript
-const radioGroupLabel: "text-sm font-medium mb-2 block"
+const radioGroupLabel: 'text-sm font-medium mb-2 block'
 ```
 
 #### `roundedFull`
@@ -1502,7 +1603,7 @@ const radioGroupLabel: "text-sm font-medium mb-2 block"
 The rounded full.
 
 ```typescript
-const roundedFull: "rounded-full"
+const roundedFull: 'rounded-full'
 ```
 
 #### `select`
@@ -1510,7 +1611,13 @@ const roundedFull: "rounded-full"
 Select component classes.
 
 ```typescript
-const select: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const select: (
+  props?:
+    | ({ variant?: 'default' | 'error' | undefined; size?: 'sm' | 'md' | 'lg' | undefined } & {
+        class?: string
+      })
+    | undefined,
+) => string
 ```
 
 #### `selectNative`
@@ -1518,7 +1625,7 @@ const select: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm"
 Native select appearance reset classes.
 
 ```typescript
-const selectNative: "appearance-none"
+const selectNative: 'appearance-none'
 ```
 
 #### `separator`
@@ -1526,7 +1633,10 @@ const selectNative: "appearance-none"
 Separator component classes with horizontal/vertical orientation.
 
 ```typescript
-const separator: (props?: ({ orientation?: "horizontal" | "vertical" | undefined; } & { class?: string; }) | undefined) => string
+const separator: (
+  props?:
+    ({ orientation?: 'horizontal' | 'vertical' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `skeleton`
@@ -1534,7 +1644,7 @@ const separator: (props?: ({ orientation?: "horizontal" | "vertical" | undefined
 Skeleton component classes.
 
 ```typescript
-const skeleton: "animate-pulse rounded-md bg-surface-secondary"
+const skeleton: 'animate-pulse rounded-md bg-surface-secondary'
 ```
 
 #### `skeletonCircle`
@@ -1542,7 +1652,7 @@ const skeleton: "animate-pulse rounded-md bg-surface-secondary"
 The skeleton circle.
 
 ```typescript
-const skeletonCircle: "rounded-full"
+const skeletonCircle: 'rounded-full'
 ```
 
 #### `skeletonNone`
@@ -1550,7 +1660,7 @@ const skeletonCircle: "rounded-full"
 The skeleton none.
 
 ```typescript
-const skeletonNone: "animate-none"
+const skeletonNone: 'animate-none'
 ```
 
 #### `skeletonTextContainer`
@@ -1558,7 +1668,7 @@ const skeletonNone: "animate-none"
 Skeleton text placeholder container (vertical spacing).
 
 ```typescript
-const skeletonTextContainer: "space-y-2"
+const skeletonTextContainer: 'space-y-2'
 ```
 
 #### `skeletonWave`
@@ -1566,7 +1676,7 @@ const skeletonTextContainer: "space-y-2"
 Skeleton wave animation classes (shimmer gradient effect).
 
 ```typescript
-const skeletonWave: "animate-shimmer bg-gradient-to-r from-surface-secondary via-surface to-surface-secondary bg-[length:200%_100%]"
+const skeletonWave: 'animate-shimmer bg-gradient-to-r from-surface-secondary via-surface to-surface-secondary bg-[length:200%_100%]'
 ```
 
 #### `spinner`
@@ -1574,7 +1684,9 @@ const skeletonWave: "animate-shimmer bg-gradient-to-r from-surface-secondary via
 Spinner component classes with size variants.
 
 ```typescript
-const spinner: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | undefined; } & { class?: string; }) | undefined) => string
+const spinner: (
+  props?: ({ size?: 'sm' | 'md' | 'lg' | 'xl' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `srOnly`
@@ -1582,7 +1694,7 @@ const spinner: (props?: ({ size?: "sm" | "md" | "lg" | "xl" | undefined; } & { c
 Screen reader only classes.
 
 ```typescript
-const srOnly: "sr-only"
+const srOnly: 'sr-only'
 ```
 
 #### `stack`
@@ -1590,7 +1702,14 @@ const srOnly: "sr-only"
 Stack layout classes (vertical flexbox).
 
 ```typescript
-const stack: (props?: ({ align?: "center" | "start" | "end" | "stretch" | undefined; gap?: "sm" | "md" | "lg" | "xl" | "none" | "xs" | undefined; } & { class?: string; }) | undefined) => string
+const stack: (
+  props?:
+    | ({
+        align?: 'center' | 'start' | 'end' | 'stretch' | undefined
+        gap?: 'sm' | 'md' | 'lg' | 'xl' | 'none' | 'xs' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `surfaceSecondary`
@@ -1598,7 +1717,7 @@ const stack: (props?: ({ align?: "center" | "start" | "end" | "stretch" | undefi
 Secondary surface background utility class.
 
 ```typescript
-const surfaceSecondary: "bg-surface-secondary"
+const surfaceSecondary: 'bg-surface-secondary'
 ```
 
 #### `switchBase`
@@ -1611,7 +1730,14 @@ The `color` axis maps 1:1 to the semantic `ColorVariant` scale (same
 differently-named CVA variants.
 
 ```typescript
-const switchBase: (props?: ({ color?: "secondary" | "success" | "warning" | "error" | "primary" | "info" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const switchBase: (
+  props?:
+    | ({
+        color?: 'secondary' | 'success' | 'warning' | 'error' | 'primary' | 'info' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `switchThumb`
@@ -1619,7 +1745,9 @@ const switchBase: (props?: ({ color?: "secondary" | "success" | "warning" | "err
 Switch thumb (the sliding circle) classes.
 
 ```typescript
-const switchThumb: (props?: ({ size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const switchThumb: (
+  props?: ({ size?: 'sm' | 'md' | 'lg' | undefined } & { class?: string }) | undefined,
+) => string
 ```
 
 #### `table`
@@ -1627,7 +1755,7 @@ const switchThumb: (props?: ({ size?: "sm" | "md" | "lg" | undefined; } & { clas
 Table root classes.
 
 ```typescript
-const table: "w-full caption-bottom text-sm"
+const table: 'w-full caption-bottom text-sm'
 ```
 
 #### `tableBody`
@@ -1635,7 +1763,7 @@ const table: "w-full caption-bottom text-sm"
 The table body.
 
 ```typescript
-const tableBody: "[&_tr:last-child]:border-0"
+const tableBody: '[&_tr:last-child]:border-0'
 ```
 
 #### `tableBordered`
@@ -1643,7 +1771,7 @@ const tableBody: "[&_tr:last-child]:border-0"
 The table bordered.
 
 ```typescript
-const tableBordered: "border"
+const tableBordered: 'border'
 ```
 
 #### `tableCaption`
@@ -1651,7 +1779,7 @@ const tableBordered: "border"
 The table caption.
 
 ```typescript
-const tableCaption: "mt-4 text-sm text-foreground-secondary"
+const tableCaption: 'mt-4 text-sm text-foreground-secondary'
 ```
 
 #### `tableCell`
@@ -1659,7 +1787,7 @@ const tableCaption: "mt-4 text-sm text-foreground-secondary"
 The table cell.
 
 ```typescript
-const tableCell: "p-4 align-middle [&:has([role=checkbox])]:pr-0"
+const tableCell: 'p-4 align-middle [&:has([role=checkbox])]:pr-0'
 ```
 
 #### `tableEmptyCell`
@@ -1667,7 +1795,7 @@ const tableCell: "p-4 align-middle [&:has([role=checkbox])]:pr-0"
 The table empty cell.
 
 ```typescript
-const tableEmptyCell: "py-10 text-center text-foreground-secondary"
+const tableEmptyCell: 'py-10 text-center text-foreground-secondary'
 ```
 
 #### `tableFooter`
@@ -1675,7 +1803,7 @@ const tableEmptyCell: "py-10 text-center text-foreground-secondary"
 The table footer.
 
 ```typescript
-const tableFooter: "border-t bg-surface-secondary font-medium [&>tr]:last:border-b-0"
+const tableFooter: 'border-t bg-surface-secondary font-medium [&>tr]:last:border-b-0'
 ```
 
 #### `tableHead`
@@ -1683,7 +1811,7 @@ const tableFooter: "border-t bg-surface-secondary font-medium [&>tr]:last:border
 Table header cell classes.
 
 ```typescript
-const tableHead: "h-12 px-4 text-left align-middle font-medium text-foreground-secondary [&:has([role=checkbox])]:pr-0"
+const tableHead: 'h-12 px-4 text-left align-middle font-medium text-foreground-secondary [&:has([role=checkbox])]:pr-0'
 ```
 
 #### `tableHeader`
@@ -1691,7 +1819,7 @@ const tableHead: "h-12 px-4 text-left align-middle font-medium text-foreground-s
 The table header.
 
 ```typescript
-const tableHeader: "[&_tr]:border-b"
+const tableHeader: '[&_tr]:border-b'
 ```
 
 #### `tableHeadSortable`
@@ -1699,7 +1827,7 @@ const tableHeader: "[&_tr]:border-b"
 The table head sortable.
 
 ```typescript
-const tableHeadSortable: "cursor-pointer select-none hover:bg-surface-secondary"
+const tableHeadSortable: 'cursor-pointer select-none hover:bg-surface-secondary'
 ```
 
 #### `tableLoadingOverlay`
@@ -1707,7 +1835,7 @@ const tableHeadSortable: "cursor-pointer select-none hover:bg-surface-secondary"
 Table loading overlay classes (semi-transparent centered spinner container).
 
 ```typescript
-const tableLoadingOverlay: "absolute inset-0 bg-background/50 flex items-center justify-center z-10"
+const tableLoadingOverlay: 'absolute inset-0 bg-background/50 flex items-center justify-center z-10'
 ```
 
 #### `tableRow`
@@ -1715,7 +1843,7 @@ const tableLoadingOverlay: "absolute inset-0 bg-background/50 flex items-center 
 Table row classes.
 
 ```typescript
-const tableRow: "border-b transition-colors hover:bg-surface-secondary data-[state=selected]:bg-surface-secondary"
+const tableRow: 'border-b transition-colors hover:bg-surface-secondary data-[state=selected]:bg-surface-secondary'
 ```
 
 #### `tableRowClickable`
@@ -1723,7 +1851,7 @@ const tableRow: "border-b transition-colors hover:bg-surface-secondary data-[sta
 The table row clickable.
 
 ```typescript
-const tableRowClickable: "cursor-pointer"
+const tableRowClickable: 'cursor-pointer'
 ```
 
 #### `tableRowHoverable`
@@ -1731,7 +1859,7 @@ const tableRowClickable: "cursor-pointer"
 The table row hoverable.
 
 ```typescript
-const tableRowHoverable: "hover:bg-surface-secondary"
+const tableRowHoverable: 'hover:bg-surface-secondary'
 ```
 
 #### `tableRowStriped`
@@ -1739,7 +1867,7 @@ const tableRowHoverable: "hover:bg-surface-secondary"
 The table row striped.
 
 ```typescript
-const tableRowStriped: "bg-surface-secondary/50"
+const tableRowStriped: 'bg-surface-secondary/50'
 ```
 
 #### `tableSortIcon`
@@ -1747,7 +1875,7 @@ const tableRowStriped: "bg-surface-secondary/50"
 The table sort icon.
 
 ```typescript
-const tableSortIcon: "ml-1"
+const tableSortIcon: 'ml-1'
 ```
 
 #### `tableSortWrapper`
@@ -1755,7 +1883,7 @@ const tableSortIcon: "ml-1"
 The table sort wrapper.
 
 ```typescript
-const tableSortWrapper: "flex items-center gap-1"
+const tableSortWrapper: 'flex items-center gap-1'
 ```
 
 #### `tableWrapper`
@@ -1763,7 +1891,7 @@ const tableSortWrapper: "flex items-center gap-1"
 Table wrapper classes (scrollable container).
 
 ```typescript
-const tableWrapper: "relative w-full overflow-auto"
+const tableWrapper: 'relative w-full overflow-auto'
 ```
 
 #### `tabsContent`
@@ -1775,7 +1903,13 @@ Tabs content (panel) classes.
 token-for-token.
 
 ```typescript
-const tabsContent: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | "solid-rounded" | undefined; } & { class?: string; }) | undefined) => string
+const tabsContent: (
+  props?:
+    | ({ variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded' | undefined } & {
+        class?: string
+      })
+    | undefined,
+) => string
 ```
 
 #### `tabsFitted`
@@ -1783,7 +1917,7 @@ const tabsContent: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | 
 Fitted (full-width) tabs container classes.
 
 ```typescript
-const tabsFitted: "w-full"
+const tabsFitted: 'w-full'
 ```
 
 #### `tabsList`
@@ -1799,7 +1933,14 @@ conflicts with `tabsTrigger`'s own `size`-driven padding.
 hardcoded to, token-for-token.
 
 ```typescript
-const tabsList: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | "solid-rounded" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const tabsList: (
+  props?:
+    | ({
+        variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `tabsTrigger`
@@ -1817,7 +1958,14 @@ conflict with a variant's own classes.
 hardcoded to, token-for-token.
 
 ```typescript
-const tabsTrigger: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | "solid-rounded" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const tabsTrigger: (
+  props?:
+    | ({
+        variant?: 'line' | 'enclosed' | 'soft-rounded' | 'solid-rounded' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `tabTriggerFitted`
@@ -1825,7 +1973,7 @@ const tabsTrigger: (props?: ({ variant?: "line" | "enclosed" | "soft-rounded" | 
 The tab trigger fitted.
 
 ```typescript
-const tabTriggerFitted: "flex-1"
+const tabTriggerFitted: 'flex-1'
 ```
 
 #### `tabTriggerIcon`
@@ -1833,7 +1981,7 @@ const tabTriggerFitted: "flex-1"
 The tab trigger icon.
 
 ```typescript
-const tabTriggerIcon: "mr-2"
+const tabTriggerIcon: 'mr-2'
 ```
 
 #### `textarea`
@@ -1841,7 +1989,13 @@ const tabTriggerIcon: "mr-2"
 Textarea component classes.
 
 ```typescript
-const textarea: (props?: ({ variant?: "default" | "error" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const textarea: (
+  props?:
+    | ({ variant?: 'default' | 'error' | undefined; size?: 'sm' | 'md' | 'lg' | undefined } & {
+        class?: string
+      })
+    | undefined,
+) => string
 ```
 
 #### `textOnPrimaryContainer`
@@ -1849,7 +2003,7 @@ const textarea: (props?: ({ variant?: "default" | "error" | undefined; size?: "s
 Readable text on {@link bgPrimaryContainer}.
 
 ```typescript
-const textOnPrimaryContainer: "text-on-primary-container"
+const textOnPrimaryContainer: 'text-on-primary-container'
 ```
 
 #### `textPrimary`
@@ -1857,7 +2011,7 @@ const textOnPrimaryContainer: "text-on-primary-container"
 Primary text color utility class.
 
 ```typescript
-const textPrimary: "text-primary"
+const textPrimary: 'text-primary'
 ```
 
 #### `textRight`
@@ -1865,7 +2019,7 @@ const textPrimary: "text-primary"
 Text right-alignment utility class.
 
 ```typescript
-const textRight: "text-right"
+const textRight: 'text-right'
 ```
 
 #### `textSuccess`
@@ -1873,7 +2027,7 @@ const textRight: "text-right"
 The text success.
 
 ```typescript
-const textSuccess: "text-success"
+const textSuccess: 'text-success'
 ```
 
 #### `textWarning`
@@ -1881,7 +2035,7 @@ const textSuccess: "text-success"
 The text warning.
 
 ```typescript
-const textWarning: "text-warning"
+const textWarning: 'text-warning'
 ```
 
 #### `themeToggleButton`
@@ -1889,7 +2043,7 @@ const textWarning: "text-warning"
 Theme toggle button classes.
 
 ```typescript
-const themeToggleButton: "w-[30px] h-[30px] p-0 border-0 bg-transparent text-foreground-secondary hover:text-foreground cursor-pointer flex items-center justify-center"
+const themeToggleButton: 'w-[30px] h-[30px] p-0 border-0 bg-transparent text-foreground-secondary hover:text-foreground cursor-pointer flex items-center justify-center'
 ```
 
 #### `toast`
@@ -1897,7 +2051,13 @@ const themeToggleButton: "w-[30px] h-[30px] p-0 border-0 bg-transparent text-for
 Tailwind toast notification variant classes (default, success, error, warning).
 
 ```typescript
-const toast: (props?: ({ variant?: "default" | "success" | "warning" | "error" | "info" | undefined; } & { class?: string; }) | undefined) => string
+const toast: (
+  props?:
+    | ({ variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | undefined } & {
+        class?: string
+      })
+    | undefined,
+) => string
 ```
 
 #### `toastAction`
@@ -1905,7 +2065,7 @@ const toast: (props?: ({ variant?: "default" | "success" | "warning" | "error" |
 Toast action button classes.
 
 ```typescript
-const toastAction: "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-surface-secondary focus:outline-none focus:ring-2 disabled:pointer-events-none disabled:opacity-50"
+const toastAction: 'inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-surface-secondary focus:outline-none focus:ring-2 disabled:pointer-events-none disabled:opacity-50'
 ```
 
 #### `toastClose`
@@ -1913,7 +2073,7 @@ const toastAction: "inline-flex h-8 shrink-0 items-center justify-center rounded
 Toast close button classes.
 
 ```typescript
-const toastClose: "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100"
+const toastClose: 'absolute right-2 top-2 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-2 group-hover:opacity-100'
 ```
 
 #### `toastContentWrapper`
@@ -1921,7 +2081,7 @@ const toastClose: "absolute right-2 top-2 rounded-md p-1 text-foreground/50 opac
 The toast content wrapper.
 
 ```typescript
-const toastContentWrapper: "flex-1 gap-1"
+const toastContentWrapper: 'flex-1 gap-1'
 ```
 
 #### `toastDescription`
@@ -1929,7 +2089,7 @@ const toastContentWrapper: "flex-1 gap-1"
 The toast description.
 
 ```typescript
-const toastDescription: "text-sm opacity-90"
+const toastDescription: 'text-sm opacity-90'
 ```
 
 #### `toastIconWrapper`
@@ -1937,7 +2097,7 @@ const toastDescription: "text-sm opacity-90"
 Toast icon wrapper classes.
 
 ```typescript
-const toastIconWrapper: "flex-shrink-0"
+const toastIconWrapper: 'flex-shrink-0'
 ```
 
 #### `toastTitle`
@@ -1945,7 +2105,7 @@ const toastIconWrapper: "flex-shrink-0"
 The toast title.
 
 ```typescript
-const toastTitle: "text-sm font-semibold"
+const toastTitle: 'text-sm font-semibold'
 ```
 
 #### `toastViewport`
@@ -1953,7 +2113,7 @@ const toastTitle: "text-sm font-semibold"
 Toast viewport container classes (positioned fixed, stacked).
 
 ```typescript
-const toastViewport: "fixed top-0 z-[1600] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]"
+const toastViewport: 'fixed top-0 z-[1600] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]'
 ```
 
 #### `tooltipContent`
@@ -1961,7 +2121,7 @@ const toastViewport: "fixed top-0 z-[1600] flex max-h-screen w-full flex-col-rev
 Tooltip content container classes.
 
 ```typescript
-const tooltipContent: "z-[1500] max-w-[90vw] overflow-hidden whitespace-nowrap rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+const tooltipContent: 'z-[1500] max-w-[90vw] overflow-hidden whitespace-nowrap rounded-md border bg-surface px-3 py-1.5 text-sm text-foreground shadow-md animate-in fade-in-0 zoom-in-95'
 ```
 
 #### `tooltipTrigger`
@@ -1969,10 +2129,11 @@ const tooltipContent: "z-[1500] max-w-[90vw] overflow-hidden whitespace-nowrap r
 Tooltip trigger wrapper classes.
 
 ```typescript
-const tooltipTrigger: "inline-block"
+const tooltipTrigger: 'inline-block'
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-ui` interface.
 
 ## Injection Notes
@@ -1980,6 +2141,7 @@ Implements `@molecule/app-ui` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 

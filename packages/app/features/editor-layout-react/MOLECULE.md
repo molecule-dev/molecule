@@ -11,7 +11,7 @@ panel. Used for blog post editors, product editors, bot flow editors, etc.
 import { EditorLayout } from '@molecule/app-editor-layout-react'
 import { EditorToolbar } from '@molecule/app-editor-toolbar-react'
 
-<EditorLayout
+;<EditorLayout
   topBar={<EditorToolbar title="Untitled post" />}
   canvas={<ArticleEditor />}
   sidePanel={<MetadataPanel />}
@@ -20,9 +20,11 @@ import { EditorToolbar } from '@molecule/app-editor-toolbar-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-editor-layout-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -84,6 +86,7 @@ function EditorLayout({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

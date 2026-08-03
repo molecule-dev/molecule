@@ -26,9 +26,11 @@ await remove('user')
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-storage-async-storage @molecule/app-i18n @molecule/app-logger @molecule/app-storage @react-native-async-storage/async-storage
 ```
@@ -71,38 +73,38 @@ All storage providers must implement this interface.
 
 ```typescript
 interface StorageProvider {
-    /**
-     * Gets a value from storage.
-     */
-    get<T = unknown>(key: string): Promise<T | null>;
-    /**
-     * Sets a value in storage.
-     */
-    set<T = unknown>(key: string, value: T): Promise<void>;
-    /**
-     * Removes a value from storage.
-     */
-    remove(key: string): Promise<void>;
-    /**
-     * Clears all values from storage.
-     */
-    clear(): Promise<void>;
-    /**
-     * Gets all keys in storage.
-     */
-    keys(): Promise<string[]>;
-    /**
-     * Gets multiple values from storage.
-     */
-    getMany?<T = unknown>(keys: string[]): Promise<Map<string, T | null>>;
-    /**
-     * Sets multiple values in storage.
-     */
-    setMany?<T = unknown>(entries: Array<[string, T]>): Promise<void>;
-    /**
-     * Removes multiple values from storage.
-     */
-    removeMany?(keys: string[]): Promise<void>;
+  /**
+   * Gets a value from storage.
+   */
+  get<T = unknown>(key: string): Promise<T | null>
+  /**
+   * Sets a value in storage.
+   */
+  set<T = unknown>(key: string, value: T): Promise<void>
+  /**
+   * Removes a value from storage.
+   */
+  remove(key: string): Promise<void>
+  /**
+   * Clears all values from storage.
+   */
+  clear(): Promise<void>
+  /**
+   * Gets all keys in storage.
+   */
+  keys(): Promise<string[]>
+  /**
+   * Gets multiple values from storage.
+   */
+  getMany?<T = unknown>(keys: string[]): Promise<Map<string, T | null>>
+  /**
+   * Sets multiple values in storage.
+   */
+  setMany?<T = unknown>(entries: Array<[string, T]>): Promise<void>
+  /**
+   * Removes multiple values from storage.
+   */
+  removeMany?(keys: string[]): Promise<void>
 }
 ```
 
@@ -134,6 +136,7 @@ const provider: StorageProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-storage` interface.
 
 ## Bond Wiring
@@ -154,6 +157,7 @@ export function setupStorageAsyncStorage(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-storage` ^1.0.0

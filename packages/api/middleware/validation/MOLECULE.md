@@ -20,9 +20,11 @@ router.get('/posts', validate({ query: paginationSchema }), listPosts)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-validation @molecule/api-bond @molecule/api-i18n zod
 ```
@@ -124,7 +126,10 @@ type ValidationSchema = {
 Creates a standard error response object.
 
 ```typescript
-function error(message: string, errors?: { field: string; message: string; }[]): { error: string; errors?: Array<{ field: string; message: string; }>; }
+function error(
+  message: string,
+  errors?: { field: string; message: string }[],
+): { error: string; errors?: Array<{ field: string; message: string }> }
 ```
 
 - `message` — Top-level error message.
@@ -152,7 +157,7 @@ function paginated(data: T[], total: number, page: number, perPage: number): Pag
 Wraps a value in a standard `{ data }` envelope.
 
 ```typescript
-function success(data: T): { data: T; }
+function success(data: T): { data: T }
 ```
 
 - `data` — The payload to wrap.
@@ -170,7 +175,9 @@ original request properties and `next()` is called.
 On failure a `400` JSON response is returned with structured error details.
 
 ```typescript
-function validate(schema: ValidationSchema): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+function validate(
+  schema: ValidationSchema,
+): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 ```
 
 - `schema` — Object mapping request parts (`body`, `params`, `query`) to Zod schemas.
@@ -182,7 +189,9 @@ function validate(schema: ValidationSchema): RequestHandler<ParamsDictionary, an
 Convenience wrapper that validates only the request body.
 
 ```typescript
-function validateBody(schema: T): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+function validateBody(
+  schema: T,
+): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 ```
 
 - `schema` — Zod schema for `req.body`.
@@ -194,7 +203,9 @@ function validateBody(schema: T): RequestHandler<ParamsDictionary, any, any, Par
 Convenience wrapper that validates only URL params.
 
 ```typescript
-function validateParams(schema: T): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+function validateParams(
+  schema: T,
+): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 ```
 
 - `schema` — Zod schema for `req.params`.
@@ -206,7 +217,9 @@ function validateParams(schema: T): RequestHandler<ParamsDictionary, any, any, P
 Convenience wrapper that validates only query string parameters.
 
 ```typescript
-function validateQuery(schema: T): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+function validateQuery(
+  schema: T,
+): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 ```
 
 - `schema` — Zod schema for `req.query`.
@@ -220,7 +233,7 @@ function validateQuery(schema: T): RequestHandler<ParamsDictionary, any, any, Pa
 Schema for a single UUID `id` URL parameter.
 
 ```typescript
-const idParamSchema: z.ZodObject<{ id: z.ZodUUID; }, z.core.$strip>
+const idParamSchema: z.ZodObject<{ id: z.ZodUUID }, z.core.$strip>
 ```
 
 #### `paginationSchema`
@@ -230,7 +243,15 @@ Schema for standard pagination query parameters.
 Coerces string values to numbers (as query params arrive as strings).
 
 ```typescript
-const paginationSchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; perPage: z.ZodDefault<z.ZodCoercedNumber<unknown>>; sort: z.ZodOptional<z.ZodString>; order: z.ZodDefault<z.ZodEnum<{ asc: "asc"; desc: "desc"; }>>; }, z.core.$strip>
+const paginationSchema: z.ZodObject<
+  {
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    perPage: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    sort: z.ZodOptional<z.ZodString>
+    order: z.ZodDefault<z.ZodEnum<{ asc: 'asc'; desc: 'desc' }>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `searchQuerySchema`
@@ -238,7 +259,16 @@ const paginationSchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<unkn
 Schema that extends pagination with an optional search query `q`.
 
 ```typescript
-const searchQuerySchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; perPage: z.ZodDefault<z.ZodCoercedNumber<unknown>>; sort: z.ZodOptional<z.ZodString>; order: z.ZodDefault<z.ZodEnum<{ asc: "asc"; desc: "desc"; }>>; q: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const searchQuerySchema: z.ZodObject<
+  {
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    perPage: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    sort: z.ZodOptional<z.ZodString>
+    order: z.ZodDefault<z.ZodEnum<{ asc: 'asc'; desc: 'desc' }>>
+    q: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -246,6 +276,7 @@ const searchQuerySchema: z.ZodObject<{ page: z.ZodDefault<z.ZodCoercedNumber<unk
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

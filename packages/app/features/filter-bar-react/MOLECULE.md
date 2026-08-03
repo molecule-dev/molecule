@@ -3,6 +3,7 @@
 Composable, field-driven React filter bar.
 
 Exports:
+
 - `<FilterBar>` — data-driven filter row with text, select, multi, and
   date-range fields.
 - `FilterField`, `FilterValues` types for configuring the fields +
@@ -17,8 +18,15 @@ import type { FilterField, FilterValues } from '@molecule/app-filter-bar-react'
 
 const fields: FilterField[] = [
   { id: 'search', type: 'text', label: 'Search' },
-  { id: 'status', type: 'select', label: 'Status',
-    options: [{ value: 'active', label: 'Active' }, { value: 'closed', label: 'Closed' }] },
+  {
+    id: 'status',
+    type: 'select',
+    label: 'Status',
+    options: [
+      { value: 'active', label: 'Active' },
+      { value: 'closed', label: 'Closed' },
+    ],
+  },
   { id: 'created', type: 'date-range', label: 'Created' },
 ]
 
@@ -31,9 +39,11 @@ function IssueFilters() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-filter-bar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -135,8 +145,7 @@ interface FilterFieldText extends FilterFieldBase {
 Discriminated union of all supported filter field types.
 
 ```typescript
-type FilterField =
-  FilterFieldText | FilterFieldSelect | FilterFieldMulti | FilterFieldDateRange
+type FilterField = FilterFieldText | FilterFieldSelect | FilterFieldMulti | FilterFieldDateRange
 ```
 
 #### `FilterValues`
@@ -144,10 +153,7 @@ type FilterField =
 Flat value map keyed by field id.
 
 ```typescript
-type FilterValues = Record<
-  string,
-  string | string[] | { from?: string; to?: string } | undefined
->
+type FilterValues = Record<string, string | string[] | { from?: string; to?: string } | undefined>
 ```
 
 ### Functions
@@ -178,6 +184,7 @@ function FilterBar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

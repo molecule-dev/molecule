@@ -15,20 +15,26 @@ import { DetailHeader } from '@molecule/app-detail-header-react'
 import { Button } from '@molecule/app-ui-react'
 import { StatusBadge } from '@molecule/app-status-badge-react'
 
-<DetailHeader
+;<DetailHeader
   title="Project Alpha"
   subtitle="Last updated 2 hours ago"
   status={<StatusBadge kind="success">Active</StatusBadge>}
-  actions={<Button variant="solid" onClick={handleEdit}>Edit</Button>}
+  actions={
+    <Button variant="solid" onClick={handleEdit}>
+      Edit
+    </Button>
+  }
   meta={<span>Owner: Alice</span>}
   sticky
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-detail-header-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -99,6 +105,7 @@ function DetailHeader({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

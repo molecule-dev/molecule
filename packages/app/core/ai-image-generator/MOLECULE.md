@@ -27,9 +27,11 @@ const images = await generator.generate(
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ai-image-generator @molecule/app-bond
 ```
@@ -245,8 +247,8 @@ function setProvider(provider: AIImageGeneratorProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider           | Package                                    |
+| ------------------ | ------------------------------------------ |
 | Ai Image Generator | `@molecule/app-ai-image-generator-default` |
 
 ## Injection Notes
@@ -254,6 +256,7 @@ function setProvider(provider: AIImageGeneratorProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -279,27 +282,28 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Entering a prompt and generating renders the resulting
-  `GeneratedImage`(s) as real pixels on screen: the `image` / `done` events
-  deliver objects whose `url` loads to a visible picture, not a broken or
-  placeholder tile.
+      `GeneratedImage`(s) as real pixels on screen: the `image` / `done` events
+      deliver objects whose `url` loads to a visible picture, not a broken or
+      placeholder tile.
 - [ ] A generating indicator shows while the request is in flight — driven
-  by the `started` / `progress` (`progress.percent`) events — and clears
-  when `done` fires and `generate()` resolves; it never spins forever.
+      by the `started` / `progress` (`progress.percent`) events — and clears
+      when `done` fires and `generate()` resolves; it never spins forever.
 - [ ] A generation failure surfaces visibly: the `error` event's `message`
-  (provider failure, or a moderation-rejected prompt) renders as a message
-  in the UI, never a silent no-op or a stuck spinner.
+      (provider failure, or a moderation-rejected prompt) renders as a message
+      in the UI, never a silent no-op or a stuck spinner.
 - [ ] When the request sets `count` > 1 (bounded 1–10), ALL requested images
-  render — the `done` event's `images` array length matches what was asked,
-  not just the first one.
+      render — the `done` event's `images` array length matches what was asked,
+      not just the first one.
 - [ ] The request's `size` preset (e.g. `'1024x1024'` vs `'1792x1024'`) is
-  honored in the output: the rendered image's `width` / `height` match the
-  requested dimensions rather than a default square.
+      honored in the output: the rendered image's `width` / `height` match the
+      requested dimensions rather than a default square.
 - [ ] The generated image is usable downstream as the app wires it
-  (insert / download / select), carrying the real `GeneratedImage` data
-  (`id`, `url`); because `url` may be temporary, an image kept in a gallery
-  still loads after a full reload — proving the app persisted the bytes, not
-  a dead upstream link.
+      (insert / download / select), carrying the real `GeneratedImage` data
+      (`id`, `url`); because `url` may be temporary, an image kept in a gallery
+      still loads after a full reload — proving the app persisted the bytes, not
+      a dead upstream link.
 - [ ] Generations are scoped to the requesting user: `loadHistory` / the
-  gallery returns only that user's own images, and a moderation-rejected
-  prompt shows the rejection rather than a blank tile.
+      gallery returns only that user's own images, and a moderation-rejected
+      prompt shows the rejection rather than a blank tile.

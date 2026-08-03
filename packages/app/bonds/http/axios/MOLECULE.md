@@ -25,9 +25,11 @@ const newUser = await post('/users', { name: 'John' })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-http-axios @molecule/app-http axios
 ```
@@ -80,18 +82,18 @@ Full request configuration including method and URL.
 
 ```typescript
 interface FullRequestConfig extends RequestConfig {
-    /**
-     * HTTP method.
-     */
-    method: HttpMethod;
-    /**
-     * Request URL (can be relative or absolute).
-     */
-    url: string;
-    /**
-     * Request body data.
-     */
-    data?: unknown;
+  /**
+   * HTTP method.
+   */
+  method: HttpMethod
+  /**
+   * Request URL (can be relative or absolute).
+   */
+  url: string
+  /**
+   * Request body data.
+   */
+  data?: unknown
 }
 ```
 
@@ -103,67 +105,67 @@ All HTTP providers must implement this interface.
 
 ```typescript
 interface HttpClient {
-    /**
-     * Base URL for all requests.
-     */
-    baseURL: string;
-    /**
-     * Default headers for all requests.
-     */
-    defaultHeaders: Record<string, string>;
-    /**
-     * Makes a generic HTTP request.
-     */
-    request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a GET request.
-     */
-    get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a POST request.
-     */
-    post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PUT request.
-     */
-    put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PATCH request.
-     */
-    patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Makes a DELETE request.
-     */
-    delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>;
-    /**
-     * Adds a request interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addRequestInterceptor(interceptor: RequestInterceptor): () => void;
-    /**
-     * Adds a response interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addResponseInterceptor(interceptor: ResponseInterceptor): () => void;
-    /**
-     * Adds an error interceptor.
-     * Returns a function to remove the interceptor.
-     */
-    addErrorInterceptor(interceptor: ErrorInterceptor): () => void;
-    /**
-     * Sets the authorization token.
-     */
-    setAuthToken(token: string | null): void;
-    /**
-     * Returns the current authorization token, or `null` if not set.
-     */
-    getAuthToken(): string | null;
-    /**
-     * Registers a handler for authentication errors (401).
-     *
-     * @returns An unsubscribe function.
-     */
-    onAuthError(handler: () => void): () => void;
+  /**
+   * Base URL for all requests.
+   */
+  baseURL: string
+  /**
+   * Default headers for all requests.
+   */
+  defaultHeaders: Record<string, string>
+  /**
+   * Makes a generic HTTP request.
+   */
+  request<T = unknown>(config: FullRequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a GET request.
+   */
+  get<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a POST request.
+   */
+  post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a PUT request.
+   */
+  put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a PATCH request.
+   */
+  patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Makes a DELETE request.
+   */
+  delete<T = unknown>(url: string, config?: RequestConfig): Promise<HttpResponse<T>>
+  /**
+   * Adds a request interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addRequestInterceptor(interceptor: RequestInterceptor): () => void
+  /**
+   * Adds a response interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addResponseInterceptor(interceptor: ResponseInterceptor): () => void
+  /**
+   * Adds an error interceptor.
+   * Returns a function to remove the interceptor.
+   */
+  addErrorInterceptor(interceptor: ErrorInterceptor): () => void
+  /**
+   * Sets the authorization token.
+   */
+  setAuthToken(token: string | null): void
+  /**
+   * Returns the current authorization token, or `null` if not set.
+   */
+  getAuthToken(): string | null
+  /**
+   * Registers a handler for authentication errors (401).
+   *
+   * @returns An unsubscribe function.
+   */
+  onAuthError(handler: () => void): () => void
 }
 ```
 
@@ -173,22 +175,22 @@ HTTP client configuration.
 
 ```typescript
 interface HttpClientConfig {
-    /**
-     * Base URL for all requests.
-     */
-    baseURL?: string;
-    /**
-     * Default headers for all requests.
-     */
-    defaultHeaders?: Record<string, string>;
-    /**
-     * Default timeout in milliseconds.
-     */
-    timeout?: number;
-    /**
-     * Whether to include credentials by default.
-     */
-    withCredentials?: boolean;
+  /**
+   * Base URL for all requests.
+   */
+  baseURL?: string
+  /**
+   * Default headers for all requests.
+   */
+  defaultHeaders?: Record<string, string>
+  /**
+   * Default timeout in milliseconds.
+   */
+  timeout?: number
+  /**
+   * Whether to include credentials by default.
+   */
+  withCredentials?: boolean
 }
 ```
 
@@ -198,26 +200,26 @@ Parsed HTTP response with status code, headers, and typed body data.
 
 ```typescript
 interface HttpResponse<T = unknown> {
-    /**
-     * Response data.
-     */
-    data: T;
-    /**
-     * HTTP status code.
-     */
-    status: number;
-    /**
-     * HTTP status text.
-     */
-    statusText: string;
-    /**
-     * Response headers.
-     */
-    headers: Record<string, string>;
-    /**
-     * Original request config.
-     */
-    config: FullRequestConfig;
+  /**
+   * Response data.
+   */
+  data: T
+  /**
+   * HTTP status code.
+   */
+  status: number
+  /**
+   * HTTP status text.
+   */
+  statusText: string
+  /**
+   * Response headers.
+   */
+  headers: Record<string, string>
+  /**
+   * Original request config.
+   */
+  config: FullRequestConfig
 }
 ```
 
@@ -227,38 +229,38 @@ HTTP request options (headers, query params, timeout, credentials, response type
 
 ```typescript
 interface RequestConfig {
-    /**
-     * Request headers.
-     */
-    headers?: Record<string, string>;
-    /**
-     * Query parameters.
-     */
-    params?: Record<string, string | number | boolean | undefined>;
-    /**
-     * Request timeout in milliseconds.
-     */
-    timeout?: number;
-    /**
-     * Whether to include credentials (cookies).
-     */
-    withCredentials?: boolean;
-    /**
-     * Response type.
-     */
-    responseType?: 'json' | 'text' | 'blob' | 'arraybuffer';
-    /**
-     * Abort signal for cancellation.
-     */
-    signal?: AbortSignal;
-    /**
-     * Request body data.
-     */
-    data?: unknown;
-    /**
-     * Custom request options (implementation-specific).
-     */
-    options?: Record<string, unknown>;
+  /**
+   * Request headers.
+   */
+  headers?: Record<string, string>
+  /**
+   * Query parameters.
+   */
+  params?: Record<string, string | number | boolean | undefined>
+  /**
+   * Request timeout in milliseconds.
+   */
+  timeout?: number
+  /**
+   * Whether to include credentials (cookies).
+   */
+  withCredentials?: boolean
+  /**
+   * Response type.
+   */
+  responseType?: 'json' | 'text' | 'blob' | 'arraybuffer'
+  /**
+   * Abort signal for cancellation.
+   */
+  signal?: AbortSignal
+  /**
+   * Request body data.
+   */
+  data?: unknown
+  /**
+   * Custom request options (implementation-specific).
+   */
+  options?: Record<string, unknown>
 }
 ```
 
@@ -270,7 +272,7 @@ Intercepts HTTP errors to transform, retry, or rethrow them.
 Throwing from this interceptor propagates the error to the caller.
 
 ```typescript
-type ErrorInterceptor = (error: HttpError) => HttpError | Promise<HttpError> | never;
+type ErrorInterceptor = (error: HttpError) => HttpError | Promise<HttpError> | never
 ```
 
 #### `HttpMethod`
@@ -278,7 +280,7 @@ type ErrorInterceptor = (error: HttpError) => HttpError | Promise<HttpError> | n
 HTTP request method.
 
 ```typescript
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
 ```
 
 #### `RequestInterceptor`
@@ -287,7 +289,9 @@ Intercepts outgoing requests to modify headers, URL, or body
 before the request is sent.
 
 ```typescript
-type RequestInterceptor = (config: FullRequestConfig) => FullRequestConfig | Promise<FullRequestConfig>;
+type RequestInterceptor = (
+  config: FullRequestConfig,
+) => FullRequestConfig | Promise<FullRequestConfig>
 ```
 
 #### `ResponseInterceptor`
@@ -296,7 +300,9 @@ Intercepts incoming responses to transform data, check status,
 or perform side effects before the response reaches the caller.
 
 ```typescript
-type ResponseInterceptor<T = unknown> = (response: HttpResponse<T>) => HttpResponse<T> | Promise<HttpResponse<T>>;
+type ResponseInterceptor<T = unknown> = (
+  response: HttpResponse<T>,
+) => HttpResponse<T> | Promise<HttpResponse<T>>
 ```
 
 ### Classes
@@ -331,6 +337,7 @@ const provider: HttpClient
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-http` interface.
 
 ## Bond Wiring
@@ -351,6 +358,7 @@ export function setupHttpAxios(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-http` ^1.0.0
 - `axios` ^1.6.0
 

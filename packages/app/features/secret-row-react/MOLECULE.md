@@ -15,7 +15,10 @@ status (an "Expired" tag / "Rotate in {n}d" countdown / "Last rotated
 ```tsx
 import { SecretRow } from '@molecule/app-secret-row-react'
 
-function VaultRow({ rotate, remove }: {
+function VaultRow({
+  rotate,
+  remove,
+}: {
   rotate: (id: string) => void
   remove: (id: string) => void
 }) {
@@ -36,9 +39,11 @@ function VaultRow({ rotate, remove }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-secret-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -117,6 +122,7 @@ function SecretRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

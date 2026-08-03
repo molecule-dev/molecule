@@ -17,9 +17,11 @@ setProvider('whatsapp', provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-channel-whatsapp @molecule/api-channel @molecule/api-secrets
 ```
@@ -393,6 +395,7 @@ const provider: ChannelProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-channel` interface.
 
 ## Injection Notes
@@ -400,18 +403,19 @@ Implements `@molecule/api-channel` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-channel` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `CHANNEL_WHATSAPP_ACCESS_TOKEN` *(required)* — WhatsApp access token
+- `CHANNEL_WHATSAPP_ACCESS_TOKEN` _(required)_ — WhatsApp access token
   - Setup: Create a Meta app with the WhatsApp product and generate a permanent access token (System User).
   - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
-- `CHANNEL_WHATSAPP_PHONE_NUMBER_ID` *(required)* — WhatsApp phone number ID
+- `CHANNEL_WHATSAPP_PHONE_NUMBER_ID` _(required)_ — WhatsApp phone number ID
   - Setup: WhatsApp → API Setup → Phone number ID (not the phone number itself).
   - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
-- `CHANNEL_WHATSAPP_APP_SECRET` *(required)* — Meta app secret (WhatsApp)
+- `CHANNEL_WHATSAPP_APP_SECRET` _(required)_ — Meta app secret (WhatsApp)
   - Setup: Your Meta app → App settings → Basic → App secret (verifies webhook signatures).
   - Get it here: [https://developers.facebook.com/apps](https://developers.facebook.com/apps)
 
@@ -438,13 +442,14 @@ your route must validate the verify token and respond `200` with the raw
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each channel-notifying flow the app defines (a Slack/Discord alert on
-  a new order, a status-change message) actually produces a message. The
-  sandbox CAPTURES channel messages instead of sending — read them with the
-  `read_activity` tool (filter type 'channel'); never mock the flow or
-  modify production code to expose the message.
+      a new order, a status-change message) actually produces a message. The
+      sandbox CAPTURES channel messages instead of sending — read them with the
+      `read_activity` tool (filter type 'channel'); never mock the flow or
+      modify production code to expose the message.
 - [ ] The captured message targets the configured channel/provider name and
-  carries the app's real content (readable text, no `undefined`
-  placeholders, no secrets).
+      carries the app's real content (readable text, no `undefined`
+      placeholders, no secrets).
 - [ ] A failed send (unbonded or misconfigured provider) is visible in
-  logs/UI — never silently swallowed.
+      logs/UI — never silently swallowed.

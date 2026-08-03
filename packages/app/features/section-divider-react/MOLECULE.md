@@ -15,9 +15,11 @@ import { SectionDivider } from '@molecule/app-section-divider-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-section-divider-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -51,11 +53,7 @@ Horizontal divider with an optional centered label, common as
 sections.
 
 ```typescript
-function SectionDivider({
-  children,
-  align = 'center',
-  className,
-}: SectionDividerProps): JSX.Element
+function SectionDivider({ children, align = 'center', className }: SectionDividerProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link SectionDividerProps}).
@@ -65,6 +63,7 @@ function SectionDivider({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

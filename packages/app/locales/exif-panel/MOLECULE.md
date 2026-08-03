@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-exif-panel-react` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-exif-panel'
-import type { ExifPanelTranslationKey, ExifPanelTranslations } from '@molecule/app-locales-exif-panel'
+import type {
+  ExifPanelTranslationKey,
+  ExifPanelTranslations,
+} from '@molecule/app-locales-exif-panel'
 ```
 
 ## Registration
@@ -34,25 +37,25 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `exifPanel.aria.region` | EXIF metadata |
-| `exifPanel.eyebrow` | Frame metadata |
-| `exifPanel.heading` | EXIF |
-| `exifPanel.camera` | Camera |
-| `exifPanel.lens` | Lens |
-| `exifPanel.exposure` | Exposure |
-| `exifPanel.aperture` | Aperture |
-| `exifPanel.shutter` | Shutter speed |
-| `exifPanel.iso` | ISO |
-| `exifPanel.focalLength` | Focal length |
+| Key                         | English          |
+| --------------------------- | ---------------- |
+| `exifPanel.aria.region`     | EXIF metadata    |
+| `exifPanel.eyebrow`         | Frame metadata   |
+| `exifPanel.heading`         | EXIF             |
+| `exifPanel.camera`          | Camera           |
+| `exifPanel.lens`            | Lens             |
+| `exifPanel.exposure`        | Exposure         |
+| `exifPanel.aperture`        | Aperture         |
+| `exifPanel.shutter`         | Shutter speed    |
+| `exifPanel.iso`             | ISO              |
+| `exifPanel.focalLength`     | Focal length     |
 | `exifPanel.focalLength35mm` | 35 mm equivalent |
-| `exifPanel.gps` | GPS |
-| `exifPanel.timestamp` | Captured |
-| `exifPanel.software` | Software |
-| `exifPanel.copyright` | Copyright |
-| `exifPanel.orientation` | Orientation |
-| `exifPanel.mapLink` | View on map |
+| `exifPanel.gps`             | GPS              |
+| `exifPanel.timestamp`       | Captured         |
+| `exifPanel.software`        | Software         |
+| `exifPanel.copyright`       | Copyright        |
+| `exifPanel.orientation`     | Orientation      |
+| `exifPanel.mapLink`         | View on map      |
 
 ## Metadata
 

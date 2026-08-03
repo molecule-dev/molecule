@@ -33,8 +33,7 @@ import {
 import { App } from './App.js'
 import { authConfig } from './config.js'
 
-const { authClient, setupAuthDefault } =
-  createDefaultAuthClientWithHttpSync(authConfig)
+const { authClient, setupAuthDefault } = createDefaultAuthClientWithHttpSync(authConfig)
 
 bootstrapApp({
   App,
@@ -49,9 +48,11 @@ bootstrapApp({
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-bonds-default-react @molecule/app-auth @molecule/app-charts-chartjs @molecule/app-code-editor @molecule/app-code-editor-monaco @molecule/app-command-palette @molecule/app-command-palette-cmdk @molecule/app-drag-drop @molecule/app-drag-drop-dndkit @molecule/app-fonts @molecule/app-fonts-arimo @molecule/app-http @molecule/app-icons @molecule/app-icons-molecule @molecule/app-keyboard-shortcuts @molecule/app-keyboard-shortcuts-hotkeys @molecule/app-maps-leaflet @molecule/app-realtime @molecule/app-realtime-socketio @molecule/app-routing @molecule/app-routing-react-router @molecule/app-storage @molecule/app-storage-localstorage @molecule/app-styling-tailwind @molecule/app-theme @molecule/app-theme-css-variables @molecule/app-ui @molecule/app-ui-tailwind @molecule/app-video-hls @molecule/app-virtual-scroll @molecule/app-virtual-scroll-tanstack react react-dom
 npm install -D @types/react @types/react-dom
@@ -71,7 +72,12 @@ Replaces the 20-line per-app `src/main.tsx` that 97 fleet apps shipped
 byte-identically.
 
 ```typescript
-function bootstrapApp(opts: { App: ComponentType; authClient: { initialize: () => Promise<void>; }; setupProviders: () => void | Promise<void>; registerPWA?: () => void; }): void
+function bootstrapApp(opts: {
+  App: ComponentType
+  authClient: { initialize: () => Promise<void> }
+  setupProviders: () => void | Promise<void>
+  registerPWA?: () => void
+}): void
 ```
 
 #### `createDefaultAuthClient(authConfig)`
@@ -83,7 +89,10 @@ apps shipped byte-identically. Apps pass their own `authConfig`
 (which lives in `src/config.ts`).
 
 ```typescript
-function createDefaultAuthClient(authConfig: AuthClientConfig): { authClient: AuthClient<TUser>; setupAuthDefault: () => void; }
+function createDefaultAuthClient(authConfig: AuthClientConfig): {
+  authClient: AuthClient<TUser>
+  setupAuthDefault: () => void
+}
 ```
 
 #### `createDefaultAuthClientWithFetchClient(authConfig, fetchClientOptions)`
@@ -97,7 +106,10 @@ Used by apps where molecule packages render pricing / billing /
 other authed JSON-fetching screens that need both behaviors.
 
 ```typescript
-function createDefaultAuthClientWithFetchClient(authConfig: AuthClientConfig, fetchClientOptions: { baseURL: string; withCredentials?: boolean; }): { authClient: AuthClient<TUser>; setupAuthDefault: () => void; }
+function createDefaultAuthClientWithFetchClient(
+  authConfig: AuthClientConfig,
+  fetchClientOptions: { baseURL: string; withCredentials?: boolean },
+): { authClient: AuthClient<TUser>; setupAuthDefault: () => void }
 ```
 
 #### `createDefaultAuthClientWithHttpSync(authConfig)`
@@ -112,7 +124,10 @@ Hydrates the HTTP client's token from the persisted auth state
 on setup, then listens for auth events to keep them aligned.
 
 ```typescript
-function createDefaultAuthClientWithHttpSync(authConfig: AuthClientConfig): { authClient: AuthClient<TUser>; setupAuthDefault: () => void; }
+function createDefaultAuthClientWithHttpSync(authConfig: AuthClientConfig): {
+  authClient: AuthClient<TUser>
+  setupAuthDefault: () => void
+}
 ```
 
 #### `createDefaultHttpClient(baseURL)`
@@ -122,7 +137,10 @@ Builds the default fetch-based HTTP client + wires it into
 shipped by ~52 fleet apps.
 
 ```typescript
-function createDefaultHttpClient(baseURL: string): { httpClient: HttpClient; setupHttpDefault: () => void; }
+function createDefaultHttpClient(baseURL: string): {
+  httpClient: HttpClient
+  setupHttpDefault: () => void
+}
 ```
 
 #### `createDefaultHttpClientWithAuthBearer(opts)`
@@ -137,7 +155,12 @@ this same wiring. Pass `stripApiPrefix: true` when the app uses
 (would otherwise resolve to `/api/api/...` and 404).
 
 ```typescript
-function createDefaultHttpClientWithAuthBearer(opts: { baseURL: string; withCredentials?: boolean; stripApiPrefix?: boolean; getToken: () => string | null | undefined; }): { httpClient: HttpClient; setupHttpDefault: () => void; }
+function createDefaultHttpClientWithAuthBearer(opts: {
+  baseURL: string
+  withCredentials?: boolean
+  stripApiPrefix?: boolean
+  getToken: () => string | null | undefined
+}): { httpClient: HttpClient; setupHttpDefault: () => void }
 ```
 
 #### `getDefaultThemeProvider()`
@@ -152,7 +175,8 @@ function getDefaultThemeProvider(): ThemeProvider
 
 Wires all 7 universal app-side bonds in one call — fonts, routing,
 storage, styling, theme, UI ClassMap, icons (in that order). Auth
-+ i18n stay per-app because they need app-specific config.
+
+- i18n stay per-app because they need app-specific config.
 
 Replaces 9 individual setupX() calls in per-app `bonds/index.ts`.
 
@@ -301,6 +325,7 @@ function setupAppVirtualScrollTanstack(): Promise<void>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-auth` ^1.0.0
 - `@molecule/app-charts-chartjs` 1.0.0
 - `@molecule/app-code-editor` ^1.0.0

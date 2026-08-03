@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-cookie-banner-react` package which 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-cookie-banner'
-import type { CookieBannerTranslationKey, CookieBannerTranslations } from '@molecule/app-locales-cookie-banner'
+import type {
+  CookieBannerTranslationKey,
+  CookieBannerTranslations,
+} from '@molecule/app-locales-cookie-banner'
 ```
 
 ## Registration
@@ -34,15 +37,15 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `cookieBanner.title` | Cookie preferences |
+| Key                        | English                                                        |
+| -------------------------- | -------------------------------------------------------------- |
+| `cookieBanner.title`       | Cookie preferences                                             |
 | `cookieBanner.description` | We use cookies to improve your experience and analyse traffic. |
-| `cookieBanner.hideDetails` | Hide details |
-| `cookieBanner.customize` | Customize |
-| `cookieBanner.reject` | Reject all |
-| `cookieBanner.save` | Save preferences |
-| `cookieBanner.accept` | Accept all |
+| `cookieBanner.hideDetails` | Hide details                                                   |
+| `cookieBanner.customize`   | Customize                                                      |
+| `cookieBanner.reject`      | Reject all                                                     |
+| `cookieBanner.save`        | Save preferences                                               |
+| `cookieBanner.accept`      | Accept all                                                     |
 
 ## Metadata
 

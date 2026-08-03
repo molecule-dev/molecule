@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-code-block-react` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-code-block'
-import type { CodeBlockTranslationKey, CodeBlockTranslations } from '@molecule/app-locales-code-block'
+import type {
+  CodeBlockTranslationKey,
+  CodeBlockTranslations,
+} from '@molecule/app-locales-code-block'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                | English |
+| ------------------ | ------- |
 | `codeBlock.copied` | Copied! |
-| `codeBlock.copy` | Copy |
+| `codeBlock.copy`   | Copy    |
 
 ## Metadata
 

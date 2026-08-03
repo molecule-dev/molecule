@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                     | English      |
+| ----------------------- | ------------ |
 | `i18n.date.invalidDate` | Invalid Date |
 
 ## Metadata

@@ -20,9 +20,11 @@ if (decision.action === 'flag') void notifyMods(decision)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-moderation-pipeline @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation
 ```
@@ -179,7 +181,11 @@ type ModerationErrorAction = 'allow' | 'flag' | 'block'
 Apply a policy to classifier scores → moderation decision.
 
 ```typescript
-function applyPolicy(scores: ModerationScore[], reasoning: string, policy?: ModerationPolicy): ModerationDecision
+function applyPolicy(
+  scores: ModerationScore[],
+  reasoning: string,
+  policy?: ModerationPolicy,
+): ModerationDecision
 ```
 
 #### `classify(content)`
@@ -206,7 +212,13 @@ function classify(content: string): Promise<ClassificationResult>
 Full pipeline — classify + decide + audit. Returns the decision.
 
 ```typescript
-function moderate(opts: { content: string; policy?: ModerationPolicy; ownerId?: string | null; resource?: { type: string; id: string; }; audit?: boolean; }): Promise<ModerationDecision>
+function moderate(opts: {
+  content: string
+  policy?: ModerationPolicy
+  ownerId?: string | null
+  resource?: { type: string; id: string }
+  audit?: boolean
+}): Promise<ModerationDecision>
 ```
 
 ### Constants
@@ -224,6 +236,7 @@ const DEFAULT_POLICY: ModerationPolicy
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

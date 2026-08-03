@@ -16,9 +16,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-image-sharp @molecule/api-image sharp
 ```
@@ -81,6 +83,7 @@ const provider: ImageProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-image` interface.
 
 ## Bond Wiring
@@ -101,6 +104,7 @@ export function setupImageSharp(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-image` ^1.0.0
 
 ### Runtime Dependencies
@@ -113,15 +117,16 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Uploading an image through the UI produces the PROCESSED variant where the
-  app uses one (thumbnail/resized/avatar) and it actually renders — check
-  its rendered dimensions or transfer size against the original to confirm
-  processing happened.
+      app uses one (thumbnail/resized/avatar) and it actually renders — check
+      its rendered dimensions or transfer size against the original to confirm
+      processing happened.
 - [ ] Common input formats (JPEG, PNG, WebP) all round-trip to a rendered
-  result.
+      result.
 - [ ] A corrupt or non-image file fails with a visible, readable error — not a
-  server crash or a broken-image placeholder that persists.
+      server crash or a broken-image placeholder that persists.
 - [ ] Any UI that shows image metadata (dimensions, size) matches the real
-  file.
+      file.
 - [ ] Where optimization is wired, the served image is materially smaller than
-  the uploaded original.
+      the uploaded original.

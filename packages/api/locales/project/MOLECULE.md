@@ -30,10 +30,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                                 | English                           |
+| ----------------------------------- | --------------------------------- |
 | `project.error.nameAndTypeRequired` | name and projectType are required |
-| `project.error.notFound` | Not found |
+| `project.error.notFound`            | Not found                         |
 
 ## Metadata
 

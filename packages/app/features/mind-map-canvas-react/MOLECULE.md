@@ -11,6 +11,7 @@ mind-map domain semantics — adding mechanics that live above the
 pan/zoom-and-paint base.
 
 Exports:
+
 - `<MindMapCanvas>` — top-level widget; controlled or uncontrolled.
 - `MindMapNode`, `MindMapLayout`, `MindMapLayoutResult` types.
 - Pure layout helpers: `computeRadialPositions`,
@@ -39,9 +40,11 @@ function Demo() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-mind-map-canvas-react @molecule/app-feature-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -193,7 +196,11 @@ room for every leaf descendant. The `axis` option swaps the role
 of the X and Y axes for a vertical (top-down) tree.
 
 ```typescript
-function computeHorizontalTreePositions(root: MindMapNode, options?: LayoutOptions, axis?: "horizontal" | "vertical"): MindMapLayoutResult
+function computeHorizontalTreePositions(
+  root: MindMapNode,
+  options?: LayoutOptions,
+  axis?: 'horizontal' | 'vertical',
+): MindMapLayoutResult
 ```
 
 - `root` — Tree root.
@@ -314,7 +321,11 @@ so React-style reference equality remains correct on unchanged
 subtrees.
 
 ```typescript
-function updateNode(root: MindMapNode, id: string, updater: (node: MindMapNode) => MindMapNode): MindMapNode
+function updateNode(
+  root: MindMapNode,
+  id: string,
+  updater: (node: MindMapNode) => MindMapNode,
+): MindMapNode
 ```
 
 - `root` — Tree root.
@@ -329,7 +340,10 @@ Walk the tree and call `visit(node, parent | null, depth)` for every
 node not hidden by a collapsed ancestor. Visits in pre-order.
 
 ```typescript
-function walkVisible(root: MindMapNode, visit: (node: MindMapNode, parent: MindMapNode | null, depth: number) => void): void
+function walkVisible(
+  root: MindMapNode,
+  visit: (node: MindMapNode, parent: MindMapNode | null, depth: number) => void,
+): void
 ```
 
 - `root` — Tree root.
@@ -382,6 +396,7 @@ const DEFAULT_RADIAL_RING: 180
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-feature-canvas-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

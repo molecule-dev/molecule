@@ -15,7 +15,8 @@ import { provider } from '@molecule/api-templating-mjml'
 
 setProvider(provider)
 
-const html = await render(`
+const html = await render(
+  `
   <mjml>
     <mj-body>
       <mj-section>
@@ -25,13 +26,17 @@ const html = await render(`
       </mj-section>
     </mj-body>
   </mjml>
-`, { name: 'World' })
+`,
+  { name: 'World' },
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-templating-mjml @molecule/api-templating handlebars mjml
 npm install -D @types/mjml
@@ -117,6 +122,7 @@ const provider: TemplateProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-templating` interface.
 
 ## Bond Wiring
@@ -137,6 +143,7 @@ export function setupTemplatingMjml(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-templating` ^1.0.0
 
 ### Runtime Dependencies
@@ -151,4 +158,4 @@ Peer dependencies:
 - `compile()` pre-compiles only the Handlebars interpolation; the MJML →
   responsive-HTML conversion still runs on every `renderCompiled()` call.
 - Raw (unescaped) interpolation is per-render only (`options.escape:
-  false` on `render()`); compiled templates always escape.
+false` on `render()`); compiled templates always escape.

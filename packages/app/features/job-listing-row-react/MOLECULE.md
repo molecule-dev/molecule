@@ -14,21 +14,25 @@ caller's job.
 ```tsx
 import { JobListingRow } from '@molecule/app-job-listing-row-react'
 
-<JobListingRow
+;<JobListingRow
   title="Senior Frontend Engineer"
   company="Acme Corp"
   location="Remote · US"
   type="Full-time"
   salary="$130k–$160k"
   postedAt="2 days ago"
-  onClick={() => { window.location.href = '/jobs/123' }}
+  onClick={() => {
+    window.location.href = '/jobs/123'
+  }}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-job-listing-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -98,6 +102,7 @@ function JobListingRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -14,9 +14,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-secrets-env @molecule/api-secrets
 ```
@@ -29,7 +31,7 @@ npm install @molecule/api-secrets-env @molecule/api-secrets
 
 Options for env provider.
 
-```typescript
+````typescript
 interface EnvProviderOptions {
   /**
    * Path to the .env file. Ignored when `layers` is provided.
@@ -62,7 +64,7 @@ interface EnvProviderOptions {
    */
   layers?: string[]
 }
-```
+````
 
 ### Functions
 
@@ -90,6 +92,7 @@ const provider: SecretsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-secrets` interface.
 
 ## Bond Wiring
@@ -110,6 +113,7 @@ export function setupSecretsEnv(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-secrets` ^1.0.0
 
 ### Runtime Dependencies

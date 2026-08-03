@@ -47,7 +47,11 @@ export function Login() {
       brand={<AuthBrandHeader />}
       decoration={<Orbs />}
       formStateStorage={sessionStore}
-      footer={<p>No account? <Link to="/signup">Sign up</Link></p>}
+      footer={
+        <p>
+          No account? <Link to="/signup">Sign up</Link>
+        </p>
+      }
     >
       <LoginForm />
     </AuthShell>
@@ -56,9 +60,11 @@ export function Login() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-auth-shell-react @molecule/app-logger @molecule/app-react @molecule/app-storage @molecule/app-ui react react-router
 npm install -D @types/react
@@ -244,10 +250,12 @@ Convenience preset for the most common layout: centered glass card
 with optional decoration, brand panel, heading, body, footer, and a
 "Back to home" link below the card. Equivalent to manually composing
 `<AuthShellContainer>` + `<AuthShellDecoration>` + `<AuthShellCard>`
-+ `<AuthShellHeading>` + `<AuthShellFooter>` + `<AuthShellBackLink>`.
+
+- `<AuthShellHeading>` + `<AuthShellFooter>` + `<AuthShellBackLink>`.
 
 For the two-column "brand panel + card" shape, use `<AuthShellSplit>`
-+ `<AuthShellPanel>` + `<AuthShellCardColumn>` instead.
+
+- `<AuthShellPanel>` + `<AuthShellCardColumn>` instead.
 
 ```typescript
 interface AuthShellProps {
@@ -441,7 +449,7 @@ radial glows. Children render inside a `pointer-events-none absolute
 inset-0 -z-10 overflow-hidden` wrapper.
 
 ```typescript
-function AuthShellDecoration({ children }: { children: ReactNode; }): JSX.Element
+function AuthShellDecoration({ children }: { children: ReactNode }): JSX.Element
 ```
 
 #### `AuthShellFooter(props)`
@@ -449,7 +457,7 @@ function AuthShellDecoration({ children }: { children: ReactNode; }): JSX.Elemen
 Footer inside the card — small text with a top border.
 
 ```typescript
-function AuthShellFooter({ children }: { children: ReactNode; }): JSX.Element
+function AuthShellFooter({ children }: { children: ReactNode }): JSX.Element
 ```
 
 #### `AuthShellHeading(props)`
@@ -487,11 +495,7 @@ function AuthShellSplit({ children, className, ...rest }: AuthShellSplitProps): 
 Vertically-filling flex-1 row inside AuthShellSplit that holds the brand panel and card column.
 
 ```typescript
-function AuthShellSplitRow({
-  children,
-  className,
-  ...rest
-}: AuthShellSplitRowProps): JSX.Element
+function AuthShellSplitRow({ children, className, ...rest }: AuthShellSplitRowProps): JSX.Element
 ```
 
 #### `useAuthFormState(options)`
@@ -526,7 +530,7 @@ function useAuthFormStateContext(): AuthFormState
 Default storage key for persisted auth form fields.
 
 ```typescript
-const DEFAULT_AUTH_FORM_STATE_KEY: "molecule.auth.form-state"
+const DEFAULT_AUTH_FORM_STATE_KEY: 'molecule.auth.form-state'
 ```
 
 ## Injection Notes
@@ -534,6 +538,7 @@ const DEFAULT_AUTH_FORM_STATE_KEY: "molecule.auth.form-state"
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-storage` ^1.0.0

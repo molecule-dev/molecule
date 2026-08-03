@@ -22,13 +22,15 @@ const inv = await createInvoiceForUser(userId, {
   items: [{ description: 'Consulting', quantity: 10, unit_price: 250 }],
   tax_rate: 8.5,
 })
-await recordPayment(inv.id, userId, 2710.00) // marks paid
+await recordPayment(inv.id, userId, 2710.0) // marks paid
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-invoice @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -111,7 +113,10 @@ type InvoiceStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'void'
 Compute subtotal/tax/total from line items + tax rate (percent 0-100).
 
 ```typescript
-function computeTotals(items: LineItem[], taxRate: number): { subtotal: number; tax_amount: number; total: number; }
+function computeTotals(
+  items: LineItem[],
+  taxRate: number,
+): { subtotal: number; tax_amount: number; total: number }
 ```
 
 #### `createInvoiceForUser(userId, data)`
@@ -119,7 +124,17 @@ function computeTotals(items: LineItem[], taxRate: number): { subtotal: number; 
 Create a new draft invoice for a user, computing totals from line items and tax rate.
 
 ```typescript
-function createInvoiceForUser(userId: string, data: { client_id: string; items: LineItem[]; due_date?: string; notes?: string; tax_rate?: number; currency?: string; }): Promise<Invoice>
+function createInvoiceForUser(
+  userId: string,
+  data: {
+    client_id: string
+    items: LineItem[]
+    due_date?: string
+    notes?: string
+    tax_rate?: number
+    currency?: string
+  },
+): Promise<Invoice>
 ```
 
 #### `createInvoiceRouter()`
@@ -151,7 +166,10 @@ function getInvoiceForUser(invoiceId: string, userId: string): Promise<Invoice |
 List all invoices for a user, with optional client/status filters and pagination.
 
 ```typescript
-function listInvoicesForUser(userId: string, opts?: { client_id?: string; status?: InvoiceStatus; page?: number; limit?: number; }): Promise<{ data: Invoice[]; total: number; page: number; limit: number; }>
+function listInvoicesForUser(
+  userId: string,
+  opts?: { client_id?: string; status?: InvoiceStatus; page?: number; limit?: number },
+): Promise<{ data: Invoice[]; total: number; page: number; limit: number }>
 ```
 
 #### `recordPayment(invoiceId, userId, amount)`
@@ -175,7 +193,18 @@ function toInvoice(row: InvoiceRow): Invoice
 Apply a partial update to a user-owned invoice, recomputing totals and marking paid_at when status becomes paid.
 
 ```typescript
-function updateInvoiceForUser(invoiceId: string, userId: string, patch: Partial<{ items: LineItem[]; due_date: string; notes: string; tax_rate: number; currency: string; status: InvoiceStatus; }>): Promise<Invoice | null>
+function updateInvoiceForUser(
+  invoiceId: string,
+  userId: string,
+  patch: Partial<{
+    items: LineItem[]
+    due_date: string
+    notes: string
+    tax_rate: number
+    currency: string
+    status: InvoiceStatus
+  }>,
+): Promise<Invoice | null>
 ```
 
 ### Constants
@@ -185,7 +214,7 @@ function updateInvoiceForUser(invoiceId: string, userId: string, patch: Partial<
 All valid lifecycle statuses an invoice can hold.
 
 ```typescript
-const INVOICE_STATUSES: readonly ["draft", "sent", "partial", "paid", "overdue", "void"]
+const INVOICE_STATUSES: readonly ['draft', 'sent', 'partial', 'paid', 'overdue', 'void']
 ```
 
 #### `invoiceCreateSchema`
@@ -193,7 +222,22 @@ const INVOICE_STATUSES: readonly ["draft", "sent", "partial", "paid", "overdue",
 Zod schema for creating a new invoice (client, items, optional due date / notes / tax / currency).
 
 ```typescript
-const invoiceCreateSchema: z.ZodObject<{ client_id: z.ZodString; items: z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const invoiceCreateSchema: z.ZodObject<
+  {
+    client_id: z.ZodString
+    items: z.ZodArray<
+      z.ZodObject<
+        { description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber },
+        z.core.$strip
+      >
+    >
+    due_date: z.ZodOptional<z.ZodString>
+    notes: z.ZodOptional<z.ZodString>
+    tax_rate: z.ZodOptional<z.ZodNumber>
+    currency: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `invoiceUpdateSchema`
@@ -201,7 +245,33 @@ const invoiceCreateSchema: z.ZodObject<{ client_id: z.ZodString; items: z.ZodArr
 Zod schema for partially updating an existing invoice (all fields optional).
 
 ```typescript
-const invoiceUpdateSchema: z.ZodObject<{ items: z.ZodOptional<z.ZodArray<z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>>>; due_date: z.ZodOptional<z.ZodString>; notes: z.ZodOptional<z.ZodString>; tax_rate: z.ZodOptional<z.ZodNumber>; currency: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; sent: "sent"; partial: "partial"; paid: "paid"; overdue: "overdue"; void: "void"; }>>; }, z.core.$strip>
+const invoiceUpdateSchema: z.ZodObject<
+  {
+    items: z.ZodOptional<
+      z.ZodArray<
+        z.ZodObject<
+          { description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber },
+          z.core.$strip
+        >
+      >
+    >
+    due_date: z.ZodOptional<z.ZodString>
+    notes: z.ZodOptional<z.ZodString>
+    tax_rate: z.ZodOptional<z.ZodNumber>
+    currency: z.ZodOptional<z.ZodString>
+    status: z.ZodOptional<
+      z.ZodEnum<{
+        draft: 'draft'
+        sent: 'sent'
+        partial: 'partial'
+        paid: 'paid'
+        overdue: 'overdue'
+        void: 'void'
+      }>
+    >
+  },
+  z.core.$strip
+>
 ```
 
 #### `lineItemSchema`
@@ -209,7 +279,10 @@ const invoiceUpdateSchema: z.ZodObject<{ items: z.ZodOptional<z.ZodArray<z.ZodOb
 Zod schema for a single invoice line item (description, quantity, unit price).
 
 ```typescript
-const lineItemSchema: z.ZodObject<{ description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber; }, z.core.$strip>
+const lineItemSchema: z.ZodObject<
+  { description: z.ZodString; quantity: z.ZodNumber; unit_price: z.ZodNumber },
+  z.core.$strip
+>
 ```
 
 #### `recordPaymentSchema`
@@ -217,7 +290,7 @@ const lineItemSchema: z.ZodObject<{ description: z.ZodString; quantity: z.ZodNum
 Zod schema for recording a payment against an invoice (positive amount required).
 
 ```typescript
-const recordPaymentSchema: z.ZodObject<{ amount: z.ZodNumber; }, z.core.$strip>
+const recordPaymentSchema: z.ZodObject<{ amount: z.ZodNumber }, z.core.$strip>
 ```
 
 ## Injection Notes
@@ -225,6 +298,7 @@ const recordPaymentSchema: z.ZodObject<{ amount: z.ZodNumber; }, z.core.$strip>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -258,26 +332,27 @@ provider; wire actual charging separately (see `@molecule/api-payments`).
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating an invoice with line items auto-computes the money: add a
-  line (quantity × unit_price) and the subtotal updates, the tax_rate is
-  applied (tax_amount = subtotal × rate / 100), and total = subtotal +
-  tax_amount — matching `computeTotals` down to the rounded cents shown in
-  the UI. Change a quantity or add another line and every figure re-computes.
+      line (quantity × unit_price) and the subtotal updates, the tax_rate is
+      applied (tax_amount = subtotal × rate / 100), and total = subtotal +
+      tax_amount — matching `computeTotals` down to the rounded cents shown in
+      the UI. Change a quantity or add another line and every figure re-computes.
 - [ ] The status lifecycle advances correctly through INVOICE_STATUSES: a
-  freshly created invoice reads `draft`; sending it moves it to `sent`; a
-  `recordPayment` for LESS than the balance flips it to `partial`; paying the
-  remaining balance flips it to `paid` and stamps a paid date. The
-  balance-due shown to the user (total - amount_paid) is correct after each
-  step.
+      freshly created invoice reads `draft`; sending it moves it to `sent`; a
+      `recordPayment` for LESS than the balance flips it to `partial`; paying the
+      remaining balance flips it to `paid` and stamps a paid date. The
+      balance-due shown to the user (total - amount_paid) is correct after each
+      step.
 - [ ] Terminal/edge states read right: an unpaid invoice past its due_date
-  shows `overdue`, a cancelled one shows `void`, and once an invoice is `paid`
-  or `void` the UI blocks further line-item/total edits as designed.
+      shows `overdue`, a cancelled one shows `void`, and once an invoice is `paid`
+      or `void` the UI blocks further line-item/total edits as designed.
 - [ ] Overpayment and dead-invoice payments are rejected, not silently
-  over-applied: recording an amount greater than the outstanding balance, or
-  any payment against an already-`paid` or `void` invoice, fails with a
-  visible error and leaves amount_paid + status unchanged.
+      over-applied: recording an amount greater than the outstanding balance, or
+      any payment against an already-`paid` or `void` invoice, fails with a
+      visible error and leaves amount_paid + status unchanged.
 - [ ] AUTHORIZATION: a signed-in user sees and mutates only THEIR OWN
-  invoices — every path is `*ForUser`-scoped (listInvoicesForUser /
-  getInvoiceForUser / updateInvoiceForUser / recordPayment). Guessing or
-  tampering another user's invoice id on GET/PUT/DELETE/:id/payment returns
-  403/404 — never that invoice's data and never a cross-user payment.
+      invoices — every path is `*ForUser`-scoped (listInvoicesForUser /
+      getInvoiceForUser / updateInvoiceForUser / recordPayment). Guessing or
+      tampering another user's invoice id on GET/PUT/DELETE/:id/payment returns
+      403/404 — never that invoice's data and never a cross-user payment.

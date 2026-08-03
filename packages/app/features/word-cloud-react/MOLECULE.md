@@ -13,7 +13,7 @@ vocabulary" visualization.
 ```tsx
 import { WordCloud } from '@molecule/app-word-cloud-react'
 
-<WordCloud
+;<WordCloud
   words={[
     { text: 'molecule', value: 42 },
     { text: 'react', value: 30 },
@@ -24,9 +24,11 @@ import { WordCloud } from '@molecule/app-word-cloud-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-word-cloud-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -141,7 +143,13 @@ for height. If `rotation === 90`, swaps width/height. Adds a 2px padding
 on each side so neighbors don't visually touch.
 
 ```typescript
-function estimateBBox(text: string, fontSize: number, rotation: number, cx: number, cy: number): BBox
+function estimateBBox(
+  text: string,
+  fontSize: number,
+  rotation: number,
+  cx: number,
+  cy: number,
+): BBox
 ```
 
 - `text` — The word text whose box is being estimated.
@@ -166,7 +174,16 @@ Pure function — no React, no DOM — so it can be unit-tested standalone
 and reused by other renderers (canvas, native, server-side rendering).
 
 ```typescript
-function packWords(words: Word[], options: { width: number; height: number; minFontSize: number; maxFontSize: number; orientation?: WordCloudOrientation; }): PlacedWord[]
+function packWords(
+  words: Word[],
+  options: {
+    width: number
+    height: number
+    minFontSize: number
+    maxFontSize: number
+    orientation?: WordCloudOrientation
+  },
+): PlacedWord[]
 ```
 
 - `words` — The words to pack.
@@ -185,7 +202,13 @@ Linearly map a numeric weight to a font size between `minFontSize` and
 `maxFontSize`, given the min and max weights observed in the input.
 
 ```typescript
-function scaleFontSize(value: number, minValue: number, maxValue: number, minFontSize: number, maxFontSize: number): number
+function scaleFontSize(
+  value: number,
+  minValue: number,
+  maxValue: number,
+  minFontSize: number,
+  maxFontSize: number,
+): number
 ```
 
 - `value` — The weight to map.
@@ -236,6 +259,7 @@ function WordCloud({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

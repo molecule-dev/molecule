@@ -32,9 +32,11 @@ const series = await timeSeries({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-reporting @molecule/api-bond @molecule/api-i18n
 ```
@@ -338,7 +340,10 @@ function cancelSchedule(scheduleId: string): Promise<void>
 Exports query results in the specified format.
 
 ```typescript
-function exportReport(query: AggregateQuery | TimeSeriesQuery, format: ExportFormat): Promise<Buffer<ArrayBufferLike>>
+function exportReport(
+  query: AggregateQuery | TimeSeriesQuery,
+  format: ExportFormat,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `query` — The query to execute and export.
@@ -403,8 +408,8 @@ function timeSeries(query: TimeSeriesQuery): Promise<TimeSeriesResult>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider  | Package                            |
+| --------- | ---------------------------------- |
 | Reporting | `@molecule/api-reporting-database` |
 
 ## Injection Notes
@@ -412,6 +417,7 @@ function timeSeries(query: TimeSeriesQuery): Promise<TimeSeriesResult>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -436,15 +442,16 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Report/dashboard screens render aggregates that MATCH the seeded data —
-  spot-check at least one total against rows you can count in the UI.
+      spot-check at least one total against rows you can count in the UI.
 - [ ] Changing the date range (and interval, if exposed) visibly updates the
-  series and totals.
+      series and totals.
 - [ ] A dimension breakdown (e.g. by status/category) renders one segment or
-  series per group present in the data.
+      series per group present in the data.
 - [ ] A range with no data shows zeros or an empty state — not NaN, `undefined`,
-  or a crashed chart.
+      or a crashed chart.
 - [ ] If export is surfaced, the downloaded file's rows match what the report
-  displays.
+      displays.
 - [ ] Reports are scoped to the signed-in user/tenant — never another user's
-  numbers.
+      numbers.

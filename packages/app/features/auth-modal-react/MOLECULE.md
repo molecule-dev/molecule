@@ -16,18 +16,17 @@ import { AuthModalMount } from '@molecule/app-auth-modal-react'
 import { oauthConfig } from './config.js'
 
 // Once, inside the app's providers (e.g. in App.tsx):
-<AuthModalMount
-  oauthConfig={oauthConfig}
-  onAuthenticated={() => claimGuestWork()}
-/>
+;<AuthModalMount oauthConfig={oauthConfig} onAuthenticated={() => claimGuestWork()} />
 // Every plain <a href="/login">, <a href="/signup">, <a href="/pricing">
 // anywhere in the app is now intercepted — no other wiring needed.
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-auth-modal-react @molecule/app-auth-shell-react @molecule/app-i18n @molecule/app-oauth-buttons-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -158,7 +157,11 @@ Map a CTA link's href to the auth mode it should open, or `null` if it is not
 an auth link (so the interceptor leaves it alone).
 
 ```typescript
-function authModeForHref(href: string | null | undefined, origin: string, authPaths?: Readonly<Record<string, AuthModalMode>>): AuthModalMode | null
+function authModeForHref(
+  href: string | null | undefined,
+  origin: string,
+  authPaths?: Readonly<Record<string, AuthModalMode>>,
+): AuthModalMode | null
 ```
 
 - `href` — The clicked anchor's href (relative or absolute).
@@ -173,7 +176,11 @@ Whether a CTA link's href points at the upgrade/billing flow (which the
 interceptor hands to the host's `onUpgradeIntercept`, else opens in a new tab).
 
 ```typescript
-function upgradePathForHref(href: string | null | undefined, origin: string, upgradePaths?: readonly string[]): string | null
+function upgradePathForHref(
+  href: string | null | undefined,
+  origin: string,
+  upgradePaths?: readonly string[],
+): string | null
 ```
 
 - `href` — The clicked anchor's href (relative or absolute).
@@ -205,6 +212,7 @@ const DEFAULT_UPGRADE_PATHS: readonly string[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-auth-shell-react` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-oauth-buttons-react` ^1.0.0
@@ -229,11 +237,12 @@ left-clicks on `<a href>` whose resolved pathname is in `authPaths`
 `/billing`) — modifier/middle clicks still navigate normally, and
 non-anchor buttons that call `navigate()` are NOT intercepted. Hosts
 that render pricing in-place pass `onUpgradeIntercept` and own that UI
-+ the post-upgrade session refresh. `AuthModalMount` must render inside
-the app's auth/HTTP providers (it calls `useAuth`), and the standalone
-`/login` & `/signup` pages should stay routed — they are the fallback
-for modifier clicks and deep links. App-specific extras (stash a guest
-id, claim guest work, invalidate usage) go in `onBeforeAuth` /
-`onAuthenticated`. The modal's `auth.modal.*` strings are homed in the
-`@molecule/app-locales-common` bond (79 languages), alongside the
-`auth.login.*` / `auth.signup.*` keys the modal also renders.
+
+- the post-upgrade session refresh. `AuthModalMount` must render inside
+  the app's auth/HTTP providers (it calls `useAuth`), and the standalone
+  `/login` & `/signup` pages should stay routed — they are the fallback
+  for modifier clicks and deep links. App-specific extras (stash a guest
+  id, claim guest work, invalidate usage) go in `onBeforeAuth` /
+  `onAuthenticated`. The modal's `auth.modal.*` strings are homed in the
+  `@molecule/app-locales-common` bond (79 languages), alongside the
+  `auth.login.*` / `auth.signup.*` keys the modal also renders.

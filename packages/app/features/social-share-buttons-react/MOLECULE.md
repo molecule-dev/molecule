@@ -14,7 +14,7 @@ twitter, linkedin, facebook, copy.
 ```tsx
 import { SocialShareButtons } from '@molecule/app-social-share-buttons-react'
 
-<SocialShareButtons
+;<SocialShareButtons
   url="https://example.com/blog/my-post"
   title="Check out this article"
   platforms={['twitter', 'linkedin', 'reddit', 'email', 'copy']}
@@ -23,9 +23,11 @@ import { SocialShareButtons } from '@molecule/app-social-share-buttons-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-social-share-buttons-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -90,6 +92,7 @@ function SocialShareButtons({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

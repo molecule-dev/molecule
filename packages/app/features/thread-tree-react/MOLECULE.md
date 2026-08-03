@@ -12,7 +12,7 @@ apps.
 ```tsx
 import { ThreadTree } from '@molecule/app-feature-thread-tree-react'
 
-<ThreadTree
+;<ThreadTree
   comments={comments}
   onReply={(id) => openReplyForm(id)}
   onUpvote={(id) => upvote(id)}
@@ -21,9 +21,11 @@ import { ThreadTree } from '@molecule/app-feature-thread-tree-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-thread-tree-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -132,6 +134,7 @@ function ThreadTree({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

@@ -20,9 +20,11 @@ setProvider(customProvider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-monitoring-default @molecule/api-bond @molecule/api-i18n @molecule/api-monitoring
 ```
@@ -70,6 +72,7 @@ const provider: MonitoringProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-monitoring` interface.
 
 ## Bond Wiring
@@ -90,6 +93,7 @@ export function setupMonitoringDefault(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-monitoring` ^1.0.0

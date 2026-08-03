@@ -3,6 +3,7 @@
 Time-remaining countdown.
 
 Exports:
+
 - `useCountdown(target, tickMs?)` — live state hook.
 - `<Countdown>` — display component with compact/long/colon formats and custom render.
 
@@ -22,9 +23,11 @@ import { Countdown } from '@molecule/app-countdown-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-countdown-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -79,6 +82,7 @@ interface CountdownState {
 #### `Countdown(props)`
 
 Live countdown display with three default formats:
+
 - `'compact'` — `3d 4h 12m 5s` (skips zero leading units)
 - `'long'` — `3 days 4 hours 12 minutes 5 seconds`
 - `'colon'` — `03:04:12:05`
@@ -113,6 +117,7 @@ function useCountdown(target: string | number | Date, tickMs?: number): Countdow
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

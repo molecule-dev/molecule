@@ -10,16 +10,18 @@ for analytics, feature detection, and platform-specific behavior.
 ```typescript
 import { getDeviceInfo, supports, isStandalone } from '@molecule/app-device'
 
-const device = getDeviceInfo()          // { browser, os, isMobile, type, … }
+const device = getDeviceInfo() // { browser, os, isMobile, type, … }
 if (device.isMobile) enableCompactNav()
 if (supports('webShare')) showShareButton()
 if (isStandalone()) hideInstallBanner() // already installed as a PWA
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-device @molecule/app-bond
 ```
@@ -567,6 +569,7 @@ function supports(feature: keyof FeatureSupport): boolean
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

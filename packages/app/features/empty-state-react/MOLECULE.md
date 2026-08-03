@@ -3,6 +3,7 @@
 React empty-state and CTA-card primitives.
 
 Exports:
+
 - `<EmptyState>` — centred icon + title + description + action for lists,
   feeds, boards, or tables that have no rows to render yet.
 - `<CtaCard>` — horizontal or vertical promotional card for "next-step"
@@ -35,9 +36,11 @@ import { Button, Icon } from '@molecule/app-ui-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-empty-state-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -149,6 +152,7 @@ function EmptyState({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

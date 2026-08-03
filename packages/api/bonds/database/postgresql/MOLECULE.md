@@ -3,9 +3,11 @@
 The PostgreSQL client.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-database-postgresql @molecule/api-bond @molecule/api-database @molecule/api-secrets glob pg
 npm install -D @types/pg
@@ -115,6 +117,7 @@ const databasePostgresqlSecretDefinitions: SecretDefinition[]
 The PostgreSQL connection pool instance.
 
 Example usage:
+
 ```ts
 import * as Database from '@molecule/api-database-postgresql'
 
@@ -150,6 +153,7 @@ Members:
 - `setup.setup` — function: Sets up the database by executing all SQL files.
 
 ## Core Interface
+
 Implements `@molecule/api-database` interface.
 
 ## Bond Wiring
@@ -171,13 +175,14 @@ export function setupDatabasePostgresql(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `DATABASE_URL` *(required)* — PostgreSQL connection URL — default: `postgres://molecule:molecule@127.0.0.1:5432/myapp`
+- `DATABASE_URL` _(required)_ — PostgreSQL connection URL — default: `postgres://molecule:molecule@127.0.0.1:5432/myapp`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Postgres connection string; locally, use the Docker Compose default.
   - Example: `postgres://user:pass@localhost:5432/myapp`

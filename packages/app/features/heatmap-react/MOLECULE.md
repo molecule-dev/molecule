@@ -23,9 +23,11 @@ const end = new Date(2025, 11, 31)
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-heatmap-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -173,6 +175,7 @@ function Heatmap({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

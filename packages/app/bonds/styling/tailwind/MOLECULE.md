@@ -23,9 +23,11 @@ const tailwindConfig = { theme: { extend: themeToTailwind(lightTheme) } }
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-styling-tailwind @molecule/app-styling @molecule/app-theme tailwind-merge
 ```
@@ -42,15 +44,17 @@ component's final class string from its props.
 
 ```typescript
 interface CVAConfig<T extends Record<string, Record<string, string>>> {
-    variants?: T;
-    defaultVariants?: {
-        [K in keyof T]?: keyof T[K];
-    };
-    compoundVariants?: Array<{
-        [K in keyof T]?: keyof T[K];
+  variants?: T
+  defaultVariants?: {
+    [K in keyof T]?: keyof T[K]
+  }
+  compoundVariants?: Array<
+    {
+      [K in keyof T]?: keyof T[K]
     } & {
-        class: string;
-    }>;
+      class: string
+    }
+  >
 }
 ```
 
@@ -60,16 +64,16 @@ Complete theme definition.
 
 ```typescript
 interface Theme {
-    name: string;
-    mode: 'light' | 'dark';
-    colors: ThemeColors;
-    breakpoints: ThemeBreakpoints;
-    spacing: ThemeSpacing;
-    typography: ThemeTypography;
-    borderRadius: ThemeBorderRadius;
-    shadows: ThemeShadows;
-    transitions: ThemeTransitions;
-    zIndex: ThemeZIndex;
+  name: string
+  mode: 'light' | 'dark'
+  colors: ThemeColors
+  breakpoints: ThemeBreakpoints
+  spacing: ThemeSpacing
+  typography: ThemeTypography
+  borderRadius: ThemeBorderRadius
+  shadows: ThemeShadows
+  transitions: ThemeTransitions
+  zIndex: ThemeZIndex
 }
 ```
 
@@ -79,13 +83,13 @@ Responsive viewport breakpoints from mobileS (320px) to desktop (2560px).
 
 ```typescript
 interface ThemeBreakpoints {
-    mobileS: string;
-    mobileM: string;
-    mobileL: string;
-    tablet: string;
-    laptop: string;
-    laptopL: string;
-    desktop: string;
+  mobileS: string
+  mobileM: string
+  mobileL: string
+  tablet: string
+  laptop: string
+  laptopL: string
+  desktop: string
 }
 ```
 
@@ -96,7 +100,14 @@ interface ThemeBreakpoints {
 Class name value types accepted by {@link cn}.
 
 ```typescript
-type ClassValue = string | number | boolean | undefined | null | ClassValue[] | Record<string, boolean | undefined | null>;
+type ClassValue =
+  | string
+  | number
+  | boolean
+  | undefined
+  | null
+  | ClassValue[]
+  | Record<string, boolean | undefined | null>
 ```
 
 ### Functions
@@ -240,7 +251,14 @@ function themeToTailwind(theme: Theme): Record<string, Record<string, unknown>>
 Common badge class presets.
 
 ```typescript
-const badgeClasses: (props?: ({ variant?: "primary" | "secondary" | "default" | "error" | "success" | "warning" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const badgeClasses: (
+  props?:
+    | ({
+        variant?: 'primary' | 'secondary' | 'default' | 'error' | 'success' | 'warning' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `buttonClasses`
@@ -248,7 +266,14 @@ const badgeClasses: (props?: ({ variant?: "primary" | "secondary" | "default" | 
 Common button class presets.
 
 ```typescript
-const buttonClasses: (props?: ({ variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const buttonClasses: (
+  props?:
+    | ({
+        variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `camelToKebab`
@@ -264,7 +289,14 @@ const camelToKebab: (str: string) => string
 Common card class presets.
 
 ```typescript
-const cardClasses: (props?: ({ variant?: "outline" | "default" | "elevated" | undefined; padding?: "sm" | "md" | "lg" | "none" | undefined; } & { class?: string; }) | undefined) => string
+const cardClasses: (
+  props?:
+    | ({
+        variant?: 'outline' | 'default' | 'elevated' | undefined
+        padding?: 'sm' | 'md' | 'lg' | 'none' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `cn`
@@ -288,7 +320,10 @@ Given a base class and variant configuration, returns a function that
 resolves the final class string based on selected variants.
 
 ```typescript
-const cva: <T extends Record<string, Record<string, string>>>(base: string, config?: CVAConfig<T>) => (props?: { [K in keyof T]?: keyof T[K]; } & { class?: string; }) => string
+const cva: <T extends Record<string, Record<string, string>>>(
+  base: string,
+  config?: CVAConfig<T>,
+) => (props?: { [K in keyof T]?: keyof T[K] } & { class?: string }) => string
 ```
 
 #### `inputClasses`
@@ -296,7 +331,14 @@ const cva: <T extends Record<string, Record<string, string>>>(base: string, conf
 Common input class presets.
 
 ```typescript
-const inputClasses: (props?: ({ variant?: "default" | "error" | "success" | undefined; size?: "sm" | "md" | "lg" | undefined; } & { class?: string; }) | undefined) => string
+const inputClasses: (
+  props?:
+    | ({
+        variant?: 'default' | 'error' | 'success' | undefined
+        size?: 'sm' | 'md' | 'lg' | undefined
+      } & { class?: string })
+    | undefined,
+) => string
 ```
 
 #### `themeToCSS`
@@ -308,6 +350,7 @@ const themeToCSS: (theme: ThemeLike) => Record<string, string>
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-styling` interface.
 
 ## Injection Notes
@@ -315,6 +358,7 @@ Implements `@molecule/app-styling` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-theme` ^1.0.0
 

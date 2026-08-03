@@ -6,6 +6,7 @@ Implements the `@molecule/api-sms` interface using the Vonage SMS API.
 
 Two `SMSOptions` capabilities are NOT supported by the Vonage SMS API —
 this bond fails fast instead of silently dropping them:
+
 - `options.scheduledAt`: `send()` throws ('Vonage SMS API does not support
   scheduled sending.') — delay dispatch with a job scheduler instead.
 - `getStatus()`: always throws — Vonage reports delivery only via DLR
@@ -26,17 +27,21 @@ import { createProvider } from '@molecule/api-sms-vonage'
 setProvider(createProvider())
 
 // Or with explicit config
-setProvider(createProvider({
-  apiKey: 'abc123',
-  apiSecret: 'secret',
-  defaultFrom: '+15551234567',
-}))
+setProvider(
+  createProvider({
+    apiKey: 'abc123',
+    apiSecret: 'secret',
+    defaultFrom: '+15551234567',
+  }),
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-sms-vonage @molecule/api-secrets @molecule/api-sms @vonage/server-sdk
 ```
@@ -94,6 +99,7 @@ const smsVonageSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-sms` interface.
 
 ## Injection Notes
@@ -101,18 +107,19 @@ Implements `@molecule/api-sms` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-secrets` ^1.0.0
 - `@molecule/api-sms` 1.0.0
 
 ### Environment Variables
 
-- `VONAGE_API_KEY` *(required)* — Vonage API key
+- `VONAGE_API_KEY` _(required)_ — Vonage API key
   - Setup: Copy the API key from the Vonage API Dashboard.
   - Get it here: [https://dashboard.nexmo.com/](https://dashboard.nexmo.com/)
-- `VONAGE_API_SECRET` *(required)* — Vonage API secret
+- `VONAGE_API_SECRET` _(required)_ — Vonage API secret
   - Setup: Copy the API secret from the Vonage API Dashboard.
   - Get it here: [https://dashboard.nexmo.com/](https://dashboard.nexmo.com/)
-- `VONAGE_FROM_NUMBER` *(required)* — Vonage from number
+- `VONAGE_FROM_NUMBER` _(required)_ — Vonage from number
   - Setup: Buy or verify a phone number (or alphanumeric sender ID) in Vonage and use it in E.164 format.
   - Get it here: [https://dashboard.nexmo.com/your-numbers](https://dashboard.nexmo.com/your-numbers)
   - Example: `+15551234567`
@@ -141,13 +148,14 @@ secret is set), matching the slack/web-push bonds in this category.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each SMS-triggering flow (phone verification, OTP login, alerts the
-  app defines) confirms the send in the UI and a message actually reaches
-  the transport. The sandbox CAPTURES outbound SMS instead of sending — read
-  it with the `read_activity` tool (filter type 'sms'); the code/link is in
-  its payload. Never mock the flow or modify production code to expose it.
+      app defines) confirms the send in the UI and a message actually reaches
+      the transport. The sandbox CAPTURES outbound SMS instead of sending — read
+      it with the `read_activity` tool (filter type 'sms'); the code/link is in
+      its payload. Never mock the flow or modify production code to expose it.
 - [ ] The OTP round-trip completes: request a code → read the captured
-  message's code → enter it in the UI → the flow advances; a wrong or
-  expired code is rejected with a visible error.
+      message's code → enter it in the UI → the flow advances; a wrong or
+      expired code is rejected with a visible error.
 - [ ] Messages go only to the authenticated user's own verified number — no
-  UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).
+      UI or endpoint lets a caller text an arbitrary number (spam/abuse vector).

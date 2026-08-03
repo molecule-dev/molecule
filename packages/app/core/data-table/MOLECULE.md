@@ -23,9 +23,11 @@ const table = createTable({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-data-table @molecule/app-bond
 ```
@@ -376,8 +378,8 @@ function setProvider(provider: DataTableProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider   | Package                             |
+| ---------- | ----------------------------------- |
 | Data Table | `@molecule/app-data-table-tanstack` |
 
 ## Injection Notes
@@ -385,6 +387,7 @@ function setProvider(provider: DataTableProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -396,15 +399,16 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The table renders the seeded rows with the expected columns (no empty grid
-  against non-empty data, no `undefined` cells).
+      against non-empty data, no `undefined` cells).
 - [ ] Clicking a sortable header re-orders the rows (toggle asc/desc and check
-  the first row actually changes; a sort indicator is visible).
+      the first row actually changes; a sort indicator is visible).
 - [ ] Entering a filter/search value narrows the rows to matches; clearing it
-  restores the full set.
+      restores the full set.
 - [ ] Pagination works: next/previous show different rows, the page indicator is
-  correct, and the page size is respected.
+      correct, and the page size is respected.
 - [ ] A filter with no matches shows a readable empty state — not a blank or
-  broken table.
+      broken table.
 - [ ] If row selection is enabled, selecting rows updates the selection state
-  and any bulk action operates on exactly the selected rows.
+      and any bulk action operates on exactly the selected rows.

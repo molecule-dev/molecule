@@ -14,7 +14,12 @@ webhook glue that maps Stripe / Apple / Google subscription events to
 ## Quick Start
 
 ```typescript
-import { defineTiers, setProvider, enforceLimit, requireCategoryAtLeast } from '@molecule/api-entitlements'
+import {
+  defineTiers,
+  setProvider,
+  enforceLimit,
+  requireCategoryAtLeast,
+} from '@molecule/api-entitlements'
 import { count } from '@molecule/api-database'
 
 interface BlogLimits {
@@ -24,8 +29,18 @@ interface BlogLimits {
 
 const registry = defineTiers<BlogLimits>({
   tiers: {
-    free: { planKey: 'free', category: 'free', name: 'Free', limits: { maxPosts: 5, maxCommentsPerDay: 50 } },
-    stripeMonthly: { planKey: 'stripeMonthly', category: 'pro', name: 'Pro', limits: { maxPosts: 100, maxCommentsPerDay: 1000 } },
+    free: {
+      planKey: 'free',
+      category: 'free',
+      name: 'Free',
+      limits: { maxPosts: 5, maxCommentsPerDay: 50 },
+    },
+    stripeMonthly: {
+      planKey: 'stripeMonthly',
+      category: 'pro',
+      name: 'Pro',
+      limits: { maxPosts: 100, maxCommentsPerDay: 1000 },
+    },
   },
   defaultPlanKey: 'free',
   categoryOrder: ['free', 'pro'],
@@ -34,7 +49,8 @@ const registry = defineTiers<BlogLimits>({
 setProvider(registry)
 
 // Gate the API routes — the SERVER enforces tiers, never the UI alone:
-router.post('/posts',
+router.post(
+  '/posts',
   enforceLimit<BlogLimits>({
     limitType: 'maxPosts',
     getLimit: (limits) => limits.maxPosts,
@@ -46,9 +62,11 @@ router.get('/analytics', requireCategoryAtLeast('pro'), handlers.analytics)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-entitlements @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-rate-limit
 ```
@@ -379,11 +397,7 @@ type LimitType = string
 Express-compatible request handler.
 
 ```typescript
-type RequestHandler = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => void | Promise<void>
+type RequestHandler = (req: Request, res: Response, next: NextFunction) => void | Promise<void>
 ```
 
 ### Functions
@@ -462,6 +476,7 @@ Resolve the effective plan key for a user, hitting the cache on warm reads
 and falling back to a DB lookup on cache miss.
 
 The effective plan key:
+
 - Returns `'anonymous'` for users flagged as anonymous, regardless of stored plan.
 - Returns `null` for users whose `planExpiresAt` is in the past — callers
   should treat this as the default tier.
@@ -491,7 +506,9 @@ anonymous/free users and may be in the past for a plan that has just lapsed
 (in which case `planKey` is already demoted to `null`).
 
 ```typescript
-function getCachedPlanState(userId: string): Promise<{ planKey: string | null; planExpiresAt: string | null; }>
+function getCachedPlanState(
+  userId: string,
+): Promise<{ planKey: string | null; planExpiresAt: string | null }>
 ```
 
 - `userId` — The user ID to look up.
@@ -619,6 +636,7 @@ function sweepExpiredPlanCacheEntries(): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -665,14 +683,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The pricing/plans surface lists every tier with its name, price, and limits
-  (rendered from `/api/billing/tiers`, not hardcoded).
+      (rendered from `/api/billing/tiers`, not hardcoded).
 - [ ] A free-tier user who hits a quantitative limit (e.g. creates the max
-  allowed items, then one more) gets a visible limit/upgrade notice — never a
-  silent failure, a blank page, or a raw 500.
+      allowed items, then one more) gets a visible limit/upgrade notice — never a
+      silent failure, a blank page, or a raw 500.
 - [ ] The blocked action really is blocked server-side: after a full page reload
-  the over-limit item was NOT created.
+      the over-limit item was NOT created.
 - [ ] A higher-tier user (seed or upgrade one) can perform the same action that
-  was blocked on the free tier.
+      was blocked on the free tier.
 - [ ] Tier-gated features/sections are hidden or clearly locked for tiers that
-  lack them, and usable for tiers that have them.
+      lack them, and usable for tiers that have them.

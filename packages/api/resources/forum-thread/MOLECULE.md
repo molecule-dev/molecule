@@ -12,15 +12,20 @@ adjusts score correctly; voting again with same value is a noop).
 ```ts
 import { createForumThreadRouter } from '@molecule/api-resource-forum-thread'
 
-app.use('/threads', createForumThreadRouter({
-  isModeratorFor: async (userId) => userIsMod(userId),
-}))
+app.use(
+  '/threads',
+  createForumThreadRouter({
+    isModeratorFor: async (userId) => userIsMod(userId),
+  }),
+)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-forum-thread @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -103,7 +108,12 @@ type ThreadStatus = 'open' | 'closed' | 'locked' | 'archived'
 Cast a vote — idempotent. If user already voted, replaces value (or noop).
 
 ```typescript
-function castVote(userId: string, targetType: "thread" | "reply", targetId: string, value: 1 | -1): Promise<{ score: number; } | null>
+function castVote(
+  userId: string,
+  targetType: 'thread' | 'reply',
+  targetId: string,
+  value: 1 | -1,
+): Promise<{ score: number } | null>
 ```
 
 #### `createForumThreadRouter(opts?)`
@@ -113,7 +123,9 @@ allow moderator-only operations (pinning, status changes, deleting
 others' threads/replies).
 
 ```typescript
-function createForumThreadRouter(opts?: { isModeratorFor?: (userId: string) => boolean | Promise<boolean>; }): Router
+function createForumThreadRouter(opts?: {
+  isModeratorFor?: (userId: string) => boolean | Promise<boolean>
+}): Router
 ```
 
 #### `createReply(threadId, authorId, data)`
@@ -121,7 +133,11 @@ function createForumThreadRouter(opts?: { isModeratorFor?: (userId: string) => b
 Add a reply (or nested reply) to an open thread; bumps reply_count and last_activity_at.
 
 ```typescript
-function createReply(threadId: string, authorId: string, data: { body: string; parent_reply_id?: string | null; }): Promise<ForumReplyRow | null>
+function createReply(
+  threadId: string,
+  authorId: string,
+  data: { body: string; parent_reply_id?: string | null },
+): Promise<ForumReplyRow | null>
 ```
 
 #### `createThread(authorId, data)`
@@ -129,7 +145,10 @@ function createReply(threadId: string, authorId: string, data: { body: string; p
 Create a new forum thread and return the persisted row.
 
 ```typescript
-function createThread(authorId: string, data: { title: string; body: string; category_id?: string | null; }): Promise<ForumThreadRow>
+function createThread(
+  authorId: string,
+  data: { title: string; body: string; category_id?: string | null },
+): Promise<ForumThreadRow>
 ```
 
 #### `deleteReply(replyId, userId, isModerator)`
@@ -177,7 +196,13 @@ function listReplies(threadId: string): Promise<ForumReplyRow[]>
 List forum threads with optional category/status filtering, sorting, and pagination.
 
 ```typescript
-function listThreads(opts: { category_id?: string; status?: ThreadStatus; sort?: "recent" | "top" | "pinned"; page?: number; limit?: number; }): Promise<{ data: ForumThreadRow[]; total: number; }>
+function listThreads(opts: {
+  category_id?: string
+  status?: ThreadStatus
+  sort?: 'recent' | 'top' | 'pinned'
+  page?: number
+  limit?: number
+}): Promise<{ data: ForumThreadRow[]; total: number }>
 ```
 
 #### `updateThread(threadId, userId, isModerator, patch)`
@@ -185,7 +210,18 @@ function listThreads(opts: { category_id?: string; status?: ThreadStatus; sort?:
 Apply a partial patch to a thread; enforces author/moderator ownership and returns the updated row.
 
 ```typescript
-function updateThread(threadId: string, userId: string, isModerator: boolean, patch: Partial<{ title: string; body: string; category_id: string | null; status: ThreadStatus; is_pinned: boolean; }>): Promise<ForumThreadRow | null>
+function updateThread(
+  threadId: string,
+  userId: string,
+  isModerator: boolean,
+  patch: Partial<{
+    title: string
+    body: string
+    category_id: string | null
+    status: ThreadStatus
+    is_pinned: boolean
+  }>,
+): Promise<ForumThreadRow | null>
 ```
 
 ### Constants
@@ -195,7 +231,10 @@ function updateThread(threadId: string, userId: string, isModerator: boolean, pa
 Validates the request body for creating a reply on a forum thread.
 
 ```typescript
-const replyCreateSchema: z.ZodObject<{ body: z.ZodString; parent_reply_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const replyCreateSchema: z.ZodObject<
+  { body: z.ZodString; parent_reply_id: z.ZodOptional<z.ZodNullable<z.ZodString>> },
+  z.core.$strip
+>
 ```
 
 #### `THREAD_STATUSES`
@@ -203,7 +242,7 @@ const replyCreateSchema: z.ZodObject<{ body: z.ZodString; parent_reply_id: z.Zod
 Allowed status values for a forum thread.
 
 ```typescript
-const THREAD_STATUSES: readonly ["open", "closed", "locked", "archived"]
+const THREAD_STATUSES: readonly ['open', 'closed', 'locked', 'archived']
 ```
 
 #### `threadCreateSchema`
@@ -211,7 +250,10 @@ const THREAD_STATUSES: readonly ["open", "closed", "locked", "archived"]
 Validates the request body for creating a new forum thread.
 
 ```typescript
-const threadCreateSchema: z.ZodObject<{ title: z.ZodString; body: z.ZodString; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const threadCreateSchema: z.ZodObject<
+  { title: z.ZodString; body: z.ZodString; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>> },
+  z.core.$strip
+>
 ```
 
 #### `threadListQuerySchema`
@@ -219,7 +261,18 @@ const threadCreateSchema: z.ZodObject<{ title: z.ZodString; body: z.ZodString; c
 Validates query parameters for listing forum threads with filtering, sorting, and pagination.
 
 ```typescript
-const threadListQuerySchema: z.ZodObject<{ category_id: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ open: "open"; closed: "closed"; locked: "locked"; archived: "archived"; }>>; sort: z.ZodOptional<z.ZodEnum<{ recent: "recent"; top: "top"; pinned: "pinned"; }>>; page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
+const threadListQuerySchema: z.ZodObject<
+  {
+    category_id: z.ZodOptional<z.ZodString>
+    status: z.ZodOptional<
+      z.ZodEnum<{ open: 'open'; closed: 'closed'; locked: 'locked'; archived: 'archived' }>
+    >
+    sort: z.ZodOptional<z.ZodEnum<{ recent: 'recent'; top: 'top'; pinned: 'pinned' }>>
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `threadUpdateSchema`
@@ -227,7 +280,18 @@ const threadListQuerySchema: z.ZodObject<{ category_id: z.ZodOptional<z.ZodStrin
 Validates the request body for updating an existing forum thread.
 
 ```typescript
-const threadUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; status: z.ZodOptional<z.ZodEnum<{ open: "open"; closed: "closed"; locked: "locked"; archived: "archived"; }>>; is_pinned: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const threadUpdateSchema: z.ZodObject<
+  {
+    title: z.ZodOptional<z.ZodString>
+    body: z.ZodOptional<z.ZodString>
+    category_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    status: z.ZodOptional<
+      z.ZodEnum<{ open: 'open'; closed: 'closed'; locked: 'locked'; archived: 'archived' }>
+    >
+    is_pinned: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `voteSchema`
@@ -235,7 +299,10 @@ const threadUpdateSchema: z.ZodObject<{ title: z.ZodOptional<z.ZodString>; body:
 Validates the request body for casting a vote (+1 or -1) on a thread or reply.
 
 ```typescript
-const voteSchema: z.ZodObject<{ value: z.ZodUnion<readonly [z.ZodLiteral<1>, z.ZodLiteral<-1>]>; }, z.core.$strip>
+const voteSchema: z.ZodObject<
+  { value: z.ZodUnion<readonly [z.ZodLiteral<1>, z.ZodLiteral<-1>]> },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -243,6 +310,7 @@ const voteSchema: z.ZodObject<{ value: z.ZodUnion<readonly [z.ZodLiteral<1>, z.Z
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -277,33 +345,34 @@ implementation.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual forum screens/flows, and check every box off
 one by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating a thread persists it: submit a title + body in the composer →
-  it returns and appears in the forum list (GET /) with your title, and
-  opening it shows the body and YOU as the author (author is the session
-  user, never a body field).
+      it returns and appears in the forum list (GET /) with your title, and
+      opening it shows the body and YOU as the author (author is the session
+      user, never a body field).
 - [ ] Posting a reply adds it in order and bumps the count: submit a reply →
-  it appears at the bottom of the thread's replies (chronological), the
-  thread's reply_count increments by one, and the thread jumps to the top of
-  the "recent" sort (last_activity_at). A nested reply (parent_reply_id)
-  renders under its parent.
+      it appears at the bottom of the thread's replies (chronological), the
+      thread's reply_count increments by one, and the thread jumps to the top of
+      the "recent" sort (last_activity_at). A nested reply (parent_reply_id)
+      renders under its parent.
 - [ ] A locked thread rejects replies, a pinned thread sorts first: a thread
-  with status 'locked' (or 'archived') refuses a new reply with the visible
-  "Thread is closed for replies" message and adds nothing; a pinned thread
-  (is_pinned) sorts above non-pinned ones under the "pinned" sort.
+      with status 'locked' (or 'archived') refuses a new reply with the visible
+      "Thread is closed for replies" message and adds nothing; a pinned thread
+      (is_pinned) sorts above non-pinned ones under the "pinned" sort.
 - [ ] Counters are truthful: each open of a thread (GET /:id) increments its
-  view_count by one, and reply_count always equals the number of replies
-  shown — no drift.
+      view_count by one, and reply_count always equals the number of replies
+      shown — no drift.
 - [ ] Edit/delete is author-only, escalation is moderator-only: only the
-  AUTHOR can edit or delete their own thread/reply; another user's attempt is
-  refused and nothing changes. Pinning, status changes (lock/close/archive),
-  and deleting SOMEONE ELSE'S thread/reply require a moderator
-  (isModeratorFor → true, which defaults to false) — a normal user invoking
-  any of those is denied and the action never takes effect.
+      AUTHOR can edit or delete their own thread/reply; another user's attempt is
+      refused and nothing changes. Pinning, status changes (lock/close/archive),
+      and deleting SOMEONE ELSE'S thread/reply require a moderator
+      (isModeratorFor → true, which defaults to false) — a normal user invoking
+      any of those is denied and the action never takes effect.
 - [ ] Writes require a session and the author isn't spoofable: logged out,
-  every write (create, reply, edit, delete, vote) is refused (401) and the UI
-  cannot post; logged in, sending an author_id/user id in the body does NOT
-  override the real author (the session user). Reads (list/detail/replies)
-  stay public.
+      every write (create, reply, edit, delete, vote) is refused (401) and the UI
+      cannot post; logged in, sending an author_id/user id in the body does NOT
+      override the real author (the session user). Reads (list/detail/replies)
+      stay public.
 - [ ] Deleting cascades correctly: deleting a THREAD also removes its replies
-  (they vanish from the forum), while deleting a REPLY tombstones it (body
-  shows "[deleted]") so nested structure is preserved rather than removed.
+      (they vanish from the forum), while deleting a REPLY tombstones it (body
+      shows "[deleted]") so nested structure is preserved rather than removed.

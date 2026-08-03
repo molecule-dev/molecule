@@ -16,11 +16,7 @@ does not need to branch by provider.
 ## Quick Start
 
 ```typescript
-import {
-  setProvider,
-  parseWebhookPayload,
-  verifySignature,
-} from '@molecule/api-emails-inbound'
+import { setProvider, parseWebhookPayload, verifySignature } from '@molecule/api-emails-inbound'
 import { provider as mailgunInbound } from '@molecule/api-emails-inbound-mailgun'
 
 setProvider(mailgunInbound)
@@ -34,9 +30,11 @@ await createTicketFromEmail(email)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-emails-inbound @molecule/api-bond @molecule/api-i18n
 ```
@@ -187,7 +185,7 @@ a public webhook endpoint; {@link verifySignature} is the hook for
 that. Providers without signed webhooks SHOULD return `false` rather
 than `true` so callers can decide whether to accept unsigned mail.
 
-```typescript
+````typescript
 interface InboundEmailProvider {
   /**
    * Parses the raw webhook payload (HTTP headers + body) into a
@@ -274,7 +272,7 @@ interface InboundEmailProvider {
    */
   supportsReply(): boolean
 }
-```
+````
 
 #### `InboundEmailReply`
 
@@ -367,7 +365,10 @@ Parses the raw webhook payload (HTTP headers + body) into a normalized
 {@link InboundEmail} using the bonded provider.
 
 ```typescript
-function parseWebhookPayload(headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike> | Record<string, unknown>): Promise<InboundEmail>
+function parseWebhookPayload(
+  headers: Record<string, string | string[] | undefined>,
+  body: string | Buffer<ArrayBufferLike> | Record<string, unknown>,
+): Promise<InboundEmail>
 ```
 
 - `headers` — HTTP request headers received by the webhook endpoint.
@@ -417,7 +418,10 @@ function supportsReply(): boolean
 Verifies the signature of a webhook request via the bonded provider.
 
 ```typescript
-function verifySignature(headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike>): Promise<boolean>
+function verifySignature(
+  headers: Record<string, string | string[] | undefined>,
+  body: string | Buffer<ArrayBufferLike>,
+): Promise<boolean>
 ```
 
 - `headers` — HTTP request headers received by the webhook endpoint.
@@ -427,16 +431,17 @@ function verifySignature(headers: Record<string, string | string[] | undefined>,
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Mailgun | `@molecule/api-emails-inbound-mailgun` |
-| AWS SES Inbound | `@molecule/api-emails-inbound-ses` |
+| Provider        | Package                                |
+| --------------- | -------------------------------------- |
+| Mailgun         | `@molecule/api-emails-inbound-mailgun` |
+| AWS SES Inbound | `@molecule/api-emails-inbound-ses`     |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -482,31 +487,32 @@ the way the provider does (Mailgun signs HMAC-SHA256 of `timestamp+token` with
 `MAILGUN_API_KEY` inside the replay window; read the key from the Environment
 panel / `.env.molecule`). Never disable `verifySignature()` or mock
 `parseWebhookPayload()` to go green — that proves nothing.
+
 - [ ] A signed sample webhook to the inbound endpoint parses into the
-  normalized fields (from / to / subject / textBody / htmlBody) AND the app
-  ACTS on it — it files the mail into the right place (creates a ticket, a
-  comment on a thread, or a reply-thread) keyed off the recipient (`support@`)
-  or a plus-address / thread token (`reply+<id>@`). Verify the CREATED record
-  (a DB row, and it shows up in the UI) — not just a 200.
+      normalized fields (from / to / subject / textBody / htmlBody) AND the app
+      ACTS on it — it files the mail into the right place (creates a ticket, a
+      comment on a thread, or a reply-thread) keyed off the recipient (`support@`)
+      or a plus-address / thread token (`reply+<id>@`). Verify the CREATED record
+      (a DB row, and it shows up in the UI) — not just a 200.
 - [ ] Routing is correct: an email to `support@` opens a NEW ticket, while
-  `reply+<id>@` (or an `In-Reply-To` / `References` match) threads onto the
-  EXISTING one — each lands in the right user's / conversation's place, never
-  a stranger's.
+      `reply+<id>@` (or an `In-Reply-To` / `References` match) threads onto the
+      EXISTING one — each lands in the right user's / conversation's place, never
+      a stranger's.
 - [ ] Attachments survive: an inbound message with an attachment has it
-  decoded from `attachments[].contentBase64` and stored on the app's OWN
-  storage (the uploads bond), not left as a provider link — the stored file
-  opens from the ticket.
+      decoded from `attachments[].contentBase64` and stored on the app's OWN
+      storage (the uploads bond), not left as a provider link — the stored file
+      opens from the ticket.
 - [ ] Retries don't duplicate: re-POST the SAME webhook (providers retry slow
-  / 5xx deliveries) and confirm handling is idempotent — one ticket, not two
-  (dedupe on `id` / `messageId`).
+      / 5xx deliveries) and confirm handling is idempotent — one ticket, not two
+      (dedupe on `id` / `messageId`).
 - [ ] Malformed / empty payloads (missing `body-plain`, no attachments, absent
-  headers) are handled without a crash — a clean response, not a 500 stack
-  trace.
+      headers) are handled without a crash — a clean response, not a 500 stack
+      trace.
 - [ ] SECURITY — the endpoint is AUTHENTICATED: a forged POST with a bad or
-  missing signature (or a `timestamp` outside the replay window) is REJECTED
-  (401) and creates NO record, so an attacker can't inject mail into another
-  user's thread. A missing signing key is a DISTINCT 503, not a 401 — a
-  server misconfig must not masquerade as an accepted or forged webhook.
+      missing signature (or a `timestamp` outside the replay window) is REJECTED
+      (401) and creates NO record, so an attacker can't inject mail into another
+      user's thread. A missing signing key is a DISTINCT 503, not a 401 — a
+      server misconfig must not masquerade as an accepted or forged webhook.
 - [ ] SECURITY — the parsed `htmlBody` is sanitized before it is rendered
-  anywhere: a `<script>` / `onerror=` in an inbound body must NOT execute when
-  the ticket is viewed (no stored XSS from an inbound email body).
+      anywhere: a `<script>` / `onerror=` in an inbound body must NOT execute when
+      the ticket is viewed (no stored XSS from an inbound email body).

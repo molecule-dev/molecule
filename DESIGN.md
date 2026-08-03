@@ -5,6 +5,7 @@ This file defines the visual design system for all molecule applications. AI too
 ## Colors
 
 ### Brand
+
 - Primary: `#4070e0`
 - Primary Hover: `#6090f0`
 - Primary Dark: `#3060c0`
@@ -13,6 +14,7 @@ This file defines the visual design system for all molecule applications. AI too
 - Secondary Dark: `#606060`
 
 ### Semantic
+
 - Success: `#309000`
 - Success Light: `#dcfce7`
 - Warning: `#e0e040`
@@ -23,6 +25,7 @@ This file defines the visual design system for all molecule applications. AI too
 - Info Light: `#cffafe`
 
 ### Backgrounds
+
 - Primary: `#f6f6f6`
 - Secondary: `#eeeeee`
 - Tertiary: `#e8e8e8`
@@ -32,6 +35,7 @@ This file defines the visual design system for all molecule applications. AI too
 - Overlay: `rgba(0, 0, 0, 0.5)`
 
 ### Text
+
 - Primary: `#333333`
 - Secondary: `#808080`
 - Tertiary: `#555555`
@@ -40,11 +44,13 @@ This file defines the visual design system for all molecule applications. AI too
 - Link Hover: `#3060c0`
 
 ### Borders
+
 - Primary: `#e0e0e0`
 - Secondary: `#d0d0d0`
 - Focus: `#4070e0`
 
 ### Dark Theme Overrides
+
 - Primary: `#60a5fa`
 - Background: `#0f172a`
 - Surface: `#1e293b`
@@ -55,11 +61,13 @@ This file defines the visual design system for all molecule applications. AI too
 ## Typography
 
 ### Font Families
+
 - Sans (default): `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`
 - Serif: `Georgia, "Times New Roman", Times, serif`
 - Mono: `SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`
 
 ### Font Sizes
+
 - xs: `0.75rem` (12px)
 - sm: `0.875rem` (14px)
 - base: `1rem` (16px)
@@ -71,6 +79,7 @@ This file defines the visual design system for all molecule applications. AI too
 - 5xl: `3rem` (48px)
 
 ### Font Weights
+
 - Light: `300`
 - Normal: `400`
 - Medium: `500`
@@ -78,6 +87,7 @@ This file defines the visual design system for all molecule applications. AI too
 - Bold: `700`
 
 ### Line Heights
+
 - Tight: `1.25`
 - Normal: `1.5`
 - Relaxed: `1.75`
@@ -85,6 +95,7 @@ This file defines the visual design system for all molecule applications. AI too
 ## Spacing
 
 All spacing follows an 8px base grid:
+
 - xs: `4px`
 - sm: `8px`
 - md: `16px`
@@ -94,6 +105,7 @@ All spacing follows an 8px base grid:
 - 3xl: `64px`
 
 ## Border Radius
+
 - none: `0`
 - sm: `4px`
 - md: `8px` (default for inputs, cards)
@@ -102,12 +114,14 @@ All spacing follows an 8px base grid:
 - full: `9999px` (pills, avatars)
 
 ## Shadows
+
 - sm: `0 1px 2px 0 rgba(0, 0, 0, 0.05)`
 - md: `0 4px 6px -1px rgba(0, 0, 0, 0.1)` (default for cards)
 - lg: `0 10px 15px -3px rgba(0, 0, 0, 0.1)` (dropdowns, modals)
 - xl: `0 20px 25px -5px rgba(0, 0, 0, 0.15)` (popovers)
 
 ## Breakpoints
+
 - Mobile S: `320px`
 - Mobile M: `375px`
 - Mobile L: `425px`
@@ -117,11 +131,13 @@ All spacing follows an 8px base grid:
 - Desktop: `2560px`
 
 ## Transitions
+
 - Fast: `150ms ease` (hover states, toggles)
 - Normal: `300ms ease` (most animations)
 - Slow: `500ms ease` (page transitions, modals)
 
 ## Z-Index Scale
+
 - Dropdown: `1000`
 - Sticky: `1100`
 - Fixed: `1200`
@@ -133,6 +149,7 @@ All spacing follows an 8px base grid:
 ## Components
 
 ### Buttons
+
 - Border radius: `8px` (md)
 - Padding: `8px 16px` (sm-md)
 - Font weight: `500` (medium)
@@ -141,6 +158,7 @@ All spacing follows an 8px base grid:
 - Colors: primary, secondary, success, warning, error, info
 
 ### Cards
+
 - Border radius: `12px` (lg)
 - Shadow: `md` by default
 - Padding: `16px` (md)
@@ -148,6 +166,7 @@ All spacing follows an 8px base grid:
 - Variants: `default`, `elevated` (stronger shadow), `outline` (no shadow), `ghost` (no border/shadow)
 
 ### Inputs
+
 - Border radius: `8px` (md)
 - Border: `1px solid` border-primary
 - Height: `40px` (md)
@@ -156,18 +175,21 @@ All spacing follows an 8px base grid:
 - Error: border-error color, error-light background
 
 ### Badges
+
 - Border radius: `9999px` (pill)
 - Padding: `2px 8px`
 - Font size: `xs` (12px)
 - Font weight: `500`
 
 ### Alerts
+
 - Border radius: `8px` (md)
 - Padding: `12px 16px`
 - Border-left: `4px solid` (accent variant)
 - Variants: info (blue), success (green), warning (yellow), error (red)
 
 ### Modals
+
 - Border radius: `12px` (lg)
 - Shadow: `xl`
 - Overlay: `rgba(0, 0, 0, 0.5)`
@@ -175,6 +197,7 @@ All spacing follows an 8px base grid:
 - Padding: `24px` (lg)
 
 ### Tables
+
 - Header background: surface-secondary
 - Row hover: surface-secondary
 - Border: `1px solid` border-primary
@@ -182,6 +205,7 @@ All spacing follows an 8px base grid:
 - Striped: alternating surface/surface-secondary
 
 ### Navigation
+
 - Sidebar width: `240px` (collapsed: `64px`)
 - Top bar height: `56px`
 - Active item: primary-light background, primary text

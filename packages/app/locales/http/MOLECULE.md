@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                        | English                                |
+| -------------------------- | -------------------------------------- |
 | `http.error.requestFailed` | Request failed with status {{status}}. |
-| `http.error.networkError` | Network error. |
+| `http.error.networkError`  | Network error.                         |
 
 ## Metadata
 

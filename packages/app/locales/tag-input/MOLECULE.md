@@ -34,9 +34,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `tagChip.remove` | Remove |
+| Key                    | English    |
+| ---------------------- | ---------- |
+| `tagChip.remove`       | Remove     |
 | `tagInput.placeholder` | Add a tag… |
 
 ## Metadata

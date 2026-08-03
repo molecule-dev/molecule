@@ -15,7 +15,7 @@ instead — this component is not a `<tr>`.
 ```tsx
 import { ListItemRow } from '@molecule/app-list-item-row-react'
 
-<ListItemRow
+;<ListItemRow
   title="Project Alpha"
   subtitle="Last edited 2 hours ago"
   metadata="3 collaborators · 12 files"
@@ -26,9 +26,11 @@ import { ListItemRow } from '@molecule/app-list-item-row-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-list-item-row-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -100,6 +102,7 @@ function ListItemRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

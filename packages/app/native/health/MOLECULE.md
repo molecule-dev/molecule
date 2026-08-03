@@ -30,9 +30,11 @@ async function todaysSteps(): Promise<number | null> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-health @molecule/app-bond @molecule/app-i18n
 ```
@@ -265,8 +267,7 @@ interface WorkoutSample {
 Health authorization status
 
 ```typescript
-type HealthAuthStatus =
-  'authorized' | 'denied' | 'notDetermined' | 'sharingDenied' | 'unsupported'
+type HealthAuthStatus = 'authorized' | 'denied' | 'notDetermined' | 'sharingDenied' | 'unsupported'
 ```
 
 #### `HealthDataType`
@@ -378,7 +379,14 @@ function deleteSamples(type: HealthDataType, options: HealthQueryOptions): Promi
 Format a duration in seconds as a human-readable string (e.g., "2h 15m" or "30m").
 
 ```typescript
-function formatDuration(seconds: number, t?: ((key: string, values?: Record<string, unknown>, options?: { defaultValue?: string; }) => string)): string
+function formatDuration(
+  seconds: number,
+  t?: (
+    key: string,
+    values?: Record<string, unknown>,
+    options?: { defaultValue?: string },
+  ) => string,
+): string
 ```
 
 - `seconds` — Duration in seconds.
@@ -401,7 +409,10 @@ function getActiveEnergyToday(): Promise<number>
 Check the authorization status for a specific health data type and access level.
 
 ```typescript
-function getAuthorizationStatus(type: HealthDataType, access: "read" | "write"): Promise<HealthAuthStatus>
+function getAuthorizationStatus(
+  type: HealthDataType,
+  access: 'read' | 'write',
+): Promise<HealthAuthStatus>
 ```
 
 - `type` — The health data type to check.
@@ -424,7 +435,7 @@ function getCapabilities(): Promise<HealthCapabilities>
 Get the ISO date range for the last N days (from N days ago at midnight to now).
 
 ```typescript
-function getLastDaysRange(days: number): { startDate: string; endDate: string; }
+function getLastDaysRange(days: number): { startDate: string; endDate: string }
 ```
 
 - `days` — Number of days to look back.
@@ -473,7 +484,7 @@ function getStepsToday(): Promise<number>
 Get the ISO date range for today (midnight to midnight).
 
 ```typescript
-function getTodayRange(): { startDate: string; endDate: string; }
+function getTodayRange(): { startDate: string; endDate: string }
 ```
 
 **Returns:** An object with startDate and endDate as ISO strings.
@@ -540,7 +551,10 @@ function querySleep(options: HealthQueryOptions): Promise<SleepSample[]>
 Get aggregated statistics (sum, average, min, max, count) for a health data type.
 
 ```typescript
-function queryStatistics(type: HealthDataType, options: HealthQueryOptions): Promise<{ sum?: number; average?: number; min?: number; max?: number; count: number; }>
+function queryStatistics(
+  type: HealthDataType,
+  options: HealthQueryOptions,
+): Promise<{ sum?: number; average?: number; min?: number; max?: number; count: number }>
 ```
 
 - `type` — The health data type to aggregate (e.g., 'steps', 'activeEnergy').
@@ -565,7 +579,10 @@ function queryWorkouts(options: HealthQueryOptions): Promise<WorkoutSample[]>
 Request authorization to read and/or write health data types.
 
 ```typescript
-function requestAuthorization(readTypes: HealthDataType[], writeTypes?: HealthDataType[]): Promise<boolean>
+function requestAuthorization(
+  readTypes: HealthDataType[],
+  writeTypes?: HealthDataType[],
+): Promise<boolean>
 ```
 
 - `readTypes` — Health data types to request read access for.
@@ -588,7 +605,7 @@ function setProvider(provider: HealthProvider): void
 Write a health data sample to the health store.
 
 ```typescript
-function writeSample(sample: Omit<HealthSample, "sourceName" | "device">): Promise<void>
+function writeSample(sample: Omit<HealthSample, 'sourceName' | 'device'>): Promise<void>
 ```
 
 - `sample` — The health sample to write (type, value, unit, dates).
@@ -600,7 +617,7 @@ function writeSample(sample: Omit<HealthSample, "sourceName" | "device">): Promi
 Write a workout session to the health store.
 
 ```typescript
-function writeWorkout(workout: Omit<WorkoutSample, "sourceName">): Promise<void>
+function writeWorkout(workout: Omit<WorkoutSample, 'sourceName'>): Promise<void>
 ```
 
 - `workout` — The workout data (type, dates, duration, energy, distance, heart rate).
@@ -614,7 +631,13 @@ function writeWorkout(workout: Omit<WorkoutSample, "sourceName">): Promise<void>
 Predefined groups of related health data types for common use cases.
 
 ```typescript
-const DataTypeGroups: { readonly activity: HealthDataType[]; readonly body: HealthDataType[]; readonly vitals: HealthDataType[]; readonly sleep: HealthDataType[]; readonly nutrition: HealthDataType[]; }
+const DataTypeGroups: {
+  readonly activity: HealthDataType[]
+  readonly body: HealthDataType[]
+  readonly vitals: HealthDataType[]
+  readonly sleep: HealthDataType[]
+  readonly nutrition: HealthDataType[]
+}
 ```
 
 ## Injection Notes
@@ -622,6 +645,7 @@ const DataTypeGroups: { readonly activity: HealthDataType[]; readonly body: Heal
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

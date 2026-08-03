@@ -3,6 +3,7 @@
 Photoshop / Figma–style reorderable layer panel for React.
 
 Exports:
+
 - `<LayerPanel>` — the panel component (drag-to-reorder via pointer
   events, visibility / lock toggles, double-click inline rename,
   click-to-select, optional thumbnail + opacity + blend-mode metadata).
@@ -47,18 +48,18 @@ function Editor() {
         setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, locked: !l.locked } : l)))
       }
       onSelect={setActiveId}
-      onRename={(id, name) =>
-        setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, name } : l)))
-      }
+      onRename={(id, name) => setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, name } : l)))}
     />
   )
 }
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-layer-panel-react @molecule/app-i18n @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -223,6 +224,7 @@ function moveLayer(layers: readonly Layer[], fromIndex: number, toIndex: number)
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

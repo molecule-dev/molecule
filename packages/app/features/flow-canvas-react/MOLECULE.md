@@ -3,6 +3,7 @@
 React flow / DAG canvas primitives.
 
 Exports:
+
 - `<FlowCanvas>` — top-level node-and-edge editor with drag, connect,
   pan, zoom, select, and delete behaviors built in.
 - `FlowNode`, `FlowEdge`, `FlowPoint`, `FlowChange`, `FlowSelection`,
@@ -26,7 +27,10 @@ function Builder() {
     <FlowCanvas
       nodes={nodes}
       edges={edges}
-      onChange={({ nodes, edges }) => { setNodes(nodes); setEdges(edges) }}
+      onChange={({ nodes, edges }) => {
+        setNodes(nodes)
+        setEdges(edges)
+      }}
       nodeRenderers={{
         task: (n) => <strong>{(n.data as { label: string }).label}</strong>,
       }}
@@ -36,9 +40,11 @@ function Builder() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-flow-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -246,7 +252,12 @@ Convert a screen-space pointer event coordinate into world-space
 the canvas element's bounding rect.
 
 ```typescript
-function clientToWorld(clientX: number, clientY: number, rect: { left: number; top: number; }, viewport: { x: number; y: number; zoom: number; }): FlowPoint
+function clientToWorld(
+  clientX: number,
+  clientY: number,
+  rect: { left: number; top: number },
+  viewport: { x: number; y: number; zoom: number },
+): FlowPoint
 ```
 
 - `clientX` — Pointer event clientX.
@@ -342,7 +353,11 @@ function removeEdge(edges: FlowEdge[], id: string): FlowEdge[]
 Remove a node and any edges connected to it.
 
 ```typescript
-function removeNode(nodes: FlowNode<unknown>[], edges: FlowEdge[], id: string): { nodes: FlowNode[]; edges: FlowEdge[]; }
+function removeNode(
+  nodes: FlowNode<unknown>[],
+  edges: FlowEdge[],
+  id: string,
+): { nodes: FlowNode[]; edges: FlowEdge[] }
 ```
 
 - `nodes` — Current node list.
@@ -356,7 +371,12 @@ function removeNode(nodes: FlowNode<unknown>[], edges: FlowEdge[], id: string): 
 Apply a delta (in world units) to a node's position.
 
 ```typescript
-function translateNode(nodes: FlowNode<unknown>[], id: string, dx: number, dy: number): FlowNode<unknown>[]
+function translateNode(
+  nodes: FlowNode<unknown>[],
+  id: string,
+  dx: number,
+  dy: number,
+): FlowNode<unknown>[]
 ```
 
 - `nodes` — Current node list.
@@ -389,6 +409,7 @@ const DEFAULT_NODE_WIDTH: 180
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-live-preview` package which has 1 t
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-live-preview'
-import type { LivePreviewTranslationKey, LivePreviewTranslations } from '@molecule/app-locales-live-preview'
+import type {
+  LivePreviewTranslationKey,
+  LivePreviewTranslations,
+} from '@molecule/app-locales-live-preview'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                            | English                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------- |
 | `livePreview.error.noProvider` | Live preview provider not configured. Bond a live preview provider first. |
 
 ## Metadata

@@ -27,9 +27,11 @@ try {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-http @molecule/api-bond
 ```
@@ -279,7 +281,7 @@ type ResponseInterceptor<T = unknown> = (
 Sends an HTTP DELETE request using the bonded (or default) client.
 
 ```typescript
-function del(url: string, options?: Omit<HttpRequestOptions, "method">): Promise<HttpResponse<T>>
+function del(url: string, options?: Omit<HttpRequestOptions, 'method'>): Promise<HttpResponse<T>>
 ```
 
 - `url` — The request URL.
@@ -292,7 +294,10 @@ function del(url: string, options?: Omit<HttpRequestOptions, "method">): Promise
 Sends an HTTP GET request using the bonded (or default) client.
 
 ```typescript
-function get(url: string, options?: Omit<HttpRequestOptions, "method" | "body">): Promise<HttpResponse<T>>
+function get(
+  url: string,
+  options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+): Promise<HttpResponse<T>>
 ```
 
 - `url` — The request URL.
@@ -326,7 +331,11 @@ function hasClient(): boolean
 Sends an HTTP PATCH request using the bonded (or default) client.
 
 ```typescript
-function patch(url: string, body?: unknown, options?: Omit<HttpRequestOptions, "method" | "body">): Promise<HttpResponse<T>>
+function patch(
+  url: string,
+  body?: unknown,
+  options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+): Promise<HttpResponse<T>>
 ```
 
 - `url` — The request URL.
@@ -340,7 +349,11 @@ function patch(url: string, body?: unknown, options?: Omit<HttpRequestOptions, "
 Sends an HTTP POST request using the bonded (or default) client.
 
 ```typescript
-function post(url: string, body?: unknown, options?: Omit<HttpRequestOptions, "method" | "body">): Promise<HttpResponse<T>>
+function post(
+  url: string,
+  body?: unknown,
+  options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+): Promise<HttpResponse<T>>
 ```
 
 - `url` — The request URL.
@@ -354,7 +367,11 @@ function post(url: string, body?: unknown, options?: Omit<HttpRequestOptions, "m
 Sends an HTTP PUT request using the bonded (or default) client.
 
 ```typescript
-function put(url: string, body?: unknown, options?: Omit<HttpRequestOptions, "method" | "body">): Promise<HttpResponse<T>>
+function put(
+  url: string,
+  body?: unknown,
+  options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+): Promise<HttpResponse<T>>
 ```
 
 - `url` — The request URL.
@@ -389,16 +406,17 @@ function setClient(client: HttpClient): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Axios | `@molecule/api-http-axios` |
-| Fetch | `@molecule/api-http-fetch` |
+| Provider | Package                    |
+| -------- | -------------------------- |
+| Axios    | `@molecule/api-http-axios` |
+| Fetch    | `@molecule/api-http-fetch` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -413,7 +431,7 @@ Peer dependencies:
   `http-client`), not `setProvider`. The DELETE convenience function is `del`
   (`delete` is reserved); the `HttpClient` interface method is `delete`.
 - Object request bodies are JSON-stringified with `Content-Type:
-  application/json` automatically. Response bodies are JSON-parsed onto
+application/json` automatically. Response bodies are JSON-parsed onto
   `res.data`; a non-JSON body falls back to `null` — pass
   `responseType: 'text'` to get raw text.
 - **`create()` and the interceptor methods are OPTIONAL client capabilities**

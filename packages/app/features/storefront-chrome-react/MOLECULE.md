@@ -20,7 +20,12 @@ import {
   StorefrontTopNav,
 } from '@molecule/app-storefront-chrome-react'
 
-function StorefrontShell({ cartCount, isAuthenticated, avatarUrl, onSignOut }: {
+function StorefrontShell({
+  cartCount,
+  isAuthenticated,
+  avatarUrl,
+  onSignOut,
+}: {
   cartCount: number
   isAuthenticated: boolean
   avatarUrl?: string
@@ -41,8 +46,14 @@ function StorefrontShell({ cartCount, isAuthenticated, avatarUrl, onSignOut }: {
         ]}
         isAuthenticated={isAuthenticated}
         profileImageUrl={avatarUrl}
-        authedMenu={[{ to: '/settings', label: 'My Account' }, { to: '/orders', label: 'Orders' }]}
-        unauthedMenu={[{ to: '/login', label: 'Sign in' }, { to: '/signup', label: 'Create account' }]}
+        authedMenu={[
+          { to: '/settings', label: 'My Account' },
+          { to: '/orders', label: 'Orders' },
+        ]}
+        unauthedMenu={[
+          { to: '/login', label: 'Sign in' },
+          { to: '/signup', label: 'Create account' },
+        ]}
         onSignOut={onSignOut}
       />
     </>
@@ -51,9 +62,11 @@ function StorefrontShell({ cartCount, isAuthenticated, avatarUrl, onSignOut }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-storefront-chrome-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
@@ -233,6 +246,7 @@ function StorefrontTopNav({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

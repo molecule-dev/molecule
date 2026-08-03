@@ -3,9 +3,11 @@
 Source Serif 4 font for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-fonts-source-serif-4 @molecule/app-fonts
 ```
@@ -23,6 +25,7 @@ const font: FontDefinition
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-fonts` interface.
 
 ## Injection Notes
@@ -30,6 +33,7 @@ Implements `@molecule/app-fonts` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-fonts` ^1.0.0
 
 ### Runtime Dependencies

@@ -36,15 +36,15 @@ const jwt = createGoogleWalletJwt(passClass, passObject, serviceAccount)
 const saveUrl = `https://pay.google.com/gp/v/save/${jwt}`
 
 // Google — coupon (offer pass type)
-const couponJwt = createGoogleWalletJwt(
-  passClass, passObject, serviceAccount, undefined, 'coupon',
-)
+const couponJwt = createGoogleWalletJwt(passClass, passObject, serviceAccount, undefined, 'coupon')
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-wallet-pass node-forge
 npm install -D @types/node-forge
@@ -506,7 +506,11 @@ function crc32(data: Buffer<ArrayBufferLike>): number
 Generate a fully-signed Apple Wallet `.pkpass` archive.
 
 ```typescript
-function createApplePass(passData: ApplePassData, certificates: ApplePassCertificates, assets?: ApplePassAssets): Promise<Buffer<ArrayBufferLike>>
+function createApplePass(
+  passData: ApplePassData,
+  certificates: ApplePassCertificates,
+  assets?: ApplePassAssets,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `passData` — The `pass.json` payload (see {@link ApplePassData}).
@@ -521,7 +525,9 @@ Build a `(req, res) => Promise<void>` handler for
 `GET /wallet/apple/:passId` returning the signed `.pkpass` blob.
 
 ```typescript
-function createApplePassHandler(options: CreateApplePassHandlerOptions): (req: WalletPassRequest, res: WalletPassResponse) => Promise<void>
+function createApplePassHandler(
+  options: CreateApplePassHandlerOptions,
+): (req: WalletPassRequest, res: WalletPassResponse) => Promise<void>
 ```
 
 - `options` — Resolver + optional file-name builder.
@@ -541,7 +547,13 @@ routed via {@link PASS_TYPE_PAYLOAD_KEYS}. It is NOT hardcoded to event
 tickets.
 
 ```typescript
-function createGoogleWalletJwt(passClass: GoogleWalletClass, passObject: GoogleWalletObject, serviceAccount: GoogleWalletServiceAccount, origins?: readonly string[], passType?: GoogleWalletPassType): string
+function createGoogleWalletJwt(
+  passClass: GoogleWalletClass,
+  passObject: GoogleWalletObject,
+  serviceAccount: GoogleWalletServiceAccount,
+  origins?: readonly string[],
+  passType?: GoogleWalletPassType,
+): string
 ```
 
 - `passClass` — Pass class definition (template).
@@ -559,7 +571,9 @@ Build a `(req, res) => Promise<void>` handler for
 `https://pay.google.com/gp/v/save/<jwt>` URL.
 
 ```typescript
-function createGoogleWalletPassHandler(options: CreateGoogleWalletPassHandlerOptions): (req: WalletPassRequest, res: WalletPassResponse) => Promise<void>
+function createGoogleWalletPassHandler(
+  options: CreateGoogleWalletPassHandlerOptions,
+): (req: WalletPassRequest, res: WalletPassResponse) => Promise<void>
 ```
 
 - `options` — Resolver + optional save-URL prefix override.
@@ -586,7 +600,7 @@ function sha1Hex(data: Buffer<ArrayBufferLike>): string
 Apple `.pkpass` MIME type.
 
 ```typescript
-const PKPASS_CONTENT_TYPE: "application/vnd.apple.pkpass"
+const PKPASS_CONTENT_TYPE: 'application/vnd.apple.pkpass'
 ```
 
 ## Injection Notes

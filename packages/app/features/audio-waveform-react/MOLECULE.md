@@ -14,19 +14,23 @@ intentionally just the renderer.
 ```tsx
 import { AudioWaveform } from '@molecule/app-feature-audio-waveform-react'
 
-<AudioWaveform
+;<AudioWaveform
   peaks={peaks}
   duration={track.duration}
   currentTime={audio.currentTime}
-  onSeek={(s) => { audio.currentTime = s }}
+  onSeek={(s) => {
+    audio.currentTime = s
+  }}
   regions={[{ id: 'loop', startTime: 12, duration: 3, color: '#a78bfa55' }]}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-audio-waveform-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -124,7 +128,9 @@ translates via the companion
 `@molecule/app-locales-feature-audio-waveform` locale bond.
 
 ```typescript
-function AudioWaveform(props: AudioWaveformProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function AudioWaveform(
+  props: AudioWaveformProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props.
@@ -167,6 +173,7 @@ function seekTimeFromClick(x: number, width: number, duration: number): number
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

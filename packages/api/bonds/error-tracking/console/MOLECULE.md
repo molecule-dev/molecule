@@ -21,9 +21,11 @@ captureException(new Error('boom'), { tags: { source: 'worker' } })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-error-tracking-console @molecule/api-bond @molecule/api-error-tracking
 ```
@@ -43,6 +45,7 @@ const provider: ErrorTrackingProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-error-tracking` interface.
 
 ## Bond Wiring
@@ -63,6 +66,7 @@ export function setupErrorTrackingConsole(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-error-tracking` ^1.0.0
 

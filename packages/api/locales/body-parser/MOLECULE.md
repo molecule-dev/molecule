@@ -10,7 +10,10 @@ Translations for @molecule/api-middleware-body-parser in 79 languages
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-body-parser'
-import type { BodyParserTranslationKey, BodyParserTranslations } from '@molecule/api-locales-body-parser'
+import type {
+  BodyParserTranslationKey,
+  BodyParserTranslations,
+} from '@molecule/api-locales-body-parser'
 ```
 
 ## Registration
@@ -30,8 +33,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                           | English      |
+| ----------------------------- | ------------ |
 | `middleware.error.badRequest` | Bad request. |
 
 ## Metadata

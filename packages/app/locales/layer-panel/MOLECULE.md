@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-layer-panel-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-layer-panel'
-import type { LayerPanelTranslationKey, LayerPanelTranslations } from '@molecule/app-locales-layer-panel'
+import type {
+  LayerPanelTranslationKey,
+  LayerPanelTranslations,
+} from '@molecule/app-locales-layer-panel'
 ```
 
 ## Registration
@@ -34,15 +37,15 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `layerPanel.label` | Layers |
-| `layerPanel.show` | Show layer |
-| `layerPanel.hide` | Hide layer |
-| `layerPanel.lock` | Lock layer |
-| `layerPanel.unlock` | Unlock layer |
-| `layerPanel.renameInput` | Rename layer |
-| `layerPanel.metadata` | Layer metadata |
+| Key                      | English        |
+| ------------------------ | -------------- |
+| `layerPanel.label`       | Layers         |
+| `layerPanel.show`        | Show layer     |
+| `layerPanel.hide`        | Hide layer     |
+| `layerPanel.lock`        | Lock layer     |
+| `layerPanel.unlock`      | Unlock layer   |
+| `layerPanel.renameInput` | Rename layer   |
+| `layerPanel.metadata`    | Layer metadata |
 
 ## Metadata
 

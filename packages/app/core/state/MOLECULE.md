@@ -20,9 +20,11 @@ function Sidebar() {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-state @molecule/app-bond @molecule/app-logger
 ```
@@ -228,7 +230,7 @@ Combines multiple stores into a single composite store. Each key
 in `stores` becomes a top-level key in the combined state.
 
 ```typescript
-function combineStores(stores: { [K in keyof T]: Store<T[K]>; }): Store<T>
+function combineStores(stores: { [K in keyof T]: Store<T[K]> }): Store<T>
 ```
 
 - `stores` — A record mapping keys to individual stores.
@@ -371,17 +373,18 @@ const simpleProvider: StateProvider
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Jotai | `@molecule/app-state-jotai` |
-| Redux | `@molecule/app-state-redux` |
-| Zustand | `@molecule/app-state-zustand` |
+| Provider | Package                       |
+| -------- | ----------------------------- |
+| Jotai    | `@molecule/app-state-jotai`   |
+| Redux    | `@molecule/app-state-redux`   |
+| Zustand  | `@molecule/app-state-zustand` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 

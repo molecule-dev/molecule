@@ -3,6 +3,7 @@
 React animation-canvas primitives.
 
 Exports:
+
 - `<AnimationCanvas>` — SVG renderer that interpolates shape state
   between keyframes with optional per-property bezier easing.
 - `interpolateState`, `bracketKeyframes`, `lerp`, `pickEasing` —
@@ -25,27 +26,28 @@ import {
 
 const keyframes: AnimationKeyframe[] = [
   { time: 0, state: [{ id: 'box', x: 0, y: 50, rotation: 0, scale: 1, opacity: 1 }] },
-  { time: 1, state: [{ id: 'box', x: 200, y: 50, rotation: 90, scale: 1.5, opacity: 1, easing: 'easeInOut' }] },
+  {
+    time: 1,
+    state: [
+      { id: 'box', x: 200, y: 50, rotation: 90, scale: 1.5, opacity: 1, easing: 'easeInOut' },
+    ],
+  },
 ]
 
 function Demo() {
   const [t, setT] = useState(0)
   return (
-    <AnimationCanvas
-      keyframes={keyframes}
-      currentTime={t}
-      onSeek={setT}
-      width={400}
-      height={200}
-    />
+    <AnimationCanvas keyframes={keyframes} currentTime={t} onSeek={setT} width={400} height={200} />
   )
 }
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-animation-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -206,7 +208,9 @@ width). Style is driven entirely by `getClassMap()`; inline styles
 are reserved for SVG attributes that classes can't express.
 
 ```typescript
-function AnimationCanvas(props: AnimationCanvasProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function AnimationCanvas(
+  props: AnimationCanvasProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props.
@@ -220,10 +224,13 @@ Find the bracketing keyframe pair `[a, b]` for a given time.
 - If `time <= keyframes[0].time`, returns `[keyframes[0], keyframes[0], 0]`.
 - If `time >= last.time`, returns `[last, last, 1]`.
 - Otherwise returns `[a, b, alpha]` where `alpha = (time - a.time) /
-  (b.time - a.time)` so the caller can apply easing to `alpha` itself.
+(b.time - a.time)` so the caller can apply easing to `alpha` itself.
 
 ```typescript
-function bracketKeyframes(keyframes: AnimationKeyframe[], time: number): { a: AnimationKeyframe; b: AnimationKeyframe; alpha: number; }
+function bracketKeyframes(
+  keyframes: AnimationKeyframe[],
+  time: number,
+): { a: AnimationKeyframe; b: AnimationKeyframe; alpha: number }
 ```
 
 - `keyframes` — Keyframes sorted ascending by `time`.
@@ -348,6 +355,7 @@ const easingFunctions: Readonly<Record<EasingPreset, CubicBezierPoints>>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

@@ -67,9 +67,7 @@ const archived: ArchivedRepo[] = []
 //    and it throws if the repo is mid-merge/rebase/cherry-pick, which is
 //    unfinished user work: resolve that and re-run rather than archiving.
 //    Neither a hook nor a content filter nor a config knob can veto it.
-const deepestFirst = [...repos].sort(
-  (a, b) => b.path.split('/').length - a.path.split('/').length,
-)
+const deepestFirst = [...repos].sort((a, b) => b.path.split('/').length - a.path.split('/').length)
 
 for (const repo of deepestFirst) {
   if (!repo.bare) {
@@ -117,12 +115,7 @@ for (const repo of repos) {
 //    work, files hidden behind a skip-worktree bit, an executable bit the
 //    index does not record). A repo shape nobody anticipated shows up here as
 //    `unarchived-repo` instead of as a silent deletion.
-const report = await verifyWorkspaceReconstruction(
-  exec,
-  '/workspace',
-  archived,
-  '/tmp/reconstruct',
-)
+const report = await verifyWorkspaceReconstruction(exec, '/workspace', archived, '/tmp/reconstruct')
 
 if (!report.ok || report.mismatches.length > 0) {
   throw new Error(
@@ -153,9 +146,11 @@ for (const repo of repos) {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-git-workspace
 ```
@@ -448,10 +443,7 @@ space, a quote, or a leading dash can therefore never break or inject a
 command.
 
 ```typescript
-type GitExec = (
-  args: readonly string[],
-  options?: { cwd?: string },
-) => Promise<GitExecResult>
+type GitExec = (args: readonly string[], options?: { cwd?: string }) => Promise<GitExecResult>
 ```
 
 ### Functions
@@ -628,7 +620,11 @@ enumerates the workspace a second time by a different mechanism and compares
 every bundle against the live repo it claims to hold.
 
 ```typescript
-function discoverRepos(exec: GitExec, workspaceRoot: string, options?: DiscoverOptions): Promise<RepoDiscovery>
+function discoverRepos(
+  exec: GitExec,
+  workspaceRoot: string,
+  options?: DiscoverOptions,
+): Promise<RepoDiscovery>
 ```
 
 - `exec` — The injected git executor.
@@ -701,7 +697,12 @@ and is deliberate — this function never needs to be right about "safe", only
 about "not safe".
 
 ```typescript
-function headOnRemote(exec: GitExec, repoPath: string, remote: string, options?: { workspaceRoot?: string; }): Promise<boolean>
+function headOnRemote(
+  exec: GitExec,
+  repoPath: string,
+  remote: string,
+  options?: { workspaceRoot?: string },
+): Promise<boolean>
 ```
 
 - `exec` — The injected git executor.
@@ -785,7 +786,12 @@ workspace is archived. (`git clone` is worse: it drops `refs/stash` too, so
 even the top stash is lost.)
 
 ```typescript
-function restoreRepo(exec: GitExec, bundlePath: string, destination: string, options?: { headBranch?: string; detachedHead?: boolean; }): Promise<void>
+function restoreRepo(
+  exec: GitExec,
+  bundlePath: string,
+  destination: string,
+  options?: { headBranch?: string; detachedHead?: boolean },
+): Promise<void>
 ```
 
 - `exec` — The injected git executor.
@@ -847,7 +853,11 @@ committing to a deletion — this package never deletes anything, which is
 rather the point of it.
 
 ```typescript
-function verifyBundleRestorable(exec: GitExec, bundlePath: string, scratchDir: string): Promise<boolean>
+function verifyBundleRestorable(
+  exec: GitExec,
+  bundlePath: string,
+  scratchDir: string,
+): Promise<boolean>
 ```
 
 - `exec` — The injected git executor.
@@ -944,7 +954,12 @@ and needs room for a full checkout of every repo. That is the price of not
 guessing.
 
 ```typescript
-function verifyWorkspaceReconstruction(exec: GitExec, workspaceRoot: string, restored: readonly ArchivedRepo[], scratchDir: string): Promise<ReconstructionReport>
+function verifyWorkspaceReconstruction(
+  exec: GitExec,
+  workspaceRoot: string,
+  restored: readonly ArchivedRepo[],
+  scratchDir: string,
+): Promise<ReconstructionReport>
 ```
 
 - `exec` — The injected git executor.
@@ -962,7 +977,7 @@ Directories never searched for repos.
 
 Deliberately SHORT. Every name here is machine-written content that is never a
 project repository root and inside which a `.git` is never the user's own work.
-A directory that merely *usually* holds generated output does NOT qualify: a
+A directory that merely _usually_ holds generated output does NOT qualify: a
 `gh-pages` worktree lives in `dist/`, a vendored submodule lives in `vendor/`,
 a scratch repo lives in `tmp/`, and skipping those loses real work — so
 `dist`, `build`, `out`, `coverage`, `vendor`, `Pods`, `target`, `venv`,
@@ -1002,7 +1017,17 @@ archive is missing a whole repository" from "one file's content differs"
 without reading prose.
 
 ```typescript
-const RECONSTRUCTION_MISMATCH_KINDS: { readonly unarchivedRepo: "unarchived-repo"; readonly unverifiableRepo: "unverifiable-repo"; readonly bundleUnrestorable: "bundle-unrestorable"; readonly headMismatch: "head-mismatch"; readonly refMismatch: "ref-mismatch"; readonly contentMismatch: "content-mismatch"; readonly unattestableContent: "unattestable-content"; readonly uncommittedWork: "uncommitted-work"; readonly enumerationIncomplete: "enumeration-incomplete"; }
+const RECONSTRUCTION_MISMATCH_KINDS: {
+  readonly unarchivedRepo: 'unarchived-repo'
+  readonly unverifiableRepo: 'unverifiable-repo'
+  readonly bundleUnrestorable: 'bundle-unrestorable'
+  readonly headMismatch: 'head-mismatch'
+  readonly refMismatch: 'ref-mismatch'
+  readonly contentMismatch: 'content-mismatch'
+  readonly unattestableContent: 'unattestable-content'
+  readonly uncommittedWork: 'uncommitted-work'
+  readonly enumerationIncomplete: 'enumeration-incomplete'
+}
 ```
 
 #### `UNREADABLE_REASONS`
@@ -1014,7 +1039,13 @@ Each value is a PREFIX: the rest of the string carries git's or the OS's own
 message.
 
 ```typescript
-const UNREADABLE_REASONS: { readonly gitRefused: "git-refused"; readonly skippedDirectory: "skipped-directory"; readonly depthLimit: "depth-limit"; readonly unreadableDirectory: "unreadable-directory"; readonly symlinkedDirectory: "symlinked-directory"; }
+const UNREADABLE_REASONS: {
+  readonly gitRefused: 'git-refused'
+  readonly skippedDirectory: 'skipped-directory'
+  readonly depthLimit: 'depth-limit'
+  readonly unreadableDirectory: 'unreadable-directory'
+  readonly symlinkedDirectory: 'symlinked-directory'
+}
 ```
 
 ## Injection Notes
@@ -1117,7 +1148,7 @@ same bug, and they all end with deleted work.
   `is_git_directory()` checks for it: a PACKED mirror (`git gc`, the normal
   state of an idle one) keeps its refs in `packed-refs`, and the then-empty
   `refs/` does not survive a zip, an object-storage key sync or a `git
-  archive` — measured, such a directory holding the only copy of a commit was
+archive` — measured, such a directory holding the only copy of a commit was
   nominated by nobody and the gate said `ok: true`.
 - **Bareness is OBSERVED, not read from `core.bare`.** A repository IS bare
   when its directory IS its git dir (`git rev-parse --absolute-git-dir`), not
@@ -1199,7 +1230,7 @@ same bug, and they all end with deleted work.
   comparison, and a LOCAL remote that cannot be resolved returns `false`
   (fail closed: it might be inside).
 - **`verifyBundle` is a HEADER check, not an integrity check.** `git bundle
-  verify` parses the header and checks prerequisites; it does not read the
+verify` parses the header and checks prerequisites; it does not read the
   packfile. A bundle truncated to 90% of its bytes, and one with a byte
   flipped inside the pack, BOTH still report "is okay" (measured against git
   2.43 and pinned by this package's tests). `verifyBundleRestorable` restores
@@ -1265,7 +1296,7 @@ same bug, and they all end with deleted work.
   A git-lfs repo configures `filter.lfs.process` + `filter.lfs.required=true`;
   in an archival sandbox without the `git-lfs` binary that filter fails, and
   measured on git 2.43 it takes down `git status`, `git add -A` AND `git
-  commit` (which refreshes the index and re-runs the clean filter). Every
+commit` (which refreshes the index and re-runs the clean filter). Every
   git-lfs project therefore failed to archive. Each step now RETRIES with
   every configured driver neutralised — `filter.<d>.process=`, `.clean=`,
   `.smudge=`, `.required=false`, which is the combination that actually works
@@ -1281,7 +1312,7 @@ same bug, and they all end with deleted work.
   the INDEX and never look at the file on disk — which is exactly why they are
   the documented recipe for keeping local edits to a tracked config file out
   of commits, and what sparse-checkout sets. Measured: with them set, `git
-  status` is silent and the live and restored `ls-files -s` agree perfectly
+status` is silent and the live and restored `ls-files -s` agree perfectly
   while the working tree holds different bytes, so the gate passed an archive
   that restored the OLD content of an edited file. `git ls-files -v` sees the
   bits (`S`, or a lowercase tag) and every such path is reported as

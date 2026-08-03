@@ -10,7 +10,10 @@ Translations for @molecule/app-three-viewer-react in 79 languages
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-three-viewer'
-import type { ThreeViewerTranslationKey, ThreeViewerTranslations } from '@molecule/app-locales-feature-three-viewer'
+import type {
+  ThreeViewerTranslationKey,
+  ThreeViewerTranslations,
+} from '@molecule/app-locales-feature-three-viewer'
 ```
 
 ## Registration
@@ -30,11 +33,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `threeViewer.aria.canvas` | 3D model viewer |
-| `threeViewer.loading` | Loading 3D model… |
-| `threeViewer.error` | Failed to load 3D model. |
+| Key                       | English                  |
+| ------------------------- | ------------------------ |
+| `threeViewer.aria.canvas` | 3D model viewer          |
+| `threeViewer.loading`     | Loading 3D model…        |
+| `threeViewer.error`       | Failed to load 3D model. |
 
 ## Metadata
 

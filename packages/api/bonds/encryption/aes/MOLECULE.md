@@ -22,9 +22,11 @@ setProvider(customProvider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-encryption-aes @molecule/api-encryption @molecule/api-secrets
 ```
@@ -160,6 +162,7 @@ const provider: AesEncryptionProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-encryption` interface.
 
 ## Bond Wiring
@@ -180,12 +183,13 @@ export function setupEncryptionAes(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-encryption` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `ENCRYPTION_KEY` *(required)* — AES-256 encryption key
+- `ENCRYPTION_KEY` _(required)_ — AES-256 encryption key
   - **Auto-generated at scaffold — no manual setup.**
 
 ### Runtime Dependencies

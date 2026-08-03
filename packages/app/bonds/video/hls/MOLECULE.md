@@ -26,9 +26,11 @@ const player = await createPlayer({
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-video-hls @molecule/app-video hls.js
 ```
@@ -72,6 +74,7 @@ const provider: VideoProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-video` interface.
 
 ## Bond Wiring
@@ -92,6 +95,7 @@ export function setupVideoHls(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-video` ^1.0.0
 
 ### Runtime Dependencies

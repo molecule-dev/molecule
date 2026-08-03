@@ -13,13 +13,7 @@ This is NOT hotkeys/shortcuts — for desktop keyboard shortcuts use
 ## Quick Start
 
 ```typescript
-import {
-  getCapabilities,
-  hasProvider,
-  hide,
-  onShow,
-  onHide,
-} from '@molecule/app-keyboard'
+import { getCapabilities, hasProvider, hide, onShow, onHide } from '@molecule/app-keyboard'
 
 function wireKeyboardAwareFooter(setPadding: (px: number) => void): () => void {
   if (!hasProvider()) return () => {} // web/desktop: no soft keyboard
@@ -37,9 +31,11 @@ async function submitAndDismiss(): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-keyboard @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -249,7 +245,10 @@ type KeyboardStyle = 'dark' | 'light' | 'default'
 Create a keyboard-aware container that adjusts its padding or margin when the keyboard appears.
 
 ```typescript
-function createKeyboardAwareContainer(paddingProperty?: "paddingBottom" | "marginBottom"): { enable(element: HTMLElement): void; disable(): void; }
+function createKeyboardAwareContainer(paddingProperty?: 'paddingBottom' | 'marginBottom'): {
+  enable(element: HTMLElement): void
+  disable(): void
+}
 ```
 
 - `paddingProperty` — The CSS property to adjust: 'paddingBottom' or 'marginBottom' (default: 'paddingBottom').
@@ -447,6 +446,7 @@ function toggle(): Promise<void>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

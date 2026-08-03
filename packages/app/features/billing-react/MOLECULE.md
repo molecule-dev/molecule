@@ -3,15 +3,15 @@
 React pricing page + checkout flow for the molecule.dev billing kit.
 
 Components:
-  `<PricingPage />` — public pricing table that fetches `/api/billing/tiers`
-  and posts to `/api/billing/checkout` when the user clicks Upgrade.
+`<PricingPage />` — public pricing table that fetches `/api/billing/tiers`
+and posts to `/api/billing/checkout` when the user clicks Upgrade.
 
-  `<BillingStatusBadge />` — compact account-page status display that
-  shows the current tier and offers a cancel-subscription button.
+`<BillingStatusBadge />` — compact account-page status display that
+shows the current tier and offers a cancel-subscription button.
 
-  `<LimitsList>` / `<LimitsItem>` — building blocks for the
-  `renderLimits` prop: a stacked checklist row with check / dash icon,
-  e.g. `renderLimits={(l) => (
+`<LimitsList>` / `<LimitsItem>` — building blocks for the
+`renderLimits` prop: a stacked checklist row with check / dash icon,
+e.g. `renderLimits={(l) => (
     <LimitsList>
       <LimitsItem>{l.maxAccounts} accounts</LimitsItem>
       <LimitsItem included={l.canExport}>Data export</LimitsItem>
@@ -19,10 +19,10 @@ Components:
   )}`
 
 Hooks:
-  `usePricingTiers<TLimits>()`        → `UseHttpResult<PricingTiersResponse<TLimits>>`
-  `useBillingStatus<TLimits>()`       → `UseHttpResult<BillingStatus<TLimits>>`
-  `useStartCheckout()`                → `{ data, loading, error, start(priceId) }`
-  `useCancelSubscription()`           → `{ data, loading, error, cancel() }`
+`usePricingTiers<TLimits>()` → `UseHttpResult<PricingTiersResponse<TLimits>>`
+`useBillingStatus<TLimits>()` → `UseHttpResult<BillingStatus<TLimits>>`
+`useStartCheckout()` → `{ data, loading, error, start(priceId) }`
+`useCancelSubscription()` → `{ data, loading, error, cancel() }`
 
 The API side of this kit lives in `@molecule/api-entitlements` +
 `@molecule/api-payments-stripe`. Wire those into your project (any
@@ -50,9 +50,11 @@ const Pricing = () => (
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-billing-react @molecule/app-http @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -316,7 +318,9 @@ Compact billing-status display for the user's account/settings page.
 Shows the current tier name and offers a cancel button on paid tiers.
 
 ```typescript
-function BillingStatusBadge(props: BillingStatusBadgeProps): ReactElement<unknown, string | JSXElementConstructor<any>> | null
+function BillingStatusBadge(
+  props: BillingStatusBadgeProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>> | null
 ```
 
 - `props` — Component props.
@@ -329,7 +333,10 @@ Single row in a tier's feature list — a check (or em-dash) icon
 followed by the row label. Use inside `<LimitsList>`.
 
 ```typescript
-function LimitsItem({ children, included = true }: LimitsItemProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function LimitsItem({
+  children,
+  included = true,
+}: LimitsItemProps): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 #### `LimitsList(props)`
@@ -340,7 +347,11 @@ stacked-checklist layout (check icon prefix, muted/primary colors,
 spacing) that matches the rest of `<PricingPage />`.
 
 ```typescript
-function LimitsList({ children }: { children: ReactNode; }): ReactElement<unknown, string | JSXElementConstructor<any>>
+function LimitsList({
+  children,
+}: {
+  children: ReactNode
+}): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 #### `PricingPage(props)`
@@ -358,7 +369,9 @@ a different tier in the spotlight can pass `popularTierKey` (or
 `null` to suppress).
 
 ```typescript
-function PricingPage(props: PricingPageProps<TLimits>): ReactElement<unknown, string | JSXElementConstructor<any>>
+function PricingPage(
+  props: PricingPageProps<TLimits>,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see `PricingPageProps`).
@@ -383,7 +396,9 @@ Cancel the user's active subscription at the end of the current
 billing period. Returns the response from the bonded payment provider.
 
 ```typescript
-function useCancelSubscription(): BillingActionState<CancelResponse> & { cancel: () => Promise<CancelResponse | null>; }
+function useCancelSubscription(): BillingActionState<CancelResponse> & {
+  cancel: () => Promise<CancelResponse | null>
+}
 ```
 
 **Returns:** Async-state plus a `cancel` function.
@@ -408,7 +423,9 @@ the browser) or `{ updated: true }` (for existing subscribers —
 refresh the page).
 
 ```typescript
-function useStartCheckout(): BillingActionState<CheckoutResponse> & { start: (priceId: string) => Promise<CheckoutResponse | null>; }
+function useStartCheckout(): BillingActionState<CheckoutResponse> & {
+  start: (priceId: string) => Promise<CheckoutResponse | null>
+}
 ```
 
 **Returns:** Async-state plus a `start` function.
@@ -418,6 +435,7 @@ function useStartCheckout(): BillingActionState<CheckoutResponse> & { start: (pr
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-http` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
@@ -446,17 +464,18 @@ the clash.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The pricing route renders every tier from `/api/billing/tiers` with name,
-  price, and per-tier limits — no empty table, no `undefined` cells.
+      price, and per-tier limits — no empty table, no `undefined` cells.
 - [ ] The signed-in user's CURRENT tier is visibly marked (highlighted / "current
-  plan") and its Upgrade button is disabled or absent.
+      plan") and its Upgrade button is disabled or absent.
 - [ ] Clicking Upgrade on another tier posts to `/api/billing/checkout` and the
-  page follows the returned checkout handoff (button is not a dead click).
+      page follows the returned checkout handoff (button is not a dead click).
 - [ ] `<BillingStatusBadge />` on the account screen shows the live tier, and its
-  cancel action updates the shown status after confirmation.
+      cancel action updates the shown status after confirmation.
 - [ ] A signed-out visitor can still view the public pricing table.
 - [ ] If the tiers endpoint fails, the page shows a visible error state — not a
-  blank page or spinner forever.
+      blank page or spinner forever.
 
 ## Translations
 

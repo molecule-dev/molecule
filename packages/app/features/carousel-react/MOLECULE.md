@@ -9,7 +9,7 @@ Exports `<Carousel>` — arrows + dots + optional autoplay; controlled-optional.
 ```tsx
 import { Carousel } from '@molecule/app-carousel-react'
 
-<Carousel autoplayMs={4000} showDots showArrows>
+;<Carousel autoplayMs={4000} showDots showArrows>
   <img src="/slides/one.jpg" alt="Slide 1" />
   <img src="/slides/two.jpg" alt="Slide 2" />
   <img src="/slides/three.jpg" alt="Slide 3" />
@@ -17,9 +17,11 @@ import { Carousel } from '@molecule/app-carousel-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-carousel-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -85,6 +87,7 @@ function Carousel({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

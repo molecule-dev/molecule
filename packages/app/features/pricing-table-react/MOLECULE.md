@@ -13,12 +13,23 @@ const checkout = (planId: string): void => {
   window.location.assign(`/checkout?plan=${planId}`)
 }
 
-<PricingTable
+;<PricingTable
   plans={[
-    { id: 'starter', name: 'Starter', price: '$9', interval: '/mo',
-      cta: { label: 'Get started', onClick: () => checkout('starter') } },
-    { id: 'pro', name: 'Pro', price: '$29', interval: '/mo', recommended: true,
-      cta: { label: 'Get started', onClick: () => checkout('pro') } },
+    {
+      id: 'starter',
+      name: 'Starter',
+      price: '$9',
+      interval: '/mo',
+      cta: { label: 'Get started', onClick: () => checkout('starter') },
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      price: '$29',
+      interval: '/mo',
+      recommended: true,
+      cta: { label: 'Get started', onClick: () => checkout('pro') },
+    },
   ]}
   features={[
     { label: 'Projects', values: { starter: '3', pro: 'Unlimited' } },
@@ -28,9 +39,11 @@ const checkout = (planId: string): void => {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-pricing-table-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -106,6 +119,7 @@ function PricingTable({ plans, features, className }: PricingTableProps): ReactN
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

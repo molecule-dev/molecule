@@ -19,9 +19,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-activity-feed'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-activity-feed @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -72,7 +74,7 @@ interface ActivitySeenStatus {
 
 Input for logging a new activity.
 
-Note: this is the *client-supplied* payload — it deliberately omits `actorId`.
+Note: this is the _client-supplied_ payload — it deliberately omits `actorId`.
 The actor is derived from the authenticated session in the service/handler
 (`actor = caller`), never trusted from the request body, to prevent a user from
 forging activities that impersonate another user.
@@ -165,7 +167,11 @@ function getFeed(_userId: string, options?: FeedQuery): Promise<PaginatedResult<
 Retrieves a paginated timeline of activities for a specific resource.
 
 ```typescript
-function getTimeline(resourceType: string, resourceId: string, options?: PaginationOptions): Promise<PaginatedResult<Activity>>
+function getTimeline(
+  resourceType: string,
+  resourceId: string,
+  options?: PaginationOptions,
+): Promise<PaginatedResult<Activity>>
 ```
 
 - `resourceType` — The resource type to get the timeline for.
@@ -272,7 +278,15 @@ client body. Adding it here would let any user forge feed entries impersonating
 another user (broken access control). Mirror the comment/review/thread pattern.
 
 ```typescript
-const createActivitySchema: z.ZodObject<{ action: z.ZodString; resourceType: z.ZodString; resourceId: z.ZodString; metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
+const createActivitySchema: z.ZodObject<
+  {
+    action: z.ZodString
+    resourceType: z.ZodString
+    resourceId: z.ZodString
+    metadata: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `markSeenSchema`
@@ -280,7 +294,7 @@ const createActivitySchema: z.ZodObject<{ action: z.ZodString; resourceType: z.Z
 Schema for validating mark-seen input.
 
 ```typescript
-const markSeenSchema: z.ZodObject<{ upToId: z.ZodString; }, z.core.$strip>
+const markSeenSchema: z.ZodObject<{ upToId: z.ZodString }, z.core.$strip>
 ```
 
 #### `requestHandlerMap`
@@ -288,7 +302,13 @@ const markSeenSchema: z.ZodObject<{ upToId: z.ZodString; }, z.core.$strip>
 Handler map for activity feed routes.
 
 ```typescript
-const requestHandlerMap: { readonly logActivity: typeof log; readonly feed: typeof feed; readonly unseen: typeof unseen; readonly markSeen: typeof seen; readonly timeline: typeof timeline; }
+const requestHandlerMap: {
+  readonly logActivity: typeof log
+  readonly feed: typeof feed
+  readonly unseen: typeof unseen
+  readonly markSeen: typeof seen
+  readonly timeline: typeof timeline
+}
 ```
 
 #### `routes`
@@ -296,7 +316,37 @@ const requestHandlerMap: { readonly logActivity: typeof log; readonly feed: type
 Routes for activity feed operations.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/activities"; readonly handler: "logActivity"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/activities/feed"; readonly handler: "feed"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/activities/unseen"; readonly handler: "unseen"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/activities/seen"; readonly handler: "markSeen"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/activities/:resourceType/:resourceId"; readonly handler: "timeline"; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/activities'
+    readonly handler: 'logActivity'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/activities/feed'
+    readonly handler: 'feed'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/activities/unseen'
+    readonly handler: 'unseen'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/activities/seen'
+    readonly handler: 'markSeen'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/activities/:resourceType/:resourceId'
+    readonly handler: 'timeline'
+  },
+]
 ```
 
 ## Injection Notes
@@ -304,6 +354,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/activities";
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -346,40 +397,41 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Performing an in-app action that logs an activity (`POST /activities`,
-  or a server-side `logActivity()` call) records ONE entry whose `actorId`
-  is the session user, with the right `action` (verb), `resourceType` +
-  `resourceId` (the object acted on), and a `createdAt` timestamp — verify
-  by reading it back, not by trusting the 201.
+      or a server-side `logActivity()` call) records ONE entry whose `actorId`
+      is the session user, with the right `action` (verb), `resourceType` +
+      `resourceId` (the object acted on), and a `createdAt` timestamp — verify
+      by reading it back, not by trusting the 201.
 - [ ] That entry appears at the TOP of the feed (`GET /activities/feed`),
-  which is strictly reverse-chronological (`createdAt` desc); logging a
-  second activity pushes it above the first.
+      which is strictly reverse-chronological (`createdAt` desc); logging a
+      second activity pushes it above the first.
 - [ ] SCOPE — know what this feed is: `getFeed()` is GLOBAL, returning
-  every actor's activity (its `userId` param is reserved/unused), NOT a
-  per-user or following-based feed. Confirm that is the intent. If the app
-  holds ANY private or per-user data, `GET /activities/feed` as-is leaks it
-  (see privacy check) — replace it with an actor/resource-filtered handler.
+      every actor's activity (its `userId` param is reserved/unused), NOT a
+      per-user or following-based feed. Confirm that is the intent. If the app
+      holds ANY private or per-user data, `GET /activities/feed` as-is leaks it
+      (see privacy check) — replace it with an actor/resource-filtered handler.
 - [ ] Pagination is stable: page through with `limit`/`offset` back-to-back
-  and every activity appears exactly once (none skipped, none duplicated),
-  and `total` equals the real matching-row count. The `resourceType`/
-  `action` query filters narrow the feed to only matching entries.
+      and every activity appears exactly once (none skipped, none duplicated),
+      and `total` equals the real matching-row count. The `resourceType`/
+      `action` query filters narrow the feed to only matching entries.
 - [ ] `GET /activities/:resourceType/:resourceId` returns ONLY that one
-  resource's timeline (reverse-chronological); an unrelated resource's
-  activity is absent from it.
+      resource's timeline (reverse-chronological); an unrelated resource's
+      activity is absent from it.
 - [ ] Read state (if the UI shows an unseen badge): `GET /activities/unseen`
-  returns a count; `POST /activities/seen { upToId }` drops it to 0; a new
-  activity logged afterward raises it again. The last-seen position is
-  per-user (`activity_seen_status` keyed by `userId`) — mark seen as user A
-  and user B's unseen count is unaffected.
+      returns a count; `POST /activities/seen { upToId }` drops it to 0; a new
+      activity logged afterward raises it again. The last-seen position is
+      per-user (`activity_seen_status` keyed by `userId`) — mark seen as user A
+      and user B's unseen count is unaffected.
 - [ ] PRIVACY / AUTHORIZATION — the actor cannot be forged: `POST
-  /activities` with an `actorId` in the body still records the SESSION user
-  as the actor (the schema strips it). Every endpoint fails closed for an
-  anonymous caller — feed, unseen, seen, AND the timeline route (which
-  ships with NO route middleware but 401s in-handler) all reject a
-  sessionless request.
+/activities` with an `actorId` in the body still records the SESSION user
+      as the actor (the schema strips it). Every endpoint fails closed for an
+      anonymous caller — feed, unseen, seen, AND the timeline route (which
+      ships with NO route middleware but 401s in-handler) all reject a
+      sessionless request.
 - [ ] No cross-user leak: another user's activity on a PRIVATE actor or
-  PRIVATE object must NOT surface to a viewer not allowed to see it —
-  neither through the global feed nor by guessing a `resourceId` in the
-  timeline URL. If it does, add the actor/resource filter (feed) and an
-  authorizer (timeline) the remarks call for; the raw global endpoints are
-  not safe over private data.
+      PRIVATE object must NOT surface to a viewer not allowed to see it —
+      neither through the global feed nor by guessing a `resourceId` in the
+      timeline URL. If it does, add the actor/resource filter (feed) and an
+      authorizer (timeline) the remarks call for; the raw global endpoints are
+      not safe over private data.

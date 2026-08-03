@@ -16,7 +16,7 @@ import { useHttpClient } from '@molecule/app-react'
 function Plants() {
   const http = useHttpClient()
   const load = async () => {
-    const res = await http.get<Plant[]>('/plants')   // baseURL ('/api') is prepended
+    const res = await http.get<Plant[]>('/plants') // baseURL ('/api') is prepended
     setPlants(res.data)
   }
   // http.post(url, body), http.put, http.delete are also available.
@@ -24,9 +24,11 @@ function Plants() {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-http @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -411,17 +413,18 @@ function setClient(client: HttpClient): void
 Normalize an unknown response body into a typed array.
 
 Accepts:
-  - a bare array → returned as-is (cast)
-  - `{ data: T[] }` envelope → the inner array
-  - `HttpResponse<T[]>` (i.e. `{ data: T[], status, ... }`) → the inner array
-  - `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
-    endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
-    doubly-nested inner array
-  - `HttpResponse<{ data: T[], total, limit, offset }>` (a RICH pagination
-    envelope from a pre-built `@molecule/api-resource-*` list endpoint) → the
-    inner `data` array (the numeric `total`/`limit`/`offset` make the shape
-    unambiguous, so callers can pass the whole HttpResponse and still get the rows)
-  - anything else → `[]`
+
+- a bare array → returned as-is (cast)
+- `{ data: T[] }` envelope → the inner array
+- `HttpResponse<T[]>` (i.e. `{ data: T[], status, ... }`) → the inner array
+- `HttpResponse<{ data: T[] }>` (the response of an envelope-returning
+  endpoint as it arrives from `@molecule/app-http`'s `HttpClient`) → the
+  doubly-nested inner array
+- `HttpResponse<{ data: T[], total, limit, offset }>` (a RICH pagination
+  envelope from a pre-built `@molecule/api-resource-*` list endpoint) → the
+  inner `data` array (the numeric `total`/`limit`/`offset` make the shape
+  unambiguous, so callers can pass the whole HttpResponse and still get the rows)
+- anything else → `[]`
 
 Callers commonly pass either the raw JSON body (e.g. from `fetch().then(r =>
 r.json())`) or the `HttpResponse` returned by `useHttpClient().get(...)`.
@@ -441,12 +444,13 @@ function unwrapList(res: unknown): T[]
 Normalize an unknown response body into a single typed resource.
 
 Accepts:
-  - a non-empty plain object → returned as-is (cast)
-  - `{ data: T }` envelope → the inner value
-  - `{ data: null }`, `{ data: undefined }`, `{ data: [] }`, or
-    `{ data: {} }` (mock-server's no-match shape) → `null`
-  - an empty object `{}` → `null`
-  - arrays, primitives, `null`, `undefined` → `null`
+
+- a non-empty plain object → returned as-is (cast)
+- `{ data: T }` envelope → the inner value
+- `{ data: null }`, `{ data: undefined }`, `{ data: [] }`, or
+  `{ data: {} }` (mock-server's no-match shape) → `null`
+- an empty object `{}` → `null`
+- arrays, primitives, `null`, `undefined` → `null`
 
 The "envelope contains an array → null" branch handles the case
 where the mock server returns `[]` for unmatched endpoints but the
@@ -473,15 +477,16 @@ const fetchClient: HttpClient | null
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Axios | `@molecule/app-http-axios` |
+| Provider | Package                    |
+| -------- | -------------------------- |
+| Axios    | `@molecule/app-http-axios` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
@@ -495,9 +500,11 @@ Peer dependencies:
 Make ALL API calls through this client (via the framework hook `useHttpClient()` in
 React / the Vue composable) — it carries the configured `baseURL`, auth headers, and
 interceptors. Do NOT call `fetch()` / `axios` directly in components — that bypasses auth
-+ base-URL config and breaks when the transport is swapped.
+
+- base-URL config and breaks when the transport is swapped.
 
 Two mistakes that break in preview/production (seen in real imported apps):
+
 - **Pass RELATIVE paths; never a hardcoded host.** Use `'/plants'` (the `baseURL` `'/api'`
   is prepended), NOT `'/api/plants'`, and NEVER an absolute dev URL like
   `'http://localhost:4000/api/…'`. A hardcoded `localhost`/host works on the author's

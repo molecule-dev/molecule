@@ -11,7 +11,7 @@ Intl-localized weekday + month names, controlled-optional `selected` +
 ```tsx
 import { MiniCalendar } from '@molecule/app-mini-calendar-react'
 
-<MiniCalendar
+;<MiniCalendar
   selected={new Date('2026-06-15')}
   onSelect={(date) => console.log(date.toISOString())}
   locale="en-US"
@@ -19,9 +19,11 @@ import { MiniCalendar } from '@molecule/app-mini-calendar-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-mini-calendar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -81,6 +83,7 @@ function MiniCalendar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

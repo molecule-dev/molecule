@@ -29,9 +29,11 @@ getProvider().on('update-available', () => {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-version @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -305,7 +307,7 @@ Applies a pending update by activating a waiting service worker
 waiting, reloads the page when an update is available or `force` is set.
 
 ```typescript
-function applyUpdate(options?: { force?: boolean; }): void
+function applyUpdate(options?: { force?: boolean }): void
 ```
 
 - `options` — Pass `{ force: true }` to reload even without a detected update.
@@ -329,7 +331,10 @@ function checkForUpdates(): Promise<boolean>
 Creates a service worker controller.
 
 ```typescript
-function createServiceWorkerController(updateState: (partial: Partial<VersionState>) => void, emit: <T>(event: VersionEvent, data: T) => void): { controller: ServiceWorkerController; getRegistration: () => ServiceWorkerRegistration | null; }
+function createServiceWorkerController(
+  updateState: (partial: Partial<VersionState>) => void,
+  emit: <T>(event: VersionEvent, data: T) => void,
+): { controller: ServiceWorkerController; getRegistration: () => ServiceWorkerRegistration | null }
 ```
 
 - `updateState` — Function to update the version state.
@@ -342,7 +347,11 @@ function createServiceWorkerController(updateState: (partial: Partial<VersionSta
 Creates a version checker.
 
 ```typescript
-function createVersionChecker(getState: () => VersionState, updateState: (partial: Partial<VersionState>) => void, emit: <T>(event: VersionEvent, data: T) => void): () => Promise<boolean>
+function createVersionChecker(
+  getState: () => VersionState,
+  updateState: (partial: Partial<VersionState>) => void,
+  emit: <T>(event: VersionEvent, data: T) => void,
+): () => Promise<boolean>
 ```
 
 - `getState` — Function to get the current version state.
@@ -479,7 +488,7 @@ const DEFAULT_CHECK_INTERVAL: number
 Default version URL.
 
 ```typescript
-const DEFAULT_VERSION_URL: "/version.json"
+const DEFAULT_VERSION_URL: '/version.json'
 ```
 
 ## Injection Notes
@@ -487,6 +496,7 @@ const DEFAULT_VERSION_URL: "/version.json"
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

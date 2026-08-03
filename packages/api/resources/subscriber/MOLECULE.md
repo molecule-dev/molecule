@@ -29,9 +29,11 @@ for (const route of routes) {
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-subscriber @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-permissions @molecule/api-resource
 ```
@@ -408,7 +410,15 @@ the mlcl injector's route scanner preserves it — a bare middleware string that
 isn't a handler-map key is silently dropped.
 
 ```typescript
-const requestHandlerMap: { readonly subscribe: typeof subscribe; readonly confirm: typeof confirm; readonly unsubscribe: typeof unsubscribe; readonly list: typeof list; readonly read: typeof read; readonly del: typeof del; readonly requireAdmin: MoleculeRequestHandler; }
+const requestHandlerMap: {
+  readonly subscribe: typeof subscribe
+  readonly confirm: typeof confirm
+  readonly unsubscribe: typeof unsubscribe
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly del: typeof del
+  readonly requireAdmin: MoleculeRequestHandler
+}
 ```
 
 #### `routes`
@@ -426,7 +436,37 @@ additionally re-checks admin authorization internally, so the gate holds even
 if a consumer wires the routes without applying these middlewares.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/subscribers"; readonly handler: "subscribe"; }, { readonly method: "get"; readonly path: "/subscribers/confirm/:token"; readonly handler: "confirm"; }, { readonly method: "post"; readonly path: "/subscribers/unsubscribe/:token"; readonly handler: "unsubscribe"; }, { readonly method: "get"; readonly path: "/subscribers"; readonly handler: "list"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/subscribers/:id"; readonly handler: "read"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/subscribers/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }]
+const routes: readonly [
+  { readonly method: 'post'; readonly path: '/subscribers'; readonly handler: 'subscribe' },
+  {
+    readonly method: 'get'
+    readonly path: '/subscribers/confirm/:token'
+    readonly handler: 'confirm'
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/subscribers/unsubscribe/:token'
+    readonly handler: 'unsubscribe'
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/subscribers'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/subscribers/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/subscribers/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+]
 ```
 
 #### `SUBSCRIBER_ADMIN_PERMISSION`
@@ -436,7 +476,7 @@ session's `permissions` array, grants subscriber administration without a bonded
 permissions provider.
 
 ```typescript
-const SUBSCRIBER_ADMIN_PERMISSION: "subscriber:manage"
+const SUBSCRIBER_ADMIN_PERMISSION: 'subscriber:manage'
 ```
 
 #### `SUBSCRIBER_CHANNELS`
@@ -453,7 +493,7 @@ Permission action checked against `@molecule/api-permissions` for subscriber
 administration.
 
 ```typescript
-const SUBSCRIBER_PERMISSION_ACTION: "manage"
+const SUBSCRIBER_PERMISSION_ACTION: 'manage'
 ```
 
 #### `SUBSCRIBER_PERMISSION_RESOURCE`
@@ -462,7 +502,7 @@ Permission resource checked against `@molecule/api-permissions` for subscriber
 administration.
 
 ```typescript
-const SUBSCRIBER_PERMISSION_RESOURCE: "subscriber"
+const SUBSCRIBER_PERMISSION_RESOURCE: 'subscriber'
 ```
 
 #### `SUBSCRIBER_STATUSES`
@@ -478,6 +518,7 @@ const SUBSCRIBER_STATUSES: readonly SubscriberStatus[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -511,26 +552,27 @@ status-page "subscribe to updates", the confirm + unsubscribe links), and
 check every box off one by one. A box you can't check is an integration bug
 to fix — not a skip. This is double-opt-in LIST membership (email/sms/webhook),
 NOT paid billing — statuses are pending → confirmed → unsubscribed:
+
 - [ ] Subscribing from the UI creates the record in `pending` (NOT yet
-  eligible for sends) and the app delivers a confirmation link. The sandbox
-  CAPTURES outbound email/sms instead of sending — read it with the
-  `read_activity` tool to get the confirm link; never mock the delivery.
+      eligible for sends) and the app delivers a confirmation link. The sandbox
+      CAPTURES outbound email/sms instead of sending — read it with the
+      `read_activity` tool to get the confirm link; never mock the delivery.
 - [ ] Visiting the confirm link flips the record to `confirmed` (`confirmedAt`
-  set) and only a confirmed subscriber receives topic deliveries; visiting the
-  same link again is idempotent — still confirmed, no error, no re-timestamp.
+      set) and only a confirmed subscriber receives topic deliveries; visiting the
+      same link again is idempotent — still confirmed, no error, no re-timestamp.
 - [ ] Using the unsubscribe link flips the record to `unsubscribed`
-  (`unsubscribedAt` set) and stops all further sends to that address; the UI
-  reflects the opt-out and re-posting the same link is idempotent (200).
+      (`unsubscribedAt` set) and stops all further sends to that address; the UI
+      reflects the opt-out and re-posting the same link is idempotent (200).
 - [ ] Illegal transitions are refused, never silently allowed: re-subscribing
-  the same (channel, address, topic) returns 409 (no duplicate row, no
-  re-trigger of sends), confirming an already-unsubscribed token is rejected
-  (409), and an invalid or expired token shows a visible error — not a blank
-  success.
+      the same (channel, address, topic) returns 409 (no duplicate row, no
+      re-trigger of sends), confirming an already-unsubscribed token is rejected
+      (409), and an invalid or expired token shows a visible error — not a blank
+      success.
 - [ ] AUTHORIZATION — the one-time confirm/unsubscribe tokens are the ONLY
-  capability: returned exactly once at signup and never re-exposed, so no
-  caller can confirm or opt out someone else's subscription by guessing an id.
-  The admin-only list/read/delete endpoints (they expose subscriber PII —
-  emails, phone numbers, webhook URLs) deny an anonymous caller (401) and a
-  non-admin authenticated user (403); no id-guessing lets a non-admin read or
-  delete another subscriber's contact info, and those admin views never leak
-  the confirm/unsubscribe tokens.
+      capability: returned exactly once at signup and never re-exposed, so no
+      caller can confirm or opt out someone else's subscription by guessing an id.
+      The admin-only list/read/delete endpoints (they expose subscriber PII —
+      emails, phone numbers, webhook URLs) deny an anonymous caller (401) and a
+      non-admin authenticated user (403); no id-guessing lets a non-admin read or
+      delete another subscriber's contact info, and those admin views never leak
+      the confirm/unsubscribe tokens.

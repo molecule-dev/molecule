@@ -34,9 +34,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `push.error.notSupported` | Push notifications not supported |
+| Key                               | English                             |
+| --------------------------------- | ----------------------------------- |
+| `push.error.notSupported`         | Push notifications not supported    |
 | `push.error.permissionNotGranted` | Notification permission not granted |
 
 ## Metadata

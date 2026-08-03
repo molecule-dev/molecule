@@ -11,16 +11,21 @@ to provide JSON and multipart form data parsing.
 ```ts
 import { createJsonParser } from '@molecule/api-middleware-body-parser'
 // Webhook route FIRST, with a raw parser, so signature verification sees the exact bytes.
-app.post('/api/users/payment-notification/stripe',
-  express.raw({ type: 'application/json' }), stripeWebhookHandler)
+app.post(
+  '/api/users/payment-notification/stripe',
+  express.raw({ type: 'application/json' }),
+  stripeWebhookHandler,
+)
 // Then the global JSON parser (bounded) for everything else.
 app.use(createJsonParser({ limit: '1mb' }))
 ```
 
 ## Type
+
 `middleware`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-body-parser @molecule/api-bond
 ```
@@ -142,6 +147,7 @@ function setJsonParserFactory(factory: JsonParserFactory): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

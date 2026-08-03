@@ -3,6 +3,7 @@
 React page scaffolds for Terms, Privacy, and PlanUpdated.
 
 Exports:
+
 - Drop-in pages: `<TermsPage>`, `<PrivacyPage>` (boilerplate bodies with
   configurable i18n keys), `<PlanUpdatedPage>` (post-checkout confirmation).
 - Bonded-content pages: `<LegalContentPage kind="privacy" | "terms">` — renders
@@ -33,9 +34,11 @@ import { ContentPageShell, LegalPageLayout, LegalPageSection, TermsPage } from '
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-legal-pages-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
@@ -386,11 +389,7 @@ One sub-section of a legal page (`h2` + body) styled for use inside
 `<LegalPageLayout>`.
 
 ```typescript
-function LegalPageSection({
-  title,
-  children,
-  stackGap = 2,
-}: LegalPageSectionProps): JSX.Element
+function LegalPageSection({ title, children, stackGap = 2 }: LegalPageSectionProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link LegalPageSectionProps}).
@@ -470,10 +469,7 @@ standalone routes render (`content.privacyPolicy` /
 `content.termsOfService`), so every legal surface stays in sync.
 
 ```typescript
-function useLegalModals({
-  appName,
-  loadContent,
-}?: UseLegalModalsOptions): LegalModalsApi
+function useLegalModals({ appName, loadContent }?: UseLegalModalsOptions): LegalModalsApi
 ```
 
 - `options` — See {@link UseLegalModalsOptions}.
@@ -485,6 +481,7 @@ function useLegalModals({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -21,9 +21,11 @@ const merged = await merge([pdf, anotherPdf])
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-pdf @molecule/api-bond @molecule/api-i18n
 ```
@@ -256,7 +258,11 @@ type PageFormat = 'A3' | 'A4' | 'A5' | 'Letter' | 'Legal' | 'Tabloid'
 Adds a text watermark to every page of a PDF.
 
 ```typescript
-function addWatermark(pdf: Buffer<ArrayBufferLike>, text: string, options?: WatermarkOptions): Promise<Buffer<ArrayBufferLike>>
+function addWatermark(
+  pdf: Buffer<ArrayBufferLike>,
+  text: string,
+  options?: WatermarkOptions,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `pdf` — The source PDF buffer.
@@ -283,7 +289,11 @@ function fromHTML(html: string, options?: PDFOptions): Promise<Buffer<ArrayBuffe
 Generates a PDF from a template string with data interpolation.
 
 ```typescript
-function fromTemplate(template: string, data: Record<string, unknown>, options?: PDFOptions): Promise<Buffer<ArrayBufferLike>>
+function fromTemplate(
+  template: string,
+  data: Record<string, unknown>,
+  options?: PDFOptions,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `template` — The template string.
@@ -364,7 +374,10 @@ function setProvider(provider: PDFProvider): void
 Renders PDF pages as image buffers.
 
 ```typescript
-function toImages(pdf: Buffer<ArrayBufferLike>, options?: RenderOptions): Promise<Buffer<ArrayBufferLike>[]>
+function toImages(
+  pdf: Buffer<ArrayBufferLike>,
+  options?: RenderOptions,
+): Promise<Buffer<ArrayBufferLike>[]>
 ```
 
 - `pdf` — The PDF buffer.
@@ -374,9 +387,9 @@ function toImages(pdf: Buffer<ArrayBufferLike>, options?: RenderOptions): Promis
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| PDFKit (programmatic) | `@molecule/api-pdf-pdfkit` |
+| Provider                | Package                       |
+| ----------------------- | ----------------------------- |
+| PDFKit (programmatic)   | `@molecule/api-pdf-pdfkit`    |
 | Puppeteer (HTML to PDF) | `@molecule/api-pdf-puppeteer` |
 
 ## Injection Notes
@@ -384,6 +397,7 @@ function toImages(pdf: Buffer<ArrayBufferLike>, options?: RenderOptions): Promis
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -420,24 +434,25 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual documents (invoice, report, receipt,
 contract) and check every box off one by one. A box you can't check is an
 integration bug to fix — not a skip:
+
 - [ ] Every document the app generates has a working Download/Export control
-  that returns a REAL PDF — not an HTML error page or a JSON-stringified
-  Buffer. Inspect the actual response: `Content-Type` is `application/pdf`
-  and the body's first bytes are the `%PDF` magic (hex `25 50 44 46`). Fetch
-  the endpoint and check both — a body that starts with `<` or `{` is a
-  failure dressed up as a download.
+      that returns a REAL PDF — not an HTML error page or a JSON-stringified
+      Buffer. Inspect the actual response: `Content-Type` is `application/pdf`
+      and the body's first bytes are the `%PDF` magic (hex `25 50 44 46`). Fetch
+      the endpoint and check both — a body that starts with `<` or `{` is a
+      failure dressed up as a download.
 - [ ] Opening the downloaded PDF shows the record's real values (names, line
-  items, dates, totals) — not placeholder/template text or a blank page.
+      items, dates, totals) — not placeholder/template text or a blank page.
 - [ ] Edit a record and re-export: the new PDF reflects the changed values,
-  and two different records produce two visibly different PDFs (not the same
-  cached bytes for every id).
+      and two different records produce two visibly different PDFs (not the same
+      cached bytes for every id).
 - [ ] If the app shows page previews or reads document info, it feature-detects
-  (`getProvider().toImages` / `.getMetadata`) or bonds a provider that supports
-  them — both are OPTIONAL and THROW on bonds that lack them (e.g. PDFKit), so a
-  preview built on an unsupporting bond errors at runtime, not compile time.
+      (`getProvider().toImages` / `.getMetadata`) or bonds a provider that supports
+      them — both are OPTIONAL and THROW on bonds that lack them (e.g. PDFKit), so a
+      preview built on an unsupporting bond errors at runtime, not compile time.
 - [ ] Styled output (CSS layout, backgrounds, web fonts) actually renders —
-  which requires a browser-engine bond (Puppeteer). On PDFKit the same HTML
-  collapses to a plain-text approximation; if the design matters, that's the wrong bond.
+      which requires a browser-engine bond (Puppeteer). On PDFKit the same HTML
+      collapses to a plain-text approximation; if the design matters, that's the wrong bond.
 - [ ] Export is authorized: a signed-in user cannot fetch another user's
-  document by guessing or incrementing an id — the endpoint scopes every PDF to
-  its owner (a guessed id returns 403/404, never someone else's invoice).
+      document by guessing or incrementing an id — the endpoint scopes every PDF to
+      its owner (a guessed id returns 403/404, never someone else's invoice).

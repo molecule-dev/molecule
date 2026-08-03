@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-contact-form-react` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-contact-form'
-import type { ContactFormTranslationKey, ContactFormTranslations } from '@molecule/app-locales-contact-form'
+import type {
+  ContactFormTranslationKey,
+  ContactFormTranslations,
+} from '@molecule/app-locales-contact-form'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `contactForm.name` | Your name |
-| `contactForm.email` | you@example.com |
+| Key                   | English          |
+| --------------------- | ---------------- |
+| `contactForm.name`    | Your name        |
+| `contactForm.email`   | you@example.com  |
 | `contactForm.message` | How can we help? |
-| `contactForm.sending` | Sending… |
-| `contactForm.send` | Send message |
+| `contactForm.sending` | Sending…         |
+| `contactForm.send`    | Send message     |
 
 ## Metadata
 

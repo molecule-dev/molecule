@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-splash-screen` package which has 2 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-splash-screen'
-import type { SplashScreenTranslationKey, SplashScreenTranslations } from '@molecule/app-locales-splash-screen'
+import type {
+  SplashScreenTranslationKey,
+  SplashScreenTranslations,
+} from '@molecule/app-locales-splash-screen'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `splashScreen.error.noProvider` | Splash screen provider is not configured. |
+| Key                                       | English                                                      |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| `splashScreen.error.noProvider`           | Splash screen provider is not configured.                    |
 | `splashScreen.warn.configureNotSupported` | configure() is not supported by this splash screen provider. |
 
 ## Metadata

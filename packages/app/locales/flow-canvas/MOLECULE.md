@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-flow-canvas-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-flow-canvas'
-import type { FlowCanvasTranslationKey, FlowCanvasTranslations } from '@molecule/app-locales-flow-canvas'
+import type {
+  FlowCanvasTranslationKey,
+  FlowCanvasTranslations,
+} from '@molecule/app-locales-flow-canvas'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `flowCanvas.aria.canvas` | Flow canvas |
+| Key                            | English         |
+| ------------------------------ | --------------- |
+| `flowCanvas.aria.canvas`       | Flow canvas     |
 | `flowCanvas.aria.sourceHandle` | Drag to connect |
 
 ## Metadata

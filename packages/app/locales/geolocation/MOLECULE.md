@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-geolocation` package which has 1 tr
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-geolocation'
-import type { GeolocationTranslationKey, GeolocationTranslations } from '@molecule/app-locales-geolocation'
+import type {
+  GeolocationTranslationKey,
+  GeolocationTranslations,
+} from '@molecule/app-locales-geolocation'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                              | English                   |
+| -------------------------------- | ------------------------- |
 | `geolocation.error.notSupported` | Geolocation not supported |
 
 ## Metadata

@@ -21,9 +21,11 @@ await sendMail({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-emails @molecule/api-bond @molecule/api-i18n
 ```
@@ -216,19 +218,20 @@ function setTransport(transport: EmailTransport): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Capture | `@molecule/api-emails-capture` |
-| Mailgun | `@molecule/api-emails-mailgun` |
+| Provider | Package                         |
+| -------- | ------------------------------- |
+| Capture  | `@molecule/api-emails-capture`  |
+| Mailgun  | `@molecule/api-emails-mailgun`  |
 | SendGrid | `@molecule/api-emails-sendgrid` |
 | Sendmail | `@molecule/api-emails-sendmail` |
-| AWS SES | `@molecule/api-emails-ses` |
+| AWS SES  | `@molecule/api-emails-ses`      |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -253,7 +256,7 @@ key; they come from config/secrets and stay SERVER-SIDE.
   NOT `req.headers.origin`/`host`/`x-forwarded-host` — those are caller-controlled, so a
   forged header poisons the emailed link (host-header injection: the token-carrying URL
   sent to a victim points at the attacker's domain → token leak + phishing). e.g.
-  `` const origin = getConfig('SITE_ORIGIN', '') || 'http://localhost:3000' ``.
+  `const origin = getConfig('SITE_ORIGIN', '') || 'http://localhost:3000'`.
 - **The `from` domain must be one you VERIFIED with your provider** (Mailgun/SendGrid/SES),
   or the send is rejected / lands in spam (SPF+DKIM won't align on an unowned domain). Do
   NOT hardcode a placeholder like `noreply@example.com` or an arbitrary domain: read the
@@ -272,18 +275,19 @@ is in its payload. Never mock the send or modify production code to expose
 it. Adapt each item to this app's actual screens/flows, and check every box
 off one by one. A box you can't check is an integration bug to fix — not a
 skip:
+
 - [ ] Each email-triggering flow (signup verification, password-reset request,
-  invites/notifications the app defines) confirms the send in the UI ("check
-  your inbox") and a message actually reaches the transport.
+      invites/notifications the app defines) confirms the send in the UI ("check
+      your inbox") and a message actually reaches the transport.
 - [ ] The password-reset round-trip completes: request a reset → open the
-  captured message → follow its single-use link → set a new password → log
-  in with it (and the old password no longer works).
+      captured message → follow its single-use link → set a new password → log
+      in with it (and the old password no longer works).
 - [ ] The message body contains a LINK, never the raw token/secret, and renders
-  with the app's real name/content (no `undefined` placeholders).
+      with the app's real name/content (no `undefined` placeholders).
 - [ ] Requesting a reset for an unknown email shows the same neutral UI response
-  as a known one (no account-existence oracle).
+      as a known one (no account-existence oracle).
 - [ ] Account emails go only to the account's own address — no UI or endpoint
-  lets an unauthenticated caller send to an arbitrary address.
+      lets an unauthenticated caller send to an arbitrary address.
 
 ## Translations
 

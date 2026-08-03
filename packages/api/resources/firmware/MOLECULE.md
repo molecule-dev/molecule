@@ -21,10 +21,7 @@ Extracted from the iot-device-manager flagship.
 
 ```ts
 import express from 'express'
-import {
-  createFirmwareRouter,
-  type DeviceTokenMiddleware,
-} from '@molecule/api-resource-firmware'
+import { createFirmwareRouter, type DeviceTokenMiddleware } from '@molecule/api-resource-firmware'
 
 // Device-auth implementations vary per deployment (token, mTLS, JWT, …),
 // so the status-report endpoint takes a caller-supplied authorizer. On
@@ -45,9 +42,11 @@ app.use('/api/firmware', createFirmwareRouter({ requireDeviceToken }))
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-firmware @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation @molecule/api-realtime express zod
 npm install -D @types/express
@@ -169,7 +168,17 @@ type RolloutTaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
 Create a draft firmware version.
 
 ```typescript
-function createFirmwareForOwner(userId: string, input: { version: string; device_type: string; release_notes?: string; download_url?: string | null; checksum?: string | null; file_size?: number; }): Promise<FirmwareVersionRow | null>
+function createFirmwareForOwner(
+  userId: string,
+  input: {
+    version: string
+    device_type: string
+    release_notes?: string
+    download_url?: string | null
+    checksum?: string | null
+    file_size?: number
+  },
+): Promise<FirmwareVersionRow | null>
 ```
 
 #### `createFirmwareRouter(opts)`
@@ -177,7 +186,7 @@ function createFirmwareForOwner(userId: string, input: { version: string; device
 Build the firmware router.
 
 ```typescript
-function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMiddleware; }): Router
+function createFirmwareRouter(opts: { requireDeviceToken: DeviceTokenMiddleware }): Router
 ```
 
 #### `createRolloutForOwner(userId, input)`
@@ -186,7 +195,18 @@ Create a rollout, materialize per-device tasks + `firmware_update`
 device commands, and best-effort broadcast realtime notifications.
 
 ```typescript
-function createRolloutForOwner(userId: string, input: { firmware_id: string; device_ids?: string[]; fleet_id?: string | null; strategy?: RolloutStrategy; }): Promise<{ ok: true; rollout: FirmwareRolloutRow; targets: string[]; } | { ok: false; reason: "not_found" | "not_published" | "no_targets"; }>
+function createRolloutForOwner(
+  userId: string,
+  input: {
+    firmware_id: string
+    device_ids?: string[]
+    fleet_id?: string | null
+    strategy?: RolloutStrategy
+  },
+): Promise<
+  | { ok: true; rollout: FirmwareRolloutRow; targets: string[] }
+  | { ok: false; reason: 'not_found' | 'not_published' | 'no_targets' }
+>
 ```
 
 #### `getFirmwareForOwner(userId, id)`
@@ -210,7 +230,10 @@ function isUuid(value: string): boolean
 Owner-scoped firmware list.
 
 ```typescript
-function listFirmwareForOwner(userId: string, filters?: { device_type?: string; status?: string; page?: number; limit?: number; }): Promise<FirmwareVersionRow[]>
+function listFirmwareForOwner(
+  userId: string,
+  filters?: { device_type?: string; status?: string; page?: number; limit?: number },
+): Promise<FirmwareVersionRow[]>
 ```
 
 #### `listRolloutsForOwner(userId, filters?)`
@@ -218,7 +241,10 @@ function listFirmwareForOwner(userId: string, filters?: { device_type?: string; 
 Owner-scoped rollout list.
 
 ```typescript
-function listRolloutsForOwner(userId: string, filters?: { firmware_id?: string; status?: string; page?: number; limit?: number; }): Promise<FirmwareRolloutRow[]>
+function listRolloutsForOwner(
+  userId: string,
+  filters?: { firmware_id?: string; status?: string; page?: number; limit?: number },
+): Promise<FirmwareRolloutRow[]>
 ```
 
 #### `publishFirmwareForOwner(userId, id)`
@@ -236,7 +262,13 @@ completed/failed counters + progress percent; on success bumps the
 device's `firmware_version` to the new release.
 
 ```typescript
-function recordRolloutDeviceStatus(opts: { rolloutId: string; deviceId: string; ownerId: string; status: RolloutTaskStatus; errorMessage?: string | null; }): Promise<{ ok: true; } | { ok: false; reason: "task_not_found"; }>
+function recordRolloutDeviceStatus(opts: {
+  rolloutId: string
+  deviceId: string
+  ownerId: string
+  status: RolloutTaskStatus
+  errorMessage?: string | null
+}): Promise<{ ok: true } | { ok: false; reason: 'task_not_found' }>
 ```
 
 #### `updateFirmwareForOwner(userId, id, patch)`
@@ -244,7 +276,11 @@ function recordRolloutDeviceStatus(opts: { rolloutId: string; deviceId: string; 
 Patch a firmware version owned by the user.
 
 ```typescript
-function updateFirmwareForOwner(userId: string, id: string, patch: Record<string, unknown>): Promise<FirmwareVersionRow | null>
+function updateFirmwareForOwner(
+  userId: string,
+  id: string,
+  patch: Record<string, unknown>,
+): Promise<FirmwareVersionRow | null>
 ```
 
 ### Constants
@@ -254,7 +290,17 @@ function updateFirmwareForOwner(userId: string, id: string, patch: Record<string
 Validator for creating a draft firmware version.
 
 ```typescript
-const createFirmwareSchema: z.ZodObject<{ version: z.ZodString; device_type: z.ZodString; release_notes: z.ZodOptional<z.ZodString>; download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>; file_size: z.ZodOptional<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
+const createFirmwareSchema: z.ZodObject<
+  {
+    version: z.ZodString
+    device_type: z.ZodString
+    release_notes: z.ZodOptional<z.ZodString>
+    download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    file_size: z.ZodOptional<z.ZodCoercedNumber<unknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `createRolloutSchema`
@@ -262,7 +308,17 @@ const createFirmwareSchema: z.ZodObject<{ version: z.ZodString; device_type: z.Z
 Validator for creating a rollout.
 
 ```typescript
-const createRolloutSchema: z.ZodObject<{ firmware_id: z.ZodString; device_ids: z.ZodOptional<z.ZodArray<z.ZodString>>; fleet_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; strategy: z.ZodOptional<z.ZodEnum<{ immediate: "immediate"; canary: "canary"; gradual: "gradual"; }>>; }, z.core.$strip>
+const createRolloutSchema: z.ZodObject<
+  {
+    firmware_id: z.ZodString
+    device_ids: z.ZodOptional<z.ZodArray<z.ZodString>>
+    fleet_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    strategy: z.ZodOptional<
+      z.ZodEnum<{ immediate: 'immediate'; canary: 'canary'; gradual: 'gradual' }>
+    >
+  },
+  z.core.$strip
+>
 ```
 
 #### `firmwareStatusSchema`
@@ -270,7 +326,11 @@ const createRolloutSchema: z.ZodObject<{ firmware_id: z.ZodString; device_ids: z
 Allowed lifecycle states for a firmware version.
 
 ```typescript
-const firmwareStatusSchema: z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>
+const firmwareStatusSchema: z.ZodEnum<{
+  draft: 'draft'
+  published: 'published'
+  deprecated: 'deprecated'
+}>
 ```
 
 #### `listFirmwareQuerySchema`
@@ -278,7 +338,17 @@ const firmwareStatusSchema: z.ZodEnum<{ draft: "draft"; published: "published"; 
 Validator for the firmware-version list query params.
 
 ```typescript
-const listFirmwareQuerySchema: z.ZodObject<{ device_type: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>>; page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
+const listFirmwareQuerySchema: z.ZodObject<
+  {
+    device_type: z.ZodOptional<z.ZodString>
+    status: z.ZodOptional<
+      z.ZodEnum<{ draft: 'draft'; published: 'published'; deprecated: 'deprecated' }>
+    >
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `listRolloutsQuerySchema`
@@ -286,7 +356,23 @@ const listFirmwareQuerySchema: z.ZodObject<{ device_type: z.ZodOptional<z.ZodStr
 Validator for the rollout-list query params.
 
 ```typescript
-const listRolloutsQuerySchema: z.ZodObject<{ firmware_id: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ pending: "pending"; completed: "completed"; failed: "failed"; active: "active"; canceled: "canceled"; }>>; page: z.ZodDefault<z.ZodCoercedNumber<unknown>>; limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>; }, z.core.$strip>
+const listRolloutsQuerySchema: z.ZodObject<
+  {
+    firmware_id: z.ZodOptional<z.ZodString>
+    status: z.ZodOptional<
+      z.ZodEnum<{
+        pending: 'pending'
+        completed: 'completed'
+        failed: 'failed'
+        active: 'active'
+        canceled: 'canceled'
+      }>
+    >
+    page: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+    limit: z.ZodDefault<z.ZodCoercedNumber<unknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `rolloutDeviceStatusSchema`
@@ -294,7 +380,18 @@ const listRolloutsQuerySchema: z.ZodObject<{ firmware_id: z.ZodOptional<z.ZodStr
 Validator for a per-device rollout status report.
 
 ```typescript
-const rolloutDeviceStatusSchema: z.ZodObject<{ status: z.ZodEnum<{ pending: "pending"; in_progress: "in_progress"; completed: "completed"; failed: "failed"; }>; error_message: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const rolloutDeviceStatusSchema: z.ZodObject<
+  {
+    status: z.ZodEnum<{
+      pending: 'pending'
+      in_progress: 'in_progress'
+      completed: 'completed'
+      failed: 'failed'
+    }>
+    error_message: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `rolloutStatusSchema`
@@ -302,7 +399,13 @@ const rolloutDeviceStatusSchema: z.ZodObject<{ status: z.ZodEnum<{ pending: "pen
 Allowed progress states for a firmware rollout.
 
 ```typescript
-const rolloutStatusSchema: z.ZodEnum<{ pending: "pending"; completed: "completed"; failed: "failed"; active: "active"; canceled: "canceled"; }>
+const rolloutStatusSchema: z.ZodEnum<{
+  pending: 'pending'
+  completed: 'completed'
+  failed: 'failed'
+  active: 'active'
+  canceled: 'canceled'
+}>
 ```
 
 #### `rolloutStrategySchema`
@@ -310,7 +413,11 @@ const rolloutStatusSchema: z.ZodEnum<{ pending: "pending"; completed: "completed
 Allowed rollout delivery strategies.
 
 ```typescript
-const rolloutStrategySchema: z.ZodEnum<{ immediate: "immediate"; canary: "canary"; gradual: "gradual"; }>
+const rolloutStrategySchema: z.ZodEnum<{
+  immediate: 'immediate'
+  canary: 'canary'
+  gradual: 'gradual'
+}>
 ```
 
 #### `updateFirmwareSchema`
@@ -318,7 +425,18 @@ const rolloutStrategySchema: z.ZodEnum<{ immediate: "immediate"; canary: "canary
 Validator for patching a firmware version (release notes, status, etc).
 
 ```typescript
-const updateFirmwareSchema: z.ZodObject<{ release_notes: z.ZodOptional<z.ZodString>; download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>; checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>; file_size: z.ZodOptional<z.ZodCoercedNumber<unknown>>; status: z.ZodOptional<z.ZodEnum<{ draft: "draft"; published: "published"; deprecated: "deprecated"; }>>; }, z.core.$strip>
+const updateFirmwareSchema: z.ZodObject<
+  {
+    release_notes: z.ZodOptional<z.ZodString>
+    download_url: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    checksum: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    file_size: z.ZodOptional<z.ZodCoercedNumber<unknown>>
+    status: z.ZodOptional<
+      z.ZodEnum<{ draft: 'draft'; published: 'published'; deprecated: 'deprecated' }>
+    >
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -326,6 +444,7 @@ const updateFirmwareSchema: z.ZodObject<{ release_notes: z.ZodOptional<z.ZodStri
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

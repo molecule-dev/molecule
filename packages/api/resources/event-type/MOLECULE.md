@@ -33,9 +33,11 @@ const slots = generateSlots({ date: '2026-06-15', durationMinutes: 30, rules })
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-event-type @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -117,7 +119,25 @@ type LocationKind = 'video' | 'phone' | 'in_person' | 'custom'
 Create a new event type for the given owner with the supplied configuration.
 
 ```typescript
-function createEventTypeForOwner(ownerId: string, data: { name: string; slug: string; description?: string | null; duration_minutes?: number; location_kind?: LocationKind; location_value?: unknown; buffer_before_minutes?: number; buffer_after_minutes?: number; min_notice_minutes?: number; max_per_day?: number | null; requires_confirmation?: boolean; color?: string | null; is_active?: boolean; position?: number; }): Promise<EventTypeRow>
+function createEventTypeForOwner(
+  ownerId: string,
+  data: {
+    name: string
+    slug: string
+    description?: string | null
+    duration_minutes?: number
+    location_kind?: LocationKind
+    location_value?: unknown
+    buffer_before_minutes?: number
+    buffer_after_minutes?: number
+    min_notice_minutes?: number
+    max_per_day?: number | null
+    requires_confirmation?: boolean
+    color?: string | null
+    is_active?: boolean
+    position?: number
+  },
+): Promise<EventTypeRow>
 ```
 
 #### `createEventTypeRouter()`
@@ -144,7 +164,13 @@ availability rules + event-type duration + buffers.
 Caller is responsible for filtering against existing bookings.
 
 ```typescript
-function generateSlots(opts: { date: string; durationMinutes: number; bufferBeforeMinutes?: number; bufferAfterMinutes?: number; rules: Pick<AvailabilityRuleRow, "day_of_week" | "start_minute" | "end_minute">[]; }): AvailabilitySlot[]
+function generateSlots(opts: {
+  date: string
+  durationMinutes: number
+  bufferBeforeMinutes?: number
+  bufferAfterMinutes?: number
+  rules: Pick<AvailabilityRuleRow, 'day_of_week' | 'start_minute' | 'end_minute'>[]
+}): AvailabilitySlot[]
 ```
 
 #### `getEventTypeBySlug(slug)`
@@ -176,7 +202,10 @@ function listAvailabilityRulesForUser(userId: string): Promise<AvailabilityRuleR
 List all event types owned by the given user, optionally including inactive ones.
 
 ```typescript
-function listEventTypesForOwner(ownerId: string, opts?: { include_inactive?: boolean; }): Promise<EventTypeRow[]>
+function listEventTypesForOwner(
+  ownerId: string,
+  opts?: { include_inactive?: boolean },
+): Promise<EventTypeRow[]>
 ```
 
 #### `setAvailabilityRulesForUser(userId, rules)`
@@ -184,7 +213,10 @@ function listEventTypesForOwner(ownerId: string, opts?: { include_inactive?: boo
 Replace all availability rules for the given user with the supplied set.
 
 ```typescript
-function setAvailabilityRulesForUser(userId: string, rules: { day_of_week: number; start_minute: number; end_minute: number; timezone: string; }[]): Promise<AvailabilityRuleRow[]>
+function setAvailabilityRulesForUser(
+  userId: string,
+  rules: { day_of_week: number; start_minute: number; end_minute: number; timezone: string }[],
+): Promise<AvailabilityRuleRow[]>
 ```
 
 #### `updateEventTypeForOwner(eventTypeId, ownerId, patch)`
@@ -192,7 +224,11 @@ function setAvailabilityRulesForUser(userId: string, rules: { day_of_week: numbe
 Apply a partial patch to an event type, returning null if the record does not belong to the owner.
 
 ```typescript
-function updateEventTypeForOwner(eventTypeId: string, ownerId: string, patch: Partial<EventTypeRow>): Promise<EventTypeRow | null>
+function updateEventTypeForOwner(
+  eventTypeId: string,
+  ownerId: string,
+  patch: Partial<EventTypeRow>,
+): Promise<EventTypeRow | null>
 ```
 
 ### Constants
@@ -202,7 +238,7 @@ function updateEventTypeForOwner(eventTypeId: string, ownerId: string, patch: Pa
 Zod schema for the query parameters when fetching availability slots (requires a YYYY-MM-DD date).
 
 ```typescript
-const availabilityQuerySchema: z.ZodObject<{ date: z.ZodString; }, z.core.$strip>
+const availabilityQuerySchema: z.ZodObject<{ date: z.ZodString }, z.core.$strip>
 ```
 
 #### `availabilityRuleSchema`
@@ -210,7 +246,15 @@ const availabilityQuerySchema: z.ZodObject<{ date: z.ZodString; }, z.core.$strip
 Zod schema for a single availability rule defining a recurring weekly time block.
 
 ```typescript
-const availabilityRuleSchema: z.ZodObject<{ day_of_week: z.ZodNumber; start_minute: z.ZodNumber; end_minute: z.ZodNumber; timezone: z.ZodString; }, z.core.$strip>
+const availabilityRuleSchema: z.ZodObject<
+  {
+    day_of_week: z.ZodNumber
+    start_minute: z.ZodNumber
+    end_minute: z.ZodNumber
+    timezone: z.ZodString
+  },
+  z.core.$strip
+>
 ```
 
 #### `eventTypeCreateSchema`
@@ -218,7 +262,27 @@ const availabilityRuleSchema: z.ZodObject<{ day_of_week: z.ZodNumber; start_minu
 Zod schema for validating the request body when creating a new event type.
 
 ```typescript
-const eventTypeCreateSchema: z.ZodObject<{ name: z.ZodString; slug: z.ZodString; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; duration_minutes: z.ZodOptional<z.ZodNumber>; location_kind: z.ZodOptional<z.ZodEnum<{ video: "video"; phone: "phone"; in_person: "in_person"; custom: "custom"; }>>; location_value: z.ZodOptional<z.ZodUnknown>; buffer_before_minutes: z.ZodOptional<z.ZodNumber>; buffer_after_minutes: z.ZodOptional<z.ZodNumber>; min_notice_minutes: z.ZodOptional<z.ZodNumber>; max_per_day: z.ZodOptional<z.ZodNullable<z.ZodNumber>>; requires_confirmation: z.ZodOptional<z.ZodBoolean>; color: z.ZodOptional<z.ZodNullable<z.ZodString>>; is_active: z.ZodOptional<z.ZodBoolean>; position: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
+const eventTypeCreateSchema: z.ZodObject<
+  {
+    name: z.ZodString
+    slug: z.ZodString
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    duration_minutes: z.ZodOptional<z.ZodNumber>
+    location_kind: z.ZodOptional<
+      z.ZodEnum<{ video: 'video'; phone: 'phone'; in_person: 'in_person'; custom: 'custom' }>
+    >
+    location_value: z.ZodOptional<z.ZodUnknown>
+    buffer_before_minutes: z.ZodOptional<z.ZodNumber>
+    buffer_after_minutes: z.ZodOptional<z.ZodNumber>
+    min_notice_minutes: z.ZodOptional<z.ZodNumber>
+    max_per_day: z.ZodOptional<z.ZodNullable<z.ZodNumber>>
+    requires_confirmation: z.ZodOptional<z.ZodBoolean>
+    color: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    is_active: z.ZodOptional<z.ZodBoolean>
+    position: z.ZodOptional<z.ZodNumber>
+  },
+  z.core.$strip
+>
 ```
 
 #### `eventTypeUpdateSchema`
@@ -226,7 +290,29 @@ const eventTypeCreateSchema: z.ZodObject<{ name: z.ZodString; slug: z.ZodString;
 Zod schema for validating the request body when updating an existing event type (all fields optional).
 
 ```typescript
-const eventTypeUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; slug: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; duration_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; location_kind: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ video: "video"; phone: "phone"; in_person: "in_person"; custom: "custom"; }>>>; location_value: z.ZodOptional<z.ZodOptional<z.ZodUnknown>>; buffer_before_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; buffer_after_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; min_notice_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; max_per_day: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodNumber>>>; requires_confirmation: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; color: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; is_active: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>; }, z.core.$strip>
+const eventTypeUpdateSchema: z.ZodObject<
+  {
+    name: z.ZodOptional<z.ZodString>
+    slug: z.ZodOptional<z.ZodString>
+    description: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    duration_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+    location_kind: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodEnum<{ video: 'video'; phone: 'phone'; in_person: 'in_person'; custom: 'custom' }>
+      >
+    >
+    location_value: z.ZodOptional<z.ZodOptional<z.ZodUnknown>>
+    buffer_before_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+    buffer_after_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+    min_notice_minutes: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+    max_per_day: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodNumber>>>
+    requires_confirmation: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>
+    color: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    is_active: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>
+    position: z.ZodOptional<z.ZodOptional<z.ZodNumber>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `LOCATION_KINDS`
@@ -234,7 +320,7 @@ const eventTypeUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; slu
 Allowed location kinds for an event type.
 
 ```typescript
-const LOCATION_KINDS: readonly ["video", "phone", "in_person", "custom"]
+const LOCATION_KINDS: readonly ['video', 'phone', 'in_person', 'custom']
 ```
 
 #### `slugRegex`
@@ -250,6 +336,7 @@ const slugRegex: RegExp
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -289,34 +376,35 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating an event type in the UI persists its real fields (name, slug,
-  duration_minutes, location_kind, buffer_before/after) — reopen it and
-  confirm each round-trips — and it appears in the owner's catalog list
-  (GET /) with a shareable booking link at its slug (GET /by-slug/:slug
-  resolves to the same event type).
+      duration_minutes, location_kind, buffer_before/after) — reopen it and
+      confirm each round-trips — and it appears in the owner's catalog list
+      (GET /) with a shareable booking link at its slug (GET /by-slug/:slug
+      resolves to the same event type).
 - [ ] Availability + duration produce the right slot grid: set weekly rules
-  to a 9am-5pm window (start_minute 540, end_minute 1020) and open the public
-  availability for a matching weekday (GET /by-slug/:slug/availability?date=
-  YYYY-MM-DD). A 30-min type yields back-to-back :00/:30 slots filling the
-  window (16 of them) and no slot spills past end_minute.
+      to a 9am-5pm window (start_minute 540, end_minute 1020) and open the public
+      availability for a matching weekday (GET /by-slug/:slug/availability?date=
+      YYYY-MM-DD). A 30-min type yields back-to-back :00/:30 slots filling the
+      window (16 of them) and no slot spills past end_minute.
 - [ ] Buffers are respected: adding buffer_before/after widens the per-slot
-  stride (duration + before + after), so the grid thins accordingly — a
-  30-min type with a 15-min after-buffer no longer packs two slots per hour.
+      stride (duration + before + after), so the grid thins accordingly — a
+      30-min type with a 15-min after-buffer no longer packs two slots per hour.
 - [ ] Active/published gating works: an INACTIVE event type (is_active=false)
-  404s from the public /by-slug/:slug AND its /availability; re-activating
-  makes the booking link resolve again. (is_active IS the publish switch —
-  there is no separate published flag.)
+      404s from the public /by-slug/:slug AND its /availability; re-activating
+      makes the booking link resolve again. (is_active IS the publish switch —
+      there is no separate published flag.)
 - [ ] Editing changes FUTURE slots: change duration_minutes (PUT /:id) or the
-  availability window (PUT /availability/rules) and re-query availability —
-  the returned grid reflects the new duration/window immediately.
+      availability window (PUT /availability/rules) and re-query availability —
+      the returned grid reflects the new duration/window immediately.
 - [ ] Timezone renders correctly, not shifted: rules carry a timezone but
-  generateSlots returns minute-of-day slots in UTC without applying it —
-  confirm the booking view converts each slot into the intended timezone (a
-  9:00 local rule shows a 9:00 slot to the invitee, not a UTC-offset time),
-  and changing the tz re-renders rather than silently re-timing the rule.
+      generateSlots returns minute-of-day slots in UTC without applying it —
+      confirm the booking view converts each slot into the intended timezone (a
+      9:00 local rule shows a 9:00 slot to the invitee, not a UTC-offset time),
+      and changing the tz re-renders rather than silently re-timing the rule.
 - [ ] Authorization — a signed-in owner manages ONLY their own event types:
-  GET/PUT/DELETE /:id with another owner's id returns 404 (never the row,
-  never an edit), and the client never supplies owner_id (it comes from the
-  session). The public /by-slug view exposes only active types and returns
-  only the event type + its generated slots — never the owner's raw
-  availability rules or any inactive/private config beyond what booking needs.
+      GET/PUT/DELETE /:id with another owner's id returns 404 (never the row,
+      never an edit), and the client never supplies owner_id (it comes from the
+      session). The public /by-slug view exposes only active types and returns
+      only the event type + its generated slots — never the owner's raw
+      availability rules or any inactive/private config beyond what booking needs.

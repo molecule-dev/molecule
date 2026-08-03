@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-secret-row-react` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-secret-row'
-import type { SecretRowTranslationKey, SecretRowTranslations } from '@molecule/app-locales-secret-row'
+import type {
+  SecretRowTranslationKey,
+  SecretRowTranslations,
+} from '@molecule/app-locales-secret-row'
 ```
 
 ## Registration
@@ -34,17 +37,17 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `secretRow.expired` | Expired |
-| `secretRow.rotateIn` | Rotate in {{days}}d |
-| `secretRow.lastRotated` | Last rotated |
-| `secretRow.hide` | Hide |
-| `secretRow.show` | Show |
-| `secretRow.copied` | Copied! |
-| `secretRow.copy` | Copy |
-| `secretRow.rotate` | Rotate |
-| `secretRow.delete` | Delete |
+| Key                     | English             |
+| ----------------------- | ------------------- |
+| `secretRow.expired`     | Expired             |
+| `secretRow.rotateIn`    | Rotate in {{days}}d |
+| `secretRow.lastRotated` | Last rotated        |
+| `secretRow.hide`        | Hide                |
+| `secretRow.show`        | Show                |
+| `secretRow.copied`      | Copied!             |
+| `secretRow.copy`        | Copy                |
+| `secretRow.rotate`      | Rotate              |
+| `secretRow.delete`      | Delete              |
 
 ## Metadata
 

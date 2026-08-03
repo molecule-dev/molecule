@@ -22,9 +22,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-address'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-address @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -269,7 +271,11 @@ Toggling `isDefaultShipping` or `isDefaultBilling` to `true` will also clear
 the matching flag on the user's other addresses.
 
 ```typescript
-function updateAddress(userId: string, addressId: string, patch: Partial<Omit<Address, "id" | "createdAt" | "updatedAt" | "userId">>): Promise<Address | null>
+function updateAddress(
+  userId: string,
+  addressId: string,
+  patch: Partial<Omit<Address, 'id' | 'createdAt' | 'updatedAt' | 'userId'>>,
+): Promise<Address | null>
 ```
 
 - `userId` — The user that must own the address.
@@ -285,7 +291,22 @@ function updateAddress(userId: string, addressId: string, patch: Partial<Omit<Ad
 Schema for validating address creation input.
 
 ```typescript
-const createAddressSchema: z.ZodObject<{ label: z.ZodOptional<z.ZodString>; recipientName: z.ZodString; line1: z.ZodString; line2: z.ZodOptional<z.ZodString>; city: z.ZodString; region: z.ZodOptional<z.ZodString>; postalCode: z.ZodString; countryIso: z.ZodString; phone: z.ZodOptional<z.ZodString>; isDefaultShipping: z.ZodOptional<z.ZodBoolean>; isDefaultBilling: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const createAddressSchema: z.ZodObject<
+  {
+    label: z.ZodOptional<z.ZodString>
+    recipientName: z.ZodString
+    line1: z.ZodString
+    line2: z.ZodOptional<z.ZodString>
+    city: z.ZodString
+    region: z.ZodOptional<z.ZodString>
+    postalCode: z.ZodString
+    countryIso: z.ZodString
+    phone: z.ZodOptional<z.ZodString>
+    isDefaultShipping: z.ZodOptional<z.ZodBoolean>
+    isDefaultBilling: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -293,7 +314,14 @@ const createAddressSchema: z.ZodObject<{ label: z.ZodOptional<z.ZodString>; reci
 Handler map for address routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly setAsDefault: typeof setAsDefault; readonly del: typeof del; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly setAsDefault: typeof setAsDefault
+  readonly del: typeof del
+}
 ```
 
 #### `routes`
@@ -302,7 +330,44 @@ Routes for address CRUD plus a dedicated `setDefault` endpoint that toggles
 the per-user default-shipping or default-billing flag atomically.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/addresses"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/addresses"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/addresses/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/addresses/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/addresses/:id/default"; readonly handler: "setAsDefault"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/addresses/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/addresses'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/addresses'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/addresses/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/addresses/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/addresses/:id/default'
+    readonly handler: 'setAsDefault'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/addresses/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `setDefaultAddressSchema`
@@ -310,7 +375,10 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/addresses"; 
 Schema for validating the `setDefault` request body.
 
 ```typescript
-const setDefaultAddressSchema: z.ZodObject<{ kind: z.ZodEnum<{ shipping: "shipping"; billing: "billing"; }>; }, z.core.$strip>
+const setDefaultAddressSchema: z.ZodObject<
+  { kind: z.ZodEnum<{ shipping: 'shipping'; billing: 'billing' }> },
+  z.core.$strip
+>
 ```
 
 #### `updateAddressSchema`
@@ -318,7 +386,22 @@ const setDefaultAddressSchema: z.ZodObject<{ kind: z.ZodEnum<{ shipping: "shippi
 Schema for validating address update input. All fields are optional.
 
 ```typescript
-const updateAddressSchema: z.ZodObject<{ label: z.ZodOptional<z.ZodOptional<z.ZodString>>; recipientName: z.ZodOptional<z.ZodString>; line1: z.ZodOptional<z.ZodString>; line2: z.ZodOptional<z.ZodOptional<z.ZodString>>; city: z.ZodOptional<z.ZodString>; region: z.ZodOptional<z.ZodOptional<z.ZodString>>; postalCode: z.ZodOptional<z.ZodString>; countryIso: z.ZodOptional<z.ZodString>; phone: z.ZodOptional<z.ZodOptional<z.ZodString>>; isDefaultShipping: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; isDefaultBilling: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; }, z.core.$strip>
+const updateAddressSchema: z.ZodObject<
+  {
+    label: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    recipientName: z.ZodOptional<z.ZodString>
+    line1: z.ZodOptional<z.ZodString>
+    line2: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    city: z.ZodOptional<z.ZodString>
+    region: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    postalCode: z.ZodOptional<z.ZodString>
+    countryIso: z.ZodOptional<z.ZodString>
+    phone: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    isDefaultShipping: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>
+    isDefaultBilling: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -326,6 +409,7 @@ const updateAddressSchema: z.ZodObject<{ label: z.ZodOptional<z.ZodOptional<z.Zo
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -359,31 +443,32 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Adding an address from the UI persists every field entered
-  (recipientName, line1/line2, city, region, postalCode, countryIso, phone,
-  label): reload the list and the saved address shows the exact values
-  entered — nothing is silently dropped or stored blank.
+      (recipientName, line1/line2, city, region, postalCode, countryIso, phone,
+      label): reload the list and the saved address shows the exact values
+      entered — nothing is silently dropped or stored blank.
 - [ ] The new address then appears in the user's own address list
-  (GET /addresses), with any default(s) sorted first.
+      (GET /addresses), with any default(s) sorted first.
 - [ ] Shipping and billing defaults are independent and each exclusive:
-  marking an address the default shipping (create/PATCH with
-  isDefaultShipping, or POST /addresses/:id/default { kind: 'shipping' })
-  leaves EXACTLY ONE default-shipping for the user and clears the previous
-  one; the same holds separately for billing. After toggling, confirm
-  exactly one address is flagged per kind.
+      marking an address the default shipping (create/PATCH with
+      isDefaultShipping, or POST /addresses/:id/default { kind: 'shipping' })
+      leaves EXACTLY ONE default-shipping for the user and clears the previous
+      one; the same holds separately for billing. After toggling, confirm
+      exactly one address is flagged per kind.
 - [ ] Wherever a default address is consumed (checkout, order form,
-  invoicing), the user's current default for that kind is the pre-selected
-  option — not the first row or a stale one.
+      invoicing), the user's current default for that kind is the pre-selected
+      option — not the first row or a stale one.
 - [ ] Editing an address (PATCH) reflects and persists in the list and DB;
-  removing one (DELETE) drops it from both. Removing the default does NOT
-  auto-promote a replacement — the user is left with no default of that
-  kind until they set a new one (per this interface).
+      removing one (DELETE) drops it from both. Removing the default does NOT
+      auto-promote a replacement — the user is left with no default of that
+      kind until they set a new one (per this interface).
 - [ ] Required-field / format validation is enforced at both UI and API:
-  submitting without recipientName, line1, city, postalCode, or countryIso
-  (or a countryIso that isn't a 2-letter code) is rejected with a clear,
-  visible error and a 400 — never saved with blank/invalid fields.
+      submitting without recipientName, line1, city, postalCode, or countryIso
+      (or a countryIso that isn't a 2-letter code) is rejected with a clear,
+      visible error and a 400 — never saved with blank/invalid fields.
 - [ ] AUTHORIZATION — a user sees and edits only their OWN addresses: the
-  list returns only the session user's rows, and guessing another user's
-  address id on GET/PATCH/DELETE or /:id/default returns not-found (404),
-  never another user's data. The owner is always the authenticated session
-  userId — a userId in the request body is ignored, never trusted.
+      list returns only the session user's rows, and guessing another user's
+      address id on GET/PATCH/DELETE or /:id/default returns not-found (404),
+      never another user's data. The owner is always the authenticated session
+      userId — a userId in the request body is ignored, never trusted.

@@ -34,13 +34,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `footer.version` | v{{version}} |
-| `footer.about` | About {{appName}} |
-| `footer.privacyPolicy` | Privacy Policy |
-| `footer.termsOfService` | Terms of Service |
-| `footer.language` | Language |
+| Key                         | English                                                                  |
+| --------------------------- | ------------------------------------------------------------------------ |
+| `footer.version`            | v{{version}}                                                             |
+| `footer.about`              | About {{appName}}                                                        |
+| `footer.privacyPolicy`      | Privacy Policy                                                           |
+| `footer.termsOfService`     | Terms of Service                                                         |
+| `footer.language`           | Language                                                                 |
 | `footer.legalNotConfigured` | This content has not been configured yet. The app owner must provide it. |
 
 ## Metadata

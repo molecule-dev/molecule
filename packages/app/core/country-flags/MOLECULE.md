@@ -23,9 +23,11 @@ if (flag) {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-country-flags @molecule/app-bond
 ```
@@ -103,8 +105,8 @@ function setCountryFlags(flagSet: CountryFlagSet): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider           | Package                                          |
+| ------------------ | ------------------------------------------------ |
 | country-flag-icons | `@molecule/app-country-flags-country-flag-icons` |
 
 ## Injection Notes
@@ -112,6 +114,7 @@ function setCountryFlags(flagSet: CountryFlagSet): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-class-schedule-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-class-schedule'
-import type { ClassScheduleTranslationKey, ClassScheduleTranslations } from '@molecule/app-locales-class-schedule'
+import type {
+  ClassScheduleTranslationKey,
+  ClassScheduleTranslations,
+} from '@molecule/app-locales-class-schedule'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `classSchedule.aria.region` | Weekly class schedule |
-| `classSchedule.aria.event` | {{weekday}} {{start}} – {{end}} |
-| `classSchedule.aria.slot` | Empty slot, {{weekday}} {{time}} |
+| Key                         | English                          |
+| --------------------------- | -------------------------------- |
+| `classSchedule.aria.region` | Weekly class schedule            |
+| `classSchedule.aria.event`  | {{weekday}} {{start}} – {{end}}  |
+| `classSchedule.aria.slot`   | Empty slot, {{weekday}} {{time}} |
 
 ## Metadata
 

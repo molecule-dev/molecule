@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `database.error.noProvider` | Database pool not configured. Call setPool() first. |
-| `database.error.storeNotConfigured` | DataStore not configured. Call setStore() first. |
+| Key                                 | English                                             |
+| ----------------------------------- | --------------------------------------------------- |
+| `database.error.noProvider`         | Database pool not configured. Call setPool() first. |
+| `database.error.storeNotConfigured` | DataStore not configured. Call setStore() first.    |
 
 ## Metadata
 

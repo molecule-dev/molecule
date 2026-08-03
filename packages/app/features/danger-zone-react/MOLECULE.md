@@ -3,6 +3,7 @@
 React destructive-action primitives.
 
 Exports:
+
 - `<DangerZoneSection>` — Card with title/description/button for delete/reset/revoke.
 - `<ConfirmDialog>` — standalone "Are you sure?" modal.
 
@@ -29,9 +30,11 @@ import { ConfirmDialog, DangerZoneSection } from '@molecule/app-danger-zone-reac
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-danger-zone-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -150,6 +153,7 @@ function DangerZoneSection({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

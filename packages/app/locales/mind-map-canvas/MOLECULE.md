@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-mind-map-canvas-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-mind-map-canvas'
-import type { MindMapCanvasTranslationKey, MindMapCanvasTranslations } from '@molecule/app-locales-mind-map-canvas'
+import type {
+  MindMapCanvasTranslationKey,
+  MindMapCanvasTranslations,
+} from '@molecule/app-locales-mind-map-canvas'
 ```
 
 ## Registration
@@ -34,14 +37,14 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `mindMap.aria.canvas` | Mind map canvas |
-| `mindMap.aria.edit` | Edit node text |
-| `mindMap.action.collapse` | Collapse subtree |
-| `mindMap.action.expand` | Expand subtree |
-| `mindMap.action.addChild` | Add child node |
-| `mindMap.defaults.newChild` | New idea |
+| Key                         | English          |
+| --------------------------- | ---------------- |
+| `mindMap.aria.canvas`       | Mind map canvas  |
+| `mindMap.aria.edit`         | Edit node text   |
+| `mindMap.action.collapse`   | Collapse subtree |
+| `mindMap.action.expand`     | Expand subtree   |
+| `mindMap.action.addChild`   | Add child node   |
+| `mindMap.defaults.newChild` | New idea         |
 
 ## Metadata
 

@@ -31,9 +31,11 @@ export function RevenueChart() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-charts @molecule/app-bond @molecule/app-i18n
 ```
@@ -643,7 +645,10 @@ type ChartType =
 Creates an area chart (shorthand that sets type to 'area').
 
 ```typescript
-function createAreaChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createAreaChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -656,7 +661,10 @@ function createAreaChart(container: HTMLCanvasElement | HTMLElement, config: Omi
 Creates a bar chart (shorthand that sets type to 'bar').
 
 ```typescript
-function createBarChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createBarChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -682,7 +690,10 @@ function createChart(container: HTMLCanvasElement | HTMLElement, config: ChartCo
 Creates a doughnut chart (shorthand that sets type to 'doughnut').
 
 ```typescript
-function createDoughnutChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createDoughnutChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -695,7 +706,10 @@ function createDoughnutChart(container: HTMLCanvasElement | HTMLElement, config:
 Creates a line chart (shorthand that sets type to 'line').
 
 ```typescript
-function createLineChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createLineChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -708,7 +722,10 @@ function createLineChart(container: HTMLCanvasElement | HTMLElement, config: Omi
 Creates a pie chart (shorthand that sets type to 'pie').
 
 ```typescript
-function createPieChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createPieChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -721,7 +738,10 @@ function createPieChart(container: HTMLCanvasElement | HTMLElement, config: Omit
 Creates a radar chart (shorthand that sets type to 'radar').
 
 ```typescript
-function createRadarChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createRadarChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -734,7 +754,10 @@ function createRadarChart(container: HTMLCanvasElement | HTMLElement, config: Om
 Creates a scatter chart (shorthand that sets type to 'scatter').
 
 ```typescript
-function createScatterChart(container: HTMLCanvasElement | HTMLElement, config: Omit<ChartConfig, "type">): ChartInstance
+function createScatterChart(
+  container: HTMLCanvasElement | HTMLElement,
+  config: Omit<ChartConfig, 'type'>,
+): ChartInstance
 ```
 
 - `container` — The DOM element to render the chart into.
@@ -766,7 +789,10 @@ function createSimpleChartProvider(options?: SimpleChartProviderOptions): ChartP
 Generates colors for a dataset.
 
 ```typescript
-function generateColors(count: number, palette?: "default" | "pastel" | "vivid" | "cool" | "warm" | "monochrome"): string[]
+function generateColors(
+  count: number,
+  palette?: 'default' | 'pastel' | 'vivid' | 'cool' | 'warm' | 'monochrome',
+): string[]
 ```
 
 - `count` — The number of colors to generate.
@@ -779,7 +805,10 @@ function generateColors(count: number, palette?: "default" | "pastel" | "vivid" 
 Gets a color from a palette.
 
 ```typescript
-function getColor(index: number, palette?: "default" | "pastel" | "vivid" | "cool" | "warm" | "monochrome"): string
+function getColor(
+  index: number,
+  palette?: 'default' | 'pastel' | 'vivid' | 'cool' | 'warm' | 'monochrome',
+): string
 ```
 
 - `index` — The color index (wraps around if it exceeds palette length).
@@ -827,7 +856,14 @@ function setProvider(provider: ChartProvider): void
 Color palette presets.
 
 ```typescript
-const colorPalettes: { default: string[]; pastel: string[]; vivid: string[]; cool: string[]; warm: string[]; monochrome: string[]; }
+const colorPalettes: {
+  default: string[]
+  pastel: string[]
+  vivid: string[]
+  cool: string[]
+  warm: string[]
+  monochrome: string[]
+}
 ```
 
 #### `provider`
@@ -850,6 +886,7 @@ const provider: ChartProvider
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` 1.0.0
 
@@ -877,18 +914,19 @@ behind the provider so it stays swappable.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Every chart on the app's screens renders with real data — no blank
-  canvas, no NaN/undefined axis labels.
+      canvas, no NaN/undefined axis labels.
 - [ ] Plotted values match the data: spot-check at least one point/bar/slice
-  against a number you can verify elsewhere in the UI.
+      against a number you can verify elsewhere in the UI.
 - [ ] Charts update when their inputs change (date range, filter, or a newly
-  created record that should appear).
+      created record that should appear).
 - [ ] An empty dataset renders an empty state or zeroed axes — not a crash
-  or a stale chart from previous data.
+      or a stale chart from previous data.
 - [ ] Tooltips and legends (where enabled) show the correct labels and
-  values on hover.
+      values on hover.
 - [ ] Resizing the window/panel keeps charts legible (no overflow, no
-  zero-height canvas).
+      zero-height canvas).
 
 ## Translations
 

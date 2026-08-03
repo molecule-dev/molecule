@@ -33,9 +33,11 @@ async function writeLink(url: string): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-nfc @molecule/app-bond @molecule/app-i18n
 ```
@@ -560,6 +562,7 @@ function writeUrl(url: string): Promise<void>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

@@ -22,9 +22,11 @@ const articleRef = useRef<HTMLElement>(null)
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-reading-progress-bar-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -76,6 +78,7 @@ Computes the scroll progress (0..1) of an element, measured by how much of
 the element has scrolled past the top of the viewport.
 
 Specifically:
+
 - Returns `0` when the element's top is at or below the viewport top.
 - Returns `1` when the element's bottom is at or above the viewport top
   plus the viewport height (i.e. the element has been fully read).
@@ -141,6 +144,7 @@ function ReadingProgressBar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

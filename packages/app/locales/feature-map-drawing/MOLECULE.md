@@ -10,7 +10,10 @@ Translations for @molecule/app-map-drawing-react in 79 languages
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-map-drawing'
-import type { MapDrawingTranslationKey, MapDrawingTranslations } from '@molecule/app-locales-feature-map-drawing'
+import type {
+  MapDrawingTranslationKey,
+  MapDrawingTranslations,
+} from '@molecule/app-locales-feature-map-drawing'
 ```
 
 ## Registration
@@ -30,16 +33,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `mapDrawing.toolbar.aria` | Map drawing tools |
+| Key                       | English             |
+| ------------------------- | ------------------- |
+| `mapDrawing.toolbar.aria` | Map drawing tools   |
 | `mapDrawing.surface.aria` | Map drawing surface |
-| `mapDrawing.tool.polygon` | Polygon |
-| `mapDrawing.tool.circle` | Circle |
-| `mapDrawing.tool.pin` | Pin |
-| `mapDrawing.tool.line` | Line |
-| `mapDrawing.tool.select` | Select |
-| `mapDrawing.tool.delete` | Delete |
+| `mapDrawing.tool.polygon` | Polygon             |
+| `mapDrawing.tool.circle`  | Circle              |
+| `mapDrawing.tool.pin`     | Pin                 |
+| `mapDrawing.tool.line`    | Line                |
+| `mapDrawing.tool.select`  | Select              |
+| `mapDrawing.tool.delete`  | Delete              |
 
 ## Metadata
 

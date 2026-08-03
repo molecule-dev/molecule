@@ -21,17 +21,15 @@ import { OAuthButtons } from '@molecule/app-auth-ui-react'
 import { oauthConfig } from './config.js'
 
 // On the Login/Signup page (the OAuth redirect must land back here):
-<OAuthButtons
-  oauthConfig={oauthConfig}
-  showLabels
-  onSuccess={() => navigate('/dashboard')}
-/>
+;<OAuthButtons oauthConfig={oauthConfig} showLabels onSuccess={() => navigate('/dashboard')} />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-auth-ui-react @molecule/app-oauth-buttons-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -121,6 +119,7 @@ function OAuthButtons({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-oauth-buttons-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

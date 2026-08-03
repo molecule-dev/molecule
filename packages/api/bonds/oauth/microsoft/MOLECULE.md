@@ -15,28 +15,28 @@ rotation, or Microsoft Graph access (Outlook, OneDrive, Teams).
 
 2. Navigate to **Applications → App registrations → New registration**.
 
-    - Choose **Accounts in any organizational directory and personal
-      Microsoft accounts** for multi-tenant + consumer login (matches
-      the default `OAUTH_MICROSOFT_TENANT_ID=common`). For
-      single-tenant apps, choose **Accounts in this organizational
-      directory only** and set `OAUTH_MICROSOFT_TENANT_ID` to the
-      directory tenant id.
-    - Add a **Web** redirect URI matching your app origin
-      (e.g., `http://localhost:3000` for development, your production
-      origin otherwise — must match the `redirectUri` passed to
-      `getAuthorizationUrl` and `exchangeCodeForTokens`).
+   - Choose **Accounts in any organizational directory and personal
+     Microsoft accounts** for multi-tenant + consumer login (matches
+     the default `OAUTH_MICROSOFT_TENANT_ID=common`). For
+     single-tenant apps, choose **Accounts in this organizational
+     directory only** and set `OAUTH_MICROSOFT_TENANT_ID` to the
+     directory tenant id.
+   - Add a **Web** redirect URI matching your app origin
+     (e.g., `http://localhost:3000` for development, your production
+     origin otherwise — must match the `redirectUri` passed to
+     `getAuthorizationUrl` and `exchangeCodeForTokens`).
 
 3. After registration:
 
-    - Copy the **Application (client) ID** to your API's
-      `OAUTH_MICROSOFT_CLIENT_ID` environment variable.
+   - Copy the **Application (client) ID** to your API's
+     `OAUTH_MICROSOFT_CLIENT_ID` environment variable.
 
-    - Open **Certificates & secrets → Client secrets → New client
-      secret**, then copy the secret value (NOT the secret id) to
-      your API's `OAUTH_MICROSOFT_CLIENT_SECRET` environment variable.
+   - Open **Certificates & secrets → Client secrets → New client
+     secret**, then copy the secret value (NOT the secret id) to
+     your API's `OAUTH_MICROSOFT_CLIENT_SECRET` environment variable.
 
-    - For single-tenant apps, also set
-      `OAUTH_MICROSOFT_TENANT_ID` to the directory tenant id.
+   - For single-tenant apps, also set
+     `OAUTH_MICROSOFT_TENANT_ID` to the directory tenant id.
 
 4. Under **API permissions**, add the delegated Microsoft Graph
    permissions you need. The defaults granted by the
@@ -57,9 +57,11 @@ bond('oauth', microsoft.serverName, microsoft)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-oauth-microsoft @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets
 ```
@@ -193,29 +195,29 @@ authenticate them and send back an authorization code.
 
 ```typescript
 interface OAuthAuthorizeUrlParams {
-    /**
-     * Absolute URI the provider should redirect the user back to after
-     * authorization (the app origin, optionally with a path). When omitted,
-     * the builder leaves `redirect_uri` off the URL so the provider falls
-     * back to its registered callback URL.
-     */
-    redirectUri?: string;
-    /**
-     * The CSRF `state` parameter bound to the initiating session (stored in
-     * an httpOnly cookie by the initiation endpoint and validated by the
-     * login handler on callback).
-     */
-    state: string;
-    /**
-     * PKCE code challenge derived (S256) from the per-session code verifier.
-     * Omit only for providers that do not support PKCE.
-     */
-    codeChallenge?: string;
-    /**
-     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
-     * for providers that cannot hash.
-     */
-    codeChallengeMethod?: 'S256' | 'plain';
+  /**
+   * Absolute URI the provider should redirect the user back to after
+   * authorization (the app origin, optionally with a path). When omitted,
+   * the builder leaves `redirect_uri` off the URL so the provider falls
+   * back to its registered callback URL.
+   */
+  redirectUri?: string
+  /**
+   * The CSRF `state` parameter bound to the initiating session (stored in
+   * an httpOnly cookie by the initiation endpoint and validated by the
+   * login handler on callback).
+   */
+  state: string
+  /**
+   * PKCE code challenge derived (S256) from the per-session code verifier.
+   * Omit only for providers that do not support PKCE.
+   */
+  codeChallenge?: string
+  /**
+   * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+   * for providers that cannot hash.
+   */
+  codeChallengeMethod?: 'S256' | 'plain'
 }
 ```
 
@@ -317,48 +319,48 @@ The properties returned when verifying an OAuth code.
 
 ```typescript
 interface OAuthUserProps {
-    /**
-     * An alphanumeric username derived from the OAuth provider.
-     *
-     * Format: `{provider_username}@{provider_name}`
-     */
-    username: string;
-    /**
-     * The user's display name from the OAuth provider.
-     */
-    name?: string;
-    /**
-     * The user's email address from the OAuth provider.
-     */
-    email?: string;
-    /**
-     * Whether the OAuth provider has affirmatively verified that the user
-     * controls this `email` mailbox.
-     *
-     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
-     * `email_verified`, Apple's `email_verified` ID-token claim). When the
-     * provider exposes no trustworthy verification signal in the profile data
-     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
-     * `true`) — consumers treat only an explicit `true` as verified.
-     *
-     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
-     * decide whether a provider-supplied email may be trusted over an existing,
-     * unverified local account — preventing an unverified squatter from blocking
-     * the verified mailbox owner.
-     */
-    emailVerified?: boolean;
-    /**
-     * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
-     */
-    oauthServer: string;
-    /**
-     * Unique identifier for the user from the OAuth provider.
-     */
-    oauthId: string;
-    /**
-     * Raw user data from the OAuth provider.
-     */
-    oauthData: Record<string, unknown>;
+  /**
+   * An alphanumeric username derived from the OAuth provider.
+   *
+   * Format: `{provider_username}@{provider_name}`
+   */
+  username: string
+  /**
+   * The user's display name from the OAuth provider.
+   */
+  name?: string
+  /**
+   * The user's email address from the OAuth provider.
+   */
+  email?: string
+  /**
+   * Whether the OAuth provider has affirmatively verified that the user
+   * controls this `email` mailbox.
+   *
+   * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+   * `email_verified`, Apple's `email_verified` ID-token claim). When the
+   * provider exposes no trustworthy verification signal in the profile data
+   * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+   * `true`) — consumers treat only an explicit `true` as verified.
+   *
+   * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+   * decide whether a provider-supplied email may be trusted over an existing,
+   * unverified local account — preventing an unverified squatter from blocking
+   * the verified mailbox owner.
+   */
+  emailVerified?: boolean
+  /**
+   * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
+   */
+  oauthServer: string
+  /**
+   * Unique identifier for the user from the OAuth provider.
+   */
+  oauthId: string
+  /**
+   * Raw user data from the OAuth provider.
+   */
+  oauthData: Record<string, unknown>
 }
 ```
 
@@ -372,7 +374,7 @@ their own client id, scopes, and authorize endpoint so no consumer ever
 hardcodes provider knowledge.
 
 ```typescript
-type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null
 ```
 
 #### `OAuthVerifier`
@@ -391,7 +393,11 @@ for a rejected code — that would misreport a client mistake (or an
 attack) as a server fault.
 
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
+type OAuthVerifier = (
+  code: string,
+  codeVerifier?: string,
+  redirectUri?: string,
+) => Promise<OAuthUserProps | null>
 ```
 
 ### Classes
@@ -420,7 +426,7 @@ resolve the accepted issuer:
 - **Single-tenant pin** (a concrete tenant GUID): the issuer is fixed to
   that exact tenant. The token's `tid` is NEVER used to widen the accepted
   issuer set — Microsoft's public-cloud signing keys are shared across all
-  tenants, so a validly-signed token from a *different* tenant would
+  tenants, so a validly-signed token from a _different_ tenant would
   otherwise pass a single-tenant pin (a cross-tenant authentication
   bypass). The caller's separate `tid`-vs-config check (see
   `verifyMicrosoftIdToken`) is what enforces the tenant; this function does
@@ -502,7 +508,10 @@ Cache TTL is one hour. Pass `force: true` (e.g., on a key-id miss)
 to bypass the cache and refresh.
 
 ```typescript
-function getJwks(tenantId: string, options?: { force?: boolean; now?: () => number; }): Promise<JsonWebKey[]>
+function getJwks(
+  tenantId: string,
+  options?: { force?: boolean; now?: () => number },
+): Promise<JsonWebKey[]>
 ```
 
 - `tenantId` — Microsoft tenant identifier.
@@ -528,7 +537,12 @@ Resolve effective configuration by layering an explicit config over
 environment variables. Pure — does no I/O.
 
 ```typescript
-function resolveConfig(overrides?: MicrosoftOAuthConfig): { tenantId: string; clientId: string; clientSecret: string; defaultScope: string; }
+function resolveConfig(overrides?: MicrosoftOAuthConfig): {
+  tenantId: string
+  clientId: string
+  clientSecret: string
+  defaultScope: string
+}
 ```
 
 - `overrides` — Partial configuration to merge over env defaults.
@@ -564,7 +578,19 @@ so the consumer responds 403 "verification failed". Infrastructure
 failures (network, outage, malformed 2xx) still throw and surface as 500.
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; name: string | undefined; email: string | undefined; emailVerified: false; oauthServer: "microsoft"; oauthId: string; oauthData: Record<string, unknown>; } | null>
+function verify(
+  code: string,
+  codeVerifier?: string,
+  redirectUri?: string,
+): Promise<{
+  username: string
+  name: string | undefined
+  email: string | undefined
+  emailVerified: false
+  oauthServer: 'microsoft'
+  oauthId: string
+  oauthData: Record<string, unknown>
+} | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -579,7 +605,11 @@ Verify a Microsoft-issued ID token end-to-end (signature, issuer,
 audience, expiry).
 
 ```typescript
-function verifyMicrosoftIdToken(idToken: string, config: { tenantId: string; audience: string; }, options?: { now?: () => number; refreshOnMiss?: boolean; }): Promise<MicrosoftIdTokenClaims>
+function verifyMicrosoftIdToken(
+  idToken: string,
+  config: { tenantId: string; audience: string },
+  options?: { now?: () => number; refreshOnMiss?: boolean },
+): Promise<MicrosoftIdTokenClaims>
 ```
 
 - `idToken` — Compact JWS.
@@ -609,7 +639,7 @@ function verifyRs256Signature(jwk: JsonWebKey, signingInput: string, signature: 
 Default OAuth scopes when none are supplied.
 
 ```typescript
-const DEFAULT_SCOPE: "openid email profile User.Read"
+const DEFAULT_SCOPE: 'openid email profile User.Read'
 ```
 
 #### `GRAPH_ME_URL`
@@ -617,7 +647,7 @@ const DEFAULT_SCOPE: "openid email profile User.Read"
 Microsoft Graph endpoint for the signed-in user.
 
 ```typescript
-const GRAPH_ME_URL: "https://graph.microsoft.com/v1.0/me"
+const GRAPH_ME_URL: 'https://graph.microsoft.com/v1.0/me'
 ```
 
 #### `oauthMicrosoftSecretDefinitions`
@@ -644,10 +674,11 @@ const provider: OAuthProvider
 The OAuth server identifier for Microsoft.
 
 ```typescript
-const serverName: "microsoft"
+const serverName: 'microsoft'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-oauth` interface.
 
 ## Bond Wiring
@@ -668,6 +699,7 @@ export function setupOauthMicrosoft(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
@@ -675,13 +707,13 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_MICROSOFT_CLIENT_ID` *(required)* — Microsoft application (client) ID
+- `OAUTH_MICROSOFT_CLIENT_ID` _(required)_ — Microsoft application (client) ID
   - Setup: Microsoft Entra ID → App registrations → New registration; copy the Application (client) ID.
   - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
-- `OAUTH_MICROSOFT_CLIENT_SECRET` *(required)* — Microsoft client secret
+- `OAUTH_MICROSOFT_CLIENT_SECRET` _(required)_ — Microsoft client secret
   - Setup: App registration → Certificates & secrets → New client secret; copy the Value.
   - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
-- `OAUTH_MICROSOFT_TENANT_ID` *(optional)* — Microsoft directory (tenant) ID
+- `OAUTH_MICROSOFT_TENANT_ID` _(optional)_ — Microsoft directory (tenant) ID
   - Setup: Copy the Directory (tenant) ID from the app registration overview, or use "common" for multi-tenant.
   - Get it here: [https://entra.microsoft.com/](https://entra.microsoft.com/)
   - Example: `common`
@@ -695,10 +727,10 @@ Peer dependencies:
 
 **ID-token issuer / tenant validation contract.** `verifyMicrosoftIdToken`
 (and `provider.verifyIdToken`) validate `iss` against the issuer(s) implied
-by the *configured* tenant (`OAUTH_MICROSOFT_TENANT_ID` / `config.tenantId`)
+by the _configured_ tenant (`OAUTH_MICROSOFT_TENANT_ID` / `config.tenantId`)
 — never against the token's own `tid`. This matters because Microsoft's
 public-cloud signing keys are **shared across every tenant**, so a
-validly-signed token issued for a *different* directory would otherwise
+validly-signed token issued for a _different_ directory would otherwise
 satisfy a single-tenant configuration (a cross-tenant authentication
 bypass). The rule:
 
@@ -720,28 +752,29 @@ intended.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Clicking the app's "Sign in with {provider}" button (Google, GitHub, …)
-  redirects to the provider's authorize URL carrying the correct client_id,
-  the app's requested scopes, AND the app's registered redirect_uri — inspect
-  the actual outbound URL (the 302 Location, or the address the popup/tab
-  navigates to) and confirm each value; a missing or wrong one is the bug.
+      redirects to the provider's authorize URL carrying the correct client_id,
+      the app's requested scopes, AND the app's registered redirect_uri — inspect
+      the actual outbound URL (the 302 Location, or the address the popup/tab
+      navigates to) and confirm each value; a missing or wrong one is the bug.
 - [ ] The callback route exchanges the returned code SERVER-SIDE for a token,
-  fetches the profile, and creates-or-links the app user + establishes a
-  session — after the round-trip the app shows that user logged in. CAVEAT:
-  the provider's own consent screen runs on ITS domain and CANNOT be driven
-  in the sandbox, so verify the two boundaries you DO own — the authorize URL
-  going out (above) and the callback coming back — not the provider's page.
-  Complete the round-trip with a test/stub provider bond if one is wired;
-  otherwise assert the callback handler's own behavior (state check → code
-  exchange → user create-or-link → session). Never mock the flow or edit
-  production code to bypass the provider.
+      fetches the profile, and creates-or-links the app user + establishes a
+      session — after the round-trip the app shows that user logged in. CAVEAT:
+      the provider's own consent screen runs on ITS domain and CANNOT be driven
+      in the sandbox, so verify the two boundaries you DO own — the authorize URL
+      going out (above) and the callback coming back — not the provider's page.
+      Complete the round-trip with a test/stub provider bond if one is wired;
+      otherwise assert the callback handler's own behavior (state check → code
+      exchange → user create-or-link → session). Never mock the flow or edit
+      production code to bypass the provider.
 - [ ] A returning OAuth user logs into the SAME account — sign in twice and
-  confirm one user row linked by provider id (oauthServer + oauthId), not a
-  fresh duplicate created each time.
+      confirm one user row linked by provider id (oauthServer + oauthId), not a
+      fresh duplicate created each time.
 - [ ] SECURITY — the `state` parameter is generated on initiation and
-  verified on callback (CSRF protection): a mismatched or absent `state` is
-  rejected (403); the `redirect_uri` is validated against an allowlist so an
-  attacker cannot redirect the code elsewhere; and the client secret + tokens
-  stay server-side — grep the browser bundle and network tab to confirm the
-  secret never reaches the client (only the authorize URL and returned code
-  cross the boundary).
+      verified on callback (CSRF protection): a mismatched or absent `state` is
+      rejected (403); the `redirect_uri` is validated against an allowlist so an
+      attacker cannot redirect the code elsewhere; and the client secret + tokens
+      stay server-side — grep the browser bundle and network tab to confirm the
+      secret never reaches the client (only the authorize URL and returned code
+      cross the boundary).

@@ -14,17 +14,17 @@ Twitter OAuth provider for molecule.dev.
 
 5. Upload your app's logo and description if necessary.
 
-    5.1. Return to Twitter's Developer Portal Dashboard.
+   5.1. Return to Twitter's Developer Portal Dashboard.
 
-    5.2. Open your app under "Projects & Apps".
+   5.2. Open your app under "Projects & Apps".
 
-    5.3. Click the "Edit" button.
+   5.3. Click the "Edit" button.
 
-    5.4. Upload an image.
+   5.4. Upload an image.
 
-    5.5. Update your app's description.
+   5.5. Update your app's description.
 
-    5.6. Click the "Save" button.
+   5.6. Click the "Save" button.
 
 6. Under "User authentication settings", click the "Set up" button to begin enabling OAuth.
 
@@ -34,9 +34,9 @@ Twitter OAuth provider for molecule.dev.
 
 9. Under "Callback URI / Redirect URL", add entries for BOTH your app origin and each page your app starts OAuth from (X matches these exactly, and the API sends `redirect_uri = APP_ORIGIN + the initiating page's path`):
 
-    - For development: `http://localhost:3000` and `http://localhost:3000/login`
+   - For development: `http://localhost:3000` and `http://localhost:3000/login`
 
-    - For production: your app's origin (typically your API's `APP_ORIGIN` environment variable) and the same origin + `/login` (plus any other OAuth-initiating page paths).
+   - For production: your app's origin (typically your API's `APP_ORIGIN` environment variable) and the same origin + `/login` (plus any other OAuth-initiating page paths).
 
 10. Fill out the remaining information as necessary and click the "Save" button.
 
@@ -51,9 +51,11 @@ Twitter OAuth provider for molecule.dev.
 > **Your users should now be able to log in via Twitter!**
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-oauth-twitter @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets
 ```
@@ -70,29 +72,29 @@ authenticate them and send back an authorization code.
 
 ```typescript
 interface OAuthAuthorizeUrlParams {
-    /**
-     * Absolute URI the provider should redirect the user back to after
-     * authorization (the app origin, optionally with a path). When omitted,
-     * the builder leaves `redirect_uri` off the URL so the provider falls
-     * back to its registered callback URL.
-     */
-    redirectUri?: string;
-    /**
-     * The CSRF `state` parameter bound to the initiating session (stored in
-     * an httpOnly cookie by the initiation endpoint and validated by the
-     * login handler on callback).
-     */
-    state: string;
-    /**
-     * PKCE code challenge derived (S256) from the per-session code verifier.
-     * Omit only for providers that do not support PKCE.
-     */
-    codeChallenge?: string;
-    /**
-     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
-     * for providers that cannot hash.
-     */
-    codeChallengeMethod?: 'S256' | 'plain';
+  /**
+   * Absolute URI the provider should redirect the user back to after
+   * authorization (the app origin, optionally with a path). When omitted,
+   * the builder leaves `redirect_uri` off the URL so the provider falls
+   * back to its registered callback URL.
+   */
+  redirectUri?: string
+  /**
+   * The CSRF `state` parameter bound to the initiating session (stored in
+   * an httpOnly cookie by the initiation endpoint and validated by the
+   * login handler on callback).
+   */
+  state: string
+  /**
+   * PKCE code challenge derived (S256) from the per-session code verifier.
+   * Omit only for providers that do not support PKCE.
+   */
+  codeChallenge?: string
+  /**
+   * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+   * for providers that cannot hash.
+   */
+  codeChallengeMethod?: 'S256' | 'plain'
 }
 ```
 
@@ -102,48 +104,48 @@ The properties returned when verifying an OAuth code.
 
 ```typescript
 interface OAuthUserProps {
-    /**
-     * An alphanumeric username derived from the OAuth provider.
-     *
-     * Format: `{provider_username}@{provider_name}`
-     */
-    username: string;
-    /**
-     * The user's display name from the OAuth provider.
-     */
-    name?: string;
-    /**
-     * The user's email address from the OAuth provider.
-     */
-    email?: string;
-    /**
-     * Whether the OAuth provider has affirmatively verified that the user
-     * controls this `email` mailbox.
-     *
-     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
-     * `email_verified`, Apple's `email_verified` ID-token claim). When the
-     * provider exposes no trustworthy verification signal in the profile data
-     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
-     * `true`) — consumers treat only an explicit `true` as verified.
-     *
-     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
-     * decide whether a provider-supplied email may be trusted over an existing,
-     * unverified local account — preventing an unverified squatter from blocking
-     * the verified mailbox owner.
-     */
-    emailVerified?: boolean;
-    /**
-     * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
-     */
-    oauthServer: string;
-    /**
-     * Unique identifier for the user from the OAuth provider.
-     */
-    oauthId: string;
-    /**
-     * Raw user data from the OAuth provider.
-     */
-    oauthData: Record<string, unknown>;
+  /**
+   * An alphanumeric username derived from the OAuth provider.
+   *
+   * Format: `{provider_username}@{provider_name}`
+   */
+  username: string
+  /**
+   * The user's display name from the OAuth provider.
+   */
+  name?: string
+  /**
+   * The user's email address from the OAuth provider.
+   */
+  email?: string
+  /**
+   * Whether the OAuth provider has affirmatively verified that the user
+   * controls this `email` mailbox.
+   *
+   * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+   * `email_verified`, Apple's `email_verified` ID-token claim). When the
+   * provider exposes no trustworthy verification signal in the profile data
+   * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+   * `true`) — consumers treat only an explicit `true` as verified.
+   *
+   * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+   * decide whether a provider-supplied email may be trusted over an existing,
+   * unverified local account — preventing an unverified squatter from blocking
+   * the verified mailbox owner.
+   */
+  emailVerified?: boolean
+  /**
+   * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
+   */
+  oauthServer: string
+  /**
+   * Unique identifier for the user from the OAuth provider.
+   */
+  oauthId: string
+  /**
+   * Raw user data from the OAuth provider.
+   */
+  oauthData: Record<string, unknown>
 }
 ```
 
@@ -157,7 +159,7 @@ their own client id, scopes, and authorize endpoint so no consumer ever
 hardcodes provider knowledge.
 
 ```typescript
-type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null
 ```
 
 #### `OAuthVerifier`
@@ -176,7 +178,11 @@ for a rejected code — that would misreport a client mistake (or an
 attack) as a server fault.
 
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
+type OAuthVerifier = (
+  code: string,
+  codeVerifier?: string,
+  redirectUri?: string,
+) => Promise<OAuthUserProps | null>
 ```
 
 ### Functions
@@ -221,7 +227,18 @@ overridden via `OAUTH_TWITTER_TOKEN_URL` and `OAUTH_TWITTER_USER_URL`
 consistent with the github/gitlab/google bonds).
 
 ```typescript
-function verify(code: string, codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: false; oauthServer: "twitter"; oauthId: string; oauthData: Record<string, unknown>; } | null>
+function verify(
+  code: string,
+  codeVerifier?: string,
+  redirectUri?: string,
+): Promise<{
+  username: string
+  email: string | undefined
+  emailVerified: false
+  oauthServer: 'twitter'
+  oauthId: string
+  oauthData: Record<string, unknown>
+} | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -245,10 +262,11 @@ const oauthTwitterSecretDefinitions: SecretDefinition[]
 The OAuth server identifier for Twitter.
 
 ```typescript
-const serverName: "twitter"
+const serverName: 'twitter'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-oauth` interface.
 
 ## Bond Wiring
@@ -269,6 +287,7 @@ export function setupOauthTwitter(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
@@ -276,10 +295,10 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_TWITTER_CLIENT_ID` *(required)* — X (Twitter) OAuth client ID
+- `OAUTH_TWITTER_CLIENT_ID` _(required)_ — X (Twitter) OAuth client ID
   - Setup: Create a project + app in the X developer portal, enable OAuth 2.0, and copy the client ID.
   - Get it here: [https://developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard)
-- `OAUTH_TWITTER_CLIENT_SECRET` *(required)* — X (Twitter) OAuth client secret
+- `OAUTH_TWITTER_CLIENT_SECRET` _(required)_ — X (Twitter) OAuth client secret
   - Setup: Shown when enabling OAuth 2.0 for your app in the X developer portal.
   - Get it here: [https://developer.x.com/en/portal/dashboard](https://developer.x.com/en/portal/dashboard)
 
@@ -300,28 +319,29 @@ apple, microsoft).
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Clicking the app's "Sign in with {provider}" button (Google, GitHub, …)
-  redirects to the provider's authorize URL carrying the correct client_id,
-  the app's requested scopes, AND the app's registered redirect_uri — inspect
-  the actual outbound URL (the 302 Location, or the address the popup/tab
-  navigates to) and confirm each value; a missing or wrong one is the bug.
+      redirects to the provider's authorize URL carrying the correct client_id,
+      the app's requested scopes, AND the app's registered redirect_uri — inspect
+      the actual outbound URL (the 302 Location, or the address the popup/tab
+      navigates to) and confirm each value; a missing or wrong one is the bug.
 - [ ] The callback route exchanges the returned code SERVER-SIDE for a token,
-  fetches the profile, and creates-or-links the app user + establishes a
-  session — after the round-trip the app shows that user logged in. CAVEAT:
-  the provider's own consent screen runs on ITS domain and CANNOT be driven
-  in the sandbox, so verify the two boundaries you DO own — the authorize URL
-  going out (above) and the callback coming back — not the provider's page.
-  Complete the round-trip with a test/stub provider bond if one is wired;
-  otherwise assert the callback handler's own behavior (state check → code
-  exchange → user create-or-link → session). Never mock the flow or edit
-  production code to bypass the provider.
+      fetches the profile, and creates-or-links the app user + establishes a
+      session — after the round-trip the app shows that user logged in. CAVEAT:
+      the provider's own consent screen runs on ITS domain and CANNOT be driven
+      in the sandbox, so verify the two boundaries you DO own — the authorize URL
+      going out (above) and the callback coming back — not the provider's page.
+      Complete the round-trip with a test/stub provider bond if one is wired;
+      otherwise assert the callback handler's own behavior (state check → code
+      exchange → user create-or-link → session). Never mock the flow or edit
+      production code to bypass the provider.
 - [ ] A returning OAuth user logs into the SAME account — sign in twice and
-  confirm one user row linked by provider id (oauthServer + oauthId), not a
-  fresh duplicate created each time.
+      confirm one user row linked by provider id (oauthServer + oauthId), not a
+      fresh duplicate created each time.
 - [ ] SECURITY — the `state` parameter is generated on initiation and
-  verified on callback (CSRF protection): a mismatched or absent `state` is
-  rejected (403); the `redirect_uri` is validated against an allowlist so an
-  attacker cannot redirect the code elsewhere; and the client secret + tokens
-  stay server-side — grep the browser bundle and network tab to confirm the
-  secret never reaches the client (only the authorize URL and returned code
-  cross the boundary).
+      verified on callback (CSRF protection): a mismatched or absent `state` is
+      rejected (403); the `redirect_uri` is validated against an allowlist so an
+      attacker cannot redirect the code elsewhere; and the client secret + tokens
+      stay server-side — grep the browser bundle and network tab to confirm the
+      secret never reaches the client (only the authorize URL and returned code
+      cross the boundary).

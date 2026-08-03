@@ -49,9 +49,11 @@ gradeAnswer(
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-quiz-grading zod
 ```
@@ -64,12 +66,12 @@ npm install @molecule/api-quiz-grading zod
 
 Maps a {@link QuestionKind} to its accepted answer shape.
 
-- `multi-choice`   — array of selected indices.
-- `true-false`     — boolean.
-- `type-answer`    — string.
-- `fill-blank`     — string array (one entry per blank, in order).
-- `numeric`        — number.
-- `matching`       — `Record<leftId, rightId>`.
+- `multi-choice` — array of selected indices.
+- `true-false` — boolean.
+- `type-answer` — string.
+- `fill-blank` — string array (one entry per blank, in order).
+- `numeric` — number.
+- `matching` — `Record<leftId, rightId>`.
 
 ```typescript
 interface AnswerMap {
@@ -329,12 +331,12 @@ type Question = {
 
 Discriminator for the supported question kinds.
 
-- `multi-choice`   — pick one or more correct options from a fixed list.
-- `true-false`     — boolean answer.
-- `type-answer`    — free-text response matched against accepted answers.
-- `fill-blank`     — one or more blanks each with accepted answers.
-- `numeric`        — numeric answer with optional tolerance.
-- `matching`       — match items in column A to items in column B.
+- `multi-choice` — pick one or more correct options from a fixed list.
+- `true-false` — boolean answer.
+- `type-answer` — free-text response matched against accepted answers.
+- `fill-blank` — one or more blanks each with accepted answers.
+- `numeric` — numeric answer with optional tolerance.
+- `matching` — match items in column A to items in column B.
 
 ```typescript
 type QuestionKind =
@@ -352,7 +354,11 @@ Formula: `1 + maxFactor * max(0, 1 - elapsed/limit)` clamped so very
 slow answers receive no bonus and over-budget answers also get `1`.
 
 ```typescript
-function computeSpeedFactor(elapsedMs: number | undefined, timeLimitMs: number | undefined, maxFactor: number): number
+function computeSpeedFactor(
+  elapsedMs: number | undefined,
+  timeLimitMs: number | undefined,
+  maxFactor: number,
+): number
 ```
 
 - `elapsedMs` — Time spent on the question in ms.
@@ -512,7 +518,24 @@ function normalizeText(value: string, options?: TextMatchOptions): string
 Schema for a fill-blank payload.
 
 ```typescript
-const fillBlankPayloadSchema: z.ZodObject<{ blanks: z.ZodArray<z.ZodObject<{ acceptedAnswers: z.ZodArray<z.ZodString>; }, z.core.$strict>>; match: z.ZodOptional<z.ZodObject<{ caseInsensitive: z.ZodOptional<z.ZodBoolean>; trim: z.ZodOptional<z.ZodBoolean>; collapseWhitespace: z.ZodOptional<z.ZodBoolean>; accentFold: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>>; allowPartial: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>
+const fillBlankPayloadSchema: z.ZodObject<
+  {
+    blanks: z.ZodArray<z.ZodObject<{ acceptedAnswers: z.ZodArray<z.ZodString> }, z.core.$strict>>
+    match: z.ZodOptional<
+      z.ZodObject<
+        {
+          caseInsensitive: z.ZodOptional<z.ZodBoolean>
+          trim: z.ZodOptional<z.ZodBoolean>
+          collapseWhitespace: z.ZodOptional<z.ZodBoolean>
+          accentFold: z.ZodOptional<z.ZodBoolean>
+        },
+        z.core.$strict
+      >
+    >
+    allowPartial: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strict
+>
 ```
 
 #### `fuzzyMatchOptionsSchema`
@@ -520,7 +543,16 @@ const fillBlankPayloadSchema: z.ZodObject<{ blanks: z.ZodArray<z.ZodObject<{ acc
 Schema for {@link FuzzyMatchOptions}.
 
 ```typescript
-const fuzzyMatchOptionsSchema: z.ZodObject<{ caseInsensitive: z.ZodOptional<z.ZodBoolean>; trim: z.ZodOptional<z.ZodBoolean>; collapseWhitespace: z.ZodOptional<z.ZodBoolean>; accentFold: z.ZodOptional<z.ZodBoolean>; maxEditDistance: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>
+const fuzzyMatchOptionsSchema: z.ZodObject<
+  {
+    caseInsensitive: z.ZodOptional<z.ZodBoolean>
+    trim: z.ZodOptional<z.ZodBoolean>
+    collapseWhitespace: z.ZodOptional<z.ZodBoolean>
+    accentFold: z.ZodOptional<z.ZodBoolean>
+    maxEditDistance: z.ZodOptional<z.ZodNumber>
+  },
+  z.core.$strict
+>
 ```
 
 #### `gradeOptionsSchema`
@@ -528,7 +560,10 @@ const fuzzyMatchOptionsSchema: z.ZodObject<{ caseInsensitive: z.ZodOptional<z.Zo
 Schema for {@link GradeOptions}.
 
 ```typescript
-const gradeOptionsSchema: z.ZodObject<{ elapsedMs: z.ZodOptional<z.ZodNumber>; speedBonusMaxFactor: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>
+const gradeOptionsSchema: z.ZodObject<
+  { elapsedMs: z.ZodOptional<z.ZodNumber>; speedBonusMaxFactor: z.ZodOptional<z.ZodNumber> },
+  z.core.$strict
+>
 ```
 
 #### `gradeResultSchema`
@@ -536,7 +571,10 @@ const gradeOptionsSchema: z.ZodObject<{ elapsedMs: z.ZodOptional<z.ZodNumber>; s
 Schema for {@link GradeResult}.
 
 ```typescript
-const gradeResultSchema: z.ZodObject<{ is_correct: z.ZodBoolean; points_earned: z.ZodNumber; explanation: z.ZodOptional<z.ZodString>; }, z.core.$strict>
+const gradeResultSchema: z.ZodObject<
+  { is_correct: z.ZodBoolean; points_earned: z.ZodNumber; explanation: z.ZodOptional<z.ZodString> },
+  z.core.$strict
+>
 ```
 
 #### `matchingPayloadSchema`
@@ -544,7 +582,10 @@ const gradeResultSchema: z.ZodObject<{ is_correct: z.ZodBoolean; points_earned: 
 Schema for a matching payload.
 
 ```typescript
-const matchingPayloadSchema: z.ZodObject<{ pairs: z.ZodRecord<z.ZodString, z.ZodString>; allowPartial: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>
+const matchingPayloadSchema: z.ZodObject<
+  { pairs: z.ZodRecord<z.ZodString, z.ZodString>; allowPartial: z.ZodOptional<z.ZodBoolean> },
+  z.core.$strict
+>
 ```
 
 #### `multiChoicePayloadSchema`
@@ -552,7 +593,14 @@ const matchingPayloadSchema: z.ZodObject<{ pairs: z.ZodRecord<z.ZodString, z.Zod
 Schema for a multi-choice payload.
 
 ```typescript
-const multiChoicePayloadSchema: z.ZodObject<{ correctIndices: z.ZodArray<z.ZodNumber>; allowPartial: z.ZodOptional<z.ZodBoolean>; optionCount: z.ZodNumber; }, z.core.$strict>
+const multiChoicePayloadSchema: z.ZodObject<
+  {
+    correctIndices: z.ZodArray<z.ZodNumber>
+    allowPartial: z.ZodOptional<z.ZodBoolean>
+    optionCount: z.ZodNumber
+  },
+  z.core.$strict
+>
 ```
 
 #### `numericPayloadSchema`
@@ -560,7 +608,10 @@ const multiChoicePayloadSchema: z.ZodObject<{ correctIndices: z.ZodArray<z.ZodNu
 Schema for a numeric payload.
 
 ```typescript
-const numericPayloadSchema: z.ZodObject<{ correct: z.ZodNumber; tolerance: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>
+const numericPayloadSchema: z.ZodObject<
+  { correct: z.ZodNumber; tolerance: z.ZodOptional<z.ZodNumber> },
+  z.core.$strict
+>
 ```
 
 #### `questionSchema`
@@ -569,7 +620,123 @@ Discriminated-union schema for a {@link Question}. Use this to validate
 questions read from untrusted JSON.
 
 ```typescript
-const questionSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{ id: z.ZodOptional<z.ZodString>; kind: z.ZodLiteral<"multi-choice">; payload: z.ZodObject<{ correctIndices: z.ZodArray<z.ZodNumber>; allowPartial: z.ZodOptional<z.ZodBoolean>; optionCount: z.ZodNumber; }, z.core.$strict>; points: z.ZodOptional<z.ZodNumber>; timeLimitMs: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>, z.ZodObject<{ id: z.ZodOptional<z.ZodString>; kind: z.ZodLiteral<"true-false">; payload: z.ZodObject<{ correct: z.ZodBoolean; }, z.core.$strict>; points: z.ZodOptional<z.ZodNumber>; timeLimitMs: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>, z.ZodObject<{ id: z.ZodOptional<z.ZodString>; kind: z.ZodLiteral<"type-answer">; payload: z.ZodObject<{ acceptedAnswers: z.ZodArray<z.ZodString>; match: z.ZodOptional<z.ZodObject<{ caseInsensitive: z.ZodOptional<z.ZodBoolean>; trim: z.ZodOptional<z.ZodBoolean>; collapseWhitespace: z.ZodOptional<z.ZodBoolean>; accentFold: z.ZodOptional<z.ZodBoolean>; maxEditDistance: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>>; }, z.core.$strict>; points: z.ZodOptional<z.ZodNumber>; timeLimitMs: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>, z.ZodObject<{ id: z.ZodOptional<z.ZodString>; kind: z.ZodLiteral<"fill-blank">; payload: z.ZodObject<{ blanks: z.ZodArray<z.ZodObject<{ acceptedAnswers: z.ZodArray<z.ZodString>; }, z.core.$strict>>; match: z.ZodOptional<z.ZodObject<{ caseInsensitive: z.ZodOptional<z.ZodBoolean>; trim: z.ZodOptional<z.ZodBoolean>; collapseWhitespace: z.ZodOptional<z.ZodBoolean>; accentFold: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>>; allowPartial: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>; points: z.ZodOptional<z.ZodNumber>; timeLimitMs: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>, z.ZodObject<{ id: z.ZodOptional<z.ZodString>; kind: z.ZodLiteral<"numeric">; payload: z.ZodObject<{ correct: z.ZodNumber; tolerance: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>; points: z.ZodOptional<z.ZodNumber>; timeLimitMs: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>, z.ZodObject<{ id: z.ZodOptional<z.ZodString>; kind: z.ZodLiteral<"matching">; payload: z.ZodObject<{ pairs: z.ZodRecord<z.ZodString, z.ZodString>; allowPartial: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>; points: z.ZodOptional<z.ZodNumber>; timeLimitMs: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>], "kind">
+const questionSchema: z.ZodDiscriminatedUnion<
+  [
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>
+        kind: z.ZodLiteral<'multi-choice'>
+        payload: z.ZodObject<
+          {
+            correctIndices: z.ZodArray<z.ZodNumber>
+            allowPartial: z.ZodOptional<z.ZodBoolean>
+            optionCount: z.ZodNumber
+          },
+          z.core.$strict
+        >
+        points: z.ZodOptional<z.ZodNumber>
+        timeLimitMs: z.ZodOptional<z.ZodNumber>
+      },
+      z.core.$strict
+    >,
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>
+        kind: z.ZodLiteral<'true-false'>
+        payload: z.ZodObject<{ correct: z.ZodBoolean }, z.core.$strict>
+        points: z.ZodOptional<z.ZodNumber>
+        timeLimitMs: z.ZodOptional<z.ZodNumber>
+      },
+      z.core.$strict
+    >,
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>
+        kind: z.ZodLiteral<'type-answer'>
+        payload: z.ZodObject<
+          {
+            acceptedAnswers: z.ZodArray<z.ZodString>
+            match: z.ZodOptional<
+              z.ZodObject<
+                {
+                  caseInsensitive: z.ZodOptional<z.ZodBoolean>
+                  trim: z.ZodOptional<z.ZodBoolean>
+                  collapseWhitespace: z.ZodOptional<z.ZodBoolean>
+                  accentFold: z.ZodOptional<z.ZodBoolean>
+                  maxEditDistance: z.ZodOptional<z.ZodNumber>
+                },
+                z.core.$strict
+              >
+            >
+          },
+          z.core.$strict
+        >
+        points: z.ZodOptional<z.ZodNumber>
+        timeLimitMs: z.ZodOptional<z.ZodNumber>
+      },
+      z.core.$strict
+    >,
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>
+        kind: z.ZodLiteral<'fill-blank'>
+        payload: z.ZodObject<
+          {
+            blanks: z.ZodArray<
+              z.ZodObject<{ acceptedAnswers: z.ZodArray<z.ZodString> }, z.core.$strict>
+            >
+            match: z.ZodOptional<
+              z.ZodObject<
+                {
+                  caseInsensitive: z.ZodOptional<z.ZodBoolean>
+                  trim: z.ZodOptional<z.ZodBoolean>
+                  collapseWhitespace: z.ZodOptional<z.ZodBoolean>
+                  accentFold: z.ZodOptional<z.ZodBoolean>
+                },
+                z.core.$strict
+              >
+            >
+            allowPartial: z.ZodOptional<z.ZodBoolean>
+          },
+          z.core.$strict
+        >
+        points: z.ZodOptional<z.ZodNumber>
+        timeLimitMs: z.ZodOptional<z.ZodNumber>
+      },
+      z.core.$strict
+    >,
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>
+        kind: z.ZodLiteral<'numeric'>
+        payload: z.ZodObject<
+          { correct: z.ZodNumber; tolerance: z.ZodOptional<z.ZodNumber> },
+          z.core.$strict
+        >
+        points: z.ZodOptional<z.ZodNumber>
+        timeLimitMs: z.ZodOptional<z.ZodNumber>
+      },
+      z.core.$strict
+    >,
+    z.ZodObject<
+      {
+        id: z.ZodOptional<z.ZodString>
+        kind: z.ZodLiteral<'matching'>
+        payload: z.ZodObject<
+          {
+            pairs: z.ZodRecord<z.ZodString, z.ZodString>
+            allowPartial: z.ZodOptional<z.ZodBoolean>
+          },
+          z.core.$strict
+        >
+        points: z.ZodOptional<z.ZodNumber>
+        timeLimitMs: z.ZodOptional<z.ZodNumber>
+      },
+      z.core.$strict
+    >,
+  ],
+  'kind'
+>
 ```
 
 #### `textMatchOptionsSchema`
@@ -577,7 +744,15 @@ const questionSchema: z.ZodDiscriminatedUnion<[z.ZodObject<{ id: z.ZodOptional<z
 Schema for {@link TextMatchOptions}.
 
 ```typescript
-const textMatchOptionsSchema: z.ZodObject<{ caseInsensitive: z.ZodOptional<z.ZodBoolean>; trim: z.ZodOptional<z.ZodBoolean>; collapseWhitespace: z.ZodOptional<z.ZodBoolean>; accentFold: z.ZodOptional<z.ZodBoolean>; }, z.core.$strict>
+const textMatchOptionsSchema: z.ZodObject<
+  {
+    caseInsensitive: z.ZodOptional<z.ZodBoolean>
+    trim: z.ZodOptional<z.ZodBoolean>
+    collapseWhitespace: z.ZodOptional<z.ZodBoolean>
+    accentFold: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strict
+>
 ```
 
 #### `trueFalsePayloadSchema`
@@ -585,7 +760,7 @@ const textMatchOptionsSchema: z.ZodObject<{ caseInsensitive: z.ZodOptional<z.Zod
 Schema for a true-false payload.
 
 ```typescript
-const trueFalsePayloadSchema: z.ZodObject<{ correct: z.ZodBoolean; }, z.core.$strict>
+const trueFalsePayloadSchema: z.ZodObject<{ correct: z.ZodBoolean }, z.core.$strict>
 ```
 
 #### `typeAnswerPayloadSchema`
@@ -593,7 +768,24 @@ const trueFalsePayloadSchema: z.ZodObject<{ correct: z.ZodBoolean; }, z.core.$st
 Schema for a type-answer payload.
 
 ```typescript
-const typeAnswerPayloadSchema: z.ZodObject<{ acceptedAnswers: z.ZodArray<z.ZodString>; match: z.ZodOptional<z.ZodObject<{ caseInsensitive: z.ZodOptional<z.ZodBoolean>; trim: z.ZodOptional<z.ZodBoolean>; collapseWhitespace: z.ZodOptional<z.ZodBoolean>; accentFold: z.ZodOptional<z.ZodBoolean>; maxEditDistance: z.ZodOptional<z.ZodNumber>; }, z.core.$strict>>; }, z.core.$strict>
+const typeAnswerPayloadSchema: z.ZodObject<
+  {
+    acceptedAnswers: z.ZodArray<z.ZodString>
+    match: z.ZodOptional<
+      z.ZodObject<
+        {
+          caseInsensitive: z.ZodOptional<z.ZodBoolean>
+          trim: z.ZodOptional<z.ZodBoolean>
+          collapseWhitespace: z.ZodOptional<z.ZodBoolean>
+          accentFold: z.ZodOptional<z.ZodBoolean>
+          maxEditDistance: z.ZodOptional<z.ZodNumber>
+        },
+        z.core.$strict
+      >
+    >
+  },
+  z.core.$strict
+>
 ```
 
 ## Injection Notes

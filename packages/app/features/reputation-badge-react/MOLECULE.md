@@ -17,7 +17,11 @@ trailing `+N` overflow chip (`onClick(null)` signals "expand all").
 import { BadgeShelf, ReputationBadge } from '@molecule/app-reputation-badge-react'
 import type { Badge } from '@molecule/app-reputation-badge-react'
 
-function ProfileHeader({ score, badges, onBadgeClick }: {
+function ProfileHeader({
+  score,
+  badges,
+  onBadgeClick,
+}: {
   score: number
   badges: Badge[]
   onBadgeClick: (badge: Badge | null) => void
@@ -32,9 +36,11 @@ function ProfileHeader({ score, badges, onBadgeClick }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-reputation-badge-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -124,6 +130,7 @@ If a `level` prop isn't passed to `<ReputationBadge>`, the component will
 pick the highest level whose threshold the `score` meets or exceeds.
 
 Default thresholds:
+
 - `contributor` >= 100
 - `trusted` >= 500
 - `veteran` >= 2000
@@ -189,7 +196,9 @@ Return the semantic Badge color for a given level.
 Unknown levels fall back to `'secondary'`.
 
 ```typescript
-function colorForLevel(level: ReputationLevel): "primary" | "secondary" | "success" | "warning" | "info"
+function colorForLevel(
+  level: ReputationLevel,
+): 'primary' | 'secondary' | 'success' | 'warning' | 'info'
 ```
 
 - `level` — The reputation level.
@@ -252,6 +261,7 @@ const DEFAULT_THRESHOLDS: ReputationThresholds
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

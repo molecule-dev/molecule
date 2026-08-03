@@ -20,9 +20,11 @@ const milestones: OrderMilestone[] = [
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-order-timeline-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -74,6 +76,7 @@ Order / shipment progress timeline — typical e-commerce flow:
 "Placed → Confirmed → Shipped → Out for delivery → Delivered".
 
 Different from `<Stepper>` in two ways:
+
 - Focuses on milestones (with optional per-step detail) rather than
   multi-page wizard steps.
 - Horizontal layout is responsive with connector lines between nodes.
@@ -94,6 +97,7 @@ function OrderTimeline({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

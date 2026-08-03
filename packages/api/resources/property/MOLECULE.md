@@ -13,9 +13,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-property'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-property @molecule/api-database @molecule/api-i18n @molecule/api-locales-property @molecule/api-logger @molecule/api-resource
 ```
@@ -400,7 +402,19 @@ const i18nRegistered: true
 Handler map keyed by route handler name.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly createAmenity: typeof createAmenity; readonly createPhoto: typeof createPhoto; readonly createUnit: typeof createUnit; readonly del: typeof del; readonly list: typeof list; readonly listAmenities: typeof listAmenities; readonly listPhotos: typeof listPhotos; readonly listUnits: typeof listUnits; readonly read: typeof read; readonly update: typeof update; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly createAmenity: typeof createAmenity
+  readonly createPhoto: typeof createPhoto
+  readonly createUnit: typeof createUnit
+  readonly del: typeof del
+  readonly list: typeof list
+  readonly listAmenities: typeof listAmenities
+  readonly listPhotos: typeof listPhotos
+  readonly listUnits: typeof listUnits
+  readonly read: typeof read
+  readonly update: typeof update
+}
 ```
 
 #### `routes`
@@ -408,7 +422,57 @@ const requestHandlerMap: { readonly create: typeof create; readonly createAmenit
 Route array for property CRUD plus units, photos, and amenities sub-resources.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/properties"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/properties"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/properties/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/properties/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/properties/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/properties/:id/units"; readonly handler: "listUnits"; }, { readonly method: "post"; readonly path: "/properties/:id/units"; readonly handler: "createUnit"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/properties/:id/photos"; readonly handler: "listPhotos"; }, { readonly method: "post"; readonly path: "/properties/:id/photos"; readonly handler: "createPhoto"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/properties/:id/amenities"; readonly handler: "listAmenities"; }, { readonly method: "post"; readonly path: "/properties/:id/amenities"; readonly handler: "createAmenity"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/properties'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  { readonly method: 'get'; readonly path: '/properties'; readonly handler: 'list' },
+  { readonly method: 'get'; readonly path: '/properties/:id'; readonly handler: 'read' },
+  {
+    readonly method: 'patch'
+    readonly path: '/properties/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/properties/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  { readonly method: 'get'; readonly path: '/properties/:id/units'; readonly handler: 'listUnits' },
+  {
+    readonly method: 'post'
+    readonly path: '/properties/:id/units'
+    readonly handler: 'createUnit'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/properties/:id/photos'
+    readonly handler: 'listPhotos'
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/properties/:id/photos'
+    readonly handler: 'createPhoto'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/properties/:id/amenities'
+    readonly handler: 'listAmenities'
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/properties/:id/amenities'
+    readonly handler: 'createAmenity'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 ## Injection Notes
@@ -416,6 +480,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/properties";
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-property` ^1.0.0
@@ -453,29 +518,30 @@ immutable through the API.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating a listing persists its real fields — `name`, `type`
-  (apartment/house/condo/townhouse/hotel/commercial/land), and full address
-  (`addressLine1`, `city`, `region`, `postalCode`, `countryCode`) — and the
-  saved listing shows them back on its detail page; a property's units carry
-  their specs (`bedrooms`, `bathrooms`, `areaSquareMetres`, `maxOccupancy`)
-  and those render as real numbers, not placeholders. (There is no price
-  field on this resource — don't invent one; if the app charges rent, model
-  it explicitly and render its own currency/amount, never a stub.)
+      (apartment/house/condo/townhouse/hotel/commercial/land), and full address
+      (`addressLine1`, `city`, `region`, `postalCode`, `countryCode`) — and the
+      saved listing shows them back on its detail page; a property's units carry
+      their specs (`bedrooms`, `bathrooms`, `areaSquareMetres`, `maxOccupancy`)
+      and those render as real numbers, not placeholders. (There is no price
+      field on this resource — don't invent one; if the app charges rent, model
+      it explicitly and render its own currency/amount, never a stub.)
 - [ ] A new listing defaults to `draft` and does NOT show in the public
-  listings until its `status` is set to `active`; publish it and it appears,
-  then flip it back to draft/inactive/archived and it disappears from the
-  public list AND 404s by id for a signed-out visitor (existence not leaked).
+      listings until its `status` is set to `active`; publish it and it appears,
+      then flip it back to draft/inactive/archived and it disappears from the
+      public list AND 404s by id for a signed-out visitor (existence not leaked).
 - [ ] Search/filter narrows to the query, not everything: a `type`, `city`,
-  or `status` filter (the real `list` params) returns ONLY matching `active`
-  listings — confirm a non-matching listing is absent and a matching one is
-  present, so results reflect the filter rather than the whole catalog.
+      or `status` filter (the real `list` params) returns ONLY matching `active`
+      listings — confirm a non-matching listing is absent and a matching one is
+      present, so results reflect the filter rather than the whole catalog.
 - [ ] Photos render from the app's own uploads (`coverImageUrl` plus a
-  property's `property_photos`), served by this app's storage — not a
-  hotlinked external URL that can break; a listing with no photo shows a real
-  placeholder, not a broken-image icon.
+      property's `property_photos`), served by this app's storage — not a
+      hotlinked external URL that can break; a listing with no photo shows a real
+      placeholder, not a broken-image icon.
 - [ ] Authorization: a signed-out visitor can browse and read `active`
-  listings, but create/edit/delete require a session (401 without one) and
-  only the LISTING OWNER may mutate their own row — a non-owner's edit or
-  delete is refused (403), and `ownerId` is stamped from the session, never
-  accepted from the request body. No draft/inactive/archived listing leaks to
-  a non-owner by id.
+      listings, but create/edit/delete require a session (401 without one) and
+      only the LISTING OWNER may mutate their own row — a non-owner's edit or
+      delete is refused (403), and `ownerId` is stamped from the session, never
+      accepted from the request body. No draft/inactive/archived listing leaks to
+      a non-owner by id.

@@ -37,9 +37,11 @@ const result = instantiateTemplate(
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-template @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -344,7 +346,10 @@ Loads a template and resolves its snapshot against the supplied variable
 map. Returns `null` when the template does not exist.
 
 ```typescript
-function instantiateById(id: string, variables?: VariableValues): Promise<InstantiateResult<T> | null>
+function instantiateById(
+  id: string,
+  variables?: VariableValues,
+): Promise<InstantiateResult<T> | null>
 ```
 
 - `id` — The template ID.
@@ -358,7 +363,10 @@ Resolves a template's snapshot against a caller-supplied variable map.
 Declared defaults are merged in for any variable the caller omits.
 
 ```typescript
-function instantiateTemplate(template: Pick<Template, "snapshot" | "variables">, variables?: VariableValues): InstantiateResult<T>
+function instantiateTemplate(
+  template: Pick<Template, 'snapshot' | 'variables'>,
+  variables?: VariableValues,
+): InstantiateResult<T>
 ```
 
 - `template` — The template to instantiate.
@@ -393,6 +401,7 @@ in-memory (no native JSONB `?|` operator). The table is bounded
 the same justification used for the in-memory tag filter.
 
 Filters compose with the visibility scope:
+
 - `publicOnly=true` restricts to public rows only (drops the viewer's private).
 - `createdBy=<X>` is INTERSECTED with the viewer-visible set: a non-owner
   `createdBy` still only surfaces that user's PUBLIC rows — a caller can never
@@ -413,7 +422,10 @@ Merges declared template defaults with caller-supplied overrides.
 Caller values take precedence; declared defaults fill in the rest.
 
 ```typescript
-function mergeVariableValues(declared: TemplateVariable[], supplied?: VariableValues): VariableValues
+function mergeVariableValues(
+  declared: TemplateVariable[],
+  supplied?: VariableValues,
+): VariableValues
 ```
 
 - `declared` — Variable declarations from the template.
@@ -496,7 +508,33 @@ function updateTemplate(id: string, patch: UpdateTemplateInput): Promise<Templat
 Schema for creating a new template.
 
 ```typescript
-const createTemplateSchema: z.ZodObject<{ resourceType: z.ZodString; slug: z.ZodString; name: z.ZodString; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; snapshot: z.ZodUnknown; variables: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; defaultValue: z.ZodOptional<z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean, z.ZodNull]>>; required: z.ZodOptional<z.ZodBoolean>; description: z.ZodOptional<z.ZodString>; }, z.core.$strip>>>; tags: z.ZodOptional<z.ZodArray<z.ZodString>>; isPublic: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const createTemplateSchema: z.ZodObject<
+  {
+    resourceType: z.ZodString
+    slug: z.ZodString
+    name: z.ZodString
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    snapshot: z.ZodUnknown
+    variables: z.ZodOptional<
+      z.ZodArray<
+        z.ZodObject<
+          {
+            name: z.ZodString
+            defaultValue: z.ZodOptional<
+              z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean, z.ZodNull]>
+            >
+            required: z.ZodOptional<z.ZodBoolean>
+            description: z.ZodOptional<z.ZodString>
+          },
+          z.core.$strip
+        >
+      >
+    >
+    tags: z.ZodOptional<z.ZodArray<z.ZodString>>
+    isPublic: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `instantiateSchema`
@@ -505,7 +543,17 @@ Schema for the instantiate endpoint body. The variable map accepts only
 primitive values — placeholders inside the snapshot are string-shaped.
 
 ```typescript
-const instantiateSchema: z.ZodObject<{ variables: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean, z.ZodNull]>>>; }, z.core.$strip>
+const instantiateSchema: z.ZodObject<
+  {
+    variables: z.ZodOptional<
+      z.ZodRecord<
+        z.ZodString,
+        z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean, z.ZodNull]>
+      >
+    >
+  },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -513,7 +561,14 @@ const instantiateSchema: z.ZodObject<{ variables: z.ZodOptional<z.ZodRecord<z.Zo
 Handler map for resource-template routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly instantiate: typeof instantiate; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly instantiate: typeof instantiate
+}
 ```
 
 #### `routes`
@@ -521,7 +576,44 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 HTTP routes for template CRUD and instantiation.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/resource-templates"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-templates"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-templates/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/resource-templates/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/resource-templates/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/resource-templates/:id/instantiate"; readonly handler: "instantiate"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/resource-templates'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/resource-templates'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/resource-templates/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/resource-templates/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/resource-templates/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/resource-templates/:id/instantiate'
+    readonly handler: 'instantiate'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `updateTemplateSchema`
@@ -530,7 +622,31 @@ Schema for updating an existing template. Every field is optional;
 `version` is bumped automatically when at least one field changes.
 
 ```typescript
-const updateTemplateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodNullable<z.ZodString>>; snapshot: z.ZodOptional<z.ZodUnknown>; variables: z.ZodOptional<z.ZodArray<z.ZodObject<{ name: z.ZodString; defaultValue: z.ZodOptional<z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean, z.ZodNull]>>; required: z.ZodOptional<z.ZodBoolean>; description: z.ZodOptional<z.ZodString>; }, z.core.$strip>>>; tags: z.ZodOptional<z.ZodArray<z.ZodString>>; isPublic: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const updateTemplateSchema: z.ZodObject<
+  {
+    name: z.ZodOptional<z.ZodString>
+    description: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    snapshot: z.ZodOptional<z.ZodUnknown>
+    variables: z.ZodOptional<
+      z.ZodArray<
+        z.ZodObject<
+          {
+            name: z.ZodString
+            defaultValue: z.ZodOptional<
+              z.ZodUnion<readonly [z.ZodString, z.ZodNumber, z.ZodBoolean, z.ZodNull]>
+            >
+            required: z.ZodOptional<z.ZodBoolean>
+            description: z.ZodOptional<z.ZodString>
+          },
+          z.core.$strip
+        >
+      >
+    >
+    tags: z.ZodOptional<z.ZodArray<z.ZodString>>
+    isPublic: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -538,6 +654,7 @@ const updateTemplateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; desc
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -557,14 +674,14 @@ Peer dependencies:
   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
   the rows come back; reading the response as a bare array — or `res.data` alone (which is
   the envelope) — yields an EMPTY list.
-Session-auth prerequisite: every route — including reads — requires an
-authenticated session; handlers read `res.locals.session.userId` and fail
-closed with 401, so mount behind your global auth middleware. Visibility is
-per-row: a template is readable when `isPublic` is true or the caller is its
-`createdBy` creator (`canViewTemplate`), and editable/deletable ONLY by its
-creator (`canEditTemplate`) — a non-visible row returns 404 (existence is
-not leaked); a public row edited by a non-owner returns 403. `createdBy` is
-derived from the session, never from the request body.
+  Session-auth prerequisite: every route — including reads — requires an
+  authenticated session; handlers read `res.locals.session.userId` and fail
+  closed with 401, so mount behind your global auth middleware. Visibility is
+  per-row: a template is readable when `isPublic` is true or the caller is its
+  `createdBy` creator (`canViewTemplate`), and editable/deletable ONLY by its
+  creator (`canEditTemplate`) — a non-visible row returns 404 (existence is
+  not leaked); a public row edited by a non-owner returns 403. `createdBy` is
+  derived from the session, never from the request body.
 
 `(resourceType, slug)` is UNIQUE — a duplicate `create` returns 409
 (`template.error.conflict`).

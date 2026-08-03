@@ -17,6 +17,7 @@ The engine never re-implements pan/zoom — that lives in the
 `<CanvasSurface>` base.
 
 Exports:
+
 - `<CanvasEngine>` — main component + `CanvasEngineProps`.
 - `<VectorElementSvg>` — pure-presentational SVG renderer.
 - `CanvasEngineHandle` — imperative ref API (undo/redo/align/group).
@@ -43,9 +44,7 @@ function Editor() {
   const [doc, setDoc] = useState<CanvasDocument>({
     width: 800,
     height: 600,
-    layers: [
-      { id: 'a', kind: 'rect', x: 40, y: 40, width: 120, height: 80, fill: '#3b82f6' },
-    ],
+    layers: [{ id: 'a', kind: 'rect', x: 40, y: 40, width: 120, height: 80, fill: '#3b82f6' }],
   })
   const [sel, setSel] = useState<CanvasSelection>([])
   return (
@@ -63,9 +62,11 @@ function Editor() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-canvas-engine-react @molecule/app-feature-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -425,8 +426,7 @@ type VectorBlendMode =
 Discriminated union of every supported element kind.
 
 ```typescript
-type VectorElement =
-  VectorRect | VectorEllipse | VectorLine | VectorPath | VectorText | VectorGroup
+type VectorElement = VectorRect | VectorEllipse | VectorLine | VectorPath | VectorText | VectorGroup
 ```
 
 #### `VectorElementId`
@@ -453,7 +453,11 @@ Apply an alignment op to every selected layer, returning the new
 layers array. Layers not in the selection are passed through.
 
 ```typescript
-function alignLayers(layers: readonly VectorElement[], selection: CanvasSelection, mode: CanvasAlignment): VectorElement[]
+function alignLayers(
+  layers: readonly VectorElement[],
+  selection: CanvasSelection,
+  mode: CanvasAlignment,
+): VectorElement[]
 ```
 
 - `layers` — Top-level layer list.
@@ -484,7 +488,11 @@ layer list. For fewer than three selected items the input is
 returned unchanged.
 
 ```typescript
-function distributeLayers(layers: readonly VectorElement[], selection: CanvasSelection, axis: CanvasDistribution): VectorElement[]
+function distributeLayers(
+  layers: readonly VectorElement[],
+  selection: CanvasSelection,
+  axis: CanvasDistribution,
+): VectorElement[]
 ```
 
 - `layers` — Top-level layer list.
@@ -586,7 +594,9 @@ recursively. The element is wrapped in a `<g>` so callers can
 attach data attributes consistently.
 
 ```typescript
-function VectorElementSvg(props: VectorElementSvgProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function VectorElementSvg(
+  props: VectorElementSvgProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props.
@@ -617,6 +627,7 @@ const DEFAULT_HISTORY_LIMIT: 100
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-feature-canvas-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

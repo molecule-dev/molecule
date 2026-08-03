@@ -16,9 +16,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-templating-handlebars @molecule/api-templating handlebars
 ```
@@ -75,6 +77,7 @@ const provider: TemplateProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-templating` interface.
 
 ## Bond Wiring
@@ -95,6 +98,7 @@ export function setupTemplatingHandlebars(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-templating` ^1.0.0
 
 ### Runtime Dependencies

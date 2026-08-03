@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-audio-mixer-react` package 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-audio-mixer'
-import type { AudioMixerTranslationKey, AudioMixerTranslations } from '@molecule/app-locales-feature-audio-mixer'
+import type {
+  AudioMixerTranslationKey,
+  AudioMixerTranslations,
+} from '@molecule/app-locales-feature-audio-mixer'
 ```
 
 ## Registration
@@ -34,16 +37,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `audioMixer.aria.console` | Audio mixer console |
-| `audioMixer.aria.fader` | {{name}} fader |
-| `audioMixer.aria.pan` | {{name}} pan |
-| `audioMixer.aria.send` | {{channel}} send to {{send}} |
-| `audioMixer.button.mute` | Mute |
-| `audioMixer.button.solo` | Solo |
-| `audioMixer.master` | Master |
-| `audioMixer.sends` | Sends |
+| Key                       | English                      |
+| ------------------------- | ---------------------------- |
+| `audioMixer.aria.console` | Audio mixer console          |
+| `audioMixer.aria.fader`   | {{name}} fader               |
+| `audioMixer.aria.pan`     | {{name}} pan                 |
+| `audioMixer.aria.send`    | {{channel}} send to {{send}} |
+| `audioMixer.button.mute`  | Mute                         |
+| `audioMixer.button.solo`  | Solo                         |
+| `audioMixer.master`       | Master                       |
+| `audioMixer.sends`        | Sends                        |
 
 ## Metadata
 

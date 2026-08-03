@@ -34,17 +34,17 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `forms.required` | This field is required |
-| `forms.min` | Value must be at least {{min}} |
-| `forms.max` | Value must be at most {{max}} |
-| `forms.minLength` | Must be at least {{minLength}} characters |
-| `forms.maxLength` | Must be at most {{maxLength}} characters |
-| `forms.invalidFormat` | Invalid format |
-| `forms.invalidEmail` | Invalid email address |
-| `forms.invalidUrl` | Invalid URL |
-| `forms.invalidValue` | Invalid value |
+| Key                   | English                                   |
+| --------------------- | ----------------------------------------- |
+| `forms.required`      | This field is required                    |
+| `forms.min`           | Value must be at least {{min}}            |
+| `forms.max`           | Value must be at most {{max}}             |
+| `forms.minLength`     | Must be at least {{minLength}} characters |
+| `forms.maxLength`     | Must be at most {{maxLength}} characters  |
+| `forms.invalidFormat` | Invalid format                            |
+| `forms.invalidEmail`  | Invalid email address                     |
+| `forms.invalidUrl`    | Invalid URL                               |
+| `forms.invalidValue`  | Invalid value                             |
 
 ## Metadata
 

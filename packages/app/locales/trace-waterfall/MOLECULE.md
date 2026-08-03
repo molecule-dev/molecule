@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-trace-waterfall-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-trace-waterfall'
-import type { TraceWaterfallTranslationKey, TraceWaterfallTranslations } from '@molecule/app-locales-trace-waterfall'
+import type {
+  TraceWaterfallTranslationKey,
+  TraceWaterfallTranslations,
+} from '@molecule/app-locales-trace-waterfall'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `traceWaterfall.aria.label` | Distributed trace waterfall |
-| `traceWaterfall.empty` | No spans to display. |
-| `traceWaterfall.totalDuration` | Total: {{duration}} |
-| `traceWaterfall.row.aria` | {{service}} · {{name}} · {{duration}} |
+| Key                            | English                               |
+| ------------------------------ | ------------------------------------- |
+| `traceWaterfall.aria.label`    | Distributed trace waterfall           |
+| `traceWaterfall.empty`         | No spans to display.                  |
+| `traceWaterfall.totalDuration` | Total: {{duration}}                   |
+| `traceWaterfall.row.aria`      | {{service}} · {{name}} · {{duration}} |
 
 ## Metadata
 

@@ -2,7 +2,8 @@
 
 `@molecule/app-message-preview-react` — conversation / thread row for chat /
 inbox sidebars. Initials avatar with presence dot, name + preview + timestamp
-+ unread pip, and an active-selection treatment.
+
+- unread pip, and an active-selection treatment.
 
 Exports `<MessagePreview>` and the `MessagePreviewPresence` type. Props:
 `name`, `preview`, `timestamp`, `unread?` (0 hides the pip), `presence?`
@@ -20,7 +21,7 @@ team-chat.
 ```tsx
 import { MessagePreview } from '@molecule/app-message-preview-react'
 
-<MessagePreview
+;<MessagePreview
   name="Maya Patel"
   preview="Thanks! That fixed it."
   timestamp="2m"
@@ -33,9 +34,11 @@ import { MessagePreview } from '@molecule/app-message-preview-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-message-preview-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
@@ -112,6 +115,7 @@ function MessagePreview({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

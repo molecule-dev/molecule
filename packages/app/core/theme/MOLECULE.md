@@ -20,9 +20,11 @@ const unsubscribe = theme?.subscribe((t) => applyBranding(t))
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-theme @molecule/app-bond
 ```
@@ -418,16 +420,17 @@ const lightTheme: Theme
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| CSS Variables | `@molecule/app-theme-css-variables` |
-| Liquid Glass | `@molecule/app-theme-css-variables-liquid-glass` |
+| Provider      | Package                                          |
+| ------------- | ------------------------------------------------ |
+| CSS Variables | `@molecule/app-theme-css-variables`              |
+| Liquid Glass  | `@molecule/app-theme-css-variables-liquid-glass` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

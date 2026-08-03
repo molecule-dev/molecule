@@ -28,9 +28,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-workspace'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-workspace @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -208,7 +210,10 @@ otherwise. Fails closed: the caller's authority is derived from `callerRole`,
 never from the requested role.
 
 ```typescript
-function assertCanGrantRole(callerRole: "member" | "admin" | "owner", targetRole: "member" | "admin" | "owner"): void
+function assertCanGrantRole(
+  callerRole: 'member' | 'admin' | 'owner',
+  targetRole: 'member' | 'admin' | 'owner',
+): void
 ```
 
 - `callerRole` — The granting caller's own role.
@@ -222,7 +227,11 @@ caller's membership row so callers can authorize against the caller's own
 role (e.g. to block granting a role higher than their own).
 
 ```typescript
-function assertMember(workspaceId: string, userId: string, minRole?: "member" | "admin" | "owner"): Promise<WorkspaceMember>
+function assertMember(
+  workspaceId: string,
+  userId: string,
+  minRole?: 'member' | 'admin' | 'owner',
+): Promise<WorkspaceMember>
 ```
 
 - `workspaceId` — Workspace to check membership in.
@@ -340,7 +349,13 @@ Creates an invite record for an email. Idempotent on (workspace, email)
 pending invites — returns the existing pending invite if one exists.
 
 ```typescript
-function inviteMember(workspaceId: string, email: string, callerRole: "member" | "admin" | "owner", role?: "member" | "admin" | "owner", ttlMs?: number): Promise<WorkspaceInvite>
+function inviteMember(
+  workspaceId: string,
+  email: string,
+  callerRole: 'member' | 'admin' | 'owner',
+  role?: 'member' | 'admin' | 'owner',
+  ttlMs?: number,
+): Promise<WorkspaceInvite>
 ```
 
 - `workspaceId` — The workspace to invite into.
@@ -413,7 +428,10 @@ function listPendingInvites(workspaceId: string): Promise<WorkspaceInvite[]>
 Lists workspaces the user is a member of, paginated.
 
 ```typescript
-function listWorkspacesForUser(userId: string, options?: WorkspaceQuery): Promise<PaginatedResult<Workspace>>
+function listWorkspacesForUser(
+  userId: string,
+  options?: WorkspaceQuery,
+): Promise<PaginatedResult<Workspace>>
 ```
 
 - `userId` — The user whose workspaces to list.
@@ -484,7 +502,10 @@ Compares two roles using the canonical strength ordering
 (`member` < `admin` < `owner`).
 
 ```typescript
-function roleAtLeast(actual: "member" | "admin" | "owner", required: "member" | "admin" | "owner"): boolean
+function roleAtLeast(
+  actual: 'member' | 'admin' | 'owner',
+  required: 'member' | 'admin' | 'owner',
+): boolean
 ```
 
 - `actual` — The role the member actually has.
@@ -522,7 +543,12 @@ not assign a role strictly higher than their own `callerRole` — an admin can
 grant up to `admin`; only an owner can grant `owner`.
 
 ```typescript
-function updateMemberRole(workspaceId: string, userId: string, role: "member" | "admin" | "owner", callerRole: "member" | "admin" | "owner"): Promise<WorkspaceMember>
+function updateMemberRole(
+  workspaceId: string,
+  userId: string,
+  role: 'member' | 'admin' | 'owner',
+  callerRole: 'member' | 'admin' | 'owner',
+): Promise<WorkspaceMember>
 ```
 
 - `workspaceId` — Workspace.
@@ -563,7 +589,7 @@ function updateWorkspace(id: string, input: UpdateWorkspaceInput): Promise<Works
 Schema for validating invite acceptance input.
 
 ```typescript
-const acceptInviteSchema: z.ZodObject<{ token: z.ZodString; }, z.core.$strip>
+const acceptInviteSchema: z.ZodObject<{ token: z.ZodString }, z.core.$strip>
 ```
 
 #### `createWorkspaceSchema`
@@ -571,7 +597,10 @@ const acceptInviteSchema: z.ZodObject<{ token: z.ZodString; }, z.core.$strip>
 Schema for validating workspace creation input.
 
 ```typescript
-const createWorkspaceSchema: z.ZodObject<{ name: z.ZodString; slug: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createWorkspaceSchema: z.ZodObject<
+  { name: z.ZodString; slug: z.ZodOptional<z.ZodString> },
+  z.core.$strip
+>
 ```
 
 #### `inviteMemberSchema`
@@ -579,7 +608,13 @@ const createWorkspaceSchema: z.ZodObject<{ name: z.ZodString; slug: z.ZodOptiona
 Schema for validating member invite input.
 
 ```typescript
-const inviteMemberSchema: z.ZodObject<{ email: z.ZodString; role: z.ZodDefault<z.ZodEnum<{ member: "member"; admin: "admin"; owner: "owner"; }>>; }, z.core.$strip>
+const inviteMemberSchema: z.ZodObject<
+  {
+    email: z.ZodString
+    role: z.ZodDefault<z.ZodEnum<{ member: 'member'; admin: 'admin'; owner: 'owner' }>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -587,7 +622,20 @@ const inviteMemberSchema: z.ZodObject<{ email: z.ZodString; role: z.ZodDefault<z
 Handler map for workspace routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly listAll: typeof listAll; readonly updateRole: typeof updateRole; readonly remove: typeof remove; readonly invite: typeof invite; readonly listInvites: typeof listInvites; readonly revoke: typeof revoke; readonly accept: typeof accept; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly listAll: typeof listAll
+  readonly updateRole: typeof updateRole
+  readonly remove: typeof remove
+  readonly invite: typeof invite
+  readonly listInvites: typeof listInvites
+  readonly revoke: typeof revoke
+  readonly accept: typeof accept
+}
 ```
 
 #### `routes`
@@ -595,7 +643,80 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 Routes for workspaces, members, and invites.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/workspaces"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/workspaces"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/workspaces/invites/accept"; readonly handler: "accept"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/workspaces/:id"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/workspaces/:id"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/workspaces/:id"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/workspaces/:id/members"; readonly handler: "listAll"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "patch"; readonly path: "/workspaces/:id/members/:userId"; readonly handler: "updateRole"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/workspaces/:id/members/:userId"; readonly handler: "remove"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "post"; readonly path: "/workspaces/:id/invites"; readonly handler: "invite"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/workspaces/:id/invites"; readonly handler: "listInvites"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/workspaces/:id/invites/:inviteId"; readonly handler: "revoke"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/workspaces'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/workspaces'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/workspaces/invites/accept'
+    readonly handler: 'accept'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/workspaces/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/workspaces/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/workspaces/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/workspaces/:id/members'
+    readonly handler: 'listAll'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/workspaces/:id/members/:userId'
+    readonly handler: 'updateRole'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/workspaces/:id/members/:userId'
+    readonly handler: 'remove'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'post'
+    readonly path: '/workspaces/:id/invites'
+    readonly handler: 'invite'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/workspaces/:id/invites'
+    readonly handler: 'listInvites'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/workspaces/:id/invites/:inviteId'
+    readonly handler: 'revoke'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `updateMemberRoleSchema`
@@ -603,7 +724,10 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/workspaces";
 Schema for validating member role updates.
 
 ```typescript
-const updateMemberRoleSchema: z.ZodObject<{ role: z.ZodEnum<{ member: "member"; admin: "admin"; owner: "owner"; }>; }, z.core.$strip>
+const updateMemberRoleSchema: z.ZodObject<
+  { role: z.ZodEnum<{ member: 'member'; admin: 'admin'; owner: 'owner' }> },
+  z.core.$strip
+>
 ```
 
 #### `updateWorkspaceSchema`
@@ -611,7 +735,10 @@ const updateMemberRoleSchema: z.ZodObject<{ role: z.ZodEnum<{ member: "member"; 
 Schema for validating workspace update input.
 
 ```typescript
-const updateWorkspaceSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; slug: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const updateWorkspaceSchema: z.ZodObject<
+  { name: z.ZodOptional<z.ZodString>; slug: z.ZodOptional<z.ZodString> },
+  z.core.$strip
+>
 ```
 
 #### `WORKSPACE_ROLES`
@@ -619,7 +746,7 @@ const updateWorkspaceSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; slu
 Allowed workspace member roles, ordered weakest → strongest.
 
 ```typescript
-const WORKSPACE_ROLES: readonly ["member", "admin", "owner"]
+const WORKSPACE_ROLES: readonly ['member', 'admin', 'owner']
 ```
 
 ## Injection Notes
@@ -627,6 +754,7 @@ const WORKSPACE_ROLES: readonly ["member", "admin", "owner"]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -646,9 +774,9 @@ Peer dependencies:
   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
   the rows come back; reading the response as a bare array — or `res.data` alone (which is
   the envelope) — yields an EMPTY list.
-Session-auth prerequisite: every route requires an authenticated session
-(`authenticate`) — handlers read `res.locals.session.userId` and fail closed
-with 401; mount behind your global auth middleware.
+  Session-auth prerequisite: every route requires an authenticated session
+  (`authenticate`) — handlers read `res.locals.session.userId` and fail closed
+  with 401; mount behind your global auth middleware.
 
 Role gates are enforced in-handler via `assertMember(workspaceId, userId,
 minRole)` with the `owner` > `admin` > `member` hierarchy: `list` returns
@@ -674,26 +802,27 @@ Membership/isolation checklist — drive the real UI (live preview, no mocks)
 with at least TWO distinct signed-in users, adapt each item to this app's
 actual workspace screens/flows, and check every box off one by one. A box
 you can't check is a tenancy bug to fix — not a skip:
+
 - [ ] Creating a workspace makes the creator its `owner`: it appears in their
-  own workspace list (GET /workspaces) and GET /workspaces/:id returns it,
-  backed by a `workspace_members` row at role `owner`.
+      own workspace list (GET /workspaces) and GET /workspaces/:id returns it,
+      backed by a `workspace_members` row at role `owner`.
 - [ ] Inviting a user (POST /workspaces/:id/invites, admin-only) issues a
-  single-use token; the invited user accepting it (POST
-  /workspaces/invites/accept) becomes a member at the invited role and can
-  now read the workspace and its scoped data — data they could NOT see before.
+      single-use token; the invited user accepting it (POST
+      /workspaces/invites/accept) becomes a member at the invited role and can
+      now read the workspace and its scoped data — data they could NOT see before.
 - [ ] Role enforcement: a plain `member` is 403 on every privileged endpoint —
-  invite, revoke an invite, change a member's role, edit settings (PATCH
-  /workspaces/:id), delete (DELETE /workspaces/:id) — while an `admin`/`owner`
-  can perform them. A caller can never grant a role higher than their own.
+      invite, revoke an invite, change a member's role, edit settings (PATCH
+      /workspaces/:id), delete (DELETE /workspaces/:id) — while an `admin`/`owner`
+      can perform them. A caller can never grant a role higher than their own.
 - [ ] Removing a member (an admin removes them, or they leave via DELETE
-  /workspaces/:id/members/:selfId) revokes access immediately: their next read
-  of the workspace or its scoped data is 403, and it drops from their list.
+      /workspaces/:id/members/:selfId) revokes access immediately: their next read
+      of the workspace or its scoped data is 403, and it drops from their list.
 - [ ] Isolation: a user who is NOT a member of workspace W cannot read or
-  mutate W or its scoped data by guessing W's id — every such call is 403 (or
-  404), never leaking W's contents. Verify with a real second account.
+      mutate W or its scoped data by guessing W's id — every such call is 403 (or
+      404), never leaking W's contents. Verify with a real second account.
 - [ ] No self-join: accepting a bogus/expired token, or any attempt to add
-  yourself without a valid invite, is rejected — the only way in is a token
-  an admin issued for you.
+      yourself without a valid invite, is rejected — the only way in is a token
+      an admin issued for you.
 - [ ] A workspace is never orphaned: removing or demoting the LAST `owner` is
-  refused (409), and ownership transfer works — an owner promotes another
-  member to `owner`, after which the original owner can safely leave.
+      refused (409), and ownership transfer works — an owner promotes another
+      member to `owner`, after which the original owner can safely leave.

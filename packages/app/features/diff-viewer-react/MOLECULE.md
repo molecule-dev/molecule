@@ -11,7 +11,7 @@ numbers, and an optional filename header.
 ```tsx
 import { DiffViewer } from '@molecule/app-diff-viewer-react'
 
-<DiffViewer
+;<DiffViewer
   before={'const x = 1\nconsole.log(x)'}
   after={'const x = 2\nconsole.log(x)'}
   filename="src/config.ts"
@@ -21,9 +21,11 @@ import { DiffViewer } from '@molecule/app-diff-viewer-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-diff-viewer-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -82,6 +84,7 @@ function DiffViewer({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

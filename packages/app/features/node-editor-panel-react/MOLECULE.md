@@ -5,6 +5,7 @@ panel for node-based editors (chatbot-builder bot nodes, workflow
 canvases, design-tool inspector panes).
 
 Composable sub-primitives:
+
 - `<NodeEditorPanel>` — aside chrome with title row, scroll body, footer.
 - `<NodeEditorSection>` — labeled section with optional trailing slot.
 - `<NodeEditorSlider>` — range slider with mono-font value chip.
@@ -34,7 +35,12 @@ function Inspector() {
   return (
     <NodeEditorPanel title="Node Properties" onClose={() => {}}>
       <NodeEditorSlider label="Temperature" value={temperature} onChange={setTemperature} />
-      <NodeEditorToggle title="Knowledge Base" icon="database" checked={kbEnabled} onChange={setKbEnabled} />
+      <NodeEditorToggle
+        title="Knowledge Base"
+        icon="database"
+        checked={kbEnabled}
+        onChange={setKbEnabled}
+      />
       <NodeEditorSection label="Response Format">
         <NodeEditorRadioGroup
           value={format}
@@ -51,9 +57,11 @@ function Inspector() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-node-editor-panel-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -230,6 +238,7 @@ function NodeEditorToggle({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

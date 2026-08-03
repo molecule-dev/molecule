@@ -17,9 +17,11 @@ await setStyle('light') // light text over a dark header
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-status-bar-react-native @molecule/app-i18n @molecule/app-status-bar react-native
 ```
@@ -78,6 +80,7 @@ const provider: StatusBarProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-status-bar` interface.
 
 ## Bond Wiring
@@ -98,6 +101,7 @@ export function setupNativeStatusBarReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-status-bar` ^1.0.0
 - `react-native` >=0.72.0

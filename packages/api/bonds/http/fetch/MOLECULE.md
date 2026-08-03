@@ -12,9 +12,11 @@ setClient(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-http-fetch @molecule/api-http
 ```
@@ -40,6 +42,7 @@ const provider: HttpClient
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-http` interface.
 
 ## Bond Wiring
@@ -60,6 +63,7 @@ export function setupHttpFetch(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-http` ^1.0.0
 
 ### Runtime Dependencies

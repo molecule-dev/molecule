@@ -16,7 +16,10 @@ Provides translations for the `@molecule/app-reputation-badge-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-reputation-badge'
-import type { ReputationBadgeTranslationKey, ReputationBadgeTranslations } from '@molecule/app-locales-reputation-badge'
+import type {
+  ReputationBadgeTranslationKey,
+  ReputationBadgeTranslations,
+} from '@molecule/app-locales-reputation-badge'
 ```
 
 ## Registration
@@ -36,17 +39,17 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `reputationBadge.caption` | Reputation |
-| `reputationBadge.aria` | {{score}} reputation, {{level}} |
-| `reputationBadge.level.newcomer` | Newcomer |
-| `reputationBadge.level.contributor` | Contributor |
-| `reputationBadge.level.trusted` | Trusted |
-| `reputationBadge.level.veteran` | Veteran |
-| `reputationBadge.level.legend` | Legend |
-| `badgeShelf.aria` | {{count}} badges earned |
-| `badgeShelf.overflow.aria` | Show {{count}} more badges |
+| Key                                 | English                         |
+| ----------------------------------- | ------------------------------- |
+| `reputationBadge.caption`           | Reputation                      |
+| `reputationBadge.aria`              | {{score}} reputation, {{level}} |
+| `reputationBadge.level.newcomer`    | Newcomer                        |
+| `reputationBadge.level.contributor` | Contributor                     |
+| `reputationBadge.level.trusted`     | Trusted                         |
+| `reputationBadge.level.veteran`     | Veteran                         |
+| `reputationBadge.level.legend`      | Legend                          |
+| `badgeShelf.aria`                   | {{count}} badges earned         |
+| `badgeShelf.overflow.aria`          | Show {{count}} more badges      |
 
 ## Metadata
 

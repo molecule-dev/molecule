@@ -48,14 +48,12 @@ function makeClient(models: AppModelDefinition[]): {
   client: HttpClient
   get: ReturnType<typeof vi.fn>
 } {
-  const get = vi.fn(
-    async (): Promise<HttpResponse<{ models: AppModelDefinition[] }>> => ({
-      data: { models },
-      status: 200,
-      statusText: 'OK',
-      headers: {},
-    }),
-  )
+  const get = vi.fn(async (): Promise<HttpResponse<{ models: AppModelDefinition[] }>> => ({
+    data: { models },
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+  }))
   const client = {
     baseURL: '',
     defaultHeaders: {},

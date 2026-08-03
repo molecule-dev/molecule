@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                           | English                 |
+| ----------------------------- | ----------------------- |
 | `health.durationHoursMinutes` | {{hours}}h {{minutes}}m |
-| `health.durationMinutes` | {{minutes}}m |
+| `health.durationMinutes`      | {{minutes}}m            |
 
 ## Metadata
 

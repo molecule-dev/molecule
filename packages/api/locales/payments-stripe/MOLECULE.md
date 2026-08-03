@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-payments-stripe` package which has 
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-payments-stripe'
-import type { PaymentsStripeTranslationKey, PaymentsStripeTranslations } from '@molecule/api-locales-payments-stripe'
+import type {
+  PaymentsStripeTranslationKey,
+  PaymentsStripeTranslations,
+} from '@molecule/api-locales-payments-stripe'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `payments.stripe.error.missingWebhookSecret` | Missing Stripe webhook secret |
-| `payments.stripe.warn.missingSecretKey` | Missing Stripe secret key (process.env.STRIPE_SECRET_KEY). |
+| Key                                          | English                                                    |
+| -------------------------------------------- | ---------------------------------------------------------- |
+| `payments.stripe.error.missingWebhookSecret` | Missing Stripe webhook secret                              |
+| `payments.stripe.warn.missingSecretKey`      | Missing Stripe secret key (process.env.STRIPE_SECRET_KEY). |
 
 ## Metadata
 

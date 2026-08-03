@@ -3,6 +3,7 @@
 React hero metric card primitives.
 
 Exports:
+
 - `<HeroMetricCard>` — top-of-dashboard hero metric card.
 - `<HeroMetricTrendChip>` — directional ▲/▼ + delta chip used inside the card.
 - Type aliases: `HeroMetricCardProps`, `HeroMetricTrend`,
@@ -13,7 +14,7 @@ Exports:
 ```tsx
 import { HeroMetricCard } from '@molecule/app-hero-metric-card-react'
 
-<HeroMetricCard
+;<HeroMetricCard
   title="Total Revenue"
   value="$84,320"
   unit="USD"
@@ -25,9 +26,11 @@ import { HeroMetricCard } from '@molecule/app-hero-metric-card-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-hero-metric-card-react @molecule/app-i18n @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -127,8 +130,7 @@ therefore a real, theme-aware color token). Note the two the theme has no
 matching token for: `'danger'` → `error` and `'neutral'` → `secondary`.
 
 ```typescript
-type HeroMetricSemanticAccent =
-  'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+type HeroMetricSemanticAccent = 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'neutral'
 ```
 
 #### `HeroMetricTrendDirection`
@@ -208,6 +210,7 @@ function HeroMetricTrendChip({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

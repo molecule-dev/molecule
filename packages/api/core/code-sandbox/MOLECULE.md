@@ -27,9 +27,11 @@ await requireProvider().destroy(sandbox.id)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-code-sandbox @molecule/api-bond @molecule/api-i18n
 ```
@@ -235,15 +237,16 @@ function setProvider(provider: SandboxProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Docker | `@molecule/api-code-sandbox-docker` |
+| Provider | Package                             |
+| -------- | ----------------------------------- |
+| Docker   | `@molecule/api-code-sandbox-docker` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-audio-recorder-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-audio-recorder'
-import type { AudioRecorderTranslationKey, AudioRecorderTranslations } from '@molecule/app-locales-audio-recorder'
+import type {
+  AudioRecorderTranslationKey,
+  AudioRecorderTranslations,
+} from '@molecule/app-locales-audio-recorder'
 ```
 
 ## Registration
@@ -34,20 +37,20 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `audioRecorder.unsupported` | Audio recording is not supported in this browser |
-| `audioRecorder.error` | Recording failed. Please try again. |
+| Key                              | English                                                   |
+| -------------------------------- | --------------------------------------------------------- |
+| `audioRecorder.unsupported`      | Audio recording is not supported in this browser          |
+| `audioRecorder.error`            | Recording failed. Please try again.                       |
 | `audioRecorder.permissionDenied` | Microphone permission denied. Allow access and try again. |
-| `audioRecorder.pause` | Pause |
-| `audioRecorder.resume` | Resume |
-| `audioRecorder.stop` | Stop |
-| `audioRecorder.elapsed` | Elapsed {{time}} |
-| `audioRecorder.statusPaused` | Paused |
-| `audioRecorder.statusProcessed` | Recorded |
-| `audioRecorder.statusError` | Error |
-| `audioRecorder.statusIdle` | Ready to record |
-| `audioRecorder.group` | Audio recorder |
+| `audioRecorder.pause`            | Pause                                                     |
+| `audioRecorder.resume`           | Resume                                                    |
+| `audioRecorder.stop`             | Stop                                                      |
+| `audioRecorder.elapsed`          | Elapsed {{time}}                                          |
+| `audioRecorder.statusPaused`     | Paused                                                    |
+| `audioRecorder.statusProcessed`  | Recorded                                                  |
+| `audioRecorder.statusError`      | Error                                                     |
+| `audioRecorder.statusIdle`       | Ready to record                                           |
+| `audioRecorder.group`            | Audio recorder                                            |
 
 ## Metadata
 

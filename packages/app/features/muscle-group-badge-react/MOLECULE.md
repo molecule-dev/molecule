@@ -14,9 +14,11 @@ import { MuscleGroupBadge } from '@molecule/app-muscle-group-badge-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-muscle-group-badge-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -103,6 +105,7 @@ targeted muscle highlighted, plus a translated label. Used by
 workout-tracker exercise-detail pages.
 
 Two variants:
+
 - `default` — glyph + label side-by-side.
 - `compact` — glyph + label inline, smaller padding (good for chips).
 
@@ -127,6 +130,7 @@ function MuscleGroupBadge({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

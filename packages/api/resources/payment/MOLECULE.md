@@ -19,9 +19,11 @@ registerPlans({ monthly: stripeMonthly, yearly: stripeYearly })
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-payment @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-payment @molecule/api-logger @molecule/api-payments @molecule/api-resource zod
 ```
@@ -125,7 +127,21 @@ const appleYearly: Plan
 Zod schema for creating a payment record (picks fields required at creation time).
 
 ```typescript
-const createPropsSchema: z.ZodObject<{ createdAt: z.ZodString; updatedAt: z.ZodString; userId: z.ZodString; platformKey: z.ZodDefault<z.ZodEnum<{ "": ""; stripe: "stripe"; apple: "apple"; google: "google"; }>>; transactionId: z.ZodOptional<z.ZodString>; productId: z.ZodString; data: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; receipt: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createPropsSchema: z.ZodObject<
+  {
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    userId: z.ZodString
+    platformKey: z.ZodDefault<
+      z.ZodEnum<{ '': ''; stripe: 'stripe'; apple: 'apple'; google: 'google' }>
+    >
+    transactionId: z.ZodOptional<z.ZodString>
+    productId: z.ZodString
+    data: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+    receipt: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `googleMonthly`
@@ -187,7 +203,22 @@ const planService: PlanService
 Validation schema for props.
 
 ```typescript
-const propsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; userId: z.ZodString; platformKey: z.ZodDefault<z.ZodEnum<{ "": ""; stripe: "stripe"; apple: "apple"; google: "google"; }>>; transactionId: z.ZodOptional<z.ZodString>; productId: z.ZodString; data: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; receipt: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const propsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    userId: z.ZodString
+    platformKey: z.ZodDefault<
+      z.ZodEnum<{ '': ''; stripe: 'stripe'; apple: 'apple'; google: 'google' }>
+    >
+    transactionId: z.ZodOptional<z.ZodString>
+    productId: z.ZodString
+    data: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+    receipt: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `resource`
@@ -219,7 +250,13 @@ const stripeYearly: Plan
 Zod schema for updating a payment record (data and receipt only).
 
 ```typescript
-const updatePropsSchema: z.ZodObject<{ data: z.ZodOptional<z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>>; receipt: z.ZodOptional<z.ZodOptional<z.ZodString>>; }, z.core.$strip>
+const updatePropsSchema: z.ZodObject<
+  {
+    data: z.ZodOptional<z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>>
+    receipt: z.ZodOptional<z.ZodOptional<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 ### Namespaces
@@ -254,6 +291,7 @@ bond('paymentRecords', paymentRecordService)
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -284,6 +322,7 @@ the client reports. The flow (implemented by the user resource's `verifyPayment`
    {@link plans} (match BOTH `productId` and `priceId`), then grant it.
 
 Weak-integration mistakes to avoid:
+
 - **Never trust a client-sent plan / subscription / "isPro".** The plan is derived from
   the verified provider result, not a request field.
 - **Never swallow the duplicate-record error.** {@link paymentRecordService}`.store`
@@ -309,32 +348,33 @@ skip. This resource RECORDS a server-verified provider result (a receipt or
 subscription id verified via `@molecule/api-payments`) and resolves the plan
 — it does NOT charge cards and has no amount/status column, so drive the
 provider's real verify path; never fabricate a record or a status:
+
 - [ ] A completed purchase/subscribe flow reflects in the account: the paid
-  tier's capabilities unlock and a payment record binds to THIS user with the
-  right platformKey (stripe/apple/google), productId/priceId, and
-  transactionId — and it appears in the user's own billing/subscription view.
+      tier's capabilities unlock and a payment record binds to THIS user with the
+      right platformKey (stripe/apple/google), productId/priceId, and
+      transactionId — and it appears in the user's own billing/subscription view.
 - [ ] The plan and price shown match what was actually purchased: the tier is
-  resolved from the VERIFIED product/price id against the registered plans,
-  and any amount/currency shown comes from that plan (its `price`) or the
-  provider's verified `data` — never a client-sent field. An amount renders
-  formatted with its currency, not as a raw smallest-unit integer.
+      resolved from the VERIFIED product/price id against the registered plans,
+      and any amount/currency shown comes from that plan (its `price`) or the
+      provider's verified `data` — never a client-sent field. An amount renders
+      formatted with its currency, not as a raw smallest-unit integer.
 - [ ] Status follows the provider, not the client: a verified payment grants
-  the plan (pending is granted only once it succeeds), and a provider
-  cancellation/refund/expiry webhook (`handlePaymentNotification`) REVOKES it
-  so the user loses premium. No request field (`planKey`, `isPro`, a bare
-  `subscriptionId`) lets the client set or keep an active/paid status.
+      the plan (pending is granted only once it succeeds), and a provider
+      cancellation/refund/expiry webhook (`handlePaymentNotification`) REVOKES it
+      so the user loses premium. No request field (`planKey`, `isPro`, a bare
+      `subscriptionId`) lets the client set or keep an active/paid status.
 - [ ] Replay and re-complete guard: one receipt/subscription transaction
-  binds to exactly ONE account (UNIQUE(platformKey, transactionId),
-  first-claim-wins) — replaying the same receipt into a second account is
-  REJECTED, re-verifying your own is idempotent (no double grant), and a
-  refunded/canceled entitlement can't be reclaimed without a NEW verified
-  payment.
+      binds to exactly ONE account (UNIQUE(platformKey, transactionId),
+      first-claim-wins) — replaying the same receipt into a second account is
+      REJECTED, re-verifying your own is idempotent (no double grant), and a
+      refunded/canceled entitlement can't be reclaimed without a NEW verified
+      payment.
 - [ ] Authorization — a user sees only THEIR OWN payments: guessing another
-  user's payment/transaction id returns nothing (records scope by userId), and
-  NO endpoint lets a user mark their own payment succeeded/refunded or set
-  their own plan/isPro to spoof having paid — only the verified provider
-  result grants the tier.
+      user's payment/transaction id returns nothing (records scope by userId), and
+      NO endpoint lets a user mark their own payment succeeded/refunded or set
+      their own plan/isPro to spoof having paid — only the verified provider
+      result grants the tier.
 - [ ] The provider secret (e.g. STRIPE_SECRET_KEY / APPLE_SHARED_SECRET /
-  GOOGLE_API_SERVICE_KEY_OBJECT) is used only server-side for verification and
-  never reaches the browser bundle or a client request — this resource is
-  SERVER-ONLY.
+      GOOGLE_API_SERVICE_KEY_OBJECT) is used only server-side for verification and
+      never reaches the browser bundle or a client request — this resource is
+      SERVER-ONLY.

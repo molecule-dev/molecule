@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `routing.error.missingParam` | Missing param  |
-| `routing.error.routeNotFound` | Route  |
+| Key                                              | English                                                        |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| `routing.error.missingParam`                     | Missing param                                                  |
+| `routing.error.routeNotFound`                    | Route                                                          |
 | `routing.error.useMoleculeRouterOutsideProvider` | useMoleculeRouter must be used within a MoleculeRouterProvider |
 
 ## Metadata

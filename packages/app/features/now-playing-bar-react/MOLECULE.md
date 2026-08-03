@@ -17,7 +17,7 @@ layout shell, panel).
 ```tsx
 import { NowPlayingBar } from '@molecule/app-now-playing-bar-react'
 
-<div style={{ position: 'sticky', bottom: 0 }}>
+;<div style={{ position: 'sticky', bottom: 0 }}>
   <NowPlayingBar
     track={{ id: 't1', title: 'Untitled', artist: 'Various' }}
     isPlaying={playing}
@@ -33,9 +33,11 @@ import { NowPlayingBar } from '@molecule/app-now-playing-bar-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-now-playing-bar-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -148,6 +150,7 @@ function NowPlayingBar(props: NowPlayingBarProps): JSX.Element
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-queue-rabbitmq` package which has 2
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-queue-rabbitmq'
-import type { QueueRabbitmqTranslationKey, QueueRabbitmqTranslations } from '@molecule/api-locales-queue-rabbitmq'
+import type {
+  QueueRabbitmqTranslationKey,
+  QueueRabbitmqTranslations,
+} from '@molecule/api-locales-queue-rabbitmq'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `queue.rabbitmq.error.sendBatchNotSupported` | sendBatch not supported |
+| Key                                            | English                   |
+| ---------------------------------------------- | ------------------------- |
+| `queue.rabbitmq.error.sendBatchNotSupported`   | sendBatch not supported   |
 | `queue.rabbitmq.error.createQueueNotSupported` | createQueue not supported |
 
 ## Metadata

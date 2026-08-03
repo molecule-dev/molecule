@@ -3,6 +3,7 @@
 React relative-time formatting.
 
 Exports:
+
 - `formatRelativeTime(date, now?, locale?)` — utility using Intl.RelativeTimeFormat.
 - `<RelativeTime>` — live-updating component ("5 minutes ago").
 
@@ -12,7 +13,7 @@ Exports:
 import { RelativeTime, formatRelativeTime } from '@molecule/app-relative-time-react'
 
 // Component — auto-refreshes every minute
-<RelativeTime date="2024-06-01T10:00:00Z" titleLocale="en-US" />
+;<RelativeTime date="2024-06-01T10:00:00Z" titleLocale="en-US" />
 
 // Utility — one-shot formatting
 const label = formatRelativeTime('2024-06-01T10:00:00Z', Date.now(), 'en-US')
@@ -20,9 +21,11 @@ const label = formatRelativeTime('2024-06-01T10:00:00Z', Date.now(), 'en-US')
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-relative-time-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -59,7 +62,11 @@ Formats a date, timestamp, or epoch number as a human-readable relative time
 string (e.g. "5 minutes ago", "in 3 days") using {@link Intl.RelativeTimeFormat}.
 
 ```typescript
-function formatRelativeTime(input: string | number | Date, now?: number | Date, locale?: string): string
+function formatRelativeTime(
+  input: string | number | Date,
+  now?: number | Date,
+  locale?: string,
+): string
 ```
 
 #### `RelativeTime(props)`
@@ -87,6 +94,7 @@ function RelativeTime({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

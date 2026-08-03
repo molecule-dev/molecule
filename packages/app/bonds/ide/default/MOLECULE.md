@@ -10,13 +10,15 @@ persistence through an injectable storage adapter.
 import { setProvider } from '@molecule/app-ide'
 import { provider } from '@molecule/app-ide-default'
 
-setProvider(provider)   // once, at app startup (bonds.ts)
+setProvider(provider) // once, at app startup (bonds.ts)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ide-default @molecule/app-ide
 ```
@@ -102,6 +104,7 @@ const provider: DefaultWorkspaceProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-ide` interface.
 
 ## Bond Wiring
@@ -122,6 +125,7 @@ export function setupIdeDefault(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-ide` ^1.0.0
 
 ### Runtime Dependencies
@@ -148,24 +152,25 @@ Integration checklist — drive the real rendered UI (live preview, no mocks):
 regions, `interact_preview` to drag dividers and toggle panels. Adapt each
 item to this app's actual panels/layout and check every box off one by one.
 A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The IDE renders its panel regions in the default layout — snapshot the
-  preview and confirm each visible panel the app configures (e.g. a left
-  sidebar/files, a center editor, a right preview, a bottom terminal) is
-  present and laid out, none overlapping or collapsed to nothing.
+      preview and confirm each visible panel the app configures (e.g. a left
+      sidebar/files, a center editor, a right preview, a bottom terminal) is
+      present and laid out, none overlapping or collapsed to nothing.
 - [ ] Dragging a divider between two panels resizes the adjacent panels and
-  the sizes update live — grab the handle, drag, and confirm in a fresh
-  snapshot that both neighbors changed size (not the whole window, no
-  snap-back to the previous sizes).
+      the sizes update live — grab the handle, drag, and confirm in a fresh
+      snapshot that both neighbors changed size (not the whole window, no
+      snap-back to the previous sizes).
 - [ ] Toggling a panel's visibility (hide the terminal or the sidebar via its
-  control) removes it from the layout, and toggling again restores it in the
-  same position — the neighbors reflow to fill, they don't leave a blank gap.
+      control) removes it from the layout, and toggling again restores it in the
+      same position — the neighbors reflow to fill, they don't leave a blank gap.
 - [ ] Collapsing a collapsible panel shrinks it out of the way and expanding
-  restores its prior size; clicking into a panel updates the active-panel
-  state (its highlight/toolbar follows the panel you focus).
+      restores its prior size; clicking into a panel updates the active-panel
+      state (its highlight/toolbar follows the panel you focus).
 - [ ] A resized / collapsed / hidden layout PERSISTS across a full reload —
-  after reload the panels return at the sizes and visibility you left them,
-  not reset to the default layout (the default bond persists to browser
-  storage).
+      after reload the panels return at the sizes and visibility you left them,
+      not reset to the default layout (the default bond persists to browser
+      storage).
 - [ ] A panel's minimum size is respected — dragging a divider to the far end
-  cannot shrink a resizable panel to zero or an unusable sliver; it stops at
-  its configured min.
+      cannot shrink a resizable panel to zero or an unusable sliver; it stops at
+      its configured min.

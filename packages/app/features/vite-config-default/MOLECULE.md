@@ -27,9 +27,11 @@ const config = defineConfig(createDefaultViteConfig({ APP_NAME, APP_DESCRIPTION,
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-vite-config-default @tailwindcss/vite @vitejs/plugin-react vite vite-plugin-pwa
 ```
@@ -97,7 +99,7 @@ function moleculePushServiceWorkerPlugin(): Plugin<any>
 Public filename the push handler is served/emitted under (origin root).
 
 ```typescript
-const PUSH_SW_FILENAME: "push-sw.js"
+const PUSH_SW_FILENAME: 'push-sw.js'
 ```
 
 #### `PUSH_SW_SOURCE`
@@ -115,6 +117,7 @@ const PUSH_SW_SOURCE: "/**\n * molecule push service-worker extension — import
 ### Requirements
 
 Peer dependencies:
+
 - `@tailwindcss/vite` ^4.0.0
 - `@vitejs/plugin-react` ^4.0.0 || ^5.0.0
 - `vite` ^5.0.0 || ^6.0.0 || ^7.0.0

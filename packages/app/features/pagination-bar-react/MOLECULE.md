@@ -25,16 +25,21 @@ function OrderList({ total }: { total: number }) {
       total={total}
       onPageChange={setPage}
       pageSizeOptions={[10, 25, 50]}
-      onPageSizeChange={(s) => { setPageSize(s); setPage(1) }}
+      onPageSizeChange={(s) => {
+        setPageSize(s)
+        setPage(1)
+      }}
     />
   )
 }
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-pagination-bar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -105,6 +110,7 @@ function PaginationBar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

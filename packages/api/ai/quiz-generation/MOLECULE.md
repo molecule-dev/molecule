@@ -26,9 +26,11 @@ const result = await gradeResponses({
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-quiz-generation @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation
 ```
@@ -119,7 +121,13 @@ type QuestionType = 'multiple_choice' | 'true_false' | 'short_answer' | 'fill_in
 Generates a quiz from source material using the bonded AI provider, returning structured questions.
 
 ```typescript
-function generateQuiz(opts: { source: string; questionCount?: number; types?: QuestionType[]; difficulty?: Difficulty; model?: string; }): Promise<Quiz>
+function generateQuiz(opts: {
+  source: string
+  questionCount?: number
+  types?: QuestionType[]
+  difficulty?: Difficulty
+  model?: string
+}): Promise<Quiz>
 ```
 
 #### `gradeResponses(opts)`
@@ -127,7 +135,11 @@ function generateQuiz(opts: { source: string; questionCount?: number; types?: Qu
 Grades a set of student responses against the quiz answer key using the bonded AI provider.
 
 ```typescript
-function gradeResponses(opts: { quiz: Quiz; responses: Array<{ question_id: string; submitted: string; }>; model?: string; }): Promise<GradeResult>
+function gradeResponses(opts: {
+  quiz: Quiz
+  responses: Array<{ question_id: string; submitted: string }>
+  model?: string
+}): Promise<GradeResult>
 ```
 
 ## Injection Notes
@@ -135,6 +147,7 @@ function gradeResponses(opts: { quiz: Quiz; responses: Array<{ question_id: stri
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

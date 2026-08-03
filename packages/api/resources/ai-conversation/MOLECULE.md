@@ -20,9 +20,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-ai-conversatio
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-ai-conversation @molecule/api-ai @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-ai-conversation @molecule/api-logger @molecule/api-resource
 ```
@@ -121,7 +123,11 @@ is authenticated and owns the project, otherwise the request is rejected with
 allow unauthenticated AI cost abuse) by default.
 
 ```typescript
-function authUser(req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction): Promise<void>
+function authUser(
+  req: MoleculeRequest,
+  res: MoleculeResponse,
+  next: MoleculeNextFunction,
+): Promise<void>
 ```
 
 - `req` — The request object (uses `params.projectId`).
@@ -227,7 +233,14 @@ scanner from stripping it (it only keeps middlewares that are keys of this
 map), so generated apps actually gate the routes.
 
 ```typescript
-const requestHandlerMap: { readonly chat: typeof chat; readonly history: typeof history; readonly read: typeof read; readonly update: typeof update; readonly clear: typeof clear; readonly authUser: typeof authUser; }
+const requestHandlerMap: {
+  readonly chat: typeof chat
+  readonly history: typeof history
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly clear: typeof clear
+  readonly authUser: typeof authUser
+}
 ```
 
 #### `routes`
@@ -244,7 +257,26 @@ handlers also re-check ownership inline (`ensureProjectAccess`) so they stay
 secure even if a middleware is dropped.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/projects/:projectId/chat"; readonly handler: "chat"; readonly middlewares: readonly ["authUser"]; }, { readonly method: "get"; readonly path: "/projects/:projectId/chat"; readonly handler: "history"; readonly middlewares: readonly ["authUser"]; }, { readonly method: "delete"; readonly path: "/projects/:projectId/chat"; readonly handler: "clear"; readonly middlewares: readonly ["authUser"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/projects/:projectId/chat'
+    readonly handler: 'chat'
+    readonly middlewares: readonly ['authUser']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/projects/:projectId/chat'
+    readonly handler: 'history'
+    readonly middlewares: readonly ['authUser']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/projects/:projectId/chat'
+    readonly handler: 'clear'
+    readonly middlewares: readonly ['authUser']
+  },
+]
 ```
 
 ## Injection Notes
@@ -252,6 +284,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/projects/:pr
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
@@ -298,25 +331,26 @@ not a skip. This resource is the STORAGE of chat history (one `conversations`
 row per project, a `messages` JSONB array) — the reply text itself comes from
 the bonded `@molecule/api-ai` provider, so verify the transcript + privacy
 here, not generation quality:
+
 - [ ] Sending a message from the chat UI persists BOTH sides in order: the
-  `POST /projects/:projectId/chat` appends the user turn (`role: 'user'`, your
-  exact `content`), then after the SSE stream ends appends the assistant turn
-  (`role: 'assistant'`, the streamed text). The first message auto-creates the
-  conversation row for that project.
+      `POST /projects/:projectId/chat` appends the user turn (`role: 'user'`, your
+      exact `content`), then after the SSE stream ends appends the assistant turn
+      (`role: 'assistant'`, the streamed text). The first message auto-creates the
+      conversation row for that project.
 - [ ] Reloading the project (`GET /projects/:projectId/chat`) shows the FULL
-  transcript in send order across several back-and-forth exchanges — every
-  user/assistant turn present, none lost, dropped, or reordered.
+      transcript in send order across several back-and-forth exchanges — every
+      user/assistant turn present, none lost, dropped, or reordered.
 - [ ] Clearing the chat (`DELETE /projects/:projectId/chat`) deletes the
-  conversation: history immediately returns `{ messages: [] }` and the row is
-  not re-fetchable (there is no archive/undo — clear removes it). Sending a
-  new message afterward starts a fresh conversation from empty.
+      conversation: history immediately returns `{ messages: [] }` and the row is
+      not re-fetchable (there is no archive/undo — clear removes it). Sending a
+      new message afterward starts a fresh conversation from empty.
 - [ ] If token usage is surfaced, each assistant response records its
-  `inputTokens`/`outputTokens` (the `conversation.ai_response` analytics
-  event) — usage is tracked per response, not accumulated on the row.
+      `inputTokens`/`outputTokens` (the `conversation.ai_response` analytics
+      event) — usage is tracked per response, not accumulated on the row.
 - [ ] AUTHORIZATION / PRIVACY — chat history is strictly per project owner. A
-  second user hitting another user's `:projectId` (send, history, OR clear)
-  gets `403`, indistinguishable from "no such project" so existence isn't
-  leaked, and never sees or clears that chat. The owner is the authenticated
-  session (the project is looked up scoped to `session.userId`), NEVER a
-  request-body `userId` — forging one changes nothing. Chat content (which may
-  be sensitive) is never returned cross-user or logged in the clear.
+      second user hitting another user's `:projectId` (send, history, OR clear)
+      gets `403`, indistinguishable from "no such project" so existence isn't
+      leaked, and never sees or clears that chat. The owner is the authenticated
+      session (the project is looked up scoped to `session.userId`), NEVER a
+      request-body `userId` — forging one changes nothing. Chat content (which may
+      be sensitive) is never returned cross-user or logged in the clear.

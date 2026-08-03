@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-code-sandbox-docker` package which 
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-code-sandbox-docker'
-import type { CodeSandboxDockerTranslationKey, CodeSandboxDockerTranslations } from '@molecule/api-locales-code-sandbox-docker'
+import type {
+  CodeSandboxDockerTranslationKey,
+  CodeSandboxDockerTranslations,
+} from '@molecule/api-locales-code-sandbox-docker'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `codeSandbox.docker.error.readFailed` | Failed to read {{path}}: {{error}} |
-| `codeSandbox.docker.error.readDirFailed` | Failed to list {{path}}: {{error}} |
-| `codeSandbox.docker.error.writeFailed` | Failed to write {{path}}: {{error}} |
-| `codeSandbox.docker.error.deleteFailed` | Failed to delete {{path}}: {{error}} |
-| `codeSandbox.docker.error.apiError` | Docker API {{method}} {{path}}: {{status}} {{error}} |
+| Key                                      | English                                              |
+| ---------------------------------------- | ---------------------------------------------------- |
+| `codeSandbox.docker.error.readFailed`    | Failed to read {{path}}: {{error}}                   |
+| `codeSandbox.docker.error.readDirFailed` | Failed to list {{path}}: {{error}}                   |
+| `codeSandbox.docker.error.writeFailed`   | Failed to write {{path}}: {{error}}                  |
+| `codeSandbox.docker.error.deleteFailed`  | Failed to delete {{path}}: {{error}}                 |
+| `codeSandbox.docker.error.apiError`      | Docker API {{method}} {{path}}: {{status}} {{error}} |
 
 ## Metadata
 

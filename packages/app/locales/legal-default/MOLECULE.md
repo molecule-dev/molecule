@@ -15,9 +15,11 @@ import * as legal from '@molecule/app-locales-legal-default'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-locales-legal-default @molecule/app-i18n
 ```
@@ -656,6 +658,7 @@ const zu: LegalContent
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 
 ### Runtime Dependencies

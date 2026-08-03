@@ -3,9 +3,11 @@
 Memcached cache provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-cache-memcached @molecule/api-bond @molecule/api-cache @molecule/api-secrets memcached
 npm install -D @types/memcached
@@ -21,14 +23,14 @@ Cache entry options.
 
 ```typescript
 interface CacheOptions {
-    /**
-     * Time-to-live in seconds.
-     */
-    ttl?: number;
-    /**
-     * Tags for cache invalidation.
-     */
-    tags?: string[];
+  /**
+   * Time-to-live in seconds.
+   */
+  ttl?: number
+  /**
+   * Tags for cache invalidation.
+   */
+  tags?: string[]
 }
 ```
 
@@ -40,74 +42,74 @@ All cache providers must implement this interface.
 
 ```typescript
 interface CacheProvider {
-    /**
-     * Gets a value from the cache.
-     *
-     * @param key - Cache key
-     */
-    get<T = unknown>(key: string): Promise<T | undefined>;
-    /**
-     * Sets a value in the cache.
-     *
-     * @param key - Cache key
-     * @param value - Value to cache
-     * @param options - Cache options (ttl, tags)
-     */
-    set<T = unknown>(key: string, value: T, options?: CacheOptions): Promise<void>;
-    /**
-     * Deletes a value from the cache.
-     *
-     * @param key - Cache key
-     * @returns true if the key existed and was deleted
-     */
-    delete(key: string): Promise<boolean>;
-    /**
-     * Checks if a key exists in the cache.
-     *
-     * @param key - Cache key
-     */
-    has(key: string): Promise<boolean>;
-    /**
-     * Gets multiple values from the cache.
-     *
-     * @param keys - Array of cache keys
-     */
-    getMany?<T = unknown>(keys: string[]): Promise<Map<string, T>>;
-    /**
-     * Sets multiple values in the cache.
-     *
-     * @param entries - Array of [key, value] pairs
-     * @param options - Cache options applied to all entries
-     */
-    setMany?<T = unknown>(entries: Array<[string, T]>, options?: CacheOptions): Promise<void>;
-    /**
-     * Deletes multiple values from the cache.
-     *
-     * @param keys - Array of cache keys
-     */
-    deleteMany?(keys: string[]): Promise<number>;
-    /**
-     * Invalidates all cache entries with the given tag.
-     *
-     * @param tag - Tag to invalidate
-     */
-    invalidateTag?(tag: string): Promise<void>;
-    /**
-     * Clears all cache entries.
-     */
-    clear?(): Promise<void>;
-    /**
-     * Closes the cache connection.
-     */
-    close?(): Promise<void>;
-    /**
-     * Gets or sets a value using a factory function.
-     *
-     * @param key - Cache key
-     * @param factory - Function to generate the value if not cached
-     * @param options - Cache options
-     */
-    getOrSet?<T = unknown>(key: string, factory: () => Promise<T>, options?: CacheOptions): Promise<T>;
+  /**
+   * Gets a value from the cache.
+   *
+   * @param key - Cache key
+   */
+  get<T = unknown>(key: string): Promise<T | undefined>
+  /**
+   * Sets a value in the cache.
+   *
+   * @param key - Cache key
+   * @param value - Value to cache
+   * @param options - Cache options (ttl, tags)
+   */
+  set<T = unknown>(key: string, value: T, options?: CacheOptions): Promise<void>
+  /**
+   * Deletes a value from the cache.
+   *
+   * @param key - Cache key
+   * @returns true if the key existed and was deleted
+   */
+  delete(key: string): Promise<boolean>
+  /**
+   * Checks if a key exists in the cache.
+   *
+   * @param key - Cache key
+   */
+  has(key: string): Promise<boolean>
+  /**
+   * Gets multiple values from the cache.
+   *
+   * @param keys - Array of cache keys
+   */
+  getMany?<T = unknown>(keys: string[]): Promise<Map<string, T>>
+  /**
+   * Sets multiple values in the cache.
+   *
+   * @param entries - Array of [key, value] pairs
+   * @param options - Cache options applied to all entries
+   */
+  setMany?<T = unknown>(entries: Array<[string, T]>, options?: CacheOptions): Promise<void>
+  /**
+   * Deletes multiple values from the cache.
+   *
+   * @param keys - Array of cache keys
+   */
+  deleteMany?(keys: string[]): Promise<number>
+  /**
+   * Invalidates all cache entries with the given tag.
+   *
+   * @param tag - Tag to invalidate
+   */
+  invalidateTag?(tag: string): Promise<void>
+  /**
+   * Clears all cache entries.
+   */
+  clear?(): Promise<void>
+  /**
+   * Closes the cache connection.
+   */
+  close?(): Promise<void>
+  /**
+   * Gets or sets a value using a factory function.
+   *
+   * @param key - Cache key
+   * @param factory - Function to generate the value if not cached
+   * @param options - Cache options
+   */
+  getOrSet?<T = unknown>(key: string, factory: () => Promise<T>, options?: CacheOptions): Promise<T>
 }
 ```
 
@@ -166,6 +168,7 @@ const provider: CacheProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-cache` interface.
 
 ## Bond Wiring
@@ -186,13 +189,14 @@ export function setupCacheMemcached(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-cache` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MEMCACHED_SERVERS` *(optional)* — Memcached servers — default: `localhost:11211`
+- `MEMCACHED_SERVERS` _(optional)_ — Memcached servers — default: `localhost:11211`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Comma-separated host:port list of memcached servers. molecule.dev runs a Memcached inside your app's container automatically (dev and production) — set this only to use an external/managed instance.
   - Example: `localhost:11211`
@@ -239,26 +243,27 @@ Integration checklist — exercise the REAL behavior end-to-end (drive the app
 action that reads/writes this cache in the live preview, no mocks), adapt each
 item to this app's actual screens/flows, and check every box off one by one. A
 box you can't check is an integration bug to fix — not a skip:
+
 - [ ] `getOrSet(key, factory, options)` computes ONCE on a miss and serves the
-  cached copy afterward: drive the same screen/endpoint twice within
-  `CacheOptions.ttl` and confirm the expensive factory (DB/upstream call) runs
-  only on the FIRST load — the second read returns the cached value without
-  re-running it.
+      cached copy afterward: drive the same screen/endpoint twice within
+      `CacheOptions.ttl` and confirm the expensive factory (DB/upstream call) runs
+      only on the FIRST load — the second read returns the cached value without
+      re-running it.
 - [ ] `set(key, value)` then `get<T>(key)` round-trips the same value back into
-  the app (the cached data renders identically to the source data).
+      the app (the cached data renders identically to the source data).
 - [ ] Deletion reflects a miss: after `delete(key)`, `has(key)` is `false` and
-  `get(key)` returns `undefined`, so the app recomputes fresh from source
-  instead of serving the removed entry.
+      `get(key)` returns `undefined`, so the app recomputes fresh from source
+      instead of serving the removed entry.
 - [ ] TTL expiry refetches: once `CacheOptions.ttl` seconds elapse, the next
-  read recomputes fresh data — a stale value is NEVER served past its TTL.
+      read recomputes fresh data — a stale value is NEVER served past its TTL.
 - [ ] A write that changes the underlying record invalidates its key (via
-  `delete()` or a re-`set()`) so the very next read reflects the change — the app
-  never serves a stale cached copy after an update.
+      `delete()` or a re-`set()`) so the very next read reflects the change — the app
+      never serves a stale cached copy after an update.
 - [ ] AUTHORIZATION: a per-user or per-tenant value is cached under a key that
-  INCLUDES the user/tenant id (`user:123:profile`, never a global `profile`).
-  Load user A's data, then user B's — B must receive B's own data, never A's
-  cached copy. A shared key for per-user data is a cross-user data leak, not an
-  optimization.
+      INCLUDES the user/tenant id (`user:123:profile`, never a global `profile`).
+      Load user A's data, then user B's — B must receive B's own data, never A's
+      cached copy. A shared key for per-user data is a cross-user data leak, not an
+      optimization.
 - [ ] A cache backend failure or miss DEGRADES to computing from source: the
-  request still succeeds (getProvider()/get() unavailable falls back to the
-  real query) rather than erroring the whole request.
+      request still succeeds (getProvider()/get() unavailable falls back to the
+      real query) rather than erroring the whole request.

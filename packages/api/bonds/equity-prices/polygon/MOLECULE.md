@@ -25,9 +25,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-equity-prices-polygon @molecule/api-equity-prices @molecule/api-secrets
 ```
@@ -114,7 +116,7 @@ config object nor the `POLYGON_API_KEY` environment variable provided
 one).
 
 ```typescript
-const MISSING_API_KEY: "MISSING_API_KEY"
+const MISSING_API_KEY: 'MISSING_API_KEY'
 ```
 
 #### `provider`
@@ -138,7 +140,7 @@ them distinctly from generic upstream errors. When Polygon includes a
 attached to `Error.cause.retryAfterSeconds`.
 
 ```typescript
-const RATE_LIMITED: "RATE_LIMITED"
+const RATE_LIMITED: 'RATE_LIMITED'
 ```
 
 #### `UPSTREAM_ERROR`
@@ -148,10 +150,11 @@ results block, missing required fields, or a non-OK HTTP status that
 isn't a rate-limit response).
 
 ```typescript
-const UPSTREAM_ERROR: "UPSTREAM_ERROR"
+const UPSTREAM_ERROR: 'UPSTREAM_ERROR'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-equity-prices` interface.
 
 ## Bond Wiring
@@ -172,12 +175,13 @@ export function setupEquityPricesPolygon(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-equity-prices` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `POLYGON_API_KEY` *(required)* — Polygon.io API key
+- `POLYGON_API_KEY` _(required)_ — Polygon.io API key
   - Setup: Copy your API key from the Polygon.io dashboard.
   - Get it here: [https://polygon.io/dashboard/api-keys](https://polygon.io/dashboard/api-keys)
 
@@ -191,26 +195,27 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A known ticker (e.g. `getQuote('AAPL')`) renders a PLAUSIBLE quote in
-  the UI — a real `price` in a sane range, formatted with the quote's own
-  `currency` (never a hardcoded `$`), never `0` / `null` / `NaN` or a
-  spinner that never resolves.
+      the UI — a real `price` in a sane range, formatted with the quote's own
+      `currency` (never a hardcoded `$`), never `0` / `null` / `NaN` or a
+      spinner that never resolves.
 - [ ] Several distinct tickers (e.g. `AAPL` and `MSFT`) each render their
-  OWN price — not one shared placeholder or the same number repeated (a
-  stale-cache or wrong-symbol wiring bug).
+      OWN price — not one shared placeholder or the same number repeated (a
+      stale-cache or wrong-symbol wiring bug).
 - [ ] If the app charts history, `getHistorical(symbol, range)` returns an
-  ascending series of `{ ts, close }` that actually draws a line that moves
-  — not an empty array, a flat line, or points in reversed order.
+      ascending series of `{ ts, close }` that actually draws a line that moves
+      — not an empty array, a flat line, or points in reversed order.
 - [ ] An invalid / unknown ticker resolves to a clear "not found" in the UI
-  (empty `searchSymbol()` results, or a caught `getQuote` error) — never a
-  crash, a blank card, or a `NaN` price.
+      (empty `searchSymbol()` results, or a caught `getQuote` error) — never a
+      crash, a blank card, or a `NaN` price.
 - [ ] Staleness is honest: the quote's `ts` is surfaced (a timestamp or a
-  "delayed / last close" label) so an out-of-hours last-close price is NOT
-  presented as a live trade — the UI never dresses stale data up as real-time.
+      "delayed / last close" label) so an out-of-hours last-close price is NOT
+      presented as a live trade — the UI never dresses stale data up as real-time.
 - [ ] A provider rate-limit / outage (free tiers cap at a few calls) degrades
-  gracefully to last-known-cached data or an empty state with a message —
-  never a crashed page or a `NaN`; quotes are cached server-side, not
-  refetched per render.
+      gracefully to last-known-cached data or an empty state with a message —
+      never a crashed page or a `NaN`; quotes are cached server-side, not
+      refetched per render.
 - [ ] The provider API key stays server-side: quotes are served only through
-  the app's own authenticated endpoint, scoped to specific symbols — not an
-  open, unbounded proxy any caller can pass arbitrary tickers/params to.
+      the app's own authenticated endpoint, scoped to specific symbols — not an
+      open, unbounded proxy any caller can pass arbitrary tickers/params to.

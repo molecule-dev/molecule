@@ -37,9 +37,11 @@ const result = validate([
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-config @molecule/api-bond
 ```
@@ -333,8 +335,8 @@ function validate(schema: ConfigSchema[]): ConfigValidationResult
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider    | Package                    |
+| ----------- | -------------------------- |
 | Environment | `@molecule/api-config-env` |
 
 ## Injection Notes
@@ -342,6 +344,7 @@ function validate(schema: ConfigSchema[]): ConfigValidationResult
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

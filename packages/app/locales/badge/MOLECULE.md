@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                      | English                           |
+| ------------------------ | --------------------------------- |
 | `badge.error.noProvider` | Badge provider is not configured. |
 
 ## Metadata

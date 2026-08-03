@@ -12,6 +12,7 @@ layout, design-canvas vector ops) lives in the wrapper packages,
 which consume this base as a peer dependency.
 
 Exports:
+
 - `<CanvasSurface>` — pan/zoom container; children render in
   canvas-coordinate-space. Wheel zooms around the cursor; primary
   drag on the empty surface pans.
@@ -45,12 +46,7 @@ function Demo() {
   const { viewport, setViewport } = useCanvasViewport()
   const { selected, toggle } = useCanvasSelection()
   return (
-    <CanvasSurface
-      viewport={viewport}
-      onViewportChange={setViewport}
-      width={800}
-      height={600}
-    >
+    <CanvasSurface viewport={viewport} onViewportChange={setViewport} width={800} height={600}>
       <CanvasNode
         id="a"
         position={{ x: 100, y: 100 }}
@@ -65,9 +61,11 @@ function Demo() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -422,13 +420,14 @@ Generic positioned + draggable + resizable wrapper. Renders into the
 canvas-coordinate-space layer of `<CanvasSurface>`.
 
 The base is intentionally minimal — it owns:
-  - absolute positioning at `position` (canvas units).
-  - optional explicit `size` (canvas units).
-  - `onSelect` on pointerdown (with `e.stopPropagation()` so the
-    surface doesn't pan).
-  - `onDrag` from any pointerdown on the node body.
-  - `onResize` from a SE-corner handle (only rendered if `onResize`
-    is supplied).
+
+- absolute positioning at `position` (canvas units).
+- optional explicit `size` (canvas units).
+- `onSelect` on pointerdown (with `e.stopPropagation()` so the
+  surface doesn't pan).
+- `onDrag` from any pointerdown on the node body.
+- `onResize` from a SE-corner handle (only rendered if `onResize`
+  is supplied).
 
 It does NOT own visual chrome — wrapper packages compose chrome on
 top via `children`.
@@ -542,7 +541,11 @@ Controlled mode: pass `value` + `onChange`. Uncontrolled mode: omit
 both; the hook owns its own state seeded from `initial`.
 
 ```typescript
-function useCanvasSelection(options?: { initial?: readonly CanvasItemId[]; value?: ReadonlySet<CanvasItemId>; onChange?: (next: ReadonlySet<CanvasItemId>) => void; }): UseCanvasSelectionResult
+function useCanvasSelection(options?: {
+  initial?: readonly CanvasItemId[]
+  value?: ReadonlySet<CanvasItemId>
+  onChange?: (next: ReadonlySet<CanvasItemId>) => void
+}): UseCanvasSelectionResult
 ```
 
 - `options` — Hook options.
@@ -559,7 +562,12 @@ used controlled (pass `value` + `onChange`) or uncontrolled (omit
 both — it manages its own state seeded from `initial`).
 
 ```typescript
-function useCanvasViewport(options?: { initial?: CanvasViewport; limits?: ViewportLimits; value?: CanvasViewport; onChange?: (next: CanvasViewport) => void; }): UseCanvasViewportResult
+function useCanvasViewport(options?: {
+  initial?: CanvasViewport
+  limits?: ViewportLimits
+  value?: CanvasViewport
+  onChange?: (next: CanvasViewport) => void
+}): UseCanvasViewportResult
 ```
 
 - `options` — Hook options.
@@ -575,6 +583,7 @@ function useCanvasViewport(options?: { initial?: CanvasViewport; limits?: Viewpo
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

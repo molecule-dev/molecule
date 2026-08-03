@@ -22,9 +22,11 @@ const draft = await composeEmail({
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-email-composer @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation
 ```
@@ -102,6 +104,7 @@ function composeEmail(opts: ComposeOptions): Promise<EmailDraft>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

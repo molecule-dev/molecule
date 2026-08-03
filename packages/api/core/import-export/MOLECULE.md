@@ -32,9 +32,11 @@ const status = await getJobStatus(result.jobId)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-import-export @molecule/api-bond @molecule/api-i18n
 ```
@@ -365,7 +367,11 @@ function hasProvider(): boolean
 Imports CSV data into the specified table.
 
 ```typescript
-function importCSV(table: string, data: Buffer<ArrayBufferLike> | ReadableStream<any>, options?: ImportOptions): Promise<ImportResult>
+function importCSV(
+  table: string,
+  data: Buffer<ArrayBufferLike> | ReadableStream<any>,
+  options?: ImportOptions,
+): Promise<ImportResult>
 ```
 
 - `table` — Target table name.
@@ -401,8 +407,8 @@ function setProvider(provider: ImportExportProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider      | Package                           |
+| ------------- | --------------------------------- |
 | Import Export | `@molecule/api-import-export-csv` |
 
 ## Injection Notes
@@ -410,6 +416,7 @@ function setProvider(provider: ImportExportProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -426,7 +433,7 @@ Peer dependencies:
   `exportCSV(req.query.table)` is a full-database exfiltration hole.
   Whitelist the table server-side per endpoint, and ALWAYS add server-side
   owner scoping to the query (e.g. a `{ field: 'user_id', operator: 'eq',
-  value: authenticatedUserId }` filter) so users can only export their own rows.
+value: authenticatedUserId }` filter) so users can only export their own rows.
 - Exports return the file CONTENT (`Buffer` for CSV/Excel, rows for JSON) —
   the endpoint must set `Content-Type` / `Content-Disposition` itself for a
   download.
@@ -439,16 +446,17 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Exporting from the UI downloads a file whose rows and columns match
-  the data on screen (spot-check at least one row's values).
+      the data on screen (spot-check at least one row's values).
 - [ ] Importing a valid file adds the records: they appear in the UI and
-  survive a full reload.
+      survive a full reload.
 - [ ] If the app surfaces column mapping, a file whose headers differ from
-  the field names imports into the RIGHT fields via the mapping.
+      the field names imports into the RIGHT fields via the mapping.
 - [ ] A malformed file (wrong columns, broken rows) is rejected with a
-  readable error — no silent partial import; per-row errors (if reported)
-  are truthful.
+      readable error — no silent partial import; per-row errors (if reported)
+      are truthful.
 - [ ] Re-importing the same file honors the app's duplicate policy (e.g.
-  skip-duplicates does not double the rows).
+      skip-duplicates does not double the rows).
 - [ ] Round-trip integrity: export, then re-import the same file — values,
-  encodings, and special characters come back unchanged.
+      encodings, and special characters come back unchanged.

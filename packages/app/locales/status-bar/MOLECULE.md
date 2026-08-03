@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-status-bar` package which has 1 tra
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-status-bar'
-import type { StatusBarTranslationKey, StatusBarTranslations } from '@molecule/app-locales-status-bar'
+import type {
+  StatusBarTranslationKey,
+  StatusBarTranslations,
+} from '@molecule/app-locales-status-bar'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                          | English                                                                                                                                                   |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `statusBar.error.noProvider` | @molecule/app-status-bar: No provider set. Call setProvider() with a StatusBarProvider implementation (e.g., from @molecule/app-status-bar-react-native). |
 
 ## Metadata

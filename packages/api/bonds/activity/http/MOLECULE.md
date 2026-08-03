@@ -17,9 +17,11 @@ setSink(createHttpSink({ url: 'https://my-app.example/v1/activity' }))
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-activity-http @molecule/api-activity @molecule/api-logger @molecule/api-secrets
 ```
@@ -93,6 +95,7 @@ const provider: ActivitySink
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-activity` interface.
 
 ## Bond Wiring
@@ -113,13 +116,14 @@ export function setupActivityHttp(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MOLECULE_ACTIVITY_URL` *(optional)* — molecule.dev activity capture URL
+- `MOLECULE_ACTIVITY_URL` _(optional)_ — molecule.dev activity capture URL
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
   - Setup: Endpoint for captured side effects (emails/SMS/webhooks) in molecule.dev sandboxes.
 

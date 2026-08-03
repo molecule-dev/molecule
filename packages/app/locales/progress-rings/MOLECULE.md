@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-progress-rings-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-progress-rings'
-import type { ProgressRingsTranslationKey, ProgressRingsTranslations } from '@molecule/app-locales-progress-rings'
+import type {
+  ProgressRingsTranslationKey,
+  ProgressRingsTranslations,
+} from '@molecule/app-locales-progress-rings'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                     | English                          |
+| ----------------------- | -------------------------------- |
 | `progressRings.summary` | Progress rings ({{count}} rings) |
-| `progressRings.ring` | Ring {{index}} |
+| `progressRings.ring`    | Ring {{index}}                   |
 
 ## Metadata
 

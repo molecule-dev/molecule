@@ -10,7 +10,7 @@ Provides a `ws`-backed implementation of the
   member leaves/disconnects, so a push to a room nobody is viewing is an ERROR here
   (the `-socketio` bond silently no-ops instead). Reserved protocol frames use the
   same JSON framing: `{ event: 'molecule:join' | 'molecule:leave' |
-  'molecule:room-send', data: { room, … } }`.
+'molecule:room-send', data: { room, … } }`.
 
 ## Quick Start
 
@@ -27,9 +27,11 @@ server.listen(3000)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-realtime-ws @molecule/api-bond @molecule/api-realtime ws
 npm install -D @types/ws
@@ -116,6 +118,7 @@ function createProvider(config?: WsRealtimeConfig): RealtimeProvider
 **Returns:** A fully initialised `RealtimeProvider` backed by `ws`.
 
 ## Core Interface
+
 Implements `@molecule/api-realtime` interface.
 
 ## Injection Notes
@@ -123,6 +126,7 @@ Implements `@molecule/api-realtime` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 
@@ -135,7 +139,7 @@ Peer dependencies:
 - **`createProvider()` with NO `port`, NO `httpServer`, and NO
   `deferAttach` does NOT bind anything** — creating a provider must never
   bind a port as a side effect. It behaves exactly like `{ deferAttach:
-  true }` (waits for `attachHttpServer(server)`), logging an info line so
+true }` (waits for `attachHttpServer(server)`), logging an info line so
   the omission is visible instead of silent. An **explicit** `port` still
   binds a standalone server immediately (unchanged, back-compat for
   existing standalone callers) — it just no longer happens by accident. In
@@ -157,14 +161,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] With the app open in TWO sessions (separate browser contexts/users), an
-  action in one (send a message, update a shared record) appears in the
-  other WITHOUT a manual reload.
+      action in one (send a message, update a shared record) appears in the
+      other WITHOUT a manual reload.
 - [ ] Updates reach only the sessions in the same room/scope — a session
-  viewing a different room/record receives nothing.
+      viewing a different room/record receives nothing.
 - [ ] Private rooms enforce the join guard: an unauthorized session's join is
-  denied and no data leaks to it. If ANY client can join any private room,
-  `onJoinRequest` was never registered — an integration bug.
+      denied and no data leaks to it. If ANY client can join any private room,
+      `onJoinRequest` was never registered — an integration bug.
 - [ ] Presence (if surfaced) updates when a participant joins and leaves.
 - [ ] After a dropped connection (offline/online toggle or server restart),
-  the client reconnects and live events flow again.
+      the client reconnects and live events flow again.

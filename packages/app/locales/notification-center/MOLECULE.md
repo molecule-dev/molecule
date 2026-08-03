@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-notification-center` package which 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-notification-center'
-import type { NotificationCenterTranslationKey, NotificationCenterTranslations } from '@molecule/app-locales-notification-center'
+import type {
+  NotificationCenterTranslationKey,
+  NotificationCenterTranslations,
+} from '@molecule/app-locales-notification-center'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `notifications.title` | Notifications |
+| Key                         | English          |
+| --------------------------- | ---------------- |
+| `notifications.title`       | Notifications    |
 | `notifications.markAllRead` | Mark all as read |
-| `notifications.empty` | No notifications |
-| `notifications.viewAll` | View all |
+| `notifications.empty`       | No notifications |
+| `notifications.viewAll`     | View all         |
 
 ## Metadata
 

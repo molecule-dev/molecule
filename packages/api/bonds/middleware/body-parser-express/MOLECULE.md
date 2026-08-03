@@ -13,9 +13,11 @@ setJsonParserFactory(jsonParserFactory)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-body-parser-express @molecule/api-bond @molecule/api-i18n @molecule/api-middleware-body-parser connect-busboy express
 npm install -D @types/connect-busboy @types/express
@@ -56,6 +58,7 @@ function provider(req: unknown, res: unknown, next: (err?: unknown) => void): vo
 - `next` — The next middleware function.
 
 ## Core Interface
+
 Implements `@molecule/api-middleware-body-parser` interface.
 
 ## Bond Wiring
@@ -76,6 +79,7 @@ export function setupMiddlewareBodyParserExpress(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-middleware-body-parser` ^1.0.0

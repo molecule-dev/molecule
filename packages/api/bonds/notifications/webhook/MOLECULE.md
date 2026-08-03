@@ -14,9 +14,11 @@ setProvider('webhook', provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-notifications-webhook @molecule/api-notifications @molecule/api-secrets
 ```
@@ -84,6 +86,7 @@ const provider: NotificationsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-notifications` interface.
 
 ## Injection Notes
@@ -91,15 +94,16 @@ Implements `@molecule/api-notifications` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-notifications` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `NOTIFICATIONS_WEBHOOK_URL` *(required)* — Notification webhook URL
+- `NOTIFICATIONS_WEBHOOK_URL` _(required)_ — Notification webhook URL
   - Setup: HTTPS endpoint that receives notification POSTs from your app.
   - Example: `https://example.com/hooks/notify`
-- `NOTIFICATIONS_WEBHOOK_SECRET` *(optional)* — Notification webhook signing secret
+- `NOTIFICATIONS_WEBHOOK_SECRET` _(optional)_ — Notification webhook signing secret
   - **Auto-generated at scaffold — no manual setup.**
 
 ### Runtime Dependencies
@@ -132,19 +136,20 @@ signature, when a secret is configured) depends on.
 Integration checklist — drive the real flow (no mocks), adapt each item
 to this app's actual events/triggers, and check every box off one by
 one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each ops/event trigger the app defines (service down, new signup,
-  a threshold crossed) actually calls `notifyAll()` and the message
-  reaches every bonded channel. The sandbox CAPTURES outbound
-  notifications instead of sending — read them with the `read_activity`
-  tool and confirm the subject+body match the event that fired. Never
-  mock the flow or modify production code to expose it.
+      a threshold crossed) actually calls `notifyAll()` and the message
+      reaches every bonded channel. The sandbox CAPTURES outbound
+      notifications instead of sending — read them with the `read_activity`
+      tool and confirm the subject+body match the event that fired. Never
+      mock the flow or modify production code to expose it.
 - [ ] MULTI-CHANNEL: with >1 channel bonded, `notifyAll()` returns one
-  `NotificationResult` per channel and a single channel failing
-  (`success: false`) does not swallow the others — every other channel
-  still captured, its own result still `success: true`.
+      `NotificationResult` per channel and a single channel failing
+      (`success: false`) does not swallow the others — every other channel
+      still captured, its own result still `success: true`.
 - [ ] The body carries the real event data (no `undefined` placeholders)
-  and nothing that must not leave the system — no secrets, tokens, or
-  PII that an external channel (Slack/webhook) should never receive.
+      and nothing that must not leave the system — no secrets, tokens, or
+      PII that an external channel (Slack/webhook) should never receive.
 - [ ] Triggers are not end-user SPAMMABLE — no public endpoint lets a
-  caller fire unbounded notifications; the trigger is internal (an
-  ops/system event) or rate-limited.
+      caller fire unbounded notifications; the trigger is internal (an
+      ops/system event) or rate-limited.

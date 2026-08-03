@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-video-scrubber-react` packa
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-video-scrubber'
-import type { VideoScrubberTranslationKey, VideoScrubberTranslations } from '@molecule/app-locales-feature-video-scrubber'
+import type {
+  VideoScrubberTranslationKey,
+  VideoScrubberTranslations,
+} from '@molecule/app-locales-feature-video-scrubber'
 ```
 
 ## Registration
@@ -34,15 +37,15 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `videoScrubber.aria.root` | Video scrubber |
-| `videoScrubber.aria.strip` | Filmstrip — playhead at {{time}}s (frame {{frame}}) |
-| `videoScrubber.aria.playhead` | Playhead at {{time}}s |
-| `videoScrubber.aria.frameReadout` | Frame {{frame}} of {{total}} |
-| `videoScrubber.aria.thumbnail` | Frame preview |
-| `videoScrubber.thumbnails.empty` | No preview |
-| `videoScrubber.frameReadout.total` | / {{total}} frames |
+| Key                                | English                                             |
+| ---------------------------------- | --------------------------------------------------- |
+| `videoScrubber.aria.root`          | Video scrubber                                      |
+| `videoScrubber.aria.strip`         | Filmstrip — playhead at {{time}}s (frame {{frame}}) |
+| `videoScrubber.aria.playhead`      | Playhead at {{time}}s                               |
+| `videoScrubber.aria.frameReadout`  | Frame {{frame}} of {{total}}                        |
+| `videoScrubber.aria.thumbnail`     | Frame preview                                       |
+| `videoScrubber.thumbnails.empty`   | No preview                                          |
+| `videoScrubber.frameReadout.total` | / {{total}} frames                                  |
 
 ## Metadata
 

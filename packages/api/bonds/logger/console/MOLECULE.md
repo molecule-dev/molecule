@@ -13,9 +13,11 @@ logger.info('Server started on port', 3000)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-logger-console @molecule/api-logger
 ```
@@ -41,6 +43,7 @@ const provider: Logger
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-logger` interface.
 
 ## Bond Wiring
@@ -61,6 +64,7 @@ export function setupLoggerConsole(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 
 ### Runtime Dependencies

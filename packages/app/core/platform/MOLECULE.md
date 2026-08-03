@@ -24,9 +24,11 @@ const label = onPlatform({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-platform @molecule/app-lifecycle @molecule/app-logger @molecule/app-push
 ```
@@ -202,6 +204,7 @@ type Platform = 'web' | 'ios' | 'android' | 'electron' | 'macos' | 'windows' | '
 Creates a Capacitor app coordinator.
 
 Orchestrates native app initialization in the correct order:
+
 1. Wait for device ready
 2. Initialize push notifications (if configured)
 3. Handle deep links (if configured)
@@ -232,7 +235,7 @@ Builds comprehensive platform information including platform type,
 environment flags, and user agent details.
 
 ```typescript
-function getPlatformInfo(env?: { isDevelopment?: boolean; isProduction?: boolean; }): PlatformInfo
+function getPlatformInfo(env?: { isDevelopment?: boolean; isProduction?: boolean }): PlatformInfo
 ```
 
 - `env` — Optional environment overrides for development/production flags.
@@ -259,7 +262,7 @@ Executes a platform-specific handler based on the detected platform.
 Falls back to the `default` handler if no handler matches.
 
 ```typescript
-function onPlatform(handlers: Partial<Record<Platform, () => T>> & { default: () => T; }): T
+function onPlatform(handlers: Partial<Record<Platform, () => T>> & { default: () => T }): T
 ```
 
 - `handlers` — A map of platform identifiers to handler functions, with a required `default`.
@@ -290,6 +293,7 @@ function resetPlatformCache(): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-lifecycle` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-push` ^1.0.0

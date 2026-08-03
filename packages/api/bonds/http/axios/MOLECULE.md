@@ -25,9 +25,11 @@ setClient(client)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-http-axios @molecule/api-http axios
 ```
@@ -58,46 +60,64 @@ client factory support.
 
 ```typescript
 interface HttpClient {
-    /**
-     * Makes an HTTP request.
-     */
-    request<T = unknown>(url: string, options?: HttpRequestOptions): Promise<HttpResponse<T>>;
-    /**
-     * Makes a GET request.
-     */
-    get<T = unknown>(url: string, options?: Omit<HttpRequestOptions, 'method' | 'body'>): Promise<HttpResponse<T>>;
-    /**
-     * Makes a POST request.
-     */
-    post<T = unknown>(url: string, body?: unknown, options?: Omit<HttpRequestOptions, 'method' | 'body'>): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PUT request.
-     */
-    put<T = unknown>(url: string, body?: unknown, options?: Omit<HttpRequestOptions, 'method' | 'body'>): Promise<HttpResponse<T>>;
-    /**
-     * Makes a PATCH request.
-     */
-    patch<T = unknown>(url: string, body?: unknown, options?: Omit<HttpRequestOptions, 'method' | 'body'>): Promise<HttpResponse<T>>;
-    /**
-     * Makes a DELETE request.
-     */
-    delete<T = unknown>(url: string, options?: Omit<HttpRequestOptions, 'method'>): Promise<HttpResponse<T>>;
-    /**
-     * Creates a new client with the given defaults.
-     */
-    create?(defaults: HttpRequestOptions): HttpClient;
-    /**
-     * Adds a request interceptor.
-     */
-    addRequestInterceptor?(interceptor: RequestInterceptor): () => void;
-    /**
-     * Adds a response interceptor.
-     */
-    addResponseInterceptor?(interceptor: ResponseInterceptor): () => void;
-    /**
-     * Adds an error interceptor.
-     */
-    addErrorInterceptor?(interceptor: ErrorInterceptor): () => void;
+  /**
+   * Makes an HTTP request.
+   */
+  request<T = unknown>(url: string, options?: HttpRequestOptions): Promise<HttpResponse<T>>
+  /**
+   * Makes a GET request.
+   */
+  get<T = unknown>(
+    url: string,
+    options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+  ): Promise<HttpResponse<T>>
+  /**
+   * Makes a POST request.
+   */
+  post<T = unknown>(
+    url: string,
+    body?: unknown,
+    options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+  ): Promise<HttpResponse<T>>
+  /**
+   * Makes a PUT request.
+   */
+  put<T = unknown>(
+    url: string,
+    body?: unknown,
+    options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+  ): Promise<HttpResponse<T>>
+  /**
+   * Makes a PATCH request.
+   */
+  patch<T = unknown>(
+    url: string,
+    body?: unknown,
+    options?: Omit<HttpRequestOptions, 'method' | 'body'>,
+  ): Promise<HttpResponse<T>>
+  /**
+   * Makes a DELETE request.
+   */
+  delete<T = unknown>(
+    url: string,
+    options?: Omit<HttpRequestOptions, 'method'>,
+  ): Promise<HttpResponse<T>>
+  /**
+   * Creates a new client with the given defaults.
+   */
+  create?(defaults: HttpRequestOptions): HttpClient
+  /**
+   * Adds a request interceptor.
+   */
+  addRequestInterceptor?(interceptor: RequestInterceptor): () => void
+  /**
+   * Adds a response interceptor.
+   */
+  addResponseInterceptor?(interceptor: ResponseInterceptor): () => void
+  /**
+   * Adds an error interceptor.
+   */
+  addErrorInterceptor?(interceptor: ErrorInterceptor): () => void
 }
 ```
 
@@ -107,28 +127,28 @@ HTTP error.
 
 ```typescript
 interface HttpError extends Error {
-    /**
-     * Response (if available).
-     */
-    response?: HttpResponse;
-    /**
-     * Request options.
-     */
-    request: HttpRequestOptions & {
-        url: string;
-    };
-    /**
-     * Error code (e.g., 'ECONNREFUSED', 'ETIMEDOUT').
-     */
-    code?: string;
-    /**
-     * Whether the request was aborted.
-     */
-    isAborted?: boolean;
-    /**
-     * Whether the request timed out.
-     */
-    isTimeout?: boolean;
+  /**
+   * Response (if available).
+   */
+  response?: HttpResponse
+  /**
+   * Request options.
+   */
+  request: HttpRequestOptions & {
+    url: string
+  }
+  /**
+   * Error code (e.g., 'ECONNREFUSED', 'ETIMEDOUT').
+   */
+  code?: string
+  /**
+   * Whether the request was aborted.
+   */
+  isAborted?: boolean
+  /**
+   * Whether the request timed out.
+   */
+  isTimeout?: boolean
 }
 ```
 
@@ -138,46 +158,46 @@ HTTP request options.
 
 ```typescript
 interface HttpRequestOptions {
-    /**
-     * HTTP method.
-     */
-    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS';
-    /**
-     * Request headers.
-     */
-    headers?: Record<string, string>;
-    /**
-     * Request body (will be JSON-stringified if object).
-     */
-    body?: unknown;
-    /**
-     * Query parameters.
-     */
-    params?: Record<string, string | number | boolean | undefined>;
-    /**
-     * Request timeout in milliseconds.
-     */
-    timeout?: number;
-    /**
-     * Base URL to prepend to the request URL.
-     */
-    baseURL?: string;
-    /**
-     * Whether to include credentials (cookies) in the request.
-     */
-    credentials?: 'omit' | 'same-origin' | 'include';
-    /**
-     * Response type.
-     */
-    responseType?: 'json' | 'text' | 'blob' | 'arraybuffer';
-    /**
-     * Signal for aborting the request.
-     */
-    signal?: AbortSignal;
-    /**
-     * Custom options passed to the underlying client.
-     */
-    [key: string]: unknown;
+  /**
+   * HTTP method.
+   */
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS'
+  /**
+   * Request headers.
+   */
+  headers?: Record<string, string>
+  /**
+   * Request body (will be JSON-stringified if object).
+   */
+  body?: unknown
+  /**
+   * Query parameters.
+   */
+  params?: Record<string, string | number | boolean | undefined>
+  /**
+   * Request timeout in milliseconds.
+   */
+  timeout?: number
+  /**
+   * Base URL to prepend to the request URL.
+   */
+  baseURL?: string
+  /**
+   * Whether to include credentials (cookies) in the request.
+   */
+  credentials?: 'omit' | 'same-origin' | 'include'
+  /**
+   * Response type.
+   */
+  responseType?: 'json' | 'text' | 'blob' | 'arraybuffer'
+  /**
+   * Signal for aborting the request.
+   */
+  signal?: AbortSignal
+  /**
+   * Custom options passed to the underlying client.
+   */
+  [key: string]: unknown
 }
 ```
 
@@ -187,28 +207,28 @@ HTTP response.
 
 ```typescript
 interface HttpResponse<T = unknown> {
-    /**
-     * Response status code.
-     */
-    status: number;
-    /**
-     * Response status text.
-     */
-    statusText: string;
-    /**
-     * Response headers.
-     */
-    headers: Record<string, string>;
-    /**
-     * Response body.
-     */
-    data: T;
-    /**
-     * Original request options.
-     */
-    request: HttpRequestOptions & {
-        url: string;
-    };
+  /**
+   * Response status code.
+   */
+  status: number
+  /**
+   * Response status text.
+   */
+  statusText: string
+  /**
+   * Response headers.
+   */
+  headers: Record<string, string>
+  /**
+   * Response body.
+   */
+  data: T
+  /**
+   * Original request options.
+   */
+  request: HttpRequestOptions & {
+    url: string
+  }
 }
 ```
 
@@ -220,7 +240,7 @@ Callback invoked when an HTTP request fails, allowing error
 transformation or logging before re-throwing.
 
 ```typescript
-type ErrorInterceptor = (error: HttpError) => HttpError | Promise<HttpError>;
+type ErrorInterceptor = (error: HttpError) => HttpError | Promise<HttpError>
 ```
 
 #### `RequestInterceptor`
@@ -228,13 +248,19 @@ type ErrorInterceptor = (error: HttpError) => HttpError | Promise<HttpError>;
 Function that transforms an outgoing HTTP request before it is sent (e.g. add auth headers).
 
 ```typescript
-type RequestInterceptor = (options: HttpRequestOptions & {
-    url: string;
-}) => (HttpRequestOptions & {
-    url: string;
-}) | Promise<HttpRequestOptions & {
-    url: string;
-}>;
+type RequestInterceptor = (
+  options: HttpRequestOptions & {
+    url: string
+  },
+) =>
+  | (HttpRequestOptions & {
+      url: string
+    })
+  | Promise<
+      HttpRequestOptions & {
+        url: string
+      }
+    >
 ```
 
 #### `ResponseInterceptor`
@@ -242,7 +268,9 @@ type RequestInterceptor = (options: HttpRequestOptions & {
 Function that transforms an incoming HTTP response before it is returned (e.g. unwrap data).
 
 ```typescript
-type ResponseInterceptor<T = unknown> = (response: HttpResponse<T>) => HttpResponse<T> | Promise<HttpResponse<T>>;
+type ResponseInterceptor<T = unknown> = (
+  response: HttpResponse<T>,
+) => HttpResponse<T> | Promise<HttpResponse<T>>
 ```
 
 ### Functions
@@ -272,7 +300,9 @@ success path (`toHttpResponse` from `client.request`) is unaffected, so
 legitimate consumers of `response.request` still see the full options.
 
 ```typescript
-function sanitizeRequestOptions(requestOptions: HttpRequestOptions & { url: string; }): HttpRequestOptions & { url: string; }
+function sanitizeRequestOptions(
+  requestOptions: HttpRequestOptions & { url: string },
+): HttpRequestOptions & { url: string }
 ```
 
 - `requestOptions` — The original request options.
@@ -284,7 +314,10 @@ function sanitizeRequestOptions(requestOptions: HttpRequestOptions & { url: stri
 Converts axios error to HttpError.
 
 ```typescript
-function toHttpError(error: AxiosError, requestOptions: HttpRequestOptions & { url: string; }): HttpError
+function toHttpError(
+  error: AxiosError,
+  requestOptions: HttpRequestOptions & { url: string },
+): HttpError
 ```
 
 - `error` — The error.
@@ -297,7 +330,10 @@ function toHttpError(error: AxiosError, requestOptions: HttpRequestOptions & { u
 Converts axios response to HttpResponse.
 
 ```typescript
-function toHttpResponse(response: AxiosResponse<T, any, {}, any>, requestOptions: HttpRequestOptions & { url: string; }): HttpResponse<T>
+function toHttpResponse(
+  response: AxiosResponse<T, any, {}, any>,
+  requestOptions: HttpRequestOptions & { url: string },
+): HttpResponse<T>
 ```
 
 - `response` — The response object.
@@ -328,6 +364,7 @@ const provider: HttpClient
 #### `axios`
 
 ## Core Interface
+
 Implements `@molecule/api-http` interface.
 
 ## Bond Wiring
@@ -348,6 +385,7 @@ export function setupHttpAxios(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-http` ^1.0.0
 
 ### Runtime Dependencies

@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-wiki-page-header-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-wiki-page-header'
-import type { WikiPageHeaderTranslationKey, WikiPageHeaderTranslations } from '@molecule/app-locales-wiki-page-header'
+import type {
+  WikiPageHeaderTranslationKey,
+  WikiPageHeaderTranslations,
+} from '@molecule/app-locales-wiki-page-header'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `wiki.edit` | Edit |
-| `wiki.history` | History |
+| Key              | English |
+| ---------------- | ------- |
+| `wiki.edit`      | Edit    |
+| `wiki.history`   | History |
 | `wiki.updatedAt` | Updated |
 
 ## Metadata

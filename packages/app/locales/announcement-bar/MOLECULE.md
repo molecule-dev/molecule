@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-announcement-bar-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-announcement-bar'
-import type { AnnouncementBarTranslationKey, AnnouncementBarTranslations } from '@molecule/app-locales-announcement-bar'
+import type {
+  AnnouncementBarTranslationKey,
+  AnnouncementBarTranslations,
+} from '@molecule/app-locales-announcement-bar'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                    | English |
+| ---------------------- | ------- |
 | `announcement.dismiss` | Dismiss |
 
 ## Metadata

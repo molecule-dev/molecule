@@ -30,7 +30,7 @@ import { provider } from '@molecule/api-project-archive-object-storage'
 import { setProvider as setUploads } from '@molecule/api-uploads'
 import { provider as s3 } from '@molecule/api-uploads-s3'
 
-setUploads(s3)      // storage bond FIRST — this provider composes it
+setUploads(s3) // storage bond FIRST — this provider composes it
 setProvider(provider)
 ```
 
@@ -42,17 +42,22 @@ import { provider as archiveProvider } from '@molecule/api-project-archive-objec
 // it: .gitignore declares what is disposable, `git clean -Xdf` removes it,
 // and `git ls-files` lists what survives. This package has no filter.
 await exec('git', ['clean', '-Xdf'], { cwd: dir })
-const tracked = await exec('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { cwd: dir })
+const tracked = await exec('git', ['ls-files', '--cached', '--others', '--exclude-standard'], {
+  cwd: dir,
+})
 
 // ONE generic channel. Source files, a pg_dump and a git bundle are all parts;
 // only the caller's path/kind/meta tell them apart, and this provider never
 // interprets any of it. Adding a SECOND database is one more part.
 const source: ArchivePart[] = await Promise.all(
-  tracked.split('\n').filter(Boolean).map(async (file) => ({
-    path: `source/${file}`,
-    content: await readFile(join(dir, file)),
-    kind: 'source',
-  })),
+  tracked
+    .split('\n')
+    .filter(Boolean)
+    .map(async (file) => ({
+      path: `source/${file}`,
+      content: await readFile(join(dir, file)),
+      kind: 'source',
+    })),
 )
 
 const previousStorageId = project.archiveStorageId // whatever we persisted last time
@@ -74,7 +79,7 @@ const result = await archiveProvider.archive({
       meta: { remote: 'origin', headSha: await gitHeadSha(dir) },
     },
   ],
-  minParts: 1,                     // an empty part set THROWS
+  minParts: 1, // an empty part set THROWS
   requiredPaths: ['source/package.json', 'database/main.dump'],
   metadata: { reason: 'dormant-30d' },
 })
@@ -111,9 +116,11 @@ for (const part of parts) {
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-project-archive-object-storage @molecule/api-logger @molecule/api-project-archive @molecule/api-uploads
 ```
@@ -252,7 +259,9 @@ interface ProjectArchiveObjectStorageConfig {
 Creates an object-storage-backed project archive provider.
 
 ```typescript
-function createProjectArchiveProvider(config?: ProjectArchiveObjectStorageConfig): ObjectStorageProjectArchiveProvider
+function createProjectArchiveProvider(
+  config?: ProjectArchiveObjectStorageConfig,
+): ObjectStorageProjectArchiveProvider
 ```
 
 - `config` — Provider configuration.
@@ -285,6 +294,7 @@ const provider: ObjectStorageProjectArchiveProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-project-archive` interface.
 
 ## Bond Wiring
@@ -305,6 +315,7 @@ export function setupProjectArchiveObjectStorage(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` >=1.0.0
 - `@molecule/api-project-archive` >=1.0.0
 - `@molecule/api-uploads` >=1.0.0

@@ -21,9 +21,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-comment'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-comment @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -142,7 +144,12 @@ function create(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Creates a new comment on a resource.
 
 ```typescript
-function createComment(resourceType: string, resourceId: string, userId: string, data: CreateCommentInput): Promise<Comment>
+function createComment(
+  resourceType: string,
+  resourceId: string,
+  userId: string,
+  data: CreateCommentInput,
+): Promise<Comment>
 ```
 
 - `resourceType` — The type of resource being commented on.
@@ -207,7 +214,11 @@ Retrieves paginated comments for a resource, ordered by creation date descending
 Only returns top-level comments (no replies).
 
 ```typescript
-function getCommentsByResource(resourceType: string, resourceId: string, options?: PaginationOptions): Promise<PaginatedResult<Comment>>
+function getCommentsByResource(
+  resourceType: string,
+  resourceId: string,
+  options?: PaginationOptions,
+): Promise<PaginatedResult<Comment>>
 ```
 
 - `resourceType` — The type of resource.
@@ -221,7 +232,10 @@ function getCommentsByResource(resourceType: string, resourceId: string, options
 Retrieves paginated replies to a comment, ordered by creation date ascending.
 
 ```typescript
-function getReplies(commentId: string, options?: PaginationOptions): Promise<PaginatedResult<Comment>>
+function getReplies(
+  commentId: string,
+  options?: PaginationOptions,
+): Promise<PaginatedResult<Comment>>
 ```
 
 - `commentId` — The parent comment ID.
@@ -278,7 +292,11 @@ function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Updates a comment. Only the comment owner can update.
 
 ```typescript
-function updateComment(commentId: string, userId: string, data: UpdateCommentInput): Promise<Comment | null>
+function updateComment(
+  commentId: string,
+  userId: string,
+  data: UpdateCommentInput,
+): Promise<Comment | null>
 ```
 
 - `commentId` — The comment ID to update.
@@ -294,7 +312,10 @@ function updateComment(commentId: string, userId: string, data: UpdateCommentInp
 Schema for validating comment creation input.
 
 ```typescript
-const createCommentSchema: z.ZodObject<{ body: z.ZodString; parentId: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createCommentSchema: z.ZodObject<
+  { body: z.ZodString; parentId: z.ZodOptional<z.ZodString> },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -302,7 +323,15 @@ const createCommentSchema: z.ZodObject<{ body: z.ZodString; parentId: z.ZodOptio
 Handler map for comment routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly commentCount: typeof commentCount; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly replies: typeof replies; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly commentCount: typeof commentCount
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly replies: typeof replies
+}
 ```
 
 #### `routes`
@@ -310,7 +339,42 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 Routes for comment CRUD and threaded replies.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/comments"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/comments"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/comments/count"; readonly handler: "commentCount"; }, { readonly method: "get"; readonly path: "/comments/:commentId"; readonly handler: "read"; }, { readonly method: "put"; readonly path: "/comments/:commentId"; readonly handler: "update"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/comments/:commentId"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/comments/:commentId/replies"; readonly handler: "replies"; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/:resourceType/:resourceId/comments'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/:resourceType/:resourceId/comments'
+    readonly handler: 'list'
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/:resourceType/:resourceId/comments/count'
+    readonly handler: 'commentCount'
+  },
+  { readonly method: 'get'; readonly path: '/comments/:commentId'; readonly handler: 'read' },
+  {
+    readonly method: 'put'
+    readonly path: '/comments/:commentId'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/comments/:commentId'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/comments/:commentId/replies'
+    readonly handler: 'replies'
+  },
+]
 ```
 
 #### `updateCommentSchema`
@@ -318,7 +382,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceTyp
 Schema for validating comment update input.
 
 ```typescript
-const updateCommentSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
+const updateCommentSchema: z.ZodObject<{ body: z.ZodString }, z.core.$strip>
 ```
 
 ## Injection Notes
@@ -326,6 +390,7 @@ const updateCommentSchema: z.ZodObject<{ body: z.ZodString; }, z.core.$strip>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -366,14 +431,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Posting a comment on a commentable resource shows it in the thread
-  immediately and it persists across a full reload.
+      immediately and it persists across a full reload.
 - [ ] Replying to a comment renders the reply nested under its parent.
 - [ ] The author can edit their own comment and the updated text persists;
-  a DIFFERENT signed-in user gets no edit/delete controls on it and a
-  direct attempt is denied.
+      a DIFFERENT signed-in user gets no edit/delete controls on it and a
+      direct attempt is denied.
 - [ ] Deleting an own comment removes it per the app's policy (gone or
-  tombstone) and stays removed after reload.
+      tombstone) and stays removed after reload.
 - [ ] A long thread paginates ("load more" fetches older comments) without
-  duplicating or dropping entries.
+      duplicating or dropping entries.
 - [ ] A resource with no comments shows a readable empty state.

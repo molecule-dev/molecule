@@ -21,11 +21,7 @@ into a `@molecule/api-cron` job.
 ## Quick Start
 
 ```typescript
-import {
-  recordMetric,
-  getLeaderboard,
-  rollupLeaderboard,
-} from '@molecule/api-leaderboard'
+import { recordMetric, getLeaderboard, rollupLeaderboard } from '@molecule/api-leaderboard'
 
 await recordMetric('user-1', 'xp', 50)
 await recordMetric('user-2', 'xp', 70)
@@ -42,9 +38,11 @@ await rollupLeaderboard({ metric: 'xp', window: 'weekly' })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-leaderboard @molecule/api-database
 ```
@@ -271,7 +269,10 @@ For very large boards, prefer {@link rollupLeaderboard} and read
 pre-computed rollups instead.
 
 ```typescript
-function getLeaderboard(options: LeaderboardOptions, aggregation?: Aggregation): Promise<LeaderboardEntry[]>
+function getLeaderboard(
+  options: LeaderboardOptions,
+  aggregation?: Aggregation,
+): Promise<LeaderboardEntry[]>
 ```
 
 - `options` — Leaderboard query options.
@@ -302,7 +303,13 @@ a stable surrogate metric id and clean up via {@link deleteEvents}
 before re-recording, or use a dedicated upsert path.
 
 ```typescript
-function recordMetric(userId: string, metric: string, value: number, when?: Date, scopeKey?: string): Promise<void>
+function recordMetric(
+  userId: string,
+  metric: string,
+  value: number,
+  when?: Date,
+  scopeKey?: string,
+): Promise<void>
 ```
 
 - `userId` — The user identifier.
@@ -318,10 +325,11 @@ function recordMetric(userId: string, metric: string, value: number, when?: Date
 Resolve a {@link LeaderboardWindow} to a concrete `[start, end)` pair.
 
 Named windows are computed against `now`:
- - `daily` — `[start of UTC day, +24h)`.
- - `weekly` — `[start of ISO week (Monday 00:00 UTC), +7d)`.
- - `monthly` — `[first of UTC month, first of next UTC month)`.
- - `all-time` — `{ start: null, end: null }`.
+
+- `daily` — `[start of UTC day, +24h)`.
+- `weekly` — `[start of ISO week (Monday 00:00 UTC), +7d)`.
+- `monthly` — `[first of UTC month, first of next UTC month)`.
+- `all-time` — `{ start: null, end: null }`.
 
 Custom windows are returned as-is.
 
@@ -345,7 +353,10 @@ window_start, scope_key)` tuple are deleted first so the rollup
 reflects the latest aggregate state.
 
 ```typescript
-function rollupLeaderboard(options: LeaderboardOptions, aggregation?: Aggregation): Promise<LeaderboardEntry[]>
+function rollupLeaderboard(
+  options: LeaderboardOptions,
+  aggregation?: Aggregation,
+): Promise<LeaderboardEntry[]>
 ```
 
 - `options` — Leaderboard query options. `limit` / `offset` are ignored — the full board is rolled up.
@@ -358,6 +369,7 @@ function rollupLeaderboard(options: LeaderboardOptions, aggregation?: Aggregatio
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 
 ### Runtime Dependencies

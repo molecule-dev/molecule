@@ -12,7 +12,7 @@ dismiss, unlike an Alert.
 ```tsx
 import { AnnouncementBar } from '@molecule/app-announcement-bar-react'
 
-<AnnouncementBar
+;<AnnouncementBar
   kind="promo"
   icon={<span>🎉</span>}
   action={{ label: 'Learn more', href: '/pricing' }}
@@ -24,9 +24,11 @@ import { AnnouncementBar } from '@molecule/app-announcement-bar-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-announcement-bar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -103,6 +105,7 @@ function AnnouncementBar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

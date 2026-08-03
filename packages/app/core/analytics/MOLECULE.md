@@ -16,15 +16,17 @@ import { createProvider } from '@molecule/app-analytics-posthog'
 // no-op provider, never a crash.
 setProvider(createProvider({ apiKey: posthogApiKey }))
 
-identify({ userId: user.id, email: user.email })      // on login
+identify({ userId: user.id, email: user.email }) // on login
 track({ name: 'order_placed', properties: { total } })
-reset()                                               // on logout
+reset() // on logout
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-analytics @molecule/app-bond
 ```
@@ -295,16 +297,17 @@ function track(event: AnalyticsEvent): Promise<void>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider | Package                            |
+| -------- | ---------------------------------- |
 | Mixpanel | `@molecule/app-analytics-mixpanel` |
-| PostHog | `@molecule/app-analytics-posthog` |
+| PostHog  | `@molecule/app-analytics-posthog`  |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

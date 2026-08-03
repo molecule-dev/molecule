@@ -3,6 +3,7 @@
 React Settings-page scaffold (layout chrome only).
 
 Exports:
+
 - `<SettingsLayout>` — two-column [sidebar, content] with an optional
   `header` slot rendered above both.
 - `<SettingsSidebar>` — controlled side-nav (`items`, `activeId`,
@@ -46,9 +47,11 @@ function SettingsPage() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-settings-container-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -212,6 +215,7 @@ function SettingsSidebar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

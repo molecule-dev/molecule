@@ -34,9 +34,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `maps.placeholder.title` | Map Placeholder |
+| Key                            | English                                               |
+| ------------------------------ | ----------------------------------------------------- |
+| `maps.placeholder.title`       | Map Placeholder                                       |
 | `maps.placeholder.description` | Use a proper map provider (MapBox, Google Maps, etc.) |
 
 ## Metadata

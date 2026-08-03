@@ -31,9 +31,11 @@ app.use('/api/billing', createBillingRoutes({ tiers }))
 ```
 
 ## Type
+
 `middleware`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-billing-routes @molecule/api-bond @molecule/api-payments @molecule/api-secrets express
 npm install -D @types/express
@@ -82,9 +84,7 @@ interface BillingProvider extends PaymentProvider {
 Options accepted by `createBillingRoutes()`.
 
 ```typescript
-interface BillingRoutesOptions<
-  TLimits extends Record<string, unknown> = Record<string, unknown>,
-> {
+interface BillingRoutesOptions<TLimits extends Record<string, unknown> = Record<string, unknown>> {
   /** The tier accessors returned by `defineTiers()`. */
   tiers: TierAccessors<TLimits>
   /**
@@ -325,6 +325,7 @@ the exact `/billing/*` contract `@molecule/app-billing-react`
 `<BillingStatusBadge />`) consumes.
 
 Mounted routes:
+
 - `GET /tiers` — public pricing table. Returns
   `{ data: PricingTierEntry[] }`. Derives one entry per configured `TierDef`
   by default, or serves `options.getPricingTiers()` verbatim when supplied.
@@ -388,6 +389,7 @@ const billingRoutesSecretDefinitions: SecretDefinition[]
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-payments` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
@@ -395,15 +397,15 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+- `STRIPE_SECRET_KEY` _(required)_ — Stripe secret key
   - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
   - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
   - Example: `sk_test_...`
-- `STRIPE_PRICE_PRO_MONTHLY` *(optional)* — Stripe price ID (Pro monthly)
+- `STRIPE_PRICE_PRO_MONTHLY` _(optional)_ — Stripe price ID (Pro monthly)
   - Setup: Stripe Dashboard > Products > your Pro product > Add price (recurring monthly); copy the price_... ID.
   - Get it here: [https://dashboard.stripe.com/products](https://dashboard.stripe.com/products)
   - Example: `price_...`
-- `STRIPE_PRICE_PRO_YEARLY` *(optional)* — Stripe price ID (Pro yearly)
+- `STRIPE_PRICE_PRO_YEARLY` _(optional)_ — Stripe price ID (Pro yearly)
   - Setup: Stripe Dashboard > Products > your Pro product > Add price (recurring yearly); copy the price_... ID.
   - Get it here: [https://dashboard.stripe.com/products](https://dashboard.stripe.com/products)
   - Example: `price_...`

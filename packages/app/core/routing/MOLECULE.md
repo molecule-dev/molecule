@@ -8,7 +8,13 @@ routing libraries (React Router, Next.js, Vue Router, etc.).
 ## Quick Start
 
 ```ts
-import { createBrowserRouter, setRouter, navigate, getParams, getQuery } from '@molecule/app-routing'
+import {
+  createBrowserRouter,
+  setRouter,
+  navigate,
+  getParams,
+  getQuery,
+} from '@molecule/app-routing'
 
 // Wire the router ONCE at app startup (before any navigate/getParams call):
 setRouter(
@@ -30,9 +36,11 @@ const query = getQuery() // { sort: 'recent' } on ?sort=recent
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-routing @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -357,10 +365,7 @@ Callback invoked on each route change with the new location and the
 navigation action that triggered it.
 
 ```typescript
-type RouteChangeListener = (
-  location: RouteLocation,
-  action: 'push' | 'replace' | 'pop',
-) => void
+type RouteChangeListener = (location: RouteLocation, action: 'push' | 'replace' | 'pop') => void
 ```
 
 #### `RouteParams`
@@ -393,7 +398,7 @@ Creates an in-memory router for testing and SSR environments.
 Maintains a synthetic history stack without touching browser APIs.
 
 ```typescript
-function createMemoryRouter(config?: RouterConfig & { initialEntries?: string[]; }): Router
+function createMemoryRouter(config?: RouterConfig & { initialEntries?: string[] }): Router
 ```
 
 - `config` — Router configuration with optional `initialEntries` for the history stack.
@@ -522,18 +527,19 @@ function stringifyQuery(params: QueryParams): string
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Next.js | `@molecule/app-routing-next` |
+| Provider         | Package                                  |
+| ---------------- | ---------------------------------------- |
+| Next.js          | `@molecule/app-routing-next`             |
 | React Navigation | `@molecule/app-routing-react-navigation` |
-| React Router | `@molecule/app-routing-react-router` |
-| Vue Router | `@molecule/app-routing-vue-router` |
+| React Router     | `@molecule/app-routing-react-router`     |
+| Vue Router       | `@molecule/app-routing-vue-router`       |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

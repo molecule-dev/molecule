@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-http-inspector-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-http-inspector'
-import type { HttpInspectorTranslationKey, HttpInspectorTranslations } from '@molecule/app-locales-http-inspector'
+import type {
+  HttpInspectorTranslationKey,
+  HttpInspectorTranslations,
+} from '@molecule/app-locales-http-inspector'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `httpInspector.sending` | Sending… |
-| `httpInspector.send` | Send |
-| `httpInspector.headers` | Headers |
+| Key                       | English    |
+| ------------------------- | ---------- |
+| `httpInspector.sending`   | Sending…   |
+| `httpInspector.send`      | Send       |
+| `httpInspector.headers`   | Headers    |
 | `httpInspector.addHeader` | Add header |
-| `httpInspector.body` | Body |
+| `httpInspector.body`      | Body       |
 
 ## Metadata
 

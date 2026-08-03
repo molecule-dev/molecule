@@ -11,13 +11,15 @@ headers and dense article lists (compact variant).
 ```tsx
 import { BiasIndicator } from '@molecule/app-bias-indicator-react'
 
-<BiasIndicator bias={-0.4} reliability={0.8} sourceLabel="Reuters" />
+;<BiasIndicator bias={-0.4} reliability={0.8} sourceLabel="Reuters" />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-bias-indicator-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -199,6 +201,7 @@ function tierColor(tier: ReliabilityTier): string
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

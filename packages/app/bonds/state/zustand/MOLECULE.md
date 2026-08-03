@@ -23,9 +23,11 @@ const store = createStore({
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-state-zustand @molecule/app-state zustand
 ```
@@ -65,10 +67,10 @@ must implement. Provides the store creation factory.
 
 ```typescript
 interface StateProvider {
-    /**
-     * Creates a new store.
-     */
-    createStore<T>(config: StoreConfig<T>): Store<T>;
+  /**
+   * Creates a new store.
+   */
+  createStore<T>(config: StoreConfig<T>): Store<T>
 }
 ```
 
@@ -80,23 +82,23 @@ All state management providers must implement this interface.
 
 ```typescript
 interface Store<T> {
-    /**
-     * Gets the current state.
-     */
-    getState(): T;
-    /**
-     * Sets the state (partial or via updater function).
-     */
-    setState(partial: Partial<T> | ((state: T) => Partial<T>)): void;
-    /**
-     * Subscribes to state changes.
-     * Returns an unsubscribe function.
-     */
-    subscribe(listener: StateListener<T>): () => void;
-    /**
-     * Destroys the store and cleans up subscriptions.
-     */
-    destroy(): void;
+  /**
+   * Gets the current state.
+   */
+  getState(): T
+  /**
+   * Sets the state (partial or via updater function).
+   */
+  setState(partial: Partial<T> | ((state: T) => Partial<T>)): void
+  /**
+   * Subscribes to state changes.
+   * Returns an unsubscribe function.
+   */
+  subscribe(listener: StateListener<T>): () => void
+  /**
+   * Destroys the store and cleans up subscriptions.
+   */
+  destroy(): void
 }
 ```
 
@@ -106,18 +108,18 @@ Configuration for creating a store (initial state, optional name, and middleware
 
 ```typescript
 interface StoreConfig<T> {
-    /**
-     * Initial state value.
-     */
-    initialState: T;
-    /**
-     * Optional name for debugging.
-     */
-    name?: string;
-    /**
-     * Optional middleware functions.
-     */
-    middleware?: StoreMiddleware<T>[];
+  /**
+   * Initial state value.
+   */
+  initialState: T
+  /**
+   * Optional name for debugging.
+   */
+  name?: string
+  /**
+   * Optional middleware functions.
+   */
+  middleware?: StoreMiddleware<T>[]
 }
 ```
 
@@ -176,7 +178,7 @@ interface ZustandStoreConfig<T> extends StoreConfig<T> {
 Get state function type.
 
 ```typescript
-type GetState<T> = () => T;
+type GetState<T> = () => T
 ```
 
 #### `SetState`
@@ -184,7 +186,7 @@ type GetState<T> = () => T;
 Function to update store state with a partial object or updater function.
 
 ```typescript
-type SetState<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void;
+type SetState<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void
 ```
 
 #### `StateListener`
@@ -192,7 +194,7 @@ type SetState<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void;
 Callback invoked whenever store state changes.
 
 ```typescript
-type StateListener<T> = (state: T, prevState: T) => void;
+type StateListener<T> = (state: T, prevState: T) => void
 ```
 
 #### `StoreMiddleware`
@@ -201,7 +203,7 @@ Store middleware function. Wraps the `set` function to intercept
 state updates (e.g. for logging, persistence, or devtools).
 
 ```typescript
-type StoreMiddleware<T> = (set: SetState<T>, get: GetState<T>) => SetState<T>;
+type StoreMiddleware<T> = (set: SetState<T>, get: GetState<T>) => SetState<T>
 ```
 
 ### Functions
@@ -235,7 +237,10 @@ Creates a memoized selector that only recomputes when the selected value changes
 (determined by the equality function, defaulting to `Object.is`).
 
 ```typescript
-function createSelector(selector: (state: T) => R, equalityFn?: (a: R, b: R) => boolean): (state: T) => R
+function createSelector(
+  selector: (state: T) => R,
+  equalityFn?: (a: R, b: R) => boolean,
+): (state: T) => R
 ```
 
 - `selector` — Function that extracts a derived value from state.
@@ -293,6 +298,7 @@ const provider: StateProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-state` interface.
 
 ## Bond Wiring
@@ -313,6 +319,7 @@ export function setupStateZustand(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-state` ^1.0.0
 
 ### Runtime Dependencies

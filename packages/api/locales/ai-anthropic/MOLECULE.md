@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-ai-anthropic` package which has 2 t
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-ai-anthropic'
-import type { AiAnthropicTranslationKey, AiAnthropicTranslations } from '@molecule/api-locales-ai-anthropic'
+import type {
+  AiAnthropicTranslationKey,
+  AiAnthropicTranslations,
+} from '@molecule/api-locales-ai-anthropic'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `ai.error.apiError` | AI service error. Please try again. |
-| `ai.error.noResponseBody` | No response from AI service. |
+| Key                       | English                             |
+| ------------------------- | ----------------------------------- |
+| `ai.error.apiError`       | AI service error. Please try again. |
+| `ai.error.noResponseBody` | No response from AI service.        |
 
 ## Metadata
 

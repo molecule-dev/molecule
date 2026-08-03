@@ -12,7 +12,7 @@ Standalone (not coupled to a message-bubble layout, unlike
 ```tsx
 import { EmojiReactions } from '@molecule/app-emoji-reactions-react'
 
-<EmojiReactions
+;<EmojiReactions
   reactions={[
     { emoji: '👍', count: 12, reactedByMe: true },
     { emoji: '❤️', count: 5 },
@@ -23,9 +23,11 @@ import { EmojiReactions } from '@molecule/app-emoji-reactions-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-emoji-reactions-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -100,6 +102,7 @@ function EmojiReactions({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

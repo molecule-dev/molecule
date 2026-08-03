@@ -29,9 +29,11 @@ function ModelPage() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-three-viewer-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react three
 npm install -D @types/react @types/three
@@ -148,6 +150,7 @@ function ThreeViewer(props: ThreeViewerProps): JSX.Element
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

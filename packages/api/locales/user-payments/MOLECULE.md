@@ -10,7 +10,10 @@ Translations for molecule user payment handlers in 79 languages
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-user-payments'
-import type { UserPaymentTranslationKey, UserPaymentTranslations } from '@molecule/api-locales-user-payments'
+import type {
+  UserPaymentTranslationKey,
+  UserPaymentTranslations,
+} from '@molecule/api-locales-user-payments'
 ```
 
 ## Registration
@@ -30,16 +33,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `user.payment.providerRequired` | Payment provider is required. |
-| `user.payment.subscriptionIdRequired` | subscriptionId is required. |
-| `user.payment.receiptAndPlanRequired` | receipt and planKey are required. |
+| Key                                      | English                                                  |
+| ---------------------------------------- | -------------------------------------------------------- |
+| `user.payment.providerRequired`          | Payment provider is required.                            |
+| `user.payment.subscriptionIdRequired`    | subscriptionId is required.                              |
+| `user.payment.receiptAndPlanRequired`    | receipt and planKey are required.                        |
 | `user.payment.verificationNotConfigured` | Payment verification is not configured for {{provider}}. |
-| `user.payment.invalidPlan` | Invalid plan for {{provider}}. |
-| `user.payment.verificationFailed` | Payment verification failed for {{provider}}. |
-| `user.payment.unknownPlan` | Unknown plan. |
-| `user.payment.invalidWebhookEvent` | Invalid webhook event. |
+| `user.payment.invalidPlan`               | Invalid plan for {{provider}}.                           |
+| `user.payment.verificationFailed`        | Payment verification failed for {{provider}}.            |
+| `user.payment.unknownPlan`               | Unknown plan.                                            |
+| `user.payment.invalidWebhookEvent`       | Invalid webhook event.                                   |
 
 ## Metadata
 

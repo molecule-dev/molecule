@@ -69,9 +69,11 @@ const handler = createOpenApiHandler(doc)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-openapi zod
 ```
@@ -527,7 +529,11 @@ in place. The operation is keyed by `[normalizedPath][method]`,
 preserving any other operations already on the same path.
 
 ```typescript
-function addRouteToDoc(doc: OpenApiDoc, route: Pick<RouteDefinition, "method" | "path">, operation: OpenApiOperation): OpenApiDoc
+function addRouteToDoc(
+  doc: OpenApiDoc,
+  route: Pick<RouteDefinition, 'method' | 'path'>,
+  operation: OpenApiOperation,
+): OpenApiDoc
 ```
 
 - `doc` — OpenAPI document to mutate.
@@ -543,7 +549,11 @@ the original schemas for use by `validateRequest()`. Importing this
 keeps the validator decoupled from how the operation was built.
 
 ```typescript
-function annotateOperation(route: RouteDefinition, operation: OpenApiOperation, root?: unknown): OpenApiOperation
+function annotateOperation(
+  route: RouteDefinition,
+  operation: OpenApiOperation,
+  root?: unknown,
+): OpenApiOperation
 ```
 
 - `route` — Route definition.
@@ -559,7 +569,10 @@ Attach the unconverted (zod) schemas to an operation so that
 Called by `routeToOperationWithValidation()` — internal helper.
 
 ```typescript
-function attachOperationSource(operation: OpenApiOperation, source: OperationSource): OpenApiOperation
+function attachOperationSource(
+  operation: OpenApiOperation,
+  source: OperationSource,
+): OpenApiOperation
 ```
 
 - `operation` — Operation to annotate.
@@ -573,6 +586,7 @@ Create a `GET /openapi.json` HTTP handler that responds with the
 supplied OpenAPI document.
 
 The handler:
+
 - Sends `405 Method Not Allowed` for non-`GET` requests.
 - Sends `200` + `application/json; charset=utf-8` with the doc
   stringified (optionally pretty).
@@ -580,7 +594,10 @@ The handler:
   with Express, Connect, and bare-Node `http` handlers.
 
 ```typescript
-function createOpenApiHandler(doc: OpenApiDoc, options?: OpenApiHandlerOptions): (req: OpenApiHandlerRequest, res: OpenApiHandlerResponse) => void
+function createOpenApiHandler(
+  doc: OpenApiDoc,
+  options?: OpenApiHandlerOptions,
+): (req: OpenApiHandlerRequest, res: OpenApiHandlerResponse) => void
 ```
 
 - `doc` — The OpenAPI document to serve.

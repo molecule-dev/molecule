@@ -12,9 +12,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-config-env @molecule/api-config @molecule/api-i18n
 ```
@@ -40,6 +42,7 @@ const provider: ConfigProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-config` interface.
 
 ## Bond Wiring
@@ -60,6 +63,7 @@ export function setupConfigEnv(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-config` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

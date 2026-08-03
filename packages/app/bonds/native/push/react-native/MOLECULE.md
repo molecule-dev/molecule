@@ -25,9 +25,11 @@ if (status === 'granted') {
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-push-react-native @molecule/app-i18n @molecule/app-logger @molecule/app-push expo-notifications
 ```
@@ -100,6 +102,7 @@ const provider: PushProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-push` interface.
 
 ## Bond Wiring
@@ -120,6 +123,7 @@ export function setupNativePushReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-push` ^1.0.0

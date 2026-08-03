@@ -15,9 +15,11 @@ setClassMap(classMap) // once, at app startup
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui-nativewind @molecule/app-styling @molecule/app-ui @molecule/app-ui-tailwind
 ```
@@ -31,6 +33,7 @@ npm install @molecule/app-ui-nativewind @molecule/app-styling @molecule/app-ui @
 NativeWind UIClassMap — Tailwind classmap with RN-compatible overrides.
 
 Wire at app startup:
+
 ```typescript
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-nativewind'
@@ -42,6 +45,7 @@ const classMap: UIClassMap
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-ui` interface.
 
 ## Injection Notes
@@ -49,6 +53,7 @@ Implements `@molecule/app-ui` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-tailwind` ^1.0.0

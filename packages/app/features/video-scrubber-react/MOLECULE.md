@@ -19,7 +19,7 @@ types, the default constants, and the pure helpers `timeToFrame`,
 ```tsx
 import { VideoScrubber } from '@molecule/app-feature-video-scrubber-react'
 
-<VideoScrubber
+;<VideoScrubber
   duration={60}
   currentTime={3.2}
   fps={24}
@@ -33,9 +33,11 @@ import { VideoScrubber } from '@molecule/app-feature-video-scrubber-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-video-scrubber-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -103,7 +105,10 @@ via `left: position * 100%`. The first tick is at time 0; the last
 tick is at time `duration` (or 0 if `duration <= 0`).
 
 ```typescript
-function computeFilmstripTicks(duration: number, count: number): { time: number; position: number; }[]
+function computeFilmstripTicks(
+  duration: number,
+  count: number,
+): { time: number; position: number }[]
 ```
 
 - `duration` — Total duration in seconds.
@@ -235,6 +240,7 @@ const DEFAULT_THUMBNAIL_HEIGHT: 48
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

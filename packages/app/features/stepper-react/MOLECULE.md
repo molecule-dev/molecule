@@ -3,6 +3,7 @@
 React multi-step progress indicator.
 
 Exports:
+
 - `<Stepper>` — steps with `dots` / `bar` / `cards` variants and horizontal / vertical orientations.
 - `StepperStep`, `StepStatus` types.
 
@@ -24,9 +25,11 @@ const steps = [
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-stepper-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -97,6 +100,7 @@ Multi-step progress indicator — useful for checkout flows, onboarding
 wizards, course module progress, etc.
 
 Variants:
+
 - `'dots'` — small numbered circles connected by a line.
 - `'bar'` — horizontal filled bar with step labels above.
 - `'cards'` — each step is a card with title + description.
@@ -119,6 +123,7 @@ function Stepper({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -34,12 +34,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `chat.error.httpError` | HTTP {{status}}: {{text}} |
-| `chat.error.noResponseBody` | No response body |
-| `chat.error.streamError` | Stream error |
-| `chat.error.unknownError` | Unknown error |
+| Key                         | English                   |
+| --------------------------- | ------------------------- |
+| `chat.error.httpError`      | HTTP {{status}}: {{text}} |
+| `chat.error.noResponseBody` | No response body          |
+| `chat.error.streamError`    | Stream error              |
+| `chat.error.unknownError`   | Unknown error             |
 
 ## Metadata
 

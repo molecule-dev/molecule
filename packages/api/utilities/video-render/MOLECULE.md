@@ -14,11 +14,7 @@ argv-only command line — never a shell string. Status is observed via
 ## Quick Start
 
 ```ts
-import {
-  renderVideo,
-  getRenderStatus,
-  cancelRender,
-} from '@molecule/api-video-render'
+import { renderVideo, getRenderStatus, cancelRender } from '@molecule/api-video-render'
 
 const job = await renderVideo(
   {
@@ -31,7 +27,7 @@ const job = await renderVideo(
         kind: 'video',
         clips: [
           { id: 'c0', source: '/uploads/intro.mp4', start: 0, duration: 5 },
-          { id: 'c1', source: '/uploads/main.mp4',  start: 5, duration: 5 },
+          { id: 'c1', source: '/uploads/main.mp4', start: 5, duration: 5 },
         ],
         effects: [{ id: 'fx0', kind: 'fade-in', start: 0, duration: 1 }],
       },
@@ -66,8 +62,12 @@ router.post('/render/video', (req, res, next) => {
   enqueue(
     { body: req.body },
     {
-      setStatus: (s) => { res.status(s) },
-      sendJson: (j) => { res.json(j) },
+      setStatus: (s) => {
+        res.status(s)
+      },
+      sendJson: (j) => {
+        res.json(j)
+      },
     },
   ).catch(next)
 })
@@ -76,8 +76,12 @@ router.get('/render/jobs/:id', (req, res, next) => {
   status(
     { params: req.params },
     {
-      setStatus: (s) => { res.status(s) },
-      sendJson: (j) => { res.json(j) },
+      setStatus: (s) => {
+        res.status(s)
+      },
+      sendJson: (j) => {
+        res.json(j)
+      },
     },
   ).catch(next)
 })
@@ -86,17 +90,23 @@ router.delete('/render/jobs/:id', (req, res, next) => {
   cancel(
     { params: req.params },
     {
-      setStatus: (s) => { res.status(s) },
-      sendJson: (j) => { res.json(j) },
+      setStatus: (s) => {
+        res.status(s)
+      },
+      sendJson: (j) => {
+        res.json(j)
+      },
     },
   ).catch(next)
 })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-video-render @molecule/api-queue
 ```
@@ -564,7 +574,10 @@ function cancelRender(jobId: string): Promise<RenderJobStatus>
 Build the `DELETE /render/jobs/:id` handler.
 
 ```typescript
-function createCancelRenderHandler(): (req: VideoRenderRequest, res: VideoRenderResponse) => Promise<void>
+function createCancelRenderHandler(): (
+  req: VideoRenderRequest,
+  res: VideoRenderResponse,
+) => Promise<void>
 ```
 
 **Returns:** An async handler.
@@ -575,7 +588,9 @@ Build the `POST /render/video` handler. The request body must be
 `{ timeline, options }` (or `{ video, options }`).
 
 ```typescript
-function createEnqueueRenderHandler(handlerOptions?: CreateEnqueueRenderHandlerOptions): (req: VideoRenderRequest, res: VideoRenderResponse) => Promise<void>
+function createEnqueueRenderHandler(
+  handlerOptions?: CreateEnqueueRenderHandlerOptions,
+): (req: VideoRenderRequest, res: VideoRenderResponse) => Promise<void>
 ```
 
 - `handlerOptions` — Optional validator hook.
@@ -587,7 +602,10 @@ function createEnqueueRenderHandler(handlerOptions?: CreateEnqueueRenderHandlerO
 Build the `GET /render/jobs/:id` handler.
 
 ```typescript
-function createGetRenderStatusHandler(): (req: VideoRenderRequest, res: VideoRenderResponse) => Promise<void>
+function createGetRenderStatusHandler(): (
+  req: VideoRenderRequest,
+  res: VideoRenderResponse,
+) => Promise<void>
 ```
 
 **Returns:** An async handler.
@@ -712,7 +730,10 @@ subscribing to the queue and calling `processRenderJob(message)` for each
 received message.
 
 ```typescript
-function processRenderJob(message: RenderJobMessage, deps?: ProcessRenderJobDeps): Promise<RenderJobStatus>
+function processRenderJob(
+  message: RenderJobMessage,
+  deps?: ProcessRenderJobDeps,
+): Promise<RenderJobStatus>
 ```
 
 - `message` — The render job message to process.
@@ -795,6 +816,7 @@ function toActionableSpawnError(error: unknown, binaryPath: string): Error
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-queue` ^1.0.0
 
 ### Runtime Dependencies

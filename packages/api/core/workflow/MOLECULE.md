@@ -31,9 +31,11 @@ await transition(instance.id, 'confirm')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-workflow @molecule/api-bond @molecule/api-i18n
 ```
@@ -380,7 +382,10 @@ function setProvider(provider: WorkflowProvider): void
 Creates and starts a new instance of a workflow.
 
 ```typescript
-function startInstance(workflowId: string, data?: Record<string, unknown>): Promise<WorkflowInstance>
+function startInstance(
+  workflowId: string,
+  data?: Record<string, unknown>,
+): Promise<WorkflowInstance>
 ```
 
 - `workflowId` — The workflow to instantiate.
@@ -393,7 +398,11 @@ function startInstance(workflowId: string, data?: Record<string, unknown>): Prom
 Applies an action to transition an instance from its current state.
 
 ```typescript
-function transition(instanceId: string, action: string, data?: Record<string, unknown>): Promise<WorkflowInstance>
+function transition(
+  instanceId: string,
+  action: string,
+  data?: Record<string, unknown>,
+): Promise<WorkflowInstance>
 ```
 
 - `instanceId` — The instance to transition.
@@ -404,8 +413,8 @@ function transition(instanceId: string, action: string, data?: Record<string, un
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider | Package                           |
+| -------- | --------------------------------- |
 | Workflow | `@molecule/api-workflow-database` |
 
 ## Injection Notes
@@ -413,6 +422,7 @@ function transition(instanceId: string, action: string, data?: Record<string, un
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -443,38 +453,39 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual workflow screens/flows, and check every box
 off one by one. A box you can't check is an integration bug to fix — not a
 skip:
+
 - [ ] Starting an instance from the UI puts it in the workflow's
-  `initialState`; each UI action drives one `transition()` and the instance
-  advances ONLY along a transition defined for its current state. Walk the
-  whole path front to back — the step/status shown in the UI matches
-  `getState()` at every stage and `getHistory()` lists the fromState ->
-  toState hops in the exact order they happened.
+      `initialState`; each UI action drives one `transition()` and the instance
+      advances ONLY along a transition defined for its current state. Walk the
+      whole path front to back — the step/status shown in the UI matches
+      `getState()` at every stage and `getHistory()` lists the fromState ->
+      toState hops in the exact order they happened.
 - [ ] A step whose work must succeed before advancing actually gates the
-  next transition. `guard`/`action` identifiers are DECLARATIVE ONLY — the
-  bundled bonds never evaluate or run them — so the handler enforces it
-  around `transition()` (check, then transition, then act): a required
-  approval or input holds the instance in its current state, the advancing
-  action only appears in `getAvailableActions()` once the precondition is
-  met, and the UI cannot move on until the real work succeeded.
+      next transition. `guard`/`action` identifiers are DECLARATIVE ONLY — the
+      bundled bonds never evaluate or run them — so the handler enforces it
+      around `transition()` (check, then transition, then act): a required
+      approval or input holds the instance in its current state, the advancing
+      action only appears in `getAvailableActions()` once the precondition is
+      met, and the UI cannot move on until the real work succeeded.
 - [ ] Branching routes correctly: an input that should take branch A takes
-  A, not B. The handler picks which action to apply from the instance data
-  and the instance lands in branch A's target state (confirm via
-  `getState()`/history), never the other branch's.
+      A, not B. The handler picks which action to apply from the instance data
+      and the instance lands in branch A's target state (confirm via
+      `getState()`/history), never the other branch's.
 - [ ] A failed step is handled per the definition — retry loops back, halt
-  lands in the error/terminal state, compensate runs the rollback
-  transition — never silently left in the pre-failure state as if it
-  succeeded and never wedged with no available actions. `transition()`
-  THROWS on an action illegal for the current state; the handler catches it
-  and answers an error instead of pretending the step advanced.
+      lands in the error/terminal state, compensate runs the rollback
+      transition — never silently left in the pre-failure state as if it
+      succeeded and never wedged with no available actions. `transition()`
+      THROWS on an action illegal for the current state; the handler catches it
+      and answers an error instead of pretending the step advanced.
 - [ ] State is durable, not in-memory: reload the page (or come back later /
-  restart the server) and re-fetch the instance — it is at the SAME step
-  with its `data` intact, proving state lives in the workflow bond's store.
-  Requires the `workflows`/`workflow_instances`/`workflow_events` tables to
-  be migrated first.
+      restart the server) and re-fetch the instance — it is at the SAME step
+      with its `data` intact, proving state lives in the workflow bond's store.
+      Requires the `workflows`/`workflow_instances`/`workflow_events` tables to
+      be migrated first.
 - [ ] Integrity — a caller cannot POST an arbitrary action or target state
-  to jump ahead or skip a required approval. `transition()` only honors
-  actions defined for the instance's CURRENT state (throws otherwise), and
-  the server authorizes ownership before every transition/list (nothing is
-  user-scoped by default) so one user can neither advance nor read another's
-  instance. Build the UI's buttons from `getAvailableActions()`, but enforce
-  every transition server-side.
+      to jump ahead or skip a required approval. `transition()` only honors
+      actions defined for the instance's CURRENT state (throws otherwise), and
+      the server authorizes ownership before every transition/list (nothing is
+      user-scoped by default) so one user can neither advance nor read another's
+      instance. Build the UI's buttons from `getAvailableActions()`, but enforce
+      every transition server-side.

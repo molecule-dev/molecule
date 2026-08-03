@@ -27,9 +27,11 @@ try {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-stack-fingerprint
 ```
@@ -214,9 +216,10 @@ interface StackFrame {
 Compute a deterministic SHA-1 fingerprint for an error.
 
 The fingerprint is a hex SHA-1 of:
-  1. The error `type` (e.g. `TypeError`), if `includeType` (default).
-  2. The error `message`, if `includeMessage` (default `false`).
-  3. The top N normalized frames as `function|file` lines.
+
+1. The error `type` (e.g. `TypeError`), if `includeType` (default).
+2. The error `message`, if `includeMessage` (default `false`).
+3. The top N normalized frames as `function|file` lines.
 
 Two errors thrown from the same call-site will produce the same
 fingerprint across runs, machines, Node versions, and tmp dirs —

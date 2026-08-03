@@ -12,7 +12,7 @@ and all button labels translate via the companion
 ```tsx
 import { TransportBar } from '@molecule/app-feature-transport-bar-react'
 
-<TransportBar
+;<TransportBar
   isPlaying={state.playing}
   isRecording={state.recording}
   loop={state.loop}
@@ -27,9 +27,11 @@ import { TransportBar } from '@molecule/app-feature-transport-bar-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-transport-bar-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -131,6 +133,7 @@ function TransportBar(props: TransportBarProps): JSX.Element
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

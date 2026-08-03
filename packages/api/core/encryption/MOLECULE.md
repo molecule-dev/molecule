@@ -25,9 +25,11 @@ const untampered = await verify(documentBody, checksum)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-encryption @molecule/api-bond @molecule/api-i18n
 ```
@@ -210,8 +212,8 @@ function verify(data: string, hashed: string): Promise<boolean>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider   | Package                        |
+| ---------- | ------------------------------ |
 | Encryption | `@molecule/api-encryption-aes` |
 
 ## Injection Notes
@@ -219,6 +221,7 @@ function verify(data: string, hashed: string): Promise<boolean>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

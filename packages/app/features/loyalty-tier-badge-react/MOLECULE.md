@@ -4,6 +4,7 @@ Bronze/Silver/Gold/Platinum loyalty tier badge with optional progress bar
 to the next tier.
 
 Exports:
+
 - `<LoyaltyTierBadge>` — colored tier glyph + label; when BOTH `points` and
   `nextTierThreshold` are set (and a next tier exists) it also renders a
   progress bar plus an "X to next tier" readout; platinum shows "Top tier
@@ -19,13 +20,15 @@ Exports:
 ```tsx
 import { LoyaltyTierBadge } from '@molecule/app-loyalty-tier-badge-react'
 
-<LoyaltyTierBadge tier="gold" points={42_000} nextTierThreshold={75_000} />
+;<LoyaltyTierBadge tier="gold" points={42_000} nextTierThreshold={75_000} />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-loyalty-tier-badge-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -138,6 +141,7 @@ function nextTierOf(tier: LoyaltyTier): LoyaltyTier | null
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

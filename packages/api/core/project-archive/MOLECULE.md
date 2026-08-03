@@ -15,11 +15,7 @@ give them back.**
 ## Quick Start
 
 ```typescript
-import {
-  type ArchivePart,
-  requireProvider,
-  setProvider,
-} from '@molecule/api-project-archive'
+import { type ArchivePart, requireProvider, setProvider } from '@molecule/api-project-archive'
 import { provider as objectStorageArchive } from '@molecule/api-project-archive-object-storage'
 
 // Wire at startup (equivalently: bond('project-archive', objectStorageArchive)).
@@ -33,18 +29,23 @@ const previousStorageId = project.archiveStorageId // whatever we persisted last
 // everything .gitignore calls disposable, then list what is left. No exclude
 // list lives in the archive package.
 await exec('git', ['clean', '-Xdf'], { cwd: dir })
-const tracked = await exec('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { cwd: dir })
+const tracked = await exec('git', ['ls-files', '--cached', '--others', '--exclude-standard'], {
+  cwd: dir,
+})
 
 // ONE generic channel. Source, a database dump and a git bundle are all parts —
 // the archive stores their bytes verbatim and never interprets `kind`/`meta`.
 // (`git ls-files` does not list history: archive a bundle for that.)
 const parts: ArchivePart[] = [
   ...(await Promise.all(
-    tracked.split('\n').filter(Boolean).map(async (file) => ({
-      path: `source/${file}`,
-      content: await readFile(join(dir, file)),
-      kind: 'source',
-    })),
+    tracked
+      .split('\n')
+      .filter(Boolean)
+      .map(async (file) => ({
+        path: `source/${file}`,
+        content: await readFile(join(dir, file)),
+        kind: 'source',
+      })),
   )),
   {
     path: 'database/main.dump',
@@ -114,13 +115,15 @@ for (const part of restored.parts) {
   }
 }
 await writeSecretsFromVault(sandbox, projectId) // dotenv parts are REFUSED, never archived
-await runInstallFromLockfile(sandbox)           // node_modules was .gitignored, never walked
+await runInstallFromLockfile(sandbox) // node_modules was .gitignored, never walked
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-project-archive @molecule/api-bond
 ```
@@ -756,18 +759,19 @@ const ARCHIVE_FORMAT_VERSION: 3
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| MySQL / MariaDB Database | `@molecule/api-project-archive-external-state-mysql` |
-| PostgreSQL Database | `@molecule/api-project-archive-external-state-postgresql` |
-| SQLite Database File | `@molecule/api-project-archive-external-state-sqlite` |
-| Project Archive | `@molecule/api-project-archive-object-storage` |
+| Provider                 | Package                                                   |
+| ------------------------ | --------------------------------------------------------- |
+| MySQL / MariaDB Database | `@molecule/api-project-archive-external-state-mysql`      |
+| PostgreSQL Database      | `@molecule/api-project-archive-external-state-postgresql` |
+| SQLite Database File     | `@molecule/api-project-archive-external-state-sqlite`     |
+| Project Archive          | `@molecule/api-project-archive-object-storage`            |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

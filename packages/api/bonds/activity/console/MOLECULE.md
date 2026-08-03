@@ -15,9 +15,11 @@ setSink(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-activity-console @molecule/api-activity @molecule/api-logger
 ```
@@ -47,6 +49,7 @@ const provider: ActivitySink
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-activity` interface.
 
 ## Bond Wiring
@@ -67,6 +70,7 @@ export function setupActivityConsole(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 

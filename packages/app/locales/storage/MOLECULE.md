@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `storage.error.noProvider` | Storage provider not configured. Call setProvider() first. |
-| `storage.error.quotaExceeded` | Storage quota exceeded when setting key  |
+| Key                           | English                                                    |
+| ----------------------------- | ---------------------------------------------------------- |
+| `storage.error.noProvider`    | Storage provider not configured. Call setProvider() first. |
+| `storage.error.quotaExceeded` | Storage quota exceeded when setting key                    |
 
 ## Metadata
 

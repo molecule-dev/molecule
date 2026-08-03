@@ -19,9 +19,11 @@ bond('secrets', provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-secrets-molecule @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
@@ -105,6 +107,7 @@ const secretsMoleculeSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-secrets` interface.
 
 ## Bond Wiring
@@ -125,17 +128,18 @@ export function setupSecretsMolecule(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MOLECULE_VAULT_TOKEN` *(required)* — molecule.dev vault token
+- `MOLECULE_VAULT_TOKEN` _(required)_ — molecule.dev vault token
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-- `MOLECULE_APP_ID` *(required)* — molecule.dev app ID
+- `MOLECULE_APP_ID` _(required)_ — molecule.dev app ID
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
-- `MOLECULE_VAULT_URL` *(optional)* — molecule.dev vault URL — default: `https://api.molecule.dev/v1/vault`
+- `MOLECULE_VAULT_URL` _(optional)_ — molecule.dev vault URL — default: `https://api.molecule.dev/v1/vault`
   - **Provisioned automatically in molecule.dev sandboxes** — manual setup only needed outside the platform.
 
 ### Runtime Dependencies

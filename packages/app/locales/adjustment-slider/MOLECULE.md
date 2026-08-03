@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-adjustment-slider-react` package wh
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-adjustment-slider'
-import type { AdjustmentSliderTranslationKey, AdjustmentSliderTranslations } from '@molecule/app-locales-adjustment-slider'
+import type {
+  AdjustmentSliderTranslationKey,
+  AdjustmentSliderTranslations,
+} from '@molecule/app-locales-adjustment-slider'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `adjustmentSlider.aria` | {{label}} |
+| Key                           | English         |
+| ----------------------------- | --------------- |
+| `adjustmentSlider.aria`       | {{label}}       |
 | `adjustmentSlider.reset.aria` | Reset {{label}} |
 
 ## Metadata

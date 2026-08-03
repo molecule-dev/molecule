@@ -15,9 +15,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-webhook-capture @molecule/api-activity @molecule/api-webhook
 ```
@@ -56,6 +58,7 @@ const provider: WebhookProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-webhook` interface.
 
 ## Bond Wiring
@@ -76,6 +79,7 @@ export function setupWebhookCapture(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-webhook` ^1.0.0
 
@@ -89,7 +93,7 @@ Peer dependencies:
   sink is bonded — wire `setSink()` (e.g. the console/database sink) or
   intercepted dispatches return synthetic success and leave no trace.
 - Intercept-only mode returns a synthetic result (`status: 200,
-  success: true`) with no HTTP delivery; `register()` returns
+success: true`) with no HTTP delivery; `register()` returns
   `secret: ''` when `options.secret` is omitted (NO auto-generation,
   unlike the http/queue bonds), registrations are not remembered
   (`list()` → `[]`), and every dispatched event is recorded regardless
@@ -103,13 +107,14 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Registering a webhook endpoint through the app's UI/API succeeds, and
-  an event the app dispatches actually produces a delivery. The sandbox
-  CAPTURES outbound deliveries instead of POSTing — read them with the
-  `read_activity` tool (filter type 'webhook'); never mock the dispatch or
-  modify production code to expose the payload.
+      an event the app dispatches actually produces a delivery. The sandbox
+      CAPTURES outbound deliveries instead of POSTing — read them with the
+      `read_activity` tool (filter type 'webhook'); never mock the dispatch or
+      modify production code to expose the payload.
 - [ ] The captured delivery carries the signature header (derived from the
-  registration's secret), a stable delivery-id header the receiver can dedup
-  on (at-least-once), and an event payload free of secrets/unrelated PII.
+      registration's secret), a stable delivery-id header the receiver can dedup
+      on (at-least-once), and an event payload free of secrets/unrelated PII.
 - [ ] A registration targeting a private/link-local/metadata destination
-  (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
+      (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.

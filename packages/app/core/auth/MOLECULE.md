@@ -25,9 +25,11 @@ if (isAuthenticated()) console.log(getUser()?.email)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-auth @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -163,7 +165,7 @@ interface AuthClient<T = UserProfile> {
 Configuration options for creating an auth client, including API
 endpoints, storage strategy, token refresh, and OAuth providers.
 
-```typescript
+````typescript
 interface AuthClientConfig {
   /**
    * API base URL.
@@ -266,7 +268,7 @@ interface AuthClientConfig {
    */
   oauthEndpoint?: string
 }
-```
+````
 
 #### `AuthResult`
 
@@ -541,7 +543,7 @@ Creates a token storage implementation backed by either in-memory
 storage or a custom `StorageAdapter`.
 
 ```typescript
-function createTokenStorage(storage?: "memory" | StorageAdapter, prefix?: string): TokenStorage
+function createTokenStorage(storage?: 'memory' | StorageAdapter, prefix?: string): TokenStorage
 ```
 
 - `storage` — `'memory'` for in-memory storage (lost on refresh), or a `StorageAdapter` for persistent storage.
@@ -677,6 +679,7 @@ function setClient(client: AuthClient<UserProfile>): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
@@ -706,42 +709,43 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Logging in with VALID credentials on the real login screen resolves
-  `login()` and flips AuthState to `authenticated: true` with `getUser()`
-  returning the actual UserProfile — the UI shows that user's own `email` /
-  `name` / `avatar`, never a placeholder or a different account.
+      `login()` and flips AuthState to `authenticated: true` with `getUser()`
+      returning the actual UserProfile — the UI shows that user's own `email` /
+      `name` / `avatar`, never a placeholder or a different account.
 - [ ] A WRONG password shows a visible error (AuthState `error` is set and
-  the promise rejects) and establishes NO session: `isAuthenticated()` stays
-  false and no protected screen becomes reachable.
+      the promise rejects) and establishes NO session: `isAuthenticated()` stays
+      false and no protected screen becomes reachable.
 - [ ] Registering through the sign-up form calls `register()`, creates the
-  account, and lands authenticated (`authenticated: true`, `user` populated)
-  on the app's post-signup screen — not back on the login form. If the flow
-  shows an email-verification / "check your inbox" step, it must be genuinely
-  backed (this client's `register()` returns an authenticated session
-  directly and exposes no verify method) — never a dead screen the auth
-  contract cannot advance past.
+      account, and lands authenticated (`authenticated: true`, `user` populated)
+      on the app's post-signup screen — not back on the login form. If the flow
+      shows an email-verification / "check your inbox" step, it must be genuinely
+      backed (this client's `register()` returns an authenticated session
+      directly and exposes no verify method) — never a dead screen the auth
+      contract cannot advance past.
 - [ ] Logout calls `logout()` and clears the session (`authenticated: false`,
-  `user: null`, tokens cleared); afterward every protected screen redirects
-  back to login.
+      `user: null`, tokens cleared); afterward every protected screen redirects
+      back to login.
 - [ ] Visiting a protected route while logged OUT redirects to login (the
-  guard reads `isAuthenticated()`), and after authenticating you land back on
-  the originally-requested screen rather than a generic home.
+      guard reads `isAuthenticated()`), and after authenticating you land back on
+      the originally-requested screen rather than a generic home.
 - [ ] The session survives a FULL page reload: after login, hard-reload →
-  `initialize()` restores it from the httpOnly cookie (via
-  `currentUserEndpoint`, default `/users/me`) and you stay signed in — you are
-  NOT bounced to login. (The in-memory bearer token is dropped by design; the
-  cookie restore is what keeps you in — do not "fix" this by writing the token
-  to localStorage.)
+      `initialize()` restores it from the httpOnly cookie (via
+      `currentUserEndpoint`, default `/users/me`) and you stay signed in — you are
+      NOT bounced to login. (The in-memory bearer token is dropped by design; the
+      cookie restore is what keeps you in — do not "fix" this by writing the token
+      to localStorage.)
 - [ ] Password reset round-trips: `requestPasswordReset({ email })` then
-  `confirmPasswordReset({ token, password })` with the emailed token, after
-  which `login()` with the NEW password succeeds and the OLD password no
-  longer works.
+      `confirmPasswordReset({ token, password })` with the emailed token, after
+      which `login()` with the NEW password succeeds and the OLD password no
+      longer works.
 - [ ] Authorization holds: a signed-in user only ever reads/edits their OWN
-  record (`getUser()` is the caller's profile, never another user's); the
-  bearer token lives in memory only — it is never written to
-  localStorage / sessionStorage where another script could read it; and an
-  expired/invalid token fails closed — the app re-authenticates (`refresh()`
-  or `logout()`), never silently serving another user's data.
+      record (`getUser()` is the caller's profile, never another user's); the
+      bearer token lives in memory only — it is never written to
+      localStorage / sessionStorage where another script could read it; and an
+      expired/invalid token fails closed — the app re-authenticates (`refresh()`
+      or `logout()`), never silently serving another user's data.
 
 ## Translations
 

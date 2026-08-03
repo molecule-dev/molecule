@@ -14,13 +14,7 @@ without a provider.
 ## Quick Start
 
 ```typescript
-import {
-  exists,
-  hasProvider,
-  joinPath,
-  readFile,
-  writeFile,
-} from '@molecule/app-filesystem'
+import { exists, hasProvider, joinPath, readFile, writeFile } from '@molecule/app-filesystem'
 
 async function saveDraft(text: string): Promise<void> {
   if (!hasProvider()) return // no provider wired — use app-storage instead
@@ -36,9 +30,11 @@ async function loadDraft(): Promise<string | null> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-filesystem @molecule/app-bond @molecule/app-i18n
 ```
@@ -571,7 +567,7 @@ function readFile(path: string, options?: ReadOptions): Promise<string>
 Read a file as binary data.
 
 ```typescript
-function readFileAsBlob(path: string, options?: Omit<ReadOptions, "encoding">): Promise<Blob>
+function readFileAsBlob(path: string, options?: Omit<ReadOptions, 'encoding'>): Promise<Blob>
 ```
 
 - `path` — The file path to read.
@@ -634,7 +630,11 @@ function writeFile(path: string, data: string, options?: WriteOptions): Promise<
 Write binary data to a file.
 
 ```typescript
-function writeFileFromBlob(path: string, data: Blob, options?: Omit<WriteOptions, "encoding">): Promise<void>
+function writeFileFromBlob(
+  path: string,
+  data: Blob,
+  options?: Omit<WriteOptions, 'encoding'>,
+): Promise<void>
 ```
 
 - `path` — The file path to write to.
@@ -648,6 +648,7 @@ function writeFileFromBlob(path: string, data: Blob, options?: Omit<WriteOptions
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

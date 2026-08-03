@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-oauth-buttons-react` package which 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-oauth-buttons'
-import type { OAuthButtonsTranslationKey, OAuthButtonsTranslations } from '@molecule/app-locales-oauth-buttons'
+import type {
+  OAuthButtonsTranslationKey,
+  OAuthButtonsTranslations,
+} from '@molecule/app-locales-oauth-buttons'
 ```
 
 ## Registration
@@ -34,20 +37,20 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `oauthButtons.groupLabel` | Continue with another account |
-| `oauthButtons.continueWith` | Continue with {{provider}} |
-| `oauthButtons.provider.github` | GitHub |
-| `oauthButtons.provider.gitlab` | GitLab |
-| `oauthButtons.provider.google` | Google |
-| `oauthButtons.provider.twitter` | Twitter |
-| `oauthButtons.provider.x` | X |
-| `oauthButtons.provider.apple` | Apple |
-| `oauthButtons.provider.facebook` | Facebook |
-| `oauthButtons.provider.microsoft` | Microsoft |
-| `oauthButtons.provider.linkedin` | LinkedIn |
-| `oauthButtons.provider.discord` | Discord |
+| Key                               | English                       |
+| --------------------------------- | ----------------------------- |
+| `oauthButtons.groupLabel`         | Continue with another account |
+| `oauthButtons.continueWith`       | Continue with {{provider}}    |
+| `oauthButtons.provider.github`    | GitHub                        |
+| `oauthButtons.provider.gitlab`    | GitLab                        |
+| `oauthButtons.provider.google`    | Google                        |
+| `oauthButtons.provider.twitter`   | Twitter                       |
+| `oauthButtons.provider.x`         | X                             |
+| `oauthButtons.provider.apple`     | Apple                         |
+| `oauthButtons.provider.facebook`  | Facebook                      |
+| `oauthButtons.provider.microsoft` | Microsoft                     |
+| `oauthButtons.provider.linkedin`  | LinkedIn                      |
+| `oauthButtons.provider.discord`   | Discord                       |
 
 ## Metadata
 

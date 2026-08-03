@@ -19,9 +19,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-bookmark'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-bookmark @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -94,7 +96,12 @@ interface PaginatedResult<T> {
 Adds a bookmark. Idempotent — returns existing bookmark if already bookmarked.
 
 ```typescript
-function addBookmark(userId: string, resourceType: string, resourceId: string, folder?: string): Promise<Bookmark>
+function addBookmark(
+  userId: string,
+  resourceType: string,
+  resourceId: string,
+  folder?: string,
+): Promise<Bookmark>
 ```
 
 - `userId` — The user ID.
@@ -217,7 +224,10 @@ function removeBookmark(userId: string, resourceType: string, resourceId: string
 Schema for validating bookmark creation input.
 
 ```typescript
-const createBookmarkSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId: z.ZodString; folder: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createBookmarkSchema: z.ZodObject<
+  { resourceType: z.ZodString; resourceId: z.ZodString; folder: z.ZodOptional<z.ZodString> },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -225,7 +235,13 @@ const createBookmarkSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId:
 Handler map for bookmark routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly check: typeof check; readonly folders: typeof folders; readonly del: typeof del; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly check: typeof check
+  readonly folders: typeof folders
+  readonly del: typeof del
+}
 ```
 
 #### `routes`
@@ -233,7 +249,38 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 Routes for bookmark add/remove/list/check and folder listing.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/bookmarks"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/bookmarks"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/bookmarks/folders"; readonly handler: "folders"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/bookmarks/check/:resourceType/:resourceId"; readonly handler: "check"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/bookmarks/:resourceType/:resourceId"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/bookmarks'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/bookmarks'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/bookmarks/folders'
+    readonly handler: 'folders'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/bookmarks/check/:resourceType/:resourceId'
+    readonly handler: 'check'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/bookmarks/:resourceType/:resourceId'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 ## Injection Notes
@@ -241,6 +288,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/bookmarks"; 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -281,31 +329,32 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Bookmarking an item (POST /bookmarks with its resourceType +
-  resourceId) saves it, it then appears in the user's bookmarks list
-  (GET /bookmarks), and its bookmark/star control reflects the saved state
-  (GET /bookmarks/check/:resourceType/:resourceId returns { bookmarked: true }).
+      resourceId) saves it, it then appears in the user's bookmarks list
+      (GET /bookmarks), and its bookmark/star control reflects the saved state
+      (GET /bookmarks/check/:resourceType/:resourceId returns { bookmarked: true }).
 - [ ] It is idempotent and toggles cleanly: bookmarking the SAME
-  resourceType+resourceId twice does NOT create a duplicate (the UNIQUE
-  (userId, resourceType, resourceId) constraint holds — the second add
-  returns the existing row), and un-bookmarking
-  (DELETE /bookmarks/:resourceType/:resourceId) removes it from the list and
-  flips the control back (check returns { bookmarked: false }).
+      resourceType+resourceId twice does NOT create a duplicate (the UNIQUE
+      (userId, resourceType, resourceId) constraint holds — the second add
+      returns the existing row), and un-bookmarking
+      (DELETE /bookmarks/:resourceType/:resourceId) removes it from the list and
+      flips the control back (check returns { bookmarked: false }).
 - [ ] Folders work: a bookmark filed into a folder (the free-form `folder`
-  string, set at create time — re-adding does NOT move it between folders)
-  shows under that folder, GET /bookmarks/folders returns the distinct folder
-  set, and GET /bookmarks?folder=X (and ?resourceType=X) filters the list to
-  only the matching bookmarks.
+      string, set at create time — re-adding does NOT move it between folders)
+      shows under that folder, GET /bookmarks/folders returns the distinct folder
+      set, and GET /bookmarks?folder=X (and ?resourceType=X) filters the list to
+      only the matching bookmarks.
 - [ ] Display data resolves from the referenced resource: the bookmark row
-  stores only resourceType+resourceId (no title/url/thumbnail, no FK), so each
-  list item renders its real title/thumbnail by looking the target up, and a
-  bookmark whose target was since deleted is handled gracefully (hidden or
-  tombstoned, never a crash or a blank row).
+      stores only resourceType+resourceId (no title/url/thumbnail, no FK), so each
+      list item renders its real title/thumbnail by looking the target up, and a
+      bookmark whose target was since deleted is handled gracefully (hidden or
+      tombstoned, never a crash or a blank row).
 - [ ] Authorization — bookmarks are strictly per-user: the owner is the
-  session userId (res.locals.session), NEVER a userId taken from the request
-  body; every list/check/remove is scoped to that session user, so one user
-  can neither see nor delete another user's saved items (there is no
-  bookmark-id route to guess — keys are resourceType+resourceId under the
-  caller's own userId); and a user can only bookmark targets they are allowed
-  to see (the target is polymorphic and unverified, so gate the create by
-  target visibility).
+      session userId (res.locals.session), NEVER a userId taken from the request
+      body; every list/check/remove is scoped to that session user, so one user
+      can neither see nor delete another user's saved items (there is no
+      bookmark-id route to guess — keys are resourceType+resourceId under the
+      caller's own userId); and a user can only bookmark targets they are allowed
+      to see (the target is polymorphic and unverified, so gate the create by
+      target visibility).

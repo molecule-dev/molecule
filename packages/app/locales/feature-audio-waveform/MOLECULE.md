@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-audio-waveform-react` packa
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-audio-waveform'
-import type { AudioWaveformTranslationKey, AudioWaveformTranslations } from '@molecule/app-locales-feature-audio-waveform'
+import type {
+  AudioWaveformTranslationKey,
+  AudioWaveformTranslations,
+} from '@molecule/app-locales-feature-audio-waveform'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `audioWaveform.aria.region` | Audio waveform |
-| `audioWaveform.aria.seek` | Seek the audio by clicking the waveform |
-| `audioWaveform.empty` | No waveform data available. |
+| Key                         | English                                 |
+| --------------------------- | --------------------------------------- |
+| `audioWaveform.aria.region` | Audio waveform                          |
+| `audioWaveform.aria.seek`   | Seek the audio by clicking the waveform |
+| `audioWaveform.empty`       | No waveform data available.             |
 
 ## Metadata
 

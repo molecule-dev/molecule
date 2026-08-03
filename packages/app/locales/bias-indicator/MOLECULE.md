@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-bias-indicator-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-bias-indicator'
-import type { BiasIndicatorTranslationKey, BiasIndicatorTranslations } from '@molecule/app-locales-bias-indicator'
+import type {
+  BiasIndicatorTranslationKey,
+  BiasIndicatorTranslations,
+} from '@molecule/app-locales-bias-indicator'
 ```
 
 ## Registration
@@ -34,16 +37,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `biasIndicator.bias.farLeft` | Far left |
-| `biasIndicator.bias.leftLeaning` | Left-leaning |
-| `biasIndicator.bias.center` | Center |
-| `biasIndicator.bias.rightLeaning` | Right-leaning |
-| `biasIndicator.bias.farRight` | Far right |
-| `biasIndicator.reliability.high` | Reliability: high |
-| `biasIndicator.reliability.medium` | Reliability: medium |
-| `biasIndicator.reliability.low` | Reliability: low |
+| Key                                  | English               |
+| ------------------------------------ | --------------------- |
+| `biasIndicator.bias.farLeft`         | Far left              |
+| `biasIndicator.bias.leftLeaning`     | Left-leaning          |
+| `biasIndicator.bias.center`          | Center                |
+| `biasIndicator.bias.rightLeaning`    | Right-leaning         |
+| `biasIndicator.bias.farRight`        | Far right             |
+| `biasIndicator.reliability.high`     | Reliability: high     |
+| `biasIndicator.reliability.medium`   | Reliability: medium   |
+| `biasIndicator.reliability.low`      | Reliability: low      |
 | `biasIndicator.reliability.disputed` | Reliability: disputed |
 
 ## Metadata

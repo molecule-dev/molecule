@@ -40,20 +40,32 @@ router.get('/qr/:value', async (req, res, next) => {
       { params: { value: req.params.value }, query: req.query },
       {
         setHeader: (n, v) => res.setHeader(n, v),
-        setStatus: (s) => { res.status(s) },
-        sendBuffer: (b) => { res.end(b) },
-        sendText: (t) => { res.send(t) },
-        sendJson: (j) => { res.json(j) },
+        setStatus: (s) => {
+          res.status(s)
+        },
+        sendBuffer: (b) => {
+          res.end(b)
+        },
+        sendText: (t) => {
+          res.send(t)
+        },
+        sendJson: (j) => {
+          res.json(j)
+        },
       },
     )
-  } catch (err) { next(err) }
+  } catch (err) {
+    next(err)
+  }
 })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-qr-code qrcode-generator
 ```
@@ -224,7 +236,11 @@ level. Uses `qrcode-generator` with `typeNumber=0` so the smallest type that
 fits is auto-selected.
 
 ```typescript
-function buildMatrix(value: string, errorCorrection?: QrErrorCorrectionLevel, margin?: number): QrMatrix
+function buildMatrix(
+  value: string,
+  errorCorrection?: QrErrorCorrectionLevel,
+  margin?: number,
+): QrMatrix
 ```
 
 - `value` — String to encode (URL, ticket id, redemption code, etc.).
@@ -255,7 +271,9 @@ value, generates the QR code in the requested format, and writes the
 bytes back with appropriate `Content-Type` headers.
 
 ```typescript
-function createQrCodeHandler(handlerOptions?: CreateQrCodeHandlerOptions): (req: QrCodeRequest, res: QrCodeResponse) => Promise<void>
+function createQrCodeHandler(
+  handlerOptions?: CreateQrCodeHandlerOptions,
+): (req: QrCodeRequest, res: QrCodeResponse) => Promise<void>
 ```
 
 - `handlerOptions` — Optional pre-flight validator, max size, defaults.
@@ -272,7 +290,10 @@ Generate a QR code in the requested format.
   suitable for direct inclusion in `<img src>` (HTML emails, PDFs).
 
 ```typescript
-function generateQrCode(value: string, options?: GenerateQrCodeOptions): Promise<string | Buffer<ArrayBufferLike>>
+function generateQrCode(
+  value: string,
+  options?: GenerateQrCodeOptions,
+): Promise<string | Buffer<ArrayBufferLike>>
 ```
 
 - `value` — String to encode (URL, ticket id, redemption code, etc.).
@@ -336,7 +357,7 @@ function renderSvg(matrix: QrMatrix, options: RenderSvgOptions): string
 MIME type for PNG output.
 
 ```typescript
-const PNG_CONTENT_TYPE: "image/png"
+const PNG_CONTENT_TYPE: 'image/png'
 ```
 
 #### `SVG_CONTENT_TYPE`
@@ -344,7 +365,7 @@ const PNG_CONTENT_TYPE: "image/png"
 MIME type for SVG output.
 
 ```typescript
-const SVG_CONTENT_TYPE: "image/svg+xml"
+const SVG_CONTENT_TYPE: 'image/svg+xml'
 ```
 
 ## Injection Notes

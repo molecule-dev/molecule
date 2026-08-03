@@ -50,9 +50,11 @@ const preview = await getLinkPreview(url, {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-link-preview undici
 ```
@@ -523,7 +525,7 @@ bot without claiming any specific product; hosts should pass their own
 `userAgent` (with a contact URL/email) in production.
 
 ```typescript
-const DEFAULT_USER_AGENT: "Mozilla/5.0 (compatible; LinkPreviewBot/1.0)"
+const DEFAULT_USER_AGENT: 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)'
 ```
 
 ## Injection Notes

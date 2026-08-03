@@ -13,7 +13,7 @@ Designed to replace the per-app duplicates in healthcare flagships
 ```tsx
 import { ProgressRings } from '@molecule/app-progress-rings-react'
 
-<ProgressRings
+;<ProgressRings
   rings={[
     { value: 8200, max: 10000, color: 'var(--color-success)', label: 'Steps' },
     { value: 7, max: 8, color: 'var(--color-info)', label: 'Sleep (hrs)' },
@@ -25,9 +25,11 @@ import { ProgressRings } from '@molecule/app-progress-rings-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-progress-rings-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -115,6 +117,7 @@ function ProgressRings({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
@@ -126,10 +129,11 @@ Peer dependencies:
 - `react`
 
 Companion locale bond: `@molecule/app-locales-progress-rings` (aria summary
-+ per-ring labels). Ring `color` is any CSS color — pass theme tokens like
-`var(--color-success)` so rings follow the active theme. Requires the
-app-react i18n provider and a wired ClassMap bond. Rings nest outside-in:
-`rings[0]` is the outermost.
+
+- per-ring labels). Ring `color` is any CSS color — pass theme tokens like
+  `var(--color-success)` so rings follow the active theme. Requires the
+  app-react i18n provider and a wired ClassMap bond. Rings nest outside-in:
+  `rings[0]` is the outermost.
 
 ## Translations
 

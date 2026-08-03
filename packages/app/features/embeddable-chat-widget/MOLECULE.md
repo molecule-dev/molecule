@@ -4,6 +4,7 @@ Embeddable AI chat widget — floating launcher + expanding chat panel
 for embedding a brand-configured assistant into a page.
 
 Exports:
+
 - `<EmbeddableChatWidget>` — root component (floating launcher + expanded panel).
 - `<EmbeddableChatLauncher>` — standalone floating bubble (used internally).
 - `<EmbeddableChatPanel>` — standalone expanded panel (used internally).
@@ -20,7 +21,7 @@ Exports:
 ```tsx
 import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
 
-<EmbeddableChatWidget
+;<EmbeddableChatWidget
   config={{
     apiBaseUrl: 'https://api.example.com',
     brandName: 'Acme',
@@ -31,9 +32,11 @@ import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-embeddable-chat-widget @molecule/app-i18n @molecule/app-react react react-dom
 npm install -D @types/react @types/react-dom
@@ -270,7 +273,11 @@ Mounts the embeddable chat widget into a host container. Works on a bare
 page — no `I18nProvider`, `setClassMap()`, or molecule stylesheet required.
 
 ```typescript
-function mountEmbeddableChatWidget(container: string | HTMLElement, config: EmbeddableChatWidgetConfig, options?: MountEmbeddableChatWidgetOptions): Root
+function mountEmbeddableChatWidget(
+  container: string | HTMLElement,
+  config: EmbeddableChatWidgetConfig,
+  options?: MountEmbeddableChatWidgetOptions,
+): Root
 ```
 
 - `container` — The target element, or a CSS selector resolving to one.
@@ -288,7 +295,10 @@ non-data line is forwarded as a `content` delta).
 Stops cleanly on `done` events, AbortError, or stream end.
 
 ```typescript
-function readChatStream(body: ReadableStream<Uint8Array<ArrayBufferLike>>, onEvent: (event: EmbeddableChatStreamEvent) => void): Promise<void>
+function readChatStream(
+  body: ReadableStream<Uint8Array<ArrayBufferLike>>,
+  onEvent: (event: EmbeddableChatStreamEvent) => void,
+): Promise<void>
 ```
 
 - `body` — The `ReadableStream` returned by `fetch().body`.
@@ -300,12 +310,7 @@ Sends a chat message and streams the response back. Throws on transport
 errors or non-OK HTTP statuses; resolves cleanly on `done` / stream end.
 
 ```typescript
-function sendChatRequest({
-  message,
-  config,
-  onDelta,
-  signal,
-}: SendChatRequestArgs): Promise<void>
+function sendChatRequest({ message, config, onDelta, signal }: SendChatRequestArgs): Promise<void>
 ```
 
 - `args` — Send args (`message`, `config`, `onDelta`, optional `signal`).
@@ -316,7 +321,7 @@ Returns a translation function that works with OR without a molecule
 `I18nProvider` in context. See the module docs for the two paths.
 
 ```typescript
-function useSafeTranslation(): { t: WidgetTranslate; }
+function useSafeTranslation(): { t: WidgetTranslate }
 ```
 
 **Returns:** An object with a provider-optional `t()` function.
@@ -326,6 +331,7 @@ function useSafeTranslation(): { t: WidgetTranslate; }
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0
@@ -367,14 +373,15 @@ the transcript lives only in widget state, so a stateless backend answers
 each turn without context. Correlate sessions server-side (cookies) or
 inject headers/ids with `config.fetchImpl`. The response should stream the
 assistant reply back; the reader accepts any of:
+
 - SSE: `data: {"type":"content","delta":"…"}` lines, terminated by
   `data: {"type":"done"}` or `data: [DONE]`; `data:
-  {"type":"error","message":"…"}` surfaces an error.
+{"type":"error","message":"…"}` surfaces an error.
 - JSON lines with a `content` or `text` field (OpenAI/Anthropic-shaped) —
   the field is appended as a delta.
 - Plain chunked text — appended verbatim as deltas.
-A non-2xx status (or a `data:` error event) is surfaced to the user as an
-error message in the panel.
+  A non-2xx status (or a `data:` error event) is surfaced to the user as an
+  error message in the panel.
 
 **Styling.** Panel/launcher geometry and colours are 100% inline
 (independent of host CSS) and light-themed (white panel); `config.theme`

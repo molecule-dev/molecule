@@ -15,9 +15,11 @@ function StrokeColorField() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-color-picker-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -104,12 +106,7 @@ Styling is delegated to `getClassMap()`; only inline styles are used for
 the live swatch background and slider track gradients.
 
 ```typescript
-function ColorPicker({
-  value,
-  onChange,
-  dataMolId,
-  className,
-}: ColorPickerProps): JSX.Element
+function ColorPicker({ value, onChange, dataMolId, className }: ColorPickerProps): JSX.Element
 ```
 
 - `props` — Component props.
@@ -183,6 +180,7 @@ function rgbToHsv({ r, g, b }: RgbColor): HsvColor
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

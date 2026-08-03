@@ -9,11 +9,11 @@ Sign in with Apple OAuth provider for molecule.dev.
 2. In the [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/identifiers/list)
    console, create:
 
-   - An **App ID** with the *Sign in with Apple* capability enabled.
+   - An **App ID** with the _Sign in with Apple_ capability enabled.
    - A **Services ID** whose identifier becomes your `OAUTH_APPLE_CLIENT_ID`.
-     Configure its *Sign in with Apple* settings with your domain and the
+     Configure its _Sign in with Apple_ settings with your domain and the
      exact redirect URI(s) you will use (e.g. `https://yourapp.com/auth/apple/callback`).
-   - A **Key** with *Sign in with Apple* enabled. Download the resulting
+   - A **Key** with _Sign in with Apple_ enabled. Download the resulting
      `.p8` file once (Apple does not allow re-download). The 10-character
      Key ID becomes `OAUTH_APPLE_KEY_ID`; the file's contents become
      `OAUTH_APPLE_PRIVATE_KEY`.
@@ -34,9 +34,11 @@ Sign in with Apple OAuth provider for molecule.dev.
 > **Your users should now be able to log in via Apple!**
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-oauth-apple @molecule/api-bond @molecule/api-http @molecule/api-oauth @molecule/api-secrets jsonwebtoken
 npm install -D @types/jsonwebtoken
@@ -92,7 +94,7 @@ interface AppleClientSecretInput {
 
 The decoded payload of an Apple ID token (a JWT issued by Apple at
 `https://appleid.apple.com`). Apple does not expose a userinfo endpoint —
-the ID token *is* the user info.
+the ID token _is_ the user info.
 
 ```typescript
 interface AppleIdTokenClaims {
@@ -171,29 +173,29 @@ authenticate them and send back an authorization code.
 
 ```typescript
 interface OAuthAuthorizeUrlParams {
-    /**
-     * Absolute URI the provider should redirect the user back to after
-     * authorization (the app origin, optionally with a path). When omitted,
-     * the builder leaves `redirect_uri` off the URL so the provider falls
-     * back to its registered callback URL.
-     */
-    redirectUri?: string;
-    /**
-     * The CSRF `state` parameter bound to the initiating session (stored in
-     * an httpOnly cookie by the initiation endpoint and validated by the
-     * login handler on callback).
-     */
-    state: string;
-    /**
-     * PKCE code challenge derived (S256) from the per-session code verifier.
-     * Omit only for providers that do not support PKCE.
-     */
-    codeChallenge?: string;
-    /**
-     * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
-     * for providers that cannot hash.
-     */
-    codeChallengeMethod?: 'S256' | 'plain';
+  /**
+   * Absolute URI the provider should redirect the user back to after
+   * authorization (the app origin, optionally with a path). When omitted,
+   * the builder leaves `redirect_uri` off the URL so the provider falls
+   * back to its registered callback URL.
+   */
+  redirectUri?: string
+  /**
+   * The CSRF `state` parameter bound to the initiating session (stored in
+   * an httpOnly cookie by the initiation endpoint and validated by the
+   * login handler on callback).
+   */
+  state: string
+  /**
+   * PKCE code challenge derived (S256) from the per-session code verifier.
+   * Omit only for providers that do not support PKCE.
+   */
+  codeChallenge?: string
+  /**
+   * PKCE challenge method. Always prefer `'S256'`; `'plain'` exists only
+   * for providers that cannot hash.
+   */
+  codeChallengeMethod?: 'S256' | 'plain'
 }
 ```
 
@@ -203,48 +205,48 @@ The properties returned when verifying an OAuth code.
 
 ```typescript
 interface OAuthUserProps {
-    /**
-     * An alphanumeric username derived from the OAuth provider.
-     *
-     * Format: `{provider_username}@{provider_name}`
-     */
-    username: string;
-    /**
-     * The user's display name from the OAuth provider.
-     */
-    name?: string;
-    /**
-     * The user's email address from the OAuth provider.
-     */
-    email?: string;
-    /**
-     * Whether the OAuth provider has affirmatively verified that the user
-     * controls this `email` mailbox.
-     *
-     * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
-     * `email_verified`, Apple's `email_verified` ID-token claim). When the
-     * provider exposes no trustworthy verification signal in the profile data
-     * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
-     * `true`) — consumers treat only an explicit `true` as verified.
-     *
-     * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
-     * decide whether a provider-supplied email may be trusted over an existing,
-     * unverified local account — preventing an unverified squatter from blocking
-     * the verified mailbox owner.
-     */
-    emailVerified?: boolean;
-    /**
-     * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
-     */
-    oauthServer: string;
-    /**
-     * Unique identifier for the user from the OAuth provider.
-     */
-    oauthId: string;
-    /**
-     * Raw user data from the OAuth provider.
-     */
-    oauthData: Record<string, unknown>;
+  /**
+   * An alphanumeric username derived from the OAuth provider.
+   *
+   * Format: `{provider_username}@{provider_name}`
+   */
+  username: string
+  /**
+   * The user's display name from the OAuth provider.
+   */
+  name?: string
+  /**
+   * The user's email address from the OAuth provider.
+   */
+  email?: string
+  /**
+   * Whether the OAuth provider has affirmatively verified that the user
+   * controls this `email` mailbox.
+   *
+   * `true` MUST mean the provider proved mailbox ownership (e.g. Google's
+   * `email_verified`, Apple's `email_verified` ID-token claim). When the
+   * provider exposes no trustworthy verification signal in the profile data
+   * the verifier fetched, this MUST be `false`/`undefined` (never optimistically
+   * `true`) — consumers treat only an explicit `true` as verified.
+   *
+   * Consumers (e.g. the user resource's `logInOAuth` handler) use this to
+   * decide whether a provider-supplied email may be trusted over an existing,
+   * unverified local account — preventing an unverified squatter from blocking
+   * the verified mailbox owner.
+   */
+  emailVerified?: boolean
+  /**
+   * The OAuth server identifier (e.g., 'github', 'google', 'twitter').
+   */
+  oauthServer: string
+  /**
+   * Unique identifier for the user from the OAuth provider.
+   */
+  oauthId: string
+  /**
+   * Raw user data from the OAuth provider.
+   */
+  oauthData: Record<string, unknown>
 }
 ```
 
@@ -258,7 +260,7 @@ their own client id, scopes, and authorize endpoint so no consumer ever
 hardcodes provider knowledge.
 
 ```typescript
-type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null;
+type OAuthAuthorizeUrlBuilder = (params: OAuthAuthorizeUrlParams) => string | null
 ```
 
 #### `OAuthVerifier`
@@ -277,7 +279,11 @@ for a rejected code — that would misreport a client mistake (or an
 attack) as a server fault.
 
 ```typescript
-type OAuthVerifier = (code: string, codeVerifier?: string, redirectUri?: string) => Promise<OAuthUserProps | null>;
+type OAuthVerifier = (
+  code: string,
+  codeVerifier?: string,
+  redirectUri?: string,
+) => Promise<OAuthUserProps | null>
 ```
 
 ### Functions
@@ -391,7 +397,7 @@ function getAuthorizeUrl({
 
 #### `getUserInfo(idToken)`
 
-Apple does not expose a userinfo endpoint — the ID token *is* the user
+Apple does not expose a userinfo endpoint — the ID token _is_ the user
 info. This helper takes an Apple-issued ID token, verifies its
 signature/issuer/audience/expiry, and returns the decoded claims.
 
@@ -443,12 +449,36 @@ Verifies an Apple OAuth authorization code and returns normalized
 (HTTP 400 `invalid_grant` from `/auth/token` — invalid/expired/reused) so
 the consumer surfaces a clean 403 instead of a misleading 500.
 
-Note: Apple only includes the user's `name` in the *initial* form-post
+Note: Apple only includes the user's `name` in the _initial_ form-post
 callback (not in the ID token), so callers wanting display-name capture
 must persist that value separately at the redirect-handler layer.
 
 ```typescript
-function verify(code: string, _codeVerifier?: string, redirectUri?: string): Promise<{ username: string; email: string | undefined; emailVerified: boolean; oauthServer: "apple"; oauthId: string; oauthData: { [key: string]: unknown; iss: string; aud: string; sub: string; iat: number; exp: number; nonce?: string; nonce_supported?: boolean; email?: string; email_verified?: boolean | string; is_private_email?: boolean | string; real_user_status?: number; }; } | null>
+function verify(
+  code: string,
+  _codeVerifier?: string,
+  redirectUri?: string,
+): Promise<{
+  username: string
+  email: string | undefined
+  emailVerified: boolean
+  oauthServer: 'apple'
+  oauthId: string
+  oauthData: {
+    [key: string]: unknown
+    iss: string
+    aud: string
+    sub: string
+    iat: number
+    exp: number
+    nonce?: string
+    nonce_supported?: boolean
+    email?: string
+    email_verified?: boolean | string
+    is_private_email?: boolean | string
+    real_user_status?: number
+  }
+} | null>
 ```
 
 - `code` — The authorization code from the OAuth callback.
@@ -479,7 +509,7 @@ function verifyIdToken(idToken: string): Promise<AppleIdTokenClaims>
 Apple authorization endpoint.
 
 ```typescript
-const APPLE_AUTHORIZATION_URL: "https://appleid.apple.com/auth/authorize"
+const APPLE_AUTHORIZATION_URL: 'https://appleid.apple.com/auth/authorize'
 ```
 
 #### `APPLE_CLIENT_SECRET_DEFAULT_LIFETIME_SECONDS`
@@ -503,7 +533,7 @@ const APPLE_CLIENT_SECRET_MAX_LIFETIME_SECONDS: 15777000
 The expected `iss` claim for Apple-issued ID tokens.
 
 ```typescript
-const APPLE_ID_TOKEN_ISSUER: "https://appleid.apple.com"
+const APPLE_ID_TOKEN_ISSUER: 'https://appleid.apple.com'
 ```
 
 #### `APPLE_JWKS_URL`
@@ -511,7 +541,7 @@ const APPLE_ID_TOKEN_ISSUER: "https://appleid.apple.com"
 Apple JWKS endpoint URL.
 
 ```typescript
-const APPLE_JWKS_URL: "https://appleid.apple.com/auth/keys"
+const APPLE_JWKS_URL: 'https://appleid.apple.com/auth/keys'
 ```
 
 #### `APPLE_TOKEN_URL`
@@ -519,7 +549,7 @@ const APPLE_JWKS_URL: "https://appleid.apple.com/auth/keys"
 Apple token endpoint.
 
 ```typescript
-const APPLE_TOKEN_URL: "https://appleid.apple.com/auth/token"
+const APPLE_TOKEN_URL: 'https://appleid.apple.com/auth/token'
 ```
 
 #### `DEFAULT_APPLE_SCOPE`
@@ -527,7 +557,7 @@ const APPLE_TOKEN_URL: "https://appleid.apple.com/auth/token"
 Default scope when callers do not specify one.
 
 ```typescript
-const DEFAULT_APPLE_SCOPE: "name email"
+const DEFAULT_APPLE_SCOPE: 'name email'
 ```
 
 #### `JWKS_CACHE_TTL_MS`
@@ -551,10 +581,11 @@ const oauthAppleSecretDefinitions: SecretDefinition[]
 The OAuth server identifier for Apple.
 
 ```typescript
-const serverName: "apple"
+const serverName: 'apple'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-oauth` interface.
 
 ## Bond Wiring
@@ -575,6 +606,7 @@ export function setupOauthApple(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-http` ^1.0.0
 - `@molecule/api-oauth` ^1.0.0
@@ -582,18 +614,18 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `OAUTH_APPLE_CLIENT_ID` *(required)* — Apple Services ID
+- `OAUTH_APPLE_CLIENT_ID` _(required)_ — Apple Services ID
   - Setup: Apple Developer → Identifiers → create a Services ID with "Sign in with Apple" enabled.
   - Get it here: [https://developer.apple.com/account/resources/identifiers/list/serviceId](https://developer.apple.com/account/resources/identifiers/list/serviceId)
   - Example: `com.example.app.signin`
-- `OAUTH_APPLE_TEAM_ID` *(required)* — Apple Team ID
+- `OAUTH_APPLE_TEAM_ID` _(required)_ — Apple Team ID
   - Setup: The 10-character Team ID from your Apple Developer membership details.
   - Get it here: [https://developer.apple.com/account](https://developer.apple.com/account)
   - Example: `A1B2C3D4E5`
-- `OAUTH_APPLE_KEY_ID` *(required)* — Apple key ID
+- `OAUTH_APPLE_KEY_ID` _(required)_ — Apple key ID
   - Setup: Create a "Sign in with Apple" key under Certificates, Identifiers & Profiles → Keys.
   - Get it here: [https://developer.apple.com/account/resources/authkeys/list](https://developer.apple.com/account/resources/authkeys/list)
-- `OAUTH_APPLE_PRIVATE_KEY` *(required)* — Apple private key (.p8)
+- `OAUTH_APPLE_PRIVATE_KEY` _(required)_ — Apple private key (.p8)
   - Setup: Download the .p8 file when creating the key (one-time download) and paste its PEM contents.
   - Get it here: [https://developer.apple.com/account/resources/authkeys/list](https://developer.apple.com/account/resources/authkeys/list)
   - Example: `contents of AuthKey_ABC123DEF4.p8`
@@ -611,28 +643,29 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Clicking the app's "Sign in with {provider}" button (Google, GitHub, …)
-  redirects to the provider's authorize URL carrying the correct client_id,
-  the app's requested scopes, AND the app's registered redirect_uri — inspect
-  the actual outbound URL (the 302 Location, or the address the popup/tab
-  navigates to) and confirm each value; a missing or wrong one is the bug.
+      redirects to the provider's authorize URL carrying the correct client_id,
+      the app's requested scopes, AND the app's registered redirect_uri — inspect
+      the actual outbound URL (the 302 Location, or the address the popup/tab
+      navigates to) and confirm each value; a missing or wrong one is the bug.
 - [ ] The callback route exchanges the returned code SERVER-SIDE for a token,
-  fetches the profile, and creates-or-links the app user + establishes a
-  session — after the round-trip the app shows that user logged in. CAVEAT:
-  the provider's own consent screen runs on ITS domain and CANNOT be driven
-  in the sandbox, so verify the two boundaries you DO own — the authorize URL
-  going out (above) and the callback coming back — not the provider's page.
-  Complete the round-trip with a test/stub provider bond if one is wired;
-  otherwise assert the callback handler's own behavior (state check → code
-  exchange → user create-or-link → session). Never mock the flow or edit
-  production code to bypass the provider.
+      fetches the profile, and creates-or-links the app user + establishes a
+      session — after the round-trip the app shows that user logged in. CAVEAT:
+      the provider's own consent screen runs on ITS domain and CANNOT be driven
+      in the sandbox, so verify the two boundaries you DO own — the authorize URL
+      going out (above) and the callback coming back — not the provider's page.
+      Complete the round-trip with a test/stub provider bond if one is wired;
+      otherwise assert the callback handler's own behavior (state check → code
+      exchange → user create-or-link → session). Never mock the flow or edit
+      production code to bypass the provider.
 - [ ] A returning OAuth user logs into the SAME account — sign in twice and
-  confirm one user row linked by provider id (oauthServer + oauthId), not a
-  fresh duplicate created each time.
+      confirm one user row linked by provider id (oauthServer + oauthId), not a
+      fresh duplicate created each time.
 - [ ] SECURITY — the `state` parameter is generated on initiation and
-  verified on callback (CSRF protection): a mismatched or absent `state` is
-  rejected (403); the `redirect_uri` is validated against an allowlist so an
-  attacker cannot redirect the code elsewhere; and the client secret + tokens
-  stay server-side — grep the browser bundle and network tab to confirm the
-  secret never reaches the client (only the authorize URL and returned code
-  cross the boundary).
+      verified on callback (CSRF protection): a mismatched or absent `state` is
+      rejected (403); the `redirect_uri` is validated against an allowlist so an
+      attacker cannot redirect the code elsewhere; and the client secret + tokens
+      stay server-side — grep the browser bundle and network tab to confirm the
+      secret never reaches the client (only the authorize URL and returned code
+      cross the boundary).

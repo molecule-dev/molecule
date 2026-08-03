@@ -13,9 +13,11 @@ setCorsFactory(corsFactory)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-cors-express @molecule/api-middleware-cors cors
 npm install -D @types/cors
@@ -53,6 +55,7 @@ function provider(req: unknown, res: unknown, next: (err?: unknown) => void): vo
 **Returns:** The result of the CORS handler invocation.
 
 ## Core Interface
+
 Implements `@molecule/api-middleware-cors` interface.
 
 ## Bond Wiring
@@ -73,6 +76,7 @@ export function setupMiddlewareCorsExpress(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-middleware-cors` ^1.0.0
 
 ### Runtime Dependencies

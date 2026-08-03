@@ -15,17 +15,21 @@ import { createProvider } from '@molecule/api-webhook-queue'
 setProvider(createProvider())
 
 // Or with custom configuration
-setProvider(createProvider({
-  maxRetries: 10,
-  baseDelay: 2000,
-  concurrency: 5,
-}))
+setProvider(
+  createProvider({
+    maxRetries: 10,
+    baseDelay: 2000,
+    concurrency: 5,
+  }),
+)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-webhook-queue @molecule/api-webhook undici
 ```
@@ -126,6 +130,7 @@ function safeFetch(rawUrl: string, init?: RequestInit): Promise<Response>
 **Returns:** The fetch Response.
 
 ## Core Interface
+
 Implements `@molecule/api-webhook` interface.
 
 ## Injection Notes
@@ -133,6 +138,7 @@ Implements `@molecule/api-webhook` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-webhook` 1.0.0
 
 ### Runtime Dependencies
@@ -174,13 +180,14 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Registering a webhook endpoint through the app's UI/API succeeds, and
-  an event the app dispatches actually produces a delivery. The sandbox
-  CAPTURES outbound deliveries instead of POSTing — read them with the
-  `read_activity` tool (filter type 'webhook'); never mock the dispatch or
-  modify production code to expose the payload.
+      an event the app dispatches actually produces a delivery. The sandbox
+      CAPTURES outbound deliveries instead of POSTing — read them with the
+      `read_activity` tool (filter type 'webhook'); never mock the dispatch or
+      modify production code to expose the payload.
 - [ ] The captured delivery carries the signature header (derived from the
-  registration's secret), a stable delivery-id header the receiver can dedup
-  on (at-least-once), and an event payload free of secrets/unrelated PII.
+      registration's secret), a stable delivery-id header the receiver can dedup
+      on (at-least-once), and an event payload free of secrets/unrelated PII.
 - [ ] A registration targeting a private/link-local/metadata destination
-  (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.
+      (`localhost`, `10.…`, `169.254.169.254`) is REJECTED before any dispatch.

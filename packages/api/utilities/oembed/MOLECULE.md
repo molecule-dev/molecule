@@ -59,9 +59,11 @@ const embed = await oembed(url, {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-oembed undici
 ```
@@ -422,7 +424,12 @@ appending the `url`, `maxwidth`, and `maxheight` query parameters
 as necessary.
 
 ```typescript
-function buildProviderEndpoint(provider: OEmbedProvider, targetUrl: string, maxWidth?: number, maxHeight?: number): string
+function buildProviderEndpoint(
+  provider: OEmbedProvider,
+  targetUrl: string,
+  maxWidth?: number,
+  maxHeight?: number,
+): string
 ```
 
 - `provider` — Matched provider entry.
@@ -719,7 +726,7 @@ specific product; hosts should pass their own `userAgent` (with a contact
 URL/email) in production.
 
 ```typescript
-const DEFAULT_USER_AGENT: "Mozilla/5.0 (compatible; oEmbedBot/1.0)"
+const DEFAULT_USER_AGENT: 'Mozilla/5.0 (compatible; oEmbedBot/1.0)'
 ```
 
 ## Injection Notes

@@ -3,6 +3,7 @@
 React avatar-stack and user-chip components.
 
 Exports:
+
 - `<AvatarStack>` — horizontal stack of up to `max` avatars with a trailing "+N" overflow chip.
 - `<UserChip>` — avatar + name + optional subtitle row for dropdowns, mention pickers, and row-level user references.
 
@@ -30,9 +31,11 @@ import { AvatarStack, UserChip } from '@molecule/app-avatar-stack-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-avatar-stack-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -105,12 +108,7 @@ Renders up to `max` avatars; any remaining are summarised as `+N` in a
 trailing chip.
 
 ```typescript
-function AvatarStack({
-  people,
-  max = 4,
-  size = 'sm',
-  className,
-}: AvatarStackProps): JSX.Element
+function AvatarStack({ people, max = 4, size = 'sm', className }: AvatarStackProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link AvatarStackProps}).
@@ -138,6 +136,7 @@ function UserChip({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

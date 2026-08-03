@@ -34,8 +34,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                      | English                           |
+| ------------------------ | --------------------------------- |
 | `share.error.noProvider` | Share provider is not configured. |
 
 ## Metadata

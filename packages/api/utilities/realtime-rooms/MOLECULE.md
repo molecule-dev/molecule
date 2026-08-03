@@ -39,9 +39,11 @@ await broadcast(room.id, { kind: 'question-asked', payload: { qid: 1 } })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-realtime-rooms @molecule/api-database @molecule/api-realtime
 ```
@@ -346,7 +348,7 @@ Subscribes `handler` to every event broadcast on `roomId`.
 This package installs exactly **one** transport-level `onMessage` listener
 for the whole process (at module load) and multiplexes it: `subscribe()`
 registers `handler` against the room's channel and the returned
-{@link Unsubscribe} removes *that* handler. Subscribing installs no
+{@link Unsubscribe} removes _that_ handler. Subscribing installs no
 additional transport listener, and unsubscribing fully detaches the handler
 from the registry — so listeners never accumulate and it is safe to
 subscribe / unsubscribe per request. The unsubscribe is idempotent.
@@ -365,6 +367,7 @@ function subscribe(roomId: string, handler: RoomEventHandler): Unsubscribe
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-realtime` ^1.0.0
 

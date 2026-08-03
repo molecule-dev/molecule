@@ -18,9 +18,11 @@ setClassMap(classMap)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui-tailwind-glass @molecule/app-styling @molecule/app-ui @molecule/app-ui-tailwind
 ```
@@ -37,7 +39,18 @@ Layers backdrop-filter blur and saturation boost onto surface components.
 Designed to pair with translucent theme colors (rgba surfaces with alpha).
 
 ```typescript
-function glassOverrides(base: UIClassMap): { card: (opts: CardClassOptions | undefined) => string; modal: (opts: ModalClassOptions | undefined) => string; toast: (opts: ToastClassOptions | undefined) => string; tooltip: () => string; headerBar: string; drawer: string; dropdownContent: string; tabsList: (opts: TabsClassOptions | undefined) => string; actionSheet: string; dialogOverlay: string; }
+function glassOverrides(base: UIClassMap): {
+  card: (opts: CardClassOptions | undefined) => string
+  modal: (opts: ModalClassOptions | undefined) => string
+  toast: (opts: ToastClassOptions | undefined) => string
+  tooltip: () => string
+  headerBar: string
+  drawer: string
+  dropdownContent: string
+  tabsList: (opts: TabsClassOptions | undefined) => string
+  actionSheet: string
+  dialogOverlay: string
+}
 ```
 
 - `base` — The base UIClassMap to extend with glass effects.
@@ -51,6 +64,7 @@ function glassOverrides(base: UIClassMap): { card: (opts: CardClassOptions | und
 Complete glass ClassMap — base Tailwind classMap extended with glass overrides.
 
 Wire at app startup:
+
 ```typescript
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind-glass'
@@ -62,6 +76,7 @@ const classMap: UIClassMap
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-ui` interface.
 
 ## Injection Notes
@@ -69,6 +84,7 @@ Implements `@molecule/app-ui` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-styling` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-tailwind` ^1.0.0

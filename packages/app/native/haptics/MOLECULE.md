@@ -10,12 +10,7 @@ ready-made `patterns` presets.
 ## Quick Start
 
 ```typescript
-import {
-  impact,
-  isSupported,
-  notification,
-  selection,
-} from '@molecule/app-haptics'
+import { impact, isSupported, notification, selection } from '@molecule/app-haptics'
 
 async function onAddToCart(): Promise<void> {
   if (!(await isSupported())) return // safe: false when nothing is wired
@@ -32,9 +27,11 @@ async function onPickerTick(): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-haptics @molecule/app-bond @molecule/app-i18n
 ```
@@ -261,7 +258,14 @@ function vibrate(duration?: number): Promise<void>
 Preset haptic patterns for common use cases
 
 ```typescript
-const patterns: { readonly doubleTap: HapticPatternElement[]; readonly tripleTap: HapticPatternElement[]; readonly success: HapticPatternElement[]; readonly error: HapticPatternElement[]; readonly warning: HapticPatternElement[]; readonly heartbeat: HapticPatternElement[]; }
+const patterns: {
+  readonly doubleTap: HapticPatternElement[]
+  readonly tripleTap: HapticPatternElement[]
+  readonly success: HapticPatternElement[]
+  readonly error: HapticPatternElement[]
+  readonly warning: HapticPatternElement[]
+  readonly heartbeat: HapticPatternElement[]
+}
 ```
 
 ## Injection Notes
@@ -269,6 +273,7 @@ const patterns: { readonly doubleTap: HapticPatternElement[]; readonly tripleTap
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

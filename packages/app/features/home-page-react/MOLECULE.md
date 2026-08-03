@@ -18,13 +18,15 @@ any per-app override.
 ```tsx
 import { Home } from '@molecule/app-home-page-react'
 
-<Route path="/" element={<Home />} />
+;<Route path="/" element={<Home />} />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-home-page-react @molecule/app-auth @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -39,7 +41,7 @@ npm install -D @types/react
 Authenticated home page — a personalized greeting headline.
 
 Renders a single H2 of the form:
-  `{home.greeting}{user.name || user.email || home.world}!`
+`{home.greeting}{user.name || user.email || home.world}!`
 
 `home.greeting` and `home.world` both come from the universal
 common-locale bond (`@molecule/app-locales-common`), so the page is
@@ -56,6 +58,7 @@ function Home(): JSX.Element
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-auth` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

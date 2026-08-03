@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-sort-picker-react` package which ha
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-sort-picker'
-import type { SortPickerTranslationKey, SortPickerTranslations } from '@molecule/app-locales-sort-picker'
+import type {
+  SortPickerTranslationKey,
+  SortPickerTranslations,
+} from '@molecule/app-locales-sort-picker'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key          | English |
+| ------------ | ------- |
 | `sort.label` | Sort by |
 
 ## Metadata

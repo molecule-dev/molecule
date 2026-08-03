@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-rule-builder-react` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-rule-builder'
-import type { RuleBuilderTranslationKey, RuleBuilderTranslations } from '@molecule/app-locales-rule-builder'
+import type {
+  RuleBuilderTranslationKey,
+  RuleBuilderTranslations,
+} from '@molecule/app-locales-rule-builder'
 ```
 
 ## Registration
@@ -34,28 +37,28 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `ruleBuilder.op.and` | AND |
-| `ruleBuilder.op.or` | OR |
-| `ruleBuilder.help.allMustMatch` | All conditions must match |
-| `ruleBuilder.help.anyMustMatch` | Any condition may match |
-| `ruleBuilder.action.addCondition` | + Add condition |
-| `ruleBuilder.action.addGroup` | + Add group |
-| `ruleBuilder.action.removeCondition` | Remove |
-| `ruleBuilder.action.removeGroup` | Remove group |
-| `ruleBuilder.aria.toggleOp` | Toggle AND / OR |
-| `ruleBuilder.aria.removeGroup` | Remove group |
-| `ruleBuilder.aria.removeCondition` | Remove condition |
-| `ruleBuilder.aria.field` | Field |
-| `ruleBuilder.aria.operator` | Operator |
-| `ruleBuilder.aria.value` | Value |
-| `ruleBuilder.aria.valueFrom` | From |
-| `ruleBuilder.aria.valueTo` | To |
-| `ruleBuilder.field.placeholder` | Select field… |
-| `ruleBuilder.between.separator` | – |
-| `ruleBuilder.boolean.true` | true |
-| `ruleBuilder.boolean.false` | false |
+| Key                                  | English                   |
+| ------------------------------------ | ------------------------- |
+| `ruleBuilder.op.and`                 | AND                       |
+| `ruleBuilder.op.or`                  | OR                        |
+| `ruleBuilder.help.allMustMatch`      | All conditions must match |
+| `ruleBuilder.help.anyMustMatch`      | Any condition may match   |
+| `ruleBuilder.action.addCondition`    | + Add condition           |
+| `ruleBuilder.action.addGroup`        | + Add group               |
+| `ruleBuilder.action.removeCondition` | Remove                    |
+| `ruleBuilder.action.removeGroup`     | Remove group              |
+| `ruleBuilder.aria.toggleOp`          | Toggle AND / OR           |
+| `ruleBuilder.aria.removeGroup`       | Remove group              |
+| `ruleBuilder.aria.removeCondition`   | Remove condition          |
+| `ruleBuilder.aria.field`             | Field                     |
+| `ruleBuilder.aria.operator`          | Operator                  |
+| `ruleBuilder.aria.value`             | Value                     |
+| `ruleBuilder.aria.valueFrom`         | From                      |
+| `ruleBuilder.aria.valueTo`           | To                        |
+| `ruleBuilder.field.placeholder`      | Select field…             |
+| `ruleBuilder.between.separator`      | –                         |
+| `ruleBuilder.boolean.true`           | true                      |
+| `ruleBuilder.boolean.false`          | false                     |
 
 ## Metadata
 

@@ -24,9 +24,11 @@ await addEnvironment('/path/to/project', {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-staging-state
 ```
@@ -104,7 +106,10 @@ Each environment needs three ports: API, App, and DB. Ports are allocated
 sequentially from the range, skipping any already in use.
 
 ```typescript
-function allocatePort(projectPath: string, portRange: { start: number; end: number; }): Promise<{ api: number; app: number; db: number; }>
+function allocatePort(
+  projectPath: string,
+  portRange: { start: number; end: number },
+): Promise<{ api: number; app: number; db: number }>
 ```
 
 - `projectPath` — Absolute path to the project root.
@@ -119,7 +124,10 @@ function allocatePort(projectPath: string, portRange: { start: number; end: numb
 Retrieves a single environment record by slug.
 
 ```typescript
-function getEnvironment(projectPath: string, slug: string): Promise<StagingEnvironmentRecord | undefined>
+function getEnvironment(
+  projectPath: string,
+  slug: string,
+): Promise<StagingEnvironmentRecord | undefined>
 ```
 
 - `projectPath` — Absolute path to the project root.

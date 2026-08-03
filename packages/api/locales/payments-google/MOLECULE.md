@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-payments-google` package which has 
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-payments-google'
-import type { PaymentsGoogleTranslationKey, PaymentsGoogleTranslations } from '@molecule/api-locales-payments-google'
+import type {
+  PaymentsGoogleTranslationKey,
+  PaymentsGoogleTranslations,
+} from '@molecule/api-locales-payments-google'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `payments.google.warn.missingPackageName` | Missing Google Play package name (process.env.GOOGLE_PLAY_PACKAGE_NAME). |
-| `payments.google.warn.missingServiceKey` | Missing Google API service key object (process.env.GOOGLE_API_SERVICE_KEY_OBJECT). |
-| `payments.google.error.serviceKeyNotConfigured` | Google API service key object not configured |
-| `payments.google.error.parseServiceKey` | Error parsing Google API service key object: |
+| Key                                             | English                                                                            |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------- |
+| `payments.google.warn.missingPackageName`       | Missing Google Play package name (process.env.GOOGLE_PLAY_PACKAGE_NAME).           |
+| `payments.google.warn.missingServiceKey`        | Missing Google API service key object (process.env.GOOGLE_API_SERVICE_KEY_OBJECT). |
+| `payments.google.error.serviceKeyNotConfigured` | Google API service key object not configured                                       |
+| `payments.google.error.parseServiceKey`         | Error parsing Google API service key object:                                       |
 
 ## Metadata
 

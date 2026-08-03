@@ -26,9 +26,11 @@ if (result.status === 'succeeded') console.log(result.imageUrl)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-image-generation-pipeline @molecule/api-ai @molecule/api-ai-image-generation
 ```
@@ -153,6 +155,7 @@ function runImageGeneration(opts: RunImageGenerationOptions): Promise<ImageGener
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-ai-image-generation` ^1.0.0
 
@@ -162,6 +165,7 @@ Peer dependencies:
 - `@molecule/api-ai-image-generation`
 
 Wiring — this package composes TWO different accessor mechanisms:
+
 - `runImageGeneration()` resolves `@molecule/api-ai-image-generation`, whose
   core keeps its OWN singleton: wire it with THAT package's `setProvider(...)`
   (e.g. `setProvider(createProvider())` from

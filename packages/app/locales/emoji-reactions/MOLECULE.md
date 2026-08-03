@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-emoji-reactions-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-emoji-reactions'
-import type { EmojiReactionsTranslationKey, EmojiReactionsTranslations } from '@molecule/app-locales-emoji-reactions'
+import type {
+  EmojiReactionsTranslationKey,
+  EmojiReactionsTranslations,
+} from '@molecule/app-locales-emoji-reactions'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `reactions.add` | Add reaction |
+| Key               | English             |
+| ----------------- | ------------------- |
+| `reactions.add`   | Add reaction        |
 | `reactions.count` | {{count}} reactions |
 
 ## Metadata

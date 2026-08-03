@@ -34,16 +34,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `battery.charging` | Charging |
-| `battery.discharging` | On Battery |
-| `battery.full` | Fully Charged |
-| `battery.not-charging` | Not Charging |
-| `battery.unknown` | Unknown |
-| `battery.remainingUnknown` | Unknown |
-| `battery.remainingTime` | {{hours}}h {{minutes}}m |
-| `battery.remainingMinutes` | {{minutes}}m |
+| Key                        | English                 |
+| -------------------------- | ----------------------- |
+| `battery.charging`         | Charging                |
+| `battery.discharging`      | On Battery              |
+| `battery.full`             | Fully Charged           |
+| `battery.not-charging`     | Not Charging            |
+| `battery.unknown`          | Unknown                 |
+| `battery.remainingUnknown` | Unknown                 |
+| `battery.remainingTime`    | {{hours}}h {{minutes}}m |
+| `battery.remainingMinutes` | {{minutes}}m            |
 
 ## Metadata
 

@@ -12,13 +12,15 @@ generation, metered detection, and online/offline/change events.
 import { setProvider } from '@molecule/app-network'
 import { provider } from '@molecule/app-network-react-native'
 
-setProvider(provider)   // once, at app startup
+setProvider(provider) // once, at app startup
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-network-react-native @molecule/app-i18n @molecule/app-logger @molecule/app-network @react-native-community/netinfo
 ```
@@ -72,6 +74,7 @@ const provider: NetworkProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-network` interface.
 
 ## Bond Wiring
@@ -92,6 +95,7 @@ export function setupNativeNetworkReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-network` ^1.0.0

@@ -19,13 +19,15 @@ remarks).
 import { Route } from 'react-router'
 import { PlanUpdated } from '@molecule/app-plan-updated-page-react'
 
-<Route path="/plan-updated" element={<PlanUpdated />} />
+;<Route path="/plan-updated" element={<PlanUpdated />} />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-plan-updated-page-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
@@ -100,6 +102,7 @@ function PlanUpdated({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

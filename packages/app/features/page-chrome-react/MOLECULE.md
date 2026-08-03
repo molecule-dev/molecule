@@ -3,6 +3,7 @@
 React page-header and hero-section primitives.
 
 Exports:
+
 - `<PageHeader>` — top-of-page header with breadcrumbs + title/subtitle +
   leading icon + right-aligned actions + meta row. `emphasis="extrabold"`
   switches the title to the larger dashboard treatment.
@@ -40,9 +41,11 @@ function ProjectsPage() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-page-chrome-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -167,6 +170,7 @@ function PageHeader({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

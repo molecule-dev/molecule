@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-file-dropzone-react` package which 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-file-dropzone'
-import type { FileDropzoneTranslationKey, FileDropzoneTranslations } from '@molecule/app-locales-file-dropzone'
+import type {
+  FileDropzoneTranslationKey,
+  FileDropzoneTranslations,
+} from '@molecule/app-locales-file-dropzone'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                     | English                            |
+| ----------------------- | ---------------------------------- |
 | `fileDropzone.dropHere` | Drop files here or click to browse |
 
 ## Metadata

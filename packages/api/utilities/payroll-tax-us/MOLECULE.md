@@ -47,9 +47,11 @@ registerStateCalculator('OR', (input) => {
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-payroll-tax-us
 ```
@@ -253,7 +255,12 @@ Compute the federal income-tax withholding for a single paycheck
 using the IRS Pub 15-T annualised wage-bracket method.
 
 ```typescript
-function calculateFederal(taxableCents: number, filingStatus: FilingStatus, period: PayPeriod, year?: 2024 | 2025): number
+function calculateFederal(
+  taxableCents: number,
+  filingStatus: FilingStatus,
+  period: PayPeriod,
+  year?: 2024 | 2025,
+): number
 ```
 
 - `taxableCents` — Per-paycheck federal-taxable wages (gross minus pre-tax deductions).
@@ -280,6 +287,7 @@ function calculateMedicare(ficaWageCents: number): number
 Compute the per-paycheck tax breakdown for a US W-2 employee.
 
 Pre-tax handling:
+
 - 401(k) contributions reduce federal + state taxable wages but NOT FICA wages.
 - Section 125 health premiums reduce federal + FICA + state taxable wages.
 
@@ -296,7 +304,11 @@ function calculatePayrollTax(input: PayrollTaxInput): PayrollTaxResult
 Compute the Social Security tax withholding for a single paycheck.
 
 ```typescript
-function calculateSocialSecurity(ficaWageCents: number, ytdCents: number, year?: 2024 | 2025): number
+function calculateSocialSecurity(
+  ficaWageCents: number,
+  ytdCents: number,
+  year?: 2024 | 2025,
+): number
 ```
 
 - `ficaWageCents` — FICA-taxable wages for this paycheck (post-Section-125, but pre-401k).

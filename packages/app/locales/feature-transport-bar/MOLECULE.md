@@ -17,7 +17,10 @@ Provides translations for the `@molecule/app-feature-transport-bar-react` packag
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-transport-bar'
-import type { TransportBarTranslationKey, TransportBarTranslations } from '@molecule/app-locales-feature-transport-bar'
+import type {
+  TransportBarTranslationKey,
+  TransportBarTranslations,
+} from '@molecule/app-locales-feature-transport-bar'
 ```
 
 ## Registration
@@ -37,18 +40,18 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `transportBar.aria.region` | Playback transport controls |
-| `transportBar.aria.skipBack` | Skip backward |
-| `transportBar.aria.skipForward` | Skip forward |
-| `transportBar.aria.play` | Play |
-| `transportBar.aria.pause` | Pause |
-| `transportBar.aria.stop` | Stop |
-| `transportBar.aria.record` | Record |
-| `transportBar.aria.stopRecording` | Stop recording |
-| `transportBar.aria.loopOn` | Disable loop |
-| `transportBar.aria.loopOff` | Enable loop |
+| Key                               | English                     |
+| --------------------------------- | --------------------------- |
+| `transportBar.aria.region`        | Playback transport controls |
+| `transportBar.aria.skipBack`      | Skip backward               |
+| `transportBar.aria.skipForward`   | Skip forward                |
+| `transportBar.aria.play`          | Play                        |
+| `transportBar.aria.pause`         | Pause                       |
+| `transportBar.aria.stop`          | Stop                        |
+| `transportBar.aria.record`        | Record                      |
+| `transportBar.aria.stopRecording` | Stop recording              |
+| `transportBar.aria.loopOn`        | Disable loop                |
+| `transportBar.aria.loopOff`       | Enable loop                 |
 
 ## Metadata
 

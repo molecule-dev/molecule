@@ -33,9 +33,11 @@ for await (const event of requireProvider().chat({ system, tools, messages, stre
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-tools @molecule/api-ai
 ```
@@ -227,7 +229,7 @@ interface ToolSchema {
 
 ### Types
 
-#### `DiscoveredSkill` *(deprecated)*
+#### `DiscoveredSkill` _(deprecated)_
 
 Re-export SkillEntry as DiscoveredSkill for backwards compatibility.
 
@@ -242,6 +244,7 @@ type DiscoveredSkill = SkillEntry
 Build a coding-focused system prompt from composable sections.
 
 Returns a string that includes:
+
 - Agent identity
 - Available tools listing
 - Coding best practices
@@ -483,7 +486,11 @@ whitespace, which would otherwise bounce it into a re-read/retry loop — the
 single biggest source of wasted edit turns.
 
 ```typescript
-function whitespaceTolerantReplace(content: string, oldString: string, newString: string): string | null
+function whitespaceTolerantReplace(
+  content: string,
+  oldString: string,
+  newString: string,
+): string | null
 ```
 
 - `content` — Current file content.
@@ -504,7 +511,18 @@ setting in molecule.dev — keep the APP-SIDE copy in
 `@molecule/app-ide-react`'s search types in sync with this list).
 
 ```typescript
-const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly ["node_modules", "bower_components", ".git", ".svn", ".hg", "CVS", "dist", ".next", ".vite", "molecule"]
+const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly [
+  'node_modules',
+  'bower_components',
+  '.git',
+  '.svn',
+  '.hg',
+  'CVS',
+  'dist',
+  '.next',
+  '.vite',
+  'molecule',
+]
 ```
 
 #### `MAX_FIND_RESULTS`
@@ -560,6 +578,7 @@ const TOOL_SCHEMAS: Record<string, ToolSchema>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai` ^1.0.0
 
 ### Runtime Dependencies
@@ -590,28 +609,29 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual agent/chat surface and its registered tools,
 and check every box off one by one. A box you can't check is an integration
 bug to fix — not a skip:
+
 - [ ] A prompt that should trigger a registered tool makes the model INVOKE
-  it with args matching that tool's `parameters` schema (e.g. "read
-  src/index.ts" -> calls `read_file` with `{ path: 'src/index.ts' }`).
-  Confirm the tool's `execute` actually RAN — its backend side effect / log /
-  the file it touched — not that the model merely narrated calling it.
+      it with args matching that tool's `parameters` schema (e.g. "read
+      src/index.ts" -> calls `read_file` with `{ path: 'src/index.ts' }`).
+      Confirm the tool's `execute` actually RAN — its backend side effect / log /
+      the file it touched — not that the model merely narrated calling it.
 - [ ] The tool's returned value flows back into the model and shapes the
-  final answer: the REAL result (the file's actual contents, the command's
-  real stdout/exitCode) appears in the reply, not a plausible hallucination.
+      final answer: the REAL result (the file's actual contents, the command's
+      real stdout/exitCode) appears in the reply, not a plausible hallucination.
 - [ ] A prompt that needs no tool is answered directly, with no spurious
-  tool call.
+      tool call.
 - [ ] A tool whose `execute` throws or returns `{ error }` (missing file,
-  failing command, blocked path) degrades gracefully — the error is caught
-  and fed back to the model as text, the conversation continues, and nothing
-  crashes the request.
+      failing command, blocked path) degrades gracefully — the error is caught
+      and fed back to the model as text, the conversation continues, and nothing
+      crashes the request.
 - [ ] The model can invoke ONLY the tools handed to this run: an
-  `include`/`exclude`-scoped agent (e.g. read-only — no `write_file` /
-  `exec_command`) cannot call an excluded tool, and a tool name the model
-  invents that was never registered is refused, not executed.
+      `include`/`exclude`-scoped agent (e.g. read-only — no `write_file` /
+      `exec_command`) cannot call an excluded tool, and a tool name the model
+      invents that was never registered is refused, not executed.
 - [ ] Tool execution is server-side and authorized: `exec_command` /
-  `write_file` run only on the bonded backend under its guards (`pathGuards`,
-  `symlinkGuards`, `redactSecrets`, `blockDangerousCommands` / `blockCommand`)
-  and stay inside `projectRoot`. Feed a prompt-injected instruction (a file or
-  message telling the model to read `/etc/passwd`, escape the workspace, or run
-  a privileged command) and confirm the guard REFUSES it — a user must not be
-  able to trigger, via the model, any action they could not perform directly.
+      `write_file` run only on the bonded backend under its guards (`pathGuards`,
+      `symlinkGuards`, `redactSecrets`, `blockDangerousCommands` / `blockCommand`)
+      and stay inside `projectRoot`. Feed a prompt-injected instruction (a file or
+      message telling the model to read `/etc/passwd`, escape the workspace, or run
+      a privileged command) and confirm the guard REFUSES it — a user must not be
+      able to trigger, via the model, any action they could not perform directly.

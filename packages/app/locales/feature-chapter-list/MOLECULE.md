@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-chapter-list-react` package
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-chapter-list'
-import type { ChapterListTranslationKey, ChapterListTranslations } from '@molecule/app-locales-feature-chapter-list'
+import type {
+  ChapterListTranslationKey,
+  ChapterListTranslations,
+} from '@molecule/app-locales-feature-chapter-list'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `chapterList.aria.region` | Chapters |
-| `chapterList.aria.seek` | Jump to {{title}} at {{timestamp}} |
-| `chapterList.aria.thumbnail` | Thumbnail for {{title}} |
-| `chapterList.empty` | No chapters available for this episode. |
-| `chapterList.current` | Now playing |
+| Key                          | English                                 |
+| ---------------------------- | --------------------------------------- |
+| `chapterList.aria.region`    | Chapters                                |
+| `chapterList.aria.seek`      | Jump to {{title}} at {{timestamp}}      |
+| `chapterList.aria.thumbnail` | Thumbnail for {{title}}                 |
+| `chapterList.empty`          | No chapters available for this episode. |
+| `chapterList.current`        | Now playing                             |
 
 ## Metadata
 

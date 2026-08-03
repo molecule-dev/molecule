@@ -60,9 +60,11 @@ if (hasServiceRole()) {
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-external-auth-supabase @molecule/api-external-auth @supabase/supabase-js
 ```
@@ -136,7 +138,7 @@ by Row Level Security. Use it for `verifyUserToken()` and for PostgREST
 reads/writes that RLS already permits.
 
 ```typescript
-function getAnonClient(): SupabaseClient<any, "public", "public", any, any>
+function getAnonClient(): SupabaseClient<any, 'public', 'public', any, any>
 ```
 
 #### `getServiceClient()`
@@ -146,7 +148,7 @@ Row Level Security — server-only, for admin operations the anon client
 cannot perform.
 
 ```typescript
-function getServiceClient(): SupabaseClient<any, "public", "public", any, any>
+function getServiceClient(): SupabaseClient<any, 'public', 'public', any, any>
 ```
 
 #### `hasServiceRole()`
@@ -183,6 +185,7 @@ const provider: ExternalAuthProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-external-auth` interface.
 
 ## Bond Wiring
@@ -203,6 +206,7 @@ export function setupExternalAuthSupabase(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-external-auth` ^1.0.0
 
 ### Runtime Dependencies
@@ -230,19 +234,20 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The provider bond matching the app's auth platform is wired with
-  `setProvider()` at startup — no "No external-auth provider bonded" errors
-  appear in server logs when hitting protected routes.
+      `setProvider()` at startup — no "No external-auth provider bonded" errors
+      appear in server logs when hitting protected routes.
 - [ ] Log in through the app's existing auth UI, then hit a protected API
-  route: `verifyUserToken()` accepts the live session token and the route
-  returns that user's data.
+      route: `verifyUserToken()` accepts the live session token and the route
+      returns that user's data.
 - [ ] The counterparty is the auth platform itself: obtain a REAL user token
-  by signing up / logging in through the app's own UI (`interact_preview`)
-  and exercise `verifyUserToken()` with the token the frontend sends —
-  never fabricate, hand-mint, or replay a made-up token as a "valid" case.
+      by signing up / logging in through the app's own UI (`interact_preview`)
+      and exercise `verifyUserToken()` with the token the frontend sends —
+      never fabricate, hand-mint, or replay a made-up token as a "valid" case.
 - [ ] A garbage or expired Bearer token gets a clean 401 from protected
-  routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
+      routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
 - [ ] A request with no Authorization header is rejected as
-  unauthenticated (401), not treated as a server error.
+      unauthenticated (401), not treated as a server error.
 - [ ] Server-side records created for the logged-in user are keyed on the
-  verified `userId`, and another user's token never reads them back.
+      verified `userId`, and another user's token never reads them back.

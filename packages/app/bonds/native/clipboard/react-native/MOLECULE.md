@@ -15,9 +15,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-clipboard-react-native @molecule/app-clipboard @molecule/app-i18n @molecule/app-logger @react-native-clipboard/clipboard
 ```
@@ -71,6 +73,7 @@ const provider: ClipboardProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-clipboard` interface.
 
 ## Bond Wiring
@@ -91,6 +94,7 @@ export function setupNativeClipboardReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-clipboard` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
@@ -106,6 +110,7 @@ Peer dependencies:
 Platform limits of the underlying `@react-native-clipboard/clipboard`
 (installed separately; the first clipboard call throws an actionable
 error naming it if missing):
+
 - HTML is NOT supported: `writeHtml()`/`write({ html })` write the markup
   as PLAIN TEXT, and `readHtml()` always resolves `null`.
 - Images: `writeImage()`/`readImage()` work only where the native module
@@ -113,7 +118,7 @@ error naming it if missing):
   Blob input) they silently no-op / return null. Check
   `getCapabilities().canWriteImage` before showing a copy-image action.
 - `onChange()` fires only with `createReactNativeClipboardProvider({
-  pollForChanges: true })` — the bare `provider` export has it OFF and
+pollForChanges: true })` — the bare `provider` export has it OFF and
   returns a no-op unsubscribe.
 
 ## Translations

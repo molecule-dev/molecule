@@ -21,9 +21,11 @@ function AppRoot({ children }: { children: ReactNode }) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-root-error-boundary-react @molecule/app-i18n @molecule/app-logger @molecule/app-ui react
 npm install -D @types/react
@@ -46,6 +48,7 @@ Use this directly under your routing root so it covers the whole route tree.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

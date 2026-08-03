@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-subscription-plan-card-react` packa
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-subscription-plan-card'
-import type { SubscriptionPlanCardTranslationKey, SubscriptionPlanCardTranslations } from '@molecule/app-locales-subscription-plan-card'
+import type {
+  SubscriptionPlanCardTranslationKey,
+  SubscriptionPlanCardTranslations,
+} from '@molecule/app-locales-subscription-plan-card'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                | English     |
+| ------------------ | ----------- |
 | `plan.recommended` | Recommended |
 
 ## Metadata

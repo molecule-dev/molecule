@@ -20,9 +20,11 @@ subscribe<{ userId: string; kind: string }>('emails', async (msg) => {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-queue @molecule/api-bond @molecule/api-i18n
 ```
@@ -342,7 +344,11 @@ Subscribes to messages from a named queue. The handler is called for each
 incoming message. Returns an unsubscribe function to stop listening.
 
 ```typescript
-function subscribe(queueName: string, handler: MessageHandler<T>, options?: ReceiveOptions): () => void
+function subscribe(
+  queueName: string,
+  handler: MessageHandler<T>,
+  options?: ReceiveOptions,
+): () => void
 ```
 
 - `queueName` — The queue to subscribe to.
@@ -353,18 +359,19 @@ function subscribe(queueName: string, handler: MessageHandler<T>, options?: Rece
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| In-memory (no persistence) | `@molecule/api-queue-memory` |
-| RabbitMQ | `@molecule/api-queue-rabbitmq` |
-| Redis (BullMQ) | `@molecule/api-queue-redis` |
-| AWS SQS | `@molecule/api-queue-sqs` |
+| Provider                   | Package                        |
+| -------------------------- | ------------------------------ |
+| In-memory (no persistence) | `@molecule/api-queue-memory`   |
+| RabbitMQ                   | `@molecule/api-queue-rabbitmq` |
+| Redis (BullMQ)             | `@molecule/api-queue-redis`    |
+| AWS SQS                    | `@molecule/api-queue-sqs`      |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -400,12 +407,12 @@ redelivery), so:
 **`QueueMessage.delaySeconds` support by bond** — every bond either honors it for real or
 throws/documents an explicit alternative; NONE silently no-op it:
 
-| Bond | Mechanism | Notes |
-|------|-----------|-------|
-| `@molecule/api-queue-memory` | Native (`visibleAt` timestamp) | No cap. |
-| `@molecule/api-queue-redis` (BullMQ) | Native (`delay` job option) | No cap. |
-| `@molecule/api-queue-sqs` | Native (`DelaySeconds`) | Capped at 900s (15 min) by SQS itself. |
-| `@molecule/api-queue-rabbitmq` | Per-delay "wait" queue (`x-message-ttl` + dead-letter back to the real queue) | Real delayed delivery with **no** `rabbitmq-delayed-message-exchange` plugin required — the bond creates one durable queue per distinct delay value used. |
+| Bond                                 | Mechanism                                                                     | Notes                                                                                                                                                     |
+| ------------------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@molecule/api-queue-memory`         | Native (`visibleAt` timestamp)                                                | No cap.                                                                                                                                                   |
+| `@molecule/api-queue-redis` (BullMQ) | Native (`delay` job option)                                                   | No cap.                                                                                                                                                   |
+| `@molecule/api-queue-sqs`            | Native (`DelaySeconds`)                                                       | Capped at 900s (15 min) by SQS itself.                                                                                                                    |
+| `@molecule/api-queue-rabbitmq`       | Per-delay "wait" queue (`x-message-ttl` + dead-letter back to the real queue) | Real delayed delivery with **no** `rabbitmq-delayed-message-exchange` plugin required — the bond creates one durable queue per distinct delay value used. |
 
 ## E2E Tests
 
@@ -413,31 +420,32 @@ Integration checklist — exercise the REAL behavior end-to-end (drive the app
 action that enqueues/consumes work in the live preview, no mocks), adapt each
 item to this app's actual screens/flows, and check every box off one by one. A
 box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The action that enqueues work responds fast — `send()` returns a message
-  id immediately and the request/response does NOT block on the job. The #1
-  trap: the executor awaits the heavy work inline (defeating the queue);
-  confirm the triggering UI action returns quickly and the work happens in the
-  background.
+      id immediately and the request/response does NOT block on the job. The #1
+      trap: the executor awaits the heavy work inline (defeating the queue);
+      confirm the triggering UI action returns quickly and the work happens in the
+      background.
 - [ ] The enqueued job actually RUNS — a `subscribe()` consumer (a
-  `MessageHandler`) is wired and running, so the message's real side effect
-  (email sent, file processed, notification delivered — whatever the app does)
-  actually appears in the UI/data. A message enqueued with no worker wired is
-  the silent failure.
+      `MessageHandler`) is wired and running, so the message's real side effect
+      (email sent, file processed, notification delivered — whatever the app does)
+      actually appears in the UI/data. A message enqueued with no worker wired is
+      the silent failure.
 - [ ] Payload round-trips intact — the `ReceivedMessage.body` the handler sees
-  equals the `QueueMessage.body` that was sent, with no dropped or renamed
-  fields.
+      equals the `QueueMessage.body` that was sent, with no dropped or renamed
+      fields.
 - [ ] Failure is handled — a handler that throws is redelivered (up to
-  `QueueCreateOptions.deadLetterQueue.maxReceiveCount`, tracked via
-  `receiveCount`) or dead-lettered, never silently lost. Delivery is
-  at-least-once, so the handler is idempotent (dedupe on the job/record id) — a
-  redelivery must not double-charge or double-send.
+      `QueueCreateOptions.deadLetterQueue.maxReceiveCount`, tracked via
+      `receiveCount`) or dead-lettered, never silently lost. Delivery is
+      at-least-once, so the handler is idempotent (dedupe on the job/record id) — a
+      redelivery must not double-charge or double-send.
 - [ ] Ordering/concurrency is not assumed — the app does not rely on strict
-  FIFO (`QueueMessage.groupId`/`fifo`) or exactly-once delivery unless the
-  bonded provider actually guarantees it.
+      FIFO (`QueueMessage.groupId`/`fifo`) or exactly-once delivery unless the
+      bonded provider actually guarantees it.
 - [ ] Least-authority payloads — the `body` carries only the ids/refs the job
-  needs (never a secret or stale authority); the consumer re-loads and
-  re-scopes on the CURRENT data (owner id from `body`, re-checked server-side)
-  so one user's job cannot act on another user's resource.
+      needs (never a secret or stale authority); the consumer re-loads and
+      re-scopes on the CURRENT data (owner id from `body`, re-checked server-side)
+      so one user's job cannot act on another user's resource.
 
 ## Translations
 

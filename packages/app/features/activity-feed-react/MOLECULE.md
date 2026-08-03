@@ -3,6 +3,7 @@
 React activity-feed primitives.
 
 Exports:
+
 - `<ActivityFeed>` — flat vertical list of activity rows.
 - `<ActivityFeedItem>` — single row (avatar + actor/verb/target + timestamp + body).
 - `<ActivityFeedGroup>` — heading + list, compose multiple for "Today / Yesterday" feeds.
@@ -26,9 +27,11 @@ const items = [
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-activity-feed-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -116,12 +119,7 @@ Simple activity feed — renders each `ActivityFeedItemData` via
 `<ActivityFeedGroup>`.
 
 ```typescript
-function ActivityFeed({
-  items,
-  emptyState,
-  footer,
-  className,
-}: ActivityFeedProps): JSX.Element
+function ActivityFeed({ items, emptyState, footer, className }: ActivityFeedProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link ActivityFeedProps}).
@@ -133,11 +131,7 @@ Compose multiple `<ActivityFeedGroup>`s together for an organized
 "Today / Yesterday / Last week" feed.
 
 ```typescript
-function ActivityFeedGroup({
-  heading,
-  items,
-  className,
-}: ActivityFeedGroupProps): JSX.Element
+function ActivityFeedGroup({ heading, items, className }: ActivityFeedGroupProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link ActivityFeedGroupProps}).
@@ -159,6 +153,7 @@ function ActivityFeedItem({ item, className }: ActivityFeedItemProps): JSX.Eleme
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

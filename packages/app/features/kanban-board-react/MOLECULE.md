@@ -3,6 +3,7 @@
 React Kanban board primitives (pure presentational — you own the data).
 
 Exports:
+
 - `<KanbanBoard>` — columns side-by-side with HTML5 drag-drop between columns.
   Props: `columns`, `onCardMove?(cardId, fromColumnId, toColumnId)`,
   `onCardClick?(card, column)`, `renderHeaderActions?(column)`,
@@ -23,10 +24,15 @@ yourself in `onCardMove`.
 ```tsx
 import { KanbanBoard } from '@molecule/app-kanban-board-react'
 
-<KanbanBoard
+;<KanbanBoard
   columns={[
     { id: 'todo', title: 'To Do', cards: [{ id: 'c1', title: 'Research API' }] },
-    { id: 'doing', title: 'In Progress', accent: 'primary', cards: [{ id: 'c2', title: 'Build UI' }] },
+    {
+      id: 'doing',
+      title: 'In Progress',
+      accent: 'primary',
+      cards: [{ id: 'c2', title: 'Build UI' }],
+    },
     { id: 'done', title: 'Done', accent: 'success', cards: [] },
   ]}
   onCardMove={(cardId, fromColumnId, toColumnId) => moveCard(cardId, toColumnId)}
@@ -35,9 +41,11 @@ import { KanbanBoard } from '@molecule/app-kanban-board-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-kanban-board-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -188,12 +196,7 @@ The outer `<div>` wrapper carries the drag handlers so we don't rely
 on `<Card>` forwarding drag events (which it doesn't).
 
 ```typescript
-function KanbanCard({
-  card,
-  onClick,
-  onDragStart,
-  className,
-}: KanbanCardProps): JSX.Element
+function KanbanCard({ card, onClick, onDragStart, className }: KanbanCardProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link KanbanCardProps}).
@@ -236,6 +239,7 @@ function KanbanColumnHeader({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

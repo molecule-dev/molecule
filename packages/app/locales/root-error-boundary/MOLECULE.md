@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-root-error-boundary-react` package 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-root-error-boundary'
-import type { RootErrorBoundaryTranslationKey, RootErrorBoundaryTranslations } from '@molecule/app-locales-root-error-boundary'
+import type {
+  RootErrorBoundaryTranslationKey,
+  RootErrorBoundaryTranslations,
+} from '@molecule/app-locales-root-error-boundary'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key             | English                       |
+| --------------- | ----------------------------- |
 | `error.unknown` | An unexpected error occurred. |
 
 ## Metadata

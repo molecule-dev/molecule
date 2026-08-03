@@ -12,6 +12,7 @@ pool keyed by a user-supplied connection string, intended for the
 register external databases to browse.
 
 Why the split:
+
 - The app's DataStore is wired once at startup with a single fixed
   connection. A user-facing database explorer must support N parallel
   connections, each opened lazily, each with its own readonly /
@@ -21,6 +22,7 @@ Why the split:
   (`listSchemas`, `listTables`, `describeTable`, raw `runQuery`).
 
 Security:
+
 - `runQuery(sql, params)` requires parameterized SQL — never interpolate
   user input into the SQL string.
 - `readonly: true` adds a defence-in-depth keyword sniff (rejects
@@ -71,9 +73,11 @@ await db.disconnect()
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-database-remote better-sqlite3 mysql2 pg
 npm install -D @types/better-sqlite3 @types/pg
@@ -467,8 +471,7 @@ type MysqlPoolFactory = (config: {
 mysql2 query result tuple — `[rows, fields]`.
 
 ```typescript
-type MysqlQueryResult =
-  [MysqlRow[], MysqlField[]] | [MysqlOkPacket, MysqlField[] | undefined]
+type MysqlQueryResult = [MysqlRow[], MysqlField[]] | [MysqlOkPacket, MysqlField[] | undefined]
 ```
 
 #### `MysqlRow`
@@ -512,7 +515,7 @@ Supported remote database engines. The driver is selected from this value;
 each maps 1:1 to an optional peer dependency:
 
 | type         | driver           |
-|--------------|------------------|
+| ------------ | ---------------- |
 | `postgresql` | `pg`             |
 | `mysql`      | `mysql2`         |
 | `sqlite`     | `better-sqlite3` |
@@ -546,7 +549,15 @@ Strongly-typed error thrown by {@link connectRemote} and any
 Aggregate flat per-column foreign-key rows into a deduplicated list of {@link ForeignKeySchema} objects.
 
 ```typescript
-function collectForeignKeys(rows: { constraint_name: string; column_name: string; foreign_schema: string; foreign_table: string; foreign_column: string; }[]): ForeignKeySchema[]
+function collectForeignKeys(
+  rows: {
+    constraint_name: string
+    column_name: string
+    foreign_schema: string
+    foreign_table: string
+    foreign_column: string
+  }[],
+): ForeignKeySchema[]
 ```
 
 #### `collectIndexes(rows)`
@@ -554,7 +565,9 @@ function collectForeignKeys(rows: { constraint_name: string; column_name: string
 Aggregate flat per-column index rows into a deduplicated list of {@link IndexSchema} objects.
 
 ```typescript
-function collectIndexes(rows: { index_name: string; column_name: string; is_unique: boolean; }[]): IndexSchema[]
+function collectIndexes(
+  rows: { index_name: string; column_name: string; is_unique: boolean }[],
+): IndexSchema[]
 ```
 
 #### `connectRemote(connection, hooks)`
@@ -571,7 +584,10 @@ will be `import()`ed, so missing optional peer deps (`pg`, `mysql2`,
 engine is selected.
 
 ```typescript
-function connectRemote(connection: RemoteDbConnection, hooks?: ConnectRemoteHooks): Promise<RemoteDb>
+function connectRemote(
+  connection: RemoteDbConnection,
+  hooks?: ConnectRemoteHooks,
+): Promise<RemoteDb>
 ```
 
 - `connection` — Engine type, URL / path, optional read-only flag, optional pool size.
@@ -722,6 +738,7 @@ const DEFAULT_TIMEOUT_MS: 30000
 ### Requirements
 
 Peer dependencies:
+
 - `better-sqlite3` ^12.0.0
 - `mysql2` ^3.0.0
 - `pg` ^8.0.0

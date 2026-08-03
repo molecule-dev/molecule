@@ -9,7 +9,7 @@ Exports `<Checklist>` and `ChecklistItem` type.
 ```tsx
 import { Checklist } from '@molecule/app-checklist-react'
 
-<Checklist
+;<Checklist
   title="Getting started"
   items={[
     { id: 'profile', label: 'Complete your profile', completed: true },
@@ -21,9 +21,11 @@ import { Checklist } from '@molecule/app-checklist-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-checklist-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -92,6 +94,7 @@ function Checklist({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

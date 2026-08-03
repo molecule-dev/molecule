@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-code-sandbox` package which has 1 t
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-code-sandbox'
-import type { CodeSandboxTranslationKey, CodeSandboxTranslations } from '@molecule/api-locales-code-sandbox'
+import type {
+  CodeSandboxTranslationKey,
+  CodeSandboxTranslations,
+} from '@molecule/api-locales-code-sandbox'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                            | English                                                                   |
+| ------------------------------ | ------------------------------------------------------------------------- |
 | `codeSandbox.error.noProvider` | Code sandbox provider not configured. Bond a code-sandbox provider first. |
 
 ## Metadata

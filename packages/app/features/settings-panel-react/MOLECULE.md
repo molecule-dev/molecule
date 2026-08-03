@@ -6,6 +6,7 @@ settings panel.
 `<SettingsContainer onClose={…}>` owns the layout and publishes `onClose`
 via context; each section component is independent and loads its own data
 through hooks:
+
 - `<AccountSection>` — name/email edit (`PATCH /api/users/:id`).
 - `<AppearanceSection>` — dark-mode toggle (`useTheme()`).
 - `<AuthSection>` — password change + TOTP two-factor
@@ -20,8 +21,8 @@ through hooks:
   device (`GET/DELETE /api/devices`).
 - `<LogOutDeleteSection>` — sign out + delete account
   (`DELETE /api/users/:id`).
-Apps compose via JSX children — pick sections, order them, and interleave
-custom sections.
+  Apps compose via JSX children — pick sections, order them, and interleave
+  custom sections.
 
 ## Quick Start
 
@@ -55,9 +56,11 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-settings-panel-react @molecule/app-auth @molecule/app-react @molecule/app-ui @molecule/app-ui-react react react-router
 npm install -D @types/react
@@ -187,12 +190,13 @@ Authentication section — change password (modal) + two-factor (TOTP) setup.
 
 Two-factor uses the real enrollment flow against the user resource's
 `POST /users/:id/verify-two-factor` endpoint (`@molecule/api-two-factor`):
+
 - Enable → `{action:'setup'}` returns a QR code + secret to scan into an
   authenticator app → user enters the 6-digit code → `{action:'enable', token}`.
 - Disable → user enters a current code → `{action:'disable', token}`.
-The current status is read from `/users/me`. (This replaces the previous
-boolean toggle, which PATCHed `twoFactorEnabled` — a field the update
-handler deliberately ignores — so it never actually enrolled 2FA.)
+  The current status is read from `/users/me`. (This replaces the previous
+  boolean toggle, which PATCHed `twoFactorEnabled` — a field the update
+  handler deliberately ignores — so it never actually enrolled 2FA.)
 
 Auto-hides for OAuth-only users (`user.oauthServer` truthy) since
 password / 2FA wouldn't apply. If the app's API has no two-factor
@@ -220,7 +224,10 @@ routes elsewhere. Apps with a multi-tier checkout flow should use
 function BillingSection({
   plan = 'Free',
   upgradeTo = '/settings',
-}?: { plan?: string; upgradeTo?: string; }): JSX.Element
+}?: {
+  plan?: string
+  upgradeTo?: string
+}): JSX.Element
 ```
 
 #### `DevicesSection(props?)`
@@ -243,7 +250,9 @@ control); pass `() => null` to suppress it entirely.
 ```typescript
 function DevicesSection({
   renderRowIcon,
-}?: { renderRowIcon?: (device: Device) => ReactNode; }): JSX.Element
+}?: {
+  renderRowIcon?: (device: Device) => ReactNode
+}): JSX.Element
 ```
 
 #### `disablePushOnCurrentDevice(deps)`
@@ -253,7 +262,10 @@ a service worker has nothing to unsubscribe) and ALWAYS clears the server
 state so no further pushes target this device.
 
 ```typescript
-function disablePushOnCurrentDevice(deps: { http: PushToggleHttp; unregister: () => Promise<void>; }): Promise<PushToggleResult>
+function disablePushOnCurrentDevice(deps: {
+  http: PushToggleHttp
+  unregister: () => Promise<void>
+}): Promise<PushToggleResult>
 ```
 
 - `deps` — The http client + push action from `usePush()`.
@@ -272,7 +284,11 @@ Every failure is returned as a typed reason (never thrown) so the UI can
 show an honest, specific message instead of hanging or silently reverting.
 
 ```typescript
-function enablePushOnCurrentDevice(deps: { http: PushToggleHttp; requestPermission: () => Promise<string>; register: (options?: { vapidPublicKey?: string; }) => Promise<PushToggleToken>; }): Promise<PushToggleResult>
+function enablePushOnCurrentDevice(deps: {
+  http: PushToggleHttp
+  requestPermission: () => Promise<string>
+  register: (options?: { vapidPublicKey?: string }) => Promise<PushToggleToken>
+}): Promise<PushToggleResult>
 ```
 
 - `deps` — The http client + push actions from `usePush()`.
@@ -350,7 +366,10 @@ after an action without explicit prop threading.
 function SettingsContainer({
   onClose,
   children,
-}: { onClose: () => void; children: ReactNode; }): ReactElement<unknown, string | JSXElementConstructor<any>>
+}: {
+  onClose: () => void
+  children: ReactNode
+}): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 #### `subscriptionFromToken(token)`
@@ -419,6 +438,7 @@ const SettingsPanelContext: Context<SettingsPanelContextValue | null>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-auth` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

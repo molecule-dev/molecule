@@ -9,13 +9,15 @@ glyphs bundled as an `IconSet` keyed by kebab-case name.
 import { setIconSet } from '@molecule/app-icons'
 import { iconSet } from '@molecule/app-icons-molecule'
 
-setIconSet(iconSet)   // once, at app startup — before anything renders an icon
+setIconSet(iconSet) // once, at app startup — before anything renders an icon
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-icons-molecule @molecule/app-icons
 ```
@@ -332,6 +334,7 @@ const icons: IconSet
 #### `iconSet`
 
 Molecule default icon set provider. Wire at app startup:
+
 ```typescript
 import { setIconSet } from '@molecule/app-icons'
 import { iconSet } from '@molecule/app-icons-molecule'
@@ -641,6 +644,7 @@ const xMark: IconData
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-icons` interface.
 
 ## Injection Notes
@@ -648,6 +652,7 @@ Implements `@molecule/app-icons` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-icons` ^1.0.0
 
 ### Runtime Dependencies

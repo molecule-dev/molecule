@@ -12,13 +12,15 @@ changes, deep-link URL opens, and memory warnings.
 import { setProvider } from '@molecule/app-lifecycle'
 import { provider } from '@molecule/app-lifecycle-react-native'
 
-setProvider(provider)   // once, at app startup — before any lifecycle call
+setProvider(provider) // once, at app startup — before any lifecycle call
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-lifecycle-react-native @molecule/app-i18n @molecule/app-lifecycle @molecule/app-logger react-native
 ```
@@ -85,6 +87,7 @@ const provider: LifecycleProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-lifecycle` interface.
 
 ## Bond Wiring
@@ -105,6 +108,7 @@ export function setupNativeLifecycleReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-lifecycle` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

@@ -15,9 +15,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-push-capture @molecule/api-activity @molecule/api-push-notifications
 ```
@@ -36,7 +38,9 @@ omitted (the dev default), notifications are intercepted and a synthetic
 `SendResult` (`statusCode: 201`) is returned.
 
 ```typescript
-function createPushCaptureProvider(realProvider?: PushNotificationProvider): PushNotificationProvider
+function createPushCaptureProvider(
+  realProvider?: PushNotificationProvider,
+): PushNotificationProvider
 ```
 
 - `realProvider` — Optional real provider to delegate to and tee.
@@ -54,6 +58,7 @@ const provider: PushNotificationProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-push-notifications` interface.
 
 ## Bond Wiring
@@ -74,6 +79,7 @@ export function setupPushNotificationsCapture(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
 
@@ -97,17 +103,18 @@ captured.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The UI offers an enable-notifications control; activating it triggers
-  the browser permission prompt and, once granted, the subscription is
-  stored (the UI still shows "enabled" after a full reload).
+      the browser permission prompt and, once granted, the subscription is
+      stored (the UI still shows "enabled" after a full reload).
 - [ ] An event this app notifies about actually delivers a push to the
-  subscribed session, with a readable title/body (not raw JSON). The sandbox
-  CAPTURES outbound pushes instead of delivering — read the captured message
-  with the `read_activity` tool (filter type 'push'); never mock the flow or
-  modify production code to expose it.
+      subscribed session, with a readable title/body (not raw JSON). The sandbox
+      CAPTURES outbound pushes instead of delivering — read the captured message
+      with the `read_activity` tool (filter type 'push'); never mock the flow or
+      modify production code to expose it.
 - [ ] Clicking the delivered notification opens/focuses the relevant screen
-  (when the app claims deep-linking).
+      (when the app claims deep-linking).
 - [ ] Denying the permission leaves the app fully usable and truthful about
-  the state (no crash, no false "enabled").
+      the state (no crash, no false "enabled").
 - [ ] Disabling/unsubscribing stops deliveries, and the disabled state
-  persists across a reload.
+      persists across a reload.

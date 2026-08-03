@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-filter-bar-react` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-filter-bar'
-import type { FilterBarTranslationKey, FilterBarTranslations } from '@molecule/app-locales-filter-bar'
+import type {
+  FilterBarTranslationKey,
+  FilterBarTranslations,
+} from '@molecule/app-locales-filter-bar'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `filterBar.clear` | Clear filters |
-| `filterBar.from` | {{label}} from |
-| `filterBar.to` | {{label}} to |
+| Key               | English        |
+| ----------------- | -------------- |
+| `filterBar.clear` | Clear filters  |
+| `filterBar.from`  | {{label}} from |
+| `filterBar.to`    | {{label}} to   |
 
 ## Metadata
 

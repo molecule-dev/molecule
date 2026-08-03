@@ -5,11 +5,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 /** Union of possible component health states. */
 export type ComponentStatus =
-  | 'operational'
-  | 'degraded'
-  | 'partial-outage'
-  | 'major-outage'
-  | 'maintenance'
+  'operational' | 'degraded' | 'partial-outage' | 'major-outage' | 'maintenance'
 
 /** A single monitored component with its current health status. */
 export interface StatusComponent {

@@ -19,9 +19,11 @@ setExternalStateProvider(
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-project-archive-external-state-mysql @molecule/api-project-archive
 ```
@@ -68,7 +70,9 @@ interface MysqlExternalStateConfig {
 Create the provider.
 
 ```typescript
-function createMysqlExternalStateProvider(config: MysqlExternalStateConfig): ProjectExternalStateProvider
+function createMysqlExternalStateProvider(
+  config: MysqlExternalStateConfig,
+): ProjectExternalStateProvider
 ```
 
 - `config` — How to find a project's databases.
@@ -80,7 +84,12 @@ function createMysqlExternalStateProvider(config: MysqlExternalStateConfig): Pro
 Run `command`, streaming its stdout into `destPath`.
 
 ```typescript
-function dumpToFile(command: string, args: readonly string[], destPath: string, env?: NodeJS.ProcessEnv): Promise<number>
+function dumpToFile(
+  command: string,
+  args: readonly string[],
+  destPath: string,
+  env?: NodeJS.ProcessEnv,
+): Promise<number>
 ```
 
 - `command` — The executable, e.g. `pg_dump`.
@@ -110,7 +119,12 @@ function parseConnection(url: string): Connection
 Run `command`, streaming `srcPath` into its stdin.
 
 ```typescript
-function restoreFromFile(command: string, args: readonly string[], srcPath: string, env?: NodeJS.ProcessEnv): Promise<void>
+function restoreFromFile(
+  command: string,
+  args: readonly string[],
+  srcPath: string,
+  env?: NodeJS.ProcessEnv,
+): Promise<void>
 ```
 
 - `command` — The executable, e.g. `psql`.
@@ -125,10 +139,11 @@ function restoreFromFile(command: string, args: readonly string[], srcPath: stri
 Recorded on every record this provider produces; routes restores back here.
 
 ```typescript
-const KIND: "mysql"
+const KIND: 'mysql'
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-project-archive` interface.
 
 ## Bond Wiring
@@ -149,23 +164,24 @@ export function setupProjectArchiveExternalStateMysql(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-project-archive` ^1.0.0
 
 ### Environment Variables
 
-- `PROJECT_ARCHIVE_MYSQL_URL` *(required)* — MySQL connection URL (archiver)
+- `PROJECT_ARCHIVE_MYSQL_URL` _(required)_ — MySQL connection URL (archiver)
   - Setup: Connection string for the server holding project databases. The password is passed through a defaults file, never argv. Not needed if you inject your own connection config.
   - Example: `mysql://archiver:secret@db.internal:3306`
-- `PROJECT_ARCHIVE_MYSQL_DATABASE` *(required)* — Project database name template
+- `PROJECT_ARCHIVE_MYSQL_DATABASE` _(required)_ — Project database name template
   - Setup: Database name for each project. MUST contain {projectId} — without it every project resolves to the same database, so one project's archive would hold another's data.
   - Example: `app_{projectId}`
-- `PROJECT_ARCHIVE_MYSQL_DUMP_BIN` *(optional)* — mysqldump binary — default: `mysqldump`
+- `PROJECT_ARCHIVE_MYSQL_DUMP_BIN` _(optional)_ — mysqldump binary — default: `mysqldump`
   - Setup: Path to the mysqldump executable. Set it when the binary is not on PATH or is named differently (for example mariadb-dump).
   - Example: `/usr/bin/mysqldump`
-- `PROJECT_ARCHIVE_MYSQL_CLIENT_BIN` *(optional)* — mysql client binary — default: `mysql`
+- `PROJECT_ARCHIVE_MYSQL_CLIENT_BIN` _(optional)_ — mysql client binary — default: `mysql`
   - Setup: Path to the mysql client executable used to restore a dump. Set it when the binary is not on PATH or is named differently (for example mariadb).
   - Example: `/usr/bin/mysql`
-- `PROJECT_ARCHIVE_MYSQL_MAX_DUMP_BYTES` *(optional)* — Maximum dump size in bytes — default: `268435456`
+- `PROJECT_ARCHIVE_MYSQL_MAX_DUMP_BYTES` _(optional)_ — Maximum dump size in bytes — default: `268435456`
   - Setup: Hard cap on a captured dump. A database that exceeds it fails the capture rather than being silently trimmed. Defaults to 256 MiB.
   - Example: `268435456`
 

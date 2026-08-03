@@ -13,7 +13,7 @@ editor through the provider anywhere.
 import { setProvider, requireProvider } from '@molecule/app-code-editor'
 import { provider } from '@molecule/app-code-editor-monaco'
 
-setProvider(provider)                    // once, at app startup (bonds.ts)
+setProvider(provider) // once, at app startup (bonds.ts)
 
 const editor = requireProvider()
 await editor.mount(containerElement, { theme: 'dark', fontSize: 13 })
@@ -22,9 +22,11 @@ const unsubscribe = editor.onChange((event) => save(event.path, event.content))
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-code-editor @molecule/app-bond @molecule/app-i18n
 ```
@@ -279,15 +281,16 @@ function setProvider(provider: EditorProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Monaco | `@molecule/app-code-editor-monaco` |
+| Provider | Package                            |
+| -------- | ---------------------------------- |
+| Monaco   | `@molecule/app-code-editor-monaco` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 
@@ -321,29 +324,30 @@ its file tabs/controls, and interact_preview to click and type — target the
 app's own data-mol-id controls (file-tree entries, tab bar, save button),
 since the editor engine renders its own inner chrome. A box you can't check
 is an integration bug to fix — not a skip:
+
 - [ ] Opening a file loads its content into the editor surface, and syntax
-  highlighting matches the file's language — a `.ts` file colorizes as
-  TypeScript (keywords, strings, comments tokenized in distinct colors), not
-  flat plain text. Opening a second file of a different language re-highlights
-  for that language.
+      highlighting matches the file's language — a `.ts` file colorizes as
+      TypeScript (keywords, strings, comments tokenized in distinct colors), not
+      flat plain text. Opening a second file of a different language re-highlights
+      for that language.
 - [ ] Typing into the editor edits the content and the surface reflects every
-  keystroke: read_preview_ui shows the new text, and `getContent()` for that
-  path returns it.
+      keystroke: read_preview_ui shows the new text, and `getContent()` for that
+      path returns it.
 - [ ] Changing content marks the file dirty — its tab/label shows the unsaved
-  indicator (dot/asterisk) — and saving clears it back to clean (`markSaved`).
-  After save, reopening the file (close the tab, open it again) shows the
-  SAVED text, not the pre-edit content — the change was persisted, not just
-  held in the buffer.
+      indicator (dot/asterisk) — and saving clears it back to clean (`markSaved`).
+      After save, reopening the file (close the tab, open it again) shows the
+      SAVED text, not the pre-edit content — the change was persisted, not just
+      held in the buffer.
 - [ ] With multiple files open as tabs, switching tabs preserves each file's
-  own content and cursor position: edit file A, switch to B, switch back, and
-  A still has its edit with the caret where you left it (no bleed-over between
-  files, no reset to the top).
+      own content and cursor position: edit file A, switch to B, switch back, and
+      A still has its edit with the caret where you left it (no bleed-over between
+      files, no reset to the top).
 - [ ] A file the app opens read-only (readOnly config) cannot be edited —
-  typing or paste does not change its content and it never shows a dirty
-  indicator.
+      typing or paste does not change its content and it never shows a dirty
+      indicator.
 - [ ] Change (and save) events fire so the app can react: whatever this app
-  wires onto `onChange` (autosave, live validation/diagnostics, an unsaved
-  guard on navigation) actually triggers when you edit and when you save.
+      wires onto `onChange` (autosave, live validation/diagnostics, an unsaved
+      guard on navigation) actually triggers when you edit and when you save.
 
 ## Translations
 

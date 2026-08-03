@@ -23,9 +23,11 @@ const model = getModel(requestedId)! // full definition (pricing, effort levels)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-ai-models @molecule/api-bond @molecule/api-i18n @molecule/api-resource
 ```
@@ -413,7 +415,9 @@ The caller passes in which provider IDs are active (i.e. have a bond wired).
 `disabled` models are excluded — they are never offered for selection.
 
 ```typescript
-function getAvailableModels(availableProviders: ReadonlySet<AIProviderID> | readonly AIProviderID[]): readonly ModelDefinition[]
+function getAvailableModels(
+  availableProviders: ReadonlySet<AIProviderID> | readonly AIProviderID[],
+): readonly ModelDefinition[]
 ```
 
 - `availableProviders` — Set or array of provider IDs that have active bonds.
@@ -427,7 +431,7 @@ Look up a model definition by ID.
 Returns `disabled` models too: a saved selection or a historical usage row
 may reference a since-retired model, and it must stay priceable. Use
 {@link MODEL_IDS} / {@link getAvailableModels} (which exclude disabled
-models) to decide what is *selectable*.
+models) to decide what is _selectable_.
 
 ```typescript
 function getModel(id: string): ModelDefinition | undefined
@@ -506,7 +510,7 @@ function priceMultiplierAt(modelDef: ModelDefinition | undefined, at: Date): num
 
 #### `MODEL_IDS`
 
-Set of *selectable* model IDs for fast validation.
+Set of _selectable_ model IDs for fast validation.
 
 Excludes `disabled` models so a retired model (e.g. `grok-code-fast-1`) can
 never be chosen for a new chat, while {@link getModel} still resolves it for
@@ -525,6 +529,7 @@ and the public discovery endpoint will update automatically.
 
 Effort is each model's OWN native value — there is no abstract scale (see
 {@link ModelDefinition.supportedEffortLevels}):
+
 - A model driven by a provider-native effort/level param lists its provider
   values verbatim in `supportedEffortLevels` (ascending), with
   `defaultEffortLevel` = the provider's default/recommended level for agentic
@@ -540,11 +545,12 @@ Effort is each model's OWN native value — there is no abstract scale (see
 Sources (verified 2026-07-28; OpenAI re-verified 2026-07-31 after the
 2026-07-30 GPT-5.6 repricing — cross-check prices against models.dev with
 `npm run check:model-freshness` from the workspace root):
+
 - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
-  + /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
-  opus-4-8 superseded by opus-5 at identical pricing but still served — it is
-  the recommended refusal-fallback model; effort ladder on all three current
-  models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
+  - /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
+    opus-4-8 superseded by opus-5 at identical pricing but still served — it is
+    the recommended refusal-fallback model; effort ladder on all three current
+    models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
 - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -592,7 +598,7 @@ const MODELS: readonly ModelDefinition[]
 Map of request handlers for the AI model catalog routes.
 
 ```typescript
-const requestHandlerMap: { readonly list: typeof list; }
+const requestHandlerMap: { readonly list: typeof list }
 ```
 
 #### `routes`
@@ -600,7 +606,14 @@ const requestHandlerMap: { readonly list: typeof list; }
 Route array for the AI model catalog: GET list of available models.
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/ai/models"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'get'
+    readonly path: '/ai/models'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 ## Injection Notes
@@ -608,6 +621,7 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/ai/models"; r
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-resource` ^1.0.0

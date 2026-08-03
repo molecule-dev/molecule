@@ -13,7 +13,7 @@ const submitReview = async (review: { rating: number; comment: string }): Promis
   await fetch('/api/reviews', { method: 'POST', body: JSON.stringify(review) })
 }
 
-<RatingForm
+;<RatingForm
   title="Leave a review"
   onSubmit={async (rating, comment) => {
     await submitReview({ rating, comment })
@@ -24,9 +24,11 @@ const submitReview = async (review: { rating: number; comment: string }): Promis
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-rating-form-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -88,6 +90,7 @@ function RatingForm({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

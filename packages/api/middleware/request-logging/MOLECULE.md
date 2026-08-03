@@ -15,16 +15,22 @@ import { createRequestLoggingMiddleware } from '@molecule/api-middleware-request
 
 const app = express()
 // Mount BEFORE the router so every routed request is timed end-to-end.
-app.use(createRequestLoggingMiddleware({
-  excludePaths: ['/health'],
-  resolveFields: (req) => ({ requestId: (req as { headers?: Record<string, string> }).headers?.['x-request-id'] }),
-}))
+app.use(
+  createRequestLoggingMiddleware({
+    excludePaths: ['/health'],
+    resolveFields: (req) => ({
+      requestId: (req as { headers?: Record<string, string> }).headers?.['x-request-id'],
+    }),
+  }),
+)
 ```
 
 ## Type
+
 `middleware`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-request-logging @molecule/api-logger
 ```
@@ -68,7 +74,9 @@ interface RequestLoggingMiddlewareOptions {
 Creates a request-logging middleware that logs every API request.
 
 ```typescript
-function createRequestLoggingMiddleware(options?: RequestLoggingMiddlewareOptions): (req: unknown, res: unknown, next: (err?: unknown) => void) => void
+function createRequestLoggingMiddleware(
+  options?: RequestLoggingMiddlewareOptions,
+): (req: unknown, res: unknown, next: (err?: unknown) => void) => void
 ```
 
 - `options` — Configuration options including paths to exclude from logging.
@@ -80,6 +88,7 @@ function createRequestLoggingMiddleware(options?: RequestLoggingMiddlewareOption
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 
 ### Runtime Dependencies

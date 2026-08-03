@@ -10,7 +10,10 @@ Translations for @molecule/app-ui-react-native in 79 languages
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-react-native-ui'
-import type { ReactNativeUiTranslationKey, ReactNativeUiTranslations } from '@molecule/app-locales-react-native-ui'
+import type {
+  ReactNativeUiTranslationKey,
+  ReactNativeUiTranslations,
+} from '@molecule/app-locales-react-native-ui'
 ```
 
 ## Registration
@@ -30,37 +33,37 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `ui.icon.chevronUp` | ▲ |
-| `ui.icon.chevronDown` | ▼ |
-| `ui.alert.dismiss` | Dismiss |
-| `ui.icon.close` | ✕ |
-| `ui.avatar.alt` | Avatar |
-| `ui.avatar.fallback` | ? |
-| `ui.icon.check` | ✓ |
-| `ui.icon.minus` | − |
-| `ui.input.clear` | × |
-| `ui.modal.close` | Close |
-| `ui.pagination.nav` | Pagination |
-| `ui.pagination.first` | First |
-| `ui.icon.chevronsLeft` | « |
-| `ui.pagination.previous` | Previous |
-| `ui.icon.chevronLeft` | ‹ |
-| `ui.icon.ellipsis` | … |
-| `ui.pagination.goToPage` | Next |
-| `ui.icon.chevronRight` | › |
-| `ui.pagination.last` | Last |
-| `ui.icon.chevronsRight` | » |
-| `ui.progress.value` | {{value}}% |
-| `ui.radioGroup.label` | Radio group |
-| `ui.select.placeholder` | Select… |
-| `ui.select.title` | Select |
-| `ui.spinner.loading` | Loading |
-| `ui.icon.sortAsc` | ↑ |
-| `ui.icon.sortDesc` | ↓ |
-| `ui.table.empty` | No data |
-| `ui.toast.dismiss` | Dismiss |
+| Key                         | English                                      |
+| --------------------------- | -------------------------------------------- |
+| `ui.icon.chevronUp`         | ▲                                            |
+| `ui.icon.chevronDown`       | ▼                                            |
+| `ui.alert.dismiss`          | Dismiss                                      |
+| `ui.icon.close`             | ✕                                            |
+| `ui.avatar.alt`             | Avatar                                       |
+| `ui.avatar.fallback`        | ?                                            |
+| `ui.icon.check`             | ✓                                            |
+| `ui.icon.minus`             | −                                            |
+| `ui.input.clear`            | ×                                            |
+| `ui.modal.close`            | Close                                        |
+| `ui.pagination.nav`         | Pagination                                   |
+| `ui.pagination.first`       | First                                        |
+| `ui.icon.chevronsLeft`      | «                                            |
+| `ui.pagination.previous`    | Previous                                     |
+| `ui.icon.chevronLeft`       | ‹                                            |
+| `ui.icon.ellipsis`          | …                                            |
+| `ui.pagination.goToPage`    | Next                                         |
+| `ui.icon.chevronRight`      | ›                                            |
+| `ui.pagination.last`        | Last                                         |
+| `ui.icon.chevronsRight`     | »                                            |
+| `ui.progress.value`         | {{value}}%                                   |
+| `ui.radioGroup.label`       | Radio group                                  |
+| `ui.select.placeholder`     | Select…                                      |
+| `ui.select.title`           | Select                                       |
+| `ui.spinner.loading`        | Loading                                      |
+| `ui.icon.sortAsc`           | ↑                                            |
+| `ui.icon.sortDesc`          | ↓                                            |
+| `ui.table.empty`            | No data                                      |
+| `ui.toast.dismiss`          | Dismiss                                      |
 | `ui.toast.error.noProvider` | useToast must be used within a ToastProvider |
 
 ## Metadata

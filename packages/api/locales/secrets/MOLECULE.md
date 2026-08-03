@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `secrets.error.required` | Required secret  |
-| `secrets.error.patternMismatch` | Secret  |
+| Key                             | English         |
+| ------------------------------- | --------------- |
+| `secrets.error.required`        | Required secret |
+| `secrets.error.patternMismatch` | Secret          |
 
 ## Metadata
 

@@ -25,9 +25,11 @@ const crumbs = await getBreadcrumbs(page.id)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-wiki-page @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation @molecule/api-search express zod
 npm install -D @types/express
@@ -96,7 +98,15 @@ function countPagesInSpace(spaceId: string): Promise<number>
 Create a new wiki page and trigger search indexing.
 
 ```typescript
-function createPage(data: { space_id: string; parent_id?: string | null; slug: string; title: string; body?: string; position?: number; is_published?: boolean; }): Promise<WikiPageRow>
+function createPage(data: {
+  space_id: string
+  parent_id?: string | null
+  slug: string
+  title: string
+  body?: string
+  position?: number
+  is_published?: boolean
+}): Promise<WikiPageRow>
 ```
 
 #### `createWikiPageRouter()`
@@ -152,7 +162,10 @@ function getPageBySlug(spaceId: string, slug: string): Promise<WikiPageRow | nul
 List pages in a space, optionally filtered by parent and publish status.
 
 ```typescript
-function listPagesInSpace(spaceId: string, opts?: { parent_id?: string | null; is_published?: boolean; }): Promise<WikiPageRow[]>
+function listPagesInSpace(
+  spaceId: string,
+  opts?: { parent_id?: string | null; is_published?: boolean },
+): Promise<WikiPageRow[]>
 ```
 
 #### `slugify(input)`
@@ -186,7 +199,18 @@ const slugRegex: RegExp
 Zod schema for validating wiki-page creation payloads.
 
 ```typescript
-const wikiPageCreateSchema: z.ZodObject<{ space_id: z.ZodString; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodString; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const wikiPageCreateSchema: z.ZodObject<
+  {
+    space_id: z.ZodString
+    parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    slug: z.ZodOptional<z.ZodString>
+    title: z.ZodString
+    body: z.ZodOptional<z.ZodString>
+    position: z.ZodOptional<z.ZodNumber>
+    is_published: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `wikiPageQuerySchema`
@@ -194,7 +218,15 @@ const wikiPageCreateSchema: z.ZodObject<{ space_id: z.ZodString; parent_id: z.Zo
 Zod schema for validating wiki-page list/query parameters.
 
 ```typescript
-const wikiPageQuerySchema: z.ZodObject<{ space_id: z.ZodOptional<z.ZodString>; parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; is_published: z.ZodOptional<z.ZodCoercedBoolean<unknown>>; q: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const wikiPageQuerySchema: z.ZodObject<
+  {
+    space_id: z.ZodOptional<z.ZodString>
+    parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    is_published: z.ZodOptional<z.ZodCoercedBoolean<unknown>>
+    q: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `wikiPageUpdateSchema`
@@ -202,7 +234,17 @@ const wikiPageQuerySchema: z.ZodObject<{ space_id: z.ZodOptional<z.ZodString>; p
 Zod schema for validating wiki-page update payloads.
 
 ```typescript
-const wikiPageUpdateSchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>; slug: z.ZodOptional<z.ZodString>; title: z.ZodOptional<z.ZodString>; body: z.ZodOptional<z.ZodString>; position: z.ZodOptional<z.ZodNumber>; is_published: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const wikiPageUpdateSchema: z.ZodObject<
+  {
+    parent_id: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    slug: z.ZodOptional<z.ZodString>
+    title: z.ZodOptional<z.ZodString>
+    body: z.ZodOptional<z.ZodString>
+    position: z.ZodOptional<z.ZodNumber>
+    is_published: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -210,6 +252,7 @@ const wikiPageUpdateSchema: z.ZodObject<{ parent_id: z.ZodOptional<z.ZodNullable
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -260,24 +303,25 @@ revision history, revert, or diff, and no per-page author column (only
 `created_at`/`updated_at`). So verify edits persist, and confirm the app does
 NOT present a "version history / restore / last edited by" UI it cannot back
 (that needs the app's own versions table — this resource will not supply it):
+
 - [ ] Creating a page persists title + slug + body and renders: submit them
-  in the editor → it returns (201) and reopening the page shows the title and
-  body. An omitted slug is derived from the title (slugify); the (space, slug)
-  pair is unique, so a duplicate slug in the same space is rejected rather
-  than silently overwriting the existing page.
+      in the editor → it returns (201) and reopening the page shows the title and
+      body. An omitted slug is derived from the title (slugify); the (space, slug)
+      pair is unique, so a duplicate slug in the same space is rejected rather
+      than silently overwriting the existing page.
 - [ ] Editing the body persists in place and re-renders: change the body →
-  save → reopen/reload shows the new text. Because nothing records the prior
-  version, the old text is GONE — a "restore previous revision" control that
-  does nothing (or 404s) is the bug, not an acceptable no-op.
+      save → reopen/reload shows the new text. Because nothing records the prior
+      version, the old text is GONE — a "restore previous revision" control that
+      does nothing (or 404s) is the bug, not an acceptable no-op.
 - [ ] Hierarchy renders and stays consistent: a page created with a
-  `parent_id` nests under its parent in the tree, and its breadcrumbs
-  (GET /:id/breadcrumbs) list the full root → page trail in order; deleting a
-  parent recursively removes its children (they vanish), never orphaning them.
+      `parent_id` nests under its parent in the tree, and its breadcrumbs
+      (GET /:id/breadcrumbs) list the full root → page trail in order; deleting a
+      parent recursively removes its children (they vanish), never orphaning them.
 - [ ] Draft vs published is honored: an unpublished page (is_published=false)
-  is excluded when the list is filtered to published pages and appears once
-  published — the reader-facing view never shows a draft it filtered out.
+      is excluded when the list is filtered to published pages and appears once
+      published — the reader-facing view never shows a draft it filtered out.
 - [ ] Authorization — reads are space-scoped, writes are owner-only: a private
-  space's pages are NOT readable by a non-owner (GET /:id → 404, existence not
-  leaked); a public space's pages are readable by any signed-in user, yet a
-  NON-owner's create/edit/delete is still refused (404) and nothing changes —
-  a read-only viewer cannot mutate. Logged out, every route is refused (401).
+      space's pages are NOT readable by a non-owner (GET /:id → 404, existence not
+      leaked); a public space's pages are readable by any signed-in user, yet a
+      NON-owner's create/edit/delete is still refused (404) and nothing changes —
+      a read-only viewer cannot mutate. Logged out, every route is refused (401).

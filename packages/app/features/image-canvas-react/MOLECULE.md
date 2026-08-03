@@ -27,7 +27,10 @@ function Editor() {
         filters={{ brightness: 1.1, contrast: 1.2, sepia: 0.3 }}
         zoom={zoom}
         pan={pan}
-        onChange={({ zoom, pan }) => { setZoom(zoom); setPan(pan) }}
+        onChange={({ zoom, pan }) => {
+          setZoom(zoom)
+          setPan(pan)
+        }}
         exportRef={exportRef}
       />
       <button onClick={() => download(exportRef.current?.toDataURL('image/jpeg', 0.92))}>
@@ -39,9 +42,11 @@ function Editor() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-feature-image-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -210,7 +215,12 @@ off-canvas. The clamp keeps at least half of the image visible in
 each axis. Non-finite inputs are treated as `0`.
 
 ```typescript
-function clampPan(pan: PanOffset, canvasSize: { width: number; height: number; }, imageSize: { width: number; height: number; }, zoom: number): PanOffset
+function clampPan(
+  pan: PanOffset,
+  canvasSize: { width: number; height: number },
+  imageSize: { width: number; height: number },
+  zoom: number,
+): PanOffset
 ```
 
 - `pan` — The desired pan offset, in CSS pixels.
@@ -243,7 +253,13 @@ dimensions. Useful for tools that need to know which image pixel a
 pointer event hit (cropping, picking, masking).
 
 ```typescript
-function screenToCanvas(point: { x: number; y: number; }, canvasSize: { width: number; height: number; }, imageSize: { width: number; height: number; }, zoom: number, pan: PanOffset): { x: number; y: number; }
+function screenToCanvas(
+  point: { x: number; y: number },
+  canvasSize: { width: number; height: number },
+  imageSize: { width: number; height: number },
+  zoom: number,
+  pan: PanOffset,
+): { x: number; y: number }
 ```
 
 - `point` — The canvas-space point in CSS pixels (origin top-left of the canvas element).
@@ -270,7 +286,9 @@ translates via the companion
 `@molecule/app-locales-feature-image-canvas` locale bond.
 
 ```typescript
-const ImageCanvas: ForwardRefExoticComponent<ImageCanvasProps & RefAttributes<ImageCanvasExportHandle>>
+const ImageCanvas: ForwardRefExoticComponent<
+  ImageCanvasProps & RefAttributes<ImageCanvasExportHandle>
+>
 ```
 
 ## Injection Notes
@@ -278,6 +296,7 @@ const ImageCanvas: ForwardRefExoticComponent<ImageCanvasProps & RefAttributes<Im
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

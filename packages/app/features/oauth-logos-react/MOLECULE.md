@@ -12,6 +12,7 @@ are bundled inline so every app renders pixel-identical marks
 regardless of which icon-set bond is wired.
 
 Exports:
+
 - `<OAuthProviderLogo provider="github"|"google"|... />` — dispatcher.
 - Individual logos: `<GitHubLogo/>`, `<GoogleLogo/>`, `<GitLabLogo/>`,
   `<TwitterLogo/>` / `<XLogo/>`, `<AppleLogo/>`, `<FacebookLogo/>`,
@@ -23,16 +24,18 @@ Exports:
 ```tsx
 import { OAuthProviderLogo } from '@molecule/app-oauth-logos-react'
 
-<button className={app.myButtonChrome}>
+;<button className={app.myButtonChrome}>
   <OAuthProviderLogo provider="github" size={20} />
   <span>Continue with GitHub</span>
 </button>
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-oauth-logos-react react
 npm install -D @types/react
@@ -298,6 +301,7 @@ const XLogo: typeof TwitterLogo
 ### Requirements
 
 Peer dependencies:
+
 - `react` ^18.0.0 || ^19.0.0
 
 ### Runtime Dependencies

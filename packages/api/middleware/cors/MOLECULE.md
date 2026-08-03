@@ -14,16 +14,20 @@ allowlist (registered as optional secrets by this package).
 ```ts
 import { createCorsMiddleware } from '@molecule/api-middleware-cors'
 // Explicit allowlist from env; credentials on for cookie/bearer auth.
-app.use(createCorsMiddleware({
-  origin: [process.env.APP_ORIGIN, process.env.SITE_ORIGIN].filter(Boolean),
-  credentials: true,
-}))
+app.use(
+  createCorsMiddleware({
+    origin: [process.env.APP_ORIGIN, process.env.SITE_ORIGIN].filter(Boolean),
+    credentials: true,
+  }),
+)
 ```
 
 ## Type
+
 `middleware`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-cors @molecule/api-bond @molecule/api-secrets
 ```
@@ -156,14 +160,15 @@ function setCorsFactory(factory: CorsFactory): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `APP_ORIGIN` *(optional)*
-- `SITE_ORIGIN` *(optional)*
-- `APP_URL_SCHEME` *(optional)*
+- `APP_ORIGIN` _(optional)_
+- `SITE_ORIGIN` _(optional)_
+- `APP_URL_SCHEME` _(optional)_
 
 ### Runtime Dependencies
 

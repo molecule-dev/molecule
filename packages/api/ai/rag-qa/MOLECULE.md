@@ -29,9 +29,11 @@ const { answer, sources } = await answerQuestion({
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-rag-qa @molecule/api-ai @molecule/api-ai-embeddings @molecule/api-ai-vector-store @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation
 ```
@@ -101,7 +103,15 @@ Full RAG round-trip: retrieve top-K chunks, format them as numbered
 sources, and ground a generated answer in them.
 
 ```typescript
-function answerQuestion(opts: { collection: string; question: string; topK?: number; filter?: MetadataFilter[]; promptTemplate?: string; model?: string; temperature?: number; }): Promise<GroundedAnswer>
+function answerQuestion(opts: {
+  collection: string
+  question: string
+  topK?: number
+  filter?: MetadataFilter[]
+  promptTemplate?: string
+  model?: string
+  temperature?: number
+}): Promise<GroundedAnswer>
 ```
 
 #### `chunkText(text, opts?)`
@@ -121,7 +131,11 @@ function chunkText(text: string, opts?: ChunkOptions): string[]
 Delete all chunks for a previously-indexed document.
 
 ```typescript
-function deleteDocument(opts: { collection: string; documentId: string; maxChunks?: number; }): Promise<void>
+function deleteDocument(opts: {
+  collection: string
+  documentId: string
+  maxChunks?: number
+}): Promise<void>
 ```
 
 #### `indexDocument(opts)`
@@ -129,7 +143,13 @@ function deleteDocument(opts: { collection: string; documentId: string; maxChunk
 Index a long document by chunking, embedding, and upserting to the vector store.
 
 ```typescript
-function indexDocument(opts: { collection: string; documentId: string; text: string; metadata?: Record<string, unknown>; chunking?: ChunkOptions; }): Promise<string[]>
+function indexDocument(opts: {
+  collection: string
+  documentId: string
+  text: string
+  metadata?: Record<string, unknown>
+  chunking?: ChunkOptions
+}): Promise<string[]>
 ```
 
 #### `retrieve(opts)`
@@ -137,7 +157,12 @@ function indexDocument(opts: { collection: string; documentId: string; text: str
 Retrieve top-K most similar chunks for a query.
 
 ```typescript
-function retrieve(opts: { collection: string; query: string; topK?: number; filter?: MetadataFilter[]; }): Promise<RetrievalHit[]>
+function retrieve(opts: {
+  collection: string
+  query: string
+  topK?: number
+  filter?: MetadataFilter[]
+}): Promise<RetrievalHit[]>
 ```
 
 ## Injection Notes
@@ -145,6 +170,7 @@ function retrieve(opts: { collection: string; query: string; topK?: number; filt
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -164,6 +190,7 @@ Peer dependencies:
 - `@molecule/api-middleware-validation`
 
 Wiring — the three composed cores use TWO different mechanisms:
+
 - `@molecule/api-ai-embeddings` and `@molecule/api-ai-vector-store` each
   keep their OWN singleton: wire each with THAT core's `setProvider(...)`
   (e.g. `setProvider(provider)` from `@molecule/api-ai-embeddings-local`).

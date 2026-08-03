@@ -29,17 +29,17 @@ async function showNearby(): Promise<void> {
 }
 
 function trackRun(onPoint: (lat: number, lng: number) => void): () => void {
-  const watchId = watchPosition((pos) =>
-    onPoint(pos.coords.latitude, pos.coords.longitude),
-  )
+  const watchId = watchPosition((pos) => onPoint(pos.coords.latitude, pos.coords.longitude))
   return () => clearWatch(watchId) // ALWAYS clear on unmount
 }
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-geolocation @molecule/app-bond
 ```
@@ -260,7 +260,10 @@ type PositionCallback = (position: Position) => void
 Calculates the distance between two geographic coordinates.
 
 ```typescript
-function calculateDistance(from: { latitude: number; longitude: number; }, to: { latitude: number; longitude: number; }): number
+function calculateDistance(
+  from: { latitude: number; longitude: number },
+  to: { latitude: number; longitude: number },
+): number
 ```
 
 - `from` — The starting coordinate.
@@ -299,7 +302,9 @@ function clearWatch(watchId: string): void
 Creates a web-based geolocation provider using the browser Geolocation API.
 
 ```typescript
-function createWebGeolocationProvider(options?: CreateWebGeolocationProviderOptions): GeolocationProvider
+function createWebGeolocationProvider(
+  options?: CreateWebGeolocationProviderOptions,
+): GeolocationProvider
 ```
 
 - `options` — Provider configuration including optional i18n translation function.
@@ -343,7 +348,10 @@ function hasProvider(): boolean
 Calculates the distance between two coordinates using the Haversine formula.
 
 ```typescript
-function haversineDistance(from: { latitude: number; longitude: number; }, to: { latitude: number; longitude: number; }): number
+function haversineDistance(
+  from: { latitude: number; longitude: number },
+  to: { latitude: number; longitude: number },
+): number
 ```
 
 - `from` — The starting coordinate.
@@ -392,7 +400,11 @@ function toRadians(degrees: number): number
 Watches for continuous position changes.
 
 ```typescript
-function watchPosition(onSuccess: PositionCallback, onError?: ErrorCallback, options?: WatchOptions): string
+function watchPosition(
+  onSuccess: PositionCallback,
+  onError?: ErrorCallback,
+  options?: WatchOptions,
+): string
 ```
 
 - `onSuccess` — Callback invoked with each new position update.
@@ -406,6 +418,7 @@ function watchPosition(onSuccess: PositionCallback, onError?: ErrorCallback, opt
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

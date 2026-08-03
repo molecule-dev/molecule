@@ -22,9 +22,11 @@ const chart = createLineChart(canvasEl, {
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-charts-chartjs @molecule/app-charts chart.js
 ```
@@ -54,6 +56,7 @@ const provider: ChartProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-charts` interface.
 
 ## Bond Wiring
@@ -74,6 +77,7 @@ export function setupChartsChartjs(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-charts` ^1.0.0
 
 ### Runtime Dependencies
@@ -99,15 +103,16 @@ wire it from app/client code, never server code.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Every chart on the app's screens renders with real data — no blank
-  canvas, no NaN/undefined axis labels.
+      canvas, no NaN/undefined axis labels.
 - [ ] Plotted values match the data: spot-check at least one point/bar/slice
-  against a number you can verify elsewhere in the UI.
+      against a number you can verify elsewhere in the UI.
 - [ ] Charts update when their inputs change (date range, filter, or a newly
-  created record that should appear).
+      created record that should appear).
 - [ ] An empty dataset renders an empty state or zeroed axes — not a crash
-  or a stale chart from previous data.
+      or a stale chart from previous data.
 - [ ] Tooltips and legends (where enabled) show the correct labels and
-  values on hover.
+      values on hover.
 - [ ] Resizing the window/panel keeps charts legible (no overflow, no
-  zero-height canvas).
+      zero-height canvas).

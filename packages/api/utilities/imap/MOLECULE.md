@@ -36,9 +36,11 @@ await client.disconnect()
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-imap imapflow
 ```
@@ -492,7 +494,7 @@ HTML) — used to populate {@link import('./types.js').FullMessage}'s
 `text` / `html` fields.
 
 ```typescript
-function classifyTextPart(part: DiscoveredPart): "text" | "html" | undefined
+function classifyTextPart(part: DiscoveredPart): 'text' | 'html' | undefined
 ```
 
 - `part` — The discovered part.
@@ -593,7 +595,13 @@ Normalize `imapflow`'s `envelope` shape into the trio of fields we expose
 on a {@link import('./types.js').FullMessage}.
 
 ```typescript
-function normalizeEnvelope(envelope: ImapEnvelope | undefined): { from: ImapAddress[]; to: ImapAddress[]; cc: ImapAddress[]; subject: string; date: Date; }
+function normalizeEnvelope(envelope: ImapEnvelope | undefined): {
+  from: ImapAddress[]
+  to: ImapAddress[]
+  cc: ImapAddress[]
+  subject: string
+  date: Date
+}
 ```
 
 - `envelope` — Driver envelope (may be partially populated).
@@ -648,7 +656,9 @@ lines starting with whitespace) are unfolded. Headers that appear more
 than once are aggregated into an array.
 
 ```typescript
-function parseHeaders(raw: string | Uint8Array<ArrayBufferLike> | undefined): Record<string, string | string[]>
+function parseHeaders(
+  raw: string | Uint8Array<ArrayBufferLike> | undefined,
+): Record<string, string | string[]>
 ```
 
 - `raw` — Raw header block as a string or `Uint8Array`. UTF-8 is assumed when a `Uint8Array` is supplied.

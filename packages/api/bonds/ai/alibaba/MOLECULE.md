@@ -3,9 +3,11 @@
 Alibaba Qwen AI provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-alibaba @molecule/api-ai @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
@@ -100,6 +102,7 @@ const provider: AIProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-ai` interface.
 
 ## Bond Wiring
@@ -120,6 +123,7 @@ export function setupAiAlibaba(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai` ^1.0.0
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -127,7 +131,7 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `DASHSCOPE_API_KEY` *(required)* — Alibaba DashScope API key
+- `DASHSCOPE_API_KEY` _(required)_ — Alibaba DashScope API key
   - Setup: Create an API key in Alibaba Cloud Model Studio (DashScope).
   - Get it here: [https://www.alibabacloud.com/help/en/model-studio/get-api-key](https://www.alibabacloud.com/help/en/model-studio/get-api-key)
   - Example: `sk-...`
@@ -157,22 +161,22 @@ each item to this app's actual chat/AI screens, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip. The
 sandbox HAS an AI provider bonded, so the flow runs live end-to-end; AI
 output is NON-DETERMINISTIC, so assert on STRUCTURE/behavior, not exact text:
+
 - [ ] A message sent through the real chat UI comes back as a RELEVANT AI
-  reply — not an echo of the prompt, a hardcoded stub, or an empty bubble.
-  Ask something with a checkable answer (e.g. "What is 2 + 2?") and confirm
-  the response actually contains it ("4"), proving a live model answered.
+      reply — not an echo of the prompt, a hardcoded stub, or an empty bubble.
+      Ask something with a checkable answer (e.g. "What is 2 + 2?") and confirm
+      the response actually contains it ("4"), proving a live model answered.
 - [ ] If the app streams, tokens render INCREMENTALLY — text grows word by
-  word in the UI, not one final blob dumped after a long frozen spinner. (A
-  streamed `chat()` yields `text` chunks then a final `done`; a single late
-  blob means the reply was awaited whole and streaming is broken.)
+      word in the UI, not one final blob dumped after a long frozen spinner. (A
+      streamed `chat()` yields `text` chunks then a final `done`; a single late
+      blob means the reply was awaited whole and streaming is broken.)
 - [ ] Multi-turn CONTEXT is preserved: a follow-up that refers back to the
-  previous turn (e.g. after "2 + 2", ask "now double that" -> understood as
-  8) works — proving the full `messages` history is sent, not just the last
-  line.
+      previous turn (e.g. after "2 + 2", ask "now double that" -> understood as 8) works — proving the full `messages` history is sent, not just the last
+      line.
 - [ ] A provider failure (bad/missing key, rate limit, timeout) surfaces as
-  a graceful in-UI error message, NOT a crash, blank screen, a spinner that
-  never resolves, or an unhandled 500. Force one and watch the UI recover.
+      a graceful in-UI error message, NOT a crash, blank screen, a spinner that
+      never resolves, or an unhandled 500. Force one and watch the UI recover.
 - [ ] The provider key + the provider call are SERVER-side only: the key
-  never reaches the browser (check the network tab, the JS bundle, and page
-  globals), and no route proxies arbitrary prompts to the model without auth
-  + a token cap — an open AI endpoint is an unbounded bill and abuse vector.
+      never reaches the browser (check the network tab, the JS bundle, and page
+      globals), and no route proxies arbitrary prompts to the model without auth
+  - a token cap — an open AI endpoint is an unbounded bill and abuse vector.

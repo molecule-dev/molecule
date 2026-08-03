@@ -31,9 +31,11 @@ await markRead('user-123', notification.id)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-notification-center @molecule/api-bond @molecule/api-i18n
 ```
@@ -396,7 +398,10 @@ function sendBulk(notifications: BulkNotification[]): Promise<Notification[]>
 Updates notification preferences for a user.
 
 ```typescript
-function setPreferences(userId: string, preferences: Partial<NotificationPreferences>): Promise<void>
+function setPreferences(
+  userId: string,
+  preferences: Partial<NotificationPreferences>,
+): Promise<void>
 ```
 
 - `userId` — The user to update preferences for.
@@ -417,8 +422,8 @@ function setProvider(provider: NotificationCenterProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider      | Package                                      |
+| ------------- | -------------------------------------------- |
 | Notifications | `@molecule/api-notification-center-database` |
 
 ## Injection Notes
@@ -426,6 +431,7 @@ function setProvider(provider: NotificationCenterProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -457,30 +463,31 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual bell/feed and notification triggers, and
 check every box off one by one. A box you can't check is an integration bug
 to fix — not a skip:
+
 - [ ] An event that should notify a user (a mention, invite, comment, a
-  finished job — whatever this app defines) creates an in-app notification
-  that appears in THAT user's bell/feed with the correct type, title, body,
-  and any link/target carried in `data`. Sending here writes only the in-app
-  record — do not expect it to also arrive by email/push.
+      finished job — whatever this app defines) creates an in-app notification
+      that appears in THAT user's bell/feed with the correct type, title, body,
+      and any link/target carried in `data`. Sending here writes only the in-app
+      record — do not expect it to also arrive by email/push.
 - [ ] The unread badge (from `getUnreadCount`) increments when a new
-  notification arrives and equals the number of unread items shown in the
-  feed.
+      notification arrives and equals the number of unread items shown in the
+      feed.
 - [ ] Marking one read (`markRead`) flips that item to read and drops the
-  badge by one; mark-all-read (`markAllRead`) shows every item as read and
-  the badge as zero — and BOTH changes persist across a full reload (they
-  are stored, not client-only state).
+      badge by one; mark-all-read (`markAllRead`) shows every item as read and
+      the badge as zero — and BOTH changes persist across a full reload (they
+      are stored, not client-only state).
 - [ ] Real-time: if the app wires a live channel (SSE/websocket), a
-  notification sent while the feed is open appears WITHOUT a manual reload
-  and the badge updates live; with no live channel, confirm the new
-  notification shows on the next feed load / poll.
+      notification sent while the feed is open appears WITHOUT a manual reload
+      and the badge updates live; with no live channel, confirm the new
+      notification shows on the next feed load / poll.
 - [ ] Clicking a notification navigates to its target (the link/id in
-  `data`) and, where that is the intended behavior, marks it read.
+      `data`) and, where that is the intended behavior, marks it read.
 - [ ] Clearing/deleting one (`deleteNotification`) removes it from the feed
-  and it does NOT reappear on reload (it is deleted from the store, not just
-  hidden client-side).
+      and it does NOT reappear on reload (it is deleted from the store, not just
+      hidden client-side).
 - [ ] Scoping — a user sees ONLY their own feed: `getAll` returns just the
-  authenticated user's items, a notification created for user A never shows
-  for user B, and no route returns or mutates another user's notification by
-  id (`markRead`/`deleteNotification` on someone else's id must no-op and
-  return false, never touch that row). Handlers pass the AUTHENTICATED
-  user's id — never a client-supplied `userId`.
+      authenticated user's items, a notification created for user A never shows
+      for user B, and no route returns or mutates another user's notification by
+      id (`markRead`/`deleteNotification` on someone else's id must no-op and
+      return false, never touch that row). Handlers pass the AUTHENTICATED
+      user's id — never a client-supplied `userId`.

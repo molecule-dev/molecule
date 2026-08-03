@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-auth-shell-react` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-auth-shell'
-import type { AuthShellTranslationKey, AuthShellTranslations } from '@molecule/app-locales-auth-shell'
+import type {
+  AuthShellTranslationKey,
+  AuthShellTranslations,
+} from '@molecule/app-locales-auth-shell'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key             | English      |
+| --------------- | ------------ |
 | `auth.backHome` | Back to home |
 
 ## Metadata

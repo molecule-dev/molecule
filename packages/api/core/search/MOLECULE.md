@@ -21,9 +21,11 @@ const suggestions = await suggest('products', 'wid', { limit: 5 })
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-search @molecule/api-bond @molecule/api-i18n
 ```
@@ -537,18 +539,19 @@ function suggest(indexName: string, query: string, options?: SuggestOptions): Pr
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Search | `@molecule/api-search-elasticsearch` |
-| Search | `@molecule/api-search-meilisearch` |
-| Search | `@molecule/api-search-postgres` |
-| Search | `@molecule/api-search-typesense` |
+| Provider | Package                              |
+| -------- | ------------------------------------ |
+| Search   | `@molecule/api-search-elasticsearch` |
+| Search   | `@molecule/api-search-meilisearch`   |
+| Search   | `@molecule/api-search-postgres`      |
+| Search   | `@molecule/api-search-typesense`     |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -565,7 +568,7 @@ Peer dependencies:
   throws and the endpoint 500s. Guard and degrade: call `search()` only when
   `hasProvider()` is true, wrap it in try/catch, and on absence or failure
   fall back to a DataStore query — `findMany(coll, { where: [{ field,
-  operator: 'ilike', value: `%${text}%` }] })` — so the feature works WITH or
+operator: 'ilike', value: `%${text}%` }] })` — so the feature works WITH or
   WITHOUT the engine. For a small, already-loaded list, filtering client-side
   is fine — just don't ship a `search()` route no page calls and no writer
   indexes.
@@ -588,14 +591,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Searching a term that exists in seeded data returns the matching records
-  in the results UI.
+      in the results UI.
 - [ ] An empty search box shows the browse-everything view (empty `text` matches
-  ALL documents by contract) — not zero results and not an error.
+      ALL documents by contract) — not zero results and not an error.
 - [ ] A term with no matches shows a clear "no results" state.
 - [ ] Index-on-write is wired: create a new record through the UI, then search
-  for it — it must be findable without a manual reindex.
+      for it — it must be findable without a manual reindex.
 - [ ] If autocomplete/suggestions are surfaced, typing a prefix of a known
-  record shows relevant suggestions.
+      record shows relevant suggestions.
 - [ ] Search is scoped to the caller: one user's search never returns another
-  user's private records.
+      user's private records.

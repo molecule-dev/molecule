@@ -10,6 +10,7 @@ feeds, store the items, and re-publish them through this package
 without intermediate translation layers.
 
 Apps that use this:
+
 - `blog` — emit `/feed.rss`, `/feed.atom`, `/feed.json` for posts.
 - `news-aggregator` — re-publish curated cross-source feeds.
 - `podcast` — RSS 2.0 with the iTunes namespace (set `feed.itunes`).
@@ -17,6 +18,7 @@ Apps that use this:
 ## Quick Start
 
 One serializer per call
+
 ```ts
 import { serializeRss2, serializeAtom1, serializeJsonFeed } from '@molecule/api-feed-rss'
 
@@ -33,10 +35,16 @@ const json = serializeJsonFeed(feed)
 ```
 
 HTTP handler with caching — Express adapter
+
 ```ts
 import { createFeedHandler, type Feed } from '@molecule/api-feed-rss'
 
-const loadFromDb = async (): Promise<Feed> => ({ title: 'My Feed', link: 'https://example.com', description: 'Latest posts', items: [] }) // your DB lookup
+const loadFromDb = async (): Promise<Feed> => ({
+  title: 'My Feed',
+  link: 'https://example.com',
+  description: 'Latest posts',
+  items: [],
+}) // your DB lookup
 const app = { get(_path: string, _fn: (req: any, res: any) => void): void {} } // your Express app
 
 const handle = createFeedHandler({
@@ -63,9 +71,11 @@ for attributes, {@link escapeUrl} for URL attributes (which neutralizes
 `]]>` splitting). JSON Feed relies on `JSON.stringify` for escaping.
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-feed-rss
 ```
@@ -473,7 +483,9 @@ which escape every user-supplied field. The handler itself never
 concatenates request data into the response body.
 
 ```typescript
-function createFeedHandler(options: CreateFeedHandlerOptions): (req: FeedRequest) => Promise<FeedResponse>
+function createFeedHandler(
+  options: CreateFeedHandlerOptions,
+): (req: FeedRequest) => Promise<FeedResponse>
 ```
 
 - `options` — See {@link CreateFeedHandlerOptions}.
@@ -516,6 +528,7 @@ function escapeUrl(value: string | null | undefined): string
 Escape a string for inclusion in an XML text node or attribute value.
 
 Maps the five XML predefined entities:
+
 - `&` → `&amp;`
 - `<` → `&lt;`
 - `>` → `&gt;`
@@ -564,6 +577,7 @@ function looksLikeHttpUrl(value: string | null | undefined): boolean
 Serialize a {@link Feed} to a complete Atom 1.0 XML document.
 
 Conforms to RFC 4287:
+
 - Declares `xmlns="http://www.w3.org/2005/Atom"` on the root.
 - Always emits required `<id>`, `<title>`, `<updated>` elements.
 - Each entry has `<id>`, `<title>`, `<updated>`.

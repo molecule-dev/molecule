@@ -11,7 +11,7 @@ AI-customer-service-bot. Wire to any backend by handling `onRecorded`.
 ```tsx
 import { AudioRecorder } from '@molecule/app-audio-recorder-react'
 
-<AudioRecorder
+;<AudioRecorder
   maxDurationSeconds={300}
   onRecorded={({ blob, mimeType, durationSeconds }) => {
     console.log(`Captured ${durationSeconds}s of ${mimeType}`)
@@ -21,9 +21,11 @@ import { AudioRecorder } from '@molecule/app-audio-recorder-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-audio-recorder-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -128,6 +130,7 @@ function AudioRecorder({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

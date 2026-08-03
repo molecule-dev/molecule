@@ -14,9 +14,16 @@ default 160), `className`, `children`.
 ```tsx
 import { SlideThumbnail } from '@molecule/app-slide-thumbnail-react'
 
-interface Slide { id: string; title: string }
+interface Slide {
+  id: string
+  title: string
+}
 
-function SlideStrip({ slides, activeIndex, onSelect }: {
+function SlideStrip({
+  slides,
+  activeIndex,
+  onSelect,
+}: {
   slides: Slide[]
   activeIndex: number
   onSelect: (index: number) => void
@@ -40,9 +47,11 @@ function SlideStrip({ slides, activeIndex, onSelect }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-slide-thumbnail-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -103,6 +112,7 @@ function SlideThumbnail({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -12,12 +12,7 @@ work in ANY browser as a fallback.
 ## Quick Start
 
 ```typescript
-import {
-  canShare,
-  hasProvider,
-  shareUrl,
-  socialUrls,
-} from '@molecule/app-share'
+import { canShare, hasProvider, shareUrl, socialUrls } from '@molecule/app-share'
 
 async function shareArticle(url: string, title: string): Promise<void> {
   if (hasProvider() && (await canShare())) {
@@ -30,9 +25,11 @@ async function shareArticle(url: string, title: string): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-share @molecule/app-bond @molecule/app-i18n
 ```
@@ -312,7 +309,14 @@ Pre-built social media share URL generators. Each method returns a URL that
 opens the platform's share dialog with the provided content pre-filled.
 
 ```typescript
-const socialUrls: { readonly twitter: (text: string, url?: string) => string; readonly facebook: (url: string) => string; readonly linkedin: (url: string) => string; readonly whatsapp: (text: string) => string; readonly telegram: (url: string, text?: string) => string; readonly email: (subject: string, body: string) => string; }
+const socialUrls: {
+  readonly twitter: (text: string, url?: string) => string
+  readonly facebook: (url: string) => string
+  readonly linkedin: (url: string) => string
+  readonly whatsapp: (text: string) => string
+  readonly telegram: (url: string, text?: string) => string
+  readonly email: (subject: string, body: string) => string
+}
 ```
 
 ## Injection Notes
@@ -320,6 +324,7 @@ const socialUrls: { readonly twitter: (text: string, url?: string) => string; re
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

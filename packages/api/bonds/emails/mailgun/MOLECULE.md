@@ -12,9 +12,11 @@ setTransport(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-emails-mailgun @molecule/api-bond @molecule/api-emails @molecule/api-secrets nodemailer nodemailer-mailgun-transport
 npm install -D @types/nodemailer @types/nodemailer-mailgun-transport
@@ -30,54 +32,54 @@ Email message options.
 
 ```typescript
 interface EmailMessage {
-    /**
-     * Sender address.
-     */
-    from: string | EmailAddress;
-    /**
-     * Recipient(s).
-     */
-    to: string | EmailAddress | (string | EmailAddress)[];
-    /**
-     * CC recipient(s).
-     */
-    cc?: string | EmailAddress | (string | EmailAddress)[];
-    /**
-     * BCC recipient(s).
-     */
-    bcc?: string | EmailAddress | (string | EmailAddress)[];
-    /**
-     * Reply-to address.
-     */
-    replyTo?: string | EmailAddress;
-    /**
-     * Email subject.
-     */
-    subject: string;
-    /**
-     * Plain text body.
-     */
-    text?: string;
-    /**
-     * HTML body.
-     */
-    html?: string;
-    /**
-     * File attachments.
-     */
-    attachments?: EmailAttachment[];
-    /**
-     * i18n key for the subject (for client-side translation).
-     */
-    subjectKey?: string;
-    /**
-     * i18n key for the plain text body (for client-side translation).
-     */
-    textKey?: string;
-    /**
-     * i18n key for the HTML body (for client-side translation).
-     */
-    htmlKey?: string;
+  /**
+   * Sender address.
+   */
+  from: string | EmailAddress
+  /**
+   * Recipient(s).
+   */
+  to: string | EmailAddress | (string | EmailAddress)[]
+  /**
+   * CC recipient(s).
+   */
+  cc?: string | EmailAddress | (string | EmailAddress)[]
+  /**
+   * BCC recipient(s).
+   */
+  bcc?: string | EmailAddress | (string | EmailAddress)[]
+  /**
+   * Reply-to address.
+   */
+  replyTo?: string | EmailAddress
+  /**
+   * Email subject.
+   */
+  subject: string
+  /**
+   * Plain text body.
+   */
+  text?: string
+  /**
+   * HTML body.
+   */
+  html?: string
+  /**
+   * File attachments.
+   */
+  attachments?: EmailAttachment[]
+  /**
+   * i18n key for the subject (for client-side translation).
+   */
+  subjectKey?: string
+  /**
+   * i18n key for the plain text body (for client-side translation).
+   */
+  textKey?: string
+  /**
+   * i18n key for the HTML body (for client-side translation).
+   */
+  htmlKey?: string
 }
 ```
 
@@ -87,22 +89,22 @@ Result of sending an email.
 
 ```typescript
 interface EmailSendResult {
-    /**
-     * Whether the email was accepted for delivery.
-     */
-    accepted: string[];
-    /**
-     * Addresses that were rejected.
-     */
-    rejected: string[];
-    /**
-     * Message ID from the provider.
-     */
-    messageId?: string;
-    /**
-     * Raw response from the provider.
-     */
-    response?: string;
+  /**
+   * Whether the email was accepted for delivery.
+   */
+  accepted: string[]
+  /**
+   * Addresses that were rejected.
+   */
+  rejected: string[]
+  /**
+   * Message ID from the provider.
+   */
+  messageId?: string
+  /**
+   * Raw response from the provider.
+   */
+  response?: string
 }
 ```
 
@@ -114,11 +116,11 @@ All email providers must implement this interface.
 
 ```typescript
 interface EmailTransport {
-    /**
-     * Sends an email message.
-     * @returns The send result.
-     */
-    sendMail(message: EmailMessage): Promise<EmailSendResult>;
+  /**
+   * Sends an email message.
+   * @returns The send result.
+   */
+  sendMail(message: EmailMessage): Promise<EmailSendResult>
 }
 ```
 
@@ -138,12 +140,12 @@ function sendMail(message: EmailMessage): Promise<EmailSendResult>
 
 ### Constants
 
-#### `email` *(deprecated)*
+#### `email` _(deprecated)_
 
 Raw nodemailer transport alias.
 
 ```typescript
-const email: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
+const email: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any> }
 ```
 
 #### `mailgunSecretDefinitions`
@@ -162,15 +164,16 @@ The Mailgun email provider implementing the `EmailTransport` interface.
 const provider: EmailTransport
 ```
 
-#### `transport` *(deprecated)*
+#### `transport` _(deprecated)_
 
 Raw nodemailer transport for direct access.
 
 ```typescript
-const transport: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any>; }
+const transport: { sendMail: (msg: nodemailer.SendMailOptions) => Promise<any> }
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-emails` interface.
 
 ## Bond Wiring
@@ -191,20 +194,21 @@ export function setupEmailsMailgun(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MAILGUN_API_KEY` *(required)* — Mailgun API key
+- `MAILGUN_API_KEY` _(required)_ — Mailgun API key
   - Setup: Mailgun dashboard → Settings → API Security → create/copy a sending API key.
   - Get it here: [https://app.mailgun.com/settings/api_security](https://app.mailgun.com/settings/api_security)
-- `MAILGUN_DOMAIN` *(required)* — Mailgun sending domain
+- `MAILGUN_DOMAIN` _(required)_ — Mailgun sending domain
   - Setup: Add and verify a sending domain in Mailgun (sandbox domains work for testing to authorized recipients).
   - Get it here: [https://app.mailgun.com/mg/sending/domains](https://app.mailgun.com/mg/sending/domains)
   - Example: `mg.example.com`
-- `MAILGUN_API_HOST` *(optional)* — Mailgun API host
+- `MAILGUN_API_HOST` _(optional)_ — Mailgun API host
   - Setup: Only needed for EU-region Mailgun accounts (api.eu.mailgun.net) or a self-hosted/broker endpoint; leave unset for US-region accounts.
   - Example: `api.eu.mailgun.net`
 
@@ -246,15 +250,16 @@ is in its payload. Never mock the send or modify production code to expose
 it. Adapt each item to this app's actual screens/flows, and check every box
 off one by one. A box you can't check is an integration bug to fix — not a
 skip:
+
 - [ ] Each email-triggering flow (signup verification, password-reset request,
-  invites/notifications the app defines) confirms the send in the UI ("check
-  your inbox") and a message actually reaches the transport.
+      invites/notifications the app defines) confirms the send in the UI ("check
+      your inbox") and a message actually reaches the transport.
 - [ ] The password-reset round-trip completes: request a reset → open the
-  captured message → follow its single-use link → set a new password → log
-  in with it (and the old password no longer works).
+      captured message → follow its single-use link → set a new password → log
+      in with it (and the old password no longer works).
 - [ ] The message body contains a LINK, never the raw token/secret, and renders
-  with the app's real name/content (no `undefined` placeholders).
+      with the app's real name/content (no `undefined` placeholders).
 - [ ] Requesting a reset for an unknown email shows the same neutral UI response
-  as a known one (no account-existence oracle).
+      as a known one (no account-existence oracle).
 - [ ] Account emails go only to the account's own address — no UI or endpoint
-  lets an unauthenticated caller send to an arbitrary address.
+      lets an unauthenticated caller send to an arbitrary address.

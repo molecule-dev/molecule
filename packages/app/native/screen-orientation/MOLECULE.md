@@ -34,9 +34,11 @@ function reactToRotation(cb: (o: string) => void): () => void {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-screen-orientation @molecule/app-bond @molecule/app-i18n
 ```
@@ -429,6 +431,7 @@ function withOrientation(orientation: OrientationLock, callback: () => T | Promi
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 
@@ -443,7 +446,7 @@ Peer dependencies:
   the Screen Orientation API).
 - **Wiring:** this core delegates to the shared `@molecule/app-bond`
   registry, so `setProvider(provider)` and `bond('screen-orientation',
-  provider)` write the same slot — use either.
+provider)` write the same slot — use either.
 - On web, `screen.orientation.lock()` generally requires FULLSCREEN first
   (and is rejected on most desktops); iOS Safari doesn't support locking
   at all. Treat locking as best-effort: check `getCapabilities().canLock`

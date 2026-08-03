@@ -27,7 +27,10 @@ function Panel() {
   return (
     <NotificationCenter
       items={state.notifications.map((n) => ({
-        id: n.id, title: n.title, body: n.body, read: n.read,
+        id: n.id,
+        title: n.title,
+        body: n.body,
+        read: n.read,
       }))}
       onMarkAllRead={() => center.markAllAsRead()}
       onViewAll={() => navigate('/notifications')}
@@ -39,9 +42,11 @@ function Panel() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-notification-center-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -134,6 +139,7 @@ function NotificationCenter({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

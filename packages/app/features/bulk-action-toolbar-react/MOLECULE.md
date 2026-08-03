@@ -9,7 +9,7 @@ Exports `<BulkActionToolbar>` and `BulkAction` type.
 ```tsx
 import { BulkActionToolbar } from '@molecule/app-bulk-action-toolbar-react'
 
-<BulkActionToolbar
+;<BulkActionToolbar
   count={selectedIds.length}
   actions={[
     { id: 'delete', label: 'Delete', onClick: () => handleDelete(selectedIds), destructive: true },
@@ -20,9 +20,11 @@ import { BulkActionToolbar } from '@molecule/app-bulk-action-toolbar-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-bulk-action-toolbar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -91,6 +93,7 @@ function BulkActionToolbar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

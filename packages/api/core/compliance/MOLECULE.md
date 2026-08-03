@@ -10,7 +10,13 @@ and data processing logs. Bond a concrete provider
 ## Quick Start
 
 ```typescript
-import { setProvider, exportUserData, deleteUserData, getConsent, setConsent } from '@molecule/api-compliance'
+import {
+  setProvider,
+  exportUserData,
+  deleteUserData,
+  getConsent,
+  setConsent,
+} from '@molecule/api-compliance'
 import { provider } from '@molecule/api-compliance-gdpr'
 
 // Wire the provider at startup
@@ -28,9 +34,11 @@ const consent = await getConsent('user-123')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-compliance @molecule/api-bond @molecule/api-i18n
 ```
@@ -410,8 +418,8 @@ function setProvider(provider: ComplianceProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider   | Package                         |
+| ---------- | ------------------------------- |
 | Compliance | `@molecule/api-compliance-gdpr` |
 
 ## Injection Notes
@@ -419,6 +427,7 @@ function setProvider(provider: ComplianceProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -450,12 +459,13 @@ Compliance endpoints are attack surface — the rules a generator gets wrong:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A logged-in user can export their own data from the UI and the export
-  contains their data — and only theirs.
+      contains their data — and only theirs.
 - [ ] Requesting an export or deletion for a DIFFERENT user's id (e.g. by
-  editing the request) is rejected server-side — not merely hidden in the UI.
+      editing the request) is rejected server-side — not merely hidden in the UI.
 - [ ] The deletion flow requires an explicit confirmation, completes, and the
-  user's content is gone after a full reload; any retained categories are
-  stated in the UI.
+      user's content is gone after a full reload; any retained categories are
+      stated in the UI.
 - [ ] Toggling a consent purpose off persists (survives reload) and the
-  consent-scoped behavior actually stops.
+      consent-scoped behavior actually stops.

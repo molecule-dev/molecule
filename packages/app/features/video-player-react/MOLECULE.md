@@ -11,7 +11,7 @@ mute toggle, fullscreen, optional caption track.
 ```tsx
 import { VideoPlayer } from '@molecule/app-video-player-react'
 
-<VideoPlayer
+;<VideoPlayer
   src="https://cdn.example.com/intro.mp4"
   poster="https://cdn.example.com/intro-thumb.jpg"
   captionsSrc="https://cdn.example.com/intro.vtt"
@@ -20,9 +20,11 @@ import { VideoPlayer } from '@molecule/app-video-player-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-video-player-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -89,6 +91,7 @@ function VideoPlayer({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

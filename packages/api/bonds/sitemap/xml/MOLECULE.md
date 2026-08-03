@@ -19,9 +19,11 @@ const xml = await generate()
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-sitemap-xml @molecule/api-sitemap
 ```
@@ -146,6 +148,7 @@ const provider: SitemapProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-sitemap` interface.
 
 ## Bond Wiring
@@ -166,6 +169,7 @@ export function setupSitemapXml(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-sitemap` ^1.0.0
 
 ### Runtime Dependencies

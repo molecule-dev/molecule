@@ -9,7 +9,7 @@ scaled by `pxPerHour` (total height = (endHour - startHour) * pxPerHour).
 ```tsx
 import { DayTimeline } from '@molecule/app-day-timeline-react'
 
-<DayTimeline
+;<DayTimeline
   startHour={7}
   endHour={22}
   events={[
@@ -20,9 +20,11 @@ import { DayTimeline } from '@molecule/app-day-timeline-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-day-timeline-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -129,6 +131,7 @@ function formatHour(hour: number): string
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

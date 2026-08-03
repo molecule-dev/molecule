@@ -16,9 +16,11 @@ await remove('theme')
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-storage @molecule/app-bond @molecule/app-i18n
 ```
@@ -181,16 +183,17 @@ function setProvider(provider: StorageProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider     | Package                               |
+| ------------ | ------------------------------------- |
 | AsyncStorage | `@molecule/app-storage-async-storage` |
-| localStorage | `@molecule/app-storage-localstorage` |
+| localStorage | `@molecule/app-storage-localstorage`  |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

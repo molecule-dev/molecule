@@ -18,9 +18,11 @@ setCountryFlags(countryFlags) // once, at app startup
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-country-flags-country-flag-icons @molecule/app-country-flags country-flag-icons
 ```
@@ -44,6 +46,7 @@ const countryFlags: CountryFlagSet
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-country-flags` interface.
 
 ## Injection Notes
@@ -51,6 +54,7 @@ Implements `@molecule/app-country-flags` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-country-flags` ^1.0.0
 
 ### Runtime Dependencies

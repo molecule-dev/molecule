@@ -13,9 +13,11 @@ await track({ name: 'purchase.completed', userId: 'u_123' })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-analytics-mixpanel @molecule/api-analytics @molecule/api-secrets mixpanel
 ```
@@ -30,26 +32,26 @@ Event properties for analytics tracking.
 
 ```typescript
 interface AnalyticsEvent {
-    /**
-     * Event name (e.g., 'user.signup', 'purchase.completed').
-     */
-    name: string;
-    /**
-     * Event properties.
-     */
-    properties?: Record<string, unknown>;
-    /**
-     * Timestamp of the event (defaults to now).
-     */
-    timestamp?: Date;
-    /**
-     * User ID associated with the event.
-     */
-    userId?: string;
-    /**
-     * Anonymous ID for non-authenticated users.
-     */
-    anonymousId?: string;
+  /**
+   * Event name (e.g., 'user.signup', 'purchase.completed').
+   */
+  name: string
+  /**
+   * Event properties.
+   */
+  properties?: Record<string, unknown>
+  /**
+   * Timestamp of the event (defaults to now).
+   */
+  timestamp?: Date
+  /**
+   * User ID associated with the event.
+   */
+  userId?: string
+  /**
+   * Anonymous ID for non-authenticated users.
+   */
+  anonymousId?: string
 }
 ```
 
@@ -59,40 +61,40 @@ Page view event.
 
 ```typescript
 interface AnalyticsPageView {
-    /**
-     * User ID the page view belongs to. Server-side providers have no ambient
-     * session — without this (or `anonymousId`) every page view from every user
-     * is attributed to a single shared "anonymous" identity.
-     */
-    userId?: string;
-    /**
-     * Anonymous ID for non-authenticated users.
-     */
-    anonymousId?: string;
-    /**
-     * Page name or title.
-     */
-    name?: string;
-    /**
-     * Page category.
-     */
-    category?: string;
-    /**
-     * Page URL.
-     */
-    url?: string;
-    /**
-     * Page path.
-     */
-    path?: string;
-    /**
-     * Referrer URL.
-     */
-    referrer?: string;
-    /**
-     * Additional page properties.
-     */
-    properties?: Record<string, unknown>;
+  /**
+   * User ID the page view belongs to. Server-side providers have no ambient
+   * session — without this (or `anonymousId`) every page view from every user
+   * is attributed to a single shared "anonymous" identity.
+   */
+  userId?: string
+  /**
+   * Anonymous ID for non-authenticated users.
+   */
+  anonymousId?: string
+  /**
+   * Page name or title.
+   */
+  name?: string
+  /**
+   * Page category.
+   */
+  category?: string
+  /**
+   * Page URL.
+   */
+  url?: string
+  /**
+   * Page path.
+   */
+  path?: string
+  /**
+   * Referrer URL.
+   */
+  referrer?: string
+  /**
+   * Additional page properties.
+   */
+  properties?: Record<string, unknown>
 }
 ```
 
@@ -104,30 +106,30 @@ All analytics providers must implement this interface.
 
 ```typescript
 interface AnalyticsProvider {
-    /**
-     * Identifies a user with traits.
-     */
-    identify(user: AnalyticsUserProps): Promise<void>;
-    /**
-     * Tracks an event.
-     */
-    track(event: AnalyticsEvent): Promise<void>;
-    /**
-     * Tracks a page view.
-     */
-    page(pageView: AnalyticsPageView): Promise<void>;
-    /**
-     * Associates the current user with a group/organization.
-     */
-    group?(groupId: string, traits?: Record<string, unknown>): Promise<void>;
-    /**
-     * Resets the analytics state (e.g., on logout).
-     */
-    reset?(): Promise<void>;
-    /**
-     * Flushes any queued events.
-     */
-    flush?(): Promise<void>;
+  /**
+   * Identifies a user with traits.
+   */
+  identify(user: AnalyticsUserProps): Promise<void>
+  /**
+   * Tracks an event.
+   */
+  track(event: AnalyticsEvent): Promise<void>
+  /**
+   * Tracks a page view.
+   */
+  page(pageView: AnalyticsPageView): Promise<void>
+  /**
+   * Associates the current user with a group/organization.
+   */
+  group?(groupId: string, traits?: Record<string, unknown>): Promise<void>
+  /**
+   * Resets the analytics state (e.g., on logout).
+   */
+  reset?(): Promise<void>
+  /**
+   * Flushes any queued events.
+   */
+  flush?(): Promise<void>
 }
 ```
 
@@ -137,22 +139,22 @@ User properties for analytics identification.
 
 ```typescript
 interface AnalyticsUserProps {
-    /**
-     * Unique user identifier.
-     */
-    userId: string;
-    /**
-     * User email address.
-     */
-    email?: string;
-    /**
-     * User display name.
-     */
-    name?: string;
-    /**
-     * Additional user traits.
-     */
-    traits?: Record<string, unknown>;
+  /**
+   * Unique user identifier.
+   */
+  userId: string
+  /**
+   * User email address.
+   */
+  email?: string
+  /**
+   * User display name.
+   */
+  name?: string
+  /**
+   * Additional user traits.
+   */
+  traits?: Record<string, unknown>
 }
 ```
 
@@ -218,7 +220,7 @@ Secret definitions required by the Mixpanel analytics bond.
 const analyticsMixpanelSecretDefinitions: SecretDefinition[]
 ```
 
-#### `mixpanel` *(deprecated)*
+#### `mixpanel` _(deprecated)_
 
 Legacy export - the raw Mixpanel instance (lazy-initialized via Proxy on
 first property access; throws an actionable `config.notConfigured` error if
@@ -237,6 +239,7 @@ const provider: AnalyticsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-analytics` interface.
 
 ## Bond Wiring
@@ -257,12 +260,13 @@ export function setupAnalyticsMixpanel(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-analytics` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `MIXPANEL_TOKEN` *(required)* — Mixpanel project token
+- `MIXPANEL_TOKEN` _(required)_ — Mixpanel project token
   - Setup: Copy the Project Token from Mixpanel → Project Settings → Access Keys.
   - Get it here: [https://mixpanel.com/settings/project](https://mixpanel.com/settings/project)
 
@@ -301,36 +305,37 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Each user action the app cares about (signup/login, a page or screen
-  view, a purchase/conversion or other domain event) EMITS a `track()` /
-  `page()` with the RIGHT event name + properties when performed in the UI —
-  and the event is actually RECORDED, proven by reading it back, not by
-  finding a `track(...)` call in source. Analytics is fire-and-forget to a
-  third-party (Mixpanel/PostHog/Segment) that is NOT reachable in the sandbox
-  and NOT captured by `read_activity` (that captures email/sms/push/webhook/
-  channel, never analytics). So prove the wiring locally: read the event back
-  from the app's own events store/dashboard/funnel if it has one, or bond a
-  local recording/console provider for dev and confirm the call fired via
-  `read_logs`.
+      view, a purchase/conversion or other domain event) EMITS a `track()` /
+      `page()` with the RIGHT event name + properties when performed in the UI —
+      and the event is actually RECORDED, proven by reading it back, not by
+      finding a `track(...)` call in source. Analytics is fire-and-forget to a
+      third-party (Mixpanel/PostHog/Segment) that is NOT reachable in the sandbox
+      and NOT captured by `read_activity` (that captures email/sms/push/webhook/
+      channel, never analytics). So prove the wiring locally: read the event back
+      from the app's own events store/dashboard/funnel if it has one, or bond a
+      local recording/console provider for dev and confirm the call fired via
+      `read_logs`.
 - [ ] Events are ATTRIBUTED to the right identity: `identify({ userId, ... })`
-  runs at signup/login so events carry that `userId`. Server-side has no
-  ambient session — a `track()` / `page()` with neither `userId` nor
-  `anonymousId` collapses every user into one shared "anonymous" identity.
-  If the app tracks activity before login, confirm those `anonymousId` events
-  associate/merge to the user on identify.
+      runs at signup/login so events carry that `userId`. Server-side has no
+      ambient session — a `track()` / `page()` with neither `userId` nor
+      `anonymousId` collapses every user into one shared "anonymous" identity.
+      If the app tracks activity before login, confirm those `anonymousId` events
+      associate/merge to the user on identify.
 - [ ] Tracking is NON-BLOCKING. Unlike the app-side bond, these SERVER
-  functions PROPAGATE provider failures (they reject when the provider does,
-  and throw when none is bonded), so fire-and-forget is the CALLER's job:
-  every call site wraps the call in `.catch()` / log-and-continue. Verify by
-  forcing a failure (unbonded or erroring provider) — the user action
-  (signup, checkout) still completes with no visible error and no added
-  latency; the analytics await never blocks the response.
+      functions PROPAGATE provider failures (they reject when the provider does,
+      and throw when none is bonded), so fire-and-forget is the CALLER's job:
+      every call site wraps the call in `.catch()` / log-and-continue. Verify by
+      forcing a failure (unbonded or erroring provider) — the user action
+      (signup, checkout) still completes with no visible error and no added
+      latency; the analytics await never blocks the response.
 - [ ] PRIVACY — no secret or sensitive PII in event `properties` or identify
-  `traits`: never a password, full card/PAN, CVV, auth token, or session
-  cookie. Read the recorded event back and confirm only non-sensitive
-  attributes (plan name, amount, item id) are present.
+      `traits`: never a password, full card/PAN, CVV, auth token, or session
+      cookie. Read the recorded event back and confirm only non-sensitive
+      attributes (plan name, amount, item id) are present.
 - [ ] If the app exposes analytics reports/dashboards/funnels, the numbers
-  reflect REAL recorded events (perform an action, the matching count/funnel
-  step increments) and are SCOPED — a user/org reads only its OWN analytics;
-  no endpoint lets one org read another org's numbers (`group()` associates a
-  user under the bond's group type, 'company' by default).
+      reflect REAL recorded events (perform an action, the matching count/funnel
+      step increments) and are SCOPED — a user/org reads only its OWN analytics;
+      no endpoint lets one org read another org's numbers (`group()` associates a
+      user under the bond's group type, 'company' by default).

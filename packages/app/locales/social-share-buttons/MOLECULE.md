@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-social-share-buttons-react` package
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-social-share-buttons'
-import type { SocialShareButtonsTranslationKey, SocialShareButtonsTranslations } from '@molecule/app-locales-social-share-buttons'
+import type {
+  SocialShareButtonsTranslationKey,
+  SocialShareButtonsTranslations,
+} from '@molecule/app-locales-social-share-buttons'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key            | English |
+| -------------- | ------- |
 | `share.copied` | Copied! |
 
 ## Metadata

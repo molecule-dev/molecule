@@ -34,16 +34,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `config.error.required` | Required configuration  |
-| `config.error.mustBeNumber` | Configuration  |
-| `config.error.minValue` | Configuration  |
-| `config.error.maxValue` | Configuration  |
-| `config.error.mustBeBoolean` | Configuration  |
-| `config.error.mustBeJson` | Configuration  |
-| `config.error.patternMismatch` | Configuration  |
-| `config.error.invalidEnum` | Configuration  |
+| Key                                   | English                                                     |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `config.error.required`               | Required configuration                                      |
+| `config.error.mustBeNumber`           | Configuration                                               |
+| `config.error.minValue`               | Configuration                                               |
+| `config.error.maxValue`               | Configuration                                               |
+| `config.error.mustBeBoolean`          | Configuration                                               |
+| `config.error.mustBeJson`             | Configuration                                               |
+| `config.error.patternMismatch`        | Configuration                                               |
+| `config.error.invalidEnum`            | Configuration                                               |
 | `config.error.validationNotSupported` | Current configuration provider does not support validation. |
 
 ## Metadata

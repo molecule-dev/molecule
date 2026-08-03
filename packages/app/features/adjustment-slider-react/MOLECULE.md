@@ -11,7 +11,7 @@ gain, pan, etc.). Pairs well with `@molecule/app-feature-image-canvas-react`.
 ```tsx
 import { AdjustmentSlider } from '@molecule/app-adjustment-slider-react'
 
-<AdjustmentSlider
+;<AdjustmentSlider
   label="Exposure"
   value={exposure}
   onChange={setExposure}
@@ -24,9 +24,11 @@ import { AdjustmentSlider } from '@molecule/app-adjustment-slider-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-adjustment-slider-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -100,6 +102,7 @@ tuned for photo-editor / DAW / animation parameter controls (brightness,
 contrast, saturation, exposure, gain, pan, etc.).
 
 Behaviour:
+
 - When `bipolar` is `true` (default), a center mark is rendered at zero
   and the reset target is `0`. When `false`, the slider is unipolar and
   the reset target is `min`.
@@ -207,6 +210,7 @@ function keyboardNudge(step: number, shift: boolean): number
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

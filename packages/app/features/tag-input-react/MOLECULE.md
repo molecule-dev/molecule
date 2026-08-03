@@ -3,6 +3,7 @@
 React tag-token input and tag-chip display.
 
 Exports:
+
 - `<TagChip>` — standalone labeled chip with optional remove button.
 - `<TagInput>` — controlled tokenizer: Enter, comma, or Tab adds the
   draft; blur commits a non-empty draft; Backspace on an empty field
@@ -27,9 +28,11 @@ function TagEditor() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-tag-input-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -119,6 +122,7 @@ function TagInput({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

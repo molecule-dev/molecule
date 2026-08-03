@@ -19,9 +19,11 @@ if (!ok) return res.status(401).json({ error: 'Invalid credentials.' }) // don't
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-password @molecule/api-bond @molecule/api-i18n
 ```
@@ -119,15 +121,16 @@ function setProvider(provider: PasswordProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| bcrypt | `@molecule/api-password-bcrypt` |
+| Provider | Package                         |
+| -------- | ------------------------------- |
+| bcrypt   | `@molecule/api-password-bcrypt` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

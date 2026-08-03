@@ -18,9 +18,11 @@ app.use(createAnalyticsMiddleware({ excludePaths: ['/health', '/metrics'] }))
 ```
 
 ## Type
+
 `middleware`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-analytics @molecule/api-bond
 ```
@@ -50,7 +52,9 @@ interface AnalyticsMiddlewareOptions {
 Creates an analytics middleware that tracks every API request.
 
 ```typescript
-function createAnalyticsMiddleware(options?: AnalyticsMiddlewareOptions): (req: unknown, res: unknown, next: (err?: unknown) => void) => void
+function createAnalyticsMiddleware(
+  options?: AnalyticsMiddlewareOptions,
+): (req: unknown, res: unknown, next: (err?: unknown) => void) => void
 ```
 
 - `options` — Configuration options including paths to exclude from tracking.
@@ -62,6 +66,7 @@ function createAnalyticsMiddleware(options?: AnalyticsMiddlewareOptions): (req: 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

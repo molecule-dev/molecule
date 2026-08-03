@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-scheduler` package which has 1 tran
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-scheduler'
-import type { SchedulerTranslationKey, SchedulerTranslations } from '@molecule/api-locales-scheduler'
+import type {
+  SchedulerTranslationKey,
+  SchedulerTranslations,
+} from '@molecule/api-locales-scheduler'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                          | English                                                      |
+| ---------------------------- | ------------------------------------------------------------ |
 | `scheduler.error.noProvider` | Scheduler provider not configured. Call setProvider() first. |
 
 ## Metadata

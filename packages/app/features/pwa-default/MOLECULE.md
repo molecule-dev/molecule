@@ -17,9 +17,11 @@ registerPWA()
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-pwa-default @molecule/app-i18n @molecule/app-logger vite-plugin-pwa
 ```
@@ -31,6 +33,7 @@ npm install @molecule/app-pwa-default @molecule/app-i18n @molecule/app-logger vi
 #### `registerPWA()`
 
 Registers the service worker with full PWA lifecycle management:
+
 - Periodic update checks (every 5 minutes)
 - Styled update banner with Update button
 - Multi-tab coordination (all tabs reload when new SW activates)
@@ -46,6 +49,7 @@ function registerPWA(): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `vite-plugin-pwa` ^0.20.0 || ^1.0.0

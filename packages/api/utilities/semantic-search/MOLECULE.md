@@ -31,9 +31,11 @@ await removeDocuments({ collection: 'docs', ids: ['a'] })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-semantic-search @molecule/api-ai-embeddings @molecule/api-ai-vector-store
 ```
@@ -190,6 +192,7 @@ function search(params: SearchParams): Promise<SearchHit[]>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai-embeddings` >=1.0.0
 - `@molecule/api-ai-vector-store` >=1.0.0
 

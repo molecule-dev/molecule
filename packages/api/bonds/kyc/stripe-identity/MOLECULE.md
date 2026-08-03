@@ -30,9 +30,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-kyc-stripe-identity @molecule/api-bond @molecule/api-kyc @molecule/api-secrets
 ```
@@ -47,25 +49,25 @@ Caller-supplied parameters when creating a verification session.
 
 ```typescript
 interface CreateKycSessionOptions {
-    /**
-     * Caller's stable identifier for the end user. Stored as provider metadata
-     * so webhook events and status lookups can be correlated.
-     */
-    userId: string;
-    /** Type of identity check to request. */
-    type: KycVerificationType;
-    /**
-     * URL to send the user to after they complete or abandon the
-     * provider-hosted flow. Some providers also expose a hosted URL — see
-     * {@link KycSession.url}.
-     */
-    returnUrl?: string;
-    /**
-     * Free-form key/value pairs forwarded to the provider as session metadata.
-     * Useful for correlating with caller-side records (case id, app id, etc.).
-     * Values are coerced to strings by the provider.
-     */
-    metadata?: Record<string, string>;
+  /**
+   * Caller's stable identifier for the end user. Stored as provider metadata
+   * so webhook events and status lookups can be correlated.
+   */
+  userId: string
+  /** Type of identity check to request. */
+  type: KycVerificationType
+  /**
+   * URL to send the user to after they complete or abandon the
+   * provider-hosted flow. Some providers also expose a hosted URL — see
+   * {@link KycSession.url}.
+   */
+  returnUrl?: string
+  /**
+   * Free-form key/value pairs forwarded to the provider as session metadata.
+   * Useful for correlating with caller-side records (case id, app id, etc.).
+   * Values are coerced to strings by the provider.
+   */
+  metadata?: Record<string, string>
 }
 ```
 
@@ -80,41 +82,41 @@ verbatim provider error bodies that may echo credentials.
 
 ```typescript
 interface KycProvider {
-    /**
-     * Creates a new verification session at the provider.
-     *
-     * @param options - Session parameters (user, type, return URL, metadata).
-     * @returns The created session, including a hosted URL where applicable.
-     */
-    createVerificationSession(options: CreateKycSessionOptions): Promise<KycSession>;
-    /**
-     * Fetches the current status of a verification session.
-     *
-     * @param sessionId - Provider-specific session id from
-     *   {@link KycSession.sessionId}.
-     * @returns The normalized session status.
-     */
-    getVerificationStatus(sessionId: string): Promise<KycSessionStatus>;
-    /**
-     * Cancels a verification session. Idempotent — canceling an already-canceled
-     * session SHOULD return the same status without throwing.
-     *
-     * @param sessionId - Provider-specific session id from
-     *   {@link KycSession.sessionId}.
-     * @returns The session status after cancellation.
-     */
-    cancelVerificationSession(sessionId: string): Promise<KycSessionStatus>;
-    /**
-     * Verifies the signature of an inbound webhook and returns the normalized
-     * event. Throws if the signature is invalid or the payload cannot be parsed.
-     *
-     * @param headers - Inbound request headers (verbatim — bonds extract the
-     *   right signature header).
-     * @param body - Raw request body bytes (do NOT pass a parsed JSON object —
-     *   most providers sign the exact byte sequence).
-     * @returns The normalized webhook event.
-     */
-    processWebhook(headers: KycWebhookHeaders, body: string | Buffer): Promise<KycWebhookEvent>;
+  /**
+   * Creates a new verification session at the provider.
+   *
+   * @param options - Session parameters (user, type, return URL, metadata).
+   * @returns The created session, including a hosted URL where applicable.
+   */
+  createVerificationSession(options: CreateKycSessionOptions): Promise<KycSession>
+  /**
+   * Fetches the current status of a verification session.
+   *
+   * @param sessionId - Provider-specific session id from
+   *   {@link KycSession.sessionId}.
+   * @returns The normalized session status.
+   */
+  getVerificationStatus(sessionId: string): Promise<KycSessionStatus>
+  /**
+   * Cancels a verification session. Idempotent — canceling an already-canceled
+   * session SHOULD return the same status without throwing.
+   *
+   * @param sessionId - Provider-specific session id from
+   *   {@link KycSession.sessionId}.
+   * @returns The session status after cancellation.
+   */
+  cancelVerificationSession(sessionId: string): Promise<KycSessionStatus>
+  /**
+   * Verifies the signature of an inbound webhook and returns the normalized
+   * event. Throws if the signature is invalid or the payload cannot be parsed.
+   *
+   * @param headers - Inbound request headers (verbatim — bonds extract the
+   *   right signature header).
+   * @param body - Raw request body bytes (do NOT pass a parsed JSON object —
+   *   most providers sign the exact byte sequence).
+   * @returns The normalized webhook event.
+   */
+  processWebhook(headers: KycWebhookHeaders, body: string | Buffer): Promise<KycWebhookEvent>
 }
 ```
 
@@ -127,19 +129,19 @@ statuses ({@link KycStatus}) until terminal (`verified` or `canceled`).
 
 ```typescript
 interface KycSession {
-    /** Provider-specific session identifier. Opaque to callers. */
-    sessionId: string;
-    /**
-     * Provider-hosted URL to redirect the user to. Some providers (e.g. those
-     * using a client-side SDK with a single-use token) MAY return `null` —
-     * callers must then use the SDK directly.
-     */
-    url: string | null;
-    /**
-     * Optional epoch-millis expiry of the hosted session. After this time the
-     * session URL stops working and the caller must create a new session.
-     */
-    expiresAt?: number;
+  /** Provider-specific session identifier. Opaque to callers. */
+  sessionId: string
+  /**
+   * Provider-hosted URL to redirect the user to. Some providers (e.g. those
+   * using a client-side SDK with a single-use token) MAY return `null` —
+   * callers must then use the SDK directly.
+   */
+  url: string | null
+  /**
+   * Optional epoch-millis expiry of the hosted session. After this time the
+   * session URL stops working and the caller must create a new session.
+   */
+  expiresAt?: number
 }
 ```
 
@@ -149,22 +151,22 @@ Result of {@link KycProvider.getVerificationStatus}.
 
 ```typescript
 interface KycSessionStatus {
-    /** Provider-specific session identifier. */
-    sessionId: string;
-    /** Normalized status across providers. */
-    status: KycStatus;
-    /**
-     * Verification type at create time. Useful for callers that do not store
-     * the type alongside the session id.
-     */
-    type?: KycVerificationType;
-    /**
-     * Provider-specific reason code when status is `requires_input` or
-     * `canceled`. Opaque string — meant for logging / display, not branching.
-     */
-    lastErrorCode?: string;
-    /** Provider-specific human-readable error reason. */
-    lastErrorReason?: string;
+  /** Provider-specific session identifier. */
+  sessionId: string
+  /** Normalized status across providers. */
+  status: KycStatus
+  /**
+   * Verification type at create time. Useful for callers that do not store
+   * the type alongside the session id.
+   */
+  type?: KycVerificationType
+  /**
+   * Provider-specific reason code when status is `requires_input` or
+   * `canceled`. Opaque string — meant for logging / display, not branching.
+   */
+  lastErrorCode?: string
+  /** Provider-specific human-readable error reason. */
+  lastErrorReason?: string
 }
 ```
 
@@ -175,22 +177,22 @@ after the signature has been verified.
 
 ```typescript
 interface KycWebhookEvent {
-    /** The normalized event type. */
-    type: KycWebhookEventType;
-    /** Provider-specific session identifier the event applies to. */
-    sessionId: string;
-    /** Caller-supplied user id stored in session metadata. */
-    userId?: string;
-    /** Verification type at create time. */
-    verificationType?: KycVerificationType;
-    /** Caller-supplied metadata stored on the session. */
-    metadata?: Record<string, string>;
-    /** Provider-specific reason code for failure events. */
-    lastErrorCode?: string;
-    /** Provider-specific human-readable failure reason. */
-    lastErrorReason?: string;
-    /** Raw provider event object — kept for round-tripping / debugging. */
-    raw?: Record<string, unknown>;
+  /** The normalized event type. */
+  type: KycWebhookEventType
+  /** Provider-specific session identifier the event applies to. */
+  sessionId: string
+  /** Caller-supplied user id stored in session metadata. */
+  userId?: string
+  /** Verification type at create time. */
+  verificationType?: KycVerificationType
+  /** Caller-supplied metadata stored on the session. */
+  metadata?: Record<string, string>
+  /** Provider-specific reason code for failure events. */
+  lastErrorCode?: string
+  /** Provider-specific human-readable failure reason. */
+  lastErrorReason?: string
+  /** Raw provider event object — kept for round-tripping / debugging. */
+  raw?: Record<string, unknown>
 }
 ```
 
@@ -254,7 +256,7 @@ Normalized verification status, common across all KYC bonds.
 - `canceled` — the session was canceled (by caller, user, or provider).
 
 ```typescript
-type KycStatus = 'pending' | 'requires_input' | 'processing' | 'verified' | 'canceled';
+type KycStatus = 'pending' | 'requires_input' | 'processing' | 'verified' | 'canceled'
 ```
 
 #### `KycVerificationType`
@@ -269,7 +271,7 @@ Provider support varies; bonds MAY throw when asked for a type they do not
 support.
 
 ```typescript
-type KycVerificationType = 'document' | 'id_number' | 'address';
+type KycVerificationType = 'document' | 'id_number' | 'address'
 ```
 
 #### `KycWebhookEventType`
@@ -281,7 +283,8 @@ variants. Provider-specific raw payload is preserved in {@link KycWebhookEvent.r
 so callers needing extra detail can opt in.
 
 ```typescript
-type KycWebhookEventType = 'verification.verified' | 'verification.requires_input' | 'verification.canceled';
+type KycWebhookEventType =
+  'verification.verified' | 'verification.requires_input' | 'verification.canceled'
 ```
 
 #### `KycWebhookHeaders`
@@ -293,7 +296,7 @@ are responsible for picking the right one(s) from this map. Callers
 should pass the request's headers verbatim.
 
 ```typescript
-type KycWebhookHeaders = Record<string, string | string[] | undefined>;
+type KycWebhookHeaders = Record<string, string | string[] | undefined>
 ```
 
 ### Functions
@@ -316,7 +319,13 @@ Verifies a Stripe webhook signature. Equivalent to
 `Stripe.webhooks.constructEvent` minus the SDK dependency.
 
 ```typescript
-function verifyStripeSignature(payload: string | Buffer<ArrayBufferLike>, signatureHeader: string | undefined, secret: string, toleranceSeconds: number, now?: number): void
+function verifyStripeSignature(
+  payload: string | Buffer<ArrayBufferLike>,
+  signatureHeader: string | undefined,
+  secret: string,
+  toleranceSeconds: number,
+  now?: number,
+): void
 ```
 
 - `payload` — The raw request body.
@@ -345,6 +354,7 @@ const provider: KycProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-kyc` interface.
 
 ## Bond Wiring
@@ -365,17 +375,18 @@ export function setupKycStripeIdentity(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-kyc` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `STRIPE_SECRET_KEY` *(required)* — Stripe secret key
+- `STRIPE_SECRET_KEY` _(required)_ — Stripe secret key
   - Setup: Stripe Dashboard → Developers → API keys; use the sk_test_ key in test mode, sk_live_ in production.
   - Get it here: [https://dashboard.stripe.com/apikeys](https://dashboard.stripe.com/apikeys)
   - Example: `sk_test_...`
-- `STRIPE_IDENTITY_WEBHOOK_SECRET` *(required)* — Stripe Identity webhook signing secret
+- `STRIPE_IDENTITY_WEBHOOK_SECRET` _(required)_ — Stripe Identity webhook signing secret
   - Setup: Add a webhook endpoint for Identity events in the Stripe Dashboard and copy its signing secret.
   - Get it here: [https://dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
   - Example: `whsec_...`
@@ -391,31 +402,32 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Starting a verification from the UI creates a real session:
-  `createVerificationSession` is called, the app persists the returned
-  `KycSession.sessionId` on the user's record with stored status `pending`,
-  and the user is handed to the provider-hosted `session.url` — NOT a
-  home-grown document-capture screen, and NOT marked verified at creation.
+      `createVerificationSession` is called, the app persists the returned
+      `KycSession.sessionId` on the user's record with stored status `pending`,
+      and the user is handed to the provider-hosted `session.url` — NOT a
+      home-grown document-capture screen, and NOT marked verified at creation.
 - [ ] COUNTERPARTY (the identity check runs out-of-band on the external
-  vendor and can't be completed for real in-sandbox): verify the decision
-  against the app's OWN stored KYC state — deliver a `verification.verified`
-  (or `verification.requires_input` / `verification.canceled`) event to the
-  webhook endpoint, or poll `getVerificationStatus`, and confirm the user's
-  stored status flips `pending` → `verified` / `requires_input` / `canceled`
-  and the UI shows it. Observe the transition, never guess it.
+      vendor and can't be completed for real in-sandbox): verify the decision
+      against the app's OWN stored KYC state — deliver a `verification.verified`
+      (or `verification.requires_input` / `verification.canceled`) event to the
+      webhook endpoint, or poll `getVerificationStatus`, and confirm the user's
+      stored status flips `pending` → `verified` / `requires_input` / `canceled`
+      and the UI shows it. Observe the transition, never guess it.
 - [ ] KYC-gated features are enforced SERVER-SIDE: while the stored status is
-  not `verified`, the restricted action is REJECTED by the server (not merely
-  a hidden button); once `verified`, the same user is allowed. Flipping the
-  stored status changes access after a full reload.
+      not `verified`, the restricted action is REJECTED by the server (not merely
+      a hidden button); once `verified`, the same user is allowed. Flipping the
+      stored status changes access after a full reload.
 - [ ] `processWebhook` rejects a forged decision — a bad/missing signature
-  THROWS and becomes a 4xx with NO state change (the user stays unverified);
-  only a signature-verified event may flip stored status.
+      THROWS and becomes a 4xx with NO state change (the user stays unverified);
+      only a signature-verified event may flip stored status.
 - [ ] A user CANNOT self-verify: no endpoint accepts a client-sent "verified"
-  flag or lets a caller PATCH their own status, and landing back on
-  `returnUrl` alone changes nothing — the only path to `verified` is a
-  signature-verified webhook or a server-side `getVerificationStatus` check.
+      flag or lets a caller PATCH their own status, and landing back on
+      `returnUrl` alone changes nothing — the only path to `verified` is a
+      signature-verified webhook or a server-side `getVerificationStatus` check.
 - [ ] SECURITY / PRIVACY — identity documents and PII stay server-side: the
-  user is redirected to the provider-hosted flow (the app never receives or
-  stores raw ID images), one user can't read another's session/status/PII by
-  guessing its id, and neither the documents nor the webhook secret are
-  logged in the clear.
+      user is redirected to the provider-hosted flow (the app never receives or
+      stores raw ID images), one user can't read another's session/status/PII by
+      guessing its id, and neither the documents nor the webhook secret are
+      logged in the clear.

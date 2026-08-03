@@ -3,6 +3,7 @@
 High-performance virtualized spreadsheet cell grid for React.
 
 Exports:
+
 - `<SpreadsheetGrid>` — the grid component (virtualized cells, frozen
   rows/columns, range selection, copy/paste as TSV, in-cell editing).
 - Types: `SpreadsheetGridProps`, `SpreadsheetSelection`, `CellMap`,
@@ -48,9 +49,11 @@ function Sheet() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-spreadsheet-grid-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -186,7 +189,13 @@ the scroll offset, viewport size, item size, and total count. Adds an
 during fast scrolls.
 
 ```typescript
-function computeVisibleRange(scroll: number, viewport: number, itemSize: number, total: number, overscan?: number): [number, number]
+function computeVisibleRange(
+  scroll: number,
+  viewport: number,
+  itemSize: number,
+  total: number,
+  overscan?: number,
+): [number, number]
 ```
 
 - `scroll` — Current scroll position (px).
@@ -281,7 +290,9 @@ pass an evaluated `cells` map and a `renderCell` that can look up
 formula results.
 
 ```typescript
-function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement<unknown, string | JSXElementConstructor<any>>
+function SpreadsheetGrid(
+  props: SpreadsheetGridProps,
+): ReactElement<unknown, string | JSXElementConstructor<any>>
 ```
 
 - `props` — Component props (see {@link SpreadsheetGridProps}).
@@ -293,6 +304,7 @@ function SpreadsheetGrid(props: SpreadsheetGridProps): ReactElement<unknown, str
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

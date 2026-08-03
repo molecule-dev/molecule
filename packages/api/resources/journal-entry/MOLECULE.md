@@ -20,9 +20,11 @@ app.use('/api/journal', createJournalEntryRouter())
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-journal-entry @molecule/api-bonds-default-express @molecule/api-database @molecule/api-encryption @molecule/api-i18n @molecule/api-logger @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -167,7 +169,10 @@ Create a journal entry and, if `mood` is provided, upsert today's
 `mood_entries` row + link it to the journal entry.
 
 ```typescript
-function createEntryForOwner(userId: string, input: CreateEntryInput): Promise<PublicJournalEntry | null>
+function createEntryForOwner(
+  userId: string,
+  input: CreateEntryInput,
+): Promise<PublicJournalEntry | null>
 ```
 
 #### `createJournalEntryRouter()`
@@ -207,7 +212,10 @@ function exportEntries(userId: string, max?: number): Promise<ExportRecord[]>
 Format export records as JSON / CSV / TXT.
 
 ```typescript
-function formatExport(records: ExportRecord[], format: "json" | "csv" | "txt"): { contentType: string; body: string; }
+function formatExport(
+  records: ExportRecord[],
+  format: 'json' | 'csv' | 'txt',
+): { contentType: string; body: string }
 ```
 
 #### `getEntryForOwner(userId, id)`
@@ -255,7 +263,11 @@ function shapeEntry(entry: JournalEntryRow, body: string): Promise<PublicJournal
 Owner-scoped patch update — returns null when missing or not owned.
 
 ```typescript
-function updateEntryForOwner(userId: string, id: string, input: UpdateEntryInput): Promise<PublicJournalEntry | null>
+function updateEntryForOwner(
+  userId: string,
+  id: string,
+  input: UpdateEntryInput,
+): Promise<PublicJournalEntry | null>
 ```
 
 ### Constants
@@ -265,7 +277,25 @@ function updateEntryForOwner(userId: string, id: string, input: UpdateEntryInput
 Validator for creating a new journal entry.
 
 ```typescript
-const createEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "neutral"; low: "low"; struggling: "struggling"; }>>; title: z.ZodOptional<z.ZodString>; body: z.ZodString; tags: z.ZodOptional<z.ZodArray<z.ZodString>>; prompt_id: z.ZodOptional<z.ZodString>; written_at: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createEntrySchema: z.ZodObject<
+  {
+    mood: z.ZodOptional<
+      z.ZodEnum<{
+        radiant: 'radiant'
+        good: 'good'
+        neutral: 'neutral'
+        low: 'low'
+        struggling: 'struggling'
+      }>
+    >
+    title: z.ZodOptional<z.ZodString>
+    body: z.ZodString
+    tags: z.ZodOptional<z.ZodArray<z.ZodString>>
+    prompt_id: z.ZodOptional<z.ZodString>
+    written_at: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `moodLevelSchema`
@@ -273,7 +303,13 @@ const createEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodEnum<{ radiant: 
 Mood level enum used by journal-entry payloads.
 
 ```typescript
-const moodLevelSchema: z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "neutral"; low: "low"; struggling: "struggling"; }>
+const moodLevelSchema: z.ZodEnum<{
+  radiant: 'radiant'
+  good: 'good'
+  neutral: 'neutral'
+  low: 'low'
+  struggling: 'struggling'
+}>
 ```
 
 #### `SCORE_BY_LEVEL`
@@ -289,7 +325,27 @@ const SCORE_BY_LEVEL: Record<MoodLevel, number>
 Validator for updating an existing journal entry.
 
 ```typescript
-const updateEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ radiant: "radiant"; good: "good"; neutral: "neutral"; low: "low"; struggling: "struggling"; }>>>; title: z.ZodOptional<z.ZodOptional<z.ZodString>>; tags: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString>>>; prompt_id: z.ZodOptional<z.ZodOptional<z.ZodString>>; written_at: z.ZodOptional<z.ZodOptional<z.ZodString>>; body: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const updateEntrySchema: z.ZodObject<
+  {
+    mood: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodEnum<{
+          radiant: 'radiant'
+          good: 'good'
+          neutral: 'neutral'
+          low: 'low'
+          struggling: 'struggling'
+        }>
+      >
+    >
+    title: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    tags: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString>>>
+    prompt_id: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    written_at: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    body: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -297,6 +353,7 @@ const updateEntrySchema: z.ZodObject<{ mood: z.ZodOptional<z.ZodOptional<z.ZodEn
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-database` ^1.0.0
@@ -327,26 +384,27 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual journal screens/flows, and check every box
 off one by one. A box you can't check is an integration bug to fix — not a
 skip. This is a PRIVATE journal, so privacy is the defining requirement:
+
 - [ ] Writing an entry persists its real fields — title, body, mood
-  (radiant/good/neutral/low/struggling), tags, and date (written_at) — and
-  the entry then appears in the author's journal list dated correctly (the
-  list is newest-first by written_at) with a word_count matching the body.
+      (radiant/good/neutral/low/struggling), tags, and date (written_at) — and
+      the entry then appears in the author's journal list dated correctly (the
+      list is newest-first by written_at) with a word_count matching the body.
 - [ ] Editing an entry (title / body / mood / tags) and deleting one both
-  reflect in the UI immediately AND survive a reload — the change persisted
-  server-side, not just local state.
+      reflect in the UI immediately AND survive a reload — the change persisted
+      server-side, not just local state.
 - [ ] If the UI filters or searches the list (by tag, mood, or date), only
-  matching entries come back, and the mood shown per entry matches the mood
-  saved for that day (mood rows upsert once per user per day).
+      matching entries come back, and the mood shown per entry matches the mood
+      saved for that day (mood rows upsert once per user per day).
 - [ ] If a write streak or count is shown, it equals the number of
-  consecutive distinct days the author actually wrote, counted on the UTC
-  day boundary and ending today or yesterday — add or remove entries across
-  a day boundary and confirm it recomputes; a JSON/CSV/TXT export downloads
-  only the author's own entries.
+      consecutive distinct days the author actually wrote, counted on the UTC
+      day boundary and ending today or yesterday — add or remove entries across
+      a day boundary and confirm it recomputes; a JSON/CSV/TXT export downloads
+      only the author's own entries.
 - [ ] PRIVACY / AUTHORIZATION — entries are visible ONLY to their author.
-  There is no sharing and no cross-user read path: signed in as a second
-  user, requesting another user's entry id returns 404 (not-owned and truly
-  missing are indistinguishable, so existence is never leaked), and the list
-  and export return only your own rows — no admin or global view surfaces
-  another user's entries. The owner is always the session user, never a
-  userId taken from the request body, and journal content is never written
-  to logs in the clear.
+      There is no sharing and no cross-user read path: signed in as a second
+      user, requesting another user's entry id returns 404 (not-owned and truly
+      missing are indistinguishable, so existence is never leaked), and the list
+      and export return only your own rows — no admin or global view surfaces
+      another user's entries. The owner is always the session user, never a
+      userId taken from the request body, and journal content is never written
+      to logs in the clear.

@@ -3,6 +3,7 @@
 React card-grid and bento-grid layouts.
 
 Exports:
+
 - `<CardGrid>` — responsive grid with configurable column count.
 - `<BentoGrid>` — col/row-span or named-areas layout for mixed-size cards.
 
@@ -26,9 +27,11 @@ import { CardGrid, BentoGrid } from '@molecule/app-card-grid-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-card-grid-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -123,12 +126,7 @@ and grows to `columns` on md+. Typical uses: product grids, post grids,
 dashboard widget rows.
 
 ```typescript
-function CardGrid({
-  children,
-  columns = 3,
-  gap = 'md',
-  className,
-}: CardGridProps): JSX.Element
+function CardGrid({ children, columns = 3, gap = 'md', className }: CardGridProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link CardGridProps}).
@@ -138,6 +136,7 @@ function CardGrid({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

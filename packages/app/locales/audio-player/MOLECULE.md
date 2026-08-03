@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-audio-player-react` package which h
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-audio-player'
-import type { AudioPlayerTranslationKey, AudioPlayerTranslations } from '@molecule/app-locales-audio-player'
+import type {
+  AudioPlayerTranslationKey,
+  AudioPlayerTranslations,
+} from '@molecule/app-locales-audio-player'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `audio.seek` | Seek |
-| `audio.play` | Play |
-| `audio.pause` | Pause |
-| `audio.mute` | Mute |
-| `audio.unmute` | Unmute |
+| Key            | English |
+| -------------- | ------- |
+| `audio.seek`   | Seek    |
+| `audio.play`   | Play    |
+| `audio.pause`  | Pause   |
+| `audio.mute`   | Mute    |
+| `audio.unmute` | Unmute  |
 
 ## Metadata
 

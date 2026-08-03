@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-drawing-toolbar-react` package whic
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-drawing-toolbar'
-import type { DrawingToolbarTranslationKey, DrawingToolbarTranslations } from '@molecule/app-locales-drawing-toolbar'
+import type {
+  DrawingToolbarTranslationKey,
+  DrawingToolbarTranslations,
+} from '@molecule/app-locales-drawing-toolbar'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                    | English       |
+| ---------------------- | ------------- |
 | `drawingToolbar.label` | Drawing tools |
 
 ## Metadata

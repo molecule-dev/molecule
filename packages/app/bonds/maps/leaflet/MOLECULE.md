@@ -22,9 +22,11 @@ map.addMarker({ id: 'a', position: { lat: 51.5, lng: -0.12 }, popup: 'Here' })
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-maps-leaflet @molecule/app-maps leaflet
 npm install -D @types/leaflet
@@ -55,6 +57,7 @@ const provider: MapProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-maps` interface.
 
 ## Bond Wiring
@@ -75,6 +78,7 @@ export function setupMapsLeaflet(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-maps` ^1.0.0
 
 ### Runtime Dependencies
@@ -83,6 +87,7 @@ Peer dependencies:
 - `leaflet`
 
 TWO gotchas that decide whether the map is visible at all:
+
 - **Import `leaflet/dist/leaflet.css` once** (app entry). Without it, tiles and
   markers are mispositioned — the #1 "my Leaflet map looks broken" cause.
 - **The container needs an explicit height** (e.g. `style={{ height: 400 }}`); a

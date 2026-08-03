@@ -35,9 +35,11 @@ async function logTilt(): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-motion @molecule/app-bond @molecule/app-i18n
 ```
@@ -287,7 +289,10 @@ type MotionPermissionStatus = 'granted' | 'denied' | 'prompt' | 'unsupported'
 Create a shake gesture detector that uses accelerometer data to detect device shaking.
 
 ```typescript
-function createShakeDetector(onShake: () => void, options?: ShakeOptions): { start: () => void; stop: () => void; }
+function createShakeDetector(
+  onShake: () => void,
+  options?: ShakeOptions,
+): { start: () => void; stop: () => void }
 ```
 
 - `onShake` — Called when a shake gesture is detected.
@@ -300,7 +305,12 @@ function createShakeDetector(onShake: () => void, options?: ShakeOptions): { sta
 Create a basic step counter using accelerometer peak detection.
 
 ```typescript
-function createStepCounter(onStep: (count: number) => void): { start: () => void; stop: () => void; getCount: () => number; reset: () => void; }
+function createStepCounter(onStep: (count: number) => void): {
+  start: () => void
+  stop: () => void
+  getCount: () => number
+  reset: () => void
+}
 ```
 
 - `onStep` — Called with the cumulative step count each time a step is detected.
@@ -312,7 +322,10 @@ function createStepCounter(onStep: (count: number) => void): { start: () => void
 Create a tilt detector that calculates pitch and roll angles from accelerometer data.
 
 ```typescript
-function createTiltDetector(onChange: (tilt: { pitch: number; roll: number; }) => void, options?: SensorOptions): { start: () => void; stop: () => void; }
+function createTiltDetector(
+  onChange: (tilt: { pitch: number; roll: number }) => void,
+  options?: SensorOptions,
+): { start: () => void; stop: () => void }
 ```
 
 - `onChange` — Called with pitch (front-back tilt) and roll (left-right tilt) angles in degrees.
@@ -465,7 +478,10 @@ function setProvider(provider: MotionProvider): void
 Start receiving accelerometer data updates.
 
 ```typescript
-function startAccelerometer(callback: (data: AccelerometerData) => void, options?: SensorOptions): () => void
+function startAccelerometer(
+  callback: (data: AccelerometerData) => void,
+  options?: SensorOptions,
+): () => void
 ```
 
 - `callback` — Called with AccelerometerData on each sensor reading.
@@ -478,7 +494,10 @@ function startAccelerometer(callback: (data: AccelerometerData) => void, options
 Start receiving gyroscope data updates.
 
 ```typescript
-function startGyroscope(callback: (data: GyroscopeData) => void, options?: SensorOptions): () => void
+function startGyroscope(
+  callback: (data: GyroscopeData) => void,
+  options?: SensorOptions,
+): () => void
 ```
 
 - `callback` — Called with GyroscopeData on each sensor reading.
@@ -491,7 +510,10 @@ function startGyroscope(callback: (data: GyroscopeData) => void, options?: Senso
 Start receiving magnetometer data updates.
 
 ```typescript
-function startMagnetometer(callback: (data: MagnetometerData) => void, options?: SensorOptions): () => void
+function startMagnetometer(
+  callback: (data: MagnetometerData) => void,
+  options?: SensorOptions,
+): () => void
 ```
 
 - `callback` — Called with MagnetometerData on each sensor reading.
@@ -517,7 +539,10 @@ function startMotion(callback: (data: MotionData) => void, options?: SensorOptio
 Start receiving device orientation updates.
 
 ```typescript
-function startOrientation(callback: (data: OrientationData) => void, options?: SensorOptions): () => void
+function startOrientation(
+  callback: (data: OrientationData) => void,
+  options?: SensorOptions,
+): () => void
 ```
 
 - `callback` — Called with OrientationData (alpha, beta, gamma angles) on each reading.
@@ -530,6 +555,7 @@ function startOrientation(callback: (data: OrientationData) => void, options?: S
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

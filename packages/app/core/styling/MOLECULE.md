@@ -18,9 +18,11 @@ const button = cva('btn', { variants: { size: { sm: 'btn-sm', lg: 'btn-lg' } } }
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-styling
 ```
@@ -109,7 +111,10 @@ Given a base class and variant configuration, returns a function that
 resolves the final class string based on selected variants.
 
 ```typescript
-function cva(base: string, config?: CVAConfig<T>): (props?: { [K in keyof T]?: keyof T[K]; } & { class?: string; }) => string
+function cva(
+  base: string,
+  config?: CVAConfig<T>,
+): (props?: { [K in keyof T]?: keyof T[K] } & { class?: string }) => string
 ```
 
 - `base` — The base class that is always included.
@@ -142,8 +147,8 @@ function themeToCSS(theme: ThemeLike): Record<string, string>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider     | Package                          |
+| ------------ | -------------------------------- |
 | Tailwind CSS | `@molecule/app-styling-tailwind` |
 
 ## Injection Notes

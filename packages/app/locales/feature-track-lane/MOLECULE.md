@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-track-lane-react` package w
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-track-lane'
-import type { TrackLaneTranslationKey, TrackLaneTranslations } from '@molecule/app-locales-feature-track-lane'
+import type {
+  TrackLaneTranslationKey,
+  TrackLaneTranslations,
+} from '@molecule/app-locales-feature-track-lane'
 ```
 
 ## Registration
@@ -34,12 +37,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `trackLane.aria.lane` | Track lane {{name}} |
-| `trackLane.aria.clip` | Clip {{label}} starting at {{startTime}}s for {{duration}}s |
-| `trackLane.aria.resize` | Resize clip |
-| `trackLane.header` | Track |
+| Key                     | English                                                     |
+| ----------------------- | ----------------------------------------------------------- |
+| `trackLane.aria.lane`   | Track lane {{name}}                                         |
+| `trackLane.aria.clip`   | Clip {{label}} starting at {{startTime}}s for {{duration}}s |
+| `trackLane.aria.resize` | Resize clip                                                 |
+| `trackLane.header`      | Track                                                       |
 
 ## Metadata
 

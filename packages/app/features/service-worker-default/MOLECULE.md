@@ -26,9 +26,11 @@ setupDefaultServiceWorker(sw, sw.__WB_MANIFEST)
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-service-worker-default workbox-core workbox-expiration workbox-precaching workbox-routing workbox-strategies
 ```
@@ -90,7 +92,11 @@ reference inside the SW file (the tool scans the SW source for
 the token at build time). See the package-level example.
 
 ```typescript
-function setupDefaultServiceWorker(worker: ServiceWorkerGlobalScope, manifest: PrecacheEntry[], options?: DefaultServiceWorkerOptions): void
+function setupDefaultServiceWorker(
+  worker: ServiceWorkerGlobalScope,
+  manifest: PrecacheEntry[],
+  options?: DefaultServiceWorkerOptions,
+): void
 ```
 
 - `worker` — The service-worker global scope (`self`).
@@ -114,6 +120,7 @@ const DEFAULT_IMAGE_EXTENSIONS: readonly string[]
 ### Requirements
 
 Peer dependencies:
+
 - `workbox-core` ^7.0.0
 - `workbox-expiration` ^7.0.0
 - `workbox-precaching` ^7.0.0

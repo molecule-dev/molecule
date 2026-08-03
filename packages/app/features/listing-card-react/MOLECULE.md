@@ -3,6 +3,7 @@
 React product / property / listing card primitives.
 
 Exports:
+
 - `<ListingCard>` — outer Card shell. Props: `children`, `onClick?`,
   `className?`, `dataMolId?`.
 - `<ListingCardMedia>` — top image slot. Props: `src?`, `alt?`, `children?`
@@ -19,23 +20,38 @@ Exports:
 ## Quick Start
 
 ```tsx
-import { ListingCard, ListingCardMedia, ListingCardBody, ListingCardActions, ListingGrid } from '@molecule/app-listing-card-react'
+import {
+  ListingCard,
+  ListingCardMedia,
+  ListingCardBody,
+  ListingCardActions,
+  ListingGrid,
+} from '@molecule/app-listing-card-react'
 
-<ListingGrid columns={3}>
+;<ListingGrid columns={3}>
   <ListingCard onClick={() => navigate(`/listings/${item.id}`)}>
     <ListingCardMedia src={item.imageUrl} aspect="4/3" alt={item.name} />
     <ListingCardBody title={item.name} subtitle={item.location} price={`$${item.price}/night`} />
     <ListingCardActions>
-      <button onClick={(e) => { e.stopPropagation(); saveListing(item.id) }}>Save</button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          saveListing(item.id)
+        }}
+      >
+        Save
+      </button>
     </ListingCardActions>
   </ListingCard>
 </ListingGrid>
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-listing-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -146,12 +162,7 @@ Use for product tiles, property cards, course cards, listings,
 and similar content-card layouts.
 
 ```typescript
-function ListingCard({
-  children,
-  onClick,
-  className,
-  dataMolId,
-}: ListingCardProps): JSX.Element
+function ListingCard({ children, onClick, className, dataMolId }: ListingCardProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link ListingCardProps}).
@@ -226,6 +237,7 @@ function ListingGrid({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

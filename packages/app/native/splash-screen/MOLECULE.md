@@ -24,9 +24,11 @@ async function bootApp(loadInitialData: () => Promise<void>): Promise<void> {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-splash-screen @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -190,7 +192,14 @@ Register tasks with `startTask()`, complete them with `completeTask()`. The spla
 screen is automatically hidden when all registered tasks are complete.
 
 ```typescript
-function createSplashController(): { startTask(taskId: string): void; completeTask(taskId: string, options?: SplashScreenHideOptions): Promise<void>; forceHide(options?: SplashScreenHideOptions): Promise<void>; getPendingCount(): number; isComplete(): boolean; reset(): void; }
+function createSplashController(): {
+  startTask(taskId: string): void
+  completeTask(taskId: string, options?: SplashScreenHideOptions): Promise<void>
+  forceHide(options?: SplashScreenHideOptions): Promise<void>
+  getPendingCount(): number
+  isComplete(): boolean
+  reset(): void
+}
 ```
 
 **Returns:** A controller object with methods to manage loading tasks.
@@ -253,7 +262,10 @@ Hide the splash screen once a readiness condition is met.
 Evaluates the condition immediately; hides only if it returns true.
 
 ```typescript
-function hideWhenReady(condition: () => Promise<boolean> | boolean, options?: SplashScreenHideOptions): Promise<void>
+function hideWhenReady(
+  condition: () => Promise<boolean> | boolean,
+  options?: SplashScreenHideOptions,
+): Promise<void>
 ```
 
 - `condition` — Function returning whether the app is ready (sync or async).
@@ -298,7 +310,11 @@ Run an async task while ensuring the splash screen stays visible for at least
 the minimum duration elapses.
 
 ```typescript
-function showForMinDuration(minDuration: number, task: () => Promise<T>, options?: SplashScreenHideOptions): Promise<T>
+function showForMinDuration(
+  minDuration: number,
+  task: () => Promise<T>,
+  options?: SplashScreenHideOptions,
+): Promise<T>
 ```
 
 - `minDuration` — Minimum time in milliseconds to keep the splash screen visible.
@@ -312,6 +328,7 @@ function showForMinDuration(minDuration: number, task: () => Promise<T>, options
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

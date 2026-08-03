@@ -9,7 +9,7 @@ voice notes, music previews, narrated lessons.
 ```tsx
 import { AudioPlayer } from '@molecule/app-audio-player-react'
 
-<AudioPlayer
+;<AudioPlayer
   src="/audio/episode-42.mp3"
   title="Episode 42: Getting Started"
   subtitle="The Molecule Podcast"
@@ -19,9 +19,11 @@ import { AudioPlayer } from '@molecule/app-audio-player-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-audio-player-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -87,6 +89,7 @@ function AudioPlayer({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

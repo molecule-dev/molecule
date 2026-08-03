@@ -14,16 +14,18 @@ only to swap in a custom provider.
 import { createLogger, error, warn } from '@molecule/app-logger'
 
 warn('cache miss', { key }) // root logger — no setup needed
-error(err)                  // error() accepts an Error directly
+error(err) // error() accepts an Error directly
 
 const log = createLogger('sync') // named/namespaced logger
 log.debug('starting', { count })
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-logger @molecule/app-bond
 ```
@@ -289,7 +291,13 @@ Creates a remote logging transport that batches log entries and
 sends them to a remote endpoint via HTTP POST.
 
 ```typescript
-function createRemoteTransport(options: { url: string; minLevel?: LogLevel; batchSize?: number; flushInterval?: number; headers?: Record<string, string>; }): LogTransport
+function createRemoteTransport(options: {
+  url: string
+  minLevel?: LogLevel
+  batchSize?: number
+  flushInterval?: number
+  headers?: Record<string, string>
+}): LogTransport
 ```
 
 - `options` — Transport configuration.
@@ -450,6 +458,7 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

@@ -34,12 +34,12 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `canvas.aria.surface` | Canvas surface |
-| `canvas.aria.node` | Canvas node |
-| `canvas.aria.edge` | Canvas edge |
-| `canvas.aria.resizeHandle` | Resize node |
+| Key                        | English        |
+| -------------------------- | -------------- |
+| `canvas.aria.surface`      | Canvas surface |
+| `canvas.aria.node`         | Canvas node    |
+| `canvas.aria.edge`         | Canvas edge    |
+| `canvas.aria.resizeHandle` | Resize node    |
 
 ## Metadata
 

@@ -25,9 +25,11 @@ app.use(createCookieParserMiddleware(sessionSecret))
 ```
 
 ## Type
+
 `middleware`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-middleware-cookie-parser @molecule/api-bond
 ```
@@ -53,10 +55,7 @@ interface CookieParseOptions {
 Factory function type for creating cookie parser middleware with secret and options.
 
 ```typescript
-type CookieParserFactory = (
-  secret?: string | string[],
-  options?: CookieParseOptions,
-) => Middleware
+type CookieParserFactory = (secret?: string | string[], options?: CookieParseOptions) => Middleware
 ```
 
 #### `Middleware`
@@ -88,7 +87,10 @@ function cookieParser(req: unknown, res: unknown, next: (err?: unknown) => void)
 Creates cookie parser middleware with custom options via the bonded factory.
 
 ```typescript
-function createCookieParserMiddleware(secret?: string | string[], options?: CookieParseOptions): Middleware
+function createCookieParserMiddleware(
+  secret?: string | string[],
+  options?: CookieParseOptions,
+): Middleware
 ```
 
 - `secret` — Secret string(s) for signed cookie verification.
@@ -151,6 +153,7 @@ function setCookieParserFactory(factory: CookieParserFactory): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

@@ -9,7 +9,11 @@ CSS custom properties provider from `@molecule/app-theme-css-variables`.
 ## Quick Start
 
 ```typescript
-import { createCSSVariablesThemeProvider, lightTheme, darkTheme } from '@molecule/app-theme-css-variables-liquid-glass'
+import {
+  createCSSVariablesThemeProvider,
+  lightTheme,
+  darkTheme,
+} from '@molecule/app-theme-css-variables-liquid-glass'
 import { setProvider } from '@molecule/app-theme'
 
 const provider = createCSSVariablesThemeProvider({
@@ -22,9 +26,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-theme-css-variables-liquid-glass @molecule/app-theme @molecule/app-theme-css-variables
 ```
@@ -39,26 +45,26 @@ Configuration for css variables theme.
 
 ```typescript
 interface CSSVariablesThemeConfig {
-    /** Available themes. */
-    themes: Theme[];
-    /** Name of the default theme to use. */
-    defaultTheme?: string;
-    /** CSS variable prefix (default: 'mol'). */
-    prefix?: string;
-    /** Whether to auto-apply CSS variables to :root (default: true). */
-    applyToDocument?: boolean;
-    /**
-     * Key for persisting the selected theme name across reloads. When `storage`
-     * is omitted, persistence falls back to `window.localStorage` in browser
-     * environments; in SSR / non-browser environments persistence is skipped.
-     */
-    persistKey?: string;
-    /**
-     * Storage adapter for persisting theme preference. Optional — when omitted
-     * and `persistKey` is set, `window.localStorage` is used when available.
-     * Provide an adapter for React Native (AsyncStorage wrapper) or custom stores.
-     */
-    storage?: ThemeStorageAdapter;
+  /** Available themes. */
+  themes: Theme[]
+  /** Name of the default theme to use. */
+  defaultTheme?: string
+  /** CSS variable prefix (default: 'mol'). */
+  prefix?: string
+  /** Whether to auto-apply CSS variables to :root (default: true). */
+  applyToDocument?: boolean
+  /**
+   * Key for persisting the selected theme name across reloads. When `storage`
+   * is omitted, persistence falls back to `window.localStorage` in browser
+   * environments; in SSR / non-browser environments persistence is skipped.
+   */
+  persistKey?: string
+  /**
+   * Storage adapter for persisting theme preference. Optional — when omitted
+   * and `persistKey` is set, `window.localStorage` is used when available.
+   * Provide an adapter for React Native (AsyncStorage wrapper) or custom stores.
+   */
+  storage?: ThemeStorageAdapter
 }
 ```
 
@@ -70,8 +76,8 @@ localStorage, sessionStorage, or any custom implementation
 
 ```typescript
 interface ThemeStorageAdapter {
-    getItem(key: string): string | null;
-    setItem(key: string, value: string): void;
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
 }
 ```
 
@@ -113,6 +119,7 @@ const lightTheme: Theme
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-theme` interface.
 
 ## Injection Notes
@@ -120,6 +127,7 @@ Implements `@molecule/app-theme` interface.
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-theme` ^1.0.0
 - `@molecule/app-theme-css-variables` ^1.0.0
 

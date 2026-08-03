@@ -19,11 +19,7 @@ app.use('/medications', createMedicationRouter())
 ```
 
 ```ts
-import {
-  adherenceRate,
-  createMedicationForOwner,
-  logDose,
-} from '@molecule/api-resource-medication'
+import { adherenceRate, createMedicationForOwner, logDose } from '@molecule/api-resource-medication'
 
 const med = await createMedicationForOwner(userId, {
   name: 'Metformin',
@@ -35,9 +31,11 @@ const { rate } = await adherenceRate(userId, '2026-01-01', '2026-01-31')
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-medication @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation express zod
 npm install -D @types/express
@@ -111,7 +109,11 @@ type MedicationFrequency =
 Adherence summary: percentage of `taken` logs out of all logs in window.
 
 ```typescript
-function adherenceRate(ownerId: string, from: string, to: string): Promise<{ taken: number; total: number; rate: number; }>
+function adherenceRate(
+  ownerId: string,
+  from: string,
+  to: string,
+): Promise<{ taken: number; total: number; rate: number }>
 ```
 
 #### `createMedicationForOwner(ownerId, data)`
@@ -119,7 +121,20 @@ function adherenceRate(ownerId: string, from: string, to: string): Promise<{ tak
 Creates a new medication record owned by the given owner and returns the persisted row.
 
 ```typescript
-function createMedicationForOwner(ownerId: string, data: { name: string; generic_name?: string | null; dosage: string; unit?: string | null; frequency?: MedicationFrequency; times_of_day?: string[]; start_date?: string | null; end_date?: string | null; notes?: string | null; }): Promise<MedicationRow>
+function createMedicationForOwner(
+  ownerId: string,
+  data: {
+    name: string
+    generic_name?: string | null
+    dosage: string
+    unit?: string | null
+    frequency?: MedicationFrequency
+    times_of_day?: string[]
+    start_date?: string | null
+    end_date?: string | null
+    notes?: string | null
+  },
+): Promise<MedicationRow>
 ```
 
 #### `createMedicationRouter()`
@@ -151,7 +166,11 @@ function getMedicationForOwner(medicationId: string, ownerId: string): Promise<M
 Returns dose logs for a medication within an optional time window, or null if the medication is not found or not owned.
 
 ```typescript
-function listLogs(medicationId: string, ownerId: string, opts?: { from?: string; to?: string; limit?: number; }): Promise<MedicationLogRow[] | null>
+function listLogs(
+  medicationId: string,
+  ownerId: string,
+  opts?: { from?: string; to?: string; limit?: number },
+): Promise<MedicationLogRow[] | null>
 ```
 
 #### `listMedicationsForOwner(ownerId, opts?)`
@@ -159,7 +178,10 @@ function listLogs(medicationId: string, ownerId: string, opts?: { from?: string;
 Returns all medications belonging to the given owner, optionally including inactive ones.
 
 ```typescript
-function listMedicationsForOwner(ownerId: string, opts?: { include_inactive?: boolean; }): Promise<MedicationRow[]>
+function listMedicationsForOwner(
+  ownerId: string,
+  opts?: { include_inactive?: boolean },
+): Promise<MedicationRow[]>
 ```
 
 #### `logDose(medicationId, ownerId, data)`
@@ -167,7 +189,15 @@ function listMedicationsForOwner(ownerId: string, opts?: { include_inactive?: bo
 Log a dose. If `status` not provided, infers from `taken_at` vs scheduled times.
 
 ```typescript
-function logDose(medicationId: string, ownerId: string, data: { taken_at?: string; status?: "taken" | "skipped" | "late" | "missed"; notes?: string | null; }): Promise<MedicationLogRow | null>
+function logDose(
+  medicationId: string,
+  ownerId: string,
+  data: {
+    taken_at?: string
+    status?: 'taken' | 'skipped' | 'late' | 'missed'
+    notes?: string | null
+  },
+): Promise<MedicationLogRow | null>
 ```
 
 #### `updateMedicationForOwner(medicationId, ownerId, patch)`
@@ -175,7 +205,11 @@ function logDose(medicationId: string, ownerId: string, data: { taken_at?: strin
 Applies a partial patch to a medication, returning the updated row or null if not found or not owned.
 
 ```typescript
-function updateMedicationForOwner(medicationId: string, ownerId: string, patch: Partial<MedicationRow>): Promise<MedicationRow | null>
+function updateMedicationForOwner(
+  medicationId: string,
+  ownerId: string,
+  patch: Partial<MedicationRow>,
+): Promise<MedicationRow | null>
 ```
 
 ### Constants
@@ -185,7 +219,7 @@ function updateMedicationForOwner(medicationId: string, ownerId: string, patch: 
 Valid status values for a medication dose log entry.
 
 ```typescript
-const LOG_STATUSES: readonly ["taken", "skipped", "late", "missed"]
+const LOG_STATUSES: readonly ['taken', 'skipped', 'late', 'missed']
 ```
 
 #### `logCreateSchema`
@@ -193,7 +227,16 @@ const LOG_STATUSES: readonly ["taken", "skipped", "late", "missed"]
 Zod schema for validating medication dose log creation request payloads.
 
 ```typescript
-const logCreateSchema: z.ZodObject<{ taken_at: z.ZodOptional<z.ZodString>; status: z.ZodOptional<z.ZodEnum<{ taken: "taken"; skipped: "skipped"; late: "late"; missed: "missed"; }>>; notes: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const logCreateSchema: z.ZodObject<
+  {
+    taken_at: z.ZodOptional<z.ZodString>
+    status: z.ZodOptional<
+      z.ZodEnum<{ taken: 'taken'; skipped: 'skipped'; late: 'late'; missed: 'missed' }>
+    >
+    notes: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `MEDICATION_FREQUENCIES`
@@ -201,7 +244,16 @@ const logCreateSchema: z.ZodObject<{ taken_at: z.ZodOptional<z.ZodString>; statu
 Valid dosing frequency options for a medication schedule.
 
 ```typescript
-const MEDICATION_FREQUENCIES: readonly ["once", "daily", "twice_daily", "three_times_daily", "four_times_daily", "as_needed", "weekly", "custom"]
+const MEDICATION_FREQUENCIES: readonly [
+  'once',
+  'daily',
+  'twice_daily',
+  'three_times_daily',
+  'four_times_daily',
+  'as_needed',
+  'weekly',
+  'custom',
+]
 ```
 
 #### `medicationCreateSchema`
@@ -209,7 +261,31 @@ const MEDICATION_FREQUENCIES: readonly ["once", "daily", "twice_daily", "three_t
 Zod schema for validating medication creation request payloads.
 
 ```typescript
-const medicationCreateSchema: z.ZodObject<{ name: z.ZodString; generic_name: z.ZodOptional<z.ZodNullable<z.ZodString>>; dosage: z.ZodString; unit: z.ZodOptional<z.ZodNullable<z.ZodString>>; frequency: z.ZodOptional<z.ZodEnum<{ once: "once"; daily: "daily"; twice_daily: "twice_daily"; three_times_daily: "three_times_daily"; four_times_daily: "four_times_daily"; as_needed: "as_needed"; weekly: "weekly"; custom: "custom"; }>>; times_of_day: z.ZodOptional<z.ZodArray<z.ZodString>>; start_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; end_date: z.ZodOptional<z.ZodNullable<z.ZodString>>; notes: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const medicationCreateSchema: z.ZodObject<
+  {
+    name: z.ZodString
+    generic_name: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    dosage: z.ZodString
+    unit: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    frequency: z.ZodOptional<
+      z.ZodEnum<{
+        once: 'once'
+        daily: 'daily'
+        twice_daily: 'twice_daily'
+        three_times_daily: 'three_times_daily'
+        four_times_daily: 'four_times_daily'
+        as_needed: 'as_needed'
+        weekly: 'weekly'
+        custom: 'custom'
+      }>
+    >
+    times_of_day: z.ZodOptional<z.ZodArray<z.ZodString>>
+    start_date: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    end_date: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    notes: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `medicationUpdateSchema`
@@ -217,7 +293,34 @@ const medicationCreateSchema: z.ZodObject<{ name: z.ZodString; generic_name: z.Z
 Zod schema for validating medication update request payloads; all create fields become optional and `is_active` is added.
 
 ```typescript
-const medicationUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; generic_name: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; dosage: z.ZodOptional<z.ZodString>; unit: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; frequency: z.ZodOptional<z.ZodOptional<z.ZodEnum<{ once: "once"; daily: "daily"; twice_daily: "twice_daily"; three_times_daily: "three_times_daily"; four_times_daily: "four_times_daily"; as_needed: "as_needed"; weekly: "weekly"; custom: "custom"; }>>>; times_of_day: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString>>>; start_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; end_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; notes: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; is_active: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const medicationUpdateSchema: z.ZodObject<
+  {
+    name: z.ZodOptional<z.ZodString>
+    generic_name: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    dosage: z.ZodOptional<z.ZodString>
+    unit: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    frequency: z.ZodOptional<
+      z.ZodOptional<
+        z.ZodEnum<{
+          once: 'once'
+          daily: 'daily'
+          twice_daily: 'twice_daily'
+          three_times_daily: 'three_times_daily'
+          four_times_daily: 'four_times_daily'
+          as_needed: 'as_needed'
+          weekly: 'weekly'
+          custom: 'custom'
+        }>
+      >
+    >
+    times_of_day: z.ZodOptional<z.ZodOptional<z.ZodArray<z.ZodString>>>
+    start_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    end_date: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    notes: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    is_active: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -225,6 +328,7 @@ const medicationUpdateSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; ge
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -258,28 +362,29 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one by
 one. This is HEALTH data: a box you can't check is a correctness or privacy
 bug to fix, never a skip:
+
 - [ ] Adding a medication persists its real fields — `name`, `dosage`,
-  `frequency`, `times_of_day` — and the med then appears in the user's list
-  (`GET /`) carrying those exact values, not a truncated or defaulted copy.
+      `frequency`, `times_of_day` — and the med then appears in the user's list
+      (`GET /`) carrying those exact values, not a truncated or defaulted copy.
 - [ ] The schedule matches the frequency: a `twice_daily` med carries two
-  `times_of_day` entries and the UI shows two dose slots for the day — not one
-  and not three; a `daily` med shows exactly one. (Nothing derives the times
-  from `frequency` automatically, so a mismatch is a real bug to catch here.)
+      `times_of_day` entries and the UI shows two dose slots for the day — not one
+      and not three; a `daily` med shows exactly one. (Nothing derives the times
+      from `frequency` automatically, so a mismatch is a real bug to catch here.)
 - [ ] Logging a dose records it against the right medication and time:
-  `POST /:id/logs` with `status: 'taken'` (and its `taken_at`) then shows in
-  `GET /:id/logs`, and the adherence figure (`GET /adherence`) moves.
+      `POST /:id/logs` with `status: 'taken'` (and its `taken_at`) then shows in
+      `GET /:id/logs`, and the adherence figure (`GET /adherence`) moves.
 - [ ] A skipped or missed dose is reflected HONESTLY — logged with
-  `status: 'missed'`/`'skipped'` it counts toward `total` but NOT `taken`, so
-  it lowers the adherence rate; it is never silently counted as taken (the
-  default status is `taken`, so a miss must be logged as a miss, not omitted).
+      `status: 'missed'`/`'skipped'` it counts toward `total` but NOT `taken`, so
+      it lowers the adherence rate; it is never silently counted as taken (the
+      default status is `taken`, so a miss must be logged as a miss, not omitted).
 - [ ] CORRECTNESS — adherence is a true ratio of logged doses: a brand-new
-  med with zero logged doses reads 0% (`rate` 0, `total` 0), never 100%; a
-  partial day (some doses logged, some not yet) is never shown as complete.
+      med with zero logged doses reads 0% (`rate` 0, `total` 0), never 100%; a
+      partial day (some doses logged, some not yet) is never shown as complete.
 - [ ] If the app tracks refills/supply on top of this resource (the core does
-  not model one), recording a fill decrements the refills-remaining count and
-  a low-supply threshold raises a visible refill flag — verify both live.
+      not model one), recording a fill decrements the refills-remaining count and
+      a low-supply threshold raises a visible refill flag — verify both live.
 - [ ] PRIVACY/AUTHORIZATION — medication data is strictly per-user: signed in
-  as user B, guessing user A's medication id on `GET /:id`, `PUT /:id`,
-  `DELETE /:id`, or `/:id/logs` returns 404 (owner-scoped), never A's row; an
-  unauthenticated request 401s. Confirm PHI (name, dosage, notes) is never
-  written to server logs in the clear.
+      as user B, guessing user A's medication id on `GET /:id`, `PUT /:id`,
+      `DELETE /:id`, or `/:id/logs` returns 404 (owner-scoped), never A's row; an
+      unauthenticated request 401s. Confirm PHI (name, dosage, notes) is never
+      written to server logs in the clear.

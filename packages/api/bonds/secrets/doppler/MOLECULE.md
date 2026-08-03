@@ -15,9 +15,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-secrets-doppler @molecule/api-bond @molecule/api-i18n @molecule/api-secrets
 ```
@@ -110,6 +112,7 @@ const secretsDopplerSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-secrets` interface.
 
 ## Bond Wiring
@@ -130,13 +133,14 @@ export function setupSecretsDoppler(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `DOPPLER_TOKEN` *(required)* — Doppler service token
+- `DOPPLER_TOKEN` _(required)_ — Doppler service token
   - Setup: Create a service token for your project config (Project → Access → Service Tokens).
   - Get it here: [https://dashboard.doppler.com/](https://dashboard.doppler.com/)
   - Example: `dp.st....`

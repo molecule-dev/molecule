@@ -19,9 +19,11 @@ export function NotificationsRoute() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-notifications-page-react @molecule/app-i18n @molecule/app-notification-feed-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -207,6 +209,7 @@ const DEFAULT_TYPE_ICONS: Readonly<Record<string, string>>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-notification-feed-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0

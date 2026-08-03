@@ -16,10 +16,13 @@ Extracted from the crm and employee-onboarding flagships.
 import { ActivityTimeline } from '@molecule/app-activity-timeline-react'
 import { Link } from 'react-router'
 
-<ActivityTimeline
+;<ActivityTimeline
   events={activities.map((a) => ({
-    id: a.id, kind: a.type, title: a.subject,
-    description: a.description, meta: a.due_date,
+    id: a.id,
+    kind: a.type,
+    title: a.subject,
+    description: a.description,
+    meta: a.due_date,
   }))}
   toneByKind={{
     call: { icon: 'call', dotClass: 'bg-primary', iconClass: 'text-on-primary' },
@@ -30,9 +33,11 @@ import { Link } from 'react-router'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-activity-timeline-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -122,11 +127,7 @@ function ActivityTimelineDot({ tone, className }: ActivityTimelineDotProps): JSX
 A single timeline row.
 
 ```typescript
-function ActivityTimelineRow({
-  event,
-  tone,
-  wrapper,
-}: ActivityTimelineRowProps): JSX.Element
+function ActivityTimelineRow({ event, tone, wrapper }: ActivityTimelineRowProps): JSX.Element
 ```
 
 ## Injection Notes
@@ -134,6 +135,7 @@ function ActivityTimelineRow({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

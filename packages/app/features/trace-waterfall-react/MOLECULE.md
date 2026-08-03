@@ -11,12 +11,43 @@ Exports `<TraceWaterfall>`, the `Span` / `SpanStatus` / `SpanRow` /
 ```tsx
 import { TraceWaterfall } from '@molecule/app-trace-waterfall-react'
 
-<TraceWaterfall
+;<TraceWaterfall
   spans={[
-    { id: 'root', name: 'GET /checkout', service: 'api-gw', startTime: 0, duration: 320, status: 'ok' },
-    { id: 'auth', parentId: 'root', name: 'verifyToken', service: 'auth-svc', startTime: 5, duration: 40, status: 'ok' },
-    { id: 'db', parentId: 'root', name: 'db.query', service: 'postgres', startTime: 50, duration: 210, status: 'ok' },
-    { id: 'cache', parentId: 'root', name: 'cache.get', service: 'redis', startTime: 45, duration: 8, status: 'error' },
+    {
+      id: 'root',
+      name: 'GET /checkout',
+      service: 'api-gw',
+      startTime: 0,
+      duration: 320,
+      status: 'ok',
+    },
+    {
+      id: 'auth',
+      parentId: 'root',
+      name: 'verifyToken',
+      service: 'auth-svc',
+      startTime: 5,
+      duration: 40,
+      status: 'ok',
+    },
+    {
+      id: 'db',
+      parentId: 'root',
+      name: 'db.query',
+      service: 'postgres',
+      startTime: 50,
+      duration: 210,
+      status: 'ok',
+    },
+    {
+      id: 'cache',
+      parentId: 'root',
+      name: 'cache.get',
+      service: 'redis',
+      startTime: 45,
+      duration: 8,
+      status: 'error',
+    },
   ]}
   onSpanClick={(span) => console.log('selected', span.id)}
   emptyState={<p>No trace data.</p>}
@@ -24,9 +55,11 @@ import { TraceWaterfall } from '@molecule/app-trace-waterfall-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-trace-waterfall-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -152,6 +185,7 @@ function formatDurationLabel(value: number): string
 Build a hierarchical, time-positioned layout for a flat list of spans.
 
 Behavior:
+
 - Spans are linked by `parentId`. A span whose `parentId` is missing from
   the input (or undefined) is treated as a root.
 - If `rootSpanId` is provided AND that id exists in the input, the
@@ -227,6 +261,7 @@ function TraceWaterfall({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

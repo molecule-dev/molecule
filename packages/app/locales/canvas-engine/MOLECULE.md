@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-canvas-engine-react` package which 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-canvas-engine'
-import type { CanvasEngineTranslationKey, CanvasEngineTranslations } from '@molecule/app-locales-canvas-engine'
+import type {
+  CanvasEngineTranslationKey,
+  CanvasEngineTranslations,
+} from '@molecule/app-locales-canvas-engine'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                         | English              |
+| --------------------------- | -------------------- |
 | `canvasEngine.aria.surface` | Vector canvas editor |
 
 ## Metadata

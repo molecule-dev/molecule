@@ -34,9 +34,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `charts.placeholder.label` | {{type}} chart |
+| Key                              | English                     |
+| -------------------------------- | --------------------------- |
+| `charts.placeholder.label`       | {{type}} chart              |
 | `charts.placeholder.description` | Use a proper chart provider |
 
 ## Metadata

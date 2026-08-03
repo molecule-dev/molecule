@@ -22,13 +22,19 @@ registerLocaleModule(locales)
 t('user.error.notFound', undefined, { defaultValue: 'User not found.' })
 
 // Per-user content (emails, notifications) — per-request locale OPTION
-t('user.email.resetSubject', { appName }, { locale: user.locale, defaultValue: '{{appName}} password reset' })
+t(
+  'user.email.resetSubject',
+  { appName },
+  { locale: user.locale, defaultValue: '{{appName}} password reset' },
+)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-i18n @molecule/api-bond
 ```
@@ -358,7 +364,10 @@ Formats a relative time string (e.g. "2 hours ago", "in 3 days") using
 `Intl.RelativeTimeFormat`.
 
 ```typescript
-function formatRelativeTime(value: number | Date, options?: { unit?: Intl.RelativeTimeFormatUnit; }): string
+function formatRelativeTime(
+  value: number | Date,
+  options?: { unit?: Intl.RelativeTimeFormatUnit },
+): string
 ```
 
 - `value` — The date or timestamp to express relative to now.
@@ -493,7 +502,11 @@ t('user.email.resetSubject', { appName }, { locale: userLocale })
 ```
 
 ```typescript
-function t(key: string, values?: InterpolationValues, options?: { defaultValue?: string; count?: number; locale?: string; }): string
+function t(
+  key: string,
+  values?: InterpolationValues,
+  options?: { defaultValue?: string; count?: number; locale?: string },
+): string
 ```
 
 - `key` — The translation key (dot-notation, e.g. `'user.error.notFound'`).
@@ -518,15 +531,16 @@ const simpleProvider: I18nProvider
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Simple | `@molecule/api-i18n-simple` |
+| Provider | Package                     |
+| -------- | --------------------------- |
+| Simple   | `@molecule/api-i18n-simple` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -556,21 +570,22 @@ Peer dependencies:
 Integration checklist — drive the real flow (no mocks), adapt each item to
 this app's actual localized responses/emails, and check every box off one by
 one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A user-facing server string (an API error message, an email
-  subject/body, a notification) renders TRANSLATED for a non-default locale:
-  set the user's locale (or send Accept-Language) and confirm the
-  response/email comes back in that language, not English — passed per-request
-  as `t(key, values, { locale })`, NEVER a process-global `setLocale()` per
-  request (that races concurrent users and localizes the wrong one).
+      subject/body, a notification) renders TRANSLATED for a non-default locale:
+      set the user's locale (or send Accept-Language) and confirm the
+      response/email comes back in that language, not English — passed per-request
+      as `t(key, values, { locale })`, NEVER a process-global `setLocale()` per
+      request (that races concurrent users and localizes the wrong one).
 - [ ] A missing/untranslated key falls back to its `defaultValue` (rendered
-  English), NOT the raw dot-notation key — a response or email showing
-  `user.error.notFound` verbatim is exactly the bug this prevents.
+      English), NOT the raw dot-notation key — a response or email showing
+      `user.error.notFound` verbatim is exactly the bug this prevents.
 - [ ] `{{variable}}` interpolation fills correctly — the appName/count/etc.
-  appear in the message and no literal `{{appName}}` leaks through.
+      appear in the message and no literal `{{appName}}` leaks through.
 - [ ] If the app pluralizes, `{ count }` resolves the right CLDR form
-  (one/other/…) — and ONLY with a real bonded provider (the auto fallback
-  ignores count), so "1 item" vs "2 items" reads correctly.
+      (one/other/…) — and ONLY with a real bonded provider (the auto fallback
+      ignores count), so "1 item" vs "2 items" reads correctly.
 - [ ] The locale is derived per-request from the authenticated user's
-  preference (or Accept-Language), so two concurrent users with different
-  locales each get their own language — one user's locale never leaks into
-  another's email/response.
+      preference (or Accept-Language), so two concurrent users with different
+      locales each get their own language — one user's locale never leaks into
+      another's email/response.

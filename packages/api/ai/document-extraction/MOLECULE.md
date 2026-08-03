@@ -15,20 +15,31 @@ import type { ExtractionField } from '@molecule/api-ai-document-extraction'
 
 const fields: ExtractionField[] = [
   { name: 'invoice_number', type: 'string', required: true, description: 'The invoice ID/number' },
-  { name: 'total_amount', type: 'number', required: true, description: 'Total amount due in cents' },
+  {
+    name: 'total_amount',
+    type: 'number',
+    required: true,
+    description: 'Total amount due in cents',
+  },
   { name: 'due_date', type: 'date', description: 'Payment due date' },
   { name: 'vendor', type: 'string', description: 'Vendor / supplier name' },
 ]
 
-const result = await extractFields({ text: invoiceText, fields, context: 'Invoice from a B2B vendor' })
+const result = await extractFields({
+  text: invoiceText,
+  fields,
+  context: 'Invoice from a B2B vendor',
+})
 const missing = missingRequiredFields(result, fields)
 if (missing.length) console.warn('Could not extract:', missing)
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-document-extraction @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-i18n @molecule/api-middleware-validation
 ```
@@ -78,7 +89,13 @@ each field with its type and description; the response is validated
 and any missing/required fields are flagged.
 
 ```typescript
-function extractFields(opts: { text: string; fields: ExtractionField[]; context?: string; model?: string; temperature?: number; }): Promise<ExtractionResult<T>>
+function extractFields(opts: {
+  text: string
+  fields: ExtractionField[]
+  context?: string
+  model?: string
+  temperature?: number
+}): Promise<ExtractionResult<T>>
 ```
 
 #### `missingRequiredFields(result, fields)`
@@ -95,6 +112,7 @@ function missingRequiredFields(result: ExtractionResult<T>, fields: ExtractionFi
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

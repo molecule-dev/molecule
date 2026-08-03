@@ -16,9 +16,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-tag'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-tag @molecule/api-database @molecule/api-i18n @molecule/api-locales-tag @molecule/api-logger @molecule/api-permissions @molecule/api-resource
 ```
@@ -125,7 +127,7 @@ Adds a tag to a resource. Expects `tagId` in request body.
 Requires an authenticated session and rejects an unauthenticated caller (401)
 before reading or mutating `resource_tags` — fail-closed defense-in-depth that
 does not depend on the `authenticate` route middleware being wired. Attaching a
-tag is governed by the owner of the *target* resource, but that ownership lives
+tag is governed by the owner of the _target_ resource, but that ownership lives
 in the resource's own package (project/product/…) and is not visible here — this
 package has no generic cross-resource ownership check — so the gate enforced in
 this handler is "must be authenticated"; per-resource owner authorization is the
@@ -155,7 +157,7 @@ shared global taxonomy with no per-row owner, so creating a new taxonomy entry
 is the same class of mutation as update/del. A non-admin caller is rejected
 (401 when unauthenticated, 403 otherwise) before any tag row is inserted —
 defense-in-depth that does not depend on the `requireAdmin` route middleware
-being wired. (Attaching an *existing* tag to a resource is a different, owner-
+being wired. (Attaching an _existing_ tag to a resource is a different, owner-
 governed operation — see `addTag`/`removeTag`.)
 
 ```typescript
@@ -290,7 +292,7 @@ Removes a tag from a resource.
 Requires an authenticated session and rejects an unauthenticated caller (401)
 before mutating `resource_tags` — fail-closed defense-in-depth that does not
 depend on the `authenticate` route middleware being wired. Detaching a tag is
-governed by the owner of the *target* resource, but that ownership lives in the
+governed by the owner of the _target_ resource, but that ownership lives in the
 resource's own package (project/product/…) and is not visible here — this
 package has no generic cross-resource ownership check — so the gate enforced in
 this handler is "must be authenticated"; per-resource owner authorization is the
@@ -368,7 +370,18 @@ mlcl injector's route scanner preserves it — a bare middleware string that
 isn't a handler-map key is silently dropped.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly popular: typeof popular; readonly addTag: typeof addTag; readonly removeTag: typeof removeTag; readonly getBySlug: typeof getBySlug; readonly requireAdmin: MoleculeRequestHandler; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly popular: typeof popular
+  readonly addTag: typeof addTag
+  readonly removeTag: typeof removeTag
+  readonly getBySlug: typeof getBySlug
+  readonly requireAdmin: MoleculeRequestHandler
+}
 ```
 
 #### `routes`
@@ -376,7 +389,42 @@ const requestHandlerMap: { readonly create: typeof create; readonly list: typeof
 Route array for tag CRUD plus resource-tagging and popular/slug lookups.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/tags"; readonly handler: "create"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/tags"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/tags/popular"; readonly handler: "popular"; }, { readonly method: "get"; readonly path: "/tags/:id"; readonly handler: "read"; }, { readonly method: "patch"; readonly path: "/tags/:id"; readonly handler: "update"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "delete"; readonly path: "/tags/:id"; readonly handler: "del"; readonly middlewares: readonly ["requireAdmin"]; }, { readonly method: "get"; readonly path: "/tags/:slug/resources"; readonly handler: "getBySlug"; }, { readonly method: "post"; readonly path: "/:resourceType/:resourceId/tags"; readonly handler: "addTag"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/:resourceType/:resourceId/tags/:tagId"; readonly handler: "removeTag"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/tags'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  { readonly method: 'get'; readonly path: '/tags'; readonly handler: 'list' },
+  { readonly method: 'get'; readonly path: '/tags/popular'; readonly handler: 'popular' },
+  { readonly method: 'get'; readonly path: '/tags/:id'; readonly handler: 'read' },
+  {
+    readonly method: 'patch'
+    readonly path: '/tags/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/tags/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['requireAdmin']
+  },
+  { readonly method: 'get'; readonly path: '/tags/:slug/resources'; readonly handler: 'getBySlug' },
+  {
+    readonly method: 'post'
+    readonly path: '/:resourceType/:resourceId/tags'
+    readonly handler: 'addTag'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/:resourceType/:resourceId/tags/:tagId'
+    readonly handler: 'removeTag'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 #### `TAG_ADMIN_PERMISSION`
@@ -386,7 +434,7 @@ session's `permissions` array, grants tag administration without a bonded
 permissions provider.
 
 ```typescript
-const TAG_ADMIN_PERMISSION: "tag:manage"
+const TAG_ADMIN_PERMISSION: 'tag:manage'
 ```
 
 #### `TAG_PERMISSION_ACTION`
@@ -395,7 +443,7 @@ Permission action checked against `@molecule/api-permissions` for tag
 administration.
 
 ```typescript
-const TAG_PERMISSION_ACTION: "manage"
+const TAG_PERMISSION_ACTION: 'manage'
 ```
 
 #### `TAG_PERMISSION_RESOURCE`
@@ -404,7 +452,7 @@ Permission resource checked against `@molecule/api-permissions` for tag
 administration.
 
 ```typescript
-const TAG_PERMISSION_RESOURCE: "tag"
+const TAG_PERMISSION_RESOURCE: 'tag'
 ```
 
 ## Injection Notes
@@ -412,6 +460,7 @@ const TAG_PERMISSION_RESOURCE: "tag"
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-locales-tag` ^1.0.0
@@ -463,14 +512,15 @@ anywhere else run it once — nothing at runtime creates them.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Creating a tag (name, color) through the UI adds it to the tag list and it
-  persists across a reload.
+      persists across a reload.
 - [ ] Assigning a tag to a resource the user owns succeeds and the tag chip
-  renders on that resource. If EVERY tag write 404s, the ownership resolver
-  was never registered (the routes are fail-closed) — that is an integration
-  bug to fix, not a pass.
+      renders on that resource. If EVERY tag write 404s, the ownership resolver
+      was never registered (the routes are fail-closed) — that is an integration
+      bug to fix, not a pass.
 - [ ] Filtering/browsing by a tag shows exactly the resources carrying it.
 - [ ] Removing a tag from a resource updates the UI immediately and stays
-  removed after a reload.
+      removed after a reload.
 - [ ] A user cannot tag or untag another user's resource (denied, no change).
 - [ ] If a popular-tags surface exists, it reflects actual tag usage.

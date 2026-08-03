@@ -32,9 +32,11 @@ await server.close()
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-mock-server express zod
 npm install -D @types/express
@@ -360,7 +362,12 @@ function applyDelay(state: ResponseState): Promise<void>
 Apply semantic rules to generate a value for a given field name.
 
 ```typescript
-function applySemanticRules(fieldName: string, rng: () => number, index: number, rules?: SemanticRule[]): unknown
+function applySemanticRules(
+  fieldName: string,
+  rng: () => number,
+  index: number,
+  rules?: SemanticRule[],
+): unknown
 ```
 
 - `fieldName` — The name of the field to generate a value for
@@ -376,7 +383,11 @@ Build a complete fixture set for an app type by combining
 data pool records with endpoint definitions.
 
 ```typescript
-function buildFixtureSet(appType: string, endpoints: EndpointDefinition[], fixturesDir?: string): AppFixtureSet | undefined
+function buildFixtureSet(
+  appType: string,
+  endpoints: EndpointDefinition[],
+  fixturesDir?: string,
+): AppFixtureSet | undefined
 ```
 
 - `appType` — The app type
@@ -457,7 +468,11 @@ Generate a single conformant record from a schema, enriched with
 standard fields (id, created_at, updated_at).
 
 ```typescript
-function generateRecord(schema: ZodSchemaDefinition | undefined, rng: () => number, index: number): Record<string, unknown>
+function generateRecord(
+  schema: ZodSchemaDefinition | undefined,
+  rng: () => number,
+  index: number,
+): Record<string, unknown>
 ```
 
 - `schema` — The serialized Zod schema definition
@@ -471,7 +486,13 @@ function generateRecord(schema: ZodSchemaDefinition | undefined, rng: () => numb
 Generate multiple records from a schema definition.
 
 ```typescript
-function generateRecords(schema: ZodSchemaDefinition | undefined, count: number, appType: string, path: string, config?: FixtureConfig): Record<string, unknown>[]
+function generateRecords(
+  schema: ZodSchemaDefinition | undefined,
+  count: number,
+  appType: string,
+  path: string,
+  config?: FixtureConfig,
+): Record<string, unknown>[]
 ```
 
 - `schema` — The serialized Zod schema definition
@@ -503,7 +524,11 @@ function getAppDataPool(fixturesDir: string, appType: string): AppDataPool | und
 Get the response body for a given state, using the endpoint fixture data.
 
 ```typescript
-function getResponseBody(state: ResponseState, method: HttpMethod, fixture: { successResponse: unknown; emptyResponse: unknown; errorResponse: { error: string; }; }): unknown
+function getResponseBody(
+  state: ResponseState,
+  method: HttpMethod,
+  fixture: { successResponse: unknown; emptyResponse: unknown; errorResponse: { error: string } },
+): unknown
 ```
 
 - `state` — The response state
@@ -530,12 +555,13 @@ function getStatusCode(state: ResponseState, method: HttpMethod): number
 Load an AppDataPool from a directory of JSON fixture files.
 
 File naming conventions:
+
 - Array files (e.g. `products.json` containing `[...]`) become CRUD resources
 - Object files (e.g. `reports.json` containing `{key: ...}`) become sub-endpoint groups
   where each key maps to a GET endpoint
 
 Special filenames are treated as report/sub-endpoint groups (object shape expected):
-  `reports.json`, `storefront.json`, `admin.json`
+`reports.json`, `storefront.json`, `admin.json`
 
 All other files are treated as array resources by default.
 
@@ -684,7 +710,9 @@ Express middleware that extracts state control signals from the request
 and attaches them to res.locals for the route handler to use.
 
 ```typescript
-function stateControlMiddleware(defaultState?: ResponseState | (() => ResponseState)): (req: Request, res: Response, next: NextFunction) => void
+function stateControlMiddleware(
+  defaultState?: ResponseState | (() => ResponseState),
+): (req: Request, res: Response, next: NextFunction) => void
 ```
 
 - `defaultState` — The default state to use when no override is provided. Pass a function to have the default resolved per-request (a live getter) — required for `MockServer.setDefaultState()` to take effect after startup, since a plain object is captured once at middleware-creation time.
@@ -696,7 +724,12 @@ function stateControlMiddleware(defaultState?: ResponseState | (() => ResponseSt
 Walk a serialized Zod schema definition and produce conformant data.
 
 ```typescript
-function walkSchema(schema: ZodSchemaDefinition, fieldName: string, rng: () => number, index: number): unknown
+function walkSchema(
+  schema: ZodSchemaDefinition,
+  fieldName: string,
+  rng: () => number,
+  index: number,
+): unknown
 ```
 
 - `schema` — The serialized schema definition
@@ -713,7 +746,12 @@ function walkSchema(schema: ZodSchemaDefinition, fieldName: string, rng: () => n
 Default response states for each scenario
 
 ```typescript
-const DEFAULT_STATES: { readonly success: { readonly state: "success"; }; readonly empty: { readonly state: "empty"; }; readonly error: { readonly state: "error"; readonly statusCode: 500; }; readonly unauthorized: { readonly state: "unauthorized"; readonly statusCode: 401; }; }
+const DEFAULT_STATES: {
+  readonly success: { readonly state: 'success' }
+  readonly empty: { readonly state: 'empty' }
+  readonly error: { readonly state: 'error'; readonly statusCode: 500 }
+  readonly unauthorized: { readonly state: 'unauthorized'; readonly statusCode: 401 }
+}
 ```
 
 #### `defaultSemanticRules`
@@ -757,6 +795,7 @@ const MAX_MOCK_DELAY_MS: 60000
 ### Requirements
 
 Peer dependencies:
+
 - `zod` >=4.0.0
 
 ### Runtime Dependencies

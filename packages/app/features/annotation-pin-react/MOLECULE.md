@@ -31,9 +31,11 @@ function ImageAnnotator({ src, pins, setPins, activeId, setActiveId }) {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-annotation-pin-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -153,6 +155,7 @@ map-tile element) and overlays each `pins[]` entry as a clickable
 `<AnnotationPin>` marker.
 
 Click behaviour:
+
 - clicking a pin marker fires `onPinClick(pinId)`
 - clicking empty space on the layer fires `onSurfaceClick({ x, y })`,
   which callers typically use to add a new pin
@@ -202,6 +205,7 @@ function AnnotationPin(props: AnnotationPinProps): JSX.Element
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `react` ^18.0.0 || ^19.0.0

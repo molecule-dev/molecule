@@ -3,6 +3,7 @@
 React multi-slot join-code input.
 
 Exports:
+
 - `<JoinCode>` — N-slot single-character input with auto-advance, paste-to-fill,
   alphabet validation, and `onComplete` notification.
 - `JoinCodeProps`, `JoinCodeAlphabet` — public types.
@@ -14,7 +15,7 @@ Companion locale bond: `@molecule/app-locales-join-code`.
 ```tsx
 import { JoinCode } from '@molecule/app-join-code-react'
 
-<JoinCode
+;<JoinCode
   length={6}
   alphabet="alphanumeric"
   onChange={(code) => setCode(code)}
@@ -23,9 +24,11 @@ import { JoinCode } from '@molecule/app-join-code-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-join-code-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -127,6 +130,7 @@ function JoinCode(props: JoinCodeProps): ReactElement<unknown, string | JSXEleme
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

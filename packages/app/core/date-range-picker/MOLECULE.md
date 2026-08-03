@@ -13,20 +13,24 @@ renders the calendar/presets and feeds selections into the instance.
 import { setProvider, requireProvider } from '@molecule/app-date-range-picker'
 import { provider } from '@molecule/app-date-range-picker-default'
 
-setProvider(provider)                    // once, at app startup (bonds.ts)
+setProvider(provider) // once, at app startup (bonds.ts)
 
 const picker = requireProvider().createPicker({
   startDate: new Date('2025-01-01'),
   endDate: new Date('2025-01-31'),
-  presets: [{ label: t('dates.last30', undefined, { defaultValue: 'Last 30 days' }), range: last30 }],
+  presets: [
+    { label: t('dates.last30', undefined, { defaultValue: 'Last 30 days' }), range: last30 },
+  ],
   onChange: (range) => loadReport(range),
 })
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-date-range-picker @molecule/app-bond
 ```
@@ -203,8 +207,8 @@ function setProvider(provider: DateRangePickerProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider          | Package                                   |
+| ----------------- | ----------------------------------------- |
 | Date Range Picker | `@molecule/app-date-range-picker-default` |
 
 ## Injection Notes
@@ -212,6 +216,7 @@ function setProvider(provider: DateRangePickerProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -239,23 +244,24 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual calendar/preset UI and whatever the selected
 range filters, and check every box off one by one. A box you can't check is
 an integration bug to fix — not a skip:
+
 - [ ] Selecting a start date then an end date produces a valid range with
-  `startDate <= endDate`, that exact range shows in the input/display, and it
-  fires once via `onChange` with a `{ startDate, endDate }` payload.
+      `startDate <= endDate`, that exact range shows in the input/display, and it
+      fires once via `onChange` with a `{ startDate, endDate }` payload.
 - [ ] Picking an end earlier than the start never yields an inverted range —
-  the UI either swaps them (start stays <= end) or blocks the pick; confirm by
-  reading both the displayed range and the `onChange` payload.
+      the UI either swaps them (start stays <= end) or blocks the pick; confirm by
+      reading both the displayed range and the `onChange` payload.
 - [ ] Each exposed preset sets the correct range: a "Last 7 days" preset
-  selects today-minus-6 through today (inclusive), and the calendar + display
-  reflect that span.
+      selects today-minus-6 through today (inclusive), and the calendar + display
+      reflect that span.
 - [ ] `minDate`/`maxDate` bounds hold in the UI — a date outside the allowed
-  window can't be picked (it renders out-of-range/greyed), and any disabled
-  dates are non-selectable.
+      window can't be picked (it renders out-of-range/greyed), and any disabled
+      dates are non-selectable.
 - [ ] If the app uses single-date mode (`singleDate: true`), picking one day
-  sets `startDate` and `endDate` to that same day and `onChange` fires with a
-  same-day range — no second click required.
+      sets `startDate` and `endDate` to that same day and `onChange` fires with a
+      same-day range — no second click required.
 - [ ] The selected range drives its consumer: the filtered list/report/chart
-  that reads the range re-queries and shows only rows within it — change the
-  range and the results change with it.
+      that reads the range re-queries and shows only rows within it — change the
+      range and the results change with it.
 - [ ] Clearing resets the selection — the display empties, `getValue()` returns
-  `null`, and the dependent view returns to its unfiltered/default state.
+      `null`, and the dependent view returns to its unfiltered/default state.

@@ -22,9 +22,11 @@ setProvider(sesInbound)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-emails-inbound-ses @molecule/api-emails @molecule/api-emails-inbound @molecule/api-secrets mailparser
 npm install -D @types/mailparser
@@ -45,64 +47,64 @@ specifics (raw MIME, signing tokens, etc.) MUST NOT leak into this type.
 
 ```typescript
 interface InboundEmail {
-    /**
-     * Stable provider-supplied identifier for the message. Used for
-     * deduplication when the same webhook is retried.
-     */
-    id: string;
-    /**
-     * Sender address (RFC 5322 mailbox), e.g. `'alice@example.com'`.
-     */
-    from: string;
-    /**
-     * Primary recipient addresses (the values from the `To:` header).
-     */
-    to: string[];
-    /**
-     * Carbon-copy recipient addresses, if present.
-     */
-    cc?: string[];
-    /**
-     * Subject line, decoded to a plain string. May be empty.
-     */
-    subject: string;
-    /**
-     * Plain-text body of the message, if present.
-     */
-    textBody?: string;
-    /**
-     * HTML body of the message, if present.
-     */
-    htmlBody?: string;
-    /**
-     * Decoded attachments. An empty array when the message has none.
-     */
-    attachments?: InboundEmailAttachment[];
-    /**
-     * All headers from the raw message, lowercased keys to canonicalize the
-     * many capitalizations that mail servers use. Multi-value headers
-     * (`Received:`, etc.) are joined with newlines or returned as arrays at
-     * provider discretion — see provider docs.
-     */
-    headers: Record<string, string | string[]>;
-    /**
-     * Server-side timestamp the inbound provider received the message.
-     */
-    receivedAt: Date;
-    /**
-     * Optional `Message-ID` header value for threading. Surfaced separately
-     * from {@link headers} because helpdesk handlers almost always need it.
-     */
-    messageId?: string;
-    /**
-     * Optional `In-Reply-To` header value for threading replies into an
-     * existing ticket.
-     */
-    inReplyTo?: string;
-    /**
-     * Optional `References` header values for threading.
-     */
-    references?: string[];
+  /**
+   * Stable provider-supplied identifier for the message. Used for
+   * deduplication when the same webhook is retried.
+   */
+  id: string
+  /**
+   * Sender address (RFC 5322 mailbox), e.g. `'alice@example.com'`.
+   */
+  from: string
+  /**
+   * Primary recipient addresses (the values from the `To:` header).
+   */
+  to: string[]
+  /**
+   * Carbon-copy recipient addresses, if present.
+   */
+  cc?: string[]
+  /**
+   * Subject line, decoded to a plain string. May be empty.
+   */
+  subject: string
+  /**
+   * Plain-text body of the message, if present.
+   */
+  textBody?: string
+  /**
+   * HTML body of the message, if present.
+   */
+  htmlBody?: string
+  /**
+   * Decoded attachments. An empty array when the message has none.
+   */
+  attachments?: InboundEmailAttachment[]
+  /**
+   * All headers from the raw message, lowercased keys to canonicalize the
+   * many capitalizations that mail servers use. Multi-value headers
+   * (`Received:`, etc.) are joined with newlines or returned as arrays at
+   * provider discretion — see provider docs.
+   */
+  headers: Record<string, string | string[]>
+  /**
+   * Server-side timestamp the inbound provider received the message.
+   */
+  receivedAt: Date
+  /**
+   * Optional `Message-ID` header value for threading. Surfaced separately
+   * from {@link headers} because helpdesk handlers almost always need it.
+   */
+  messageId?: string
+  /**
+   * Optional `In-Reply-To` header value for threading replies into an
+   * existing ticket.
+   */
+  inReplyTo?: string
+  /**
+   * Optional `References` header values for threading.
+   */
+  references?: string[]
 }
 ```
 
@@ -116,31 +118,31 @@ JSON-serializable across IPC, queue, and webhook boundaries.
 
 ```typescript
 interface InboundEmailAttachment {
-    /**
-     * The original filename as supplied by the sender, or a provider-derived
-     * fallback when the sender omitted one.
-     */
-    name: string;
-    /**
-     * MIME type of the attachment (e.g. `'application/pdf'`, `'image/png'`).
-     * Defaults to `'application/octet-stream'` when the provider cannot
-     * determine the type.
-     */
-    contentType: string;
-    /**
-     * Attachment payload, base64-encoded.
-     */
-    contentBase64: string;
-    /**
-     * Optional size hint in bytes of the decoded payload. Providers MAY set
-     * this from upstream headers without decoding the payload themselves.
-     */
-    sizeBytes?: number;
-    /**
-     * Optional Content-ID, used for inline images referenced from the HTML
-     * body via `cid:` URLs.
-     */
-    contentId?: string;
+  /**
+   * The original filename as supplied by the sender, or a provider-derived
+   * fallback when the sender omitted one.
+   */
+  name: string
+  /**
+   * MIME type of the attachment (e.g. `'application/pdf'`, `'image/png'`).
+   * Defaults to `'application/octet-stream'` when the provider cannot
+   * determine the type.
+   */
+  contentType: string
+  /**
+   * Attachment payload, base64-encoded.
+   */
+  contentBase64: string
+  /**
+   * Optional size hint in bytes of the decoded payload. Providers MAY set
+   * this from upstream headers without decoding the payload themselves.
+   */
+  sizeBytes?: number
+  /**
+   * Optional Content-ID, used for inline images referenced from the HTML
+   * body via `cid:` URLs.
+   */
+  contentId?: string
 }
 ```
 
@@ -160,85 +162,91 @@ a public webhook endpoint; {@link verifySignature} is the hook for
 that. Providers without signed webhooks SHOULD return `false` rather
 than `true` so callers can decide whether to accept unsigned mail.
 
-```typescript
+````typescript
 interface InboundEmailProvider {
-    /**
-     * Parses the raw webhook payload (HTTP headers + body) into a
-     * normalized {@link InboundEmail}.
-     *
-     * @param headers - HTTP request headers received by the webhook
-     *   endpoint. Lowercased keys are recommended but not required;
-     *   implementations MUST handle either casing.
-     * @param body - Raw HTTP request body. May be a `Buffer` (e.g. from a
-     *   raw body parser), a `string`, or an already-parsed object provided
-     *   by an upstream JSON middleware.
-     * @returns The normalized inbound email.
-     */
-    parseWebhookPayload(headers: Record<string, string | string[] | undefined>, body: Buffer | string | Record<string, unknown>): Promise<InboundEmail>;
-    /**
-     * Verifies the signature of a webhook request, using whatever scheme
-     * the provider exposes (Mailgun HMAC, SES SNS subscription
-     * confirmation, etc.). Implementations MUST be constant-time when
-     * comparing secrets.
-     *
-     * A genuinely invalid webhook (forged, stale, malformed, tampered
-     * signature) resolves `false` — that is the normal, expected failure
-     * path and callers map it to a `401`. Implementations MAY instead THROW
-     * a tagged configuration error (e.g. via `configNotConfiguredError()`
-     * from `@molecule/api-secrets`) when the provider itself is
-     * misconfigured — for example a missing signing key/secret. This is a
-     * DISTINCT failure class from a `false` return: a misconfigured server
-     * is not the same problem as a forged request, and collapsing both into
-     * the same `false` makes a broken deployment indistinguishable from an
-     * attack, with no trace either way. `@molecule/api-emails-inbound-mailgun`
-     * follows this pattern — `verifySignature` throws the tagged
-     * `config.notConfigured` error when `MAILGUN_API_KEY` is unset, and
-     * resolves `false` for every other verification failure.
-     *
-     * @param headers - HTTP request headers received by the webhook
-     *   endpoint.
-     * @param body - Raw HTTP request body. Implementations that need the
-     *   exact bytes (e.g. for HMAC) MUST be passed a `Buffer`.
-     * @returns `true` when the signature is valid, `false` for an
-     *   invalid/forged/stale/malformed webhook.
-     * @throws {Error} Implementations MAY throw a tagged configuration error
-     *   when the provider is missing required configuration (e.g. an unset
-     *   signing key) — a server misconfiguration, not an invalid request.
-     * @example
-     * ```typescript
-     * // In an HTTP handler bound to the inbound webhook URL:
-     * const ok = await verifySignature(req.headers, req.rawBody)
-     * if (!ok) return res.status(401).end()
-     * // A thrown configuration error (server misconfigured) is deliberately
-     * // NOT caught above — do not wrap this call in a try/catch that maps
-     * // every failure to the same 401. Let it propagate to standard error
-     * // middleware, which maps a tagged config error to a 503, distinct
-     * // from the 401 an invalid/forged webhook gets.
-     * ```
-     */
-    verifySignature(headers: Record<string, string | string[] | undefined>, body: Buffer | string): Promise<boolean>;
-    /**
-     * Optional: dispatches an outbound reply through the provider's own
-     * reply mechanism. Providers that do not support reply dispatch (e.g.
-     * pure inbound-only adapters) SHOULD omit this method; callers MUST
-     * use {@link InboundEmailProvider.supportsReply} to detect support.
-     *
-     * @param email - The original inbound email being replied to.
-     * @param reply - The reply payload.
-     * @returns Result of the dispatch.
-     */
-    replyTo?(email: InboundEmail, reply: InboundEmailReply): Promise<InboundEmailReplyResult>;
-    /**
-     * Indicates whether the provider supports outbound reply dispatch via
-     * {@link replyTo}. Implementations SHOULD return a stable `true` /
-     * `false` based on their own configuration; the property is a function
-     * so providers can defer to runtime configuration if needed.
-     *
-     * @returns `true` when {@link replyTo} is implemented and ready to use.
-     */
-    supportsReply(): boolean;
+  /**
+   * Parses the raw webhook payload (HTTP headers + body) into a
+   * normalized {@link InboundEmail}.
+   *
+   * @param headers - HTTP request headers received by the webhook
+   *   endpoint. Lowercased keys are recommended but not required;
+   *   implementations MUST handle either casing.
+   * @param body - Raw HTTP request body. May be a `Buffer` (e.g. from a
+   *   raw body parser), a `string`, or an already-parsed object provided
+   *   by an upstream JSON middleware.
+   * @returns The normalized inbound email.
+   */
+  parseWebhookPayload(
+    headers: Record<string, string | string[] | undefined>,
+    body: Buffer | string | Record<string, unknown>,
+  ): Promise<InboundEmail>
+  /**
+   * Verifies the signature of a webhook request, using whatever scheme
+   * the provider exposes (Mailgun HMAC, SES SNS subscription
+   * confirmation, etc.). Implementations MUST be constant-time when
+   * comparing secrets.
+   *
+   * A genuinely invalid webhook (forged, stale, malformed, tampered
+   * signature) resolves `false` — that is the normal, expected failure
+   * path and callers map it to a `401`. Implementations MAY instead THROW
+   * a tagged configuration error (e.g. via `configNotConfiguredError()`
+   * from `@molecule/api-secrets`) when the provider itself is
+   * misconfigured — for example a missing signing key/secret. This is a
+   * DISTINCT failure class from a `false` return: a misconfigured server
+   * is not the same problem as a forged request, and collapsing both into
+   * the same `false` makes a broken deployment indistinguishable from an
+   * attack, with no trace either way. `@molecule/api-emails-inbound-mailgun`
+   * follows this pattern — `verifySignature` throws the tagged
+   * `config.notConfigured` error when `MAILGUN_API_KEY` is unset, and
+   * resolves `false` for every other verification failure.
+   *
+   * @param headers - HTTP request headers received by the webhook
+   *   endpoint.
+   * @param body - Raw HTTP request body. Implementations that need the
+   *   exact bytes (e.g. for HMAC) MUST be passed a `Buffer`.
+   * @returns `true` when the signature is valid, `false` for an
+   *   invalid/forged/stale/malformed webhook.
+   * @throws {Error} Implementations MAY throw a tagged configuration error
+   *   when the provider is missing required configuration (e.g. an unset
+   *   signing key) — a server misconfiguration, not an invalid request.
+   * @example
+   * ```typescript
+   * // In an HTTP handler bound to the inbound webhook URL:
+   * const ok = await verifySignature(req.headers, req.rawBody)
+   * if (!ok) return res.status(401).end()
+   * // A thrown configuration error (server misconfigured) is deliberately
+   * // NOT caught above — do not wrap this call in a try/catch that maps
+   * // every failure to the same 401. Let it propagate to standard error
+   * // middleware, which maps a tagged config error to a 503, distinct
+   * // from the 401 an invalid/forged webhook gets.
+   * ```
+   */
+  verifySignature(
+    headers: Record<string, string | string[] | undefined>,
+    body: Buffer | string,
+  ): Promise<boolean>
+  /**
+   * Optional: dispatches an outbound reply through the provider's own
+   * reply mechanism. Providers that do not support reply dispatch (e.g.
+   * pure inbound-only adapters) SHOULD omit this method; callers MUST
+   * use {@link InboundEmailProvider.supportsReply} to detect support.
+   *
+   * @param email - The original inbound email being replied to.
+   * @param reply - The reply payload.
+   * @returns Result of the dispatch.
+   */
+  replyTo?(email: InboundEmail, reply: InboundEmailReply): Promise<InboundEmailReplyResult>
+  /**
+   * Indicates whether the provider supports outbound reply dispatch via
+   * {@link replyTo}. Implementations SHOULD return a stable `true` /
+   * `false` based on their own configuration; the property is a function
+   * so providers can defer to runtime configuration if needed.
+   *
+   * @returns `true` when {@link replyTo} is implemented and ready to use.
+   */
+  supportsReply(): boolean
 }
-```
+````
 
 #### `InboundEmailReply`
 
@@ -253,33 +261,33 @@ SHOULD fall back to the regular `@molecule/api-emails` outbound bond.
 
 ```typescript
 interface InboundEmailReply {
-    /**
-     * Subject line for the outbound reply. If omitted, providers SHOULD
-     * default to the original subject prefixed with `'Re: '` (locale-aware
-     * prefixing is the caller's responsibility).
-     */
-    subject?: string;
-    /**
-     * Plain-text body of the reply, if any.
-     */
-    textBody?: string;
-    /**
-     * HTML body of the reply, if any.
-     */
-    htmlBody?: string;
-    /**
-     * Attachments to send with the reply.
-     */
-    attachments?: InboundEmailAttachment[];
-    /**
-     * Optional override for the `From:` address. Defaults to the address
-     * the original message was sent to (the inbound mailbox).
-     */
-    from?: string;
-    /**
-     * Optional additional headers to set on the outbound message.
-     */
-    headers?: Record<string, string>;
+  /**
+   * Subject line for the outbound reply. If omitted, providers SHOULD
+   * default to the original subject prefixed with `'Re: '` (locale-aware
+   * prefixing is the caller's responsibility).
+   */
+  subject?: string
+  /**
+   * Plain-text body of the reply, if any.
+   */
+  textBody?: string
+  /**
+   * HTML body of the reply, if any.
+   */
+  htmlBody?: string
+  /**
+   * Attachments to send with the reply.
+   */
+  attachments?: InboundEmailAttachment[]
+  /**
+   * Optional override for the `From:` address. Defaults to the address
+   * the original message was sent to (the inbound mailbox).
+   */
+  from?: string
+  /**
+   * Optional additional headers to set on the outbound message.
+   */
+  headers?: Record<string, string>
 }
 ```
 
@@ -290,10 +298,10 @@ Result of a successful reply dispatch via
 
 ```typescript
 interface InboundEmailReplyResult {
-    /**
-     * Provider-supplied identifier for the dispatched outbound message.
-     */
-    id: string;
+  /**
+   * Provider-supplied identifier for the dispatched outbound message.
+   */
+  id: string
 }
 ```
 
@@ -437,7 +445,16 @@ format; the canonical string is built from key/value pairs separated by
 `\n`, with a trailing `\n` after the last value.
 
 ```typescript
-function buildSnsCanonicalString(payload: { Type?: string; Message?: string; MessageId?: string; Subject?: string; SubscribeURL?: string; Timestamp?: string; Token?: string; TopicArn?: string; }): string
+function buildSnsCanonicalString(payload: {
+  Type?: string
+  Message?: string
+  MessageId?: string
+  Subject?: string
+  SubscribeURL?: string
+  Timestamp?: string
+  Token?: string
+  TopicArn?: string
+}): string
 ```
 
 - `payload` — The SNS notification payload.
@@ -450,7 +467,10 @@ Returns the value of `headers[name]` (case-insensitive) coerced to a
 single string.
 
 ```typescript
-function getHeader(headers: Record<string, string | string[] | undefined>, name: string): string | undefined
+function getHeader(
+  headers: Record<string, string | string[] | undefined>,
+  name: string,
+): string | undefined
 ```
 
 - `headers` — The headers object.
@@ -522,7 +542,10 @@ S3-only delivery mode can reuse the same parser by fetching the S3
 object themselves and calling this helper.
 
 ```typescript
-function parseRawMimeContent(raw: string | Buffer<ArrayBufferLike>, overrides?: Partial<InboundEmail>): Promise<InboundEmail>
+function parseRawMimeContent(
+  raw: string | Buffer<ArrayBufferLike>,
+  overrides?: Partial<InboundEmail>,
+): Promise<InboundEmail>
 ```
 
 - `raw` — The raw RFC 822 message bytes.
@@ -546,7 +569,10 @@ whose `headers['x-sns-subscribe-url']` carries the confirmation URL —
 applications inspect this so they can subscribe out-of-band.
 
 ```typescript
-function parseWebhookPayload(_headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike> | Record<string, unknown>): Promise<InboundEmail>
+function parseWebhookPayload(
+  _headers: Record<string, string | string[] | undefined>,
+  body: string | Buffer<ArrayBufferLike> | Record<string, unknown>,
+): Promise<InboundEmail>
 ```
 
 - `_headers` — HTTP headers (unused).
@@ -626,7 +652,10 @@ AWS SNS signature-verification flow:
 Errors NEVER leak signing material; failures simply return `false`.
 
 ```typescript
-function verifySignature(_headers: Record<string, string | string[] | undefined>, body: string | Buffer<ArrayBufferLike>): Promise<boolean>
+function verifySignature(
+  _headers: Record<string, string | string[] | undefined>,
+  body: string | Buffer<ArrayBufferLike>,
+): Promise<boolean>
 ```
 
 - `_headers` — HTTP headers (unused — SNS signs the body).
@@ -667,6 +696,7 @@ const SNS_SIGNING_CERT_HOSTNAME_SUFFIXES: readonly string[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-emails-inbound` interface.
 
 ## Bond Wiring
@@ -687,27 +717,28 @@ export function setupEmailsInboundSes(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-emails` ^1.0.0
 - `@molecule/api-emails-inbound` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `AWS_ACCESS_KEY_ID` *(required)* — AWS access key ID
+- `AWS_ACCESS_KEY_ID` _(required)_ — AWS access key ID
   - Setup: Create an IAM user with the needed policy (SES/S3/SQS) and create an access key under Security credentials.
   - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
   - Example: `AKIA...`
-- `AWS_SECRET_ACCESS_KEY` *(required)* — AWS secret access key
+- `AWS_SECRET_ACCESS_KEY` _(required)_ — AWS secret access key
   - Setup: Shown once when creating the IAM access key — store it immediately.
   - Get it here: [https://console.aws.amazon.com/iam/](https://console.aws.amazon.com/iam/)
-- `AWS_SES_REGION` *(required)* — AWS SES region
+- `AWS_SES_REGION` _(required)_ — AWS SES region
   - Setup: The AWS region where SES is set up (and out of sandbox for production sending).
   - Example: `us-east-1`
-- `AWS_SES_INBOUND_TOPIC_ARN` *(optional)* — SES inbound SNS topic ARN
+- `AWS_SES_INBOUND_TOPIC_ARN` _(optional)_ — SES inbound SNS topic ARN
   - Setup: ARN of the SNS topic your SES receipt rule publishes inbound mail to.
   - Get it here: [https://console.aws.amazon.com/ses/](https://console.aws.amazon.com/ses/)
   - Example: `arn:aws:sns:us-east-1:123456789012:ses-inbound`
-- `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` *(optional)* — SNS signing-cert hostname allowlist — default: `.amazonaws.com`
+- `AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES` _(optional)_ — SNS signing-cert hostname allowlist — default: `.amazonaws.com`
   - Setup: Comma-separated hostname suffixes allowed for SNS signature certificates; the default (.amazonaws.com) is fine.
   - Example: `.amazonaws.com`
 
@@ -741,31 +772,32 @@ the way the provider does (Mailgun signs HMAC-SHA256 of `timestamp+token` with
 `MAILGUN_API_KEY` inside the replay window; read the key from the Environment
 panel / `.env.molecule`). Never disable `verifySignature()` or mock
 `parseWebhookPayload()` to go green — that proves nothing.
+
 - [ ] A signed sample webhook to the inbound endpoint parses into the
-  normalized fields (from / to / subject / textBody / htmlBody) AND the app
-  ACTS on it — it files the mail into the right place (creates a ticket, a
-  comment on a thread, or a reply-thread) keyed off the recipient (`support@`)
-  or a plus-address / thread token (`reply+<id>@`). Verify the CREATED record
-  (a DB row, and it shows up in the UI) — not just a 200.
+      normalized fields (from / to / subject / textBody / htmlBody) AND the app
+      ACTS on it — it files the mail into the right place (creates a ticket, a
+      comment on a thread, or a reply-thread) keyed off the recipient (`support@`)
+      or a plus-address / thread token (`reply+<id>@`). Verify the CREATED record
+      (a DB row, and it shows up in the UI) — not just a 200.
 - [ ] Routing is correct: an email to `support@` opens a NEW ticket, while
-  `reply+<id>@` (or an `In-Reply-To` / `References` match) threads onto the
-  EXISTING one — each lands in the right user's / conversation's place, never
-  a stranger's.
+      `reply+<id>@` (or an `In-Reply-To` / `References` match) threads onto the
+      EXISTING one — each lands in the right user's / conversation's place, never
+      a stranger's.
 - [ ] Attachments survive: an inbound message with an attachment has it
-  decoded from `attachments[].contentBase64` and stored on the app's OWN
-  storage (the uploads bond), not left as a provider link — the stored file
-  opens from the ticket.
+      decoded from `attachments[].contentBase64` and stored on the app's OWN
+      storage (the uploads bond), not left as a provider link — the stored file
+      opens from the ticket.
 - [ ] Retries don't duplicate: re-POST the SAME webhook (providers retry slow
-  / 5xx deliveries) and confirm handling is idempotent — one ticket, not two
-  (dedupe on `id` / `messageId`).
+      / 5xx deliveries) and confirm handling is idempotent — one ticket, not two
+      (dedupe on `id` / `messageId`).
 - [ ] Malformed / empty payloads (missing `body-plain`, no attachments, absent
-  headers) are handled without a crash — a clean response, not a 500 stack
-  trace.
+      headers) are handled without a crash — a clean response, not a 500 stack
+      trace.
 - [ ] SECURITY — the endpoint is AUTHENTICATED: a forged POST with a bad or
-  missing signature (or a `timestamp` outside the replay window) is REJECTED
-  (401) and creates NO record, so an attacker can't inject mail into another
-  user's thread. A missing signing key is a DISTINCT 503, not a 401 — a
-  server misconfig must not masquerade as an accepted or forged webhook.
+      missing signature (or a `timestamp` outside the replay window) is REJECTED
+      (401) and creates NO record, so an attacker can't inject mail into another
+      user's thread. A missing signing key is a DISTINCT 503, not a 401 — a
+      server misconfig must not masquerade as an accepted or forged webhook.
 - [ ] SECURITY — the parsed `htmlBody` is sanitized before it is rendered
-  anywhere: a `<script>` / `onerror=` in an inbound body must NOT execute when
-  the ticket is viewed (no stored XSS from an inbound email body).
+      anywhere: a `<script>` / `onerror=` in an inbound body must NOT execute when
+      the ticket is viewed (no stored XSS from an inbound email body).

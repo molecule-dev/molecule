@@ -14,7 +14,10 @@ Provides translations for the `@molecule/api-notifications` package which has 1 
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-notifications'
-import type { NotificationsTranslationKey, NotificationsTranslations } from '@molecule/api-locales-notifications'
+import type {
+  NotificationsTranslationKey,
+  NotificationsTranslations,
+} from '@molecule/api-locales-notifications'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                              | English                                                      |
+| -------------------------------- | ------------------------------------------------------------ |
 | `notifications.warn.noProviders` | No notification providers configured. Notification not sent. |
 
 ## Metadata

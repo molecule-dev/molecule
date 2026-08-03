@@ -12,9 +12,11 @@ setProvider(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-i18n-simple @molecule/api-i18n
 ```
@@ -29,7 +31,10 @@ Creates a simple i18n provider that implements the `I18nProvider` interface
 using in-memory translations, `Intl` APIs for formatting, and CLDR plural rules.
 
 ```typescript
-function createSimpleI18nProvider(initialLocale?: string, initialLocales?: LocaleConfig[]): I18nProvider
+function createSimpleI18nProvider(
+  initialLocale?: string,
+  initialLocales?: LocaleConfig[],
+): I18nProvider
 ```
 
 - `initialLocale` — The starting locale code (default: `'en'`).
@@ -48,6 +53,7 @@ const provider: I18nProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-i18n` interface.
 
 ## Bond Wiring
@@ -68,6 +74,7 @@ export function setupI18nSimple(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-i18n` ^1.0.0
 
 ### Runtime Dependencies
@@ -96,21 +103,22 @@ bond — cross-checked so swapping providers never silently changes behavior:
 Integration checklist — drive the real flow (no mocks), adapt each item to
 this app's actual localized responses/emails, and check every box off one by
 one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A user-facing server string (an API error message, an email
-  subject/body, a notification) renders TRANSLATED for a non-default locale:
-  set the user's locale (or send Accept-Language) and confirm the
-  response/email comes back in that language, not English — passed per-request
-  as `t(key, values, { locale })`, NEVER a process-global `setLocale()` per
-  request (that races concurrent users and localizes the wrong one).
+      subject/body, a notification) renders TRANSLATED for a non-default locale:
+      set the user's locale (or send Accept-Language) and confirm the
+      response/email comes back in that language, not English — passed per-request
+      as `t(key, values, { locale })`, NEVER a process-global `setLocale()` per
+      request (that races concurrent users and localizes the wrong one).
 - [ ] A missing/untranslated key falls back to its `defaultValue` (rendered
-  English), NOT the raw dot-notation key — a response or email showing
-  `user.error.notFound` verbatim is exactly the bug this prevents.
+      English), NOT the raw dot-notation key — a response or email showing
+      `user.error.notFound` verbatim is exactly the bug this prevents.
 - [ ] `{{variable}}` interpolation fills correctly — the appName/count/etc.
-  appear in the message and no literal `{{appName}}` leaks through.
+      appear in the message and no literal `{{appName}}` leaks through.
 - [ ] If the app pluralizes, `{ count }` resolves the right CLDR form
-  (one/other/…) — and ONLY with a real bonded provider (the auto fallback
-  ignores count), so "1 item" vs "2 items" reads correctly.
+      (one/other/…) — and ONLY with a real bonded provider (the auto fallback
+      ignores count), so "1 item" vs "2 items" reads correctly.
 - [ ] The locale is derived per-request from the authenticated user's
-  preference (or Accept-Language), so two concurrent users with different
-  locales each get their own language — one user's locale never leaks into
-  another's email/response.
+      preference (or Accept-Language), so two concurrent users with different
+      locales each get their own language — one user's locale never leaks into
+      another's email/response.

@@ -10,6 +10,7 @@ tools, geometry helpers, and element types (free-form strokes,
 vector shapes, sticky notes / text boxes).
 
 Exports:
+
 - `<WhiteboardCanvas>` — controlled canvas component. Accepts
   `strokes`, `shapes`, `stickyNotes`, `tool`, and an `onChange`
   callback fired at the end of every gesture.
@@ -59,9 +60,11 @@ function Demo() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-whiteboard-canvas-react @molecule/app-feature-canvas-react @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -325,7 +328,11 @@ Default fill / stroke palette per shape kind. Consumers override via
 direct prop assignment; this is just the initial-tap default.
 
 ```typescript
-function defaultShapeStyle(kind: WhiteboardShapeKind): { stroke: string; strokeWidth: number; fill?: string; }
+function defaultShapeStyle(kind: WhiteboardShapeKind): {
+  stroke: string
+  strokeWidth: number
+  fill?: string
+}
 ```
 
 - `kind` — Shape kind.
@@ -338,7 +345,12 @@ Default sticky-note size + colors. Plain text-tool consumers can
 override `background` to a transparent value.
 
 ```typescript
-function defaultStickyNoteStyle(): { width: number; height: number; background: string; color: string; }
+function defaultStickyNoteStyle(): {
+  width: number
+  height: number
+  background: string
+  color: string
+}
 ```
 
 **Returns:** Default sticky-note metrics + palette.
@@ -409,7 +421,12 @@ canvas-space corner points. Useful for hit-testing and rendering
 `rect` / `ellipse`.
 
 ```typescript
-function shapeBounds(shape: WhiteboardShape): { x: number; y: number; width: number; height: number; }
+function shapeBounds(shape: WhiteboardShape): {
+  x: number
+  y: number
+  width: number
+  height: number
+}
 ```
 
 - `shape` — The vector shape.
@@ -460,6 +477,7 @@ function WhiteboardCanvas(props: WhiteboardCanvasProps): JSX.Element
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-feature-canvas-react` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

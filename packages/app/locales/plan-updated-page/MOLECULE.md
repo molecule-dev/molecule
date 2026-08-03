@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-plan-updated-page-react` package wh
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-plan-updated-page'
-import type { PlanUpdatedPageTranslationKey, PlanUpdatedPageTranslations } from '@molecule/app-locales-plan-updated-page'
+import type {
+  PlanUpdatedPageTranslationKey,
+  PlanUpdatedPageTranslations,
+} from '@molecule/app-locales-plan-updated-page'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                       | English      |
+| ------------------------- | ------------ |
 | `planUpdated.viewReceipt` | View receipt |
 
 ## Metadata

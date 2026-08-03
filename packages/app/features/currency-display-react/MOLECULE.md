@@ -3,6 +3,7 @@
 React currency display and formatting utilities.
 
 Exports:
+
 - `formatCurrency(amount, currency?, locale?)` — plain string via `Intl.NumberFormat`.
 - `formatCurrencyCompact(amount, currency?, locale?)` — compact notation (`$12.3K`).
 - `<CurrencyDisplay>` — rendered amount with optional strikethrough original price + savings chip.
@@ -26,9 +27,11 @@ const label = formatCurrency(1234.56, 'EUR', 'de-DE') // "1.234,56 €"
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-currency-display-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -119,6 +122,7 @@ function formatCurrencyCompact(amount: number, currency?: string, locale?: strin
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

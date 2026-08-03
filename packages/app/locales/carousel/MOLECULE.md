@@ -34,10 +34,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                 | English  |
+| ------------------- | -------- |
 | `carousel.previous` | Previous |
-| `carousel.next` | Next |
+| `carousel.next`     | Next     |
 
 ## Metadata
 

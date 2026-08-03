@@ -3,6 +3,7 @@
 Secrets management core interface.
 
 Provides a standardized way to:
+
 - Define required secrets for packages
 - Retrieve secrets from various providers (env, Doppler, Vault, etc.)
 - Validate secrets at startup
@@ -20,16 +21,15 @@ const apiKey = await get('STRIPE_SECRET_KEY')
 const dbUrl = await getRequired('DATABASE_URL')
 
 // Validate multiple secrets
-const results = await validate([
-  COMMON_SECRETS.DATABASE_URL,
-  COMMON_SECRETS.STRIPE_SECRET_KEY,
-])
+const results = await validate([COMMON_SECRETS.DATABASE_URL, COMMON_SECRETS.STRIPE_SECRET_KEY])
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-secrets @molecule/api-bond
 ```
@@ -301,7 +301,10 @@ secret's description and setup URL from the registry — so the user sees
 exactly which key to set and where to get it, not an opaque failure.
 
 ```typescript
-function configNotConfiguredError(key: string, capability?: string): Error & { statusCode: number; errorKey: string; }
+function configNotConfiguredError(
+  key: string,
+  capability?: string,
+): Error & { statusCode: number; errorKey: string }
 ```
 
 - `key` — The missing secret's key (e.g. `'STRIPE_SECRET_KEY'`).
@@ -550,7 +553,7 @@ function validate(definitions: SecretDefinition[]): Promise<SecretValidation[]>
 
 ### Constants
 
-#### `COMMON_SECRETS` *(deprecated)*
+#### `COMMON_SECRETS` _(deprecated)_
 
 Common secret definitions — only generic application-level secrets.
 
@@ -564,17 +567,18 @@ const COMMON_SECRETS: Record<string, SecretDefinition>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Doppler | `@molecule/api-secrets-doppler` |
-| Environment Variables | `@molecule/api-secrets-env` |
-| Molecule Vault | `@molecule/api-secrets-molecule` |
+| Provider              | Package                          |
+| --------------------- | -------------------------------- |
+| Doppler               | `@molecule/api-secrets-doppler`  |
+| Environment Variables | `@molecule/api-secrets-env`      |
+| Molecule Vault        | `@molecule/api-secrets-molecule` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

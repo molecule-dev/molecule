@@ -50,9 +50,11 @@ test('login lands on dashboard', async ({ page }) => {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-e2e-fixtures-default @playwright/test
 ```
@@ -85,7 +87,10 @@ Custom Playwright `test` with an auto-attached browser console-error
 guard. Drop-in replacement for `import { test } from '@playwright/test'`.
 
 ```typescript
-const test: TestType<PlaywrightTestArgs & PlaywrightTestOptions & { consoleGuard: void; }, PlaywrightWorkerArgs & PlaywrightWorkerOptions>
+const test: TestType<
+  PlaywrightTestArgs & PlaywrightTestOptions & { consoleGuard: void },
+  PlaywrightWorkerArgs & PlaywrightWorkerOptions
+>
 ```
 
 ## Injection Notes
@@ -93,6 +98,7 @@ const test: TestType<PlaywrightTestArgs & PlaywrightTestOptions & { consoleGuard
 ### Requirements
 
 Peer dependencies:
+
 - `@playwright/test` ^1.50.0
 
 ### Runtime Dependencies

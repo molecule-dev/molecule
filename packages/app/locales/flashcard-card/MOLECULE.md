@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-flashcard-card-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-flashcard-card'
-import type { FlashcardCardTranslationKey, FlashcardCardTranslations } from '@molecule/app-locales-flashcard-card'
+import type {
+  FlashcardCardTranslationKey,
+  FlashcardCardTranslations,
+} from '@molecule/app-locales-flashcard-card'
 ```
 
 ## Registration
@@ -34,13 +37,13 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                | English     |
+| ------------------ | ----------- |
 | `flashcard.reveal` | Show answer |
-| `flashcard.again` | Again |
-| `flashcard.hard` | Hard |
-| `flashcard.good` | Good |
-| `flashcard.easy` | Easy |
+| `flashcard.again`  | Again       |
+| `flashcard.hard`   | Hard        |
+| `flashcard.good`   | Good        |
+| `flashcard.easy`   | Easy        |
 
 ## Metadata
 

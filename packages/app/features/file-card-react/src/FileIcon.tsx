@@ -5,14 +5,7 @@ import type { JSX, ReactNode } from 'react'
  * the aria label translation key (e.g. `file-card.kind.image`).
  */
 export type FileKind =
-  | 'image'
-  | 'video'
-  | 'audio'
-  | 'document'
-  | 'archive'
-  | 'code'
-  | 'folder'
-  | 'other'
+  'image' | 'video' | 'audio' | 'document' | 'archive' | 'code' | 'folder' | 'other'
 
 /** Props for `<FileIcon>`. */
 export interface FileIconProps {

@@ -19,9 +19,11 @@ const cm = getClassMap()
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-ui @molecule/app-bond @molecule/app-i18n
 ```
@@ -2828,8 +2830,7 @@ type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5
 Toast position values for screen placement.
 
 ```typescript
-type ToastPosition =
-  'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
+type ToastPosition = 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 ```
 
 #### `TooltipPlacement`
@@ -2998,28 +2999,29 @@ function setProvider(provider: UIProvider): void
 The HTML attribute name for automation IDs.
 
 ```typescript
-const MOL_ID_ATTR: "data-mol-id"
+const MOL_ID_ATTR: 'data-mol-id'
 ```
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Angular UI | `@molecule/app-ui-angular` |
-| NativeWind | `@molecule/app-ui-nativewind` |
-| React UI | `@molecule/app-ui-react` |
-| React Native UI | `@molecule/app-ui-react-native` |
-| Solid UI | `@molecule/app-ui-solid` |
-| Svelte UI | `@molecule/app-ui-svelte` |
-| Tailwind UI | `@molecule/app-ui-tailwind` |
-| Tailwind Glass | `@molecule/app-ui-tailwind-glass` |
-| Vue UI | `@molecule/app-ui-vue` |
+| Provider        | Package                           |
+| --------------- | --------------------------------- |
+| Angular UI      | `@molecule/app-ui-angular`        |
+| NativeWind      | `@molecule/app-ui-nativewind`     |
+| React UI        | `@molecule/app-ui-react`          |
+| React Native UI | `@molecule/app-ui-react-native`   |
+| Solid UI        | `@molecule/app-ui-solid`          |
+| Svelte UI       | `@molecule/app-ui-svelte`         |
+| Tailwind UI     | `@molecule/app-ui-tailwind`       |
+| Tailwind Glass  | `@molecule/app-ui-tailwind-glass` |
+| Vue UI          | `@molecule/app-ui-vue`            |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

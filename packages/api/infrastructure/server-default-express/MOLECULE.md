@@ -32,9 +32,11 @@ await create()
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-server-default-express @molecule/api-error-tracking @molecule/api-logger @molecule/api-middleware-body-parser @molecule/api-middleware-cookie-parser @molecule/api-middleware-cors @molecule/api-secrets express
 npm install -D @types/express
@@ -140,7 +142,9 @@ builds the canonical molecule fleet server:
   on first call (idempotent across multiple `create()` invocations).
 
 ```typescript
-function createServerFactory(opts: CreateServerOptions): (port?: number) => Promise<express.Express | https.Server>
+function createServerFactory(
+  opts: CreateServerOptions,
+): (port?: number) => Promise<express.Express | https.Server>
 ```
 
 #### `errorMiddleware(error, req, res, _next)`
@@ -173,7 +177,12 @@ versions, and query/data fragments. Returning the opaque 500 unconditionally
 removes that leak for every flagship app regardless of how it is deployed.
 
 ```typescript
-function errorMiddleware(error: any, req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>, number>, _next: NextFunction): void
+function errorMiddleware(
+  error: any,
+  req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>, number>,
+  _next: NextFunction,
+): void
 ```
 
 - `error` — The thrown value caught by Express.
@@ -188,7 +197,9 @@ Typically called from a bond's setup (e.g. `setupRealtimeSocketio`) during
 `setupBonds()`, which runs earlier in `create()` than server construction.
 
 ```typescript
-function registerServerCreatedHook(hook: (server: http.Server | https.Server) => void | Promise<void>): void
+function registerServerCreatedHook(
+  hook: (server: http.Server | https.Server) => void | Promise<void>,
+): void
 ```
 
 - `hook` — Receives the real `http.Server`/`https.Server`.
@@ -214,7 +225,11 @@ should always ship:
   `NODE_ENV` check) so local plain-HTTP dev isn't force-upgraded to HTTPS.
 
 ```typescript
-function securityHeadersMiddleware(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>, number>, next: NextFunction): void
+function securityHeadersMiddleware(
+  _req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>, number>,
+  next: NextFunction,
+): void
 ```
 
 - `_req` — The request (unused).
@@ -226,6 +241,7 @@ function securityHeadersMiddleware(_req: Request<ParamsDictionary, any, any, Par
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-error-tracking` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
 - `@molecule/api-middleware-body-parser` ^1.0.0

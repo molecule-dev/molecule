@@ -17,9 +17,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-reaction'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-reaction @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -84,7 +86,12 @@ Adds a reaction to a resource. If the user already has the same reaction type
 on this resource, returns the existing one (idempotent).
 
 ```typescript
-function addReaction(resourceType: string, resourceId: string, userId: string, type: string): Promise<Reaction>
+function addReaction(
+  resourceType: string,
+  resourceId: string,
+  userId: string,
+  type: string,
+): Promise<Reaction>
 ```
 
 - `resourceType` — The type of resource being reacted to.
@@ -123,7 +130,10 @@ function del(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Gets reaction counts per type for a resource.
 
 ```typescript
-function getReactionCounts(resourceType: string, resourceId: string): Promise<Record<string, number>>
+function getReactionCounts(
+  resourceType: string,
+  resourceId: string,
+): Promise<Record<string, number>>
 ```
 
 - `resourceType` — The type of resource.
@@ -137,7 +147,11 @@ Gets a reaction summary for a resource, including counts per type and the
 current user's reactions.
 
 ```typescript
-function getReactionSummary(resourceType: string, resourceId: string, userId?: string): Promise<ReactionSummary>
+function getReactionSummary(
+  resourceType: string,
+  resourceId: string,
+  userId?: string,
+): Promise<ReactionSummary>
 ```
 
 - `resourceType` — The type of resource.
@@ -151,7 +165,11 @@ function getReactionSummary(resourceType: string, resourceId: string, userId?: s
 Gets the current user's reaction on a resource, if any.
 
 ```typescript
-function getUserReactions(resourceType: string, resourceId: string, userId: string): Promise<Reaction[]>
+function getUserReactions(
+  resourceType: string,
+  resourceId: string,
+  userId: string,
+): Promise<Reaction[]>
 ```
 
 - `resourceType` — The type of resource.
@@ -179,7 +197,12 @@ only that reaction type. Otherwise, removes all reactions by the user on
 the resource.
 
 ```typescript
-function removeReaction(resourceType: string, resourceId: string, userId: string, type?: string): Promise<void>
+function removeReaction(
+  resourceType: string,
+  resourceId: string,
+  userId: string,
+  type?: string,
+): Promise<void>
 ```
 
 - `resourceType` — The type of resource.
@@ -194,7 +217,7 @@ function removeReaction(resourceType: string, resourceId: string, userId: string
 Schema for validating reaction creation/toggle input.
 
 ```typescript
-const addReactionSchema: z.ZodObject<{ type: z.ZodString; }, z.core.$strip>
+const addReactionSchema: z.ZodObject<{ type: z.ZodString }, z.core.$strip>
 ```
 
 #### `DEFAULT_REACTION_TYPES`
@@ -202,7 +225,7 @@ const addReactionSchema: z.ZodObject<{ type: z.ZodString; }, z.core.$strip>
 Default reaction types supported out of the box.
 
 ```typescript
-const DEFAULT_REACTION_TYPES: readonly ["like", "love", "laugh", "wow", "sad", "angry"]
+const DEFAULT_REACTION_TYPES: readonly ['like', 'love', 'laugh', 'wow', 'sad', 'angry']
 ```
 
 #### `removeReactionSchema`
@@ -210,7 +233,7 @@ const DEFAULT_REACTION_TYPES: readonly ["like", "love", "laugh", "wow", "sad", "
 Schema for validating reaction removal input.
 
 ```typescript
-const removeReactionSchema: z.ZodObject<{ type: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const removeReactionSchema: z.ZodObject<{ type: z.ZodOptional<z.ZodString> }, z.core.$strip>
 ```
 
 #### `requestHandlerMap`
@@ -218,7 +241,11 @@ const removeReactionSchema: z.ZodObject<{ type: z.ZodOptional<z.ZodString>; }, z
 Handler map for reaction routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly del: typeof del; readonly list: typeof list; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly del: typeof del
+  readonly list: typeof list
+}
 ```
 
 #### `routes`
@@ -226,7 +253,25 @@ const requestHandlerMap: { readonly create: typeof create; readonly del: typeof 
 Routes for reaction add/remove/summary.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceType/:resourceId/reactions"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/:resourceType/:resourceId/reactions"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:resourceType/:resourceId/reactions"; readonly handler: "list"; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/:resourceType/:resourceId/reactions'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/:resourceType/:resourceId/reactions'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/:resourceType/:resourceId/reactions'
+    readonly handler: 'list'
+  },
+]
 ```
 
 ## Injection Notes
@@ -234,6 +279,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/:resourceTyp
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -273,30 +319,31 @@ anywhere else run it once — nothing at runtime creates them.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Reacting to a target (POST `.../reactions` with a `type`) adds the
-  user's reaction: the summary's `counts[type]` and `total` each increment
-  by exactly one and the button shows the active state in the UI.
+      user's reaction: the summary's `counts[type]` and `total` each increment
+      by exactly one and the button shows the active state in the UI.
 - [ ] It is idempotent — the SAME user reacting again with the SAME type
-  does NOT double-count: the repeat POST returns the existing reaction and
-  `counts[type]` is unchanged. A single user can inflate a type's count by
-  at most one, however many times they tap.
+      does NOT double-count: the repeat POST returns the existing reaction and
+      `counts[type]` is unchanged. A single user can inflate a type's count by
+      at most one, however many times they tap.
 - [ ] Switching reaction type (e.g. 👍 → ❤️) MOVES the user's reaction —
-  old type −1, new type +1 — it does NOT leave both. Uniqueness is per
-  `(resourceType, resourceId, userId, type)`, so a raw add of the new type
-  just stacks a second reaction; the switch UI must remove the prior type
-  (DELETE `?type=`) before adding the new one — verify it doesn't stack two.
+      old type −1, new type +1 — it does NOT leave both. Uniqueness is per
+      `(resourceType, resourceId, userId, type)`, so a raw add of the new type
+      just stacks a second reaction; the switch UI must remove the prior type
+      (DELETE `?type=`) before adding the new one — verify it doesn't stack two.
 - [ ] Un-reacting decrements correctly: DELETE `?type=` removes only that
-  type (its `counts[type]`/`total` drop by one), DELETE with no `type`
-  clears all of the user's reactions on the target, and deleting a reaction
-  the user never made is a no-op — counts never go negative.
+      type (its `counts[type]`/`total` drop by one), DELETE with no `type`
+      clears all of the user's reactions on the target, and deleting a reaction
+      the user never made is a no-op — counts never go negative.
 - [ ] The summary reflects reality after each action: `counts` per type,
-  `total`, the current user's `userReactions`, and any "who reacted" list
-  all match exactly what was added/removed — reload and re-check.
+      `total`, the current user's `userReactions`, and any "who reacted" list
+      all match exactly what was added/removed — reload and re-check.
 - [ ] Authorization: the reactor is ALWAYS the session user — the reacting
-  userId comes from `res.locals.session`, never the request body, so a
-  caller cannot react as someone else by supplying an id; a user can remove
-  only their OWN reaction; POST/DELETE require an authenticated session
-  (401 without) while the GET summary is public; and since this package does
-  not verify target visibility, reacting must be reachable only for
-  resources the user may see — gate the routes behind the parent resource's
-  own access check.
+      userId comes from `res.locals.session`, never the request body, so a
+      caller cannot react as someone else by supplying an id; a user can remove
+      only their OWN reaction; POST/DELETE require an authenticated session
+      (401 without) while the GET summary is public; and since this package does
+      not verify target visibility, reacting must be reachable only for
+      resources the user may see — gate the routes behind the parent resource's
+      own access check.

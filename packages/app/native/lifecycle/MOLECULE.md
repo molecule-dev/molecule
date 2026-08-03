@@ -11,11 +11,7 @@ Provides a unified API for app-level runtime state across platforms
 ## Quick Start
 
 ```typescript
-import {
-  getAppState,
-  onAppStateChange,
-  onNetworkChange,
-} from '@molecule/app-lifecycle'
+import { getAppState, onAppStateChange, onNetworkChange } from '@molecule/app-lifecycle'
 
 function pauseWhenHidden(pause: () => void, resume: () => void): () => void {
   if (getAppState() === 'active') resume()
@@ -34,9 +30,11 @@ function pauseWhenHidden(pause: () => void, resume: () => void): () => void {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-lifecycle @molecule/app-bond
 ```
@@ -430,6 +428,7 @@ const webProvider: LifecycleProvider | null
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

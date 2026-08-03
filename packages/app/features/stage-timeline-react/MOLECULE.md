@@ -9,21 +9,23 @@ flows, and order-fulfillment progress trackers.
 ```tsx
 import { StageTimeline } from '@molecule/app-stage-timeline-react'
 
-<StageTimeline
+;<StageTimeline
   currentIndex={2}
   stages={[
     { id: 'applied', label: 'Applied' },
-    { id: 'screen',  label: 'Phone Screen' },
-    { id: 'onsite',  label: 'On-site' },
-    { id: 'offer',   label: 'Offer' },
+    { id: 'screen', label: 'Phone Screen' },
+    { id: 'onsite', label: 'On-site' },
+    { id: 'offer', label: 'Offer' },
   ]}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-stage-timeline-react @molecule/app-i18n @molecule/app-react @molecule/app-ui react
 npm install -D @types/react
@@ -125,6 +127,7 @@ function statusOf(i: number, currentIndex: number): StageStatus
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0

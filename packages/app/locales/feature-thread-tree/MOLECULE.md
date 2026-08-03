@@ -17,7 +17,10 @@ Provides translations for the `@molecule/app-feature-thread-tree-react` package 
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-thread-tree'
-import type { ThreadTreeTranslationKey, ThreadTreeTranslations } from '@molecule/app-locales-feature-thread-tree'
+import type {
+  ThreadTreeTranslationKey,
+  ThreadTreeTranslations,
+} from '@molecule/app-locales-feature-thread-tree'
 ```
 
 ## Registration
@@ -37,16 +40,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `threadTree.expand` | Expand {{count}} replies |
-| `threadTree.collapse` | Collapse thread |
-| `threadTree.expandSymbol` | [+] |
-| `threadTree.collapseSymbol` | [−] |
-| `threadTree.score` | {{count}} points |
-| `threadTree.hiddenReplies` | {{count}} hidden |
-| `threadTree.upvote` | Upvote |
-| `threadTree.reply` | Reply |
+| Key                         | English                  |
+| --------------------------- | ------------------------ |
+| `threadTree.expand`         | Expand {{count}} replies |
+| `threadTree.collapse`       | Collapse thread          |
+| `threadTree.expandSymbol`   | [+]                      |
+| `threadTree.collapseSymbol` | [−]                      |
+| `threadTree.score`          | {{count}} points         |
+| `threadTree.hiddenReplies`  | {{count}} hidden         |
+| `threadTree.upvote`         | Upvote                   |
+| `threadTree.reply`          | Reply                    |
 
 ## Metadata
 

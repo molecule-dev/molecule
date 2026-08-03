@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-feature-graph-view-react` package w
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-feature-graph-view'
-import type { GraphViewTranslationKey, GraphViewTranslations } from '@molecule/app-locales-feature-graph-view'
+import type {
+  GraphViewTranslationKey,
+  GraphViewTranslations,
+} from '@molecule/app-locales-feature-graph-view'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `graphView.aria.canvas` | Graph view |
-| `graphView.aria.node` | Node {{label}} |
-| `graphView.empty` | No nodes to display |
+| Key                     | English             |
+| ----------------------- | ------------------- |
+| `graphView.aria.canvas` | Graph view          |
+| `graphView.aria.node`   | Node {{label}}      |
+| `graphView.empty`       | No nodes to display |
 
 ## Metadata
 

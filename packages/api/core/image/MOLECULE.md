@@ -21,9 +21,11 @@ const meta = await getMetadata(imageBuffer)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-image @molecule/api-bond @molecule/api-i18n
 ```
@@ -256,7 +258,11 @@ type ResizeFit = 'cover' | 'contain' | 'fill' | 'inside' | 'outside'
 Converts an image to a different format.
 
 ```typescript
-function convert(input: Buffer<ArrayBufferLike>, format: ImageFormat, quality?: number): Promise<Buffer<ArrayBufferLike>>
+function convert(
+  input: Buffer<ArrayBufferLike>,
+  format: ImageFormat,
+  quality?: number,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `input` — Image data as a Buffer.
@@ -270,7 +276,10 @@ function convert(input: Buffer<ArrayBufferLike>, format: ImageFormat, quality?: 
 Crops an image to a rectangular region.
 
 ```typescript
-function crop(input: Buffer<ArrayBufferLike>, options: CropOptions): Promise<Buffer<ArrayBufferLike>>
+function crop(
+  input: Buffer<ArrayBufferLike>,
+  options: CropOptions,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `input` — Image data as a Buffer.
@@ -339,7 +348,10 @@ function hasProvider(): boolean
 Optimizes an image for file size with optional format conversion.
 
 ```typescript
-function optimize(input: Buffer<ArrayBufferLike>, options?: OptimizeOptions): Promise<Buffer<ArrayBufferLike>>
+function optimize(
+  input: Buffer<ArrayBufferLike>,
+  options?: OptimizeOptions,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `input` — Image data as a Buffer.
@@ -352,7 +364,10 @@ function optimize(input: Buffer<ArrayBufferLike>, options?: OptimizeOptions): Pr
 Resizes an image to the specified dimensions.
 
 ```typescript
-function resize(input: Buffer<ArrayBufferLike>, options: ResizeOptions): Promise<Buffer<ArrayBufferLike>>
+function resize(
+  input: Buffer<ArrayBufferLike>,
+  options: ResizeOptions,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `input` — Image data as a Buffer.
@@ -365,7 +380,10 @@ function resize(input: Buffer<ArrayBufferLike>, options: ResizeOptions): Promise
 Rotates an image by the specified angle.
 
 ```typescript
-function rotate(input: Buffer<ArrayBufferLike>, options: RotateOptions): Promise<Buffer<ArrayBufferLike>>
+function rotate(
+  input: Buffer<ArrayBufferLike>,
+  options: RotateOptions,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `input` — Image data as a Buffer.
@@ -399,16 +417,17 @@ function thumbnail(input: Buffer<ArrayBufferLike>, size: number): Promise<Buffer
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Image | `@molecule/api-image-jimp` |
-| Image | `@molecule/api-image-sharp` |
+| Provider | Package                     |
+| -------- | --------------------------- |
+| Image    | `@molecule/api-image-jimp`  |
+| Image    | `@molecule/api-image-sharp` |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -422,15 +441,16 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Uploading an image through the UI produces the PROCESSED variant where the
-  app uses one (thumbnail/resized/avatar) and it actually renders — check
-  its rendered dimensions or transfer size against the original to confirm
-  processing happened.
+      app uses one (thumbnail/resized/avatar) and it actually renders — check
+      its rendered dimensions or transfer size against the original to confirm
+      processing happened.
 - [ ] Common input formats (JPEG, PNG, WebP) all round-trip to a rendered
-  result.
+      result.
 - [ ] A corrupt or non-image file fails with a visible, readable error — not a
-  server crash or a broken-image placeholder that persists.
+      server crash or a broken-image placeholder that persists.
 - [ ] Any UI that shows image metadata (dimensions, size) matches the real
-  file.
+      file.
 - [ ] Where optimization is wired, the served image is materially smaller than
-  the uploaded original.
+      the uploaded original.

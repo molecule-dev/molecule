@@ -11,22 +11,28 @@ count + member-since + badges + actions row, on the shared `<Card>`.
 import { VendorCard } from '@molecule/app-vendor-card-react'
 import { Button } from '@molecule/app-ui-react'
 
-<VendorCard
+;<VendorCard
   name="Acme Supplies"
   logoSrc="/logos/acme.png"
   description="Industrial parts, fast shipping"
   rating={4.7}
   reviewCount={312}
   memberSince="Jan 2021"
-  actions={<Button size="sm" onClick={() => console.log('follow')}>Follow</Button>}
+  actions={
+    <Button size="sm" onClick={() => console.log('follow')}>
+      Follow
+    </Button>
+  }
   onClick={() => console.log('open vendor page')}
 />
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-vendor-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -94,6 +100,7 @@ function VendorCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

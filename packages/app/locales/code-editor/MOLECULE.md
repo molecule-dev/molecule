@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-code-editor` package which has 1 tr
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-code-editor'
-import type { CodeEditorTranslationKey, CodeEditorTranslations } from '@molecule/app-locales-code-editor'
+import type {
+  CodeEditorTranslationKey,
+  CodeEditorTranslations,
+} from '@molecule/app-locales-code-editor'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                           | English                                                                 |
+| ----------------------------- | ----------------------------------------------------------------------- |
 | `codeEditor.error.noProvider` | Code editor provider not configured. Bond a code editor provider first. |
 
 ## Metadata

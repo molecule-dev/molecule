@@ -19,9 +19,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-follow'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-follow @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
@@ -159,7 +161,11 @@ function getFollowerCount(targetType: string, targetId: string): Promise<number>
 Gets paginated followers of a target.
 
 ```typescript
-function getFollowers(targetType: string, targetId: string, options?: PaginationOptions): Promise<PaginatedResult<Follow>>
+function getFollowers(
+  targetType: string,
+  targetId: string,
+  options?: PaginationOptions,
+): Promise<PaginatedResult<Follow>>
 ```
 
 - `targetType` — The type of target.
@@ -237,7 +243,13 @@ function unfollow(followerId: string, targetType: string, targetId: string): Pro
 Handler map for follow routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly del: typeof del; readonly list: typeof list; readonly following: typeof following; readonly checkFollowing: typeof checkFollowing; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly del: typeof del
+  readonly list: typeof list
+  readonly following: typeof following
+  readonly checkFollowing: typeof checkFollowing
+}
 ```
 
 #### `routes`
@@ -245,7 +257,37 @@ const requestHandlerMap: { readonly create: typeof create; readonly del: typeof 
 Routes for follow/unfollow, followers, following, and status check.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/follow/:targetType/:targetId"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "delete"; readonly path: "/follow/:targetType/:targetId"; readonly handler: "del"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/:targetType/:targetId/followers"; readonly handler: "list"; }, { readonly method: "get"; readonly path: "/following"; readonly handler: "following"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/follow/check/:targetType/:targetId"; readonly handler: "checkFollowing"; readonly middlewares: readonly ["authenticate"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/follow/:targetType/:targetId'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/follow/:targetType/:targetId'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/:targetType/:targetId/followers'
+    readonly handler: 'list'
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/following'
+    readonly handler: 'following'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/follow/check/:targetType/:targetId'
+    readonly handler: 'checkFollowing'
+    readonly middlewares: readonly ['authenticate']
+  },
+]
 ```
 
 ## Injection Notes
@@ -253,6 +295,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/follow/:targ
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -270,9 +313,9 @@ Peer dependencies:
   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
   the rows come back; reading the response as a bare array — or `res.data` alone (which is
   the envelope) — yields an EMPTY list.
-Table: `src/__setup__/follows.sql` creates the single `follows` table. An
-mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
-anywhere else run it once — nothing at runtime creates it.
+  Table: `src/__setup__/follows.sql` creates the single `follows` table. An
+  mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
+  anywhere else run it once — nothing at runtime creates it.
 
 The follower is ALWAYS the authenticated user: handlers read
 `res.locals.session` (populated by your global auth middleware) and 401
@@ -289,24 +332,25 @@ app if arbitrary types would be a problem.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] User A follows user B (`POST /follow/user/:B`): B's follower count and
-  A's following count each increment by exactly one, B appears in A's
-  following list (`GET /following`) and A appears in B's followers list
-  (`GET /user/:B/followers`). Reload — the edge and both counts persist (it's
-  a real `follows` row, not local UI state).
+      A's following count each increment by exactly one, B appears in A's
+      following list (`GET /following`) and A appears in B's followers list
+      (`GET /user/:B/followers`). Reload — the edge and both counts persist (it's
+      a real `follows` row, not local UI state).
 - [ ] Following is IDEMPOTENT: A following B a second time (double-tap Follow
-  or replay the POST) creates NO duplicate edge and does NOT double-count —
-  exactly one `follows` row exists for (A → B) and both counts are unchanged.
+      or replay the POST) creates NO duplicate edge and does NOT double-count —
+      exactly one `follows` row exists for (A → B) and both counts are unchanged.
 - [ ] Unfollow (`DELETE /follow/user/:B`) removes the edge: A's following
-  count and B's follower count each decrement back, B leaves A's following
-  list, A leaves B's followers, and `GET /follow/check/user/:B` now returns
-  `{ following: false }`.
+      count and B's follower count each decrement back, B leaves A's following
+      list, A leaves B's followers, and `GET /follow/check/user/:B` now returns
+      `{ following: false }`.
 - [ ] You cannot follow yourself: the UI never offers Follow on your own
-  profile, and following your own id never inflates your own counts. This
-  package's `follow()` does not reject `followerId === targetId`, so the app
-  must guard it — verify the guard exists, don't assume it.
+      profile, and following your own id never inflates your own counts. This
+      package's `follow()` does not reject `followerId === targetId`, so the app
+      must guard it — verify the guard exists, don't assume it.
 - [ ] AUTHORIZATION — the follower is ALWAYS the session user: handlers read
-  `res.locals.session` and 401 without it, so no UI or endpoint lets you
-  follow/unfollow on behalf of another user by passing their id, and
-  follow/unfollow act only on your own edges. Signed in as A you can never
-  make B follow or unfollow anyone.
+      `res.locals.session` and 401 without it, so no UI or endpoint lets you
+      follow/unfollow on behalf of another user by passing their id, and
+      follow/unfollow act only on your own edges. Signed in as A you can never
+      make B follow or unfollow anyone.

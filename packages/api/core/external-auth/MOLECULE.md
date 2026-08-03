@@ -40,9 +40,11 @@ app.get('/api/me', async (req, res) => {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-external-auth @molecule/api-bond
 ```
@@ -143,8 +145,8 @@ function verifyUserToken(token: string): Promise<ExternalAuthUser | null>
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider | Package                                |
+| -------- | -------------------------------------- |
 | Supabase | `@molecule/api-external-auth-supabase` |
 
 ## Injection Notes
@@ -152,6 +154,7 @@ function verifyUserToken(token: string): Promise<ExternalAuthUser | null>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies
@@ -176,19 +179,20 @@ the login flow it already has.
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The provider bond matching the app's auth platform is wired with
-  `setProvider()` at startup — no "No external-auth provider bonded" errors
-  appear in server logs when hitting protected routes.
+      `setProvider()` at startup — no "No external-auth provider bonded" errors
+      appear in server logs when hitting protected routes.
 - [ ] Log in through the app's existing auth UI, then hit a protected API
-  route: `verifyUserToken()` accepts the live session token and the route
-  returns that user's data.
+      route: `verifyUserToken()` accepts the live session token and the route
+      returns that user's data.
 - [ ] The counterparty is the auth platform itself: obtain a REAL user token
-  by signing up / logging in through the app's own UI (`interact_preview`)
-  and exercise `verifyUserToken()` with the token the frontend sends —
-  never fabricate, hand-mint, or replay a made-up token as a "valid" case.
+      by signing up / logging in through the app's own UI (`interact_preview`)
+      and exercise `verifyUserToken()` with the token the frontend sends —
+      never fabricate, hand-mint, or replay a made-up token as a "valid" case.
 - [ ] A garbage or expired Bearer token gets a clean 401 from protected
-  routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
+      routes (`verifyUserToken()` → `null`) — never a 500 or a crash.
 - [ ] A request with no Authorization header is rejected as
-  unauthenticated (401), not treated as a server error.
+      unauthenticated (401), not treated as a server error.
 - [ ] Server-side records created for the logged-in user are keyed on the
-  verified `userId`, and another user's token never reads them back.
+      verified `userId`, and another user's token never reads them back.

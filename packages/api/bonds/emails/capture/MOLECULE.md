@@ -15,9 +15,11 @@ setTransport(provider)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-emails-capture @molecule/api-activity @molecule/api-emails
 ```
@@ -54,6 +56,7 @@ const provider: EmailTransport
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-emails` interface.
 
 ## Bond Wiring
@@ -74,6 +77,7 @@ export function setupEmailsCapture(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-activity` ^1.0.0
 - `@molecule/api-emails` ^1.0.0
 
@@ -99,15 +103,16 @@ is in its payload. Never mock the send or modify production code to expose
 it. Adapt each item to this app's actual screens/flows, and check every box
 off one by one. A box you can't check is an integration bug to fix — not a
 skip:
+
 - [ ] Each email-triggering flow (signup verification, password-reset request,
-  invites/notifications the app defines) confirms the send in the UI ("check
-  your inbox") and a message actually reaches the transport.
+      invites/notifications the app defines) confirms the send in the UI ("check
+      your inbox") and a message actually reaches the transport.
 - [ ] The password-reset round-trip completes: request a reset → open the
-  captured message → follow its single-use link → set a new password → log
-  in with it (and the old password no longer works).
+      captured message → follow its single-use link → set a new password → log
+      in with it (and the old password no longer works).
 - [ ] The message body contains a LINK, never the raw token/secret, and renders
-  with the app's real name/content (no `undefined` placeholders).
+      with the app's real name/content (no `undefined` placeholders).
 - [ ] Requesting a reset for an unknown email shows the same neutral UI response
-  as a known one (no account-existence oracle).
+      as a known one (no account-existence oracle).
 - [ ] Account emails go only to the account's own address — no UI or endpoint
-  lets an unauthenticated caller send to an arbitrary address.
+      lets an unauthenticated caller send to an arbitrary address.

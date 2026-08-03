@@ -34,11 +34,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `uploads.error.noProvider` | Upload provider not configured. Call setProvider() first. |
-| `uploads.error.streamLimitReached` | Stream limit reached. |
-| `uploads.error.aborted` | Upload was aborted. |
+| Key                                | English                                                   |
+| ---------------------------------- | --------------------------------------------------------- |
+| `uploads.error.noProvider`         | Upload provider not configured. Call setProvider() first. |
+| `uploads.error.streamLimitReached` | Stream limit reached.                                     |
+| `uploads.error.aborted`            | Upload was aborted.                                       |
 
 ## Metadata
 

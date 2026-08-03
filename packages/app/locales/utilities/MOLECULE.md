@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-utilities` package which has 8 tran
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-utilities'
-import type { UtilitiesTranslationKey, UtilitiesTranslations } from '@molecule/app-locales-utilities'
+import type {
+  UtilitiesTranslationKey,
+  UtilitiesTranslations,
+} from '@molecule/app-locales-utilities'
 ```
 
 ## Registration
@@ -34,16 +37,16 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `error.networkError` | Network error. Please check your connection. |
-| `error.timeout` | Request timed out. Please try again. |
-| `error.unauthorized` | You are not authorized to perform this action. |
-| `error.forbidden` | Access denied. |
-| `error.notFound` | Resource not found. |
-| `error.validationError` | Please check your input and try again. |
-| `error.serverError` | Server error. Please try again later. |
-| `error.unknown` | An unexpected error occurred. |
+| Key                     | English                                        |
+| ----------------------- | ---------------------------------------------- |
+| `error.networkError`    | Network error. Please check your connection.   |
+| `error.timeout`         | Request timed out. Please try again.           |
+| `error.unauthorized`    | You are not authorized to perform this action. |
+| `error.forbidden`       | Access denied.                                 |
+| `error.notFound`        | Resource not found.                            |
+| `error.validationError` | Please check your input and try again.         |
+| `error.serverError`     | Server error. Please try again later.          |
+| `error.unknown`         | An unexpected error occurred.                  |
 
 ## Metadata
 

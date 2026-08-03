@@ -10,8 +10,7 @@ Exports `<NoteCard>`.
 import { NoteCard } from '@molecule/app-note-card-react'
 
 declare function openNote(): void
-
-<NoteCard
+;<NoteCard
   title="Meeting notes"
   body="Follow up with design team on the new dashboard layout."
   color="#fef9c3"
@@ -22,9 +21,11 @@ declare function openNote(): void
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-note-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -87,6 +88,7 @@ function NoteCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

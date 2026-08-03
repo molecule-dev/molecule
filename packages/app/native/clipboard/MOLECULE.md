@@ -25,9 +25,11 @@ if (!copied) {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-clipboard @molecule/app-bond @molecule/app-i18n @molecule/app-logger
 ```
@@ -419,6 +421,7 @@ function writeText(text: string): Promise<void>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0

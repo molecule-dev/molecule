@@ -8,7 +8,14 @@ raw connection pools and the database-agnostic DataStore abstraction.
 ## Quick Start
 
 ```typescript
-import { setStore, findById, findMany, create, updateById, deleteById } from '@molecule/api-database'
+import {
+  setStore,
+  findById,
+  findMany,
+  create,
+  updateById,
+  deleteById,
+} from '@molecule/api-database'
 import { store } from '@molecule/api-database-postgresql'
 
 // Wire the DataStore at app startup
@@ -18,9 +25,7 @@ setStore(store)
 const user = await findById<User>('users', userId)
 
 const activeUsers = await findMany<User>('users', {
-  where: [
-    { field: 'status', operator: '=', value: 'active' },
-  ],
+  where: [{ field: 'status', operator: '=', value: 'active' }],
   orderBy: [{ field: 'createdAt', direction: 'desc' }],
   limit: 50,
 })
@@ -31,9 +36,11 @@ await deleteById('users', id)
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-database @molecule/api-bond @molecule/api-i18n
 ```
@@ -437,7 +444,10 @@ function create(table: string, data: Record<string, unknown>): Promise<MutationR
 Deletes a record identified by its primary key.
 
 ```typescript
-function deleteById(table: string, id: string | number): Promise<MutationResult<Record<string, unknown>>>
+function deleteById(
+  table: string,
+  id: string | number,
+): Promise<MutationResult<Record<string, unknown>>>
 ```
 
 - `table` — The database table name.
@@ -450,7 +460,10 @@ function deleteById(table: string, id: string | number): Promise<MutationResult<
 Deletes all records matching the given filter conditions.
 
 ```typescript
-function deleteMany(table: string, where: WhereCondition[]): Promise<MutationResult<Record<string, unknown>>>
+function deleteMany(
+  table: string,
+  where: WhereCondition[],
+): Promise<MutationResult<Record<string, unknown>>>
 ```
 
 - `table` — The database table name.
@@ -590,7 +603,11 @@ Updates a record identified by its primary key. Returns the updated row
 and the number of affected rows.
 
 ```typescript
-function updateById(table: string, id: string | number, data: Record<string, unknown>): Promise<MutationResult<T>>
+function updateById(
+  table: string,
+  id: string | number,
+  data: Record<string, unknown>,
+): Promise<MutationResult<T>>
 ```
 
 - `table` — The database table name.
@@ -604,7 +621,11 @@ function updateById(table: string, id: string | number, data: Record<string, unk
 Updates all records matching the given filter conditions.
 
 ```typescript
-function updateMany(table: string, where: WhereCondition[], data: Record<string, unknown>): Promise<MutationResult<Record<string, unknown>>>
+function updateMany(
+  table: string,
+  where: WhereCondition[],
+  data: Record<string, unknown>,
+): Promise<MutationResult<Record<string, unknown>>>
 ```
 
 - `table` — The database table name.
@@ -615,17 +636,18 @@ function updateMany(table: string, where: WhereCondition[], data: Record<string,
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| MySQL | `@molecule/api-database-mysql` |
+| Provider   | Package                             |
+| ---------- | ----------------------------------- |
+| MySQL      | `@molecule/api-database-mysql`      |
 | PostgreSQL | `@molecule/api-database-postgresql` |
-| SQLite | `@molecule/api-database-sqlite` |
+| SQLite     | `@molecule/api-database-sqlite`     |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -676,7 +698,7 @@ Data-access contract — the rules code generators most often get wrong:
   on create). So every primary key AND foreign key is a UUID-string column:
   `id TEXT PRIMARY KEY` (SQLite) / `id UUID PRIMARY KEY` (Postgres); FKs
   likewise (`user_id TEXT` / `user_id UUID`). NEVER `INTEGER PRIMARY KEY
-  AUTOINCREMENT` or `SERIAL` — inserting a UUID string into an integer key
+AUTOINCREMENT` or `SERIAL` — inserting a UUID string into an integer key
   fails at runtime (`datatype mismatch`) and breaks every create endpoint.
 - **`like` vs `ilike` — pick by who controls the wildcards.** Both are
   case-insensitive on every bond (identical results across postgresql/

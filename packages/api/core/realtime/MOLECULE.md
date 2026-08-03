@@ -28,7 +28,13 @@ guard that throws → the join is denied (the bond logs the error).
 ## Quick Start
 
 ```typescript
-import { setProvider, createRoom, broadcast, onMessage, onJoinRequest } from '@molecule/api-realtime'
+import {
+  setProvider,
+  createRoom,
+  broadcast,
+  onMessage,
+  onJoinRequest,
+} from '@molecule/api-realtime'
 
 // Bond a provider at startup
 setProvider(socketioProvider)
@@ -53,9 +59,11 @@ onMessage((roomId, clientId, event, data) => {
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-realtime @molecule/api-bond @molecule/api-i18n
 ```
@@ -304,12 +312,7 @@ type JoinGuard = (request: JoinRequest) => boolean | Promise<boolean>
 Handler invoked when a message is received in a room.
 
 ```typescript
-type MessageHandler = (
-  roomId: string,
-  clientId: string,
-  event: string,
-  data: unknown,
-) => void
+type MessageHandler = (roomId: string, clientId: string, event: string, data: unknown) => void
 ```
 
 ### Functions
@@ -545,18 +548,19 @@ function setProvider(provider: RealtimeProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Realtime | `@molecule/api-realtime-socketio` |
-| Realtime | `@molecule/api-realtime-sse` |
-| Realtime | `@molecule/api-realtime-ws` |
-| Realtime (Yjs CRDT) | `@molecule/api-realtime-yjs` |
+| Provider            | Package                           |
+| ------------------- | --------------------------------- |
+| Realtime            | `@molecule/api-realtime-socketio` |
+| Realtime            | `@molecule/api-realtime-sse`      |
+| Realtime            | `@molecule/api-realtime-ws`       |
+| Realtime (Yjs CRDT) | `@molecule/api-realtime-yjs`      |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -608,14 +612,15 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] With the app open in TWO sessions (separate browser contexts/users), an
-  action in one (send a message, update a shared record) appears in the
-  other WITHOUT a manual reload.
+      action in one (send a message, update a shared record) appears in the
+      other WITHOUT a manual reload.
 - [ ] Updates reach only the sessions in the same room/scope — a session
-  viewing a different room/record receives nothing.
+      viewing a different room/record receives nothing.
 - [ ] Private rooms enforce the join guard: an unauthorized session's join is
-  denied and no data leaks to it. If ANY client can join any private room,
-  `onJoinRequest` was never registered — an integration bug.
+      denied and no data leaks to it. If ANY client can join any private room,
+      `onJoinRequest` was never registered — an integration bug.
 - [ ] Presence (if surfaced) updates when a participant joins and leaves.
 - [ ] After a dropped connection (offline/online toggle or server restart),
-  the client reconnects and live events flow again.
+      the client reconnects and live events flow again.

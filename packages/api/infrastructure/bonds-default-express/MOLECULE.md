@@ -48,8 +48,10 @@ async function setupBonds(): Promise<void> {
 import { createBillingRouter } from '@molecule/api-bonds-default-express'
 
 // Your app owns these (typically in api/src/tiers.ts):
-interface AppLimits { seats: number }
-const getPricingTiers = () => []       // your tiers, each with a stripePriceId + limits
+interface AppLimits {
+  seats: number
+}
+const getPricingTiers = () => [] // your tiers, each with a stripePriceId + limits
 const appPlanKeys = { free: 'free', pro: 'pro' }
 
 const billingRouter = createBillingRouter<AppLimits>({
@@ -59,9 +61,11 @@ const billingRouter = createBillingRouter<AppLimits>({
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-bonds-default-express @molecule/api-ai-anthropic @molecule/api-ai-embeddings @molecule/api-ai-embeddings-openai @molecule/api-ai-openai @molecule/api-ai-speech @molecule/api-ai-speech-openai @molecule/api-ai-vector-store @molecule/api-ai-vector-store-pgvector @molecule/api-analytics @molecule/api-audit @molecule/api-audit-database @molecule/api-bond @molecule/api-cache @molecule/api-cache-memory @molecule/api-cache-redis @molecule/api-config @molecule/api-config-env @molecule/api-cron @molecule/api-cron-node-cron @molecule/api-database @molecule/api-database-postgresql @molecule/api-emails @molecule/api-emails-capture @molecule/api-emails-mailgun @molecule/api-encryption @molecule/api-encryption-aes @molecule/api-entitlements @molecule/api-error-tracking @molecule/api-error-tracking-console @molecule/api-error-tracking-sentry @molecule/api-geolocation @molecule/api-geolocation-google @molecule/api-geolocation-mapbox @molecule/api-geolocation-nominatim @molecule/api-http @molecule/api-http-fetch @molecule/api-i18n @molecule/api-image @molecule/api-image-sharp @molecule/api-import-export @molecule/api-import-export-csv @molecule/api-jwt @molecule/api-jwt-jsonwebtoken @molecule/api-logger @molecule/api-media-streaming @molecule/api-media-streaming-hls @molecule/api-middleware-body-parser @molecule/api-middleware-body-parser-express @molecule/api-middleware-cookie-parser @molecule/api-middleware-cookie-parser-express @molecule/api-middleware-cors @molecule/api-middleware-cors-express @molecule/api-middleware-validation @molecule/api-notifications-webhook @molecule/api-password @molecule/api-password-bcrypt @molecule/api-payments @molecule/api-payments-stripe @molecule/api-pdf @molecule/api-pdf-pdfkit @molecule/api-permissions @molecule/api-permissions-custom @molecule/api-push-capture @molecule/api-push-notifications @molecule/api-push-notifications-web-push @molecule/api-queue @molecule/api-queue-memory @molecule/api-queue-redis @molecule/api-rate-limit @molecule/api-rate-limit-memory @molecule/api-realtime @molecule/api-realtime-socketio @molecule/api-realtime-sse @molecule/api-realtime-ws @molecule/api-reporting @molecule/api-reporting-database @molecule/api-resource @molecule/api-resource-device @molecule/api-resource-payment @molecule/api-resource-user @molecule/api-search @molecule/api-search-meilisearch @molecule/api-search-postgres @molecule/api-secrets @molecule/api-secrets-env @molecule/api-two-factor @molecule/api-two-factor-otplib @molecule/api-uploads @molecule/api-uploads-filesystem @molecule/api-uploads-s3 @molecule/api-webhook @molecule/api-webhook-http @molecule/api-workflow @molecule/api-workflow-database
 ```
@@ -89,7 +93,10 @@ Factory for the default billing router. The router exposes four
 endpoints: `POST /checkout`, `POST /cancel`, `GET /status`, `GET /tiers`.
 
 ```typescript
-function createBillingRouter(opts: { getPricingTiers: () => ReadonlyArray<PricingTier>; planKeys: { free: string; } & Record<string, string>; }): Router
+function createBillingRouter(opts: {
+  getPricingTiers: () => ReadonlyArray<PricingTier>
+  planKeys: { free: string } & Record<string, string>
+}): Router
 ```
 
 #### `createMigrator(migrationsDir)`
@@ -111,7 +118,10 @@ type union `string | string[]` (multi-value when the same param
 key appears more than once). Defaults to `'id'`.
 
 ```typescript
-function getParamId(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, name?: string): string
+function getParamId(
+  req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  name?: string,
+): string
 ```
 
 #### `getUserId(res)`
@@ -276,7 +286,11 @@ Express middleware that 401s any request lacking `res.locals.session.userId`.
 Drop-in for the fleet's 51 inline `requireAuth` copies.
 
 ```typescript
-function requireAuth(_req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>, next: NextFunction): void
+function requireAuth(
+  _req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+  res: Response<any, Record<string, any>>,
+  next: NextFunction,
+): void
 ```
 
 #### `requireOwnership(table, id, userId)`
@@ -707,7 +721,9 @@ Replaces the per-app `api/src/middleware/auth-analytics.ts` shipped
 by 10 fleet apps.
 
 ```typescript
-function trackAuthEvent(eventName: string): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+function trackAuthEvent(
+  eventName: string,
+): RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
 ```
 
 #### `validationError(res, issues)`
@@ -746,7 +762,7 @@ Standard route-param schema for `:id`. Accepts any non-empty string.
 Pair with `validateParams(idParamSchema)`.
 
 ```typescript
-const idParamSchema: z.ZodObject<{ id: z.ZodString; }, z.core.$strip>
+const idParamSchema: z.ZodObject<{ id: z.ZodString }, z.core.$strip>
 ```
 
 #### `userRequestHandlerMap`
@@ -763,7 +779,7 @@ Strict variant of `idParamSchema` that requires a UUID. Use when the
 underlying column is a uuid.
 
 ```typescript
-const uuidParamSchema: z.ZodObject<{ id: z.ZodString; }, z.core.$strip>
+const uuidParamSchema: z.ZodObject<{ id: z.ZodString }, z.core.$strip>
 ```
 
 ### Namespaces
@@ -784,6 +800,7 @@ Members:
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai-anthropic` ^1.0.0
 - `@molecule/api-ai-embeddings` ^1.0.0
 - `@molecule/api-ai-embeddings-openai` ^1.0.0
@@ -992,7 +1009,7 @@ Peer dependencies:
   `setupRealtimeSse`) all defer-attach.** Each dynamic-imports its
   provider's `createProvider({ deferAttach: true })`, calls
   `setProvider()`, then `registerServerCreatedHook((server) =>
-  provider.attachHttpServer?.(server))` from
+provider.attachHttpServer?.(server))` from
   `@molecule/api-server-default-express` — so the realtime transport
   shares the API's HTTP server/port once it exists, instead of a
   standalone port a containerized sandbox / proxied deploy may not

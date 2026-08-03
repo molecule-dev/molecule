@@ -3,9 +3,11 @@
 OpenAI ai-embeddings provider for molecule.dev.
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-embeddings-openai @molecule/api-ai-embeddings @molecule/api-secrets
 ```
@@ -66,6 +68,7 @@ const provider: AIEmbeddingsProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-ai-embeddings` interface.
 
 ## Bond Wiring
@@ -86,12 +89,13 @@ export function setupAiEmbeddingsOpenai(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-ai-embeddings` >=1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `OPENAI_API_KEY` *(required)* — OpenAI API key
+- `OPENAI_API_KEY` _(required)_ — OpenAI API key
   - Setup: Create a secret key on the OpenAI platform (API keys page).
   - Get it here: [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
   - Example: `sk-proj-...`
@@ -123,29 +127,30 @@ this app's actual data and features, and check every box off one by one. A
 box you can't check is an integration bug to fix — not a skip. Embeddings are
 infrastructure, so PROVE them through the feature they power (semantic search
 / "related items" / dedup) AND with a direct property check on the vectors:
+
 - [ ] `embedQuery(text)` returns a non-empty numeric `number[]` of the model's
-  fixed dimension, and every vector from `embed`/`embedDocuments` has that SAME
-  length — no empty arrays, no `NaN`/`null` entries, and the length is identical
-  across calls (a query and a document must be comparable).
+      fixed dimension, and every vector from `embed`/`embedDocuments` has that SAME
+      length — no empty arrays, no `NaN`/`null` entries, and the length is identical
+      across calls (a query and a document must be comparable).
 - [ ] The semantic property holds — there is NO built-in similarity helper, so
-  compute cosine similarity yourself (dot product over the two magnitudes): two
-  related texts ("dog"/"puppy", or a query and a matching doc) score HIGH, two
-  unrelated texts ("dog"/"quarterly taxes") score clearly LOWER. If every pair
-  scores alike the vectors are dead — one positive check alone doesn't prove it.
+      compute cosine similarity yourself (dot product over the two magnitudes): two
+      related texts ("dog"/"puppy", or a query and a matching doc) score HIGH, two
+      unrelated texts ("dog"/"quarterly taxes") score clearly LOWER. If every pair
+      scores alike the vectors are dead — one positive check alone doesn't prove it.
 - [ ] Ranking works: embed a query plus a handful of documents and sort by cosine
-  similarity — the semantically closest document ranks ABOVE the unrelated ones.
-  This ordering is the whole point; a query that ranks an off-topic doc first is broken.
+      similarity — the semantically closest document ranks ABOVE the unrelated ones.
+      This ordering is the whole point; a query that ranks an off-topic doc first is broken.
 - [ ] The feature built on it works end-to-end from the real UI: semantic search
-  / "related items" / dedup returns results ranked by MEANING, not keyword — a
-  search for a synonym or paraphrase finds the right item even when it shares NO
-  words with the query (the case a plain text/keyword search would miss).
+      / "related items" / dedup returns results ranked by MEANING, not keyword — a
+      search for a synonym or paraphrase finds the right item even when it shares NO
+      words with the query (the case a plain text/keyword search would miss).
 - [ ] Embedding is stable: the same text embedded twice yields (near-)identical
-  vectors, so a stored index stays valid — re-embedding an item must not silently
-  drift it out of its own neighborhood.
+      vectors, so a stored index stays valid — re-embedding an item must not silently
+      drift it out of its own neighborhood.
 - [ ] Batching is order-preserving: `embedDocuments([a, b, c])` (or `embed({ input })`)
-  returns exactly one vector per input in the SAME order — `embeddings[i]` is the
-  vector for `input[i]`, never shuffled, merged, or dropped.
+      returns exactly one vector per input in the SAME order — `embeddings[i]` is the
+      vector for `input[i]`, never shuffled, merged, or dropped.
 - [ ] Embedding runs SERVER-SIDE: the call goes through the app's API and the
-  provider key never reaches the browser (no provider request or key in the
-  Network tab). Any endpoint that embeds caller-supplied text is authenticated
-  and rate-limited — an open embed endpoint is an unbounded per-token cost/abuse vector.
+      provider key never reaches the browser (no provider request or key in the
+      Network tab). Any endpoint that embeds caller-supplied text is authenticated
+      and rate-limited — an open embed endpoint is an unbounded per-token cost/abuse vector.

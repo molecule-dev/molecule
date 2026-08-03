@@ -9,23 +9,33 @@ bond registry checks, and custom checks).
 ## Quick Start
 
 ```typescript
-import { getProvider, setProvider, runAll, createDatabaseCheck, createHttpCheck } from '@molecule/api-monitoring'
+import {
+  getProvider,
+  setProvider,
+  runAll,
+  createDatabaseCheck,
+  createHttpCheck,
+} from '@molecule/api-monitoring'
 import { provider } from '@molecule/api-monitoring-default'
 
 setProvider(provider)
 
 const monitoring = getProvider()
 monitoring.register(createDatabaseCheck())
-monitoring.register(createHttpCheck('https://api.stripe.com', { name: 'stripe', degradedThresholdMs: 1000 }))
+monitoring.register(
+  createHttpCheck('https://api.stripe.com', { name: 'stripe', degradedThresholdMs: 1000 }),
+)
 
 const health = await runAll()
 console.log(health.status) // 'operational' | 'degraded' | 'down'
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-monitoring @molecule/api-bond @molecule/api-i18n
 ```
@@ -169,6 +179,7 @@ interface SystemHealth {
 #### `CheckStatus`
 
 Operational status of a single health check.
+
 - 'operational' — fully functional
 - 'degraded' — functioning but below normal (high latency, partial failures)
 - 'down' — unavailable
@@ -216,7 +227,11 @@ function createCacheCheck(name?: string, category?: string): HealthCheck
 Creates a custom health check from a user-provided async function.
 
 ```typescript
-function createCustomCheck(name: string, fn: () => Promise<CheckResult>, category?: string): HealthCheck
+function createCustomCheck(
+  name: string,
+  fn: () => Promise<CheckResult>,
+  category?: string,
+): HealthCheck
 ```
 
 - `name` — Unique check name.
@@ -323,8 +338,8 @@ function setProvider(provider: MonitoringProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider             | Package                            |
+| -------------------- | ---------------------------------- |
 | Default (in-process) | `@molecule/api-monitoring-default` |
 
 ## Injection Notes
@@ -332,6 +347,7 @@ function setProvider(provider: MonitoringProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

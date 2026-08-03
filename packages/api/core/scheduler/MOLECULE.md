@@ -27,9 +27,11 @@ start()
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-scheduler @molecule/api-bond @molecule/api-i18n
 ```
@@ -239,8 +241,8 @@ function unschedule(name: string): boolean
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
+| Provider             | Package                           |
+| -------------------- | --------------------------------- |
 | Default (in-process) | `@molecule/api-scheduler-default` |
 
 ## Injection Notes
@@ -248,6 +250,7 @@ function unschedule(name: string): boolean
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 

@@ -19,9 +19,11 @@ await hide()
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-splash-screen-react-native @molecule/app-i18n @molecule/app-logger @molecule/app-splash-screen expo-splash-screen
 ```
@@ -52,7 +54,9 @@ interface ReactNativeSplashScreenConfig {
 Creates a React Native splash screen provider backed by expo-splash-screen.
 
 ```typescript
-function createReactNativeSplashScreenProvider(config?: ReactNativeSplashScreenConfig): SplashScreenProvider
+function createReactNativeSplashScreenProvider(
+  config?: ReactNativeSplashScreenConfig,
+): SplashScreenProvider
 ```
 
 - `config` — Optional provider configuration.
@@ -70,6 +74,7 @@ const provider: SplashScreenProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/app-splash-screen` interface.
 
 ## Bond Wiring
@@ -90,6 +95,7 @@ export function setupNativeSplashScreenReactNative(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-i18n` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 - `@molecule/app-splash-screen` ^1.0.0
@@ -106,7 +112,7 @@ Peer dependencies:
   `preventAutoHide` defaults to `true`): the native splash stays up until the app
   explicitly calls `hide()`. If the app appears to hang on the splash forever, the
   missing `hide()` call is why. Use `createReactNativeSplashScreenProvider({
-  preventAutoHide: false })` to keep the OS auto-hide behavior.
+preventAutoHide: false })` to keep the OS auto-hide behavior.
 - `expo-splash-screen` is loaded on demand — install with
   `npx expo install expo-splash-screen`.
 - `show()`/`hide()` OPTIONS (fade, duration, spinner) are ignored on this platform —

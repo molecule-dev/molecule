@@ -27,9 +27,11 @@ editor.setValue(htmlToValue('<p>Hello <strong>world</strong></p>'))
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-rich-text @molecule/app-bond dompurify
 ```
@@ -541,6 +543,7 @@ const defaultToolbars: Record<string, ToolbarConfig>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 
 ### Runtime Dependencies

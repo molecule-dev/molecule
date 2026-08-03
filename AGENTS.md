@@ -7,6 +7,7 @@ Before writing any import, literal value, or function call, apply this test:
 > **"If we swapped out the implementation behind this (different provider, different framework, different library, different database), would this line need to change?"**
 >
 > If yes — you are coupling to an implementation. Fix it:
+>
 > - **Importing a concrete driver in a handler?** → Use the abstract core interface instead.
 > - **Using a platform-specific API directly?** → Accept it as an injectable parameter.
 > - **Writing CSS class names in a component?** → Use `getClassMap()` from `@molecule/app-ui` instead. The ONLY packages that may contain CSS class names are ClassMap bond packages (e.g., `@molecule/app-ui-tailwind`).
@@ -121,7 +122,7 @@ been failed in practice; the third is the one that keeps being missed.
 1. **Could this name mean something else in a list of 900 packages?** A name
    built from generic nouns — `state`, `data`, `core`, `common`, `manager`,
    `service`, `handler`, `engine`, `tools`, `support` — describes nothing on its
-   own and must be qualified until it does. *Failed 2026-07-26:*
+   own and must be qualified until it does. _Failed 2026-07-26:_
    `@molecule/api-external-state` was created for "the state a project owns
    outside its source tree"; the name equally suggests client state, session
    state, feature flags, or a remote API's state. It was deleted the same day.
@@ -171,7 +172,7 @@ Never discard a caught error silently. Every `catch` (and `.catch()`) must do **
    - `logger.error('what failed and why it matters', { error })` — the operation failed and something is now broken or degraded.
    - `logger.warn('...', { error })` — recoverable/degraded, but worth knowing.
    - `logger.debug('...', { error })` — genuinely best-effort (cleanup, optional cache, a retry that will retry).
-3. **Explicit, documented noop** — bind as `catch (_error)` (the `_` prefix marks "intentionally ignored") **and** add a comment explaining *why* ignoring is correct/safe at that exact spot.
+3. **Explicit, documented noop** — bind as `catch (_error)` (the `_` prefix marks "intentionally ignored") **and** add a comment explaining _why_ ignoring is correct/safe at that exact spot.
 
 Always **bind** the error (`catch (error)`) — never bindingless `catch {}`; you can't log what you don't bind. `.catch(() => {})` with no log and no justifying comment is forbidden. The log message must give a future debugger a starting point (which operation, which resource) — a vague `logger.warn('failed')` that drops the actual `error` is itself a silent swallow. This rule exists because a single swallowed provisioning `catch` made an entire class of "api server down" failures nearly impossible to trace.
 
@@ -209,8 +210,8 @@ an absence.
 
 Enforced by `mlcl/scripts/check-external-state-coverage.mjs` — `npm run
 verify:external-state`, and mlcl's `npm test`, which its CI runs. A NEW
-state-owning category is settled by one question, *if this resource were deleted,
-could the project regenerate it from its source tree?*, and a "no" means adding
+state-owning category is settled by one question, _if this resource were deleted,
+could the project regenerate it from its source tree?_, and a "no" means adding
 it to that script's `STATE_OWNING` ledger; `cache`, `queue` and `search` are
 recorded there as "yes", with reasons.
 
@@ -231,7 +232,7 @@ recorded there as "yes", with reasons.
 11. Unpinned dependency versions (`^1.0.0` or `~2.3.0` instead of exact `1.0.0`)
 12. Inline styles that override ClassMap classes (e.g., `style={{ background: 'transparent' }}` silently kills `cm.surface`)
 13. Using ClassMap classes without checking their definitions in the bond package first
-14. Baking consumer-specific stream events or cards into a shared package. App-specific chat/stream events (e.g. molecule.dev's `build_degraded` upgrade notice) must NOT be added to the core `@molecule/app-ai-chat` event union or hardcoded in `@molecule/app-ide-react`'s ChatPanel. Use the generic `{ type: 'custom', name, data }` event + the `registerCustomEventCard(name, factory)` registry, and implement the specifics in the consuming app (e.g. `molecule-dev/`). The shared package stays generic; only the app knows about its own events. Same test as the Decoupling Principle: "would a *different* app using this package ever want this exact event/card?" If no, it belongs in the app, not the package.
+14. Baking consumer-specific stream events or cards into a shared package. App-specific chat/stream events (e.g. molecule.dev's `build_degraded` upgrade notice) must NOT be added to the core `@molecule/app-ai-chat` event union or hardcoded in `@molecule/app-ide-react`'s ChatPanel. Use the generic `{ type: 'custom', name, data }` event + the `registerCustomEventCard(name, factory)` registry, and implement the specifics in the consuming app (e.g. `molecule-dev/`). The shared package stays generic; only the app knows about its own events. Same test as the Decoupling Principle: "would a _different_ app using this package ever want this exact event/card?" If no, it belongs in the app, not the package.
 15. Silent error swallows — `} catch {}`, `} catch { return null }` with no log, `.catch(() => {})`, or a vague `logger.warn('failed')` that drops the actual `error`. Bind the error and log it (severity by impact), re-throw it, or document why the noop is safe with a `catch (_error)` + comment. See Rule 14.
 16. A provider bond that owns state a project cannot regenerate (a database, an uploads backend) with no matching bond under `packages/api/bonds/project-archive-external-state/`. The project archive destroys the original after capturing it, so uncovered state is silently, permanently deleted. See Rule 15.
 
@@ -343,6 +344,7 @@ Every package with user-facing text has a companion locale bond (`@molecule/{sta
 **Always reference `DESIGN.md` when generating or modifying any UI component.** Use only the colors, fonts, spacing, and component values defined there — never invent arbitrary values.
 
 Key rules:
+
 - All spacing follows an 8px grid (4px for tight spaces)
 - Use semantic colors (success/warning/error/info) for status indicators
 - All interactive elements must include `data-mol-id` attributes for AI agent interaction

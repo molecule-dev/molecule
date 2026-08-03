@@ -3,6 +3,7 @@
 React message/chat primitives.
 
 Exports:
+
 - `<MessageBubble>` — one message (avatar + meta row + body + optional
   attachments/reactions/thread slots from `message.attachments` etc.).
   Props: `message`, `isSelf?`, `showMeta?`, `className?`.
@@ -14,7 +15,7 @@ Exports:
 - `<MessageList messages selfAuthorId? renderDateSeparator? emptyState?>` —
   vertical list of bubbles.
 - `<MessageComposer onSubmit placeholder? submitOnEnter? leading? trailing?
-  disabled?>` — textarea + Send button.
+disabled?>` — textarea + Send button.
 - `MessageData`, `MessageAuthor`, `MessageAttachment`, `MessageReaction` types.
 
 ## Quick Start
@@ -33,9 +34,11 @@ const messages: MessageData[] = [
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-message-bubble-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -238,10 +241,7 @@ Vertical list of attachment rows below a message body.
 Each row: `[icon] [name · size] [action]`.
 
 ```typescript
-function MessageAttachments({
-  attachments,
-  className,
-}: MessageAttachmentsProps): JSX.Element
+function MessageAttachments({ attachments, className }: MessageAttachmentsProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link MessageAttachmentsProps}).
@@ -350,6 +350,7 @@ function ThreadIndicator({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

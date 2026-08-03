@@ -18,17 +18,27 @@ import { compositeImage } from '@molecule/api-image-compositor'
 
 const png = await compositeImage(
   {
-    width: 1200, height: 800,
+    width: 1200,
+    height: 800,
     background: '#ffffff',
     layers: [
-      { kind: 'image', src: backgroundJpg,
-        position: { x: 0, y: 0, width: 1200, height: 800 } },
-      { kind: 'gradient',
-        gradient: { type: 'linear', x0: 0, y0: 0, x1: 0, y1: 1,
-          stops: [{ offset: 0, color: 'rgba(0,0,0,0)' },
-                  { offset: 1, color: 'rgba(0,0,0,0.6)' }] },
+      { kind: 'image', src: backgroundJpg, position: { x: 0, y: 0, width: 1200, height: 800 } },
+      {
+        kind: 'gradient',
+        gradient: {
+          type: 'linear',
+          x0: 0,
+          y0: 0,
+          x1: 0,
+          y1: 1,
+          stops: [
+            { offset: 0, color: 'rgba(0,0,0,0)' },
+            { offset: 1, color: 'rgba(0,0,0,0.6)' },
+          ],
+        },
         position: { x: 0, y: 0, width: 1200, height: 800 },
-        blendMode: 'multiply' },
+        blendMode: 'multiply',
+      },
     ],
   },
   { format: 'png' },
@@ -46,19 +56,29 @@ router.post('/image/composite', async (req, res, next) => {
       { body: req.body },
       {
         setHeader: (n, v) => res.setHeader(n, v),
-        setStatus: (s) => { res.status(s) },
-        sendBuffer: (b) => { res.end(b) },
-        sendJson: (j) => { res.json(j) },
+        setStatus: (s) => {
+          res.status(s)
+        },
+        sendBuffer: (b) => {
+          res.end(b)
+        },
+        sendJson: (j) => {
+          res.json(j)
+        },
       },
     )
-  } catch (err) { next(err) }
+  } catch (err) {
+    next(err)
+  }
 })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-image-compositor @molecule/api-bond @molecule/api-i18n @molecule/api-image @molecule/api-image-sharp
 ```
@@ -445,7 +465,14 @@ Mutates `dst` in place at offset `dstOffset` and reads `src` at
 `srcOffset`.
 
 ```typescript
-function composePixel(mode: BlendMode, srcOpacity: number, dst: Buffer<ArrayBufferLike>, dstOffset: number, src: Buffer<ArrayBufferLike>, srcOffset: number): void
+function composePixel(
+  mode: BlendMode,
+  srcOpacity: number,
+  dst: Buffer<ArrayBufferLike>,
+  dstOffset: number,
+  src: Buffer<ArrayBufferLike>,
+  srcOffset: number,
+): void
 ```
 
 - `mode` — Blend mode for the RGB channels.
@@ -460,12 +487,17 @@ function composePixel(mode: BlendMode, srcOpacity: number, dst: Buffer<ArrayBuff
 Flatten a layered image document into an encoded image buffer.
 
 Stages:
+
 1. Compose every layer into a flat RGBA raster (`compositeRgba`).
 2. Optionally resize the flat raster (`raster.resizeRaw`).
 3. Encode the result in the requested output format (`raster.encode`).
 
 ```typescript
-function compositeImage(doc: LayeredImage, options?: CompositeOptions, deps?: CompositorDependencies): Promise<Buffer<ArrayBufferLike>>
+function compositeImage(
+  doc: LayeredImage,
+  options?: CompositeOptions,
+  deps?: CompositorDependencies,
+): Promise<Buffer<ArrayBufferLike>>
 ```
 
 - `doc` — Layered-image document.
@@ -503,7 +535,9 @@ Build a `(req, res) => Promise<void>` handler that invokes
 {@link compositeImage} and streams the resulting buffer back.
 
 ```typescript
-function createImageCompositeHandler(handlerOptions?: CreateImageCompositeHandlerOptions): (req: CompositeRequest, res: CompositeResponse) => Promise<void>
+function createImageCompositeHandler(
+  handlerOptions?: CreateImageCompositeHandlerOptions,
+): (req: CompositeRequest, res: CompositeResponse) => Promise<void>
 ```
 
 - `handlerOptions` — Optional validator / filename / deps.
@@ -572,6 +606,7 @@ function parseCssColor(input: string): Rgba | null
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-image` ^1.0.0

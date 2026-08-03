@@ -29,9 +29,11 @@ await record({
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-activity @molecule/api-bond
 ```
@@ -176,16 +178,17 @@ function setSink(sink: ActivitySink): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Console | `@molecule/api-activity-console` |
-| HTTP | `@molecule/api-activity-http` |
+| Provider | Package                          |
+| -------- | -------------------------------- |
+| Console  | `@molecule/api-activity-console` |
+| HTTP     | `@molecule/api-activity-http`    |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 
 ### Runtime Dependencies

@@ -10,13 +10,15 @@ with different i18n libraries (react-i18next, FormatJS, etc.).
 ```tsx
 import { t } from '@molecule/app-i18n'
 // ALWAYS pass a defaultValue — it renders immediately as the English text.
-<button>{t('settings.save', undefined, { defaultValue: 'Save' })}</button>
+;<button>{t('settings.save', undefined, { defaultValue: 'Save' })}</button>
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-i18n @molecule/app-bond @molecule/app-logger
 ```
@@ -419,7 +421,10 @@ pluralization, `Intl`-based formatting, lazy locale loading, and
 locale change subscription.
 
 ```typescript
-function createSimpleI18nProvider(initialLocale?: string, initialLocales?: LocaleConfig[]): I18nProvider
+function createSimpleI18nProvider(
+  initialLocale?: string,
+  initialLocales?: LocaleConfig[],
+): I18nProvider
 ```
 
 - `initialLocale` — The initial active locale code (defaults to `'en'`).
@@ -476,7 +481,10 @@ function formatNumber(value: number, options?: NumberFormatOptions): string
 Formats a relative time (e.g. "2 hours ago", "in 3 days").
 
 ```typescript
-function formatRelativeTime(value: number | Date, options?: { unit?: Intl.RelativeTimeFormatUnit; }): string
+function formatRelativeTime(
+  value: number | Date,
+  options?: { unit?: Intl.RelativeTimeFormatUnit },
+): string
 ```
 
 - `value` — The date or timestamp to express relative to now.
@@ -612,7 +620,11 @@ Translates a key using the bonded i18n provider, with optional
 interpolation values and pluralization.
 
 ```typescript
-function t(key: string, values?: InterpolationValues, options?: { defaultValue?: string; count?: number; }): string
+function t(
+  key: string,
+  values?: InterpolationValues,
+  options?: { defaultValue?: string; count?: number },
+): string
 ```
 
 - `key` — Dot-delimited translation key (e.g. `'auth.login.title'`).
@@ -636,9 +648,9 @@ const simpleProvider: I18nProvider
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| i18next | `@molecule/app-i18n-i18next` |
+| Provider      | Package                            |
+| ------------- | ---------------------------------- |
+| i18next       | `@molecule/app-i18n-i18next`       |
 | react-i18next | `@molecule/app-i18n-react-i18next` |
 
 ## Injection Notes
@@ -646,6 +658,7 @@ const simpleProvider: I18nProvider
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-logger` ^1.0.0
 

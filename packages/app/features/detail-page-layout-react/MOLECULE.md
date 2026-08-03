@@ -12,7 +12,7 @@ import { DetailPageLayout } from '@molecule/app-detail-page-layout-react'
 import { Breadcrumb } from '@molecule/app-breadcrumb-react'
 import { DetailHeader } from '@molecule/app-detail-header-react'
 
-<DetailPageLayout
+;<DetailPageLayout
   breadcrumb={<Breadcrumb items={crumbs} />}
   topBar={<DetailHeader title={recipe.title} actions={editButton} sticky />}
   main={<RecipeSections recipe={recipe} />}
@@ -24,9 +24,11 @@ import { DetailHeader } from '@molecule/app-detail-header-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-detail-page-layout-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -91,6 +93,7 @@ function DetailPageLayout({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

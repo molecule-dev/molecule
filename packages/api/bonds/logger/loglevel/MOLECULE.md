@@ -15,9 +15,11 @@ logger.info('Server started on port', 3000)
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-logger-loglevel @molecule/api-logger loglevel
 ```
@@ -32,11 +34,11 @@ Logger interface that all implementations must satisfy.
 
 ```typescript
 interface Logger {
-    trace(...args: unknown[]): void;
-    debug(...args: unknown[]): void;
-    info(...args: unknown[]): void;
-    warn(...args: unknown[]): void;
-    error(...args: unknown[]): void;
+  trace(...args: unknown[]): void
+  debug(...args: unknown[]): void
+  info(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
 }
 ```
 
@@ -47,7 +49,7 @@ interface Logger {
 Log levels supported by the logger.
 
 ```typescript
-type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent';
+type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'silent'
 ```
 
 ### Functions
@@ -66,7 +68,7 @@ Note: loglevel caches instances by name, so `createLogger({ name })` with an
 already-used name returns (and re-levels) that same shared instance.
 
 ```typescript
-function createLogger(options?: { level?: LogLevel; name?: string; }): Logger
+function createLogger(options?: { level?: LogLevel; name?: string }): Logger
 ```
 
 - `options` — Logger configuration.
@@ -130,6 +132,7 @@ const provider: Logger
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-logger` interface.
 
 ## Bond Wiring
@@ -150,6 +153,7 @@ export function setupLoggerLoglevel(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-logger` ^1.0.0
 
 ### Runtime Dependencies

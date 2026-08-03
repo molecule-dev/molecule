@@ -33,9 +33,11 @@ await requireRole('document', docId, 'editor', userId, teamIds)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-share @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource zod
 ```
@@ -193,7 +195,7 @@ Resource-ownership predicate: returns `true` when `userId` is permitted to
 administer (grant / update / revoke) shares on the given resource. This is
 the gate that decides who may hand out access — it is deliberately distinct
 from {@link resolveRole}, which answers "what can this user already do",
-because the raw share table has no inherent knowledge of which user *owns*
+because the raw share table has no inherent knowledge of which user _owns_
 an arbitrary `(resourceType, resourceId)`. Only the consuming app does.
 
 ```typescript
@@ -220,7 +222,13 @@ Convenience predicate: does the user have at least the required role on
 the resource?
 
 ```typescript
-function canAccess(resourceType: string, resourceId: string, required: "viewer" | "commenter" | "editor" | "owner", userId: string | null, teamIds?: string[]): Promise<boolean>
+function canAccess(
+  resourceType: string,
+  resourceId: string,
+  required: 'viewer' | 'commenter' | 'editor' | 'owner',
+  userId: string | null,
+  teamIds?: string[],
+): Promise<boolean>
 ```
 
 - `resourceType` — Resource type.
@@ -239,7 +247,11 @@ registered via {@link setShareAdminAuthorizer} AND that authorizer allows
 returns `false` — the share grant/update/revoke handlers respond 403.
 
 ```typescript
-function canAdministerResource(resourceType: string, resourceId: string, userId: string): Promise<boolean>
+function canAdministerResource(
+  resourceType: string,
+  resourceId: string,
+  userId: string,
+): Promise<boolean>
 ```
 
 - `resourceType` — Resource type.
@@ -254,7 +266,10 @@ Compares two roles. Returns 0 when equal, negative when `a < b`, positive
 when `a > b`.
 
 ```typescript
-function compareRoles(a: "viewer" | "commenter" | "editor" | "owner", b: "viewer" | "commenter" | "editor" | "owner"): number
+function compareRoles(
+  a: 'viewer' | 'commenter' | 'editor' | 'owner',
+  b: 'viewer' | 'commenter' | 'editor' | 'owner',
+): number
 ```
 
 - `a` — The first role.
@@ -324,7 +339,12 @@ Returns the highest role a user has on a resource across direct user
 grants, team grants the user is a member of, and any active public grant.
 
 ```typescript
-function getEffectiveRole(resourceType: string, resourceId: string, userId: string | null, teamIds?: string[]): Promise<"viewer" | "commenter" | "editor" | "owner" | null>
+function getEffectiveRole(
+  resourceType: string,
+  resourceId: string,
+  userId: string | null,
+  teamIds?: string[],
+): Promise<'viewer' | 'commenter' | 'editor' | 'owner' | null>
 ```
 
 - `resourceType` — Resource type.
@@ -340,7 +360,12 @@ Returns the role a single principal holds on a resource, accounting for
 expiry. Returns `null` when no active grant exists.
 
 ```typescript
-function getPrincipalRole(resourceType: string, resourceId: string, principalType: PrincipalType, principalId: string): Promise<"viewer" | "commenter" | "editor" | "owner" | null>
+function getPrincipalRole(
+  resourceType: string,
+  resourceId: string,
+  principalType: PrincipalType,
+  principalId: string,
+): Promise<'viewer' | 'commenter' | 'editor' | 'owner' | null>
 ```
 
 - `resourceType` — Resource type.
@@ -456,7 +481,11 @@ function listShareLinks(resourceType: string, resourceId: string): Promise<Share
 Lists shares attached to a single resource, with pagination.
 
 ```typescript
-function listShares(resourceType: string, resourceId: string, options?: ShareQuery): Promise<PaginatedResult<Share>>
+function listShares(
+  resourceType: string,
+  resourceId: string,
+  options?: ShareQuery,
+): Promise<PaginatedResult<Share>>
 ```
 
 - `resourceType` — Resource type.
@@ -497,7 +526,13 @@ role on the resource. Intended for use inside other resource handlers
 that integrate with shares.
 
 ```typescript
-function requireRole(resourceType: string, resourceId: string, required: "viewer" | "commenter" | "editor" | "owner", userId: string | null, teamIds?: string[]): Promise<void>
+function requireRole(
+  resourceType: string,
+  resourceId: string,
+  required: 'viewer' | 'commenter' | 'editor' | 'owner',
+  userId: string | null,
+  teamIds?: string[],
+): Promise<void>
 ```
 
 - `resourceType` — Resource type.
@@ -526,7 +561,12 @@ direct user grants, team grants, and any active public grant. Returns
 `null` when no active grant applies.
 
 ```typescript
-function resolveRole(resourceType: string, resourceId: string, userId: string | null, teamIds?: string[]): Promise<"viewer" | "commenter" | "editor" | "owner" | null>
+function resolveRole(
+  resourceType: string,
+  resourceId: string,
+  userId: string | null,
+  teamIds?: string[],
+): Promise<'viewer' | 'commenter' | 'editor' | 'owner' | null>
 ```
 
 - `resourceType` — Resource type (e.g. 'document').
@@ -565,7 +605,12 @@ function revokeLink(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Revokes a single share grant.
 
 ```typescript
-function revokeShare(resourceType: string, resourceId: string, principalType: PrincipalType, principalId: string): Promise<void>
+function revokeShare(
+  resourceType: string,
+  resourceId: string,
+  principalType: PrincipalType,
+  principalId: string,
+): Promise<void>
 ```
 
 - `resourceType` — Resource type.
@@ -601,7 +646,10 @@ function revokeShareLink(id: string): Promise<ShareLink | null>
 Determines whether `role` is at least as privileged as `required`.
 
 ```typescript
-function roleSatisfies(role: "viewer" | "commenter" | "editor" | "owner", required: "viewer" | "commenter" | "editor" | "owner"): boolean
+function roleSatisfies(
+  role: 'viewer' | 'commenter' | 'editor' | 'owner',
+  required: 'viewer' | 'commenter' | 'editor' | 'owner',
+): boolean
 ```
 
 - `role` — The role held.
@@ -642,7 +690,10 @@ function update(req: MoleculeRequest, res: MoleculeResponse): Promise<void>
 Updates the role and/or expiry of an existing share by ID.
 
 ```typescript
-function updateShare(id: string, patch: { role?: ShareRole; expiresAt?: string | null; }): Promise<Share | null>
+function updateShare(
+  id: string,
+  patch: { role?: ShareRole; expiresAt?: string | null },
+): Promise<Share | null>
 ```
 
 - `id` — The share ID.
@@ -657,7 +708,15 @@ function updateShare(id: string, patch: { role?: ShareRole; expiresAt?: string |
 Schema for creating a public share link.
 
 ```typescript
-const createShareLinkSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId: z.ZodString; role: z.ZodEnum<{ viewer: "viewer"; commenter: "commenter"; editor: "editor"; owner: "owner"; }>; expiresAt: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const createShareLinkSchema: z.ZodObject<
+  {
+    resourceType: z.ZodString
+    resourceId: z.ZodString
+    role: z.ZodEnum<{ viewer: 'viewer'; commenter: 'commenter'; editor: 'editor'; owner: 'owner' }>
+    expiresAt: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `grantShareSchema`
@@ -665,7 +724,17 @@ const createShareLinkSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId
 Schema for granting a share to a principal.
 
 ```typescript
-const grantShareSchema: z.ZodObject<{ resourceType: z.ZodString; resourceId: z.ZodString; principalType: z.ZodEnum<{ user: "user"; team: "team"; public: "public"; }>; principalId: z.ZodString; role: z.ZodEnum<{ viewer: "viewer"; commenter: "commenter"; editor: "editor"; owner: "owner"; }>; expiresAt: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const grantShareSchema: z.ZodObject<
+  {
+    resourceType: z.ZodString
+    resourceId: z.ZodString
+    principalType: z.ZodEnum<{ user: 'user'; team: 'team'; public: 'public' }>
+    principalId: z.ZodString
+    role: z.ZodEnum<{ viewer: 'viewer'; commenter: 'commenter'; editor: 'editor'; owner: 'owner' }>
+    expiresAt: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `requestHandlerMap`
@@ -683,7 +752,12 @@ resource-ownership gate (plus a `setShareAdminAuthorizer` registration; the
 handlers also default-DENY on their own until one is registered).
 
 ```typescript
-const requestHandlerMap: { readonly list: typeof list; readonly read: typeof read; readonly listLinks: typeof listLinks; readonly resolveLink: typeof resolveLink; }
+const requestHandlerMap: {
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly listLinks: typeof listLinks
+  readonly resolveLink: typeof resolveLink
+}
 ```
 
 #### `routes`
@@ -691,7 +765,31 @@ const requestHandlerMap: { readonly list: typeof list; readonly read: typeof rea
 HTTP routes for share reads and public link tokens.
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/resource-shares/:resourceType/:resourceId"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-shares/:resourceType/:resourceId/role"; readonly handler: "read"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-share-links/:resourceType/:resourceId"; readonly handler: "listLinks"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/resource-share-links/resolve/:slug"; readonly handler: "resolveLink"; }]
+const routes: readonly [
+  {
+    readonly method: 'get'
+    readonly path: '/resource-shares/:resourceType/:resourceId'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/resource-shares/:resourceType/:resourceId/role'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/resource-share-links/:resourceType/:resourceId'
+    readonly handler: 'listLinks'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/resource-share-links/resolve/:slug'
+    readonly handler: 'resolveLink'
+  },
+]
 ```
 
 #### `SHARE_ROLES`
@@ -700,7 +798,7 @@ Available roles, ordered from least to most privileged. Higher index
 implies all lower-indexed permissions.
 
 ```typescript
-const SHARE_ROLES: readonly ["viewer", "commenter", "editor", "owner"]
+const SHARE_ROLES: readonly ['viewer', 'commenter', 'editor', 'owner']
 ```
 
 #### `updateShareSchema`
@@ -708,7 +806,15 @@ const SHARE_ROLES: readonly ["viewer", "commenter", "editor", "owner"]
 Schema for updating an existing share's role and/or expiry.
 
 ```typescript
-const updateShareSchema: z.ZodObject<{ role: z.ZodOptional<z.ZodEnum<{ viewer: "viewer"; commenter: "commenter"; editor: "editor"; owner: "owner"; }>>; expiresAt: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const updateShareSchema: z.ZodObject<
+  {
+    role: z.ZodOptional<
+      z.ZodEnum<{ viewer: 'viewer'; commenter: 'commenter'; editor: 'editor'; owner: 'owner' }>
+    >
+    expiresAt: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 ## Injection Notes
@@ -716,6 +822,7 @@ const updateShareSchema: z.ZodObject<{ role: z.ZodOptional<z.ZodEnum<{ viewer: "
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -735,13 +842,13 @@ Peer dependencies:
   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
   the rows come back; reading the response as a bare array — or `res.data` alone (which is
   the envelope) — yields an EMPTY list.
-SECURITY — the raw grant/update/revoke handlers DENY by default (every
-mutation returns 403 until an ownership authorizer is registered) and MUST
-be mounted behind a resource-ownership gate; never auto-mount them. The
-share table has no inherent knowledge of who *owns* an arbitrary
-`(resourceType, resourceId)`, so without a gate any authenticated user could
-`POST /resource-shares` to grant themselves the highest role on ANY resource
-(or revoke/escalate others' grants by id).
+  SECURITY — the raw grant/update/revoke handlers DENY by default (every
+  mutation returns 403 until an ownership authorizer is registered) and MUST
+  be mounted behind a resource-ownership gate; never auto-mount them. The
+  share table has no inherent knowledge of who _owns_ an arbitrary
+  `(resourceType, resourceId)`, so without a gate any authenticated user could
+  `POST /resource-shares` to grant themselves the highest role on ANY resource
+  (or revoke/escalate others' grants by id).
 
 Two things enforce this:
 
@@ -772,8 +879,9 @@ Two things enforce this:
 
    ```typescript
    import { setShareAdminAuthorizer } from '@molecule/api-resource-share'
-   setShareAdminAuthorizer(async (resourceType, resourceId, userId) =>
-     resourceType === 'project' && (await userOwnsOrAdminsProject(userId, resourceId)),
+   setShareAdminAuthorizer(
+     async (resourceType, resourceId, userId) =>
+       resourceType === 'project' && (await userOwnsOrAdminsProject(userId, resourceId)),
    )
    ```
 
@@ -799,29 +907,30 @@ this app's actual shareable resource (document, board, project, ...), and
 check each box off one by one. A box you can't check is an access-control
 bug to fix, never a skip — never mock the check or weaken a role gate to
 go green:
+
 - [ ] A grant admits EXACTLY its role and downstream enforcement honors
-  it: share the resource with account B as 'viewer' -> B can open and read
-  it, but every edit/save action is REFUSED (the resource's own handler
-  calls requireRole(..., 'editor') and it throws forbidden); update/re-share
-  B to 'editor' -> B can now edit. No role ever grants above its rank
-  (viewer < commenter < editor < owner).
+      it: share the resource with account B as 'viewer' -> B can open and read
+      it, but every edit/save action is REFUSED (the resource's own handler
+      calls requireRole(..., 'editor') and it throws forbidden); update/re-share
+      B to 'editor' -> B can now edit. No role ever grants above its rank
+      (viewer < commenter < editor < owner).
 - [ ] A public share LINK admits its embedded role to whoever holds the
-  slug: create a link, open its .../resource-share-links/resolve/:slug URL
-  in the signed-out session -> access is granted at that role, scoped to
-  that ONE resource only. The slug is the sole credential and is unguessable
-  (32 random hex chars) — a made-up or altered slug resolves to 404.
+      slug: create a link, open its .../resource-share-links/resolve/:slug URL
+      in the signed-out session -> access is granted at that role, scoped to
+      that ONE resource only. The slug is the sole credential and is unguessable
+      (32 random hex chars) — a made-up or altered slug resolves to 404.
 - [ ] REVOKING cuts access off immediately: revoke B's grant -> B's next
-  read/edit is refused with no stale window; revoke a link -> its slug now
-  resolves to 404 for everyone, on the very next request.
+      read/edit is refused with no stale window; revoke a link -> its slug now
+      resolves to 404 for everyone, on the very next request.
 - [ ] EXPIRY is enforced server-side: once a grant or link is past its
-  expiresAt, effective role resolves to null / the link resolves to 404,
-  exactly as if revoked — never rely on the client hiding an expired share.
+      expiresAt, effective role resolves to null / the link resolves to 404,
+      exactly as if revoked — never rely on the client hiding an expired share.
 - [ ] AUTHORIZATION is default-DENY and owner-only: a caller who does not
-  administer the resource gets 403 when creating/updating/revoking a share
-  or link on it, so no user can grant THEMSELVES access to a resource they
-  don't own. A plain viewer/editor sharee cannot escalate — they can't
-  re-share at a higher role or hand grants to others (the ownership gate
-  refuses them), only an owner/admin can.
+      administer the resource gets 403 when creating/updating/revoking a share
+      or link on it, so no user can grant THEMSELVES access to a resource they
+      don't own. A plain viewer/editor sharee cannot escalate — they can't
+      re-share at a higher role or hand grants to others (the ownership gate
+      refuses them), only an owner/admin can.
 - [ ] The sharer is the SESSION user, server-set: a new grant's grantedBy
-  (and a link's createdBy) is the authenticated caller's id from
-  res.locals.session — never a value trusted from the request body.
+      (and a link's createdBy) is the authenticated caller's id from
+      res.locals.session — never a value trusted from the request body.

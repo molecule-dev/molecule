@@ -12,8 +12,7 @@ description), price + interval, feature checklist, and a primary CTA
 import { SubscriptionPlanCard } from '@molecule/app-subscription-plan-card-react'
 
 declare function navigate(to: string): void
-
-<SubscriptionPlanCard
+;<SubscriptionPlanCard
   name="Pro"
   price="$19"
   interval="/month"
@@ -26,9 +25,11 @@ declare function navigate(to: string): void
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-subscription-plan-card-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -99,6 +100,7 @@ function SubscriptionPlanCard({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

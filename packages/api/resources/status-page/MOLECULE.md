@@ -23,9 +23,11 @@ const requestHandlerMap = createRequestHandlerMap(createRequestHandler)
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-status-page @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-status-page @molecule/api-monitoring @molecule/api-notifications @molecule/api-permissions @molecule/api-resource @molecule/api-scheduler zod
 ```
@@ -114,7 +116,11 @@ inert and the mutating routes shipped public). It is already an Express
 middleware, so it is NOT wrapped in `createRequestHandler`.
 
 ```typescript
-function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>): Record<string, MoleculeRequestHandler>
+function createRequestHandlerMap(
+  createRequestHandler: (
+    handler: Handler,
+  ) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>,
+): Record<string, MoleculeRequestHandler>
 ```
 
 - `createRequestHandler` — Factory from `@molecule/api-resource` that wraps handler configs into Express middleware.
@@ -174,7 +180,18 @@ function requireAdmin(): MoleculeRequestHandler
 Schema for a single health check result.
 
 ```typescript
-const checkPropsSchema: z.ZodObject<{ id: z.ZodString; serviceId: z.ZodString; status: z.ZodEnum<{ up: "up"; down: "down"; degraded: "degraded"; }>; httpStatus: z.ZodOptional<z.ZodNumber>; latencyMs: z.ZodOptional<z.ZodNumber>; error: z.ZodOptional<z.ZodString>; checkedAt: z.ZodString; }, z.core.$strip>
+const checkPropsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    serviceId: z.ZodString
+    status: z.ZodEnum<{ up: 'up'; down: 'down'; degraded: 'degraded' }>
+    httpStatus: z.ZodOptional<z.ZodNumber>
+    latencyMs: z.ZodOptional<z.ZodNumber>
+    error: z.ZodOptional<z.ZodString>
+    checkedAt: z.ZodString
+  },
+  z.core.$strip
+>
 ```
 
 #### `createIncidentPropsSchema`
@@ -182,7 +199,23 @@ const checkPropsSchema: z.ZodObject<{ id: z.ZodString; serviceId: z.ZodString; s
 Schema for creating a new incident.
 
 ```typescript
-const createIncidentPropsSchema: z.ZodObject<{ status: z.ZodEnum<{ investigating: "investigating"; identified: "identified"; monitoring: "monitoring"; resolved: "resolved"; }>; serviceId: z.ZodString; title: z.ZodString; description: z.ZodOptional<z.ZodString>; severity: z.ZodEnum<{ minor: "minor"; major: "major"; critical: "critical"; }>; autoDetected: z.ZodDefault<z.ZodBoolean>; startedAt: z.ZodString; }, z.core.$strip>
+const createIncidentPropsSchema: z.ZodObject<
+  {
+    status: z.ZodEnum<{
+      investigating: 'investigating'
+      identified: 'identified'
+      monitoring: 'monitoring'
+      resolved: 'resolved'
+    }>
+    serviceId: z.ZodString
+    title: z.ZodString
+    description: z.ZodOptional<z.ZodString>
+    severity: z.ZodEnum<{ minor: 'minor'; major: 'major'; critical: 'critical' }>
+    autoDetected: z.ZodDefault<z.ZodBoolean>
+    startedAt: z.ZodString
+  },
+  z.core.$strip
+>
 ```
 
 #### `createServicePropsSchema`
@@ -190,7 +223,19 @@ const createIncidentPropsSchema: z.ZodObject<{ status: z.ZodEnum<{ investigating
 Schema for creating a new service.
 
 ```typescript
-const createServicePropsSchema: z.ZodObject<{ name: z.ZodString; url: z.ZodString; method: z.ZodDefault<z.ZodEnum<{ GET: "GET"; HEAD: "HEAD"; POST: "POST"; }>>; expectedStatus: z.ZodDefault<z.ZodNumber>; timeoutMs: z.ZodDefault<z.ZodNumber>; intervalMs: z.ZodDefault<z.ZodNumber>; groupName: z.ZodOptional<z.ZodString>; enabled: z.ZodDefault<z.ZodBoolean>; }, z.core.$strip>
+const createServicePropsSchema: z.ZodObject<
+  {
+    name: z.ZodString
+    url: z.ZodString
+    method: z.ZodDefault<z.ZodEnum<{ GET: 'GET'; HEAD: 'HEAD'; POST: 'POST' }>>
+    expectedStatus: z.ZodDefault<z.ZodNumber>
+    timeoutMs: z.ZodDefault<z.ZodNumber>
+    intervalMs: z.ZodDefault<z.ZodNumber>
+    groupName: z.ZodOptional<z.ZodString>
+    enabled: z.ZodDefault<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `i18nNamespace`
@@ -198,7 +243,7 @@ const createServicePropsSchema: z.ZodObject<{ name: z.ZodString; url: z.ZodStrin
 The i18n namespace for the status resource.
 
 ```typescript
-const i18nNamespace: "status"
+const i18nNamespace: 'status'
 ```
 
 #### `i18nRegistered`
@@ -214,7 +259,27 @@ const i18nRegistered: true
 Full schema for a service incident.
 
 ```typescript
-const incidentPropsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; serviceId: z.ZodString; title: z.ZodString; description: z.ZodOptional<z.ZodString>; severity: z.ZodEnum<{ minor: "minor"; major: "major"; critical: "critical"; }>; status: z.ZodEnum<{ investigating: "investigating"; identified: "identified"; monitoring: "monitoring"; resolved: "resolved"; }>; autoDetected: z.ZodDefault<z.ZodBoolean>; startedAt: z.ZodString; resolvedAt: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const incidentPropsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    serviceId: z.ZodString
+    title: z.ZodString
+    description: z.ZodOptional<z.ZodString>
+    severity: z.ZodEnum<{ minor: 'minor'; major: 'major'; critical: 'critical' }>
+    status: z.ZodEnum<{
+      investigating: 'investigating'
+      identified: 'identified'
+      monitoring: 'monitoring'
+      resolved: 'resolved'
+    }>
+    autoDetected: z.ZodDefault<z.ZodBoolean>
+    startedAt: z.ZodString
+    resolvedAt: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `resource`
@@ -230,7 +295,12 @@ const resource: types.Resource<unknown>
 Route array for status page endpoints: public read routes and admin-gated mutation routes.
 
 ```typescript
-const routes: ({ method: "get"; path: string; middlewares: never[]; handler: string; } | { method: "post"; path: string; middlewares: string[]; handler: string; } | { method: "patch"; path: string; middlewares: string[]; handler: string; } | { method: "delete"; path: string; middlewares: string[]; handler: string; })[]
+const routes: (
+  | { method: 'get'; path: string; middlewares: never[]; handler: string }
+  | { method: 'post'; path: string; middlewares: string[]; handler: string }
+  | { method: 'patch'; path: string; middlewares: string[]; handler: string }
+  | { method: 'delete'; path: string; middlewares: string[]; handler: string }
+)[]
 ```
 
 #### `servicePropsSchema`
@@ -238,7 +308,22 @@ const routes: ({ method: "get"; path: string; middlewares: never[]; handler: str
 Full schema for a monitored service.
 
 ```typescript
-const servicePropsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; name: z.ZodString; url: z.ZodString; method: z.ZodDefault<z.ZodEnum<{ GET: "GET"; HEAD: "HEAD"; POST: "POST"; }>>; expectedStatus: z.ZodDefault<z.ZodNumber>; timeoutMs: z.ZodDefault<z.ZodNumber>; intervalMs: z.ZodDefault<z.ZodNumber>; groupName: z.ZodOptional<z.ZodString>; enabled: z.ZodDefault<z.ZodBoolean>; }, z.core.$strip>
+const servicePropsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    name: z.ZodString
+    url: z.ZodString
+    method: z.ZodDefault<z.ZodEnum<{ GET: 'GET'; HEAD: 'HEAD'; POST: 'POST' }>>
+    expectedStatus: z.ZodDefault<z.ZodNumber>
+    timeoutMs: z.ZodDefault<z.ZodNumber>
+    intervalMs: z.ZodDefault<z.ZodNumber>
+    groupName: z.ZodOptional<z.ZodString>
+    enabled: z.ZodDefault<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `STATUS_ADMIN_PERMISSION`
@@ -248,7 +333,7 @@ session's `permissions` array, grants status page administration without a
 bonded permissions provider.
 
 ```typescript
-const STATUS_ADMIN_PERMISSION: "status:manage"
+const STATUS_ADMIN_PERMISSION: 'status:manage'
 ```
 
 #### `STATUS_PERMISSION_ACTION`
@@ -257,7 +342,7 @@ Permission action checked against `@molecule/api-permissions` for status page
 administration.
 
 ```typescript
-const STATUS_PERMISSION_ACTION: "manage"
+const STATUS_PERMISSION_ACTION: 'manage'
 ```
 
 #### `STATUS_PERMISSION_RESOURCE`
@@ -266,7 +351,7 @@ Permission resource checked against `@molecule/api-permissions` for status page
 administration.
 
 ```typescript
-const STATUS_PERMISSION_RESOURCE: "status"
+const STATUS_PERMISSION_RESOURCE: 'status'
 ```
 
 #### `updateIncidentPropsSchema`
@@ -274,7 +359,23 @@ const STATUS_PERMISSION_RESOURCE: "status"
 Schema for updating an existing incident (all fields optional).
 
 ```typescript
-const updateIncidentPropsSchema: z.ZodObject<{ status: z.ZodOptional<z.ZodEnum<{ investigating: "investigating"; identified: "identified"; monitoring: "monitoring"; resolved: "resolved"; }>>; title: z.ZodOptional<z.ZodString>; description: z.ZodOptional<z.ZodOptional<z.ZodString>>; severity: z.ZodOptional<z.ZodEnum<{ minor: "minor"; major: "major"; critical: "critical"; }>>; resolvedAt: z.ZodOptional<z.ZodOptional<z.ZodString>>; }, z.core.$strip>
+const updateIncidentPropsSchema: z.ZodObject<
+  {
+    status: z.ZodOptional<
+      z.ZodEnum<{
+        investigating: 'investigating'
+        identified: 'identified'
+        monitoring: 'monitoring'
+        resolved: 'resolved'
+      }>
+    >
+    title: z.ZodOptional<z.ZodString>
+    description: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    severity: z.ZodOptional<z.ZodEnum<{ minor: 'minor'; major: 'major'; critical: 'critical' }>>
+    resolvedAt: z.ZodOptional<z.ZodOptional<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `updateServicePropsSchema`
@@ -282,7 +383,19 @@ const updateIncidentPropsSchema: z.ZodObject<{ status: z.ZodOptional<z.ZodEnum<{
 Schema for updating an existing service (all fields optional).
 
 ```typescript
-const updateServicePropsSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; url: z.ZodOptional<z.ZodString>; method: z.ZodOptional<z.ZodDefault<z.ZodEnum<{ GET: "GET"; HEAD: "HEAD"; POST: "POST"; }>>>; expectedStatus: z.ZodOptional<z.ZodDefault<z.ZodNumber>>; timeoutMs: z.ZodOptional<z.ZodDefault<z.ZodNumber>>; intervalMs: z.ZodOptional<z.ZodDefault<z.ZodNumber>>; groupName: z.ZodOptional<z.ZodOptional<z.ZodString>>; enabled: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>; }, z.core.$strip>
+const updateServicePropsSchema: z.ZodObject<
+  {
+    name: z.ZodOptional<z.ZodString>
+    url: z.ZodOptional<z.ZodString>
+    method: z.ZodOptional<z.ZodDefault<z.ZodEnum<{ GET: 'GET'; HEAD: 'HEAD'; POST: 'POST' }>>>
+    expectedStatus: z.ZodOptional<z.ZodDefault<z.ZodNumber>>
+    timeoutMs: z.ZodOptional<z.ZodDefault<z.ZodNumber>>
+    intervalMs: z.ZodOptional<z.ZodDefault<z.ZodNumber>>
+    groupName: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    enabled: z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `uptimeWindowPropsSchema`
@@ -290,7 +403,18 @@ const updateServicePropsSchema: z.ZodObject<{ name: z.ZodOptional<z.ZodString>; 
 Schema for a pre-computed uptime statistics window.
 
 ```typescript
-const uptimeWindowPropsSchema: z.ZodObject<{ id: z.ZodString; serviceId: z.ZodString; window: z.ZodEnum<{ "1h": "1h"; "24h": "24h"; "7d": "7d"; "30d": "30d"; "90d": "90d"; }>; uptimePct: z.ZodNumber; totalChecks: z.ZodNumber; upChecks: z.ZodNumber; avgLatencyMs: z.ZodNumber; }, z.core.$strip>
+const uptimeWindowPropsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    serviceId: z.ZodString
+    window: z.ZodEnum<{ '1h': '1h'; '24h': '24h'; '7d': '7d'; '30d': '30d'; '90d': '90d' }>
+    uptimePct: z.ZodNumber
+    totalChecks: z.ZodNumber
+    upChecks: z.ZodNumber
+    avgLatencyMs: z.ZodNumber
+  },
+  z.core.$strip
+>
 ```
 
 ### Namespaces
@@ -615,6 +739,7 @@ Members:
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -666,36 +791,37 @@ each item to this app's actual status-page screens/flows, and check every
 box off one by one. A box you can't check is an integration bug to fix — not
 a skip. Verify BEHAVIOR and the public/admin split, not just that CRUD
 compiles:
+
 - [ ] The PUBLIC status page renders every monitored service (component)
-  with its current status and an OVERALL banner that is DERIVED, never
-  hardcoded: GET /status returns `operational` when no enabled service's
-  latest `check` is `down` or `degraded` ("All systems operational"), `down`
-  if ANY latest check is `down`, else `degraded` if any is `degraded` — the
-  banner reflects the WORST service, and a service with no check reads
-  `unknown` (which never turns the banner red). GET /status/services lists
-  each service with its latest check.
+      with its current status and an OVERALL banner that is DERIVED, never
+      hardcoded: GET /status returns `operational` when no enabled service's
+      latest `check` is `down` or `degraded` ("All systems operational"), `down`
+      if ANY latest check is `down`, else `degraded` if any is `degraded` — the
+      banner reflects the WORST service, and a service with no check reads
+      `unknown` (which never turns the banner red). GET /status/services lists
+      each service with its latest check.
 - [ ] An admin creating an INCIDENT (POST /status/incidents with serviceId,
-  title, severity minor|major|critical, status `investigating`, startedAt)
-  persists it and it shows on the public GET /status/incidents. The affected
-  service reads down/degraded on the page because its latest `check` says so
-  (checks are monitor-written, never typed in), so the overall banner goes
-  non-green while the incident is open.
+      title, severity minor|major|critical, status `investigating`, startedAt)
+      persists it and it shows on the public GET /status/incidents. The affected
+      service reads down/degraded on the page because its latest `check` says so
+      (checks are monitor-written, never typed in), so the overall banner goes
+      non-green while the incident is open.
 - [ ] Updating the incident (PATCH /status/incidents/:id) advances its
-  timeline through the real lifecycle investigating -> identified ->
-  monitoring -> resolved (bumping updatedAt), and each stage shows on the
-  public page. Marking it `resolved` (with resolvedAt) moves it to history —
-  the public list filtered `?status=resolved` includes it while the active
-  incidents drop it — and once the affected service's latest check returns
-  to `up`, GET /status recovers to "All systems operational" (the banner
-  tracks live check state, so a still-down check keeps it red).
+      timeline through the real lifecycle investigating -> identified ->
+      monitoring -> resolved (bumping updatedAt), and each stage shows on the
+      public page. Marking it `resolved` (with resolvedAt) moves it to history —
+      the public list filtered `?status=resolved` includes it while the active
+      incidents drop it — and once the affected service's latest check returns
+      to `up`, GET /status recovers to "All systems operational" (the banner
+      tracks live check state, so a still-down check keeps it red).
 - [ ] AUTHORIZATION — reads are PUBLIC: with NO session, every GET (/status,
-  /status/services, /status/services/:id, /status/incidents, /status/uptime)
-  returns 200 — the status page is meant to be seen without signing in.
+      /status/services, /status/services/:id, /status/incidents, /status/uptime)
+      returns 200 — the status page is meant to be seen without signing in.
 - [ ] AUTHORIZATION — writes are ADMIN-ONLY, deny by default: every mutation
-  (POST/PATCH/DELETE /status/services(/:id), POST/PATCH
-  /status/incidents(/:id)) is refused for an anonymous caller (401) and for
-  a normal signed-in user with no admin claim / `manage status` grant (403),
-  and nothing changes — enforced twice (the `requireAdmin` route middleware
-  AND the in-handler `isStatusAdmin` re-check). A non-admin has NO path to
-  fabricate an outage, delete a service, or post a fake incident, and no
-  endpoint sets a service up/down at all (that is monitor-written).
+      (POST/PATCH/DELETE /status/services(/:id), POST/PATCH
+      /status/incidents(/:id)) is refused for an anonymous caller (401) and for
+      a normal signed-in user with no admin claim / `manage status` grant (403),
+      and nothing changes — enforced twice (the `requireAdmin` route middleware
+      AND the in-handler `isStatusAdmin` re-check). A non-admin has NO path to
+      fabricate an outage, delete a service, or post a fake incident, and no
+      endpoint sets a service up/down at all (that is monitor-written).

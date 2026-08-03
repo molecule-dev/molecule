@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-hero-metric-card-react` package whi
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-hero-metric-card'
-import type { HeroMetricCardTranslationKey, HeroMetricCardTranslations } from '@molecule/app-locales-hero-metric-card'
+import type {
+  HeroMetricCardTranslationKey,
+  HeroMetricCardTranslations,
+} from '@molecule/app-locales-hero-metric-card'
 ```
 
 ## Registration
@@ -34,11 +37,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `hero-metric-card.loading` | Loading metric… |
-| `hero-metric-card.trend.up` | Trending up |
-| `hero-metric-card.trend.down` | Trending down |
+| Key                           | English         |
+| ----------------------------- | --------------- |
+| `hero-metric-card.loading`    | Loading metric… |
+| `hero-metric-card.trend.up`   | Trending up     |
+| `hero-metric-card.trend.down` | Trending down   |
 
 ## Metadata
 

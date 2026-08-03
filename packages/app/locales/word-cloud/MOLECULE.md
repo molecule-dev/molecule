@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-word-cloud-react` package which has
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-word-cloud'
-import type { WordCloudTranslationKey, WordCloudTranslations } from '@molecule/app-locales-word-cloud'
+import type {
+  WordCloudTranslationKey,
+  WordCloudTranslations,
+} from '@molecule/app-locales-word-cloud'
 ```
 
 ## Registration
@@ -34,9 +37,9 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `word-cloud.aria.cloud` | Word cloud |
+| Key                     | English             |
+| ----------------------- | ------------------- |
+| `word-cloud.aria.cloud` | Word cloud          |
 | `word-cloud.aria.empty` | No words to display |
 
 ## Metadata

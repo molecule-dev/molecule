@@ -3,6 +3,7 @@
 React ChartCard + ChartLegend wrappers around `@molecule/app-charts`.
 
 Exports:
+
 - `<ChartCard>` — uniform chrome (title / description / actions / summary /
   body / footer) around a chart rendering. `minChartHeight` (default 240)
   stops responsive charts collapsing; `dataMolId` sets `data-mol-id`.
@@ -36,7 +37,7 @@ function RevenueChart() {
   return <canvas ref={ref} height={240} />
 }
 
-<ChartCard
+;<ChartCard
   title="Monthly Revenue"
   description="Last 12 months"
   footer={
@@ -53,9 +54,11 @@ function RevenueChart() {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-chart-wrapper-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -173,6 +176,7 @@ function ChartLegend({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

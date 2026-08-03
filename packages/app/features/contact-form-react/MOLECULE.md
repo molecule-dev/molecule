@@ -9,7 +9,7 @@ Exports `<ContactForm>` and `ContactFormValues` type.
 ```tsx
 import { ContactForm } from '@molecule/app-contact-form-react'
 
-<ContactForm
+;<ContactForm
   title="Get in touch"
   description="We'll respond within one business day."
   onSubmit={async (values) => {
@@ -20,9 +20,11 @@ import { ContactForm } from '@molecule/app-contact-form-react'
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-contact-form-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -96,6 +98,7 @@ function ContactForm({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

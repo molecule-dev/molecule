@@ -22,9 +22,11 @@ const fresh = await getOrSet('user:456', () => fetchUser('456'), { ttl: 600 })
 ```
 
 ## Type
+
 `core`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-cache @molecule/api-bond @molecule/api-i18n
 ```
@@ -241,17 +243,18 @@ function setProvider(provider: CacheProvider): void
 
 ## Available Providers
 
-| Provider | Package |
-|----------|---------|
-| Memcached | `@molecule/api-cache-memcached` |
-| In-memory (no persistence) | `@molecule/api-cache-memory` |
-| Redis | `@molecule/api-cache-redis` |
+| Provider                   | Package                         |
+| -------------------------- | ------------------------------- |
+| Memcached                  | `@molecule/api-cache-memcached` |
+| In-memory (no persistence) | `@molecule/api-cache-memory`    |
+| Redis                      | `@molecule/api-cache-redis`     |
 
 ## Injection Notes
 
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 
@@ -270,7 +273,7 @@ Peer dependencies:
   memory-backed TEST pass, but the RUNNING app's cache then fails to connect (localhost:6379
   refused) — a green test hiding a broken runtime. If durable/shared caching is genuinely
   needed and none is provisioned, ASK the user to connect one; do not assume it is there.
-The cache is BEST-EFFORT and often SHARED across users — treat it accordingly:
+  The cache is BEST-EFFORT and often SHARED across users — treat it accordingly:
 - **A per-user value MUST include the user id in its KEY** (`user:123:profile`, not
   `profile`). A shared key for per-user data leaks one user's data to another — a real
   cross-user data breach, not just a bug.
@@ -301,29 +304,30 @@ Integration checklist — exercise the REAL behavior end-to-end (drive the app
 action that reads/writes this cache in the live preview, no mocks), adapt each
 item to this app's actual screens/flows, and check every box off one by one. A
 box you can't check is an integration bug to fix — not a skip:
+
 - [ ] `getOrSet(key, factory, options)` computes ONCE on a miss and serves the
-  cached copy afterward: drive the same screen/endpoint twice within
-  `CacheOptions.ttl` and confirm the expensive factory (DB/upstream call) runs
-  only on the FIRST load — the second read returns the cached value without
-  re-running it.
+      cached copy afterward: drive the same screen/endpoint twice within
+      `CacheOptions.ttl` and confirm the expensive factory (DB/upstream call) runs
+      only on the FIRST load — the second read returns the cached value without
+      re-running it.
 - [ ] `set(key, value)` then `get<T>(key)` round-trips the same value back into
-  the app (the cached data renders identically to the source data).
+      the app (the cached data renders identically to the source data).
 - [ ] Deletion reflects a miss: after `delete(key)`, `has(key)` is `false` and
-  `get(key)` returns `undefined`, so the app recomputes fresh from source
-  instead of serving the removed entry.
+      `get(key)` returns `undefined`, so the app recomputes fresh from source
+      instead of serving the removed entry.
 - [ ] TTL expiry refetches: once `CacheOptions.ttl` seconds elapse, the next
-  read recomputes fresh data — a stale value is NEVER served past its TTL.
+      read recomputes fresh data — a stale value is NEVER served past its TTL.
 - [ ] A write that changes the underlying record invalidates its key (via
-  `delete()` or a re-`set()`) so the very next read reflects the change — the app
-  never serves a stale cached copy after an update.
+      `delete()` or a re-`set()`) so the very next read reflects the change — the app
+      never serves a stale cached copy after an update.
 - [ ] AUTHORIZATION: a per-user or per-tenant value is cached under a key that
-  INCLUDES the user/tenant id (`user:123:profile`, never a global `profile`).
-  Load user A's data, then user B's — B must receive B's own data, never A's
-  cached copy. A shared key for per-user data is a cross-user data leak, not an
-  optimization.
+      INCLUDES the user/tenant id (`user:123:profile`, never a global `profile`).
+      Load user A's data, then user B's — B must receive B's own data, never A's
+      cached copy. A shared key for per-user data is a cross-user data leak, not an
+      optimization.
 - [ ] A cache backend failure or miss DEGRADES to computing from source: the
-  request still succeeds (getProvider()/get() unavailable falls back to the
-  real query) rather than erroring the whole request.
+      request still succeeds (getProvider()/get() unavailable falls back to the
+      real query) rather than erroring the whole request.
 
 ## Translations
 

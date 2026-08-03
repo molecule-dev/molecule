@@ -28,16 +28,28 @@ const run = await engine.execute({
   steps: [
     { type: 'condition', expression: '$.event === "purchase"' },
     // Native HTTP step — routed through the swappable `@molecule/api-http` core:
-    { type: 'http', method: 'POST', url: 'https://hooks.example.com/${$.id}', body: { amount: '${$.amount}' }, output: 'webhook' },
-    { type: 'action', action: 'slack.message', params: { channel: '#sales', text: 'New sale: ${$.amount}' } },
+    {
+      type: 'http',
+      method: 'POST',
+      url: 'https://hooks.example.com/${$.id}',
+      body: { amount: '${$.amount}' },
+      output: 'webhook',
+    },
+    {
+      type: 'action',
+      action: 'slack.message',
+      params: { channel: '#sales', text: 'New sale: ${$.amount}' },
+    },
   ],
 })
 ```
 
 ## Type
+
 `utility`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-ai-workflow-engine @molecule/api-ai @molecule/api-bonds-default-express @molecule/api-database @molecule/api-http @molecule/api-i18n @molecule/api-middleware-validation
 ```
@@ -267,6 +279,7 @@ function unsafeEvaluateCondition(expression: string, context: Record<string, unk
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bonds-default-express` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0

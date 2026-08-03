@@ -23,9 +23,11 @@ if (permission === 'granted') {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-camera @molecule/app-bond @molecule/app-i18n
 ```
@@ -345,7 +347,7 @@ type ImageQuality = number
 Capture a still frame from the active camera preview.
 
 ```typescript
-function capturePreview(options?: { quality?: ImageQuality; }): Promise<Photo>
+function capturePreview(options?: { quality?: ImageQuality }): Promise<Photo>
 ```
 
 - `options` — Capture options including image quality.
@@ -421,7 +423,7 @@ function hasProvider(): boolean
 Pick multiple photos from the device gallery.
 
 ```typescript
-function pickPhotos(options?: (Omit<PhotoOptions, "source"> & { limit?: number; })): Promise<Photo[]>
+function pickPhotos(options?: Omit<PhotoOptions, 'source'> & { limit?: number }): Promise<Photo[]>
 ```
 
 - `options` — Photo options (quality, dimensions, format) plus an optional limit.
@@ -475,6 +477,7 @@ function stopPreview(): Promise<void>
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

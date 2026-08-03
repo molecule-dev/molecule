@@ -14,9 +14,11 @@ import { routes, requestHandlerMap } from '@molecule/api-resource-project'
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-project @molecule/api-bond @molecule/api-database @molecule/api-i18n @molecule/api-locales-project @molecule/api-logger @molecule/api-resource
 ```
@@ -132,7 +134,11 @@ access model (e.g. owner-or-team) may gate the route with its own middleware
 instead and set `res.locals.project` to the pre-authorized row.
 
 ```typescript
-function authUser(req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction): Promise<void>
+function authUser(
+  req: MoleculeRequest,
+  res: MoleculeResponse,
+  next: MoleculeNextFunction,
+): Promise<void>
 ```
 
 - `req` — The request object (uses `params.id`).
@@ -221,7 +227,14 @@ object-level authorization middleware referenced by `routes.ts` for the
 `read`/`update`/`del` routes.
 
 ```typescript
-const requestHandlerMap: { readonly create: typeof create; readonly list: typeof list; readonly read: typeof read; readonly update: typeof update; readonly del: typeof del; readonly authUser: typeof authUser; }
+const requestHandlerMap: {
+  readonly create: typeof create
+  readonly list: typeof list
+  readonly read: typeof read
+  readonly update: typeof update
+  readonly del: typeof del
+  readonly authUser: typeof authUser
+}
 ```
 
 #### `routes`
@@ -236,7 +249,38 @@ so generated apps that wire this resource do NOT expose other tenants' projects
 by default. Mirrors `@molecule/api-resource-device`.
 
 ```typescript
-const routes: readonly [{ readonly method: "post"; readonly path: "/projects"; readonly handler: "create"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/projects"; readonly handler: "list"; readonly middlewares: readonly ["authenticate"]; }, { readonly method: "get"; readonly path: "/projects/:id"; readonly handler: "read"; readonly middlewares: readonly ["authUser"]; }, { readonly method: "patch"; readonly path: "/projects/:id"; readonly handler: "update"; readonly middlewares: readonly ["authUser"]; }, { readonly method: "delete"; readonly path: "/projects/:id"; readonly handler: "del"; readonly middlewares: readonly ["authUser"]; }]
+const routes: readonly [
+  {
+    readonly method: 'post'
+    readonly path: '/projects'
+    readonly handler: 'create'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/projects'
+    readonly handler: 'list'
+    readonly middlewares: readonly ['authenticate']
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/projects/:id'
+    readonly handler: 'read'
+    readonly middlewares: readonly ['authUser']
+  },
+  {
+    readonly method: 'patch'
+    readonly path: '/projects/:id'
+    readonly handler: 'update'
+    readonly middlewares: readonly ['authUser']
+  },
+  {
+    readonly method: 'delete'
+    readonly path: '/projects/:id'
+    readonly handler: 'del'
+    readonly middlewares: readonly ['authUser']
+  },
+]
 ```
 
 ## Injection Notes
@@ -244,6 +288,7 @@ const routes: readonly [{ readonly method: "post"; readonly path: "/projects"; r
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
@@ -284,15 +329,16 @@ by one. A box you can't check is an integration bug to fix — not a skip.
 Project is strictly OWNER-scoped: a project belongs to exactly one user
 (`userId`), with no members, collaborators, or roles — so every check is
 about the owner seeing/mutating only their own rows, never a shared grant:
+
 - [ ] Creating a project persists its real fields (name → derived slug,
-  projectType, framework, packages) and it appears at the top of the owner's
-  project list (the list is scoped to the session user, newest-updated first).
+      projectType, framework, packages) and it appears at the top of the owner's
+      project list (the list is scoped to the session user, newest-updated first).
 - [ ] Editing reflects and persists: renaming updates the name; a single-key
-  settings/envVars PATCH MERGES onto the stored bag without wiping sibling
-  keys; a sandboxStatus change round-trips. Reload — the changes survive.
+      settings/envVars PATCH MERGES onto the stored bag without wiping sibling
+      keys; a sandboxStatus change round-trips. Reload — the changes survive.
 - [ ] Deleting a project removes it from the owner's list and a re-fetch of
-  its id no longer returns it; there are no members to notify or re-scope.
+      its id no longer returns it; there are no members to notify or re-scope.
 - [ ] Authorization — the list and every `:id` route return ONLY projects the
-  caller owns. Signed in as a second user (or guessing another user's project
-  id), GET/PATCH/DELETE `/projects/:id` is refused (403/404) and the row is
-  neither readable nor mutable; existence is not leaked to a non-owner.
+      caller owns. Signed in as a second user (or guessing another user's project
+      id), GET/PATCH/DELETE `/projects/:id` is refused (403/404) and the row is
+      neither readable nor mutable; existence is not leaked to a non-owner.

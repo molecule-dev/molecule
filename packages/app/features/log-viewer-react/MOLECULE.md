@@ -25,9 +25,11 @@ const entries: LogEntry[] = [
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-log-viewer-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -96,12 +98,7 @@ show trace id + JSON-formatted structured data.
 Use for operational tooling, admin dashboards, debug views.
 
 ```typescript
-function LogViewer({
-  entries,
-  onToggle,
-  className,
-  emptyState,
-}: LogViewerProps): JSX.Element
+function LogViewer({ entries, onToggle, className, emptyState }: LogViewerProps): JSX.Element
 ```
 
 - `props` — Component props (see {@link LogViewerProps}).
@@ -111,6 +108,7 @@ function LogViewer({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

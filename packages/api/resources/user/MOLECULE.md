@@ -14,14 +14,16 @@ router.get('/me/timezone', async (req, res) => {
   const userId = getUserId(res)
   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
   const user = await findById('users', userId) // the users table holds Props only
-  res.json({ timezone: user?.timezone })        // never spread a secrets-table row here
+  res.json({ timezone: user?.timezone }) // never spread a secrets-table row here
 })
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-resource-user @molecule/api-bond @molecule/api-config @molecule/api-database @molecule/api-entitlements @molecule/api-i18n @molecule/api-jwt @molecule/api-locales-user @molecule/api-locales-user-payments @molecule/api-password @molecule/api-payments @molecule/api-push-notifications @molecule/api-rate-limit @molecule/api-resource @molecule/api-resource-device @molecule/api-secrets @molecule/api-two-factor zod
 ```
@@ -165,7 +167,11 @@ based on bonded providers.
 Handler names match the route definitions in routes.ts.
 
 ```typescript
-function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>): UserRequestHandlerMap
+function createRequestHandlerMap(
+  createRequestHandler: (
+    handler: Handler,
+  ) => (req: MoleculeRequest, res: MoleculeResponse, next: MoleculeNextFunction) => Promise<void>,
+): UserRequestHandlerMap
 ```
 
 - `createRequestHandler` — Factory from `@molecule/api-resource` that wraps handler configs into Express middleware.
@@ -177,7 +183,10 @@ function createRequestHandlerMap(createRequestHandler: (handler: Handler) => (re
 Creates a user resource definition with optional OAuth servers and plan keys.
 
 ```typescript
-function createResource(options?: { oauthServers?: OAuthServers; planKeys?: PlanKeys; }): types.Resource<unknown>
+function createResource(options?: {
+  oauthServers?: OAuthServers
+  planKeys?: PlanKeys
+}): types.Resource<unknown>
 ```
 
 - `options` — Optional configuration.
@@ -193,7 +202,43 @@ Creates a full schema for user props.
 OAuth servers and plan keys can be constrained by passing them as options.
 
 ```typescript
-function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKeys; }): z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; emailVerified: z.ZodOptional<z.ZodBoolean>; avatar: z.ZodOptional<z.ZodNullable<z.ZodString>>; bio: z.ZodOptional<z.ZodNullable<z.ZodString>>; twoFactorEnabled: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{ [k in keyof { [k in NonNullable<OAuthServers>[number]]: k; }]: { [k in NonNullable<OAuthServers>[number]]: k; }[k]; }>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{ [k in keyof { [k in NonNullable<PlanKeys>[number]]: k; }]: { [k in NonNullable<PlanKeys>[number]]: k; }[k]; }>>; planExpiresAt: z.ZodOptional<z.ZodString>; planAutoRenews: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKeys }): z.ZodObject<
+  {
+    id: z.ZodString
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    username: z.ZodOptional<z.ZodString>
+    name: z.ZodOptional<z.ZodString>
+    email: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    emailVerified: z.ZodOptional<z.ZodBoolean>
+    avatar: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    bio: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    twoFactorEnabled: z.ZodOptional<z.ZodBoolean>
+    oauthServer:
+      | z.ZodOptional<z.ZodString>
+      | z.ZodOptional<
+          z.ZodEnum<{
+            [k in keyof { [k in NonNullable<OAuthServers>[number]]: k }]: {
+              [k in NonNullable<OAuthServers>[number]]: k
+            }[k]
+          }>
+        >
+    oauthId: z.ZodOptional<z.ZodString>
+    oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+    planKey:
+      | z.ZodOptional<z.ZodString>
+      | z.ZodOptional<
+          z.ZodEnum<{
+            [k in keyof { [k in NonNullable<PlanKeys>[number]]: k }]: {
+              [k in NonNullable<PlanKeys>[number]]: k
+            }[k]
+          }>
+        >
+    planExpiresAt: z.ZodOptional<z.ZodString>
+    planAutoRenews: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 - `options` — Optional configuration.
@@ -209,7 +254,18 @@ function createSchema(options?: { oauthServers?: OAuthServers; planKeys?: PlanKe
 Schema for creating a user via OAuth.
 
 ```typescript
-const createOAuthPropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; emailVerified: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; }, z.core.$strip>
+const createOAuthPropsSchema: z.ZodObject<
+  {
+    username: z.ZodOptional<z.ZodString>
+    name: z.ZodOptional<z.ZodString>
+    email: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    emailVerified: z.ZodOptional<z.ZodBoolean>
+    oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>
+    oauthId: z.ZodOptional<z.ZodString>
+    oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `createPropsSchema`
@@ -217,7 +273,14 @@ const createOAuthPropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>
 Schema for creating a user via password.
 
 ```typescript
-const createPropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; }, z.core.$strip>
+const createPropsSchema: z.ZodObject<
+  {
+    username: z.ZodOptional<z.ZodString>
+    name: z.ZodOptional<z.ZodString>
+    email: z.ZodOptional<z.ZodNullable<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `createSecretPropsSchema`
@@ -225,7 +288,10 @@ const createPropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodString>; nam
 Schema for creating secret props (password hash only).
 
 ```typescript
-const createSecretPropsSchema: z.ZodObject<{ passwordHash: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const createSecretPropsSchema: z.ZodObject<
+  { passwordHash: z.ZodOptional<z.ZodString> },
+  z.core.$strip
+>
 ```
 
 #### `i18nRegistered`
@@ -259,7 +325,27 @@ const MAX_BIO_LENGTH: 1000
 Default schema for user props.
 
 ```typescript
-const propsSchema: z.ZodObject<{ id: z.ZodString; createdAt: z.ZodString; updatedAt: z.ZodString; username: z.ZodOptional<z.ZodString>; name: z.ZodOptional<z.ZodString>; email: z.ZodOptional<z.ZodNullable<z.ZodString>>; emailVerified: z.ZodOptional<z.ZodBoolean>; avatar: z.ZodOptional<z.ZodNullable<z.ZodString>>; bio: z.ZodOptional<z.ZodNullable<z.ZodString>>; twoFactorEnabled: z.ZodOptional<z.ZodBoolean>; oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; oauthId: z.ZodOptional<z.ZodString>; oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>; planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>; planExpiresAt: z.ZodOptional<z.ZodString>; planAutoRenews: z.ZodOptional<z.ZodBoolean>; }, z.core.$strip>
+const propsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    createdAt: z.ZodString
+    updatedAt: z.ZodString
+    username: z.ZodOptional<z.ZodString>
+    name: z.ZodOptional<z.ZodString>
+    email: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    emailVerified: z.ZodOptional<z.ZodBoolean>
+    avatar: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    bio: z.ZodOptional<z.ZodNullable<z.ZodString>>
+    twoFactorEnabled: z.ZodOptional<z.ZodBoolean>
+    oauthServer: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>
+    oauthId: z.ZodOptional<z.ZodString>
+    oauthData: z.ZodOptional<z.ZodRecord<z.ZodString, z.ZodUnknown>>
+    planKey: z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>
+    planExpiresAt: z.ZodOptional<z.ZodString>
+    planAutoRenews: z.ZodOptional<z.ZodBoolean>
+  },
+  z.core.$strip
+>
 ```
 
 #### `resource`
@@ -286,7 +372,14 @@ Routes marked optional require additional packages to be installed.
 Declarative route definitions used by the injection engine.
 
 ```typescript
-const routes: ({ method: "post"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional: string; } | { method: "post"; path: string; middlewares: string[]; handler: string; optional: string; } | { method: "get"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "patch"; path: string; middlewares: string[]; handler: string; optional?: undefined; } | { method: "delete"; path: string; middlewares: string[]; handler: string; optional?: undefined; })[]
+const routes: (
+  | { method: 'post'; path: string; middlewares: string[]; handler: string; optional?: undefined }
+  | { method: 'get'; path: string; middlewares: string[]; handler: string; optional: string }
+  | { method: 'post'; path: string; middlewares: string[]; handler: string; optional: string }
+  | { method: 'get'; path: string; middlewares: string[]; handler: string; optional?: undefined }
+  | { method: 'patch'; path: string; middlewares: string[]; handler: string; optional?: undefined }
+  | { method: 'delete'; path: string; middlewares: string[]; handler: string; optional?: undefined }
+)[]
 ```
 
 #### `secretPropsSchema`
@@ -294,7 +387,18 @@ const routes: ({ method: "post"; path: string; middlewares: string[]; handler: s
 Secret properties stored in a separate table.
 
 ```typescript
-const secretPropsSchema: z.ZodObject<{ id: z.ZodString; passwordHash: z.ZodOptional<z.ZodString>; passwordResetToken: z.ZodOptional<z.ZodString>; passwordResetTokenAt: z.ZodOptional<z.ZodString>; pendingTwoFactorSecret: z.ZodOptional<z.ZodString>; twoFactorSecret: z.ZodOptional<z.ZodString>; lastTwoFactorTimeStep: z.ZodOptional<z.ZodNumber>; }, z.core.$strip>
+const secretPropsSchema: z.ZodObject<
+  {
+    id: z.ZodString
+    passwordHash: z.ZodOptional<z.ZodString>
+    passwordResetToken: z.ZodOptional<z.ZodString>
+    passwordResetTokenAt: z.ZodOptional<z.ZodString>
+    pendingTwoFactorSecret: z.ZodOptional<z.ZodString>
+    twoFactorSecret: z.ZodOptional<z.ZodString>
+    lastTwoFactorTimeStep: z.ZodOptional<z.ZodNumber>
+  },
+  z.core.$strip
+>
 ```
 
 #### `sessionSchema`
@@ -302,7 +406,16 @@ const secretPropsSchema: z.ZodObject<{ id: z.ZodString; passwordHash: z.ZodOptio
 Zod schema for JWT session payloads (userId, deviceId, optional OAuth fields).
 
 ```typescript
-const sessionSchema: z.ZodObject<{ id: z.ZodOptional<z.ZodString>; userId: z.ZodString; deviceId: z.ZodString; oauthServer: z.ZodOptional<z.ZodString>; oauthId: z.ZodOptional<z.ZodString>; }, z.core.$strip>
+const sessionSchema: z.ZodObject<
+  {
+    id: z.ZodOptional<z.ZodString>
+    userId: z.ZodString
+    deviceId: z.ZodString
+    oauthServer: z.ZodOptional<z.ZodString>
+    oauthId: z.ZodOptional<z.ZodString>
+  },
+  z.core.$strip
+>
 ```
 
 #### `updatePasswordSecretPropsSchema`
@@ -310,7 +423,10 @@ const sessionSchema: z.ZodObject<{ id: z.ZodOptional<z.ZodString>; userId: z.Zod
 Schema for updating password secret props (partial password hash).
 
 ```typescript
-const updatePasswordSecretPropsSchema: z.ZodObject<{ passwordHash: z.ZodOptional<z.ZodOptional<z.ZodString>>; }, z.core.$strip>
+const updatePasswordSecretPropsSchema: z.ZodObject<
+  { passwordHash: z.ZodOptional<z.ZodOptional<z.ZodString>> },
+  z.core.$strip
+>
 ```
 
 #### `updatePlanPropsSchema`
@@ -318,7 +434,14 @@ const updatePasswordSecretPropsSchema: z.ZodObject<{ passwordHash: z.ZodOptional
 Schema for updating a user's plan (partial planKey, planExpiresAt, planAutoRenews).
 
 ```typescript
-const updatePlanPropsSchema: z.ZodObject<{ planKey: z.ZodOptional<z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>>; planExpiresAt: z.ZodOptional<z.ZodOptional<z.ZodString>>; planAutoRenews: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; }, z.core.$strip>
+const updatePlanPropsSchema: z.ZodObject<
+  {
+    planKey: z.ZodOptional<z.ZodOptional<z.ZodString> | z.ZodOptional<z.ZodEnum<{}>>>
+    planExpiresAt: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    planAutoRenews: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `updatePropsSchema`
@@ -326,7 +449,16 @@ const updatePlanPropsSchema: z.ZodObject<{ planKey: z.ZodOptional<z.ZodOptional<
 Schema for updating a user (partial username, name, email, avatar, bio).
 
 ```typescript
-const updatePropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodOptional<z.ZodString>>; name: z.ZodOptional<z.ZodOptional<z.ZodString>>; email: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; avatar: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; bio: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>; }, z.core.$strip>
+const updatePropsSchema: z.ZodObject<
+  {
+    username: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    name: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    email: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    avatar: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+    bio: z.ZodOptional<z.ZodOptional<z.ZodNullable<z.ZodString>>>
+  },
+  z.core.$strip
+>
 ```
 
 #### `verifyTwoFactorPropsSchema`
@@ -334,7 +466,10 @@ const updatePropsSchema: z.ZodObject<{ username: z.ZodOptional<z.ZodOptional<z.Z
 Schema for verifying two-factor authentication.
 
 ```typescript
-const verifyTwoFactorPropsSchema: z.ZodObject<{ twoFactorEnabled: z.ZodOptional<z.ZodOptional<z.ZodBoolean>>; }, z.core.$strip>
+const verifyTwoFactorPropsSchema: z.ZodObject<
+  { twoFactorEnabled: z.ZodOptional<z.ZodOptional<z.ZodBoolean>> },
+  z.core.$strip
+>
 ```
 
 #### `verifyTwoFactorSecretPropsSchema`
@@ -342,7 +477,13 @@ const verifyTwoFactorPropsSchema: z.ZodObject<{ twoFactorEnabled: z.ZodOptional<
 Schema for two-factor secret props.
 
 ```typescript
-const verifyTwoFactorSecretPropsSchema: z.ZodObject<{ pendingTwoFactorSecret: z.ZodOptional<z.ZodOptional<z.ZodString>>; twoFactorSecret: z.ZodOptional<z.ZodOptional<z.ZodString>>; }, z.core.$strip>
+const verifyTwoFactorSecretPropsSchema: z.ZodObject<
+  {
+    pendingTwoFactorSecret: z.ZodOptional<z.ZodOptional<z.ZodString>>
+    twoFactorSecret: z.ZodOptional<z.ZodOptional<z.ZodString>>
+  },
+  z.core.$strip
+>
 ```
 
 ### Namespaces
@@ -718,6 +859,7 @@ Members:
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-config` ^1.0.0
 - `@molecule/api-database` ^1.0.0
@@ -737,9 +879,9 @@ Peer dependencies:
 
 ### Environment Variables
 
-- `JWT_PRIVATE_KEY` *(required)* — JWT signing key (RSA private)
+- `JWT_PRIVATE_KEY` _(required)_ — JWT signing key (RSA private)
   - **Auto-generated at scaffold — no manual setup.**
-- `JWT_PUBLIC_KEY` *(required)* — JWT verification key (RSA public)
+- `JWT_PUBLIC_KEY` _(required)_ — JWT verification key (RSA public)
   - **Auto-generated at scaffold — no manual setup.**
 
 ### Runtime Dependencies
@@ -763,6 +905,7 @@ Peer dependencies:
 - `zod`
 
 The user record is split across TWO schemas — pick the right one or you leak credentials:
+
 - **{@link Props} (`propsSchema`)** — SAFE, client-facing fields (username, name, email,
   `emailVerified`, `twoFactorEnabled`, plan). This is what handlers return and what lives
   in the `users` table.
@@ -789,30 +932,32 @@ The auth CLIENT (`useAuth()` → `login` / `register` / `logout` / `refresh`) al
 login / signup / logout — do NOT hand-roll those against the raw routes. The rest have NO
 client method; call them with raw `http.*`. Use these EXACT paths — a weak model guesses
 `/api/auth/*` or `/api/user` (singular), and neither exists:
+
 - `POST   /api/users/forgot-password` — request a reset email (body `{ email }`)
 - `POST   /api/users/reset-password` — confirm with the emailed token (body `{ token, password }`)
 - `PATCH  /api/users/:id` — update profile fields (name, username, email, bio); NOT `PUT /api/user`
 - `PATCH  /api/users/:id/password` — change password · `DELETE /api/users/:id` — delete account
 - `PATCH  /api/users/:id/plan` — update the subscription plan
 - `GET    /api/users/me` — the current user (session restore) · `GET /api/users/:id` — read one
-The full, authoritative route list is the `routes` export (see `routes.ts`).
+  The full, authoritative route list is the `routes` export (see `routes.ts`).
 
 ## E2E Tests
 
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] A new user can sign up with email + password and lands authenticated (the
-  UI reflects the signed-in user, e.g. their name/menu appears).
+      UI reflects the signed-in user, e.g. their name/menu appears).
 - [ ] Any flow that emails a link/code (signup verification, password reset)
-  round-trips: the sandbox CAPTURES the message instead of sending — read it
-  with the `read_activity` tool (filter type 'email') and follow the link/code
-  in its payload; never mock the flow or modify production code to expose it.
+      round-trips: the sandbox CAPTURES the message instead of sending — read it
+      with the `read_activity` tool (filter type 'email') and follow the link/code
+      in its payload; never mock the flow or modify production code to expose it.
 - [ ] Logging out and logging back in with the same credentials reaches the same
-  account and its data.
+      account and its data.
 - [ ] The session survives a full page reload (restored via the httpOnly cookie +
-  `GET /users/me` — never from a token persisted in localStorage).
+      `GET /users/me` — never from a token persisted in localStorage).
 - [ ] A wrong password shows a visible error and does NOT authenticate.
 - [ ] Authenticated-only screens are unreachable when logged out (redirect to
-  login or an explicit denial — never a blank page).
+      login or an explicit denial — never a blank page).
 - [ ] A profile/account edit (e.g. display name) persists across a reload.

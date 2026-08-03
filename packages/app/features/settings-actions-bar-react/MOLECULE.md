@@ -16,10 +16,7 @@ import { useState } from 'react'
 
 import { SettingsActionsBar } from '@molecule/app-settings-actions-bar-react'
 
-function ProfileActions({ save, reset }: {
-  save: () => Promise<void>
-  reset: () => void
-}) {
+function ProfileActions({ save, reset }: { save: () => Promise<void>; reset: () => void }) {
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<number | null>(null)
   return (
@@ -42,9 +39,11 @@ function ProfileActions({ save, reset }: {
 ```
 
 ## Type
+
 `feature`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-settings-actions-bar-react @molecule/app-react @molecule/app-ui @molecule/app-ui-react react
 npm install -D @types/react
@@ -88,6 +87,7 @@ interface SettingsActionsBarProps {
 Sticky bottom / inline Save-Cancel bar for settings and forms.
 
 Features:
+
 - Primary Save button with loading/disabled state.
 - Optional Cancel button.
 - "Saved Xm ago" status when `savedAt` is provided.
@@ -115,6 +115,7 @@ function SettingsActionsBar({
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-react` ^1.0.0
 - `@molecule/app-ui` ^1.0.0
 - `@molecule/app-ui-react` ^1.0.0

@@ -29,9 +29,11 @@ if (score.score >= 1000) {
 ```
 
 ## Type
+
 `resource`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-reputation @molecule/api-database @molecule/api-i18n @molecule/api-logger @molecule/api-resource
 ```
@@ -233,7 +235,12 @@ row in `reputation_scores`. The new level is recomputed from the
 resulting score using {@link computeLevel}.
 
 ```typescript
-function recordEvent(userId: string, kind: string, delta: number, source?: ReputationEventSource): Promise<ReputationScore>
+function recordEvent(
+  userId: string,
+  kind: string,
+  delta: number,
+  source?: ReputationEventSource,
+): Promise<ReputationScore>
 ```
 
 - `userId` — The user identifier.
@@ -276,7 +283,10 @@ const DEFAULT_LEVEL_THRESHOLDS: readonly number[]
 Handler map for reputation routes (`getReputation`, `getBadges`).
 
 ```typescript
-const requestHandlerMap: { readonly getReputation: typeof getReputation; readonly getBadges: typeof getBadges; }
+const requestHandlerMap: {
+  readonly getReputation: typeof getReputation
+  readonly getBadges: typeof getBadges
+}
 ```
 
 #### `routes`
@@ -286,7 +296,20 @@ reputation/badge data is treated as public profile information by
 the social-app templates that consume this package.
 
 ```typescript
-const routes: readonly [{ readonly method: "get"; readonly path: "/users/:id/reputation"; readonly handler: "getReputation"; readonly middlewares: readonly []; }, { readonly method: "get"; readonly path: "/users/:id/badges"; readonly handler: "getBadges"; readonly middlewares: readonly []; }]
+const routes: readonly [
+  {
+    readonly method: 'get'
+    readonly path: '/users/:id/reputation'
+    readonly handler: 'getReputation'
+    readonly middlewares: readonly []
+  },
+  {
+    readonly method: 'get'
+    readonly path: '/users/:id/badges'
+    readonly handler: 'getBadges'
+    readonly middlewares: readonly []
+  },
+]
 ```
 
 ## Injection Notes
@@ -294,6 +317,7 @@ const routes: readonly [{ readonly method: "get"; readonly path: "/users/:id/rep
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-i18n` ^1.0.0
 - `@molecule/api-logger` ^1.0.0
@@ -332,27 +356,28 @@ Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual reputation-earning flows, and check every box
 off one by one. A box you can't check is an integration bug to fix — not a
 skip:
+
 - [ ] A reputation-earning action (an upvote, an accepted answer, whatever
-  this app awards for) bumps the actor's total by exactly the points that
-  action is worth: note the score shown in the UI before, perform the action,
-  then confirm the new total equals old plus that delta — the arithmetic is
-  exact, not just "the number went up".
+      this app awards for) bumps the actor's total by exactly the points that
+      action is worth: note the score shown in the UI before, perform the action,
+      then confirm the new total equals old plus that delta — the arithmetic is
+      exact, not just "the number went up".
 - [ ] Levels/tiers track the total at the right thresholds: as the score
-  crosses a threshold the displayed level advances by one, and a score just
-  below that threshold does NOT advance. Badges appear only once earned and
-  stay a single copy — re-earning the same badge never adds a duplicate.
+      crosses a threshold the displayed level advances by one, and a score just
+      below that threshold does NOT advance. Badges appear only once earned and
+      stay a single copy — re-earning the same badge never adds a duplicate.
 - [ ] If this app surfaces a leaderboard or ranking, it orders users by their
-  real totals — the top user has the highest score, and a change to one user's
-  total re-sorts the list correctly.
+      real totals — the top user has the highest score, and a change to one user's
+      total re-sorts the list correctly.
 - [ ] Anti-gaming — points cannot be farmed: repeating the SAME source action
-  (double-clicking one upvote, re-firing a single accepted answer) awards the
-  points once, not per click; a user cannot award themselves (no self-upvote
-  or self-award inflates their own total); and any daily or per-source cap the
-  app defines actually stops further points once it is hit.
+      (double-clicking one upvote, re-firing a single accepted answer) awards the
+      points once, not per click; a user cannot award themselves (no self-upvote
+      or self-award inflates their own total); and any daily or per-source cap the
+      app defines actually stops further points once it is hit.
 - [ ] Reversing an action deducts what it granted: undo the upvote or delete
-  the post that earned points and confirm the actor's total drops back by the
-  same amount — an undo leaves the score honest, never stranded high.
+      the post that earned points and confirm the actor's total drops back by the
+      same amount — an undo leaves the score honest, never stranded high.
 - [ ] Reputation is awarded by the server alone: there is NO request a user
-  can send to set their own score, level, points, or badge directly — no form
-  field or API parameter feeds the delta. A user sees everyone's public rep but
-  the only thing that changes it is a real earning action the server scored.
+      can send to set their own score, level, points, or badge directly — no form
+      field or API parameter feeds the delta. A user sees everyone's public rep but
+      the only thing that changes it is a real earning action the server scored.

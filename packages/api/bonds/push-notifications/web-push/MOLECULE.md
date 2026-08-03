@@ -15,9 +15,11 @@ setProvider(provider) // VAPID config is read from env on first send
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-push-notifications-web-push @molecule/api-bond @molecule/api-push-notifications @molecule/api-secrets web-push
 npm install -D @types/web-push
@@ -63,6 +65,7 @@ const pushNotificationsWebPushSecretDefinitions: SecretDefinition[]
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-push-notifications` interface.
 
 ## Bond Wiring
@@ -83,17 +86,18 @@ export function setupPushNotificationsWebPush(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-bond` ^1.0.0
 - `@molecule/api-push-notifications` ^1.0.0
 - `@molecule/api-secrets` ^1.0.0
 
 ### Environment Variables
 
-- `VAPID_PUBLIC_KEY` *(required)* — Web Push VAPID public key
+- `VAPID_PUBLIC_KEY` _(required)_ — Web Push VAPID public key
   - **Auto-generated at scaffold — no manual setup.**
-- `VAPID_PRIVATE_KEY` *(required)* — Web Push VAPID private key
+- `VAPID_PRIVATE_KEY` _(required)_ — Web Push VAPID private key
   - **Auto-generated at scaffold — no manual setup.**
-- `VAPID_EMAIL` *(required)* — Web Push contact email
+- `VAPID_EMAIL` _(required)_ — Web Push contact email
   - Setup: Contact address sent to push services with each request (mailto: form).
   - Example: `mailto:you@example.com`
 
@@ -125,17 +129,18 @@ each result's `error`).
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] The UI offers an enable-notifications control; activating it triggers
-  the browser permission prompt and, once granted, the subscription is
-  stored (the UI still shows "enabled" after a full reload).
+      the browser permission prompt and, once granted, the subscription is
+      stored (the UI still shows "enabled" after a full reload).
 - [ ] An event this app notifies about actually delivers a push to the
-  subscribed session, with a readable title/body (not raw JSON). The sandbox
-  CAPTURES outbound pushes instead of delivering — read the captured message
-  with the `read_activity` tool (filter type 'push'); never mock the flow or
-  modify production code to expose it.
+      subscribed session, with a readable title/body (not raw JSON). The sandbox
+      CAPTURES outbound pushes instead of delivering — read the captured message
+      with the `read_activity` tool (filter type 'push'); never mock the flow or
+      modify production code to expose it.
 - [ ] Clicking the delivered notification opens/focuses the relevant screen
-  (when the app claims deep-linking).
+      (when the app claims deep-linking).
 - [ ] Denying the permission leaves the app fully usable and truthful about
-  the state (no crash, no false "enabled").
+      the state (no crash, no false "enabled").
 - [ ] Disabling/unsubscribing stops deliveries, and the disabled state
-  persists across a reload.
+      persists across a reload.

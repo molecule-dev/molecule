@@ -39,9 +39,11 @@ await schedule('reporting:deliver-due', '* * * * *', async () => {
 ```
 
 ## Type
+
 `provider`
 
 ## Installation
+
 ```bash
 npm install @molecule/api-reporting-database @molecule/api-database @molecule/api-reporting
 ```
@@ -56,20 +58,20 @@ Query definition for aggregate reports.
 
 ```typescript
 interface AggregateQuery {
-    /** Table or view to query. */
-    table: string;
-    /** Measures (aggregations) to compute. */
-    measures: Measure[];
-    /** Columns to group by. */
-    dimensions?: string[];
-    /** WHERE clause filters. */
-    filters?: Filter[];
-    /** HAVING clause filters (applied after aggregation). */
-    having?: Filter[];
-    /** Result ordering. */
-    orderBy?: OrderBy[];
-    /** Maximum number of rows to return. */
-    limit?: number;
+  /** Table or view to query. */
+  table: string
+  /** Measures (aggregations) to compute. */
+  measures: Measure[]
+  /** Columns to group by. */
+  dimensions?: string[]
+  /** WHERE clause filters. */
+  filters?: Filter[]
+  /** HAVING clause filters (applied after aggregation). */
+  having?: Filter[]
+  /** Result ordering. */
+  orderBy?: OrderBy[]
+  /** Maximum number of rows to return. */
+  limit?: number
 }
 ```
 
@@ -79,10 +81,10 @@ Result of an aggregate query.
 
 ```typescript
 interface AggregateResult {
-    /** Aggregated rows. */
-    rows: Record<string, unknown>[];
-    /** Total number of matching rows (before LIMIT). */
-    total: number;
+  /** Aggregated rows. */
+  rows: Record<string, unknown>[]
+  /** Total number of matching rows (before LIMIT). */
+  total: number
 }
 ```
 
@@ -150,12 +152,12 @@ A filter condition for queries.
 
 ```typescript
 interface Filter {
-    /** Column to filter on. */
-    field: string;
-    /** Comparison operator. */
-    operator: FilterOperator;
-    /** Value or values to compare against. */
-    value: unknown;
+  /** Column to filter on. */
+  field: string
+  /** Comparison operator. */
+  operator: FilterOperator
+  /** Value or values to compare against. */
+  value: unknown
 }
 ```
 
@@ -165,12 +167,12 @@ A measure to compute during aggregation.
 
 ```typescript
 interface Measure {
-    /** Column or expression to aggregate. */
-    field: string;
-    /** Aggregate function to apply. */
-    function: AggregateFunction;
-    /** Optional alias for the result column. */
-    alias?: string;
+  /** Column or expression to aggregate. */
+  field: string
+  /** Aggregate function to apply. */
+  function: AggregateFunction
+  /** Optional alias for the result column. */
+  alias?: string
 }
 ```
 
@@ -180,10 +182,10 @@ An ordering clause for query results.
 
 ```typescript
 interface OrderBy {
-    /** Column to sort by. */
-    field: string;
-    /** Sort direction. */
-    direction: SortDirection;
+  /** Column to sort by. */
+  field: string
+  /** Sort direction. */
+  direction: SortDirection
 }
 ```
 
@@ -216,41 +218,41 @@ All reporting providers must implement this interface.
 
 ```typescript
 interface ReportProvider {
-    /**
-     * Executes an aggregate query and returns grouped results.
-     *
-     * @param query - The aggregate query definition.
-     * @returns Aggregated rows and total count.
-     */
-    aggregate(query: AggregateQuery): Promise<AggregateResult>;
-    /**
-     * Executes a time-series query and returns bucketed data points.
-     *
-     * @param query - The time-series query definition.
-     * @returns Ordered time-series points.
-     */
-    timeSeries(query: TimeSeriesQuery): Promise<TimeSeriesResult>;
-    /**
-     * Exports query results in the specified format.
-     *
-     * @param query - The query to execute and export.
-     * @param format - The desired output format.
-     * @returns A Buffer containing the exported data.
-     */
-    export(query: AggregateQuery | TimeSeriesQuery, format: ExportFormat): Promise<Buffer>;
-    /**
-     * Creates a scheduled report and returns its unique identifier.
-     *
-     * @param report - The scheduled report configuration.
-     * @returns The schedule identifier.
-     */
-    schedule(report: ScheduledReport): Promise<string>;
-    /**
-     * Cancels a previously scheduled report.
-     *
-     * @param scheduleId - The schedule identifier to cancel.
-     */
-    cancelSchedule(scheduleId: string): Promise<void>;
+  /**
+   * Executes an aggregate query and returns grouped results.
+   *
+   * @param query - The aggregate query definition.
+   * @returns Aggregated rows and total count.
+   */
+  aggregate(query: AggregateQuery): Promise<AggregateResult>
+  /**
+   * Executes a time-series query and returns bucketed data points.
+   *
+   * @param query - The time-series query definition.
+   * @returns Ordered time-series points.
+   */
+  timeSeries(query: TimeSeriesQuery): Promise<TimeSeriesResult>
+  /**
+   * Exports query results in the specified format.
+   *
+   * @param query - The query to execute and export.
+   * @param format - The desired output format.
+   * @returns A Buffer containing the exported data.
+   */
+  export(query: AggregateQuery | TimeSeriesQuery, format: ExportFormat): Promise<Buffer>
+  /**
+   * Creates a scheduled report and returns its unique identifier.
+   *
+   * @param report - The scheduled report configuration.
+   * @returns The schedule identifier.
+   */
+  schedule(report: ScheduledReport): Promise<string>
+  /**
+   * Cancels a previously scheduled report.
+   *
+   * @param scheduleId - The schedule identifier to cancel.
+   */
+  cancelSchedule(scheduleId: string): Promise<void>
 }
 ```
 
@@ -296,16 +298,16 @@ Configuration for a scheduled report.
 
 ```typescript
 interface ScheduledReport {
-    /** Human-readable report name. */
-    name: string;
-    /** The query to execute on schedule. */
-    query: AggregateQuery | TimeSeriesQuery;
-    /** Output format for the scheduled report. */
-    format: ExportFormat;
-    /** Cron expression defining the schedule. */
-    schedule: string;
-    /** Email addresses to deliver the report to. */
-    recipients?: string[];
+  /** Human-readable report name. */
+  name: string
+  /** The query to execute on schedule. */
+  query: AggregateQuery | TimeSeriesQuery
+  /** Output format for the scheduled report. */
+  format: ExportFormat
+  /** Cron expression defining the schedule. */
+  schedule: string
+  /** Email addresses to deliver the report to. */
+  recipients?: string[]
 }
 ```
 
@@ -351,10 +353,10 @@ A single data point in a time series.
 
 ```typescript
 interface TimeSeriesPoint {
-    /** ISO 8601 date string for the bucket start. */
-    date: string;
-    /** Aggregated values keyed by measure alias or field. */
-    values: Record<string, number>;
+  /** ISO 8601 date string for the bucket start. */
+  date: string
+  /** Aggregated values keyed by measure alias or field. */
+  values: Record<string, number>
 }
 ```
 
@@ -364,20 +366,20 @@ Query definition for time-series reports.
 
 ```typescript
 interface TimeSeriesQuery {
-    /** Table or view to query. */
-    table: string;
-    /** Date/timestamp column to bucket by. */
-    dateField: string;
-    /** Time bucket granularity. */
-    interval: TimeInterval;
-    /** Measures (aggregations) to compute per bucket. */
-    measures: Measure[];
-    /** WHERE clause filters. */
-    filters?: Filter[];
-    /** Start of the date range (inclusive). */
-    startDate?: Date;
-    /** End of the date range (inclusive). */
-    endDate?: Date;
+  /** Table or view to query. */
+  table: string
+  /** Date/timestamp column to bucket by. */
+  dateField: string
+  /** Time bucket granularity. */
+  interval: TimeInterval
+  /** Measures (aggregations) to compute per bucket. */
+  measures: Measure[]
+  /** WHERE clause filters. */
+  filters?: Filter[]
+  /** Start of the date range (inclusive). */
+  startDate?: Date
+  /** End of the date range (inclusive). */
+  endDate?: Date
 }
 ```
 
@@ -387,10 +389,10 @@ Result of a time-series query.
 
 ```typescript
 interface TimeSeriesResult {
-    /** Ordered data points. */
-    points: TimeSeriesPoint[];
-    /** The interval granularity used. */
-    interval: string;
+  /** Ordered data points. */
+  points: TimeSeriesPoint[]
+  /** The interval granularity used. */
+  interval: string
 }
 ```
 
@@ -401,7 +403,7 @@ interface TimeSeriesResult {
 Aggregate function applied to a measure field.
 
 ```typescript
-type AggregateFunction = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'countDistinct';
+type AggregateFunction = 'count' | 'sum' | 'avg' | 'min' | 'max' | 'countDistinct'
 ```
 
 #### `DeliverReport`
@@ -421,7 +423,7 @@ type DeliverReport = (delivery: ReportDelivery) => Promise<void>
 Supported export formats.
 
 ```typescript
-type ExportFormat = 'csv' | 'json' | 'xlsx';
+type ExportFormat = 'csv' | 'json' | 'xlsx'
 ```
 
 #### `FilterOperator`
@@ -429,7 +431,8 @@ type ExportFormat = 'csv' | 'json' | 'xlsx';
 Filter operator for WHERE and HAVING clauses.
 
 ```typescript
-type FilterOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'between' | 'like';
+type FilterOperator =
+  'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'between' | 'like'
 ```
 
 #### `SortDirection`
@@ -437,7 +440,7 @@ type FilterOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn
 Sort direction for ORDER BY clauses.
 
 ```typescript
-type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc'
 ```
 
 #### `TimeInterval`
@@ -445,7 +448,7 @@ type SortDirection = 'asc' | 'desc';
 Time interval granularity for time-series queries.
 
 ```typescript
-type TimeInterval = 'hour' | 'day' | 'week' | 'month' | 'year';
+type TimeInterval = 'hour' | 'day' | 'week' | 'month' | 'year'
 ```
 
 ### Functions
@@ -529,6 +532,7 @@ const provider: DatabaseReportProvider
 ```
 
 ## Core Interface
+
 Implements `@molecule/api-reporting` interface.
 
 ## Bond Wiring
@@ -549,6 +553,7 @@ export function setupReportingDatabase(): void {
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/api-database` ^1.0.0
 - `@molecule/api-reporting` ^1.0.0
 
@@ -583,15 +588,16 @@ Peer dependencies:
 Integration checklist — drive the real UI (live preview, no mocks), adapt
 each item to this app's actual screens/flows, and check every box off one
 by one. A box you can't check is an integration bug to fix — not a skip:
+
 - [ ] Report/dashboard screens render aggregates that MATCH the seeded data —
-  spot-check at least one total against rows you can count in the UI.
+      spot-check at least one total against rows you can count in the UI.
 - [ ] Changing the date range (and interval, if exposed) visibly updates the
-  series and totals.
+      series and totals.
 - [ ] A dimension breakdown (e.g. by status/category) renders one segment or
-  series per group present in the data.
+      series per group present in the data.
 - [ ] A range with no data shows zeros or an empty state — not NaN, `undefined`,
-  or a crashed chart.
+      or a crashed chart.
 - [ ] If export is surfaced, the downloaded file's rows match what the report
-  displays.
+      displays.
 - [ ] Reports are scoped to the signed-in user/tenant — never another user's
-  numbers.
+      numbers.

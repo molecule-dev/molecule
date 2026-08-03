@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-medication-row-react` package which
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-medication-row'
-import type { MedicationRowTranslationKey, MedicationRowTranslations } from '@molecule/app-locales-medication-row'
+import type {
+  MedicationRowTranslationKey,
+  MedicationRowTranslations,
+} from '@molecule/app-locales-medication-row'
 ```
 
 ## Registration
@@ -34,8 +37,8 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
+| Key                       | English       |
+| ------------------------- | ------------- |
 | `medication.prescribedBy` | Prescribed by |
 
 ## Metadata

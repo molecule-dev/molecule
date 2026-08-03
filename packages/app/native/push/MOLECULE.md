@@ -13,12 +13,7 @@ bond sends to.
 ## Quick Start
 
 ```typescript
-import {
-  getToken,
-  onNotificationAction,
-  register,
-  requestPermission,
-} from '@molecule/app-push'
+import { getToken, onNotificationAction, register, requestPermission } from '@molecule/app-push'
 
 async function enablePush(vapidPublicKey: string): Promise<string | null> {
   const permission = await requestPermission() // from a user gesture
@@ -34,9 +29,11 @@ function handleTaps(open: (data: unknown) => void): () => void {
 ```
 
 ## Type
+
 `native`
 
 ## Installation
+
 ```bash
 npm install @molecule/app-push @molecule/app-bond @molecule/app-i18n
 ```
@@ -568,6 +565,7 @@ function setProvider(provider: PushProvider): void
 ### Requirements
 
 Peer dependencies:
+
 - `@molecule/app-bond` ^1.0.0
 - `@molecule/app-i18n` ^1.0.0
 

@@ -18,7 +18,10 @@ Provides translations for the `@molecule/api-resource-course` package which has 
 
 ```typescript
 import { af, am, ar } from '@molecule/api-locales-resource-course'
-import type { ResourceCourseTranslationKey, ResourceCourseTranslations } from '@molecule/api-locales-resource-course'
+import type {
+  ResourceCourseTranslationKey,
+  ResourceCourseTranslations,
+} from '@molecule/api-locales-resource-course'
 ```
 
 ## Registration
@@ -38,11 +41,11 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `resourceCourse.error.courseNotFound` | Course not found. |
+| Key                                   | English                                           |
+| ------------------------------------- | ------------------------------------------------- |
+| `resourceCourse.error.courseNotFound` | Course not found.                                 |
 | `resourceCourse.error.notCourseStaff` | You do not have permission to manage this course. |
-| `resourceCourse.error.notEnrolled` | You are not enrolled in this course. |
+| `resourceCourse.error.notEnrolled`    | You are not enrolled in this course.              |
 
 ## Metadata
 

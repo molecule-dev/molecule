@@ -14,7 +14,10 @@ Provides translations for the `@molecule/app-whiteboard-canvas-react` package wh
 
 ```typescript
 import { af, am, ar } from '@molecule/app-locales-whiteboard-canvas'
-import type { WhiteboardCanvasTranslationKey, WhiteboardCanvasTranslations } from '@molecule/app-locales-whiteboard-canvas'
+import type {
+  WhiteboardCanvasTranslationKey,
+  WhiteboardCanvasTranslations,
+} from '@molecule/app-locales-whiteboard-canvas'
 ```
 
 ## Registration
@@ -34,10 +37,10 @@ registerLocaleModule(locales)
 
 ## Translation Keys
 
-| Key | English |
-|-----|---------|
-| `whiteboard.aria.canvas` | Whiteboard canvas |
-| `whiteboard.stickyNote.placeholder` | New note |
+| Key                                 | English           |
+| ----------------------------------- | ----------------- |
+| `whiteboard.aria.canvas`            | Whiteboard canvas |
+| `whiteboard.stickyNote.placeholder` | New note          |
 
 ## Metadata
 
