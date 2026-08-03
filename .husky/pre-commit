@@ -35,9 +35,18 @@ JSON_MD=$(echo "$STAGED" | grep -E '\.(json|md|css|scss|html|yaml|yml)$' || true
 
 if [ -n "$JSTS" ]; then
   echo "$JSTS" | xargs npx --no-install prettier --check
-  echo "$JSTS" | xargs npx --no-install eslint --no-error-on-unmatched-pattern
+  # --max-warnings 0 is LOAD-BEARING, not decoration. Bare `eslint <files>` exits
+  # 0 when there are only warnings, and this config reports almost everything as
+  # a warning — so from 2026-05-01 (when this hook was scoped to staged files and
+  # the flag was dropped) until 2026-08-03 the lint step could not fail on a
+  # warning, and 732 of them accumulated behind a green hook. `npm run lint` has
+  # always carried the flag; the hook must match it or it is not the same gate.
+  echo "$JSTS" | xargs npx --no-install eslint --no-error-on-unmatched-pattern --max-warnings 0
 fi
 
+# .md is checked here (it was `.prettierignore`d until 2026-08-03, which is how
+# ~900 generated MOLECULE.md files drifted). *.json is still ignored on purpose —
+# registry.json and the locale data are machine-written.
 if [ -n "$JSON_MD" ]; then
   echo "$JSON_MD" | xargs npx --no-install prettier --check
 fi
@@ -115,6 +124,11 @@ if [ -n "$DOC_STAGED" ]; then
     done | sort -u)
     REGENERATED=$( cd ../mlcl && node_modules/.bin/tsx scripts/regen-molecule-docs.mjs $DOC_DIRS )
     if [ -n "$REGENERATED" ]; then
+      # These are staged AFTER the prettier/eslint pass above, so they would
+      # otherwise enter the commit unchecked — which is how generated docs
+      # stayed off-standard for months. The generator now Prettier-formats its
+      # own output; this asserts that rather than trusting it.
+      echo "$REGENERATED" | xargs npx --no-install prettier --check
       echo "$REGENERATED" | while IFS= read -r md; do git add "$md"; done
       echo "✎ MOLECULE.md regenerated + staged into this commit:"
       echo "$REGENERATED" | while IFS= read -r md; do echo "    $md"; done
