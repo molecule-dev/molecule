@@ -13,7 +13,8 @@
  * resolvable within the lock file. Run it before pushing lock file changes.
  */
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 const lock = JSON.parse(readFileSync('package-lock.json', 'utf-8'))
 const packages = lock.packages || {}
@@ -44,6 +45,54 @@ function isResolvable(dep, fromPath) {
 
 let missing = 0
 
+/**
+ * Every workspace package must have a lock-file entry, and at the version its
+ * package.json declares.
+ *
+ * This is the half `npm ci` enforces and the transitive walk below does NOT:
+ * a NEW package (or a version bump) leaves the lock file without its entry, and
+ * `npm ci` refuses with "Missing: `@molecule/x@1.0.0` from lock file". Every
+ * molecule CI run failed at that first step from 2026-03-28 to 2026-08-03 —
+ * build, lint and security alike, because all three start with `npm ci` — while
+ * this script kept printing "Lock file OK". A gate that reassures you about the
+ * exact thing that is broken is worse than no gate.
+ */
+function checkWorkspaceEntries() {
+  const roots = readFileSync('package.json', 'utf-8')
+  const globs = JSON.parse(roots).workspaces || []
+  const dirs = new Set()
+  for (const g of globs) {
+    const base = g.replace(/\/\*+$/, '')
+    if (!existsSync(base)) continue
+    const stack = [base]
+    while (stack.length) {
+      const dir = stack.pop()
+      if (existsSync(join(dir, 'package.json'))) {
+        dirs.add(dir)
+        continue
+      }
+      for (const e of readdirSync(dir, { withFileTypes: true })) {
+        if (e.isDirectory() && e.name !== 'node_modules') stack.push(join(dir, e.name))
+      }
+    }
+  }
+  for (const dir of [...dirs].sort()) {
+    const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf-8'))
+    const entry = packages[dir]
+    if (!entry) {
+      console.error(`Missing: ${pkg.name}@${pkg.version} from lock file (${dir})`)
+      missing++
+    } else if (pkg.version && entry.version && pkg.version !== entry.version) {
+      console.error(
+        `Version mismatch: ${pkg.name} is ${pkg.version} but the lock file has ${entry.version} (${dir})`,
+      )
+      missing++
+    }
+  }
+}
+
+checkWorkspaceEntries()
+
 for (const [path, info] of Object.entries(packages)) {
   // Only check nested node_modules entries (workspace packages' local deps)
   if (!path.startsWith('packages/') || !path.includes('/node_modules/')) continue
@@ -60,10 +109,14 @@ for (const [path, info] of Object.entries(packages)) {
 
 if (missing > 0) {
   console.error(
-    `\n${missing} transitive dep(s) missing from package-lock.json.`,
-    '\nThis happens when the lock file is generated inside an outer workspace.',
-    '\nFix: add missing deps as explicit devDependencies in the affected package,',
-    'then regenerate the lock file.',
+    `\n${missing} problem(s) in package-lock.json — \`npm ci\` will refuse to install,`,
+    '\nwhich fails EVERY CI job (they all start with it).',
+    '\nA missing workspace entry means the lock file predates a new package or a',
+    'version bump: regenerate it with `npm install --package-lock-only` (from THIS',
+    'repo, not the outer workspace) and commit the result.',
+    '\nA missing transitive dep means the lock file was generated inside the outer',
+    'workspace, which already provided it: add it as an explicit devDependency in',
+    'the affected package, then regenerate.',
   )
   process.exit(1)
 } else {
