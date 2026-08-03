@@ -260,7 +260,7 @@ Peer dependencies:
 - New SES accounts are sandboxed: both the sender identity AND every
   recipient must be verified until production access is granted.
 - On success `accepted` is mapped from `envelope.to` — nodemailer's SES
-  transport never sets `accepted`/`rejected` (the @types/nodemailer typings
+  transport never sets `accepted`/`rejected` (the `@types/nodemailer` typings
   claiming otherwise are drift); a resolved send means SES accepted the
   message for every envelope recipient.
 
