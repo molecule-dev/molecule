@@ -251,7 +251,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.js'],
+    // `.mjs` as well as `.js`: repo tooling under scripts/ is plain Node ESM, and
+    // a TS return annotation is not valid JavaScript there, so the rule cannot be
+    // satisfied — only scoped off. The glob used to be `.js`-only, which left
+    // scripts/precommit-secret-scan.mjs (the vendored secret scanner) reporting 3
+    // unfixable warnings the moment it was first staged here. mlcl's config
+    // already used `{mjs,js}`; this brings molecule in line with it.
+    files: ['scripts/**/*.{mjs,js}'],
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },

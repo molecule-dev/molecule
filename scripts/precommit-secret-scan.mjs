@@ -78,6 +78,33 @@ function urlCredsAreLocalPlaceholders(line) {
 }
 
 /**
+ * A URL-credentials match whose credentials are an UNEXPANDED interpolation
+ * placeholder — `${VAR}`, `$VAR`, `<PLACEHOLDER>`, `{{var}}` or `%VAR%` — in the
+ * user or password position. A literal secret cannot contain those delimiters, so
+ * this shape is always documentation or a template showing where a token goes
+ * (`https://oauth2:${TOKEN}@github.com/...`), never the token itself.
+ *
+ * Unlike the local-host exemption above this one ignores the host entirely: the
+ * point of such a line is precisely to name a real remote host while keeping the
+ * credential symbolic.
+ *
+ * Why it exists: without it, the only way to document how to set a tokened clone
+ * URL is `--no-verify`, and a gate people routinely bypass is how a real key
+ * eventually walks through. Keeping the false-positive rate at zero is what makes
+ * the block meaningful.
+ *
+ * @param line - The added line that matched the URL-credentials rule.
+ * @returns True when every credential pair on the line is an interpolation placeholder.
+ */
+function urlCredsAreInterpolationPlaceholders(line) {
+  const matches = [...line.matchAll(/[a-zA-Z][a-zA-Z0-9+.-]{0,63}:\/\/([^/\s:@]*):([^/\s:@]+)@/g)]
+  if (matches.length === 0) return false
+  const placeholder =
+    /\$\{[^}]*\}|\$[A-Za-z_][A-Za-z0-9_]*|<[^>]*>|\{\{[^}]*\}\}|%[A-Za-z_][A-Za-z0-9_]*%/
+  return matches.every(([, user, pass]) => placeholder.test(user) || placeholder.test(pass))
+}
+
+/**
  * A private-key-block match that is provably NOT key material: every PEM header
  * on the line is immediately terminated by a string-literal quote (`'`, `"`, or
  * a backtick). A string that ENDS at the header cannot contain the key body —
@@ -118,6 +145,7 @@ for (const line of staged.split('\n')) {
   for (const [label, re] of RULES) {
     if (!re.test(added)) continue
     if (label === 'URL credentials' && urlCredsAreLocalPlaceholders(added)) continue
+    if (label === 'URL credentials' && urlCredsAreInterpolationPlaceholders(added)) continue
     if (label === 'Private key block' && pemHeadersAreQuoteTerminated(added)) continue
     hits.push({ file: currentFile, label, line: added.trim().slice(0, 120) })
   }
