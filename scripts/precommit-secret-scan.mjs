@@ -24,6 +24,14 @@ const RULES = [
   ['Slack token', /\bxox[baprs]-[0-9A-Za-z-]{10,}/],
   ['Google API key', /\bAIza[0-9A-Za-z_-]{35}\b/],
   ['Stripe live key', /\b[sr]k_live_[0-9a-zA-Z]{16,}/],
+  // npm granular access token. Added 2026-08-04, before the first @molecule/*
+  // publish: the natural place to put one is `.npmrc`, and molecule/.npmrc is
+  // TRACKED in a PUBLIC repo — so the obvious misstep was a world-readable
+  // publish credential for the whole scope, with nothing here to catch it.
+  ['npm access token', /\bnpm_[A-Za-z0-9]{36}\b/],
+  // Any registry auth line carrying a real value (placeholders/${VAR} excluded
+  // below). Catches classic UUID-style tokens, which have no distinctive prefix.
+  ['npm registry authToken', /_authToken\s*=\s*(?!\s*[$<{])["']?[A-Za-z0-9_\-.]{16,}/],
   ['Private key block', /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP |ENCRYPTED )?PRIVATE KEY-----/],
   ['URL credentials', /[a-zA-Z][a-zA-Z0-9+.-]{0,63}:\/\/[^/\s:@]*:[^/\s:@]+@/],
 ]
