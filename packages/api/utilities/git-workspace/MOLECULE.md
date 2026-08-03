@@ -803,7 +803,7 @@ function restoreRepo(
 
 **Returns:** Nothing; the repository exists at `destination` on success.
 
-#### `verifyBundle(exec, bundlePath)`
+#### `verifyBundle(exec, bundlePath, scratchGitDir)`
 
 Checks a bundle's HEADER: is it a bundle, and is it self-contained?
 
@@ -827,11 +827,12 @@ inflates every object). That is the only check that may precede deleting the
 source repo.
 
 ```typescript
-function verifyBundle(exec: GitExec, bundlePath: string): Promise<boolean>
+function verifyBundle(exec: GitExec, bundlePath: string, scratchGitDir: string): Promise<boolean>
 ```
 
-- `exec` — The injected git executor. Note that `git bundle verify` normally refuses to run outside a repository ("need a repository to verify a bundle"), which would make this return a false negative whenever the executor's default cwd is not a repo. An explicit `--git-dir` removes that dependency entirely; git only reads it, and never creates it.
+- `exec` — The injected git executor. `git bundle verify` refuses to run outside a repository ("need a repository to verify a bundle"), which would make this a false negative whenever the executor's default cwd is not a repo — so it runs against an empty bare repo at `scratchGitDir`.
 - `bundlePath` — Absolute path of the bundle to verify. A relative path would resolve against the executor's default working directory.
+- `scratchGitDir` — Absolute path this function may create an empty bare repo at. OWNED BY THE CALLER, which must remove it — this package is given a git executor and nothing else, so it cannot delete a directory. Same convention as {@link verifyBundleRestorable}'s `scratchDir`. It MUST NOT be an existing repository with objects: prerequisite checking is only meaningful against an empty one, which is what makes a `true` mean "self-contained" rather than "satisfiable from whatever happened to be nearby".
 
 **Returns:** True when git verified the bundle's header as self-contained; false when the file is missing, is not a bundle, has a damaged header, or requires prerequisite commits it does not carry. A `true` says NOTHING about the packfile's integrity.
 

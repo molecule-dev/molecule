@@ -872,7 +872,7 @@ describe('discoverRepos — .git shapes, skip dirs, and walk limits', () => {
       await writeFile(join(weird, 'dirty.txt'), 'wip\n')
       expect(await checkpointRepo(exec, weird, "chore: it's a checkpoint")).not.toBeNull()
       await bundleRepo(exec, weird, bundlePath)
-      expect(await verifyBundle(exec, bundlePath)).toBe(true)
+      expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
       await restoreRepo(exec, bundlePath, join(root, `restored 'weird" dir`))
       expect(await headOf(join(root, `restored 'weird" dir`))).toBe(await headOf(weird))
     },
@@ -1296,9 +1296,14 @@ describe('bundleRepo + verifyBundle', () => {
       // The executor's default cwd is deliberately not a repo; plain
       // `git bundle verify` would fail there with "need a repository".
       expect((await exec(['bundle', 'verify', bundlePath])).exitCode).not.toBe(0)
-      expect(await verifyBundle(exec, bundlePath)).toBe(true)
-      // Verification must not leave anything behind.
+      expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
+      // Verification touches NOTHING except the scratch path it was handed. It
+      // does create an empty bare repo there — git 2.44+ refuses to verify a
+      // bundle without a real repository — which is why the path is a parameter
+      // the caller owns and removes, rather than one this package invents beside
+      // the user's archive.
       expect(await exists(`${bundlePath}.molecule-verify-gitdir`)).toBe(false)
+      expect(await exists(`${bundlePath}.verify-gitdir`)).toBe(true)
     },
     TIMEOUT,
   )
@@ -1313,10 +1318,22 @@ describe('bundleRepo + verifyBundle', () => {
       await commitFile(repo, 'a.txt', 'a\n', 'feat: a')
       await bundleRepo(exec, repo, bundlePath)
 
-      expect(await verifyBundle(exec, join(root, 'nope.bundle'))).toBe(false)
+      expect(
+        await verifyBundle(
+          exec,
+          join(root, 'nope.bundle'),
+          `${join(root, 'nope.bundle')}.verify-gitdir`,
+        ),
+      ).toBe(false)
 
       await writeFile(join(root, 'junk.bundle'), 'definitely not a bundle\n')
-      expect(await verifyBundle(exec, join(root, 'junk.bundle'))).toBe(false)
+      expect(
+        await verifyBundle(
+          exec,
+          join(root, 'junk.bundle'),
+          `${join(root, 'junk.bundle')}.verify-gitdir`,
+        ),
+      ).toBe(false)
 
       const damaged = join(root, 'damaged.bundle')
       const original = await readFile(bundlePath)
@@ -1325,7 +1342,7 @@ describe('bundleRepo + verifyBundle', () => {
         damaged,
         Buffer.concat([Buffer.from('# broken header\n'), original.subarray(20)]),
       )
-      expect(await verifyBundle(exec, damaged)).toBe(false)
+      expect(await verifyBundle(exec, damaged, `${damaged}.verify-gitdir`)).toBe(false)
     },
     TIMEOUT,
   )
@@ -1348,12 +1365,12 @@ describe('bundleRepo + verifyBundle', () => {
       // The very repo it came from CAN satisfy its prerequisites…
       expect((await exec(['bundle', 'verify', incremental], { cwd: repo })).exitCode).toBe(0)
       // …but an archive that only works next to its source is not an archive.
-      expect(await verifyBundle(exec, incremental)).toBe(false)
+      expect(await verifyBundle(exec, incremental, `${incremental}.verify-gitdir`)).toBe(false)
 
       const full = join(root, 'full.bundle')
 
       await bundleRepo(exec, repo, full)
-      expect(await verifyBundle(exec, full)).toBe(true)
+      expect(await verifyBundle(exec, full, `${full}.verify-gitdir`)).toBe(true)
     },
     TIMEOUT,
   )
@@ -1376,7 +1393,7 @@ describe('bundleRepo + verifyBundle', () => {
 
       // verifyBundle runs in the executor's default (non-repo) cwd.
       await copyFile(join(repo, '-x.bundle'), join(nonRepoDir, '-x.bundle'))
-      expect(await verifyBundle(exec, '-x.bundle')).toBe(true)
+      expect(await verifyBundle(exec, '-x.bundle', `${'-x.bundle'}.verify-gitdir`)).toBe(true)
     },
     TIMEOUT,
   )
@@ -1430,7 +1447,7 @@ describe('verifyBundle vs verifyBundleRestorable — the integrity gate', () => 
 
       // `git bundle verify` reads the HEADER only — this is why an archival flow
       // must never treat a `true` here as proof the archive is intact.
-      expect(await verifyBundle(exec, bundlePath)).toBe(true)
+      expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
 
       // Restoring runs index-pack, which recomputes the pack checksum: the real gate.
       expect(await verifyBundleRestorable(exec, bundlePath, join(root, 'scratch'))).toBe(false)
@@ -1453,7 +1470,7 @@ describe('verifyBundle vs verifyBundleRestorable — the integrity gate', () => 
       bytes[offset] = (bytes[offset] as number) ^ 0xff
       await writeFile(bundlePath, bytes)
 
-      expect(await verifyBundle(exec, bundlePath)).toBe(true)
+      expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
       expect(await verifyBundleRestorable(exec, bundlePath, join(root, 'scratch'))).toBe(false)
     },
     TIMEOUT,
@@ -1779,7 +1796,7 @@ describe('restoreRepo — full workspace round trip', () => {
         const bundlePath = bundleFor(archive, repo.path)
 
         await bundleRepo(exec, dir, bundlePath)
-        expect(await verifyBundle(exec, bundlePath)).toBe(true)
+        expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
         // The check that actually proves the archive.
         expect(
           await verifyBundleRestorable(
@@ -1915,7 +1932,7 @@ describe('restoreRepo — full workspace round trip', () => {
       // The full re-archive of 21 near-identical files stays close to the size
       // of one: delta compression is why git is the archive format here.
       expect(secondSize).toBeLessThan(firstSize * 1.5)
-      expect(await verifyBundle(exec, second)).toBe(true)
+      expect(await verifyBundle(exec, second, `${second}.verify-gitdir`)).toBe(true)
     },
     TIMEOUT,
   )
@@ -2071,7 +2088,7 @@ describe('discoverRepos — BARE repositories are repositories', () => {
       const scratch = join(root, 'scratch')
 
       await bundleRepo(exec, mirror, bundlePath)
-      expect(await verifyBundle(exec, bundlePath)).toBe(true)
+      expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
       expect(await verifyBundleRestorable(exec, bundlePath, scratch)).toBe(true)
 
       const restored = join(root, 'restored')
@@ -2768,7 +2785,7 @@ describe('verifyWorkspaceReconstruction — THE SAFETY GATE', () => {
       await truncate(bundlePath, Math.floor(size * 0.9))
 
       // The header check is still happy…
-      expect(await verifyBundle(exec, bundlePath)).toBe(true)
+      expect(await verifyBundle(exec, bundlePath, `${bundlePath}.verify-gitdir`)).toBe(true)
 
       const report = await reconstructionOf(workspace, archived)
 
