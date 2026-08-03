@@ -442,6 +442,34 @@ interface ChatUserIdentity {
 }
 ```
 
+#### `ClientInfo`
+
+Client-side diagnostics attached to a report so triage can see the running
+environment without asking the user. Every field is optional — only what
+could be read in the current environment is present (see
+{@link collectClientInfo}).
+
+```typescript
+interface ClientInfo {
+  /** The running build version. */
+  appVersion?: string
+  /** `navigator.userAgent` (browser + OS). */
+  userAgent?: string
+  /** `navigator.platform`. */
+  platform?: string
+  /** `navigator.language`. */
+  language?: string
+  /** Inner viewport size, `${innerWidth}×${innerHeight}`. */
+  viewport?: string
+  /** Physical screen size, `${screen.width}×${screen.height}`. */
+  screen?: string
+  /** Active theme — `'light'` or `'dark'`. */
+  theme?: string
+  /** The current page URL (`window.location.href`). */
+  url?: string
+}
+```
+
 #### `Command`
 
 A command available in the command palette.
@@ -918,6 +946,57 @@ interface QuickPickerProps {
 }
 ```
 
+#### `ReportFormState`
+
+The report modal's form state.
+
+```typescript
+interface ReportFormState {
+  /** Short summary / issue title. */
+  title: string
+  /** Detailed description of the problem or request. */
+  description: string
+  /** Optional reproduction steps (free text). */
+  steps: string
+  /** Whether to attach the recent conversation to the report. */
+  includeChat: boolean
+}
+```
+
+#### `ReportPayload`
+
+The `POST /projects/:id/report` request body.
+
+```typescript
+interface ReportPayload {
+  /** Short summary / issue title. */
+  title: string
+  /** Detailed description. */
+  description: string
+  /** Reproduction steps — omitted entirely when blank. */
+  steps?: string
+  /** Whether the backend should attach the recent conversation. */
+  includeChat: boolean
+  /** Client diagnostics — omitted entirely when none could be collected. */
+  clientInfo?: ClientInfo
+}
+```
+
+#### `ReportResult`
+
+The `POST /projects/:id/report` response.
+
+```typescript
+interface ReportResult {
+  /** Whether the report was recorded. */
+  ok: boolean
+  /** Link to the created issue, when one was filed. */
+  url?: string
+  /** The persisted DB row id. */
+  id?: string
+}
+```
+
 #### `ResizeHandleProps`
 
 Properties for resize handle.
@@ -1014,6 +1093,39 @@ interface SettingMeta {
    * command suffices.
    */
   editInput?: string
+}
+```
+
+#### `ShareLinkResult`
+
+The `POST /projects/:projectId/shares` response — the created public link.
+Mirrors the relevant fields of the `@molecule/api-resource-share` `ShareLink`.
+
+```typescript
+interface ShareLinkResult {
+  /** The link's unique id (used by the revoke route). */
+  id?: string
+  /** Opaque slug embedded in the public URL. */
+  slug: string
+  /** The role this link grants. */
+  role: ShareRole
+  /**
+   * A fully-qualified share URL, when the backend supplies one. Preferred over
+   * client-side construction so the canonical origin (e.g. a custom domain)
+   * wins over the current page origin.
+   */
+  url?: string
+}
+```
+
+#### `SharePayload`
+
+The `POST /projects/:projectId/shares` request body.
+
+```typescript
+interface SharePayload {
+  /** Role granted to anyone who opens the link. */
+  role: ShareRole
 }
 ```
 
@@ -1282,6 +1394,26 @@ type SettingKey =
   | 'sounds'
 ```
 
+#### `ShareCommand`
+
+The parsed result of a `/share` command:
+
+- `create` — POST a link at a valid role (`/share`, defaulting to `viewer`,
+  or `/share <role>` with a recognized role).
+- `invalid` — an unrecognized role argument was given (the caller shows usage).
+
+```typescript
+type ShareCommand = { kind: 'create'; role: ShareRole } | { kind: 'invalid'; arg: string }
+```
+
+#### `ShareRole`
+
+A role granted by a share link.
+
+```typescript
+type ShareRole = (typeof SHARE_ROLES)[number]
+```
+
 ### Functions
 
 #### `ActivityCard(props)`
@@ -1399,6 +1531,49 @@ function autoCommitReducer(state: AutoCommitState, action: AutoCommitAction): Au
 
 **Returns:** The next countdown state.
 
+#### `buildReportPayload(form, clientInfo)`
+
+Builds the `POST /projects/:id/report` body from the form state, trimming all
+text fields and omitting `steps` entirely when it is blank. When `clientInfo`
+is supplied and non-empty, it is attached; an `undefined` or empty diagnostics
+object is omitted from the payload.
+
+```typescript
+function buildReportPayload(form: ReportFormState, clientInfo?: ClientInfo): ReportPayload
+```
+
+- `form` — The report form state.
+- `clientInfo` — Optional client diagnostics from {@link collectClientInfo}.
+
+**Returns:** The normalized report payload.
+
+#### `buildSharePayload(role)`
+
+Builds the `POST /projects/:projectId/shares` body for a role.
+
+```typescript
+function buildSharePayload(role?: "viewer" | "commenter" | "editor" | "owner"): SharePayload
+```
+
+- `role` — The role to grant (defaults to {@link DEFAULT_SHARE_ROLE}).
+
+**Returns:** The normalized share payload.
+
+#### `buildShareUrl(result, origin)`
+
+Resolves the copyable public URL for a created share link. Prefers the
+backend-supplied `url` (canonical origin / custom domain); otherwise builds
+`<origin>/share/<slug>` from the given origin, tolerating a trailing slash.
+
+```typescript
+function buildShareUrl(result: ShareLinkResult, origin: string): string
+```
+
+- `result` — The created link from the share endpoint.
+- `origin` — The current page origin (e.g. `window.location.origin`).
+
+**Returns:** The absolute, copyable share URL.
+
 #### `ChatPanel(props)`
 
 AI chat panel with conversation history dropdown and Claude Code-style tool display.
@@ -1476,6 +1651,26 @@ function clampPanelSize(currentSize: number, deltaPx: number, containerWidth: nu
 - `max` — Maximum allowed percentage. Defaults to {@link MAX_PANEL_PERCENT}.
 
 **Returns:** The new size as a percentage, clamped to `[min, max]`.
+
+#### `collectClientInfo(opts)`
+
+Collects client-side diagnostics for a report. Reads `navigator`
+(userAgent/platform/language), `window` (inner viewport size, screen size,
+location href), plus the caller-supplied app version and theme. Every access
+is guarded (`typeof window/navigator !== 'undefined'` and per-property
+presence) so it is SSR-safe and never throws — it returns only the fields it
+could actually read, so the result may be partial or (in a headless
+environment) empty.
+
+```typescript
+function collectClientInfo(opts?: { appVersion?: string; theme?: string; }): ClientInfo
+```
+
+- `opts` — Caller-supplied context.
+- `opts.appVersion` — The running build version, if known.
+- `opts.theme` — The active theme (`'light'` | `'dark'`), if known.
+
+**Returns:** The populated subset of {@link ClientInfo}.
 
 #### `CommandPalette(props)`
 
@@ -1600,6 +1795,22 @@ function formatAutoCommitBadge(state: AutoCommitState): string
 - `state` — The countdown state.
 
 **Returns:** The badge label, or `''`.
+
+#### `formatReportConfirmation(result)`
+
+Builds the confirmation message shown after a report is submitted. Returns the
+English defaults; the component passes these through `t()` at render. The
+success `defaultValue` may contain the `{{productName}}` interpolation token,
+which the caller fills in from the host's product identity (neutral default:
+"the IDE"). When the result is not `ok`, returns the failure message.
+
+```typescript
+function formatReportConfirmation(result: ReportResult): { key: string; defaultValue: string; }
+```
+
+- `result` — The `POST /projects/:id/report` response.
+
+**Returns:** `{ key, defaultValue }` for the confirmation/failure message.
 
 #### `getCustomEventCardFactory(name)`
 
@@ -1745,6 +1956,32 @@ function isMonacoFocused(e: KeyboardEvent): boolean
 
 **Returns:** Whether the target is inside `.monaco-editor`.
 
+#### `isReportFormValid(form)`
+
+Whether the report form has the minimum required fields: a non-empty title
+and a non-empty description.
+
+```typescript
+function isReportFormValid(form: ReportFormState): boolean
+```
+
+- `form` — The report form state.
+
+**Returns:** `true` when the form can be submitted.
+
+#### `isShareRole(value)`
+
+Type guard for a valid {@link ShareRole} (case-insensitive callers should
+lower-case first).
+
+```typescript
+function isShareRole(value: string): boolean
+```
+
+- `value` — The candidate value.
+
+**Returns:** `true` when `value` is one of the {@link SHARE_ROLES}.
+
 #### `KeyboardShortcutsPanel(props)`
 
 Keyboard shortcuts reference panel.
@@ -1804,6 +2041,35 @@ function parseAutoCommitCommand(input: string): { seconds: number | null; } | nu
 - `input` — The raw chat input.
 
 **Returns:** The parsed command, or `null` when it is not `/autocommit`.
+
+#### `parseReportCommand(input)`
+
+Parses a `/report [title]` or `/bug [title]` command. Returns the (possibly
+empty) trimmed title used to seed the modal when the input is one of those
+commands, else `null`.
+
+```typescript
+function parseReportCommand(input: string): { title: string; } | null
+```
+
+- `input` — The raw chat input.
+
+**Returns:** `{ title }` when it's a `/report` or `/bug` command, else `null`.
+
+#### `parseShareCommand(input)`
+
+Parses a `/share [role]` command. Bare `/share` creates a link at the default
+`viewer` role; `/share <role>` uses the named role when valid (any case); an
+unrecognized role is reported as invalid so the caller can show usage. Returns
+`null` when the input is not the `/share` command.
+
+```typescript
+function parseShareCommand(input: string): ShareCommand | null
+```
+
+- `input` — The raw chat input.
+
+**Returns:** The parsed {@link ShareCommand}, or `null`.
 
 #### `PreviewPanel(props)`
 
@@ -1875,6 +2141,27 @@ function registerCustomEventCard(name: string, factory: ChatEventCardFactory): v
 
 - `name` — The custom event `name` to handle (matches the emitted event's `name`).
 - `factory` — Builds the card from the event's `data` (or returns null to skip).
+
+#### `ReportModal(props)`
+
+The bug-report / feedback modal opened by `/report`, `/bug`, and the header
+bug-report button.
+
+```typescript
+function ReportModal({
+  projectId,
+  conversationId,
+  initialTitle,
+  onClose,
+  onSubmitted,
+  productName = DEFAULT_PRODUCT_NAME,
+  appVersion,
+}: { projectId: string; conversationId?: string | null; initialTitle?: string; onClose: () => void; onSubmitted: (result: ReportResult) => void; productName?: string; appVersion?: string; }): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered report modal.
 
 #### `ResizeHandle(props)`
 
@@ -1974,6 +2261,24 @@ function serializeEvent(e: KeyboardEvent, isMac?: boolean): string
 - `isMac` — Override platform detection (for testing).
 
 **Returns:** Serialized combo string.
+
+#### `ShareModal(props)`
+
+The share-link modal opened by `/share`, `/share <role>`, and the header
+share button.
+
+```typescript
+function ShareModal({
+  projectId,
+  initialRole = DEFAULT_SHARE_ROLE,
+  onClose,
+  onCreated,
+}: { projectId: string; initialRole?: ShareRole; onClose: () => void; onCreated?: (result: ShareLinkResult) => void; }): JSX.Element
+```
+
+- `props` — Component props.
+
+**Returns:** The rendered share modal.
 
 #### `SidebarTabs(props)`
 
@@ -2172,6 +2477,14 @@ forces the duplication.
 const DEFAULT_SEARCH_EXCLUDED_DIRS: readonly ["node_modules", "bower_components", ".git", ".svn", ".hg", "CVS", "dist", ".next", ".vite", "molecule"]
 ```
 
+#### `DEFAULT_SHARE_ROLE`
+
+The default (and safest) role when `/share` is run with no argument.
+
+```typescript
+const DEFAULT_SHARE_ROLE: "viewer" | "commenter" | "editor" | "owner"
+```
+
 #### `DEVICE_DIMENSIONS`
 
 The fixed pixel frame each device renders the preview iframe at. `none`
@@ -2199,6 +2512,14 @@ Per-frame display metadata: the icon-set glyph name and the i18n label
 
 ```typescript
 const DEVICE_META: Record<DeviceFrame, { readonly icon: IconName; readonly labelKey: string; readonly label: string; }>
+```
+
+#### `EMPTY_REPORT_FORM`
+
+An empty report form (the modal's initial state).
+
+```typescript
+const EMPTY_REPORT_FORM: ReportFormState
 ```
 
 #### `IS_MAC`
@@ -2255,6 +2576,25 @@ shows a command for a setting it hides.
 
 ```typescript
 const SETTINGS: readonly SettingMeta[]
+```
+
+#### `SHARE_ROLE_LABELS`
+
+Short English labels per role (the component wraps these in `t()` at render).
+
+```typescript
+const SHARE_ROLE_LABELS: Record<"viewer" | "commenter" | "editor" | "owner", string>
+```
+
+#### `SHARE_ROLES`
+
+Share roles, ordered least- to most-privileged. Mirrors the
+`@molecule/api-resource-share` `SHARE_ROLES` contract; duplicated here (rather
+than imported) because an `app-*` package may not import an `api-*` package
+across the stack boundary.
+
+```typescript
+const SHARE_ROLES: readonly ["viewer", "commenter", "editor", "owner"]
 ```
 
 #### `ToolCallCard`
@@ -2324,6 +2664,23 @@ Peer dependencies:
 - App-specific chat/stream events do NOT belong in this package — emit
   `{ type: 'custom', name, data }` events and register a card with
   `registerCustomEventCard(name, factory)` in the consuming app.
+- `ReportModal` and `ShareModal` are exported so a HOST can mount them
+  itself. They need only `projectId` + the bonded HTTP client — no
+  workspace/editor/preview provider, no chat, no running sandbox — because
+  they POST to `/projects/:id/report` and `/projects/:id/shares` on the
+  platform API. Do NOT route a host's "report a bug" / "share" button
+  through `ChatPanel`'s `openReportSignal` / `openShareSignal` alone: those
+  props are observed inside the panel, so in any phase where the host does
+  not mount a `ChatPanel` (a hibernating sandbox, an error screen) the
+  button silently does nothing. Mount the modal directly in those phases.
+  `ChatPanel` renders its own copies for `/report` and `/share`; a host that
+  mounts them too must gate on whether the panel is mounted so the modal
+  never opens twice.
+- `ReportModal` does NOT show its own success state — it calls `onSubmitted`
+  and closes, so a host that mounts it MUST surface the confirmation itself
+  (`formatReportConfirmation(result)` returns the i18n key + default copy,
+  and `result.url` is the filed issue). `ShareModal` does show the created
+  link inline, but only until it is closed.
 - Text routes through `t('ide.*')` — `@molecule/app-locales-ide` supplies
   translations.
 

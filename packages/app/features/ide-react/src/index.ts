@@ -44,6 +44,23 @@
  * - App-specific chat/stream events do NOT belong in this package — emit
  *   `{ type: 'custom', name, data }` events and register a card with
  *   `registerCustomEventCard(name, factory)` in the consuming app.
+ * - `ReportModal` and `ShareModal` are exported so a HOST can mount them
+ *   itself. They need only `projectId` + the bonded HTTP client — no
+ *   workspace/editor/preview provider, no chat, no running sandbox — because
+ *   they POST to `/projects/:id/report` and `/projects/:id/shares` on the
+ *   platform API. Do NOT route a host's "report a bug" / "share" button
+ *   through `ChatPanel`'s `openReportSignal` / `openShareSignal` alone: those
+ *   props are observed inside the panel, so in any phase where the host does
+ *   not mount a `ChatPanel` (a hibernating sandbox, an error screen) the
+ *   button silently does nothing. Mount the modal directly in those phases.
+ *   `ChatPanel` renders its own copies for `/report` and `/share`; a host that
+ *   mounts them too must gate on whether the panel is mounted so the modal
+ *   never opens twice.
+ * - `ReportModal` does NOT show its own success state — it calls `onSubmitted`
+ *   and closes, so a host that mounts it MUST surface the confirmation itself
+ *   (`formatReportConfirmation(result)` returns the i18n key + default copy,
+ *   and `result.url` is the filed issue). `ShareModal` does show the created
+ *   link inline, but only until it is closed.
  * - Text routes through `t('ide.*')` — `@molecule/app-locales-ide` supplies
  *   translations.
  *
