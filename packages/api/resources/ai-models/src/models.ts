@@ -66,9 +66,17 @@ import type { ModelDefinition } from './types.js'
  * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
  *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
  * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
- *   (unchanged; qwen3.8-max-preview, 2026-07-19, is Token-Plan-subscriber-only
- *   — not on the pay-as-you-go API, so it cannot be added yet; qwen3.7-max
- *   currently runs a 50%-off promo — still billed here at list, $2.50/$7.50)
+ *   (qwen3.8-max GA'd 2026-08-03 on the pay-as-you-go international API —
+ *   verified 2026-08-04 on help.aliyun.com/en/model-studio/model-pricing:
+ *   flat $2/$6 per MTok (Singapore International CNY 14.988/44.965 at the
+ *   same fixed conversion that maps qwen3.7-max's CNY 18.736/56.207 to its
+ *   $2.50/$7.50 list), 1M ctx, hybrid thinking, tools. NOT ADDED: its cache
+ *   pricing is console-only — the context-cache doc explicitly excepts
+ *   qwen3.8-max from the standard rates (implicit hit "not 20%", explicit hit
+ *   "not 10%"; only the 125% explicit-creation rate is public), and secondary
+ *   sources disagree on the figure ($0.25 vs $0.17/MTok). Add it once someone
+ *   with Bailian console access confirms the cached-token price. qwen3.7-max
+ *   still runs its 50%-off promo — billed here at list, $2.50/$7.50)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing (unchanged; glm-5.2 is
  *   the newest — "GLM-5.3/5.5" rumors have no released ids as of 2026-07-28)
  *
