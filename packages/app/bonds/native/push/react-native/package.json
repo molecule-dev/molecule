@@ -29,17 +29,17 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.0",
-    "@molecule/app-logger": "1.0.0",
-    "@molecule/app-push": "1.0.0",
+    "@molecule/app-i18n": "1.0.1",
+    "@molecule/app-logger": "1.0.1",
+    "@molecule/app-push": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0",
-    "@molecule/app-logger": "^1.0.0",
-    "@molecule/app-push": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-logger": "^1.0.1",
+    "@molecule/app-push": "^1.0.1",
     "expo-notifications": ">=0.20.0"
   },
   "peerDependenciesMeta": {
