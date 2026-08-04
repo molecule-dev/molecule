@@ -3,6 +3,11 @@ name: Release
 on:
   push:
     branches: [main]
+  # Manual re-run. The paced publisher is resumable — it asks the REGISTRY what
+  # already exists — so re-running after a timeout continues rather than restarts.
+  # Publishing ~910 packages takes hours and GitHub kills jobs at 6h, so without
+  # this the only way to resume was an empty commit.
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
