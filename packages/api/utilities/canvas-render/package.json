@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-canvas-render",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Server-side canvas rendering — render a canvas-document JSON into PNG/SVG/PDF buffers.",
   "type": "module",
   "main": "dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-payment",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Payment resource with subscription plan management",
   "type": "module",
   "main": "dist/index.js",
@@ -26,21 +26,21 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.0",
-    "@molecule/api-locales-payment": "1.0.0",
-    "@molecule/api-payments": "1.0.0",
+    "@molecule/api-bond": "1.0.1",
+    "@molecule/api-locales-payment": "1.0.1",
+    "@molecule/api-payments": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-bond": "^1.0.0",
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-locales-payment": "^1.0.0",
-    "@molecule/api-logger": "^1.0.0",
-    "@molecule/api-payments": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-locales-payment": "^1.0.1",
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-payments": "^1.0.1",
+    "@molecule/api-resource": "^1.0.1"
   },
   "repository": {
     "type": "git",

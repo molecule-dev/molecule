@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-state-zustand",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Zustand state provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -36,7 +36,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-state": "^1.0.0"
+    "@molecule/app-state": "^1.0.1"
   },
   "repository": {
     "type": "git",

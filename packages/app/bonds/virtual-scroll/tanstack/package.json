@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-virtual-scroll-tanstack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TanStack Virtual provider for @molecule/app-virtual-scroll",
   "type": "module",
   "main": "dist/index.js",
@@ -31,10 +31,10 @@
     "@tanstack/virtual-core": "3.17.7"
   },
   "peerDependencies": {
-    "@molecule/app-virtual-scroll": ">=1.0.0"
+    "@molecule/app-virtual-scroll": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-virtual-scroll": "1.0.0",
+    "@molecule/app-virtual-scroll": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

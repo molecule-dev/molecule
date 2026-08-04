@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-video-render",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "FFmpeg-driven server-side video rendering, queue-driven (MP4 export). Wraps ffmpeg with a Renderer interface and a worker entry-point compatible with @molecule/api-queue-bullmq.",
   "type": "module",
   "main": "dist/index.js",
@@ -29,10 +29,10 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/api-queue": "^1.0.0"
+    "@molecule/api-queue": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-queue": "1.0.0",
+    "@molecule/api-queue": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

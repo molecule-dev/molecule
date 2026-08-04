@@ -38,7 +38,7 @@ const REQUIRED = ['README.md']
  */
 function discover() {
   const dirs = []
-  const walk = (dir, depth) => {
+  const walk = (dir) => {
     const manifest = join(dir, 'package.json')
     if (existsSync(manifest)) {
       try {
@@ -51,18 +51,17 @@ function discover() {
         // Unreadable manifest — keep descending.
       }
     }
-    if (!depth) return
     for (const entry of readdirSync(dir)) {
       if (entry === 'node_modules' || entry.startsWith('.')) continue
       const child = join(dir, entry)
       try {
-        if (statSync(child).isDirectory()) walk(child, depth - 1)
+        if (statSync(child).isDirectory()) walk(child)
       } catch (_error) {
         // Vanished mid-walk.
       }
     }
   }
-  walk(join(ROOT, 'packages'), 4)
+  walk(join(ROOT, 'packages'))
   return dirs
 }
 

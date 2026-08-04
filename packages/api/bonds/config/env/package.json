@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-config-env",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Environment variables configuration provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -29,12 +29,12 @@
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/api-config": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0"
+    "@molecule/api-config": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-config": "1.0.0",
-    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-config": "1.0.1",
+    "@molecule/api-i18n": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3"
   },

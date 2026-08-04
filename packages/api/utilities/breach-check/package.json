@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-breach-check",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HIBP k-anonymity API wrapper — password breach check.",
   "type": "module",
   "main": "dist/index.js",

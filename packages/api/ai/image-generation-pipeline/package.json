@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-image-generation-pipeline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Image generation pipeline: prompt assembly, provider call, variations, AI prompt enhancement",
   "type": "module",
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-ai": "^1.0.0",
-    "@molecule/api-ai-image-generation": "^1.0.0"
+    "@molecule/api-ai": "^1.0.1",
+    "@molecule/api-ai-image-generation": "^1.0.1"
   }
 }

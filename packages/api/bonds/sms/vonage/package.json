@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-sms-vonage",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vonage SMS provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -30,11 +30,11 @@
     "@vonage/server-sdk": "3.29.0"
   },
   "peerDependencies": {
-    "@molecule/api-secrets": "^1.0.0",
-    "@molecule/api-sms": "1.0.0"
+    "@molecule/api-secrets": "^1.0.1",
+    "@molecule/api-sms": "1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-sms": "1.0.0",
+    "@molecule/api-sms": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

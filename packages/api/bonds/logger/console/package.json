@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-logger-console",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Console logger provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -28,10 +28,10 @@
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/api-logger": "^1.0.0"
+    "@molecule/api-logger": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-logger": "1.0.0",
+    "@molecule/api-logger": "1.0.1",
     "typescript": "6.0.3"
   },
   "repository": {

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-video-rooms-livekit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "LiveKit video rooms provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -30,14 +30,14 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/api-secrets": "^1.0.0",
-    "@molecule/api-video-rooms": "1.0.0"
+    "@molecule/api-secrets": "^1.0.1",
+    "@molecule/api-video-rooms": "1.0.1"
   },
   "dependencies": {
     "livekit-server-sdk": "2.17.0"
   },
   "devDependencies": {
-    "@molecule/api-video-rooms": "1.0.0",
+    "@molecule/api-video-rooms": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

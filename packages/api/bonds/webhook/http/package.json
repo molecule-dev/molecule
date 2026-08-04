@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-webhook-http",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "HTTP webhook provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -30,12 +30,12 @@
     "undici": "7.29.0"
   },
   "peerDependencies": {
-    "@molecule/api-logger": "^1.0.0",
-    "@molecule/api-webhook": "1.0.0"
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-webhook": "1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-logger": "1.0.0",
-    "@molecule/api-webhook": "1.0.0",
+    "@molecule/api-logger": "1.0.1",
+    "@molecule/api-webhook": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-password-bcrypt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Password hashing provider using bcryptjs for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -31,10 +31,10 @@
     "bcryptjs": "3.0.3"
   },
   "peerDependencies": {
-    "@molecule/api-password": "^1.0.0"
+    "@molecule/api-password": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-password": "1.0.0",
+    "@molecule/api-password": "1.0.1",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },

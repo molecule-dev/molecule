@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-realtime-socketio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Socket.io provider for @molecule/app-realtime",
   "type": "module",
   "main": "dist/index.js",
@@ -33,10 +33,10 @@
     ]
   },
   "peerDependencies": {
-    "@molecule/app-realtime": ">=1.0.0"
+    "@molecule/app-realtime": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-realtime": "1.0.0",
+    "@molecule/app-realtime": "1.0.1",
     "@types/node": "26.1.2",
     "socket.io": "4.8.3",
     "typescript": "6.0.3",

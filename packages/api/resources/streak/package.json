@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-streak",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Per-user per-activity streak tracking with freezes + cron audit.",
   "type": "module",
   "main": "dist/index.js",
@@ -31,10 +31,10 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-logger": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-resource": "^1.0.1"
   },
   "peerDependenciesMeta": {
     "@molecule/api-database": {

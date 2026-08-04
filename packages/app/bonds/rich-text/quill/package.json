@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-rich-text-quill",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Quill v2 rich text editor provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -44,7 +44,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-rich-text": "^1.0.0"
+    "@molecule/app-rich-text": "^1.0.1"
   },
   "repository": {
     "type": "git",

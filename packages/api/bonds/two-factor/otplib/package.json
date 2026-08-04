@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-two-factor-otplib",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Two-factor authentication provider using otplib for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -33,10 +33,10 @@
     "qrcode": "1.5.4"
   },
   "peerDependencies": {
-    "@molecule/api-two-factor": "^1.0.0"
+    "@molecule/api-two-factor": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-two-factor": "1.0.0",
+    "@molecule/api-two-factor": "1.0.1",
     "@types/qrcode": "1.5.6",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

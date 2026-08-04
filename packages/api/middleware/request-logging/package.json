@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-middleware-request-logging",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Structured HTTP request-logging middleware for molecule.dev (method, path, status, duration via the bonded logger)",
   "type": "module",
   "main": "dist/index.js",
@@ -21,10 +21,10 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/api-logger": "^1.0.0"
+    "@molecule/api-logger": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-logger": "1.0.0",
+    "@molecule/api-logger": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

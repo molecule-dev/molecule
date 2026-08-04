@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-notifications-preferences",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Per-user notification preferences (channel toggles per type) — single-row JSONB store with delivery-gate helpers.",
   "type": "module",
   "main": "dist/index.js",
@@ -34,10 +34,10 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-logger": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0"
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-resource": "^1.0.1"
   },
   "peerDependenciesMeta": {
     "@molecule/api-database": {

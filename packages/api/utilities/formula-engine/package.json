@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-formula-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Spreadsheet-style formula evaluator: parser, evaluator, dependency tracker for cell graphs with arithmetic, comparison, string ops, references, aggregations, conditionals, date/text functions, and circular-ref detection.",
   "type": "module",
   "main": "dist/index.js",

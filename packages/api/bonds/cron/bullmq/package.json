@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-cron-bullmq",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "BullMQ distributed cron scheduling provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -32,12 +32,12 @@
     "bullmq": "5.81.3"
   },
   "peerDependencies": {
-    "@molecule/api-bond": "^1.0.0",
-    "@molecule/api-cron": "^1.0.0"
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-cron": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.0",
-    "@molecule/api-cron": "1.0.0",
+    "@molecule/api-bond": "1.0.1",
+    "@molecule/api-cron": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

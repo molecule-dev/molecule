@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-leaderboard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generic ranked-aggregate engine: record metrics, compute leaderboards over daily/weekly/monthly/all-time windows with rank tie-breaking, scope isolation, and cron rollup.",
   "type": "module",
   "main": "dist/index.js",
@@ -35,7 +35,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-database": "^1.0.0"
+    "@molecule/api-database": "^1.0.1"
   },
   "peerDependenciesMeta": {
     "@molecule/api-database": {

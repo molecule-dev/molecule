@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-data-table-tanstack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TanStack Table provider for @molecule/app-data-table",
   "type": "module",
   "main": "dist/index.js",
@@ -31,10 +31,10 @@
     "@tanstack/table-core": "8.21.3"
   },
   "peerDependencies": {
-    "@molecule/app-data-table": ">=1.0.0"
+    "@molecule/app-data-table": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-data-table": "1.0.0",
+    "@molecule/app-data-table": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

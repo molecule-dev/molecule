@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-payroll-tax-us",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Federal + state US payroll tax calculator (FICA, Medicare, federal income tax withholding via IRS Pub 15-T 2024/2025 brackets, state withholding registry).",
   "type": "module",
   "main": "dist/index.js",

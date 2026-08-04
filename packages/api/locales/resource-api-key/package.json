@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-locales-resource-api-key",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "description": "Locale bond for @molecule/api-resource-api-key.",
   "type": "module",
@@ -21,7 +21,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "peerDependencies": {
-    "@molecule/api-i18n": "^1.0.0"
+    "@molecule/api-i18n": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "6.0.3",

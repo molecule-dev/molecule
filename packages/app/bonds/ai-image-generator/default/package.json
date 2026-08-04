@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ai-image-generator-default",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default HTTP image generator provider implementation",
   "type": "module",
   "main": "dist/index.js",
@@ -29,15 +29,15 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/app-ai-image-generator": "1.0.0",
-    "@molecule/app-i18n": "1.0.0",
+    "@molecule/app-ai-image-generator": "1.0.1",
+    "@molecule/app-i18n": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-ai-image-generator": "^1.0.0",
-    "@molecule/app-i18n": "^1.0.0"
+    "@molecule/app-ai-image-generator": "^1.0.1",
+    "@molecule/app-i18n": "^1.0.1"
   },
   "peerDependenciesMeta": {
     "@molecule/app-ai-image-generator": {

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-vite-config-default",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Drop-in createDefaultViteConfig() factory used by every flagship app vite.config.ts. Captures react + tailwindcss + VitePWA plugin setup, molecule package pre-bundle exclusion, dev server proxy, env conventions.",
   "type": "module",
   "main": "dist/index.js",

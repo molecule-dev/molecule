@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-sendgrid",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SendGrid email provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -30,15 +30,15 @@
     "@sendgrid/mail": "8.1.6"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.0",
+    "@molecule/api-bond": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-bond": "^1.0.0",
-    "@molecule/api-emails": "^1.0.0",
-    "@molecule/api-secrets": "^1.0.0"
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-emails": "^1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
   },
   "repository": {
     "type": "git",

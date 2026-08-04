@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-email-templates",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Transactional email templates for molecule.dev: i18n-driven subject/text/html templates with variable interpolation, sent via the bonded email transport",
   "type": "module",
   "main": "dist/index.js",
@@ -29,12 +29,12 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/api-emails": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0"
+    "@molecule/api-emails": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-emails": "1.0.0",
-    "@molecule/api-i18n": "1.0.0",
+    "@molecule/api-emails": "1.0.1",
+    "@molecule/api-i18n": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

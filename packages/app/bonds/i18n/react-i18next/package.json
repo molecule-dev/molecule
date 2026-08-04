@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-i18n-react-i18next",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "react-i18next provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@molecule/app-i18n-i18next": "1.0.0",
+    "@molecule/app-i18n-i18next": "1.0.1",
     "i18next": "26.3.6",
     "react-i18next": "17.0.11"
   },
@@ -41,7 +41,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.1",
     "react": "^18.0.0 || ^19.0.0"
   },
   "repository": {

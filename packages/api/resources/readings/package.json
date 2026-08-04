@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-readings",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generic time-series sensor readings with on-the-fly aggregation (raw/5min/hour/day rollups)",
   "type": "module",
   "main": "dist/index.js",
@@ -38,10 +38,10 @@
     "zod": "4.4.3"
   },
   "peerDependencies": {
-    "@molecule/api-bonds-default-express": "^1.0.0",
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-middleware-validation": "^1.0.0",
+    "@molecule/api-bonds-default-express": "^1.0.1",
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-middleware-validation": "^1.0.1",
     "express": "^5.0.0",
     "zod": "^4.0.0"
   }

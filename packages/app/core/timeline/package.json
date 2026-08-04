@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-timeline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -26,10 +26,10 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/app-bond": "^1.0.0"
+    "@molecule/app-bond": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.0",
+    "@molecule/app-bond": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-rag-qa",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "RAG Q&A pipeline — chunk + embed + retrieve + ground answer with sources",
   "type": "module",
   "main": "dist/index.js",
@@ -36,12 +36,12 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-bonds-default-express": "^1.0.0",
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-middleware-validation": "^1.0.0",
-    "@molecule/api-ai": "^1.0.0",
-    "@molecule/api-ai-embeddings": "^1.0.0",
-    "@molecule/api-ai-vector-store": "^1.0.0"
+    "@molecule/api-bonds-default-express": "^1.0.1",
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-middleware-validation": "^1.0.1",
+    "@molecule/api-ai": "^1.0.1",
+    "@molecule/api-ai-embeddings": "^1.0.1",
+    "@molecule/api-ai-vector-store": "^1.0.1"
   }
 }

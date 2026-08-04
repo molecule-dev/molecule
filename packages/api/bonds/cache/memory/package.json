@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-cache-memory",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "In-memory cache provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-cache": "^1.0.0"
+    "@molecule/api-cache": "^1.0.1"
   },
   "repository": {
     "type": "git",

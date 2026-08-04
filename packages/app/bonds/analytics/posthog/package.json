@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-analytics-posthog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "PostHog analytics provider for molecule.dev frontend",
   "type": "module",
   "main": "dist/index.js",
@@ -30,10 +30,10 @@
     "posthog-js": "1.408.1"
   },
   "peerDependencies": {
-    "@molecule/app-analytics": "^1.0.0"
+    "@molecule/app-analytics": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-analytics": "1.0.0",
+    "@molecule/app-analytics": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

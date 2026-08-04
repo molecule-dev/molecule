@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-imap",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "IMAP client core for per-user mailboxes (distinct from outbound transactional bonds).",
   "type": "module",
   "main": "dist/index.js",

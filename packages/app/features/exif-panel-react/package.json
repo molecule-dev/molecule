@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-exif-panel-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "EXIF metadata renderer for photo-sharing apps — camera, lens, aperture, shutter, ISO, focal length, GPS, timestamp",
   "type": "module",
   "main": "dist/index.js",
@@ -29,15 +29,15 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0",
-    "@molecule/app-react": "^1.0.0",
-    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-react": "^1.0.1",
+    "@molecule/app-ui": "^1.0.1",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.0",
-    "@molecule/app-react": "1.0.0",
-    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-i18n": "1.0.1",
+    "@molecule/app-react": "1.0.1",
+    "@molecule/app-ui": "1.0.1",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",

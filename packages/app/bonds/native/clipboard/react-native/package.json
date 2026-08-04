@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-clipboard-react-native",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React Native clipboard provider for molecule.dev (@react-native-clipboard/clipboard)",
   "type": "module",
   "main": "dist/index.js",
@@ -17,7 +17,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "keywords": [
     "molecule",

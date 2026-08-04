@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-stepper-default",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default provider for @molecule/app-stepper",
   "type": "module",
   "main": "dist/index.js",
@@ -32,10 +32,10 @@
     "directory": "packages/app/bonds/stepper/default"
   },
   "peerDependencies": {
-    "@molecule/app-stepper": "^1.0.0"
+    "@molecule/app-stepper": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-stepper": "1.0.0",
+    "@molecule/app-stepper": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

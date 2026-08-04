@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-git-workspace",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Discover, checkpoint, bundle, verify, and restore every git repo in a polyrepo workspace (git-based source archival).",
   "type": "module",
   "main": "dist/index.js",

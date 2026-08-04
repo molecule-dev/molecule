@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-locales-resource-course",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Locale bond for @molecule/api-resource-course.",
   "type": "module",
   "main": "dist/index.js",
@@ -33,6 +33,6 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-i18n": "^1.0.0"
+    "@molecule/api-i18n": "^1.0.1"
   }
 }

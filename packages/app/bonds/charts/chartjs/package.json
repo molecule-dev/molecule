@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-charts-chartjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Chart.js provider for @molecule/app-charts",
   "type": "module",
   "main": "dist/index.js",
@@ -32,10 +32,10 @@
     "directory": "packages/app/bonds/charts/chartjs"
   },
   "peerDependencies": {
-    "@molecule/app-charts": "^1.0.0"
+    "@molecule/app-charts": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-charts": "1.0.0",
+    "@molecule/app-charts": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

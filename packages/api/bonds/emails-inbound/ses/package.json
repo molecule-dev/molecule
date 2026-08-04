@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-inbound-ses",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AWS SES inbound email provider — parses SNS notification payloads carrying SES inbound messages into normalized InboundEmail.",
   "type": "module",
   "main": "dist/index.js",
@@ -34,17 +34,17 @@
     "mailparser": "3.9.14"
   },
   "devDependencies": {
-    "@molecule/api-emails": "1.0.0",
-    "@molecule/api-emails-inbound": "1.0.0",
+    "@molecule/api-emails": "1.0.1",
+    "@molecule/api-emails-inbound": "1.0.1",
     "@types/mailparser": "3.4.6",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-emails": "^1.0.0",
-    "@molecule/api-emails-inbound": "^1.0.0",
-    "@molecule/api-secrets": "^1.0.0"
+    "@molecule/api-emails": "^1.0.1",
+    "@molecule/api-emails-inbound": "^1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
   },
   "repository": {
     "type": "git",

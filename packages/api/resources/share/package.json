@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-share",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generic ACL table keyed by (resource_type, resource_id, principal_id) + role + expiry + public-link slug.",
   "type": "module",
   "main": "dist/index.js",
@@ -35,10 +35,10 @@
     "zod": "4.4.3"
   },
   "peerDependencies": {
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-i18n": "^1.0.0",
-    "@molecule/api-logger": "^1.0.0",
-    "@molecule/api-resource": "^1.0.0",
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1",
+    "@molecule/api-logger": "^1.0.1",
+    "@molecule/api-resource": "^1.0.1",
     "zod": "^4.0.0"
   },
   "peerDependenciesMeta": {

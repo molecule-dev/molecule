@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-pwa-default",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default registerPWA() — periodic update checks, styled update banner with i18n labels, multi-tab reload coordination, focus-triggered SW update check, error recovery on fatal SW errors. Lifts 147 lines of byte-identical PWA wiring shipped by every flagship app.",
   "type": "module",
   "main": "dist/index.js",
@@ -30,13 +30,13 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
-    "@molecule/app-i18n": "1.0.0",
-    "@molecule/app-logger": "1.0.0",
+    "@molecule/app-i18n": "1.0.1",
+    "@molecule/app-logger": "1.0.1",
     "vite-plugin-pwa": "1.3.0"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0",
-    "@molecule/app-logger": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-logger": "^1.0.1",
     "vite-plugin-pwa": "^0.20.0 || ^1.0.0"
   }
 }

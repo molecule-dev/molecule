@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-plan-updated-page-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Post-purchase confirmation page shown after a plan upgrade. Reads auth state and displays a localized thank-you message + Return Home button.",
   "type": "module",
   "main": "dist/index.js",
@@ -32,18 +32,18 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
-    "@molecule/app-react": "1.0.0",
-    "@molecule/app-ui": "1.0.0",
-    "@molecule/app-ui-react": "1.0.0",
-    "@molecule/app-locales-common": "1.0.0",
+    "@molecule/app-react": "1.0.1",
+    "@molecule/app-ui": "1.0.1",
+    "@molecule/app-ui-react": "1.0.1",
+    "@molecule/app-locales-common": "1.0.1",
     "@types/react": "19.2.17",
     "react": "19.2.8",
     "react-router": "8.3.0"
   },
   "peerDependencies": {
-    "@molecule/app-react": "^1.0.0",
-    "@molecule/app-ui": "^1.0.0",
-    "@molecule/app-ui-react": "^1.0.0",
+    "@molecule/app-react": "^1.0.1",
+    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-ui-react": "^1.0.1",
     "react": "^18.0.0 || ^19.0.0",
     "react-router": "^7.0.0 || ^8.0.0"
   }

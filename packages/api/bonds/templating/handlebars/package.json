@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-templating-handlebars",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Handlebars template provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -31,10 +31,10 @@
     "handlebars": "4.7.9"
   },
   "peerDependencies": {
-    "@molecule/api-templating": "^1.0.0"
+    "@molecule/api-templating": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-templating": "1.0.0",
+    "@molecule/api-templating": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

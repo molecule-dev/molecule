@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-mind-map-canvas-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React mind-map canvas — tree-structured nodes with parent/child links, automatic radial/horizontal/vertical tree layout, fold/unfold subtrees, inline edit-on-double-click; thin domain wrapper over @molecule/app-feature-canvas-react.",
   "type": "module",
   "main": "dist/index.js",
@@ -31,16 +31,16 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/app-feature-canvas-react": "^1.0.0",
-    "@molecule/app-react": "^1.0.0",
-    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-feature-canvas-react": "^1.0.1",
+    "@molecule/app-react": "^1.0.1",
+    "@molecule/app-ui": "^1.0.1",
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-feature-canvas-react": "1.0.0",
-    "@molecule/app-i18n": "1.0.0",
-    "@molecule/app-react": "1.0.0",
-    "@molecule/app-ui": "1.0.0",
+    "@molecule/app-feature-canvas-react": "1.0.1",
+    "@molecule/app-i18n": "1.0.1",
+    "@molecule/app-react": "1.0.1",
+    "@molecule/app-ui": "1.0.1",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",

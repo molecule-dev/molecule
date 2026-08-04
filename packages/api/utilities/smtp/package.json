@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-smtp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Direct SMTP send client — sends mail through a user-supplied SMTP server (distinct from transactional email provider bonds).",
   "type": "module",
   "main": "dist/index.js",

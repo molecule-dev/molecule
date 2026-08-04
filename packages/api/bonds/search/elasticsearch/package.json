@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-search-elasticsearch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Elasticsearch search provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -31,10 +31,10 @@
     "@elastic/elasticsearch": "9.4.2"
   },
   "peerDependencies": {
-    "@molecule/api-search": "^1.0.0"
+    "@molecule/api-search": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-search": "1.0.0",
+    "@molecule/api-search": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

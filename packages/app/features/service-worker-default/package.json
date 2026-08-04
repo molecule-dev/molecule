@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-service-worker-default",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default workbox-based service worker setup: precache manifest, app-shell navigation routing, image cache with StaleWhileRevalidate, SKIP_WAITING handler. Extracts 48 lines × 123 fleet apps of byte-identical SW boilerplate.",
   "type": "module",
   "main": "dist/index.js",

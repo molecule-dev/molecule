@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-solid",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Solid UI components for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -21,14 +21,14 @@
     "node": ">=20"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0",
-    "@molecule/app-icons": "^1.0.0",
-    "@molecule/app-ui": "^1.0.0",
+    "@molecule/app-i18n": "^1.0.1",
+    "@molecule/app-icons": "^1.0.1",
+    "@molecule/app-ui": "^1.0.1",
     "solid-js": "^1.8.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.0",
-    "@molecule/app-icons": "1.0.0",
+    "@molecule/app-i18n": "1.0.1",
+    "@molecule/app-icons": "1.0.1",
     "@types/node": "26.1.2",
     "solid-js": "1.9.14",
     "typescript": "6.0.3",

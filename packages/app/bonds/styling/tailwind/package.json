@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-styling-tailwind",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tailwind CSS styling utilities for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -32,14 +32,14 @@
     "tailwind-merge": "3.6.0"
   },
   "devDependencies": {
-    "@molecule/app-styling": "1.0.0",
+    "@molecule/app-styling": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-styling": "^1.0.0",
-    "@molecule/app-theme": "^1.0.0"
+    "@molecule/app-styling": "^1.0.1",
+    "@molecule/app-theme": "^1.0.1"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-project-archive-external-state-mysql",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Object-storage project archive provider for molecule.dev — standard tar.gz artifacts of generic ArchiveParts (source, database dumps, git bundles: nothing privileged) persisted through @molecule/api-uploads under the storage id the uploads bond mints, verified by re-reading and UNPACKING the artifact (checksum, manifest, part count, parts digest). Deciding which files to archive is the caller's job (use git); the one refusal is a non-configurable .env guard. Size caps, zero external dependencies",
   "type": "module",
   "main": "dist/index.js",
@@ -29,10 +29,10 @@
   ],
   "license": "Apache-2.0",
   "peerDependencies": {
-    "@molecule/api-project-archive": "^1.0.0"
+    "@molecule/api-project-archive": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-project-archive": "1.0.0",
+    "@molecule/api-project-archive": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

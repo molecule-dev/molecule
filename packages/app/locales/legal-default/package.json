@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-legal-default",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Default privacy policy + terms of service HTML content in 74 languages, with {{appName}} interpolation. Replaces per-app locales/<lang>/privacyPolicy.ts and termsOfService.ts files that ship byte-identical across the fleet.",
   "type": "module",
   "main": "dist/index.js",
@@ -31,9 +31,9 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
-    "@molecule/app-i18n": "1.0.0"
+    "@molecule/app-i18n": "1.0.1"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0"
+    "@molecule/app-i18n": "^1.0.1"
   }
 }

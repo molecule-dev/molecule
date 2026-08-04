@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-channel-telegram",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Telegram channel bond.",
   "type": "module",
   "main": "dist/index.js",
@@ -27,14 +27,14 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-channel": "1.0.0",
+    "@molecule/api-channel": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-channel": "^1.0.0",
-    "@molecule/api-secrets": "^1.0.0"
+    "@molecule/api-channel": "^1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
   },
   "peerDependenciesMeta": {
     "@molecule/api-channel": {

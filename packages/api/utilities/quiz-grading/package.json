@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-quiz-grading",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Multi-question-type grading engine: multi-choice, true-false, type-answer, fill-blank, numeric, matching with optional partial credit and speed bonus.",
   "type": "module",
   "main": "dist/index.js",

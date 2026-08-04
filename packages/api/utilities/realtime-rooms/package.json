@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-realtime-rooms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Realtime rooms abstraction: named pub/sub rooms with membership, capacity, join codes, role-based auth, built atop @molecule/api-realtime.",
   "type": "module",
   "main": "dist/index.js",
@@ -34,8 +34,8 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-database": "^1.0.0",
-    "@molecule/api-realtime": "^1.0.0"
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-realtime": "^1.0.1"
   },
   "peerDependenciesMeta": {
     "@molecule/api-database": {

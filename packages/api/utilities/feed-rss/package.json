@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-feed-rss",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "RSS/Atom/JSON Feed producer — pure-function serializers for RSS 2.0, Atom 1.0, JSON Feed 1.1; emits valid XML/JSON with full XML escaping and CDATA wrapping. Includes optional HTTP handler factory.",
   "type": "module",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-feed-rss-parser": "1.0.0",
+    "@molecule/api-feed-rss-parser": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

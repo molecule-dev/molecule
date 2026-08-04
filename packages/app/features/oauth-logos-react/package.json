@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-oauth-logos-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Canonical OAuth provider brand logos (GitHub, Google, GitLab, Twitter/X, Apple, Facebook, Microsoft, LinkedIn, Discord) as React SVG components — identical across every app regardless of icon bond",
   "type": "module",
   "main": "dist/index.js",

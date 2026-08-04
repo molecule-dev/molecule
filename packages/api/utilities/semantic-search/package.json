@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-semantic-search",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Semantic search over any document corpus for molecule.dev — composes the ai-embeddings + ai-vector-store bonds (index + search)",
   "type": "module",
   "main": "dist/index.js",
@@ -30,14 +30,14 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-ai-embeddings": "1.0.0",
-    "@molecule/api-ai-vector-store": "1.0.0",
+    "@molecule/api-ai-embeddings": "1.0.1",
+    "@molecule/api-ai-vector-store": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/api-ai-embeddings": ">=1.0.0",
-    "@molecule/api-ai-vector-store": ">=1.0.0"
+    "@molecule/api-ai-embeddings": ">=1.0.1",
+    "@molecule/api-ai-vector-store": ">=1.0.1"
   }
 }

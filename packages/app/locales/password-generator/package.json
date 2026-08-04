@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-password-generator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "description": "Translations for @molecule/app-password-generator-react in 79 languages",
   "type": "module",
@@ -21,7 +21,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0"
+    "@molecule/app-i18n": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "6.0.3",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-realtime-yjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Yjs CRDT realtime provider for collaboration apps (whiteboard, mind-mapping, spreadsheet, note-taking, document-collaboration)",
   "type": "module",
   "main": "dist/index.js",
@@ -34,10 +34,10 @@
     "yjs": "13.6.31"
   },
   "peerDependencies": {
-    "@molecule/api-realtime": "^1.0.0"
+    "@molecule/api-realtime": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-realtime": "1.0.0",
+    "@molecule/api-realtime": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

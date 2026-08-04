@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-utilities",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Common utilities for molecule.dev frontend applications",
   "type": "module",
   "main": "dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-image-crop-cropperjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Cropper.js provider for @molecule/app-image-crop",
   "type": "module",
   "main": "dist/index.js",
@@ -32,10 +32,10 @@
     "directory": "packages/app/bonds/image-crop/cropperjs"
   },
   "peerDependencies": {
-    "@molecule/app-image-crop": "^1.0.0"
+    "@molecule/app-image-crop": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-image-crop": "1.0.0",
+    "@molecule/app-image-crop": "1.0.1",
     "@types/cropperjs": "1.3.3",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

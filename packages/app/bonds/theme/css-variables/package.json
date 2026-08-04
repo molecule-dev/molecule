@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-theme-css-variables",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CSS custom properties theme provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -34,7 +34,7 @@
     "vitest": "4.1.10"
   },
   "peerDependencies": {
-    "@molecule/app-theme": "^1.0.0"
+    "@molecule/app-theme": "^1.0.1"
   },
   "repository": {
     "type": "git",

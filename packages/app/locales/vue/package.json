@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-vue",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
@@ -20,7 +20,7 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@molecule/app-i18n": "^1.0.0"
+    "@molecule/app-i18n": "^1.0.1"
   },
   "devDependencies": {
     "typescript": "6.0.3",

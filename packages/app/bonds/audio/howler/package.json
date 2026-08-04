@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-audio-howler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Howler.js provider for @molecule/app-audio",
   "type": "module",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
     "directory": "packages/app/bonds/audio/howler"
   },
   "peerDependencies": {
-    "@molecule/app-audio": "^1.0.0"
+    "@molecule/app-audio": "^1.0.1"
   },
   "molecule": {
     "viteOptimizeInclude": [
@@ -40,7 +40,7 @@
     ]
   },
   "devDependencies": {
-    "@molecule/app-audio": "1.0.0",
+    "@molecule/app-audio": "1.0.1",
     "@types/howler": "2.2.13",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-external-auth-supabase",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "External authentication provider using Supabase for molecule.dev — verifies Supabase user JWTs server-side with the public anon key",
   "type": "module",
   "main": "dist/index.js",
@@ -32,10 +32,10 @@
     "@supabase/supabase-js": "2.111.0"
   },
   "peerDependencies": {
-    "@molecule/api-external-auth": "^1.0.0"
+    "@molecule/api-external-auth": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-external-auth": "1.0.0",
+    "@molecule/api-external-auth": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
