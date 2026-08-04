@@ -40,8 +40,24 @@ jobs:
       # error rather than as "your npm is too old".
       - run: npm install -g npm@latest
       - run: npm --version
+      # Build-output cache. scripts/build.js skips a package when its dist is
+      # NEWER than its src — an mtime test. A plain restore does NOT help:
+      # git checkout stamps sources with the checkout time, so src always looks
+      # newer than a restored dist and everything rebuilds regardless.
+      #
+      # Hashing every source into the KEY is what makes the post-restore touch
+      # safe: a hit proves the sources are identical to when dist was built, so
+      # declaring dist up-to-date is correct rather than a gamble. Any source
+      # change misses the key and produces a genuine full rebuild.
+      - uses: actions/cache@v4
+        id: build-cache
+        with:
+          path: packages/**/dist
+          key: mol-dist-${{ runner.os }}-node22-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+      - name: Mark restored dist newer than src
+        if: steps.build-cache.outputs.cache-hit == 'true'
+        run: find packages -path '*/dist/*' -exec touch {} +
       - run: npm ci
-      - run: npm run build
       - uses: changesets/action@v1
         with:
           # Publish only when an auth path actually exists, via EITHER route:

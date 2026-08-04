@@ -107,37 +107,53 @@ function discover() {
  * @returns True when already published.
  */
 async function isPublished(name, version) {
-  const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2f')}`)
-  if (res.status === 404) return false
-  if (!res.ok) return false
-  const body = await res.json()
-  return Boolean(body.versions?.[version])
+  // A TIMEOUT IS MANDATORY HERE. Without one, `fetch` can hang a socket
+  // indefinitely — and it did: a run spent 45 minutes wedged in the registry
+  // sweep, printing nothing, until it was killed. The registry throttles reads
+  // too, so hung connections are the normal case under load, not an edge case.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2f')}`, {
+        signal: AbortSignal.timeout(15_000),
+      })
+      if (res.status === 404) return false
+      if (!res.ok) return null // unknown — caller decides, never assume "missing"
+      const body = await res.json()
+      return Boolean(body.versions?.[version])
+    } catch (_error) {
+      // Timeout or network blip: one quick retry, then give up as UNKNOWN.
+      // Returning false here would be worse than useless — it would claim a
+      // published package is missing and trigger a needless publish.
+    }
+  }
+  return null
 }
 
 const all = discover()
 process.stderr.write(`discovered ${all.length} publishable packages\n`)
 
-// Concurrent: 903 sequential registry reads took minutes. Reads are not the
-// rate-limited path here (a full 903-package sweep hit zero read-429s), so
-// checking 8 at a time is both safe and ~8x faster.
-const todo = []
-{
+all.sort((a, b) => a.name.localeCompare(b.name))
+
+// LAZY. This used to sweep all ~910 packages up front to build a work list,
+// which cost minutes of silence before a single package could be published —
+// absurd for `--limit 1`, which needs to look at roughly one package. Now each
+// package is checked only when we reach it, so a small batch does a small amount
+// of work and starts publishing almost immediately.
+if (DRY) {
+  const missing = []
   let cursor = 0
   const worker = async () => {
     while (cursor < all.length) {
       const pkg = all[cursor++]
-      if (!(await isPublished(pkg.name, pkg.version))) todo.push(pkg)
+      if ((await isPublished(pkg.name, pkg.version)) === false) missing.push(pkg)
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker))
-  todo.sort((a, b) => a.name.localeCompare(b.name))
-}
-process.stderr.write(
-  `already published: ${all.length - todo.length} | to publish: ${todo.length}\n`,
-)
-
-if (DRY) {
-  todo.forEach((p) => console.log(`${p.name}@${p.version}`))
+  missing.sort((a, b) => a.name.localeCompare(b.name))
+  process.stderr.write(
+    `already published: ${all.length - missing.length} | to publish: ${missing.length}\n`,
+  )
+  missing.forEach((p) => console.log(`${p.name}@${p.version}`))
   process.exit(0)
 }
 
@@ -145,9 +161,29 @@ let done = 0
 let failed = []
 let rateLimited = false
 
-for (const pkg of todo) {
+let checked = 0
+let alreadyThere = 0
+
+for (const pkg of all) {
   if (rateLimited) break
   if (done >= LIMIT) break
+
+  // Check this one package, now, rather than having swept everything up front.
+  checked++
+  const state = await isPublished(pkg.name, pkg.version)
+  if (state === true) {
+    alreadyThere++
+    continue
+  }
+  if (state === null) {
+    // Registry did not give a usable answer. Skip rather than guess — publishing
+    // blind would either duplicate work or mask a real problem.
+    failed.push({ name: pkg.name, error: 'registry check inconclusive (timeout or non-OK)' })
+    continue
+  }
+  if (checked % 50 === 0) {
+    process.stderr.write(`  …checked ${checked}/${all.length} (published so far: ${done})\n`)
+  }
   let published = false
 
   // A 429 ABORTS THE WHOLE RUN. This reverses the original design, on npm
@@ -211,7 +247,7 @@ for (const pkg of todo) {
   if (published) {
     done++
     if (done % 10 === 0) {
-      process.stderr.write(`  published ${done}/${todo.length}\n`)
+      process.stderr.write(`  published ${done}\n`)
     }
     await sleep(DELAY_S * 1000)
   } else if (!failed.some((f) => f.name === pkg.name)) {
@@ -219,7 +255,9 @@ for (const pkg of todo) {
   }
 }
 
-process.stderr.write(`\nDONE. published this run: ${done} | failures: ${failed.length}\n`)
+process.stderr.write(
+  `\nDONE. published this run: ${done} | already published: ${alreadyThere} | checked: ${checked}/${all.length} | failures: ${failed.length}\n`,
+)
 if (failed.length) {
   writeFileSync(join(ROOT, '.publish-failures.json'), JSON.stringify(failed, null, 2))
   failed.slice(0, 10).forEach((f) => process.stderr.write(`  ${f.name}: ${f.error}\n`))
