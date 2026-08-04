@@ -8,6 +8,15 @@ on:
   # Publishing ~910 packages takes hours and GitHub kills jobs at 6h, so without
   # this the only way to resume was an empty commit.
   workflow_dispatch:
+    inputs:
+      limit:
+        description: 'Max packages to publish this run (npm asks for small batches after a cooldown; blank = all)'
+        required: false
+        type: string
+      delay:
+        description: 'Seconds between publishes (default 20)'
+        required: false
+        type: string
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -61,7 +70,7 @@ jobs:
           # rather than restarts. OIDC works unchanged: each `npm publish` does
           # its own token exchange. `changeset publish` is still available as
           # `npm run release:changesets` for a small, normal release.
-          publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
+          publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && format('npm run build && node scripts/publish-paced.mjs{0}{1}', inputs.limit && format(' --limit {0}', inputs.limit) || '', inputs.delay && format(' --delay {0}', inputs.delay) || '') || '' }}
           title: 'chore: version packages'
           commit: 'chore: version packages'
         env:
