@@ -3,27 +3,37 @@
  * Paced, resumable publisher for the `@molecule/*` fleet.
  *
  * WHY THIS EXISTS: `changeset publish` fires every unpublished package at the
- * registry as fast as it can. At 903 packages that earns a sustained E429 —
- * on 2026-08-04 it got 501 through and then failed the remaining 402, with npm
- * returning no Retry-After and burning 3 internal retries (~70s) per package.
- * npm does not document its publish rate limit, so the only workable strategy is
- * to go slowly and back off hard when told to.
+ * registry as fast as it can. At 903 packages that earns a sustained E429 — on
+ * 2026-08-04 it got 501 through and then failed the remaining 402.
+ *
+ * DO NOT REINTRODUCE BACKOFF-AND-RETRY. The first version of this script waited
+ * and retried on 429, which seemed obviously right and was exactly wrong. npm
+ * support, 2026-08-04:
+ *
+ *   "Continued retries, even with backoff, can keep re-triggering the limiter."
+ *   "We are not able to manually raise, reset, or lift npm publish rate limits;
+ *    the limiter clears automatically after a cooldown window."
+ *
+ * Retrying does not ride the throttle out, it sustains it: with 10-minute backoff
+ * the fleet managed ~80 packages in 8 hours and the troughs kept lengthening. The
+ * only thing that clears it is a genuine pause with ZERO publish attempts.
  *
  * Properties that matter:
  *  - RESUMABLE. It asks the REGISTRY what already exists rather than trusting a
- *    local list, so re-running after any failure is always safe and never
- *    republishes. An "already exists" response counts as success, not an error.
- *  - PACED. A fixed delay between publishes, plus exponential backoff on 429
- *    that pauses the whole run (the limit is account-wide, so racing ahead to
- *    the next package just burns the same budget).
- *  - HONEST. Prints a running tally and writes the still-missing list at the end
- *    so a follow-up run has an accurate work list.
+ *    local list, so re-running after any failure is safe and never republishes.
+ *    An "already exists" response counts as success, not an error.
+ *  - ABORTS ON 429. One rate-limit response stops the whole run immediately. The
+ *    limiter is account-wide, so continuing to the next package only fails again
+ *    and extends the cooldown.
+ *  - NO HIDDEN RETRIES. `--fetch-retries=0` disables npm's internal retry loop,
+ *    which otherwise burns ~70s per failure and re-triggers the limiter unseen.
+ *  - BATCHABLE. `--limit` publishes N and stops, which is what npm support asks
+ *    for after a cooldown: small batches, single-threaded, generous spacing.
  *
  * Usage:
- *   node scripts/publish-paced.mjs                # publish everything missing
- *   node scripts/publish-paced.mjs --delay 10     # seconds between publishes
- *   node scripts/publish-paced.mjs --limit 50     # stop after N successes
- *   node scripts/publish-paced.mjs --dry-run      # list what WOULD publish
+ *   node scripts/publish-paced.mjs --limit 1              # first probe after a cooldown
+ *   node scripts/publish-paced.mjs --limit 25 --delay 20  # a batch
+ *   node scripts/publish-paced.mjs --dry-run              # list what WOULD publish
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
@@ -45,7 +55,7 @@ const flag = (name, fallback) => {
   const i = args.indexOf(`--${name}`)
   return i === -1 ? fallback : Number(args[i + 1])
 }
-const DELAY_S = flag('delay', 6)
+const DELAY_S = flag('delay', 20)
 const LIMIT = flag('limit', Infinity)
 const DRY = args.includes('--dry-run')
 
@@ -129,42 +139,59 @@ if (DRY) {
 
 let done = 0
 let failed = []
-let backoff = 30_000
+let rateLimited = false
 
 for (const pkg of todo) {
+  if (rateLimited) break
   if (done >= LIMIT) break
   let published = false
 
-  // Rate limiting is NOT a failure of this package — it is the account-wide
-  // window being shut, and the same package will publish fine once it reopens.
-  // So a 429 must not consume a real-error attempt, or a long outage marks
-  // hundreds of perfectly good packages "failed" and each subsequent one starts
-  // already at the backoff cap. Real errors get a small retry budget; 429s get a
-  // long wall-clock budget instead.
+  // A 429 ABORTS THE WHOLE RUN. This reverses the original design, on npm
+  // support's explicit guidance (2026-08-04):
+  //
+  //   "Continued retries, even with backoff, can keep re-triggering the limiter."
+  //   "npm publish rate limits cannot be manually raised, reset, or lifted; the
+  //    limiter clears automatically after a cooldown window."
+  //
+  // So waiting-and-retrying does not ride out the throttle — it sustains it.
+  // Backing off for 10 minutes and trying again is what kept the window shut all
+  // night, publishing 80 packages in 8 hours. The correct response is to stop,
+  // let the window cool for a full 24h, and resume in small batches (--limit).
   let realAttempts = 0
-  let waited = 0
-  const MAX_WAIT_MS = 3 * 60 * 60_000 // give the window up to 3h to reopen
 
-  while (!published && realAttempts < 3 && waited < MAX_WAIT_MS) {
+  while (!published && realAttempts < 3) {
     try {
-      execFileSync('npm', ['publish', '--access', 'public'], {
-        cwd: pkg.dir,
-        stdio: 'pipe',
-        encoding: 'utf8',
-      })
+      execFileSync(
+        'npm',
+        [
+          'publish',
+          '--access',
+          'public',
+          // npm's OWN retry loop burns ~70s per failure and, per npm support,
+          // keeps re-triggering the limiter. We want one attempt and a clean
+          // answer, not three hidden ones.
+          '--fetch-retries=0',
+        ],
+        { cwd: pkg.dir, stdio: 'pipe', encoding: 'utf8' },
+      )
       published = true
-      backoff = 30_000 // The window reopened — reset for the next one.
     } catch (error) {
       const out = `${error.stdout ?? ''}${error.stderr ?? ''}`
       if (/cannot publish over|EPUBLISHCONFLICT|previously published/i.test(out)) {
         published = true // Already there; done, not an error.
       } else if (/E429|429 Too Many/i.test(out)) {
+        // STOP THE ENTIRE RUN. Do not retry, do not continue to the next package
+        // — the limiter is account-wide, so every subsequent attempt both fails
+        // and extends the cooldown.
         process.stderr.write(
-          `  429 on ${pkg.name} — waiting ${Math.round(backoff / 1000)}s (waited ${Math.round(waited / 60_000)}m total)\n`,
+          `\n✗ RATE LIMITED on ${pkg.name}\n` +
+            `  Published ${done} package(s) this run before hitting the limiter.\n` +
+            `  Stopping immediately — per npm support, continued attempts keep the\n` +
+            `  window shut. Wait a FULL 24h with zero publish attempts (including\n` +
+            `  CI), then resume in small batches:  --limit 25 --delay 20\n`,
         )
-        await sleep(backoff)
-        waited += backoff
-        backoff = Math.min(backoff * 2, 10 * 60_000)
+        rateLimited = true
+        break
       } else {
         realAttempts++
         if (realAttempts >= 3) {
@@ -184,7 +211,7 @@ for (const pkg of todo) {
     }
     await sleep(DELAY_S * 1000)
   } else if (!failed.some((f) => f.name === pkg.name)) {
-    failed.push({ name: pkg.name, error: 'exhausted 429 retries' })
+    failed.push({ name: pkg.name, error: 'stopped: rate limited' })
   }
 }
 
