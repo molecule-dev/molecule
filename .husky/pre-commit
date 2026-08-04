@@ -52,6 +52,15 @@ if [ -n "$JSON_MD" ]; then
 fi
 
 npm run check:lockfile
+
+# Internal @molecule version coherence: every package a workspace member, every
+# internal dep range matching the version actually in the repo, and the lockfiles
+# agreeing. check:lockfile above proves the lock RESOLVES; it does not notice a
+# package at 1.0.1 that still depends on 1.0.0. Skipped in a standalone clone
+# where the workspace root is absent.
+if [ -f ../scripts/verify-molecule-versions.mjs ]; then
+  ( cd .. && node scripts/verify-molecule-versions.mjs --quiet ) || exit 1
+fi
 npm run check:peer-deps
 # i18n parity (cross-cutting-i18n) — full-tree scan, but fast (~0.1s) and it
 # only fails on NEW missing keys vs the baseline, so a string shipped as an
