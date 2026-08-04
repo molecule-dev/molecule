@@ -4,16 +4,16 @@
  * Guard: every app **feature** package must carry a module-level `@example` in
  * its `src/index.ts`.
  *
- * Why: a feature package's MOLECULE.md is auto-generated, and the only place a
+ * Why: a feature package's README.md is auto-generated, and the only place a
  * usage example renders is a module-level `@example` in `src/index.ts`. molecule.dev's
- * AI executor reads MOLECULE.md (`read_molecule_doc`) to learn how to USE a
+ * AI executor reads README.md (`read_molecule_doc`) to learn how to USE a
  * component — without an example it can't see the props/usage and either guesses
  * or falls back to reading source. 118 of 207 feature packages shipped with no
  * example (fixed in bulk); this guard stops the regression for FUTURE packages.
  *
  * Usage:
  *   node scripts/check-feature-jsdocs.mjs           # report
- *   node scripts/check-feature-jsdocs.mjs --check   # exit 1 if any package lacks @example (CI)
+ *   node scripts/check-feature-jsdocs.mjs --check   # exit 1 if any package lacks `@example` (CI)
  *
  * @module
  */
@@ -26,14 +26,16 @@ const FEATURES = join(ROOT, 'packages', 'app', 'features')
 const CHECK = process.argv.includes('--check')
 const SKIP_DIRS = new Set(['node_modules', 'dist', 'src', '__tests__', '.turbo'])
 
-/** Find feature package roots (a dir with package.json + src/index.ts), recursing
- *  through category dirs (e.g. data-table/tanstack) but never into a package itself. */
+/**
+ * Find feature package roots (a dir with package.json + src/index.ts), recursing
+ * through category dirs (e.g. data-table/tanstack) but never into a package itself.
+ */
 function findPackages(dir) {
   const out = []
   let entries
   try {
     entries = readdirSync(dir, { withFileTypes: true })
-  } catch {
+  } catch (_error) {
     return out
   }
   for (const e of entries) {
@@ -65,7 +67,7 @@ if (missing.length > 0) {
     `✗ ${missing.length}/${pkgs.length} app feature package(s) lack a module-level @example in src/index.ts`,
   )
   console.error(
-    '  Their MOLECULE.md will have no usage example, so the AI executor cannot learn the component API.',
+    '  Their README.md will have no usage example, so the AI executor cannot learn the component API.',
   )
   console.error(
     '  Add an `@example` block to the `/** ... @module */` JSDoc in src/index.ts, then run',

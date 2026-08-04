@@ -18,7 +18,8 @@
   },
   "files": [
     "dist",
-    "fonts"
+    "fonts",
+    "README.md"
   ],
   "keywords": [
     "molecule",

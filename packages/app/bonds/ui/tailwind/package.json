@@ -19,7 +19,8 @@
   },
   "files": [
     "dist",
-    "base.css"
+    "base.css",
+    "README.md"
   ],
   "keywords": [
     "molecule",

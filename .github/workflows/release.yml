@@ -45,6 +45,17 @@ jobs:
           # Trusted publishing is the target state: set the NPM_TRUSTED_PUBLISHING
           # repo VARIABLE (not a secret) once `npm trust` is configured for the
           # packages, then delete NPM_TOKEN. Nothing long-lived stays at rest.
+          #
+          # `npm run release` deliberately runs scripts/publish-paced.mjs rather
+          # than `changeset publish`. On 2026-08-04 an unpaced publish of the 903
+          # package fleet got 501 through and then took a sustained E429 on every
+          # remaining package — npm rate-limits publishes, returns no Retry-After,
+          # and burns ~70s of internal retries each. The paced publisher spaces
+          # them, backs off on 429 instead of failing, treats "already published"
+          # as success, and asks the REGISTRY what exists so a re-run resumes
+          # rather than restarts. OIDC works unchanged: each `npm publish` does
+          # its own token exchange. `changeset publish` is still available as
+          # `npm run release:changesets` for a small, normal release.
           publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
           title: 'chore: version packages'
           commit: 'chore: version packages'

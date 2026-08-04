@@ -11,7 +11,7 @@ Works for enterprise, startups, and side projects. Same packages, same architect
 AI coding tools work best with clean, consistent, well-documented codebases. Molecule is designed to be exactly that:
 
 - **Strict interfaces**: every package defines abstract contracts (types and signatures only), so there's no ambiguity about what to implement or how to consume it
-- **Machine-readable documentation**: every package has a `MOLECULE.md` auto-generated from source code, always accurate, always in sync
+- **Machine-readable documentation**: every package has a `README.md` auto-generated from source code, always accurate, always in sync
 - **Deterministic patterns**: bond system, module organization, naming conventions, and architectural rules are consistent across every package. AI that understands one understands them all.
 
 AI agents can scaffold entire applications, wire services, swap providers, and generate architecturally correct code, not just autocomplete lines. The same constraints that make this possible also make the codebase cleaner for humans.
@@ -91,11 +91,11 @@ Nothing else changes.
 
 ### Self-Documenting Packages
 
-Every package has a `MOLECULE.md`, installation, full API reference, usage examples, provider relationships, environment variables, peer dependencies. Auto-generated from source code JSDoc. Always accurate, always in sync. Consistent format across every package so AI agents can parse any of them the same way.
+Every package has a `README.md`, installation, full API reference, usage examples, provider relationships, environment variables, peer dependencies. Auto-generated from source code JSDoc. Always accurate, always in sync. Consistent format across every package so AI agents can parse any of them the same way.
 
 ### AI Code Generation
 
-Molecule's tooling uses AI with tiered context: ecosystem overview for package selection, then detailed MOLECULE.md content for the specific packages being wired. Generated code follows the same architectural rules as hand-written code because the rules are encoded in the interfaces.
+Molecule's tooling uses AI with tiered context: ecosystem overview for package selection, then detailed README.md content for the specific packages being wired. Generated code follows the same architectural rules as hand-written code because the rules are encoded in the interfaces.
 
 ## Standard Tooling
 
@@ -133,7 +133,7 @@ Core interfaces and provider bonds across every frontend concern:
 
 Plus framework bindings for every major framework (including React Native for mobile), rich features like charts, maps, and rich text, and locale translations in dozens of languages.
 
-Every package has a `MOLECULE.md` with installation, API reference, usage examples, providers, and peer dependencies.
+Every package has a `README.md` with installation, API reference, usage examples, providers, and peer dependencies.
 
 ## Add Your Service to Molecule
 

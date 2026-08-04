@@ -18,7 +18,8 @@
   },
   "files": [
     "dist",
-    "setup"
+    "setup",
+    "README.md"
   ],
   "license": "Apache-2.0",
   "dependencies": {

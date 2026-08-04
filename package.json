@@ -39,11 +39,12 @@
     "lint": "eslint packages/ --max-warnings 0",
     "lint:fix": "eslint packages/ --fix --max-warnings 0",
     "prepare": "husky",
-    "release": "npm run build && changeset publish",
+    "release": "npm run build && node scripts/publish-paced.mjs --delay 10",
     "sync:lockfile": "node scripts/sync-lockfile.js",
     "test": "vitest run",
     "test:all": "npm run test --workspaces --if-present",
-    "version": "changeset version"
+    "version": "changeset version",
+    "release:changesets": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "2.31.1",

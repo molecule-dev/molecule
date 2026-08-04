@@ -71,7 +71,7 @@ export default tseslint.config(
       ],
       'jsdoc/require-description': ['warn', { contexts: ['any'] }],
       // Relaxed (2026-06-09): keep require-jsdoc + require-description so every
-      // export stays documented for the MOLECULE.md auto-gen / AI codegen, but
+      // export stays documented for the README.md auto-gen / AI codegen, but
       // drop the very strict per-param / per-return detail rules (~3k warnings,
       // mostly self-evident params). Re-enable per-package if a package wants
       // fuller param docs.
@@ -81,7 +81,7 @@ export default tseslint.config(
       'jsdoc/require-returns-description': 'off',
       // `e2e` is a first-class project tag, not a typo: `mlcl`'s api-extractor
       // slices the module-level `@e2e` block and the doc generator renders it as
-      // MOLECULE.md's "E2E Tests" section (provider bonds inherit their core's).
+      // README.md's "E2E Tests" section (provider bonds inherit their core's).
       // It was simply never declared here, so 142 deliberate blocks read as
       // invalid tags.
       'jsdoc/check-tag-names': [
@@ -258,6 +258,16 @@ export default tseslint.config(
     // unfixable warnings the moment it was first staged here. mlcl's config
     // already used `{mjs,js}`; this brings molecule in line with it.
     files: ['scripts/**/*.{mjs,js}'],
+    // Runtime builtins that are not conventionally imported. console/process are
+    // deliberately NOT here: scripts in this repo import them explicitly (see
+    // check-feature-jsdocs.mjs), and declaring them would be a no-redeclare error.
+    languageOptions: {
+      globals: {
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+      },
+    },
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'off',
     },

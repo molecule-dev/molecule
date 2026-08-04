@@ -45,7 +45,7 @@ if [ -n "$JSTS" ]; then
 fi
 
 # .md is checked here (it was `.prettierignore`d until 2026-08-03, which is how
-# ~900 generated MOLECULE.md files drifted). *.json is still ignored on purpose —
+# ~900 generated README.md files drifted). *.json is still ignored on purpose —
 # registry.json and the locale data are machine-written.
 if [ -n "$JSON_MD" ]; then
   echo "$JSON_MD" | xargs npx --no-install prettier --check
@@ -89,7 +89,7 @@ if [ -n "$PKG_SRC" ]; then
 fi
 
 # Doc-example gate (cross-repo, same skip semantics as the registry check above).
-# MOLECULE.md examples are copied nearly verbatim by molecule.dev's executor; a
+# README.md examples are copied nearly verbatim by molecule.dev's executor; a
 # non-compiling example (removed upstream API, missing await, phantom package)
 # is a guaranteed executor debugging tangent. Scoped to staged packages whose
 # src/index.ts changed, so it stays fast under parallel agents. The fleet was
@@ -100,15 +100,15 @@ if [ -n "$IDX_CHANGED" ] && [ -f ../scripts/verify-doc-examples.mjs ]; then
   ( cd .. && node scripts/verify-doc-examples.mjs $IDX_DIRS )
 fi
 
-# MOLECULE.md auto-regen (cross-repo, same skip semantics as the checks above).
-# MOLECULE.md is 100% generated — never hand-edited — so a commit that changes a
+# README.md auto-regen (cross-repo, same skip semantics as the checks above).
+# README.md is 100% generated — never hand-edited — so a commit that changes a
 # package's src/ or package.json must carry the regenerated doc, or the docs the
 # executor reads via read_molecule_doc drift from the source being committed.
 # Regenerates ONLY the staged packages (plus cross-doc dependents: a core's
 # providers inherit its @e2e, a provider's core lists its providers, a new
 # locale's feature gains a companion-locale section) — ~0.4s/package via tsx
 # against mlcl source, no build needed — then auto-stages the refreshed
-# MOLECULE.md files into THIS commit (script prints changed paths on stdout).
+# README.md files into THIS commit (script prints changed paths on stdout).
 # Generation reads the WORKTREE source, same as the gates above, so a partially
 # staged package produces a doc reflecting the worktree state. Uses its own
 # diff-filter (incl. D): a deleted src file changes the public API and thus the
@@ -130,10 +130,10 @@ if [ -n "$DOC_STAGED" ]; then
       # own output; this asserts that rather than trusting it.
       echo "$REGENERATED" | xargs npx --no-install prettier --check
       echo "$REGENERATED" | while IFS= read -r md; do git add "$md"; done
-      echo "✎ MOLECULE.md regenerated + staged into this commit:"
+      echo "✎ README.md + README.md regenerated + staged into this commit:"
       echo "$REGENERATED" | while IFS= read -r md; do echo "    $md"; done
     fi
   else
-    echo "ℹ MOLECULE.md regen skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'cd mlcl && npm run sync-docs:changed'"
+    echo "ℹ README.md regen skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'cd mlcl && npm run sync-docs:changed'"
   fi
 fi

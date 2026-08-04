@@ -18,7 +18,8 @@
   },
   "files": [
     "dist",
-    "src/__setup__"
+    "src/__setup__",
+    "README.md"
   ],
   "keywords": [
     "molecule",

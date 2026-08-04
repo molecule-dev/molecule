@@ -279,7 +279,7 @@ package-name/
 ├── package.json
 ├── tsconfig.json
 ├── vitest.config.ts
-└── MOLECULE.md         # Auto-generated documentation
+└── README.md         # Auto-generated documentation
 ```
 
 ---
