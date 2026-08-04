@@ -66,16 +66,17 @@ import type { ModelDefinition } from './types.js'
  * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
  *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
  * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
- *   (qwen3.8-max GA'd 2026-08-03 on the pay-as-you-go international API —
- *   verified 2026-08-04 on help.aliyun.com/en/model-studio/model-pricing:
- *   flat $2/$6 per MTok (Singapore International CNY 14.988/44.965 at the
- *   same fixed conversion that maps qwen3.7-max's CNY 18.736/56.207 to its
- *   $2.50/$7.50 list), 1M ctx, hybrid thinking, tools. NOT ADDED: its cache
- *   pricing is console-only — the context-cache doc explicitly excepts
- *   qwen3.8-max from the standard rates (implicit hit "not 20%", explicit hit
- *   "not 10%"; only the 125% explicit-creation rate is public), and secondary
- *   sources disagree on the figure ($0.25 vs $0.17/MTok). Add it once someone
- *   with Bailian console access confirms the cached-token price. qwen3.7-max
+ *   (qwen3.8-max GA'd 2026-08-03 on the pay-as-you-go international API and is
+ *   IN the catalog — verified 2026-08-04: flat $2/$6 per MTok on
+ *   help.aliyun.com/en/model-studio/model-pricing (Singapore International
+ *   CNY 14.988/44.965 at the same fixed conversion that maps qwen3.7-max's
+ *   CNY 18.736/56.207 to its $2.50/$7.50 list), 1M ctx, hybrid thinking,
+ *   tools. Cache rates come from the ZH context-cache doc
+ *   (help.aliyun.com/zh/model-studio/context-cache), which lists qwen3.8-max
+ *   as supported in every region under the unconditional standard table
+ *   (implicit: hit 20% of input, creation 100%; explicit: hit 10%, creation
+ *   125%) — the EN edition of that doc simply lags (zero qwen3.8 mentions),
+ *   which an earlier pass misread as "excepted/console-only". qwen3.7-max
  *   still runs its 50%-off promo — billed here at list, $2.50/$7.50)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing (unchanged; glm-5.2 is
  *   the newest — "GLM-5.3/5.5" rumors have no released ids as of 2026-07-28)
@@ -1115,6 +1116,42 @@ export const MODELS: readonly ModelDefinition[] = [
   // Prices are DashScope international list rates (the bond calls DashScope,
   // not OpenRouter; a 50%-off promo currently applies — billed at list).
   // ---------------------------------------------------------------------------
+  // qwen3.8-max (GA 2026-08-03) succeeds qwen3.7-max as the agentic flagship,
+  // priced BELOW it at $2/$6 (intl CNY 14.988/44.965, same fixed conversion).
+  // Same hybrid thinking mechanism as the 3.7 series (enable_thinking default
+  // ON + thinking_budget; preserve_thinking supported). Context cache uses the
+  // standard implicit rates — see the Sources block for the ZH-doc citation.
+  {
+    id: 'qwen3.8-max',
+    provider: 'alibaba',
+    label: 'Qwen3.8 Max',
+    description: 'Alibaba agentic flagship — 1M context, hybrid thinking',
+    contextWindow: 1_000_000,
+    // Alibaba's public pages don't state a max-output figure; models.dev says
+    // 131,072 — kept at the 3.7-max figure until the provider publishes one
+    // (understating only shortens completions; overstating would error).
+    maxOutputTokens: 65_536,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+    defaultEffortLevel: '8K',
+    effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
+    // models.dev claims image+video input, but Alibaba's own model catalog
+    // lists qwen3.8-max under text generation (VL remains a separate line) —
+    // false until the provider's page says otherwise.
+    supportsVision: false,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 6,
+    // Implicit context cache: read = 20% of input, no write premium.
+    cacheReadPricePerMTok: 0.4,
+    cacheWritePricePerMTok: 2,
+    regions: ['us', 'cn'],
+    // Not published by Alibaba — best-effort estimate.
+    knowledgeCutoff: '2026-04-01',
+  },
   {
     id: 'qwen3.7-max',
     provider: 'alibaba',
