@@ -55,8 +55,12 @@ const flag = (name, fallback) => {
   const i = args.indexOf(`--${name}`)
   return i === -1 ? fallback : Number(args[i + 1])
 }
-const DELAY_S = flag('delay', 20)
-const LIMIT = flag('limit', Infinity)
+// Env fallbacks exist because changesets does NOT run the publish command through
+// a shell: it treats the first token as the command and passes the rest as args to
+// it, so `node script.mjs --limit 1` becomes npm's flags and fails EUNKNOWNCONFIG.
+// Env vars survive that intact.
+const DELAY_S = flag('delay', Number(process.env.MOL_PUBLISH_DELAY) || 20)
+const LIMIT = flag('limit', Number(process.env.MOL_PUBLISH_LIMIT) || Infinity)
 const DRY = args.includes('--dry-run')
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))

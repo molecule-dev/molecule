@@ -70,7 +70,7 @@ jobs:
           # rather than restarts. OIDC works unchanged: each `npm publish` does
           # its own token exchange. `changeset publish` is still available as
           # `npm run release:changesets` for a small, normal release.
-          publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && format('npm run build && node scripts/publish-paced.mjs{0}{1}', inputs.limit && format(' --limit {0}', inputs.limit) || '', inputs.delay && format(' --delay {0}', inputs.delay) || '') || '' }}
+          publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
           title: 'chore: version packages'
           commit: 'chore: version packages'
         env:
@@ -80,3 +80,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+          # workflow_dispatch inputs reach the publisher as ENV, not CLI flags:
+          # changesets passes the publish string's extra tokens to npm itself.
+          MOL_PUBLISH_LIMIT: ${{ inputs.limit }}
+          MOL_PUBLISH_DELAY: ${{ inputs.delay }}
