@@ -60,7 +60,18 @@ jobs:
       - run: npm ci
       - uses: changesets/action@v1
         with:
-          # Publish only when an auth path actually exists, via EITHER route:
+          # PUBLISHING REQUIRES AN EXPLICIT DISPATCH. A push can open the Version
+          # Packages PR but can never publish.
+          #
+          # Push-triggered runs receive no inputs, so they would publish the ENTIRE
+          # fleet with no limit — and GitHub evaluates `vars` when the step RUNS,
+          # not when the run starts, so enabling NPM_TRUSTED_PUBLISHING retroactively
+          # arms any run already queued. That combination started an unlimited
+          # publish twice on 2026-08-04 while batching, both caught by luck rather
+          # than design. Requiring workflow_dispatch makes it structurally
+          # impossible instead of something a human has to sequence correctly.
+          #
+          # Publish only when an auth path also exists, via EITHER route:
           #   - vars.NPM_TRUSTED_PUBLISHING == 'true'  → OIDC, no stored secret
           #   - secrets.NPM_TOKEN != ''                → legacy token fallback
           # With `publish` empty changesets still opens/updates the "Version
@@ -86,7 +97,7 @@ jobs:
           # rather than restarts. OIDC works unchanged: each `npm publish` does
           # its own token exchange. `changeset publish` is still available as
           # `npm run release:changesets` for a small, normal release.
-          publish: ${{ (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
+          publish: ${{ github.event_name == 'workflow_dispatch' && (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
           title: 'chore: version packages'
           commit: 'chore: version packages'
         env:
