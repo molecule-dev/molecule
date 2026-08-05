@@ -1765,89 +1765,37 @@ describe('no per-sandbox disk quota is applied', () => {
   })
 })
 
-// ─── verifyEgress ─────────────────────────────────────────────────────────────
+// ─── verifyEgress ─────────────────────────────────────────
 
 /**
- * These pin the VERDICT MAPPING, which is the whole security value of the method:
- * a probe that connects means egress is open, and a probe that could not run must
- * never be reported as filtered. The application refuses to boot production on a
- * bad verdict, so a mapping bug here is a silent downgrade of tenant isolation.
+ * The BEHAVIOUR — both legs, the verdict mapping, container hardening — is tested
+ * directly against the module in egress.test.ts, where the daemon can be faked by
+ * URL instead of by FIFO position. What matters here is only that the provider
+ * wires the probe to the network and image it actually uses; an earlier FIFO mock
+ * of the whole three-container sequence broke on any resequencing without
+ * indicating anything real.
  */
-describe('verifyEgress — proves egress filtering rather than trusting config', () => {
-  /** Answer the create + start + wait sequence, ending with the given exit code. */
-  const respondProbeSequence = (exitCode: number): void => {
-    enqueueResponse(201, JSON.stringify({ Id: 'probe-1' })) // create
-    enqueueResponse(204, '') // start
-    enqueueResponse(200, JSON.stringify({ StatusCode: exitCode })) // wait
-    enqueueResponse(204, '') // remove
-  }
-
-  it('reports OPEN when the probe container actually reached a public IP', async () => {
+describe('verifyEgress — delegates to the two-leg probe with the provider config', () => {
+  it('probes the network and image this provider is configured with', async () => {
     const { createProvider } = await import('../provider.js')
-    const provider = createProvider({ socketPath: '/test.sock' })
-    respondProbeSequence(9) // 9 = our script's "at least one connect succeeded"
+    const provider = createProvider({
+      socketPath: '/test.sock',
+      network: 'test-net',
+      baseImage: 'custom-image:1',
+    })
+    // Fail every daemon call: the verdict is irrelevant here, the wiring is not.
+    enqueueResponse(500, JSON.stringify({ message: 'nope' }))
 
     const verdict = await provider.verifyEgress!()
-    expect(verdict.state).toBe('open')
-    expect(verdict.remediation).toMatch(/provision-egress-firewall/)
-  })
-
-  it('reports FILTERED when every connection attempt was refused or timed out', async () => {
-    const { createProvider } = await import('../provider.js')
-    const provider = createProvider({ socketPath: '/test.sock' })
-    respondProbeSequence(0)
-
-    const verdict = await provider.verifyEgress!()
-    expect(verdict.state).toBe('filtered')
-  })
-
-  it('reports INCONCLUSIVE — never filtered — when the probe cannot run', async () => {
-    const { createProvider } = await import('../provider.js')
-    const provider = createProvider({ socketPath: '/test.sock' })
-    enqueueResponse(404, JSON.stringify({ message: 'no such image' })) // create fails
-
-    const verdict = await provider.verifyEgress!()
-    // The distinction this method exists to preserve: "I could not look" is NOT
-    // "I looked and it is safe".
+    // A daemon that answers nothing can only ever be inconclusive — never a pass.
     expect(verdict.state).toBe('inconclusive')
-    expect(verdict.state).not.toBe('filtered')
-  })
-
-  it('probes with proxy env blanked and raw literal IPs, on the sandbox network', async () => {
-    const { createProvider } = await import('../provider.js')
-    const provider = createProvider({ socketPath: '/test.sock', network: 'test-net' })
-    respondProbeSequence(0)
-    await provider.verifyEgress!()
 
     const create = httpRequestCalls.find((c) => String(c.opts.path).includes('/containers/create'))
     const body = JSON.parse(create!.body!) as {
-      Cmd: string[]
-      Env: string[]
+      Image: string
       HostConfig: { NetworkMode: string }
     }
-    // Subject to the same rules as a real sandbox.
+    expect(body.Image).toBe('custom-image:1')
     expect(body.HostConfig.NetworkMode).toBe('test-net')
-    // Proxy env blanked, or this would only prove the PROXY works.
-    expect(body.Env).toContain('HTTPS_PROXY=')
-    // Raw sockets, not fetch — proxy env is irrelevant to a raw connect.
-    expect(body.Cmd.join(' ')).toContain("require('net')")
-    // Literal IPs, not hostnames — otherwise a blocked resolver reads as filtered.
-    expect(body.Cmd.join(' ')).toMatch(/\d+\.\d+\.\d+\.\d+/)
-    expect(body.Cmd.join(' ')).not.toMatch(/[a-z]+\.(com|net|org)/)
-  })
-
-  it('removes the probe container even when the wait fails', async () => {
-    const { createProvider } = await import('../provider.js')
-    const provider = createProvider({ socketPath: '/test.sock' })
-    enqueueResponse(201, JSON.stringify({ Id: 'probe-leak' }))
-    enqueueResponse(204, '')
-    enqueueResponse(500, JSON.stringify({ message: 'boom' })) // wait fails
-    enqueueResponse(204, '')
-
-    await provider.verifyEgress!()
-    const removed = httpRequestCalls.some(
-      (c) => c.opts.method === 'DELETE' && String(c.opts.path).includes('probe-leak'),
-    )
-    expect(removed).toBe(true)
   })
 })
