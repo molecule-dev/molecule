@@ -124,6 +124,51 @@ export interface FlyioConfig {
   metadataPrefix?: string
   /** Timeout for a single Machines API request, in ms. Defaults to 30000. */
   requestTimeoutMs?: number
+  /**
+   * How long `start()`/`wake()` block waiting for the Machine to actually reach
+   * `started`, in seconds. Clamped to Fly's own ceiling — `GET .../wait` "will
+   * block for up to 60 seconds". Defaults to 60.
+   *
+   * Without this wait, `start()` resolves the moment Fly ACCEPTS the request,
+   * and the caller's very next `exec` hits a Machine that is not running yet.
+   */
+  startTimeoutSeconds?: number
+  /**
+   * Ports a sandbox Machine may open outbound connections on. Setting this makes
+   * the provider apply a Fly **network policy** to every app it provisions;
+   * leaving it unset applies no policy at all, and `verifyEgress()` will then
+   * observe (correctly) that egress is `open`. Falls back to
+   * `FLY_SANDBOX_EGRESS_ALLOWED_PORTS` (`tcp:3128,udp:53`).
+   *
+   * Read {@link https://fly.io/docs/machines/guides-examples/network-policies/}
+   * before choosing a value, because the mechanism is narrower than it looks:
+   * rules match protocol and port ONLY — no host, no CIDR, no ranges — so this
+   * can never be a host allowlist. `tcp:443` lets a sandbox reach EVERY host on
+   * the internet that listens on 443. To get a host allowlist, allow only the
+   * port of an egress proxy you control and route sandbox traffic through it.
+   *
+   * An empty array is rejected rather than treated as "deny all": Fly documents
+   * the deny default as a consequence of an `allow` rule existing, and says
+   * nothing about a rule with no ports.
+   */
+  egressAllowedPorts?: FlyNetworkPolicyPort[]
+  /** Name of the egress policy this provider owns on each app. Defaults to `molecule-sandbox-egress`. */
+  egressPolicyName?: string
+  /**
+   * Literal `ip:port` targets `verifyEgress()` attempts raw TCP connections to.
+   * IPv6 literals must be bracketed. Falls back to `SANDBOX_EGRESS_PROBE_TARGETS`
+   * (the same variable the Docker bond reads), then to one IPv4 and one IPv6
+   * anycast resolver on 443.
+   */
+  egressProbeTargets?: string[]
+  /** Per-connection timeout for the egress probe, in ms. Falls back to `SANDBOX_EGRESS_PROBE_TIMEOUT_MS`, then 3000. */
+  egressProbeTimeoutMs?: number
+  /**
+   * Image the throwaway `verifyEgress()` probe Machine runs. Must contain `node`
+   * and `sleep`. Defaults to the configured sandbox base image, so the probe
+   * observes egress from the same image real sandboxes run.
+   */
+  egressProbeImage?: string
 }
 
 /**
@@ -149,6 +194,77 @@ export interface ProcessEnv {
   FLY_REGION?: string
   /** OCI image for sandbox Machines. */
   FLY_SANDBOX_IMAGE?: string
+  /**
+   * Comma-separated `protocol:port` pairs a sandbox may open outbound
+   * connections on (e.g. `tcp:3128,udp:53`). Set it to make this provider apply
+   * a Fly network policy to every sandbox app; unset means no policy.
+   */
+  FLY_SANDBOX_EGRESS_ALLOWED_PORTS?: string
+  /**
+   * Comma-separated literal `ip:port` targets the egress probe attempts. Shared
+   * with the Docker bond so a provider swap keeps the same configuration.
+   */
+  SANDBOX_EGRESS_PROBE_TARGETS?: string
+  /** Per-connection timeout for the egress probe, in ms (default 3000). */
+  SANDBOX_EGRESS_PROBE_TIMEOUT_MS?: string
+}
+
+/**
+ * One protocol/port pair in a Fly network-policy rule.
+ *
+ * Fly matches on protocol and port only — there is no host, IP, CIDR or
+ * port-range matching. See
+ * https://fly.io/docs/machines/guides-examples/network-policies/.
+ */
+export interface FlyNetworkPolicyPort {
+  /** `tcp` or `udp` — the only documented values. */
+  protocol: 'tcp' | 'udp'
+  /** A single port. Ranges are not supported. */
+  port: number
+}
+
+/**
+ * One rule in a Fly network policy. `allow` is the only documented action:
+ * "Once you create a rule for a given direction, the default for that direction
+ * becomes drop."
+ */
+export interface FlyNetworkPolicyRule {
+  /** Only `allow` is supported by Fly. */
+  action: 'allow'
+  /** Traffic direction the rule (and its implied deny default) applies to. */
+  direction: 'ingress' | 'egress'
+  /** Ports this rule permits. */
+  ports: FlyNetworkPolicyPort[]
+}
+
+/**
+ * Which Machines in the app a policy applies to. Documented criteria combine
+ * with AND, so this provider uses `{ all: true }` alone.
+ */
+export interface FlyNetworkPolicySelector {
+  /** Match every Machine in the app. */
+  all?: boolean
+  /** Match specific Machine ids. */
+  machines?: Array<{ id: string }>
+  /** Match Machines carrying these metadata keys. */
+  metadata?: Record<string, string>
+}
+
+/**
+ * A Fly network policy, as accepted by
+ * `POST /v1/apps/{app}/network_policies`. The endpoint is documented in Fly's
+ * guide and announcement but is NOT in its OpenAPI specification, so only the
+ * fields those two documents show are modelled.
+ */
+export interface FlyNetworkPolicy {
+  /** Present to UPDATE an existing policy; omitted to create one. */
+  id?: string
+  /** Policy name, unique per app in practice. */
+  name: string
+  /** Machines the policy applies to. */
+  selector: FlyNetworkPolicySelector
+  /** The allow rules. */
+  rules: FlyNetworkPolicyRule[]
 }
 
 /**

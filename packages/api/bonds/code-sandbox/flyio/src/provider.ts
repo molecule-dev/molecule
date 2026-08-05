@@ -10,6 +10,7 @@
 import { getLogger } from '@molecule/api-bond'
 import type {
   DirEntry,
+  EgressVerdict,
   ExecOptions,
   ExecResult,
   FileChangeEvent,
@@ -20,7 +21,16 @@ import type {
 import { t } from '@molecule/api-i18n'
 
 import { FlyApiClient, FlyApiError, normalizeApiUrl } from './api.js'
-import { execCommand, type RawExec } from './exec.js'
+import {
+  buildEgressProbeCommand,
+  DEFAULT_EGRESS_POLICY_NAME,
+  DEFAULT_EGRESS_PROBE_TARGETS,
+  extractPolicyId,
+  parseEgressAllowedPorts,
+  parseEgressProbeTargets,
+  verdictForProbeExit,
+} from './egress.js'
+import { execCommand, type RawExec, toExecResult } from './exec.js'
 import { appNameForProject, mapMachineState, parseSandboxId, toSandboxId } from './ids.js'
 import type {
   FlyExecResponse,
@@ -28,6 +38,8 @@ import type {
   FlyMachine,
   FlyMachineConfig,
   FlyMachineService,
+  FlyNetworkPolicy,
+  FlyNetworkPolicyPort,
   FlyOrgMachine,
   FlyVolume,
 } from './types.js'
@@ -83,6 +95,28 @@ const WRITE_CHUNK_BASE64 = 60_000
  * be re-encoded past the launcher's argument limit.
  */
 const FILE_OP_TIMEOUT_MS = 30_000
+
+/**
+ * Fly's own ceiling on `GET /v1/apps/{app}/machines/{id}/wait`: "This request
+ * will block for up to 60 seconds."
+ */
+const MAX_WAIT_SECONDS = 60
+
+/** Guest size for the throwaway `verifyEgress()` probe Machine. */
+const PROBE_MEMORY_MB = 256
+
+/**
+ * How long the probe Machine's init command sleeps. It is destroyed explicitly
+ * once the probe has run; this plus `auto_destroy` is the backstop that reaps it
+ * if this process dies mid-check.
+ */
+const PROBE_LIFETIME_SECONDS = 300
+
+/** Default per-connection timeout for the egress probe, in ms. */
+const DEFAULT_PROBE_TIMEOUT_MS = 3000
+
+/** Extra seconds allowed for the probe exec beyond its connection budget. */
+const PROBE_EXEC_HEADROOM_SECONDS = 10
 
 /**
  * Fly.io Machines implementation of `SandboxProvider`.
@@ -235,35 +269,112 @@ class FlyioSandboxProvider implements SandboxProvider {
 
   /**
    * Idempotently ensures the Fly app exists, creating it on its own custom 6PN
-   * network in per-project mode.
+   * network in per-project mode, and applies the egress network policy.
    *
    * A Fly app's network CANNOT be changed after creation, so an app that already
    * exists is used as-is — this never silently "fixes" an app that was created
-   * on the shared org network.
+   * on the shared org network. The egress policy IS re-applied to an existing
+   * app, because Fly applies a policy at Machine boot ("restart or redeploy the
+   * Machines for changes to take effect") and this runs before the Machine is
+   * created.
    * @param app - The Fly app name.
-   * @returns Nothing; resolves once the app is known to exist.
+   * @returns Nothing; resolves once the app exists and carries the egress policy.
    */
   private async ensureApp(app: string): Promise<void> {
     const existing = await this.client.request<{ name: string }>(`/apps/${app}`, { nullOn: [404] })
-    if (existing) return
 
-    const body: Record<string, unknown> = { name: app, org_slug: this.orgSlug() }
-    if (this.appPerProject()) body.network = this.config.network ?? app
+    if (!existing) {
+      const body: Record<string, unknown> = { name: app, org_slug: this.orgSlug() }
+      if (this.appPerProject()) body.network = this.config.network ?? app
 
-    try {
-      await this.client.request(`/apps`, { method: 'POST', body })
-      logger.info('Created Fly sandbox app', { app, network: body.network })
-    } catch (error) {
-      // 409/422 means another concurrent boot created the same app first, which
-      // is exactly the outcome we wanted. Anything else is a real failure.
-      if (error instanceof FlyApiError && (error.status === 409 || error.status === 422)) {
-        logger.debug('Fly sandbox app already exists', { app })
-        return
+      let created = true
+      try {
+        await this.client.request(`/apps`, { method: 'POST', body })
+        logger.info('Created Fly sandbox app', { app, network: body.network })
+      } catch (error) {
+        // 409/422 means another concurrent boot created the same app first, which
+        // is exactly the outcome we wanted. Anything else is a real failure.
+        if (error instanceof FlyApiError && (error.status === 409 || error.status === 422)) {
+          logger.debug('Fly sandbox app already exists', { app })
+          created = false
+        } else {
+          throw error
+        }
       }
-      throw error
+
+      if (created && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
     }
 
-    if (this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
+    await this.applyEgressPolicy(app)
+  }
+
+  /**
+   * Resolves the ports the egress network policy allows, or `undefined` when no
+   * policy should be applied.
+   * @returns The allowed ports, or `undefined`.
+   * @throws {Error} When configured with an EMPTY list. Fly documents the deny
+   *   default as a consequence of an `allow` rule existing and says nothing
+   *   about a rule with no ports, so accepting `[]` would ship a security
+   *   control whose behaviour is a guess.
+   */
+  private egressAllowedPorts(): FlyNetworkPolicyPort[] | undefined {
+    const configured = this.config.egressAllowedPorts
+    if (configured) {
+      if (configured.length === 0) {
+        throw new Error(
+          t('codeSandbox.flyio.error.emptyEgressPorts', undefined, {
+            defaultValue:
+              'config.egressAllowedPorts is empty. Fly derives its deny-all default from an ' +
+              'existing allow rule and does not document a rule with no ports, so this provider ' +
+              'refuses to send one. Omit the option for no policy, or allow at least one port.',
+          }),
+        )
+      }
+      return configured
+    }
+    return parseEgressAllowedPorts(process.env.FLY_SANDBOX_EGRESS_ALLOWED_PORTS)
+  }
+
+  /**
+   * Applies this provider's egress network policy to an app, updating the
+   * existing policy in place when one is already there.
+   *
+   * A failure here is FATAL to the caller, deliberately. The operator asked for
+   * an egress restriction; booting a sandbox for untrusted code without it — and
+   * logging a warning nobody reads — is the trade this whole capability exists to
+   * refuse.
+   * @param app - The Fly app name.
+   * @returns Nothing; resolves once the policy is in place (or none was configured).
+   */
+  private async applyEgressPolicy(app: string): Promise<void> {
+    const ports = this.egressAllowedPorts()
+    if (!ports) return
+
+    const name = this.config.egressPolicyName ?? DEFAULT_EGRESS_POLICY_NAME
+    let id: string | undefined
+    try {
+      const listed = await this.client.request<unknown>(`/apps/${app}/network_policies/`, {
+        nullOn: [404],
+      })
+      id = extractPolicyId(listed, name)
+    } catch (error) {
+      // Only the UPDATE-in-place optimization is lost: the POST below still
+      // applies the policy, it just risks stacking a duplicate with identical
+      // allow rules. Enforcement is what matters, so this does not fail the boot.
+      logger.warn('Could not list Fly network policies — applying the egress policy as a create', {
+        app,
+        error,
+      })
+    }
+
+    const policy: FlyNetworkPolicy = {
+      ...(id ? { id } : {}),
+      name,
+      selector: { all: true },
+      rules: [{ action: 'allow', direction: 'egress', ports }],
+    }
+    await this.client.request(`/apps/${app}/network_policies`, { method: 'POST', body: policy })
+    logger.info('Applied Fly egress network policy', { app, name, ports, updated: Boolean(id) })
   }
 
   /**
@@ -583,6 +694,206 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   // ---------------------------------------------------------------------------
+  // Egress verification
+  // ---------------------------------------------------------------------------
+
+  /**
+   * PROVES whether a sandbox Machine can open raw connections to the public
+   * internet, by running one and watching what happens.
+   *
+   * **Why it is built this way.** Fly's tenant isolation (custom 6PN networks)
+   * answers a different question — whether one app can reach ANOTHER app — and
+   * says nothing about the public internet. The only mechanism Fly documents for
+   * egress is a **network policy**
+   * (https://fly.io/docs/machines/guides-examples/network-policies/), an
+   * app-scoped object whose `allow` rules make everything else in that direction
+   * drop. Reading that policy back would be attestation, not observation, and the
+   * failure this capability replaced was exactly an attestation that stayed true
+   * on paper after it stopped being true in fact. So this creates a throwaway
+   * Machine through the SAME provisioning path every sandbox goes through
+   * (`ensureApp`, which applies the same policy), attempts raw TCP connects to
+   * literal public IPs from inside it, and reports what the sockets did.
+   *
+   * `open` and `filtered` are therefore observations. Everything else — no
+   * targets, no API token, the Machine never booting, a probe image without
+   * `node`, an exec that returned no status — is `inconclusive`, never
+   * `filtered`.
+   *
+   * **What a `filtered` verdict here does and does not mean.** It means raw
+   * egress to the probed ports is dropped. It does NOT mean host-level control:
+   * Fly network policies match protocol and port only, with no host or CIDR
+   * matching, so a host allowlist can only be built by allowing the port of an
+   * egress proxy and routing sandbox traffic through it. It also cannot speak
+   * for Machines that were already running when their app's policy changed —
+   * Fly applies a policy at Machine boot ("restart or redeploy the Machines for
+   * changes to take effect"), which is why `ensureApp` applies it before every
+   * Machine is created.
+   *
+   * Costs one Machine boot and (in per-project mode) one app create/delete per
+   * call, so callers should cache the verdict rather than probing per request.
+   * @returns What was observed about egress from a Fly sandbox Machine.
+   */
+  async verifyEgress(): Promise<EgressVerdict> {
+    const targets = parseEgressProbeTargets(
+      this.config.egressProbeTargets ??
+        process.env.SANDBOX_EGRESS_PROBE_TARGETS ??
+        DEFAULT_EGRESS_PROBE_TARGETS,
+    )
+    if (targets.length === 0) {
+      return {
+        state: 'inconclusive',
+        detail: 'No valid literal ip:port egress probe targets are configured.',
+        remediation:
+          'Set SANDBOX_EGRESS_PROBE_TARGETS (or config.egressProbeTargets) to comma-separated ' +
+          'literal ip:port values — hostnames are rejected, and IPv6 literals must be bracketed.',
+      }
+    }
+
+    // parseInt yields NaN (not undefined) for an absent or junk value, so the
+    // fallback is a finiteness check rather than `??`.
+    const configured =
+      this.config.egressProbeTimeoutMs ??
+      Number.parseInt(process.env.SANDBOX_EGRESS_PROBE_TIMEOUT_MS ?? '', 10)
+    const timeoutMs = Number.isFinite(configured)
+      ? Math.min(15_000, Math.max(500, configured))
+      : DEFAULT_PROBE_TIMEOUT_MS
+
+    let app: string | null = null
+    let machineId: string | null = null
+    let policyPorts: FlyNetworkPolicyPort[] | undefined
+    try {
+      policyPorts = this.egressAllowedPorts()
+      app = this.resolveApp(this.probeProjectId())
+      await this.ensureApp(app)
+      machineId = await this.createProbeMachine(app)
+      await this.waitForStarted(app, machineId)
+
+      const seconds = Math.min(
+        MAX_WAIT_SECONDS,
+        Math.max(1, Math.ceil(timeoutMs / 1000) + PROBE_EXEC_HEADROOM_SECONDS),
+      )
+      const result = toExecResult(
+        await this.rawExec(app, machineId)(
+          ['sh', '-c', buildEgressProbeCommand(targets, timeoutMs)],
+          seconds,
+        ),
+      )
+      return verdictForProbeExit(result.exitCode, { app, targets, policyPorts })
+    } catch (error) {
+      // A probe that could not RUN proves nothing. Reporting `filtered` here is
+      // precisely the lie this method exists to make impossible.
+      return {
+        state: 'inconclusive',
+        detail: `The Fly egress probe could not run: ${error instanceof Error ? error.message : String(error)}`,
+        remediation:
+          'Check that FLY_API_TOKEN can create apps and Machines in the organization, and that ' +
+          'the probe image is pullable by Fly and contains `node` and `sleep`.',
+      }
+    } finally {
+      await this.destroyProbe(app, machineId)
+    }
+  }
+
+  /**
+   * Generates the synthetic project id the throwaway probe app is named from.
+   * Hex only, so {@link appNameForProject} never has to rewrite it.
+   * @returns A project id such as `egress-probe-1a2b3c4d5e6f`.
+   */
+  private probeProjectId(): string {
+    let hex = ''
+    while (hex.length < 12) hex += Math.floor(Math.random() * 0xffffffff).toString(16)
+    return `egress-probe-${hex.slice(0, 12)}`
+  }
+
+  /**
+   * Creates the throwaway probe Machine.
+   *
+   * It runs the sandbox image (so it observes egress from the same image real
+   * sandboxes run) with `init.exec` overriding the entrypoint — Fly documents
+   * `exec` as overriding "any other startup command line, either in our API or in
+   * your Docker container definition" — so the Machine is guaranteed to stay up
+   * long enough to exec into, whatever the image's own entrypoint does. Proxy
+   * environment variables are blanked: a probe that politely used a proxy would
+   * report the proxy's policy rather than the network's.
+   * @param app - The Fly app to create it in.
+   * @returns The new Machine's id.
+   * @throws {Error} When the API returns no Machine id.
+   */
+  private async createProbeMachine(app: string): Promise<string> {
+    const config: FlyMachineConfig = {
+      image:
+        this.config.egressProbeImage ??
+        this.config.baseImage ??
+        process.env.FLY_SANDBOX_IMAGE ??
+        DEFAULT_IMAGE,
+      env: {
+        HTTP_PROXY: '',
+        HTTPS_PROXY: '',
+        http_proxy: '',
+        https_proxy: '',
+        NO_PROXY: '',
+        no_proxy: '',
+      },
+      // NOT the `managed` metadata: a probe Machine must never appear in list().
+      metadata: { [`${this.metadataPrefix}.egressProbe`]: 'true' },
+      guest: { cpus: 1, cpu_kind: 'shared', memory_mb: PROBE_MEMORY_MB },
+      init: { exec: ['sleep', String(PROBE_LIFETIME_SECONDS)] },
+      restart: { policy: 'no' },
+      // Backstop: reaps the Machine when the sleep ends, even if this process
+      // dies before its explicit cleanup runs.
+      auto_destroy: true,
+    }
+
+    const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
+      method: 'POST',
+      body: { region: this.region(), config },
+    })
+    if (!machine?.id) {
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.probeCreateFailed',
+          { app },
+          { defaultValue: `Fly egress probe Machine creation in app "${app}" returned no id.` },
+        ),
+      )
+    }
+    return machine.id
+  }
+
+  /**
+   * Removes the probe Machine and, in per-project mode, its throwaway app.
+   *
+   * Best-effort by design: a cleanup failure must not turn a completed
+   * observation into an error, and `auto_destroy` plus the bounded init sleep
+   * already reap the Machine on their own.
+   * @param app - The probe app, or `null` when it was never resolved.
+   * @param machineId - The probe Machine id, or `null` when it was never created.
+   */
+  private async destroyProbe(app: string | null, machineId: string | null): Promise<void> {
+    if (!app) return
+    if (machineId) {
+      try {
+        await this.client.request(`/apps/${app}/machines/${machineId}?force=true`, {
+          method: 'DELETE',
+          nullOn: [404],
+        })
+      } catch (error) {
+        logger.warn('Failed to remove the Fly egress probe Machine', { app, machineId, error })
+      }
+    }
+    // Never in shared-app mode: that app holds real sandboxes.
+    if (!this.appPerProject()) return
+    try {
+      await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
+    } catch (error) {
+      logger.warn('Failed to delete the Fly egress probe app — it may leak an empty app', {
+        app,
+        error,
+      })
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Sandbox
   // ---------------------------------------------------------------------------
 
@@ -633,6 +944,53 @@ class FlyioSandboxProvider implements SandboxProvider {
         return
       }
       throw error
+    }
+    await this.waitForStarted(app, machineId)
+  }
+
+  /**
+   * Blocks until a Machine actually reaches `started`.
+   *
+   * `POST .../start` returns as soon as Fly ACCEPTS the request, not when the
+   * Machine is running — so without this, `start()` and `wake()` resolve against
+   * a Machine that is still booting and the caller's very next `exec` fails on a
+   * Machine that is not up. Fly's `wait` endpoint exists for exactly this and
+   * blocks server-side for up to 60 s.
+   * @param app - The Fly app name.
+   * @param machineId - The Fly Machine id.
+   * @throws {Error} When the Machine has not started within the budget.
+   */
+  private async waitForStarted(app: string, machineId: string): Promise<void> {
+    const seconds = Math.max(
+      1,
+      Math.min(this.config.startTimeoutSeconds ?? MAX_WAIT_SECONDS, MAX_WAIT_SECONDS),
+    )
+    try {
+      await this.client.request(
+        `/apps/${app}/machines/${machineId}/wait?state=started&timeout=${seconds}`,
+        // One attempt: a retry would re-block for the whole budget, and the
+        // fallback below re-reads the state anyway.
+        { attempts: 1, timeoutMs: (seconds + 15) * 1000 },
+      )
+    } catch (error) {
+      // The wait endpoint returning an error is not itself proof the Machine
+      // failed — re-read the authoritative state before failing the caller.
+      const machine = await this.client
+        .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
+        .catch(() => null)
+      if (machine?.state === 'started') return
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.startTimeout',
+          { app, machineId, seconds: String(seconds), state: machine?.state ?? 'unknown' },
+          {
+            defaultValue:
+              `Fly Machine ${machineId} in app "${app}" did not reach "started" within ` +
+              `${seconds}s (last observed state: ${machine?.state ?? 'unknown'}).`,
+          },
+        ),
+        { cause: error },
+      )
     }
   }
 

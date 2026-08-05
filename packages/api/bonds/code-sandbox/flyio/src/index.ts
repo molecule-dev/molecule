@@ -48,7 +48,12 @@
  * Resume (https://fly.io/docs/reference/suspend-resume/), Custom private
  * networks (https://fly.io/docs/networking/custom-private-networks/), Private
  * networking (https://fly.io/docs/networking/private-networking/), Fly Volumes
- * (https://fly.io/docs/volumes/overview/), and the exec timeout ceiling
+ * (https://fly.io/docs/volumes/overview/), Network Policies
+ * (https://fly.io/docs/machines/guides-examples/network-policies/ and its
+ * announcement https://community.fly.io/t/new-feature-network-policies/19173),
+ * Egress IP addresses (https://fly.io/docs/networking/egress-ips/), rate limits
+ * (https://fly.io/docs/machines/api/working-with-machines-api/), and the exec
+ * timeout ceiling
  * (https://community.fly.io/t/extending-timeout-of-execute-command-machines-api-endpoint/26074).
  *
  * **`sleep()` is suspend, not stop — that is the point of this bond.**
@@ -96,6 +101,32 @@
  * in production. An app's network cannot be changed after creation, so an app
  * that already exists is used as-is rather than silently "fixed".
  *
+ * **Egress: `verifyEgress()` OBSERVES, and Fly's only lever is ports.** 6PN
+ * isolation answers "can app A reach app B", not "can a sandbox reach the
+ * internet". For that, the one mechanism Fly documents is a **network policy** —
+ * app-scoped `allow` rules where "Once you create a rule for a given direction,
+ * the default for that direction becomes drop." Set `egressAllowedPorts` (or
+ * `FLY_SANDBOX_EGRESS_ALLOWED_PORTS=tcp:3128,udp:53`) and this provider applies
+ * one to every app it provisions, BEFORE creating the Machine — Fly applies a
+ * policy at boot ("restart or redeploy the Machines for changes to take
+ * effect"), so a policy that lands afterwards does not cover the running
+ * Machine. A failure to apply it FAILS the boot rather than quietly starting an
+ * unfiltered sandbox. Three limits are load-bearing and cannot be designed
+ * around: rules match **protocol and port only** (no host, no CIDR, no ranges),
+ * so a policy can never be a host allowlist — `tcp:443` lets a sandbox reach
+ * every host on the internet that listens on 443; policies **do not apply to Fly
+ * Proxy traffic**; and the endpoints, while documented in the guide and the
+ * announcement, are **absent from Fly's OpenAPI specification**, so the LIST
+ * response shape is parsed defensively. To get host-level control, allow only
+ * the port of an egress proxy you run and route sandbox traffic through it.
+ *
+ * `verifyEgress()` then PROVES the result instead of reporting the
+ * configuration: it boots a throwaway Machine through the same `ensureApp` path
+ * every sandbox uses, attempts raw TCP connects to literal public IPs with proxy
+ * environment blanked, and maps connected → `open`, refused/timed-out →
+ * `filtered`, anything else → `inconclusive`. It costs one Machine boot (and, in
+ * per-project mode, one app create/delete) per call, so cache the verdict.
+ *
  * **The preview URL is a template, and the isolation choice constrains it.**
  * `getPreviewUrl()` renders `previewUrlTemplate` (default
  * `https://{app}.fly.dev`) with `{app}`, `{machineId}` and `{port}`. The
@@ -130,15 +161,25 @@
  * `registry.fly.io` repository or a public registry first. Unlike the Docker
  * bond, nothing here can pre-pull on a host you control.
  *
- * **Rate limits are handled in the transport.** Fly documents the Machines API
- * at "1 request, per second, per action … with a short-term burst limit up to
- * 3 req/s, per action". A sandbox boot is a burst of calls, so `429` and `5xx`
- * are retried with `Retry-After`-aware backoff; other `4xx` responses are real
- * answers and are never retried.
+ * **Rate limits are handled in the transport, but they also shape throughput.**
+ * Fly documents the Machines API at "1 request, per second, per action … with a
+ * short-term burst limit up to 3 req/s, per action", scoped "per-action,
+ * per-machine … That might be Machine ID or App ID, depending on the type of
+ * request", with Get Machine at 5 req/s and app deletions capped at 100 per
+ * minute. `429` and `5xx` are retried with `Retry-After`-aware backoff; other
+ * `4xx` responses are real answers and are never retried. The consequence to
+ * plan for is that EVERY file operation is an exec API call, so one sandbox's
+ * reads and writes serialize at roughly one per second and a multi-megabyte
+ * `writeFile` (chunked at ~45 KB decoded) takes tens of seconds. An agent that
+ * edits files in a tight loop will feel this; batch where you can.
  *
- * **`create()` launches the Machine.** Unlike Docker's create-then-start, the
- * Machines API starts a Machine as part of creation, so the returned sandbox is
- * already live and `start()` is idempotent.
+ * **`create()` launches the Machine, and `start()`/`wake()` WAIT for it.** Unlike
+ * Docker's create-then-start, the Machines API starts a Machine as part of
+ * creation. `POST .../start` only means Fly accepted the request, so
+ * `start()`/`wake()` then block on `GET .../wait?state=started` (Fly blocks
+ * server-side for up to 60 s, tunable with `startTimeoutSeconds`) and throw if
+ * the Machine never runs — without that, the caller's next `exec` would land on
+ * a Machine that is still booting.
  *
  * **Statuses are lossy.** Fly documents seventeen Machine states and the core
  * has four. `failed`/`launch_failed` both map to `stopped` because the core
@@ -153,6 +194,7 @@
 
 export * from './api.js'
 export * from './browser-guard.js'
+export * from './egress.js'
 export * from './exec.js'
 export * from './ids.js'
 export * from './provider.js'
