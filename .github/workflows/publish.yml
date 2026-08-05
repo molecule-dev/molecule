@@ -28,7 +28,13 @@ on:
     tags:
       - 'v*'
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+# Never cancel in progress. BOTH paths here can publish for real (a `v*` tag, or
+# a dispatch with dry_run off), and killing a paced publish part-way wastes the
+# rate-limit budget it spent getting there. Overlapping runs queue instead; the
+# publisher is resumable, so the second one picks up whatever the first missed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: read

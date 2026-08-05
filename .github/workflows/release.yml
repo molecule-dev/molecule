@@ -18,7 +18,21 @@ on:
         required: false
         type: string
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+# Push runs supersede each other; a dispatch is NEVER cancelled.
+#
+# The event_name in the GROUP is what makes that possible. A single shared group
+# with cancel-in-progress would mean any push to main kills a publish that is
+# already running — and a full fleet publish takes ~3h at delay=20, so a one-line
+# doc commit could throw away hours of paced publishing that is deliberately slow
+# to stay under npm's rate limiter. Splitting by event keeps the two independent:
+# a push only ever cancels an older push, and a dispatch runs undisturbed.
+#
+# cancel-in-progress is false for dispatches for the same reason — two publish
+# runs must queue rather than one killing the other mid-flight. That is safe
+# because the publisher is resumable: it asks the registry what already exists.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   release:

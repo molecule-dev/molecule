@@ -6,6 +6,16 @@ on:
   push:
     branches: [main]
 
+# Supersede, don't stack. This workflow had NO concurrency block at all, so every
+# push started a full CI (build + playwright + the whole test suite) that ran to
+# completion even once three newer commits had landed — several at once, all but
+# the last of them answering a question nobody was asking any more.
+#
+# Only the newest commit's result is meaningful here, so cancel the older ones.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
