@@ -8,6 +8,28 @@
  */
 
 /**
+ * How much of a machine one sandbox may use.
+ *
+ * `diskMB` is advisory: several providers cannot cap a filesystem's size at all
+ * (see each bond's `@remarks`), so a provider that cannot enforce it MUST say so
+ * in its documentation rather than silently accepting the number.
+ */
+export interface SandboxResources {
+  /** CPU cores. Fractional values are allowed where the provider supports them. */
+  cpu: number
+  /** Memory ceiling in megabytes. */
+  memoryMB: number
+  /** Disk ceiling in megabytes. Advisory — not every provider can enforce it. */
+  diskMB: number
+  /**
+   * Maximum number of processes. Bounds fork-bombs, which a memory cap alone does
+   * not. Optional because it has no meaning on providers that do not expose a
+   * process table to the caller; those ignore it.
+   */
+  pidsLimit?: number
+}
+
+/**
  * Configuration for creating a new sandbox.
  */
 export interface SandboxConfig {
@@ -17,6 +39,28 @@ export interface SandboxConfig {
   /** Docker volume name to mount at /sandbox/project for persistent storage. */
   volumeName?: string
   /**
+   * Boot from a template previously captured with
+   * {@link SandboxProvider.commitTemplate} instead of the provider's base image.
+   *
+   * This is the caller-facing half of the template capability: the caller names
+   * the template with its OWN identifier and never handles the provider-native
+   * reference. Takes precedence over `image` when both are given.
+   *
+   * A provider MUST FAIL when the named template does not exist. Falling back to
+   * the base image would boot a sandbox whose filesystem is not the one the
+   * caller asked for — silently, and looking healthy.
+   */
+  templateId?: string
+  /**
+   * Ports INSIDE the sandbox that must be reachable from the control plane, to be
+   * read back later via {@link SandboxDescriptor.ports}.
+   *
+   * The caller knows which ports its workload listens on; the provider does not,
+   * and guessing produces a sandbox whose dev server is running and unreachable.
+   * Providers keep their historical defaults when this is omitted.
+   */
+  publishPorts?: number[]
+  /**
    * Extra provider-level labels merged into the container's labels (additive;
    * does not replace the provider's own `managed`/`projectId`/`volumeName`
    * labels). Lets callers tag containers for out-of-band recovery — e.g. a
@@ -25,11 +69,7 @@ export interface SandboxConfig {
    * recoverable across control-plane restarts.
    */
   labels?: Record<string, string>
-  resources?: {
-    cpu: number
-    memoryMB: number
-    diskMB: number
-  }
+  resources?: SandboxResources
 }
 
 /**
@@ -86,6 +126,39 @@ export interface FileChangeEvent {
 }
 
 /**
+ * What a sleep/wake cycle actually did to the sandbox.
+ *
+ * The single fact a caller needs and cannot infer: **did the running process tree
+ * survive?** Every provider can suspend a sandbox, but they differ on whether the
+ * processes come back — a memory-snapshot suspend restores them, a plain stop does
+ * not — and a provider commonly does BOTH, choosing per call depending on whether
+ * the snapshot mechanism is available on that host at that moment.
+ *
+ * Consumers must act on the difference. A sandbox whose dev servers were started
+ * as detached processes comes back from a stop-style wake alive but *serving
+ * nothing*: the container runs, the preview never answers, and nothing in
+ * `status` says so. molecule.dev learned this by shipping it — the fix is a
+ * relaunch after a wake that did not preserve processes, which is impossible to
+ * write against a `Promise<void>`.
+ */
+export interface HibernationOutcome {
+  /**
+   * Whether the process tree that was running before the call is running after
+   * it. `false` means the caller must restart anything it had launched.
+   */
+  processesPreserved: boolean
+  /**
+   * Which mechanism the provider actually used, for logs and analytics — e.g.
+   * `'checkpoint'`, `'stop'`, `'suspend'`. Free-form on purpose: it identifies a
+   * provider's own mechanism and callers must not branch on it. Branch on
+   * `processesPreserved`.
+   */
+  mechanism: string
+  /** Human-readable detail, especially when a preferred mechanism was unavailable. */
+  detail?: string
+}
+
+/**
  * A running sandbox instance.
  */
 export interface Sandbox {
@@ -111,6 +184,97 @@ export interface Sandbox {
 
   getPreviewUrl(port?: number): string
   onFileChange(cb: (event: FileChangeEvent) => void): () => void
+
+  /**
+   * Suspend the sandbox and REPORT what that cost.
+   *
+   * Same intent as {@link Sandbox.sleep}, plus the one fact `sleep()` throws
+   * away: whether the running process tree was preserved. See
+   * {@link HibernationOutcome} for why that is not an optional nicety.
+   *
+   * Implementations should prefer their highest-fidelity mechanism and fall back
+   * rather than fail — a sandbox that cannot be checkpointed must still be
+   * suspendable — but the returned outcome must describe what happened, never
+   * what was attempted.
+   *
+   * Optional: providers that only ever stop can leave it unimplemented, and a
+   * caller then falls back to `sleep()` knowing processes are gone.
+   *
+   * @returns What the suspend actually did.
+   */
+  hibernate?(): Promise<HibernationOutcome>
+
+  /**
+   * Resume a suspended sandbox and REPORT whether its processes came back.
+   *
+   * The counterpart to {@link Sandbox.hibernate}. `processesPreserved: false`
+   * means the sandbox is running but empty — anything the caller had launched
+   * (dev servers, sidecars, watchers) is gone and must be relaunched before the
+   * sandbox is usable.
+   *
+   * Optional, and independently so: a provider may implement this without
+   * `hibernate` if it can restore a sandbox suspended by other means.
+   *
+   * @returns What the resume actually did.
+   */
+  resume?(): Promise<HibernationOutcome>
+
+  /**
+   * Change this sandbox's resource ceilings while it runs.
+   *
+   * Exists because entitlement is decided long after creation: a sandbox is
+   * commonly created from a pool with generic limits and only later attached to a
+   * project whose plan sets the real ones. Without this, the only ways to apply a
+   * tier are to over-provision the pool or to destroy and recreate — and
+   * molecule.dev did the former, then silently stripped the creation path's swap
+   * headroom on every adoption because the update path and the creation path had
+   * drifted.
+   *
+   * Only the fields present are changed; omitted fields keep their current
+   * value. A provider that cannot change a particular ceiling in place MUST
+   * throw rather than silently ignore it — an unenforced limit that the caller
+   * believes is enforced is worse than a visible failure.
+   *
+   * Optional: providers whose resources are fixed for a sandbox's lifetime leave
+   * it unimplemented, so a caller can tell that from a failed update.
+   *
+   * @param resources - The ceilings to change.
+   */
+  setResources?(resources: Partial<SandboxResources>): Promise<void>
+
+  /**
+   * Stream a directory tree out of the sandbox as a POSIX tar archive.
+   *
+   * `readFile` moves one file and materializes it as a string; a project tree is
+   * hundreds of megabytes across hundreds of thousands of files, so per-file
+   * round trips are not a slower version of this — they are a different order of
+   * magnitude. Callers need it to cache, archive, or migrate a workspace, and
+   * tar is the boring standard already understood by every provider's transport.
+   *
+   * The stream must be consumed or discarded by the caller; providers may hold a
+   * connection open until it is.
+   *
+   * Optional: a provider with no bulk transfer leaves it unimplemented rather
+   * than emulating it with a file-by-file walk, which would look supported and
+   * take hours.
+   *
+   * @param path - Absolute path inside the sandbox to archive.
+   * @returns A POSIX tar byte stream of that path's contents.
+   */
+  exportFiles?(path: string): Promise<AsyncIterable<Uint8Array>>
+
+  /**
+   * Stream a POSIX tar archive into the sandbox, extracting it at `path`.
+   *
+   * The inverse of {@link Sandbox.exportFiles}. Implementations MUST NOT restore
+   * ownership or setuid/setgid bits from the archive: an archive is caller- or
+   * tenant-authored data, and honoring its mode bits is how a captured workspace
+   * turns into a privilege escalation in whatever boots it next.
+   *
+   * @param path - Absolute destination path inside the sandbox.
+   * @param archive - POSIX tar byte stream to extract there.
+   */
+  importFiles?(path: string, archive: AsyncIterable<Uint8Array>): Promise<void>
 }
 
 /**
@@ -136,11 +300,242 @@ export interface EgressVerdict {
   remediation?: string
 }
 
+// ---------------------------------------------------------------------------
+// Templates — a captured filesystem that new sandboxes boot from
+// ---------------------------------------------------------------------------
+
+/**
+ * A filesystem captured from a sandbox, which later sandboxes can boot from.
+ *
+ * One primitive, deliberately not two. A "warm start template" shared by every
+ * project with the same dependency set and a "restore point" belonging to one
+ * user are the same mechanism — capture a filesystem, boot a new sandbox from it
+ * — differing only in who may use it and how long it is kept. Those are the
+ * CALLER's policy. Splitting them here would mean two near-identical method
+ * families and a provider forced to guess which retention rules apply.
+ */
+export interface SandboxTemplate {
+  /** The caller's own identifier, exactly as passed to `commitTemplate`. */
+  id: string
+  /**
+   * The provider-native reference (an image tag, a snapshot id, a URL).
+   * OPAQUE — surface it in operator output, never parse or construct it.
+   */
+  ref: string
+  /** When the template was captured, ISO 8601. */
+  createdAt: string
+  /** Size on the provider's storage, or `null` when the provider cannot report it. */
+  sizeBytes: number | null
+  /** Free-form label recorded at capture time. */
+  label?: string
+  /**
+   * Whether at least one sandbox is currently backed by this template.
+   *
+   * This exists for exactly one reason: callers evict templates on a budget, and
+   * deleting the filesystem a live sandbox boots from destroys that sandbox. The
+   * provider is the only party that can see the reference, so it must report it —
+   * and a provider that cannot determine it MUST report `true` (assume in use)
+   * rather than `false`, because a wrong `false` here is data loss.
+   */
+  inUse: boolean
+}
+
+/**
+ * What to capture into a template, and what to call it.
+ */
+export interface CommitTemplateOptions {
+  /** The sandbox whose filesystem is captured. */
+  sandboxId: string
+  /**
+   * The caller's identifier for the resulting template. Re-committing the same
+   * id replaces it.
+   */
+  templateId: string
+  /**
+   * Absolute paths inside the sandbox that MUST end up in the template even when
+   * they live on storage the provider's native capture excludes — typically a
+   * mounted volume, which is exactly where a project's files are.
+   *
+   * The caller is TOLD these paths rather than the provider hunting for them. A
+   * provider that guessed would have no way to distinguish "this sandbox has no
+   * project files" from "I looked in the wrong place", and would commit an empty
+   * template that boots and appears to work.
+   */
+  capturePaths?: string[]
+  /** Free-form label recorded with the template. */
+  label?: string
+}
+
+/** Narrowing for {@link SandboxProvider.listTemplates}. */
+export interface ListTemplatesOptions {
+  /** Only templates whose id starts with this prefix. */
+  idPrefix?: string
+}
+
+// ---------------------------------------------------------------------------
+// Inspection — metadata about sandboxes that already exist
+// ---------------------------------------------------------------------------
+
+/**
+ * How a port inside a sandbox is reached from the control plane.
+ *
+ * Providers assign the outside half dynamically, so it can only be read back
+ * after the sandbox is running. `getPreviewUrl` renders a configured template and
+ * cannot answer this.
+ */
+export interface PortMapping {
+  /** The port the process inside the sandbox listens on. */
+  sandboxPort: number
+  /** Host or address the control plane connects to. */
+  host: string
+  /** Port on `host` that forwards to `sandboxPort`. */
+  port: number
+}
+
+/**
+ * Everything the control plane needs to know about an existing sandbox WITHOUT
+ * obtaining a handle to it.
+ *
+ * A `Sandbox` is a live handle for doing things; a descriptor is a record for
+ * deciding things — which sandbox is stuck, which is orphaned, which volume it
+ * pins, which port it answers on. Recovery and reconciliation loops read many and
+ * act on few, and building a handle per candidate is both wasteful and, for
+ * providers that validate on handle construction, impossible for the broken ones
+ * a recovery loop exists to find.
+ */
+export interface SandboxDescriptor {
+  id: string
+  /** The `projectId` this sandbox was created for, or `null` if it carries none. */
+  projectId: string | null
+  /** Lifecycle state, using the same coarse mapping as {@link SandboxProvider.get}. */
+  status: Sandbox['status']
+  /** Every label the provider holds for this sandbox, including caller-supplied ones. */
+  labels: Record<string, string>
+  /** When the sandbox was created, ISO 8601, or `null` when unavailable. */
+  createdAt: string | null
+  /**
+   * When the sandbox was first started, ISO 8601, or `null` if it has NEVER been
+   * started.
+   *
+   * The null case is the point: a sandbox that was created and never started is
+   * not "stopped", it is wreckage from an interrupted creation — it holds its
+   * storage, it will never run, and nothing else distinguishes it. molecule.dev
+   * filled a host's disk with exactly these.
+   */
+  startedAt: string | null
+  /** The template or image reference this sandbox booted from, or `null`. */
+  templateRef: string | null
+  /** The named volume attached to this sandbox, or `null` if it has none. */
+  volumeName: string | null
+  /** Reachable port mappings, empty when the sandbox is not running. */
+  ports: PortMapping[]
+}
+
+/**
+ * Narrowing for {@link SandboxProvider.find}.
+ *
+ * Every field is something the CALLER knows because it set it. There is
+ * deliberately no free-form query language: a provider that had to interpret one
+ * would answer differently per backend, and callers would encode one backend's
+ * dialect.
+ */
+export interface SandboxQuery {
+  /** Labels that must all be present with these exact values. */
+  labels?: Record<string, string>
+  /** Restrict to these lifecycle states. Omitted means every state. */
+  statuses?: Array<Sandbox['status']>
+  /** Only sandboxes created for this project. */
+  projectId?: string
+}
+
+// ---------------------------------------------------------------------------
+// Volumes
+// ---------------------------------------------------------------------------
+
+/** A named volume and what the provider observes about it. */
+export interface VolumeInfo {
+  name: string
+  /**
+   * Whether any sandbox currently has this volume attached — including stopped
+   * ones, which still own their data.
+   *
+   * The reason to list volumes at all is to reclaim leaked ones, and a wrong
+   * `false` deletes a user's only copy of their work. A provider that cannot
+   * determine attachment MUST report `true`.
+   */
+  attached: boolean
+  /** When the volume was created, ISO 8601, or `null` when unavailable. */
+  createdAt: string | null
+  /** Size on disk, or `null` when the provider cannot report it. */
+  sizeBytes: number | null
+}
+
+/** Narrowing for {@link SandboxProvider.listVolumes}. */
+export interface ListVolumesOptions {
+  /** Only volumes whose name starts with this prefix. */
+  namePrefix?: string
+  /** `false` for unattached volumes only, `true` for attached only, omitted for both. */
+  attached?: boolean
+}
+
+// ---------------------------------------------------------------------------
+// Capacity
+// ---------------------------------------------------------------------------
+
+/**
+ * What the provider can still fit, so the caller can refuse a boot BEFORE it
+ * damages the sandboxes already running.
+ *
+ * Policy stays with the caller: the floors, the error copy, and the decision to
+ * shed load are its business. Only the measurement is here, because only a
+ * provider knows what backs its sandboxes — a filesystem and a page cache on one,
+ * an account quota on another.
+ *
+ * Missing is not zero. An absent `headroom` field means the provider could not
+ * measure that resource, and a caller must not read it as exhausted; that
+ * conflation is the same one {@link EgressFilterState} exists to prevent.
+ */
+export interface SandboxCapacity {
+  /**
+   * The provider's own verdict when it has one — e.g. an account quota it knows
+   * is exhausted. `null` means it has no opinion and the caller should decide
+   * from `headroom`.
+   */
+  admits: boolean | null
+  /** Human-readable explanation, including what could NOT be measured and why. */
+  detail: string
+  /** Measured headroom. Every field is absent when unmeasurable. */
+  headroom: {
+    /** Free bytes on the storage that backs new sandboxes. */
+    diskBytes?: number
+    /**
+     * Free inodes on that storage.
+     *
+     * Separate from `diskBytes` because they run out separately: a sandbox
+     * populates a dependency tree of hundreds of thousands of tiny files, which
+     * can exhaust a fixed inode table while free space still looks ample. Every
+     * file creation on the host then fails while `df` reports gigabytes free.
+     */
+    inodes?: number
+    /** Memory available for a new sandbox without swapping. */
+    memoryBytes?: number
+  }
+}
+
 /**
  * Sandbox provider interface.
  *
  * Each bond package (Docker, Firecracker, etc.) implements
  * this interface to manage sandbox lifecycle.
+ *
+ * @remarks
+ * **Everything past `destroy` is optional, and that is load-bearing.** An absent
+ * method means "this provider cannot do this", which a caller can detect
+ * (`if (provider.commitTemplate)`) and route around. A present method that
+ * rejects means "it can, and this attempt failed", which a caller should retry or
+ * surface. Never implement a capability as a silent no-op or a fabricated success
+ * to make a caller's feature-detection pass — that erases the only distinction
+ * the caller has.
  */
 export interface SandboxProvider {
   readonly name: string
@@ -156,6 +551,171 @@ export interface SandboxProvider {
   removeVolume?(name: string): Promise<void>
   /** Check if a named volume exists. Optional. */
   volumeExists?(name: string): Promise<boolean>
+
+  /**
+   * Enumerate named volumes, so a caller can find the ones it has lost track of.
+   *
+   * `volumeExists` answers a question about a volume you can name. This answers
+   * the one you cannot: which volumes exist that nothing is using? A sandbox
+   * creation that fails partway leaves a fully-populated volume behind, and
+   * without enumeration nothing ever reclaims it — molecule.dev leaked gigabytes
+   * per replenish tick until a host filled to zero.
+   *
+   * IT MUST THROW WHEN IT CANNOT ENUMERATE. Returning `[]` for a failed listing
+   * would report "nothing is orphaned" to a caller whose whole purpose is
+   * deletion, and the caller would believe it. Same rule as `readDir`: an empty
+   * array means "looked, found none", never "could not look".
+   *
+   * Optional — providers without a volume concept leave it unimplemented.
+   *
+   * @param options - Narrowing by name prefix and attachment.
+   * @returns Every matching volume with what the provider observes about it.
+   */
+  listVolumes?(options?: ListVolumesOptions): Promise<VolumeInfo[]>
+
+  /**
+   * Capture a sandbox's filesystem as a reusable template.
+   *
+   * Provisioning a sandbox from scratch means installing a dependency tree, which
+   * takes minutes and is identical for every project with the same inputs. Doing
+   * it once and booting later sandboxes from the result is the difference between
+   * a product that feels instant and one that does not — and there is no way to
+   * express it through `create`/`exec`, so an application that needs it goes
+   * around the provider and talks to a specific backend. That is precisely what
+   * this interface exists to prevent.
+   *
+   * The same primitive serves per-project restore points; see
+   * {@link SandboxTemplate} for why it is one mechanism and not two.
+   *
+   * Providers whose native capture excludes attached storage MUST honor
+   * `capturePaths` — that is where the project's files actually are, and a
+   * template missing them boots successfully into an empty workspace.
+   *
+   * Optional: a provider that cannot capture a running sandbox's filesystem
+   * leaves it unimplemented, and the caller falls back to scaffolding each time.
+   *
+   * @param options - What to capture and what to call it.
+   * @returns The template as it now exists.
+   */
+  commitTemplate?(options: CommitTemplateOptions): Promise<SandboxTemplate>
+
+  /**
+   * Look up one template by the caller's identifier.
+   *
+   * The cache-hit test on the boot path: present means `create({ templateId })`
+   * will be fast, absent means scaffold from scratch. `null` means it is
+   * genuinely absent — a provider that could not check MUST throw instead, or a
+   * transient failure silently becomes a full cold rebuild on every boot.
+   *
+   * @param templateId - The caller's identifier.
+   * @returns The template, or `null` if no template has that id.
+   */
+  getTemplate?(templateId: string): Promise<SandboxTemplate | null>
+
+  /**
+   * Enumerate templates so the caller can enforce its retention policy.
+   *
+   * Templates accumulate without bound — one per distinct configuration, each the
+   * size of a populated dependency tree. Deciding how many to keep, by size, age
+   * or count, is the caller's policy; being able to see what exists, how big it
+   * is and whether anything is using it is the mechanism, and only the provider
+   * has it.
+   *
+   * Must throw rather than return `[]` when it cannot enumerate, for the same
+   * reason as {@link SandboxProvider.listVolumes}.
+   *
+   * @param options - Narrowing by id prefix.
+   * @returns Every matching template.
+   */
+  listTemplates?(options?: ListTemplatesOptions): Promise<SandboxTemplate[]>
+
+  /**
+   * Delete a template.
+   *
+   * Implementations MUST refuse to delete a template that still backs a sandbox,
+   * and must do so by CHECKING rather than by trusting the caller to have
+   * checked — a caller enforcing a size budget is exactly the caller most likely
+   * to be wrong about what is live. Deleting an in-use template destroys running
+   * sandboxes.
+   *
+   * Removing a template that does not exist is a success, not an error: callers
+   * reconcile, and reconciliation must be re-runnable.
+   *
+   * @param templateId - The caller's identifier.
+   */
+  removeTemplate?(templateId: string): Promise<void>
+
+  /**
+   * Copy a local template to the provider's shared store, so other hosts can use
+   * it.
+   *
+   * Only meaningful for providers whose templates are host-local. One host paying
+   * to build a template while every other host rebuilds it is the default outcome
+   * of a fleet without this, and it is invisible — everything works, just slowly,
+   * everywhere.
+   *
+   * Optional, and separately from {@link SandboxProvider.commitTemplate}: a
+   * provider whose templates are already global has nothing to publish.
+   *
+   * @param templateId - The caller's identifier.
+   */
+  publishTemplate?(templateId: string): Promise<void>
+
+  /**
+   * Retrieve a template from the shared store onto this host, if it is there.
+   *
+   * The counterpart to {@link SandboxProvider.publishTemplate}, and the reason
+   * `getTemplate` returning `null` is not the end of the cache lookup.
+   *
+   * @param templateId - The caller's identifier.
+   * @returns The template now available locally, or `null` if the shared store
+   *   does not have it.
+   */
+  fetchTemplate?(templateId: string): Promise<SandboxTemplate | null>
+
+  /**
+   * Describe one existing sandbox without building a handle for it.
+   *
+   * Answers the questions a control plane asks about a sandbox it is not
+   * currently using: is it alive, what ports did it get, what volume does it
+   * pin, was it ever started. `get()` returns a handle whose `status` is a
+   * summary; this returns the record.
+   *
+   * @param id - The sandbox id.
+   * @returns The descriptor, or `null` if no such sandbox exists.
+   */
+  describe?(id: string): Promise<SandboxDescriptor | null>
+
+  /**
+   * Find existing sandboxes by what the caller labelled them.
+   *
+   * `list(userId)` returns live handles for everything managed. This returns
+   * records for a specific slice, which is what reconciliation needs: pooled
+   * sandboxes to reclaim, sandboxes stuck mid-creation to sweep, sandboxes whose
+   * project row no longer exists.
+   *
+   * Must throw rather than return `[]` when it cannot enumerate — a recovery loop
+   * that reads "nothing to recover" from a failed query stops recovering.
+   *
+   * @param query - Narrowing by label, status and project.
+   * @returns Every matching sandbox as a descriptor.
+   */
+  find?(query?: SandboxQuery): Promise<SandboxDescriptor[]>
+
+  /**
+   * Report what the provider can still fit.
+   *
+   * Lets a caller refuse a new sandbox while it can still say so cleanly, instead
+   * of admitting one into a host that then fails every file write and takes the
+   * sandboxes already running down with it. The floors and the refusal are the
+   * caller's policy; see {@link SandboxCapacity} for the split.
+   *
+   * Optional: a provider that cannot see what backs its sandboxes leaves it
+   * unimplemented rather than reporting a comfortable guess.
+   *
+   * @returns Measured headroom and, where the provider has one, its own verdict.
+   */
+  capacity?(): Promise<SandboxCapacity>
 
   /**
    * PROVE that untrusted code in a sandbox cannot reach the network freely.
@@ -186,3 +746,55 @@ export interface SandboxProvider {
    */
   verifyEgress?(): Promise<EgressVerdict>
 }
+
+// ---------------------------------------------------------------------------
+// Compile-time proof that the capability set stayed additive
+// ---------------------------------------------------------------------------
+
+/**
+ * Fails to compile unless `T` is `true`. The only way to make a "this must stay
+ * optional" rule enforceable rather than aspirational.
+ */
+type Assert<T extends true> = T
+
+/** A provider implementing only what this interface has ALWAYS required. */
+type OriginalSandboxProvider = Pick<SandboxProvider, 'name' | 'create' | 'get' | 'list' | 'destroy'>
+
+/** A sandbox handle implementing only what this interface has ALWAYS required. */
+type OriginalSandbox = Pick<
+  Sandbox,
+  | 'id'
+  | 'status'
+  | 'previewUrl'
+  | 'start'
+  | 'stop'
+  | 'sleep'
+  | 'wake'
+  | 'exec'
+  | 'readFile'
+  | 'writeFile'
+  | 'readDir'
+  | 'deleteFile'
+  | 'getPreviewUrl'
+  | 'onFileChange'
+>
+
+/**
+ * Proof that every bond written against the smaller interface still satisfies
+ * this one.
+ *
+ * Making a capability REQUIRED breaks every existing implementation in the
+ * fleet, and it does so at THEIR build, far from the edit that caused it. This
+ * turns that into a type error in the file where the mistake is made. It is
+ * exported so it is a checked part of the package's surface rather than dead
+ * code a linter can strip.
+ */
+export type SandboxProviderStaysBackwardCompatible = Assert<
+  OriginalSandboxProvider extends SandboxProvider ? true : false
+>
+
+/**
+ * The same proof for the sandbox handle. See
+ * {@link SandboxProviderStaysBackwardCompatible}.
+ */
+export type SandboxStaysBackwardCompatible = Assert<OriginalSandbox extends Sandbox ? true : false>

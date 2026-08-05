@@ -7,19 +7,32 @@
  * @module
  */
 
+import { readFile, statfs } from 'fs/promises'
 import http from 'http'
+import { freemem } from 'os'
+import { Readable } from 'stream'
 
 import { getLogger } from '@molecule/api-bond'
 import type {
+  CommitTemplateOptions,
   DirEntry,
   EgressVerdict,
   ExecOptions,
   ExecResult,
   FileChangeEvent,
+  HibernationOutcome,
+  ListTemplatesOptions,
+  ListVolumesOptions,
   Sandbox,
+  SandboxCapacity,
   SandboxConfig,
+  SandboxDescriptor,
   SandboxProvider,
+  SandboxQuery,
+  SandboxResources,
+  SandboxTemplate,
   SpawnHandle,
+  VolumeInfo,
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
 
@@ -27,7 +40,19 @@ const logger = getLogger()
 
 import type { Socket } from 'net'
 
+import { exportContainerFiles, importContainerFiles } from './archive.js'
+import { measureDockerCapacity } from './capacity.js'
 import { verifyDockerEgress } from './egress.js'
+import { hibernateContainer, resumeContainer } from './hibernate.js'
+import {
+  describeContainer,
+  findContainers,
+  type InspectContext,
+  listDockerVolumes,
+  updateContainerResources,
+} from './inspect.js'
+import type { TemplateContext } from './templates.js'
+import * as templates from './templates.js'
 import type { DockerConfig } from './types.js'
 
 const DEFAULT_IMAGE = 'node:22-slim'
@@ -57,6 +82,21 @@ const DEFAULT_SANDBOX_NETWORK = 'molecule-sandbox'
 
 /** Default Docker daemon TCP port for a plain (unencrypted) `tcp://` endpoint. */
 const DEFAULT_DOCKER_TCP_PORT = 2375
+
+/**
+ * Repository that holds sandbox templates, kept separate from the base image's
+ * repository so a template sweep can never reach `molecule-sandbox:latest`.
+ */
+const DEFAULT_TEMPLATE_REPOSITORY = 'molecule-sandbox-template'
+
+/** `X-Registry-Auth` for an anonymous or already-logged-in daemon. */
+const EMPTY_REGISTRY_AUTH = Buffer.from('{}').toString('base64')
+
+/** Ports published for every sandbox when the caller names none. */
+const DEFAULT_PUBLISH_PORTS = [4000, 5173]
+
+/** Maximum processes a sandbox may hold when the caller sets no `pidsLimit`. */
+const DEFAULT_PIDS_LIMIT = 512
 
 /**
  * A resolved Docker daemon endpoint — either a local unix socket or a TCP
@@ -171,6 +211,61 @@ class DockerMuxParser {
 }
 
 /**
+ * Validate the ports a caller asked to publish, falling back to this provider's
+ * historical API + Vite pair when it named none.
+ *
+ * Rejects rather than filters: a caller that asked for a port it cannot have
+ * needs to hear so, because the alternative is a dev server running inside a
+ * sandbox that nothing on the outside can ever reach — which looks like a broken
+ * application, not a bad argument.
+ *
+ * @param ports - Ports inside the sandbox the caller wants reachable.
+ * @returns The ports to expose and bind.
+ * @throws {Error} When a port is not a valid TCP port number.
+ */
+export function resolvePublishPorts(ports?: number[]): number[] {
+  if (!ports || ports.length === 0) return DEFAULT_PUBLISH_PORTS
+  for (const port of ports) {
+    if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+      throw new Error(`Invalid publish port ${String(port)}: must be an integer in 1-65535`)
+    }
+  }
+  return [...new Set(ports)]
+}
+
+/**
+ * Available memory in bytes, or `null` when it cannot be read.
+ *
+ * Prefers Linux `MemAvailable`, which is the kernel's estimate of what a new
+ * workload can use WITHOUT swapping and counts reclaimable page cache.
+ * `os.freemem()` excludes that cache and badly understates free memory on any
+ * warm host, so it is only the off-Linux fallback — using it as the primary
+ * signal rejects boots the host could comfortably serve.
+ *
+ * @returns Available bytes, or `null` when unreadable.
+ */
+async function availableMemoryBytes(): Promise<number | null> {
+  try {
+    const match = /^MemAvailable:\s+(\d+)\s+kB/m.exec(await readFile('/proc/meminfo', 'utf-8'))
+    if (match) {
+      const kb = Number.parseInt(match[1], 10)
+      if (Number.isFinite(kb) && kb > 0) return kb * 1024
+    }
+  } catch (_error) {
+    // /proc/meminfo is absent on non-Linux hosts and unreadable in some
+    // sandboxes — fall through to the portable estimate rather than failing.
+  }
+  try {
+    const bytes = freemem()
+    return Number.isFinite(bytes) && bytes > 0 ? bytes : null
+  } catch (_error) {
+    // No usable memory reading at all — report "unknown" so the caller does not
+    // mistake it for "exhausted".
+    return null
+  }
+}
+
+/**
  * Retry a Docker API operation that failed with a TRANSIENT fault — a request
  * timeout or a connection-level reset, i.e. the daemon was momentarily overwhelmed,
  * not the request malformed. This is the fix for the observed "first cold boot of a
@@ -257,6 +352,20 @@ class DockerSandboxProvider implements SandboxProvider {
   private configNetwork?: string
   /** [C1-1] Memoize the one-time ICC-off network ensure so create() pays it only once. */
   private networkEnsured = false
+  /** Explicit template repository from config; env is consulted at call time. */
+  private configTemplateRepository?: string
+  /** Explicit template registry from config; env is consulted at call time. */
+  private configTemplateRegistry?: string
+  /** Explicit registry credential from config; env is consulted at call time. */
+  private configTemplateRegistryAuth?: string
+  /**
+   * Whether this host still looks capable of CRIU checkpoints. Shared by
+   * `hibernate` and `resume` for every sandbox this provider hands out, so a host
+   * without CRIU pays one rejected request per process instead of one per
+   * hibernation. Held on the instance rather than at module scope so two
+   * providers (and two tests) do not inherit each other's verdict.
+   */
+  private checkpoints = { supported: true }
 
   constructor(config: DockerConfig = {}) {
     this.endpoint = resolveDockerEndpoint(config)
@@ -266,6 +375,54 @@ class DockerSandboxProvider implements SandboxProvider {
     this.defaultCpu = config.defaultCpu ?? 1
     this.defaultMemoryMB = config.defaultMemoryMB ?? 1024
     this.configNetwork = config.network
+    this.configTemplateRepository = config.templateRepository
+    this.configTemplateRegistry = config.templateRegistry
+    this.configTemplateRegistryAuth = config.templateRegistryAuth
+  }
+
+  /**
+   * Assemble the context every template operation runs against. Env is read here
+   * rather than in the constructor, matching {@link resolveNetwork}: this
+   * provider is commonly constructed before the process has loaded its
+   * environment.
+   *
+   * @returns The template context.
+   */
+  private templateContext(): TemplateContext {
+    return {
+      request: (path, method, body, timeoutMs, headers) =>
+        this.dockerApi(path, method, body, timeoutMs, headers),
+      download: (path, timeoutMs) => this.dockerDownload(path, timeoutMs),
+      upload: (path, body, timeoutMs) => this.dockerUpload(path, body, timeoutMs),
+      baseImage: this.baseImage,
+      repository:
+        this.configTemplateRepository ??
+        process.env.SANDBOX_TEMPLATE_REPOSITORY ??
+        DEFAULT_TEMPLATE_REPOSITORY,
+      registry: this.configTemplateRegistry ?? process.env.SANDBOX_TEMPLATE_REGISTRY ?? '',
+      registryAuth:
+        this.configTemplateRegistryAuth ??
+        process.env.SANDBOX_TEMPLATE_REGISTRY_AUTH ??
+        EMPTY_REGISTRY_AUTH,
+      labelPrefix: this.labelPrefix,
+      warn: (message, meta) => logger.warn(message, meta),
+      debug: (message, meta) => logger.debug(message, meta),
+    }
+  }
+
+  /**
+   * The context shared by the inspection capabilities.
+   *
+   * @returns The inspection context.
+   */
+  private inspectContext(): InspectContext {
+    return {
+      request: (path, method, body, timeoutMs, headers) =>
+        this.dockerApi(path, method, body, timeoutMs, headers),
+      labelPrefix: this.labelPrefix,
+      warn: (message, meta) => logger.warn(message, meta),
+      debug: (message, meta) => logger.debug(message, meta),
+    }
   }
 
   /**
@@ -338,7 +495,31 @@ class DockerSandboxProvider implements SandboxProvider {
     await this.ensureSandboxNetwork()
     const cpu = config.resources?.cpu ?? this.defaultCpu
     const memoryMB = config.resources?.memoryMB ?? this.defaultMemoryMB
-    const image = config.image ?? this.baseImage
+    let image = config.image ?? this.baseImage
+
+    // Booting from a template is the caller naming a filesystem it captured. If
+    // it is gone, FAIL — falling back to the base image would hand back a
+    // healthy-looking sandbox whose contents are not the ones that were asked
+    // for, and nothing downstream would notice.
+    if (config.templateId) {
+      const template = await templates.getTemplate(this.templateContext(), config.templateId)
+      if (!template) {
+        throw new Error(
+          t(
+            'codeSandbox.docker.error.templateMissing',
+            { templateId: config.templateId },
+            {
+              defaultValue:
+                `Cannot create a sandbox from template "${config.templateId}": it does not exist. ` +
+                'Commit it first, or fetch it from the shared template store.',
+            },
+          ),
+        )
+      }
+      image = template.ref
+    }
+
+    const publishPorts = resolvePublishPorts(config.publishPorts)
 
     const env = Object.entries(config.env ?? {}).map(([k, v]) => `${k}=${v}`)
 
@@ -367,7 +548,7 @@ class DockerSandboxProvider implements SandboxProvider {
       // the Memory cap does not bound swap. [C1-2]
       MemorySwap: memoryBytes * 2,
       Init: true, // Use tini init to reap zombie processes
-      PidsLimit: 512,
+      PidsLimit: config.resources?.pidsLimit ?? DEFAULT_PIDS_LIMIT,
       SecurityOpt: ['no-new-privileges'],
       CapDrop: ['ALL'],
       // Minimal caps for the dev toolchain (file ownership + tini privilege drop).
@@ -376,11 +557,12 @@ class DockerSandboxProvider implements SandboxProvider {
       // bridge. Egress filtering must be enforced host-side, not in a tenant-rooted
       // container.
       CapAdd: ['CHOWN', 'SETGID', 'SETUID'],
-      // Bind ports to localhost only — prevents external access
-      PortBindings: {
-        '4000/tcp': [{ HostIp: '127.0.0.1', HostPort: '' }],
-        '5173/tcp': [{ HostIp: '127.0.0.1', HostPort: '' }],
-      },
+      // Bind ports to localhost only — prevents external access. Which ports is
+      // the caller's business (`config.publishPorts`); the historical
+      // API + Vite pair is the default so existing callers are unaffected.
+      PortBindings: Object.fromEntries(
+        publishPorts.map((port) => [`${port}/tcp`, [{ HostIp: '127.0.0.1', HostPort: '' }]]),
+      ),
       Tmpfs: { '/tmp': 'rw,noexec,nosuid,size=256m' },
       ReadonlyPaths: [
         '/proc/asound',
@@ -425,10 +607,7 @@ class DockerSandboxProvider implements SandboxProvider {
       Env: env,
       Labels: labels,
       HostConfig: hostConfig,
-      ExposedPorts: {
-        '4000/tcp': {},
-        '5173/tcp': {},
-      },
+      ExposedPorts: Object.fromEntries(publishPorts.map((port) => [`${port}/tcp`, {}])),
     }
 
     // Retry a transient create timeout (daemon momentarily overwhelmed under
@@ -890,6 +1069,73 @@ class DockerSandboxProvider implements SandboxProvider {
         }
       },
 
+      async hibernate(): Promise<HibernationOutcome> {
+        const outcome = await hibernateContainer(
+          {
+            request: (path, method, body, timeoutMs, headers) =>
+              provider.dockerApi(path, method, body, timeoutMs, headers),
+            checkpoints: provider.checkpoints,
+            warn: (message, meta) => logger.warn(message, meta),
+            info: (message, meta) => logger.info(message, meta),
+          },
+          containerId,
+        )
+        this.status = 'sleeping'
+        return outcome
+      },
+
+      async resume(): Promise<HibernationOutcome> {
+        const outcome = await resumeContainer(
+          {
+            request: (path, method, body, timeoutMs, headers) =>
+              provider.dockerApi(path, method, body, timeoutMs, headers),
+            checkpoints: provider.checkpoints,
+            warn: (message, meta) => logger.warn(message, meta),
+            info: (message, meta) => logger.info(message, meta),
+          },
+          containerId,
+        )
+        this.status = 'running'
+        return outcome
+      },
+
+      async setResources(resources: Partial<SandboxResources>): Promise<void> {
+        await updateContainerResources(
+          {
+            request: (path, method, body, timeoutMs, headers) =>
+              provider.dockerApi(path, method, body, timeoutMs, headers),
+            labelPrefix: provider.labelPrefix,
+            warn: (message, meta) => logger.warn(message, meta),
+            debug: (message, meta) => logger.debug(message, meta),
+          },
+          containerId,
+          resources,
+        )
+      },
+
+      async exportFiles(path: string): Promise<AsyncIterable<Uint8Array>> {
+        return exportContainerFiles(
+          {
+            download: (p, timeoutMs) => provider.dockerDownload(p, timeoutMs),
+            upload: (p, body, timeoutMs) => provider.dockerUpload(p, body, timeoutMs),
+          },
+          containerId,
+          path,
+        )
+      },
+
+      async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
+        await importContainerFiles(
+          {
+            download: (p, timeoutMs) => provider.dockerDownload(p, timeoutMs),
+            upload: (p, body, timeoutMs) => provider.dockerUpload(p, body, timeoutMs),
+          },
+          containerId,
+          path,
+          archive,
+        )
+      },
+
       onFileChange(_cb: (event: FileChangeEvent) => void): () => void {
         let active = true
         const poll = async (): Promise<void> => {
@@ -971,6 +1217,131 @@ class DockerSandboxProvider implements SandboxProvider {
     })
   }
 
+  // ---------------------------------------------------------------------------
+  // Templates
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Capture a sandbox's filesystem as a reusable template.
+   *
+   * See `templates.ts` for why this is not a plain `commit`: a sandbox keeps the
+   * project on a volume, and a volume is not part of a container's writable
+   * layer — so committing the sandbox itself produces an image that boots
+   * successfully with an empty workspace.
+   *
+   * @param options - What to capture and what to call it.
+   * @returns The template as it now exists.
+   */
+  async commitTemplate(options: CommitTemplateOptions): Promise<SandboxTemplate> {
+    return templates.commitTemplate(this.templateContext(), options)
+  }
+
+  /**
+   * Read one template by the caller's identifier.
+   *
+   * @param templateId - The caller's identifier.
+   * @returns The template, or `null` when no image carries that tag.
+   */
+  async getTemplate(templateId: string): Promise<SandboxTemplate | null> {
+    return templates.getTemplate(this.templateContext(), templateId)
+  }
+
+  /**
+   * Enumerate templates in this provider's template repository.
+   *
+   * @param options - Narrowing by id prefix.
+   * @returns Every matching template.
+   */
+  async listTemplates(options?: ListTemplatesOptions): Promise<SandboxTemplate[]> {
+    return templates.listTemplates(this.templateContext(), options)
+  }
+
+  /**
+   * Delete a template, refusing while a container is still backed by it.
+   *
+   * @param templateId - The caller's identifier.
+   */
+  async removeTemplate(templateId: string): Promise<void> {
+    return templates.removeTemplate(this.templateContext(), templateId)
+  }
+
+  /**
+   * Push a template to the configured registry so other hosts can boot from it.
+   *
+   * @param templateId - The caller's identifier.
+   */
+  async publishTemplate(templateId: string): Promise<void> {
+    return templates.publishTemplate(this.templateContext(), templateId)
+  }
+
+  /**
+   * Pull a template from the configured registry onto this host.
+   *
+   * @param templateId - The caller's identifier.
+   * @returns The now-local template, or `null` when the registry does not have it.
+   */
+  async fetchTemplate(templateId: string): Promise<SandboxTemplate | null> {
+    return templates.fetchTemplate(this.templateContext(), templateId)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Inspection
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Describe one sandbox without building a handle for it.
+   *
+   * @param id - The container id.
+   * @returns The descriptor, or `null` when no such container exists.
+   */
+  async describe(id: string): Promise<SandboxDescriptor | null> {
+    return describeContainer(this.inspectContext(), id)
+  }
+
+  /**
+   * Find sandboxes by the labels the caller put on them.
+   *
+   * @param query - Narrowing by label, status and project.
+   * @returns Descriptors for every match.
+   */
+  async find(query?: SandboxQuery): Promise<SandboxDescriptor[]> {
+    return findContainers(this.inspectContext(), query)
+  }
+
+  /**
+   * Enumerate named volumes and whether anything still has them attached.
+   *
+   * @param options - Narrowing by name prefix and attachment.
+   * @returns Every matching volume.
+   */
+  async listVolumes(options?: ListVolumesOptions): Promise<VolumeInfo[]> {
+    return listDockerVolumes(this.inspectContext(), options)
+  }
+
+  /**
+   * Measure what the host backing this daemon can still fit.
+   *
+   * @returns Measured headroom and an explanation of anything unmeasurable.
+   */
+  async capacity(): Promise<SandboxCapacity> {
+    return measureDockerCapacity({
+      request: (path, method, body, timeoutMs, headers) =>
+        this.dockerApi(path, method, body, timeoutMs, headers),
+      // Only a unix-socket daemon writes to storage this process can measure.
+      daemonIsLocal: 'socketPath' in this.endpoint,
+      statfs: async (path) => {
+        const stats = await statfs(path)
+        return {
+          bsize: Number(stats.bsize),
+          bavail: Number(stats.bavail),
+          ffree: Number(stats.ffree),
+        }
+      },
+      availableMemoryBytes,
+      warn: (message, meta) => logger.warn(message, meta),
+    })
+  }
+
   /**
    * Makes an HTTP request to the Docker Engine API via the Unix socket.
    * @param path - The API endpoint path (e.g. `/containers/create`).
@@ -981,6 +1352,8 @@ class DockerSandboxProvider implements SandboxProvider {
    *   image's contents during those calls, which scales with image size — a
    *   multi-GB `/workspace` reliably exceeds 30 s, and a client-side timeout on
    *   a create that succeeds server-side leaks a duplicate container.
+   * @param headers - Extra request headers. Registry operations need
+   *   `X-Registry-Auth`, which the daemon requires even for anonymous pulls.
    * @returns The parsed JSON response, or raw text for non-JSON responses.
    */
   private async dockerApi(
@@ -988,13 +1361,17 @@ class DockerSandboxProvider implements SandboxProvider {
     method = 'GET',
     body?: unknown,
     timeoutMs = 30_000,
+    headers?: Record<string, string>,
   ): Promise<unknown> {
     return new Promise((resolve, reject) => {
       const opts: http.RequestOptions = {
         ...this.endpoint,
         path: `/v1.44${path}`,
         method,
-        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        headers: {
+          ...(body ? { 'Content-Type': 'application/json' } : {}),
+          ...headers,
+        },
       }
 
       const req = http.request(opts, (res) => {
@@ -1030,6 +1407,124 @@ class DockerSandboxProvider implements SandboxProvider {
       req.on('error', reject)
       if (body) req.write(JSON.stringify(body))
       req.end()
+    })
+  }
+
+  /**
+   * Issue a Docker Engine API GET and hand back the response body as a byte
+   * stream.
+   *
+   * Unbuffered on purpose: this carries whole project trees, and materializing
+   * one in this process to hand it to the next call trades a slow transfer for
+   * an out-of-memory API. The error path DOES buffer, because an error body is
+   * a sentence and the caller needs to read it.
+   *
+   * @param path - The API endpoint path.
+   * @param timeoutMs - Request timeout (default 10 min).
+   * @returns The response body as an async byte stream.
+   */
+  private dockerDownload(path: string, timeoutMs = 600_000): Promise<AsyncIterable<Uint8Array>> {
+    return new Promise((resolve, reject) => {
+      const req = http.request(
+        { ...this.endpoint, path: `/v1.44${path}`, method: 'GET' },
+        (res) => {
+          if (res.statusCode && res.statusCode >= 400) {
+            const chunks: Buffer[] = []
+            res.on('data', (chunk: Buffer) => chunks.push(chunk))
+            res.on('end', () => {
+              reject(
+                new Error(
+                  t(
+                    'codeSandbox.docker.error.apiError',
+                    {
+                      method: 'GET',
+                      path,
+                      status: String(res.statusCode),
+                      error: Buffer.concat(chunks).toString(),
+                    },
+                    {
+                      defaultValue: `Docker API GET ${path}: ${res.statusCode} ${Buffer.concat(chunks).toString()}`,
+                    },
+                  ),
+                ),
+              )
+            })
+            res.on('error', reject)
+            return
+          }
+          resolve(res)
+        },
+      )
+      req.setTimeout(timeoutMs, () => {
+        req.destroy(new Error(`Docker API timeout: GET ${path}`))
+      })
+      req.on('error', reject)
+      req.end()
+    })
+  }
+
+  /**
+   * Issue a Docker Engine API PUT whose request body is a byte stream.
+   *
+   * Piped rather than written in a loop so Node applies backpressure — without
+   * it, a fast source fills this process's memory with everything the socket has
+   * not drained yet, which for a project tree is the whole tree.
+   *
+   * @param path - The API endpoint path.
+   * @param body - The request body as an async byte stream.
+   * @param timeoutMs - Request timeout (default 10 min).
+   */
+  private dockerUpload(
+    path: string,
+    body: AsyncIterable<Uint8Array>,
+    timeoutMs = 600_000,
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const req = http.request(
+        {
+          ...this.endpoint,
+          path: `/v1.44${path}`,
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/x-tar' },
+        },
+        (res) => {
+          const chunks: Buffer[] = []
+          res.on('data', (chunk: Buffer) => chunks.push(chunk))
+          res.on('end', () => {
+            if (res.statusCode && res.statusCode >= 400) {
+              reject(
+                new Error(
+                  t(
+                    'codeSandbox.docker.error.apiError',
+                    {
+                      method: 'PUT',
+                      path,
+                      status: String(res.statusCode),
+                      error: Buffer.concat(chunks).toString(),
+                    },
+                    {
+                      defaultValue: `Docker API PUT ${path}: ${res.statusCode} ${Buffer.concat(chunks).toString()}`,
+                    },
+                  ),
+                ),
+              )
+              return
+            }
+            resolve()
+          })
+          res.on('error', reject)
+        },
+      )
+      req.setTimeout(timeoutMs, () => {
+        req.destroy(new Error(`Docker API timeout: PUT ${path}`))
+      })
+      req.on('error', reject)
+      const source = Readable.from(body)
+      source.on('error', (error: Error) => {
+        req.destroy(error)
+        reject(error)
+      })
+      source.pipe(req)
     })
   }
 

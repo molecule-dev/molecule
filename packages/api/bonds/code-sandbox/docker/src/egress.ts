@@ -31,13 +31,7 @@ import net from 'net'
 
 import type { EgressVerdict } from '@molecule/api-code-sandbox'
 
-/** Issues a Docker Engine API request. Injected so this module stays testable. */
-export type DockerRequest = (
-  path: string,
-  method?: string,
-  body?: unknown,
-  timeoutMs?: number,
-) => Promise<unknown>
+import type { DockerRequest } from './request.js'
 
 /** Inputs the probe needs from the provider. */
 export interface EgressProbeContext {

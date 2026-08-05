@@ -1799,3 +1799,100 @@ describe('verifyEgress — delegates to the two-leg probe with the provider conf
     expect(body.HostConfig.NetworkMode).toBe('test-net')
   })
 })
+
+/**
+ * Provider-level wiring for the capabilities added alongside the expanded core
+ * interface. The module-level behaviour of each capability is covered in its own
+ * test file; what is checked here is that the provider actually reaches it, with
+ * its own configuration, through the real HTTP layer.
+ */
+describe('publish ports', () => {
+  it('publishes the caller-named ports instead of a hardcoded pair', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-ports' })
+    await provider.create({ projectId: 'p1', publishPorts: [8080] })
+
+    const body = JSON.parse(containerCreateCall().body!) as {
+      ExposedPorts: Record<string, unknown>
+      HostConfig: { PortBindings: Record<string, unknown> }
+    }
+    expect(Object.keys(body.ExposedPorts)).toEqual(['8080/tcp'])
+    expect(Object.keys(body.HostConfig.PortBindings)).toEqual(['8080/tcp'])
+  })
+
+  it('keeps the historical API + Vite pair when the caller names none', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-default-ports' })
+    await provider.create({ projectId: 'p1' })
+
+    const body = JSON.parse(containerCreateCall().body!) as {
+      ExposedPorts: Record<string, unknown>
+    }
+    expect(Object.keys(body.ExposedPorts).sort()).toEqual(['4000/tcp', '5173/tcp'])
+  })
+
+  it('rejects a port that is not a TCP port rather than dropping it', async () => {
+    const { resolvePublishPorts } = await import('../provider.js')
+    expect(() => resolvePublishPorts([0])).toThrow(/Invalid publish port/)
+    expect(() => resolvePublishPorts([70_000])).toThrow(/Invalid publish port/)
+    expect(resolvePublishPorts([5173, 5173])).toEqual([5173])
+  })
+})
+
+describe('create from a template', () => {
+  it('FAILS when the named template is gone instead of booting the base image', async () => {
+    // A silent fallback returns a healthy-looking sandbox whose filesystem is not
+    // the one that was asked for, and nothing downstream can tell.
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueResponse(404, JSON.stringify({ message: 'no such image' }))
+
+    await expect(provider.create({ projectId: 'p1', templateId: 'cfg-1' })).rejects.toThrow(
+      /template "cfg-1"/,
+    )
+    expect(httpRequestCalls.some((c) => String(c.opts.path).includes('/containers/create'))).toBe(
+      false,
+    )
+  })
+
+  it('boots from the template reference when it exists', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({
+      socketPath: '/test.sock',
+      templateRepository: 'my-templates',
+    })
+
+    enqueueNetworkCreate()
+    // GET /images/my-templates:cfg-1/json
+    enqueueJson(200, { Id: 'sha256:abc', Created: '2026-08-01T00:00:00Z', Size: 1, Config: {} })
+    // GET /containers/json?all=true (in-use check)
+    enqueueJson(200, [])
+    enqueueJson(201, { Id: 'container-from-template' })
+
+    await provider.create({ projectId: 'p1', templateId: 'cfg-1' })
+
+    const body = JSON.parse(containerCreateCall().body!) as { Image: string }
+    expect(body.Image).toBe('my-templates:cfg-1')
+  })
+})
+
+describe('capacity', () => {
+  it('reports no headroom at all for a TCP daemon', async () => {
+    // The daemon writes to a different machine's storage; this machine's numbers
+    // would be a confident wrong answer.
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ host: '10.0.0.5', port: 2375 })
+
+    const capacity = await provider.capacity!()
+    expect(capacity.headroom).toEqual({})
+    expect(capacity.admits).toBeNull()
+  })
+})

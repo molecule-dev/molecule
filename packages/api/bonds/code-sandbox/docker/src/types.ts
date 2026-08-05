@@ -43,6 +43,29 @@ export interface DockerConfig {
   labelPrefix?: string
   /** Preview URL template. Use {port} placeholder. */
   previewUrlTemplate?: string
+  /**
+   * Docker repository holding sandbox TEMPLATES — one tag per template id.
+   * Defaults to `molecule-sandbox-template` (or `SANDBOX_TEMPLATE_REPOSITORY`).
+   *
+   * Deliberately NOT the base image's repository. Sharing one repository between
+   * the base image and every template makes `docker images <repo>` and any
+   * cleanup written against it operate on both, and the only thing standing
+   * between a template sweep and the base image is a tag-prefix convention.
+   */
+  templateRepository?: string
+  /**
+   * Registry host for sharing templates across hosts, e.g. `registry.example.com`
+   * (or `SANDBOX_TEMPLATE_REGISTRY`). When unset, `publishTemplate`/`fetchTemplate`
+   * throw with an actionable message: the daemon CAN talk to a registry, so the
+   * capability is present and only the address is missing.
+   */
+  templateRegistry?: string
+  /**
+   * Base64-encoded Docker `X-Registry-Auth` value for {@link DockerConfig.templateRegistry}
+   * (or `SANDBOX_TEMPLATE_REGISTRY_AUTH`). Defaults to an empty credential set,
+   * which is what an anonymous or already-logged-in daemon needs.
+   */
+  templateRegistryAuth?: string
 }
 
 /**
@@ -65,4 +88,10 @@ export interface ProcessEnv {
   DOCKER_HOST?: string
   /** Docker network sandbox containers attach to (default `molecule-sandbox`, ICC-off). Overridden by `config.network`. [C1-1] */
   SANDBOX_DOCKER_NETWORK?: string
+  /** Docker repository holding sandbox templates (default `molecule-sandbox-template`). Overridden by `config.templateRepository`. */
+  SANDBOX_TEMPLATE_REPOSITORY?: string
+  /** Registry host for sharing templates across hosts. Overridden by `config.templateRegistry`. */
+  SANDBOX_TEMPLATE_REGISTRY?: string
+  /** Base64 `X-Registry-Auth` value for `SANDBOX_TEMPLATE_REGISTRY`. Overridden by `config.templateRegistryAuth`. */
+  SANDBOX_TEMPLATE_REGISTRY_AUTH?: string
 }
