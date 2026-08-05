@@ -15,11 +15,26 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      # Shared with release.yml via an IDENTICAL key, so whichever workflow runs
+      # first builds and the other restores — one build per commit, not two.
+      #
+      # The touch is load-bearing. scripts/build.js skips a package when its dist
+      # is NEWER than its src (an mtime test), and git checkout stamps sources
+      # with the checkout time — so a restored dist always looks stale and
+      # EVERYTHING rebuilds. That is what this cache did before: paid the download
+      # and rebuilt anyway.
+      #
+      # restore-keys is deliberately absent. A prefix match would restore dist
+      # from a DIFFERENT commit, and touching that would declare stale output
+      # fresh and ship it. Only an exact content-hash hit is safe to trust.
       - uses: actions/cache@v4
+        id: build-cache
         with:
           path: packages/**/dist
-          key: build-${{ hashFiles('packages/**/src/**', 'packages/**/tsconfig.json') }}
-          restore-keys: build-
+          key: mol-dist-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+      - name: Mark restored dist newer than src
+        if: steps.build-cache.outputs.cache-hit == 'true'
+        run: find packages -path '*/dist/*' -exec touch {} +
       - run: npm ci
       - run: npm run check:lockfile
       - run: npm run check:peer-deps

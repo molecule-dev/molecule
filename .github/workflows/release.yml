@@ -53,7 +53,7 @@ jobs:
         id: build-cache
         with:
           path: packages/**/dist
-          key: mol-dist-${{ runner.os }}-node22-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+          key: mol-dist-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
       - name: Mark restored dist newer than src
         if: steps.build-cache.outputs.cache-hit == 'true'
         run: find packages -path '*/dist/*' -exec touch {} +
