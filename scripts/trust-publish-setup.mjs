@@ -46,6 +46,12 @@ const OTP = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 // the safe way to test auth when a full run is failing, because it cannot feed
 // npm's OTP-verification limiter the way a few hundred rejected calls do.
 const ONLY = (args.find((a) => a.startsWith('--only=')) || '').split('=')[1]
+// How many requests are in flight. One OTP is valid for a single ~30s TOTP step,
+// so this decides how much of the fleet fits per code: 6 covered ~317. Raising it
+// is safe now that a rejection stops the run almost immediately — the limiter is
+// fed by hundreds of REJECTED calls, not by accepted ones.
+const CONCURRENCY =
+  Number((args.find((a) => a.startsWith('--concurrency=')) || '').split('=')[1]) || 12
 
 /**
  * Every publishable `@molecule` package name, at any directory depth.
@@ -186,7 +192,7 @@ const saveState = () =>
       }
     }
   }
-  await Promise.all(Array.from({ length: 6 }, worker))
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker))
 }
 
 saveState()
