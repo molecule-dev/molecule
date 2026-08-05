@@ -195,9 +195,16 @@ const todo = []
   process.stderr.write(`scanned ${scanned}/${all.length} | queued to publish: ${todo.length}\n`)
 }
 
+let attempted = 0
+
 for (const pkg of todo) {
   if (abortReason) break
-  if (done >= LIMIT) break
+  // Bound ATTEMPTS, not successes. `done >= LIMIT` only counted publishes that
+  // worked, so a `--limit 1` probe whose first package FAILED kept going — on
+  // 2026-08-05 it attempted four and failed all four, which is precisely the
+  // blast radius a probe exists to avoid.
+  if (attempted >= LIMIT) break
+  attempted++
   let published = false
 
   // A 429 ABORTS THE WHOLE RUN. This reverses the original design, on npm
@@ -246,12 +253,25 @@ for (const pkg of todo) {
       published = true
     } catch (error) {
       const out = `${error.stdout ?? ''}${error.stderr ?? ''}`
+      // npm puts its NOTICES first (the tarball manifest, config warnings) and the
+      // actual reason LAST, so the obvious `slice(0, 3)` captures pure noise and
+      // discards the error — which is exactly what happened on 2026-08-05: four
+      // failures reported nothing but 'npm warn Unknown user config "always-auth"'
+      // and a 📦 line, and stdio:'pipe' means none of it reaches the CI log either.
+      // Prefer real error lines; fall back to the TAIL, never the head.
+      const errLines = out
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l && !/^npm (notice|warn)/i.test(l))
+      const reason = (errLines.length ? errLines.slice(-4) : out.trim().split('\n').slice(-4))
+        .join(' | ')
+        .slice(0, 400)
       if (error.signal === 'SIGKILL') {
         // Killed by our own timeout. Report it as itself rather than letting it
         // land in the generic bucket, where a hang looks like a publish error.
         failed.push({
           name: pkg.name,
-          error: `TIMED OUT after 120s with no output — npm was likely blocked on a prompt. Tail: ${out.slice(-150) || '(nothing)'}`,
+          error: `TIMED OUT after 120s — npm was likely blocked on a prompt. Tail: ${reason || '(no output at all)'}`,
         })
         break
       }
@@ -300,10 +320,11 @@ for (const pkg of todo) {
       } else {
         realAttempts++
         if (realAttempts >= 3) {
-          failed.push({
-            name: pkg.name,
-            error: out.split('\n').slice(0, 3).join(' ').slice(0, 200),
-          })
+          failed.push({ name: pkg.name, error: reason || '(no output)' })
+          // Print it as it happens. A failure list at the very end is useless when
+          // the run is long or gets cancelled — this is the only place the reason
+          // reaches the CI log, since stdio is piped.
+          process.stderr.write(`  \u2717 ${pkg.name}: ${reason}\n`)
         }
       }
     }
