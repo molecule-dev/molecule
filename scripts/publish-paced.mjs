@@ -154,7 +154,10 @@ if (DRY) {
 
 let done = 0
 let failed = []
-let rateLimited = false
+// Set to a short reason string when the run must abort mid-way. Both causes —
+// the rate limiter and an auth failure — are ACCOUNT-WIDE, so continuing to the
+// next package cannot succeed and only makes things worse.
+let abortReason = null
 
 // Find what needs publishing with CONCURRENT reads, stopping as soon as we have
 // enough for this run. Two earlier designs each failed on one half of this:
@@ -193,7 +196,7 @@ const todo = []
 }
 
 for (const pkg of todo) {
-  if (rateLimited) break
+  if (abortReason) break
   if (done >= LIMIT) break
   let published = false
 
@@ -241,7 +244,34 @@ for (const pkg of todo) {
             `  window shut. Wait a FULL 24h with zero publish attempts (including\n` +
             `  CI), then resume in small batches:  --limit 25 --delay 20\n`,
         )
-        rateLimited = true
+        abortReason = 'rate limited'
+        break
+      } else if (/ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out)) {
+        // ALSO STOP THE ENTIRE RUN — an auth failure is systemic, never per-package.
+        //
+        // This message exists because npm makes the OIDC failure mode genuinely
+        // unreadable. Read lib/utils/oidc.js: EVERY failure path is a bare
+        // `return undefined` logged at `verbose`/`silly`, which is invisible at
+        // the default loglevel. npm then falls back to the `_authToken` in
+        // .npmrc — which, once NPM_TOKEN is deleted, setup-node has written as an
+        // EMPTY string. So "this package has no trusted publisher configured"
+        // surfaces as a plain ENEEDAUTH with nothing pointing at OIDC at all, and
+        // would do so 577 times in a row.
+        process.stderr.write(
+          `\n✗ AUTH FAILED on ${pkg.name} — stopping (auth is systemic, not per-package).\n` +
+            `  Published ${done} package(s) this run.\n\n` +
+            `  On CI this almost always means the OIDC exchange silently declined and\n` +
+            `  npm fell back to an empty token. Check, in order:\n` +
+            `    1. Is this package trusted?  scripts/trust-publish-setup.mjs\n` +
+            `       (npm cannot trust a package that is not on the registry yet —\n` +
+            `        brand-new packages go through scripts/bootstrap-new-packages.mjs)\n` +
+            `    2. Does the job grant  permissions: id-token: write ?\n` +
+            `    3. Is npm >= 11.5.1?  Older npm has no OIDC support and fails the same way.\n` +
+            `    4. Does the trusted publisher's workflow file match the one running?\n\n` +
+            `  To see npm's own reason, re-run one package with --loglevel verbose and\n` +
+            `  grep for "oidc" — those lines are hidden at the default loglevel.\n`,
+        )
+        abortReason = 'auth failed'
         break
       } else {
         realAttempts++
@@ -262,7 +292,7 @@ for (const pkg of todo) {
     }
     await sleep(DELAY_S * 1000)
   } else if (!failed.some((f) => f.name === pkg.name)) {
-    failed.push({ name: pkg.name, error: 'stopped: rate limited' })
+    failed.push({ name: pkg.name, error: `stopped: ${abortReason}` })
   }
 }
 
