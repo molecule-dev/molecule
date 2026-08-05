@@ -27,6 +27,11 @@
     "default"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/ai-voice/default"
+  },
   "devDependencies": {
     "@molecule/app-ai-voice": "1.0.1",
     "@types/dom-speech-recognition": "0.0.12",

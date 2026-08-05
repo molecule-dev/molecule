@@ -2,6 +2,11 @@
   "name": "@molecule/app-locales-password-generator",
   "version": "1.0.1",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/locales/password-generator"
+  },
   "description": "Translations for @molecule/app-password-generator-react in 79 languages",
   "type": "module",
   "main": "dist/index.js",

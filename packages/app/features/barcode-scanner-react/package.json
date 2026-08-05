@@ -30,6 +30,11 @@
     "react"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/barcode-scanner-react"
+  },
   "dependencies": {
     "@zxing/library": "0.23.0"
   },

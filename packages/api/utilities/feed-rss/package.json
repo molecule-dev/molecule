@@ -31,6 +31,11 @@
     "serializer"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/feed-rss"
+  },
   "devDependencies": {
     "@molecule/api-feed-rss-parser": "1.0.1",
     "@types/node": "26.1.2",

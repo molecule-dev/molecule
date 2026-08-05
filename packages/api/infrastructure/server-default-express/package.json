@@ -27,6 +27,11 @@
     "express"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/infrastructure/server-default-express"
+  },
   "devDependencies": {
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

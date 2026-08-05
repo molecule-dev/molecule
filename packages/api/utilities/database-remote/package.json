@@ -29,6 +29,11 @@
     "sqlite"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/database-remote"
+  },
   "devDependencies": {
     "@types/better-sqlite3": "7.6.13",
     "@types/node": "26.1.2",

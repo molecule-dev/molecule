@@ -32,6 +32,11 @@
     "parts"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/project-archive/object-storage"
+  },
   "peerDependencies": {
     "@molecule/api-logger": ">=1.0.1",
     "@molecule/api-project-archive": ">=1.0.1",

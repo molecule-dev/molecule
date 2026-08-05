@@ -26,6 +26,11 @@
     "shortcuts"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/core/keyboard-shortcuts"
+  },
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.1"
   },

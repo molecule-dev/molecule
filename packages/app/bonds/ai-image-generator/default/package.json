@@ -28,6 +28,11 @@
     "default"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/ai-image-generator/default"
+  },
   "devDependencies": {
     "@molecule/app-ai-image-generator": "1.0.1",
     "@molecule/app-i18n": "1.0.1",

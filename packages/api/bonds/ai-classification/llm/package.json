@@ -27,6 +27,11 @@
     "llm"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-classification/llm"
+  },
   "peerDependencies": {
     "@molecule/api-ai": "^1.0.1",
     "@molecule/api-ai-classification": "^1.0.1",

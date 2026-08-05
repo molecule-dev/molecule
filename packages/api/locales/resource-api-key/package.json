@@ -2,6 +2,11 @@
   "name": "@molecule/api-locales-resource-api-key",
   "version": "1.0.1",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/locales/resource-api-key"
+  },
   "description": "Locale bond for @molecule/api-resource-api-key.",
   "type": "module",
   "main": "dist/index.js",

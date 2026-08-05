@@ -28,6 +28,11 @@
     "dnd-kit"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/drag-drop/dndkit"
+  },
   "peerDependencies": {
     "@molecule/app-drag-drop": ">=1.0.1",
     "react": "^18.0.0 || ^19.0.0",

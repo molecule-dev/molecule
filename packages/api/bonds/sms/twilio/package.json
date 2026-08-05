@@ -26,6 +26,11 @@
     "twilio"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/sms/twilio"
+  },
   "dependencies": {
     "twilio": "6.0.2"
   },

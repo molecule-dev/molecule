@@ -26,6 +26,11 @@
     "preview"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/link-preview"
+  },
   "dependencies": {
     "undici": "7.29.0"
   },

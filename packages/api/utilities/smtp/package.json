@@ -27,6 +27,11 @@
     "nodemailer"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/smtp"
+  },
   "dependencies": {
     "nodemailer": "9.0.3"
   },

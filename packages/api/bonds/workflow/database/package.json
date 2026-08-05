@@ -27,6 +27,11 @@
     "database"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/workflow/database"
+  },
   "peerDependencies": {
     "@molecule/api-database": "^1.0.1",
     "@molecule/api-i18n": "^1.0.1",

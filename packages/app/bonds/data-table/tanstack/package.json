@@ -27,6 +27,11 @@
     "tanstack"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/data-table/tanstack"
+  },
   "dependencies": {
     "@tanstack/table-core": "8.21.3"
   },

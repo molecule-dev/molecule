@@ -27,6 +27,11 @@
     "websocket"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/realtime/socketio"
+  },
   "molecule": {
     "viteOptimizeInclude": [
       "socket.io-client"

@@ -29,6 +29,11 @@
     "resource"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/resources/readings"
+  },
   "devDependencies": {
     "@types/express": "5.0.6",
     "@types/node": "26.1.2",

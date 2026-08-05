@@ -17,6 +17,11 @@
   },
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/frameworks/svelte-ui"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -33,11 +38,6 @@
     "svelte": "5.56.8",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/app/bonds/ui/tailwind-svelte"
   },
   "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-svelte",
   "bugs": "https://github.com/molecule-dev/molecule/issues",

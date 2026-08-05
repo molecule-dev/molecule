@@ -28,6 +28,11 @@
     "mp4"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/video-render"
+  },
   "peerDependencies": {
     "@molecule/api-queue": "^1.0.1"
   },

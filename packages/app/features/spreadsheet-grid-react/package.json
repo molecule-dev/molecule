@@ -28,6 +28,11 @@
     "react"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/spreadsheet-grid-react"
+  },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",
     "@molecule/app-react": "^1.0.1",

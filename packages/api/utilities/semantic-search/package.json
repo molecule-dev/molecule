@@ -29,6 +29,11 @@
     "vector"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/semantic-search"
+  },
   "devDependencies": {
     "@molecule/api-ai-embeddings": "1.0.1",
     "@molecule/api-ai-vector-store": "1.0.1",

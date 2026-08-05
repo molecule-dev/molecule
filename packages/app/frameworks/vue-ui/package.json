@@ -17,6 +17,11 @@
   },
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/frameworks/vue-ui"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -35,11 +40,6 @@
     "vitest": "4.1.10",
     "vue": "3.5.40",
     "vue-tsc": "3.3.8"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/app/bonds/ui/tailwind-vue"
   },
   "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-vue",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
