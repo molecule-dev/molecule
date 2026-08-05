@@ -134,11 +134,6 @@ process.stderr.write(`discovered ${all.length} publishable packages\n`)
 
 all.sort((a, b) => a.name.localeCompare(b.name))
 
-// LAZY. This used to sweep all ~910 packages up front to build a work list,
-// which cost minutes of silence before a single package could be published —
-// absurd for `--limit 1`, which needs to look at roughly one package. Now each
-// package is checked only when we reach it, so a small batch does a small amount
-// of work and starts publishing almost immediately.
 if (DRY) {
   const missing = []
   let cursor = 0
@@ -161,29 +156,45 @@ let done = 0
 let failed = []
 let rateLimited = false
 
-let checked = 0
-let alreadyThere = 0
+// Find what needs publishing with CONCURRENT reads, stopping as soon as we have
+// enough for this run. Two earlier designs each failed on one half of this:
+//
+//   - an upfront sweep of all 910 was fast at skipping but cost minutes of
+//     silence before a --limit 1 run could publish anything;
+//   - a lazy sequential check started instantly but crawled, because it walks the
+//     ~333 already-published packages one at a time and each read can cost up to
+//     30s under a slow registry. A real run sat at "checked 50/910" for 30 min.
+//
+// Reads are not the rate-limited path (a full 910 sweep hit zero read-429s), so
+// concurrency is safe here — only PUBLISHES must stay single-threaded and paced.
+const todo = []
+{
+  const want = LIMIT === Infinity ? all.length : LIMIT
+  let cursor = 0
+  let scanned = 0
+  const worker = async () => {
+    while (cursor < all.length && todo.length < want) {
+      const pkg = all[cursor++]
+      const state = await isPublished(pkg.name, pkg.version)
+      scanned++
+      if (scanned % 100 === 0) {
+        process.stderr.write(
+          `  …scanned ${scanned}/${all.length}, found ${todo.length} to publish\n`,
+        )
+      }
+      if (state === false) todo.push(pkg)
+      // state === true  -> already there, skip
+      // state === null  -> registry inconclusive; skip rather than publish blind
+    }
+  }
+  await Promise.all(Array.from({ length: 8 }, worker))
+  todo.sort((a, b) => a.name.localeCompare(b.name))
+  process.stderr.write(`scanned ${scanned}/${all.length} | queued to publish: ${todo.length}\n`)
+}
 
-for (const pkg of all) {
+for (const pkg of todo) {
   if (rateLimited) break
   if (done >= LIMIT) break
-
-  // Check this one package, now, rather than having swept everything up front.
-  checked++
-  const state = await isPublished(pkg.name, pkg.version)
-  if (state === true) {
-    alreadyThere++
-    continue
-  }
-  if (state === null) {
-    // Registry did not give a usable answer. Skip rather than guess — publishing
-    // blind would either duplicate work or mask a real problem.
-    failed.push({ name: pkg.name, error: 'registry check inconclusive (timeout or non-OK)' })
-    continue
-  }
-  if (checked % 50 === 0) {
-    process.stderr.write(`  …checked ${checked}/${all.length} (published so far: ${done})\n`)
-  }
   let published = false
 
   // A 429 ABORTS THE WHOLE RUN. This reverses the original design, on npm
@@ -256,7 +267,7 @@ for (const pkg of all) {
 }
 
 process.stderr.write(
-  `\nDONE. published this run: ${done} | already published: ${alreadyThere} | checked: ${checked}/${all.length} | failures: ${failed.length}\n`,
+  `\nDONE. published this run: ${done}/${todo.length} queued | fleet: ${all.length} | failures: ${failed.length}\n`,
 )
 if (failed.length) {
   writeFileSync(join(ROOT, '.publish-failures.json'), JSON.stringify(failed, null, 2))

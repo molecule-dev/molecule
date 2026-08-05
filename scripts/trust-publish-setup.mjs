@@ -1,37 +1,43 @@
 #!/usr/bin/env node
 /**
- * Configure npm trusted publishing (OIDC) for every `@molecule/*` package.
+ * Configure npm trusted publishing (OIDC) for every `@molecule` package.
  *
  * Trusted publishing replaces a long-lived NPM_TOKEN with a short-lived OIDC
  * token minted per CI run, so nothing publishable sits at rest in a secret store.
- * It must be configured PER PACKAGE, which at 903 packages means a loop.
+ * It must be configured PER PACKAGE — npm has no scope- or org-level setting —
+ * which at 900+ packages means a loop.
  *
- * AUTH — read this before running:
- * `npm trust` is an account-changing operation, so npm REFUSES it from a granular
- * token with "bypass 2FA" enabled:
+ * WHY THIS POSTS DIRECTLY INSTEAD OF RUNNING `npm trust github`:
+ * npm CLI 11.12.1 omits the `permissions` field the registry requires, so the
+ * CLI cannot succeed at all. It fails with a bare 400 and no explanation; the
+ * response body, which the CLI swallows, says:
  *
- *   403 — "Granular access tokens that bypass two-factor authentication may not
- *          perform this action."
+ *   permissions is required and must contain at least one valid route
  *
- * `--otp` does not help; the token TYPE is rejected, not the challenge. So:
+ * and the API's own validation names the only accepted values:
  *
- *   1. mv ~/.npmrc ~/.npmrc.token-backup     # set the bypass token aside
- *   2. npm login                             # browser flow, satisfies 2FA
- *   3. On npmjs.com, take the "skip 2FA for the next 5 minutes" option that
- *      appears during the first challenge — otherwise every package prompts.
- *   4. node scripts/trust-publish-setup.mjs --write
+ *   "[0].permissions[0]" must be one of [createPackage, createStagedPackage]
  *
- * Idempotent: re-running is safe, and an already-trusted package is reported as
- * such rather than treated as an error. Failures are written to
- * .trust-failures.json so a follow-up run can target only what is left.
+ * Sending those directly returns 201 Created. Verified 2026-08-05. If a later
+ * npm CLI starts sending `permissions`, this can go back to shelling out.
  *
- *   node scripts/trust-publish-setup.mjs            # dry run — list what it would do
- *   node scripts/trust-publish-setup.mjs --write    # apply
- *   node scripts/trust-publish-setup.mjs --write --delay 2
+ * AUTH: needs a token in ~/.npmrc from `npm login`. A granular token with
+ * "bypass 2FA" is REFUSED for trust config — it counts as an account change.
+ * Trust config is 2FA-protected, so pass a current code:
+ *
+ *   npm login
+ *   node scripts/trust-publish-setup.mjs --write --otp=123456
+ *
+ * Idempotent: an already-trusted package is reported as such, and a package not
+ * yet on the registry is counted separately — those need a first publish, see
+ * bootstrap-new-packages.mjs.
+ *
+ *   node scripts/trust-publish-setup.mjs                      # dry run
+ *   node scripts/trust-publish-setup.mjs --write --otp=123456
  */
-import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -39,16 +45,14 @@ import { fileURLToPath } from 'node:url'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const WRITE = args.includes('--write')
-const delayIdx = args.indexOf('--delay')
-const DELAY_S = delayIdx === -1 ? 1 : Number(args[delayIdx + 1])
+const OTP = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 
 const REPO = 'molecule-dev/molecule'
 const WORKFLOW = 'release.yml'
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const PERMISSIONS = ['createPackage', 'createStagedPackage']
 
 /**
- * Every publishable `@molecule` package name.
+ * Every publishable `@molecule` package name, at any directory depth.
  *
  * @returns Sorted package names.
  */
@@ -82,59 +86,111 @@ function discover() {
 }
 
 const packages = discover()
-console.log(`${packages.length} package(s) to trust → ${REPO} / ${WORKFLOW}`)
+console.log(`${packages.length} package(s) to trust -> ${REPO} / ${WORKFLOW}`)
 
 if (!WRITE) {
-  packages
-    .slice(0, 5)
-    .forEach((n) => console.log(`  npm trust github ${n} --file ${WORKFLOW} --repo ${REPO} --yes`))
-  console.log(`  …and ${packages.length - 5} more`)
-  console.log(
-    '\nDry run — nothing sent. See the AUTH steps in this file, then re-run with --write.',
-  )
+  console.log(`\npermissions: ${JSON.stringify(PERMISSIONS)}`)
+  console.log('Dry run. See the AUTH notes in this file, then re-run with --write --otp=CODE.')
   process.exit(0)
+}
+
+const rcPath = join(homedir(), '.npmrc')
+const token = existsSync(rcPath)
+  ? (readFileSync(rcPath, 'utf8').match(/\/\/registry\.npmjs\.org\/:_authToken\s*=\s*(.+)/) ||
+      [])[1]?.trim()
+  : null
+if (!token) {
+  console.error('No auth token in ~/.npmrc — run `npm login` first.')
+  process.exit(1)
+}
+
+/**
+ * Configure trusted publishing for a single package.
+ *
+ * @param name - Package name.
+ * @returns Status, ok flag and response text.
+ */
+async function trustOne(name) {
+  const res = await fetch(
+    `https://registry.npmjs.org/-/package/${name.replace('/', '%2f')}/trust`,
+    {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+        accept: 'application/json',
+        ...(OTP ? { 'npm-otp': OTP } : {}),
+      },
+      body: JSON.stringify([
+        {
+          type: 'github',
+          claims: { repository: REPO, workflow_ref: { file: WORKFLOW } },
+          permissions: PERMISSIONS,
+        },
+      ]),
+      signal: AbortSignal.timeout(20_000),
+    },
+  )
+  return { status: res.status, ok: res.ok, text: (await res.text()).slice(0, 200) }
 }
 
 let ok = 0
 let already = 0
+let notPublished = 0
 const failed = []
+let stop = false
 
-for (const [index, name] of packages.entries()) {
-  try {
-    execFileSync('npm', ['trust', 'github', name, '--file', WORKFLOW, '--repo', REPO, '--yes'], {
-      cwd: ROOT,
-      stdio: 'pipe',
-      encoding: 'utf8',
-    })
-    ok++
-  } catch (error) {
-    const out = `${error.stdout ?? ''}${error.stderr ?? ''}`
-    if (/already (exists|trusted)|duplicate/i.test(out)) {
-      already++
-    } else {
-      failed.push({
-        name,
-        error: out.split('\n').filter(Boolean).slice(-2).join(' ').slice(0, 200),
-      })
-      // A 403 here means the auth problem above — every subsequent call fails the
-      // same way, so stop rather than grinding through 900 identical failures.
-      if (/E403|403 Forbidden|bypass two-factor/i.test(out)) {
-        console.error(`\n✗ ${name}: ${failed.at(-1).error}`)
-        console.error('\nAuth rejected — see the AUTH steps at the top of this file.')
-        break
+// Concurrent: npm's 2FA window is short and 900 sequential calls will not fit.
+// Trust config is an account change, not a publish, so the publish rate limiter
+// does not apply here.
+{
+  let cursor = 0
+  const worker = async () => {
+    while (cursor < packages.length && !stop) {
+      const name = packages[cursor++]
+      try {
+        const r = await trustOne(name)
+        if (r.ok) {
+          ok++
+        } else if (/already|duplicate/i.test(r.text)) {
+          already++
+        } else if (r.status === 404) {
+          notPublished++
+        } else {
+          failed.push({ name, error: `${r.status} ${r.text}` })
+          // Bail on a real failure streak rather than enumerating error codes: an
+          // earlier version stopped only on specific ones and ground through
+          // hundreds of identical failures when the code changed.
+          if (failed.length >= 3) {
+            stop = true
+            console.error(
+              `\nstopping after ${failed.length} failures (last: ${name} — ${r.status})`,
+            )
+          }
+        }
+      } catch (error) {
+        failed.push({ name, error: String(error.message).slice(0, 150) })
+      }
+      const total = ok + already + notPublished + failed.length
+      if (total % 50 === 0) {
+        console.log(
+          `  ${total}/${packages.length} (trusted:${ok} already:${already} unpublished:${notPublished} failed:${failed.length})`,
+        )
       }
     }
   }
-
-  if ((index + 1) % 25 === 0)
-    console.log(
-      `  ${index + 1}/${packages.length} (ok:${ok} already:${already} failed:${failed.length})`,
-    )
-  if (DELAY_S) await sleep(DELAY_S * 1000)
+  await Promise.all(Array.from({ length: 6 }, worker))
 }
 
-console.log(`\nDONE. trusted:${ok} already:${already} failed:${failed.length}`)
-if (failed.length) {
+console.log(
+  `\nDONE. trusted:${ok} already:${already} not-yet-published:${notPublished} failed:${failed.length}`,
+)
+if (notPublished > 0) {
+  console.log(`${notPublished} not on the registry yet — use bootstrap-new-packages.mjs for those.`)
+}
+if (failed.length > 0) {
   writeFileSync(join(ROOT, '.trust-failures.json'), JSON.stringify(failed, null, 2))
-  console.log('failures → molecule/.trust-failures.json')
+  failed.slice(0, 5).forEach((f) => console.log(`  ${f.name}: ${f.error}`))
+  console.log('full list: molecule/.trust-failures.json')
+  process.exit(1)
 }
