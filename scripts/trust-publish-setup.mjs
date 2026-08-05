@@ -213,7 +213,11 @@ const saveState = () =>
 
 saveState()
 
-const trustedTotal = doneAlready.size + succeeded.length
+// Count the UNION, not the sum. Adding the two lengths double-counts every
+// package under --recheck, where each one is both already in the saved state and
+// answered for again this run — which printed a cheerful "1820/910 trusted |
+// -910 remaining".
+const trustedTotal = new Set([...doneAlready, ...succeeded]).size
 const remaining = all.length - trustedTotal
 console.log(
   `\nThis run: trusted:${ok} already:${already} not-yet-published:${notPublished} failed:${failed.length}`,
