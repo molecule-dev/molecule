@@ -43,7 +43,7 @@
     "lint": "eslint packages/ --max-warnings 0",
     "lint:fix": "eslint packages/ --fix --max-warnings 0",
     "prepare": "husky",
-    "release": "npm run build && node scripts/publish-paced.mjs --delay 10",
+    "release": "npm run build && node scripts/publish-paced.mjs",
     "sync:lockfile": "node scripts/sync-lockfile.js",
     "test": "vitest run",
     "test:all": "npm run test --workspaces --if-present",

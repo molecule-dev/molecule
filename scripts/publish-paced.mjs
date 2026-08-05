@@ -226,11 +226,35 @@ for (const pkg of todo) {
           // answer, not three hidden ones.
           '--fetch-retries=0',
         ],
-        { cwd: pkg.dir, stdio: 'pipe', encoding: 'utf8' },
+        {
+          cwd: pkg.dir,
+          // stdin MUST be closed. With `stdio: 'pipe'` npm gets a live stdin, so
+          // the moment it decides it wants a one-time password it prints the
+          // prompt and blocks on a read that will never return. On 2026-08-05
+          // that hung a single `npm publish` for 7.5 minutes with ZERO output
+          // until the run was cancelled — and left to itself it would have
+          // consumed the 6h job limit and published nothing. Closing stdin turns
+          // an unbounded hang into an instant, readable error.
+          stdio: ['ignore', 'pipe', 'pipe'],
+          encoding: 'utf8',
+          // Belt and braces: no single package may wedge a 577-package loop, for
+          // any reason — prompt, stalled socket, or a hang we have not seen yet.
+          timeout: 120_000,
+          killSignal: 'SIGKILL',
+        },
       )
       published = true
     } catch (error) {
       const out = `${error.stdout ?? ''}${error.stderr ?? ''}`
+      if (error.signal === 'SIGKILL') {
+        // Killed by our own timeout. Report it as itself rather than letting it
+        // land in the generic bucket, where a hang looks like a publish error.
+        failed.push({
+          name: pkg.name,
+          error: `TIMED OUT after 120s with no output — npm was likely blocked on a prompt. Tail: ${out.slice(-150) || '(nothing)'}`,
+        })
+        break
+      }
       if (/cannot publish over|EPUBLISHCONFLICT|previously published/i.test(out)) {
         published = true // Already there; done, not an error.
       } else if (/E429|429 Too Many/i.test(out)) {
