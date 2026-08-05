@@ -34,18 +34,30 @@ import {
   verdictForProbeExit,
 } from './egress.js'
 import { execCommand, type RawExec, toExecResult } from './exec.js'
+import {
+  assertPrivateRoutesForEnv,
+  decodePrivateRoutes,
+  DEFAULT_PRIVATE_IP_TYPE,
+  encodePrivateRoutes,
+  flycastHost,
+  mergeEgressPorts,
+  parsePrivateServices,
+  PRIVATE_ROUTES_METADATA_SUFFIX,
+} from './flycast.js'
 import { appNameForProject, mapMachineState, parseSandboxId, toSandboxId } from './ids.js'
 import { createTemplateStore, MAX_PRESIGN_EXPIRY_SECONDS, type ObjectStore } from './storage.js'
 import * as templates from './templates.js'
 import type {
   FlyExecResponse,
   FlyioConfig,
+  FlyIpAssignment,
   FlyMachine,
   FlyMachineConfig,
   FlyMachineService,
   FlyNetworkPolicy,
   FlyNetworkPolicyPort,
   FlyOrgMachine,
+  FlyPrivateService,
   FlyVolume,
 } from './types.js'
 import { shellQuote } from './utilities.js'
@@ -284,8 +296,35 @@ class FlyioSandboxProvider implements SandboxProvider {
   // ---------------------------------------------------------------------------
 
   /**
+   * Resolves the custom 6PN network a project's app lives on, or `undefined` in
+   * shared-app mode (where the app is on the org's default network).
+   * @param app - The Fly app name.
+   * @returns The network name, or `undefined`.
+   */
+  private networkFor(app: string): string | undefined {
+    if (!this.appPerProject()) return undefined
+    return this.config.network ?? app
+  }
+
+  /**
+   * Resolves the apps every sandbox must reach across its per-project 6PN.
+   *
+   * Empty in shared-app mode: that app sits on the org's default network, where
+   * `<app>.internal` already resolves and Flycast would add nothing.
+   * @returns The declared services, or `undefined` when none are configured.
+   */
+  private privateServices(): FlyPrivateService[] | undefined {
+    if (!this.appPerProject()) return undefined
+    return (
+      this.config.privateServices ?? parsePrivateServices(process.env.FLY_SANDBOX_PRIVATE_SERVICES)
+    )
+  }
+
+  /**
    * Idempotently ensures the Fly app exists, creating it on its own custom 6PN
-   * network in per-project mode, and applies the egress network policy.
+   * network in per-project mode, applies the egress network policy, and
+   * allocates the Flycast routes that let the sandbox reach the tenant database
+   * and the egress proxy.
    *
    * A Fly app's network CANNOT be changed after creation, so an app that already
    * exists is used as-is — this never silently "fixes" an app that was created
@@ -294,14 +333,23 @@ class FlyioSandboxProvider implements SandboxProvider {
    * Machines for changes to take effect") and this runs before the Machine is
    * created.
    * @param app - The Fly app name.
-   * @returns Nothing; resolves once the app exists and carries the egress policy.
+   * @param options - `privateRoutes: false` skips the Flycast allocation, which
+   *   is what the throwaway `verifyEgress()` app wants: it never connects to
+   *   anything but the probe targets, and allocating for an app that is deleted
+   *   seconds later would leak one address per probe on every target app.
+   * @returns Target app name → allocated private address, for recording in the
+   *   Machine's metadata. Empty when no private services are declared.
    */
-  private async ensureApp(app: string): Promise<void> {
+  private async ensureApp(
+    app: string,
+    options: { privateRoutes?: boolean } = {},
+  ): Promise<Record<string, string>> {
     const existing = await this.client.request<{ name: string }>(`/apps/${app}`, { nullOn: [404] })
 
     if (!existing) {
       const body: Record<string, unknown> = { name: app, org_slug: this.orgSlug() }
-      if (this.appPerProject()) body.network = this.config.network ?? app
+      const network = this.networkFor(app)
+      if (network) body.network = network
 
       let created = true
       try {
@@ -322,11 +370,205 @@ class FlyioSandboxProvider implements SandboxProvider {
     }
 
     await this.applyEgressPolicy(app)
+
+    if (options.privateRoutes === false) return {}
+    return this.ensurePrivateRoutes(app, Boolean(existing))
+  }
+
+  /**
+   * Allocates a Flycast private address on every declared service app, INTO this
+   * project's 6PN, so `<service>.flycast` resolves from inside the sandbox.
+   *
+   * A failure here is FATAL, for the same reason the egress policy's is: a
+   * sandbox whose route to its own database was never created boots perfectly,
+   * reports healthy, and then fails to connect somewhere deep inside the user's
+   * own application — which is indistinguishable from the user's code being
+   * wrong. Failing the boot with the app name and the remedy is the only honest
+   * outcome.
+   *
+   * Self-healing rather than create-once: an app that already exists is checked
+   * against the routes recorded on its Machines and any MISSING service is
+   * allocated. Fly's own `IPAssignment` carries no network, so a listing on the
+   * target app cannot answer "does this project already have a route" — the
+   * Machine metadata this provider wrote is the only record.
+   * @param app - The Fly app name (which is also its 6PN network name).
+   * @param appExisted - Whether the app was already there, in which case its
+   *   Machines may carry addresses allocated by an earlier boot.
+   * @returns Target app name → private address.
+   */
+  private async ensurePrivateRoutes(
+    app: string,
+    appExisted: boolean,
+  ): Promise<Record<string, string>> {
+    const services = this.privateServices()
+    const network = this.networkFor(app)
+    if (!services?.length || !network) return {}
+
+    const routes = appExisted ? await this.recordedPrivateRoutes(app) : {}
+    for (const service of services) {
+      if (routes[service.app]) continue
+      const ip = await this.allocatePrivateAddress(service, network)
+      if (ip) routes[service.app] = ip
+    }
+    return routes
+  }
+
+  /**
+   * Reads the private addresses an earlier boot recorded on this app's Machines.
+   * @param app - The Fly app name.
+   * @returns Target app name → private address; empty when nothing is recorded.
+   */
+  private async recordedPrivateRoutes(app: string): Promise<Record<string, string>> {
+    const key = `${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`
+    try {
+      const machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
+        nullOn: [404],
+      })
+      for (const machine of machines ?? []) {
+        const recorded = machine.config?.metadata?.[key]
+        if (recorded) return decodePrivateRoutes(recorded)
+      }
+    } catch (error) {
+      // Only the reuse optimization is lost. Falling through allocates the
+      // routes again, which costs an address rather than a broken sandbox —
+      // and the alternative (treating an unreadable listing as "routes exist")
+      // is exactly the "I could not look" ⇒ "it is fine" conflation this
+      // provider refuses everywhere else.
+      logger.warn(
+        'Could not read the Fly sandbox app’s Machines for recorded private routes — ' +
+          'reallocating, which may leave an unreferenced address on the target apps',
+        { app, error },
+      )
+    }
+    return {}
+  }
+
+  /**
+   * Allocates ONE Flycast private address on a target app, for this project's
+   * network.
+   *
+   * `POST /v1/apps/{app}/ip_assignments` with `{type, network, org_slug}` — the
+   * REST equivalent of `fly ips allocate-v6 --private --network <network>`. The
+   * request schema (`assignIPRequest`) is in Fly's OpenAPI specification; the
+   * `type` value is not enumerated there, so it is configurable.
+   * @param service - The declared target app and the port sandboxes dial it at.
+   * @param network - The project's 6PN, which requests will originate from.
+   * @returns The allocated address, or `undefined` when Fly reports the address
+   *   already exists and cannot be re-read.
+   * @throws {Error} When the allocation fails, or succeeds without returning an
+   *   address — an allocation this provider can neither verify nor release later
+   *   is untracked state, and the boot is the last moment it can be reported.
+   */
+  private async allocatePrivateAddress(
+    service: FlyPrivateService,
+    network: string,
+  ): Promise<string | undefined> {
+    let assignment: FlyIpAssignment | null
+    try {
+      assignment = await this.client.request<FlyIpAssignment>(
+        `/apps/${service.app}/ip_assignments`,
+        {
+          method: 'POST',
+          body: {
+            type: this.config.privateIpAssignmentType ?? DEFAULT_PRIVATE_IP_TYPE,
+            network,
+            org_slug: this.orgSlug(),
+          },
+        },
+      )
+    } catch (error) {
+      // A conflict means an address for this (app, network) pair is already
+      // there — from a boot that crashed between allocating and recording. The
+      // ROUTE is what the sandbox needs and it exists, so this is not a boot
+      // failure; it is an address this provider can no longer release, because
+      // Fly's listing does not report which network an address belongs to.
+      if (error instanceof FlyApiError && (error.status === 409 || error.status === 422)) {
+        logger.warn(
+          'A Fly private address for this project’s network already exists on the target app — ' +
+            'the route works, but this one cannot be released on destroy. Reconcile with ' +
+            '`fly ips list --app <target>`.',
+          { target: service.app, network, status: error.status },
+        )
+        return undefined
+      }
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.privateRouteFailed',
+          { app: service.app, network },
+          {
+            defaultValue:
+              `Could not allocate a Flycast private address on Fly app "${service.app}" for ` +
+              `network "${network}", so a sandbox in that network cannot reach ` +
+              `"${flycastHost(service.app)}:${service.port}". Check that the API token may ` +
+              `allocate IPs on "${service.app}", that the app exists in organization ` +
+              `"${this.orgSlug()}", and that it declares an [http_service] or [services] section ` +
+              '— Flycast routes through Fly Proxy and does nothing without one.',
+          },
+        ),
+        { cause: error },
+      )
+    }
+
+    if (!assignment?.ip) {
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.privateRouteNoAddress',
+          { app: service.app, network },
+          {
+            defaultValue:
+              `Fly allocated a private address on app "${service.app}" for network "${network}" ` +
+              'but returned no address, so it can never be released. Check ' +
+              `\`fly ips list --app ${service.app}\` and remove the orphan.`,
+          },
+        ),
+      )
+    }
+    logger.info('Allocated a Fly private (Flycast) address for a sandbox network', {
+      target: service.app,
+      network,
+      host: flycastHost(service.app),
+      port: service.port,
+    })
+    return assignment.ip
+  }
+
+  /**
+   * Releases the Flycast addresses a project's sandbox recorded.
+   *
+   * Best-effort: the sandbox is being destroyed either way, and an address left
+   * behind is a reconciliation item (`fly ips list --app <target>`) rather than
+   * a failed teardown. It routes into a 6PN that no longer has any app in it.
+   * @param routes - Target app name → private address, from Machine metadata.
+   */
+  private async releasePrivateRoutes(routes: Record<string, string>): Promise<void> {
+    for (const [target, ip] of Object.entries(routes)) {
+      try {
+        await this.client.request(`/apps/${target}/ip_assignments/${encodeURIComponent(ip)}`, {
+          method: 'DELETE',
+          nullOn: [404],
+        })
+        logger.debug('Released a Fly private (Flycast) address', { target, ip })
+      } catch (error) {
+        logger.warn(
+          'Failed to release a Fly private (Flycast) address — it will keep pointing at a 6PN ' +
+            'with no apps in it until it is reconciled with `fly ips list`',
+          { target, ip, error },
+        )
+      }
+    }
   }
 
   /**
    * Resolves the ports the egress network policy allows, or `undefined` when no
    * policy should be applied.
+   *
+   * The operator's list is UNIONED with the port of every declared private
+   * service, because those two are one decision wearing two hats: a policy is
+   * deny-by-default once any rule exists, so declaring
+   * `molecule-pg-tenant:5432` and leaving the policy at `tcp:3128` would drop
+   * every database connection in the fleet with no diagnostic but a timeout.
+   * Deriving it is what lets the operator documentation keep saying "never widen
+   * this list" — see {@link mergeEgressPorts}.
    * @returns The allowed ports, or `undefined`.
    * @throws {Error} When configured with an EMPTY list. Fly documents the deny
    *   default as a consequence of an `allow` rule existing and says nothing
@@ -334,6 +576,16 @@ class FlyioSandboxProvider implements SandboxProvider {
    *   control whose behaviour is a guess.
    */
   private egressAllowedPorts(): FlyNetworkPolicyPort[] | undefined {
+    return mergeEgressPorts(this.configuredEgressPorts(), this.privateServices())
+  }
+
+  /**
+   * Resolves ONLY the ports the operator configured, before the declared private
+   * services are merged in.
+   * @returns The configured ports, or `undefined` when no policy should be applied.
+   * @throws {Error} When configured with an EMPTY list.
+   */
+  private configuredEgressPorts(): FlyNetworkPolicyPort[] | undefined {
     const configured = this.config.egressAllowedPorts
     if (configured) {
       if (configured.length === 0) {
@@ -535,12 +787,26 @@ class FlyioSandboxProvider implements SandboxProvider {
       manifest = found.manifest
     }
 
+    // Also resolved BEFORE anything is provisioned: a sandbox told to dial a
+    // `.flycast` host nobody declared would boot healthy and then fail to
+    // connect inside the user's own application.
+    assertPrivateRoutesForEnv(config.env, this.privateServices())
+
     const app = this.resolveApp(config.projectId)
-    await this.ensureApp(app)
+    const privateRoutes = await this.ensureApp(app)
 
     const metadata: Record<string, string> = {
       [`${this.metadataPrefix}.projectId`]: config.projectId,
       [`${this.metadataPrefix}.managed`]: 'true',
+      // Recorded so `destroy()` can release exactly the addresses this project
+      // allocated. Fly's IP listing does not report which network an address
+      // belongs to, so nothing else can reconstruct this.
+      ...(Object.keys(privateRoutes).length
+        ? {
+            [`${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`]:
+              encodePrivateRoutes(privateRoutes),
+          }
+        : {}),
       // Recorded for operators reconciling which sandboxes came from which
       // template. It is NOT what `inUse` is derived from — see `templates.ts`.
       ...(config.templateId ? { [`${this.metadataPrefix}.templateId`]: config.templateId } : {}),
@@ -705,28 +971,39 @@ class FlyioSandboxProvider implements SandboxProvider {
    * also removes its volumes and its custom 6PN network — leaving an empty app
    * behind would leak both. In shared-app mode only the Machine and its own
    * volumes are removed.
+   *
+   * The Flycast addresses this project holds live on OTHER apps (the tenant
+   * database, the egress proxy), so deleting the app does not touch them. They
+   * are read from the Machine's metadata FIRST — the Machine is the only record
+   * of which address belongs to which network — and released last.
    * @param id - The composite sandbox id.
    */
   async destroy(id: string): Promise<void> {
     const { app, machineId } = parseSandboxId(id)
 
     let volumeIds: string[] = []
-    if (!this.appPerProject()) {
-      try {
-        const machine = await this.client.request<FlyMachine>(
-          `/apps/${app}/machines/${machineId}`,
-          {
-            nullOn: [404],
-          },
-        )
+    let privateRoutes: Record<string, string> = {}
+    try {
+      const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines/${machineId}`, {
+        nullOn: [404],
+      })
+      privateRoutes = decodePrivateRoutes(
+        machine?.config?.metadata?.[`${this.metadataPrefix}.${PRIVATE_ROUTES_METADATA_SUFFIX}`],
+      )
+      if (!this.appPerProject()) {
         volumeIds = (machine?.config?.mounts ?? [])
           .map((mount) => mount.volume)
           .filter((volume): volume is string => Boolean(volume))
-      } catch (error) {
-        // Reading mounts is best-effort metadata gathering; the Machine may
-        // already be gone. Destruction proceeds either way.
-        logger.debug('Could not read Fly Machine mounts before destroy', { id, error })
       }
+    } catch (error) {
+      // Best-effort metadata gathering; the Machine may already be gone.
+      // Destruction proceeds either way — but say so, because an unread
+      // metadata block means the private addresses below are NOT released.
+      logger.warn(
+        'Could not read the Fly Machine before destroy — its volumes and any private (Flycast) ' +
+          'addresses it recorded will not be cleaned up',
+        { id, error },
+      )
     }
 
     try {
@@ -747,6 +1024,7 @@ class FlyioSandboxProvider implements SandboxProvider {
           error,
         })
       }
+      await this.releasePrivateRoutes(privateRoutes)
       return
     }
 
@@ -760,6 +1038,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         logger.warn('Failed to remove Fly volume', { app, volumeId, error })
       }
     }
+    await this.releasePrivateRoutes(privateRoutes)
   }
 
   // ---------------------------------------------------------------------------
@@ -1001,7 +1280,11 @@ class FlyioSandboxProvider implements SandboxProvider {
     try {
       policyPorts = this.egressAllowedPorts()
       app = this.resolveApp(this.probeProjectId())
-      await this.ensureApp(app)
+      // The SAME policy a real sandbox gets (private-service ports included, so
+      // the probe observes the real posture), but NO Flycast allocation: this
+      // app is deleted seconds from now, and allocating would leave one
+      // unreleasable address per probe on every target app — every 15 minutes.
+      await this.ensureApp(app, { privateRoutes: false })
       machineId = await this.createProbeMachine(app)
       await this.waitForStarted(app, machineId)
 

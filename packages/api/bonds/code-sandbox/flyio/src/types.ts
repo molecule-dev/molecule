@@ -155,6 +155,42 @@ export interface FlyioConfig {
   /** Name of the egress policy this provider owns on each app. Defaults to `molecule-sandbox-egress`. */
   egressPolicyName?: string
   /**
+   * Apps every sandbox must be able to reach ACROSS its per-project 6PN — the
+   * tenant Postgres cluster and the control plane's egress proxy. For each one,
+   * this provider allocates a **Flycast** private address into the project's own
+   * network when the project's app is created, and releases it on `destroy()`.
+   * Falls back to `FLY_SANDBOX_PRIVATE_SERVICES` (`<app>:<port>` pairs).
+   *
+   * Without this, a project with a database DOES NOT WORK on Fly: per-project
+   * 6PNs are what stop tenants reaching each other, and the same isolation stops
+   * a sandbox reaching the database it is supposed to use. Flycast is the only
+   * mechanism Fly documents that grants ONE directed edge without exposing
+   * anything publicly — see the `flycast.ts` module description.
+   *
+   * The declared PORT is load-bearing twice: it is unioned into
+   * {@link FlyioConfig.egressAllowedPorts} so the network policy cannot drop the
+   * connection, and every `.flycast` URL in a sandbox's environment is checked
+   * against it, so a `DATABASE_URL` naming an app nobody declared FAILS the boot
+   * instead of timing out inside the user's project.
+   *
+   * Two things this cannot do for you: the target app needs an `[http_service]`
+   * or `[services]` section (Flycast routes through Fly Proxy), and it must bind
+   * `0.0.0.0` rather than `fly-local-6pn`
+   * (https://fly.io/docs/networking/flycast/).
+   *
+   * Ignored when `appPerProject` is `false` — a shared app sits on the org's
+   * default 6PN, where `<app>.internal` already resolves.
+   */
+  privateServices?: FlyPrivateService[]
+  /**
+   * `type` sent to `POST /apps/{app}/ip_assignments` when allocating a Flycast
+   * address. Defaults to `private_v6`, the value flyctl passes for
+   * `fly ips allocate-v6 --private`. The field has no enum in Fly's OpenAPI
+   * specification, so treat the literal as UNVERIFIED and use this to override
+   * it if Fly renames it.
+   */
+  privateIpAssignmentType?: string
+  /**
    * Literal `ip:port` targets `verifyEgress()` attempts raw TCP connections to.
    * IPv6 literals must be bracketed. Falls back to `SANDBOX_EGRESS_PROBE_TARGETS`
    * (the same variable the Docker bond reads), then to one IPv4 and one IPv6
@@ -266,6 +302,13 @@ export interface ProcessEnv {
    */
   FLY_SANDBOX_EGRESS_ALLOWED_PORTS?: string
   /**
+   * Comma-separated `<fly-app>:<port>` pairs every sandbox must reach across its
+   * per-project 6PN, e.g. `molecule-pg-tenant:5432,molecule-api:3129`. Each one
+   * gets a Flycast private address allocated into the project's network at app
+   * creation and released on destroy. Overridden by `config.privateServices`.
+   */
+  FLY_SANDBOX_PRIVATE_SERVICES?: string
+  /**
    * Comma-separated literal `ip:port` targets the egress probe attempts. Shared
    * with the Docker bond so a provider swap keeps the same configuration.
    */
@@ -300,6 +343,49 @@ export interface ProcessEnv {
   SANDBOX_TEMPLATE_PREFIX?: string
   /** `true` addresses the template bucket path-style rather than virtual-host style. */
   SANDBOX_TEMPLATE_FORCE_PATH_STYLE?: string
+}
+
+/**
+ * One app made reachable from every sandbox's per-project 6PN through a Flycast
+ * private address.
+ *
+ * See the `flycast.ts` module description for why this exists at all: apps on
+ * separate 6PNs "can never communicate unless explicitly configured to do so",
+ * and this declaration IS that explicit configuration.
+ */
+export interface FlyPrivateService {
+  /**
+   * The Fly app to allocate a Flycast address ON. The sandbox reaches it at
+   * `<app>.flycast`. It must already exist, must carry a services block, and
+   * must be in the same organization.
+   */
+  app: string
+  /**
+   * The TCP port a sandbox dials it at. Unioned into the egress network policy,
+   * and checked against every `.flycast` URL in a sandbox's environment.
+   */
+  port: number
+}
+
+/**
+ * An IP assignment, as returned by `POST`/`GET /v1/apps/{app}/ip_assignments`
+ * (`IPAssignment` in https://docs.machines.dev/openapi.json).
+ *
+ * Note what is NOT here: the assignment's **network**. Fly's own schema is
+ * `{created_at, ip, region, service_name, shared}`, so a listing cannot tell you
+ * which 6PN a private address serves — which is why this provider records the
+ * addresses it allocated in the sandbox Machine's metadata instead of
+ * rediscovering them.
+ */
+export interface FlyIpAssignment {
+  /** The allocated address. Required for a later `DELETE .../ip_assignments/{ip}`. */
+  ip?: string
+  /** Region the address was allocated in, when Fly reports one. */
+  region?: string
+  /** Service the address is bound to, when the assignment names one. */
+  service_name?: string
+  /** Whether the address is shared (Anycast v4) rather than dedicated. */
+  shared?: boolean
 }
 
 /**

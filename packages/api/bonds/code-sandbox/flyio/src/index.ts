@@ -150,6 +150,47 @@
  * response shape is parsed defensively. To get host-level control, allow only
  * the port of an egress proxy you run and route sandbox traffic through it.
  *
+ * **Crossing the 6PN: `privateServices` is what makes a database work.** The
+ * per-project 6PN that stops tenants reaching each other also stops a sandbox
+ * reaching the tenant Postgres cluster and the control plane's egress proxy —
+ * both of which the product REQUIRES. Fly documents three ways across a 6PN
+ * boundary (https://fly.io/docs/networking/custom-private-networks/): a public
+ * service IP, `fly-replay`, and a **Flycast** private address allocated into the
+ * calling network. Only the third grants ONE directed edge with nothing exposed
+ * publicly, so it is what this bond implements. Declare the targets —
+ * `privateServices: [{ app: 'molecule-pg-tenant', port: 5432 }]`, or
+ * `FLY_SANDBOX_PRIVATE_SERVICES=molecule-pg-tenant:5432,molecule-api:3129` — and
+ * `create()` allocates one address per target INTO the project's own network
+ * (`POST /apps/{target}/ip_assignments`, the REST form of
+ * `fly ips allocate-v6 --private --network <project-net>`), records them in the
+ * Machine's metadata, and `destroy()` releases them. The sandbox then dials
+ * `<target>.flycast:<port>`.
+ *
+ * Four properties of that are worth knowing before you deploy it:
+ *
+ * - **Isolation is unchanged.** An allocation is a one-way grant from ONE
+ *   project's network to ONE shared app. No sandbox app ever receives one, so
+ *   no sandbox becomes reachable from anywhere it was not already.
+ * - **The declared port is unioned into the egress network policy**, because a
+ *   policy is deny-by-default once any rule exists — declaring
+ *   `molecule-pg-tenant:5432` under a `tcp:3128` policy would drop every
+ *   database connection in the fleet. Whether the union is even load-bearing is
+ *   UNVERIFIED: Fly says policies "do not affect traffic routed through the Fly
+ *   Proxy" and Flycast IS Fly Proxy, but says nothing about a Machine's EGRESS
+ *   toward a Flycast address. An inert entry costs a port; a missing one costs
+ *   the fleet.
+ * - **Any `.flycast` URL in a sandbox's environment must have a matching
+ *   declaration**, or `create()` throws. That check is what turns "the route was
+ *   silently never created" — a healthy sandbox that cannot reach its own
+ *   database — into a startup error, and it is also the guard on the
+ *   control-plane cluster: reaching it would require an operator to declare it
+ *   by name.
+ * - **The target app needs an `[http_service]`/`[services]` section and must
+ *   bind `0.0.0.0`** (https://fly.io/docs/networking/flycast/). This bond cannot
+ *   do that for you. **Fly documents no limit on how many private addresses one
+ *   app may hold**, in either direction, so the shared target apps accumulate
+ *   one address per live project — reconcile with `fly ips list --app <target>`.
+ *
  * `verifyEgress()` then PROVES the result instead of reporting the
  * configuration: it boots a throwaway Machine through the same `ensureApp` path
  * every sandbox uses, attempts raw TCP connects to literal public IPs with proxy
@@ -291,6 +332,7 @@ export * from './api.js'
 export * from './browser-guard.js'
 export * from './egress.js'
 export * from './exec.js'
+export * from './flycast.js'
 export * from './ids.js'
 export * from './provider.js'
 export * from './storage.js'
