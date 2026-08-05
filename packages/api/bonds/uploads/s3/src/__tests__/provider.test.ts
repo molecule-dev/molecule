@@ -982,3 +982,62 @@ describe('S3 Security Tests', () => {
     })
   })
 })
+
+// ─── Provisioning-tool env names ──────────────────────────────────────────────
+
+/**
+ * A provider's own setup flow must produce a working bond.
+ *
+ * `fly storage create` (Tigris) exports `AWS_ENDPOINT_URL_S3` and `BUCKET_NAME`
+ * — the names the AWS SDKs standardised — while this bond originally read only
+ * `AWS_S3_ENDPOINT` and `AWS_S3_BUCKET`. Following Fly's documented flow
+ * therefore produced an environment the bond never looked at: uploads fell back
+ * to the AWS regional endpoint and failed against a bucket that does not live
+ * there, with every value correctly set.
+ */
+describe('S3 env resolution — accepts the names provisioning tools export', () => {
+  beforeEach(async () => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    vi.stubEnv('AWS_ACCESS_KEY_ID', 'test_access_key')
+    vi.stubEnv('AWS_SECRET_ACCESS_KEY', 'test_secret_key')
+    const { bond } = await import('@molecule/api-bond')
+    bond('logger', mockLogger)
+  })
+
+  afterEach(async () => {
+    const { unbond } = await import('@molecule/api-bond')
+    unbond('logger')
+    vi.unstubAllEnvs()
+  })
+
+  it('reads the bucket from BUCKET_NAME when AWS_S3_BUCKET is unset', async () => {
+    vi.stubEnv('AWS_S3_BUCKET', '')
+    vi.stubEnv('BUCKET_NAME', 'fly-provisioned-bucket')
+    mockSend.mockResolvedValue({})
+
+    const { deleteFile } = await import('../provider.js')
+    await deleteFile('some-key')
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: expect.objectContaining({ Bucket: 'fly-provisioned-bucket' }),
+      }),
+    )
+  })
+
+  it('prefers the explicit AWS_S3_BUCKET when both are set', async () => {
+    vi.stubEnv('AWS_S3_BUCKET', 'explicit-bucket')
+    vi.stubEnv('BUCKET_NAME', 'fly-provisioned-bucket')
+    mockSend.mockResolvedValue({})
+
+    const { deleteFile } = await import('../provider.js')
+    await deleteFile('some-key')
+
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: expect.objectContaining({ Bucket: 'explicit-bucket' }),
+      }),
+    )
+  })
+})

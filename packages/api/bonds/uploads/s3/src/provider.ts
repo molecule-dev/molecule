@@ -36,13 +36,22 @@ let _s3Client: S3Client | null = null
 function getS3Client(): S3Client {
   if (!_s3Client) {
     // Optional endpoint + path-style overrides let this provider target an
-    // S3-compatible service (Cloudflare R2, MinIO, DigitalOcean Spaces, or a
-    // credential broker). When `AWS_S3_ENDPOINT` is unset the SDK resolves the
+    // S3-compatible service (Cloudflare R2, MinIO, DigitalOcean Spaces, Tigris,
+    // or a credential broker). When no endpoint is set the SDK resolves the
     // default AWS regional endpoint and `AWS_S3_FORCE_PATH_STYLE` defaults to
     // the SDK's virtual-hosted-style addressing, so behaviour is unchanged.
+    //
+    // `AWS_ENDPOINT_URL_S3` is accepted as well because that is the name the AWS
+    // SDKs themselves standardised for a per-service endpoint override, and it
+    // is what provisioning tools export — `fly storage create` (Tigris) sets
+    // exactly this. Reading only `AWS_S3_ENDPOINT` meant following a provider's
+    // own setup flow produced an env the bond never looked at: uploads silently
+    // fell back to the AWS regional endpoint and failed against a bucket that
+    // does not live there.
+    const endpoint = process.env.AWS_S3_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3
     _s3Client = new S3Client({
-      region: process.env.AWS_S3_REGION || 'us-east-1',
-      ...(process.env.AWS_S3_ENDPOINT ? { endpoint: process.env.AWS_S3_ENDPOINT } : {}),
+      region: process.env.AWS_S3_REGION || process.env.AWS_REGION || 'us-east-1',
+      ...(endpoint ? { endpoint } : {}),
       ...(process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ? { forcePathStyle: true } : {}),
     })
   }
@@ -61,11 +70,17 @@ export const s3Client: S3Client = new Proxy({} as S3Client, {
 })
 
 /**
- * Returns the S3 bucket name from the `AWS_S3_BUCKET` environment variable.
+ * Returns the S3 bucket name.
+ *
+ * `BUCKET_NAME` is accepted alongside `AWS_S3_BUCKET` because that is what
+ * `fly storage create` (Tigris) exports. Without it, following a provider's own
+ * setup flow leaves this empty and every upload fails a bucket-not-set check
+ * despite the bucket existing and the credentials being correct.
+ *
  * @returns The bucket name, or an empty string if not set.
  */
 function getBucketName(): string {
-  return process.env.AWS_S3_BUCKET || ''
+  return process.env.AWS_S3_BUCKET || process.env.BUCKET_NAME || ''
 }
 
 /**
