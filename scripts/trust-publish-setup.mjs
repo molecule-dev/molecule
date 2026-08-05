@@ -42,6 +42,10 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const WRITE = args.includes('--write')
 const OTP = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
+// Single-package mode: one request, and the registry's verbatim response. This is
+// the safe way to test auth when a full run is failing, because it cannot feed
+// npm's OTP-verification limiter the way a few hundred rejected calls do.
+const ONLY = (args.find((a) => a.startsWith('--only=')) || '').split('=')[1]
 
 /**
  * Every publishable `@molecule` package name, at any directory depth.
@@ -102,7 +106,7 @@ if (!WRITE) {
   console.log('Dry run. See the AUTH notes in this file, then re-run with --write --otp=CODE.')
   process.exit(0)
 }
-if (packages.length === 0) {
+if (packages.length === 0 && !ONLY) {
   console.log('\nNothing left to trust.')
   process.exit(0)
 }
@@ -113,13 +117,28 @@ if (!token) {
   process.exit(1)
 }
 
+if (ONLY) {
+  const r = await trustPackage(ONLY, { token, otp: OTP })
+  console.log(`\n${ONLY}\n  HTTP ${r.status}  ${r.outcome}\n  ${r.text}`)
+  if (r.outcome === 'trusted' || r.outcome === 'already') {
+    doneAlready.add(ONLY)
+    writeFileSync(STATE_PATH, JSON.stringify([...doneAlready].sort(), null, 2))
+    console.log('\nAuth works. Re-run without --only to continue the fleet.')
+  }
+  process.exit(r.outcome === 'trusted' || r.outcome === 'already' ? 0 : 1)
+}
+
 let ok = 0
 let already = 0
 let notPublished = 0
 const failed = []
 const succeeded = []
 let stop = false
-let otpExpired = false
+// The VERBATIM first auth-class rejection. An earlier version collapsed 401/429
+// into a single "your OTP expired" message and discarded the response — which
+// then confidently misdiagnosed a run that failed for a different reason. Never
+// paraphrase this; print what the registry actually said.
+let authFailure = null
 
 /** Persists everything trusted so far, so a re-run skips it without a request. */
 const saveState = () =>
@@ -146,12 +165,11 @@ const saveState = () =>
         } else if (r.outcome === 'not-published') {
           notPublished++
         } else if (r.status === 401 || r.status === 429 || /OTP/i.test(r.text)) {
-          // STOP ON THE FIRST ONE. This is the OTP expiring, which is systemic —
-          // every remaining package will fail the same way, and continuing walks
-          // straight into npm's OTP-verification rate limit.
+          // STOP ON THE FIRST ONE. Auth is systemic: every remaining package fails
+          // the same way, and continuing walks into npm's OTP-verification limiter.
           if (!stop) {
+            authFailure = { name, status: r.status, text: r.text }
             stop = true
-            otpExpired = true
           }
         } else {
           failed.push({ name, error: `${r.status} ${r.text}` })
@@ -163,7 +181,7 @@ const saveState = () =>
         failed.push({ name, error: String(error.message).slice(0, 150) })
       }
       const total = ok + already + notPublished + failed.length
-      if (total % 50 === 0) {
+      if (total > 0 && total % 50 === 0) {
         console.log(`  ${total}/${packages.length} (trusted:${ok} failed:${failed.length})`)
       }
     }
@@ -180,15 +198,32 @@ console.log(
 )
 console.log(`Overall:  ${trustedTotal}/${all.length} trusted | ${remaining} remaining`)
 
-if (otpExpired) {
+if (authFailure) {
   console.log(
-    `\nThe OTP expired — one code covers a single ~30s TOTP step, which is about\n` +
-      `300 packages at this concurrency. Progress is saved, so just run it again\n` +
-      `with a FRESH code and it will pick up at package ${trustedTotal + 1}:\n\n` +
-      `  node scripts/trust-publish-setup.mjs --write --otp=<new code>\n\n` +
-      `Wait for your authenticator to roll to a new code first — reusing the one\n` +
-      `that just failed trips npm's OTP-verification limiter (429).`,
+    `\nStopped on an auth rejection. The registry's exact response, on ${authFailure.name}:\n\n` +
+      `  HTTP ${authFailure.status}  ${authFailure.text}\n`,
   )
+  if (ok > 0) {
+    // Trusted a few hundred, then stopped: the code simply rolled over mid-run.
+    console.log(
+      `${ok} succeeded before this, so the code was valid and then expired — one OTP\n` +
+        `covers a single ~30s TOTP step. Progress is saved; re-run with a fresh code\n` +
+        `and it resumes at package ${trustedTotal + 1}.`,
+    )
+  } else {
+    // Zero successes with a code the user believes is fresh means the OTP was not
+    // the problem. Do NOT assert which cause it is — say what to check.
+    console.log(
+      `Nothing succeeded this run, so a fresh OTP is NOT the missing piece. Likely,\n` +
+        `in order:\n` +
+        `  1. npm's OTP-verification limiter is still cooling down from the previous\n` +
+        `     run's rejected attempts. It clears on its own — wait ~30-60 min.\n` +
+        `  2. The login session no longer satisfies 2FA for account-changing calls.\n` +
+        `     Re-run \`npm login\` and take the browser flow again.\n` +
+        `Check which by running one request by hand:\n` +
+        `  node scripts/trust-publish-setup.mjs --write --otp=<code> --only=@molecule/api-scheduler`,
+    )
+  }
 }
 if (notPublished > 0) {
   console.log(`${notPublished} not on the registry yet — use bootstrap-new-packages.mjs for those.`)
