@@ -621,7 +621,13 @@ class FlyioSandboxProvider implements SandboxProvider {
     const name = this.config.egressPolicyName ?? DEFAULT_EGRESS_POLICY_NAME
     let id: string | undefined
     try {
-      const listed = await this.client.request<unknown>(`/apps/${app}/network_policies/`, {
+      // NO TRAILING SLASH. Verified against a real Fly org (2026-08-05):
+      //   GET /apps/{app}/network_policies   -> 200 []
+      //   GET /apps/{app}/network_policies/  -> 404 "404 page not found"
+      // With the slash this always 404'd, and `nullOn: [404]` turned that into a
+      // silent downgrade — every apply became a create, stacking a duplicate
+      // policy per Machine instead of updating the one this provider owns.
+      const listed = await this.client.request<unknown>(`/apps/${app}/network_policies`, {
         nullOn: [404],
       })
       id = extractPolicyId(listed, name)

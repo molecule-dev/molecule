@@ -507,7 +507,7 @@ describe('egress policy application', () => {
   })
 
   it('updates the existing policy in place instead of stacking duplicates', async () => {
-    const double = queueCreate(createFetchDouble()).on(`GET /apps/${APP}/network_policies/`, {
+    const double = queueCreate(createFetchDouble()).on(`GET /apps/${APP}/network_policies`, {
       body: [{ id: 'pol_9', name: DEFAULT_EGRESS_POLICY_NAME }],
     })
     await provider({ egressAllowedPorts: [{ protocol: 'tcp', port: 443 }] }, double).create({
@@ -567,7 +567,7 @@ describe('egress policy application', () => {
   it('still applies the policy when the policy list cannot be read', async () => {
     const double = queueCreate(createFetchDouble())
     for (let i = 0; i < 8; i++) {
-      double.on(`GET /apps/${APP}/network_policies/`, { status: 500, body: { error: 'nope' } })
+      double.on(`GET /apps/${APP}/network_policies`, { status: 500, body: { error: 'nope' } })
     }
 
     await provider({ egressAllowedPorts: [{ protocol: 'tcp', port: 443 }] }, double).create({

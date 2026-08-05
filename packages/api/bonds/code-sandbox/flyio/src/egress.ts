@@ -35,6 +35,17 @@
  * from those two documents verbatim and the LIST response shape, which neither
  * document specifies, is parsed defensively by {@link extractPolicyId}.
  *
+ * VERIFIED AGAINST A REAL FLY ORG, 2026-08-05 — the endpoints DO exist despite
+ * their absence from the spec:
+ *
+ *   GET  /apps/{app}/network_policies   -> 200 []
+ *   GET  /apps/{app}/network_policies/  -> 404 (trailing slash is NOT accepted)
+ *   POST /apps/{app}/network_policies   -> 400 {"error":"name is required"}
+ *
+ * The POST error is the useful one: it proves the route is real and validating,
+ * and that `name` is mandatory — which is why {@link DEFAULT_EGRESS_POLICY_NAME}
+ * is always sent.
+ *
  * @module
  */
 
