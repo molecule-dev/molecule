@@ -12,6 +12,7 @@ import http from 'http'
 import { getLogger } from '@molecule/api-bond'
 import type {
   DirEntry,
+  EgressVerdict,
   ExecOptions,
   ExecResult,
   FileChangeEvent,
@@ -945,6 +946,118 @@ class DockerSandboxProvider implements SandboxProvider {
     } catch (_error) {
       // 404 means the volume does not exist — that is the expected "false" result
       return false
+    }
+  }
+
+  /**
+   * Prove whether the host actually denies sandbox egress.
+   *
+   * OBSERVES rather than attests: runs a throwaway container ON THE SANDBOX
+   * NETWORK — so it is subject to exactly the rules a real sandbox is — and has
+   * it attempt a raw `net.connect` to literal public IPs. A successful TCP
+   * connect means the deny is NOT in effect, whatever any config claims.
+   *
+   * Three details are load-bearing, each of them a way this check could lie:
+   *
+   * - **Raw sockets, never `fetch`.** Proxy env is blanked in the probe and a raw
+   *   connect ignores it regardless — otherwise this would only prove the egress
+   *   PROXY works, while the firewall's job is to stop code bypassing the proxy.
+   * - **Literal IPs, never hostnames.** A hostname makes DNS the thing under
+   *   test; a blocked resolver would read as "filtered" on a wide-open host.
+   * - **Connected is the only conclusive negative.** Refused/timed-out means
+   *   filtered; a probe that could not RUN is `inconclusive`, never `filtered`.
+   *
+   * @returns What was observed about egress filtering.
+   */
+  async verifyEgress(): Promise<EgressVerdict> {
+    const targets = (process.env.SANDBOX_EGRESS_PROBE_TARGETS ?? '1.1.1.1:443,8.8.8.8:443')
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => /^\d{1,3}(\.\d{1,3}){3}:\d{1,5}$/.test(entry))
+    if (targets.length === 0) {
+      return {
+        state: 'inconclusive',
+        detail: 'No valid literal ip:port probe targets configured.',
+        remediation: 'Set SANDBOX_EGRESS_PROBE_TARGETS to comma-separated ip:port values.',
+      }
+    }
+
+    const timeoutMs = Math.min(
+      15_000,
+      Math.max(500, Number.parseInt(process.env.SANDBOX_EGRESS_PROBE_TIMEOUT_MS ?? '3000', 10)),
+    )
+    const script =
+      `const net=require('net');const ts=${JSON.stringify(targets)};let open=0,left=ts.length;` +
+      `const done=()=>{if(--left===0)process.exit(open>0?9:0)};` +
+      `for(const t of ts){const [h,p]=t.split(':');` +
+      `const s=net.connect({host:h,port:Number(p)});` +
+      `s.setTimeout(${timeoutMs});` +
+      `s.on('connect',()=>{open++;s.destroy();done()});` +
+      `s.on('timeout',()=>{s.destroy();done()});` +
+      `s.on('error',()=>done())}`
+
+    const network = this.resolveNetwork()
+    let containerId: string | null = null
+    try {
+      const created = (await this.dockerApi('/containers/create', 'POST', {
+        Image: this.baseImage,
+        Cmd: ['node', '-e', script],
+        // Blank the proxy env the image bakes in: a probe that politely used the
+        // proxy would report the proxy's policy, not the firewall's.
+        Env: [
+          'HTTP_PROXY=',
+          'HTTPS_PROXY=',
+          'http_proxy=',
+          'https_proxy=',
+          'NO_PROXY=',
+          'no_proxy=',
+        ],
+        Labels: { [`${this.labelPrefix}.egress-probe`]: 'true' },
+        HostConfig: { NetworkMode: network, AutoRemove: false },
+      })) as { Id: string }
+      containerId = created.Id
+
+      await this.dockerApi(`/containers/${containerId}/start`, 'POST')
+      const waited = (await this.dockerApi(
+        `/containers/${containerId}/wait`,
+        'POST',
+        undefined,
+        timeoutMs * targets.length + 10_000,
+      )) as { StatusCode: number }
+
+      if (waited.StatusCode === 9) {
+        return {
+          state: 'open',
+          detail: `A container on "${network}" reached ${targets.join(' or ')} directly — sandbox egress is NOT filtered.`,
+          remediation:
+            'Apply the host DOCKER-USER default-deny for the sandbox subnet (scripts/provision-egress-firewall.sh), then re-check.',
+        }
+      }
+      if (waited.StatusCode === 0) {
+        return {
+          state: 'filtered',
+          detail: `Raw connects to ${targets.join(' and ')} from "${network}" were refused or timed out.`,
+        }
+      }
+      return {
+        state: 'inconclusive',
+        detail: `Probe exited ${waited.StatusCode} — it did not complete its connection attempts.`,
+        remediation: 'Check that the sandbox base image can run `node -e`.',
+      }
+    } catch (error) {
+      // A probe that could not RUN proves nothing. Reporting `filtered` here is
+      // precisely the lie this method exists to make impossible.
+      return {
+        state: 'inconclusive',
+        detail: `Egress probe could not run: ${error instanceof Error ? error.message : String(error)}`,
+        remediation: `Ensure the Docker daemon is reachable and the base image ("${this.baseImage}") is present.`,
+      }
+    } finally {
+      if (containerId) {
+        await this.dockerApi(`/containers/${containerId}?force=true`, 'DELETE').catch((error) => {
+          logger.warn('Failed to remove egress probe container', { containerId, error })
+        })
+      }
     }
   }
 
