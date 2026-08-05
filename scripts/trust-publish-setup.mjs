@@ -99,13 +99,24 @@ const STATE_PATH = join(ROOT, '.trust-state.json')
 const doneAlready = new Set(
   existsSync(STATE_PATH) ? JSON.parse(readFileSync(STATE_PATH, 'utf8')) : [],
 )
-const packages = all.filter((name) => !doneAlready.has(name))
+// --recheck ignores the saved state for SELECTION (results still merge into it),
+// so every package is asked about again. Use it to confirm coverage: a package
+// that is already configured answers "already", so anything reported as newly
+// "trusted" was a genuine gap — and re-running fixes it in the same pass. This
+// matters because state seeded by inference rather than by a response is a
+// claim, not a fact.
+const RECHECK = args.includes('--recheck')
+const packages = RECHECK ? all : all.filter((name) => !doneAlready.has(name))
 
 console.log(`${all.length} package(s) total -> ${TRUST_REPO} / ${TRUST_WORKFLOW}`)
-if (doneAlready.size > 0) {
+if (RECHECK) {
+  console.log('--recheck: ignoring saved state, asking about every package.')
+  console.log('Expect nearly all to answer "already"; any reported as newly')
+  console.log('trusted were gaps in the saved state and are now fixed.')
+} else if (doneAlready.size > 0) {
   console.log(`${doneAlready.size} already trusted in a previous run — skipping.`)
 }
-console.log(`${packages.length} remaining this run.`)
+console.log(`${packages.length} to check this run.`)
 
 if (!WRITE) {
   console.log(`\npermissions: ${JSON.stringify(TRUST_PERMISSIONS)}`)
@@ -139,6 +150,10 @@ let already = 0
 let notPublished = 0
 const failed = []
 const succeeded = []
+// Only the packages this run actually CREATED config for. Separate from
+// `succeeded` (which also holds "already" answers) because under --recheck this
+// list IS the finding: each entry was a package the saved state wrongly claimed.
+const newlyTrusted = []
 let stop = false
 // The VERBATIM first auth-class rejection. An earlier version collapsed 401/429
 // into a single "your OTP expired" message and discarded the response — which
@@ -165,6 +180,7 @@ const saveState = () =>
         if (r.outcome === 'trusted') {
           ok++
           succeeded.push(name)
+          newlyTrusted.push(name)
         } else if (r.outcome === 'already') {
           already++
           succeeded.push(name)
@@ -203,6 +219,21 @@ console.log(
   `\nThis run: trusted:${ok} already:${already} not-yet-published:${notPublished} failed:${failed.length}`,
 )
 console.log(`Overall:  ${trustedTotal}/${all.length} trusted | ${remaining} remaining`)
+
+if (RECHECK && !authFailure && failed.length === 0) {
+  if (ok === 0) {
+    console.log(
+      `\nVERIFIED: every one of the ${already} package(s) checked was already` +
+        `\nconfigured. No gaps.`,
+    )
+  } else {
+    console.log(
+      `\nFOUND ${ok} GAP(S) — these were NOT actually trusted and have now been fixed:` +
+        `\n  ${newlyTrusted.slice(0, 20).join('\n  ')}` +
+        (ok > 20 ? `\n  …and ${ok - 20} more` : ''),
+    )
+  }
+}
 
 if (authFailure) {
   console.log(
