@@ -35,6 +35,7 @@
     "check:i18n-parity": "node scripts/check-i18n-parity.js --check",
     "check:locale-placeholders": "node scripts/check-locale-placeholders.js",
     "check:lockfile": "node scripts/check-lockfile.js",
+    "check:package-repository": "node scripts/check-package-repository.js",
     "check:peer-deps": "node scripts/check-peer-deps.js",
     "check:security-workflow": "node scripts/check-security-workflow.js",
     "check:ws-floor": "node scripts/check-ws-floor.mjs",
@@ -44,11 +45,11 @@
     "lint:fix": "eslint packages/ --fix --max-warnings 0",
     "prepare": "husky",
     "release": "npm run build && node scripts/publish-paced.mjs",
+    "release:changesets": "changeset publish",
     "sync:lockfile": "node scripts/sync-lockfile.js",
     "test": "vitest run",
     "test:all": "npm run test --workspaces --if-present",
-    "version": "changeset version",
-    "release:changesets": "changeset publish"
+    "version": "changeset version"
   },
   "devDependencies": {
     "@changesets/cli": "2.31.1",

@@ -62,6 +62,13 @@ if [ -f ../scripts/verify-molecule-versions.mjs ]; then
   ( cd .. && node scripts/verify-molecule-versions.mjs --quiet ) || exit 1
 fi
 npm run check:peer-deps
+
+# Every publishable package must declare the CORRECT repository. With provenance
+# on, npm signs a Sigstore bundle naming the source repo and the registry rejects
+# the publish with E422 unless package.json agrees. 548 packages declared none at
+# all, and ten declared a wrong one — including a stranger's GitHub repo — which
+# nothing noticed for four months because nothing read the field.
+npm run check:package-repository
 # i18n parity (cross-cutting-i18n) — full-tree scan, but fast (~0.1s) and it
 # only fails on NEW missing keys vs the baseline, so a string shipped as an
 # inline defaultValue without its bond key is caught here at commit time, not
