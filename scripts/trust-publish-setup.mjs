@@ -17,9 +17,10 @@
  *   npm login
  *   node scripts/trust-publish-setup.mjs --write --otp=123456
  *
- * Idempotent: an already-trusted package is reported as such, and a package not
- * yet on the registry is counted separately — those need a first publish, see
- * bootstrap-new-packages.mjs.
+ * Idempotent: an already-trusted package is reported as such. A package that is
+ * not on the registry yet can still be trusted — `createPackage` is permission to
+ * CREATE one via OIDC, proven 2026-08-05 when all 7 never-published native bonds
+ * were trusted and then created by CI with no local publish at all.
  *
  *   node scripts/trust-publish-setup.mjs                      # dry run
  *   node scripts/trust-publish-setup.mjs --write --otp=123456
@@ -267,7 +268,9 @@ if (authFailure) {
   }
 }
 if (notPublished > 0) {
-  console.log(`${notPublished} not on the registry yet — use bootstrap-new-packages.mjs for those.`)
+  console.log(`${notPublished} reported not-on-registry. That is unexpected: npm can trust a`)
+  console.log(`package before it exists (createPackage), so investigate rather than`)
+  console.log(`assuming these need a manual first publish.`)
 }
 if (failed.length > 0) {
   writeFileSync(join(ROOT, '.trust-failures.json'), JSON.stringify(failed, null, 2))

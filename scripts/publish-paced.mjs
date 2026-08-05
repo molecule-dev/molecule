@@ -308,7 +308,7 @@ for (const pkg of todo) {
             `  npm fell back to an empty token. Check, in order:\n` +
             `    1. Is this package trusted?  scripts/trust-publish-setup.mjs\n` +
             `       (npm cannot trust a package that is not on the registry yet —\n` +
-            `        brand-new packages go through scripts/bootstrap-new-packages.mjs)\n` +
+            `        a brand-new package is fine — createPackage creates it via OIDC)\n` +
             `    2. Does the job grant  permissions: id-token: write ?\n` +
             `    3. Is npm >= 11.5.1?  Older npm has no OIDC support and fails the same way.\n` +
             `    4. Does the trusted publisher's workflow file match the one running?\n\n` +
