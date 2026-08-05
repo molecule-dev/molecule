@@ -7,19 +7,8 @@
  * It must be configured PER PACKAGE — npm has no scope- or org-level setting —
  * which at 900+ packages means a loop.
  *
- * WHY THIS POSTS DIRECTLY INSTEAD OF RUNNING `npm trust github`:
- * npm CLI 11.12.1 omits the `permissions` field the registry requires, so the
- * CLI cannot succeed at all. It fails with a bare 400 and no explanation; the
- * response body, which the CLI swallows, says:
- *
- *   permissions is required and must contain at least one valid route
- *
- * and the API's own validation names the only accepted values:
- *
- *   "[0].permissions[0]" must be one of [createPackage, createStagedPackage]
- *
- * Sending those directly returns 201 Created. Verified 2026-08-05. If a later
- * npm CLI starts sending `permissions`, this can go back to shelling out.
+ * It POSTs the config directly rather than running `npm trust github`, which is
+ * broken in npm 11.12.1 — see scripts/lib/npm-trust.mjs for the details.
  *
  * AUTH: needs a token in ~/.npmrc from `npm login`. A granular token with
  * "bypass 2FA" is REFUSED for trust config — it counts as an account change.
@@ -37,19 +26,22 @@
  */
 import console from 'node:console'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
-import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+
+import {
+  readNpmToken,
+  TRUST_PERMISSIONS,
+  TRUST_REPO,
+  TRUST_WORKFLOW,
+  trustPackage,
+} from './lib/npm-trust.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const WRITE = args.includes('--write')
 const OTP = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
-
-const REPO = 'molecule-dev/molecule'
-const WORKFLOW = 'release.yml'
-const PERMISSIONS = ['createPackage', 'createStagedPackage']
 
 /**
  * Every publishable `@molecule` package name, at any directory depth.
@@ -86,52 +78,18 @@ function discover() {
 }
 
 const packages = discover()
-console.log(`${packages.length} package(s) to trust -> ${REPO} / ${WORKFLOW}`)
+console.log(`${packages.length} package(s) to trust -> ${TRUST_REPO} / ${TRUST_WORKFLOW}`)
 
 if (!WRITE) {
-  console.log(`\npermissions: ${JSON.stringify(PERMISSIONS)}`)
+  console.log(`\npermissions: ${JSON.stringify(TRUST_PERMISSIONS)}`)
   console.log('Dry run. See the AUTH notes in this file, then re-run with --write --otp=CODE.')
   process.exit(0)
 }
 
-const rcPath = join(homedir(), '.npmrc')
-const token = existsSync(rcPath)
-  ? (readFileSync(rcPath, 'utf8').match(/\/\/registry\.npmjs\.org\/:_authToken\s*=\s*(.+)/) ||
-      [])[1]?.trim()
-  : null
+const token = readNpmToken()
 if (!token) {
   console.error('No auth token in ~/.npmrc — run `npm login` first.')
   process.exit(1)
-}
-
-/**
- * Configure trusted publishing for a single package.
- *
- * @param name - Package name.
- * @returns Status, ok flag and response text.
- */
-async function trustOne(name) {
-  const res = await fetch(
-    `https://registry.npmjs.org/-/package/${name.replace('/', '%2f')}/trust`,
-    {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-        accept: 'application/json',
-        ...(OTP ? { 'npm-otp': OTP } : {}),
-      },
-      body: JSON.stringify([
-        {
-          type: 'github',
-          claims: { repository: REPO, workflow_ref: { file: WORKFLOW } },
-          permissions: PERMISSIONS,
-        },
-      ]),
-      signal: AbortSignal.timeout(20_000),
-    },
-  )
-  return { status: res.status, ok: res.ok, text: (await res.text()).slice(0, 200) }
 }
 
 let ok = 0
@@ -149,12 +107,12 @@ let stop = false
     while (cursor < packages.length && !stop) {
       const name = packages[cursor++]
       try {
-        const r = await trustOne(name)
-        if (r.ok) {
+        const r = await trustPackage(name, { token, otp: OTP })
+        if (r.outcome === 'trusted') {
           ok++
-        } else if (/already|duplicate/i.test(r.text)) {
+        } else if (r.outcome === 'already') {
           already++
-        } else if (r.status === 404) {
+        } else if (r.outcome === 'not-published') {
           notPublished++
         } else {
           failed.push({ name, error: `${r.status} ${r.text}` })

@@ -24,15 +24,16 @@
  *
  *   1. mv ~/.npmrc ~/.npmrc.token-backup     # set any bypass token aside
  *   2. npm login                             # browser flow
- *   3. On the first 2FA challenge, take npm's "skip 2FA for the next 5 minutes"
- *      option — publish AND trust then both work unattended inside that window.
- *   4. node scripts/bootstrap-new-packages.mjs --write
+ *   3. node scripts/bootstrap-new-packages.mjs --write --otp=123456
+ *
+ * The trust step POSTs directly rather than running `npm trust github`, which is
+ * broken in npm 11.12.1 — see scripts/lib/npm-trust.mjs.
  *
  * Idempotent: a package already on the registry is skipped, and a package that
  * already has a trusted publisher reports as such rather than failing.
  *
- *   node scripts/bootstrap-new-packages.mjs            # dry run
- *   node scripts/bootstrap-new-packages.mjs --write
+ *   node scripts/bootstrap-new-packages.mjs                      # dry run
+ *   node scripts/bootstrap-new-packages.mjs --write --otp=123456
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
@@ -41,10 +42,12 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { readNpmToken, TRUST_REPO, TRUST_WORKFLOW, trustPackage } from './lib/npm-trust.mjs'
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
-const WRITE = process.argv.includes('--write')
-const REPO = 'molecule-dev/molecule'
-const WORKFLOW = 'release.yml'
+const args = process.argv.slice(2)
+const WRITE = args.includes('--write')
+const OTP = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -133,6 +136,12 @@ if (!WRITE) {
   process.exit(0)
 }
 
+const token = readNpmToken()
+if (!token) {
+  console.error('No auth token in ~/.npmrc — run `npm login` first.')
+  process.exit(1)
+}
+
 let published = 0
 let trusted = 0
 const problems = []
@@ -168,31 +177,26 @@ for (const pkg of brandNew) {
 
   // --- 2. Hand it to trusted publishing so CI never needs a token again ---
   try {
-    execFileSync(
-      'npm',
-      ['trust', 'github', pkg.name, '--file', WORKFLOW, '--repo', REPO, '--yes'],
-      { cwd: ROOT, stdio: 'pipe', encoding: 'utf8' },
-    )
-    trusted++
-    console.log(`✓ trusted    ${pkg.name} -> ${REPO} / ${WORKFLOW}`)
-  } catch (error) {
-    const out = `${error.stdout ?? ''}${error.stderr ?? ''}`
-    if (/already (exists|trusted)|duplicate/i.test(out)) {
+    const r = await trustPackage(pkg.name, { token, otp: OTP })
+    if (r.outcome === 'trusted' || r.outcome === 'already') {
       trusted++
-      console.log(`· already trusted  ${pkg.name}`)
+      console.log(
+        r.outcome === 'already'
+          ? `· already trusted  ${pkg.name}`
+          : `✓ trusted    ${pkg.name} -> ${TRUST_REPO} / ${TRUST_WORKFLOW}`,
+      )
     } else {
-      problems.push({
-        name: pkg.name,
-        step: 'trust',
-        error: out.split('\n').filter(Boolean).slice(-2).join(' ').slice(0, 200),
-      })
-      console.error(`✗ trust failed  ${pkg.name}`)
-      if (/bypass two-factor|E403|403 Forbidden/i.test(out)) {
-        console.error('\nAuth rejected for `npm trust` — a bypass-2FA token cannot do this.')
-        console.error('See the AUTH steps at the top of this file.')
+      problems.push({ name: pkg.name, step: 'trust', error: `${r.status} ${r.text}` })
+      console.error(`✗ trust failed  ${pkg.name} — ${r.status} ${r.text}`)
+      if (r.status === 401 || r.status === 403) {
+        console.error('\nAuth rejected. Trust config needs a `npm login` session plus a current')
+        console.error('--otp=CODE; a bypass-2FA token cannot do it. See the top of this file.')
         break
       }
     }
+  } catch (error) {
+    problems.push({ name: pkg.name, step: 'trust', error: String(error.message).slice(0, 200) })
+    console.error(`✗ trust failed  ${pkg.name} — ${error.message}`)
   }
 
   await sleep(2000)
