@@ -77,12 +77,33 @@ function discover() {
   return names.sort()
 }
 
-const packages = discover()
-console.log(`${packages.length} package(s) to trust -> ${TRUST_REPO} / ${TRUST_WORKFLOW}`)
+const all = discover()
+
+// RESUME STATE. One OTP is good for roughly ONE TOTP step, which in practice
+// covers ~300 packages at this concurrency — so 910 takes several runs, and
+// without this every re-run would spend the fresh code re-trusting packages that
+// are already done. Observed 2026-08-05: a run trusted 317 and then took a wall
+// of 401s as the code rolled over. Skipping locally costs zero requests, so the
+// whole of each new OTP window goes to packages that still need it.
+const STATE_PATH = join(ROOT, '.trust-state.json')
+const doneAlready = new Set(
+  existsSync(STATE_PATH) ? JSON.parse(readFileSync(STATE_PATH, 'utf8')) : [],
+)
+const packages = all.filter((name) => !doneAlready.has(name))
+
+console.log(`${all.length} package(s) total -> ${TRUST_REPO} / ${TRUST_WORKFLOW}`)
+if (doneAlready.size > 0) {
+  console.log(`${doneAlready.size} already trusted in a previous run — skipping.`)
+}
+console.log(`${packages.length} remaining this run.`)
 
 if (!WRITE) {
   console.log(`\npermissions: ${JSON.stringify(TRUST_PERMISSIONS)}`)
   console.log('Dry run. See the AUTH notes in this file, then re-run with --write --otp=CODE.')
+  process.exit(0)
+}
+if (packages.length === 0) {
+  console.log('\nNothing left to trust.')
   process.exit(0)
 }
 
@@ -96,11 +117,19 @@ let ok = 0
 let already = 0
 let notPublished = 0
 const failed = []
+const succeeded = []
 let stop = false
+let otpExpired = false
 
-// Concurrent: npm's 2FA window is short and 900 sequential calls will not fit.
-// Trust config is an account change, not a publish, so the publish rate limiter
-// does not apply here.
+/** Persists everything trusted so far, so a re-run skips it without a request. */
+const saveState = () =>
+  writeFileSync(STATE_PATH, JSON.stringify([...doneAlready, ...succeeded].sort(), null, 2))
+
+// Concurrent: an OTP is valid for one short TOTP step, so sequential calls would
+// waste most of the window. Trust config is an account change, not a publish, so
+// the publish rate limiter does not apply — but OTP VERIFICATION has its own
+// limiter (429 "OTP verification failed"), which is why an expired code must stop
+// the run instantly rather than being retried across hundreds of packages.
 {
   let cursor = 0
   const worker = async () => {
@@ -110,20 +139,24 @@ let stop = false
         const r = await trustPackage(name, { token, otp: OTP })
         if (r.outcome === 'trusted') {
           ok++
+          succeeded.push(name)
         } else if (r.outcome === 'already') {
           already++
+          succeeded.push(name)
         } else if (r.outcome === 'not-published') {
           notPublished++
+        } else if (r.status === 401 || r.status === 429 || /OTP/i.test(r.text)) {
+          // STOP ON THE FIRST ONE. This is the OTP expiring, which is systemic —
+          // every remaining package will fail the same way, and continuing walks
+          // straight into npm's OTP-verification rate limit.
+          if (!stop) {
+            stop = true
+            otpExpired = true
+          }
         } else {
           failed.push({ name, error: `${r.status} ${r.text}` })
-          // Bail on a real failure streak rather than enumerating error codes: an
-          // earlier version stopped only on specific ones and ground through
-          // hundreds of identical failures when the code changed.
           if (failed.length >= 3) {
             stop = true
-            console.error(
-              `\nstopping after ${failed.length} failures (last: ${name} — ${r.status})`,
-            )
           }
         }
       } catch (error) {
@@ -131,18 +164,32 @@ let stop = false
       }
       const total = ok + already + notPublished + failed.length
       if (total % 50 === 0) {
-        console.log(
-          `  ${total}/${packages.length} (trusted:${ok} already:${already} unpublished:${notPublished} failed:${failed.length})`,
-        )
+        console.log(`  ${total}/${packages.length} (trusted:${ok} failed:${failed.length})`)
       }
     }
   }
   await Promise.all(Array.from({ length: 6 }, worker))
 }
 
+saveState()
+
+const trustedTotal = doneAlready.size + succeeded.length
+const remaining = all.length - trustedTotal
 console.log(
-  `\nDONE. trusted:${ok} already:${already} not-yet-published:${notPublished} failed:${failed.length}`,
+  `\nThis run: trusted:${ok} already:${already} not-yet-published:${notPublished} failed:${failed.length}`,
 )
+console.log(`Overall:  ${trustedTotal}/${all.length} trusted | ${remaining} remaining`)
+
+if (otpExpired) {
+  console.log(
+    `\nThe OTP expired — one code covers a single ~30s TOTP step, which is about\n` +
+      `300 packages at this concurrency. Progress is saved, so just run it again\n` +
+      `with a FRESH code and it will pick up at package ${trustedTotal + 1}:\n\n` +
+      `  node scripts/trust-publish-setup.mjs --write --otp=<new code>\n\n` +
+      `Wait for your authenticator to roll to a new code first — reusing the one\n` +
+      `that just failed trips npm's OTP-verification limiter (429).`,
+  )
+}
 if (notPublished > 0) {
   console.log(`${notPublished} not on the registry yet — use bootstrap-new-packages.mjs for those.`)
 }

@@ -35,3 +35,4 @@ npm-debug.log*
 # Transient failure ledgers written by the publish/trust scripts.
 .publish-failures.json
 .trust-failures.json
+.trust-state.json
