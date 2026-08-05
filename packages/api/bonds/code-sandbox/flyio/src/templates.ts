@@ -331,10 +331,14 @@ export function buildCaptureCommand(paths: string[], url: string, maxBytes: numb
   return [
     'set -e',
     'archive=$(mktemp /tmp/mol-template-capture-XXXXXX.tar.gz)',
-    // `--numeric-owner --owner=0 --group=0` keeps the capturing host's uids out
-    // of the archive entirely; extraction additionally refuses to restore
-    // ownership, so this is belt and braces.
-    `tar -C / --numeric-owner --owner=0 --group=0 -czf "$archive" ${members} || tar_rc=$?`,
+    // Masked on the way OUT as well as on the way in: `--owner=0 --group=0
+    // --numeric-owner` keeps the capturing sandbox's uids out of the archive,
+    // and `--mode='a-s'` records every member without setuid/setgid. Neither is
+    // a security control on its own — a tenant controls this sandbox and can
+    // emit any archive it likes — but they mean a template captured from an
+    // honest sandbox never even contains the bits, and the restore's own mask
+    // and post-extraction assertion are what actually enforce it.
+    `tar -C / --numeric-owner --owner=0 --group=0 --mode='a-s' -czf "$archive" ${members} || tar_rc=$?`,
     // GNU tar exits 1 for "some files differ" — the normal outcome of archiving
     // a live workspace whose dev server is still writing. That is tolerated and
     // reported; 2 and above are real failures.

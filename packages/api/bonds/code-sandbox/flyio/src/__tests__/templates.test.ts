@@ -217,9 +217,9 @@ describe('the restore script — the tenant boundary', () => {
 describe('the capture script', () => {
   const command = templates.buildCaptureCommand(['/workspace'], 'https://url/put', 1234)
 
-  it('archives the named paths relative to / and keeps host uids out', () => {
+  it('archives the named paths relative to /, masking uids and setuid on the way OUT too', () => {
     expect(command).toContain(
-      `tar -C / --numeric-owner --owner=0 --group=0 -czf "$archive" 'workspace'`,
+      `tar -C / --numeric-owner --owner=0 --group=0 --mode='a-s' -czf "$archive" 'workspace'`,
     )
   })
 
