@@ -625,6 +625,19 @@ class FlyioSandboxProvider implements SandboxProvider {
 
       cursor = response?.next_cursor || undefined
       if (!cursor) break
+      if (page === LIST_MAX_PAGES - 1) {
+        // Fly still had a cursor: this listing is TRUNCATED, and a caller that
+        // reaps or reconciles from it would leave the unseen Machines running
+        // and billing forever. Say so rather than returning a short list that
+        // looks complete. Fly's `limit` is advisory ("Responses may be shorter,
+        // or even empty, even when more machines remain"), so a large org can
+        // reach this cap well before LIST_MAX_PAGES * LIST_PAGE_SIZE Machines.
+        logger.warn(
+          'Fly org-wide Machine listing hit its page cap and is TRUNCATED — some managed ' +
+            'sandboxes are missing from this result',
+          { org: this.orgSlug(), pages: LIST_MAX_PAGES, returned: sandboxes.length },
+        )
+      }
     }
     return sandboxes
   }

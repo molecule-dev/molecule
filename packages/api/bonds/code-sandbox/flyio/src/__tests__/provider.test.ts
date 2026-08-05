@@ -424,6 +424,24 @@ describe('get / list / destroy', () => {
     expect(double.calls[1].path).toContain('cursor=c2')
   })
 
+  it('WARNS when the org listing is truncated, instead of returning a short list silently', async () => {
+    // Fly keeps handing back a cursor: a caller reaping from a truncated list
+    // would leave the unseen Machines running and billing forever.
+    const double = createFetchDouble().fallback({
+      body: {
+        machines: [{ id: 'm', app_name: 'a', state: 'started', config: { metadata: {} } }],
+        next_cursor: 'more',
+      },
+    })
+
+    await makeProvider({}, double).list('user-1')
+
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('TRUNCATED'),
+      expect.objectContaining({ org: 'acme' }),
+    )
+  })
+
   it('lists the shared app directly when per-project apps are off', async () => {
     process.env.NODE_ENV = 'development'
     const double = createFetchDouble().on('GET /apps/shared/machines', {
