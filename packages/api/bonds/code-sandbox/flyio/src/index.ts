@@ -35,6 +35,23 @@
  * await sandbox.exec('npm install', { timeout: 600_000 })
  * await sandbox.sleep() // Fly suspend — memory snapshot, storage-only billing
  * await sandbox.wake() // Fly start — resumes from the snapshot
+ *
+ * // Warm start. Capture the prepared filesystem once…
+ * const provider = requireProvider()
+ * await provider.commitTemplate?.({
+ *   sandboxId: sandbox.id,
+ *   templateId: 'react-postgres-v3',
+ *   // REQUIRED here: the archive of these paths IS the template.
+ *   capturePaths: ['/workspace'],
+ * })
+ *
+ * // …then every later boot of the same configuration restores it instead of
+ * // re-running `mlcl create` + `npm install`. A missing template THROWS.
+ * const warm = await provider.create({
+ *   projectId: 'b7d2…',
+ *   volumeName: 'mol-b7d2',
+ *   templateId: 'react-postgres-v3',
+ * })
  * ```
  *
  * @remarks
@@ -55,6 +72,19 @@
  * (https://fly.io/docs/machines/api/working-with-machines-api/), and the exec
  * timeout ceiling
  * (https://community.fly.io/t/extending-timeout-of-execute-command-machines-api-endpoint/26074).
+ * For the template capability: Fly Volume snapshots
+ * (https://fly.io/docs/volumes/snapshots/), Tigris object storage on Fly
+ * (https://fly.io/docs/tigris/) and its S3 API coverage
+ * (https://www.tigrisdata.com/docs/api/s3/), presigned URLs
+ * (https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html),
+ * the 5 GB single-`PUT` ceiling
+ * (https://docs.aws.amazon.com/AmazonS3/latest/userguide/upload-objects.html),
+ * and the AWS SDK's checksum defaults
+ * (https://docs.aws.amazon.com/sdkref/latest/guide/feature-dataintegrity.html).
+ * The `tar` behaviours the restore's containment rests on — a `..` member
+ * refused, a leading `/` stripped, a write through a symlink refused, and
+ * setuid/setgid dropped by `--no-same-permissions` — were verified by running
+ * GNU tar 1.35 against crafted archives rather than inferred from its manual.
  *
  * **`sleep()` is suspend, not stop — that is the point of this bond.**
  * `sleep()` calls `POST /v1/apps/{app}/machines/{id}/suspend`, which "uses
@@ -152,6 +182,71 @@
  * legal character set for volume names, so names are conservatively reduced to
  * `[A-Za-z0-9_]` — an assumption, flagged as such.
  *
+ * **Warm start: templates are tar archives in object storage.** Fly cannot
+ * `commit` a running Machine — it PULLS images from a registry — and the
+ * Machines API has no file-transfer endpoint at all, so a template here is a
+ * `tar.gz` of the caller-named `capturePaths` in an S3-compatible bucket
+ * (Tigris on Fly: `fly storage create` exports exactly the variables this bond
+ * reads). The bytes move DIRECTLY between the sandbox and the store over
+ * presigned URLs — the control plane only handles the URL and the manifest —
+ * because pushing hundreds of megabytes through `exec`'s JSON response is not a
+ * slower transfer, it is a different order of magnitude. `commitTemplate`
+ * REQUIRES `capturePaths`: unlike Docker, where the container's own image
+ * carries the filesystem, the archive here IS the template, so committing none
+ * would store an empty template that later boots successfully into an empty
+ * workspace. Configure it with `templateBucket` + `templateAccessKeyId` +
+ * `templateSecretAccessKey` (+ `templateEndpoint` for a non-AWS store); without
+ * them the template methods throw an actionable error naming the settings
+ * rather than pretending the capability is absent, the same call the Docker
+ * bond makes for `templateRegistry`.
+ *
+ * The **volume-snapshot** alternative was checked and rejected on Fly's own
+ * documentation, not on preference: `POST /v1/apps/{app}/volumes` does accept
+ * `snapshot_id` and `source_volume_id`, but "Every Fly Volume belongs to a Fly
+ * App and you can't share a volume between apps"
+ * (https://fly.io/docs/volumes/overview/) — and this bond gives every project
+ * its own app. A snapshot could serve a per-project restore point and never the
+ * cross-project warm start the capability exists for.
+ *
+ * **Booting from a template FAILS when the template is gone**, rather than
+ * falling back to the base image, which would hand back a healthy-looking
+ * sandbox whose filesystem is not the one that was named. One wording in the
+ * core cannot be honored literally: `templateId` does NOT override `image`
+ * here, because a Fly template is a filesystem rather than an image — the image
+ * still selects the OS and toolchain, and the template supplies the captured
+ * paths on top of it. A restore that fails DESTROYS the Machine before throwing.
+ *
+ * **The tenant boundary is the restore, not the capture.** A capture runs inside
+ * a sandbox the tenant controls, so nothing done there is a security control.
+ * The restore runs in a fresh Machine before anyone holds a handle to it, and
+ * extracts ONLY the paths recorded in the control-plane-written manifest (they
+ * are `tar` member selectors), with `--no-same-owner --no-same-permissions`,
+ * followed by a `find -perm /6000 -exec chmod a-s` sweep and then a second
+ * `find` that FAILS the restore if any setuid/setgid file survived. GNU tar's
+ * own refusals — a `..` member, an absolute member, a write through a symlink —
+ * all exit non-zero and therefore fail the restore too.
+ *
+ * **`inUse` means "a restore is in flight", and cannot mean more than that.** On
+ * Docker a template is the image a container runs, so deleting it destroys the
+ * container. Here the archive is COPIED into the sandbox at boot and never
+ * referenced again, so removing a template cannot destroy a running sandbox —
+ * the only window is a restore still reading it, which is tracked with a lease
+ * object in the same store (so a second control plane sees it) and ages out
+ * after the transfer budget. A lease whose timestamp cannot be read counts as
+ * live, and any failure to LIST or read the store throws rather than reporting
+ * "absent" or "not in use".
+ *
+ * **`publishTemplate`/`fetchTemplate` are NOT implemented, deliberately.** They
+ * exist for providers whose templates are host-local; object storage is already
+ * the shared store, so there is nothing to publish or fetch.
+ *
+ * **`exportFiles`/`importFiles` are NOT implemented.** The core says a provider
+ * with no bulk transfer should leave them unimplemented rather than emulate one,
+ * and Fly's only channel is the `exec` endpoint's JSON response — a file-by-file
+ * or base64 emulation would look supported and take hours. The template path
+ * moves bulk data without them precisely because it never routes the bytes
+ * through the control plane.
+ *
  * **Sandbox ids are composite: `"<app>:<machineId>"`.** A Fly Machine id is only
  * unique within its app and every endpoint is `/v1/apps/{app}/machines/{id}`, so
  * a bare Machine id cannot be addressed. Keep treating the id as opaque.
@@ -198,6 +293,8 @@ export * from './egress.js'
 export * from './exec.js'
 export * from './ids.js'
 export * from './provider.js'
+export * from './storage.js'
+export * from './templates.js'
 export * from './types.js'
 export * from './utilities.js'
 

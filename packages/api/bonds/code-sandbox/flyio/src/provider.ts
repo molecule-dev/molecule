@@ -9,14 +9,17 @@
 
 import { getLogger } from '@molecule/api-bond'
 import type {
+  CommitTemplateOptions,
   DirEntry,
   EgressVerdict,
   ExecOptions,
   ExecResult,
   FileChangeEvent,
+  ListTemplatesOptions,
   Sandbox,
   SandboxConfig,
   SandboxProvider,
+  SandboxTemplate,
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
 
@@ -32,6 +35,8 @@ import {
 } from './egress.js'
 import { execCommand, type RawExec, toExecResult } from './exec.js'
 import { appNameForProject, mapMachineState, parseSandboxId, toSandboxId } from './ids.js'
+import { createTemplateStore, MAX_PRESIGN_EXPIRY_SECONDS, type ObjectStore } from './storage.js'
+import * as templates from './templates.js'
 import type {
   FlyExecResponse,
   FlyioConfig,
@@ -143,15 +148,26 @@ class FlyioSandboxProvider implements SandboxProvider {
   private readonly metadataPrefix: string
   /** Emit the `onFileChange` unsupported warning once per provider, not once per sandbox. */
   private warnedNoFileWatch = false
+  /**
+   * Memoized template store. `undefined` means "not resolved yet", `null` means
+   * "resolved, and not configured" — resolution is deferred to first use so a
+   * secrets bond can populate the environment after this singleton is built,
+   * exactly like the API token.
+   */
+  private templateStoreCache: ObjectStore | null | undefined
 
   /**
    * Creates the provider.
    * @param config - Fly-specific configuration; every field also has an env fallback.
    * @param client - Injectable API client, for tests. Built from `config` when omitted.
+   * @param store - Injectable template object store, for tests. Resolved from
+   *   `config` (and the environment) on first use when omitted; pass `null` to
+   *   model an operator who configured no store at all.
    */
-  constructor(config: FlyioConfig = {}, client?: FlyApiClient) {
+  constructor(config: FlyioConfig = {}, client?: FlyApiClient, store?: ObjectStore | null) {
     this.config = config
     this.metadataPrefix = config.metadataPrefix ?? DEFAULT_METADATA_PREFIX
+    if (store !== undefined) this.templateStoreCache = store
     this.client =
       client ??
       new FlyApiClient({
@@ -485,16 +501,49 @@ class FlyioSandboxProvider implements SandboxProvider {
    * the Machines API LAUNCHES the Machine as part of `POST .../machines`. The
    * returned sandbox therefore already reports a live state, and `start()` is
    * idempotent.
-   * @param config - Project id, image, env, volume name, labels and resource limits.
+   *
+   * `config.templateId` is honored by RESTORING the template's archive into the
+   * new Machine before the sandbox is handed back, and a missing template is a
+   * hard failure — booting the base image instead would return a healthy-looking
+   * sandbox whose filesystem is not the one the caller named. Note the one place
+   * this provider cannot match the core's wording: on Fly a template is a
+   * filesystem, not an image, so `templateId` does not override `image`. The
+   * image still selects the OS and toolchain; the template supplies the captured
+   * paths on top of it.
+   * @param config - Project id, image, env, volume name, template, labels and resource limits.
    * @returns A `Sandbox` bound to the new Machine.
    */
   async create(config: SandboxConfig): Promise<Sandbox> {
+    // Resolved BEFORE anything is provisioned, so a bad template id costs no app,
+    // no volume and no Machine.
+    let manifest: templates.TemplateManifest | null = null
+    if (config.templateId) {
+      const found = await templates.readTemplate(this.templateContext(), config.templateId)
+      if (!found) {
+        throw new Error(
+          t(
+            'codeSandbox.flyio.error.templateMissing',
+            { templateId: config.templateId },
+            {
+              defaultValue:
+                `Cannot create a sandbox from template "${config.templateId}": it does not exist. ` +
+                'Commit it first with commitTemplate().',
+            },
+          ),
+        )
+      }
+      manifest = found.manifest
+    }
+
     const app = this.resolveApp(config.projectId)
     await this.ensureApp(app)
 
     const metadata: Record<string, string> = {
       [`${this.metadataPrefix}.projectId`]: config.projectId,
       [`${this.metadataPrefix}.managed`]: 'true',
+      // Recorded for operators reconciling which sandboxes came from which
+      // template. It is NOT what `inUse` is derived from — see `templates.ts`.
+      ...(config.templateId ? { [`${this.metadataPrefix}.templateId`]: config.templateId } : {}),
     }
     // Caller labels are merged FIRST so the provider's own managed keys always
     // win — a caller can never clobber `managed`/`projectId`.
@@ -546,6 +595,13 @@ class FlyioSandboxProvider implements SandboxProvider {
           { defaultValue: `Fly Machine creation in app "${app}" returned no Machine id.` },
         ),
       )
+    }
+
+    if (manifest && config.templateId) {
+      await this.restoreTemplate(app, machine.id, config.templateId, manifest)
+      // The restore waited for `started` and ran a command in it, so the state
+      // read back from the creation response is stale by definition.
+      return this.buildSandbox(app, machine.id, 'running')
     }
 
     return this.buildSandbox(app, machine.id, mapMachineState(machine.state ?? 'created'))
@@ -703,6 +759,174 @@ class FlyioSandboxProvider implements SandboxProvider {
       } catch (error) {
         logger.warn('Failed to remove Fly volume', { app, volumeId, error })
       }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Templates
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Builds the context the template capability runs against.
+   *
+   * The store is resolved once and memoized, so a boot that checks for a
+   * template does not rebuild an S3 client per call.
+   * @returns The template context.
+   */
+  private templateContext(): templates.TemplateContext {
+    if (this.templateStoreCache === undefined) {
+      this.templateStoreCache = createTemplateStore(this.config)
+      if (this.templateStoreCache) {
+        logger.info('Fly sandbox templates are enabled', {
+          store: this.templateStoreCache.describe,
+        })
+      }
+    }
+    return {
+      store: this.templateStoreCache,
+      exec: async (app, machineId, command, timeoutMs) =>
+        // `cwd: '/'` rather than the workspace: a freshly-booted Machine that is
+        // about to be restored INTO has no `/workspace` yet, and `execCommand`
+        // starts every script with a `cd` that would fail there.
+        execCommand(this.rawExec(app, machineId), command, { cwd: '/', timeout: timeoutMs }, '/'),
+      ensureStarted: async (app, machineId) => {
+        await this.startMachine(app, machineId)
+      },
+      parseSandboxId,
+      presignExpirySeconds: Math.max(
+        60,
+        Math.min(
+          this.config.templateUrlExpirySeconds ?? templates.DEFAULT_PRESIGN_EXPIRY_SECONDS,
+          MAX_PRESIGN_EXPIRY_SECONDS,
+        ),
+      ),
+      // Floored only against a zero/negative budget: how long a capture may take
+      // is the operator's call, and a low value simply fails the transfer rather
+      // than doing anything unsafe.
+      transferTimeoutMs: Math.max(
+        1000,
+        this.config.templateTransferTimeoutMs ?? templates.DEFAULT_TRANSFER_TIMEOUT_MS,
+      ),
+      maxArchiveBytes: Math.max(
+        1,
+        Math.min(
+          this.config.templateMaxArchiveBytes ?? templates.MAX_ARCHIVE_BYTES,
+          templates.MAX_ARCHIVE_BYTES,
+        ),
+      ),
+      warn: (message, meta) => logger.warn(message, meta),
+      debug: (message, meta) => logger.debug(message, meta),
+    }
+  }
+
+  /**
+   * Capture a sandbox's filesystem as a reusable template.
+   *
+   * See `templates.ts` for why this is a tar in object storage rather than
+   * anything Fly-native: Fly cannot produce an image from a running Machine, and
+   * a volume snapshot cannot cross the per-project app boundary this bond
+   * creates for tenant isolation.
+   * @param options - What to capture and what to call it.
+   * @returns The template as it now exists.
+   */
+  async commitTemplate(options: CommitTemplateOptions): Promise<SandboxTemplate> {
+    return templates.commitTemplate(this.templateContext(), options)
+  }
+
+  /**
+   * Read one template by the caller's identifier.
+   * @param templateId - The caller's identifier.
+   * @returns The template, or `null` when no template has that id.
+   */
+  async getTemplate(templateId: string): Promise<SandboxTemplate | null> {
+    return templates.getTemplate(this.templateContext(), templateId)
+  }
+
+  /**
+   * Enumerate templates in the configured store.
+   * @param options - Narrowing by id prefix.
+   * @returns Every matching template.
+   */
+  async listTemplates(options?: ListTemplatesOptions): Promise<SandboxTemplate[]> {
+    return templates.listTemplates(this.templateContext(), options)
+  }
+
+  /**
+   * Delete a template, refusing while a restore is still reading it.
+   * @param templateId - The caller's identifier.
+   */
+  async removeTemplate(templateId: string): Promise<void> {
+    return templates.removeTemplate(this.templateContext(), templateId)
+  }
+
+  /**
+   * Restores a template into a freshly-created Machine.
+   *
+   * A failure here DESTROYS the Machine. The alternative is to hand back a
+   * sandbox that started cleanly and whose filesystem is not the one that was
+   * asked for — the same silent-wrong-contents failure that makes a missing
+   * template a hard error rather than a fallback to the base image.
+   * @param app - The Fly app name.
+   * @param machineId - The Fly Machine id.
+   * @param templateId - The caller's template identifier.
+   * @param manifest - The CONTROL-PLANE manifest, whose `capturePaths` bound what is extracted.
+   * @throws {Error} When the restore fails; the Machine is destroyed first.
+   */
+  private async restoreTemplate(
+    app: string,
+    machineId: string,
+    templateId: string,
+    manifest: templates.TemplateManifest,
+  ): Promise<void> {
+    const ctx = this.templateContext()
+    const store = templates.requireStore(ctx)
+    const leaseId = `${machineId}-${Date.now().toString(36)}`.replace(/[^A-Za-z0-9_.-]/g, '_')
+    let lease: string | null = null
+
+    try {
+      // The restore runs through exec, so the Machine has to be up. `create`
+      // launches it but returns as soon as Fly accepts the request.
+      await this.waitForStarted(app, machineId)
+      lease = await templates.acquireRestoreLease(ctx, templateId, leaseId)
+      const url = await store.presignGet(
+        templates.archiveKey(store, templateId),
+        ctx.presignExpirySeconds,
+      )
+      const result = await ctx.exec(
+        app,
+        machineId,
+        templates.buildRestoreCommand(manifest.capturePaths, url),
+        ctx.transferTimeoutMs,
+      )
+      if (result.exitCode !== 0) {
+        throw new Error(
+          t(
+            'codeSandbox.flyio.error.templateRestoreFailed',
+            { templateId, exitCode: String(result.exitCode) },
+            {
+              defaultValue:
+                `Restoring template "${templateId}" into Fly Machine ${machineId} failed ` +
+                `(exit ${result.exitCode}): ${result.stderr.slice(0, 500) || result.stdout.slice(0, 500)}`,
+            },
+          ),
+        )
+      }
+    } catch (error) {
+      try {
+        await this.client.request(`/apps/${app}/machines/${machineId}?force=true`, {
+          method: 'DELETE',
+          nullOn: [404],
+        })
+      } catch (cleanupError) {
+        logger.warn(
+          'Failed to destroy the Fly Machine whose template restore failed — it will keep ' +
+            'billing until it is reaped',
+          { app, machineId, error: cleanupError },
+        )
+      }
+      throw error
+    } finally {
+      if (lease) await templates.releaseRestoreLease(ctx, lease)
     }
   }
 
@@ -1221,8 +1445,14 @@ class FlyioSandboxProvider implements SandboxProvider {
  *   naming and isolation mode, region, base image, guest sizing, preview
  *   service, and the preview URL template. Every field has an env fallback.
  * @param client - Injectable Machines API client, for tests.
+ * @param store - Injectable template object store, for tests. Resolved from the
+ *   template settings (or their env fallbacks) on first use when omitted.
  * @returns A `SandboxProvider` backed by Fly Machines.
  */
-export function createProvider(config?: FlyioConfig, client?: FlyApiClient): SandboxProvider {
-  return new FlyioSandboxProvider(config, client)
+export function createProvider(
+  config?: FlyioConfig,
+  client?: FlyApiClient,
+  store?: ObjectStore | null,
+): SandboxProvider {
+  return new FlyioSandboxProvider(config, client, store)
 }

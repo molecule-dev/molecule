@@ -169,6 +169,71 @@ export interface FlyioConfig {
    * observes egress from the same image real sandboxes run.
    */
   egressProbeImage?: string
+  /**
+   * Bucket holding sandbox templates. Falls back to `SANDBOX_TEMPLATE_BUCKET`,
+   * then `BUCKET_NAME` (which `fly storage create` sets).
+   *
+   * Templates are the warm-start capability: Fly cannot commit a running Machine
+   * to an image, so a template is a tar archive in S3-compatible object storage.
+   * Without a bucket (and both credentials) the template methods throw an
+   * actionable error naming these settings, and `SandboxConfig.templateId` fails
+   * rather than silently booting the base image.
+   */
+  templateBucket?: string
+  /**
+   * S3 endpoint for {@link FlyioConfig.templateBucket}, e.g. Tigris's
+   * `https://t3.storage.dev`. Falls back to `SANDBOX_TEMPLATE_ENDPOINT`, then
+   * `AWS_ENDPOINT_URL_S3`. Omit for AWS S3 itself.
+   */
+  templateEndpoint?: string
+  /**
+   * Region used to sign template-store requests. Falls back to
+   * `SANDBOX_TEMPLATE_REGION`, then `AWS_REGION`, then `auto` — which Tigris and
+   * most S3-compatible stores accept, and which the AWS SDK still requires in
+   * order to build a signature.
+   */
+  templateRegion?: string
+  /** Access key for the template store. Falls back to `SANDBOX_TEMPLATE_ACCESS_KEY_ID`, then `AWS_ACCESS_KEY_ID`. */
+  templateAccessKeyId?: string
+  /** Secret key for the template store. Falls back to `SANDBOX_TEMPLATE_SECRET_ACCESS_KEY`, then `AWS_SECRET_ACCESS_KEY`. */
+  templateSecretAccessKey?: string
+  /** Session token for temporary template-store credentials. Falls back to `SANDBOX_TEMPLATE_SESSION_TOKEN`, then `AWS_SESSION_TOKEN`. */
+  templateSessionToken?: string
+  /**
+   * Key prefix every template object lives under. Falls back to
+   * `SANDBOX_TEMPLATE_PREFIX`, then `molecule-sandbox-templates`. Give the
+   * templates their own prefix (or their own bucket): `removeTemplate` deletes
+   * every key under a template's prefix.
+   */
+  templatePrefix?: string
+  /**
+   * Address the template bucket path-style (`https://endpoint/bucket/key`)
+   * instead of virtual-host style. Falls back to
+   * `SANDBOX_TEMPLATE_FORCE_PATH_STYLE=true`. Needed by stores that do not serve
+   * `<bucket>.<endpoint>`; Tigris and AWS S3 do not need it.
+   */
+  templateForcePathStyle?: boolean
+  /**
+   * Lifetime of the presigned capture/restore URL handed to a sandbox, in
+   * seconds. Defaults to 3600 and is clamped to AWS's documented 7-day ceiling
+   * for a SigV4 presigned URL. It only has to outlast the START of the transfer:
+   * S3 "checks the expiration date and time of a signed URL at the time of the
+   * HTTP request", so a download already in progress is not cut off.
+   */
+  templateUrlExpirySeconds?: number
+  /**
+   * Wall-clock budget for one capture or restore transfer, in ms. Defaults to
+   * 900000 (15 min). Also bounds how long a stale restore lease keeps a template
+   * pinned against eviction.
+   */
+  templateTransferTimeoutMs?: number
+  /**
+   * Largest template archive this provider will store, in bytes. Defaults to
+   * and is clamped by S3's 5 GB single-`PUT` ceiling, because the sandbox
+   * uploads with exactly one presigned `PUT`. The capture refuses before
+   * spending the bandwidth.
+   */
+  templateMaxArchiveBytes?: number
 }
 
 /**
@@ -207,6 +272,34 @@ export interface ProcessEnv {
   SANDBOX_EGRESS_PROBE_TARGETS?: string
   /** Per-connection timeout for the egress probe, in ms (default 3000). */
   SANDBOX_EGRESS_PROBE_TIMEOUT_MS?: string
+  /** Bucket holding sandbox templates. Overridden by `config.templateBucket`. */
+  SANDBOX_TEMPLATE_BUCKET?: string
+  /** Bucket name as exported by `fly storage create`. Used when `SANDBOX_TEMPLATE_BUCKET` is unset. */
+  BUCKET_NAME?: string
+  /** S3 endpoint for the template bucket. Overridden by `config.templateEndpoint`. */
+  SANDBOX_TEMPLATE_ENDPOINT?: string
+  /** S3 endpoint as exported by `fly storage create`. Used when `SANDBOX_TEMPLATE_ENDPOINT` is unset. */
+  AWS_ENDPOINT_URL_S3?: string
+  /** Signing region for the template store (default `auto`). Overridden by `config.templateRegion`. */
+  SANDBOX_TEMPLATE_REGION?: string
+  /** Signing region, standard AWS variable. Used when `SANDBOX_TEMPLATE_REGION` is unset. */
+  AWS_REGION?: string
+  /** Access key for the template store. Overridden by `config.templateAccessKeyId`. */
+  SANDBOX_TEMPLATE_ACCESS_KEY_ID?: string
+  /** Access key, standard AWS variable (also what `fly storage create` sets). */
+  AWS_ACCESS_KEY_ID?: string
+  /** Secret key for the template store. Overridden by `config.templateSecretAccessKey`. */
+  SANDBOX_TEMPLATE_SECRET_ACCESS_KEY?: string
+  /** Secret key, standard AWS variable (also what `fly storage create` sets). */
+  AWS_SECRET_ACCESS_KEY?: string
+  /** Session token for the template store. Overridden by `config.templateSessionToken`. */
+  SANDBOX_TEMPLATE_SESSION_TOKEN?: string
+  /** Session token, standard AWS variable. */
+  AWS_SESSION_TOKEN?: string
+  /** Key prefix for template objects (default `molecule-sandbox-templates`). */
+  SANDBOX_TEMPLATE_PREFIX?: string
+  /** `true` addresses the template bucket path-style rather than virtual-host style. */
+  SANDBOX_TEMPLATE_FORCE_PATH_STYLE?: string
 }
 
 /**

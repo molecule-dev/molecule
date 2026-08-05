@@ -6,6 +6,8 @@
 
 import { vi } from 'vitest'
 
+import type { ObjectStore, StoredObject } from '../storage.js'
+
 /** One recorded outbound request. */
 export interface RecordedCall {
   method: string
@@ -116,6 +118,87 @@ export function createFetchDouble(baseUrl = BASE): FetchDouble {
     },
   }
   return double
+}
+
+/** An in-memory {@link ObjectStore} double with injectable failures. */
+export interface StoreDouble extends ObjectStore {
+  /** The backing objects, keyed by object key. */
+  objects: Map<string, { body: string; lastModified: string }>
+  /** Presigned URLs handed out, in order, as `METHOD <key>`. */
+  presigned: string[]
+  /** Make the next call to one operation reject. */
+  failNext(operation: 'list' | 'head' | 'getText' | 'putText' | 'remove', error: Error): void
+  /** Write an object directly, bypassing the failure queue. */
+  seed(key: string, body: string, lastModified?: string): void
+}
+
+/**
+ * Creates an in-memory object store double.
+ * @param prefix - Key prefix the store reports.
+ * @param bucket - Bucket name the store reports.
+ * @returns The store double.
+ */
+export function createStoreDouble(
+  prefix = 'molecule-sandbox-templates',
+  bucket = 'templates',
+): StoreDouble {
+  const objects = new Map<string, { body: string; lastModified: string }>()
+  const failures = new Map<string, Error>()
+  const presigned: string[] = []
+
+  const trip = (operation: string): void => {
+    const error = failures.get(operation)
+    if (error) {
+      failures.delete(operation)
+      throw error
+    }
+  }
+  const describeObject = (key: string): StoredObject => {
+    const entry = objects.get(key) as { body: string; lastModified: string }
+    return { key, size: Buffer.byteLength(entry.body), lastModified: entry.lastModified }
+  }
+
+  return {
+    describe: `s3://${bucket}/${prefix} (double)`,
+    bucket,
+    prefix,
+    objects,
+    presigned,
+    failNext(operation, error) {
+      failures.set(operation, error)
+    },
+    seed(key, body, lastModified = new Date().toISOString()) {
+      objects.set(key, { body, lastModified })
+    },
+    async list(searchPrefix) {
+      trip('list')
+      return [...objects.keys()].filter((key) => key.startsWith(searchPrefix)).map(describeObject)
+    },
+    async head(key) {
+      trip('head')
+      return objects.has(key) ? describeObject(key) : null
+    },
+    async getText(key) {
+      trip('getText')
+      return objects.get(key)?.body ?? null
+    },
+    async putText(key, body) {
+      trip('putText')
+      objects.set(key, { body, lastModified: new Date().toISOString() })
+    },
+    async remove(keys) {
+      trip('remove')
+      for (const key of keys) objects.delete(key)
+    },
+    async presignPut(key) {
+      presigned.push(`PUT ${key}`)
+      return `https://store.example/${key}?X-Amz-Signature=put`
+    },
+    async presignGet(key) {
+      presigned.push(`GET ${key}`)
+      return `https://store.example/${key}?X-Amz-Signature=get`
+    },
+  }
 }
 
 /** A logger double matching the `@molecule/api-bond` logger shape. */
