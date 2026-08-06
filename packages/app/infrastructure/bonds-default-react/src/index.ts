@@ -13,6 +13,11 @@
  *   icons-molecule. Each also exists as an individual `setupApp*()` for apps
  *   that wire a la carte (per-app `app/src/bonds/<name>.ts` files stay 1-line
  *   re-exports of these).
+ * - **Optional provider wirings live behind subpaths**, one module per pair:
+ *   `@molecule/app-bonds-default-react/optional/<pair>.js` — `realtime-socketio`,
+ *   `keyboard-shortcuts-hotkeys`, `command-palette-cmdk`, `code-editor-monaco`,
+ *   `virtual-scroll-tanstack`, `drag-drop-dndkit`, `charts-chartjs`,
+ *   `maps-leaflet`, `video-hls`. Import ONLY the ones the app installs.
  * - Auth/http factories — `createDefaultAuthClient(authConfig)` returns
  *   `{ authClient, setupAuthDefault }`; the `...WithHttpSync` /
  *   `...WithFetchClient` variants also keep the bonded http client's bearer
@@ -25,8 +30,9 @@
  *   bootstrapApp,
  *   createDefaultAuthClientWithHttpSync,
  *   setupAllDefaultBonds,
- *   setupAppCodeEditorMonaco,
  * } from '@molecule/app-bonds-default-react'
+ * // Optional providers come from their own subpath — see @remarks.
+ * import { setupAppCodeEditorMonaco } from '@molecule/app-bonds-default-react/optional/code-editor-monaco.js'
  *
  * import { App } from './App.js'
  * import { authConfig } from './config.js'
@@ -47,6 +53,14 @@
  * ```
  *
  * @remarks
+ * - **Optional setups are NOT exported from the package root.** Import each from
+ *   its own subpath — `@molecule/app-bonds-default-react/optional/maps-leaflet.js`,
+ *   not `from '@molecule/app-bonds-default-react'`. A bundler must RESOLVE every
+ *   `import()` in a module it pulls into the graph, before tree-shaking can drop
+ *   anything, so while these lived in the barrel every app inherited all 18
+ *   optional providers and any app that had not installed all of them failed to
+ *   build with `Rolldown failed to resolve import "@molecule/app-maps"`. Only
+ *   import a subpath whose provider pair the app actually installs.
  * - `setupAllDefaultBonds()` does NOT wire the optional bonds. Those ship as
  *   separate ASYNC setups — `setupAppRealtimeSocketio`,
  *   `setupAppKeyboardShortcutsHotkeys`, `setupAppCommandPaletteCmdk`,

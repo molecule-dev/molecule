@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./optional/*.js": {
+      "types": "./dist/optional/*.d.ts",
+      "import": "./dist/optional/*.js"
     }
   },
   "files": [
