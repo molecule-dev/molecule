@@ -63,7 +63,13 @@ jobs:
       # safe: a hit proves the sources are identical to when dist was built, so
       # declaring dist up-to-date is correct rather than a gamble. Any source
       # change misses the key and produces a genuine full rebuild.
-      - uses: actions/cache@v4
+      # RESTORE-ONLY, deliberately. This job does not build on a push — changesets
+      # just opens the Version Packages PR — so a save from here writes an EMPTY
+      # packages/**/dist under the key CI shares. That is exactly what happened:
+      # every mol-dist-* cache was 0 MB, Release finished first and poisoned the
+      # key, and CI then restored nothing and rebuilt all 915 packages every run.
+      # Only the job that actually builds may write this cache.
+      - uses: actions/cache/restore@v4
         id: build-cache
         with:
           path: |
