@@ -18,6 +18,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./store.js": {
+      "types": "./dist/store.d.ts",
+      "import": "./dist/store.js"
+    },
+    "./utilities.js": {
+      "types": "./dist/utilities.d.ts",
+      "import": "./dist/utilities.js"
     }
   },
   "keywords": [
