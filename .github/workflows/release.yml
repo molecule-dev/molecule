@@ -66,11 +66,18 @@ jobs:
       - uses: actions/cache@v4
         id: build-cache
         with:
-          path: packages/**/dist
+          path: |
+            packages/**/dist
+            .dist-manifest.json
           key: mol-dist-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
-      - name: Mark restored dist newer than src
-        if: steps.build-cache.outputs.cache-hit == 'true'
-        run: find packages -path '*/dist/*' -exec touch {} +
+          # Must stay IDENTICAL to ci.yml — the two share this cache so whichever
+          # workflow runs first builds and the other restores.
+          restore-keys: mol-dist-${{ runner.os }}-
+      # Content check, not a blanket touch: only packages whose sources still
+      # hash to what produced the restored dist are marked fresh. See
+      # scripts/dist-cache-manifest.mjs and the fuller note in ci.yml.
+      - name: Reuse dist for packages whose sources are unchanged
+        run: node scripts/dist-cache-manifest.mjs --apply
       - run: npm ci
       - uses: changesets/action@v1
         with:

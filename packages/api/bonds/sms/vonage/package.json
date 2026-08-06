@@ -36,7 +36,7 @@
   },
   "peerDependencies": {
     "@molecule/api-secrets": "^1.0.1",
-    "@molecule/api-sms": "1.0.1"
+    "@molecule/api-sms": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/api-sms": "1.0.1",

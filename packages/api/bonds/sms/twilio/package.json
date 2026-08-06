@@ -37,7 +37,7 @@
   "peerDependencies": {
     "@molecule/api-logger": "^1.0.1",
     "@molecule/api-secrets": "^1.0.1",
-    "@molecule/api-sms": "1.0.1"
+    "@molecule/api-sms": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/api-logger": "1.0.1",

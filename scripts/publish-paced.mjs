@@ -100,6 +100,22 @@ function discover() {
 }
 
 /**
+ * Names the registry reported as entirely absent (HTTP 404), filled in by the
+ * scan below. A package here has never been published under any version.
+ */
+const neverPublished = new Set()
+
+/**
+ * Whether the registry has ever seen this package under any version.
+ *
+ * @param pkg - The package being published.
+ * @returns False only when the scan positively observed a 404 for it.
+ */
+function existsOnRegistry(pkg) {
+  return !neverPublished.has(pkg.name)
+}
+
+/**
  * Whether this exact name@version is already on the registry.
  *
  * @param name - Package name.
@@ -116,7 +132,14 @@ async function isPublished(name, version) {
       const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2f')}`, {
         signal: AbortSignal.timeout(15_000),
       })
-      if (res.status === 404) return false
+      if (res.status === 404) {
+        // The package does not exist AT ALL (not merely missing this version).
+        // Recorded because a never-published package cannot have a trusted
+        // publisher — npm's trust endpoint 404s on it — so its auth failure is
+        // local to it and must not abort the fleet. See the ENEEDAUTH branch.
+        neverPublished.add(name)
+        return false
+      }
       if (!res.ok) return null // unknown — caller decides, never assume "missing"
       const body = await res.json()
       return Boolean(body.versions?.[version])
@@ -290,6 +313,29 @@ for (const pkg of todo) {
         )
         abortReason = 'rate limited'
         break
+      } else if (/ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out) && !existsOnRegistry(pkg)) {
+        // NOT systemic: this package has simply never been published, so npm has
+        // no trusted publisher for it — `npm trust` 404s on a package that does
+        // not exist ({"message":"Package not found"}, verified 2026-08-06). Its
+        // auth failure says nothing about the other 913.
+        //
+        // Treating it as systemic meant ONE new package halted the entire fleet
+        // release, and since the run is name-ordered an `api-*` newcomer aborted
+        // before any `app-*` package was reached. That is how a release carrying
+        // an urgent fix to app-bonds-default-react published NOTHING, twice,
+        // while reporting success.
+        //
+        // So: record it, keep going, and let the run's exit code carry it (see
+        // the failure summary below). The genuinely systemic case is still caught
+        // — if auth is broken for everyone, every package lands in `failed` and
+        // the run exits non-zero with all of them named.
+        failed.push({
+          name: pkg.name,
+          error: 'never published and not trusted — run scripts/trust-publish-setup.mjs',
+        })
+        process.stderr.write(
+          `  ⚠ ${pkg.name}: new package, no trusted publisher yet — skipping, not aborting.\n`,
+        )
       } else if (/ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out)) {
         // ALSO STOP THE ENTIRE RUN — an auth failure is systemic, never per-package.
         //

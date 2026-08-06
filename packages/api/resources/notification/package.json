@@ -32,7 +32,7 @@
     "directory": "packages/api/resources/notification"
   },
   "peerDependencies": {
-    "@molecule/api-notification-center": "1.0.1"
+    "@molecule/api-notification-center": "^1.0.1"
   },
   "devDependencies": {
     "@molecule/api-notification-center": "1.0.1",

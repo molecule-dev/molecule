@@ -34,17 +34,33 @@ jobs:
       # EVERYTHING rebuilds. That is what this cache did before: paid the download
       # and rebuilt anyway.
       #
-      # restore-keys is deliberately absent. A prefix match would restore dist
-      # from a DIFFERENT commit, and touching that would declare stale output
-      # fresh and ship it. Only an exact content-hash hit is safe to trust.
+      # restore-keys IS used, but a prefix hit is never trusted wholesale. The
+      # old comment here said a prefix match was unsafe because the blanket
+      # `find … -exec touch` that followed would declare dist from a DIFFERENT
+      # commit fresh. That was true of the touch, not of the restore — so the
+      # touch is gone.
+      #
+      # scripts/dist-cache-manifest.mjs records what each package's sources
+      # hashed to when its dist was built, and on restore marks fresh ONLY the
+      # packages whose sources still hash identically. Everything else keeps a
+      # stale-looking dist and gets rebuilt. Content check, not mtime guess.
+      #
+      # Without this, one changed file busts a single fleet-wide hash and all
+      # ~914 packages rebuild — which is what the 5-file "version packages"
+      # commit did. Now it rebuilds 5.
       - uses: actions/cache@v4
         id: build-cache
         with:
-          path: packages/**/dist
+          path: |
+            packages/**/dist
+            .dist-manifest.json
           key: mol-dist-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
-      - name: Mark restored dist newer than src
-        if: steps.build-cache.outputs.cache-hit == 'true'
-        run: find packages -path '*/dist/*' -exec touch {} +
+          restore-keys: mol-dist-${{ runner.os }}-
+      # Always runs: a prefix restore sets cache-hit to false while still having
+      # restored files, and the script is fail-safe — no manifest marks nothing
+      # fresh, i.e. the old full-rebuild behaviour.
+      - name: Reuse dist for packages whose sources are unchanged
+        run: node scripts/dist-cache-manifest.mjs --apply
       - run: npm ci
       - run: npm run check:lockfile
       - run: npm run check:peer-deps
@@ -64,6 +80,11 @@ jobs:
       # paid down without turning the gate red today.
       - run: npm run check:i18n-parity
       - run: npm run build
+      # Record what each package's sources hashed to, so the NEXT run can reuse
+      # this dist per-package instead of rebuilding the fleet. Written after the
+      # build so it always describes output that actually exists.
+      - name: Record dist manifest for the next run
+        run: node scripts/dist-cache-manifest.mjs --write
       # @molecule/app-e2e-fixtures-default ships a REAL-DEPENDENCY integration
       # test that drives headless Chromium through the actual Playwright runner
       # — it is the gate proving a blank React mount cannot pass e2e green. Its
