@@ -1,0 +1,46 @@
+{
+  "name": "@molecule/api-project-archive-external-state-d1",
+  "version": "1.0.1",
+  "description": "Captures and restores a project's Cloudflare D1 databases via wrangler, so archiving a Workers project does not silently drop its data.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "project",
+    "archive",
+    "external",
+    "state",
+    "d1"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/project-archive-external-state/d1"
+  },
+  "devDependencies": {
+    "@molecule/api-project-archive": "1.0.1",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "peerDependencies": {
+    "@molecule/api-project-archive": "^1.0.1"
+  }
+}
