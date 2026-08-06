@@ -119,6 +119,58 @@ if (missing > 0) {
     'the affected package, then regenerate.',
   )
   process.exit(1)
-} else {
-  console.log('Lock file OK — all transitive dependencies resolvable.')
 }
+
+// ---------------------------------------------------------------------------
+// The check above answers "is every dependency RESOLVABLE within the lock?" —
+// which is not the question `npm ci` asks. `npm ci` asks "is the lock IN SYNC
+// with every package.json?", and those differ: a lock can be perfectly
+// self-consistent while missing a package added since it was written.
+//
+// That gap is not hypothetical. On 2026-08-06 this script printed
+// "Lock file OK — all transitive dependencies resolvable." against the exact
+// file `npm ci` was rejecting with:
+//
+//   npm error Missing: @molecule/api-code-sandbox-flyio@1.0.1 from lock file
+//
+// Both molecule CI and Release had been red for hours as a result — and Release
+// dying at step 1 means NOTHING can ever publish. The same shape (a green gate
+// in front of a red pipeline) had already cost this repo four months of
+// unrun lint.
+//
+// So do not reimplement npm's sync rules here; ask npm. It is the authority on
+// its own lock format, and a bespoke reimplementation would drift from it
+// exactly the way the check above did.
+const { spawnSync } = await import('node:child_process')
+
+const dryRun = spawnSync('npm', ['ci', '--dry-run', '--no-audit', '--no-fund'], {
+  encoding: 'utf8',
+  stdio: ['ignore', 'pipe', 'pipe'],
+})
+
+if (dryRun.error) {
+  // "I could not look" is not "I looked and it is fine".
+  console.error(
+    `\nCould not run \`npm ci --dry-run\` to verify lock sync: ${dryRun.error.message}`,
+    '\nRefusing to report the lock file OK on a check that did not run.',
+  )
+  process.exit(1)
+}
+
+if (dryRun.status !== 0) {
+  const detail = `${dryRun.stderr || ''}${dryRun.stdout || ''}`
+    .split('\n')
+    .filter((line) => /Missing:|Invalid:|can only install|EUSAGE/.test(line))
+    .slice(0, 12)
+    .join('\n')
+  console.error(
+    '\npackage-lock.json is OUT OF SYNC with package.json — `npm ci` refuses to install,',
+    '\nso every CI job fails at its first step and Release can never publish.\n',
+    `\n${detail || dryRun.stderr?.trim() || 'npm exited ' + dryRun.status}\n`,
+    '\nFix: `npm install --package-lock-only` from THIS repo (not the outer',
+    'workspace) and commit package-lock.json.',
+  )
+  process.exit(1)
+}
+
+console.log('Lock file OK — dependencies resolvable and in sync with package.json.')
