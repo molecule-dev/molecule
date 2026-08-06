@@ -36,3 +36,7 @@ npm-debug.log*
 .publish-failures.json
 .trust-failures.json
 .trust-state.json
+
+# CI dist-cache index (written by scripts/dist-cache-manifest.mjs, restored from
+# the Actions cache). Build-output metadata, never source.
+.dist-manifest.json
