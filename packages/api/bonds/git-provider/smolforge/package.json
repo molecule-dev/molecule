@@ -1,0 +1,46 @@
+{
+  "name": "@molecule/api-git-provider-smolforge",
+  "version": "1.0.2",
+  "description": "Git hosting provider for SmolForge (forge.smol.ai) — OAuth endpoints, token auth shape, repository listing and lookup.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "git",
+    "provider",
+    "smolforge"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/git-provider/smolforge"
+  },
+  "devDependencies": {
+    "@molecule/api-git-provider": "1.0.2",
+    "@molecule/api-http": "1.0.1",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "peerDependencies": {
+    "@molecule/api-git-provider": "^1.0.2",
+    "@molecule/api-http": "^1.0.1"
+  }
+}
