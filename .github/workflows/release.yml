@@ -112,6 +112,24 @@ jobs:
           # its own token exchange. `changeset publish` is still available as
           # `npm run release:changesets` for a small, normal release.
           publish: ${{ github.event_name == 'workflow_dispatch' && (vars.NPM_TRUSTED_PUBLISHING == 'true' || secrets.NPM_TOKEN != '') && 'npm run release' || '' }}
+          # MUST be set explicitly. Without it the action runs `changeset version`
+          # directly — it does NOT fall back to the `version` npm script, however
+          # much the script's existence suggests otherwise.
+          #
+          # That matters because `changeset version` bumps every package.json but
+          # leaves package-lock.json on the old versions, and the action then
+          # `git commit`s the result — straight into the pre-commit hook, which
+          # runs check:lockfile and refuses:
+          #
+          #   Version mismatch: @molecule/app-bonds-default-react is 1.0.2 but the
+          #   lock file has 1.0.1
+          #   husky - pre-commit script failed (code 1)
+          #
+          # So the Version Packages commit could never be made and nothing could
+          # ever be released. `npm run version` bumps AND regenerates the lock, so
+          # the commit is consistent and the hook passes on its merits rather than
+          # being bypassed.
+          version: npm run version
           title: 'chore: version packages'
           commit: 'chore: version packages'
         env:
