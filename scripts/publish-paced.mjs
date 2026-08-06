@@ -313,8 +313,19 @@ for (const pkg of todo) {
         )
         abortReason = 'rate limited'
         break
-      } else if (/ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out) && !existsOnRegistry(pkg)) {
-        // NOT systemic: this package has simply never been published, so npm has
+      } else if (
+        /ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out) &&
+        (!existsOnRegistry(pkg) || done > 0)
+      ) {
+        // NOT systemic, for either of two reasons.
+        //
+        // (a) done > 0 — packages ALREADY published in this very run, so the
+        //     OIDC exchange plainly works. Whatever is wrong is specific to
+        //     this package (typically: it exists but was never trusted, e.g.
+        //     one created outside the normal flow). Aborting here threw away
+        //     a working run over one package, twice.
+        //
+        // (b) this package has simply never been published, so npm has
         // no trusted publisher for it — `npm trust` 404s on a package that does
         // not exist ({"message":"Package not found"}, verified 2026-08-06). Its
         // auth failure says nothing about the other 913.
