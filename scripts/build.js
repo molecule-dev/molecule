@@ -29,7 +29,9 @@ function scan(dir, depth) {
   let entries
   try {
     entries = readdirSync(dir, { withFileTypes: true })
-  } catch {
+  } catch (_error) {
+    // Unreadable directory (permissions, a race with a concurrent clean): there
+    // is nothing to discover here, and the scan of every other path stands.
     return
   }
 
@@ -41,8 +43,10 @@ function scan(dir, depth) {
         const molDeps = Object.keys(allDeps).filter((d) => d.startsWith('@molecule/'))
         packages.set(pkg.name, { path: dir, deps: molDeps })
       }
-    } catch {
-      // skip
+    } catch (_error) {
+      // A package.json that is absent or unparseable is simply not a buildable
+      // @molecule package — the discovery scan walks every directory, so most
+      // of what it opens legitimately is not one.
     }
   }
 
@@ -179,6 +183,47 @@ async function runWithConcurrency(tasks, limit) {
 }
 
 scan('packages', 0)
+
+// --only=@molecule/a,@molecule/b — build just these and their internal deps.
+//
+// Consumers (mlcl, molecule-dev) need types for a subset — ~172 of 915 — and
+// were building it with a shell loop of `npm run build -w <pkg>`, one package
+// per npm process, strictly sequentially. That is correct but slow twice over:
+// it pays npm's startup for every package AND forgoes the level-parallelism
+// this script already computes. The loop existed because `npm -w a -w b` does
+// not sequence by dependency; that is a reason not to use npm's workspace
+// flags, not a reason to give up parallelism.
+//
+// Deps are closed over transitively: asking for a package always builds what it
+// needs first, so a caller can name only what it imports.
+const onlyArg = process.argv.find((a) => a.startsWith('--only='))
+if (onlyArg) {
+  const requested = onlyArg
+    .slice('--only='.length)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const missing = requested.filter((n) => !packages.has(n))
+  if (missing.length > 0) {
+    // Loud: a typo'd or renamed package silently building nothing would surface
+    // much later as a confusing "cannot find module" in the consumer.
+    console.error(`--only names ${missing.length} unknown package(s): ${missing.join(', ')}`)
+    process.exit(1)
+  }
+  const keep = new Set()
+  const visit = (name) => {
+    if (keep.has(name)) return
+    keep.add(name)
+    for (const dep of packages.get(name)?.deps ?? []) {
+      if (packages.has(dep)) visit(dep)
+    }
+  }
+  for (const name of requested) visit(name)
+  for (const name of [...packages.keys()]) {
+    if (!keep.has(name)) packages.delete(name)
+  }
+  console.log(`--only: ${requested.length} requested -> ${packages.size} with internal deps\n`)
+}
 
 const levels = new Map()
 for (const name of packages.keys()) {
