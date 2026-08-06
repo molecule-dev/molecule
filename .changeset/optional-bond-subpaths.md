@@ -1,11 +1,11 @@
 ---
-'@molecule/app-bonds-default-react': major
+'@molecule/app-bonds-default-react': patch
 ---
 
 Move the nine optional provider wirings out of the package barrel and behind
 `./optional/<pair>.js` subpath exports.
 
-**Breaking:** `setupAppRealtimeSocketio`, `setupAppKeyboardShortcutsHotkeys`,
+**Import path change** (pre-release: nothing external consumes this yet, so it ships as a patch rather than a major): `setupAppRealtimeSocketio`, `setupAppKeyboardShortcutsHotkeys`,
 `setupAppCommandPaletteCmdk`, `setupAppCodeEditorMonaco`,
 `setupAppVirtualScrollTanstack`, `setupAppDragDropDndkit`,
 `setupAppChartsChartjs`, `setupAppMapsLeaflet` and `setupAppVideoHls` are no
