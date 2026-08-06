@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-scheduler-cloudflare",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Scheduler provider for Cloudflare Workers Cron Triggers — the platform owns the clock, so tasks run from the scheduled() handler instead of an in-process timer.",
   "type": "module",
   "main": "dist/index.js",
