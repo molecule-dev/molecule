@@ -69,10 +69,10 @@ jobs:
           path: |
             packages/**/dist
             .dist-manifest.json
-          key: mol-dist-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+          key: mol-dist-v2-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
           # Must stay IDENTICAL to ci.yml — the two share this cache so whichever
           # workflow runs first builds and the other restores.
-          restore-keys: mol-dist-${{ runner.os }}-
+          restore-keys: mol-dist-v2-${{ runner.os }}-
       # Content check, not a blanket touch: only packages whose sources still
       # hash to what produced the restored dist are marked fresh. See
       # scripts/dist-cache-manifest.mjs and the fuller note in ci.yml.

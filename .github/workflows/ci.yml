@@ -28,11 +28,11 @@ jobs:
       # Shared with release.yml via an IDENTICAL key, so whichever workflow runs
       # first builds and the other restores — one build per commit, not two.
       #
-      # The touch is load-bearing. scripts/build.js skips a package when its dist
-      # is NEWER than its src (an mtime test), and git checkout stamps sources
-      # with the checkout time — so a restored dist always looks stale and
-      # EVERYTHING rebuilds. That is what this cache did before: paid the download
-      # and rebuilt anyway.
+      # The key prefix is VERSIONED (mol-dist-v2-). Bumping it is what let the
+      # manifest exist at all: actions/cache does not save on a primary-key HIT,
+      # so a cache saved before the manifest was introduced kept hitting, kept
+      # rebuilding everything for want of a manifest, and kept refusing to save
+      # one. Bump the prefix whenever the cache's CONTENTS change shape.
       #
       # restore-keys IS used, but a prefix hit is never trusted wholesale. The
       # old comment here said a prefix match was unsafe because the blanket
@@ -54,8 +54,8 @@ jobs:
           path: |
             packages/**/dist
             .dist-manifest.json
-          key: mol-dist-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
-          restore-keys: mol-dist-${{ runner.os }}-
+          key: mol-dist-v2-${{ runner.os }}-${{ hashFiles('packages/**/src/**', 'packages/**/package.json', 'packages/**/tsconfig.json') }}
+          restore-keys: mol-dist-v2-${{ runner.os }}-
       # Always runs: a prefix restore sets cache-hit to false while still having
       # restored files, and the script is fail-safe — no manifest marks nothing
       # fresh, i.e. the old full-rebuild behaviour.
