@@ -362,8 +362,14 @@ for (const pkg of todo) {
           error: 'never published and not trusted — run scripts/trust-publish-setup.mjs',
         })
         process.stderr.write(
-          `  ⚠ ${pkg.name}: new package, no trusted publisher yet — skipping, not aborting.\n`,
+          `  ⚠ ${pkg.name}: not trusted for publishing — skipping, not aborting.\n`,
         )
+        // BREAK OUT OF THE RETRY LOOP. Retrying an auth rejection cannot help —
+        // the credential does not change between attempts — and without this the
+        // same package burned all three tolerated failures by itself and then
+        // tripped the systemic check, which is the failure this branch exists to
+        // prevent. One package, one auth failure.
+        break
       } else if (/ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out)) {
         // ALSO STOP THE ENTIRE RUN — an auth failure is systemic, never per-package.
         //
