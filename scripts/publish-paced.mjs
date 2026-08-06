@@ -175,6 +175,22 @@ if (DRY) {
   process.exit(0)
 }
 
+// How many packages must fail auth, with NONE succeeding, before the run calls
+// auth systemic and stops.
+//
+// It used to be one, and one is wrong: the queue is name-sorted, so a single
+// untrusted package that happens to sort first aborts the whole release before
+// any healthy package is attempted. api-code-sandbox-flyio did exactly that to
+// a run with 8 packages queued, twice — it exists on the registry but was never
+// trusted, because npm's trust endpoint 404s a package that does not exist yet
+// and nobody re-ran the setup after its first publish.
+//
+// Trying a few costs nothing — rejections are not rate-limited publishes — and
+// it distinguishes "this package is not trusted" from "the OIDC exchange is
+// broken", which the first failure alone cannot.
+const AUTH_FAILURES_BEFORE_SYSTEMIC = 3
+let authFailures = 0
+
 let done = 0
 let failed = []
 // Set to a short reason string when the run must abort mid-way. Both causes —
@@ -315,8 +331,9 @@ for (const pkg of todo) {
         break
       } else if (
         /ENEEDAUTH|E401|401 Unauthorized|EOTP/i.test(out) &&
-        (!existsOnRegistry(pkg) || done > 0)
+        (!existsOnRegistry(pkg) || done > 0 || authFailures < AUTH_FAILURES_BEFORE_SYSTEMIC)
       ) {
+        authFailures++
         // NOT systemic, for either of two reasons.
         //
         // (a) done > 0 — packages ALREADY published in this very run, so the
