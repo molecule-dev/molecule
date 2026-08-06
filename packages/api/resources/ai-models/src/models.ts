@@ -38,6 +38,9 @@ import type { ModelDefinition } from './types.js'
  *   opus-4-8 superseded by opus-5 at identical pricing but still served — it is
  *   the recommended refusal-fallback model; effort ladder on all three current
  *   models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
+ *   (re-verified 2026-08-06: added opus-4-7 — legacy but Active, $5/$25,
+ *   cache $0.50/$6.25, 1M ctx / 128K out per the overview + pricing pages;
+ *   models.dev first listed it 2026-08-06)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -224,6 +227,40 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.3,
     cacheWritePricePerMTok: 3.75,
     knowledgeCutoff: '2026-01-01',
+  },
+  {
+    id: 'claude-opus-4-7',
+    provider: 'anthropic',
+    label: 'Claude Opus 4.7',
+    description: 'Older Opus — long-horizon agentic work, knowledge work & vision',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
+    // Adaptive thinking only — budget_tokens is REJECTED (400); xhigh effort
+    // debuted on this model. Unlike opus-5, omitting `thinking` runs WITHOUT
+    // thinking — set {type:"adaptive"} explicitly. First model on the new
+    // tokenizer (~30% more tokens than 4.6 for the same text).
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search_20260209',
+    codeExecutionToolType: 'code_execution_20250825',
+    webFetchToolType: 'web_fetch_20260209',
+    inputPricePerMTok: 5,
+    outputPricePerMTok: 25,
+    // Anthropic 5-minute prompt cache: read 0.1× input, write 1.25× input.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 6.25,
+    knowledgeCutoff: '2026-01-01',
+    // Superseded by claude-opus-4-8 (launched 2026-05-28) at identical pricing;
+    // still Active upstream (deprecations page 2026-08-06: retires no sooner
+    // than 2027-04-16). Selectable under "Older models". NO fast mode —
+    // speed:"fast" on 4.7 returns an error (pricing page, fast-mode section).
+    deprecatedAt: '2026-05-28',
   },
   {
     id: 'claude-opus-4-6',
