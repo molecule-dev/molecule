@@ -17,6 +17,10 @@ on:
         description: 'Seconds between publishes (default 20)'
         required: false
         type: string
+      trust_otp:
+        description: 'npm one-time code. Trusts any package that has none, then publishes it — both in CI. npm has no OIDC path for trust config, so this is the only way to do it without a local prompt. Single-use and expires in ~30s, so it is dead before the log is readable.'
+        required: false
+        type: string
 # Push runs supersede each other; a dispatch is NEVER cancelled.
 #
 # The event_name in the GROUP is what makes that possible. A single shared group
@@ -84,6 +88,22 @@ jobs:
       - name: Reuse dist for packages whose sources are unchanged
         run: node scripts/dist-cache-manifest.mjs --apply
       - run: npm ci
+      # Trust any package that has none, using a code supplied as a dispatch
+      # input, so BOTH halves run in CI rather than on someone's laptop.
+      #
+      # npm has no OIDC path for trust config — measured, not assumed: in this
+      # very workflow `npm trust` answers "401 Bearer token authorization is
+      # required" even with setup-node's placeholder credential removed, because
+      # the OIDC exchange lives inside `npm publish` and nowhere else. A code is
+      # therefore unavoidable; what IS avoidable is doing it locally and then
+      # dispatching separately.
+      #
+      # Runs BEFORE changesets/action, so anything it trusts is published by the
+      # same run. The code is single-use and expires in ~30 seconds, so it is
+      # dead long before the log is readable.
+      - name: Trust new packages with a supplied code, then publish
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.trust_otp != '' }}
+        run: node scripts/trust-new-packages.mjs --ci --otp=${{ inputs.trust_otp }}
       - uses: changesets/action@v1
         with:
           # PUBLISHING REQUIRES AN EXPLICIT DISPATCH. A push can open the Version
