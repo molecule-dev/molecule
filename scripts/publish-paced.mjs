@@ -79,7 +79,13 @@ function discover() {
         const pkg = JSON.parse(readFileSync(manifest, 'utf8'))
         if (pkg.name?.startsWith('@molecule/') && !pkg.private) {
           found.push({ name: pkg.name, dir, version: pkg.version })
-          return
+          // Deliberately NOT `return`: a package directory can contain more
+          // packages. `packages/api/testing/` is @molecule/api-testing AND the
+          // parent of @molecule/api-mock-server, so returning here excluded
+          // mock-server from EVERY release — never published, never reported as
+          // failed, simply never seen. A package the publisher cannot enumerate
+          // is indistinguishable from one that is already up to date, which is
+          // the worst shape a gap can take: invisible in both directions.
         }
       } catch (_error) {
         // Not a readable manifest — keep descending.
