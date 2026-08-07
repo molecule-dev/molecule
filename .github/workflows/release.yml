@@ -17,12 +17,6 @@ on:
         description: 'Seconds between publishes (default 20)'
         required: false
         type: string
-      trust_new:
-        description: 'Configure trusted publishing for packages that have none, using this run OWN OIDC credential (no 2FA)'
-        required: false
-        default: false
-        type: boolean
-
 # Push runs supersede each other; a dispatch is NEVER cancelled.
 #
 # The event_name in the GROUP is what makes that possible. A single shared group
@@ -90,20 +84,6 @@ jobs:
       - name: Reuse dist for packages whose sources are unchanged
         run: node scripts/dist-cache-manifest.mjs --apply
       - run: npm ci
-      # Probe: does npm hold a usable credential in this job, and does it gain one
-      # after an OIDC publish? `npm trust` reported "Two-factor authentication is
-      # required" here, which is what npm says to an UNAUTHENTICATED caller — the
-      # OIDC exchange happens inside `npm publish`, not as general command auth.
-      # If publishing leaves an exchanged token behind, trust becomes possible in
-      # the same job; if not, this prints exactly that and costs seconds.
-      - name: Probe npm auth before publish
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.trust_new }}
-        continue-on-error: true
-        run: |
-          echo "--- whoami BEFORE publish ---"
-          npm whoami || echo "(no credential, as expected)"
-          echo "--- npmrc present? ---"
-          cat ~/.npmrc 2>/dev/null | sed 's/=.*/=<redacted>/' || echo "(no ~/.npmrc)"
       - uses: changesets/action@v1
         with:
           # PUBLISHING REQUIRES AN EXPLICIT DISPATCH. A push can open the Version
@@ -175,29 +155,3 @@ jobs:
           # changesets passes the publish string's extra tokens to npm itself.
           MOL_PUBLISH_LIMIT: ${{ inputs.limit }}
           MOL_PUBLISH_DELAY: ${{ inputs.delay }}
-
-      # Trust new packages AFTER the publish step, so npm has already exchanged
-      # this run's OIDC token for a registry credential. Running it BEFORE meant
-      # npm held nothing to authenticate with, and it answered every call with
-      # "Two-factor authentication is required" — which is what npm tells an
-      # unauthenticated caller, not a statement that OIDC is disallowed here.
-      #
-      # `npm whoami` on either side of the publish is the measurement that settles
-      # it, printed rather than inferred.
-      - name: Trust new packages (OIDC, no 2FA)
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.trust_new }}
-        continue-on-error: true
-        run: |
-          echo "--- whoami AFTER publish ---"
-          npm whoami || echo "(still no credential)"
-          # setup-node writes an .npmrc containing a PLACEHOLDER NODE_AUTH_TOKEN
-          # (literally XXXXX-XXXXX-...), because no NPM_TOKEN secret exists. npm
-          # then has a credential to try, so it never falls through to OIDC and
-          # answers 401/2FA. Point it at an empty user config so nothing shadows
-          # the exchange, and see whether trust behaves differently.
-          echo "--- trust with NO npmrc credential ---"
-          NPM_CONFIG_USERCONFIG=/dev/null NODE_AUTH_TOKEN= \
-            npm trust github @molecule/api-git-provider \
-              --repo molecule-dev/molecule --file release.yml --allow-publish --yes \
-            2>&1 | tail -20 || true
-          node scripts/trust-new-packages.mjs --ci
