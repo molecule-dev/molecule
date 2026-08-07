@@ -29,7 +29,7 @@
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
-import { createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
+import { closeSync, createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
@@ -136,28 +136,33 @@ if (!whoami.ok) {
  * @returns The entered code, or null when there is no terminal.
  */
 const askOtp = async (label) => {
-  let input
-  let output
   try {
-    // openSync THROWS synchronously when there is no controlling terminal.
-    // createReadStream('/dev/tty') does not — it emits an async 'error' event a
-    // try/catch cannot see, so the catch below would never run and the prompt
-    // would hang forever in CI. Open the fd first, stream from the fd.
-    const fd = openSync('/dev/tty', 'r+')
-    input = createReadStream('', { fd, autoClose: false })
-    output = createWriteStream('', { fd, autoClose: false })
+    // Probe with openSync because it THROWS synchronously when there is no
+    // controlling terminal; createReadStream('/dev/tty') emits an async 'error'
+    // a try/catch cannot see, so the prompt would hang forever in CI instead.
+    // Close the probe immediately — it exists only to answer "is there a tty".
+    closeSync(openSync('/dev/tty', 'r'))
   } catch (_error) {
     // Intentionally ignored: no controlling terminal means no human to answer,
     // and a hook that blocks forever on an unwatched tty is worse than letting
     // the push through with the warning already printed above.
     return null
   }
+  // Two SEPARATE streams by path, each owning its own descriptor. Sharing one
+  // fd between a ReadStream and a WriteStream and then destroying both closes
+  // that descriptor twice — the second close threw
+  // `EBADF: bad file descriptor, close` as an unhandled 'error' event and killed
+  // the run after the user had already typed a code.
+  const input = createReadStream('/dev/tty')
+  const output = createWriteStream('/dev/tty')
   const rl = createInterface({ input, output })
-  const answer = (await rl.question(`npm OTP for ${label} (6 digits): `)).trim()
-  rl.close()
-  input.destroy()
-  output.destroy()
-  return answer
+  try {
+    return (await rl.question(`npm OTP for ${label} (6 digits): `)).trim()
+  } finally {
+    rl.close()
+    input.destroy()
+    output.destroy()
+  }
 }
 
 /**
@@ -203,6 +208,16 @@ for (const pkg of untrusted) {
   // A one-time code is single-use, so by the second package the held one is
   // spent. Ask for a fresh one and retry rather than reporting it as a failure.
   if (result.outcome === 'needs-otp') {
+    // Print WHY before asking again. A silently re-prompted code is
+    // indistinguishable from an expired one, a mistyped one, and npm refusing
+    // the operation outright — three different problems, one prompt.
+    const why = result.text
+      .split('\n')
+      .filter((l) => /error|Two-factor|EOTP|invalid|expired/i.test(l))
+      .slice(0, 2)
+      .join(' | ')
+      .trim()
+    if (why) console.error(`      npm rejected that code: ${why}`)
     if (CI) {
       // The experiment's negative result, stated plainly rather than retried:
       // npm did NOT accept this run's OIDC credential for trust config and wants
