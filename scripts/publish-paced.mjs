@@ -364,7 +364,19 @@ for (const pkg of todo) {
         // distinguishes an unconfigured trusted publisher from a scope
         // permission problem, a provenance E422, and an expired exchange; those
         // need different fixes and looked identical here.
-        const npmSaid = out.trim().split('\n').slice(-12).join('\n      ').trim()
+        //
+        // SELECT the error lines, do not tail the output. `npm publish` prints a
+        // long `npm notice` block (files, size, integrity, the tarball name) AFTER
+        // the failure, so the last N lines are the packing manifest and the actual
+        // reason scrolls off. The first attempt at this printed
+        // "npm notice filename: ...tgz" for all five failures — verbatim, useless,
+        // and indistinguishable from a successful pack.
+        const errorLines = out
+          .split('\n')
+          .filter((line) => /npm (error|ERR!|warn EOTP)/i.test(line) && !/^npm notice/i.test(line))
+        const npmSaid = (errorLines.length ? errorLines : out.trim().split('\n').slice(-12))
+          .join('\n      ')
+          .trim()
         failed.push({
           name: pkg.name,
           error: `auth rejected (likely untrusted) — npm said: ${npmSaid.slice(0, 400)}`,
