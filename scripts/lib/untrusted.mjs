@@ -6,7 +6,7 @@
  * checker that flags a package the fixer does not fix is worse than neither.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 /** Absolute path to the molecule repo root. */
@@ -26,7 +26,7 @@ export const TRUST_STATE_PATH = join(ROOT, '.trust-state.json')
  *
  * @param dir - Directory to walk. Defaults to `packages/`.
  * @param found - Accumulator.
- * @returns Package `{ name, version }` records.
+ * @returns Package `{ name, version, dir }` records, dir relative to the repo root.
  */
 export const collectPackages = (dir = join(ROOT, 'packages'), found = []) => {
   for (const entry of readdirSync(dir)) {
@@ -38,7 +38,7 @@ export const collectPackages = (dir = join(ROOT, 'packages'), found = []) => {
       try {
         const json = JSON.parse(readFileSync(manifest, 'utf8'))
         if (json.name?.startsWith('@molecule/') && !json.private) {
-          found.push({ name: json.name, version: json.version })
+          found.push({ name: json.name, version: json.version, dir: relative(ROOT, full) })
           continue
         }
       } catch (_error) {
@@ -63,11 +63,6 @@ export const readTrustLedger = () =>
 /**
  * Lists packages present in the repo but absent from the trust ledger.
  *
- * Registry presence is deliberately NOT consulted: a name npm has never seen
- * can be trusted too — `createPackage` is exactly that permission — and CI then
- * creates it. So "unpublished" is not a second failure mode, and treating it as
- * one sends people down a bootstrap-publish path they do not need.
- *
  * @returns Untrusted packages, sorted by name.
  */
 export const untrustedPackages = () => {
@@ -75,4 +70,27 @@ export const untrustedPackages = () => {
   return collectPackages()
     .filter((pkg) => !trusted.has(pkg.name))
     .sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Asks the registry whether a package exists.
+ *
+ * npm's trust endpoint is per-package and 404s for a name it has never seen, so
+ * a brand-new package must be CREATED before it can be trusted. On 2026-08-05 a
+ * pure-OIDC run created seven packages the trust sweep had just reported as
+ * untrustable, which argued the opposite — but the same setup was rejected with
+ * a bare ENEEDAUTH on 2026-08-07 (same npm 12.0.2, same workflow, same script),
+ * while npm was printing a notice that bypass-2FA tokens "are being restricted
+ * for account changes and direct publishing". Treat the permissive behaviour as
+ * gone: create first, then trust.
+ *
+ * @param name - Package name.
+ * @returns True when the registry serves it.
+ */
+export const existsOnRegistry = async (name) => {
+  const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2f')}`, {
+    method: 'HEAD',
+    signal: AbortSignal.timeout(15_000),
+  })
+  return res.status !== 404
 }

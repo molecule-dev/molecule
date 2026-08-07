@@ -12,9 +12,10 @@
  * Once configured, trust is a permanent per-package setting. That package never
  * needs a code again — not for its first publish, not for any later version.
  *
- * The package does NOT need to exist on npm. Trust config accepts a name npm
- * has never seen (`createPackage` is that permission), and CI then creates it
- * over OIDC. So this runs at push time, before the package has ever shipped.
+ * A package npm has never seen is CREATED here first, because npm's trust
+ * endpoint 404s on a name that does not exist. Each step consumes a one-time
+ * code, so this asks for a fresh one whenever npm says the last is spent rather
+ * than failing four of five packages after a single prompt.
  *
  * Non-interactive callers (CI, a piped shell) get a warning and exit 0 — a hook
  * that hangs waiting on a tty nobody is watching is worse than a late failure.
@@ -23,13 +24,21 @@
  *   node scripts/trust-new-packages.mjs --otp=123456
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
  */
+import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
-import { readTrustLedger, TRUST_STATE_PATH, untrustedPackages } from './lib/untrusted.mjs'
+import {
+  existsOnRegistry,
+  readTrustLedger,
+  ROOT,
+  TRUST_STATE_PATH,
+  untrustedPackages,
+} from './lib/untrusted.mjs'
 
 const args = process.argv.slice(2)
 const LIST_ONLY = args.includes('--list')
@@ -77,19 +86,24 @@ if (!whoami.ok) {
   process.exit(1)
 }
 
-if (!otp) {
-  // Always prompt on /dev/tty, never on process.stdin. A git hook's stdin is
-  // the ref list git pipes in, so a stdin prompt reads a ref and returns
-  // instantly without the user ever seeing the question. /dev/tty is the
-  // controlling terminal in both a plain shell and a hook; if it cannot be
-  // opened, nobody is watching and there is nothing to wait for.
+/**
+ * Asks the user for a one-time code on the controlling terminal.
+ *
+ * Always prompts on /dev/tty, never on process.stdin: a git hook's stdin is the
+ * ref list git pipes in, so a stdin prompt reads a ref and returns instantly
+ * without the user ever seeing the question.
+ *
+ * @param label - What the code is for, shown in the prompt.
+ * @returns The entered code, or null when there is no terminal.
+ */
+const askOtp = async (label) => {
   let input
   let output
   try {
     // openSync THROWS synchronously when there is no controlling terminal.
-    // createReadStream('/dev/tty') does not — it emits an async 'error' event
-    // that a try/catch cannot see, so the catch below would never run and the
-    // prompt would hang forever in CI. Open the fd first, stream from the fd.
+    // createReadStream('/dev/tty') does not — it emits an async 'error' event a
+    // try/catch cannot see, so the catch below would never run and the prompt
+    // would hang forever in CI. Open the fd first, stream from the fd.
     const fd = openSync('/dev/tty', 'r+')
     input = createReadStream('', { fd, autoClose: false })
     output = createWriteStream('', { fd, autoClose: false })
@@ -97,27 +111,94 @@ if (!otp) {
     // Intentionally ignored: no controlling terminal means no human to answer,
     // and a hook that blocks forever on an unwatched tty is worse than letting
     // the push through with the warning already printed above.
+    return null
+  }
+  const rl = createInterface({ input, output })
+  const answer = (await rl.question(`npm OTP for ${label} (6 digits): `)).trim()
+  rl.close()
+  input.destroy()
+  output.destroy()
+  return answer
+}
+
+/**
+ * Returns a usable code, prompting when the current one is missing or spent.
+ *
+ * npm one-time codes are single-use, so a run touching five packages needs
+ * several. Prompting per step only when npm actually rejects the previous code
+ * keeps that to the minimum the user must type.
+ *
+ * @param label - What the code is for.
+ * @param force - Ask for a fresh code even if one is held.
+ * @returns A 6-digit code.
+ */
+const ensureOtp = async (label, force = false) => {
+  if (otp && !force && /^\d{6}$/.test(otp)) return otp
+  const answer = await askOtp(label)
+  if (answer === null) {
     console.error('No terminal for the OTP prompt — skipping.')
     console.error('Run `npm run trust:new` from a shell to finish this.')
     process.exit(0)
   }
-  const rl = createInterface({ input, output })
-  otp = (await rl.question('npm OTP (6 digits): ')).trim()
-  rl.close()
-  input.destroy()
-  output.destroy()
+  if (!/^\d{6}$/.test(answer)) {
+    console.error('That is not a 6-digit code. Run `npm run trust:new` to retry.')
+    process.exit(1)
+  }
+  otp = answer
+  return otp
 }
 
-if (!/^\d{6}$/.test(otp)) {
-  console.error('That is not a 6-digit code. Run `npm run trust:new` to retry.')
-  process.exit(1)
-}
+await ensureOtp('trust config')
 
 const ledger = readTrustLedger()
 const failed = []
 
 for (const pkg of untrusted) {
-  const result = await trustPackage(pkg.name, { token, otp })
+  // CREATE FIRST when npm has never seen the name — its trust endpoint 404s on
+  // a package that does not exist, so trusting has to come second. This is the
+  // only step that needs the package built, hence the scoped build.
+  if (!(await existsOnRegistry(pkg.name))) {
+    console.log(`  … ${pkg.name}: not on npm — creating it first`)
+    try {
+      execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
+        cwd: ROOT,
+        stdio: 'inherit',
+      })
+    } catch (_error) {
+      // Intentionally ignored: the build printed its own errors to the inherited
+      // stdio, and publishing an unbuilt package would ship an empty dist.
+      console.error(`  ✗ ${pkg.name}: build failed (see output above)`)
+      failed.push(`${pkg.name} (build)`)
+      continue
+    }
+    // Two attempts: the held code is very likely spent by a previous package, and
+    // npm's EOTP is indistinguishable from a wrong code, so just ask again once.
+    let created = false
+    for (const attempt of [0, 1]) {
+      const code = await ensureOtp(`publishing ${pkg.name}`, attempt === 1)
+      try {
+        execFileSync('npm', ['publish', '--access', 'public', `--otp=${code}`], {
+          cwd: join(ROOT, pkg.dir),
+          stdio: 'inherit',
+        })
+        created = true
+        break
+      } catch (_error) {
+        // Intentionally ignored: npm already printed a more specific reason to
+        // the inherited stdio than anything reconstructable from the exit code.
+        if (attempt === 1) console.error(`  ✗ ${pkg.name}: create failed (see npm output above)`)
+      }
+    }
+    if (!created) {
+      failed.push(`${pkg.name} (create)`)
+      continue
+    }
+  }
+
+  let result = await trustPackage(pkg.name, { token, otp })
+  if (result.outcome === 'error' && /otp|one-time|EOTP/i.test(result.text)) {
+    result = await trustPackage(pkg.name, { token, otp: await ensureOtp(pkg.name, true) })
+  }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     ledger.add(pkg.name)
     console.log(`  ✓ ${pkg.name}`)
