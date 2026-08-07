@@ -39,7 +39,12 @@ export const collectPackages = (dir = join(ROOT, 'packages'), found = []) => {
         const json = JSON.parse(readFileSync(manifest, 'utf8'))
         if (json.name?.startsWith('@molecule/') && !json.private) {
           found.push({ name: json.name, version: json.version, dir: relative(ROOT, full) })
-          continue
+          // Deliberately NOT `continue`: a package directory can contain more
+          // packages. `packages/api/testing/` is @molecule/api-testing AND the
+          // parent of @molecule/api-mock-server, so stopping here hid mock-server
+          // from every caller — it never appeared as untrusted and would never
+          // have been trusted. Same shape as the glob that missed the seven
+          // react-native bonds: the walk stopped one level above the answer.
         }
       } catch (_error) {
         // Intentionally ignored: an unparseable manifest is a different gate's
