@@ -160,9 +160,24 @@ if (!npmToken) {
 }
 console.log('Got an npm token from the OIDC exchange — no 2FA involved.\n')
 
+// FIRST: try exchanging for each NEW package directly. The exchange takes a
+// package name, so if npm will mint a token for a name it does not have, that
+// token publishes it — creating the package over OIDC with no 2FA and no trust
+// config at all, which is the whole objective.
+console.log('Trying a direct exchange for each unpublished package:')
+const directTokens = new Map()
+for (const pkg of absent) {
+  const direct = await exchange(idToken, pkg.name)
+  if (direct) {
+    directTokens.set(pkg.name, direct)
+    console.log(`  ✓ direct exchange worked for ${pkg.name}`)
+  }
+}
+console.log(`Direct exchange succeeded for ${directTokens.size}/${absent.length}.\n`)
+
 let failed = 0
 for (const pkg of absent) {
-  if (!(await trust(pkg.name, npmToken))) failed++
+  if (!(await trust(pkg.name, directTokens.get(pkg.name) ?? npmToken))) failed++
 }
 
 console.log(`\nTrusted ${absent.length - failed}/${absent.length}.`)
