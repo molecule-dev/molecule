@@ -1,25 +1,34 @@
 /**
- * Direct client for npm's trusted-publishing (OIDC) config endpoint.
+ * Configure npm trusted publishing (OIDC) for a package.
  *
- * WHY THIS EXISTS INSTEAD OF `npm trust github`: npm CLI 11.12.1 omits the
- * `permissions` field the registry requires, so the CLI cannot succeed for ANY
- * package. It surfaces a bare 400 and swallows the response body, which says:
+ * WHY THIS SHELLS OUT TO `npx npm@12` RATHER THAN POSTING THE ENDPOINT: it used
+ * to POST `/-/package/<name>/trust` directly, because npm CLI 11.12.1 omits the
+ * `permissions` field the registry requires and cannot succeed for any package.
+ * That workaround sent `permissions: ['createPackage', 'createStagedPackage']`,
+ * which the registry accepted for a package that already existed and answered
+ * with a bare 404 `{"message":"Package not found"}` for one that did not.
  *
- *   permissions is required and must contain at least one valid route
+ * The 404 was read as "npm cannot trust a package that does not exist", and a
+ * whole bootstrap-publish path was built on it. It is wrong. npm 12's own CLI
+ * reaches "Two-factor authentication is required for this operation" on exactly
+ * the same unpublished name, and reports `permissions: publish` — a value the
+ * hand-rolled POST never sent. The package not existing was never the problem;
+ * the permission values were.
  *
- * and the API's own validation names the only accepted values:
+ * So a brand-new package IS trustable before it has ever been published, and CI
+ * then creates it over OIDC with no local publish and no credential at rest.
+ * That is the whole point of trusted publishing, and it works.
  *
- *   "[0].permissions[0]" must be one of [createPackage, createStagedPackage]
+ * npm 12 is invoked through `npx` rather than installed globally so this does
+ * not disturb whatever npm the machine runs on. It warns on Node 25 (it wants
+ * ^22.22 || ^24.15 || >=26) and works regardless.
  *
- * Sending those directly returns 201 Created. Verified 2026-08-05 against
- * `@molecule/api-activity`. If a later npm CLI starts sending `permissions`,
- * both callers can go back to shelling out and this module can be deleted.
- *
- * AUTH: the ENTIRE endpoint is 2FA-protected — reads included — and a granular
- * token with "bypass 2FA" is REFUSED, because trust config counts as an account
- * change rather than a publish. So this needs a `npm login` session token plus a
- * current OTP.
+ * AUTH: an interactive 2FA code. npm refuses automation tokens for trust config
+ * — granular tokens with "bypass 2FA" are explicitly unsupported by `npm trust`
+ * — so this cannot run unattended in CI, only from a machine with a person at
+ * it. See scripts/trust-new-packages.mjs, which does that at push time.
  */
+import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
@@ -31,10 +40,13 @@ export const TRUST_REPO = 'molecule-dev/molecule'
 export const TRUST_WORKFLOW = 'release.yml'
 
 /**
- * The only routes the registry accepts. `publish` looks like the obvious value
- * and is rejected.
+ * npm version used for the trust command.
+ *
+ * Pinned because this is the version whose `npm trust github` interface is
+ * known-good here; the machine's own npm (11.x) sends a request the registry
+ * rejects for every package.
  */
-export const TRUST_PERMISSIONS = ['createPackage', 'createStagedPackage']
+export const TRUST_NPM = 'npm@12'
 
 /**
  * Reads the registry auth token from `~/.npmrc`.
@@ -53,48 +65,42 @@ export function readNpmToken() {
 /**
  * Configures GitHub Actions as a trusted publisher for one package.
  *
+ * Works whether or not the package exists on the registry.
+ *
  * @param name - Package name.
- * @param options - Token, optional OTP, and repo/workflow overrides.
- * @returns Outcome: `trusted`, `already`, `not-published`, or `error`.
+ * @param options - OTP and repo/workflow overrides.
+ * @returns Outcome: `trusted`, `already`, `needs-otp`, or `error`, with npm's output.
  */
 export async function trustPackage(name, options) {
-  const { token, otp, repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
-  const res = await fetch(
-    `https://registry.npmjs.org/-/package/${name.replace('/', '%2f')}/trust`,
-    {
-      method: 'POST',
-      headers: {
-        authorization: `Bearer ${token}`,
-        'content-type': 'application/json',
-        accept: 'application/json',
-        ...(otp ? { 'npm-otp': otp } : {}),
-      },
-      body: JSON.stringify([
-        {
-          type: 'github',
-          claims: { repository: repo, workflow_ref: { file: workflow } },
-          permissions: TRUST_PERMISSIONS,
-        },
-      ]),
-      signal: AbortSignal.timeout(20_000),
-    },
-  )
-  const text = (await res.text()).slice(0, 300)
-  if (res.ok) return { outcome: 'trusted', status: res.status, text }
-  if (/already|duplicate/i.test(text)) return { outcome: 'already', status: res.status, text }
-  // 404 here does NOT mean a local first publish is required. A package that
-  // npm has never seen can still be trusted — `createPackage` is precisely the
-  // permission to publish a name that does not exist yet — and CI then creates
-  // it over OIDC with no credential at rest.
-  //
-  // Proof, because this has now been argued in both directions: the seven
-  // `@molecule/app-*-react-native` bonds were trusted while unpublished on
-  // 2026-08-05 and their first-ever version (1.0.1) was published by
-  // `GitHub Actions`, attested, inside the 02:43-07:07 run window that day.
-  // Check them with `npm view <pkg> --json` before believing any claim here.
-  //
-  // So when this branch fires, the name is one npm genuinely cannot resolve —
-  // a typo, or a scope the account cannot create under — not a bootstrap gap.
-  if (res.status === 404) return { outcome: 'not-published', status: res.status, text }
-  return { outcome: 'error', status: res.status, text }
+  const { otp, repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
+  const args = [
+    '--yes',
+    TRUST_NPM,
+    'trust',
+    'github',
+    name,
+    '--repo',
+    repo,
+    '--file',
+    workflow,
+    '--allow-publish',
+    '--yes',
+  ]
+  if (otp) args.push(`--otp=${otp}`)
+
+  try {
+    const stdout = execFileSync('npx', args, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      timeout: 120_000,
+    })
+    return { outcome: 'trusted', status: 0, text: stdout.slice(0, 400) }
+  } catch (error) {
+    const text = `${error.stdout ?? ''}${error.stderr ?? ''}`.slice(0, 600)
+    if (/already|duplicate/i.test(text)) return { outcome: 'already', status: 1, text }
+    // Surfaced separately so the caller can re-prompt with a fresh code rather
+    // than reporting a spent one-time password as a permanent failure.
+    if (/EOTP|one-time pass|Two-factor/i.test(text)) return { outcome: 'needs-otp', status: 1, text }
+    return { outcome: 'error', status: 1, text }
+  }
 }

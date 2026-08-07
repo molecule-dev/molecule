@@ -12,10 +12,10 @@
  * Once configured, trust is a permanent per-package setting. That package never
  * needs a code again — not for its first publish, not for any later version.
  *
- * A package npm has never seen is CREATED here first, because npm's trust
- * endpoint 404s on a name that does not exist. Each step consumes a one-time
- * code, so this asks for a fresh one whenever npm says the last is spent rather
- * than failing four of five packages after a single prompt.
+ * A package npm has never seen is trusted here too — it does NOT need to exist
+ * first — and the next CI release creates it over OIDC. Each trust call spends a
+ * one-time code, so a fresh one is requested whenever npm says the last is
+ * spent, rather than failing four of five packages after a single prompt.
  *
  * Non-interactive callers (CI, a piped shell) get a warning and exit 0 — a hook
  * that hangs waiting on a tty nobody is watching is worse than a late failure.
@@ -24,21 +24,13 @@
  *   node scripts/trust-new-packages.mjs --otp=123456
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
  */
-import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
-import {
-  existsOnRegistry,
-  readTrustLedger,
-  ROOT,
-  TRUST_STATE_PATH,
-  untrustedPackages,
-} from './lib/untrusted.mjs'
+import { readTrustLedger, TRUST_STATE_PATH, untrustedPackages } from './lib/untrusted.mjs'
 
 const args = process.argv.slice(2)
 const LIST_ONLY = args.includes('--list')
@@ -154,50 +146,17 @@ const ledger = readTrustLedger()
 const failed = []
 
 for (const pkg of untrusted) {
-  // CREATE FIRST when npm has never seen the name — its trust endpoint 404s on
-  // a package that does not exist, so trusting has to come second. This is the
-  // only step that needs the package built, hence the scoped build.
-  if (!(await existsOnRegistry(pkg.name))) {
-    console.log(`  … ${pkg.name}: not on npm — creating it first`)
-    try {
-      execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
-        cwd: ROOT,
-        stdio: 'inherit',
-      })
-    } catch (_error) {
-      // Intentionally ignored: the build printed its own errors to the inherited
-      // stdio, and publishing an unbuilt package would ship an empty dist.
-      console.error(`  ✗ ${pkg.name}: build failed (see output above)`)
-      failed.push(`${pkg.name} (build)`)
-      continue
-    }
-    // Two attempts: the held code is very likely spent by a previous package, and
-    // npm's EOTP is indistinguishable from a wrong code, so just ask again once.
-    let created = false
-    for (const attempt of [0, 1]) {
-      const code = await ensureOtp(`publishing ${pkg.name}`, attempt === 1)
-      try {
-        execFileSync('npm', ['publish', '--access', 'public', `--otp=${code}`], {
-          cwd: join(ROOT, pkg.dir),
-          stdio: 'inherit',
-        })
-        created = true
-        break
-      } catch (_error) {
-        // Intentionally ignored: npm already printed a more specific reason to
-        // the inherited stdio than anything reconstructable from the exit code.
-        if (attempt === 1) console.error(`  ✗ ${pkg.name}: create failed (see npm output above)`)
-      }
-    }
-    if (!created) {
-      failed.push(`${pkg.name} (create)`)
-      continue
-    }
-  }
+  // No publish step. Trust config works on a name npm has never seen, so a new
+  // package is trusted here and CREATED by the next CI release over OIDC — no
+  // local publish, no credential at rest. An earlier version of this file
+  // published first, because a hand-rolled POST 404'd on unpublished names; that
+  // was the POST's permission values, not npm's rules. See lib/npm-trust.mjs.
+  let result = await trustPackage(pkg.name, { otp })
 
-  let result = await trustPackage(pkg.name, { token, otp })
-  if (result.outcome === 'error' && /otp|one-time|EOTP/i.test(result.text)) {
-    result = await trustPackage(pkg.name, { token, otp: await ensureOtp(pkg.name, true) })
+  // A one-time code is single-use, so by the second package the held one is
+  // spent. Ask for a fresh one and retry rather than reporting it as a failure.
+  if (result.outcome === 'needs-otp') {
+    result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     ledger.add(pkg.name)

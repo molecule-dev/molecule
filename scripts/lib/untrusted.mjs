@@ -71,26 +71,3 @@ export const untrustedPackages = () => {
     .filter((pkg) => !trusted.has(pkg.name))
     .sort((a, b) => a.name.localeCompare(b.name))
 }
-
-/**
- * Asks the registry whether a package exists.
- *
- * npm's trust endpoint is per-package and 404s for a name it has never seen, so
- * a brand-new package must be CREATED before it can be trusted. On 2026-08-05 a
- * pure-OIDC run created seven packages the trust sweep had just reported as
- * untrustable, which argued the opposite — but the same setup was rejected with
- * a bare ENEEDAUTH on 2026-08-07 (same npm 12.0.2, same workflow, same script),
- * while npm was printing a notice that bypass-2FA tokens "are being restricted
- * for account changes and direct publishing". Treat the permissive behaviour as
- * gone: create first, then trust.
- *
- * @param name - Package name.
- * @returns True when the registry serves it.
- */
-export const existsOnRegistry = async (name) => {
-  const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2f')}`, {
-    method: 'HEAD',
-    signal: AbortSignal.timeout(15_000),
-  })
-  return res.status !== 404
-}
