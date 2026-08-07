@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-git-provider",
   "version": "1.0.2",
+  "private": true,
   "description": "Abstract interface for a git hosting provider — OAuth endpoints, token auth shape, repository listing and lookup — so an app can support GitHub, GitLab, Gitea or any other host without naming one.",
   "type": "module",
   "main": "dist/index.js",

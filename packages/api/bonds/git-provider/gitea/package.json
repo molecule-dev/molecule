@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-git-provider-gitea",
   "version": "1.0.2",
+  "private": true,
   "description": "Git hosting provider for Gitea (gitea.com) — OAuth endpoints, token auth shape, repository listing and lookup.",
   "type": "module",
   "main": "dist/index.js",
