@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-mock-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mock API server with deterministic fixture data for testing, screenshots, and E2E",
   "type": "module",
   "main": "dist/index.js",
