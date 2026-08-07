@@ -1,40 +1,43 @@
 #!/usr/bin/env node
 /**
- * Trust every new package, once, at the moment you push it.
+ * Make every new package publishable by CI, once.
  *
- * LOCALLY npm demands an interactive 2FA code for trust config: the account is
- * `tfa: auth-and-writes`, so publish, trust config, minting a token and even the
- * browser login all escalate to /escalate/otp, and automation tokens are refused
- * outright. The pre-push hook makes that one prompt covering every new package.
+ * THE ONE-TIME COST, straight from npm's API docs for the trust endpoint:
+ * "Package MUST exist", and `npm-otp` is "always required". OIDC tokens are
+ * rejected outright and granular tokens with bypass_2fa get a 403. Staged
+ * publishing is no help either — brand-new packages cannot be staged. And the
+ * OIDC exchange looks up a package's trust config, so it answers
+ * `404 OIDC token exchange error - package not found` for a name that has
+ * neither. A first publish therefore has no OIDC path at all; npm/cli#8544 is
+ * the open issue asking for one.
  *
- * IN CI (--ci) there is no such credential and none is wanted: npm authenticates
- * by exchanging the workflow's OIDC token, which is what 2FA exists to
- * substitute for. Run from release.yml — the workflow every trust config names —
- * that is the path with no human in it at all.
+ * So for a name npm has never seen this does two things, both needing a code:
+ * publishes it, then trusts it. Everything afterwards is free — CI publishes
+ * every later version over OIDC with no code, no stored secret and no human,
+ * which is why the one-time cost is worth paying.
  *
- * Once configured, trust is a permanent per-package setting. That package never
- * needs a code again — not for its first publish, not for any later version.
+ * It is also once per package, ever, and the pre-push hook runs it so nobody has
+ * to remember. `npm publish` gets the terminal for its own 2FA prompt (it has no
+ * --otp we could satisfy); the trust endpoint takes the code as an `npm-otp`
+ * HEADER, so one code covers every package in the sweep.
  *
- * A package npm has never seen is trusted here too — it does NOT need to exist
- * first — and the next CI release creates it over OIDC. Each trust call spends a
- * one-time code, so a fresh one is requested whenever npm says the last is
- * spent, rather than failing four of five packages after a single prompt.
+ * Non-interactive callers (CI, a piped shell) warn and exit 0 — a hook that
+ * hangs on a tty nobody is watching is worse than a late failure.
  *
- * Non-interactive callers (CI, a piped shell) get a warning and exit 0 — a hook
- * that hangs waiting on a tty nobody is watching is worse than a late failure.
- *
- *   node scripts/trust-new-packages.mjs            # prompt if anything is untrusted
+ *   node scripts/trust-new-packages.mjs            # publish + trust anything new
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { closeSync, createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
+  existsOnRegistry,
   readTrustLedger,
   ROOT,
   TRUST_STATE_PATH,
@@ -196,10 +199,42 @@ const failed = []
 if (!CI) await ensureOtp('trust config')
 
 for (const pkg of untrusted) {
-  // No publish step. A name npm has never seen IS trustable — the request must
-  // carry createStagedPackage, which is what `--allow-publish` alone omits and
-  // why that path 404s — and the next CI release then CREATES the package over
-  // OIDC with no local publish and no credential at rest.
+  // CREATE IT FIRST when npm has never seen the name.
+  //
+  // npm's API docs are unambiguous about the trust endpoint: "Package MUST
+  // exist", and `npm-otp` is "always required". Staged publishing does not help
+  // either — brand-new packages cannot be staged. And the OIDC exchange looks up
+  // a package's trust config, so it answers
+  // `404 OIDC token exchange error - package not found` for a name that has
+  // neither. A first publish therefore has no OIDC path; npm/cli#8544 is the
+  // open issue asking for one.
+  //
+  // So: publish once here, then trust. Every version after this one is published
+  // by CI over OIDC with no code at all — which is the arrangement worth having,
+  // and the reason this one-time step is worth paying.
+  if (!CI && !(await existsOnRegistry(pkg.name))) {
+    console.log(`\n  ${pkg.name}: npm has never seen this — publishing it first`)
+    try {
+      execFileSync('node', ['scripts/build.js', `--only=${pkg.name}`], {
+        cwd: ROOT,
+        stdio: 'inherit',
+      })
+      // stdio: 'inherit' so npm runs its OWN 2FA prompt. `npm publish` has no
+      // --otp we can satisfy from here, and collecting a code we cannot pass on
+      // is worse than not collecting one.
+      execFileSync('npm', ['publish', '--access', 'public'], {
+        cwd: join(ROOT, pkg.dir),
+        stdio: 'inherit',
+      })
+    } catch (_error) {
+      // Intentionally ignored: npm printed a more specific reason to the
+      // inherited stdio than anything reconstructable from the exit code.
+      console.error(`  ✗ ${pkg.name}: publish failed (see npm output above)`)
+      failed.push(pkg.name)
+      continue
+    }
+  }
+
   let result = await trustPackage(pkg.name, { otp })
 
   // A one-time code is single-use, so by the second package the held one is

@@ -76,3 +76,20 @@ export const untrustedPackages = () => {
     .filter((pkg) => !trusted.has(pkg.name))
     .sort((a, b) => a.name.localeCompare(b.name))
 }
+
+/**
+ * Asks the registry whether a package exists.
+ *
+ * npm's trust endpoint requires it — its API docs say "Package MUST exist" — so
+ * a name npm has never seen must be published once before it can be trusted.
+ *
+ * @param name - Package name.
+ * @returns True when the registry serves it.
+ */
+export const existsOnRegistry = async (name) => {
+  const res = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2f')}`, {
+    method: 'HEAD',
+    signal: AbortSignal.timeout(15_000),
+  })
+  return res.status !== 404
+}
