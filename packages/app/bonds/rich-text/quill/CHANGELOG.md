@@ -1,5 +1,13 @@
 # @molecule/app-rich-text-quill
 
+## 1.0.2
+
+### Patch Changes
+
+- 4f9197d: Update dompurify to 3.4.13 (fixes GHSA-55q2-fjhq-7xh7 and related sanitizer advisories).
+- Updated dependencies [4f9197d]
+  - @molecule/app-rich-text@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
