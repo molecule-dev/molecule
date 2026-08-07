@@ -28,8 +28,9 @@
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
-import { closeSync, openSync, writeFileSync } from 'node:fs'
+import { closeSync, createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
 import process from 'node:process'
+import { createInterface } from 'node:readline/promises'
 
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
@@ -69,6 +70,7 @@ const LIST_ONLY = args.includes('--list')
 // whole point of running the trust step there. So --ci skips the login check and
 // the prompt and hands the command straight to npm.
 const CI = args.includes('--ci')
+let otp = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 // --release: dispatch the Release workflow once everything is trusted, so the
 // whole job is one command. Trusting without publishing leaves the packages in
 // the exact half-done state this script exists to end.
@@ -122,43 +124,95 @@ if (!whoami.ok) {
   process.exit(1)
 }
 
-if (!CI) {
-  // npm is about to own the terminal for its own 2FA prompt, so make sure there
-  // IS one. openSync throws synchronously when there is no controlling terminal;
-  // without this the pre-push hook would hand npm a tty-less stdio and sit there
-  // forever on a prompt nobody can see.
+/**
+ * Asks for a 2FA code on the controlling terminal.
+ *
+ * Prompts on /dev/tty, never process.stdin: a git hook's stdin is the ref list
+ * git pipes in, so a stdin prompt reads a ref and returns instantly without the
+ * user ever seeing the question.
+ *
+ * @param label - What the code is for.
+ * @returns The code, or null when there is no terminal.
+ */
+const askOtp = async (label) => {
   try {
+    // openSync THROWS synchronously when there is no controlling terminal;
+    // createReadStream emits an async error a try/catch cannot see, which would
+    // hang a hook forever on a prompt nobody can answer. Probe, then close.
     closeSync(openSync('/dev/tty', 'r'))
   } catch (_error) {
-    // Intentionally ignored: no terminal means no human to answer, and blocking
-    // a push on an invisible prompt is worse than letting it through with the
-    // warning already printed above.
-    console.error('No terminal available — skipping. Run `npm run trust:new` from a shell.')
+    // Intentionally ignored: nobody is there to answer, and blocking a push on
+    // an invisible prompt is worse than letting it through with the warning
+    // already printed above.
+    return null
+  }
+  // Separate descriptors. Sharing one fd between a read and a write stream and
+  // then destroying both closes it twice, which threw EBADF and killed a run
+  // after the user had already typed a code.
+  const input = createReadStream('/dev/tty')
+  const output = createWriteStream('/dev/tty')
+  const rl = createInterface({ input, output })
+  try {
+    return (await rl.question(`npm 2FA code for ${label} (6 digits): `)).trim()
+  } finally {
+    rl.close()
+    input.destroy()
+    output.destroy()
+  }
+}
+
+/**
+ * Returns a usable code, prompting only when there is none or npm rejected it.
+ *
+ * ONE code covers many packages: the trust endpoint takes it as an `npm-otp`
+ * header, which is how 592 packages were trusted on a handful of codes on
+ * 2026-08-05. Re-prompt only when npm says the held one is spent.
+ *
+ * @param label - What the code is for.
+ * @param force - Ask for a fresh one even if a code is held.
+ * @returns A 6-digit code.
+ */
+const ensureOtp = async (label, force = false) => {
+  if (otp && !force && /^\d{6}$/.test(otp)) return otp
+  const answer = await askOtp(label)
+  if (answer === null) {
+    console.error('No terminal for the 2FA prompt — skipping.')
+    console.error('Run `npm run trust:new` from a shell to finish this.')
     process.exit(0)
   }
-  console.log('npm asks for your 2FA code itself — it has no --otp flag, so it must')
-  console.log('prompt directly. Answer its prompt (or its browser link) per package.\n')
+  if (!/^\d{6}$/.test(answer)) {
+    console.error('That is not a 6-digit code. Run `npm run trust:new` to retry.')
+    process.exit(1)
+  }
+  otp = answer
+  return otp
 }
 
 const ledger = readTrustLedger()
 const failed = []
 
+// One code up front; the endpoint takes it as a header, so it covers every
+// package until npm says it is spent.
+if (!CI) await ensureOtp('trust config')
+
 for (const pkg of untrusted) {
-  // No publish step. Trust config works on a name npm has never seen, so a new
-  // package is trusted here and CREATED by the next CI release over OIDC — no
-  // local publish, no credential at rest. An earlier version of this file
-  // published first, because a hand-rolled POST 404'd on unpublished names; that
-  // was the POST's permission values, not npm's rules. See lib/npm-trust.mjs.
-  let result = await trustPackage(pkg.name, { interactive: !CI })
+  // No publish step. A name npm has never seen IS trustable — the request must
+  // carry createStagedPackage, which is what `--allow-publish` alone omits and
+  // why that path 404s — and the next CI release then CREATES the package over
+  // OIDC with no local publish and no credential at rest.
+  let result = await trustPackage(pkg.name, { otp })
 
   // A one-time code is single-use, so by the second package the held one is
   // spent. Ask for a fresh one and retry rather than reporting it as a failure.
   if (result.outcome === 'needs-otp') {
-    // Only reachable in --ci: interactive runs let npm own the terminal, so npm
-    // handles its own 2FA and never reports back a challenge for us to satisfy.
-    console.error(`  x ${pkg.name}: npm demanded 2FA and CI cannot supply one`)
-    failed.push(pkg.name)
-    continue
+    if (CI) {
+      console.error(`  x ${pkg.name}: npm demanded 2FA and CI cannot supply one`)
+      failed.push(pkg.name)
+      continue
+    }
+    // Codes are single-use and short-lived, so a long sweep needs a few. Ask
+    // only when npm actually rejects the held one.
+    result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     ledger.add(pkg.name)
