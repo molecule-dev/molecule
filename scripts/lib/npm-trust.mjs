@@ -73,9 +73,7 @@ export function readNpmToken() {
  */
 export async function trustPackage(name, options) {
   const { otp, repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
-  const args = [
-    '--yes',
-    TRUST_NPM,
+  const trustArgs = [
     'trust',
     'github',
     name,
@@ -86,13 +84,36 @@ export async function trustPackage(name, options) {
     '--allow-publish',
     '--yes',
   ]
-  if (otp) args.push(`--otp=${otp}`)
+  if (otp) trustArgs.push(`--otp=${otp}`)
+
+  // Prefer the npm already on PATH when it is new enough. CI installs npm@latest
+  // (12.x) globally, so going through npx there re-downloads npm for every
+  // package AND puts a process between us and the timeout: execFileSync's
+  // SIGTERM kills `npx`, the `npm` grandchild survives holding the pipe open,
+  // and the call never returns. That hung a CI run past 20 minutes on a 120s
+  // timeout. Locally npm is 11.x, whose trust command cannot succeed, so npx is
+  // still the right answer there.
+  const localMajor = Number(
+    (() => {
+      try {
+        return execFileSync('npm', ['--version'], { encoding: 'utf8' }).trim().split('.')[0]
+      } catch (_error) {
+        // Intentionally ignored: no npm on PATH is indistinguishable from an
+        // unusable one for this decision, and both mean "go through npx".
+        return '0'
+      }
+    })(),
+  )
+  const useLocal = localMajor >= 12
+  const command = useLocal ? 'npm' : 'npx'
+  const args = useLocal ? trustArgs : ['--yes', TRUST_NPM, ...trustArgs]
 
   try {
-    const stdout = execFileSync('npx', args, {
+    const stdout = execFileSync(command, args, {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 120_000,
+      killSignal: 'SIGKILL',
     })
     return { outcome: 'trusted', status: 0, text: stdout.slice(0, 400) }
   } catch (error) {
