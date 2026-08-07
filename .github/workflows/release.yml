@@ -104,6 +104,19 @@ jobs:
       - name: Trust new packages with a supplied code, then publish
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.trust_otp != '' }}
         run: node scripts/trust-new-packages.mjs --ci --otp=${{ inputs.trust_otp }}
+      # Trust packages npm has never seen, using a token obtained by EXCHANGING
+      # this run OIDC id_token — the same exchange npm publish performs
+      # internally (npm/lib/utils/oidc.js). No 2FA, no stored secret, no human.
+      #
+      # npm trust the COMMAND has no OIDC path and 401s without a bearer token,
+      # which is what made this look impossible. The exchange endpoint is the
+      # missing half: it mints a real npm token from the workflow identity.
+      #
+      # Runs before the publish step, so anything it trusts is published by this
+      # same run — a brand-new package goes from nothing to published in one go.
+      - name: Trust new packages via OIDC
+        continue-on-error: true
+        run: node scripts/trust-via-oidc.mjs
       - uses: changesets/action@v1
         with:
           # PUBLISHING REQUIRES AN EXPLICIT DISPATCH. A push can open the Version
