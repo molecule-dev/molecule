@@ -33,7 +33,34 @@ import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
-import { readTrustLedger, TRUST_STATE_PATH, untrustedPackages } from './lib/untrusted.mjs'
+import {
+  collectPackages,
+  readTrustLedger,
+  TRUST_STATE_PATH,
+  untrustedPackages,
+} from './lib/untrusted.mjs'
+
+/**
+ * Packages the registry has never seen.
+ *
+ * @returns Records for names absent from npm, sorted.
+ */
+const registryAbsentPackages = async () => {
+  const all = collectPackages()
+  const absent = []
+  for (let i = 0; i < all.length; i += 40) {
+    await Promise.all(
+      all.slice(i, i + 40).map(async (pkg) => {
+        const res = await fetch(`https://registry.npmjs.org/${pkg.name.replace('/', '%2f')}`, {
+          method: 'HEAD',
+          signal: AbortSignal.timeout(15_000),
+        })
+        if (res.status === 404) absent.push(pkg)
+      }),
+    )
+  }
+  return absent.sort((a, b) => a.name.localeCompare(b.name))
+}
 
 const args = process.argv.slice(2)
 const LIST_ONLY = args.includes('--list')
@@ -44,7 +71,11 @@ const LIST_ONLY = args.includes('--list')
 const CI = args.includes('--ci')
 let otp = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 
-const untrusted = untrustedPackages()
+// In CI the ledger does not exist — .trust-state.json is gitignored, so a fresh
+// checkout reads it as empty and EVERY package looks untrusted. That made one run
+// attempt all 919. There, the packages needing trust are exactly the ones npm has
+// never seen, which is a fact we can ask the registry for.
+const untrusted = CI ? await registryAbsentPackages() : untrustedPackages()
 
 // The common case by far: nothing new, no output, no network call, no delay.
 if (!untrusted.length) process.exit(0)
