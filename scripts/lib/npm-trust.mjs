@@ -100,7 +100,8 @@ export async function trustPackage(name, options) {
     if (/already|duplicate/i.test(text)) return { outcome: 'already', status: 1, text }
     // Surfaced separately so the caller can re-prompt with a fresh code rather
     // than reporting a spent one-time password as a permanent failure.
-    if (/EOTP|one-time pass|Two-factor/i.test(text)) return { outcome: 'needs-otp', status: 1, text }
+    if (/EOTP|one-time pass|Two-factor/i.test(text))
+      return { outcome: 'needs-otp', status: 1, text }
     return { outcome: 'error', status: 1, text }
   }
 }
