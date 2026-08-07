@@ -105,6 +105,31 @@ console.log(
 
 if (LIST_ONLY) process.exit(1)
 
+// The header's contract, actually enforced: NO TERMINAL -> warn and exit 0.
+// This guard exists to catch a HUMAN at push time; without /dev/tty nobody can
+// answer the 2FA prompt below, so exiting 1 only blocks automation that pushes
+// with hooks enabled — which is exactly how the Release workflow died on
+// 2026-08-07: the changesets action's version-commit push ran this hook in the
+// runner (fresh checkout -> gitignored ledger absent -> all 919 packages
+// "untrusted" -> no token -> exit 1) and the whole release failed. Untrusted
+// NEW packages are still safe: their OIDC publish is skipped and the CI trust
+// step reports them; they wait for an interactive `npm run trust:new`.
+if (!CI) {
+  try {
+    // openSync THROWS synchronously when there is no controlling terminal —
+    // same probe promptOtp uses below.
+    closeSync(openSync('/dev/tty', 'r'))
+  } catch (_error) {
+    // No /dev/tty — a scripted push. The warn below IS the handling.
+    console.error(
+      'No terminal available — skipping the trust prompt (scripted push).\n' +
+        'Any NEW packages stay untrusted (their publish is skipped) until\n' +
+        '`npm run trust:new` runs interactively.',
+    )
+    process.exit(0)
+  }
+}
+
 const token = CI ? null : readNpmToken()
 if (!CI && !token) {
   console.error('Not logged in to npm. Run `npm login`, then push again.')
