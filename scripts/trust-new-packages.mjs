@@ -2,12 +2,15 @@
 /**
  * Trust every new package, once, at the moment you push it.
  *
- * npm requires an interactive 2FA OTP to configure a trusted publisher and
- * explicitly refuses automation tokens for it — a granular token with "bypass
- * 2FA" is not accepted by `npm trust`. So this step cannot run in CI, no matter
- * how it is wired. What it CAN do is stop being a thing anyone has to remember:
- * the pre-push hook runs this, and if a package in the repo has no trusted
- * publisher yet it asks for one code and configures all of them together.
+ * LOCALLY npm demands an interactive 2FA code for trust config: the account is
+ * `tfa: auth-and-writes`, so publish, trust config, minting a token and even the
+ * browser login all escalate to /escalate/otp, and automation tokens are refused
+ * outright. The pre-push hook makes that one prompt covering every new package.
+ *
+ * IN CI (--ci) there is no such credential and none is wanted: npm authenticates
+ * by exchanging the workflow's OIDC token, which is what 2FA exists to
+ * substitute for. Run from release.yml — the workflow every trust config names —
+ * that is the path with no human in it at all.
  *
  * Once configured, trust is a permanent per-package setting. That package never
  * needs a code again — not for its first publish, not for any later version.
@@ -34,6 +37,11 @@ import { readTrustLedger, TRUST_STATE_PATH, untrustedPackages } from './lib/untr
 
 const args = process.argv.slice(2)
 const LIST_ONLY = args.includes('--list')
+// In CI there is no ~/.npmrc token, no terminal and no 2FA code — npm
+// authenticates by exchanging the workflow's OIDC token instead, which is the
+// whole point of running the trust step there. So --ci skips the login check and
+// the prompt and hands the command straight to npm.
+const CI = args.includes('--ci')
 let otp = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 
 const untrusted = untrustedPackages()
@@ -58,15 +66,17 @@ console.log(
 
 if (LIST_ONLY) process.exit(1)
 
-const token = readNpmToken()
-if (!token) {
+const token = CI ? null : readNpmToken()
+if (!CI && !token) {
   console.error('Not logged in to npm. Run `npm login`, then push again.')
   process.exit(1)
 }
 
-const whoami = await fetch('https://registry.npmjs.org/-/whoami', {
-  headers: { authorization: `Bearer ${token}` },
-})
+const whoami = CI
+  ? { ok: true, status: 200 }
+  : await fetch('https://registry.npmjs.org/-/whoami', {
+      headers: { authorization: `Bearer ${token}` },
+    })
 if (!whoami.ok) {
   // A dead token 401s identically to a 2FA rejection on the trust endpoint,
   // which is how an expired session once got diagnosed as "npm requires an OTP
@@ -140,7 +150,7 @@ const ensureOtp = async (label, force = false) => {
   return otp
 }
 
-await ensureOtp('trust config')
+if (!CI) await ensureOtp('trust config')
 
 const ledger = readTrustLedger()
 const failed = []
@@ -156,6 +166,14 @@ for (const pkg of untrusted) {
   // A one-time code is single-use, so by the second package the held one is
   // spent. Ask for a fresh one and retry rather than reporting it as a failure.
   if (result.outcome === 'needs-otp') {
+    if (CI) {
+      // The experiment's negative result, stated plainly rather than retried:
+      // npm did NOT accept this run's OIDC credential for trust config and wants
+      // an interactive code that no CI job can supply.
+      console.error(`  x ${pkg.name}: npm demanded 2FA despite OIDC — ${result.text}`)
+      failed.push(pkg.name)
+      continue
+    }
     result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {

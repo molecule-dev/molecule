@@ -17,6 +17,11 @@ on:
         description: 'Seconds between publishes (default 20)'
         required: false
         type: string
+      trust_new:
+        description: 'Configure trusted publishing for packages that have none, using this run OWN OIDC credential (no 2FA)'
+        required: false
+        default: false
+        type: boolean
 
 # Push runs supersede each other; a dispatch is NEVER cancelled.
 #
@@ -85,6 +90,22 @@ jobs:
       - name: Reuse dist for packages whose sources are unchanged
         run: node scripts/dist-cache-manifest.mjs --apply
       - run: npm ci
+      # Configure trusted publishing for packages that have none, from INSIDE the
+      # workflow npm already trusts.
+      #
+      # This is the step that removes the last human moment from shipping a new
+      # package. Locally `npm trust` always demands a 2FA code: the account is
+      # `tfa: auth-and-writes`, so publishing, trust config, minting a token and
+      # even the browser login all escalate to `/escalate/otp`. In CI there is no
+      # such credential — npm authenticates by exchanging this run's OIDC token,
+      # which is the mechanism 2FA exists to substitute for.
+      #
+      # It has to live in release.yml specifically: every trust config names
+      # release.yml as the allowed workflow, so this is the only file whose OIDC
+      # claims npm will accept.
+      - name: Trust new packages (OIDC, no 2FA)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.trust_new }}
+        run: node scripts/trust-new-packages.mjs --ci
       - uses: changesets/action@v1
         with:
           # PUBLISHING REQUIRES AN EXPLICIT DISPATCH. A push can open the Version
