@@ -36,6 +36,8 @@
     "check:locale-placeholders": "node scripts/check-locale-placeholders.js",
     "check:lockfile": "node scripts/check-lockfile.js",
     "check:package-repository": "node scripts/check-package-repository.js",
+    "bootstrap:new-packages": "node scripts/bootstrap-new-packages.mjs",
+    "check:publishable": "node scripts/check-publishable.mjs",
     "check:peer-deps": "node scripts/check-peer-deps.js",
     "check:security-workflow": "node scripts/check-security-workflow.js",
     "check:ws-floor": "node scripts/check-ws-floor.mjs",

@@ -82,13 +82,12 @@ export async function trustPackage(name, options) {
   const text = (await res.text()).slice(0, 300)
   if (res.ok) return { outcome: 'trusted', status: res.status, text }
   if (/already|duplicate/i.test(text)) return { outcome: 'already', status: res.status, text }
-  // 404 = the package is not on the registry yet. This does NOT mean a local
-  // first publish is required: 8a4b3cd7a established that `createPackage` creates
-  // a package via OIDC, and on 2026-08-06 all four never-published packages were
-  // created by CI with no local publish. What actually blocked that run was
-  // publish-paced treating one untrusted package's auth failure as systemic and
-  // aborting the fleet; that is fixed. Trust config for a package that does not
-  // exist yet simply cannot be POSTed — configure it after the first CI publish.
+  // 404 = the package is not on the registry yet, and that DOES mean a bootstrap
+  // publish with a credential is required first. An earlier version of this
+  // comment claimed OIDC could create the package itself; the registry refutes
+  // it — all 906 published `@molecule` packages have their first-ever version
+  // attributed to `vialoh` and none to `GitHub Actions` (measured 2026-08-07).
+  // Order is: bootstrap publish -> trust config -> every later version via OIDC.
   if (res.status === 404) return { outcome: 'not-published', status: res.status, text }
   return { outcome: 'error', status: res.status, text }
 }

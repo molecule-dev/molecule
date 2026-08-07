@@ -357,12 +357,20 @@ for (const pkg of todo) {
         // the failure summary below). The genuinely systemic case is still caught
         // — if auth is broken for everyone, every package lands in `failed` and
         // the run exits non-zero with all of them named.
+        // Print npm's OWN words, not just the label. "not trusted" is this
+        // script's INFERENCE from a generic ENEEDAUTH/E401, and the inference is
+        // the only thing the CI log carried — so every diagnosis of a skipped
+        // package was made from a guess about an error nobody had read. npm
+        // distinguishes an unconfigured trusted publisher from a scope
+        // permission problem, a provenance E422, and an expired exchange; those
+        // need different fixes and looked identical here.
+        const npmSaid = out.trim().split('\n').slice(-12).join('\n      ').trim()
         failed.push({
           name: pkg.name,
-          error: 'never published and not trusted — run scripts/trust-publish-setup.mjs',
+          error: `auth rejected (likely untrusted) — npm said: ${npmSaid.slice(0, 400)}`,
         })
         process.stderr.write(
-          `  ⚠ ${pkg.name}: not trusted for publishing — skipping, not aborting.\n`,
+          `  ⚠ ${pkg.name}: auth rejected — skipping, not aborting. npm said:\n      ${npmSaid}\n`,
         )
         // BREAK OUT OF THE RETRY LOOP. Retrying an auth rejection cannot help —
         // the credential does not change between attempts — and without this the

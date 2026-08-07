@@ -17,10 +17,22 @@
  *   npm login
  *   node scripts/trust-publish-setup.mjs --write --otp=123456
  *
- * Idempotent: an already-trusted package is reported as such. A package that is
- * not on the registry yet can still be trusted — `createPackage` is permission to
- * CREATE one via OIDC, proven 2026-08-05 when all 7 never-published native bonds
- * were trusted and then created by CI with no local publish at all.
+ * Idempotent: an already-trusted package is reported as such.
+ *
+ * A PACKAGE THAT IS NOT ON THE REGISTRY CANNOT BE TRUSTED — the endpoint is
+ * per-package and 404s for a name that does not exist. This file previously
+ * claimed the opposite (that `createPackage` let OIDC create a package from
+ * nothing, "proven" by 7 native bonds). That claim was false and was refuted by
+ * the registry itself on 2026-08-07: of the 906 published `@molecule` packages,
+ * the first-ever version of ALL 906 is attributed to `vialoh`, and ZERO to
+ * `GitHub Actions`. OIDC has never created a package here. `createPackage` is
+ * the permission a trusted publisher needs to publish a name it has not
+ * published before — it is not a way to configure trust for a name npm has
+ * never seen.
+ *
+ * So a brand-new package needs one bootstrap publish with a credential before
+ * it can be trusted. `npm run check:publishable` reports which packages are in
+ * that state so it surfaces at PR time instead of mid-release.
  *
  *   node scripts/trust-publish-setup.mjs                      # dry run
  *   node scripts/trust-publish-setup.mjs --write --otp=123456
