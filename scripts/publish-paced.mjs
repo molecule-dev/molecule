@@ -293,6 +293,25 @@ for (const pkg of todo) {
           // any reason — prompt, stalled socket, or a hang we have not seen yet.
           timeout: 120_000,
           killSignal: 'SIGKILL',
+          // Do NOT let a broken credential shadow the OIDC exchange.
+          //
+          // actions/setup-node with registry-url writes an .npmrc containing
+          // `_authToken=${NODE_AUTH_TOKEN}`, and with no NPM_TOKEN secret that
+          // expands to the literal placeholder. For a package that is already
+          // trusted npm exchanges the OIDC token and never looks at it — which is
+          // why 914 publish fine and this went unnoticed. For a package npm has
+          // NOT seen, the exchange has nothing to match, npm falls back to that
+          // garbage token, and the failure surfaces as a bare ENEEDAUTH that
+          // reads like "untrusted" rather than "your npmrc is nonsense".
+          //
+          // Stripping both leaves OIDC as the only credential in the process, so
+          // whatever npm reports is about trusted publishing and not about a
+          // placeholder token.
+          env: Object.fromEntries(
+            Object.entries(process.env).filter(
+              ([key]) => key !== 'NODE_AUTH_TOKEN' && key !== 'NPM_CONFIG_USERCONFIG',
+            ),
+          ),
         },
       )
       published = true
