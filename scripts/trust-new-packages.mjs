@@ -27,6 +27,7 @@
  *   node scripts/trust-new-packages.mjs --otp=123456
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
  */
+import { execFileSync } from 'node:child_process'
 import console from 'node:console'
 import { createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
 import process from 'node:process'
@@ -36,6 +37,7 @@ import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
   readTrustLedger,
+  ROOT,
   TRUST_STATE_PATH,
   untrustedPackages,
 } from './lib/untrusted.mjs'
@@ -69,6 +71,10 @@ const LIST_ONLY = args.includes('--list')
 // whole point of running the trust step there. So --ci skips the login check and
 // the prompt and hands the command straight to npm.
 const CI = args.includes('--ci')
+// --release: dispatch the Release workflow once everything is trusted, so the
+// whole job is one command. Trusting without publishing leaves the packages in
+// the exact half-done state this script exists to end.
+const RELEASE = args.includes('--release')
 let otp = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 
 // In CI the ledger does not exist — .trust-state.json is gitignored, so a fresh
@@ -232,3 +238,20 @@ if (failed.length) {
 console.log(
   `\nTrusted ${untrusted.length}. Commit .trust-state.json; no code needed for these again.`,
 )
+
+if (RELEASE) {
+  // The packages are trusted but still do not exist on npm. CI creates them over
+  // OIDC with no further code — that is the whole point of having trusted them.
+  console.log('\nDispatching Release so CI creates them over OIDC...')
+  try {
+    execFileSync('gh', ['workflow', 'run', 'release.yml', '--ref', 'main'], {
+      cwd: ROOT,
+      stdio: 'inherit',
+    })
+    console.log('Dispatched. Watch: gh run list --workflow=release.yml --limit 1')
+  } catch (_error) {
+    // Intentionally ignored: gh printed its own reason, and the trust work above
+    // is already saved — dispatching by hand is all that is left.
+    console.error('Could not dispatch Release; run: gh workflow run release.yml --ref main')
+  }
+}
