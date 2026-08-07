@@ -82,12 +82,19 @@ export async function trustPackage(name, options) {
   const text = (await res.text()).slice(0, 300)
   if (res.ok) return { outcome: 'trusted', status: res.status, text }
   if (/already|duplicate/i.test(text)) return { outcome: 'already', status: res.status, text }
-  // 404 = the package is not on the registry yet, and that DOES mean a bootstrap
-  // publish with a credential is required first. An earlier version of this
-  // comment claimed OIDC could create the package itself; the registry refutes
-  // it — all 906 published `@molecule` packages have their first-ever version
-  // attributed to `vialoh` and none to `GitHub Actions` (measured 2026-08-07).
-  // Order is: bootstrap publish -> trust config -> every later version via OIDC.
+  // 404 here does NOT mean a local first publish is required. A package that
+  // npm has never seen can still be trusted — `createPackage` is precisely the
+  // permission to publish a name that does not exist yet — and CI then creates
+  // it over OIDC with no credential at rest.
+  //
+  // Proof, because this has now been argued in both directions: the seven
+  // `@molecule/app-*-react-native` bonds were trusted while unpublished on
+  // 2026-08-05 and their first-ever version (1.0.1) was published by
+  // `GitHub Actions`, attested, inside the 02:43-07:07 run window that day.
+  // Check them with `npm view <pkg> --json` before believing any claim here.
+  //
+  // So when this branch fires, the name is one npm genuinely cannot resolve —
+  // a typo, or a scope the account cannot create under — not a bootstrap gap.
   if (res.status === 404) return { outcome: 'not-published', status: res.status, text }
   return { outcome: 'error', status: res.status, text }
 }
