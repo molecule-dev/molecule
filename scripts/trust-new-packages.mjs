@@ -24,14 +24,12 @@
  * that hangs waiting on a tty nobody is watching is worse than a late failure.
  *
  *   node scripts/trust-new-packages.mjs            # prompt if anything is untrusted
- *   node scripts/trust-new-packages.mjs --otp=123456
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
-import { closeSync, createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
+import { closeSync, openSync, writeFileSync } from 'node:fs'
 import process from 'node:process'
-import { createInterface } from 'node:readline/promises'
 
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
@@ -75,7 +73,6 @@ const CI = args.includes('--ci')
 // whole job is one command. Trusting without publishing leaves the packages in
 // the exact half-done state this script exists to end.
 const RELEASE = args.includes('--release')
-let otp = (args.find((a) => a.startsWith('--otp=')) || '').split('=')[1]
 
 // In CI the ledger does not exist — .trust-state.json is gitignored, so a fresh
 // checkout reads it as empty and EVERY package looks untrusted. That made one run
@@ -125,74 +122,23 @@ if (!whoami.ok) {
   process.exit(1)
 }
 
-/**
- * Asks the user for a one-time code on the controlling terminal.
- *
- * Always prompts on /dev/tty, never on process.stdin: a git hook's stdin is the
- * ref list git pipes in, so a stdin prompt reads a ref and returns instantly
- * without the user ever seeing the question.
- *
- * @param label - What the code is for, shown in the prompt.
- * @returns The entered code, or null when there is no terminal.
- */
-const askOtp = async (label) => {
+if (!CI) {
+  // npm is about to own the terminal for its own 2FA prompt, so make sure there
+  // IS one. openSync throws synchronously when there is no controlling terminal;
+  // without this the pre-push hook would hand npm a tty-less stdio and sit there
+  // forever on a prompt nobody can see.
   try {
-    // Probe with openSync because it THROWS synchronously when there is no
-    // controlling terminal; createReadStream('/dev/tty') emits an async 'error'
-    // a try/catch cannot see, so the prompt would hang forever in CI instead.
-    // Close the probe immediately — it exists only to answer "is there a tty".
     closeSync(openSync('/dev/tty', 'r'))
   } catch (_error) {
-    // Intentionally ignored: no controlling terminal means no human to answer,
-    // and a hook that blocks forever on an unwatched tty is worse than letting
-    // the push through with the warning already printed above.
-    return null
-  }
-  // Two SEPARATE streams by path, each owning its own descriptor. Sharing one
-  // fd between a ReadStream and a WriteStream and then destroying both closes
-  // that descriptor twice — the second close threw
-  // `EBADF: bad file descriptor, close` as an unhandled 'error' event and killed
-  // the run after the user had already typed a code.
-  const input = createReadStream('/dev/tty')
-  const output = createWriteStream('/dev/tty')
-  const rl = createInterface({ input, output })
-  try {
-    return (await rl.question(`npm OTP for ${label} (6 digits): `)).trim()
-  } finally {
-    rl.close()
-    input.destroy()
-    output.destroy()
-  }
-}
-
-/**
- * Returns a usable code, prompting when the current one is missing or spent.
- *
- * npm one-time codes are single-use, so a run touching five packages needs
- * several. Prompting per step only when npm actually rejects the previous code
- * keeps that to the minimum the user must type.
- *
- * @param label - What the code is for.
- * @param force - Ask for a fresh code even if one is held.
- * @returns A 6-digit code.
- */
-const ensureOtp = async (label, force = false) => {
-  if (otp && !force && /^\d{6}$/.test(otp)) return otp
-  const answer = await askOtp(label)
-  if (answer === null) {
-    console.error('No terminal for the OTP prompt — skipping.')
-    console.error('Run `npm run trust:new` from a shell to finish this.')
+    // Intentionally ignored: no terminal means no human to answer, and blocking
+    // a push on an invisible prompt is worse than letting it through with the
+    // warning already printed above.
+    console.error('No terminal available — skipping. Run `npm run trust:new` from a shell.')
     process.exit(0)
   }
-  if (!/^\d{6}$/.test(answer)) {
-    console.error('That is not a 6-digit code. Run `npm run trust:new` to retry.')
-    process.exit(1)
-  }
-  otp = answer
-  return otp
+  console.log('npm asks for your 2FA code itself — it has no --otp flag, so it must')
+  console.log('prompt directly. Answer its prompt (or its browser link) per package.\n')
 }
-
-if (!CI) await ensureOtp('trust config')
 
 const ledger = readTrustLedger()
 const failed = []
@@ -203,30 +149,16 @@ for (const pkg of untrusted) {
   // local publish, no credential at rest. An earlier version of this file
   // published first, because a hand-rolled POST 404'd on unpublished names; that
   // was the POST's permission values, not npm's rules. See lib/npm-trust.mjs.
-  let result = await trustPackage(pkg.name, { otp })
+  let result = await trustPackage(pkg.name, { interactive: !CI })
 
   // A one-time code is single-use, so by the second package the held one is
   // spent. Ask for a fresh one and retry rather than reporting it as a failure.
   if (result.outcome === 'needs-otp') {
-    // Print WHY before asking again. A silently re-prompted code is
-    // indistinguishable from an expired one, a mistyped one, and npm refusing
-    // the operation outright — three different problems, one prompt.
-    const why = result.text
-      .split('\n')
-      .filter((l) => /error|Two-factor|EOTP|invalid|expired/i.test(l))
-      .slice(0, 2)
-      .join(' | ')
-      .trim()
-    if (why) console.error(`      npm rejected that code: ${why}`)
-    if (CI) {
-      // The experiment's negative result, stated plainly rather than retried:
-      // npm did NOT accept this run's OIDC credential for trust config and wants
-      // an interactive code that no CI job can supply.
-      console.error(`  x ${pkg.name}: npm demanded 2FA despite OIDC — ${result.text}`)
-      failed.push(pkg.name)
-      continue
-    }
-    result = await trustPackage(pkg.name, { otp: await ensureOtp(pkg.name, true) })
+    // Only reachable in --ci: interactive runs let npm own the terminal, so npm
+    // handles its own 2FA and never reports back a challenge for us to satisfy.
+    console.error(`  x ${pkg.name}: npm demanded 2FA and CI cannot supply one`)
+    failed.push(pkg.name)
+    continue
   }
   if (result.outcome === 'trusted' || result.outcome === 'already') {
     ledger.add(pkg.name)

@@ -68,11 +68,11 @@ export function readNpmToken() {
  * Works whether or not the package exists on the registry.
  *
  * @param name - Package name.
- * @param options - OTP and repo/workflow overrides.
+ * @param options -  (let npm own the terminal for 2FA) and repo/workflow overrides.
  * @returns Outcome: `trusted`, `already`, `needs-otp`, or `error`, with npm's output.
  */
 export async function trustPackage(name, options) {
-  const { otp, repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
+  const { interactive = false, repo = TRUST_REPO, workflow = TRUST_WORKFLOW } = options
   const trustArgs = [
     'trust',
     'github',
@@ -84,7 +84,6 @@ export async function trustPackage(name, options) {
     '--allow-publish',
     '--yes',
   ]
-  if (otp) trustArgs.push(`--otp=${otp}`)
 
   // Prefer the npm already on PATH when it is new enough. CI installs npm@latest
   // (12.x) globally, so going through npx there re-downloads npm for every
@@ -107,6 +106,23 @@ export async function trustPackage(name, options) {
   const useLocal = localMajor >= 12
   const command = useLocal ? 'npm' : 'npx'
   const args = useLocal ? trustArgs : ['--yes', TRUST_NPM, ...trustArgs]
+
+  // INTERACTIVE: hand npm the real terminal and let IT do the 2FA.
+  //
+  // `npm trust` has no --otp flag — its options are file/repository/environment/
+  // allow-publish/allow-stage-publish/dry-run/json/registry/yes and nothing else.
+  // Passing --otp was silently ignored, npm then wanted to prompt, and stdin was
+  // closed, so it failed with "Two-factor authentication is required" no matter
+  // how correct the code was. Asking the user for a code we then throw away is
+  // worse than not asking: it makes npm's refusal look like their typo.
+  if (interactive) {
+    try {
+      execFileSync(command, args, { stdio: 'inherit', timeout: 300_000, killSignal: 'SIGKILL' })
+      return { outcome: 'trusted', status: 0, text: '' }
+    } catch (error) {
+      return { outcome: 'error', status: 1, text: error.message ?? 'npm trust failed' }
+    }
+  }
 
   try {
     const stdout = execFileSync(command, args, {
