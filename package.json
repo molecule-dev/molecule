@@ -36,8 +36,8 @@
     "check:locale-placeholders": "node scripts/check-locale-placeholders.js",
     "check:lockfile": "node scripts/check-lockfile.js",
     "check:package-repository": "node scripts/check-package-repository.js",
-    "check:publishable": "node scripts/check-publishable.mjs",
     "check:peer-deps": "node scripts/check-peer-deps.js",
+    "check:publishable": "node scripts/check-publishable.mjs",
     "check:security-workflow": "node scripts/check-security-workflow.js",
     "check:ws-floor": "node scripts/check-ws-floor.mjs",
     "format": "prettier --write .",
@@ -50,6 +50,7 @@
     "sync:lockfile": "node scripts/sync-lockfile.js",
     "test": "vitest run",
     "test:all": "npm run test --workspaces --if-present",
+    "trust:new": "node scripts/trust-new-packages.mjs",
     "version": "changeset version && npm install --package-lock-only --no-audit --no-fund"
   },
   "devDependencies": {

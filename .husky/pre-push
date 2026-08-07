@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# Trust any brand-new package before it can reach a release.
+#
+# npm requires an interactive 2FA code to configure a trusted publisher and
+# refuses automation tokens for it, so this genuinely cannot live in CI. Push
+# time is the next best moment: a human is present, and it is the last point
+# before CI would try to publish and silently skip the package instead.
+#
+# Costs nothing when there is nothing to do — it reads a local ledger and walks
+# the packages dir, no network — and exits 0 without prompting when no terminal
+# is available, so scripted pushes never hang.
+node scripts/trust-new-packages.mjs || exit 1

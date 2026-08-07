@@ -31,59 +31,14 @@
  *   node scripts/check-publishable.mjs --warn   # always exit 0, still report
  */
 import console from 'node:console'
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
-import { dirname, join } from 'node:path'
 import process from 'node:process'
-import { fileURLToPath } from 'node:url'
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
+import { collectPackages, untrustedPackages } from './lib/untrusted.mjs'
+
 const WARN_ONLY = process.argv.includes('--warn')
 
-/**
- * Collects every publishable package in the monorepo.
- *
- * Walks to arbitrary depth on purpose. A fixed three-or-four-segment glob under
- * `packages/` misses the react-native bonds, which sit one level deeper under
- * `packages/app/native/<capability>/react-native/` — and a scan that skipped
- * exactly those seven was how this repo talked itself into believing OIDC
- * could not create packages.
- *
- * @param dir - Directory to walk.
- * @param found - Accumulator.
- * @returns Package `{ name, version }` records.
- */
-const collect = (dir, found = []) => {
-  for (const entry of readdirSync(dir)) {
-    if (entry === 'node_modules' || entry.startsWith('.')) continue
-    const full = join(dir, entry)
-    if (!statSync(full).isDirectory()) continue
-    const manifest = join(full, 'package.json')
-    if (existsSync(manifest)) {
-      try {
-        const json = JSON.parse(readFileSync(manifest, 'utf8'))
-        if (json.name?.startsWith('@molecule/') && !json.private) {
-          found.push({ name: json.name, version: json.version })
-          continue
-        }
-      } catch (error) {
-        // An unparseable manifest is a different gate's problem (lint and build
-        // both fail on it); reporting it here would only duplicate that noise.
-        console.warn(`  ! skipped unreadable ${manifest}: ${error.message}`)
-      }
-    }
-    collect(full, found)
-  }
-  return found
-}
-
-const packages = collect(join(ROOT, 'packages'))
-
-const trustPath = join(ROOT, '.trust-state.json')
-const trusted = new Set(existsSync(trustPath) ? JSON.parse(readFileSync(trustPath, 'utf8')) : [])
-
-const untrusted = packages
-  .filter((pkg) => !trusted.has(pkg.name))
-  .sort((a, b) => a.name.localeCompare(b.name))
+const packages = collectPackages()
+const untrusted = untrustedPackages()
 
 console.log(`Checked ${packages.length} publishable packages against the trust ledger.`)
 
@@ -98,12 +53,12 @@ console.log(
 for (const pkg of untrusted) console.log(`  ${pkg.name}@${pkg.version}`)
 
 console.log(
-  `\nTrust them in one sweep, then re-run Release. No local publish is needed\n` +
-    `for any of them, including the ones npm has never seen:\n` +
-    `  node scripts/trust-publish-setup.mjs --write [--otp=<code>]\n` +
-    `A prior note here claimed trust config always demands an OTP because npm\n` +
-    `counts it as an account change. That is UNVERIFIED — the run it came from\n` +
-    `used a token that is now dead on /-/whoami too, so its 401 said nothing\n` +
-    `about 2FA. Try without --otp first; if npm asks, it asks.`,
+  `\nTrust them all in one go — no local publish is needed for any of them,\n` +
+    `including the ones npm has never seen:\n` +
+    `  npm run trust:new\n\n` +
+    `It asks for ONE OTP and covers every package listed above. npm requires an\n` +
+    `interactive code here and refuses automation tokens for trust config, so\n` +
+    `this cannot run in CI — but it is once per package, ever. The pre-push hook\n` +
+    `runs it for you when a new package appears.`,
 )
 process.exit(WARN_ONLY ? 0 : 1)
