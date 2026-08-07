@@ -190,4 +190,14 @@ jobs:
         run: |
           echo "--- whoami AFTER publish ---"
           npm whoami || echo "(still no credential)"
+          # setup-node writes an .npmrc containing a PLACEHOLDER NODE_AUTH_TOKEN
+          # (literally XXXXX-XXXXX-...), because no NPM_TOKEN secret exists. npm
+          # then has a credential to try, so it never falls through to OIDC and
+          # answers 401/2FA. Point it at an empty user config so nothing shadows
+          # the exchange, and see whether trust behaves differently.
+          echo "--- trust with NO npmrc credential ---"
+          NPM_CONFIG_USERCONFIG=/dev/null NODE_AUTH_TOKEN= \
+            npm trust github @molecule/api-git-provider \
+              --repo molecule-dev/molecule --file release.yml --allow-publish --yes \
+            2>&1 | tail -20 || true
           node scripts/trust-new-packages.mjs --ci
