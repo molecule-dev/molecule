@@ -29,7 +29,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "dompurify": "3.4.12",
+    "dompurify": "3.4.13",
     "quill": "2.0.2"
   },
   "molecule": {
