@@ -81,7 +81,17 @@ export async function trustPackage(name, options) {
     repo,
     '--file',
     workflow,
+    // BOTH flags. --allow-publish alone sends permissions ["createPackage"],
+    // and the registry answers 404 "Package not found" for a name it does not
+    // have. Adding --allow-stage-publish sends
+    // ["createPackage","createStagedPackage"] — the exact payload the
+    // 2026-08-05 sweep used, which trusted 910 packages with
+    // `not-yet-published: 0` including seven that did not exist on npm until
+    // hours later. createStagedPackage is what makes a name trustable before it
+    // exists; without it, trusting a new package is impossible and the whole
+    // point of trusted publishing for new packages is lost.
     '--allow-publish',
+    '--allow-stage-publish',
     '--yes',
   ]
 
