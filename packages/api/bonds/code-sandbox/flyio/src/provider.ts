@@ -465,6 +465,12 @@ class FlyioSandboxProvider implements SandboxProvider {
   ): Promise<string | undefined> {
     let assignment: FlyIpAssignment | null
     try {
+      // NO org_slug here. The ip_assignments endpoint derives the org from the
+      // target app and REJECTS an explicit org_slug with 400 "organization not
+      // found" (verified against api.machines.dev for a personal org: the same
+      // slug that app creation REQUIRES is refused here; omitting it returns 200
+      // and allocates the address). app creation still sends org_slug — the two
+      // endpoints genuinely differ.
       assignment = await this.client.request<FlyIpAssignment>(
         `/apps/${service.app}/ip_assignments`,
         {
@@ -472,7 +478,6 @@ class FlyioSandboxProvider implements SandboxProvider {
           body: {
             type: this.config.privateIpAssignmentType ?? DEFAULT_PRIVATE_IP_TYPE,
             network,
-            org_slug: this.orgSlug(),
           },
         },
       )

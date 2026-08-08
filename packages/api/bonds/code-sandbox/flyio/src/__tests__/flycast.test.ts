@@ -286,13 +286,15 @@ describe('create — allocating the routes', () => {
       env: SANDBOX_ENV,
     })
 
+    // NO org_slug — the ip_assignments endpoint derives the org from the app and
+    // 400s on an explicit one (see allocatePrivateAddress).
     const db = double.matching(`POST /apps/${TENANT_DB}/ip_assignments`)
     expect(db).toHaveLength(1)
-    expect(db[0].body).toEqual({ type: 'private_v6', network: APP, org_slug: 'acme' })
+    expect(db[0].body).toEqual({ type: 'private_v6', network: APP })
 
     const proxy = double.matching(`POST /apps/${PROXY}/ip_assignments`)
     expect(proxy).toHaveLength(1)
-    expect(proxy[0].body).toEqual({ type: 'private_v6', network: APP, org_slug: 'acme' })
+    expect(proxy[0].body).toEqual({ type: 'private_v6', network: APP })
   })
 
   it('reads the declaration from FLY_SANDBOX_PRIVATE_SERVICES', async () => {
