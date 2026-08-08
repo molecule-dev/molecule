@@ -86,6 +86,21 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching('POST /apps').filter((call) => call.path === '/apps')).toHaveLength(0)
   })
 
+  it('waits for the Machine to reach started before returning, so the first exec is not 412', async () => {
+    // POST .../machines returns as soon as the Machine is SCHEDULED (state
+    // `created`), not running. Without the wait, the caller's first exec fails
+    // with `412 machine not running` — the production bug this guards.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'created' } })
+
+    const sandbox = await makeProvider({}, double).create({ projectId: PROJECT_ID })
+
+    expect(double.matching(`GET /apps/${APP}/machines/m1/wait`)).toHaveLength(1)
+    expect(sandbox.status).toBe('running')
+  })
+
   it('treats a concurrent 409 on app creation as success', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { status: 404, body: {} })

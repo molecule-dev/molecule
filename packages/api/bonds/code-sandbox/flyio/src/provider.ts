@@ -890,7 +890,14 @@ class FlyioSandboxProvider implements SandboxProvider {
       return this.buildSandbox(app, machine.id, 'running')
     }
 
-    return this.buildSandbox(app, machine.id, mapMachineState(machine.state ?? 'created'))
+    // `POST .../machines` launches the Machine but returns as soon as it is
+    // scheduled — often still `created`/`starting`. The caller's very first
+    // action is an `exec` (to scaffold the workspace), which Fly rejects with
+    // `412 failed_precondition: machine not running` until the Machine is up.
+    // Wait for `started` here so `create` always hands back a live sandbox, as
+    // the JSDoc promises — the template path already does this via restore.
+    await this.waitForStarted(app, machine.id)
+    return this.buildSandbox(app, machine.id, 'running')
   }
 
   /**
