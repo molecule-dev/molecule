@@ -19,6 +19,7 @@ const {
   buildScript,
   DIRECT_EXEC_BUDGET_SECONDS,
   execCommand,
+  FLY_EXEC_MAX_ARG_BYTES,
   FLY_EXEC_MAX_TIMEOUT_SECONDS,
   INDETERMINATE_EXIT_CODE,
   toExecResult,
@@ -177,12 +178,15 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
     expect(result.stderr).toBe('warn: deprecated')
 
     const scripts = calls.map((call) => call.script)
-    expect(scripts[0]).toContain('mkdir -p /tmp/.mol-exec')
-    expect(scripts[0]).toContain('base64 -d')
-    expect(scripts[0]).toContain('nohup sh -c')
+    // The script is staged in chunks (mkdir + base64 writes) THEN launched, so
+    // these live across several execs rather than one combined command.
+    expect(scripts.some((s) => s.includes('mkdir -p /tmp/.mol-exec'))).toBe(true)
+    expect(scripts.some((s) => s.includes('base64 -d'))).toBe(true)
+    const nohupScript = scripts.find((s) => s.includes('nohup sh -c'))
+    expect(nohupScript).toBeDefined()
     // The `&` must background ONLY the nohup line: in POSIX sh `a && b &`
     // backgrounds the whole list, racing the script write against the launch.
-    expect(scripts[0]).not.toMatch(/&&[^\n]*&$/m)
+    expect(nohupScript).not.toMatch(/&&[^\n]*&$/m)
     expect(scripts.some((script) => script.startsWith('cat /tmp/.mol-exec/'))).toBe(true)
     expect(scripts.some((script) => script.includes('head -c'))).toBe(true)
     expect(scripts.some((script) => script.startsWith('rm -f /tmp/.mol-exec/'))).toBe(true)
@@ -194,22 +198,24 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   })
 
   it('never sends the user command as an argument — it is delivered base64-encoded', async () => {
-    const { calls } = await runDetached((script, call) => {
-      if (call === 1) return { stdout: 'abc', exit_code: 0 }
+    const { calls } = await runDetached((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '0', exit_code: 0 }
       return { stdout: '\n__MOL_STDERR__\n', exit_code: 0 }
     })
-    expect(calls[0].script).not.toContain('npm install')
+    // No exec carries the raw command text.
+    expect(calls.every((c) => !c.script.includes('npm install'))).toBe(true)
+    // The base64 of the script travels in a chunk-write exec.
     const encoded = Buffer.from(
       buildScript('npm install', { timeout: 600_000 }, '/workspace'),
       'utf8',
     ).toString('base64')
-    expect(calls[0].script).toContain(encoded)
+    expect(calls.some((c) => c.script.includes(encoded))).toBe(true)
   })
 
   it('parses the exit status written by the detached process', async () => {
-    const { result } = await runDetached((script, call) => {
-      if (call === 1) return { stdout: 'abc', exit_code: 0 }
+    const { result } = await runDetached((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '137\n', exit_code: 0 }
       return { stdout: 'out\n__MOL_STDERR__\nerr', exit_code: 0 }
     })
@@ -218,8 +224,8 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
 
   it('keeps polling while the status file is empty', async () => {
     let polls = 0
-    const { result } = await runDetached((script, call) => {
-      if (call === 1) return { stdout: 'abc', exit_code: 0 }
+    const { result } = await runDetached((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) {
         polls++
         return { stdout: polls < 3 ? '' : '0', exit_code: 0 }
@@ -231,8 +237,8 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   })
 
   it('reports an indeterminate exit code when the command outlives the budget', async () => {
-    const { result } = await runDetached((script, call) => {
-      if (call === 1) return { stdout: 'abc', exit_code: 0 }
+    const { result } = await runDetached((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '', exit_code: 0 }
       return { stdout: 'partial\n__MOL_STDERR__\n', exit_code: 0 }
     }, 10_000 * 6)
@@ -246,8 +252,8 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
   })
 
   it('does not remove the scratch files when the command is still running', async () => {
-    const { calls } = await runDetached((script, call) => {
-      if (call === 1) return { stdout: 'abc', exit_code: 0 }
+    const { calls } = await runDetached((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '', exit_code: 0 }
       return { stdout: '\n__MOL_STDERR__\n', exit_code: 0 }
     }, 60_000)
@@ -256,26 +262,51 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
 
   it('throws with a clear message when the launcher itself fails', async () => {
     vi.useFakeTimers()
-    const { exec } = makeExec(() => ({ stdout: '', stderr: 'mkdir: read-only', exit_code: 1 }))
+    // Staging succeeds; only the nohup launch fails — the error must name that.
+    const { exec } = makeExec((script) =>
+      script.includes('nohup')
+        ? { stdout: '', stderr: 'nohup: cannot run', exit_code: 1 }
+        : { exit_code: 0 },
+    )
     await expect(
       execCommand(exec, 'npm install', { timeout: 600_000 }, '/workspace'),
     ).rejects.toThrow(/Failed to launch detached command/)
   })
 
-  it('refuses a command over the Fly exec payload limit instead of letting it vanish', async () => {
-    // Fly silently rejects an over-limit command with a phantom exit_code:0, so
-    // the guard must refuse it BEFORE sending — never reaching the transport.
-    const { exec, calls } = makeExec(() => ({ exit_code: 0 }))
+  it('throws a clear error when staging a large detached script fails', async () => {
+    vi.useFakeTimers()
+    const { exec } = makeExec((script) =>
+      script.startsWith('mkdir') ? { stderr: 'read-only fs', exit_code: 1 } : { exit_code: 0 },
+    )
     await expect(
-      execCommand(exec, 'x'.repeat(200_000), { timeout: 600_000 }, '/workspace'),
-    ).rejects.toThrow(/over the \d+-byte limit the API silently rejects/)
-    expect(calls).toHaveLength(0)
+      execCommand(exec, 'npm install', { timeout: 600_000 }, '/workspace'),
+    ).rejects.toThrow(/Failed to create the Fly exec work dir/)
+  })
+
+  it('spills an over-limit command to a file and runs it — never inline', async () => {
+    // Fly silently drops a command over its exec payload limit (phantom
+    // exit_code:0). So a large command must be staged in chunks and run from a
+    // file; no single exec may carry the whole script inline.
+    const { exec, calls } = makeExec(() => ({ exit_code: 0 }))
+    const big = 'echo ' + 'x'.repeat(40_000)
+
+    const result = await execCommand(exec, big, { timeout: 5000 }, '/workspace')
+
+    expect(result.exitCode).toBe(0)
+    // Every exec sent stays under the Fly arg limit — the big script never
+    // travels inline.
+    for (const c of calls) expect(c.script.length).toBeLessThanOrEqual(FLY_EXEC_MAX_ARG_BYTES)
+    // The final exec runs the staged file, not the command text.
+    const last = calls[calls.length - 1].script
+    expect(last).toMatch(/sh \S+\.sh; ec=\$\?; rm -f \S+\.sh; exit \$ec/)
+    // More than one call: at least one chunk write plus the run.
+    expect(calls.length).toBeGreaterThan(1)
   })
 
   it('still succeeds when cleanup fails — the command already completed', async () => {
     vi.useFakeTimers()
-    const { exec } = makeExec((script, call) => {
-      if (call === 1) return { stdout: 'abc', exit_code: 0 }
+    const { exec } = makeExec((script) => {
+      if (script.includes('nohup')) return { stdout: 'abc', exit_code: 0 }
       if (script.startsWith('cat ')) return { stdout: '0', exit_code: 0 }
       if (script.startsWith('rm -f')) throw new Error('exec transport down')
       return { stdout: 'ok\n__MOL_STDERR__\n', exit_code: 0 }

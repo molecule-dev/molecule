@@ -62,10 +62,10 @@ const DEFAULT_TIMEOUT_MS = 600_000
 export const MAX_CAPTURED_OUTPUT_BYTES = 5 * 1024 * 1024
 
 /**
- * Cap on the base64-encoded launcher script. `sh -c` receives it as a single
- * argument, which Linux limits to MAX_ARG_STRLEN (128 KB).
+ * Base64 chunk size for spilling a large script to a file, comfortably under
+ * {@link FLY_EXEC_MAX_ARG_BYTES} once the `printf … | base64 -d` wrapper is added.
  */
-const MAX_SCRIPT_BASE64_BYTES = 60_000
+const SCRIPT_SPILL_CHUNK_BASE64 = 12_000
 
 /**
  * Hard cap on the `sh -c <script>` argument SENT to Fly's exec endpoint. This is
@@ -156,16 +156,56 @@ function newRunId(): string {
 }
 
 /**
+ * Writes `script` to `path` on the Machine via chunked base64 execs, each under
+ * {@link FLY_EXEC_MAX_ARG_BYTES}.
+ *
+ * Fly's exec API silently drops a single over-limit `printf %s <base64>`, so a
+ * script too large to pass inline (a big `node -e`, a bulk file write) must be
+ * delivered in pieces. This is the transport-level equivalent of `docker cp` for
+ * a command body — callers never see the limit.
+ * @param rawExec - Transport callback issuing one Fly exec call.
+ * @param path - Absolute destination path on the Machine.
+ * @param script - The script body to stage.
+ * @throws {Error} When the work dir or any chunk write fails.
+ */
+async function writeScriptChunked(rawExec: RawExec, path: string, script: string): Promise<void> {
+  const base64 = Buffer.from(script, 'utf8').toString('base64')
+  const ensure = toExecResult(
+    await rawExec(['sh', '-c', `mkdir -p ${WORK_DIR}`], CONTROL_EXEC_TIMEOUT_SECONDS),
+  )
+  if (ensure.exitCode !== 0) {
+    throw new Error(`Failed to create the Fly exec work dir: ${ensure.stderr || ensure.stdout}`)
+  }
+  for (let i = 0; i < base64.length; i += SCRIPT_SPILL_CHUNK_BASE64) {
+    const op = i === 0 ? '>' : '>>'
+    const chunk = base64.slice(i, i + SCRIPT_SPILL_CHUNK_BASE64)
+    const written = toExecResult(
+      await rawExec(
+        ['sh', '-c', `printf %s ${shellQuote(chunk)} | base64 -d ${op} ${path}`],
+        CONTROL_EXEC_TIMEOUT_SECONDS,
+      ),
+    )
+    if (written.exitCode !== 0) {
+      throw new Error(
+        `Failed to stage a Fly exec script chunk: ${written.stderr || written.stdout}`,
+      )
+    }
+  }
+}
+
+/**
  * Executes a command on a Machine, choosing the direct or detached strategy
  * based on the caller's time budget.
  *
+ * A command too large to pass inline (over {@link FLY_EXEC_MAX_ARG_BYTES}) is
+ * spilled to a file via chunked writes and run from there, so there is no size
+ * ceiling the caller must respect.
  * @param rawExec - Transport callback issuing one Fly exec call.
  * @param command - The shell command to run.
  * @param opts - Core exec options (cwd, env, timeout in ms).
  * @param defaultCwd - Working directory used when `opts.cwd` is unset.
  * @returns The command's stdout, stderr and exit code.
- * @throws {Error} When the command is too large to launch (see
- *   {@link MAX_SCRIPT_BASE64_BYTES}), or when the transport itself fails.
+ * @throws {Error} When staging a large command or the transport itself fails.
  */
 export async function execCommand(
   rawExec: RawExec,
@@ -176,19 +216,19 @@ export async function execCommand(
   const budgetMs = opts?.timeout ?? DEFAULT_TIMEOUT_MS
   const script = buildScript(command, opts, defaultCwd)
 
-  // A direct command travels as the `sh -c <script>` argument. Fly rejects one
-  // over FLY_EXEC_MAX_ARG_BYTES with a silent `exit_code: 0` (see the constant),
-  // so refuse it here with a message that names the real limit rather than
-  // letting the caller's data vanish. Bulk callers chunk beneath this.
-  if (script.length > FLY_EXEC_MAX_ARG_BYTES) {
-    throw new Error(
-      `Fly exec command is ${script.length} bytes, over the ${FLY_EXEC_MAX_ARG_BYTES}-byte ` +
-        `limit the API silently rejects — chunk the payload smaller.`,
-    )
-  }
-
   if (budgetMs <= DIRECT_EXEC_BUDGET_SECONDS * 1000) {
     const seconds = Math.max(1, Math.min(Math.ceil(budgetMs / 1000), FLY_EXEC_MAX_TIMEOUT_SECONDS))
+    // Fly's exec API silently drops a command over FLY_EXEC_MAX_ARG_BYTES. A
+    // script that big cannot go inline, so spill it to a file (chunked writes,
+    // each under the limit) and run that — matching docker exec, which has no
+    // such ceiling. The caller stays unaware of the transport's limit.
+    if (script.length > FLY_EXEC_MAX_ARG_BYTES) {
+      const path = `${WORK_DIR}/direct-${newRunId()}.sh`
+      await writeScriptChunked(rawExec, path, script)
+      return toExecResult(
+        await rawExec(['sh', '-c', `sh ${path}; ec=$?; rm -f ${path}; exit $ec`], seconds),
+      )
+    }
     return toExecResult(await rawExec(['sh', '-c', script], seconds))
   }
 
@@ -214,32 +254,20 @@ async function execDetached(
   budgetMs: number,
 ): Promise<ExecResult> {
   const runId = newRunId()
-  const base64 = Buffer.from(script, 'utf8').toString('base64')
-  if (base64.length > MAX_SCRIPT_BASE64_BYTES) {
-    throw new Error(
-      t(
-        'codeSandbox.flyio.error.commandTooLarge',
-        { limit: String(MAX_SCRIPT_BASE64_BYTES) },
-        {
-          defaultValue:
-            `Command is too large to launch on a Fly Machine (encoded ${base64.length} bytes, limit ${MAX_SCRIPT_BASE64_BYTES}). ` +
-            'Write it to a file with writeFile() and exec that file instead.',
-        },
-      ),
-    )
-  }
-
   const scriptPath = `${WORK_DIR}/${runId}.sh`
   const outPath = `${WORK_DIR}/${runId}.out`
   const errPath = `${WORK_DIR}/${runId}.err`
   const rcPath = `${WORK_DIR}/${runId}.rc`
 
+  // Stage the script via chunked writes (each under the Fly exec arg limit),
+  // then launch it. A single `printf %s <base64>` would exceed the limit for a
+  // large script and Fly would drop it silently. writeScriptChunked also creates
+  // WORK_DIR, so the launcher below only has to background the run.
+  await writeScriptChunked(rawExec, scriptPath, script)
+
   // The `&` must apply to the nohup line ALONE. In POSIX sh, `a && b &`
-  // backgrounds the whole AND-list, which would race the script write against
-  // the launch, so these are separate statements rather than one chain.
+  // backgrounds the whole AND-list, so these are separate statements.
   const launcher = [
-    `mkdir -p ${WORK_DIR} || exit 1`,
-    `printf %s ${shellQuote(base64)} | base64 -d > ${scriptPath} || exit 1`,
     `nohup sh -c 'sh ${scriptPath} > ${outPath} 2> ${errPath}; printf %s "$?" > ${rcPath}' > /dev/null 2>&1 < /dev/null &`,
     `printf %s ${runId}`,
   ].join('\n')
