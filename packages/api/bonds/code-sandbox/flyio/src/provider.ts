@@ -155,6 +155,13 @@ const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
  */
 const IMPORT_WRITE_CHUNK_BASE64 = 12_000
 
+/**
+ * Expiry for the presigned URLs {@link Sandbox.importFiles} uses to hand an
+ * archive to the object store and back to the Machine. Short — the upload and
+ * the single download happen back-to-back.
+ */
+const IMPORT_PRESIGN_EXPIRY_SECONDS = 3600
+
 /** Extra seconds allowed for the probe exec beyond its connection budget. */
 const PROBE_EXEC_HEADROOM_SECONDS = 10
 
@@ -1814,15 +1821,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
         const parts: Buffer[] = []
         for await (const chunk of archive) parts.push(Buffer.from(chunk))
-        const base64 = gzipSync(Buffer.concat(parts)).toString('base64')
-        // The temp tar lives on the WORKSPACE VOLUME, not /tmp. The chunked
-        // write and the extract are separate exec calls, and a Machine with
-        // autostop=suspend can cold-start between them — which recreates the
-        // rootfs from the image (wiping /tmp) while the ext4 volume at
-        // /workspace persists. A /tmp temp file vanished mid-import; the volume
-        // one survives.
-        const tmp = `${WORKSPACE_PATH}/.mol-import-${machineId}.tgz`
-        const quotedTmp = shellQuote(tmp)
+        const gz = gzipSync(Buffer.concat(parts))
         const quotedPath = shellQuote(path)
         const failIfError = (result: ExecResult, step: string): void => {
           if (result.exitCode !== 0) {
@@ -1831,14 +1830,66 @@ class FlyioSandboxProvider implements SandboxProvider {
                 'codeSandbox.flyio.error.importFailed',
                 { path, step, error: result.stderr },
                 {
-                  defaultValue: `Failed to import files into ${path} (${step}): ${result.stderr}`,
+                  defaultValue: `Failed to import files into ${path} (${step}): ${result.stderr || result.stdout}`,
                 },
               ),
             )
           }
         }
-        // First chunk truncates the temp file; the rest append. Each chunk is a
-        // multiple of 4 base64 chars so it decodes standalone (see writeFile).
+
+        // PREFERRED: upload the archive to the object store and have the Machine
+        // PULL it with a single curl. Fly's exec endpoint is rate-limited (~5/s)
+        // and caps each command near 15 KB, so streaming a multi-MB tar through
+        // it as base64 chunks triggers a 429 storm that never finishes. A
+        // presigned download is ONE request — the same pull pattern templates use
+        // (see buildRestoreCommand). Falls back to chunked exec when no store is
+        // configured (e.g. unit tests).
+        const store = provider.templateContext().store
+        if (store) {
+          const key = `${store.prefix}/.imports/${machineId}-${Date.now().toString(36)}${Math.floor(
+            Math.random() * 1e9,
+          ).toString(36)}.tar.gz`
+          try {
+            const putUrl = await store.presignPut(key, IMPORT_PRESIGN_EXPIRY_SECONDS)
+            const putRes = await fetch(putUrl, { method: 'PUT', body: gz })
+            if (!putRes.ok) {
+              throw new Error(`presigned PUT to the object store failed: ${putRes.status}`)
+            }
+            const getUrl = await store.presignGet(key, IMPORT_PRESIGN_EXPIRY_SECONDS)
+            const result = await this.exec(
+              [
+                'set -e',
+                `mkdir -p ${quotedPath}`,
+                'archive=$(mktemp /tmp/mol-import-XXXXXX.tar.gz)',
+                `curl --fail-with-body -sS --retry 3 --retry-connrefused -o "$archive" ${shellQuote(getUrl)}`,
+                `tar -C ${quotedPath} --no-same-owner --no-same-permissions -xzf "$archive"`,
+                'rm -f "$archive"',
+              ].join('\n'),
+              { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
+            )
+            // Best-effort: the temp object expires anyway, but delete it promptly.
+            store.remove([key]).catch((error) => {
+              logger.debug('importFiles temp object cleanup failed', { key, error })
+            })
+            failIfError(result, 'download')
+            return
+          } catch (error) {
+            // The store path is unavailable or failed — fall through to the
+            // chunked-exec transport rather than failing the whole import.
+            logger.warn('importFiles via object store failed; falling back to chunked exec', {
+              error,
+            })
+          }
+        }
+
+        // FALLBACK: chunked base64 over exec. Only used when no object store is
+        // configured. The temp tar lives on the WORKSPACE VOLUME, not /tmp — the
+        // chunked write and the extract are separate exec calls and a Machine
+        // with autostop can cold-start between them, wiping /tmp (rootfs) while
+        // the ext4 volume at /workspace persists.
+        const base64 = gz.toString('base64')
+        const tmp = `${WORKSPACE_PATH}/.mol-import-${machineId}.tgz`
+        const quotedTmp = shellQuote(tmp)
         failIfError(
           await this.exec(
             `printf %s ${shellQuote(base64.slice(0, IMPORT_WRITE_CHUNK_BASE64))} | base64 -d > ${quotedTmp}`,

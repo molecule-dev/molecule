@@ -8,7 +8,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { createFetchDouble, mockLogger } from './helpers.js'
+import { createFetchDouble, createStoreDouble, mockLogger } from './helpers.js'
 
 vi.mock('@molecule/api-bond', () => ({ getLogger: () => mockLogger }))
 vi.mock('@molecule/api-i18n', () => ({
@@ -700,6 +700,59 @@ describe('file operations', () => {
     await expect(sandbox.importFiles('/workspace/p', archive())).rejects.toThrow(
       /Failed to import files.*tar: corrupt/,
     )
+  })
+
+  it('importFiles uploads to the object store and pulls with ONE curl (no exec chunk storm)', async () => {
+    // With a store configured, the archive is uploaded once (presigned PUT) and
+    // the Machine downloads it with a single curl — NOT streamed as base64 chunks
+    // over the rate-limited exec endpoint. This is the fix for the 429 storm.
+    const scripts: string[] = []
+    const fetchImpl = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/exec')) {
+        scripts.push(JSON.parse(String(init!.body)).command.at(-1))
+        return {
+          status: 200,
+          headers: { get: () => null },
+          text: async () => JSON.stringify({ exit_code: 0 }),
+        } as unknown as Response
+      }
+      return {
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ id: 'm1', state: 'started' }),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl,
+      sleep: async () => {},
+    })
+    const store = createStoreDouble()
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
+    if (!sandbox) throw new Error('expected a sandbox')
+
+    // Global fetch is the control-plane presigned PUT (the upload).
+    const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
+    vi.stubGlobal('fetch', putFetch)
+    try {
+      async function* arch() {
+        yield new TextEncoder().encode('pretend-tar-bytes')
+      }
+      await sandbox.importFiles('/workspace/my-app', arch())
+    } finally {
+      vi.unstubAllGlobals()
+    }
+
+    expect(putFetch).toHaveBeenCalledTimes(1)
+    expect(putFetch.mock.calls[0][1]).toMatchObject({ method: 'PUT' })
+    const curl = scripts.find((s) => s.includes('curl') && s.includes('tar -C'))
+    expect(curl).toBeDefined()
+    expect(curl).toContain('--no-same-owner')
+    expect(scripts.some((s) => s.includes('base64 -d'))).toBe(false)
+    expect(store.presigned.some((p) => p.startsWith('PUT'))).toBe(true)
+    expect(store.presigned.some((p) => p.startsWith('GET'))).toBe(true)
   })
 
   it('parses readDir output, including symlink targets, and drops . and ..', async () => {
