@@ -171,6 +171,32 @@ describe('FlyApiClient.request', () => {
     expect(mockLogger.warn).toHaveBeenCalled()
   })
 
+  it('retries an extra status listed in retryStatuses (exec 404 under load) and succeeds', async () => {
+    const double = createFetchDouble()
+      .on('POST /apps/x/machines/m1/exec', { status: 404, body: { error: 'machine not found' } })
+      .on('POST /apps/x/machines/m1/exec', { status: 200, body: { exit_code: 0 } })
+    const { client } = makeClient(double)
+
+    await expect(
+      client.request('/apps/x/machines/m1/exec', {
+        method: 'POST',
+        body: {},
+        retryStatuses: [404],
+      }),
+    ).resolves.toEqual({ exit_code: 0 })
+    expect(double.calls).toHaveLength(2)
+  })
+
+  it('does not retry a 404 unless retryStatuses opts in', async () => {
+    const double = createFetchDouble().fallback({ status: 404, body: { error: 'nope' } })
+    const { client } = makeClient(double)
+
+    await expect(
+      client.request('/apps/x/machines/m1/exec', { method: 'POST' }),
+    ).rejects.toMatchObject({ status: 404 })
+    expect(double.calls).toHaveLength(1)
+  })
+
   it('retries 5xx up to the attempt budget and then throws the last error', async () => {
     const double = createFetchDouble().fallback({ status: 503, body: { error: 'unavailable' } })
     const { client, sleeps } = makeClient(double)

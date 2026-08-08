@@ -92,6 +92,13 @@ export interface FlyRequestOptions {
    * Used for idempotent deletes and existence checks (`[404]`).
    */
   nullOn?: number[]
+  /**
+   * Extra HTTP statuses to treat as transient (retry) beyond the default
+   * `429`/`5xx`. The exec endpoint passes `[404]`: a machine-not-found for a
+   * Machine we just created and are actively driving is Fly API inconsistency
+   * under exec-burst load, not a real absence, so it is worth repeating.
+   */
+  retryStatuses?: number[]
 }
 
 /**
@@ -277,7 +284,9 @@ export class FlyApiClient {
         clearTimeout(timer)
       }
 
-      if (!isRetryableStatus(status) || attempt === attempts) break
+      const retryable =
+        isRetryableStatus(status) || (options.retryStatuses?.includes(status) ?? false)
+      if (!retryable || attempt === attempts) break
       const delay = retryDelayMs(attempt, retryAfter)
       logger.warn(`Fly API transient failure on ${method} ${path} — retrying`, {
         attempt,

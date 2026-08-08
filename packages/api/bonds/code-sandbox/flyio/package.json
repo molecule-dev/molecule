@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-code-sandbox-flyio",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Fly.io Machines (Firecracker microVM) code sandbox provider",
   "type": "module",
   "main": "dist/index.js",

@@ -144,6 +144,17 @@ const DEFAULT_PROBE_TIMEOUT_MS = 3000
  */
 const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
 
+/**
+ * Base64 chunk size for {@link Sandbox.importFiles}'s temp-file write. Larger
+ * than `WRITE_CHUNK_BASE64` (which is tuned for small single files) so a
+ * multi-megabyte scaffold moves in fewer exec calls — each exec spends Fly's
+ * per-action rate-limit budget, and a burst of small chunks trips 429s (and, on
+ * a busy API, transient 404s). Kept well under the 128 KB `MAX_ARG_STRLEN`
+ * ceiling once the `printf … | base64 -d` wrapper and `buildScript` prefix are
+ * added.
+ */
+const IMPORT_WRITE_CHUNK_BASE64 = 100_000
+
 /** Extra seconds allowed for the probe exec beyond its connection budget. */
 const PROBE_EXEC_HEADROOM_SECONDS = 10
 
@@ -1526,6 +1537,10 @@ class FlyioSandboxProvider implements SandboxProvider {
           // The API's own timeout bounds the command; allow the HTTP request a
           // little longer so the transport never fires first.
           timeoutMs: (timeoutSeconds + 15) * 1000,
+          // A 404 on a Machine we created and are actively driving (e.g. the
+          // exec burst importFiles issues) is Fly API inconsistency under load,
+          // not a real absence — retry it alongside the default 429/5xx.
+          retryStatuses: [404],
         },
       )
       return response ?? {}
@@ -1814,15 +1829,15 @@ class FlyioSandboxProvider implements SandboxProvider {
         // multiple of 4 base64 chars so it decodes standalone (see writeFile).
         failIfError(
           await this.exec(
-            `printf %s ${shellQuote(base64.slice(0, WRITE_CHUNK_BASE64))} | base64 -d > ${quotedTmp}`,
+            `printf %s ${shellQuote(base64.slice(0, IMPORT_WRITE_CHUNK_BASE64))} | base64 -d > ${quotedTmp}`,
             { timeout: FILE_OP_TIMEOUT_MS },
           ),
           'write',
         )
-        for (let i = WRITE_CHUNK_BASE64; i < base64.length; i += WRITE_CHUNK_BASE64) {
+        for (let i = IMPORT_WRITE_CHUNK_BASE64; i < base64.length; i += IMPORT_WRITE_CHUNK_BASE64) {
           failIfError(
             await this.exec(
-              `printf %s ${shellQuote(base64.slice(i, i + WRITE_CHUNK_BASE64))} | base64 -d >> ${quotedTmp}`,
+              `printf %s ${shellQuote(base64.slice(i, i + IMPORT_WRITE_CHUNK_BASE64))} | base64 -d >> ${quotedTmp}`,
               { timeout: FILE_OP_TIMEOUT_MS },
             ),
             'write',
