@@ -1,5 +1,11 @@
 # @molecule/api-oauth-github
 
+## 1.1.0
+
+### Minor Changes
+
+- Map the user's display name, bio, and avatar URL from the GitHub profile.
+
 ## 1.0.1
 
 ### Patch Changes

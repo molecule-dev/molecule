@@ -1,5 +1,11 @@
 # @molecule/api-oauth-google
 
+## 1.1.0
+
+### Minor Changes
+
+- Map the user's display name and profile image (`picture`) from the Google userinfo response.
+
 ## 1.0.1
 
 ### Patch Changes

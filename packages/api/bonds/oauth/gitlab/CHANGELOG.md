@@ -1,5 +1,11 @@
 # @molecule/api-oauth-gitlab
 
+## 1.1.0
+
+### Minor Changes
+
+- Map the user's display name, bio, and avatar URL from the GitLab profile.
+
 ## 1.0.1
 
 ### Patch Changes

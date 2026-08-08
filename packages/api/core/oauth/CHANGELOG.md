@@ -1,5 +1,11 @@
 # @molecule/api-oauth
 
+## 1.1.0
+
+### Minor Changes
+
+- Add optional `bio` and `avatar` profile fields to `OAuthUserProps`.
+
 ## 1.0.1
 
 ### Patch Changes

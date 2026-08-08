@@ -1,5 +1,11 @@
 # @molecule/api-oauth-twitter
 
+## 1.1.0
+
+### Minor Changes
+
+- Map the user's display name, bio (`description`), and 400x400 profile image from the X profile via `user.fields`.
+
 ## 1.0.1
 
 ### Patch Changes

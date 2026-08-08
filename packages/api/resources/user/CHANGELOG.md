@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.1.0
+
+### Minor Changes
+
+- OAuth sign-up/login now persists the provider profile: display name (falling back to the email's local part), bio, and the profile image re-hosted as an inline data URI (never a third-party URL). Blank name/bio/avatar are backfilled on later OAuth logins without overwriting user-set values.
+
 ## 1.0.1
 
 ### Patch Changes
