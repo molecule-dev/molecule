@@ -23,6 +23,13 @@ export interface OAuthUserProps {
   name?: string
 
   /**
+   * The user's short biography / description from the OAuth provider
+   * (e.g. GitHub's `bio`, GitLab's `bio`, X's `description`). Omitted when
+   * the provider exposes no such field.
+   */
+  bio?: string
+
+  /**
    * The user's email address from the OAuth provider.
    */
   email?: string

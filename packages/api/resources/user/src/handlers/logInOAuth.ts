@@ -10,6 +10,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
+import { MAX_BIO_LENGTH } from '../schema.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
@@ -165,6 +166,8 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
       ): Promise<{
         username?: string
         name?: string
+        /** Short provider-profile biography (GitHub/GitLab `bio`, X `description`). */
+        bio?: string
         email?: string
         /**
          * Whether the provider affirmatively verified the user controls this
@@ -386,10 +389,23 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           username = `${username}${id.substring(0, 8)}`
         }
 
+        // Prefer the provider's display name; when the provider exposes none
+        // (or the scope didn't include it), fall back to the local part of the
+        // email address ("jane" from "jane@example.com") — never the sanitized
+        // username, which reads as line noise in greetings/emails.
+        const displayName =
+          oauthProps.name || (email ? email.split('@')[0] : undefined) || undefined
+
+        // A provider bio (GitHub/GitLab `bio`, X `description`) is persisted
+        // when present, truncated to the schema cap so a long provider bio
+        // can't fail account creation.
+        const bio = oauthProps.bio ? oauthProps.bio.substring(0, MAX_BIO_LENGTH) : undefined
+
         const createResponse = await createResource({
           props: {
             username,
-            name: oauthProps.name,
+            name: displayName,
+            ...(bio ? { bio } : {}),
             email: email || null,
             emailVerified: oauthEmailVerified,
             oauthServer: oauthProps.oauthServer,
@@ -464,7 +480,7 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           .identify({
             userId: user.id,
             email: oauthProps.email || undefined,
-            name: oauthProps.name || undefined,
+            name: displayName,
           })
           .catch(() => {})
       } else {

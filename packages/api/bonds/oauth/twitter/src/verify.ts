@@ -140,9 +140,24 @@ export const verify: OAuthVerifier = async (
       return null
     }
 
+    // X's `/2/users/me` returns only id/name/username by default — request the
+    // profile `description` (bio) too. Appended via URL so an env-override user
+    // URL (E2E mocks) keeps working; an explicit `user.fields` in the override
+    // wins. A non-absolute override falls back to the URL verbatim.
+    let userUrlWithFields = userUrl
+    try {
+      const parsed = new URL(userUrl)
+      if (!parsed.searchParams.has('user.fields')) {
+        parsed.searchParams.set('user.fields', 'description')
+      }
+      userUrlWithFields = parsed.toString()
+    } catch (_error) {
+      // Relative/unparseable override URL — use it verbatim rather than failing the flow.
+    }
+
     const {
       data: { data: oauthData },
-    } = await get<{ data: Record<string, unknown> }>(userUrl, {
+    } = await get<{ data: Record<string, unknown> }>(userUrlWithFields, {
       headers: {
         accept: `application/json`,
         authorization: `Bearer ${token}`,
@@ -152,6 +167,10 @@ export const verify: OAuthVerifier = async (
 
     return {
       username: `${oauthData.username}@twitter`,
+      // X's profile carries the display name as `name` and the bio as
+      // `description` (requested via `user.fields` above).
+      name: (oauthData.name as string) || undefined,
+      bio: (oauthData.description as string) || undefined,
       email: (oauthData.email as string) || undefined,
       // Twitter's OAuth2 `/users/me` does not return an email-verification
       // signal (and typically no email at all without the legacy elevated

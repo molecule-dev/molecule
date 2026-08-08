@@ -151,6 +151,14 @@ export const verify: OAuthVerifier = async (
 
     const email = (oauthData.email as string) || undefined
 
+    // Google's OpenID `userinfo` response carries the user's display name as
+    // `name` (with `given_name`/`family_name` parts) — capture it so account
+    // creation can persist a real display name instead of a derived username.
+    const name =
+      (oauthData.name as string) ||
+      [oauthData.given_name, oauthData.family_name].filter(Boolean).join(' ').trim() ||
+      undefined
+
     // Google's OpenID `userinfo` response carries an `email_verified` boolean
     // (and historically `verified_email` on the v1/v2 endpoints). Trust only
     // an explicit `true`; absent/false means the address is unverified.
@@ -160,6 +168,7 @@ export const verify: OAuthVerifier = async (
 
     return {
       username: `${oauthData.email || oauthData.sub}@google`,
+      name,
       email,
       emailVerified,
       oauthServer: serverName,

@@ -238,6 +238,10 @@ export const verify: OAuthVerifier = async (
 
     return {
       username: `${oauthData.username}@gitlab`,
+      // GitLab's `/user` profile carries the display name + bio directly —
+      // capture both so account creation persists a real profile.
+      name: (oauthData.name as string) || undefined,
+      bio: (oauthData.bio as string) || undefined,
       email,
       emailVerified,
       oauthServer: serverName,

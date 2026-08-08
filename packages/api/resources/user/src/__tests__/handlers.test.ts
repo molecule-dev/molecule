@@ -943,6 +943,87 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
   })
 })
 
+// ===== 5b2. OAuth profile capture on account creation (logInOAuth.ts) =======
+
+describe('logInOAuth handler — profile capture on account creation', () => {
+  const handler = logInOAuth(testResource)
+
+  const oauthProviderFor = (props: { name?: string; bio?: string; email?: string }) => ({
+    verify: vi.fn().mockResolvedValue({
+      oauthServer: 'google',
+      oauthId: 'new-google-id',
+      username: 'newuser',
+      name: props.name,
+      bio: props.bio,
+      email: props.email,
+      oauthData: {},
+    }),
+  })
+
+  const wireGet = (provider: unknown) =>
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') return provider
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+
+  beforeEach(() => {
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'OAUTH_REQUIRE_STATE' ? 'false' : key === 'NODE_ENV' ? 'production' : undefined,
+    )
+    mockFindOne.mockResolvedValue(null)
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: { props: { id: 'created-id', username: 'newuser' } },
+    })
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+  })
+
+  it('persists the provider display name and bio on the created account', async () => {
+    wireGet(
+      oauthProviderFor({ name: 'Real Name', bio: 'Building things.', email: 'real@example.com' }),
+    )
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const { props } = mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
+    expect(props.name).toBe('Real Name')
+    expect(props.bio).toBe('Building things.')
+  })
+
+  it('falls back to the email local part when the provider sends no name (never the sanitized username)', async () => {
+    wireGet(oauthProviderFor({ email: 'google@fullstacked.services' }))
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const { props } = mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
+    expect(props.name).toBe('google')
+    expect(props.bio).toBeUndefined()
+  })
+
+  it('leaves the name unset when the provider sends neither a name nor an email', async () => {
+    wireGet(oauthProviderFor({}))
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const { props } = mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
+    expect(props.name).toBeUndefined()
+  })
+})
+
 // ===== 5c. OAuth email verification + verified-trust linking (logInOAuth.ts) =
 
 describe('logInOAuth handler — email verification + verified-trust linking', () => {

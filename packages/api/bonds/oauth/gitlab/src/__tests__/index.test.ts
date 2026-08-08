@@ -103,6 +103,7 @@ describe('GitLab OAuth Provider', () => {
 
       expect(result).toEqual({
         username: 'testuser@gitlab',
+        name: 'Test User',
         email: 'testuser@example.com',
         emailVerified: true,
         oauthServer: 'gitlab',

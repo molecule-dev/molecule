@@ -95,16 +95,22 @@ describe('Twitter OAuth Provider', () => {
         },
       )
 
-      expect(mockGet).toHaveBeenCalledWith('https://api.twitter.com/2/users/me', {
-        headers: {
-          accept: 'application/json',
-          authorization: 'Bearer test-access-token',
+      // The bond requests the profile `description` (bio) beyond X's default
+      // id/name/username fields.
+      expect(mockGet).toHaveBeenCalledWith(
+        'https://api.twitter.com/2/users/me?user.fields=description',
+        {
+          headers: {
+            accept: 'application/json',
+            authorization: 'Bearer test-access-token',
+          },
+          timeout: 15000,
         },
-        timeout: 15000,
-      })
+      )
 
       expect(result).toEqual({
         username: 'testuser@twitter',
+        name: 'Test User',
         email: 'testuser@example.com',
         // Twitter exposes no email-verification signal → unverified default.
         emailVerified: false,
@@ -170,7 +176,10 @@ describe('Twitter OAuth Provider', () => {
         expect.anything(),
         expect.anything(),
       )
-      expect(mockGet).toHaveBeenCalledWith('http://127.0.0.1:9999/2/users/me', expect.anything())
+      expect(mockGet).toHaveBeenCalledWith(
+        'http://127.0.0.1:9999/2/users/me?user.fields=description',
+        expect.anything(),
+      )
     })
 
     it('should use Basic auth with base64 encoded credentials', async () => {

@@ -66,6 +66,8 @@ describe('GitHub OAuth Provider', () => {
         data: {
           id: 12345,
           login: 'testuser',
+          name: 'Test User',
+          bio: 'Building things.',
           email: 'testuser@example.com',
         },
       })
@@ -100,6 +102,8 @@ describe('GitHub OAuth Provider', () => {
 
       expect(result).toEqual({
         username: 'testuser@github',
+        name: 'Test User',
+        bio: 'Building things.',
         email: 'testuser@example.com',
         // GitHub only allows a verified address to be the public profile email,
         // so a present `/user.email` is verified by construction.
@@ -109,6 +113,8 @@ describe('GitHub OAuth Provider', () => {
         oauthData: {
           id: 12345,
           login: 'testuser',
+          name: 'Test User',
+          bio: 'Building things.',
           email: 'testuser@example.com',
         },
       })

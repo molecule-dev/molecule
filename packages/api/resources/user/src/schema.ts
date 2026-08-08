@@ -189,6 +189,7 @@ export type CreateSecretProps = z.infer<typeof createSecretPropsSchema>
 export const createOAuthPropsSchema = propsSchema.pick({
   username: true,
   name: true,
+  bio: true,
   email: true,
   emailVerified: true,
   oauthServer: true,
