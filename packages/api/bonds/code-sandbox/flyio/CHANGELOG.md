@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.0.13
+
+### Patch Changes
+
+- 2b4451e: Retry `create`'s machine POST through Fly's app-propagation 404 ("app not found") so a freshly-created app no longer intermittently fails the sandbox boot.
+
 ## 1.0.3
 
 ### Patch Changes
