@@ -99,11 +99,13 @@ const LIST_PAGE_SIZE = 200
 const LIST_MAX_PAGES = 50
 
 /**
- * Chunk size for base64-encoded `writeFile` payloads. `sh -c` receives the whole
- * command as ONE argument, which Linux caps at MAX_ARG_STRLEN (128 KB), so a
- * file over ~45 KB has to be written across several appends.
+ * Chunk size for base64-encoded `writeFile` payloads. The binding limit is NOT
+ * the OS `MAX_ARG_STRLEN` (128 KB) but Fly's exec API, which silently rejects a
+ * command over ~15 KB (`FLY_EXEC_MAX_ARG_BYTES`) with a phantom `exit_code: 0` —
+ * so this stays well under it, leaving room for the `printf … | base64 -d`
+ * wrapper. A file over ~9 KB is written across several appends.
  */
-const WRITE_CHUNK_BASE64 = 60_000
+const WRITE_CHUNK_BASE64 = 12_000
 
 /**
  * Budget for the file-operation execs (`cat`, `ls`, `rm`, chunked writes), in ms.
@@ -145,15 +147,13 @@ const DEFAULT_PROBE_TIMEOUT_MS = 3000
 const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
 
 /**
- * Base64 chunk size for {@link Sandbox.importFiles}'s temp-file write. Larger
- * than `WRITE_CHUNK_BASE64` (which is tuned for small single files) so a
- * multi-megabyte scaffold moves in fewer exec calls — each exec spends Fly's
- * per-action rate-limit budget, and a burst of small chunks trips 429s (and, on
- * a busy API, transient 404s). Kept well under the 128 KB `MAX_ARG_STRLEN`
- * ceiling once the `printf … | base64 -d` wrapper and `buildScript` prefix are
- * added.
+ * Base64 chunk size for {@link Sandbox.importFiles}'s temp-file write. Bounded by
+ * the same Fly exec payload limit as `WRITE_CHUNK_BASE64` (~15 KB, silently
+ * enforced) — a larger chunk is rejected with a phantom `exit_code: 0` and the
+ * bytes vanish. A multi-megabyte scaffold therefore moves in many small appends;
+ * the gzip pass before transfer is what keeps that count reasonable.
  */
-const IMPORT_WRITE_CHUNK_BASE64 = 100_000
+const IMPORT_WRITE_CHUNK_BASE64 = 12_000
 
 /** Extra seconds allowed for the probe exec beyond its connection budget. */
 const PROBE_EXEC_HEADROOM_SECONDS = 10

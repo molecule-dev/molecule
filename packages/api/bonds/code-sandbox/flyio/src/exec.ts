@@ -67,6 +67,24 @@ export const MAX_CAPTURED_OUTPUT_BYTES = 5 * 1024 * 1024
  */
 const MAX_SCRIPT_BASE64_BYTES = 60_000
 
+/**
+ * Hard cap on the `sh -c <script>` argument SENT to Fly's exec endpoint. This is
+ * NOT the OS `MAX_ARG_STRLEN` (128 KB) — the Fly Machines exec API rejects a
+ * command well below that, and does so INVISIBLY: it answers `200` with
+ * `exit_code: 0` and an `Unhandled rejection: Rejection([PayloadTooLarge…])`
+ * body, so the command never runs yet reads as success. Measured against the
+ * live API: ~15.8 KB scripts run, ~23.7 KB are rejected. 15 KB is the safe
+ * ceiling; callers that move bulk data (writeFile, importFiles) chunk beneath it.
+ */
+export const FLY_EXEC_MAX_ARG_BYTES = 15_000
+
+/**
+ * Marker Fly puts in an exec response body when it REJECTS the command instead
+ * of running it (most often {@link FLY_EXEC_MAX_ARG_BYTES} exceeded). Detected so
+ * a rejection becomes a loud failure instead of a silent `exit_code: 0`.
+ */
+const FLY_EXEC_REJECTION = 'Rejection(['
+
 /** Directory inside the Machine holding detached-command bookkeeping files. */
 const WORK_DIR = '/tmp/.mol-exec'
 
@@ -91,17 +109,22 @@ export type RawExec = (command: string[], timeoutSeconds: number) => Promise<Fly
  * @returns The normalized result.
  */
 export function toExecResult(response: FlyExecResponse): ExecResult {
+  const stdout = response.stdout ?? ''
+  const stderr = response.stderr ?? ''
+  // Fly answers a REJECTED command (over-limit payload, bad method) with a 200,
+  // `exit_code: 0`, and a rejection body — the command never ran. Trusting that
+  // 0 silently dropped every oversized write. Surface it as a failure so
+  // exit-code checks catch it instead of reporting phantom success.
+  if (stderr.includes(FLY_EXEC_REJECTION) || stdout.includes(FLY_EXEC_REJECTION)) {
+    return { stdout, stderr, exitCode: INDETERMINATE_EXIT_CODE }
+  }
   const exitCode =
     typeof response.exit_code === 'number'
       ? response.exit_code
       : typeof response.exit_signal === 'number' && response.exit_signal > 0
         ? 128 + response.exit_signal
         : INDETERMINATE_EXIT_CODE
-  return {
-    stdout: response.stdout ?? '',
-    stderr: response.stderr ?? '',
-    exitCode,
-  }
+  return { stdout, stderr, exitCode }
 }
 
 /**
@@ -152,6 +175,17 @@ export async function execCommand(
 ): Promise<ExecResult> {
   const budgetMs = opts?.timeout ?? DEFAULT_TIMEOUT_MS
   const script = buildScript(command, opts, defaultCwd)
+
+  // A direct command travels as the `sh -c <script>` argument. Fly rejects one
+  // over FLY_EXEC_MAX_ARG_BYTES with a silent `exit_code: 0` (see the constant),
+  // so refuse it here with a message that names the real limit rather than
+  // letting the caller's data vanish. Bulk callers chunk beneath this.
+  if (script.length > FLY_EXEC_MAX_ARG_BYTES) {
+    throw new Error(
+      `Fly exec command is ${script.length} bytes, over the ${FLY_EXEC_MAX_ARG_BYTES}-byte ` +
+        `limit the API silently rejects — chunk the payload smaller.`,
+    )
+  }
 
   if (budgetMs <= DIRECT_EXEC_BUDGET_SECONDS * 1000) {
     const seconds = Math.max(1, Math.min(Math.ceil(budgetMs / 1000), FLY_EXEC_MAX_TIMEOUT_SECONDS))

@@ -75,6 +75,17 @@ describe('toExecResult', () => {
     expect(toExecResult({}).exitCode).toBe(INDETERMINATE_EXIT_CODE)
     expect(toExecResult({}).exitCode).not.toBe(0)
   })
+
+  it('treats a Fly rejection body as failure even when exit_code is 0', () => {
+    // Fly answers an over-limit command with exit_code:0 + a rejection body.
+    // Trusting the 0 silently dropped large writes; this must NOT read as success.
+    const r = toExecResult({
+      stdout: '',
+      stderr: 'Unhandled rejection: Rejection([PayloadTooLarge, MethodNotAllowed])',
+      exit_code: 0,
+    })
+    expect(r.exitCode).not.toBe(0)
+  })
 })
 
 describe('buildScript', () => {
@@ -251,12 +262,13 @@ describe('execCommand — detached path (past Fly’s 60s exec ceiling)', () => 
     ).rejects.toThrow(/Failed to launch detached command/)
   })
 
-  it('refuses a command too large to pass as a single sh -c argument', async () => {
-    vi.useFakeTimers()
+  it('refuses a command over the Fly exec payload limit instead of letting it vanish', async () => {
+    // Fly silently rejects an over-limit command with a phantom exit_code:0, so
+    // the guard must refuse it BEFORE sending — never reaching the transport.
     const { exec, calls } = makeExec(() => ({ exit_code: 0 }))
     await expect(
       execCommand(exec, 'x'.repeat(200_000), { timeout: 600_000 }, '/workspace'),
-    ).rejects.toThrow(/too large to launch/)
+    ).rejects.toThrow(/over the \d+-byte limit the API silently rejects/)
     expect(calls).toHaveLength(0)
   })
 
