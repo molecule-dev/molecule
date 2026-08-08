@@ -141,6 +141,25 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(sandbox.id).toBe(`${APP}:m1`)
   })
 
+  it('retries the create POST /machines through the app-propagation 404', async () => {
+    // Fly propagates a NEW app to its Machines API asynchronously: POST /apps
+    // succeeds but the first POST /apps/{app}/machines 404s "app not found" for
+    // a few seconds. The production "Failed to start sandbox" this guards —
+    // retrying the 404 is safe because no Machine is created when the app is not
+    // found.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { status: 404, body: { error: 'not found' } })
+      .on('POST /apps', { status: 201, body: {} })
+      .on(`POST /apps/${APP}/machines`, { status: 404, body: { error: 'app not found' } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'started' } })
+
+    const sandbox = await makeProvider({}, double).create({ projectId: PROJECT_ID })
+
+    expect(sandbox.id).toBe(`${APP}:m1`)
+    // Both the failed and the succeeding attempt were made.
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(2)
+  })
+
   it('refuses shared-app mode in production — it puts every tenant on one 6PN', async () => {
     process.env.NODE_ENV = 'production'
     const provider = makeProvider({ appPerProject: false, appName: 'shared' })

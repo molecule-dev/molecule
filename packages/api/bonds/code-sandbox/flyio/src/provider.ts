@@ -147,6 +147,25 @@ const DEFAULT_PROBE_TIMEOUT_MS = 3000
 const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
 
 /**
+ * Attempts for the create's `POST /machines`, retrying the app-propagation 404
+ * (see {@link MACHINE_CREATE_RETRY_STATUSES}). Fly propagates a new app to its
+ * sub-APIs asynchronously, so `POST /apps` can return before
+ * `POST /apps/{app}/machines` sees the app — which 404s "app not found" for a
+ * few seconds. Observed live during boot on 2026-08-08 (surfaced to the user as
+ * "Failed to start sandbox"). Six attempts span the client's 1+2+4+8+16 s
+ * backoff ≈ 31 s, comfortably past the observed window.
+ */
+const MACHINE_CREATE_ATTEMPTS = 6
+
+/**
+ * Retrying a `POST /machines` on 404 is SAFE precisely because "app not found"
+ * means no Machine was created — unlike a 5xx/timeout, where one might have
+ * been. So only 404 is added here, on top of the client's default retryable
+ * set; the retry cannot double-create.
+ */
+const MACHINE_CREATE_RETRY_STATUSES = [404]
+
+/**
  * Base64 chunk size for {@link Sandbox.importFiles}'s temp-file write. Bounded by
  * the same Fly exec payload limit as `WRITE_CHUNK_BASE64` (~15 KB, silently
  * enforced) — a larger chunk is rejected with a phantom `exit_code: 0` and the
@@ -493,7 +512,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async destroyStaleMachines(app: string): Promise<void> {
     const managedKey = `${this.metadataPrefix}.managed`
-    let machines: FlyMachine[] | null = null
+    let machines: FlyMachine[] | null
     try {
       machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
         nullOn: [404],
@@ -962,6 +981,11 @@ class FlyioSandboxProvider implements SandboxProvider {
     const machine = await this.client.request<FlyMachine>(`/apps/${app}/machines`, {
       method: 'POST',
       body: { region: this.region(), config: machineConfig },
+      // A just-created app propagates to the Machines API asynchronously, so this
+      // POST can 404 "app not found" for a few seconds. Retry the 404 (safe: no
+      // Machine is created when the app is not found) across the client's backoff.
+      attempts: MACHINE_CREATE_ATTEMPTS,
+      retryStatuses: MACHINE_CREATE_RETRY_STATUSES,
     })
     if (!machine?.id) {
       throw new Error(
