@@ -234,8 +234,8 @@ describe('create — volumes', () => {
     await makeProvider({}, double).create({ projectId: PROJECT_ID, volumeName: 'mol-abc' })
 
     const createVolume = double.matching(`POST /apps/${APP}/volumes`)[0]
-    // Fly does not document the legal character set for volume names, so the
-    // name is conservatively reduced to [A-Za-z0-9_].
+    // Fly requires [a-z0-9_] and <= 30 chars for volume names; hyphens become
+    // underscores.
     expect(createVolume.body).toEqual({
       name: 'mol_abc',
       region: 'iad',
@@ -247,6 +247,38 @@ describe('create — volumes', () => {
       config: { mounts: Array<{ volume: string; path: string }> }
     }
     expect(body.config.mounts).toEqual([{ volume: 'vol_123', path: '/workspace' }])
+  })
+
+  it("sanitizes a mol-<uuid> volume name to lowercase [a-z0-9_] within Fly's 30-char limit", async () => {
+    // The real caller passes `mol-<projectId>` (40 chars with hyphens); Fly
+    // rejects that with 400 "name only allows lowercase alphanumeric characters
+    // and underscores with at most 30 characters" — the bug this guards.
+    const double = queueCreate(createFetchDouble())
+      .on(`GET /apps/${APP}/volumes`, { body: [] })
+      .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_x', name: 'x' } })
+
+    await makeProvider({}, double).create({
+      projectId: PROJECT_ID,
+      volumeName: 'mol-536630B1-7950-4b28-AA72-ae97d1fbe669',
+    })
+
+    const name = (double.matching(`POST /apps/${APP}/volumes`)[0].body as { name: string }).name
+    expect(name).toMatch(/^[a-z0-9_]+$/)
+    expect(name.length).toBeLessThanOrEqual(30)
+  })
+
+  it('produces a stable, deterministic volume name for the same input', async () => {
+    const run = async () => {
+      const double = queueCreate(createFetchDouble())
+        .on(`GET /apps/${APP}/volumes`, { body: [] })
+        .on(`POST /apps/${APP}/volumes`, { body: { id: 'vol_x', name: 'x' } })
+      await makeProvider({}, double).create({
+        projectId: PROJECT_ID,
+        volumeName: 'mol-536630b1-7950-4b28-aa72-ae97d1fbe669',
+      })
+      return (double.matching(`POST /apps/${APP}/volumes`)[0].body as { name: string }).name
+    }
+    expect(await run()).toBe(await run())
   })
 
   it('rounds diskMB UP to whole GB, since Fly volumes are sized in GB', async () => {

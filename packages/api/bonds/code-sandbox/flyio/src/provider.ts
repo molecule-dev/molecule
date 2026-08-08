@@ -7,6 +7,8 @@
  * @module
  */
 
+import { createHash } from 'node:crypto'
+
 import { getLogger } from '@molecule/api-bond'
 import type {
   CommitTemplateOptions,
@@ -684,16 +686,23 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Sanitizes a caller-supplied volume name into a conservative form.
+   * Sanitizes a caller-supplied volume name into a valid Fly volume name.
    *
-   * Fly does NOT document the character rules for volume names, so this reduces
-   * to `[A-Za-z0-9_]`, which is the form every Fly example uses. Callers pass
-   * names like `mol-<uuid>`; the hyphens become underscores.
+   * Fly requires `[a-z0-9_]` (lowercase only) and at most 30 characters — it
+   * rejects anything else with `400 "name only allows lowercase alphanumeric
+   * characters and underscores with at most 30 characters"`. Callers pass names
+   * like `mol-<uuid>` (40 chars, hyphens): lowercase, map every other character
+   * to `_`, and when the result is too long, keep a readable prefix plus a
+   * deterministic hash suffix so the name stays stable (`findVolume` re-derives
+   * the same name on the idempotent path) and unique.
    * @param name - The caller's volume name.
-   * @returns A sanitized Fly volume name.
+   * @returns A sanitized Fly volume name, `[a-z0-9_]` and <= 30 chars.
    */
   private volumeName(name: string): string {
-    return name.replace(/[^A-Za-z0-9_]/g, '_')
+    const sanitized = name.toLowerCase().replace(/[^a-z0-9_]/g, '_')
+    if (sanitized.length <= 30) return sanitized
+    const hash = createHash('sha256').update(name).digest('hex').slice(0, 12)
+    return `${sanitized.slice(0, 17)}_${hash}`
   }
 
   /**
