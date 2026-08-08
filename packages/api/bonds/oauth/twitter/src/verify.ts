@@ -171,11 +171,12 @@ export const verify: OAuthVerifier = async (
       // X's profile carries the display name as `name`, the bio as
       // `description`, and the avatar as `profile_image_url` (the latter two
       // requested via `user.fields` above). X serves the 48x48 `_normal`
-      // variant by default; dropping the suffix yields the full-size original
-      // (the documented variant-naming scheme, stable across pbs.twimg.com).
+      // variant by default; `_400x400` is the documented larger variant —
+      // preferred over stripping the suffix (the full-size original is
+      // unbounded, and consumers inline the image under a size cap).
       name: (oauthData.name as string) || undefined,
       bio: (oauthData.description as string) || undefined,
-      avatar: (oauthData.profile_image_url as string)?.replace('_normal', '') || undefined,
+      avatar: (oauthData.profile_image_url as string)?.replace('_normal', '_400x400') || undefined,
       email: (oauthData.email as string) || undefined,
       // Twitter's OAuth2 `/users/me` does not return an email-verification
       // signal (and typically no email at all without the legacy elevated

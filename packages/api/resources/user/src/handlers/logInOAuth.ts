@@ -10,8 +10,9 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
-import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH } from '../schema.js'
+import { MAX_BIO_LENGTH } from '../schema.js'
 import type * as types from '../types.js'
+import { fetchAvatarDataUri } from '../utilities/fetchAvatarDataUri.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
 const analytics = getAnalytics()
@@ -403,13 +404,12 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         // can't fail account creation.
         const bio = oauthProps.bio ? oauthProps.bio.substring(0, MAX_BIO_LENGTH) : undefined
 
-        // A provider profile-image URL is persisted when present. Never
-        // truncated — a clipped URL is broken, so an over-cap value (which no
-        // real provider URL approaches) is dropped instead.
-        const avatar =
-          oauthProps.avatar && oauthProps.avatar.length <= MAX_AVATAR_LENGTH
-            ? oauthProps.avatar
-            : undefined
+        // Copy the provider's profile image onto OUR side as an inline
+        // data-URI — the stored avatar must never reference a third-party
+        // domain (provider URLs expire, and hot-linking leaks every viewer's
+        // request to the provider's CDN). Best-effort: any fetch refusal or
+        // failure simply means no avatar.
+        const avatar = oauthProps.avatar ? await fetchAvatarDataUri(oauthProps.avatar) : undefined
 
         const createResponse = await createResource({
           props: {
@@ -508,8 +508,11 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         if (!user.bio && oauthProps.bio) {
           backfill.bio = oauthProps.bio.substring(0, MAX_BIO_LENGTH)
         }
-        if (!user.avatar && oauthProps.avatar && oauthProps.avatar.length <= MAX_AVATAR_LENGTH) {
-          backfill.avatar = oauthProps.avatar
+        if (!user.avatar && oauthProps.avatar) {
+          // Same re-hosting as at creation: inline data-URI, never a
+          // third-party URL. Best-effort — a failed fetch backfills nothing.
+          const fetched = await fetchAvatarDataUri(oauthProps.avatar)
+          if (fetched) backfill.avatar = fetched
         }
 
         // Update OAuth data on existing user.

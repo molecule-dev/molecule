@@ -1,3 +1,4 @@
+export * from './fetchAvatarDataUri.js'
 export * from './getPlan.js'
 export * from './invalidateEntitlements.js'
 export * from './normalizeEmail.js'

@@ -96,6 +96,12 @@ vi.mock('uuid', () => ({
   v4: () => '00000000-0000-0000-0000-000000000001',
 }))
 
+// The avatar re-hoster does real DNS + HTTP — stub it to a deterministic
+// data URI so the handler tests stay network-free.
+vi.mock('../utilities/fetchAvatarDataUri.js', () => ({
+  fetchAvatarDataUri: vi.fn(async () => 'data:image/png;base64,FETCHED'),
+}))
+
 // ---------------------------------------------------------------------------
 // Imports under test (after mocks).
 // ---------------------------------------------------------------------------
@@ -1005,7 +1011,9 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     const { props } = mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
     expect(props.name).toBe('Real Name')
     expect(props.bio).toBe('Building things.')
-    expect(props.avatar).toBe('https://example.com/photo.jpg')
+    // The provider URL is fetched and re-hosted inline — the stored avatar is
+    // a data URI, never a reference to the provider's domain.
+    expect(props.avatar).toBe('data:image/png;base64,FETCHED')
   })
 
   it('falls back to the email local part when the provider sends no name (never the sanitized username)', async () => {
@@ -1069,7 +1077,7 @@ describe('logInOAuth handler — profile capture on account creation', () => {
       expect.objectContaining({
         name: 'Real Name',
         bio: 'A short bio.',
-        avatar: 'https://example.com/photo.jpg',
+        avatar: 'data:image/png;base64,FETCHED',
       }),
     )
   })

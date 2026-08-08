@@ -114,8 +114,8 @@ describe('Twitter OAuth Provider', () => {
         username: 'testuser@twitter',
         name: 'Test User',
         bio: 'Posting things.',
-        // The `_normal` (48x48) suffix is stripped for the full-size original.
-        avatar: 'https://pbs.twimg.com/profile_images/1/photo.jpg',
+        // The `_normal` (48x48) variant is upsized to the documented `_400x400`.
+        avatar: 'https://pbs.twimg.com/profile_images/1/photo_400x400.jpg',
         email: 'testuser@example.com',
         // Twitter exposes no email-verification signal → unverified default.
         emailVerified: false,
