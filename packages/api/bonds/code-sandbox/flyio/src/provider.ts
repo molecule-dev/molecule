@@ -8,6 +8,7 @@
  */
 
 import { createHash } from 'node:crypto'
+import { gzipSync } from 'node:zlib'
 
 import { getLogger } from '@molecule/api-bond'
 import type {
@@ -133,6 +134,15 @@ const PROBE_LIFETIME_SECONDS = 300
 
 /** Default per-connection timeout for the egress probe, in ms. */
 const DEFAULT_PROBE_TIMEOUT_MS = 3000
+
+/**
+ * Timeout for the `tar -xzf` step of {@link Sandbox.importFiles}. Extraction is
+ * I/O-bound and fast even for a few-hundred-MB tree, so this stays within the
+ * direct-exec budget (`DIRECT_EXEC_BUDGET_SECONDS`, 55 s) rather than tipping
+ * into the detached poll path, which exists for genuinely long-running commands
+ * like `npm install`, not for un-tarring.
+ */
+const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
 
 /** Extra seconds allowed for the probe exec beyond its connection budget. */
 const PROBE_EXEC_HEADROOM_SECONDS = 10
@@ -443,6 +453,56 @@ class FlyioSandboxProvider implements SandboxProvider {
       )
     }
     return {}
+  }
+
+  /**
+   * Destroys any Machine already in this project's app before a fresh create.
+   *
+   * A create that fails after the Machine exists — a mid-scaffold error, a
+   * retried queue job — leaves a Machine holding the app's single-attach volume.
+   * The next create's `POST /machines` then fails with `412 volume already
+   * claimed by machine <id>`, and the project can never recover on its own. The
+   * app is one-per-project and holds exactly one sandbox, so any managed Machine
+   * still here is a stale partial: destroy it (force covers running/suspended) to
+   * free the volume and make create idempotent per project.
+   * @param app - The Fly app name.
+   */
+  private async destroyStaleMachines(app: string): Promise<void> {
+    const managedKey = `${this.metadataPrefix}.managed`
+    let machines: FlyMachine[] | null = null
+    try {
+      machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
+        nullOn: [404],
+      })
+    } catch (error) {
+      // A listing we cannot read is not proof the app is empty. A hidden Machine
+      // would fail the create with 412 regardless, so surface it and fall
+      // through rather than pretend the app is clean.
+      logger.warn(
+        'Could not list Machines before create; a stale Machine may still hold the volume',
+        { app, error },
+      )
+      return
+    }
+    for (const machine of Array.isArray(machines) ? machines : []) {
+      if (machine.config?.metadata?.[managedKey] !== 'true') continue
+      try {
+        await this.client.request(`/apps/${app}/machines/${machine.id}?force=true`, {
+          method: 'DELETE',
+          nullOn: [404],
+        })
+        logger.info('Destroyed a stale Machine before re-creating the sandbox', {
+          app,
+          machineId: machine.id,
+        })
+      } catch (error) {
+        logger.warn(
+          'Failed to destroy a stale Machine before create; create may fail with ' +
+            '412 volume already claimed',
+          { app, machineId: machine.id, error },
+        )
+      }
+    }
   }
 
   /**
@@ -814,6 +874,12 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     const app = this.resolveApp(config.projectId)
     const privateRoutes = await this.ensureApp(app)
+
+    // Clear any stale Machine from a prior failed/partial create before
+    // provisioning — otherwise it still holds the app's single-attach volume and
+    // `POST /machines` fails with `412 volume already claimed`. Makes create
+    // idempotent so a retried queue job (or a user re-clicking Start) recovers.
+    await this.destroyStaleMachines(app)
 
     const metadata: Record<string, string> = {
       [`${this.metadataPrefix}.projectId`]: config.projectId,
@@ -1706,6 +1772,69 @@ class FlyioSandboxProvider implements SandboxProvider {
             ),
           )
         }
+      },
+
+      /**
+       * Streams a POSIX tar archive into the Machine and extracts it at `path`.
+       *
+       * The Fly Machines exec endpoint is a single request/response with no
+       * stdin, so the archive cannot be piped to `tar` directly. It is buffered,
+       * gzipped (fewer bytes = fewer exec round trips over the base64 channel),
+       * written to a temp file in `WRITE_CHUNK_BASE64`-sized pieces the same way
+       * `writeFile` does, then extracted.
+       *
+       * Ownership and setuid/setgid bits are NOT restored (`--no-same-owner
+       * --no-same-permissions`): the archive is caller/tenant-authored data, and
+       * honoring its mode bits is a privilege-escalation vector in whatever boots
+       * it next — see the {@link Sandbox.importFiles} contract.
+       * @param path - Absolute destination path inside the Machine.
+       * @param archive - POSIX tar byte stream to extract there.
+       */
+      async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
+        const parts: Buffer[] = []
+        for await (const chunk of archive) parts.push(Buffer.from(chunk))
+        const base64 = gzipSync(Buffer.concat(parts)).toString('base64')
+        const tmp = `/tmp/mol-import-${machineId}.tgz`
+        const quotedTmp = shellQuote(tmp)
+        const quotedPath = shellQuote(path)
+        const failIfError = (result: ExecResult, step: string): void => {
+          if (result.exitCode !== 0) {
+            throw new Error(
+              t(
+                'codeSandbox.flyio.error.importFailed',
+                { path, step, error: result.stderr },
+                {
+                  defaultValue: `Failed to import files into ${path} (${step}): ${result.stderr}`,
+                },
+              ),
+            )
+          }
+        }
+        // First chunk truncates the temp file; the rest append. Each chunk is a
+        // multiple of 4 base64 chars so it decodes standalone (see writeFile).
+        failIfError(
+          await this.exec(
+            `printf %s ${shellQuote(base64.slice(0, WRITE_CHUNK_BASE64))} | base64 -d > ${quotedTmp}`,
+            { timeout: FILE_OP_TIMEOUT_MS },
+          ),
+          'write',
+        )
+        for (let i = WRITE_CHUNK_BASE64; i < base64.length; i += WRITE_CHUNK_BASE64) {
+          failIfError(
+            await this.exec(
+              `printf %s ${shellQuote(base64.slice(i, i + WRITE_CHUNK_BASE64))} | base64 -d >> ${quotedTmp}`,
+              { timeout: FILE_OP_TIMEOUT_MS },
+            ),
+            'write',
+          )
+        }
+        failIfError(
+          await this.exec(
+            `mkdir -p ${quotedPath} && tar -xzf ${quotedTmp} -C ${quotedPath} --no-same-owner --no-same-permissions && rm -f ${quotedTmp}`,
+            { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
+          ),
+          'extract',
+        )
       },
 
       getPreviewUrl(port?: number): string {

@@ -101,6 +101,36 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(sandbox.status).toBe('running')
   })
 
+  it('destroys a stale Machine from a prior failed create so the volume is freed', async () => {
+    // A prior partial create left a managed Machine holding the single-attach
+    // volume; without this cleanup the new create fails 412 volume already
+    // claimed and the project never recovers.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/machines`, {
+        body: [{ id: 'stale1', config: { metadata: { 'molecule-sandbox.managed': 'true' } } }],
+      })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm2', state: 'started' } })
+
+    await makeProvider({}, double).create({ projectId: PROJECT_ID })
+
+    const destroyed = double
+      .matching(`DELETE /apps/${APP}/machines/stale1`)
+      .filter((c) => c.method === 'DELETE')
+    expect(destroyed).toHaveLength(1)
+  })
+
+  it('leaves unmanaged Machines alone before create', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`GET /apps/${APP}/machines`, { body: [{ id: 'foreign', config: { metadata: {} } }] })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm2', state: 'started' } })
+
+    await makeProvider({}, double).create({ projectId: PROJECT_ID })
+
+    expect(double.matching(`DELETE /apps/${APP}/machines/foreign`)).toHaveLength(0)
+  })
+
   it('treats a concurrent 409 on app creation as success', async () => {
     const double = createFetchDouble()
       .on(`GET /apps/${APP}`, { status: 404, body: {} })
@@ -625,6 +655,37 @@ describe('file operations', () => {
   it('throws when a write fails instead of reporting success', async () => {
     const { sandbox } = await sandboxWithExec(() => ({ stderr: 'read-only fs', exit_code: 1 }))
     await expect(sandbox.writeFile('/workspace/a.ts', 'x')).rejects.toThrow(/Failed to write/)
+  })
+
+  it('importFiles writes the archive then extracts it without restoring ownership', async () => {
+    const { sandbox, scripts } = await sandboxWithExec(() => ({ exit_code: 0 }))
+    async function* archive() {
+      yield new TextEncoder().encode('pretend-tar-bytes')
+    }
+    await sandbox.importFiles('/workspace/proj', archive())
+
+    const write = scripts.filter((s) => s.includes('base64 -d'))
+    expect(write.length).toBeGreaterThanOrEqual(1)
+    expect(write[0]).toContain('> ')
+    const extract = scripts.find((s) => s.includes('tar -xzf'))
+    expect(extract).toBeDefined()
+    // The archive is tenant data — its ownership and setuid bits must NOT be
+    // honored on extract (privilege-escalation vector; see the core contract).
+    expect(extract).toContain('--no-same-owner')
+    expect(extract).toContain('--no-same-permissions')
+    expect(extract).toContain(shellQuote('/workspace/proj'))
+  })
+
+  it('importFiles throws with stderr when the tar extract fails', async () => {
+    const { sandbox } = await sandboxWithExec((s) =>
+      s.includes('tar -xzf') ? { stderr: 'tar: corrupt', exit_code: 2 } : { exit_code: 0 },
+    )
+    async function* archive() {
+      yield new Uint8Array([1, 2, 3])
+    }
+    await expect(sandbox.importFiles('/workspace/p', archive())).rejects.toThrow(
+      /Failed to import files.*tar: corrupt/,
+    )
   })
 
   it('parses readDir output, including symlink targets, and drops . and ..', async () => {
