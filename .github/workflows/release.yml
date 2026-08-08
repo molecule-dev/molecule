@@ -1,26 +1,27 @@
 name: Release
 
-# ONE DISPATCH DOES EVERYTHING (2026-08-07): version-bump committed straight to
-# main, then the paced publish — no "Version Packages" PR, no merge round-trip.
-# The PR existed as a review buffer; for this repo it was pure wait-state, and
-# the flow was: changeset → push → wait for PR → merge → dispatch → publish.
-# Now it is: changeset → push (CI validates) → dispatch once.
+# PUBLISH-ONLY, NO BOT COMMITS (2026-08-08). This workflow makes ZERO commits —
+# github-actions[bot] never writes to the repo. Versioning is a LOCAL step done
+# in the same commit as the change:
+#   1. npm run version   # consume changesets → bump package.json + CHANGELOG.md
+#                        # + lockfile (or bump by hand for a one-off)
+#   2. commit + push that
+#   3. trigger Release   # builds + publishes what package.json declares and npm
+#                        # is missing; it does NOT version and does NOT commit
+# Earlier (2026-08-07) this ran `changeset version` and committed "chore: version
+# packages" itself. That bot commit is what this removes — the version bump
+# belongs in the author's commit, not a bot's.
 #
 # What deliberately did NOT change:
 #   * A push can never publish. On 2026-08-04 push-triggered publishes started
 #     an unlimited fleet publish TWICE, caught by luck. Publishing requires this
-#     explicit dispatch, structurally.
+#     explicit dispatch, structurally (no push trigger at all).
 #   * The paced publisher (scripts/publish-paced.mjs). npm rate-limits fleet
 #     publishes (501 through, then sustained E429 with no Retry-After); it
 #     spaces publishes, backs off, treats "already published" as success, and
 #     asks the REGISTRY what exists — so a re-dispatch RESUMES, never restarts.
-#     That also makes the version→publish pair safe to split across runs: if
-#     publish dies, re-dispatch skips versioning (no changesets left) and
-#     resumes publishing.
-#   * There is no push trigger at all any more. The old push run existed only
-#     to open the PR; with the PR gone, a push job would be a no-op — and this
-#     workflow's own history (see git log) shows a permanently-red or no-op job
-#     is worse than none.
+#     Publish-only makes this even cleaner: the workflow is idempotent — it
+#     publishes exactly the versions git already records that npm lacks.
 on:
   workflow_dispatch:
     inputs:
@@ -48,13 +49,12 @@ jobs:
   release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # push the version commit to main
+      contents: read # checkout only — this workflow makes NO commits
       id-token: write # npm provenance (signed attestations) + OIDC publish
     steps:
-      # ---- 0. Fail BEFORE versioning if nothing could publish ---------------
-      # Versioning and then failing auth would leave "bumped on main, nothing on
-      # npm" — the half-released state the molecule-release skill exists to dig
-      # people out of. Check the auth path first, while the tree is untouched.
+      # ---- 0. Fail fast if there is no way to publish -----------------------
+      # Building the whole fleet only to fail auth at the publish step wastes ~15
+      # min. Assert an auth path up front.
       #   - vars.NPM_TRUSTED_PUBLISHING == 'true'  → OIDC, no stored secret
       #   - secrets.NPM_TOKEN != ''                → legacy token fallback
       - name: Assert an npm auth path exists
@@ -133,28 +133,26 @@ jobs:
       # Skipped when no changesets are pending: that is the RESUME case — a
       # previous run versioned but its publish died; re-dispatching publishes
       # whatever the registry is missing without minting new versions.
-      # GITHUB_TOKEN pushes do not trigger other workflows, so this cannot
-      # recurse into CI or itself.
-      - name: Version packages (skip when resuming)
+      # ---- 2. Guard: versioning is done LOCALLY, not by this workflow --------
+      # This workflow does NOT bump versions and makes NO commits — the bot never
+      # writes to the repo. Versioning happens in the SAME commit as the change:
+      # run `npm run version` locally (consumes changesets, bumps package.json,
+      # writes CHANGELOG.md, updates the lockfile), commit it, push, THEN trigger
+      # this workflow, which only PUBLISHES what package.json declares and npm is
+      # missing. A leftover changeset file means someone forgot to version
+      # locally — publishing now would be a silent no-op (versions still match
+      # npm), so fail loudly with the fix instead.
+      - name: Guard — no unconsumed changesets (version locally first)
         run: |
           set -eu
-          if ! ls .changeset/*.md 2>/dev/null | grep -v README > /dev/null; then
-            echo "No pending changesets — publish-only run (resume)."
-            exit 0
+          if ls .changeset/*.md 2>/dev/null | grep -v README > /dev/null; then
+            echo "::error::Unconsumed changeset(s) present. Versioning is a LOCAL step now:" >&2
+            echo "  1. npm run version   # bump + CHANGELOG + consume changesets + lockfile" >&2
+            echo "  2. commit and push the result" >&2
+            echo "  3. re-trigger Release (it publishes; it does not version)" >&2
+            exit 1
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          npm run version
-          # Scoped -A: exactly the three places `changeset version` writes —
-          # bumped package.jsons + new/updated CHANGELOG.md files (any depth),
-          # the consumed changeset files (deletions), and the lockfile. In this
-          # clean runner checkout nothing else can be dirty there.
-          git add -A packages .changeset package-lock.json
-          git commit -m "chore: version packages"
-          # A human (or another agent) may have pushed since checkout; rebase the
-          # one version commit on top rather than failing the whole release.
-          git pull --rebase origin main
-          git push origin HEAD:main
+          echo "No pending changesets — versions are committed; proceeding to publish."
 
       # ---- 3. Publish (paced, resumable, OIDC) ------------------------------
       # `npm run release` = build + scripts/publish-paced.mjs. OIDC works
