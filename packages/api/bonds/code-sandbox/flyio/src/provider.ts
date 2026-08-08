@@ -1809,7 +1809,13 @@ class FlyioSandboxProvider implements SandboxProvider {
         const parts: Buffer[] = []
         for await (const chunk of archive) parts.push(Buffer.from(chunk))
         const base64 = gzipSync(Buffer.concat(parts)).toString('base64')
-        const tmp = `/tmp/mol-import-${machineId}.tgz`
+        // The temp tar lives on the WORKSPACE VOLUME, not /tmp. The chunked
+        // write and the extract are separate exec calls, and a Machine with
+        // autostop=suspend can cold-start between them — which recreates the
+        // rootfs from the image (wiping /tmp) while the ext4 volume at
+        // /workspace persists. A /tmp temp file vanished mid-import; the volume
+        // one survives.
+        const tmp = `${WORKSPACE_PATH}/.mol-import-${machineId}.tgz`
         const quotedTmp = shellQuote(tmp)
         const quotedPath = shellQuote(path)
         const failIfError = (result: ExecResult, step: string): void => {
