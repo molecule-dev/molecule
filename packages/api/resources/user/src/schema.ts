@@ -190,6 +190,7 @@ export const createOAuthPropsSchema = propsSchema.pick({
   username: true,
   name: true,
   bio: true,
+  avatar: true,
   email: true,
   emailVerified: true,
   oauthServer: true,

@@ -169,6 +169,8 @@ export const verify: OAuthVerifier = async (
     return {
       username: `${oauthData.email || oauthData.sub}@google`,
       name,
+      // Google's `userinfo` carries the profile image URL as `picture`.
+      avatar: (oauthData.picture as string) || undefined,
       email,
       emailVerified,
       oauthServer: serverName,

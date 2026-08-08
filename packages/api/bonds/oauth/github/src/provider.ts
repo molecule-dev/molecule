@@ -232,10 +232,11 @@ export const verify: OAuthVerifier = async (
 
     return {
       username: `${oauthData.login}@github`,
-      // GitHub's `/user` profile carries the display name + bio directly —
-      // capture both so account creation persists a real profile.
+      // GitHub's `/user` profile carries the display name, bio, and avatar
+      // URL directly — capture them so account creation persists a real profile.
       name: (oauthData.name as string) || undefined,
       bio: (oauthData.bio as string) || undefined,
+      avatar: (oauthData.avatar_url as string) || undefined,
       email,
       emailVerified,
       oauthServer: serverName,

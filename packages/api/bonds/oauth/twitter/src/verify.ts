@@ -141,14 +141,15 @@ export const verify: OAuthVerifier = async (
     }
 
     // X's `/2/users/me` returns only id/name/username by default — request the
-    // profile `description` (bio) too. Appended via URL so an env-override user
-    // URL (E2E mocks) keeps working; an explicit `user.fields` in the override
-    // wins. A non-absolute override falls back to the URL verbatim.
+    // profile `description` (bio) and `profile_image_url` (avatar) too.
+    // Appended via URL so an env-override user URL (E2E mocks) keeps working;
+    // an explicit `user.fields` in the override wins. A non-absolute override
+    // falls back to the URL verbatim.
     let userUrlWithFields = userUrl
     try {
       const parsed = new URL(userUrl)
       if (!parsed.searchParams.has('user.fields')) {
-        parsed.searchParams.set('user.fields', 'description')
+        parsed.searchParams.set('user.fields', 'description,profile_image_url')
       }
       userUrlWithFields = parsed.toString()
     } catch (_error) {
@@ -167,10 +168,14 @@ export const verify: OAuthVerifier = async (
 
     return {
       username: `${oauthData.username}@twitter`,
-      // X's profile carries the display name as `name` and the bio as
-      // `description` (requested via `user.fields` above).
+      // X's profile carries the display name as `name`, the bio as
+      // `description`, and the avatar as `profile_image_url` (the latter two
+      // requested via `user.fields` above). X serves the 48x48 `_normal`
+      // variant by default; dropping the suffix yields the full-size original
+      // (the documented variant-naming scheme, stable across pbs.twimg.com).
       name: (oauthData.name as string) || undefined,
       bio: (oauthData.description as string) || undefined,
+      avatar: (oauthData.profile_image_url as string)?.replace('_normal', '') || undefined,
       email: (oauthData.email as string) || undefined,
       // Twitter's OAuth2 `/users/me` does not return an email-verification
       // signal (and typically no email at all without the legacy elevated

@@ -30,6 +30,14 @@ export interface OAuthUserProps {
   bio?: string
 
   /**
+   * URL of the user's profile image from the OAuth provider (e.g. Google's
+   * `picture`, GitHub/GitLab's `avatar_url`, X's `profile_image_url`).
+   * Omitted when the provider exposes none (Apple never does; Microsoft
+   * Graph only serves photos as a binary endpoint behind an extra scope).
+   */
+  avatar?: string
+
+  /**
    * The user's email address from the OAuth provider.
    */
   email?: string

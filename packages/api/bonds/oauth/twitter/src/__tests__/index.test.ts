@@ -69,6 +69,8 @@ describe('Twitter OAuth Provider', () => {
             id: '12345678901234567890',
             username: 'testuser',
             name: 'Test User',
+            description: 'Posting things.',
+            profile_image_url: 'https://pbs.twimg.com/profile_images/1/photo_normal.jpg',
             email: 'testuser@example.com',
           },
         },
@@ -95,10 +97,10 @@ describe('Twitter OAuth Provider', () => {
         },
       )
 
-      // The bond requests the profile `description` (bio) beyond X's default
-      // id/name/username fields.
+      // The bond requests the profile `description` (bio) and
+      // `profile_image_url` (avatar) beyond X's default id/name/username fields.
       expect(mockGet).toHaveBeenCalledWith(
-        'https://api.twitter.com/2/users/me?user.fields=description',
+        'https://api.twitter.com/2/users/me?user.fields=description%2Cprofile_image_url',
         {
           headers: {
             accept: 'application/json',
@@ -111,6 +113,9 @@ describe('Twitter OAuth Provider', () => {
       expect(result).toEqual({
         username: 'testuser@twitter',
         name: 'Test User',
+        bio: 'Posting things.',
+        // The `_normal` (48x48) suffix is stripped for the full-size original.
+        avatar: 'https://pbs.twimg.com/profile_images/1/photo.jpg',
         email: 'testuser@example.com',
         // Twitter exposes no email-verification signal → unverified default.
         emailVerified: false,
@@ -120,6 +125,8 @@ describe('Twitter OAuth Provider', () => {
           id: '12345678901234567890',
           username: 'testuser',
           name: 'Test User',
+          description: 'Posting things.',
+          profile_image_url: 'https://pbs.twimg.com/profile_images/1/photo_normal.jpg',
           email: 'testuser@example.com',
         },
       })
@@ -177,7 +184,7 @@ describe('Twitter OAuth Provider', () => {
         expect.anything(),
       )
       expect(mockGet).toHaveBeenCalledWith(
-        'http://127.0.0.1:9999/2/users/me?user.fields=description',
+        'http://127.0.0.1:9999/2/users/me?user.fields=description%2Cprofile_image_url',
         expect.anything(),
       )
     })

@@ -948,13 +948,19 @@ describe('logInOAuth handler — email-collision account-takeover guard', () => 
 describe('logInOAuth handler — profile capture on account creation', () => {
   const handler = logInOAuth(testResource)
 
-  const oauthProviderFor = (props: { name?: string; bio?: string; email?: string }) => ({
+  const oauthProviderFor = (props: {
+    name?: string
+    bio?: string
+    avatar?: string
+    email?: string
+  }) => ({
     verify: vi.fn().mockResolvedValue({
       oauthServer: 'google',
       oauthId: 'new-google-id',
       username: 'newuser',
       name: props.name,
       bio: props.bio,
+      avatar: props.avatar,
       email: props.email,
       oauthData: {},
     }),
@@ -980,9 +986,14 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     vi.spyOn(authorization, 'set').mockImplementation(() => {})
   })
 
-  it('persists the provider display name and bio on the created account', async () => {
+  it('persists the provider display name, bio, and avatar on the created account', async () => {
     wireGet(
-      oauthProviderFor({ name: 'Real Name', bio: 'Building things.', email: 'real@example.com' }),
+      oauthProviderFor({
+        name: 'Real Name',
+        bio: 'Building things.',
+        avatar: 'https://example.com/photo.jpg',
+        email: 'real@example.com',
+      }),
     )
 
     const result = await handler(
@@ -994,6 +1005,7 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     const { props } = mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
     expect(props.name).toBe('Real Name')
     expect(props.bio).toBe('Building things.')
+    expect(props.avatar).toBe('https://example.com/photo.jpg')
   })
 
   it('falls back to the email local part when the provider sends no name (never the sanitized username)', async () => {
@@ -1023,14 +1035,22 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     expect(props.name).toBeUndefined()
   })
 
-  it('backfills a BLANK name/bio on login of an existing account, never overwriting set values', async () => {
-    wireGet(oauthProviderFor({ name: 'Real Name', bio: 'A short bio.', email: 'real@example.com' }))
-    // OAuth (server+id) match → an existing account with no name/bio.
+  it('backfills a BLANK name/bio/avatar on login of an existing account, never overwriting set values', async () => {
+    wireGet(
+      oauthProviderFor({
+        name: 'Real Name',
+        bio: 'A short bio.',
+        avatar: 'https://example.com/photo.jpg',
+        email: 'real@example.com',
+      }),
+    )
+    // OAuth (server+id) match → an existing account with no name/bio/avatar.
     mockFindOne.mockResolvedValueOnce({
       id: 'existing-id',
       username: 'realexamplecomgoogle',
       name: null,
       bio: null,
+      avatar: null,
       oauthServer: 'google',
       oauthId: 'new-google-id',
     })
@@ -1046,17 +1066,28 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     expect(mockUpdateById).toHaveBeenCalledWith(
       'users',
       'existing-id',
-      expect.objectContaining({ name: 'Real Name', bio: 'A short bio.' }),
+      expect.objectContaining({
+        name: 'Real Name',
+        bio: 'A short bio.',
+        avatar: 'https://example.com/photo.jpg',
+      }),
     )
   })
 
-  it('does not touch an existing name/bio the user already has', async () => {
-    wireGet(oauthProviderFor({ name: 'Provider Name', bio: 'Provider bio.' }))
+  it('does not touch an existing name/bio/avatar the user already has', async () => {
+    wireGet(
+      oauthProviderFor({
+        name: 'Provider Name',
+        bio: 'Provider bio.',
+        avatar: 'https://example.com/provider.jpg',
+      }),
+    )
     mockFindOne.mockResolvedValueOnce({
       id: 'existing-id',
       username: 'someuser',
       name: 'Chosen Name',
       bio: 'My own bio.',
+      avatar: 'https://example.com/my-own.jpg',
       oauthServer: 'google',
       oauthId: 'new-google-id',
     })
@@ -1071,6 +1102,7 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     const updateArgs = mockUpdateById.mock.calls[0]?.[2] as Record<string, unknown>
     expect(updateArgs.name).toBeUndefined()
     expect(updateArgs.bio).toBeUndefined()
+    expect(updateArgs.avatar).toBeUndefined()
   })
 })
 

@@ -10,7 +10,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { create as resourceCreate } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
-import { MAX_BIO_LENGTH } from '../schema.js'
+import { MAX_AVATAR_LENGTH, MAX_BIO_LENGTH } from '../schema.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 
@@ -168,6 +168,8 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         name?: string
         /** Short provider-profile biography (GitHub/GitLab `bio`, X `description`). */
         bio?: string
+        /** Provider profile-image URL (Google `picture`, GitHub/GitLab `avatar_url`, X `profile_image_url`). */
+        avatar?: string
         email?: string
         /**
          * Whether the provider affirmatively verified the user controls this
@@ -401,11 +403,20 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         // can't fail account creation.
         const bio = oauthProps.bio ? oauthProps.bio.substring(0, MAX_BIO_LENGTH) : undefined
 
+        // A provider profile-image URL is persisted when present. Never
+        // truncated — a clipped URL is broken, so an over-cap value (which no
+        // real provider URL approaches) is dropped instead.
+        const avatar =
+          oauthProps.avatar && oauthProps.avatar.length <= MAX_AVATAR_LENGTH
+            ? oauthProps.avatar
+            : undefined
+
         const createResponse = await createResource({
           props: {
             username,
             name: displayName,
             ...(bio ? { bio } : {}),
+            ...(avatar ? { avatar } : {}),
             email: email || null,
             emailVerified: oauthEmailVerified,
             oauthServer: oauthProps.oauthServer,
@@ -484,9 +495,9 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           })
           .catch(() => {})
       } else {
-        // Backfill a BLANK display name/bio from the provider profile (accounts
-        // created before profile capture existed, or whose provider only now
-        // exposes them). Fill-if-empty only — a name or bio the user set
+        // Backfill a BLANK display name/bio/avatar from the provider profile
+        // (accounts created before profile capture existed, or whose provider
+        // only now exposes them). Fill-if-empty only — a value the user set
         // themselves is never overwritten.
         const backfill: Record<string, string> = {}
         if (!user.name) {
@@ -496,6 +507,9 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         }
         if (!user.bio && oauthProps.bio) {
           backfill.bio = oauthProps.bio.substring(0, MAX_BIO_LENGTH)
+        }
+        if (!user.avatar && oauthProps.avatar && oauthProps.avatar.length <= MAX_AVATAR_LENGTH) {
+          backfill.avatar = oauthProps.avatar
         }
 
         // Update OAuth data on existing user.

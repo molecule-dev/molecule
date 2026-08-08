@@ -103,6 +103,7 @@ describe('Google OAuth Provider', () => {
       expect(result).toEqual({
         username: 'testuser@gmail.com@google',
         name: 'Test User',
+        avatar: 'https://example.com/avatar.jpg',
         email: 'testuser@gmail.com',
         emailVerified: true,
         oauthServer: 'google',
