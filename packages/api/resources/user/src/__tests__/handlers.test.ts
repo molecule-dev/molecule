@@ -1022,6 +1022,56 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     const { props } = mockResourceCreate.mock.calls[0]?.[0] as { props: Record<string, unknown> }
     expect(props.name).toBeUndefined()
   })
+
+  it('backfills a BLANK name/bio on login of an existing account, never overwriting set values', async () => {
+    wireGet(oauthProviderFor({ name: 'Real Name', bio: 'A short bio.', email: 'real@example.com' }))
+    // OAuth (server+id) match → an existing account with no name/bio.
+    mockFindOne.mockResolvedValueOnce({
+      id: 'existing-id',
+      username: 'realexamplecomgoogle',
+      name: null,
+      bio: null,
+      oauthServer: 'google',
+      oauthId: 'new-google-id',
+    })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    expect(mockResourceCreate).not.toHaveBeenCalled()
+    expect(mockUpdateById).toHaveBeenCalledWith(
+      'users',
+      'existing-id',
+      expect.objectContaining({ name: 'Real Name', bio: 'A short bio.' }),
+    )
+  })
+
+  it('does not touch an existing name/bio the user already has', async () => {
+    wireGet(oauthProviderFor({ name: 'Provider Name', bio: 'Provider bio.' }))
+    mockFindOne.mockResolvedValueOnce({
+      id: 'existing-id',
+      username: 'someuser',
+      name: 'Chosen Name',
+      bio: 'My own bio.',
+      oauthServer: 'google',
+      oauthId: 'new-google-id',
+    })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const updateArgs = mockUpdateById.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(updateArgs.name).toBeUndefined()
+    expect(updateArgs.bio).toBeUndefined()
+  })
 })
 
 // ===== 5c. OAuth email verification + verified-trust linking (logInOAuth.ts) =

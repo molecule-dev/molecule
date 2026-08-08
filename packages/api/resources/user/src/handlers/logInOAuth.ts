@@ -484,13 +484,30 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
           })
           .catch(() => {})
       } else {
+        // Backfill a BLANK display name/bio from the provider profile (accounts
+        // created before profile capture existed, or whose provider only now
+        // exposes them). Fill-if-empty only — a name or bio the user set
+        // themselves is never overwritten.
+        const backfill: Record<string, string> = {}
+        if (!user.name) {
+          const fallbackName =
+            oauthProps.name || (email ? email.split('@')[0] : undefined) || undefined
+          if (fallbackName) backfill.name = fallbackName
+        }
+        if (!user.bio && oauthProps.bio) {
+          backfill.bio = oauthProps.bio.substring(0, MAX_BIO_LENGTH)
+        }
+
         // Update OAuth data on existing user.
         await updateById(tableName, user.id, {
+          ...backfill,
           oauthData: JSON.stringify(oauthProps.oauthData),
           updatedAt: new Date().toISOString(),
         }).catch((err) => {
           logger.warn('Failed to update OAuth data', { userId: user!.id, error: err })
         })
+        // Reflect the backfill in the session/user payload we return.
+        user = { ...user, ...backfill }
 
         analytics
           .track({
