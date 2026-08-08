@@ -293,10 +293,16 @@ class FlyioSandboxProvider implements SandboxProvider {
    * Builds the Fly Proxy service exposing a sandbox's preview port, or `undefined`
    * when public exposure is disabled.
    *
-   * `autostop: 'suspend'` is the scale-to-zero behaviour this bond exists for:
-   * Fly Proxy suspends the Machine when it goes idle and resumes it from its
-   * memory snapshot on the next request, so an idle sandbox bills only for its
-   * rootfs and volume.
+   * `autostart: true` wakes an idle (stopped or suspended) Machine on the next
+   * preview request. `autostop` defaults to `'off'` — NOT `'suspend'` — on
+   * purpose: Fly's autostop timer counts the PROXY service's idle time, and a
+   * sandbox spends its first minutes being provisioned over the exec API with no
+   * proxy traffic, so `'suspend'` cold-starts the Machine mid-scaffold (execs are
+   * not proxy traffic) and the scaffold's own temp state is lost. Idle-sleep is
+   * instead driven by the consumer's own per-tier hibernation loop, which calls
+   * `sleep()`/`hibernate()` — the same provider-agnostic mechanism the Docker
+   * bond relies on. An operator who wants Fly-native scale-to-zero can still opt
+   * in with `config.autostop: 'suspend'`.
    * @returns The service definition, or `undefined`.
    */
   private previewService(): FlyMachineService | undefined {
@@ -309,7 +315,7 @@ class FlyioSandboxProvider implements SandboxProvider {
         { port: 443, handlers: ['tls', 'http'] },
       ],
       autostart: true,
-      autostop: this.config.autostop ?? 'suspend',
+      autostop: this.config.autostop ?? 'off',
       min_machines_running: 0,
     }
   }

@@ -201,7 +201,11 @@ describe('create — Machine configuration', () => {
     expect(body.config.auto_destroy).toBe(false)
   })
 
-  it('attaches a preview service with autostop=suspend — the scale-to-zero default', async () => {
+  it('attaches a preview service with autostart on and autostop OFF by default', async () => {
+    // autostop defaults to 'off', not 'suspend': Fly's autostop timer watches
+    // proxy traffic, and a sandbox is provisioned over the exec API with none —
+    // 'suspend' would cold-start the Machine mid-scaffold. The consumer's own
+    // per-tier hibernation loop drives idle-sleep instead.
     const double = queueCreate(createFetchDouble())
     await makeProvider({}, double).create({ projectId: PROJECT_ID })
 
@@ -213,13 +217,23 @@ describe('create — Machine configuration', () => {
       protocol: 'tcp',
       internal_port: 5173,
       autostart: true,
-      autostop: 'suspend',
+      autostop: 'off',
       min_machines_running: 0,
     })
     expect(body.config.services[0].ports).toEqual([
       { port: 80, handlers: ['http'], force_https: true },
       { port: 443, handlers: ['tls', 'http'] },
     ])
+  })
+
+  it('honors an explicit autostop override for operators wanting Fly-native scale-to-zero', async () => {
+    const double = queueCreate(createFetchDouble())
+    await makeProvider({ autostop: 'suspend' }, double).create({ projectId: PROJECT_ID })
+
+    const body = double.matching(`POST /apps/${APP}/machines`)[0].body as {
+      config: { services: Array<{ autostop: string }> }
+    }
+    expect(body.config.services[0].autostop).toBe('suspend')
   })
 
   it('omits the public service when publicService is off', async () => {
