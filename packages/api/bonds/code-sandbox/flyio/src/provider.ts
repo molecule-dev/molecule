@@ -771,17 +771,16 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async assignSharedIpv4(app: string): Promise<void> {
     try {
-      // NO org_slug: the ip_assignments endpoint derives the org from the app
-      // (like the private-IP allocation) and 400s "unknown field org_slug" when
-      // it is sent — which silently left every sandbox app WITHOUT a public IP,
-      // so its `<app>.fly.dev` preview URL never routed and the IDE hung on
-      // "Loading preview…" forever. Same fix that was already applied to the
-      // private-address allocation.
+      // ONLY `type` — verified against the live API 2026-08-09. Both `region`
+      // ("region selection is not supported for this IP type", 400) and
+      // `org_slug` are rejected for a shared IPv4; sending either left every
+      // sandbox app WITHOUT a public IP, so its preview URL never routed and the
+      // IDE hung on "Loading preview…" forever. The org derives from the app and
+      // a shared v4 is global (no region).
       await this.client.request(`/apps/${app}/ip_assignments`, {
         method: 'POST',
         body: {
           type: this.config.ipAssignmentType ?? 'shared_v4',
-          region: this.region(),
         },
       })
     } catch (error) {

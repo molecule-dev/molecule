@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.0.16
+
+### Patch Changes
+
+- Send only `type` (not `region`) when assigning a shared IPv4 — Fly rejects `region` for shared IPs with a 400, which left sandbox apps without a public IP so their preview URL never routed.
+
 ## 1.0.15
 
 ### Patch Changes
