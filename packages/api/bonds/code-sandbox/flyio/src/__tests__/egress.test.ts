@@ -247,6 +247,8 @@ interface ProbeOptions {
   machineState?: string
   /** Status for the wait call. */
   waitStatus?: number
+  /** Per-call statuses for consecutive wait calls; falls back to `waitStatus` when exhausted. */
+  waitStatuses?: number[]
   /** Existing policies returned by the LIST call. */
   policies?: unknown
 }
@@ -259,6 +261,7 @@ interface ProbeOptions {
  */
 function createProbeFetch(options: ProbeOptions = {}) {
   const calls: ProbeCall[] = []
+  let waitIndex = 0
   const respond = (status: number, body: unknown) =>
     ({
       status,
@@ -275,7 +278,10 @@ function createProbeFetch(options: ProbeOptions = {}) {
     if (path.includes('/exec')) {
       return respond(options.execStatus ?? 200, options.exec ?? { exit_code: 0 })
     }
-    if (path.includes('/wait')) return respond(options.waitStatus ?? 200, { ok: true })
+    if (path.includes('/wait')) {
+      const status = options.waitStatuses?.[waitIndex++] ?? options.waitStatus ?? 200
+      return respond(status, status === 200 ? { ok: true } : { error: 'deadline_exceeded' })
+    }
     if (path.includes('/network_policies')) return respond(200, options.policies ?? [])
     if (method === 'POST' && /\/machines$/.test(path)) {
       const id = options.machineId === undefined ? 'probe1' : options.machineId
@@ -601,6 +607,25 @@ describe('start/wake wait for the Machine to be running', () => {
     expect(probe.calls.some((call) => call.path.includes('/wait?state=started&timeout=60'))).toBe(
       true,
     )
+    expect(sandbox?.status).toBe('running')
+  })
+
+  it('spends the start budget in more wait rounds while the Machine is still provisioning', async () => {
+    // The incident this guards: a freshly pushed image must be pulled onto the
+    // host before the Machine can start, so the first 60 s wait round expires
+    // with the Machine still in `created` — one round turned every first boot
+    // after an image push into a hard create failure.
+    const probe = createProbeFetch({ waitStatuses: [408, 200], machineState: 'created' })
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl: probe.fetch,
+      sleep: async () => {},
+    })
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client).get(`${APP}:m1`)
+    await sandbox?.start()
+
+    expect(probe.calls.filter((call) => call.path.includes('/wait?state=started'))).toHaveLength(2)
     expect(sandbox?.status).toBe('running')
   })
 

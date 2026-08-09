@@ -124,6 +124,16 @@ const FILE_OP_TIMEOUT_MS = 30_000
  */
 const MAX_WAIT_SECONDS = 60
 
+/**
+ * Default TOTAL budget for {@link FlyioSandboxProvider.waitForStarted}, spent
+ * as consecutive `wait` rounds of at most {@link MAX_WAIT_SECONDS} each. A
+ * Machine whose image is not yet cached on its host must pull it before it can
+ * start, and a multi-GB sandbox image takes well over one 60 s round — a single
+ * round turned every first boot after an image push into a hard create failure
+ * (observed: the Machine reached `started` 12 s after the 60 s deadline).
+ */
+const DEFAULT_START_TIMEOUT_SECONDS = 180
+
 /** Guest size for the throwaway `verifyEgress()` probe Machine. */
 const PROBE_MEMORY_MB = 256
 
@@ -1630,37 +1640,60 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @throws {Error} When the Machine has not started within the budget.
    */
   private async waitForStarted(app: string, machineId: string): Promise<void> {
-    const seconds = Math.max(
+    const totalSeconds = Math.max(
       1,
-      Math.min(this.config.startTimeoutSeconds ?? MAX_WAIT_SECONDS, MAX_WAIT_SECONDS),
+      this.config.startTimeoutSeconds ?? DEFAULT_START_TIMEOUT_SECONDS,
     )
-    try {
-      await this.client.request(
-        `/apps/${app}/machines/${machineId}/wait?state=started&timeout=${seconds}`,
-        // One attempt: a retry would re-block for the whole budget, and the
-        // fallback below re-reads the state anyway.
-        { attempts: 1, timeoutMs: (seconds + 15) * 1000 },
-      )
-    } catch (error) {
-      // The wait endpoint returning an error is not itself proof the Machine
-      // failed — re-read the authoritative state before failing the caller.
-      const machine = await this.client
-        .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
-        .catch(() => null)
-      if (machine?.state === 'started') return
-      throw new Error(
-        t(
-          'codeSandbox.flyio.error.startTimeout',
-          { app, machineId, seconds: String(seconds), state: machine?.state ?? 'unknown' },
-          {
-            defaultValue:
-              `Fly Machine ${machineId} in app "${app}" did not reach "started" within ` +
-              `${seconds}s (last observed state: ${machine?.state ?? 'unknown'}).`,
-          },
-        ),
-        { cause: error },
-      )
+    const deadline = Date.now() + totalSeconds * 1000
+    let lastState: string | undefined
+    let lastError: unknown
+    // Fly's wait endpoint blocks server-side for at most MAX_WAIT_SECONDS per
+    // call, so a larger budget is spent as consecutive rounds. One round is not
+    // enough: a host that does not have the image cached (every first boot
+    // after an image push) pulls it first, which alone can exceed 60 s.
+    for (;;) {
+      const remaining = Math.ceil((deadline - Date.now()) / 1000)
+      const seconds = Math.max(1, Math.min(remaining, MAX_WAIT_SECONDS))
+      try {
+        await this.client.request(
+          `/apps/${app}/machines/${machineId}/wait?state=started&timeout=${seconds}`,
+          // One attempt: a retry would re-block for the whole round, and the
+          // state re-read below decides whether another round is warranted.
+          { attempts: 1, timeoutMs: (seconds + 15) * 1000 },
+        )
+        return
+      } catch (error) {
+        lastError = error
+        // The wait endpoint returning an error is not itself proof the Machine
+        // failed — re-read the authoritative state before deciding.
+        const machine = await this.client
+          .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
+          .catch(() => null)
+        if (machine?.state === 'started') return
+        lastState = machine?.state
+        // Another round is useful only while the Machine is still on its way
+        // up (`created` = provisioning/image pull, `starting` = boot). Any
+        // other observed state — stopped, failed, destroyed, unreadable —
+        // will not become `started` by waiting longer.
+        if (lastState !== 'created' && lastState !== 'starting') break
+        if (Date.now() >= deadline) break
+        // Pace the rounds: a wait call that errors out immediately instead of
+        // blocking server-side must not turn this into a hot loop.
+        await new Promise((resolve) => setTimeout(resolve, 1_000))
+      }
     }
+    throw new Error(
+      t(
+        'codeSandbox.flyio.error.startTimeout',
+        { app, machineId, seconds: String(totalSeconds), state: lastState ?? 'unknown' },
+        {
+          defaultValue:
+            `Fly Machine ${machineId} in app "${app}" did not reach "started" within ` +
+            `${totalSeconds}s (last observed state: ${lastState ?? 'unknown'}).`,
+        },
+      ),
+      { cause: lastError },
+    )
   }
 
   /**

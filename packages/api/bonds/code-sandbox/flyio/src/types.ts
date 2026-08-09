@@ -125,9 +125,12 @@ export interface FlyioConfig {
   /** Timeout for a single Machines API request, in ms. Defaults to 30000. */
   requestTimeoutMs?: number
   /**
-   * How long `start()`/`wake()` block waiting for the Machine to actually reach
-   * `started`, in seconds. Clamped to Fly's own ceiling — `GET .../wait` "will
-   * block for up to 60 seconds". Defaults to 60.
+   * TOTAL budget, in seconds, that `create()`/`start()`/`wake()` block waiting
+   * for the Machine to actually reach `started`. Fly's `GET .../wait` blocks
+   * for at most 60 seconds per call, so a larger budget is spent as consecutive
+   * wait rounds. Defaults to 180 — a Machine whose image is not yet cached on
+   * its host (every first boot after an image push) pulls it before starting,
+   * and that alone can exceed a single 60 s round.
    *
    * Without this wait, `start()` resolves the moment Fly ACCEPTS the request,
    * and the caller's very next `exec` hits a Machine that is not running yet.
