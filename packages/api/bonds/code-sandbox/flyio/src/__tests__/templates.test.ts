@@ -219,8 +219,12 @@ describe('the capture script', () => {
 
   it('archives the named paths relative to /, masking uids and setuid on the way OUT too', () => {
     expect(command).toContain(
-      `tar -C / --numeric-owner --owner=0 --group=0 --mode='a-s' -czf "$archive" 'workspace'`,
+      `tar -C / --numeric-owner --owner=0 --group=0 --mode='a-s' --exclude='node_modules' -czf "$archive" 'workspace'`,
     )
+  })
+
+  it('excludes node_modules — the image rootfs superset provides it on restore', () => {
+    expect(command).toContain(`--exclude='node_modules'`)
   })
 
   it('tolerates tar exit 1 (files changed) but fails on anything worse', () => {
