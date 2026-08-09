@@ -212,6 +212,13 @@ function minRequestGapMs(): number {
  */
 let flyPacerTail: Promise<void> = Promise.resolve()
 let flyLastRequestAt = 0
+
+/**
+ * Queues the caller behind the shared pacer chain and resolves once its slot
+ * arrives (at least {@link MIN_REQUEST_GAP_MS} after the previous request).
+ * @param sleep - Injected sleep, so tests can collapse the waits.
+ * @returns Resolves when the caller may fire its request.
+ */
 function paceFlyRequest(sleep: (ms: number) => Promise<void>): Promise<void> {
   const mine = flyPacerTail.then(async () => {
     const wait = Math.max(0, flyLastRequestAt + minRequestGapMs() - Date.now())
@@ -228,6 +235,11 @@ export function resetFlyPacerForTests(): void {
   flyLastRequestAt = 0
 }
 
+/**
+ * Minimal Fly Machines API client: bearer auth, JSON bodies, per-request
+ * timeout, bounded retries with backoff, and account-wide request pacing via
+ * {@link paceFlyRequest}.
+ */
 export class FlyApiClient {
   private readonly token: () => string | undefined
   private readonly baseUrl: string
