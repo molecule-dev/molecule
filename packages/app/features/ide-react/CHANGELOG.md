@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.0.2
+
+### Patch Changes
+
+- PreviewPanel: wait longer before flagging a preview as blank so a sandbox that is still cold-starting (or served through a preview proxy) is never falsely reported as "didn't render anything". A real render still clears the overlay immediately.
+
 ## 1.0.1
 
 ### Patch Changes

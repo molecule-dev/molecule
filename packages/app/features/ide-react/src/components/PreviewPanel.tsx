@@ -95,8 +95,14 @@ const POLL_BACKOFF_FACTOR = 2
  * cache) only made the next load slower. Recovery now also requires that the
  * document has NOT loaded (see the stuck-detection effect), so a progressing-but-
  * slow load is never interrupted.
+ *
+ * Raised again 8s → 15s: behind a preview proxy (e.g. a `*.mlcl.dev` edge that
+ * fronts a Fly Machine which Fly cold-starts on the first request), the initial
+ * load holds for the machine boot + dev-server start before the document even
+ * arrives — routinely longer than 8s. Remounting during that hold only restarts
+ * the clock and slows the boot.
  */
-const STUCK_DETECT_MS = 8_000
+const STUCK_DETECT_MS = 15_000
 /** Exponential back-off applied to STUCK_DETECT_MS between recovery attempts. */
 const STUCK_BACKOFF_FACTOR = 1.6
 /**
@@ -199,8 +205,18 @@ const BLANK_CONFIRM_MS = 2_500
  * heartbeating at all means its inline bridge never ran: a broken/error page (or JS disabled),
  * i.e. a genuine failure, not a cold boot in progress. The settle lets the first ~3s heartbeat
  * arrive before we judge liveness.
+ *
+ * Raised 4s → 15s: behind a preview proxy fronting a Fly Machine, the first
+ * request COLD-STARTS the machine, and until the real app is served the proxy
+ * legitimately answers a bridge-less "starting"/transient page that never
+ * heartbeats — for as long as the cold-start takes (well past 4s). Accusing at 4s
+ * false-fired "The app loaded but didn't render anything" over a preview that was
+ * simply still booting. 15s clears a genuine bridge-less error page while giving a
+ * proxy cold-start room to serve the real (heartbeating) document; a still-dead
+ * doc is also auto-reloaded at LOAD_RECOVER_AFTER_MS and ceilinged at
+ * COLD_BOOT_PATIENCE_MS.
  */
-const BLANK_DEAD_MS = 4_000
+const BLANK_DEAD_MS = 15_000
 
 /**
  * Absolute patience (ms) for a first-cold-boot app that IS alive (heartbeating) but has not yet
@@ -231,8 +247,15 @@ const COLD_BOOT_PATIENCE_MS = 60_000
  * Sized to cover a fallback wake end-to-end: dev-server relaunch (~seconds) + the reload +
  * a cold Vite recompile (up to tens of seconds). A real `molecule:ready` clears everything
  * long before this on any healthy wake.
+ *
+ * Raised 45s → 90s for the Fly + proxy topology: a wake there is machine
+ * cold-start + dev-server relaunch + cold Vite recompile, ALL behind an extra
+ * proxy hop, and the mlcl.dev preview URL is STABLE (token-keyed), so the reliable
+ * load-target-change wake signal never fires — patience rests on the host `wakeAt`
+ * hint alone and must outlast the whole cold path. A real `molecule:ready` still
+ * clears it immediately, so the wider window only ever helps a genuinely slow boot.
  */
-const WAKE_PATIENCE_MS = 45_000
+const WAKE_PATIENCE_MS = 90_000
 
 /**
  * Duration of the overlay fade-out (ms) — kept in sync with the overlay's `transition:
