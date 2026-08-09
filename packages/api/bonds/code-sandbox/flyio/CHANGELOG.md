@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.0.14
+
+### Patch Changes
+
+- Pace Machines API requests process-wide so a sandbox boot's burst of exec calls no longer trips Fly's account rate limit (429) and livelocks the boot.
+
 ## 1.0.13
 
 ### Patch Changes

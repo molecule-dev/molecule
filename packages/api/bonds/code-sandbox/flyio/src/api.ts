@@ -190,6 +190,44 @@ export interface FlyApiClientOptions {
  * generated client would drag in the whole Machines + Postgres + tokens surface
  * for no benefit.
  */
+/**
+ * Minimum gap between Fly Machines API requests, PROCESS-WIDE. Fly rate-limits
+ * per account (most tightly the exec endpoint, ~a few req/s), and one molecule
+ * process makes every call with one token — so without pacing, a sandbox boot's
+ * burst of exec calls trips `429`, and retrying under the cap sustains a storm
+ * that LIVELOCKS the boot (observed live 2026-08-09: a workspace stuck
+ * "creating" with continuous per-second 429s that never drained). ~220 ms ≈
+ * 4.5 req/s keeps us under the cap. Tunable via `FLY_API_MIN_REQUEST_GAP_MS`.
+ */
+function minRequestGapMs(): number {
+  const v = Number(process.env.FLY_API_MIN_REQUEST_GAP_MS)
+  return Number.isFinite(v) && v >= 0 ? v : 220
+}
+
+/**
+ * Serializes every request through a shared chain so no two fire closer than
+ * {@link MIN_REQUEST_GAP_MS}. Module-level (not per-client) so concurrent
+ * sandbox boots share ONE pacer and cannot collectively exceed the account cap.
+ * Errors in the chain are swallowed so one failed wait never wedges the queue.
+ */
+let flyPacerTail: Promise<void> = Promise.resolve()
+let flyLastRequestAt = 0
+function paceFlyRequest(sleep: (ms: number) => Promise<void>): Promise<void> {
+  const mine = flyPacerTail.then(async () => {
+    const wait = Math.max(0, flyLastRequestAt + minRequestGapMs() - Date.now())
+    if (wait > 0) await sleep(wait)
+    flyLastRequestAt = Date.now()
+  })
+  flyPacerTail = mine.catch(() => {})
+  return mine
+}
+
+/** Test-only: reset the shared pacer so timing tests start from a clean slate. */
+export function resetFlyPacerForTests(): void {
+  flyPacerTail = Promise.resolve()
+  flyLastRequestAt = 0
+}
+
 export class FlyApiClient {
   private readonly token: () => string | undefined
   private readonly baseUrl: string
@@ -236,6 +274,9 @@ export class FlyApiClient {
 
     let lastError: FlyApiError | undefined
     for (let attempt = 1; attempt <= attempts; attempt++) {
+      // Pace EVERY network call (including retries) through the process-wide
+      // limiter so a boot's burst of exec calls never trips Fly's account 429.
+      await paceFlyRequest(this.sleep)
       const controller = new AbortController()
       const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? this.timeoutMs)
       // Initialized to 0 ("no answer received"), which is the value that

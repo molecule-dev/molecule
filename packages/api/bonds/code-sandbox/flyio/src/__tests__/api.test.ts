@@ -15,8 +15,14 @@ vi.mock('@molecule/api-i18n', () => ({
     opts?.defaultValue ?? key,
 }))
 
-const { FlyApiClient, FlyApiError, isRetryableStatus, normalizeApiUrl, retryDelayMs } =
-  await import('../api.js')
+const {
+  FlyApiClient,
+  FlyApiError,
+  isRetryableStatus,
+  normalizeApiUrl,
+  retryDelayMs,
+  resetFlyPacerForTests,
+} = await import('../api.js')
 
 /**
  * Builds a client wired to a fetch double with retry sleeps collapsed to nothing.
@@ -39,6 +45,25 @@ function makeClient(double: ReturnType<typeof createFetchDouble>, token: string 
 
 beforeEach(() => {
   vi.clearAllMocks()
+  // Isolate retry-timing assertions from the process-wide request pacer: gap 0
+  // (no pace sleep) + a clean pacer chain. A dedicated test exercises the pacer.
+  process.env.FLY_API_MIN_REQUEST_GAP_MS = '0'
+  resetFlyPacerForTests()
+})
+
+describe('request pacer (process-wide 429 avoidance)', () => {
+  it('waits at least the configured gap between successive requests', async () => {
+    process.env.FLY_API_MIN_REQUEST_GAP_MS = '200'
+    resetFlyPacerForTests()
+    const double = createFetchDouble()
+    double.on('GET /apps/x', { body: { ok: true } })
+    double.on('GET /apps/x', { body: { ok: true } })
+    const { client, sleeps } = makeClient(double)
+    await client.request('/apps/x')
+    await client.request('/apps/x')
+    // The second request must have paced (~200ms) behind the first.
+    expect(sleeps.some((s) => s >= 150 && s <= 200)).toBe(true)
+  })
 })
 
 describe('normalizeApiUrl', () => {
