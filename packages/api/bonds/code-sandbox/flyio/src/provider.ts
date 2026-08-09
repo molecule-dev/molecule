@@ -986,7 +986,12 @@ class FlyioSandboxProvider implements SandboxProvider {
         ? Math.max(1, Math.ceil(config.resources.diskMB / 1024))
         : (this.config.defaultVolumeGB ?? DEFAULT_VOLUME_GB)
       const volumeId = await this.ensureVolume(app, config.volumeName, sizeGB)
-      machineConfig.mounts = [{ volume: volumeId, path: WORKSPACE_PATH }]
+      // The caller may scope the volume to a subtree (e.g. /workspace/<appDir>)
+      // so regenerable tooling (node_modules) stays on the fast image-backed
+      // rootfs and only durable state pays the volume's small-file IO cost.
+      machineConfig.mounts = [
+        { volume: volumeId, path: config.volumeMountPath ?? WORKSPACE_PATH },
+      ]
     }
 
     const service = this.previewService()

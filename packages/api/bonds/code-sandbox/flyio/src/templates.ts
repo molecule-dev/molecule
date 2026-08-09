@@ -36,9 +36,11 @@
  * ## What the base image already gives you, and what this adds
  *
  * The base image (`registry.fly.io/molecule-sandbox:latest`) already carries the
- * toolchain and a warmed npm cache, so this is NOT about installing Node. It is
- * about the per-configuration layer — the scaffold plus its `node_modules` — which
- * otherwise gets rebuilt on every single boot.
+ * toolchain, a warmed npm cache, AND the package superset on the rootfs, so this
+ * is NOT about installing anything. It is about the per-configuration layer —
+ * the scaffolded SOURCE — which otherwise gets regenerated on every single boot.
+ * `node_modules` is deliberately excluded from capture (see the capture command)
+ * because the image provides it.
  *
  * ## The tenant boundary is the RESTORE, not the capture
  *
@@ -338,7 +340,13 @@ export function buildCaptureCommand(paths: string[], url: string, maxBytes: numb
     // emit any archive it likes — but they mean a template captured from an
     // honest sandbox never even contains the bits, and the restore's own mask
     // and post-extraction assertion are what actually enforce it.
-    `tar -C / --numeric-owner --owner=0 --group=0 --mode='a-s' -czf "$archive" ${members} || tar_rc=$?`,
+    // node_modules is EXCLUDED by design: the sandbox image bakes the package
+    // superset on the rootfs (with /workspace/node_modules resolving into it),
+    // so a template only needs the per-configuration layer — the scaffolded
+    // source — and a template restored onto any machine finds its packages
+    // already provided by the image. Capturing node_modules would multiply the
+    // archive by the whole superset (~GBs) and routinely trip maxArchiveBytes.
+    `tar -C / --numeric-owner --owner=0 --group=0 --mode='a-s' --exclude='node_modules' -czf "$archive" ${members} || tar_rc=$?`,
     // GNU tar exits 1 for "some files differ" — the normal outcome of archiving
     // a live workspace whose dev server is still writing. That is tolerated and
     // reported; 2 and above are real failures.

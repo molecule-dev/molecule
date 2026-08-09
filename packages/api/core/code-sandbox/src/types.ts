@@ -39,6 +39,20 @@ export interface SandboxConfig {
   /** Docker volume name to mount at /sandbox/project for persistent storage. */
   volumeName?: string
   /**
+   * Where inside the sandbox the persistent volume mounts. Providers keep their
+   * historical default (the workspace root) when omitted.
+   *
+   * The caller — not the provider — knows which subtree is durable state worth
+   * a volume and which is regenerable tooling that belongs on the (usually much
+   * faster) image-backed root filesystem. Mounting the volume over the whole
+   * workspace forces node_modules onto volume storage, where small-file IO can
+   * be orders of magnitude slower than the rootfs (measured on Fly: a superset
+   * npm reify that takes seconds on rootfs takes minutes on the volume).
+   * Pointing the mount at just the app directory keeps the durable source on
+   * the volume and everything regenerable on the rootfs.
+   */
+  volumeMountPath?: string
+  /**
    * Boot from a template previously captured with
    * {@link SandboxProvider.commitTemplate} instead of the provider's base image.
    *
