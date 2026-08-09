@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.0.15
+
+### Patch Changes
+
+- Drop `org_slug` from the shared-IPv4 assignment request so each sandbox app actually gets a public IP — without it the `<app>.fly.dev` preview URL never routed and the IDE hung on "Loading preview…".
+
 ## 1.0.14
 
 ### Patch Changes

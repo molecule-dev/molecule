@@ -771,11 +771,16 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private async assignSharedIpv4(app: string): Promise<void> {
     try {
+      // NO org_slug: the ip_assignments endpoint derives the org from the app
+      // (like the private-IP allocation) and 400s "unknown field org_slug" when
+      // it is sent — which silently left every sandbox app WITHOUT a public IP,
+      // so its `<app>.fly.dev` preview URL never routed and the IDE hung on
+      // "Loading preview…" forever. Same fix that was already applied to the
+      // private-address allocation.
       await this.client.request(`/apps/${app}/ip_assignments`, {
         method: 'POST',
         body: {
           type: this.config.ipAssignmentType ?? 'shared_v4',
-          org_slug: this.orgSlug(),
           region: this.region(),
         },
       })
