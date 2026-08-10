@@ -11,6 +11,7 @@
 
 import type {
   DirEntry,
+  EgressVerdict,
   ExecOptions,
   ExecResult,
   FileChangeEvent,
@@ -20,12 +21,23 @@ import type {
   SandboxProvider,
 } from '@molecule/api-code-sandbox'
 
-import type { E2BConfig, E2BNetworkRule, E2BSandboxClientLike, E2BSandboxLike } from './types.js'
+import type { E2BConfig, E2BSandboxClientLike, E2BSandboxLike } from './types.js'
 
 /** Default Vite dev-server port the preview URL points at. */
 const DEFAULT_PREVIEW_PORT = 5173
 /** Default sandbox lifetime before E2B auto-pauses (control plane extends per heartbeat). */
 const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000
+/**
+ * E2B's "all destinations" selector (`0.0.0.0/0`, the SDK's `ALL_TRAFFIC`).
+ * Put in `denyOut` alongside an `allowOut` list to make egress deny-by-default —
+ * E2B REQUIRES this pairing (a bare `allowOut` is a 400) and it blocks raw IPs
+ * too, not just DNS names. Inlined as the literal to avoid importing the SDK at
+ * module load (the provider imports `e2b` lazily).
+ */
+const ALL_TRAFFIC = '0.0.0.0/0'
+/** Hosts the egress probe treats as the canonical allow/deny witnesses. */
+const EGRESS_PROBE_ALLOW = 'registry.npmjs.org'
+const EGRESS_PROBE_DENY = 'example.com'
 
 /**
  * Adapt the real `e2b` SDK `Sandbox` class to {@link E2BSandboxClientLike}.
@@ -76,11 +88,14 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
   }
 }
 
-/** Convert the bond's DNS rules into the SDK's network-update shape. */
-function toNetworkUpdate(rules: E2BNetworkRule[]): {
-  rules: Array<{ domain: string; action: string }>
-} {
-  return { rules: rules.map((r) => ({ domain: r.domain, action: r.action })) }
+/**
+ * Build a deny-by-default network update from an allow-list.
+ *
+ * @param allowOut - Domains/CIDRs permitted; everything else is denied.
+ * @returns The SDK `updateNetwork` payload (allowOut + denyOut ALL_TRAFFIC).
+ */
+function denyByDefault(allowOut: string[]): { allowOut: string[]; denyOut: string[] } {
+  return { allowOut, denyOut: [ALL_TRAFFIC] }
 }
 
 /**
@@ -271,13 +286,14 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
-   * Apply a DNS egress policy to this sandbox.
+   * Apply a deny-by-default egress allow-list to this sandbox.
    *
-   * @param rules - Allow/deny rules; a no-op when empty or unsupported.
+   * @param allowOut - Domains/CIDRs to permit; everything else denied. A no-op
+   *   when empty or when the SDK build lacks `updateNetwork`.
    */
-  async applyNetwork(rules: E2BNetworkRule[]): Promise<void> {
-    if (!this.sbx.updateNetwork || rules.length === 0) return
-    await this.sbx.updateNetwork(toNetworkUpdate(rules))
+  async applyNetwork(allowOut: string[]): Promise<void> {
+    if (!this.sbx.updateNetwork || allowOut.length === 0) return
+    await this.sbx.updateNetwork(denyByDefault(allowOut))
   }
 }
 
@@ -311,7 +327,7 @@ export class E2BSandboxProvider implements SandboxProvider {
       templateId: config.templateId ?? process.env.E2B_TEMPLATE_ID ?? 'base',
       defaultPreviewPort: config.defaultPreviewPort ?? DEFAULT_PREVIEW_PORT,
       defaultTimeoutMs: config.defaultTimeoutMs ?? DEFAULT_TIMEOUT_MS,
-      defaultNetworkRules: config.defaultNetworkRules ?? [],
+      defaultAllowOut: config.defaultAllowOut ?? [],
     }
     this.clientOverride = clientOverride
   }
@@ -349,8 +365,8 @@ export class E2BSandboxProvider implements SandboxProvider {
       timeoutMs: this.config.defaultTimeoutMs,
     })
     // Apply the egress allow-list immediately, before any user code runs.
-    if (this.config.defaultNetworkRules.length > 0) {
-      await handle.applyNetwork(this.config.defaultNetworkRules)
+    if (this.config.defaultAllowOut.length > 0) {
+      await handle.applyNetwork(this.config.defaultAllowOut)
     }
     return handle
   }
@@ -412,6 +428,76 @@ export class E2BSandboxProvider implements SandboxProvider {
       return null
     })
     if (sbx) await sbx.kill()
+  }
+
+  /**
+   * PROVE egress is deny-by-default by OBSERVING it on a throwaway sandbox.
+   *
+   * Creates a sandbox, applies `{ allowOut: [npm], denyOut: [ALL_TRAFFIC] }`,
+   * then curls an allow-listed host, a non-allow-listed host, AND a raw IP from
+   * inside. `filtered` requires BOTH the non-allow-listed host and the raw IP to
+   * be blocked while the allow-listed host is reachable — never an attestation.
+   * Any failure to run the probe is `inconclusive`, never `filtered` ("could not
+   * look" must not read as "safe"). Verified live: E2B blocks raw IPs too.
+   *
+   * @returns The observed egress verdict.
+   */
+  async verifyEgress(): Promise<EgressVerdict> {
+    let handle: Sandbox | null = null
+    try {
+      handle = await this.create({ projectId: `egress-probe-${Date.now()}`, env: {} })
+    } catch (error) {
+      return {
+        state: 'inconclusive',
+        detail: `Could not create a probe sandbox: ${error instanceof Error ? error.message : String(error)}`,
+        remediation: 'Check E2B_API_KEY and account capacity.',
+      }
+    }
+    try {
+      // Force a KNOWN deny-default policy for the probe regardless of config.
+      await (handle as E2BSandbox).applyNetwork([
+        EGRESS_PROBE_ALLOW,
+        `*.${EGRESS_PROBE_ALLOW.split('.').slice(-2).join('.')}`,
+      ])
+      const code = async (host: string): Promise<string> =>
+        (
+          await handle!.exec(
+            `curl -s -o /dev/null -m 8 -w '%{http_code}' https://${host}/ || echo 000`,
+          )
+        ).stdout.trim()
+      const [allowed, deniedHost, deniedIp] = await Promise.all([
+        code(EGRESS_PROBE_ALLOW),
+        code(EGRESS_PROBE_DENY),
+        code('1.1.1.1'),
+      ])
+      const blocked = (c: string): boolean => c === '' || c.startsWith('000')
+      if (blocked(deniedHost) && blocked(deniedIp) && !blocked(allowed)) {
+        return {
+          state: 'filtered',
+          detail: `deny-by-default verified: ${EGRESS_PROBE_ALLOW}=${allowed} reachable; ${EGRESS_PROBE_DENY}=${deniedHost} and raw IP=${deniedIp} blocked.`,
+        }
+      }
+      return {
+        state: 'open',
+        detail: `Non-allow-listed egress was reachable (host=${deniedHost}, rawIP=${deniedIp}, allowed=${allowed}).`,
+        remediation:
+          'Ensure updateNetwork applies allowOut + denyOut:[0.0.0.0/0]; check the E2B account supports network policy.',
+      }
+    } catch (error) {
+      return {
+        state: 'inconclusive',
+        detail: `Egress probe could not run: ${error instanceof Error ? error.message : String(error)}`,
+      }
+    } finally {
+      // Best-effort cleanup of the throwaway probe sandbox; a failed destroy
+      // must not mask the verdict (E2B auto-pauses idle sandboxes regardless).
+      if (handle) {
+        await this.destroy(handle.id).catch((_error) => {
+          // intentional noop — probe teardown is best-effort; the sandbox
+          // auto-pauses and the verdict is what matters.
+        })
+      }
+    }
   }
 }
 

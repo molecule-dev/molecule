@@ -10,12 +10,6 @@
  * @module
  */
 
-/** A single DNS egress rule applied to a sandbox's network policy. */
-export interface E2BNetworkRule {
-  domain: string
-  action: 'allow' | 'deny'
-}
-
 /** Bond configuration. All fields have safe defaults; see {@link createProvider}. */
 export interface E2BConfig {
   /**
@@ -41,11 +35,17 @@ export interface E2BConfig {
    */
   defaultTimeoutMs?: number
   /**
-   * Egress allow-list applied to every sandbox at create time. Everything else
-   * is denied. Empty/omitted means the bond does NOT constrain egress and
-   * `verifyEgress` will observe `open` — prod must supply this.
+   * Egress allow-list (domains / CIDRs) applied to every sandbox at create
+   * time; everything else is denied (`denyOut: [ALL_TRAFFIC]`). Wildcards like
+   * `*.npmjs.org` are supported. Empty/omitted means the bond does NOT
+   * constrain egress — prod must supply this or `verifyEgress` observes `open`
+   * and the control plane refuses to boot (Rule 18).
+   *
+   * Verified against a live E2B sandbox: with `denyOut: [ALL_TRAFFIC]`, a
+   * non-allowlisted host AND a raw destination IP are both blocked — a stronger
+   * boundary than a DNS-only policy.
    */
-  defaultNetworkRules?: E2BNetworkRule[]
+  defaultAllowOut?: string[]
 }
 
 /** Result of an E2B command run (subset of the SDK's `CommandResult`). */
@@ -82,7 +82,7 @@ export interface E2BSandboxLike {
   pause?(): Promise<string>
   betaPause?(): Promise<string>
   isRunning(): Promise<boolean>
-  updateNetwork?(opts: unknown): Promise<void>
+  updateNetwork?(opts: { allowOut?: string[]; denyOut?: string[] }): Promise<void>
 }
 
 /** Subset of the SDK's `Sandbox` static surface the bond uses. */
