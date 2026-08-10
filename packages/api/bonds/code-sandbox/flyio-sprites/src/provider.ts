@@ -41,6 +41,16 @@ const SPRITES_URL_SUFFIX = '.sprites.app'
 /** How long the egress probe's in-sprite curl may take per target, seconds. */
 const EGRESS_PROBE_TIMEOUT_SECONDS = 8
 
+/**
+ * Timeout for `importFiles`' in-sprite `tar -xzf`, in ms. Extraction of a
+ * scaffolded source tree (a few MB) on sprite NVMe is sub-second; the budget
+ * covers pathological archives without hanging a boot forever.
+ */
+const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
+
+/** Shell-safe single-quote for paths interpolated into `sh -c` commands. */
+const shellQuote = (value: string): string => `'${value.replace(/'/g, `'\\''`)}'`
+
 /** The exec result slice the provider reads (SDK results satisfy it). */
 export interface SpriteExecResultLike {
   stdout: string | Buffer
@@ -57,7 +67,8 @@ export interface SpriteDirentLike {
 /** The filesystem slice the provider consumes (SDK `SpriteFilesystem` satisfies it). */
 export interface SpriteFilesystemLike {
   readFile(path: string, encoding: 'utf8'): Promise<string>
-  writeFile(path: string, data: string): Promise<void>
+  /** The SDK PUTs `data` as the raw body, so a Buffer uploads binary in one call. */
+  writeFile(path: string, data: string | Uint8Array): Promise<void>
   readdir(path: string, options: { withFileTypes: true }): Promise<SpriteDirentLike[]>
   rm(path: string): Promise<void>
 }
@@ -258,6 +269,39 @@ function buildSandbox(sprite: SpriteLike, status: Sandbox['status']): Sandbox {
 
     deleteFile: async (path: string): Promise<void> => {
       await sprite.filesystem('/').rm(path)
+    },
+
+    importFiles: async (path: string, archive: AsyncIterable<Uint8Array>): Promise<void> => {
+      // One Filesystem-API PUT for the whole archive (the SDK sends a Buffer as
+      // the raw body), then a hardened in-sprite extraction — same flags as the
+      // flyio bond: never restore ownership or permission bits from a
+      // caller-authored archive (the core contract's privilege-escalation rule).
+      const chunks: Uint8Array[] = []
+      for await (const chunk of archive) chunks.push(chunk)
+      const tmp = `/tmp/mol-import-${Date.now().toString(36)}.tgz`
+      await sprite.filesystem('/').writeFile(tmp, Buffer.concat(chunks))
+      const quotedPath = shellQuote(path)
+      const quotedTmp = shellQuote(tmp)
+      const result = await sprite
+        .execFile(
+          'sh',
+          [
+            '-c',
+            `mkdir -p ${quotedPath} && tar -xzf ${quotedTmp} -C ${quotedPath} --no-same-owner --no-same-permissions && rm -f ${quotedTmp}`,
+          ],
+          { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
+        )
+        .catch((error: { result?: SpriteExecResultLike }) => {
+          if (error?.result) return error.result
+          throw error
+        })
+      if ((result.exitCode ?? 0) !== 0) {
+        throw new Error(
+          t('codeSandbox.sprites.error.importExtract', undefined, {
+            defaultValue: `Extracting the imported archive failed: ${String(result.stderr ?? '')}`,
+          }),
+        )
+      }
     },
 
     // The sprite URL routes to whichever service claimed `http_port` (see

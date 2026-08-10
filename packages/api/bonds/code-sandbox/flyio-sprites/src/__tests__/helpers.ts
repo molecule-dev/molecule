@@ -38,7 +38,7 @@ export interface FakeSprite extends SpriteLike {
   serviceCreates: { name: string; config: unknown }[]
   serviceStops: string[]
   serviceDeletes: string[]
-  writes: Record<string, string>
+  writes: Record<string, string | Uint8Array>
 }
 
 /**
@@ -78,7 +78,7 @@ export function fakeSprite(options: FakeSpriteOptions = {}): FakeSprite {
         if (!(path in files)) throw new Error(`ENOENT: no such file: ${path}`)
         return files[path]
       },
-      writeFile: async (path: string, data: string) => {
+      writeFile: async (path: string, data: string | Uint8Array) => {
         files[path] = data
         fake.writes[path] = data
       },

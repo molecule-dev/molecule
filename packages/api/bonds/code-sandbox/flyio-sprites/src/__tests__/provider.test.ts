@@ -256,6 +256,22 @@ describe('the sandbox facade', () => {
     expect(result.stderr).toBe('boom')
   })
 
+  it('importFiles uploads one buffer and extracts with ownership/permission bits masked', async () => {
+    const sprite = fakeSprite()
+    const { sandbox } = await facade(sprite)
+    async function* archive(): AsyncIterable<Uint8Array> {
+      yield new Uint8Array([1, 2])
+      yield new Uint8Array([3])
+    }
+    await sandbox.importFiles!('/workspace/my-app', archive())
+    const written = Object.entries(sprite.writes).find(([p]) => p.startsWith('/tmp/mol-import-'))
+    expect(written).toBeDefined()
+    expect(Buffer.from(written![1] as Uint8Array)).toEqual(Buffer.from([1, 2, 3]))
+    const extract = sprite.execCalls.find((c) => c.command.includes('tar -xzf'))
+    expect(extract?.command).toContain(`-C '/workspace/my-app'`)
+    expect(extract?.command).toContain('--no-same-owner --no-same-permissions')
+  })
+
   it('readFile/writeFile round-trip through the Filesystem API', async () => {
     const { sandbox } = await facade(fakeSprite({ files: { '/a.txt': 'hello' } }))
     expect(await sandbox.readFile('/a.txt')).toBe('hello')
