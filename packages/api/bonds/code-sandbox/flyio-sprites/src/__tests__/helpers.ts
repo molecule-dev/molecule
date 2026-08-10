@@ -63,7 +63,11 @@ export function fakeSprite(options: FakeSpriteOptions = {}): FakeSprite {
     serviceStops: [],
     serviceDeletes: [],
     writes: {},
-    exec: vi.fn(async (command: string, opts?: unknown) => {
+    // The bond only ever calls execFile('sh', ['-c', command]) — the SDK's
+    // string exec has NO shell (naive whitespace split). The fake records the
+    // reconstructed shell command so assertions stay readable.
+    execFile: vi.fn(async (file: string, args: string[], opts?: unknown) => {
+      const command = file === 'sh' && args[0] === '-c' ? args[1] : [file, ...args].join(' ')
       fake.execCalls.push({ command, options: opts })
       const result = options.exec
       if (typeof result === 'function') return result(command)

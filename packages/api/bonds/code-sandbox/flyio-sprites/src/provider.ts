@@ -70,8 +70,17 @@ export interface SpriteLike {
   readonly name: string
   url?: string
   status?: string
-  exec(
-    command: string,
+  /**
+   * ONLY `execFile` is used by this bond. The SDK's string `exec(command)`
+   * naive-splits on whitespace and runs the first token as the BINARY — no
+   * shell — so `mkdir -p x && y` becomes `mkdir` with `&&` as an argument
+   * (observed: uutils mkdir rejecting `-d` from a piped `base64 -d`). Every
+   * molecule caller passes shell syntax, so commands go through
+   * `execFile('sh', ['-c', command])`.
+   */
+  execFile(
+    file: string,
+    args: string[],
     options?: { cwd?: string; env?: Record<string, string>; timeout?: number },
   ): Promise<SpriteExecResultLike>
   filesystem(workingDir?: string): SpriteFilesystemLike
@@ -212,13 +221,17 @@ function buildSandbox(sprite: SpriteLike, status: Sandbox['status']): Sandbox {
 
     exec: async (command: string, opts?: ExecOptions): Promise<ExecResult> => {
       try {
-        const result = await sprite.exec(command, {
+        // `sh -c` on purpose — see the SpriteLike.execFile doc: the SDK's
+        // string exec has no shell, and molecule callers pass shell syntax.
+        const result = await sprite.execFile('sh', ['-c', command], {
           cwd: opts?.cwd,
           env: opts?.env,
           timeout: opts?.timeout,
         })
         return toExecResult(result)
       } catch (error) {
+        // The SDK REJECTS on nonzero exit (ExecError carries the result); the
+        // core contract is to RESOLVE with the exit code.
         const withResult = error as { result?: SpriteExecResultLike }
         if (withResult?.result) return toExecResult(withResult.result)
         throw error
@@ -398,9 +411,14 @@ export class SpritesSandboxProvider implements SandboxProvider {
     // one round trip.
     const content = renderPlatformEnv(platformEnv)
     const b64 = Buffer.from(content, 'utf-8').toString('base64')
-    const result = await sprite.exec(
-      `mkdir -p /etc/mol && printf %s '${b64}' | base64 -d > /etc/mol/env`,
-    )
+    const result = await sprite
+      .execFile('sh', ['-c', `mkdir -p /etc/mol && printf %s '${b64}' | base64 -d > /etc/mol/env`])
+      .catch((error: { result?: SpriteExecResultLike }) => {
+        // The SDK rejects on nonzero exit; surface it as a result so the
+        // error below carries the actual stderr.
+        if (error?.result) return error.result
+        throw error
+      })
     if ((result.exitCode ?? 0) !== 0) {
       throw new Error(
         t('codeSandbox.sprites.error.envWrite', undefined, {
@@ -503,8 +521,12 @@ export class SpritesSandboxProvider implements SandboxProvider {
       }
       const canary = 'example.com'
       const probe = async (host: string): Promise<boolean> => {
-        const result = await sprite!.exec(
-          `curl -sI --max-time ${EGRESS_PROBE_TIMEOUT_SECONDS} https://${host} > /dev/null && echo OK || echo BLOCKED`,
+        const result = await sprite!.execFile(
+          'sh',
+          [
+            '-c',
+            `curl -sI --max-time ${EGRESS_PROBE_TIMEOUT_SECONDS} https://${host} > /dev/null && echo OK || echo BLOCKED`,
+          ],
           { timeout: (EGRESS_PROBE_TIMEOUT_SECONDS + 5) * 1000 },
         )
         return String(result.stdout ?? '').includes('OK')

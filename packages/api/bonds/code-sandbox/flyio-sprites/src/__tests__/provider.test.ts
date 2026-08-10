@@ -243,7 +243,7 @@ describe('the sandbox facade', () => {
 
   it('exec recovers the result carried by an ExecError-shaped rejection', async () => {
     const sprite = fakeSprite()
-    sprite.exec = async () => {
+    sprite.execFile = async () => {
       const error = new Error('Command failed') as Error & {
         result: { stdout: string; stderr: string; exitCode: number }
       }
