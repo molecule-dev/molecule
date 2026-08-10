@@ -1,0 +1,61 @@
+{
+  "name": "@molecule/api-code-sandbox-e2b",
+  "version": "1.0.0",
+  "description": "E2B (e2b.dev) code sandbox provider — Firecracker microVMs with golden templates, fork, and pause/resume",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "sandbox",
+    "e2b",
+    "firecracker",
+    "code-execution"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.1",
+    "@molecule/api-code-sandbox": "1.0.3",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-code-sandbox": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
+  },
+  "peerDependenciesMeta": {
+    "@molecule/api-code-sandbox": {
+      "optional": true
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/code-sandbox/e2b"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/code-sandbox/e2b",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "e2b": "2.38.3"
+  }
+}
