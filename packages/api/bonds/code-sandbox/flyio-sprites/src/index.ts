@@ -65,10 +65,20 @@
  * - **File ops use the Sprites Filesystem API** (HTTP), so `readDir` on a
  *   missing path throws (ENOENT) per the core contract — `[]` always means
  *   "exists and is empty".
+ * - **WORKAROUND (remove when Fly fixes cold-restore):** every sprite gets a
+ *   preload at `/etc/mol/sprites-access-shim.cjs`, wired via `NODE_OPTIONS`
+ *   in `/etc/mol/env`, that falls back to `stat(2)` when `access(2)` answers
+ *   EACCES. A Sprites platform bug (see
+ *   `docs/sprites-cold-restore-bug-report.md` in the molecule workspace)
+ *   makes `access(2)` return EACCES on paths written before a COLD
+ *   sleep/restore cycle while stat/read/readdir still work — which breaks
+ *   `fs.existsSync` consumers like Vite's boot check. Caller-supplied
+ *   `NODE_OPTIONS` are preserved (shim appended).
  *
  * @module
  */
 
+export * from './access-shim.js'
 export * from './names.js'
 export * from './provider.js'
 export * from './services.js'

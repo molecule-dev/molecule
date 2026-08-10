@@ -24,6 +24,7 @@ import type {
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
 
+import { SPRITES_ACCESS_SHIM_PATH, SPRITES_ACCESS_SHIM_SOURCE } from './access-shim.js'
 import { spriteNameFor } from './names.js'
 import { ensureService } from './services.js'
 import type { SpritesConfig } from './types.js'
@@ -462,8 +463,8 @@ export class SpritesSandboxProvider implements SandboxProvider {
   }
 
   /**
-   * Applies the per-sprite pieces creation cannot express: the platform env
-   * file and the default network policy.
+   * Applies the per-sprite pieces creation cannot express: the access-shim
+   * preload, the platform env file, and the default network policy.
    *
    * @param sprite - The sprite.
    * @param env - The caller's env vars.
@@ -473,17 +474,34 @@ export class SpritesSandboxProvider implements SandboxProvider {
     env: Record<string, string>,
   ): Promise<void> {
     const viteHosts = [SPRITES_URL_SUFFIX, ...(this.config.extraViteAllowedHosts ?? [])]
+    // Preload the access(2) EACCES workaround into every node process the
+    // sprite's launchers spawn (they source /etc/mol/env first) — see
+    // access-shim.ts for the platform bug this papers over, and remove both
+    // when Fly fixes cold-restore. The caller's own NODE_OPTIONS come first;
+    // the shim is appended (idempotently) so neither clobbers the other.
+    const shimRequire = `--require ${SPRITES_ACCESS_SHIM_PATH}`
+    const callerNodeOptions = (env.NODE_OPTIONS ?? '').trim()
+    const nodeOptions = callerNodeOptions.includes(SPRITES_ACCESS_SHIM_PATH)
+      ? callerNodeOptions
+      : [callerNodeOptions, shimRequire].filter(Boolean).join(' ')
     const platformEnv = {
       ...env,
       VITE_ALLOWED_HOSTS: viteHosts.join(','),
+      NODE_OPTIONS: nodeOptions,
     }
     // /etc/mol/env is the platform layer every molecule launcher sources.
-    // Written via exec (not the Filesystem API) so the mkdir and the write are
-    // one round trip.
+    // Written via exec (not the Filesystem API) so the mkdir and both writes
+    // (shim + env) are one round trip.
+    const shimB64 = Buffer.from(SPRITES_ACCESS_SHIM_SOURCE, 'utf-8').toString('base64')
     const content = renderPlatformEnv(platformEnv)
     const b64 = Buffer.from(content, 'utf-8').toString('base64')
     const result = await sprite
-      .execFile('sh', ['-c', `mkdir -p /etc/mol && printf %s '${b64}' | base64 -d > /etc/mol/env`])
+      .execFile('sh', [
+        '-c',
+        `mkdir -p /etc/mol` +
+          ` && printf %s '${shimB64}' | base64 -d > ${SPRITES_ACCESS_SHIM_PATH}` +
+          ` && printf %s '${b64}' | base64 -d > /etc/mol/env`,
+      ])
       .catch((error: { result?: SpriteExecResultLike }) => {
         // The SDK rejects on nonzero exit; surface it as a result so the
         // error below carries the actual stderr.
@@ -493,7 +511,7 @@ export class SpritesSandboxProvider implements SandboxProvider {
     if ((result.exitCode ?? 0) !== 0) {
       throw new Error(
         t('codeSandbox.sprites.error.envWrite', undefined, {
-          defaultValue: `Writing /etc/mol/env failed: ${String(result.stderr ?? '')}`,
+          defaultValue: `Writing the /etc/mol platform files failed: ${String(result.stderr ?? '')}`,
         }),
       )
     }

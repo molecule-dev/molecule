@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { SPRITES_ACCESS_SHIM_PATH } from '../access-shim.js'
 import { spriteNameFor } from '../names.js'
 import {
   createProvider,
@@ -8,6 +9,21 @@ import {
   SpritesSandboxProvider,
 } from '../provider.js'
 import { fakeClient, fakeSprite } from './helpers.js'
+
+/**
+ * Extracts and decodes the base64 payload a command pipes into `target`
+ * (`printf %s '<b64>' | base64 -d > <target>`).
+ *
+ * @param command - The recorded shell command.
+ * @param target - The redirect target path.
+ * @returns The decoded payload ('' when the command has no such write).
+ */
+function decodePrintfTarget(command: string, target: string): string {
+  const match = new RegExp(
+    `printf %s '([^']+)' \\| base64 -d > ${target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`,
+  ).exec(command)
+  return match ? Buffer.from(match[1], 'base64').toString('utf-8') : ''
+}
 
 describe('spriteNameFor', () => {
   it('prefixes and passes through a clean project id', () => {
@@ -112,10 +128,40 @@ describe('create', () => {
     expect(sprite.execCalls).toHaveLength(1)
     const command = sprite.execCalls[0].command
     expect(command).toContain('/etc/mol/env')
-    const b64 = /printf %s '([^']+)'/.exec(command)?.[1] ?? ''
-    const decoded = Buffer.from(b64, 'base64').toString('utf-8')
+    const decoded = decodePrintfTarget(command, '/etc/mol/env')
     expect(decoded).toContain("export K='v'")
     expect(decoded).toContain("export VITE_ALLOWED_HOSTS='.sprites.app,.mlcl.dev'")
+  })
+
+  it('writes the access-shim preload and requires it via NODE_OPTIONS', async () => {
+    const client = fakeClient()
+    const provider = createProvider({}, client)
+    const sandbox = await provider.create({ projectId: 'p1' })
+    const sprite = client.spritesByName[sandbox.id]
+    const command = sprite.execCalls[0].command
+    expect(command).toContain(SPRITES_ACCESS_SHIM_PATH)
+    // The shim payload itself: decodable, and it patches the access family.
+    const shim = decodePrintfTarget(command, SPRITES_ACCESS_SHIM_PATH)
+    expect(shim).toContain('fs.accessSync =')
+    expect(shim).toContain('fs.existsSync =')
+    expect(shim).toContain("err.code === 'EACCES'")
+    // And the env file preloads it into every node process.
+    const env = decodePrintfTarget(command, '/etc/mol/env')
+    expect(env).toContain(`export NODE_OPTIONS='--require ${SPRITES_ACCESS_SHIM_PATH}'`)
+  })
+
+  it('preserves caller NODE_OPTIONS ahead of the shim require', async () => {
+    const client = fakeClient()
+    const provider = createProvider({}, client)
+    const sandbox = await provider.create({
+      projectId: 'p1',
+      env: { NODE_OPTIONS: '--max-old-space-size=4096' },
+    })
+    const sprite = client.spritesByName[sandbox.id]
+    const env = decodePrintfTarget(sprite.execCalls[0].command, '/etc/mol/env')
+    expect(env).toContain(
+      `export NODE_OPTIONS='--max-old-space-size=4096 --require ${SPRITES_ACCESS_SHIM_PATH}'`,
+    )
   })
 
   it('throws when the platform env write fails', async () => {
@@ -126,7 +172,7 @@ describe('create', () => {
       name: 'mol-p1',
       exec: { stdout: '', stderr: 'disk full', exitCode: 1 },
     })
-    await expect(provider.create({ projectId: 'p1' })).rejects.toThrow(/\/etc\/mol\/env/)
+    await expect(provider.create({ projectId: 'p1' })).rejects.toThrow(/\/etc\/mol/)
   })
 
   it('applies defaultNetworkRules at creation', async () => {
