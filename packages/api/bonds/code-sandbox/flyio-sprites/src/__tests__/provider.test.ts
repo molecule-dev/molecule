@@ -402,9 +402,46 @@ describe('verifyEgress', () => {
 
   it('reports open when the canary is reachable despite the policy', async () => {
     const client = probeClient({ 'registry.npmjs.org': true, 'example.com': true })
-    const provider = new SpritesSandboxProvider({ defaultNetworkRules: rules }, client)
+    // egressPropagationMs: 0 ⇒ probe once, no propagation wait (the canary is
+    // genuinely open here, not mid-propagation).
+    const provider = new SpritesSandboxProvider(
+      { defaultNetworkRules: rules, egressPropagationMs: 0 },
+      client,
+    )
     const verdict = await provider.verifyEgress()
     expect(verdict.state).toBe('open')
+  })
+
+  it('waits out policy propagation — a canary reachable at first, then denied, is filtered', async () => {
+    // Reproduces the production race: the policy is not enforced the instant
+    // updateNetworkPolicy returns, so the first canary probe connects; once it
+    // propagates the canary is denied and the verdict must be `filtered`, not
+    // `open`. The probe answers example.com OK once, then BLOCKED.
+    const client = fakeClient()
+    const original = client.createSprite.bind(client)
+    let canaryProbes = 0
+    client.createSprite = async (name, options) => {
+      await original(name, options)
+      const sprite = fakeSprite({
+        name,
+        exec: (command: string) => {
+          const host = /https:\/\/([^ ]+)/.exec(command)?.[1] ?? ''
+          let ok = false
+          if (host === 'registry.npmjs.org') ok = true
+          else if (host === 'example.com') ok = canaryProbes++ < 1 // reachable only on the first probe
+          return { stdout: ok ? 'OK' : 'BLOCKED', stderr: '', exitCode: 0 }
+        },
+      })
+      client.spritesByName[name] = sprite
+      return sprite
+    }
+    const provider = new SpritesSandboxProvider(
+      { defaultNetworkRules: rules, egressPropagationMs: 5_000 },
+      client,
+    )
+    const verdict = await provider.verifyEgress()
+    expect(verdict.state).toBe('filtered')
+    expect(canaryProbes).toBeGreaterThan(1) // it re-probed after the first reachable result
   })
 
   it('reports open (never filtered) when no rules are configured and the canary connects', async () => {

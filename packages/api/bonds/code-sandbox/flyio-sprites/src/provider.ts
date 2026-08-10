@@ -43,6 +43,17 @@ const SPRITES_URL_SUFFIX = '.sprites.app'
 const EGRESS_PROBE_TIMEOUT_SECONDS = 8
 
 /**
+ * How long verifyEgress waits for a just-applied network policy to propagate to
+ * the sprite dataplane before concluding the canary is genuinely reachable.
+ * A policy is not enforced the instant updateNetworkPolicy returns; a one-shot
+ * canary probe raced that in production and falsely reported `open`.
+ */
+const EGRESS_POLICY_PROPAGATION_MS = 30_000
+
+/** Interval between canary re-probes while waiting for policy propagation. */
+const EGRESS_POLICY_POLL_MS = 3_000
+
+/**
  * Timeout for `importFiles`' in-sprite `tar -xzf`, in ms. Extraction of a
  * scaffolded source tree (a few MB) on sprite NVMe is sub-second; the budget
  * covers pathological archives without hanging a boot forever.
@@ -602,7 +613,24 @@ export class SpritesSandboxProvider implements SandboxProvider {
         )
         return String(result.stdout ?? '').includes('OK')
       }
-      const canaryReachable = await probe(canary)
+      // A network policy does not take effect the instant updateNetworkPolicy
+      // returns — it propagates to the sprite's dataplane over some seconds.
+      // Probing the canary ONCE immediately raced that propagation in
+      // production (a fresh boot observed the canary still reachable and
+      // reported `open`, refusing to create sandboxes) while a slower local
+      // run saw it already denied. So when a policy IS configured, POLL the
+      // canary until it is denied, up to EGRESS_POLICY_PROPAGATION_MS — only a
+      // canary that stays reachable through the whole window is genuinely open.
+      // No policy configured ⇒ no propagation to wait for, probe once.
+      let canaryReachable = await probe(canary)
+      const propagationMs = this.config.egressPropagationMs ?? EGRESS_POLICY_PROPAGATION_MS
+      if (allowRule && canaryReachable && propagationMs > 0) {
+        const deadline = Date.now() + propagationMs
+        while (canaryReachable && Date.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, EGRESS_POLICY_POLL_MS))
+          canaryReachable = await probe(canary)
+        }
+      }
       if (!allowRule) {
         return canaryReachable
           ? {

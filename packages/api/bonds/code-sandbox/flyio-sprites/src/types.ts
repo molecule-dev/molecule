@@ -48,4 +48,12 @@ export interface SpritesConfig {
    * arriving through the sprite's public URL.
    */
   extraViteAllowedHosts?: string[]
+  /**
+   * How long `verifyEgress()` waits for a just-applied network policy to
+   * propagate before concluding the canary is genuinely reachable. Defaults to
+   * 30000ms. A policy is not enforced the instant `updateNetworkPolicy`
+   * returns, so a one-shot canary probe can race propagation and falsely
+   * report `open` (observed in production). Tests set this to 0.
+   */
+  egressPropagationMs?: number
 }
