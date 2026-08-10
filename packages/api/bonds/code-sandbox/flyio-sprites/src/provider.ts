@@ -278,7 +278,7 @@ function buildSandbox(sprite: SpriteLike, status: Sandbox['status']): Sandbox {
       // caller-authored archive (the core contract's privilege-escalation rule).
       const chunks: Uint8Array[] = []
       for await (const chunk of archive) chunks.push(chunk)
-      const tmp = `/tmp/mol-import-${Date.now().toString(36)}.tgz`
+      const tmp = `/tmp/mol-import-${Date.now().toString(36)}.tar`
       await sprite.filesystem('/').writeFile(tmp, Buffer.concat(chunks))
       const quotedPath = shellQuote(path)
       const quotedTmp = shellQuote(tmp)
@@ -287,7 +287,7 @@ function buildSandbox(sprite: SpriteLike, status: Sandbox['status']): Sandbox {
           'sh',
           [
             '-c',
-            `mkdir -p ${quotedPath} && tar -xzf ${quotedTmp} -C ${quotedPath} --no-same-owner --no-same-permissions && rm -f ${quotedTmp}`,
+            `mkdir -p ${quotedPath} && tar -xf ${quotedTmp} -C ${quotedPath} --no-same-owner --no-same-permissions && rm -f ${quotedTmp}`,
           ],
           { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
         )
