@@ -48,12 +48,4 @@ export interface SpritesConfig {
    * arriving through the sprite's public URL.
    */
   extraViteAllowedHosts?: string[]
-  /**
-   * Port the `preview-route` placeholder service claims at creation so the
-   * sprite URL routes to it. Defaults to 5173 (the scaffolded Vite dev
-   * server). The sprite URL only routes to a service-claimed `http_port`;
-   * routing works even though the platform launcher, not the service, owns
-   * the listening process.
-   */
-  previewHttpPort?: number
 }

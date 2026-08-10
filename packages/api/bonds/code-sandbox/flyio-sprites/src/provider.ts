@@ -26,7 +26,6 @@ import { t } from '@molecule/api-i18n'
 
 import { SPRITES_ACCESS_SHIM_PATH, SPRITES_ACCESS_SHIM_SOURCE } from './access-shim.js'
 import { spriteNameFor } from './names.js'
-import { ensureService } from './services.js'
 import type { SpritesConfig } from './types.js'
 
 const logger = getLogger()
@@ -36,13 +35,6 @@ const DEFAULT_BASE_URL = 'https://api.sprites.dev'
 
 /** Default sprite-name prefix for provider-owned sandboxes. */
 const DEFAULT_NAME_PREFIX = 'mol-'
-
-/**
- * Port the `preview-route` placeholder service claims by default — the
- * scaffolded app's Vite dev-server port, which is what the preview iframe
- * loads. Override with {@link SpritesConfig.previewHttpPort}.
- */
-const DEFAULT_PREVIEW_HTTP_PORT = 5173
 
 /** Hostname suffix every sprite URL lives under; Vite must allow it. */
 const SPRITES_URL_SUFFIX = '.sprites.app'
@@ -441,23 +433,13 @@ export class SpritesSandboxProvider implements SandboxProvider {
 
     await this.applyCreationPolicies(sprite, config.env ?? {})
 
-    // The sprite URL only routes to a port CLAIMED BY A SERVICE (`http_port`);
-    // there is no auto-routing to whatever listens. The platform's launcher
-    // owns the dev-server processes, so a placeholder service claims the route
-    // — measured: routing works even though a different process owns the port.
-    await ensureService(sprite, {
-      name: 'preview-route',
-      cmd: 'sleep',
-      args: ['infinity'],
-      httpPort: this.config.previewHttpPort ?? DEFAULT_PREVIEW_HTTP_PORT,
-    }).catch((error) => {
-      // The sandbox is fully usable without the route (exec, files, scaffold);
-      // only the public preview URL is affected — warn, never fail the create.
-      logger.warn('Could not register the preview-route service; the sprite URL will not serve', {
-        name,
-        error,
-      })
-    })
+    // NOTE: the sprite URL routes to the PROCESS of the service that claims
+    // `http_port` — NOT to whatever else happens to listen on that port. So a
+    // `sleep` placeholder here does NOT route to a separately-launched dev
+    // server (measured: URL 000 while vite served 200 in-sprite). The consumer
+    // that OWNS the dev-server layout (molecule-dev) registers a service whose
+    // command IS the dev server, so the bond deliberately registers nothing —
+    // it does not know the app's directory or start command.
 
     return buildSandbox(sprite, mapSpriteStatus(sprite.status ?? 'running'))
   }
