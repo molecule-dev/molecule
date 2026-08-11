@@ -277,6 +277,57 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
+   * Extract a POSIX tar stream into the sandbox at `path`.
+   *
+   * The transfer primitive the scaffold path uses to copy a project tree in.
+   * Buffers the stream, writes it as one blob, and `tar x`-tracts it.
+   * `--no-same-owner --no-same-permissions` enforces the contract that a
+   * caller/tenant-authored archive's ownership + setuid/setgid bits are NOT
+   * restored (they arrive owned by the sandbox user, no privilege bits).
+   *
+   * @param path - Absolute destination directory inside the sandbox.
+   * @param archive - POSIX tar byte stream to extract there.
+   */
+  async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
+    const chunks: Uint8Array[] = []
+    for await (const chunk of archive) chunks.push(chunk)
+    const tarPath = `/tmp/mol-import-${Date.now().toString(36)}.tar`
+    await this.sbx.files.write(tarPath, new Blob([Buffer.concat(chunks)]))
+    const r = await this.sbx.commands.run(
+      `mkdir -p ${path} && tar xf ${tarPath} -C ${path} --no-same-owner --no-same-permissions && rm -f ${tarPath}`,
+      { timeoutMs: 300_000 },
+    )
+    if (r.exitCode !== 0) {
+      throw new Error(`importFiles: tar extract failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
+    }
+  }
+
+  /**
+   * Stream a directory tree out of the sandbox as a POSIX tar archive.
+   *
+   * Tars the tree in-sandbox, reads it back as bytes, and yields it as a single
+   * chunk. Sufficient for archive/migrate (whole-workspace capture); not a
+   * chunked pipe.
+   *
+   * @param path - Absolute path inside the sandbox to archive.
+   * @returns A POSIX tar byte stream of that path's contents.
+   */
+  async exportFiles(path: string): Promise<AsyncIterable<Uint8Array>> {
+    const tarPath = `/tmp/mol-export-${Date.now().toString(36)}.tar`
+    const r = await this.sbx.commands.run(`tar cf ${tarPath} -C ${path} .`, { timeoutMs: 300_000 })
+    if (r.exitCode !== 0) {
+      throw new Error(`exportFiles: tar create failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
+    }
+    const bytes = await this.sbx.files.read(tarPath, { format: 'bytes' })
+    await this.sbx.commands.run(`rm -f ${tarPath}`, { timeoutMs: 20_000 }).catch((_error) => {
+      // intentional noop — leftover /tmp tar is harmless; the sandbox is ephemeral.
+    })
+    return (async function* () {
+      yield bytes
+    })()
+  }
+
+  /**
    * Extend the sandbox's auto-pause deadline (heartbeat).
    *
    * @param ms - New lifetime in milliseconds from now.

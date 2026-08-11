@@ -58,7 +58,10 @@ export interface E2BCommandResultLike {
 /** Subset of the SDK's `Filesystem` the bond uses. */
 export interface E2BFilesystemLike {
   read(path: string): Promise<string>
-  write(path: string, data: string): Promise<unknown>
+  /** Binary read (`format: 'bytes'`) — used by `exportFiles` to stream a tar out. */
+  read(path: string, opts: { format: 'bytes' }): Promise<Uint8Array>
+  /** Accepts text or binary; `importFiles` writes a tar blob in. */
+  write(path: string, data: string | Uint8Array | ArrayBuffer | Blob): Promise<unknown>
   list(path: string): Promise<Array<{ name: string; type?: string; size?: number }>>
   remove(path: string): Promise<void>
 }
