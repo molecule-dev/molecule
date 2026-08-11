@@ -70,7 +70,13 @@ export interface E2BFilesystemLike {
 export interface E2BCommandsLike {
   run(
     cmd: string,
-    opts?: { cwd?: string; timeoutMs?: number; envs?: Record<string, string> },
+    opts?: {
+      cwd?: string
+      timeoutMs?: number
+      envs?: Record<string, string>
+      /** Fire-and-forget: returns immediately without waiting for exit. */
+      background?: boolean
+    },
   ): Promise<E2BCommandResultLike>
 }
 

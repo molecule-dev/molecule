@@ -202,17 +202,48 @@ class E2BSandbox implements Sandbox {
   /**
    * Run a command to completion in the sandbox.
    *
+   * The core contract is RETURN, not throw: a non-zero exit is data
+   * (`exitCode`), not an error — control-plane code reads `exitCode`/`stdout`
+   * to decide (install sentinels, health probes, existence checks). E2B's
+   * `commands.run` throws `CommandExitError` on non-zero, so we catch it and
+   * map its `.result` back to an {@link ExecResult}. Only a genuine
+   * infrastructure failure (no `.result`) rethrows.
+   *
    * @param command - The shell command to run.
    * @param opts - Working directory, timeout (ms), and env vars.
-   * @returns stdout, stderr and the exit code.
+   * @returns stdout, stderr and the exit code (even when non-zero).
    */
   async exec(command: string, opts?: ExecOptions): Promise<ExecResult> {
-    const r = await this.sbx.commands.run(command, {
-      cwd: opts?.cwd,
-      timeoutMs: opts?.timeout,
-      envs: opts?.env,
-    })
-    return { stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode }
+    // A shell-backgrounded command (`… &` / `… & true`) must NOT block exec —
+    // that is the whole point of `&`. E2B's `commands.run` waits for the process
+    // group anyway (a detached `nohup`/`setsid` dev-server launch times out the
+    // request), so route backgrounded commands through the SDK's native
+    // `background: true`, which returns immediately. The control plane launches
+    // every dev server this way (`nohup sh -c '…' >log 2>&1 & true`), so this
+    // makes the provider-agnostic launch code work unchanged on E2B.
+    if (/&\s*(?:true\s*)?$/.test(command)) {
+      await this.sbx.commands.run(command, {
+        cwd: opts?.cwd,
+        envs: opts?.env,
+        background: true,
+      } as never)
+      return { stdout: '', stderr: '', exitCode: 0 }
+    }
+    try {
+      const r = await this.sbx.commands.run(command, {
+        cwd: opts?.cwd,
+        timeoutMs: opts?.timeout,
+        envs: opts?.env,
+      })
+      return { stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode }
+    } catch (error) {
+      const res = (error as { result?: { stdout?: string; stderr?: string; exitCode?: number } })
+        ?.result
+      if (res && typeof res.exitCode === 'number') {
+        return { stdout: res.stdout ?? '', stderr: res.stderr ?? '', exitCode: res.exitCode }
+      }
+      throw error
+    }
   }
 
   /**
