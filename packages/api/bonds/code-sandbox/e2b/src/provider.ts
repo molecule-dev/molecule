@@ -274,14 +274,45 @@ class E2BSandbox implements Sandbox {
    * @returns The directory entries.
    */
   async readDir(path: string): Promise<DirEntry[]> {
-    // E2B throws when the path is missing (contract: empty array ONLY means
-    // "exists and empty"), so we do not catch here.
-    const entries = await this.sbx.files.list(path)
-    return entries.map((e) => ({
-      name: e.name,
-      type: e.type === 'dir' || e.type === 'directory' ? 'directory' : 'file',
-      ...(typeof e.size === 'number' ? { size: e.size } : {}),
-    }))
+    // Use `ls -la`, NOT the SDK's `files.list`: files.list reports only
+    // name/type/size and cannot distinguish a symlink from its target, so a
+    // symlink like `.claude -> .agents` came back as a plain directory and showed
+    // up in the file tree as a second, fully-expandable copy of its target. Parsing
+    // `ls -la` (same approach as the docker bond) lets us set `symlinkTarget` so the
+    // UI can render it AS a symlink. A trailing slash makes ls resolve a directory
+    // symlink passed as `path` itself (e.g. /workspace).
+    const dirPath = path.endsWith('/') ? path : `${path}/`
+    const result = await this.exec(`ls -la --time-style=+%s '${dirPath.replace(/'/g, `'\\''`)}'`)
+    // Contract: a missing directory THROWS (an empty array means "exists and
+    // empty"). ls exits non-zero on a missing path.
+    if (result.exitCode !== 0) {
+      throw new Error(`Failed to list ${path}: ${result.stderr || `exit ${result.exitCode}`}`)
+    }
+    return result.stdout
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .filter((line) => !/^total\s/.test(line)) // ls's summary header
+      .map((line): DirEntry | null => {
+        const parts = line.split(/\s+/)
+        // With --time-style=+%s the columns are: perms links owner group size
+        // <epoch> name…, so the name begins at index 6.
+        const rawName = parts.slice(6).join(' ')
+        const isSymlink = line.startsWith('l')
+        // ls renders a symlink as "name -> target".
+        const arrowIdx = rawName.indexOf(' -> ')
+        const name = isSymlink && arrowIdx !== -1 ? rawName.slice(0, arrowIdx) : rawName
+        if (name === '.' || name === '..' || name === '') return null
+        const symlinkTarget = isSymlink && arrowIdx !== -1 ? rawName.slice(arrowIdx + 4) : undefined
+        const size = Number.parseInt(parts[4] ?? '', 10)
+        return {
+          name,
+          type: line.startsWith('d') ? 'directory' : 'file',
+          ...(Number.isFinite(size) ? { size } : {}),
+          ...(symlinkTarget ? { symlinkTarget } : {}),
+        }
+      })
+      .filter((e): e is DirEntry => e !== null)
   }
 
   /**
