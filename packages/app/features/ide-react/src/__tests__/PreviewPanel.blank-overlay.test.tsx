@@ -125,11 +125,13 @@ async function mountWithIframe(isBuilding: boolean): Promise<{
   return { container, iframe }
 }
 
-// TIMING: the blank notice is gated on PreviewPanel's LOAD_RECOVER_AFTER_MS (12s),
-// so every waitFor for it must clear 12s by a wide margin, not squeak past it. These
-// were 14s (1.17x) and flaked on loaded CI runners while passing locally every time —
-// the assertion was always right, it was just racing the constant it depends on.
-// Keep the ratio generous; a slow runner is not a regression.
+// TIMING: the dead-document blank notice is gated on PreviewPanel's BLANK_DEAD_MS
+// (15s since 1.0.2's proxy/Fly retuning; the 12s LOAD_RECOVER_AFTER_MS auto-reload
+// fires before it), so every positive waitFor must clear 15s by a wide margin, and
+// every NEGATIVE wait ("the notice must NOT appear") must ALSO outlast 15s or it
+// passes trivially no matter what the panel does. Earlier waits sat at 1.17x the
+// constant and flaked on loaded CI runners; keep the ratio generous — a slow runner
+// is not a regression — and re-derive every wait here whenever the constants move.
 describe('PreviewPanel — no bare white screen (blank/building overlay)', () => {
   it('does NOT falsely accuse a still-starting (alive, cold-booting) app of being blank', async () => {
     const { container, iframe } = await mountWithIframe(false)
@@ -219,10 +221,11 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     fireEvent.load(iframe)
     postFromPreview({ type: 'molecule:heartbeat' })
 
-    // Past the blank-settle window (onLoad-grace ~2.5s + settle ~6s), an ACTIVE build keeps the
-    // reassuring status overlay up over the unconfirmed app — never the "preview is blank"
-    // accusation, never bare white.
-    await new Promise((r) => setTimeout(r, 9500))
+    // Past every accusation window — including the dead-doc BLANK_DEAD_MS (15s; the single
+    // heartbeat above went stale long before that) — an ACTIVE build keeps the reassuring
+    // status overlay up over the unconfirmed app: never the "preview is blank" accusation,
+    // never bare white.
+    await new Promise((r) => setTimeout(r, 17000))
     expect(q(container, 'preview-blank-notice')).toBeNull()
     expect(q(container, 'preview-overlay')).not.toBeNull()
   }, 30000)
@@ -230,16 +233,17 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
   it('clears the blank notice once the app confirms it rendered (molecule:ready)', async () => {
     const { container, iframe } = await mountWithIframe(false)
     // Drive the genuine-failure path: the document loads but its inline bridge NEVER runs (no
-    // heartbeat at all ⇒ a broken/error page), so the actionable notice appears.
+    // heartbeat at all ⇒ a broken/error page), so the actionable notice appears — after
+    // BLANK_DEAD_MS (15s), hence the generous timeout.
     fireEvent.load(iframe)
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 9000,
+      timeout: 20000,
     })
 
     // A real render confirmation tears the notice down — the app is showing content now.
     postFromPreview({ type: 'molecule:ready' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).toBeNull(), { timeout: 4000 })
-  }, 16000)
+  }, 30000)
 
   it('re-covers the preview when an edit reloads a previously-working app to blank', async () => {
     const { container, iframe } = await mountWithIframe(false)
@@ -403,15 +407,16 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     )
     // The new port's cold Vite serves a bridge-less document (no ready, no heartbeat).
     fireEvent.load(iframe2)
-    // Well past BLANK_DEAD_MS (4s): the URL-change wake window must keep the notice away.
-    await new Promise((r) => setTimeout(r, 8000))
+    // Well past BLANK_DEAD_MS (15s): the URL-change wake window must keep the notice away.
+    // (A shorter wait passes trivially — the accusation can't fire before 15s at all.)
+    await new Promise((r) => setTimeout(r, 17000))
     expect(q(container, 'preview-blank-notice')).toBeNull()
     expect(q(container, 'preview-overlay')).not.toBeNull()
-  }, 16000)
+  }, 30000)
 
   it('wake patience: a bridge-less (dead) document right after a wake is NOT accused within the dead-doc window', async () => {
     // Behind a preview proxy, a wake can transiently serve an error page that never runs the
-    // inline bridge — the exact signature BLANK_DEAD_MS treats as a genuine failure (4s). Right
+    // inline bridge — the exact signature BLANK_DEAD_MS treats as a genuine failure (15s). Right
     // after a wake that inference is wrong: the dev server is still coming up and the stale-
     // document auto-reloads recover it. The notice must stay away well past BLANK_DEAD_MS.
     const provider = providerAtUrl()
@@ -430,7 +435,8 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     )
     fireEvent.load(iframe)
     // Deliberately post NOTHING — no ready, no heartbeat (the error page has no bridge).
-    await new Promise((r) => setTimeout(r, 8000))
+    // Outlast BLANK_DEAD_MS (15s), or wake patience is never actually exercised.
+    await new Promise((r) => setTimeout(r, 17000))
     expect(q(container, 'preview-blank-notice')).toBeNull()
     expect(q(container, 'preview-load-failed')).toBeNull()
     // …while the honest overlay keeps covering it (never a bare error page).

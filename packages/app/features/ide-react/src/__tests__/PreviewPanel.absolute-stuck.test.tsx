@@ -59,12 +59,29 @@ function postFromPreview(data: Record<string, unknown>): void {
   // The panel's trust gate accepts molecule:* ONLY from the preview iframe's own window
   // (event.source === iframe.contentWindow), so simulate a genuine message from it. The panel
   // renders exactly one iframe; its contentWindow is a real (jsdom) Window once mounted.
+  // act(): the handler's setStates must COMMIT before the test advances fake timers, or a
+  // timer callback (the 12s stale-doc recovery) reads the pre-ready refs and acts on them.
   const source = document.querySelector('iframe')?.contentWindow ?? null
-  window.dispatchEvent(new MessageEvent('message', { data, origin: PREVIEW_ORIGIN, source }))
+  act(() => {
+    window.dispatchEvent(new MessageEvent('message', { data, origin: PREVIEW_ORIGIN, source }))
+  })
 }
 
 const q = (container: HTMLElement, molId: string): Element | null =>
   container.querySelector(`[data-mol-id="${molId}"]`)
+
+/**
+ * Advance fake timers INSIDE act() so React work scheduled by timer callbacks
+ * (setState from the ceiling / stuck-retry / recovery timers) is flushed before
+ * the caller asserts on the DOM. A bare `vi.advanceTimersByTimeAsync` only
+ * yields to the real event loop while it still has fake timers to step through,
+ * so whether React's commit (a real macrotask) ran before the assertion used to
+ * depend on the incidental timer layout AFTER the state change — retuning a
+ * constant (STUCK_DETECT_MS 8s→15s) silently broke these tests that way.
+ * @param ms - Fake-timer milliseconds to advance.
+ * @returns Resolves once timers ran and React flushed.
+ */
+const advance = (ms: number): Promise<void> => act(() => vi.advanceTimersByTimeAsync(ms))
 
 beforeEach(() => {
   setClassMap(classMap)
@@ -96,7 +113,7 @@ async function mount(
   // Advance in small steps so the server-up poll's mocked-fetch microtask resolves (and
   // the iframe mounts) BEFORE the probe's 500ms abort timer can race it under fake timers.
   for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-    await vi.advanceTimersByTimeAsync(50)
+    await advance(50)
   }
   const iframe = container.querySelector('iframe')
   expect(iframe).not.toBeNull()
@@ -108,13 +125,13 @@ describe('PreviewPanel — absolute readiness ceiling', () => {
     const { container } = await mount(false)
     // Worst case: the document never fires onLoad and the app never confirms a render, so
     // none of the faster paths surface a way out. The ceiling must still rescue it.
-    await vi.advanceTimersByTimeAsync(31_000)
+    await advance(31_000)
     expect(q(container, 'preview-load-failed')).not.toBeNull()
   })
 
   it('does NOT fire while a build is in progress (no false "can\'t load" mid-build)', async () => {
     const { container } = await mount(true)
-    await vi.advanceTimersByTimeAsync(31_000)
+    await advance(31_000)
     expect(q(container, 'preview-load-failed')).toBeNull()
   })
 
@@ -122,7 +139,7 @@ describe('PreviewPanel — absolute readiness ceiling', () => {
     const { container, iframe } = await mount(false)
     fireEvent.load(iframe)
     postFromPreview({ type: 'molecule:ready' })
-    await vi.advanceTimersByTimeAsync(31_000)
+    await advance(31_000)
     expect(q(container, 'preview-load-failed')).toBeNull()
   })
 })
@@ -137,9 +154,9 @@ describe('PreviewPanel — structured stuck reports (host → agent signal)', ()
       </Wrap>,
     )
     for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-      await vi.advanceTimersByTimeAsync(50)
+      await advance(50)
     }
-    await vi.advanceTimersByTimeAsync(31_000)
+    await advance(31_000)
     expect(onPreviewStuck).toHaveBeenCalled()
     expect(onPreviewStuck.mock.calls[0][0]).toMatchObject({ reason: 'load-timeout' })
   })
@@ -155,13 +172,13 @@ describe('PreviewPanel — navigation atomic remount (no live-OOPIF teardown)', 
     )
     // Cold first load mounts the iframe via the poll path.
     for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-      await vi.advanceTimersByTimeAsync(50)
+      await advance(50)
     }
     const iframe = container.querySelector('iframe') as HTMLIFrameElement
     // Confirm a render so the preview counts as "running" (everLoaded → true).
     fireEvent.load(iframe)
     postFromPreview({ type: 'molecule:ready' })
-    await vi.advanceTimersByTimeAsync(10)
+    await advance(10)
 
     // Now make the server-up probe HANG. A navigation of a running preview must do an
     // ATOMIC remount to the new route (like the manual reload) and must NOT depend on the
@@ -212,7 +229,7 @@ describe('PreviewPanel — cold-load redundant setUrl (host reports the boot url
     })
 
     for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-      await vi.advanceTimersByTimeAsync(50)
+      await advance(50)
     }
 
     const iframe = container.querySelector('iframe') as HTMLIFrameElement
@@ -244,7 +261,7 @@ describe('PreviewPanel — cold-load redundant setUrl (host reports the boot url
     })
 
     for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-      await vi.advanceTimersByTimeAsync(50)
+      await advance(50)
     }
 
     const iframes = container.querySelectorAll('iframe')
@@ -263,7 +280,7 @@ describe('PreviewPanel — runtime-error de-dup (one fault, one report)', () => 
       </Wrap>,
     )
     for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-      await vi.advanceTimersByTimeAsync(50)
+      await advance(50)
     }
     // The SAME uncaught error reported twice — the centralized runtime bridge AND a
     // template's baked sender both fire it. The agent must hear it once, not twice.
@@ -276,7 +293,7 @@ describe('PreviewPanel — runtime-error de-dup (one fault, one report)', () => 
     }
     postFromPreview(err)
     postFromPreview(err)
-    await vi.advanceTimersByTimeAsync(2_500) // flush the error debounce
+    await advance(2_500) // flush the error debounce
     expect(onPreviewError).toHaveBeenCalledTimes(1)
     expect(onPreviewError.mock.calls[0][0]).toHaveLength(1)
   })
@@ -290,11 +307,11 @@ describe('PreviewPanel — runtime-error de-dup (one fault, one report)', () => 
       </Wrap>,
     )
     for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
-      await vi.advanceTimersByTimeAsync(50)
+      await advance(50)
     }
     postFromPreview({ type: 'molecule:runtime-error', message: 'first failure' })
     postFromPreview({ type: 'molecule:runtime-error', message: 'second failure' })
-    await vi.advanceTimersByTimeAsync(2_500)
+    await advance(2_500)
     expect(onPreviewError).toHaveBeenCalledTimes(1)
     expect(onPreviewError.mock.calls[0][0]).toHaveLength(2)
   })
@@ -309,7 +326,7 @@ describe('PreviewPanel — stale-document auto-recovery', () => {
     const srcBefore = iframe.src
     // Past LOAD_RECOVER_AFTER_MS the single server-up check passes → the iframe reloads
     // (cache-busted) to reconnect, instead of needing a manual reload.
-    await vi.advanceTimersByTimeAsync(13_000)
+    await advance(13_000)
     const after = container.querySelector('iframe') as HTMLIFrameElement
     expect(after.src).not.toBe(srcBefore)
   })
@@ -319,7 +336,7 @@ describe('PreviewPanel — stale-document auto-recovery', () => {
     fireEvent.load(iframe)
     postFromPreview({ type: 'molecule:ready' })
     const srcBefore = (container.querySelector('iframe') as HTMLIFrameElement).src
-    await vi.advanceTimersByTimeAsync(13_000)
+    await advance(13_000)
     const after = container.querySelector('iframe') as HTMLIFrameElement
     expect(after.src).toBe(srcBefore)
   })
