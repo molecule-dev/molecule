@@ -4142,35 +4142,28 @@ function ChatInner({
   const userScrolledUpRef = useRef(false)
   const sentInitialRef = useRef<string | null>(null)
 
-  // Detect user scroll intent via wheel/touch events. These never fire during
-  // programmatic scrollTop changes, so they cleanly separate user intent from
-  // auto-scroll without false positives from animation timing.
+  // "Should we stick to the bottom?" — derived ONLY from the actual scroll
+  // position after a scroll event, never from touch direction or content size.
+  //
+  // Why the `scroll` event and not wheel/touch: a streaming burst GROWS the
+  // content (scrollHeight rises) WITHOUT firing `scroll`, so growth alone can
+  // never be mistaken for "the user scrolled up" — only a real move of the
+  // viewport does. The autoscroll pins straight to the bottom (no smooth
+  // animation), so its own programmatic `scroll` lands at distance 0 and keeps
+  // the flag false. A user drag up past the threshold flips it true; dragging
+  // back to the bottom flips it false and auto-scroll resumes. This replaces the
+  // old wheel/touch detector whose touchmove LATCHED true on any downward drag
+  // and only cleared on an up-swipe — a single tap after boot permanently killed
+  // every auto-scroll, which is why the live response stayed out of view on
+  // mobile.
   useEffect(() => {
     const el = messagesContainerRef.current
     if (!el) return
-    const check = (): void => {
+    const onScroll = (): void => {
       userScrolledUpRef.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80
     }
-    const onWheel = (): void => {
-      requestAnimationFrame(check)
-    }
-    let touchY = 0
-    const onTouchStart = (e: TouchEvent): void => {
-      touchY = e.touches[0].clientY
-    }
-    const onTouchMove = (e: TouchEvent): void => {
-      // Swipe down (finger moves down) = scroll up
-      if (e.touches[0].clientY > touchY) userScrolledUpRef.current = true
-      else requestAnimationFrame(check)
-    }
-    el.addEventListener('wheel', onWheel, { passive: true })
-    el.addEventListener('touchstart', onTouchStart, { passive: true })
-    el.addEventListener('touchmove', onTouchMove, { passive: true })
-    return () => {
-      el.removeEventListener('wheel', onWheel)
-      el.removeEventListener('touchstart', onTouchStart)
-      el.removeEventListener('touchmove', onTouchMove)
-    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
   }, [])
 
   // ── Git status ─────────────────────────────────────────────────────────────
