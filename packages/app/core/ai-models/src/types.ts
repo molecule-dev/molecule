@@ -171,6 +171,19 @@ export interface AppModelDefinition {
    * `ModelDefinition.disabled`. Omit entirely for active models.
    */
   disabled?: boolean
+  /**
+   * The id of the newer-generation model that replaces this one, set on the
+   * OLDER entry (e.g. `qwen3.7-max` carries `supersededBy: 'qwen3.8-max'`).
+   *
+   * Treated like {@link disabled} by the picker helpers — a superseded model is
+   * never offered, so the user sees exactly one generation of each model family
+   * — but it stays priceable for historical usage, and the successor id is the
+   * migration target for a saved selection. A server that filters properly
+   * never sends these; the helpers drop them anyway so an older API can't
+   * reintroduce them. Kept in sync with the server-side
+   * `ModelDefinition.supersededBy`. Omit entirely for current models.
+   */
+  supersededBy?: string
 }
 
 /**

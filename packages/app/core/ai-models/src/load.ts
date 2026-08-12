@@ -63,17 +63,33 @@ export async function loadAIModels(
 }
 
 /**
+ * Whether a model may be offered in the picker: neither `disabled` (retired by
+ * the provider) nor `supersededBy` a newer generation of its own family. The
+ * single predicate every picker helper here uses, mirroring the server-side
+ * `isSelectableModel`.
+ *
+ * @param model - Model to check (only the two flags are read).
+ * @returns `true` when the model may be listed and chosen.
+ */
+export function isSelectableModel(
+  model: Pick<AppModelDefinition, 'disabled' | 'supersededBy'>,
+): boolean {
+  return !model.disabled && !model.supersededBy
+}
+
+/**
  * Returns the free-tier model from a list, or `undefined` if none is marked.
- * `disabled` models are ignored — a retired model is never picked as the
- * free-tier default even if it still carries the flag.
+ * Models that are not {@link isSelectableModel} are ignored — a retired or
+ * superseded model is never picked as the free-tier default even if it still
+ * carries the flag.
  *
  * @param models - Loaded model catalog.
- * @returns The single non-disabled model with `freeTier: true`, or `undefined`.
+ * @returns The single selectable model with `freeTier: true`, or `undefined`.
  */
 export function pickFreeTierModel(
   models: readonly AppModelDefinition[],
 ): AppModelDefinition | undefined {
-  return models.find((m) => m.freeTier && !m.disabled)
+  return models.find((m) => m.freeTier && isSelectableModel(m))
 }
 
 /**
@@ -96,9 +112,10 @@ export function isDeprecated(
 /**
  * Splits a model catalog into current and deprecated entries based on each
  * model's `deprecatedAt` relative to `now`. Order within each partition is
- * preserved. `disabled` models are dropped entirely — they belong in neither
- * partition (the listing already excludes them, and they must not surface in
- * the picker's current or "Older models" section).
+ * preserved. Models that are not {@link isSelectableModel} — `disabled` or
+ * superseded by a newer generation — are dropped entirely: they belong in
+ * neither partition (the listing already excludes them, and they must not
+ * surface in the picker's current or "Older models" section).
  *
  * @param models - Loaded model catalog.
  * @param now - Today's date as YYYY-MM-DD. Defaults to the current UTC date.
@@ -111,7 +128,7 @@ export function partitionByDeprecation(
   const current: AppModelDefinition[] = []
   const deprecated: AppModelDefinition[] = []
   for (const model of models) {
-    if (model.disabled) continue
+    if (!isSelectableModel(model)) continue
     if (isDeprecated(model, now)) deprecated.push(model)
     else current.push(model)
   }

@@ -85,8 +85,14 @@ describe('list handler', () => {
     for (const m of models) {
       expect(m.provider).toBe('anthropic')
     }
-    const anthropicCount = MODELS.filter((m) => m.provider === 'anthropic').length
+    // Only SELECTABLE models are listed — the superseded Opus/Sonnet
+    // generations stay in the catalog for pricing but never reach a client.
+    const anthropicCount = MODELS.filter(
+      (m) => m.provider === 'anthropic' && !m.disabled && !m.supersededBy,
+    ).length
     expect(models.length).toBe(anthropicCount)
+    expect(models.some((m) => m.id === 'claude-opus-5')).toBe(true)
+    expect(models.some((m) => m.id === 'claude-opus-4-8')).toBe(false)
   })
 
   it('combines multiple bonded providers', async () => {

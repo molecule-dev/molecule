@@ -295,6 +295,35 @@ export interface ModelDefinition {
    * or its past usage silently meters as free. Omit entirely for active models.
    */
   disabled?: boolean
+  /**
+   * The id of the NEWER-generation model that replaces this one, set on the
+   * OLDER entry and naming its successor (e.g. `qwen3.7-max` carries
+   * `supersededBy: 'qwen3.8-max'`).
+   *
+   * A superseded model is NOT selectable — like {@link disabled} it is excluded
+   * from `MODEL_IDS`, `getAvailableModels()`, the `GET /ai/models` listing and
+   * the client-side picker partitions, so a user is only ever offered the
+   * newest generation of a family. It differs from `disabled` in *why* and in
+   * what it points at: a disabled model is one the provider retired (it can no
+   * longer answer), whereas a superseded model is usually still served upstream
+   * and simply has nothing to offer over its successor — and the successor id
+   * is a real migration target, so a saved selection can resolve forward
+   * (`resolveSelectableModelId`) instead of silently falling back to the
+   * platform default.
+   *
+   * `getModel(id)` STILL returns a superseded entry — historical usage must stay
+   * priceable, so NEVER delete one.
+   *
+   * Set this ONLY when the successor covers the same TIER. A cheaper or
+   * specialist tier with no newer equivalent is NOT superseded merely because
+   * its version number is lower (Google's sole pro tier `gemini-3.1-pro-preview`
+   * alongside the newer flash flagship; `qwen3-coder-plus`; `kimi-k2.7-code`) —
+   * hiding those would leave a provider with no cheap option. Mark those
+   * {@link deprecatedAt} at most. The invariant is enforced by
+   * `__tests__/lookup.test.ts`: two selectable models of the same family at
+   * different versions fail unless listed there as a documented exception.
+   */
+  supersededBy?: string
 }
 
 /**

@@ -4,8 +4,10 @@ import {
   getAvailableModels,
   getModel,
   getModelsByProvider,
+  isSelectableModel,
   MODEL_IDS,
   priceMultiplierAt,
+  resolveSelectableModelId,
 } from '../lookup.js'
 import { MODELS } from '../models.js'
 
@@ -180,14 +182,14 @@ describe('getModel', () => {
 // ---------------------------------------------------------------------------
 
 describe('MODEL_IDS', () => {
-  it('contains every non-disabled model ID, and excludes disabled ones', () => {
+  it('contains every selectable model ID, and excludes disabled + superseded ones', () => {
     for (const model of MODELS) {
-      expect(MODEL_IDS.has(model.id), model.id).toBe(model.disabled !== true)
+      expect(MODEL_IDS.has(model.id), model.id).toBe(isSelectableModel(model))
     }
   })
 
-  it('has one entry per non-disabled model', () => {
-    expect(MODEL_IDS.size).toBe(MODELS.filter((m) => !m.disabled).length)
+  it('has one entry per selectable model', () => {
+    expect(MODEL_IDS.size).toBe(MODELS.filter(isSelectableModel).length)
   })
 
   it('returns false for unknown IDs', () => {
@@ -367,9 +369,9 @@ describe('getAvailableModels', () => {
     expect(getAvailableModels(new Set())).toEqual([])
   })
 
-  it('returns all non-disabled models when all providers are available', () => {
+  it('returns all selectable models when all providers are available', () => {
     const allProviders = new Set(MODELS.map((m) => m.provider))
-    expect(getAvailableModels(allProviders).length).toBe(MODELS.filter((m) => !m.disabled).length)
+    expect(getAvailableModels(allProviders).length).toBe(MODELS.filter(isSelectableModel).length)
   })
 
   it('excludes disabled models even when their provider is available', () => {
@@ -379,6 +381,17 @@ describe('getAvailableModels', () => {
       expect(m.disabled, m.id).not.toBe(true)
     }
     expect(xaiModels.some((m) => m.id === 'grok-code-fast-1')).toBe(false)
+  })
+
+  it('excludes superseded models even when their provider is available', () => {
+    // The picker offers ONE generation per family: an older generation that is
+    // still served upstream (grok-4.3 next to grok-4.5) must not be listed.
+    const xaiModels = getAvailableModels(['xai'])
+    expect(xaiModels.some((m) => m.id === 'grok-4.3')).toBe(false)
+    expect(xaiModels.some((m) => m.id === 'grok-4.5')).toBe(true)
+    for (const m of getAvailableModels(new Set(MODELS.map((x) => x.provider)))) {
+      expect(m.supersededBy, m.id).toBeUndefined()
+    }
   })
 })
 
@@ -465,6 +478,191 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
     for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
       const model = MODELS.find((m) => m.id === id)!
       expect(model.peakPricing, id).toBeUndefined()
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Model families — one generation per family is selectable
+// ---------------------------------------------------------------------------
+
+/**
+ * A model's FAMILY: its provider plus the alphabetic id prefix before the first
+ * version number, with the version parsed segment-wise (`qwen3.8-max` →
+ * `alibaba|qwen` @ [3, 8]). Same rule as the workspace freshness gate
+ * (`scripts/check-model-freshness.mjs`), so "we never care about the older
+ * generation" means the same thing in the catalog and in the drift report.
+ */
+const parseFamily = (provider: string, id: string): { key: string; version: number[] } | null => {
+  const match = /^(.*?)(\d+(?:\.\d+)*)/.exec(id.toLowerCase())
+  if (!match) return null
+  return { key: `${provider}|${match[1]}`, version: match[2].split('.').map(Number) }
+}
+
+const cmpVersion = (a: number[], b: number[]): number => {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const d = (a[i] ?? -1) - (b[i] ?? -1)
+    if (d) return d
+  }
+  return 0
+}
+
+/**
+ * Selectable pairs that SHARE a family key at different versions on purpose,
+ * because the older id is a different TIER with no newer equivalent — hiding it
+ * would leave the provider without that tier. Each entry is a deliberate,
+ * reviewed exception; anything else must carry `supersededBy`.
+ */
+const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }[] = [
+  {
+    older: 'gemini-3.1-pro-preview',
+    newer: 'gemini-3.6-flash',
+    why: "Google's only pro-tier id — no GA 3.x Pro exists; 3.6 is the flash tier.",
+  },
+  {
+    older: 'kimi-k2.7-code',
+    newer: 'kimi-k3',
+    why: 'Coding specialist and the only cheap Moonshot tier ($0.95/$4 vs $3/$15).',
+  },
+  {
+    older: 'qwen3-coder-plus',
+    newer: 'qwen3.8-max',
+    why: 'Coding specialist and the only cheap Alibaba tier; no newer coder id.',
+  },
+]
+
+describe('model families', () => {
+  const selectable = MODELS.filter(isSelectableModel)
+
+  it('never offers two generations of the same family', () => {
+    const allowed = new Set(INTENTIONAL_FAMILY_OVERLAPS.map((o) => `${o.older}|${o.newer}`))
+    for (const a of selectable) {
+      for (const b of selectable) {
+        if (a.id === b.id) continue
+        const famA = parseFamily(a.provider, a.id)
+        const famB = parseFamily(b.provider, b.id)
+        if (!famA || !famB || famA.key !== famB.key) continue
+        if (cmpVersion(famB.version, famA.version) <= 0) continue
+        // b is a strictly newer generation of a's family: a must be marked
+        // `supersededBy` unless it is a documented different-tier exception.
+        expect(
+          allowed.has(`${a.id}|${b.id}`),
+          `${a.id} is an older generation than ${b.id} — set supersededBy on it, ` +
+            'or add a reviewed entry to INTENTIONAL_FAMILY_OVERLAPS explaining the tier split',
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('keeps every documented overlap real (both ids still selectable)', () => {
+    // A stale exception would silently re-permit a genuine older generation.
+    for (const overlap of INTENTIONAL_FAMILY_OVERLAPS) {
+      expect(MODEL_IDS.has(overlap.older), overlap.older).toBe(true)
+      expect(MODEL_IDS.has(overlap.newer), overlap.newer).toBe(true)
+    }
+  })
+
+  it('leaves every provider with at least one selectable model', () => {
+    for (const provider of new Set(MODELS.filter((m) => !m.disabled).map((m) => m.provider))) {
+      expect(
+        selectable.some((m) => m.provider === provider),
+        provider,
+      ).toBe(true)
+    }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Supersedence
+// ---------------------------------------------------------------------------
+
+describe('supersededBy', () => {
+  const superseded = MODELS.filter((m) => m.supersededBy)
+
+  it('points at an existing, selectable model from the same provider', () => {
+    expect(superseded.length).toBeGreaterThan(0)
+    for (const model of superseded) {
+      const successor = getModel(model.supersededBy as string)
+      expect(successor, `${model.id} → ${model.supersededBy}`).toBeDefined()
+      expect(successor!.id, model.id).not.toBe(model.id)
+      expect(successor!.provider, model.id).toBe(model.provider)
+      // One hop only: a chain would leave a saved selection pointing at another
+      // unselectable model.
+      expect(isSelectableModel(successor!), `${model.id} → ${successor!.id}`).toBe(true)
+    }
+  })
+
+  it('is a strictly newer generation of the same family', () => {
+    for (const model of superseded) {
+      const successor = getModel(model.supersededBy as string)!
+      const famOld = parseFamily(model.provider, model.id)
+      const famNew = parseFamily(successor.provider, successor.id)
+      if (!famOld || !famNew || famOld.key !== famNew.key) continue // cross-line successor (e.g. a renamed family)
+      expect(
+        cmpVersion(famNew.version, famOld.version),
+        `${model.id} → ${successor.id}`,
+      ).toBeGreaterThan(0)
+    }
+  })
+
+  it('keeps superseded models priceable and resolvable by id', () => {
+    for (const model of superseded) {
+      const found = getModel(model.id)
+      expect(found, model.id).toBeDefined()
+      expect(found!.inputPricePerMTok, model.id).toBeGreaterThan(0)
+      expect(found!.outputPricePerMTok, model.id).toBeGreaterThan(0)
+    }
+  })
+
+  it('makes exactly the older generations non-selectable', () => {
+    // The user-visible contract: these ids no longer appear in the `/model`
+    // picker. Listed explicitly so removing one is a deliberate edit.
+    const expected: Record<string, string> = {
+      'claude-opus-4-8': 'claude-opus-5',
+      'claude-opus-4-7': 'claude-opus-5',
+      'claude-opus-4-6': 'claude-opus-5',
+      'claude-sonnet-4-6': 'claude-sonnet-5',
+      'gpt-5.5': 'gpt-5.6-sol',
+      'gpt-5.4': 'gpt-5.6-terra',
+      'gpt-5.4-mini': 'gpt-5.6-luna',
+      'gemini-3.5-flash': 'gemini-3.6-flash',
+      'grok-4.3': 'grok-4.5',
+      'kimi-k2.6': 'kimi-k3',
+      'kimi-k2.5': 'kimi-k3',
+      'minimax-m2.7': 'minimax-m3',
+      'minimax-m2.5': 'minimax-m3',
+      'qwen3.7-max': 'qwen3.8-max',
+      'glm-5': 'glm-5.2',
+    }
+    expect(Object.fromEntries(superseded.map((m) => [m.id, m.supersededBy]))).toEqual(expected)
+    for (const [older, newer] of Object.entries(expected)) {
+      expect(MODEL_IDS.has(older), older).toBe(false)
+      expect(MODEL_IDS.has(newer), newer).toBe(true)
+    }
+  })
+})
+
+describe('resolveSelectableModelId', () => {
+  it('forwards a superseded id to its successor', () => {
+    expect(resolveSelectableModelId('qwen3.7-max')).toBe('qwen3.8-max')
+    expect(resolveSelectableModelId('claude-opus-4-6')).toBe('claude-opus-5')
+  })
+
+  it('returns a selectable id unchanged', () => {
+    expect(resolveSelectableModelId('claude-sonnet-5')).toBe('claude-sonnet-5')
+  })
+
+  it('returns undefined for unknown and disabled ids', () => {
+    expect(resolveSelectableModelId('nonexistent-model')).toBeUndefined()
+    // Retired upstream with no declared successor — nothing to forward to.
+    expect(resolveSelectableModelId('grok-code-fast-1')).toBeUndefined()
+  })
+
+  it('resolves every catalog id to a selectable model or undefined', () => {
+    for (const model of MODELS) {
+      const resolved = resolveSelectableModelId(model.id)
+      if (resolved === undefined) continue
+      expect(MODEL_IDS.has(resolved), `${model.id} → ${resolved}`).toBe(true)
     }
   })
 })

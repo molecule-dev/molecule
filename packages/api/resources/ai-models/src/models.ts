@@ -30,6 +30,18 @@ import type { ModelDefinition } from './types.js'
  *   control) carries `thinkingConfigurable: false` and OMITS both fields —
  *   there is nothing to tune.
  *
+ * ONE GENERATION PER FAMILY. When a provider ships a newer generation of a
+ * model line, the older entry gets `supersededBy: '<newer id>'` and stops being
+ * offered — the picker never shows both `qwen3.7-max` and `qwen3.8-max`. The
+ * entry is NEVER deleted: `getModel()` still resolves it so saved selections and
+ * historical usage stay priceable, and a persisted id resolves forward to the
+ * successor. Supersede only within the same TIER: a cheaper or specialist model
+ * with no newer equivalent (`gemini-3.1-pro-preview`, `qwen3-coder-plus`,
+ * `kimi-k2.7-code`, `grok-build-0.1`) keeps at most `deprecatedAt`, so every
+ * provider keeps a real choice. `__tests__/lookup.test.ts` fails on any two
+ * selectable models of one family at different versions that aren't a
+ * documented exception.
+ *
  * Sources (verified 2026-07-28; OpenAI re-verified 2026-07-31 after the
  * 2026-07-30 GPT-5.6 repricing — cross-check prices against models.dev with
  * `npm run check:model-freshness` from the workspace root):
@@ -63,9 +75,9 @@ import type { ModelDefinition } from './types.js'
  * - Moonshot: https://platform.kimi.ai/docs/models (kimi-k3 flagship 2026-07-16
  *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
  *   reasoning_content that must be replayed through tool loops, the same
- *   constraint that keeps kimi-k2.7-code out; add BOTH once the moonshot bond
- *   supports preserved thinking + reasoning_effort low|high|max. kimi-k2.6
- *   remains the newest model the bond can run correctly.)
+ *   constraint that kept kimi-k2.7-code out. BOTH are now in the catalog: the
+ *   moonshot bond gained preserved thinking (reasoning replayed through tool
+ *   loops), so kimi-k3 is the Moonshot pick.)
  * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
  *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
  * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
@@ -194,9 +206,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 6.25,
     knowledgeCutoff: '2026-01-01',
-    // Superseded by claude-opus-5 (same price); still served upstream and the
-    // recommended refusal-fallback target. Selectable under "Older models".
+    // Superseded by claude-opus-5 (same price, same tier); still served upstream
+    // and the recommended refusal-fallback target, so it stays priceable and
+    // callable by id — it is just not OFFERED, since opus-5 is a drop-in.
     deprecatedAt: '2026-07-28',
+    supersededBy: 'claude-opus-5',
   },
   {
     id: 'claude-sonnet-5',
@@ -258,9 +272,12 @@ export const MODELS: readonly ModelDefinition[] = [
     knowledgeCutoff: '2026-01-01',
     // Superseded by claude-opus-4-8 (launched 2026-05-28) at identical pricing;
     // still Active upstream (deprecations page 2026-08-06: retires no sooner
-    // than 2027-04-16). Selectable under "Older models". NO fast mode —
-    // speed:"fast" on 4.7 returns an error (pricing page, fast-mode section).
+    // than 2027-04-16). NO fast mode — speed:"fast" on 4.7 returns an error
+    // (pricing page, fast-mode section). `supersededBy` names the CURRENT
+    // selectable Opus (opus-5), not the also-superseded 4.8, so a saved
+    // selection resolves forward in one hop.
     deprecatedAt: '2026-05-28',
+    supersededBy: 'claude-opus-5',
   },
   {
     id: 'claude-opus-4-6',
@@ -288,8 +305,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 6.25,
     knowledgeCutoff: '2025-05-01',
-    // Superseded by claude-opus-4-8; kept selectable (Older models) + priceable.
+    // Superseded by the current Opus (opus-5) — kept priceable, not offered.
     deprecatedAt: '2026-06-16',
+    supersededBy: 'claude-opus-5',
   },
   {
     id: 'claude-sonnet-4-6',
@@ -318,8 +336,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.3,
     cacheWritePricePerMTok: 3.75,
     knowledgeCutoff: '2025-08-01',
-    // Superseded by claude-sonnet-5; kept selectable (Older models) + priceable.
+    // Superseded by claude-sonnet-5 (same tier) — kept priceable, not offered.
     deprecatedAt: '2026-07-07',
+    supersededBy: 'claude-sonnet-5',
   },
   {
     id: 'claude-haiku-4-5-20251001',
@@ -475,9 +494,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 5,
     knowledgeCutoff: '2025-12-01',
-    // Superseded by gpt-5.6-sol (same price); still listed as current by
-    // OpenAI. Selectable under "Older models".
+    // Superseded by gpt-5.6-sol (same frontier tier, same $5/$30); still listed
+    // as current by OpenAI, so it stays priceable — it is just not offered.
     deprecatedAt: '2026-07-09',
+    supersededBy: 'gpt-5.6-sol',
   },
   {
     id: 'gpt-5.4',
@@ -505,9 +525,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2025-08-31',
     // OpenAI still lists gpt-5.4 as current, but gpt-5.6-terra covers this
-    // tier at the same price — moved to "Older models" (deprecatedAt is OUR
-    // picker taxonomy, not OpenAI's deprecations page).
+    // balanced tier for LESS ($2/$12 vs $2.50/$15) — superseded, so the picker
+    // offers only the 5.6 generation (this is OUR taxonomy, not OpenAI's
+    // deprecations page; the model stays priceable).
     deprecatedAt: '2026-07-28',
+    supersededBy: 'gpt-5.6-terra',
   },
   {
     id: 'gpt-5.4-mini',
@@ -534,11 +556,12 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.075,
     cacheWritePricePerMTok: 0.75,
     knowledgeCutoff: '2025-08-31',
-    // OpenAI still lists gpt-5.4-mini as current, but like gpt-5.4 above it's
-    // superseded in our lineup (cheap/fast tier is better served by the newer
-    // models) — moved to "Older models" (deprecatedAt is OUR picker taxonomy,
-    // not OpenAI's deprecations page).
+    // Superseded by gpt-5.6-luna, which IS the newer cheap/fast tier and is
+    // strictly better on every axis that made this the budget pick: $0.20/$1.20
+    // vs $0.75/$4.50 after the 2026-07-30 repricing, and a 1M window vs 400K.
+    // Hiding it therefore costs OpenAI no cheap option. Stays priceable.
     deprecatedAt: '2026-08-01',
+    supersededBy: 'gpt-5.6-luna',
   },
 
   // ---------------------------------------------------------------------------
@@ -613,9 +636,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.15,
     cacheWritePricePerMTok: 1.5,
     knowledgeCutoff: '2025-01-01',
-    // Superseded by gemini-3.6-flash (2026-07-21); still served upstream.
-    // Selectable under "Older models".
+    // Superseded by gemini-3.6-flash (2026-07-21) — same flash tier, same input
+    // price, cheaper output. Still served upstream, so it stays priceable.
     deprecatedAt: '2026-07-21',
+    supersededBy: 'gemini-3.6-flash',
   },
   {
     id: 'gemini-3.1-pro-preview',
@@ -645,6 +669,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 2,
     knowledgeCutoff: '2025-01-01',
+    // NOT superseded despite the lower version number: this is Google's only
+    // PRO-tier id (no GA "3.5/3.6 Pro" exists), and the 3.6 flash flagship is a
+    // different tier. Superseding it would leave Google with no deep-reasoning
+    // option at all — see `ModelDefinition.supersededBy` (same-tier rule).
   },
 
   // ---------------------------------------------------------------------------
@@ -709,9 +737,13 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2025-12-01',
-    // Superseded by grok-4.5 as the xAI pick (4.3 keeps the bigger 1M window
-    // — the reason it stays selectable under "Older models").
+    // Superseded by grok-4.5: the previous version of the same general-purpose
+    // Grok line, not a separately-named tier. It keeps a bigger window (1M vs
+    // 500K) and a lower price, which is why it was previously left selectable —
+    // but offering two generations of one family is exactly what the picker no
+    // longer does, and grok-4.5 is xAI's own recommendation. Stays priceable.
     deprecatedAt: '2026-07-28',
+    supersededBy: 'grok-4.5',
   },
   {
     id: 'grok-build-0.1',
@@ -738,6 +770,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // Not published by xAI — best-effort estimate (grok-4-generation base).
     knowledgeCutoff: '2025-06-01',
     // Niche coding beta; grok-4.5 is the xAI pick — kept out of the main list.
+    // NOT superseded: its own family (grok-build) has no newer version, and it
+    // is xAI's cheapest tool-capable model, so it stays selectable under
+    // "Older models" (and is the deliberately-weak live selftest target).
     deprecatedAt: '2026-07-28',
   },
   {
@@ -977,8 +1012,10 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published — best-effort estimate.
     knowledgeCutoff: '2025-10-01',
-    // kimi-k3 is the Moonshot pick; the coding specialist stays selectable
-    // under "Older models" for anyone who wants the cheaper tier.
+    // kimi-k3 is the Moonshot pick, but this is NOT superseded: the coding
+    // specialist is a distinct, much cheaper tier ($0.95/$4 vs $3/$15) with no
+    // K3 equivalent, so it stays selectable under "Older models" — superseding
+    // it would leave Moonshot with only the flagship.
     deprecatedAt: '2026-07-28',
   },
   {
@@ -1010,8 +1047,9 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.75, outputPricePerMTok: 3.5, cacheReadPricePerMTok: 0.15 },
     },
     knowledgeCutoff: '2025-04-01',
-    // Superseded by kimi-k3; moved to "Older models".
+    // Superseded by kimi-k3 (same general-purpose line) — kept priceable.
     deprecatedAt: '2026-07-28',
+    supersededBy: 'kimi-k3',
   },
   {
     id: 'kimi-k2.5',
@@ -1038,9 +1076,11 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.45, outputPricePerMTok: 2.25, cacheReadPricePerMTok: 0.07 },
     },
     knowledgeCutoff: '2024-04-01',
-    // Superseded by kimi-k2.6 (still served upstream, no announced retirement);
-    // kept selectable (Older models) + priceable.
+    // Two generations behind. `supersededBy` names the current selectable Kimi
+    // (k3) rather than the also-superseded k2.6, so a saved selection resolves
+    // forward in one hop. Still served upstream; stays priceable.
     deprecatedAt: '2026-04-01',
+    supersededBy: 'kimi-k3',
   },
 
   // ---------------------------------------------------------------------------
@@ -1110,9 +1150,9 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.25, outputPricePerMTok: 1, cacheReadPricePerMTok: 0.05 },
     },
     knowledgeCutoff: '2025-09-01',
-    // Superseded by minimax-m3 (same price, 1M ctx, multimodal); moved to
-    // "Older models".
+    // Superseded by minimax-m3 (same price, 1M ctx, multimodal) — kept priceable.
     deprecatedAt: '2026-07-28',
+    supersededBy: 'minimax-m3',
   },
   {
     id: 'minimax-m2.5',
@@ -1135,9 +1175,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // No US re-host exists (not on DeepInfra) — pinned to native China.
     regions: ['cn'],
     knowledgeCutoff: '2025-01-01',
-    // Superseded by minimax-m3 (legacy upstream, still served); kept selectable
-    // (Older models) + priceable.
+    // Superseded by minimax-m3 (legacy upstream, still served) — kept priceable.
     deprecatedAt: '2026-03-18',
+    supersededBy: 'minimax-m3',
   },
 
   // ---------------------------------------------------------------------------
@@ -1145,8 +1185,9 @@ export const MODELS: readonly ModelDefinition[] = [
   // Verified: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
   //           https://www.alibabacloud.com/help/en/model-studio/qwen-coder
   //           https://openrouter.ai/qwen/qwen3.7-max
-  // qwen3.7-max (2026-05-21) is the agentic flagship — Alibaba's own Qwen-Coder
-  // docs now recommend the general-purpose models over Qwen-Coder. Its thinking
+  // qwen3.8-max (2026-08-03) is the agentic flagship, succeeding qwen3.7-max —
+  // Alibaba's own Qwen-Coder docs now recommend the general-purpose models over
+  // Qwen-Coder. Their thinking
   // uses enable_thinking (default ON for the 3.7 series) + thinking_budget
   // (token cap) — a real budget param, so effort scales the budget. The
   // qwen3-coder models are NON-thinking (previous catalog entry was wrong).
@@ -1217,6 +1258,11 @@ export const MODELS: readonly ModelDefinition[] = [
     regions: ['us', 'cn'],
     // Not published by Alibaba — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
+    // Superseded by qwen3.8-max (GA 2026-08-03): same tier and mechanism, and
+    // CHEAPER at list ($2/$6 vs $2.50/$7.50). Still served upstream (the 50%-off
+    // promo runs on this id), so it stays priceable — it is just not offered.
+    deprecatedAt: '2026-08-03',
+    supersededBy: 'qwen3.8-max',
   },
   {
     id: 'qwen3-coder-plus',
@@ -1246,8 +1292,11 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.3, outputPricePerMTok: 1, cacheReadPricePerMTok: 0.1 },
     },
     knowledgeCutoff: '2025-06-01',
-    // Alibaba itself recommends the general-purpose models over Qwen-Coder;
-    // qwen3.7-max is the pick — moved to "Older models".
+    // Alibaba itself recommends the general-purpose models over Qwen-Coder, so
+    // this sits in "Older models" — but it is NOT superseded: it is a distinct
+    // coding specialist and Alibaba's cheap tier (US $0.30/$1 vs qwen3.8-max's
+    // $2/$6), with no newer coder id. Superseding it would leave Alibaba with
+    // only the flagship.
     deprecatedAt: '2026-07-28',
   },
 
@@ -1320,7 +1369,9 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.6, outputPricePerMTok: 2.08, cacheReadPricePerMTok: 0.12 },
     },
     knowledgeCutoff: '2025-01-01',
-    // Superseded by glm-5.2; moved to "Older models".
+    // Superseded by glm-5.2 (same line, bigger window, reasoning_effort) — kept
+    // priceable.
     deprecatedAt: '2026-07-28',
+    supersededBy: 'glm-5.2',
   },
 ] as const

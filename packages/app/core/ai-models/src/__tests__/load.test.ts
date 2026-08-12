@@ -2,7 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { HttpClient, HttpResponse } from '@molecule/app-http'
 
-import { isDeprecated, loadAIModels, partitionByDeprecation, pickFreeTierModel } from '../load.js'
+import {
+  isDeprecated,
+  isSelectableModel,
+  loadAIModels,
+  partitionByDeprecation,
+  pickFreeTierModel,
+} from '../load.js'
 import type { AppModelDefinition } from '../types.js'
 
 function fakeHttp(models: AppModelDefinition[]): HttpClient {
@@ -87,6 +93,27 @@ describe('pickFreeTierModel', () => {
   it('returns undefined when no model is marked free-tier', () => {
     expect(pickFreeTierModel([fixtureModel(), fixtureModel({ id: 'x' })])).toBeUndefined()
   })
+
+  it('ignores a disabled or superseded free-tier model', () => {
+    expect(
+      pickFreeTierModel([fixtureModel({ id: 'free', freeTier: true, disabled: true })]),
+    ).toBeUndefined()
+    expect(
+      pickFreeTierModel([fixtureModel({ id: 'free', freeTier: true, supersededBy: 'newer' })]),
+    ).toBeUndefined()
+  })
+})
+
+describe('isSelectableModel', () => {
+  it('is true for a plain model and for a merely deprecated one', () => {
+    expect(isSelectableModel(fixtureModel())).toBe(true)
+    expect(isSelectableModel(fixtureModel({ deprecatedAt: '2026-01-01' }))).toBe(true)
+  })
+
+  it('is false for disabled and superseded models', () => {
+    expect(isSelectableModel(fixtureModel({ disabled: true }))).toBe(false)
+    expect(isSelectableModel(fixtureModel({ supersededBy: 'newer' }))).toBe(false)
+  })
 })
 
 describe('isDeprecated', () => {
@@ -130,6 +157,20 @@ describe('partitionByDeprecation', () => {
     const models = [fixtureModel({ id: 'a' }), fixtureModel({ id: 'b' })]
     const result = partitionByDeprecation(models, '2026-06-01')
     expect(result.current).toHaveLength(2)
+    expect(result.deprecated).toHaveLength(0)
+  })
+
+  it('drops disabled and superseded models from BOTH partitions', () => {
+    // An older generation must not reappear under "Older models" — the picker
+    // offers exactly one generation per family.
+    const models = [
+      fixtureModel({ id: 'current' }),
+      fixtureModel({ id: 'retired', disabled: true }),
+      fixtureModel({ id: 'old-gen', deprecatedAt: '2026-01-01', supersededBy: 'current' }),
+      fixtureModel({ id: 'old-gen-undated', supersededBy: 'current' }),
+    ]
+    const result = partitionByDeprecation(models, '2026-06-01')
+    expect(result.current.map((m) => m.id)).toEqual(['current'])
     expect(result.deprecated).toHaveLength(0)
   })
 })

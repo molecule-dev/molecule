@@ -2,10 +2,11 @@
  * `GET /ai/models` — returns the catalog of available AI models.
  *
  * Filters the central `MODELS` list to only those whose provider is currently
- * bonded under the `'ai'` category AND are not `disabled` (a retired model is
- * never listed for selection, though `getModel` still prices it). No further
- * projection is applied — every `ModelDefinition` field is fine to expose to
- * authenticated clients today.
+ * bonded under the `'ai'` category AND are selectable — neither `disabled` (a
+ * model the provider retired) nor superseded by a newer generation of the same
+ * family, so the picker offers exactly one generation per family. Both kinds
+ * stay priceable via `getModel`. No further projection is applied — every
+ * `ModelDefinition` field is fine to expose to authenticated clients today.
  *
  * Secure-by-default: this handler enforces authentication IN the handler
  * (`res.locals.session.userId`) and fails closed with `401` for an
@@ -22,6 +23,7 @@ import { getAll } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
+import { isSelectableModel } from '../lookup.js'
 import { MODELS } from '../models.js'
 import type { ListModelsResponse } from '../types.js'
 
@@ -48,7 +50,7 @@ export async function list(_req: MoleculeRequest, res: MoleculeResponse): Promis
   }
 
   const bondedProviders = new Set(getAll('ai').keys())
-  const models = MODELS.filter((m) => bondedProviders.has(m.provider) && !m.disabled)
+  const models = MODELS.filter((m) => bondedProviders.has(m.provider) && isSelectableModel(m))
   const response: ListModelsResponse = { models: [...models] }
   res.json(response)
 }

@@ -162,7 +162,7 @@ describe('chat()', () => {
     }
   })
 
-  it('defaults model to qwen3.7-max', async () => {
+  it('defaults model to qwen3.8-max', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
@@ -175,7 +175,7 @@ describe('chat()', () => {
       // drain
     }
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.model).toBe('qwen3.7-max')
+    expect(body.model).toBe('qwen3.8-max')
   })
 
   it('uses max_completion_tokens', async () => {

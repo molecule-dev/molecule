@@ -8,23 +8,62 @@ import { MODELS } from './models.js'
 import type { AIProviderID, ModelDefinition } from './types.js'
 
 /**
+ * Whether a model may be offered for selection: not `disabled` (retired
+ * upstream) and not `supersededBy` a newer generation of its own family. Both
+ * kinds stay in the catalog for pricing — this predicate is the single place
+ * that decides *exposure*, so every listing/validation surface agrees.
+ *
+ * @param model - The model definition (or the two flags from one).
+ * @returns True when the model may be listed and chosen.
+ */
+export function isSelectableModel(
+  model: Pick<ModelDefinition, 'disabled' | 'supersededBy'>,
+): boolean {
+  return !model.disabled && !model.supersededBy
+}
+
+/**
+ * Resolve a model id FORWARD to the selectable model that replaces it, following
+ * the {@link ModelDefinition.supersededBy} chain (a saved `qwen3.7-max` →
+ * `qwen3.8-max`). Lets a persisted selection keep the user's intent — the same
+ * tier from the same provider — instead of falling back to the platform default
+ * once the older generation stops being offered.
+ *
+ * @param id - The persisted model id.
+ * @returns The selectable successor's id, the id itself when it is already
+ *   selectable, or `undefined` for an unknown or `disabled` model (nothing to
+ *   forward to).
+ */
+export function resolveSelectableModelId(id: string): string | undefined {
+  let model = getModel(id)
+  // Bounded by the catalog size: a supersession cycle would otherwise spin here,
+  // and the invariant that forbids one is a test, not a runtime guarantee.
+  for (let hops = 0; model && !isSelectableModel(model) && hops <= MODELS.length; hops++) {
+    if (!model.supersededBy) return undefined // disabled — no successor declared
+    model = getModel(model.supersededBy)
+  }
+  return model && isSelectableModel(model) ? model.id : undefined
+}
+
+/**
  * Set of *selectable* model IDs for fast validation.
  *
  * Excludes `disabled` models so a retired model (e.g. `grok-code-fast-1`) can
- * never be chosen for a new chat, while {@link getModel} still resolves it for
- * historical pricing.
+ * never be chosen for a new chat, and `supersededBy` models so an older
+ * generation of a family (e.g. `qwen3.7-max` next to `qwen3.8-max`) is never
+ * offered — while {@link getModel} still resolves both for historical pricing.
  */
 export const MODEL_IDS: ReadonlySet<string> = new Set(
-  MODELS.filter((m) => !m.disabled).map((m) => m.id),
+  MODELS.filter(isSelectableModel).map((m) => m.id),
 )
 
 /**
  * Look up a model definition by ID.
  *
- * Returns `disabled` models too: a saved selection or a historical usage row
- * may reference a since-retired model, and it must stay priceable. Use
- * {@link MODEL_IDS} / {@link getAvailableModels} (which exclude disabled
- * models) to decide what is *selectable*.
+ * Returns `disabled` and `supersededBy` models too: a saved selection or a
+ * historical usage row may reference a since-retired or since-superseded model,
+ * and it must stay priceable. Use {@link MODEL_IDS} / {@link getAvailableModels}
+ * (or {@link isSelectableModel}) to decide what is *selectable*.
  *
  * @param id - The API model ID.
  * @returns The model definition, or `undefined` if not found.
@@ -47,17 +86,18 @@ export function getModelsByProvider(provider: AIProviderID): readonly ModelDefin
  * Get models that are currently usable — filtered to only providers that are available.
  *
  * The caller passes in which provider IDs are active (i.e. have a bond wired).
- * `disabled` models are excluded — they are never offered for selection.
+ * Models that are not {@link isSelectableModel} — `disabled` or superseded by a
+ * newer generation — are excluded; they are never offered for selection.
  *
  * @param availableProviders - Set or array of provider IDs that have active bonds.
- * @returns Non-disabled models whose provider is in the available set.
+ * @returns Selectable models whose provider is in the available set.
  */
 export function getAvailableModels(
   availableProviders: ReadonlySet<AIProviderID> | readonly AIProviderID[],
 ): readonly ModelDefinition[] {
   const providerSet =
     availableProviders instanceof Set ? availableProviders : new Set(availableProviders)
-  return MODELS.filter((m) => providerSet.has(m.provider) && !m.disabled)
+  return MODELS.filter((m) => providerSet.has(m.provider) && isSelectableModel(m))
 }
 
 /**
