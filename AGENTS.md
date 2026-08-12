@@ -267,33 +267,6 @@ packages/
 │   └── locales/        # i18n translation packages
 ```
 
-### Single Package Structure
-
-```
-package-name/
-├── src/
-│   ├── types.ts
-│   ├── provider.ts
-│   ├── index.ts        # Barrel exports only
-│   └── __tests__/
-├── package.json
-├── tsconfig.json
-├── vitest.config.ts
-└── README.md         # Auto-generated documentation
-```
-
----
-
-## Build & Test
-
-```bash
-npm install             # Install all dependencies (from monorepo root)
-npm run build           # Topological parallel build of all packages
-npm test                # Vitest
-npm run lint            # ESLint
-npm run format:check    # Prettier
-```
-
 ---
 
 ## Key Patterns
@@ -325,17 +298,6 @@ Swap entire framework by changing Layers 2+3.
 ### Locale Bonds
 
 Every package with user-facing text has a companion locale bond (`@molecule/{stack}-locales-{name}`) providing translations in 79 languages. Feature packages use `t(key, values, { defaultValue })` with English inline fallbacks. Locale bonds are pure data — swap one to override all translations for that feature.
-
----
-
-## Tech Stack
-
-- TypeScript 6.0, ES2022, NodeNext module resolution
-- Vitest for testing
-- ESLint + Prettier for code quality
-- Changesets for versioning and releases
-- npm workspaces monorepo
-- Node >= 22
 
 ---
 
