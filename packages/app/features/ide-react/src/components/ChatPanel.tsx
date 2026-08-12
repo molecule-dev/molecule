@@ -4262,6 +4262,25 @@ function ChatInner({
     }, 80)
   }, [messages, commitCards])
 
+  // Re-pin to the bottom when the messages container RESIZES, not just when
+  // messages change. A layout change that shrinks/grows the pane — the boot→IDE
+  // swap removing the "synthesizing" view, the mobile soft keyboard opening/
+  // closing, an orientation change — leaves the scroll offset stale, so the live
+  // spinner + latest message end up below the fold and the user has to scroll
+  // down to find them (reported on mobile after the boot view clears). Guarded by
+  // the same userScrolledUp intent so it never yanks a user who deliberately
+  // scrolled up to read history.
+  useEffect(() => {
+    const el = messagesContainerRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => {
+      if (userScrolledUpRef.current) return
+      el.scrollTop = el.scrollHeight
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   // ── Auto-send initial message ──────────────────────────────────────────────
   // Skip if a conversation already exists (e.g. page refresh with router state preserved).
   useEffect(() => {
