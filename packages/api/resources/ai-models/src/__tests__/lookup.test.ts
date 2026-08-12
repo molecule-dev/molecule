@@ -6,6 +6,7 @@ import {
   getModelsByProvider,
   isSelectableModel,
   MODEL_IDS,
+  modelRegionRates,
   priceMultiplierAt,
   resolveSelectableModelId,
 } from '../lookup.js'
@@ -664,5 +665,110 @@ describe('resolveSelectableModelId', () => {
       if (resolved === undefined) continue
       expect(MODEL_IDS.has(resolved), `${model.id} → ${resolved}`).toBe(true)
     }
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Default region — every multi-region model leads with its cheapest host
+// ---------------------------------------------------------------------------
+
+describe('default processing region', () => {
+  const multiRegion = MODELS.filter((m) => !m.disabled && (m.regions?.length ?? 0) > 1)
+
+  // Rates are read through `modelRegionRates`, the SAME resolution metering
+  // uses: a region's `regionPricing` override, else the base (native) rates,
+  // with an override's omitted cache fields falling back to that region's input
+  // price. So a region can never be "missing" cache pricing here — it inherits
+  // a comparable number the way a real bill would.
+  const ratesFor = (model: (typeof MODELS)[number], region: string) =>
+    modelRegionRates(model, region)
+
+  it('has models to check (the invariant is not vacuous)', () => {
+    expect(multiRegion.length).toBeGreaterThan(0)
+  })
+
+  it('makes regions[0] the cheapest region on cache reads', () => {
+    // Cache READ is the axis that decides real agentic cost: measured traffic
+    // is ~94% cache hits (deepseek, 2026-08-01), so list input price alone
+    // misleads. deepseek-v4-flash is the proof — its US re-host is CHEAPER on
+    // input ($0.08 vs $0.14) yet 5.7× on cache reads, which makes CN the
+    // cheaper default on anything but a cold first turn.
+    for (const model of multiRegion) {
+      const regions = model.regions as string[]
+      const def = ratesFor(model, regions[0]).cacheReadPricePerMTok
+      for (const other of regions.slice(1)) {
+        expect(
+          def,
+          `${model.id}: default region '${regions[0]}' bills ${def}/MTok on cache reads but ` +
+            `'${other}' bills ${ratesFor(model, other).cacheReadPricePerMTok} — lead with the cheaper host`,
+        ).toBeLessThanOrEqual(ratesFor(model, other).cacheReadPricePerMTok)
+      }
+    }
+  })
+
+  it('never leaves a region that beats the default on both other axes', () => {
+    // Cheapest-on-cache-reads can still tie, and a tie must not hide a region
+    // that is strictly cheaper on BOTH input and output — that region should
+    // have been the default instead.
+    for (const model of multiRegion) {
+      const regions = model.regions as string[]
+      const def = ratesFor(model, regions[0])
+      for (const other of regions.slice(1)) {
+        const alt = ratesFor(model, other)
+        const beatsOnBoth =
+          alt.inputPricePerMTok < def.inputPricePerMTok &&
+          alt.outputPricePerMTok < def.outputPricePerMTok
+        const noWorseOnCache = alt.cacheReadPricePerMTok <= def.cacheReadPricePerMTok
+        expect(
+          beatsOnBoth && noWorseOnCache,
+          `${model.id}: region '${other}' is cheaper than the default '${regions[0]}' on input, ` +
+            'output AND cache reads — make it the default',
+        ).toBe(false)
+      }
+    }
+  })
+
+  it('declares a region list on every model of a provider that has a re-host', () => {
+    // `regions` is optional and defaults to ['us'] (effectiveModelRegion), so a
+    // model of a re-hosted provider that omits it silently routes to the US
+    // bond, which only knows the ids in its modelMap. Declaring the list keeps
+    // that decision in the catalog where the freshness gate can check it.
+    const rehosted = new Set(
+      MODELS.filter((m) => m.regionPricing && !m.disabled).map((m) => m.provider),
+    )
+    for (const model of MODELS) {
+      if (model.disabled || !rehosted.has(model.provider)) continue
+      expect(model.regions, `${model.id} (${model.provider} has a region re-host)`).toBeDefined()
+    }
+  })
+
+  it('keeps kimi-k3 on the US host it is priced for', () => {
+    const k3 = MODELS.find((m) => m.id === 'kimi-k3')!
+    expect(k3.regions).toEqual(['us', 'cn'])
+    expect(k3.regionPricing?.us).toEqual({
+      inputPricePerMTok: 2.85,
+      outputPricePerMTok: 14.25,
+      cacheReadPricePerMTok: 0.285,
+    })
+    // No cache-write override → the region's input rate, per modelRegionRates.
+    expect(modelRegionRates(k3, 'us').cacheWritePricePerMTok).toBe(2.85)
+    // CN keeps the native rates even though it is no longer regions[0]: rate
+    // resolution is `regionPricing[region] ?? base`, never "base == regions[0]".
+    expect(modelRegionRates(k3, 'cn')).toEqual({
+      inputPricePerMTok: 3,
+      outputPricePerMTok: 15,
+      cacheReadPricePerMTok: 0.3,
+      cacheWritePricePerMTok: 3,
+    })
+  })
+
+  it('does not make any new model free-tier selectable', () => {
+    // Region work must never widen the free tier: exactly one model is free,
+    // and exactly one carries the per-region carve-out.
+    expect(MODELS.filter((m) => m.freeTier).map((m) => m.id)).toEqual(['deepseek-v4-flash'])
+    expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['deepseek-v4-pro'])
+    const k3 = MODELS.find((m) => m.id === 'kimi-k3')!
+    expect(k3.freeTier).toBeUndefined()
+    expect(k3.freeTierRegions).toBeUndefined()
   })
 })

@@ -72,7 +72,8 @@ import type { ModelDefinition } from './types.js'
  *   Pro/Flash pricing; legacy deepseek-chat/-reasoner ids fully retired
  *   2026-07-24 — never in this catalog; the announced peak-hour 2× surcharge is
  *   still NOT active as of 2026-07-28, see the entries)
- * - Moonshot: https://platform.kimi.ai/docs/models (kimi-k3 flagship 2026-07-16
+ * - Moonshot: https://platform.kimi.ai/docs/models + DeepInfra's model API for
+ *   the US re-host (kimi-k3 flagship 2026-07-16
  *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
  *   reasoning_content that must be replayed through tool loops, the same
  *   constraint that kept kimi-k2.7-code out. BOTH are now in the catalog: the
@@ -957,6 +958,12 @@ export const MODELS: readonly ModelDefinition[] = [
   // and kimi-k2.7-code (coding flagship — forced thinking, no depth knob).
   // kimi-k2.x thinking stays on/off only; the bond disables it for those by
   // default (KIMI_REASONING_EFFORT env tunes it).
+  // EVERY moonshot entry declares `regions` explicitly. A model that omits the
+  // field defaults to `['us']` (effectiveModelRegion), which would route it to
+  // the bare `moonshot` bond — DeepInfra when its key is set — with an id that
+  // host has never heard of, i.e. a 404 at dispatch. The freshness gate's
+  // region-re-host coverage check fails on exactly that (a us-region moonshot
+  // model missing from the bond's modelMap).
   // ---------------------------------------------------------------------------
   {
     id: 'kimi-k3',
@@ -983,8 +990,21 @@ export const MODELS: readonly ModelDefinition[] = [
     // Automatic context cache: absolute cache-hit price ($0.30/M = 0.1× input).
     cacheReadPricePerMTok: 0.3,
     cacheWritePricePerMTok: 3,
-    // No US re-host exists (not on DeepInfra) — pinned to native China.
-    regions: ['cn'],
+    // US default = DeepInfra, verified 2026-08-13 against
+    // api.deepinfra.com/models/moonshotai/Kimi-K3: cents_per_input_token
+    // 0.000285 → $2.85/MTok, cents_per_output_token 0.001425 → $14.25/MTok,
+    // rate_per_input_token_cached 0.1 → cache read $0.285/MTok, and
+    // rate_per_input_token_cache_write null → no write premium (the omitted
+    // cache-write field falls back to the region's input rate). Cheaper than
+    // Moonshot native on every axis, which is why US leads (see the
+    // cheapest-default-region invariant in __tests__/lookup.test.ts).
+    // The host serves the full 1M context, unquantized, and returns
+    // reasoning_content while accepting reasoning_effort — probed live
+    // 2026-08-13 — so the preserved-thinking tool loop works there unchanged.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 2.85, outputPricePerMTok: 14.25, cacheReadPricePerMTok: 0.285 },
+    },
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
   },
@@ -1009,10 +1029,14 @@ export const MODELS: readonly ModelDefinition[] = [
     // Automatic context cache: absolute cache-hit price ($0.19/M = 0.2× input).
     cacheReadPricePerMTok: 0.19,
     cacheWritePricePerMTok: 0.95,
-    // US default (DeepInfra bills below native here). Verified 2026-08-01.
+    // US default (DeepInfra bills below native here). Re-verified 2026-08-13
+    // against api.deepinfra.com/models/moonshotai/Kimi-K2.7-Code — the host
+    // repriced since 2026-08-01 ($0.74/$3.50/$0.15): cents_per_input_token
+    // 0.000068, cents_per_output_token 0.00034, rate_per_input_token_cached
+    // 0.2 → cache read $0.136, no write premium.
     regions: ['us', 'cn'],
     regionPricing: {
-      us: { inputPricePerMTok: 0.74, outputPricePerMTok: 3.5, cacheReadPricePerMTok: 0.15 },
+      us: { inputPricePerMTok: 0.68, outputPricePerMTok: 3.4, cacheReadPricePerMTok: 0.136 },
     },
     // Not published — best-effort estimate.
     knowledgeCutoff: '2025-10-01',
