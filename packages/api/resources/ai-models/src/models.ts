@@ -933,9 +933,13 @@ export const MODELS: readonly ModelDefinition[] = [
     // though Flash's US list price is BELOW native, its cache reads are 6.4×,
     // and the plan/execute pair defaults to one region deliberately.
     regions: ['cn', 'us'],
-    // US = DeepInfra, verified 2026-08-01 (api.deepinfra.com/models/…V4-Flash).
+    // US = DeepInfra, verified 2026-08-13 against the id the bond actually
+    // sends: `deepseek-ai/DeepSeek-V4-Flash-0731`, the official release that
+    // supersedes the preview weights still served under the un-dated id
+    // (cents_per_input_token 0.000008, cents_per_output_token 0.000018,
+    // rate_per_input_token_cached 0.2 → cache read = 0.2 × input).
     regionPricing: {
-      us: { inputPricePerMTok: 0.09, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.018 },
+      us: { inputPricePerMTok: 0.08, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.016 },
     },
     // Peak-hour surcharge NOT active (see deepseek-v4-pro) — windows removed.
     // Not published by DeepSeek — best-effort estimate.
