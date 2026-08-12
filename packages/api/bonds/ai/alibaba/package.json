@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-alibaba",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Alibaba Qwen AI provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.1.0
+
+### Minor Changes
+
+- b0c821a: Chat notice-card actions accept an optional semantic `color` (`ChatEventCardAction.color`); colored actions render as standard ClassMap `cm.button` buttons so CTAs match the host app's other buttons.
+
 ## 1.0.5
 
 ### Patch Changes
