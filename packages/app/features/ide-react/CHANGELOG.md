@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.0.3
+
+### Patch Changes
+
+- ChatPanel: keep the conversation pinned to the latest message when the chat container is resized (layout change, on-screen keyboard, orientation), not only when a new message arrives — so the live response never ends up scrolled out of view. Respects a deliberate scroll-up.
+
 ## 1.0.2
 
 ### Patch Changes
