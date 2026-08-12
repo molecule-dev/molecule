@@ -4281,6 +4281,30 @@ function ChatInner({
     return () => ro.disconnect()
   }, [])
 
+  // Land at the latest message on MOUNT, after layout settles. This ChatPanel
+  // REMOUNTS on the boot→IDE swap (the pre-IDE instance is a different element
+  // than the full-IDE one; only the chat STORE persists), so it starts scrolled
+  // to the top with history already present — the live spinner sits below the
+  // fold until the user scrolls (reported on mobile right after the
+  // "synthesizing" view clears). The debounced message effect can fire before
+  // the mobile branch-swap transition finishes, and a stray transition
+  // touch/scroll can spuriously set userScrolledUp; so force the bottom across
+  // the settle window (double-rAF + a post-transition follow-up) and clear that
+  // flag — a fresh mount has no legitimate "scrolled up" state to preserve.
+  useEffect(() => {
+    const toBottom = (): void => {
+      userScrolledUpRef.current = false
+      const el = messagesContainerRef.current
+      if (el) el.scrollTop = el.scrollHeight
+    }
+    const raf = requestAnimationFrame(() => requestAnimationFrame(toBottom))
+    const t = setTimeout(toBottom, 400)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(t)
+    }
+  }, [])
+
   // ── Auto-send initial message ──────────────────────────────────────────────
   // Skip if a conversation already exists (e.g. page refresh with router state preserved).
   useEffect(() => {

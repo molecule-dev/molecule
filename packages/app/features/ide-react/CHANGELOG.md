@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.0.4
+
+### Patch Changes
+
+- ChatPanel: on mount, scroll to the latest message after layout settles. The panel remounts on the boot→IDE transition starting at the top, so the live response spinner sat below the fold until the user scrolled (mobile). Now it lands at the bottom once the transition finishes.
+
 ## 1.0.3
 
 ### Patch Changes
