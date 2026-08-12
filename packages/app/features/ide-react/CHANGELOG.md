@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.0.5
+
+### Patch Changes
+
+- ChatPanel: derive stick-to-bottom from the scroll position on the actual scroll event, not from touch direction. A streaming burst grows the content without firing a scroll event, so it can no longer be mistaken for the user scrolling up; the auto-pin keeps the live response in view while a deliberate scroll up (and back) still works. Replaces a touch handler that latched "scrolled up" on any downward drag.
+
 ## 1.0.4
 
 ### Patch Changes
