@@ -1355,6 +1355,40 @@ function NoticeCard({
         {!content && actions.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
             {actions.map((act, i) => {
+              // An action with a semantic `color` renders as a REAL design-system
+              // button (`cm.button`, sm) so the same CTA looks identical wherever
+              // the app shows it (auth page, banners, chat cards). No inline
+              // colors — the ClassMap owns the look, including hover states.
+              // Colorless actions keep the legacy accent-outline treatment.
+              if (act.color) {
+                const className = cm.cn(cm.button({ color: act.color, size: 'sm' }), cm.touchTarget)
+                const coloredStyle: React.CSSProperties = {
+                  textDecoration: 'none',
+                  fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
+                }
+                return act.href ? (
+                  <a
+                    key={i}
+                    href={act.href}
+                    target={act.href.startsWith('http') ? '_blank' : undefined}
+                    rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className={className}
+                    style={coloredStyle}
+                  >
+                    {act.label}
+                  </a>
+                ) : (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={act.onClick}
+                    className={className}
+                    style={coloredStyle}
+                  >
+                    {act.label}
+                  </button>
+                )
+              }
               const style: React.CSSProperties = {
                 display: 'inline-flex',
                 alignItems: 'center',

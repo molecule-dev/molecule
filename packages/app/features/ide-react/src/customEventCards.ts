@@ -30,6 +30,16 @@ export interface ChatEventCardAction {
    * `/report` or a skill name — so it stands out from prose while staying clickable.
    */
   code?: boolean
+  /**
+   * Semantic design-system button color. When set, the card renders this action
+   * as a real `cm.button` (the ClassMap's standard tinted button, same as every
+   * other button in the app) in this color, so a CTA looks identical wherever it
+   * appears — e.g. an app can keep "Sign up" `primary` and "Log in" `success`
+   * across its auth page, banners, and chat cards. When omitted, the card's
+   * legacy accent-outline treatment applies. The app owns the semantics; the
+   * shared package just passes the color through to the ClassMap.
+   */
+  color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info'
 }
 
 /**

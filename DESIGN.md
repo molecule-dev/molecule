@@ -157,6 +157,28 @@ All spacing follows an 8px base grid:
 - Sizes: `xs` (28px height), `sm` (32px), `md` (40px), `lg` (48px), `xl` (56px)
 - Colors: primary, secondary, success, warning, error, info
 
+#### CTA color semantics (one action = one color, everywhere)
+
+Every rendering of the same call-to-action uses the same semantic `color`, on
+every surface that shows it — auth pages, banners (the shared `Banner`
+component), chat notice cards (`ChatEventCardAction.color`), modals, panels.
+Sibling CTAs in one surface should differ (that contrast is what makes each
+stand out), but a given action never changes color between surfaces:
+
+| CTA                                                    | Color                              | Anchored by                |
+| ------------------------------------------------------ | ---------------------------------- | -------------------------- |
+| Sign up / Create account                               | `primary`                          | auth page's Sign up button |
+| Log in                                                 | `success`                          | auth page's Log in submit  |
+| Upgrade / View plans / Raise spend cap (billing)       | `primary`                          | Pricing page's Upgrade CTA |
+| Informational links (View on GitHub, docs, View issue) | `secondary`                        | quiet next to the real CTA |
+| Destructive (Delete, Stop)                             | `error` (`warning` for pause-like) | Dashboard project cards    |
+
+Implementation rule: CTAs are ALWAYS real design-system buttons —
+`cm.button({ color, size })` via `getClassMap()` (plus `cm.touchTarget`) or the
+framework `Button` — never hand-rolled inline-styled pills/links. Hand-rolled
+button styling is how surfaces drift apart; if a surface can't use the
+component, it uses the `cm.button` classes directly.
+
 ### Cards
 
 - Border radius: `12px` (lg)
