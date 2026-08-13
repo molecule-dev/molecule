@@ -1361,7 +1361,12 @@ function NoticeCard({
               // colors — the ClassMap owns the look, including hover states.
               // Colorless actions keep the legacy accent-outline treatment.
               if (act.color) {
-                const className = cm.cn(cm.button({ color: act.color, size: 'sm' }), cm.touchTarget)
+                // touchTargetCompact (36px), not the full 44px touchTarget — these
+                // sit inside a dense chat card (the floor agreed for its actions).
+                const className = cm.cn(
+                  cm.button({ color: act.color, size: 'sm' }),
+                  cm.touchTargetCompact,
+                )
                 const coloredStyle: React.CSSProperties = {
                   textDecoration: 'none',
                   fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',

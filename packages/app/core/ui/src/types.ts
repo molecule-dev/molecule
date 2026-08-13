@@ -2530,6 +2530,16 @@ export interface UIClassMap {
    */
   touchTarget: string
 
+  /**
+   * Compact coarse-pointer hit-area floor (`>=36x36px`) for inline CTAs inside
+   * dense surfaces — banner/notice-card action buttons, chat-card actions —
+   * where the full 44px {@link touchTarget} visibly overwhelms the strip or
+   * card that hosts them. 36px is still comfortably tappable; reserve the full
+   * 44px floor for standalone controls. Like {@link touchTarget} it applies
+   * only on coarse-pointer devices (unconditionally on React Native).
+   */
+  touchTargetCompact: string
+
   // ---- Position utilities ----
 
   // ---- Display utilities ----

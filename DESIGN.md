@@ -174,10 +174,13 @@ stand out), but a given action never changes color between surfaces:
 | Destructive (Delete, Stop)                             | `error` (`warning` for pause-like) | Dashboard project cards    |
 
 Implementation rule: CTAs are ALWAYS real design-system buttons —
-`cm.button({ color, size })` via `getClassMap()` (plus `cm.touchTarget`) or the
-framework `Button` — never hand-rolled inline-styled pills/links. Hand-rolled
-button styling is how surfaces drift apart; if a surface can't use the
-component, it uses the `cm.button` classes directly.
+`cm.button({ color, size })` via `getClassMap()` or the framework `Button` —
+never hand-rolled inline-styled pills/links. Hand-rolled button styling is how
+surfaces drift apart; if a surface can't use the component, it uses the
+`cm.button` classes directly. Touch floor: standalone controls compose
+`cm.touchTarget` (44px); inline CTAs inside dense surfaces (banner strips,
+chat/notice cards) compose `cm.touchTargetCompact` (36px) — 44px visibly
+overwhelms those hosts.
 
 ### Cards
 

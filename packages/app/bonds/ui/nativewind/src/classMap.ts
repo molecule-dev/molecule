@@ -141,6 +141,10 @@ export const classMap: UIClassMap = {
   // so the `pointer-coarse` variant the web bond uses is not meaningful here —
   // apply the >=44x44px minimum unconditionally to every control that opts in.
   touchTarget: 'min-h-[44px] min-w-[44px]',
+  // Compact 36px floor for inline CTAs (banner/chat-card actions) — 44px
+  // overwhelms the dense strips/cards that host them; 36 stays tappable.
+  // Unconditional, like touchTarget (RN is touch-first).
+  touchTargetCompact: 'min-h-[36px] min-w-[36px]',
 
   // Display utilities: RN doesn't have inline-block or block/inline distinction
   displayBlock: '',

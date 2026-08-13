@@ -1077,6 +1077,9 @@ export const classMap: UIClassMap = {
   // wrong signal here (an iPad in portrait is >=768px yet still needs 44px
   // targets); `pointer-coarse` keys off the actual input modality.
   touchTarget: 'pointer-coarse:min-h-[44px] pointer-coarse:min-w-[44px]',
+  // Compact 36px floor for inline CTAs (banner/chat-card actions) — 44px
+  // overwhelms the dense strips/cards that host them; 36 stays tappable.
+  touchTargetCompact: 'pointer-coarse:min-h-[36px] pointer-coarse:min-w-[36px]',
 
   // ---- Position utilities ----
 
