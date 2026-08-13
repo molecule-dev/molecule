@@ -633,6 +633,18 @@ describe('DeepSeek 2026-08-16 price rise (staged)', () => {
       )
     }
   })
+
+  it('does not apply the CN peak surcharge to the US re-host', () => {
+    // DeepInfra has no peak pricing. Charging DeepSeek's Beijing-hours 2× on
+    // top of its flat card would over-bill every US turn in those windows.
+    for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
+      const model = MODELS.find((m) => m.id === id)!
+      expect(priceMultiplierAt(model, AFTER_PEAK, 'us')).toBe(1)
+      expect(priceMultiplierAt(model, AFTER_PEAK, 'cn')).toBe(2)
+      // Region omitted → the model's default region (cn), which is native.
+      expect(priceMultiplierAt(model, AFTER_PEAK)).toBe(2)
+    }
+  })
 })
 
 describe('priceMultiplierAt (peak-hour pricing)', () => {

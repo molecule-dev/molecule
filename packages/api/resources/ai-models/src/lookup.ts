@@ -203,19 +203,36 @@ export function withEffectivePricing(
 }
 
 /**
- * The price multiplier in effect for a model at a given instant.
+ * The price multiplier in effect for a model at a given instant, in a region.
  *
  * Consults the model's {@link ModelDefinition.peakPricing} windows (UTC,
  * half-open, may wrap midnight). Metering MUST call this with each request's
  * own timestamp so peak-hour usage bills at the provider's real rate — pricing
  * everything at the flat rate silently under-meters peak traffic.
  *
+ * Peak windows belong to the NATIVE provider, so they apply only where the base
+ * rates do. A region with a {@link ModelDefinition.regionPricing} override is a
+ * different host billing its own complete rate card, including whether it has
+ * time-of-day pricing at all — and re-hosts generally do not. Applying the
+ * native provider's surcharge on top of a re-host's flat rates would over-bill
+ * every turn in its windows (DeepSeek's 2× Beijing-hours pricing charged
+ * against DeepInfra, which has no peak pricing).
+ *
  * @param modelDef - The model definition (or undefined).
  * @param at - The instant the request was made.
- * @returns The multiplier (`1` outside peak windows or when none are declared).
+ * @param region - The user's per-model region choice, if any (omitted → the
+ *   model's default region).
+ * @returns The multiplier (`1` outside peak windows, when none are declared, or
+ *   in a region that prices off its own override).
  */
-export function priceMultiplierAt(modelDef: ModelDefinition | undefined, at: Date): number {
-  const peak = modelDef ? effectivePeakPricing(modelDef, at) : undefined
+export function priceMultiplierAt(
+  modelDef: ModelDefinition | undefined,
+  at: Date,
+  region?: string,
+): number {
+  if (!modelDef) return 1
+  if (modelDef.regionPricing?.[effectiveModelRegion(modelDef, region)]) return 1
+  const peak = effectivePeakPricing(modelDef, at)
   if (!peak || peak.windows.length === 0) return 1
   const minute = at.getUTCHours() * 60 + at.getUTCMinutes()
   for (const w of peak.windows) {
