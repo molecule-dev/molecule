@@ -989,9 +989,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       // The caller may scope the volume to a subtree (e.g. /workspace/<appDir>)
       // so regenerable tooling (node_modules) stays on the fast image-backed
       // rootfs and only durable state pays the volume's small-file IO cost.
-      machineConfig.mounts = [
-        { volume: volumeId, path: config.volumeMountPath ?? WORKSPACE_PATH },
-      ]
+      machineConfig.mounts = [{ volume: volumeId, path: config.volumeMountPath ?? WORKSPACE_PATH }]
     }
 
     const service = this.previewService()
