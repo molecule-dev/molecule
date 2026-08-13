@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.1.2
+
+### Patch Changes
+
+- Mode surfaces now show the model that mode actually uses, and pending sends always carry the `automatic` flag — including kickoffs that were suppressed while a send was in flight.
+
 ## 1.1.1
 
 ### Patch Changes
