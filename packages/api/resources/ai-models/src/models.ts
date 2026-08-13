@@ -1265,7 +1265,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // (no premium → region input rate). Verified 2026-08-01.
     regions: ['us', 'cn'],
     regionPricing: {
-      us: { inputPricePerMTok: 0.3, outputPricePerMTok: 1.2, cacheReadPricePerMTok: 0.06 },
+      // Verified 2026-08-14 against api.deepinfra.com/models/MiniMaxAI/MiniMax-M3
+      // (cache read = 0.2 × input). Was 0.3/1.2/0.06 — DeepInfra had repriced
+      // and nothing noticed, because the freshness gate's re-host check only
+      // covered deepseek and moonshot until this date.
+      us: { inputPricePerMTok: 0.28, outputPricePerMTok: 1.1, cacheReadPricePerMTok: 0.056 },
     },
     // From the official HF chat template ("Knowledge cutoff: January 2026").
     knowledgeCutoff: '2026-01-01',
@@ -1373,6 +1377,14 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.4,
     cacheWritePricePerMTok: 2,
     regions: ['us', 'cn'],
+    // US = DeepInfra (Qwen/Qwen3.8-Max), verified 2026-08-14 against
+    // api.deepinfra.com/models/ (cache read = 0.1248 x input). ABSENT until then:
+    // every US turn was metered at Alibaba's native rates while running on
+    // DeepInfra, and the model 404'd outright because the bond's modelMap had
+    // never been updated past qwen3.7-max.
+    regionPricing: {
+      us: { inputPricePerMTok: 1.65, outputPricePerMTok: 4.951, cacheReadPricePerMTok: 0.206 },
+    },
     // Not published by Alibaba — best-effort estimate.
     knowledgeCutoff: '2026-04-01',
   },
@@ -1402,6 +1414,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // US default. DeepInfra bills identical rates (no regionPricing needed).
     // Verified 2026-08-01.
     regions: ['us', 'cn'],
+    // US = DeepInfra, verified 2026-08-14 (cache read = 0.2 x input). Superseded,
+    // but still priceable for historical usage, so its region rates must be real.
+    regionPricing: {
+      us: { inputPricePerMTok: 2.5, outputPricePerMTok: 7.5, cacheReadPricePerMTok: 0.5 },
+    },
     // Not published by Alibaba — best-effort estimate.
     knowledgeCutoff: '2026-01-01',
     // Superseded by qwen3.8-max (GA 2026-08-03): same tier and mechanism, and
