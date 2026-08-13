@@ -246,6 +246,57 @@ export interface ModelDefinition {
     multiplier: number
   }
   /**
+   * A price change the provider has ANNOUNCED with a dated effective instant,
+   * staged ahead of time. Until `effectiveFrom` the model bills at the base
+   * rates above; from that instant on, these rates replace them.
+   *
+   * This exists because the freshness gate can only ever see prices that are
+   * ALREADY live: it diffs the catalog against models.dev's *current* rates, so
+   * a change announced today and effective in three days is invisible to it
+   * until after it lands — and the cron runs every 8h, so the catalog would
+   * under-meter for up to a third of a day at whatever the new rate is. Landing
+   * the new numbers early is not an option either: that over-bills every turn
+   * until the switch (the exact mistake the removed DeepSeek peak windows made
+   * for weeks against the free-tier default model). Staging with a timestamp is
+   * the only form that is correct on BOTH sides of the instant, and it needs no
+   * one awake at the switch.
+   *
+   * Applies to the BASE rates only — a `regionPricing` entry is a different
+   * host's rate card (a US re-host does not reprice because the native provider
+   * did) and is never touched by a scheduled change.
+   *
+   * `peakPricing` here, when declared, replaces the model's peak windows from
+   * the same instant; when omitted, the model's existing windows carry through
+   * unchanged. To schedule the END of peak pricing, declare an explicit
+   * `{ windows: [], multiplier: 1 }`.
+   *
+   * Resolution is `effectiveBaseRates()` / `effectivePeakPricing()`, and every
+   * consumer reaches it through `modelRegionRates()` / `priceMultiplierAt()` /
+   * the `withEffectivePricing()` projection the list handler serves — so a
+   * scheduled change lands everywhere at once with no follow-up edit. Once the
+   * instant has passed, fold the rates into the base fields and delete this
+   * (the freshness gate now verifies them against models.dev normally).
+   */
+  scheduledPricing?: {
+    /** ISO-8601 UTC instant the new rates take effect. */
+    effectiveFrom: string
+    /** Input price per million *uncached* tokens in USD, from `effectiveFrom`. */
+    inputPricePerMTok: number
+    /** Output price per million tokens in USD, from `effectiveFrom`. */
+    outputPricePerMTok: number
+    /** Prompt-cache *read* price per million tokens in USD, from `effectiveFrom`. */
+    cacheReadPricePerMTok: number
+    /** Prompt-cache *write* price per million tokens in USD, from `effectiveFrom`. */
+    cacheWritePricePerMTok: number
+    /** Peak-hour pricing from `effectiveFrom` (omitted → existing windows carry through). */
+    peakPricing?: {
+      windows: { startMinuteUtc: number; endMinuteUtc: number }[]
+      multiplier: number
+    }
+    /** Where the change was announced, for the re-verify pass after it lands. */
+    source?: string
+  }
+  /**
    * Fast-mode ("priority speed") pricing — the per-MTok rates billed when a
    * request runs with the provider's fast/priority tier (e.g. Anthropic's
    * `speed: "fast"` research preview: same model, up to ~2.5× output speed, at

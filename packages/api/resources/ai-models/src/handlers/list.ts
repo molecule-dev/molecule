@@ -5,7 +5,14 @@
  * bonded under the `'ai'` category AND are selectable — neither `disabled` (a
  * model the provider retired) nor superseded by a newer generation of the same
  * family, so the picker offers exactly one generation per family. Both kinds
- * stay priceable via `getModel`. No further projection is applied — every
+ * stay priceable via `getModel`.
+ *
+ * The one projection applied is `withEffectivePricing`: a model carrying a
+ * staged `scheduledPricing` change is served at whichever rates are billing at
+ * request time, with the schedule stripped. The server's clock decides when an
+ * announced price change lands, so a client never renders a rate that is not
+ * yet in force (nor keeps rendering one that has been superseded), and no
+ * client needs to know that scheduled pricing exists. Every other
  * `ModelDefinition` field is fine to expose to authenticated clients today.
  *
  * Secure-by-default: this handler enforces authentication IN the handler
@@ -23,7 +30,7 @@ import { getAll } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
-import { isSelectableModel } from '../lookup.js'
+import { isSelectableModel, withEffectivePricing } from '../lookup.js'
 import { MODELS } from '../models.js'
 import type { ListModelsResponse } from '../types.js'
 
@@ -50,7 +57,10 @@ export async function list(_req: MoleculeRequest, res: MoleculeResponse): Promis
   }
 
   const bondedProviders = new Set(getAll('ai').keys())
-  const models = MODELS.filter((m) => bondedProviders.has(m.provider) && isSelectableModel(m))
-  const response: ListModelsResponse = { models: [...models] }
+  const now = new Date()
+  const models = MODELS.filter((m) => bondedProviders.has(m.provider) && isSelectableModel(m)).map(
+    (m) => withEffectivePricing(m, now),
+  )
+  const response: ListModelsResponse = { models }
   res.json(response)
 }

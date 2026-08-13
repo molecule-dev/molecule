@@ -74,10 +74,13 @@ import type { ModelDefinition } from './types.js'
  *   not modeled; reasoning_effort low|medium|high default high, image input;
  *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
  *   grok-code-fast-1 no longer listed — retires 2026-08-15)
- * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (unchanged V4
- *   Pro/Flash pricing; legacy deepseek-chat/-reasoner ids fully retired
- *   2026-07-24 — never in this catalog; the announced peak-hour 2× surcharge is
- *   still NOT active as of 2026-07-28, see the entries)
+ * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (verified
+ *   2026-08-14; legacy deepseek-chat/-reasoner ids fully retired 2026-07-24 —
+ *   never in this catalog. V4-Pro GA on 2026-08-13 came with a price RISE
+ *   effective 2026-08-16T16:00Z plus the long-announced peak-hour 2×: both
+ *   entries carry it as `scheduledPricing`, so today's rates bill until that
+ *   instant and the new ones after. Re-verify weekday-vs-daily peak windows and
+ *   the CN/US region default once it lands — see the entries.)
  * - Moonshot: https://platform.kimi.ai/docs/models + DeepInfra's model API for
  *   the US re-host (kimi-k3 flagship 2026-07-16
  *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
@@ -890,20 +893,44 @@ export const MODELS: readonly ModelDefinition[] = [
   // DeepSeek
   // Verified: https://api-docs.deepseek.com/quick_start/pricing
   //           https://api-docs.deepseek.com/guides/thinking_mode
-  //           https://api-docs.deepseek.com/updates/ (2026-07-31)
+  //           https://api-docs.deepseek.com/updates/ (2026-08-14)
+  // 2026-08-13: V4-Pro GA — and with it the price rise that the "coming soon"
+  // note below had been waiting on. It is STAGED, not applied: both models
+  // carry `scheduledPricing` effective 2026-08-16T16:00Z, so the catalog bills
+  // today's verified rates until that instant and the new ones after it, with
+  // nobody landing an edit at 16:00 UTC on a Sunday. The new card is
+  // off-peak/peak (peak = exactly 2× off-peak), so it maps onto base rates +
+  // `peakPricing` multiplier 2 — which is why the peak windows removed below
+  // come back here rather than as flat rates.
+  //   pro   off-peak 0.66 / 1.98, cache hit 0.022  (peak 1.32 / 3.96 / 0.044)
+  //   flash off-peak 0.22 / 0.66, cache hit 0.007  (peak 0.44 / 1.32 / 0.014)
+  // Cache HITS are the real move — pro 0.003625 → 0.022 (6.1×) off-peak, 0.044
+  // (12.1×) at peak — and agentic input is ~94% cache hits, so effective input
+  // cost rises far more than the list prices suggest. Both are free-tier models
+  // (flash is `freeTier`, pro is the free-tier planner) on the CN default.
+  // TWO things to re-verify once it lands (2026-08-17):
+  //   1. WEEKDAYS OR DAILY. The rate card says only "Peak hours are 01:00 -
+  //      04:00 and 06:00 - 10:00 UTC (all other hours are off-peak)" with no
+  //      day qualifier, so the windows below are DAILY per the provider's own
+  //      doc; press coverage described them as weekday-only. `peakPricing` has
+  //      no day-of-week concept, so if it is weekday-only this over-bills every
+  //      weekend peak window and needs the field extended, not the numbers
+  //      nudged.
+  //   2. THE CN-VS-US DEFAULT. `regions: ['cn', 'us']` defaults to CN on an
+  //      owner decision (2026-08-01) taken when CN ran ~5.7× cheaper on real
+  //      traffic. Post-change DeepInfra's US flash rates (0.08/0.18/0.016) are
+  //      BELOW CN's new off-peak on both input and output — CN wins only on
+  //      cache reads. Re-derive against measured cache-hit ratios before
+  //      leaving the default where it is.
   // 2026-07-31: DeepSeek-V4-Flash OFFICIAL API launched in public beta — the
   // SAME `deepseek-v4-flash` id now serves the re-post-trained 0731 build
   // (same architecture/size; much stronger agent benchmarks — beats
-  // V4-Pro-Preview on Terminal Bench 2.1 / DeepSWE). No pricing/limit/
-  // capability changes. V4-Pro official release "coming soon" — re-verify
-  // pricing THEN (the announced peak-hour 2× was tied to the V4 official
-  // rollout and is still not on the rate card).
+  // V4-Pro-Preview on Terminal Bench 2.1 / DeepSWE).
   // OpenAI/Anthropic-compatible API; text/code only (no vision); 1M context,
   // 384K max output, automatic context (prompt) caching with ABSOLUTE cache-hit
   // prices (~1/50–1/120 of miss — not the old 0.1× rule). Launch discount made
-  // PERMANENT 2026-05-23 (Pro $1.74/$3.48 → $0.435/$0.87). Peak-hour 2×
-  // pricing announced for the mid-Jul 2026 "V4 official" release — re-verify
-  // then. Thinking now defaults ENABLED upstream and supports tool calling
+  // PERMANENT 2026-05-23 (Pro $1.74/$3.48 → $0.435/$0.87), and ENDED by the
+  // 2026-08-16 rise above. Thinking now defaults ENABLED upstream and supports tool calling
   // (reasoning_effort: high|max), BUT tool loops in thinking mode must replay
   // assistant reasoning_content on every subsequent request (400 on omission).
   // The bond explicitly sends thinking:{type:"disabled"} — Synthase runs
@@ -944,13 +971,29 @@ export const MODELS: readonly ModelDefinition[] = [
     regionPricing: {
       us: { inputPricePerMTok: 1.3, outputPricePerMTok: 2.6, cacheReadPricePerMTok: 0.1 },
     },
-    // The announced peak-hour 2× surcharge (Beijing business hours) is STILL
-    // NOT ACTIVE as of 2026-07-28 — the official rate card lists a single flat
-    // rate, and no switch-over date is published. The pre-wired windows were
-    // REMOVED: they had been over-billing every peak-window turn 2× for weeks
-    // (this is the free-tier default model, so that directly shrank free
-    // users' allowances). Re-add via `peakPricing` the day DeepSeek's rate
-    // card actually shows the surcharge.
+    // The peak-hour 2× surcharge is now ON the rate card with a dated switch
+    // (2026-08-13 announcement, effective 2026-08-16T16:00Z) — so it is staged
+    // below rather than live. The previously pre-wired windows had been REMOVED
+    // for over-billing every peak-window turn 2× for weeks against a rate card
+    // that showed a single flat rate; staging is what keeps this from repeating
+    // in the other direction. Peak = 01:00-04:00 and 06:00-10:00 UTC (Beijing
+    // business hours), which is 2× the off-peak rates exactly.
+    scheduledPricing: {
+      effectiveFrom: '2026-08-16T16:00:00Z',
+      inputPricePerMTok: 0.66,
+      outputPricePerMTok: 1.98,
+      cacheReadPricePerMTok: 0.022,
+      // DeepSeek charges no cache-write premium — write bills at input.
+      cacheWritePricePerMTok: 0.66,
+      peakPricing: {
+        windows: [
+          { startMinuteUtc: 60, endMinuteUtc: 240 },
+          { startMinuteUtc: 360, endMinuteUtc: 600 },
+        ],
+        multiplier: 2,
+      },
+      source: 'https://api-docs.deepseek.com/quick_start/pricing/',
+    },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },
@@ -990,7 +1033,23 @@ export const MODELS: readonly ModelDefinition[] = [
     regionPricing: {
       us: { inputPricePerMTok: 0.08, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.016 },
     },
-    // Peak-hour surcharge NOT active (see deepseek-v4-pro) — windows removed.
+    // Peak-hour surcharge staged, not live (see deepseek-v4-pro).
+    scheduledPricing: {
+      effectiveFrom: '2026-08-16T16:00:00Z',
+      inputPricePerMTok: 0.22,
+      outputPricePerMTok: 0.66,
+      cacheReadPricePerMTok: 0.007,
+      // DeepSeek charges no cache-write premium — write bills at input.
+      cacheWritePricePerMTok: 0.22,
+      peakPricing: {
+        windows: [
+          { startMinuteUtc: 60, endMinuteUtc: 240 },
+          { startMinuteUtc: 360, endMinuteUtc: 600 },
+        ],
+        multiplier: 2,
+      },
+      source: 'https://api-docs.deepseek.com/quick_start/pricing/',
+    },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },

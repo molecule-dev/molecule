@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  effectiveBaseRates,
+  effectivePeakPricing,
   getAvailableModels,
   getModel,
   getModelsByProvider,
@@ -9,6 +11,7 @@ import {
   modelRegionRates,
   priceMultiplierAt,
   resolveSelectableModelId,
+  withEffectivePricing,
 } from '../lookup.js'
 import { MODELS } from '../models.js'
 
@@ -273,6 +276,58 @@ describe('pricing integrity (spend accounting)', () => {
     }
   })
 
+  it('scheduledPricing (when declared) is a dated, well-formed future rate card', () => {
+    // A staged price change bills real money the instant it lands, with nobody
+    // reviewing it at that moment — so the same bounds the base rates get, plus
+    // a parseable instant (an unparseable one is silently ignored by
+    // effectiveBaseRates, which would leave a landed change un-billed).
+    for (const model of MODELS) {
+      const s = model.scheduledPricing
+      if (!s) continue
+      expect(
+        Number.isNaN(Date.parse(s.effectiveFrom)),
+        `${model.id} scheduledPricing.effectiveFrom must be a parseable instant`,
+      ).toBe(false)
+      for (const field of [
+        'inputPricePerMTok',
+        'outputPricePerMTok',
+        'cacheReadPricePerMTok',
+        'cacheWritePricePerMTok',
+      ] as const) {
+        expect(
+          Number.isFinite(s[field]),
+          `${model.id} scheduledPricing.${field} must be finite`,
+        ).toBe(true)
+        expect(
+          s[field],
+          `${model.id} scheduledPricing.${field} must be >= 0`,
+        ).toBeGreaterThanOrEqual(0)
+      }
+      expect(
+        s.cacheReadPricePerMTok,
+        `${model.id} scheduled cache read must be <= scheduled input price`,
+      ).toBeLessThanOrEqual(s.inputPricePerMTok)
+      expect(
+        s.cacheWritePricePerMTok,
+        `${model.id} scheduled cache write must be >= scheduled input price`,
+      ).toBeGreaterThanOrEqual(s.inputPricePerMTok)
+      if (s.peakPricing) {
+        expect(
+          s.peakPricing.multiplier,
+          `${model.id} scheduled peak multiplier must be >= 1`,
+        ).toBeGreaterThanOrEqual(1)
+        for (const w of s.peakPricing.windows) {
+          for (const [name, value] of Object.entries(w)) {
+            expect(
+              Number.isInteger(value) && value >= 0 && value <= 1440,
+              `${model.id} scheduled peak window ${name} must be a minute-of-day`,
+            ).toBe(true)
+          }
+        }
+      }
+    }
+  })
+
   it('fastPricing (when declared) is finite, premium-or-equal, and internally consistent', () => {
     // Fast mode bills at a PREMIUM (Anthropic fast is 2× standard) — a
     // fastPricing block cheaper than base rates, or with swapped cache fields,
@@ -430,9 +485,164 @@ describe('model data integrity', () => {
   })
 })
 
+describe('scheduledPricing (announced, dated price changes)', () => {
+  const BEFORE = new Date('2026-08-16T15:59:59Z')
+  const AT = new Date('2026-08-16T16:00:00Z')
+  const AFTER = new Date('2026-08-17T12:00:00Z')
+
+  const staged = {
+    ...MODELS.find((m) => m.id === 'claude-sonnet-5')!,
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 2,
+    cacheReadPricePerMTok: 0.1,
+    cacheWritePricePerMTok: 1,
+    regionPricing: { us: { inputPricePerMTok: 9, outputPricePerMTok: 9 } },
+    regions: ['cn', 'us'],
+    scheduledPricing: {
+      effectiveFrom: '2026-08-16T16:00:00Z',
+      inputPricePerMTok: 3,
+      outputPricePerMTok: 6,
+      cacheReadPricePerMTok: 0.3,
+      cacheWritePricePerMTok: 3,
+      peakPricing: { windows: [{ startMinuteUtc: 60, endMinuteUtc: 240 }], multiplier: 2 },
+    },
+  }
+
+  it('bills the base rates until the instant, the staged rates from it', () => {
+    expect(effectiveBaseRates(staged, BEFORE).inputPricePerMTok).toBe(1)
+    // Half-open at the instant itself: the change IS in force at effectiveFrom.
+    expect(effectiveBaseRates(staged, AT).inputPricePerMTok).toBe(3)
+    expect(effectiveBaseRates(staged, AFTER)).toEqual({
+      inputPricePerMTok: 3,
+      outputPricePerMTok: 6,
+      cacheReadPricePerMTok: 0.3,
+      cacheWritePricePerMTok: 3,
+    })
+  })
+
+  it('leaves regionPricing alone — a re-host does not reprice because the native provider did', () => {
+    // The US entry is another host's rate card; only the base (native) rates
+    // are scheduled. Pricing the re-host off the native change would invent a
+    // number no provider published.
+    expect(modelRegionRates(staged, 'us', BEFORE).inputPricePerMTok).toBe(9)
+    expect(modelRegionRates(staged, 'us', AFTER).inputPricePerMTok).toBe(9)
+    expect(modelRegionRates(staged, 'cn', BEFORE).inputPricePerMTok).toBe(1)
+    expect(modelRegionRates(staged, 'cn', AFTER).inputPricePerMTok).toBe(3)
+  })
+
+  it('defaults to NOW so a caller cannot keep billing a superseded rate by omitting the instant', () => {
+    const past = {
+      ...staged,
+      scheduledPricing: { ...staged.scheduledPricing, effectiveFrom: '2020-01-01T00:00:00Z' },
+    }
+    expect(modelRegionRates(past, 'cn').inputPricePerMTok).toBe(3)
+    expect(effectiveBaseRates(past).inputPricePerMTok).toBe(3)
+  })
+
+  it('ignores an unparseable effectiveFrom rather than repricing on it', () => {
+    // Failing OPEN here would silently move real money on a typo; the verified
+    // current rates stay in force and the invariant test catches the typo.
+    const broken = {
+      ...staged,
+      scheduledPricing: { ...staged.scheduledPricing, effectiveFrom: 'not-a-date' },
+    }
+    expect(effectiveBaseRates(broken, AFTER).inputPricePerMTok).toBe(1)
+    expect(effectivePeakPricing(broken, AFTER)).toBeUndefined()
+  })
+
+  it('carries existing peak windows through when the staged entry omits them', () => {
+    const existing = { windows: [{ startMinuteUtc: 0, endMinuteUtc: 60 }], multiplier: 3 }
+    const noPeak = {
+      ...staged,
+      peakPricing: existing,
+      scheduledPricing: { ...staged.scheduledPricing, peakPricing: undefined },
+    }
+    expect(effectivePeakPricing(noPeak, BEFORE)).toBe(existing)
+    expect(effectivePeakPricing(noPeak, AFTER)).toBe(existing)
+  })
+
+  it('can schedule the END of peak pricing with an explicit empty window list', () => {
+    const ending = {
+      ...staged,
+      peakPricing: { windows: [{ startMinuteUtc: 0, endMinuteUtc: 1440 }], multiplier: 2 },
+      scheduledPricing: { ...staged.scheduledPricing, peakPricing: { windows: [], multiplier: 1 } },
+    }
+    expect(priceMultiplierAt(ending, BEFORE)).toBe(2)
+    expect(priceMultiplierAt(ending, AFTER)).toBe(1)
+  })
+
+  it('withEffectivePricing folds the effective rates in and strips the schedule', () => {
+    const before = withEffectivePricing(staged, BEFORE)
+    expect(before.inputPricePerMTok).toBe(1)
+    expect(before.peakPricing).toBeUndefined()
+    expect(before.scheduledPricing).toBeUndefined()
+
+    const after = withEffectivePricing(staged, AFTER)
+    expect(after.inputPricePerMTok).toBe(3)
+    expect(after.cacheReadPricePerMTok).toBe(0.3)
+    expect(after.peakPricing).toEqual(staged.scheduledPricing.peakPricing)
+    expect(after.scheduledPricing).toBeUndefined()
+    // Everything else survives the projection untouched.
+    expect(after.id).toBe(staged.id)
+    expect(after.regionPricing).toEqual(staged.regionPricing)
+  })
+
+  it('returns models without a schedule unchanged', () => {
+    const plain = MODELS.find((m) => m.id === 'claude-sonnet-5')!
+    expect(withEffectivePricing(plain, AFTER)).toBe(plain)
+  })
+})
+
+describe('DeepSeek 2026-08-16 price rise (staged)', () => {
+  // The concrete case the mechanism was built for. Rates verified against
+  // https://api-docs.deepseek.com/quick_start/pricing/ on 2026-08-14; peak is
+  // exactly 2× off-peak, which is why it maps onto a multiplier.
+  const BEFORE = new Date('2026-08-16T15:00:00Z')
+  const AFTER_OFFPEAK = new Date('2026-08-17T12:00:00Z')
+  const AFTER_PEAK = new Date('2026-08-17T02:00:00Z')
+
+  it.each([
+    ['deepseek-v4-pro', 0.435, 0.87, 0.003625, 0.66, 1.98, 0.022],
+    ['deepseek-v4-flash', 0.14, 0.28, 0.0028, 0.22, 0.66, 0.007],
+  ])('%s switches at 2026-08-16T16:00Z', (id, oldIn, oldOut, oldCache, newIn, newOut, newCache) => {
+    const model = MODELS.find((m) => m.id === id)!
+    expect(model.scheduledPricing?.effectiveFrom).toBe('2026-08-16T16:00:00Z')
+
+    const before = modelRegionRates(model, 'cn', BEFORE)
+    expect(before.inputPricePerMTok).toBe(oldIn)
+    expect(before.outputPricePerMTok).toBe(oldOut)
+    expect(before.cacheReadPricePerMTok).toBe(oldCache)
+
+    const after = modelRegionRates(model, 'cn', AFTER_OFFPEAK)
+    expect(after.inputPricePerMTok).toBe(newIn)
+    expect(after.outputPricePerMTok).toBe(newOut)
+    expect(after.cacheReadPricePerMTok).toBe(newCache)
+
+    // Peak is a multiplier on the off-peak rates, not a second rate card.
+    expect(priceMultiplierAt(model, BEFORE)).toBe(1)
+    expect(priceMultiplierAt(model, AFTER_OFFPEAK)).toBe(1)
+    expect(priceMultiplierAt(model, AFTER_PEAK)).toBe(2)
+  })
+
+  it('does not touch the US re-host rates', () => {
+    // DeepInfra sets its own prices; the CN rise must not move them.
+    for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
+      const model = MODELS.find((m) => m.id === id)!
+      expect(modelRegionRates(model, 'us', BEFORE)).toEqual(
+        modelRegionRates(model, 'us', AFTER_OFFPEAK),
+      )
+    }
+  })
+})
+
 describe('priceMultiplierAt (peak-hour pricing)', () => {
   const peakModel = {
-    ...MODELS.find((m) => m.id === 'deepseek-v4-flash')!,
+    // `scheduledPricing` dropped: this block tests the peak-window arithmetic
+    // in isolation, so it must not also depend on where a staged catalog price
+    // change happens to sit relative to these fixture dates.
+    ...(({ scheduledPricing: _s, ...rest }) => rest)(
+      MODELS.find((m) => m.id === 'deepseek-v4-flash')!,
+    ),
     peakPricing: {
       windows: [
         { startMinuteUtc: 60, endMinuteUtc: 240 }, // 01:00–04:00 UTC
@@ -467,6 +677,19 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
     const flat = MODELS.find((m) => m.id === 'claude-sonnet-5')!
     expect(priceMultiplierAt(flat, new Date('2026-07-20T02:00:00Z'))).toBe(1)
     expect(priceMultiplierAt(undefined, new Date('2026-07-20T02:00:00Z'))).toBe(1)
+  })
+
+  it('honors peak windows a scheduled change introduces, only from its instant', () => {
+    // DeepSeek's 2026-08-16 rise brings peak pricing to a model that has none
+    // today. Before the instant the model is flat; after it, the staged windows
+    // are live — with no edit landed at the switch.
+    const flash = MODELS.find((m) => m.id === 'deepseek-v4-flash')!
+    expect(flash.peakPricing).toBeUndefined()
+    // 02:00 UTC is inside the staged 01:00–04:00 window either way.
+    expect(priceMultiplierAt(flash, new Date('2026-08-16T02:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(flash, new Date('2026-08-17T02:00:00Z'))).toBe(2)
+    // Off-peak after the switch is still flat.
+    expect(priceMultiplierAt(flash, new Date('2026-08-17T12:00:00Z'))).toBe(1)
   })
 
   it('the DeepSeek catalog entries carry NO peak windows while the surcharge is inactive', () => {
