@@ -252,6 +252,36 @@ describe('buildTools', () => {
     expect(result.content).toBe('file content')
   })
 
+  it('read_file returns source verbatim — the agent writes back what it reads', async () => {
+    // The redactor is name-keyed, so over source it replaced legitimate values and the
+    // literal token then landed in users' projects on the next write. Source files get
+    // the code-safe grade; only value-shape/env-assignment secrets are masked.
+    const source = [
+      "  forgotPasswordEndpoint: '/users/forgot-password',",
+      "  apiKeys: 'API keys',",
+      '      auth={authClient}',
+      "const TEST_PASSWORD = 'TestPass!1'",
+    ].join('\n')
+    const backend = mockBackend()
+    backend.readFile = vi.fn().mockResolvedValue(source)
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/config.ts' })) as { content: string }
+    expect(result.content).toBe(source)
+    expect(result.content).not.toContain('[REDACTED]')
+  })
+
+  it('read_file still applies full env-dump redaction to .env files', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn().mockResolvedValue('PORT=3000\nDB_PASSWORD=hunter2\n')
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/.env' })) as { content: string }
+    expect(result.content).toContain('PORT=3000')
+    expect(result.content).toContain('DB_PASSWORD=[REDACTED]')
+    expect(result.content).not.toContain('hunter2')
+  })
+
   it('read_file returns a clear error when path is missing (no undefined.replace crash)', async () => {
     // Regression: a real build crashed with "Cannot read properties of undefined
     // (reading 'replace')" when the model called read_file with no path — resolvePath

@@ -47,7 +47,39 @@ export const stripControlChars = (s: string): string =>
 // OPENAI_KEY / *_ROLE_KEY.
 const SECRET_KEYWORDS =
   'SECRET|PASSWORD|PASSWD|PWD|TOKEN|API_KEY|APIKEY|PRIVATE_KEY|DATABASE_URL|REDIS_URL|AUTH|CREDENTIAL|ACCESS_KEY|SIGNING_KEY|ENCRYPTION_KEY|CONNECTION_STRING|SERVICE_ACCOUNT|DSN|SMTP_PASS|_KEY'
-const SECRET_KEY_PATTERN = new RegExp(`^(.*(?:${SECRET_KEYWORDS})[A-Z0-9_]*)=(.+)$`, 'gim')
+/**
+ * A keyword-named `NAME=value` anywhere on a line — the ENV-DUMP grade pattern,
+ * used by {@link redactSecrets} for command output and `.env` reads. The permissive
+ * `.*` prefix is deliberate there: a leaked env var routinely arrives mid-line
+ * (`Error: DATABASE_URL=postgres://…` on stderr), and that output is shown to the
+ * model but never written back to a file, so over-matching costs nothing.
+ *
+ * The value must not open with `{` or `<`: an env value never does, but a JSX
+ * expression container or element always does. Without that guard this pattern ate
+ * `auth={authClient}` down to `auth=[REDACTED]`.
+ */
+const SECRET_KEY_PATTERN = new RegExp(
+  `^(.*(?:${SECRET_KEYWORDS})[A-Za-z0-9_]*)=(?![{<])(.+)$`,
+  'gim',
+)
+
+/**
+ * The same assignment anchored to a REAL env-assignment shape — line start (or
+ * `export `), a bare identifier, then `=` with no surrounding spaces. This is the
+ * CODE-SAFE form used by {@link redactSecretsInCode}.
+ *
+ * Anchoring matters because the loose form above matches any line with a keyword
+ * anywhere before an `=` and replaces the whole line tail. Over source code that
+ * destroyed ordinary lines, and since the executor writes back what it reads, the
+ * literal token landed in users' projects.
+ */
+const SECRET_ENV_ASSIGNMENT = new RegExp(
+  // The leading name run allows EMPTY: a name that IS the keyword (`DATABASE_URL=`,
+  // `SECRET=`) has nothing before it, and requiring a character there silently
+  // un-masked exactly the plainest env vars.
+  `^((?:export[ \\t]+)?[A-Za-z0-9_]*(?:${SECRET_KEYWORDS})[A-Za-z0-9_]*)=(?![{<])(.+)$`,
+  'gim',
+)
 /** Catch JSON-formatted env dumps like { KEY: 'value' } from node/python. */
 const SECRET_JSON_DQ = new RegExp(
   `(['"]?(?:\\w*(?:${SECRET_KEYWORDS})\\w*)['"]?\\s*[:=]\\s*)"(?:[^"\\\\]|\\\\.)*"`,
@@ -94,6 +126,12 @@ const jsonValueReplacer =
 /**
  * Redact values of common secret/credential patterns in text output.
  *
+ * ENV-DUMP GRADE — includes the JSON `KEY: 'value'` passes, which key off the
+ * NAME beside the value and therefore cannot tell a credential from ordinary
+ * code that happens to use a keyword-ish identifier. Use this for `.env` reads
+ * and command output (where an env dump is the actual threat); use
+ * {@link redactSecretsInCode} for source-file content.
+ *
  * @param s - Log or command output that may contain `.env`-style secrets.
  * @returns A redacted copy safe to surface to end users or models.
  */
@@ -102,6 +140,44 @@ export function redactSecrets(s: string): string {
     .replace(SECRET_KEY_PATTERN, '$1=[REDACTED]')
     .replace(SECRET_JSON_DQ, jsonValueReplacer('"'))
     .replace(SECRET_JSON_SQ, jsonValueReplacer("'"))
+}
+
+/**
+ * CODE-SAFE redaction — the env-assignment pass of {@link redactSecrets} WITHOUT
+ * the JSON `KEY: 'value'` passes.
+ *
+ * Those passes match on the NAME next to a quoted value, so over source code they
+ * replace legitimate content at enormous scale: `forgotPasswordEndpoint:
+ * '/users/forgot-password'`, `apiKeys: 'API keys'`, and every localized "Show
+ * password" string all became `'[REDACTED]'`. Because the agent writes back the
+ * content it reads, that token then lands in the user's project — measured at
+ * 10,952 of 27,919 flagship template files before this split.
+ *
+ * No value heuristic can fix that: a legitimate `password = 'TestPass123!'` in a
+ * test helper is indistinguishable from a real credential by shape. So the
+ * name-keyed passes simply do not run over code. Credentials in source are still
+ * caught by the env-assignment pass here, and consumers layer VALUE-SHAPE
+ * detection (vendor prefixes, PEM blocks, credentials in a URL authority) on top —
+ * which is what actually catches a secret sitting under an innocuous name.
+ *
+ * @param s - Source-file content or other code-shaped text.
+ * @returns A redacted copy that preserves ordinary code verbatim.
+ */
+export function redactSecretsInCode(s: string): string {
+  return s.replace(SECRET_ENV_ASSIGNMENT, '$1=[REDACTED]')
+}
+
+/**
+ * Whether a path is an env file, for which {@link redactSecrets}' full env-dump
+ * treatment is appropriate rather than {@link redactSecretsInCode}. Matches
+ * `.env`, `.env.<suffix>`, and `<name>.env`.
+ *
+ * @param path - A workspace-relative or absolute file path.
+ * @returns `true` when the file is an env file.
+ */
+export function isEnvFilePath(path: string): boolean {
+  const base = path.split('/').pop() ?? ''
+  return base === '.env' || base.startsWith('.env.') || base.endsWith('.env')
 }
 
 // ── Command blocking ──────────────────────────────────────────────────────────

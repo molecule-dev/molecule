@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import {
   checkBlockedCommand,
+  isEnvFilePath,
   isValidGlob,
   redactSecrets,
+  redactSecretsInCode,
   resolvePath,
   shellQuote,
   stripControlChars,
@@ -91,6 +93,88 @@ describe('redactSecrets', () => {
     expect(out).toContain('SECRET_TOKEN=[REDACTED]')
     expect(out).not.toContain('secret123')
     expect(out).not.toContain('hidden')
+  })
+
+  it('still masks a keyword assignment that arrives mid-line in command output', () => {
+    // Env-dump grade keeps the permissive prefix: a leaked var routinely shows up
+    // mid-line on stderr, and command output is never written back to a file.
+    const out = redactSecrets('Error: DATABASE_URL=postgres://leak@host/db')
+    expect(out).toContain('DATABASE_URL=[REDACTED]')
+    expect(out).not.toContain('postgres://leak')
+  })
+
+  it('never eats a JSX expression container, at either grade', () => {
+    // `auth={authClient}` → `auth=[REDACTED]` broke JSX outright. An env value never
+    // opens with `{` or `<`, so both grades refuse those.
+    expect(redactSecrets('  auth={authClient}')).toBe('  auth={authClient}')
+    expect(redactSecrets('auth={authClient}')).toBe('auth={authClient}')
+    expect(redactSecretsInCode('      oauthConfig={oauthConfig}')).toBe(
+      '      oauthConfig={oauthConfig}',
+    )
+  })
+})
+
+describe('redactSecretsInCode', () => {
+  it('masks real env assignments, including bare and exported names', () => {
+    expect(redactSecretsInCode('DB_PASSWORD=hunter2')).toBe('DB_PASSWORD=[REDACTED]')
+    expect(redactSecretsInCode('SECRET=abc')).toBe('SECRET=[REDACTED]')
+    // A name that IS the keyword has nothing before it — this regressed once.
+    expect(
+      redactSecretsInCode('DATABASE_URL=postgres://postgres:postgres@localhost:5432/app'),
+    ).toBe('DATABASE_URL=[REDACTED]')
+    expect(
+      redactSecretsInCode('export DATABASE_URL=postgres://postgres:postgres@localhost:5432/app'),
+    ).toBe('export DATABASE_URL=[REDACTED]')
+    expect(redactSecretsInCode('REDIS_URL=redis://:redis@localhost:6379')).toBe(
+      'REDIS_URL=[REDACTED]',
+    )
+  })
+
+  it('leaves non-secret env assignments alone', () => {
+    expect(redactSecretsInCode('PORT=3000')).toBe('PORT=3000')
+    expect(redactSecretsInCode('NODE_ENV=production')).toBe('NODE_ENV=production')
+  })
+
+  it('preserves ordinary source code verbatim', () => {
+    // Every line here was corrupted by the name-keyed JSON passes, and the agent
+    // wrote the token back into the user's project on the next edit.
+    const code = [
+      "  forgotPasswordEndpoint: '/users/forgot-password',",
+      "  changePasswordEndpoint: '/users/me/password',",
+      "  apiKeys: 'API keys',",
+      "  'login.hidePassword': 'Nascondi password',",
+      "  passwordPlaceholder: '••••••••',",
+      "const TEST_PASSWORD = 'TestPass!1'",
+      "export async function signup(page: Page, password = 'TestPass123!') {",
+      '      auth={authClient}',
+      '      oauthConfig={oauthConfig}',
+      '  authorName=""',
+      "await page.goto(base + '/reset-password?token=invalid-token')",
+    ].join('\n')
+    expect(redactSecretsInCode(code)).toBe(code)
+  })
+
+  it('omits the name-keyed JSON passes that redactSecrets applies', () => {
+    const dump = `{ "apiToken": "abc123" }`
+    expect(redactSecrets(dump)).toContain('[REDACTED]')
+    expect(redactSecretsInCode(dump)).toBe(dump)
+  })
+})
+
+describe('isEnvFilePath', () => {
+  it('recognizes env files, which keep full env-dump redaction', () => {
+    expect(isEnvFilePath('.env')).toBe(true)
+    expect(isEnvFilePath('/workspace/app/.env')).toBe(true)
+    expect(isEnvFilePath('/workspace/.env.local')).toBe(true)
+    expect(isEnvFilePath('api/.env.production')).toBe(true)
+    expect(isEnvFilePath('config/staging.env')).toBe(true)
+  })
+
+  it('does not treat source files as env files', () => {
+    expect(isEnvFilePath('app/src/config.ts')).toBe(false)
+    expect(isEnvFilePath('app/src/App.tsx')).toBe(false)
+    expect(isEnvFilePath('.environment.ts')).toBe(false)
+    expect(isEnvFilePath('README.md')).toBe(false)
   })
 })
 

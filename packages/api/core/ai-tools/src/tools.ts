@@ -15,6 +15,7 @@ import {
   checkBlockedCommand,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
+  isEnvFilePath,
   isValidGlob,
   MAX_FIND_RESULTS,
   MAX_OUTPUT_SIZE,
@@ -23,6 +24,7 @@ import {
   MAX_WRITE_SIZE,
   pathArgError,
   redactSecrets,
+  redactSecretsInCode,
   resolvePath,
   shellQuote,
   stripControlChars,
@@ -115,6 +117,24 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     return result
   }
 
+  /**
+   * Sanitize FILE CONTENT for return to the model. Unlike {@link sanitizeOutput},
+   * this uses the code-safe redactor for ordinary source files — the name-keyed
+   * JSON passes destroy legitimate code, and the agent writes back what it reads,
+   * so an over-redacted read corrupts the user's project on the next write. Env
+   * files still get the full env-dump treatment, since that is where the shape
+   * those passes detect actually indicates a credential.
+   *
+   * @param s - Raw file contents.
+   * @param path - The file's path, used to decide the redaction grade.
+   * @returns Content safe to return to the model, with code preserved verbatim.
+   */
+  function sanitizeFileContent(s: string, path: string): string {
+    let result = stripControlChars(s)
+    if (doRedact) result = isEnvFilePath(path) ? redactSecrets(result) : redactSecretsInCode(result)
+    return result
+  }
+
   // ── Diff computation ───────────────────────────────────────────
 
   /**
@@ -167,7 +187,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           return {
             error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
           }
-        return { path, content: sanitizeOutput(content) }
+        return { path, content: sanitizeFileContent(content, path) }
       } catch (e: unknown) {
         // Backends (e.g. the docker provider's `cat`) already prefix "Failed to read <path>: ";
         // strip it so the wrap below doesn't stutter ("Failed to read X: Failed to read X: …").
@@ -414,7 +434,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           `grep -rn ${globArg} ${grepExcludeArgs} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
           { timeout: 10000 },
         )
-        const output = sanitizeOutput(result.stdout.trim())
+        // grep emits `<file>:<line>:<content>`, so redaction runs PER MATCH on the
+        // content alone: the file prefix would otherwise hide an env assignment from
+        // the line-anchored env pattern, and knowing each match's own path is what
+        // lets a hit inside a .env get full treatment while source stays verbatim.
+        const output = stripControlChars(result.stdout.trim())
         if (!output) return { pattern, path, matches: [] }
 
         const matches = output
@@ -423,8 +447,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           .map((line) => {
             const m = line.match(/^(.+?):(\d+):(.*)$/)
             return m
-              ? { file: m[1], line: parseInt(m[2]), content: m[3] }
-              : { file: '', line: 0, content: line }
+              ? { file: m[1], line: parseInt(m[2]), content: sanitizeFileContent(m[3], m[1]) }
+              : { file: '', line: 0, content: sanitizeFileContent(line, '') }
           })
         return { pattern, path, matches }
       } catch (e: unknown) {
@@ -557,7 +581,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (symlinkErr) return { error: symlinkErr }
         try {
           const content = await backend.readFile(path)
-          return { name, path, content: sanitizeOutput(content) }
+          return { name, path, content: sanitizeFileContent(content, path) }
         } catch (_error) {
           // File not present at the given path — fall through to the error return below
           return { error: `Skill not found at path: ${name}` }
@@ -573,7 +597,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (await checkSymlink(skillPath)) continue
         try {
           const content = await backend.readFile(skillPath)
-          return { name, path: `${dir}/${name}/SKILL.md`, content: sanitizeOutput(content) }
+          return {
+            name,
+            path: `${dir}/${name}/SKILL.md`,
+            content: sanitizeFileContent(content, skillPath),
+          }
         } catch (_error) {
           // Skill file not present in this directory — try the next candidate
           continue
