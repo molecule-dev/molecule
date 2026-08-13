@@ -22,7 +22,7 @@ export interface GoogleConfig {
   baseUrl?: string
   /**
    * Default model id when not overridden per-request. Defaults to the
-   * `GOOGLE_AI_MODEL` env var, then `gemini-3.6-flash`.
+   * `GOOGLE_AI_MODEL` env var, then `gemini-3.7-flash`.
    */
   model?: string
 }
