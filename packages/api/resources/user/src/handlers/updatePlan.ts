@@ -42,12 +42,42 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
     schema: updatePlanPropsSchema,
   })
 
+  /**
+   * Fire-and-forget analytics with the failure logged (never thrown): a lost
+   * funnel event must not break a plan update, but it must not vanish either.
+   *
+   * @param name - The analytics event name.
+   * @param userId - The user the event belongs to.
+   * @param properties - Event properties.
+   */
+  const trackSafe = (name: string, userId: string, properties: Record<string, unknown>): void => {
+    analytics.track({ name, userId, properties }).catch((error) => {
+      logger.debug(`Analytics track failed for ${name} (best-effort)`, { userId, error })
+    })
+  }
+
+  /**
+   * Log a rejected plan update before returning its 4xx. Every rejection here
+   * ends a PAID-conversion attempt, and an unlogged one leaves zero server-side
+   * trace when a user reports "the upgrade button did nothing".
+   *
+   * @param reason - Human-readable rejection reason.
+   * @param context - Request context (userId, planKey, errorKey, ...).
+   */
+  const logRejection = (reason: string, context: Record<string, unknown>): void => {
+    logger.warn(`Plan update rejected: ${reason}`, context)
+  }
+
   return async (req: UpdatePlanRequest) => {
     try {
       const id = req.params.id as string
       const { planKey } = req.body
 
       if (!planKey && planKey !== '') {
+        logRejection('no planKey in request body', {
+          userId: id,
+          errorKey: 'user.error.planKeyRequired',
+        })
         return {
           statusCode: 400,
           body: { error: t('user.error.planKeyRequired'), errorKey: 'user.error.planKeyRequired' },
@@ -58,6 +88,7 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
       const user = await findById<types.Props>(tableName, id)
 
       if (!user) {
+        logRejection('user not found', { userId: id, errorKey: 'user.error.notFound' })
         return {
           statusCode: 404,
           body: { error: t('user.error.notFound'), errorKey: 'user.error.notFound' },
@@ -72,6 +103,11 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
         const previousPlan = plans.findPlan(user.planKey || '')
 
         if (!plan) {
+          logRejection('planKey not in the plan catalogue', {
+            userId: id,
+            planKey,
+            errorKey: 'user.error.invalidPlan',
+          })
           return {
             statusCode: 400,
             body: { error: t('user.error.invalidPlan'), errorKey: 'user.error.invalidPlan' },
@@ -102,33 +138,21 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
 
             if (result.checkoutUrl) {
               // New subscription requires checkout — return the URL to the client.
-              analytics
-                .track({
-                  name: 'user.plan_checkout_created',
-                  userId: id,
-                  properties: {
-                    previousPlanKey: previousPlan?.planKey,
-                    newPlanKey: plan.planKey,
-                    platformKey: plan.platformKey,
-                  },
-                })
-                .catch(() => {})
+              trackSafe('user.plan_checkout_created', id, {
+                previousPlanKey: previousPlan?.planKey,
+                newPlanKey: plan.planKey,
+                platformKey: plan.platformKey,
+              })
               return { statusCode: 201, body: { checkoutUrl: result.checkoutUrl } }
             }
 
             if (result.updated) {
               // Subscription was updated in-place — update the user record.
-              analytics
-                .track({
-                  name: 'user.plan_updated',
-                  userId: id,
-                  properties: {
-                    previousPlanKey: previousPlan?.planKey,
-                    newPlanKey: plan.planKey,
-                    platformKey: plan.platformKey,
-                  },
-                })
-                .catch(() => {})
+              trackSafe('user.plan_updated', id, {
+                previousPlanKey: previousPlan?.planKey,
+                newPlanKey: plan.planKey,
+                platformKey: plan.platformKey,
+              })
               const updated = await updateResource({
                 id,
                 props: {
@@ -143,17 +167,20 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
               return updated
             }
 
-            analytics
-              .track({
-                name: 'user.plan_update_failed',
-                userId: id,
-                properties: {
-                  previousPlanKey: previousPlan?.planKey,
-                  newPlanKey: plan.planKey,
-                  platformKey: plan.platformKey,
-                },
-              })
-              .catch(() => {})
+            trackSafe('user.plan_update_failed', id, {
+              previousPlanKey: previousPlan?.planKey,
+              newPlanKey: plan.planKey,
+              platformKey: plan.platformKey,
+            })
+            // The provider swallowed its own error into { updated: false } (a
+            // declined card, an unknown price id, a misconfigured product) —
+            // this line is the only request-scoped trace of a LOST conversion.
+            logRejection('payment provider did not update the subscription', {
+              userId: id,
+              planKey,
+              platformKey: plan.platformKey,
+              errorKey: 'user.error.failedToUpdateSubscription',
+            })
             return {
               statusCode: 400,
               body: {
@@ -170,6 +197,12 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           // verification (POST /users/:id/verify-payment/:provider). Falling
           // through here previously let a user self-grant a paid (Pro) plan with
           // no payment.
+          logRejection('provider has no updateSubscription — verification required', {
+            userId: id,
+            planKey,
+            platformKey: plan.platformKey,
+            errorKey: 'user.error.subscriptionActivationRequiresVerification',
+          })
           return {
             statusCode: 400,
             body: {
@@ -187,13 +220,10 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           // Switching to free plan. Keep current planKey if subscription hasn't expired yet.
           const now = new Date().getTime()
           const expires = new Date(user.planExpiresAt || 0).getTime()
-          analytics
-            .track({
-              name: 'user.plan_updated',
-              userId: id,
-              properties: { previousPlanKey: previousPlan?.planKey, newPlanKey: '' },
-            })
-            .catch(() => {})
+          trackSafe('user.plan_updated', id, {
+            previousPlanKey: previousPlan?.planKey,
+            newPlanKey: '',
+          })
           const downgraded = await updateResource({
             id,
             props: {
@@ -214,6 +244,11 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
         // (checkout/in-place) or receipt verification
         // (POST /users/:id/verify-payment/:provider). This closes the
         // self-grant escalation where a user PATCHed a paid planKey directly.
+        logRejection('paid plan has no payment platform handler', {
+          userId: id,
+          planKey,
+          errorKey: 'user.error.subscriptionActivationRequiresVerification',
+        })
         return {
           statusCode: 400,
           body: {
@@ -230,6 +265,11 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
       // Upgrades MUST go through a bonded PlanService + PaymentProvider to prevent
       // privilege escalation (users setting planKey to a paid tier without payment).
       if (planKey !== '') {
+        logRejection('no plans service bonded — paid planKey refused', {
+          userId: id,
+          planKey,
+          errorKey: 'user.error.failedToUpdatePlan',
+        })
         return {
           statusCode: 400,
           body: {
@@ -238,13 +278,7 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           },
         }
       }
-      analytics
-        .track({
-          name: 'user.plan_updated',
-          userId: id,
-          properties: { newPlanKey: planKey },
-        })
-        .catch(() => {})
+      trackSafe('user.plan_updated', id, { newPlanKey: planKey })
       const result = await updateResource({ id, props: { planKey, planAutoRenews: false } })
       // Drop the cached plan key so the downgrade takes effect immediately,
       // not after the entitlements cache TTL.
@@ -263,7 +297,11 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
           body: { error: error.message, errorKey: error.errorKey },
         }
       }
-      logger.error(error)
+      logger.error('Plan update failed', {
+        userId: req.params.id,
+        planKey: req.body?.planKey,
+        error,
+      })
       return {
         statusCode: 500,
         body: {
