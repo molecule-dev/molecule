@@ -104,7 +104,13 @@ import {
   resolveModeModel,
 } from './chat-model-mode-utilities.js'
 import type { ModelSortColumn, SortDirection } from './chat-models-utilities.js'
-import { modelUsageRate, sortModels } from './chat-models-utilities.js'
+import {
+  modelHasPeakPricing,
+  modelPeakMultiplier,
+  modelPeakWindowLabels,
+  modelUsageRate,
+  sortModels,
+} from './chat-models-utilities.js'
 import type { ReportResult } from './chat-report-utilities.js'
 import { formatReportConfirmation, parseReportCommand } from './chat-report-utilities.js'
 import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
@@ -8138,6 +8144,8 @@ function ChatInner({
                     // region immediately re-rates the row (e.g. DeepSeek V4
                     // Pro: ×3 native-CN vs ×9 US-rehosted).
                     const usageRate = modelUsageRate(model, AVAILABLE_MODELS, modelRegion)
+                    // Whether the rate above is currently inflated by a peak window.
+                    const peakNow = modelPeakMultiplier(model, modelRegion)
                     const priceColor =
                       usageRate <= 5
                         ? isLight
@@ -8365,6 +8373,47 @@ function ChatInner({
                                   { defaultValue: '×{{rate}} usage' },
                                 )}
                               </span>
+                            )}
+                            {/* Peak hours: the rate above already reflects the
+                                CURRENT multiplier, so without this the number
+                                would change during the day with no explanation.
+                                In-window says so plainly; out-of-window warns
+                                that it will rise, since finding out later is the
+                                surprise worth preventing. Windows are in the
+                                user's own clock (modelPeakWindowLabels). */}
+                            {!isCustom && modelHasPeakPricing(model, modelRegion) && (
+                              <>
+                                {' · '}
+                                <span
+                                  style={{
+                                    color: peakNow > 1 ? priceColor : undefined,
+                                    opacity: peakNow > 1 ? 1 : 0.8,
+                                  }}
+                                  title={t(
+                                    'ide.chat.models.peakHint',
+                                    {
+                                      multiplier: model.peakPricing?.multiplier ?? 2,
+                                      windows: modelPeakWindowLabels(model).join(', '),
+                                    },
+                                    {
+                                      defaultValue:
+                                        'This model costs ×{{multiplier}} between {{windows}}. It is the normal rate the rest of the day.',
+                                    },
+                                  )}
+                                >
+                                  {peakNow > 1
+                                    ? t(
+                                        'ide.chat.models.peakNow',
+                                        { multiplier: model.peakPricing?.multiplier ?? 2 },
+                                        { defaultValue: 'peak ×{{multiplier}} now' },
+                                      )
+                                    : t(
+                                        'ide.chat.models.peakLater',
+                                        { multiplier: model.peakPricing?.multiplier ?? 2 },
+                                        { defaultValue: '×{{multiplier}} at peak hours' },
+                                      )}
+                                </span>
+                              </>
                             )}
                             {/* Custom models synthesize an empty cutoff — skip the segment. */}
                             {model.knowledgeCutoff ? <> · {model.knowledgeCutoff}</> : null}

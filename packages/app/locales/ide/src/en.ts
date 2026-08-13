@@ -81,6 +81,10 @@ export const en: IdeTranslations = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'peak ×{{multiplier}} now',
+  'ide.chat.models.peakLater': '×{{multiplier}} at peak hours',
+  'ide.chat.models.peakHint':
+    'This model costs ×{{multiplier}} between {{windows}}. It is the normal rate the rest of the day.',
   'ide.chat.undoNoChanges': 'No file changes to undo.',
   'ide.chat.undoComplete': 'Failed to revert changes.',
   'ide.chat.commitNoChanges': 'No changes to commit.',

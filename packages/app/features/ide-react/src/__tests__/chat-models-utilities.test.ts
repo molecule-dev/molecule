@@ -11,6 +11,8 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 import {
   compareModels,
   effectiveModelRegion,
+  modelHasPeakPricing,
+  modelPeakMultiplier,
   modelTotalCost,
   modelUsageRate,
   sortModels,
@@ -51,6 +53,7 @@ const cheapFree = model({
   contextWindow: 200_000,
   inputPricePerMTok: 0.5,
   outputPricePerMTok: 2,
+  cacheReadPricePerMTok: 0.05,
   knowledgeCutoff: '2024-04-01',
   freeTier: true,
 })
@@ -60,6 +63,7 @@ const mid = model({
   contextWindow: 400_000,
   inputPricePerMTok: 3,
   outputPricePerMTok: 15,
+  cacheReadPricePerMTok: 0.3,
   knowledgeCutoff: '2024-10-01',
   freeTier: false,
 })
@@ -69,6 +73,7 @@ const expensive = model({
   contextWindow: 1_000_000,
   inputPricePerMTok: 15,
   outputPricePerMTok: 75,
+  cacheReadPricePerMTok: 1.5,
   knowledgeCutoff: '2025-06-01',
   freeTier: false,
 })
@@ -76,16 +81,37 @@ const expensive = model({
 const all = [mid, expensive, cheapFree]
 
 describe('modelTotalCost', () => {
-  it('sums input and output price per million tokens', () => {
-    expect(modelTotalCost(cheapFree)).toBe(2.5)
-    expect(modelTotalCost(expensive)).toBe(90)
+  it('weights a representative agentic turn, not a bare input+output sum', () => {
+    // 47k cache reads + 3k fresh input + 800 output (AGENTIC_TOKEN_MIX). Cache
+    // reads dominate real traffic, so pricing input+output alone overstated
+    // cache-friendly models by up to ~2.5x.
+    expect(modelTotalCost(cheapFree)).toBeCloseTo(0.00545, 8)
+    expect(modelTotalCost(expensive)).toBeCloseTo(0.1755, 8)
+  })
+
+  it('counts the cache-read rate, not just input and output', () => {
+    // Same input/output, 10x the cache-read rate: the old sum could not tell
+    // these apart, and the difference is most of a real bill.
+    const cheapCache = model({
+      id: 'a',
+      inputPricePerMTok: 1,
+      outputPricePerMTok: 1,
+      cacheReadPricePerMTok: 0.01,
+    })
+    const dearCache = model({
+      id: 'b',
+      inputPricePerMTok: 1,
+      outputPricePerMTok: 1,
+      cacheReadPricePerMTok: 0.1,
+    })
+    expect(modelTotalCost(dearCache)).toBeGreaterThan(modelTotalCost(cheapCache) * 1.5)
   })
 })
 
 describe('modelUsageRate', () => {
   it('rates against the cheapest model with a non-zero price', () => {
     expect(modelUsageRate(cheapFree, all)).toBe(1)
-    expect(modelUsageRate(expensive, all)).toBe(36)
+    expect(modelUsageRate(expensive, all)).toBe(32)
   })
 
   it('stays finite for all-zero-price custom (bring-your-own AI) models', () => {
@@ -95,11 +121,19 @@ describe('modelUsageRate', () => {
       label: 'Mine',
       inputPricePerMTok: 0,
       outputPricePerMTok: 0,
+      // Zero on EVERY rate, which is what a bring-your-own-key model is: the
+      // turn costs the platform nothing. Leaving the factory's default cache
+      // rate here made the fixture only look zero-priced — invisible while the
+      // cost figure read input+output alone, and cache reads now dominate it.
+      cacheReadPricePerMTok: 0,
+      cacheWritePricePerMTok: 0,
     })
     // The zero-price model never becomes the base rate (which would divide by
-    // zero) and its own rate clamps to ×1, never NaN/Infinity.
+    // zero) and its own rate clamps to ×1, never NaN/Infinity. (The picker shows
+    // custom models as "your key" rather than a rate, so this is the safety
+    // property, not the displayed value.)
     expect(modelUsageRate(custom, [...all, custom])).toBe(1)
-    expect(modelUsageRate(expensive, [...all, custom])).toBe(36)
+    expect(modelUsageRate(expensive, [...all, custom])).toBe(32)
     // A catalog of only zero-price models also degrades safely.
     expect(modelUsageRate(custom, [custom])).toBe(1)
   })
@@ -113,7 +147,10 @@ describe('effectiveModelRegion + region pricing', () => {
     regions: ['cn', 'us'],
     inputPricePerMTok: 0.435,
     outputPricePerMTok: 0.87,
-    regionPricing: { us: { inputPricePerMTok: 1.3, outputPricePerMTok: 2.6 } },
+    cacheReadPricePerMTok: 0.003625,
+    regionPricing: {
+      us: { inputPricePerMTok: 1.3, outputPricePerMTok: 2.6, cacheReadPricePerMTok: 0.1 },
+    },
   })
 
   it('defaults to the first listed region and honors only offered choices', () => {
@@ -127,8 +164,8 @@ describe('effectiveModelRegion + region pricing', () => {
 
   it('prices totals at the effective region', () => {
     // CN default bills the base (native) rates; US bills the override.
-    expect(modelTotalCost(cnDefault)).toBeCloseTo(1.305)
-    expect(modelTotalCost(cnDefault, 'us')).toBeCloseTo(3.9)
+    expect(modelTotalCost(cnDefault)).toBeCloseTo(0.00217138, 8)
+    expect(modelTotalCost(cnDefault, 'us')).toBeCloseTo(0.01068, 8)
   })
 
   it('rates a model at the given region against a default-region base', () => {
@@ -137,10 +174,14 @@ describe('effectiveModelRegion + region pricing', () => {
       label: 'Cheapest',
       inputPricePerMTok: 0.14,
       outputPricePerMTok: 0.28,
+      cacheReadPricePerMTok: 0.0028,
     })
     const models = [cnDefault, cheapest]
-    expect(modelUsageRate(cnDefault, models)).toBeCloseTo(3.1)
-    expect(modelUsageRate(cnDefault, models, 'us')).toBeCloseTo(9.3)
+    // CN is only ~2.8x the cheapest on the agentic mix (its cache reads are
+    // nearly free); the US re-host is 14x, driven by a 28x cache-read rate that
+    // an input+output sum could not see at all.
+    expect(modelUsageRate(cnDefault, models)).toBeCloseTo(2.8)
+    expect(modelUsageRate(cnDefault, models, 'us')).toBeCloseTo(14)
   })
 })
 
@@ -231,5 +272,68 @@ describe('sortModels', () => {
       'mid',
     ])
     expect(sortModels(all, 'region', 'desc', regionOf)[0].id).toBe('mid')
+  })
+})
+
+describe('peak-hour pricing', () => {
+  // DeepSeek's native windows: 01:00-04:00 and 06:00-10:00 UTC, a flat 2x.
+  const peak = { windows: [{ startMinuteUtc: 60, endMinuteUtc: 240 }], multiplier: 2 }
+  const native = model({
+    id: 'native',
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 1,
+    cacheReadPricePerMTok: 0.01,
+    peakPricing: peak,
+  })
+  const rehosted = model({
+    id: 'rehosted',
+    inputPricePerMTok: 1,
+    outputPricePerMTok: 1,
+    cacheReadPricePerMTok: 0.01,
+    peakPricing: peak,
+    regions: ['cn', 'us'],
+    regionPricing: {
+      us: { inputPricePerMTok: 2, outputPricePerMTok: 2, cacheReadPricePerMTok: 0.5 },
+    },
+  })
+
+  it('applies the multiplier only inside a window', () => {
+    expect(modelPeakMultiplier(native, undefined, new Date('2026-08-17T02:00:00Z'))).toBe(2)
+    // Half-open: the end minute is already off-peak.
+    expect(modelPeakMultiplier(native, undefined, new Date('2026-08-17T04:00:00Z'))).toBe(1)
+    expect(modelPeakMultiplier(native, undefined, new Date('2026-08-17T12:00:00Z'))).toBe(1)
+  })
+
+  it('never applies a native surcharge to a re-hosted region', () => {
+    // The re-host bills its own flat card; charging the native provider's peak
+    // on top would overstate the cost of the region the user is actually on.
+    expect(modelPeakMultiplier(rehosted, 'cn', new Date('2026-08-17T02:00:00Z'))).toBe(2)
+    expect(modelPeakMultiplier(rehosted, 'us', new Date('2026-08-17T02:00:00Z'))).toBe(1)
+    expect(modelHasPeakPricing(rehosted, 'cn')).toBe(true)
+    expect(modelHasPeakPricing(rehosted, 'us')).toBe(false)
+  })
+
+  it('moves the displayed usage rate with the window', () => {
+    // The figure has to track the hour, or it is wrong for 7 hours a day.
+    const models = [
+      native,
+      model({
+        id: 'base',
+        inputPricePerMTok: 1,
+        outputPricePerMTok: 1,
+        cacheReadPricePerMTok: 0.01,
+      }),
+    ]
+    const off = modelUsageRate(native, models, undefined, new Date('2026-08-17T12:00:00Z'))
+    const on = modelUsageRate(native, models, undefined, new Date('2026-08-17T02:00:00Z'))
+    expect(off).toBe(1)
+    expect(on).toBe(2)
+  })
+
+  it('reports no peak pricing for a model without windows', () => {
+    expect(modelHasPeakPricing(model({ id: 'flat' }))).toBe(false)
+    expect(
+      modelPeakMultiplier(model({ id: 'flat' }), undefined, new Date('2026-08-17T02:00:00Z')),
+    ).toBe(1)
   })
 })
