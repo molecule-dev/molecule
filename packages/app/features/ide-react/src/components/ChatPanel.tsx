@@ -4392,9 +4392,16 @@ function ChatInner({
       // render as a normal user bubble: either it's suppressed entirely (hidden build
       // kickoff) or it stays visible but flagged `automatic` so the chat shows it as sent
       // by Synthase on the user's behalf (distinct avatar + accent), not typed by the user.
-      const sendOpts = pendingMessageSuppressUser
-        ? { suppressUserMessage: true }
-        : { automatic: true, ...(pendingMessageUserInitiated ? { userInitiated: true } : {}) }
+      // Suppressed or not, a pending message is platform-composed, so it ALWAYS
+      // carries `automatic` (+ `userInitiated` when a direct click requested it).
+      // A suppressed send without `automatic` used to bypass the server's
+      // user-stop gate — the hidden build kickoff resumed a plan turn ~37s
+      // after an explicit Stop (prod 2026-08-13).
+      const sendOpts = {
+        ...(pendingMessageSuppressUser ? { suppressUserMessage: true } : {}),
+        automatic: true,
+        ...(pendingMessageUserInitiated ? { userInitiated: true } : {}),
+      }
       if (isLoading) {
         // AI is busy — defer until streaming ends
         deferredPendingRef.current = pendingMessage
@@ -4426,15 +4433,13 @@ function ChatInner({
       deferredPendingRef.current = null
       deferredPendingSuppressRef.current = false
       deferredPendingUserInitiatedRef.current = false
-      // Same rule as the immediate path: a deferred pending message is system-composed, so
-      // it's either suppressed or flagged `automatic` — never a plain user bubble.
-      sendMessage(
-        msg,
-        undefined,
-        suppress
-          ? { suppressUserMessage: true }
-          : { automatic: true, ...(userInitiated ? { userInitiated: true } : {}) },
-      )
+      // Same rule as the immediate path: a deferred pending message is system-composed —
+      // always `automatic` (suppressed or visible), never a plain user bubble.
+      sendMessage(msg, undefined, {
+        ...(suppress ? { suppressUserMessage: true } : {}),
+        automatic: true,
+        ...(userInitiated ? { userInitiated: true } : {}),
+      })
     }
   }, [isLoading, sendMessage])
 
