@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-tailwind",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Tailwind CSS UI components for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

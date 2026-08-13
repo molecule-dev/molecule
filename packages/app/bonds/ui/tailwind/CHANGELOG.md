@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.1.0
+
+### Minor Changes
+
+- 1f01d1f: Add `UIClassMap.touchTargetCompact` — a 36px coarse-pointer hit-area floor for inline CTAs in dense surfaces (banner/chat-card actions) where the full 44px `touchTarget` is visually heavy; chat notice-card actions with a semantic `color` now use it.
+
 ## 1.0.1
 
 ### Patch Changes

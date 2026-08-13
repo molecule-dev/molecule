@@ -42,9 +42,9 @@
   "devDependencies": {
     "@molecule/app-i18n": "1.0.1",
     "@molecule/app-react": "1.0.1",
-    "@molecule/app-ui": "1.0.1",
+    "@molecule/app-ui": "1.1.0",
     "@molecule/app-ui-react": "1.0.1",
-    "@molecule/app-ui-tailwind": "1.0.1",
+    "@molecule/app-ui-tailwind": "1.1.0",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",
