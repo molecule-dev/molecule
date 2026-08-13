@@ -177,10 +177,12 @@ Implementation rule: CTAs are ALWAYS real design-system buttons —
 `cm.button({ color, size })` via `getClassMap()` or the framework `Button` —
 never hand-rolled inline-styled pills/links. Hand-rolled button styling is how
 surfaces drift apart; if a surface can't use the component, it uses the
-`cm.button` classes directly. Touch floor: standalone controls compose
-`cm.touchTarget` (44px); inline CTAs inside dense surfaces (banner strips,
-chat/notice cards) compose `cm.touchTargetCompact` (36px) — 44px visibly
-overwhelms those hosts.
+`cm.button` classes directly. Touch floor (owner decision 2026-08-13): every
+LABEL/TEXT button composes `cm.touchTargetCompact` (36px coarse-pointer floor)
+— the full 44px `cm.touchTarget` visibly bloats buttons that carry their own
+visible box, and is reserved for icon-only hit targets whose visible glyph is
+small and whose enlarged hit area is invisible (workspace toolbar icons, ×
+dismiss buttons).
 
 ### Cards
 
