@@ -95,6 +95,7 @@ import {
 import { buildHelpText } from './chat-help-utilities.js'
 import type { FreeTierLockReason, ModelMode } from './chat-model-mode-utilities.js'
 import {
+  effectiveModeModelId,
   freeTierLockReason,
   freeTierUsableMode,
   isModeModelLocked,
@@ -3983,6 +3984,13 @@ function ChatInner({
   const DEFAULT_MODEL = FREE_TIER_MODEL
   const isFreeTier = !isPro
   const [currentModel, setCurrentModel] = useState<string>('')
+  // The PERSISTED legacy chatModel only — unlike currentModel, never seeded
+  // with the catalog default. The distinction matters: a seeded default is not
+  // a user choice, and treating it as one made every plan-mode surface label
+  // the free-tier EXECUTOR as the active model while the server planned with
+  // its own plan default (prod 2026-08-13: UI said "DeepSeek V4 Flash" for a
+  // plan turn DeepSeek V4 Pro served).
+  const [savedChatModel, setSavedChatModel] = useState<string>('')
   // Per-mode model overrides (SYN5). Empty string = unset; resolveModeModel then
   // falls back to currentModel (the legacy single chatModel) for back-compat.
   const [planModel, setPlanModel] = useState<string>('')
@@ -4014,12 +4022,30 @@ function ChatInner({
       setCurrentModel(DEFAULT_MODEL)
     }
   }, [currentModel, DEFAULT_MODEL])
+
+  // The model a conversation mode will ACTUALLY use, for every display surface
+  // (picker pill, /model suffix, settings rows, fast-mode gating). Mirrors the
+  // server's selection chain: per-mode setting → SAVED chatModel → the
+  // server-sent per-mode default (owner account settings + tier already folded
+  // in) → the catalog clamp.
+  const effectiveModelForMode = (m: 'plan' | 'execute'): string =>
+    effectiveModeModelId(
+      m,
+      { planModel, executeModel, chatModel: savedChatModel },
+      serverModelDefaults,
+      isFreeTier,
+      AVAILABLE_MODELS,
+      FREE_TIER_MODEL,
+    )
   useEffect(() => {
     http
       .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
       .then((res) => {
         const s = res.data.settings
-        if (typeof s?.chatModel === 'string') setCurrentModel(s.chatModel)
+        if (typeof s?.chatModel === 'string') {
+          setCurrentModel(s.chatModel)
+          setSavedChatModel(s.chatModel)
+        }
         if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
         if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
         if (typeof s?.commitModel === 'string') setCommitModel(s.commitModel)
@@ -4155,6 +4181,7 @@ function ChatInner({
     )
     if (fallback) {
       setCurrentModel(fallback)
+      setSavedChatModel(fallback)
       http.patch(`/projects/${projectId}`, { settings: { chatModel: fallback } }).catch(() => {
         /* persistence is best-effort; the in-memory switch is what matters */
       })
@@ -5108,6 +5135,7 @@ function ChatInner({
         } else {
           await http.patch(`/projects/${projectId}`, { settings: { chatModel: modelId } })
           setCurrentModel(modelId)
+          setSavedChatModel(modelId)
           addSystemCard(
             t(
               'ide.chat.modelSet',
@@ -5791,6 +5819,7 @@ function ChatInner({
           try {
             await http.patch(`/projects/${projectId}`, { settings: { chatModel: name } })
             setCurrentModel(name)
+            setSavedChatModel(name)
             addSystemCard(
               t(
                 'ide.chat.modelSet',
@@ -5828,9 +5857,7 @@ function ChatInner({
       // picker + slash-suffix resolveModeModel logic (P2-10: each mode's
       // options come from ITS model's reasoning capabilities).
       const modelForMode = (m: EffortMode): AppModelDefinition | undefined => {
-        const id =
-          resolveModeModel({ planModel, executeModel, chatModel: currentModel }, m) ?? currentModel
-        return AVAILABLE_MODELS.find((model) => model.id === id)
+        return AVAILABLE_MODELS.find((model) => model.id === effectiveModelForMode(m))
       }
       const effectiveEffort = (m: EffortMode): EffortLevel | undefined =>
         effortByMode[m] ?? (effortLevel || undefined)
@@ -6229,8 +6256,7 @@ function ChatInner({
   // The composer toggle renders only when the model that will serve the CURRENT
   // mode declares fast-tier pricing (`fastPricing` — e.g. Claude Opus 5). The
   // server re-checks per iteration, so this is presentation-only gating.
-  const activeModeModelId =
-    (mode === 'plan' ? planModel : executeModel) || currentModel || DEFAULT_MODEL
+  const activeModeModelId = effectiveModelForMode(mode === 'plan' ? 'plan' : 'execute')
   const fastModeAvailable = Boolean(
     AVAILABLE_MODELS.find((m) => m.id === activeModeModelId)?.fastPricing,
   )
@@ -6241,9 +6267,6 @@ function ChatInner({
   // re-scoping the open picker is informed. Cheap to recompute per render.
   const pickerModeOptions = ((): { value: string; label: string }[] => {
     const label = (id: string): string => AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
-    const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
-      defaultValue: 'Follows default model',
-    })
     // Name the model "default" resolves to when the server told us
     // ("Default (DeepSeek V4 Flash)") — a bare "Fast default" is not decodable.
     const auxDefault = (id: string | undefined): string =>
@@ -6254,24 +6277,33 @@ function ChatInner({
             { defaultValue: 'Default ({{model}})' },
           )
         : t('ide.chat.settings.modelDefaultFast', undefined, { defaultValue: 'Fast default' })
-    const defaultId = currentModel || DEFAULT_MODEL
+    // The named-default helper ("Default (<model>)") for a mode whose per-mode
+    // value is unset — names what the mode ACTUALLY resolves to (saved default
+    // model, else the server's per-mode default), never a vague phrase and
+    // never the wrong mode's model.
+    const modeDefault = (m: 'plan' | 'execute'): string =>
+      t(
+        'ide.chat.settings.modelDefaultNamed',
+        { model: label(effectiveModelForMode(m)) },
+        { defaultValue: 'Default ({{model}})' },
+      )
     const rows: { value: string; mode: string; model: string }[] = [
       {
         value: '',
         mode: t('ide.chat.modelMode.default', undefined, { defaultValue: 'Default' }),
-        model: defaultId
-          ? label(defaultId)
+        model: savedChatModel
+          ? label(savedChatModel)
           : t('ide.chat.settings.modelUnset', undefined, { defaultValue: 'Not set' }),
       },
       {
         value: 'plan',
         mode: t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' }),
-        model: planModel ? label(planModel) : followsDefault,
+        model: planModel ? label(planModel) : modeDefault('plan'),
       },
       {
         value: 'execute',
         mode: t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
-        model: executeModel ? label(executeModel) : followsDefault,
+        model: executeModel ? label(executeModel) : modeDefault('execute'),
       },
       {
         value: 'commit',
@@ -6295,15 +6327,19 @@ function ChatInner({
   })()
 
   // The row that gets the "current" pill — the model the selected picker mode
-  // actually uses (its per-mode value with the mode's fallback chain), not
-  // unconditionally the legacy chatModel.
+  // actually uses (its per-mode value with the mode's REAL fallback chain), not
+  // unconditionally the legacy chatModel. The generic (no-mode) picker edits
+  // the default slot, so its pill is the SAVED default only — a seeded catalog
+  // default is not a choice and must not masquerade as one.
   const pickerCurrentModelId = modelPicker
-    ? modelPicker.mode
-      ? resolveModeModel(
-          { planModel, executeModel, commitModel, compactModel, chatModel: currentModel },
-          modelPicker.mode,
-        )
-      : currentModel
+    ? modelPicker.mode === 'plan' || modelPicker.mode === 'execute'
+      ? effectiveModelForMode(modelPicker.mode)
+      : modelPicker.mode
+        ? (resolveModeModel(
+            { planModel, executeModel, commitModel, compactModel, chatModel: savedChatModel },
+            modelPicker.mode,
+          ) ?? serverModelDefaults?.[modelPicker.mode])
+        : savedChatModel || undefined
     : undefined
 
   const filteredEntries = useMemo(() => {
@@ -6645,11 +6681,17 @@ function ChatInner({
     const notSet = t('ide.chat.settings.modelUnset', undefined, { defaultValue: 'Not set' })
     const modelLabel = (id: string): string =>
       AVAILABLE_MODELS.find((m) => m.id === id)?.label || id
-    // Per-mode models fall back to the default model when unset; show that
-    // explicitly so the panel never understates the config (SYN11).
-    const followsDefault = t('ide.chat.settings.modelFollowsDefault', undefined, {
-      defaultValue: 'Follows default model',
-    })
+    // An unset per-mode model shows what the mode ACTUALLY resolves to
+    // ("Default (<model>)"): the saved default model, else the server's
+    // per-mode default — never the wrong mode's model (SYN11; the old
+    // "Follows default model" phrasing implied plan follows the executor's
+    // free-tier default while the server planned with its own plan default).
+    const modeDefault = (m: 'plan' | 'execute'): string =>
+      t(
+        'ide.chat.settings.modelDefaultNamed',
+        { model: modelLabel(effectiveModelForMode(m)) },
+        { defaultValue: 'Default ({{model}})' },
+      )
     // The auxiliary commit/compact jobs fall back to the server's own fast
     // default when unset — NOT the default model — so their unset label differs.
     // Name the resolved model when the server sent its defaults.
@@ -6662,9 +6704,9 @@ function ChatInner({
           )
         : t('ide.chat.settings.modelDefaultFast', undefined, { defaultValue: 'Fast default' })
     return buildSettingsList({
-      model: currentModel ? modelLabel(currentModel) : notSet,
-      planModel: planModel ? modelLabel(planModel) : followsDefault,
-      executeModel: executeModel ? modelLabel(executeModel) : followsDefault,
+      model: savedChatModel ? modelLabel(savedChatModel) : notSet,
+      planModel: planModel ? modelLabel(planModel) : modeDefault('plan'),
+      executeModel: executeModel ? modelLabel(executeModel) : modeDefault('execute'),
       commitModel: commitModel ? modelLabel(commitModel) : auxDefault(serverModelDefaults?.commit),
       compactModel: compactModel
         ? modelLabel(compactModel)
@@ -6679,26 +6721,14 @@ function ChatInner({
         'ide.chat.settings.effortValue',
         {
           plan: (() => {
-            const model = AVAILABLE_MODELS.find(
-              (m) =>
-                m.id ===
-                (resolveModeModel({ planModel, executeModel, chatModel: currentModel }, 'plan') ??
-                  currentModel),
-            )
+            const model = AVAILABLE_MODELS.find((m) => m.id === effectiveModelForMode('plan'))
             return (
               nativeEffortName(model, effortByMode.plan ?? effortLevel) ??
               t('ide.chat.settings.effortFixed', undefined, { defaultValue: 'fixed' })
             )
           })(),
           execute: (() => {
-            const model = AVAILABLE_MODELS.find(
-              (m) =>
-                m.id ===
-                (resolveModeModel(
-                  { planModel, executeModel, chatModel: currentModel },
-                  'execute',
-                ) ?? currentModel),
-            )
+            const model = AVAILABLE_MODELS.find((m) => m.id === effectiveModelForMode('execute'))
             return (
               nativeEffortName(model, effortByMode.execute ?? effortLevel) ??
               t('ide.chat.settings.effortFixed', undefined, { defaultValue: 'fixed' })
@@ -7476,22 +7506,14 @@ function ChatInner({
                         let suffix = ''
                         if (cmd.id === 'model') {
                           // Reflect the model the ACTIVE conversation mode will
-                          // actually use (plan/execute) — NOT the legacy single
-                          // chatModel (which defaults to the free-tier model and
-                          // is misleading once a per-mode model is set). Mirrors
-                          // the picker header's resolveModeModel logic.
-                          // Always resolve a non-empty current model id so the
-                          // parentheses never render as an empty " ()" before the
-                          // catalog loads (P3-16): fall through plan/execute ->
-                          // chatModel -> the default / free-tier model id (|| so an
-                          // empty string also falls through).
+                          // actually use — the full server chain (per-mode →
+                          // saved default → server per-mode default → clamp),
+                          // never a UI-seeded default (which mislabeled plan
+                          // mode with the free-tier executor). Falls through to
+                          // the free-tier id only before the catalog loads so
+                          // the parentheses never render empty (P3-16).
                           const effId =
-                            resolveModeModel(
-                              { planModel, executeModel, chatModel: currentModel },
-                              mode,
-                            ) ||
-                            currentModel ||
-                            DEFAULT_MODEL ||
+                            effectiveModelForMode(mode === 'plan' ? 'plan' : 'execute') ||
                             FREE_TIER_MODEL
                           const modelLabel =
                             AVAILABLE_MODELS.find((m) => m.id === effId)?.label ?? effId

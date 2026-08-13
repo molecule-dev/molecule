@@ -142,6 +142,54 @@ export function freeTierModeModelId(
 }
 
 /**
+ * The model id that will ACTUALLY serve a conversation mode, for display.
+ *
+ * Mirrors the server's `selectModelForMode` candidate chain (minus the
+ * per-request override, which the UI never has): the project's per-mode model,
+ * then the project's SAVED legacy `chatModel`, each skipped when the free-tier
+ * clamp would reject it — then the server-sent per-mode default (which already
+ * folds in the owner's account-level settings and tier), then the catalog
+ * clamp as the last resort.
+ *
+ * `settings.chatModel` must be the PERSISTED value only — never a UI-seeded
+ * default. Seeding the catalog's single free-tier model (the executor) as
+ * "current" is exactly the bug this exists to fix: every plan-mode surface
+ * then labeled the planner as the executor model while the server planned
+ * with its own plan default (observed on prod 2026-08-13 — the UI said
+ * "DeepSeek V4 Flash" for a plan turn that DeepSeek V4 Pro served).
+ *
+ * @param mode - The conversation mode to resolve.
+ * @param settings - Persisted per-mode + legacy model settings (saved only).
+ * @param serverDefaults - Server-sent per-mode defaults (`GET /ai/models`).
+ * @param isFreeTier - Whether the current user is on the free/anon tier.
+ * @param models - The available models from the catalog.
+ * @param fallback - The free-tier model id to use when no clamp match exists.
+ * @returns The model id the mode resolves to.
+ */
+export function effectiveModeModelId(
+  mode: 'plan' | 'execute',
+  settings: PerModeModelSettings,
+  serverDefaults: { plan?: string; execute?: string } | undefined,
+  isFreeTier: boolean,
+  models: readonly AppModelDefinition[],
+  fallback: string,
+): string {
+  const candidates =
+    mode === 'plan'
+      ? [settings.planModel, settings.chatModel]
+      : [settings.executeModel, settings.chatModel]
+  for (const candidate of candidates) {
+    if (!candidate) continue
+    // Mirror the server: a candidate the free-tier clamp rejects falls
+    // through to the next, it does not stick as the label.
+    if (freeTierLockReason(candidate, mode, isFreeTier, models, fallback) === null) {
+      return candidate
+    }
+  }
+  return serverDefaults?.[mode] ?? freeTierModeModelId(models, mode, fallback)
+}
+
+/**
  * Why a model is locked for a free-tier user in a given mode — `'paid'` for a
  * genuinely paid model, `'mode'` for a model the free tier CAN use, just in a
  * different mode (e.g. the execute clamp shown in the plan-scoped picker).

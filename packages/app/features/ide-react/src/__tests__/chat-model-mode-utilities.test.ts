@@ -12,6 +12,7 @@ import type { AppModelDefinition } from '@molecule/app-ai-models'
 
 import { COMMANDS } from '../components/chat-commands.js'
 import {
+  effectiveModeModelId,
   freeTierLockReason,
   freeTierModeModelId,
   freeTierUsableMode,
@@ -310,5 +311,95 @@ describe('command registry wiring', () => {
     const cmd = COMMANDS.find((c) => c.id === 'model')
     expect(cmd?.usage).toContain('--plan')
     expect(cmd?.usage).toContain('--execute')
+  })
+})
+
+describe('effectiveModeModelId — what a mode ACTUALLY uses (display truth)', () => {
+  // Mirrors the prod 2026-08-13 catalog shape: Pro is the plan clamp, Flash is
+  // the flagged free-tier executor.
+  const deepseekPro = model({ id: 'deepseek-v4-pro', provider: 'deepseek', label: 'DS Pro' })
+  const flash = model({
+    id: 'deepseek-v4-flash',
+    provider: 'deepseek',
+    label: 'DS Flash',
+    freeTier: true,
+  })
+  const catalog = [opus, sonnet, deepseekPro, flash]
+  const serverDefaults = { plan: 'deepseek-v4-pro', execute: 'deepseek-v4-flash' }
+
+  it('unset settings resolve to the SERVER per-mode default, never the seeded catalog default', () => {
+    // The original bug: the UI seeded the free-tier model (the executor) as
+    // "current" and labeled plan mode with it, while the server planned with
+    // its own plan default.
+    expect(
+      effectiveModeModelId('plan', {}, serverDefaults, true, catalog, 'deepseek-v4-flash'),
+    ).toBe('deepseek-v4-pro')
+    expect(
+      effectiveModeModelId('execute', {}, serverDefaults, true, catalog, 'deepseek-v4-flash'),
+    ).toBe('deepseek-v4-flash')
+  })
+
+  it('a per-mode setting wins over everything', () => {
+    expect(
+      effectiveModeModelId(
+        'plan',
+        { planModel: 'claude-opus-4-6', chatModel: 'claude-sonnet-4-6' },
+        serverDefaults,
+        false,
+        catalog,
+        'deepseek-v4-flash',
+      ),
+    ).toBe('claude-opus-4-6')
+  })
+
+  it('a SAVED chatModel outranks the server default (mirrors selection precedence)', () => {
+    expect(
+      effectiveModeModelId(
+        'plan',
+        { chatModel: 'claude-sonnet-4-6' },
+        serverDefaults,
+        false,
+        catalog,
+        'deepseek-v4-flash',
+      ),
+    ).toBe('claude-sonnet-4-6')
+  })
+
+  it('a free-tier-locked candidate falls through instead of sticking as the label', () => {
+    // A free user with a stale paid chatModel save: the server clamps, so the
+    // label must too.
+    expect(
+      effectiveModeModelId(
+        'plan',
+        { chatModel: 'claude-opus-4-6' },
+        serverDefaults,
+        true,
+        catalog,
+        'deepseek-v4-flash',
+      ),
+    ).toBe('deepseek-v4-pro')
+  })
+
+  it('falls back to the catalog clamp when the server sent no defaults', () => {
+    expect(effectiveModeModelId('plan', {}, undefined, true, catalog, 'deepseek-v4-flash')).toBe(
+      'deepseek-v4-pro',
+    )
+    expect(effectiveModeModelId('execute', {}, undefined, true, catalog, 'deepseek-v4-flash')).toBe(
+      'deepseek-v4-flash',
+    )
+  })
+
+  it('honors a bring-your-own custom model on the free tier', () => {
+    const custom = model({ id: 'custom/openai/gpt-6', provider: 'custom', label: 'BYO' })
+    expect(
+      effectiveModeModelId(
+        'plan',
+        { planModel: 'custom/openai/gpt-6' },
+        serverDefaults,
+        true,
+        [...catalog, custom],
+        'deepseek-v4-flash',
+      ),
+    ).toBe('custom/openai/gpt-6')
   })
 })

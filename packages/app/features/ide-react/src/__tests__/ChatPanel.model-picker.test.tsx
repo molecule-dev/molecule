@@ -368,10 +368,13 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
     expect(labels[2]).toContain('Execute')
     expect(labels[3]).toContain('Commit messages')
     expect(labels[4]).toContain('Compaction')
-    // Unset aux modes surface their server-side fast default; unset plan
-    // follows the default model.
+    // Unset aux modes surface their server-side fast default; an unset
+    // plan/execute NAMES the model the mode actually resolves to (the server's
+    // per-mode default) — a vague "Follows default model" once mislabeled plan
+    // mode with the free-tier executor while the server planned with its own
+    // plan default (prod 2026-08-13).
     expect(labels[3]).toContain('Fast default')
-    expect(labels[1]).toContain('Follows default model')
+    expect(labels[1]).toContain('Default (')
   })
 
   it('re-scopes the open picker: a selection persists to the dropdown mode settings key', async () => {
