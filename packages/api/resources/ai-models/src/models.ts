@@ -956,10 +956,12 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.003625,
     cacheWritePricePerMTok: 0.435,
-    // Native-China DEFAULT (owner decision 2026-08-01): the US re-host
-    // (DeepInfra) bills ~3× list and ~28× cache reads, and agentic input is
-    // ~94% cache hits, so US processing ran ~5.7× native on real traffic.
-    // Users opt into US per model via the picker's region control.
+    // Native-China DEFAULT (owner decision 2026-08-01, re-derived 2026-08-14):
+    // the US re-host (DeepInfra) bills ~3× list and ~28× cache reads, and
+    // agentic input is ~94% cache hits, so US processing ran ~5.7× native on
+    // real traffic. The 2026-08-16 rise narrows that to ~2.3× — still decisive,
+    // so Pro stays CN while Flash flipped to US (see its note). Users opt into
+    // US per model via the picker's region control.
     regions: ['cn', 'us'],
     // The free tier PLANS with this model on the cheap native host (it is the
     // molecule-dev FREE_TIER_MODELS.plan), so CN is free-tier selectable; the
@@ -1021,10 +1023,19 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
     cacheReadPricePerMTok: 0.0028,
     cacheWritePricePerMTok: 0.14,
-    // Native-China default, matching deepseek-v4-pro (see its note) — even
-    // though Flash's US list price is BELOW native, its cache reads are 6.4×,
-    // and the plan/execute pair defaults to one region deliberately.
-    regions: ['cn', 'us'],
+    // US (DeepInfra) DEFAULT as of 2026-08-16 — flipped from CN when DeepSeek's
+    // rise landed (owner decision 2026-08-14). CN was cheaper on real traffic
+    // only because of its cache reads; the rise takes those from $0.0028 to
+    // $0.007 (peak $0.014) against DeepInfra's flat $0.016, which is no longer
+    // enough to carry the 1.6-3.1x it now loses on fresh input and output. On
+    // the agentic mix this model actually serves (~94% cache hits) US is
+    // cheaper at EVERY hour: 0.114c/turn flat vs 0.152c off-peak and 0.303c at
+    // peak. It is also flat-rate, so free-tier cost stops varying by Beijing
+    // business hours. Re-derive if the cache-hit ratio drops much below ~90%,
+    // where CN's cheaper reads start winning again. This deliberately splits
+    // the plan/execute pair across regions — Pro stays CN because its US
+    // re-host is ~2.3x its own native rate even after the rise.
+    regions: ['us', 'cn'],
     // US = DeepInfra, verified 2026-08-13 against the id the bond actually
     // sends: `deepseek-ai/DeepSeek-V4-Flash-0731`, the official release that
     // supersedes the preview weights still served under the un-dated id

@@ -619,9 +619,9 @@ describe('DeepSeek 2026-08-16 price rise (staged)', () => {
     expect(after.cacheReadPricePerMTok).toBe(newCache)
 
     // Peak is a multiplier on the off-peak rates, not a second rate card.
-    expect(priceMultiplierAt(model, BEFORE)).toBe(1)
-    expect(priceMultiplierAt(model, AFTER_OFFPEAK)).toBe(1)
-    expect(priceMultiplierAt(model, AFTER_PEAK)).toBe(2)
+    expect(priceMultiplierAt(model, BEFORE, 'cn')).toBe(1)
+    expect(priceMultiplierAt(model, AFTER_OFFPEAK, 'cn')).toBe(1)
+    expect(priceMultiplierAt(model, AFTER_PEAK, 'cn')).toBe(2)
   })
 
   it('does not touch the US re-host rates', () => {
@@ -641,18 +641,23 @@ describe('DeepSeek 2026-08-16 price rise (staged)', () => {
       const model = MODELS.find((m) => m.id === id)!
       expect(priceMultiplierAt(model, AFTER_PEAK, 'us')).toBe(1)
       expect(priceMultiplierAt(model, AFTER_PEAK, 'cn')).toBe(2)
-      // Region omitted → the model's default region (cn), which is native.
-      expect(priceMultiplierAt(model, AFTER_PEAK)).toBe(2)
+      // Region omitted → the model's OWN default, so the answer differs per
+      // model: Pro defaults to native CN and takes the surcharge, Flash
+      // defaults to the US re-host and never does.
+      const expected = model.regions![0] === 'cn' ? 2 : 1
+      expect(priceMultiplierAt(model, AFTER_PEAK)).toBe(expected)
     }
   })
 })
 
 describe('priceMultiplierAt (peak-hour pricing)', () => {
   const peakModel = {
-    // `scheduledPricing` dropped: this block tests the peak-window arithmetic
-    // in isolation, so it must not also depend on where a staged catalog price
-    // change happens to sit relative to these fixture dates.
-    ...(({ scheduledPricing: _s, ...rest }) => rest)(
+    // Stripped to a bare native model: this block tests the peak-window
+    // arithmetic in isolation, so it must not depend on where a staged price
+    // change sits relative to these fixture dates, nor on which region the
+    // catalog currently defaults to (a default region with a regionPricing
+    // override prices off that host's card and never takes a native surcharge).
+    ...(({ scheduledPricing: _s, regionPricing: _r, regions: _g, ...rest }) => rest)(
       MODELS.find((m) => m.id === 'deepseek-v4-flash')!,
     ),
     peakPricing: {
@@ -697,11 +702,13 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
     // are live — with no edit landed at the switch.
     const flash = MODELS.find((m) => m.id === 'deepseek-v4-flash')!
     expect(flash.peakPricing).toBeUndefined()
+    // Priced in CN explicitly: the surcharge is the NATIVE host's, and this
+    // model now defaults to the US re-host, which never takes one.
     // 02:00 UTC is inside the staged 01:00–04:00 window either way.
-    expect(priceMultiplierAt(flash, new Date('2026-08-16T02:00:00Z'))).toBe(1)
-    expect(priceMultiplierAt(flash, new Date('2026-08-17T02:00:00Z'))).toBe(2)
+    expect(priceMultiplierAt(flash, new Date('2026-08-16T02:00:00Z'), 'cn')).toBe(1)
+    expect(priceMultiplierAt(flash, new Date('2026-08-17T02:00:00Z'), 'cn')).toBe(2)
     // Off-peak after the switch is still flat.
-    expect(priceMultiplierAt(flash, new Date('2026-08-17T12:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(flash, new Date('2026-08-17T12:00:00Z'), 'cn')).toBe(1)
   })
 
   it('the DeepSeek catalog entries carry NO peak windows while the surcharge is inactive', () => {
@@ -923,21 +930,45 @@ describe('default processing region', () => {
     expect(multiRegion.length).toBeGreaterThan(0)
   })
 
-  it('makes regions[0] the cheapest region on cache reads', () => {
-    // Cache READ is the axis that decides real agentic cost: measured traffic
-    // is ~94% cache hits (deepseek, 2026-08-01), so list input price alone
-    // misleads. deepseek-v4-flash is the proof — its US re-host is CHEAPER on
-    // input ($0.08 vs $0.14) yet 5.7× on cache reads, which makes CN the
-    // cheaper default on anything but a cold first turn.
+  it('makes regions[0] the cheapest region on the workload we actually run', () => {
+    // This asserted "cheapest on CACHE READS" until 2026-08-14. That was only
+    // ever a proxy for the real rule — cheapest on our traffic — and it held
+    // while cache reads were the whole gap between hosts (measured traffic is
+    // ~94% cache hits, deepseek 2026-08-01). DeepSeek's 2026-08-16 rise broke
+    // the proxy: CN keeps the cheaper reads yet loses on the blend, because
+    // fresh input and output went up 1.6-3.1× against a flat re-host. Assert
+    // the blend directly, so the invariant tracks the decision it stands for
+    // instead of one input to it.
+    const MIX = { cacheRead: 47_000, input: 3_000, output: 800 } // ~94% cache hits
+    // Evaluated once every staged price change has landed: a default region is
+    // chosen for the steady state the catalog is heading to, not for a window
+    // of days before an announced switch. Collapses to "now" once staged
+    // entries are folded into the base rates.
+    const at = new Date(
+      Math.max(
+        Date.now(),
+        ...MODELS.flatMap((m) =>
+          m.scheduledPricing ? [Date.parse(m.scheduledPricing.effectiveFrom)] : [],
+        ),
+      ),
+    )
+    const blended = (model: (typeof MODELS)[number], region: string) => {
+      const r = modelRegionRates(model, region, at)
+      return (
+        MIX.cacheRead * r.cacheReadPricePerMTok +
+        MIX.input * r.inputPricePerMTok +
+        MIX.output * r.outputPricePerMTok
+      )
+    }
     for (const model of multiRegion) {
       const regions = model.regions as string[]
-      const def = ratesFor(model, regions[0]).cacheReadPricePerMTok
+      const def = blended(model, regions[0])
       for (const other of regions.slice(1)) {
         expect(
           def,
-          `${model.id}: default region '${regions[0]}' bills ${def}/MTok on cache reads but ` +
-            `'${other}' bills ${ratesFor(model, other).cacheReadPricePerMTok} — lead with the cheaper host`,
-        ).toBeLessThanOrEqual(ratesFor(model, other).cacheReadPricePerMTok)
+          `${model.id}: default region '${regions[0]}' costs ${def / 1e6} per turn on the ` +
+            `agentic mix but '${other}' costs ${blended(model, other) / 1e6} — lead with the cheaper host`,
+        ).toBeLessThanOrEqual(blended(model, other))
       }
     }
   })
