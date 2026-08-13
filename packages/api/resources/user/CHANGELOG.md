@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.1.1
+
+### Patch Changes
+
+- 3909f94: `updatePlan` now logs every rejected plan update (with `errorKey` context) and analytics-tracking failures instead of silently swallowing them.
+
 ## 1.1.0
 
 ### Minor Changes
