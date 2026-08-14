@@ -349,6 +349,14 @@ export function PreviewPanel({
   // Ids the bridge has already answered — flipped by the message listener below so the retry
   // loop stops. A ref (not state) so the interval sees the latest value without re-subscribing.
   const uiResolvedRef = useRef<Set<string>>(new Set())
+  // The current unresolved command payload + its deadline, for EVENT-DRIVEN re-posts from the
+  // message listener (on the bridge's ready/heartbeat frames). In a hidden/backgrounded tab
+  // the retry interval below is throttled — Chrome's intensive throttling runs ONE tick per
+  // MINUTE — so a command posted while an iframe was mid-reload would never be re-sent in
+  // time; message events are NOT throttled, so the incoming bridge frames carry the retry.
+  const pendingUiPostRef = useRef<{ payload: Record<string, unknown>; deadline: number } | null>(
+    null,
+  )
   useEffect(() => {
     if (!uiCommand || uiCommand.id === lastUiCommandIdRef.current) return
     lastUiCommandIdRef.current = uiCommand.id
@@ -377,10 +385,12 @@ export function PreviewPanel({
     }
     post()
     const deadline = Date.now() + 40_000
+    pendingUiPostRef.current = { payload, deadline }
     const interval = window.setInterval(() => {
       if (uiResolvedRef.current.has(cmdId) || Date.now() > deadline) {
         window.clearInterval(interval)
         uiResolvedRef.current.delete(cmdId)
+        if (pendingUiPostRef.current?.payload.id === cmdId) pendingUiPostRef.current = null
         return
       }
       post()
@@ -1011,6 +1021,22 @@ export function PreviewPanel({
       const previewWindow = iframeRef.current?.contentWindow
       if (!previewWindow || event.source !== previewWindow) return
 
+      // Event-driven re-post of the pending ui-command: any frame from the preview iframe
+      // (ready, heartbeat, nav) proves its bridge is alive, so re-send an unanswered command
+      // now. This is what delivers commands while the IDE tab is hidden — the 350ms retry
+      // interval above is throttled there (to one tick per MINUTE under Chrome's intensive
+      // throttling), but message events are not. The bridge dedups by id; harmless when the
+      // command already arrived.
+      const pendingUi = pendingUiPostRef.current
+      if (
+        pendingUi &&
+        event.data?.type !== 'molecule:ui-result' &&
+        Date.now() <= pendingUi.deadline &&
+        !uiResolvedRef.current.has(pendingUi.payload.id as string)
+      ) {
+        previewWindow.postMessage(pendingUi.payload, '*')
+      }
+
       if (event.data?.type === 'molecule:ready') {
         const now = Date.now()
 
@@ -1125,6 +1151,9 @@ export function PreviewPanel({
         if (typeof event.data.id === 'string') {
           // Mark resolved so the uiCommand retry loop stops re-sending this command.
           uiResolvedRef.current.add(event.data.id)
+          if (pendingUiPostRef.current?.payload.id === event.data.id) {
+            pendingUiPostRef.current = null
+          }
           if (onUiResult) onUiResult(event.data.id, event.data as PreviewUiResult)
         }
       } else if (event.data?.type === 'molecule:navigate') {
