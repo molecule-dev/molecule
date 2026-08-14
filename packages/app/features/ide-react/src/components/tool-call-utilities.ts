@@ -27,9 +27,29 @@ export type ToolOutput = Record<string, unknown> | string | null | undefined
  * @param value - The raw field value.
  * @returns The string, or `undefined` when the value cannot be one.
  */
-function str(value: unknown): string | undefined {
+export function str(value: unknown): string | undefined {
   if (typeof value === 'string') return value
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  return undefined
+}
+
+/**
+ * Read a model-supplied field as a number.
+ *
+ * The numeric twin of {@link str}, and it hides in the same way: `out.exitCode as number`
+ * on an object passes `!= null` and `!== 0`, so the guard reads as satisfied and the
+ * object goes straight into JSX. Numeric-looking strings are accepted because providers
+ * routinely send them.
+ *
+ * @param value - The raw field value.
+ * @returns The number, or `undefined` when the value cannot be one.
+ */
+export function num(value: unknown): number | undefined {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : undefined
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
   return undefined
 }
 
@@ -209,7 +229,7 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
   const hasError = typeof out === 'object' && out !== null && 'error' in out
 
   if (hasError) {
-    const msg = ((out as { error: string }).error ?? '').toLowerCase()
+    const msg = (str((out as { error: unknown }).error) ?? '').toLowerCase()
     if (msg.includes('not found') || msg.includes('no such file'))
       return t('ide.toolCall.statusNotFound', undefined, { defaultValue: 'Not found' })
     if (msg.includes('permission') || msg.includes('access denied'))

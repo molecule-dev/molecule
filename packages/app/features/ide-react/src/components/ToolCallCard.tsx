@@ -25,6 +25,8 @@ import {
   fileDiffStats,
   moleculeDocPath,
   normalizeAskUserInput,
+  num,
+  str,
   toolLabel,
   toolSummary,
 } from './tool-call-utilities.js'
@@ -293,18 +295,27 @@ function renderIn(name: string, input: unknown): ReactNode {
       return (
         <pre style={PRE}>
           <span style={{ opacity: 0.5 }}>$ </span>
-          {(inp.command as string) ?? ''}
+          {str(inp.command) ?? ''}
         </pre>
       )
 
     case 'write_file':
       // Full file content is too noisy — show only the path
-      return <pre style={PRE}>{(inp.path as string) ?? ''}</pre>
+      return <pre style={PRE}>{str(inp.path) ?? ''}</pre>
 
     case 'edit_file': {
-      const replacements = Array.isArray(inp.replacements)
-        ? (inp.replacements as Array<{ old_string: string; new_string: string }>)
-        : []
+      // `replacements` is model-authored: entries can be missing, or carry non-string
+      // old/new values. Reading them through `str` keeps a malformed edit renderable
+      // instead of throwing on `.split` mid-render.
+      const replacements = (Array.isArray(inp.replacements) ? inp.replacements : []).map(
+        (entry) => {
+          const record = (entry ?? {}) as Inp
+          return {
+            old_string: str(record.old_string) ?? '',
+            new_string: str(record.new_string) ?? '',
+          }
+        },
+      )
       const nodes: React.ReactNode[] = []
       replacements.forEach((r, i) => {
         if (i > 0) nodes.push('\n\n')
@@ -334,17 +345,17 @@ function renderIn(name: string, input: unknown): ReactNode {
     case 'search_files':
       return (
         <pre style={PRE}>
-          {`/${(inp.pattern as string) ?? ''}/`}
-          {inp.path ? ` in ${inp.path}` : ''}
-          {inp.include ? ` (${inp.include})` : ''}
+          {`/${str(inp.pattern) ?? ''}/`}
+          {str(inp.path) ? ` in ${str(inp.path)}` : ''}
+          {str(inp.include) ? ` (${str(inp.include)})` : ''}
         </pre>
       )
 
     case 'find_files':
       return (
         <pre style={PRE}>
-          {(inp.pattern as string) ?? ''}
-          {inp.path ? ` in ${inp.path}` : ''}
+          {str(inp.pattern) ?? ''}
+          {str(inp.path) ? ` in ${str(inp.path)}` : ''}
         </pre>
       )
 
@@ -352,19 +363,19 @@ function renderIn(name: string, input: unknown): ReactNode {
     case 'delete_file':
     case 'list_files':
     case 'create_directory':
-      return <pre style={PRE}>{(inp.path as string) ?? ''}</pre>
+      return <pre style={PRE}>{str(inp.path) ?? ''}</pre>
 
     case 'rename_file':
       return (
         <pre style={PRE}>
-          {(inp.old_path as string) ?? ''} → {(inp.new_path as string) ?? ''}
+          {str(inp.old_path) ?? ''} → {str(inp.new_path) ?? ''}
         </pre>
       )
 
     case 'web_fetch':
       return (
         <pre style={PRE}>
-          {(inp.method as string) ?? 'GET'} {(inp.url as string) ?? ''}
+          {str(inp.method) ?? 'GET'} {str(inp.url) ?? ''}
         </pre>
       )
 
@@ -383,14 +394,16 @@ function renderOut(name: string, output: unknown): ReactNode {
   const out = (output ?? {}) as Inp
 
   if (typeof out === 'object' && out !== null && 'error' in out) {
-    return <pre style={{ ...PRE, color: '#f47067' }}>{out.error as string}</pre>
+    return (
+      <pre style={{ ...PRE, color: '#f47067' }}>{str(out.error) ?? JSON.stringify(out.error)}</pre>
+    )
   }
 
   switch (name) {
     case 'exec_command': {
-      const stdout = ((out.stdout as string) ?? '').trimEnd()
-      const stderr = ((out.stderr as string) ?? '').trimEnd()
-      const exitCode = out.exitCode as number | undefined
+      const stdout = (str(out.stdout) ?? '').trimEnd()
+      const stderr = (str(out.stderr) ?? '').trimEnd()
+      const exitCode = num(out.exitCode)
       return (
         <div>
           {stdout && <pre style={PRE}>{stdout}</pre>}
@@ -464,7 +477,7 @@ function renderOut(name: string, output: unknown): ReactNode {
     }
 
     case 'edit_file': {
-      const n = out.replacementsApplied as number | undefined
+      const n = num(out.replacementsApplied)
       return (
         <span style={{ opacity: 0.6, fontSize: '11px' }}>
           {n != null
@@ -479,7 +492,7 @@ function renderOut(name: string, output: unknown): ReactNode {
     }
 
     case 'read_file': {
-      const content = out.content as string | undefined
+      const content = str(out.content)
       if (!content)
         return (
           <span style={{ opacity: 0.5 }}>
@@ -524,7 +537,9 @@ function renderOut(name: string, output: unknown): ReactNode {
     }
 
     case 'find_files': {
-      const files = out.files as string[] | undefined
+      const files = Array.isArray(out.files)
+        ? out.files.map((file) => str(file)).filter((file): file is string => file !== undefined)
+        : undefined
       if (!files?.length)
         return (
           <span style={{ opacity: 0.5 }}>
@@ -541,8 +556,16 @@ function renderOut(name: string, output: unknown): ReactNode {
     }
 
     case 'search_files': {
-      const matches = out.matches as
-        Array<{ file: string; line: number; content: string }> | undefined
+      const matches = Array.isArray(out.matches)
+        ? out.matches.map((match) => {
+            const record = (match ?? {}) as Inp
+            return {
+              file: str(record.file) ?? '',
+              line: str(record.line) ?? '',
+              content: str(record.content) ?? '',
+            }
+          })
+        : undefined
       if (!matches?.length)
         return (
           <span style={{ opacity: 0.5 }}>
@@ -573,8 +596,8 @@ function renderOut(name: string, output: unknown): ReactNode {
     }
 
     case 'web_fetch': {
-      const status = out.status as number | undefined
-      const body = out.body as string | undefined
+      const status = num(out.status)
+      const body = str(out.body)
       const ok = status != null && status >= 200 && status < 300
       return (
         <div>
@@ -652,11 +675,11 @@ export const ToolCallCard = memo(function ToolCallCard({
     const out = output as Record<string, unknown>
     if ('error' in out) return true
     if (name === 'exec_command') {
-      const exitCode = out.exitCode as number | undefined
+      const exitCode = num(out.exitCode)
       return exitCode != null && exitCode !== 0
     }
     if (name === 'web_fetch') {
-      const s = out.status as number | undefined
+      const s = num(out.status)
       return s != null && s >= 400
     }
     return false
@@ -1370,9 +1393,9 @@ export const ToolCallCard = memo(function ToolCallCard({
               {/* rename_file: show old → new path */}
               {name === 'rename_file' && (
                 <pre style={PRE}>
-                  {(((input ?? {}) as Inp).old_path as string) ?? ''}
+                  {str(((input ?? {}) as Inp).old_path) ?? ''}
                   {' → '}
-                  {(((input ?? {}) as Inp).new_path as string) ?? ''}
+                  {str(((input ?? {}) as Inp).new_path) ?? ''}
                 </pre>
               )}
 

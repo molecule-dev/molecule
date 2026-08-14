@@ -13,7 +13,7 @@
  * card can be made to throw by a value of the wrong type.
  */
 
-import { render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { beforeAll, describe, expect, it } from 'vitest'
 
@@ -249,5 +249,83 @@ describe('ToolCallCard renders hostile tool input without throwing', () => {
         ).not.toThrow()
       }
     }
+  })
+
+  it('renders the EXPANDED IN/OUT sections with wrong-typed input and output', async () => {
+    // The collapsed row and the expanded detail read DIFFERENT fields, so a card that
+    // renders fine collapsed can still throw the moment the user clicks it. Both halves
+    // of every card are exercised.
+    const TOOLS = [
+      'exec_command',
+      'write_file',
+      'edit_file',
+      'search_files',
+      'find_files',
+      'read_file',
+      'delete_file',
+      'list_files',
+      'create_directory',
+      'rename_file',
+      'web_fetch',
+      'find_package',
+      'read_molecule_doc',
+    ]
+    for (const name of TOOLS) {
+      for (const value of HOSTILE_VALUES) {
+        const input = {
+          command: value,
+          path: value,
+          old_path: value,
+          new_path: value,
+          pattern: value,
+          include: value,
+          method: value,
+          url: value,
+          replacements: value,
+        }
+        const output = {
+          stdout: value,
+          stderr: value,
+          content: value,
+          body: value,
+          files: value,
+          diff: value,
+          results: value,
+          packages: value,
+          matches: value,
+          entries: value,
+          skills: value,
+          examples: value,
+          status: value,
+          exitCode: value,
+        }
+        const { container, unmount } = render(
+          wrap(<ToolCallCard name={name} input={input} output={output} status="done" />),
+        )
+        const toggle = container.querySelector('button')
+        if (toggle) {
+          // Clicking is the whole point — expansion is where the second set of
+          // model-authored fields reaches JSX.
+          expect(() => fireEvent.click(toggle)).not.toThrow()
+        }
+        unmount()
+      }
+    }
+  })
+
+  it('renders an errored tool result whose `error` is an object', () => {
+    const { container } = render(
+      wrap(
+        <ToolCallCard
+          name="exec_command"
+          input={{ command: 'npm test' }}
+          output={{ error: { label: 'boom', code: 1 } }}
+          status="error"
+        />,
+      ),
+    )
+    const toggle = container.querySelector('button')
+    if (toggle) fireEvent.click(toggle)
+    expect(container.textContent).not.toContain('[object Object]')
   })
 })
