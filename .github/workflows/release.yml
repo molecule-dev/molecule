@@ -154,6 +154,34 @@ jobs:
           fi
           echo "No pending changesets — versions are committed; proceeding to publish."
 
+      # ---- 2b. Gate — CI must be GREEN for the exact commit being published --
+      # Publishing is what makes a defect reachable: sandboxes, scaffolded apps and
+      # molecule-dev all install these packages from npm, so a bad publish is a
+      # production change. This workflow is dispatched by a human on a ref, and until
+      # 2026-08-14 it consulted nothing — `npm run release` is build + publish, it does
+      # not run the tests — so a red suite, or a commit CI had never seen, published
+      # exactly as happily as a green one.
+      #
+      # There is deliberately no override input. A gate with an escape hatch gets used
+      # reflexively under exactly the pressure it exists for; re-running CI on a ref
+      # costs minutes and is always available.
+      - name: Guard — CI is green for this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          conclusion="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${GITHUB_SHA}&per_page=1" \
+            --jq '.workflow_runs[0].conclusion // "none"')"
+          if [ "$conclusion" != "success" ]; then
+            echo "::error::CI has not passed for ${GITHUB_SHA} (status: ${conclusion})." >&2
+            echo "  Publishing installs these packages into every sandbox, scaffolded app" >&2
+            echo "  and molecule-dev deploy, so it requires a green CI run for THIS commit." >&2
+            echo "  Run the CI workflow on this ref, then re-dispatch Release." >&2
+            exit 1
+          fi
+          echo "CI passed for ${GITHUB_SHA} — proceeding to publish."
+
       # ---- 3. Publish (paced, resumable, OIDC) ------------------------------
       # `npm run release` = build + scripts/publish-paced.mjs. OIDC works
       # unchanged: each `npm publish` does its own token exchange.
