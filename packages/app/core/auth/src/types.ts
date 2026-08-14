@@ -396,6 +396,21 @@ export interface AuthClientConfig {
   storage?: 'memory' | StorageAdapter
 
   /**
+   * Decide whether a user returned by the cookie-restore probe
+   * (`currentUserEndpoint`) constitutes a signed-in CLIENT session. Return
+   * `false` to reject the restore: the client stays unauthenticated and the
+   * `mol_auth` presence hint is cleared so later loads skip the probe (the
+   * httpOnly session cookie is untouched and keeps authenticating API calls).
+   * Use this when the server also issues sessions that must never appear
+   * signed-in client-side — e.g. an anonymous/guest session whose user row
+   * (`isAnonymous`) would otherwise hydrate as a logged-in user. Defaults to
+   * accepting every restored user.
+   * @param user - The user returned by the restore probe.
+   * @returns Whether to establish the client session from this user.
+   */
+  shouldRestoreUser?: (user: UserProfile) => boolean
+
+  /**
    * Auto refresh tokens before expiry.
    */
   autoRefresh?: boolean

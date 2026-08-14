@@ -52,6 +52,21 @@ const isCrossSitePreviewFrame = (): boolean => {
 }
 
 /**
+ * Deletes the non-httpOnly `mol_auth` session-presence hint so `initialize()`
+ * won't probe for cookie-restore on later loads. The deletion must MATCH the
+ * attributes the server SET the hint with, or it targets the wrong cookie jar
+ * and the stale hint survives: only the cross-site live-preview iframe issues
+ * `mol_auth` as `Secure; SameSite=None; Partitioned` (a Partitioned cookie can
+ * only be deleted by a write that ALSO carries Partitioned); a top-level
+ * document sets a plain `Lax` hint the bare deletion already matches.
+ */
+const clearSessionHintCookie = (): void => {
+  if (typeof document === 'undefined') return
+  const previewAttrs = isCrossSitePreviewFrame() ? '; Secure; SameSite=None; Partitioned' : ''
+  document.cookie = `mol_auth=; Max-Age=0; path=/${previewAttrs}`
+}
+
+/**
  * Creates a simple JWT-based auth client.
  *
  * This is a basic implementation that can be extended or replaced
@@ -76,6 +91,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
     currentUserEndpoint = '/users/me',
     storagePrefix = 'molecule:auth:',
     storage = 'memory',
+    shouldRestoreUser,
     autoRefresh = true,
     refreshBuffer = 60,
   } = config
@@ -198,6 +214,15 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
         credentials: 'include',
       })
       const restoredUser = (result?.user ?? null) as T | null
+      if (restoredUser && shouldRestoreUser && !shouldRestoreUser(restoredUser)) {
+        // The server DOES have a session (e.g. an anonymous/guest one), but the
+        // app says it must not count as a signed-in client. Stay logged out and
+        // drop the presence hint so later loads skip the probe entirely; the
+        // httpOnly session cookie is untouched and keeps authenticating API
+        // calls (a guest's projects still work).
+        clearSessionHintCookie()
+        return null
+      }
       if (restoredUser) {
         tokenStorage.setUser(restoredUser)
         setState({ authenticated: true, user: restoredUser })
@@ -301,18 +326,7 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
         // [M1-1] Drop the non-httpOnly session-presence hint so initialize()
         // won't probe for cookie-restore on the next load even if the server
         // logout call didn't complete (the server clears it too, on success).
-        // The deletion must MATCH the attributes the server SET the hint with, or
-        // it targets the wrong cookie jar and the stale hint survives. Only the
-        // cross-site live-preview iframe issues `mol_auth` as `Secure;
-        // SameSite=None; Partitioned` (a Partitioned cookie can only be deleted by
-        // a write that ALSO carries Partitioned); a top-level document sets a plain
-        // `Lax` hint the bare deletion already matches.
-        if (typeof document !== 'undefined') {
-          const previewAttrs = isCrossSitePreviewFrame()
-            ? '; Secure; SameSite=None; Partitioned'
-            : ''
-          document.cookie = `mol_auth=; Max-Age=0; path=/${previewAttrs}`
-        }
+        clearSessionHintCookie()
         setState({
           loading: false,
           authenticated: false,

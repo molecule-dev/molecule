@@ -342,79 +342,106 @@ export const set = (
   return null
 }
 
+/** Options for {@link verifyMiddleware}. */
+export interface VerifyMiddlewareOptions {
+  /**
+   * Decide whether an aging token may be transparently re-issued for this
+   * session. The auto-refresh calls `set()`, which rewrites the session cookies
+   * AND the non-httpOnly `mol_auth` presence hint — the signal the auth client
+   * uses to hydrate a signed-in user on the next page load. Return `false` to
+   * skip the refresh for sessions that must never mint that hint (e.g. an
+   * anonymous/guest session whose httpOnly cookie authenticates API calls but
+   * whose user must not appear signed-in client-side). A thrown error is
+   * treated as `false` (refresh is best-effort and fails safe: no hint).
+   * Defaults to refreshing every session.
+   * @param session - The verified session about to be refreshed.
+   * @param req - The current request.
+   * @returns Whether the session may be re-issued.
+   */
+  shouldRefreshSession?: (session: Session, req: MoleculeRequest) => boolean | Promise<boolean>
+}
+
 /**
  * Middleware that verifies the JWT token from the `Authorization` header and sets `res.locals.session`.
  * Falls back to cookie-based session for browser clients. Auto-refreshes tokens older than `JWT_REFRESH_TIME`.
+ * @param options - {@link VerifyMiddlewareOptions} controlling the auto-refresh.
  * @returns An Express-compatible middleware function.
  */
-export const verifyMiddleware = (): MoleculeRequestHandler => async (req, res, next) => {
-  try {
-    // Get token from Authorization header, falling back to the `token`
-    // cookie that `set()` writes alongside the header. The JSDoc above
-    // promises this fallback for browser clients; without it the cookie
-    // we hand out is decorative — every page-driven request after login
-    // gets a 401, even though the cookie is sitting right there. We still
-    // verify the signature via `jwtVerify` so a tampered cookie value is
-    // never trusted (no decode-fallback bypass).
-    const rawAuth = req.headers.authorization
-    const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth
-    const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
-    const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
-    const cookieToken = readAuthCookie(cookies, 'token')
-    const token =
-      headerToken ?? (typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
-
-    if (!token) {
-      return next()
-    }
-
-    // Try to verify the token.
-    let session: Session | null = null
-
+export const verifyMiddleware =
+  (options?: VerifyMiddlewareOptions): MoleculeRequestHandler =>
+  async (req, res, next) => {
     try {
-      session = jwtVerify(token) as Session
-    } catch (_error) {
-      // Token is invalid or expired — do NOT accept unverified tokens.
-      // Previous code used decode() (no signature check) as a fallback,
-      // which allowed expired/tampered tokens to be accepted if a cookie matched.
-      // This was an authentication bypass. Require re-authentication instead.
-    }
+      // Get token from Authorization header, falling back to the `token`
+      // cookie that `set()` writes alongside the header. The JSDoc above
+      // promises this fallback for browser clients; without it the cookie
+      // we hand out is decorative — every page-driven request after login
+      // gets a 401, even though the cookie is sitting right there. We still
+      // verify the signature via `jwtVerify` so a tampered cookie value is
+      // never trusted (no decode-fallback bypass).
+      const rawAuth = req.headers.authorization
+      const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth
+      const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+      const cookies = (req as unknown as { cookies?: Record<string, unknown> }).cookies
+      const cookieToken = readAuthCookie(cookies, 'token')
+      const token =
+        headerToken ?? (typeof cookieToken === 'string' && cookieToken ? cookieToken : null)
 
-    if (session?.userId && session?.deviceId) {
-      // Server-side session revocation. A logged-out / remotely-revoked /
-      // password-reset device row is deleted; that MUST invalidate every copy
-      // of the JWT, not just the browser that called logout. Without this a
-      // valid signature alone keeps the session alive until natural expiry
-      // (default 7 days), so logout is purely cosmetic. Check BEFORE exposing
-      // the session so a revoked token never reaches a handler.
-      if (!(await isDeviceActive(session.deviceId))) {
+      if (!token) {
         return next()
       }
 
-      res.locals.session = session
+      // Try to verify the token.
+      let session: Session | null = null
 
-      // Auto-refresh the token if it's old enough.
       try {
-        const decoded = decode(token) as { iat?: number } | null
-        if (decoded?.iat) {
-          const tokenAge = Date.now() - decoded.iat * 1000
-          if (tokenAge > getJwtRefreshTime()) {
-            // Update device last seen timestamp via bond.
-            await get<{ updateLastSeen(deviceId: string): Promise<void> }>(
-              'device',
-            )?.updateLastSeen(session.deviceId)
-
-            // Issue a fresh token.
-            set(req, res, session)
-          }
-        }
+        session = jwtVerify(token) as Session
       } catch (_error) {
-        // Non-critical — token refresh is best-effort; continue with existing session.
+        // Token is invalid or expired — do NOT accept unverified tokens.
+        // Previous code used decode() (no signature check) as a fallback,
+        // which allowed expired/tampered tokens to be accepted if a cookie matched.
+        // This was an authentication bypass. Require re-authentication instead.
       }
-    }
-  } catch (error) {
-    logger.error('authorization.verify error:', error)
-  }
 
-  return next()
-}
+      if (session?.userId && session?.deviceId) {
+        // Server-side session revocation. A logged-out / remotely-revoked /
+        // password-reset device row is deleted; that MUST invalidate every copy
+        // of the JWT, not just the browser that called logout. Without this a
+        // valid signature alone keeps the session alive until natural expiry
+        // (default 7 days), so logout is purely cosmetic. Check BEFORE exposing
+        // the session so a revoked token never reaches a handler.
+        if (!(await isDeviceActive(session.deviceId))) {
+          return next()
+        }
+
+        res.locals.session = session
+
+        // Auto-refresh the token if it's old enough.
+        try {
+          const decoded = decode(token) as { iat?: number } | null
+          if (decoded?.iat) {
+            const tokenAge = Date.now() - decoded.iat * 1000
+            if (
+              tokenAge > getJwtRefreshTime() &&
+              (await options?.shouldRefreshSession?.(session, req)) !== false
+            ) {
+              // Update device last seen timestamp via bond.
+              await get<{ updateLastSeen(deviceId: string): Promise<void> }>(
+                'device',
+              )?.updateLastSeen(session.deviceId)
+
+              // Issue a fresh token.
+              set(req, res, session)
+            }
+          }
+        } catch (_error) {
+          // Non-critical — token refresh is best-effort; continue with existing
+          // session. A throwing shouldRefreshSession lands here too, which is the
+          // safe direction: no re-issue, no `mol_auth` hint.
+        }
+      }
+    } catch (error) {
+      logger.error('authorization.verify error:', error)
+    }
+
+    return next()
+  }

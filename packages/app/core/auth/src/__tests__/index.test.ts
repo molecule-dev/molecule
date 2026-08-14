@@ -1412,6 +1412,50 @@ describe('JWT Auth Client', () => {
         delete (globalThis as { document?: unknown }).document
       }
     })
+
+    it('rejects a restore when shouldRestoreUser returns false and clears the hint', async () => {
+      // The server DOES have a session — an anonymous/guest one whose user row
+      // must not hydrate as a signed-in client. The restore is rejected, state
+      // stays unauthenticated, and the stale `mol_auth` hint is deleted so
+      // later loads skip the probe.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      const anonymousUser = { ...mockUser, isAnonymous: true }
+      mockFetch.mockImplementation(() => createMockResponse({ user: anonymousUser }))
+      const client = createJWTAuthClient({
+        autoRefresh: false,
+        shouldRestoreUser: (user) => (user as { isAnonymous?: boolean }).isAnonymous !== true,
+      })
+      try {
+        await client.initialize()
+
+        expect(client.getState().initialized).toBe(true)
+        expect(client.isAuthenticated()).toBe(false)
+        expect(client.getUser()).toBeNull()
+        // The hint was cleared (a deletion write hit document.cookie).
+        const doc = (globalThis as { document?: { cookie: string } }).document
+        expect(doc?.cookie).toContain('mol_auth=')
+        expect(doc?.cookie).toContain('Max-Age=0')
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
+    it('accepts a restore when shouldRestoreUser returns true', async () => {
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ user: mockUser }))
+      const client = createJWTAuthClient({
+        autoRefresh: false,
+        shouldRestoreUser: (user) => (user as { isAnonymous?: boolean }).isAnonymous !== true,
+      })
+      try {
+        await client.initialize()
+
+        expect(client.isAuthenticated()).toBe(true)
+        expect(client.getUser()).toEqual(mockUser)
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
   })
 
   describe('subscribe', () => {

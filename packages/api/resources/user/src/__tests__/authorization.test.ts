@@ -441,6 +441,80 @@ describe('authorization', () => {
       expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer refreshed-token')
     })
 
+    it('skips the refresh when shouldRefreshSession returns false (no cookies, no mol_auth hint)', async () => {
+      const session = { userId: 'guest-u1', deviceId: 'd1', id: 'sid' }
+      mockVerify.mockReturnValue(session)
+      // iat 2 hours ago — old enough that an unconditional refresh WOULD fire.
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) - 7200 })
+      mockGetConfig.mockImplementation((key: string, defaultValue?: string) => {
+        if (key === 'JWT_REFRESH_TIME') return defaultValue ?? '30d'
+        return 'test'
+      })
+      const shouldRefreshSession = vi.fn().mockResolvedValue(false)
+      const next = vi.fn()
+      const res = makeRes()
+
+      await verifyMiddleware({ shouldRefreshSession })(
+        makeReq({ headers: { authorization: 'Bearer old-token' } }) as never,
+        res as never,
+        next,
+      )
+
+      // The session itself stays valid — only the re-issue is suppressed.
+      expect(res.locals.session).toBe(session)
+      expect(shouldRefreshSession).toHaveBeenCalledWith(session, expect.anything())
+      expect(mockSign).not.toHaveBeenCalled()
+      expect(res.setHeader).not.toHaveBeenCalled()
+      expect(res.cookie).not.toHaveBeenCalled()
+      expect(next).toHaveBeenCalled()
+    })
+
+    it('refreshes when shouldRefreshSession returns true', async () => {
+      const session = { userId: 'u1', deviceId: 'd1', id: 'sid' }
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) - 7200 })
+      mockGetConfig.mockImplementation((key: string, defaultValue?: string) => {
+        if (key === 'JWT_REFRESH_TIME') return defaultValue ?? '30d'
+        return 'test'
+      })
+      mockSign.mockReturnValue('refreshed-token')
+      mockGet.mockReturnValue({ updateLastSeen: vi.fn().mockResolvedValue(undefined) })
+      const next = vi.fn()
+      const res = makeRes()
+
+      await verifyMiddleware({ shouldRefreshSession: async () => true })(
+        makeReq({ headers: { authorization: 'Bearer old-token' } }) as never,
+        res as never,
+        next,
+      )
+
+      expect(mockSign).toHaveBeenCalledWith(session)
+      expect(res.setHeader).toHaveBeenCalledWith('Authorization', 'Bearer refreshed-token')
+    })
+
+    it('treats a throwing shouldRefreshSession as false (fails safe, session still valid)', async () => {
+      const session = { userId: 'u1', deviceId: 'd1', id: 'sid' }
+      mockVerify.mockReturnValue(session)
+      mockDecode.mockReturnValue({ iat: Math.floor(Date.now() / 1000) - 7200 })
+      mockGetConfig.mockImplementation((key: string, defaultValue?: string) => {
+        if (key === 'JWT_REFRESH_TIME') return defaultValue ?? '30d'
+        return 'test'
+      })
+      const next = vi.fn()
+      const res = makeRes()
+
+      await verifyMiddleware({
+        shouldRefreshSession: async () => {
+          throw new Error('lookup failed')
+        },
+      })(makeReq({ headers: { authorization: 'Bearer old-token' } }) as never, res as never, next)
+
+      expect(res.locals.session).toBe(session)
+      expect(mockSign).not.toHaveBeenCalled()
+      expect(res.cookie).not.toHaveBeenCalled()
+      expect(next).toHaveBeenCalled()
+    })
+
     it('does not refresh when token is fresh', async () => {
       const session = { userId: 'u1', deviceId: 'd1' }
       mockVerify.mockReturnValue(session)
