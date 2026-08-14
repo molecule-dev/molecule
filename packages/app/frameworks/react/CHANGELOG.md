@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.0.2
+
+### Patch Changes
+
+- 72d3985: `useChat` now recovers a chat stream interrupted by a screen lock or a backgrounded page, resuming from the server instead of staying silent until the stall watchdog fires.
+
 ## 1.0.1
 
 ### Patch Changes
