@@ -1,5 +1,11 @@
 # @molecule/api-export-pptx
 
+## 1.0.2
+
+### Patch Changes
+
+- c504779: Deck export now refuses ICNS, JPEG XL and HEIF/HEIC images. The image measurement library used to embed images has unpatched denial-of-service flaws in exactly those three parsers, so images are checked by magic number — not just by declared MIME type — before they reach it. PNG, JPEG, GIF, BMP, SVG and WebP are unaffected.
+
 ## 1.0.1
 
 ### Patch Changes
