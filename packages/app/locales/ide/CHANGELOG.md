@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.1.1
+
+### Patch Changes
+
+- 8c346c3: Add `ide.chat.itemRenderError`, shown in place of a chat message that could not be rendered, in all 79 languages.
+
 ## 1.1.0
 
 ### Minor Changes
