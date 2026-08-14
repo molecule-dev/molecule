@@ -151,17 +151,33 @@ function projectName(slug: string): string {
 }
 
 /**
+ * How long a cold `up -d --build` may legitimately take: it runs `npm ci` and a
+ * production bundler build inside the images. Generous on purpose — the point of
+ * the bound is to fail an unresponsive daemon, not to cut a real build short.
+ */
+const COMPOSE_BUILD_TIMEOUT_MS = 15 * 60 * 1000
+
+/**
+ * Budget for the non-building subcommands (`down`, `ps`). These talk to the
+ * daemon and return; anything past this is the daemon not answering.
+ */
+const COMPOSE_QUERY_TIMEOUT_MS = 2 * 60 * 1000
+
+/**
  * Runs a docker compose command for a staging environment.
  *
  * @param projectPath - Absolute project root path.
  * @param slug - Environment slug.
  * @param command - The docker compose subcommand (e.g. 'up -d', 'down').
+ * @param timeoutMs - Kill the child after this long. Defaults to the build
+ *   budget; pass {@link COMPOSE_QUERY_TIMEOUT_MS} for commands that only query.
  * @returns The command output.
  */
 async function compose(
   projectPath: string,
   slug: string,
   command: string,
+  timeoutMs = COMPOSE_BUILD_TIMEOUT_MS,
 ): Promise<{ stdout: string; stderr: string }> {
   const file = composeFilePath(projectPath, slug)
   return execAsync(`docker compose -f "${file}" -p "${projectName(slug)}" ${command}`, {
@@ -171,6 +187,13 @@ async function compose(
     // child mid-build with "maxBuffer length exceeded", which reads like a
     // build failure. Give compose output generous headroom.
     maxBuffer: 64 * 1024 * 1024,
+    // Unbounded before: `exec` has no default timeout, so an unresponsive Docker
+    // daemon left this promise pending FOREVER, and every caller awaits it — a
+    // teardown or health check could hang the request that triggered it with no
+    // error to log. A bounded call fails loudly instead, which every caller here
+    // already handles. Build and teardown get different budgets because their
+    // honest durations differ by two orders of magnitude.
+    timeout: timeoutMs,
   })
 }
 
@@ -274,7 +297,7 @@ export const provider: StagingDriver = {
 
   async down(env: StagingEnvironment, config: StagingDriverConfig): Promise<void> {
     try {
-      await compose(config.projectPath, env.slug, 'down -v')
+      await compose(config.projectPath, env.slug, 'down -v', COMPOSE_QUERY_TIMEOUT_MS)
     } catch (_error) {
       // Containers may already be stopped — not an error
     }
@@ -322,7 +345,12 @@ export const provider: StagingDriver = {
 
   async health(env: StagingEnvironment, config: StagingDriverConfig): Promise<EnvironmentHealth> {
     try {
-      const { stdout } = await compose(config.projectPath, env.slug, 'ps --format json')
+      const { stdout } = await compose(
+        config.projectPath,
+        env.slug,
+        'ps --format json',
+        COMPOSE_QUERY_TIMEOUT_MS,
+      )
 
       // Parse container status
       const containers = stdout

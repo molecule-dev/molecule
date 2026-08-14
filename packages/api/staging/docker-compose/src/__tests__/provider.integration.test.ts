@@ -194,6 +194,11 @@ describe('@molecule/api-staging-docker-compose × REAL fs + REAL yaml', () => {
     expect(await exists(resolved)).toBe(true)
   })
 
+  // 5s (vitest's default) is not a budget for this test: it calls down() TWICE,
+  // and each one really shells out to `docker compose down`. Locally that is
+  // ~300ms; on a loaded CI runner it exceeded 5s and failed the whole build with
+  // a timeout — a false negative that says nothing about the file-cleanup
+  // semantics being asserted here. Every assertion below is unchanged.
   it('FAILURE DISAMBIGUATION: down() removes ONE environment without stranding the other', async () => {
     // down() must be safe when docker is unavailable or the containers never
     // started (it swallows the compose error and still cleans up files), and
@@ -224,7 +229,7 @@ describe('@molecule/api-staging-docker-compose × REAL fs + REAL yaml', () => {
     expect(await exists(join(stagingDir, 'Dockerfile.app'))).toBe(false)
     expect(await exists(join(stagingDir, 'nginx.conf'))).toBe(false)
     expect(await provider.list(config)).toEqual([])
-  })
+  }, 30_000)
 
   it('FAILURE DISAMBIGUATION: "no environments" is an empty list, never a crash; stripped headers do not hide an environment', async () => {
     const config = { name: 'docker-compose', projectPath }
