@@ -130,7 +130,15 @@ jobs:
       - run: npm ci
       # Fail on a moderate-or-higher dependency advisory. Mirrors mlcl's gate —
       # do NOT relax below `moderate` to dodge findings (that hides real debt).
-      - run: npm audit --audit-level=moderate
+      #
+      # Runs through audit-gate.mjs rather than bare `npm audit` so an advisory
+      # with NO upstream fix can be accepted explicitly, with a reason and an
+      # expiry, instead of pinning CI red forever. A permanently-red gate is the
+      # failure mode this repo has already paid for (AGENTS.md Rule 23): this job
+      # was red on every commit for two days over one unpatchable finding, and
+      # three fleet releases published straight past it. Every other advisory
+      # still fails the build; a lapsed exception fails it again on purpose.
+      - run: node scripts/audit-gate.mjs
       # Working-tree secret scan via gitleaks (Docker on the runner — no
       # marketplace-action license needed). `--no-git` catches a leaked
       # credential in an open PR before it is merged.

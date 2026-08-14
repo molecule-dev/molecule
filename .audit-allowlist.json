@@ -1,0 +1,19 @@
+{
+  "$comment": [
+    "Documented, EXPIRING exceptions for scripts/audit-gate.mjs. Every advisory",
+    "still fails CI unless it is listed here by its GHSA id and unexpired.",
+    "An entry is a risk decision with a date on it, not a mute button: when",
+    "`expires` passes the gate goes red again so the decision gets remade.",
+    "Never add an entry to make a build green — add it only when there is no",
+    "upstream fix AND the exposure is understood and written down."
+  ],
+  "accepted": [
+    {
+      "package": "image-size",
+      "advisories": ["GHSA-w3rx-r6r6-pgpr", "GHSA-5p2g-fcmc-qvqq"],
+      "severity": "high",
+      "expires": "2026-09-13",
+      "reason": "Infinite-loop DoS in the ICNS/JXL/HEIF parsers. NO patched version exists — the advisory lists 'Patched versions: None' and every release through the current 2.0.2 is affected, so neither a bump nor an overrides pin can resolve it (verified 2026-08-14). Reached only via @molecule/api-export-pptx -> pptxgenjs 4.0.1. Exposure is bounded: molecule-dev (the production API and app) does not depend on it, and 0 of the 133 flagship templates pin it, so nothing we operate or ship by default parses an image with it. A consumer who opts into api-export-pptx and feeds attacker-supplied ICNS/JXL/HEIF into a generated deck could hang that worker. npm's suggested 'fix' is a downgrade to pptxgenjs 1.1.5, three majors back, which is a larger risk than the finding. Re-check for a patched image-size at expiry; if none, consider whether api-export-pptx should carry pptxgenjs as an optional peer so the vulnerable transitive is not installed unless actually used."
+    }
+  ]
+}
