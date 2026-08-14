@@ -81,6 +81,26 @@ const RETRY_BASE_SECONDS = 5
 const MAX_RETRY_ATTEMPTS = 3
 
 /**
+ * How long (ms) an in-flight stream may be silent before a page-lifecycle
+ * return to the foreground (visibilitychange → visible, bfcache `pageshow`,
+ * network `online`) treats the connection as dead. The server writes a
+ * `keep_alive` frame at least every ~25s during tool execution, so a healthy
+ * foreground stream is never this quiet — but a page frozen by a mobile screen
+ * lock has its socket torn down by the OS WITHOUT the pending read() ever
+ * rejecting. Past this threshold the reader is aborted so the no-terminal
+ * reconcile (history reload + resume-if-still-streaming) runs immediately
+ * instead of waiting out the 3-minute stall watchdog.
+ */
+const LIFECYCLE_STALE_STREAM_MS = 45_000
+
+/**
+ * Minimum time (ms) the page must have been hidden before a visibility return
+ * triggers an idle-state history reconcile. Filters ordinary quick tab
+ * switches so an idle, up-to-date transcript doesn't refetch on every one.
+ */
+const LIFECYCLE_MIN_HIDDEN_MS = 5_000
+
+/**
  * Persist the pending message queue for a project.
  * @param projectId - The project identifier used as the storage key.
  * @param queue - The message queue entries to persist.
@@ -632,6 +652,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // before the abort microtask, so the ref is set in time.
   const unloadingRef = useRef(false)
 
+  // Timestamp of the most recent stream event (any type, keep_alive included),
+  // stamped fresh when a send/resume request starts. Read by the page-lifecycle
+  // effect to distinguish a live-but-quiet stream from one whose socket died
+  // while the page was frozen (mobile screen lock).
+  const lastStreamEventAtRef = useRef(0)
+  // When the page went hidden, or null while visible — lets the lifecycle
+  // effect skip the idle reconcile after ordinary quick tab switches.
+  const hiddenAtRef = useRef<number | null>(null)
+
   // ── Throttled flush for streaming message updates ─────────────────────────
   // Instead of calling setMessages on every SSE event (130+ per response, each
   // doing an O(n) array scan + React reconciliation), we accumulate the latest
@@ -738,6 +767,102 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const resumeStreamRef = useRef<(assistantId: string, existingContent: string) => Promise<void>>(
     () => Promise.resolve(),
   )
+
+  // ── Page-lifecycle recovery (mobile screen lock / backgrounded tab) ───────
+  // A phone lock freezes the page and the OS tears down the SSE socket WITHOUT
+  // rejecting the pending read() — the server keeps working by design (the turn
+  // must finish with nobody watching), but the client would sit frozen until
+  // the stall watchdog fired minutes later. On return to the foreground:
+  //  - a locally-owned stream that has been silent past the keep-alive window
+  //    is aborted, which routes it into sendMessage's no-terminal reconcile
+  //    (history reload + resume-if-still-streaming);
+  //  - with no local send in flight, history is reconciled directly and a turn
+  //    the server is still streaming is re-entered via the resume flow.
+  useEffect(() => {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return
+
+    const reconcileIdle = async (): Promise<void> => {
+      try {
+        const history = await provider.loadHistory({ endpoint, projectId })
+        if (!mountedRef.current || sendingRef.current) return
+        const store = getMessageStore(storageKey)
+        if (store.streaming) return
+        const serverStreaming =
+          (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+        // Only overwrite when the server clearly has more than the local view —
+        // an idle, up-to-date transcript must not churn on every foreground.
+        if (history.length > store.messages.length) setMessages(history)
+        if (serverStreaming && history.length > 0) {
+          const last = history[history.length - 1]
+          if (last.role === 'assistant') {
+            void resumeStreamRef.current(last.id, last.content)
+          } else {
+            const placeholderId = `assistant-${++idCounterRef.current}`
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: placeholderId,
+                role: 'assistant',
+                content: '',
+                timestamp: Date.now(),
+                isStreaming: true,
+                blocks: [],
+              },
+            ])
+            void resumeStreamRef.current(placeholderId, '')
+          }
+        }
+      } catch (_error) {
+        // Foreground reconcile is best-effort — the next lifecycle event (or a
+        // manual reload) retries; nothing local is lost by skipping it.
+      }
+    }
+
+    const onLifecycle = (event: Event): void => {
+      if (event.type === 'visibilitychange' && document.visibilityState === 'hidden') {
+        hiddenAtRef.current = Date.now()
+        return
+      }
+      // `pageshow` also fires on every normal load (mount already reconciles) —
+      // only a bfcache restore is a resume signal.
+      if (event.type === 'pageshow' && !(event as PageTransitionEvent).persisted) return
+      const hiddenFor = hiddenAtRef.current !== null ? Date.now() - hiddenAtRef.current : 0
+      hiddenAtRef.current = null
+      if (!mountedRef.current || document.visibilityState === 'hidden') return
+
+      if (sendingRef.current) {
+        // Local stream in flight. Silence past the server's keep-alive cadence
+        // means the socket died while the page was frozen — abort the dead
+        // reader so the no-terminal reconcile runs now instead of at the stall
+        // watchdog. A genuinely live stream is never this quiet, so short
+        // backgrounds (quick app switches) pass through untouched.
+        if (Date.now() - lastStreamEventAtRef.current > LIFECYCLE_STALE_STREAM_MS) {
+          try {
+            provider.abort()
+          } catch (_error) {
+            // provider.abort() may throw when no stream is active — safe to ignore
+          }
+        }
+        return
+      }
+      // No local send: reconcile after a real absence, unless a remote-turn
+      // poll is already tracking the conversation. `online` skips the
+      // hidden-duration gate — the network coming back is itself the signal.
+      const store = getMessageStore(storageKey)
+      if (store.remotePollTimer !== null) return
+      if (event.type === 'visibilitychange' && hiddenFor < LIFECYCLE_MIN_HIDDEN_MS) return
+      void reconcileIdle()
+    }
+
+    document.addEventListener('visibilitychange', onLifecycle)
+    window.addEventListener('pageshow', onLifecycle)
+    window.addEventListener('online', onLifecycle)
+    return () => {
+      document.removeEventListener('visibilitychange', onLifecycle)
+      window.removeEventListener('pageshow', onLifecycle)
+      window.removeEventListener('online', onLifecycle)
+    }
+  }, [provider, endpoint, projectId, storageKey])
 
   // ── Backoff auto-retry machinery ──────────────────────────────────────────
   // When a stream `error` event reports an HTTP 5XX status OR a transport-layer
@@ -1118,6 +1243,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
     const onEvent = (event: ChatStreamEvent): void => {
       if (getMessageStore(storageKey).generation !== streamGeneration) return
+      lastStreamEventAtRef.current = Date.now()
       deps.resetStall()
       // Any non-error event proves the server accepted the turn (see
       // sawServerEvent) — an error can then safely retry as a resume.
@@ -1428,6 +1554,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       userAbortedRef.current = false
       sendingRef.current = true
       setIsLoading(true)
+      lastStreamEventAtRef.current = Date.now()
       // This client now owns the streaming state — end any remote-turn tracking.
       stopRemoteStreamPoll(storageKey)
       setError(null)
@@ -1447,8 +1574,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
         ...(options?.userInitiated ? { userInitiated: true } : {}),
       }
 
+      // Set when the LAST iteration's stream dropped without a terminal event
+      // while the server was still streaming the turn — the post-loop tail then
+      // hands off to the resume flow (which polls history live until the server
+      // finishes) instead of leaving the chat frozen mid-turn.
+      let resumeAfterLoop: { id: string; content: string } | null = null
+
       while (current) {
         if (!mountedRef.current) break
+        resumeAfterLoop = null
 
         // Clear queued indicator now that this message is being sent. Re-stamp it to
         // the actual send time: while queued it pinned to the transcript bottom (see
@@ -1507,6 +1641,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         })
 
         resetStall()
+        lastStreamEventAtRef.current = Date.now()
         let resolvedCleanly = false
         // Per-send config carries the intent flags to the server so it can tag
         // the persisted message (hidden / automatic). config holds the stable
@@ -1561,6 +1696,21 @@ export function useChat(options: UseChatOptions): UseChatResult {
           try {
             const history = await provider.loadHistory(config)
             if (mountedRef.current && history.length > 0) setMessages(history)
+            // The turn is often still RUNNING server-side (the socket died while
+            // the page was backgrounded — mobile screen lock — or the edge proxy
+            // recycled the connection): a single history snapshot would leave the
+            // chat silently frozen while the server keeps working. Note it so the
+            // post-loop tail re-enters the resume flow.
+            if (
+              (provider as { isServerStreaming?: boolean }).isServerStreaming === true &&
+              history.length > 0
+            ) {
+              const last = history[history.length - 1]
+              resumeAfterLoop =
+                last.role === 'assistant'
+                  ? { id: last.id, content: last.content }
+                  : { id: '', content: '' }
+            }
           } catch (_error) {
             // Best-effort reconciliation — the finalized placeholder is already shown; dropping history here is safe
           }
@@ -1582,6 +1732,36 @@ export function useChat(options: UseChatOptions): UseChatResult {
       if (!unloadingRef.current) {
         clearStreamingFlag(storageKey)
         persistQueue(storageKey, [])
+      }
+
+      // Dropped-stream tail: the server was still streaming this turn when the
+      // connection died with no terminal event (see resumeAfterLoop above).
+      // Hand off to the resume flow — it polls history until the server
+      // finishes, then resumes — so the transcript keeps moving. Scheduled
+      // after sendingRef clears (resumeStream refuses while a send is active).
+      if (resumeAfterLoop && mountedRef.current && !unloadingRef.current) {
+        let target = resumeAfterLoop
+        if (!target.id) {
+          // No assistant message after the last user message yet — resume into
+          // a fresh placeholder (same shape as the mount-time resume path).
+          const placeholderId = `assistant-${++idCounterRef.current}`
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: placeholderId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+          target = { id: placeholderId, content: '' }
+        }
+        const rt = target
+        setTimeout(() => {
+          if (mountedRef.current) void resumeStreamRef.current(rt.id, rt.content)
+        }, 0)
       }
     },
     [provider, endpoint, agentName],
@@ -1606,6 +1786,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
       sendingRef.current = true
       setIsLoading(true)
+      lastStreamEventAtRef.current = Date.now()
       // This client now owns the streaming state — end any remote-turn tracking.
       stopRemoteStreamPoll(storageKey)
       setError(null)
@@ -1656,11 +1837,18 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // (that duplicated text before); new content becomes a new message.
       setMessages((prev) => prev.map((m) => (m.id === resumeId ? { ...m, isStreaming: false } : m)))
 
+      // Track whether the resume stream ended with a real terminal (done/error)
+      // event — a drop without one (another screen lock / background freeze
+      // mid-turn) must reconcile + re-resume, not silently stop.
+      let receivedTerminal = false
       const { onEvent, finalizeCurrent } = createMessageStreamRef.current!({
         resetStall: () => {},
-        markTerminal: () => {},
+        markTerminal: () => {
+          receivedTerminal = true
+        },
       })
 
+      lastStreamEventAtRef.current = Date.now()
       try {
         await provider.sendMessage('', { ...config, resume: true }, onEvent)
       } catch (err) {
@@ -1675,10 +1863,35 @@ export function useChat(options: UseChatOptions): UseChatResult {
         }
       }
 
+      // Same dropped-stream reconcile as sendMessage: the resume stream closed
+      // with no terminal event while the server may still be streaming.
+      let resumeAgain: { id: string; content: string } | null = null
+      if (mountedRef.current && !receivedTerminal && !userAbortedRef.current) {
+        finalizeCurrent()
+        try {
+          const history = await provider.loadHistory(config)
+          if (mountedRef.current && history.length > 0) setMessages(history)
+          if (
+            (provider as { isServerStreaming?: boolean }).isServerStreaming === true &&
+            history.length > 0
+          ) {
+            const last = history[history.length - 1]
+            resumeAgain =
+              last.role === 'assistant'
+                ? { id: last.id, content: last.content }
+                : { id: '', content: '' }
+          }
+        } catch (_error) {
+          // Best-effort — the page-lifecycle reconcile or a manual reload recovers.
+        }
+      }
+
       // Drain any queued user messages
       let current = pendingRef.current.shift()
       while (current) {
         if (!mountedRef.current) break
+        // A queued send takes over the conversation — don't also re-resume.
+        resumeAgain = null
         setError(null)
         setErrorMeta(null)
         persistQueue(storageKey, pendingRef.current)
@@ -1692,6 +1905,32 @@ export function useChat(options: UseChatOptions): UseChatResult {
       if (!unloadingRef.current) {
         clearStreamingFlag(storageKey)
         persistQueue(storageKey, [])
+      }
+
+      // Dropped again while the server still streams — schedule another resume
+      // after this one fully unwinds (each cycle requires a fresh real drop, so
+      // this cannot tight-loop).
+      if (resumeAgain && mountedRef.current && !unloadingRef.current) {
+        let target = resumeAgain
+        if (!target.id) {
+          const placeholderId = `assistant-${++idCounterRef.current}`
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: placeholderId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+          target = { id: placeholderId, content: '' }
+        }
+        const rt = target
+        setTimeout(() => {
+          if (mountedRef.current) void resumeStreamRef.current(rt.id, rt.content)
+        }, 0)
       }
     },
     [provider, endpoint],
