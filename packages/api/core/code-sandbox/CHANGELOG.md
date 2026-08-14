@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.1.0
+
+### Minor Changes
+
+- 6bf6951: setProvider/getProvider/hasProvider/requireProvider accept an optional provider name, so an application can bond multiple sandbox providers under the category (e.g. a separate 'production' provider alongside the dev-sandbox singleton).
+
 ## 1.0.1
 
 ### Patch Changes

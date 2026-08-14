@@ -36,7 +36,7 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10",
-    "@molecule/app-auth": "1.0.1",
+    "@molecule/app-auth": "1.1.0",
     "@molecule/app-react": "1.0.2",
     "@molecule/app-ui": "1.1.0",
     "@molecule/app-locales-common": "1.0.1",

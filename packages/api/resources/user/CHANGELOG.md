@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.2.0
+
+### Minor Changes
+
+- e404093: `verifyMiddleware` accepts `{ shouldRefreshSession }`, letting an app skip the transparent token re-issue (and its presence hint) for sessions that must not appear signed in. Defaults to current behaviour.
+
 ## 1.1.1
 
 ### Patch Changes

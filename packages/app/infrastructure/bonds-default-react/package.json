@@ -37,7 +37,7 @@
     "directory": "packages/app/infrastructure/bonds-default-react"
   },
   "devDependencies": {
-    "@molecule/app-auth": "1.0.1",
+    "@molecule/app-auth": "1.1.0",
     "@molecule/app-charts-chartjs": "1.0.1",
     "@molecule/app-code-editor": "1.0.1",
     "@molecule/app-code-editor-monaco": "1.0.1",
