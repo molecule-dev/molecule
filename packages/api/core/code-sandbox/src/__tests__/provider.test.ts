@@ -1,15 +1,24 @@
 vi.mock('@molecule/api-bond', () => {
+  // Mirrors the real bond registry's singleton + named forms: a name maps to a
+  // distinct `type:name` slot, exactly like bondNamed/getNamed/requireNamed.
   let store: Record<string, unknown> = {}
+  const slot = (type: string, name?: string): string =>
+    name !== undefined ? `${type}:${name}` : type
   return {
-    bond: vi.fn((type: string, provider: unknown) => {
-      store[type] = provider
+    bond: vi.fn((type: string, nameOrProvider: unknown, provider?: unknown) => {
+      if (typeof nameOrProvider === 'string' && provider !== undefined) {
+        store[slot(type, nameOrProvider)] = provider
+      } else {
+        store[type] = nameOrProvider
+      }
     }),
     expectBond: vi.fn(),
-    get: vi.fn((type: string) => store[type]),
-    isBonded: vi.fn((type: string) => type in store),
-    require: vi.fn((type: string) => {
-      if (!(type in store)) throw new Error(`No provider bonded for '${type}'`)
-      return store[type]
+    get: vi.fn((type: string, name?: string) => store[slot(type, name)]),
+    isBonded: vi.fn((type: string, name?: string) => slot(type, name) in store),
+    require: vi.fn((type: string, name?: string) => {
+      const key = slot(type, name)
+      if (!(key in store)) throw new Error(`No provider bonded for '${key}'`)
+      return store[key]
     }),
     __reset: () => {
       store = {}
@@ -89,6 +98,43 @@ describe('code-sandbox provider', () => {
     setProvider(a)
     setProvider(b)
     expect(getProvider()).toBe(b)
+  })
+
+  describe('named providers', () => {
+    it('a named provider is bonded alongside the singleton, not over it', () => {
+      const dev = stub()
+      const prod = stub()
+      setProvider(dev)
+      setProvider(prod, 'production')
+      expect(getProvider()).toBe(dev)
+      expect(getProvider('production')).toBe(prod)
+      expect(requireProvider('production')).toBe(prod)
+    })
+
+    it('hasProvider/getProvider on an unbonded name miss even when the singleton exists', () => {
+      setProvider(stub())
+      expect(hasProvider('production')).toBe(false)
+      expect(getProvider('production')).toBeNull()
+    })
+
+    it('requireProvider on an unbonded name throws and names the slot', () => {
+      // A missing named slot must NEVER silently fall back to the singleton —
+      // inheriting the wrong provider for a role is the failure this exists to
+      // prevent.
+      setProvider(stub())
+      expect(() => requireProvider('production')).toThrow(/named provider: 'production'/)
+    })
+
+    it('re-bonding a name replaces only that slot', () => {
+      const dev = stub()
+      const prodA = stub()
+      const prodB = stub()
+      setProvider(dev)
+      setProvider(prodA, 'production')
+      setProvider(prodB, 'production')
+      expect(getProvider('production')).toBe(prodB)
+      expect(getProvider()).toBe(dev)
+    })
   })
 
   it('requireProvider wraps the underlying bond error with the i18n message', () => {
