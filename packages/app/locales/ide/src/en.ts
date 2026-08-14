@@ -196,6 +196,7 @@ export const en: IdeTranslations = {
   'ide.chat.placeholder': 'Send a message...',
   'ide.chat.emptyState': 'Describe what you want to build...',
   'ide.chat.you': 'You',
+  'ide.chat.itemRenderError': "This message couldn't be displayed.",
   'ide.chat.viewProfile': 'View profile',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',

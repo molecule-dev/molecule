@@ -56,6 +56,10 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'kilele ×{{multiplier}} sasa',
+  'ide.chat.models.peakLater': '×{{multiplier}} katika saa za kilele',
+  'ide.chat.models.peakHint':
+    'Modeli hii inagharimu ×{{multiplier}} kati ya {{windows}}. Muda uliobaki wa siku ni kiwango cha kawaida.',
   'ide.chat.undoNoChanges': 'Hakuna mabadiliko ya faili ya kutendua.',
   'ide.chat.undoComplete': 'Imeshindwa kurejesha mabadiliko.',
   'ide.chat.commitNoChanges': 'Hakuna mabadiliko ya kufanya.',
@@ -161,6 +165,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Tuma ujumbe...',
   'ide.chat.emptyState': 'Eleza unachotaka kujenga...',
   'ide.chat.you': 'Wewe',
+  'ide.chat.itemRenderError': 'Ujumbe huu haukuweza kuonyeshwa.',
   'ide.chat.molecule': 'Molekuli',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Simamisha',

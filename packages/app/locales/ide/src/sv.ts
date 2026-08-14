@@ -42,6 +42,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} filer',
   'ide.chat.title': 'Chatt',
   'ide.chat.you': 'Du',
+  'ide.chat.itemRenderError': 'Det gick inte att visa det här meddelandet.',
   'ide.chat.send': 'Skicka',
   'ide.chat.retryCommit': 'Försök igen',
   'ide.chat.cancel': 'Avbryt',
@@ -91,6 +92,10 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'topp ×{{multiplier}} nu',
+  'ide.chat.models.peakLater': '×{{multiplier}} under högtrafik',
+  'ide.chat.models.peakHint':
+    'Den här modellen kostar ×{{multiplier}} mellan {{windows}}. Resten av dygnet gäller normal taxa.',
   'ide.chat.undoNoChanges': 'Inga filändringar att ångra.',
   'ide.chat.undoComplete': 'Det gick inte att återställa ändringarna.',
   'ide.chat.commitNoChanges': 'Inga ändringar att genomföra.',

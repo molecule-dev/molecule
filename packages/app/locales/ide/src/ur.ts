@@ -56,6 +56,10 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ابھی عروج ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'مصروف اوقات میں ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'اس ماڈل کی لاگت {{windows}} کے درمیان ×{{multiplier}} ہے۔ باقی دن معمول کی شرح لاگو ہوتی ہے۔',
   'ide.chat.undoNoChanges': 'کالعدم کرنے کے لیے فائل میں کوئی تبدیلی نہیں۔',
   'ide.chat.undoComplete': 'تبدیلیاں واپس کرنے میں ناکام۔',
   'ide.chat.commitNoChanges': 'ارتکاب کے لیے کوئی تبدیلی نہیں ہے۔',
@@ -161,6 +165,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'ایک پیغام بھیجیں...',
   'ide.chat.emptyState': 'بیان کریں کہ آپ کیا بنانا چاہتے ہیں...',
   'ide.chat.you': 'آپ',
+  'ide.chat.itemRenderError': 'یہ پیغام دکھایا نہیں جا سکا۔',
   'ide.chat.molecule': 'مالیکیول',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'رک جاؤ',

@@ -6,6 +6,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Билдирүү жөнөтүү...',
   'ide.chat.emptyState': 'Эмнени куруп чыгууну каалаганыңызды сүрөттөңүз...',
   'ide.chat.you': 'Сиз',
+  'ide.chat.itemRenderError': 'Бул билдирүүнү көрсөтүү мүмкүн болгон жок.',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Токтотуу',
@@ -235,6 +236,10 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'азыр пик ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'пик сааттарда ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'Бул модель {{windows}} аралыгында ×{{multiplier}} турат. Күндүн калган убагында кадимки баа колдонулат.',
   'ide.chat.undoNoChanges': 'Жокко чыгаруу үчүн файл өзгөртүүлөрү жок.',
   'ide.chat.undoComplete': 'Өзгөртүүлөр кайтарылган жок.',
   'ide.chat.commitNoChanges': 'Милдеттенмеге өзгөртүүлөр киргизилбейт.',

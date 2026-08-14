@@ -56,6 +56,10 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'պիկ ×{{multiplier}} հիմա',
+  'ide.chat.models.peakLater': '×{{multiplier}} պիկ ժամերին',
+  'ide.chat.models.peakHint':
+    'Այս մոդելն արժե ×{{multiplier}} {{windows}} միջակայքում։ Օրվա մնացած մասում գործում է սովորական սակագինը։',
   'ide.chat.undoNoChanges': 'Ֆայլի փոփոխություններ չկան հետարկելու համար։',
   'ide.chat.undoComplete': 'Չհաջողվեց չեղարկել փոփոխությունները։',
   'ide.chat.commitNoChanges': 'Կատարելու փոփոխություններ չկան։',
@@ -162,6 +166,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Ուղարկել հաղորդագրություն...',
   'ide.chat.emptyState': 'Նկարագրեք, թե ինչ եք ուզում կառուցել...',
   'ide.chat.you': 'Դու',
+  'ide.chat.itemRenderError': 'Այս հաղորդագրությունը հնարավոր չեղավ ցուցադրել։',
   'ide.chat.molecule': 'Մոլեկուլ',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Կանգ առեք',

@@ -56,6 +56,10 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'pīķa ×{{multiplier}} tagad',
+  'ide.chat.models.peakLater': '×{{multiplier}} pīķa stundās',
+  'ide.chat.models.peakHint':
+    'Šis modelis maksā ×{{multiplier}} laikā no {{windows}}. Pārējā dienas daļā ir spēkā parastā likme.',
   'ide.chat.undoNoChanges': 'Nav failu izmaiņu, ko atsaukt.',
   'ide.chat.undoComplete': 'Neizdevās atsaukt izmaiņas.',
   'ide.chat.commitNoChanges': 'Nav izmaiņu, ko apstiprināt.',
@@ -161,6 +165,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Sūtīt ziņojumu...',
   'ide.chat.emptyState': 'Aprakstiet, ko vēlaties uzbūvēt...',
   'ide.chat.you': 'Tu',
+  'ide.chat.itemRenderError': 'Šo ziņojumu neizdevās parādīt.',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Apstāties',

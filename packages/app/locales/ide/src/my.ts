@@ -56,6 +56,10 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ယခု အမြင့်ဆုံး ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'အမြင့်ဆုံးအချိန်တွင် ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'ဤမော်ဒယ်သည် {{windows}} အတွင်း ×{{multiplier}} ကျသင့်ပါသည်။ ကျန်အချိန်များတွင် ပုံမှန်နှုန်းဖြစ်ပါသည်။',
   'ide.chat.undoNoChanges': 'ပြန်ပြင်ရန် ဖိုင်ပြောင်းလဲမှုများ မရှိပါ။',
   'ide.chat.undoComplete': 'ပြောင်းလဲမှုများကို ပြန်ပြင်၍မရပါ။',
   'ide.chat.commitNoChanges': 'ကတိပြုရန် ပြောင်းလဲမှုများ မရှိပါ။',
@@ -161,6 +165,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'မက်ဆေ့ချ်ပို့ပါ...',
   'ide.chat.emptyState': 'ဘာတည်ဆောက်ချင်လဲဆိုတာ ရှင်းပြပါ...',
   'ide.chat.you': 'မင်း',
+  'ide.chat.itemRenderError': 'ဤစာကို ပြသ၍ မရပါ။',
   'ide.chat.molecule': 'မော်လီကျူး',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ရပ်',

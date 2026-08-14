@@ -56,6 +56,10 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'álagstími ×{{multiplier}} núna',
+  'ide.chat.models.peakLater': '×{{multiplier}} á álagstímum',
+  'ide.chat.models.peakHint':
+    'Þetta líkan kostar ×{{multiplier}} á milli {{windows}}. Venjulegt verð gildir það sem eftir er dagsins.',
   'ide.chat.undoNoChanges': 'Engar breytingar á skrá til að afturkalla.',
   'ide.chat.undoComplete': 'Mistókst að afturkalla breytingar.',
   'ide.chat.commitNoChanges': 'Engar breytingar til að staðfesta.',
@@ -161,6 +165,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Senda skilaboð...',
   'ide.chat.emptyState': 'Lýstu því sem þú vilt byggja upp...',
   'ide.chat.you': 'Þú',
+  'ide.chat.itemRenderError': 'Ekki tókst að birta þessi skilaboð.',
   'ide.chat.molecule': 'Sameind',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stöðva',

@@ -56,6 +56,10 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'spitstyd ×{{multiplier}} nou',
+  'ide.chat.models.peakLater': '×{{multiplier}} tydens spitstye',
+  'ide.chat.models.peakHint':
+    'Hierdie model kos ×{{multiplier}} tussen {{windows}}. Dit is die normale tarief vir die res van die dag.',
   'ide.chat.undoNoChanges': 'Geen lêerveranderinge om ongedaan te maak nie.',
   'ide.chat.undoComplete': 'Kon nie veranderinge terugdraai nie.',
   'ide.chat.commitNoChanges': 'Geen veranderinge om te verbind nie.',
@@ -161,6 +165,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.placeholder': "Stuur 'n boodskap...",
   'ide.chat.emptyState': 'Beskryf wat jy wil bou...',
   'ide.chat.you': 'Jy',
+  'ide.chat.itemRenderError': 'Hierdie boodskap kon nie gewys word nie.',
   'ide.chat.molecule': 'Molekule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',

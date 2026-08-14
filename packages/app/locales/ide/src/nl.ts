@@ -40,6 +40,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.toolCall.matchCount': '{{count}} overeenkomsten',
   'ide.toolCall.fileCount': '{{count}} bestanden',
   'ide.chat.you': 'U',
+  'ide.chat.itemRenderError': 'Dit bericht kon niet worden weergegeven.',
   'ide.chat.send': 'Verzenden',
   'ide.chat.retryCommit': 'Opnieuw proberen',
   'ide.chat.cancel': 'Annuleren',
@@ -91,6 +92,10 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'piek ×{{multiplier}} nu',
+  'ide.chat.models.peakLater': '×{{multiplier}} tijdens piekuren',
+  'ide.chat.models.peakHint':
+    'Dit model kost ×{{multiplier}} tussen {{windows}}. De rest van de dag geldt het normale tarief.',
   'ide.chat.undoNoChanges': 'Er zijn geen bestandswijzigingen die ongedaan gemaakt kunnen worden.',
   'ide.chat.undoComplete': 'Wijzigingen ongedaan maken is mislukt.',
   'ide.chat.commitNoChanges': 'Geen wijzigingen om door te voeren.',

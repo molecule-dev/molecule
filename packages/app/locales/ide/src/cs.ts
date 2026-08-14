@@ -35,6 +35,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Selhalo',
   'ide.toolCall.fileCount': '{{count}} souborů',
   'ide.chat.you': 'Vy',
+  'ide.chat.itemRenderError': 'Tuto zprávu nebylo možné zobrazit.',
   'ide.chat.send': 'Odeslat',
   'ide.chat.retryCommit': 'Zkusit znovu',
   'ide.chat.cancel': 'Zrušit',
@@ -85,6 +86,10 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'špička ×{{multiplier}} teď',
+  'ide.chat.models.peakLater': '×{{multiplier}} ve špičce',
+  'ide.chat.models.peakHint':
+    'Tento model stojí ×{{multiplier}} mezi {{windows}}. Po zbytek dne platí běžná sazba.',
   'ide.chat.undoNoChanges': 'Žádné změny souboru k vrácení zpět.',
   'ide.chat.undoComplete': 'Vrátit změny se nepodařilo.',
   'ide.chat.commitNoChanges': 'Žádné změny k potvrzení.',

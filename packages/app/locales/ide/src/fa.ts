@@ -56,6 +56,10 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'اوج ×{{multiplier}} اکنون',
+  'ide.chat.models.peakLater': '×{{multiplier}} در ساعات اوج',
+  'ide.chat.models.peakHint':
+    'این مدل بین {{windows}} هزینه‌ای برابر ×{{multiplier}} دارد. در بقیه ساعات روز نرخ عادی اعمال می‌شود.',
   'ide.chat.undoNoChanges': 'هیچ تغییری در فایل برای لغو وجود ندارد.',
   'ide.chat.undoComplete': 'بازگرداندن تغییرات ناموفق بود.',
   'ide.chat.commitNoChanges': 'هیچ تغییری برای اعمال شدن وجود ندارد.',
@@ -161,6 +165,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'ارسال پیام ...',
   'ide.chat.emptyState': 'چیزی که می‌خوای بسازی رو توصیف کن...',
   'ide.chat.you': 'شما',
+  'ide.chat.itemRenderError': 'نمایش این پیام ممکن نبود.',
   'ide.chat.molecule': 'مولکول',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'توقف',

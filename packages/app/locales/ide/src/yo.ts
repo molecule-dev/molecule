@@ -8,6 +8,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.emptyState':
     '\\u1E62\\u00E0p\\u00E8j\\u00FAwe ohun t\\u00ED o f\\u1EB9\\u0301 k\\u1ECD\\u0301...',
   'ide.chat.you': '\\u00CCw\\u1ECD',
+  'ide.chat.itemRenderError': 'A ò lè ṣàfihàn ìfìwéránṣẹ́ yìí.',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'D\\u00FAr\\u00F3',
@@ -269,6 +270,10 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ìdí gíga ×{{multiplier}} báyìí',
+  'ide.chat.models.peakLater': '×{{multiplier}} ní àwọn wákàtí gíga',
+  'ide.chat.models.peakHint':
+    'Àwòṣe yìí ná ×{{multiplier}} láàrin {{windows}}. Ìwọ̀n déédéé ni ó wà fún ìyókù ọjọ́.',
   'ide.chat.undoNoChanges': 'Kò sí àyípadà fáìlì láti dá a padà.',
   'ide.chat.undoComplete': 'Kò ṣeé ṣe láti dá àwọn àyípadà padà.',
   'ide.chat.commitNoChanges': 'Ko si awọn iyipada lati ṣe.',

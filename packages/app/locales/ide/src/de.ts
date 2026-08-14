@@ -41,6 +41,7 @@ export const de: Partial<IdeTranslations> = {
   'ide.toolCall.matchCount': '{{count}} Treffer',
   'ide.toolCall.fileCount': '{{count}} Dateien',
   'ide.chat.you': 'Sie',
+  'ide.chat.itemRenderError': 'Diese Nachricht konnte nicht angezeigt werden.',
   'ide.chat.send': 'Senden',
   'ide.chat.retryCommit': 'Erneut versuchen',
   'ide.chat.cancel': 'Abbrechen',
@@ -93,6 +94,10 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'Spitzenzeit ×{{multiplier}} jetzt',
+  'ide.chat.models.peakLater': '×{{multiplier}} zu Spitzenzeiten',
+  'ide.chat.models.peakHint':
+    'Dieses Modell kostet zwischen {{windows}} ×{{multiplier}}. Den Rest des Tages gilt der normale Tarif.',
   'ide.chat.undoNoChanges': 'Keine Dateiänderungen, die rückgängig gemacht werden müssten.',
   'ide.chat.undoComplete': 'Änderungen konnten nicht rückgängig gemacht werden.',
   'ide.chat.commitNoChanges': 'Keine Änderungen erforderlich.',

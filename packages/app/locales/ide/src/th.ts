@@ -56,6 +56,10 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ช่วงพีค ×{{multiplier}} ตอนนี้',
+  'ide.chat.models.peakLater': '×{{multiplier}} ในช่วงเวลาพีค',
+  'ide.chat.models.peakHint':
+    'โมเดลนี้คิดค่าใช้จ่าย ×{{multiplier}} ระหว่าง {{windows}} ช่วงเวลาที่เหลือของวันคิดอัตราปกติ',
   'ide.chat.undoNoChanges': 'ไม่มีการเปลี่ยนแปลงไฟล์ให้ยกเลิก',
   'ide.chat.undoComplete': 'ไม่สามารถย้อนกลับการเปลี่ยนแปลงได้',
   'ide.chat.commitNoChanges': 'ไม่มีการเปลี่ยนแปลงใดๆ ที่ต้องยืนยัน',
@@ -161,6 +165,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'ส่งข้อความ...',
   'ide.chat.emptyState': 'อธิบายสิ่งที่คุณต้องการสร้าง...',
   'ide.chat.you': 'คุณ',
+  'ide.chat.itemRenderError': 'ไม่สามารถแสดงข้อความนี้ได้',
   'ide.chat.molecule': 'โมเลกุล',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'หยุด',

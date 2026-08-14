@@ -56,6 +56,10 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'இப்போது உச்ச ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'உச்ச நேரங்களில் ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'இந்த மாதிரியின் கட்டணம் {{windows}} இடையே ×{{multiplier}} ஆகும். நாளின் மீதமுள்ள நேரத்தில் வழக்கமான கட்டணமே பொருந்தும்.',
   'ide.chat.undoNoChanges': 'செயல்தவிர்க்க வேண்டிய கோப்பு மாற்றங்கள் எதுவும் இல்லை.',
   'ide.chat.undoComplete': 'மாற்றங்களை மீளப்பெற முடியவில்லை.',
   'ide.chat.commitNoChanges': 'உறுதிப்படுத்த எந்த மாற்றங்களும் இல்லை.',
@@ -161,6 +165,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'ஒரு செய்தி அனுப்புங்கள்...',
   'ide.chat.emptyState': 'நீங்கள் என்ன உருவாக்க விரும்புகிறீர்கள் என்பதை விவரிக்கவும்...',
   'ide.chat.you': 'நீங்கள்',
+  'ide.chat.itemRenderError': 'இந்தச் செய்தியைக் காட்ட முடியவில்லை.',
   'ide.chat.molecule': 'மூலக்கூறு',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'நிறுத்து',

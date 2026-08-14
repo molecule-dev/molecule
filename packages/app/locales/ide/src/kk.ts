@@ -56,6 +56,10 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'қазір шың ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'шың сағаттарында ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'Бұл модель {{windows}} аралығында ×{{multiplier}} тұрады. Күннің қалған уақытында әдеттегі баға қолданылады.',
   'ide.chat.undoNoChanges': 'Болдырмайтын файл өзгерістері жоқ.',
   'ide.chat.undoComplete': 'Өзгертулерді қайтару сәтсіз аяқталды.',
   'ide.chat.commitNoChanges': 'Ешқандай өзгерістер енгізілмеді.',
@@ -162,6 +166,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Хабарлама жіберу...',
   'ide.chat.emptyState': 'Не құрғыңыз келетінін сипаттаңыз...',
   'ide.chat.you': 'Сен',
+  'ide.chat.itemRenderError': 'Бұл хабарды көрсету мүмкін болмады.',
   'ide.chat.molecule': 'Молекула',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Тоқта',

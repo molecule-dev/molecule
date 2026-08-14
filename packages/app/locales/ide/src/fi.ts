@@ -35,6 +35,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Epäonnistuneet',
   'ide.toolCall.fileCount': '{{count}} tiedostoa',
   'ide.chat.you': 'Sinä',
+  'ide.chat.itemRenderError': 'Tätä viestiä ei voitu näyttää.',
   'ide.chat.send': 'Lähetä',
   'ide.chat.retryCommit': 'Yritä uudelleen',
   'ide.chat.cancel': 'Peruuta',
@@ -85,6 +86,10 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ruuhka ×{{multiplier}} nyt',
+  'ide.chat.models.peakLater': '×{{multiplier}} ruuhka-aikaan',
+  'ide.chat.models.peakHint':
+    'Tämä malli maksaa ×{{multiplier}} välillä {{windows}}. Muun osan päivästä käytössä on normaalihinta.',
   'ide.chat.undoNoChanges': 'Ei kumoattavia tiedostomuutoksia.',
   'ide.chat.undoComplete': 'Muutosten palauttaminen epäonnistui.',
   'ide.chat.commitNoChanges': 'Ei muutoksia, joita voisi vahvistaa.',

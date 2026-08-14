@@ -35,6 +35,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Sikertelen',
   'ide.toolCall.fileCount': '{{count}} fájl',
   'ide.chat.you': 'Ön',
+  'ide.chat.itemRenderError': 'Ezt az üzenetet nem sikerült megjeleníteni.',
   'ide.chat.send': 'Küldés',
   'ide.chat.retryCommit': 'Újra',
   'ide.chat.cancel': 'Mégse',
@@ -85,6 +86,10 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'csúcsidő ×{{multiplier}} most',
+  'ide.chat.models.peakLater': '×{{multiplier}} csúcsidőben',
+  'ide.chat.models.peakHint':
+    'Ez a modell ×{{multiplier}} díjba kerül {{windows}} között. A nap többi részében a szokásos díj érvényes.',
   'ide.chat.undoNoChanges': 'Nincsenek visszavonható fájlmódosítások.',
   'ide.chat.undoComplete': 'Nem sikerült visszaállítani a változtatásokat.',
   'ide.chat.commitNoChanges': 'Nincsenek véglegesítendő változtatások.',

@@ -35,6 +35,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Αποτυχημένα',
   'ide.toolCall.fileCount': '{{count}} αρχεία',
   'ide.chat.you': 'Εσείς',
+  'ide.chat.itemRenderError': 'Δεν ήταν δυνατή η εμφάνιση αυτού του μηνύματος.',
   'ide.chat.send': 'Αποστολή',
   'ide.chat.retryCommit': 'Επανάληψη',
   'ide.chat.cancel': 'Ακύρωση',
@@ -85,6 +86,10 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'αιχμή ×{{multiplier}} τώρα',
+  'ide.chat.models.peakLater': '×{{multiplier}} σε ώρες αιχμής',
+  'ide.chat.models.peakHint':
+    'Αυτό το μοντέλο κοστίζει ×{{multiplier}} μεταξύ {{windows}}. Την υπόλοιπη ημέρα ισχύει η κανονική χρέωση.',
   'ide.chat.undoNoChanges': 'Δεν υπάρχουν αλλαγές αρχείου προς αναίρεση.',
   'ide.chat.undoComplete': 'Η επαναφορά των αλλαγών απέτυχε.',
   'ide.chat.commitNoChanges': 'Δεν υπάρχουν αλλαγές προς καταχώρηση.',

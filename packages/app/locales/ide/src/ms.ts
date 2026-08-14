@@ -35,6 +35,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Gagal',
   'ide.toolCall.fileCount': '{{count}} fail',
   'ide.chat.you': 'Anda',
+  'ide.chat.itemRenderError': 'Mesej ini tidak dapat dipaparkan.',
   'ide.chat.send': 'Hantar',
   'ide.chat.retryCommit': 'Cuba semula',
   'ide.chat.cancel': 'Batal',
@@ -83,6 +84,10 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'puncak ×{{multiplier}} sekarang',
+  'ide.chat.models.peakLater': '×{{multiplier}} pada waktu puncak',
+  'ide.chat.models.peakHint':
+    'Model ini berharga ×{{multiplier}} antara {{windows}}. Sepanjang baki hari, kadar biasa dikenakan.',
   'ide.chat.undoNoChanges': 'Tiada perubahan fail untuk dibuat asal.',
   'ide.chat.undoComplete': 'Gagal membalikkan perubahan.',
   'ide.chat.commitNoChanges': 'Tiada perubahan untuk dikomit.',

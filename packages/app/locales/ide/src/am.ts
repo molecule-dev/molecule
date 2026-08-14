@@ -55,6 +55,10 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'አሁን ከፍተኛ ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'በከፍተኛ ሰዓታት ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'ይህ ሞዴል በ{{windows}} መካከል ×{{multiplier}} ያስከፍላል። በቀሩት የቀኑ ሰዓታት መደበኛው ተመን ነው።',
   'ide.chat.undoNoChanges': 'የሚቀለበስ የፋይል ለውጦች የሉም።',
   'ide.chat.undoComplete': 'ለውጦችን መመለስ አልተሳካም።',
   'ide.chat.commitNoChanges': 'ምንም አይነት ለውጥ ለማድረግ ምንም አይነት ለውጥ የለም።',
@@ -158,6 +162,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'መልእክት ላክ...',
   'ide.chat.emptyState': 'ምን መገንባት እንደሚፈልጉ ይግለጹ...',
   'ide.chat.you': 'አንተ',
+  'ide.chat.itemRenderError': 'ይህ መልእክት ሊታይ አልቻለም።',
   'ide.chat.molecule': 'ሞለኪውል',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ተወ',

@@ -56,6 +56,10 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'пиково ×{{multiplier}} сега',
+  'ide.chat.models.peakLater': '×{{multiplier}} в пиковите часове',
+  'ide.chat.models.peakHint':
+    'Този модел струва ×{{multiplier}} между {{windows}}. През останалата част от деня важи обичайната ставка.',
   'ide.chat.undoNoChanges': 'Няма промени във файловете за отмяна.',
   'ide.chat.undoComplete': 'Отмяната на промените не бе успешна.',
   'ide.chat.commitNoChanges': 'Няма промени за потвърждаване.',
@@ -164,6 +168,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Изпрати съобщение...',
   'ide.chat.emptyState': 'Опишете какво искате да изградите...',
   'ide.chat.you': 'Ти',
+  'ide.chat.itemRenderError': 'Това съобщение не можа да бъде показано.',
   'ide.chat.molecule': 'Молекула',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Спри',

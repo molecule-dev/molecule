@@ -56,6 +56,10 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'gailurra ×{{multiplier}} orain',
+  'ide.chat.models.peakLater': '×{{multiplier}} gailur orduetan',
+  'ide.chat.models.peakHint':
+    'Eredu honek ×{{multiplier}} balio du {{windows}} bitartean. Egunaren gainerakoan ohiko tarifa aplikatzen da.',
   'ide.chat.undoNoChanges': 'Ez dago fitxategi aldaketarik desegin daitekeenik.',
   'ide.chat.undoComplete': 'Aldaketak desegin ezin izan dira.',
   'ide.chat.commitNoChanges': 'Ez dago aldaketarik konprometitzeko.',
@@ -161,6 +165,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Bidali mezu bat...',
   'ide.chat.emptyState': 'Deskribatu zer eraiki nahi duzun...',
   'ide.chat.you': 'Zu',
+  'ide.chat.itemRenderError': 'Ezin izan da mezu hau bistaratu.',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Gelditu',

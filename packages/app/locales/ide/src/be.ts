@@ -6,6 +6,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Адправіць паведамленне...',
   'ide.chat.emptyState': 'Апішыце, што вы хочаце стварыць...',
   'ide.chat.you': 'Вы',
+  'ide.chat.itemRenderError': 'Не ўдалося адлюстраваць гэта паведамленне.',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Спыніць',
@@ -235,6 +236,10 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'пік ×{{multiplier}} зараз',
+  'ide.chat.models.peakLater': '×{{multiplier}} у гадзіны пік',
+  'ide.chat.models.peakHint':
+    'Гэтая мадэль каштуе ×{{multiplier}} у перыяд {{windows}}. У астатні час сутак дзейнічае звычайны тарыф.',
   'ide.chat.undoNoChanges': 'Няма змяненняў у файле, якія можна адмяніць.',
   'ide.chat.undoComplete': 'Не атрымалася адмяніць змены.',
   'ide.chat.commitNoChanges': 'Няма змен для фіксацыі.',

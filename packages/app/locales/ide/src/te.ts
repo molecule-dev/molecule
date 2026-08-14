@@ -56,6 +56,10 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ఇప్పుడు గరిష్ఠం ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'రద్దీ సమయాల్లో ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'ఈ మోడల్ ఖర్చు {{windows}} మధ్య ×{{multiplier}} ఉంటుంది. రోజులో మిగిలిన సమయంలో సాధారణ రేటు వర్తిస్తుంది.',
   'ide.chat.undoNoChanges': 'రద్దు చేయడానికి ఫైల్ మార్పులు ఏవీ లేవు.',
   'ide.chat.undoComplete': 'మార్పులను వెనక్కి తీసుకోలేకపోయింది.',
   'ide.chat.commitNoChanges': 'కమిట్ చేయడానికి ఎలాంటి మార్పులు లేవు.',
@@ -162,6 +166,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'సందేశం పంపండి...',
   'ide.chat.emptyState': 'మీరు ఏమి నిర్మించాలనుకుంటున్నారో వివరించండి...',
   'ide.chat.you': 'మీరు',
+  'ide.chat.itemRenderError': 'ఈ సందేశాన్ని చూపించలేకపోయాం.',
   'ide.chat.molecule': 'అణువు',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ఆపండి',

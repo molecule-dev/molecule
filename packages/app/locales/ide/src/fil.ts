@@ -35,6 +35,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Nabigo',
   'ide.toolCall.fileCount': '{{count}} na file',
   'ide.chat.you': 'Ikaw',
+  'ide.chat.itemRenderError': 'Hindi maipakita ang mensaheng ito.',
   'ide.chat.send': 'Ipadala',
   'ide.chat.retryCommit': 'Subukan muli',
   'ide.chat.cancel': 'Kanselahin',
@@ -81,6 +82,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'peak ×{{multiplier}} ngayon',
+  'ide.chat.models.peakLater': '×{{multiplier}} tuwing peak hours',
+  'ide.chat.models.peakHint':
+    'Nagkakahalaga ang modelong ito ng ×{{multiplier}} sa pagitan ng {{windows}}. Normal na rate naman sa natitirang oras ng araw.',
   'ide.chat.undoNoChanges': 'Walang mga pagbabago sa file na dapat i-undo.',
   'ide.chat.undoComplete': 'Nabigong ibalik ang mga pagbabago.',
   'ide.chat.commitNoChanges': 'Walang mga pagbabagong iko-commit.',

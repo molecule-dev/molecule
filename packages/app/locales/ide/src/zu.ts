@@ -56,6 +56,10 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'isikhathi esiphezulu ×{{multiplier}} manje',
+  'ide.chat.models.peakLater': '×{{multiplier}} ngamahora aphezulu',
+  'ide.chat.models.peakHint':
+    'Le modeli ibiza ×{{multiplier}} phakathi kuka-{{windows}}. Isikhathi esisele sosuku kusebenza inani elijwayelekile.',
   'ide.chat.undoNoChanges': 'Azikho izinguquko zefayela okufanele zihlehliswe.',
   'ide.chat.undoComplete': 'Yehlulekile ukubuyisela izinguquko.',
   'ide.chat.commitNoChanges': 'Azikho izinguquko okufanele zenziwe.',
@@ -163,6 +167,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Thumela umlayezo...',
   'ide.chat.emptyState': 'Chaza ukuthi yini ofuna ukuyakha...',
   'ide.chat.you': 'Wena',
+  'ide.chat.itemRenderError': 'Lo mlayezo awukwazanga ukuboniswa.',
   'ide.chat.molecule': 'I-molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Ima',

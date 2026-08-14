@@ -6,6 +6,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Zipu ozi...',
   'ide.chat.emptyState': 'Kọwaa ihe ị chọrọ iwu...',
   'ide.chat.you': 'Gị',
+  'ide.chat.itemRenderError': 'Enweghị ike igosi ozi a.',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Kwụsị',
@@ -229,6 +230,10 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'elu ×{{multiplier}} ugbu a',
+  'ide.chat.models.peakLater': '×{{multiplier}} n’oge kacha elu',
+  'ide.chat.models.peakHint':
+    'Ihe nlereanya a na-efu ×{{multiplier}} n’etiti {{windows}}. Ọnụahịa nkịtị ka ọ bụ na oge ndị ọzọ nke ụbọchị.',
   'ide.chat.undoNoChanges': 'Enweghị mgbanwe faịlụ iji gbanwee.',
   'ide.chat.undoComplete': 'Emeghị mgbanwe ndị ahụ.',
   'ide.chat.commitNoChanges': 'Enweghị mgbanwe ọ bụla iji mee ihe.',

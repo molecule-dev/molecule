@@ -42,6 +42,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} plików',
   'ide.chat.title': 'Czat',
   'ide.chat.you': 'Pan/Pani',
+  'ide.chat.itemRenderError': 'Nie udało się wyświetlić tej wiadomości.',
   'ide.chat.send': 'Wyślij',
   'ide.chat.retryCommit': 'Spróbuj ponownie',
   'ide.chat.cancel': 'Anuluj',
@@ -93,6 +94,10 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'szczyt ×{{multiplier}} teraz',
+  'ide.chat.models.peakLater': '×{{multiplier}} w godzinach szczytu',
+  'ide.chat.models.peakHint':
+    'Ten model kosztuje ×{{multiplier}} w godzinach {{windows}}. Przez resztę dnia obowiązuje zwykła stawka.',
   'ide.chat.undoNoChanges': 'Brak zmian w pliku do cofnięcia.',
   'ide.chat.undoComplete': 'Nie udało się cofnąć zmian.',
   'ide.chat.commitNoChanges': 'Nie ma potrzeby wprowadzania zmian.',

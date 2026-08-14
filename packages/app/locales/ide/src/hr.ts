@@ -56,6 +56,10 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'vršno ×{{multiplier}} sada',
+  'ide.chat.models.peakLater': '×{{multiplier}} u vršnim satima',
+  'ide.chat.models.peakHint':
+    'Ovaj model košta ×{{multiplier}} između {{windows}}. Ostatak dana vrijedi uobičajena cijena.',
   'ide.chat.undoNoChanges': 'Nema promjena datoteke za poništavanje.',
   'ide.chat.undoComplete': 'Poništavanje promjena nije uspjelo.',
   'ide.chat.commitNoChanges': 'Nema promjena za potvrdu.',
@@ -162,6 +166,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Pošalji poruku...',
   'ide.chat.emptyState': 'Opišite što želite izgraditi...',
   'ide.chat.you': 'Vas',
+  'ide.chat.itemRenderError': 'Ovu poruku nije bilo moguće prikazati.',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',

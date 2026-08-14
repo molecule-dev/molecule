@@ -56,6 +56,10 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'punta ×{{multiplier}} ara',
+  'ide.chat.models.peakLater': '×{{multiplier}} en hores punta',
+  'ide.chat.models.peakHint':
+    "Aquest model costa ×{{multiplier}} entre {{windows}}. La resta del dia s'aplica la tarifa normal.",
   'ide.chat.undoNoChanges': 'No hi ha canvis de fitxer per desfer.',
   'ide.chat.undoComplete': "No s'han pogut revertir els canvis.",
   'ide.chat.commitNoChanges': 'No hi ha canvis per confirmar.',
@@ -161,6 +165,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Envia un missatge...',
   'ide.chat.emptyState': 'Descriu què vols construir...',
   'ide.chat.you': 'Tu',
+  'ide.chat.itemRenderError': 'No s’ha pogut mostrar aquest missatge.',
   'ide.chat.molecule': 'Molècula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Atura',

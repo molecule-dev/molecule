@@ -35,6 +35,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Провалені',
   'ide.toolCall.fileCount': '{{count}} файлів',
   'ide.chat.you': 'Ви',
+  'ide.chat.itemRenderError': 'Не вдалося показати це повідомлення.',
   'ide.chat.send': 'Надіслати',
   'ide.chat.retryCommit': 'Спробувати ще раз',
   'ide.chat.cancel': 'Скасувати',
@@ -85,6 +86,10 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'пік ×{{multiplier}} зараз',
+  'ide.chat.models.peakLater': '×{{multiplier}} у години пік',
+  'ide.chat.models.peakHint':
+    'Ця модель коштує ×{{multiplier}} у період {{windows}}. Решту доби діє звичайний тариф.',
   'ide.chat.undoNoChanges': 'Немає змін у файлі для скасування.',
   'ide.chat.undoComplete': 'Не вдалося скасувати зміни.',
   'ide.chat.commitNoChanges': 'Немає змін для фіксації.',

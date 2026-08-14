@@ -56,6 +56,10 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'දැන් උච්ච ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'උච්ච වේලාවන්හි ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'මෙම ආකෘතියට {{windows}} අතර ×{{multiplier}} ක් වැය වේ. දිනයේ ඉතිරි කාලයේ සාමාන්‍ය ගාස්තුව අදාළ වේ.',
   'ide.chat.undoNoChanges': 'අහෝසි කිරීමට ගොනු වෙනස්කම් නොමැත.',
   'ide.chat.undoComplete': 'වෙනස්කම් ප්‍රතිවර්තනය කිරීමට අසමත් විය.',
   'ide.chat.commitNoChanges': 'කිරීමට වෙනස්කම් නොමැත.',
@@ -161,6 +165,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'පණිවිඩයක් යවන්න...',
   'ide.chat.emptyState': 'ඔබට ගොඩනගා ගැනීමට අවශ්‍ය දේ විස්තර කරන්න...',
   'ide.chat.you': 'ඔබ',
+  'ide.chat.itemRenderError': 'මෙම පණිවිඩය පෙන්විය නොහැකි විය.',
   'ide.chat.molecule': 'අණුව',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'නවත්වන්න',

@@ -35,6 +35,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Eșuat',
   'ide.toolCall.fileCount': '{{count}} fișiere',
   'ide.chat.you': 'Dvs.',
+  'ide.chat.itemRenderError': 'Acest mesaj nu a putut fi afișat.',
   'ide.chat.send': 'Trimiteți',
   'ide.chat.retryCommit': 'Reîncearcă',
   'ide.chat.cancel': 'Anulați',
@@ -85,6 +86,10 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'vârf ×{{multiplier}} acum',
+  'ide.chat.models.peakLater': '×{{multiplier}} la orele de vârf',
+  'ide.chat.models.peakHint':
+    'Acest model costă ×{{multiplier}} între {{windows}}. În restul zilei se aplică tariful normal.',
   'ide.chat.undoNoChanges': 'Nicio modificare a fișierului de anulat.',
   'ide.chat.undoComplete': 'Nu s-au putut anula modificările.',
   'ide.chat.commitNoChanges': 'Nicio modificare de confirmat.',

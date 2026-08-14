@@ -33,6 +33,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.toolCall.statusFailed': 'Mislyktes',
   'ide.toolCall.fileCount': '{{count}} filer',
   'ide.chat.you': 'Deg',
+  'ide.chat.itemRenderError': 'Denne meldingen kunne ikke vises.',
   'ide.chat.retryCommit': 'Prøv igjen',
   'ide.chat.cancel': 'Avbryt',
   'ide.chat.save': 'Lagre',
@@ -83,6 +84,10 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'topp ×{{multiplier}} nå',
+  'ide.chat.models.peakLater': '×{{multiplier}} i topptimene',
+  'ide.chat.models.peakHint':
+    'Denne modellen koster ×{{multiplier}} mellom {{windows}}. Resten av dagen gjelder normal pris.',
   'ide.chat.undoNoChanges': 'Ingen filendringer å angre.',
   'ide.chat.undoComplete': 'Kunne ikke tilbakestille endringene.',
   'ide.chat.commitNoChanges': 'Ingen endringer å forplikte.',

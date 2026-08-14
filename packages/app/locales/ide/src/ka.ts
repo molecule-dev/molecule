@@ -56,6 +56,10 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'პიკი ×{{multiplier}} ახლა',
+  'ide.chat.models.peakLater': '×{{multiplier}} პიკის საათებში',
+  'ide.chat.models.peakHint':
+    'ეს მოდელი ღირს ×{{multiplier}} {{windows}} შუალედში. დღის დანარჩენ დროს მოქმედებს ჩვეულებრივი ტარიფი.',
   'ide.chat.undoNoChanges': 'ფაილში ცვლილებების გაუქმება არ არის.',
   'ide.chat.undoComplete': 'ცვლილებების გაუქმება ვერ მოხერხდა.',
   'ide.chat.commitNoChanges': 'ცვლილებების შეტანა არ არის საჭირო.',
@@ -161,6 +165,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'შეტყობინების გაგზავნა...',
   'ide.chat.emptyState': 'აღწერეთ, რისი აშენება გსურთ...',
   'ide.chat.you': 'შენ',
+  'ide.chat.itemRenderError': 'ამ შეტყობინების ჩვენება ვერ მოხერხდა.',
   'ide.chat.molecule': 'მოლეკულა',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'გაჩერება',

@@ -56,6 +56,10 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'ਹੁਣ ਪੀਕ ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'ਪੀਕ ਘੰਟਿਆਂ ਵਿੱਚ ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'ਇਸ ਮਾਡਲ ਦਾ ਖਰਚ {{windows}} ਵਿਚਕਾਰ ×{{multiplier}} ਹੈ। ਬਾਕੀ ਦਿਨ ਆਮ ਦਰ ਲਾਗੂ ਹੁੰਦੀ ਹੈ।',
   'ide.chat.undoNoChanges': 'ਵਾਪਸ ਕਰਨ ਲਈ ਕੋਈ ਫਾਈਲ ਬਦਲਾਅ ਨਹੀਂ ਹਨ।',
   'ide.chat.undoComplete': 'ਬਦਲਾਵਾਂ ਨੂੰ ਵਾਪਸ ਲਿਆਉਣ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.commitNoChanges': 'ਕੋਈ ਬਦਲਾਅ ਕਰਨ ਲਈ ਨਹੀਂ।',
@@ -161,6 +165,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'ਸੁਨੇਹਾ ਭੇਜੋ...',
   'ide.chat.emptyState': 'ਦੱਸੋ ਕਿ ਤੁਸੀਂ ਕੀ ਬਣਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ...',
   'ide.chat.you': 'ਤੁਸੀਂ',
+  'ide.chat.itemRenderError': 'ਇਹ ਸੁਨੇਹਾ ਦਿਖਾਇਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।',
   'ide.chat.molecule': 'ਅਣੂ',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ਰੂਕੋ',

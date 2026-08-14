@@ -56,6 +56,10 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'កំពូល ×{{multiplier}} ឥឡូវនេះ',
+  'ide.chat.models.peakLater': '×{{multiplier}} នៅម៉ោងកំពូល',
+  'ide.chat.models.peakHint':
+    'ម៉ូដែលនេះមានតម្លៃ ×{{multiplier}} ចន្លោះ {{windows}}។ ពេលវេលាដែលនៅសល់នៃថ្ងៃគឺជាតម្លៃធម្មតា។',
   'ide.chat.undoNoChanges': 'គ្មានការផ្លាស់ប្តូរឯកសារដើម្បីមិនធ្វើវិញទេ។',
   'ide.chat.undoComplete': 'បរាជ័យក្នុងការត្រឡប់ការផ្លាស់ប្តូរ។',
   'ide.chat.commitNoChanges': 'គ្មានការផ្លាស់ប្តូរដើម្បីប្តេជ្ញាចិត្តទេ។',
@@ -162,6 +166,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'ផ្ញើសារ...',
   'ide.chat.emptyState': 'សូមពណ៌នាអំពីអ្វីដែលអ្នកចង់សាងសង់...',
   'ide.chat.you': 'អ្នក',
+  'ide.chat.itemRenderError': 'មិនអាចបង្ហាញសាររបស់នេះបានទេ។',
   'ide.chat.molecule': 'ម៉ូលេគុល',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'ឈប់',

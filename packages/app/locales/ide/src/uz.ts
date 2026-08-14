@@ -56,6 +56,10 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'hozir choʻqqi ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'choʻqqi soatlarda ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'Bu model {{windows}} oraligʻida ×{{multiplier}} turadi. Kunning qolgan qismida odatdagi narx amal qiladi.',
   'ide.chat.undoNoChanges': "Bekor qilish uchun fayl o'zgarishlari yo'q.",
   'ide.chat.undoComplete': 'Oʻzgarishlarni qaytarib boʻlmadi.',
   'ide.chat.commitNoChanges': "Hech qanday o'zgartirish kiritilmadi.",
@@ -162,6 +166,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Xabar yuboring...',
   'ide.chat.emptyState': 'Nimani qurmoqchi ekanligingizni tasvirlab bering...',
   'ide.chat.you': 'Siz',
+  'ide.chat.itemRenderError': 'Bu xabarni koʻrsatib boʻlmadi.',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'STOP',

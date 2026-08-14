@@ -56,6 +56,10 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'kulmi ×{{multiplier}} tani',
+  'ide.chat.models.peakLater': '×{{multiplier}} në orët e pikut',
+  'ide.chat.models.peakHint':
+    'Ky model kushton ×{{multiplier}} midis {{windows}}. Pjesën tjetër të ditës vlen tarifa normale.',
   'ide.chat.undoNoChanges': "Nuk ka ndryshime në skedar për t'u anuluar.",
   'ide.chat.undoComplete': 'Rikthimi i ndryshimeve dështoi.',
   'ide.chat.commitNoChanges': "Nuk ka ndryshime për t'u kryer.",
@@ -162,6 +166,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Dërgo një mesazh...',
   'ide.chat.emptyState': 'Përshkruani se çfarë doni të ndërtoni...',
   'ide.chat.you': 'Ti',
+  'ide.chat.itemRenderError': 'Ky mesazh nuk mund të shfaqej.',
   'ide.chat.molecule': 'Molekulë',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Ndalo',

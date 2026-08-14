@@ -44,6 +44,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}}件のファイル',
   'ide.chat.title': 'チャット',
   'ide.chat.you': 'あなた',
+  'ide.chat.itemRenderError': 'このメッセージは表示できませんでした。',
   'ide.chat.send': '送信',
   'ide.chat.commit': 'コミット',
   'ide.chat.retryCommit': '再試行',
@@ -95,6 +96,10 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': '現在ピーク ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'ピーク時は ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'このモデルは {{windows}} の間は ×{{multiplier}} の料金です。それ以外の時間帯は通常料金です。',
   'ide.chat.undoNoChanges': '取り消すべきファイル変更はありません。',
   'ide.chat.undoComplete': '変更を元に戻すことができませんでした。',
   'ide.chat.commitNoChanges': '変更事項はありません。',

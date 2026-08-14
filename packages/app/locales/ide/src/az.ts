@@ -56,6 +56,10 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'indi pik ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'pik saatlarda ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'Bu model {{windows}} arasında ×{{multiplier}} dəyərindədir. Günün qalan hissəsində adi tarif tətbiq olunur.',
   'ide.chat.undoNoChanges': 'Geri qaytarılacaq fayl dəyişikliyi yoxdur.',
   'ide.chat.undoComplete': 'Dəyişiklikləri geri qaytarmaq mümkün olmadı.',
   'ide.chat.commitNoChanges': 'Öhdəlik üçün heç bir dəyişiklik yoxdur.',
@@ -161,6 +165,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Mesaj göndərin...',
   'ide.chat.emptyState': 'Nə tikmək istədiyinizi təsvir edin...',
   'ide.chat.you': 'Sən',
+  'ide.chat.itemRenderError': 'Bu mesajı göstərmək mümkün olmadı.',
   'ide.chat.molecule': 'Molekul',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Dayan',

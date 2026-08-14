@@ -61,6 +61,10 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'שיא ×{{multiplier}} עכשיו',
+  'ide.chat.models.peakLater': '×{{multiplier}} בשעות השיא',
+  'ide.chat.models.peakHint':
+    'מודל זה עולה ×{{multiplier}} בין {{windows}}. בשאר שעות היום חל התעריף הרגיל.',
   'ide.chat.undoNoChanges': 'אין שינויים בקובץ לביטול.',
   'ide.chat.undoComplete': 'נכשל בביטול השינויים.',
   'ide.chat.commitNoChanges': 'אין שינויים לביצוע.',
@@ -161,6 +165,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'שלח הודעה...',
   'ide.chat.emptyState': 'תאר מה אתה רוצה לבנות...',
   'ide.chat.you': 'אַתָה',
+  'ide.chat.itemRenderError': 'לא ניתן היה להציג את ההודעה הזו.',
   'ide.chat.molecule': 'מולקולה',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'לְהַפְסִיק',

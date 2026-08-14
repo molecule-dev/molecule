@@ -42,6 +42,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} tệp',
   'ide.chat.title': 'Trò chuyện',
   'ide.chat.you': 'Quý vị',
+  'ide.chat.itemRenderError': 'Không thể hiển thị tin nhắn này.',
   'ide.chat.send': 'Gửi',
   'ide.chat.retryCommit': 'Thử lại',
   'ide.chat.cancel': 'Hủy',
@@ -93,6 +94,10 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'cao điểm ×{{multiplier}} lúc này',
+  'ide.chat.models.peakLater': '×{{multiplier}} vào giờ cao điểm',
+  'ide.chat.models.peakHint':
+    'Mô hình này có giá ×{{multiplier}} trong khoảng {{windows}}. Thời gian còn lại trong ngày áp dụng mức giá thông thường.',
   'ide.chat.undoNoChanges': 'Không có thay đổi nào cần hoàn tác trong tệp tin.',
   'ide.chat.undoComplete': 'Không thể hoàn tác các thay đổi.',
   'ide.chat.commitNoChanges': 'Không có thay đổi nào cần lưu lại.',

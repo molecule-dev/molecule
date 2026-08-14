@@ -44,6 +44,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} 个文件',
   'ide.chat.title': '聊天',
   'ide.chat.you': '你',
+  'ide.chat.itemRenderError': '无法显示此消息。',
   'ide.chat.send': '发送',
   'ide.chat.commit': '提交',
   'ide.chat.retryCommit': '重试',
@@ -94,6 +95,10 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': '当前高峰 ×{{multiplier}}',
+  'ide.chat.models.peakLater': '高峰时段 ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    '该模型在 {{windows}} 期间的费用为 ×{{multiplier}}，其余时段按正常费率计费。',
   'ide.chat.undoNoChanges': '没有可撤销的文件更改。',
   'ide.chat.undoComplete': '撤销更改失败。',
   'ide.chat.commitNoChanges': '无需提交任何更改。',

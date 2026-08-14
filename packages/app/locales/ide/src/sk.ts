@@ -56,6 +56,10 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'špička ×{{multiplier}} teraz',
+  'ide.chat.models.peakLater': '×{{multiplier}} v čase špičky',
+  'ide.chat.models.peakHint':
+    'Tento model stojí ×{{multiplier}} medzi {{windows}}. Po zvyšok dňa platí bežná sadzba.',
   'ide.chat.undoNoChanges': 'Žiadne zmeny súboru na vrátenie späť.',
   'ide.chat.undoComplete': 'Zmeny sa nepodarilo vrátiť späť.',
   'ide.chat.commitNoChanges': 'Žiadne zmeny na potvrdenie.',
@@ -161,6 +165,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Poslať správu...',
   'ide.chat.emptyState': 'Popíš, čo chceš postaviť...',
   'ide.chat.you': 'Ty',
+  'ide.chat.itemRenderError': 'Túto správu sa nepodarilo zobraziť.',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Zastaviť',

@@ -56,6 +56,10 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'одоо оргил ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'оргил цагт ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'Энэ загвар {{windows}} хооронд ×{{multiplier}} өртөгтэй. Өдрийн бусад цагт ердийн тариф үйлчилнэ.',
   'ide.chat.undoNoChanges': 'Буцаах файлын өөрчлөлт байхгүй.',
   'ide.chat.undoComplete': 'Өөрчлөлтийг буцаах амжилтгүй боллоо.',
   'ide.chat.commitNoChanges': 'Амлалт өгөх өөрчлөлт байхгүй.',
@@ -161,6 +165,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Зурвас илгээх...',
   'ide.chat.emptyState': 'Юу барихыг хүсч байгаагаа тайлбарлана уу...',
   'ide.chat.you': 'Чи',
+  'ide.chat.itemRenderError': 'Энэ мессежийг харуулж чадсангүй.',
   'ide.chat.molecule': 'Молекул',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Зогсоох',

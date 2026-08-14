@@ -42,6 +42,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} berkas',
   'ide.chat.title': 'Obrolan',
   'ide.chat.you': 'Anda',
+  'ide.chat.itemRenderError': 'Pesan ini tidak dapat ditampilkan.',
   'ide.chat.send': 'Kirim',
   'ide.chat.retryCommit': 'Coba lagi',
   'ide.chat.cancel': 'Batal',
@@ -90,6 +91,10 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'puncak ×{{multiplier}} sekarang',
+  'ide.chat.models.peakLater': '×{{multiplier}} pada jam sibuk',
+  'ide.chat.models.peakHint':
+    'Model ini dikenakan ×{{multiplier}} antara {{windows}}. Sisa hari lainnya berlaku tarif normal.',
   'ide.chat.undoNoChanges': 'Tidak ada perubahan file yang perlu dibatalkan.',
   'ide.chat.undoComplete': 'Gagal mengembalikan perubahan.',
   'ide.chat.commitNoChanges': 'Tidak ada perubahan yang perlu di-commit.',

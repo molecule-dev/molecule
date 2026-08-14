@@ -6,6 +6,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Aika saƙo...',
   'ide.chat.emptyState': 'Bayyana abin da kuke son ginawa...',
   'ide.chat.you': 'Kai',
+  'ide.chat.itemRenderError': 'An kasa nuna wannan saƙon.',
   'ide.chat.molecule': 'Molecule',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Tsaya',
@@ -234,6 +235,10 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'kololuwa ×{{multiplier}} yanzu',
+  'ide.chat.models.peakLater': '×{{multiplier}} a lokutan kololuwa',
+  'ide.chat.models.peakHint':
+    'Wannan samfurin yana kashe ×{{multiplier}} tsakanin {{windows}}. Sauran lokutan ranar farashi na yau da kullum ne.',
   'ide.chat.undoNoChanges': 'Babu wani canje-canje da za a yi wa fayil ɗin.',
   'ide.chat.undoComplete': 'An kasa dawo da canje-canje.',
   'ide.chat.commitNoChanges': 'Babu canje-canje da za a yi don aiwatarwa.',

@@ -56,6 +56,10 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'piko ×{{multiplier}} dabar',
+  'ide.chat.models.peakLater': '×{{multiplier}} piko valandomis',
+  'ide.chat.models.peakHint':
+    'Šis modelis kainuoja ×{{multiplier}} laikotarpiu {{windows}}. Likusią dienos dalį taikomas įprastas tarifas.',
   'ide.chat.undoNoChanges': 'Nėra failų pakeitimų, kuriuos būtų galima anuliuoti.',
   'ide.chat.undoComplete': 'Nepavyko grąžinti pakeitimų.',
   'ide.chat.commitNoChanges': 'Nėra pakeitimų, kuriuos reikėtų atlikti.',
@@ -161,6 +165,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Siųsti žinutę...',
   'ide.chat.emptyState': 'Aprašykite, ką norite sukurti...',
   'ide.chat.you': 'Tu',
+  'ide.chat.itemRenderError': 'Šios žinutės parodyti nepavyko.',
   'ide.chat.molecule': 'Molekulė',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',

@@ -55,6 +55,10 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': '目前尖峰 ×{{multiplier}}',
+  'ide.chat.models.peakLater': '尖峰時段 ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    '此模型在 {{windows}} 期間的費用為 ×{{multiplier}}，其餘時段則為一般費率。',
   'ide.chat.undoNoChanges': '沒有可撤銷的文件變更。',
   'ide.chat.undoComplete': '撤銷更改失敗。',
   'ide.chat.commitNoChanges': '無需提交任何更改。',
@@ -158,6 +162,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.placeholder': '發送訊息…',
   'ide.chat.emptyState': '描述一下你想建造什麼…',
   'ide.chat.you': '你',
+  'ide.chat.itemRenderError': '無法顯示這則訊息。',
   'ide.chat.molecule': '分子',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': '停止',

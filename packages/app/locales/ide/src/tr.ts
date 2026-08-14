@@ -43,6 +43,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} dosya',
   'ide.chat.title': 'Sohbet',
   'ide.chat.you': 'Siz',
+  'ide.chat.itemRenderError': 'Bu mesaj görüntülenemedi.',
   'ide.chat.send': 'Gönder',
   'ide.chat.commit': 'Kayıt',
   'ide.chat.retryCommit': 'Tekrar dene',
@@ -94,6 +95,10 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'şu anda zirve ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'yoğun saatlerde ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'Bu model {{windows}} arasında ×{{multiplier}} ücretlendirilir. Günün geri kalanında normal ücret geçerlidir.',
   'ide.chat.undoNoChanges': 'Geri alınacak dosya değişikliği yok.',
   'ide.chat.undoComplete': 'Değişiklikler geri alınamadı.',
   'ide.chat.commitNoChanges': 'Kaydedilecek değişiklik yok.',

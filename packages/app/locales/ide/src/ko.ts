@@ -43,6 +43,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}}개 파일',
   'ide.chat.title': '채팅',
   'ide.chat.you': '회원님',
+  'ide.chat.itemRenderError': '이 메시지를 표시할 수 없습니다.',
   'ide.chat.send': '보내기',
   'ide.chat.commit': '커밋',
   'ide.chat.retryCommit': '다시 시도',
@@ -94,6 +95,10 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': '현재 피크 ×{{multiplier}}',
+  'ide.chat.models.peakLater': '피크 시간대 ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    '이 모델은 {{windows}} 사이에 ×{{multiplier}} 요금이 적용됩니다. 나머지 시간에는 일반 요금입니다.',
   'ide.chat.undoNoChanges': '되돌릴 파일 변경 사항이 없습니다.',
   'ide.chat.undoComplete': '변경 사항을 되돌리는 데 실패했습니다.',
   'ide.chat.commitNoChanges': '커밋할 변경 사항이 없습니다.',

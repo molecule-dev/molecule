@@ -56,6 +56,10 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'अहिले पिक ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'पिक घण्टामा ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'यो मोडेलको शुल्क {{windows}} बीच ×{{multiplier}} हुन्छ। दिनको बाँकी समयमा सामान्य दर लागू हुन्छ।',
   'ide.chat.undoNoChanges': 'अन्डू गर्न कुनै फाइल परिवर्तनहरू छैनन्।',
   'ide.chat.undoComplete': 'परिवर्तनहरू उल्टाउन असफल भयो।',
   'ide.chat.commitNoChanges': 'प्रतिबद्ध गर्न कुनै परिवर्तन छैन।',
@@ -160,6 +164,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'सन्देश पठाउनुहोस्...',
   'ide.chat.emptyState': 'तपाईं के निर्माण गर्न चाहनुहुन्छ वर्णन गर्नुहोस्...',
   'ide.chat.you': 'तपाईं',
+  'ide.chat.itemRenderError': 'यो सन्देश देखाउन सकिएन।',
   'ide.chat.molecule': 'अणु',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'रोक्नुहोस्',

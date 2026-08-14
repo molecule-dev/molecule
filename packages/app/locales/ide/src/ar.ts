@@ -43,6 +43,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} ملفًا',
   'ide.chat.title': 'محادثة',
   'ide.chat.you': 'أنت',
+  'ide.chat.itemRenderError': 'تعذّر عرض هذه الرسالة.',
   'ide.chat.send': 'إرسال',
   'ide.chat.commit': 'الالتزام',
   'ide.chat.retryCommit': 'إعادة المحاولة',
@@ -94,6 +95,10 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'الذروة ×{{multiplier}} الآن',
+  'ide.chat.models.peakLater': '×{{multiplier}} في ساعات الذروة',
+  'ide.chat.models.peakHint':
+    'يكلف هذا النموذج ×{{multiplier}} بين {{windows}}. وهو السعر العادي في بقية اليوم.',
   'ide.chat.undoNoChanges': 'لا توجد تغييرات في الملفات يمكن التراجع عنها.',
   'ide.chat.undoComplete': 'فشل في التراجع عن التغييرات.',
   'ide.chat.commitNoChanges': 'لا توجد تغييرات يجب الالتزام بها.',

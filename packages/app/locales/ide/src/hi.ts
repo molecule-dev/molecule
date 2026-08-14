@@ -44,6 +44,7 @@ export const hi: Partial<IdeTranslations> = {
   'ide.toolCall.fileCount': '{{count}} फ़ाइलें',
   'ide.chat.title': 'चैट',
   'ide.chat.you': 'आप',
+  'ide.chat.itemRenderError': 'यह संदेश दिखाया नहीं जा सका।',
   'ide.chat.send': 'भेजें',
   'ide.chat.commit': 'कमिट',
   'ide.chat.retryCommit': 'पुनः प्रयास करें',
@@ -95,6 +96,10 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'अभी पीक ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'पीक घंटों में ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'इस मॉडल की लागत {{windows}} के बीच ×{{multiplier}} है। बाकी दिन सामान्य दर लागू रहती है।',
   'ide.chat.undoNoChanges': 'फ़ाइल में कोई बदलाव नहीं हुआ है जिसे पूर्ववत किया जा सके।',
   'ide.chat.undoComplete': 'परिवर्तनों को पूर्ववत करने में विफल।',
   'ide.chat.commitNoChanges': 'कोई बदलाव करने की आवश्यकता नहीं है।',

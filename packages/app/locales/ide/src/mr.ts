@@ -56,6 +56,10 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'आता पीक ×{{multiplier}}',
+  'ide.chat.models.peakLater': 'पीक तासांत ×{{multiplier}}',
+  'ide.chat.models.peakHint':
+    'या मॉडेलचा खर्च {{windows}} दरम्यान ×{{multiplier}} आहे. दिवसाच्या उर्वरित वेळेत सामान्य दर लागू होतो.',
   'ide.chat.undoNoChanges': 'फाइलमधील कोणतेही बदल पूर्ववत करता येणार नाहीत.',
   'ide.chat.undoComplete': 'बदल पूर्ववत करण्यात अयशस्वी झाले.',
   'ide.chat.commitNoChanges': 'कोणतेही बदल करायचे नाहीत.',
@@ -161,6 +165,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'संदेश पाठवा...',
   'ide.chat.emptyState': 'तुम्हाला काय बांधायचे आहे त्याचे वर्णन करा...',
   'ide.chat.you': 'तुम्ही',
+  'ide.chat.itemRenderError': 'हा संदेश दाखवता आला नाही.',
   'ide.chat.molecule': 'रेणू',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'थांबा',

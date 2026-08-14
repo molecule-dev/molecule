@@ -56,6 +56,10 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'tipptund ×{{multiplier}} praegu',
+  'ide.chat.models.peakLater': '×{{multiplier}} tipptundidel',
+  'ide.chat.models.peakHint':
+    'See mudel maksab ×{{multiplier}} ajavahemikus {{windows}}. Ülejäänud päeval kehtib tavahind.',
   'ide.chat.undoNoChanges': 'Tagasivõetavaid failimuudatusi pole.',
   'ide.chat.undoComplete': 'Muudatuste tagasivõtmine ebaõnnestus.',
   'ide.chat.commitNoChanges': 'Muudatusi, mida kinnitada, pole.',
@@ -161,6 +165,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Saada sõnum...',
   'ide.chat.emptyState': 'Kirjelda, mida sa ehitada tahad...',
   'ide.chat.you': 'Sina',
+  'ide.chat.itemRenderError': 'Seda sõnumit ei saanud kuvada.',
   'ide.chat.molecule': 'Molekul',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stopp',

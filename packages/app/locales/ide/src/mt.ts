@@ -56,6 +56,10 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'quċċata ×{{multiplier}} issa',
+  'ide.chat.models.peakLater': '×{{multiplier}} fis-sigħat tal-quċċata',
+  'ide.chat.models.peakHint':
+    'Dan il-mudell jiswa ×{{multiplier}} bejn {{windows}}. Fil-bqija tal-ġurnata tapplika r-rata normali.',
   'ide.chat.undoNoChanges': "M'hemm l-ebda tibdil fil-fajl x'jiġi rrevokat.",
   'ide.chat.undoComplete': 'Ma rnexxiex tirrevoka l-bidliet.',
   'ide.chat.commitNoChanges': "L-ebda tibdil x'tiġi impenjata.",
@@ -161,6 +165,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Ibgħat messaġġ...',
   'ide.chat.emptyState': "Iddeskrivi x'tixtieq tibni...",
   'ide.chat.you': 'Int',
+  'ide.chat.itemRenderError': 'Dan il-messaġġ ma setax jintwera.',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Waqqaf',

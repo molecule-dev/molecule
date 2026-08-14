@@ -56,6 +56,10 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
+  'ide.chat.models.peakNow': 'brig ×{{multiplier}} nawr',
+  'ide.chat.models.peakLater': '×{{multiplier}} yn ystod oriau brig',
+  'ide.chat.models.peakHint':
+    'Mae’r model hwn yn costio ×{{multiplier}} rhwng {{windows}}. Y gyfradd arferol sy’n berthnasol weddill y dydd.',
   'ide.chat.undoNoChanges': "Dim newidiadau ffeil i'w dadwneud.",
   'ide.chat.undoComplete': "Methwyd gwrthdroi'r newidiadau.",
   'ide.chat.commitNoChanges': "Dim newidiadau i'w gwneud.",
@@ -161,6 +165,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.placeholder': 'Anfon neges...',
   'ide.chat.emptyState': 'Disgrifiwch beth rydych chi eisiau ei adeiladu...',
   'ide.chat.you': 'Chi',
+  'ide.chat.itemRenderError': 'Nid oedd modd dangos y neges hon.',
   'ide.chat.molecule': 'Moleciwl',
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stopiwch',
