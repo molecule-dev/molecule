@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.1.0
+
+### Minor Changes
+
+- The model picker prices models on cache reads — the dominant cost in agentic traffic — instead of list input price alone, and flags models whose region is in a peak-surcharge window.
+
 ## 1.0.1
 
 ### Patch Changes
