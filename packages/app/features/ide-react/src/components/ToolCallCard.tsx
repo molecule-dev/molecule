@@ -24,6 +24,7 @@ import {
   extractFilePath,
   fileDiffStats,
   moleculeDocPath,
+  normalizeAskUserInput,
   toolLabel,
   toolSummary,
 } from './tool-call-utilities.js'
@@ -840,12 +841,11 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   // ── ask_user: render interactive option list instead of a normal tool card ──
   if (name === 'ask_user') {
-    const askInput = (input ?? {}) as {
-      question?: string
-      options?: string[]
-      allowFreeText?: boolean
-      hint?: string
-    }
+    // NEVER render raw tool input. `options` is declared `string[]` in the tool
+    // schema, but the schema is a request to a language model, not a guarantee —
+    // weaker models send `[{ label: 'Recipe box' }]`, and an object reaching JSX
+    // throws React error #31 during render, which takes down the entire IDE.
+    const askInput = normalizeAskUserInput(input)
     const askOutput = output as { status?: string } | string | undefined
     const serverAwaiting =
       typeof askOutput === 'object' && askOutput?.status === 'awaiting_response'
@@ -887,11 +887,11 @@ export const ToolCallCard = memo(function ToolCallCard({
             borderBottom: `1px solid ${borderClr}`,
           }}
         >
-          <MarkdownContent text={unescapeLiterals(askInput.question ?? '')} isStreaming={false} />
+          <MarkdownContent text={unescapeLiterals(askInput.question)} isStreaming={false} />
         </div>
 
         {/* Full-width option rows */}
-        {askInput.options?.map((option, i) => {
+        {askInput.options.map((option, i) => {
           const isSelected = selectedAnswer === option
           const isFaded = !isAwaiting && !isSelected
           const isHover = isAwaiting && hoveredIdx === i
@@ -1009,7 +1009,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                 }
               }}
               placeholder={
-                (askInput.options?.length ?? 0) === 0
+                askInput.options.length === 0
                   ? t('ide.chat.askUserPlaceholderEmpty', undefined, {
                       defaultValue: 'Type your answer…',
                     })
@@ -1081,7 +1081,7 @@ export const ToolCallCard = memo(function ToolCallCard({
         )}
 
         {/* Show free-text response if it wasn't one of the preset options */}
-        {selectedAnswer && !askInput.options?.includes(selectedAnswer) && (
+        {selectedAnswer && !askInput.options.includes(selectedAnswer) && (
           <div
             style={{
               padding: '8px 12px',

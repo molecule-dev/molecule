@@ -15,6 +15,25 @@ type Inp = Record<string, unknown>
 export type ToolOutput = Record<string, unknown> | string | null | undefined
 
 /**
+ * Read a model-supplied field as a string.
+ *
+ * Tool input is authored by a language model. Its schema says a field is a string; that
+ * is a request, and models miss it — `{ label: 'x' }` where a string was declared is the
+ * shape that blanked production on 2026-08-14. `as string` on one of these fields is a
+ * lie the compiler cannot catch, so every field this module reads goes through here
+ * instead: anything that isn't string-like becomes `undefined` and each call site's
+ * existing empty-value handling takes over.
+ *
+ * @param value - The raw field value.
+ * @returns The string, or `undefined` when the value cannot be one.
+ */
+function str(value: unknown): string | undefined {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  return undefined
+}
+
+/**
  * Extracts the last path segment from a file path (e.g. "a/b/c.ts" → "c.ts").
  * @param path - The file path to extract the basename from.
  * @returns The basename string, or empty string if path is undefined.
@@ -52,10 +71,10 @@ function truncate(value: string, max = 60): string {
  */
 export function toolLabel(name: string, input: unknown): string {
   const inp = (input ?? {}) as Inp
-  const path = inp.path as string | undefined
-  const cmd = inp.command as string | undefined
-  const pattern = inp.pattern as string | undefined
-  const url = inp.url as string | undefined
+  const path = str(inp.path)
+  const cmd = str(inp.command)
+  const pattern = str(inp.pattern)
+  const url = str(inp.url)
 
   // Wrap a value in a leading-space + backticks, or return '' when it's empty.
   // While a tool call streams, its input arrives a beat after the block is
@@ -78,19 +97,21 @@ export function toolLabel(name: string, input: unknown): string {
     case 'create_directory':
       return `Create dir${code(basename(path))}`
     case 'rename_file':
-      return `Rename${code(basename(inp.old_path as string | undefined))}`
+      return `Rename${code(basename(str(inp.old_path)))}`
     case 'delete_file':
       return `Delete${code(basename(path))}`
     case 'find_files':
       return `Find${code(pattern ?? '')}`
     case 'load_skill':
-      return `Load skill${code((inp.name as string | undefined) ?? '')}`
+      return `Load skill${code(str(inp.name) ?? '')}`
     case 'find_package': {
-      const query = (inp.query as string | undefined) ?? (inp.category as string | undefined)
+      const query = str(inp.query) ?? str(inp.category)
       return `Find package${code(query ?? '')}`
     }
     case 'read_molecule_doc': {
-      const pkg = (inp.name as string | undefined)?.trim().replace(/^@molecule\//, '')
+      const pkg = str(inp.name)
+        ?.trim()
+        .replace(/^@molecule\//, '')
       return `Read docs${code(pkg ? `@molecule/${pkg}` : '')}`
     }
     case 'web_fetch': {
@@ -107,12 +128,12 @@ export function toolLabel(name: string, input: unknown): string {
     case 'sandbox_fetch': {
       // The interesting part is WHICH endpoint (usually one the model just built) —
       // show method + protocol-stripped URL, e.g. "GET `localhost:4000/api/todos`".
-      const method = ((inp.method as string | undefined) ?? 'GET').toUpperCase()
+      const method = (str(inp.method) ?? 'GET').toUpperCase()
       const compact = (url ?? '').replace(/^https?:\/\//, '').replace(/\/$/, '')
       return `${method}${code(truncate(compact))}`
     }
     case 'navigate_preview':
-      return `Go to${code((inp.path as string | undefined) ?? '')}`
+      return `Go to${code(str(inp.path) ?? '')}`
     case 'open_file':
       return `Open${code(basename(path))}`
     case 'reload_preview':
@@ -125,42 +146,38 @@ export function toolLabel(name: string, input: unknown): string {
       // Target priority mirrors the tool's own: molId is canonical, text is the
       // visible name (usually the most readable), selector is the last resort.
       // Deliberately NEVER show `value` — fill routinely types credentials.
-      const target =
-        (inp.text as string | undefined) ??
-        (inp.molId as string | undefined) ??
-        (inp.selector as string | undefined) ??
-        ''
+      const target = str(inp.text) ?? str(inp.molId) ?? str(inp.selector) ?? ''
       const verb = { click: 'Click', fill: 'Fill', select: 'Select', waitFor: 'Wait for' }[
-        inp.action as string
+        str(inp.action) ?? ''
       ]
       return verb ? `${verb}${code(truncate(target, 40))}` : `Interact${code(truncate(target, 40))}`
     }
     case 'get_ide_state':
       return 'Check IDE status'
     case 'read_logs': {
-      const source = (inp.source as string | undefined) ?? ''
-      const filter = (inp.filter as string | undefined) ?? ''
+      const source = str(inp.source) ?? ''
+      const filter = str(inp.filter) ?? ''
       const which = source && source !== 'all' ? `Read ${source} logs` : 'Read logs'
       return `${which}${code(truncate(filter, 30))}`
     }
     case 'find_example':
-      return `Find example${code(truncate((inp.query as string | undefined) ?? '', 40))}`
+      return `Find example${code(truncate(str(inp.query) ?? '', 40))}`
     case 'save_script':
-      return `Save script${code((inp.name as string | undefined) ?? '')}`
+      return `Save script${code(str(inp.name) ?? '')}`
     case 'request_repo_import':
       return 'Import repository'
     case 'web_search':
-      return `Search web${code(truncate((inp.query as string | undefined) ?? '', 40))}`
+      return `Search web${code(truncate(str(inp.query) ?? '', 40))}`
     case 'save_plan': {
-      const planName = (inp.name as string) ?? ''
+      const planName = str(inp.name) ?? ''
       return planName ? `Save plan \`${planName}\`` : 'Save plan'
     }
     case 'set_mode': {
-      const targetMode = (inp.mode as string) ?? ''
+      const targetMode = str(inp.mode) ?? ''
       return targetMode ? `Switch to ${targetMode} mode` : 'Switch mode'
     }
     case 'ask_user':
-      return (inp.question as string) ?? 'Question'
+      return normalizeAskUserInput(inp).question || 'Question'
     default: {
       const label = name.replace(/_/g, ' ')
       // Salient-argument fallback for tools without an explicit case: nearly every
@@ -312,6 +329,80 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
 }
 
 /**
+ * The keys a model reaches for when it ignores a `string` schema and hands back an
+ * option object instead (`{ label }`, `{ value }`, `{ title }`, `{ text }`, `{ name }`).
+ * Ordered by how likely each is to hold the human-readable text.
+ */
+const OPTION_TEXT_KEYS = ['label', 'text', 'title', 'value', 'name', 'option'] as const
+
+/**
+ * Coerce one model-authored value into a plain string safe to render as a React child.
+ *
+ * Tool input is authored by an LLM, not by us: a schema saying `type: 'string'` is a
+ * request, never a guarantee. A non-string reaching JSX throws React error #31 and —
+ * because the throw happens during render — takes down the whole app, not just the card.
+ *
+ * @param value - The raw value from the tool input.
+ * @returns The best human-readable string, or `''` when there is nothing to show.
+ */
+function coerceToText(value: unknown): string {
+  if (typeof value === 'string') return value
+  if (value == null) return ''
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+  if (Array.isArray(value)) return value.map(coerceToText).filter(Boolean).join(' ')
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>
+    for (const key of OPTION_TEXT_KEYS) {
+      const candidate = record[key]
+      if (typeof candidate === 'string' && candidate.trim() !== '') return candidate
+    }
+    // No recognisable text key — show the JSON rather than dropping the option
+    // silently, so the user can still pick it and we can see what the model sent.
+    try {
+      return JSON.stringify(value)
+    } catch (_error) {
+      // Circular structure — nothing renderable is recoverable from it.
+      return ''
+    }
+  }
+  return ''
+}
+
+/** The `ask_user` tool input, after coercion — every field safe to render. */
+export interface AskUserInput {
+  /** The question text (markdown). */
+  question: string
+  /** Clickable answers, always plain strings. */
+  options: string[]
+  /** Whether the free-text box is offered. `undefined` means "model didn't say" (defaults on). */
+  allowFreeText: boolean | undefined
+  /** Optional hint shown under the options. */
+  hint: string
+}
+
+/**
+ * Normalize raw `ask_user` tool input into renderable strings.
+ *
+ * The model is told `options` is `string[]`, and weaker models routinely send
+ * `[{ label: 'Recipe box' }]` or `[{ label, value }]` instead. Rendering one of those
+ * objects directly is React error #31, which crashes the entire IDE at the moment the
+ * user submits their first prompt. Everything the card renders goes through here.
+ *
+ * @param input - The raw tool input, straight off the model.
+ * @returns The same fields, coerced so each is safe as a React child.
+ */
+export function normalizeAskUserInput(input: unknown): AskUserInput {
+  const raw = (input ?? {}) as Inp
+  const rawOptions = Array.isArray(raw.options) ? raw.options : []
+  return {
+    question: coerceToText(raw.question),
+    options: rawOptions.map(coerceToText).filter((option) => option.trim() !== ''),
+    allowFreeText: typeof raw.allowFreeText === 'boolean' ? raw.allowFreeText : undefined,
+    hint: coerceToText(raw.hint),
+  }
+}
+
+/**
  * Count truly added/removed lines between two line arrays using LCS.
  * @param oldLines - The original lines array.
  * @param newLines - The modified lines array.
@@ -387,12 +478,12 @@ export function extractFilePath(name: string, input: unknown): string | null {
     case 'write_file':
     case 'edit_file':
     case 'open_file':
-      return (inp.path as string) || null
+      return str(inp.path) || null
     case 'rename_file':
-      return (inp.new_path as string) || null
+      return str(inp.new_path) || null
     case 'read_molecule_doc':
       // Clicking the card opens the package's MOLECULE.md (pre-installed in the sandbox).
-      return moleculeDocPath(inp.name as string | undefined)
+      return moleculeDocPath(str(inp.name))
     default:
       return null
   }
