@@ -185,6 +185,51 @@ describe('useChat dropped-stream recovery', () => {
     expect(provider.calls.some((c) => c.resume === true)).toBe(true)
   })
 
+  it('aborts a dead stream via the armed re-check when unlock lands inside the silence threshold', async () => {
+    const provider = createDroppedStreamProvider({
+      script: [
+        [
+          { type: 'conversation', id: 'c1' },
+          { type: 'message_start', id: 'a1', timestamp: 1 },
+          { type: 'text', content: 'working…' },
+        ],
+      ],
+      history: HISTORY,
+      streamingUntilLoad: 2,
+      hangUntilAbort: true,
+    })
+    const { result } = renderChat(provider)
+
+    act(() => {
+      void result.current.sendMessage('build me an app')
+    })
+    // A SHORT lock: the socket dies, but at unlock the silence (30s) is still
+    // inside the 45s threshold — no immediate abort.
+    act(() => {
+      setVisibility('hidden')
+    })
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30_000)
+    })
+    act(() => {
+      setVisibility('visible')
+    })
+    expect(provider.abort).not.toHaveBeenCalled()
+
+    // No further events arrive — the armed re-check fires once silence crosses
+    // the threshold (~16s later) and aborts, instead of the 3-minute watchdog.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(17_000)
+    })
+    expect(provider.abort).toHaveBeenCalledTimes(1)
+
+    // The unblocked send reconciles and re-enters the resume flow.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2500)
+    })
+    expect(provider.calls.some((c) => c.resume === true)).toBe(true)
+  })
+
   it('does not abort a live stream after a quick app switch', async () => {
     const provider = createDroppedStreamProvider({
       script: [

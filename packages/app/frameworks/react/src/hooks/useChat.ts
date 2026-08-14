@@ -89,7 +89,10 @@ const MAX_RETRY_ATTEMPTS = 3
  * lock has its socket torn down by the OS WITHOUT the pending read() ever
  * rejecting. Past this threshold the reader is aborted so the no-terminal
  * reconcile (history reload + resume-if-still-streaming) runs immediately
- * instead of waiting out the 3-minute stall watchdog.
+ * instead of waiting out the 3-minute stall watchdog. When the foreground
+ * return lands BEFORE the threshold (a short lock — the socket may be just as
+ * dead), a one-shot re-check is armed for the moment silence would cross it,
+ * so recovery is never gated on the stall watchdog either way.
  */
 const LIFECYCLE_STALE_STREAM_MS = 45_000
 
@@ -818,9 +821,33 @@ export function useChat(options: UseChatOptions): UseChatResult {
       }
     }
 
+    // One-shot re-check armed when the page returns to the foreground INSIDE the
+    // silence threshold: a short screen lock can kill the socket without the
+    // pending read() rejecting, and at unlock time the silence hasn't yet crossed
+    // LIFECYCLE_STALE_STREAM_MS — so the dead reader would otherwise pass as
+    // healthy and sit until the 3-minute stall watchdog. The timer fires at the
+    // point silence WOULD cross the threshold; a live stream's keep-alives land
+    // before then and the check passes through untouched.
+    let staleRecheckTimer: ReturnType<typeof setTimeout> | null = null
+    const clearStaleRecheck = (): void => {
+      if (staleRecheckTimer !== null) {
+        clearTimeout(staleRecheckTimer)
+        staleRecheckTimer = null
+      }
+    }
+    const abortStaleStream = (): void => {
+      try {
+        provider.abort()
+      } catch (_error) {
+        // provider.abort() may throw when no stream is active — safe to ignore
+      }
+    }
+
     const onLifecycle = (event: Event): void => {
       if (event.type === 'visibilitychange' && document.visibilityState === 'hidden') {
         hiddenAtRef.current = Date.now()
+        // Never abort while frozen — the next foreground return re-arms.
+        clearStaleRecheck()
         return
       }
       // `pageshow` also fires on every normal load (mount already reconciles) —
@@ -836,12 +863,24 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // reader so the no-terminal reconcile runs now instead of at the stall
         // watchdog. A genuinely live stream is never this quiet, so short
         // backgrounds (quick app switches) pass through untouched.
-        if (Date.now() - lastStreamEventAtRef.current > LIFECYCLE_STALE_STREAM_MS) {
-          try {
-            provider.abort()
-          } catch (_error) {
-            // provider.abort() may throw when no stream is active — safe to ignore
-          }
+        const silentFor = Date.now() - lastStreamEventAtRef.current
+        if (silentFor > LIFECYCLE_STALE_STREAM_MS) {
+          abortStaleStream()
+        } else {
+          // Inside the threshold the socket may STILL be dead (a short lock tears
+          // it down silently) — re-check once silence would cross the line.
+          clearStaleRecheck()
+          staleRecheckTimer = setTimeout(
+            () => {
+              staleRecheckTimer = null
+              if (!mountedRef.current || !sendingRef.current) return
+              if (document.visibilityState === 'hidden') return
+              if (Date.now() - lastStreamEventAtRef.current > LIFECYCLE_STALE_STREAM_MS) {
+                abortStaleStream()
+              }
+            },
+            LIFECYCLE_STALE_STREAM_MS - silentFor + 1_000,
+          )
         }
         return
       }
@@ -861,6 +900,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       document.removeEventListener('visibilitychange', onLifecycle)
       window.removeEventListener('pageshow', onLifecycle)
       window.removeEventListener('online', onLifecycle)
+      clearStaleRecheck()
     }
   }, [provider, endpoint, projectId, storageKey])
 
