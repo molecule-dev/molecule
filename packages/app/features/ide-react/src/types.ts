@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { ReactNode } from 'react'
+import type { ErrorInfo, ReactNode } from 'react'
 
 import type { ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
 import type { EditorTab, FixWithAIRequest } from '@molecule/app-code-editor'
@@ -91,6 +91,13 @@ export interface ChatPanelProps {
   onCommit?: () => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: ActivityFromCard) => void
+  /**
+   * Reports a chat timeline item that threw during render, caught by that item's
+   * error boundary. The item degrades to an inline notice either way; this is how the
+   * host gets the crash into its telemetry instead of it being visible only to the
+   * one user who hit it.
+   */
+  onRenderError?: (error: Error, info: ErrorInfo) => void
   /**
    * Called when a user avatar in the chat timeline is clicked — the host opens
    * that user's profile (e.g. molecule.dev's profile modal). Receives the clicked

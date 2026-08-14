@@ -60,6 +60,7 @@ import { Tooltip } from '@molecule/app-ui-react/components/Tooltip.js'
 
 import { timelineSortKey } from '../chatTimelineOrdering.js'
 import type {
+  ChatEventCard,
   ChatEventCardAction,
   ChatEventCardCode,
   ChatEventCardSegment,
@@ -147,6 +148,7 @@ import {
   TIP_IDLE_MS,
   TIP_MIN_MESSAGES,
 } from './chat-tips-utilities.js'
+import { ChatItemBoundary } from './ChatItemBoundary.js'
 import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
@@ -2485,6 +2487,8 @@ export interface ChatInnerProps {
   onConversationId?: (id: string) => void
   /** Called when an inline activity card is clicked — should open the Activity panel filtered to this activity. */
   onActivityClick?: (activity: Activity) => void
+  /** See {@link ChatPanelProps.onRenderError}. */
+  onRenderError?: ChatPanelProps['onRenderError']
   /** Called when a user avatar in the chat timeline is clicked — see {@link ChatPanelProps.onProfileClick}. */
   onProfileClick?: ChatPanelProps['onProfileClick']
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
@@ -2561,6 +2565,7 @@ function ChatInner({
   onCommit,
   onConversationId,
   onActivityClick,
+  onRenderError,
   onProfileClick,
   onReadyToBuild,
   awaitingSandboxBoot,
@@ -6627,7 +6632,21 @@ function ChatInner({
         case 'custom': {
           // App-registered renderer (registerCustomEventCard) builds the copy/actions/tone
           // from the raw data — keeping app-specific text out of this shared package.
-          const card = getCustomEventCardFactory(cardEvent.name)?.(cardEvent.data)
+          //
+          // This runs in a memo ABOVE the timeline's per-item boundaries, so a factory
+          // that throws would take the whole panel down rather than one card — and the
+          // factory is host code reading model-authored `data`, exactly the combination
+          // that caused the 2026-08-14 outage. One unrenderable card must cost one card.
+          let card: ChatEventCard | undefined | null
+          try {
+            card = getCustomEventCardFactory(cardEvent.name)?.(cardEvent.data)
+          } catch (error) {
+            logger.error('Custom chat card factory threw — dropping the card', {
+              error,
+              name: cardEvent.name,
+            })
+            return null
+          }
           if (!card) return null
           return {
             id,
@@ -6885,253 +6904,266 @@ function ChatInner({
             </button>
           </div>
         )}
+        {/* Every item renders inside its own boundary: the timeline is built from
+            model-authored data, so one malformed payload must cost one inline
+            notice, never the whole IDE. See ChatItemBoundary. */}
         {(timeline.length > maxVisibleItems ? timeline.slice(-maxVisibleItems) : timeline).map(
-          (item) => {
-            if (item.kind === 'commit')
-              return (
-                <CommitCardItem key={item.card.id} card={item.card} onRevert={handleRevertCommit} />
-              )
-
-            if (item.kind === 'activity')
-              return (
-                <ActivityCard
-                  key={item.card.id}
-                  activity={item.card.activity}
-                  onActivityClick={onActivityClick}
-                />
-              )
-
-            if (item.kind === 'tip')
-              return (
-                <TipCard
-                  key={item.card.id}
-                  text={item.card.text}
-                  onDismiss={() => dismissTip(item.card.id)}
-                />
-              )
-
-            if (item.kind === 'system') {
-              if (item.card.variant === 'settings') {
-                // Legacy inline branch — kept so any 'settings' card persisted
-                // before /settings became an overlay still renders. New /settings
-                // invocations open the closeable overlay (see panelOverlay below).
-                return (
-                  <SettingsCard
-                    key={item.card.id}
-                    settings={computeSettingsList()}
-                    onRunCommand={(commandId) => void executeCommand(commandId)}
-                    onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
-                    isLight={isLight}
-                    agentName={agentName}
-                  />
-                )
-              }
-              if (item.card.variant === 'skills' || item.card.variant === 'skillsCreate') {
-                return (
-                  <SkillsCard
-                    key={item.card.id}
-                    projectId={projectId}
-                    initialQuery={item.card.query ?? ''}
-                    onLoad={loadSkill}
-                    onCreate={createSkill}
-                    // The 'skillsCreate' variant opens the card with its "New skill" form
-                    // already open (vs plain 'skills', which opens the browser).
-                    startCreating={item.card.variant === 'skillsCreate'}
-                    loadedSkillPaths={loadedSkillPaths}
-                    defaultSkillPaths={defaultSkillPaths}
-                    onToggleDefault={toggleDefaultSkill}
-                    onResetDefault={resetDefaultSkills}
-                    defaultsExplicit={defaultSkillsExplicitRef.current}
-                    isLight={isLight}
-                  />
-                )
-              }
-              if (item.card.variant === 'scripts') {
-                return (
-                  <ScriptsCard
-                    key={item.card.id}
-                    projectId={projectId}
-                    initialQuery={item.card.query ?? ''}
-                    isLight={isLight}
-                    agentName={agentName}
-                  />
-                )
-              }
-              if (item.card.variant === 'help') {
-                // The plan/upgrade blurb is app-specific (pricing, plan names), so the
-                // host supplies it via buildHelpUpgradeSection — this shared package
-                // hardcodes none. Read at render time (like the settings card's list).
-                const upgradeSection = buildHelpUpgradeSection?.()
-                return (
-                  <HelpCard
-                    key={item.card.id}
-                    isLight={isLight}
-                    agentName={agentName}
-                    productName={productName}
-                    upgradeLines={upgradeSection?.lines}
-                    upgradeAction={upgradeSection?.action ?? undefined}
-                  />
-                )
-              }
-              if (item.card.variant === 'skillsLoaded') {
-                // "🧠 Loaded {{count}} skills" — styled like the plain "🔨 Building your
-                // app" phase notice (centered, muted, xs, emoji baked into the text), but
-                // CLICKABLE: its onClick is created HERE at render time — opening the
-                // /skills browser overlay, exactly what typing /skills does — so it
-                // survives the persistence round-trip (which stores only variant + count +
-                // text, never callbacks). Text restores from the persisted copy; re-derive
-                // from `count` if a caller passed none.
-                const skillsLoadedLabel =
-                  item.card.text ||
-                  t(
-                    'ide.chat.skills.loadedCount',
-                    { count: item.card.count ?? 0 },
-                    { defaultValue: '🧠 Loaded {{count}} skills' },
+          (item) => (
+            <ChatItemBoundary
+              key={item.kind === 'message' ? item.msg.id : item.card.id}
+              onError={onRenderError}
+              render={() => {
+                if (item.kind === 'commit')
+                  return (
+                    <CommitCardItem
+                      key={item.card.id}
+                      card={item.card}
+                      onRevert={handleRevertCommit}
+                    />
                   )
-                return (
-                  <div
-                    key={item.card.id}
-                    style={{ textAlign: 'center', marginBottom: TIMELINE_ITEM_GAP }}
-                  >
-                    <button
-                      type="button"
-                      data-mol-id="chat-skills-loaded"
-                      onClick={() => openPanelOverlay('skills')}
+
+                if (item.kind === 'activity')
+                  return (
+                    <ActivityCard
+                      key={item.card.id}
+                      activity={item.card.activity}
+                      onActivityClick={onActivityClick}
+                    />
+                  )
+
+                if (item.kind === 'tip')
+                  return (
+                    <TipCard
+                      key={item.card.id}
+                      text={item.card.text}
+                      onDismiss={() => dismissTip(item.card.id)}
+                    />
+                  )
+
+                if (item.kind === 'system') {
+                  if (item.card.variant === 'settings') {
+                    // Legacy inline branch — kept so any 'settings' card persisted
+                    // before /settings became an overlay still renders. New /settings
+                    // invocations open the closeable overlay (see panelOverlay below).
+                    return (
+                      <SettingsCard
+                        key={item.card.id}
+                        settings={computeSettingsList()}
+                        onRunCommand={(commandId) => void executeCommand(commandId)}
+                        onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
+                        isLight={isLight}
+                        agentName={agentName}
+                      />
+                    )
+                  }
+                  if (item.card.variant === 'skills' || item.card.variant === 'skillsCreate') {
+                    return (
+                      <SkillsCard
+                        key={item.card.id}
+                        projectId={projectId}
+                        initialQuery={item.card.query ?? ''}
+                        onLoad={loadSkill}
+                        onCreate={createSkill}
+                        // The 'skillsCreate' variant opens the card with its "New skill" form
+                        // already open (vs plain 'skills', which opens the browser).
+                        startCreating={item.card.variant === 'skillsCreate'}
+                        loadedSkillPaths={loadedSkillPaths}
+                        defaultSkillPaths={defaultSkillPaths}
+                        onToggleDefault={toggleDefaultSkill}
+                        onResetDefault={resetDefaultSkills}
+                        defaultsExplicit={defaultSkillsExplicitRef.current}
+                        isLight={isLight}
+                      />
+                    )
+                  }
+                  if (item.card.variant === 'scripts') {
+                    return (
+                      <ScriptsCard
+                        key={item.card.id}
+                        projectId={projectId}
+                        initialQuery={item.card.query ?? ''}
+                        isLight={isLight}
+                        agentName={agentName}
+                      />
+                    )
+                  }
+                  if (item.card.variant === 'help') {
+                    // The plan/upgrade blurb is app-specific (pricing, plan names), so the
+                    // host supplies it via buildHelpUpgradeSection — this shared package
+                    // hardcodes none. Read at render time (like the settings card's list).
+                    const upgradeSection = buildHelpUpgradeSection?.()
+                    return (
+                      <HelpCard
+                        key={item.card.id}
+                        isLight={isLight}
+                        agentName={agentName}
+                        productName={productName}
+                        upgradeLines={upgradeSection?.lines}
+                        upgradeAction={upgradeSection?.action ?? undefined}
+                      />
+                    )
+                  }
+                  if (item.card.variant === 'skillsLoaded') {
+                    // "🧠 Loaded {{count}} skills" — styled like the plain "🔨 Building your
+                    // app" phase notice (centered, muted, xs, emoji baked into the text), but
+                    // CLICKABLE: its onClick is created HERE at render time — opening the
+                    // /skills browser overlay, exactly what typing /skills does — so it
+                    // survives the persistence round-trip (which stores only variant + count +
+                    // text, never callbacks). Text restores from the persisted copy; re-derive
+                    // from `count` if a caller passed none.
+                    const skillsLoadedLabel =
+                      item.card.text ||
+                      t(
+                        'ide.chat.skills.loadedCount',
+                        { count: item.card.count ?? 0 },
+                        { defaultValue: '🧠 Loaded {{count}} skills' },
+                      )
+                    return (
+                      <div
+                        key={item.card.id}
+                        style={{ textAlign: 'center', marginBottom: TIMELINE_ITEM_GAP }}
+                      >
+                        <button
+                          type="button"
+                          data-mol-id="chat-skills-loaded"
+                          onClick={() => openPanelOverlay('skills')}
+                          className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                          style={{
+                            // Plain text like the build-phase notice — no border/fill/pill.
+                            background: 'none',
+                            border: 'none',
+                            margin: 0,
+                            padding: '6px 0',
+                            fontFamily: 'inherit',
+                            cursor: 'pointer',
+                          }}
+                          // Underline on hover is the only clickability hint (it otherwise
+                          // reads exactly like the plain phase message).
+                          onMouseEnter={(e) => {
+                            ;(e.currentTarget as HTMLElement).style.textDecoration = 'underline'
+                          }}
+                          onMouseLeave={(e) => {
+                            ;(e.currentTarget as HTMLElement).style.textDecoration = 'none'
+                          }}
+                        >
+                          {skillsLoadedLabel}
+                        </button>
+                      </div>
+                    )
+                  }
+                  // Every rich variant is handled above; what remains is the plain notice /
+                  // tip card (no variant). Narrow to PlainSystemCard so the compiler knows
+                  // tone/content/emphasized exist here — and render nothing for any future
+                  // unhandled variant rather than mis-rendering it as a plain card.
+                  if (item.card.variant !== undefined) return null
+
+                  // ── Unified tip / notice card ────────────────────────────────────────────
+                  // EVERY host notice (upgrade, sign-up, model-intro, pre-alpha, saved-script,
+                  // build-degraded) renders through ONE structure so they look consistent: an
+                  // icon, a tinted body with a uniform 1px border, and — for action cards — a row
+                  // of accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
+                  // tone (or `emphasized`, or merely having an action) opts a card in; a card with
+                  // none of those stays a plain muted inline line (e.g. a "Now using <model>"
+                  // notice). `emphasized` without a tone → the neutral `info` tone.
+                  const tipTone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup' | null =
+                    item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
+
+                  if (tipTone) {
+                    // ONE shared treatment for every tone-accented notice — see NoticeCard.
+                    // The resource-limit / upgrade banner renders through the same component,
+                    // so their icon + buttons stay in lockstep.
+                    return (
+                      <NoticeCard
+                        key={item.card.id}
+                        tone={tipTone}
+                        text={item.card.text}
+                        content={item.card.content}
+                        action={item.card.action}
+                        icon={item.card.icon}
+                      />
+                    )
+                  }
+
+                  // Plain muted inline notice (no tone / not emphasized / no action) — e.g. a
+                  // "Now using <model>" line. Centered for one-liners; left-aligned mono for
+                  // multi-line.
+                  const isMultiLine = item.card.text.includes('\n')
+                  return (
+                    <div
+                      key={item.card.id}
                       className={cm.cn(cm.textSize('xs'), cm.textMuted)}
                       style={{
-                        // Plain text like the build-phase notice — no border/fill/pill.
-                        background: 'none',
-                        border: 'none',
-                        margin: 0,
-                        padding: '6px 0',
-                        fontFamily: 'inherit',
-                        cursor: 'pointer',
-                      }}
-                      // Underline on hover is the only clickability hint (it otherwise
-                      // reads exactly like the plain phase message).
-                      onMouseEnter={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.textDecoration = 'underline'
-                      }}
-                      onMouseLeave={(e) => {
-                        ;(e.currentTarget as HTMLElement).style.textDecoration = 'none'
+                        textAlign: isMultiLine ? 'left' : 'center',
+                        padding: isMultiLine ? '8px 12px' : '6px 0',
+                        marginBottom: TIMELINE_ITEM_GAP,
+                        whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
+                        fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
+                        lineHeight: isMultiLine ? 1.5 : undefined,
                       }}
                     >
-                      {skillsLoadedLabel}
-                    </button>
-                  </div>
-                )
-              }
-              // Every rich variant is handled above; what remains is the plain notice /
-              // tip card (no variant). Narrow to PlainSystemCard so the compiler knows
-              // tone/content/emphasized exist here — and render nothing for any future
-              // unhandled variant rather than mis-rendering it as a plain card.
-              if (item.card.variant !== undefined) return null
+                      {item.card.content
+                        ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
+                        : item.card.text}
+                    </div>
+                  )
+                }
 
-              // ── Unified tip / notice card ────────────────────────────────────────────
-              // EVERY host notice (upgrade, sign-up, model-intro, pre-alpha, saved-script,
-              // build-degraded) renders through ONE structure so they look consistent: an
-              // icon, a tinted body with a uniform 1px border, and — for action cards — a row
-              // of accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
-              // tone (or `emphasized`, or merely having an action) opts a card in; a card with
-              // none of those stays a plain muted inline line (e.g. a "Now using <model>"
-              // notice). `emphasized` without a tone → the neutral `info` tone.
-              const tipTone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup' | null =
-                item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
+                const { msg } = item
 
-              if (tipTone) {
-                // ONE shared treatment for every tone-accented notice — see NoticeCard.
-                // The resource-limit / upgrade banner renders through the same component,
-                // so their icon + buttons stay in lockstep.
+                // Persisted commit records render as commit cards
+                if (msg.commitRecord) {
+                  const files = msg.commitRecord.files.map((f: string | { path: string }) =>
+                    typeof f === 'string' ? f : f.path,
+                  )
+                  const hash = msg.commitRecord.hash
+                  return (
+                    <CommitCardItem
+                      key={msg.id}
+                      card={{
+                        id: msg.id,
+                        message: msg.commitRecord.message,
+                        files,
+                        timestamp: msg.timestamp,
+                        status: 'done',
+                        hash,
+                      }}
+                      onRevert={handleRevertCommit}
+                    />
+                  )
+                }
+
                 return (
-                  <NoticeCard
-                    key={item.card.id}
-                    tone={tipTone}
-                    text={item.card.text}
-                    content={item.card.content}
-                    action={item.card.action}
-                    icon={item.card.icon}
+                  <MessageItem
+                    key={msg.id}
+                    msg={msg}
+                    editingQueuedId={editingQueuedId}
+                    editingQueuedText={editingQueuedText}
+                    setEditingQueuedId={setEditingQueuedId}
+                    setEditingQueuedText={setEditingQueuedText}
+                    editQueuedMessage={editQueuedMessage}
+                    deleteQueuedMessage={deleteQueuedMessage}
+                    sendMessage={sendMessage}
+                    handleAskUserResponse={handleAskUserResponse}
+                    isLoading={isLoading}
+                    streamingStatus={streamingStatus}
+                    onNavigatePreview={onNavigatePreview}
+                    undoneTcIds={undoneTcIds}
+                    handleUndoToggle={handleUndoToggle}
+                    onFileOpen={onFileOpen}
+                    onFileDoubleClick={onFileDoubleClick}
+                    onFileDiff={onFileDiff}
+                    handleFileRevert={handleFileRevert}
+                    setInputAndCursorEnd={setInputAndCursorEnd}
+                    setModelPicker={setModelPicker}
+                    userAvatar={userAvatar}
+                    onAvatarClick={onUserAvatarClick}
+                    discovery={discovery}
+                    buildUpgradeCta={buildUpgradeCta}
                   />
                 )
-              }
-
-              // Plain muted inline notice (no tone / not emphasized / no action) — e.g. a
-              // "Now using <model>" line. Centered for one-liners; left-aligned mono for
-              // multi-line.
-              const isMultiLine = item.card.text.includes('\n')
-              return (
-                <div
-                  key={item.card.id}
-                  className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-                  style={{
-                    textAlign: isMultiLine ? 'left' : 'center',
-                    padding: isMultiLine ? '8px 12px' : '6px 0',
-                    marginBottom: TIMELINE_ITEM_GAP,
-                    whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
-                    fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
-                    lineHeight: isMultiLine ? 1.5 : undefined,
-                  }}
-                >
-                  {item.card.content
-                    ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
-                    : item.card.text}
-                </div>
-              )
-            }
-
-            const { msg } = item
-
-            // Persisted commit records render as commit cards
-            if (msg.commitRecord) {
-              const files = msg.commitRecord.files.map((f: string | { path: string }) =>
-                typeof f === 'string' ? f : f.path,
-              )
-              const hash = msg.commitRecord.hash
-              return (
-                <CommitCardItem
-                  key={msg.id}
-                  card={{
-                    id: msg.id,
-                    message: msg.commitRecord.message,
-                    files,
-                    timestamp: msg.timestamp,
-                    status: 'done',
-                    hash,
-                  }}
-                  onRevert={handleRevertCommit}
-                />
-              )
-            }
-
-            return (
-              <MessageItem
-                key={msg.id}
-                msg={msg}
-                editingQueuedId={editingQueuedId}
-                editingQueuedText={editingQueuedText}
-                setEditingQueuedId={setEditingQueuedId}
-                setEditingQueuedText={setEditingQueuedText}
-                editQueuedMessage={editQueuedMessage}
-                deleteQueuedMessage={deleteQueuedMessage}
-                sendMessage={sendMessage}
-                handleAskUserResponse={handleAskUserResponse}
-                isLoading={isLoading}
-                streamingStatus={streamingStatus}
-                onNavigatePreview={onNavigatePreview}
-                undoneTcIds={undoneTcIds}
-                handleUndoToggle={handleUndoToggle}
-                onFileOpen={onFileOpen}
-                onFileDoubleClick={onFileDoubleClick}
-                onFileDiff={onFileDiff}
-                handleFileRevert={handleFileRevert}
-                setInputAndCursorEnd={setInputAndCursorEnd}
-                setModelPicker={setModelPicker}
-                userAvatar={userAvatar}
-                onAvatarClick={onUserAvatarClick}
-                discovery={discovery}
-                buildUpgradeCta={buildUpgradeCta}
-              />
-            )
-          },
+              }}
+            />
+          ),
         )}
 
         {error &&
@@ -10192,6 +10224,7 @@ export function ChatPanel({
   onFileDeleted,
   onCommit,
   onActivityClick,
+  onRenderError,
   onProfileClick,
   onReadyToBuild,
   awaitingSandboxBoot,
@@ -10640,6 +10673,7 @@ export function ChatPanel({
         onCommit={onCommit}
         onConversationId={reportConversationId}
         onActivityClick={onActivityClick}
+        onRenderError={onRenderError}
         onProfileClick={onProfileClick}
         onReadyToBuild={onReadyToBuild}
         awaitingSandboxBoot={awaitingSandboxBoot}
