@@ -62,4 +62,5 @@
 export * from './browser-guard.js'
 export * from './exportPptx.js'
 export * from './handler.js'
+export * from './imageSafety.js'
 export * from './types.js'

@@ -25,6 +25,7 @@
 // aren't reachable through the merged namespace at module scope.
 import PptxGenJSDefault from 'pptxgenjs'
 
+import { assertSafeImageFormat } from './imageSafety.js'
 import type {
   ChartElement,
   Deck,
@@ -207,12 +208,22 @@ function addImage(slide: PptxSlide, element: ImageElement): void {
   }
 
   if (element.src !== undefined) {
+    // Extension only — we never see the bytes behind a URL/path. See imageSafety.
+    assertSafeImageFormat({ src: element.src, mimeType: element.mimeType })
     // pptxgenjs accepts a URL or a local file path via `path`.
     opts['path'] = element.src
   } else if (element.data !== undefined) {
-    opts['data'] = normalizeImageDataUri(element.data)
+    const normalized = normalizeImageDataUri(element.data)
+    const base64 = normalized.slice(normalized.indexOf(',') + 1)
+    assertSafeImageFormat({
+      // Sniff the real bytes: a caller can declare `image/png` over HEIF.
+      bytes: Buffer.from(base64.slice(0, 128), 'base64'),
+      mimeType: /^data:([^;,]+)/.exec(normalized)?.[1],
+    })
+    opts['data'] = normalized
   } else if (element.buffer !== undefined) {
     const mime = element.mimeType ?? 'image/png'
+    assertSafeImageFormat({ bytes: element.buffer.subarray(0, 64), mimeType: mime })
     opts['data'] = `data:${mime};base64,${element.buffer.toString('base64')}`
   }
 

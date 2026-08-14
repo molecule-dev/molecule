@@ -8,8 +8,12 @@
  * .github/workflows/ci.yml stays present and is not silently weakened:
  *
  *   - a `security:` job exists;
- *   - it runs `npm audit --audit-level=moderate` (and the level is NOT relaxed
- *     to `high`/`critical`, which would let moderate advisories ship silently);
+ *   - it runs the dependency audit at `moderate` — either bare
+ *     `npm audit --audit-level=moderate` or scripts/audit-gate.mjs, which wraps it
+ *     with narrow, documented, EXPIRING exceptions. The level is NOT relaxed to
+ *     `high`/`critical`, and when the wrapper is used its own bar and the shape
+ *     of every allowlist entry (named advisories + reason + expiry) are checked
+ *     too, so the wrapper cannot become a permanent silent mute;
  *   - it runs a gitleaks working-tree secret scan (`--no-git`, so a credential
  *     in an open PR is caught before merge).
  *
@@ -47,9 +51,17 @@ if (!/^\s{2}security:\s*$/m.test(yaml)) {
   errors.push('the `security:` job is missing from .github/workflows/ci.yml')
 }
 
-// The dependency audit gate, at moderate. Mirrors mlcl's gate exactly.
-if (!code.includes('npm audit --audit-level=moderate')) {
-  errors.push('the `npm audit --audit-level=moderate` gate is missing or its level was changed')
+// The dependency audit gate, at moderate. Either the bare npm command (mlcl's
+// shape) or scripts/audit-gate.mjs, which wraps it to allow narrow, documented,
+// EXPIRING exceptions for advisories with no upstream fix. The wrapper exists
+// because a gate pinned red by an unfixable finding gets ignored wholesale
+// (2026-08-14: red for two days, three fleet releases published past it).
+const usesBareAudit = code.includes('npm audit --audit-level=moderate')
+const usesAuditGate = /node\s+scripts\/audit-gate\.mjs/.test(code)
+if (!usesBareAudit && !usesAuditGate) {
+  errors.push(
+    'the dependency audit gate is missing (expected `npm audit --audit-level=moderate` or `node scripts/audit-gate.mjs`)',
+  )
 }
 
 // Guard against the level being relaxed to dodge findings (Rule 9 — no shim).
@@ -58,6 +70,48 @@ if (relaxed) {
   errors.push(
     `the audit level was relaxed to \`${relaxed[1]}\` — keep it at \`moderate\` so moderate advisories still fail CI`,
   )
+}
+
+// When the wrapper is used, the same properties must hold INSIDE it: the bar is
+// still moderate, and every exception is justified and dated. Without this the
+// wrapper would be a place to quietly raise the bar or park a permanent mute —
+// exactly what this guard exists to prevent.
+if (usesAuditGate) {
+  const gatePath = join(import.meta.dirname, 'audit-gate.mjs')
+  const allowPath = join(import.meta.dirname, '..', '.audit-allowlist.json')
+  let gate = ''
+  try {
+    gate = readFileSync(gatePath, 'utf-8')
+  } catch {
+    errors.push('ci.yml runs scripts/audit-gate.mjs but that script is missing')
+  }
+  if (gate && !/FAIL_AT\s*=\s*\[[^\]]*'moderate'/.test(gate)) {
+    errors.push('scripts/audit-gate.mjs no longer fails at `moderate` — the audit bar was raised')
+  }
+  try {
+    const allow = JSON.parse(readFileSync(allowPath, 'utf-8'))
+    for (const entry of allow.accepted ?? []) {
+      const label = entry.package ?? JSON.stringify(entry.advisories)
+      if (!entry.expires || !/^\d{4}-\d{2}-\d{2}$/.test(entry.expires)) {
+        errors.push(
+          `audit allowlist entry for ${label} has no valid \`expires\` date — exceptions must lapse`,
+        )
+      }
+      if (!entry.reason || entry.reason.length < 40) {
+        errors.push(
+          `audit allowlist entry for ${label} needs a written \`reason\` (what the exposure is, and why there is no fix)`,
+        )
+      }
+      if (!Array.isArray(entry.advisories) || entry.advisories.length === 0) {
+        errors.push(
+          `audit allowlist entry for ${label} must name the specific advisories it accepts`,
+        )
+      }
+    }
+  } catch (error) {
+    if (!(error instanceof SyntaxError) && error.code !== 'ENOENT') throw error
+    errors.push('.audit-allowlist.json is missing or is not valid JSON')
+  }
 }
 
 // The secret scan: gitleaks, scanning the working tree (--no-git), not just git history.
