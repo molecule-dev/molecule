@@ -128,8 +128,12 @@ export function createDefaultAuthClientWithHttpSync<TUser extends UserProfile = 
       }
       authClient.addEventListener((event) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
-          const token = authClient.getAccessToken()
-          if (token) getHttpClient().setAuthToken(token)
+          // Mirror the auth client's token EXACTLY — including null. Cookie-session
+          // APIs issue no body token (the credential is the httpOnly cookie), and
+          // keeping a previously-set bearer here would pin the http client to the
+          // PRIOR session (e.g. a guest's) — the server prefers the Authorization
+          // header over the fresh cookie, so every request 401s as the old user.
+          getHttpClient().setAuthToken(authClient.getAccessToken())
         } else if (event.type === 'logout') {
           getHttpClient().setAuthToken(null)
         }
@@ -170,8 +174,9 @@ export function createDefaultAuthClientWithFetchClient<TUser extends UserProfile
       }
       authClient.addEventListener((event) => {
         if (event.type === 'login' || event.type === 'register' || event.type === 'refresh') {
-          const token = authClient.getAccessToken()
-          if (token) httpClient.setAuthToken(token)
+          // Mirror the token exactly, including null — see the identical note in
+          // createDefaultAuthClientWithHttpSync (stale bearer = stuck prior session).
+          httpClient.setAuthToken(authClient.getAccessToken())
         } else if (event.type === 'logout') {
           httpClient.setAuthToken(null)
         }
