@@ -1032,8 +1032,22 @@ describe('default processing region', () => {
   it('does not make any new model free-tier selectable', () => {
     // Region work must never widen the free tier: exactly one model is free,
     // and exactly one carries the per-region carve-out.
+    //
+    // The carve-out holder must be whichever model molecule-dev sets as
+    // `FREE_TIER_MODELS.plan` — it exists solely to keep THAT model usable on
+    // the free tier, and `freeTierAllows` checks the pairing before it looks at
+    // regions. So the two move together: it was deepseek-v4-pro until
+    // 2026-08-14, and minimax-m3 since. A mismatch does not widen anything (the
+    // pairing check fails closed), it just leaves a model claiming a free-tier
+    // relationship it does not have.
     expect(MODELS.filter((m) => m.freeTier).map((m) => m.id)).toEqual(['deepseek-v4-flash'])
-    expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['deepseek-v4-pro'])
+    expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['minimax-m3'])
+    // The carve-out must name a region the model actually offers, or the free
+    // tier's own default is unselectable.
+    const planner = MODELS.find((m) => m.freeTierRegions)!
+    for (const region of planner.freeTierRegions!) {
+      expect(planner.regions ?? ['us']).toContain(region)
+    }
     const k3 = MODELS.find((m) => m.id === 'kimi-k3')!
     expect(k3.freeTier).toBeUndefined()
     expect(k3.freeTierRegions).toBeUndefined()

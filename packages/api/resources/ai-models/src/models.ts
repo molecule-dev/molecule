@@ -963,10 +963,13 @@ export const MODELS: readonly ModelDefinition[] = [
     // so Pro stays CN while Flash flipped to US (see its note). Users opt into
     // US per model via the picker's region control.
     regions: ['cn', 'us'],
-    // The free tier PLANS with this model on the cheap native host (it is the
-    // molecule-dev FREE_TIER_MODELS.plan), so CN is free-tier selectable; the
-    // ~3× US re-host stays paid-only (free users switch to Flash for US).
-    freeTierRegions: ['cn'],
+    // No freeTierRegions: the free tier stopped planning with this model on
+    // 2026-08-14 (minimax-m3 took over — cheaper, and it beat this model on the
+    // selection self-test). The carve-out only ever existed to keep the free
+    // tier's OWN plan default usable, and `freeTierAllows` checks
+    // `FREE_TIER_MODELS[mode] === modelId` before it looks at regions, so
+    // leaving it here would widen nothing — it would just claim a free-tier
+    // relationship that no longer exists.
     // US = DeepInfra, verified 2026-08-01 via api.deepinfra.com/models/
     // deepseek-ai/DeepSeek-V4-Pro. No cache-write premium (omitted → region
     // input rate).
@@ -1264,6 +1267,15 @@ export const MODELS: readonly ModelDefinition[] = [
     // US default. DeepInfra list matches native; only the cache write differs
     // (no premium → region input rate). Verified 2026-08-01.
     regions: ['us', 'cn'],
+    // The free tier PLANS with this model (molecule-dev FREE_TIER_MODELS.plan,
+    // 2026-08-14), so its default US region must be free-tier selectable. It
+    // took over from deepseek-v4-pro@cn: measured on the real starting-point
+    // selection it scored 8/8 against Pro's 7/8 — including the case Pro failed
+    // — at 1.28c/plan-turn flat versus Pro's 2.62c off-peak and 5.24c inside
+    // DeepSeek's Beijing-hours windows, and it adds vision, which Pro (text
+    // only) could not offer discovery. CN is NOT listed: it is dearer than US
+    // here, so free planning stays on the cheaper host.
+    freeTierRegions: ['us'],
     regionPricing: {
       // Verified 2026-08-14 against api.deepinfra.com/models/MiniMaxAI/MiniMax-M3
       // (cache read = 0.2 × input). Was 0.3/1.2/0.06 — DeepInfra had repriced
