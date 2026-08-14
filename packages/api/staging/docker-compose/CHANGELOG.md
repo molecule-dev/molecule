@@ -1,5 +1,11 @@
 # @molecule/api-staging-docker-compose
 
+## 1.0.2
+
+### Patch Changes
+
+- 5048d05: Docker Compose commands are now time-bounded, so an unresponsive Docker daemon fails the call instead of leaving `up`, `down` or health checks pending indefinitely.
+
 ## 1.0.1
 
 ### Patch Changes

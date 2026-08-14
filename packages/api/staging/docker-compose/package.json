@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-staging-docker-compose",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Docker Compose staging driver for local ephemeral environments in molecule.dev",
   "type": "module",
   "main": "dist/index.js",
