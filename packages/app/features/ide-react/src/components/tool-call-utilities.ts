@@ -374,28 +374,47 @@ function coerceToText(value: unknown): string {
     // a real object; any other string renders untouched.
     const trimmed = value.trim()
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-      try {
-        const parsed: unknown = JSON.parse(trimmed)
-        if (parsed !== null && typeof parsed === 'object') return coerceToText(parsed)
-      } catch (_error) {
-        // Fall through to the mangled-JSON recovery below.
+      const tryParse = (candidate: string): unknown => {
+        try {
+          const parsed: unknown = JSON.parse(candidate)
+          return parsed !== null && typeof parsed === 'object' ? parsed : null
+        } catch (_error) {
+          // Not parseable — the caller falls through to the next recovery step.
+          return null
+        }
+      }
+      const textKeyOf = (obj: unknown): string | null => {
+        if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return null
+        const record = obj as Record<string, unknown>
+        for (const key of OPTION_TEXT_KEYS) {
+          const candidate = record[key]
+          if (typeof candidate === 'string' && candidate.trim() !== '') return candidate
+        }
+        return null
       }
       // The model also emits MANGLED pseudo-JSON with mixed escaping — observed
-      // live: '{"key":"dev\\", \\"label\\": \\"I\'m a developer…\\"}'. Try
-      // collapsing the stray escapes and re-parsing…
-      try {
-        const parsed: unknown = JSON.parse(trimmed.replace(/\\"/g, '"'))
-        if (parsed !== null && typeof parsed === 'object') return coerceToText(parsed)
-      } catch (_error) {
-        // …and finally pull a text key straight out of the wreckage: better a
-        // recovered label than raw pseudo-JSON as a button caption.
-      }
+      // live: '{"key": "dev\\", \\"label\\": \\"I\'m a developer…"}'. That
+      // string PARSES as valid JSON into a label-less object (the stray \\"
+      // swallows the rest into the first value), so a direct parse alone is not
+      // enough: prefer whichever parse (direct, or with the stray escapes
+      // collapsed) actually yields a recognised text key.
+      const direct = tryParse(trimmed)
+      const directText = textKeyOf(direct)
+      if (directText) return directText
+      const unescaped = tryParse(trimmed.replace(/\\"/g, '"'))
+      const unescapedText = textKeyOf(unescaped)
+      if (unescapedText) return unescapedText
+      // Last resort for un-parseable wreckage: pull a text key out with a
+      // regex — better a recovered label than raw pseudo-JSON as a caption.
       for (const key of OPTION_TEXT_KEYS) {
         const m = trimmed.match(
           new RegExp(`\\\\?"${key}\\\\?"\\s*:\\s*\\\\?"((?:[^"\\\\]|\\\\.)*)`),
         )
         if (m?.[1]) return m[1].replace(/\\"/g, '"').replace(/\\$/, '')
       }
+      // A well-formed object/array with no text key (or an array): recurse into
+      // the generic coercion so arrays flatten and objects stringify once.
+      if (direct) return coerceToText(direct)
     }
     return value
   }

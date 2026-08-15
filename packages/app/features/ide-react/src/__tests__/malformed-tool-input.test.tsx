@@ -147,12 +147,18 @@ describe('normalizeAskUserInput', () => {
     const result = normalizeAskUserInput({
       question: 'q',
       options: [
-        '{"key":"dev\\", \\"label\\": \\"I\'m a developer — I know my way around code\\"}',
+        // Byte-exact strings a production conversation stored: the stray \" after
+        // the first value makes these parse as VALID JSON into a label-less
+        // object, so the recovery must prefer the unescaped re-parse.
+        '{"key": "dev\\", \\"label\\": \\"I\'m a developer — I know my way around code"}',
+        '{"key": "some\\", \\"label\\": \\"I have some technical knowledge"}',
+        // Fully-escaped variant (never parses directly).
         '{"key":"nontech\\", \\"label\\": \\"I\'m not technical — just help me\\"}',
       ],
     })
     expect(result.options).toEqual([
       "I'm a developer — I know my way around code",
+      'I have some technical knowledge',
       "I'm not technical — just help me",
     ])
   })
