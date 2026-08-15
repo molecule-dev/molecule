@@ -111,6 +111,17 @@ export const routes = [
     handler: 'verifyPayment',
     optional: 'payments',
   },
+  // Hosted billing portal (payment-method updates, invoices, cancellation).
+  // authSelf: the portal session is minted for `:id`'s provider customer and
+  // its URL is a bearer credential for that account's whole billing history —
+  // an unauthenticated or cross-user POST must never mint one.
+  {
+    method: 'post' as const,
+    path: '/users/:id/billing-portal/:provider',
+    middlewares: ['authSelf'],
+    handler: 'billingPortal',
+    optional: 'payments',
+  },
   // Payment notifications (webhooks, S2S). The authenticity guard lets
   // signature-verifying webhook providers (Stripe) through and requires a shared
   // secret for unsigned server-to-server providers (Apple/Google) so the public

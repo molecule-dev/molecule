@@ -9,5 +9,6 @@
  * @module
  */
 
+export { billingPortal } from './billingPortal.js'
 export { handlePaymentNotification } from './handlePaymentNotification.js'
 export { verifyPayment } from './verifyPayment.js'

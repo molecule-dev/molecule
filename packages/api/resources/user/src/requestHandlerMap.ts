@@ -38,6 +38,7 @@ export interface UserRequestHandlerMap {
   verifyTwoFactor: MoleculeRequestHandler
   updatePlan: MoleculeRequestHandler
   verifyPayment: MoleculeRequestHandler
+  billingPortal: MoleculeRequestHandler
   handlePaymentNotification: MoleculeRequestHandler
   requireWebhookAuthenticity: MoleculeRequestHandler
 }
@@ -103,6 +104,7 @@ export const createRequestHandlerMap = (
     // requested :provider. Adding a new payment provider requires only a
     // new bond package — no source changes here.
     verifyPayment: createRequestHandler(handlers.verifyPayment(resource)),
+    billingPortal: createRequestHandler(handlers.billingPortal()),
     handlePaymentNotification: createRequestHandler(handlers.handlePaymentNotification(resource)),
   }
 

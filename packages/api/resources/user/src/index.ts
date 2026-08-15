@@ -33,7 +33,18 @@
  * - `POST   /api/users/reset-password` — confirm with the emailed token (body `{ token, password }`)
  * - `PATCH  /api/users/:id` — update profile fields (name, username, email, bio); NOT `PUT /api/user`
  * - `PATCH  /api/users/:id/password` — change password · `DELETE /api/users/:id` — delete account
- * - `PATCH  /api/users/:id/plan` — update the subscription plan
+ * - `PATCH  /api/users/:id/plan` — update the subscription plan (a paid plan with no
+ *   existing subscription answers 201 `{ checkoutUrl }`; send the browser there)
+ * - `POST   /api/users/:id/verify-payment/:provider` — confirm a purchase server-side
+ *   (body/query `subscriptionId`); the provider returns the buyer to the APP's
+ *   `/plan-updated?provider=…&sessionId=…`, and THAT page calls this from the app
+ *   origin so the session cookie applies. A hosted checkout must never redirect
+ *   straight to this route on a separate API host: the top-level navigation carries
+ *   no credentials, so it answers 401 and the paid plan is never granted.
+ * - `POST   /api/users/:id/billing-portal/:provider` — open the provider's hosted
+ *   billing portal (update card, invoices, cancel); responds `{ url }`, optional body
+ *   `{ returnPath }` to come back to a specific app page. 404 `user.payment.noBillingAccount`
+ *   when the user has no customer record yet
  * - `GET    /api/users/me` — the current user (session restore) · `GET /api/users/:id` — read one
  * The full, authoritative route list is the `routes` export (see `routes.ts`).
  *
