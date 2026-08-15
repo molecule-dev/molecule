@@ -1,5 +1,11 @@
 # @molecule/api-database-sqlite
 
+## 1.0.3
+
+### Patch Changes
+
+- 9ea501c: Accept hyphenated table/column identifiers (e.g. `resource-share-links`). Every interpolation site quotes identifiers, so hyphens are safe; the previous allowlist rejected `@molecule/api-resource-share`'s tables, making every share-link operation throw.
+
 ## 1.0.2
 
 ### Patch Changes

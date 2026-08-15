@@ -53,7 +53,7 @@
     "@molecule/api-cron": "1.0.1",
     "@molecule/api-cron-node-cron": "1.0.1",
     "@molecule/api-database": "1.0.1",
-    "@molecule/api-database-postgresql": "1.0.1",
+    "@molecule/api-database-postgresql": "1.0.2",
     "@molecule/api-emails": "1.0.1",
     "@molecule/api-emails-capture": "1.0.1",
     "@molecule/api-emails-mailgun": "1.0.1",
