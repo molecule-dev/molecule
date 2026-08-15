@@ -103,6 +103,16 @@ import type { ModelDefinition } from './types.js'
  *   125%) — the EN edition of that doc simply lags (zero qwen3.8 mentions),
  *   which an earlier pass misread as "excepted/console-only". qwen3.7-max
  *   still runs its 50%-off promo — billed here at list, $2.50/$7.50)
+ *   (re-verified 2026-08-15 against api.deepinfra.com/models/: qwen3.8-max's US
+ *   re-host rates are unchanged — $1.65/$4.951, cache read 0.1248× input =
+ *   $0.206. DeepInfra also began serving `Qwen/Qwen3.8-2.4T-A95B` on
+ *   2026-08-12; by DeepInfra's own description it is the OPEN-WEIGHT variant of
+ *   Qwen3.8 Max (2.4T MoE, 95B active), 262,144 ctx / 131,072 out, $2/$6 with
+ *   cache read 0.1× input. NOT added: it is the same tier as qwen3.8-max, which
+ *   the catalog already offers, and it costs MORE on that very host ($2/$6 vs
+ *   $1.65/$4.951), so nothing would ever select it — and carrying both would
+ *   put two selectable Alibaba flagships in one family. Revisit only if Alibaba
+ *   publishes it as a distinct first-party DashScope model id.)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing (unchanged; glm-5.2 is
  *   the newest — "GLM-5.3/5.5" rumors have no released ids as of 2026-07-28)
  *
