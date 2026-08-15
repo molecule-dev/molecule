@@ -54,6 +54,16 @@
  * `active`/`trialing`) instead of hand-checking status strings, and store the
  * verified result server-side keyed by user.
  *
+ * **A hosted checkout returns the buyer to the APP, not the API.** Bonds build
+ * their success/cancel URLs with {@link resolveCheckoutRedirectUrls}, which points
+ * at `APP_ORIGIN` + `/plan-updated?provider=…&sessionId=…` (both routes
+ * configurable — see that function). Session cookies belong to the app's host, so
+ * a top-level redirect to a separate API host carries no credentials and an
+ * authenticated callback there answers `401`: the buyer pays and lands on an error
+ * page with nothing granted. The app's return page is what calls
+ * `POST /users/:id/verify-payment/:provider` with the id from the query, from an
+ * origin where the credentials apply.
+ *
  * @example
  * ```ts
  * // Server-side handler: verify BEFORE granting. The bonded provider implements
@@ -111,5 +121,6 @@
 
 export * from './browser-guard.js'
 export * from './errors.js'
+export * from './redirect.js'
 export * from './subscription.js'
 export * from './types.js'
