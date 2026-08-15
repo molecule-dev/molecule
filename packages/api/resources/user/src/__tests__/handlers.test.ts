@@ -2397,3 +2397,118 @@ describe('logout (POST /users/logout — revoke device + clear cookies)', () => 
     expect(res.clearCookie).toHaveBeenCalled()
   })
 })
+
+// ===== 9. Secret columns never leave in auth responses ======================
+// `logIn` / `create` / `logInOAuth` echo the user row back (the auth client
+// stores `{ accessToken, user }`). The row is a `SELECT *` (or the create's
+// echoed props), so a consuming app that keeps e.g. an email-confirmation token
+// on the `users` table would otherwise hand the account holder their own token
+// on every login — self-verify with no mailbox. Same denylist as a self-read.
+describe('auth responses strip secret user columns', () => {
+  const SECRETS = {
+    emailConfirmationToken: 'confirm-me',
+    passwordResetToken: 'reset-me',
+    anonymousSecretHash: 'guest-hash',
+    oauthData: { refresh_token: 'r' },
+    oauthId: 'oauth-123',
+    stripeCustomerId: 'cus_123',
+  }
+
+  it('logIn omits secret columns from props AND user', async () => {
+    const handler = logIn(testResource)
+    mockFindOne.mockResolvedValue({
+      id: 'user-1',
+      username: 'testuser',
+      email: 'u@example.com',
+      emailVerified: false,
+      ...SECRETS,
+    })
+    mockFindById.mockResolvedValue({ id: 'user-1', passwordHash: 'hash' })
+    mockCompare.mockResolvedValue(true)
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'token' as never)
+
+    const result = await handler(
+      makeReq({ body: { username: 'testuser', password: 'correct-password' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    for (const key of ['props', 'user'] as const) {
+      const payload = result?.body?.[key] as Record<string, unknown>
+      expect(payload).toMatchObject({ id: 'user-1', email: 'u@example.com', emailVerified: false })
+      for (const secret of Object.keys(SECRETS)) expect(payload).not.toHaveProperty(secret)
+    }
+  })
+
+  it('create omits secret columns from the echoed row', async () => {
+    const handler = create(testResource)
+    mockFindOne.mockResolvedValue(null)
+    mockHash.mockResolvedValue('hashed-password')
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: {
+        props: { id: 'created-id', username: 'newuser', email: 'n@example.com', ...SECRETS },
+      },
+    })
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'token' as never)
+
+    const result = await handler(
+      makeReq({
+        body: { username: 'newuser', email: 'n@example.com', password: 'longenough' },
+      }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(201)
+    for (const key of ['props', 'user'] as const) {
+      const payload = result?.body?.[key] as Record<string, unknown>
+      expect(payload).toMatchObject({ id: 'created-id', email: 'n@example.com' })
+      for (const secret of Object.keys(SECRETS)) expect(payload).not.toHaveProperty(secret)
+    }
+  })
+
+  it('logInOAuth omits secret columns from props', async () => {
+    const handler = logInOAuth(testResource)
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'OAUTH_REQUIRE_STATE' ? 'false' : key === 'NODE_ENV' ? 'production' : undefined,
+    )
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth')
+        return {
+          verify: vi.fn().mockResolvedValue({
+            oauthServer: 'google',
+            oauthId: 'oauth-123',
+            username: 'existing',
+            email: 'e@example.com',
+            oauthData: {},
+          }),
+        }
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+    // Existing account matched by oauthServer+oauthId — a full SELECT * row.
+    mockFindById.mockResolvedValue({ id: 'user-9' })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+    mockFindOne.mockResolvedValue({
+      id: 'user-9',
+      username: 'existing',
+      email: 'e@example.com',
+      oauthServer: 'google',
+      ...SECRETS,
+    })
+    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const payload = result?.body?.props as Record<string, unknown>
+    expect(payload).toMatchObject({ id: 'user-9', email: 'e@example.com' })
+    for (const secret of Object.keys(SECRETS)) expect(payload).not.toHaveProperty(secret)
+  })
+})

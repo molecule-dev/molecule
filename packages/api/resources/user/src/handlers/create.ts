@@ -10,6 +10,7 @@ import { create as resourceCreate } from '@molecule/api-resource'
 import * as authorization from '../authorization.js'
 import type * as types from '../types.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
+import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -224,7 +225,11 @@ export const create = ({ name, tableName, schema }: types.Resource) => {
 
         // Include accessToken and user in the response body so the frontend
         // auth client can store them (it expects { accessToken, user }).
-        const user = createdResponse.body?.props ?? { id, ...props }
+        // Never echo secret columns (a consuming app may write e.g. an email-
+        // confirmation token onto the row) — same denylist as a self-read.
+        const user = stripSensitiveUserColumns(
+          (createdResponse.body?.props ?? { id, ...props }) as Record<string, unknown>,
+        )
         return {
           statusCode: 201,
           body: { props: user, accessToken, user },

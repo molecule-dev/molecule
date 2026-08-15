@@ -14,6 +14,7 @@ import { MAX_BIO_LENGTH } from '../schema.js'
 import type * as types from '../types.js'
 import { fetchAvatarDataUri } from '../utilities/fetchAvatarDataUri.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
+import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -580,7 +581,10 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         oauthId: oauthProps.oauthId,
       })
 
-      return { statusCode: 200, body: { props: user } }
+      return {
+        statusCode: 200,
+        body: { props: stripSensitiveUserColumns(user as Record<string, unknown>) },
+      }
     } catch (error) {
       // Never log the raw error here: an OAuth verify failure rethrows an
       // error whose attached request/response could carry the token-exchange

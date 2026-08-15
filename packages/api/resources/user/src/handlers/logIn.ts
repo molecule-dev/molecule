@@ -11,6 +11,7 @@ import type * as types from '../types.js'
 import { hashResetToken } from '../utilities/hashResetToken.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { notify } from '../utilities/notify.js'
+import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -250,7 +251,10 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         })
         .catch(() => {})
 
-      return { statusCode: 200, body: { props: user, accessToken, user } }
+      // `user` is a `SELECT *` row — strip secret columns (email-confirmation /
+      // reset tokens, OAuth material, app-added secrets) exactly like a self-read.
+      const safeUser = stripSensitiveUserColumns(user as Record<string, unknown>)
+      return { statusCode: 200, body: { props: safeUser, accessToken, user: safeUser } }
     } catch (error) {
       logger.error(error)
       return {
