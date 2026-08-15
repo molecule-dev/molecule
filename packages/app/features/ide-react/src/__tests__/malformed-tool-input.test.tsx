@@ -143,6 +143,20 @@ describe('normalizeAskUserInput', () => {
     expect(result.options).toEqual(['{not json}', '[also not json'])
   })
 
+  it('recovers labels from MANGLED pseudo-JSON with mixed escaping (observed live 2026-08-15)', () => {
+    const result = normalizeAskUserInput({
+      question: 'q',
+      options: [
+        '{"key":"dev\\", \\"label\\": \\"I\'m a developer — I know my way around code\\"}',
+        '{"key":"nontech\\", \\"label\\": \\"I\'m not technical — just help me\\"}',
+      ],
+    })
+    expect(result.options).toEqual([
+      "I'm a developer — I know my way around code",
+      "I'm not technical — just help me",
+    ])
+  })
+
   it('never yields a non-string option, for any hostile value', () => {
     const result = normalizeAskUserInput({ question: 'q', options: HOSTILE_VALUES })
     for (const option of result.options) {

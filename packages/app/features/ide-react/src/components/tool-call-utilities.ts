@@ -373,15 +373,28 @@ function coerceToText(value: unknown): string {
     // that parses to an object/array gets the same key-extraction treatment as
     // a real object; any other string renders untouched.
     const trimmed = value.trim()
-    if (
-      (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
-      (trimmed.startsWith('[') && trimmed.endsWith(']'))
-    ) {
+    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
         const parsed: unknown = JSON.parse(trimmed)
         if (parsed !== null && typeof parsed === 'object') return coerceToText(parsed)
       } catch (_error) {
-        // Not JSON after all — fall through and render the string as-is.
+        // Fall through to the mangled-JSON recovery below.
+      }
+      // The model also emits MANGLED pseudo-JSON with mixed escaping — observed
+      // live: '{"key":"dev\\", \\"label\\": \\"I\'m a developer…\\"}'. Try
+      // collapsing the stray escapes and re-parsing…
+      try {
+        const parsed: unknown = JSON.parse(trimmed.replace(/\\"/g, '"'))
+        if (parsed !== null && typeof parsed === 'object') return coerceToText(parsed)
+      } catch (_error) {
+        // …and finally pull a text key straight out of the wreckage: better a
+        // recovered label than raw pseudo-JSON as a button caption.
+      }
+      for (const key of OPTION_TEXT_KEYS) {
+        const m = trimmed.match(
+          new RegExp(`\\\\?"${key}\\\\?"\\s*:\\s*\\\\?"((?:[^"\\\\]|\\\\.)*)`),
+        )
+        if (m?.[1]) return m[1].replace(/\\"/g, '"').replace(/\\$/, '')
       }
     }
     return value
