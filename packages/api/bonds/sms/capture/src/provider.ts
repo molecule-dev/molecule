@@ -9,6 +9,7 @@
  * @module
  */
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import { record } from '@molecule/api-activity'
 import type {
   BulkSMSMessage,
@@ -18,6 +19,27 @@ import type {
   SMSResult,
   SMSStatus,
 } from '@molecule/api-sms'
+
+/**
+ * Calls {@link record}, but never lets a throwing {@link ActivitySink} escape to
+ * the caller. `ActivitySink` implementations are documented as best-effort;
+ * without this guard a sink that throws AFTER a real provider already delivered
+ * turns an actually-SENT message into what looks like a rejected `send()` — the
+ * caller retries and the recipient gets a duplicate (and in delegate + tee mode,
+ * a sink error would replace the REAL provider error the caller needs to see).
+ * Every call site in this file goes through this wrapper.
+ *
+ * @param event - The activity event to record.
+ */
+async function recordBestEffort(event: ActivityEvent): Promise<void> {
+  try {
+    await record(event)
+  } catch (_error) {
+    // Intentional noop — see the doc comment above. This package has no logging
+    // channel available (no logger peer dependency), and a thrown failure here
+    // would change the caller's delivery outcome.
+  }
+}
 
 /**
  * Creates an SMS capture provider.
@@ -38,7 +60,7 @@ export function createSMSCaptureProvider(realProvider?: SMSProvider): SMSProvide
       if (realProvider) {
         try {
           const result = await realProvider.send(to, message, options)
-          await record({
+          await recordBestEffort({
             id,
             type: 'sms',
             // A provider can RESOLVE with a failed result (e.g. a bulk-path
@@ -53,7 +75,7 @@ export function createSMSCaptureProvider(realProvider?: SMSProvider): SMSProvide
           })
           return result
         } catch (error) {
-          await record({
+          await recordBestEffort({
             id,
             type: 'sms',
             status: 'failed',
@@ -69,7 +91,7 @@ export function createSMSCaptureProvider(realProvider?: SMSProvider): SMSProvide
 
       const result: SMSResult = { id: `captured-${id}`, status: 'sent', to }
 
-      await record({
+      await recordBestEffort({
         id,
         type: 'sms',
         status: 'captured',

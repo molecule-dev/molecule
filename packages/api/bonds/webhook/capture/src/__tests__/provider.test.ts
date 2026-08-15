@@ -84,4 +84,49 @@ describe('webhook capture provider', () => {
       expect(record.mock.calls[0][0].status).toBe('failed')
     })
   })
+
+  describe('best-effort recording (a throwing ActivitySink never changes the outcome)', () => {
+    it('intercept-only: still returns the synthetic delivery result', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const webhook = createWebhookCaptureProvider()
+
+      const results = await webhook.dispatch('orders.created', { id: 1 })
+      expect(results[0].success).toBe(true)
+    })
+
+    it('delegate + tee: a successful real dispatch is NOT turned into a rejection', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const realResults: WebhookDeliveryResult[] = [
+        { webhookId: 'w1', deliveryId: 'd1', status: 200, success: true, duration: 12 },
+      ]
+      const real: WebhookProvider = {
+        register: vi.fn(),
+        unregister: vi.fn(),
+        dispatch: vi.fn(() => Promise.resolve(realResults)),
+        list: vi.fn(),
+        getDeliveryLog: vi.fn(),
+        retry: vi.fn(),
+      }
+      const webhook = createWebhookCaptureProvider(real)
+
+      // The endpoint was really called — a sink failure must not make the
+      // caller retry and the endpoint receive a duplicate delivery.
+      await expect(webhook.dispatch('orders.created', { id: 1 })).resolves.toBe(realResults)
+    })
+
+    it('delegate + tee: the REAL provider error is not masked by the sink error', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const real: WebhookProvider = {
+        register: vi.fn(),
+        unregister: vi.fn(),
+        dispatch: vi.fn(() => Promise.reject(new Error('boom'))),
+        list: vi.fn(),
+        getDeliveryLog: vi.fn(),
+        retry: vi.fn(),
+      }
+      const webhook = createWebhookCaptureProvider(real)
+
+      await expect(webhook.dispatch('e', {})).rejects.toThrow('boom')
+    })
+  })
 })

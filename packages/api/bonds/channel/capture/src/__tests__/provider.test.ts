@@ -100,4 +100,45 @@ describe('channel capture provider', () => {
       expect(channel.listSupportedFeatures().signedWebhooks).toBe(true)
     })
   })
+
+  describe('best-effort recording (a throwing ActivitySink never changes the outcome)', () => {
+    it('intercept-only: still returns the synthetic captured result', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const channel = createChannelCaptureProvider()
+
+      const result = await channel.sendMessage('#general', message)
+      expect(result.messageId).toMatch(/^captured-/)
+    })
+
+    it('delegate + tee: a successful real post is NOT turned into a rejection', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const realResult: SendResult = { messageId: 'real-1', deliveredAt: new Date() }
+      const real: ChannelProvider = {
+        name: 'slack',
+        sendMessage: vi.fn(() => Promise.resolve(realResult)),
+        verifyWebhookSignature: vi.fn(),
+        parseInbound: vi.fn(),
+        listSupportedFeatures: vi.fn(),
+      }
+      const channel = createChannelCaptureProvider(real)
+
+      // The message was really posted — a sink failure must not make the
+      // caller retry and the channel receive a duplicate.
+      await expect(channel.sendMessage('#general', message)).resolves.toBe(realResult)
+    })
+
+    it('delegate + tee: the REAL provider error is not masked by the sink error', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const real: ChannelProvider = {
+        name: 'slack',
+        sendMessage: vi.fn(() => Promise.reject(new Error('rate limited'))),
+        verifyWebhookSignature: vi.fn(),
+        parseInbound: vi.fn(),
+        listSupportedFeatures: vi.fn(),
+      }
+      const channel = createChannelCaptureProvider(real)
+
+      await expect(channel.sendMessage('#general', message)).rejects.toThrow('rate limited')
+    })
+  })
 })

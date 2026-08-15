@@ -9,6 +9,7 @@
  * @module
  */
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import { record } from '@molecule/api-activity'
 import type {
   ChannelFeatures,
@@ -18,6 +19,27 @@ import type {
   OutboundMessage,
   SendResult,
 } from '@molecule/api-channel'
+
+/**
+ * Calls {@link record}, but never lets a throwing {@link ActivitySink} escape to
+ * the caller. `ActivitySink` implementations are documented as best-effort;
+ * without this guard a sink that throws AFTER a real provider already posted
+ * turns an actually-SENT message into what looks like a rejected
+ * `sendMessage()` — the caller retries and the channel gets a duplicate (and in
+ * delegate + tee mode, a sink error would replace the REAL provider error the
+ * caller needs to see). Every call site in this file goes through this wrapper.
+ *
+ * @param event - The activity event to record.
+ */
+async function recordBestEffort(event: ActivityEvent): Promise<void> {
+  try {
+    await record(event)
+  } catch (_error) {
+    // Intentional noop — see the doc comment above. This package has no logging
+    // channel available (no logger peer dependency), and a thrown failure here
+    // would change the caller's delivery outcome.
+  }
+}
 
 const CAPTURE_FEATURES: ChannelFeatures = {
   text: true,
@@ -49,7 +71,7 @@ export function createChannelCaptureProvider(realProvider?: ChannelProvider): Ch
       if (realProvider) {
         try {
           const result = await realProvider.sendMessage(to, message)
-          await record({
+          await recordBestEffort({
             id,
             type: 'channel',
             status: 'sent',
@@ -61,7 +83,7 @@ export function createChannelCaptureProvider(realProvider?: ChannelProvider): Ch
           })
           return result
         } catch (error) {
-          await record({
+          await recordBestEffort({
             id,
             type: 'channel',
             status: 'failed',
@@ -80,7 +102,7 @@ export function createChannelCaptureProvider(realProvider?: ChannelProvider): Ch
         deliveredAt: new Date(),
       }
 
-      await record({
+      await recordBestEffort({
         id,
         type: 'channel',
         status: 'captured',

@@ -13,6 +13,18 @@
  * ```
  *
  * @remarks
+ * - **Two modes, and the choice decides whether the notification is
+ *   DELIVERED.** INTERCEPT-ONLY (`provider`, or `createPushCaptureProvider()`
+ *   with no argument) records the notification and returns a synthetic 201 —
+ *   nothing reaches the subscriber. DELEGATE + TEE
+ *   (`createPushCaptureProvider(real)`) delivers through the real provider AND
+ *   records the real outcome. Anywhere real notifications must go out
+ *   (production), wrap the real provider — never bond the intercept-only
+ *   provider.
+ * - Recording is best-effort: a bonded `ActivitySink` that throws NEVER changes
+ *   the outcome of `send()` — a successful real send still resolves and a
+ *   failed one still rejects with the REAL provider error.
+ *
  * In intercept-only mode (no `realProvider`), `generateVapidKeys()` THROWS —
  * there is no real push transport behind it to generate real keys with.
  * Wrap a real provider (`createPushCaptureProvider(realProvider)`) to

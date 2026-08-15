@@ -13,6 +13,16 @@
  * ```
  *
  * @remarks
+ * - **Two modes, and the choice decides whether the message is POSTED.**
+ *   INTERCEPT-ONLY (`provider`, or `createChannelCaptureProvider()` with no
+ *   argument) records the message and returns a synthetic success — nothing
+ *   reaches the channel. DELEGATE + TEE
+ *   (`createChannelCaptureProvider(real)`) posts through the real provider AND
+ *   records the real outcome. Anywhere real messages must go out (production),
+ *   wrap the real provider — never bond the intercept-only provider.
+ * - Recording is best-effort: a bonded `ActivitySink` that throws NEVER changes
+ *   the outcome of `sendMessage()` — a successful real post still resolves and
+ *   a failed one still rejects with the REAL provider error.
  * - **Bond an activity sink or captures vanish.** Captured sends are delivered
  *   via `@molecule/api-activity`'s `record()`, which silently no-ops when no
  *   sink is bonded. Wire one at startup (e.g. `@molecule/api-activity-console`

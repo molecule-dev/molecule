@@ -18,6 +18,16 @@
  * ```
  *
  * @remarks
+ * - **Two modes, and the choice decides whether the message is DELIVERED.**
+ *   INTERCEPT-ONLY (`provider`, or `createSMSCaptureProvider()` with no
+ *   argument) records the message and returns a synthetic success — nothing
+ *   reaches the handset. DELEGATE + TEE (`createSMSCaptureProvider(real)`)
+ *   sends through the real provider AND records the real outcome. Anywhere
+ *   real messages must go out (production), wrap the real provider — never
+ *   bond the intercept-only provider.
+ * - Recording is best-effort: a bonded `ActivitySink` that throws NEVER changes
+ *   the outcome of `send()` — a successful real send still resolves and a
+ *   failed one still rejects with the REAL provider error.
  * - **Captured messages go to the bonded ACTIVITY SINK** (`@molecule/api-activity`
  *   — e.g. the sandbox's sink read by the `read_activity` tool). **Without a sink
  *   bonded, `record()` is a silent no-op**: intercept-only `send()` still returns a

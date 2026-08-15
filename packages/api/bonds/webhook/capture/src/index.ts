@@ -13,6 +13,17 @@
  * ```
  *
  * @remarks
+ * - **Two modes, and the choice decides whether the webhook is DELIVERED.**
+ *   INTERCEPT-ONLY (`provider`, or `createWebhookCaptureProvider()` with no
+ *   argument) records the dispatch and returns a synthetic 200 — no HTTP
+ *   request is made. DELEGATE + TEE
+ *   (`createWebhookCaptureProvider(real)`) dispatches through the real provider
+ *   AND records the real outcome. Anywhere real deliveries must go out
+ *   (production), wrap the real provider — never bond the intercept-only
+ *   provider.
+ * - Recording is best-effort: a bonded `ActivitySink` that throws NEVER changes
+ *   the outcome of `dispatch()` — a successful real dispatch still resolves and
+ *   a failed one still rejects with the REAL provider error.
  * - **Requires an activity sink to be useful:** captures go through
  *   `@molecule/api-activity`'s `record()`, which silently no-ops when no
  *   sink is bonded — wire `setSink()` (e.g. the console/database sink) or

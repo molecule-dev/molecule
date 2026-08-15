@@ -9,6 +9,7 @@
  * @module
  */
 
+import type { ActivityEvent } from '@molecule/api-activity'
 import { record } from '@molecule/api-activity'
 import type {
   PaginationOptions,
@@ -18,6 +19,27 @@ import type {
   WebhookProvider,
   WebhookRegistration,
 } from '@molecule/api-webhook'
+
+/**
+ * Calls {@link record}, but never lets a throwing {@link ActivitySink} escape to
+ * the caller. `ActivitySink` implementations are documented as best-effort;
+ * without this guard a sink that throws AFTER a real provider already delivered
+ * turns an actually-DISPATCHED webhook into what looks like a rejected
+ * `dispatch()` — the caller retries and the endpoint gets a duplicate (and in
+ * delegate + tee mode, a sink error would replace the REAL provider error the
+ * caller needs to see). Every call site in this file goes through this wrapper.
+ *
+ * @param event - The activity event to record.
+ */
+async function recordBestEffort(event: ActivityEvent): Promise<void> {
+  try {
+    await record(event)
+  } catch (_error) {
+    // Intentional noop — see the doc comment above. This package has no logging
+    // channel available (no logger peer dependency), and a thrown failure here
+    // would change the caller's delivery outcome.
+  }
+}
 
 /**
  * Creates a webhook capture provider.
@@ -62,7 +84,7 @@ export function createWebhookCaptureProvider(realProvider?: WebhookProvider): We
       if (realProvider) {
         try {
           const results = await realProvider.dispatch(event, payload)
-          await record({
+          await recordBestEffort({
             id,
             type: 'webhook',
             status: 'sent',
@@ -74,7 +96,7 @@ export function createWebhookCaptureProvider(realProvider?: WebhookProvider): We
           })
           return results
         } catch (error) {
-          await record({
+          await recordBestEffort({
             id,
             type: 'webhook',
             status: 'failed',
@@ -98,7 +120,7 @@ export function createWebhookCaptureProvider(realProvider?: WebhookProvider): We
         },
       ]
 
-      await record({
+      await recordBestEffort({
         id,
         type: 'webhook',
         status: 'captured',

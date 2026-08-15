@@ -137,4 +137,45 @@ describe('push capture provider', () => {
       expect(push.getPublicKey()).toBe('pub')
     })
   })
+
+  describe('best-effort recording (a throwing ActivitySink never changes the outcome)', () => {
+    it('intercept-only: still returns the synthetic captured result', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const push = createPushCaptureProvider()
+
+      const result = await push.send(subscription, payload)
+      expect(result.statusCode).toBe(201)
+    })
+
+    it('delegate + tee: a successful real send is NOT turned into a rejection', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const realResult: SendResult = { statusCode: 201, headers: {}, body: 'ok' }
+      const real: PushNotificationProvider = {
+        configure: vi.fn(),
+        send: vi.fn(() => Promise.resolve(realResult)),
+        sendMany: vi.fn(),
+        generateVapidKeys: vi.fn(),
+        getPublicKey: vi.fn(),
+      }
+      const push = createPushCaptureProvider(real)
+
+      // The notification was really delivered — a sink failure must not make
+      // the caller retry and the subscriber receive a duplicate.
+      await expect(push.send(subscription, payload)).resolves.toBe(realResult)
+    })
+
+    it('delegate + tee: the REAL provider error is not masked by the sink error', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const real: PushNotificationProvider = {
+        configure: vi.fn(),
+        send: vi.fn(() => Promise.reject(new Error('410 gone'))),
+        sendMany: vi.fn(),
+        generateVapidKeys: vi.fn(),
+        getPublicKey: vi.fn(),
+      }
+      const push = createPushCaptureProvider(real)
+
+      await expect(push.send(subscription, payload)).rejects.toThrow('410 gone')
+    })
+  })
 })

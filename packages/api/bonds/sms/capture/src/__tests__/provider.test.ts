@@ -95,4 +95,42 @@ describe('sms capture provider', () => {
       expect(status.status).toBe('delivered')
     })
   })
+
+  describe('best-effort recording (a throwing ActivitySink never changes the outcome)', () => {
+    it('intercept-only: still returns the synthetic captured result', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const sms = createSMSCaptureProvider()
+
+      const result = await sms.send('+15551234567', 'Your code is 1234')
+      expect(result.id).toMatch(/^captured-/)
+      expect(result.status).toBe('sent')
+    })
+
+    it('delegate + tee: a successful real send is NOT turned into a rejection', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const realResult: SMSResult = { id: 'real-1', status: 'sent', to: '+1' }
+      const real: SMSProvider = {
+        send: vi.fn(() => Promise.resolve(realResult)),
+        sendBulk: vi.fn(),
+        getStatus: vi.fn(),
+      }
+      const sms = createSMSCaptureProvider(real)
+
+      // The message was really delivered — a sink failure must not make the
+      // caller retry and the recipient receive a duplicate.
+      await expect(sms.send('+1', 'x')).resolves.toBe(realResult)
+    })
+
+    it('delegate + tee: the REAL provider error is not masked by the sink error', async () => {
+      record.mockRejectedValue(new Error('sink is down'))
+      const real: SMSProvider = {
+        send: vi.fn(() => Promise.reject(new Error('twilio error'))),
+        sendBulk: vi.fn(),
+        getStatus: vi.fn(),
+      }
+      const sms = createSMSCaptureProvider(real)
+
+      await expect(sms.send('+1', 'x')).rejects.toThrow('twilio error')
+    })
+  })
 })
