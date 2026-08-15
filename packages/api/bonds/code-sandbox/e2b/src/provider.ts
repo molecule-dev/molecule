@@ -89,6 +89,16 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
 }
 
 /**
+ * Single-quote a value for POSIX `sh` so an arbitrary path is one argument.
+ *
+ * @param value - The raw string.
+ * @returns The quoted string.
+ */
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, "'\\''")}'`
+}
+
+/**
  * Build a deny-by-default network update from an allow-list.
  *
  * @param allowOut - Domains/CIDRs permitted; everything else is denied.
@@ -356,7 +366,7 @@ class E2BSandbox implements Sandbox {
     const tarPath = `/tmp/mol-import-${Date.now().toString(36)}.tar`
     await this.sbx.files.write(tarPath, new Blob([Buffer.concat(chunks)]))
     const r = await this.sbx.commands.run(
-      `mkdir -p ${path} && tar xf ${tarPath} -C ${path} --no-same-owner --no-same-permissions && rm -f ${tarPath}`,
+      `mkdir -p ${shellQuote(path)} && tar xf ${tarPath} -C ${shellQuote(path)} --no-same-owner --no-same-permissions && rm -f ${tarPath}`,
       { timeoutMs: 300_000 },
     )
     if (r.exitCode !== 0) {
@@ -369,14 +379,33 @@ class E2BSandbox implements Sandbox {
    *
    * Tars the tree in-sandbox, reads it back as bytes, and yields it as a single
    * chunk. Sufficient for archive/migrate (whole-workspace capture); not a
-   * chunked pipe.
+   * chunked pipe — the whole archive is held in this process's memory once, so
+   * callers moving large trees must bound what they export.
    *
-   * @param path - Absolute path inside the sandbox to archive.
+   * Entries are rooted at the LAST SEGMENT of `path` (`tar -C <parent>
+   * <name>`), so `exportFiles('/workspace/my-app')` yields `my-app/…` — the
+   * shape Docker's archive endpoint produces and the shape every consumer
+   * (`importFiles(<parent>)`, host-side unpackers with `strip: 1`) expects.
+   * The previous `tar -C <path> .` rooting yielded `./…`, which
+   * `importFiles('/')` extracted at the filesystem root instead of the
+   * directory it was taken from.
+   *
+   * @param path - Absolute path inside the sandbox to archive (not `/`).
    * @returns A POSIX tar byte stream of that path's contents.
    */
   async exportFiles(path: string): Promise<AsyncIterable<Uint8Array>> {
+    const trimmed = path.replace(/\/+$/, '')
+    const slash = trimmed.lastIndexOf('/')
+    const parent = slash <= 0 ? '/' : trimmed.slice(0, slash)
+    const name = trimmed.slice(slash + 1)
+    if (!trimmed.startsWith('/') || !name) {
+      throw new Error(`exportFiles: path must be an absolute directory below "/" (got "${path}")`)
+    }
     const tarPath = `/tmp/mol-export-${Date.now().toString(36)}.tar`
-    const r = await this.sbx.commands.run(`tar cf ${tarPath} -C ${path} .`, { timeoutMs: 300_000 })
+    const r = await this.sbx.commands.run(
+      `tar cf ${tarPath} -C ${shellQuote(parent)} ${shellQuote(name)}`,
+      { timeoutMs: 300_000 },
+    )
     if (r.exitCode !== 0) {
       throw new Error(`exportFiles: tar create failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
     }

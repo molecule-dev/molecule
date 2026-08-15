@@ -268,12 +268,23 @@ export interface Sandbox {
    * The stream must be consumed or discarded by the caller; providers may hold a
    * connection open until it is.
    *
+   * **Rooting contract:** entries are rooted at the LAST SEGMENT of `path` —
+   * `exportFiles('/workspace/my-app')` yields `my-app/…`, exactly what
+   * Docker's archive endpoint produces for that path. The inverse is
+   * `importFiles(dirname(path), archive)`; a host-side unpacker uses
+   * `strip: 1` to get the directory's contents. Every provider MUST produce
+   * this shape (not `./…`), because consumers extract by that assumption and
+   * a differently rooted archive lands files in the wrong place without any
+   * error.
+   *
    * Optional: a provider with no bulk transfer leaves it unimplemented rather
    * than emulating it with a file-by-file walk, which would look supported and
    * take hours.
    *
-   * @param path - Absolute path inside the sandbox to archive.
-   * @returns A POSIX tar byte stream of that path's contents.
+   * @param path - Absolute path inside the sandbox to archive (a directory below
+   *   `/`, never `/` itself).
+   * @returns A POSIX tar byte stream of that path's contents, rooted at its
+   *   last segment.
    */
   exportFiles?(path: string): Promise<AsyncIterable<Uint8Array>>
 

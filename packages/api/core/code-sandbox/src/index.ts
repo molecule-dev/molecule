@@ -47,6 +47,11 @@
  *   you launched anything the sandbox needs to still be running.
  * - Wire with `setProvider(provider)` (or `bond('code-sandbox', provider)` — this
  *   core reads the bond registry).
+ * - **`exportFiles(path)` archives are rooted at the last segment of `path`**
+ *   (`exportFiles('/workspace/my-app')` → `my-app/…`, Docker's archive shape),
+ *   and the inverse is `importFiles(dirname(path), archive)`. Never assume `./…`
+ *   rooting and never extract at `/` unless you exported a top-level directory —
+ *   a differently rooted archive lands files in the wrong place with no error.
  *
  * @example
  * ```typescript
