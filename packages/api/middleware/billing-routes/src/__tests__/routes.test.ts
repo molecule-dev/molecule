@@ -329,6 +329,7 @@ describe('createBillingRoutes', () => {
     })
 
     it('returns the portal url on success', async () => {
+      vi.stubEnv('APP_ORIGIN', 'https://example.com')
       const createPortalSession = vi.fn().mockResolvedValue({
         id: 'bps_abc',
         url: 'https://billing.stripe.com/p/abc',
@@ -347,7 +348,47 @@ describe('createBillingRoutes', () => {
         userId: 'user_42',
         returnUrl: 'https://example.com/account',
       })
+      vi.unstubAllEnvs()
     })
+
+    it('accepts an app-relative returnPath', async () => {
+      vi.stubEnv('APP_ORIGIN', 'https://example.com')
+      const createPortalSession = vi
+        .fn()
+        .mockResolvedValue({ id: 'bps_abc', url: 'https://billing.stripe.com/p/abc' })
+      const provider = buildProvider({ createPortalSession })
+      const app = buildApp(createBillingRoutes({ tiers, provider }))
+
+      await request(app, 'POST', '/billing/portal', { returnPath: '/account/billing' })
+
+      expect(createPortalSession).toHaveBeenCalledWith({
+        userId: 'user_42',
+        returnUrl: 'https://example.com/account/billing',
+      })
+      vi.unstubAllEnvs()
+    })
+
+    // The provider renders the return target as a link on ITS OWN domain, so an
+    // arbitrary caller-supplied URL would be an open redirect / phishing pivot.
+    it.each(['https://evil.example/phish', '//evil.example', 'https://example.com.evil.example/x'])(
+      'refuses an off-origin return target %s',
+      async (returnUrl) => {
+        vi.stubEnv('APP_ORIGIN', 'https://example.com')
+        const createPortalSession = vi
+          .fn()
+          .mockResolvedValue({ id: 'bps_abc', url: 'https://billing.stripe.com/p/abc' })
+        const provider = buildProvider({ createPortalSession })
+        const app = buildApp(createBillingRoutes({ tiers, provider }))
+
+        await request(app, 'POST', '/billing/portal', { returnUrl })
+
+        expect(createPortalSession).toHaveBeenCalledWith({
+          userId: 'user_42',
+          returnUrl: 'https://example.com',
+        })
+        vi.unstubAllEnvs()
+      },
+    )
 
     it('returns 502 when the provider returns no url', async () => {
       const createPortalSession = vi.fn().mockResolvedValue(null)

@@ -150,7 +150,10 @@ const resolveProvider = <TLimits extends Record<string, unknown>>(
  *   for in-place plan changes.
  * - `POST /cancel` — no body. Calls `provider.cancelSubscription({ userId })`
  *   and returns `{ canceled: true }` on success.
- * - `POST /portal` — body `{ returnUrl?: string }`. Calls
+ * - `POST /portal` — body `{ returnPath?: string }` (an app-relative path such
+ *   as `/billing`; a legacy `returnUrl` is accepted only when it is already on
+ *   the app origin, since the provider renders it as a link and an arbitrary one
+ *   would be an open redirect). Calls
  *   `provider.createPortalSession({ userId, returnUrl })` and returns
  *   `{ url }`. Returns 501 if the bonded provider does not implement portal
  *   sessions.
@@ -322,8 +325,26 @@ export const createBillingRoutes = <
       return
     }
 
-    const body = (req.body ?? {}) as { returnUrl?: unknown }
-    const returnUrl = typeof body.returnUrl === 'string' ? body.returnUrl : undefined
+    // The return target becomes the "Return to <merchant>" link on a page
+    // hosted by the payment provider, so a caller-supplied absolute URL would
+    // make this an open redirect off that domain — a ready-made phishing pivot.
+    // Honor only a same-origin absolute PATH (`/billing`), or a URL already on
+    // the app origin; anything else falls back to the app root. Same rule as
+    // `resolveBillingPortalReturnUrl` in `@molecule/api-payments`, kept inline
+    // so this package's peer range need not move ahead of that helper's release.
+    const body = (req.body ?? {}) as { returnUrl?: unknown; returnPath?: unknown }
+    const apiPort = Number(process.env.PORT) || 4000
+    const configuredOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || ''
+    const appOrigin = (configuredOrigin || `http://localhost:${apiPort - 1000}`).replace(/\/+$/, '')
+    const path =
+      typeof body.returnPath === 'string'
+        ? body.returnPath
+        : typeof body.returnUrl === 'string' && body.returnUrl.startsWith(`${appOrigin}/`)
+          ? body.returnUrl.slice(appOrigin.length)
+          : ''
+    const safePath =
+      path.startsWith('/') && !path.startsWith('//') && !path.includes('\\') ? path : ''
+    const returnUrl = `${appOrigin}${safePath}`
 
     try {
       const session = await provider.createPortalSession({ userId, returnUrl })
