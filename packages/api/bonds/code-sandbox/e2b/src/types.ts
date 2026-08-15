@@ -92,8 +92,14 @@ export interface E2BSandboxLike {
   getHost(port: number): string
   setTimeout(ms: number): Promise<void>
   kill(): Promise<void>
-  pause?(): Promise<string>
-  betaPause?(): Promise<string>
+  /**
+   * Suspend the sandbox (FS + memory snapshot). Resolves `false` when the API
+   * answered 409 because it was ALREADY paused — which is a success, not a
+   * failure, and the reason this is not typed as `void`.
+   */
+  pause?(): Promise<boolean>
+  /** Deprecated alias of {@link E2BSandboxLike.pause}; same endpoint. */
+  betaPause?(): Promise<boolean>
   isRunning(): Promise<boolean>
   updateNetwork?(opts: { allowOut?: string[]; denyOut?: string[] }): Promise<void>
 }

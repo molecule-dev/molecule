@@ -240,19 +240,35 @@ class E2BSandbox implements Sandbox {
   /**
    * Pause the sandbox (E2B FS + memory snapshot).
    *
+   * Either the sandbox ends up suspended or this THROWS. It must never return a
+   * success-shaped outcome for a sandbox that is still running: the caller's next
+   * act is to record the sandbox as stopped, and a control plane that believes a
+   * running sandbox is asleep bills for it and — where the timeout kills rather
+   * than pauses — watches it die at its deadline instead of hibernating.
+   *
    * @returns The outcome; `processesPreserved` is true because the memory
    *   snapshot restores the process tree on resume.
+   * @throws {Error} When the SDK exposes no pause at all, or the pause call fails.
    */
   async hibernate(): Promise<HibernationOutcome> {
-    const pause = this.sbx.betaPause ?? this.sbx.pause
+    // Prefer the supported method; `betaPause` is its deprecated alias and
+    // delegates to the same endpoint.
+    const pause = this.sbx.pause ?? this.sbx.betaPause
     if (!pause) {
-      // No pause available — nothing we can honestly suspend; report it.
-      return { processesPreserved: true, mechanism: 'noop', detail: 'pause not supported by SDK' }
+      throw new Error(
+        'hibernate: this e2b SDK build exposes neither pause() nor betaPause(); the sandbox is still running',
+      )
     }
-    await pause.call(this.sbx)
+    // `false` means the API answered 409 — it was already paused. That is the
+    // requested end state, so it is a success, just not one this call caused.
+    const paused = await pause.call(this.sbx)
     this.status = 'sleeping'
     // E2B pause snapshots FS + memory, so the process tree survives resume.
-    return { processesPreserved: true, mechanism: 'pause' }
+    return {
+      processesPreserved: true,
+      mechanism: 'pause',
+      ...(paused === false ? { detail: 'the sandbox was already paused' } : {}),
+    }
   }
 
   /**

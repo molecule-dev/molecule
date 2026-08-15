@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { E2BSandboxProvider } from '../provider.js'
 import type { E2BSandboxClientLike, E2BSandboxInfoLike, E2BSandboxLike } from '../types.js'
@@ -223,5 +223,104 @@ describe('list() — enumerating an account must not wake it', () => {
 
     expect(handles.map((h) => h.id)).toEqual(['sbx-running'])
     expect(calls.filter((c) => c === 'connect')).toHaveLength(1)
+  })
+})
+
+describe('hibernate() — pause or throw, never a silent noop', () => {
+  /** A live sandbox whose pause surface each test dictates. */
+  function pausableSandbox(over: Partial<E2BSandboxLike>): E2BSandboxLike {
+    return { ...fakeSandbox('sbx-1'), ...over }
+  }
+
+  it('pauses through the SDK and reports the memory-snapshot mechanism', async () => {
+    const pause = vi.fn(async () => true)
+    const sbx = pausableSandbox({ pause })
+    const { provider } = providerWith({
+      async connect() {
+        return sbx
+      },
+    })
+
+    const handle = await provider.get('sbx-1')
+    await expect(handle!.hibernate!()).resolves.toMatchObject({
+      processesPreserved: true,
+      mechanism: 'pause',
+    })
+    expect(pause).toHaveBeenCalled()
+    expect(handle!.status).toBe('sleeping')
+  })
+
+  it('THROWS when the SDK build exposes no pause at all', async () => {
+    // The old behaviour returned `{ mechanism: 'noop', processesPreserved: true }`
+    // here — a success-shaped answer for a sandbox that is still running, which
+    // the caller then records as stopped. It must fail loudly instead.
+    const sbx = pausableSandbox({ pause: undefined, betaPause: undefined })
+    const { provider } = providerWith({
+      async connect() {
+        return sbx
+      },
+    })
+
+    const handle = await provider.get('sbx-1')
+    await expect(handle!.hibernate!()).rejects.toThrow(/neither pause\(\) nor betaPause\(\)/)
+    expect(handle!.status).not.toBe('sleeping')
+  })
+
+  it('propagates a failed pause instead of reporting success', async () => {
+    const sbx = pausableSandbox({
+      async pause() {
+        throw new Error('502 Bad Gateway')
+      },
+    })
+    const { provider } = providerWith({
+      async connect() {
+        return sbx
+      },
+    })
+
+    const handle = await provider.get('sbx-1')
+    await expect(handle!.hibernate!()).rejects.toThrow('502')
+  })
+
+  it('treats an ALREADY-paused sandbox as success and says so', async () => {
+    // The SDK resolves `false` for the API's 409 — the requested end state.
+    const sbx = pausableSandbox({ pause: async () => false })
+    const { provider } = providerWith({
+      async connect() {
+        return sbx
+      },
+    })
+
+    const handle = await provider.get('sbx-1')
+    await expect(handle!.hibernate!()).resolves.toMatchObject({
+      mechanism: 'pause',
+      detail: 'the sandbox was already paused',
+    })
+  })
+
+  it('falls back to the deprecated betaPause when only that exists', async () => {
+    const betaPause = vi.fn(async () => true)
+    const sbx = pausableSandbox({ pause: undefined, betaPause })
+    const { provider } = providerWith({
+      async connect() {
+        return sbx
+      },
+    })
+
+    await (await provider.get('sbx-1'))!.hibernate!()
+    expect(betaPause).toHaveBeenCalled()
+  })
+
+  it('stop() and sleep() route through the same pause, so neither can no-op', async () => {
+    const pause = vi.fn(async () => true)
+    const { provider } = providerWith({
+      async connect() {
+        return pausableSandbox({ pause })
+      },
+    })
+
+    await (await provider.get('sbx-1'))!.stop()
+    await (await provider.get('sbx-1'))!.sleep()
+    expect(pause).toHaveBeenCalledTimes(2)
   })
 })

@@ -66,6 +66,14 @@
  * code. "I could not look" must never be delivered as "I looked, and it is not
  * there". The same rule governs `describe()`.
  *
+ * **`hibernate()`/`stop()`/`sleep()` pause or THROW.** They never resolve a
+ * success-shaped outcome for a sandbox that is still running: a caller's next act
+ * is to record the sandbox as stopped, and a control plane that believes a running
+ * sandbox is asleep bills for it and — with the kill timeout — watches it die at
+ * its deadline instead of hibernating. Note the converse trap: a pause is undone by
+ * the very next `get()`, since obtaining a handle connects. Anything that polls a
+ * stopped sandbox (status, logs, files) must go through `describe()`.
+ *
  * **Sandboxes are created to PAUSE at their timeout, not to be killed.** E2B's
  * default is `onTimeout: 'kill'`, so a sandbox nothing touched for its lifetime
  * would be destroyed with its files. This bond creates every sandbox with
