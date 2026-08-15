@@ -64,7 +64,7 @@
     "@molecule/app-live-preview": "1.0.1",
     "@molecule/app-locales-ide": "1.1.1",
     "@molecule/app-logger": "1.0.1",
-    "@molecule/app-react": "1.0.2",
+    "@molecule/app-react": "1.0.3",
     "@molecule/app-storage": "1.0.1",
     "@molecule/app-ui": "1.1.0",
     "@molecule/app-ui-react": "1.0.1",

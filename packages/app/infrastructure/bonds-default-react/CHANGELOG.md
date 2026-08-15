@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-react
 
+## 1.0.3
+
+### Patch Changes
+
+- Auth http-token sync now mirrors a null access token to the http client, so cookie-session logins can no longer keep authenticating with a stale bearer from the prior session.
+
 ## 1.0.2
 
 ### Patch Changes

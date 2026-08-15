@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.0.3
+
+### Patch Changes
+
+- useChat: re-check stream liveness when the app returns to the foreground, so a chat stream killed by a short screen lock is aborted and resumed within the silence threshold instead of waiting on the stall watchdog.
+
 ## 1.0.2
 
 ### Patch Changes
