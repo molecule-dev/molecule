@@ -366,7 +366,26 @@ const OPTION_TEXT_KEYS = ['label', 'text', 'title', 'value', 'name', 'option'] a
  * @returns The best human-readable string, or `''` when there is nothing to show.
  */
 function coerceToText(value: unknown): string {
-  if (typeof value === 'string') return value
+  if (typeof value === 'string') {
+    // Weak models also send option OBJECTS pre-serialized as strings —
+    // observed live 2026-08-15: options: ['{"key": "build-new", "label":
+    // "Build a new app"}'] rendered its raw JSON as the button label. A string
+    // that parses to an object/array gets the same key-extraction treatment as
+    // a real object; any other string renders untouched.
+    const trimmed = value.trim()
+    if (
+      (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+      (trimmed.startsWith('[') && trimmed.endsWith(']'))
+    ) {
+      try {
+        const parsed: unknown = JSON.parse(trimmed)
+        if (parsed !== null && typeof parsed === 'object') return coerceToText(parsed)
+      } catch (_error) {
+        // Not JSON after all — fall through and render the string as-is.
+      }
+    }
+    return value
+  }
   if (value == null) return ''
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
   if (Array.isArray(value)) return value.map(coerceToText).filter(Boolean).join(' ')

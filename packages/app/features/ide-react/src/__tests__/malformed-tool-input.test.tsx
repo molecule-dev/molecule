@@ -124,6 +124,25 @@ describe('normalizeAskUserInput', () => {
     expect(result.options).toEqual(['A', 'B'])
   })
 
+  it('unwraps option objects the model pre-serialized as JSON strings (observed live 2026-08-15)', () => {
+    const result = normalizeAskUserInput({
+      question: 'q',
+      options: [
+        '{"key": "build-new", "label": "Build a new app"}',
+        '{"key": "import-existing", "label": "Import my existing app"}',
+      ],
+    })
+    expect(result.options).toEqual(['Build a new app', 'Import my existing app'])
+  })
+
+  it('leaves brace-shaped strings that are not JSON untouched', () => {
+    const result = normalizeAskUserInput({
+      question: 'q',
+      options: ['{not json}', '[also not json'],
+    })
+    expect(result.options).toEqual(['{not json}', '[also not json'])
+  })
+
   it('never yields a non-string option, for any hostile value', () => {
     const result = normalizeAskUserInput({ question: 'q', options: HOSTILE_VALUES })
     for (const option of result.options) {
