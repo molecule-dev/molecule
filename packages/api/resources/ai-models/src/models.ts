@@ -970,9 +970,12 @@ export const MODELS: readonly ModelDefinition[] = [
     // `FREE_TIER_MODELS[mode] === modelId` before it looks at regions, so
     // leaving it here would widen nothing — it would just claim a free-tier
     // relationship that no longer exists.
-    // US = DeepInfra, verified 2026-08-01 via api.deepinfra.com/models/
+    // US = DeepInfra, verified 2026-08-15 via api.deepinfra.com/models/
     // deepseek-ai/DeepSeek-V4-Pro. No cache-write premium (omitted → region
-    // input rate).
+    // input rate). DeepInfra also serves the dated `-0813` snapshot (the
+    // official release superseding the preview weights the bare id carries) at
+    // IDENTICAL rates — so bumping the molecule-dev us modelMap to it moves no
+    // price here; it is a weights decision, not a pricing one.
     regionPricing: {
       us: { inputPricePerMTok: 1.3, outputPricePerMTok: 2.6, cacheReadPricePerMTok: 0.1 },
     },
