@@ -1,5 +1,12 @@
 # @molecule/api-channel-capture
 
+## 1.0.2
+
+### Patch Changes
+
+- A throwing activity sink no longer changes a send's outcome: a real delivery still resolves, and a real failure still rejects with the real provider error.
+- Document both modes on the module docs: intercept-only never delivers, while wrapping a real provider delivers and records the real outcome.
+
 ## 1.0.1
 
 ### Patch Changes

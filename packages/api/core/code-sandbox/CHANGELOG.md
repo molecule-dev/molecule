@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.1.1
+
+### Patch Changes
+
+- d1101ec: Document the `exportFiles` rooting contract: archives are rooted at the last segment of the exported path, and `importFiles(dirname(path))` is the inverse.
+
 ## 1.1.0
 
 ### Minor Changes

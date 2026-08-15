@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.2.1
+
+### Patch Changes
+
+- 0f378c5: Log-in, sign-up and OAuth log-in responses no longer include secret user columns (confirmation/reset tokens, OAuth material) — the same denylist the self-read endpoints already apply.
+
 ## 1.2.0
 
 ### Minor Changes

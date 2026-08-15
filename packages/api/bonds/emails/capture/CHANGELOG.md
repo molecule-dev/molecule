@@ -1,5 +1,11 @@
 # @molecule/api-emails-capture
 
+## 1.0.2
+
+### Patch Changes
+
+- Document both modes on the module docs: intercept-only never delivers, while wrapping a real provider delivers and records the real outcome.
+
 ## 1.0.1
 
 ### Patch Changes
