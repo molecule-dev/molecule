@@ -32,6 +32,10 @@ export interface E2BConfig {
   /**
    * Default sandbox lifetime before E2B auto-pauses it, in milliseconds. The
    * control plane extends this per-heartbeat; this is only the initial ceiling.
+   *
+   * E2B caps this per account: 1 hour on Hobby, 24 hours on Pro. A value above
+   * the account's cap is rejected at create time, so raising it is a decision
+   * about the account, not just the config.
    */
   defaultTimeoutMs?: number
   /**
@@ -94,12 +98,49 @@ export interface E2BSandboxLike {
   updateNetwork?(opts: { allowOut?: string[]; denyOut?: string[] }): Promise<void>
 }
 
+/**
+ * Subset of the SDK's `SandboxInfo` the bond reads.
+ *
+ * This is what a sandbox looks like when you only LOOK at it. `connect` — which
+ * is how a handle is obtained — RESUMES a paused sandbox and extends its
+ * deadline, so it can never be used to answer "is this thing asleep?".
+ */
+export interface E2BSandboxInfoLike {
+  sandboxId: string
+  templateId?: string
+  /** `'running'` or `'paused'`; anything else is treated as running. */
+  state?: string
+  /** Caller metadata supplied at create (the bond puts `projectId` here). */
+  metadata?: Record<string, string>
+  /** When the sandbox last started running. */
+  startedAt?: Date | string
+  /** When the sandbox's current deadline expires. */
+  endAt?: Date | string
+  /** Volumes mounted into the sandbox, when the account uses them. */
+  volumeMounts?: Array<{ name: string; path: string }>
+}
+
 /** Subset of the SDK's `Sandbox` static surface the bond uses. */
 export interface E2BSandboxClientLike {
   create(templateId: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
   connect(sandboxId: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
   list(
     opts?: Record<string, unknown>,
-  ): Promise<Array<{ sandboxId: string }> | { sandboxes?: Array<{ sandboxId: string }> }>
+  ): Promise<
+    | Array<{ sandboxId: string; state?: string }>
+    | { sandboxes?: Array<{ sandboxId: string; state?: string }> }
+  >
   kill?(sandboxId: string, opts?: Record<string, unknown>): Promise<boolean>
+  /**
+   * Read a sandbox's record WITHOUT connecting to it — the only lookup that does
+   * not resume a paused sandbox. Throws `SandboxNotFoundError` on a 404.
+   */
+  getInfo?(sandboxId: string, opts?: Record<string, unknown>): Promise<E2BSandboxInfoLike>
+  /**
+   * Whether an error means "this sandbox does not exist", as opposed to "the
+   * lookup failed". The distinction cannot be recovered from the error's shape by
+   * a consumer, and getting it wrong is what makes a control plane treat a
+   * provider outage as a destroyed sandbox.
+   */
+  isNotFound?(error: unknown): boolean
 }

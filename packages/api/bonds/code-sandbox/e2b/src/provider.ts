@@ -18,10 +18,16 @@ import type {
   HibernationOutcome,
   Sandbox,
   SandboxConfig,
+  SandboxDescriptor,
   SandboxProvider,
 } from '@molecule/api-code-sandbox'
 
-import type { E2BConfig, E2BSandboxClientLike, E2BSandboxLike } from './types.js'
+import type {
+  E2BConfig,
+  E2BSandboxClientLike,
+  E2BSandboxInfoLike,
+  E2BSandboxLike,
+} from './types.js'
 
 /** Default Vite dev-server port the preview URL points at. */
 const DEFAULT_PREVIEW_PORT = 5173
@@ -44,25 +50,35 @@ const EGRESS_PROBE_DENY = 'example.com'
  * Imported lazily so the SDK is only required when the bond is actually used.
  */
 async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
-  const { Sandbox } = await import('e2b')
+  const { Sandbox, SandboxNotFoundError } = await import('e2b')
   const S = Sandbox as unknown as {
     create(template: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
     connect(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
     list(opts?: Record<string, unknown>): unknown
     kill(id: string, opts?: Record<string, unknown>): Promise<boolean>
+    getInfo(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxInfoLike>
   }
   return {
     create: (templateId, opts) => S.create(templateId, { apiKey, ...opts }),
     connect: (id, opts) => S.connect(id, { apiKey, ...opts }),
     kill: (id, opts) => S.kill(id, { apiKey, ...opts }),
+    getInfo: (id, opts) => S.getInfo(id, { apiKey, ...opts }),
+    // The SDK raises `SandboxNotFoundError` from `getInfo`/`connect` for exactly
+    // one condition — the API answered 404 — and routes every other failure to a
+    // different class. That makes it a POSITIVE not-found, which is the whole
+    // basis for `get()` returning null.
+    isNotFound: (error) => error instanceof SandboxNotFoundError,
     async list(opts) {
       // Sandbox.list returns a paginator; normalize to a flat array of running
       // sandboxes. Support the async-iterator, nextItems(), and array shapes so
       // a minor SDK change does not silently return nothing.
       const result = S.list({ apiKey, ...opts }) as unknown
-      const out: Array<{ sandboxId: string }> = []
-      const push = (items: Array<{ sandboxId: string }>): void => {
-        for (const it of items) if (it?.sandboxId) out.push({ sandboxId: it.sandboxId })
+      const out: Array<{ sandboxId: string; state?: string }> = []
+      const push = (items: Array<{ sandboxId: string; state?: string }>): void => {
+        // Carry the listed state through: it is the only way a caller can skip a
+        // PAUSED sandbox, and building a handle for one would resume it.
+        for (const it of items)
+          if (it?.sandboxId) out.push({ sandboxId: it.sandboxId, state: it.state })
       }
       const r = await Promise.resolve(result as Promise<unknown>).catch(() => result)
       if (Array.isArray(r)) {
@@ -106,6 +122,50 @@ function shellQuote(value: string): string {
  */
 function denyByDefault(allowOut: string[]): { allowOut: string[]; denyOut: string[] } {
   return { allowOut, denyOut: [ALL_TRAFFIC] }
+}
+
+/**
+ * Whether an error means the sandbox POSITIVELY does not exist.
+ *
+ * Asks the client (the real one compares against the SDK's own
+ * `SandboxNotFoundError` class), and falls back to the error's `name` so an
+ * injected/duck-typed client — or an SDK loaded twice under different module
+ * instances, where `instanceof` silently fails — is still classified correctly.
+ * Everything else is a failure to LOOK and must propagate.
+ *
+ * @param client - The client the error came from.
+ * @param error - The thrown value.
+ * @returns True only for a not-found.
+ */
+function isNotFound(client: E2BSandboxClientLike, error: unknown): boolean {
+  if (client.isNotFound?.(error)) return true
+  return (error as { name?: string } | null)?.name === 'SandboxNotFoundError'
+}
+
+/**
+ * Map an E2B sandbox record onto the core's coarse lifecycle status.
+ *
+ * E2B has exactly two states. `paused` is a filesystem + memory snapshot, which
+ * is what the core calls `sleeping` — NOT `stopped`, because a resume brings the
+ * process tree back with it and callers branch on that.
+ *
+ * @param state - The SDK's `state` field.
+ * @returns The core status.
+ */
+function toCoreStatus(state: string | undefined): Sandbox['status'] {
+  return state === 'paused' ? 'sleeping' : 'running'
+}
+
+/**
+ * Normalize an SDK date field (a `Date`, an ISO string, or absent) to ISO.
+ *
+ * @param value - The SDK value.
+ * @returns An ISO 8601 string, or `null`.
+ */
+function toIso(value: Date | string | undefined): string | null {
+  if (!value) return null
+  const date = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date.toISOString()
 }
 
 /**
@@ -491,6 +551,15 @@ export class E2BSandboxProvider implements SandboxProvider {
   /**
    * Create a new sandbox from the golden template and apply the egress policy.
    *
+   * The sandbox is created to PAUSE at its timeout, not to be killed. E2B's
+   * default is `onTimeout: 'kill'`, which means a sandbox nothing has touched for
+   * its lifetime is destroyed — and on this platform the sandbox is the only copy
+   * of the project, so the default turns "the tab was closed over lunch" into
+   * permanent data loss. `keepMemory` stays on: the pause snapshot restores the
+   * process tree, which is what makes `resume()` honest when it reports
+   * `processesPreserved: true`. A filesystem-only snapshot would cold-boot
+   * instead, leaving a sandbox that is running with every dev server dead.
+   *
    * @param config - Project id, env, optional per-boot templateId + labels.
    * @returns A live sandbox handle.
    */
@@ -501,6 +570,7 @@ export class E2BSandboxProvider implements SandboxProvider {
       timeoutMs: this.config.defaultTimeoutMs,
       envs: config.env ?? {},
       metadata: { projectId: config.projectId, ...(config.labels ?? {}) },
+      lifecycle: { onTimeout: { action: 'pause', keepMemory: true } },
     })
     const handle = new E2BSandbox(sbx, client, {
       previewPort: this.config.defaultPreviewPort,
@@ -527,11 +597,65 @@ export class E2BSandboxProvider implements SandboxProvider {
         previewPort: this.config.defaultPreviewPort,
         timeoutMs: this.config.defaultTimeoutMs,
       })
-    } catch (_error) {
-      // connect throws SandboxNotFoundError for a genuinely absent id → null.
-      // A transient error also lands here; get() is used as an existence probe,
-      // and the callers re-resolve, so returning null is the safe answer.
-      return null
+    } catch (error) {
+      // `null` means the sandbox is GONE, and nothing else. Every other failure
+      // THROWS. This used to swallow all of them, and the cost of that is not
+      // hypothetical: a control plane reads `null` as "the container is gone",
+      // detaches the project, and rebuilds it from a template — so one 5xx from
+      // this API destroyed a user's only copy of their code. "I could not look"
+      // must never be delivered as "I looked, and it is not there".
+      if (isNotFound(client, error)) return null
+      throw error
+    }
+  }
+
+  /**
+   * Read a sandbox's record WITHOUT connecting to it.
+   *
+   * The lookup a control plane polls with. `get()` cannot serve that purpose on
+   * E2B: obtaining a handle is `POST /sandboxes/{id}/connect`, which RESUMES a
+   * paused sandbox and extends its deadline — so a status poll every few seconds
+   * silently un-hibernates every sleeping project, bills for the compute, and
+   * leaves the UI showing "asleep". This reads the record instead, so `paused`
+   * stays paused and is reported as `sleeping`.
+   *
+   * `null` means the sandbox positively does not exist. A failed lookup throws,
+   * for the same reason `get()` does.
+   *
+   * @param id - The sandbox id.
+   * @returns The descriptor, or `null` when no sandbox has that id.
+   */
+  async describe(id: string): Promise<SandboxDescriptor | null> {
+    const client = await this.client()
+    if (!client.getInfo) {
+      // Refusing is the point: answering `null` here would report "no such
+      // sandbox" for a client that simply cannot look.
+      throw new Error('E2B client does not expose getInfo(); cannot describe a sandbox')
+    }
+    let info: E2BSandboxInfoLike
+    try {
+      info = await client.getInfo(id)
+    } catch (error) {
+      if (isNotFound(client, error)) return null
+      throw error
+    }
+    const startedAt = toIso(info.startedAt)
+    return {
+      id: info.sandboxId ?? id,
+      projectId: info.metadata?.projectId ?? null,
+      status: toCoreStatus(info.state),
+      labels: info.metadata ?? {},
+      // E2B has no created-but-never-started state — a sandbox exists only once
+      // it has run — so both timestamps are the same fact, and neither is ever
+      // the `null` that marks wreckage on a provider that does have one.
+      createdAt: startedAt,
+      startedAt,
+      templateRef: info.templateId ?? null,
+      volumeName: info.volumeMounts?.[0]?.name ?? null,
+      // E2B publishes every internal port at `<port>-<id>.e2b.app` rather than
+      // mapping it to a host port, so there are no mappings to report. The
+      // reachable URL comes from `getPreviewUrl(port)`.
+      ports: [],
     }
   }
 
@@ -547,6 +671,10 @@ export class E2BSandboxProvider implements SandboxProvider {
     const items = Array.isArray(running) ? running : (running.sandboxes ?? [])
     const handles: Sandbox[] = []
     for (const it of items) {
+      // A PAUSED sandbox is deliberately skipped: building its handle means
+      // connecting, and connecting resumes it. Enumerating an account would
+      // otherwise wake — and start billing — every hibernated project on it.
+      if (it.state === 'paused') continue
       const h = await this.get(it.sandboxId)
       if (h) handles.push(h)
     }

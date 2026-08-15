@@ -32,12 +32,9 @@
  * const provider = createProvider({
  *   templateId: 'molecule-superset',
  *   defaultPreviewPort: 5173,
- *   defaultNetworkRules: [
- *     { domain: 'registry.npmjs.org', action: 'allow' },
- *     { domain: '*.npmjs.org', action: 'allow' },
- *     { domain: 'github.com', action: 'allow' },
- *     { domain: '*', action: 'deny' },
- *   ],
+ *   // Deny-by-default egress: everything not listed here is blocked, raw IPs
+ *   // included. An empty/omitted list applies NO policy at all.
+ *   defaultAllowOut: ['registry.npmjs.org', '*.npmjs.org', 'github.com'],
  * })
  * ```
  *
@@ -53,6 +50,29 @@
  * `resume()` report `processesPreserved: true` because the memory snapshot
  * restores the process tree — unlike a Docker stop, a resumed E2B sandbox's
  * dev servers are still running.
+ *
+ * **`get()` RESUMES a paused sandbox — use `describe()` to look at one.**
+ * Obtaining a handle is `POST /sandboxes/{id}/connect`, which resumes a paused
+ * sandbox and extends its deadline. That is right for a caller about to USE the
+ * sandbox and wrong for every status check: polling `get()` every few seconds
+ * silently un-hibernates every sleeping project and bills for the compute while
+ * the UI still says "asleep". `describe(id)` reads the record instead, reports
+ * `sleeping` for a paused sandbox, and changes nothing.
+ *
+ * **`get()` returns `null` ONLY for a sandbox that does not exist.** Every other
+ * failure throws. A control plane reads `null` as "gone", detaches the project
+ * and rebuilds it from a template — and since an E2B microVM is the only copy of
+ * a project's files, answering a transient 5xx with `null` destroys the user's
+ * code. "I could not look" must never be delivered as "I looked, and it is not
+ * there". The same rule governs `describe()`.
+ *
+ * **Sandboxes are created to PAUSE at their timeout, not to be killed.** E2B's
+ * default is `onTimeout: 'kill'`, so a sandbox nothing touched for its lifetime
+ * would be destroyed with its files. This bond creates every sandbox with
+ * `lifecycle: { onTimeout: { action: 'pause', keepMemory: true } }`; the memory
+ * snapshot is what lets `resume()` truthfully report `processesPreserved: true`.
+ * Extending the deadline is `keepAlive(ms)` — call it from a real activity
+ * signal (an open editor's heartbeat), never as a side effect of polling.
  *
  * @module
  */
