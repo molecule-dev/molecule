@@ -539,10 +539,13 @@ describe('PayPal Bond Adapter', () => {
         newProductId: 'P-5ML4271244454362WXNWU5NQ',
       })
 
+      // The buyer must be returned to the APP, not the API: the session cookie
+      // is host-only on the app, so a top-level return to a separate API host
+      // carries no credentials and the authenticated verify route answers 401.
       expect(mockCreateSubscription).toHaveBeenCalledWith(
         expect.objectContaining({
           planId: 'P-5ML4271244454362WXNWU5NQ',
-          returnUrl: 'https://api.example.com/api/users/user_123/verify-payment/paypal',
+          returnUrl: 'https://app.example.com/plan-updated?provider=paypal',
           cancelUrl: 'https://app.example.com',
           customId: 'user_123',
         }),

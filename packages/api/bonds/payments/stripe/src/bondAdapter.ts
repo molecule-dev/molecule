@@ -18,6 +18,7 @@ import {
   type PaymentProvider,
   type PaymentRecordService,
   type ProviderPaymentMethod,
+  resolveCheckoutRedirectUrls,
   type SetupIntentResult,
   type SubscriptionUpdateResult,
   type VerifiedSubscription,
@@ -275,6 +276,10 @@ export const paymentProvider: PaymentProvider = {
    * 1. Looks up the user's existing Stripe subscription via PaymentRecordService.
    * 2. If found, updates the subscription to the new product/price.
    * 3. If not found, creates a Stripe Checkout session and returns the checkout URL.
+   *    The session returns the buyer to the APP's `/plan-updated` page (never the
+   *    API host — see `resolveCheckoutRedirectUrls`) and carries the user id as
+   *    `client_reference_id` + `metadata.userId` so the resulting customer can be
+   *    linked to the account that paid.
    *
    * Handles subscription updates and new checkout session creation.
    * @param params - The update parameters.
@@ -329,22 +334,21 @@ export const paymentProvider: PaymentProvider = {
       }
 
       // No existing subscription — create a Stripe Checkout session.
-      // Stripe rejects empty/relative success_url and cancel_url with
-      // `code: 'url_invalid'`. When neither API_ORIGIN/APP_ORIGIN nor
-      // ORIGIN is set (typical in dev / smoke-app spin-ups), fall back to
-      // `http://localhost:${PORT}` so checkout still works locally.
-      const apiPort = Number(process.env.PORT) || 4000
-      const fallbackApiOrigin = `http://localhost:${apiPort}`
-      // Conventional dev frontend lives on apiPort - 1000 (e.g. 4030 → 3030).
-      // Mirrors the polish-v2 dispatcher's port pairing.
-      const fallbackAppOrigin = `http://localhost:${apiPort - 1000}`
-      const apiOrigin = process.env.API_ORIGIN || process.env.ORIGIN || fallbackApiOrigin
-      const appOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || fallbackAppOrigin
-      if (apiOrigin === fallbackApiOrigin || appOrigin === fallbackAppOrigin) {
-        // Silent localhost redirect URLs in a deployed app strand the user on
-        // localhost after paying — make the fallback visible.
+      // Both redirect URLs point at the APP origin: the session cookie is set
+      // for the app's host, so a top-level return to a separate API host
+      // carries no credentials and the authenticated verify route answers 401
+      // (the buyer pays and lands on an error page). The app's
+      // `/plan-updated` page verifies with the `cs_…` id from the query
+      // instead. Stripe rejects empty/relative URLs with `code: 'url_invalid'`,
+      // so an unset APP_ORIGIN/ORIGIN falls back to localhost — fine in dev,
+      // and warned about because it strands a deployed buyer.
+      const redirects = resolveCheckoutRedirectUrls({
+        provider: 'stripe',
+        sessionIdToken: '{CHECKOUT_SESSION_ID}',
+      })
+      if (redirects.usingFallbackOrigin) {
         logger.warn(
-          `Stripe checkout: API_ORIGIN/APP_ORIGIN/ORIGIN not set — falling back to ${fallbackApiOrigin} / ${fallbackAppOrigin} for redirect URLs (fine in dev, wrong in production).`,
+          `Stripe checkout: APP_ORIGIN/ORIGIN not set — falling back to ${redirects.appOrigin} for redirect URLs (fine in dev, wrong in production).`,
         )
       }
 
@@ -358,8 +362,15 @@ export const paymentProvider: PaymentProvider = {
 
       const session = await createCheckoutSession({
         priceId: params.newProductId,
-        successUrl: `${apiOrigin}/api/users/${params.userId}/verify-payment/stripe?subscriptionId={CHECKOUT_SESSION_ID}`,
-        cancelUrl: appOrigin,
+        successUrl: redirects.successUrl,
+        cancelUrl: redirects.cancelUrl,
+        // Bind the session to the buying account BOTH ways Stripe echoes an
+        // app-side id back (top-level on `checkout.session.*`, and in
+        // `metadata` on objects that carry no client_reference_id). This is
+        // what lets a webhook link the new `cus_…` to the user on a FIRST
+        // purchase, before any customer id is stored.
+        clientReferenceId: params.userId,
+        metadata: { userId: params.userId },
         idempotencyKey,
       })
 

@@ -107,6 +107,11 @@ describe('Stripe Bond Adapter', () => {
     vi.stubEnv('STRIPE_WEBHOOK_SECRET', 'whsec_test_123')
     vi.stubEnv('API_ORIGIN', 'https://api.example.com')
     vi.stubEnv('APP_ORIGIN', 'https://app.example.com')
+    // Pinned so the localhost fallback (PORT - 1000) is deterministic and the
+    // default return path is never inherited from the developer's shell.
+    vi.stubEnv('PORT', '4000')
+    vi.stubEnv('PAYMENTS_PLAN_UPDATED_PATH', '')
+    vi.stubEnv('PAYMENTS_CHECKOUT_CANCEL_PATH', '')
 
     // Default mock implementations
     mockGetCheckoutSession.mockResolvedValue(mockCheckoutSessionResult)
@@ -953,7 +958,12 @@ describe('Stripe Bond Adapter', () => {
       expect(call.idempotencyKey).toBe(expectedKey)
     })
 
-    it('should use subscriptionId as the query param name in successUrl', async () => {
+    // The success URL must land on the APP origin, not the API origin: the
+    // session cookie is host-only on the app, so a top-level return from
+    // checkout.stripe.com to a separate API host carries no credentials and the
+    // authenticated verify route answers 401 — the buyer pays and gets an error
+    // page with no plan granted.
+    it('returns the buyer to the APP origin plan-updated page, never the API origin', async () => {
       mockFindByUserId.mockResolvedValue(null)
 
       const { paymentProvider } = await import('../bondAdapter.js')
@@ -967,10 +977,52 @@ describe('Stripe Bond Adapter', () => {
         successUrl: string
       }
 
-      expect(call.successUrl).toContain('subscriptionId={CHECKOUT_SESSION_ID}')
-      expect(call.successUrl).not.toContain('sessionId=')
       expect(call.successUrl).toBe(
-        'https://api.example.com/api/users/user_url_test/verify-payment/stripe?subscriptionId={CHECKOUT_SESSION_ID}',
+        'https://app.example.com/plan-updated?provider=stripe&sessionId={CHECKOUT_SESSION_ID}',
+      )
+      expect(call.successUrl).not.toContain('https://api.example.com')
+      // The placeholder must reach Stripe verbatim — an encoded
+      // %7BCHECKOUT_SESSION_ID%7D is never substituted.
+      expect(call.successUrl).toContain('{CHECKOUT_SESSION_ID}')
+    })
+
+    it('honors PAYMENTS_PLAN_UPDATED_PATH for apps that route the return page elsewhere', async () => {
+      vi.stubEnv('PAYMENTS_PLAN_UPDATED_PATH', '/account/upgraded')
+      mockFindByUserId.mockResolvedValue(null)
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await paymentProvider.updateSubscription!({
+        userId: 'user_custom_path',
+        newProductId: 'price_abc',
+      })
+
+      const call = mockCreateCheckoutSession.mock.calls[0][0] as { successUrl: string }
+
+      expect(call.successUrl).toBe(
+        'https://app.example.com/account/upgraded?provider=stripe&sessionId={CHECKOUT_SESSION_ID}',
+      )
+    })
+
+    // Without these the first purchase has nothing tying the new Stripe
+    // customer to the account that paid: no webhook can link `cus_…` to a user,
+    // so `stripeCustomerId` stays null forever and metered billing can never
+    // charge.
+    it('binds the checkout session to the buying user (client_reference_id + metadata.userId)', async () => {
+      mockFindByUserId.mockResolvedValue(null)
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await paymentProvider.updateSubscription!({
+        userId: 'user_ref_test',
+        newProductId: 'price_abc',
+      })
+
+      expect(mockCreateCheckoutSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          clientReferenceId: 'user_ref_test',
+          metadata: { userId: 'user_ref_test' },
+        }),
       )
     })
 
@@ -1153,6 +1205,25 @@ describe('Stripe Bond Adapter', () => {
 
       expect(call.successUrl).toContain('https://fallback.example.com')
       expect(call.cancelUrl).toBe('https://fallback.example.com')
+    })
+
+    it('warns when no app origin is configured (a deployed buyer would land on localhost)', async () => {
+      vi.stubEnv('API_ORIGIN', '')
+      vi.stubEnv('APP_ORIGIN', '')
+      vi.stubEnv('ORIGIN', '')
+      mockFindByUserId.mockResolvedValue(null)
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await paymentProvider.updateSubscription!({
+        userId: 'user_no_origin',
+        newProductId: 'price_fb',
+      })
+
+      const call = mockCreateCheckoutSession.mock.calls[0][0] as { successUrl: string }
+
+      expect(call.successUrl).toContain('http://localhost:3000/plan-updated')
+      expect(mockLogger.warn).toHaveBeenCalledWith(expect.stringContaining('APP_ORIGIN/ORIGIN'))
     })
   })
 

@@ -49,6 +49,12 @@
  *   `?subscription_id=I-...&ba_token=...&token=...` for subscriptions and `?token=<orderId>&PayerID=...`
  *   for orders — so read `subscription_id`/`token`, not just a `subscriptionId` you may have
  *   expected. (The molecule user resource's verify-payment handler accepts all three.)
+ * - **`return_url` goes to your APP, not your API.** `paymentProvider.updateSubscription`
+ *   builds it with `resolveCheckoutRedirectUrls` from `@molecule/api-payments`, so approval
+ *   returns to `APP_ORIGIN/plan-updated?provider=paypal` (plus PayPal's own params) and that
+ *   page calls `POST /users/:id/verify-payment/paypal`. Pointing `return_url` at a separate
+ *   API host sends a top-level redirect with NO cookies, so an authenticated callback there
+ *   answers 401 and the paid plan is never granted.
  * - **A subscription is only entitled when `ACTIVE`.** `APPROVAL_PENDING`/`APPROVED` mean the
  *   buyer approved the billing agreement but no payment is confirmed yet — granting there
  *   confers entitlement without payment. After approval PayPal flips the subscription to

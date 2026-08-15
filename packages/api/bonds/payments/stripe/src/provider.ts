@@ -98,6 +98,12 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
  * @param options.successUrl - URL to redirect to after successful payment.
  * @param options.cancelUrl - URL to redirect to if the user cancels.
  * @param options.customerId - Optional existing Stripe Customer ID.
+ * @param options.clientReferenceId - Your own id for the buyer (the app's user
+ *   id). Stripe echoes it back as `client_reference_id` on the session and on
+ *   every `checkout.session.*` webhook event, which is how the customer
+ *   (`cus_…`) created by this checkout gets linked to the account that paid.
+ *   Always pass it: without it the first purchase has nothing tying the new
+ *   Stripe customer to a user.
  * @param options.metadata - Optional key-value metadata to attach to the session.
  * @param options.idempotencyKey - Optional idempotency key for safe request retries.
  * @returns The checkout session ID and URL.
@@ -107,6 +113,7 @@ export const createCheckoutSession = async (options: {
   successUrl: string
   cancelUrl: string
   customerId?: string
+  clientReferenceId?: string
   metadata?: Record<string, string>
   idempotencyKey?: string
 }): Promise<CheckoutSessionResult> => {
@@ -124,6 +131,7 @@ export const createCheckoutSession = async (options: {
         success_url: options.successUrl,
         cancel_url: options.cancelUrl,
         customer: options.customerId,
+        client_reference_id: options.clientReferenceId,
         metadata: options.metadata,
       },
       options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined,

@@ -16,6 +16,7 @@ import {
   isConfigNotConfiguredError,
   type PaymentProvider,
   type PaymentRecordService,
+  resolveCheckoutRedirectUrls,
   type SubscriptionUpdateResult,
   type VerifiedSubscription,
   type WebhookEvent,
@@ -410,22 +411,21 @@ export const paymentProvider: PaymentProvider = {
       }
 
       // No existing subscription — create a PayPal billing subscription and
-      // return its approval URL. PayPal appends
-      // `?subscription_id=I-...&ba_token=...&token=...` to return_url after the
-      // buyer approves; the verify-payment route reads that id (see the
-      // `subscription_id`/`token` fallbacks in the user resource's
-      // verifyPayment handler).
-      const apiPort = Number(process.env.PORT) || 4000
-      const fallbackApiOrigin = `http://localhost:${apiPort}`
-      // Conventional dev frontend lives on apiPort - 1000 (e.g. 4030 → 3030).
-      const fallbackAppOrigin = `http://localhost:${apiPort - 1000}`
-      const apiOrigin = process.env.API_ORIGIN || process.env.ORIGIN || fallbackApiOrigin
-      const appOrigin = process.env.APP_ORIGIN || process.env.ORIGIN || fallbackAppOrigin
-      if (apiOrigin === fallbackApiOrigin || appOrigin === fallbackAppOrigin) {
+      // return its approval URL. Both redirect URLs point at the APP origin:
+      // the session cookie is set for the app's host, so returning to a
+      // separate API host is a top-level navigation with NO credentials and
+      // the authenticated verify route answers 401 (the buyer pays and lands
+      // on an error page). PayPal appends
+      // `subscription_id=I-...&ba_token=...&token=...` to return_url after the
+      // buyer approves, and the app's `/plan-updated` page reads that id (the
+      // same `subscription_id`/`token` names the user resource's verifyPayment
+      // handler accepts).
+      const redirects = resolveCheckoutRedirectUrls({ provider: 'paypal' })
+      if (redirects.usingFallbackOrigin) {
         // Silent localhost redirect URLs in a deployed app strand the user on
         // localhost after paying — make the fallback visible.
         logger.warn(
-          `PayPal checkout: API_ORIGIN/APP_ORIGIN/ORIGIN not set — falling back to ${fallbackApiOrigin} / ${fallbackAppOrigin} for redirect URLs (fine in dev, wrong in production).`,
+          `PayPal checkout: APP_ORIGIN/ORIGIN not set — falling back to ${redirects.appOrigin} for redirect URLs (fine in dev, wrong in production).`,
         )
       }
 
@@ -439,8 +439,8 @@ export const paymentProvider: PaymentProvider = {
 
       const session = await createSubscription({
         planId: params.newProductId,
-        returnUrl: `${apiOrigin}/api/users/${params.userId}/verify-payment/paypal`,
-        cancelUrl: appOrigin,
+        returnUrl: redirects.successUrl,
+        cancelUrl: redirects.cancelUrl,
         customId: params.userId,
         idempotencyKey,
       })

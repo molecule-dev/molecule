@@ -47,6 +47,19 @@
  * Create checkout with SERVER-configured price ids ({@link createCheckoutSession}) — never an
  * amount sent by the client.
  *
+ * **Checkout returns the buyer to the APP, and the session must name the buyer.**
+ * `paymentProvider.updateSubscription` builds `success_url` /`cancel_url` with
+ * `resolveCheckoutRedirectUrls` from `@molecule/api-payments`, so Stripe returns to
+ * `APP_ORIGIN/plan-updated?provider=stripe&sessionId={CHECKOUT_SESSION_ID}` — the page
+ * then calls `POST /users/:id/verify-payment/stripe` with that id from an origin whose
+ * cookies authenticate. Returning to a separate API host instead sends a top-level
+ * redirect with NO credentials, so the callback answers 401 and the paid plan is never
+ * granted. It also sets `client_reference_id` + `metadata.userId` to the app's user id;
+ * they are how a webhook links the newly created `cus_…` to the account that paid on a
+ * FIRST purchase, and without them nothing ever writes the customer id — so any
+ * usage/metered billing keyed on it can never charge. Pass `clientReferenceId` when you
+ * call {@link createCheckoutSession} yourself.
+ *
  * **A missing `STRIPE_SECRET_KEY` is NOT the same as "no active subscription."**
  * `getClient()` throws a tagged config-not-configured error; `verifySubscription`,
  * `updateSubscription`, and `cancelSubscription` on {@link paymentProvider} detect
