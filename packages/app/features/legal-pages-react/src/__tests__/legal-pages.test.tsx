@@ -4,7 +4,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // `useAuth` is hoisted so individual tests can flip `initialized`.
-const { mockUseAuth } = vi.hoisted(() => ({ mockUseAuth: vi.fn() }))
+const { mockUseAuth, mockUseVerifyPaymentReturn } = vi.hoisted(() => ({
+  mockUseAuth: vi.fn(),
+  mockUseVerifyPaymentReturn: vi.fn(),
+}))
 
 // `getClassMap()` → a Proxy: every access yields its key as a token — callable
 // for method-style props (`cm.stack(4)`) and also usable bare (`cm.prose`).
@@ -51,12 +54,19 @@ vi.mock('@molecule/app-react', () => {
         interpolate(CONTENT[key] ?? opts?.defaultValue ?? key, values),
     }),
     useAuth: mockUseAuth,
+    useVerifyPaymentReturn: mockUseVerifyPaymentReturn,
   }
 })
 
 vi.mock('@molecule/app-ui-react', () => ({
-  Button: ({ children }: { children?: ReactNode }) =>
-    createElement('button', { 'data-button': '' }, children),
+  Button: ({
+    children,
+    onClick: _onClick,
+    variant: _variant,
+    size: _size,
+    ...rest
+  }: Record<string, unknown> & { children?: ReactNode }) =>
+    createElement('button', { 'data-button': '', ...rest }, children),
   Flex: ({ children }: { children?: ReactNode }) =>
     createElement('div', { 'data-flex': '' }, children),
   Spinner: () => createElement('span', { 'data-spinner': '' }),
@@ -84,6 +94,14 @@ const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderT
 beforeEach(() => {
   vi.resetAllMocks()
   mockUseAuth.mockReturnValue({ state: { initialized: true } })
+  mockUseVerifyPaymentReturn.mockReturnValue({
+    status: 'idle',
+    isReturn: false,
+    provider: null,
+    transactionId: null,
+    error: null,
+    retry: vi.fn(),
+  })
 })
 
 describe('LegalPageLayout', () => {
@@ -173,6 +191,40 @@ describe('PlanUpdatedPage', () => {
     expect(markup).toContain('Thank you!')
     expect(markup).toContain('Return to Home')
     expect(markup).not.toContain('data-spinner')
+  })
+
+  // The buyer's plan is granted by the confirmation call this page makes, so
+  // a thank-you rendered while it is still in flight (or after it failed)
+  // tells them they paid for something they did not get.
+  it('shows the spinner, not a thank-you, while the purchase is being confirmed', () => {
+    mockUseVerifyPaymentReturn.mockReturnValue({
+      status: 'verifying',
+      isReturn: true,
+      provider: 'stripe',
+      transactionId: 'cs_live_1',
+      error: null,
+      retry: vi.fn(),
+    })
+    const markup = html(createElement(PlanUpdatedPage))
+    expect(markup).toContain('data-spinner=""')
+    expect(markup).not.toContain('Thank you!')
+  })
+
+  it('offers a retry instead of a thank-you when confirmation fails', () => {
+    const retry = vi.fn()
+    mockUseVerifyPaymentReturn.mockReturnValue({
+      status: 'failed',
+      isReturn: true,
+      provider: 'stripe',
+      transactionId: 'cs_live_1',
+      error: new Error('502'),
+      retry,
+    })
+    const markup = html(createElement(PlanUpdatedPage))
+    expect(markup).toContain('data-mol-id="plan-updated-error"')
+    expect(markup).toContain('We could not confirm your payment yet.')
+    expect(markup).toContain('data-mol-id="plan-updated-retry"')
+    expect(markup).not.toContain('Thank you!')
   })
 
   it('links the action button to "/" by default', () => {

@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 
-import { useAuth, useTranslation } from '@molecule/app-react'
+import { useAuth, useTranslation, useVerifyPaymentReturn } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 import { Button, Flex, Icon, Spinner } from '@molecule/app-ui-react'
 
@@ -23,6 +23,18 @@ export interface PlanUpdatedProps {
   actionDefault?: string
   /** Href the return-home action navigates to. Defaults to `/`. */
   actionHref?: string
+  /**
+   * Provider name to verify the purchase with when the return URL carries no
+   * `provider` parameter (older checkout sessions). Verification is skipped
+   * when neither names one.
+   */
+  provider?: string
+  /**
+   * Set `false` to render the confirmation without verifying the purchase —
+   * only for apps that grant the plan some other way (a provider webhook you
+   * know is configured, or a manual back-office flow).
+   */
+  verify?: boolean
 }
 
 /**
@@ -53,16 +65,47 @@ export function PlanUpdated({
   actionKey = 'planUpdated.returnHome',
   actionDefault = 'Return home',
   actionHref = '/',
+  provider,
+  verify = true,
 }: PlanUpdatedProps = {}): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
   const { state } = useAuth()
+  // The provider redirects here with the purchase id in the query; confirming
+  // it server-side from THIS origin is what grants the plan (see remarks).
+  const verification = useVerifyPaymentReturn({ provider, enabled: verify })
 
-  if (!state.initialized) {
+  if (!state.initialized || verification.status === 'verifying') {
     return (
       <Flex align="center" justify="center" className={cm.sp('py', 12)}>
         <Spinner />
       </Flex>
+    )
+  }
+
+  if (verification.status === 'failed') {
+    return (
+      <section
+        className={cm.cn(cm.maxW('xl'), cm.mxAuto, cm.textCenter, cm.sp('px', 6), cm.sp('py', 16))}
+        data-mol-id="plan-updated-page"
+      >
+        <h2
+          className={cm.cn(cm.textSize('2xl'), cm.fontWeight('bold'), cm.sp('mb', 4))}
+          data-mol-id="plan-updated-error"
+        >
+          {t('planUpdated.verifyFailed', undefined, {
+            defaultValue: 'We could not confirm your payment yet.',
+          })}
+        </h2>
+        <Button
+          variant="solid"
+          size="lg"
+          onClick={verification.retry}
+          data-mol-id="plan-updated-retry"
+        >
+          {t('planUpdated.retry', undefined, { defaultValue: 'Try again' })}
+        </Button>
+      </section>
     )
   }
 

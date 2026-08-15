@@ -65,6 +65,14 @@
  *   mounted). Scaffolded Vite configs ship
  *   `resolve.dedupe: ['react', 'react-dom', 'react-router', 'react-router']` — keep it, and
  *   add any new hook-bearing peer library there too.
+ * - **A payment provider's post-checkout redirect must land on the APP, and the page it
+ *   lands on has to finish the purchase.** `useVerifyPaymentReturn()` reads the id the
+ *   provider left in the query and confirms it with
+ *   `POST /users/:id/verify-payment/:provider` — a same-origin call, so the session cookie
+ *   applies. Redirecting straight to that API route from the provider's domain sends a
+ *   top-level navigation with NO credentials: it answers 401 and the paid plan is never
+ *   granted. The shipped confirmation pages (`@molecule/app-plan-updated-page-react`,
+ *   `@molecule/app-legal-pages-react`) already call it.
  * - `RouterProvider` carries a molecule `Router` (e.g. `createReactRouter()` from
  *   `@molecule/app-routing-react-router`). react-router's own `<BrowserRouter>` context is
  *   separate — components that render react-router `<Link>` (several in
