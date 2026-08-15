@@ -74,6 +74,27 @@
  * the very next `get()`, since obtaining a handle connects. Anything that polls a
  * stopped sandbox (status, logs, files) must go through `describe()`.
  *
+ * **`exec()` starts the command and waits on its HANDLE, never inline.** E2B's
+ * inline `commands.run` waits for the whole process GROUP, so any command that
+ * leaves a detached child behind — `nohup … >log 2>&1 &`, i.e. every dev-server
+ * launch — blocks until the request deadline and then throws while the child is
+ * running perfectly. Starting in the background and awaiting the handle returns
+ * the STARTED process's real exit code in milliseconds, so a launcher learns
+ * whether its command was accepted. Do not reintroduce the old shortcut of
+ * sniffing the command string for a trailing `&`: it classified shell text
+ * instead of observing the process, and got both halves wrong — a launch shaped
+ * `… & fi` did not match and hung, while a user's `npm run build &` was answered
+ * with a fabricated empty success.
+ *
+ * **`spawn()` is what an editor and a terminal need, and `exec()` cannot give.**
+ * It returns a live process: streaming stdout/stderr, writable stdin, `kill()`.
+ * Pass `pty: { cols, rows }` for a real controlling terminal — then Ctrl-C
+ * (`0x03`) becomes SIGINT for the foreground job and `handle.resize({cols,rows})`
+ * renegotiates the width. Omit it for a language server, whose framed JSON-RPC a
+ * PTY would corrupt with echo and CR translation. A PTY request is REJECTED
+ * rather than downgraded when the SDK build has no `pty` module, because a
+ * terminal that silently got pipes is a terminal whose Ctrl-C does nothing.
+ *
  * **Sandboxes are created to PAUSE at their timeout, not to be killed.** E2B's
  * default is `onTimeout: 'kill'`, so a sandbox nothing touched for its lifetime
  * would be destroyed with its files. This bond creates every sandbox with

@@ -105,6 +105,33 @@ export interface ExecOptions {
 }
 
 /**
+ * Options for spawning a long-running process.
+ *
+ * Same working directory / env / timeout meaning as {@link ExecOptions}, plus
+ * the one thing a long-lived interactive process needs and a one-shot exec does
+ * not: a terminal.
+ */
+export interface SpawnOptions extends ExecOptions {
+  /**
+   * Allocate a pseudo-terminal of this size for the process, instead of plain
+   * pipes.
+   *
+   * A PTY is not cosmetic. Without one there is no job control, so Ctrl-C
+   * (`0x03`) is just a byte on stdin that nothing turns into SIGINT, and no
+   * width is negotiated, so tools that format to the terminal disable it. With
+   * one, the sandbox side behaves exactly like a real shell — which is why an
+   * interactive terminal should ask for it and a language server (JSON-RPC over
+   * stdio, which a PTY would corrupt with echo and CR translation) must not.
+   *
+   * Providers that cannot allocate a PTY must reject the spawn rather than
+   * silently return pipes: a caller that asked for a terminal and got pipes has
+   * a terminal whose Ctrl-C does nothing, which is the failure this option
+   * exists to prevent.
+   */
+  pty?: { cols: number; rows: number }
+}
+
+/**
  * Handle to a spawned long-running process with streaming I/O.
  */
 export interface SpawnHandle {
@@ -118,6 +145,16 @@ export interface SpawnHandle {
   onClose(cb: () => void): void
   /** Kill the spawned process. */
   kill(): void
+  /**
+   * Resize the process's terminal.
+   *
+   * Only meaningful when the spawn requested {@link SpawnOptions.pty}; present
+   * only on handles that can actually do it, so a caller feature-detects
+   * (`handle.resize?.(size)`) rather than trusting that a resize happened.
+   *
+   * @param size - The new terminal size in character cells.
+   */
+  resize?(size: { cols: number; rows: number }): void
 }
 
 /**
@@ -187,8 +224,19 @@ export interface Sandbox {
 
   exec(command: string, opts?: ExecOptions): Promise<ExecResult>
 
-  /** Spawn a persistent process with streaming I/O. Optional — not all providers support this. */
-  spawn?(command: string, opts?: ExecOptions): Promise<SpawnHandle>
+  /**
+   * Spawn a persistent process with streaming I/O.
+   *
+   * Optional — not all providers support this. A provider that implements it
+   * MUST reject (never silently downgrade) when it cannot honour
+   * {@link SpawnOptions.pty}, so a caller can feature-detect a terminal by
+   * asking for one.
+   *
+   * @param command - The command to run.
+   * @param opts - Working directory, env, timeout, and optional PTY size.
+   * @returns A handle for streaming I/O and killing the process.
+   */
+  spawn?(command: string, opts?: SpawnOptions): Promise<SpawnHandle>
 
   readFile(path: string): Promise<string>
   writeFile(path: string, content: string): Promise<void>

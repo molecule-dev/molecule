@@ -20,9 +20,12 @@ import type {
   SandboxConfig,
   SandboxDescriptor,
   SandboxProvider,
+  SpawnHandle,
+  SpawnOptions,
 } from '@molecule/api-code-sandbox'
 
 import type {
+  E2BCommandHandleLike,
   E2BConfig,
   E2BSandboxClientLike,
   E2BSandboxInfoLike,
@@ -33,6 +36,15 @@ import type {
 const DEFAULT_PREVIEW_PORT = 5173
 /** Default sandbox lifetime before E2B auto-pauses (control plane extends per heartbeat). */
 const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000
+/**
+ * Default lifetime for a spawned process. The SDK's own default is 60 s, which
+ * is a sane cap for a one-shot command and useless for the things `spawn` is
+ * for — a language server or a terminal session that must survive as long as the
+ * editor tab does.
+ */
+const DEFAULT_SPAWN_TIMEOUT_MS = 60 * 60 * 1000
+/** Default lifetime for a PTY session; same reasoning as {@link DEFAULT_SPAWN_TIMEOUT_MS}. */
+const DEFAULT_PTY_TIMEOUT_MS = 60 * 60 * 1000
 /**
  * E2B's "all destinations" selector (`0.0.0.0/0`, the SDK's `ALL_TRAFFIC`).
  * Put in `denyOut` alongside an `allowOut` list to make egress deny-by-default —
@@ -300,27 +312,37 @@ class E2BSandbox implements Sandbox {
    * @returns stdout, stderr and the exit code (even when non-zero).
    */
   async exec(command: string, opts?: ExecOptions): Promise<ExecResult> {
-    // A shell-backgrounded command (`… &` / `… & true`) must NOT block exec —
-    // that is the whole point of `&`. E2B's `commands.run` waits for the process
-    // group anyway (a detached `nohup`/`setsid` dev-server launch times out the
-    // request), so route backgrounded commands through the SDK's native
-    // `background: true`, which returns immediately. The control plane launches
-    // every dev server this way (`nohup sh -c '…' >log 2>&1 & true`), so this
-    // makes the provider-agnostic launch code work unchanged on E2B.
-    if (/&\s*(?:true\s*)?$/.test(command)) {
-      await this.sbx.commands.run(command, {
-        cwd: opts?.cwd,
-        envs: opts?.env,
-        background: true,
-      } as never)
-      return { stdout: '', stderr: '', exitCode: 0 }
-    }
+    // START the command, then wait on its HANDLE — never `run()` inline.
+    //
+    // Inline `run()` waits for the process GROUP, so any command that leaves a
+    // detached child behind (`nohup … & true`, and every dev-server launch on
+    // this platform) blocks until the request deadline and then throws, while
+    // the child is in fact running fine. The bond used to dodge that by
+    // sniffing the command string for a trailing `&` and returning a fabricated
+    // `exitCode: 0` — which classified the shell text instead of observing the
+    // process, so it lied twice: a launch shaped `… & fi` (an `if` guard around
+    // the `&`) did not match and hung for the full timeout, and a user's
+    // `npm run build &` in the terminal reported instant success with no output
+    // whether or not it started.
+    //
+    // The handle removes the guesswork: `wait()` resolves when the STARTED
+    // process exits, so a detached launch returns in milliseconds WITH its real
+    // exit code, and an ordinary command still returns its full stdout/stderr.
+    // Verified live against E2B: a `nohup … >log 2>&1 &` launch returns in
+    // ~200 ms with the child still running, and its deadline does not kill it.
     try {
-      const r = await this.sbx.commands.run(command, {
+      const handle = await this.sbx.commands.run(command, {
         cwd: opts?.cwd,
         timeoutMs: opts?.timeout,
         envs: opts?.env,
+        background: true,
       })
+      // The core contract is RETURN, not throw: a non-zero exit is data
+      // (`exitCode`), not an error — control-plane code reads it to decide
+      // (install sentinels, health probes, existence checks). E2B raises
+      // `CommandExitError` for that, so it is caught and mapped below; only a
+      // genuine infrastructure failure (no `.result`) rethrows.
+      const r = await handle.wait()
       return { stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode }
     } catch (error) {
       const res = (error as { result?: { stdout?: string; stderr?: string; exitCode?: number } })
@@ -329,6 +351,133 @@ class E2BSandbox implements Sandbox {
         return { stdout: res.stdout ?? '', stderr: res.stderr ?? '', exitCode: res.exitCode }
       }
       throw error
+    }
+  }
+
+  /**
+   * Spawn a long-running process with streaming I/O, optionally on a PTY.
+   *
+   * This is the capability an interactive terminal and a language server need
+   * and `exec` cannot provide: a process that outlives the call, streams as it
+   * runs, takes input, and can be killed. Without it the IDE has no editor
+   * intelligence at all (the LSP socket closes 4003 "Sandbox does not support
+   * spawn") and no cancellable terminal.
+   *
+   * With {@link SpawnOptions.pty} the process gets a real controlling terminal,
+   * so Ctrl-C (`0x03`) becomes SIGINT for the foreground job and `resize()`
+   * renegotiates the width. Without it, stdio is plain pipes — which is what a
+   * language server requires, since a PTY would echo input and translate
+   * newlines straight through its framed JSON-RPC.
+   *
+   * A PTY request is REJECTED rather than downgraded when the SDK build has no
+   * `pty` module: a terminal that silently got pipes is a terminal whose Ctrl-C
+   * does nothing, and the caller must be able to tell.
+   *
+   * @param command - The command to run. Ignored when a PTY is requested — E2B
+   *   starts the user's login shell on the PTY, which is the point.
+   * @param opts - Working directory, env, timeout, and optional PTY size.
+   * @returns A handle with streaming I/O, stdin, kill, and (on a PTY) resize.
+   */
+  async spawn(command: string, opts?: SpawnOptions): Promise<SpawnHandle> {
+    const stdoutListeners: Array<(data: string) => void> = []
+    const stderrListeners: Array<(data: string) => void> = []
+    const closeListeners: Array<() => void> = []
+    let closed = false
+    const fireClose = (): void => {
+      if (closed) return
+      closed = true
+      for (const cb of closeListeners) cb()
+    }
+    const emit = (listeners: Array<(data: string) => void>, data: string): void => {
+      for (const cb of listeners) cb(data)
+    }
+
+    let handle: E2BCommandHandleLike
+    let resize: ((size: { cols: number; rows: number }) => void) | undefined
+
+    if (opts?.pty) {
+      const pty = this.sbx.pty
+      if (!pty) {
+        throw new Error('E2B SDK build does not expose a pty module; cannot spawn a terminal')
+      }
+      const decoder = new TextDecoder()
+      handle = await pty.create({
+        cols: opts.pty.cols,
+        rows: opts.pty.rows,
+        cwd: opts.cwd,
+        envs: opts.env,
+        // A terminal must outlive the default 60 s command deadline; the caller
+        // decides how long a session may sit idle.
+        timeoutMs: opts.timeout ?? DEFAULT_PTY_TIMEOUT_MS,
+        // A PTY merges stderr into the terminal stream by definition — there is
+        // one file descriptor, which is why a terminal shows them interleaved.
+        onData: (data) => emit(stdoutListeners, decoder.decode(data, { stream: true })),
+      })
+      const pid = handle.pid
+      resize = (size) => {
+        void pty.resize(pid, size).catch((_error) => {
+          // Best-effort: a resize races the process exiting, and a failed one
+          // only means the remote width is stale — never a reason to tear down
+          // a live session.
+        })
+      }
+    } else {
+      handle = await this.sbx.commands.run(command, {
+        cwd: opts?.cwd,
+        envs: opts?.env,
+        timeoutMs: opts?.timeout ?? DEFAULT_SPAWN_TIMEOUT_MS,
+        background: true,
+        stdin: true,
+        onStdout: (data) => emit(stdoutListeners, data),
+        onStderr: (data) => emit(stderrListeners, data),
+      })
+    }
+
+    // `wait()` settles when the process exits, however it exited (including the
+    // deadline), so it is the one signal that covers every close path.
+    handle
+      .wait()
+      .then(fireClose)
+      .catch((_error) => {
+        // A non-zero exit / timeout rejects here; for a spawn the only fact that
+        // matters is that the process is over, and the caller learns it the same
+        // way either way.
+        fireClose()
+      })
+
+    const encoder = new TextEncoder()
+    const ptyPid = opts?.pty ? handle.pid : null
+    const pty = this.sbx.pty
+    return {
+      write: (data: string): void => {
+        const write =
+          ptyPid !== null && pty
+            ? pty.sendInput(ptyPid, encoder.encode(data))
+            : handle.sendStdin(data)
+        void write.catch((_error) => {
+          // The process may have exited between the caller's check and this
+          // write; `onClose` is what tells them, so a lost keystroke on a dead
+          // process must not throw into an event handler.
+        })
+      },
+      onStdout: (cb) => {
+        stdoutListeners.push(cb)
+      },
+      onStderr: (cb) => {
+        stderrListeners.push(cb)
+      },
+      onClose: (cb) => {
+        closeListeners.push(cb)
+        if (closed) cb()
+      },
+      kill: (): void => {
+        const killed = ptyPid !== null && pty ? pty.kill(ptyPid) : handle.kill()
+        void killed.catch((_error) => {
+          // Already gone / unreachable — kill is idempotent from the caller's
+          // point of view, and `onClose` still fires from `wait()`.
+        })
+      },
+      ...(resize ? { resize } : {}),
     }
   }
 

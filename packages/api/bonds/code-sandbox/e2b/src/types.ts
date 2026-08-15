@@ -70,24 +70,82 @@ export interface E2BFilesystemLike {
   remove(path: string): Promise<void>
 }
 
+/**
+ * Handle to a command started with `background: true` (the SDK's `CommandHandle`).
+ *
+ * The handle is what makes a backgrounded start HONEST: it carries the pid, and
+ * `wait()` resolves with the real exit code once the started process exits —
+ * even when it left a detached child behind. A launcher therefore learns whether
+ * its command was accepted instead of being handed a fabricated success.
+ */
+export interface E2BCommandHandleLike {
+  /** The started process's pid inside the sandbox. */
+  pid: number
+  /**
+   * Resolve when the started process exits. Rejects with the SDK's
+   * `CommandExitError` (carrying `.result`) on a non-zero exit, and with a
+   * timeout error when `timeoutMs` elapses first.
+   */
+  wait(): Promise<E2BCommandResultLike>
+  /** Write to the process's stdin (requires `stdin: true` at start). */
+  sendStdin(data: string | Uint8Array): Promise<void>
+  /** Kill the process. */
+  kill(): Promise<boolean>
+  /** Stop streaming without killing the process. */
+  disconnect?(): Promise<void>
+}
+
+/** Options accepted by the SDK's `commands.run`. */
+export interface E2BCommandRunOpts {
+  cwd?: string
+  timeoutMs?: number
+  envs?: Record<string, string>
+  /** Keep stdin open so {@link E2BCommandHandleLike.sendStdin} works. */
+  stdin?: boolean
+  onStdout?: (data: string) => void
+  onStderr?: (data: string) => void
+}
+
 /** Subset of the SDK's `Commands` the bond uses. */
 export interface E2BCommandsLike {
-  run(
-    cmd: string,
-    opts?: {
-      cwd?: string
-      timeoutMs?: number
-      envs?: Record<string, string>
-      /** Fire-and-forget: returns immediately without waiting for exit. */
-      background?: boolean
-    },
-  ): Promise<E2BCommandResultLike>
+  /**
+   * Start a command and return a handle immediately. The bond always uses this
+   * form: waiting inline blocks until the whole process GROUP ends, which never
+   * happens for a launch that leaves a dev server running.
+   */
+  run(cmd: string, opts: E2BCommandRunOpts & { background: true }): Promise<E2BCommandHandleLike>
+  /** Run a command to completion (the SDK's default). */
+  run(cmd: string, opts?: E2BCommandRunOpts & { background?: false }): Promise<E2BCommandResultLike>
+}
+
+/**
+ * Subset of the SDK's `Pty` module the bond uses.
+ *
+ * A PTY is a different mechanism from a command, not a flag on one: it has its
+ * own create/input/resize/kill endpoints, and only it gives the sandbox side a
+ * controlling terminal (job control, so Ctrl-C becomes SIGINT; a negotiated
+ * width, so tools format to the real panel size).
+ */
+export interface E2BPtyLike {
+  create(opts: {
+    cols: number
+    rows: number
+    onData: (data: Uint8Array) => void
+    cwd?: string
+    envs?: Record<string, string>
+    timeoutMs?: number
+  }): Promise<E2BCommandHandleLike>
+  sendInput(pid: number, data: Uint8Array): Promise<void>
+  resize(pid: number, size: { cols: number; rows: number }): Promise<void>
+  kill(pid: number): Promise<boolean>
 }
 
 /** Subset of the SDK's `Sandbox` instance the bond uses. */
 export interface E2BSandboxLike {
   sandboxId: string
   commands: E2BCommandsLike
+  /** Present on SDK builds that support pseudo-terminals; absent means no PTY. */
+  pty?: E2BPtyLike
   files: E2BFilesystemLike
   getHost(port: number): string
   setTimeout(ms: number): Promise<void>

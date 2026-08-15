@@ -32,6 +32,7 @@ import type {
   SandboxResources,
   SandboxTemplate,
   SpawnHandle,
+  SpawnOptions,
   VolumeInfo,
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
@@ -1009,18 +1010,33 @@ class DockerSandboxProvider implements SandboxProvider {
         return provider.previewUrlTemplate.replace(/\{port\}/g, String(port ?? 5173))
       },
 
-      async spawn(command: string, opts?: ExecOptions): Promise<SpawnHandle> {
+      /**
+       * Spawn a long-running process with streaming I/O, optionally on a PTY.
+       *
+       * `opts.pty` asks Docker for `Tty: true`, which gives the process a real
+       * controlling terminal: Ctrl-C (`0x03`) becomes SIGINT for the foreground
+       * job and the width can be renegotiated through `handle.resize()`. A TTY
+       * exec stream is NOT multiplexed, so the frame parser is bypassed and
+       * everything (stderr included, as on a real terminal) arrives on stdout.
+       *
+       * @param command - The command to run.
+       * @param opts - Working directory, env, and optional PTY size.
+       * @returns A handle with streaming I/O, stdin, kill, and (on a PTY) resize.
+       */
+      async spawn(command: string, opts?: SpawnOptions): Promise<SpawnHandle> {
+        const tty = Boolean(opts?.pty)
         const execCreate = (await provider.dockerApi(`/containers/${containerId}/exec`, 'POST', {
           Cmd: ['sh', '-c', command],
           AttachStdin: true,
           AttachStdout: true,
           AttachStderr: true,
-          Tty: false,
+          Tty: tty,
+          ...(opts?.pty ? { ConsoleSize: [opts.pty.rows, opts.pty.cols] } : {}),
           WorkingDir: opts?.cwd ?? '/workspace',
           Env: opts?.env ? Object.entries(opts.env).map(([k, v]) => `${k}=${v}`) : undefined,
         })) as { Id: string }
 
-        const socket = await provider.dockerExecUpgrade(execCreate.Id)
+        const socket = await provider.dockerExecUpgrade(execCreate.Id, tty)
         const parser = new DockerMuxParser()
         let closeCb: (() => void) | null = null
 
@@ -1030,7 +1046,16 @@ class DockerSandboxProvider implements SandboxProvider {
           socket.destroy()
         })
 
+        // A TTY exec stream carries raw terminal bytes — there are no 8-byte
+        // frame headers to strip, and feeding them to the mux parser would read
+        // the first byte of the shell's output as a stream descriptor.
+        const ttyListeners: Array<(data: string) => void> = []
         socket.on('data', (chunk: Buffer) => {
+          if (tty) {
+            const text = chunk.toString('utf8')
+            for (const cb of ttyListeners) cb(text)
+            return
+          }
           try {
             parser.feed(chunk)
           } catch (err) {
@@ -1055,10 +1080,13 @@ class DockerSandboxProvider implements SandboxProvider {
             if (!socket.destroyed) socket.write(data)
           },
           onStdout(cb: (data: string) => void): void {
-            parser.onStdout(cb)
+            if (tty) ttyListeners.push(cb)
+            else parser.onStdout(cb)
           },
           onStderr(cb: (data: string) => void): void {
-            parser.onStderr(cb)
+            // On a TTY both streams share one descriptor, so nothing arrives
+            // here — registering is harmless and keeps the handle uniform.
+            if (!tty) parser.onStderr(cb)
           },
           onClose(cb: () => void): void {
             closeCb = cb
@@ -1066,6 +1094,25 @@ class DockerSandboxProvider implements SandboxProvider {
           kill(): void {
             if (!socket.destroyed) socket.destroy()
           },
+          ...(tty
+            ? {
+                resize(size: { cols: number; rows: number }): void {
+                  void provider
+                    .dockerApi(
+                      `/exec/${execCreate.Id}/resize?h=${Math.max(1, Math.floor(size.rows))}&w=${Math.max(1, Math.floor(size.cols))}`,
+                      'POST',
+                    )
+                    .catch((error: unknown) => {
+                      // Best-effort: a resize races the exec exiting, and a
+                      // failed one only leaves the remote width stale — never a
+                      // reason to tear down a live session.
+                      logger.debug('Spawn resize failed', {
+                        error: error instanceof Error ? error.message : error,
+                      })
+                    })
+                },
+              }
+            : {}),
         }
       },
 
@@ -1595,11 +1642,14 @@ class DockerSandboxProvider implements SandboxProvider {
    * bidirectional socket. Docker hijacks the connection (101 Switching Protocols)
    * when stdin is attached, giving us a raw TCP socket for streaming I/O.
    * @param execId - The exec instance ID from the create step.
+   * @param tty - Whether the exec was created with a TTY; the start call must
+   *   agree, or Docker streams multiplexed frames to a terminal expecting raw
+   *   bytes.
    * @returns The raw socket for stdin writes and multiplexed stdout/stderr reads.
    */
-  private dockerExecUpgrade(execId: string): Promise<Socket> {
+  private dockerExecUpgrade(execId: string, tty = false): Promise<Socket> {
     return new Promise((resolve, reject) => {
-      const body = JSON.stringify({ Detach: false, Tty: false })
+      const body = JSON.stringify({ Detach: false, Tty: tty })
       const req = http.request(
         {
           ...this.endpoint,

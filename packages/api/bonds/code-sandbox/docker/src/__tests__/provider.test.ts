@@ -579,6 +579,123 @@ describe('DockerSandboxProvider', () => {
     })
   })
 
+  // ─── spawn({ pty }) — a real terminal, not pipes ──────────────────────
+
+  describe('spawn with a PTY', () => {
+    /**
+     * A terminal needs a TTY: without one there is no job control, so Ctrl-C is
+     * an inert byte on stdin and no width is negotiated. These assert the three
+     * things that make the handle a terminal — the exec is created WITH a tty,
+     * its stream is raw (not multiplexed frames), and resize reaches Docker.
+     */
+    async function spawnPty(): Promise<{
+      handle: Awaited<ReturnType<NonNullable<Awaited<ReturnType<typeof createSandbox>>['spawn']>>>
+      socket: PassThrough & { destroyed: boolean; setTimeout: ReturnType<typeof vi.fn> }
+    }> {
+      const sandbox = await createSandbox('container-pty')
+
+      const mockSocket = new PassThrough() as PassThrough & {
+        destroyed: boolean
+        setTimeout: ReturnType<typeof vi.fn>
+        destroy: ReturnType<typeof vi.fn>
+      }
+      mockSocket.destroyed = false
+      mockSocket.setTimeout = vi.fn()
+      mockSocket.destroy = vi.fn(() => {
+        mockSocket.destroyed = true
+      })
+
+      let callCount = 0
+      vi.mocked(http.request).mockImplementation(
+        (
+          opts: string | URL | http.RequestOptions,
+          cbOrOpts?: RequestCallback | http.RequestOptions,
+          maybeCb?: RequestCallback,
+        ) => {
+          callCount++
+          const options = (typeof opts === 'object' ? opts : {}) as http.RequestOptions
+          const callback = typeof cbOrOpts === 'function' ? cbOrOpts : maybeCb
+          const req = buildMockRequest(new EventEmitter())
+          const record = {
+            opts: options,
+            body: undefined as string | undefined,
+            req,
+            respond: () => {},
+          }
+          req.write = vi.fn((chunk: string) => {
+            record.body = String(chunk)
+            return true
+          })
+          httpRequestCalls.push(record)
+          if (callCount === 1) {
+            const res = buildMockResponse(200, JSON.stringify({ Id: 'exec-pty' }))
+            req.end.mockImplementation(() => {
+              process.nextTick(() => callback?.(res))
+            })
+            return req as unknown as http.ClientRequest
+          }
+          if (String(options.path).includes('/resize')) {
+            const res = buildMockResponse(200, '{}')
+            req.end.mockImplementation(() => {
+              process.nextTick(() => callback?.(res))
+            })
+            return req as unknown as http.ClientRequest
+          }
+          req.end.mockImplementation(() => {
+            process.nextTick(() => {
+              req.emit('upgrade', {}, mockSocket, Buffer.alloc(0))
+            })
+          })
+          return req as unknown as http.ClientRequest
+        },
+      )
+
+      const handle = await sandbox.spawn!('bash -l', { pty: { cols: 120, rows: 40 } })
+      return { handle, socket: mockSocket }
+    }
+
+    async function createSandbox(id: string) {
+      const { createProvider } = await import('../provider.js')
+      const provider = createProvider({ socketPath: '/test.sock' })
+      enqueueNetworkCreate()
+      enqueueJson(201, { Id: id })
+      return provider.create({ projectId: `test-${id}` })
+    }
+
+    it('creates the exec with a TTY of the requested size', async () => {
+      await spawnPty()
+      const body = JSON.parse(execCreateCall().body!) as Record<string, unknown>
+      expect(body.Tty).toBe(true)
+      expect(body.ConsoleSize).toEqual([40, 120])
+    })
+
+    it('streams raw terminal bytes instead of parsing mux frames', async () => {
+      const { handle, socket } = await spawnPty()
+      const chunks: string[] = []
+      handle.onStdout((d) => chunks.push(d))
+
+      // A real shell prompt starts with an ESC sequence; the mux parser would
+      // have eaten the first 8 bytes as a frame header.
+      socket.push(Buffer.from('[01;32muser@box[00m:~$ ', 'utf8'))
+      await new Promise((r) => setTimeout(r, 20))
+
+      expect(chunks.join('')).toBe('[01;32muser@box[00m:~$ ')
+    })
+
+    it('sends a resize to Docker for the exec', async () => {
+      const { handle } = await spawnPty()
+      expect(handle.resize).toBeDefined()
+
+      handle.resize!({ cols: 200, rows: 50 })
+      await new Promise((r) => setTimeout(r, 20))
+
+      const resizeCall = httpRequestCalls.find((c) => String(c.opts.path).includes('/resize'))
+      expect(resizeCall).toBeDefined()
+      expect(String(resizeCall!.opts.path)).toContain('/exec/exec-pty/resize?h=50&w=200')
+      expect(resizeCall!.opts.method).toBe('POST')
+    })
+  })
+
   // ─── Container security configuration ─────────────────────────────────
 
   describe('container security configuration', () => {
