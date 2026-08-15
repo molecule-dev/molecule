@@ -45,6 +45,15 @@ describe('createStore (mysql)', () => {
         'Invalid SQL identifier',
       )
     })
+
+    it('accepts hyphenated table identifiers (quoted at every interpolation site)', async () => {
+      mockPool.query.mockResolvedValueOnce({ rows: [], rowCount: 0 })
+      await expect(store.findById('resource-share-links', '1')).resolves.toBeNull()
+      expect(mockPool.query).toHaveBeenCalledWith(
+        'SELECT * FROM `resource-share-links` WHERE `id` = ? LIMIT 1',
+        ['1'],
+      )
+    })
   })
 
   describe('findOne / findMany', () => {

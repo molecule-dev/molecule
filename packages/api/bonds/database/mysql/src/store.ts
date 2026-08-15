@@ -24,8 +24,15 @@ import type {
 
 import { pool as defaultPool } from './provider.js'
 
-/** Validates that an identifier (table/column name) is safe for SQL interpolation. */
-const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+/**
+ * Validates that an identifier (table/column name) is safe for SQL interpolation.
+ * Hyphens are allowed: every interpolation site backtick-quotes the identifier,
+ * and inside a quoted identifier only the quote character itself is dangerous
+ * (still rejected). Real consumers use hyphenated tables (e.g.
+ * `@molecule/api-resource-share`'s `resource-share-links`) — parity with the
+ * postgresql/sqlite bonds.
+ */
+const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_-]*$/
 
 /**
  * Validates that a SQL identifier (table or column name) is safe for interpolation.

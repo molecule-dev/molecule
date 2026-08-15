@@ -114,8 +114,15 @@ function buildWhere(
  * @param orderBy - Array of field/direction sort specifications.
  * @returns An SQL `ORDER BY` clause string, or an empty string if no sort is specified.
  */
-/** Validates that an identifier (table/column name) is safe for SQL interpolation. */
-const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+/**
+ * Validates that an identifier (table/column name) is safe for SQL interpolation.
+ * Hyphens are allowed: every interpolation site double-quotes the identifier, and
+ * inside a quoted identifier only `"` itself is dangerous (still rejected). Real
+ * consumers use hyphenated tables — `@molecule/api-resource-share` ships
+ * `"resource-share-links"` in its `__setup__` SQL, and rejecting it here made
+ * every share-link mint throw on Postgres.
+ */
+const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_-]*$/
 
 /**
  * Validates that a SQL identifier (table or column name) is safe for interpolation.

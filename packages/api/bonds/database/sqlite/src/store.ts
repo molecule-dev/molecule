@@ -17,8 +17,14 @@ import type {
   WhereCondition,
 } from '@molecule/api-database'
 
-/** Validates that an identifier (table/column name) is safe for SQL interpolation. */
-const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_]*$/
+/**
+ * Validates that an identifier (table/column name) is safe for SQL interpolation.
+ * Hyphens are allowed: every interpolation site double-quotes the identifier, and
+ * inside a quoted identifier only `"` itself is dangerous (still rejected). Real
+ * consumers use hyphenated tables (e.g. `@molecule/api-resource-share`'s
+ * `"resource-share-links"`) — parity with the postgresql/mysql bonds.
+ */
+const SAFE_IDENTIFIER = /^[a-zA-Z_][a-zA-Z0-9_-]*$/
 
 /**
  * Validates that a SQL identifier (table or column name) is safe for interpolation.

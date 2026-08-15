@@ -476,9 +476,12 @@ describe('@molecule/api-database-postgresql', () => {
     })
 
     describe('valid identifiers should be accepted', () => {
-      it.each(['users', 'created_at', '_private', 'A123'])('accepts "%s"', async (name) => {
-        await expect(store.findById(name, '1')).resolves.not.toThrow()
-      })
+      it.each(['users', 'created_at', '_private', 'A123', 'resource-share-links'])(
+        'accepts "%s"',
+        async (name) => {
+          await expect(store.findById(name, '1')).resolves.not.toThrow()
+        },
+      )
     })
 
     describe('invalid identifiers should throw', () => {
