@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-payments-stripe",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Stripe payment provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@molecule/api-proxy-agent": "1.0.0",
+    "@molecule/api-proxy-agent": "1.1.0",
     "stripe": "22.4.0"
   },
   "devDependencies": {

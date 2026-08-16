@@ -40,7 +40,7 @@
     "@molecule/api-database": "1.0.1",
     "@molecule/api-i18n": "1.0.1",
     "@molecule/api-payments": "1.1.0",
-    "@molecule/api-payments-stripe": "1.0.2",
+    "@molecule/api-payments-stripe": "1.0.3",
     "@molecule/api-rate-limit": "1.0.1",
     "@molecule/api-resource": "1.0.1",
     "@types/node": "26.1.2",

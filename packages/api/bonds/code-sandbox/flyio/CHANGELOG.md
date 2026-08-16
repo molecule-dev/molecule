@@ -1,5 +1,17 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.0
+
+### Minor Changes
+
+- 087d356: `verifyEgress()` now reads the app's network policy back from Fly, so the verdict names every allowed port as reachable to any host — a Fly policy matches protocol and port with no destination — and reports `open` when the policy in force allows a port this provider never configured. Adds `reconcileEgressPolicy(app)`, which re-applies the current policy to an app that already exists.
+
+### Patch Changes
+
+- 8a62afc: Route the template object store through the outbound proxy when one is configured. The AWS SDK v3 builds its own agent and reads no proxy variable, so the S3 client now receives a CONNECT-capable agent via its own `requestHandler` option, resolved against the configured endpoint so a store listed in `NO_PROXY` keeps connecting directly. Nothing is passed when no proxy is configured.
+- Updated dependencies [8b35739]
+  - @molecule/api-proxy-agent@1.1.0
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-search-elasticsearch",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Elasticsearch search provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -29,7 +29,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@elastic/elasticsearch": "9.4.2",
-    "@molecule/api-proxy-agent": "1.0.0"
+    "@molecule/api-proxy-agent": "1.1.0"
   },
   "peerDependencies": {
     "@molecule/api-search": "^1.0.1"

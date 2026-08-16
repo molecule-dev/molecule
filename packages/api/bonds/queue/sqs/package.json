@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-queue-sqs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AWS SQS queue provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@aws-sdk/client-sqs": "3.1098.0",
-    "@molecule/api-proxy-agent": "1.0.0"
+    "@molecule/api-proxy-agent": "1.1.0"
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.1",

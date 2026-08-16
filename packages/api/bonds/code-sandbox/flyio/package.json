@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-code-sandbox-flyio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Fly.io Machines (Firecracker microVM) code sandbox provider",
   "type": "module",
   "main": "dist/index.js",
@@ -59,6 +59,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "3.1098.0",
     "@aws-sdk/s3-request-presigner": "3.1098.0",
-    "@molecule/api-proxy-agent": "1.0.0"
+    "@molecule/api-proxy-agent": "1.1.0"
   }
 }
