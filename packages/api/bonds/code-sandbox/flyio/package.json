@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.1",
-    "@molecule/api-code-sandbox": "^1.0.1",
+    "@molecule/api-code-sandbox": "^1.2.0",
     "@molecule/api-i18n": "^1.0.1"
   },
   "peerDependenciesMeta": {

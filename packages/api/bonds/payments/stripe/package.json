@@ -37,7 +37,7 @@
   "peerDependencies": {
     "@molecule/api-bond": "^1.0.1",
     "@molecule/api-i18n": "^1.0.1",
-    "@molecule/api-payments": "^1.0.1",
+    "@molecule/api-payments": "^1.1.0",
     "@molecule/api-jwt": "^1.0.1",
     "@molecule/api-secrets": "^1.0.1"
   },
