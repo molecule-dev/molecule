@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `chargeOffSession` for capturing a payment from a saved card without the customer present. Resolves the customer's default card (falling back to their most recently attached one), confirms off-session, and returns a normalized outcome with the decline code when it fails. Requires a stable `idempotencyKey` so a retry inside Stripe's 24h window returns the original PaymentIntent instead of charging again.
+
 ## 1.0.3
 
 ### Patch Changes
