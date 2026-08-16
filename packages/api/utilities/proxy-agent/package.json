@@ -1,0 +1,48 @@
+{
+  "name": "@molecule/api-proxy-agent",
+  "version": "1.0.0",
+  "description": "CONNECT-capable HTTP(S) proxy agent built from the standard proxy environment, for vendor SDKs that ignore it.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "proxy",
+    "agent",
+    "http-proxy",
+    "https-proxy",
+    "egress"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/utilities/proxy-agent"
+  },
+  "dependencies": {
+    "http-proxy-agent": "9.1.0",
+    "https-proxy-agent": "9.1.0",
+    "proxy-from-env": "2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "@types/proxy-from-env": "1.0.4",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  }
+}
