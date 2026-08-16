@@ -371,7 +371,13 @@ describe('@molecule/api-queue-memory', () => {
 
     it('redelivers when the handler throws, then succeeds', async () => {
       vi.spyOn(console, 'warn').mockImplementation(() => {})
-      const queue = makeProvider().queue('sub-retry')
+      // The redelivery WINDOW is asserted by the test above, which keeps the
+      // 1s default on purpose. This one is about the retry SEQUENCE — two
+      // failures then a success, and the queue drained — so it shortens the
+      // delay instead of budgeting for real seconds of wall clock. Waiting on
+      // ~2s of timers inside a fixed budget is a race against whatever else the
+      // machine is doing, and it lost on CI (2026-08-16) even at 4000ms.
+      const queue = makeProvider({ handlerFailureRedeliveryDelaySeconds: 0.05 }).queue('sub-retry')
       let attempts = 0
       const unsubscribe = queue.subscribe(async () => {
         attempts += 1
@@ -381,10 +387,7 @@ describe('@molecule/api-queue-memory', () => {
       })
 
       await queue.send({ body: 'eventually' })
-      // Two handler-failure redeliveries at the default 1s each (~2000ms
-      // cumulative) before the 3rd attempt succeeds — wider than the
-      // default 2000ms waitFor budget to avoid a hairline-flaky timeout.
-      await waitFor(() => attempts === 3, 4000)
+      await waitFor(() => attempts === 3)
 
       await waitFor(async () => (await queue.size!()) === 0)
       unsubscribe()
@@ -393,7 +396,10 @@ describe('@molecule/api-queue-memory', () => {
     it('drops a message (with an error log) after maxReceiveCount failed deliveries', async () => {
       vi.spyOn(console, 'warn').mockImplementation(() => {})
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      const queue = makeProvider({ maxReceiveCount: 2 }).queue('sub-drop')
+      const queue = makeProvider({
+        maxReceiveCount: 2,
+        handlerFailureRedeliveryDelaySeconds: 0.05,
+      }).queue('sub-drop')
       let attempts = 0
       const unsubscribe = queue.subscribe(async () => {
         attempts += 1
@@ -411,7 +417,7 @@ describe('@molecule/api-queue-memory', () => {
 
     it('routes exhausted messages to the configured dead-letter queue', async () => {
       vi.spyOn(console, 'warn').mockImplementation(() => {})
-      const providerInstance = makeProvider()
+      const providerInstance = makeProvider({ handlerFailureRedeliveryDelaySeconds: 0.05 })
       const queue = await providerInstance.createQueue!('work', {
         deadLetterQueue: { name: 'work-dlq', maxReceiveCount: 2 },
       })
