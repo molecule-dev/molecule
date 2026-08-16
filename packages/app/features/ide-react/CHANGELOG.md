@@ -1,5 +1,12 @@
 # @molecule/app-ide-react
 
+## 1.2.6
+
+### Patch Changes
+
+- 6d3a546: `PreviewPanel` now asks the preview host for a CORS-readable status before mounting the app, so an edge's "unavailable" error page is no longer mistaken for a working preview; hosts that do not serve `/__mol/preview-status` keep the previous behaviour.
+- 01e02be: `ShareModal` offers only the roles the host actually grants, via a new `roles` prop that defaults to `['viewer']` — a public link is an unauthenticated credential, so write access through one is opt-in. The role `<select>` renders only when there is a real choice; with one role the dialog states what the link will grant.
+
 ## 1.2.5
 
 ### Patch Changes

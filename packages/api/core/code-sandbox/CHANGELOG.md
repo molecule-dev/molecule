@@ -1,5 +1,12 @@
 # @molecule/api-code-sandbox
 
+## 1.2.0
+
+### Minor Changes
+
+- ec16b9a: `SandboxConfig` gains `command` (the sandbox's main process, instead of the image's), `restartPolicy`, and `selfDeliveredEnv` (env the caller delivers itself, which a provider validates but must never persist in its own configuration).
+- e935836: `spawn()` now takes `SpawnOptions`, which adds `pty: { cols, rows }` for a process with a real controlling terminal, and `SpawnHandle` gains an optional `resize({ cols, rows })` for it. Providers that cannot allocate a PTY must reject the spawn rather than return pipes, so a caller can feature-detect a terminal.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-plan-updated-page-react
 
+## 1.1.0
+
+### Minor Changes
+
+- 49f6145: `PlanUpdated` now confirms the purchase a checkout redirect returns with, showing a spinner while it is in flight and a retry if it fails. New `provider` and `verify` props. Requires `@molecule/app-react` ^1.1.0.
+
 ## 1.0.1
 
 ### Patch Changes

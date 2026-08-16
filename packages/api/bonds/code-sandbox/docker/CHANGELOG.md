@@ -1,5 +1,12 @@
 # @molecule/api-code-sandbox-docker
 
+## 1.1.0
+
+### Minor Changes
+
+- ec16b9a: Map `SandboxConfig.command` onto the container's `Cmd` and `restartPolicy` onto its Docker restart policy, so a container the daemon restarts comes back running the caller's own process.
+- e935836: `spawn()` accepts `pty: { cols, rows }`, creating the exec with a TTY so Ctrl-C interrupts the foreground job, streaming the raw (unmultiplexed) terminal bytes, and exposing `handle.resize({ cols, rows })`.
+
 ## 1.0.1
 
 ### Patch Changes

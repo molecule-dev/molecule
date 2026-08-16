@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.3.0
+
+### Minor Changes
+
+- 49f6145: Adds `POST /users/:id/billing-portal/:provider`, which opens the bonded provider's hosted billing portal so a subscriber can update their card, read invoices, and cancel. Returns `{ url }`; an optional `returnPath` sends them back to a specific app page. Requires `@molecule/api-payments` ^1.1.0.
+
 ## 1.2.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-code-sandbox-flyio",
-  "version": "1.0.18",
+  "version": "1.1.0",
   "description": "Fly.io Machines (Firecracker microVM) code sandbox provider",
   "type": "module",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@molecule/api-bond": "1.0.1",
-    "@molecule/api-code-sandbox": "1.1.1",
+    "@molecule/api-code-sandbox": "1.2.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"

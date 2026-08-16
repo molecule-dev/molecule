@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-payments-stripe",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Stripe payment provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",

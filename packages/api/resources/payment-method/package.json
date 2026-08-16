@@ -34,7 +34,7 @@
     "@molecule/api-database": "1.0.1",
     "@molecule/api-i18n": "1.0.1",
     "@molecule/api-logger": "1.0.1",
-    "@molecule/api-payments": "1.0.1",
+    "@molecule/api-payments": "1.1.0",
     "@molecule/api-resource": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

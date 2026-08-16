@@ -1,5 +1,11 @@
 # @molecule/api-payments-paypal
 
+## 1.0.2
+
+### Patch Changes
+
+- 49f6145: Approval now returns the buyer to the app's `/plan-updated` page instead of the API's verify endpoint, whose host holds no session cookie (the redirect answered 401 and the plan was never granted). Requires `@molecule/api-payments` ^1.1.0.
+
 ## 1.0.1
 
 ### Patch Changes
