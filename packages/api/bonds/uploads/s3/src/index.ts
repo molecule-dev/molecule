@@ -34,6 +34,15 @@
  *   `@molecule/api-uploads`) — it never resolves as success and never calls the `upload()`
  *   call's `onError`. Identical behavior to the `@molecule/api-uploads-filesystem` bond; see
  *   that core package's `AbortHandler` remarks for the full cross-provider contract.
+ * - **Runs behind an outbound proxy when `HTTPS_PROXY` is set.** The AWS SDK v3
+ *   builds its own agent and reads no proxy variable, so on a host whose only
+ *   egress path is a proxy every upload used to fail with a bare connection
+ *   error. The client now gets a CONNECT-capable agent through its own
+ *   `requestHandler` hook (`@molecule/api-proxy-agent`, resolved against
+ *   `AWS_S3_ENDPOINT`/`AWS_ENDPOINT_URL_S3` when set and the regional endpoint
+ *   otherwise). An internal S3-compatible endpoint listed in `NO_PROXY` keeps
+ *   connecting directly, and with no proxy configured nothing is passed at all.
+ *   Allowlist `*.amazonaws.com` (or your store's host) on the proxy.
  *
  * @module
  */

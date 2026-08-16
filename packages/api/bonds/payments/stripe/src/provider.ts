@@ -16,6 +16,7 @@ const logger = getLogger()
 import './secrets.js'
 
 import type { NormalizedSubscription, SubscriptionStatus } from '@molecule/api-payments'
+import { getProxyAgent } from '@molecule/api-proxy-agent'
 import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import type {
@@ -24,6 +25,15 @@ import type {
   SubscriptionUpdateParams,
   WebhookEventResult,
 } from './types.js'
+
+/**
+ * The Stripe REST endpoint every request in this bond goes to.
+ *
+ * Only used to resolve the outbound proxy: the target URL is what decides which
+ * proxy variable applies and whether `NO_PROXY` exempts the host, so it has to
+ * be the real endpoint rather than a placeholder.
+ */
+const STRIPE_API_URL = 'https://api.stripe.com'
 
 /**
  * The lazily-initialized `Stripe` instance.
@@ -48,11 +58,24 @@ export const getClient = (): Stripe => {
       // they're trying to upgrade to a paid plan.
       throw configNotConfiguredError('STRIPE_SECRET_KEY', 'payments')
     }
+    // The Stripe SDK builds its own `https.Agent` and does NOT read
+    // HTTPS_PROXY/NO_PROXY — `NODE_USE_ENV_PROXY` does not reach it either,
+    // because it never goes through Node's proxy-aware paths. On a workstation
+    // that direct dial to api.stripe.com succeeds, so the gap is invisible; in
+    // an environment whose only egress path is a proxy (a molecule.dev sandbox,
+    // a deployed molecule.dev app) every call failed with a bare connection
+    // error. `httpAgent` is the SDK's own hook for exactly this. Undefined when
+    // no proxy is configured, so a standalone app is unaffected.
+    const httpAgent = getProxyAgent(STRIPE_API_URL)
     // Bound each request: Stripe's SDK default is an 80s timeout with automatic
     // retries, so a Stripe slowdown during a signup/upgrade surge would pin
     // request workers for over a minute each and cascade into a pool/worker
     // exhaustion outage. Cap at 15s with two retries.
-    _client = new Stripe(key, { timeout: 15_000, maxNetworkRetries: 2 })
+    _client = new Stripe(key, {
+      timeout: 15_000,
+      maxNetworkRetries: 2,
+      ...(httpAgent ? { httpAgent } : {}),
+    })
   }
   return _client
 }

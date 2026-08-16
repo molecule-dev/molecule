@@ -12,6 +12,7 @@ import { PassThrough } from 'stream'
 import { v4 as uuid } from 'uuid'
 
 import { getLogger } from '@molecule/api-bond'
+import { getProxyAgents } from '@molecule/api-proxy-agent'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
 import { UploadAbortedError } from '@molecule/api-uploads'
 const logger = getLogger()
@@ -49,10 +50,22 @@ function getS3Client(): S3Client {
     // fell back to the AWS regional endpoint and failed against a bucket that
     // does not live there.
     const endpoint = process.env.AWS_S3_ENDPOINT || process.env.AWS_ENDPOINT_URL_S3
+    const region = process.env.AWS_S3_REGION || process.env.AWS_REGION || 'us-east-1'
+    // The AWS SDK v3 builds its own `https.Agent` and reads no proxy variable
+    // (`NODE_USE_ENV_PROXY` does not reach it either — it never goes through
+    // Node's proxy-aware paths), so on a host whose only egress path is a proxy
+    // every upload failed with a bare connection error. `requestHandler` takes
+    // NodeHttpHandler OPTIONS, so the agent goes in with no `@smithy/*`
+    // dependency. Resolved against the endpoint actually in use, which matters
+    // here more than anywhere: an S3-compatible endpoint is often an internal
+    // `http://` host (MinIO, a credential broker) that NO_PROXY exempts, and
+    // proxying it would break a deployment that works today.
+    const proxy = getProxyAgents(endpoint || `https://s3.${region}.amazonaws.com`)
     _s3Client = new S3Client({
-      region: process.env.AWS_S3_REGION || process.env.AWS_REGION || 'us-east-1',
+      region,
       ...(endpoint ? { endpoint } : {}),
       ...(process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ? { forcePathStyle: true } : {}),
+      ...(proxy ? { requestHandler: proxy } : {}),
     })
   }
   return _s3Client

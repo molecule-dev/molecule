@@ -16,6 +16,7 @@ import type {
   Sort,
 } from '@elastic/elasticsearch/lib/api/types'
 
+import { getProxyUrl } from '@molecule/api-proxy-agent'
 import type {
   BulkIndexResult,
   IndexDocument,
@@ -141,11 +142,20 @@ export const createProvider = (options?: ElasticsearchOptions): SearchProvider =
 
   const auth = apiKey ? { apiKey } : username && password ? { username, password } : undefined
 
+  // `@elastic/transport` builds its own `undici.Pool` bound to the node origin,
+  // which bypasses the global dispatcher `NODE_USE_ENV_PROXY` installs — so on a
+  // host whose only egress path is a proxy every request failed with a bare
+  // connection error. Its own `proxy` option is the hook (it wants the proxy
+  // URL, not an agent). Resolved against the node URL, so a self-hosted cluster
+  // that NO_PROXY exempts — the common case — keeps connecting directly.
+  const proxy = getProxyUrl(node)
+
   const client = new Client({
     node,
     auth,
     requestTimeout,
     maxRetries,
+    ...(proxy ? { proxy } : {}),
   })
 
   const rawProvider: SearchProvider = {

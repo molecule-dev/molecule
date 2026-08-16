@@ -24,6 +24,14 @@
  * (https://www.tigrisdata.com/docs/api/s3/): PutObject, GetObject, HeadObject,
  * ListObjectsV2, DeleteObject and DeleteObjects.
  *
+ * Runs behind an outbound proxy when `HTTPS_PROXY` is set: the AWS SDK v3 builds
+ * its own agent and reads no proxy variable, so the client is given a
+ * CONNECT-capable one through its `requestHandler` hook
+ * (`@molecule/api-proxy-agent`, resolved against the configured endpoint so a
+ * store listed in `NO_PROXY` keeps connecting directly). Note this covers only
+ * the control plane's calls — the sandbox moves the tar bytes itself over the
+ * presigned URLs, through whatever egress path the sandbox has.
+ *
  * @module
  */
 
@@ -36,6 +44,8 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+
+import { getProxyAgents } from '@molecule/api-proxy-agent'
 
 import type { FlyioConfig } from './types.js'
 
@@ -208,9 +218,18 @@ export function createTemplateStore(config: FlyioConfig): ObjectStore | null {
   const settings = resolveTemplateStorage(config)
   if (!settings) return null
 
+  // The AWS SDK v3 builds its own `https.Agent` and reads no proxy variable, so
+  // on a host whose only egress path is a proxy every template read/write would
+  // fail with a bare connection error. `requestHandler` takes NodeHttpHandler
+  // OPTIONS, so the agent goes in with no `@smithy/*` dependency. Resolved
+  // against the endpoint actually in use, so an internal store that NO_PROXY
+  // exempts keeps connecting directly.
+  const proxy = getProxyAgents(settings.endpoint || `https://s3.${settings.region}.amazonaws.com`)
+
   const client = new S3Client({
     region: settings.region,
     ...(settings.endpoint ? { endpoint: settings.endpoint } : {}),
+    ...(proxy ? { requestHandler: proxy } : {}),
     forcePathStyle: settings.forcePathStyle,
     credentials: {
       accessKeyId: settings.accessKeyId,

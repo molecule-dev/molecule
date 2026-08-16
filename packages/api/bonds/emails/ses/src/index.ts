@@ -24,6 +24,14 @@
  *   transport never sets `accepted`/`rejected` (the `@types/nodemailer` typings
  *   claiming otherwise are drift); a resolved send means SES accepted the
  *   message for every envelope recipient.
+ * - **Runs behind an outbound proxy when `HTTPS_PROXY` is set.** The AWS SDK v3
+ *   builds its own agent and reads no proxy variable, so on a host whose only
+ *   egress path is a proxy every send used to fail with a bare connection
+ *   error. The client now gets a CONNECT-capable agent through its own
+ *   `requestHandler` hook (`@molecule/api-proxy-agent`, resolved against
+ *   `AWS_SES_ENDPOINT` when set and the regional endpoint otherwise, so
+ *   `NO_PROXY` is honoured). With no proxy configured nothing is passed and the
+ *   SDK keeps its default handler. Allowlist `*.amazonaws.com` on the proxy.
  *
  * @example
  * ```typescript

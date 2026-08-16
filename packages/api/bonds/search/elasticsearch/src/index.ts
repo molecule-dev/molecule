@@ -47,6 +47,14 @@
  *   longer surface as a bare `ECONNREFUSED`/401: every method call wraps
  *   connectivity and auth failures into an actionable error naming the
  *   env var to check.
+ * - **Runs behind an outbound proxy when `HTTPS_PROXY` is set.** `@elastic/transport`
+ *   builds its own `undici.Pool` bound to the node origin, which bypasses the
+ *   global dispatcher `NODE_USE_ENV_PROXY` installs — so on a host whose only
+ *   egress path is a proxy every request used to fail with a bare connection
+ *   error. The client now gets the proxy URL through its own `proxy` option
+ *   (`@molecule/api-proxy-agent`, resolved against `ELASTICSEARCH_URL`). A
+ *   self-hosted cluster listed in `NO_PROXY` — the common case — keeps
+ *   connecting directly, and with no proxy configured nothing is passed.
  *
  * @module
  */

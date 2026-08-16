@@ -70,6 +70,15 @@
  * "this subscription/card is invalid" and surface the actionable 503 instead of
  * a generic 400/500.
  *
+ * **Runs behind an outbound proxy when `HTTPS_PROXY` is set.** The `stripe` SDK
+ * builds its own agent and reads no proxy variable, so on a host whose only
+ * egress path is a proxy every call used to fail with a bare connection error.
+ * This bond now passes a CONNECT-capable agent into the SDK's `httpAgent` hook
+ * (`@molecule/api-proxy-agent`, resolved against `https://api.stripe.com` so
+ * `NO_PROXY` is honoured). With no proxy configured nothing is passed and the
+ * SDK keeps its own default agent — a standalone app behaves exactly as before.
+ * Allowlist `api.stripe.com` on the proxy.
+ *
  * @module
  */
 

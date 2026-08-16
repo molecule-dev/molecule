@@ -14,6 +14,7 @@ import {
 } from '@aws-sdk/client-sqs'
 
 import { getLogger } from '@molecule/api-bond'
+import { getProxyAgents } from '@molecule/api-proxy-agent'
 const logger = getLogger()
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
@@ -52,8 +53,22 @@ export const createProvider = (options?: SQSOptions): QueueProvider => {
     }
   }
 
-  if (options?.endpoint ?? process.env.SQS_ENDPOINT) {
-    clientConfig.endpoint = options?.endpoint ?? process.env.SQS_ENDPOINT
+  const endpoint = options?.endpoint ?? process.env.SQS_ENDPOINT
+
+  if (endpoint) {
+    clientConfig.endpoint = endpoint
+  }
+
+  // The AWS SDK v3 builds its own `https.Agent` and reads no proxy variable
+  // (`NODE_USE_ENV_PROXY` does not reach it either — it never goes through
+  // Node's proxy-aware paths), so on a host whose only egress path is a proxy
+  // every queue operation failed with a bare connection error. `requestHandler`
+  // takes NodeHttpHandler OPTIONS, so the agent goes in with no `@smithy/*`
+  // dependency. Resolved against the endpoint actually in use, so a LocalStack
+  // endpoint that NO_PROXY exempts keeps connecting directly.
+  const proxy = getProxyAgents(endpoint || `https://sqs.${region}.amazonaws.com`)
+  if (proxy) {
+    clientConfig.requestHandler = proxy
   }
 
   const client = new SQSClient(clientConfig)

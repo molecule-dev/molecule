@@ -17,6 +17,7 @@ import nodemailer from 'nodemailer'
 
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
+import { getProxyAgents } from '@molecule/api-proxy-agent'
 
 const logger = getLogger()
 
@@ -49,10 +50,22 @@ let _nodemailerTransport: nodemailer.Transporter | undefined
  */
 export const getSesClient = (): SESv2Client => {
   if (!_ses) {
+    const region = process.env.AWS_SES_REGION || 'us-east-1'
+    const endpoint = process.env.AWS_SES_ENDPOINT
+    // The AWS SDK v3 builds its own `https.Agent` and reads no proxy variable
+    // (`NODE_USE_ENV_PROXY` does not reach it either — it never goes through
+    // Node's proxy-aware paths), so on a host whose only egress path is a proxy
+    // every send failed with a bare connection error. `requestHandler` takes
+    // NodeHttpHandler OPTIONS, so the agent goes in with no `@smithy/*`
+    // dependency. Resolved against the endpoint actually in use so a custom
+    // endpoint's own NO_PROXY entry is honoured; undefined when nothing is
+    // proxied, leaving the SDK's default handler in place.
+    const proxy = getProxyAgents(endpoint || `https://email.${region}.amazonaws.com`)
     _ses = new SESv2Client({
-      region: process.env.AWS_SES_REGION || 'us-east-1',
+      region,
       credentialDefaultProvider: defaultProvider,
-      ...(process.env.AWS_SES_ENDPOINT ? { endpoint: process.env.AWS_SES_ENDPOINT } : {}),
+      ...(endpoint ? { endpoint } : {}),
+      ...(proxy ? { requestHandler: proxy } : {}),
     })
   }
   return _ses

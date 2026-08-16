@@ -42,6 +42,14 @@
  *   exponential backoff (1s → 30s) instead of logging once and leaving the
  *   subscription permanently dead — it self-heals once the queue/credentials
  *   become valid.
+ * - **Runs behind an outbound proxy when `HTTPS_PROXY` is set.** The AWS SDK v3
+ *   builds its own agent and reads no proxy variable, so on a host whose only
+ *   egress path is a proxy every queue operation used to fail with a bare
+ *   connection error. The client now gets a CONNECT-capable agent through its
+ *   own `requestHandler` hook (`@molecule/api-proxy-agent`, resolved against
+ *   `SQS_ENDPOINT` when set and the regional endpoint otherwise, so a LocalStack
+ *   endpoint in `NO_PROXY` keeps connecting directly). With no proxy configured
+ *   nothing is passed. Allowlist `*.amazonaws.com` on the proxy.
  *
  * @see https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/sqs/
  *
