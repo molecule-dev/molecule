@@ -33,7 +33,9 @@ import {
   buildEgressProbeCommand,
   DEFAULT_EGRESS_POLICY_NAME,
   DEFAULT_EGRESS_PROBE_TARGETS,
+  describePublicReach,
   extractPolicyId,
+  extractPolicyPorts,
   parseEgressAllowedPorts,
   parseEgressProbeTargets,
   verdictForProbeExit,
@@ -813,7 +815,74 @@ class FlyioSandboxProvider implements SandboxProvider {
       rules: [{ action: 'allow', direction: 'egress', ports }],
     }
     await this.client.request(`/apps/${app}/network_policies`, { method: 'POST', body: policy })
-    logger.info('Applied Fly egress network policy', { app, name, ports, updated: Boolean(id) })
+    logger.info('Applied Fly egress network policy', {
+      app,
+      name,
+      ports,
+      updated: Boolean(id),
+      // A Fly policy has no destination field (measured — see the egress module
+      // description), so every port here is open to every host on the internet.
+      // Logged with the apply so the residual appears where the decision is
+      // recorded, not only in a document.
+      publicReach: describePublicReach(ports),
+    })
+  }
+
+  /**
+   * Re-applies this provider's egress policy to an app that ALREADY exists.
+   *
+   * `ensureApp()` applies the policy on the path to creating a Machine, so a
+   * change to the configured ports reaches an existing app only when something
+   * deploys into it again. Until then Fly still holds the older, wider policy —
+   * and Fly applies whatever it holds at Machine BOOT, so a host migration or a
+   * crash-restart brings that app back up under the policy the operator thought
+   * they had replaced. That window is what this closes: a consumer that knows
+   * which apps it created (from its own records — never by enumerating a
+   * provider that cannot be enumerated) can walk them at startup and put the
+   * current policy in place before any of them next boots.
+   *
+   * Idempotent, and it updates the policy this provider owns in place rather
+   * than stacking a second one.
+   * @param app - The Fly app name.
+   * @returns The ports now allowed, or `undefined` when no policy is configured
+   *   at all — in which case nothing was written, because turning "no policy"
+   *   into one that Fly then uses to drop everything else is not something to
+   *   infer from a reconciliation sweep.
+   * @throws {Error} When the policy cannot be applied. The caller decides what a
+   *   failed reconcile means; this never reports success for a write that did
+   *   not happen.
+   */
+  async reconcileEgressPolicy(app: string): Promise<FlyNetworkPolicyPort[] | undefined> {
+    const ports = this.egressAllowedPorts()
+    if (!ports) return undefined
+    await this.applyEgressPolicy(app)
+    return ports
+  }
+
+  /**
+   * Reads back the egress ports the policy Fly holds for an app allows.
+   *
+   * Best-effort by design: this feeds a DRIFT check, and a readback that failed
+   * proves nothing about the policy — treating "I could not look" as "there is
+   * no drift" is the same conflation the verdict mapping refuses, so the caller
+   * gets `undefined` and reports on the observation alone.
+   * @param app - The Fly app name.
+   * @returns The allowed ports, or `undefined` when nothing could be read.
+   */
+  private async readAppliedPolicyPorts(app: string): Promise<FlyNetworkPolicyPort[] | undefined> {
+    const name = this.config.egressPolicyName ?? DEFAULT_EGRESS_POLICY_NAME
+    try {
+      const listed = await this.client.request<unknown>(`/apps/${app}/network_policies`, {
+        nullOn: [404],
+      })
+      return extractPolicyPorts(listed, name)
+    } catch (error) {
+      logger.warn('Could not read the Fly egress policy back — reporting on the probe alone', {
+        app,
+        error,
+      })
+      return undefined
+    }
   }
 
   /**
@@ -1691,7 +1760,17 @@ class FlyioSandboxProvider implements SandboxProvider {
           seconds,
         ),
       )
-      return verdictForProbeExit(result.exitCode, { app, targets, policyPorts })
+      // Read the policy back from Fly rather than trusting the write: the probe
+      // can only speak for the ports it attempted, so a policy widened outside
+      // this provider is invisible to it. This is the observation that catches
+      // that, and it happens before the throwaway app is destroyed.
+      const appliedPolicyPorts = await this.readAppliedPolicyPorts(app)
+      return verdictForProbeExit(result.exitCode, {
+        app,
+        targets,
+        policyPorts,
+        appliedPolicyPorts,
+      })
     } catch (error) {
       // A probe that could not RUN proves nothing. Reporting `filtered` here is
       // precisely the lie this method exists to make impossible.

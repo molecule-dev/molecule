@@ -166,14 +166,25 @@ export function parsePrivateServices(raw: string | undefined): FlyPrivateService
  * still exactly what they wrote plus the ports their own declarations require,
  * and the applied policy is logged.
  *
- * Whether the addition is even load-bearing is UNVERIFIED: Fly states "Network
- * policies only apply to traffic directly to and from Machines. They do not
- * affect traffic routed through the Fly Proxy"
+ * The addition is load-bearing — VERIFIED 2026-08-16, not inferred. Fly states
+ * "Network policies only apply to traffic directly to and from Machines. They do
+ * not affect traffic routed through the Fly Proxy"
  * (https://fly.io/docs/machines/guides-examples/network-policies/), and Flycast
- * traffic IS routed through Fly Proxy — but Fly says that about ingress and
- * never addresses a Machine's egress toward a Flycast address. An inert entry
- * costs a port on the allow list; a missing one costs every database in the
- * fleet, so the port is added.
+ * traffic IS routed through Fly Proxy, so it was an open question whether these
+ * ports did anything. Measured on a throwaway app with a Flycast address into
+ * its own 6PN: under a policy allowing only `udp:53`, `molecule-pg-tenant.flycast`
+ * and `molecule-api.flycast` both RESOLVED and every TCP connect to them was
+ * dropped; re-applying the policy with `tcp:443` opened 443 and nothing else.
+ * Fly's sentence is about INGRESS — a Machine's egress TOWARD a Flycast address
+ * is filtered like any other. Drop a declared service's port and every database
+ * connection in the fleet goes with it.
+ *
+ * The cost of each derived port, stated plainly because a Fly policy has no
+ * destination field of any kind (also measured — see the `egress.ts` module
+ * description): the port is opened to EVERY host on the internet, not only to
+ * the private service it was derived for. That residual cannot be closed at this
+ * layer; it is named in `verifyEgress()`'s verdict and in
+ * `docs/sandbox-egress-enforcement.md`.
  * @param ports - The operator's configured ports, or `undefined` when no policy
  *   is being applied at all.
  * @param services - The declared private services, or `undefined`.

@@ -412,6 +412,13 @@ export interface FlyNetworkPolicyPort {
  * One rule in a Fly network policy. `allow` is the only documented action:
  * "Once you create a rule for a given direction, the default for that direction
  * becomes drop."
+ *
+ * There is no destination field, and that is measured rather than assumed
+ * (2026-08-16, live API): `ipv6_cidrs`, `ipv4_cidrs`, `cidrs`, `destinations`,
+ * `apps`, `app`, `to` and `dst` were each POSTed on a rule and each came back
+ * absent — the stored rule is `{action, direction, ports}` and nothing more. An
+ * `allow tcp/5432` rule therefore permits the Machine to reach port 5432 on
+ * every host on the internet.
  */
 export interface FlyNetworkPolicyRule {
   /** Only `allow` is supported by Fly. */
@@ -423,8 +430,16 @@ export interface FlyNetworkPolicyRule {
 }
 
 /**
- * Which Machines in the app a policy applies to. Documented criteria combine
- * with AND, so this provider uses `{ all: true }` alone.
+ * Which Machines in the app a policy applies to — the SOURCE side only. There is
+ * no destination selector: an `apps` array is the one candidate the API answers
+ * about, and it answers `400 {"error":"apps array not currently supported in
+ * selectors"}` (measured 2026-08-16); every other candidate field is silently
+ * dropped. Documented criteria combine with AND, so this provider uses
+ * `{ all: true }` alone.
+ *
+ * The API's LIST response returns this object under the key `netpolSelector`
+ * while accepting it as `selector` on write — which is why nothing here reads it
+ * back by name.
  */
 export interface FlyNetworkPolicySelector {
   /** Match every Machine in the app. */

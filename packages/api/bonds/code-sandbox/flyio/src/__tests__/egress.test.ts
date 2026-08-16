@@ -24,12 +24,15 @@ const { FlyApiClient } = await import('../api.js')
 const {
   buildEgressProbeCommand,
   DEFAULT_EGRESS_POLICY_NAME,
+  describePublicReach,
   EGRESS_PROBE_EXIT_BLOCKED,
   EGRESS_PROBE_EXIT_REACHED,
   extractPolicyId,
+  extractPolicyPorts,
   formatEgressProbeTarget,
   parseEgressAllowedPorts,
   parseEgressProbeTargets,
+  unexpectedPolicyPorts,
   verdictForProbeExit,
 } = await import('../egress.js')
 const { INDETERMINATE_EXIT_CODE } = await import('../exec.js')
@@ -128,6 +131,118 @@ describe('verdictForProbeExit — the verdict mapping', () => {
     expect(verdict.detail).toContain('no Fly network policy applied by this provider')
     expect(verdict.remediation).toContain('FLY_SANDBOX_EGRESS_ALLOWED_PORTS')
   })
+
+  // A `filtered` verdict used to say only that the probed port was dropped,
+  // which reads as "nothing gets out" — while every ALLOWED port was open to
+  // every host on the internet, because a Fly policy has no destination. That
+  // gap is what let three ports (5432, 3129, 4000) sit publicly reachable in
+  // production with the platform re-reporting `filtered` every 15 minutes.
+  it('NAMES the public reach of the allowed ports even when the verdict is filtered', () => {
+    const verdict = verdictForProbeExit(EGRESS_PROBE_EXIT_BLOCKED, {
+      ...context,
+      policyPorts: [
+        { protocol: 'udp', port: 53 },
+        { protocol: 'tcp', port: 5432 },
+        { protocol: 'tcp', port: 3129 },
+      ],
+    })
+
+    expect(verdict.state).toBe('filtered')
+    expect(verdict.detail).toContain('open to EVERY host')
+    expect(verdict.detail).toContain('tcp/5432, tcp/3129')
+  })
+
+  it('reports the reach of the policy Fly HOLDS, not the one this provider meant to apply', () => {
+    const verdict = verdictForProbeExit(EGRESS_PROBE_EXIT_BLOCKED, {
+      ...context,
+      policyPorts: [{ protocol: 'udp', port: 53 }],
+      appliedPolicyPorts: [{ protocol: 'udp', port: 53 }],
+    })
+
+    // DNS alone is not a TCP channel and is tracked as its own residual, so
+    // there is nothing to warn about here.
+    expect(verdict.state).toBe('filtered')
+    expect(verdict.detail).not.toContain('open to EVERY host')
+  })
+
+  it('is OPEN when Fly holds a port this provider never configured — even if the probe was blocked', () => {
+    const verdict = verdictForProbeExit(EGRESS_PROBE_EXIT_BLOCKED, {
+      ...context,
+      policyPorts: [{ protocol: 'udp', port: 53 }],
+      appliedPolicyPorts: [
+        { protocol: 'udp', port: 53 },
+        { protocol: 'tcp', port: 8080 },
+      ],
+    })
+
+    expect(verdict.state).toBe('open')
+    expect(verdict.detail).toContain('tcp/8080')
+    expect(verdict.remediation).toContain('network_policies')
+    expect(verdict.remediation).toContain('restart the Machines')
+  })
+
+  it('claims no drift when the policy could not be read back', () => {
+    const verdict = verdictForProbeExit(EGRESS_PROBE_EXIT_BLOCKED, {
+      ...context,
+      policyPorts: [{ protocol: 'udp', port: 53 }],
+    })
+    expect(verdict.state).toBe('filtered')
+    expect(verdict.detail).not.toContain('never configured')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// What an allowed port actually permits
+// ---------------------------------------------------------------------------
+
+describe('describePublicReach', () => {
+  it('says nothing when no policy is applied or only DNS is allowed', () => {
+    expect(describePublicReach(undefined)).toBe('')
+    expect(describePublicReach([])).toBe('')
+    expect(describePublicReach([{ protocol: 'udp', port: 53 }])).toBe('')
+  })
+
+  it('names every non-DNS port as reachable to any host on the internet', () => {
+    const sentence = describePublicReach([
+      { protocol: 'udp', port: 53 },
+      { protocol: 'tcp', port: 3129 },
+    ])
+    expect(sentence).toContain('tcp/3129')
+    expect(sentence).not.toContain('udp/53')
+    expect(sentence).toContain('no destination field')
+  })
+})
+
+describe('unexpectedPolicyPorts', () => {
+  it('returns nothing when the readback matches, or when there was no readback', () => {
+    const own = [{ protocol: 'tcp', port: 3129 } as const]
+    expect(unexpectedPolicyPorts([...own], [...own])).toEqual([])
+    expect(unexpectedPolicyPorts(undefined, [...own])).toEqual([])
+  })
+
+  it('reports a port Fly allows that this provider never configured', () => {
+    expect(
+      unexpectedPolicyPorts(
+        [
+          { protocol: 'tcp', port: 3129 },
+          { protocol: 'tcp', port: 443 },
+        ],
+        [{ protocol: 'tcp', port: 3129 }],
+      ),
+    ).toEqual([{ protocol: 'tcp', port: 443 }])
+  })
+
+  it('treats an applied policy with no intent behind it as entirely unexpected', () => {
+    expect(unexpectedPolicyPorts([{ protocol: 'tcp', port: 443 }], undefined)).toEqual([
+      { protocol: 'tcp', port: 443 },
+    ])
+  })
+
+  it('matches on protocol as well as port', () => {
+    expect(
+      unexpectedPolicyPorts([{ protocol: 'udp', port: 3129 }], [{ protocol: 'tcp', port: 3129 }]),
+    ).toEqual([{ protocol: 'udp', port: 3129 }])
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -221,6 +336,96 @@ describe('extractPolicyId', () => {
     expect(
       extractPolicyId([{ name: DEFAULT_EGRESS_POLICY_NAME }], DEFAULT_EGRESS_POLICY_NAME),
     ).toBeUndefined()
+  })
+})
+
+describe('extractPolicyPorts — what Fly actually holds', () => {
+  /** The live LIST shape, verbatim from api.machines.dev on 2026-08-16. */
+  const LIVE = [
+    {
+      id: '01M048YS9D17RDKJ5DVNFXP51Z',
+      name: DEFAULT_EGRESS_POLICY_NAME,
+      // NOT `selector` — the API answers with this key while accepting the other.
+      netpolSelector: { all: true },
+      rules: [
+        {
+          action: 'allow',
+          direction: 'egress',
+          ports: [
+            { protocol: 'udp', port: 53 },
+            { protocol: 'tcp', port: 5432 },
+            { protocol: 'tcp', port: 3129 },
+          ],
+        },
+      ],
+    },
+  ]
+
+  it('reads the egress ports out of the live response shape', () => {
+    expect(extractPolicyPorts(LIVE, DEFAULT_EGRESS_POLICY_NAME)).toEqual([
+      { protocol: 'udp', port: 53 },
+      { protocol: 'tcp', port: 5432 },
+      { protocol: 'tcp', port: 3129 },
+    ])
+  })
+
+  it('ignores ingress rules — this verdict is about egress', () => {
+    const mixed = [
+      {
+        name: DEFAULT_EGRESS_POLICY_NAME,
+        rules: [
+          { action: 'allow', direction: 'ingress', ports: [{ protocol: 'tcp', port: 8080 }] },
+          { action: 'allow', direction: 'egress', ports: [{ protocol: 'tcp', port: 3129 }] },
+        ],
+      },
+    ]
+    expect(extractPolicyPorts(mixed, DEFAULT_EGRESS_POLICY_NAME)).toEqual([
+      { protocol: 'tcp', port: 3129 },
+    ])
+  })
+
+  it('accepts a wrapped list and de-duplicates ports across rules', () => {
+    const wrapped = {
+      policies: [
+        {
+          name: DEFAULT_EGRESS_POLICY_NAME,
+          rules: [
+            { action: 'allow', direction: 'egress', ports: [{ protocol: 'tcp', port: 3129 }] },
+            { action: 'allow', direction: 'egress', ports: [{ protocol: 'tcp', port: 3129 }] },
+          ],
+        },
+      ],
+    }
+    expect(extractPolicyPorts(wrapped, DEFAULT_EGRESS_POLICY_NAME)).toEqual([
+      { protocol: 'tcp', port: 3129 },
+    ])
+  })
+
+  it('returns undefined — never [] — when there is nothing to compare', () => {
+    // `[]` would read as "Fly allows nothing", which is the opposite of "I could
+    // not look", and the drift check would then call every configured port
+    // missing rather than saying nothing.
+    expect(extractPolicyPorts([], DEFAULT_EGRESS_POLICY_NAME)).toBeUndefined()
+    expect(extractPolicyPorts(null, DEFAULT_EGRESS_POLICY_NAME)).toBeUndefined()
+    expect(
+      extractPolicyPorts([{ name: 'someone-elses-policy', rules: [] }], DEFAULT_EGRESS_POLICY_NAME),
+    ).toBeUndefined()
+  })
+
+  it('drops malformed port entries rather than inventing a protocol', () => {
+    const junk = [
+      {
+        name: DEFAULT_EGRESS_POLICY_NAME,
+        rules: [
+          {
+            action: 'allow',
+            direction: 'egress',
+            ports: [{ protocol: 'sctp', port: 9 }, { protocol: 'tcp', port: '3129' }, null, 7],
+          },
+        ],
+      },
+    ]
+    expect(extractPolicyPorts(junk, DEFAULT_EGRESS_POLICY_NAME)).toEqual([])
   })
 })
 
@@ -434,6 +639,102 @@ describe('verifyEgress — observation, not attestation', () => {
     expect(verdict.detail).toContain('egressAllowedPorts is empty')
   })
 
+  // The production shape, as measured on 2026-08-16: the policy denies the
+  // probe's port, so the observation is `filtered` — while tcp/5432 and
+  // tcp/3129, derived from the declared private services, were reachable to an
+  // arbitrary public host (portquiz.net) from the live production Machine. The
+  // verdict has to SAY that; reporting only "filtered" is what kept the hole
+  // invisible.
+  it('reports filtered but names the ports the policy leaves open to the whole internet', async () => {
+    const probe = createProbeFetch({
+      exec: { exit_code: EGRESS_PROBE_EXIT_BLOCKED },
+      policies: [
+        {
+          id: 'pol_1',
+          name: DEFAULT_EGRESS_POLICY_NAME,
+          netpolSelector: { all: true },
+          rules: [
+            {
+              action: 'allow',
+              direction: 'egress',
+              ports: [
+                { protocol: 'udp', port: 53 },
+                { protocol: 'tcp', port: 5432 },
+                { protocol: 'tcp', port: 3129 },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+    const verdict = await makeProvider(
+      {
+        egressAllowedPorts: [{ protocol: 'udp', port: 53 }],
+        privateServices: [
+          { app: 'molecule-pg-tenant', port: 5432 },
+          { app: 'molecule-api', port: 3129 },
+        ],
+      },
+      probe.fetch,
+    ).verifyEgress!()
+
+    expect(verdict.state).toBe('filtered')
+    expect(verdict.detail).toContain('open to EVERY host')
+    expect(verdict.detail).toContain('tcp/5432, tcp/3129')
+  })
+
+  it('reads the policy back from Fly and reports OPEN on a port nothing here configured', async () => {
+    const probe = createProbeFetch({
+      exec: { exit_code: EGRESS_PROBE_EXIT_BLOCKED },
+      policies: [
+        {
+          id: 'pol_1',
+          name: DEFAULT_EGRESS_POLICY_NAME,
+          rules: [
+            {
+              action: 'allow',
+              direction: 'egress',
+              ports: [
+                { protocol: 'udp', port: 53 },
+                // Somebody widened it by hand to unblock npm. The raw-connect
+                // probe attempts 443 only, so nothing else here can see this.
+                { protocol: 'tcp', port: 8080 },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+    const verdict = await makeProvider(
+      { egressAllowedPorts: [{ protocol: 'udp', port: 53 }] },
+      probe.fetch,
+    ).verifyEgress!()
+
+    expect(verdict.state).toBe('open')
+    expect(verdict.detail).toContain('tcp/8080')
+
+    // The readback has to happen while the throwaway app still exists.
+    const listIndex = probe.calls.findIndex(
+      (call) => call.method === 'GET' && call.path.endsWith('/network_policies'),
+    )
+    const appDelete = probe.calls.findIndex(
+      (call) => call.method === 'DELETE' && /^\/apps\/[^/]+$/.test(call.path),
+    )
+    expect(listIndex).toBeGreaterThanOrEqual(0)
+    expect(listIndex).toBeLessThan(appDelete)
+  })
+
+  it('stays with the probe’s own observation when the policy cannot be read back', async () => {
+    const probe = createProbeFetch({ exec: { exit_code: EGRESS_PROBE_EXIT_BLOCKED } })
+    const verdict = await makeProvider(
+      { egressAllowedPorts: [{ protocol: 'udp', port: 53 }] },
+      probe.fetch,
+    ).verifyEgress!()
+
+    expect(verdict.state).toBe('filtered')
+    expect(verdict.detail).not.toContain('never configured')
+  })
+
   it('reads probe targets from the same env var the Docker bond uses', async () => {
     process.env.SANDBOX_EGRESS_PROBE_TARGETS = '9.9.9.9:853'
     const probe = createProbeFetch({ exec: { exit_code: EGRESS_PROBE_EXIT_BLOCKED } })
@@ -568,6 +869,68 @@ describe('egress policy application', () => {
       { protocol: 'tcp', port: 3128 },
       { protocol: 'udp', port: 53 },
     ])
+  })
+
+  it('reconcileEgressPolicy re-applies the current policy to an app that already exists', async () => {
+    const double = createFetchDouble().on(`GET /apps/${APP}/network_policies`, {
+      body: [{ id: 'pol_9', name: DEFAULT_EGRESS_POLICY_NAME }],
+    })
+    const instance = provider(
+      {
+        egressAllowedPorts: [{ protocol: 'udp', port: 53 }],
+        privateServices: [{ app: 'molecule-pg-tenant', port: 5432 }],
+      },
+      double,
+    ) as unknown as { reconcileEgressPolicy: (app: string) => Promise<unknown> }
+
+    const ports = await instance.reconcileEgressPolicy(APP)
+
+    expect(ports).toEqual([
+      { protocol: 'udp', port: 53 },
+      { protocol: 'tcp', port: 5432 },
+    ])
+    // Updates in place, and touches NOTHING else — no app create, no Machine.
+    const applied = double.matching(`POST /apps/${APP}/network_policies`)
+    expect(applied).toHaveLength(1)
+    expect(applied[0].body).toEqual({
+      id: 'pol_9',
+      name: DEFAULT_EGRESS_POLICY_NAME,
+      selector: { all: true },
+      rules: [
+        {
+          action: 'allow',
+          direction: 'egress',
+          ports: [
+            { protocol: 'udp', port: 53 },
+            { protocol: 'tcp', port: 5432 },
+          ],
+        },
+      ],
+    })
+    expect(double.calls.some((call) => call.path.endsWith('/machines'))).toBe(false)
+  })
+
+  it('reconcileEgressPolicy writes NOTHING when no policy is configured', async () => {
+    const double = createFetchDouble()
+    const instance = provider({}, double) as unknown as {
+      reconcileEgressPolicy: (app: string) => Promise<unknown>
+    }
+
+    expect(await instance.reconcileEgressPolicy(APP)).toBeUndefined()
+    expect(double.calls).toHaveLength(0)
+  })
+
+  it('reconcileEgressPolicy THROWS rather than reporting a write that did not happen', async () => {
+    const double = createFetchDouble()
+    for (let i = 0; i < 8; i++) {
+      double.on(`POST /apps/${APP}/network_policies`, { status: 500, body: { error: 'nope' } })
+    }
+    const instance = provider(
+      { egressAllowedPorts: [{ protocol: 'udp', port: 53 }] },
+      double,
+    ) as unknown as { reconcileEgressPolicy: (app: string) => Promise<unknown> }
+
+    await expect(instance.reconcileEgressPolicy(APP)).rejects.toThrow(/network_policies/)
   })
 
   it('still applies the policy when the policy list cannot be read', async () => {

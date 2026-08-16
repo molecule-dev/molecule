@@ -46,6 +46,30 @@
  * and that `name` is mandatory — which is why {@link DEFAULT_EGRESS_POLICY_NAME}
  * is always sent.
  *
+ * **THE PORT LIST IS THE WHOLE POLICY — there is no destination, and this was
+ * measured rather than inferred (2026-08-16, live API, throwaway app).** Every
+ * plausible destination field was POSTed and read back: on a RULE,
+ * `ipv6_cidrs` / `ipv4_cidrs` / `cidrs` / `destinations` / `apps` / `app` / `to`
+ * / `dst` are all accepted by the decoder and DROPPED — the stored rule comes
+ * back as `{action, direction, ports}` and nothing else. On the SELECTOR (which
+ * chooses which Machines a policy covers, i.e. the SOURCE, never a destination)
+ * only `all`, `machines` and `metadata` persist; `apps` is the one field the API
+ * answers about, with `400 {"error":"apps array not currently supported in
+ * selectors"}`. So an `allow tcp/5432` rule permits that Machine to reach port
+ * 5432 on EVERY host on the internet, and no arrangement of this object can say
+ * otherwise. {@link describePublicReach} states that in the verdict rather than
+ * leaving an operator to deduce it.
+ *
+ * **The derived private-service ports ARE load-bearing** (the open question this
+ * module and FLY-OPERATOR-SETUP §9 both carried since 2026-08-05). Measured the
+ * same day: with a policy allowing only `udp:53`, a Machine on a custom 6PN
+ * could resolve `molecule-pg-tenant.flycast` and `molecule-api.flycast` but
+ * every TCP connect to them was dropped, and re-applying `tcp:443` re-opened
+ * only 443. Fly's "policies do not affect traffic routed through the Fly Proxy"
+ * is about INGRESS; a Machine's egress TOWARD a Flycast address is filtered like
+ * any other. Dropping a declared service's port would therefore take out every
+ * database connection in the fleet.
+ *
  * @module
  */
 
@@ -56,6 +80,18 @@ import { shellQuote } from './utilities.js'
 
 /** Default name of the egress policy this provider owns on each sandbox app. */
 export const DEFAULT_EGRESS_POLICY_NAME = 'molecule-sandbox-egress'
+
+/**
+ * UDP port name resolution runs on.
+ *
+ * Excluded from {@link describePublicReach}'s "reachable on" list because DNS is
+ * not a TCP channel and is a residual of its own (a resolver forwards queries
+ * upstream on the platform's behalf, which is why DNS tunnelling is tracked
+ * separately in `docs/sandbox-egress-enforcement.md` rather than as an open
+ * port). It is never excluded from {@link unexpectedPolicyPorts}: a policy that
+ * allows DNS this provider did not configure is still drift.
+ */
+const DNS_PORT = 53
 
 /**
  * Probe exit status meaning at least one raw connection to a public IP
@@ -92,10 +128,24 @@ export interface EgressProbeContext {
   targets: EgressProbeTarget[]
   /**
    * Ports this provider's own egress policy allows, or `undefined` when it
-   * applies no policy at all. Used ONLY for the message and the remediation —
-   * never to decide the verdict, which comes from the observation alone.
+   * applies no policy at all. Used for the message, the remediation, and as the
+   * INTENT half of the drift check against {@link appliedPolicyPorts} — never to
+   * decide `open` vs `filtered` from a probe that reached a target, which comes
+   * from the observation alone.
    */
   policyPorts?: FlyNetworkPolicyPort[]
+  /**
+   * Ports the policy Fly ACTUALLY holds for this app allows, read back from the
+   * API after the probe ran, or `undefined` when the readback failed or found no
+   * policy of this provider's name.
+   *
+   * This is the observation half of the only drift this module can catch: a
+   * policy widened outside the provider (by hand, by another tool, by an older
+   * build) allows ports nothing here configured, and the raw-connect probe
+   * cannot see it because it only attempts the targets it was given. See
+   * {@link unexpectedPolicyPorts}.
+   */
+  appliedPolicyPorts?: FlyNetworkPolicyPort[]
 }
 
 /** Matches a bare IPv4 literal. */
@@ -216,14 +266,79 @@ export function buildEgressProbeCommand(targets: EgressProbeTarget[], timeoutMs:
 }
 
 /**
+ * Renders a port list the way an operator reads it back.
+ * @param ports - The ports.
+ * @returns `tcp/443, udp/53`.
+ */
+function formatPorts(ports: FlyNetworkPolicyPort[]): string {
+  return ports.map((port) => `${port.protocol}/${port.port}`).join(', ')
+}
+
+/**
  * Describes the policy this provider applied, for the verdict message.
  * @param policyPorts - Allowed ports, or `undefined` when no policy is applied.
  * @returns A phrase naming the mechanism that was (or was not) in place.
  */
 function describePolicy(policyPorts: FlyNetworkPolicyPort[] | undefined): string {
   if (!policyPorts) return 'no Fly network policy applied by this provider'
-  const ports = policyPorts.map((port) => `${port.protocol}/${port.port}`).join(', ')
-  return `a Fly network policy allowing egress on ${ports}`
+  return `a Fly network policy allowing egress on ${formatPorts(policyPorts)}`
+}
+
+/**
+ * States, in the verdict itself, what an allowed port actually permits.
+ *
+ * A Fly network policy has no destination (see the module description — measured
+ * against the live API, not inferred), so every allowed port is open to every
+ * host on the internet, not only to the private service it was derived for. That
+ * is the single most consequential thing about this mechanism and it was invisible
+ * everywhere it mattered: the probe attempts one port the policy denies, reports
+ * `filtered`, and an operator reasonably reads that as "nothing gets out".
+ *
+ * Naming it here means the residual is restated on every re-probe (the consumer
+ * re-verifies every 15 minutes) instead of living only in a document.
+ * @param policyPorts - Allowed ports, or `undefined` when no policy is applied.
+ * @returns A sentence naming the public reach, or `''` when there is nothing to
+ *   say (no policy, or nothing but UDP/53 — DNS is a documented residual of its
+ *   own and not a TCP channel).
+ */
+export function describePublicReach(policyPorts: FlyNetworkPolicyPort[] | undefined): string {
+  const reachable = (policyPorts ?? []).filter(
+    (port) => port.protocol !== 'udp' || port.port !== DNS_PORT,
+  )
+  if (reachable.length === 0) return ''
+  return (
+    `Every allowed port is open to EVERY host, not only to the private service it exists for — ` +
+    `a Fly network policy matches protocol and port with no destination field of any kind — so ` +
+    `code in this app can still reach an arbitrary public host on ${formatPorts(reachable)}. ` +
+    'Route what must be filtered by host through an egress proxy on one of those ports.'
+  )
+}
+
+/**
+ * Finds ports the policy Fly holds allows that this provider never configured.
+ *
+ * The raw-connect probe can only speak for the targets it was handed, so a
+ * policy widened outside this provider — edited by hand to unblock something, or
+ * left behind by an older build — is invisible to it: the probe's own port stays
+ * denied and the verdict stays `filtered` while a port nothing here asked for is
+ * open to the whole internet. Comparing what Fly holds against what this
+ * provider intended is the one check that can catch that, and it is why the
+ * verdict reads the policy back rather than trusting the write.
+ * @param applied - Ports in the policy Fly actually holds, or `undefined` when
+ *   the readback found nothing (in which case there is nothing to compare).
+ * @param intended - Ports this provider configured, or `undefined` when it
+ *   applies no policy.
+ * @returns The applied ports with no counterpart in `intended`, in order.
+ */
+export function unexpectedPolicyPorts(
+  applied: FlyNetworkPolicyPort[] | undefined,
+  intended: FlyNetworkPolicyPort[] | undefined,
+): FlyNetworkPolicyPort[] {
+  if (!applied) return []
+  const wanted = intended ?? []
+  return applied.filter(
+    (port) => !wanted.some((own) => own.protocol === port.protocol && own.port === port.port),
+  )
 }
 
 /**
@@ -251,6 +366,28 @@ function describePolicy(policyPorts: FlyNetworkPolicyPort[] | undefined): string
 export function verdictForProbeExit(exitCode: number, context: EgressProbeContext): EgressVerdict {
   const targets = context.targets.map(formatEgressProbeTarget).join(', ')
   const policy = describePolicy(context.policyPorts)
+  const reach = describePublicReach(context.appliedPolicyPorts ?? context.policyPorts)
+
+  // Drift, and it outranks a blocked probe: the probe attempts the targets it
+  // was handed, so a port widened outside this provider is open with nothing
+  // observing it. `open` is the honest state — something out there permits
+  // traffic this provider never configured.
+  const unexpected = unexpectedPolicyPorts(context.appliedPolicyPorts, context.policyPorts)
+  if (unexpected.length > 0) {
+    return {
+      state: 'open',
+      detail: (
+        `The Fly network policy in force on app "${context.app}" allows ` +
+        `${formatPorts(unexpected)}, which this provider never configured (it applies ` +
+        `${policy}). ${describePublicReach(context.appliedPolicyPorts)}`
+      ).trim(),
+      remediation:
+        'Something outside this provider widened the policy. Inspect it with ' +
+        `\`GET /v1/apps/${context.app}/network_policies\`, remove the rule that does not belong, ` +
+        'and restart the Machines — Fly applies a policy at boot, so an already-running Machine ' +
+        'keeps the wider one until it is recreated.',
+    }
+  }
 
   if (exitCode === EGRESS_PROBE_EXIT_REACHED) {
     return {
@@ -275,7 +412,7 @@ export function verdictForProbeExit(exitCode: number, context: EgressProbeContex
       state: 'filtered',
       detail:
         `Raw TCP connects to ${targets} from a Machine in Fly app "${context.app}" ` +
-        `(${policy}) were refused or timed out.`,
+        `(${policy}) were refused or timed out.${reach ? ` ${reach}` : ''}`,
     }
   }
 
@@ -316,6 +453,60 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * @returns The matching policy's id, or `undefined`.
  */
 export function extractPolicyId(response: unknown, name: string): string | undefined {
+  const entry = findPolicy(response, name)
+  return entry && typeof entry.id === 'string' && entry.id ? entry.id : undefined
+}
+
+/**
+ * Reads back the egress ports the policy Fly ACTUALLY holds allows.
+ *
+ * The write is not the observation: this provider POSTs a policy, but what
+ * governs a Machine is whatever Fly has when that Machine boots — which may
+ * differ because a person, another tool or an older build changed it. Reading it
+ * back is what lets {@link unexpectedPolicyPorts} catch a policy wider than the
+ * one this provider configured, so `verifyEgress()` can fail on drift its raw
+ * connects were never going to attempt.
+ *
+ * Parsed as defensively as {@link extractPolicyId}, and for the same reason:
+ * neither Fly document specifies the LIST response shape. The live API answers
+ * with a bare array whose selector key is `netpolSelector` rather than the
+ * `selector` it accepts (verified 2026-08-16), which is exactly why nothing here
+ * depends on any key but `name` and `rules`.
+ * @param response - The raw parsed LIST response.
+ * @param name - The policy name to match.
+ * @returns The allowed egress ports, or `undefined` when no policy of that name
+ *   is present or the shape is unrecognized. `undefined` means "nothing to
+ *   compare", never "nothing is allowed".
+ */
+export function extractPolicyPorts(
+  response: unknown,
+  name: string,
+): FlyNetworkPolicyPort[] | undefined {
+  const entry = findPolicy(response, name)
+  if (!entry || !Array.isArray(entry.rules)) return undefined
+  const ports: FlyNetworkPolicyPort[] = []
+  for (const rule of entry.rules) {
+    if (!isRecord(rule) || rule.direction !== 'egress' || !Array.isArray(rule.ports)) continue
+    for (const port of rule.ports) {
+      if (!isRecord(port)) continue
+      const protocol = port.protocol
+      const value = port.port
+      if ((protocol !== 'tcp' && protocol !== 'udp') || typeof value !== 'number') continue
+      if (!ports.some((seen) => seen.protocol === protocol && seen.port === value)) {
+        ports.push({ protocol, port: value })
+      }
+    }
+  }
+  return ports
+}
+
+/**
+ * Finds the named policy in a LIST response.
+ * @param response - The raw parsed LIST response.
+ * @param name - The policy name to match.
+ * @returns The matching entry, or `undefined`.
+ */
+function findPolicy(response: unknown, name: string): Record<string, unknown> | undefined {
   const list = Array.isArray(response)
     ? response
     : isRecord(response)
@@ -323,9 +514,7 @@ export function extractPolicyId(response: unknown, name: string): string | undef
       : undefined
   if (!Array.isArray(list)) return undefined
   for (const entry of list) {
-    if (isRecord(entry) && entry.name === name && typeof entry.id === 'string' && entry.id) {
-      return entry.id
-    }
+    if (isRecord(entry) && entry.name === name) return entry
   }
   return undefined
 }
