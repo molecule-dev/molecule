@@ -260,6 +260,7 @@
   "@molecule/api-project-archive-external-state-postgresql",
   "@molecule/api-project-archive-external-state-sqlite",
   "@molecule/api-project-archive-object-storage",
+  "@molecule/api-proxy-agent",
   "@molecule/api-push-capture",
   "@molecule/api-push-notifications",
   "@molecule/api-push-notifications-web-push",
