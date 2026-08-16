@@ -190,17 +190,68 @@ export interface E2BSandboxInfoLike {
   volumeMounts?: Array<{ name: string; path: string }>
 }
 
+/**
+ * One row of a sandbox listing.
+ *
+ * `name` is the template the sandbox booted from (the SDK's `alias`) and
+ * `volumeMounts` is what it has attached. Both are here for the same reason: they
+ * are the only way to observe whether a volume or a snapshot is still IN USE, and
+ * deleting one that is destroys a running sandbox.
+ */
+export interface E2BSandboxListItem {
+  sandboxId: string
+  state?: string
+  /** Template/snapshot name the sandbox booted from, when the API reports one. */
+  name?: string
+  /** Volumes attached to this sandbox. */
+  volumeMounts?: Array<{ name: string; path: string }>
+}
+
+/** A team volume as E2B reports it. */
+export interface E2BVolumeLike {
+  name: string
+  volumeId: string
+}
+
+/**
+ * A snapshot as E2B reports it.
+ *
+ * `snapshotId` is the namespaced, tag-qualified reference
+ * (`<team-slug>/<name>:<tag>`) — opaque, and the thing `Sandbox.create()` boots
+ * from. The bond's OWN identifier is the bare name the caller supplied.
+ */
+export interface E2BSnapshotLike {
+  snapshotId: string
+  names?: string[]
+}
+
 /** Subset of the SDK's `Sandbox` static surface the bond uses. */
 export interface E2BSandboxClientLike {
   create(templateId: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
   connect(sandboxId: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
   list(
     opts?: Record<string, unknown>,
-  ): Promise<
-    | Array<{ sandboxId: string; state?: string }>
-    | { sandboxes?: Array<{ sandboxId: string; state?: string }> }
-  >
+  ): Promise<E2BSandboxListItem[] | { sandboxes?: E2BSandboxListItem[] }>
   kill?(sandboxId: string, opts?: Record<string, unknown>): Promise<boolean>
+  /**
+   * Create a team volume. Optional: the volume API is a private beta on E2B, so a
+   * client built against an account without it does not expose these at all.
+   */
+  createVolume?(name: string): Promise<E2BVolumeLike>
+  /** Enumerate team volumes. */
+  listVolumes?(): Promise<E2BVolumeLike[]>
+  /** Destroy a volume by its provider-native id. */
+  destroyVolume?(volumeId: string): Promise<boolean>
+  /**
+   * Capture a sandbox's filesystem + memory as a named snapshot. Re-using a name
+   * assigns a new build to the SAME snapshot rather than creating a second one,
+   * which is what makes a per-project restore point a fixed-size resource.
+   */
+  createSnapshot?(sandboxId: string, name: string): Promise<E2BSnapshotLike>
+  /** Enumerate snapshots, optionally filtered to one exact name. */
+  listSnapshots?(opts?: { name?: string; limit?: number }): Promise<E2BSnapshotLike[]>
+  /** Delete a snapshot. Resolves `false` when there was nothing to delete. */
+  deleteSnapshot?(snapshotId: string): Promise<boolean>
   /**
    * Read a sandbox's record WITHOUT connecting to it — the only lookup that does
    * not resume a paused sandbox. Throws `SandboxNotFoundError` on a 404.

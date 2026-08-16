@@ -10,18 +10,23 @@
  */
 
 import type {
+  CommitTemplateOptions,
   DirEntry,
   EgressVerdict,
   ExecOptions,
   ExecResult,
   FileChangeEvent,
   HibernationOutcome,
+  ListTemplatesOptions,
+  ListVolumesOptions,
   Sandbox,
   SandboxConfig,
   SandboxDescriptor,
   SandboxProvider,
+  SandboxTemplate,
   SpawnHandle,
   SpawnOptions,
+  VolumeInfo,
 } from '@molecule/api-code-sandbox'
 
 import type {
@@ -31,6 +36,9 @@ import type {
   E2BSandboxClientLike,
   E2BSandboxInfoLike,
   E2BSandboxLike,
+  E2BSandboxListItem,
+  E2BSnapshotLike,
+  E2BVolumeLike,
 } from './types.js'
 
 /** Default Vite dev-server port the preview URL points at. */
@@ -71,19 +79,43 @@ const EGRESS_PROBE_DENY = 'example.com'
  * Imported lazily so the SDK is only required when the bond is actually used.
  */
 async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
-  const { Sandbox, SandboxNotFoundError } = await import('e2b')
+  const { Sandbox, SandboxNotFoundError, Volume: VolumeClass } = await import('e2b')
   const S = Sandbox as unknown as {
     create(template: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
     connect(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxLike>
     list(opts?: Record<string, unknown>): unknown
     kill(id: string, opts?: Record<string, unknown>): Promise<boolean>
     getInfo(id: string, opts?: Record<string, unknown>): Promise<E2BSandboxInfoLike>
+    createSnapshot(id: string, opts?: Record<string, unknown>): Promise<E2BSnapshotLike>
+    listSnapshots(opts?: Record<string, unknown>): {
+      nextItems(): Promise<E2BSnapshotLike[]>
+      hasNext?: boolean
+    }
+    deleteSnapshot(id: string, opts?: Record<string, unknown>): Promise<boolean>
+  }
+  const V = VolumeClass as unknown as {
+    create(name: string, opts?: Record<string, unknown>): Promise<E2BVolumeLike>
+    list(opts?: Record<string, unknown>): Promise<E2BVolumeLike[]>
+    destroy(volumeId: string, opts?: Record<string, unknown>): Promise<boolean>
   }
   return {
     create: (templateId, opts) => S.create(templateId, { apiKey, ...opts }),
     connect: (id, opts) => S.connect(id, { apiKey, ...opts }),
     kill: (id, opts) => S.kill(id, { apiKey, ...opts }),
     getInfo: (id, opts) => S.getInfo(id, { apiKey, ...opts }),
+    createVolume: (name) => V.create(name, { apiKey }),
+    listVolumes: () => V.list({ apiKey }),
+    destroyVolume: (volumeId) => V.destroy(volumeId, { apiKey }),
+    createSnapshot: (sandboxId, name) => S.createSnapshot(sandboxId, { apiKey, name }),
+    async listSnapshots(opts) {
+      const pager = S.listSnapshots({ apiKey, ...opts })
+      const out: E2BSnapshotLike[] = []
+      do {
+        out.push(...(await pager.nextItems()))
+      } while (pager.hasNext && !opts?.limit)
+      return out
+    },
+    deleteSnapshot: (snapshotId) => S.deleteSnapshot(snapshotId, { apiKey }),
     // The SDK raises `SandboxNotFoundError` from `getInfo`/`connect` for exactly
     // one condition — the API answered 404 — and routes every other failure to a
     // different class. That makes it a POSITIVE not-found, which is the whole
@@ -94,35 +126,60 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
       // sandboxes. Support the async-iterator, nextItems(), and array shapes so
       // a minor SDK change does not silently return nothing.
       const result = S.list({ apiKey, ...opts }) as unknown
-      const out: Array<{ sandboxId: string; state?: string }> = []
-      const push = (items: Array<{ sandboxId: string; state?: string }>): void => {
+      const out: E2BSandboxListItem[] = []
+      const push = (items: E2BSandboxListItem[]): void => {
         // Carry the listed state through: it is the only way a caller can skip a
-        // PAUSED sandbox, and building a handle for one would resume it.
+        // PAUSED sandbox, and building a handle for one would resume it. `name`
+        // (the SDK's template alias) and `volumeMounts` come along for the same
+        // reason: they are how "is this snapshot/volume still in use?" is
+        // OBSERVED rather than assumed, and a wrong answer there is data loss.
         for (const it of items)
-          if (it?.sandboxId) out.push({ sandboxId: it.sandboxId, state: it.state })
+          if (it?.sandboxId)
+            out.push({
+              sandboxId: it.sandboxId,
+              state: it.state,
+              name: it.name,
+              volumeMounts: it.volumeMounts,
+            })
       }
       const r = await Promise.resolve(result as Promise<unknown>).catch(() => result)
       if (Array.isArray(r)) {
-        push(r as Array<{ sandboxId: string }>)
+        push(r as E2BSandboxListItem[])
       } else if (r && typeof (r as { nextItems?: unknown }).nextItems === 'function') {
         const pager = r as {
           hasNext?: boolean
-          nextItems: () => Promise<Array<{ sandboxId: string }>>
+          nextItems: () => Promise<E2BSandboxListItem[]>
         }
         do {
           push(await pager.nextItems())
         } while (pager.hasNext)
       } else if (
         r &&
-        typeof (r as AsyncIterable<{ sandboxId: string }>)[Symbol.asyncIterator] === 'function'
+        typeof (r as AsyncIterable<E2BSandboxListItem>)[Symbol.asyncIterator] === 'function'
       ) {
-        for await (const it of r as AsyncIterable<{ sandboxId: string }>) push([it])
+        for await (const it of r as AsyncIterable<E2BSandboxListItem>) push([it])
       } else if (r && Array.isArray((r as { sandboxes?: unknown }).sandboxes)) {
-        push((r as { sandboxes: Array<{ sandboxId: string }> }).sandboxes)
+        push((r as { sandboxes: E2BSandboxListItem[] }).sandboxes)
       }
       return out
     },
   }
+}
+
+/**
+ * The caller's own name for a snapshot, recovered from E2B's namespaced form.
+ *
+ * E2B answers with `<team-slug>/<name>:<tag>` — a reference the caller never
+ * supplied and must never have to parse. This is the one place that translation
+ * lives, so `templateId` means the same string going in and coming out.
+ *
+ * @param snapshot - The snapshot as E2B reported it.
+ * @returns The bare name.
+ */
+function bareSnapshotName(snapshot: E2BSnapshotLike): string {
+  const full = snapshot.names?.[0] ?? snapshot.snapshotId
+  const withoutTag = full.includes(':') ? full.slice(0, full.lastIndexOf(':')) : full
+  return withoutTag.includes('/') ? withoutTag.slice(withoutTag.lastIndexOf('/') + 1) : withoutTag
 }
 
 /**
@@ -797,17 +854,38 @@ export class E2BSandboxProvider implements SandboxProvider {
    * `processesPreserved: true`. A filesystem-only snapshot would cold-boot
    * instead, leaving a sandbox that is running with every dev server dead.
    *
-   * @param config - Project id, env, optional per-boot templateId + labels.
+   * `config.volumeName` mounts a persistent volume, which E2B can only attach at
+   * CREATE time — there is no attach-to-a-running-sandbox call — so a sandbox
+   * claimed from a pre-warmed pool can never be given one afterwards. A mount
+   * path is REQUIRED alongside it: E2B mounts shadow whatever the image had at
+   * that path, and this bond's superset template keeps a 2.4 GB
+   * `/workspace/node_modules` there, so defaulting to the workspace root would
+   * hide the entire dependency fleet behind an empty volume and boot a project
+   * that cannot resolve a single import.
+   *
+   * @param config - Project id, env, optional per-boot templateId + labels, and
+   *   an optional `volumeName` + `volumeMountPath` pair.
    * @returns A live sandbox handle.
    */
   async create(config: SandboxConfig): Promise<Sandbox> {
     const client = await this.client()
     const templateId = config.templateId ?? this.config.templateId
+    if (config.volumeName && !config.volumeMountPath) {
+      // Refusing beats guessing: the only default that could be picked here is
+      // the workspace root, and that is the one value which silently breaks the
+      // sandbox it was meant to protect.
+      throw new Error(
+        `E2B requires a volumeMountPath alongside volumeName ("${config.volumeName}"): a volume mounted at the workspace root would shadow the template's node_modules`,
+      )
+    }
     const sbx = await client.create(templateId, {
       timeoutMs: this.config.defaultTimeoutMs,
       envs: config.env ?? {},
       metadata: { projectId: config.projectId, ...(config.labels ?? {}) },
       lifecycle: { onTimeout: { action: 'pause', keepMemory: true } },
+      ...(config.volumeName
+        ? { volumeMounts: { [config.volumeMountPath as string]: config.volumeName } }
+        : {}),
     })
     const handle = new E2BSandbox(sbx, client, {
       previewPort: this.config.defaultPreviewPort,
@@ -935,6 +1013,259 @@ export class E2BSandboxProvider implements SandboxProvider {
       return null
     })
     if (sbx) await sbx.kill()
+  }
+
+  /**
+   * Every sandbox that currently EXISTS, running or paused.
+   *
+   * The basis for both "is this volume attached?" and "is this snapshot in use?".
+   * Paused sandboxes are included deliberately — a paused sandbox still owns its
+   * volume and still boots from its template, and treating it as absent is how a
+   * reclamation sweep deletes the storage under a hibernated project.
+   *
+   * @returns The raw listing rows.
+   */
+  private async liveSandboxes(): Promise<E2BSandboxListItem[]> {
+    const client = await this.client()
+    const listed = await client.list({})
+    return Array.isArray(listed) ? listed : (listed.sandboxes ?? [])
+  }
+
+  /**
+   * Resolve a volume by the caller's name.
+   *
+   * @param name - The volume name.
+   * @returns The volume, or `null` when the account has no volume by that name.
+   */
+  private async findVolume(name: string): Promise<E2BVolumeLike | null> {
+    const client = await this.client()
+    if (!client.listVolumes) {
+      throw new Error('E2B client does not expose the volume API')
+    }
+    const volumes = await client.listVolumes()
+    return volumes.find((v) => v.name === name) ?? null
+  }
+
+  /**
+   * Create a named volume, idempotently.
+   *
+   * Callers create the volume on EVERY boot (they cannot know whether a previous
+   * sandbox already made it), so an existing volume is a success and must not be
+   * re-created — re-creating would either fail the boot or, worse, hand back an
+   * empty volume in place of the user's files.
+   *
+   * Volumes are a private beta on E2B: an account without them answers
+   * `403 use of volumes is not enabled`, which surfaces here as a throw rather
+   * than a silent no-op, because a caller that believes it has a durable volume
+   * and does not is exactly the failure this method exists to prevent.
+   *
+   * @param name - The volume name.
+   */
+  async createVolume(name: string): Promise<void> {
+    const client = await this.client()
+    if (!client.createVolume) {
+      throw new Error('E2B client does not expose the volume API')
+    }
+    if (await this.findVolume(name)) return
+    await client.createVolume(name)
+  }
+
+  /**
+   * Remove a named volume. Removing one that does not exist is a success.
+   *
+   * @param name - The volume name.
+   */
+  async removeVolume(name: string): Promise<void> {
+    const client = await this.client()
+    if (!client.destroyVolume) {
+      throw new Error('E2B client does not expose the volume API')
+    }
+    const volume = await this.findVolume(name)
+    if (!volume) return
+    await client.destroyVolume(volume.volumeId)
+  }
+
+  /**
+   * Whether a named volume exists.
+   *
+   * THROWS when it cannot look. A control plane asks this to decide whether a
+   * project's files survived losing its sandbox, and answering `false` for a
+   * failed lookup tells it the user's work is gone — the same "could not look
+   * delivered as looked-and-empty" confusion that `get()` returning `null` used
+   * to be.
+   *
+   * @param name - The volume name.
+   * @returns `true` when the account has a volume by that name.
+   */
+  async volumeExists(name: string): Promise<boolean> {
+    return (await this.findVolume(name)) !== null
+  }
+
+  /**
+   * Enumerate volumes, reporting which ones a sandbox currently holds.
+   *
+   * `attached` is OBSERVED from the sandbox listing (running and paused alike),
+   * not assumed, because the only reason to enumerate volumes is to delete the
+   * unattached ones. E2B reports neither a creation time nor a size for a volume,
+   * so both are `null` rather than invented.
+   *
+   * @param options - Narrowing by name prefix and attachment.
+   * @returns Every matching volume.
+   */
+  async listVolumes(options?: ListVolumesOptions): Promise<VolumeInfo[]> {
+    const client = await this.client()
+    if (!client.listVolumes) {
+      throw new Error('E2B client does not expose the volume API')
+    }
+    const [volumes, sandboxes] = await Promise.all([client.listVolumes(), this.liveSandboxes()])
+    const attachedNames = new Set<string>()
+    for (const sbx of sandboxes) for (const m of sbx.volumeMounts ?? []) attachedNames.add(m.name)
+    return volumes
+      .filter((v) => !options?.namePrefix || v.name.startsWith(options.namePrefix))
+      .map((v) => ({
+        name: v.name,
+        attached: attachedNames.has(v.name),
+        createdAt: null,
+        sizeBytes: null,
+      }))
+      .filter((v) => options?.attached === undefined || v.attached === options.attached)
+  }
+
+  /**
+   * Capture a sandbox as a reusable template, using E2B snapshots.
+   *
+   * A snapshot is a persistent image of the sandbox's filesystem AND memory that
+   * outlives the sandbox itself — verified against production: a sandbox was
+   * killed and a new one created from its snapshot came up with the same files.
+   * Re-committing the same `templateId` assigns a new build to the same snapshot
+   * rather than accumulating a second one, so a per-project restore point stays
+   * one resource no matter how often it is refreshed.
+   *
+   * Snapshotting BRIEFLY PAUSES the sandbox and drops its open connections
+   * (PTYs, command streams, websockets). Take one when the project is going
+   * quiet, not underneath a user's terminal.
+   *
+   * `capturePaths` inside a MOUNTED VOLUME are refused rather than silently
+   * omitted: E2B's snapshot images the sandbox's own disk, and a volume is
+   * storage attached from outside it. Committing anyway would produce a template
+   * that boots perfectly into a workspace missing exactly the files it was asked
+   * to preserve.
+   *
+   * @param options - The sandbox, the caller's template id, optional capture paths and label.
+   * @returns The template as it now exists.
+   */
+  async commitTemplate(options: CommitTemplateOptions): Promise<SandboxTemplate> {
+    const client = await this.client()
+    if (!client.createSnapshot) {
+      throw new Error('E2B client does not expose the snapshot API')
+    }
+    if (options.capturePaths?.length && client.getInfo) {
+      const info = await client.getInfo(options.sandboxId)
+      for (const mount of info.volumeMounts ?? []) {
+        const shadowed = options.capturePaths.find(
+          (path) => path === mount.path || path.startsWith(`${mount.path}/`),
+        )
+        if (shadowed) {
+          throw new Error(
+            `Cannot capture "${shadowed}" into an E2B snapshot: it is on the mounted volume "${mount.name}", which the snapshot does not image`,
+          )
+        }
+      }
+    }
+    const snapshot = await client.createSnapshot(options.sandboxId, options.templateId)
+    return {
+      id: options.templateId,
+      ref: snapshot.snapshotId,
+      createdAt: new Date().toISOString(),
+      sizeBytes: null,
+      ...(options.label === undefined ? {} : { label: options.label }),
+      inUse: true,
+    }
+  }
+
+  /**
+   * Look up one template by the caller's identifier.
+   *
+   * `null` means E2B has no snapshot by that name. A failed lookup throws: a
+   * caller reads `null` as "there is no restore point" and scaffolds a fresh
+   * project over the user's, so a transient API error must never wear that shape.
+   *
+   * @param templateId - The caller's identifier.
+   * @returns The template, or `null` when it does not exist.
+   */
+  async getTemplate(templateId: string): Promise<SandboxTemplate | null> {
+    const client = await this.client()
+    if (!client.listSnapshots) {
+      throw new Error('E2B client does not expose the snapshot API')
+    }
+    const found = await client.listSnapshots({ name: templateId, limit: 1 })
+    const snapshot = found[0]
+    if (!snapshot) return null
+    const sandboxes = await this.liveSandboxes()
+    return {
+      id: templateId,
+      ref: snapshot.snapshotId,
+      // E2B reports neither a build time nor a size for a snapshot; `''` is the
+      // fleet's existing "unknown template timestamp" spelling (see the flyio bond).
+      createdAt: '',
+      sizeBytes: null,
+      inUse: sandboxes.some((sbx) => sbx.name === templateId),
+    }
+  }
+
+  /**
+   * Enumerate templates so a caller can enforce its retention policy.
+   *
+   * Throws rather than answering `[]` when it cannot enumerate — an eviction
+   * loop that reads "nothing exists" from a failed listing stops evicting, and a
+   * reconciler that reads it stops reconciling.
+   *
+   * @param options - Narrowing by id prefix.
+   * @returns Every matching template.
+   */
+  async listTemplates(options?: ListTemplatesOptions): Promise<SandboxTemplate[]> {
+    const client = await this.client()
+    if (!client.listSnapshots) {
+      throw new Error('E2B client does not expose the snapshot API')
+    }
+    const [snapshots, sandboxes] = await Promise.all([client.listSnapshots(), this.liveSandboxes()])
+    const inUseNames = new Set(sandboxes.map((sbx) => sbx.name).filter(Boolean) as string[])
+    return snapshots
+      .map((snapshot) => ({ id: bareSnapshotName(snapshot), snapshot }))
+      .filter(({ id }) => !options?.idPrefix || id.startsWith(options.idPrefix))
+      .map(({ id, snapshot }) => ({
+        id,
+        ref: snapshot.snapshotId,
+        createdAt: '',
+        sizeBytes: null,
+        inUse: inUseNames.has(id),
+      }))
+  }
+
+  /**
+   * Delete a template. Deleting one that does not exist is a success.
+   *
+   * Refuses when a sandbox still boots from it, by CHECKING the sandbox listing
+   * rather than trusting the caller. E2B enforces the same rule server-side (a
+   * `400` naming the template), which is left to surface as a throw — two
+   * independent refusals for an operation whose failure mode is destroying a
+   * running project.
+   *
+   * @param templateId - The caller's identifier.
+   */
+  async removeTemplate(templateId: string): Promise<void> {
+    const client = await this.client()
+    if (!client.deleteSnapshot) {
+      throw new Error('E2B client does not expose the snapshot API')
+    }
+    const template = await this.getTemplate(templateId)
+    if (!template) return
+    if (template.inUse) {
+      throw new Error(
+        `Refusing to delete template "${templateId}": a sandbox is currently running from it`,
+      )
+    }
+    await client.deleteSnapshot(template.ref)
   }
 
   /**

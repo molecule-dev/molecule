@@ -95,6 +95,42 @@
  * rather than downgraded when the SDK build has no `pty` module, because a
  * terminal that silently got pipes is a terminal whose Ctrl-C does nothing.
  *
+ * **Two ways to make a project outlive its sandbox, and they are not the same
+ * strength.** A **volume** (`SandboxConfig.volumeName` + `volumeMountPath`) is
+ * continuous: every write already lives outside the microVM, so losing the
+ * sandbox loses nothing. A **snapshot** (`commitTemplate`, restored by
+ * `create({ templateId })`) is point-in-time: a persistent image that survives
+ * the sandbox, at the cost of everything written since the capture. Prefer the
+ * volume; take snapshots when the account has no volumes, or as restore points
+ * alongside one.
+ *
+ * **A volume needs a mount path, and `create()` refuses without one.** E2B
+ * mounts shadow whatever the image had at that path, and this bond's superset
+ * template keeps a multi-GB `/workspace/node_modules` there — so the obvious
+ * default (the workspace root) is the one value that boots a project unable to
+ * resolve a single import. Mount the app directory instead
+ * (`/workspace/<appDir>`): the durable source lands on the volume and the
+ * regenerable tooling stays on the faster image-backed rootfs.
+ *
+ * **A volume can only be attached when the sandbox is created.** There is no
+ * attach-to-a-running-sandbox call, so a sandbox claimed from a pre-warmed pool
+ * can never be given a project's volume afterwards — a project that needs one
+ * must be booted fresh with it.
+ *
+ * **Volumes are a private beta on E2B.** An account without them answers
+ * `403 use of volumes is not enabled` (measured on the production account,
+ * 2026-08-16); ask E2B support to enable them. Every volume method throws in
+ * that state rather than no-op-ing, because a control plane that believes it has
+ * durable storage and does not is the failure this bond exists to prevent.
+ *
+ * **Snapshots ARE available and they do survive a kill** — verified live: a
+ * sandbox was killed and a new one created from its snapshot came up with the
+ * same files, in ~2.3 s. Capturing takes well under a second, leaves the sandbox
+ * running, and re-using a name replaces that snapshot rather than adding one, so
+ * a per-project restore point is a fixed-size resource. It BRIEFLY pauses the
+ * sandbox and drops open connections (PTYs, command streams, websockets), so
+ * capture when a project goes quiet — never underneath a live terminal.
+ *
  * **Sandboxes are created to PAUSE at their timeout, not to be killed.** E2B's
  * default is `onTimeout: 'kill'`, so a sandbox nothing touched for its lifetime
  * would be destroyed with its files. This bond creates every sandbox with
