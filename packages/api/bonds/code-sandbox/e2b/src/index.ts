@@ -39,11 +39,13 @@
  * ```
  *
  * @remarks
- * **`verifyEgress` is intentionally not implemented yet.** The control plane
- * treats an absent `verifyEgress` as an `inconclusive` verdict and refuses to
- * boot sandboxes in production — the correct safe default until egress
- * observation is proven against E2B's `updateNetwork` policy (Rule 18: never
- * trade cost for security). Do not stub it with a fabricated `filtered`.
+ * **`verifyEgress` OBSERVES, it never attests.** It boots a throwaway sandbox,
+ * applies `{ allowOut: [npm], denyOut: [ALL_TRAFFIC] }`, and curls an
+ * allow-listed host, a non-allow-listed host AND a raw IP from inside it;
+ * `filtered` requires the last two to be blocked while the first answers. Any
+ * failure to run that probe is `inconclusive` — never `filtered`, because "I
+ * could not look" must not reach a control plane as "I looked, and it is safe"
+ * (Rule 18: never trade cost for security).
  *
  * **E2B pauses, it does not stop.** `sleep()`/`stop()` both map to E2B pause
  * (FS + memory snapshot); `wake()`/`start()` reconnect by id. `hibernate()`/
