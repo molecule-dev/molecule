@@ -31,6 +31,10 @@ class FakeCommandExitError extends Error {
   }
 }
 
+/** The fleet's real sidecar launch, verbatim. */
+const SIDECAR_LAUNCH =
+  "nohup sh -c 'command -v redis-server >/dev/null 2>&1 || exit 0; redis-server --port 6379' > /tmp/redis.log 2>&1 & true"
+
 interface RunCall {
   cmd: string
   opts: Record<string, unknown>
@@ -318,4 +322,82 @@ describe('spawn() — the capability LSP and a cancellable terminal need', () =>
     const handle = await sandbox.spawn!('cat')
     expect(handle.resize).toBeUndefined()
   })
+})
+
+describe('exec() stops waiting once the COMMAND is over', () => {
+  /**
+   * `wait()` resolves when the output STREAM ends, which is not the same event as
+   * the command finishing. A launch that strands anything holding the inherited
+   * stdio — measured on a live sandbox with the fleet's own sidecar launches —
+   * keeps that stream open indefinitely, and the caller then burns its whole
+   * timeout on a command that finished in milliseconds. So the bond asks whether
+   * the started pid is still there instead of guessing from the command.
+   *
+   * @param opts - What the in-sandbox liveness probe should answer.
+   * @returns The fake sandbox and the commands it received.
+   */
+  function fakeSandboxWithHeldStream(opts: { aliveProbe: string }): {
+    sbx: E2BSandboxLike
+    runs: RunCall[]
+  } {
+    const runs: RunCall[] = []
+    const sbx = {
+      sandboxId: 'sbx-held',
+      commands: {
+        run: (async (cmd: string, runOpts: Record<string, unknown> = {}) => {
+          runs.push({ cmd, opts: runOpts })
+          const isProbe = cmd.startsWith('kill -0')
+          return {
+            pid: 99,
+            stdout: isProbe ? opts.aliveProbe : 'launched\n',
+            stderr: '',
+            exitCode: isProbe ? 0 : undefined,
+            wait: async () =>
+              isProbe
+                ? { stdout: opts.aliveProbe, stderr: '', exitCode: 0 }
+                : new Promise<never>(() => {}),
+            sendStdin: vi.fn(async () => {}),
+            kill: vi.fn(async () => true),
+          }
+        }) as unknown as E2BSandboxLike['commands']['run'],
+      },
+      files: {
+        read: (async () => '') as E2BSandboxLike['files']['read'],
+        async write() {
+          return {}
+        },
+        async list() {
+          return []
+        },
+        async remove() {},
+      },
+      getHost: (port: number) => `${port}-sbx-held.e2b.app`,
+      async setTimeout() {},
+      async kill() {},
+    } as unknown as E2BSandboxLike
+    return { sbx, runs }
+  }
+
+  it('returns the launch result when the started process is already gone', async () => {
+    const { sbx, runs } = fakeSandboxWithHeldStream({ aliveProbe: 'MOL_GONE\n' })
+    const sandbox = await handleFor(sbx)
+
+    const result = await sandbox.exec(SIDECAR_LAUNCH, { timeout: 5_000 })
+
+    expect(result).toEqual({ stdout: 'launched\n', stderr: '', exitCode: 0 })
+    // It ASKED, rather than inferring from the command's shape.
+    expect(runs.some((r) => r.cmd.startsWith('kill -0 99'))).toBe(true)
+  }, 10_000)
+
+  it('keeps waiting when the process is genuinely still running', async () => {
+    const { sbx } = fakeSandboxWithHeldStream({ aliveProbe: 'MOL_ALIVE\n' })
+    const sandbox = await handleFor(sbx)
+
+    const settled = await Promise.race([
+      sandbox.exec('npm install', { timeout: 60_000 }).then(() => 'returned'),
+      new Promise((resolve) => setTimeout(() => resolve('still waiting'), 3_000)),
+    ])
+
+    expect(settled).toBe('still waiting')
+  }, 10_000)
 })

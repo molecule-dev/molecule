@@ -26,6 +26,7 @@ import type {
 
 import type {
   E2BCommandHandleLike,
+  E2BCommandResultLike,
   E2BConfig,
   E2BSandboxClientLike,
   E2BSandboxInfoLike,
@@ -43,6 +44,14 @@ const DEFAULT_TIMEOUT_MS = 60 * 60 * 1000
  * editor tab does.
  */
 const DEFAULT_SPAWN_TIMEOUT_MS = 60 * 60 * 1000
+/**
+ * How long to wait for a started command before ASKING whether it is still
+ * running. Long enough that an ordinary command simply finishes first; short
+ * enough that a launch whose stream is held open by a stranded descendant costs
+ * this instead of the caller's whole timeout.
+ */
+const SETTLE_PROBE_MS = 1_500
+
 /** Default lifetime for a PTY session; same reasoning as {@link DEFAULT_SPAWN_TIMEOUT_MS}. */
 const DEFAULT_PTY_TIMEOUT_MS = 60 * 60 * 1000
 /**
@@ -298,6 +307,69 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
+   * Wait for a started command, and stop waiting once the command is OVER.
+   *
+   * `wait()` resolves when the output STREAM ends, which is not the same event
+   * as the command finishing: a launch that leaves anything behind holding the
+   * inherited stdio — a mis-composed `guard && nohup … &`, a daemon that does not
+   * close its descriptors, a user's `npm run dev &` — keeps that stream open long
+   * after the process exited, and the caller then blocks for its whole timeout on
+   * a command that finished in milliseconds. Three sidecar launches per boot cost
+   * 15 s that way.
+   *
+   * So when the wait outlives a short settle window, this ASKS the sandbox
+   * whether the started pid is still there. Gone means the command is over and
+   * the accumulated output is the whole of it; alive means it is genuinely still
+   * running and the caller's own timeout is the right bound. Never a guess from
+   * the shape of the command.
+   *
+   * @param handle - The started command.
+   * @returns The command's result.
+   */
+  private async waitForCommand(handle: E2BCommandHandleLike): Promise<E2BCommandResultLike> {
+    let settled = false
+    const finished = handle.wait().finally(() => {
+      settled = true
+    })
+    const raced = await Promise.race([
+      finished,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), SETTLE_PROBE_MS)),
+    ])
+    if (raced) return raced
+    if (settled) return finished
+
+    const alive = await this.isProcessAlive(handle.pid)
+    if (alive) return finished
+
+    // The process is gone; whatever still holds the stream is not it.
+    return {
+      stdout: handle.stdout ?? '',
+      stderr: handle.stderr ?? '',
+      exitCode: handle.exitCode ?? 0,
+    }
+  }
+
+  /**
+   * Ask the sandbox whether a pid is still running.
+   *
+   * @param pid - The process id to check.
+   * @returns True when the process exists; true also when the check itself could
+   *   not run, because "I could not look" must never be reported as "it is gone".
+   */
+  private async isProcessAlive(pid: number): Promise<boolean> {
+    try {
+      const probe = await this.sbx.commands.run(
+        `kill -0 ${Math.floor(pid)} 2>/dev/null && echo MOL_ALIVE || echo MOL_GONE`,
+        { timeoutMs: 10_000, background: true },
+      )
+      const result = await probe.wait()
+      return !result.stdout.includes('MOL_GONE')
+    } catch (_error) {
+      return true
+    }
+  }
+
+  /**
    * Run a command to completion in the sandbox.
    *
    * The core contract is RETURN, not throw: a non-zero exit is data
@@ -342,7 +414,7 @@ class E2BSandbox implements Sandbox {
       // (install sentinels, health probes, existence checks). E2B raises
       // `CommandExitError` for that, so it is caught and mapped below; only a
       // genuine infrastructure failure (no `.result`) rethrows.
-      const r = await handle.wait()
+      const r = await this.waitForCommand(handle)
       return { stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode }
     } catch (error) {
       const res = (error as { result?: { stdout?: string; stderr?: string; exitCode?: number } })

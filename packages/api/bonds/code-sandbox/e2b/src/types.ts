@@ -81,6 +81,12 @@ export interface E2BFilesystemLike {
 export interface E2BCommandHandleLike {
   /** The started process's pid inside the sandbox. */
   pid: number
+  /** Output accumulated so far — readable before {@link E2BCommandHandleLike.wait} settles. */
+  stdout?: string
+  /** Error output accumulated so far. */
+  stderr?: string
+  /** Set once the process's exit is known; absent while it is still streaming. */
+  exitCode?: number
   /**
    * Resolve when the started process exits. Rejects with the SDK's
    * `CommandExitError` (carrying `.result`) on a non-zero exit, and with a
