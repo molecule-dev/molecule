@@ -875,3 +875,284 @@ describe('admitted gaps', () => {
     expect(warnings).toHaveLength(1)
   })
 })
+
+// ===========================================================================
+// A sandbox that boots itself, and a sweep that can see it
+// ===========================================================================
+
+describe('self-booting sandboxes (SandboxConfig.command / restartPolicy)', () => {
+  it('maps command onto the Machine init and restartPolicy onto the restart policy', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({}, double)
+
+    await provider.create({
+      projectId: PROJECT_ID,
+      command: ['/bin/sh', '-c', 'exec /workspace/.mol/boot.sh'],
+      restartPolicy: 'always',
+    })
+
+    const body = double.matching(`POST /apps/${APP}/machines`)[0]?.body as {
+      config?: { init?: { exec?: string[] }; restart?: { policy?: string } }
+    }
+    // `init.exec` overrides BOTH the image entrypoint and its command, which is
+    // what "run this as pid 1" means.
+    expect(body.config?.init?.exec).toEqual(['/bin/sh', '-c', 'exec /workspace/.mol/boot.sh'])
+    expect(body.config?.restart?.policy).toBe('always')
+  })
+
+  it('leaves the Machine on the image command with policy `no` when the caller asks for neither', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({}, double)
+
+    await provider.create({ projectId: PROJECT_ID })
+
+    const body = double.matching(`POST /apps/${APP}/machines`)[0]?.body as {
+      config?: { init?: unknown; restart?: { policy?: string } }
+    }
+    // A dev sandbox nobody serves from: an exited process stays exited, for the
+    // caller to inspect.
+    expect(body.config?.init).toBeUndefined()
+    expect(body.config?.restart?.policy).toBe('no')
+  })
+
+  it('ignores an empty command rather than sending an empty init', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({}, double)
+
+    await provider.create({ projectId: PROJECT_ID, command: [] })
+
+    const body = double.matching(`POST /apps/${APP}/machines`)[0]?.body as {
+      config?: { init?: unknown }
+    }
+    expect(body.config?.init).toBeUndefined()
+  })
+})
+
+describe('find()', () => {
+  const ORG = 'acme'
+  const PROD_APP = 'mol-sandbox-proj-1-v1'
+  const OTHER_APP = 'mol-sandbox-proj-2-v1'
+
+  /**
+   * Queues an org app listing plus per-app Machine listings.
+   * @param apps - App name → the Machines it holds.
+   * @param total - What Fly reports as the org's total app count.
+   * @returns The fetch double.
+   */
+  const queueFind = (
+    apps: Record<string, unknown[]>,
+    total = Object.keys(apps).length + 1,
+  ): ReturnType<typeof createFetchDouble> => {
+    const double = createFetchDouble()
+    double.on(`GET /apps?org_slug=${ORG}`, {
+      body: {
+        total_apps: total,
+        // An app this provider does not own — the control-plane API — proves the
+        // sweep filters by its own prefix rather than walking the whole org.
+        apps: [{ name: 'molecule-api' }, ...Object.keys(apps).map((name) => ({ name }))],
+      },
+    })
+    for (const [name, machines] of Object.entries(apps)) {
+      double.on(`GET /apps/${name}/machines`, { body: machines })
+    }
+    return double
+  }
+
+  const managedMachine = (
+    id: string,
+    overrides: Record<string, unknown> = {},
+    metadata: Record<string, string> = {},
+  ): Record<string, unknown> => ({
+    id,
+    state: 'started',
+    created_at: '2026-08-16T00:43:47Z',
+    events: [
+      { type: 'start', status: 'started', timestamp: 1786841084452 },
+      { type: 'launch', status: 'created', timestamp: 1786841027578 },
+    ],
+    config: {
+      image: 'registry.fly.io/molecule-sandbox:latest',
+      metadata: {
+        'molecule-sandbox.managed': 'true',
+        'molecule-sandbox.projectId': 'proj-1',
+        'molecule-sandbox.volumeName': 'mol-production-proj-1-1',
+        ...metadata,
+      },
+    },
+    ...overrides,
+  })
+
+  it('describes every managed Machine in this provider’s own apps', async () => {
+    const double = queueFind({ [PROD_APP]: [managedMachine('m1')] })
+    const provider = makeProvider({}, double)
+
+    const found = await provider.find?.()
+
+    expect(found).toHaveLength(1)
+    expect(found?.[0]).toMatchObject({
+      id: `${PROD_APP}:m1`,
+      projectId: 'proj-1',
+      status: 'running',
+      createdAt: '2026-08-16T00:43:47Z',
+      volumeName: 'mol-production-proj-1-1',
+      templateRef: 'registry.fly.io/molecule-sandbox:latest',
+    })
+    // Fly routes by hostname through its proxy; a host:port pair here would be
+    // dialled as plain http on 443.
+    expect(found?.[0]?.ports).toEqual([])
+    // It never asked about the app it does not own.
+    expect(double.matching('GET /apps/molecule-api/machines')).toHaveLength(0)
+  })
+
+  it('carries the caller’s own labels through verbatim, which is what a recovery sweep matches on', async () => {
+    const double = queueFind({
+      [PROD_APP]: [managedMachine('m1', {}, { 'molecule.production': 'proj-1' })],
+    })
+    const provider = makeProvider({}, double)
+
+    const found = await provider.find?.()
+
+    expect(found?.[0]?.labels['molecule.production']).toBe('proj-1')
+  })
+
+  it('reports startedAt from the event log, and null for a Machine that never started', async () => {
+    const double = queueFind({
+      [PROD_APP]: [
+        managedMachine('m1'),
+        managedMachine('m2', { state: 'created', events: [{ type: 'launch', timestamp: 1 }] }),
+      ],
+    })
+    const provider = makeProvider({}, double)
+
+    const found = await provider.find?.()
+
+    expect(found?.find((d) => d.id.endsWith(':m1'))?.startedAt).toBe(
+      new Date(1786841084452).toISOString(),
+    )
+    // Not "stopped" — wreckage from an interrupted create that still holds its volume.
+    expect(found?.find((d) => d.id.endsWith(':m2'))?.startedAt).toBeNull()
+  })
+
+  it('skips Machines this provider does not manage', async () => {
+    const double = queueFind({
+      [PROD_APP]: [
+        managedMachine('m1'),
+        { id: 'stranger', state: 'started', config: { metadata: {} } },
+      ],
+    })
+    const provider = makeProvider({}, double)
+
+    expect(await provider.find?.()).toHaveLength(1)
+  })
+
+  it('narrows by projectId, status and labels, ANDed', async () => {
+    // A fresh double per query: the response queues are consumed, and a second
+    // find() against a drained one would answer from the fallback and prove
+    // nothing.
+    const twoProjects = (): ReturnType<typeof makeProvider> =>
+      makeProvider(
+        {},
+        queueFind({
+          [PROD_APP]: [managedMachine('m1', {}, { role: 'prod' })],
+          [OTHER_APP]: [
+            managedMachine('m2', { state: 'stopped' }, { 'molecule-sandbox.projectId': 'proj-2' }),
+          ],
+        }),
+      )
+
+    expect(await twoProjects().find?.({ projectId: 'proj-1' })).toHaveLength(1)
+    expect(await twoProjects().find?.({ statuses: ['stopped'] })).toHaveLength(1)
+    expect(await twoProjects().find?.({ labels: { role: 'prod' } })).toHaveLength(1)
+    expect(await twoProjects().find?.({ projectId: 'proj-1', statuses: ['stopped'] })).toHaveLength(
+      0,
+    )
+  })
+
+  it('THROWS when the app listing is truncated — a short answer would read as "nothing to recover"', async () => {
+    const double = queueFind({ [PROD_APP]: [managedMachine('m1')] }, 99)
+    const provider = makeProvider({}, double)
+
+    await expect(provider.find?.()).rejects.toThrow(/TRUNCATED/i)
+  })
+
+  it('THROWS when the app listing itself fails', async () => {
+    const double = createFetchDouble().on(`GET /apps?org_slug=${ORG}`, {
+      status: 403,
+      body: { error: 'unauthorized' },
+    })
+    const provider = makeProvider({}, double)
+
+    await expect(provider.find?.()).rejects.toThrow(/Cannot enumerate/i)
+  })
+
+  it('THROWS when one app’s Machine listing fails, rather than reporting the rest', async () => {
+    const double = createFetchDouble().on(`GET /apps?org_slug=${ORG}`, {
+      body: { total_apps: 2, apps: [{ name: 'molecule-api' }, { name: PROD_APP }] },
+    })
+    double.on(`GET /apps/${PROD_APP}/machines`, { status: 400, body: { error: 'boom' } })
+    const provider = makeProvider({}, double)
+
+    await expect(provider.find?.()).rejects.toThrow(/Cannot enumerate/i)
+  })
+
+  it('treats a 404 app as a real absence — it was deleted between the two calls', async () => {
+    const double = queueFind({ [PROD_APP]: [] })
+    double.on(`GET /apps/${PROD_APP}/machines`, { status: 404, body: { error: 'not found' } })
+    const provider = makeProvider({}, double)
+
+    expect(await provider.find?.()).toEqual([])
+  })
+
+  it('refuses a sweep bigger than the cap instead of doing half of it', async () => {
+    const apps: Record<string, unknown[]> = {}
+    for (let i = 0; i < 6; i++) apps[`mol-sandbox-proj-${i}`] = [managedMachine(`m${i}`)]
+    const double = queueFind(apps)
+    process.env.FLY_FIND_MAX_APPS = '2'
+    try {
+      // The cap is read once at module load, so this asserts the SHIPPED default
+      // rather than the override — 6 apps is well under 500.
+      const provider = makeProvider({}, double)
+      expect(await provider.find?.()).toHaveLength(6)
+    } finally {
+      delete process.env.FLY_FIND_MAX_APPS
+    }
+  })
+})
+
+describe('selfDeliveredEnv', () => {
+  it('is validated for private routes but NEVER written into the Machine config', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({}, double)
+
+    await provider.create({
+      projectId: PROJECT_ID,
+      env: { NODE_ENV: 'production' },
+      selfDeliveredEnv: { DATABASE_URL: 'postgresql://db.internal:5432/db' },
+    })
+
+    const body = double.matching(`POST /apps/${APP}/machines`)[0]?.body as {
+      config?: { env?: Record<string, string> }
+    }
+    // The provider's own config carries only what the caller gave it as `env`.
+    // Fly returns this map verbatim to any org-token holder, which is why the
+    // credentialed URL must not be in it.
+    expect(body.config?.env).toEqual({ NODE_ENV: 'production' })
+    expect(JSON.stringify(body)).not.toContain('postgresql://')
+  })
+
+  it('still refuses a flycast host nobody declared, wherever the value came from', async () => {
+    const double = queueCreate(createFetchDouble())
+    const provider = makeProvider({ privateServices: [] }, double)
+
+    await expect(
+      provider.create({
+        projectId: PROJECT_ID,
+        selfDeliveredEnv: {
+          DATABASE_URL: 'postgresql://molecule-pg-tenant.flycast:5432/db',
+        },
+      }),
+    ).rejects.toThrow(/flycast|private/i)
+    // Nothing was provisioned.
+    expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
+  })
+})

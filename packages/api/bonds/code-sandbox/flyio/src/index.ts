@@ -281,12 +281,14 @@
  * exist for providers whose templates are host-local; object storage is already
  * the shared store, so there is nothing to publish or fetch.
  *
- * **`exportFiles`/`importFiles` are NOT implemented.** The core says a provider
- * with no bulk transfer should leave them unimplemented rather than emulate one,
- * and Fly's only channel is the `exec` endpoint's JSON response — a file-by-file
- * or base64 emulation would look supported and take hours. The template path
- * moves bulk data without them precisely because it never routes the bytes
- * through the control plane.
+ * **`importFiles` IS implemented; `exportFiles` is not.** Import takes the same
+ * route the template restore does — a presigned object-store URL the Machine
+ * pulls itself, falling back to chunked base64 over `exec` when no store is
+ * configured — so an app tree can be delivered into a fresh Machine. There is no
+ * inverse: Fly's only read channel is the `exec` endpoint's JSON response, and a
+ * base64 emulation of a whole-tree export would look supported and route every
+ * byte through the control plane. Pair a Fly destination with a source that CAN
+ * export (the core's rooting contract makes them interchangeable).
  *
  * **Sandbox ids are composite: `"<app>:<machineId>"`.** A Fly Machine id is only
  * unique within its app and every endpoint is `/v1/apps/{app}/machines/{id}`, so

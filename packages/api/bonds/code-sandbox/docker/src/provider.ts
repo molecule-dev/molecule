@@ -603,13 +603,30 @@ class DockerSandboxProvider implements SandboxProvider {
       hostConfig.Binds = [`${config.volumeName}:/workspace`]
     }
 
-    const body = {
+    // What the container does when its main process exits. Docker's default is
+    // `no`, matching this provider's historical behaviour: a sandbox whose
+    // process exits stays stopped for the caller to inspect. A caller running
+    // something long-lived (a production instance) asks for `always`/`on-failure`
+    // so the workload comes back after a crash or a daemon restart without a
+    // control plane in the loop.
+    if (config.restartPolicy && config.restartPolicy !== 'no') {
+      hostConfig.RestartPolicy = { Name: config.restartPolicy }
+    }
+
+    const body: Record<string, unknown> = {
       Image: image,
       Env: env,
       Labels: labels,
       HostConfig: hostConfig,
       ExposedPorts: Object.fromEntries(publishPorts.map((port) => [`${port}/tcp`, {}])),
     }
+
+    // The caller's own main process, replacing the image's CMD. Without it a
+    // container that Docker restarts comes back running the image's idle command
+    // and serving nothing, while `status` still reports it as running — which it
+    // is, and empty. `Cmd` (not `Entrypoint`) so the image's entrypoint — tini,
+    // enabled above via `Init` — still wraps it and reaps its children.
+    if (config.command?.length) body.Cmd = [...config.command]
 
     // Retry a transient create timeout (daemon momentarily overwhelmed under
     // concurrent boots) instead of failing the whole sandbox boot. The onRetry

@@ -21,7 +21,9 @@ import type {
   ListTemplatesOptions,
   Sandbox,
   SandboxConfig,
+  SandboxDescriptor,
   SandboxProvider,
+  SandboxQuery,
   SandboxTemplate,
 } from '@molecule/api-code-sandbox'
 import { t } from '@molecule/api-i18n'
@@ -51,6 +53,8 @@ import { appNameForProject, mapMachineState, parseSandboxId, toSandboxId } from 
 import { createTemplateStore, MAX_PRESIGN_EXPIRY_SECONDS, type ObjectStore } from './storage.js'
 import * as templates from './templates.js'
 import type {
+  FlyApp,
+  FlyAppList,
   FlyExecResponse,
   FlyioConfig,
   FlyIpAssignment,
@@ -97,6 +101,39 @@ const LIST_PAGE_SIZE = 200
 
 /** Hard cap on pages fetched while listing, so a bad cursor cannot loop forever. */
 const LIST_MAX_PAGES = 50
+
+/**
+ * Hard cap on how many per-project apps `find()` will walk in one sweep.
+ *
+ * Requests are paced account-wide (~4.5/s), so enumerating N apps costs N
+ * round-trips of wall clock. Past this the sweep is refused OUTRIGHT rather than
+ * truncated, because `find()`'s whole contract is that a short answer is never
+ * mistaken for an empty one. Raise `FLY_FIND_MAX_APPS` deliberately.
+ */
+const FIND_MAX_APPS = ((): number => {
+  const configured = Number(process.env.FLY_FIND_MAX_APPS)
+  return Number.isFinite(configured) && configured > 0 ? configured : 500
+})()
+
+/**
+ * When a Machine was FIRST started, from its event log.
+ *
+ * Fly has no `started_at` field; the events array (newest first) is the only
+ * record, and its absence is the meaningful case — a Machine created but never
+ * started is not "stopped", it is wreckage from an interrupted create that
+ * still holds its volume.
+ *
+ * @param machine - The Machine as Fly reported it.
+ * @returns ISO 8601 timestamp of the earliest `start` event, or `null` if it has
+ *   never started (or Fly sent no events).
+ */
+const firstStartedAt = (machine: FlyMachine): string | null => {
+  const starts = (machine.events ?? [])
+    .filter((event) => event.type === 'start' && typeof event.timestamp === 'number')
+    .map((event) => event.timestamp as number)
+  if (!starts.length) return null
+  return new Date(Math.min(...starts)).toISOString()
+}
 
 /**
  * Chunk size for base64-encoded `writeFile` payloads. The binding limit is NOT
@@ -281,6 +318,17 @@ class FlyioSandboxProvider implements SandboxProvider {
   }
 
   /**
+   * The per-project Fly app-name prefix. One resolution shared by app NAMING
+   * (`resolveApp`) and app DISCOVERY (`find`), so a sweep can never look for a
+   * prefix creation does not use.
+   *
+   * @returns The configured prefix.
+   */
+  private appPrefix(): string {
+    return this.config.appPrefix ?? process.env.FLY_SANDBOX_APP_PREFIX ?? DEFAULT_APP_PREFIX
+  }
+
+  /**
    * Resolves the Fly app a project's Machine belongs to.
    *
    * In the default per-project mode this is `<prefix>-<projectId>`, which is
@@ -294,10 +342,7 @@ class FlyioSandboxProvider implements SandboxProvider {
    */
   private resolveApp(projectId: string): string {
     if (this.appPerProject()) {
-      return appNameForProject(
-        this.config.appPrefix ?? process.env.FLY_SANDBOX_APP_PREFIX ?? DEFAULT_APP_PREFIX,
-        projectId,
-      )
+      return appNameForProject(this.appPrefix(), projectId)
     }
     const shared = this.config.appName ?? process.env.FLY_SANDBOX_APP
     if (process.env.NODE_ENV === 'production') {
@@ -926,8 +971,11 @@ class FlyioSandboxProvider implements SandboxProvider {
 
     // Also resolved BEFORE anything is provisioned: a sandbox told to dial a
     // `.flycast` host nobody declared would boot healthy and then fail to
-    // connect inside the user's own application.
-    assertPrivateRoutesForEnv(config.env, this.privateServices())
+    // connect inside the user's own application. Env the caller delivers itself
+    // is checked too — the host is unroutable however the value arrives, and
+    // that env is exactly where a control plane puts the values it refuses to
+    // leave in a Machine config.
+    assertPrivateRoutesForEnv({ ...config.env, ...config.selfDeliveredEnv }, this.privateServices())
 
     const app = this.resolveApp(config.projectId)
     const privateRoutes = await this.ensureApp(app)
@@ -975,10 +1023,19 @@ class FlyioSandboxProvider implements SandboxProvider {
       },
       // `no` matches the Docker provider: a sandbox whose main process exits
       // stays stopped for the caller to inspect, rather than silently looping.
-      // Fly's default when unset is `on-failure`.
-      restart: { policy: 'no' },
+      // Fly's default when unset is `on-failure`. A caller running something
+      // long-lived overrides it (`config.restartPolicy`).
+      restart: { policy: config.restartPolicy ?? 'no' },
       auto_destroy: false,
     }
+
+    // The caller's own main process, instead of the image's entrypoint/cmd.
+    // Fly's `init.exec` overrides BOTH ("run this instead of the entrypoint and
+    // command in your Docker container definition"), which is what a caller
+    // asking for a specific pid 1 means. Without it a Machine that Fly restarts
+    // — host migration, `fly machine restart`, an OOM kill — comes back running
+    // the image's idle command and serving nothing.
+    if (config.command?.length) machineConfig.init = { exec: [...config.command] }
 
     if (config.volumeName) {
       metadata[`${this.metadataPrefix}.volumeName`] = config.volumeName
@@ -1120,6 +1177,184 @@ class FlyioSandboxProvider implements SandboxProvider {
       }
     }
     return sandboxes
+  }
+
+  /**
+   * Find managed sandboxes by what the caller labelled them.
+   *
+   * The reconciliation counterpart to `list()`: a control plane that restarted
+   * asks this which of its recorded sandboxes are still alive, and which live
+   * sandboxes no record names. molecule.dev's production sweep is the reason it
+   * exists — with no `find()` the sweep returned at its capability check, so a
+   * Machine that died stayed recorded as `live` and the edge kept routing to it,
+   * while a Machine from a crashed deploy kept running and billing with nothing
+   * left to name it.
+   *
+   * **Enumeration is by APP, not by the org-wide Machines endpoint.** In
+   * per-project mode each project owns a whole Fly app, so the complete set is
+   * "every app whose name starts with this provider's prefix, and every Machine
+   * in each" — which is exactly answerable. `GET /orgs/{org}/machines` (what
+   * `list()` uses) pages with an advisory limit and a cursor Fly may still be
+   * handing out at the page cap, and a TRUNCATED answer here is worse than no
+   * answer: the caller reads a missing Machine as "gone" and stops routing to a
+   * live one.
+   *
+   * Which is the whole contract of this method — **it throws rather than
+   * returning a short list.** Every failure mode below (no app listing, an
+   * incomplete app listing, more apps than the bound, a machine listing that
+   * errors) is "I could not enumerate", and a recovery loop must never read that
+   * as "there is nothing there".
+   *
+   * `ports` is deliberately always empty: Fly routes to a Machine through its
+   * proxy by HOSTNAME with TLS at the edge, not by a `host:port` forward the
+   * control plane can dial. `getPreviewUrl()` is the address; a `{ host, port }`
+   * pair here would be dialled as plain http on 443.
+   *
+   * @param query - Narrowing by label, status and project. All conditions AND.
+   * @returns A descriptor per matching sandbox.
+   * @throws {Error} When the provider cannot enumerate completely.
+   */
+  async find(query?: SandboxQuery): Promise<SandboxDescriptor[]> {
+    const managedKey = `${this.metadataPrefix}.managed`
+    const projectIdKey = `${this.metadataPrefix}.projectId`
+    const volumeNameKey = `${this.metadataPrefix}.volumeName`
+    const templateIdKey = `${this.metadataPrefix}.templateId`
+
+    const apps = await this.appsToEnumerate()
+    const descriptors: SandboxDescriptor[] = []
+
+    for (const app of apps) {
+      let machines: FlyMachine[] | null
+      try {
+        machines = await this.client.request<FlyMachine[]>(`/apps/${app}/machines`, {
+          // A 404 is the app itself being gone — a real absence (it was deleted
+          // between the app listing and this call), not a failed query.
+          nullOn: [404],
+        })
+      } catch (error) {
+        throw new Error(
+          t(
+            'codeSandbox.flyio.error.findFailed',
+            { app },
+            {
+              defaultValue:
+                `Cannot enumerate Fly sandboxes: listing Machines in app "${app}" failed. ` +
+                'Refusing to report a partial result — a caller reconciling against it would ' +
+                'treat every unseen sandbox as gone.',
+            },
+          ),
+          { cause: error },
+        )
+      }
+
+      for (const machine of machines ?? []) {
+        const metadata = machine.config?.metadata ?? {}
+        if (metadata[managedKey] !== 'true') continue
+
+        const status = mapMachineState(machine.state ?? 'created')
+        const projectId = metadata[projectIdKey] ?? null
+
+        if (query?.projectId && projectId !== query.projectId) continue
+        if (query?.statuses?.length && !query.statuses.includes(status)) continue
+        if (query?.labels) {
+          let matches = true
+          for (const [key, value] of Object.entries(query.labels)) {
+            if (metadata[key] !== value) {
+              matches = false
+              break
+            }
+          }
+          if (!matches) continue
+        }
+
+        descriptors.push({
+          id: toSandboxId(app, machine.id),
+          projectId,
+          status,
+          // The caller's own labels are in this map verbatim — `create()` merges
+          // them alongside the provider's `<prefix>.*` keys.
+          labels: { ...metadata },
+          createdAt: machine.created_at ?? null,
+          startedAt: firstStartedAt(machine),
+          templateRef: metadata[templateIdKey] ?? machine.config?.image ?? null,
+          volumeName: metadata[volumeNameKey] ?? null,
+          ports: [],
+        })
+      }
+    }
+
+    return descriptors
+  }
+
+  /**
+   * The apps `find()` must look inside — one per project in per-project mode,
+   * the single configured app otherwise.
+   *
+   * Filtering the org's apps by this provider's own prefix is what keeps the
+   * sweep off apps it does not own (the control-plane API, the databases, the
+   * edge proxy), without needing a permission the token may not have.
+   *
+   * @returns Every app name to enumerate.
+   * @throws {Error} When the org's apps cannot be listed completely.
+   */
+  private async appsToEnumerate(): Promise<string[]> {
+    if (!this.appPerProject()) return [this.resolveApp('unused')]
+
+    const org = this.orgSlug()
+    let listing: FlyAppList | null
+    try {
+      listing = await this.client.request<FlyAppList>(
+        `/apps?org_slug=${encodeURIComponent(org)}`,
+        {},
+      )
+    } catch (error) {
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.appListFailed',
+          { org },
+          {
+            defaultValue:
+              `Cannot enumerate Fly sandboxes: listing the apps of org "${org}" failed. ` +
+              'Refusing to report a partial result.',
+          },
+        ),
+        { cause: error },
+      )
+    }
+
+    const apps: FlyApp[] = listing?.apps ?? []
+    const total = listing?.total_apps
+    if (typeof total === 'number' && apps.length < total) {
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.appListTruncated',
+          { org, returned: String(apps.length), total: String(total) },
+          {
+            defaultValue:
+              `Fly returned ${apps.length} of ${total} apps for org "${org}" — this listing is ` +
+              'TRUNCATED, so some sandboxes would be missing from the result.',
+          },
+        ),
+      )
+    }
+
+    const prefix = `${this.appPrefix()}-`
+    const owned = apps.map((app) => app.name).filter((name) => name?.startsWith(prefix))
+    if (owned.length > FIND_MAX_APPS) {
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.findTooManyApps',
+          { count: String(owned.length), max: String(FIND_MAX_APPS) },
+          {
+            defaultValue:
+              `Refusing to enumerate ${owned.length} Fly sandbox apps (cap ${FIND_MAX_APPS}): ` +
+              'requests are paced account-wide, so this sweep would take longer than the caller ' +
+              'can wait. Raise FLY_FIND_MAX_APPS deliberately rather than reading a partial sweep.',
+          },
+        ),
+      )
+    }
+    return owned
   }
 
   /**

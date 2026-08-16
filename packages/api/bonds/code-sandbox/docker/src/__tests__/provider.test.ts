@@ -2013,3 +2013,63 @@ describe('capacity', () => {
     expect(capacity.admits).toBeNull()
   })
 })
+
+describe('self-booting containers (SandboxConfig.command / restartPolicy)', () => {
+  it('maps command onto Cmd and restartPolicy onto the Docker restart policy', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'prod-container' })
+
+    await provider.create({
+      projectId: 'p1',
+      command: ['/bin/sh', '-c', 'exec /workspace/.mol/boot.sh'],
+      restartPolicy: 'always',
+    })
+
+    const body = JSON.parse(containerCreateCall().body!) as {
+      Cmd?: string[]
+      HostConfig?: { RestartPolicy?: { Name?: string }; Init?: boolean }
+    }
+    // `Cmd`, not `Entrypoint`: tini (HostConfig.Init) must still wrap it and reap
+    // the supervisor's children.
+    expect(body.Cmd).toEqual(['/bin/sh', '-c', 'exec /workspace/.mol/boot.sh'])
+    expect(body.HostConfig?.Init).toBe(true)
+    expect(body.HostConfig?.RestartPolicy?.Name).toBe('always')
+  })
+
+  it('leaves a dev sandbox on the image command with no restart policy', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'dev-container' })
+
+    await provider.create({ projectId: 'p1' })
+
+    const body = JSON.parse(containerCreateCall().body!) as {
+      Cmd?: string[]
+      HostConfig?: { RestartPolicy?: unknown }
+    }
+    expect(body.Cmd).toBeUndefined()
+    // Docker's own default is `no` — a sandbox whose process exits stays stopped
+    // for the caller to inspect.
+    expect(body.HostConfig?.RestartPolicy).toBeUndefined()
+  })
+
+  it('never sends a restart policy for an explicit `no`', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'dev-container' })
+
+    await provider.create({ projectId: 'p1', restartPolicy: 'no' })
+
+    const body = JSON.parse(containerCreateCall().body!) as {
+      HostConfig?: { RestartPolicy?: unknown }
+    }
+    expect(body.HostConfig?.RestartPolicy).toBeUndefined()
+  })
+})

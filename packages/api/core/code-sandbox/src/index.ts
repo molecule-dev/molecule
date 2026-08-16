@@ -45,6 +45,14 @@
  *   checkpoint-style resume brings them back and a plain start does not, and the
  *   sandbox looks identical either way. Use `hibernate`/`resume` (optional) when
  *   you launched anything the sandbox needs to still be running.
+ * - **A sandbox that must survive its own host restarting has to describe its own
+ *   boot.** Processes started with `exec` after creation do not come back when
+ *   the host restarts, migrates or OOM-kills the sandbox — the image's idle
+ *   command runs instead and `status` still reports `running`, because it is:
+ *   running and empty. Give such a sandbox `SandboxConfig.command` (its main
+ *   process, pointing at something on the persistent VOLUME — a script on the
+ *   rootfs is gone by then) plus `SandboxConfig.restartPolicy`. Dev sandboxes,
+ *   which nobody serves from, are fine with the `'no'` default.
  * - Wire with `setProvider(provider)` (or `bond('code-sandbox', provider)` — this
  *   core reads the bond registry).
  * - **`exportFiles(path)` archives are rooted at the last segment of `path`**

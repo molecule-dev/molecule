@@ -105,10 +105,13 @@ export interface FlyioConfig {
    */
   publicService?: boolean
   /**
-   * Fly Proxy idle behaviour for the preview service. `suspend` (the default)
-   * is the scale-to-zero mapping this bond exists for: the proxy suspends an
-   * idle Machine and resumes it from its memory snapshot on the next request.
-   * `stop` is a full stop (cold boot on wake); `off` never idles the Machine.
+   * Fly Proxy idle behaviour for the preview service. Defaults to `'off'` —
+   * never idle the Machine — because the autostop timer counts the PROXY
+   * service's idle time, not the workload's, so a sandbox with nobody looking at
+   * its preview is suspended out from under a build that is still running.
+   * `suspend` is the scale-to-zero mapping (resume from a memory snapshot on the
+   * next request) and `stop` is a full stop with a cold boot on wake; opt into
+   * either deliberately.
    */
   autostop?: 'off' | 'stop' | 'suspend'
   /**
@@ -483,6 +486,37 @@ export interface FlyMachine {
   region?: string
   private_ip?: string
   config?: FlyMachineConfig
+  /** RFC 3339 creation time, as Fly reports it. */
+  created_at?: string
+  /**
+   * Lifecycle events, newest first. The ONLY place Fly records when a Machine
+   * was first started — there is no `started_at` field — which is what
+   * distinguishes a stopped Machine from one that was created and never ran.
+   */
+  events?: FlyMachineEvent[]
+}
+
+/** One entry of {@link FlyMachine.events}. */
+export interface FlyMachineEvent {
+  /** `start`, `launch`, `exit`, … */
+  type?: string
+  status?: string
+  /** Epoch milliseconds. */
+  timestamp?: number
+}
+
+/** An app as returned by `GET /v1/apps?org_slug=…` (the fields this provider reads). */
+export interface FlyApp {
+  id?: string
+  name: string
+  machine_count?: number
+}
+
+/** Response body of `GET /v1/apps?org_slug=…`. */
+export interface FlyAppList {
+  /** Total apps in the org, which the returned page may not cover. */
+  total_apps?: number
+  apps?: FlyApp[]
 }
 
 /** A Machine as returned by the org-wide list endpoint (`GET /orgs/{org}/machines`). */

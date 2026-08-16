@@ -83,6 +83,60 @@ export interface SandboxConfig {
    * recoverable across control-plane restarts.
    */
   labels?: Record<string, string>
+  /**
+   * The sandbox's MAIN process — what runs as pid 1 instead of the image's own
+   * entrypoint/command.
+   *
+   * A sandbox whose processes are started by `exec` after creation is running
+   * nothing at all the moment its host restarts it: the image boots, its idle
+   * command runs, and every server the caller launched is gone. That is
+   * invisible until it happens, because `status` reports the sandbox as running
+   * — it IS running, just empty. A long-lived sandbox (a production instance)
+   * must therefore describe its own boot, and this is where it says so.
+   *
+   * Passed as an argv array, not a shell string, so nothing re-parses it. The
+   * command must be resolvable inside the sandbox at BOOT time — which usually
+   * means it lives on the persistent volume rather than in the caller's memory:
+   * a script on the rootfs is gone on the next start.
+   *
+   * A provider that cannot run a caller-supplied main process MUST throw rather
+   * than ignore this, because silently keeping the image's own command produces
+   * exactly the sandbox this option exists to prevent, and reports it healthy.
+   */
+  command?: string[]
+  /**
+   * What the provider does when the main process exits.
+   *
+   * Providers default to `'no'`: a sandbox whose process exits stays down for
+   * the caller to inspect, which is right for a dev sandbox nobody is serving
+   * from. It is wrong for anything long-lived — there `'always'` (restart on any
+   * exit) or `'on-failure'` (restart on a non-zero exit) is what keeps the
+   * workload up across a crash, an OOM kill, or a host migration without a
+   * control plane in the loop.
+   *
+   * Only meaningful alongside {@link SandboxConfig.command} — restarting a
+   * sandbox back into an idle image command restores nothing.
+   */
+  restartPolicy?: 'no' | 'on-failure' | 'always'
+  /**
+   * Env the sandbox's workload will run with, but which the CALLER delivers —
+   * a file on the persistent volume, a secrets bond, an init script — rather
+   * than handing to the provider.
+   *
+   * Providers must VALIDATE against it exactly as they validate `env` (a host
+   * the sandbox cannot route to is unroutable however the value arrives) and
+   * must NEVER persist it in their own configuration.
+   *
+   * That "never persist" is the entire point. A provider's create-time `env` is
+   * stored in ITS control plane, not just in the sandbox: Fly returns the whole
+   * Machine config — env included, verbatim — to any holder of an org token, so
+   * every tenant's database password and API keys are readable in bulk from a
+   * single credential, without touching the vault that encrypted them. Values
+   * the workload can obtain another way therefore must not be handed over here.
+   * Use `env` for the provider's own non-secret configuration, and this for what
+   * the workload reads for itself.
+   */
+  selfDeliveredEnv?: Record<string, string>
   resources?: SandboxResources
 }
 
