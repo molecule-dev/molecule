@@ -1,13 +1,21 @@
 /**
  * `/share` link modal.
  *
- * A centered modal that creates a public share link for the current project. The
- * user picks a role (viewer / commenter / editor / owner — default viewer) and
- * the modal POSTs `{ role }` to `POST /projects/:projectId/shares`. The backend
- * (wired in the host app) mints a slug-bearing link and returns it; the modal
- * then renders the resulting URL in a read-only field with a copy-to-clipboard
- * button so the user can hand it out. Opening `GET /share/:slug` grants that
- * role (a `viewer` link is an unauthenticated read).
+ * A centered modal that creates a public share link for the current project. It
+ * POSTs `{ role }` to `POST /projects/:projectId/shares`; the backend (wired in
+ * the host app) mints a slug-bearing link and returns it, and the modal renders
+ * the resulting URL in a read-only field with a copy-to-clipboard button so the
+ * user can hand it out. Opening `GET /share/:slug` grants that role.
+ *
+ * **Only the roles the HOST actually grants are offered**, via `roles`, which
+ * defaults to `[viewer]` — a link anyone can open is an unauthenticated
+ * credential, so write access through one is something a host has to opt into
+ * rather than something this modal offers by default. The role `<select>`
+ * appears only when there is a genuine choice; with one role the modal simply
+ * states what the link will grant. This used to render all four contract roles
+ * unconditionally while the only shipped backend clamped every one of them to
+ * `viewer` — so picking "Editor — view & edit" minted a viewer link and the
+ * dialog told the user two contradictory things at once.
  *
  * Styling uses `getClassMap()` (`cm.*`); the only inline styles are layout the
  * ClassMap can't express. All user-facing text goes through `t()`.
@@ -30,7 +38,6 @@ import {
   buildShareUrl,
   DEFAULT_SHARE_ROLE,
   SHARE_ROLE_LABELS,
-  SHARE_ROLES,
 } from './chat-share-utilities.js'
 import { Icon } from './Icon.js'
 
@@ -46,18 +53,31 @@ const logger = getLogger('share-modal')
 export function ShareModal({
   projectId,
   initialRole = DEFAULT_SHARE_ROLE,
+  roles = [DEFAULT_SHARE_ROLE],
   onClose,
   onCreated,
 }: {
   projectId: string
   initialRole?: ShareRole
+  /**
+   * The roles this host's backend actually grants through a public link, in the
+   * order to offer them. Defaults to `[viewer]`; pass more only when the
+   * backend really honours them.
+   */
+  roles?: readonly ShareRole[]
   onClose: () => void
   onCreated?: (result: ShareLinkResult) => void
 }): JSX.Element {
   const cm = getClassMap()
   const http = useHttpClient()
   const isLight = useThemeMode() === 'light'
-  const [role, setRole] = useState<ShareRole>(initialRole)
+  // A requested role the host does not grant would be silently downgraded by
+  // the backend, so fall back to the first offered role rather than showing a
+  // choice that will not be honoured.
+  const offeredRoles = roles.length ? roles : [DEFAULT_SHARE_ROLE]
+  const [role, setRole] = useState<ShareRole>(
+    offeredRoles.includes(initialRole) ? initialRole : offeredRoles[0],
+  )
   const [creating, setCreating] = useState(false)
   const [created, setCreated] = useState<ShareLinkResult | null>(null)
   const [copied, setCopied] = useState(false)
@@ -173,31 +193,43 @@ export function ShareModal({
           {t('ide.chat.share.heading', undefined, { defaultValue: 'Share project' })}
         </div>
         <div className={cm.textMuted} style={{ marginBottom: 12, lineHeight: 1.4 }}>
-          {t('ide.chat.share.subheading', undefined, {
-            defaultValue:
-              'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
-          })}
+          {offeredRoles.length > 1
+            ? t('ide.chat.share.subheading', undefined, {
+                defaultValue:
+                  'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+              })
+            : t(
+                `ide.chat.share.subheading.${offeredRoles[0]}`,
+                { role: offeredRoles[0] },
+                {
+                  defaultValue: 'Create a public link. Anyone with the link can act as {{role}}.',
+                },
+              )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span className={cm.fontWeight('medium')}>
-              {t('ide.chat.share.roleLabel', undefined, { defaultValue: 'Role' })}
-            </span>
-            <select
-              value={role}
-              data-mol-id="share-role"
-              onChange={(e) => setRole(e.target.value as ShareRole)}
-              className={cm.textSize('sm')}
-              style={fieldStyle}
-            >
-              {SHARE_ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {t(`ide.chat.share.role.${r}`, undefined, { defaultValue: SHARE_ROLE_LABELS[r] })}
-                </option>
-              ))}
-            </select>
-          </label>
+          {offeredRoles.length > 1 && (
+            <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <span className={cm.fontWeight('medium')}>
+                {t('ide.chat.share.roleLabel', undefined, { defaultValue: 'Role' })}
+              </span>
+              <select
+                value={role}
+                data-mol-id="share-role"
+                onChange={(e) => setRole(e.target.value as ShareRole)}
+                className={cm.textSize('sm')}
+                style={fieldStyle}
+              >
+                {offeredRoles.map((r) => (
+                  <option key={r} value={r}>
+                    {t(`ide.chat.share.role.${r}`, undefined, {
+                      defaultValue: SHARE_ROLE_LABELS[r],
+                    })}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           {created && (
             <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
