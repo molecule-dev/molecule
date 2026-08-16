@@ -468,6 +468,152 @@ export const reportUsageOverage = async (options: {
 }
 
 /**
+ * Charges a customer's saved card OFF-SESSION for a fixed amount — the
+ * PREPAID top-up primitive (the customer is not present to authenticate).
+ *
+ * Distinct from {@link reportUsageOverage} in the property that matters:
+ * `reportUsageOverage` records an amount to be collected LATER on an invoice,
+ * so the money is a receivable until the cycle closes. This CAPTURES the money
+ * now and reports whether it actually settled, which is what makes a prepaid
+ * balance prepaid. Only credit a balance on `status: 'succeeded'`.
+ *
+ * A saved card is required: the charge uses the customer's `invoice_settings.
+ * default_payment_method`, falling back to their most recent attached card.
+ * With `off_session: true` + `confirm: true`, Stripe either settles the payment
+ * or fails — it never returns a client-side flow the absent customer could
+ * complete. A card that demands 3DS therefore surfaces as
+ * `status: 'requires_action'`, which callers MUST treat as a failure and
+ * resolve by asking the customer to re-authenticate on-session.
+ *
+ * IDEMPOTENCY: the caller MUST pass a stable `idempotencyKey`. A retry inside
+ * Stripe's 24h idempotency window returns the ORIGINAL PaymentIntent rather
+ * than charging again — the property that makes an auto-refill retry safe.
+ *
+ * This function performs NO gating of its own — it charges what it is told to.
+ * Whether a top-up is permitted (balance low? refill cap? velocity?) is the
+ * consuming application's decision.
+ *
+ * @param options - Off-session charge options.
+ * @param options.customerId - The Stripe customer to charge (`cus_...`).
+ * @param options.amountCents - The amount to capture in cents (must be `> 0`).
+ * @param options.currency - ISO currency (defaults to `usd`).
+ * @param options.paymentMethodId - Explicit payment method; defaults to the
+ *   customer's default card, then their most recently attached card.
+ * @param options.description - Human-readable statement/line description.
+ * @param options.metadata - Reconciliation metadata (e.g. userId, period).
+ * @param options.idempotencyKey - REQUIRED stable key (see IDEMPOTENCY above).
+ * @returns The PaymentIntent id, the normalized outcome, the amount actually
+ *   captured (0 unless settled), and a decline code/reason when it did not.
+ */
+export const chargeOffSession = async (options: {
+  customerId: string
+  amountCents: number
+  currency?: string
+  paymentMethodId?: string
+  description?: string
+  metadata?: Record<string, string>
+  idempotencyKey: string
+}): Promise<{
+  id: string | null
+  status: 'succeeded' | 'requires_action' | 'failed'
+  amountCents: number
+  declineCode?: string
+  failureMessage?: string
+}> => {
+  const amount = Math.round(options.amountCents)
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error('chargeOffSession requires a positive amountCents')
+  }
+  const client = getClient()
+
+  // Resolve the card to charge. Off-session confirmation cannot prompt the
+  // customer to pick one, so an unresolvable payment method is a failure to
+  // report — never an implicit "charge whatever Stripe finds".
+  let paymentMethodId = options.paymentMethodId
+  if (!paymentMethodId) {
+    try {
+      const customer = await client.customers.retrieve(options.customerId)
+      if (!customer.deleted) {
+        const defaultPm = customer.invoice_settings?.default_payment_method
+        paymentMethodId = typeof defaultPm === 'string' ? defaultPm : (defaultPm?.id ?? undefined)
+      }
+    } catch (error) {
+      logger.error('Error resolving Stripe default payment method:', error)
+    }
+  }
+  if (!paymentMethodId) {
+    const methods = await client.paymentMethods.list({
+      customer: options.customerId,
+      type: 'card',
+      limit: 1,
+    })
+    paymentMethodId = methods.data[0]?.id
+  }
+  if (!paymentMethodId) {
+    return {
+      id: null,
+      status: 'failed',
+      amountCents: 0,
+      failureMessage: 'No saved card on file for this customer.',
+    }
+  }
+
+  try {
+    const intent = await client.paymentIntents.create(
+      {
+        customer: options.customerId,
+        amount,
+        currency: options.currency ?? 'usd',
+        payment_method: paymentMethodId,
+        // The absent-customer contract: confirm immediately, and never hand
+        // back a redirect/next-action the customer is not there to complete.
+        off_session: true,
+        confirm: true,
+        automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
+        description: options.description,
+        metadata: options.metadata,
+      },
+      { idempotencyKey: options.idempotencyKey },
+    )
+    if (intent.status === 'succeeded') {
+      return { id: intent.id, status: 'succeeded', amountCents: intent.amount_received || amount }
+    }
+    // Anything short of settled is NOT money: report it as such so the caller
+    // cannot mistake an authentication prompt for a captured payment.
+    return {
+      id: intent.id,
+      status: intent.status === 'requires_action' ? 'requires_action' : 'failed',
+      amountCents: 0,
+      failureMessage: intent.last_payment_error?.message,
+      ...(intent.last_payment_error?.decline_code
+        ? { declineCode: intent.last_payment_error.decline_code }
+        : {}),
+    }
+  } catch (error) {
+    // A declined off-session charge arrives as a thrown StripeCardError whose
+    // payload carries the intent — a normal, expected outcome (an expired or
+    // insufficient-funds card), so it is reported, not re-thrown.
+    if (error instanceof Stripe.errors.StripeCardError) {
+      const intent = error.payment_intent
+      logger.warn('Stripe off-session charge declined', {
+        code: error.code,
+        declineCode: error.decline_code,
+      })
+      return {
+        id: intent?.id ?? null,
+        status: intent?.status === 'requires_action' ? 'requires_action' : 'failed',
+        amountCents: 0,
+        ...(error.decline_code ? { declineCode: error.decline_code } : {}),
+        failureMessage: error.message,
+      }
+    }
+    // Never log the customer id or amount beyond the bare fact of failure.
+    logger.error('Error creating Stripe off-session charge:', error)
+    throw error
+  }
+}
+
+/**
  * Maps a raw Stripe subscription status string (e.g. `past_due`, `incomplete`)
  * to the provider-agnostic `SubscriptionStatus`.
  *
