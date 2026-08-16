@@ -277,8 +277,26 @@ const MAX_TRANSITIONS = 10
 const TRANSITION_WINDOW_MS = 5000
 
 /**
+ * The path a preview host may serve to report, in a form a cross-origin caller
+ * can actually READ, whether the app behind it is serving.
+ *
+ * A plain `no-cors` probe cannot tell up from down: the response is opaque, so
+ * it resolves for 200 and for an edge's "sandbox unavailable" error page alike,
+ * and the panel mounts the error page as though the app were ready — a page with
+ * no bridge in it, which can never self-heal. This path is answered by the
+ * preview edge with CORS headers, so `response.ok` is a real answer. A host that
+ * does not serve it (a plain dev server on localhost) falls back to the opaque
+ * probe below.
+ */
+const PREVIEW_STATUS_PATH = '/__mol/preview-status'
+
+/**
  * Check whether the server at `url` is accepting connections.
- * Uses `no-cors` so CORS errors aren't mistaken for network failures.
+ *
+ * Asks {@link PREVIEW_STATUS_PATH} first, because that answer is readable; only
+ * a host that does not implement it falls back to the opaque `no-cors` probe,
+ * where "it responded at all" is the best available signal.
+ *
  * Aborts after 500ms to avoid holding browser connections — hanging polls
  * exhaust the per-origin connection limit and starve the iframe of
  * connections for script/asset requests. An optional `externalSignal` lets the
@@ -297,6 +315,21 @@ async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<bo
     else externalSignal.addEventListener('abort', onExternalAbort)
   }
   try {
+    try {
+      const statusUrl = new URL(PREVIEW_STATUS_PATH, url).toString()
+      const status = await fetch(statusUrl, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+      // A host that serves this path has told us the truth either way.
+      if (status.status !== 404) return status.ok
+    } catch (_error) {
+      // No CORS status endpoint here (or it was blocked) — fall through to the
+      // opaque probe rather than reporting a healthy app as down.
+    }
+    if (controller.signal.aborted) return false
     await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal })
     return true
   } catch (_error) {
