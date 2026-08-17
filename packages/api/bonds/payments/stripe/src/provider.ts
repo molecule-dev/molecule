@@ -95,6 +95,7 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
     items: {
       data: sub.items.data.map((item) => ({
         id: item.id,
+        quantity: item.quantity,
         price: item.price
           ? {
               // The PRICE id is load-bearing for plan resolution: apps

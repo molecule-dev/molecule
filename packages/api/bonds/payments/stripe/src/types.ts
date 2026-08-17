@@ -33,7 +33,17 @@ export interface SubscriptionResult {
    * cannot be claimed (ownership check in `verifyPayment`).
    */
   customer?: string
-  items: { data: Array<{ id: string; price?: { id?: string; product?: string } }> }
+  /**
+   * The subscription's line items.
+   *
+   * `quantity` is the UNITS billed on that line — seats, on a per-seat plan.
+   * Carried because an app that sells seats has no other way to learn how many
+   * the customer actually paid for: the price id says what a seat costs, never
+   * how many were bought, so without this the app can only assume one.
+   */
+  items: {
+    data: Array<{ id: string; quantity?: number; price?: { id?: string; product?: string } }>
+  }
   current_period_start: number
   current_period_end: number
   cancel_at_period_end: boolean
