@@ -953,9 +953,50 @@ describe('Stripe Bond Adapter', () => {
       const timeWindow = Math.floor(Date.now() / (5 * 60 * 1000))
       const expectedKey = crypto
         .createHash('sha256')
-        .update(`checkout:user_idempotent:price_plan_x:${timeWindow}`)
+        .update(`checkout:user_idempotent:price_plan_x:1:${timeWindow}`)
         .digest('hex')
       expect(call.idempotencyKey).toBe(expectedKey)
+    })
+
+    // Two seat counts in one five-minute window must not collide. If they do,
+    // Stripe replays the FIRST session and the buyer checks out for a seat count
+    // they did not choose.
+    it('gives a different idempotency key to a different seat count', async () => {
+      mockFindByUserId.mockResolvedValue(null)
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await paymentProvider.updateSubscription!({
+        userId: 'user_seats',
+        newProductId: 'price_team',
+        quantity: 3,
+      })
+      await paymentProvider.updateSubscription!({
+        userId: 'user_seats',
+        newProductId: 'price_team',
+        quantity: 5,
+      })
+
+      const calls = mockCreateCheckoutSession.mock.calls as Array<
+        [{ idempotencyKey: string; quantity?: number }]
+      >
+      const three = calls[calls.length - 2]![0]
+      const five = calls[calls.length - 1]![0]
+      expect(three.quantity).toBe(3)
+      expect(five.quantity).toBe(5)
+      expect(three.idempotencyKey).not.toBe(five.idempotencyKey)
+    })
+
+    it('bills ONE unit when no seat count is given', async () => {
+      mockFindByUserId.mockResolvedValue(null)
+      const { paymentProvider } = await import('../bondAdapter.js')
+
+      await paymentProvider.updateSubscription!({
+        userId: 'user_default_qty',
+        newProductId: 'price_solo',
+      })
+
+      const call = mockCreateCheckoutSession.mock.calls.at(-1)![0] as { quantity?: number }
+      expect(call.quantity).toBeUndefined()
     })
 
     // The success URL must land on the APP origin, not the API origin: the

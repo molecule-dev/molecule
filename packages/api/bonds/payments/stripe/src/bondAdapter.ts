@@ -292,6 +292,7 @@ export const paymentProvider: PaymentProvider = {
     userId: string
     newProductId: string
     previousProductId?: string
+    quantity?: number
   }): Promise<SubscriptionUpdateResult> {
     try {
       const records = get<PaymentRecordService>('paymentRecords')
@@ -352,16 +353,27 @@ export const paymentProvider: PaymentProvider = {
         )
       }
 
-      // Generate idempotency key from userId + priceId + timestamp window (5-min buckets)
-      // This prevents duplicate checkout sessions if the user double-clicks or retries
+      // Generate idempotency key from userId + priceId + QUANTITY + timestamp
+      // window (5-min buckets). This prevents duplicate checkout sessions if the
+      // user double-clicks or retries.
+      //
+      // The quantity has to be in the key. Without it, a buyer who picks 3
+      // seats, goes back, and picks 5 within the same five minutes is handed
+      // Stripe's cached session for THREE — they check out believing they bought
+      // five, and the difference only surfaces as a support ticket.
       const timeWindow = Math.floor(Date.now() / (5 * 60 * 1000))
       const idempotencyKey = crypto
         .createHash('sha256')
-        .update(`checkout:${params.userId}:${params.newProductId}:${timeWindow}`)
+        .update(
+          `checkout:${params.userId}:${params.newProductId}:${params.quantity ?? 1}:${timeWindow}`,
+        )
         .digest('hex')
 
       const session = await createCheckoutSession({
         priceId: params.newProductId,
+        // Seats, on a per-seat plan. Without this the session bills ONE unit
+        // however many the caller sold.
+        quantity: params.quantity,
         successUrl: redirects.successUrl,
         cancelUrl: redirects.cancelUrl,
         // Bind the session to the buying account BOTH ways Stripe echoes an

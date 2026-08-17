@@ -362,6 +362,15 @@ export interface PaymentProviderInterface {
     userId: string
     newProductId: string
     previousProductId?: string
+    /**
+     * How many units of the plan to bill — seats, on a per-seat plan.
+     *
+     * Omitted means one, which is what every flat-priced plan wants. A
+     * per-seat plan that never sends this bills a single seat no matter how
+     * many people the app then lets in, so the price the app advertises and the
+     * price the provider charges quietly disagree.
+     */
+    quantity?: number
   }): Promise<SubscriptionUpdateResult>
 
   /** Cancel an existing subscription for a user. */

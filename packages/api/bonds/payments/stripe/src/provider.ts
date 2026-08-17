@@ -129,10 +129,16 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
  *   Stripe customer to a user.
  * @param options.metadata - Optional key-value metadata to attach to the session.
  * @param options.idempotencyKey - Optional idempotency key for safe request retries.
+ * @param options.quantity - Units of `priceId` to bill — seats, on a per-seat
+ *   plan. Defaults to 1, which is right for every flat-priced plan. Clamped to
+ *   a whole number >= 1: Stripe rejects 0 and fractions, and a caller that
+ *   computed a seat count from a bad read must not turn that into a free
+ *   subscription.
  * @returns The checkout session ID and URL.
  */
 export const createCheckoutSession = async (options: {
   priceId: string
+  quantity?: number
   successUrl: string
   cancelUrl: string
   customerId?: string
@@ -148,7 +154,7 @@ export const createCheckoutSession = async (options: {
         line_items: [
           {
             price: options.priceId,
-            quantity: 1,
+            quantity: Math.max(1, Math.floor(options.quantity ?? 1)),
           },
         ],
         success_url: options.successUrl,

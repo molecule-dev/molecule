@@ -1957,6 +1957,77 @@ describe('updatePlan handler — privilege escalation prevention', () => {
     expect(result?.body?.error).toContain('STRIPE_SECRET_KEY')
     expect(mockResourceUpdate).not.toHaveBeenCalled()
   })
+
+  // Per-seat plans: the buyer says how many units they want, and the provider
+  // has to be told. Billing one unit for a plan the app sold as five is a
+  // silent revenue loss that no error surface ever reports.
+  describe('seat quantity', () => {
+    const bondProvider = (updateSubscription: ReturnType<typeof vi.fn>) => {
+      const plansService = {
+        findPlan: vi.fn((key: string) =>
+          key === 'teamMonthly'
+            ? { planKey: 'teamMonthly', platformKey: 'stripe', platformProductId: 'price_team' }
+            : null,
+        ),
+        findPlanByProductId: vi.fn(),
+        getDefaultPlan: vi.fn(),
+        getAllPlans: vi.fn(),
+      }
+      mockGet.mockImplementation((category: string) => {
+        if (category === 'plans') return plansService
+        if (category === 'payments') return { providerName: 'stripe', updateSubscription }
+        return undefined
+      })
+    }
+
+    beforeEach(() => {
+      mockFindById.mockResolvedValue({ id: 'buyer', planKey: '', planExpiresAt: null })
+    })
+
+    it('passes the requested seat count to the provider', async () => {
+      const updateSubscription = vi.fn().mockResolvedValue({ updated: false, checkoutUrl: 'u' })
+      bondProvider(updateSubscription)
+
+      await handler(
+        makeReq({ params: { id: 'buyer' }, body: { planKey: 'teamMonthly', quantity: 5 } }),
+      )
+
+      expect(updateSubscription).toHaveBeenCalledWith(expect.objectContaining({ quantity: 5 }))
+    })
+
+    it('sends no quantity when none was asked for, so flat plans are unaffected', async () => {
+      const updateSubscription = vi.fn().mockResolvedValue({ updated: false, checkoutUrl: 'u' })
+      bondProvider(updateSubscription)
+
+      await handler(makeReq({ params: { id: 'buyer' }, body: { planKey: 'teamMonthly' } }))
+
+      expect(updateSubscription).toHaveBeenCalledWith(
+        expect.objectContaining({ quantity: undefined }),
+      )
+    })
+
+    it('never bills zero, a fraction, or a hostile count', async () => {
+      for (const [asked, billed] of [
+        [0, 1],
+        [-4, 1],
+        [2.7, 2],
+        ['3', 3],
+        [1e12, 1000],
+        ['nonsense', undefined],
+      ] as Array<[unknown, number | undefined]>) {
+        const updateSubscription = vi.fn().mockResolvedValue({ updated: false, checkoutUrl: 'u' })
+        bondProvider(updateSubscription)
+
+        await handler(
+          makeReq({ params: { id: 'buyer' }, body: { planKey: 'teamMonthly', quantity: asked } }),
+        )
+
+        expect(updateSubscription, `asked ${String(asked)}`).toHaveBeenCalledWith(
+          expect.objectContaining({ quantity: billed }),
+        )
+      }
+    })
+  })
 })
 
 // ===== 9. Profile avatar + bio updates (update.ts) =========================

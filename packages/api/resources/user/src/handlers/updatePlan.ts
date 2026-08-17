@@ -20,7 +20,38 @@ const logger = getLogger()
 export interface UpdatePlanRequest extends MoleculeRequest {
   body: {
     planKey?: string
+    /**
+     * Units of the plan to buy — seats, on a per-seat plan. Omitted means one.
+     *
+     * Read from the request because only the app knows what a unit means: the
+     * plan catalogue describes a price, not how many of it this buyer wants.
+     * Ignored by flat-priced plans, whose providers receive no quantity at all.
+     */
+    quantity?: number
   }
+}
+
+/**
+ * Largest seat count a single plan change may buy.
+ *
+ * A ceiling, not a policy: the app's own tier limits decide the real maximum.
+ * This exists so a malformed or hostile body cannot ask a payment provider to
+ * bill four billion units.
+ */
+const MAX_PLAN_QUANTITY = 1000
+
+/**
+ * Normalise a requested quantity into something safe to bill.
+ *
+ * @param raw - The value from the request body, of unknown provenance.
+ * @returns A whole number in [1, {@link MAX_PLAN_QUANTITY}], or `undefined` when
+ *   none was requested — which providers treat as a single unit.
+ */
+function normalizeQuantity(raw: unknown): number | undefined {
+  if (raw === undefined || raw === null) return undefined
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return undefined
+  return Math.min(Math.max(Math.floor(n), 1), MAX_PLAN_QUANTITY)
 }
 
 /**
@@ -134,6 +165,7 @@ export const updatePlan = ({ name, tableName, schema: _schema }: types.Resource)
               userId: user.id,
               newProductId: plan.platformProductId,
               previousProductId: previousPlan?.platformProductId,
+              quantity: normalizeQuantity(req.body.quantity),
             })
 
             if (result.checkoutUrl) {
