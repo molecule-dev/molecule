@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.0
+
+### Minor Changes
+
+- 40a3441: `PATCH /users/:id/plan` accepts an optional `quantity`, passed to the payment provider for per-seat plans and clamped to a whole number of at least one.
+
 ## 1.3.0
 
 ### Minor Changes

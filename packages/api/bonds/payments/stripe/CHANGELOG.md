@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.0
+
+### Minor Changes
+
+- 40a3441: `createCheckoutSession` accepts a `quantity` for per-seat plans, and the idempotency key now includes it so changing the seat count starts a new session instead of replaying the previous one.
+
 ## 1.1.0
 
 ### Minor Changes

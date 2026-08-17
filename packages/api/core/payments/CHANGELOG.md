@@ -1,5 +1,11 @@
 # @molecule/api-payments
 
+## 1.2.0
+
+### Minor Changes
+
+- 40a3441: Add an optional `quantity` to `updateSubscription` so per-seat plans can bill more than one unit.
+
 ## 1.1.0
 
 ### Minor Changes
