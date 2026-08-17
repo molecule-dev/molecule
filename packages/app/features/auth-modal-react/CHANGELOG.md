@@ -1,5 +1,11 @@
 # @molecule/app-auth-modal-react
 
+## 1.1.0
+
+### Minor Changes
+
+- New `captchaSlot` / `captchaSolved` props render a human-verification challenge in the signup form and gate its submit, so an API that requires a verification token can be used from the in-app modal.
+
 ## 1.0.1
 
 ### Patch Changes
