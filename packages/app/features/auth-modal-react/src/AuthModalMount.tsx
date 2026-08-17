@@ -54,6 +54,18 @@ export interface AuthModalMountProps {
    * the default new-tab flow (+ focus-return refresh) applies.
    */
   onUpgradeIntercept?: (path: string) => void
+  /**
+   * Human-verification challenge rendered inside the modal's SIGNUP form — see
+   * {@link AuthModalProps.captchaSlot}. Pass it together with
+   * {@link AuthModalMountProps.captchaSolved} whenever the app's signup API
+   * requires a challenge token, otherwise the in-app signup POSTs without one
+   * while the standalone `/signup` page (which renders its own widget) works —
+   * a mismatch the user experiences as "complete the challenge" with no
+   * challenge on screen. Optional.
+   */
+  captchaSlot?: AuthModalProps['captchaSlot']
+  /** Whether {@link AuthModalMountProps.captchaSlot} is solved; `false` disables the signup submit. Defaults to `true`. */
+  captchaSolved?: AuthModalProps['captchaSolved']
   /** Override the auth path→mode map (defaults to `/login`,`/signup`). */
   authPaths?: Readonly<Record<string, AuthModalMode>>
   /** Override the upgrade paths opened in a new tab (defaults to `/pricing`,`/billing`). */
@@ -72,6 +84,8 @@ export function AuthModalMount({
   onAuthenticated,
   onUpgradeReturn,
   onUpgradeIntercept,
+  captchaSlot,
+  captchaSolved,
   authPaths = DEFAULT_AUTH_PATHS,
   upgradePaths = DEFAULT_UPGRADE_PATHS,
 }: AuthModalMountProps): JSX.Element {
@@ -148,6 +162,8 @@ export function AuthModalMount({
       oauthConfig={oauthConfig}
       onBeforeAuth={onBeforeAuth}
       onAuthenticated={onAuthenticated}
+      captchaSlot={captchaSlot}
+      captchaSolved={captchaSolved}
     />
   ) : (
     <></>

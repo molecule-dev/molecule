@@ -17,7 +17,7 @@
  * @module
  */
 
-import { type JSX, useEffect, useState } from 'react'
+import { type JSX, type ReactNode, useEffect, useState } from 'react'
 
 import { useAuthFormState } from '@molecule/app-auth-shell-react'
 import { t } from '@molecule/app-i18n'
@@ -92,6 +92,29 @@ export interface AuthModalProps {
    * still on the same page — e.g. claim guest projects, invalidate usage. Optional.
    */
   onAuthenticated?: () => void | Promise<void>
+  /**
+   * A human-verification challenge rendered inside the SIGNUP form, above the
+   * submit button (e.g. the app's Turnstile/hCaptcha widget). Login is not
+   * gated, so the slot is unmounted in login mode — which lets the widget clear
+   * its own token when the user switches tabs and re-issue a fresh one on the
+   * way back.
+   *
+   * The modal stays provider-agnostic: it renders the node and never inspects
+   * it. An app whose signup API requires a challenge MUST pass
+   * {@link AuthModalProps.captchaSolved} as well, or the form will submit
+   * without a token and the API will reject it.
+   *
+   * Optional — omitted (the default for apps with no challenge) the signup form
+   * is unchanged.
+   */
+  captchaSlot?: ReactNode
+  /**
+   * Whether the {@link AuthModalProps.captchaSlot} challenge is currently
+   * solved. `false` disables the signup submit, so the form cannot POST a
+   * missing/expired token. Defaults to `true` (no challenge → nothing to wait
+   * for). Ignored in login mode.
+   */
+  captchaSolved?: boolean
 }
 
 /**
@@ -107,6 +130,8 @@ export function AuthModal({
   oauthConfig,
   onBeforeAuth,
   onAuthenticated,
+  captchaSlot,
+  captchaSolved = true,
 }: AuthModalProps): JSX.Element {
   const cm = getClassMap()
   const isTouchFirst = useTouchFirstViewport()
@@ -307,11 +332,17 @@ export function AuthModal({
                   style={fieldStyle}
                 />
               )}
+              {/* Human-verification challenge — signup only (login is not gated). */}
+              {isSignup && captchaSlot && (
+                <div data-mol-id="auth-modal-captcha" style={{ display: 'grid', marginTop: 2 }}>
+                  {captchaSlot}
+                </div>
+              )}
               <Button
                 type="submit"
                 size="lg"
                 color="success"
-                disabled={busy}
+                disabled={busy || (isSignup && !captchaSolved)}
                 data-mol-id="auth-modal-submit"
                 style={{ width: '100%', marginTop: 2 }}
               >

@@ -38,6 +38,15 @@
  * `@molecule/app-locales-common` bond (79 languages), alongside the
  * `auth.login.*` / `auth.signup.*` keys the modal also renders.
  *
+ * If the signup API requires a human-verification challenge (Turnstile /
+ * hCaptcha), pass BOTH `captchaSlot` (the widget, rendered in the signup
+ * form) and `captchaSolved` (which gates the submit). Rendering the widget
+ * on the standalone `/signup` page alone is NOT enough: this modal is what
+ * a `/signup` link actually opens, so the in-app signup would POST with no
+ * token and the API would answer "complete the verification challenge"
+ * while no challenge is on screen. Login is not gated, so the slot is
+ * unmounted in login mode.
+ *
  * @module
  */
 
