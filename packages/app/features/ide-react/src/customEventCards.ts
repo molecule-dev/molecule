@@ -106,6 +106,19 @@ export interface ChatEventCard {
    * sets with extra glyphs register them via `CustomIconNames` augmentation.
    */
   icon?: IconName
+  /**
+   * The limit this card already explains, named by the same `limitType` the backend puts
+   * on its limit errors (e.g. `'ai_cost'`). A limit is hit ONCE but can surface twice —
+   * as this persisted card (recorded when the turn was interrupted) and again as the live
+   * limit banner when the NEXT send is refused — which reads as two cards saying the same
+   * thing. When a live error carries the same `limitType`, ChatPanel hides this card for
+   * as long as that banner is up, so exactly one surface states the limit; the card
+   * returns as soon as the error clears. The banner is never the one suppressed: it is
+   * the only feedback the refused send gets, and its message can be more specific than
+   * the card's (a platform-capacity refusal shares `limitType` with a personal-budget
+   * one). The app owns the identifier; the shared package only matches it.
+   */
+  coversLimitType?: string
 }
 
 /**

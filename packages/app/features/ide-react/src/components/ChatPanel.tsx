@@ -405,6 +405,13 @@ interface PlainSystemCard extends SystemCardBase {
   tone?: 'info' | 'gold' | 'upgrade' | 'success' | 'signup'
   /** Icon-name override (a `@molecule/app-icons` glyph); defaults to the tone's icon. */
   icon?: IconName
+  /**
+   * The limit this card already explains (a backend `limitType`). While a live error
+   * carries the same `limitType` — i.e. the limit banner is restating it right above the
+   * composer — this card is dropped from the timeline so the same limit is stated once,
+   * not twice. See {@link ChatEventCard.coversLimitType}.
+   */
+  coversLimitType?: string
 }
 
 /** The `/settings` view. */
@@ -6656,6 +6663,7 @@ function ChatInner({
             ...(card.tone ? { tone: card.tone } : {}),
             ...(card.icon ? { icon: card.icon } : {}),
             ...(card.content ? { content: card.content } : {}),
+            ...(card.coversLimitType ? { coversLimitType: card.coversLimitType } : {}),
             timestamp,
           }
         }
@@ -6679,10 +6687,21 @@ function ChatInner({
     // bubble — split it out here so it flows through the same card render path as before, now
     // sourced from the ONE transcript instead of a separate array. Every other message renders
     // as a message.
+    // A limit the LIVE banner (below the timeline) is already stating. A limit is hit
+    // once but surfaces twice — the card recorded when the turn was interrupted, then
+    // the banner when the next send is refused — so a card that declares it covers this
+    // same limit is dropped while the banner is up (it comes back when the error
+    // clears). The banner stays: it is the refused send's only feedback, and its message
+    // can be the more specific one (platform capacity vs the user's own budget, same
+    // `limitType`). See {@link ChatEventCard.coversLimitType}.
+    const liveLimitType = error ? errorMeta?.limitType : undefined
     for (const msg of visibleMessages) {
       if (msg.cardEvent) {
         const card = cardEventToSystemCard(msg.cardEvent, msg.id, msg.timestamp)
-        if (card) items.push({ kind: 'system', card })
+        if (!card) continue
+        if (liveLimitType && card.variant === undefined && card.coversLimitType === liveLimitType)
+          continue
+        items.push({ kind: 'system', card })
       } else {
         items.push({ kind: 'message', msg })
       }
@@ -6700,7 +6719,16 @@ function ChatInner({
     // rather than below the whole streamed block. See timelineSortKey.
     items.sort((a, b) => timelineSortKey(a) - timelineSortKey(b))
     return items
-  }, [visibleMessages, cardEventToSystemCard, commitCards, systemCards, activityCards, tipCards])
+  }, [
+    visibleMessages,
+    cardEventToSystemCard,
+    commitCards,
+    systemCards,
+    activityCards,
+    tipCards,
+    error,
+    errorMeta,
+  ])
 
   // The live settings list for the /settings card. Shared by the closeable
   // overlay and the legacy inline 'settings' branch (back-compat for any already
