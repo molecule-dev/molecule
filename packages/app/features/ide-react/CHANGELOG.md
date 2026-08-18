@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.3.1
+
+### Patch Changes
+
+- 8c4c483: PreviewPanel: the steady-state health probe now allows 5s and requires two consecutive misses before treating the app as down, so a preview behind a remote edge is no longer reloaded on a single slow probe.
+
 ## 1.3.0
 
 ### Minor Changes

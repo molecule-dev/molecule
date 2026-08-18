@@ -32,7 +32,7 @@
     "directory": "packages/app/frameworks/react-native"
   },
   "devDependencies": {
-    "@molecule/app-react": "1.1.0",
+    "@molecule/app-react": "1.1.1",
     "@types/node": "26.1.2",
     "react": "19.2.8",
     "typescript": "6.0.3",

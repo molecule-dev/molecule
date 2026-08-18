@@ -90,7 +90,7 @@
     "@molecule/api-password": "1.0.1",
     "@molecule/api-password-bcrypt": "1.0.1",
     "@molecule/api-payments": "1.2.0",
-    "@molecule/api-payments-stripe": "1.2.1",
+    "@molecule/api-payments-stripe": "1.2.2",
     "@molecule/api-pdf": "1.0.1",
     "@molecule/api-pdf-pdfkit": "1.0.1",
     "@molecule/api-permissions": "1.0.1",

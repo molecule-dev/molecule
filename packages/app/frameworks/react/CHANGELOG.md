@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.1.1
+
+### Patch Changes
+
+- 8c4c483: useChat: the auto-retry after a 5XX / transport drop now runs up to 8 attempts (5s, 10s, 20s, then 30s holds) so an interrupted turn resumes across a server restart.
+
 ## 1.1.0
 
 ### Minor Changes

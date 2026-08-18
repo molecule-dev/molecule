@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.2
+
+### Patch Changes
+
+- 0882e98: `SubscriptionUpdateParams.items[]` now types the optional `quantity` a subscription update may set.
+
 ## 1.2.1
 
 ### Patch Changes
