@@ -1902,7 +1902,7 @@ describe('useChat', () => {
       expect((resumeCall[1] as { resume?: boolean }).resume).toBe(true)
     })
 
-    it('bounds auto-retry to 3 attempts, then surfaces the original error', async () => {
+    it('bounds auto-retry to 8 attempts (5/10/20 then 30s holds), then surfaces the original error', async () => {
       const { provider, deferreds, emit, completeWithError } = createMockProvider()
       const streamingProvider = provider as unknown as { isServerStreaming: boolean }
       streamingProvider.isServerStreaming = false
@@ -1928,34 +1928,32 @@ describe('useChat', () => {
       })
       expect(result.current.retryCountdown).toEqual({ secondsRemaining: 5, attempt: 1 })
 
-      // Retry 1 fires (5s + 1s poll) → resume deferreds[1]; fails again → attempt 2, 10s.
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(6000)
-      })
-      expect(deferreds).toHaveLength(2)
-      await act(async () => {
-        completeWithError(1, 'err-2', 503)
-      })
-      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 10, attempt: 2 })
+      // The ladder must outlast a server restart (~90s observed): 5, 10, 20, then
+      // 30s holds, for 8 attempts. Each fired retry resumes (a new deferred) and
+      // fails again with a 5XX, re-arming the next rung.
+      const ladder = [5, 10, 20, 30, 30, 30, 30, 30]
+      for (let attempt = 1; attempt < ladder.length; attempt++) {
+        await act(async () => {
+          await vi.advanceTimersByTimeAsync((ladder[attempt - 1] + 1) * 1000)
+        })
+        expect(deferreds).toHaveLength(attempt + 1)
+        await act(async () => {
+          completeWithError(attempt, `err-${attempt + 1}`, 503)
+        })
+        expect(result.current.retryCountdown).toEqual({
+          secondsRemaining: ladder[attempt],
+          attempt: attempt + 1,
+        })
+      }
 
-      // Retry 2 fires (10s + 1s poll) → resume deferreds[2]; fails → attempt 3, 20s.
-      await act(async () => {
-        await vi.advanceTimersByTimeAsync(11000)
-      })
-      expect(deferreds).toHaveLength(3)
-      await act(async () => {
-        completeWithError(2, 'err-3', 503)
-      })
-      expect(result.current.retryCountdown).toEqual({ secondsRemaining: 20, attempt: 3 })
-
-      // Retry 3 fires (20s + 1s poll) → resume deferreds[3]; fails a 4th time → budget
+      // Retry 8 fires (30s + 1s poll) → resume; fails a 9th time → budget
       // exhausted, surface the original error, no more countdown.
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(21000)
+        await vi.advanceTimersByTimeAsync(31000)
       })
-      expect(deferreds).toHaveLength(4)
+      expect(deferreds).toHaveLength(9)
       await act(async () => {
-        completeWithError(3, 'err-final', 503)
+        completeWithError(8, 'err-final', 503)
       })
 
       expect(result.current.retryCountdown).toBeNull()

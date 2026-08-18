@@ -70,15 +70,26 @@ type RetryTarget =
 
 /**
  * Base backoff (in seconds) before the first auto-retry of a turn interrupted by
- * a 5XX backend error. The wait doubles each attempt → 5s, 10s, 20s.
+ * a 5XX backend error. The wait doubles each attempt → 5s, 10s, 20s, then holds
+ * at {@link RETRY_MAX_SECONDS}.
  */
 const RETRY_BASE_SECONDS = 5
+
+/** Ceiling on the backoff wait (seconds) — later attempts hold here. */
+const RETRY_MAX_SECONDS = 30
 
 /**
  * Maximum number of auto-retry attempts after a 5XX backend error before the
  * error is surfaced to the user (no more retries).
+ *
+ * Sized so the ladder outlasts a server restart, which is what a 5XX shutdown
+ * handoff / transport drop usually IS: 5+10+20+30×5 ≈ 3 minutes of coverage.
+ * The old cap of 3 (35 s) gave up while the API was still booting from a
+ * ~90 s deploy restart, so the handed-off turn was never resumed (2026-08-18).
+ * The countdown is visible and cancelable throughout, so a longer ladder costs
+ * the user nothing they cannot stop.
  */
-const MAX_RETRY_ATTEMPTS = 3
+const MAX_RETRY_ATTEMPTS = 8
 
 /**
  * How long (ms) an in-flight stream may be silent before a page-lifecycle
@@ -912,7 +923,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // "where the user left off" (provider.sendMessage('', { resume: true })) or,
   // when the turn never started server-side, re-send the original message (see
   // RetryTarget). 4XX, limit/quota, and signup-required errors never auto-retry.
-  // Bounded to MAX_RETRY_ATTEMPTS.
+  // Bounded to MAX_RETRY_ATTEMPTS (sized to outlast a server restart).
 
   // Retries already performed for the CURRENT incident. Reset to 0 on a clean
   // `done`, a new send, an abort, a clearHistory, or a cancel.
@@ -980,8 +991,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
   /**
    * Schedule a cancelable, once-per-second countdown that auto-resumes the turn
-   * when it elapses. Backoff curve: 5s, 10s, 20s (exponential, base 5s) for
-   * attempts 1, 2, 3. Returns false (without scheduling) once the attempt cap is
+   * when it elapses. Backoff curve: 5s, 10s, 20s, then 30s (exponential, base
+   * 5s, capped) up to MAX_RETRY_ATTEMPTS. Returns false (without scheduling) once the attempt cap is
    * reached, so the caller surfaces the terminal error instead.
    * @param target - What the retry should do — resume the interrupted turn, or
    *   re-send a message the server never received.
@@ -995,7 +1006,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       retryAttemptRef.current = attempt
       retryTargetRef.current = target
       pendingRetryErrorRef.current = message
-      const waitSeconds = RETRY_BASE_SECONDS * 2 ** (attempt - 1) // 5, 10, 20
+      const waitSeconds = Math.min(RETRY_MAX_SECONDS, RETRY_BASE_SECONDS * 2 ** (attempt - 1)) // 5, 10, 20, 30…
       retrySecondsRef.current = waitSeconds
       setRetryCountdown({ secondsRemaining: waitSeconds, attempt })
       clearRetryTimers()

@@ -291,24 +291,48 @@ const TRANSITION_WINDOW_MS = 5000
 const PREVIEW_STATUS_PATH = '/__mol/preview-status'
 
 /**
+ * How long one server-up probe may take before it counts as a miss (ms).
+ *
+ * This used to be 500ms, sized for a loopback dev server. Behind a preview
+ * edge the same probe is browser → edge → proxy → token resolve → a HEAD at
+ * the sandbox upstream, measured live at 250–470ms from a healthy app — so at
+ * 500ms a healthy preview tripped it every few polls, and each trip was a
+ * cache-busted iframe reload ("the preview keeps reloading with nobody touching
+ * it", 2026-08-18). Probes are sequential (never stacked), so a generous bound
+ * costs nothing while the app is up and only delays the down verdict slightly.
+ */
+const PROBE_TIMEOUT_MS = 5_000
+
+/**
+ * Consecutive failed probes before the steady-state health check treats the app
+ * as down (and reloads it once it answers again). One miss is noise — a slow edge
+ * hop, an aborted fetch on a tab switch — and a single miss used to force a full
+ * reload. Mirrors the server-side stream's PREVIEW_HEALTH_DOWN_CONFIRM.
+ */
+const HEALTH_DOWN_CONFIRM = 2
+
+/** Gap (ms) between the END of one steady-state health probe and the next. */
+const HEALTH_POLL_MS = 3_000
+
+/**
  * Check whether the server at `url` is accepting connections.
  *
  * Asks {@link PREVIEW_STATUS_PATH} first, because that answer is readable; only
  * a host that does not implement it falls back to the opaque `no-cors` probe,
  * where "it responded at all" is the best available signal.
  *
- * Aborts after 500ms to avoid holding browser connections — hanging polls
- * exhaust the per-origin connection limit and starve the iframe of
- * connections for script/asset requests. An optional `externalSignal` lets the
- * caller abort the in-flight request on cleanup (e.g. when a poll chain is
- * superseded), so a unmounting/restarting panel never leaves a fetch dangling.
+ * Aborts after {@link PROBE_TIMEOUT_MS}. Every caller runs its probes one at a
+ * time (the next is scheduled only after the previous settles), so a slow probe
+ * never stacks up connections against the iframe. An optional `externalSignal`
+ * lets the caller abort the in-flight request on cleanup (e.g. when a poll chain
+ * is superseded), so a unmounting/restarting panel never leaves a fetch dangling.
  * @param url - The URL to check.
  * @param externalSignal - Optional signal; aborting it aborts this probe.
  * @returns Whether the server responded within the timeout.
  */
 async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<boolean> {
   const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 500)
+  const timeout = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS)
   const onExternalAbort = (): void => controller.abort()
   if (externalSignal) {
     if (externalSignal.aborted) controller.abort()
@@ -1317,41 +1341,53 @@ export function PreviewPanel({
     if (!iframeReady || fadingOut || !state.url) return
 
     const url = state.url
-    const healthRef = { current: null as ReturnType<typeof setInterval> | null }
-    // Cancellation flag — prevents orphaned poll() closures from running
-    // after this effect cleans up.
+    // Cancellation flag — prevents orphaned closures from running after this
+    // effect cleans up.
     let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+    // Consecutive misses. Self-scheduled (next probe only after this one
+    // settles) so a slow edge never stacks probes, and a single miss is only a
+    // strike — HEALTH_DOWN_CONFIRM in a row is the down verdict.
+    let misses = 0
 
-    healthRef.current = setInterval(async () => {
+    const check = async (): Promise<void> => {
       if (cancelled) return
       const up = await isServerUp(url)
-      if (cancelled) return
-      if (!up && urlRef.current === url) {
-        // Server went down — show overlay, poll, reload when back
-        if (healthRef.current) clearInterval(healthRef.current)
-        setIframeReady(false)
-        setFadingOut(false)
-
-        let interval = POLL_INITIAL_MS
-        const poll = async (): Promise<void> => {
-          if (cancelled || urlRef.current !== url) return
-          const back = await isServerUp(url)
-          if (cancelled || urlRef.current !== url) return
-          if (back) {
-            // Force-reload iframe with cache buster
-            setIframeSrc(withCacheBuster(url))
-          } else {
-            setTimeout(poll, interval)
-            interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
-          }
-        }
-        void poll()
+      if (cancelled || urlRef.current !== url) return
+      if (up) {
+        misses = 0
+        timer = setTimeout(() => void check(), HEALTH_POLL_MS)
+        return
       }
-    }, 3000)
+      misses += 1
+      if (misses < HEALTH_DOWN_CONFIRM) {
+        timer = setTimeout(() => void check(), HEALTH_POLL_MS)
+        return
+      }
+      // Server went down — show overlay, poll, reload when back
+      setIframeReady(false)
+      setFadingOut(false)
+
+      let interval = POLL_INITIAL_MS
+      const poll = async (): Promise<void> => {
+        if (cancelled || urlRef.current !== url) return
+        const back = await isServerUp(url)
+        if (cancelled || urlRef.current !== url) return
+        if (back) {
+          // Force-reload iframe with cache buster
+          setIframeSrc(withCacheBuster(url))
+        } else {
+          timer = setTimeout(poll, interval)
+          interval = Math.min(interval * POLL_BACKOFF_FACTOR, POLL_MAX_MS)
+        }
+      }
+      void poll()
+    }
+    timer = setTimeout(() => void check(), HEALTH_POLL_MS)
 
     return () => {
       cancelled = true
-      if (healthRef.current) clearInterval(healthRef.current)
+      if (timer) clearTimeout(timer)
     }
   }, [iframeReady, fadingOut, state.url])
 
