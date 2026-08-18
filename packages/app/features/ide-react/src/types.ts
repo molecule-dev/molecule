@@ -221,9 +221,14 @@ export interface ChatPanelProps {
    * Whether the current user is anonymous. The shared IDE no longer renders any
    * built-in sign-up/guest card itself — guest reminders now arrive as a `custom`
    * stream event the host registers via {@link registerCustomEventCard}, and upgrade
-   * call-to-actions come from {@link ChatPanelProps.buildUpgradeCta}. Retained so the
-   * host can still pass it; the host's own `buildUpgradeCta` closure decides whether
-   * an anonymous user should sign up vs. upgrade.
+   * call-to-actions come from {@link ChatPanelProps.buildUpgradeCta}, and the host's own
+   * `buildUpgradeCta` closure decides whether an anonymous user should sign up vs. upgrade.
+   *
+   * It IS read for one thing: a limit error the backend raised for an anonymous caller
+   * (`requiresSignup`) is dropped once this is explicitly `false` — the viewer signed in
+   * mid-session (the in-IDE auth modal never navigates, so the panel keeps running), and a
+   * "create a free account for more" banner with dead-end Sign up / Log in buttons is stale
+   * the moment they have an account. Leave it `undefined` and nothing is suppressed.
    */
   isAnonymous?: boolean
   /** When true, user has a paid plan and can use all models (drives locked-model display). */

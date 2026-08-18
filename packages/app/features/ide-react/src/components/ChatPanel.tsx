@@ -2478,6 +2478,8 @@ export interface ChatInnerProps {
   initialMessage?: string
   onInitialMessageSent?: () => void
   isPro?: boolean
+  /** Whether the viewer is anonymous — see {@link ChatPanelProps.isAnonymous}. */
+  isAnonymous?: boolean
   /** Host-supplied upgrade/sign-in CTA builder — see {@link ChatPanelProps.buildUpgradeCta}. */
   buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
   /** Host-supplied `/help` upgrade section builder — see {@link ChatPanelProps.buildHelpUpgradeSection}. */
@@ -2559,6 +2561,7 @@ function ChatInner({
   initialMessage,
   onInitialMessageSent,
   isPro,
+  isAnonymous,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   activeFile,
@@ -6674,6 +6677,16 @@ function ChatInner({
     [t, AVAILABLE_MODELS, effectiveModelRegion],
   )
 
+  // A limit the backend raised for an ANONYMOUS caller — `requiresSignup`, whose
+  // whole message is "…for guests … or create a free account for more" and whose
+  // CTAs are Sign up / Log in — is STALE the moment the viewer signs in: they now
+  // have an account, a different allowance, and two dead-end buttons. The error
+  // state survives the in-place auth modal (nothing navigates, and useChat only
+  // clears it on the next send), so without this the freshly-signed-up user keeps
+  // reading the guest limit they just escaped. Same reasoning the host's
+  // `upgrade_prompt` card factory already applies to the recorded guest card.
+  const isStaleAnonymousLimit = errorMeta?.requiresSignup === true && isAnonymous === false
+
   // Build a unified timeline so commit cards appear at the correct position
   type TimelineItem =
     | { kind: 'message'; msg: (typeof messages)[number] }
@@ -6694,7 +6707,7 @@ function ChatInner({
     // clears). The banner stays: it is the refused send's only feedback, and its message
     // can be the more specific one (platform capacity vs the user's own budget, same
     // `limitType`). See {@link ChatEventCard.coversLimitType}.
-    const liveLimitType = error ? errorMeta?.limitType : undefined
+    const liveLimitType = error && !isStaleAnonymousLimit ? errorMeta?.limitType : undefined
     for (const msg of visibleMessages) {
       if (msg.cardEvent) {
         const card = cardEventToSystemCard(msg.cardEvent, msg.id, msg.timestamp)
@@ -6728,6 +6741,7 @@ function ChatInner({
     tipCards,
     error,
     errorMeta,
+    isStaleAnonymousLimit,
   ])
 
   // The live settings list for the /settings card. Shared by the closeable
@@ -7195,6 +7209,7 @@ function ChatInner({
         )}
 
         {error &&
+          !isStaleAnonymousLimit &&
           (errorMeta?.limitType ? (
             // The CTA routes/copy are the host's — ask buildUpgradeCta for the FULL
             // upgrade/sign-in button set (none rendered if the host supplies nothing).
@@ -10280,6 +10295,7 @@ export function ChatPanel({
   userEditedFile,
   userEditedFileKey,
   isPro,
+  isAnonymous,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   userAvatar,
@@ -10688,6 +10704,7 @@ export function ChatPanel({
         initialMessage={initialMessage}
         onInitialMessageSent={onInitialMessageSent}
         isPro={isPro}
+        isAnonymous={isAnonymous}
         buildUpgradeCta={buildUpgradeCta}
         buildHelpUpgradeSection={buildHelpUpgradeSection}
         activeFile={activeFile}
