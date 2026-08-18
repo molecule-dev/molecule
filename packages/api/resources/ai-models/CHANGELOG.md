@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.2.3
+
+### Patch Changes
+
+- DeepSeek pro and flash now carry their August 2026 rates, with peak pricing live in place of the staged schedule.
+
 ## 1.2.2
 
 ### Patch Changes

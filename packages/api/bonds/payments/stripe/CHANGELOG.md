@@ -1,5 +1,12 @@
 # @molecule/api-payments-stripe
 
+## 1.2.1
+
+### Patch Changes
+
+- b51ac6f: Checkout sessions now attach their metadata to the subscription they create, so subscription webhooks can be matched to the buying account on a first purchase.
+- 5e282ef: Subscription updates now set the line item quantity explicitly, so a seat-count change applies and a switch to a flat-priced plan no longer inherits the old quantity.
+
 ## 1.2.0
 
 ### Minor Changes
