@@ -1120,11 +1120,63 @@ describe('Stripe Bond Adapter', () => {
           {
             id: 'si_existing_item',
             price: 'price_new_plan',
+            quantity: 1,
           },
         ],
       })
       expect(mockCreateCheckoutSession).not.toHaveBeenCalled()
       expect(result.updated).toBe(true)
+    })
+
+    it('applies a NEW seat count when an existing subscriber changes it', async () => {
+      mockFindByUserId.mockResolvedValue({ data: { subscriptionId: 'sub_existing' } })
+      mockGetSubscription.mockResolvedValue({
+        ...mockSubscriptionResult,
+        id: 'sub_existing',
+        items: { data: [{ id: 'si_existing_item', quantity: 3 }] },
+      })
+      mockStripeUpdateSubscription.mockResolvedValue({
+        ...mockSubscriptionResult,
+        id: 'sub_existing',
+        items: { data: [{ id: 'si_existing_item', quantity: 5 }] },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+      await paymentProvider.updateSubscription!({
+        userId: 'user_with_sub',
+        newProductId: 'price_team',
+        quantity: 5,
+      })
+
+      expect(mockStripeUpdateSubscription).toHaveBeenCalledWith('sub_existing', {
+        items: [{ id: 'si_existing_item', price: 'price_team', quantity: 5 }],
+      })
+    })
+
+    it('resets the quantity to one when the new plan sells no seats', async () => {
+      // Stripe keeps whatever an update omits, so a five-seat team moving to a
+      // flat-priced plan would be billed five times over for it.
+      mockFindByUserId.mockResolvedValue({ data: { subscriptionId: 'sub_existing' } })
+      mockGetSubscription.mockResolvedValue({
+        ...mockSubscriptionResult,
+        id: 'sub_existing',
+        items: { data: [{ id: 'si_existing_item', quantity: 5 }] },
+      })
+      mockStripeUpdateSubscription.mockResolvedValue({
+        ...mockSubscriptionResult,
+        id: 'sub_existing',
+        items: { data: [{ id: 'si_existing_item', quantity: 1 }] },
+      })
+
+      const { paymentProvider } = await import('../bondAdapter.js')
+      await paymentProvider.updateSubscription!({
+        userId: 'user_with_sub',
+        newProductId: 'price_flat_plan',
+      })
+
+      expect(mockStripeUpdateSubscription).toHaveBeenCalledWith('sub_existing', {
+        items: [{ id: 'si_existing_item', price: 'price_flat_plan', quantity: 1 }],
+      })
     })
 
     it('should return subscription details when updating an existing subscription', async () => {

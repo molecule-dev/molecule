@@ -312,6 +312,14 @@ export const paymentProvider: PaymentProvider = {
                 {
                   id: subscription.items.data[0].id,
                   price: params.newProductId,
+                  // ALWAYS explicit, and 1 when the caller names no seats.
+                  // Stripe keeps the existing quantity for any field an update
+                  // omits, so leaving this off breaks a plan change in both
+                  // directions: a subscriber raising their seat count pays the
+                  // old one, and a team of five moving to a flat-priced plan
+                  // keeps the 5 and is billed five times over for a plan that
+                  // sells one of itself.
+                  quantity: Math.max(1, Math.floor(params.quantity ?? 1)),
                 },
               ],
             })
