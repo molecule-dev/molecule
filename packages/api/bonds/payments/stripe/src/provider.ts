@@ -128,7 +128,8 @@ const toSubscriptionResult = (sub: Stripe.Subscription): SubscriptionResult => {
  *   (`cus_…`) created by this checkout gets linked to the account that paid.
  *   Always pass it: without it the first purchase has nothing tying the new
  *   Stripe customer to a user.
- * @param options.metadata - Optional key-value metadata to attach to the session.
+ * @param options.metadata - Optional key-value metadata to attach to the session
+ *   AND to the subscription it creates. Both, deliberately: see below.
  * @param options.idempotencyKey - Optional idempotency key for safe request retries.
  * @param options.quantity - Units of `priceId` to bill — seats, on a per-seat
  *   plan. Defaults to 1, which is right for every flat-priced plan. Clamped to
@@ -163,6 +164,17 @@ export const createCheckoutSession = async (options: {
         customer: options.customerId,
         client_reference_id: options.clientReferenceId,
         metadata: options.metadata,
+        // The SAME metadata on the subscription this session creates. Stripe
+        // does not copy a session's metadata onto its subscription, and the
+        // difference is not cosmetic: `customer.subscription.created` fires
+        // BEFORE `checkout.session.completed`, carries no
+        // `client_reference_id`, and — on a first purchase — names a `cus_…`
+        // the app has never seen. So the one event that reports what was
+        // actually billed (`items.data[].quantity`, i.e. SEATS) arrives with
+        // nothing tying it to a user, and a webhook that syncs seat counts
+        // silently drops the first one. A buyer pays for three seats and the
+        // product gives them one.
+        subscription_data: options.metadata ? { metadata: options.metadata } : undefined,
       },
       options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined,
     )

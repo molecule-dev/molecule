@@ -166,6 +166,42 @@ describe('Stripe Provider', () => {
       )
     })
 
+    it('should carry the metadata onto the subscription, not just the session', async () => {
+      const { createCheckoutSession, getClient } = await import('../provider.js')
+
+      await createCheckoutSession({
+        priceId: 'price_123',
+        successUrl: 'https://example.com/success',
+        cancelUrl: 'https://example.com/cancel',
+        metadata: { userId: 'user_123' },
+      })
+
+      // `customer.subscription.created` fires before `checkout.session.completed`
+      // and carries no `client_reference_id`, so without this the first event
+      // reporting the billed QUANTITY cannot be attributed to a buyer.
+      expect(getClient().checkout.sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subscription_data: { metadata: { userId: 'user_123' } },
+        }),
+        undefined,
+      )
+    })
+
+    it('should omit subscription_data when there is no metadata to carry', async () => {
+      const { createCheckoutSession, getClient } = await import('../provider.js')
+
+      await createCheckoutSession({
+        priceId: 'price_123',
+        successUrl: 'https://example.com/success',
+        cancelUrl: 'https://example.com/cancel',
+      })
+
+      expect(getClient().checkout.sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({ subscription_data: undefined }),
+        undefined,
+      )
+    })
+
     it('should set mode to subscription', async () => {
       const { createCheckoutSession, getClient } = await import('../provider.js')
 
