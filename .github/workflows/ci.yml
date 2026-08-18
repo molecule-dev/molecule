@@ -5,6 +5,13 @@ on:
     branches: [main]
   push:
     branches: [main]
+  # Daily full-fleet backstop. Push/PR runs are scoped to affected packages
+  # (scripts/affected-projects.mjs), so this guarantees every package's tests
+  # still run regularly even when nothing touches them — the scoping never
+  # becomes a gate that cannot fail (AGENTS.md Rule 23). A `schedule` event makes
+  # affected-projects.mjs emit an empty filter → a full `vitest run`.
+  schedule:
+    - cron: '0 7 * * *'
 
 # Supersede, don't stack. This workflow had NO concurrency block at all, so every
 # push started a full CI (build + playwright + the whole test suite) that ran to
@@ -20,7 +27,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 — the affected-projects test-scoping (below) diffs against
+      # the push before-sha / PR merge-base, which a shallow clone would not
+      # contain. Without the history it falls back to a full run (safe, just
+      # slow), so this is what actually lets the scoping engage.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -94,18 +107,42 @@ jobs:
       # mean that guard only ever runs on a developer's machine.
       - run: npx --yes playwright install --with-deps chromium
         working-directory: packages/app/features/e2e-fixtures-default
-      - run: npm test
+      # Scope tests to the packages this push/PR affects (changed + their
+      # transitive dependents) instead of the whole ~914-package, 47k-test fleet.
+      # Prints EMPTY → a full `vitest run` whenever the scope can't be trusted (a
+      # global build/test file changed, unknown diff base, a core moved) — see
+      # scripts/affected-projects.mjs. The scheduled full run below is the backstop.
+      - run: npm test -- $(node scripts/affected-projects.mjs)
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
 
   lint:
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 so affected-projects.mjs can diff the base — same reason
+      # as the build job.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint
+      # eslint is per-file, so linting only the affected package dirs (changed +
+      # dependents) cannot miss a violation the full run would catch. Empty
+      # filter → the full `npm run lint`, same fail-safe contract as the tests.
+      - run: |
+          FILTER="$(node scripts/affected-projects.mjs)"
+          if [ -z "$FILTER" ]; then npm run lint; else npx eslint $FILTER --max-warnings 0; fi
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+      # format:check stays full — prettier is fast and scoping it risks missing
+      # format drift for near-zero time saved.
       - run: npm run format:check
 
   # Security scanning (SEC3) — the core @molecule/* library publishes to npm, so
