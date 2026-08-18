@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.3.2
+
+### Patch Changes
+
+- c90b25b: ChatPanel: drop a `requiresSignup` limit banner once `isAnonymous` is `false`, so a viewer who signs in mid-session no longer sees the guest-tier limit and its dead-end sign-up buttons.
+
 ## 1.3.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.2.4
+
+### Patch Changes
+
+- eebd6ac: Mark `gpt-5.6-luna` free-tier plan-eligible in the `us` region (`freeTierRegions: ['us']`), so it can serve as a free-tier plan-mode default and free users may select it in plan mode.
+
 ## 1.2.3
 
 ### Patch Changes
