@@ -593,44 +593,52 @@ describe('scheduledPricing (announced, dated price changes)', () => {
   })
 })
 
-describe('DeepSeek 2026-08-16 price rise (staged)', () => {
-  // The concrete case the mechanism was built for. Rates verified against
-  // https://api-docs.deepseek.com/quick_start/pricing/ on 2026-08-14; peak is
-  // exactly 2× off-peak, which is why it maps onto a multiplier.
-  const BEFORE = new Date('2026-08-16T15:00:00Z')
+describe('DeepSeek 2026-08-16 price rise (landed)', () => {
+  // The concrete case the scheduling mechanism was built for. It landed on
+  // 2026-08-16T16:00Z and the rates are now folded into the base fields;
+  // re-verified against https://api-docs.deepseek.com/quick_start/pricing/ on
+  // 2026-08-18. Peak is exactly 2× off-peak, which is why it maps onto a
+  // multiplier rather than a second rate card.
   const AFTER_OFFPEAK = new Date('2026-08-17T12:00:00Z')
   const AFTER_PEAK = new Date('2026-08-17T02:00:00Z')
 
   it.each([
-    ['deepseek-v4-pro', 0.435, 0.87, 0.003625, 0.66, 1.98, 0.022],
-    ['deepseek-v4-flash', 0.14, 0.28, 0.0028, 0.22, 0.66, 0.007],
-  ])('%s switches at 2026-08-16T16:00Z', (id, oldIn, oldOut, oldCache, newIn, newOut, newCache) => {
+    ['deepseek-v4-pro', 0.66, 1.98, 0.022],
+    ['deepseek-v4-flash', 0.22, 0.66, 0.007],
+  ])('%s bills the landed CN rates', (id, input, output, cacheRead) => {
     const model = MODELS.find((m) => m.id === id)!
-    expect(model.scheduledPricing?.effectiveFrom).toBe('2026-08-16T16:00:00Z')
+    // Folded in — a staged entry left behind after its instant would keep the
+    // freshness gate warning and hide the next real change behind it.
+    expect(model.scheduledPricing).toBeUndefined()
 
-    const before = modelRegionRates(model, 'cn', BEFORE)
-    expect(before.inputPricePerMTok).toBe(oldIn)
-    expect(before.outputPricePerMTok).toBe(oldOut)
-    expect(before.cacheReadPricePerMTok).toBe(oldCache)
-
-    const after = modelRegionRates(model, 'cn', AFTER_OFFPEAK)
-    expect(after.inputPricePerMTok).toBe(newIn)
-    expect(after.outputPricePerMTok).toBe(newOut)
-    expect(after.cacheReadPricePerMTok).toBe(newCache)
+    const rates = modelRegionRates(model, 'cn', AFTER_OFFPEAK)
+    expect(rates.inputPricePerMTok).toBe(input)
+    expect(rates.outputPricePerMTok).toBe(output)
+    expect(rates.cacheReadPricePerMTok).toBe(cacheRead)
+    // DeepSeek charges no cache-write premium — write bills at input.
+    expect(rates.cacheWritePricePerMTok).toBe(input)
 
     // Peak is a multiplier on the off-peak rates, not a second rate card.
-    expect(priceMultiplierAt(model, BEFORE, 'cn')).toBe(1)
     expect(priceMultiplierAt(model, AFTER_OFFPEAK, 'cn')).toBe(1)
     expect(priceMultiplierAt(model, AFTER_PEAK, 'cn')).toBe(2)
   })
 
   it('does not touch the US re-host rates', () => {
-    // DeepInfra sets its own prices; the CN rise must not move them.
-    for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
+    // DeepInfra sets its own prices; the CN rise must not have moved them.
+    // Asserted against the host's own card rather than "unchanged over time",
+    // which is vacuous now that the rise is folded into the base fields.
+    const us = {
+      'deepseek-v4-pro': { input: 1.3, output: 2.6, cacheRead: 0.1 },
+      'deepseek-v4-flash': { input: 0.08, output: 0.18, cacheRead: 0.016 },
+    } as const
+    for (const [id, expected] of Object.entries(us)) {
       const model = MODELS.find((m) => m.id === id)!
-      expect(modelRegionRates(model, 'us', BEFORE)).toEqual(
-        modelRegionRates(model, 'us', AFTER_OFFPEAK),
-      )
+      const rates = modelRegionRates(model, 'us', AFTER_OFFPEAK)
+      expect(rates.inputPricePerMTok, id).toBe(expected.input)
+      expect(rates.outputPricePerMTok, id).toBe(expected.output)
+      expect(rates.cacheReadPricePerMTok, id).toBe(expected.cacheRead)
+      // ...and they are a different card from the native one, not a copy of it.
+      expect(rates.inputPricePerMTok, id).not.toBe(model.inputPricePerMTok)
     }
   })
 
@@ -697,30 +705,53 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
   })
 
   it('honors peak windows a scheduled change introduces, only from its instant', () => {
-    // DeepSeek's 2026-08-16 rise brings peak pricing to a model that has none
-    // today. Before the instant the model is flat; after it, the staged windows
-    // are live — with no edit landed at the switch.
-    const flash = MODELS.find((m) => m.id === 'deepseek-v4-flash')!
-    expect(flash.peakPricing).toBeUndefined()
-    // Priced in CN explicitly: the surcharge is the NATIVE host's, and this
-    // model now defaults to the US re-host, which never takes one.
-    // 02:00 UTC is inside the staged 01:00–04:00 window either way.
-    expect(priceMultiplierAt(flash, new Date('2026-08-16T02:00:00Z'), 'cn')).toBe(1)
-    expect(priceMultiplierAt(flash, new Date('2026-08-17T02:00:00Z'), 'cn')).toBe(2)
+    // A model that is flat today and gains peak windows at the staged instant,
+    // with no edit landed at the switch. (DeepSeek's 2026-08-16 rise was the
+    // real case; it has since landed and is folded into the catalog, so the
+    // mechanism is exercised on a fixture rather than a live entry.)
+    const flat = MODELS.find((m) => m.id === 'claude-sonnet-5')!
+    const gaining = {
+      ...flat,
+      peakPricing: undefined,
+      scheduledPricing: {
+        effectiveFrom: '2026-08-16T16:00:00Z',
+        inputPricePerMTok: 1,
+        outputPricePerMTok: 2,
+        cacheReadPricePerMTok: 0.1,
+        cacheWritePricePerMTok: 1,
+        peakPricing: {
+          windows: [{ startMinuteUtc: 60, endMinuteUtc: 240 }],
+          multiplier: 2,
+        },
+      },
+    }
+    // 02:00 UTC is inside the staged 01:00–04:00 window on both dates.
+    expect(priceMultiplierAt(gaining, new Date('2026-08-16T02:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(gaining, new Date('2026-08-17T02:00:00Z'))).toBe(2)
     // Off-peak after the switch is still flat.
-    expect(priceMultiplierAt(flash, new Date('2026-08-17T12:00:00Z'), 'cn')).toBe(1)
+    expect(priceMultiplierAt(gaining, new Date('2026-08-17T12:00:00Z'))).toBe(1)
   })
 
-  it('the DeepSeek catalog entries carry NO peak windows while the surcharge is inactive', () => {
-    // The announced peak-hour 2× surcharge was still not live on the official
-    // rate card as of 2026-07-28 — the conservative pre-wire was over-billing
-    // every peak-window turn on the free-tier default model and was removed.
-    // When DeepSeek's rate card actually shows the surcharge, re-add
-    // `peakPricing` on both entries and flip this test back to asserting the
-    // real windows/multiplier.
+  it('the DeepSeek catalog entries carry the rate card’s live peak windows', () => {
+    // Live on the provider's own card since 2026-08-16T16:00Z and verified
+    // there again 2026-08-18: "Peak hours are 01:00 - 04:00 and 06:00 - 10:00
+    // UTC (all other hours are off-peak)", peak billing exactly 2× off-peak,
+    // with no day-of-week qualifier. These windows must never be pre-wired
+    // ahead of the card again — that over-billed every peak-window turn on the
+    // free-tier default model for weeks.
     for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
       const model = MODELS.find((m) => m.id === id)!
-      expect(model.peakPricing, id).toBeUndefined()
+      expect(model.peakPricing, id).toEqual({
+        windows: [
+          { startMinuteUtc: 60, endMinuteUtc: 240 },
+          { startMinuteUtc: 360, endMinuteUtc: 600 },
+        ],
+        multiplier: 2,
+      })
+      // The surcharge is the NATIVE host's — the US re-host card is flat.
+      expect(priceMultiplierAt(model, new Date('2026-08-17T02:00:00Z'), 'cn'), id).toBe(2)
+      expect(priceMultiplierAt(model, new Date('2026-08-17T12:00:00Z'), 'cn'), id).toBe(1)
+      expect(priceMultiplierAt(model, new Date('2026-08-17T02:00:00Z'), 'us'), id).toBe(1)
     }
   })
 })
