@@ -54,7 +54,17 @@ export interface SubscriptionResult {
  * Parameters for updating a subscription.
  */
 export interface SubscriptionUpdateParams {
-  items?: Array<{ id: string; price: string }>
+  items?: Array<{
+    id: string
+    price: string
+    /**
+     * Units to bill — seats, on a per-seat plan. Stripe keeps the existing
+     * quantity for any field an update omits, so a caller changing plans must
+     * state it: leaving it off bills a new flat-priced plan at the old plan's
+     * seat count.
+     */
+    quantity?: number
+  }>
   cancel_at_period_end?: boolean
 }
 
