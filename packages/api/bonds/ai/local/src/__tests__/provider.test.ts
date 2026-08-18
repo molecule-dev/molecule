@@ -228,6 +228,54 @@ describe('chat() — request shape', () => {
     expect(body.temperature).toBe(0.3)
   })
 
+  it('serializes tool_use/tool_result blocks as tool_calls + role:tool messages', async () => {
+    // Regression: these blocks used to flatten to placeholder text
+    // (`[tool_result for <id>]`), silently dropping every tool result — a
+    // multi-turn agentic loop then looped forever on the same tool call because
+    // the model never received a real result. Same fix as @molecule/api-ai-openai.
+    fetchMock().mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'done' } }], usage: {} }),
+    )
+    await collect(
+      createProvider().chat({
+        messages: [
+          { role: 'user', content: 'pick one' },
+          {
+            role: 'assistant',
+            content: [
+              { type: 'text', text: 'looking' },
+              { type: 'tool_use', id: 'call_1', name: 'inspect', input: { slug: 'blog' } },
+            ],
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'tool_result', tool_use_id: 'call_1', content: 'blog: a full catalog…' },
+            ],
+          },
+        ],
+        stream: false,
+      }),
+    )
+    const body = lastBody() as { messages: Array<Record<string, unknown>> }
+    const assistant = body.messages.find((m) => m.role === 'assistant')!
+    expect(assistant.tool_calls).toEqual([
+      {
+        id: 'call_1',
+        type: 'function',
+        function: { name: 'inspect', arguments: '{"slug":"blog"}' },
+      },
+    ])
+    const toolMsg = body.messages.find((m) => m.role === 'tool')!
+    expect(toolMsg).toEqual({
+      role: 'tool',
+      tool_call_id: 'call_1',
+      content: 'blog: a full catalog…',
+    })
+    expect(JSON.stringify(body.messages)).not.toContain('[tool_result')
+    expect(JSON.stringify(body.messages)).not.toContain('[tool_use')
+  })
+
   it('formats tools + toolChoice into the OpenAI function shape', async () => {
     fetchMock().mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),

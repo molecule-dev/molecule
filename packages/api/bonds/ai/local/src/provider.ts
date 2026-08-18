@@ -265,6 +265,16 @@ export class LocalAIProvider implements AIProvider {
   /**
    * Convert internal `ChatMessage` objects to the OpenAI message format.
    * The system prompt becomes a leading `{role:'system'}` message.
+   *
+   * `tool_use`/`tool_result` blocks are serialized STRUCTURALLY (assistant
+   * `tool_calls` + standalone `{role:'tool'}` messages), as the OpenAI-
+   * compatible chat API requires. They used to flatten to placeholder text
+   * (`[tool_result for <id>]`), which silently dropped every tool result and
+   * made multi-turn agentic tool loops impossible — a local/BYO model looped on
+   * its first tool call and never finalized. See the same fix + regression test
+   * in `@molecule/api-ai-openai` (this bond is that provider with a configurable
+   * baseUrl and optional key). Single-shot text/vision requests never carry
+   * these block types and are unaffected.
    */
   private formatMessages(
     messages: ChatMessage[],
@@ -277,16 +287,59 @@ export class LocalAIProvider implements AIProvider {
         out.push({ role: 'system', content: typeof m.content === 'string' ? m.content : '' })
         continue
       }
-      const content =
-        typeof m.content === 'string'
-          ? m.content
-          : (m.content as ContentBlock[]).map((b) => this.formatBlock(b))
-      out.push({ role: m.role, content })
+      if (typeof m.content === 'string') {
+        out.push({ role: m.role, content: m.content })
+        continue
+      }
+
+      const parts: Array<Record<string, unknown>> = []
+      const toolCalls: Array<Record<string, unknown>> = []
+      const toolResults: Array<Record<string, unknown>> = []
+      for (const block of m.content as ContentBlock[]) {
+        switch (block.type) {
+          case 'tool_use':
+            toolCalls.push({
+              id: block.id,
+              type: 'function',
+              function: { name: block.name, arguments: JSON.stringify(block.input ?? {}) },
+            })
+            break
+          case 'tool_result':
+            toolResults.push({
+              role: 'tool',
+              tool_call_id: block.tool_use_id,
+              content:
+                typeof block.content === 'string' ? block.content : JSON.stringify(block.content),
+            })
+            break
+          default:
+            parts.push(this.formatBlock(block))
+        }
+      }
+
+      if (toolResults.length > 0) {
+        for (const tr of toolResults) out.push(tr)
+      } else if (toolCalls.length > 0) {
+        out.push({
+          role: 'assistant',
+          content: parts.length > 0 ? parts : null,
+          tool_calls: toolCalls,
+        })
+      } else {
+        out.push({
+          role: m.role,
+          content: parts.length === 1 && parts[0].type === 'text' ? parts[0].text : parts,
+        })
+      }
     }
     return out
   }
 
-  /** Map a generic `ContentBlock` to OpenAI's content-part shape. */
+  /**
+   * Map a generic content-part `ContentBlock` (text/image/document/audio/video)
+   * to OpenAI's content-part shape. `tool_use`/`tool_result` are handled
+   * structurally in {@link formatMessages} and never reach here.
+   */
   private formatBlock(block: ContentBlock): Record<string, unknown> {
     switch (block.type) {
       case 'text':
@@ -311,12 +364,8 @@ export class LocalAIProvider implements AIProvider {
           type: 'text',
           text: `[Video attachment (${block.mediaType}) — not supported by this provider]`,
         }
-      case 'tool_use':
-        return { type: 'text', text: `[tool_use ${block.name}]` }
-      case 'tool_result':
-        return { type: 'text', text: `[tool_result for ${block.tool_use_id}]` }
       default:
-        return block as Record<string, unknown>
+        return { type: 'text', text: '' }
     }
   }
 

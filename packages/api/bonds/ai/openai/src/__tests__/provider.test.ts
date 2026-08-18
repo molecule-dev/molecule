@@ -173,6 +173,64 @@ describe('chat() — request shape', () => {
     expect(body.messages[1]).toMatchObject({ role: 'user', content: 'hi' })
   })
 
+  it('serializes tool_use/tool_result blocks as tool_calls + role:tool messages', async () => {
+    // Regression: these blocks used to flatten to placeholder text
+    // (`[tool_result for <id>]`), silently dropping every tool result. A
+    // multi-turn agentic loop then fed the model empty placeholders and it
+    // looped on the same tool call forever (gpt-5.6-luna went 0/8 on the
+    // selection selftest for exactly this reason). They must serialize into the
+    // structural shape Chat Completions requires.
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'done' } }], usage: {} }),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [
+        { role: 'user', content: 'pick one' },
+        {
+          role: 'assistant',
+          content: [
+            { type: 'text', text: 'let me look' },
+            { type: 'tool_use', id: 'call_1', name: 'inspect', input: { slug: 'blog' } },
+          ],
+        },
+        {
+          role: 'user',
+          content: [
+            { type: 'tool_result', tool_use_id: 'call_1', content: 'blog: a full catalog…' },
+          ],
+        },
+      ],
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as { body: string }).body) as {
+      messages: Array<Record<string, unknown>>
+    }
+    // Assistant turn carries the tool call, not placeholder text.
+    const assistant = body.messages.find((m) => m.role === 'assistant')!
+    expect(assistant.tool_calls).toEqual([
+      {
+        id: 'call_1',
+        type: 'function',
+        function: { name: 'inspect', arguments: '{"slug":"blog"}' },
+      },
+    ])
+    // Tool result is its own role:tool message carrying the REAL content.
+    const toolMsg = body.messages.find((m) => m.role === 'tool')!
+    expect(toolMsg).toEqual({
+      role: 'tool',
+      tool_call_id: 'call_1',
+      content: 'blog: a full catalog…',
+    })
+    // The old bug: no message anywhere should be the flattened placeholder.
+    expect(JSON.stringify(body.messages)).not.toContain('[tool_result')
+    expect(JSON.stringify(body.messages)).not.toContain('[tool_use')
+  })
+
   it('sends endUserId as safety_identifier, NOT the deprecated `user`', async () => {
     // OpenAI replaced `user` with `safety_identifier` for abuse attribution.
     // This bond is the only OpenAI-compatible one that must differ — its siblings

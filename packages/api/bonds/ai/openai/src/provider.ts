@@ -242,6 +242,19 @@ export class OpenaiAIProvider implements AIProvider {
   /**
    * Convert internal `ChatMessage` objects to the OpenAI message format.
    * The system prompt becomes a leading `{role:'system'}` message.
+   *
+   * `tool_use` and `tool_result` blocks are serialized STRUCTURALLY — a
+   * `tool_use` becomes an assistant message carrying `tool_calls`, a
+   * `tool_result` becomes its own `{role:'tool', tool_call_id, content}`
+   * message — exactly as the Chat Completions API requires and as the sibling
+   * OpenAI-compatible bonds (minimax/deepseek) already do. They used to be
+   * flattened to placeholder text (`[tool_result for <id>]`), which silently
+   * dropped every tool result: a multi-turn agentic loop fed the model empty
+   * placeholders, so at temperature 0 it re-emitted the same opening tool call
+   * forever and never finalized (observed 0/8 on gpt-5.6-luna in the
+   * starting-point selftest — the failure was this serialization, NOT the
+   * model). Single-shot text/vision requests are unaffected: they never carry
+   * these block types.
    */
   private formatMessages(
     messages: ChatMessage[],
@@ -254,16 +267,63 @@ export class OpenaiAIProvider implements AIProvider {
         out.push({ role: 'system', content: typeof m.content === 'string' ? m.content : '' })
         continue
       }
-      const content =
-        typeof m.content === 'string'
-          ? m.content
-          : (m.content as ContentBlock[]).map((b) => this.formatBlock(b))
-      out.push({ role: m.role, content })
+      if (typeof m.content === 'string') {
+        out.push({ role: m.role, content: m.content })
+        continue
+      }
+
+      const parts: Array<Record<string, unknown>> = []
+      const toolCalls: Array<Record<string, unknown>> = []
+      const toolResults: Array<Record<string, unknown>> = []
+      for (const block of m.content as ContentBlock[]) {
+        switch (block.type) {
+          case 'tool_use':
+            toolCalls.push({
+              id: block.id,
+              type: 'function',
+              function: { name: block.name, arguments: JSON.stringify(block.input ?? {}) },
+            })
+            break
+          case 'tool_result':
+            toolResults.push({
+              role: 'tool',
+              tool_call_id: block.tool_use_id,
+              content:
+                typeof block.content === 'string' ? block.content : JSON.stringify(block.content),
+            })
+            break
+          default:
+            parts.push(this.formatBlock(block))
+        }
+      }
+
+      // Tool results are standalone `role:'tool'` messages. An assistant turn
+      // that made tool calls carries them on the message; a plain content
+      // message (text/image/…) is emitted as-is. These are mutually exclusive
+      // in practice (assistant emits tool_use, the next user turn the results).
+      if (toolResults.length > 0) {
+        for (const tr of toolResults) out.push(tr)
+      } else if (toolCalls.length > 0) {
+        out.push({
+          role: 'assistant',
+          content: parts.length > 0 ? parts : null,
+          tool_calls: toolCalls,
+        })
+      } else {
+        out.push({
+          role: m.role,
+          content: parts.length === 1 && parts[0].type === 'text' ? parts[0].text : parts,
+        })
+      }
     }
     return out
   }
 
-  /** Map a generic `ContentBlock` to OpenAI's content-part shape. */
+  /**
+   * Map a generic content-part `ContentBlock` (text/image/document/audio/video)
+   * to OpenAI's content-part shape. `tool_use`/`tool_result` are handled
+   * structurally in {@link formatMessages} and never reach here.
+   */
   private formatBlock(block: ContentBlock): Record<string, unknown> {
     switch (block.type) {
       case 'text':
@@ -288,12 +348,8 @@ export class OpenaiAIProvider implements AIProvider {
           type: 'text',
           text: `[Video attachment (${block.mediaType}) — not supported by this provider]`,
         }
-      case 'tool_use':
-        return { type: 'text', text: `[tool_use ${block.name}]` }
-      case 'tool_result':
-        return { type: 'text', text: `[tool_result for ${block.tool_use_id}]` }
       default:
-        return block as Record<string, unknown>
+        return { type: 'text', text: '' }
     }
   }
 
