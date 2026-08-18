@@ -1070,9 +1070,10 @@ describe('default processing region', () => {
     // regions. So the two move together: it was deepseek-v4-pro until
     // 2026-08-14, and minimax-m3 since. A mismatch does not widen anything (the
     // pairing check fails closed), it just leaves a model claiming a free-tier
-    // relationship it does not have.
+    // relationship it does not have. It was deepseek-v4-pro until 2026-08-14,
+    // minimax-m3 until 2026-08-18, and gpt-5.6-luna since.
     expect(MODELS.filter((m) => m.freeTier).map((m) => m.id)).toEqual(['deepseek-v4-flash'])
-    expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['minimax-m3'])
+    expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['gpt-5.6-luna'])
     // The carve-out must name a region the model actually offers, or the free
     // tier's own default is unselectable.
     const planner = MODELS.find((m) => m.freeTierRegions)!
