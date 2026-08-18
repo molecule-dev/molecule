@@ -484,6 +484,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // Cached input 0.1× input; write premium reported 1.25× (see section note).
     cacheReadPricePerMTok: 0.02,
     cacheWritePricePerMTok: 0.25,
+    // The free-tier PLAN default (2026-08-18) — us-only OpenAI, so this carve-out
+    // is what lets `freeTierAllows` permit it for plan mode without making it
+    // outright `freeTier` (which would free it in every mode). Mirrors how
+    // minimax-m3 was scoped as the prior free planner.
+    freeTierRegions: ['us'],
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
   },
