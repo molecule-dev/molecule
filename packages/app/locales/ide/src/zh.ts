@@ -8,6 +8,7 @@ export const zh: Partial<IdeTranslations> = {
   'common.cancel': '取消',
   'common.save': '保存',
   'ide.chat.queued': '排队中',
+  'ide.chat.queuedCount': '{{count}} 个排队中',
   'ide.chat.editQueued': '编辑',
   'ide.chat.deleteQueued': '删除',
   'ide.chat.sendQueued': '发送',

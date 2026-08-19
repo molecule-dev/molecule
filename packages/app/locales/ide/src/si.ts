@@ -21,6 +21,7 @@ export const si: Partial<IdeTranslations> = {
   'common.cancel': 'අවලංගු කරන්න',
   'common.save': 'සුරකින්න',
   'ide.chat.queued': 'පෝලිමේ ඇත',
+  'ide.chat.queuedCount': '{{count}} පෝලිමේ',
   'ide.chat.editQueued': 'සංස්කරණය කරන්න',
   'ide.chat.deleteQueued': 'මකන්න',
   'ide.chat.sendQueued': 'යවන්න',

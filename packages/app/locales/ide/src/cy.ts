@@ -21,6 +21,7 @@ export const cy: Partial<IdeTranslations> = {
   'common.cancel': 'Canslo',
   'common.save': 'Cadw',
   'ide.chat.queued': "Wedi'i giwio",
+  'ide.chat.queuedCount': '{{count}} yn y ciw',
   'ide.chat.editQueued': 'Golygu',
   'ide.chat.deleteQueued': 'Dileu',
   'ide.chat.sendQueued': 'Anfon',

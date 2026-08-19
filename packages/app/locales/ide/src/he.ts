@@ -29,6 +29,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.revertCommit': 'חזור על התחייבות זו',
   'ide.chat.fileCount': '{{count}} קבצים',
   'ide.chat.queued': 'בתור',
+  'ide.chat.queuedCount': '{{count}} בתור',
   'ide.chat.deleteQueued': 'לִמְחוֹק',
   'ide.chat.sendQueued': 'לִשְׁלוֹחַ',
   'ide.chat.responseStopped': 'התגובה הופסקה',

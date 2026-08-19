@@ -21,6 +21,7 @@ export const bn: Partial<IdeTranslations> = {
   'common.cancel': 'বাতিল করুন',
   'common.save': 'সংরক্ষণ করুন',
   'ide.chat.queued': 'সারিবদ্ধ',
+  'ide.chat.queuedCount': '{{count}}টি সারিতে',
   'ide.chat.editQueued': 'সম্পাদনা',
   'ide.chat.deleteQueued': 'মুছে ফেলুন',
   'ide.chat.sendQueued': 'পাঠান',

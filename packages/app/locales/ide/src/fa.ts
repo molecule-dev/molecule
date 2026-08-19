@@ -21,6 +21,7 @@ export const fa: Partial<IdeTranslations> = {
   'common.cancel': 'لغو',
   'common.save': 'ذخیره',
   'ide.chat.queued': 'صف کشیده',
+  'ide.chat.queuedCount': '{{count}} در صف',
   'ide.chat.editQueued': 'ویرایش',
   'ide.chat.deleteQueued': 'حذف',
   'ide.chat.sendQueued': 'ارسال',

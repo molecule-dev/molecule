@@ -21,6 +21,7 @@ export const sw: Partial<IdeTranslations> = {
   'common.cancel': 'Ghairi',
   'common.save': 'Hifadhi',
   'ide.chat.queued': 'Imepangwa kwenye foleni',
+  'ide.chat.queuedCount': '{{count}} kwenye foleni',
   'ide.chat.editQueued': 'Hariri',
   'ide.chat.deleteQueued': 'Futa',
   'ide.chat.sendQueued': 'Tuma',

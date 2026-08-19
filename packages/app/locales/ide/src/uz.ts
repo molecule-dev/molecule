@@ -21,6 +21,7 @@ export const uz: Partial<IdeTranslations> = {
   'common.cancel': 'Bekor qilish',
   'common.save': 'Saqlash',
   'ide.chat.queued': 'Navbatda',
+  'ide.chat.queuedCount': '{{count}} navbatda',
   'ide.chat.editQueued': 'Tahrirlash',
   'ide.chat.deleteQueued': "O'chirish",
   'ide.chat.sendQueued': 'Yuborish',

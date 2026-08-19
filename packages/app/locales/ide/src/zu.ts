@@ -21,6 +21,7 @@ export const zu: Partial<IdeTranslations> = {
   'common.cancel': 'Khansela',
   'common.save': 'Londoloza',
   'ide.chat.queued': 'Kufakwe emgqeni',
+  'ide.chat.queuedCount': '{{count}} kulayini',
   'ide.chat.editQueued': 'Hlela',
   'ide.chat.deleteQueued': 'Susa',
   'ide.chat.sendQueued': 'Thumela',

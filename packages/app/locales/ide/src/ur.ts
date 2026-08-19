@@ -21,6 +21,7 @@ export const ur: Partial<IdeTranslations> = {
   'common.cancel': 'منسوخ کریں۔',
   'common.save': 'محفوظ کریں۔',
   'ide.chat.queued': 'قطار میں لگ گیا۔',
+  'ide.chat.queuedCount': '{{count}} قطار میں',
   'ide.chat.editQueued': 'ترمیم کریں۔',
   'ide.chat.deleteQueued': 'حذف کریں۔',
   'ide.chat.sendQueued': 'بھیجیں۔',

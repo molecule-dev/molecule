@@ -8,6 +8,7 @@ export const tr: Partial<IdeTranslations> = {
   'common.cancel': 'İptal',
   'common.save': 'Kaydet',
   'ide.chat.queued': 'Kuyrukta',
+  'ide.chat.queuedCount': '{{count}} sırada',
   'ide.chat.editQueued': 'Düzenle',
   'ide.chat.deleteQueued': 'Sil',
   'ide.chat.sendQueued': 'Gönder',

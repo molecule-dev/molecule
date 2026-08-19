@@ -21,6 +21,7 @@ export const lv: Partial<IdeTranslations> = {
   'common.cancel': 'Atcelt',
   'common.save': 'Saglabāt',
   'ide.chat.queued': 'Rindā',
+  'ide.chat.queuedCount': '{{count}} rindā',
   'ide.chat.editQueued': 'Rediģēt',
   'ide.chat.deleteQueued': 'Dzēst',
   'ide.chat.sendQueued': 'Sūtīt',

@@ -21,6 +21,7 @@ export const is: Partial<IdeTranslations> = {
   'common.cancel': 'Hætta við',
   'common.save': 'Vista',
   'ide.chat.queued': 'Í biðröð',
+  'ide.chat.queuedCount': '{{count}} í biðröð',
   'ide.chat.editQueued': 'Breyta',
   'ide.chat.deleteQueued': 'Eyða',
   'ide.chat.sendQueued': 'Senda',

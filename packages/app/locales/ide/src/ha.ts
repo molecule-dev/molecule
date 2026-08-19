@@ -44,6 +44,7 @@ export const ha: Partial<IdeTranslations> = {
     '{{model}} yana samuwa a Pro. Haɓaka don samun damar duk samfurori.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'A jerin jira',
+  'ide.chat.queuedCount': '{{count}} a jere',
   'ide.chat.redoChange': 'Sake aiwatar da wannan canjin',
   'ide.chat.responseStopped': 'An dakatar da amsa',
   'ide.chat.revertFile': 'Mayar da zuwa ƙarshen aika',

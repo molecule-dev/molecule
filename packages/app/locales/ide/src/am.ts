@@ -21,6 +21,7 @@ export const am: Partial<IdeTranslations> = {
   'common.cancel': 'ሰርዝ',
   'common.save': 'አስቀምጥ',
   'ide.chat.queued': 'ወረፋ ተይዟል',
+  'ide.chat.queuedCount': '{{count}} በወረፋ',
   'ide.chat.editQueued': 'አርትዕ',
   'ide.chat.deleteQueued': 'ሰርዝ',
   'ide.chat.sendQueued': 'ላክ',

@@ -44,6 +44,7 @@ export const be: Partial<IdeTranslations> = {
     '{{model}} даступна ў Pro. Абнавіце для доступу да ўсіх мадэляў.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'У чарзе',
+  'ide.chat.queuedCount': '{{count}} у чарзе',
   'ide.chat.redoChange': 'Паўторна прымяніць гэту змену',
   'ide.chat.responseStopped': 'Адказ спынены',
   'ide.chat.revertFile': 'Вярнуць да апошняга commit',

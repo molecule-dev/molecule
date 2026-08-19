@@ -21,6 +21,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'common.cancel': '取消',
   'common.save': '節省',
   'ide.chat.queued': '已排隊',
+  'ide.chat.queuedCount': '{{count}} 個排隊中',
   'ide.chat.editQueued': '編輯',
   'ide.chat.deleteQueued': '刪除',
   'ide.chat.sendQueued': '傳送',

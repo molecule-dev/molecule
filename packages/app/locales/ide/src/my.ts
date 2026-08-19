@@ -21,6 +21,7 @@ export const my: Partial<IdeTranslations> = {
   'common.cancel': 'ပယ်ဖျက်ရန်',
   'common.save': 'သိမ်းဆည်းပါ',
   'ide.chat.queued': 'တန်းစီထားသည်',
+  'ide.chat.queuedCount': '{{count}} တန်းစီထား',
   'ide.chat.editQueued': 'တည်းဖြတ်ရန်',
   'ide.chat.deleteQueued': 'ဖျက်ရန်',
   'ide.chat.sendQueued': 'ပို့ပါ',

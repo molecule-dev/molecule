@@ -56,6 +56,7 @@ export const yo: Partial<IdeTranslations> = {
     '{{model}} wa lori Pro. Ṣe igbesoke lati wọle si gbogbo awọn awoṣe.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Wa l\\u00E1\\u00EC\\u00ECn\\u00EC',
+  'ide.chat.queuedCount': '{{count}} ní ìlà',
   'ide.chat.redoChange': 'Tun \\u00E0y\\u00EDpad\\u00E0 y\\u00EC\\u00ED \\u1E63e',
   'ide.chat.responseStopped': '\\u00CCd\\u00E1h\\u00F9n ti d\\u00FAr\\u00F3',
   'ide.chat.revertFile':

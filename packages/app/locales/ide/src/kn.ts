@@ -21,6 +21,7 @@ export const kn: Partial<IdeTranslations> = {
   'common.cancel': 'ರದ್ದುಮಾಡಿ',
   'common.save': 'ಉಳಿಸಿ',
   'ide.chat.queued': 'ಸರದಿಯಲ್ಲಿದೆ',
+  'ide.chat.queuedCount': '{{count}} ಸಾಲಿನಲ್ಲಿ',
   'ide.chat.editQueued': 'ಸಂಪಾದಿಸಿ',
   'ide.chat.deleteQueued': 'ಅಳಿಸಿ',
   'ide.chat.sendQueued': 'ಕಳುಹಿಸಿ',

@@ -44,6 +44,7 @@ export const ky: Partial<IdeTranslations> = {
     '{{model}} Pro версиясында жеткиликтүү. Бардык моделдерге жетүү үчүн жаңыртыңыз.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Кезекте',
+  'ide.chat.queuedCount': '{{count}} кезекте',
   'ide.chat.redoChange': 'Бул өзгөртүүнү кайра колдонуу',
   'ide.chat.responseStopped': 'Жооп токтотулду',
   'ide.chat.revertFile': 'Акыркы жайгаштырууга кайтаруу',

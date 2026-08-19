@@ -8,6 +8,7 @@ export const hi: Partial<IdeTranslations> = {
   'common.cancel': 'रद्द करें',
   'common.save': 'सहेजें',
   'ide.chat.queued': 'कतार में',
+  'ide.chat.queuedCount': '{{count}} कतार में',
   'ide.chat.editQueued': 'संपादित करें',
   'ide.chat.deleteQueued': 'हटाएँ',
   'ide.chat.sendQueued': 'भेजें',

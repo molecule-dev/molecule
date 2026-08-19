@@ -21,6 +21,7 @@ export const hy: Partial<IdeTranslations> = {
   'common.cancel': 'Չեղարկել',
   'common.save': 'Պահպանել',
   'ide.chat.queued': 'Հերթում է',
+  'ide.chat.queuedCount': '{{count}} հերթում',
   'ide.chat.editQueued': 'Խմբագրել',
   'ide.chat.deleteQueued': 'Ջնջել',
   'ide.chat.sendQueued': 'Ուղարկել',

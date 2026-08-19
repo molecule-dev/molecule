@@ -21,6 +21,7 @@ export const ga: Partial<IdeTranslations> = {
   'common.cancel': 'Cealaigh',
   'common.save': 'Sábháil',
   'ide.chat.queued': 'Sa scuaine',
+  'ide.chat.queuedCount': '{{count}} i scuaine',
   'ide.chat.editQueued': 'Cuir in Eagar',
   'ide.chat.deleteQueued': 'Scrios',
   'ide.chat.sendQueued': 'Seol',

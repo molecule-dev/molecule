@@ -7,6 +7,7 @@ export const nl: Partial<IdeTranslations> = {
   'common.cancel': 'Annuleren',
   'common.save': 'Opslaan',
   'ide.chat.queued': 'In wachtrij',
+  'ide.chat.queuedCount': '{{count}} in wachtrij',
   'ide.chat.editQueued': 'Bewerken',
   'ide.chat.deleteQueued': 'Verwijderen',
   'ide.chat.sendQueued': 'Verzenden',

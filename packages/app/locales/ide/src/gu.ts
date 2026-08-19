@@ -21,6 +21,7 @@ export const gu: Partial<IdeTranslations> = {
   'common.cancel': 'રદ કરો',
   'common.save': 'સાચવો',
   'ide.chat.queued': 'કતારબદ્ધ',
+  'ide.chat.queuedCount': '{{count}} કતારમાં',
   'ide.chat.editQueued': 'ફેરફાર કરો',
   'ide.chat.deleteQueued': 'કાઢી નાખો',
   'ide.chat.sendQueued': 'મોકલો',

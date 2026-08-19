@@ -7,6 +7,7 @@ export const hu: Partial<IdeTranslations> = {
   'common.cancel': 'Mégse',
   'common.save': 'Mentés',
   'ide.chat.queued': 'Sorban áll',
+  'ide.chat.queuedCount': '{{count}} sorban',
   'ide.chat.editQueued': 'Szerkesztés',
   'ide.chat.deleteQueued': 'Törlés',
   'ide.chat.sendQueued': 'Küldés',

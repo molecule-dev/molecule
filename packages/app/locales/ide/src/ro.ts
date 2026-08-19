@@ -7,6 +7,7 @@ export const ro: Partial<IdeTranslations> = {
   'common.cancel': 'Anulați',
   'common.save': 'Salvați',
   'ide.chat.queued': 'În coadă',
+  'ide.chat.queuedCount': '{{count}} în coadă',
   'ide.chat.editQueued': 'Editați',
   'ide.chat.deleteQueued': 'Ștergeți',
   'ide.chat.sendQueued': 'Trimiteți',

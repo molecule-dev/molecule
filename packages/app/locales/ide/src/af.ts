@@ -21,6 +21,7 @@ export const af: Partial<IdeTranslations> = {
   'common.cancel': 'Kanselleer',
   'common.save': 'Stoor',
   'ide.chat.queued': 'In die ry',
+  'ide.chat.queuedCount': '{{count}} in tou',
   'ide.chat.editQueued': 'Wysig',
   'ide.chat.deleteQueued': 'Vee uit',
   'ide.chat.sendQueued': 'Stuur',

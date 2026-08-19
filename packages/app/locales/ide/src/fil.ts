@@ -7,6 +7,7 @@ export const fil: Partial<IdeTranslations> = {
   'common.cancel': 'Kanselahin',
   'common.save': 'I-save',
   'ide.chat.queued': 'Nasa pila',
+  'ide.chat.queuedCount': '{{count}} nakapila',
   'ide.chat.editQueued': 'I-edit',
   'ide.chat.deleteQueued': 'Burahin',
   'ide.chat.sendQueued': 'Ipadala',

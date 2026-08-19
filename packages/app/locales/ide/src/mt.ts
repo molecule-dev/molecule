@@ -21,6 +21,7 @@ export const mt: Partial<IdeTranslations> = {
   'common.cancel': 'Ikkanċella',
   'common.save': 'Issejvja',
   'ide.chat.queued': 'Fil-kju',
+  'ide.chat.queuedCount': '{{count}} fil-kju',
   'ide.chat.editQueued': 'Editja',
   'ide.chat.deleteQueued': 'Ħassar',
   'ide.chat.sendQueued': 'Ibgħat',

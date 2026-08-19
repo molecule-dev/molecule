@@ -21,6 +21,7 @@ export const sq: Partial<IdeTranslations> = {
   'common.cancel': 'Anulo',
   'common.save': 'Ruaj',
   'ide.chat.queued': 'Në radhë',
+  'ide.chat.queuedCount': '{{count}} në radhë',
   'ide.chat.editQueued': 'Modifiko',
   'ide.chat.deleteQueued': 'Fshij',
   'ide.chat.sendQueued': 'Dërgo',

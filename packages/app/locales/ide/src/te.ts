@@ -21,6 +21,7 @@ export const te: Partial<IdeTranslations> = {
   'common.cancel': 'రద్దు చేయండి',
   'common.save': 'సేవ్ చేయండి',
   'ide.chat.queued': 'క్యూలో',
+  'ide.chat.queuedCount': '{{count}} వరుసలో',
   'ide.chat.editQueued': 'సవరించు',
   'ide.chat.deleteQueued': 'తొలగించు',
   'ide.chat.sendQueued': 'పంపండి',

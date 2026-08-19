@@ -7,6 +7,7 @@ export const es: Partial<IdeTranslations> = {
   'common.cancel': 'Cancelar',
   'common.save': 'Guardar',
   'ide.chat.queued': 'En cola',
+  'ide.chat.queuedCount': '{{count}} en cola',
   'ide.chat.editQueued': 'Editar',
   'ide.chat.deleteQueued': 'Eliminar',
   'ide.chat.sendQueued': 'Enviar',

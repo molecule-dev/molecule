@@ -21,6 +21,7 @@ export const pa: Partial<IdeTranslations> = {
   'common.cancel': 'ਰੱਦ ਕਰੋ',
   'common.save': 'ਸੇਵ ਕਰੋ',
   'ide.chat.queued': 'ਕਤਾਰਬੱਧ',
+  'ide.chat.queuedCount': '{{count}} ਕਤਾਰ ਵਿੱਚ',
   'ide.chat.editQueued': 'ਸੋਧੋ',
   'ide.chat.deleteQueued': 'ਮਿਟਾਓ',
   'ide.chat.sendQueued': 'ਭੇਜੋ',

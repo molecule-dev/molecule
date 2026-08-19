@@ -21,6 +21,7 @@ export const eu: Partial<IdeTranslations> = {
   'common.cancel': 'Utzi',
   'common.save': 'Gorde',
   'ide.chat.queued': 'Ilaran',
+  'ide.chat.queuedCount': '{{count}} ilaran',
   'ide.chat.editQueued': 'Editatu',
   'ide.chat.deleteQueued': 'Ezabatu',
   'ide.chat.sendQueued': 'Bidali',

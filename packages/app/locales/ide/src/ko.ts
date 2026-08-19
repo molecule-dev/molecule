@@ -8,6 +8,7 @@ export const ko: Partial<IdeTranslations> = {
   'common.cancel': '취소',
   'common.save': '저장',
   'ide.chat.queued': '대기 중',
+  'ide.chat.queuedCount': '{{count}}개 대기 중',
   'ide.chat.editQueued': '편집',
   'ide.chat.deleteQueued': '삭제',
   'ide.chat.sendQueued': '보내기',

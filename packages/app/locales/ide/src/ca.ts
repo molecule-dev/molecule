@@ -21,6 +21,7 @@ export const ca: Partial<IdeTranslations> = {
   'common.cancel': 'Cancel·la',
   'common.save': 'Desa',
   'ide.chat.queued': 'En cua',
+  'ide.chat.queuedCount': '{{count}} a la cua',
   'ide.chat.editQueued': 'Edita',
   'ide.chat.deleteQueued': 'Suprimeix',
   'ide.chat.sendQueued': 'Enviar',

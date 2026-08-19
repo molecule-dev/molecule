@@ -21,6 +21,7 @@ export const sk: Partial<IdeTranslations> = {
   'common.cancel': 'Zrušiť',
   'common.save': 'Uložiť',
   'ide.chat.queued': 'Zaradené do frontu',
+  'ide.chat.queuedCount': '{{count}} v poradí',
   'ide.chat.editQueued': 'Upraviť',
   'ide.chat.deleteQueued': 'Odstrániť',
   'ide.chat.sendQueued': 'Odoslať',

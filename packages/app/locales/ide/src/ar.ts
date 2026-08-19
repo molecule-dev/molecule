@@ -8,6 +8,7 @@ export const ar: Partial<IdeTranslations> = {
   'common.cancel': 'إلغاء',
   'common.save': 'حفظ',
   'ide.chat.queued': 'في قائمة الانتظار',
+  'ide.chat.queuedCount': '{{count}} في قائمة الانتظار',
   'ide.chat.editQueued': 'تعديل',
   'ide.chat.deleteQueued': 'حذف',
   'ide.chat.sendQueued': 'إرسال',

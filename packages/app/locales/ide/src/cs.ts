@@ -7,6 +7,7 @@ export const cs: Partial<IdeTranslations> = {
   'common.cancel': 'Zrušit',
   'common.save': 'Uložit',
   'ide.chat.queued': 'Ve frontě',
+  'ide.chat.queuedCount': '{{count}} ve frontě',
   'ide.chat.editQueued': 'Upravit',
   'ide.chat.deleteQueued': 'Smazat',
   'ide.chat.sendQueued': 'Odeslat',

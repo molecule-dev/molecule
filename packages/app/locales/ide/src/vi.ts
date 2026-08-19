@@ -7,6 +7,7 @@ export const vi: Partial<IdeTranslations> = {
   'common.cancel': 'Hủy',
   'common.save': 'Lưu',
   'ide.chat.queued': 'Trong hàng đợi',
+  'ide.chat.queuedCount': '{{count}} trong hàng đợi',
   'ide.chat.editQueued': 'Chỉnh sửa',
   'ide.chat.deleteQueued': 'Xóa',
   'ide.chat.sendQueued': 'Gửi',

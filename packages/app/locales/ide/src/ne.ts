@@ -21,6 +21,7 @@ export const ne: Partial<IdeTranslations> = {
   'common.cancel': 'रद्द गर्नुहोस्',
   'common.save': 'बचत गर्नुहोस्',
   'ide.chat.queued': 'लामबद्ध',
+  'ide.chat.queuedCount': '{{count}} लाइनमा',
   'ide.chat.editQueued': 'सम्पादन गर्नुहोस्',
   'ide.chat.deleteQueued': 'मेटाउनुहोस्',
   'ide.chat.sendQueued': 'पठाउनुहोस्',

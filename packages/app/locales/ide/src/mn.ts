@@ -21,6 +21,7 @@ export const mn: Partial<IdeTranslations> = {
   'common.cancel': 'Цуцлах',
   'common.save': 'Хадгалах',
   'ide.chat.queued': 'Дараалалд орсон',
+  'ide.chat.queuedCount': '{{count}} дараалалд',
   'ide.chat.editQueued': 'Засварлах',
   'ide.chat.deleteQueued': 'Устгах',
   'ide.chat.sendQueued': 'Илгээх',

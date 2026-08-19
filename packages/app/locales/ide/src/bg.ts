@@ -21,6 +21,7 @@ export const bg: Partial<IdeTranslations> = {
   'common.cancel': 'Отказ',
   'common.save': 'Запазване',
   'ide.chat.queued': 'На опашка',
+  'ide.chat.queuedCount': '{{count}} на опашка',
   'ide.chat.editQueued': 'Редактиране',
   'ide.chat.deleteQueued': 'Изтриване',
   'ide.chat.sendQueued': 'Изпрати',

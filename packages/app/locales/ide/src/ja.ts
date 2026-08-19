@@ -8,6 +8,7 @@ export const ja: Partial<IdeTranslations> = {
   'common.cancel': 'キャンセル',
   'common.save': '保存',
   'ide.chat.queued': 'キュー待ち',
+  'ide.chat.queuedCount': '{{count}}件キュー待ち',
   'ide.chat.editQueued': '編集',
   'ide.chat.deleteQueued': '削除',
   'ide.chat.sendQueued': '送信',

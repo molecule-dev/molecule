@@ -21,6 +21,7 @@ export const kk: Partial<IdeTranslations> = {
   'common.cancel': 'Бас тарту',
   'common.save': 'Сақтау',
   'ide.chat.queued': 'Кезекке қойылды',
+  'ide.chat.queuedCount': '{{count}} кезекте',
   'ide.chat.editQueued': 'Өңдеу',
   'ide.chat.deleteQueued': 'Жою',
   'ide.chat.sendQueued': 'Жіберу',

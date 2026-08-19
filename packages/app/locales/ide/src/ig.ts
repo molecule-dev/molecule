@@ -41,6 +41,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.modelUpgradeRequired': '{{model}} dị na Pro. Kwalite iji nweta ụdị niile.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Na-echere',
+  'ide.chat.queuedCount': '{{count}} n’usoro',
   'ide.chat.redoChange': 'Megharịa ntụgharị a',
   'ide.chat.responseStopped': 'Azaghachi akwụsịla',
   'ide.chat.revertFile': 'Laghachi na commit ikpeazụ',

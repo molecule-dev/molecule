@@ -21,6 +21,7 @@ export const mr: Partial<IdeTranslations> = {
   'common.cancel': 'रद्द करा',
   'common.save': 'जतन करा',
   'ide.chat.queued': 'रांगेत',
+  'ide.chat.queuedCount': '{{count}} रांगेत',
   'ide.chat.editQueued': 'संपादन',
   'ide.chat.deleteQueued': 'हटवा',
   'ide.chat.sendQueued': 'पाठवा',

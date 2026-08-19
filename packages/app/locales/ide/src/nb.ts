@@ -7,6 +7,7 @@ export const nb: Partial<IdeTranslations> = {
   'common.cancel': 'Avbryt',
   'common.save': 'Lagre',
   'ide.chat.queued': 'I kø',
+  'ide.chat.queuedCount': '{{count}} i kø',
   'ide.chat.editQueued': 'Rediger',
   'ide.chat.deleteQueued': 'Slett',
   'ide.chat.continueButton': 'Fortsett',

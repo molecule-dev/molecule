@@ -21,6 +21,7 @@ export const km: Partial<IdeTranslations> = {
   'common.cancel': 'បោះបង់',
   'common.save': 'រក្សាទុក',
   'ide.chat.queued': 'បានដាក់ជាជួរ',
+  'ide.chat.queuedCount': '{{count}} ក្នុងជួរ',
   'ide.chat.editQueued': 'កែសម្រួល',
   'ide.chat.deleteQueued': 'លុប',
   'ide.chat.sendQueued': 'ផ្ញើ',

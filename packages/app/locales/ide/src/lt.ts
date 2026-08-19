@@ -21,6 +21,7 @@ export const lt: Partial<IdeTranslations> = {
   'common.cancel': 'Atšaukti',
   'common.save': 'Išsaugoti',
   'ide.chat.queued': 'Eilėje',
+  'ide.chat.queuedCount': '{{count}} eilėje',
   'ide.chat.editQueued': 'Redaguoti',
   'ide.chat.deleteQueued': 'Ištrinti',
   'ide.chat.sendQueued': 'Siųsti',

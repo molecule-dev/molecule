@@ -21,6 +21,7 @@ export const ka: Partial<IdeTranslations> = {
   'common.cancel': 'გაუქმება',
   'common.save': 'შენახვა',
   'ide.chat.queued': 'რიგშია',
+  'ide.chat.queuedCount': '{{count}} რიგში',
   'ide.chat.editQueued': 'რედაქტირება',
   'ide.chat.deleteQueued': 'წაშლა',
   'ide.chat.sendQueued': 'გაგზავნა',

@@ -21,6 +21,7 @@ export const ta: Partial<IdeTranslations> = {
   'common.cancel': 'ரத்துசெய்',
   'common.save': 'சேமிக்கவும்',
   'ide.chat.queued': 'வரிசையில்',
+  'ide.chat.queuedCount': '{{count}} வரிசையில்',
   'ide.chat.editQueued': 'திருத்து',
   'ide.chat.deleteQueued': 'நீக்கு',
   'ide.chat.sendQueued': 'அனுப்பு',

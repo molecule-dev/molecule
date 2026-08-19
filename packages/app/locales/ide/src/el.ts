@@ -7,6 +7,7 @@ export const el: Partial<IdeTranslations> = {
   'common.cancel': 'Ακύρωση',
   'common.save': 'Αποθήκευση',
   'ide.chat.queued': 'Σε αναμονή',
+  'ide.chat.queuedCount': '{{count}} σε αναμονή',
   'ide.chat.editQueued': 'Επεξεργασία',
   'ide.chat.deleteQueued': 'Διαγραφή',
   'ide.chat.sendQueued': 'Αποστολή',

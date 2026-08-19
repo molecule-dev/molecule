@@ -21,6 +21,7 @@ export const lo: Partial<IdeTranslations> = {
   'common.cancel': 'ຍົກເລີກ',
   'common.save': 'ບັນທຶກ',
   'ide.chat.queued': 'ຢູ່ໃນຄິວແລ້ວ',
+  'ide.chat.queuedCount': '{{count}} ໃນຄິວ',
   'ide.chat.editQueued': 'ແກ້ໄຂ',
   'ide.chat.deleteQueued': 'ລຶບ',
   'ide.chat.sendQueued': 'ສົ່ງ',

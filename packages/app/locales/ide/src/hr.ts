@@ -21,6 +21,7 @@ export const hr: Partial<IdeTranslations> = {
   'common.cancel': 'Otkazati',
   'common.save': 'Uštedjeti',
   'ide.chat.queued': 'U redu čekanja',
+  'ide.chat.queuedCount': '{{count}} u redu',
   'ide.chat.editQueued': 'Uredi',
   'ide.chat.deleteQueued': 'Izbrisati',
   'ide.chat.sendQueued': 'Poslati',

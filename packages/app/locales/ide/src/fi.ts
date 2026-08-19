@@ -7,6 +7,7 @@ export const fi: Partial<IdeTranslations> = {
   'common.cancel': 'Peruuta',
   'common.save': 'Tallenna',
   'ide.chat.queued': 'Jonossa',
+  'ide.chat.queuedCount': '{{count}} jonossa',
   'ide.chat.editQueued': 'Muokkaa',
   'ide.chat.deleteQueued': 'Poista',
   'ide.chat.sendQueued': 'Lähetä',

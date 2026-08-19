@@ -21,6 +21,7 @@ export const ml: Partial<IdeTranslations> = {
   'common.cancel': 'റദ്ദാക്കുക',
   'common.save': 'രക്ഷിക്കും',
   'ide.chat.queued': 'ക്യൂവിലാണ്',
+  'ide.chat.queuedCount': '{{count}} ക്യൂവിൽ',
   'ide.chat.editQueued': 'എഡിറ്റ് ചെയ്യുക',
   'ide.chat.deleteQueued': 'ഇല്ലാതാക്കുക',
   'ide.chat.sendQueued': 'അയയ്‌ക്കുക',

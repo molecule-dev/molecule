@@ -21,6 +21,7 @@ export const th: Partial<IdeTranslations> = {
   'common.cancel': 'ยกเลิก',
   'common.save': 'บันทึก',
   'ide.chat.queued': 'เข้าคิว',
+  'ide.chat.queuedCount': '{{count}} ในคิว',
   'ide.chat.editQueued': 'แก้ไข',
   'ide.chat.deleteQueued': 'ลบ',
   'ide.chat.sendQueued': 'ส่ง',
