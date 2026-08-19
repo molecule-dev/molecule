@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.1.2
+
+### Patch Changes
+
+- Add the `ide.chat.queuedCount` translation key.
+
 ## 1.1.1
 
 ### Patch Changes

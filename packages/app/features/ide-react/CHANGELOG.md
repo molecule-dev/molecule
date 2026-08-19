@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.3.3
+
+### Patch Changes
+
+- Anchor queued chat messages above the composer with compact rows.
+
 ## 1.3.2
 
 ### Patch Changes

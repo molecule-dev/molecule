@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.2.5
+
+### Patch Changes
+
+- Make gpt-5.6-luna the free-tier planner and drop minimax-m3's stale free-tier region carve-out.
+
 ## 1.2.4
 
 ### Patch Changes
