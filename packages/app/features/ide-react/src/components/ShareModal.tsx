@@ -252,7 +252,18 @@ export function ShareModal({
                   className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'sm' }))}
                   title={t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' })}
                   aria-label={t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' })}
-                  style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  style={{
+                    flexShrink: 0,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    // The `sm` button class hard-sets h-[26px]; an explicit height
+                    // can't be stretched by the row's alignItems:'stretch', so it
+                    // stays shorter than the taller hand-rolled link input beside
+                    // it (16px font on touch makes that input taller still).
+                    // Dropping to auto lets stretch size the button to the input.
+                    height: 'auto',
+                  }}
                 >
                   <Icon name={copied ? 'check' : 'copy'} size={14} aria-hidden="true" />
                   {copied
