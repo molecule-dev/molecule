@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.1.3
+
+### Patch Changes
+
+- Add translation keys for the parameterized /scripts panel.
+
 ## 1.1.2
 
 ### Patch Changes

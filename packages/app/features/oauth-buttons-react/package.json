@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-oauth-buttons-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Config-driven OAuth provider button row composing @molecule/app-oauth-logos-react with layout variants (horizontal / vertical / grid) and brand-themed inline colors",
   "type": "module",
   "main": "dist/index.js",

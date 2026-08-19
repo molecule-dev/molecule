@@ -1,5 +1,11 @@
 # @molecule/app-oauth-buttons-react
 
+## 1.0.2
+
+### Patch Changes
+
+- Transparent OAuth divider label — flanking hairlines instead of a background-color mask.
+
 ## 1.0.1
 
 ### Patch Changes

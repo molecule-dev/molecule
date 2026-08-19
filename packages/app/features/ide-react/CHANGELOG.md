@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.3.4
+
+### Patch Changes
+
+- Parameterized scripts and built-in commands in the /scripts panel, plus ShareModal copy-button alignment.
+
 ## 1.3.3
 
 ### Patch Changes
