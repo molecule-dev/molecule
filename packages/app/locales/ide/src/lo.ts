@@ -550,4 +550,9 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ປິດໂໝດໄວແລ້ວ',
   'ide.chat.fastModeEnable': 'ໂໝດໄວ — ຜົນຜະລິດໄວຂຶ້ນເຖິງ 2.5 ເທົ່າໃນອັດຕາໂທເຄັນທີ່ສູງຂຶ້ນ',
   'ide.chat.fastModeDisable': 'ປິດໂໝດໄວ',
+  'ide.chat.scripts.runWithOptions': 'ແລ່ນ…',
+  'ide.chat.scripts.required': '(ຕ້ອງການ)',
+  'ide.chat.scripts.cancelRun': 'ຍົກເລີກ',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ຕ້ອງການຕົວເລືອກ — ເປີດ /scripts ເພື່ອໃຫ້ທ່ານຕັ້ງຄ່າ ແລະ ແລ່ນ.',
 }

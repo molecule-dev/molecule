@@ -554,4 +554,9 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'โหมดเร็ว — ส่งออกข้อมูลได้เร็วขึ้นสูงสุด 2.5 เท่า ในอัตราโทเค็นที่สูงขึ้น',
   'ide.chat.fastModeDisable': 'ปิดโหมดเร็ว',
+  'ide.chat.scripts.runWithOptions': 'เรียกใช้…',
+  'ide.chat.scripts.required': '(จำเป็น)',
+  'ide.chat.scripts.cancelRun': 'ยกเลิก',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ต้องการตัวเลือก — เปิด /scripts เพื่อให้คุณตั้งค่าและเรียกใช้',
 }

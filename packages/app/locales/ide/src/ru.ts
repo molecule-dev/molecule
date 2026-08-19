@@ -566,4 +566,9 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Быстрый режим — скорость вывода данных до 2,5× выше при более высокой частоте токенов',
   'ide.chat.fastModeDisable': 'Отключить быстрый режим',
+  'ide.chat.scripts.runWithOptions': 'Запустить…',
+  'ide.chat.scripts.required': '(обязательно)',
+  'ide.chat.scripts.cancelRun': 'Отмена',
+  'ide.chat.scripts.runNeedsOptions':
+    '«{{name}}» требует параметров — открыт /scripts, чтобы вы задали их и Запустили.',
 }

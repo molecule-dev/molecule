@@ -567,4 +567,9 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Швидкий режим вимкнено',
   'ide.chat.fastModeEnable': 'Швидкий режим — до 2,5× швидша обробка при вищій частоті токенів',
   'ide.chat.fastModeDisable': 'Вимкнути швидкий режим',
+  'ide.chat.scripts.runWithOptions': 'Запустити…',
+  'ide.chat.scripts.required': '(обовʼязково)',
+  'ide.chat.scripts.cancelRun': 'Скасувати',
+  'ide.chat.scripts.runNeedsOptions':
+    '«{{name}}» потребує параметрів — відкрито /scripts, щоб ви задали їх і Запустили.',
 }

@@ -552,4 +552,9 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ફાસ્ટ મોડ બંધ',
   'ide.chat.fastModeEnable': 'ફાસ્ટ મોડ — ઊંચા ટોકન દરે 2.5× સુધી ઝડપી આઉટપુટ',
   'ide.chat.fastModeDisable': 'ફાસ્ટ મોડ બંધ કરો',
+  'ide.chat.scripts.runWithOptions': 'ચલાવો…',
+  'ide.chat.scripts.required': '(જરૂરી)',
+  'ide.chat.scripts.cancelRun': 'રદ કરો',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ને વિકલ્પોની જરૂર છે — /scripts ખોલ્યું જેથી તમે તેમને સેટ કરીને ચલાવી શકો.',
 }

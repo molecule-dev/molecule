@@ -548,4 +548,9 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'מצב מהיר כבוי',
   'ide.chat.fastModeEnable': 'מצב מהיר - פלט מהיר יותר עד פי 2.5 בקצב אסימונים גבוה יותר',
   'ide.chat.fastModeDisable': 'כבה את מצב המהיר',
+  'ide.chat.scripts.runWithOptions': 'הרץ…',
+  'ide.chat.scripts.required': '(חובה)',
+  'ide.chat.scripts.cancelRun': 'לְבַטֵל',
+  'ide.chat.scripts.runNeedsOptions':
+    '‏“{{name}}” דורש אפשרויות — נפתח ‎/scripts כדי שתגדיר אותן ותריץ.',
 }

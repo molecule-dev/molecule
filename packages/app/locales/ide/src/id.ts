@@ -565,4 +565,9 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Mode Cepat — kecepatan keluaran hingga 2,5 kali lebih cepat dengan tingkat token yang lebih tinggi',
   'ide.chat.fastModeDisable': 'Nonaktifkan mode cepat',
+  'ide.chat.scripts.runWithOptions': 'Jalankan…',
+  'ide.chat.scripts.required': '(wajib)',
+  'ide.chat.scripts.cancelRun': 'Batal',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” memerlukan opsi — /scripts dibuka agar Anda dapat menyetelnya dan Menjalankan.',
 }

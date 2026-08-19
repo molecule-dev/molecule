@@ -554,4 +554,9 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Жылдам режим өшірулі',
   'ide.chat.fastModeEnable': 'Жылдам режим — жоғары токен жылдамдығымен 2,5 есе жылдамырақ шығыс',
   'ide.chat.fastModeDisable': 'Жылдам режимді өшіру',
+  'ide.chat.scripts.runWithOptions': 'Іске қосу…',
+  'ide.chat.scripts.required': '(міндетті)',
+  'ide.chat.scripts.cancelRun': 'Бас тарту',
+  'ide.chat.scripts.runNeedsOptions':
+    '«{{name}}» опцияларды қажет етеді — оларды орнатып, Іске қосу үшін /scripts ашылды.',
 }

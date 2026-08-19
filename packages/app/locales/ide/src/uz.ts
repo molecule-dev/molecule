@@ -556,4 +556,9 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': "Tez rejim o'chirilgan",
   'ide.chat.fastModeEnable': 'Tezkor rejim — yuqori token tezligida 2,5 baravar tezroq chiqish',
   'ide.chat.fastModeDisable': "Tez rejimni o'chirib qo'ying",
+  'ide.chat.scripts.runWithOptions': 'Ishga tushirish…',
+  'ide.chat.scripts.required': '(majburiy)',
+  'ide.chat.scripts.cancelRun': 'Bekor qilish',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” parametrlarni talab qiladi — ularni sozlab, Ishga tushirish uchun /scripts ochildi.',
 }

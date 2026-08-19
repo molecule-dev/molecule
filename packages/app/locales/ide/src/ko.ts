@@ -555,4 +555,9 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': '빠른 모드 끄기',
   'ide.chat.fastModeEnable': '고속 모드 — 더 높은 토큰 처리 속도로 최대 2.5배 더 빠른 출력',
   'ide.chat.fastModeDisable': '빠른 모드 끄기',
+  'ide.chat.scripts.runWithOptions': '실행…',
+  'ide.chat.scripts.required': '(필수)',
+  'ide.chat.scripts.cancelRun': '취소',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}”에 옵션이 필요합니다 — 설정하고 실행할 수 있도록 /scripts를 열었습니다.',
 }

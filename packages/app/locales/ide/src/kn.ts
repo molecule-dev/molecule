@@ -555,4 +555,9 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ಫಾಸ್ಟ್ ಮೋಡ್ ಆಫ್ ಆಗಿದೆ',
   'ide.chat.fastModeEnable': 'ವೇಗದ ಮೋಡ್ — ಹೆಚ್ಚಿನ ಟೋಕನ್ ದರದಲ್ಲಿ 2.5× ವೇಗದ ಔಟ್‌ಪುಟ್',
   'ide.chat.fastModeDisable': 'ವೇಗದ ಮೋಡ್ ಅನ್ನು ಆಫ್ ಮಾಡಿ',
+  'ide.chat.scripts.runWithOptions': 'ರನ್…',
+  'ide.chat.scripts.required': '(ಅಗತ್ಯವಿದೆ)',
+  'ide.chat.scripts.cancelRun': 'ರದ್ದುಮಾಡಿ',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ಗೆ ಆಯ್ಕೆಗಳು ಬೇಕಾಗಿವೆ — ಅವುಗಳನ್ನು ಹೊಂದಿಸಿ ರನ್ ಮಾಡಲು /scripts ತೆರೆಯಲಾಗಿದೆ.',
 }

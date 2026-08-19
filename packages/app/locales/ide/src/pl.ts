@@ -567,4 +567,9 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Tryb szybki — nawet 2,5-krotnie szybsze generowanie wyników przy wyższej częstotliwości tokenów',
   'ide.chat.fastModeDisable': 'Wyłącz tryb szybki',
+  'ide.chat.scripts.runWithOptions': 'Uruchom…',
+  'ide.chat.scripts.required': '(wymagane)',
+  'ide.chat.scripts.cancelRun': 'Anuluj',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}” wymaga opcji — otwarto /scripts, abyś mógł je ustawić i Uruchomić.',
 }

@@ -554,4 +554,9 @@ export const bs: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Brzi način rada isključen',
   'ide.chat.fastModeEnable': 'Brzi način rada — do 2,5× brži izlaz uz veću brzinu tokena',
   'ide.chat.fastModeDisable': 'Isključite brzi način rada',
+  'ide.chat.scripts.runWithOptions': 'Pokreni…',
+  'ide.chat.scripts.required': '(obavezno)',
+  'ide.chat.scripts.cancelRun': 'Otkaži',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ zahtijeva opcije — otvoren /scripts da ih postavite i pokrenete.',
 }

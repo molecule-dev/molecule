@@ -553,4 +553,9 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'حالت سریع خاموش',
   'ide.chat.fastModeEnable': 'حالت سریع - خروجی تا ۲.۵ برابر سریع‌تر با نرخ توکن بالاتر',
   'ide.chat.fastModeDisable': 'حالت سریع را خاموش کنید',
+  'ide.chat.scripts.runWithOptions': 'اجرا…',
+  'ide.chat.scripts.required': '(الزامی)',
+  'ide.chat.scripts.cancelRun': 'لغو',
+  'ide.chat.scripts.runNeedsOptions':
+    '‏«{{name}}» به گزینه‌ها نیاز دارد — ‎/scripts باز شد تا آن‌ها را تنظیم کنید و اجرا نمایید.',
 }

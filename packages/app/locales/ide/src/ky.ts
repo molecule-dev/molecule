@@ -556,4 +556,9 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Тез режим — жогорку токен ылдамдыгында 2,5 эсеге чейин тезирээк чыгаруу',
   'ide.chat.fastModeDisable': 'Тез режимди өчүрүү',
+  'ide.chat.scripts.runWithOptions': 'Иштетүү…',
+  'ide.chat.scripts.required': '(милдеттүү)',
+  'ide.chat.scripts.cancelRun': 'Жокко чыгаруу',
+  'ide.chat.scripts.runNeedsOptions':
+    '«{{name}}» параметрлерди талап кылат — аларды коюп, Иштетүү үчүн /scripts ачылды.',
 }

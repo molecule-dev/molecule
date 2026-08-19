@@ -569,4 +569,9 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Snelle modus — tot 2,5× snellere uitvoer bij een hogere tokenfrequentie',
   'ide.chat.fastModeDisable': 'Schakel de snelle modus uit',
+  'ide.chat.scripts.runWithOptions': 'Uitvoeren…',
+  'ide.chat.scripts.required': '(vereist)',
+  'ide.chat.scripts.cancelRun': 'Annuleren',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” heeft opties nodig — /scripts geopend zodat je ze kunt instellen en Uitvoeren.',
 }

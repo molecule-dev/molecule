@@ -556,4 +556,9 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Արագ ռեժիմ՝ մինչև 2.5 անգամ ավելի արագ արդյունք՝ ավելի բարձր տոկենների արագությամբ',
   'ide.chat.fastModeDisable': 'Անջատեք արագ ռեժիմը',
+  'ide.chat.scripts.runWithOptions': 'Գործարկել…',
+  'ide.chat.scripts.required': '(պարտադիր)',
+  'ide.chat.scripts.cancelRun': 'Չեղարկել',
+  'ide.chat.scripts.runNeedsOptions':
+    '«{{name}}»-ը պահանջում է ընտրանքներ — բացվեց /scripts, որ դրանք սահմանեք և Գործարկեք։',
 }

@@ -563,4 +563,9 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Hızlı mod — daha yüksek token oranıyla 2,5 kata kadar daha hızlı çıktı',
   'ide.chat.fastModeDisable': 'Hızlı modu kapatın',
+  'ide.chat.scripts.runWithOptions': 'Çalıştır…',
+  'ide.chat.scripts.required': '(gerekli)',
+  'ide.chat.scripts.cancelRun': 'İptal',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” seçenekler gerektiriyor — bunları ayarlayıp Çalıştırabilmeniz için /scripts açıldı.',
 }

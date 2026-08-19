@@ -559,4 +559,9 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Hurtig tilstand — op til 2,5 gange hurtigere output ved en højere token-hastighed',
   'ide.chat.fastModeDisable': 'Deaktiver hurtigtilstand',
+  'ide.chat.scripts.runWithOptions': 'Kør…',
+  'ide.chat.scripts.required': '(påkrævet)',
+  'ide.chat.scripts.cancelRun': 'Annuller',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” kræver indstillinger — åbnede /scripts, så du kan angive dem og Køre.',
 }

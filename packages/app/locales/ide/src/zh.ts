@@ -542,4 +542,9 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': '快速模式已关闭',
   'ide.chat.fastModeEnable': '快速模式——在更高的令牌速率下，输出速度最高可达2.5倍',
   'ide.chat.fastModeDisable': '关闭快速模式',
+  'ide.chat.scripts.runWithOptions': '运行…',
+  'ide.chat.scripts.required': '（必填）',
+  'ide.chat.scripts.cancelRun': '取消',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” 需要选项 — 已打开 /scripts，供你设置后运行。',
 }

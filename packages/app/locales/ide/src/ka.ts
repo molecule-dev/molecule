@@ -555,4 +555,9 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'სწრაფი რეჟიმი — 2.5-ჯერ უფრო სწრაფი გამომავალი სიჩქარე უფრო მაღალი ტოკენების სიჩქარით',
   'ide.chat.fastModeDisable': 'სწრაფი რეჟიმის გამორთვა',
+  'ide.chat.scripts.runWithOptions': 'გაშვება…',
+  'ide.chat.scripts.required': '(სავალდებულო)',
+  'ide.chat.scripts.cancelRun': 'გაუქმება',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“-ს სჭირდება პარამეტრები — გაიხსნა /scripts, რომ დააყენოთ ისინი და გაუშვათ.',
 }

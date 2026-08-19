@@ -555,4 +555,9 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'الوضع السريع معطل',
   'ide.chat.fastModeEnable': 'الوضع السريع — إنتاج أسرع بما يصل إلى 2.5× بمعدل إصدار توكنات أعلى',
   'ide.chat.fastModeDisable': 'إيقاف تشغيل الوضع السريع',
+  'ide.chat.scripts.runWithOptions': 'تشغيل…',
+  'ide.chat.scripts.required': '(مطلوب)',
+  'ide.chat.scripts.cancelRun': 'إلغاء',
+  'ide.chat.scripts.runNeedsOptions':
+    '‏“{{name}}” يحتاج إلى خيارات — تم فتح ‎/scripts لتعيينها ثم التشغيل.',
 }

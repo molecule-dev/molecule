@@ -556,4 +556,9 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Mod pantas — output sehingga 2.5× lebih pantas pada kadar token yang lebih tinggi',
   'ide.chat.fastModeDisable': 'Matikan mod pantas',
+  'ide.chat.scripts.runWithOptions': 'Jalankan…',
+  'ide.chat.scripts.required': '(diperlukan)',
+  'ide.chat.scripts.cancelRun': 'Batal',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” memerlukan pilihan — /scripts dibuka supaya anda boleh menetapkannya dan Menjalankan.',
 }

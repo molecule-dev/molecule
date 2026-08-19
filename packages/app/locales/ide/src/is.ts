@@ -553,4 +553,9 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Slökkt á hraðstillingu',
   'ide.chat.fastModeEnable': 'Hraðvirk stilling — allt að 2,5x hraðari úttak með hærri táknhraða',
   'ide.chat.fastModeDisable': 'Slökkva á hraðstillingu',
+  'ide.chat.scripts.runWithOptions': 'Keyra…',
+  'ide.chat.scripts.required': '(áskilið)',
+  'ide.chat.scripts.cancelRun': 'Hætta við',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ þarfnast valkosta — opnaði /scripts svo þú getir stillt þá og Keyrt.',
 }

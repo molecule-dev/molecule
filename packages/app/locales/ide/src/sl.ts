@@ -563,4 +563,9 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Hiter način — do 2,5-krat hitrejši izhod pri višji hitrosti izdajanja žetonov',
   'ide.chat.fastModeDisable': 'Izklopite hitri način',
+  'ide.chat.scripts.runWithOptions': 'Zaženi…',
+  'ide.chat.scripts.required': '(obvezno)',
+  'ide.chat.scripts.cancelRun': 'Prekliči',
+  'ide.chat.scripts.runNeedsOptions':
+    '»{{name}}« zahteva možnosti — odprl sem /scripts, da jih nastavite in Zaženete.',
 }

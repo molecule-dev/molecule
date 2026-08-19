@@ -559,4 +559,9 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Modaliteti i shpejtë — deri në 2.5 herë prodhim më i shpejtë me një shpejtësi më të lartë të token-eve',
   'ide.chat.fastModeDisable': 'Çaktivizo modalitetin e shpejtë',
+  'ide.chat.scripts.runWithOptions': 'Ekzekuto…',
+  'ide.chat.scripts.required': '(e detyrueshme)',
+  'ide.chat.scripts.cancelRun': 'Anulo',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” kërkon opsione — u hap /scripts që t\'i caktoni dhe të Ekzekutoni.',
 }

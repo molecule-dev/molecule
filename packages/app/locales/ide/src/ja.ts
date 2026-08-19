@@ -563,4 +563,9 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': '高速モードをオフにする',
   'ide.chat.fastModeEnable': '高速モード — トークンレートが上昇し、出力速度が最大2.5倍に',
   'ide.chat.fastModeDisable': '高速モードをオフにする',
+  'ide.chat.scripts.runWithOptions': '実行…',
+  'ide.chat.scripts.required': '(必須)',
+  'ide.chat.scripts.cancelRun': 'キャンセル',
+  'ide.chat.scripts.runNeedsOptions':
+    '「{{name}}」にはオプションが必要です — /scripts を開いたので、設定して実行してください。',
 }

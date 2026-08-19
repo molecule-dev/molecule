@@ -553,4 +553,9 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Modd cyflym i ffwrdd',
   'ide.chat.fastModeEnable': 'Modd cyflym — allbwn hyd at 2.5× cyflymach ar gyfradd tocynnau uwch',
   'ide.chat.fastModeDisable': 'Diffoddwch y modd cyflym',
+  'ide.chat.scripts.runWithOptions': 'Rhedeg…',
+  'ide.chat.scripts.required': '(gofynnol)',
+  'ide.chat.scripts.cancelRun': 'Canslo',
+  'ide.chat.scripts.runNeedsOptions':
+    'Mae angen opsiynau ar “{{name}}” — agorwyd /scripts er mwyn i chi eu gosod a Rhedeg.',
 }

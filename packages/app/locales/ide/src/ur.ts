@@ -553,4 +553,9 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'فاسٹ موڈ آف ہے۔',
   'ide.chat.fastModeEnable': 'فاسٹ موڈ — زیادہ ٹوکن ریٹ پر 2.5× تک تیز آؤٹ پٹ',
   'ide.chat.fastModeDisable': 'فاسٹ موڈ کو آف کریں۔',
+  'ide.chat.scripts.runWithOptions': 'چلائیں…',
+  'ide.chat.scripts.required': '(ضروری)',
+  'ide.chat.scripts.cancelRun': 'منسوخ کریں۔',
+  'ide.chat.scripts.runNeedsOptions':
+    '‏“{{name}}” کو اختیارات درکار ہیں — ‎/scripts کھولا گیا تاکہ آپ انہیں سیٹ کر کے چلائیں۔',
 }

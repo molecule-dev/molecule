@@ -559,4 +559,9 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Imodi esheshayo — kufika ku-2.5× okukhipha okusheshayo ngesilinganiso sethokheni esiphezulu',
   'ide.chat.fastModeDisable': 'Vala imodi esheshayo',
+  'ide.chat.scripts.runWithOptions': 'Qalisa…',
+  'ide.chat.scripts.required': '(kuyadingeka)',
+  'ide.chat.scripts.cancelRun': 'Khansela',
+  'ide.chat.scripts.runNeedsOptions':
+    'I-“{{name}}” idinga izinketho — kuvulwe i-/scripts ukuze uzisethe bese uyaQalisa.',
 }

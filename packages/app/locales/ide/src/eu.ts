@@ -555,4 +555,9 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Modu azkarra desaktibatuta',
   'ide.chat.fastModeEnable': 'Modu azkarra — irteera 2,5 aldiz azkarragoa token-tasa handiagoan',
   'ide.chat.fastModeDisable': 'Desaktibatu modu azkarra',
+  'ide.chat.scripts.runWithOptions': 'Exekutatu…',
+  'ide.chat.scripts.required': '(beharrezkoa)',
+  'ide.chat.scripts.cancelRun': 'Utzi',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}”(e)k aukerak behar ditu — /scripts ireki da, ezarri eta Exekutatzeko.',
 }

@@ -553,4 +553,9 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Vinnige modus af',
   'ide.chat.fastModeEnable': "Vinnige modus — tot 2.5× vinniger uitvoer teen 'n hoër tokenkoers",
   'ide.chat.fastModeDisable': 'Skakel vinnige modus af',
+  'ide.chat.scripts.runWithOptions': 'Uitvoer…',
+  'ide.chat.scripts.required': '(vereis)',
+  'ide.chat.scripts.cancelRun': 'Kanselleer',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” het opsies nodig — /scripts oopgemaak sodat jy hulle kan stel en Uitvoer.',
 }

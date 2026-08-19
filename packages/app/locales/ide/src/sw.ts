@@ -555,4 +555,9 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Hali ya haraka — hadi 2.5× utoaji wa haraka zaidi kwa kiwango cha juu cha tokeni',
   'ide.chat.fastModeDisable': 'Zima hali ya haraka',
+  'ide.chat.scripts.runWithOptions': 'Endesha…',
+  'ide.chat.scripts.required': '(inahitajika)',
+  'ide.chat.scripts.cancelRun': 'Ghairi',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” inahitaji chaguo — /scripts imefunguliwa ili uweze kuziweka na Kuendesha.',
 }

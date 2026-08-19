@@ -563,4 +563,9 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Rýchly režim — až 2,5× rýchlejší výstup pri vyššej frekvencii tokenov',
   'ide.chat.fastModeDisable': 'Vypnúť rýchly režim',
+  'ide.chat.scripts.runWithOptions': 'Spustiť…',
+  'ide.chat.scripts.required': '(povinné)',
+  'ide.chat.scripts.cancelRun': 'Zrušiť',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ vyžaduje voľby — otvoril som /scripts, aby ste ich nastavili a Spustili.',
 }

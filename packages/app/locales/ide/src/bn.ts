@@ -553,4 +553,9 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ফাস্ট মোড বন্ধ',
   'ide.chat.fastModeEnable': 'ফাস্ট মোড — উচ্চতর টোকেন রেটে ২.৫ গুণ পর্যন্ত দ্রুততর আউটপুট',
   'ide.chat.fastModeDisable': 'ফাস্ট মোড বন্ধ করুন',
+  'ide.chat.scripts.runWithOptions': 'চালান…',
+  'ide.chat.scripts.required': '(আবশ্যক)',
+  'ide.chat.scripts.cancelRun': 'বাতিল করুন',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}”-এর জন্য অপশন প্রয়োজন — /scripts খোলা হয়েছে যাতে আপনি সেগুলি সেট করে চালাতে পারেন।',
 }

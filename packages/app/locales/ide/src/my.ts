@@ -560,4 +560,9 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'မြန်ဆန်သောမုဒ် — တိုကင်နှုန်းမြင့်မားစွာဖြင့် ၂.၅ ဆအထိ ပိုမြန်သော အထွက်',
   'ide.chat.fastModeDisable': 'မြန်ဆန်သောမုဒ်ကို ပိတ်ပါ',
+  'ide.chat.scripts.runWithOptions': 'ဖွင့်ရန်…',
+  'ide.chat.scripts.required': '(လိုအပ်သည်)',
+  'ide.chat.scripts.cancelRun': 'ပယ်ဖျက်ရန်',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” တွင် ရွေးချယ်စရာများ လိုအပ်သည် — ၎င်းတို့ကို သတ်မှတ်ပြီး ဖွင့်နိုင်ရန် /scripts ကို ဖွင့်ထားသည်။',
 }

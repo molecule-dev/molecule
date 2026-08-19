@@ -556,4 +556,9 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Yanayin sauri - har zuwa fitarwa mafi sauri 2.5× a ƙimar alama mafi girma',
   'ide.chat.fastModeDisable': 'Kashe yanayin sauri',
+  'ide.chat.scripts.runWithOptions': 'Gudanar…',
+  'ide.chat.scripts.required': '(ana buƙata)',
+  'ide.chat.scripts.cancelRun': 'Soke',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” yana buƙatar zaɓuɓɓuka — an buɗe /scripts don ka saita su ka Gudanar.',
 }

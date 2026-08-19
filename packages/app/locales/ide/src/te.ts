@@ -554,4 +554,9 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ఫాస్ట్ మోడ్ ఆఫ్',
   'ide.chat.fastModeEnable': 'ఫాస్ట్ మోడ్ — అధిక టోకెన్ రేటుతో 2.5 రెట్ల వరకు వేగవంతమైన అవుట్‌పుట్',
   'ide.chat.fastModeDisable': 'ఫాస్ట్ మోడ్‌ను ఆఫ్ చేయండి',
+  'ide.chat.scripts.runWithOptions': 'రన్…',
+  'ide.chat.scripts.required': '(అవసరం)',
+  'ide.chat.scripts.cancelRun': 'రద్దు చేయండి',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” కు ఎంపికలు అవసరం — వాటిని సెట్ చేసి రన్ చేయడానికి /scripts తెరవబడింది.',
 }

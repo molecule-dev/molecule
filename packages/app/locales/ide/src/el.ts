@@ -572,4 +572,9 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Γρήγορη λειτουργία — έως και 2,5 φορές ταχύτερη παραγωγή με υψηλότερο ρυθμό έκδοσης token',
   'ide.chat.fastModeDisable': 'Απενεργοποίηση της γρήγορης λειτουργίας',
+  'ide.chat.scripts.runWithOptions': 'Εκτέλεση…',
+  'ide.chat.scripts.required': '(απαιτείται)',
+  'ide.chat.scripts.cancelRun': 'Ακύρωση',
+  'ide.chat.scripts.runNeedsOptions':
+    'Το «{{name}}» χρειάζεται επιλογές — άνοιξα το /scripts για να τις ορίσετε και να Εκτελέσετε.',
 }

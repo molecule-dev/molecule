@@ -556,4 +556,9 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'របៀបលឿន — ទិន្នផលលឿនជាងមុនរហូតដល់ 2.5 ដង ក្នុងអត្រាសញ្ញាសម្ងាត់ខ្ពស់ជាង',
   'ide.chat.fastModeDisable': 'បិទរបៀបលឿន',
+  'ide.chat.scripts.runWithOptions': 'ដំណើរការ…',
+  'ide.chat.scripts.required': '(ត្រូវការ)',
+  'ide.chat.scripts.cancelRun': 'បោះបង់',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ត្រូវការជម្រើស — បានបើក /scripts ដើម្បីឲ្យអ្នកកំណត់ពួកវា ហើយដំណើរការ។',
 }

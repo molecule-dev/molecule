@@ -588,4 +588,9 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Ipò kíákíá ti pa',
   'ide.chat.fastModeEnable': 'Ipo Yara — titi de 2.5× iṣẹjade yiyara ni oṣuwọn ami ti o ga julọ',
   'ide.chat.fastModeDisable': 'Pa ipo iyara',
+  'ide.chat.scripts.runWithOptions': 'Ṣiṣẹ́…',
+  'ide.chat.scripts.required': '(a nílò rẹ̀)',
+  'ide.chat.scripts.cancelRun': 'Fagi l\\u00E9',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” nílò àwọn àṣàyàn — ṣí /scripts kí o lè ṣètò wọn kí o sì Ṣiṣẹ́.',
 }

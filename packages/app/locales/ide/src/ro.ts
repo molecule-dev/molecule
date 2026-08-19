@@ -565,4 +565,9 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Modul rapid — viteză de ieșire de până la 2,5 ori mai mare, la o rată de token mai ridicată',
   'ide.chat.fastModeDisable': 'Dezactivează modul rapid',
+  'ide.chat.scripts.runWithOptions': 'Rulează…',
+  'ide.chat.scripts.required': '(obligatoriu)',
+  'ide.chat.scripts.cancelRun': 'Anulați',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}” necesită opțiuni — am deschis /scripts ca să le setați și să Rulați.',
 }

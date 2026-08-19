@@ -552,4 +552,9 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Agbanyụrụ ọnọdụ ngwa ngwa',
   'ide.chat.fastModeEnable': 'Ụdị ngwa ngwa — ruo 2.5× mmepụta ngwa ngwa na ọnụego akara dị elu',
   'ide.chat.fastModeDisable': 'Gbanyụọ ọnọdụ ngwa ngwa',
+  'ide.chat.scripts.runWithOptions': 'Gbaa…',
+  'ide.chat.scripts.required': '(achọrọ)',
+  'ide.chat.scripts.cancelRun': 'Kagbuo',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” chọrọ nhọrọ — emeghere /scripts ka ị hazie ha ma Gbaa.',
 }

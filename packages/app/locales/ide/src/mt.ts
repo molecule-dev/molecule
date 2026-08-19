@@ -555,4 +555,9 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     "Modalità veloċi — output sa 2.5× aktar mgħaġġel b'rata ogħla ta' tokens",
   'ide.chat.fastModeDisable': 'Itfi l-modalità veloċi',
+  'ide.chat.scripts.runWithOptions': 'Ħaddem…',
+  'ide.chat.scripts.required': '(meħtieġ)',
+  'ide.chat.scripts.cancelRun': 'Ikkanċella',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” jeħtieġ għażliet — nfetaħ /scripts biex tissettjahom u Tħaddem.',
 }

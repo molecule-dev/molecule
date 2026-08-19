@@ -566,4 +566,9 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Greitasis režimas — iki 2,5 kartų spartesnis duomenų išvedimas esant didesniam žetonų dažniui',
   'ide.chat.fastModeDisable': 'Išjunkite greitojo režimo funkciją',
+  'ide.chat.scripts.runWithOptions': 'Vykdyti…',
+  'ide.chat.scripts.required': '(privaloma)',
+  'ide.chat.scripts.cancelRun': 'Atšaukti',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ reikia parinkčių — atidariau /scripts, kad galėtumėte jas nustatyti ir Vykdyti.',
 }

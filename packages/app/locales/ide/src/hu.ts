@@ -563,4 +563,9 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Gyors üzemmód — akár 2,5-szer gyorsabb kimenet magasabb token-frekvencián',
   'ide.chat.fastModeDisable': 'A gyors üzemmód kikapcsolása',
+  'ide.chat.scripts.runWithOptions': 'Futtatás…',
+  'ide.chat.scripts.required': '(kötelező)',
+  'ide.chat.scripts.cancelRun': 'Mégse',
+  'ide.chat.scripts.runNeedsOptions':
+    'A(z) „{{name}}” beállításokat igényel — megnyílt a /scripts, hogy megadhassa őket és Futtathassa.',
 }

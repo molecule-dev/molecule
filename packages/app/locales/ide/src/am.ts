@@ -546,4 +546,9 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ፈጣን ሁነታ ጠፍቷል',
   'ide.chat.fastModeEnable': 'ፈጣን ሁነታ - እስከ 2.5× ፈጣን ውጤት በከፍተኛ የቶከን ፍጥነት',
   'ide.chat.fastModeDisable': 'ፈጣን ሁነታን ያጥፉ',
+  'ide.chat.scripts.runWithOptions': 'አስኪድ…',
+  'ide.chat.scripts.required': '(ያስፈልጋል)',
+  'ide.chat.scripts.cancelRun': 'ሰርዝ',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” አማራጮች ይፈልጋል — /scripts ተከፍቷል፣ እነሱን አዘጋጅተው ያስኪዱ።',
 }

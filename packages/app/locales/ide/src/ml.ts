@@ -557,4 +557,9 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'ഫാസ്റ്റ് മോഡ് — ഉയർന്ന ടോക്കൺ നിരക്കിൽ 2.5× വരെ വേഗതയുള്ള ഔട്ട്‌പുട്ട്',
   'ide.chat.fastModeDisable': 'ഫാസ്റ്റ് മോഡ് ഓഫാക്കുക',
+  'ide.chat.scripts.runWithOptions': 'റൺ…',
+  'ide.chat.scripts.required': '(ആവശ്യമാണ്)',
+  'ide.chat.scripts.cancelRun': 'റദ്ദാക്കുക',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ന് ഓപ്ഷനുകൾ ആവശ്യമാണ് — അവ സജ്ജീകരിച്ച് റൺ ചെയ്യാൻ /scripts തുറന്നു.',
 }

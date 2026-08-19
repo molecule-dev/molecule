@@ -558,4 +558,9 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Mabilis na mode — hanggang 2.5× na mas mabilis na output sa mas mataas na token rate',
   'ide.chat.fastModeDisable': 'I-off ang mabilis na mode',
+  'ide.chat.scripts.runWithOptions': 'Patakbuhin…',
+  'ide.chat.scripts.required': '(kinakailangan)',
+  'ide.chat.scripts.cancelRun': 'Kanselahin',
+  'ide.chat.scripts.runNeedsOptions':
+    'Kailangan ng “{{name}}” ng mga opsyon — binuksan ang /scripts para maitakda mo ang mga ito at Patakbuhin.',
 }

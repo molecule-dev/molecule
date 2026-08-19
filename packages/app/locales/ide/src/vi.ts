@@ -557,4 +557,9 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Chế độ nhanh — tốc độ xuất dữ liệu nhanh hơn tới 2,5 lần với tốc độ xử lý token cao hơn.',
   'ide.chat.fastModeDisable': 'Tắt chế độ nhanh',
+  'ide.chat.scripts.runWithOptions': 'Chạy…',
+  'ide.chat.scripts.required': '(bắt buộc)',
+  'ide.chat.scripts.cancelRun': 'Hủy',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” cần tùy chọn — đã mở /scripts để bạn thiết lập và Chạy.',
 }

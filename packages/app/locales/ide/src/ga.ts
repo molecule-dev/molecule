@@ -554,4 +554,9 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Mód tapa — aschur suas le 2.5× níos tapúla ag ráta comharthaí níos airde',
   'ide.chat.fastModeDisable': 'Múch an mód tapa',
+  'ide.chat.scripts.runWithOptions': 'Rith…',
+  'ide.chat.scripts.required': '(riachtanach)',
+  'ide.chat.scripts.cancelRun': 'Cealaigh',
+  'ide.chat.scripts.runNeedsOptions':
+    'Teastaíonn roghanna ó “{{name}}” — osclaíodh /scripts chun iad a shocrú agus Rith.',
 }

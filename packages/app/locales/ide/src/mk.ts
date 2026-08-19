@@ -555,4 +555,9 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Брзиот режим е исклучен',
   'ide.chat.fastModeEnable': 'Брз режим — до 2,5 пати побрз излез со поголема брзина на токени',
   'ide.chat.fastModeDisable': 'Исклучи го брзиот режим',
+  'ide.chat.scripts.runWithOptions': 'Изврши…',
+  'ide.chat.scripts.required': '(задолжително)',
+  'ide.chat.scripts.cancelRun': 'Откажи',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ бара опции — отворив /scripts за да ги поставите и да Извршите.',
 }

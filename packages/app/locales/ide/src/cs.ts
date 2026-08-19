@@ -558,4 +558,9 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Rychlý režim vypnutý',
   'ide.chat.fastModeEnable': 'Rychlý režim – až 2,5× rychlejší výstup při vyšší frekvenci tokenů',
   'ide.chat.fastModeDisable': 'Vypněte rychlý režim',
+  'ide.chat.scripts.runWithOptions': 'Spustit…',
+  'ide.chat.scripts.required': '(povinné)',
+  'ide.chat.scripts.cancelRun': 'Zrušit',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ vyžaduje volby — otevřel jsem /scripts, abyste je nastavili a Spustili.',
 }

@@ -557,4 +557,9 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'வேகப் பயன்முறை அணைக்கப்பட்டது',
   'ide.chat.fastModeEnable': 'வேக முறை — அதிக டோக்கன் விகிதத்தில் 2.5 மடங்கு வரை வேகமான வெளியீடு',
   'ide.chat.fastModeDisable': 'வேகமான பயன்முறையை அணைக்கவும்',
+  'ide.chat.scripts.runWithOptions': 'இயக்கு…',
+  'ide.chat.scripts.required': '(தேவை)',
+  'ide.chat.scripts.cancelRun': 'ரத்துசெய்',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” க்கு விருப்பங்கள் தேவை — அவற்றை அமைத்து இயக்க /scripts திறக்கப்பட்டது.',
 }

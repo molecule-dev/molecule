@@ -564,4 +564,9 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Nopea tila — jopa 2,5-kertainen tulostusnopeus suuremmalla merkkitaajuudella',
   'ide.chat.fastModeDisable': 'Sammuta pikamoodi',
+  'ide.chat.scripts.runWithOptions': 'Suorita…',
+  'ide.chat.scripts.required': '(pakollinen)',
+  'ide.chat.scripts.cancelRun': 'Peruuta',
+  'ide.chat.scripts.runNeedsOptions':
+    '”{{name}}” tarvitsee asetuksia — avattiin /scripts, jotta voit määrittää ne ja Suorittaa.',
 }

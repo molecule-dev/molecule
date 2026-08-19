@@ -553,4 +553,9 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'ਤੇਜ਼ ਮੋਡ ਬੰਦ',
   'ide.chat.fastModeEnable': "ਤੇਜ਼ ਮੋਡ — ਉੱਚ ਟੋਕਨ ਦਰ 'ਤੇ 2.5× ਤੱਕ ਤੇਜ਼ ਆਉਟਪੁੱਟ",
   'ide.chat.fastModeDisable': 'ਤੇਜ਼ ਮੋਡ ਬੰਦ ਕਰੋ',
+  'ide.chat.scripts.runWithOptions': 'ਚਲਾਓ…',
+  'ide.chat.scripts.required': '(ਲੋੜੀਂਦਾ)',
+  'ide.chat.scripts.cancelRun': 'ਰੱਦ ਕਰੋ',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ਨੂੰ ਵਿਕਲਪਾਂ ਦੀ ਲੋੜ ਹੈ — /scripts ਖੋਲ੍ਹਿਆ ਤਾਂ ਜੋ ਤੁਸੀਂ ਉਹਨਾਂ ਨੂੰ ਸੈੱਟ ਕਰਕੇ ਚਲਾ ਸਕੋ।',
 }

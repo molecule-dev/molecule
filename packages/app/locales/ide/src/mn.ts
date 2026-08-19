@@ -557,4 +557,9 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': 'Хурдан горим унтарсан',
   'ide.chat.fastModeEnable': 'Хурдан горим — өндөр токен хурдаар 2.5 дахин хурдан гаралт',
   'ide.chat.fastModeDisable': 'Хурдан горимыг унтраах',
+  'ide.chat.scripts.runWithOptions': 'Ажиллуулах…',
+  'ide.chat.scripts.required': '(шаардлагатай)',
+  'ide.chat.scripts.cancelRun': 'Цуцлах',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}”-д сонголтууд шаардлагатай — тэдгээрийг тохируулан Ажиллуулахын тулд /scripts нээгдлээ.',
 }

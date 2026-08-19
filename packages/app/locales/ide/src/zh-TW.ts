@@ -540,4 +540,9 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.fastModeOff': '關閉快速模式',
   'ide.chat.fastModeEnable': '快速模式 — 以更高的代幣速率，輸出速度最高可提升 2.5 倍',
   'ide.chat.fastModeDisable': '關閉快速模式',
+  'ide.chat.scripts.runWithOptions': '執行…',
+  'ide.chat.scripts.required': '（必填）',
+  'ide.chat.scripts.cancelRun': '取消',
+  'ide.chat.scripts.runNeedsOptions':
+    '「{{name}}」需要選項 — 已開啟 /scripts，供你設定後執行。',
 }

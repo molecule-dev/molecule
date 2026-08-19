@@ -561,4 +561,9 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Kiirrežiim — kuni 2,5 korda kiirem väljund suurema märkide sageduse juures',
   'ide.chat.fastModeDisable': 'Lülita kiirrežiim välja',
+  'ide.chat.scripts.runWithOptions': 'Käivita…',
+  'ide.chat.scripts.required': '(kohustuslik)',
+  'ide.chat.scripts.cancelRun': 'Tühista',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ vajab valikuid — avasin /scripts, et saaksite need määrata ja Käivitada.',
 }

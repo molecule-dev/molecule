@@ -555,4 +555,9 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'වේගවත් මාදිලිය — ඉහළ ටෝකන් අනුපාතයකින් 2.5× දක්වා වේගවත් ප්‍රතිදානයක්',
   'ide.chat.fastModeDisable': 'වේගවත් ප්‍රකාරය ක්‍රියාවිරහිත කරන්න',
+  'ide.chat.scripts.runWithOptions': 'ධාවනය…',
+  'ide.chat.scripts.required': '(අවශ්‍යයි)',
+  'ide.chat.scripts.cancelRun': 'අවලංගු කරන්න',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” ට විකල්ප අවශ්‍යයි — ඒවා සකසා ධාවනය කිරීමට /scripts විවෘත කරන ලදී.',
 }

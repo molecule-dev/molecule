@@ -561,4 +561,9 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Ātrs režīms — līdz pat 2,5 reizes ātrāka izvade ar augstāku žetonu apmaiņas ātrumu',
   'ide.chat.fastModeDisable': 'Izslēdziet ātrdarbības režīmu',
+  'ide.chat.scripts.runWithOptions': 'Palaist…',
+  'ide.chat.scripts.required': '(obligāti)',
+  'ide.chat.scripts.cancelRun': 'Atcelt',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” nepieciešamas opcijas — atvēru /scripts, lai varētu tās iestatīt un Palaist.',
 }

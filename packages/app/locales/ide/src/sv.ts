@@ -562,4 +562,9 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.fastModeEnable':
     'Snabbläge — upp till 2,5 gånger snabbare utmatning vid högre tokenfrekvens',
   'ide.chat.fastModeDisable': 'Stäng av snabbläget',
+  'ide.chat.scripts.runWithOptions': 'Kör…',
+  'ide.chat.scripts.required': '(obligatoriskt)',
+  'ide.chat.scripts.cancelRun': 'Avbryt',
+  'ide.chat.scripts.runNeedsOptions':
+    '”{{name}}” behöver alternativ — öppnade /scripts så att du kan ange dem och Köra.',
 }
