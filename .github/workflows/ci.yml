@@ -105,7 +105,13 @@ jobs:
       # package but no browser binary, so the test failed here while passing
       # locally. Install the browser rather than skip the test: skipping would
       # mean that guard only ever runs on a developer's machine.
-      - run: npx --yes playwright install --with-deps chromium
+      # Pin to the repo's @playwright/test version. Bare `npx --yes playwright`
+      # (no version) pulls npm-latest, which drifted to 1.62.1 whose
+      # `--with-deps` apt step hangs the runner for ~an hour (unpinned-dep drift;
+      # keep this in sync with the @playwright/test pin). timeout-minutes so a
+      # hung install fails fast instead of blocking every release for 60 min.
+      - run: npx --yes playwright@1.62.0 install --with-deps chromium
+        timeout-minutes: 10
         working-directory: packages/app/features/e2e-fixtures-default
       # Scope tests to the packages this push/PR affects (changed + their
       # transitive dependents) instead of the whole ~914-package, 47k-test fleet.
