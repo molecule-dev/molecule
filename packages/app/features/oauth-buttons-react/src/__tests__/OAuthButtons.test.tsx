@@ -12,6 +12,9 @@ vi.mock('@molecule/app-ui', () => ({
     oauthDivider: 'cm-oauthDivider',
     oauthDividerLine: 'cm-oauthDividerLine',
     oauthDividerText: 'cm-oauthDividerText',
+    flex: () => 'cm-flex',
+    flex1: 'cm-flex1',
+    separator: () => 'cm-separator',
     cn: (...cls: unknown[]) => cls.filter((c) => typeof c === 'string' && c.length > 0).join(' '),
   }),
 }))

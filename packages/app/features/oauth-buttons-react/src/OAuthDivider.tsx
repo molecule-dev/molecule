@@ -29,9 +29,10 @@ export function OAuthDivider({
   const cm = getClassMap()
   const { t } = useTranslation()
   return (
-    <div className={cm.cn(cm.oauthDivider, className)}>
-      <div className={cm.oauthDividerLine} />
-      <span className={cm.oauthDividerText}>{t(labelKey, {}, { defaultValue: labelDefault })}</span>
+    <div className={cm.cn(cm.oauthDivider, cm.flex({ align: 'center', gap: 4 }), className)}>
+      <span className={cm.cn(cm.flex1, cm.separator())} />
+      <span>{t(labelKey, {}, { defaultValue: labelDefault })}</span>
+      <span className={cm.cn(cm.flex1, cm.separator())} />
     </div>
   )
 }
