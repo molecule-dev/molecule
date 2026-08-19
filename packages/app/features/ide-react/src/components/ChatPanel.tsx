@@ -1751,12 +1751,6 @@ export function CommitCardItem({
 /** Props for the memoized per-message timeline row (see {@link MessageItem}). */
 export interface MessageItemProps {
   msg: ChatMessage
-  editingQueuedId: string | null
-  editingQueuedText: string
-  setEditingQueuedId: React.Dispatch<React.SetStateAction<string | null>>
-  setEditingQueuedText: React.Dispatch<React.SetStateAction<string>>
-  editQueuedMessage: (id: string, content: string) => void
-  deleteQueuedMessage: (id: string) => void
   sendMessage: (msg: string) => void
   handleAskUserResponse: (response: string) => void
   isLoading: boolean
@@ -1799,12 +1793,6 @@ export interface MessageItemProps {
 const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Element {
   const {
     msg,
-    editingQueuedId,
-    editingQueuedText,
-    setEditingQueuedId,
-    setEditingQueuedText,
-    editQueuedMessage,
-    deleteQueuedMessage,
     sendMessage,
     handleAskUserResponse,
     isLoading,
@@ -1944,172 +1932,6 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     <span style={{ fontSize: 10, opacity: 0.7 }}>({formatSize(att.size)})</span>
                   </span>
                 ))}
-              </div>
-            )}
-            {msg.queued && (
-              <div style={{ marginTop: 6 }}>
-                {editingQueuedId === msg.id ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <textarea
-                      autoFocus
-                      defaultValue={editingQueuedText}
-                      onChange={(e) => setEditingQueuedText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          const trimmed = editingQueuedText.trim()
-                          if (trimmed) editQueuedMessage(msg.id, trimmed)
-                          else deleteQueuedMessage(msg.id)
-                          setEditingQueuedId(null)
-                        }
-                        if (e.key === 'Escape') setEditingQueuedId(null)
-                      }}
-                      className={cm.cn(cm.surface, cm.textSize('sm'))}
-                      style={{
-                        width: '100%',
-                        minHeight: '60px',
-                        padding: '8px 10px',
-                        border: `1px solid ${borderClr}`,
-                        borderRadius: '6px',
-                        resize: 'vertical',
-                        color: 'inherit',
-                        fontFamily: 'inherit',
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button
-                        type="button"
-                        onClick={() => setEditingQueuedId(null)}
-                        className={cm.textSize('xs')}
-                        style={{
-                          padding: '4px 12px',
-                          border: `1px solid ${borderClr}`,
-                          borderRadius: '4px',
-                          background: 'transparent',
-                          color: 'inherit',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const trimmed = editingQueuedText.trim()
-                          if (trimmed) editQueuedMessage(msg.id, trimmed)
-                          else deleteQueuedMessage(msg.id)
-                          setEditingQueuedId(null)
-                        }}
-                        className={cm.textSize('xs')}
-                        style={{
-                          padding: '4px 12px',
-                          border: `1px solid ${borderClr}`,
-                          borderRadius: '4px',
-                          background: 'rgba(128,128,128,0.1)',
-                          color: 'inherit',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {t('common.save', undefined, { defaultValue: 'Save' })}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                      gap: 6,
-                      paddingRight: 4,
-                    }}
-                  >
-                    <span
-                      className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                      style={{ fontStyle: 'italic', marginRight: 'auto' }}
-                    >
-                      {t('ide.chat.queued', undefined, { defaultValue: 'Queued' })}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingQueuedId(msg.id)
-                        setEditingQueuedText(msg.content)
-                      }}
-                      className={cm.textSize('xs')}
-                      style={{
-                        padding: '3px 10px',
-                        border: `1px solid ${borderClr}`,
-                        borderRadius: '4px',
-                        background: 'rgba(128,128,128,0.1)',
-                        color: 'inherit',
-                        cursor: 'pointer',
-                        fontWeight: 500,
-                        transition: 'background 100ms',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(128,128,128,0.1)'
-                      }}
-                    >
-                      {t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteQueuedMessage(msg.id)}
-                      className={cm.textSize('xs')}
-                      style={{
-                        padding: '3px 10px',
-                        border: '1px solid rgba(220,38,38,0.3)',
-                        borderRadius: '4px',
-                        background: 'rgba(220,38,38,0.08)',
-                        color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
-                        cursor: 'pointer',
-                        fontWeight: 500,
-                        transition: 'background 100ms',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(220,38,38,0.18)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(220,38,38,0.08)'
-                      }}
-                    >
-                      {t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
-                    </button>
-                    {!isLoading && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const content = msg.content
-                          deleteQueuedMessage(msg.id)
-                          sendMessage(content)
-                        }}
-                        className={cm.textSize('xs')}
-                        style={{
-                          padding: '3px 10px',
-                          border: '1px solid rgba(34,197,94,0.4)',
-                          borderRadius: '4px',
-                          background: 'rgba(34,197,94,0.12)',
-                          color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
-                          cursor: 'pointer',
-                          fontWeight: 500,
-                          transition: 'background 100ms',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(34,197,94,0.22)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(34,197,94,0.12)'
-                        }}
-                      >
-                        {t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
-                      </button>
-                    )}
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -6590,6 +6412,14 @@ function ChatInner({
   // one — even an optimistic/in-flight hidden message.
   const visibleMessages = useMemo(() => messages.filter((m) => !m.hidden), [messages])
 
+  // Queued messages (user/auto messages waiting to send while the agent works)
+  // are NOT rendered inline in the scrolling timeline — they'd be pushed around
+  // and reflow as the response streams. They render instead in an anchored bar
+  // pinned above the composer (see "Queued messages" in the input area below),
+  // the same fixed-position treatment as the commit bar. Split them out here so
+  // the timeline never includes them.
+  const queuedMessages = useMemo(() => visibleMessages.filter((m) => m.queued), [visibleMessages])
+
   // Build a renderable SystemCard from a card-message's raw CardEvent. This is the ONE
   // construction, used IDENTICALLY for a live `card` event (now a card-message in `messages`)
   // and for a card-message loaded on refresh — so the rendered card is the same in both, with
@@ -6709,6 +6539,8 @@ function ChatInner({
     // `limitType`). See {@link ChatEventCard.coversLimitType}.
     const liveLimitType = error && !isStaleAnonymousLimit ? errorMeta?.limitType : undefined
     for (const msg of visibleMessages) {
+      // Queued messages render in the anchored bar above the composer, not inline.
+      if (msg.queued) continue
       if (msg.cardEvent) {
         const card = cardEventToSystemCard(msg.cardEvent, msg.id, msg.timestamp)
         if (!card) continue
@@ -7178,12 +7010,6 @@ function ChatInner({
                   <MessageItem
                     key={msg.id}
                     msg={msg}
-                    editingQueuedId={editingQueuedId}
-                    editingQueuedText={editingQueuedText}
-                    setEditingQueuedId={setEditingQueuedId}
-                    setEditingQueuedText={setEditingQueuedText}
-                    editQueuedMessage={editQueuedMessage}
-                    deleteQueuedMessage={deleteQueuedMessage}
                     sendMessage={sendMessage}
                     handleAskUserResponse={handleAskUserResponse}
                     isLoading={isLoading}
@@ -9286,6 +9112,261 @@ function ChatInner({
               </div>
             )
           })()}
+
+        {/* Queued messages — anchored above the composer like the commit bar, so
+            they stay pinned instead of being pushed around beneath the streaming
+            output (which reflows as the response grows). Each queued message is one
+            compact single-line row (truncated text + inline edit/delete/send), so
+            several queued messages never grow the footer. Hidden while a popup menu
+            is open, matching the commit bar. */}
+        {queuedMessages.length > 0 && !commandMenu && !modelPicker && !panelOverlay && (
+          <div
+            style={{
+              borderTop: '1px solid rgba(128,128,128,0.15)',
+              padding: '6px 8px 6px 10px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+              <Icon
+                name="clock"
+                size={11}
+                aria-hidden="true"
+                style={{ opacity: 0.5, flexShrink: 0 }}
+              />
+              <span
+                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                style={{ fontStyle: 'italic' }}
+              >
+                {t(
+                  'ide.chat.queuedCount',
+                  { count: queuedMessages.length },
+                  { defaultValue: '{{count}} queued' },
+                )}
+              </span>
+            </div>
+            {/* Cap the height so many queued messages scroll in place rather than
+                pushing the composer down; single-line rows keep it tight. */}
+            <div
+              style={{
+                maxHeight: 132,
+                overflowY: 'auto',
+                scrollbarWidth: 'thin',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}
+            >
+              {queuedMessages.map((qm) =>
+                editingQueuedId === qm.id ? (
+                  <div key={qm.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <textarea
+                      autoFocus
+                      defaultValue={editingQueuedText}
+                      onChange={(e) => setEditingQueuedText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          const trimmed = editingQueuedText.trim()
+                          if (trimmed) editQueuedMessage(qm.id, trimmed)
+                          else deleteQueuedMessage(qm.id)
+                          setEditingQueuedId(null)
+                        }
+                        if (e.key === 'Escape') setEditingQueuedId(null)
+                      }}
+                      className={cm.cn(cm.surface, cm.textSize('sm'))}
+                      style={{
+                        width: '100%',
+                        minHeight: '52px',
+                        padding: '6px 8px',
+                        border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
+                        borderRadius: '6px',
+                        resize: 'vertical',
+                        color: 'inherit',
+                        fontFamily: 'inherit',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      <button
+                        type="button"
+                        onClick={() => setEditingQueuedId(null)}
+                        className={cm.textSize('xs')}
+                        style={{
+                          padding: '4px 12px',
+                          border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
+                          borderRadius: '4px',
+                          background: 'transparent',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                          ...(isCoarse ? { minHeight: 32 } : {}),
+                        }}
+                      >
+                        {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const trimmed = editingQueuedText.trim()
+                          if (trimmed) editQueuedMessage(qm.id, trimmed)
+                          else deleteQueuedMessage(qm.id)
+                          setEditingQueuedId(null)
+                        }}
+                        className={cm.textSize('xs')}
+                        style={{
+                          padding: '4px 12px',
+                          border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
+                          borderRadius: '4px',
+                          background: 'rgba(128,128,128,0.1)',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                          ...(isCoarse ? { minHeight: 32 } : {}),
+                        }}
+                      >
+                        {t('common.save', undefined, { defaultValue: 'Save' })}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    key={qm.id}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}
+                  >
+                    <span
+                      title={qm.content}
+                      className={cm.textSize('sm')}
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        opacity: 0.8,
+                      }}
+                    >
+                      {qm.content}
+                    </span>
+                    <button
+                      type="button"
+                      title={t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
+                      onClick={() => {
+                        setEditingQueuedId(qm.id)
+                        setEditingQueuedText(qm.content)
+                      }}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: isCoarse ? 32 : 22,
+                        height: isCoarse ? 32 : 22,
+                        flexShrink: 0,
+                        border: 'none',
+                        borderRadius: 4,
+                        background: 'none',
+                        color: 'inherit',
+                        opacity: 0.5,
+                        cursor: 'pointer',
+                        padding: 0,
+                        transition: 'opacity 100ms, background 100ms',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = '1'
+                        e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '0.5'
+                        e.currentTarget.style.background = 'none'
+                      }}
+                    >
+                      <Icon name="pencil" size={13} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      title={t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
+                      onClick={() => deleteQueuedMessage(qm.id)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: isCoarse ? 32 : 22,
+                        height: isCoarse ? 32 : 22,
+                        flexShrink: 0,
+                        border: 'none',
+                        borderRadius: 4,
+                        background: 'none',
+                        color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
+                        opacity: 0.6,
+                        cursor: 'pointer',
+                        padding: 0,
+                        transition: 'opacity 100ms, background 100ms',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.opacity = '1'
+                        e.currentTarget.style.background = 'rgba(220,38,38,0.12)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.opacity = '0.6'
+                        e.currentTarget.style.background = 'none'
+                      }}
+                    >
+                      <Icon name="trash" size={13} aria-hidden="true" />
+                    </button>
+                    {!isLoading && (
+                      <button
+                        type="button"
+                        title={t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
+                        onClick={() => {
+                          const content = qm.content
+                          deleteQueuedMessage(qm.id)
+                          sendMessage(content)
+                        }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: isCoarse ? 32 : 22,
+                          height: isCoarse ? 32 : 22,
+                          flexShrink: 0,
+                          border: 'none',
+                          borderRadius: 4,
+                          background: 'none',
+                          color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
+                          opacity: 0.7,
+                          cursor: 'pointer',
+                          padding: 0,
+                          transition: 'opacity 100ms, background 100ms',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.opacity = '1'
+                          e.currentTarget.style.background = 'rgba(34,197,94,0.14)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.opacity = '0.7'
+                          e.currentTarget.style.background = 'none'
+                        }}
+                      >
+                        {/* Same up-arrow glyph as the composer's Send button. */}
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 12 12"
+                          style={{ display: 'block' }}
+                        >
+                          <path
+                            d="M 2.5,6.5 L 6,3 L 9.5,6.5 M 6,3.5 L 6,10"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.75"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open) */}
         {pendingFiles != null &&

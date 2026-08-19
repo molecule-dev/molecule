@@ -49,6 +49,7 @@ export type IdeTranslationKey =
   | 'ide.chat.modelUsage'
   | 'ide.chat.proRequired'
   | 'ide.chat.queued'
+  | 'ide.chat.queuedCount'
   | 'ide.chat.redoChange'
   | 'ide.chat.responseStopped'
   | 'ide.chat.revertFile'

@@ -42,6 +42,7 @@ export const en: IdeTranslations = {
   'common.cancel': 'Cancel',
   'common.save': 'Save',
   'ide.chat.queued': 'Queued',
+  'ide.chat.queuedCount': '{{count}} queued',
   'ide.chat.editQueued': 'Edit',
   'ide.chat.deleteQueued': 'Delete',
   'ide.chat.sendQueued': 'Send',
