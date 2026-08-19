@@ -543,6 +543,5 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': '執行…',
   'ide.chat.scripts.required': '（必填）',
   'ide.chat.scripts.cancelRun': '取消',
-  'ide.chat.scripts.runNeedsOptions':
-    '「{{name}}」需要選項 — 已開啟 /scripts，供你設定後執行。',
+  'ide.chat.scripts.runNeedsOptions': '「{{name}}」需要選項 — 已開啟 /scripts，供你設定後執行。',
 }

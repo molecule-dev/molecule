@@ -563,5 +563,5 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.scripts.required': '(e detyrueshme)',
   'ide.chat.scripts.cancelRun': 'Anulo',
   'ide.chat.scripts.runNeedsOptions':
-    '“{{name}}” kërkon opsione — u hap /scripts që t\'i caktoni dhe të Ekzekutoni.',
+    "“{{name}}” kërkon opsione — u hap /scripts që t'i caktoni dhe të Ekzekutoni.",
 }

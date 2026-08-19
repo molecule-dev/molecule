@@ -549,6 +549,5 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': 'አስኪድ…',
   'ide.chat.scripts.required': '(ያስፈልጋል)',
   'ide.chat.scripts.cancelRun': 'ሰርዝ',
-  'ide.chat.scripts.runNeedsOptions':
-    '“{{name}}” አማራጮች ይፈልጋል — /scripts ተከፍቷል፣ እነሱን አዘጋጅተው ያስኪዱ።',
+  'ide.chat.scripts.runNeedsOptions': '“{{name}}” አማራጮች ይፈልጋል — /scripts ተከፍቷል፣ እነሱን አዘጋጅተው ያስኪዱ።',
 }

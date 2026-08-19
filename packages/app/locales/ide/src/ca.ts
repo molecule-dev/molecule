@@ -560,5 +560,5 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.scripts.required': '(obligatori)',
   'ide.chat.scripts.cancelRun': 'Cancel·la',
   'ide.chat.scripts.runNeedsOptions':
-    '«{{name}}» necessita opcions — s\'ha obert /scripts perquè les definiu i Executeu.',
+    "«{{name}}» necessita opcions — s'ha obert /scripts perquè les definiu i Executeu.",
 }
