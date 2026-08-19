@@ -122,16 +122,16 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'scripts',
     label: '/scripts',
-    description: 'Browse & run saved project scripts',
+    description: 'Browse & run saved scripts and built-in actions',
     category: 'code',
     usage: '/scripts [query]',
   },
   {
     id: 'run',
     label: '/run',
-    description: 'Run a saved script by name',
+    description: 'Run a saved script or built-in by name',
     category: 'code',
-    usage: '/run <name>',
+    usage: '/run <name> [--option value]',
   },
   {
     id: 'autocommit',

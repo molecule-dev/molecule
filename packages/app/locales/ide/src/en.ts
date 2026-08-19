@@ -514,6 +514,11 @@ export const en: IdeTranslations = {
   'ide.chat.scripts.error': 'Could not load scripts for this project.',
   'ide.chat.scripts.noMatch': 'No scripts match “{{query}}”.',
   'ide.chat.scripts.run': 'Run',
+  'ide.chat.scripts.runWithOptions': 'Run…',
+  'ide.chat.scripts.required': '(required)',
+  'ide.chat.scripts.cancelRun': 'Cancel',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” needs options — opened /scripts so you can set them and Run.',
   'ide.chat.scripts.runTitle': 'Run this script in the sandbox',
   'ide.chat.scripts.running': 'Running…',
   'ide.chat.scripts.runError': 'Failed to run the script.',

@@ -15,7 +15,7 @@
  * @module
  */
 
-import type { JSX } from 'react'
+import type { CSSProperties, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
@@ -24,12 +24,13 @@ import { DEFAULT_AGENT_NAME, useHttpClient } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 import { chatCardStyle } from './chat-card-style.js'
-import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
+import type { ScriptInfo, ScriptParam, ScriptRunResult } from './chat-scripts-utilities.js'
 import {
   buildSaveScriptPayload,
   filterScripts,
   formatRunOutput,
   isSaveScriptValid,
+  missingRequiredParams,
   runSucceeded,
 } from './chat-scripts-utilities.js'
 
@@ -72,6 +73,10 @@ export function ScriptsCard({
   const [scripts, setScripts] = useState<ScriptInfo[]>([])
   const [query, setQuery] = useState(initialQuery)
   const [runStates, setRunStates] = useState<Record<string, RunState>>({})
+  // Which scripts have their option form open, and the values typed into each.
+  // A script with params opens its form on Run instead of running immediately.
+  const [openForms, setOpenForms] = useState<Record<string, boolean>>({})
+  const [paramValues, setParamValues] = useState<Record<string, Record<string, string>>>({})
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDescription, setNewDescription] = useState('')
@@ -96,11 +101,12 @@ export function ScriptsCard({
   }, [loadScripts])
 
   const handleRun = useCallback(
-    async (name: string) => {
+    async (name: string, params?: Record<string, string>) => {
       setRunStates((prev) => ({ ...prev, [name]: 'running' }))
       try {
         const res = await http.post<ScriptRunResult>(
           `/projects/${projectId}/scripts/${encodeURIComponent(name)}/run`,
+          params ? { params } : undefined,
         )
         setRunStates((prev) => ({ ...prev, [name]: res.data }))
       } catch (error) {
@@ -112,6 +118,42 @@ export function ScriptsCard({
       }
     },
     [http, projectId],
+  )
+
+  // The Run button's click: a script with options opens its form (seeded with
+  // defaults) so the user fills them; a plain script runs immediately.
+  const onRunClick = useCallback(
+    (script: ScriptInfo) => {
+      if (script.params?.length) {
+        setParamValues((prev) => {
+          if (prev[script.name]) return prev
+          const seed: Record<string, string> = {}
+          for (const p of script.params ?? []) seed[p.name] = p.default ?? ''
+          return { ...prev, [script.name]: seed }
+        })
+        setOpenForms((prev) => ({ ...prev, [script.name]: true }))
+        return
+      }
+      void handleRun(script.name)
+    },
+    [handleRun],
+  )
+
+  const setParam = useCallback((scriptName: string, paramName: string, value: string) => {
+    setParamValues((prev) => ({
+      ...prev,
+      [scriptName]: { ...prev[scriptName], [paramName]: value },
+    }))
+  }, [])
+
+  // Run from the option form: collect the typed values and dispatch, then close.
+  const submitForm = useCallback(
+    (script: ScriptInfo) => {
+      const values = paramValues[script.name] ?? {}
+      setOpenForms((prev) => ({ ...prev, [script.name]: false }))
+      void handleRun(script.name, values)
+    },
+    [paramValues, handleRun],
   )
 
   const handleSave = useCallback(async () => {
@@ -366,7 +408,7 @@ export function ScriptsCard({
                 <button
                   type="button"
                   data-mol-id={`script-run-${script.name}`}
-                  onClick={() => void handleRun(script.name)}
+                  onClick={() => onRunClick(script)}
                   disabled={run === 'running'}
                   // Primary per-row action → solid blue, matching SkillsCard's blue "Load"
                   // button (a real button, never plain text on transparent). Self-
@@ -377,9 +419,24 @@ export function ScriptsCard({
                 >
                   {run === 'running'
                     ? t('ide.chat.scripts.running', undefined, { defaultValue: 'Running…' })
-                    : t('ide.chat.scripts.run', undefined, { defaultValue: 'Run' })}
+                    : script.params?.length
+                      ? t('ide.chat.scripts.runWithOptions', undefined, { defaultValue: 'Run…' })
+                      : t('ide.chat.scripts.run', undefined, { defaultValue: 'Run' })}
                 </button>
               </div>
+
+              {/* Option form — shown when a script with params is being run, so
+                  the user fills its typed options before the run dispatches. */}
+              {script.params?.length && openForms[script.name] && (
+                <ScriptOptionsForm
+                  script={script}
+                  values={paramValues[script.name] ?? {}}
+                  fieldStyle={fieldStyle}
+                  onChange={(paramName, value) => setParam(script.name, paramName, value)}
+                  onCancel={() => setOpenForms((prev) => ({ ...prev, [script.name]: false }))}
+                  onSubmit={() => submitForm(script)}
+                />
+              )}
 
               {/* Inline run output */}
               {run && run !== 'running' && (
@@ -427,6 +484,100 @@ export function ScriptsCard({
             </div>
           )
         })}
+    </div>
+  )
+}
+
+/**
+ * The typed-option form for a script that declares params. Renders one field per
+ * param (a `<select>` for an `enum`, a text `<input>` otherwise) and a
+ * Cancel/Run action row; Run is disabled until every required option has a
+ * value. All labels come from the param's own (author-written) `description`;
+ * only the action buttons and required marker go through `t()`.
+ *
+ * @param props - The form props.
+ * @returns The rendered option form.
+ */
+function ScriptOptionsForm({
+  script,
+  values,
+  fieldStyle,
+  onChange,
+  onCancel,
+  onSubmit,
+}: {
+  script: ScriptInfo
+  values: Record<string, string>
+  fieldStyle: CSSProperties
+  onChange: (paramName: string, value: string) => void
+  onCancel: () => void
+  onSubmit: () => void
+}): JSX.Element {
+  const cm = getClassMap()
+  const canRun = missingRequiredParams(script, values).length === 0
+  return (
+    <div
+      data-mol-id={`script-options-${script.name}`}
+      style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}
+    >
+      {(script.params ?? []).map((param: ScriptParam) => (
+        <label key={param.name} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <span className={cm.textMuted}>
+            {param.description || param.name}
+            {param.required && (
+              <span className={cm.textError}>
+                {' '}
+                {t('ide.chat.scripts.required', undefined, { defaultValue: '(required)' })}
+              </span>
+            )}
+          </span>
+          {param.type === 'enum' ? (
+            <select
+              data-mol-id={`script-option-${script.name}-${param.name}`}
+              value={values[param.name] ?? ''}
+              onChange={(e) => onChange(param.name, e.target.value)}
+              className={cm.textSize('xs')}
+              style={fieldStyle}
+            >
+              {!param.required && <option value="" />}
+              {(param.options ?? []).map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              data-mol-id={`script-option-${script.name}-${param.name}`}
+              value={values[param.name] ?? ''}
+              onChange={(e) => onChange(param.name, e.target.value)}
+              className={cm.textSize('xs')}
+              style={fieldStyle}
+            />
+          )}
+        </label>
+      ))}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+        <button
+          type="button"
+          data-mol-id={`script-options-cancel-${script.name}`}
+          onClick={onCancel}
+          className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+          style={{ flexShrink: 0 }}
+        >
+          {t('ide.chat.scripts.cancelRun', undefined, { defaultValue: 'Cancel' })}
+        </button>
+        <button
+          type="button"
+          data-mol-id={`script-options-run-${script.name}`}
+          onClick={onSubmit}
+          disabled={!canRun}
+          className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+          style={{ flexShrink: 0, opacity: canRun ? 1 : 0.6 }}
+        >
+          {t('ide.chat.scripts.run', undefined, { defaultValue: 'Run' })}
+        </button>
+      </div>
     </div>
   )
 }

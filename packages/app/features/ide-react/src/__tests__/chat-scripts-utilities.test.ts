@@ -13,7 +13,9 @@ import {
   findScriptByName,
   formatRunOutput,
   isSaveScriptValid,
+  missingRequiredParams,
   normalizeScriptName,
+  parseFlagArgs,
   parseRunCommand,
   parseScriptsCommand,
   runSucceeded,
@@ -60,19 +62,75 @@ describe('parseScriptsCommand', () => {
 
 describe('parseRunCommand', () => {
   it('returns an empty name for a bare /run', () => {
-    expect(parseRunCommand('/run')).toEqual({ name: '' })
-    expect(parseRunCommand(' /run ')).toEqual({ name: '' })
+    expect(parseRunCommand('/run')).toEqual({ name: '', params: {} })
+    expect(parseRunCommand(' /run ')).toEqual({ name: '', params: {} })
   })
 
-  it('captures the trimmed script name', () => {
-    expect(parseRunCommand('/run run-tests')).toEqual({ name: 'run-tests' })
-    expect(parseRunCommand('/RUN  Deploy Staging ')).toEqual({ name: 'Deploy Staging' })
+  it('captures the script name (first token) with no options', () => {
+    expect(parseRunCommand('/run run-tests')).toEqual({ name: 'run-tests', params: {} })
+    expect(parseRunCommand('/RUN  deploy ')).toEqual({ name: 'deploy', params: {} })
+  })
+
+  it('parses trailing --option flags into params', () => {
+    expect(parseRunCommand('/run setup-ci --platform github --target fly')).toEqual({
+      name: 'setup-ci',
+      params: { platform: 'github', target: 'fly' },
+    })
+    expect(parseRunCommand('/run deploy --env=prod')).toEqual({
+      name: 'deploy',
+      params: { env: 'prod' },
+    })
   })
 
   it('returns null for non-/run input', () => {
     expect(parseRunCommand('/runner')).toBeNull()
     expect(parseRunCommand('run-tests')).toBeNull()
     expect(parseRunCommand('/scripts')).toBeNull()
+  })
+})
+
+describe('parseFlagArgs', () => {
+  it('parses space- and equals-separated flags', () => {
+    expect(parseFlagArgs('--a 1 --b=2')).toEqual({ a: '1', b: '2' })
+  })
+
+  it('keeps quoted values intact and treats a bare flag as empty', () => {
+    expect(parseFlagArgs('--msg "hello world" --force')).toEqual({ msg: 'hello world', force: '' })
+  })
+
+  it('returns an empty object for no flags', () => {
+    expect(parseFlagArgs('')).toEqual({})
+    expect(parseFlagArgs('just words')).toEqual({})
+  })
+})
+
+describe('missingRequiredParams', () => {
+  const script: ScriptInfo = {
+    name: 'setup-ci',
+    description: 'Add CI',
+    createdAt: '',
+    params: [
+      {
+        name: 'platform',
+        type: 'enum',
+        description: 'CI',
+        required: true,
+        options: ['github', 'gitlab'],
+      },
+      { name: 'target', type: 'string', description: 'Host', required: false },
+    ],
+  }
+
+  it('flags a required param with no value or default', () => {
+    expect(missingRequiredParams(script, {}).map((p) => p.name)).toEqual(['platform'])
+  })
+
+  it('is satisfied once the required value is supplied', () => {
+    expect(missingRequiredParams(script, { platform: 'github' })).toEqual([])
+  })
+
+  it('treats a script with no params as satisfied', () => {
+    expect(missingRequiredParams({ name: 'x', description: '', createdAt: '' }, {})).toEqual([])
   })
 })
 
@@ -170,6 +228,10 @@ describe('command registry wiring', () => {
       category: 'code',
       usage: '/scripts [query]',
     })
-    expect(run).toMatchObject({ label: '/run', category: 'code', usage: '/run <name>' })
+    expect(run).toMatchObject({
+      label: '/run',
+      category: 'code',
+      usage: '/run <name> [--option value]',
+    })
   })
 })

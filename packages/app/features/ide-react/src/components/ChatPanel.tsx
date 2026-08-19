@@ -118,6 +118,7 @@ import type { ScriptInfo, ScriptRunResult } from './chat-scripts-utilities.js'
 import {
   findScriptByName,
   formatRunOutput,
+  missingRequiredParams,
   parseRunCommand,
   parseScriptsCommand,
   runSucceeded,
@@ -4741,7 +4742,7 @@ function ChatInner({
   // list to resolve the (possibly partial) name, runs the match, and reports the
   // captured output + exit status as a system card.
   const runSavedScript = useCallback(
-    async (rawName: string) => {
+    async (rawName: string, params: Record<string, string> = {}) => {
       try {
         const listed = await http.get<{ scripts: ScriptInfo[] }>(`/projects/${projectId}/scripts`)
         const scripts = listed.data.scripts ?? []
@@ -4760,8 +4761,26 @@ function ChatInner({
           )
           return
         }
+        // A script with required options the command line didn't supply needs the
+        // panel's form — open it filtered to this script so the user can fill them
+        // in and Run, rather than failing the run for a missing value.
+        if (missingRequiredParams(target, params).length > 0) {
+          openPanelOverlay('scripts', target.name)
+          addSystemCard(
+            t(
+              'ide.chat.scripts.runNeedsOptions',
+              { name: target.name },
+              {
+                defaultValue:
+                  '“{{name}}” needs options — opened /scripts so you can set them and Run.',
+              },
+            ),
+          )
+          return
+        }
         const run = await http.post<ScriptRunResult>(
           `/projects/${projectId}/scripts/${encodeURIComponent(target.name)}/run`,
+          Object.keys(params).length ? { params } : undefined,
         )
         const output = formatRunOutput(run.data)
         const status = runSucceeded(run.data)
@@ -4783,7 +4802,7 @@ function ChatInner({
         )
       }
     },
-    [http, projectId, addSystemCard],
+    [http, projectId, addSystemCard, openPanelOverlay],
   )
 
   // ── File attachment handlers ──────────────────────────────────────────────
@@ -5536,7 +5555,7 @@ function ChatInner({
           }),
         )
       } else {
-        void runSavedScript(runMatch.name)
+        void runSavedScript(runMatch.name, runMatch.params)
       }
       return
     }

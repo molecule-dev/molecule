@@ -18,6 +18,26 @@
  * @module
  */
 
+/**
+ * A typed option a script accepts. The user supplies a value before running; it
+ * reaches the script (or built-in) as an input the body reads by `name`. `enum`
+ * constrains the value to `options`. Mirrors the backend `ScriptParam`.
+ */
+export interface ScriptParam {
+  /** Option name (also the environment variable the script body reads). */
+  name: string
+  /** `string` = free text; `enum` = one of `options`. */
+  type: 'string' | 'enum'
+  /** One-line label shown next to the field. */
+  description: string
+  /** Whether a value must be supplied to run. */
+  required: boolean
+  /** Allowed values when `type === 'enum'`. */
+  options?: string[]
+  /** Default value pre-filled into the field. */
+  default?: string
+}
+
 /** A saved project script's metadata (the body lives in the sandbox file). */
 export interface ScriptInfo {
   /** Script name — the `<name>` in `.agents/scripts/<name>.sh` (no extension). */
@@ -26,6 +46,10 @@ export interface ScriptInfo {
   description: string
   /** ISO 8601 creation timestamp (frontmatter `createdAt`). */
   createdAt: string
+  /** Typed options the script accepts (absent/empty = takes none). */
+  params?: ScriptParam[]
+  /** True for a server-backed built-in action (e.g. `setup-ci`), not a saved `.sh`. */
+  builtin?: boolean
 }
 
 /** The result of running a script via the sandbox `exec`. */
@@ -82,17 +106,65 @@ export function parseScriptsCommand(input: string): { query: string } | null {
 }
 
 /**
- * Parses a `/run [name]` command. Returns the (possibly empty) trimmed script
- * name when the input is the `/run` command, else `null`. An empty `name`
- * signals `/run` was typed without an argument.
+ * Parses a `/run [name] [--opt value ...]` command. The first token is the
+ * script name; any trailing `--key value` / `--key=value` flags become option
+ * values passed to the run. Returns `null` when the input is not a `/run`
+ * command; an empty `name` signals `/run` was typed without an argument.
  *
  * @param input - The raw chat input.
- * @returns `{ name }` when it's a `/run` command, else `null`.
+ * @returns `{ name, params }` when it's a `/run` command, else `null`.
  */
-export function parseRunCommand(input: string): { name: string } | null {
+export function parseRunCommand(
+  input: string,
+): { name: string; params: Record<string, string> } | null {
   const match = input.trim().match(/^\/run(?:\s+(.*))?$/i)
   if (!match) return null
-  return { name: (match[1] ?? '').trim() }
+  const rest = (match[1] ?? '').trim()
+  if (!rest) return { name: '', params: {} }
+  const firstSpace = rest.search(/\s/)
+  if (firstSpace === -1) return { name: rest, params: {} }
+  return {
+    name: rest.slice(0, firstSpace),
+    params: parseFlagArgs(rest.slice(firstSpace + 1)),
+  }
+}
+
+/**
+ * Parses `--key value` and `--key=value` flag pairs from a command remainder
+ * into an option map. A bare flag with no value (end of string or another flag
+ * following) is treated as an empty string. Quoted values (`--k "a b"`) keep
+ * their inner spaces.
+ *
+ * @param rest - The text after the script name.
+ * @returns The parsed `{ key: value }` map.
+ */
+export function parseFlagArgs(rest: string): Record<string, string> {
+  const params: Record<string, string> = {}
+  // Match `--key=value`, `--key "quoted value"`, or `--key value`.
+  const re = /--([a-zA-Z_][a-zA-Z0-9_]*)(?:=(\S+)|\s+"([^"]*)"|\s+(?!--)(\S+))?/g
+  let m: RegExpExecArray | null
+  while ((m = re.exec(rest)) !== null) {
+    params[m[1]] = m[2] ?? m[3] ?? m[4] ?? ''
+  }
+  return params
+}
+
+/**
+ * Returns the required params of a script that are not satisfied by the supplied
+ * values (missing, `undefined`, or empty). Used to decide whether a `/run` can
+ * proceed directly or must open the panel's option form.
+ *
+ * @param script - The script whose params to check (may declare none).
+ * @param values - The supplied option values.
+ * @returns The unsatisfied required params (empty when all are satisfied).
+ */
+export function missingRequiredParams(
+  script: Pick<ScriptInfo, 'params'>,
+  values: Record<string, string>,
+): ScriptParam[] {
+  return (script.params ?? []).filter(
+    (p) => p.required && !(values[p.name] ?? p.default ?? '').trim(),
+  )
 }
 
 /**
