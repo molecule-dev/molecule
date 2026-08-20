@@ -10,6 +10,7 @@ import type { ChatMessage, ChatStreamEvent } from '@molecule/app-ai-chat'
 import type { EditorTab, FixWithAIRequest } from '@molecule/app-code-editor'
 import type { DeviceFrame } from '@molecule/app-live-preview'
 
+import type { CommandDef } from './command-metadata.js'
 import type { Activity as ActivityFromCard } from './components/activity-utilities.js'
 import type { ChatEventCardAction } from './customEventCards.js'
 
@@ -294,6 +295,19 @@ export interface ChatPanelProps {
    * of its own, so when omitted it falls back to the package default constant.
    */
   version?: string
+  /**
+   * Host-specific slash commands to MERGE into the command menu, `/help`, and the
+   * keyboard dispatcher, on top of the shared {@link COMMANDS} registry. For
+   * commands the host handles itself (server-side intercepts or the agent), so
+   * they show up in the menu instead of being invisible. Selecting one fills the
+   * input with `/<id> ` (so the user can add arguments) and sending it routes to
+   * the host's own handler — the shared package never dispatches these.
+   *
+   * The host owns keeping this list in sync with its handlers; molecule.dev, for
+   * example, fetches it from `GET /ai/commands`. Ids must not collide with a
+   * shared command id. Optional — omit for the plain shared command set.
+   */
+  extraCommands?: readonly CommandDef[]
   /**
    * URL the command-menu "Report a problem" link points at (the host's own issue
    * tracker / feedback page). The shared IDE owns no product URLs, so when this

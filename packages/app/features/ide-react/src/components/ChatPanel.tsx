@@ -83,7 +83,7 @@ import {
 } from './chat-autocommit-utilities.js'
 import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
-import { COMMAND_CATEGORIES, COMMANDS } from './chat-commands.js'
+import { COMMAND_CATEGORIES, type CommandDef, COMMANDS } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
 import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
 import type { EffortLevel, EffortMode } from './chat-effort-utilities.js'
@@ -2369,6 +2369,8 @@ export interface ChatInnerProps {
   productName?: string
   /** Host app/build version for /version — see {@link ChatPanelProps.version}. */
   version?: string
+  /** Host-specific slash commands merged into the menu — see {@link ChatPanelProps.extraCommands}. */
+  extraCommands?: readonly CommandDef[]
   /** Command-menu "Report a problem" URL — see {@link ChatPanelProps.feedbackUrl}. */
   feedbackUrl?: string
 }
@@ -2425,6 +2427,7 @@ function ChatInner({
   agentName = DEFAULT_AGENT_NAME,
   productName = DEFAULT_PRODUCT_NAME,
   version,
+  extraCommands,
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
@@ -5044,6 +5047,19 @@ function ChatInner({
     [http, projectId, modelRegions],
   )
 
+  // The shared command registry UNION any host-provided commands (e.g.
+  // molecule.dev's /deploy, /push, /invite, /teamsay), so the menu, grouping,
+  // and dispatch all see one list and host commands never go missing. Declared
+  // before executeCommand since it lives in that callback's dependency list.
+  const allCommands = useMemo<readonly CommandDef[]>(
+    () => (extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS),
+    [extraCommands],
+  )
+  const extraCommandIds = useMemo(
+    () => new Set((extraCommands ?? []).map((c) => c.id)),
+    [extraCommands],
+  )
+
   const executeCommand = useCallback(
     async (id: CommandId) => {
       setCommandMenu(null)
@@ -5054,6 +5070,14 @@ function ChatInner({
       setModelPicker(null)
       setSoundsPicker(null)
       setMicPicker(null)
+      // Host-provided commands (e.g. molecule.dev's /deploy, /push, /invite,
+      // /teamsay) have no client-side branch here — fill the input with the
+      // command so the user can add any arguments, then Enter sends it to the
+      // host's own handler (a server intercept, or the agent for /push).
+      if (extraCommandIds.has(id)) {
+        setInputAndCursorEnd(`/${id} `)
+        return
+      }
       if (id === 'clear') {
         setInputValue('')
         await clearHistory()
@@ -5462,6 +5486,7 @@ function ChatInner({
       sendMessage,
       refreshGitStatus,
       openPanelOverlay,
+      extraCommandIds,
     ],
   )
 
@@ -6007,7 +6032,7 @@ function ChatInner({
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
-    ? COMMANDS.filter((c) => c.label.startsWith(inputRef.current as string))
+    ? allCommands.filter((c) => c.label.startsWith(inputRef.current as string))
     : []
 
   const filteredModels = useMemo(() => {
@@ -10402,6 +10427,7 @@ export function ChatPanel({
   agentName,
   productName,
   version,
+  extraCommands,
   feedbackUrl,
   className,
 }: ChatPanelProps): JSX.Element {
@@ -10845,6 +10871,7 @@ export function ChatPanel({
         agentName={agentName}
         productName={productName}
         version={version}
+        extraCommands={extraCommands}
         feedbackUrl={feedbackUrl}
       />
     </div>
