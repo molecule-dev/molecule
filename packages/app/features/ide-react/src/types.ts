@@ -192,6 +192,12 @@ export interface ChatPanelProps {
    * surface). Omit to hide the row — the shared package stays host-agnostic.
    */
   onManageCustomModels?: () => void
+  /**
+   * Bump to make the panel re-read its persisted model/settings state — e.g.
+   * after the host's custom-provider surface sets the chat model via "Use".
+   * The panel loads that state once on mount otherwise.
+   */
+  modelSelectionSignal?: number
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */

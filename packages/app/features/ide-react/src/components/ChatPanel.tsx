@@ -2343,6 +2343,8 @@ export interface ChatInnerProps {
   openSettingsSignal?: number
   /** Shows a "manage your own models" row in the `/model` picker — see {@link ChatPanelProps.onManageCustomModels}. */
   onManageCustomModels?: () => void
+  /** Bump to re-read persisted model/settings — see {@link ChatPanelProps.modelSelectionSignal}. */
+  modelSelectionSignal?: number
   /** Changing this value opens the `/report` bug-report modal (used by the header bug button). */
   openReportSignal?: number
   /** Changing this value opens the `/share` link modal (used by the header share button). */
@@ -2412,6 +2414,7 @@ function ChatInner({
   autoSubmitSignal,
   openSettingsSignal,
   onManageCustomModels,
+  modelSelectionSignal,
   openReportSignal,
   openShareSignal,
   initialInputValue,
@@ -3967,6 +3970,29 @@ function ChatInner({
         setAutoCommitLoaded(true)
       })
   }, [http, projectId])
+
+  // Re-read ONLY the persisted model fields when the host signals a model change
+  // (the provider modal's "Use" button sets chatModel server-side). Targeted so
+  // a model pick never re-hydrates the rest of the settings (auto-commit,
+  // skills, effort). Skips the initial 0 value — mount already read them.
+  useEffect(() => {
+    if (!modelSelectionSignal) return
+    http
+      .get<{ settings?: Record<string, unknown> }>(`/projects/${projectId}`)
+      .then((res) => {
+        const s = res.data.settings
+        if (typeof s?.chatModel === 'string') {
+          setCurrentModel(s.chatModel)
+          setSavedChatModel(s.chatModel)
+        }
+        if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
+        if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
+      })
+      .catch(() => {
+        // Non-fatal: the model was persisted server-side; the picker indicator
+        // just won't refresh until the next full settings read.
+      })
+  }, [modelSelectionSignal, http, projectId])
 
   // Persist the auto-commit cadence to project.settings (debounced) so it
   // survives a reload/reconnect like every other setting. The reducer is the
