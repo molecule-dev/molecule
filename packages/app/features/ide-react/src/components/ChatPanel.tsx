@@ -6477,9 +6477,12 @@ function ChatInner({
         case 'model': {
           const label = cardEvent.label || cardEvent.model
           // Append the model's effective processing-region code — catalog
-          // models only (a custom/BYO endpoint's region is unknowable here).
+          // models only. A custom/BYO endpoint has no meaningful region: its
+          // catalog `regions` defaults to ['us'] as a placeholder, not a real
+          // re-host choice, so never surface a region for it.
           const def = AVAILABLE_MODELS.find((m) => m.id === cardEvent.model)
-          const regionCode = def ? effectiveModelRegion(def).toUpperCase() : null
+          const regionCode =
+            def && def.provider !== 'custom' ? effectiveModelRegion(def).toUpperCase() : null
           return {
             id,
             text: regionCode
