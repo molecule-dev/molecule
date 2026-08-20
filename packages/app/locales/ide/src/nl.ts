@@ -450,6 +450,12 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Op',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}-evenementen ingeschakeld',
   'ide.chat.share.heading': 'Project delen',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Project delen',
   'ide.chat.share.subheading':
     'Maak een openbare link aan. Iedereen met de link krijgt de rol die je kiest — een kijkerlink is alleen-lezen.',

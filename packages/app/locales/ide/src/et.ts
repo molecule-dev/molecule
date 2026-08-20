@@ -447,6 +447,12 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Kell',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}i sündmused on lubatud',
   'ide.chat.share.heading': 'Jaga projekti',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Jaga projekti',
   'ide.chat.share.subheading':
     'Loo avalik link. Igaüks, kellel on see link, saab sinu valitud rolli – vaataja link on ainult lugemisõigusega.',

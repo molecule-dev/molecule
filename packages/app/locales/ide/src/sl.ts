@@ -448,6 +448,12 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Na',
   'ide.chat.settings.soundsSummary': '{{enabled}} omogočeni dogodki »{{total}}«',
   'ide.chat.share.heading': 'Delite projekt',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Delite projekt',
   'ide.chat.share.subheading':
     'Ustvari javno povezavo. Vsakdo, ki ima povezavo, dobi vlogo, ki jo izbereš – povezava za ogled je namenjena le za branje.',

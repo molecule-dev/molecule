@@ -444,6 +444,12 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Den',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}-begivenheder er aktiveret',
   'ide.chat.share.heading': 'Del projekt',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Del projekt',
   'ide.chat.share.subheading':
     'Opret et offentligt link. Alle, der har linket, får den rolle, du vælger — et visningslink er skrivebeskyttet.',

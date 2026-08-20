@@ -450,6 +450,12 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Про',
   'ide.chat.settings.soundsSummary': '{{enabled}} увімкнено заходи з сервісу «{{total}}»',
   'ide.chat.share.heading': 'Поділитися проектом',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Поділитися проектом',
   'ide.chat.share.subheading':
     'Створіть загальнодоступне посилання. Кожен, хто отримає це посилання, отримає обрану вами роль — посилання для перегляду надає доступ лише для перегляду.',

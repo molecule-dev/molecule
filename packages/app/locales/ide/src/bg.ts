@@ -451,6 +451,12 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'На',
   'ide.chat.settings.soundsSummary': '{{enabled}} активирани събития от типа „{{total}}“',
   'ide.chat.share.heading': 'Сподели проекта',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Сподели проекта',
   'ide.chat.share.subheading':
     'Създайте публична връзка. Всеки, който разполага с връзката, получава избраната от вас роля — връзката за преглед е само за четене.',

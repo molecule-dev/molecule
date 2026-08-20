@@ -435,6 +435,12 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.settings.on': '于',
   'ide.chat.settings.soundsSummary': '{{enabled}} 已启用{{total}}相关事件',
   'ide.chat.share.heading': '分享项目',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': '分享项目',
   'ide.chat.share.subheading':
     '创建一个公开链接。任何拥有该链接的人都将获得您指定的角色——查看者链接仅限查看。',

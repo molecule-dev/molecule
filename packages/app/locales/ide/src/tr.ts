@@ -447,6 +447,12 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Tarih',
   'ide.chat.settings.soundsSummary': "{{enabled}} {{total}}'daki etkinlikler etkinleştirildi",
   'ide.chat.share.heading': 'Projeyi paylaş',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Projeyi paylaş',
   'ide.chat.share.subheading':
     'Herkese açık bir bağlantı oluşturun. Bağlantıya sahip olan herkes, sizin seçtiğiniz role sahip olur — görüntüleme bağlantısı salt okunurdur.',

@@ -452,6 +452,12 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Στις',
   'ide.chat.settings.soundsSummary': '{{enabled}} ενεργοποιημένων εκδηλώσεων του «{{total}}»',
   'ide.chat.share.heading': 'Κοινή χρήση έργου',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Κοινή χρήση έργου',
   'ide.chat.share.subheading':
     'Δημιουργήστε έναν δημόσιο σύνδεσμο. Όποιος διαθέτει τον σύνδεσμο αποκτά τον ρόλο που επιλέγετε — ένας σύνδεσμος για θεατές είναι μόνο για ανάγνωση.',

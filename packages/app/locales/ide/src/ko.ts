@@ -443,6 +443,12 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.settings.on': '~에',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}} 이벤트 활성화됨',
   'ide.chat.share.heading': '프로젝트 공유',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': '프로젝트 공유',
   'ide.chat.share.subheading':
     '공개 링크를 생성하세요. 링크를 가진 사람은 누구나 지정한 권한을 갖게 됩니다. ‘보기 전용’ 링크는 읽기 전용입니다.',

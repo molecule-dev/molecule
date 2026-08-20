@@ -449,6 +449,12 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Pe',
   'ide.chat.settings.soundsSummary': '{{enabled}} dintre evenimentele „{{total}}” activate',
   'ide.chat.share.heading': 'Partajează proiectul',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Partajează proiectul',
   'ide.chat.share.subheading':
     'Creează un link public. Oricine are linkul va primi rolul pe care îl alegi — un link de vizualizare este doar pentru citire.',

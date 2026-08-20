@@ -447,6 +447,12 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Pada',
   'ide.chat.settings.soundsSummary': '{{enabled}} acara "{{total}}" telah diaktifkan',
   'ide.chat.share.heading': 'Bagikan proyek',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Bagikan proyek',
   'ide.chat.share.subheading':
     'Buat tautan publik. Siapa pun yang memiliki tautan tersebut akan mendapatkan peran yang Anda tentukan — tautan penonton hanya dapat dibaca.',

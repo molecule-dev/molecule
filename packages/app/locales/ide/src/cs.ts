@@ -446,6 +446,12 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Dne',
   'ide.chat.settings.soundsSummary': '{{enabled}} z aktivovaných událostí typu „{{total}}“',
   'ide.chat.share.heading': 'Sdílet projekt',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Sdílet projekt',
   'ide.chat.share.subheading':
     'Vytvořte veřejný odkaz. Každý, kdo má tento odkaz, získá vámi zvolenou roli – odkaz pro prohlížení je určen pouze ke čtení.',

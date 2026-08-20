@@ -447,6 +447,12 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Par',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}a pasākumi ir iespējoti',
   'ide.chat.share.heading': 'Dalīties ar projektu',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Dalīties ar projektu',
   'ide.chat.share.subheading':
     'Izveidojiet publisku saiti. Ikvienam, kam ir šī saite, tiek piešķirta jūsu izvēlētā loma — skatītāja saite ir tikai lasāma.',

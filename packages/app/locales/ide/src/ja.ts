@@ -448,6 +448,12 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'について',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}イベントが有効になっています',
   'ide.chat.share.heading': 'プロジェクトを共有する',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'プロジェクトを共有する',
   'ide.chat.share.subheading':
     '公開リンクを作成します。リンクを知っている人は誰でも、あなたが指定した権限を取得します。閲覧者用リンクは読み取り専用です。',

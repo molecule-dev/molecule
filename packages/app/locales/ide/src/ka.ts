@@ -450,6 +450,12 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'On',
   'ide.chat.settings.soundsSummary': '{{enabled}} of {{total}} events enabled',
   'ide.chat.share.heading': 'Share project',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Share project',
   'ide.chat.share.subheading':
     'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',

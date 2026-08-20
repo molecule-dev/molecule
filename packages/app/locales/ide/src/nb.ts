@@ -443,6 +443,12 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'På',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}-hendelser er aktivert',
   'ide.chat.share.heading': 'Del prosjektet',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Del prosjekt',
   'ide.chat.share.subheading':
     'Opprett en offentlig lenke. Alle som har lenken, får den rollen du velger – en visningslenke gir kun lesetilgang.',

@@ -448,6 +448,12 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Päivämäärä',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}-tapahtumat on otettu käyttöön',
   'ide.chat.share.heading': 'Jaa projekti',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Jaa projekti',
   'ide.chat.share.subheading':
     'Luo julkinen linkki. Jokainen, jolla on linkki, saa valitsemasi roolin – katselulinkki on vain luku -oikeuksin.',

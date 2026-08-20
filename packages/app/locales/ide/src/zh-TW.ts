@@ -433,6 +433,12 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.settings.on': '於',
   'ide.chat.settings.soundsSummary': '{{enabled}} 已啟用{{total}}活動',
   'ide.chat.share.heading': '分享專案',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': '分享專案',
   'ide.chat.share.subheading':
     '建立公開連結。任何擁有此連結的人都會獲得您指定的角色——瀏覽者連結僅限讀取。',

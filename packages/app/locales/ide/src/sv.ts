@@ -447,6 +447,12 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Den',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}-händelser aktiverade',
   'ide.chat.share.heading': 'Dela projektet',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Dela projektet',
   'ide.chat.share.subheading':
     'Skapa en offentlig länk. Alla som har länken får den roll du väljer – en länk för läsare är skrivskyddad.',

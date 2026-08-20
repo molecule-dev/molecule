@@ -443,6 +443,12 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'في',
   'ide.chat.settings.soundsSummary': '{{enabled}} تم تمكين فعاليات "{{total}}"',
   'ide.chat.share.heading': 'مشاركة المشروع',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'مشاركة المشروع',
   'ide.chat.share.subheading':
     'إنشاء رابط عام. سيحصل أي شخص لديه الرابط على الدور الذي تختاره — رابط "المشاهد" هو رابط للقراءة فقط.',

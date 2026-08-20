@@ -456,6 +456,12 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'Le',
   'ide.chat.settings.soundsSummary': '{{enabled}} des événements « {{total}} » activés',
   'ide.chat.share.heading': 'Partager le projet',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Partager le projet',
   'ide.chat.share.subheading':
     'Créez un lien public. Toute personne disposant de ce lien se verra attribuer le rôle que vous aurez choisi — un lien de consultation est en lecture seule.',

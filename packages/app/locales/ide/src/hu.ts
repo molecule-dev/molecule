@@ -446,6 +446,12 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.settings.on': 'A',
   'ide.chat.settings.soundsSummary': '{{enabled}} {{total}}-események engedélyezve',
   'ide.chat.share.heading': 'Projekt megosztása',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Projekt megosztása',
   'ide.chat.share.subheading':
     'Hozzon létre egy nyilvános linket. Aki rendelkezik a linkkel, az megkapja az Ön által kiválasztott szerepkört – a megtekintői link csak olvasásra szolgál.',
