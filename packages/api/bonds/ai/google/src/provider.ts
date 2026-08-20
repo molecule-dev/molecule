@@ -120,8 +120,11 @@ class GoogleAIProvider implements AIProvider {
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
-    // use, so this surfaces the moment the provider is actually used.
-    if (!this.apiKey) {
+    // use, so this surfaces the moment the provider is actually used. A key is
+    // required only for the official endpoint — a custom baseUrl may target a
+    // keyless self-hosted / local server, where the `key=` param is omitted.
+    const usingCustomEndpoint = Boolean(config.baseUrl ?? process.env.GOOGLE_AI_BASE_URL)
+    if (!this.apiKey && !usingCustomEndpoint) {
       throw new Error(
         'GOOGLE_AI_API_KEY is not set. Add it to your environment to use the Google Gemini AI provider.',
       )
@@ -150,10 +153,13 @@ class GoogleAIProvider implements AIProvider {
     const signal = params.signal ?? AbortSignal.timeout(DEFAULT_TIMEOUT_MS)
 
     // The key is passed as a query param (`?key=`) per Google's REST auth; the
-    // URL is never logged, so the key is not leaked into logs.
+    // URL is never logged, so the key is not leaked into logs. Omitted for a
+    // keyless custom endpoint (a self-hosted / local server).
     const method = streaming ? 'streamGenerateContent' : 'generateContent'
-    const query = streaming ? 'alt=sse&key=' : 'key='
-    const url = `${this.baseUrl}/models/${encodeURIComponent(model)}:${method}?${query}${encodeURIComponent(this.apiKey)}`
+    const queryParts = streaming ? ['alt=sse'] : []
+    if (this.apiKey) queryParts.push(`key=${encodeURIComponent(this.apiKey)}`)
+    const query = queryParts.length > 0 ? `?${queryParts.join('&')}` : ''
+    const url = `${this.baseUrl}/models/${encodeURIComponent(model)}:${method}${query}`
 
     // Retry with exponential backoff for rate limits (429) and transient
     // server errors (500 INTERNAL / 503 UNAVAILABLE).

@@ -589,6 +589,16 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
         'fast-mode',
       )
     })
+
+    it('allows a keyless custom endpoint and omits the x-api-key header', async () => {
+      // No apiKey, but a custom baseUrl (a self-hosted / local server) — the
+      // constructor must not throw, and the request must carry no auth header.
+      const keyless = createProvider({ baseUrl: 'https://claude.local-proxy.test' })
+      mockFetch.mockResolvedValue(emptyStreamResponse())
+      await collectEvents(keyless.chat({ ...minimalParams }))
+      const [, init] = mockFetch.mock.calls[0] as [string, RequestInit]
+      expect((init.headers as Record<string, string>)['x-api-key']).toBeUndefined()
+    })
   })
 
   // =========================================================================

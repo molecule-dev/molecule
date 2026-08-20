@@ -74,7 +74,10 @@ describe('createProvider / constructor', () => {
       const provider = createProvider()
       expect(provider).toBeInstanceOf(OpenaiAIProvider)
     } finally {
-      process.env.OPENAI_API_KEY = prev
+      // `process.env.X = undefined` coerces to the string "undefined" — a
+      // truthy value that leaks into later tests as a bogus key. Delete instead.
+      if (prev === undefined) delete process.env.OPENAI_API_KEY
+      else process.env.OPENAI_API_KEY = prev
     }
   })
 
@@ -149,6 +152,36 @@ describe('chat() — request shape', () => {
     expect(url).toBe('https://proxy.test/v1/chat/completions')
     const headers = (init as RequestInit).headers as Record<string, string>
     expect(headers.Authorization).toBe('Bearer sk-abc')
+    expect(headers['Content-Type']).toBe('application/json')
+  })
+
+  it('allows a keyless custom endpoint and omits the Authorization header', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} }),
+    )
+
+    // No apiKey, but a custom baseUrl (a self-hosted / local server) — the
+    // constructor must not throw, and the request must carry no auth header.
+    // Clear the env key so the fallback can't supply one for this case.
+    const prev = process.env.OPENAI_API_KEY
+    delete process.env.OPENAI_API_KEY
+    try {
+      const provider = createProvider({ baseUrl: 'https://ollama.local-proxy.test' })
+      for await (const _ of provider.chat({
+        messages: [{ role: 'user', content: 'hello' }],
+        stream: false,
+      })) {
+        // drain
+      }
+    } finally {
+      if (prev === undefined) delete process.env.OPENAI_API_KEY
+      else process.env.OPENAI_API_KEY = prev
+    }
+
+    const [, init] = fetch.mock.calls[0]
+    const headers = (init as RequestInit).headers as Record<string, string>
+    expect(headers.Authorization).toBeUndefined()
     expect(headers['Content-Type']).toBe('application/json')
   })
 

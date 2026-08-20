@@ -102,8 +102,11 @@ class AnthropicAIProvider implements AIProvider {
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
     // use (see index.ts), so this surfaces the moment the provider is actually
-    // used, not at bond/module-load time.
-    if (!this.apiKey) {
+    // used, not at bond/module-load time. A key is required only for the
+    // official endpoint — a custom baseUrl may target a keyless self-hosted /
+    // local server, where the auth header is omitted below.
+    const usingCustomEndpoint = Boolean(config.baseUrl ?? process.env.ANTHROPIC_BASE_URL)
+    if (!this.apiKey && !usingCustomEndpoint) {
       throw new Error(
         'ANTHROPIC_API_KEY is not set. Add it to your environment to use the Anthropic Claude AI provider.',
       )
@@ -201,7 +204,8 @@ class AnthropicAIProvider implements AIProvider {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'x-api-key': this.apiKey,
+      // Omitted for a keyless custom endpoint (a self-hosted / local server).
+      ...(this.apiKey ? { 'x-api-key': this.apiKey } : {}),
       'anthropic-version': '2023-06-01',
     }
     // Build anthropic-beta header — features that require beta flags.

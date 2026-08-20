@@ -260,6 +260,17 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     )
   })
 
+  it('allows a keyless custom endpoint and omits the key query param', async () => {
+    // No apiKey, but a custom baseUrl (a self-hosted / local server) — the
+    // constructor must not throw, and the URL must carry no key= param.
+    const keyless = createProvider({ baseUrl: 'https://gemini.local-proxy.test' })
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(keyless.chat(minimalParams))
+    expect(urlOf()).toBe(
+      'https://gemini.local-proxy.test/models/gemini-3.7-flash:streamGenerateContent?alt=sse',
+    )
+  })
+
   it('maps system→systemInstruction, roles, tools, toolChoice, and generationConfig', async () => {
     mockFetch.mockResolvedValue(emptyStream())
     await collectEvents(

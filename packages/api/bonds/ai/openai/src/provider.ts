@@ -59,8 +59,11 @@ export class OpenaiAIProvider implements AIProvider {
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
     // use (see index.ts), so this surfaces the moment the provider is actually
-    // used, not at bond/module-load time.
-    if (!this.apiKey) {
+    // used, not at bond/module-load time. A key is required only for the
+    // official endpoint — a custom baseUrl may target a keyless self-hosted /
+    // local server (Ollama, LM Studio), where the auth header is omitted below.
+    const usingCustomEndpoint = Boolean(config.baseUrl ?? process.env.OPENAI_BASE_URL)
+    if (!this.apiKey && !usingCustomEndpoint) {
       throw new Error(
         'OPENAI_API_KEY is not set. Add it to your environment to use the OpenAI AI provider.',
       )
@@ -132,7 +135,8 @@ export class OpenaiAIProvider implements AIProvider {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.apiKey}`,
+      // Omitted for a keyless custom endpoint (a self-hosted / local server).
+      ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
     }
 
     const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000
