@@ -95,16 +95,31 @@ export const createWebVersionProvider = (): VersionProvider => {
     getServiceWorker: () => serviceWorkerController,
 
     applyUpdate(options?: { force?: boolean }) {
-      // Try to activate waiting service worker first
-      if (state.isServiceWorkerWaiting) {
-        serviceWorkerController.skipWaiting()
+      if (typeof window === 'undefined') return
 
-        // Wait briefly for activation, then reload
-        setTimeout(() => {
-          if (typeof window !== 'undefined') window.location.reload()
-        }, 100)
+      let reloaded = false
+      const reloadOnce = (): void => {
+        if (reloaded) return
+        reloaded = true
+        window.location.reload()
+      }
+
+      if (state.isServiceWorkerWaiting) {
+        // Reload only once the NEW worker actually controls the page — never on a
+        // blind timer, which could fire before skipWaiting completed and reload
+        // back onto the old worker's stale precache. `controllerchange` is the
+        // primary signal; the waiting worker's own activation is a reliable
+        // fallback for browsers that don't emit controllerchange promptly.
+        const waiting = serviceWorkerController.getWaiting()
+        if (typeof navigator !== 'undefined' && navigator.serviceWorker) {
+          navigator.serviceWorker.addEventListener('controllerchange', reloadOnce, { once: true })
+        }
+        waiting?.addEventListener('statechange', () => {
+          if (waiting.state === 'activated') reloadOnce()
+        })
+        serviceWorkerController.skipWaiting()
       } else if (options?.force || state.isUpdateAvailable) {
-        if (typeof window !== 'undefined') window.location.reload()
+        reloadOnce()
       }
     },
 

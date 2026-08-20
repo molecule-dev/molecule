@@ -149,6 +149,12 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       ],
     },
     workbox: {
+      // In `prompt` mode the new worker activates when the update banner posts
+      // SKIP_WAITING; without clientsClaim it never takes control of the open
+      // page, so `controllerchange` never fires and the reload never happens —
+      // the banner sticks on "Updating…". Claim clients so activation drives the
+      // one reload in registerPWA.
+      clientsClaim: true,
       // vite-plugin-pwa defaults this to 2 MiB; apps that bundle heavy
       // deps (e.g. a Monaco-based code editor) ship a >2 MiB entry chunk
       // and fail the build outright. 5 MiB gives the fleet headroom.
@@ -159,13 +165,12 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // delivered web-push displays nothing.
       importScripts: [PUSH_SW_FILENAME],
       globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-      runtimeCaching: [
-        {
-          urlPattern: /^https:\/\/.*\/api\/.*/i,
-          handler: 'NetworkFirst' as const,
-          options: { cacheName: 'api-cache', expiration: { maxEntries: 50, maxAgeSeconds: 300 } },
-        },
-      ],
+      // No runtime API caching. The old rule matched every /api/ request with
+      // NetworkFirst, which tried to cache SSE/streaming GETs (EventSource,
+      // text/event-stream) and threw "Cache.put() encountered a network error",
+      // and parked authenticated API responses in shared cache. Let /api/ pass
+      // straight through to the network.
+      runtimeCaching: [],
     },
   }
 
