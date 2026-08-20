@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-pwa-default",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Default registerPWA() — periodic update checks, styled update banner with i18n labels, multi-tab reload coordination, focus-triggered SW update check, error recovery on fatal SW errors. Lifts 147 lines of byte-identical PWA wiring shipped by every flagship app.",
   "type": "module",
   "main": "dist/index.js",

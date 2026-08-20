@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.0.2
+
+### Patch Changes
+
+- 6cad76b: Reload only after the new service worker takes control. Clicking "Update" could previously reload before the waiting worker activated, leaving the old cached bundle in place until another refresh.
+
 ## 1.0.1
 
 ### Patch Changes

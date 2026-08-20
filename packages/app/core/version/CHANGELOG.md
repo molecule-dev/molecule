@@ -1,5 +1,11 @@
 # @molecule/app-version
 
+## 1.0.2
+
+### Patch Changes
+
+- Apply a pending update by reloading only once the new service worker actually controls the page, instead of on a fixed 100ms timer that could reload onto the old cached build.
+
 ## 1.0.1
 
 ### Patch Changes

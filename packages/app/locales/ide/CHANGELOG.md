@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.1.4
+
+### Patch Changes
+
+- Add translations for the parameterized `/scripts` panel keys, the chat queued-count label, item render errors, and the peak-hour keys across all supported languages.
+
 ## 1.1.3
 
 ### Patch Changes
