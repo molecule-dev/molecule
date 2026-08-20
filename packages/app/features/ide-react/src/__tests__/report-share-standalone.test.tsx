@@ -243,16 +243,26 @@ describe('ShareModal works standalone, with no ChatPanel in the tree', () => {
 
     expect(container.querySelector('[data-mol-id="share-modal"]')).not.toBeNull()
 
-    fireEvent.click(container.querySelector('[data-mol-id="share-create"]') as HTMLButtonElement)
+    // The create control appears once the (empty) link list has loaded.
+    const create = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="share-create"]')
+      expect(el).not.toBeNull()
+      return el as HTMLButtonElement
+    })
+    fireEvent.click(create)
 
     await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
     expect(post.mock.calls[0][0]).toBe('/projects/p1/shares')
     expect(post.mock.calls[0][1]).toMatchObject({ role: 'viewer' })
 
     await waitFor(() => expect(onCreated).toHaveBeenCalledTimes(1))
-    // The created link renders inline — but only until the modal closes, so the
-    // host gets the result (and the URL builder) to persist it somewhere.
-    const field = container.querySelector('[data-mol-id="share-link"]') as HTMLInputElement
+    // The created link renders inline as a full, copyable URL, so the host gets
+    // the result (and the URL builder) to persist it somewhere.
+    const field = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="share-link-url"]') as HTMLInputElement
+      expect(el).not.toBeNull()
+      return el
+    })
     expect(field.value).toContain('/share/s1')
     expect(buildShareUrl(onCreated.mock.calls[0][0], 'https://app.example')).toBe(
       'https://app.example/share/s1',

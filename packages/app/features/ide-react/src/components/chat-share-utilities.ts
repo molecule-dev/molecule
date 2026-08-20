@@ -62,6 +62,12 @@ export interface ShareLinkResult {
    * wins over the current page origin.
    */
   url?: string
+  /** When the link expires, if ever (ISO 8601); absent/`null` = no expiry. */
+  expiresAt?: string | null
+  /** When the link was revoked (ISO 8601); absent/`null` = still active. */
+  revokedAt?: string | null
+  /** When the link was created (ISO 8601). */
+  createdAt?: string
 }
 
 /**

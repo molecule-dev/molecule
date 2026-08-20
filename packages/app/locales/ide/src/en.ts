@@ -564,6 +564,12 @@ export const en: IdeTranslations = {
   'ide.chat.share.copied': 'Copied',
   'ide.chat.share.openLink': 'Open link',
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
+  'ide.chat.share.loading': 'Loading…',
+  'ide.chat.share.none': 'No public link yet.',
+  'ide.chat.share.copyHint': 'Click to copy',
+  'ide.chat.share.revoke': 'Revoke',
+  'ide.chat.share.revoking': 'Revoking…',
+  'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.usage':
     'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
   // Skills browser (/skills).

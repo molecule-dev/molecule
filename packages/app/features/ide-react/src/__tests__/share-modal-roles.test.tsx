@@ -23,7 +23,7 @@ import { setIconSet } from '@molecule/app-icons'
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
-const httpMock = vi.hoisted(() => ({ post: vi.fn() }))
+const httpMock = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), delete: vi.fn() }))
 
 vi.mock('@molecule/app-react', () => ({
   useHttpClient: () => httpMock,
@@ -36,7 +36,11 @@ beforeEach(() => {
   setClassMap(classMap)
   setIconSet(new Proxy({}, { get: () => ({ paths: [] }) }))
   setI18nProvider(createSimpleI18nProvider('en'))
+  // The manager lists existing links on mount; default to "none" so the create
+  // control is what renders.
+  httpMock.get.mockReset().mockResolvedValue({ data: { data: [] } })
   httpMock.post.mockReset().mockResolvedValue({ data: { id: 'l1', slug: 'abc', role: 'viewer' } })
+  httpMock.delete.mockReset().mockResolvedValue({ data: {} })
 })
 
 afterEach(() => {
@@ -47,11 +51,17 @@ describe('ShareModal — offered roles', () => {
   it('offers no role choice by default and mints the safe role', async () => {
     const { container } = render(<ShareModal projectId="p1" onClose={() => {}} />)
 
+    // The create control appears once the (empty) link list has loaded.
+    const create = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="share-create"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })
     // No select at all: with one role there is nothing to choose, and a control
     // whose value the backend overrides is worse than no control.
     expect(container.querySelector('[data-mol-id="share-role"]')).toBeNull()
 
-    fireEvent.click(container.querySelector('[data-mol-id="share-create"]') as HTMLElement)
+    fireEvent.click(create)
     await waitFor(() => {
       expect(httpMock.post).toHaveBeenCalledWith('/projects/p1/shares', { role: 'viewer' })
     })
@@ -63,13 +73,16 @@ describe('ShareModal — offered roles', () => {
     expect(container.textContent).not.toContain('the role you choose')
   })
 
-  it('offers exactly the roles the host declares, in order', () => {
+  it('offers exactly the roles the host declares, in order', async () => {
     const { container } = render(
       <ShareModal projectId="p1" roles={['viewer', 'editor']} onClose={() => {}} />,
     )
 
-    const select = container.querySelector('[data-mol-id="share-role"]') as HTMLSelectElement
-    expect(select).not.toBeNull()
+    const select = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="share-role"]')
+      expect(el).not.toBeNull()
+      return el as HTMLSelectElement
+    })
     expect(Array.from(select.options).map((option) => option.value)).toEqual(['viewer', 'editor'])
   })
 
@@ -78,7 +91,12 @@ describe('ShareModal — offered roles', () => {
       <ShareModal projectId="p1" initialRole="owner" onClose={() => {}} />,
     )
 
-    fireEvent.click(container.querySelector('[data-mol-id="share-create"]') as HTMLElement)
+    const create = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="share-create"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })
+    fireEvent.click(create)
     await waitFor(() => {
       // `/share owner` must not POST a role the backend would silently downgrade.
       expect(httpMock.post).toHaveBeenCalledWith('/projects/p1/shares', { role: 'viewer' })
