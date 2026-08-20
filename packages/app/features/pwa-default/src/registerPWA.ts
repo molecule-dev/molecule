@@ -4,7 +4,6 @@ import { t } from '@molecule/app-i18n'
 import { error as logError } from '@molecule/app-logger'
 
 const CHECK_INTERVAL = 5 * 60 * 1000 // 5 minutes
-const UPDATE_TIMEOUT = 5000 // 5 seconds
 
 /**
  * Registers the service worker with full PWA lifecycle management:
@@ -17,13 +16,28 @@ const UPDATE_TIMEOUT = 5000 // 5 seconds
 export function registerPWA(): void {
   if (typeof window === 'undefined') return
 
+  // Single source of truth for the post-update reload. `updateSW(true)` skip-waits
+  // the NEW worker; the browser fires `controllerchange` once it actually takes
+  // control, and ONLY then do we reload — so we never reload while the OLD worker
+  // (and its old precache) is still in charge. The guard makes it idempotent
+  // (controllerchange can fire more than once, and in other tabs). Never
+  // blind-timeout-reload: that reloaded before the swap completed and landed the
+  // user back on the stale bundle after clicking Update.
+  let reloading = false
+  navigator.serviceWorker?.addEventListener('controllerchange', () => {
+    if (reloading) return
+    reloading = true
+    window.location.reload()
+  })
+
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
+      // The banner's Update action calls this. `updateSW(true)` posts SKIP_WAITING
+      // to the waiting worker; the controllerchange listener above performs the one
+      // reload once the new worker is in control.
       showUpdateBanner(() => {
-        updateSW(true)
-        // Fallback: if update doesn't trigger reload within 5s, force reload
-        setTimeout(() => window.location.reload(), UPDATE_TIMEOUT)
+        void updateSW(true)
       })
     },
     onRegisteredSW(_swUrl, registration) {
@@ -44,10 +58,8 @@ export function registerPWA(): void {
     }
   })
 
-  // Multi-tab: reload when a new SW takes control
-  navigator.serviceWorker?.addEventListener('controllerchange', () => {
-    window.location.reload()
-  })
+  // (Multi-tab reload-on-activation is handled by the single guarded
+  // `controllerchange` listener registered above.)
 
   // Error recovery: if a fatal error occurs and a SW update is pending,
   // unregister the broken SW and reload to get fresh code
