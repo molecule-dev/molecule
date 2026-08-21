@@ -69,6 +69,14 @@ import type { ModelDefinition } from './types.js'
  *   2026-12-31 billed here at list; specs from /docs/models/gemini-3.7-flash:
  *   1M ctx / 65,536 out, thinking low|medium|high (no minimal), vision, tools,
  *   caching, search grounding, code execution, url context)
+ *   (re-verified 2026-08-21: the pricing page shows that SAME launch promo on
+ *   gemini-3.6-flash too, verbatim "$0.75 through December 31, 2026. $1.50
+ *   starting January 1, 2027." for input, "$3.75 … $7.50" for output and
+ *   "$0.075 … $0.15" for caching read — i.e. the promo is flash-tier-wide, not
+ *   3.7-only as the 2026-08-13 note assumed. Both flash entries therefore stay
+ *   at the post-promo list rate ($1.50/$7.50, cache read $0.15) under the same
+ *   never-under-charge policy, each with a KNOWN_DIVERGENCES entry expiring
+ *   2026-12-31. gemini-3.5-flash carries no promo: still $1.50/$9.00, $0.15)
  * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-5
  *   (grok-4.5 flagship 2026-07-08: $2/$6, 500K ctx, ≥200K prompts bill 2× —
  *   not modeled; reasoning_effort low|medium|high default high, image input;
@@ -659,6 +667,12 @@ export const MODELS: readonly ModelDefinition[] = [
     codeExecutionToolType: 'code_execution',
     webFetchToolType: 'url_context',
     // GA 2026-07-21 — same input price as 3.5-flash, CHEAPER output ($7.50 vs $9).
+    // LIST price $1.50/$7.50. Verified 2026-08-21: the pricing page runs the
+    // SAME flash-tier launch promo as 3.7-flash on this id ($0.75/$3.75, cache
+    // read $0.075) through 2026-12-31, reverting to list on 2027-01-01; billed
+    // here at list so metering never under-charges (identical policy and
+    // expiry to the gemini-3.7-flash entry above — see its matching
+    // KNOWN_DIVERGENCES entry in scripts/check-model-freshness.mjs).
     inputPricePerMTok: 1.5,
     outputPricePerMTok: 7.5,
     // Gemini context cache: read $0.15/M (0.1× input), no write premium
