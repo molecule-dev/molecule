@@ -59,6 +59,12 @@ import type { ModelDefinition } from './types.js'
  *   gpt-5.4 still listed as current; long-context 2× variants exist upstream —
  *   not modeled, same as the Gemini/Grok tiers; Sol "Fast mode" 2.5× speed at
  *   2× price announced 2026-07-30 — not yet modeled)
+ *   (re-verified 2026-08-25: -sol on a >20% PROMO at $4/$20 (cache read $0.40,
+ *   cache write $5) since 2026-08-22, footnoted on that page as "available at
+ *   least through November 21, 2026" — catalog holds LIST $5/$30 so metering
+ *   never under-charges when it lapses, per KNOWN_DIVERGENCES; -terra and
+ *   -luna unchanged and matching the page; cache-read 0.1× and cache-write
+ *   1.25× are now published first-party for all three tiers)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -399,16 +405,17 @@ export const MODELS: readonly ModelDefinition[] = [
 
   // ---------------------------------------------------------------------------
   // OpenAI
-  // Verified: https://developers.openai.com/api/docs/pricing (2026-07-28)
+  // Verified: https://developers.openai.com/api/docs/pricing (2026-08-25)
   // GPT-5.6 family GA 2026-07-09: gpt-5.6 is an alias for gpt-5.6-sol; Sol is
   // the frontier tier, Terra the balanced tier, Luna the cheap/fast tier.
-  // Cached input is billed at 0.1× input. The official pricing page shows no
-  // cache-WRITE premium, but third-party trackers report 1.25× with a 30-min
-  // cache life for the 5.6 family — billed here at 1.25× (conservative;
-  // re-verify against the official docs). reasoning_effort values for 5.6 are
-  // not yet on the docs page — carried over from gpt-5.5 (low|medium|high|
-  // xhigh, default medium); re-verify. Long-context 2× price variants exist
-  // upstream — not modeled (same as the Gemini/Grok >200K tiers).
+  // Cached input is billed at 0.1× input, cache WRITES at 1.25× input — both
+  // now published first-party (the page grew explicit "Cached Input"/"Cache
+  // Writes" columns; the 1.25× the catalog had been carrying from third-party
+  // trackers is confirmed across all three tiers). reasoning_effort values for
+  // 5.6 are not yet on the docs page — carried over from gpt-5.5 (low|medium|
+  // high|xhigh, default medium); re-verify. Long-context 2× price variants
+  // exist upstream — not modeled (same as the Gemini/Grok >200K tiers), and
+  // neither are the Batch (0.5×) or Sol "Fast mode" (2×) cards.
   // ---------------------------------------------------------------------------
   {
     id: 'gpt-5.6-sol',
@@ -431,9 +438,15 @@ export const MODELS: readonly ModelDefinition[] = [
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     codeExecutionToolType: 'code_interpreter',
+    // LIST price. OpenAI ran a >20% PROMO from 2026-08-22 ($4/$20, cache read
+    // $0.40, cache write $5) — "GPT-5.6 Sol's promotional pricing is available
+    // at least through November 21, 2026" per the pricing page's own footnote.
+    // Billed here at list so metering never under-charges when it lapses; same
+    // policy as the gemini-flash and claude-sonnet-5 promos, and recorded in
+    // check-model-freshness.mjs KNOWN_DIVERGENCES (expires 2026-11-21).
     inputPricePerMTok: 5,
     outputPricePerMTok: 30,
-    // Cached input 0.1× input; write premium reported 1.25× (see section note).
+    // Cached input 0.1× input, cache write 1.25× input (see section note).
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 6.25,
     // Not published — best-effort estimate.
@@ -461,7 +474,7 @@ export const MODELS: readonly ModelDefinition[] = [
     // Repriced 2026-07-30 (20% cut from $2.50/$15).
     inputPricePerMTok: 2,
     outputPricePerMTok: 12,
-    // Cached input 0.1× input; write premium reported 1.25× (see section note).
+    // Cached input 0.1× input, cache write 1.25× input (see section note).
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 2.5,
     // Not published — best-effort estimate.
@@ -489,7 +502,7 @@ export const MODELS: readonly ModelDefinition[] = [
     // Repriced 2026-07-30 (80% cut from $1/$6).
     inputPricePerMTok: 0.2,
     outputPricePerMTok: 1.2,
-    // Cached input 0.1× input; write premium reported 1.25× (see section note).
+    // Cached input 0.1× input, cache write 1.25× input (see section note).
     cacheReadPricePerMTok: 0.02,
     cacheWritePricePerMTok: 0.25,
     // The free-tier PLAN default (2026-08-18) — us-only OpenAI, so this carve-out
