@@ -907,7 +907,8 @@ describe('supersededBy', () => {
       'minimax-m2.7': 'minimax-m3',
       'minimax-m2.5': 'minimax-m3',
       'qwen3.7-max': 'qwen3.8-max',
-      'glm-5': 'glm-5.2',
+      'glm-5.2': 'glm-5.3',
+      'glm-5': 'glm-5.3',
     }
     expect(Object.fromEntries(superseded.map((m) => [m.id, m.supersededBy]))).toEqual(expected)
     for (const [older, newer] of Object.entries(expected)) {

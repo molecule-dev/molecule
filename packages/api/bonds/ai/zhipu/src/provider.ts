@@ -37,8 +37,10 @@ interface ZhipuStreamState {
 /**
  * Fallback: map thinking budget tokens to a Zhipu reasoning_effort level when
  * the caller didn't resolve a native value from the model catalog. Note
- * `reasoning_effort` is only honored on glm-5.2+ (values minimal | none | low |
- * medium | high | xhigh | max; low/medium coerce to high, xhigh to max) —
+ * `reasoning_effort` is only honored on glm-5.2+ (glm-5.2 takes minimal | none |
+ * low | medium | high | xhigh | max, where low/medium coerce to high and xhigh
+ * to max; glm-5.3 narrows this to low | high | max and can no longer disable
+ * reasoning at all — both accept the `'high'`/`'low'` this returns) —
  * callers should prefer passing `thinking.effort`; older GLM models only
  * support thinking on/off and should not receive a thinking param at all.
  *
@@ -66,7 +68,7 @@ class ZhipuAIProvider implements AIProvider {
 
   constructor(config: ZhipuConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.ZHIPU_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'glm-5.2'
+    this.defaultModel = config.defaultModel ?? 'glm-5.3'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.ZHIPU_BASE_URL ?? 'https://api.z.ai/api/paas'
     this.completionsPath =

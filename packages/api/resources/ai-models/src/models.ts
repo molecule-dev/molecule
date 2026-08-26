@@ -127,8 +127,19 @@ import type { ModelDefinition } from './types.js'
  *   $1.65/$4.951), so nothing would ever select it — and carrying both would
  *   put two selectable Alibaba flagships in one family. Revisit only if Alibaba
  *   publishes it as a distinct first-party DashScope model id.)
- * - Zhipu: https://docs.z.ai/guides/overview/pricing (unchanged; glm-5.2 is
- *   the newest — "GLM-5.3/5.5" rumors have no released ids as of 2026-07-28)
+ * - Zhipu: https://docs.z.ai/guides/overview/pricing + docs.z.ai/guides/llm/
+ *   glm-5.3 (verified 2026-08-26: glm-5.3 shipped 2026-08-14 and IS in the
+ *   catalog — $1.40/$4.40, cached $0.26, i.e. glm-5.2's card unchanged, 1M ctx,
+ *   128K out, text-only, reasoning_effort low|high|max with reasoning no longer
+ *   disableable. It supersedes glm-5.2: same tier, same base weights, gains are
+ *   post-training only. NOT on DeepInfra — api.deepinfra.com/models/zai-org/
+ *   GLM-5.3 returns "model not found", so it is cn-region-only for now and the
+ *   ZHIPU_US_MODEL_MAP needs no entry.
+ *   glm-5.3-flash (2026-08-26, 320B-A18B, natively multimodal, 1M ctx) is NOT
+ *   added: it would be a brand-new cheap tier for this provider, its list card
+ *   ($0.15/$0.50, cached $0.03) is currently masked by a 50%-off promo running
+ *   to 2026-09-09, and its only US path is a DeepInfra re-host that would need
+ *   a modelMap bump in molecule-dev. Left for human triage.)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
@@ -1505,12 +1516,48 @@ export const MODELS: readonly ModelDefinition[] = [
   // Zhipu (GLM)
   // Verified: https://docs.z.ai/guides/overview/pricing
   //           https://docs.z.ai/api-reference/llm/chat-completion
-  // glm-5.2 (standalone API since 2026-06-16) is the flagship. It is the ONLY
-  // GLM model with reasoning_effort (values minimal|none|low|medium|high|
-  // xhigh|max; low/medium coerce to high, xhigh coerces to max — effective
-  // levels are high|max plus minimal/none = skip thinking; default max).
+  // glm-5.3 (2026-08-14) is the flagship — same base weights as glm-5.2, all
+  // gains from post-training, same rate card ($1.40/$4.40, cached $0.26).
+  // glm-5.2 took reasoning_effort minimal|none|low|medium|high|xhigh|max
+  // (low/medium coerce to high, xhigh to max; minimal/none skip thinking).
+  // glm-5.3 NARROWS that: low|high|max only, default max, and disabling
+  // reasoning is no longer supported — so no minimal/none tier.
   // glm-5 has thinking on/off only and was REPRICED (was $0.72/$2.30).
   // ---------------------------------------------------------------------------
+  {
+    id: 'glm-5.3',
+    provider: 'zhipu',
+    label: 'GLM-5.3',
+    description: 'Open-source SOTA agentic — 1M context',
+    contextWindow: 1_048_576,
+    maxOutputTokens: 131_072,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'high', 'max'],
+    defaultEffortLevel: 'high',
+    // Z.ai's own default is max (deep reasoning); high is the balanced tier we
+    // default to, same call as glm-5.2. Thinking can NOT be turned off here.
+    supportsVision: false,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // The chat-completion reference gates web_search per model only in its
+    // VISION section; for text models the tool is listed unconditionally, as it
+    // was when glm-5.2 was cataloged.
+    webSearchToolType: 'web_search',
+    inputPricePerMTok: 1.4,
+    outputPricePerMTok: 4.4,
+    // GLM context cache: read ≈0.19× input, no write premium.
+    cacheReadPricePerMTok: 0.26,
+    cacheWritePricePerMTok: 1.4,
+    // No US re-host exists — DeepInfra serves GLM-5.2 and GLM-5.3-Flash but
+    // returns "model not found" for zai-org/GLM-5.3 (checked 2026-08-26), so
+    // this is pinned to the native host and bills the list card above.
+    regions: ['cn'],
+    // Same base weights as glm-5.2, so the same best-effort estimate — Z.ai
+    // publishes no cutoff.
+    knowledgeCutoff: '2025-06-01',
+  },
   {
     id: 'glm-5.2',
     provider: 'zhipu',
@@ -1541,6 +1588,12 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published by Z.ai — best-effort estimate.
     knowledgeCutoff: '2025-06-01',
+    // Superseded by glm-5.3 (same tier, same base weights, same rate card) —
+    // kept priceable. Its DeepInfra US re-host was the cheaper way to run this
+    // tier ($0.75/$2.40); glm-5.3 is not on that host yet, so the zhipu slot is
+    // native-only until it is.
+    deprecatedAt: '2026-08-26',
+    supersededBy: 'glm-5.3',
   },
   {
     id: 'glm-5',
@@ -1570,9 +1623,10 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 0.6, outputPricePerMTok: 2.08, cacheReadPricePerMTok: 0.12 },
     },
     knowledgeCutoff: '2025-01-01',
-    // Superseded by glm-5.2 (same line, bigger window, reasoning_effort) — kept
-    // priceable.
+    // Superseded by glm-5.3 (same line, bigger window, reasoning_effort) — kept
+    // priceable. Points past glm-5.2, which is itself superseded: supersededBy
+    // must name a SELECTABLE model so a saved selection resolves in one hop.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'glm-5.2',
+    supersededBy: 'glm-5.3',
   },
 ] as const
