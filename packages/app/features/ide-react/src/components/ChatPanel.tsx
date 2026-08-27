@@ -2356,6 +2356,8 @@ export interface ChatInnerProps {
   isPro?: boolean
   /** Whether the viewer is anonymous — see {@link ChatPanelProps.isAnonymous}. */
   isAnonymous?: boolean
+  /** Whether the user may write shared project state — see {@link ChatPanelProps.canEdit}. */
+  canEdit?: boolean
   /** Host-supplied upgrade/sign-in CTA builder — see {@link ChatPanelProps.buildUpgradeCta}. */
   buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
   /** Host-supplied `/help` upgrade section builder — see {@link ChatPanelProps.buildHelpUpgradeSection}. */
@@ -2442,6 +2444,7 @@ function ChatInner({
   onInitialMessageSent,
   isPro,
   isAnonymous,
+  canEdit,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   activeFile,
@@ -5189,6 +5192,23 @@ function ChatInner({
         setInputAndCursorEnd(`/${id} `)
         return
       }
+      // A read-only VIEWER may run only viewerSafe commands (read / view-only /
+      // per-user preference). Everything else writes shared project state or
+      // triggers a Synthase turn the server 403s, so surface a read-only note
+      // instead of a dead control that silently fails. Default-deny: an
+      // unflagged command is unavailable to viewers.
+      if (!canEdit) {
+        const def = allCommands.find((c) => c.id === id)
+        if (def && !def.viewerSafe) {
+          addSystemCard(
+            t('ide.chat.viewerReadOnlyCommand', undefined, {
+              defaultValue:
+                'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+            }),
+          )
+          return
+        }
+      }
       if (id === 'clear') {
         setInputValue('')
         await clearHistory()
@@ -5598,6 +5618,9 @@ function ChatInner({
       refreshGitStatus,
       openPanelOverlay,
       extraCommandIds,
+      canEdit,
+      allCommands,
+      t,
     ],
   )
 
@@ -5634,6 +5657,30 @@ function ChatInner({
 
     const trimmed = (inputRef.current as string).trim()
     if (!trimmed && attachedFiles.length === 0) return
+
+    // Read-only VIEWER guard. A viewer cannot run the assistant (the server 403s
+    // the chat route) or any project-mutating command, so block a plain message
+    // or a write-command here with a read-only note instead of a silent 403 —
+    // but let team side-channel messages (/teamsay) and viewerSafe commands
+    // through so viewers can still talk to the team and read. (Menu-dispatched
+    // commands are gated in executeCommand; this covers composer typing.)
+    if (!canEdit) {
+      const token = trimmed.match(/^\/(\S+)/)?.[1]?.toLowerCase()
+      const def = token
+        ? allCommands.find((c) => c.id.toLowerCase() === token || c.aliases?.includes(token))
+        : undefined
+      const allowed = matchesSideChannelCommand(allCommands, trimmed) || def?.viewerSafe === true
+      if (!allowed) {
+        setInputValue('')
+        addSystemCard(
+          t('ide.chat.viewerReadOnly', undefined, {
+            defaultValue:
+              "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+          }),
+        )
+        return
+      }
+    }
 
     // Handle /autofix toggle locally
     if (/^\/autofix$/i.test(trimmed)) {
@@ -9812,6 +9859,26 @@ function ChatInner({
             </div>
           )}
 
+        {/* Read-only note for a project VIEWER — the composer stays usable for
+            /teamsay + reading, but the assistant and project-mutating controls
+            are disabled (the server 403s those writes). */}
+        {!canEdit && (
+          <div
+            data-mol-id="chat-viewer-readonly-note"
+            style={{
+              fontSize: 12,
+              lineHeight: 1.4,
+              color: 'var(--mol-color-text-secondary, #888)',
+              padding: '4px 2px 8px',
+            }}
+          >
+            {t('ide.chat.viewerReadOnlyNote', undefined, {
+              defaultValue:
+                'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
+            })}
+          </div>
+        )}
+
         {/* Input container — matches user message card style */}
         <div
           className={cm.surfaceSecondary}
@@ -9881,6 +9948,7 @@ function ChatInner({
             {/* Plan/Execute mode toggle */}
             <button
               type="button"
+              disabled={!canEdit}
               onClick={() => {
                 const newMode = mode === 'plan' ? 'execute' : 'plan'
                 setMode(newMode)
@@ -9923,9 +9991,9 @@ function ChatInner({
                     ? `1px solid ${isLight ? 'rgba(217,119,6,0.55)' : 'rgba(234,179,8,0.5)'}`
                     : 'none',
                 borderRadius: '3px',
-                cursor: 'pointer',
+                cursor: canEdit ? 'pointer' : 'not-allowed',
                 color: mode === 'plan' ? (isLight ? '#d97706' : '#eab308') : 'inherit',
-                opacity: mode === 'plan' ? 1 : 0.4,
+                opacity: !canEdit ? 0.4 : mode === 'plan' ? 1 : 0.4,
                 padding: 0,
                 transition: 'opacity 100ms, color 100ms',
               }}
@@ -9950,6 +10018,7 @@ function ChatInner({
               <button
                 type="button"
                 data-mol-id="chat-fast-mode-toggle"
+                disabled={!canEdit}
                 onClick={() => {
                   const next = !fastMode
                   setFastMode(next)
@@ -10552,6 +10621,7 @@ export function ChatPanel({
   userEditedFileKey,
   isPro,
   isAnonymous,
+  canEdit = true,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   userAvatar,
@@ -10962,6 +11032,7 @@ export function ChatPanel({
         onInitialMessageSent={onInitialMessageSent}
         isPro={isPro}
         isAnonymous={isAnonymous}
+        canEdit={canEdit}
         buildUpgradeCta={buildUpgradeCta}
         buildHelpUpgradeSection={buildHelpUpgradeSection}
         activeFile={activeFile}

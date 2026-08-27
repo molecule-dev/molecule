@@ -198,6 +198,18 @@ export interface ChatPanelProps {
    * The panel loads that state once on mount otherwise.
    */
   modelSelectionSignal?: number
+  /**
+   * Whether the current user may write SHARED project state from the chat
+   * surface — send/run Synthase, change the model, toggle autofix/mode, run a
+   * write-command, etc. A read-only project VIEWER passes `false`: the server
+   * 403s every such write, so the UI disables the composer + those controls and
+   * default-denies non-`viewerSafe` slash commands, showing a read-only note
+   * instead of a dead control. Defaults to `true` (a single-user/owner IDE and
+   * every non-collaborator host is unaffected). Read-only reads, view-only
+   * surfaces (`/settings`, `/help`, `/cost`) and per-user preferences stay
+   * available.
+   */
+  canEdit?: boolean
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */

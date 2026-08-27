@@ -75,6 +75,17 @@ export interface CommandDef {
    * every project member.
    */
   sideChannel?: boolean
+  /**
+   * True for commands a read-only project VIEWER may run — the ones that only
+   * read, open a view-only surface, or set a per-user/per-device preference
+   * (`/cost`, `/settings`, `/help`, `/mic`, …). Everything else writes shared
+   * project state or triggers a Synthase turn (which the server 403s for a
+   * viewer), so it is **default-denied** for viewers: omitting this flag means a
+   * viewer cannot run the command, which is the safe default for any command
+   * added later. Host side-channel commands (`sideChannel`, e.g. `/teamsay`) are
+   * team communication, not project mutation — they set this so viewers can talk.
+   */
+  viewerSafe?: boolean
 }
 
 /**
@@ -96,6 +107,7 @@ export const COMMANDS: readonly CommandDef[] = [
     label: '/cost',
     description: 'Show token usage & share of your AI allowance',
     category: 'context',
+    viewerSafe: true,
   },
   {
     id: 'skills',
@@ -207,6 +219,9 @@ export const COMMANDS: readonly CommandDef[] = [
     label: '/settings',
     description: "View & change {{agentName}}'s settings",
     category: 'settings',
+    // The settings modal renders read-only for a viewer (every write control is
+    // disabled), so opening it to look is fine.
+    viewerSafe: true,
   },
   { id: 'sounds', label: '/sounds', description: 'Notification sounds', category: 'settings' },
   {
@@ -214,22 +229,31 @@ export const COMMANDS: readonly CommandDef[] = [
     label: '/mic',
     description: 'Choose the dictation engine (on-device / browser native)',
     category: 'settings',
+    viewerSafe: true,
   },
   {
     id: 'dictate',
     label: '/dictate',
     description: 'Choose the dictation engine (alias for /mic)',
     category: 'settings',
+    viewerSafe: true,
   },
 
   // Support
-  { id: 'help', label: '/help', description: 'Workflow guide & tips', category: 'support' },
+  {
+    id: 'help',
+    label: '/help',
+    description: 'Workflow guide & tips',
+    category: 'support',
+    viewerSafe: true,
+  },
   {
     id: 'report',
     label: '/report',
     description: 'Report a bug or send feedback',
     category: 'support',
     usage: '/report [title]',
+    viewerSafe: true,
   },
   {
     id: 'bug',
@@ -237,6 +261,7 @@ export const COMMANDS: readonly CommandDef[] = [
     description: 'Report a bug (alias for /report)',
     category: 'support',
     usage: '/bug [title]',
+    viewerSafe: true,
   },
   {
     id: 'version',
@@ -247,6 +272,7 @@ export const COMMANDS: readonly CommandDef[] = [
     // same mechanism as /model's `(Claude)` / /maxloops's `(50)`. See ChatPanel.
     description: 'Show the app version',
     category: 'support',
+    viewerSafe: true,
   },
 ] as const
 
