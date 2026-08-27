@@ -4099,7 +4099,15 @@ function ChatInner({
     if (removedModelNotifiedRef.current === currentModel) return
     removedModelNotifiedRef.current = currentModel
     const removedId = currentModel
-    const fallback = FREE_TIER_MODEL || AVAILABLE_MODELS[0]?.id
+    // Prefer a still-available model from the SAME custom provider before a
+    // platform model: when a BYO provider's model is renamed (custom/<prov>/A →
+    // custom/<prov>/B), keep the user on their own endpoint rather than bouncing
+    // them to a platform free model.
+    const sameProviderPrefix = removedId.match(/^(custom\/[^/]+\/)/)?.[1]
+    const sameProviderModel = sameProviderPrefix
+      ? AVAILABLE_MODELS.find((m) => m.id.startsWith(sameProviderPrefix))?.id
+      : undefined
+    const fallback = sameProviderModel || FREE_TIER_MODEL || AVAILABLE_MODELS[0]?.id
     addSystemCard(
       fallback
         ? t(
@@ -6162,7 +6170,12 @@ function ChatInner({
     return AVAILABLE_MODELS.filter(
       (m) => m.id.toLowerCase().includes(q) || m.label.toLowerCase().includes(q),
     )
-  }, [modelPicker])
+    // AVAILABLE_MODELS MUST be a dep: when a custom provider is edited (a model
+    // renamed/added, a URL changed) the catalog refreshes in place, and without
+    // this the picker keeps rendering the pre-edit snapshot — the new model
+    // never appears and can't be selected. (The query is read from inputRef and
+    // stays fresh because each keystroke re-sets modelPicker.)
+  }, [modelPicker, AVAILABLE_MODELS])
 
   // ── Older models section ────────────────────────────────────────────────────
   // Deprecated entries fold into a collapsed "Older models ⌄" section under the
