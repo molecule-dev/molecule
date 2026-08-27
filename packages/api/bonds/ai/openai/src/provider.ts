@@ -83,6 +83,10 @@ export class OpenaiAIProvider implements AIProvider {
     const messages = this.formatMessages(params.messages, params.system)
 
     const body: Record<string, unknown> = {
+      // BYO / provider-native tunables (reasoning_effort, enable_thinking, …).
+      // Spread FIRST so the structural fields below (model, messages,
+      // max_completion_tokens, tools, stream) always win and cannot be broken.
+      ...(params.extraBody ?? {}),
       // Abuse attribution (see ChatParams.endUserId). OpenAI DEPRECATED `user`
       // and replaced it with `safety_identifier` for exactly this purpose —
       // their guidance is a hashed, stable per-user string, which is what

@@ -357,6 +357,42 @@ describe('chat() — request shape', () => {
     expect(body.max_tokens).toBeUndefined()
   })
 
+  it('merges extraBody as a base but never lets it override structural fields', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'x' }],
+      model: 'qwen3.8',
+      maxTokens: 128,
+      stream: false,
+      extraBody: {
+        reasoning_effort: 'high',
+        enable_thinking: true,
+        // A structural key here must NOT win — the bond always sets these.
+        model: 'HACKED',
+        messages: [],
+      },
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as { body: string }).body) as Record<
+      string,
+      unknown
+    >
+    // BYO tunables pass through untouched.
+    expect(body.reasoning_effort).toBe('high')
+    expect(body.enable_thinking).toBe(true)
+    // Structural fields are set by the bond AFTER the spread, so they win.
+    expect(body.model).toBe('qwen3.8')
+    expect(Array.isArray(body.messages)).toBe(true)
+    expect((body.messages as unknown[]).length).toBeGreaterThan(0)
+    expect(body.max_completion_tokens).toBe(128)
+  })
+
   it('formats tools into the OpenAI {type: function} shape', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

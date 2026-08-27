@@ -260,6 +260,21 @@ export interface ChatParams {
    * Bonds whose provider has no equivalent field ignore it.
    */
   endUserId?: string
+  /**
+   * Extra provider-native request-body params, shallow-merged into the outgoing
+   * request body as a BASE — the bond's own structural fields (model, messages,
+   * tools, stream, and its computed token limit) are applied AFTER and always
+   * win, so this can add or override tunables the SDK does not model
+   * (`reasoning_effort`, `enable_thinking`, `top_k`, `top_p`, penalties, …)
+   * without ever corrupting the wire protocol.
+   *
+   * Primarily for "bring your own AI" endpoints whose server accepts params
+   * this SDK has no typed field for. Bonds merge it at the request-body ROOT;
+   * for a nested-config wire format (Gemini) a `generationConfig` object here is
+   * merged INTO the bond's `generationConfig` rather than replacing it. Values
+   * must be JSON-serializable. Bonds that build a fixed body ignore it.
+   */
+  extraBody?: Record<string, unknown>
 }
 
 /**

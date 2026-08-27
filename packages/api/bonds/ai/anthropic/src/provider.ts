@@ -126,6 +126,9 @@ class AnthropicAIProvider implements AIProvider {
     const formattedMessages = this.formatMessages(params.messages)
 
     const body: Record<string, unknown> = {
+      // BYO / provider-native tunables (top_k, top_p, …). Spread FIRST so the
+      // structural fields below always win and cannot be broken.
+      ...(params.extraBody ?? {}),
       model,
       max_tokens: maxTokens,
       messages: formattedMessages,

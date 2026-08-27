@@ -288,7 +288,16 @@ class GoogleAIProvider implements AIProvider {
   private buildRequestBody(params: ChatParams, model: string): Record<string, unknown> {
     const toolNameMap = this.buildToolNameMap(params.messages)
 
+    // BYO / provider-native tunables. Root keys are spread as a BASE (the
+    // structural fields below win); a `generationConfig` object here is merged
+    // INTO the built generationConfig (see below) rather than replacing it.
+    const extraBody = params.extraBody ?? {}
+    const extraGenerationConfig =
+      extraBody.generationConfig && typeof extraBody.generationConfig === 'object'
+        ? (extraBody.generationConfig as Record<string, unknown>)
+        : {}
     const body: Record<string, unknown> = {
+      ...extraBody,
       contents: this.formatMessages(params.messages, toolNameMap),
     }
 
@@ -315,7 +324,7 @@ class GoogleAIProvider implements AIProvider {
       }
     }
 
-    const generationConfig: Record<string, unknown> = {}
+    const generationConfig: Record<string, unknown> = { ...extraGenerationConfig }
     if (params.temperature !== undefined) generationConfig.temperature = params.temperature
     if (params.maxTokens !== undefined) generationConfig.maxOutputTokens = params.maxTokens
     // Thinking is best-effort: only Gemini 2.5+ ("thinking") models accept
