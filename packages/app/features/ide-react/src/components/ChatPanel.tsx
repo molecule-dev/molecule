@@ -1963,12 +1963,18 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                           'Team only — visible to your team; {{agentName}} will ignore it',
                       },
                     )}
-                    // No alignSelf override: the header row aligns items by BASELINE,
-                    // and a text-less inline-flex item's synthesized baseline is its
-                    // bottom edge — so the icon's bottom sits exactly on the same line
-                    // as the username's and the time's text. (alignSelf: 'center'
-                    // floated it off that line.)
-                    style={{ display: 'inline-flex', flexShrink: 0 }}
+                    // Centered in the header row, then nudged 1px DOWN so the glyph's
+                    // bottom sits visually on the username/time text line. (Baseline
+                    // alignment was tried and rode too HIGH — a text-less inline-flex
+                    // item's synthesized baseline is its bottom edge, which hoists the
+                    // whole glyph above the text's optical line. Owner-tuned, 2026-08-27.)
+                    style={{
+                      display: 'inline-flex',
+                      alignSelf: 'center',
+                      flexShrink: 0,
+                      position: 'relative',
+                      top: 1,
+                    }}
                     data-mol-id="chat-team-only-badge"
                   >
                     <Icon
