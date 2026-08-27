@@ -135,11 +135,14 @@ import type { ModelDefinition } from './types.js'
  *   post-training only. NOT on DeepInfra — api.deepinfra.com/models/zai-org/
  *   GLM-5.3 returns "model not found", so it is cn-region-only for now and the
  *   ZHIPU_US_MODEL_MAP needs no entry.
- *   glm-5.3-flash (2026-08-26, 320B-A18B, natively multimodal, 1M ctx) is NOT
- *   added: it would be a brand-new cheap tier for this provider, its list card
- *   ($0.15/$0.50, cached $0.03) is currently masked by a 50%-off promo running
- *   to 2026-09-09, and its only US path is a DeepInfra re-host that would need
- *   a modelMap bump in molecule-dev. Left for human triage.)
+ *   glm-5.3-flash (2026-08-26, natively multimodal, 1M ctx, 128K out) added
+ *   2026-08-27 at the LIST card ($0.15/$0.50, cached $0.03 — verified on the
+ *   Z.ai pricing page) so metering never under-charges during the 50%-off
+ *   launch promo ($0.075/$0.25) that runs to 2026-09-09 24:00 UTC+8; the promo
+ *   is a KNOWN_DIVERGENCES entry in check-model-freshness. US path is the
+ *   DeepInfra re-host zai-org/GLM-5.3-Flash, which bills exactly the list card
+ *   ($0.15/$0.50, cache read 0.2x = $0.03 — verified live 2026-08-27), mapped
+ *   in molecule-dev's ZHIPU_US_MODEL_MAP.)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
@@ -1556,6 +1559,45 @@ export const MODELS: readonly ModelDefinition[] = [
     regions: ['cn'],
     // Same base weights as glm-5.2, so the same best-effort estimate — Z.ai
     // publishes no cutoff.
+    knowledgeCutoff: '2025-06-01',
+  },
+  {
+    id: 'glm-5.3-flash',
+    provider: 'zhipu',
+    label: 'GLM-5.3 Flash',
+    description: 'Native multimodal, efficient coding + agents — 1M context',
+    contextWindow: 1_048_576,
+    // "GLM-5.3-Flash ... support[s] a maximum output length of 128K" —
+    // chat-completion API reference, checked 2026-08-27.
+    maxOutputTokens: 131_072,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    // Same narrowed surface as glm-5.3: low|high|max only, thinking cannot be
+    // disabled. Z.ai recommends max; high is the balanced tier we default to,
+    // same call as glm-5.3.
+    supportedEffortLevels: ['low', 'high', 'max'],
+    defaultEffortLevel: 'high',
+    // Native multimodal input: text, images, video, files.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    // LIST card. A 50%-off launch promo ($0.075/$0.25, cached $0.015) runs to
+    // 2026-09-09 24:00 UTC+8; billed at list so metering never under-charges —
+    // the promo is a KNOWN_DIVERGENCES entry in check-model-freshness.
+    inputPricePerMTok: 0.15,
+    outputPricePerMTok: 0.5,
+    // GLM context cache: read 0.2× input, no write premium.
+    cacheReadPricePerMTok: 0.03,
+    cacheWritePricePerMTok: 0.15,
+    // US default: DeepInfra (zai-org/GLM-5.3-Flash) bills exactly the list
+    // card — $0.15/$0.50, cache read 0.2× = $0.03. Verified live 2026-08-27.
+    regions: ['us', 'cn'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.15, outputPricePerMTok: 0.5, cacheReadPricePerMTok: 0.03 },
+    },
+    // Not published by Z.ai — best-effort estimate for the 5.3 generation.
     knowledgeCutoff: '2025-06-01',
   },
   {
