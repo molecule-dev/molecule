@@ -1963,17 +1963,20 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                           'Team only — visible to your team; {{agentName}} will ignore it',
                       },
                     )}
-                    // Centered in the header row, then nudged 1px DOWN so the glyph's
-                    // bottom sits visually on the username/time text line. (Baseline
-                    // alignment was tried and rode too HIGH — a text-less inline-flex
-                    // item's synthesized baseline is its bottom edge, which hoists the
-                    // whole glyph above the text's optical line. Owner-tuned, 2026-08-27.)
+                    // Centered in the header row with a -0.5px optical nudge. Platform
+                    // font metrics make a single integer offset impossible: against
+                    // plain center, macOS rendered the glyph ~1px low and Ubuntu spot-on
+                    // (measured in Brave on both, 2026-08-27), so -0.5 splits the
+                    // difference — each platform lands within half a pixel, and retina
+                    // displays render the half-pixel crisply. (Baseline alignment was
+                    // tried and rode too HIGH: a text-less inline-flex item's
+                    // synthesized baseline is its bottom edge.)
                     style={{
                       display: 'inline-flex',
                       alignSelf: 'center',
                       flexShrink: 0,
                       position: 'relative',
-                      top: 1,
+                      top: -0.5,
                     }}
                     data-mol-id="chat-team-only-badge"
                   >
