@@ -83,7 +83,12 @@ import {
 } from './chat-autocommit-utilities.js'
 import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
-import { COMMAND_CATEGORIES, type CommandDef, COMMANDS } from './chat-commands.js'
+import {
+  COMMAND_CATEGORIES,
+  type CommandDef,
+  COMMANDS,
+  matchesSideChannelCommand,
+} from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
 import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
 import type { EffortLevel, EffortMode } from './chat-effort-utilities.js'
@@ -4304,10 +4309,20 @@ function ChatInner({
   useEffect(() => {
     if (initialMessage && !hasConversation && sentInitialRef.current !== initialMessage) {
       sentInitialRef.current = initialMessage
-      sendMessage(initialMessage)
+      // Same rule as handleSubmit: a host side-channel command (e.g. /teamsay)
+      // renders no optimistic echo — the server's `message` event is the message.
+      const sideChannel = matchesSideChannelCommand(
+        extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
+        initialMessage,
+      )
+      sendMessage(
+        initialMessage,
+        undefined,
+        sideChannel ? { suppressUserMessage: true } : undefined,
+      )
       onInitialMessageSent?.()
     }
-  }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent])
+  }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent, extraCommands])
 
   // ── Auto-send pending message (e.g. "Fix with AI", preview errors) ──────
   // Defers sending while the AI is streaming to avoid queueing up auto-fix
@@ -6029,17 +6044,10 @@ function ChatInner({
     // suppress the optimistic user bubble. The server emits the canonical `message` stream
     // event (persisted + broadcast to every member), which IS the visible message — so the
     // transcript never shows the literal "/command" text, and never shows it twice.
-    const slashToken = trimmed.match(/^\/(\S+)(?:\s|$)/)?.[1]?.toLowerCase()
-    if (slashToken) {
-      const sideChannelCmd = allCommands.find(
-        (c) =>
-          c.sideChannel && (c.id.toLowerCase() === slashToken || c.aliases?.includes(slashToken)),
-      )
-      if (sideChannelCmd) {
-        setInputValue('')
-        sendMessage(trimmed, undefined, { suppressUserMessage: true })
-        return
-      }
+    if (matchesSideChannelCommand(allCommands, trimmed)) {
+      setInputValue('')
+      sendMessage(trimmed, undefined, { suppressUserMessage: true })
+      return
     }
 
     // Rewrite /explain with attachments into a proper prompt (attachments processed below)

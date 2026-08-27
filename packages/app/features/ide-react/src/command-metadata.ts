@@ -282,3 +282,29 @@ export function groupCommandsByCategory(
   }
   return groups
 }
+
+/**
+ * True when `text` invokes a side-channel command ({@link CommandDef.sideChannel})
+ * from `defs`, matched against the leading `/token` by command id or alias
+ * (case-insensitive). Used by the chat input's dispatch AND the auto-send
+ * (initialMessage) path so a side-channel send never renders an optimistic
+ * "/command …" echo — the server's emitted `message` stream event is the one
+ * visible message.
+ *
+ * @param defs - The command registry to consult (e.g. shared ∪ host commands).
+ * @param text - The raw outgoing message text.
+ * @returns Whether the text invokes a side-channel command.
+ */
+export function matchesSideChannelCommand(
+  defs: readonly CommandDef[] | undefined,
+  text: string,
+): boolean {
+  const token = text
+    .trim()
+    .match(/^\/(\S+)(?:\s|$)/)?.[1]
+    ?.toLowerCase()
+  if (!token) return false
+  return !!defs?.some(
+    (c) => c.sideChannel && (c.id.toLowerCase() === token || c.aliases?.includes(token)),
+  )
+}
