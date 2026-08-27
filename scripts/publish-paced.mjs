@@ -216,6 +216,13 @@ let abortReason = null
 // Reads are not the rate-limited path (a full 910 sweep hit zero read-429s), so
 // concurrency is safe here — only PUBLISHES must stay single-threaded and paced.
 const todo = []
+// Packages whose registry read was INCONCLUSIVE (state === null). They are
+// rightly not published blind — but they must be REPORTED and must fail the
+// run, because "I could not look" is not "nothing to do": on 2026-08-27 a
+// transient read on @molecule/app-ide-react was silently skipped and the run
+// reported "4/4 | failures: 0" while 1.6.0 never shipped (the downstream npm
+// verify caught it). A re-dispatch resumes and picks the skipped package up.
+const inconclusive = []
 {
   const want = LIMIT === Infinity ? all.length : LIMIT
   let cursor = 0
@@ -232,12 +239,18 @@ const todo = []
       }
       if (state === false) todo.push(pkg)
       // state === true  -> already there, skip
-      // state === null  -> registry inconclusive; skip rather than publish blind
+      // state === null  -> registry inconclusive; do not publish blind, but
+      // record it so the summary tells the truth and the run exits non-zero.
+      else if (state === null) inconclusive.push(`${pkg.name}@${pkg.version}`)
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker))
   todo.sort((a, b) => a.name.localeCompare(b.name))
-  process.stderr.write(`scanned ${scanned}/${all.length} | queued to publish: ${todo.length}\n`)
+  process.stderr.write(
+    `scanned ${scanned}/${all.length} | queued to publish: ${todo.length}` +
+      (inconclusive.length ? ` | inconclusive (skipped): ${inconclusive.length}` : '') +
+      `\n`,
+  )
 }
 
 let attempted = 0
@@ -467,10 +480,20 @@ for (const pkg of todo) {
 }
 
 process.stderr.write(
-  `\nDONE. published this run: ${done}/${todo.length} queued | fleet: ${all.length} | failures: ${failed.length}\n`,
+  `\nDONE. published this run: ${done}/${todo.length} queued | fleet: ${all.length} | failures: ${failed.length}` +
+    (inconclusive.length ? ` | inconclusive (NOT published): ${inconclusive.length}` : '') +
+    `\n`,
 )
 if (failed.length) {
   writeFileSync(join(ROOT, '.publish-failures.json'), JSON.stringify(failed, null, 2))
   failed.slice(0, 10).forEach((f) => process.stderr.write(`  ${f.name}: ${f.error}\n`))
   process.stderr.write(`full list: molecule/.publish-failures.json\n`)
+}
+if (inconclusive.length) {
+  // An inconclusive read means a package MAY still need publishing — the run is
+  // not a success. Name them and exit non-zero; a re-dispatch resumes cleanly
+  // (already-published packages are skipped by the scan).
+  inconclusive.slice(0, 10).forEach((n) => process.stderr.write(`  inconclusive: ${n}\n`))
+  process.stderr.write(`re-dispatch the Release to retry the inconclusive package(s)\n`)
+  process.exit(1)
 }
