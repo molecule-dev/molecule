@@ -2,6 +2,13 @@ import type { IdeTranslations } from './types.js'
 
 /** Ide translations for yo. */
 export const yo: Partial<IdeTranslations> = {
+  'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.title': '\\u00CCj\\u00EDr\\u00F2r\\u00F2',
   'ide.chat.placeholder':
     'Fi \\u00ECfir\\u00E1n\\u1E63\\u1EB9\\u0301 r\\u00E1n\\u1E63\\u1EB9\\u0301...',
