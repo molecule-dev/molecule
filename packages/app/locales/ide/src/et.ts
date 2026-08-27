@@ -299,6 +299,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Ootan, kuni arenduskeskkond on käivitunud…',
   'ide.chat.compactNotNeeded': 'Kasutamine on vähene – tihendamist ei ole vaja.',
   'ide.chat.phaseBuilding': '🔨 Rakenduse loomine',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Seaded',
   'ide.chat.tip.dismiss': 'Näpunäide sulgeda',

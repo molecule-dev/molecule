@@ -293,6 +293,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': '正在等待开发环境启动完成……',
   'ide.chat.compactNotNeeded': '上下文使用率较低——无需压缩。',
   'ide.chat.phaseBuilding': '🔨 构建您的应用',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': '简历',
   'ide.chat.openSettings': '设置',
   'ide.chat.tip.dismiss': '关闭提示',

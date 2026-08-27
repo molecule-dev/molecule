@@ -305,6 +305,7 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.compactNotNeeded':
     'Die Auslastung ist gering – eine Komprimierung ist nicht erforderlich.',
   'ide.chat.phaseBuilding': '🔨 Erstellen Ihrer App',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Lebenslauf',
   'ide.chat.openSettings': 'Einstellungen',
   'ide.chat.tip.dismiss': 'Tipp schließen',

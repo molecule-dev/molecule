@@ -302,6 +302,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Изчакване на завършване на стартирането на средата за разработка…',
   'ide.chat.compactNotNeeded': 'Използването на паметта е ниско — не се налага компресиране.',
   'ide.chat.phaseBuilding': '🔨 Създаване на приложението ви',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Автобиография',
   'ide.chat.openSettings': 'Настройки',
   'ide.chat.tip.dismiss': 'Затвори съвета',

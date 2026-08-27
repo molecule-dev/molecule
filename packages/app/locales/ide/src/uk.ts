@@ -300,6 +300,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Очікування завершення запуску середовища розробки…',
   'ide.chat.compactNotNeeded': 'Рівень використання контексту низький — ущільнення не потрібне.',
   'ide.chat.phaseBuilding': '🔨 Створення вашого додатка',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Резюме',
   'ide.chat.openSettings': 'Налаштування',
   'ide.chat.tip.dismiss': 'Закрити підказку',

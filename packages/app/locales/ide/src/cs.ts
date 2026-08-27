@@ -296,6 +296,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Čekám, až se dokončí spouštění vývojového prostředí…',
   'ide.chat.compactNotNeeded': 'Využití kontextu je nízké – není třeba provádět zhutnění.',
   'ide.chat.phaseBuilding': '🔨 Vytvoření vaší aplikace',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Životopis',
   'ide.chat.openSettings': 'Nastavení',
   'ide.chat.tip.dismiss': 'Zavřít tip',

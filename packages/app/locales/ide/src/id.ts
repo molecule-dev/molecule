@@ -299,6 +299,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.compactNotNeeded':
     'Penggunaan ruang penyimpanan rendah — tidak perlu dilakukan pemadatan.',
   'ide.chat.phaseBuilding': '🔨 Membuat aplikasi Anda',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Daftar Riwayat Hidup',
   'ide.chat.openSettings': 'Pengaturan',
   'ide.chat.tip.dismiss': 'Abaikan saran',

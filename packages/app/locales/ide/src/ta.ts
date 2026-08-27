@@ -301,6 +301,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Waiting for the development environment to finish starting…',
   'ide.chat.compactNotNeeded': 'Context usage is low — no compaction needed.',
   'ide.chat.phaseBuilding': '🔨 Building your app',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',

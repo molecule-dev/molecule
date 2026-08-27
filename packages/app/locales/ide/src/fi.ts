@@ -298,6 +298,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Odotetaan kehitysympäristön käynnistymistä…',
   'ide.chat.compactNotNeeded': 'Käyttöaste on alhainen — tiivistämistä ei tarvita.',
   'ide.chat.phaseBuilding': '🔨 Sovelluksen kehittäminen',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Ansioluettelo',
   'ide.chat.openSettings': 'Asetukset',
   'ide.chat.tip.dismiss': 'Hylkää vinkki',

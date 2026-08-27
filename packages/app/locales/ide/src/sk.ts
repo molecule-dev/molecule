@@ -300,6 +300,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Čakám, kým sa spustí vývojové prostredie…',
   'ide.chat.compactNotNeeded': 'Využitie kontextu je nízke – zlučovanie nie je potrebné.',
   'ide.chat.phaseBuilding': '🔨 Vytvorenie vašej aplikácie',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Životopis',
   'ide.chat.openSettings': 'Nastavenia',
   'ide.chat.tip.dismiss': 'Zatvoriť tip',

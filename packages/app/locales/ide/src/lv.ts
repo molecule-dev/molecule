@@ -297,6 +297,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Gaidu, kamēr pabeigsies attīstības vides palaišana…',
   'ide.chat.compactNotNeeded': 'Konteksta izmantošana ir neliela — saspiešana nav nepieciešama.',
   'ide.chat.phaseBuilding': '🔨 Lietotnes izstrāde',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Iestatījumi',
   'ide.chat.tip.dismiss': 'Aizvērt padomu',

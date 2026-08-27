@@ -298,6 +298,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': '開発環境の起動が完了するのを待っています…',
   'ide.chat.compactNotNeeded': 'コンテキストの使用頻度は低いため、コンパクションは不要です。',
   'ide.chat.phaseBuilding': '🔨 アプリの構築',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': '履歴書',
   'ide.chat.openSettings': '設定',
   'ide.chat.tip.dismiss': 'ヒントを閉じる',

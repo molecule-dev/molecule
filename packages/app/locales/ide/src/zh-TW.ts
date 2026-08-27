@@ -293,6 +293,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': '正在等待開發環境完成啟動……',
   'ide.chat.compactNotNeeded': '上下文使用率較低 — 無需進行壓縮。',
   'ide.chat.phaseBuilding': '🔨 建立您的應用程式',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': '履歷',
   'ide.chat.openSettings': '設定',
   'ide.chat.tip.dismiss': '關閉提示',

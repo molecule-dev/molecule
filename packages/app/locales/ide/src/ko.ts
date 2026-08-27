@@ -295,6 +295,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': '개발 환경이 시작되기를 기다리고 있습니다…',
   'ide.chat.compactNotNeeded': '사용 빈도가 낮아 — 압축이 필요하지 않습니다.',
   'ide.chat.phaseBuilding': '🔨 앱 만들기',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': '이력서',
   'ide.chat.openSettings': '설정',
   'ide.chat.tip.dismiss': '팁 닫기',

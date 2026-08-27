@@ -297,6 +297,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Geliştirme ortamının başlatılması tamamlanana kadar bekliyorum…',
   'ide.chat.compactNotNeeded': 'Kullanım sıklığı düşük — sıkıştırma gerekmiyor.',
   'ide.chat.phaseBuilding': '🔨 Uygulamanızı oluşturma',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Özgeçmiş',
   'ide.chat.openSettings': 'Ayarlar',
   'ide.chat.tip.dismiss': 'İpucunu kapat',

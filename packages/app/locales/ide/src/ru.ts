@@ -300,6 +300,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Ожидание завершения запуска среды разработки…',
   'ide.chat.compactNotNeeded': 'Нагрузка на систему низкая — уплотнение не требуется.',
   'ide.chat.phaseBuilding': '🔨 Создание приложения',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Резюме',
   'ide.chat.openSettings': 'Настройки',
   'ide.chat.tip.dismiss': 'Закрыть подсказку',

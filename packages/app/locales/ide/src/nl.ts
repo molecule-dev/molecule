@@ -301,6 +301,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Wachten tot de ontwikkelomgeving is opgestart…',
   'ide.chat.compactNotNeeded': 'Het gebruik van de context is laag — verdichting is niet nodig.',
   'ide.chat.phaseBuilding': '🔨 Je app bouwen',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Instellingen',
   'ide.chat.tip.dismiss': 'Tip negeren',

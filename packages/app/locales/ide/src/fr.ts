@@ -306,6 +306,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.compactNotNeeded':
     "L'utilisation du contexte est faible — aucun compactage n'est nécessaire.",
   'ide.chat.phaseBuilding': '🔨 Créer votre application',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Paramètres',
   'ide.chat.tip.dismiss': 'Ignorer le conseil',

@@ -339,9 +339,12 @@ export const en: IdeTranslations = {
   'ide.chat.awaitingSandbox': 'Waiting for the development environment to finish starting…',
   'ide.chat.compactNotNeeded': 'Context usage is low — no compaction needed.',
   'ide.chat.phaseBuilding': '🔨 Building your app',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
   // Auto-tips (dismissable onboarding hints). getStarted is the entry tip shown on
   // a fresh conversation; the rest rotate occasionally while idle. {{agentName}} is
   // the host's agent identity. Keep in sync with CHAT_TIPS/ENTRY_TIP in ide-react.

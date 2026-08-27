@@ -298,6 +298,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Väntar på att utvecklingsmiljön ska starta klart…',
   'ide.chat.compactNotNeeded': 'Användningen är låg – ingen komprimering behövs.',
   'ide.chat.phaseBuilding': '🔨 Skapa din app',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Inställningar',
   'ide.chat.tip.dismiss': 'Stäng tipset',

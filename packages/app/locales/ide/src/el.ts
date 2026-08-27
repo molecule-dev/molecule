@@ -301,6 +301,7 @@ export const el: Partial<IdeTranslations> = {
     'Αναμονή για την ολοκλήρωση της εκκίνησης του περιβάλλοντος ανάπτυξης…',
   'ide.chat.compactNotNeeded': 'Η χρήση του χώρου είναι χαμηλή — δεν απαιτείται συμπύκνωση.',
   'ide.chat.phaseBuilding': '🔨 Δημιουργία της εφαρμογής σας',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Βιογραφικό',
   'ide.chat.openSettings': 'Ρυθμίσεις',
   'ide.chat.tip.dismiss': 'Απόρριψη συμβουλής',

@@ -296,6 +296,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Venter på, at udviklingsmiljøet er færdig med at starte op…',
   'ide.chat.compactNotNeeded': 'Brugen af kontekst er lav — der er ikke behov for komprimering.',
   'ide.chat.phaseBuilding': '🔨 Sådan bygger du din app',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Indstillinger',
   'ide.chat.tip.dismiss': 'Skjul tip',

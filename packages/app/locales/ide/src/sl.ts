@@ -299,6 +299,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Čakam, da se razvojno okolje v celoti zažene…',
   'ide.chat.compactNotNeeded': 'Uporaba konteksta je majhna – zgoščevanje ni potrebno.',
   'ide.chat.phaseBuilding': '🔨 Razvoj vaše aplikacije',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Življenjepis',
   'ide.chat.openSettings': 'Nastavitve',
   'ide.chat.tip.dismiss': 'Zaprite nasvet',

@@ -297,6 +297,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Várakozás a fejlesztői környezet indításának befejezésére…',
   'ide.chat.compactNotNeeded': 'A kontextus használata alacsony – tömörítésre nincs szükség.',
   'ide.chat.phaseBuilding': '🔨 Az alkalmazásod fejlesztése',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Önéletrajz',
   'ide.chat.openSettings': 'Beállítások',
   'ide.chat.tip.dismiss': 'Tipp elrejtése',

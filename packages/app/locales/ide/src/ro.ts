@@ -299,6 +299,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Se așteaptă finalizarea pornirii mediului de dezvoltare…',
   'ide.chat.compactNotNeeded': 'Utilizarea contextului este redusă — nu este necesară compactarea.',
   'ide.chat.phaseBuilding': '🔨 Crearea aplicației tale',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Setări',
   'ide.chat.tip.dismiss': 'Ignoră sfatul',

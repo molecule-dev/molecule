@@ -301,6 +301,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.compactNotNeeded':
     'Wykorzystanie pamięci jest niewielkie — nie ma potrzeby kompaktowania.',
   'ide.chat.phaseBuilding': '🔨 Tworzenie aplikacji',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Ustawienia',
   'ide.chat.tip.dismiss': 'Zignoruj wskazówkę',

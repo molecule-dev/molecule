@@ -297,6 +297,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'في انتظار انتهاء تشغيل بيئة التطوير...',
   'ide.chat.compactNotNeeded': 'استخدام السياق منخفض — لا حاجة إلى ضغط.',
   'ide.chat.phaseBuilding': '🔨 إنشاء تطبيقك',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'السيرة الذاتية',
   'ide.chat.openSettings': 'الإعدادات',
   'ide.chat.tip.dismiss': 'إغلاق النصيحة',

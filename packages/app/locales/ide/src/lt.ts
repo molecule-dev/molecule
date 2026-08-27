@@ -300,6 +300,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Laukiama, kol baigsis kūrimo aplinkos paleidimas…',
   'ide.chat.compactNotNeeded': 'Naudojimas kontekste yra nedidelis — sutankinti nereikia.',
   'ide.chat.phaseBuilding': '🔨 Savo programėlės kūrimas',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Gyvenimo aprašymas',
   'ide.chat.openSettings': 'Nustatymai',
   'ide.chat.tip.dismiss': 'Uždaryti patarimą',

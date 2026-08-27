@@ -299,6 +299,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.awaitingSandbox': 'Aguardando a inicialização do ambiente de desenvolvimento…',
   'ide.chat.compactNotNeeded': 'O uso do contexto é baixo — não é necessária compactação.',
   'ide.chat.phaseBuilding': '🔨 Criando seu aplicativo',
+  'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Currículo',
   'ide.chat.openSettings': 'Configurações',
   'ide.chat.tip.dismiss': 'Ignorar dica',
