@@ -39,7 +39,7 @@
     "@molecule/api-semantic-search": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.0.1",
+    "@molecule/api-ai": "1.1.0",
     "@molecule/api-ai-vector-store": "1.0.1",
     "@molecule/api-bond": "1.0.1",
     "@molecule/api-i18n": "1.0.1",

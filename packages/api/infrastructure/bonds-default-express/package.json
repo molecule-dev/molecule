@@ -33,10 +33,10 @@
     "directory": "packages/api/infrastructure/bonds-default-express"
   },
   "devDependencies": {
-    "@molecule/api-ai-anthropic": "1.0.1",
+    "@molecule/api-ai-anthropic": "1.1.0",
     "@molecule/api-ai-embeddings": "1.0.1",
     "@molecule/api-ai-embeddings-openai": "1.0.1",
-    "@molecule/api-ai-openai": "1.0.2",
+    "@molecule/api-ai-openai": "1.1.0",
     "@molecule/api-ai-speech": "1.0.1",
     "@molecule/api-ai-speech-openai": "1.0.1",
     "@molecule/api-ai-vector-store": "1.0.1",

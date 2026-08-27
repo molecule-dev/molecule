@@ -1,5 +1,11 @@
 # @molecule/api-ai
 
+## 1.1.0
+
+### Minor Changes
+
+- d3fcd88: Add `ChatParams.extraBody` — extra provider-native request-body params (e.g. `reasoning_effort`, `enable_thinking`, `top_k`) shallow-merged into the outgoing request as a base, with the bond's structural fields (model, messages, tools, stream, token limit) always winning. The Gemini bond merges a nested `generationConfig` into its own rather than replacing it.
+
 ## 1.0.1
 
 ### Patch Changes

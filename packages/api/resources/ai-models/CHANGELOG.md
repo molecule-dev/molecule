@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.2.6
+
+### Patch Changes
+
+- c113381: Add GLM-5.3 Flash (zhipu): native multimodal, 1M context, 128K output, low/high/max reasoning, served in us + cn regions.
+
 ## 1.2.5
 
 ### Patch Changes

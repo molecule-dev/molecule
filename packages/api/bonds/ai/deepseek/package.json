@@ -32,7 +32,7 @@
     "directory": "packages/api/bonds/ai/deepseek"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.0.1",
+    "@molecule/api-ai": "1.1.0",
     "@molecule/api-bond": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
