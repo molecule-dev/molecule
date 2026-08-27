@@ -60,6 +60,21 @@ export interface CommandDef {
    * Omit for commands that take no arguments.
    */
   usage?: string
+  /**
+   * Alternate short forms (WITHOUT the slash) that also invoke this command —
+   * e.g. `['t']` lets `/t <message>` invoke `/teamsay`. Matched by the chat
+   * input's command dispatch alongside {@link id}.
+   */
+  aliases?: string[]
+  /**
+   * True for a human-only side-channel command handled by the HOST's server
+   * (e.g. a team-chat note the agent never sees): the raw `/command` text is
+   * sent to the backend, but NO optimistic user bubble is rendered — the server
+   * emits the canonical `message` stream event (see the `ChatStreamEvent`
+   * union), which IS the visible message, persisted and fanned out live to
+   * every project member.
+   */
+  sideChannel?: boolean
 }
 
 /**

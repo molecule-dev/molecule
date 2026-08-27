@@ -116,6 +116,15 @@ export interface ChatMessage {
    * message shows WHO sent it (name + avatar) — not just "you" vs the agent.
    */
   author?: MessageAuthor
+  /**
+   * A human-only team note (side channel): visible to every project member, NEVER
+   * sent to the model. Renders like a regular user message — author header,
+   * relative time, plain content — but with the team-only (gold) accent border and
+   * a gold badge next to the time so it is obvious the agent will ignore it.
+   * Persisted `role: 'system'` server-side (the agent loop skips `system`
+   * messages) and carries {@link author} for attribution.
+   */
+  teamOnly?: boolean
 }
 
 /**
@@ -260,6 +269,14 @@ export type ChatStreamEvent =
   // is byte-identical to the one it loads on refresh (no separate card store, no client
   // decision). The app builds the card's copy/actions from `card` at render time.
   | { type: 'card'; id: string; timestamp: number; card: CardEvent }
+  // A COMPLETE, non-streaming chat message appended to the transcript in one piece —
+  // e.g. a teammate's human-only team note ({@link ChatMessage.teamOnly}) fanned out
+  // live. `message` is the full client-shape {@link ChatMessage} (ms `timestamp`),
+  // emitted with the SAME id + timestamp it was persisted with (the card-event
+  // invariant), so the live message is byte-identical to what history reloads.
+  // Receivers append it de-duped by id and never persist it — the emitting server
+  // already did.
+  | { type: 'message'; message: ChatMessage }
   // `timestamp` (ms, server clock) is when the transition occurred — set so any card
   // the app derives from this event sorts on the SAME clock as the messages (which are
   // server-stamped via `message_start`), instead of a client-receipt time that can skew

@@ -548,6 +548,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
     },
     [setMessages],
   )
+  // Append a COMPLETE, non-streaming chat message (a `message` stream event — e.g. a
+  // teammate's human-only team note) to the ONE message store. Same dedupe contract as
+  // appendCardMessage: the server emits it with the id + timestamp it persisted, so an
+  // echo (own broadcast in a second tab) or a reload-then-broadcast race never doubles
+  // it. A complete message is a finished item — no streaming/finalize.
+  const appendCompleteMessage = useCallback(
+    (message: ChatMessage) => {
+      setMessages((prev) => (prev.some((m) => m.id === message.id) ? prev : [...prev, message]))
+    },
+    [setMessages],
+  )
   const setIsLoading = useCallback(
     (streaming: boolean) => {
       if (isStaleGeneration()) return
@@ -1315,6 +1326,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
           // message (it interleaves by its own server timestamp). Recorded + persisted
           // server-side, so this is byte-identical to what loadHistory returns on reload.
           appendCardMessage(event.id, event.timestamp, event.card)
+          return
+        case 'message':
+          // A complete, non-streaming message (e.g. a human-only team note) — append it
+          // whole. Persisted server-side with this same id + timestamp, so it reloads
+          // byte-identically; de-duped by id against a broadcast echo.
+          appendCompleteMessage(event.message)
           return
         case 'mode':
           setMode(event.mode)
@@ -2125,5 +2142,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
     deleteQueuedMessage,
     clearQueuedForFile,
     appendCardMessage,
+    appendCompleteMessage,
   }
 }

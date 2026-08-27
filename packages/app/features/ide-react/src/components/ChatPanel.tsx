@@ -1782,6 +1782,8 @@ export interface MessageItemProps {
    * {@link ChatPanelProps.buildUpgradeCta}.
    */
   buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
+  /** Agent display name — used in the team-only badge tooltip ("{{agentName}} ignores it"). */
+  agentName?: string
 }
 
 /**
@@ -1811,6 +1813,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     onAvatarClick,
     discovery,
     buildUpgradeCta,
+    agentName,
   } = props
 
   const cm = getClassMap()
@@ -1821,6 +1824,11 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   // A message sent automatically on the user's behalf (e.g. an auto-fix prompt):
   // it has role 'user' but must NOT look like the user typed it (C2).
   const isAutomatic = msg.role === 'user' && !!msg.automatic
+  // A human-only team note (side channel, e.g. /teamsay): renders like a user
+  // message — author header, time, plain content — but with the gold team-only
+  // accent + badge, and never the user message's blue stripe. `role` is 'system'
+  // (the model never sees it), so this is checked before isUser.
+  const isTeamNote = !!msg.teamOnly
   // A real, user-typed message (the only one styled with the blue border + the
   // user's own avatar).
   const isUser = msg.role === 'user' && !isAutomatic
@@ -1838,7 +1846,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
 
   return (
     <div style={wrapperSpacing}>
-      {isUser || isAutomatic ? (
+      {isUser || isAutomatic || isTeamNote ? (
         <div
           className={
             // Auto-sent card matches the info cards' `xs` body; a real user message keeps
@@ -1855,7 +1863,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             // drawn by the `::before` injected via USER_ACCENT_STYLE + gated on the
             // data-mol-id below, and the user's full-size avatar. An auto-sent message
             // is instead a green (success) tinted card — same chrome as the info cards
-            // — so it's unmistakably agent-sent, not user-typed (C2).
+            // — so it's unmistakably agent-sent, not user-typed (C2). A team note keeps
+            // the user-message look but swaps the blue stripe (its data-mol-id differs,
+            // so USER_ACCENT_STYLE never applies) for the gold team-only border.
             ...(isAutomatic
               ? chatCardStyle(AUTO_SENT_ACCENT)
               : {
@@ -1864,9 +1874,16 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   paddingTop: '10px',
                   paddingBottom: '10px',
                   paddingRight: '10px',
+                  ...(isTeamNote ? { border: `1px solid ${NOTICE_TONE.gold.accent}` } : {}),
                 }),
           }}
-          data-mol-id={isAutomatic ? 'chat-automatic-message' : 'chat-user-message'}
+          data-mol-id={
+            isTeamNote
+              ? 'chat-team-message'
+              : isAutomatic
+                ? 'chat-automatic-message'
+                : 'chat-user-message'
+          }
         >
           {/* A real user message shows the user's full-size profile avatar (SOC1); an
               auto-sent message shows a small `sync` glyph — NOT the molecule logo —
@@ -1909,6 +1926,37 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 {typeof msg.timestamp === 'number' && (
                   <span className={cm.textMuted} style={{ fontSize: 11 }}>
                     {relativeTimeLong(msg.timestamp)}
+                  </span>
+                )}
+                {isTeamNote && (
+                  // Gold team-only badge to the right of the time: this note is a human
+                  // side channel — every project member sees it, the agent ignores it.
+                  <span
+                    title={t(
+                      'ide.chat.teamOnly.badge',
+                      { agentName: agentName ?? 'the assistant' },
+                      {
+                        defaultValue:
+                          'Team only — visible to your team; {{agentName}} will ignore it',
+                      },
+                    )}
+                    aria-label={t(
+                      'ide.chat.teamOnly.badge',
+                      { agentName: agentName ?? 'the assistant' },
+                      {
+                        defaultValue:
+                          'Team only — visible to your team; {{agentName}} will ignore it',
+                      },
+                    )}
+                    style={{ display: 'inline-flex', alignSelf: 'center', flexShrink: 0 }}
+                    data-mol-id="chat-team-only-badge"
+                  >
+                    <Icon
+                      name="people"
+                      size={12}
+                      aria-hidden="true"
+                      style={{ color: NOTICE_TONE.gold.accent }}
+                    />
                   </span>
                 )}
               </div>
@@ -2538,6 +2586,10 @@ function ChatInner({
   const appendCardMessageRef = useRef<
     (id: string, timestamp: number, card: NonNullable<ChatMessage['cardEvent']>) => void
   >(() => {})
+  // Ref to useChat's appendCompleteMessage — same contract as appendCardMessageRef, for a
+  // teammate's broadcast `message` event (a complete non-streaming message, e.g. a
+  // human-only team note). This client's OWN `message` events append internally in useChat.
+  const appendCompleteMessageRef = useRef<(message: ChatMessage) => void>(() => {})
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
@@ -2593,6 +2645,13 @@ function ChatInner({
           event.timestamp as number,
           event.card as NonNullable<ChatMessage['cardEvent']>,
         )
+      }
+      // A teammate's broadcast complete message (e.g. a human-only team note) — append it
+      // to the local store so it shows live for the collaborator too (de-duped by id;
+      // never re-persisted — the originating server already persisted it). This client's
+      // OWN `message` stream events are appended internally by useChat.
+      if (event.type === 'message' && applyingPushedRef.current && event.message) {
+        appendCompleteMessageRef.current(event.message as ChatMessage)
       }
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
       // inline activity card into the timeline. Non-text card, mirroring how
@@ -2778,6 +2837,7 @@ function ChatInner({
     deleteQueuedMessage,
     clearQueuedForFile,
     appendCardMessage,
+    appendCompleteMessage,
     retryCountdown,
     cancelRetry,
   } = useChat({
@@ -2807,6 +2867,8 @@ function ChatInner({
   // Keep the card-append ref current so handleStreamEvent (memoized) can append a teammate's
   // broadcast `card` event to the message store.
   appendCardMessageRef.current = appendCardMessage
+  // Same for a teammate's broadcast complete `message` event (e.g. a team note).
+  appendCompleteMessageRef.current = appendCompleteMessage
 
   // User Stop. A stop is a user decision the platform must not overrule — so
   // beyond killing the stream (useChat.abort also records the stop client-side
@@ -5962,6 +6024,24 @@ function ChatInner({
       return
     }
 
+    // A host side-channel command (CommandDef.sideChannel, matched by id or alias — e.g.
+    // molecule.dev's /teamsay + /t): send the raw text to the host's server intercept but
+    // suppress the optimistic user bubble. The server emits the canonical `message` stream
+    // event (persisted + broadcast to every member), which IS the visible message — so the
+    // transcript never shows the literal "/command" text, and never shows it twice.
+    const slashToken = trimmed.match(/^\/(\S+)(?:\s|$)/)?.[1]?.toLowerCase()
+    if (slashToken) {
+      const sideChannelCmd = allCommands.find(
+        (c) =>
+          c.sideChannel && (c.id.toLowerCase() === slashToken || c.aliases?.includes(slashToken)),
+      )
+      if (sideChannelCmd) {
+        setInputValue('')
+        sendMessage(trimmed, undefined, { suppressUserMessage: true })
+        return
+      }
+    }
+
     // Rewrite /explain with attachments into a proper prompt (attachments processed below)
     let message = trimmed
     if (explainMatch) {
@@ -6013,7 +6093,7 @@ function ChatInner({
     setAttachedFiles([])
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
-  }, [attachedFiles, http, projectId, sendMessage, setInputValue, runSavedScript])
+  }, [attachedFiles, http, projectId, sendMessage, setInputValue, runSavedScript, allCommands])
 
   // External auto-submit. When the signal changes, submit the current input —
   // used by the prompt → chat morph to send the prefilled prompt once the chat
@@ -7100,6 +7180,7 @@ function ChatInner({
                     onAvatarClick={onUserAvatarClick}
                     discovery={discovery}
                     buildUpgradeCta={buildUpgradeCta}
+                    agentName={agentName}
                   />
                 )
               }}

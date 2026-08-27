@@ -197,6 +197,8 @@ export const en: IdeTranslations = {
   'ide.chat.placeholder': 'Send a message...',
   'ide.chat.emptyState': 'Describe what you want to build...',
   'ide.chat.you': 'You',
+  // Gold badge on a human-only team note (/teamsay): members-only, agent-ignored.
+  'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.itemRenderError': "This message couldn't be displayed.",
   'ide.chat.viewProfile': 'View profile',
   'ide.chat.molecule': 'Molecule',

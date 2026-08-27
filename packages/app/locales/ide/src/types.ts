@@ -10,6 +10,7 @@ export type IdeTranslationKey =
   | 'ide.chat.placeholder'
   | 'ide.chat.emptyState'
   | 'ide.chat.you'
+  | 'ide.chat.teamOnly.badge'
   | 'ide.chat.itemRenderError'
   | 'ide.chat.viewProfile'
   | 'ide.chat.molecule'

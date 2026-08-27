@@ -360,6 +360,14 @@ export interface UseChatResult {
     timestamp: number,
     card: NonNullable<ChatMessage['cardEvent']>,
   ) => void
+  /**
+   * Append a COMPLETE, non-streaming chat message (a `message` stream event — e.g.
+   * a teammate's human-only team note) to the ONE message store. Used by the host
+   * (ChatPanel) to render a TEAMMATE's broadcast `message` event live — this
+   * client's OWN `message` events arrive through the stream and are appended
+   * internally. De-duped by the server-assigned message id.
+   */
+  appendCompleteMessage: (message: ChatMessage) => void
 }
 
 /**
