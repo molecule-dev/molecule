@@ -12,6 +12,7 @@
 import type { CSSProperties, JSX, ReactNode } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
 
 import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
@@ -53,10 +54,22 @@ function renderTipText(text: string): ReactNode[] {
 /**
  * Renders a single dismissable onboarding tip.
  *
- * @param props - Component props.
+ * @param props - Component props. `accent` recolours the card tint + icon for a
+ *   semantic tip (e.g. the gold viewer tip that explains the team-only message
+ *   treatment); `icon` overrides the leading glyph (default `lightbulb`).
  * @returns The rendered tip card.
  */
-export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => void }): JSX.Element {
+export function TipCard({
+  text,
+  onDismiss,
+  accent,
+  icon,
+}: {
+  text: string
+  onDismiss: () => void
+  accent?: string
+  icon?: IconName
+}): JSX.Element {
   const cm = getClassMap()
   return (
     <div
@@ -69,20 +82,20 @@ export function TipCard({ text, onDismiss }: { text: string; onDismiss: () => vo
         // One chat-timeline rhythm: bottom margin only, never a top margin (matches
         // ChatPanel's TIMELINE_ITEM_GAP so adjacent items never collide — P4-05).
         marginBottom: 16,
-        // Shared card chrome: subtle primary tint + a uniform 1px border on all
+        // Shared card chrome: subtle accent tint + a uniform 1px border on all
         // sides. One source of truth with the other chat info cards (chat-card-style).
-        ...chatCardStyle(),
+        ...chatCardStyle(accent),
         lineHeight: 1.5,
       }}
     >
       <Icon
-        name="lightbulb"
+        name={icon ?? 'lightbulb'}
         size={CHAT_CARD_ICON_SIZE}
         aria-hidden="true"
         style={{
           flexShrink: 0,
           marginTop: 1,
-          color: 'var(--mol-color-primary, #6366f1)',
+          color: accent ?? 'var(--mol-color-primary, #6366f1)',
         }}
       />
       <span style={{ flex: 1 }}>{renderTipText(text)}</span>

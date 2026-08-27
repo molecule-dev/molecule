@@ -287,6 +287,50 @@ describe('ChatPanel user avatar (SOC1)', () => {
     expect(container.querySelector('img[data-mol-id="chat-user-avatar"]')).toBeNull()
   })
 
+  it("shows a TEAMMATE's initial — never the viewer's own avatar — when the author has none", async () => {
+    // The viewer ("Luke") has a real avatar; the message's AUTHOR ("Test") has
+    // none. The tile must be Test's "T" initial, not Luke's picture (the bug:
+    // the author-less fallback leaked the viewer's avatar onto teammates).
+    const history: ChatMessage[] = [
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'hello from the viewer account',
+        timestamp: 1000,
+        author: { id: 'u-test', name: 'Test', avatar: null },
+      },
+    ]
+    const wrap = (children: ReactNode): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider(history)}>
+              {children}
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    const { container } = render(
+      wrap(<ChatPanel projectId="proj-soc1" userAvatar={AVATAR_DATA_URI} />),
+    )
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('hello from the viewer account')
+    })
+    const avatar = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-user-avatar"]')
+      expect(el).not.toBeNull()
+      return el as HTMLElement
+    })
+
+    // Not an image at all (the viewer's avatar must not leak onto the author),
+    // and the tile shows the author's initial with their name as the label.
+    expect(avatar.tagName).not.toBe('IMG')
+    expect(avatar.getAttribute('aria-label')).toBe('Test')
+    expect(avatar.textContent).toBe('T')
+  })
+
   it('never places an unsafe avatar value into an <img src> (safety gate is applied in render)', async () => {
     const { container } = render(renderChatPanel({ userAvatar: 'javascript:alert(1)' }))
 
@@ -353,5 +397,61 @@ describe('ChatPanel user avatar clickability (C5)', () => {
     expect(button.querySelector('svg')).not.toBeNull()
     fireEvent.click(button)
     expect(onProfileClick).toHaveBeenCalledWith({ avatar: null })
+  })
+
+  it("keeps a TEAMMATE's avatar non-interactive (own-profile handler must not fire from their face)", async () => {
+    const onProfileClick = vi.fn()
+    // Two authored messages: the signed-in user's own (Luke) and a teammate's
+    // (Test). onProfileClick opens the VIEWER's own profile, so only Luke's own
+    // avatar may be a button.
+    const history: ChatMessage[] = [
+      {
+        id: 'u1',
+        role: 'user',
+        content: 'mine',
+        timestamp: 1000,
+        author: { id: 'u-luke', name: 'Luke', avatar: AVATAR_DATA_URI },
+      },
+      {
+        id: 'u2',
+        role: 'user',
+        content: 'theirs',
+        timestamp: 2000,
+        author: { id: 'u-test', name: 'Test', avatar: null },
+      },
+    ]
+    const wrap = (children: ReactNode): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider(history)}>
+              {children}
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    const { container } = render(
+      wrap(
+        <ChatPanel
+          projectId="proj-soc1"
+          userAvatar={AVATAR_DATA_URI}
+          currentUserId="u-luke"
+          onProfileClick={onProfileClick}
+        />,
+      ),
+    )
+
+    await waitFor(() => {
+      expect(container.textContent).toContain('theirs')
+    })
+    // Exactly ONE clickable avatar — the signed-in user's own message.
+    const buttons = container.querySelectorAll('[data-mol-id="chat-user-avatar-button"]')
+    expect(buttons.length).toBe(1)
+    // And it is Luke's (wraps the real avatar image), not Test's initial tile.
+    expect(buttons[0].querySelector('img')).not.toBeNull()
+    // Test's avatar renders as the plain initial tile with no button wrapper.
+    const avatars = container.querySelectorAll('[data-mol-id="chat-user-avatar"]')
+    expect(avatars.length).toBe(2)
   })
 })

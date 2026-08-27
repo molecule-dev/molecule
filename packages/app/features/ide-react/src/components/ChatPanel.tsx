@@ -486,6 +486,14 @@ interface TipCardEntry {
   text: string
   /** Numeric timestamp for timeline ordering. */
   timestamp: number
+  /**
+   * Accent colour override (border/background tint + icon colour) for a
+   * semantic tip — e.g. the viewer tip goes gold to match the team-only
+   * message treatment it explains. Default: the neutral primary tint.
+   */
+  accent?: string
+  /** Leading-icon override (e.g. `people` for the viewer tip). Default: `lightbulb`. */
+  icon?: IconName
 }
 
 /** An inline activity card entry in the chat timeline (a captured side effect). */
@@ -1903,7 +1911,13 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             />
           ) : (
             <UserAvatar
-              userAvatar={msg.author?.avatar ?? userAvatar}
+              // An AUTHORED message shows that author's avatar — or their initial
+              // when they have none — NEVER the viewing user's picture (which made
+              // a teammate's avatar-less message wear the viewer's own face). Only
+              // an author-less message (the local optimistic echo, legacy rows) is
+              // the signed-in user's own and uses their avatar.
+              userAvatar={msg.author ? msg.author.avatar : userAvatar}
+              name={msg.author?.name ?? undefined}
               size={36}
               onClick={onAvatarClick}
             />
@@ -1928,14 +1942,10 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 <span style={{ fontWeight: 600 }}>
                   {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
                 </span>
-                {typeof msg.timestamp === 'number' && (
-                  <span className={cm.textMuted} style={{ fontSize: 11 }}>
-                    {relativeTimeLong(msg.timestamp)}
-                  </span>
-                )}
                 {isTeamNote && (
-                  // Gold team-only badge to the right of the time: this note is a human
-                  // side channel — every project member sees it, the agent ignores it.
+                  // Gold team-only badge right after the username (left of the time):
+                  // this note is a human side channel — every project member sees it,
+                  // the agent ignores it. The viewer tip explains this same icon.
                   <span
                     title={t(
                       'ide.chat.teamOnly.badge',
@@ -1957,11 +1967,18 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     data-mol-id="chat-team-only-badge"
                   >
                     <Icon
+                      // Same size as the username text (textSize('sm') ≈ 14px) so the
+                      // badge reads as part of the header line, not a footnote.
                       name="people"
-                      size={12}
+                      size={14}
                       aria-hidden="true"
                       style={{ color: NOTICE_TONE.gold.accent }}
                     />
+                  </span>
+                )}
+                {typeof msg.timestamp === 'number' && (
+                  <span className={cm.textMuted} style={{ fontSize: 11 }}>
+                    {relativeTimeLong(msg.timestamp)}
                   </span>
                 )}
               </div>
@@ -2378,6 +2395,8 @@ export interface ChatInnerProps {
   onRenderError?: ChatPanelProps['onRenderError']
   /** Called when a user avatar in the chat timeline is clicked — see {@link ChatPanelProps.onProfileClick}. */
   onProfileClick?: ChatPanelProps['onProfileClick']
+  /** The signed-in user's id — gates avatar clicks to their OWN messages. See {@link ChatPanelProps.currentUserId}. */
+  currentUserId?: string
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
   /** True after the plan streams but while the sandbox is still booting (pre-kickoff) — drives the chat "waiting for environment" indicator. */
@@ -2460,6 +2479,7 @@ function ChatInner({
   onActivityClick,
   onRenderError,
   onProfileClick,
+  currentUserId,
   onReadyToBuild,
   awaitingSandboxBoot,
   onClientAction,
@@ -2505,10 +2525,12 @@ function ChatInner({
   // visible; 420px bounds it on small tablets.
   const popupMaxHeight = isNarrow ? 'min(50dvh, 420px)' : '70vh'
   const http = useHttpClient()
-  // Bind the host's profile-click callback to the clicked user's identity once
-  // (the chat is solo, so every user avatar is the signed-in user — the only
-  // known identity is `userAvatar`). Stable so MessageItem's memo isn't broken;
-  // `undefined` when the host opts out, which keeps every avatar non-interactive.
+  // Bind the host's profile-click callback to the SIGNED-IN user's identity once.
+  // Hosts open the *own*-profile surface from this, so it is only ever attached to
+  // the signed-in user's OWN messages (see the per-message gate at the MessageItem
+  // call site — a teammate's avatar must never open the viewer's profile). Stable
+  // so MessageItem's memo isn't broken; `undefined` when the host opts out, which
+  // keeps every avatar non-interactive.
   const onUserAvatarClick = useMemo<(() => void) | undefined>(
     () =>
       onProfileClick
@@ -3799,6 +3821,36 @@ function ChatInner({
     const text = t(`ide.chat.tip.${ENTRY_TIP.id}`, { agentName }, { defaultValue: ENTRY_TIP.text })
     setTipCards((prev) => [...prev, { id: crypto.randomUUID(), text, timestamp: Date.now() }])
   }, [conversationId, messages.length, agentName, discovery])
+
+  // Viewer orientation tip: a read-only member's explainer — GOLD like the
+  // team-only messages and led by the same `people` icon it explains, so the
+  // badge on a team note is self-describing. A regular dismissable tip (never a
+  // permanent composer note); shown once per panel mount, skipped in discovery
+  // like the other tips (mvp B1). Gated on an EXPLICIT canEdit === false so
+  // hosts that don't do roles never see it.
+  const viewerTipShownRef = useRef(false)
+  useEffect(() => {
+    if (canEdit !== false || discovery || viewerTipShownRef.current) return
+    viewerTipShownRef.current = true
+    const text = t(
+      'ide.chat.tip.viewerTeamOnly',
+      { agentName },
+      {
+        defaultValue:
+          'View-only access — read along and /teamsay the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+      },
+    )
+    setTipCards((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        text,
+        timestamp: Date.now(),
+        accent: NOTICE_TONE.gold.accent,
+        icon: 'people',
+      },
+    ])
+  }, [canEdit, discovery, agentName])
 
   // Surface an occasional idle tip. This effect re-runs on every message change, so
   // the idle timer is continually reset by activity; it only fires once the
@@ -7031,6 +7083,8 @@ function ChatInner({
                     <TipCard
                       key={item.card.id}
                       text={item.card.text}
+                      accent={item.card.accent}
+                      icon={item.card.icon}
                       onDismiss={() => dismissTip(item.card.id)}
                     />
                   )
@@ -7245,7 +7299,16 @@ function ChatInner({
                     setInputAndCursorEnd={setInputAndCursorEnd}
                     setModelPicker={setModelPicker}
                     userAvatar={userAvatar}
-                    onAvatarClick={onUserAvatarClick}
+                    // Avatar clicks open the signed-in user's OWN profile, so only
+                    // their own messages get the handler: author-less ones (the
+                    // local echo, legacy solo rows) or an author matching
+                    // currentUserId. A teammate's avatar stays non-interactive —
+                    // clicking Test's face must not open Luke's profile editor.
+                    onAvatarClick={
+                      !msg.author?.id || (currentUserId != null && msg.author.id === currentUserId)
+                        ? onUserAvatarClick
+                        : undefined
+                    }
                     discovery={discovery}
                     buildUpgradeCta={buildUpgradeCta}
                     agentName={agentName}
@@ -9859,26 +9922,6 @@ function ChatInner({
             </div>
           )}
 
-        {/* Read-only note for a project VIEWER — the composer stays usable for
-            /teamsay + reading, but the assistant and project-mutating controls
-            are disabled (the server 403s those writes). */}
-        {!canEdit && (
-          <div
-            data-mol-id="chat-viewer-readonly-note"
-            style={{
-              fontSize: 12,
-              lineHeight: 1.4,
-              color: 'var(--mol-color-text-secondary, #888)',
-              padding: '4px 2px 8px',
-            }}
-          >
-            {t('ide.chat.viewerReadOnlyNote', undefined, {
-              defaultValue:
-                'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
-            })}
-          </div>
-        )}
-
         {/* Input container — matches user message card style */}
         <div
           className={cm.surfaceSecondary}
@@ -10594,6 +10637,7 @@ export function ChatPanel({
   onActivityClick,
   onRenderError,
   onProfileClick,
+  currentUserId,
   onReadyToBuild,
   awaitingSandboxBoot,
   onClientAction,
@@ -11048,6 +11092,7 @@ export function ChatPanel({
         onActivityClick={onActivityClick}
         onRenderError={onRenderError}
         onProfileClick={onProfileClick}
+        currentUserId={currentUserId}
         onReadyToBuild={onReadyToBuild}
         awaitingSandboxBoot={awaitingSandboxBoot}
         onClientAction={onClientAction}

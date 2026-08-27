@@ -139,7 +139,7 @@ function buildThemeProvider(): ThemeProviderType {
 }
 
 /** Renders {@link ChatPanel} inside the contexts it needs, on a fresh conversation. */
-function renderFreshChatPanel(): ReactElement {
+function renderFreshChatPanel(extraProps: { canEdit?: boolean } = {}): ReactElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
       <ThemeProvider provider={buildThemeProvider()}>
@@ -149,7 +149,7 @@ function renderFreshChatPanel(): ReactElement {
       </ThemeProvider>
     </I18nProvider>
   )
-  return wrap(<ChatPanel projectId="proj-syn12" agentName="Synthase" />)
+  return wrap(<ChatPanel projectId="proj-syn12" agentName="Synthase" {...extraProps} />)
 }
 
 beforeEach(() => {
@@ -194,5 +194,42 @@ describe('ChatPanel auto-tips (SYN12 — entry tip on a fresh conversation)', ()
 
     // A dismiss affordance is present so the tip is non-interrupting.
     expect(container.querySelector('[data-mol-id="chat-tip-dismiss"]')).not.toBeNull()
+  })
+})
+
+describe('ChatPanel viewer tip (read-only member orientation)', () => {
+  it('shows the GOLD viewer tip explaining /teamsay + the team-only icon for canEdit={false}', async () => {
+    const { container } = render(renderFreshChatPanel({ canEdit: false }))
+
+    const viewerTip = await waitFor(() => {
+      const els = Array.from(container.querySelectorAll('[data-mol-id="chat-tip-card"]'))
+      const el = els.find((e) => /View-only access/.test(e.textContent ?? ''))
+      expect(el, 'a read-only viewer must see the orientation tip').toBeTruthy()
+      return el as HTMLElement
+    })
+
+    const text = viewerTip.textContent ?? ''
+    // Explains the side channel AND the icon the team notes carry.
+    expect(text).toContain('/teamsay')
+    expect(text).toContain('gold icon')
+    // The interpolation token is resolved, never shown raw.
+    expect(text).toContain('Synthase ignores')
+    expect(text).not.toContain('{{agentName}}')
+    // Gold accent — the SAME colour as the team-only message treatment (#e0a100;
+    // jsdom normalizes hex to rgb), not the neutral primary tint of other tips.
+    expect(viewerTip.getAttribute('style') ?? '').toMatch(/#e0a100|rgb\(224,\s*161,\s*0\)/)
+    // Dismissable like every other tip.
+    expect(viewerTip.querySelector('[data-mol-id="chat-tip-dismiss"]')).not.toBeNull()
+  })
+
+  it('never shows the viewer tip when the member can edit', async () => {
+    const { container } = render(renderFreshChatPanel({ canEdit: true }))
+
+    // The entry tip still appears (fresh conversation) — but no viewer tip.
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="chat-tip-card"]')).not.toBeNull()
+    })
+    const els = Array.from(container.querySelectorAll('[data-mol-id="chat-tip-card"]'))
+    expect(els.some((e) => /View-only access/.test(e.textContent ?? ''))).toBe(false)
   })
 })

@@ -104,9 +104,20 @@ export interface ChatPanelProps {
    * that user's profile (e.g. molecule.dev's profile modal). Receives the clicked
    * user's {@link ChatUserIdentity}. Omit it (the default) to render the avatars
    * non-interactive (static image/icon, exactly as before). Only real user
-   * avatars are clickable — the molecule glyph on auto-sent messages is not.
+   * avatars are clickable — the molecule glyph on auto-sent messages is not, and
+   * in a multi-user conversation only the SIGNED-IN user's own avatars are
+   * (hosts open the *own*-profile editor from this, so a teammate's avatar must
+   * not fire it — see {@link currentUserId}).
    */
   onProfileClick?: (user: ChatUserIdentity) => void
+  /**
+   * The signed-in user's id, used to tell their OWN messages from a teammate's
+   * (a message's persisted `author.id`). Gates avatar clickability: an authored
+   * message fires {@link onProfileClick} only when its author IS the signed-in
+   * user. Omit in a solo host — author-less messages (the local echo, legacy
+   * rows) are always treated as the signed-in user's own.
+   */
+  currentUserId?: string
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */
   onReadyToBuild?: () => void
   /**

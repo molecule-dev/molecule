@@ -25,6 +25,15 @@ export interface UserAvatarProps {
    * ignored (see {@link resolveUserAvatar}) and the generic icon is shown.
    */
   userAvatar?: string | null
+  /**
+   * The message author's display name, for a TEAMMATE's message. When set and
+   * there is no renderable avatar, the fallback tile shows the name's initial
+   * (e.g. "T" for Test) instead of the generic `user` glyph — so a teammate
+   * without a profile picture is still identifiable at a glance and is NEVER
+   * shown with the viewer's own avatar. Also used as the accessible label /
+   * image alt in place of the solo "You".
+   */
+  name?: string
   /** Diameter of the avatar in pixels. Defaults to 24. */
   size?: number
   /**
@@ -46,13 +55,16 @@ export interface UserAvatarProps {
  * @param props - {@link UserAvatarProps}.
  * @returns The avatar image or icon fallback, optionally wrapped in a button.
  */
-export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps): JSX.Element {
+export function UserAvatar({ userAvatar, name, size = 24, onClick }: UserAvatarProps): JSX.Element {
   const [hover, setHover] = useState(false)
   const src = resolveUserAvatar(userAvatar)
-  // The user's own avatar identifies their messages — "You" is the accurate,
-  // already-translated label (reused from the chat author label) for both the
-  // image alt and the icon fallback's accessible name.
-  const label = t('ide.chat.you', undefined, { defaultValue: 'You' })
+  // The avatar identifies the message's sender: the author's name when we have
+  // one (a teammate's message), else the solo "You" (already-translated) — used
+  // for both the image alt and the fallback tile's accessible name.
+  const label = name || t('ide.chat.you', undefined, { defaultValue: 'You' })
+  // Named author with no renderable avatar → an initial-letter tile ("T" for
+  // Test), never the generic glyph and NEVER someone else's picture.
+  const initial = name?.trim().charAt(0).toUpperCase() ?? ''
 
   const visual = src ? (
     <img
@@ -96,7 +108,16 @@ export function UserAvatar({ userAvatar, size = 24, onClick }: UserAvatarProps):
         color: 'var(--mol-color-primary, #6366f1)',
       }}
     >
-      <Icon name="user" size={Math.round(size * 0.6)} aria-hidden="true" />
+      {initial ? (
+        <span
+          aria-hidden="true"
+          style={{ fontSize: Math.round(size * 0.45), fontWeight: 600, lineHeight: 1 }}
+        >
+          {initial}
+        </span>
+      ) : (
+        <Icon name="user" size={Math.round(size * 0.6)} aria-hidden="true" />
+      )}
     </span>
   )
 
