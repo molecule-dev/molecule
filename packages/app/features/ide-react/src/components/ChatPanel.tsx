@@ -1963,14 +1963,20 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                           'Team only — visible to your team; {{agentName}} will ignore it',
                       },
                     )}
-                    style={{ display: 'inline-flex', alignSelf: 'center', flexShrink: 0 }}
+                    // No alignSelf override: the header row aligns items by BASELINE,
+                    // and a text-less inline-flex item's synthesized baseline is its
+                    // bottom edge — so the icon's bottom sits exactly on the same line
+                    // as the username's and the time's text. (alignSelf: 'center'
+                    // floated it off that line.)
+                    style={{ display: 'inline-flex', flexShrink: 0 }}
                     data-mol-id="chat-team-only-badge"
                   >
                     <Icon
-                      // Same size as the username text (textSize('sm') ≈ 14px) so the
-                      // badge reads as part of the header line, not a footnote.
+                      // 16px so the glyph reads at the username's optical size — the
+                      // people glyph has internal viewBox padding, so a nominal 14px
+                      // renders visibly smaller than the 14px text next to it.
                       name="people"
-                      size={14}
+                      size={16}
                       aria-hidden="true"
                       style={{ color: NOTICE_TONE.gold.accent }}
                     />
