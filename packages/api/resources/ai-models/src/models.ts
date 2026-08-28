@@ -187,7 +187,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 10,
     outputPricePerMTok: 50,
@@ -227,7 +231,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     // Drop-in successor to Opus 4.8 at identical pricing.
     inputPricePerMTok: 5,
@@ -256,7 +264,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 5,
     outputPricePerMTok: 25,
@@ -289,7 +301,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     // Standard pricing. Intro pricing ($2/$10) applies through 2026-08-31 —
     // billed here at standard so metering never under-charges; revisit after.
@@ -320,7 +336,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 5,
     outputPricePerMTok: 25,
@@ -355,7 +375,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 5,
     outputPricePerMTok: 25,
@@ -386,7 +410,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
-    codeExecutionToolType: 'code_execution_20250825',
+    // Current server-tool type per the API reference (verified 2026-08-28);
+    // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
+    // not a tool type — sending it as one is a 400. Not currently sent by
+    // Synthase (request-shape.ts forwards only webSearchToolType).
+    codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 3,
     outputPricePerMTok: 15,
@@ -460,7 +488,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
     toolsRequireReasoningOff: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
+    // has no web_search tool type (it is a Responses-API construct), and the
+    // bond deliberately forwards no server tools. Advertising one here surfaced
+    // web search in the system prompt while it could never work. Re-add when
+    // the bond moves to /v1/responses (verified 2026-08-28).
     codeExecutionToolType: 'code_interpreter',
     // LIST price. OpenAI ran a >20% PROMO from 2026-08-22 ($4/$20, cache read
     // $0.40, cache write $5) — "GPT-5.6 Sol's promotional pricing is available
@@ -493,7 +525,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
     toolsRequireReasoningOff: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
+    // has no web_search tool type (it is a Responses-API construct), and the
+    // bond deliberately forwards no server tools. Advertising one here surfaced
+    // web search in the system prompt while it could never work. Re-add when
+    // the bond moves to /v1/responses (verified 2026-08-28).
     codeExecutionToolType: 'code_interpreter',
     // Repriced 2026-07-30 (20% cut from $2.50/$15).
     inputPricePerMTok: 2,
@@ -521,7 +557,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
     toolsRequireReasoningOff: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
+    // has no web_search tool type (it is a Responses-API construct), and the
+    // bond deliberately forwards no server tools. Advertising one here surfaced
+    // web search in the system prompt while it could never work. Re-add when
+    // the bond moves to /v1/responses (verified 2026-08-28).
     codeExecutionToolType: 'code_interpreter',
     // Repriced 2026-07-30 (80% cut from $1/$6).
     inputPricePerMTok: 0.2,
@@ -556,7 +596,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
     toolsRequireReasoningOff: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
+    // has no web_search tool type (it is a Responses-API construct), and the
+    // bond deliberately forwards no server tools. Advertising one here surfaced
+    // web search in the system prompt while it could never work. Re-add when
+    // the bond moves to /v1/responses (verified 2026-08-28).
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 5,
     outputPricePerMTok: 30,
@@ -586,7 +630,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
     toolsRequireReasoningOff: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
+    // has no web_search tool type (it is a Responses-API construct), and the
+    // bond deliberately forwards no server tools. Advertising one here surfaced
+    // web search in the system prompt while it could never work. Re-add when
+    // the bond moves to /v1/responses (verified 2026-08-28).
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2.5,
     outputPricePerMTok: 15,
@@ -618,7 +666,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
     toolsRequireReasoningOff: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
+    // has no web_search tool type (it is a Responses-API construct), and the
+    // bond deliberately forwards no server tools. Advertising one here surfaced
+    // web search in the system prompt while it could never work. Re-add when
+    // the bond moves to /v1/responses (verified 2026-08-28).
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 0.75,
     outputPricePerMTok: 4.5,
@@ -1604,6 +1656,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // US default: DeepInfra (zai-org/GLM-5.3-Flash) bills exactly the list
     // card — $0.15/$0.50, cache read 0.2× = $0.03. Verified live 2026-08-27.
     regions: ['us', 'cn'],
+    // NB: DeepInfra returns NO cached-token usage (verified live 2026-08-28:
+    // an identical ~2.6k-token prefix twice reported full input both passes,
+    // no prompt_tokens_details) — the us cacheRead rate below is informational
+    // only; metering always bills full input there. Native z.ai reports and
+    // discounts cached tokens correctly.
     regionPricing: {
       us: { inputPricePerMTok: 0.15, outputPricePerMTok: 0.5, cacheReadPricePerMTok: 0.03 },
     },
@@ -1635,6 +1692,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1.4,
     // US default (DeepInfra bills ~half native). Verified 2026-08-01.
     regions: ['us', 'cn'],
+    // NB: DeepInfra returns NO cached-token usage (verified live 2026-08-28:
+    // an identical ~2.6k-token prefix twice reported full input both passes,
+    // no prompt_tokens_details) — the us cacheRead rate below is informational
+    // only; metering always bills full input there. Native z.ai reports and
+    // discounts cached tokens correctly.
     regionPricing: {
       us: { inputPricePerMTok: 0.75, outputPricePerMTok: 2.4, cacheReadPricePerMTok: 0.14 },
     },
@@ -1671,6 +1733,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1,
     // US default (DeepInfra bills below native). Verified 2026-08-01.
     regions: ['us', 'cn'],
+    // NB: DeepInfra returns NO cached-token usage (verified live 2026-08-28:
+    // an identical ~2.6k-token prefix twice reported full input both passes,
+    // no prompt_tokens_details) — the us cacheRead rate below is informational
+    // only; metering always bills full input there. Native z.ai reports and
+    // discounts cached tokens correctly.
     regionPricing: {
       us: { inputPricePerMTok: 0.6, outputPricePerMTok: 2.08, cacheReadPricePerMTok: 0.12 },
     },

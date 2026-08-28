@@ -40,13 +40,18 @@ describe('webSearchToolType', () => {
     )
   })
 
-  it('is set on OpenAI, Google, and Zhipu models', () => {
-    for (const provider of ['openai', 'zhipu'] as const) {
-      const models = MODELS.filter((m) => m.provider === provider)
-      expect(models.length).toBeGreaterThan(0)
-      for (const m of models) {
-        expect(m.webSearchToolType).toBe('web_search')
-      }
+  it('is set on Google and Zhipu models, and NOT on OpenAI', () => {
+    // OpenAI entries carry no webSearchToolType: the bond calls
+    // /v1/chat/completions, which has no web_search tool type (a Responses-API
+    // construct) and forwards no server tools — advertising one surfaced web
+    // search in the system prompt while it could never work (2026-08-28 audit).
+    for (const m of MODELS.filter((m) => m.provider === 'openai')) {
+      expect(m.webSearchToolType).toBeUndefined()
+    }
+    const zhipu = MODELS.filter((m) => m.provider === 'zhipu')
+    expect(zhipu.length).toBeGreaterThan(0)
+    for (const m of zhipu) {
+      expect(m.webSearchToolType).toBe('web_search')
     }
     const google = MODELS.filter((m) => m.provider === 'google')
     for (const m of google) {
@@ -75,10 +80,10 @@ describe('webSearchToolType', () => {
 describe('codeExecutionToolType', () => {
   it('is set on Anthropic Opus and Sonnet (not Haiku)', () => {
     expect(MODELS.find((m) => m.id === 'claude-opus-4-6')!.codeExecutionToolType).toBe(
-      'code_execution_20250825',
+      'code_execution_20260521',
     )
     expect(MODELS.find((m) => m.id === 'claude-sonnet-4-6')!.codeExecutionToolType).toBe(
-      'code_execution_20250825',
+      'code_execution_20260521',
     )
     expect(
       MODELS.find((m) => m.id === 'claude-haiku-4-5-20251001')!.codeExecutionToolType,
