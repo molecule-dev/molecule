@@ -305,9 +305,21 @@ class GoogleAIProvider implements AIProvider {
       body.systemInstruction = { parts: [{ text: params.system }] }
     }
 
+    // Server tools: only Gemini-native built-ins the API actually defines are
+    // forwarded ('google_search' grounding); anything else is dropped — an
+    // unknown tool entry fails the WHOLE request (the glm-5.3-flash bug class).
+    const googleSearch = (params.serverTools ?? []).some((st) => st.type === 'google_search')
+    const toolEntries: Array<Record<string, unknown>> = []
     if (params.tools?.length) {
-      body.tools = this.formatTools(params.tools)
-      if (params.toolChoice) {
+      toolEntries.push(...this.formatTools(params.tools))
+    }
+    if (googleSearch) {
+      toolEntries.push({ google_search: {} })
+    }
+    if (toolEntries.length > 0) {
+      body.tools = toolEntries
+      const toolConfig: Record<string, unknown> = {}
+      if (params.tools?.length && params.toolChoice) {
         const forceOne = typeof params.toolChoice === 'object' && params.toolChoice.type === 'tool'
         const functionCallingConfig: Record<string, unknown> = {
           // 'auto' → model decides; 'required' / forced-tool → must call a tool.
@@ -320,8 +332,16 @@ class GoogleAIProvider implements AIProvider {
             (params.toolChoice as { type: 'tool'; name: string }).name,
           ]
         }
-        body.toolConfig = { functionCallingConfig }
+        toolConfig.functionCallingConfig = functionCallingConfig
       }
+      if (googleSearch && params.tools?.length) {
+        // Combining built-in tools with function declarations is a 400 on
+        // Gemini 3.x unless this flag rides along ("Please enable
+        // tool_config.include_server_side_tool_invocations to use Built-in
+        // tools with Function calling."). Verified live 2026-08-28.
+        toolConfig.includeServerSideToolInvocations = true
+      }
+      if (Object.keys(toolConfig).length > 0) body.toolConfig = toolConfig
     }
 
     const generationConfig: Record<string, unknown> = { ...extraGenerationConfig }
@@ -332,7 +352,15 @@ class GoogleAIProvider implements AIProvider {
     // explicitly-passed older id never breaks the request.
     if (params.thinking && this.supportsThinking(model)) {
       const thinkingConfig: Record<string, unknown> = { includeThoughts: true }
-      if (typeof params.thinking.budgetTokens === 'number') {
+      // Prefer the caller-resolved native `thinkingLevel` (Gemini 3.x:
+      // low|medium|high from the model catalog) over the legacy token budget —
+      // and NEVER send both: "You can only set only one of thinking budget and
+      // thinking level" is a 400 (verified live 2026-08-28). Before this, the
+      // effort value was silently ignored and every level sent the same
+      // budget, making the user's effort picker a no-op on Gemini.
+      if (params.thinking.effort) {
+        thinkingConfig.thinkingLevel = params.thinking.effort
+      } else if (typeof params.thinking.budgetTokens === 'number') {
         thinkingConfig.thinkingBudget = params.thinking.budgetTokens
       }
       generationConfig.thinkingConfig = thinkingConfig
@@ -419,7 +447,13 @@ class GoogleAIProvider implements AIProvider {
         // `inlineData`; the model itself decides what it can interpret.
         return { inlineData: { mimeType: block.mediaType, data: block.data } }
       case 'tool_use':
-        return { functionCall: { name: block.name, args: block.input ?? {} } }
+        // `thoughtSignature` (surfaced to callers as `signature`) MUST be
+        // echoed on replayed functionCall parts: Gemini 3.x rejects a replayed
+        // call without it (400 "Function call is missing a thought_signature").
+        return {
+          functionCall: { name: block.name, args: block.input ?? {} },
+          ...(block.signature ? { thoughtSignature: block.signature } : {}),
+        }
       case 'tool_result':
         return {
           functionResponse: {
@@ -659,10 +693,24 @@ class GoogleAIProvider implements AIProvider {
     if (functionCall) {
       const id = `call_${++state.toolCounter}`
       const name = String(functionCall.name ?? '')
+      // Gemini 3.x attaches a part-level `thoughtSignature` to functionCall
+      // parts; it must be persisted by the caller and echoed on replay (see
+      // formatBlock) or the NEXT request in the tool loop is a 400. Surface it
+      // as the event's `signature`.
+      const signature =
+        typeof part.thoughtSignature === 'string' && part.thoughtSignature.length > 0
+          ? part.thoughtSignature
+          : undefined
       // Surface the tool start immediately so the client shows activity, then
       // the complete call (Gemini does not stream partial function-call args).
       yield { type: 'tool_use_start', id, name }
-      yield { type: 'tool_use', id, name, input: functionCall.args ?? {} }
+      yield {
+        type: 'tool_use',
+        id,
+        name,
+        input: functionCall.args ?? {},
+        ...(signature ? { signature } : {}),
+      }
     }
   }
 

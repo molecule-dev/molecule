@@ -38,7 +38,13 @@ export type ContentBlock =
   | { type: 'document'; mediaType: string; data: string; filename?: string }
   | { type: 'audio'; mediaType: string; data: string }
   | { type: 'video'; mediaType: string; data: string }
-  | { type: 'tool_use'; id: string; name: string; input: unknown }
+  // `signature` is a provider-opaque replay token attached to the tool call
+  // (Gemini 3.x `thoughtSignature`). Callers that persist tool calls and replay
+  // them in later requests MUST carry it back on the replayed block verbatim —
+  // Gemini rejects a replayed functionCall without it (400 "Function call is
+  // missing a thought_signature"). Providers without such a token omit it, and
+  // every bond ignores it when it has no native equivalent.
+  | { type: 'tool_use'; id: string; name: string; input: unknown; signature?: string }
   | { type: 'tool_result'; tool_use_id: string; content: string | unknown }
 
 /**
@@ -47,7 +53,10 @@ export type ContentBlock =
 export type ChatEvent =
   | { type: 'text'; content: string }
   | { type: 'thinking'; content: string }
-  | { type: 'tool_use'; id: string; name: string; input: unknown }
+  // `signature`: provider-opaque replay token for this tool call (see the
+  // ContentBlock tool_use variant) — consumers must persist it alongside
+  // id/name/input and echo it on the replayed tool_use block.
+  | { type: 'tool_use'; id: string; name: string; input: unknown; signature?: string }
   // Emitted as soon as the model BEGINS a tool call — id + name are known but the
   // input is still streaming. Lets consumers show what's happening immediately
   // (e.g. "Writing the plan") instead of staring at a frozen spinner for the

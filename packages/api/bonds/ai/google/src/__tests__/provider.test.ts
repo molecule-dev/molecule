@@ -330,6 +330,147 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     expect(body.generationConfig).toEqual({ temperature: 0.3, maxOutputTokens: 2048 })
   })
 
+  it('surfaces a functionCall part thoughtSignature as the tool_use signature', async () => {
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        sse({
+          candidates: [
+            {
+              content: {
+                role: 'model',
+                parts: [
+                  {
+                    functionCall: { name: 'read_file', args: { path: 'a.ts' } },
+                    thoughtSignature: 'sig-abc',
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+      ]),
+    )
+    const events = await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [{ role: 'user', content: 'go' }],
+      }),
+    )
+    const toolUse = events.find((e) => e.type === 'tool_use') as {
+      signature?: string
+    }
+    // Gemini 3.x requires this token echoed on replay — dropping it here is
+    // what 400'd the whole agentic loop ("missing a thought_signature").
+    expect(toolUse.signature).toBe('sig-abc')
+  })
+
+  it('replays a tool_use block signature as a part-level thoughtSignature', async () => {
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [
+          { role: 'user', content: 'go' },
+          {
+            role: 'assistant',
+            content: [
+              {
+                type: 'tool_use',
+                id: 'call_1',
+                name: 'read_file',
+                input: { path: 'a.ts' },
+                signature: 'sig-abc',
+              },
+            ],
+          },
+          {
+            role: 'user',
+            content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }],
+          },
+        ],
+      }),
+    )
+    const body = bodyOf()
+    expect(body.contents[1].parts[0]).toEqual({
+      functionCall: { name: 'read_file', args: { path: 'a.ts' } },
+      thoughtSignature: 'sig-abc',
+    })
+    // A signature-less block (non-Gemini history) stays a bare functionCall.
+    expect(body.contents[1].parts[0].thoughtSignature).toBeDefined()
+  })
+
+  it('prefers thinking.effort as thinkingLevel and never sends the budget alongside', async () => {
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [{ role: 'user', content: 'go' }],
+        thinking: { type: 'enabled', budgetTokens: 10_000, effort: 'medium' },
+      }),
+    )
+    // thinkingLevel + thinkingBudget together is a 400 upstream ("only one of
+    // thinking budget and thinking level") — and before this the effort was
+    // silently dropped, making the user's effort picker a no-op on Gemini.
+    expect(bodyOf().generationConfig.thinkingConfig).toEqual({
+      includeThoughts: true,
+      thinkingLevel: 'medium',
+    })
+  })
+
+  it('falls back to thinkingBudget when no native effort is resolved', async () => {
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [{ role: 'user', content: 'go' }],
+        thinking: { type: 'enabled', budgetTokens: 10_000 },
+      }),
+    )
+    expect(bodyOf().generationConfig.thinkingConfig).toEqual({
+      includeThoughts: true,
+      thinkingBudget: 10_000,
+    })
+  })
+
+  it('forwards the google_search server tool, with the server-side-invocations flag when function tools ride along', async () => {
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [{ role: 'user', content: 'go' }],
+        tools: [
+          { name: 'search', description: 'Search', parameters: { type: 'object', properties: {} } },
+        ],
+        serverTools: [{ type: 'google_search', name: 'web_search' }],
+      }),
+    )
+    const body = bodyOf()
+    expect(body.tools).toHaveLength(2)
+    expect(body.tools[1]).toEqual({ google_search: {} })
+    // Without this flag, built-ins + functionDeclarations together are a 400
+    // ("enable tool_config.include_server_side_tool_invocations").
+    expect(body.toolConfig.includeServerSideToolInvocations).toBe(true)
+  })
+
+  it('sends google_search alone without the flag, and drops unknown server-tool types', async () => {
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [{ role: 'user', content: 'go' }],
+        serverTools: [
+          { type: 'google_search', name: 'web_search' },
+          { type: 'web_search_20260209', name: 'web_search' },
+        ],
+      }),
+    )
+    const body = bodyOf()
+    // Only the Gemini-native built-in survives; an unknown type in tools fails
+    // the whole request upstream (the glm-5.3-flash bug class).
+    expect(body.tools).toEqual([{ google_search: {} }])
+    expect(body.toolConfig).toBeUndefined()
+  })
+
   it("maps a { type: 'tool', name } toolChoice to ANY + allowedFunctionNames", async () => {
     mockFetch.mockResolvedValue(emptyStream())
     await collectEvents(
