@@ -488,6 +488,8 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
   'ide.chat.share.usage':
     'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed':
+    'Menaxhimi i lidhjeve të ndarjes kërkon rol administratori në këtë projekt.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',

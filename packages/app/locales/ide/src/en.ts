@@ -586,6 +586,7 @@ export const en: IdeTranslations = {
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.usage':
     'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed': 'Managing share links needs an admin role on this project.',
   // Skills browser (/skills).
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',

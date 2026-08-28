@@ -493,6 +493,8 @@ export const de: Partial<IdeTranslations> = {
     'Der Freigabelink konnte nicht erstellt werden. Bitte versuche es erneut.',
   'ide.chat.share.usage':
     'Verwendung: /share [Rolle] – einen öffentlichen Link erstellen. Rollen: {{roles}} (Standard: Betrachter).',
+  'ide.chat.share.notAllowed':
+    'Zum Verwalten von Freigabelinks ist eine Admin-Rolle in diesem Projekt erforderlich.',
   'ide.chat.skills.heading': 'Fähigkeiten',
   'ide.chat.skills.searchPlaceholder': 'Filterkriterien…',
   'ide.chat.skills.load': 'Laden',

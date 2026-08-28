@@ -482,6 +482,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Paylaşım bağlantısı oluşturulamadı. Lütfen tekrar deneyin.',
   'ide.chat.share.usage':
     'Kullanım: /share [rol] — herkese açık bir bağlantı oluştur. Roller: {{roles}} (varsayılan: görüntüleyen).',
+  'ide.chat.share.notAllowed':
+    'Paylaşım bağlantılarını yönetmek için bu projede yönetici rolü gerekir.',
   'ide.chat.skills.heading': 'Beceriler',
   'ide.chat.skills.searchPlaceholder': 'Beceri filtreleme…',
   'ide.chat.skills.load': 'Yükle',

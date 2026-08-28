@@ -484,6 +484,8 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Не удалось создать ссылку для обмена. Попробуйте ещё раз.',
   'ide.chat.share.usage':
     'Использование: /share [роль] — создать общедоступную ссылку. Роли: {{roles}} (по умолчанию — просмотр).',
+  'ide.chat.share.notAllowed':
+    'Для управления ссылками общего доступа нужна роль администратора в этом проекте.',
   'ide.chat.skills.heading': 'Навыки',
   'ide.chat.skills.searchPlaceholder': 'Фильтр навыков…',
   'ide.chat.skills.load': 'Загрузить',

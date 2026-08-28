@@ -484,6 +484,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Nu s-a putut crea un link de partajare. Vă rugăm să încercați din nou.',
   'ide.chat.share.usage':
     'Utilizare: /share [rol] — creează un link public. Roluri: {{roles}} (vizualizator implicit).',
+  'ide.chat.share.notAllowed':
+    'Gestionarea linkurilor de partajare necesită un rol de administrator în acest proiect.',
   'ide.chat.skills.heading': 'Competențe',
   'ide.chat.skills.searchPlaceholder': 'Filtrează competențele…',
   'ide.chat.skills.load': 'Încărcare',

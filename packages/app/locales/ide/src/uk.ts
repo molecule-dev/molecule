@@ -485,6 +485,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Не вдалося створити посилання для спільного доступу. Спробуйте ще раз.',
   'ide.chat.share.usage':
     'Використання: /share [роль] — створити загальнодоступне посилання. Ролі: {{roles}} (за замовчуванням — «переглядач»).',
+  'ide.chat.share.notAllowed':
+    'Для керування посиланнями спільного доступу потрібна роль адміністратора в цьому проєкті.',
   'ide.chat.skills.heading': 'Навички',
   'ide.chat.skills.searchPlaceholder': 'Відфільтрувати навички…',
   'ide.chat.skills.load': 'Завантажити',

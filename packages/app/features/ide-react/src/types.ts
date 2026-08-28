@@ -202,7 +202,14 @@ export interface ChatPanelProps {
    * invokes this callback (the host opens its own custom-provider management
    * surface). Omit to hide the row — the shared package stays host-agnostic.
    */
-  onManageCustomModels?: () => void
+  onManageCustomModels?: (context?: {
+    /**
+     * The mode a "Use this model" action should target — the `/model` picker's
+     * scoped mode when it has one, else the LIVE conversation mode (discovery
+     * runs in plan mode, so it maps to `'plan'`).
+     */
+    mode?: 'plan' | 'execute'
+  }) => void
   /**
    * Bump to make the panel re-read its persisted model/settings state — e.g.
    * after the host's custom-provider surface sets the chat model via "Use".
@@ -221,6 +228,16 @@ export interface ChatPanelProps {
    * available.
    */
   canEdit?: boolean
+  /**
+   * Whether the current user may MANAGE public share links — the `/share`
+   * command, the header share button, and the ShareModal's create/revoke
+   * controls. Distinct from {@link canEdit} because hosts commonly gate share
+   * minting ABOVE editor (molecule.dev mints/lists/revokes at admin+): an
+   * editor with `canEdit` true but `canShare` false gets no `/share` surface
+   * instead of a modal whose every request 403s. Defaults to `canEdit !==
+   * false` (back-compat: hosts that gate the modal themselves see no change).
+   */
+  canShare?: boolean
   /** Spinner/busy indicator node to show for in-chat loading states (e.g. the "designing" indicator). Falls back to a built-in dots animation. */
   spinner?: ReactNode
   /** Path of the currently focused file in the editor (shown first in @ picker). */

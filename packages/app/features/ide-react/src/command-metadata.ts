@@ -105,7 +105,7 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'cost',
     label: '/cost',
-    description: 'Show token usage & share of your AI allowance',
+    description: "Show token usage & share of the project's AI allowance",
     category: 'context',
     viewerSafe: true,
   },

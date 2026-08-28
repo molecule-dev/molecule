@@ -478,6 +478,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.share.error': '공유 링크를 생성할 수 없습니다. 다시 시도해 주세요.',
   'ide.chat.share.usage':
     '사용법: /share [역할] — 공개 링크 생성. 역할: {{roles}} (기본값: viewer).',
+  'ide.chat.share.notAllowed': '공유 링크를 관리하려면 이 프로젝트에서 관리자 역할이 필요합니다.',
   'ide.chat.skills.heading': '기술',
   'ide.chat.skills.searchPlaceholder': '필터 기술…',
   'ide.chat.skills.load': '로드',

@@ -482,6 +482,8 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Det gick inte att skapa en delningslänk. Försök igen.',
   'ide.chat.share.usage':
     'Användning: /share [roll] — skapa en offentlig länk. Roller: {{roles}} (standard: läsare).',
+  'ide.chat.share.notAllowed':
+    'Hantering av delningslänkar kräver en administratörsroll i det här projektet.',
   'ide.chat.skills.heading': 'Kompetenser',
   'ide.chat.skills.searchPlaceholder': 'Filtrera efter färdigheter…',
   'ide.chat.skills.load': 'Ladda',

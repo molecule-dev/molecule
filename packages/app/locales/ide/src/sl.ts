@@ -483,6 +483,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Povezave za deljenje ni bilo mogoče ustvariti. Poskusite znova.',
   'ide.chat.share.usage':
     'Uporaba: /share [vloga] — ustvari javno povezavo. Vloge: {{roles}} (privzeta vloga »gledalec«).',
+  'ide.chat.share.notAllowed':
+    'Upravljanje povezav za deljenje zahteva skrbniško vlogo v tem projektu.',
   'ide.chat.skills.heading': 'Znanja in spretnosti',
   'ide.chat.skills.searchPlaceholder': 'Filtriranje veščin…',
   'ide.chat.skills.load': 'Naloži',

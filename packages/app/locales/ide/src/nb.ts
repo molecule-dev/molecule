@@ -478,6 +478,8 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Det gikk ikke å opprette en delingslenke. Prøv på nytt.',
   'ide.chat.share.usage':
     'Bruk: /share [rolle] — opprett en offentlig lenke. Roller: {{roles}} (standard: leser).',
+  'ide.chat.share.notAllowed':
+    'Administrasjon av delingslenker krever en administratorrolle i dette prosjektet.',
   'ide.chat.skills.heading': 'Ferdigheter',
   'ide.chat.skills.searchPlaceholder': 'Filtrer ferdigheter…',
   'ide.chat.skills.load': 'Last',

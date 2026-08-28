@@ -486,6 +486,8 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
   'ide.chat.share.usage':
     'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed':
+    'Для кіравання спасылкамі абагульвання патрэбна роля адміністратара ў гэтым праекце.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',

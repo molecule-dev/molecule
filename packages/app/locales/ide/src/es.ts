@@ -487,6 +487,8 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'No se ha podido crear el enlace para compartir. Inténtalo de nuevo.',
   'ide.chat.share.usage':
     'Uso: /share [rol] — crea un enlace público. Roles: {{roles}} (visor por defecto).',
+  'ide.chat.share.notAllowed':
+    'Gestionar los enlaces para compartir requiere un rol de administrador en este proyecto.',
   'ide.chat.skills.heading': 'Habilidades',
   'ide.chat.skills.searchPlaceholder': 'Filtrar habilidades…',
   'ide.chat.skills.load': 'Cargar',

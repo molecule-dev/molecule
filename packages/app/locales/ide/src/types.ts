@@ -504,6 +504,7 @@ export type IdeTranslationKey =
   | 'ide.chat.share.revoking'
   | 'ide.chat.share.revokeFailed'
   | 'ide.chat.share.usage'
+  | 'ide.chat.share.notAllowed'
   | 'ide.chat.skills.heading'
   | 'ide.chat.skills.searchPlaceholder'
   | 'ide.chat.skills.load'

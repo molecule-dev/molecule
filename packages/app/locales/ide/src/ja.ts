@@ -483,6 +483,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.share.error': '共有リンクを作成できませんでした。もう一度お試しください。',
   'ide.chat.share.usage':
     '使用方法：/share [role] — 公開リンクを作成します。ロール：{{roles}}（デフォルトはviewer）。',
+  'ide.chat.share.notAllowed': '共有リンクの管理には、このプロジェクトでの管理者ロールが必要です。',
   'ide.chat.skills.heading': 'スキル',
   'ide.chat.skills.searchPlaceholder': 'スキルを絞り込む…',
   'ide.chat.skills.load': '読み込み',

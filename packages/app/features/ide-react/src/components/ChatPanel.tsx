@@ -1806,6 +1806,12 @@ export interface MessageItemProps {
   handleFileRevert: (path: string, content: string) => Promise<void>
   setInputAndCursorEnd: (val: string) => void
   setModelPicker: React.Dispatch<React.SetStateAction<ModelPicker | null>>
+  /**
+   * The live conversation mode (discovery maps to 'plan') — scopes the
+   * loop-limit banner's "Change model" picker so the pick lands on the mode the
+   * user is actually in.
+   */
+  chatMode: 'plan' | 'execute'
   /** Signed-in user's avatar shown beside their own messages (SOC1); icon fallback when absent/unsafe. */
   userAvatar?: string | null
   /** When set, the user avatar becomes clickable and fires this to open the user's profile (C5). */
@@ -1847,6 +1853,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     handleFileRevert,
     setInputAndCursorEnd,
     setModelPicker,
+    chatMode,
     userAvatar,
     onAvatarClick,
     discovery,
@@ -2290,7 +2297,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   }),
                   action: () => {
                     setInputAndCursorEnd('/model ')
-                    setModelPicker({ selectedIdx: -1 })
+                    setModelPicker({ selectedIdx: -1, mode: chatMode })
                   },
                 },
                 {
@@ -2416,6 +2423,8 @@ export interface ChatInnerProps {
   isAnonymous?: boolean
   /** Whether the user may write shared project state — see {@link ChatPanelProps.canEdit}. */
   canEdit?: boolean
+  /** Whether the user may manage public share links — see {@link ChatPanelProps.canShare}. */
+  canShare?: boolean
   /** Host-supplied upgrade/sign-in CTA builder — see {@link ChatPanelProps.buildUpgradeCta}. */
   buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
   /** Host-supplied `/help` upgrade section builder — see {@link ChatPanelProps.buildHelpUpgradeSection}. */
@@ -2457,7 +2466,7 @@ export interface ChatInnerProps {
   /** Changing this value opens the `/settings` view (used by the header gear button). */
   openSettingsSignal?: number
   /** Shows a "manage your own models" row in the `/model` picker — see {@link ChatPanelProps.onManageCustomModels}. */
-  onManageCustomModels?: () => void
+  onManageCustomModels?: (context?: { mode?: 'plan' | 'execute' }) => void
   /** Bump to re-read persisted model/settings — see {@link ChatPanelProps.modelSelectionSignal}. */
   modelSelectionSignal?: number
   /** Changing this value opens the `/report` bug-report modal (used by the header bug button). */
@@ -2505,6 +2514,7 @@ function ChatInner({
   isPro,
   isAnonymous,
   canEdit,
+  canShare,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   activeFile,
@@ -2552,6 +2562,10 @@ function ChatInner({
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
   const cm = getClassMap()
+  // Share-link management may be gated ABOVE canEdit by the host (molecule.dev
+  // mints/lists/revokes at admin+) — every /share surface below uses this, so
+  // an editor without the capability gets no dead modal.
+  const shareAllowed = canShare ?? canEdit !== false
   const themeMode = useThemeMode()
   const isLight = themeMode === 'light'
   // Phone-width / touch-first branches: popovers cap with dvh, hover-revealed
@@ -2935,6 +2949,15 @@ function ChatInner({
     onConversationId,
     onStreamEvent: handleStreamEvent,
   })
+
+  // The mode a model CHANGE should target when the user hasn't scoped one
+  // explicitly (no --plan/--execute flag, no picker-mode choice): the LIVE
+  // conversation mode. Discovery runs in plan mode (aiContext.mode is 'plan'
+  // throughout discovery), so it maps to 'plan' — changing the model while
+  // discovering/planning changes the plan model, while building the execute
+  // model. This replaces the old default of writing the legacy `chatModel`
+  // (which silently moved BOTH modes).
+  const liveModelMode: 'plan' | 'execute' = mode === 'plan' ? 'plan' : 'execute'
 
   // Keep sendMessageRef in sync so the countdown effect can call the latest sendMessage
   sendMessageRef.current = sendMessage
@@ -4267,9 +4290,14 @@ function ChatInner({
     if (fallback) {
       setCurrentModel(fallback)
       setSavedChatModel(fallback)
-      http.patch(`/projects/${projectId}`, { settings: { chatModel: fallback } }).catch(() => {
-        /* persistence is best-effort; the in-memory switch is what matters */
-      })
+      // Persisting the swap writes project settings — editor+ server-side, so a
+      // viewer's tab keeps the in-memory switch (all this session needs) and
+      // skips a PATCH that could only 403.
+      if (canEdit !== false) {
+        http.patch(`/projects/${projectId}`, { settings: { chatModel: fallback } }).catch(() => {
+          /* persistence is best-effort; the in-memory switch is what matters */
+        })
+      }
     }
   }, [
     modelsLoading,
@@ -4279,6 +4307,7 @@ function ChatInner({
     addSystemCard,
     http,
     projectId,
+    canEdit,
   ])
 
   // ── Queued message editing ──────────────────────────────────────────────────
@@ -5178,11 +5207,12 @@ function ChatInner({
       }
       setFilePicker(null)
 
-      // Show model picker when typing "/model <filter>" — scoped to a mode when
-      // the input carries a --plan / --execute flag.
+      // Show model picker when typing "/model <filter>" — scoped to the mode a
+      // --plan / --execute flag names, else to the LIVE conversation mode
+      // (discovery = plan), so a plain pick changes the mode the user is in.
       const modelMatch = val.match(/^\/model\s+/i)
       if (modelMatch) {
-        setModelPicker({ selectedIdx: -1, mode: parseModelModeCommand(val)?.mode })
+        setModelPicker({ selectedIdx: -1, mode: parseModelModeCommand(val)?.mode ?? liveModelMode })
         setCommandMenu(null)
         return
       }
@@ -5194,7 +5224,7 @@ function ChatInner({
         setCommandMenu(null)
       }
     },
-    [openFilePicker, autoResize, persistDraft],
+    [openFilePicker, autoResize, persistDraft, liveModelMode],
   )
 
   // ── Execute command ────────────────────────────────────────────────────────
@@ -5371,7 +5401,7 @@ function ChatInner({
         setMaxVisibleItems(60)
       } else if (id === 'model') {
         setInputAndCursorEnd('/model ')
-        setModelPicker({ selectedIdx: -1 })
+        setModelPicker({ selectedIdx: -1, mode: liveModelMode })
       } else if (id === 'mic' || id === 'dictate') {
         setInputValue('')
         setMicPicker({ autoStart: false })
@@ -5484,7 +5514,10 @@ function ChatInner({
                       'ide.chat.usageAllowanceTodayLine',
                       { percent: d.allowancePercent },
                       {
-                        defaultValue: "You've used ~{{percent}}% of today's AI allowance.",
+                        // Neutral phrasing on purpose: the allowance belongs to
+                        // the PROJECT (its owner's plan window) — "you've used"
+                        // misattributed it to whichever teammate ran /cost.
+                        defaultValue: "~{{percent}}% of today's AI allowance used.",
                       },
                     ))
               : ''
@@ -5753,7 +5786,7 @@ function ChatInner({
         )
       } else if (id === 'share') {
         setInputValue('')
-        setShareModal({ role: DEFAULT_SHARE_ROLE })
+        if (shareAllowed) setShareModal({ role: DEFAULT_SHARE_ROLE })
       }
     },
     [
@@ -5773,6 +5806,7 @@ function ChatInner({
       extraCommandIds,
       canEdit,
       allCommands,
+      liveModelMode,
       t,
     ],
   )
@@ -5906,10 +5940,20 @@ function ChatInner({
     }
 
     // Handle /share [role] locally — opens the share-link modal at the requested
-    // role (default viewer). An unrecognized role shows usage instead.
+    // role (default viewer). An unrecognized role shows usage instead. Below the
+    // host's share capability (e.g. an editor where minting is admin+), say so
+    // plainly instead of opening a modal whose every request 403s.
     const shareMatch = parseShareCommand(trimmed)
     if (shareMatch) {
       setInputValue('')
+      if (!shareAllowed) {
+        addSystemCard(
+          t('ide.chat.share.notAllowed', undefined, {
+            defaultValue: 'Managing share links needs an admin role on this project.',
+          }),
+        )
+        return
+      }
       if (shareMatch.kind === 'invalid') {
         addSystemCard(
           t(
@@ -6019,27 +6063,9 @@ function ChatInner({
             { action: buildUpgradeCta?.({}) ?? undefined },
           )
         } else {
-          try {
-            await http.patch(`/projects/${projectId}`, { settings: { chatModel: name } })
-            setCurrentModel(name)
-            setSavedChatModel(name)
-            addSystemCard(
-              t(
-                'ide.chat.modelSet',
-                { name: resolved?.label ?? name },
-                {
-                  defaultValue: `Chat model set to ${resolved?.label ?? name}`,
-                },
-              ),
-            )
-          } catch (error) {
-            logger.warn('Failed to update chat model via /model command', { error })
-            addSystemCard(
-              t('ide.chat.modelError', undefined, {
-                defaultValue: 'Failed to update chat model.',
-              }),
-            )
-          }
+          // Unscoped /model targets the CURRENT conversation mode (discovery =
+          // plan), same as /effort — never the legacy both-modes chatModel.
+          await selectModel(name, resolved?.label ?? name, liveModelMode)
         }
       }
       setInputValue('')
@@ -6312,7 +6338,17 @@ function ChatInner({
     setAttachedFiles([])
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
-  }, [attachedFiles, http, projectId, sendMessage, setInputValue, runSavedScript, allCommands])
+  }, [
+    attachedFiles,
+    http,
+    projectId,
+    sendMessage,
+    setInputValue,
+    runSavedScript,
+    allCommands,
+    selectModel,
+    liveModelMode,
+  ])
 
   // External auto-submit. When the signal changes, submit the current input —
   // used by the prompt → chat morph to send the prefilled prompt once the chat
@@ -6351,9 +6387,9 @@ function ChatInner({
   useEffect(() => {
     if (openShareSignal !== undefined && openShareSignal !== lastOpenShareRef.current) {
       lastOpenShareRef.current = openShareSignal
-      setShareModal({ role: DEFAULT_SHARE_ROLE })
+      if (shareAllowed) setShareModal({ role: DEFAULT_SHARE_ROLE })
     }
-  }, [openShareSignal])
+  }, [openShareSignal, shareAllowed])
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
@@ -6364,7 +6400,10 @@ function ChatInner({
           (commandMenu.showAll === true || c.label.startsWith(inputRef.current as string)) &&
           // Viewers see only commands they can actually run (viewer-safe reads +
           // the /teamsay side channel) — no dead entries in the menu.
-          (canEdit !== false || c.viewerSafe === true || c.sideChannel === true),
+          (canEdit !== false || c.viewerSafe === true || c.sideChannel === true) &&
+          // /share is gated separately: hosts commonly mint at admin+, so an
+          // editor without the capability gets no dead menu entry either.
+          (c.id !== 'share' || shareAllowed),
       )
     : []
 
@@ -6707,9 +6746,13 @@ function ChatInner({
         e.preventDefault()
         const idx = modelPicker.selectedIdx >= 0 ? modelPicker.selectedIdx : 0
         if (onManageCustomModels && idx === visibleModels.length) {
+          const manageMode =
+            modelPicker.mode === 'plan' || modelPicker.mode === 'execute'
+              ? modelPicker.mode
+              : liveModelMode
           setModelPicker(null)
           setInputValue('')
-          onManageCustomModels()
+          onManageCustomModels({ mode: manageMode })
           return
         }
         const model = visibleModels[idx]
@@ -6841,8 +6884,16 @@ function ChatInner({
           }
         }
         case 'mode':
-          // Only the plan→build handoff renders a card; the server records a mode card solely
-          // for 'execute' ("🔨 Building your app"). Anything else renders nothing.
+          // The plan→build handoff ("🔨 Building your app") and the plan-mode
+          // announcement a new conversation is seeded with ("📝 Plan mode") —
+          // the server records mode cards only for those two.
+          if (cardEvent.mode === 'plan') {
+            return {
+              id,
+              text: t('ide.chat.phasePlanning', undefined, { defaultValue: '📝 Plan mode' }),
+              timestamp,
+            }
+          }
           if (cardEvent.mode !== 'execute') return null
           return {
             id,
@@ -7431,6 +7482,7 @@ function ChatInner({
                     handleFileRevert={handleFileRevert}
                     setInputAndCursorEnd={setInputAndCursorEnd}
                     setModelPicker={setModelPicker}
+                    chatMode={liveModelMode}
                     userAvatar={userAvatar}
                     // Avatar clicks open the signed-in user's OWN profile, so only
                     // their own messages get the handler: author-less ones (the
@@ -9095,9 +9147,13 @@ function ChatInner({
                   type="button"
                   data-mol-id="chat-model-manage-custom"
                   onClick={() => {
+                    const manageMode =
+                      modelPicker.mode === 'plan' || modelPicker.mode === 'execute'
+                        ? modelPicker.mode
+                        : liveModelMode
                     setModelPicker(null)
                     setInputValue('')
-                    onManageCustomModels()
+                    onManageCustomModels({ mode: manageMode })
                   }}
                   onMouseEnter={(e) => {
                     ;(e.currentTarget as HTMLElement).style.background =
@@ -10779,6 +10835,7 @@ function ChatInner({
         <ShareModal
           projectId={projectId}
           initialRole={shareModal.role}
+          canManage={shareAllowed}
           onClose={() => setShareModal(null)}
           onCreated={(result: ShareLinkResult) => {
             // Surface the created link in the timeline so it persists after the
@@ -10861,6 +10918,7 @@ export function ChatPanel({
   isPro,
   isAnonymous,
   canEdit = true,
+  canShare,
   buildUpgradeCta,
   buildHelpUpgradeSection,
   userAvatar,
@@ -10872,6 +10930,10 @@ export function ChatPanel({
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
+  // Share management may be gated ABOVE canEdit by the host (see
+  // ChatPanelProps.canShare) — gates the built-in header share button here and
+  // is threaded into ChatInner for the /share command + modal.
+  const shareAllowed = canShare ?? canEdit !== false
   const isNarrow = useNarrowViewport()
   const isCoarse = useCoarsePointer()
   const http = useHttpClient()
@@ -11097,20 +11159,23 @@ export function ChatPanel({
             </span>
           </button>
 
-          {/* Share button — opens the /share link modal */}
-          <button
-            type="button"
-            data-mol-id="chat-share-button"
-            onClick={() => setOpenShareSignal((n) => n + 1)}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
-            title={t('ide.chat.share.openShare', undefined, { defaultValue: 'Share project' })}
-            aria-label={t('ide.chat.share.openShare', undefined, {
-              defaultValue: 'Share project',
-            })}
-            style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
-          >
-            <Icon name="share" size={14} aria-hidden="true" />
-          </button>
+          {/* Share button — opens the /share link modal. Hidden below the
+              host's share capability (admin+ on molecule.dev), viewers included. */}
+          {shareAllowed && (
+            <button
+              type="button"
+              data-mol-id="chat-share-button"
+              onClick={() => setOpenShareSignal((n) => n + 1)}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
+              title={t('ide.chat.share.openShare', undefined, { defaultValue: 'Share project' })}
+              aria-label={t('ide.chat.share.openShare', undefined, {
+                defaultValue: 'Share project',
+              })}
+              style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center' }}
+            >
+              <Icon name="share" size={14} aria-hidden="true" />
+            </button>
+          )}
 
           {/* Bug-report button — opens the /report modal */}
           <button
@@ -11274,6 +11339,7 @@ export function ChatPanel({
         isPro={isPro}
         isAnonymous={isAnonymous}
         canEdit={canEdit}
+        canShare={shareAllowed}
         buildUpgradeCta={buildUpgradeCta}
         buildHelpUpgradeSection={buildHelpUpgradeSection}
         activeFile={activeFile}

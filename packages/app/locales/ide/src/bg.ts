@@ -486,6 +486,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Не е възможно да се създаде линк за споделяне. Моля, опитайте отново.',
   'ide.chat.share.usage':
     'Начин на употреба: /share [роля] — създаване на публична връзка. Роли: {{roles}} (по подразбиране – зрител).',
+  'ide.chat.share.notAllowed':
+    'Управлението на връзки за споделяне изисква администраторска роля в този проект.',
   'ide.chat.skills.heading': 'Умения',
   'ide.chat.skills.searchPlaceholder': 'Филтриране по умения…',
   'ide.chat.skills.load': 'Зареждане',

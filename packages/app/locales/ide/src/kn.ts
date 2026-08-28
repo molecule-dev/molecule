@@ -486,6 +486,8 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
   'ide.chat.share.usage':
     'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed':
+    'ಹಂಚಿಕೆ ಲಿಂಕ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಲು ಈ ಪ್ರಾಜೆಕ್ಟ್‌ನಲ್ಲಿ ಅಡ್ಮಿನ್ ಪಾತ್ರ ಅಗತ್ಯವಿದೆ.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',

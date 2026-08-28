@@ -488,6 +488,8 @@ export const el: Partial<IdeTranslations> = {
     'Δεν ήταν δυνατή η δημιουργία συνδέσμου κοινοποίησης. Παρακαλώ δοκιμάστε ξανά.',
   'ide.chat.share.usage':
     'Χρήση: /share [ρόλος] — δημιουργία δημόσιου συνδέσμου. Ρόλοι: {{roles}} (προεπιλεγμένος χρήστης με δικαιώματα προβολής).',
+  'ide.chat.share.notAllowed':
+    'Η διαχείριση συνδέσμων κοινοποίησης απαιτεί ρόλο διαχειριστή σε αυτό το έργο.',
   'ide.chat.skills.heading': 'Δεξιότητες',
   'ide.chat.skills.searchPlaceholder': 'Φιλτράρισμα δεξιοτήτων…',
   'ide.chat.skills.load': 'Φόρτωση',

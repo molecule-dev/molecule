@@ -479,6 +479,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Det var ikke muligt at oprette et delingslink. Prøv igen.',
   'ide.chat.share.usage':
     'Anvendelse: /share [rolle] — opret et offentligt link. Roller: {{roles}} (standard: seer).',
+  'ide.chat.share.notAllowed':
+    'Administration af delingslinks kræver en administratorrolle på dette projekt.',
   'ide.chat.skills.heading': 'Færdigheder',
   'ide.chat.skills.searchPlaceholder': 'Filtrer kompetencer…',
   'ide.chat.skills.load': 'Indlæs',

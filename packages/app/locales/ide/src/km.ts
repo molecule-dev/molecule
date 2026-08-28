@@ -486,6 +486,8 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
   'ide.chat.share.usage':
     'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed':
+    'ការគ្រប់គ្រងតំណចែករំលែកត្រូវការតួនាទីអ្នកគ្រប់គ្រងនៅក្នុងគម្រោងនេះ។',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',

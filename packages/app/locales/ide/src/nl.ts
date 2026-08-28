@@ -485,6 +485,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'De deelkoppeling kon niet worden aangemaakt. Probeer het nog eens.',
   'ide.chat.share.usage':
     'Gebruik: /share [rol] — maak een openbare link aan. Rollen: {{roles}} (standaard: viewer).',
+  'ide.chat.share.notAllowed':
+    'Voor het beheren van deellinks is een beheerdersrol in dit project vereist.',
   'ide.chat.skills.heading': 'Vaardigheden',
   'ide.chat.skills.searchPlaceholder': 'Vaardigheden filteren…',
   'ide.chat.skills.load': 'Laden',

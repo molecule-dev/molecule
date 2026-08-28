@@ -481,6 +481,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Nem sikerült létrehozni a megosztási linket. Kérjük, próbálja meg újra.',
   'ide.chat.share.usage':
     'Használat: /share [szerepkör] — nyilvános link létrehozása. Szerepkörök: {{roles}} (alapértelmezett: megtekintő).',
+  'ide.chat.share.notAllowed':
+    'A megosztási linkek kezeléséhez adminisztrátori szerep szükséges ebben a projektben.',
   'ide.chat.skills.heading': 'Készségek',
   'ide.chat.skills.searchPlaceholder': 'Szűrőfunkciók…',
   'ide.chat.skills.load': 'Betöltés',

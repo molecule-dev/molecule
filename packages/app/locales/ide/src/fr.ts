@@ -491,6 +491,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Impossible de créer un lien de partage. Veuillez réessayer.',
   'ide.chat.share.usage':
     'Utilisation : /share [rôle] — créer un lien public. Rôles : {{roles}} (observateur par défaut).',
+  'ide.chat.share.notAllowed':
+    'La gestion des liens de partage nécessite un rôle d’administrateur sur ce projet.',
   'ide.chat.skills.heading': 'Compétences',
   'ide.chat.skills.searchPlaceholder': 'Filtrer par compétences…',
   'ide.chat.skills.load': 'Charger',

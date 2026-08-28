@@ -40,6 +40,9 @@ export function ShareModal({
   projectId,
   initialRole = DEFAULT_SHARE_ROLE,
   roles = [DEFAULT_SHARE_ROLE],
+  canManage = true,
+  canCreate = canManage,
+  canRevoke = canManage,
   onClose,
   onCreated,
 }: {
@@ -51,6 +54,18 @@ export function ShareModal({
    * backend really honours them.
    */
   roles?: readonly ShareRole[]
+  /**
+   * Whether the CALLER may manage share links at all, forwarded to
+   * {@link ShareLinkManager}. Pass the caller's real capability (e.g. admin+
+   * where the host's backend gates minting at admin) — offering a Create/Revoke
+   * the backend will 403 is worse than not offering it. Defaults `true` for
+   * back-compat with hosts that gate the modal itself.
+   */
+  canManage?: boolean
+  /** Whether the caller may CREATE a link. Defaults to `canManage`. */
+  canCreate?: boolean
+  /** Whether the caller may REVOKE a link. Defaults to `canManage`. */
+  canRevoke?: boolean
   onClose: () => void
   onCreated?: (result: ShareLinkResult) => void
 }): JSX.Element {
@@ -126,6 +141,9 @@ export function ShareModal({
           projectId={projectId}
           roles={offeredRoles}
           initialRole={initialRole}
+          canManage={canManage}
+          canCreate={canCreate}
+          canRevoke={canRevoke}
           onCreated={onCreated}
         />
 

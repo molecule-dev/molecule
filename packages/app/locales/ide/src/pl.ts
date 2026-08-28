@@ -485,6 +485,8 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Nie udało się utworzyć linku do udostępnienia. Spróbuj ponownie.',
   'ide.chat.share.usage':
     'Sposób użycia: /share [rola] — utworzenie publicznego linku. Role: {{roles}} (domyślnie: viewer).',
+  'ide.chat.share.notAllowed':
+    'Zarządzanie linkami udostępniania wymaga roli administratora w tym projekcie.',
   'ide.chat.skills.heading': 'Umiejętności',
   'ide.chat.skills.searchPlaceholder': 'Filtruj umiejętności…',
   'ide.chat.skills.load': 'Załaduj',

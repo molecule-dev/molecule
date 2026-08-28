@@ -483,6 +483,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Jakolinkkiä ei voitu luoda. Yritä uudelleen.',
   'ide.chat.share.usage':
     'Käyttö: /share [rooli] — luo julkinen linkki. Roolit: {{roles}} (oletus: katselija).',
+  'ide.chat.share.notAllowed':
+    'Jakolinkkien hallinta vaatii järjestelmänvalvojan roolin tässä projektissa.',
   'ide.chat.skills.heading': 'Taidot',
   'ide.chat.skills.searchPlaceholder': 'Suodata taitoja…',
   'ide.chat.skills.load': 'Lataa',

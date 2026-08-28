@@ -482,6 +482,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Neizdevās izveidot kopīgošanas saiti. Lūdzu, mēģiniet vēlreiz.',
   'ide.chat.share.usage':
     'Lietošana: /share [loma] — izveido publisku saiti. Lomas: {{roles}} (noklusējuma skatītājs).',
+  'ide.chat.share.notAllowed':
+    'Kopīgošanas saišu pārvaldībai šajā projektā ir nepieciešama administratora loma.',
   'ide.chat.skills.heading': 'Prasmes',
   'ide.chat.skills.searchPlaceholder': 'Filtrēt prasmes…',
   'ide.chat.skills.load': 'Ielādēt',

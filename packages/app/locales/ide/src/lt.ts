@@ -486,6 +486,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Nepavyko sukurti nuorodos dalijimuisi. Prašome bandyti dar kartą.',
   'ide.chat.share.usage':
     'Naudojimas: /share [vaidmuo] — sukurti viešą nuorodą. Vaidmenys: {{roles}} (numatyta – peržiūrėtojas).',
+  'ide.chat.share.notAllowed':
+    'Bendrinimo nuorodoms tvarkyti šiame projekte reikia administratoriaus vaidmens.',
   'ide.chat.skills.heading': 'Įgūdžiai',
   'ide.chat.skills.searchPlaceholder': 'Filtruoti įgūdžius…',
   'ide.chat.skills.load': 'Įkelti',

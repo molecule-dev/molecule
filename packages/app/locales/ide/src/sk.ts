@@ -485,6 +485,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Nepodarilo sa vytvoriť odkaz na zdieľanie. Skúste to prosím znova.',
   'ide.chat.share.usage':
     'Použitie: /share [rola] — vytvorenie verejného odkazu. Role: {{roles}} (predvolená rola: viewer).',
+  'ide.chat.share.notAllowed':
+    'Správa odkazov na zdieľanie vyžaduje v tomto projekte rolu správcu.',
   'ide.chat.skills.heading': 'Schopnosti',
   'ide.chat.skills.searchPlaceholder': 'Filtrovať zručnosti…',
   'ide.chat.skills.load': 'Načítať',

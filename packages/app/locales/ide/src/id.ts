@@ -482,6 +482,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Tidak dapat membuat tautan berbagi. Silakan coba lagi.',
   'ide.chat.share.usage':
     'Cara penggunaan: /share [peran] — buat tautan publik. Peran: {{roles}} (pengguna default).',
+  'ide.chat.share.notAllowed': 'Mengelola tautan berbagi memerlukan peran admin di proyek ini.',
   'ide.chat.skills.heading': 'Keterampilan',
   'ide.chat.skills.searchPlaceholder': 'Saring keterampilan…',
   'ide.chat.skills.load': 'Muat',

@@ -478,6 +478,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'تعذر إنشاء رابط المشاركة. يرجى المحاولة مرة أخرى.',
   'ide.chat.share.usage':
     'الاستخدام: /share [الدور] — إنشاء رابط عام. الأدوار: {{roles}} (المشاهد الافتراضي).',
+  'ide.chat.share.notAllowed': 'تتطلب إدارة روابط المشاركة دور مسؤول في هذا المشروع.',
   'ide.chat.skills.heading': 'المهارات',
   'ide.chat.skills.searchPlaceholder': 'تصفية المهارات…',
   'ide.chat.skills.load': 'تحميل',

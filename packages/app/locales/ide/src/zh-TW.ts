@@ -467,6 +467,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.share.openLink': '開啟連結',
   'ide.chat.share.error': '無法建立分享連結。請重新嘗試。',
   'ide.chat.share.usage': '用法：/share [角色] — 建立公開連結。角色：{{roles}}（預設為查看者）。',
+  'ide.chat.share.notAllowed': '管理分享連結需要此專案的管理員角色。',
   'ide.chat.skills.heading': '技能',
   'ide.chat.skills.searchPlaceholder': '篩選技能……',
   'ide.chat.skills.load': '載入',

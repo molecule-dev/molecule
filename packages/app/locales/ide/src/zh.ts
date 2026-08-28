@@ -470,6 +470,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.share.error': '无法创建分享链接。请重试。',
   'ide.chat.share.usage':
     '用法：/share [角色] — 创建公共链接。角色：{{roles}}（默认角色为查看者）。',
+  'ide.chat.share.notAllowed': '管理分享链接需要此项目的管理员角色。',
   'ide.chat.skills.heading': '技能',
   'ide.chat.skills.searchPlaceholder': '筛选技能……',
   'ide.chat.skills.load': '加载',

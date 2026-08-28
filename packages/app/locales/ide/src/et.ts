@@ -482,6 +482,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.share.error': 'Jagamislingi loomine ebaõnnestus. Palun proovi uuesti.',
   'ide.chat.share.usage':
     'Kasutamine: /share [roll] — loo avalik link. Rollid: {{roles}} (vaikimisi vaataja).',
+  'ide.chat.share.notAllowed':
+    'Jagamislinkide haldamiseks on selles projektis vaja administraatori rolli.',
   'ide.chat.skills.heading': 'Oskused',
   'ide.chat.skills.searchPlaceholder': 'Filtreeri oskused…',
   'ide.chat.skills.load': 'Laadida',
