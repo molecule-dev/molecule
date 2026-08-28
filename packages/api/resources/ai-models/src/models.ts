@@ -137,6 +137,16 @@ import type { ModelDefinition } from './types.js'
  *   $1.65/$4.951), so nothing would ever select it — and carrying both would
  *   put two selectable Alibaba flagships in one family. Revisit only if Alibaba
  *   publishes it as a distinct first-party DashScope model id.)
+ *   (re-verified 2026-08-28 on the per-model pages, which publish USD rates per
+ *   region directly — a better source than the CNY pricing table: qwen3.8-max's
+ *   Singapore implicit-cache rate is $0.25, NOT the 20%/$0.40 the ZH cache doc's
+ *   standard table implies. That doc names qwen3.8-max, qwen3.8-flash and
+ *   qwen3.8-2.4t-a95b as exceptions and defers to the console; the model pages
+ *   are the console's figures. qwen3.7-max's $0.50 (20%) is confirmed unchanged.
+ *   qwen3.8-flash (2026-08-26) ADDED: $0.15/$0.47, implicit cache $0.016, 1M ctx
+ *   / 131,072 out, Image+Text+Video input, tools, hybrid thinking ON by default
+ *   with thinking_budget. It is cn-region-only — api.deepinfra.com has no
+ *   Qwen/Qwen3.8-Flash — so ALIBABA_US_MODEL_MAP needs no entry.)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing + docs.z.ai/guides/llm/
  *   glm-5.3 (verified 2026-08-26: glm-5.3 shipped 2026-08-14 and IS in the
  *   catalog — $1.40/$4.40, cached $0.26, i.e. glm-5.2's card unchanged, 1M ctx,
@@ -1479,16 +1489,24 @@ export const MODELS: readonly ModelDefinition[] = [
     supportedEffortLevels: ['4K', '8K', '16K', '32K'],
     defaultEffortLevel: '8K',
     effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
-    // models.dev claims image+video input, but Alibaba's own model catalog
-    // lists qwen3.8-max under text generation (VL remains a separate line) —
-    // false until the provider's page says otherwise.
+    // The provider's own model page DOES list Image/Text/Video input (checked
+    // 2026-08-28, superseding the earlier "text generation only" reading of the
+    // model catalog page). Kept false anyway: this model's DEFAULT region is the
+    // DeepInfra US re-host, which serves it as `text-generation` — vision is not
+    // offerable where it actually dispatches. Native-only qwen3.8-flash below
+    // carries the flag.
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
     inputPricePerMTok: 2,
     outputPricePerMTok: 6,
-    // Implicit context cache: read = 20% of input, no write premium.
-    cacheReadPricePerMTok: 0.4,
+    // Implicit context cache. The ZH cache doc's standard 20% does NOT apply
+    // here: that doc names qwen3.8-max as an exception and points at the
+    // console, and the model page publishes the real Singapore rate — $0.25,
+    // i.e. 12.5% of input (verified 2026-08-28 on
+    // alibabacloud.com/help/en/model-studio/qwen3-8-max). Implicit creation is
+    // not billed beyond input, so write stays 1× input.
+    cacheReadPricePerMTok: 0.25,
     cacheWritePricePerMTok: 2,
     regions: ['us', 'cn'],
     // US = DeepInfra (Qwen/Qwen3.8-Max), verified 2026-08-14 against
@@ -1500,6 +1518,49 @@ export const MODELS: readonly ModelDefinition[] = [
       us: { inputPricePerMTok: 1.65, outputPricePerMTok: 4.951, cacheReadPricePerMTok: 0.206 },
     },
     // Not published by Alibaba — best-effort estimate.
+    knowledgeCutoff: '2026-04-01',
+  },
+  {
+    id: 'qwen3.8-flash',
+    provider: 'alibaba',
+    label: 'Qwen3.8 Flash',
+    description: 'Alibaba cheap tier — 1M context, multimodal, hybrid thinking',
+    // Model page: context window 1,000,000; max input 991,808 (983,616 in
+    // thinking mode); max chain-of-thought 262,144; max output 131,072.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 131_072,
+    // Same hybrid-thinking mechanism as qwen3.8-max — the deep-thinking doc
+    // lists the "Qwen3.8 Flash series" as hybrid with thinking ON by default,
+    // and thinking_budget applies — so effort scales the budget identically.
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['4K', '8K', '16K', '32K'],
+    defaultEffortLevel: '8K',
+    effortBudgetTokens: { '4K': 4000, '8K': 8000, '16K': 16000, '32K': 32000 },
+    // Model page lists Image / Text / Video input. Unlike qwen3.8-max this one
+    // has no US re-host to lose it to — it only ever dispatches to the native
+    // host, which serves the multimodal surface.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Singapore International list card, published in USD on the model page:
+    // $0.15 / $0.47, implicit cache $0.016. (Beijing is cheaper at
+    // $0.113/$0.382/$0.014; the bond calls the international endpoint.)
+    inputPricePerMTok: 0.15,
+    outputPricePerMTok: 0.47,
+    // Implicit context cache. Like qwen3.8-max this model is an explicit
+    // exception to the ZH doc's standard 20%; the published rate is $0.016
+    // (~10.7% of input). Creation is not billed beyond input → write = 1×.
+    cacheReadPricePerMTok: 0.016,
+    cacheWritePricePerMTok: 0.15,
+    // No US re-host exists — DeepInfra serves Qwen3.8-Max, Qwen3.8-27B and
+    // Qwen3.8-2.4T-A95B but returns "model not found" for Qwen/Qwen3.8-Flash
+    // (checked 2026-08-28), so this is pinned to the native host and bills the
+    // card above. ALIBABA_US_MODEL_MAP therefore needs no entry.
+    regions: ['cn'],
+    // Not published by Alibaba — best-effort estimate, same 3.8 generation as
+    // qwen3.8-max.
     knowledgeCutoff: '2026-04-01',
   },
   {

@@ -806,7 +806,14 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
   {
     older: 'qwen3-coder-plus',
     newer: 'qwen3.8-max',
-    why: 'Coding specialist and the only cheap Alibaba tier; no newer coder id.',
+    why: 'Coding specialist with no newer coder id — a distinct tier, not an older max.',
+  },
+  {
+    older: 'qwen3-coder-plus',
+    newer: 'qwen3.8-flash',
+    why:
+      'Same coder-specialist exception. qwen3.8-flash is a general-purpose cheap tier ' +
+      '(it is what ended coder-plus being the ONLY cheap Alibaba tier), not a coder id.',
   },
 ]
 
