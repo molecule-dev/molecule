@@ -3079,7 +3079,10 @@ function ChatInner({
       inputRef.current = val
       const ta = textareaRef.current
       if (ta && ta.value !== val) ta.value = val
-      setHasInput(Boolean(val.trim()))
+      // A viewer's composer is pre-filled with '/teamsay ' — the BARE prefix is
+      // not sendable content, so it must not light the Send button.
+      const bareSideChannel = canEdit === false && /^\/(?:teamsay|t)$/i.test(val.trim())
+      setHasInput(Boolean(val.trim()) && !bareSideChannel)
       autoResize()
       // Clear persisted draft when input is emptied (e.g. on submit)
       if (!val) {
@@ -3090,7 +3093,7 @@ function ChatInner({
         }
       }
     },
-    [draftKey, autoResize],
+    [draftKey, autoResize, canEdit],
   )
 
   // Persist draft text to sessionStorage so it survives refresh (debounced)
@@ -3825,6 +3828,8 @@ function ChatInner({
       shownTipIdsRef.current = []
       // Re-arm the entry tip so a freshly-started chat shows the onboarding hint.
       entryTipShownRef.current = false
+      // Re-arm the viewer composer prefill ('/teamsay ') for the new conversation.
+      viewerPrefillDoneRef.current = false
     }
   }, [conversationId])
 
@@ -5163,7 +5168,7 @@ function ChatInner({
     if (canEdit !== false || viewerPrefillDoneRef.current) return
     viewerPrefillDoneRef.current = true
     if (!(inputRef.current as string).trim()) setInputAndCursorEnd('/teamsay ')
-  }, [canEdit, setInputAndCursorEnd])
+  }, [canEdit, setInputAndCursorEnd, conversationId])
 
   /**
    * Select and apply a model by ID. When `mode` is given the choice persists to
