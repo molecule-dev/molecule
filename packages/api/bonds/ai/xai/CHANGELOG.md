@@ -1,5 +1,11 @@
 # @molecule/api-ai-xai
 
+## 1.0.2
+
+### Patch Changes
+
+- 199861d: Parse xAI's string-form error bodies (`{ code, error }`) so upstream 400 details are logged instead of a bare "HTTP 400", and surface an attachment-specific message when an image is rejected for size instead of the generic invalid-request text.
+
 ## 1.0.1
 
 ### Patch Changes

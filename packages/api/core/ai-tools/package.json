@@ -31,7 +31,7 @@
     "@molecule/api-ai": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.1.0",
+    "@molecule/api-ai": "1.2.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
