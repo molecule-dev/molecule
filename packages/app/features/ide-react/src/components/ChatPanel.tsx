@@ -619,33 +619,23 @@ let audioCtx: AudioContext | null = null
  * Creates the AudioContext lazily on first call (after user interaction).
  *
  * The default variant is a single 660 Hz blip (status events). The `team`
- * variant is a distinct two-note rising chirp (880 → 1320 Hz) so an incoming
- * teammate message is recognizable by ear without looking at the chat.
+ * variant is the SAME blip an octave up (1320 Hz) — recognizably "a message,
+ * not a status event" while staying consistent with the sound family.
  * @param variant - Which tone to play.
  */
 function playTone(variant: 'default' | 'team' = 'default'): void {
   try {
     if (!audioCtx) audioCtx = new AudioContext()
-    const notes =
-      variant === 'team'
-        ? [
-            { freq: 880, at: 0 },
-            { freq: 1320, at: 0.09 },
-          ]
-        : [{ freq: 660, at: 0 }]
-    for (const { freq, at } of notes) {
-      const osc = audioCtx.createOscillator()
-      const gain = audioCtx.createGain()
-      osc.connect(gain)
-      gain.connect(audioCtx.destination)
-      osc.type = 'sine'
-      osc.frequency.value = freq
-      const start = audioCtx.currentTime + at
-      gain.gain.setValueAtTime(0.15, start)
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15)
-      osc.start(start)
-      osc.stop(start + 0.15)
-    }
+    const osc = audioCtx.createOscillator()
+    const gain = audioCtx.createGain()
+    osc.connect(gain)
+    gain.connect(audioCtx.destination)
+    osc.type = 'sine'
+    osc.frequency.value = variant === 'team' ? 1320 : 660
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
+    osc.start(audioCtx.currentTime)
+    osc.stop(audioCtx.currentTime + 0.15)
   } catch (_error) {
     // AudioContext not available in this environment — silently skip
   }
