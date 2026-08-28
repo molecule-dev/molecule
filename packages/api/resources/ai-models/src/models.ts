@@ -16,6 +16,16 @@ import type { ModelDefinition } from './types.js'
  * To add or remove a model, edit this array. Both the server-side validation
  * and the public discovery endpoint will update automatically.
  *
+ * EVERY entry field that shapes the outbound request (`webSearchToolType`,
+ * `supportedEffortLevels`/`defaultEffortLevel`/`effortBudgetTokens`,
+ * `maxOutputTokens`, `regions`) must hold for the model's ACTUAL serving
+ * host(s) in every region — not just look right in a docs table. The
+ * pre-commit hook enforces this with a LIVE Synthase-shaped probe of each
+ * added/changed entry (molecule-dev `verify:model-dispatch --staged-catalog`);
+ * a value the host rejects fails the whole request for every user
+ * (glm-5.3-flash 2026-08-28: a `webSearchToolType` both zhipu hosts reject
+ * made every Synthase turn 400/422 while the model itself worked fine).
+ *
  * Effort is each model's OWN native value — there is no abstract scale (see
  * {@link ModelDefinition.supportedEffortLevels}):
  * - A model driven by a provider-native effort/level param lists its provider

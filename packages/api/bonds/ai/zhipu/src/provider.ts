@@ -3,6 +3,12 @@
  *
  * Uses the Zhipu API (OpenAI-compatible) for streaming chat completions with tool use.
  *
+ * Server tools (`params.serverTools`, e.g. web_search) are translated to
+ * Zhipu's native nested schema (`{ type: 'web_search', web_search: {} }`);
+ * on hosts that only serve the open weights (`supportsServerTools: false`,
+ * e.g. DeepInfra) they are dropped rather than forwarded, since any server
+ * tool entry fails the whole request there.
+ *
  * @module
  */
 
@@ -14,6 +20,7 @@ import type {
   ChatMessage,
   ChatParams,
   ContentBlock,
+  ServerTool,
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 import { t } from '@molecule/api-i18n'
@@ -64,6 +71,7 @@ class ZhipuAIProvider implements AIProvider {
   private baseUrl: string
   private completionsPath: string
   private modelMap: Record<string, string>
+  private supportsServerTools: boolean
   private onRateLimit?: AiRateLimitCallback
 
   constructor(config: ZhipuConfig = {}) {
@@ -74,6 +82,7 @@ class ZhipuAIProvider implements AIProvider {
     this.completionsPath =
       config.completionsPath ?? process.env.ZHIPU_COMPLETIONS_PATH ?? '/v4/chat/completions'
     this.modelMap = config.modelMap ?? {}
+    this.supportsServerTools = config.supportsServerTools ?? true
     this.onRateLimit = config.onRateLimit
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
@@ -113,9 +122,19 @@ class ZhipuAIProvider implements AIProvider {
       ...(params.stream !== false ? { stream_options: { include_usage: true } } : {}),
     }
 
-    // Tools: merge custom tools (function format) and server tools
+    // Tools: merge custom tools (function format) and server tools.
+    // Server tools are translated to Zhipu's NATIVE schema — the caller-facing
+    // `{ type, name }` marker is not valid on the Zhipu API (a bare
+    // `{ type: 'web_search', name: 'web_search' }` entry is a 400,
+    // "tools[1].web_search can not be null": Zhipu requires the tool's config
+    // nested under a key matching the type, e.g. `web_search: {}`). On hosts
+    // without server tools (supportsServerTools: false — OpenAI-compat
+    // re-hosts of the open weights) they are dropped entirely, because ANY
+    // web_search entry fails the whole request there.
     const functions = params.tools?.length ? this.formatTools(params.tools) : []
-    const serverTools = (params.serverTools ?? []).map((st) => ({ ...st }))
+    const serverTools = this.supportsServerTools
+      ? (params.serverTools ?? []).map((st) => this.formatServerTool(st))
+      : []
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
@@ -321,6 +340,23 @@ class ZhipuAIProvider implements AIProvider {
     }
 
     return formatted
+  }
+
+  /**
+   * Converts a caller-facing `ServerTool` marker into Zhipu's native tool
+   * schema. Zhipu requires the tool's configuration object nested under a key
+   * matching its type (`{ type: 'web_search', web_search: { ... } }`) — the
+   * abstract `{ type, name }` marker alone is rejected with HTTP 400
+   * `"tools[N].web_search can not be null"`. Any provider-specific extra
+   * fields on the marker (search_engine, search_recency_filter, …) become the
+   * nested config.
+   *
+   * @param st - The abstract server tool marker from ChatParams.
+   * @returns The Zhipu-native tool object.
+   */
+  private formatServerTool(st: ServerTool): Record<string, unknown> {
+    const { type, name: _name, ...rest } = st
+    return { type, [type]: rest }
   }
 
   /**

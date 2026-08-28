@@ -33,6 +33,15 @@ export interface ZhipuConfig {
    * pricing/cost/display keep the canonical catalog id (`glm-5.2`).
    */
   modelMap?: Record<string, string>
+  /**
+   * Whether the upstream host serves Zhipu's provider-side server tools
+   * (`web_search`). Defaults to `true` (the native z.ai/bigmodel endpoint).
+   * Set to `false` for OpenAI-compatible re-hosts of the open weights
+   * (DeepInfra), which run the model only — a server-tool entry in `tools`
+   * is rejected there (HTTP 422) and would fail the whole request, so the
+   * provider drops `params.serverTools` instead of forwarding them.
+   */
+  supportsServerTools?: boolean
 }
 
 /**

@@ -153,3 +153,24 @@ if [ -n "$DOC_STAGED" ]; then
     echo "ℹ README.md regen skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'cd mlcl && npm run sync-docs:changed'"
   fi
 fi
+
+# Live model-dispatch gate (cross-repo, LAST because it hits the network). A
+# model added or updated in the AI catalog must prove it serves a request
+# shaped EXACTLY the way Synthase sends one (function tools + the catalog's
+# webSearchToolType server tool + the resolved thinking/effort block, through
+# the real bond and region dispatch) before it can be committed. This exists
+# because glm-5.3-flash shipped 2026-08-28 with a webSearchToolType both zhipu
+# hosts reject — every Synthase turn on it failed, while a hand-rolled probe of
+# the model worked, and glm-5.2 had carried the same broken flag unnoticed
+# since 2026-07-07. Scoped to the model entries the staged diff actually
+# adds/changes (a few probes, ~5-15s), so cron autofix commits are gated too.
+# Skips (does not block) when molecule-dev isn't a sibling; providers without
+# keys are skipped inside the gate, never failed.
+if git diff --cached --name-only --diff-filter=ACM |
+  grep -q '^packages/api/resources/ai-models/src/models\.ts$'; then
+  if [ -f ../molecule-dev/scripts/verify-model-dispatch.mjs ]; then
+    ( cd .. && node molecule-dev/scripts/verify-model-dispatch.mjs --staged-catalog molecule )
+  else
+    echo "ℹ model-dispatch gate skipped: molecule-dev not a sibling — run 'npm run verify:model-dispatch <changed-ids>' in molecule-dev before shipping catalog changes"
+  fi
+fi

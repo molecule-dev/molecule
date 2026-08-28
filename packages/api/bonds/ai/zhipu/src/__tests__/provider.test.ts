@@ -159,6 +159,72 @@ describe('chat()', () => {
     expect(body.model).toBe('glm-5.3')
   })
 
+  it('translates web_search server tool to the Zhipu-native nested schema', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      serverTools: [{ type: 'web_search', name: 'web_search' }],
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    // The abstract { type, name } marker is a 400 on the Zhipu API
+    // ("tools[N].web_search can not be null") — the config must be nested
+    // under a key matching the type, and the `name` marker must not leak.
+    expect(body.tools).toEqual([{ type: 'web_search', web_search: {} }])
+  })
+
+  it('forwards extra server-tool fields as the nested native config', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      serverTools: [{ type: 'web_search', name: 'web_search', search_recency_filter: 'oneYear' }],
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.tools).toEqual([
+      { type: 'web_search', web_search: { search_recency_filter: 'oneYear' } },
+    ])
+  })
+
+  it('drops server tools when supportsServerTools is false (open-weights re-host)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'k', supportsServerTools: false })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools: [
+        {
+          name: 'read_file',
+          description: 'Read a file',
+          parameters: { type: 'object', properties: {} },
+        },
+      ],
+      serverTools: [{ type: 'web_search', name: 'web_search' }],
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    // Function tools survive; the server tool is dropped (DeepInfra 422s on
+    // any web_search entry), so the request as a whole still succeeds.
+    expect(body.tools).toHaveLength(1)
+    expect(body.tools[0].type).toBe('function')
+  })
+
   it('uses max_completion_tokens (not max_tokens)', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
