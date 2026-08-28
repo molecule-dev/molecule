@@ -173,6 +173,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'سرور کی خرابی۔',
   'ide.chat.title': 'گپ شپ',
   'ide.chat.placeholder': 'ایک پیغام بھیجیں...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'بیان کریں کہ آپ کیا بنانا چاہتے ہیں...',
   'ide.chat.you': 'آپ',
   'ide.chat.itemRenderError': 'یہ پیغام دکھایا نہیں جا سکا۔',

@@ -183,6 +183,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Palvelinvirhe',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Lähetä viesti...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Kuvaile, mitä haluat rakentaa...',
   'ide.chat.molecule': 'Molekyyli',
   'ide.chat.automatic': 'Sent automatically',

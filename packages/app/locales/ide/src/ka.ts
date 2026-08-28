@@ -173,6 +173,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'სერვერის შეცდომა',
   'ide.chat.title': 'ჩატი',
   'ide.chat.placeholder': 'შეტყობინების გაგზავნა...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'აღწერეთ, რისი აშენება გსურთ...',
   'ide.chat.you': 'შენ',
   'ide.chat.itemRenderError': 'ამ შეტყობინების ჩვენება ვერ მოხერხდა.',

@@ -173,6 +173,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'சேவையகப் பிழை',
   'ide.chat.title': 'அரட்டை',
   'ide.chat.placeholder': 'ஒரு செய்தி அனுப்புங்கள்...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'நீங்கள் என்ன உருவாக்க விரும்புகிறீர்கள் என்பதை விவரிக்கவும்...',
   'ide.chat.you': 'நீங்கள்',
   'ide.chat.itemRenderError': 'இந்தச் செய்தியைக் காட்ட முடியவில்லை.',

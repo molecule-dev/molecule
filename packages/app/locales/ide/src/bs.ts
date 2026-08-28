@@ -174,6 +174,7 @@ export const bs: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Greška servera',
   'ide.chat.title': 'Čet',
   'ide.chat.placeholder': 'Pošalji poruku...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Opišite šta želite izgraditi...',
   'ide.chat.you': 'Ti',
   'ide.chat.itemRenderError': 'Ova poruka se nije mogla prikazati.',

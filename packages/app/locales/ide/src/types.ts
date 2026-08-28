@@ -8,6 +8,7 @@ export type IdeTranslationKey =
   | 'ide.chat.models.colRegion'
   | 'ide.chat.title'
   | 'ide.chat.placeholder'
+  | 'ide.chat.placeholderViewer'
   | 'ide.chat.emptyState'
   | 'ide.chat.you'
   | 'ide.chat.teamOnly.badge'

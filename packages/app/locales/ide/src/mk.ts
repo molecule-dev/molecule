@@ -173,6 +173,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Грешка на серверот',
   'ide.chat.title': 'Разговор',
   'ide.chat.placeholder': 'Испрати порака...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Опишете што сакате да изградите...',
   'ide.chat.you': 'Ти',
   'ide.chat.itemRenderError': 'Оваа порака не можеше да се прикаже.',

@@ -173,6 +173,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'सर्व्हर त्रुटी',
   'ide.chat.title': 'चॅट',
   'ide.chat.placeholder': 'संदेश पाठवा...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'तुम्हाला काय बांधायचे आहे त्याचे वर्णन करा...',
   'ide.chat.you': 'तुम्ही',
   'ide.chat.itemRenderError': 'हा संदेश दाखवता आला नाही.',

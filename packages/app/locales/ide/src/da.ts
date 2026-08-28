@@ -180,6 +180,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Serverfejl',
   'ide.chat.title': 'Snak',
   'ide.chat.placeholder': 'Send en besked...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Beskriv hvad du vil bygge...',
   'ide.chat.molecule': 'Molekyle',
   'ide.chat.automatic': 'Sent automatically',

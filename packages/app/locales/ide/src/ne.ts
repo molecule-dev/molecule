@@ -172,6 +172,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'सर्भर त्रुटि',
   'ide.chat.title': 'कुराकानी',
   'ide.chat.placeholder': 'सन्देश पठाउनुहोस्...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'तपाईं के निर्माण गर्न चाहनुहुन्छ वर्णन गर्नुहोस्...',
   'ide.chat.you': 'तपाईं',
   'ide.chat.itemRenderError': 'यो सन्देश देखाउन सकिएन।',

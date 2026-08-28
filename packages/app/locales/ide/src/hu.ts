@@ -183,6 +183,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Szerverhiba',
   'ide.chat.title': 'Csevegés',
   'ide.chat.placeholder': 'Küldj üzenetet...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Írd le, mit szeretnél építeni...',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',

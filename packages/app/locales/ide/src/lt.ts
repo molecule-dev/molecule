@@ -173,6 +173,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Serverio klaida',
   'ide.chat.title': 'Pokalbis',
   'ide.chat.placeholder': 'Siųsti žinutę...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Aprašykite, ką norite sukurti...',
   'ide.chat.you': 'Tu',
   'ide.chat.itemRenderError': 'Šios žinutės parodyti nepavyko.',

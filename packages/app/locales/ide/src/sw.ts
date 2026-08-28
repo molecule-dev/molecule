@@ -173,6 +173,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Hitilafu ya seva',
   'ide.chat.title': 'Gumzo',
   'ide.chat.placeholder': 'Tuma ujumbe...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Eleza unachotaka kujenga...',
   'ide.chat.you': 'Wewe',
   'ide.chat.itemRenderError': 'Ujumbe huu haukuweza kuonyeshwa.',

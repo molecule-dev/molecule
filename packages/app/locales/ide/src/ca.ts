@@ -173,6 +173,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Error del servidor',
   'ide.chat.title': 'Xat',
   'ide.chat.placeholder': 'Envia un missatge...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Descriu què vols construir...',
   'ide.chat.you': 'Tu',
   'ide.chat.itemRenderError': 'No s’ha pogut mostrar aquest missatge.',

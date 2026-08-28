@@ -1797,6 +1797,8 @@ export interface MessageItemProps {
   buildUpgradeCta?: ChatPanelProps['buildUpgradeCta']
   /** Agent display name — used in the team-only badge tooltip ("{{agentName}} ignores it"). */
   agentName?: string
+  /** Whether the user may write shared project state — false hides/inertizes write affordances in the message (revert, ask_user answers). */
+  canEdit?: boolean
 }
 
 /**
@@ -1827,6 +1829,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     discovery,
     buildUpgradeCta,
     agentName,
+    canEdit,
   } = props
 
   const cm = getClassMap()
@@ -2204,8 +2207,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     onFileOpen={onFileOpen}
                     onFileDoubleClick={onFileDoubleClick}
                     onFileDiff={onFileDiff}
-                    onFileRevert={handleFileRevert}
-                    onAskUserResponse={handleAskUserResponse}
+                    onFileRevert={canEdit === false ? undefined : handleFileRevert}
+                    onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
                   />
                 </div>
               )
@@ -2238,8 +2241,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 onFileOpen={onFileOpen}
                 onFileDoubleClick={onFileDoubleClick}
                 onFileDiff={onFileDiff}
-                onFileRevert={handleFileRevert}
-                onAskUserResponse={handleAskUserResponse}
+                onFileRevert={canEdit === false ? undefined : handleFileRevert}
+                onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
               />
             ))}
 
@@ -4478,7 +4481,7 @@ function ChatInner({
         ...(userInitiated ? { userInitiated: true } : {}),
       })
     }
-  }, [isLoading, sendMessage])
+  }, [isLoading, sendMessage, canEdit])
 
   // ── Auto-delete queued autofix messages when user edits a relevant file ────
   const lastUserEditKeyRef = useRef(userEditedFileKey)
@@ -5146,6 +5149,16 @@ function ChatInner({
     },
     [setInputValue, autoResize],
   )
+
+  // Viewer composer prefill: the box IS the team-chat input, so it starts with
+  // "/teamsay " already typed (and handleSubmit re-fills it after each sent team
+  // message). Once per mount, and never over text the user already has.
+  const viewerPrefillDoneRef = useRef(false)
+  useEffect(() => {
+    if (canEdit !== false || viewerPrefillDoneRef.current) return
+    viewerPrefillDoneRef.current = true
+    if (!(inputRef.current as string).trim()) setInputAndCursorEnd('/teamsay ')
+  }, [canEdit, setInputAndCursorEnd])
 
   /**
    * Select and apply a model by ID. When `mode` is given the choice persists to
@@ -6176,7 +6189,10 @@ function ChatInner({
     // event (persisted + broadcast to every member), which IS the visible message — so the
     // transcript never shows the literal "/command" text, and never shows it twice.
     if (matchesSideChannelCommand(allCommands, trimmed)) {
-      setInputValue('')
+      // A viewer's composer is the team-chat box — re-fill the /teamsay prefix
+      // after each sent team message so the next one is one keystroke away.
+      if (canEdit === false) setInputAndCursorEnd('/teamsay ')
+      else setInputValue('')
       sendMessage(trimmed, undefined, { suppressUserMessage: true })
       return
     }
@@ -6277,7 +6293,13 @@ function ChatInner({
 
   // ── Keyboard ───────────────────────────────────────────────────────────────
   const filteredCmds = commandMenu
-    ? allCommands.filter((c) => c.label.startsWith(inputRef.current as string))
+    ? allCommands.filter(
+        (c) =>
+          c.label.startsWith(inputRef.current as string) &&
+          // Viewers see only commands they can actually run (viewer-safe reads +
+          // the /teamsay side channel) — no dead entries in the menu.
+          (canEdit !== false || c.viewerSafe === true || c.sideChannel === true),
+      )
     : []
 
   const filteredModels = useMemo(() => {
@@ -7350,6 +7372,7 @@ function ChatInner({
                     discovery={discovery}
                     buildUpgradeCta={buildUpgradeCta}
                     agentName={agentName}
+                    canEdit={canEdit}
                   />
                 )
               }}
@@ -9722,8 +9745,11 @@ function ChatInner({
           </div>
         )}
 
-        {/* Commit bar — anchored above the textarea (hidden when a popup menu is open) */}
-        {pendingFiles != null &&
+        {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
+            Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
+            so the bar is a dead control for them. */}
+        {canEdit !== false &&
+          pendingFiles != null &&
           pendingFiles.length > 0 &&
           !commandMenu &&
           !modelPicker &&
@@ -10003,6 +10029,9 @@ function ChatInner({
             borderRadius: discovery ? 8 : '8px 8px 0 0',
             padding: '8px 10px',
             cursor: 'text',
+            // View-only mode: the composer IS the team-chat box, so it wears the
+            // team-message gold border (and the box is pre-filled with /teamsay).
+            ...(canEdit === false ? { border: `1px solid ${NOTICE_TONE.gold.accent}` } : {}),
           }}
           onClick={(e) => {
             if (!(e.target as HTMLElement).closest('button')) {
@@ -10017,7 +10046,13 @@ function ChatInner({
             autoComplete="off"
             onChange={handleInputChange}
             onPaste={handlePaste}
-            placeholder={t('ide.chat.placeholder')}
+            placeholder={
+              canEdit === false
+                ? t('ide.chat.placeholderViewer', undefined, {
+                    defaultValue: 'Message your team',
+                  })
+                : t('ide.chat.placeholder')
+            }
             rows={1}
             className={cm.textSize('sm')}
             style={{
@@ -10057,76 +10092,77 @@ function ChatInner({
                 for touch hit spacing but deliberately flat so the composer row
                 doesn't balloon vertically) so text glyphs and SVGs align
                 identically. Glyph sizes never change with the box. */}
-            {/* Plan/Execute mode toggle */}
-            <button
-              type="button"
-              disabled={!canEdit}
-              onClick={() => {
-                const newMode = mode === 'plan' ? 'execute' : 'plan'
-                setMode(newMode)
-                http
-                  .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
-                  .catch(() => setMode(mode))
-                addSystemCard(
-                  newMode === 'plan'
-                    ? t('ide.chat.switchedToPlan', undefined, {
-                        defaultValue: 'Switched to plan mode',
+            {/* Plan/Execute mode toggle — hidden for viewers: the mode drives Synthase, which a viewer can't run. */}
+            {canEdit !== false && (
+              <button
+                type="button"
+                onClick={() => {
+                  const newMode = mode === 'plan' ? 'execute' : 'plan'
+                  setMode(newMode)
+                  http
+                    .patch(`/projects/${projectId}/chat-mode`, { mode: newMode, conversationId })
+                    .catch(() => setMode(mode))
+                  addSystemCard(
+                    newMode === 'plan'
+                      ? t('ide.chat.switchedToPlan', undefined, {
+                          defaultValue: 'Switched to plan mode',
+                        })
+                      : t('ide.chat.switchedToExecute', undefined, {
+                          defaultValue: 'Switched to execute mode',
+                        }),
+                  )
+                }}
+                title={
+                  mode === 'plan'
+                    ? t('ide.chat.switchToExecute', undefined, {
+                        defaultValue: 'Switch to execute mode',
                       })
-                    : t('ide.chat.switchedToExecute', undefined, {
-                        defaultValue: 'Switched to execute mode',
-                      }),
-                )
-              }}
-              title={
-                mode === 'plan'
-                  ? t('ide.chat.switchToExecute', undefined, {
-                      defaultValue: 'Switch to execute mode',
-                    })
-                  : t('ide.chat.switchToPlan', undefined, { defaultValue: 'Switch to plan mode' })
-              }
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                // Touch-first: grow the hit area to 40×40 (glyph size unchanged);
-                // fine pointers keep the compact 24px box.
-                width: isCoarse ? 40 : 24,
-                height: isCoarse ? 32 : 24,
-                background:
-                  mode === 'plan'
-                    ? isLight
-                      ? 'rgba(217,119,6,0.14)'
-                      : 'rgba(234,179,8,0.13)'
-                    : 'none',
-                border:
-                  mode === 'plan'
-                    ? `1px solid ${isLight ? 'rgba(217,119,6,0.55)' : 'rgba(234,179,8,0.5)'}`
-                    : 'none',
-                borderRadius: '3px',
-                cursor: canEdit ? 'pointer' : 'not-allowed',
-                color: mode === 'plan' ? (isLight ? '#d97706' : '#eab308') : 'inherit',
-                opacity: !canEdit ? 0.4 : mode === 'plan' ? 1 : 0.4,
-                padding: 0,
-                transition: 'opacity 100ms, color 100ms',
-              }}
-              onMouseEnter={(e) => {
-                if (mode !== 'plan') e.currentTarget.style.opacity = '0.85'
-              }}
-              onMouseLeave={(e) => {
-                if (mode !== 'plan') e.currentTarget.style.opacity = '0.4'
-              }}
-            >
-              {/* Lightbulb icon (Primer Octicons) for plan mode */}
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z" />
-              </svg>
-            </button>
+                    : t('ide.chat.switchToPlan', undefined, { defaultValue: 'Switch to plan mode' })
+                }
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  // Touch-first: grow the hit area to 40×40 (glyph size unchanged);
+                  // fine pointers keep the compact 24px box.
+                  width: isCoarse ? 40 : 24,
+                  height: isCoarse ? 32 : 24,
+                  background:
+                    mode === 'plan'
+                      ? isLight
+                        ? 'rgba(217,119,6,0.14)'
+                        : 'rgba(234,179,8,0.13)'
+                      : 'none',
+                  border:
+                    mode === 'plan'
+                      ? `1px solid ${isLight ? 'rgba(217,119,6,0.55)' : 'rgba(234,179,8,0.5)'}`
+                      : 'none',
+                  borderRadius: '3px',
+                  cursor: canEdit ? 'pointer' : 'not-allowed',
+                  color: mode === 'plan' ? (isLight ? '#d97706' : '#eab308') : 'inherit',
+                  opacity: !canEdit ? 0.4 : mode === 'plan' ? 1 : 0.4,
+                  padding: 0,
+                  transition: 'opacity 100ms, color 100ms',
+                }}
+                onMouseEnter={(e) => {
+                  if (mode !== 'plan') e.currentTarget.style.opacity = '0.85'
+                }}
+                onMouseLeave={(e) => {
+                  if (mode !== 'plan') e.currentTarget.style.opacity = '0.4'
+                }}
+              >
+                {/* Lightbulb icon (Primer Octicons) for plan mode */}
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z" />
+                </svg>
+              </button>
+            )}
             {/* Fast mode (⚡) toggle — rendered only when the current mode's model
                 supports the provider's fast/priority speed tier. Persisted
                 per-CONVERSATION (aiContext.fastMode): switching speed invalidates
                 the provider prompt cache, so it's a conversation-level choice,
                 not a per-message one. */}
-            {fastModeAvailable && (
+            {fastModeAvailable && canEdit !== false && (
               <button
                 type="button"
                 data-mol-id="chat-fast-mode-toggle"
@@ -10266,44 +10302,46 @@ function ChatInner({
                 </svg>
               </button>
             }
-            {/* Attachment button */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: isCoarse ? 40 : 24,
-                height: isCoarse ? 32 : 24,
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'inherit',
-                opacity: 0.4,
-                padding: 0,
-                borderRadius: '3px',
-                transition: 'opacity 100ms',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '0.85'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '0.4'
-              }}
-            >
-              {/* Paperclip icon (Primer Octicons) */}
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                style={{ display: 'block' }}
+            {/* Attachment button — hidden for viewers: attachments feed Synthase turns. */}
+            {canEdit !== false && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isCoarse ? 40 : 24,
+                  height: isCoarse ? 32 : 24,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  opacity: 0.4,
+                  padding: 0,
+                  borderRadius: '3px',
+                  transition: 'opacity 100ms',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.85'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.4'
+                }}
               >
-                <path d="M12.212 3.02a1.753 1.753 0 0 0-2.478.003l-5.83 5.83a3.007 3.007 0 0 0-.88 2.127c0 .795.315 1.551.88 2.116.567.567 1.333.89 2.126.89.79 0 1.548-.321 2.116-.89l5.48-5.48a.75.75 0 0 1 1.061 1.06l-5.48 5.48a4.492 4.492 0 0 1-3.177 1.33c-1.2 0-2.345-.487-3.187-1.33a4.483 4.483 0 0 1-1.32-3.177c0-1.195.475-2.341 1.32-3.186l5.83-5.83a3.25 3.25 0 0 1 5.553 2.297c0 .863-.343 1.691-.953 2.301L7.439 12.39c-.375.377-.884.59-1.416.593a1.998 1.998 0 0 1-1.412-.593 1.992 1.992 0 0 1 0-2.828l5.48-5.48a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-5.48 5.48a.492.492 0 0 0 0 .707.499.499 0 0 0 .352.154.51.51 0 0 0 .356-.154l5.833-5.827a1.755 1.755 0 0 0 0-2.481Z" />
-              </svg>
-            </button>
+                {/* Paperclip icon (Primer Octicons) */}
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  style={{ display: 'block' }}
+                >
+                  <path d="M12.212 3.02a1.753 1.753 0 0 0-2.478.003l-5.83 5.83a3.007 3.007 0 0 0-.88 2.127c0 .795.315 1.551.88 2.116.567.567 1.333.89 2.126.89.79 0 1.548-.321 2.116-.89l5.48-5.48a.75.75 0 0 1 1.061 1.06l-5.48 5.48a4.492 4.492 0 0 1-3.177 1.33c-1.2 0-2.345-.487-3.187-1.33a4.483 4.483 0 0 1-1.32-3.177c0-1.195.475-2.341 1.32-3.186l5.83-5.83a3.25 3.25 0 0 1 5.553 2.297c0 .863-.343 1.691-.953 2.301L7.439 12.39c-.375.377-.884.59-1.416.593a1.998 1.998 0 0 1-1.412-.593 1.992 1.992 0 0 1 0-2.828l5.48-5.48a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-5.48 5.48a.492.492 0 0 0 0 .707.499.499 0 0 0 .352.154.51.51 0 0 0 .356-.154l5.833-5.827a1.755 1.755 0 0 0 0-2.481Z" />
+                </svg>
+              </button>
+            )}
             {(
               [
                 {
@@ -10360,61 +10398,66 @@ function ChatInner({
                   },
                 },
               ] as const
-            ).map(({ sym, nudgeY, size: fontSize, title, onClick }) => (
-              <button
-                key={sym}
-                type="button"
-                onClick={onClick}
-                title={title}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: isCoarse ? 40 : 24,
-                  height: isCoarse ? 32 : 24,
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'inherit',
-                  opacity: 0.4,
-                  padding: 0,
-                  borderRadius: '3px',
-                  fontFamily: 'inherit',
-                  fontSize: `${fontSize}px`,
-                  lineHeight: 1,
-                  transition: 'opacity 100ms',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '0.85'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '0.4'
-                }}
-              >
-                {sym === 'slash' ? (
-                  <svg
-                    width="9"
-                    height="13"
-                    viewBox="0 0 9 13"
-                    style={{ display: 'block', position: 'relative', top: `${nudgeY}px` }}
-                  >
-                    <line
-                      x1="8"
-                      y1="1"
-                      x2="1"
-                      y2="12"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ) : (
-                  <span style={{ position: 'relative', top: `${nudgeY}px` }}>{sym}</span>
-                )}
-              </button>
-            ))}
-            {/* Context usage ring */}
-            {contextUsage &&
+            )
+              // Viewers keep the / shortcut (viewer-safe commands + /teamsay) but not @ —
+              // file mentions only feed Synthase turns.
+              .filter(({ sym }) => canEdit !== false || sym !== '@')
+              .map(({ sym, nudgeY, size: fontSize, title, onClick }) => (
+                <button
+                  key={sym}
+                  type="button"
+                  onClick={onClick}
+                  title={title}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: isCoarse ? 40 : 24,
+                    height: isCoarse ? 32 : 24,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'inherit',
+                    opacity: 0.4,
+                    padding: 0,
+                    borderRadius: '3px',
+                    fontFamily: 'inherit',
+                    fontSize: `${fontSize}px`,
+                    lineHeight: 1,
+                    transition: 'opacity 100ms',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '0.85'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '0.4'
+                  }}
+                >
+                  {sym === 'slash' ? (
+                    <svg
+                      width="9"
+                      height="13"
+                      viewBox="0 0 9 13"
+                      style={{ display: 'block', position: 'relative', top: `${nudgeY}px` }}
+                    >
+                      <line
+                        x1="8"
+                        y1="1"
+                        x2="1"
+                        y2="12"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  ) : (
+                    <span style={{ position: 'relative', top: `${nudgeY}px` }}>{sym}</span>
+                  )}
+                </button>
+              ))}
+            {/* Context usage ring — hidden for viewers (they spend no context) */}
+            {canEdit !== false &&
+              contextUsage &&
               (() => {
                 // The ring represents usage toward the auto-compaction threshold,
                 // not the raw context window. 100% = compaction will trigger.
@@ -10542,7 +10585,7 @@ function ChatInner({
                   a local send (isLoading) OR a remote one this client doesn't own
                   (isRemoteStreaming: another tab / teammate / server continuation),
                   so a running turn can ALWAYS be stopped. */}
-              {(isLoading || isRemoteStreaming) && (
+              {canEdit !== false && (isLoading || isRemoteStreaming) && (
                 <button
                   type="button"
                   onClick={handleAbort}
@@ -11014,16 +11057,18 @@ export function ChatPanel({
             <Icon name="gear" size={14} aria-hidden="true" />
           </button>
 
-          {/* New chat button */}
-          <button
-            type="button"
-            onClick={handleNewChat}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
-            title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}
-            style={{ flexShrink: 0 }}
-          >
-            +
-          </button>
+          {/* New chat button — hidden for viewers (creating a conversation is editor work) */}
+          {canEdit !== false && (
+            <button
+              type="button"
+              onClick={handleNewChat}
+              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTarget)}
+              title={t('ide.chat.newChat', undefined, { defaultValue: 'New chat' })}
+              style={{ flexShrink: 0 }}
+            >
+              +
+            </button>
+          )}
 
           {/* Dropdown */}
           {showDropdown && (

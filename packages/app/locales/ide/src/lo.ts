@@ -171,6 +171,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'ເຊີບເວີຜິດພາດ',
   'ide.chat.title': 'ສົນທະນາ',
   'ide.chat.placeholder': 'ສົ່ງຂໍ້ຄວາມ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'ອະທິບາຍສິ່ງທີ່ເຈົ້າຕ້ອງການສ້າງ...',
   'ide.chat.you': 'ເຈົ້າ',
   'ide.chat.itemRenderError': 'ບໍ່ສາມາດສະແດງຂໍ້ຄວາມນີ້ໄດ້.',

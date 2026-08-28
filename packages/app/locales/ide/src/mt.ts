@@ -173,6 +173,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Żball fis-server',
   'ide.chat.title': 'Ċett',
   'ide.chat.placeholder': 'Ibgħat messaġġ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': "Iddeskrivi x'tixtieq tibni...",
   'ide.chat.you': 'Int',
   'ide.chat.itemRenderError': 'Dan il-messaġġ ma setax jintwera.',

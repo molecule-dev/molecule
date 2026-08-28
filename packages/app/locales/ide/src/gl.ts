@@ -173,6 +173,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Erro do servidor',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Enviar unha mensaxe...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Describe o que queres construír...',
   'ide.chat.you': 'Ti',
   'ide.chat.itemRenderError': 'Non se puido mostrar esta mensaxe.',

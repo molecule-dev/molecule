@@ -183,6 +183,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'Tillstånd nekad',
   'ide.toolCall.statusServerError': 'Serverfel',
   'ide.chat.placeholder': 'Skicka ett meddelande...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Beskriv vad du vill bygga...',
   'ide.chat.molecule': 'Molekyl',
   'ide.chat.automatic': 'Sent automatically',

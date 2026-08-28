@@ -174,6 +174,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Сервер қатесі',
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Хабарлама жіберу...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Не құрғыңыз келетінін сипаттаңыз...',
   'ide.chat.you': 'Сен',
   'ide.chat.itemRenderError': 'Бұл хабарды көрсету мүмкін болмады.',

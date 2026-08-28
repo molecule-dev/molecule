@@ -173,6 +173,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Server xətası',
   'ide.chat.title': 'Söhbət',
   'ide.chat.placeholder': 'Mesaj göndərin...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Nə tikmək istədiyinizi təsvir edin...',
   'ide.chat.you': 'Sən',
   'ide.chat.itemRenderError': 'Bu mesajı göstərmək mümkün olmadı.',

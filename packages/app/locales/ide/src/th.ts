@@ -173,6 +173,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'ข้อผิดพลาดของเซิร์ฟเวอร์',
   'ide.chat.title': 'แชท',
   'ide.chat.placeholder': 'ส่งข้อความ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'อธิบายสิ่งที่คุณต้องการสร้าง...',
   'ide.chat.you': 'คุณ',
   'ide.chat.itemRenderError': 'ไม่สามารถแสดงข้อความนี้ได้',

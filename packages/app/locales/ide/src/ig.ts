@@ -13,6 +13,7 @@ export const ig: Partial<IdeTranslations> = {
     'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.title': 'Nkata',
   'ide.chat.placeholder': 'Zipu ozi...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Kọwaa ihe ị chọrọ iwu...',
   'ide.chat.you': 'Gị',
   'ide.chat.itemRenderError': 'Enweghị ike igosi ozi a.',

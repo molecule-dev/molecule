@@ -185,6 +185,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'Quyền truy cập bị từ chối',
   'ide.toolCall.statusServerError': 'Lỗi máy chủ',
   'ide.chat.placeholder': 'Gửi tin nhắn...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Hãy mô tả những gì bạn muốn xây dựng...',
   'ide.chat.molecule': 'Phân tử',
   'ide.chat.automatic': 'Sent automatically',

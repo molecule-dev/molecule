@@ -174,6 +174,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'সার্ভার ত্রুটি',
   'ide.chat.title': 'চ্যাট',
   'ide.chat.placeholder': 'একটি বার্তা পাঠান...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'আপনি কী তৈরি করতে চান তা বর্ণনা করুন...',
   'ide.chat.you': 'তুমি',
   'ide.chat.itemRenderError': 'এই বার্তাটি দেখানো যায়নি।',

@@ -183,6 +183,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Σφάλμα διακομιστή',
   'ide.chat.title': 'Κουβέντα',
   'ide.chat.placeholder': 'Στείλτε ένα μήνυμα...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Περιγράψτε τι θέλετε να κατασκευάσετε...',
   'ide.chat.molecule': 'Μόριο',
   'ide.chat.automatic': 'Sent automatically',

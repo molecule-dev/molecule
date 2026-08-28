@@ -173,6 +173,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Серверийн алдаа',
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Зурвас илгээх...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Юу барихыг хүсч байгаагаа тайлбарлана уу...',
   'ide.chat.you': 'Чи',
   'ide.chat.itemRenderError': 'Энэ мессежийг харуулж чадсангүй.',

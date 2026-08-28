@@ -173,6 +173,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Earráid freastalaí',
   'ide.chat.title': 'Comhrá',
   'ide.chat.placeholder': 'Seol teachtaireacht...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Déan cur síos ar a bhfuil tú ag iarraidh a thógáil...',
   'ide.chat.you': 'Tusa',
   'ide.chat.itemRenderError': 'Níorbh fhéidir an teachtaireacht seo a thaispeáint.',

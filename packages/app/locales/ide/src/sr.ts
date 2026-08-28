@@ -174,6 +174,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Грешка сервера',
   'ide.chat.title': 'Ћаскање',
   'ide.chat.placeholder': 'Пошаљи поруку...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Опишите шта желите да изградите...',
   'ide.chat.you': 'Ти',
   'ide.chat.itemRenderError': 'Ова порука није могла да се прикаже.',

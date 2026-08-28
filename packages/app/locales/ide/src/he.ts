@@ -173,6 +173,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'שגיאת שרת',
   'ide.chat.title': 'לְשׂוֹחֵחַ',
   'ide.chat.placeholder': 'שלח הודעה...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'תאר מה אתה רוצה לבנות...',
   'ide.chat.you': 'אַתָה',
   'ide.chat.itemRenderError': 'לא ניתן היה להציג את ההודעה הזו.',

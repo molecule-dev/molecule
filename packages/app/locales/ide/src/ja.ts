@@ -184,6 +184,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': '許可が拒否されました',
   'ide.toolCall.statusServerError': 'サーバーエラー',
   'ide.chat.placeholder': 'メッセージを送信する...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': '構築したいものを説明してください...',
   'ide.chat.molecule': '分子',
   'ide.chat.automatic': 'Sent automatically',

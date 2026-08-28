@@ -173,6 +173,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'ਸਰਵਰ ਗਲਤੀ',
   'ide.chat.title': 'ਚੈਟ',
   'ide.chat.placeholder': 'ਸੁਨੇਹਾ ਭੇਜੋ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'ਦੱਸੋ ਕਿ ਤੁਸੀਂ ਕੀ ਬਣਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ...',
   'ide.chat.you': 'ਤੁਸੀਂ',
   'ide.chat.itemRenderError': 'ਇਹ ਸੁਨੇਹਾ ਦਿਖਾਇਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।',

@@ -195,6 +195,7 @@ export const en: IdeTranslations = {
   'ide.toolCall.statusServerError': 'Server error',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Send a message...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Describe what you want to build...',
   'ide.chat.you': 'You',
   // Gold badge on a human-only team note (/teamsay): members-only, agent-ignored.

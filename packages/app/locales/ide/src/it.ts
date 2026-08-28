@@ -183,6 +183,7 @@ export const it: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Errore del server',
   'ide.chat.title': 'Chiacchierata',
   'ide.chat.placeholder': 'Invia un messaggio...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Descrivi cosa vuoi costruire...',
   'ide.chat.molecule': 'Molecola',
   'ide.chat.automatic': 'Sent automatically',

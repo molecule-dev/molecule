@@ -170,6 +170,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': '伺服器錯誤',
   'ide.chat.title': '聊天',
   'ide.chat.placeholder': '發送訊息…',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': '描述一下你想建造什麼…',
   'ide.chat.you': '你',
   'ide.chat.itemRenderError': '無法顯示這則訊息。',

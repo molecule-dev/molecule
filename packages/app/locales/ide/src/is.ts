@@ -173,6 +173,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Villa í netþjóni',
   'ide.chat.title': 'Spjall',
   'ide.chat.placeholder': 'Senda skilaboð...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Lýstu því sem þú vilt byggja upp...',
   'ide.chat.you': 'Þú',
   'ide.chat.itemRenderError': 'Ekki tókst að birta þessi skilaboð.',

@@ -182,6 +182,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'Izin ditolak',
   'ide.toolCall.statusServerError': 'Kesalahan server',
   'ide.chat.placeholder': 'Kirim pesan...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Jelaskan apa yang ingin Anda bangun...',
   'ide.chat.molecule': 'Molekul',
   'ide.chat.automatic': 'Sent automatically',

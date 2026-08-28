@@ -186,6 +186,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'تم رفض الإذن',
   'ide.toolCall.statusServerError': 'خطأ في الخادم',
   'ide.chat.placeholder': 'أرسل رسالة...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'صف ما تريد بناءه...',
   'ide.chat.molecule': 'جزيء',
   'ide.chat.automatic': 'Sent automatically',

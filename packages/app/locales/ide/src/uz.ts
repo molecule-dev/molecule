@@ -174,6 +174,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Server xatosi',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Xabar yuboring...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Nimani qurmoqchi ekanligingizni tasvirlab bering...',
   'ide.chat.you': 'Siz',
   'ide.chat.itemRenderError': 'Bu xabarni koʻrsatib boʻlmadi.',

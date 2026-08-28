@@ -14,6 +14,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.title': '\\u00CCj\\u00EDr\\u00F2r\\u00F2',
   'ide.chat.placeholder':
     'Fi \\u00ECfir\\u00E1n\\u1E63\\u1EB9\\u0301 r\\u00E1n\\u1E63\\u1EB9\\u0301...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState':
     '\\u1E62\\u00E0p\\u00E8j\\u00FAwe ohun t\\u00ED o f\\u1EB9\\u0301 k\\u1ECD\\u0301...',
   'ide.chat.you': '\\u00CCw\\u1ECD',

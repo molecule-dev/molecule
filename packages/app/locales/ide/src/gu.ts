@@ -172,6 +172,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'સર્વર ભૂલ',
   'ide.chat.title': 'ચેટ',
   'ide.chat.placeholder': 'સંદેશ મોકલો...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'તમે શું બનાવવા માંગો છો તેનું વર્ણન કરો...',
   'ide.chat.you': 'તમે',
   'ide.chat.itemRenderError': 'આ સંદેશ બતાવી શકાયો નથી.',

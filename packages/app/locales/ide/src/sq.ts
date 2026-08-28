@@ -174,6 +174,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Gabim i serverit',
   'ide.chat.title': 'Bisedë',
   'ide.chat.placeholder': 'Dërgo një mesazh...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Përshkruani se çfarë doni të ndërtoni...',
   'ide.chat.you': 'Ti',
   'ide.chat.itemRenderError': 'Ky mesazh nuk mund të shfaqej.',

@@ -173,6 +173,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Gwall gweinydd',
   'ide.chat.title': 'Sgwrs',
   'ide.chat.placeholder': 'Anfon neges...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Disgrifiwch beth rydych chi eisiau ei adeiladu...',
   'ide.chat.you': 'Chi',
   'ide.chat.itemRenderError': 'Nid oedd modd dangos y neges hon.',

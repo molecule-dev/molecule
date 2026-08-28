@@ -185,6 +185,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'İzin reddedildi',
   'ide.toolCall.statusServerError': 'Sunucu hatası',
   'ide.chat.placeholder': 'Mesaj gönder...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Ne inşa etmek istediğinizi açıklayın...',
   'ide.chat.molecule': 'Molekül',
   'ide.chat.automatic': 'Sent automatically',

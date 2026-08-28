@@ -173,6 +173,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'ಸರ್ವರ್ ದೋಷ',
   'ide.chat.title': 'ಚಾಟ್ ಮಾಡಿ',
   'ide.chat.placeholder': 'ಸಂದೇಶ ಕಳುಹಿಸಿ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'ನೀವು ಏನನ್ನು ನಿರ್ಮಿಸಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ವಿವರಿಸಿ...',
   'ide.chat.you': 'ನೀವು',
   'ide.chat.itemRenderError': 'ಈ ಸಂದೇಶವನ್ನು ತೋರಿಸಲಾಗಲಿಲ್ಲ.',

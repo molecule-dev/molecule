@@ -189,6 +189,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'Autorisation refusée',
   'ide.toolCall.statusServerError': 'Erreur serveur',
   'ide.chat.placeholder': 'Envoyer un message...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Décrivez ce que vous souhaitez construire...',
   'ide.chat.molecule': 'Molécule',
   'ide.chat.automatic': 'Sent automatically',

@@ -186,6 +186,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Serverfout',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Stuur een bericht...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Beschrijf wat je wilt bouwen...',
   'ide.chat.molecule': 'Molecuul',
   'ide.chat.automatic': 'Sent automatically',

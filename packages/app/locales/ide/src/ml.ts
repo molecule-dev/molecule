@@ -174,6 +174,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'സെർവർ പിശക്',
   'ide.chat.title': 'ചാറ്റ്',
   'ide.chat.placeholder': 'ഒരു സന്ദേശം അയയ്ക്കുക...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'നിങ്ങൾ എന്താണ് നിർമ്മിക്കാൻ ആഗ്രഹിക്കുന്നതെന്ന് വിവരിക്കുക...',
   'ide.chat.you': 'നീ',
   'ide.chat.itemRenderError': 'ഈ സന്ദേശം കാണിക്കാൻ കഴിഞ്ഞില്ല.',

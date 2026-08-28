@@ -924,10 +924,12 @@ export const ToolCallCard = memo(function ToolCallCard({
               key={i}
               type="button"
               data-mol-id={`ask-user-option-${i}`}
-              disabled={!isAwaiting}
+              disabled={!isAwaiting || onAskUserResponse == null}
               onClick={() => {
+                // No handler = read-only (a project viewer): answering is editor work.
+                if (onAskUserResponse == null) return
                 setLocalAnswer(option)
-                onAskUserResponse?.(option)
+                onAskUserResponse(option)
               }}
               onMouseEnter={() => {
                 if (isAwaiting) setHoveredIdx(i)
@@ -1011,7 +1013,7 @@ export const ToolCallCard = memo(function ToolCallCard({
             open-ended question (e.g. "what's your bakery called?") that the model
             asked without setting allowFreeText. Hidden only if the model
             explicitly opts out (allowFreeText === false) for a strict pick-one. */}
-        {isAwaiting && askInput.allowFreeText !== false && (
+        {isAwaiting && askInput.allowFreeText !== false && onAskUserResponse != null && (
           <div
             style={{
               display: 'flex',

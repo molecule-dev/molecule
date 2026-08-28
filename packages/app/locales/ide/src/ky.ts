@@ -13,6 +13,7 @@ export const ky: Partial<IdeTranslations> = {
     'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Билдирүү жөнөтүү...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Эмнени куруп чыгууну каалаганыңызды сүрөттөңүз...',
   'ide.chat.you': 'Сиз',
   'ide.chat.itemRenderError': 'Бул билдирүүнү көрсөтүү мүмкүн болгон жок.',

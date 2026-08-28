@@ -182,6 +182,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Ralat pelayan',
   'ide.chat.title': 'Sembang',
   'ide.chat.placeholder': 'Hantar mesej...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Huraikan apa yang anda ingin bina...',
   'ide.chat.molecule': 'Molekul',
   'ide.chat.automatic': 'Sent automatically',

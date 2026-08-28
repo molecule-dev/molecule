@@ -173,6 +173,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Servera kļūda',
   'ide.chat.title': 'Tērzēšana',
   'ide.chat.placeholder': 'Sūtīt ziņojumu...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Aprakstiet, ko vēlaties uzbūvēt...',
   'ide.chat.you': 'Tu',
   'ide.chat.itemRenderError': 'Šo ziņojumu neizdevās parādīt.',

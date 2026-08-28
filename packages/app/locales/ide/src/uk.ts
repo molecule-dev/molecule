@@ -183,6 +183,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Помилка сервера',
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Надіслати повідомлення...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Опишіть, що ви хочете побудувати...',
   'ide.chat.molecule': 'Молекула',
   'ide.chat.automatic': 'Sent automatically',

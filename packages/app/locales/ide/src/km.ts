@@ -174,6 +174,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'កំហុសម៉ាស៊ីនមេ',
   'ide.chat.title': 'ជជែក',
   'ide.chat.placeholder': 'ផ្ញើសារ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'សូមពណ៌នាអំពីអ្វីដែលអ្នកចង់សាងសង់...',
   'ide.chat.you': 'អ្នក',
   'ide.chat.itemRenderError': 'មិនអាចបង្ហាញសាររបស់នេះបានទេ។',

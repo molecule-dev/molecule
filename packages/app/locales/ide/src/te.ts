@@ -174,6 +174,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'సర్వర్ లోపం',
   'ide.chat.title': 'చాట్',
   'ide.chat.placeholder': 'సందేశం పంపండి...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'మీరు ఏమి నిర్మించాలనుకుంటున్నారో వివరించండి...',
   'ide.chat.you': 'మీరు',
   'ide.chat.itemRenderError': 'ఈ సందేశాన్ని చూపించలేకపోయాం.',

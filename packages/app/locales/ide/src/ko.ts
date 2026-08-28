@@ -184,6 +184,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': '권한이 거부되었습니다',
   'ide.toolCall.statusServerError': '서버 오류',
   'ide.chat.placeholder': '메시지를 보내세요...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': '만들고 싶은 것을 설명해 주세요...',
   'ide.chat.molecule': '분자',
   'ide.chat.automatic': 'Sent automatically',

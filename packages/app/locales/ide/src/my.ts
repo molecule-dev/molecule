@@ -173,6 +173,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'ဆာဗာအမှား',
   'ide.chat.title': 'ချတ်',
   'ide.chat.placeholder': 'မက်ဆေ့ချ်ပို့ပါ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'ဘာတည်ဆောက်ချင်လဲဆိုတာ ရှင်းပြပါ...',
   'ide.chat.you': 'မင်း',
   'ide.chat.itemRenderError': 'ဤစာကို ပြသ၍ မရပါ။',

@@ -175,6 +175,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Iphutha leseva',
   'ide.chat.title': 'Ingxoxo',
   'ide.chat.placeholder': 'Thumela umlayezo...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Chaza ukuthi yini ofuna ukuyakha...',
   'ide.chat.you': 'Wena',
   'ide.chat.itemRenderError': 'Lo mlayezo awukwazanga ukuboniswa.',

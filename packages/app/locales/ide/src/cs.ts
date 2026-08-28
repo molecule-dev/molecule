@@ -183,6 +183,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Chyba serveru',
   'ide.chat.title': 'Povídání',
   'ide.chat.placeholder': 'Poslat zprávu...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Popište, co chcete postavit...',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',

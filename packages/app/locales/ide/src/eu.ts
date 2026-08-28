@@ -173,6 +173,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Zerbitzariaren errorea',
   'ide.chat.title': 'Txata',
   'ide.chat.placeholder': 'Bidali mezu bat...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Deskribatu zer eraiki nahi duzun...',
   'ide.chat.you': 'Zu',
   'ide.chat.itemRenderError': 'Ezin izan da mezu hau bistaratu.',

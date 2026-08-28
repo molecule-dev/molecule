@@ -182,6 +182,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Serverfeil',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Send en melding...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Beskriv hva du ønsker å bygge ...',
   'ide.chat.molecule': 'Molekyl',
   'ide.chat.automatic': 'Sent automatically',

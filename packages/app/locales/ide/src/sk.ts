@@ -173,6 +173,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Chyba servera',
   'ide.chat.title': 'Čet',
   'ide.chat.placeholder': 'Poslať správu...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Popíš, čo chceš postaviť...',
   'ide.chat.you': 'Ty',
   'ide.chat.itemRenderError': 'Túto správu sa nepodarilo zobraziť.',

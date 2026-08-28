@@ -174,6 +174,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Սերվերի սխալ',
   'ide.chat.title': 'Զրուցարան',
   'ide.chat.placeholder': 'Ուղարկել հաղորդագրություն...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Նկարագրեք, թե ինչ եք ուզում կառուցել...',
   'ide.chat.you': 'Դու',
   'ide.chat.itemRenderError': 'Այս հաղորդագրությունը հնարավոր չեղավ ցուցադրել։',

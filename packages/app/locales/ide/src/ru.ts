@@ -173,6 +173,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Ошибка сервера',
   'ide.chat.title': 'Чат',
   'ide.chat.placeholder': 'Отправить сообщение...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Опишите, что вы хотите построить...',
   'ide.chat.you': 'Ты',
   'ide.chat.itemRenderError': 'Не удалось отобразить это сообщение.',

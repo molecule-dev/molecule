@@ -173,6 +173,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'සේවාදායක දෝෂයකි',
   'ide.chat.title': 'කතාබස් කරන්න',
   'ide.chat.placeholder': 'පණිවිඩයක් යවන්න...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'ඔබට ගොඩනගා ගැනීමට අවශ්‍ය දේ විස්තර කරන්න...',
   'ide.chat.you': 'ඔබ',
   'ide.chat.itemRenderError': 'මෙම පණිවිඩය පෙන්විය නොහැකි විය.',

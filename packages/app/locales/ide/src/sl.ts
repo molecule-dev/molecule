@@ -173,6 +173,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Napaka strežnika',
   'ide.chat.title': 'Klepet',
   'ide.chat.placeholder': 'Pošlji sporočilo ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Opiši, kaj želiš zgraditi ...',
   'ide.chat.you': 'Ti',
   'ide.chat.itemRenderError': 'Tega sporočila ni bilo mogoče prikazati.',

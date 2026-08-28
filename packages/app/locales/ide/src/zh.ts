@@ -183,6 +183,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': '没有权限',
   'ide.toolCall.statusServerError': '服务器错误',
   'ide.chat.placeholder': '发送消息……',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': '描述一下你想建造什么……',
   'ide.chat.molecule': '分子',
   'ide.chat.automatic': 'Sent automatically',

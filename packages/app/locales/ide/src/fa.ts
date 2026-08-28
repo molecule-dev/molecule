@@ -173,6 +173,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'خطای سرور',
   'ide.chat.title': 'چت',
   'ide.chat.placeholder': 'ارسال پیام ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'چیزی که می‌خوای بسازی رو توصیف کن...',
   'ide.chat.you': 'شما',
   'ide.chat.itemRenderError': 'نمایش این پیام ممکن نبود.',

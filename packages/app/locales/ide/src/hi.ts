@@ -185,6 +185,7 @@ export const hi: Partial<IdeTranslations> = {
   'ide.toolCall.statusPermissionDenied': 'अनुमति नहीं मिली',
   'ide.toolCall.statusServerError': 'सर्वर त्रुटि',
   'ide.chat.placeholder': 'एक संदेश भेजो...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'आप क्या बनाना चाहते हैं, इसका वर्णन करें...',
   'ide.chat.molecule': 'अणु',
   'ide.chat.automatic': 'Sent automatically',

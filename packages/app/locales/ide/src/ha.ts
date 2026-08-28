@@ -13,6 +13,7 @@ export const ha: Partial<IdeTranslations> = {
     'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.title': 'Hira',
   'ide.chat.placeholder': 'Aika saƙo...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Bayyana abin da kuke son ginawa...',
   'ide.chat.you': 'Kai',
   'ide.chat.itemRenderError': 'An kasa nuna wannan saƙon.',

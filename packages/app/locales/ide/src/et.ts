@@ -173,6 +173,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Serveri viga',
   'ide.chat.title': 'Vestlus',
   'ide.chat.placeholder': 'Saada sõnum...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Kirjelda, mida sa ehitada tahad...',
   'ide.chat.you': 'Sina',
   'ide.chat.itemRenderError': 'Seda sõnumit ei saanud kuvada.',

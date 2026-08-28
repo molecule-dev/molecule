@@ -179,6 +179,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Error sa server',
   'ide.chat.title': 'Makipag-chat',
   'ide.chat.placeholder': 'Magpadala ng mensahe...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Ilarawan kung ano ang gusto mong itayo...',
   'ide.chat.molecule': 'Molekula',
   'ide.chat.automatic': 'Sent automatically',

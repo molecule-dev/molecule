@@ -170,6 +170,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'የአገልጋይ ስህተት',
   'ide.chat.title': 'ቻት',
   'ide.chat.placeholder': 'መልእክት ላክ...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'ምን መገንባት እንደሚፈልጉ ይግለጹ...',
   'ide.chat.you': 'አንተ',
   'ide.chat.itemRenderError': 'ይህ መልእክት ሊታይ አልቻለም።',

@@ -184,6 +184,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Eroare server',
   'ide.chat.title': 'Chat',
   'ide.chat.placeholder': 'Trimite un mesaj...',
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Descrie ce vrei să construiești...',
   'ide.chat.molecule': 'Moleculă',
   'ide.chat.automatic': 'Sent automatically',

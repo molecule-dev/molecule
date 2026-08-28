@@ -173,6 +173,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.toolCall.statusServerError': 'Bedienerfout',
   'ide.chat.title': 'Klets',
   'ide.chat.placeholder': "Stuur 'n boodskap...",
+  'ide.chat.placeholderViewer': 'Message your team',
   'ide.chat.emptyState': 'Beskryf wat jy wil bou...',
   'ide.chat.you': 'Jy',
   'ide.chat.itemRenderError': 'Hierdie boodskap kon nie gewys word nie.',
