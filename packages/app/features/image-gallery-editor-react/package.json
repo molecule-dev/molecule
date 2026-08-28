@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@molecule/app-icons": "1.0.1",
-    "@molecule/app-react": "1.2.0",
+    "@molecule/app-react": "1.3.0",
     "@molecule/app-ui": "1.1.0",
     "@molecule/app-ui-react": "1.0.1",
     "@types/node": "26.1.2",
