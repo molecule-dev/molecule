@@ -356,11 +356,14 @@ function modelRow(container: HTMLElement, label: string): HTMLButtonElement | nu
 }
 
 describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
-  it('opens on Default with all five mode options, each naming its active model', async () => {
+  it('opens scoped to the LIVE mode, with all five mode options each naming its active model', async () => {
     const container = renderChatPanel([], 'proj-picker-1')
     const modeSelect = await openModelPicker(container)
 
-    expect(modeSelect.value).toBe('')
+    // A plain /model targets the mode the user is IN (this conversation never
+    // entered plan mode, so it is execute) — a pick moves that mode's model,
+    // not the legacy both-modes chatModel. Default stays selectable below.
+    expect(modeSelect.value).toBe('execute')
     const labels = Array.from(modeSelect.options).map((o) => o.textContent ?? '')
     expect(modeSelect.options.length).toBe(5)
     expect(labels[0]).toContain('Default')
@@ -502,6 +505,10 @@ describe('ChatPanel /model picker — mode dropdown + manage seam', () => {
     ).toBe('auto')
     fireEvent.click(row)
     expect(onManage).toHaveBeenCalledTimes(1)
+    // The host receives the mode a "Use" in its provider modal should target —
+    // the picker's scoped mode (the live conversation mode here, since the
+    // picker opened unscoped and this conversation never entered plan mode).
+    expect(onManage).toHaveBeenCalledWith({ mode: 'execute' })
     await waitFor(() =>
       expect(container.querySelector('[data-mol-id="chat-model-mode-select"]')).toBeNull(),
     )
