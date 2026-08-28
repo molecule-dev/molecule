@@ -138,6 +138,14 @@ class ZhipuAIProvider implements AIProvider {
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
+      // Honor forced tool choice (discovery mode relies on it — an unenforced
+      // 'required' lets the model narrate the call as text instead of emitting
+      // tool_use). OpenAI-compatible forms; 'auto' is the API default → omit.
+      if (params.toolChoice === 'required') {
+        body.tool_choice = 'required'
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice.type === 'tool') {
+        body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }
+      }
     }
 
     if (params.thinking) {

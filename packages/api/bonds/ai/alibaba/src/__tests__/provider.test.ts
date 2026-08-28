@@ -98,6 +98,45 @@ describe('createProvider', () => {
 })
 
 describe('chat()', () => {
+  it("maps toolChoice 'required' and named-tool forms to tool_choice", async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const tools = [
+      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    ]
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: 'required',
+      stream: false,
+    })) {
+      // drain
+    }
+    // Discovery mode depends on this — with tool_choice omitted the forced
+    // ask_user turn silently degraded to narration.
+    const forcedBody = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(forcedBody.tool_choice).toBe('required')
+    // DashScope 400s a forced tool_choice in thinking mode, and hybrid qwen
+    // models default thinking ON — a forced choice must ride with an explicit
+    // thinking-off (forced-tool turns are non-thinking by design anyway).
+    expect(forcedBody.enable_thinking).toBe(false)
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: { type: 'tool', name: 'ask_user' },
+      stream: false,
+    })) {
+      // drain
+    }
+    expect(JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string).tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'ask_user' },
+    })
+  })
+
   it('POSTs to default DashScope baseUrl with Bearer auth', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

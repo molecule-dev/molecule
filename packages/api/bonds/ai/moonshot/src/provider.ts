@@ -114,6 +114,14 @@ class MoonshotAIProvider implements AIProvider {
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
+      // Honor forced tool choice (discovery mode relies on it — an unenforced
+      // 'required' lets the model narrate the call as text instead of emitting
+      // tool_use). OpenAI-compatible forms; 'auto' is the API default → omit.
+      if (params.toolChoice === 'required') {
+        body.tool_choice = 'required'
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice.type === 'tool') {
+        body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }
+      }
     }
 
     // Model-family thinking rules (platform.kimi.ai docs, verified 2026-07-28):
@@ -123,13 +131,18 @@ class MoonshotAIProvider implements AIProvider {
     // - kimi-k2.7-code: thinking always on, no reasoning_effort — send neither.
     // - other kimi-k2.x: thinking on/off via `thinking: {type:"disabled"}`;
     //   reasoning_effort (minimal..high) is accepted though undocumented.
-    if (model.startsWith('kimi-k3')) {
+    // Family-gate on the CANONICAL id: `model` is the mapped upstream id on
+    // re-hosts (`moonshotai/Kimi-K3`), which these prefixes never match — so
+    // every US turn fell into the env-default branch and sent
+    // `thinking: {type:"disabled"}` to forced-thinking models, a param the
+    // native API explicitly rejects (DeepInfra merely ignores it today).
+    if (canonicalModel.startsWith('kimi-k3')) {
       const effort = params.thinking?.effort
       if (effort === 'low' || effort === 'high' || effort === 'max') {
         body.reasoning_effort = effort
       }
       // No effort resolved → omit and let the upstream default (max) apply.
-    } else if (model.startsWith('kimi-k2.7-code')) {
+    } else if (canonicalModel.startsWith('kimi-k2.7-code')) {
       // Forced thinking, no depth knob — nothing to send.
     } else if (params.thinking) {
       // Prefer a caller-resolved native value from the model catalog; fall back

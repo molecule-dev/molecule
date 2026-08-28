@@ -110,6 +110,35 @@ class AlibabaAIProvider implements AIProvider {
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
+      // Honor forced tool choice (discovery mode relies on it — an unenforced
+      // 'required' lets the model narrate the call as text instead of emitting
+      // tool_use). OpenAI-compatible forms; 'auto' is the API default → omit.
+      // DashScope rejects a forced tool_choice IN THINKING MODE ("<400>
+      // InternalError.Algo.InvalidParameter: The tool_choice parameter does
+      // not support being set to required or object in thinking mode",
+      // verified live 2026-08-28) — and hybrid qwen models default thinking ON
+      // when no thinking param rides along. Forced-tool turns are non-thinking
+      // by design (see molecule-dev request-shape.ts), so explicitly disable
+      // thinking whenever we force a tool. `enable_thinking: false` is only
+      // sent here alongside a forced choice; hybrid models accept it, and
+      // non-thinking models (qwen3-coder-*) ignore it.
+      const forced =
+        params.toolChoice === 'required' ||
+        (typeof params.toolChoice === 'object' && params.toolChoice.type === 'tool')
+      if (forced && !params.thinking) {
+        // BOTH forms, verified live 2026-08-28: native DashScope honors the
+        // top-level `enable_thinking` (and accepts the kwargs form), while the
+        // DeepInfra re-host STRIPS the top-level form (proxying the request
+        // through to DashScope, which then 400s on the forced choice) and
+        // honors only `chat_template_kwargs.enable_thinking`.
+        body.enable_thinking = false
+        body.chat_template_kwargs = { enable_thinking: false }
+      }
+      if (params.toolChoice === 'required') {
+        body.tool_choice = 'required'
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice.type === 'tool') {
+        body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }
+      }
     }
 
     if (params.thinking) {

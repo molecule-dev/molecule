@@ -79,6 +79,105 @@ describe('createProvider', () => {
 })
 
 describe('chat()', () => {
+  it('disables M3 thinking on re-hosts too — family gate uses the CANONICAL id, not the mapped one', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} }),
+    )
+    const provider = createProvider({
+      apiKey: 'k',
+      modelMap: { 'minimax-m3': 'MiniMaxAI/MiniMax-M3' },
+    })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      model: 'minimax-m3',
+      stream: false,
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(body.model).toBe('MiniMaxAI/MiniMax-M3')
+    // Gating on the MAPPED id skipped this on every US turn, leaving thinking
+    // defaulted ON — unrequested reasoning tokens on the default region.
+    expect(body.thinking).toEqual({ type: 'disabled' })
+    // Re-hosts ignore `thinking` and only honor the chat-template kwarg — both
+    // ride together (the native host accepts the combo).
+    expect(body.chat_template_kwargs).toEqual({ enable_thinking: false })
+  })
+
+  it("maps toolChoice 'required' and named-tool forms to tool_choice", async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const tools = [
+      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    ]
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: 'required',
+      stream: false,
+    })) {
+      // drain
+    }
+    // Discovery mode depends on this — with tool_choice omitted the forced
+    // ask_user turn silently degraded to narration.
+    expect(JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string).tool_choice).toBe(
+      'required',
+    )
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: { type: 'tool', name: 'ask_user' },
+      stream: false,
+    })) {
+      // drain
+    }
+    expect(JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string).tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'ask_user' },
+    })
+  })
+
+  it('forwards image blocks for M3 (multimodal) and still drops them for M2.x', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const imageMessage = {
+      role: 'user' as const,
+      content: [
+        { type: 'image' as const, mediaType: 'image/png', data: 'aWJt' },
+        { type: 'text' as const, text: 'what is this?' },
+      ],
+    }
+    for await (const _ of provider.chat({
+      messages: [imageMessage],
+      model: 'minimax-m3',
+      stream: false,
+    })) {
+      // drain
+    }
+    const m3Body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    // Silently dropping the image made the model answer blind to attachments.
+    expect(m3Body.messages[0].content).toEqual([
+      { type: 'image_url', image_url: { url: 'data:image/png;base64,aWJt' } },
+      { type: 'text', text: 'what is this?' },
+    ])
+    for await (const _ of provider.chat({
+      messages: [imageMessage],
+      model: 'minimax-m2.7',
+      stream: false,
+    })) {
+      // drain
+    }
+    const m2Body = JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string)
+    expect(m2Body.messages[0].content).toBe('what is this?')
+  })
+
   it('POSTs to default baseUrl https://api.minimax.io/v1/chat/completions with Bearer auth', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

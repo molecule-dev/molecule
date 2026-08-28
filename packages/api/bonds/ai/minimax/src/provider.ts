@@ -101,7 +101,16 @@ class MiniMaxAIProvider implements AIProvider {
     const model = this.modelMap[canonicalModel] ?? canonicalModel
     const maxTokens = params.maxTokens ?? this.maxTokens
 
-    const messages = this.formatMessages(params.messages, params.system, params.cacheControl)
+    const messages = this.formatMessages(
+      params.messages,
+      params.system,
+      params.cacheControl,
+      // M3 is natively multimodal (M2.x is text-only) — forward image blocks
+      // for it; both the native host and the DeepInfra re-host accept the
+      // OpenAI image_url data-URI form. Gate on the CANONICAL id: the mapped
+      // upstream id never matches the family anchor.
+      isM3Family(canonicalModel),
+    )
 
     const body: Record<string, unknown> = {
       // Abuse attribution (see ChatParams.endUserId): OpenAI-compatible APIs
@@ -122,6 +131,14 @@ class MiniMaxAIProvider implements AIProvider {
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
+      // Honor forced tool choice (discovery mode relies on it — an unenforced
+      // 'required' lets the model narrate the call as text instead of emitting
+      // tool_use). OpenAI-compatible forms; 'auto' is the API default → omit.
+      if (params.toolChoice === 'required') {
+        body.tool_choice = 'required'
+      } else if (typeof params.toolChoice === 'object' && params.toolChoice.type === 'tool') {
+        body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }
+      }
     }
 
     // MiniMax's native API has no reasoning_effort / thinking budget. M3 takes
@@ -129,8 +146,18 @@ class MiniMaxAIProvider implements AIProvider {
     // endpoint defaults to adaptive when omitted); M2.x thinking is always on
     // and takes no param. Synthase runs M3 as a non-thinking executor (like
     // DeepSeek), so explicitly disable unless thinking was requested.
-    if (isM3Family(model)) {
+    // Family-gate on the CANONICAL id: `model` is the mapped upstream id on
+    // re-hosts (`MiniMaxAI/MiniMax-M3`), which the `minimax-m3` anchor never
+    // matches — that omission left thinking defaulted ON for every US turn.
+    if (isM3Family(canonicalModel)) {
       body.thinking = { type: params.thinking ? 'adaptive' : 'disabled' }
+      if (!params.thinking) {
+        // Open-weights re-hosts (DeepInfra) IGNORE the native `thinking` param
+        // and default reasoning ON — only `chat_template_kwargs.enable_thinking`
+        // reaches the template there. The native host accepts both together
+        // (verified live 2026-08-28), so send both and each host honors its own.
+        body.chat_template_kwargs = { enable_thinking: false }
+      }
     }
     // Keep thinking out of the visible message: with reasoning_split, thinking
     // arrives in `reasoning_content` (parsed below) instead of inline
@@ -253,18 +280,21 @@ class MiniMaxAIProvider implements AIProvider {
   /**
    * Converts internal `ChatMessage` objects to the OpenAI-compatible message format.
    * System prompt is prepended as a system role message.
-   * MiniMax does not support vision/images, so image blocks are skipped.
+   * Image blocks are forwarded only for vision-capable models (M3 family);
+   * text-only M2.x models get them skipped.
    *
    * @param messages - The chat messages to format.
    * @param system - Optional system prompt to prepend.
    * @param cacheControl - Optional cache hint for the system prompt block.
    * @param cacheControl.type - Ephemeral cache policy label expected by MiniMax.
+   * @param supportsImages - Whether the target model accepts image input.
    * @returns The formatted messages array for the MiniMax API.
    */
   private formatMessages(
     messages: ChatMessage[],
     system?: string,
     cacheControl?: { type: string },
+    supportsImages = false,
   ): Array<Record<string, unknown>> {
     const formatted: Array<Record<string, unknown>> = []
 
@@ -299,7 +329,15 @@ class MiniMaxAIProvider implements AIProvider {
             parts.push({ type: 'text', text: block.text })
             break
           case 'image':
-            // MiniMax does not support vision/images — skip image blocks
+            // M3 family is natively multimodal; M2.x is text-only. Dropping an
+            // image SILENTLY (the pre-M3 behavior for every model) made the
+            // model answer blind to attachments with no error anywhere.
+            if (supportsImages) {
+              parts.push({
+                type: 'image_url',
+                image_url: { url: `data:${block.mediaType};base64,${block.data}` },
+              })
+            }
             break
           case 'tool_use':
             toolCalls.push({

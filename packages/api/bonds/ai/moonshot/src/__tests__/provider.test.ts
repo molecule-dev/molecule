@@ -80,6 +80,76 @@ describe('createProvider', () => {
 })
 
 describe('chat() — request shape', () => {
+  it('applies family thinking rules by CANONICAL id on re-hosts (k3 keeps reasoning_effort, never thinking:disabled)', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
+    )
+    const provider = createProvider({
+      apiKey: 'k',
+      modelMap: { 'kimi-k3': 'moonshotai/Kimi-K3', 'kimi-k2.7-code': 'moonshotai/Kimi-K2.7-Code' },
+    })
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      model: 'kimi-k3',
+      thinking: { type: 'enabled', budgetTokens: 0, effort: 'high' },
+      stream: false,
+    })) {
+      // drain
+    }
+    const k3Body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    expect(k3Body.model).toBe('moonshotai/Kimi-K3')
+    expect(k3Body.reasoning_effort).toBe('high')
+    // Gating on the MAPPED id sent `thinking: {type:"disabled"}` to a
+    // forced-thinking model on every US turn — a param the native API rejects.
+    expect(k3Body.thinking).toBeUndefined()
+
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      model: 'kimi-k2.7-code',
+      stream: false,
+    })) {
+      // drain
+    }
+    const k27Body = JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string)
+    expect(k27Body.thinking).toBeUndefined()
+    expect(k27Body.reasoning_effort).toBeUndefined()
+  })
+
+  it("maps toolChoice 'required' and named-tool forms to tool_choice", async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'hi' } }], usage: {} })),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const tools = [
+      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    ]
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: 'required',
+      stream: false,
+    })) {
+      // drain
+    }
+    expect(JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string).tool_choice).toBe(
+      'required',
+    )
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: { type: 'tool', name: 'ask_user' },
+      stream: false,
+    })) {
+      // drain
+    }
+    expect(JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string).tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'ask_user' },
+    })
+  })
+
   it('POSTs to default baseUrl https://api.moonshot.ai/v1/chat/completions with Bearer auth', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(

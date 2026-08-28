@@ -159,6 +159,42 @@ describe('chat()', () => {
     expect(body.model).toBe('glm-5.3')
   })
 
+  it("maps toolChoice 'required' and named-tool forms to tool_choice", async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockImplementation(() =>
+      Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'h' } }], usage: {} })),
+    )
+    const provider = createProvider({ apiKey: 'k' })
+    const tools = [
+      { name: 'ask_user', description: 'Ask', parameters: { type: 'object', properties: {} } },
+    ]
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: 'required',
+      stream: false,
+    })) {
+      // drain
+    }
+    // Discovery mode depends on this — with tool_choice omitted the forced
+    // ask_user turn silently degraded to narration.
+    expect(JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string).tool_choice).toBe(
+      'required',
+    )
+    for await (const _ of provider.chat({
+      messages: [{ role: 'user', content: 'h' }],
+      tools,
+      toolChoice: { type: 'tool', name: 'ask_user' },
+      stream: false,
+    })) {
+      // drain
+    }
+    expect(JSON.parse((fetch.mock.calls[1][1] as RequestInit).body as string).tool_choice).toEqual({
+      type: 'function',
+      function: { name: 'ask_user' },
+    })
+  })
+
   it('translates web_search server tool to the Zhipu-native nested schema', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
