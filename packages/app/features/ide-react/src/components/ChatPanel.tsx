@@ -4415,6 +4415,11 @@ function ChatInner({
       pendingMessageKey !== lastPendingKeyRef.current
     ) {
       lastPendingKeyRef.current = pendingMessageKey
+      // A read-only VIEWER never dispatches platform-composed sends (build
+      // kickoffs, auto-fixes, preview-failure reports): the server 403s them
+      // and the denial used to surface as a red error in the viewer's chat.
+      // Consume the key (above) so the same message isn't retried.
+      if (canEdit === false) return
       // A pending message is ALWAYS system-composed (an auto-fix prompt, a preview-failure
       // report, a "Fix with AI" request) — never text the user typed. So it must NEVER
       // render as a normal user bubble: either it's suppressed entirely (hidden build
@@ -4447,6 +4452,7 @@ function ChatInner({
     pendingMessageUserInitiated,
     sendMessage,
     isLoading,
+    canEdit,
   ])
 
   // When streaming ends, send any deferred message. (A user Stop also ends
@@ -4461,6 +4467,9 @@ function ChatInner({
       deferredPendingRef.current = null
       deferredPendingSuppressRef.current = false
       deferredPendingUserInitiatedRef.current = false
+      // A viewer never dispatches platform-composed sends (same as the
+      // immediate path above) — the refs are already drained, so it just drops.
+      if (canEdit === false) return
       // Same rule as the immediate path: a deferred pending message is system-composed —
       // always `automatic` (suppressed or visible), never a plain user bubble.
       sendMessage(msg, undefined, {
@@ -6805,6 +6814,20 @@ function ChatInner({
   // `upgrade_prompt` card factory already applies to the recorded guest card.
   const isStaleAnonymousLimit = errorMeta?.requiresSignup === true && isAnonymous === false
 
+  // A read-only viewer's access-denied chat error must never sit as the
+  // persistent red banner — every legitimate viewer action is already gated
+  // client-side, so this only fires when something slipped through to the
+  // server (or an older tab raced a role change). Flash a calm, gold
+  // view-only notice for a few seconds instead, then clear.
+  const isViewerAccessDenied = canEdit === false && !!error && /access denied/i.test(error)
+  const [viewerDeniedFlash, setViewerDeniedFlash] = useState(false)
+  useEffect(() => {
+    if (!isViewerAccessDenied) return
+    setViewerDeniedFlash(true)
+    const timer = setTimeout(() => setViewerDeniedFlash(false), 6000)
+    return () => clearTimeout(timer)
+  }, [isViewerAccessDenied, error])
+
   // Build a unified timeline so commit cards appear at the correct position
   type TimelineItem =
     | { kind: 'message'; msg: (typeof messages)[number] }
@@ -7343,6 +7366,37 @@ function ChatInner({
               message={error}
               action={buildUpgradeCta?.({ requiresSignup: errorMeta.requiresSignup })}
             />
+          ) : isViewerAccessDenied ? (
+            // A viewer's denial is expected state, not an alarm: a brief, calm,
+            // gold view-only notice (matching the viewer tip / team-note
+            // treatment) that clears itself — never the persistent red banner.
+            viewerDeniedFlash ? (
+              <div
+                data-mol-id="chat-viewer-denied-notice"
+                className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 8,
+                  marginBottom: 8,
+                  ...chatCardStyle(NOTICE_TONE.gold.accent),
+                  lineHeight: 1.5,
+                }}
+              >
+                <Icon
+                  name="people"
+                  size={CHAT_CARD_ICON_SIZE}
+                  aria-hidden="true"
+                  style={{ flexShrink: 0, marginTop: 1, color: NOTICE_TONE.gold.accent }}
+                />
+                <span style={{ flex: 1 }}>
+                  {t('ide.chat.viewerReadOnly', undefined, {
+                    defaultValue:
+                      "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+                  })}
+                </span>
+              </div>
+            ) : null
           ) : (
             <div
               className={cm.cn(
