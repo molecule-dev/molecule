@@ -347,7 +347,7 @@ export const en: IdeTranslations = {
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
   'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
   // Auto-tips (dismissable onboarding hints). getStarted is the entry tip shown on
   // a fresh conversation; the rest rotate occasionally while idle. {{agentName}} is
   // the host's agent identity. Keep in sync with CHAT_TIPS/ENTRY_TIP in ide-react.
@@ -414,7 +414,7 @@ export const en: IdeTranslations = {
   'ide.chat.viewerReadOnlyCommand':
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Select execute-mode model',

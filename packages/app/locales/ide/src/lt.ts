@@ -4,13 +4,13 @@ import type { IdeTranslations } from './types.js'
 export const lt: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
   'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewerReadOnly':
     "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
   'ide.chat.viewerReadOnlyCommand':
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay the team. Running the assistant and changing the model or settings need editor access.',
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All ({{count}})',
   'ide.search.replaceAllShort': 'All ({{count}})',
   'ide.chat.thoughtBriefly': 'Trumpai pagalvojau',

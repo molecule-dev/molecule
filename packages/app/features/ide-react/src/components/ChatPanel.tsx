@@ -3087,7 +3087,14 @@ function ChatInner({
   // on-screen keyboard over half the workspace uninvited.
   useEffect(() => {
     if (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches) return
-    textareaRef.current?.focus()
+    const ta = textareaRef.current
+    if (!ta) return
+    ta.focus()
+    // The textarea can mount with content already in it (defaultValue carries a
+    // persisted draft, and a viewer's box holds the '/teamsay ' prefill) — a
+    // fresh element's selection is (0,0), so without this the caret sits BEFORE
+    // the text and typing lands in front of '/teamsay'.
+    ta.setSelectionRange(ta.value.length, ta.value.length)
   }, [])
 
   /** Update the ref, the DOM element, and the hasInput flag without re-rendering the parent. */
@@ -3882,7 +3889,7 @@ function ChatInner({
       { agentName },
       {
         defaultValue:
-          'View-only access — read along and /teamsay the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+          'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
       },
     )
     setTipCards((prev) => [
