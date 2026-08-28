@@ -388,6 +388,16 @@ export interface UseChatResult {
    * complete id-carrying items (cards, team notes) always apply, de-duped.
    */
   applyRemoteEvent: (event: ChatStreamEvent) => void
+  /**
+   * Reload history and converge the local view on the server transcript (and
+   * re-enter a still-streaming turn). The page-lifecycle events run this
+   * automatically; the host should ALSO call it whenever its chat push channel
+   * (re)connects — a broadcast sent while that socket was down (a teammate's
+   * team note against a backgrounded tab or a slept laptop) is otherwise lost
+   * until the next lifecycle event happens to fire. Cheap when nothing changed:
+   * an identical transcript is never re-applied.
+   */
+  reconcileHistory: () => Promise<void>
 }
 
 /**

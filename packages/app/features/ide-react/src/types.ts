@@ -152,6 +152,16 @@ export interface ChatPanelProps {
   onRegisterPushHandler?: (
     handler: ((conversationId: string, event: ChatStreamEvent) => void) | null,
   ) => void
+  /**
+   * Called on mount with a function that reloads chat history and converges the
+   * panel on the persisted transcript; called with null on unmount. The host
+   * should invoke it whenever its chat push channel (re)connects: a broadcast
+   * sent while that socket was down (a teammate's team note against a
+   * backgrounded tab or a slept laptop) is otherwise lost until a page
+   * lifecycle event happens to fire. Cheap when nothing changed — an identical
+   * transcript is never re-applied.
+   */
+  onRegisterHistoryReconcile?: (reconcile: (() => Promise<void>) | null) => void
   /** Changing this value submits the current input draft — used to send a prefilled prompt after the prompt→chat morph docks. */
   autoSubmitSignal?: number
   /** Seeds the input with this text on mount (prompt→chat morph), so the chat input shows the prompt before it is sent. */

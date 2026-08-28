@@ -879,51 +879,67 @@ export function useChat(options: UseChatOptions): UseChatResult {
   //    (history reload + resume-if-still-streaming);
   //  - with no local send in flight, history is reconciled directly and a turn
   //    the server is still streaming is re-entered via the resume flow.
+  // Reload history and converge the local view on the server transcript (and
+  // re-enter a still-streaming turn). Runs on the page-lifecycle events below,
+  // and is EXPOSED (as `reconcileHistory`) so the host can call it when its
+  // chat push channel (re)connects: a broadcast sent while that socket was down
+  // — a teammate's /teamsay note against a backgrounded tab or a slept laptop —
+  // is otherwise lost until the next lifecycle event happens to fire.
+  const reconcileHistory = useCallback(async (): Promise<void> => {
+    try {
+      const history = await provider.loadHistory({ endpoint, projectId })
+      if (!mountedRef.current || sendingRef.current) return
+      const store = getMessageStore(storageKey)
+      if (store.streaming) return
+      const serverStreaming =
+        (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+      // Overwrite when the server transcript DIFFERS from the local synced view —
+      // length AND last-message identity, not length alone: a transcript can
+      // change without growing (a teammate's note landed while a server-side
+      // cleanup dropped rows), and the old longer-only guard silently kept the
+      // stale view. An identical transcript still skips, so a plain foreground
+      // never churns. Locally-queued messages (not yet sent, so never in the
+      // server history) are re-appended rather than dropped.
+      const localQueued = store.messages.filter((m) => m.queued)
+      const localSynced = store.messages.filter((m) => !m.queued)
+      const historyChanged =
+        history.length !== localSynced.length ||
+        history[history.length - 1]?.id !== localSynced[localSynced.length - 1]?.id
+      if (history.length > 0 && historyChanged) setMessages([...history, ...localQueued])
+      if (serverStreaming && readOnly) {
+        // Read-only watcher: re-enter the watch path instead of resuming.
+        setStoreRemoteStreaming(storageKey, true)
+        noteRemoteStreamEvent()
+        return
+      }
+      if (serverStreaming && history.length > 0) {
+        const last = history[history.length - 1]
+        if (last.role === 'assistant') {
+          void resumeStreamRef.current(last.id, last.content)
+        } else {
+          const placeholderId = `assistant-${++idCounterRef.current}`
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: placeholderId,
+              role: 'assistant',
+              content: '',
+              timestamp: Date.now(),
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+          void resumeStreamRef.current(placeholderId, '')
+        }
+      }
+    } catch (_error) {
+      // Foreground reconcile is best-effort — the next lifecycle event (or a
+      // manual reload) retries; nothing local is lost by skipping it.
+    }
+  }, [provider, endpoint, projectId, storageKey, readOnly, noteRemoteStreamEvent, setMessages])
+
   useEffect(() => {
     if (typeof document === 'undefined' || typeof window === 'undefined') return
-
-    const reconcileIdle = async (): Promise<void> => {
-      try {
-        const history = await provider.loadHistory({ endpoint, projectId })
-        if (!mountedRef.current || sendingRef.current) return
-        const store = getMessageStore(storageKey)
-        if (store.streaming) return
-        const serverStreaming =
-          (provider as { isServerStreaming?: boolean }).isServerStreaming === true
-        // Only overwrite when the server clearly has more than the local view —
-        // an idle, up-to-date transcript must not churn on every foreground.
-        if (history.length > store.messages.length) setMessages(history)
-        if (serverStreaming && readOnly) {
-          // Read-only watcher: re-enter the watch path instead of resuming.
-          setStoreRemoteStreaming(storageKey, true)
-          noteRemoteStreamEvent()
-          return
-        }
-        if (serverStreaming && history.length > 0) {
-          const last = history[history.length - 1]
-          if (last.role === 'assistant') {
-            void resumeStreamRef.current(last.id, last.content)
-          } else {
-            const placeholderId = `assistant-${++idCounterRef.current}`
-            setMessages((prev) => [
-              ...prev,
-              {
-                id: placeholderId,
-                role: 'assistant',
-                content: '',
-                timestamp: Date.now(),
-                isStreaming: true,
-                blocks: [],
-              },
-            ])
-            void resumeStreamRef.current(placeholderId, '')
-          }
-        }
-      } catch (_error) {
-        // Foreground reconcile is best-effort — the next lifecycle event (or a
-        // manual reload) retries; nothing local is lost by skipping it.
-      }
-    }
 
     // One-shot re-check armed when the page returns to the foreground INSIDE the
     // silence threshold: a short screen lock can kill the socket without the
@@ -994,7 +1010,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       const store = getMessageStore(storageKey)
       if (store.remotePollTimer !== null) return
       if (event.type === 'visibilitychange' && hiddenFor < LIFECYCLE_MIN_HIDDEN_MS) return
-      void reconcileIdle()
+      void reconcileHistory()
     }
 
     document.addEventListener('visibilitychange', onLifecycle)
@@ -1006,7 +1022,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       window.removeEventListener('online', onLifecycle)
       clearStaleRecheck()
     }
-  }, [provider, endpoint, projectId, storageKey, readOnly, noteRemoteStreamEvent])
+  }, [provider, storageKey, reconcileHistory])
 
   // ── Backoff auto-retry machinery ──────────────────────────────────────────
   // When a stream `error` event reports an HTTP 5XX status OR a transport-layer
@@ -2430,5 +2446,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
     appendCardMessage,
     appendCompleteMessage,
     applyRemoteEvent,
+    reconcileHistory,
   }
 }

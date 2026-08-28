@@ -2461,6 +2461,8 @@ export interface ChatInnerProps {
   onNavigatePreview?: (path: string) => void
   /** Registers the broadcast-chat-event handler with the host — see {@link ChatPanelProps.onRegisterPushHandler}. */
   onRegisterPushHandler?: ChatPanelProps['onRegisterPushHandler']
+  /** Registers the history reconcile with the host — see {@link ChatPanelProps.onRegisterHistoryReconcile}. */
+  onRegisterHistoryReconcile?: ChatPanelProps['onRegisterHistoryReconcile']
   /** Changing this value submits the current input draft (used by the prompt→chat morph). */
   autoSubmitSignal?: number
   /** Changing this value opens the `/settings` view (used by the header gear button). */
@@ -2538,6 +2540,7 @@ function ChatInner({
   onLoadingChange,
   onNavigatePreview,
   onRegisterPushHandler,
+  onRegisterHistoryReconcile,
   autoSubmitSignal,
   openSettingsSignal,
   onManageCustomModels,
@@ -2911,6 +2914,7 @@ function ChatInner({
     deleteQueuedMessage,
     clearQueuedForFile,
     applyRemoteEvent,
+    reconcileHistory,
     retryCountdown,
     cancelRetry,
   } = useChat({
@@ -3751,6 +3755,16 @@ function ChatInner({
     onRegisterPushHandler?.(applyPushedStreamEvent)
     return () => onRegisterPushHandler?.(null)
   }, [onRegisterPushHandler, applyPushedStreamEvent])
+
+  // Register the history reconcile with the parent so it can converge this
+  // panel on the persisted transcript whenever its push channel (re)connects —
+  // a broadcast sent while that socket was down (a teammate's team note against
+  // a backgrounded tab or a slept laptop) is otherwise lost until a page
+  // lifecycle event happens to fire.
+  useEffect(() => {
+    onRegisterHistoryReconcile?.(reconcileHistory)
+    return () => onRegisterHistoryReconcile?.(null)
+  }, [onRegisterHistoryReconcile, reconcileHistory])
 
   // Inject the user-message accent-stripe styles once (the gradient `::before` + its
   // keyframe can't live inline; gated on the row's data-mol-id, so no other row is
@@ -10989,6 +11003,7 @@ export function ChatPanel({
   onLoadingChange,
   onNavigatePreview,
   onRegisterPushHandler,
+  onRegisterHistoryReconcile,
   autoSubmitSignal,
   initialInputValue,
   hideConversationMenu,
@@ -11455,6 +11470,7 @@ export function ChatPanel({
         onLoadingChange={onLoadingChange}
         onNavigatePreview={onNavigatePreview}
         onRegisterPushHandler={onRegisterPushHandler}
+        onRegisterHistoryReconcile={onRegisterHistoryReconcile}
         autoSubmitSignal={autoSubmitSignal}
         openSettingsSignal={effectiveSettingsSignal}
         onManageCustomModels={onManageCustomModels}
