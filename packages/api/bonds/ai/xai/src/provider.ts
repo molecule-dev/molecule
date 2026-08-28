@@ -198,8 +198,18 @@ class XaiAIProvider implements AIProvider {
       const errorBody = await response!.text()
       let detail = `HTTP ${response!.status}`
       try {
-        const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
-        if (parsed.error?.message) detail = parsed.error.message
+        // xAI uses BOTH shapes: OpenAI-style { error: { message } } and its own
+        // { code, error: "<string>" } (e.g. invalid_image) — reading only
+        // error.message left detail as a bare "HTTP 400" for the latter.
+        const parsed = JSON.parse(errorBody) as {
+          code?: string
+          error?: string | { message?: string }
+        }
+        if (typeof parsed.error === 'string' && parsed.error) {
+          detail = parsed.code ? `${parsed.code}: ${parsed.error}` : parsed.error
+        } else if (typeof parsed.error === 'object' && parsed.error?.message) {
+          detail = parsed.error.message
+        }
       } catch (_error) {
         // errorBody is not valid JSON; use the raw text as the detail string instead
         if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
@@ -213,11 +223,16 @@ class XaiAIProvider implements AIProvider {
             : response!.status === 400 &&
                 /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
               ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-              : response!.status === 400
-                ? 'AI request was invalid — check the model and request parameters.'
-                : response!.status === 503
-                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                  : 'AI service error. Please try again.'
+              : response!.status === 400 &&
+                  /invalid_image|image dimensions|image.*too small/i.test(detail)
+                ? // xAI rejects images below 8px/side or 512 total pixels; the
+                  // generic 400 text hid that the ATTACHMENT was the cause.
+                  'An attached image was rejected by the AI provider (too small or invalid). Remove or replace the attachment and try again.'
+                : response!.status === 400
+                  ? 'AI request was invalid — check the model and request parameters.'
+                  : response!.status === 503
+                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                    : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

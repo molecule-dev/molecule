@@ -544,6 +544,28 @@ describe('chat() — HTTP error handling', () => {
     expect(err.message).toMatch(pattern)
   }
 
+  it('400 invalid_image → attachment-specific client message, not the generic 400 text', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(400, {
+        code: 'invalid_image',
+        error: 'Image dimensions 1x1 are too small, both sides must be at least 8 pixels',
+      }),
+    )
+
+    const provider = createProvider({ apiKey: 'k' })
+    const events: unknown[] = []
+    for await (const e of provider.chat({
+      messages: [{ role: 'user', content: 'x' }],
+      stream: false,
+    })) {
+      events.push(e)
+    }
+    // The generic "check the model and request parameters" text hid that the
+    // ATTACHMENT was the cause (xAI rejects images < 8px/side or 512 px total).
+    expectError(events, /attached image/i)
+  })
+
   it('429 → "rate limit" client message (after retries exhausted)', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(429, { error: { message: 'too many' } }))
