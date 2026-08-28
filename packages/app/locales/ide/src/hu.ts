@@ -335,6 +335,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontextus',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -347,6 +348,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'Még nincsenek elérhető modellek – kérje meg a rendszergazdát, hogy állítson be egy mesterséges intelligencia szolgáltatót.',
   'ide.chat.modelInUse': 'Mostantól az {{model}} oldalt használjuk',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     'A kiválasztott „{{removed}}” modell már nem elérhető. Átváltottunk a „{{fallback}}” modellre. Írja be a /model parancsot egy másik modell kiválasztásához.',
   'ide.chat.modelRemovedNoFallback':

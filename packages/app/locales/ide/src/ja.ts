@@ -336,6 +336,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '文脈',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -348,6 +349,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'まだ利用可能なモデルはありません。管理者にAIプロバイダーの設定を依頼してください。',
   'ide.chat.modelInUse': '現在、{{model}} を使用しています',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     '選択されたモデル「{{removed}}」は現在利用できません。「{{fallback}}」に切り替えました。別のモデルを選択するには、/model と入力してください。',
   'ide.chat.modelRemovedNoFallback':

@@ -338,6 +338,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontext',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -350,6 +351,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'Zatiaľ nie sú k dispozícii žiadne modely – požiadajte svojho správcu, aby pripojil poskytovateľa umelej inteligencie.',
   'ide.chat.modelInUse': 'Teraz používame {{model}}',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     'Vami vybraný model „{{removed}}“ už nie je k dispozícii. Bol nahradený modelom „{{fallback}}“. Zadajte typ/model, ak si chcete vybrať iný.',
   'ide.chat.modelRemovedNoFallback':

@@ -336,6 +336,69 @@ const REMOTE_STREAM_POLL_MS = 3000
 const REMOTE_STREAM_POLL_MAX = 100
 
 /**
+ * Rough forward-progress score for one message — how much of a streaming turn it
+ * already holds. Used by {@link mergeRemoteHistory} to decide, per message id,
+ * whether the server snapshot or the locally-accumulated live copy is further
+ * along, so a reconcile can only ever ADD content, never visibly rewind text a
+ * pushed delta already rendered (the snapshot is throttled server-side and can
+ * trail the live frames by a few seconds).
+ *
+ * @param m - The message to score.
+ * @returns A monotonic-ish progress score.
+ */
+function messageProgress(m: ChatMessage): number {
+  let score = m.content.length
+  if (m.toolCalls) {
+    for (const tc of m.toolCalls) {
+      score += 50 // each started tool call is progress
+      if (tc.output !== undefined) score += 50 // …and each finished one, more
+      score += tc.streamInputChars ?? 0
+    }
+  }
+  if (m.blocks) {
+    for (const b of m.blocks) {
+      score +=
+        typeof (b as { content?: unknown }).content === 'string'
+          ? ((b as { content: string }).content?.length ?? 0)
+          : 10
+    }
+  }
+  return score
+}
+
+/**
+ * Merge a fresh server history into a conversation's live store WITHOUT
+ * rewinding live progress. Per message id the further-along copy wins
+ * ({@link messageProgress}); messages only the server has are added in the
+ * server's order (fills gaps a watcher missed before it attached); messages only
+ * the store has (optimistic bubbles, session-local cards) are preserved after
+ * them. No-op while a local send owns the store — the sender's own stream is
+ * authoritative and its post-send reconcile handles history.
+ *
+ * @param key - The conversation/project storage key.
+ * @param history - The messages from the server's history endpoint.
+ */
+function mergeRemoteHistory(key: string, history: ChatMessage[]): void {
+  if (history.length === 0) return
+  const store = getMessageStore(key)
+  if (store.streaming) return
+  setStoreMessages(key, (prev) => {
+    const prevById = new Map(prev.map((m) => [m.id, m]))
+    const merged = history.map((h) => {
+      const local = prevById.get(h.id)
+      if (!local) return h
+      // Keep the live copy when it is further along; carry its streaming flag
+      // either way so an in-progress message keeps its spinner across merges.
+      const winner = messageProgress(local) > messageProgress(h) ? local : h
+      return local.isStreaming && !winner.isStreaming ? { ...winner, isStreaming: true } : winner
+    })
+    const historyIds = new Set(history.map((m) => m.id))
+    const extras = prev.filter((m) => !historyIds.has(m.id))
+    return extras.length > 0 ? [...merged, ...extras] : merged
+  })
+}
+
+/**
  * Confirm-and-track a remote backend turn. Called when a pushed (broadcast) chat
  * event arrives for the open conversation while this client has no send of its
  * own in flight — evidence that a backend turn is streaming somewhere else
@@ -343,14 +406,21 @@ const REMOTE_STREAM_POLL_MAX = 100
  * single sparse event (an own-echo card can arrive just after a local turn
  * ends), the server's history `streaming` flag is polled: the remote flag turns
  * on only once confirmed, stays on while the server reports streaming, and
- * clears when the turn finishes. Single-flight per store; a local send taking
- * over (store.streaming) ends the poll immediately.
+ * clears when the turn finishes. Each poll ALSO reconciles the fetched history
+ * into the store ({@link mergeRemoteHistory}) — the durable backstop under the
+ * live pushed frames: it fills whatever a watcher missed before attaching (or
+ * during a push-channel drop) within one poll interval, and applies the final
+ * authoritative transcript when the turn ends. Single-flight per store; a local
+ * send taking over (store.streaming) ends the poll immediately.
  *
  * @param key - The conversation/project storage key.
- * @param isServerStreaming - Reloads history and resolves whether the server
- *   reports an active stream for this conversation.
+ * @param fetchRemoteState - Reloads history, resolving the messages and whether
+ *   the server reports an active stream for this conversation.
  */
-function startRemoteStreamPoll(key: string, isServerStreaming: () => Promise<boolean>): void {
+function startRemoteStreamPoll(
+  key: string,
+  fetchRemoteState: () => Promise<{ streaming: boolean; history: ChatMessage[] }>,
+): void {
   const store = getMessageStore(key)
   if (store.streaming || store.remotePollTimer !== null) return
   const poll = async (iteration: number): Promise<void> => {
@@ -364,7 +434,9 @@ function startRemoteStreamPoll(key: string, isServerStreaming: () => Promise<boo
     }
     let active: boolean
     try {
-      active = await isServerStreaming()
+      const state = await fetchRemoteState()
+      mergeRemoteHistory(key, state.history)
+      active = state.streaming
     } catch (_error) {
       // History fetch failed (transient network) — keep the last known state and
       // let the next poll reconcile; the iteration bound still guarantees an end.
@@ -469,6 +541,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     projectId,
     agentName = DEFAULT_AGENT_NAME,
     loadOnMount = true,
+    readOnly = false,
     onFileChange,
     onModeChange,
     onConversationId,
@@ -571,8 +644,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // the remote turn so the Stop control stays visible (see startRemoteStreamPoll).
   const noteRemoteStreamEvent = useCallback(() => {
     startRemoteStreamPoll(storageKey, async () => {
-      await provider.loadHistory({ endpoint, projectId })
-      return (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+      const history = await provider.loadHistory({ endpoint, projectId })
+      return {
+        streaming: (provider as { isServerStreaming?: boolean }).isServerStreaming === true,
+        history,
+      }
     })
   }, [provider, endpoint, projectId, storageKey])
   const [error, setError] = useState<string | null>(null)
@@ -817,6 +893,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // Only overwrite when the server clearly has more than the local view —
         // an idle, up-to-date transcript must not churn on every foreground.
         if (history.length > store.messages.length) setMessages(history)
+        if (serverStreaming && readOnly) {
+          // Read-only watcher: re-enter the watch path instead of resuming.
+          setStoreRemoteStreaming(storageKey, true)
+          noteRemoteStreamEvent()
+          return
+        }
         if (serverStreaming && history.length > 0) {
           const last = history[history.length - 1]
           if (last.role === 'assistant') {
@@ -924,7 +1006,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       window.removeEventListener('online', onLifecycle)
       clearStaleRecheck()
     }
-  }, [provider, endpoint, projectId, storageKey])
+  }, [provider, endpoint, projectId, storageKey, readOnly, noteRemoteStreamEvent])
 
   // ── Backoff auto-retry machinery ──────────────────────────────────────────
   // When a stream `error` event reports an HTTP 5XX status OR a transport-layer
@@ -1186,6 +1268,26 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // directly whether a stream is active, even if sessionStorage was lost
         const serverStreaming =
           (provider as { isServerStreaming?: boolean }).isServerStreaming === true
+
+        // Read-only watcher (a viewer): never POSTs — no resume request. When a
+        // turn is live, mark the trailing assistant message streaming for the
+        // indicator and start the remote watch: live frames arrive over the
+        // push channel, the reconcile poll backstops gaps, and the flag clears
+        // when the server reports the turn finished.
+        if (readOnly) {
+          if (serverStreaming) {
+            const last = history[history.length - 1]
+            if (last?.role === 'assistant') {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === last.id ? { ...m, isStreaming: true } : m)),
+              )
+            }
+            setStoreRemoteStreaming(storageKey, true)
+            noteRemoteStreamEvent()
+          }
+          return
+        }
+
         const shouldResume = (interrupted || serverStreaming) && history.length > 0
 
         if (shouldResume) {
@@ -1233,6 +1335,156 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // History load failure is not critical
       })
   }, [endpoint])
+
+  // Apply ONE content stream event (text/thinking/tool/diff/verification/…) to a
+  // message's live accumulator context. Extracted from createMessageStream so the
+  // LOCAL stream (own SSE) and the REMOTE ingestion path (pushed broadcast frames
+  // from a teammate's turn — applyRemoteEvent) materialize messages through the
+  // exact same code and can never diverge.
+  const applyContentEvent = (ctx: MsgStreamCtx, event: ChatStreamEvent): void => {
+    switch (event.type) {
+      case 'text': {
+        ctx.assistantText += event.content
+        const last = ctx.blocks[ctx.blocks.length - 1]
+        if (last?.type === 'text') last.content += event.content
+        else ctx.blocks.push({ type: 'text', content: event.content })
+        ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
+        break
+      }
+      case 'thinking': {
+        const lastBlock = ctx.blocks[ctx.blocks.length - 1] as
+          (MessageBlock & { _startedAt?: number; durationMs?: number }) | undefined
+        if (lastBlock?.type === 'thinking') {
+          lastBlock.content += event.content
+          lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
+        } else {
+          const now = Date.now()
+          ctx.blocks.push(
+            Object.assign(
+              { type: 'thinking' as const, content: event.content, durationMs: 0 },
+              { _startedAt: now },
+            ),
+          )
+        }
+        ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+        break
+      }
+      case 'tool_use': {
+        // tool_use_start may have already created the entry + block — fill in the
+        // final input rather than pushing a duplicate.
+        const existing = ctx.toolCalls.find((t) => t.id === event.id)
+        if (existing) {
+          existing.name = event.name
+          existing.input = event.input
+          existing.status = 'running'
+        } else {
+          ctx.toolCalls.push({
+            id: event.id,
+            name: event.name,
+            input: event.input,
+            status: 'running',
+          })
+          ctx.blocks.push({ type: 'tool_call', id: event.id })
+        }
+        ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
+        break
+      }
+      case 'tool_use_start': {
+        if (!ctx.toolCalls.some((t) => t.id === event.id)) {
+          ctx.toolCalls.push({
+            id: event.id,
+            name: event.name,
+            input: undefined,
+            status: 'running',
+            streamInputChars: 0,
+          })
+          ctx.blocks.push({ type: 'tool_call', id: event.id })
+        }
+        ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
+        break
+      }
+      case 'tool_input_delta': {
+        const tc = ctx.toolCalls.find((t) => t.id === event.id)
+        if (tc) {
+          tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
+          if (event.partialInput) {
+            tc.input = {
+              ...(tc.input as Record<string, unknown> | undefined),
+              ...event.partialInput,
+            }
+          }
+        }
+        ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+        break
+      }
+      case 'tool_result': {
+        const tc = ctx.toolCalls.find((t) => t.id === event.id)
+        if (tc) {
+          tc.output = event.output
+          tc.status = deriveToolStatus(event.output)
+        }
+        ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+        break
+      }
+      case 'file_diff': {
+        // Attach the diff snapshot to the matching write/edit tool in THIS message.
+        const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
+        const match = [...ctx.toolCalls]
+          .reverse()
+          .find(
+            (t) =>
+              (t.name === 'write_file' || t.name === 'edit_file') &&
+              normalizePath((t.input as { path?: string })?.path ?? '') ===
+                normalizePath(event.path),
+          )
+        if (match) {
+          match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
+          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
+        }
+        clearQueuedForFileRef.current(event.path)
+        onFileChange?.(event.path, event.newContent)
+        break
+      }
+      case 'commit_suggestion':
+        ctx.scheduleFlush(() => ({
+          commitSuggestion: { files: event.files, status: 'pending' as const },
+        }))
+        break
+      case 'verification_result':
+        ctx.blocks.push({
+          type: 'verification',
+          status: event.status,
+          ...(event.output ? { output: event.output } : {}),
+          workspaces: event.workspaces,
+          ...(event.categories ? { categories: event.categories } : {}),
+        })
+        ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+        break
+      case 'resource_limit':
+        ctx.blocks.push({
+          type: 'resource_limit',
+          resource: event.resource,
+          message: event.message,
+        })
+        ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
+        break
+      case 'compaction':
+        ctx.blocks.push({
+          type: 'text',
+          content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
+        })
+        ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
+        break
+      case 'loop_limit_reached':
+        ctx.loopLimitReached = event.maxLoops
+        ctx.scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
+        break
+      default:
+        break
+    }
+  }
+  const applyContentEventRef = useRef(applyContentEvent)
+  applyContentEventRef.current = applyContentEvent
 
   // Build a per-stream event handler that materializes the SAME per-message structure
   // the server persists: each `message_start` finalizes the previous message and opens a
@@ -1373,146 +1625,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
       const ctx = currentCtx
       if (!ctx) return // a content event before any message_start — ignore (shouldn't happen)
 
-      switch (event.type) {
-        case 'text': {
-          ctx.assistantText += event.content
-          const last = ctx.blocks[ctx.blocks.length - 1]
-          if (last?.type === 'text') last.content += event.content
-          else ctx.blocks.push({ type: 'text', content: event.content })
-          ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
-          break
-        }
-        case 'thinking': {
-          const lastBlock = ctx.blocks[ctx.blocks.length - 1] as
-            (MessageBlock & { _startedAt?: number; durationMs?: number }) | undefined
-          if (lastBlock?.type === 'thinking') {
-            lastBlock.content += event.content
-            lastBlock.durationMs = Date.now() - (lastBlock._startedAt ?? Date.now())
-          } else {
-            const now = Date.now()
-            ctx.blocks.push(
-              Object.assign(
-                { type: 'thinking' as const, content: event.content, durationMs: 0 },
-                { _startedAt: now },
-              ),
-            )
-          }
-          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
-          break
-        }
-        case 'tool_use': {
-          // tool_use_start may have already created the entry + block — fill in the
-          // final input rather than pushing a duplicate.
-          const existing = ctx.toolCalls.find((t) => t.id === event.id)
-          if (existing) {
-            existing.name = event.name
-            existing.input = event.input
-            existing.status = 'running'
-          } else {
-            ctx.toolCalls.push({
-              id: event.id,
-              name: event.name,
-              input: event.input,
-              status: 'running',
-            })
-            ctx.blocks.push({ type: 'tool_call', id: event.id })
-          }
-          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
-          break
-        }
-        case 'tool_use_start': {
-          if (!ctx.toolCalls.some((t) => t.id === event.id)) {
-            ctx.toolCalls.push({
-              id: event.id,
-              name: event.name,
-              input: undefined,
-              status: 'running',
-              streamInputChars: 0,
-            })
-            ctx.blocks.push({ type: 'tool_call', id: event.id })
-          }
-          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls], blocks: [...ctx.blocks] }))
-          break
-        }
-        case 'tool_input_delta': {
-          const tc = ctx.toolCalls.find((t) => t.id === event.id)
-          if (tc) {
-            tc.streamInputChars = (tc.streamInputChars ?? 0) + event.chars
-            if (event.partialInput) {
-              tc.input = {
-                ...(tc.input as Record<string, unknown> | undefined),
-                ...event.partialInput,
-              }
-            }
-          }
-          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
-          break
-        }
-        case 'tool_result': {
-          const tc = ctx.toolCalls.find((t) => t.id === event.id)
-          if (tc) {
-            tc.output = event.output
-            tc.status = deriveToolStatus(event.output)
-          }
-          ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
-          break
-        }
-        case 'file_diff': {
-          // Attach the diff snapshot to the matching write/edit tool in THIS message.
-          const normalizePath = (p: string): string => p.replace(/^\/workspace\//, '')
-          const match = [...ctx.toolCalls]
-            .reverse()
-            .find(
-              (t) =>
-                (t.name === 'write_file' || t.name === 'edit_file') &&
-                normalizePath((t.input as { path?: string })?.path ?? '') ===
-                  normalizePath(event.path),
-            )
-          if (match) {
-            match.fileDiff = { original: event.oldContent ?? '', modified: event.newContent }
-            ctx.scheduleFlush(() => ({ toolCalls: [...ctx.toolCalls] }))
-          }
-          clearQueuedForFileRef.current(event.path)
-          onFileChange?.(event.path, event.newContent)
-          break
-        }
-        case 'commit_suggestion':
-          ctx.scheduleFlush(() => ({
-            commitSuggestion: { files: event.files, status: 'pending' as const },
-          }))
-          break
-        case 'verification_result':
-          ctx.blocks.push({
-            type: 'verification',
-            status: event.status,
-            ...(event.output ? { output: event.output } : {}),
-            workspaces: event.workspaces,
-            ...(event.categories ? { categories: event.categories } : {}),
-          })
-          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
-          break
-        case 'resource_limit':
-          ctx.blocks.push({
-            type: 'resource_limit',
-            resource: event.resource,
-            message: event.message,
-          })
-          ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
-          break
-        case 'compaction':
-          ctx.blocks.push({
-            type: 'text',
-            content: `**Context compacted** — ${event.compactedCount} older messages were summarized to free space.\n\n${event.summary}`,
-          })
-          ctx.scheduleFlush(() => ({ content: ctx.assistantText, blocks: [...ctx.blocks] }))
-          break
-        case 'loop_limit_reached':
-          ctx.loopLimitReached = event.maxLoops
-          ctx.scheduleFlush(() => ({ loopLimitReached: event.maxLoops }))
-          break
-        default:
-          break
-      }
+      applyContentEvent(ctx, event)
     }
 
     return { onEvent, finalizeCurrent }
@@ -1521,6 +1634,172 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // current props (matching the sendMessageRef/resumeStreamRef pattern below).
   const createMessageStreamRef = useRef(createMessageStream)
   createMessageStreamRef.current = createMessageStream
+
+  // ── REMOTE stream ingestion (pushed broadcast frames) ─────────────────────
+  // A teammate's (or another tab's) running turn broadcasts every stream frame
+  // over the project push channel. These are ingested into the SAME message
+  // store through the SAME content applier as an own SSE stream, so a watching
+  // client renders the turn live — text, thinking, tool cards, verification —
+  // instead of a spinner that resolves to a finished transcript. The
+  // accumulator survives panel remounts poorly by design (it is re-adopted from
+  // the store's trailing message on the next frame), and the reconcile poll
+  // (startRemoteStreamPoll) backstops any missed frames within one interval.
+  const remoteCtxRef = useRef<{ ctx: MsgStreamCtx; generation: number } | null>(null)
+  const finalizeRemoteStream = (): void => {
+    const entry = remoteCtxRef.current
+    remoteCtxRef.current = null
+    if (!entry) return
+    if (getMessageStore(storageKey).generation !== entry.generation) return
+    const { ctx } = entry
+    ctx.flushNow(() => ({ ...buildCtxUpdate(ctx), isStreaming: false }))
+  }
+  const finalizeRemoteStreamRef = useRef(finalizeRemoteStream)
+  finalizeRemoteStreamRef.current = finalizeRemoteStream
+
+  const applyRemoteEventImpl = (event: ChatStreamEvent): void => {
+    const store = getMessageStore(storageKey)
+    // Complete, id-deduped items apply even while a local stream runs: the
+    // sender's own SSE copy wins the dedupe, and a teammate's team note (or a
+    // shared setting card) must land mid-turn too.
+    if (event.type === 'card') {
+      appendCardMessage(event.id, event.timestamp, event.card)
+      return
+    }
+    if (event.type === 'message') {
+      // A broadcast user message: the sender's tab already shows its optimistic
+      // bubble (different local id) — never double it while its send is live.
+      if (event.message.role === 'user' && store.streaming) return
+      appendCompleteMessage(event.message)
+      return
+    }
+    // Everything else is a live frame of the running turn. While THIS client
+    // owns a stream, pushed frames are its own WS echo — drop them (the SSE
+    // stream is authoritative for the sender).
+    if (store.streaming) return
+    // A stale accumulator from a previous conversation must never absorb frames.
+    if (remoteCtxRef.current && remoteCtxRef.current.generation !== store.generation) {
+      remoteCtxRef.current = null
+    }
+    switch (event.type) {
+      case 'mode':
+        setMode(event.mode)
+        onModeChange?.(event.mode)
+        return
+      case 'status':
+        enqueueStatus(event.label)
+        return
+      case 'conversation':
+      case 'designing':
+      case 'ready_to_build':
+      case 'client_action':
+      case 'preview_error':
+      case 'custom':
+      case 'activity':
+        // Panel-level concerns (or deliberately ignored for remote turns) — the
+        // host handles them from its own push handler; nothing to store here.
+        return
+      case 'message_start': {
+        finalizeRemoteStreamRef.current()
+        const { scheduleFlush, flushNow } = createFlushScheduler(event.id)
+        const existing = store.messages.find((m) => m.id === event.id)
+        const ctx: MsgStreamCtx = {
+          id: event.id,
+          assistantText: existing?.content ?? '',
+          blocks: existing?.blocks ? [...existing.blocks] : [],
+          toolCalls: existing?.toolCalls ? existing.toolCalls.map((tc) => ({ ...tc })) : [],
+          scheduleFlush,
+          flushNow,
+        }
+        remoteCtxRef.current = { ctx, generation: store.generation }
+        if (existing) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === event.id ? { ...m, isStreaming: true } : m)),
+          )
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: event.id,
+              role: 'assistant',
+              content: '',
+              timestamp: event.timestamp,
+              isStreaming: true,
+              blocks: [],
+            },
+          ])
+        }
+        setStoreRemoteStreaming(storageKey, true)
+        return
+      }
+      case 'done':
+      case 'error':
+        // The remote turn ended. Finalize the accumulator and retire the
+        // indicator now; the reconcile poll's next tick applies the final
+        // authoritative transcript and confirms against the server. A remote
+        // error is NOT surfaced as this client's error banner — the copy can be
+        // sender-personal (budget/signup), and the sender's client owns retries.
+        finalizeRemoteStreamRef.current()
+        resetStatusQueue()
+        setStoreRemoteStreaming(storageKey, false)
+        return
+      default:
+        break
+    }
+    // ── Content frame (text / thinking / tool / diff / verification / …) ──
+    let entry = remoteCtxRef.current
+    if (!entry) {
+      // Attached mid-message (its message_start predates this watcher): adopt
+      // the transcript's trailing assistant message as the accumulator. When
+      // the history snapshot hasn't produced it yet, skip — the reconcile poll
+      // fills the prefix within one interval and a later frame adopts.
+      const lastMsg = store.messages[store.messages.length - 1]
+      if (!lastMsg || lastMsg.role !== 'assistant' || lastMsg.id === undefined) {
+        setStoreRemoteStreaming(storageKey, true)
+        return
+      }
+      const { scheduleFlush, flushNow } = createFlushScheduler(lastMsg.id)
+      entry = {
+        ctx: {
+          id: lastMsg.id,
+          assistantText: lastMsg.content,
+          blocks: lastMsg.blocks ? [...lastMsg.blocks] : [],
+          toolCalls: lastMsg.toolCalls ? lastMsg.toolCalls.map((tc) => ({ ...tc })) : [],
+          scheduleFlush,
+          flushNow,
+        },
+        generation: store.generation,
+      }
+      remoteCtxRef.current = entry
+      const adoptedId = lastMsg.id
+      setMessages((prev) => prev.map((m) => (m.id === adoptedId ? { ...m, isStreaming: true } : m)))
+    }
+    const { ctx } = entry
+    // If the reconcile merge advanced this message past the accumulator (frames
+    // missed during a push-channel drop), reseed from the store copy so a later
+    // flush can never rewind what the merge already rendered.
+    const storeMsg = store.messages.find((m) => m.id === ctx.id)
+    if (storeMsg) {
+      const ctxProgress = messageProgress({
+        id: ctx.id,
+        role: 'assistant',
+        timestamp: 0,
+        ...buildCtxUpdate(ctx),
+      } as ChatMessage)
+      if (messageProgress(storeMsg) > ctxProgress) {
+        ctx.assistantText = storeMsg.content
+        ctx.blocks = storeMsg.blocks ? [...storeMsg.blocks] : []
+        ctx.toolCalls = storeMsg.toolCalls ? storeMsg.toolCalls.map((tc) => ({ ...tc })) : []
+      }
+    }
+    setStoreRemoteStreaming(storageKey, true)
+    applyContentEventRef.current(ctx, event)
+  }
+  const applyRemoteEventImplRef = useRef(applyRemoteEventImpl)
+  applyRemoteEventImplRef.current = applyRemoteEventImpl
+  const applyRemoteEvent = useCallback(
+    (event: ChatStreamEvent) => applyRemoteEventImplRef.current(event),
+    [],
+  )
 
   const sendMessage = useCallback(
     async (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => {
@@ -1623,8 +1902,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
       sendingRef.current = true
       setIsLoading(true)
       lastStreamEventAtRef.current = Date.now()
-      // This client now owns the streaming state — end any remote-turn tracking.
+      // This client now owns the streaming state — end any remote-turn tracking
+      // and close out a remote accumulator so its message doesn't stay spinning.
       stopRemoteStreamPoll(storageKey)
+      finalizeRemoteStreamRef.current()
       setError(null)
       setErrorMeta(null)
       // A fresh user-initiated send abandons any pending 5XX auto-retry.
@@ -1855,8 +2136,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
       sendingRef.current = true
       setIsLoading(true)
       lastStreamEventAtRef.current = Date.now()
-      // This client now owns the streaming state — end any remote-turn tracking.
+      // This client now owns the streaming state — end any remote-turn tracking
+      // and close out a remote accumulator so its message doesn't stay spinning.
       stopRemoteStreamPoll(storageKey)
+      finalizeRemoteStreamRef.current()
       setError(null)
       setErrorMeta(null)
       resetStatusQueue()
@@ -2018,6 +2301,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // stream is being killed below, so the Stop control can retire immediately.
     getMessageStore(storageKey).stoppedByUser = true
     stopRemoteStreamPoll(storageKey)
+    // Drop any remote accumulator outright — the blanket un-stream map below
+    // already marks its message aborted.
+    remoteCtxRef.current = null
     // Stop means the user took over — cancel any pending 5XX auto-retry + timers.
     resetRetry()
     try {
@@ -2143,5 +2429,6 @@ export function useChat(options: UseChatOptions): UseChatResult {
     clearQueuedForFile,
     appendCardMessage,
     appendCompleteMessage,
+    applyRemoteEvent,
   }
 }

@@ -329,6 +329,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '上下文',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -340,6 +341,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.modelsLoading': '正在加载模型……',
   'ide.chat.modelsNone': '目前尚无可用模型——请联系管理员接入人工智能服务提供商。',
   'ide.chat.modelInUse': '目前使用 {{model}}',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     '您选择的模型“{{removed}}”已不可用。已切换至“{{fallback}}”。请输入 /model 选择其他模型。',
   'ide.chat.modelRemovedNoFallback':

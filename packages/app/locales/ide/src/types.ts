@@ -328,6 +328,8 @@ export type IdeTranslationKey =
   | 'ide.chat.effort.modeFixed'
   | 'ide.chat.effort.modeLine'
   | 'ide.chat.effort.setMode'
+  | 'ide.chat.setting.effort'
+  | 'ide.chat.cardBy'
   | 'ide.chat.effort.usage'
   | 'ide.chat.effort.notSupportedForModel'
   | 'ide.chat.models.colContext'

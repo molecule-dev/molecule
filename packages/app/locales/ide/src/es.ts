@@ -341,6 +341,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Contexto',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -353,6 +354,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'Aún no hay modelos disponibles; pide a tu administrador que conecte un proveedor de IA.',
   'ide.chat.modelInUse': 'Ahora utilizamos {{model}}',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     'El modelo que has seleccionado, «{{removed}}», ya no está disponible. Se ha cambiado a «{{fallback}}». Escribe /modelo para elegir otro.',
   'ide.chat.modelRemovedNoFallback':

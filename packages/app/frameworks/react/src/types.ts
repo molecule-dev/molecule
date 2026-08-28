@@ -229,6 +229,15 @@ export interface UseChatOptions {
   agentName?: string
   /** Load history on mount. */
   loadOnMount?: boolean
+  /**
+   * This client may only WATCH the conversation (e.g. a read-only project
+   * viewer): the hook never issues chat POSTs on its behalf — no resume
+   * request after a reload, no auto-retries. A live turn is followed through
+   * the remote-watch path instead: pushed broadcast frames (applyRemoteEvent)
+   * render it in real time and the history reconcile poll backstops gaps, with
+   * `isRemoteStreaming` driving the activity indicator.
+   */
+  readOnly?: boolean
   /** Called when a file is created or modified by a tool call (path + new content). */
   onFileChange?: (path: string, content: string) => void
   /** Called when the AI switches between plan and execute modes. */
@@ -368,6 +377,17 @@ export interface UseChatResult {
    * internally. De-duped by the server-assigned message id.
    */
   appendCompleteMessage: (message: ChatMessage) => void
+  /**
+   * Ingest ONE pushed (broadcast) stream frame from a turn running elsewhere —
+   * a teammate's send, another tab, a server-side continuation — into the ONE
+   * message store, through the same content applier as an own SSE stream: text/
+   * thinking deltas, tool events, verification, cards, complete messages, done.
+   * The host (ChatPanel) calls this from its push-channel handler for every
+   * broadcast frame of the OPEN conversation. Own echoes are dropped while a
+   * local send is in flight (the SSE stream is authoritative for the sender);
+   * complete id-carrying items (cards, team notes) always apply, de-duped.
+   */
+  applyRemoteEvent: (event: ChatStreamEvent) => void
 }
 
 /**

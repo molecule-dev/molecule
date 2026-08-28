@@ -31,10 +31,24 @@ export type MessageBlock =
  * shared packages (the server records the data; the app renders it).
  */
 export type CardEvent =
-  | { kind: 'model'; model: string; label?: string; mode?: 'plan' | 'execute' }
-  | { kind: 'mode'; mode: 'plan' | 'execute' }
+  | { kind: 'model'; model: string; label?: string; mode?: 'plan' | 'execute'; by?: string }
+  | { kind: 'mode'; mode: 'plan' | 'execute'; by?: string }
   | { kind: 'skills'; count: number }
   | { kind: 'custom'; name: string; data?: Record<string, unknown> }
+  // An agent-altering SETTING changed — effort level, fast/priority mode, max tool
+  // loops, processing region, or the auto-fix toggle. Carded so every member sees
+  // the change live and on reload. `by` names the member who changed it (absent
+  // when the agent/system drove it); `mode` scopes a per-mode value (e.g. the
+  // execute-mode effort); `label` carries a display name (e.g. the model a region
+  // change applies to). Values are data, not copy — the app renders the text.
+  | {
+      kind: 'setting'
+      setting: 'effort' | 'fastMode' | 'maxToolLoops' | 'region' | 'autoFix' | 'autoApprove'
+      value?: string | number | boolean | null
+      label?: string
+      mode?: 'plan' | 'execute'
+      by?: string
+    }
 
 /**
  * A file attachment sent with a chat message.

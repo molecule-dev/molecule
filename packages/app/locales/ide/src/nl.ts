@@ -338,6 +338,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -350,6 +351,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'Er zijn nog geen modellen beschikbaar — vraag je beheerder om een AI-provider aan te sluiten.',
   'ide.chat.modelInUse': 'Nu via {{model}}',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     'Het door u geselecteerde model "{{removed}}" is niet meer beschikbaar. Er is overgeschakeld naar "{{fallback}}". Typ /model om een ander model te kiezen.',
   'ide.chat.modelRemovedNoFallback':

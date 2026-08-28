@@ -2663,18 +2663,11 @@ function ChatInner({
   )
 
   // Ref so the stream-event callback can push activity cards without depending
-  // on the state setter (mirrors appendCardMessageRef).
+  // on the state setter.
   const addActivityCardRef = useRef<(activity: Activity) => void>(() => {})
-  // Ref to useChat's appendCardMessage, so the broadcast path (a teammate's `card` event,
-  // applied through handleStreamEvent) can append a card-message to the ONE message store.
-  // This client's OWN `card` events are appended internally by useChat's stream handler.
-  const appendCardMessageRef = useRef<
-    (id: string, timestamp: number, card: NonNullable<ChatMessage['cardEvent']>) => void
-  >(() => {})
-  // Ref to useChat's appendCompleteMessage — same contract as appendCardMessageRef, for a
-  // teammate's broadcast `message` event (a complete non-streaming message, e.g. a
-  // human-only team note). This client's OWN `message` events append internally in useChat.
-  const appendCompleteMessageRef = useRef<(message: ChatMessage) => void>(() => {})
+  // (A teammate's broadcast `card` / `message` events are ingested by
+  // useChat.applyRemoteEvent — applyPushedStreamEvent routes every pushed frame
+  // through it before this panel's handler runs, so no append refs live here.)
   // Kept current each render so handleStreamEvent (memoized) always calls the latest.
   const onReadyToBuildRef = useRef<(() => void) | undefined>(onReadyToBuild)
   onReadyToBuildRef.current = onReadyToBuild
@@ -2698,9 +2691,17 @@ function ChatInner({
           contextWindow: event.usage.contextWindow,
         })
       }
-      // Capture verification errors to trigger countdown after stream ends.
+      // Capture verification errors to trigger countdown after stream ends —
+      // SENDER-ONLY: a pushed frame from a teammate's turn must not arm this
+      // client's auto-fix (the sender's client owns the follow-up; two clients
+      // arming it would double-send the fix).
       // Also drop any deferred preview error — verification's countdown handles it.
-      if (event.type === 'verification_result' && event.status === 'error' && event.output) {
+      if (
+        !applyingPushedRef.current &&
+        event.type === 'verification_result' &&
+        event.status === 'error' &&
+        event.output
+      ) {
         pendingVerificationRef.current = {
           output: event.output as string,
           categories: (event.categories as string[]) ?? [],
@@ -2718,26 +2719,9 @@ function ChatInner({
       if (event.type === 'verification_result' && event.status === 'ok') {
         pendingVerificationRef.current = null
       }
-      // Inline transcript CARD (model / mode / skills / custom notice). The server records it
-      // into the ONE message transcript and emits it here; this client's OWN stream appends
-      // the card-message via useChat (case 'card'). Here we ONLY handle a TEAMMATE's broadcast
-      // (applied through applyPushedStreamEvent → handleStreamEvent): append it to the local
-      // store so it shows live for the collaborator too (de-duped by id; never re-persisted —
-      // the originating server already persisted it, and on reload it loads with the messages).
-      if (event.type === 'card' && applyingPushedRef.current) {
-        appendCardMessageRef.current(
-          event.id as string,
-          event.timestamp as number,
-          event.card as NonNullable<ChatMessage['cardEvent']>,
-        )
-      }
-      // A teammate's broadcast complete message (e.g. a human-only team note) — append it
-      // to the local store so it shows live for the collaborator too (de-duped by id;
-      // never re-persisted — the originating server already persisted it). This client's
-      // OWN `message` stream events are appended internally by useChat.
-      if (event.type === 'message' && applyingPushedRef.current && event.message) {
-        appendCompleteMessageRef.current(event.message as ChatMessage)
-      }
+      // NOTE: pushed `card` / `message` events are ingested into the message store by
+      // useChat.applyRemoteEvent (applyPushedStreamEvent calls it before this handler),
+      // through the same append helpers as an own stream — no panel-side append here.
       // Captured outbound side effect (email/sms/push/webhook/channel) — push an
       // inline activity card into the timeline. Non-text card, mirroring how
       // system cards are appended.
@@ -2756,9 +2740,11 @@ function ChatInner({
         )
       }
       // Discovery finished and the server selected a starting point — boot the
-      // sandbox. The template choice is internal; this event carries no
-      // user-facing payload and is never rendered in the transcript.
-      if (event.type === 'ready_to_build') {
+      // sandbox. SENDER-ONLY: the sender's client drives the boot; a watching
+      // client's host follows the project's sandbox status instead of racing a
+      // second boot request. The template choice is internal; this event carries
+      // no user-facing payload and is never rendered in the transcript.
+      if (event.type === 'ready_to_build' && !applyingPushedRef.current) {
         onReadyToBuildRef.current?.()
       }
       // The agent asked the IDE to reload/navigate the preview, open a file, or drive the
@@ -2924,14 +2910,16 @@ function ChatInner({
     editQueuedMessage,
     deleteQueuedMessage,
     clearQueuedForFile,
-    appendCardMessage,
-    appendCompleteMessage,
+    applyRemoteEvent,
     retryCountdown,
     cancelRetry,
   } = useChat({
     endpoint,
     projectId,
     agentName,
+    // A read-only viewer never issues chat POSTs (no resume/retry) — a live turn
+    // is watched via pushed frames + the reconcile poll instead.
+    readOnly: canEdit === false,
     // ALWAYS load history on mount. A persisted conversation MUST restore on refresh,
     // even when an initialMessage / initialInputValue is also present. The old condition
     // suppressed the load whenever a fresh message was about to be auto-sent — but on a
@@ -2959,13 +2947,22 @@ function ChatInner({
   // (which silently moved BOTH modes).
   const liveModelMode: 'plan' | 'execute' = mode === 'plan' ? 'plan' : 'execute'
 
+  // Target for a settings PATCH that changes agent behavior (model / effort /
+  // max loops / region / auto-fix / auto-approve): name the OPEN conversation so
+  // the server's shared setting card lands in the transcript members are
+  // actually watching (a project can hold several conversations).
+  const settingsPatchUrl = useCallback(
+    () =>
+      `/projects/${projectId}${
+        conversationIdRef.current
+          ? `?conversationId=${encodeURIComponent(conversationIdRef.current)}`
+          : ''
+      }`,
+    [projectId],
+  )
+
   // Keep sendMessageRef in sync so the countdown effect can call the latest sendMessage
   sendMessageRef.current = sendMessage
-  // Keep the card-append ref current so handleStreamEvent (memoized) can append a teammate's
-  // broadcast `card` event to the message store.
-  appendCardMessageRef.current = appendCardMessage
-  // Same for a teammate's broadcast complete `message` event (e.g. a team note).
-  appendCompleteMessageRef.current = appendCompleteMessage
 
   // User Stop. A stop is a user decision the platform must not overrule — so
   // beyond killing the stream (useChat.abort also records the stop client-side
@@ -3715,17 +3712,24 @@ function ChatInner({
   }, [])
 
   // Apply a chat event broadcast by another project member (the chat push channel). The
-  // originating member's SERVER already persisted everything (the transcript card-messages and
-  // the activity cards); this viewer only renders the broadcast live and gets the durable copy
-  // on reload. A pushed `card` event appends an ephemeral card-message (never persisted by this
-  // viewer); a pushed `activity` is flagged `received` so it renders but is not re-PUT.
+  // originating member's SERVER already persisted everything; this client renders the
+  // broadcast live and gets the durable copy on reload. EVERY frame of a remote turn
+  // arrives here — text/thinking deltas, tool events, verification, cards, the user
+  // message, done — and is ingested into the message store through useChat's
+  // applyRemoteEvent (the same content applier as an own SSE stream), so watching a
+  // teammate's turn looks exactly like running one. handleStreamEvent then handles the
+  // panel-level concerns (context usage, sounds, activity cards) with the
+  // applyingPushed flag gating the sender-only side effects (auto-fix, ready_to_build).
   const applyPushedStreamEvent = useCallback(
     (frameConversationId: string, event: ChatStreamEvent) => {
       // Only apply broadcasts for the conversation this panel has open.
       if (frameConversationId !== conversationIdRef.current) return
-      // Flag the window so a pushed activity card is marked `received` (rendered, not re-PUT);
-      // a pushed card-message is appended ephemerally. handleStreamEvent is synchronous, so the
-      // flag is set for exactly this event's handling.
+      // Store ingestion first, so the transcript is current before any panel
+      // side effect reads it.
+      applyRemoteEvent(event)
+      // Flag the window so a pushed activity card is marked `received` (rendered, not
+      // re-PUT) and sender-only side effects are skipped. handleStreamEvent is
+      // synchronous, so the flag is set for exactly this event's handling.
       applyingPushedRef.current = true
       try {
         handleStreamEvent(event)
@@ -3738,7 +3742,7 @@ function ChatInner({
       // flag and keeps the Stop button visible + functional for the remote turn.
       noteRemoteStreamEvent()
     },
-    [handleStreamEvent, noteRemoteStreamEvent],
+    [applyRemoteEvent, handleStreamEvent, noteRemoteStreamEvent],
   )
 
   // Register the pushed-event handler with the parent (Workspace) so it can deliver
@@ -3811,10 +3815,6 @@ function ChatInner({
     prevActivityCardsConvRef.current = conversationId
     activityCardsLoadedConvRef.current = null
     if (!conversationId) return
-    // Activity cards carry recipients/summaries and their routes are editor+ by
-    // design — a viewer's fetch/persist would just 403 on every panel open
-    // (observed live in prod logs). Skip both for read-only viewers.
-    if (canEdit === false) return
     if (prevConv && prevConv !== conversationId) setActivityCards([])
     let cancelled = false
     void http
@@ -4294,7 +4294,7 @@ function ChatInner({
       // viewer's tab keeps the in-memory switch (all this session needs) and
       // skips a PATCH that could only 403.
       if (canEdit !== false) {
-        http.patch(`/projects/${projectId}`, { settings: { chatModel: fallback } }).catch(() => {
+        http.patch(settingsPatchUrl(), { settings: { chatModel: fallback } }).catch(() => {
           /* persistence is best-effort; the in-memory switch is what matters */
         })
       }
@@ -5267,7 +5267,7 @@ function ChatInner({
       const name = displayName ?? modelId
       try {
         if (mode) {
-          await http.patch(`/projects/${projectId}`, {
+          await http.patch(settingsPatchUrl(), {
             settings: { [modeSettingKey(mode)]: modelId },
           })
           if (mode === 'plan') setPlanModel(modelId)
@@ -5300,7 +5300,7 @@ function ChatInner({
                     ),
           )
         } else {
-          await http.patch(`/projects/${projectId}`, { settings: { chatModel: modelId } })
+          await http.patch(settingsPatchUrl(), { settings: { chatModel: modelId } })
           setCurrentModel(modelId)
           setSavedChatModel(modelId)
           addSystemCard(
@@ -5334,7 +5334,7 @@ function ChatInner({
       const nextRegions = { ...modelRegions, [modelId]: region }
       setModelRegions(nextRegions)
       try {
-        await http.patch(`/projects/${projectId}`, {
+        await http.patch(settingsPatchUrl(), {
           settings: { modelRegions: nextRegions },
         })
       } catch (error) {
@@ -5699,7 +5699,7 @@ function ChatInner({
         setInputValue('')
         const newValue = !autoFixEnabled
         try {
-          await http.patch(`/projects/${projectId}`, { settings: { autoFix: newValue } })
+          await http.patch(settingsPatchUrl(), { settings: { autoFix: newValue } })
           setAutoFixEnabled(newValue)
           addSystemCard(
             newValue
@@ -5722,7 +5722,7 @@ function ChatInner({
         setInputValue('')
         const newValue = !autoApproveCommandsEnabled
         try {
-          await http.patch(`/projects/${projectId}`, {
+          await http.patch(settingsPatchUrl(), {
             settings: { autoApproveCommands: newValue },
           })
           setAutoApproveCommandsEnabled(newValue)
@@ -6166,7 +6166,7 @@ function ChatInner({
         }
         try {
           const nextByMode = { ...effortByMode, [targetMode]: level }
-          await http.patch(`/projects/${projectId}`, { settings: { effortByMode: nextByMode } })
+          await http.patch(settingsPatchUrl(), { settings: { effortByMode: nextByMode } })
           setEffortByMode(nextByMode)
           addSystemCard(
             t(
@@ -6196,7 +6196,7 @@ function ChatInner({
     if (maxLoopsMatch) {
       const n = Math.max(1, Number(maxLoopsMatch[1]))
       try {
-        await http.patch(`/projects/${projectId}`, { settings: { maxToolLoops: n } })
+        await http.patch(settingsPatchUrl(), { settings: { maxToolLoops: n } })
         setCurrentMaxLoops(n)
         addSystemCard(
           t(
@@ -6861,6 +6861,15 @@ function ChatInner({
   // the timeline simply omits it.
   const cardEventToSystemCard = useCallback(
     (cardEvent: CardEvent, id: string, timestamp: number): SystemCard | null => {
+      // Suffix a card's copy with the member who made the change, when the
+      // server attributed one — so a teammate watching knows WHO flipped the
+      // model/effort/mode, live and on reload.
+      const withBy = (text: string): string => {
+        const by = (cardEvent as { by?: string }).by
+        return by
+          ? t('ide.chat.cardBy', { text, name: by }, { defaultValue: '{{text}} — {{name}}' })
+          : text
+      }
       switch (cardEvent.kind) {
         case 'model': {
           const label = cardEvent.label || cardEvent.model
@@ -6873,13 +6882,19 @@ function ChatInner({
             def && def.provider !== 'custom' ? effectiveModelRegion(def).toUpperCase() : null
           return {
             id,
-            text: regionCode
-              ? t(
-                  'ide.chat.modelInUseRegion',
-                  { model: label, region: regionCode },
-                  { defaultValue: 'Now using {{model}} ({{region}})' },
-                )
-              : t('ide.chat.modelInUse', { model: label }, { defaultValue: 'Now using {{model}}' }),
+            text: withBy(
+              regionCode
+                ? t(
+                    'ide.chat.modelInUseRegion',
+                    { model: label, region: regionCode },
+                    { defaultValue: 'Now using {{model}} ({{region}})' },
+                  )
+                : t(
+                    'ide.chat.modelInUse',
+                    { model: label },
+                    { defaultValue: 'Now using {{model}}' },
+                  ),
+            ),
             timestamp,
           }
         }
@@ -6890,16 +6905,78 @@ function ChatInner({
           if (cardEvent.mode === 'plan') {
             return {
               id,
-              text: t('ide.chat.phasePlanning', undefined, { defaultValue: '📝 Plan mode' }),
+              text: withBy(
+                t('ide.chat.phasePlanning', undefined, { defaultValue: '📝 Plan mode' }),
+              ),
               timestamp,
             }
           }
           if (cardEvent.mode !== 'execute') return null
           return {
             id,
-            text: t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+            text: withBy(
+              t('ide.chat.phaseBuilding', undefined, { defaultValue: '🔨 Building your app' }),
+            ),
             timestamp,
           }
+        case 'setting': {
+          // A Synthase-altering setting changed (effort / fast mode / max loops /
+          // region / auto-fix / auto-approve) — announced to every member, live
+          // and on reload. Copy reuses the same localized strings as the local
+          // confirmation cards, so the shared card reads identically.
+          let text: string | null = null
+          if (cardEvent.setting === 'effort') {
+            const level = String(cardEvent.value ?? 'default')
+            const cardMode = cardEvent.mode ?? ''
+            text = cardEvent.label
+              ? t(
+                  'ide.chat.effort.setMode',
+                  { mode: cardMode, level, model: cardEvent.label },
+                  { defaultValue: 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).' },
+                )
+              : t(
+                  'ide.chat.setting.effort',
+                  { mode: cardMode, level },
+                  { defaultValue: 'Reasoning effort for {{mode}} set to {{level}}.' },
+                )
+          } else if (cardEvent.setting === 'fastMode') {
+            text = cardEvent.value
+              ? t('ide.chat.fastModeOn', undefined, {
+                  defaultValue: 'Fast mode on — faster responses at a higher rate',
+                })
+              : t('ide.chat.fastModeOff', undefined, { defaultValue: 'Fast mode off' })
+          } else if (cardEvent.setting === 'maxToolLoops') {
+            text = t(
+              'ide.chat.maxLoopsSet',
+              { n: Number(cardEvent.value ?? 0) },
+              { defaultValue: 'Max tool iterations set to {{n}}' },
+            )
+          } else if (cardEvent.setting === 'region') {
+            text = t(
+              'ide.chat.modelInUseRegion',
+              {
+                model: cardEvent.label ?? '',
+                region: String(cardEvent.value ?? '').toUpperCase(),
+              },
+              { defaultValue: 'Now using {{model}} ({{region}})' },
+            )
+          } else if (cardEvent.setting === 'autoFix') {
+            text = cardEvent.value
+              ? t('ide.chat.autoFixEnabled', undefined, { defaultValue: 'Auto-fix enabled.' })
+              : t('ide.chat.autoFixDisabled', undefined, { defaultValue: 'Auto-fix disabled.' })
+          } else if (cardEvent.setting === 'autoApprove') {
+            text = cardEvent.value
+              ? t('ide.chat.autoApproveEnabled', undefined, {
+                  defaultValue:
+                    'Auto-approve on — destructive commands run without asking. The exfiltration guard still asks. Turn off with /autoapprove.',
+                })
+              : t('ide.chat.autoApproveDisabled', undefined, {
+                  defaultValue: 'Auto-approve off — destructive commands ask before running.',
+                })
+          }
+          if (!text) return null
+          return { id, text: withBy(text), timestamp }
+        }
         case 'skills':
           return {
             id,
@@ -7572,7 +7649,10 @@ function ChatInner({
             sees that *something* is happening, with how long it's taken. It also covers the
             plan→build sandbox-boot wait (awaitingSandboxBoot), where no turn is streaming. */}
         {(() => {
-          const showActivity = isLoading || awaitingSandboxBoot
+          // A remote turn (a teammate's send, another tab, a server-side
+          // continuation) shows the same live activity indicator as an own send —
+          // watchers see Synthase working, not a frozen transcript.
+          const showActivity = isLoading || awaitingSandboxBoot || isRemoteStreaming
           const streamingMsg = isLoading
             ? [...visibleMessages].reverse().find((m) => m.isStreaming)
             : undefined

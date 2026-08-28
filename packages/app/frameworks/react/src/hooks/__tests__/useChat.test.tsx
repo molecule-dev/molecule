@@ -2180,3 +2180,158 @@ describe('useChat — user stop suppression + remote streaming', () => {
     }
   })
 })
+
+describe('useChat — remote stream ingestion (applyRemoteEvent)', () => {
+  const ENDPOINT = '/projects/p1/chat'
+  const PROJECT_ID = 'p1'
+
+  beforeEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+
+  it('materializes a remote turn — message_start, deltas, tools, done — into the store', async () => {
+    const { provider } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    act(() => {
+      result.current.applyRemoteEvent({ type: 'message_start', id: 'remote-1', timestamp: 1_000 })
+    })
+    expect(result.current.isRemoteStreaming).toBe(true)
+    expect(result.current.messages).toHaveLength(1)
+    expect(result.current.messages[0]).toMatchObject({
+      id: 'remote-1',
+      role: 'assistant',
+      isStreaming: true,
+    })
+
+    act(() => {
+      result.current.applyRemoteEvent({ type: 'text', content: 'Hello ' })
+      result.current.applyRemoteEvent({ type: 'text', content: 'world' })
+      result.current.applyRemoteEvent({
+        type: 'tool_use',
+        id: 't1',
+        name: 'write_file',
+        input: { path: 'a.ts' },
+      })
+      result.current.applyRemoteEvent({ type: 'tool_result', id: 't1', output: 'ok' })
+    })
+
+    // The turn's terminal frame finalizes the accumulator — the full message
+    // (text + tools) lands atomically, like the local stream's own finalize.
+    act(() => {
+      result.current.applyRemoteEvent({ type: 'done' })
+    })
+    expect(result.current.isRemoteStreaming).toBe(false)
+    await waitFor(() => {
+      expect(result.current.messages[0].content).toBe('Hello world')
+    })
+    expect(result.current.messages[0].toolCalls).toEqual([
+      expect.objectContaining({ id: 't1', name: 'write_file', status: 'done', output: 'ok' }),
+    ])
+    expect(result.current.messages[0].isStreaming).toBeFalsy()
+  })
+
+  it('adopts the trailing assistant message when attaching mid-turn (no message_start seen)', async () => {
+    const { provider } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    // The history snapshot already produced the partial assistant message.
+    act(() => {
+      result.current.appendCompleteMessage({
+        id: 'snap-1',
+        role: 'assistant',
+        content: 'partial',
+        timestamp: 500,
+      })
+    })
+    act(() => {
+      result.current.applyRemoteEvent({ type: 'text', content: ' + live' })
+    })
+    await waitFor(() => {
+      expect(result.current.messages[0].content).toBe('partial + live')
+    })
+    expect(result.current.messages[0].isStreaming).toBe(true)
+  })
+
+  it('drops its own WS echo while a local send owns the stream, but still applies cards', async () => {
+    const { provider, startMessage, emitText, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    act(() => {
+      void result.current.sendMessage('build it')
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(true))
+    act(() => {
+      startMessage(0, 'own-1')
+      emitText(0, 'own text')
+    })
+    // Echo of the same turn arriving over the push channel — must not double-apply.
+    act(() => {
+      result.current.applyRemoteEvent({ type: 'message_start', id: 'own-1', timestamp: 1_000 })
+      result.current.applyRemoteEvent({ type: 'text', content: 'own text' })
+    })
+    // A shared card still lands (id-deduped), even mid-own-turn.
+    act(() => {
+      result.current.applyRemoteEvent({
+        type: 'card',
+        id: 'card-1',
+        timestamp: 2_000,
+        card: { kind: 'setting', setting: 'fastMode', value: true },
+      })
+      result.current.applyRemoteEvent({
+        type: 'card',
+        id: 'card-1',
+        timestamp: 2_000,
+        card: { kind: 'setting', setting: 'fastMode', value: true },
+      })
+    })
+    await waitFor(() => {
+      const own = result.current.messages.find((m) => m.id === 'own-1')
+      expect(own?.content).toBe('own text')
+    })
+    expect(result.current.messages.filter((m) => m.id === 'card-1')).toHaveLength(1)
+    act(() => {
+      complete(0)
+    })
+  })
+
+  it('applies a broadcast user message when idle and drops it while locally streaming', async () => {
+    const { provider, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    // Idle: a teammate's prompt lands live.
+    act(() => {
+      result.current.applyRemoteEvent({
+        type: 'message',
+        message: { id: 'u-remote', role: 'user', content: 'teammate prompt', timestamp: 1 },
+      })
+    })
+    expect(result.current.messages.some((m) => m.id === 'u-remote')).toBe(true)
+
+    // While this client streams its own send, a user-message echo is dropped.
+    act(() => {
+      void result.current.sendMessage('mine')
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(true))
+    act(() => {
+      result.current.applyRemoteEvent({
+        type: 'message',
+        message: { id: 'u-echo', role: 'user', content: 'mine', timestamp: 2 },
+      })
+    })
+    expect(result.current.messages.some((m) => m.id === 'u-echo')).toBe(false)
+    act(() => {
+      complete(0)
+    })
+  })
+})

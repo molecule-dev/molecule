@@ -386,6 +386,7 @@ export const en: IdeTranslations = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.effort.usage':
     'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   // Per-model effort availability (P2-10) — only the target mode model's supported
@@ -403,6 +404,7 @@ export const en: IdeTranslations = {
   'ide.chat.modelsLoading': 'Loading models…',
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelInUseRegion': 'Now using {{model}} ({{region}})',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
   'ide.chat.modelRemoved':

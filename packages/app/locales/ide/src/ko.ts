@@ -333,6 +333,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '배경',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -345,6 +346,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     '아직 사용할 수 있는 모델이 없습니다. 관리자에게 AI 서비스 제공업체를 연결해 달라고 요청하세요.',
   'ide.chat.modelInUse': '현재 {{model}}을 사용하고 있습니다',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     '선택하신 모델 “{{removed}}”은 더 이상 사용할 수 없습니다. “{{fallback}}”으로 변경되었습니다. 다른 모델을 선택하려면 /model을 입력하세요.',
   'ide.chat.modelRemovedNoFallback':

@@ -327,6 +327,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': '上下文',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -338,6 +339,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.modelsLoading': '正在載入模型……',
   'ide.chat.modelsNone': '目前尚無可用模型——請聯絡您的系統管理員，以整合人工智慧服務供應商。',
   'ide.chat.modelInUse': '目前使用 {{model}}',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     '您選取的模型「{{removed}}」已不再提供。已切換至「{{fallback}}」。請輸入 /model 來選擇其他模型。',
   'ide.chat.modelRemovedNoFallback':

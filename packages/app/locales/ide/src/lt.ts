@@ -338,6 +338,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Kontekstas',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -350,6 +351,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'Kol kas modelių nėra — paprašykite administratoriaus prijungti dirbtinio intelekto paslaugų teikėją.',
   'ide.chat.modelInUse': 'Dabar naudojame „{{model}}“',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     'Jūsų pasirinktas modelis „{{removed}}“ nebėra prieinamas. Pakeistas į „{{fallback}}“. Įveskite /model, kad pasirinkite kitą.',
   'ide.chat.modelRemovedNoFallback':

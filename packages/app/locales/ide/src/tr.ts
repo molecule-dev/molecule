@@ -335,6 +335,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
+  'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
   'ide.chat.models.colContext': 'Bağlam',
   'ide.chat.models.colCutoff': 'Cutoff',
@@ -347,6 +348,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.modelsNone':
     'Henüz mevcut model yok — yöneticinizden bir yapay zeka sağlayıcısını entegre etmesini isteyin.',
   'ide.chat.modelInUse': 'Artık {{model}} adresini kullanıyoruz',
+  'ide.chat.cardBy': '{{text}} — {{name}}',
   'ide.chat.modelRemoved':
     'Seçtiğiniz "{{removed}}" modeli artık mevcut değil. "{{fallback}}" modeline geçildi. Başka bir model seçmek için /model yazın.',
   'ide.chat.modelRemovedNoFallback':
