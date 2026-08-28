@@ -6279,6 +6279,18 @@ function ChatInner({
     // event (persisted + broadcast to every member), which IS the visible message — so the
     // transcript never shows the literal "/command" text, and never shows it twice.
     if (matchesSideChannelCommand(allCommands, trimmed)) {
+      // The sent note must not survive as a draft: the keystroke-debounced
+      // persistDraft already holds the full "/teamsay …" text, and the viewer
+      // re-prefill below is non-empty so setInputValue never clears it — a
+      // reload then reopened the already-SENT message in the composer. Cancel
+      // any pending draft write and drop the stored draft; the mount prefill
+      // recreates the bare prefix.
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current)
+      try {
+        sessionStorage.removeItem(draftKey)
+      } catch (_error) {
+        /* sessionStorage unavailable — draft persistence is best-effort */
+      }
       // A viewer's composer is the team-chat box — re-fill the /teamsay prefix
       // after each sent team message so the next one is one keystroke away.
       if (canEdit === false) setInputAndCursorEnd('/teamsay ')
