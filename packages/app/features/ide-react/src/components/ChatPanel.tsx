@@ -3752,6 +3752,10 @@ function ChatInner({
     prevActivityCardsConvRef.current = conversationId
     activityCardsLoadedConvRef.current = null
     if (!conversationId) return
+    // Activity cards carry recipients/summaries and their routes are editor+ by
+    // design — a viewer's fetch/persist would just 403 on every panel open
+    // (observed live in prod logs). Skip both for read-only viewers.
+    if (canEdit === false) return
     if (prevConv && prevConv !== conversationId) setActivityCards([])
     let cancelled = false
     void http
@@ -3778,9 +3782,10 @@ function ChatInner({
     return () => {
       cancelled = true
     }
-  }, [conversationId, projectId, http])
+  }, [conversationId, projectId, http, canEdit])
   useEffect(() => {
     if (!conversationId || activityCardsLoadedConvRef.current !== conversationId) return
+    if (canEdit === false) return
     void http
       .put(`/projects/${projectId}/conversations/${conversationId}/activity-cards`, {
         activityCards: activityCards.filter((c) => !c.received),
@@ -3789,7 +3794,7 @@ function ChatInner({
         // Best-effort save (bound as _error per Rule 14): the in-memory cards remain the
         // source of truth this session if the PUT fails.
       })
-  }, [activityCards, conversationId, projectId, http])
+  }, [activityCards, conversationId, projectId, http, canEdit])
 
   // ── Auto-tips (dismissable onboarding hints) ──────────────────────────────
   // Two surfaces (see chat-tips-utilities): an ENTRY_TIP shown once on a fresh
@@ -7125,7 +7130,7 @@ function ChatInner({
                     <CommitCardItem
                       key={item.card.id}
                       card={item.card}
-                      onRevert={handleRevertCommit}
+                      onRevert={canEdit === false ? undefined : handleRevertCommit}
                     />
                   )
 
@@ -7336,7 +7341,7 @@ function ChatInner({
                         status: 'done',
                         hash,
                       }}
-                      onRevert={handleRevertCommit}
+                      onRevert={canEdit === false ? undefined : handleRevertCommit}
                     />
                   )
                 }
@@ -10017,9 +10022,15 @@ function ChatInner({
             </div>
           )}
 
-        {/* Input container — matches user message card style */}
+        {/* Input container — matches user message card style. data-mol-viewer
+            marks view-only mode for HOST CSS: molecule-dev's composer ring
+            (index.css :has(> textarea[data-mol-chat-input])) neutralizes the
+            container's own border-color with !important and paints a ::before
+            ring, so the gold view-mode border must be applied to the RING via
+            this attribute — the inline border below only serves ring-less hosts. */}
         <div
           className={cm.surfaceSecondary}
+          {...(canEdit === false ? { 'data-mol-viewer': '' } : {})}
           style={{
             // Round the TOP corners only (8px) so the composer reads as a self-contained
             // input with its own border on all sides, flush at the bottom-left/right with
@@ -10575,7 +10586,10 @@ function ChatInner({
               })()}
             <div
               style={{
-                marginLeft: contextUsage ? '4px' : 'auto',
+                // 'auto' pins the stop/send cluster right; the context ring
+                // (hidden for viewers even when contextUsage exists) otherwise
+                // carries the auto margin and this becomes a 4px gap.
+                marginLeft: canEdit !== false && contextUsage ? '4px' : 'auto',
                 display: 'flex',
                 gap: '4px',
                 alignItems: 'center',

@@ -717,6 +717,9 @@ export function SearchPanel({
                 type="text"
                 data-mol-id="search-excluded-dirs"
                 value={excludedDirsDraft}
+                // Read-only viewers can see the set but not edit it — their edits
+                // would never persist (the host omits onExcludedDirsChange).
+                readOnly={readOnly === true}
                 onChange={(e) => setExcludedDirsDraft(e.target.value)}
                 onBlur={commitExcludedDirs}
                 onKeyDown={(e) => {
