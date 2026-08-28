@@ -617,20 +617,35 @@ let audioCtx: AudioContext | null = null
 /**
  * Play a short notification tone using the Web Audio API.
  * Creates the AudioContext lazily on first call (after user interaction).
+ *
+ * The default variant is a single 660 Hz blip (status events). The `team`
+ * variant is a distinct two-note rising chirp (880 → 1320 Hz) so an incoming
+ * teammate message is recognizable by ear without looking at the chat.
+ * @param variant - Which tone to play.
  */
-function playTone(): void {
+function playTone(variant: 'default' | 'team' = 'default'): void {
   try {
     if (!audioCtx) audioCtx = new AudioContext()
-    const osc = audioCtx.createOscillator()
-    const gain = audioCtx.createGain()
-    osc.connect(gain)
-    gain.connect(audioCtx.destination)
-    osc.type = 'sine'
-    osc.frequency.value = 660
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
-    osc.start(audioCtx.currentTime)
-    osc.stop(audioCtx.currentTime + 0.15)
+    const notes =
+      variant === 'team'
+        ? [
+            { freq: 880, at: 0 },
+            { freq: 1320, at: 0.09 },
+          ]
+        : [{ freq: 660, at: 0 }]
+    for (const { freq, at } of notes) {
+      const osc = audioCtx.createOscillator()
+      const gain = audioCtx.createGain()
+      osc.connect(gain)
+      gain.connect(audioCtx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      const start = audioCtx.currentTime + at
+      gain.gain.setValueAtTime(0.15, start)
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.15)
+      osc.start(start)
+      osc.stop(start + 0.15)
+    }
   } catch (_error) {
     // AudioContext not available in this environment — silently skip
   }
@@ -2778,7 +2793,7 @@ function ChatInner({
       // (the pushed broadcast) — never for the sender's own SSE echo.
       const isOwnTeamNote = event.type === 'message' && !applyingPushedRef.current
       if (!isOwnTeamNote && eventType in cfg && shouldPlaySound(cfg[eventType])) {
-        playTone()
+        playTone(eventType === 'message' ? 'team' : 'default')
       }
     },
     [t],
