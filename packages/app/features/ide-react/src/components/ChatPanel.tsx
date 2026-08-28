@@ -632,7 +632,11 @@ function playTone(variant: 'default' | 'team' = 'default'): void {
     gain.connect(audioCtx.destination)
     osc.type = 'sine'
     osc.frequency.value = variant === 'team' ? 1320 : 660
-    gain.gain.setValueAtTime(0.15, audioCtx.currentTime)
+    // Equal-loudness compensation: hearing is far more sensitive near 1–4 kHz
+    // than at 660 Hz, so the octave-up tone needs roughly half the amplitude
+    // to sound the same volume as the default blip.
+    const peak = variant === 'team' ? 0.08 : 0.15
+    gain.gain.setValueAtTime(peak, audioCtx.currentTime)
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15)
     osc.start(audioCtx.currentTime)
     osc.stop(audioCtx.currentTime + 0.15)
