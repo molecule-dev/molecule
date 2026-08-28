@@ -750,6 +750,7 @@ export function FileExplorer({
   onFileSelect,
   onFileDoubleClick,
   onDirExpand,
+  readOnly,
   onRename,
   onDelete,
   onDeleteMultiple,
@@ -1518,6 +1519,7 @@ export function FileExplorer({
       ))}
       {contextMenu && (
         <FileExplorerContextMenu
+          readOnly={readOnly}
           position={contextMenu.position}
           node={contextMenu.node}
           selectedCount={selectedPaths.size}

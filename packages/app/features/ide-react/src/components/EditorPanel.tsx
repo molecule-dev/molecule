@@ -74,6 +74,7 @@ function injectCountdownStyle(): void {
  */
 export function EditorPanel({
   className,
+  readOnly,
   onActiveFileChange,
   onEditorReady,
   onTabsChange,
@@ -106,6 +107,12 @@ export function EditorPanel({
   useEffect(() => {
     editorProvider.updateConfig({ theme: themeMode === 'light' ? 'vs' : 'vs-dark' })
   }, [themeMode, editorProvider])
+
+  // Read-only mode (project viewers): same persisted-config channel as the theme
+  // sync, so it applies whether it fires before or after the editor mounts.
+  useEffect(() => {
+    editorProvider.updateConfig({ readOnly: readOnly === true })
+  }, [readOnly, editorProvider])
 
   // Mobile-tuned editor options on phone-width viewports. Like the theme sync
   // above, updateConfig persists into the provider's stored config, so this

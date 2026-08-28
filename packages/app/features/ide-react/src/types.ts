@@ -352,6 +352,12 @@ export interface ChatPanelProps {
  */
 export interface EditorPanelProps {
   className?: string
+  /**
+   * Render the editor read-only (Monaco `readOnly`) — for read-only project
+   * VIEWERS, whose file writes the server rejects anyway. Typing is blocked at
+   * the editor, so a viewer never composes an edit that cannot be saved.
+   */
+  readOnly?: boolean
   /** Called whenever the active file changes (tab switch, file open, file close). */
   onActiveFileChange?: (path: string | null) => void
   /** Called once after the editor is fully mounted and ready to accept files. */
@@ -555,6 +561,12 @@ export interface TabBarProps {
  * Properties for file explorer.
  */
 export interface FileExplorerProps {
+  /**
+   * Read-only mode (a project viewer): the context menu omits every mutating
+   * entry. Pair with omitting the mutation handlers (onRename/onDelete/…) so
+   * keyboard shortcuts and drag-moves no-op too.
+   */
+  readOnly?: boolean
   files: FileNode[]
   onFileSelect: (path: string) => void
   onFileDoubleClick?: (path: string) => void
@@ -710,6 +722,12 @@ export interface SearchPanelProps {
   excludedDirs?: string[]
   /** Persist an edited excluded-dir set (the host owns storage). */
   onExcludedDirsChange?: (dirs: string[]) => void
+  /**
+   * Read-only mode (a project viewer): search stays fully usable, but the
+   * Replace toggle/inputs/buttons are hidden (bulk writes are editor work).
+   * Pair with omitting onExcludedDirsChange so exclude edits never persist.
+   */
+  readOnly?: boolean
 }
 
 /**

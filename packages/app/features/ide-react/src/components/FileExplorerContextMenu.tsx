@@ -43,7 +43,23 @@ export interface ContextMenuProps {
   onAction: (action: ContextMenuAction) => void
   /** Called when the menu should close (Escape, outside click, after action). */
   onClose: () => void
+  /**
+   * Read-only mode (a project viewer): every mutating entry — new file/folder,
+   * rename, delete, cut, paste — is omitted; copy-path and collapse-all stay.
+   */
+  readOnly?: boolean
 }
+
+/** Actions that WRITE the tree — omitted entirely in read-only mode. */
+const MUTATING_ACTIONS: ReadonlySet<ContextMenuAction> = new Set([
+  'newFile',
+  'newFolder',
+  'rename',
+  'delete',
+  'deleteMultiple',
+  'cut',
+  'paste',
+])
 
 interface MenuItem {
   action: ContextMenuAction
@@ -59,7 +75,15 @@ interface MenuItem {
  * @param canPaste - Whether paste is available.
  * @returns Array of menu items with optional separators.
  */
-function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: boolean): MenuItem[] {
+function getMenuItems(
+  node: FileNode | null,
+  selectedCount: number,
+  canPaste: boolean,
+  readOnly?: boolean,
+): MenuItem[] {
+  const filterReadOnly = (items: MenuItem[]): MenuItem[] =>
+    readOnly ? items.filter((i) => !MUTATING_ACTIONS.has(i.action)) : items
+  // (every return below is wrapped by the caller-side filter via buildItems)
   if (!node) {
     // Background (empty area)
     const items: MenuItem[] = [
@@ -85,7 +109,7 @@ function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: bo
       label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
       separator: !canPaste,
     })
-    return items
+    return filterReadOnly(items)
   }
 
   // Multi-select menu (2+ items selected)
@@ -131,7 +155,7 @@ function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: bo
       label: t('ide.contextMenu.collapseAll', undefined, { defaultValue: 'Collapse All' }),
       separator: true,
     })
-    return items
+    return filterReadOnly(items)
   }
 
   // Single-item menus
@@ -186,7 +210,7 @@ function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: bo
         separator: true,
       },
     )
-    return items
+    return filterReadOnly(items)
   }
 
   // File
@@ -225,7 +249,7 @@ function getMenuItems(node: FileNode | null, selectedCount: number, canPaste: bo
       }),
     },
   )
-  return items
+  return filterReadOnly(items)
 }
 
 /**
@@ -240,6 +264,7 @@ export function FileExplorerContextMenu({
   canPaste,
   onAction,
   onClose,
+  readOnly,
 }: ContextMenuProps): JSX.Element {
   const cm = getClassMap()
   const menuRef = useRef<HTMLDivElement>(null)
@@ -295,7 +320,7 @@ export function FileExplorerContextMenu({
     [onAction, onClose],
   )
 
-  const items = getMenuItems(node, selectedCount, canPaste)
+  const items = getMenuItems(node, selectedCount, canPaste, readOnly)
 
   const menu = (
     <div

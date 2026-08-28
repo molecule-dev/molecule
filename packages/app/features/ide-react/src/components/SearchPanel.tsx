@@ -300,6 +300,7 @@ export function SearchPanel({
   className,
   excludedDirs,
   onExcludedDirsChange,
+  readOnly,
 }: SearchPanelProps): JSX.Element {
   const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
@@ -475,30 +476,32 @@ export function SearchPanel({
       {/* Search input row */}
       <div style={{ padding: '8px 8px 4px 8px' }}>
         <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          {/* Replace expand toggle */}
-          <button
-            type="button"
-            onClick={() => {
-              setShowReplace(!showReplace)
-              setConfirmAll(false)
-            }}
-            title={t('ide.search.toggleReplace', undefined, { defaultValue: 'Toggle Replace' })}
-            style={{
-              padding: 0,
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--mol-color-text-secondary, #888)',
-              cursor: 'pointer',
-              fontSize: 10,
-              lineHeight: 1,
-              flexShrink: 0,
-              width: replaceToggleWidth,
-              minHeight: isCoarse ? 36 : undefined,
-              textAlign: 'center',
-            }}
-          >
-            {showReplace ? '▼' : '▶'}
-          </button>
+          {/* Replace expand toggle — hidden in read-only mode (bulk writes are editor work) */}
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowReplace(!showReplace)
+                setConfirmAll(false)
+              }}
+              title={t('ide.search.toggleReplace', undefined, { defaultValue: 'Toggle Replace' })}
+              style={{
+                padding: 0,
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--mol-color-text-secondary, #888)',
+                cursor: 'pointer',
+                fontSize: 10,
+                lineHeight: 1,
+                flexShrink: 0,
+                width: replaceToggleWidth,
+                minHeight: isCoarse ? 36 : undefined,
+                textAlign: 'center',
+              }}
+            >
+              {showReplace ? '▼' : '▶'}
+            </button>
+          )}
           <input
             ref={inputRef}
             type="text"
@@ -540,7 +543,7 @@ export function SearchPanel({
         </div>
 
         {/* Replace input */}
-        {showReplace && (
+        {!readOnly && showReplace && (
           <div style={{ display: 'flex', gap: 4, alignItems: 'center', marginTop: 4 }}>
             {/* Spacer to align with search input (same width as toggle arrow) */}
             <div style={{ width: replaceToggleWidth, flexShrink: 0 }} />
@@ -588,7 +591,7 @@ export function SearchPanel({
         )}
 
         {/* Replace summary */}
-        {showReplace && confirmAll && totalCount > 0 && (
+        {!readOnly && showReplace && confirmAll && totalCount > 0 && (
           <div
             style={{
               marginTop: 4,
