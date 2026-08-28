@@ -195,6 +195,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'välja lülitatud',
   'ide.chat.soundMode.whenNotFocused': 'kui pole keskendunud',
   'ide.chat.soundMode.always': 'alati',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Vastus valmis',
   'ide.chat.soundEvent.error': 'Viga',
   'ide.chat.soundEvent.tool_result': 'Tööriist valmis',
@@ -204,6 +205,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Tsükli limiit on saavutatud',
   'ide.chat.soundEvent.verification_result': 'Kontrollimise tulemus',
   'ide.chat.soundEvent.preview_error': 'Eelvaate viga',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Süntees lõpetas vastamise',
   'ide.chat.soundEventDesc.error': 'Vastamisel läks midagi valesti',
   'ide.chat.soundEventDesc.tool_result':

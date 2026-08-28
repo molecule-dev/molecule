@@ -195,6 +195,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'apagat',
   'ide.chat.soundMode.whenNotFocused': 'quan no està centrat',
   'ide.chat.soundMode.always': 'sempre',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Resposta completada',
   'ide.chat.soundEvent.error': 'Error',
   'ide.chat.soundEvent.tool_result': 'Eina acabada',
@@ -204,6 +205,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': "S'ha arribat al límit del bucle",
   'ide.chat.soundEvent.verification_result': 'Resultat de la verificació',
   'ide.chat.soundEvent.preview_error': 'Error de previsualització',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'La sintasa ha acabat de respondre',
   'ide.chat.soundEventDesc.error': 'Alguna cosa ha anat malament durant una resposta',
   'ide.chat.soundEventDesc.tool_result':

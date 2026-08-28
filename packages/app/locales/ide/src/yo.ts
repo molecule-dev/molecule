@@ -102,6 +102,7 @@ export const yo: Partial<IdeTranslations> = {
     'n\\u00EDgb\\u00E0 t\\u00ED k\\u00F2 s\\u00ED \\u00E0k\\u00EDy\\u00E8s\\u00ED',
   'ide.chat.soundMode.always': 'n\\u00EDgb\\u00E0gb\\u00F3gb\\u00F2',
   'ide.chat.soundMode.mixed': '\\u00E0dap\\u00F2',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': '\\u00CCd\\u00E1h\\u00F9n ti par\\u00ED',
   'ide.chat.soundEvent.error': '\\u00C0\\u1E63\\u00ECse',
   'ide.chat.soundEvent.tool_result': 'Ir\\u00EDn\\u1E63\\u1EB9\\u0301 ti par\\u00ED',
@@ -113,6 +114,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result':
     '\\u00C0b\\u00E1j\\u00E1de \\u00E0y\\u1EB9\\u0300w\\u00F2',
   'ide.chat.soundEvent.preview_error': '\\u00C0\\u1E63\\u00ECse \\u00E0w\\u00F2\\u1E63e',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} ti par\\u00ED \\u00ECd\\u00E1h\\u00F9n',
   'ide.chat.soundEventDesc.error':
     'N\\u1ECD\\u0301nkan k\\u00F2 l\\u1ECD n\\u00EDgb\\u00E0 \\u00ECd\\u00E1h\\u00F9n',

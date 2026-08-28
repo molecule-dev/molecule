@@ -195,6 +195,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'ปิด',
   'ide.chat.soundMode.whenNotFocused': 'เมื่อไม่ตั้งใจ',
   'ide.chat.soundMode.always': 'เสมอ',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'ตอบกลับเสร็จสมบูรณ์',
   'ide.chat.soundEvent.error': 'ข้อผิดพลาด',
   'ide.chat.soundEvent.tool_result': 'เครื่องมือเสร็จสิ้น',
@@ -204,6 +205,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ถึงขีดจำกัดของลูปแล้ว',
   'ide.chat.soundEvent.verification_result': 'ผลการตรวจสอบ',
   'ide.chat.soundEvent.preview_error': 'ข้อผิดพลาดในการแสดงตัวอย่าง',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'เอนไซม์ซินเทสตอบสนองเสร็จสิ้นแล้ว',
   'ide.chat.soundEventDesc.error': 'เกิดข้อผิดพลาดบางอย่างระหว่างการตอบสนอง',
   'ide.chat.soundEventDesc.tool_result':

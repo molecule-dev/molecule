@@ -195,6 +195,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'අක්‍රියයි',
   'ide.chat.soundMode.whenNotFocused': 'අවධානය යොමු නොකළ විට',
   'ide.chat.soundMode.always': 'සැමවිටම',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'ප්‍රතිචාරය සම්පූර්ණයි',
   'ide.chat.soundEvent.error': 'දෝෂය',
   'ide.chat.soundEvent.tool_result': 'මෙවලම අවසන්',
@@ -204,6 +205,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ලූප සීමාවට ළඟා විය',
   'ide.chat.soundEvent.verification_result': 'සත්‍යාපන ප්‍රතිඵලය',
   'ide.chat.soundEvent.preview_error': 'පෙරදසුන් දෝෂය',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'සින්තේස් ප්‍රතිචාර දැක්වීම අවසන් කළේය.',
   'ide.chat.soundEventDesc.error': 'ප්‍රතිචාරයක් අතරතුර යමක් වැරදී ඇත.',
   'ide.chat.soundEventDesc.tool_result':

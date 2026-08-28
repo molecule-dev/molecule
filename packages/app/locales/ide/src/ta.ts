@@ -195,6 +195,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'ஆஃப்',
   'ide.chat.soundMode.whenNotFocused': 'கவனம் செலுத்தப்படாத போது',
   'ide.chat.soundMode.always': 'எப்போதும்',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'பதில் நிறைவடைந்தது',
   'ide.chat.soundEvent.error': 'பிழை',
   'ide.chat.soundEvent.tool_result': 'கருவி முடிக்கப்பட்டது',
@@ -204,6 +205,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'வளைய வரம்பு எட்டப்பட்டது',
   'ide.chat.soundEvent.verification_result': 'சரிபார்ப்பு முடிவு',
   'ide.chat.soundEvent.preview_error': 'முன்னோட்டப் பிழை',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'சிந்தேஸ் பதிலளிப்பதை முடித்தது',
   'ide.chat.soundEventDesc.error': 'பதிலளிக்கும்போது ஏதோ தவறு ஏற்பட்டது',
   'ide.chat.soundEventDesc.tool_result':

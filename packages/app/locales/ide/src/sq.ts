@@ -196,6 +196,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'fikur',
   'ide.chat.soundMode.whenNotFocused': 'kur nuk është i përqendruar',
   'ide.chat.soundMode.always': 'gjithmonë',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Përgjigja u përfundua',
   'ide.chat.soundEvent.error': 'Gabim',
   'ide.chat.soundEvent.tool_result': 'Mjeti përfundoi',
@@ -205,6 +206,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'U arrit limiti i cikrimit',
   'ide.chat.soundEvent.verification_result': 'Rezultati i verifikimit',
   'ide.chat.soundEvent.preview_error': 'Gabim i pamjes paraprake',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Sintaza përfundoi përgjigjen',
   'ide.chat.soundEventDesc.error': 'Diçka shkoi keq gjatë një përgjigjeje',
   'ide.chat.soundEventDesc.tool_result':

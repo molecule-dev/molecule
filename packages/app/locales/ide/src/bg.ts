@@ -198,6 +198,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'изключено',
   'ide.chat.soundMode.whenNotFocused': 'когато не е фокусиран',
   'ide.chat.soundMode.always': 'винаги',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Отговорът е завършен',
   'ide.chat.soundEvent.error': 'Грешка',
   'ide.chat.soundEvent.tool_result': 'Инструментът е завършен',
@@ -207,6 +208,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Достигнат е лимитът на цикъла',
   'ide.chat.soundEvent.verification_result': 'Резултат от проверката',
   'ide.chat.soundEvent.preview_error': 'Грешка в предварителния преглед',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Синтазата приключи с отговора',
   'ide.chat.soundEventDesc.error': 'Нещо се обърка по време на отговора',
   'ide.chat.soundEventDesc.tool_result':

@@ -200,6 +200,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'oprit',
   'ide.chat.soundMode.whenNotFocused': 'când nu este concentrat',
   'ide.chat.soundMode.always': 'întotdeauna',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Răspuns finalizat',
   'ide.chat.soundEvent.error': 'Eroare',
   'ide.chat.soundEvent.tool_result': 'Instrumentul a fost terminat',
@@ -209,6 +210,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Limita de buclă a fost atinsă',
   'ide.chat.soundEvent.verification_result': 'Rezultatul verificării',
   'ide.chat.soundEvent.preview_error': 'Eroare de previzualizare',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Sintaza a terminat de răspuns',
   'ide.chat.soundEventDesc.error': 'Ceva nu a mers bine în timpul unui răspuns',
   'ide.chat.soundEventDesc.tool_result':

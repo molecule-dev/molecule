@@ -195,6 +195,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'გამორთული',
   'ide.chat.soundMode.whenNotFocused': 'როდესაც არ არის კონცენტრირებული',
   'ide.chat.soundMode.always': 'ყოველთვის',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'პასუხი დასრულებულია',
   'ide.chat.soundEvent.error': 'შეცდომა',
   'ide.chat.soundEvent.tool_result': 'ინსტრუმენტი დასრულდა',
@@ -204,6 +205,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ციკლის ლიმიტი მიღწეულია',
   'ide.chat.soundEvent.verification_result': 'ვერიფიკაციის შედეგი',
   'ide.chat.soundEvent.preview_error': 'გადახედვის შეცდომა',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'სინთაზამ დაასრულა რეაგირება',
   'ide.chat.soundEventDesc.error': 'პასუხის გაცემისას რაღაც შეცდომა მოხდა',
   'ide.chat.soundEventDesc.tool_result':

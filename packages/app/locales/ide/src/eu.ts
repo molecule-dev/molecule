@@ -195,6 +195,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'itzalita',
   'ide.chat.soundMode.whenNotFocused': 'fokatuta ez dagoenean',
   'ide.chat.soundMode.always': 'beti',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Erantzuna osatu da',
   'ide.chat.soundEvent.error': 'Errorea',
   'ide.chat.soundEvent.tool_result': 'Tresna amaituta',
@@ -204,6 +205,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Begizta mugara iritsi da',
   'ide.chat.soundEvent.verification_result': 'Egiaztapenaren emaitza',
   'ide.chat.soundEvent.preview_error': 'Aurrebista errorea',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Sintesiak erantzuna amaitu du',
   'ide.chat.soundEventDesc.error': 'Zerbait gaizki joan da erantzun batean zehar',
   'ide.chat.soundEventDesc.tool_result':

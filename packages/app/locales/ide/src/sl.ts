@@ -195,6 +195,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'izklopljeno',
   'ide.chat.soundMode.whenNotFocused': 'ko ni osredotočen',
   'ide.chat.soundMode.always': 'vedno',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Odgovor končan',
   'ide.chat.soundEvent.error': 'Napaka',
   'ide.chat.soundEvent.tool_result': 'Orodje končano',
@@ -204,6 +205,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Dosežena je bila omejitev zanke',
   'ide.chat.soundEvent.verification_result': 'Rezultat preverjanja',
   'ide.chat.soundEvent.preview_error': 'Napaka predogleda',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Sintaza je končala z odzivom',
   'ide.chat.soundEventDesc.error': 'Med odgovorom je prišlo do napake',
   'ide.chat.soundEventDesc.tool_result':

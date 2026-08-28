@@ -84,6 +84,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.soundMode.whenNotFocused': 'lokacin da ba a kan hango ba',
   'ide.chat.soundMode.always': 'koyaushe',
   'ide.chat.soundMode.mixed': 'haɗe',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'An gama amsa',
   'ide.chat.soundEvent.error': 'Kuskure',
   'ide.chat.soundEvent.tool_result': 'Kayan aiki ya gama',
@@ -93,6 +94,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'An kai iyakar zagayowar',
   'ide.chat.soundEvent.verification_result': 'Sakamakon tabbatarwa',
   'ide.chat.soundEvent.preview_error': 'Kuskuren duba',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} ya gama amsawa',
   'ide.chat.soundEventDesc.error': 'Wani abu bai yi daidai ba yayin amsa',
   'ide.chat.soundEventDesc.tool_result':

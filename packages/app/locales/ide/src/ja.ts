@@ -199,6 +199,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'オフ',
   'ide.chat.soundMode.whenNotFocused': '集中していないとき',
   'ide.chat.soundMode.always': 'いつも',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': '応答完了',
   'ide.chat.soundEvent.error': 'エラー',
   'ide.chat.soundEvent.tool_result': '工具が完成しました',
@@ -208,6 +209,7 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ループ制限に達しました',
   'ide.chat.soundEvent.verification_result': '検証結果',
   'ide.chat.soundEvent.preview_error': 'プレビューエラー',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'シンターゼの応答が完了しました',
   'ide.chat.soundEventDesc.error': '応答中に問題が発生しました',
   'ide.chat.soundEventDesc.tool_result':

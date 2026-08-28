@@ -195,6 +195,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'исклучено',
   'ide.chat.soundMode.whenNotFocused': 'кога не е фокусиран',
   'ide.chat.soundMode.always': 'секогаш',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Одговорот е завршен',
   'ide.chat.soundEvent.error': 'Грешка',
   'ide.chat.soundEvent.tool_result': 'Алатката е завршена',
@@ -204,6 +205,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Достигнато е ограничувањето на јамката',
   'ide.chat.soundEvent.verification_result': 'Резултат од верификацијата',
   'ide.chat.soundEvent.preview_error': 'Грешка во прегледот',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Синтазата заврши со одговорот',
   'ide.chat.soundEventDesc.error': 'Нешто тргна наопаку за време на одговорот',
   'ide.chat.soundEventDesc.tool_result':

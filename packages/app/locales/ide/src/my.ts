@@ -196,6 +196,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'ပိတ်သည်',
   'ide.chat.soundMode.whenNotFocused': 'အာရုံမစိုက်တဲ့အခါ',
   'ide.chat.soundMode.always': 'အမြဲတမ်း',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'တုံ့ပြန်မှု ပြီးပါပြီ',
   'ide.chat.soundEvent.error': 'အမှား',
   'ide.chat.soundEvent.tool_result': 'ကိရိယာပြီးစီးပါပြီ',
@@ -205,6 +206,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ကွင်းဆက်ကန့်သတ်ချက်သို့ ရောက်ရှိပါပြီ',
   'ide.chat.soundEvent.verification_result': 'အတည်ပြုချက်ရလဒ်',
   'ide.chat.soundEvent.preview_error': 'အစမ်းကြည့်ရှုမှု အမှား',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} က တုံ့ပြန်ပြီးပါပြီ',
   'ide.chat.soundEventDesc.error': 'တုံ့ပြန်ချက်ပေးနေစဉ် တစ်စုံတစ်ခု မှားယွင်းသွားပါသည်',
   'ide.chat.soundEventDesc.tool_result':

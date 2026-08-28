@@ -196,6 +196,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': "o'chirilgan",
   'ide.chat.soundMode.whenNotFocused': "diqqat markazida bo'lmaganda",
   'ide.chat.soundMode.always': 'har doim',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Javob tugallandi',
   'ide.chat.soundEvent.error': 'Xato',
   'ide.chat.soundEvent.tool_result': 'Asbob tugadi',
@@ -205,6 +206,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Davr chegarasiga yetildi',
   'ide.chat.soundEvent.verification_result': 'Tasdiqlash natijasi',
   'ide.chat.soundEvent.preview_error': "Oldindan ko'rish xatosi",
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} javob berishni tugatdi',
   'ide.chat.soundEventDesc.error': "Javob berish paytida nimadir noto'g'ri ketdi",
   'ide.chat.soundEventDesc.tool_result':

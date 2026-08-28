@@ -199,6 +199,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'desligado',
   'ide.chat.soundMode.whenNotFocused': 'quando não está concentrado',
   'ide.chat.soundMode.always': 'sempre',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Resposta concluída',
   'ide.chat.soundEvent.error': 'Erro',
   'ide.chat.soundEvent.tool_result': 'Ferramenta finalizada',
@@ -208,6 +209,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Limite do loop atingido',
   'ide.chat.soundEvent.verification_result': 'Resultado da verificação',
   'ide.chat.soundEvent.preview_error': 'Erro de pré-visualização',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'A sintase terminou de responder.',
   'ide.chat.soundEventDesc.error': 'Algo deu errado durante a resposta.',
   'ide.chat.soundEventDesc.tool_result':

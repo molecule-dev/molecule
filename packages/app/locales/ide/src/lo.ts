@@ -193,6 +193,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'ປິດ',
   'ide.chat.soundMode.whenNotFocused': 'ເມື່ອບໍ່ໄດ້ສຸມໃສ່',
   'ide.chat.soundMode.always': 'ສະເໝີ',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'ຕອບກັບສຳເລັດແລ້ວ',
   'ide.chat.soundEvent.error': 'ຜິດພາດ',
   'ide.chat.soundEvent.tool_result': 'ເຄື່ອງມືສຳເລັດແລ້ວ',
@@ -202,6 +203,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'ຮອດຂີດຈຳກັດວົງວຽນແລ້ວ',
   'ide.chat.soundEvent.verification_result': 'ຜົນການຢັ້ງຢືນ',
   'ide.chat.soundEvent.preview_error': 'ຄວາມຜິດພາດໃນການສະແດງຕົວຢ່າງ',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} ຕອບສະໜອງສຳເລັດແລ້ວ',
   'ide.chat.soundEventDesc.error': 'ມີບາງຢ່າງຜິດພາດໃນລະຫວ່າງການຕອບກັບ',
   'ide.chat.soundEventDesc.tool_result':

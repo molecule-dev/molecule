@@ -195,6 +195,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'i ffwrdd',
   'ide.chat.soundMode.whenNotFocused': "pan nad yw'n canolbwyntio",
   'ide.chat.soundMode.always': 'bob amser',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': "Ymateb wedi'i gwblhau",
   'ide.chat.soundEvent.error': 'Gwall',
   'ide.chat.soundEvent.tool_result': "Offeryn wedi'i orffen",
@@ -204,6 +205,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': "Terfyn y ddolen wedi'i gyrraedd",
   'ide.chat.soundEvent.verification_result': 'Canlyniad dilysu',
   'ide.chat.soundEvent.preview_error': 'Gwall rhagolwg',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Gorffennodd {{agentName}} ymateb',
   'ide.chat.soundEventDesc.error': "Aeth rhywbeth o'i le yn ystod ymateb",
   'ide.chat.soundEventDesc.tool_result':

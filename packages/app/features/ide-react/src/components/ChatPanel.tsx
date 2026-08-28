@@ -272,6 +272,13 @@ interface FilePicker {
 
 interface CommandMenu {
   selectedIdx: number
+  /**
+   * Opened via the slash BUTTON with text already in the composer: list every
+   * runnable command instead of filtering by the composer text (which the
+   * toggle deliberately leaves untouched). Cleared the moment typing re-derives
+   * the menu from the input.
+   */
+  showAll?: boolean
 }
 
 interface ConversationSummary {
@@ -533,6 +540,7 @@ type SoundMode = 'off' | 'whenNotFocused' | 'always'
 
 /** All stream event types that can trigger a notification sound. */
 const SOUND_EVENTS = [
+  'message',
   'done',
   'error',
   'tool_result',
@@ -548,6 +556,7 @@ type SoundEventType = (typeof SOUND_EVENTS)[number]
 
 /** User-friendly labels for each sound event (used as i18n defaultValues). */
 const SOUND_EVENT_LABELS: Record<SoundEventType, string> = {
+  message: 'Team message',
   done: 'Response complete',
   error: 'Error',
   tool_result: 'Tool finished',
@@ -561,6 +570,7 @@ const SOUND_EVENT_LABELS: Record<SoundEventType, string> = {
 
 /** Brief descriptions for each sound event. */
 const SOUND_EVENT_DESCRIPTIONS: Record<SoundEventType, string> = {
+  message: 'A teammate posted a team-only note',
   done: '{{agentName}} finished responding',
   error: 'Something went wrong during a response',
   tool_result: 'A tool call (file read, command, etc.) completed',
@@ -582,7 +592,11 @@ const SOUND_MODE_LABELS: Record<SoundMode, string> = {
 
 type SoundsConfig = Record<SoundEventType, SoundMode>
 
+/** Per-device sounds preference (see the soundsConfig state comment). */
+const SOUNDS_STORAGE_KEY = 'molecule.ide.sounds'
+
 const DEFAULT_SOUNDS_CONFIG: SoundsConfig = {
+  message: 'always',
   done: 'whenNotFocused',
   error: 'whenNotFocused',
   tool_result: 'off',
@@ -2760,7 +2774,10 @@ function ChatInner({
       // still drives the phase STATE (useChat's setMode); it just no longer spawns a card.
       const cfg = soundsConfigRef.current
       const eventType = event.type as SoundEventType
-      if (eventType in cfg && shouldPlaySound(cfg[eventType])) {
+      // 'message' is the team-note ping: it fires only for a TEAMMATE's note
+      // (the pushed broadcast) — never for the sender's own SSE echo.
+      const isOwnTeamNote = event.type === 'message' && !applyingPushedRef.current
+      if (!isOwnTeamNote && eventType in cfg && shouldPlaySound(cfg[eventType])) {
         playTone()
       }
     },
@@ -3913,7 +3930,28 @@ function ChatInner({
 
   // ── Sounds picker (shown when /sounds is executed) ────────────────────────
   const [soundsPicker, setSoundsPicker] = useState<SoundsPicker | null>(null)
-  const [soundsConfig, setSoundsConfig] = useState<SoundsConfig>({ ...DEFAULT_SOUNDS_CONFIG })
+  // Notification sounds are a PER-DEVICE, per-user preference — localStorage,
+  // never project settings. They used to persist via PATCH /projects settings
+  // (shared with every member, and unreachable for read-only viewers, whose
+  // PATCH 403s); the old project-level value is still read once as a migration
+  // fallback when this device has no local preference yet.
+  const [soundsConfig, setSoundsConfig] = useState<SoundsConfig>(() => {
+    try {
+      const raw = localStorage.getItem(SOUNDS_STORAGE_KEY)
+      if (raw) return { ...DEFAULT_SOUNDS_CONFIG, ...(JSON.parse(raw) as Partial<SoundsConfig>) }
+    } catch (_error) {
+      // localStorage unavailable / bad JSON — fall through to the defaults.
+    }
+    return { ...DEFAULT_SOUNDS_CONFIG }
+  })
+  const soundsLocallySetRef = useRef(false)
+  useEffect(() => {
+    try {
+      soundsLocallySetRef.current = localStorage.getItem(SOUNDS_STORAGE_KEY) != null
+    } catch (_error) {
+      // localStorage unavailable — treat as unset; the project fallback may apply.
+    }
+  }, [])
 
   // ── Panel overlay (/skills, /scripts, /settings — closeable popups) ──────────
   // These three commands open a closeable overlay above the composer (mirrors how
@@ -3957,18 +3995,16 @@ function ChatInner({
         updated = { ...soundsConfig, [eventType]: next }
       }
       setSoundsConfig(updated)
+      // Per-device preference — localStorage, never a project PATCH (see the
+      // state's comment; this also makes /sounds fully usable for viewers).
       try {
-        await http.patch(`/projects/${projectId}`, { settings: { sounds: updated } })
-      } catch (error) {
-        logger.warn('Failed to persist sound settings to server', { error })
-        addSystemCard(
-          t('ide.chat.soundsError', undefined, {
-            defaultValue: 'Failed to update sound settings.',
-          }),
-        )
+        localStorage.setItem(SOUNDS_STORAGE_KEY, JSON.stringify(updated))
+        soundsLocallySetRef.current = true
+      } catch (_error) {
+        // localStorage unavailable — the choice still applies for this session.
       }
     },
-    [soundsConfig, http, projectId, addSystemCard],
+    [soundsConfig],
   )
 
   // ── Current project settings (model + maxloops + sounds) ──────────────────
@@ -4098,7 +4134,9 @@ function ChatInner({
         if (typeof s?.autoApproveCommands === 'boolean') {
           setAutoApproveCommandsEnabled(s.autoApproveCommands)
         }
-        if (s?.sounds && typeof s.sounds === 'object') {
+        // Legacy migration only: sounds are per-device (localStorage) now — apply
+        // the old project-level value only when this device has no local pref.
+        if (s?.sounds && typeof s.sounds === 'object' && !soundsLocallySetRef.current) {
           setSoundsConfig((prev) => ({ ...prev, ...(s.sounds as Partial<SoundsConfig>) }))
         }
         // Restore the persisted auto-commit cadence in the paused state (it
@@ -6305,7 +6343,9 @@ function ChatInner({
   const filteredCmds = commandMenu
     ? allCommands.filter(
         (c) =>
-          c.label.startsWith(inputRef.current as string) &&
+          // A showAll menu (slash-button toggle over existing text) lists every
+          // command; a typed menu filters by the composer's text.
+          (commandMenu.showAll === true || c.label.startsWith(inputRef.current as string)) &&
           // Viewers see only commands they can actually run (viewer-safe reads +
           // the /teamsay side channel) — no dead entries in the menu.
           (canEdit !== false || c.viewerSafe === true || c.sideChannel === true),
@@ -6699,22 +6739,29 @@ function ChatInner({
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         setCommandMenu((m) =>
-          m ? { selectedIdx: wrapIdx(m.selectedIdx, 1, filteredCmds.length) } : null,
+          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, 1, filteredCmds.length) } : null,
         )
         return
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault()
         setCommandMenu((m) =>
-          m ? { selectedIdx: wrapIdx(m.selectedIdx, -1, filteredCmds.length) } : null,
+          m ? { ...m, selectedIdx: wrapIdx(m.selectedIdx, -1, filteredCmds.length) } : null,
         )
         return
       }
       if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault()
-        const cmd = filteredCmds[commandMenu.selectedIdx >= 0 ? commandMenu.selectedIdx : 0]
-        if (cmd) void executeCommand(cmd.id)
-        return
+        // A showAll menu (opened by the slash BUTTON over existing text) only
+        // executes an explicitly highlighted command — a bare Enter closes it
+        // and falls through to submit the composer text as typed.
+        if (commandMenu.showAll && commandMenu.selectedIdx < 0 && e.key === 'Enter') {
+          setCommandMenu(null)
+        } else {
+          e.preventDefault()
+          const cmd = filteredCmds[commandMenu.selectedIdx >= 0 ? commandMenu.selectedIdx : 0]
+          if (cmd) void executeCommand(cmd.id)
+          return
+        }
       }
     }
 
@@ -10388,29 +10435,30 @@ function ChatInner({
                     defaultValue: 'Slash commands',
                   }),
                   onClick: () => {
-                    const cur = inputRef.current as string
-                    if (cur === '/') {
-                      // Toggle off — remove the slash this button added
-                      setInputValue('')
-                      autoResize()
+                    // TOGGLE the menu regardless of the composer's current text —
+                    // never clobbering it. With text present the menu opens in
+                    // showAll mode (every command listed; picking one replaces the
+                    // input via executeCommand's prefill). An empty box still gets
+                    // the type-ahead '/' so filtering-by-typing works as before.
+                    if (commandMenu) {
                       setCommandMenu(null)
+                      if ((inputRef.current as string) === '/') {
+                        // Remove the slash this button added on open.
+                        setInputValue('')
+                        autoResize()
+                      }
                       setTimeout(() => {
                         textareaRef.current?.focus()
                       }, 0)
-                    } else if (!cur) {
-                      // Cursor lands AFTER the slash so the user can type the
-                      // command immediately (or backspace to remove it).
-                      // Popups are one-at-a-time — close siblings first.
-                      setMicPicker(null)
-                      setModelPicker(null)
-                      setSoundsPicker(null)
-                      setInputAndCursorEnd('/')
-                      setCommandMenu({ selectedIdx: -1 })
-                    } else {
-                      setTimeout(() => {
-                        textareaRef.current?.focus()
-                      }, 0)
+                      return
                     }
+                    // Popups are one-at-a-time — close siblings first.
+                    setMicPicker(null)
+                    setModelPicker(null)
+                    setSoundsPicker(null)
+                    const cur = inputRef.current as string
+                    if (!cur) setInputAndCursorEnd('/')
+                    setCommandMenu({ selectedIdx: -1, showAll: cur !== '' && cur !== '/' })
                   },
                 },
               ] as const

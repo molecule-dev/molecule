@@ -223,7 +223,14 @@ export const COMMANDS: readonly CommandDef[] = [
     // disabled), so opening it to look is fine.
     viewerSafe: true,
   },
-  { id: 'sounds', label: '/sounds', description: 'Notification sounds', category: 'settings' },
+  {
+    id: 'sounds',
+    label: '/sounds',
+    description: 'Notification sounds',
+    category: 'settings',
+    // Per-user, per-device preference (localStorage) — nothing project-shared.
+    viewerSafe: true,
+  },
   {
     id: 'mic',
     label: '/mic',

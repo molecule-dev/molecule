@@ -199,6 +199,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'av',
   'ide.chat.soundMode.whenNotFocused': 'när man inte är fokuserad',
   'ide.chat.soundMode.always': 'alltid',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Svar klart',
   'ide.chat.soundEvent.error': 'Fel',
   'ide.chat.soundEvent.tool_result': 'Verktyget är klart',
@@ -208,6 +209,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Loopgränsen nådd',
   'ide.chat.soundEvent.verification_result': 'Verifieringsresultat',
   'ide.chat.soundEvent.preview_error': 'Förhandsgranskningsfel',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} har slutat svara',
   'ide.chat.soundEventDesc.error': 'Något gick fel under ett svar',
   'ide.chat.soundEventDesc.tool_result':

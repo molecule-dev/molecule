@@ -197,6 +197,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'kuvaliwe',
   'ide.chat.soundMode.whenNotFocused': 'uma kungagxilile',
   'ide.chat.soundMode.always': 'njalo',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Impendulo iqediwe',
   'ide.chat.soundEvent.error': 'Iphutha',
   'ide.chat.soundEvent.tool_result': 'Ithuluzi seliqediwe',
@@ -206,6 +207,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Umkhawulo we-loop ufinyelelwe',
   'ide.chat.soundEvent.verification_result': 'Umphumela wokuqinisekisa',
   'ide.chat.soundEvent.preview_error': 'Iphutha lokubuka kuqala',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'I-{{agentName}} iqedile ukuphendula',
   'ide.chat.soundEventDesc.error': 'Kukhona okungahambanga kahle ngesikhathi sempendulo',
   'ide.chat.soundEventDesc.tool_result':

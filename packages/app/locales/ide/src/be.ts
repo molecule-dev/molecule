@@ -84,6 +84,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.soundMode.whenNotFocused': 'калі не ў фокусе',
   'ide.chat.soundMode.always': 'заўсёды',
   'ide.chat.soundMode.mixed': 'змешаны',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Адказ завершаны',
   'ide.chat.soundEvent.error': 'Памылка',
   'ide.chat.soundEvent.tool_result': 'Інструмент завершаны',
@@ -93,6 +94,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Дасягнуты ліміт цыклаў',
   'ide.chat.soundEvent.verification_result': 'Вынік праверкі',
   'ide.chat.soundEvent.preview_error': 'Памылка прагляду',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} скончыў адказваць',
   'ide.chat.soundEventDesc.error': 'Нешта пайшло не так падчас адказу',
   'ide.chat.soundEventDesc.tool_result':

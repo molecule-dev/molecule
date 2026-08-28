@@ -202,6 +202,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'uit',
   'ide.chat.soundMode.whenNotFocused': 'wanneer niet geconcentreerd',
   'ide.chat.soundMode.always': 'altijd',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Reactie compleet',
   'ide.chat.soundEvent.error': 'Fout',
   'ide.chat.soundEvent.tool_result': 'Gereedschap afgewerkt',
@@ -211,6 +212,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Luslimiet bereikt',
   'ide.chat.soundEvent.verification_result': 'Verificatieresultaat',
   'ide.chat.soundEvent.preview_error': 'Voorbeeldfout',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} reageerde niet meer',
   'ide.chat.soundEventDesc.error': 'Er is iets misgegaan tijdens een reactie.',
   'ide.chat.soundEventDesc.tool_result':

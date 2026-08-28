@@ -195,6 +195,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'išjungtas',
   'ide.chat.soundMode.whenNotFocused': 'kai nesutelktas',
   'ide.chat.soundMode.always': 'visada',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Atsakymas baigtas',
   'ide.chat.soundEvent.error': 'Klaida',
   'ide.chat.soundEvent.tool_result': 'Įrankis baigtas',
@@ -204,6 +205,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Pasiekta ciklo riba',
   'ide.chat.soundEvent.verification_result': 'Patvirtinimo rezultatas',
   'ide.chat.soundEvent.preview_error': 'Peržiūros klaida',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Sintezė baigė atsakyti',
   'ide.chat.soundEventDesc.error': 'Atsakymo metu kažkas nepavyko',
   'ide.chat.soundEventDesc.tool_result':

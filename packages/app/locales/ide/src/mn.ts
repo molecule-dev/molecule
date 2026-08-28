@@ -195,6 +195,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'унтраалттай',
   'ide.chat.soundMode.whenNotFocused': 'анхаарлаа төвлөрүүлээгүй үед',
   'ide.chat.soundMode.always': 'үргэлж',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Хариулт дууссан',
   'ide.chat.soundEvent.error': 'Алдаа',
   'ide.chat.soundEvent.tool_result': 'Багаж дууссан',
@@ -204,6 +205,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Давталтын хязгаарт хүрсэн',
   'ide.chat.soundEvent.verification_result': 'Баталгаажуулалтын үр дүн',
   'ide.chat.soundEvent.preview_error': 'Урьдчилан харах алдаа',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Синтез хариу өгч дууслаа',
   'ide.chat.soundEventDesc.error': 'Хариу өгөх явцад ямар нэгэн алдаа гарлаа',
   'ide.chat.soundEventDesc.tool_result':

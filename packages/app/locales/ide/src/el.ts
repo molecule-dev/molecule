@@ -199,6 +199,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'μακριά από',
   'ide.chat.soundMode.whenNotFocused': 'όταν δεν είναι συγκεντρωμένος',
   'ide.chat.soundMode.always': 'πάντοτε',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Η απάντηση ολοκληρώθηκε',
   'ide.chat.soundEvent.error': 'Σφάλμα',
   'ide.chat.soundEvent.tool_result': 'Το εργαλείο ολοκληρώθηκε',
@@ -208,6 +209,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Συμπληρώθηκε το όριο του βρόχου',
   'ide.chat.soundEvent.verification_result': 'Αποτέλεσμα επαλήθευσης',
   'ide.chat.soundEvent.preview_error': 'Σφάλμα προεπισκόπησης',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Η συνθετάση ολοκλήρωσε την απόκριση',
   'ide.chat.soundEventDesc.error': 'Κάτι πήγε στραβά κατά τη διάρκεια μιας απάντησης',
   'ide.chat.soundEventDesc.tool_result':

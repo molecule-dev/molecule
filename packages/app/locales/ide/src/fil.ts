@@ -195,6 +195,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'patay',
   'ide.chat.soundMode.whenNotFocused': 'kapag hindi nakatutok',
   'ide.chat.soundMode.always': 'palagi',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Kumpleto na ang tugon',
   'ide.chat.soundEvent.error': 'Mali',
   'ide.chat.soundEvent.tool_result': 'Tapos na ang kagamitan',
@@ -204,6 +205,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Naabot na ang limitasyon sa pag-ikot',
   'ide.chat.soundEvent.verification_result': 'Resulta ng pag-verify',
   'ide.chat.soundEvent.preview_error': 'Error sa pag-preview',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Natapos na ang pagtugon ng synthase',
   'ide.chat.soundEventDesc.error': 'May nangyaring mali habang tumutugon',
   'ide.chat.soundEventDesc.tool_result':

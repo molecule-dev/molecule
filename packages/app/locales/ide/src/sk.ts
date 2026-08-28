@@ -195,6 +195,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.soundMode.off': 'vypnuté',
   'ide.chat.soundMode.whenNotFocused': 'keď nie je sústredený',
   'ide.chat.soundMode.always': 'vždy',
+  'ide.chat.soundEvent.message': 'Team message',
   'ide.chat.soundEvent.done': 'Odpoveď dokončená',
   'ide.chat.soundEvent.error': 'Chyba',
   'ide.chat.soundEvent.tool_result': 'Nástroj hotový',
@@ -204,6 +205,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.loop_limit_reached': 'Dosiahnutý limit slučiek',
   'ide.chat.soundEvent.verification_result': 'Výsledok overenia',
   'ide.chat.soundEvent.preview_error': 'Chyba ukážky',
+  'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': 'Syntáza dokončila reakciu',
   'ide.chat.soundEventDesc.error': 'Počas odpovede sa niečo pokazilo',
   'ide.chat.soundEventDesc.tool_result':
