@@ -1397,6 +1397,16 @@ export function PreviewPanel({
   // stop. Origin-Agent-Cluster isolation keeps that freeze off the IDE's thread, so
   // the IDE can notice the silence and offer a reload — a frozen frame can't recover
   // on its own. Auto-clears if heartbeats resume (transient jank, not a hard lock).
+  //
+  // VISIBILITY-AWARE, deliberately: in a hidden tab the browser throttles BOTH
+  // sides — the iframe's heartbeats stop being delivered AND this interval only
+  // wakes about once a minute — so every throttle wake used to read as an
+  // 18–58s "freeze": the banner popped and the frozen report (with its alert
+  // tone) fired once per minute for as long as the tab stayed backgrounded
+  // (observed live 2026-08-29; forensics showed heap flat + thread idle, i.e.
+  // pure throttling, no real freeze). A hidden tab renders nothing, so there is
+  // nothing to accuse: skip checks while hidden and re-baseline on return to
+  // the foreground so the hidden gap can never count against the app.
   useEffect(() => {
     if (!iframeReady || fadingOut || !state.url) {
       setPreviewFrozen(false)
@@ -1405,9 +1415,21 @@ export function PreviewPanel({
     // Baseline so a stale value from a prior load can't trip us immediately.
     lastHeartbeatRef.current = Date.now()
     const timer = setInterval(() => {
+      if (document.visibilityState === 'hidden') return
       setPreviewFrozen(Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS)
     }, FREEZE_CHECK_INTERVAL_MS)
-    return () => clearInterval(timer)
+    const onVisibility = (): void => {
+      if (document.visibilityState !== 'visible') return
+      // Fresh grace window: heartbeats resume with the foreground; the gap that
+      // accumulated while hidden was throttling, not the app.
+      lastHeartbeatRef.current = Date.now()
+      setPreviewFrozen(false)
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [iframeReady, fadingOut, state.url])
 
   // --- Freeze → host report ---
