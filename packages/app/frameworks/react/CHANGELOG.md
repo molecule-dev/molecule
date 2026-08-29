@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.3.1
+
+### Patch Changes
+
+- 77b62e0: Chat broadcasts missed while the push channel was down (e.g. a teammate's note against a backgrounded tab) are reconciled from the persisted transcript when the channel reconnects.
+
 ## 1.3.0
 
 ### Minor Changes
