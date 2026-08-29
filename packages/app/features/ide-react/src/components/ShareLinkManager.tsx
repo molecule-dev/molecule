@@ -65,6 +65,7 @@ export function ShareLinkManager({
   canRevoke = canManage,
   roles = [DEFAULT_SHARE_ROLE],
   initialRole = DEFAULT_SHARE_ROLE,
+  refreshSignal,
   onCreated,
   onRevoked,
 }: {
@@ -91,6 +92,12 @@ export function ShareLinkManager({
   roles?: readonly ShareRole[]
   /** Role pre-selected in the create control when more than one is offered. */
   initialRole?: ShareRole
+  /**
+   * Bump to reload the link list — the host wires its live-update channel here
+   * (e.g. a broadcast that another member created/revoked a link) so an open
+   * panel reflects changes made elsewhere without a remount.
+   */
+  refreshSignal?: number
   /** Called after a link is created, with the created link. */
   onCreated?: (result: ShareLinkResult) => void
   /** Called after a link is revoked, with the revoked link's id. */
@@ -151,7 +158,7 @@ export function ShareLinkManager({
 
   useEffect(() => {
     void loadLinks()
-  }, [loadLinks])
+  }, [loadLinks, refreshSignal])
 
   const handleCreate = useCallback(async () => {
     if (creating) return

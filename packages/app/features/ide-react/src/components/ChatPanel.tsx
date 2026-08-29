@@ -4212,10 +4212,13 @@ function ChatInner({
       })
   }, [http, projectId])
 
-  // Re-read ONLY the persisted model fields when the host signals a model change
-  // (the provider modal's "Use" button sets chatModel server-side). Targeted so
-  // a model pick never re-hydrates the rest of the settings (auto-commit,
-  // skills, effort). Skips the initial 0 value — mount already read them.
+  // Re-read the persisted agent-behavior settings when the host signals a
+  // settings change: the provider modal's "Use" button, or a resource_change
+  // broadcast saying ANOTHER member changed the project (model/effort/regions/
+  // max-loops/auto-fix/auto-approve) — so this browser's pickers and toggles
+  // match the change instead of rendering stale values under the shared setting
+  // card. Deliberately does NOT touch auto-commit or skills (they carry local
+  // in-session state the mount effect owns). Skips the initial 0 value.
   useEffect(() => {
     if (!modelSelectionSignal) return
     http
@@ -4228,10 +4231,41 @@ function ChatInner({
         }
         if (typeof s?.planModel === 'string') setPlanModel(s.planModel)
         if (typeof s?.executeModel === 'string') setExecuteModel(s.executeModel)
+        if (typeof s?.commitModel === 'string') setCommitModel(s.commitModel)
+        if (typeof s?.compactModel === 'string') setCompactModel(s.compactModel)
+        if (typeof s?.effortLevel === 'string' && s.effortLevel) setEffortLevel(s.effortLevel)
+        if (
+          s?.effortByMode &&
+          typeof s.effortByMode === 'object' &&
+          !Array.isArray(s.effortByMode)
+        ) {
+          const next: Partial<Record<EffortMode, EffortLevel>> = {}
+          for (const m of ['plan', 'execute'] as const) {
+            const raw = (s.effortByMode as Record<string, unknown>)[m]
+            if (typeof raw === 'string' && raw) next[m] = raw
+          }
+          setEffortByMode(next)
+        }
+        if (
+          s?.modelRegions &&
+          typeof s.modelRegions === 'object' &&
+          !Array.isArray(s.modelRegions)
+        ) {
+          const nextRegions: Record<string, ModelRegion> = {}
+          for (const [id, raw] of Object.entries(s.modelRegions as Record<string, unknown>)) {
+            if (typeof raw === 'string' && raw in MODEL_REGION_META) nextRegions[id] = raw
+          }
+          setModelRegions(nextRegions)
+        }
+        if (typeof s?.maxToolLoops === 'number') setCurrentMaxLoops(s.maxToolLoops)
+        if (typeof s?.autoFix === 'boolean') setAutoFixEnabled(s.autoFix)
+        if (typeof s?.autoApproveCommands === 'boolean') {
+          setAutoApproveCommandsEnabled(s.autoApproveCommands)
+        }
       })
       .catch(() => {
-        // Non-fatal: the model was persisted server-side; the picker indicator
-        // just won't refresh until the next full settings read.
+        // Non-fatal: the change was persisted server-side; this view just won't
+        // refresh until the next signal or full settings read.
       })
   }, [modelSelectionSignal, http, projectId])
 
