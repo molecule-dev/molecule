@@ -581,4 +581,5 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Hætta við',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ þarfnast valkosta — opnaði /scripts svo þú getir stillt þá og Keyrt.',
+  'ide.chat.settings.effort.label': 'Rökhugsunaráreynsla',
 }

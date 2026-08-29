@@ -605,4 +605,5 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Abbrechen',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ benötigt Optionen — /scripts geöffnet, damit du sie festlegen und Ausführen kannst.',
+  'ide.chat.settings.effort.label': 'Aufwand für die Argumentation',
 }

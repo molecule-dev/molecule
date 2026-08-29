@@ -593,4 +593,5 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Anulați',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}” necesită opțiuni — am deschis /scripts ca să le setați și să Rulați.',
+  'ide.chat.settings.effort.label': 'Efortul de raționament',
 }

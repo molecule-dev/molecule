@@ -585,4 +585,5 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'റദ്ദാക്കുക',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ന് ഓപ്ഷനുകൾ ആവശ്യമാണ് — അവ സജ്ജീകരിച്ച് റൺ ചെയ്യാൻ /scripts തുറന്നു.',
+  'ide.chat.settings.effort.label': 'യുക്തിസഹമായ ശ്രമം',
 }

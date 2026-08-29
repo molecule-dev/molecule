@@ -580,4 +580,5 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'لغو',
   'ide.chat.scripts.runNeedsOptions':
     '‏«{{name}}» به گزینه‌ها نیاز دارد — ‎/scripts باز شد تا آن‌ها را تنظیم کنید و اجرا نمایید.',
+  'ide.chat.settings.effort.label': 'تلاش استدلالی',
 }

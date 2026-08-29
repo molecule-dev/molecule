@@ -579,4 +579,5 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'रद्द गर्नुहोस्',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” लाई विकल्पहरू चाहिन्छ — तिनीहरू सेट गरेर चलाउन /scripts खोलियो।',
+  'ide.chat.settings.effort.label': 'तर्क प्रयास',
 }

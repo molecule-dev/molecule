@@ -581,4 +581,5 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Canslo',
   'ide.chat.scripts.runNeedsOptions':
     'Mae angen opsiynau ar “{{name}}” — agorwyd /scripts er mwyn i chi eu gosod a Rhedeg.',
+  'ide.chat.settings.effort.label': 'Ymdrech rhesymu',
 }

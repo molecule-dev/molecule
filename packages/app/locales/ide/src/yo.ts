@@ -616,4 +616,5 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Fagi l\\u00E9',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” nílò àwọn àṣàyàn — ṣí /scripts kí o lè ṣètò wọn kí o sì Ṣiṣẹ́.',
+  'ide.chat.settings.effort.label': 'Ìsapá ìrònú',
 }

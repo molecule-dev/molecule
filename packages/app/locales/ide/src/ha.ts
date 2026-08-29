@@ -584,4 +584,5 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Soke',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” yana buƙatar zaɓuɓɓuka — an buɗe /scripts don ka saita su ka Gudanar.',
+  'ide.chat.settings.effort.label': 'Kokarin tunani',
 }

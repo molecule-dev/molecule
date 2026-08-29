@@ -579,4 +579,5 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Kagbuo',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” chọrọ nhọrọ — emeghere /scripts ka ị hazie ha ma Gbaa.',
+  'ide.chat.settings.effort.label': 'Mgbalị iche echiche',
 }

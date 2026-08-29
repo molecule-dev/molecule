@@ -575,4 +575,5 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'לְבַטֵל',
   'ide.chat.scripts.runNeedsOptions':
     '‏“{{name}}” דורש אפשרויות — נפתח ‎/scripts כדי שתגדיר אותן ותריץ.',
+  'ide.chat.settings.effort.label': 'מאמץ חשיבה',
 }

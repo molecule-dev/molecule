@@ -600,4 +600,5 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Annulla',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» richiede opzioni — ho aperto /scripts così puoi impostarle ed Eseguire.',
+  'ide.chat.settings.effort.label': 'Sforzo di ragionamento',
 }

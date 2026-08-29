@@ -591,4 +591,5 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Zrušiť',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ vyžaduje voľby — otvoril som /scripts, aby ste ich nastavili a Spustili.',
+  'ide.chat.settings.effort.label': 'Úsilie zamerané na logické uvažovanie',
 }

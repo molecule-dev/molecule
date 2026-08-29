@@ -581,4 +581,5 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'ਰੱਦ ਕਰੋ',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ਨੂੰ ਵਿਕਲਪਾਂ ਦੀ ਲੋੜ ਹੈ — /scripts ਖੋਲ੍ਹਿਆ ਤਾਂ ਜੋ ਤੁਸੀਂ ਉਹਨਾਂ ਨੂੰ ਸੈੱਟ ਕਰਕੇ ਚਲਾ ਸਕੋ।',
+  'ide.chat.settings.effort.label': 'ਤਰਕ ਦੀ ਕੋਸ਼ਿਸ਼',
 }

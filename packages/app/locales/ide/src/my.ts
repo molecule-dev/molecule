@@ -588,4 +588,5 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'ပယ်ဖျက်ရန်',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” တွင် ရွေးချယ်စရာများ လိုအပ်သည် — ၎င်းတို့ကို သတ်မှတ်ပြီး ဖွင့်နိုင်ရန် /scripts ကို ဖွင့်ထားသည်။',
+  'ide.chat.settings.effort.label': 'ကျိုးကြောင်းဆင်ခြင်အားထုတ်မှု',
 }

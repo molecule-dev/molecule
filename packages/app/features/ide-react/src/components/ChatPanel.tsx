@@ -91,8 +91,9 @@ import {
 } from './chat-commands.js'
 import { stripCommitCoauthorTrailer } from './chat-commit-utilities.js'
 import { cachedPromptTokens, formatTokenTotal } from './chat-cost-utilities.js'
-import type { EffortLevel, EffortMode } from './chat-effort-utilities.js'
+import type { EffortLevel, EffortMode, EffortOption } from './chat-effort-utilities.js'
 import {
+  defaultEffortForModel,
   effortOptionsForModel,
   nativeEffortName,
   parseEffortCommand,
@@ -529,6 +530,22 @@ interface ModelPicker {
    * preselect it.
    */
   mode?: ModelMode
+}
+
+/**
+ * The `/effort` level picker — a selectable list of the target mode's model's
+ * own effort levels (mirrors how bare `/model` opens the model picker).
+ */
+interface EffortPicker {
+  selectedIdx: number
+  /**
+   * The mode being edited — a selection persists to `effortByMode[mode]`.
+   * Opens scoped to the live conversation mode (or the `--plan` / `--execute`
+   * flag); the picker's own mode dropdown re-scopes it in place, and the
+   * listed levels follow that mode's MODEL (plan and execute can run models
+   * with entirely different native effort scales).
+   */
+  mode: EffortMode
 }
 
 // ---------------------------------------------------------------------------
@@ -3412,6 +3429,7 @@ function ChatInner({
         setIsListening(false)
         setCommandMenu(null)
         setModelPicker(null)
+        setEffortPicker(null)
         setSoundsPicker(null)
         setFilePicker(null)
         setPanelOverlay(null)
@@ -3621,6 +3639,7 @@ function ChatInner({
       // Popups are one-at-a-time — close any sibling before opening the picker
       setCommandMenu(null)
       setModelPicker(null)
+      setEffortPicker(null)
       setSoundsPicker(null)
       setFilePicker(null)
       setPanelOverlay(null)
@@ -3668,6 +3687,7 @@ function ChatInner({
 
   // ── Model picker (shown when typing /model <filter>) ──────────────────────
   const [modelPicker, setModelPicker] = useState<ModelPicker | null>(null)
+  const [effortPicker, setEffortPicker] = useState<EffortPicker | null>(null)
 
   // ── System cards (persistent inline notifications in chat history) ────────
   const [systemCards, setSystemCards] = useState<SystemCard[]>([])
@@ -4037,6 +4057,7 @@ function ChatInner({
       // Close any sibling popup so overlays never stack (matches how the model
       // picker / sounds picker each own this region exclusively).
       setModelPicker(null)
+      setEffortPicker(null)
       setSoundsPicker(null)
       setCommandMenu(null)
       setPanelOverlayQuery(query)
@@ -5284,6 +5305,24 @@ function ChatInner({
       }
       setModelPicker(null)
 
+      // Show the effort picker while typing "/effort ..." — same live behavior
+      // as /model. Text after the command (minus the --plan/--execute flag)
+      // filters the level list; "?" keeps the textual status path instead. A
+      // dropdown-chosen mode survives further keystrokes unless a flag names one.
+      if (/^\/effort\s/i.test(val)) {
+        const typed = parseEffortCommand(val)
+        if (typed && (typed.kind === 'menu' || (typed.kind === 'set' && typed.arg !== '?'))) {
+          const typedMode = typed.mode
+          setEffortPicker((p) => ({
+            selectedIdx: -1,
+            mode: typedMode ?? p?.mode ?? liveModelMode,
+          }))
+          setCommandMenu(null)
+          return
+        }
+      }
+      setEffortPicker(null)
+
       if (val.startsWith('/') && !val.includes(' ')) {
         setCommandMenu({ selectedIdx: -1 })
       } else {
@@ -5410,6 +5449,40 @@ function ChatInner({
     [http, projectId, modelRegions],
   )
 
+  // Persist a mode's reasoning effort (used by both the /effort <level> typed
+  // path and the effort picker). Shallow-merge on the server means we send the
+  // WHOLE effortByMode map, not just the changed entry.
+  const applyEffortLevel = useCallback(
+    async (targetMode: EffortMode, level: EffortLevel, targetModel?: AppModelDefinition) => {
+      setEffortPicker(null)
+      setInputValue('')
+      try {
+        const nextByMode = { ...effortByMode, [targetMode]: level }
+        await http.patch(settingsPatchUrl(), { settings: { effortByMode: nextByMode } })
+        setEffortByMode(nextByMode)
+        addSystemCard(
+          t(
+            'ide.chat.effort.setMode',
+            {
+              mode: targetMode,
+              level: nativeEffortName(targetModel, level) ?? level,
+              model: targetModel?.label ?? '?',
+            },
+            { defaultValue: 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).' },
+          ),
+        )
+      } catch (error) {
+        logger.warn('Failed to update reasoning effort level', { error })
+        addSystemCard(
+          t('ide.chat.effort.error', undefined, {
+            defaultValue: 'Failed to update reasoning effort.',
+          }),
+        )
+      }
+    },
+    [http, effortByMode, settingsPatchUrl, addSystemCard],
+  )
+
   // The shared command registry UNION any host-provided commands (e.g.
   // molecule.dev's /deploy, /push, /invite, /teamsay), so the menu, grouping,
   // and dispatch all see one list and host commands never go missing. Declared
@@ -5426,11 +5499,12 @@ function ChatInner({
   const executeCommand = useCallback(
     async (id: CommandId) => {
       setCommandMenu(null)
-      // Any command closes every sibling popup (panel overlay, model/sounds/mic
-      // pickers) so popups are strictly one-at-a-time — the branches below
-      // re-open their own.
+      // Any command closes every sibling popup (panel overlay, model/effort/
+      // sounds/mic pickers) so popups are strictly one-at-a-time — the branches
+      // below re-open their own.
       setPanelOverlay(null)
       setModelPicker(null)
+      setEffortPicker(null)
       setSoundsPicker(null)
       setMicPicker(null)
       // Host-provided commands (e.g. molecule.dev's /deploy, /push, /invite,
@@ -5474,8 +5548,10 @@ function ChatInner({
       } else if (id === 'maxloops') {
         setInputAndCursorEnd('/maxloops ')
       } else if (id === 'effort') {
-        // Prefill so the user types a level; /effort ? (or bare) shows status.
-        setInputAndCursorEnd('/effort ')
+        // Open the selectable level picker (mirrors /model) scoped to the live
+        // conversation mode; its mode dropdown re-scopes in place.
+        setInputValue('')
+        setEffortPicker({ selectedIdx: -1, mode: liveModelMode })
       } else if (id === 'autocommit') {
         // Prefill so the user types the cadence (seconds); 0 cancels.
         setInputAndCursorEnd('/autocommit ')
@@ -6089,6 +6165,7 @@ function ChatInner({
       setPanelOverlay(null)
       setCommandMenu(null)
       setModelPicker(null)
+      setEffortPicker(null)
       setSoundsPicker(null)
       setMicPicker({ autoStart: false })
       return
@@ -6148,6 +6225,18 @@ function ChatInner({
     const effortCmd = parseEffortCommand(trimmed)
     if (effortCmd) {
       setInputValue('')
+      // Bare /effort (or a bare --plan/--execute flag) opens the selectable
+      // level picker — same interaction as bare /model. The picker lists the
+      // target mode's model's own levels; its mode dropdown re-scopes in place.
+      if (effortCmd.kind === 'menu') {
+        setPanelOverlay(null)
+        setCommandMenu(null)
+        setModelPicker(null)
+        setSoundsPicker(null)
+        setMicPicker(null)
+        setEffortPicker({ selectedIdx: -1, mode: effortCmd.mode ?? liveModelMode })
+        return
+      }
       // Resolve the model a given mode will actually use — mirrors the /model
       // picker + slash-suffix resolveModeModel logic (P2-10: each mode's
       // options come from ITS model's reasoning capabilities).
@@ -6230,29 +6319,7 @@ function ChatInner({
           )
           return
         }
-        try {
-          const nextByMode = { ...effortByMode, [targetMode]: level }
-          await http.patch(settingsPatchUrl(), { settings: { effortByMode: nextByMode } })
-          setEffortByMode(nextByMode)
-          addSystemCard(
-            t(
-              'ide.chat.effort.setMode',
-              {
-                mode: targetMode,
-                level: nativeEffortName(targetModel, level) ?? effortCmd.arg,
-                model: targetModelLabel,
-              },
-              { defaultValue: 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).' },
-            ),
-          )
-        } catch (error) {
-          logger.warn('Failed to update reasoning effort level', { error })
-          addSystemCard(
-            t('ide.chat.effort.error', undefined, {
-              defaultValue: 'Failed to update reasoning effort.',
-            }),
-          )
-        }
+        await applyEffortLevel(targetMode, level, targetModel)
       }
       return
     }
@@ -6425,6 +6492,7 @@ function ChatInner({
     runSavedScript,
     allCommands,
     selectModel,
+    applyEffortLevel,
     liveModelMode,
   ])
 
@@ -6689,6 +6757,51 @@ function ChatInner({
         : savedChatModel || undefined
     : undefined
 
+  // ── Effort picker derived state ─────────────────────────────────────────────
+  // The model whose levels the open /effort picker lists — the model the
+  // selected mode will actually run — plus its selectable options and the level
+  // the "current" pill marks (the persisted per-mode value resolved per-model,
+  // so an unset mode correctly pills the model's own default). Cheap to
+  // recompute per render, mirroring pickerModeOptions above.
+  const effortPickerModel = effortPicker
+    ? AVAILABLE_MODELS.find((m) => m.id === effectiveModelForMode(effortPicker.mode))
+    : undefined
+  const effortPickerOptions = effortOptionsForModel(effortPickerModel)
+  // Typed filter, mirroring filteredModels: the text after "/effort" (minus a
+  // mode flag) narrows the rows, so "/effort xh" + Enter selects xhigh. Read
+  // from inputRef — it stays fresh because each keystroke re-sets effortPicker.
+  const effortPickerVisibleOptions = ((): typeof effortPickerOptions => {
+    if (!effortPicker) return []
+    const typed = parseEffortCommand(inputRef.current as string)
+    const q = typed?.kind === 'set' ? typed.arg.toLowerCase() : ''
+    if (!q) return effortPickerOptions
+    return effortPickerOptions.filter((o) => o.value.toLowerCase().includes(q))
+  })()
+  const effortPickerCurrent = effortPicker
+    ? nativeEffortName(
+        effortPickerModel,
+        effortByMode[effortPicker.mode] ?? (effortLevel || undefined),
+      )
+    : null
+  // Mode dropdown rows ("Plan · <model>") — effort exists only for the two
+  // conversation modes, each scoped to ITS model's native levels.
+  const effortPickerModeOptions = (['plan', 'execute'] as const).map((m) => ({
+    value: m,
+    label: t(
+      'ide.chat.modelModeOption',
+      {
+        mode:
+          m === 'plan'
+            ? t('ide.chat.settings.modePlan', undefined, { defaultValue: 'Plan' })
+            : t('ide.chat.settings.modeExecute', undefined, { defaultValue: 'Execute' }),
+        model:
+          AVAILABLE_MODELS.find((x) => x.id === effectiveModelForMode(m))?.label ??
+          effectiveModelForMode(m),
+      },
+      { defaultValue: '{{mode}} · {{model}}' },
+    ),
+  }))
+
   const filteredEntries = useMemo(() => {
     if (!filePicker) return []
     const q = filePicker.query.toLowerCase()
@@ -6752,6 +6865,10 @@ function ChatInner({
         setMicPicker(null)
         return
       }
+      if (effortPicker) {
+        setEffortPicker(null)
+        return
+      }
       if (modelPicker) {
         setModelPicker(null)
         return
@@ -6798,6 +6915,47 @@ function ChatInner({
         const idx = soundsPicker.selectedIdx >= 0 ? soundsPicker.selectedIdx : 0
         const target = idx === 0 ? 'all' : SOUND_EVENTS[idx - 1]
         void cycleSoundMode(target)
+        return
+      }
+    }
+
+    // Effort picker: one row per (typed-filter-matching) level of the selected
+    // mode's model. A fixed-reasoning model or an unmatched filter lists
+    // nothing — arrows/Enter fall through (Escape closes; Enter submits the
+    // typed text, so an unknown level still gets the "isn't available" card).
+    if (effortPicker && effortPickerVisibleOptions.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setEffortPicker((p) =>
+          p
+            ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, 1, effortPickerVisibleOptions.length) }
+            : null,
+        )
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setEffortPicker((p) =>
+          p
+            ? { ...p, selectedIdx: wrapIdx(p.selectedIdx, -1, effortPickerVisibleOptions.length) }
+            : null,
+        )
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        // Highlighted row wins; otherwise an exactly-typed level beats the
+        // first substring match ("/effort high" must never apply xhigh's
+        // neighbor), then default to the first visible row (mirrors /model).
+        let option: EffortOption | undefined = effortPickerVisibleOptions[effortPicker.selectedIdx]
+        if (!option) {
+          const typed = parseEffortCommand(inputRef.current as string)
+          const q = typed?.kind === 'set' ? typed.arg.toLowerCase() : ''
+          option =
+            (q ? effortPickerVisibleOptions.find((o) => o.value.toLowerCase() === q) : undefined) ??
+            effortPickerVisibleOptions[0]
+        }
+        if (option) void applyEffortLevel(effortPicker.mode, option.value, effortPickerModel)
         return
       }
     }
@@ -9347,6 +9505,205 @@ function ChatInner({
             </div>
           )}
 
+        {/* Effort picker popup — /effort's selectable per-mode level list.
+            Mirrors the model picker's shell (header with a mode dropdown that
+            re-scopes the open picker in place) with the sounds picker's simple
+            row list. Levels are the selected mode's model's OWN native values
+            (xhigh on Claude, 16K thinking tokens on budget-scaled models); a
+            fixed-reasoning model lists nothing and says so instead. */}
+        {effortPicker && (
+          <div
+            className={cm.cn(cm.surface, cm.borderAll)}
+            style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 0,
+              right: 0,
+              marginBottom: 0,
+              borderRadius: '6px 6px 0 0',
+              zIndex: 100,
+              boxShadow: '0 -4px 16px rgba(0,0,0,0.25)',
+              display: 'flex',
+              flexDirection: 'column',
+              maxHeight: popupMaxHeight,
+            }}
+          >
+            <div
+              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+              style={{
+                padding: '6px 12px',
+                borderBottom: '1px solid rgba(128,128,128,0.12)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                flexShrink: 0,
+                flexWrap: 'wrap',
+              }}
+            >
+              <span style={{ flexShrink: 0 }}>
+                {t('ide.chat.settings.effort.label', undefined, {
+                  defaultValue: 'Reasoning effort',
+                })}
+              </span>
+              {/* Mode dropdown — re-scopes the OPEN picker in place; each
+                  option names the model that mode actually runs, since the
+                  listed levels are that model's own. */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  flex: '1 1 190px',
+                  minWidth: 0,
+                }}
+              >
+                <span style={{ flexShrink: 0 }}>
+                  {t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
+                </span>
+                <select
+                  data-mol-id="chat-effort-mode-select"
+                  aria-label={t('ide.chat.modelModeLabel', undefined, { defaultValue: 'Mode' })}
+                  value={effortPicker.mode}
+                  onChange={(e) => {
+                    const v = e.target.value as EffortMode
+                    // Reset the highlighted row — the level list changes with
+                    // the mode's model.
+                    setEffortPicker((p) => (p ? { mode: v, selectedIdx: -1 } : p))
+                  }}
+                  className={cm.cn(cm.surfaceSecondary, cm.borderAll, cm.textSize('xs'))}
+                  style={{
+                    borderRadius: 4,
+                    // Extra right padding clears the native dropdown arrow so
+                    // the selected label never runs underneath it.
+                    padding: '2px 18px 2px 6px',
+                    color: 'inherit',
+                    cursor: 'pointer',
+                    height: 24,
+                    boxSizing: 'border-box',
+                    flex: 1,
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {effortPickerModeOptions.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                type="button"
+                data-mol-id="chat-effort-picker-close"
+                onClick={() => setEffortPicker(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'inherit',
+                  padding: '0 2px',
+                  fontSize: '14px',
+                  lineHeight: 1,
+                  opacity: 0.6,
+                  // Touch floor for this secondary header ✕ (36px, like the
+                  // notice-card actions); fine pointers keep the slim header.
+                  ...(isCoarse
+                    ? {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 36,
+                        minHeight: 36,
+                      }
+                    : {}),
+                }}
+              >
+                {'✕'}
+              </button>
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {effortPickerOptions.length === 0 ? (
+                <div className={cm.cn(cm.textSize('sm'), cm.textMuted)} style={{ padding: 12 }}>
+                  {t(
+                    'ide.chat.effort.fixedForModel',
+                    { mode: effortPicker.mode, model: effortPickerModel?.label ?? '?' },
+                    {
+                      defaultValue:
+                        'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+                    },
+                  )}
+                </div>
+              ) : (
+                effortPickerVisibleOptions.map((option, idx) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    data-mol-id={`chat-effort-level-${option.value}`}
+                    onClick={() =>
+                      void applyEffortLevel(effortPicker.mode, option.value, effortPickerModel)
+                    }
+                    onMouseEnter={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.15)'
+                    }}
+                    onMouseLeave={(e) => {
+                      ;(e.currentTarget as HTMLElement).style.background =
+                        idx === effortPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent'
+                    }}
+                    className={cm.w('full')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      width: '100%',
+                      minHeight: '40px',
+                      padding: '8px 12px',
+                      border: 'none',
+                      borderTop: idx === 0 ? 'none' : '1px solid rgba(128,128,128,0.12)',
+                      cursor: 'pointer',
+                      color: 'inherit',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      background:
+                        idx === effortPicker.selectedIdx ? 'rgba(128,128,128,0.1)' : 'transparent',
+                    }}
+                  >
+                    <span className={cm.fontWeight('medium')}>{option.value}</span>
+                    {defaultEffortForModel(effortPickerModel) === option.value && (
+                      <span className={cm.textMuted} style={{ fontSize: '10px' }}>
+                        {t('ide.chat.modelMode.default', undefined, { defaultValue: 'Default' })}
+                      </span>
+                    )}
+                    {effortPickerCurrent === option.value && (
+                      <span
+                        data-mol-id={`effort-current-${option.value}`}
+                        className={cm.fontWeight('medium')}
+                        style={{
+                          // Right-aligned + primary-tinted, matching the model
+                          // picker's "current" pill (hex is only the var()
+                          // fallback; the theme token wins).
+                          marginLeft: 'auto',
+                          fontSize: '10px',
+                          color: 'var(--mol-color-primary, #6366f1)',
+                          background:
+                            'color-mix(in srgb, var(--mol-color-primary, #6366f1) 16%, transparent)',
+                          border:
+                            '1px solid color-mix(in srgb, var(--mol-color-primary, #6366f1) 42%, transparent)',
+                          padding: '1px 7px',
+                          borderRadius: '999px',
+                        }}
+                      >
+                        {t('ide.chat.currentBadge', undefined, { defaultValue: 'current' })}
+                      </span>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Sounds picker popup */}
         {soundsPicker && (
           <div
@@ -9783,204 +10140,141 @@ function ChatInner({
             compact single-line row (truncated text + inline edit/delete/send), so
             several queued messages never grow the footer. Hidden while a popup menu
             is open, matching the commit bar. */}
-        {queuedMessages.length > 0 && !commandMenu && !modelPicker && !panelOverlay && (
-          <div
-            style={{
-              borderTop: '1px solid rgba(128,128,128,0.15)',
-              padding: '6px 8px 6px 10px',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
-              <Icon
-                name="clock"
-                size={11}
-                aria-hidden="true"
-                style={{ opacity: 0.5, flexShrink: 0 }}
-              />
-              <span
-                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                style={{ fontStyle: 'italic' }}
-              >
-                {t(
-                  'ide.chat.queuedCount',
-                  { count: queuedMessages.length },
-                  { defaultValue: '{{count}} queued' },
-                )}
-              </span>
-            </div>
-            {/* Cap the height so many queued messages scroll in place rather than
-                pushing the composer down; single-line rows keep it tight. */}
+        {queuedMessages.length > 0 &&
+          !commandMenu &&
+          !modelPicker &&
+          !effortPicker &&
+          !panelOverlay && (
             <div
               style={{
-                maxHeight: 132,
-                overflowY: 'auto',
-                scrollbarWidth: 'thin',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
+                borderTop: '1px solid rgba(128,128,128,0.15)',
+                padding: '6px 8px 6px 10px',
               }}
             >
-              {queuedMessages.map((qm) =>
-                editingQueuedId === qm.id ? (
-                  <div key={qm.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <textarea
-                      autoFocus
-                      defaultValue={editingQueuedText}
-                      onChange={(e) => setEditingQueuedText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          const trimmed = editingQueuedText.trim()
-                          if (trimmed) editQueuedMessage(qm.id, trimmed)
-                          else deleteQueuedMessage(qm.id)
-                          setEditingQueuedId(null)
-                        }
-                        if (e.key === 'Escape') setEditingQueuedId(null)
-                      }}
-                      className={cm.cn(cm.surface, cm.textSize('sm'))}
-                      style={{
-                        width: '100%',
-                        minHeight: '52px',
-                        padding: '6px 8px',
-                        border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
-                        borderRadius: '6px',
-                        resize: 'vertical',
-                        color: 'inherit',
-                        fontFamily: 'inherit',
-                      }}
-                    />
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      <button
-                        type="button"
-                        onClick={() => setEditingQueuedId(null)}
-                        className={cm.textSize('xs')}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 3 }}>
+                <Icon
+                  name="clock"
+                  size={11}
+                  aria-hidden="true"
+                  style={{ opacity: 0.5, flexShrink: 0 }}
+                />
+                <span
+                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                  style={{ fontStyle: 'italic' }}
+                >
+                  {t(
+                    'ide.chat.queuedCount',
+                    { count: queuedMessages.length },
+                    { defaultValue: '{{count}} queued' },
+                  )}
+                </span>
+              </div>
+              {/* Cap the height so many queued messages scroll in place rather than
+                pushing the composer down; single-line rows keep it tight. */}
+              <div
+                style={{
+                  maxHeight: 132,
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
+                {queuedMessages.map((qm) =>
+                  editingQueuedId === qm.id ? (
+                    <div key={qm.id} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <textarea
+                        autoFocus
+                        defaultValue={editingQueuedText}
+                        onChange={(e) => setEditingQueuedText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            const trimmed = editingQueuedText.trim()
+                            if (trimmed) editQueuedMessage(qm.id, trimmed)
+                            else deleteQueuedMessage(qm.id)
+                            setEditingQueuedId(null)
+                          }
+                          if (e.key === 'Escape') setEditingQueuedId(null)
+                        }}
+                        className={cm.cn(cm.surface, cm.textSize('sm'))}
                         style={{
-                          padding: '4px 12px',
+                          width: '100%',
+                          minHeight: '52px',
+                          padding: '6px 8px',
                           border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
-                          borderRadius: '4px',
-                          background: 'transparent',
+                          borderRadius: '6px',
+                          resize: 'vertical',
                           color: 'inherit',
-                          cursor: 'pointer',
-                          ...(isCoarse ? { minHeight: 32 } : {}),
+                          fontFamily: 'inherit',
                         }}
-                      >
-                        {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const trimmed = editingQueuedText.trim()
-                          if (trimmed) editQueuedMessage(qm.id, trimmed)
-                          else deleteQueuedMessage(qm.id)
-                          setEditingQueuedId(null)
-                        }}
-                        className={cm.textSize('xs')}
-                        style={{
-                          padding: '4px 12px',
-                          border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
-                          borderRadius: '4px',
-                          background: 'rgba(128,128,128,0.1)',
-                          color: 'inherit',
-                          cursor: 'pointer',
-                          ...(isCoarse ? { minHeight: 32 } : {}),
-                        }}
-                      >
-                        {t('common.save', undefined, { defaultValue: 'Save' })}
-                      </button>
+                      />
+                      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        <button
+                          type="button"
+                          onClick={() => setEditingQueuedId(null)}
+                          className={cm.textSize('xs')}
+                          style={{
+                            padding: '4px 12px',
+                            border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
+                            borderRadius: '4px',
+                            background: 'transparent',
+                            color: 'inherit',
+                            cursor: 'pointer',
+                            ...(isCoarse ? { minHeight: 32 } : {}),
+                          }}
+                        >
+                          {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const trimmed = editingQueuedText.trim()
+                            if (trimmed) editQueuedMessage(qm.id, trimmed)
+                            else deleteQueuedMessage(qm.id)
+                            setEditingQueuedId(null)
+                          }}
+                          className={cm.textSize('xs')}
+                          style={{
+                            padding: '4px 12px',
+                            border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
+                            borderRadius: '4px',
+                            background: 'rgba(128,128,128,0.1)',
+                            color: 'inherit',
+                            cursor: 'pointer',
+                            ...(isCoarse ? { minHeight: 32 } : {}),
+                          }}
+                        >
+                          {t('common.save', undefined, { defaultValue: 'Save' })}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div
-                    key={qm.id}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}
-                  >
-                    <span
-                      title={qm.content}
-                      className={cm.textSize('sm')}
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        opacity: 0.8,
-                      }}
+                  ) : (
+                    <div
+                      key={qm.id}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}
                     >
-                      {qm.content}
-                    </span>
-                    <button
-                      type="button"
-                      title={t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
-                      onClick={() => {
-                        setEditingQueuedId(qm.id)
-                        setEditingQueuedText(qm.content)
-                      }}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: isCoarse ? 32 : 22,
-                        height: isCoarse ? 32 : 22,
-                        flexShrink: 0,
-                        border: 'none',
-                        borderRadius: 4,
-                        background: 'none',
-                        color: 'inherit',
-                        opacity: 0.5,
-                        cursor: 'pointer',
-                        padding: 0,
-                        transition: 'opacity 100ms, background 100ms',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.opacity = '1'
-                        e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.opacity = '0.5'
-                        e.currentTarget.style.background = 'none'
-                      }}
-                    >
-                      <Icon name="pencil" size={13} aria-hidden="true" />
-                    </button>
-                    <button
-                      type="button"
-                      title={t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
-                      onClick={() => deleteQueuedMessage(qm.id)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: isCoarse ? 32 : 22,
-                        height: isCoarse ? 32 : 22,
-                        flexShrink: 0,
-                        border: 'none',
-                        borderRadius: 4,
-                        background: 'none',
-                        color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
-                        opacity: 0.6,
-                        cursor: 'pointer',
-                        padding: 0,
-                        transition: 'opacity 100ms, background 100ms',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.opacity = '1'
-                        e.currentTarget.style.background = 'rgba(220,38,38,0.12)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.opacity = '0.6'
-                        e.currentTarget.style.background = 'none'
-                      }}
-                    >
-                      <Icon name="trash" size={13} aria-hidden="true" />
-                    </button>
-                    {!isLoading && (
+                      <span
+                        title={qm.content}
+                        className={cm.textSize('sm')}
+                        style={{
+                          flex: 1,
+                          minWidth: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          opacity: 0.8,
+                        }}
+                      >
+                        {qm.content}
+                      </span>
                       <button
                         type="button"
-                        title={t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
+                        title={t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
                         onClick={() => {
-                          const content = qm.content
-                          deleteQueuedMessage(qm.id)
-                          sendMessage(content)
+                          setEditingQueuedId(qm.id)
+                          setEditingQueuedText(qm.content)
                         }}
                         style={{
                           display: 'inline-flex',
@@ -9992,45 +10286,112 @@ function ChatInner({
                           border: 'none',
                           borderRadius: 4,
                           background: 'none',
-                          color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
-                          opacity: 0.7,
+                          color: 'inherit',
+                          opacity: 0.5,
                           cursor: 'pointer',
                           padding: 0,
                           transition: 'opacity 100ms, background 100ms',
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.opacity = '1'
-                          e.currentTarget.style.background = 'rgba(34,197,94,0.14)'
+                          e.currentTarget.style.background = 'rgba(128,128,128,0.15)'
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.opacity = '0.7'
+                          e.currentTarget.style.opacity = '0.5'
                           e.currentTarget.style.background = 'none'
                         }}
                       >
-                        {/* Same up-arrow glyph as the composer's Send button. */}
-                        <svg
-                          width="13"
-                          height="13"
-                          viewBox="0 0 12 12"
-                          style={{ display: 'block' }}
-                        >
-                          <path
-                            d="M 2.5,6.5 L 6,3 L 9.5,6.5 M 6,3.5 L 6,10"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.75"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <Icon name="pencil" size={13} aria-hidden="true" />
                       </button>
-                    )}
-                  </div>
-                ),
-              )}
+                      <button
+                        type="button"
+                        title={t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
+                        onClick={() => deleteQueuedMessage(qm.id)}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: isCoarse ? 32 : 22,
+                          height: isCoarse ? 32 : 22,
+                          flexShrink: 0,
+                          border: 'none',
+                          borderRadius: 4,
+                          background: 'none',
+                          color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
+                          opacity: 0.6,
+                          cursor: 'pointer',
+                          padding: 0,
+                          transition: 'opacity 100ms, background 100ms',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.opacity = '1'
+                          e.currentTarget.style.background = 'rgba(220,38,38,0.12)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.opacity = '0.6'
+                          e.currentTarget.style.background = 'none'
+                        }}
+                      >
+                        <Icon name="trash" size={13} aria-hidden="true" />
+                      </button>
+                      {!isLoading && (
+                        <button
+                          type="button"
+                          title={t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
+                          onClick={() => {
+                            const content = qm.content
+                            deleteQueuedMessage(qm.id)
+                            sendMessage(content)
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: isCoarse ? 32 : 22,
+                            height: isCoarse ? 32 : 22,
+                            flexShrink: 0,
+                            border: 'none',
+                            borderRadius: 4,
+                            background: 'none',
+                            color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
+                            opacity: 0.7,
+                            cursor: 'pointer',
+                            padding: 0,
+                            transition: 'opacity 100ms, background 100ms',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.opacity = '1'
+                            e.currentTarget.style.background = 'rgba(34,197,94,0.14)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.opacity = '0.7'
+                            e.currentTarget.style.background = 'none'
+                          }}
+                        >
+                          {/* Same up-arrow glyph as the composer's Send button. */}
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 12 12"
+                            style={{ display: 'block' }}
+                          >
+                            <path
+                              d="M 2.5,6.5 L 6,3 L 9.5,6.5 M 6,3.5 L 6,10"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  ),
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
             Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
@@ -10040,6 +10401,7 @@ function ChatInner({
           pendingFiles.length > 0 &&
           !commandMenu &&
           !modelPicker &&
+          !effortPicker &&
           !panelOverlay && (
             <div
               style={{
@@ -10685,6 +11047,7 @@ function ChatInner({
                     // Popups are one-at-a-time — close siblings first.
                     setMicPicker(null)
                     setModelPicker(null)
+                    setEffortPicker(null)
                     setSoundsPicker(null)
                     const cur = inputRef.current as string
                     if (!cur) setInputAndCursorEnd('/')

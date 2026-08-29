@@ -594,4 +594,5 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Отмена',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» требует параметров — открыт /scripts, чтобы вы задали их и Запустили.',
+  'ide.chat.settings.effort.label': 'Работа над аргументацией',
 }

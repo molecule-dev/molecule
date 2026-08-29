@@ -583,4 +583,5 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Откажи',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ бара опции — отворив /scripts за да ги поставите и да Извршите.',
+  'ide.chat.settings.effort.label': 'Напор за расудување',
 }

@@ -98,12 +98,12 @@ describe('parseEffortCommand — syntax', () => {
       arg: 'max',
       mode: 'execute',
     })
-    expect(parseEffortCommand('/effort --plan')).toEqual({ kind: 'query', mode: 'plan' })
+    expect(parseEffortCommand('/effort --plan')).toEqual({ kind: 'menu', mode: 'plan' })
     expect(parseEffortCommand('/effort --execute ?')).toEqual({ kind: 'query', mode: 'execute' })
   })
 
-  it('treats /effort and /effort ? as a status request', () => {
-    expect(parseEffortCommand('/effort')).toEqual({ kind: 'query', mode: undefined })
+  it('opens the picker on bare /effort and keeps /effort ? as a status request', () => {
+    expect(parseEffortCommand('/effort')).toEqual({ kind: 'menu', mode: undefined })
     expect(parseEffortCommand('/effort ?')).toEqual({ kind: 'query', mode: undefined })
   })
 
@@ -201,7 +201,7 @@ describe('command registry wiring', () => {
     expect(cmd).toMatchObject({
       label: '/effort',
       category: 'model',
-      usage: '/effort [--plan|--execute] <level>',
+      usage: '/effort [--plan|--execute] [level]',
     })
   })
 })

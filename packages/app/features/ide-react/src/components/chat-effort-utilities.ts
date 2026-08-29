@@ -10,10 +10,12 @@
  * chosen from its own model's levels.
  *
  * Command shapes:
- * - `/effort` or `/effort ?` — status for every mode.
+ * - `/effort` — open the selectable level picker (mirrors `/model`'s picker).
+ * - `/effort ?` — textual status for every mode.
  * - `/effort <value>` — set the CURRENT mode's effort to a native value.
  * - `/effort --plan <value>` / `/effort --execute <value>` — set a specific
- *   mode's effort (mirrors `/model --plan` / `--execute`).
+ *   mode's effort (mirrors `/model --plan` / `--execute`); the flag alone
+ *   opens the picker scoped to that mode.
  *
  * Deterministic and side-effect free — unit testable without rendering or a
  * backend. User-facing prose lives in the component via `t()`.
@@ -45,11 +47,15 @@ export type EffortMode = 'plan' | 'execute'
  *   Resolve `arg` against the target model's options with
  *   {@link resolveEffortArg} — parsing is purely syntactic because the valid
  *   values depend on which model the target mode runs.
- * - `query` — show the status view (`/effort` or `/effort ?`).
+ * - `menu` — open the selectable level picker (bare `/effort`, or a bare
+ *   `--plan` / `--execute` flag scoping it), mirroring how bare `/model`
+ *   opens the model picker.
+ * - `query` — show the textual status view (`/effort ?`).
  * - `invalid` — unrecognized flags/arguments (the caller shows usage).
  */
 export type EffortCommand =
   | { kind: 'set'; arg: string; mode?: EffortMode }
+  | { kind: 'menu'; mode?: EffortMode }
   | { kind: 'query'; mode?: EffortMode }
   | { kind: 'invalid'; arg: string }
 
@@ -73,7 +79,7 @@ export function parseEffortCommand(input: string): EffortCommand | null {
     else if (lower === '--execute') mode = 'execute'
     else rest.push(token)
   }
-  if (rest.length === 0) return { kind: 'query', mode }
+  if (rest.length === 0) return { kind: 'menu', mode }
   if (rest.length > 1) return { kind: 'invalid', arg: rest.join(' ') }
   const arg = rest[0]
   if (arg === '?') return { kind: 'query', mode }

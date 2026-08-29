@@ -585,4 +585,5 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Cancelar',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» necesita opcións — abriuse /scripts para que as configures e Executes.',
+  'ide.chat.settings.effort.label': 'Esforzo de razoamento',
 }

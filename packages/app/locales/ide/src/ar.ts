@@ -582,4 +582,5 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'إلغاء',
   'ide.chat.scripts.runNeedsOptions':
     '‏“{{name}}” يحتاج إلى خيارات — تم فتح ‎/scripts لتعيينها ثم التشغيل.',
+  'ide.chat.settings.effort.label': 'جهد الاستدلال',
 }

@@ -580,4 +580,5 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'বাতিল করুন',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”-এর জন্য অপশন প্রয়োজন — /scripts খোলা হয়েছে যাতে আপনি সেগুলি সেট করে চালাতে পারেন।',
+  'ide.chat.settings.effort.label': 'যুক্তির প্রচেষ্টা',
 }

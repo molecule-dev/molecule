@@ -580,4 +580,5 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'منسوخ کریں۔',
   'ide.chat.scripts.runNeedsOptions':
     '‏“{{name}}” کو اختیارات درکار ہیں — ‎/scripts کھولا گیا تاکہ آپ انہیں سیٹ کر کے چلائیں۔',
+  'ide.chat.settings.effort.label': 'استدلال کی کوشش',
 }

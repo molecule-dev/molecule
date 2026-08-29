@@ -589,4 +589,5 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Atcelt',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” nepieciešamas opcijas — atvēru /scripts, lai varētu tās iestatīt un Palaist.',
+  'ide.chat.settings.effort.label': 'Loģiskās domāšanas prasmes',
 }

@@ -583,4 +583,5 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Utzi',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”(e)k aukerak behar ditu — /scripts ireki da, ezarri eta Exekutatzeko.',
+  'ide.chat.settings.effort.label': 'Arrazoitzeko ahalegina',
 }

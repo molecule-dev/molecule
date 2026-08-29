@@ -208,9 +208,9 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'effort',
     label: '/effort',
-    description: "Set reasoning effort per mode, in the model's own levels; /effort ? shows them",
+    description: "Pick reasoning effort per mode from the model's own levels",
     category: 'model',
-    usage: '/effort [--plan|--execute] <level>',
+    usage: '/effort [--plan|--execute] [level]',
   },
 
   // Settings

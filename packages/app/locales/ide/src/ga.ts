@@ -582,4 +582,5 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Cealaigh',
   'ide.chat.scripts.runNeedsOptions':
     'Teastaíonn roghanna ó “{{name}}” — osclaíodh /scripts chun iad a shocrú agus Rith.',
+  'ide.chat.settings.effort.label': 'Iarracht réasúnaíochta',
 }

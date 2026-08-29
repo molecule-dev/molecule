@@ -600,4 +600,5 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Ακύρωση',
   'ide.chat.scripts.runNeedsOptions':
     'Το «{{name}}» χρειάζεται επιλογές — άνοιξα το /scripts για να τις ορίσετε και να Εκτελέσετε.',
+  'ide.chat.settings.effort.label': 'Προσπάθεια συλλογισμού',
 }

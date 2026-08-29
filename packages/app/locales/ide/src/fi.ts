@@ -592,4 +592,5 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Peruuta',
   'ide.chat.scripts.runNeedsOptions':
     '”{{name}}” tarvitsee asetuksia — avattiin /scripts, jotta voit määrittää ne ja Suorittaa.',
+  'ide.chat.settings.effort.label': 'Päättelytyö',
 }

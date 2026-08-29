@@ -591,4 +591,5 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Mégse',
   'ide.chat.scripts.runNeedsOptions':
     'A(z) „{{name}}” beállításokat igényel — megnyílt a /scripts, hogy megadhassa őket és Futtathassa.',
+  'ide.chat.settings.effort.label': 'Érvelési erőfeszítés',
 }

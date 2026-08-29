@@ -583,4 +583,5 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Ghairi',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” inahitaji chaguo — /scripts imefunguliwa ili uweze kuziweka na Kuendesha.',
+  'ide.chat.settings.effort.label': 'Jitihada za kufikiri',
 }

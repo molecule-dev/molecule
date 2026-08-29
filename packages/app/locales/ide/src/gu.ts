@@ -579,4 +579,5 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'રદ કરો',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ને વિકલ્પોની જરૂર છે — /scripts ખોલ્યું જેથી તમે તેમને સેટ કરીને ચલાવી શકો.',
+  'ide.chat.settings.effort.label': 'તર્કસંગત પ્રયાસ',
 }

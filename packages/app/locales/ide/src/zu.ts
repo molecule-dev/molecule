@@ -587,4 +587,5 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Khansela',
   'ide.chat.scripts.runNeedsOptions':
     'I-“{{name}}” idinga izinketho — kuvulwe i-/scripts ukuze uzisethe bese uyaQalisa.',
+  'ide.chat.settings.effort.label': 'Umzamo wokucabanga',
 }

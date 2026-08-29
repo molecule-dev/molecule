@@ -585,4 +585,5 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Hủy',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” cần tùy chọn — đã mở /scripts để bạn thiết lập và Chạy.',
+  'ide.chat.settings.effort.label': 'Nỗ lực lý luận',
 }

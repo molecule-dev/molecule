@@ -582,4 +582,5 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': '취소',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”에 옵션이 필요합니다 — 설정하고 실행할 수 있도록 /scripts를 열었습니다.',
+  'ide.chat.settings.effort.label': '추론 과정',
 }

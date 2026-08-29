@@ -590,4 +590,5 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'キャンセル',
   'ide.chat.scripts.runNeedsOptions':
     '「{{name}}」にはオプションが必要です — /scripts を開いたので、設定して実行してください。',
+  'ide.chat.settings.effort.label': '推論の取り組み',
 }

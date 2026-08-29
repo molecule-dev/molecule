@@ -587,4 +587,5 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Annuller',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” kræver indstillinger — åbnede /scripts, så du kan angive dem og Køre.',
+  'ide.chat.settings.effort.label': 'Ræsonnement',
 }

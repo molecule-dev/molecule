@@ -583,4 +583,5 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'გაუქმება',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“-ს სჭირდება პარამეტრები — გაიხსნა /scripts, რომ დააყენოთ ისინი და გაუშვათ.',
+  'ide.chat.settings.effort.label': 'მსჯელობის ძალისხმევა',
 }

@@ -586,4 +586,5 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Kanselahin',
   'ide.chat.scripts.runNeedsOptions':
     'Kailangan ng “{{name}}” ng mga opsyon — binuksan ang /scripts para maitakda mo ang mga ito at Patakbuhin.',
+  'ide.chat.settings.effort.label': 'Pagsisikap sa pangangatwiran',
 }

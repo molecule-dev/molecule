@@ -483,6 +483,7 @@ export type IdeTranslationKey =
   | 'ide.chat.settings.modelDefaultNamed'
   | 'ide.chat.settings.effortValue'
   | 'ide.chat.settings.effortFixed'
+  | 'ide.chat.settings.effort.label'
   | 'ide.chat.settings.autoCommitEvery'
   | 'ide.chat.settings.hooksValue'
   | 'ide.chat.share.heading'

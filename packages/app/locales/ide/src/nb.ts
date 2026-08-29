@@ -585,4 +585,5 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Avbryt',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» trenger alternativer — åpnet /scripts så du kan angi dem og Kjøre.',
+  'ide.chat.settings.effort.label': 'Resonnement',
 }

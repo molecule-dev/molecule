@@ -597,4 +597,5 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Annuleren',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” heeft opties nodig — /scripts geopend zodat je ze kunt instellen en Uitvoeren.',
+  'ide.chat.settings.effort.label': 'Redeneringsinspanning',
 }

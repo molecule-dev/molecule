@@ -581,4 +581,5 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Ləğv et',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” seçimlər tələb edir — onları təyin edib işə salmağınız üçün /scripts açıldı.',
+  'ide.chat.settings.effort.label': 'Düşüncə səyi',
 }

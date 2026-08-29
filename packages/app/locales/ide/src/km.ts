@@ -584,4 +584,5 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'បោះបង់',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ត្រូវការជម្រើស — បានបើក /scripts ដើម្បីឲ្យអ្នកកំណត់ពួកវា ហើយដំណើរការ។',
+  'ide.chat.settings.effort.label': 'ការខិតខំប្រឹងប្រែងវែកញែក',
 }

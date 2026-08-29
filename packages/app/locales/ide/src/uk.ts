@@ -595,4 +595,5 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Скасувати',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» потребує параметрів — відкрито /scripts, щоб ви задали їх і Запустили.',
+  'ide.chat.settings.effort.label': 'Робота з логічним мисленням',
 }

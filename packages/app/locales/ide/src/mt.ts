@@ -583,4 +583,5 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Ikkanċella',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” jeħtieġ għażliet — nfetaħ /scripts biex tissettjahom u Tħaddem.',
+  'ide.chat.settings.effort.label': "Sforz ta' raġunament",
 }

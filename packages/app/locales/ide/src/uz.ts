@@ -584,4 +584,5 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Bekor qilish',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” parametrlarni talab qiladi — ularni sozlab, Ishga tushirish uchun /scripts ochildi.',
+  'ide.chat.settings.effort.label': 'Fikrlash harakati',
 }

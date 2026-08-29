@@ -585,4 +585,5 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'ரத்துசெய்',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” க்கு விருப்பங்கள் தேவை — அவற்றை அமைத்து இயக்க /scripts திறக்கப்பட்டது.',
+  'ide.chat.settings.effort.label': 'பகுத்தறிவு முயற்சி',
 }

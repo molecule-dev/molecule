@@ -581,4 +581,5 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'ยกเลิก',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ต้องการตัวเลือก — เปิด /scripts เพื่อให้คุณตั้งค่าและเรียกใช้',
+  'ide.chat.settings.effort.label': 'ความพยายามในการใช้เหตุผล',
 }

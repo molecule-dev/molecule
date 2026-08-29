@@ -568,4 +568,5 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.scripts.required': '（必填）',
   'ide.chat.scripts.cancelRun': '取消',
   'ide.chat.scripts.runNeedsOptions': '“{{name}}” 需要选项 — 已打开 /scripts，供你设置后运行。',
+  'ide.chat.settings.effort.label': '推理过程',
 }

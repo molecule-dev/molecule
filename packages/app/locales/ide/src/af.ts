@@ -580,4 +580,5 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Kanselleer',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” het opsies nodig — /scripts oopgemaak sodat jy hulle kan stel en Uitvoer.',
+  'ide.chat.settings.effort.label': 'Redeneringspoging',
 }

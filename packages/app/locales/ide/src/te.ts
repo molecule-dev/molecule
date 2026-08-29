@@ -582,4 +582,5 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'రద్దు చేయండి',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” కు ఎంపికలు అవసరం — వాటిని సెట్ చేసి రన్ చేయడానికి /scripts తెరవబడింది.',
+  'ide.chat.settings.effort.label': 'తార్కిక ప్రయత్నం',
 }

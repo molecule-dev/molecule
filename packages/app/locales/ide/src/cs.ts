@@ -585,4 +585,5 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Zrušit',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ vyžaduje volby — otevřel jsem /scripts, abyste je nastavili a Spustili.',
+  'ide.chat.settings.effort.label': 'Úsilí vynaložené na logické uvažování',
 }

@@ -581,4 +581,5 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Бас тарту',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» опцияларды қажет етеді — оларды орнатып, Іске қосу үшін /scripts ашылды.',
+  'ide.chat.settings.effort.label': 'Ойлау әрекеті',
 }

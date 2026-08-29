@@ -583,4 +583,5 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'ರದ್ದುಮಾಡಿ',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ಗೆ ಆಯ್ಕೆಗಳು ಬೇಕಾಗಿವೆ — ಅವುಗಳನ್ನು ಹೊಂದಿಸಿ ರನ್ ಮಾಡಲು /scripts ತೆರೆಯಲಾಗಿದೆ.',
+  'ide.chat.settings.effort.label': 'ತಾರ್ಕಿಕ ಪ್ರಯತ್ನ',
 }

@@ -591,4 +591,5 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'İptal',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” seçenekler gerektiriyor — bunları ayarlayıp Çalıştırabilmeniz için /scripts açıldı.',
+  'ide.chat.settings.effort.label': 'Akıl yürütme çabası',
 }

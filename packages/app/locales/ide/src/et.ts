@@ -589,4 +589,5 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Tühista',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ vajab valikuid — avasin /scripts, et saaksite need määrata ja Käivitada.',
+  'ide.chat.settings.effort.label': 'Mõtlemisprotsess',
 }

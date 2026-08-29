@@ -585,4 +585,5 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Цуцлах',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”-д сонголтууд шаардлагатай — тэдгээрийг тохируулан Ажиллуулахын тулд /scripts нээгдлээ.',
+  'ide.chat.settings.effort.label': 'Ухаан зүйн хүчин чармайлт',
 }

@@ -592,4 +592,5 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Batal',
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” memerlukan opsi — /scripts dibuka agar Anda dapat menyetelnya dan Menjalankan.',
+  'ide.chat.settings.effort.label': 'Upaya penalaran',
 }

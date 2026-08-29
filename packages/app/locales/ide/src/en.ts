@@ -562,6 +562,7 @@ export const en: IdeTranslations = {
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
   'ide.chat.settings.effortValue': 'plan: {{plan}} · execute: {{execute}}',
   'ide.chat.settings.effortFixed': 'fixed',
+  'ide.chat.settings.effort.label': 'Reasoning effort',
   'ide.chat.settings.autoCommitEvery': 'Every {{seconds}}s',
   'ide.chat.settings.hooksValue': 'In project settings',
   // Share modal (/share).

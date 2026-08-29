@@ -583,4 +583,5 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Жокко чыгаруу',
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» параметрлерди талап кылат — аларды коюп, Иштетүү үчүн /scripts ачылды.',
+  'ide.chat.settings.effort.label': 'Ой жүгүртүү аракети',
 }

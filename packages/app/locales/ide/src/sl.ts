@@ -591,4 +591,5 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Prekliči',
   'ide.chat.scripts.runNeedsOptions':
     '»{{name}}« zahteva možnosti — odprl sem /scripts, da jih nastavite in Zaženete.',
+  'ide.chat.settings.effort.label': 'Prizadevanje za razumevanje',
 }

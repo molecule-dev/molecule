@@ -594,4 +594,5 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'Atšaukti',
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ reikia parinkčių — atidariau /scripts, kad galėtumėte jas nustatyti ir Vykdyti.',
+  'ide.chat.settings.effort.label': 'Mąstymo pastangos',
 }
