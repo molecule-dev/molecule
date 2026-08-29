@@ -2616,17 +2616,35 @@ function ChatInner({
     contextWindow: number
   } | null>(null)
 
-  // Restore context usage from the history endpoint on mount
+  // Restore context usage from the history endpoint on mount. Retries a few
+  // times on failure: this used to be one-shot, so a single transient error at
+  // mount (an API deploy restart, a rate-limit blip) silently cost the context
+  // ring for the entire session — the state only ever refills from the next
+  // turn's `done` event (observed live 2026-08-29: ring gone, server data fine,
+  // reload fixed it).
   useEffect(() => {
     if (!hasConversation) return
-    http
-      .get<{ contextUsage?: { inputTokens: number; contextWindow: number } }>(endpoint)
-      .then((res) => {
-        if (res.data.contextUsage) setContextUsage(res.data.contextUsage)
-      })
-      .catch(() => {
-        /* ignore */
-      })
+    let cancelled = false
+    let attempt = 0
+    const load = (): void => {
+      http
+        .get<{ contextUsage?: { inputTokens: number; contextWindow: number } }>(endpoint)
+        .then((res) => {
+          if (cancelled) return
+          if (res.data.contextUsage) setContextUsage(res.data.contextUsage)
+        })
+        .catch((_error) => {
+          // Transient failure — retry with backoff (bounded); after the budget,
+          // the next turn's done event repopulates the ring.
+          if (cancelled || attempt >= 3) return
+          attempt++
+          setTimeout(load, attempt * 4000)
+        })
+    }
+    load()
+    return () => {
+      cancelled = true
+    }
   }, [endpoint, hasConversation, http])
 
   // ── Auto-fix countdown state ──────────────────────────────────────────────
