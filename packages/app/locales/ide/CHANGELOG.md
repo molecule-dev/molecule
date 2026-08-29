@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.3.1
+
+### Patch Changes
+
+- Add the `ide.chat.settings.effort.label` ("Reasoning effort") translation in all 79 languages.
+
 ## 1.3.0
 
 ### Minor Changes

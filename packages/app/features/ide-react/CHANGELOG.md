@@ -1,5 +1,13 @@
 # @molecule/app-ide-react
 
+## 1.9.1
+
+### Patch Changes
+
+- ba8f87b: The context-usage ring's mount-time restore retries transient failures instead of silently losing the ring for the whole session.
+- `/effort` now opens a selectable level picker (like `/model`): bare `/effort` lists the target mode's model-native levels with current/default indicators, live typing filter, a mode selector, and keyboard navigation. `/effort ?` keeps the textual status view; `/effort <level>` still sets directly.
+- 16559e0: The preview freeze watchdog is visibility-aware: a hidden tab's throttled timers no longer read as an 18–58s "app stopped responding" freeze (banner + alert once per throttle wake, ~every minute, for as long as the tab stayed backgrounded). Checks pause while hidden and re-baseline on return to the foreground.
+
 ## 1.9.0
 
 ### Minor Changes
