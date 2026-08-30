@@ -122,7 +122,8 @@ fi
 # executor reads via read_molecule_doc drift from the source being committed.
 # Regenerates ONLY the staged packages (plus cross-doc dependents: a core's
 # providers inherit its @e2e, a provider's core lists its providers, a new
-# locale's feature gains a companion-locale section) — ~0.4s/package via tsx
+# locale's feature gains a companion-locale section, a re-exporting package
+# embeds the re-exported API) — ~0.4s/package via tsx
 # against mlcl source, no build needed — then auto-stages the refreshed
 # README.md files into THIS commit (script prints changed paths on stdout).
 # Generation reads the WORKTREE source, same as the gates above, so a partially
