@@ -2905,6 +2905,10 @@ function ChatInner({
   // overwrite it), and `…PersistedRef` tracks the value we believe is on the
   // server so we only PATCH genuine changes (never the value we just hydrated).
   const [autoCommitLoaded, setAutoCommitLoaded] = useState(false)
+  // Live canEdit for async callbacks (the settings hydrate) that must not
+  // capture a stale role from mount time.
+  const canEditRef = useRef(canEdit)
+  canEditRef.current = canEdit
   const autoCommitPersistedRef = useRef<number>(0)
   const autoCommitPatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -4244,10 +4248,15 @@ function ChatInner({
         // Restore the persisted auto-commit cadence in the paused state (it
         // re-arms on the next file change). Auto-commit is ON by default: a
         // project that never set `autoCommitSeconds` resolves to the default
-        // cadence; an explicit 0 (the user turned it off) stays off.
+        // cadence; an explicit 0 (the user turned it off) stays off. Never for
+        // a read-only VIEWER: /commit is an editor action, so arming the
+        // countdown on a viewer's client only produces a doomed dispatch (and
+        // the denial card it minted) when it lapses.
         const savedAutoCommit = resolveAutoCommitSeconds(s?.autoCommitSeconds)
         autoCommitPersistedRef.current = savedAutoCommit
-        if (savedAutoCommit > 0) dispatchAutoCommit({ type: 'hydrate', seconds: savedAutoCommit })
+        if (savedAutoCommit > 0 && canEditRef.current !== false) {
+          dispatchAutoCommit({ type: 'hydrate', seconds: savedAutoCommit })
+        }
         setAutoCommitLoaded(true)
       })
       .catch(() => {
@@ -4325,6 +4334,9 @@ function ChatInner({
   // skipping the value just hydrated on load and gated until that load resolves.
   useEffect(() => {
     if (!autoCommitLoaded) return
+    // A viewer never mirrors auto-commit state back to the project — the PATCH
+    // is editor-gated server-side and their reducer stays disarmed anyway.
+    if (canEdit === false) return
     const seconds = autoCommit.intervalSeconds
     if (autoCommitPersistedRef.current === seconds) return
     if (autoCommitPatchTimerRef.current) clearTimeout(autoCommitPatchTimerRef.current)
@@ -4340,7 +4352,7 @@ function ChatInner({
     return () => {
       if (autoCommitPatchTimerRef.current) clearTimeout(autoCommitPatchTimerRef.current)
     }
-  }, [autoCommit.intervalSeconds, autoCommitLoaded, http, projectId])
+  }, [autoCommit.intervalSeconds, autoCommitLoaded, http, projectId, canEdit])
 
   // ── Removed-model recovery ──────────────────────────────────────────────────
   // If the saved chatModel is no longer in the catalog (a provider retired it,
@@ -5970,10 +5982,16 @@ function ChatInner({
   // the exact render the countdown hits zero): never commit mid-turn — the
   // effect re-runs when the hold clears and fires then.
   useEffect(() => {
-    if (!isAutoCommitDue(autoCommit) || autoCommitHeld) return
+    // A read-only VIEWER never fires auto-commit: /commit is an editor action,
+    // and the client-side dispatch here surfaced the "view-only access, so this
+    // command is unavailable" denial card out of nowhere on viewers whenever a
+    // synced countdown lapsed (observed 2026-08-31, right after a watched turn
+    // settled and released the hold). The hydrate below is also viewer-gated,
+    // so this is the belt for a mid-session demotion.
+    if (canEdit === false || !isAutoCommitDue(autoCommit) || autoCommitHeld) return
     void executeCommand('commit')
     dispatchAutoCommit({ type: 'fired' })
-  }, [autoCommit, autoCommitHeld, executeCommand])
+  }, [autoCommit, autoCommitHeld, executeCommand, canEdit])
 
   // ── Submit ─────────────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
@@ -6438,7 +6456,11 @@ function ChatInner({
       // after each sent team message so the next one is one keystroke away.
       if (canEdit === false) setInputAndCursorEnd('/teamsay ')
       else setInputValue('')
-      sendMessage(trimmed, undefined, { suppressUserMessage: true })
+      // sideChannel: a team note is a human-to-human message, not a turn — it
+      // goes out immediately even while a turn streams (it used to queue
+      // silently behind the sender's own active turn, and a viewer's note
+      // used to tear down their remote-turn tracking).
+      sendMessage(trimmed, undefined, { suppressUserMessage: true, sideChannel: true })
       return
     }
 

@@ -2334,4 +2334,80 @@ describe('useChat — remote stream ingestion (applyRemoteEvent)', () => {
       complete(0)
     })
   })
+
+  // ── Side-channel sends (team notes) ────────────────────────────────────
+
+  it('sends a side-channel message immediately during an active turn — no queue, stream untouched', async () => {
+    // The regression: a /teamsay during the sender's own streaming turn went
+    // into the silent suppressed queue (no bubble, no queued chip) and only
+    // reached the server when the turn ended — a human-to-human note that
+    // appeared to vanish. With provider side-channel support it must go out
+    // NOW, render from its own response, and leave the running turn alone.
+    const { provider, deferreds, complete, startMessage } = createMockProvider()
+    const sideSend = vi.fn(
+      async (_msg: string, _config: unknown, onEvent: ChatEventHandler): Promise<void> => {
+        onEvent({
+          type: 'message',
+          message: { id: 'note-1', role: 'user', content: 'hi team', timestamp: 5 },
+        })
+        onEvent({ type: 'done' })
+      },
+    )
+    ;(provider as { sendSideMessage?: typeof sideSend }).sendSideMessage = sideSend
+
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    // A turn is streaming.
+    act(() => {
+      void result.current.sendMessage('build it')
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(true))
+    act(() => {
+      startMessage(0)
+    })
+
+    // The team note goes out mid-turn.
+    await act(async () => {
+      await result.current.sendMessage('/teamsay hi team', undefined, {
+        suppressUserMessage: true,
+        sideChannel: true,
+      })
+    })
+
+    expect(sideSend).toHaveBeenCalledTimes(1)
+    // Rendered immediately from its own response — never queued.
+    expect(result.current.messages.some((m) => m.id === 'note-1')).toBe(true)
+    expect(result.current.messages.some((m) => m.queued)).toBe(false)
+    // The running turn is untouched: still streaming, and no second turn POST.
+    expect(result.current.isLoading).toBe(true)
+    expect(deferreds).toHaveLength(1)
+    act(() => {
+      complete(0)
+    })
+  })
+
+  it('falls back to the normal send path when the provider has no side channel', async () => {
+    const { provider, deferreds, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      void result.current.sendMessage('/teamsay hi', undefined, {
+        suppressUserMessage: true,
+        sideChannel: true,
+      })
+    })
+
+    // No sendSideMessage on the provider — the message went through sendMessage.
+    expect(deferreds).toHaveLength(1)
+    expect(deferreds[0].message).toBe('/teamsay hi')
+    act(() => {
+      complete(0)
+    })
+  })
 })

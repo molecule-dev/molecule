@@ -215,6 +215,59 @@ describe('@molecule/app-ai-chat-http', () => {
     })
   })
 
+  describe('sendSideMessage', () => {
+    it('streams the response events (a team note: one complete message + done)', async () => {
+      mockFetch.mockResolvedValue(
+        createMockStreamResponse([
+          'data: {"type":"message","message":{"id":"m1","role":"user","content":"hi team","timestamp":1}}',
+          'data: {"type":"done"}',
+        ]),
+      )
+
+      const provider = new HttpChatProvider({ baseUrl: 'http://localhost:3000' })
+      const onEvent = vi.fn()
+
+      await provider.sendSideMessage('/teamsay hi team', defaultConfig, onEvent)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/chat',
+        expect.objectContaining({ method: 'POST' }),
+      )
+      expect(onEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'message',
+          message: expect.objectContaining({ id: 'm1' }),
+        }),
+      )
+      expect(onEvent).toHaveBeenCalledWith({ type: 'done' })
+    })
+
+    it('never aborts an in-flight sendMessage stream (independent lifecycle)', async () => {
+      // The regression this guards: routing a /teamsay through sendMessage
+      // during the sender's own streaming turn either queued it silently or —
+      // had it been sent concurrently — aborted the live turn stream, because
+      // sendMessage aborts any previous in-flight request. The side channel
+      // must share NOTHING with the main stream's abort lifecycle.
+      let mainSignal: AbortSignal | undefined
+      mockFetch.mockImplementationOnce((_url: string, opts: RequestInit) => {
+        mainSignal = opts.signal as AbortSignal
+        return new Promise(() => {}) // the main turn stream, still running
+      })
+      mockFetch.mockResolvedValueOnce(createMockStreamResponse(['data: {"type":"done"}']))
+
+      const provider = new HttpChatProvider()
+      void provider.sendMessage('build the app', defaultConfig, vi.fn())
+
+      await provider.sendSideMessage('/teamsay hi', defaultConfig, vi.fn())
+      // The side-channel send completed while the main stream stays live.
+      expect(mainSignal?.aborted).toBe(false)
+
+      // And abort() still targets the MAIN stream, not a stale side handle.
+      provider.abort()
+      expect(mainSignal?.aborted).toBe(true)
+    })
+  })
+
   describe('clearHistory', () => {
     it('should send DELETE request', async () => {
       mockFetch.mockResolvedValue({ ok: true })

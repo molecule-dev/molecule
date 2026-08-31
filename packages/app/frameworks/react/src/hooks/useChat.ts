@@ -1821,6 +1821,50 @@ export function useChat(options: UseChatOptions): UseChatResult {
     async (message: string, attachments?: ChatAttachment[], options?: SendMessageOptions) => {
       if (!mountedRef.current) return
 
+      // ── Side channel: a human-to-human message (e.g. a team note), NOT a turn ──
+      // Sent immediately on the provider's independent side-channel request:
+      // it must never queue behind an active turn (a /teamsay during the
+      // sender's own streaming turn used to vanish into the silent suppressed
+      // queue until the turn ended), never take over the streaming state, and
+      // never tear down remote-turn tracking (a viewer's note while watching a
+      // teammate's turn used to kill the watcher's live stream view). The
+      // server persists + broadcasts the canonical message; the response's own
+      // `message` event renders it here, id-deduped against the broadcast echo.
+      if (options?.sideChannel && provider.sendSideMessage) {
+        try {
+          await provider.sendSideMessage(
+            message,
+            { ...config, ...(options.suppressUserMessage ? { suppressUserMessage: true } : {}) },
+            (event) => {
+              if (!mountedRef.current || isStaleGeneration()) return
+              if (event.type === 'message') {
+                appendCompleteMessage(event.message)
+              } else if (event.type === 'card') {
+                appendCardMessage(event.id, event.timestamp, event.card)
+              } else if (event.type === 'error') {
+                setError(
+                  event.message ??
+                    t('chat.error.sendFailed', undefined, {
+                      defaultValue: 'Failed to send message',
+                    }),
+                )
+              }
+            },
+          )
+        } catch (error) {
+          if (mountedRef.current) {
+            setError(
+              error instanceof Error
+                ? error.message
+                : t('chat.error.sendFailed', undefined, { defaultValue: 'Failed to send message' }),
+            )
+          }
+        }
+        return
+      }
+      // No provider side-channel support — fall through to the normal turn path
+      // (the message may queue behind an active turn there).
+
       // When suppressed (ask_user responses, the post-boot kickoff), the text is
       // still sent to the server but no local user-message bubble is appended —
       // the answer is reflected in the ask_user tool card, and the server marks

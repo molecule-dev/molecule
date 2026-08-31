@@ -413,6 +413,18 @@ export interface ChatProvider {
   /** Aborts the current streaming response. */
   abort(): void
 
+  /**
+   * Optional: sends a SIDE-CHANNEL message (e.g. a human-only team note the
+   * server intercepts before running any agent turn) without touching the main
+   * turn stream. Must be safe to call while `sendMessage` is streaming: it uses
+   * an independent request/abort lifecycle, never aborts (and is never aborted
+   * by) the main stream or `abort()`. Events from the response — typically a
+   * single complete `message` (+ `done`) — are delivered to `onEvent`.
+   * Providers that omit it: callers fall back to `sendMessage`, which may queue
+   * the message behind an active turn.
+   */
+  sendSideMessage?(message: string, config: ChatConfig, onEvent: ChatEventHandler): Promise<void>
+
   /** Clears the conversation history on the server. */
   clearHistory(config: ChatConfig): Promise<void>
 

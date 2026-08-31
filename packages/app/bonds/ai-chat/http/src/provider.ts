@@ -180,48 +180,7 @@ export class HttpChatProvider implements ChatProvider {
         return
       }
 
-      const reader = response!.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() ?? ''
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const data = line.slice(6).trim()
-          if (!data) continue
-
-          try {
-            const event = JSON.parse(data) as ChatStreamEvent
-            onEvent(event)
-          } catch (_error) {
-            // Skip malformed SSE data lines
-          }
-        }
-
-        // Yield to the main thread between chunks so React can flush renders,
-        // providing backpressure when a single read() returns many SSE events.
-        await new Promise((r) => setTimeout(r, 0))
-      }
-
-      // Process any remaining buffer
-      if (buffer.startsWith('data: ')) {
-        const data = buffer.slice(6).trim()
-        if (data) {
-          try {
-            const event = JSON.parse(data) as ChatStreamEvent
-            onEvent(event)
-          } catch (_error) {
-            // Skip malformed data
-          }
-        }
-      }
+      await HttpChatProvider.pumpSse(response!.body, onEvent)
     } catch (err) {
       // AbortError can be a DOMException or a plain Error depending on the environment.
       // Silently return — this request was superseded by a newer one.
@@ -243,6 +202,134 @@ export class HttpChatProvider implements ChatProvider {
       if (this.abortController === controller) {
         this.abortController = null
       }
+    }
+  }
+
+  /**
+   * Reads an SSE body and forwards each parsed `data:` event to the handler.
+   * Shared by the main turn stream and the side-channel send.
+   * @param body - The response body stream.
+   * @param onEvent - Callback invoked per parsed event.
+   */
+  private static async pumpSse(
+    body: ReadableStream<Uint8Array>,
+    onEvent: ChatEventHandler,
+  ): Promise<void> {
+    const reader = body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const data = line.slice(6).trim()
+        if (!data) continue
+
+        try {
+          const event = JSON.parse(data) as ChatStreamEvent
+          onEvent(event)
+        } catch (_error) {
+          // Skip malformed SSE data lines
+        }
+      }
+
+      // Yield to the main thread between chunks so React can flush renders,
+      // providing backpressure when a single read() returns many SSE events.
+      await new Promise((r) => setTimeout(r, 0))
+    }
+
+    // Process any remaining buffer
+    if (buffer.startsWith('data: ')) {
+      const data = buffer.slice(6).trim()
+      if (data) {
+        try {
+          const event = JSON.parse(data) as ChatStreamEvent
+          onEvent(event)
+        } catch (_error) {
+          // Skip malformed data
+        }
+      }
+    }
+  }
+
+  /**
+   * Sends a side-channel message (e.g. a human-only team note the server
+   * intercepts before any agent turn) on its OWN request lifecycle. Never
+   * touches `this.abortController`, so it is safe while `sendMessage` streams:
+   * it cannot abort the live turn, and `abort()` cannot abort it. No 409 retry
+   * loop — the server handles side-channel messages before taking the
+   * per-conversation turn lock, so they never contend for it.
+   * @param message - The side-channel message text (e.g. "/teamsay hi").
+   * @param config - Chat configuration including the API endpoint.
+   * @param onEvent - Callback invoked for each SSE event (typically one complete `message` + `done`).
+   */
+  async sendSideMessage(
+    message: string,
+    config: ChatConfig,
+    onEvent: ChatEventHandler,
+  ): Promise<void> {
+    const url = `${this.config.baseUrl ?? ''}${config.endpoint}`
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...this.config.headers,
+        },
+        body: JSON.stringify({
+          message,
+          ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
+        }),
+      })
+
+      if (!response.ok) {
+        const text = await response
+          .text()
+          .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
+        let errorMessage: string | undefined
+        try {
+          const parsed = JSON.parse(text) as { error?: string }
+          if (typeof parsed.error === 'string') errorMessage = parsed.error
+        } catch (_error) {
+          // Not JSON — use raw text
+        }
+        onEvent({
+          type: 'error',
+          status: response.status,
+          message:
+            errorMessage ??
+            t(
+              'chat.error.httpError',
+              { status: response.status, text },
+              { defaultValue: 'HTTP {{status}}: {{text}}' },
+            ),
+        })
+        return
+      }
+
+      if (!response.body) {
+        onEvent({
+          type: 'error',
+          transport: true,
+          message: t('chat.error.noResponseBody', undefined, { defaultValue: 'No response body' }),
+        })
+        return
+      }
+
+      await HttpChatProvider.pumpSse(response.body, onEvent)
+    } catch (err) {
+      const messageText =
+        err instanceof Error
+          ? err.message
+          : t('chat.error.streamError', undefined, { defaultValue: 'Stream error' })
+      onEvent({ type: 'error', transport: true, message: messageText })
     }
   }
 

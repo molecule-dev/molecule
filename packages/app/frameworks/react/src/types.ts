@@ -284,6 +284,16 @@ export interface SendMessageOptions {
    * user-initiated one IS that re-engagement — it clears the stop and sends.
    */
   userInitiated?: boolean
+  /**
+   * Send on the SIDE CHANNEL: a human-to-human message (e.g. a team note) the
+   * server intercepts before running any agent turn. When the provider supports
+   * `sendSideMessage`, the send goes out IMMEDIATELY on an independent request —
+   * it never queues behind an active turn, never takes over the streaming
+   * state, and never tears down remote-turn tracking (a viewer's note while
+   * watching a teammate's turn must not stop the watching). Falls back to the
+   * normal send path on providers without side-channel support.
+   */
+  sideChannel?: boolean
 }
 
 /**
