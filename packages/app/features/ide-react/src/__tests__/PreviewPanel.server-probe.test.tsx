@@ -170,6 +170,42 @@ describe('PreviewPanel — the server-up probe', () => {
     expect(container.textContent).not.toContain("Preview can't load here")
   })
 
+  it('never reloads a HEARTBEATING document mid-load — slow module graphs finish uninterrupted', async () => {
+    // The reload-murder loop: a large app's module graph takes ~30s (250 modules
+    // behind a microVM edge), the stuck cycle fired a cache-busted reload at 15s
+    // (pre-onLoad), aborting every in-flight module fetch; the next document
+    // raced onto the aborted entries and memoized spurious failures — blank,
+    // reload, repeat, forever, while a fresh tab loaded fine. The inline bridge
+    // heartbeats from HTML-parse time, so liveness IS the loading signal: a
+    // heartbeating doc must never be yanked.
+    const fetchSpy = vi.fn(async () => ({ ok: true, status: 200 }) as Response)
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const container = await mountAndPoll()
+    const iframe = container.querySelector('iframe') as HTMLIFrameElement
+    expect(iframe).not.toBeNull()
+
+    // The document heartbeats (bridge alive, graph still loading): dispatch a
+    // beat every 3s while advancing past several stuck windows.
+    for (let i = 0; i < 14; i++) {
+      window.dispatchEvent(
+        new MessageEvent('message', {
+          data: { type: 'molecule:heartbeat' },
+          source: iframe.contentWindow,
+        }),
+      )
+      await advance(3_000)
+    }
+    // 42s of alive-but-loading: no recovery reload fired (src never cache-busted).
+    const src = container.querySelector('iframe')?.getAttribute('src') ?? ''
+    expect(src).not.toContain('_r=')
+
+    // Heartbeats stop (the doc is genuinely dead) — recovery resumes.
+    await advance(30_000)
+    const deadSrc = container.querySelector('iframe')?.getAttribute('src') ?? ''
+    expect(deadSrc).toContain('_r=')
+  })
+
   it('escalates to ONE backend restart when reloads cannot produce a render against a serving host', async () => {
     // The poisoned-module-cache class: the server answers every probe, the
     // dead-end machinery reloads, and the app still never confirms a render —

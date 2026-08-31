@@ -1018,6 +1018,19 @@ export function PreviewPanel({
         // The document loaded but ready never came → defer to the onLoad grace
         // fallback; do not interrupt a progressing load with a remount.
         if (iframeLoadedRef.current) return
+        // A heartbeating document is ALIVE and MID-LOAD: the inline bridge runs
+        // from HTML parse, long before a large module graph finishes (a
+        // multi-repo import behind a microVM edge takes ~30s for ~250 modules —
+        // observed live 2026-08-31). Reloading it aborts every in-flight module
+        // fetch, and the next document races onto the aborted entries and
+        // memoizes spurious failures — the recovery loop MURDERS the loads it
+        // guards ("stuck on Loading preview" while a fresh tab loads fine).
+        // Keep watching instead; a dead doc (no heartbeat) still recovers, and
+        // window `load` never firing at all is bounded by the ceilings.
+        if (Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS) {
+          scheduleNext()
+          return
+        }
 
         cycleCount += 1
         setStuckRetryCount(cycleCount)
