@@ -2878,6 +2878,13 @@ function ChatInner({
   >(() => {})
   useEffect(() => {
     if (autoFixCountdown && autoFixCountdown.secondsLeft === 0 && !autoFixCountdown.paused) {
+      // Defense-in-depth: arming is sender-only (a viewer never owns a stream),
+      // but an autonomous agent-turn dispatch must never fire from a read-only
+      // client regardless of how the countdown came to exist.
+      if (canEdit === false) {
+        setAutoFixCountdown(null)
+        return
+      }
       const msg = `Fix these issues:\n\n${autoFixCountdown.output}`
       setAutoFixCountdown(null)
       // Auto-sent on the user's behalf — flag it so the chat renders it in the
@@ -2885,7 +2892,7 @@ function ChatInner({
       // user typed it (C2).
       sendMessageRef.current(msg, undefined, { automatic: true })
     }
-  }, [autoFixCountdown])
+  }, [autoFixCountdown, canEdit])
 
   // Auto-pause countdown when user starts typing
   const handleAutoFixPauseOnInput = useCallback(() => {
@@ -4592,8 +4599,12 @@ function ChatInner({
   useEffect(() => {
     if (initialMessage && !hasConversation && sentInitialRef.current !== initialMessage) {
       sentInitialRef.current = initialMessage
-      // Same rule as handleSubmit: a host side-channel command (e.g. /teamsay)
-      // renders no optimistic echo — the server's `message` event is the message.
+      // A read-only VIEWER never auto-sends the initial prompt: the host sources
+      // it from PROJECT-keyed localStorage, which survives a role demotion and a
+      // shared browser — a stale entry would auto-POST an agent turn the server
+      // 403s, surfacing a spurious red error on mount. Consume the ref (above)
+      // so it is never retried either.
+      if (canEdit === false) return
       const sideChannel = matchesSideChannelCommand(
         extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS,
         initialMessage,
@@ -4605,7 +4616,7 @@ function ChatInner({
       )
       onInitialMessageSent?.()
     }
-  }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent, extraCommands])
+  }, [initialMessage, hasConversation, sendMessage, onInitialMessageSent, extraCommands, canEdit])
 
   // ── Auto-send pending message (e.g. "Fix with AI", preview errors) ──────
   // Defers sending while the AI is streaming to avoid queueing up auto-fix
