@@ -561,6 +561,19 @@ export interface PreviewPanelProps {
    */
   onPreviewStuck?: (report?: PreviewStuckReport) => void
   /**
+   * Escalation hook: restart the BACKING dev server. The panel calls this at most
+   * once per broken episode (long cooldown, never during a build) when client-side
+   * recovery is provably useless: the server answers probes, at least one automatic
+   * reload already ran, and the app has still never confirmed a render for minutes.
+   * Document reloads cannot heal that class — e.g. a poisoned immutable module cache
+   * keyed to the dev server's version hash (observed live 2026-08-31); only a server
+   * restart mints new module URLs. Return (or resolve) `false` to DECLINE (wrong
+   * role, hidden tab, sandbox not running, a turn active) — the panel then burns no
+   * budget and may ask again later; any other result counts as "restart initiated".
+   * Omit the prop to disable escalation entirely (the default for generic hosts).
+   */
+  onRestartBackend?: () => Promise<boolean | void> | boolean | void
+  /**
    * Called when the preview's render verdict changes ({@link PreviewRenderState}) — and
    * with the current location so the host can report WHERE. The host forwards this to the
    * server so Synthase's post-loop verification can confirm the app actually rendered (not

@@ -149,6 +149,23 @@ const MAX_RECOVERY_CYCLES = 3
  */
 const MAX_DEAD_END_AUTO_RECOVERS = 3
 
+// --- Backend-restart escalation (see PreviewPanelProps.onRestartBackend) ---
+
+/**
+ * How long the app may sit with NO confirmed render before the panel may escalate
+ * to a backend dev-server restart (ms). Deliberately generous: it must outlast a
+ * heavy cold compile, wake patience, and multiple dead-end reload attempts, so a
+ * restart is only ever the answer when reloading has already been tried against a
+ * SERVING host and provably changed nothing (the poisoned-module-cache class —
+ * a document reload reuses the dev server's immutable `?v=` module URLs, so only
+ * a server restart, which mints a new version hash, can clear it).
+ */
+const BACKEND_RESTART_AFTER_MS = 180_000
+/** Cooldown between backend-restart escalations (ms) — one restart gets one full recovery cycle. */
+const BACKEND_RESTART_COOLDOWN_MS = 600_000
+/** Cadence of the escalation watchdog's cheap pre-checks (ms). */
+const BACKEND_RESTART_CHECK_MS = 10_000
+
 /**
  * Absolute upper bound (ms) on how long the preview may sit on the loading overlay
  * without ever CONFIRMING a render (`molecule:ready`), while not mid-build. A pure
@@ -414,6 +431,7 @@ export function PreviewPanel({
   className,
   onPreviewError,
   onPreviewStuck,
+  onRestartBackend,
   onRenderState,
   uiCommand,
   onUiResult,
@@ -590,6 +608,14 @@ export function PreviewPanel({
   // Probe-driven automatic recoveries fired this dead-end episode (see
   // MAX_DEAD_END_AUTO_RECOVERS) — reset on a confirmed render or a manual retry.
   const deadEndAutoRecoversRef = useRef(0)
+  // --- Backend-restart escalation state (see the escalation watchdog effect) ---
+  // When the current "no confirmed render" stretch began. Pushed forward by any
+  // confirm-state change, a new load target, and a wake — so the escalation clock
+  // only measures genuinely-stuck time, never healthy time or granted patience.
+  const notConfirmedSinceRef = useRef(Date.now())
+  // One escalation per broken episode; re-armed only by a confirmed render.
+  const backendRestartUsedRef = useRef(false)
+  const lastBackendRestartAtRef = useRef(0)
   // Mirror iframeReady to a ref so timer callbacks read current value
   const iframeReadyRef = useRef(iframeReady)
   iframeReadyRef.current = iframeReady
@@ -713,6 +739,9 @@ export function PreviewPanel({
     setBlankPostBuild(false)
     setPreviewGaveUp(false)
     setStuckRetryCount(0)
+    // A wake grants a fresh escalation clock too — the relaunching server owes
+    // no restart while its own cold path plays out.
+    notConfirmedSinceRef.current = Date.now()
     if (neverRendered && urlRef.current) {
       setIframeSrc(withCacheBuster(urlRef.current))
     }
@@ -868,6 +897,8 @@ export function PreviewPanel({
     // it patiently (reveal on ready, no premature blank/give-up) until ITS first molecule:ready.
     hasEverRenderedRef.current = false
     lastLoadAtRef.current = 0
+    // Fresh escalation clock for the new target.
+    notConfirmedSinceRef.current = Date.now()
     // A new load target hasn't confirmed content yet.
     setConfirmedContent(false)
     setBlankPostBuild(false)
@@ -1698,6 +1729,77 @@ export function PreviewPanel({
       if (timer) clearTimeout(timer)
     }
   }, [previewGaveUp, blankPostBuild, confirmedContent, state.url, handleManualRetry])
+
+  // The escalation clock measures CONTINUOUS unconfirmed time: any change of the
+  // confirm verdict (healthy→broken or broken→healthy) restarts it, so a stretch
+  // of healthy rendering can never count toward a restart, and a confirmed render
+  // re-arms the once-per-episode escalation budget.
+  useEffect(() => {
+    notConfirmedSinceRef.current = Date.now()
+    if (confirmedContent) backendRestartUsedRef.current = false
+  }, [confirmedContent])
+
+  // --- Backend-restart escalation watchdog (see PreviewPanelProps.onRestartBackend) ---
+  // The one recovery a document reload can NEVER perform: when the dev server's
+  // module state is poisoned (observed live 2026-08-31: module failures memoized
+  // against vite's immutable `?v=`-hashed URLs — every reload, manual and
+  // automatic, rebuilt the same broken graph with zero errors anywhere), only a
+  // SERVER restart mints new module URLs. Escalates at most once per broken
+  // episode, and only when every cheaper explanation is exhausted:
+  //   • the app has confirmed nothing for BACKEND_RESTART_AFTER_MS straight
+  //     (clock reset by confirms, new targets, and wakes — patience is honored),
+  //   • at least one dead-end auto-reload already ran (so a plain cold boot,
+  //     which never engages the dead-end machinery, can never trip this),
+  //   • the server answers probes RIGHT NOW (a down server needs waking/time,
+  //     not a restart — the dead-end probe loop owns that case),
+  //   • no build is running (the executor owns the sandbox during a turn).
+  // The host may DECLINE (return false: wrong role, hidden tab, sandbox not
+  // running) — nothing is burned and the watchdog may ask again later.
+  useEffect(() => {
+    if (!state.url || !onRestartBackend) return undefined
+    const aborter = new AbortController()
+    let inFlight = false
+    const interval = setInterval(() => {
+      if (inFlight) return
+      inFlight = true
+      void (async () => {
+        try {
+          if (confirmedContentRef.current || isBuildingRef.current) return
+          if (deadEndAutoRecoversRef.current < 1) return
+          if (backendRestartUsedRef.current) return
+          const now = Date.now()
+          if (now - notConfirmedSinceRef.current < BACKEND_RESTART_AFTER_MS) return
+          if (now - lastBackendRestartAtRef.current < BACKEND_RESTART_COOLDOWN_MS) return
+          const up = await isServerUp(urlRef.current, aborter.signal)
+          if (aborter.signal.aborted || !up) return
+          // Re-check the fast-moving gates after the await.
+          if (confirmedContentRef.current || isBuildingRef.current) return
+          const outcome = await onRestartBackend()
+          if (aborter.signal.aborted || outcome === false) return
+          backendRestartUsedRef.current = true
+          lastBackendRestartAtRef.current = Date.now()
+          notConfirmedSinceRef.current = Date.now()
+          // The restarted server deserves a fresh reload budget so the dead-end
+          // probe (or the wake reload) can bring the recovered app in.
+          deadEndAutoRecoversRef.current = 0
+          // Deliberate breadcrumb — names the escalation in the console so a
+          // "the preview restarted itself" report is traceable.
+          console.warn(
+            '[preview] escalated to a backend dev-server restart — reloads could not produce a render against a serving host',
+          )
+        } catch (_error) {
+          // Escalation is strictly best-effort: a failed probe or a host error
+          // must never break the panel; the next check re-evaluates.
+        } finally {
+          inFlight = false
+        }
+      })()
+    }, BACKEND_RESTART_CHECK_MS)
+    return () => {
+      aborter.abort()
+      clearInterval(interval)
+    }
+  }, [state.url, onRestartBackend])
 
   // --- Reload a frozen preview ---
   // Remounts the iframe (fresh load re-runs the app, clearing the locked thread).

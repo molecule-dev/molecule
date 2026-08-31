@@ -170,6 +170,70 @@ describe('PreviewPanel — the server-up probe', () => {
     expect(container.textContent).not.toContain("Preview can't load here")
   })
 
+  it('escalates to ONE backend restart when reloads cannot produce a render against a serving host', async () => {
+    // The poisoned-module-cache class: the server answers every probe, the
+    // dead-end machinery reloads, and the app still never confirms a render —
+    // document reloads reuse the dev server's immutable ?v= module URLs, so
+    // only a server restart (new version hash) can recover. The panel must ask
+    // the host exactly once per episode.
+    const restartSpy = vi.fn(async () => true)
+    const fetchSpy = vi.fn(async () => ({ ok: true, status: 200 }) as Response)
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = render(
+      <Wrap provider={providerAtUrl()}>
+        <PreviewPanel isBuilding={false} onRestartBackend={restartSpy} />
+      </Wrap>,
+    )
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await advance(50)
+    }
+    expect(container.querySelector('iframe')).not.toBeNull()
+
+    // No render ever confirms (jsdom loads nothing) → the absolute ceiling
+    // gives up → the dead-end probe sees the server up and burns a reload.
+    await advance(40_000)
+    // Not yet: the escalation clock (3 min) has not elapsed.
+    expect(restartSpy).not.toHaveBeenCalled()
+
+    // Past the escalation window: reload was tried, server answers, still no
+    // render — the watchdog escalates exactly once.
+    await advance(160_000)
+    expect(restartSpy).toHaveBeenCalledTimes(1)
+
+    // And never again this episode, no matter how long it stays broken.
+    await advance(120_000)
+    expect(restartSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('a declined escalation burns nothing — the watchdog asks again later', async () => {
+    // The host declines for transient reasons (hidden tab, sandbox not
+    // running); the panel must keep the episode budget intact and retry.
+    const restartSpy = vi.fn(async () => false)
+    const fetchSpy = vi.fn(async () => ({ ok: true, status: 200 }) as Response)
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const { container } = render(
+      <Wrap provider={providerAtUrl()}>
+        <PreviewPanel isBuilding={false} onRestartBackend={restartSpy} />
+      </Wrap>,
+    )
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await advance(50)
+    }
+
+    // Two-step advance (like the accepted-escalation test): the give-up state
+    // update mid-advance only arms the dead-end effect at an act() boundary.
+    await advance(40_000)
+    await advance(160_000)
+    const afterFirstWindow = restartSpy.mock.calls.length
+    expect(afterFirstWindow).toBeGreaterThanOrEqual(1)
+    await advance(30_000)
+    // Declined attempts keep coming (nothing was burned) — unlike the accepted
+    // escalation, which is once per episode.
+    expect(restartSpy.mock.calls.length).toBeGreaterThan(afterFirstWindow)
+  })
+
   it('auto-recovers from the give-up panel once the server answers again (slow wake)', async () => {
     // The motivating incident: a 24h-asleep E2B sandbox resumed slowly enough that
     // every retry budget expired against a not-yet-serving host, the loop-breaker
