@@ -150,14 +150,18 @@ export interface AppModelDefinition {
    * a number that changes during the day is explained rather than surprising.
    *
    * Windows are minutes-since-midnight UTC, half-open `[start, end)`; a window
-   * may wrap midnight (`start > end`).
+   * may wrap midnight (`start > end`). `daysOfWeekUtc` restricts a window to
+   * certain UTC weekdays (`0` = Sunday … `6` = Saturday); omitted means every
+   * day. Providers that price peak by BUSINESS hours qualify them by day
+   * (DeepSeek's card says "Monday through Friday"), and ignoring that shows a
+   * 2× on a weekend that is not being charged.
    *
    * Applies to the BASE rates only. A region with a `regionPricing` override is
    * a different host billing its own card, which generally has no time-of-day
    * component — so peak never applies there, matching `priceMultiplierAt`.
    */
   peakPricing?: {
-    windows: { startMinuteUtc: number; endMinuteUtc: number }[]
+    windows: { startMinuteUtc: number; endMinuteUtc: number; daysOfWeekUtc?: number[] }[]
     multiplier: number
   }
   /**

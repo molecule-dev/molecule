@@ -13,6 +13,7 @@ import {
   effectiveModelRegion,
   modelHasPeakPricing,
   modelPeakMultiplier,
+  modelPeakWindowLabels,
   modelTotalCost,
   modelUsageRate,
   sortModels,
@@ -335,5 +336,83 @@ describe('peak-hour pricing', () => {
     expect(
       modelPeakMultiplier(model({ id: 'flat' }), undefined, new Date('2026-08-17T02:00:00Z')),
     ).toBe(1)
+  })
+
+  it('honors a window restricted to certain UTC weekdays', () => {
+    // DeepSeek's card qualifies its windows "Monday through Friday", so a
+    // Saturday inside the hours is NOT charged the 2× — showing one would
+    // overstate the cost for two days a week.
+    const weekdays = model({
+      id: 'weekdays',
+      peakPricing: {
+        windows: [{ startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: [1, 2, 3, 4, 5] }],
+        multiplier: 2,
+      },
+    })
+    expect(modelPeakMultiplier(weekdays, undefined, new Date('2026-08-17T02:00:00Z'))).toBe(2)
+    expect(modelPeakMultiplier(weekdays, undefined, new Date('2026-08-21T02:00:00Z'))).toBe(2)
+    expect(modelPeakMultiplier(weekdays, undefined, new Date('2026-08-22T02:00:00Z'))).toBe(1)
+    expect(modelPeakMultiplier(weekdays, undefined, new Date('2026-08-23T02:00:00Z'))).toBe(1)
+  })
+
+  it('matches a wrapping window against the day it started on', () => {
+    const wrap = model({
+      id: 'wrap',
+      peakPricing: {
+        windows: [{ startMinuteUtc: 1380, endMinuteUtc: 120, daysOfWeekUtc: [5] }],
+        multiplier: 2,
+      },
+    })
+    expect(modelPeakMultiplier(wrap, undefined, new Date('2026-08-21T23:30:00Z'))).toBe(2)
+    expect(modelPeakMultiplier(wrap, undefined, new Date('2026-08-22T00:30:00Z'))).toBe(2)
+    expect(modelPeakMultiplier(wrap, undefined, new Date('2026-08-22T23:30:00Z'))).toBe(1)
+  })
+})
+
+describe('peak window labels', () => {
+  // Asserted structurally rather than against literal day/time strings: the
+  // labels are formatted in the RUNNER's locale and time zone, so pinning
+  // "Mon–Fri 04:00–07:00" would only pass on the machine that wrote it.
+  const withWindow = (window: {
+    startMinuteUtc: number
+    endMinuteUtc: number
+    daysOfWeekUtc?: number[]
+  }): AppModelDefinition => model({ id: 'w', peakPricing: { windows: [window], multiplier: 2 } })
+
+  const HOURS = { startMinuteUtc: 60, endMinuteUtc: 240 }
+
+  it('shows hours alone when the window applies every day', () => {
+    const hours = modelPeakWindowLabels(withWindow(HOURS))[0]
+    expect(hours).toMatch(/^\d/)
+    // An empty or complete day list means the same thing as no list at all.
+    expect(modelPeakWindowLabels(withWindow({ ...HOURS, daysOfWeekUtc: [] }))[0]).toBe(hours)
+    expect(
+      modelPeakWindowLabels(withWindow({ ...HOURS, daysOfWeekUtc: [0, 1, 2, 3, 4, 5, 6] }))[0],
+    ).toBe(hours)
+  })
+
+  it('prefixes the weekdays when the window does not apply every day', () => {
+    const hours = modelPeakWindowLabels(withWindow(HOURS))[0]
+    const weekdays = modelPeakWindowLabels(
+      withWindow({ ...HOURS, daysOfWeekUtc: [1, 2, 3, 4, 5] }),
+    )[0]
+    expect(weekdays).not.toBe(hours)
+    expect(weekdays.endsWith(hours)).toBe(true)
+    // A contiguous run collapses to a single `X–Y` range, not a five-item list.
+    expect(weekdays.slice(0, weekdays.length - hours.length)).not.toContain(',')
+
+    const single = modelPeakWindowLabels(withWindow({ ...HOURS, daysOfWeekUtc: [3] }))[0]
+    const singlePrefix = single.slice(0, single.length - hours.length)
+    expect(singlePrefix.trim().length).toBeGreaterThan(0)
+    expect(singlePrefix).not.toContain('–')
+
+    // A non-contiguous set has to list its days; collapsing it to a range would
+    // claim peak hours on days the provider prices off-peak.
+    const split = modelPeakWindowLabels(withWindow({ ...HOURS, daysOfWeekUtc: [1, 4] }))[0]
+    expect(split.slice(0, split.length - hours.length)).toContain(',')
+  })
+
+  it('returns nothing for a model without peak windows', () => {
+    expect(modelPeakWindowLabels(model({ id: 'flat' }))).toEqual([])
   })
 })

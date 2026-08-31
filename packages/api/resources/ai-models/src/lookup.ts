@@ -206,7 +206,8 @@ export function withEffectivePricing(
  * The price multiplier in effect for a model at a given instant, in a region.
  *
  * Consults the model's {@link ModelDefinition.peakPricing} windows (UTC,
- * half-open, may wrap midnight). Metering MUST call this with each request's
+ * half-open, may wrap midnight, optionally restricted to certain UTC weekdays
+ * via `daysOfWeekUtc`). Metering MUST call this with each request's
  * own timestamp so peak-hour usage bills at the provider's real rate — pricing
  * everything at the flat rate silently under-meters peak traffic.
  *
@@ -236,11 +237,19 @@ export function priceMultiplierAt(
   if (!peak || peak.windows.length === 0) return 1
   const minute = at.getUTCHours() * 60 + at.getUTCMinutes()
   for (const w of peak.windows) {
-    const inWindow =
-      w.startMinuteUtc <= w.endMinuteUtc
-        ? minute >= w.startMinuteUtc && minute < w.endMinuteUtc
-        : minute >= w.startMinuteUtc || minute < w.endMinuteUtc
-    if (inWindow) return peak.multiplier
+    const wraps = w.startMinuteUtc > w.endMinuteUtc
+    const inWindow = wraps
+      ? minute >= w.startMinuteUtc || minute < w.endMinuteUtc
+      : minute >= w.startMinuteUtc && minute < w.endMinuteUtc
+    if (!inWindow) continue
+    if (w.daysOfWeekUtc && w.daysOfWeekUtc.length > 0) {
+      // A wrapping window belongs to the day it STARTED on, so its
+      // post-midnight tail is matched against the previous UTC day — a
+      // Friday-only 23:00-02:00 window must still be peak at Saturday 00:30.
+      const day = wraps && minute < w.endMinuteUtc ? (at.getUTCDay() + 6) % 7 : at.getUTCDay()
+      if (!w.daysOfWeekUtc.includes(day)) continue
+    }
+    return peak.multiplier
   }
   return 1
 }

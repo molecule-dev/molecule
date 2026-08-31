@@ -54,7 +54,8 @@ export function effectiveModelRegion(
 /**
  * The peak-hour multiplier in force for a model at an instant, in a region.
  *
- * Mirrors the server's `priceMultiplierAt`, including the rule that matters
+ * Mirrors the server's `priceMultiplierAt`, including its `daysOfWeekUtc`
+ * handling and the rule that matters
  * most: peak belongs to the NATIVE provider, so a region with a `regionPricing`
  * override — a different host, billing its own flat card — never takes it.
  * Showing a 2× on a re-host the user is actually routed to would be a lie in
@@ -75,11 +76,18 @@ export function modelPeakMultiplier(
   if (!peak || peak.windows.length === 0) return 1
   const minute = at.getUTCHours() * 60 + at.getUTCMinutes()
   for (const w of peak.windows) {
-    const inWindow =
-      w.startMinuteUtc <= w.endMinuteUtc
-        ? minute >= w.startMinuteUtc && minute < w.endMinuteUtc
-        : minute >= w.startMinuteUtc || minute < w.endMinuteUtc
-    if (inWindow) return peak.multiplier
+    const wraps = w.startMinuteUtc > w.endMinuteUtc
+    const inWindow = wraps
+      ? minute >= w.startMinuteUtc || minute < w.endMinuteUtc
+      : minute >= w.startMinuteUtc && minute < w.endMinuteUtc
+    if (!inWindow) continue
+    if (w.daysOfWeekUtc && w.daysOfWeekUtc.length > 0) {
+      // A wrapping window belongs to the day it STARTED on, so its
+      // post-midnight tail is matched against the previous UTC day.
+      const day = wraps && minute < w.endMinuteUtc ? (at.getUTCDay() + 6) % 7 : at.getUTCDay()
+      if (!w.daysOfWeekUtc.includes(day)) continue
+    }
+    return peak.multiplier
   }
   return 1
 }
@@ -102,10 +110,50 @@ export function modelHasPeakPricing(model: AppModelDefinition, region?: string):
 }
 
 /**
- * The peak windows as local-time `HH:MM–HH:MM` ranges, for display.
+ * A window's `daysOfWeekUtc` as a localized weekday label, for display.
+ *
+ * The days are UTC but the times are shown in the user's clock, and the two can
+ * disagree — a Monday 01:00 UTC window starts on Sunday evening in UTC-8. So
+ * each UTC day is resolved through the window's own START instant and read back
+ * in local time, which is the same day the `HH:MM` beside it belongs to.
+ * Contiguous runs collapse to a range (`Mon–Fri`), including runs that wrap the
+ * week; anything else lists the days.
+ *
+ * @param window - The peak window.
+ * @returns The localized weekday label, empty when the window applies every day.
+ */
+function peakWindowDayLabel(window: { startMinuteUtc: number; daysOfWeekUtc?: number[] }): string {
+  const days = window.daysOfWeekUtc
+  if (!days || days.length === 0 || days.length >= 7) return ''
+  // 2026-08-30 is a Sunday in UTC, so `+ d` lands on UTC weekday `d`.
+  const byLocalDay = new Map<number, string>()
+  for (const d of days) {
+    const at = new Date(Date.UTC(2026, 7, 30 + d, 0, window.startMinuteUtc))
+    byLocalDay.set(at.getDay(), at.toLocaleDateString(undefined, { weekday: 'short' }))
+  }
+  const present = [...byLocalDay.keys()].sort((a, b) => a - b)
+  if (present.length === 1) return byLocalDay.get(present[0])!
+  const start = present.find((d) => !byLocalDay.has((d + 6) % 7))
+  if (start !== undefined) {
+    let end = start
+    let length = 1
+    while (byLocalDay.has((end + 1) % 7) && length < present.length) {
+      end = (end + 1) % 7
+      length += 1
+    }
+    if (length === present.length) return `${byLocalDay.get(start)!}–${byLocalDay.get(end)!}`
+  }
+  return present.map((d) => byLocalDay.get(d)!).join(', ')
+}
+
+/**
+ * The peak windows as local-time `HH:MM–HH:MM` ranges, for display, prefixed
+ * with the weekdays they apply on when they do not apply every day.
  *
  * Local, not UTC: a user reasons about "is it expensive right now" in their own
- * clock, and the windows are only actionable if they can be compared to it.
+ * clock, and the windows are only actionable if they can be compared to it. A
+ * weekday-qualified window that renders as bare hours overstates the cost for
+ * two days a week — the provider is not charging peak on a Saturday.
  *
  * @param model - The model metadata.
  * @returns Formatted local ranges, empty when the model has no peak windows.
@@ -117,7 +165,11 @@ export function modelPeakWindowLabels(model: AppModelDefinition): string[] {
     d.setUTCHours(Math.floor(minuteUtc / 60), minuteUtc % 60, 0, 0)
     return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
   }
-  return windows.map((w) => `${fmt(w.startMinuteUtc)}–${fmt(w.endMinuteUtc)}`)
+  return windows.map((w) => {
+    const hours = `${fmt(w.startMinuteUtc)}–${fmt(w.endMinuteUtc)}`
+    const days = peakWindowDayLabel(w)
+    return days ? `${days} ${hours}` : hours
+  })
 }
 
 /**

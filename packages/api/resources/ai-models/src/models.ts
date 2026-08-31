@@ -11,6 +11,12 @@
 import type { ModelDefinition } from './types.js'
 
 /**
+ * Monday–Friday as UTC weekday numbers, for `peakPricing` windows a provider
+ * prices by business day rather than by hour alone.
+ */
+const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
+
+/**
  * All available AI models, grouped by provider, ordered from most to least capable.
  *
  * To add or remove a model, edit this array. Both the server-side validation
@@ -99,12 +105,16 @@ import type { ModelDefinition } from './types.js'
  *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
  *   grok-code-fast-1 no longer listed — retires 2026-08-15)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (verified
- *   2026-08-18; legacy deepseek-chat/-reasoner ids fully retired 2026-07-24 —
+ *   2026-08-31; legacy deepseek-chat/-reasoner ids fully retired 2026-07-24 —
  *   never in this catalog. The V4-Pro-GA price RISE effective 2026-08-16T16:00Z
  *   has LANDED and is folded into the base fields, along with the peak-hour 2×
- *   the same card introduced. The rate card gives the peak windows as
- *   "01:00 - 04:00 and 06:00 - 10:00 UTC (all other hours are off-peak)" with
- *   no day qualifier — DAILY, as `peakPricing` models them.)
+ *   the same card introduced; every rate re-read on the card 2026-08-31 and
+ *   unchanged. The card now qualifies the windows BY DAY — "01:00 - 04:00 and
+ *   06:00 - 10:00 UTC, Monday through Friday (all other hours are off-peak)" —
+ *   where on 2026-08-18 it carried no day qualifier at all, so the windows are
+ *   `daysOfWeekUtc`-restricted rather than daily. `deepseek-v4-flash-vision-exp`
+ *   also appears on the card at flash's rates: EXPERIMENTAL and vision-only-new,
+ *   deliberately not catalogued.)
  * - Moonshot: https://platform.kimi.ai/docs/models + DeepInfra's model API for
  *   the US re-host (kimi-k3 flagship 2026-07-16
  *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
@@ -1036,12 +1046,16 @@ export const MODELS: readonly ModelDefinition[] = [
   // input cost rose far more than the list prices suggest. Both are free-tier
   // models (flash is `freeTier`, pro is the free-tier planner).
   // The two post-landing re-verifications, both settled 2026-08-18:
-  //   1. WEEKDAYS OR DAILY — DAILY. The rate card still says only "Peak hours
-  //      are 01:00 - 04:00 and 06:00 - 10:00 UTC (all other hours are
-  //      off-peak)" with no day qualifier (press coverage had described them as
-  //      weekday-only). `peakPricing` has no day-of-week concept, so if the
-  //      provider ever qualifies these by day this over-bills every weekend
-  //      peak window and needs the FIELD extended, not the numbers nudged.
+  //   1. WEEKDAYS OR DAILY — DAILY on 2026-08-18, WEEKDAYS as of 2026-08-31.
+  //      The card now reads "Peak hours are 01:00 - 04:00 and 06:00 - 10:00
+  //      UTC, Monday through Friday (all other hours are off-peak)"; on
+  //      2026-08-18 the same sentence carried no day qualifier (press coverage
+  //      had described them as weekday-only, and it turned out to be right, or
+  //      to have become right). That is the case the 2026-08-18 note said would
+  //      need the FIELD extended rather than the numbers nudged — so
+  //      `peakPricing` windows gained `daysOfWeekUtc` and both entries carry
+  //      WEEKDAYS_UTC. Modeling them as daily bills a 2× on ~29 weekend hours a
+  //      week that DeepSeek does not charge.
   //   2. THE CN-VS-US DEFAULT — settled per model, and they differ. Post-rise
   //      DeepInfra's US flash rates (0.08/0.18/0.016) are BELOW CN's off-peak
   //      on both input and output, so Flash defaults US; Pro's US re-host still
@@ -1107,14 +1121,15 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // The peak-hour 2× surcharge is ON the rate card and LIVE since
     // 2026-08-16T16:00Z. Peak = 01:00-04:00 and 06:00-10:00 UTC (Beijing
-    // business hours), daily, at exactly 2× the off-peak rates above. Windows
-    // like these were once pre-wired ahead of the card and over-billed every
-    // peak-window turn for weeks — hence the rule that they only exist here
-    // once the provider's own page shows them, which it now does.
+    // business hours) MONDAY THROUGH FRIDAY, at exactly 2× the off-peak rates
+    // above. Windows like these were once pre-wired ahead of the card and
+    // over-billed every peak-window turn for weeks — hence the rule that they
+    // only exist here once the provider's own page shows them, which it now
+    // does.
     peakPricing: {
       windows: [
-        { startMinuteUtc: 60, endMinuteUtc: 240 },
-        { startMinuteUtc: 360, endMinuteUtc: 600 },
+        { startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: WEEKDAYS_UTC },
+        { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: WEEKDAYS_UTC },
       ],
       multiplier: 2,
     },
@@ -1168,13 +1183,13 @@ export const MODELS: readonly ModelDefinition[] = [
     regionPricing: {
       us: { inputPricePerMTok: 0.08, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.016 },
     },
-    // Peak-hour surcharge live since 2026-08-16T16:00Z (see deepseek-v4-pro).
-    // It applies to the NATIVE CN card only — this model defaults to the US
-    // re-host, which is flat, so most turns never take it.
+    // Peak-hour surcharge live since 2026-08-16T16:00Z, Mon-Fri (see
+    // deepseek-v4-pro). It applies to the NATIVE CN card only — this model
+    // defaults to the US re-host, which is flat, so most turns never take it.
     peakPricing: {
       windows: [
-        { startMinuteUtc: 60, endMinuteUtc: 240 },
-        { startMinuteUtc: 360, endMinuteUtc: 600 },
+        { startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: WEEKDAYS_UTC },
+        { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: WEEKDAYS_UTC },
       ],
       multiplier: 2,
     },

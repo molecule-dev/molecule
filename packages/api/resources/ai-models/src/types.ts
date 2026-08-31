@@ -240,9 +240,19 @@ export interface ModelDefinition {
    *
    * Windows are minutes-since-midnight UTC, half-open `[start, end)`; a window
    * may wrap midnight (`start > end`).
+   *
+   * `daysOfWeekUtc` restricts a window to certain UTC weekdays (`0` = Sunday …
+   * `6` = Saturday); omitted means every day. A provider that prices its peak
+   * by BUSINESS hours qualifies them by day, and a day-less window over-bills
+   * every weekend hour inside it at the full multiplier — DeepSeek's card
+   * carried no day qualifier when these windows landed on 2026-08-16 and added
+   * "Monday through Friday" by 2026-08-31, which is exactly the 2× weekend
+   * over-bill this field exists to prevent. A wrapping window belongs to the
+   * day it STARTS on, so its post-midnight tail is still matched against the
+   * previous day.
    */
   peakPricing?: {
-    windows: { startMinuteUtc: number; endMinuteUtc: number }[]
+    windows: { startMinuteUtc: number; endMinuteUtc: number; daysOfWeekUtc?: number[] }[]
     multiplier: number
   }
   /**
@@ -290,7 +300,7 @@ export interface ModelDefinition {
     cacheWritePricePerMTok: number
     /** Peak-hour pricing from `effectiveFrom` (omitted → existing windows carry through). */
     peakPricing?: {
-      windows: { startMinuteUtc: number; endMinuteUtc: number }[]
+      windows: { startMinuteUtc: number; endMinuteUtc: number; daysOfWeekUtc?: number[] }[]
       multiplier: number
     }
     /** Where the change was announced, for the re-verify pass after it lands. */

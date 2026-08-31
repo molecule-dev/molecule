@@ -15,6 +15,23 @@ import {
 } from '../lookup.js'
 import { MODELS } from '../models.js'
 
+/**
+ * Assert a peak window's `daysOfWeekUtc` is a set of distinct UTC weekday
+ * numbers, or absent (which means every day).
+ *
+ * @param days - The window's day list, if it declares one.
+ * @param label - Prefix identifying the model and window in failure output.
+ */
+function expectValidPeakDays(days: number[] | undefined, label: string): void {
+  if (days === undefined) return
+  for (const d of days) {
+    expect(Number.isInteger(d) && d >= 0 && d <= 6, `${label} day ${d} must be 0-6 (Sun-Sat)`).toBe(
+      true,
+    )
+  }
+  expect(new Set(days).size, `${label} day list must not repeat a day`).toBe(days.length)
+}
+
 // ---------------------------------------------------------------------------
 // webSearchToolType on model definitions
 // ---------------------------------------------------------------------------
@@ -281,6 +298,27 @@ describe('pricing integrity (spend accounting)', () => {
     }
   })
 
+  it('peakPricing (when declared) has well-formed windows and weekday lists', () => {
+    // A peak window bills 2× on the hours it covers, so a malformed one
+    // over-bills silently in one direction or under-meters in the other. The
+    // day list is the newer half and the easier to get wrong: `[7]` for Sunday
+    // (it is `0`) matches no day and quietly disables the surcharge entirely.
+    for (const model of MODELS) {
+      const peak = model.peakPricing
+      if (!peak) continue
+      expect(peak.multiplier, `${model.id} peak multiplier must be >= 1`).toBeGreaterThanOrEqual(1)
+      for (const w of peak.windows) {
+        for (const name of ['startMinuteUtc', 'endMinuteUtc'] as const) {
+          expect(
+            Number.isInteger(w[name]) && w[name] >= 0 && w[name] <= 1440,
+            `${model.id} peak window ${name} must be a minute-of-day`,
+          ).toBe(true)
+        }
+        expectValidPeakDays(w.daysOfWeekUtc, `${model.id} peak window`)
+      }
+    }
+  })
+
   it('scheduledPricing (when declared) is a dated, well-formed future rate card', () => {
     // A staged price change bills real money the instant it lands, with nobody
     // reviewing it at that moment — so the same bounds the base rates get, plus
@@ -323,11 +361,13 @@ describe('pricing integrity (spend accounting)', () => {
         ).toBeGreaterThanOrEqual(1)
         for (const w of s.peakPricing.windows) {
           for (const [name, value] of Object.entries(w)) {
+            if (name === 'daysOfWeekUtc') continue
             expect(
-              Number.isInteger(value) && value >= 0 && value <= 1440,
+              Number.isInteger(value) && (value as number) >= 0 && (value as number) <= 1440,
               `${model.id} scheduled peak window ${name} must be a minute-of-day`,
             ).toBe(true)
           }
+          expectValidPeakDays(w.daysOfWeekUtc, `${model.id} scheduled peak window`)
         }
       }
     }
@@ -737,19 +777,62 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
     expect(priceMultiplierAt(gaining, new Date('2026-08-17T12:00:00Z'))).toBe(1)
   })
 
+  it('restricts a window to its declared UTC weekdays', () => {
+    const weekdaysOnly = {
+      ...peakModel,
+      peakPricing: {
+        windows: [{ startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: [1, 2, 3, 4, 5] }],
+        multiplier: 2,
+      },
+    }
+    // 2026-08-17 is a Monday, 2026-08-22/23 the following Saturday/Sunday.
+    expect(priceMultiplierAt(weekdaysOnly, new Date('2026-08-17T02:00:00Z'))).toBe(2)
+    expect(priceMultiplierAt(weekdaysOnly, new Date('2026-08-21T02:00:00Z'))).toBe(2)
+    expect(priceMultiplierAt(weekdaysOnly, new Date('2026-08-22T02:00:00Z'))).toBe(1)
+    expect(priceMultiplierAt(weekdaysOnly, new Date('2026-08-23T02:00:00Z'))).toBe(1)
+    // An empty or absent day list still means every day.
+    const everyDay = {
+      ...peakModel,
+      peakPricing: {
+        windows: [{ startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: [] }],
+        multiplier: 2,
+      },
+    }
+    expect(priceMultiplierAt(everyDay, new Date('2026-08-22T02:00:00Z'))).toBe(2)
+  })
+
+  it('matches a wrapping window against the day it STARTED on', () => {
+    // A Friday-only 23:00–02:00 window is still peak at 00:30 on Saturday: the
+    // tail belongs to Friday's window, and reading the clock's day instead
+    // would end the window at midnight and start a phantom one on Thursday.
+    const wrap = {
+      ...peakModel,
+      peakPricing: {
+        windows: [{ startMinuteUtc: 1380, endMinuteUtc: 120, daysOfWeekUtc: [5] }],
+        multiplier: 2,
+      },
+    }
+    expect(priceMultiplierAt(wrap, new Date('2026-08-21T23:30:00Z'))).toBe(2) // Fri
+    expect(priceMultiplierAt(wrap, new Date('2026-08-22T00:30:00Z'))).toBe(2) // Sat tail
+    expect(priceMultiplierAt(wrap, new Date('2026-08-22T23:30:00Z'))).toBe(1) // Sat head
+    expect(priceMultiplierAt(wrap, new Date('2026-08-21T00:30:00Z'))).toBe(1) // Fri tail
+  })
+
   it('the DeepSeek catalog entries carry the rate card’s live peak windows', () => {
-    // Live on the provider's own card since 2026-08-16T16:00Z and verified
-    // there again 2026-08-18: "Peak hours are 01:00 - 04:00 and 06:00 - 10:00
-    // UTC (all other hours are off-peak)", peak billing exactly 2× off-peak,
-    // with no day-of-week qualifier. These windows must never be pre-wired
-    // ahead of the card again — that over-billed every peak-window turn on the
-    // free-tier default model for weeks.
+    // Live on the provider's own card since 2026-08-16T16:00Z and re-read there
+    // 2026-08-31: "Peak hours are 01:00 - 04:00 and 06:00 - 10:00 UTC, Monday
+    // through Friday (all other hours are off-peak)", peak billing exactly 2×
+    // off-peak. The day qualifier appeared between 2026-08-18 and 2026-08-31;
+    // dropping it bills a 2× on weekend hours DeepSeek prices off-peak. These
+    // windows must never be pre-wired ahead of the card either — that
+    // over-billed every peak-window turn on the free-tier default model for
+    // weeks.
     for (const id of ['deepseek-v4-pro', 'deepseek-v4-flash']) {
       const model = MODELS.find((m) => m.id === id)!
       expect(model.peakPricing, id).toEqual({
         windows: [
-          { startMinuteUtc: 60, endMinuteUtc: 240 },
-          { startMinuteUtc: 360, endMinuteUtc: 600 },
+          { startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: [1, 2, 3, 4, 5] },
+          { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: [1, 2, 3, 4, 5] },
         ],
         multiplier: 2,
       })
@@ -757,6 +840,9 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
       expect(priceMultiplierAt(model, new Date('2026-08-17T02:00:00Z'), 'cn'), id).toBe(2)
       expect(priceMultiplierAt(model, new Date('2026-08-17T12:00:00Z'), 'cn'), id).toBe(1)
       expect(priceMultiplierAt(model, new Date('2026-08-17T02:00:00Z'), 'us'), id).toBe(1)
+      // ...and it is off on the weekend, at an hour that is peak on a weekday.
+      expect(priceMultiplierAt(model, new Date('2026-08-22T02:00:00Z'), 'cn'), id).toBe(1)
+      expect(priceMultiplierAt(model, new Date('2026-08-23T07:00:00Z'), 'cn'), id).toBe(1)
     }
   })
 })
