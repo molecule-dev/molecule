@@ -113,6 +113,24 @@ const STUCK_BACKOFF_FACTOR = 1.6
 const MAX_RECOVERY_CYCLES = 3
 
 /**
+ * Max probe-driven automatic recoveries per dead-end episode. Every actionable
+ * notice ("Preview can't load here", "the preview is blank") used to be a true
+ * dead end: all in-budget retries had already run, and only a human clicking
+ * Reload could try again. But the server those retries ran against may simply
+ * not be up YET — an E2B resume of a long-paused sandbox pulls its snapshot
+ * from cold storage and can take minutes, outliving wake patience AND every
+ * retry budget (observed 2026-08-31: a 24h-asleep sandbox woke fine, but the
+ * panel had given up and a manual "Reload preview" was needed — which worked,
+ * because by then the server was serving). So while a dead-end notice is up
+ * over a DEAD document, the panel keeps probing the preview URL and, the
+ * moment the server answers, runs exactly the manual-retry path itself. This
+ * cap bounds that per episode so a server that answers probes but serves a
+ * broken app cannot ping-pong give-up → auto-retry forever; a confirmed render
+ * (or a human retry) resets the budget.
+ */
+const MAX_DEAD_END_AUTO_RECOVERS = 3
+
+/**
  * Absolute upper bound (ms) on how long the preview may sit on the loading overlay
  * without ever CONFIRMING a render (`molecule:ready`), while not mid-build. A pure
  * BACKSTOP: the targeted paths (onLoad grace, stuck-detection, blank-post-build) each
@@ -547,6 +565,9 @@ export function PreviewPanel({
   // True once the cap of recovery cycles is hit — stops the loop and shows the
   // themed "Preview can't load here" panel (loop breaker) instead of thrashing.
   const [previewGaveUp, setPreviewGaveUp] = useState(false)
+  // Probe-driven automatic recoveries fired this dead-end episode (see
+  // MAX_DEAD_END_AUTO_RECOVERS) — reset on a confirmed render or a manual retry.
+  const deadEndAutoRecoversRef = useRef(0)
   // Mirror iframeReady to a ref so timer callbacks read current value
   const iframeReadyRef = useRef(iframeReady)
   iframeReadyRef.current = iframeReady
@@ -875,8 +896,10 @@ export function PreviewPanel({
     if (iframeReady) {
       setFadingOut(true)
       // Content is showing again — tear down the loop-breaker panel so a later good render
-      // always clears it.
+      // always clears it, and refund the dead-end auto-recovery budget (the episode ended
+      // in a working preview, so the next outage starts with a full budget).
       setPreviewGaveUp(false)
+      deadEndAutoRecoversRef.current = 0
       // Clear fadingOut when the fade finishes. The overlay's onTransitionEnd is the primary
       // trigger, but it never fires if the overlay unmounts mid-fade, the transition is disabled
       // (prefers-reduced-motion), or in a non-rendering env — so a timer matched to the fade is
@@ -1567,6 +1590,55 @@ export function PreviewPanel({
     }
   }, [state.url])
 
+  // A HUMAN retry is a fresh episode — refund the probe-driven budget so the
+  // panel keeps auto-recovering alongside them.
+  const handleUserRetry = useCallback(() => {
+    deadEndAutoRecoversRef.current = 0
+    handleManualRetry()
+  }, [handleManualRetry])
+
+  // --- Dead-end auto-recovery: probe while an actionable notice is up, retry when the server answers ---
+  // Both dead-end notices (the give-up loop-breaker and the blank notice) mean every
+  // in-budget retry already ran — against a server that may simply not have been up YET
+  // (the motivating case: an E2B resume pulling a long-paused snapshot from cold storage
+  // takes minutes; see MAX_DEAD_END_AUTO_RECOVERS). So instead of waiting for a human to
+  // click Reload, keep asking the preview host whether it is serving — sequentially, one
+  // probe at a time, exactly like the steady-state health check — and when it finally
+  // answers, run the manual-retry path automatically. Gated on the document being DEAD
+  // (no recent heartbeat): a heartbeating app behind the blank notice is an app that runs
+  // but renders nothing — an app bug a reload cannot fix, and auto-reloading it would
+  // just flicker the actionable notice the user is reading. isServerUp prefers the
+  // readable /__mol/preview-status (the mlcl.dev proxy reports the UPSTREAM truthfully,
+  // so an edge answering FOR a down sandbox does not read as "up").
+  useEffect(() => {
+    if (!state.url || confirmedContent) return undefined
+    if (!previewGaveUp && !blankPostBuild) return undefined
+    const aborter = new AbortController()
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const tick = async (): Promise<void> => {
+      if (aborter.signal.aborted) return
+      if (deadEndAutoRecoversRef.current >= MAX_DEAD_END_AUTO_RECOVERS) return
+      if (Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS) {
+        // Alive behind the notice — not our case; re-check later in case it dies.
+        timer = setTimeout(() => void tick(), HEALTH_POLL_MS)
+        return
+      }
+      const up = await isServerUp(urlRef.current, aborter.signal)
+      if (aborter.signal.aborted) return
+      if (up) {
+        deadEndAutoRecoversRef.current += 1
+        handleManualRetry()
+        return
+      }
+      timer = setTimeout(() => void tick(), HEALTH_POLL_MS)
+    }
+    timer = setTimeout(() => void tick(), HEALTH_POLL_MS)
+    return () => {
+      aborter.abort()
+      if (timer) clearTimeout(timer)
+    }
+  }, [previewGaveUp, blankPostBuild, confirmedContent, state.url, handleManualRetry])
+
   // --- Reload a frozen preview ---
   // Remounts the iframe (fresh load re-runs the app, clearing the locked thread).
   const handleReloadFrozen = useCallback(() => {
@@ -1640,21 +1712,21 @@ export function PreviewPanel({
 
   const overlayContent = blankPostBuild ? (
     // Build finished but the app rendered nothing — actionable, not a spinner.
-    <PreviewBlankNotice onReload={handleManualRetry} onOpenExternal={openExternal} />
+    <PreviewBlankNotice onReload={handleUserRetry} onOpenExternal={openExternal} />
   ) : isBuilding || building ? (
     <DefaultLoadingIndicator
       hint={buildingHint}
       retryCount={stuckRetryCount}
-      onManualRetry={handleManualRetry}
+      onManualRetry={handleUserRetry}
     />
   ) : everLoaded ? (
     (restartingIndicator ??
     loadingIndicator ?? (
-      <DefaultLoadingIndicator retryCount={stuckRetryCount} onManualRetry={handleManualRetry} />
+      <DefaultLoadingIndicator retryCount={stuckRetryCount} onManualRetry={handleUserRetry} />
     ))
   ) : (
     (loadingIndicator ?? (
-      <DefaultLoadingIndicator retryCount={stuckRetryCount} onManualRetry={handleManualRetry} />
+      <DefaultLoadingIndicator retryCount={stuckRetryCount} onManualRetry={handleUserRetry} />
     ))
   )
 
@@ -1972,7 +2044,7 @@ export function PreviewPanel({
               <button
                 type="button"
                 data-mol-id="preview-load-failed-reload"
-                onClick={handleManualRetry}
+                onClick={handleUserRetry}
                 className={cm.cn(
                   cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
                   cm.touchTarget,

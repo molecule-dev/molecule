@@ -142,4 +142,31 @@ describe('PreviewPanel — the server-up probe', () => {
 
     expect(container.querySelector('iframe')).not.toBeNull()
   })
+
+  it('auto-recovers from the give-up panel once the server answers again (slow wake)', async () => {
+    // The motivating incident: a 24h-asleep E2B sandbox resumed slowly enough that
+    // every retry budget expired against a not-yet-serving host, the loop-breaker
+    // came up, and only a MANUAL "Reload preview" (clicked after the server was
+    // finally serving) recovered. The panel must click that button itself.
+    let serving = true
+    const fetchSpy = vi.fn(async () => ({ ok: serving, status: serving ? 200 : 503 }) as Response)
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const container = await mountAndPoll()
+    expect(container.querySelector('iframe')).not.toBeNull()
+
+    // The server goes away (sandbox hibernated / resuming) and the app never
+    // confirms a render — past the absolute ceiling the panel gives up.
+    serving = false
+    await advance(35_000)
+    expect(container.textContent).toContain("Preview can't load here")
+
+    // The server comes back (the wake finally finished): the dead-end probe sees
+    // it and re-runs the manual-retry path — loop-breaker gone, fresh cache-busted
+    // load mounted — with no human click.
+    serving = true
+    await advance(10_000)
+    expect(container.textContent).not.toContain("Preview can't load here")
+    expect(container.querySelector('iframe')?.getAttribute('src')).toContain('_r=')
+  })
 })
