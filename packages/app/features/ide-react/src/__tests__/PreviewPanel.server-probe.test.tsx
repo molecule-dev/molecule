@@ -143,6 +143,33 @@ describe('PreviewPanel — the server-up probe', () => {
     expect(container.querySelector('iframe')).not.toBeNull()
   })
 
+  it('surfaces the actionable notice when the first-mount poll never succeeds — and self-clears when the server appears', async () => {
+    // The reported symptom: a fresh page load (viewer updating via the version
+    // banner) against a preview host that never answers sat on "Loading
+    // preview…" indefinitely — the pre-mount poll "never gives up" and showed
+    // nothing actionable, and the one-shot ceiling could be swallowed by the
+    // wake window. The poll must now surface Reload/Open-in-new-tab past its
+    // deadline while continuing to poll, and mount + withdraw the notice by
+    // itself when the server finally answers.
+    let serving = false
+    const fetchSpy = vi.fn(async () => ({ ok: serving, status: serving ? 200 : 503 }) as Response)
+    vi.stubGlobal('fetch', fetchSpy)
+
+    const container = await mountAndPoll()
+    expect(container.querySelector('iframe')).toBeNull()
+
+    // Past the pre-mount deadline: actionable notice up, still no iframe.
+    await advance(50_000)
+    expect(container.textContent).toContain("Preview can't load here")
+
+    // The server finally answers: the still-running poll mounts the preview and
+    // withdraws the notice with no human click.
+    serving = true
+    await advance(10_000)
+    expect(container.querySelector('iframe')).not.toBeNull()
+    expect(container.textContent).not.toContain("Preview can't load here")
+  })
+
   it('auto-recovers from the give-up panel once the server answers again (slow wake)', async () => {
     // The motivating incident: a 24h-asleep E2B sandbox resumed slowly enough that
     // every retry budget expired against a not-yet-serving host, the loop-breaker

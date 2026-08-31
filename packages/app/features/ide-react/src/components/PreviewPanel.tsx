@@ -80,6 +80,25 @@ const ORIENTATION_STORAGE_KEY = 'molecule.ide.preview.orientation'
 
 /** Initial poll interval when waiting for the server. */
 const POLL_INITIAL_MS = 500
+
+/**
+ * How long the FIRST-mount server-up poll may run without the server answering
+ * before the panel surfaces the actionable "Preview can't load here" notice
+ * (ms). The poll itself keeps running underneath — the notice self-clears the
+ * moment a poll succeeds and mounts the iframe — so this is honesty, not a
+ * give-up: it hands the user Reload / Open-in-new-tab instead of an unbounded
+ * spinner. Before this existed the pre-mount poll was the one path with NO
+ * actionable escape at all: it "never gives up" by design, and the absolute
+ * ceiling that should have backstopped it fired once, stood down inside the
+ * wake window, and never re-checked — a viewer's fresh page load against a
+ * never-answering preview sat on "Loading preview…" indefinitely with no modal
+ * (observed 2026-08-31). Sized past a proxy cold-start + dev-server relaunch so
+ * a normal slow boot still resolves silently.
+ */
+const PREMOUNT_GIVEUP_MS = 45_000
+
+/** Re-check gap for the absolute readiness ceiling when it stands down for a benign hold (ms). */
+const ABSOLUTE_STUCK_RECHECK_MS = 10_000
 /** Maximum poll interval after backoff. */
 const POLL_MAX_MS = 5000
 /** Backoff multiplier applied after each failed poll. */
@@ -541,6 +560,9 @@ export function PreviewPanel({
   const pollEpochRef = useRef(0)
   // AbortController for the in-flight server-up probe, so cleanup can cancel it.
   const pollAbortRef = useRef<AbortController | null>(null)
+  // Deadline for the first-mount poll to surface the actionable notice while it
+  // keeps polling (see PREMOUNT_GIVEUP_MS). Cleared with the poll chain.
+  const pollGiveUpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const urlRef = useRef(state.url)
   urlRef.current = state.url
   // The preview's live location (client-side route included), read by the stuck/freeze
@@ -733,6 +755,10 @@ export function PreviewPanel({
       pollAbortRef.current.abort()
       pollAbortRef.current = null
     }
+    if (pollGiveUpTimerRef.current) {
+      clearTimeout(pollGiveUpTimerRef.current)
+      pollGiveUpTimerRef.current = null
+    }
   }, [])
 
   // --- Clear stuck timer ---
@@ -744,7 +770,10 @@ export function PreviewPanel({
   }, [])
 
   // --- Poll until server is up, then mount the iframe ---
-  // Uses exponential backoff: POLL_INITIAL_MS → POLL_MAX_MS. Never gives up.
+  // Uses exponential backoff: POLL_INITIAL_MS → POLL_MAX_MS. The poll itself never
+  // stops, but past PREMOUNT_GIVEUP_MS it surfaces the actionable notice while it
+  // keeps polling — the user always has a way out (Reload / Open in new tab), and a
+  // late success still mounts + withdraws the notice by itself.
   const startPolling = useCallback(
     (url: string): void => {
       // clearPoll() bumps the epoch + aborts the prior chain; capture the fresh
@@ -761,6 +790,23 @@ export function PreviewPanel({
       setConfirmedContent(false)
       setBlankPostBuild(false)
 
+      // The poll never stops on its own, so past this deadline it surfaces the
+      // actionable notice (Reload / Open in new tab) INSTEAD of an unbounded
+      // spinner — and keeps polling underneath; a later success mounts the
+      // iframe and withdraws the notice. This was the one preview path with no
+      // escape hatch at all (see PREMOUNT_GIVEUP_MS).
+      pollGiveUpTimerRef.current = setTimeout(() => {
+        pollGiveUpTimerRef.current = null
+        if (pollEpochRef.current !== epoch) return
+        // Deliberate breadcrumb: this state means the preview host never answered a
+        // probe for the whole deadline — the console line is the forensic trail for
+        // the next live debug of a "stuck on Loading preview" report.
+        console.warn(
+          `[preview] server at ${url} has not answered for ${Math.round(PREMOUNT_GIVEUP_MS / 1000)}s — showing the reload notice, still polling`,
+        )
+        setPreviewGaveUp(true)
+      }, PREMOUNT_GIVEUP_MS)
+
       let interval = POLL_INITIAL_MS
       const poll = async (): Promise<void> => {
         if (pollEpochRef.current !== epoch || urlRef.current !== url) return
@@ -768,6 +814,11 @@ export function PreviewPanel({
         if (pollEpochRef.current !== epoch || urlRef.current !== url) return
 
         if (up) {
+          if (pollGiveUpTimerRef.current) {
+            clearTimeout(pollGiveUpTimerRef.current)
+            pollGiveUpTimerRef.current = null
+          }
+          setPreviewGaveUp(false)
           setEverLoaded(true)
           // Atomic remount (fresh <iframe> element + src in one commit), like the
           // proven manual-reload/navigation paths: if `setUrl` was called more than
@@ -966,36 +1017,45 @@ export function PreviewPanel({
 
   // --- Absolute readiness ceiling (backstop: never stuck on the overlay forever) ---
   // Independent of every intermediate flag (onLoad / iframeReady / stuck cycles): anchored
-  // to the load, it fires ONCE after ABSOLUTE_STUCK_MS and — if the app still hasn't
-  // confirmed a render and a build isn't running — surfaces the actionable loop-breaker
-  // panel. This is the guarantee that no combination of failed sub-paths can leave the
-  // preview spinning forever. Read live refs (not stale closures); a `molecule:ready` that
-  // lands later clears `previewGaveUp` via the confirm effect, so an early trip is harmless.
+  // to the load, it first checks at ABSOLUTE_STUCK_MS and — if the app still hasn't
+  // confirmed a render and no benign hold applies — surfaces the actionable loop-breaker
+  // panel; a benign hold defers the CHECK, never disarms it. This is the guarantee that no
+  // combination of failed sub-paths can leave the preview spinning forever. Read live refs
+  // (not stale closures); a `molecule:ready` that lands later clears `previewGaveUp` via
+  // the confirm effect, so an early trip is harmless.
   useEffect(() => {
     if (!state.url) return
-    const timer = setTimeout(() => {
-      // Fire ONLY when still on a bare spinner. iframeReady is the key addition: the onLoad
-      // grace already revealed a loaded document, so the give-up panel must never cover it —
-      // the panel is reserved for a preview that genuinely never loaded (onLoad never fired).
-      // A confirmed render, an active build, or the actionable blank notice also mean not-stuck.
-      if (
-        confirmedContentRef.current ||
-        iframeReadyRef.current ||
-        isBuildingRef.current ||
-        blankPostBuildRef.current ||
-        // The app is ALIVE (heartbeating) — a cold boot in progress, not a stuck load. Never show
-        // "Preview can't load here" over an app that's still starting; the cold-boot evaluator
-        // surfaces an honest notice only if it stays alive-but-unmounted past COLD_BOOT_PATIENCE_MS.
-        Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS ||
-        // A just-woken server is expected to serve a dead/transient document for a while —
-        // stand down; the cold-boot evaluator's ceiling still guarantees an eventual way out.
-        inWakeWindow()
-      )
-        return
-      onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
-      setPreviewGaveUp(true)
-    }, ABSOLUTE_STUCK_MS)
-    return () => clearTimeout(timer)
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const arm = (delay: number): void => {
+      timer = setTimeout(() => {
+        // A revealed or confirmed preview is healthy — this load needs no ceiling.
+        if (confirmedContentRef.current || iframeReadyRef.current) return
+        // Fire ONLY when still on a bare spinner. iframeReady above is the key gate: the
+        // onLoad grace already revealed a loaded document, so the give-up panel must never
+        // cover it — the panel is reserved for a preview that genuinely never loaded.
+        // A benign hold — an active build, the actionable blank notice already showing, an
+        // ALIVE (heartbeating) cold boot, or a just-woken server's patience window — does
+        // NOT disarm the ceiling: it RE-CHECKS after a beat. The old one-shot timer stood
+        // down permanently on any of these, so a wake window that swallowed the single
+        // firing left a never-answering preview on the spinner forever with no notice
+        // (the "no reload modal ever popped up" report, 2026-08-31).
+        if (
+          isBuildingRef.current ||
+          blankPostBuildRef.current ||
+          Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS ||
+          inWakeWindow()
+        ) {
+          arm(ABSOLUTE_STUCK_RECHECK_MS)
+          return
+        }
+        onPreviewStuck?.({ reason: 'load-timeout', url: currentLocationRef.current })
+        setPreviewGaveUp(true)
+      }, delay)
+    }
+    arm(ABSOLUTE_STUCK_MS)
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
     // Re-armed per load (url change or refresh/back-forward via loadNonce); a successful
     // render before the ceiling is honored by the live-ref check in the callback.
   }, [state.url, state.loadNonce, onPreviewStuck, inWakeWindow])
