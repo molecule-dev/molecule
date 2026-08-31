@@ -358,8 +358,10 @@ describe('ChatPanel user avatar clickability (C5)', () => {
       expect(container.querySelector('[data-mol-id="chat-user-avatar"]')).not.toBeNull()
     })
 
-    // No button wrapper — the avatar renders as the bare image, exactly as before.
+    // No button wrappers — the avatar renders as the bare image and the author
+    // name as the plain bold span, exactly as before.
     expect(container.querySelector('[data-mol-id="chat-user-avatar-button"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="chat-user-name-button"]')).toBeNull()
   })
 
   it('opens the profile (fires onProfileClick with the clicked identity) when the avatar is clicked', async () => {
@@ -399,11 +401,11 @@ describe('ChatPanel user avatar clickability (C5)', () => {
     expect(onProfileClick).toHaveBeenCalledWith({ avatar: null })
   })
 
-  it("keeps a TEAMMATE's avatar non-interactive (own-profile handler must not fire from their face)", async () => {
+  it("fires with the clicked AUTHOR's identity — a teammate's avatar opens THEIR profile, never the viewer's", async () => {
     const onProfileClick = vi.fn()
     // Two authored messages: the signed-in user's own (Luke) and a teammate's
-    // (Test). onProfileClick opens the VIEWER's own profile, so only Luke's own
-    // avatar may be a button.
+    // (Test). BOTH avatars are clickable now; each click carries that message's
+    // own author identity so the host can show teammate=view-only, own=editable.
     const history: ChatMessage[] = [
       {
         id: 'u1',
@@ -445,13 +447,70 @@ describe('ChatPanel user avatar clickability (C5)', () => {
     await waitFor(() => {
       expect(container.textContent).toContain('theirs')
     })
-    // Exactly ONE clickable avatar — the signed-in user's own message.
+    // BOTH avatars are clickable — the viewer's own AND the teammate's.
     const buttons = container.querySelectorAll('[data-mol-id="chat-user-avatar-button"]')
-    expect(buttons.length).toBe(1)
-    // And it is Luke's (wraps the real avatar image), not Test's initial tile.
+    expect(buttons.length).toBe(2)
+    // Luke's (first message) wraps the real avatar image; Test's is the initial tile.
     expect(buttons[0].querySelector('img')).not.toBeNull()
-    // Test's avatar renders as the plain initial tile with no button wrapper.
-    const avatars = container.querySelectorAll('[data-mol-id="chat-user-avatar"]')
-    expect(avatars.length).toBe(2)
+    expect(buttons[1].querySelector('img')).toBeNull()
+
+    // Clicking the teammate's avatar carries the TEAMMATE's identity.
+    fireEvent.click(buttons[1])
+    expect(onProfileClick).toHaveBeenLastCalledWith({ id: 'u-test', name: 'Test', avatar: null })
+    // Clicking the viewer's own avatar carries their own.
+    fireEvent.click(buttons[0])
+    expect(onProfileClick).toHaveBeenLastCalledWith({
+      id: 'u-luke',
+      name: 'Luke',
+      avatar: AVATAR_DATA_URI,
+    })
+  })
+
+  it("opens the author's profile from their NAME too (clickable header username)", async () => {
+    const onProfileClick = vi.fn()
+    const history: ChatMessage[] = [
+      {
+        id: 'u2',
+        role: 'user',
+        content: 'from a teammate',
+        timestamp: 1000,
+        author: { id: 'u-test', name: 'Test', avatar: null },
+      },
+    ]
+    const wrap = (children: ReactNode): ReactElement => (
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <HttpProvider client={buildHttpClient()}>
+            <ChatContextProvider provider={buildChatProvider(history)}>
+              {children}
+            </ChatContextProvider>
+          </HttpProvider>
+        </ThemeProvider>
+      </I18nProvider>
+    )
+    const { container } = render(
+      wrap(
+        <ChatPanel
+          projectId="proj-soc1"
+          userAvatar={AVATAR_DATA_URI}
+          currentUserId="u-luke"
+          onProfileClick={onProfileClick}
+        />,
+      ),
+    )
+
+    const nameButton = await waitFor(() => {
+      const el = container.querySelector('[data-mol-id="chat-user-name-button"]')
+      expect(el, 'the author name should render as a clickable button').not.toBeNull()
+      return el as HTMLButtonElement
+    })
+
+    // A real button whose visible text IS the author's name (its accessible name).
+    expect(nameButton.tagName).toBe('BUTTON')
+    expect(nameButton.textContent).toBe('Test')
+
+    fireEvent.click(nameButton)
+    expect(onProfileClick).toHaveBeenCalledTimes(1)
+    expect(onProfileClick).toHaveBeenCalledWith({ id: 'u-test', name: 'Test', avatar: null })
   })
 })

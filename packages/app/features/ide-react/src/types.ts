@@ -51,15 +51,23 @@ export interface IdeClientAction {
 }
 
 /**
- * Identity of the user whose avatar was clicked in the chat timeline, passed to
- * {@link ChatPanelProps.onProfileClick} so the host can open that user's profile.
+ * Identity of the user whose avatar or name was clicked in the chat timeline,
+ * passed to {@link ChatPanelProps.onProfileClick} so the host can open that
+ * user's profile.
  *
- * Today the chat is solo — the only avatar shown is the signed-in user's own —
- * so the only known field is the avatar value. The interface is intentionally
- * forward-compatible: collaborator fields (id, name) can be added here when
- * multi-user chat lands, without changing the callback signature.
+ * The identity is always the clicked MESSAGE AUTHOR's — a teammate's click
+ * carries their persisted `author` fields, never the viewer's. An author-less
+ * message (the local optimistic echo, legacy solo rows) is the signed-in user's
+ * own, so it carries {@link ChatPanelProps.currentUserId} + the viewer's avatar.
+ * The host compares `id` against the signed-in user to pick the surface: own →
+ * editable profile, someone else → view-only. A missing `id` means "the
+ * signed-in user" (author-less rows in a host that passes no `currentUserId`).
  */
 export interface ChatUserIdentity {
+  /** The clicked user's stable id (a persisted `author.id`), when known. */
+  id?: string
+  /** The clicked user's display name (a persisted `author.name`), when known. */
+  name?: string
   /** The clicked user's avatar value (data-URI / URL), if any. */
   avatar?: string | null
 }
@@ -100,22 +108,22 @@ export interface ChatPanelProps {
    */
   onRenderError?: (error: Error, info: ErrorInfo) => void
   /**
-   * Called when a user avatar in the chat timeline is clicked — the host opens
-   * that user's profile (e.g. molecule.dev's profile modal). Receives the clicked
-   * user's {@link ChatUserIdentity}. Omit it (the default) to render the avatars
-   * non-interactive (static image/icon, exactly as before). Only real user
-   * avatars are clickable — the molecule glyph on auto-sent messages is not, and
-   * in a multi-user conversation only the SIGNED-IN user's own avatars are
-   * (hosts open the *own*-profile editor from this, so a teammate's avatar must
-   * not fire it — see {@link currentUserId}).
+   * Called when a user avatar or author name in the chat timeline is clicked —
+   * the host opens THAT user's profile (e.g. molecule.dev's profile modal).
+   * Receives the clicked author's {@link ChatUserIdentity}: a teammate's click
+   * carries their persisted author fields, the signed-in user's own click
+   * carries their own — the host compares `id` against the signed-in user to
+   * decide editable-own vs view-only-teammate. Omit it (the default) to render
+   * the avatars/names non-interactive (static, exactly as before). Only human
+   * authors are clickable — the molecule glyph on auto-sent messages is not.
    */
   onProfileClick?: (user: ChatUserIdentity) => void
   /**
-   * The signed-in user's id, used to tell their OWN messages from a teammate's
-   * (a message's persisted `author.id`). Gates avatar clickability: an authored
-   * message fires {@link onProfileClick} only when its author IS the signed-in
-   * user. Omit in a solo host — author-less messages (the local echo, legacy
-   * rows) are always treated as the signed-in user's own.
+   * The signed-in user's id (a message's persisted `author.id`). Used to stamp
+   * the identity handed to {@link onProfileClick} for AUTHOR-LESS messages (the
+   * local optimistic echo, legacy solo rows), which are always the signed-in
+   * user's own. Omit in a solo host — those clicks then carry no `id`, which
+   * hosts treat as "the signed-in user".
    */
   currentUserId?: string
   /** Called when the server signals (via the `ready_to_build` stream event) that discovery is complete and the sandbox should boot. */

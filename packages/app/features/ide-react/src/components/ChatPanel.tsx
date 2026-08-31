@@ -1798,6 +1798,56 @@ export function CommitCardItem({
   )
 }
 
+/**
+ * The clickable author-name in a message header (C5) — a reset button that
+ * renders exactly like the bold name span it replaces, with an underline on
+ * hover/focus as the affordance, and opens the author's profile like their
+ * avatar does. Its own component so the hover state never re-renders the
+ * (memoized, heavy) message row.
+ *
+ * @param props - Click handler + the name text.
+ * @param props.onClick - Opens the author's profile.
+ * @param props.children - The author's display name.
+ * @returns The name button.
+ */
+function AuthorNameButton({
+  onClick,
+  children,
+}: {
+  onClick: () => void
+  children: ReactNode
+}): JSX.Element {
+  const [hover, setHover] = useState(false)
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
+      data-mol-id="chat-user-name-button"
+      // Full button reset so it is byte-identical to the former bold span at
+      // rest — the underline affordance is the only visual change on hover.
+      style={{
+        padding: 0,
+        margin: 0,
+        border: 'none',
+        background: 'transparent',
+        font: 'inherit',
+        color: 'inherit',
+        fontWeight: 600,
+        cursor: 'pointer',
+        textDecoration: hover ? 'underline' : 'none',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+AuthorNameButton.displayName = 'AuthorNameButton'
+
 // ---------------------------------------------------------------------------
 // MessageItem — memo'd to avoid re-rendering all messages when one changes
 // ---------------------------------------------------------------------------
@@ -1831,8 +1881,14 @@ export interface MessageItemProps {
   chatMode: 'plan' | 'execute'
   /** Signed-in user's avatar shown beside their own messages (SOC1); icon fallback when absent/unsafe. */
   userAvatar?: string | null
-  /** When set, the user avatar becomes clickable and fires this to open the user's profile (C5). */
-  onAvatarClick?: () => void
+  /**
+   * When set, the author's avatar AND name become clickable and fire this with
+   * the clicked AUTHOR's identity — a teammate's message opens THEIR profile,
+   * the signed-in user's own opens theirs (C5). See {@link ChatPanelProps.onProfileClick}.
+   */
+  onProfileClick?: (user: ChatUserIdentity) => void
+  /** Signed-in user's id — stamps the identity for author-less rows (the local echo, legacy solo rows). */
+  currentUserId?: string
   /** Discovery phase — gives consecutive question/answer cards roomier, uncollapsed spacing (B3). */
   discovery?: boolean
   /**
@@ -1872,7 +1928,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     setModelPicker,
     chatMode,
     userAvatar,
-    onAvatarClick,
+    onProfileClick,
+    currentUserId,
     discovery,
     buildUpgradeCta,
     agentName,
@@ -1895,6 +1952,16 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   // A real, user-typed message (the only one styled with the blue border + the
   // user's own avatar).
   const isUser = msg.role === 'user' && !isAutomatic
+
+  // Who this message belongs to — the identity a profile click hands the host.
+  // An AUTHORED message is that author's (a teammate's click opens THEIR
+  // profile, never the viewer's); an author-less one (the local optimistic
+  // echo, legacy solo rows) is the signed-in user's own, stamped with
+  // currentUserId + the viewer's avatar so the host still knows who it is.
+  const authorIdentity: ChatUserIdentity = msg.author
+    ? { id: msg.author.id, name: msg.author.name, avatar: msg.author.avatar ?? null }
+    : { id: currentUserId, avatar: userAvatar ?? null }
+  const openAuthorProfile = onProfileClick ? (): void => onProfileClick(authorIdentity) : undefined
 
   // Spacing follows the one timeline convention (see TIMELINE_ITEM_GAP above): a
   // single bottom margin, no top margin, no negatives — so a message can never
@@ -1975,11 +2042,13 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
               // when they have none — NEVER the viewing user's picture (which made
               // a teammate's avatar-less message wear the viewer's own face). Only
               // an author-less message (the local optimistic echo, legacy rows) is
-              // the signed-in user's own and uses their avatar.
-              userAvatar={msg.author ? msg.author.avatar : userAvatar}
+              // the signed-in user's own and uses their avatar. Clicking opens the
+              // AUTHOR's profile (own and teammate alike — the host decides which
+              // surface from the identity's id).
+              userAvatar={authorIdentity.avatar}
               name={msg.author?.name ?? undefined}
               size={36}
-              onClick={onAvatarClick}
+              onClick={openAuthorProfile}
             />
           )}
           <div style={{ flex: 1, minWidth: 0, marginTop: 1 }}>
@@ -1999,9 +2068,18 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   marginBottom: 1,
                 }}
               >
-                <span style={{ fontWeight: 600 }}>
-                  {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
-                </span>
+                {openAuthorProfile ? (
+                  // Clickable author name — same bold text, opens the author's
+                  // profile exactly like their avatar does. Its visible text is
+                  // its accessible name (no aria-label needed).
+                  <AuthorNameButton onClick={openAuthorProfile}>
+                    {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
+                  </AuthorNameButton>
+                ) : (
+                  <span style={{ fontWeight: 600 }}>
+                    {msg.author?.name ?? t('ide.chat.you', undefined, { defaultValue: 'You' })}
+                  </span>
+                )}
                 {isTeamNote && (
                   // Gold team-only badge right after the username (left of the time):
                   // this note is a human side channel — every project member sees it,
@@ -2470,9 +2548,9 @@ export interface ChatInnerProps {
   onActivityClick?: (activity: Activity) => void
   /** See {@link ChatPanelProps.onRenderError}. */
   onRenderError?: ChatPanelProps['onRenderError']
-  /** Called when a user avatar in the chat timeline is clicked — see {@link ChatPanelProps.onProfileClick}. */
+  /** Called when a user avatar or author name in the chat timeline is clicked — see {@link ChatPanelProps.onProfileClick}. */
   onProfileClick?: ChatPanelProps['onProfileClick']
-  /** The signed-in user's id — gates avatar clicks to their OWN messages. See {@link ChatPanelProps.currentUserId}. */
+  /** The signed-in user's id — stamps author-less rows' identity. See {@link ChatPanelProps.currentUserId}. */
   currentUserId?: string
   /** Called on the `ready_to_build` stream event — discovery is done; boot the sandbox. */
   onReadyToBuild?: () => void
@@ -2610,19 +2688,6 @@ function ChatInner({
   // visible; 420px bounds it on small tablets.
   const popupMaxHeight = isNarrow ? 'min(50dvh, 420px)' : '70vh'
   const http = useHttpClient()
-  // Bind the host's profile-click callback to the SIGNED-IN user's identity once.
-  // Hosts open the *own*-profile surface from this, so it is only ever attached to
-  // the signed-in user's OWN messages (see the per-message gate at the MessageItem
-  // call site — a teammate's avatar must never open the viewer's profile). Stable
-  // so MessageItem's memo isn't broken; `undefined` when the host opts out, which
-  // keeps every avatar non-interactive.
-  const onUserAvatarClick = useMemo<(() => void) | undefined>(
-    () =>
-      onProfileClick
-        ? (): void => onProfileClick({ avatar: userAvatar } satisfies ChatUserIdentity)
-        : undefined,
-    [onProfileClick, userAvatar],
-  )
   // If there's already a conversation (conversationId in the URL), always load
   // history — even when initialMessage is set. This prevents a refresh from
   // re-sending the initial prompt instead of restoring the existing conversation.
@@ -7840,16 +7905,12 @@ function ChatInner({
                     setModelPicker={setModelPicker}
                     chatMode={liveModelMode}
                     userAvatar={userAvatar}
-                    // Avatar clicks open the signed-in user's OWN profile, so only
-                    // their own messages get the handler: author-less ones (the
-                    // local echo, legacy solo rows) or an author matching
-                    // currentUserId. A teammate's avatar stays non-interactive —
-                    // clicking Test's face must not open Luke's profile editor.
-                    onAvatarClick={
-                      !msg.author?.id || (currentUserId != null && msg.author.id === currentUserId)
-                        ? onUserAvatarClick
-                        : undefined
-                    }
+                    // Avatar/name clicks open the clicked AUTHOR's profile —
+                    // MessageItem builds the identity from the message's own
+                    // author (teammates included), so the host shows their
+                    // view-only profile and the viewer's editable own.
+                    onProfileClick={onProfileClick}
+                    currentUserId={currentUserId}
                     discovery={discovery}
                     buildUpgradeCta={buildUpgradeCta}
                     agentName={agentName}
