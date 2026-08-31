@@ -1931,7 +1931,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             // as the info cards — so it's unmistakably agent-sent, not user-typed (C2).
             // A team note keeps the user-message look but swaps the blue chrome (its
             // data-mol-id differs, so USER_ACCENT_STYLE never applies) for the gold
-            // team-only border.
+            // team-only border — with its own solid 3px left band (an inset box-shadow,
+            // which starts at the border's inner edge exactly like the stripe's
+            // `inset: 0` ::before, so the two rows' left accents match in geometry).
             ...(isAutomatic
               ? chatCardStyle(AUTO_SENT_ACCENT)
               : {
@@ -1943,6 +1945,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   border: isTeamNote
                     ? `1px solid ${NOTICE_TONE.gold.accent}`
                     : '1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0))',
+                  ...(isTeamNote
+                    ? { boxShadow: `inset 3px 0 0 0 ${NOTICE_TONE.gold.accent}` }
+                    : {}),
                 }),
           }}
           data-mol-id={
