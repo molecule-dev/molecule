@@ -617,4 +617,36 @@ describe('ChatPanel activity slot — always reserved, opacity-toggled (no jump,
     // The labeled wait copy renders inside the same reserved slot.
     expect(slot!.textContent).toContain('development environment')
   })
+
+  it('shows streaming activity — never the sandbox-boot copy — during a REMOTE turn', async () => {
+    // A viewer (or second tab) watching a teammate's turn: no local send, so
+    // isLoading is false and only remoteStreaming is true. The slot used to fall
+    // through to "Waiting for the development environment to finish starting…"
+    // over a clearly-running sandbox (observed 2026-08-31).
+    let push: ((conversationId: string, event: ChatStreamEvent) => void) | null | undefined
+    const { container } = render(
+      renderChatPanel(http(), buildChatProvider(), {
+        endpoint: `/projects/${PROJECT_ID}/chat?conversationId=conv-1`,
+        onRegisterPushHandler: (handler) => {
+          push = handler
+        },
+      }),
+    )
+    await waitFor(() => expect(container.querySelector('[data-mol-chat-input]')).not.toBeNull())
+    expect(push).toBeDefined()
+    await waitFor(() => {
+      push!('conv-1', {
+        type: 'message_start',
+        id: 'remote-msg-1',
+        timestamp: Date.now(),
+      } as ChatStreamEvent)
+      const slot = container.querySelector(
+        '[data-mol-id="chat-activity-slot"]',
+      ) as HTMLElement | null
+      expect(slot).not.toBeNull()
+      expect(slot!.style.opacity).toBe('1')
+    })
+    const slot = container.querySelector('[data-mol-id="chat-activity-slot"]') as HTMLElement
+    expect(slot.textContent).not.toContain('development environment')
+  })
 })

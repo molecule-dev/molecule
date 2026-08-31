@@ -7899,7 +7899,14 @@ function ChatInner({
           // continuation) shows the same live activity indicator as an own send —
           // watchers see Synthase working, not a frozen transcript.
           const showActivity = isLoading || awaitingSandboxBoot || isRemoteStreaming
-          const streamingMsg = isLoading
+          // A remote turn streams real messages into the same store, so it gets the
+          // SAME activity treatment as an own send. Only the no-turn-at-all case
+          // (awaitingSandboxBoot alone) is a sandbox-boot wait — labeling every
+          // !isLoading render with the boot copy showed viewers "Waiting for the
+          // development environment to finish starting…" over a running sandbox
+          // for the whole remote turn (observed 2026-08-31).
+          const streamingLike = isLoading || isRemoteStreaming
+          const streamingMsg = streamingLike
             ? [...visibleMessages].reverse().find((m) => m.isStreaming)
             : undefined
           // Turn start = the last genuine user message, so the elapsed timer counts up across
@@ -7916,7 +7923,7 @@ function ChatInner({
           // matches the elapsed timer's span: it climbs monotonically and only plateaus during
           // tool-execution gaps, rather than vanishing/restarting at each new assistant message.
           const turnTokens = estimateTurnTokens(messages)
-          const label = isLoading
+          const label = streamingLike
             ? (streamingStatus ?? (streamingMsg ? streamingActivityLabel(streamingMsg) : undefined))
             : t('ide.chat.awaitingSandbox', undefined, {
                 defaultValue: 'Waiting for the development environment to finish starting…',
@@ -7935,8 +7942,8 @@ function ChatInner({
               {showActivity && (
                 <StreamingIndicator
                   label={label}
-                  tokens={isLoading ? turnTokens : undefined}
-                  startedAt={isLoading ? turnStartedAt : undefined}
+                  tokens={streamingLike ? turnTokens : undefined}
+                  startedAt={streamingLike ? turnStartedAt : undefined}
                 />
               )}
             </div>
