@@ -1924,11 +1924,14 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             // A real user message keeps its classic look: a gray surface with the
             // molecule brand's ANIMATED blue gradient stripe (3px) on the left edge,
             // drawn by the `::before` injected via USER_ACCENT_STYLE + gated on the
-            // data-mol-id below, and the user's full-size avatar. An auto-sent message
-            // is instead a green (success) tinted card — same chrome as the info cards
-            // — so it's unmistakably agent-sent, not user-typed (C2). A team note keeps
-            // the user-message look but swaps the blue stripe (its data-mol-id differs,
-            // so USER_ACCENT_STYLE never applies) for the gold team-only border.
+            // data-mol-id below, PLUS a solid blue outline ring (host-tunable via
+            // `--mol-chat-accent-border`) so a sent-to-Synthase message reads bordered
+            // the same way a team note does, and the user's full-size avatar. An
+            // auto-sent message is instead a green (success) tinted card — same chrome
+            // as the info cards — so it's unmistakably agent-sent, not user-typed (C2).
+            // A team note keeps the user-message look but swaps the blue chrome (its
+            // data-mol-id differs, so USER_ACCENT_STYLE never applies) for the gold
+            // team-only border.
             ...(isAutomatic
               ? chatCardStyle(AUTO_SENT_ACCENT)
               : {
@@ -1937,7 +1940,9 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   paddingTop: '10px',
                   paddingBottom: '10px',
                   paddingRight: '10px',
-                  ...(isTeamNote ? { border: `1px solid ${NOTICE_TONE.gold.accent}` } : {}),
+                  border: isTeamNote
+                    ? `1px solid ${NOTICE_TONE.gold.accent}`
+                    : '1px solid var(--mol-chat-accent-border, var(--mol-color-primary, #3060c0))',
                 }),
           }}
           data-mol-id={
