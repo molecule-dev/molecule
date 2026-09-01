@@ -69,6 +69,15 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   (re-verified 2026-08-06: added opus-4-7 — legacy but Active, $5/$25,
  *   cache $0.50/$6.25, 1M ctx / 128K out per the overview + pricing pages;
  *   models.dev first listed it 2026-08-06)
+ *   (re-verified 2026-09-01 on /docs/en/about-claude/pricing: sonnet-5's
+ *   $2/$10 launch pricing is now the STANDARD price — that page's own note
+ *   reads "The previously scheduled increase to $3/$15 per million input/output
+ *   tokens on September 1, 2026 will not occur." Catalog moved off the
+ *   never-under-charge $3/$15 to $2/$10, cache $0.20/$2.50, and the
+ *   KNOWN_DIVERGENCES entry was deleted. Every other Anthropic entry on that
+ *   page is unchanged: fable-5 $10/$50 ($1/$12.50), opus-5 / opus-4-8 /
+ *   opus-4-7 / opus-4-6 $5/$25 ($0.50/$6.25), sonnet-4-6 $3/$15 ($0.30/$3.75),
+ *   haiku-4-5 $1/$5 ($0.10/$1.25).)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -327,13 +336,14 @@ export const MODELS: readonly ModelDefinition[] = [
     // Synthase (request-shape.ts forwards only webSearchToolType).
     codeExecutionToolType: 'code_execution_20260521',
     webFetchToolType: 'web_fetch_20260209',
-    // Standard pricing. Intro pricing ($2/$10) applies through 2026-08-31 —
-    // billed here at standard so metering never under-charges; revisit after.
-    inputPricePerMTok: 3,
-    outputPricePerMTok: 15,
+    // The launch "intro" pricing IS the standard price as of 2026-09-01 — the
+    // pricing page's own note says the scheduled 2026-09-01 rise to $3/$15
+    // will not occur (verified 2026-09-01).
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 10,
     // Anthropic 5-minute prompt cache: read 0.1× input, write 1.25× input.
-    cacheReadPricePerMTok: 0.3,
-    cacheWritePricePerMTok: 3.75,
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2026-01-01',
   },
   {
@@ -741,7 +751,7 @@ export const MODELS: readonly ModelDefinition[] = [
     // "New Stable" 2026-08-13. LIST price $1.50/$7.50 — same as 3.6-flash.
     // Google runs a launch promo ($0.75/$3.75, cache read $0.075) through
     // 2026-12-31; billed here at standard list so metering never under-charges
-    // (same policy as claude-sonnet-5's intro pricing — see the matching
+    // (same policy as gpt-5.6-sol's promo card — see the matching
     // KNOWN_DIVERGENCES entry in scripts/check-model-freshness.mjs, expiring
     // 2026-12-31).
     inputPricePerMTok: 1.5,
