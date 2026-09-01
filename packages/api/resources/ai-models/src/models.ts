@@ -78,6 +78,20 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   page is unchanged: fable-5 $10/$50 ($1/$12.50), opus-5 / opus-4-8 /
  *   opus-4-7 / opus-4-6 $5/$25 ($0.50/$6.25), sonnet-4-6 $3/$15 ($0.30/$3.75),
  *   haiku-4-5 $1/$5 ($0.10/$1.25).)
+ *   (re-verified 2026-09-01 — ADDED claude-fable-5-1, released that day and
+ *   listed as "Active (latest)" on /docs/en/models/fable-5-1/overview, which
+ *   moves claude-fable-5 to "Legacy models (still available)" → superseded.
+ *   Same tier and same $10/$50 as fable-5, 1M ctx / 128K out, adaptive
+ *   thinking always on, effort low|medium|high|xhigh|max default high, vision
+ *   + tools + caching, reliable knowledge cutoff Jun 2026. The one price that
+ *   is NOT the fleet ratio: cache read is $0.25/MTok — the pricing page
+ *   footnotes fable-5-1 / mythos-5-1 as 0.025× input where every other model
+ *   is 0.1×; cache write is the usual 1.25× ($12.50). Not modeled: the beta
+ *   per-message effort / turn-scoped system messages / `display: "updates"`,
+ *   and the three fable-5 → fable-5-1 breaking changes (forced tool_choice
+ *   any/tool now 400s, thinking blocks are model-bound, editing earlier turns
+ *   invalidates them) — Synthase sends tool_choice auto and is append-only,
+ *   and the pre-commit dispatch probe covers the entry as sent.)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -197,6 +211,41 @@ export const MODELS: readonly ModelDefinition[] = [
   // deprecated on the 4.6 family. Only Haiku 4.5 still uses budget_tokens.
   // ---------------------------------------------------------------------------
   {
+    id: 'claude-fable-5-1',
+    provider: 'anthropic',
+    label: 'Claude Fable 5.1',
+    description: 'Most capable Anthropic — frontier reasoning & long-horizon agents',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
+    // Thinking is ALWAYS ON (adaptive); effort is the only depth control, and
+    // all five levels are supported (effort docs, verified 2026-09-01).
+    // Default/recommended is high; xhigh/max for the most capability-sensitive
+    // agentic work, medium/low for routine work.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search_20260209',
+    // Dynamic-filtering server tools, same as the rest of the 4.6+ Anthropic
+    // fleet. Not currently sent by Synthase beyond webSearchToolType
+    // (request-shape.ts forwards only that one).
+    codeExecutionToolType: 'code_execution_20260521',
+    webFetchToolType: 'web_fetch_20260209',
+    inputPricePerMTok: 10,
+    outputPricePerMTok: 50,
+    // Cache write is the standard 1.25× input. Cache READ is the documented
+    // exception to Anthropic's 0.1× rule: 0.025× input on fable-5-1 /
+    // mythos-5-1 only ("$0.25 / MTok", pricing page footnote 1).
+    cacheReadPricePerMTok: 0.25,
+    cacheWritePricePerMTok: 12.5,
+    // Reliable knowledge cutoff Jun 2026 (model page "Specifications").
+    knowledgeCutoff: '2026-06-01',
+  },
+  {
     id: 'claude-fable-5',
     provider: 'anthropic',
     label: 'Claude Fable 5',
@@ -228,6 +277,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 1,
     cacheWritePricePerMTok: 12.5,
     knowledgeCutoff: '2026-01-01',
+    // Superseded by claude-fable-5-1 (same tier, same $10/$50 input/output,
+    // cheaper cache reads); Anthropic now lists it under "Legacy models (still
+    // available)". Still served and priceable, just not OFFERED.
+    deprecatedAt: '2026-09-01',
+    supersededBy: 'claude-fable-5-1',
   },
   {
     id: 'claude-opus-5',

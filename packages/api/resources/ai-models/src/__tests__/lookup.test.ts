@@ -857,11 +857,21 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
  * `alibaba|qwen` @ [3, 8]). Same rule as the workspace freshness gate
  * (`scripts/check-model-freshness.mjs`), so "we never care about the older
  * generation" means the same thing in the catalog and in the drift report.
+ *
+ * A minor version may be separated by `.` OR `-`, because Anthropic writes its
+ * ids the second way: `claude-fable-5-1` is 5.1, not a variant of 5. Parsing
+ * only `.` collapsed the two onto the same version — which is exactly how
+ * `claude-fable-5` → `claude-fable-5-1` read as a sideways move rather than a
+ * newer generation when 5.1 shipped 2026-09-01. The trailing-segment rule is
+ * unchanged for dated ids (`claude-haiku-4-5-20251001` → [4, 5, 20251001],
+ * still the newest of its family) and for every non-Anthropic id, where a `-`
+ * is followed by a word (`gpt-5.6-sol`, `deepseek-v4-pro`) and so never
+ * matches.
  */
 const parseFamily = (provider: string, id: string): { key: string; version: number[] } | null => {
-  const match = /^(.*?)(\d+(?:\.\d+)*)/.exec(id.toLowerCase())
+  const match = /^(.*?)(\d+(?:[.-]\d+)*)/.exec(id.toLowerCase())
   if (!match) return null
-  return { key: `${provider}|${match[1]}`, version: match[2].split('.').map(Number) }
+  return { key: `${provider}|${match[1]}`, version: match[2].split(/[.-]/).map(Number) }
 }
 
 const cmpVersion = (a: number[], b: number[]): number => {
@@ -990,6 +1000,7 @@ describe('supersededBy', () => {
     // The user-visible contract: these ids no longer appear in the `/model`
     // picker. Listed explicitly so removing one is a deliberate edit.
     const expected: Record<string, string> = {
+      'claude-fable-5': 'claude-fable-5-1',
       'claude-opus-4-8': 'claude-opus-5',
       'claude-opus-4-7': 'claude-opus-5',
       'claude-opus-4-6': 'claude-opus-5',
