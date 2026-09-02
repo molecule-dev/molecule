@@ -264,6 +264,9 @@ for (const pkg of todo) {
   if (attempted >= LIMIT) break
   attempted++
   let published = false
+  // How this package came to count as published — a real upload or npm saying
+  // the version was already there. Printed per package below.
+  let how = 'published'
 
   // A 429 ABORTS THE WHOLE RUN. This reverses the original design, on npm
   // support's explicit guidance (2026-08-04):
@@ -354,6 +357,7 @@ for (const pkg of todo) {
       }
       if (/cannot publish over|EPUBLISHCONFLICT|previously published/i.test(out)) {
         published = true // Already there; done, not an error.
+        how = 'already on registry (publish conflict)'
       } else if (/E429|429 Too Many/i.test(out)) {
         // STOP THE ENTIRE RUN. Do not retry, do not continue to the next package
         // — the limiter is account-wide, so every subsequent attempt both fails
@@ -470,9 +474,12 @@ for (const pkg of todo) {
 
   if (published) {
     done++
-    if (done % 10 === 0) {
-      process.stderr.write(`  published ${done}\n`)
-    }
+    // One line PER package, as it happens. The summary alone ("6/6 published")
+    // cannot say WHICH packages landed or how — on 2026-09-02 a run reported 6/6
+    // while npm never served @molecule/app-ide-react@1.10.0, and nothing in the
+    // CI log could distinguish a real upload from a conflict-counted-as-success
+    // or say whether that package was even reached.
+    process.stderr.write(`  \u2713 ${pkg.name}@${pkg.version} ${how} (${done}/${todo.length})\n`)
     await sleep(DELAY_S * 1000)
   } else if (!failed.some((f) => f.name === pkg.name)) {
     failed.push({ name: pkg.name, error: `stopped: ${abortReason}` })
