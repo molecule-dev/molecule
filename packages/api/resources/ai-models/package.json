@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-ai-models",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "AI model catalog — server-side source of truth plus an authentication-gated discovery endpoint",
   "type": "module",
   "main": "dist/index.js",

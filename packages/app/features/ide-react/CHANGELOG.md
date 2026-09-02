@@ -1,5 +1,21 @@
 # @molecule/app-ide-react
 
+## 1.10.0
+
+### Minor Changes
+
+- f1c7b25: Adds an optional `onRestartBackend` escalation hook to the preview panel: when the backing server answers probes but the app has not confirmed a render for minutes and an automatic reload was already tried, the panel asks the host to restart the backing dev server — at most once per broken episode, with a long cooldown, never during a build. This recovers failure classes a document reload cannot (e.g. module failures cached against the dev server's immutable versioned URLs). Hosts that omit the prop are unaffected.
+
+### Patch Changes
+
+- 1491a42: Peak-hour pricing windows can be restricted to certain UTC weekdays (`peakPricing.windows[].daysOfWeekUtc`), and the DeepSeek entries now carry the Monday-through-Friday qualifier their rate card publishes, so weekend hours inside those windows no longer meter at the peak multiplier. The `/models` picker labels a weekday-only window with the days it applies on.
+- 4917f72: The preview panel now recovers on its own after its server comes back: while the "can't load here" or "preview is blank" notice is showing, it keeps probing the preview URL and reloads automatically once the app is serving again (for example after a slow sandbox wake), instead of waiting for a manual reload.
+- 8848b7f: The preview's stuck-load recovery no longer reloads a heartbeating document: the inline bridge heartbeats from HTML-parse time, so liveness means the module graph is still loading — reloading it aborted every in-flight module fetch and could trap large apps (slow module graphs behind a proxy) in a permanent reload-and-blank loop. Recovery still fires for a genuinely dead document.
+- 9ef4dad: The preview's first-load spinner can no longer sit forever without a way out: if the preview server hasn't answered after 45 seconds, the panel shows the reload / open-in-new-tab notice while it keeps polling (mounting and clearing the notice by itself when the server appears), and the 30-second stuck backstop now re-checks after wake/build holds instead of disarming permanently.
+- f90da75: Viewers watching a teammate's turn now see the normal streaming activity indicator; previously the chat activity slot showed "Waiting for the development environment to finish starting…" for the whole remote turn even when the environment was already running.
+- eded2d3: Team notes (/teamsay) now send immediately even while a response is streaming, instead of silently queuing until the turn ends; and read-only viewers no longer arm the auto-commit countdown, which fired /commit on their behalf and surfaced a spurious "view-only access, so this command is unavailable" notice.
+- 8185523: Read-only viewers no longer auto-send the initial prompt on mount (a stale project-keyed prompt could start a turn the server rejects) and the auto-fix countdown can never dispatch a fix turn from a viewer's client.
+
 ## 1.9.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/api-resource-ai-models
 
+## 1.4.0
+
+### Minor Changes
+
+- d65d436: Adds `claude-fable-5-1` (Anthropic's current latest; same $10/$50 per MTok as `claude-fable-5`, with $0.25/MTok cache reads) and marks `claude-fable-5` as legacy. `claude-sonnet-5` is now listed at its standard $2/$10 rate. Model ids with a dash-separated minor version (e.g. `claude-fable-5-1`) now parse as a newer generation of their family instead of a sibling.
+- 1491a42: Peak-hour pricing windows can be restricted to certain UTC weekdays (`peakPricing.windows[].daysOfWeekUtc`), and the DeepSeek entries now carry the Monday-through-Friday qualifier their rate card publishes, so weekend hours inside those windows no longer meter at the peak multiplier. The `/models` picker labels a weekday-only window with the days it applies on.
+
 ## 1.3.0
 
 ### Minor Changes

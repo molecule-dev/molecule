@@ -1,5 +1,11 @@
 # @molecule/app-ai-models
 
+## 1.3.0
+
+### Minor Changes
+
+- 1491a42: Peak-hour pricing windows can be restricted to certain UTC weekdays (`peakPricing.windows[].daysOfWeekUtc`), and the DeepSeek entries now carry the Monday-through-Friday qualifier their rate card publishes, so weekend hours inside those windows no longer meter at the peak multiplier. The `/models` picker labels a weekday-only window with the days it applies on.
+
 ## 1.2.0
 
 ### Minor Changes
