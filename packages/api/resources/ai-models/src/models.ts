@@ -122,6 +122,15 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   at the post-promo list rate ($1.50/$7.50, cache read $0.15) under the same
  *   never-under-charge policy, each with a KNOWN_DIVERGENCES entry expiring
  *   2026-12-31. gemini-3.5-flash carries no promo: still $1.50/$9.00, $0.15)
+ *   (re-verified 2026-09-02: gemini-3.8-flash "New Stable" — supersedes
+ *   3.7-flash, which the models page now calls "previous-generation". THIRD id
+ *   on the same flash-tier promo row, verbatim "$0.75 through December 31,
+ *   2026. $1.50 starting January 1, 2027." / "$3.75 … $7.50" / "$0.075 …
+ *   $0.15", so it too is cataloged at list with a KNOWN_DIVERGENCES entry.
+ *   Specs from /docs/models/gemini-3.8-flash: 1M ctx / 65,536 out, thinking
+ *   low|medium|high, vision, tools, caching, search grounding, code execution,
+ *   url context — identical surface to 3.7-flash. Knowledge cutoff is published
+ *   by neither Google nor models.dev for this id)
  * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-5
  *   (grok-4.5 flagship 2026-07-08: $2/$6, 500K ctx, ≥200K prompts bill 2× —
  *   not modeled; reasoning_effort low|medium|high default high, image input;
@@ -783,10 +792,47 @@ export const MODELS: readonly ModelDefinition[] = [
   // historical usage can reference the old ids.
   // ---------------------------------------------------------------------------
   {
+    id: 'gemini-3.8-flash',
+    provider: 'google',
+    label: 'Gemini 3.8 Flash',
+    description: 'Google agentic flagship — long-horizon engineering & autonomous agents',
+    // Verified against /docs/models/gemini-3.8-flash (2026-09-02) — same limits
+    // and capability surface as 3.7-flash.
+    contextWindow: 1_048_576,
+    maxOutputTokens: 65_536,
+    supportsThinking: true,
+    thinkingBudgetTokens: 10_000,
+    thinkingConfigurable: true,
+    // thinking_level low|medium|high — minimal NOT supported on this model.
+    supportedEffortLevels: ['low', 'medium', 'high'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'google_search',
+    codeExecutionToolType: 'code_execution',
+    webFetchToolType: 'url_context',
+    // "New Stable" 2026-09-02. LIST price $1.50/$7.50 — same card as 3.7- and
+    // 3.6-flash, and on the same flash-tier launch promo ($0.75/$3.75, cache
+    // read $0.075) through 2026-12-31; billed here at standard list so metering
+    // never under-charges (identical policy and expiry to the two entries
+    // below — see the matching KNOWN_DIVERGENCES entry in
+    // scripts/check-model-freshness.mjs).
+    inputPricePerMTok: 1.5,
+    outputPricePerMTok: 7.5,
+    // Gemini context cache: read $0.15/M (0.1× input), no write premium
+    // (storage billed separately per hour — not modeled).
+    cacheReadPricePerMTok: 0.15,
+    cacheWritePricePerMTok: 1.5,
+    // Published by neither Google's model page nor models.dev for this id —
+    // carried from 3.7-flash (same generation) as a best-effort estimate.
+    knowledgeCutoff: '2026-03-01',
+  },
+  {
     id: 'gemini-3.7-flash',
     provider: 'google',
     label: 'Gemini 3.7 Flash',
-    description: 'Google agentic flagship — complex coding & multi-step execution',
+    description: 'Previous Google agentic flagship — complex coding & multi-step execution',
     // Verified against /docs/models/gemini-3.7-flash (2026-08-13).
     contextWindow: 1_048_576,
     maxOutputTokens: 65_536,
@@ -816,6 +862,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1.5,
     // Not on Google's docs — models.dev reports 2026-03 (lead, not authority).
     knowledgeCutoff: '2026-03-01',
+    // Superseded by gemini-3.8-flash (2026-09-02) — same flash tier, same list
+    // price; Google's own models page now calls 3.7 "previous-generation".
+    // Still served upstream, so it stays priceable.
+    deprecatedAt: '2026-09-02',
+    supersededBy: 'gemini-3.8-flash',
   },
   {
     id: 'gemini-3.6-flash',
@@ -856,9 +907,11 @@ export const MODELS: readonly ModelDefinition[] = [
     knowledgeCutoff: '2026-01-01',
     // Superseded by gemini-3.7-flash (2026-08-13) — same flash tier, same list
     // price; Google's own models page now calls 3.6 "previous-generation".
-    // Still served upstream, so it stays priceable.
+    // Still served upstream, so it stays priceable. Re-pointed to
+    // gemini-3.8-flash on 2026-09-02 when 3.7 was itself deprecated —
+    // supersededBy must target a SELECTABLE model, never a chain.
     deprecatedAt: '2026-08-13',
-    supersededBy: 'gemini-3.7-flash',
+    supersededBy: 'gemini-3.8-flash',
   },
   {
     id: 'gemini-3.5-flash',
@@ -889,11 +942,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 1.5,
     knowledgeCutoff: '2025-01-01',
     // Superseded within the flash tier (first by 3.6-flash on 2026-07-21, now
-    // pointed one hop to gemini-3.7-flash — supersededBy must target a
+    // pointed one hop to gemini-3.8-flash — supersededBy must target a
     // SELECTABLE model, never a chain). Still served upstream, so it stays
     // priceable.
     deprecatedAt: '2026-07-21',
-    supersededBy: 'gemini-3.7-flash',
+    supersededBy: 'gemini-3.8-flash',
   },
   {
     id: 'gemini-3.1-pro-preview',

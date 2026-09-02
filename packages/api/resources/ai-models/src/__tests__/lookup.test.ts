@@ -891,8 +891,8 @@ const cmpVersion = (a: number[], b: number[]): number => {
 const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }[] = [
   {
     older: 'gemini-3.1-pro-preview',
-    newer: 'gemini-3.7-flash',
-    why: "Google's only pro-tier id — no GA 3.x Pro exists; 3.7 is the flash tier.",
+    newer: 'gemini-3.8-flash',
+    why: "Google's only pro-tier id — no GA 3.x Pro exists; 3.8 is the flash tier.",
   },
   {
     older: 'kimi-k2.7-code',
@@ -1008,8 +1008,9 @@ describe('supersededBy', () => {
       'gpt-5.5': 'gpt-5.6-sol',
       'gpt-5.4': 'gpt-5.6-terra',
       'gpt-5.4-mini': 'gpt-5.6-luna',
-      'gemini-3.5-flash': 'gemini-3.7-flash',
-      'gemini-3.6-flash': 'gemini-3.7-flash',
+      'gemini-3.5-flash': 'gemini-3.8-flash',
+      'gemini-3.6-flash': 'gemini-3.8-flash',
+      'gemini-3.7-flash': 'gemini-3.8-flash',
       'grok-4.3': 'grok-4.5',
       'kimi-k2.6': 'kimi-k3',
       'kimi-k2.5': 'kimi-k3',
