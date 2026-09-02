@@ -1808,9 +1808,13 @@ export const MODELS: readonly ModelDefinition[] = [
     // GLM context cache: read ≈0.19× input, no write premium.
     cacheReadPricePerMTok: 0.26,
     cacheWritePricePerMTok: 1.4,
-    // No US re-host exists — DeepInfra serves GLM-5.2 and GLM-5.3-Flash but
-    // returns "model not found" for zai-org/GLM-5.3 (checked 2026-08-26), so
-    // this is pinned to the native host and bills the list card above.
+    // Pinned to the native host, billing the list card above. DeepInfra has
+    // since STARTED serving zai-org/GLM-5.3 (it 404'd when this was cataloged
+    // on 2026-08-26; live 2026-09-02 at $1.20/$4.00, cache read 0.1× = $0.12,
+    // i.e. below native). Adding 'us' here is not a catalog-only edit — it
+    // needs a matching entry in molecule-dev's region-model-maps.ts and a
+    // regionPricing block, moved together, or dispatch sends the canonical id
+    // and 404s. Left as a human decision.
     regions: ['cn'],
     // Same base weights as glm-5.2, so the same best-effort estimate — Z.ai
     // publishes no cutoff.
