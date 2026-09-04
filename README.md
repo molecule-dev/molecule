@@ -27,7 +27,7 @@ Try it: [www.molecule.dev](https://www.molecule.dev). Describe an app and Syntha
 ## How it works
 
 1. **Describe** the app at [www.molecule.dev](https://www.molecule.dev). Synthase asks a few questions before it plans.
-2. **Synthase composes packages** from this catalog (923 packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
+2. **Synthase composes packages** from this catalog (925 packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
 3. **Bonds wire providers** at startup. Application code only ever calls the core interface.
 4. **A live sandbox** runs the project with a preview while you work, and deploys it when you are ready.
 5. **Export anytime.** One archive with the project code, a database dump, and `.env` files holding the keys you own (`GET /projects/:id/export`). Unpack it and run it anywhere.
