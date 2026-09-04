@@ -1,5 +1,11 @@
 # @molecule/api-ai-google
 
+## 1.2.1
+
+### Patch Changes
+
+- The default model is now gemini-3.8-flash.
+
 ## 1.2.0
 
 ### Minor Changes

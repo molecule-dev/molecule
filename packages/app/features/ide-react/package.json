@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ide-react",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "React IDE components for molecule.dev workspace",
   "type": "module",
   "main": "dist/index.js",

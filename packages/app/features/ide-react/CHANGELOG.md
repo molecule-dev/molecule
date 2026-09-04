@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.10.1
+
+### Patch Changes
+
+- The command menu now dedupes by id, so a host-provided command with the same id as a shared one replaces it instead of listing twice.
+
 ## 1.10.0
 
 ### Minor Changes

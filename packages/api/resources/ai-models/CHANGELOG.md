@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.5.0
+
+### Minor Changes
+
+- Add gemini-3.8-flash and deprecate gemini-3.7-flash; record the DeepInfra US region for glm-5.3.
+
 ## 1.4.0
 
 ### Minor Changes
