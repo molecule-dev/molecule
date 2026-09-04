@@ -15,7 +15,7 @@ Include:
 
 ## Response Timeline
 
-- **Acknowledgment**: Within 48 hours of report
+- **Acknowledgment**: Within 72 hours of report
 - **Initial assessment**: Within 1 week
 - **Fix timeline**: Depends on severity; critical issues prioritized
 - **Disclosure**: Coordinated disclosure after fix is released (90-day maximum)
