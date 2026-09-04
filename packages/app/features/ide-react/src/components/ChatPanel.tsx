@@ -5583,12 +5583,16 @@ function ChatInner({
 
   // The shared command registry UNION any host-provided commands (e.g.
   // molecule.dev's /deploy, /push, /invite, /teamsay), so the menu, grouping,
-  // and dispatch all see one list and host commands never go missing. Declared
+  // and dispatch all see one list and host commands never go missing. Deduped
+  // by id with the host winning: a host may override a shared command (the id
+  // is already routed to the host first, see `extraCommandIds`), and the menu
+  // must then list it once, with the host's label and description. Declared
   // before executeCommand since it lives in that callback's dependency list.
-  const allCommands = useMemo<readonly CommandDef[]>(
-    () => (extraCommands?.length ? [...COMMANDS, ...extraCommands] : COMMANDS),
-    [extraCommands],
-  )
+  const allCommands = useMemo<readonly CommandDef[]>(() => {
+    if (!extraCommands?.length) return COMMANDS
+    const overridden = new Set(extraCommands.map((c) => c.id))
+    return [...COMMANDS.filter((c) => !overridden.has(c.id)), ...extraCommands]
+  }, [extraCommands])
   const extraCommandIds = useMemo(
     () => new Set((extraCommands ?? []).map((c) => c.id)),
     [extraCommands],
