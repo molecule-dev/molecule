@@ -137,7 +137,7 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
  *   grok-code-fast-1 no longer listed — retires 2026-08-15)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (verified
- *   2026-08-31; legacy deepseek-chat/-reasoner ids fully retired 2026-07-24 —
+ *   2026-09-06; legacy deepseek-chat/-reasoner ids fully retired 2026-07-24 —
  *   never in this catalog. The V4-Pro-GA price RISE effective 2026-08-16T16:00Z
  *   has LANDED and is folded into the base fields, along with the peak-hour 2×
  *   the same card introduced; every rate re-read on the card 2026-08-31 and
@@ -146,7 +146,10 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   where on 2026-08-18 it carried no day qualifier at all, so the windows are
  *   `daysOfWeekUtc`-restricted rather than daily. `deepseek-v4-flash-vision-exp`
  *   also appears on the card at flash's rates: EXPERIMENTAL and vision-only-new,
- *   deliberately not catalogued.)
+ *   deliberately not catalogued. The 2026-09-06 re-read found every native rate
+ *   unchanged; what moved was the US re-host — DeepInfra cut
+ *   `DeepSeek-V4-Flash-0731` from $0.08 to $0.06 input, cache read $0.016 to
+ *   $0.015, output held at $0.18. See that entry's `regionPricing`.)
  * - Moonshot: https://platform.kimi.ai/docs/models + DeepInfra's model API for
  *   the US re-host (kimi-k3 flagship 2026-07-16
  *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
@@ -1282,23 +1285,29 @@ export const MODELS: readonly ModelDefinition[] = [
     // US (DeepInfra) DEFAULT as of 2026-08-16 — flipped from CN when DeepSeek's
     // rise landed (owner decision 2026-08-14). CN was cheaper on real traffic
     // only because of its cache reads; the rise takes those from $0.0028 to
-    // $0.007 (peak $0.014) against DeepInfra's flat $0.016, which is no longer
-    // enough to carry the 1.6-3.1x it now loses on fresh input and output. On
+    // $0.007 (peak $0.014) against DeepInfra's flat $0.015, which is no longer
+    // enough to carry the 3.7x CN now loses on BOTH fresh input (0.22 vs 0.06)
+    // and output (0.66 vs 0.18). On
     // the agentic mix this model actually serves (~94% cache hits) US is
-    // cheaper at EVERY hour: 0.114c/turn flat vs 0.152c off-peak and 0.303c at
+    // cheaper at EVERY hour: 0.103c/turn flat vs 0.152c off-peak and 0.303c at
     // peak. It is also flat-rate, so free-tier cost stops varying by Beijing
     // business hours. Re-derive if the cache-hit ratio drops much below ~90%,
     // where CN's cheaper reads start winning again. This deliberately splits
     // the plan/execute pair across regions — Pro stays CN because its US
     // re-host is ~2.3x its own native rate even after the rise.
     regions: ['us', 'cn'],
-    // US = DeepInfra, verified 2026-08-13 against the id the bond actually
+    // US = DeepInfra, verified 2026-09-06 against the id the bond actually
     // sends: `deepseek-ai/DeepSeek-V4-Flash-0731`, the official release that
     // supersedes the preview weights still served under the un-dated id
-    // (cents_per_input_token 0.000008, cents_per_output_token 0.000018,
-    // rate_per_input_token_cached 0.2 → cache read = 0.2 × input).
+    // (cents_per_input_token 0.000006, cents_per_output_token 0.000018,
+    // rate_per_input_token_cached 0.25 → cache read = 0.25 × input).
+    // DeepInfra CUT the 0731 input rate 0.08 → 0.06 (cache read 0.016 →
+    // 0.015); output held at 0.18. The un-dated `DeepSeek-V4-Flash` id moved
+    // the other way (0.09 input, cache 0.2× = 0.018), so the two ids no longer
+    // price alike — this entry tracks the dated one the modelMap sends, and the
+    // gap widens the case for the US default this model already carries.
     regionPricing: {
-      us: { inputPricePerMTok: 0.08, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.016 },
+      us: { inputPricePerMTok: 0.06, outputPricePerMTok: 0.18, cacheReadPricePerMTok: 0.015 },
     },
     // Peak-hour surcharge live since 2026-08-16T16:00Z, Mon-Fri (see
     // deepseek-v4-pro). It applies to the NATIVE CN card only — this model

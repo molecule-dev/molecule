@@ -668,13 +668,16 @@ describe('DeepSeek 2026-08-16 price rise (landed)', () => {
     expect(priceMultiplierAt(model, AFTER_PEAK, 'cn')).toBe(2)
   })
 
-  it('does not touch the US re-host rates', () => {
-    // DeepInfra sets its own prices; the CN rise must not have moved them.
-    // Asserted against the host's own card rather than "unchanged over time",
-    // which is vacuous now that the rise is folded into the base fields.
+  it('prices the US re-host off its own card, not the CN one', () => {
+    // DeepInfra sets its own prices and moves them independently: the CN rise
+    // never touched them, and DeepInfra's own 2026-09-06 cut to
+    // DeepSeek-V4-Flash-0731 (0.08 → 0.06 input, 0.016 → 0.015 cache read)
+    // moved nothing on the native card. Asserted against the host's own rates
+    // rather than "unchanged over time", which is vacuous now that the rise is
+    // folded into the base fields.
     const us = {
       'deepseek-v4-pro': { input: 1.3, output: 2.6, cacheRead: 0.1 },
-      'deepseek-v4-flash': { input: 0.08, output: 0.18, cacheRead: 0.016 },
+      'deepseek-v4-flash': { input: 0.06, output: 0.18, cacheRead: 0.015 },
     } as const
     for (const [id, expected] of Object.entries(us)) {
       const model = MODELS.find((m) => m.id === id)!
