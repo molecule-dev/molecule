@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-content",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Content core interface: read a directory of front-matter markdown files into typed records (front matter, body, slug, path, draft), validating loudly; bond a provider for the parsing",
   "type": "module",
   "main": "dist/index.js",

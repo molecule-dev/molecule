@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-markdown-marked",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Markdown rendering provider backed by marked: CommonMark + GFM to sanitized HTML with a table of contents, in Node or the browser (build-time static sites included)",
   "type": "module",
   "main": "dist/index.js",
