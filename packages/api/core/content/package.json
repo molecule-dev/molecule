@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-content",
+  "version": "1.0.0",
+  "description": "Content core interface: read a directory of front-matter markdown files into typed records (front matter, body, slug, path, draft), validating loudly; bond a provider for the parsing",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "content",
+    "front-matter",
+    "markdown",
+    "static-site"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.1",
+    "@molecule/api-i18n": "1.0.1",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/content"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/content",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
