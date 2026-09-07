@@ -54,6 +54,13 @@
  * The PWA build emits `push-sw.js` and importScripts it into the Workbox
  * generateSW worker so delivered web-push notifications actually display.
  *
+ * The config also carries vitest's `test.exclude`, keeping the Playwright
+ * suite under `e2e/` out of `npm test` (`vitest run`): Playwright specs are
+ * `*.spec.ts`, which vitest's default include would otherwise collect and
+ * fail. Put unit tests under `src/` and Playwright specs under `e2e/`
+ * (`playwright.config.ts` → `testDir: './e2e'`); if you override
+ * `test.exclude`, keep the `**\/e2e/**` entry.
+ *
  * @module
  */
 

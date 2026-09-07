@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import process from 'node:process'
@@ -266,5 +267,14 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       sourcemap: true,
     },
     envPrefix: 'VITE_',
+    test: {
+      // Playwright owns `e2e/` (every scaffold's playwright.config.ts sets
+      // testDir './e2e'), and its *.spec.ts files match vitest's default
+      // include — so without this, `npm test` (vitest run) collects them and
+      // each fails with "Playwright Test did not expect test.describe() to be
+      // called here". `exclude` REPLACES vitest's defaults, so those are
+      // re-listed here rather than lost.
+      exclude: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/e2e/**'],
+    },
   }
 }

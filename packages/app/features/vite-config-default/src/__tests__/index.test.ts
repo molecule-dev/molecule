@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@tailwindcss/vite', () => ({ default: () => ({ name: 'tailwindcss' }) }))
@@ -82,5 +83,22 @@ describe('@molecule/app-vite-config-default', () => {
       plugins.some((p) => p?.name === 'molecule:push-sw'),
       'push-sw emit plugin present',
     ).toBe(true)
+  })
+
+  it('keeps the Playwright e2e/ suite out of vitest collection', () => {
+    // `mlcl create` copies a template's Playwright specs to app/e2e, where
+    // vitest's default include (`**/*.{test,spec}.?(c|m)[jt]s?(x)`) collects
+    // them and every one fails with "Playwright Test did not expect
+    // test.describe() to be called here" before the user has written a line.
+    // `exclude` REPLACES vitest's defaults, so those must survive next to the
+    // e2e entry or node_modules would be collected instead.
+    const cfg = createDefaultViteConfig({
+      APP_NAME: 'TestApp',
+      APP_DESCRIPTION: 'A test app',
+      BRAND_COLOR: '#ff0000',
+    })
+    expect(cfg.test?.exclude).toEqual(
+      expect.arrayContaining(['**/e2e/**', '**/node_modules/**', '**/.git/**']),
+    )
   })
 })
