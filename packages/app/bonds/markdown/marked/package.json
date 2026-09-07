@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/app-markdown-marked",
+  "version": "1.0.0",
+  "description": "Markdown rendering provider backed by marked: CommonMark + GFM to sanitized HTML with a table of contents, in Node or the browser (build-time static sites included)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "markdown",
+    "marked",
+    "commonmark",
+    "gfm",
+    "static-site"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "marked": "14.0.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-markdown": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/app-markdown": "1.0.1",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/markdown/marked"
+  },
+  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/markdown/marked",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
