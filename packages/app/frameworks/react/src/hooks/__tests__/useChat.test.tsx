@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ChatEventHandler, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 
 import { ChatContext } from '../../contexts.js'
-import { resetChatStoresForTests, useChat } from '../useChat.js'
+import { localOnlyMessages, resetChatStoresForTests, useChat } from '../useChat.js'
 
 // ── Mock provider factory ─────────────────────────────────────────────────
 
@@ -2409,5 +2409,27 @@ describe('useChat — remote stream ingestion (applyRemoteEvent)', () => {
     act(() => {
       complete(0)
     })
+  })
+})
+
+describe('localOnlyMessages (remote-history merge)', () => {
+  const msg = (
+    id: string,
+    role: 'user' | 'assistant',
+    content: string,
+    extra: Record<string, unknown> = {},
+  ): never => ({ id, role, content, timestamp: 1, ...extra }) as never
+  it('drops the optimistic echo of a user message the server already persisted', () => {
+    const prev = [msg('user-1', 'user', 'Build this.'), msg('assistant-1', 'assistant', 'On it.')]
+    const history = [msg('srv-u1', 'user', 'Build this.'), msg('srv-a1', 'assistant', 'On it.')]
+    expect(localOnlyMessages(prev, history)).toEqual([msg('assistant-1', 'assistant', 'On it.')])
+  })
+  it('keeps a queued (not yet sent) user message and any session-local card', () => {
+    const prev = [
+      msg('user-2', 'user', 'and this', { queued: true }),
+      msg('card-1', 'assistant', 'local card'),
+    ]
+    const history = [msg('srv-u1', 'user', 'Build this.')]
+    expect(localOnlyMessages(prev, history)).toEqual(prev)
   })
 })

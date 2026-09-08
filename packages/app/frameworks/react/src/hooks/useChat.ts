@@ -392,10 +392,32 @@ function mergeRemoteHistory(key: string, history: ChatMessage[]): void {
       const winner = messageProgress(local) > messageProgress(h) ? local : h
       return local.isStreaming && !winner.isStreaming ? { ...winner, isStreaming: true } : winner
     })
-    const historyIds = new Set(history.map((m) => m.id))
-    const extras = prev.filter((m) => !historyIds.has(m.id))
+    const extras = localOnlyMessages(prev, history)
     return extras.length > 0 ? [...merged, ...extras] : merged
   })
+}
+
+/**
+ * The messages only the local store holds, given a server history: optimistic
+ * bubbles and session-local cards, minus the optimistic ECHO of a send the
+ * server already persisted. A local user message carries a local id
+ * (`user-N`), the server's copy a server id, so ids never match — content does.
+ * Without this, the dashboard's first prompt (auto-sent by the workspace,
+ * then merged back in from history by the remote-stream poll) rendered as two
+ * identical user bubbles in every new project (2026-09-08).
+ *
+ * @param prev - The store's current messages.
+ * @param history - The server's history.
+ * @returns The local-only messages to keep after the merged history.
+ */
+export function localOnlyMessages(prev: ChatMessage[], history: ChatMessage[]): ChatMessage[] {
+  const historyIds = new Set(history.map((m) => m.id))
+  const serverUserContents = new Set(history.filter((m) => m.role === 'user').map((m) => m.content))
+  return prev.filter(
+    (m) =>
+      !historyIds.has(m.id) &&
+      !(m.role === 'user' && !m.queued && serverUserContents.has(m.content)),
+  )
 }
 
 /**
