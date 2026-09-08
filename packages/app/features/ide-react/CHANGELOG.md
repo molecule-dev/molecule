@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.10.2
+
+### Patch Changes
+
+- 278adfd: `PreviewPanel`: a raw document the user clicks to inside the preview (a feed, a JSON file, `llms.txt`) is shown as content instead of being covered by the "preview is blank" notice; the bridge reports the link click as a navigation intent.
+
 ## 1.10.1
 
 ### Patch Changes
