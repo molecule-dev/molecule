@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.4.1
+
+### Patch Changes
+
+- bd0db0d: `useChat`: merging the server's history no longer keeps the optimistic copy of a message the server already holds, so a conversation's first message renders once.
+
 ## 1.4.0
 
 ### Minor Changes

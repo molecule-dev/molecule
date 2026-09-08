@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.0.3
+
+### Patch Changes
+
+- 0ba8ccc: `exec_command` no longer blocks `env -u KEY cmd`, `env KEY=value cmd` or `env -i cmd` as environment dumps; only a bare, piped or redirected `env` is.
+
 ## 1.0.2
 
 ### Patch Changes

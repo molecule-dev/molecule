@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/git-provider/gitlab"
   },
   "devDependencies": {
-    "@molecule/api-git-provider": "1.0.3",
+    "@molecule/api-git-provider": "1.0.4",
     "@molecule/api-http": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
