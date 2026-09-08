@@ -92,12 +92,16 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Đã chuyển sang chế độ lập kế hoạch',
   'ide.chat.switchedToExecute': 'Đã chuyển sang chế độ thực thi',
   'ide.chat.costError': 'Không thể lấy dữ liệu sử dụng.',
-  'ide.chat.usageAllowanceTodayLine': "You've used ~{{percent}}% of today's AI allowance.",
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
   'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
+  'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
   'ide.chat.models.usageRateHint':
     'How fast this model uses your AI allowance, relative to the most economical model',

@@ -712,7 +712,13 @@ function relativeTimeLong(ms: number): string {
 /**
  * Format an AI-allowance window reset (epoch ms) as a short countdown phrase for
  * the /cost used-up line ("refreshes in about 3 hours"). Under an hour reads "in
- * under an hour"; ≥ 6h out on a later local calendar day reads "tomorrow".
+ * under an hour"; ≥ 6h out on a later local calendar day reads "tomorrow"; a day
+ * or more out reads "in about N days".
+ *
+ * The day scale is what makes this usable on a BILLING-PERIOD allowance, which
+ * can be weeks out — an hours-only formatter capped at "tomorrow", so a window
+ * ending in 18 days told the user it came back in the morning.
+ *
  * @param resetAt - Epoch ms of the window end (always in the future from the API).
  * @returns A localized human countdown phrase.
  */
@@ -724,6 +730,17 @@ function allowanceResetCountdown(resetAt: number): string {
   const hours = diffMs / 3_600_000
   if (hours < 1) {
     return t('ide.chat.resetUnderHour', undefined, { defaultValue: 'in under an hour' })
+  }
+  if (hours >= 24) {
+    const days = Math.round(hours / 24)
+    if (days <= 1) {
+      return t('ide.chat.resetTomorrow', undefined, { defaultValue: 'tomorrow' })
+    }
+    return t(
+      'ide.chat.resetInDays',
+      { days },
+      { defaultValue: `in about ${days} ${days === 1 ? 'day' : 'days'}` },
+    )
   }
   const rounded = Math.round(hours)
   const laterLocalDay = new Date(resetAt).toDateString() !== new Date().toDateString()
@@ -5733,37 +5750,64 @@ function ChatInner({
             cacheCreationInputTokens?: number
             allowancePercent?: number | null
             allowanceResetAt?: number | null
+            allowanceWindow?: 'daily' | 'billing-period'
             model: string
             streaming?: boolean
           }>(usageUrl)
           const d = res.data
           const fmt = formatTokenTotal
-          // AI usage is shown as a UNITLESS share of today's allowance —
-          // currency never appears on AI-usage surfaces. The percent is the
-          // owner's rolling-24h window spend (the number the chat gate actually
+          // AI usage is shown as a UNITLESS share of the allowance — currency
+          // never appears on AI-usage surfaces. The percent is the owner's
+          // spend in their CURRENT window (the number the chat gate actually
           // enforces), so 100% here IS the block point; at/above it the card
           // switches to the used-up line with the window's reset countdown.
+          //
+          // `allowanceWindow` says which span that is: the unpaid tiers meter
+          // over a rolling day, the paid ones over their billing period, which
+          // refreshes monthly (a yearly subscriber included). Naming the wrong
+          // one is not cosmetic — this card said "today's" to a Pro user whose
+          // allowance is monthly, so the plan read as day-capped. An older API
+          // omits the field; fall back to the daily framing that shipped with it
+          // rather than promising a month we cannot confirm.
+          const isMonthlyAllowance = d.allowanceWindow === 'billing-period'
           const allowanceLine =
             typeof d.allowancePercent === 'number'
               ? '\n' +
                 (d.allowancePercent >= 100 && typeof d.allowanceResetAt === 'number'
-                  ? t(
-                      'ide.chat.usageAllowanceUsedUpLine',
-                      { when: allowanceResetCountdown(d.allowanceResetAt) },
-                      {
-                        defaultValue: "Today's AI allowance is used up — refreshes {{when}}.",
-                      },
-                    )
-                  : t(
-                      'ide.chat.usageAllowanceTodayLine',
-                      { percent: d.allowancePercent },
-                      {
-                        // Neutral phrasing on purpose: the allowance belongs to
-                        // the PROJECT (its owner's plan window) — "you've used"
-                        // misattributed it to whichever teammate ran /cost.
-                        defaultValue: "~{{percent}}% of today's AI allowance used.",
-                      },
-                    ))
+                  ? isMonthlyAllowance
+                    ? t(
+                        'ide.chat.usageAllowanceUsedUpMonthlyLine',
+                        { when: allowanceResetCountdown(d.allowanceResetAt) },
+                        {
+                          defaultValue:
+                            'This month’s AI allowance is used up — refreshes {{when}}.',
+                        },
+                      )
+                    : t(
+                        'ide.chat.usageAllowanceUsedUpLine',
+                        { when: allowanceResetCountdown(d.allowanceResetAt) },
+                        {
+                          defaultValue: "Today's AI allowance is used up — refreshes {{when}}.",
+                        },
+                      )
+                  : // Neutral phrasing on purpose in both: the allowance belongs
+                    // to the PROJECT (its owner's plan window) — "you've used"
+                    // misattributed it to whichever teammate ran /cost.
+                    isMonthlyAllowance
+                    ? t(
+                        'ide.chat.usageAllowanceMonthlyLine',
+                        { percent: d.allowancePercent },
+                        {
+                          defaultValue: '~{{percent}}% of this month’s AI allowance used.',
+                        },
+                      )
+                    : t(
+                        'ide.chat.usageAllowanceTodayLine',
+                        { percent: d.allowancePercent },
+                        {
+                          defaultValue: "~{{percent}}% of today's AI allowance used.",
+                        },
+                      ))
               : ''
           // `inputTokens` counts only the UNCACHED prompt: every bond normalizes
           // cache hits into their own bucket (on OpenAI-compatible APIs like
