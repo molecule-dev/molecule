@@ -179,6 +179,28 @@ describe('isEnvFilePath', () => {
 })
 
 describe('checkBlockedCommand', () => {
+  it('allows env as a launcher: env -u KEY cmd, env KEY=value cmd, env -i cmd', () => {
+    expect(checkBlockedCommand('env -u ANTHROPIC_API_KEY npm run build')).toBeNull()
+    expect(
+      checkBlockedCommand(
+        'cd app && env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY npm run build 2>&1 | tail -40',
+      ),
+    ).toBeNull()
+    expect(checkBlockedCommand('env SUMMARY_GENERATE=1 node scripts/prerender.mjs')).toBeNull()
+    expect(checkBlockedCommand("env -i PATH=/usr/bin sh -c 'npm test'")).toBeNull()
+  })
+
+  it('still blocks env when it dumps: bare, -0, piped, redirected, chained', () => {
+    expect(checkBlockedCommand('env -0')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('env --null | tr "\\0" "\\n"')).toMatch(
+      /dumping environment variables/,
+    )
+    expect(checkBlockedCommand('env | grep KEY')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('env > /tmp/e.txt')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('env; echo done')).toMatch(/dumping environment variables/)
+    expect(checkBlockedCommand('echo hi && env')).toMatch(/dumping environment variables/)
+  })
+
   it('blocks bare env / printenv', () => {
     expect(checkBlockedCommand('env')).toMatch(/dumping environment variables/)
     expect(checkBlockedCommand('printenv')).toMatch(/dumping environment variables/)

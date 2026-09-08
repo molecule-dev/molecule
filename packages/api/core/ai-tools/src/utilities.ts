@@ -182,9 +182,18 @@ export function isEnvFilePath(path: string): boolean {
 
 // ── Command blocking ──────────────────────────────────────────────────────────
 
-/** Commands that dump environment variables — blocked to prevent secret leakage. */
+/**
+ * Commands that dump environment variables — blocked to prevent secret leakage.
+ *
+ * `env` counts only when it DUMPS: bare, or with the `-0` / `--null` output
+ * flags, followed by the end of the command or a separator / pipe / redirect.
+ * `env -u KEY cmd`, `env KEY=value cmd` and `env -i cmd` run a command with a
+ * changed environment and print nothing; an executor reaches for them to prove
+ * a keyless build still succeeds, and blocking those sent it looking for
+ * workarounds (X0 rehearsal 14).
+ */
 const BLOCKED_COMMANDS =
-  /(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv\b|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ)/i
+  /(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv(?:\s+(?:-0|--null|--))?\s*(?:$|[;&|>)`'"])|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ)/i
 /** Block shell redirects from /proc environ. */
 const BLOCKED_PROC_REDIRECT = /(?:<\s*\/proc\/(?:\d+|self)\/environ)/i
 /** Interpreter-based env dumping (python, node, ruby, perl). */
