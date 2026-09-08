@@ -245,6 +245,50 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     await waitFor(() => expect(q(container, 'preview-blank-notice')).toBeNull(), { timeout: 4000 })
   }, 30000)
 
+  it('a raw document the user clicked to (feed.xml, provenance.json) is content, never a blank app', async () => {
+    const { container, iframe } = await mountWithIframe(false)
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    postFromPreview({ type: 'molecule:heartbeat' })
+    await new Promise((r) => setTimeout(r, 2500))
+    expect(q(container, 'preview-blank-notice')).toBeNull()
+
+    // The bridge in the app page reports the click before the browser leaves for the XML;
+    // the XML document then loads with NO bridge: no ready, no heartbeat, ever.
+    postFromPreview({
+      type: 'molecule:navigate',
+      url: new URL('/blog/feed.xml', PREVIEW_URL).href,
+      isReplace: false,
+      isIntent: true,
+    })
+    fireEvent.load(iframe)
+
+    // Well past BLANK_CONFIRM_MS: the notice must not appear, the document stays revealed.
+    await new Promise((r) => setTimeout(r, 5000))
+    expect(q(container, 'preview-blank-notice')).toBeNull()
+    expect(iframe.style.visibility).not.toBe('hidden')
+  }, 18000)
+
+  it('a click intent for an app route does not certify a blank reload', async () => {
+    const { container, iframe } = await mountWithIframe(false)
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:ready' })
+    postFromPreview({ type: 'molecule:heartbeat' })
+    await new Promise((r) => setTimeout(r, 2500))
+
+    postFromPreview({
+      type: 'molecule:navigate',
+      url: new URL('/about/', PREVIEW_URL).href,
+      isReplace: false,
+      isIntent: true,
+    })
+    fireEvent.load(iframe)
+    postFromPreview({ type: 'molecule:heartbeat' })
+    await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
+      timeout: 20000,
+    })
+  }, 18000)
+
   it('re-covers the preview when an edit reloads a previously-working app to blank', async () => {
     const { container, iframe } = await mountWithIframe(false)
     // The app loads and CONFIRMS it rendered → no blank accusation.

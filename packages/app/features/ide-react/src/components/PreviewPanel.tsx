@@ -252,6 +252,59 @@ const ERROR_DEDUP_WINDOW_MS = 4_000
 const BLANK_CONFIRM_MS = 2_500
 
 /**
+ * How long a reported link-click intent stays valid for the document load that follows it.
+ * A click that never turns into a load (the SPA router handled it, the server was slow) must
+ * not certify some later, unrelated blank reload.
+ */
+const RAW_DOC_INTENT_MS = 30_000
+
+/**
+ * Extensions the browser shows with its own viewer rather than running an app: a feed, a
+ * provenance map, an llms.txt. Such a document carries no bridge, so it can never post
+ * `molecule:ready` — the silence is the document, not a blank app.
+ */
+const RAW_DOCUMENT_EXTENSIONS = new Set([
+  'json',
+  'xml',
+  'rss',
+  'atom',
+  'txt',
+  'md',
+  'markdown',
+  'csv',
+  'tsv',
+  'yaml',
+  'yml',
+  'svg',
+  'pdf',
+  'webmanifest',
+  'ics',
+  'log',
+])
+
+/**
+ * Whether a URL points at a raw document (see {@link RAW_DOCUMENT_EXTENSIONS}) rather than
+ * an app page. Decided from the path's extension alone — the panel cannot read a
+ * cross-origin frame's content type.
+ *
+ * @param url - The absolute URL the preview is navigating to.
+ * @returns `true` when the browser will show the document itself, with no bridge.
+ */
+export function isRawDocumentUrl(url: string): boolean {
+  let pathname: string
+  try {
+    pathname = new URL(url).pathname
+  } catch (_error) {
+    // Not a URL at all — then it is not a raw document either.
+    return false
+  }
+  const last = pathname.split('/').pop() ?? ''
+  const dot = last.lastIndexOf('.')
+  if (dot <= 0) return false
+  return RAW_DOCUMENT_EXTENSIONS.has(last.slice(dot + 1).toLowerCase())
+}
+
+/**
  * For a NEVER-yet-rendered document, how long with NO liveness (no `molecule:heartbeat` for
  * FREEZE_THRESHOLD_MS) before surfacing the actionable notice (ms). The scaffold's preview
  * bridge is an INLINE script in `index.html`, so it runs (and starts heartbeating) the moment
@@ -675,6 +728,10 @@ export function PreviewPanel({
   // Timestamp of the current document's last `onLoad` (0 = not loaded this target). Drives the
   // elapsed-since-load math in the cold-boot evaluator without racing a stale closure.
   const lastLoadAtRef = useRef(0)
+  // The raw document a link click inside the preview is about to load (reported by the bridge
+  // as a `molecule:navigate` intent, see {@link isRawDocumentUrl}), until its `onLoad` consumes
+  // it. That load is content by definition: the browser's own viewer, no bridge, no ready.
+  const rawDocIntentRef = useRef<{ url: string; at: number } | null>(null)
   // Bumped on every iframe `onLoad` so the cold-boot evaluator effect re-runs when a fresh
   // document loads (the reveal no longer flips `iframeReady` on the grace during a cold boot, so
   // that flag can't be the trigger anymore).
@@ -1346,8 +1403,16 @@ export function PreviewPanel({
         // (state.currentUrl) without reloading the iframe. `isReplace` (set by the
         // sender for replaceState) preserves the Forward stack on a redirect-on-load
         // instead of truncating it; a missing/garbage value coerces to false (push).
-        if (typeof event.data.url === 'string')
+        if (typeof event.data.url === 'string') {
+          // A click intent for a raw document (feed.xml, provenance.json): remember it so the
+          // load that follows is taken for what it is. Any other intent clears a stale one.
+          if (event.data.isIntent === true) {
+            rawDocIntentRef.current = isRawDocumentUrl(event.data.url)
+              ? { url: event.data.url, at: Date.now() }
+              : null
+          }
           recordNavigation(event.data.url, event.data.isReplace === true)
+        }
       } else if (event.data?.type === 'molecule:blank') {
         // Page rendered but appears blank — re-cover it. Reveal is gated on `iframeReady`, so
         // dropping `confirmedContent` alone no longer re-covers; lower `iframeReady` too. The
@@ -1412,6 +1477,27 @@ export function PreviewPanel({
     if (!urlRef.current) return
     iframeLoadedRef.current = true
     lastLoadAtRef.current = Date.now()
+    // The document that just loaded is the raw file a link click announced (feed.xml,
+    // provenance.json, llms.txt): the browser shows it with its own viewer and no bridge will
+    // ever post `molecule:ready` for it. It IS the content — reveal it and never accuse it of
+    // being a blank app (the notice used to land on every feed and JSON link in a static site).
+    const rawIntent = rawDocIntentRef.current
+    if (rawIntent && Date.now() - rawIntent.at < RAW_DOC_INTENT_MS) {
+      rawDocIntentRef.current = null
+      if (onLoadGraceRef.current) {
+        clearTimeout(onLoadGraceRef.current)
+        onLoadGraceRef.current = null
+      }
+      lastReadyAtRef.current = Date.now()
+      setEverLoaded(true)
+      setIframeReady(true)
+      setConfirmedContent(true)
+      setFadingOut(false)
+      setBlankPostBuild(false)
+      setStuckRetryCount(0)
+      setDocLoadedTick((k) => k + 1)
+      return
+    }
     // Re-trigger the cold-boot evaluator effect: during a first cold boot the reveal no longer
     // flips `iframeReady` on the grace, so this document-load tick is the effect's trigger.
     setDocLoadedTick((k) => k + 1)

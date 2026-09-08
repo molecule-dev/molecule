@@ -207,7 +207,7 @@ describe('PreviewPanel URL bar (current location)', () => {
     // redirect-on-load must preserve the Forward stack, so the panel passes
     // event.data.isReplace through to recordNavigation rather than dropping it.
     expect(source).toMatch(
-      /molecule:navigate'[\s\S]*?if \(typeof event\.data\.url === 'string'\)\s*recordNavigation\(event\.data\.url, event\.data\.isReplace === true\)/,
+      /molecule:navigate'[\s\S]*?if \(typeof event\.data\.url === 'string'\) \{[\s\S]*?recordNavigation\(event\.data\.url, event\.data\.isReplace === true\)/,
     )
   })
 
