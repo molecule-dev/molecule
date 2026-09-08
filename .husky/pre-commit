@@ -26,6 +26,14 @@ if git diff --cached --name-only --diff-filter=ACM |
 fi
 
 STAGED=$(git diff --cached --name-only --diff-filter=AM)
+
+# mlcl is a workspace member of the parent checkout, so its bins hoist to the
+# workspace root; a standalone mlcl install keeps them local. Resolve once, as a
+# path valid from INSIDE mlcl (the cross-repo checks below cd there first).
+MLCL_TSX=""
+if [ -x ../mlcl/node_modules/.bin/tsx ]; then MLCL_TSX=node_modules/.bin/tsx
+elif [ -x ../node_modules/.bin/tsx ]; then MLCL_TSX=../node_modules/.bin/tsx
+fi
 if [ -z "$STAGED" ]; then
   exit 0
 fi
@@ -97,8 +105,8 @@ npm run check:locale-placeholders
 PKG_SRC=$(echo "$STAGED" | grep -E '^packages/.+/src/' || true)
 if [ -n "$PKG_SRC" ]; then
   PKG_DIRS=$(echo "$PKG_SRC" | while IFS= read -r f; do echo "${f%%/src/*}"; done | sort -u)
-  if [ -x ../mlcl/node_modules/.bin/tsx ]; then
-    ( cd ../mlcl && node_modules/.bin/tsx scripts/check-registry-exports.mjs $PKG_DIRS )
+  if [ -n "$MLCL_TSX" ]; then
+    ( cd ../mlcl && "$MLCL_TSX" scripts/check-registry-exports.mjs $PKG_DIRS )
   else
     echo "ℹ registry-export check skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'npm run verify:registry-exports' to verify"
   fi
@@ -133,13 +141,13 @@ fi
 DOC_STAGED=$(git diff --cached --name-only --diff-filter=ACMRD |
   grep -E '^packages/.+/(src/|package\.json$)' || true)
 if [ -n "$DOC_STAGED" ]; then
-  if [ -x ../mlcl/node_modules/.bin/tsx ]; then
+  if [ -n "$MLCL_TSX" ]; then
     DOC_DIRS=$(echo "$DOC_STAGED" | while IFS= read -r f; do
       d="${f%%/src/*}"
       d="${d%/package.json}"
       echo "$d"
     done | sort -u)
-    REGENERATED=$( cd ../mlcl && node_modules/.bin/tsx scripts/regen-molecule-docs.mjs $DOC_DIRS )
+    REGENERATED=$( cd ../mlcl && "$MLCL_TSX" scripts/regen-molecule-docs.mjs $DOC_DIRS )
     if [ -n "$REGENERATED" ]; then
       # These are staged AFTER the prettier/eslint pass above, so they would
       # otherwise enter the commit unchecked — which is how generated docs
