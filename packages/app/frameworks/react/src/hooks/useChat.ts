@@ -688,6 +688,26 @@ export function useChat(options: UseChatOptions): UseChatResult {
     attempt: number
   } | null>(null)
   const [mode, setMode] = useState<'plan' | 'execute'>('execute')
+  const modeRef = useRef(mode)
+  useEffect(() => {
+    modeRef.current = mode
+  }, [mode])
+  /**
+   * Apply the server's persisted mode after a history load. The server is
+   * authoritative: it used to be applied only when it was NOT 'execute', so a
+   * tab that had been told 'plan' and then missed the live plan→build flip (an
+   * SSE that dropped during a long boot, a backgrounded tab, a second tab) sat
+   * in plan mode for good while the executor built — the toggle lit, the header
+   * reading Plan (backlog G33). Idempotent: nothing fires when the mode matches.
+   */
+  const applyServerMode = useCallback((): void => {
+    const serverMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.mode
+    if (serverMode !== 'plan' && serverMode !== 'execute') return
+    if (serverMode === modeRef.current) return
+    modeRef.current = serverMode
+    setMode(serverMode)
+    onModeChange?.(serverMode)
+  }, [provider, onModeChange])
   // Fast/priority speed tier — server-persisted per conversation, hydrated from
   // the history load's `fastMode` meta field (same channel as `mode`).
   const [fastMode, setFastMode] = useState<boolean>(false)
@@ -911,6 +931,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     try {
       const history = await provider.loadHistory({ endpoint, projectId })
       if (!mountedRef.current || sendingRef.current) return
+      applyServerMode()
       const store = getMessageStore(storageKey)
       if (store.streaming) return
       const serverStreaming =
@@ -1271,12 +1292,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         // Idempotent + cheap, so do it regardless of store state. The http bond
         // surfaces app-specific GET fields generically via `lastMeta` (it no
         // longer names the plan/execute vocabulary — molecule anti-pattern 14).
-        const serverMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta?.mode as
-          'plan' | 'execute' | undefined
-        if (serverMode && serverMode !== 'execute') {
-          setMode(serverMode)
-          onModeChange?.(serverMode)
-        }
+        applyServerMode()
         // Restore the conversation's fast-mode flag the same way (servers
         // without the field leave the default `false`).
         const serverFastMode = (provider as { lastMeta?: Record<string, unknown> }).lastMeta
@@ -2127,6 +2143,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           try {
             const history = await provider.loadHistory(config)
             if (mountedRef.current && history.length > 0) setMessages(history)
+            applyServerMode()
             // The turn is often still RUNNING server-side (the socket died while
             // the page was backgrounded — mobile screen lock — or the edge proxy
             // recycled the connection): a single history snapshot would leave the

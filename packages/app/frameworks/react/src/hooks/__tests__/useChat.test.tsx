@@ -587,6 +587,38 @@ describe('useChat', () => {
     })
   })
 
+  // ── Server mode is authoritative on every history load (G33) ───────────
+
+  it('applies the server mode on reconcile, including execute, so a tab that missed the plan→build flip heals', async () => {
+    const { provider } = createMockProvider()
+    const meta = provider as { lastMeta?: Record<string, unknown> }
+    meta.lastMeta = { mode: 'plan' }
+    const onModeChange = vi.fn()
+
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, onModeChange }),
+      { wrapper: createWrapper(provider) },
+    )
+    await waitFor(() => expect(result.current.mode).toBe('plan'))
+    expect(onModeChange).toHaveBeenLastCalledWith('plan')
+
+    // The live flip to execute never reached this tab; the next history load
+    // (page lifecycle, push reconnect) carries the server's persisted mode.
+    meta.lastMeta = { mode: 'execute' }
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+    expect(result.current.mode).toBe('execute')
+    expect(onModeChange).toHaveBeenLastCalledWith('execute')
+
+    // Idempotent: a matching mode fires nothing.
+    onModeChange.mockClear()
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+    expect(onModeChange).not.toHaveBeenCalled()
+  })
+
   // ── Stop keeps streamed content (C4) ───────────────────────────────────
 
   it('keeps streamed content on user abort and does NOT overwrite it with reloaded history (C4)', async () => {
