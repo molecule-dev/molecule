@@ -6,7 +6,7 @@
  * This exists because "which git hosts do we support?" kept being answered by a
  * closed union inside the application:
  *
- * ```ts
+ * ```text
  * const GIT_PROVIDERS = ['github', 'gitlab'] as const
  * const PROVIDER_DEFAULTS: Record<GitProvider, …>      // OAuth URLs + scopes
  * const TOKEN_USERNAME:    Record<string, string>      // x-access-token | oauth2
