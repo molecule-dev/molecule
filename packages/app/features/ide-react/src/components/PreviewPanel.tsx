@@ -1477,6 +1477,16 @@ export function PreviewPanel({
     if (!urlRef.current) return
     iframeLoadedRef.current = true
     lastLoadAtRef.current = Date.now()
+    // A pending ui-command (navigate) is answered by the document that loaded AT OR
+    // AFTER its minLoadedAt; the load event is the one UNTHROTTLED signal that this
+    // document now exists, so re-post here rather than waiting for its bridge's next
+    // frame — in a hidden tab those frames are timer-scheduled and Chrome throttles
+    // them to ~one per minute, which is how a navigate could outlive its 45s window
+    // with the bridge alive the whole time (X0 rehearsal 28, G46).
+    const pending = pendingUiPostRef.current
+    if (pending && Date.now() <= pending.deadline) {
+      iframeRef.current?.contentWindow?.postMessage(pending.payload, '*')
+    }
     // The document that just loaded is the raw file a link click announced (feed.xml,
     // provenance.json, llms.txt): the browser shows it with its own viewer and no bridge will
     // ever post `molecule:ready` for it. It IS the content — reveal it and never accuse it of
