@@ -2376,6 +2376,45 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
             />
           ) : null}
 
+          {/* A pending ask_user whose tool_call block was never persisted still
+              renders (G55): the record is the truth — a card the user cannot
+              see parks the whole turn with no way forward. This catches any
+              awaiting ask_user with no matching block, live or after reload. */}
+          {msg.toolCalls &&
+            msg.blocks &&
+            msg.blocks.length > 0 &&
+            msg.toolCalls
+              .filter(
+                (tc) =>
+                  tc.name === 'ask_user' &&
+                  (tc.output as { status?: string } | string | undefined | null) !== null &&
+                  typeof tc.output === 'object' &&
+                  (tc.output as { status?: string }).status === 'awaiting_response' &&
+                  !msg.blocks!.some(
+                    (b) =>
+                      (b as { type?: string; id?: string }).type === 'tool_call' &&
+                      (b as { id?: string }).id === tc.id,
+                  ),
+              )
+              .map((tc) => (
+                <ToolCallCard
+                  key={`orphan-ask-${tc.id}`}
+                  id={tc.id}
+                  name={tc.name}
+                  input={tc.input}
+                  output={tc.output}
+                  status={tc.status}
+                  fileDiff={tc.fileDiff}
+                  isUndone={undoneTcIds.has(tc.id)}
+                  onUndoToggle={handleUndoToggle}
+                  onFileOpen={onFileOpen}
+                  onFileDoubleClick={onFileDoubleClick}
+                  onFileDiff={onFileDiff}
+                  onFileRevert={canEdit === false ? undefined : handleFileRevert}
+                  onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
+                />
+              ))}
+
           {msg.toolCalls &&
             msg.toolCalls.length > 0 &&
             (!msg.blocks || msg.blocks.length === 0) &&
