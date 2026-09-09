@@ -943,7 +943,10 @@ export const classMap: UIClassMap = {
   page: 'min-h-screen bg-background text-foreground',
   surface: 'bg-surface',
   surfaceSecondary,
-  headerBar: 'bg-surface shadow-[0_0_3px_3px_rgba(0,0,0,0.05)]',
+  // No chrome by default: the header sits IN FLOW on the page background, so
+  // a surface + shadow read as a floating strip above the content. Apps that
+  // want a chrome bar pass their own classes on the header element.
+  headerBar: '',
   drawer:
     // !p-0 kills dialogContent's p-2 (padding here would inset the scrollbar
     // from the right edge — the panel content brings its own padding). NO

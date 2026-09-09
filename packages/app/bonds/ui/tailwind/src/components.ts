@@ -1169,8 +1169,15 @@ export const authHidden = 'hidden'
  */
 export const authArrowIcon = 'ml-[2.5px]'
 
-/** Main app layout classes (min-height, padding for fixed header/footer). */
-export const appLayout = 'min-h-screen pt-[55px] px-[15px] pb-[55px]'
+/**
+ * Main app layout classes (min-height, horizontal/bottom padding). No top
+ * padding: the shell renders the header IN FLOW (AppHeader's `fixed` default
+ * contributes no `position` utility — `headerFixed` is offsets only), so a
+ * top pad cleared a header that never overlapped the content and every page
+ * opened with a phantom 55px gap. Apps with a genuinely fixed/sticky header
+ * add their own top padding.
+ */
+export const appLayout = 'min-h-screen px-[15px] pb-[55px]'
 
 /** Flex grow utility class (flex-1). */
 export const flex1 = 'flex-1'
