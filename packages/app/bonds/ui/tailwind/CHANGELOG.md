@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.1.2
+
+### Patch Changes
+
+- ae701e1: Dark theme: inline `code`, blockquote text, captions, and `kbd` hints inside `cm.prose` content now use theme tokens — they previously kept the typography plugin's light-theme ink and were nearly unreadable on dark backgrounds.
+
 ## 1.1.1
 
 ### Patch Changes
