@@ -34,7 +34,7 @@
     "@molecule/api-ai": "1.2.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "repository": {
     "type": "git",

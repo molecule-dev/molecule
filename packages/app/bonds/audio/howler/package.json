@@ -44,7 +44,7 @@
     "@types/howler": "2.2.13",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "dependencies": {
     "howler": "2.2.4"

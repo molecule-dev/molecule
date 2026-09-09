@@ -33,7 +33,7 @@
     "@types/node": "26.1.2",
     "monaco-editor": "0.56.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "peerDependencies": {
     "@molecule/app-code-editor": "^1.0.1",

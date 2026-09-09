@@ -35,7 +35,7 @@
   "devDependencies": {
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "@molecule/app-i18n": "1.0.1",
     "@molecule/app-locales-common": "1.0.1",
     "@molecule/app-storage": "1.0.1"

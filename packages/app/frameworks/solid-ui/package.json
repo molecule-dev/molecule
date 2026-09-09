@@ -37,7 +37,7 @@
     "@types/node": "26.1.2",
     "solid-js": "1.9.14",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-solid",
   "bugs": "https://github.com/molecule-dev/molecule/issues",

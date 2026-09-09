@@ -43,7 +43,7 @@
     "@types/node": "26.1.2",
     "rxjs": "7.8.2",
     "typescript": "6.0.3",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "zone.js": "0.16.2"
   },
   "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-angular",

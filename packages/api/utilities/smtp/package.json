@@ -33,12 +33,12 @@
     "directory": "packages/api/utilities/smtp"
   },
   "dependencies": {
-    "nodemailer": "9.0.3"
+    "nodemailer": "9.1.1"
   },
   "devDependencies": {
     "@types/node": "26.1.2",
     "@types/nodemailer": "8.0.1",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   }
 }

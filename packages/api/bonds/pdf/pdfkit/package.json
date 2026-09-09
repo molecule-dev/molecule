@@ -40,7 +40,7 @@
     "@types/node": "26.1.2",
     "@types/pdfkit": "0.17.6",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "repository": {
     "type": "git",

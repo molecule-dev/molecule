@@ -73,18 +73,20 @@
     "pdf-lib": "1.17.1",
     "pdfkit": "0.19.1",
     "prettier": "3.9.6",
-    "sharp": "0.35.3",
+    "sharp": "0.35.4",
     "typescript": "6.0.3",
     "typescript-eslint": "8.65.0",
-    "vitest": "4.1.10",
+    "vitest": "4.1.11",
     "zod": "4.4.3"
   },
   "overrides": {
     "ws": "8.21.1",
     "adm-zip": "0.6.0",
-    "sharp": "0.35.3",
+    "sharp": "0.35.4",
     "dompurify": "3.4.13",
-    "vite": "8.1.5"
+    "vite": "8.1.5",
+    "js-yaml": "4.3.2",
+    "svgo": "4.1.0"
   },
   "license": "Apache-2.0"
 }

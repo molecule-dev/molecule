@@ -42,7 +42,7 @@
     "mysql2": "3.23.2",
     "pg": "8.22.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "peerDependencies": {
     "better-sqlite3": "^12.0.0",

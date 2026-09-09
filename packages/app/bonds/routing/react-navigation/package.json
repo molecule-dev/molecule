@@ -39,7 +39,7 @@
     "@types/react": "19.2.17",
     "react": "19.2.8",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",

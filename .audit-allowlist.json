@@ -35,6 +35,15 @@
       "severity": "moderate",
       "expires": "2026-09-22",
       "reason": "Prototype replacement in csv-parse when BOTH columns:true AND group_columns_by_name:true are set and a duplicated __proto__ header appears in the input (advisory published 2026-09-08T18:01Z — it went red mid-release). Reached only via @molecule/api-permissions-casbin -> casbin 5.51.1 -> csv-parse 5.6.0. NO upstream fix exists at or above the pinned versions: casbin 5.51.1 is the LATEST release and npm's fixAvailable is a DOWNGRADE to casbin 5.4.1; csv-parse is patched only in 7.0.2, and forcing csv-parse 7 under casbin is a blind major bump of an indirect. MITIGATED BY REACHABILITY: casbin invokes csv-parse/sync parse(line, {delimiter, skip_empty_lines, trim, relax_quotes}) with NEITHER vulnerable option set (verified in casbin 5.51.1 lib/cjs/persist/helper.js — it parses policy lines into token ARRAYS, never objects with column mapping), so the __proto__ setter branch cannot execute through this path. Residual risk: a future casbin release that adds column mapping would re-expose it — the gate goes red again at expiry. Re-check for a casbin release accepting csv-parse 7 (or shipping the fix) at expiry, and drop this entry then."
+    },
+    {
+      "package": "adm-zip / onnxruntime-node / @huggingface/transformers (one chain)",
+      "advisories": [
+        "GHSA-vwc7-r8mq-g2x9"
+      ],
+      "severity": "moderate",
+      "expires": "2026-09-23",
+      "reason": "adm-zip extraction follows destination symlinks (arbitrary file write outside the dest dir). NO patched version exists — the advisory covers adm-zip through 0.6.0 (the LATEST release) and npm audit also attributes it to the packages that vendor it: onnxruntime-node (1.24.3, pinned by @huggingface/transformers 4.2.0 — the LATEST) and @huggingface/transformers itself. Reached only via @molecule/api-ai-embeddings-local and @molecule/app-ai-voice-whisper, whose archives are OUR OWN model artifacts (the bundled local embeddings model / whisper weights) fetched from trusted sources — never a user-supplied archive — so the malicious-archive precondition never occurs through this API. Residual risk: any future code path that hands a user-uploaded archive to transformers' loader re-exposes it. Re-check for a patched adm-zip (>0.6.0) or onnxruntime-node/transformers release at expiry."
     }
   ]
 }

@@ -44,7 +44,7 @@
     "@types/node": "26.1.2",
     "svelte": "5.56.8",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.11"
   },
   "repository": {
     "type": "git",
