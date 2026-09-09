@@ -618,3 +618,41 @@ describe('base.css @source inline safelist renders every cm.* dynamic value', ()
     ).toEqual([])
   })
 })
+
+describe('prose theme mapping', () => {
+  // The typography plugin defaults every --tw-prose-* var to a LIGHT-THEME ink
+  // (oklch(21%…)). Any one not re-mapped to a theme token renders near-invisible
+  // in dark theme: `code`, `quotes` (blockquote text) and `kbd` shipped that way
+  // (~1.2:1 on #0e0e0e) on molecule.dev package pages. pre-bg/pre-code and the
+  // th/td borders are deliberately NOT mapped — their defaults read fine in both
+  // themes — so this list is exactly the text-bearing vars that must map.
+  const TEXT_BEARING_PROSE_VARS = [
+    'body',
+    'headings',
+    'bold',
+    'links',
+    'bullets',
+    'counters',
+    'hr',
+    'lead',
+    'quotes',
+    'quote-borders',
+    'code',
+    'captions',
+    'kbd',
+  ] as const
+
+  it('maps every text-bearing --tw-prose-* var to a theme token', () => {
+    for (const v of TEXT_BEARING_PROSE_VARS) {
+      const overrides = [
+        ...classMap.prose.matchAll(new RegExp(`\\[--tw-prose-${v}:([^\\]]+)\\]`, 'g')),
+      ]
+      expect(overrides, `--tw-prose-${v} must be mapped in cm.prose`).not.toHaveLength(0)
+      for (const [, value] of overrides) {
+        expect(value, `--tw-prose-${v} must use a theme token, got "${value}"`).toMatch(
+          /^var\(--color-[a-z-]+\)$/,
+        )
+      }
+    }
+  })
+})

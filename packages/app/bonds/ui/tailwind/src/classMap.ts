@@ -1008,8 +1008,14 @@ export const classMap: UIClassMap = {
   formLabel: 'block text-[11px] leading-none text-foreground mb-0',
   formLabelSmall: 'block text-xs text-foreground-secondary mb-1',
   link: 'hover:underline',
+  // Every --tw-prose-* var the typography plugin defaults to a LIGHT-THEME
+  // color (dark ink) must be mapped to a theme token: an unmapped one renders
+  // near-invisible text in dark theme (~1.2:1). Bitten by `code`, `quotes`
+  // (blockquote text) and `kbd` — oklch(21% …) on a #0e0e0e background.
+  // pre-bg/pre-code/th-borders/td-borders keep plugin defaults on purpose:
+  // their dark-block/light-ink pairing is readable in both themes.
   prose:
-    'prose max-w-none [--tw-prose-body:var(--color-foreground)] [--tw-prose-headings:var(--color-foreground)] [--tw-prose-bold:var(--color-foreground)] [--tw-prose-links:var(--color-primary)] [--tw-prose-bullets:var(--color-foreground-secondary)] [--tw-prose-counters:var(--color-foreground-secondary)] [--tw-prose-hr:var(--color-border)]',
+    'prose max-w-none [--tw-prose-body:var(--color-foreground)] [--tw-prose-headings:var(--color-foreground)] [--tw-prose-bold:var(--color-foreground)] [--tw-prose-links:var(--color-primary)] [--tw-prose-bullets:var(--color-foreground-secondary)] [--tw-prose-counters:var(--color-foreground-secondary)] [--tw-prose-hr:var(--color-border)] [--tw-prose-lead:var(--color-foreground-secondary)] [--tw-prose-quotes:var(--color-foreground-secondary)] [--tw-prose-quote-borders:var(--color-primary)] [--tw-prose-code:var(--color-foreground-secondary)] [--tw-prose-captions:var(--color-foreground-secondary)] [--tw-prose-kbd:var(--color-foreground)]',
   dividerLine: 'w-full border-t border-border',
   overlay: 'fixed inset-0 bg-black/50 z-40',
   footerBar,
