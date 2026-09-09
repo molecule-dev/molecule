@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.1.1
+
+### Patch Changes
+
+- 726053b: `appLayout` no longer pads the top by 55px (the shell's header renders in flow, so the pad cleared a header that never overlapped) and `headerBar` carries no background or shadow by default — apps that want a chrome bar pass their own header classes.
+
 ## 1.1.0
 
 ### Minor Changes
