@@ -136,20 +136,26 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   not modeled; reasoning_effort low|medium|high default high, image input;
  *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
  *   grok-code-fast-1 no longer listed — retires 2026-08-15)
- * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing (verified
- *   2026-09-06; legacy deepseek-chat/-reasoner ids fully retired 2026-07-24 —
- *   never in this catalog. The V4-Pro-GA price RISE effective 2026-08-16T16:00Z
- *   has LANDED and is folded into the base fields, along with the peak-hour 2×
- *   the same card introduced; every rate re-read on the card 2026-08-31 and
- *   unchanged. The card now qualifies the windows BY DAY — "01:00 - 04:00 and
- *   06:00 - 10:00 UTC, Monday through Friday (all other hours are off-peak)" —
- *   where on 2026-08-18 it carried no day qualifier at all, so the windows are
+ * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
+ *   /updates/ (verified 2026-09-10; legacy deepseek-chat/-reasoner ids fully
+ *   retired 2026-07-24 — never in this catalog. The 2026-09-10 re-read caught
+ *   the V4.1-Flash release DAY-OF: new evergreen id `deepseek-flash` at
+ *   off-peak miss $0.15 / hit $0.003 / out $0.6 (peak ×2, same Mon-Fri UTC
+ *   windows, 1M ctx / 384K out), the V4 flash + vision-exp ids RETIRED with
+ *   their names "temporarily routed" to V4.1 Flash at Flash prices (the
+ *   `deepseek-v4-flash` entry is repriced to that card), and `deepseek-v4-pro`
+ *   announced to route to V4.1 Flash at Flash prices from 2026-09-14 12:00
+ *   Beijing (staged as `scheduledPricing` there); the pro card itself is
+ *   unchanged (V4-Pro-0813, 0.66/1.98/0.022 off-peak). The card qualifies the
+ *   peak windows BY DAY — "01:00 - 04:00 and 06:00 - 10:00 UTC, Monday through
+ *   Friday (all other hours are off-peak)" — so the windows are
  *   `daysOfWeekUtc`-restricted rather than daily. `deepseek-v4-flash-vision-exp`
- *   also appears on the card at flash's rates: EXPERIMENTAL and vision-only-new,
- *   deliberately not catalogued. The 2026-09-06 re-read found every native rate
- *   unchanged; what moved was the US re-host — DeepInfra cut
- *   `DeepSeek-V4-Flash-0731` from $0.08 to $0.06 input, cache read $0.016 to
- *   $0.015, output held at $0.18. See that entry's `regionPricing`.)
+ *   is retired with the rest of V4 flash and stays deliberately uncatalogued.
+ *   The US re-host rates (DeepInfra) are unchanged from the 2026-09-06 read —
+ *   `DeepSeek-V4-Flash-0731` at $0.06/$0.18, cache read $0.015; DeepInfra also
+ *   listed `deepseek-ai/DeepSeek-V4.1-Flash` on 2026-09-10 at $0.30/$1.20
+ *   (cache read 0.02× input) — 2× native, not wired. See each entry's
+ *   `regionPricing`.)
  * - Moonshot: https://platform.kimi.ai/docs/models + DeepInfra's model API for
  *   the US re-host (kimi-k3 flagship 2026-07-16
  *   — 2.8T MoE, 1M ctx, $3/$15 — NOT added: thinking is forced-on with
@@ -1159,7 +1165,25 @@ export const MODELS: readonly ModelDefinition[] = [
   // DeepSeek
   // Verified: https://api-docs.deepseek.com/quick_start/pricing
   //           https://api-docs.deepseek.com/guides/thinking_mode
-  //           https://api-docs.deepseek.com/updates/ (2026-08-18)
+  //           https://api-docs.deepseek.com/updates/ (re-read 2026-09-10)
+  // 2026-09-10: DeepSeek-V4.1-Flash RELEASED (updates page, same day) under the
+  // NEW id `deepseek-flash` — "Change the model name to deepseek-flash to call
+  // the latest V4.1 Flash model." Its card CUT the flash rates to a third of
+  // the 2026-08-16 rise:
+  //   flash (V4.1) off-peak miss 0.15 / hit 0.003 / out 0.6  (peak ×2, same
+  //   Mon-Fri UTC windows; 1M ctx / 384K out; concurrency 2500)
+  // and the announcement claims "native multimodal visual understanding", so
+  // the new entry carries supportsVision. It also "outperforms V4 Pro on
+  // performance, cost, and speed", and two retirement facts landed with it:
+  //   1. V4 Flash + V4 Flash Vision Exp are RETIRED; the legacy ids
+  //      `deepseek-v4-flash` / `deepseek-v4-flash-vision-exp` are "temporarily
+  //      routed" to V4.1 Flash and billed at Flash prices — so the v4-flash
+  //      entry below is repriced to the V4.1 card (its id still answers), and
+  //      leans on that "temporary" routing until molecule-dev's default ids
+  //      move to `deepseek-flash`.
+  //   2. From 2026-09-14 12:00 Beijing (04:00 UTC), until V4.1 Pro ships, ALL
+  //      `deepseek-v4-pro` requests route to V4.1 Flash at Flash prices —
+  //      staged as `scheduledPricing` on the pro entry below.
   // 2026-08-13: V4-Pro GA — and with it the price rise that the "coming soon"
   // note below had been waiting on. It was staged as `scheduledPricing`
   // effective 2026-08-16T16:00Z; that instant has PASSED and the rates are now
@@ -1261,6 +1285,23 @@ export const MODELS: readonly ModelDefinition[] = [
       ],
       multiplier: 2,
     },
+    // ANNOUNCED 2026-09-10 (updates page): from 2026-09-14 12:00 Beijing time
+    // (04:00 UTC), and until V4.1 Pro ships, every `deepseek-v4-pro` request is
+    // routed to V4.1 Flash and billed at the V4.1 FLASH price — so the base
+    // rates become the flash card below (the peak windows are identical, so
+    // they carry through unchanged). The US `regionPricing` above is DeepInfra's
+    // own card for its V4-Pro copy and is NOT touched by the native routing.
+    // Fold into the base fields once the instant has passed (the freshness
+    // gate gives models.dev its scheduled-landing grace meanwhile).
+    scheduledPricing: {
+      effectiveFrom: '2026-09-14T04:00:00Z',
+      inputPricePerMTok: 0.15,
+      outputPricePerMTok: 0.6,
+      cacheReadPricePerMTok: 0.003,
+      cacheWritePricePerMTok: 0.15,
+      source:
+        'https://api-docs.deepseek.com/updates/ (2026-09-10): deepseek-v4-pro → V4.1 Flash at Flash prices from 2026-09-14 12:00 Beijing',
+    },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
   },
@@ -1283,13 +1324,17 @@ export const MODELS: readonly ModelDefinition[] = [
     // executor — the model the IDE picks when none is chosen. Exactly one model
     // in this catalog may carry freeTier (enforced by lookup.test.ts).
     freeTier: true,
-    // Off-peak rates; peak is `peakPricing.multiplier` × these (see below).
-    inputPricePerMTok: 0.22,
-    outputPricePerMTok: 0.66,
+    // The V4.1 Flash card (2026-09-10). This legacy id is RETIRED and
+    // "temporarily routed" to V4.1 Flash, billed at Flash prices — so these ARE
+    // the rates the id answers with today (they replace the 0.22/0.66/0.007
+    // card the same id served from 2026-08-16; same in-place succession as the
+    // 2026-07-31 0731 re-post-train). Peak is `peakPricing.multiplier` × these.
+    inputPricePerMTok: 0.15,
+    outputPricePerMTok: 0.6,
     // DeepSeek automatic context cache: absolute cache-hit price ($/M).
-    cacheReadPricePerMTok: 0.007,
+    cacheReadPricePerMTok: 0.003,
     // DeepSeek charges no cache-write premium — write bills at input.
-    cacheWritePricePerMTok: 0.22,
+    cacheWritePricePerMTok: 0.15,
     // US (DeepInfra) DEFAULT as of 2026-08-16 — flipped from CN when DeepSeek's
     // rise landed (owner decision 2026-08-14). CN was cheaper on real traffic
     // only because of its cache reads; the rise takes those from $0.0028 to
@@ -1303,6 +1348,19 @@ export const MODELS: readonly ModelDefinition[] = [
     // where CN's cheaper reads start winning again. This deliberately splits
     // the plan/execute pair across regions — Pro stays CN because its US
     // re-host is ~2.3x its own native rate even after the rise.
+    // Re-derived 2026-09-10 against the repriced CN card: CN's cache hits are
+    // now 5× cheaper than the re-host's ($0.003 vs $0.015), so CN wins on
+    // blended input (0.0118 vs 0.0177 $/MTok off-peak) — but US wins on output
+    // at 0.18 vs 0.6/1.2, and CN only takes a turn whose output is under ~1.4%
+    // of its input. At real agentic output ratios (5–25%) US still wins every
+    // hour, so the US default holds.
+    // STAYS SELECTABLE on purpose: molecule-dev's default literals
+    // (EXECUTOR_MODEL / EXECUTOR_MODEL_CUSTOM / DEFAULT_CHAT_MODEL /
+    // COMPACTION_MODEL / COMMIT_MESSAGE_MODEL / FREE_TIER_MODELS.execute) all
+    // pin this id, and its US leg (DeepInfra 0731 at $0.06/$0.18 flat) is the
+    // cheapest flash serving there is. Migrating those defaults to
+    // `deepseek-flash` is a molecule-dev change; once it lands, this entry can
+    // take `supersededBy: 'deepseek-flash'`.
     regions: ['us', 'cn'],
     // US = DeepInfra, verified 2026-09-06 against the id the bond actually
     // sends: `deepseek-ai/DeepSeek-V4-Flash-0731`, the official release that
@@ -1328,6 +1386,55 @@ export const MODELS: readonly ModelDefinition[] = [
       multiplier: 2,
     },
     // Not published by DeepSeek — best-effort estimate.
+    knowledgeCutoff: '2025-07-01',
+  },
+  {
+    // Released 2026-09-10 (updates page) — the go-forward EVERGREEN flash id.
+    // Same rates the repriced legacy entry above carries natively, but under
+    // the id DeepSeek actually wants called, with the multimodal surface the
+    // announcement claims ("native multimodal visual understanding") and none
+    // of the retirement ambiguity of a "temporarily routed" legacy name.
+    id: 'deepseek-flash',
+    provider: 'deepseek',
+    label: 'DeepSeek V4.1 Flash',
+    description: 'Newest ultra-cheap & fast flash — vision-capable agentic coding',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 384_000,
+    // Non-thinking (see section note) — same bond treatment as the family:
+    // the executor tool loop does not replay reasoning_content.
+    supportsThinking: false,
+    thinkingBudgetTokens: 0,
+    thinkingConfigurable: false,
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Off-peak V4.1 Flash card; peak is `peakPricing.multiplier` × these.
+    inputPricePerMTok: 0.15,
+    outputPricePerMTok: 0.6,
+    // DeepSeek automatic context cache: absolute cache-hit price ($/M).
+    cacheReadPricePerMTok: 0.003,
+    // DeepSeek charges no cache-write premium — write bills at input.
+    cacheWritePricePerMTok: 0.15,
+    // PINNED NATIVE — no US re-host is wired. DeepInfra does serve
+    // `deepseek-ai/DeepSeek-V4.1-Flash` (listed 2026-09-10) at $0.30/$1.20,
+    // cache read 0.02× input = $0.006 — exactly 2× this native off-peak card —
+    // but offering a us region needs a molecule-dev US_MODEL_MAP entry
+    // (region-model-maps.ts) plus a regionPricing row here, and that pair is a
+    // deliberate molecule-dev change (it also can't beat this card on the
+    // agentic mix, unlike the legacy 0731 re-host). Single-entry ['cn'] pins
+    // dispatch to the native endpoint regardless of per-model region choice.
+    regions: ['cn'],
+    // Same peak windows as the family — the V4.1 card footnote is verbatim the
+    // 2026-08-31 sentence: 01:00-04:00 and 06:00-10:00 UTC, Mon-Fri, ×2.
+    peakPricing: {
+      windows: [
+        { startMinuteUtc: 60, endMinuteUtc: 240, daysOfWeekUtc: WEEKDAYS_UTC },
+        { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: WEEKDAYS_UTC },
+      ],
+      multiplier: 2,
+    },
+    // Not published by DeepSeek — best-effort estimate (family estimate; the
+    // V4.1 announcement lists benchmarks but no training cutoff).
     knowledgeCutoff: '2025-07-01',
   },
 

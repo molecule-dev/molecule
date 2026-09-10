@@ -638,23 +638,34 @@ describe('scheduledPricing (announced, dated price changes)', () => {
   })
 })
 
-describe('DeepSeek 2026-08-16 price rise (landed)', () => {
-  // The concrete case the scheduling mechanism was built for. It landed on
-  // 2026-08-16T16:00Z and the rates are now folded into the base fields;
-  // re-verified against https://api-docs.deepseek.com/quick_start/pricing/ on
-  // 2026-08-18. Peak is exactly 2× off-peak, which is why it maps onto a
-  // multiplier rather than a second rate card.
+describe('DeepSeek native cards (V4.1-Flash era)', () => {
+  // The 2026-08-16 rise landed and was folded into the base fields
+  // (re-verified 2026-08-18). On 2026-09-10 DeepSeek released V4.1-Flash under
+  // the new id `deepseek-flash` and CUT the flash card to 0.15/0.6/0.003 —
+  // retiring the V4 flash ids, whose legacy names are "temporarily routed" to
+  // V4.1 Flash at Flash prices (so `deepseek-v4-flash` carries the SAME card
+  // under its old id), and announcing that `deepseek-v4-pro` routes to V4.1
+  // Flash at Flash prices from 2026-09-14T04:00Z — staged, not folded, until
+  // that instant passes. Peak is exactly 2× off-peak, which is why it maps
+  // onto a multiplier rather than a second rate card.
   const AFTER_OFFPEAK = new Date('2026-08-17T12:00:00Z')
   const AFTER_PEAK = new Date('2026-08-17T02:00:00Z')
 
   it.each([
+    // Pro keeps its own card until the staged 2026-09-14 instant (asserted
+    // separately below); flash bills the V4.1 card under BOTH its ids.
     ['deepseek-v4-pro', 0.66, 1.98, 0.022],
-    ['deepseek-v4-flash', 0.22, 0.66, 0.007],
+    ['deepseek-v4-flash', 0.15, 0.6, 0.003],
+    ['deepseek-flash', 0.15, 0.6, 0.003],
   ])('%s bills the landed CN rates', (id, input, output, cacheRead) => {
     const model = MODELS.find((m) => m.id === id)!
-    // Folded in — a staged entry left behind after its instant would keep the
-    // freshness gate warning and hide the next real change behind it.
-    expect(model.scheduledPricing).toBeUndefined()
+    // No STALE staging — a scheduled entry left behind after its instant would
+    // keep the freshness gate warning and hide the next real change behind it.
+    // (pro's live 2026-09-14 schedule is future-dated at writing and is
+    // exercised in its own test below.)
+    expect(model.scheduledPricing?.effectiveFrom, id).toBe(
+      id === 'deepseek-v4-pro' ? '2026-09-14T04:00:00Z' : undefined,
+    )
 
     const rates = modelRegionRates(model, 'cn', AFTER_OFFPEAK)
     expect(rates.inputPricePerMTok).toBe(input)
@@ -666,6 +677,33 @@ describe('DeepSeek 2026-08-16 price rise (landed)', () => {
     // Peak is a multiplier on the off-peak rates, not a second rate card.
     expect(priceMultiplierAt(model, AFTER_OFFPEAK, 'cn')).toBe(1)
     expect(priceMultiplierAt(model, AFTER_PEAK, 'cn')).toBe(2)
+  })
+
+  it('flips deepseek-v4-pro to the V4.1 Flash card exactly at the staged instant', () => {
+    // Announced 2026-09-10: from 2026-09-14 12:00 Beijing (04:00 UTC), until
+    // V4.1 Pro ships, every deepseek-v4-pro request routes to V4.1 Flash at
+    // FLASH prices. The US re-host card is NOT touched (its own host's card).
+    const pro = MODELS.find((m) => m.id === 'deepseek-v4-pro')!
+    const before = modelRegionRates(pro, 'cn', new Date('2026-09-14T03:59:59Z'))
+    expect(before.inputPricePerMTok).toBe(0.66)
+    expect(before.outputPricePerMTok).toBe(1.98)
+    expect(before.cacheReadPricePerMTok).toBe(0.022)
+
+    const after = modelRegionRates(pro, 'cn', new Date('2026-09-14T04:00:00Z'))
+    expect(after.inputPricePerMTok).toBe(0.15)
+    expect(after.outputPricePerMTok).toBe(0.6)
+    expect(after.cacheReadPricePerMTok).toBe(0.003)
+    expect(after.cacheWritePricePerMTok).toBe(0.15)
+    // The schedule declares no peakPricing of its own, so the existing peak
+    // windows carry through past the instant — still ×2 in-window, ×1 out.
+    expect(priceMultiplierAt(pro, new Date('2026-09-15T02:00:00Z'), 'cn')).toBe(2)
+    expect(priceMultiplierAt(pro, new Date('2026-09-15T12:00:00Z'), 'cn')).toBe(1)
+    // ...and the US re-host keeps billing DeepInfra's own card, unmoved by the
+    // native routing change.
+    const us = modelRegionRates(pro, 'us', new Date('2026-09-15T12:00:00Z'))
+    expect(us.inputPricePerMTok).toBe(1.3)
+    expect(us.outputPricePerMTok).toBe(2.6)
+    expect(us.cacheReadPricePerMTok).toBe(0.1)
   })
 
   it('prices the US re-host off its own card, not the CN one', () => {
