@@ -68,7 +68,7 @@ class DeepseekAIProviderImpl implements AIProvider {
 
   constructor(config: DeepseekConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.DEEPSEEK_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'deepseek-v4-flash'
+    this.defaultModel = config.defaultModel ?? 'deepseek-flash'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.DEEPSEEK_BASE_URL ?? 'https://api.deepseek.com'
     this.completionsPath =
