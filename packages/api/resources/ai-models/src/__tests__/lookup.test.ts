@@ -504,7 +504,7 @@ describe('model data integrity', () => {
   it('has exactly one freeTier model', () => {
     const freeTierModels = MODELS.filter((m) => m.freeTier)
     expect(freeTierModels).toHaveLength(1)
-    expect(freeTierModels[0].id).toBe('deepseek-v4-flash')
+    expect(freeTierModels[0].id).toBe('deepseek-flash')
   })
 
   it('the freeTier model is not disabled', () => {
@@ -1224,7 +1224,7 @@ describe('default processing region', () => {
     // pairing check fails closed), it just leaves a model claiming a free-tier
     // relationship it does not have. It was deepseek-v4-pro until 2026-08-14,
     // minimax-m3 until 2026-08-18, and gpt-5.6-luna since.
-    expect(MODELS.filter((m) => m.freeTier).map((m) => m.id)).toEqual(['deepseek-v4-flash'])
+    expect(MODELS.filter((m) => m.freeTier).map((m) => m.id)).toEqual(['deepseek-flash'])
     expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['gpt-5.6-luna'])
     // The carve-out must name a region the model actually offers, or the free
     // tier's own default is unselectable.

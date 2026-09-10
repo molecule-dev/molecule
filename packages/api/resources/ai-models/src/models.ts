@@ -1304,6 +1304,14 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
+    // Deprecated the day it stops being itself: DeepSeek's own testing has
+    // V4.1 Flash "comprehensively surpassing" Pro on performance/cost/speed,
+    // and from 2026-09-14 12:00 Beijing every `deepseek-v4-pro` request routes
+    // to V4.1 Flash at Flash prices (see scheduledPricing above) until V4.1 Pro
+    // ships — at which point this becomes a new entry's succession problem, not
+    // this one's. Until the 14th it still serves real V4-Pro-0813 weights at
+    // the Pro card, so it stays selectable for existing selections.
+    deprecatedAt: '2026-09-14',
   },
   {
     id: 'deepseek-v4-flash',
@@ -1320,10 +1328,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Free-tier default: cheapest model + a fast, non-thinking tool-calling
-    // executor — the model the IDE picks when none is chosen. Exactly one model
-    // in this catalog may carry freeTier (enforced by lookup.test.ts).
-    freeTier: true,
+    // freeTier moved to `deepseek-flash` (2026-09-10) together with
+    // molecule-dev's default ids — the free tier follows the go-forward
+    // evergreen id, not a retired name whose routing DeepSeek calls
+    // "temporary". Exactly one model in this catalog may carry freeTier
+    // (enforced by lookup.test.ts).
     // The V4.1 Flash card (2026-09-10). This legacy id is RETIRED and
     // "temporarily routed" to V4.1 Flash, billed at Flash prices — so these ARE
     // the rates the id answers with today (they replace the 0.22/0.66/0.007
@@ -1354,13 +1363,14 @@ export const MODELS: readonly ModelDefinition[] = [
     // at 0.18 vs 0.6/1.2, and CN only takes a turn whose output is under ~1.4%
     // of its input. At real agentic output ratios (5–25%) US still wins every
     // hour, so the US default holds.
-    // STAYS SELECTABLE on purpose: molecule-dev's default literals
-    // (EXECUTOR_MODEL / EXECUTOR_MODEL_CUSTOM / DEFAULT_CHAT_MODEL /
-    // COMPACTION_MODEL / COMMIT_MESSAGE_MODEL / FREE_TIER_MODELS.execute) all
-    // pin this id, and its US leg (DeepInfra 0731 at $0.06/$0.18 flat) is the
-    // cheapest flash serving there is. Migrating those defaults to
-    // `deepseek-flash` is a molecule-dev change; once it lands, this entry can
-    // take `supersededBy: 'deepseek-flash'`.
+    // MIGRATED 2026-09-10: molecule-dev's default literals (EXECUTOR_MODEL /
+    // EXECUTOR_MODEL_CUSTOM / DEFAULT_CHAT_MODEL / COMPACTION_MODEL /
+    // COMMIT_MESSAGE_MODEL / FREE_TIER_MODELS.execute) now point at
+    // `deepseek-flash` (cn-native). This entry stays selectable — not
+    // `supersededBy` — because its US leg (DeepInfra 0731 at $0.06/$0.18 flat,
+    // older-but-solid weights DeepInfra keeps serving) is still the cheapest
+    // flash serving there is and saved selections should keep working; it is
+    // merely hidden from offering via `deprecatedAt`.
     regions: ['us', 'cn'],
     // US = DeepInfra, verified 2026-09-06 against the id the bond actually
     // sends: `deepseek-ai/DeepSeek-V4-Flash-0731`, the official release that
@@ -1387,6 +1397,11 @@ export const MODELS: readonly ModelDefinition[] = [
     },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
+    // Retired upstream 2026-09-10 (V4 flash ids; legacy name "temporarily
+    // routed" to V4.1 Flash). See the regions note above for why this is
+    // deprecatedAt — hidden from offering, still selectable — rather than
+    // supersededBy.
+    deprecatedAt: '2026-09-10',
   },
   {
     // Released 2026-09-10 (updates page) — the go-forward EVERGREEN flash id.
@@ -1408,6 +1423,13 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
+    // Free-tier default (moved from deepseek-v4-flash 2026-09-10): the
+    // cheapest capable executor on the go-forward id — fast, non-thinking,
+    // tool-calling, and now vision-capable. Serving cost is ~2× the retired
+    // US leg on output-heavy turns (CN 0.6/1.2 output vs DeepInfra's flat
+    // 0.18) — tiers.ts's free-turn budget math derives from this entry.
+    // Exactly one model in this catalog may carry freeTier (lookup.test.ts).
+    freeTier: true,
     // Off-peak V4.1 Flash card; peak is `peakPricing.multiplier` × these.
     inputPricePerMTok: 0.15,
     outputPricePerMTok: 0.6,
