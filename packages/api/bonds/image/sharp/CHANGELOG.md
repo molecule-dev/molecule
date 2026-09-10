@@ -1,5 +1,11 @@
 # @molecule/api-image-sharp
 
+## 1.0.2
+
+### Patch Changes
+
+- e96fd5c: Pins sharp 0.35.4, fixing the libheif/libvips CVEs (GHSA-rgj7-g3m4-5g8c).
+
 ## 1.0.1
 
 ### Patch Changes

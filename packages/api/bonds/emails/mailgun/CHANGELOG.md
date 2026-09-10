@@ -1,5 +1,11 @@
 # @molecule/api-emails-mailgun
 
+## 1.0.2
+
+### Patch Changes
+
+- e96fd5c: Pins nodemailer 9.1.1, fixing the four advisories against ≤9.1.0 (resolveContent bypass, IDN allow-list bypass, addressparser O(n²), RFC 5322 comment mis-parse).
+
 ## 1.0.1
 
 ### Patch Changes
