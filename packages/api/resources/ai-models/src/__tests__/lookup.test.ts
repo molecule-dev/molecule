@@ -1213,24 +1213,25 @@ describe('default processing region', () => {
   })
 
   it('does not make any new model free-tier selectable', () => {
-    // Region work must never widen the free tier: exactly one model is free,
-    // and exactly one carries the per-region carve-out.
+    // Region work must never widen the free tier: exactly one model is free.
     //
-    // The carve-out holder must be whichever model molecule-dev sets as
-    // `FREE_TIER_MODELS.plan` — it exists solely to keep THAT model usable on
-    // the free tier, and `freeTierAllows` checks the pairing before it looks at
-    // regions. So the two move together: it was deepseek-v4-pro until
-    // 2026-08-14, and minimax-m3 since. A mismatch does not widen anything (the
-    // pairing check fails closed), it just leaves a model claiming a free-tier
-    // relationship it does not have. It was deepseek-v4-pro until 2026-08-14,
-    // minimax-m3 until 2026-08-18, and gpt-5.6-luna since.
+    // The per-region carve-out holder (when one exists) must be whichever model
+    // molecule-dev sets as `FREE_TIER_MODELS.plan` — it exists solely to keep
+    // THAT model usable on the free tier, and `freeTierAllows` checks the
+    // pairing before it looks at regions. A mismatch does not widen anything
+    // (the pairing check fails closed), it just leaves a model claiming a
+    // free-tier relationship it does not have. Holders so far: deepseek-v4-pro
+    // until 2026-08-14, minimax-m3 until 2026-08-18, gpt-5.6-luna until
+    // 2026-09-10 — none since (the free pair is deepseek-flash for both modes,
+    // which is outright `freeTier` and needs no carve-out).
     expect(MODELS.filter((m) => m.freeTier).map((m) => m.id)).toEqual(['deepseek-flash'])
-    expect(MODELS.filter((m) => m.freeTierRegions).map((m) => m.id)).toEqual(['gpt-5.6-luna'])
-    // The carve-out must name a region the model actually offers, or the free
-    // tier's own default is unselectable.
-    const planner = MODELS.find((m) => m.freeTierRegions)!
-    for (const region of planner.freeTierRegions!) {
-      expect(planner.regions ?? ['us']).toContain(region)
+    expect(MODELS.filter((m) => m.freeTierRegions)).toEqual([])
+    // A carve-out, if one returns, must name a region its model actually offers
+    // — otherwise the free tier's own default is unselectable.
+    for (const m of MODELS) {
+      for (const region of m.freeTierRegions ?? []) {
+        expect(m.regions ?? ['us']).toContain(region)
+      }
     }
     const k3 = MODELS.find((m) => m.id === 'kimi-k3')!
     expect(k3.freeTier).toBeUndefined()

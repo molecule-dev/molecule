@@ -679,11 +679,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // Cached input 0.1× input, cache write 1.25× input (see section note).
     cacheReadPricePerMTok: 0.02,
     cacheWritePricePerMTok: 0.25,
-    // The free-tier PLAN default (2026-08-18) — us-only OpenAI, so this carve-out
-    // is what lets `freeTierAllows` permit it for plan mode without making it
-    // outright `freeTier` (which would free it in every mode). Mirrors how
-    // minimax-m3 was scoped as the prior free planner.
-    freeTierRegions: ['us'],
+    // No freeTierRegions: Luna was the free-tier PLAN default 2026-08-18 →
+    // 2026-09-10 via this carve-out; the free planner is now `deepseek-flash`
+    // (outright freeTier), so the carve-out is removed — a stale one would
+    // claim a free-tier relationship Luna no longer has (see deepseek-v4-pro's
+    // note for the same removal pattern).
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
   },
