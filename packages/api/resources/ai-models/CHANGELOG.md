@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.6.0
+
+### Minor Changes
+
+- Adds DeepSeek V4.1 Flash (`deepseek-flash` — multimodal, cn-native, 1M context) as the go-forward flash id and free-tier default; deprecates `deepseek-v4-pro` (routes to V4.1 Flash at Flash prices from 2026-09-14 upstream) and the retired `deepseek-v4-flash` id, whose native card now carries the V4.1 rates; removes gpt-5.6-luna's free-tier region carve-out.
+
 ## 1.5.1
 
 ### Patch Changes

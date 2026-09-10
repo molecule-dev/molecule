@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.0.2
+
+### Patch Changes
+
+- The provider's fallback `defaultModel` follows the go-forward `deepseek-flash` id (was the retired `deepseek-v4-flash`).
+
 ## 1.0.1
 
 ### Patch Changes

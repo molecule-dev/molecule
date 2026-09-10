@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-deepseek",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "DeepSeek AI provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
