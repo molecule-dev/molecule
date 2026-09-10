@@ -157,6 +157,9 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   constraint that kept kimi-k2.7-code out. BOTH are now in the catalog: the
  *   moonshot bond gained preserved thinking (reasoning replayed through tool
  *   loops), so kimi-k3 is the Moonshot pick.)
+ *   (re-verified 2026-09-10 on platform.kimi.ai/docs/models: kimi-k2.5 was
+ *   officially discontinued 2026-08-31 — calls 404 — so its entry is now
+ *   `disabled: true`. kimi-k3 / kimi-k2.6 / kimi-k2.7-code all still Active.)
  * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
  *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
  * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
@@ -208,6 +211,11 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   DeepInfra re-host zai-org/GLM-5.3-Flash, which bills exactly the list card
  *   ($0.15/$0.50, cache read 0.2x = $0.03 — verified live 2026-08-27), mapped
  *   in molecule-dev's ZHIPU_US_MODEL_MAP.)
+ *   (re-verified 2026-09-10 on https://docs.z.ai/guides/overview/pricing: the
+ *   promo ended on schedule 2026-09-09 24:00 UTC+8 and the page prints the list
+ *   card again — $0.15/$0.50, cached input $0.03, no promo footnote. models.dev
+ *   still carries the expired promo rate, so the KNOWN_DIVERGENCES entry now
+ *   runs to a fixed 2026-12-09 re-verify date.)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
@@ -1482,8 +1490,15 @@ export const MODELS: readonly ModelDefinition[] = [
     knowledgeCutoff: '2024-04-01',
     // Two generations behind. `supersededBy` names the current selectable Kimi
     // (k3) rather than the also-superseded k2.6, so a saved selection resolves
-    // forward in one hop. Still served upstream; stays priceable.
+    // forward in one hop. Moonshot RETIRED kimi-k2.5 on 2026-08-31 —
+    // platform.kimi.ai/docs/models says calls 404, and a live 2026-09-10
+    // dispatch probe confirmed the native host refusing it. The DeepInfra
+    // re-host still answered inference on 2026-09-10 but is DELISTED from its
+    // model catalog (detail page 404, /models/list unpruned) — borrowed time.
+    // Disabled, never deleted: historical usage stays priceable and saved
+    // selections still resolve forward.
     deprecatedAt: '2026-04-01',
+    disabled: true,
     supersededBy: 'kimi-k3',
   },
 
@@ -1851,9 +1866,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search',
-    // LIST card. A 50%-off launch promo ($0.075/$0.25, cached $0.015) runs to
-    // 2026-09-09 24:00 UTC+8; billed at list so metering never under-charges —
-    // the promo is a KNOWN_DIVERGENCES entry in check-model-freshness.
+    // List card, re-verified 2026-09-10 on the Z.ai pricing page after the
+    // 50%-off launch promo ($0.075/$0.25, cached $0.015) ended on schedule
+    // 2026-09-09 24:00 UTC+8 — this IS what the provider bills now; models.dev
+    // still carries the expired promo rate (KNOWN_DIVERGENCES entry in
+    // check-model-freshness, re-verify date 2026-12-09).
     inputPricePerMTok: 0.15,
     outputPricePerMTok: 0.5,
     // GLM context cache: read 0.2× input, no write premium.
