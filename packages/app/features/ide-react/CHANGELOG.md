@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.11.3
+
+### Patch Changes
+
+- b5bd9f8: The preview panel honours a `molecule:viewport` request from the previewed page (an e2e spec's `page.setViewportSize`), sizing the frame like a device preset until a device is picked again.
+
 ## 1.11.2
 
 ### Patch Changes
