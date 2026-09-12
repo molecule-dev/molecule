@@ -70,8 +70,8 @@
  * @module
  */
 
-export { E2E_PREVIEW_CLIENT_SCRIPT } from './client.js'
-export { connectPreview, listPreviewPages, provider } from './provider.js'
-export { attachE2EHub, type E2EHub } from './server.js'
+export * from './client.js'
+export * from './provider.js'
+export * from './server.js'
 export * from './types.js'
-export { injectE2EClientTag, molE2EPreviewPlugin, type MolE2EPreviewPluginOptions } from './vite.js'
+export * from './vite.js'
