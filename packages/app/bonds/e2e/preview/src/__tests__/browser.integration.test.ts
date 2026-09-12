@@ -92,7 +92,14 @@ afterAll(async () => {
 describe('the preview bond in a real browser', () => {
   it('sees the tab as a connected page', async ({ skip }) => {
     if (!browserAvailable) skip()
-    const pages = await listPreviewPages({ port, connectTimeout: 5_000 })
+    // `goto` resolves on the document's load event; the client's socket opens a
+    // moment later, so give the tab a few seconds to say hello.
+    const deadline = Date.now() + 5_000
+    let pages = await listPreviewPages({ port, connectTimeout: 5_000 })
+    while (pages.length === 0 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 100))
+      pages = await listPreviewPages({ port, connectTimeout: 5_000 })
+    }
     expect(pages.length).toBeGreaterThanOrEqual(1)
     expect(pages[0].href).toBe(`http://127.0.0.1:${port}/`)
   })

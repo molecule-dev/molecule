@@ -46,6 +46,15 @@
  *   in any tab. Any connected viewer will do — a desktop tab keeps working
  *   while a phone sleeps. The IDE holds a screen wake lock during builds and
  *   re-delivers commands when a hidden tab wakes.
+ * - **A background tab is as fast as a foreground one.** Browsers throttle a
+ *   hidden page's timers to once a second (once a minute after a while), so
+ *   nothing in the page waits on a timer: every call is answered at once and
+ *   the driver, on its own clock, re-asks while an element is still on its
+ *   way. The plugin also serves the locator runtime as a script with the
+ *   document, so the first call after a navigation costs one round trip, not
+ *   a 60 KB install. Budget one to two seconds per navigation through the
+ *   sandbox proxy and about a fifth of a second per action; a whole spec
+ *   file normally finishes in well under a minute.
  * - **Discovery.** The driver tries `MOL_E2E_PREVIEW_URL`, then ports
  *   `MOL_E2E_PREVIEW_PORT`, 5173 (the sandbox preview port), `VITE_PORT`,
  *   3000, reading each hub's token from `MOL_E2E_TOKEN` or the file the hub

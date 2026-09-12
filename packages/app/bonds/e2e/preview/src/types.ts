@@ -16,6 +16,13 @@ export const E2E_WS_PATH = '/__mol/e2e'
 /** Path the page client script is served from (dev and `vite preview`). */
 export const E2E_CLIENT_PATH = '/__mol/e2e-client.js'
 
+/**
+ * Path the in-page runtime (`@molecule/app-e2e-fixtures-default`'s locator
+ * engine) is served from, so it is installed with the document instead of
+ * being sent through the hub on the first call after every navigation.
+ */
+export const E2E_RUNTIME_PATH = '/__mol/e2e-runtime.js'
+
 /** The hub writes its driver token here so a runner on the same machine can find it. */
 export const tokenFilePath = (port: number): string => join(tmpdir(), `mol-e2e-${port}.json`)
 

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-e2e-fixtures-default",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Shared Playwright `test` + `expect` with auto-attached browser console-error/pageerror guard. Every fleet app's e2e specs import from here so a runtime exception (React mount failure, ESM/CJS interop error, unhandled rejection) hard-fails the test instead of silently passing.",
   "type": "module",
   "main": "dist/index.js",
@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "import": "./dist/runtime.js"
     }
   },
   "files": [

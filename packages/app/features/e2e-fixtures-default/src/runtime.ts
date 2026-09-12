@@ -65,14 +65,21 @@ export interface RuntimeCall {
 }
 
 /** Bumped when the in-page runtime's protocol changes; a page holding an older one is re-installed. */
-export const E2E_RUNTIME_VERSION = 1
+export const E2E_RUNTIME_VERSION = 2
 
 /**
  * Install the runtime. Runs INSIDE the page — see the module doc; the body
  * must stay self-contained.
+ *
+ * The runtime never waits: every call is ONE attempt, and a call that would
+ * have to wait (an element not there yet, not visible yet, covered) answers
+ * `{ retry: true, error }` so the DRIVER polls with its own clock. A page in a
+ * background tab has its timers throttled to once a second (a minute, after a
+ * while) — a `setTimeout` in here would stretch every auto-wait by that much,
+ * while the WebSocket messages that carry the calls are delivered on time.
  */
 export function installE2ERuntime(): { version: number } {
-  const VERSION = 1
+  const VERSION = 2
   type Match = {
     s?: string
     exact?: boolean
@@ -87,7 +94,6 @@ export function installE2ERuntime(): { version: number } {
   if (g.__molE2E && g.__molE2E.version === VERSION) return { version: VERSION }
 
   const norm = (s: string | null | undefined): string => (s ?? '').replace(/\s+/g, ' ').trim()
-  const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
   const matchText = (text: string, m: Match | undefined): boolean => {
     if (!m) return true
     if (m.re) return new RegExp(m.re.source, m.re.flags).test(text)
@@ -861,252 +867,230 @@ export function installE2ERuntime(): { version: number } {
     'clear',
   ])
   const ACTIONS_NEEDING_POINTER = new Set(['click', 'dblclick', 'hover', 'tap'])
-  const act = async (
-    steps: Step[],
-    action: string,
-    opts: Dict,
-    deadline: number,
-  ): Promise<Dict> => {
+  const act = async (steps: Step[], action: string, opts: Dict): Promise<Dict> => {
     let reason: string | undefined
-    for (;;) {
-      const els = resolveChain(steps)
-      if (els.length > 1) return { ok: false, strict: true, count: els.length }
-      const el = els[0]
-      if (!el) reason = describe(steps) + ' — element not found'
-      else if (ACTIONS_NEEDING_VISIBLE.has(action) && !opts.force && !isVisible(el))
-        reason = describe(steps) + ' — element is not visible'
-      else if (ACTIONS_NEEDING_ENABLED.has(action) && !opts.force && isDisabled(el))
-        reason = describe(steps) + ' — element is disabled'
-      else if (['fill', 'type', 'clear'].includes(action) && !opts.force && !isEditable(el))
-        return {
-          ok: false,
-          error:
-            describe(steps) +
-            ' — element is not an <input>, <textarea>, <select> or [contenteditable] element',
+    const els = resolveChain(steps)
+    if (els.length > 1) return { ok: false, strict: true, count: els.length }
+    const el = els[0]
+    if (!el) reason = describe(steps) + ' — element not found'
+    else if (ACTIONS_NEEDING_VISIBLE.has(action) && !opts.force && !isVisible(el))
+      reason = describe(steps) + ' — element is not visible'
+    else if (ACTIONS_NEEDING_ENABLED.has(action) && !opts.force && isDisabled(el))
+      reason = describe(steps) + ' — element is disabled'
+    else if (['fill', 'type', 'clear'].includes(action) && !opts.force && !isEditable(el))
+      return {
+        ok: false,
+        error:
+          describe(steps) +
+          ' — element is not an <input>, <textarea>, <select> or [contenteditable] element',
+      }
+    else {
+      if (ACTIONS_NEEDING_POINTER.has(action) || action === 'scrollIntoViewIfNeeded') {
+        if (!opts.noScroll) {
+          try {
+            el.scrollIntoView({ block: 'center', inline: 'center' })
+          } catch (_error) {
+            /* ignore */
+          }
         }
-      else {
-        if (ACTIONS_NEEDING_POINTER.has(action) || action === 'scrollIntoViewIfNeeded') {
-          if (!opts.noScroll) {
+        if (action === 'scrollIntoViewIfNeeded') return { ok: true }
+        const p = pointAt(el, opts.position as { x: number; y: number } | undefined)
+        if (!opts.force) {
+          const hit =
+            typeof document.elementFromPoint === 'function'
+              ? document.elementFromPoint(p.x, p.y)
+              : null
+          // A null hit with the point inside the viewport is a document that cannot hit-test
+          // (jsdom, a detached rendering); treat it as uncovered rather than unreachable.
+          const inView = p.x >= 0 && p.y >= 0 && p.x <= innerWidth && p.y <= innerHeight
+          if (!(hit === null && inView) && !hitOk(el, hit)) {
+            if (!hit || p.x < 0 || p.y < 0 || p.x > innerWidth || p.y > innerHeight)
+              reason = describe(steps) + ' — element is outside of the viewport'
+            else {
+              const h = hit as Element
+              reason =
+                describe(steps) +
+                ' — <' +
+                h.tagName.toLowerCase() +
+                (h.id ? '#' + h.id : '') +
+                (h.className && typeof h.className === 'string'
+                  ? '.' + h.className.trim().split(/\s+/).slice(0, 2).join('.')
+                  : '') +
+                '> intercepts pointer events'
+            }
+            return { ok: false, error: reason, retry: true }
+          }
+        }
+        if (action === 'hover') hoverAt(el, p.x, p.y)
+        else if (action === 'tap') {
+          fire(el, 'touchstart')
+          fire(el, 'touchend')
+          clickAt(el, p.x, p.y, opts)
+        } else
+          clickAt(el, p.x, p.y, {
+            ...opts,
+            clickCount: action === 'dblclick' ? 2 : ((opts.clickCount as number | undefined) ?? 1),
+          })
+        return { ok: true }
+      }
+      if (action === 'focus') {
+        ;(el as HTMLElement).focus()
+        return { ok: true }
+      }
+      if (action === 'blur') {
+        ;(el as HTMLElement).blur()
+        return { ok: true }
+      }
+      if (action === 'fill' || action === 'clear') {
+        const value = action === 'clear' ? '' : String(opts.value ?? '')
+        ;(el as HTMLElement).focus()
+        if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+          const simple =
+            !(el instanceof HTMLInputElement) ||
+            !['checkbox', 'radio', 'file', 'button', 'submit', 'reset', 'image'].includes(el.type)
+          if (!simple)
+            return {
+              ok: false,
+              error: describe(steps) + ' — cannot fill an input of type ' + el.type,
+            }
+          if (
+            el instanceof HTMLInputElement &&
+            [
+              'date',
+              'time',
+              'datetime-local',
+              'month',
+              'week',
+              'color',
+              'range',
+              'number',
+            ].includes(el.type)
+          ) {
+            nativeSetValue(el, value)
+            fire(el, 'input', { inputType: 'insertText', data: value })
+          } else {
             try {
-              el.scrollIntoView({ block: 'center', inline: 'center' })
+              el.select()
             } catch (_error) {
               /* ignore */
             }
-          }
-          if (action === 'scrollIntoViewIfNeeded') return { ok: true }
-          const p = pointAt(el, opts.position as { x: number; y: number } | undefined)
-          if (!opts.force) {
-            const hit =
-              typeof document.elementFromPoint === 'function'
-                ? document.elementFromPoint(p.x, p.y)
-                : null
-            // A null hit with the point inside the viewport is a document that cannot hit-test
-            // (jsdom, a detached rendering); treat it as uncovered rather than unreachable.
-            const inView = p.x >= 0 && p.y >= 0 && p.x <= innerWidth && p.y <= innerHeight
-            if (!(hit === null && inView) && !hitOk(el, hit)) {
-              if (!hit || p.x < 0 || p.y < 0 || p.x > innerWidth || p.y > innerHeight)
-                reason = describe(steps) + ' — element is outside of the viewport'
-              else {
-                const h = hit as Element
-                reason =
-                  describe(steps) +
-                  ' — <' +
-                  h.tagName.toLowerCase() +
-                  (h.id ? '#' + h.id : '') +
-                  (h.className && typeof h.className === 'string'
-                    ? '.' + h.className.trim().split(/\s+/).slice(0, 2).join('.')
-                    : '') +
-                  '> intercepts pointer events'
-              }
-              if (Date.now() > deadline)
-                return {
-                  ok: false,
-                  error: reason ?? 'waiting for ' + describe(steps),
-                  timeout: true,
-                }
-              await sleep(50)
-              continue
-            }
-          }
-          if (action === 'hover') hoverAt(el, p.x, p.y)
-          else if (action === 'tap') {
-            fire(el, 'touchstart')
-            fire(el, 'touchend')
-            clickAt(el, p.x, p.y, opts)
-          } else
-            clickAt(el, p.x, p.y, {
-              ...opts,
-              clickCount:
-                action === 'dblclick' ? 2 : ((opts.clickCount as number | undefined) ?? 1),
-            })
-          return { ok: true }
-        }
-        if (action === 'focus') {
-          ;(el as HTMLElement).focus()
-          return { ok: true }
-        }
-        if (action === 'blur') {
-          ;(el as HTMLElement).blur()
-          return { ok: true }
-        }
-        if (action === 'fill' || action === 'clear') {
-          const value = action === 'clear' ? '' : String(opts.value ?? '')
-          ;(el as HTMLElement).focus()
-          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-            const simple =
-              !(el instanceof HTMLInputElement) ||
-              !['checkbox', 'radio', 'file', 'button', 'submit', 'reset', 'image'].includes(el.type)
-            if (!simple)
-              return {
-                ok: false,
-                error: describe(steps) + ' — cannot fill an input of type ' + el.type,
-              }
-            if (
-              el instanceof HTMLInputElement &&
-              [
-                'date',
-                'time',
-                'datetime-local',
-                'month',
-                'week',
-                'color',
-                'range',
-                'number',
-              ].includes(el.type)
-            ) {
-              nativeSetValue(el, value)
-              fire(el, 'input', { inputType: 'insertText', data: value })
-            } else {
-              try {
-                el.select()
-              } catch (_error) {
-                /* ignore */
-              }
-              fire(el, 'beforeinput', { inputType: 'insertText', data: value })
-              nativeSetValue(el, value)
-              try {
-                el.setSelectionRange(value.length, value.length)
-              } catch (_error) {
-                /* ignore */
-              }
-              fire(el, 'input', { inputType: 'insertText', data: value })
-            }
-            fire(el, 'change')
-          } else if (el instanceof HTMLSelectElement) {
+            fire(el, 'beforeinput', { inputType: 'insertText', data: value })
             nativeSetValue(el, value)
-            fire(el, 'input')
-            fire(el, 'change')
-          } else {
-            const sel = window.getSelection()
-            if (sel) {
-              sel.selectAllChildren(el)
-            }
-            let done: boolean
             try {
-              done = document.execCommand('insertText', false, value)
+              el.setSelectionRange(value.length, value.length)
             } catch (_error) {
-              done = false
+              /* ignore */
             }
-            if (!done) {
-              el.textContent = value
-              fire(el, 'input', { inputType: 'insertText', data: value })
-            }
+            fire(el, 'input', { inputType: 'insertText', data: value })
           }
-          return { ok: true }
-        }
-        if (action === 'type') {
-          ;(el as HTMLElement).focus()
-          for (const ch of String(opts.text ?? '')) pressKey(el, ch === '\n' ? 'Enter' : ch)
-          return { ok: true }
-        }
-        if (action === 'press') {
-          ;(el as HTMLElement).focus()
-          pressKey(el, String(opts.key ?? ''))
-          return { ok: true }
-        }
-        if (action === 'check' || action === 'uncheck' || action === 'setChecked') {
-          if (!isCheckable(el))
-            return { ok: false, error: describe(steps) + ' — not a checkbox, radio or switch' }
-          const want =
-            action === 'check' ? true : action === 'uncheck' ? false : Boolean(opts.checked)
-          if (isChecked(el) !== want) {
-            const p = pointAt(el)
-            clickAt(el, p.x, p.y, {})
-            if (isChecked(el) !== want)
-              return {
-                ok: false,
-                error: describe(steps) + ' — clicking did not change its checked state',
-              }
-          }
-          return { ok: true }
-        }
-        if (action === 'selectOption') {
-          if (!(el instanceof HTMLSelectElement))
-            return { ok: false, error: describe(steps) + ' — not a <select>' }
-          const wanted = (Array.isArray(opts.values) ? opts.values : [opts.values]) as Array<
-            string | { value?: string; label?: string; index?: number } | null
-          >
-          const chosen: string[] = []
-          for (const option of Array.from(el.options)) {
-            const match = wanted.some((w) => {
-              if (w === null || w === undefined) return false
-              if (typeof w === 'string')
-                return (
-                  option.value === w ||
-                  norm(option.label) === norm(w) ||
-                  norm(option.textContent) === norm(w)
-                )
-              if (w.value !== undefined) return option.value === w.value
-              if (w.label !== undefined) return norm(option.label) === norm(w.label)
-              if (w.index !== undefined) return option.index === w.index
-              return false
-            })
-            option.selected = match
-            if (match) chosen.push(option.value)
-          }
-          if (chosen.length === 0 && wanted.length)
-            return {
-              ok: false,
-              error: describe(steps) + ' — no option matched ' + JSON.stringify(wanted),
-            }
+          fire(el, 'change')
+        } else if (el instanceof HTMLSelectElement) {
+          nativeSetValue(el, value)
           fire(el, 'input')
           fire(el, 'change')
-          return { ok: true, values: chosen }
+        } else {
+          const sel = window.getSelection()
+          if (sel) {
+            sel.selectAllChildren(el)
+          }
+          let done: boolean
+          try {
+            done = document.execCommand('insertText', false, value)
+          } catch (_error) {
+            done = false
+          }
+          if (!done) {
+            el.textContent = value
+            fire(el, 'input', { inputType: 'insertText', data: value })
+          }
         }
-        if (action === 'dispatchEvent') {
-          const type = String(opts.type ?? '')
-          const init = (opts.init as Dict | undefined) ?? {}
-          fire(el, type, init)
-          return { ok: true }
-        }
-        if (action === 'highlight') return { ok: true }
-        return { ok: false, error: 'unknown action: ' + action }
+        return { ok: true }
       }
-      if (Date.now() > deadline)
-        return { ok: false, error: reason ?? 'waiting for ' + describe(steps), timeout: true }
-      await sleep(50)
+      if (action === 'type') {
+        ;(el as HTMLElement).focus()
+        for (const ch of String(opts.text ?? '')) pressKey(el, ch === '\n' ? 'Enter' : ch)
+        return { ok: true }
+      }
+      if (action === 'press') {
+        ;(el as HTMLElement).focus()
+        pressKey(el, String(opts.key ?? ''))
+        return { ok: true }
+      }
+      if (action === 'check' || action === 'uncheck' || action === 'setChecked') {
+        if (!isCheckable(el))
+          return { ok: false, error: describe(steps) + ' — not a checkbox, radio or switch' }
+        const want =
+          action === 'check' ? true : action === 'uncheck' ? false : Boolean(opts.checked)
+        if (isChecked(el) !== want) {
+          const p = pointAt(el)
+          clickAt(el, p.x, p.y, {})
+          if (isChecked(el) !== want)
+            return {
+              ok: false,
+              error: describe(steps) + ' — clicking did not change its checked state',
+            }
+        }
+        return { ok: true }
+      }
+      if (action === 'selectOption') {
+        if (!(el instanceof HTMLSelectElement))
+          return { ok: false, error: describe(steps) + ' — not a <select>' }
+        const wanted = (Array.isArray(opts.values) ? opts.values : [opts.values]) as Array<
+          string | { value?: string; label?: string; index?: number } | null
+        >
+        const chosen: string[] = []
+        for (const option of Array.from(el.options)) {
+          const match = wanted.some((w) => {
+            if (w === null || w === undefined) return false
+            if (typeof w === 'string')
+              return (
+                option.value === w ||
+                norm(option.label) === norm(w) ||
+                norm(option.textContent) === norm(w)
+              )
+            if (w.value !== undefined) return option.value === w.value
+            if (w.label !== undefined) return norm(option.label) === norm(w.label)
+            if (w.index !== undefined) return option.index === w.index
+            return false
+          })
+          option.selected = match
+          if (match) chosen.push(option.value)
+        }
+        if (chosen.length === 0 && wanted.length)
+          return {
+            ok: false,
+            error: describe(steps) + ' — no option matched ' + JSON.stringify(wanted),
+          }
+        fire(el, 'input')
+        fire(el, 'change')
+        return { ok: true, values: chosen }
+      }
+      if (action === 'dispatchEvent') {
+        const type = String(opts.type ?? '')
+        const init = (opts.init as Dict | undefined) ?? {}
+        fire(el, type, init)
+        return { ok: true }
+      }
+      if (action === 'highlight') return { ok: true }
+      return { ok: false, error: 'unknown action: ' + action }
     }
+    return { ok: false, error: reason ?? 'waiting for ' + describe(steps), retry: true }
   }
 
   // ---- reads (strict) ----
   const single = async (
     steps: Step[],
-    deadline: number,
     waitAttached: boolean,
   ): Promise<{ el?: Element; res?: Dict }> => {
-    for (;;) {
-      const els = resolveChain(steps)
-      if (els.length > 1) return { res: { ok: false, strict: true, count: els.length } }
-      if (els.length === 1) return { el: els[0] }
-      if (!waitAttached || Date.now() > deadline)
-        return {
-          res: {
-            ok: false,
-            error: describe(steps) + ' — element not found',
-            timeout: waitAttached,
-          },
-        }
-      await sleep(50)
+    const els = resolveChain(steps)
+    if (els.length > 1) return { res: { ok: false, strict: true, count: els.length } }
+    if (els.length === 1) return { el: els[0] }
+    return {
+      res: {
+        ok: false,
+        error: describe(steps) + ' — element not found',
+        retry: waitAttached,
+      },
     }
   }
   const boundingBox = (
@@ -1116,12 +1100,7 @@ export function installE2ERuntime(): { version: number } {
     const r = el.getBoundingClientRect()
     return { x: r.x, y: r.y, width: r.width, height: r.height }
   }
-  const read = async (
-    steps: Step[],
-    what: string,
-    args: unknown[],
-    deadline: number,
-  ): Promise<Dict> => {
+  const read = async (steps: Step[], what: string, args: unknown[]): Promise<Dict> => {
     if (what === 'isVisible' || what === 'isHidden') {
       const els = resolveChain(steps)
       if (els.length > 1) return { ok: false, strict: true, count: els.length }
@@ -1129,7 +1108,7 @@ export function installE2ERuntime(): { version: number } {
       return { ok: true, value: what === 'isVisible' ? vis : !vis }
     }
     if (what === 'count') return { ok: true, value: resolveChain(steps).length }
-    const got = await single(steps, deadline, true)
+    const got = await single(steps, true)
     if (got.res) return got.res
     const el = got.el as Element
     switch (what) {
@@ -1187,13 +1166,8 @@ export function installE2ERuntime(): { version: number } {
   }
   const runFn = (source: string): ((...a: unknown[]) => unknown) =>
     new Function('return (' + source + ')')() as (...a: unknown[]) => unknown
-  const evalOn = async (
-    steps: Step[],
-    source: string,
-    arg: unknown,
-    deadline: number,
-  ): Promise<Dict> => {
-    const got = await single(steps, deadline, true)
+  const evalOn = async (steps: Step[], source: string, arg: unknown): Promise<Dict> => {
+    const got = await single(steps, true)
     if (got.res) return got.res
     return { ok: true, value: await runFn(source)(got.el, arg) }
   }
@@ -1201,27 +1175,23 @@ export function installE2ERuntime(): { version: number } {
     ok: true,
     value: await runFn(source)(resolveChain(steps), arg),
   })
-  const waitFor = async (steps: Step[], state: string, deadline: number): Promise<Dict> => {
-    for (;;) {
-      const els = resolveChain(steps)
-      if (els.length > 1 && state !== 'detached' && state !== 'hidden')
-        return { ok: false, strict: true, count: els.length }
-      const el = els[0]
-      const met =
-        state === 'attached'
-          ? !!el
-          : state === 'detached'
-            ? !el
-            : state === 'visible'
-              ? !!el && isVisible(el)
-              : state === 'hidden'
-                ? !el || !isVisible(el)
-                : false
-      if (met) return { ok: true }
-      if (Date.now() > deadline)
-        return { ok: false, error: describe(steps) + ' — waiting for ' + state, timeout: true }
-      await sleep(50)
-    }
+  const waitFor = async (steps: Step[], state: string): Promise<Dict> => {
+    const els = resolveChain(steps)
+    if (els.length > 1 && state !== 'detached' && state !== 'hidden')
+      return { ok: false, strict: true, count: els.length }
+    const el = els[0]
+    const met =
+      state === 'attached'
+        ? !!el
+        : state === 'detached'
+          ? !el
+          : state === 'visible'
+            ? !!el && isVisible(el)
+            : state === 'hidden'
+              ? !el || !isVisible(el)
+              : false
+    if (met) return { ok: true }
+    return { ok: false, error: describe(steps) + ' — waiting for ' + state, retry: true }
   }
 
   // ---- expect probes: one evaluation, the driver polls ----
@@ -1509,22 +1479,21 @@ export function installE2ERuntime(): { version: number } {
   const call = async (req: Dict): Promise<unknown> => {
     const fn = String(req.fn)
     const a = (req.args as unknown[]) ?? []
-    const deadline = Date.now() + Number(req.timeout ?? 10000)
     switch (fn) {
       case 'parse':
         return parseSelector(String(a[0]))
       case 'act':
-        return act(a[0] as Step[], String(a[1]), (a[2] as Dict) ?? {}, deadline)
+        return act(a[0] as Step[], String(a[1]), (a[2] as Dict) ?? {})
       case 'read':
-        return read(a[0] as Step[], String(a[1]), (a[2] as unknown[]) ?? [], deadline)
+        return read(a[0] as Step[], String(a[1]), (a[2] as unknown[]) ?? [])
       case 'readAll':
         return readAll(a[0] as Step[], String(a[1]))
       case 'evalOn':
-        return evalOn(a[0] as Step[], String(a[1]), a[2], deadline)
+        return evalOn(a[0] as Step[], String(a[1]), a[2])
       case 'evalAll':
         return evalAll(a[0] as Step[], String(a[1]), a[2])
       case 'waitFor':
-        return waitFor(a[0] as Step[], String(a[1]), deadline)
+        return waitFor(a[0] as Step[], String(a[1]))
       case 'probe':
         return probe(a[0] as Step[], String(a[1]), (a[2] as Dict) ?? {})
       case 'describe':

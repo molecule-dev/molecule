@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-e2e-preview",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "E2E bond that drives the LIVE IDE preview as a Playwright-shaped page — the page the person is already looking at, in their own browser — over a same-origin WebSocket through the dev server. No browser binary in the sandbox.",
   "type": "module",
   "main": "dist/index.js",
@@ -50,7 +50,7 @@
   "peerDependencies": {
     "@molecule/app-bond": "^1.0.1",
     "@molecule/app-e2e": "^1.0.0",
-    "@molecule/app-e2e-fixtures-default": "^1.0.1",
+    "@molecule/app-e2e-fixtures-default": "^1.0.3",
     "@playwright/test": "^1.40.0",
     "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },
@@ -62,7 +62,7 @@
   "devDependencies": {
     "@molecule/app-bond": "1.0.1",
     "@molecule/app-e2e": "1.0.0",
-    "@molecule/app-e2e-fixtures-default": "1.0.2",
+    "@molecule/app-e2e-fixtures-default": "1.0.3",
     "@playwright/test": "1.62.0",
     "@types/node": "26.1.2",
     "@types/ws": "8.18.1",

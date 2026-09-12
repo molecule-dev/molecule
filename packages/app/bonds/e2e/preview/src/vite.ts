@@ -11,9 +11,11 @@ import process from 'node:process'
 
 import type { Plugin } from 'vite'
 
+import { E2E_RUNTIME_VERSION, installE2ERuntime } from '@molecule/app-e2e-fixtures-default/runtime'
+
 import { E2E_PREVIEW_CLIENT_SCRIPT } from './client.js'
 import { attachE2EHub } from './server.js'
-import { E2E_CLIENT_PATH } from './types.js'
+import { E2E_CLIENT_PATH, E2E_RUNTIME_PATH } from './types.js'
 
 /** Options for {@link molE2EPreviewPlugin}. */
 export interface MolE2EPreviewPluginOptions {
@@ -24,9 +26,18 @@ export interface MolE2EPreviewPluginOptions {
 type Next = (err?: unknown) => void
 type Middleware = (req: IncomingMessage, res: ServerResponse, next: Next) => void
 
-const TAG = `<script src="${E2E_CLIENT_PATH}" data-mol-e2e></script>`
+const TAG =
+  `<script src="${E2E_CLIENT_PATH}" data-mol-e2e></script>` +
+  `<script src="${E2E_RUNTIME_PATH}" data-mol-e2e-runtime></script>`
 
-/** Put the client tag at the top of `<head>` unless it is already there. */
+/**
+ * The runtime as a classic script: installing it with the document saves the
+ * driver a ~60 KB `evaluate` on the first call after every navigation.
+ */
+const RUNTIME_SCRIPT = `;(${String(installE2ERuntime)})();`
+const RUNTIME_ETAG = `"mol-e2e-runtime-${E2E_RUNTIME_VERSION}"`
+
+/** Put the client and runtime tags at the top of `<head>` unless they are already there. */
 export const injectE2EClientTag = (html: string): string => {
   if (html.includes('data-mol-e2e')) return html
   if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + TAG)
@@ -34,7 +45,20 @@ export const injectE2EClientTag = (html: string): string => {
 }
 
 const serveClient: Middleware = (req, res, next) => {
-  if ((req.url ?? '').split('?')[0] !== E2E_CLIENT_PATH) return next()
+  const path = (req.url ?? '').split('?')[0]
+  if (path === E2E_RUNTIME_PATH) {
+    res.setHeader('etag', RUNTIME_ETAG)
+    res.setHeader('cache-control', 'no-cache')
+    if (req.headers['if-none-match'] === RUNTIME_ETAG) {
+      res.statusCode = 304
+      res.end()
+      return
+    }
+    res.setHeader('content-type', 'text/javascript; charset=utf-8')
+    res.end(RUNTIME_SCRIPT)
+    return
+  }
+  if (path !== E2E_CLIENT_PATH) return next()
   res.setHeader('content-type', 'text/javascript; charset=utf-8')
   res.setHeader('cache-control', 'no-store')
   res.end(E2E_PREVIEW_CLIENT_SCRIPT)
@@ -122,6 +146,11 @@ export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): P
             {
               tag: 'script',
               attrs: { src: E2E_CLIENT_PATH, 'data-mol-e2e': '' },
+              injectTo: 'head-prepend',
+            },
+            {
+              tag: 'script',
+              attrs: { src: E2E_RUNTIME_PATH, 'data-mol-e2e-runtime': '' },
               injectTo: 'head-prepend',
             },
           ],

@@ -17,7 +17,12 @@ import type {
 } from '@molecule/app-e2e'
 import { E2EStrictModeError, E2ETimeoutError, E2EUnsupportedError } from '@molecule/app-e2e'
 
-import { installE2ERuntime, type LocatorStep, type TextMatch } from './runtime.js'
+import {
+  E2E_RUNTIME_VERSION,
+  installE2ERuntime,
+  type LocatorStep,
+  type TextMatch,
+} from './runtime.js'
 
 /** Brand on locators created here (the `expect` wrapper routes on it). */
 export const E2E_LOCATOR: unique symbol = Symbol.for('molecule.e2e.locator')
@@ -25,8 +30,10 @@ export const E2E_LOCATOR: unique symbol = Symbol.for('molecule.e2e.locator')
 export const E2E_PAGE: unique symbol = Symbol.for('molecule.e2e.page')
 
 const RUNTIME_SOURCE = String(installE2ERuntime)
-const CALL_SOURCE =
-  '(r) => { const g = globalThis; if (!g.__molE2E) return { __needInstall: true }; return g.__molE2E.call(r) }'
+/** A page holding no runtime, or one of another version, is (re)installed before the call. */
+const CALL_SOURCE = `(r) => { const g = globalThis; if (!g.__molE2E || g.__molE2E.version !== ${E2E_RUNTIME_VERSION}) return { __needInstall: true }; return g.__molE2E.call(r) }`
+/** How often the driver re-asks the page while an action or read is waiting on it. */
+const RETRY_INTERVAL_MS = 100
 
 type Dict = Record<string, unknown>
 type Listener = (payload: unknown) => void
@@ -745,24 +752,41 @@ class PageImpl {
     return res
   }
 
-  /** Run a runtime call inside the page, installing the runtime on a fresh document. */
+  /**
+   * Run a runtime call inside the page, installing the runtime on a fresh
+   * document. The page answers every call at once; a call that has to WAIT
+   * (an element not there yet, not visible, covered) comes back `retry` and
+   * is asked again from here, on this process's clock — so a preview in a
+   * background tab, whose own timers are throttled, waits no longer than one
+   * in front.
+   */
   async rt(fn: string, args: unknown[], timeout?: number): Promise<Dict> {
     if (this.closed) throw new Error('Target page, context or browser has been closed')
     const budget = (timeout ?? this.defaultTimeout) + 2_000
-    let res = (await this.transport.evaluate(
-      CALL_SOURCE,
-      { fn, args, timeout: timeout ?? this.defaultTimeout },
-      { timeout: budget },
-    )) as Dict | null
-    if (res && (res as Dict).__needInstall) {
-      await this.transport.evaluate(RUNTIME_SOURCE, undefined, { timeout: 5_000 })
-      res = (await this.transport.evaluate(
+    const deadline = Date.now() + (timeout ?? this.defaultTimeout)
+    const once = async (): Promise<Dict> => {
+      let res = (await this.transport.evaluate(
         CALL_SOURCE,
-        { fn, args, timeout: timeout ?? this.defaultTimeout },
+        { fn, args },
         { timeout: budget },
       )) as Dict | null
+      if (res && (res as Dict).__needInstall) {
+        await this.transport.evaluate(RUNTIME_SOURCE, undefined, { timeout: 5_000 })
+        res = (await this.transport.evaluate(
+          CALL_SOURCE,
+          { fn, args },
+          { timeout: budget },
+        )) as Dict | null
+      }
+      return (res ?? {}) as Dict
     }
-    return (res ?? {}) as Dict
+    let res = await once()
+    while (res.retry) {
+      if (Date.now() >= deadline) return { ok: false, error: res.error, timeout: true }
+      await new Promise((r) => setTimeout(r, RETRY_INTERVAL_MS))
+      res = await once()
+    }
+    return res
   }
 
   // ---- navigation ----
