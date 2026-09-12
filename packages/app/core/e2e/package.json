@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/app-e2e",
+  "version": "1.0.0",
+  "description": "End-to-end test core: Playwright's test, expect and page, with the browser supplied by a swappable bond — the live IDE preview inside a molecule sandbox, or real Playwright browsers on your machine and CI.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "e2e",
+    "playwright",
+    "testing",
+    "preview"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/core/e2e"
+  },
+  "homepage": "https://molecule.dev",
+  "bugs": {
+    "url": "https://github.com/molecule-dev/molecule/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.1",
+    "@playwright/test": "^1.40.0"
+  },
+  "devDependencies": {
+    "@molecule/app-bond": "1.0.1",
+    "@playwright/test": "1.62.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

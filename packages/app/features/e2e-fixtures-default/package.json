@@ -29,12 +29,17 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
+    "@molecule/app-bond": "1.0.1",
+    "@molecule/app-e2e": "1.0.0",
     "@playwright/test": "1.62.0",
+    "jsdom": "30.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
   },
   "peerDependencies": {
+    "@molecule/app-bond": "^1.0.1",
+    "@molecule/app-e2e": "^1.0.0",
     "@playwright/test": "^1.50.0"
   },
   "repository": {

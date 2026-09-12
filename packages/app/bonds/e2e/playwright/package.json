@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/app-e2e-playwright",
+  "version": "1.0.0",
+  "description": "E2E bond that opens real Playwright browsers — the same specs that drive the live preview inside a molecule sandbox run here on your machine and in CI, with screenshots, traces and network interception.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "e2e",
+    "playwright",
+    "browser"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/e2e/playwright"
+  },
+  "homepage": "https://molecule.dev",
+  "bugs": {
+    "url": "https://github.com/molecule-dev/molecule/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/app-bond": "^1.0.1",
+    "@molecule/app-e2e": "^1.0.0",
+    "@playwright/test": "^1.40.0"
+  },
+  "devDependencies": {
+    "@molecule/app-bond": "1.0.1",
+    "@molecule/app-e2e": "1.0.0",
+    "@playwright/test": "1.62.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

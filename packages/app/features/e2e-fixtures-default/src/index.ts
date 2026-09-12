@@ -1,166 +1,114 @@
 /**
- * Shared Playwright `test` + `expect` with auto-attached browser
- * console-error / pageerror guard.
+ * The `@playwright/test` drop-in for molecule apps: Playwright's `test`,
+ * `expect` and `page`, with the browser supplied by the bonded e2e provider
+ * and a console-error guard on every test.
  *
- * Every fleet app's e2e specs import `test` and `expect` from this
- * module (re-exported through their per-app `_helpers.ts`) instead of
- * `@playwright/test` directly. The custom `test` includes a
- * `consoleGuard` fixture with `{ auto: true }`, so every test
- * automatically subscribes to the browser's `pageerror` event and
- * `console.error` messages, then asserts the buffer is empty at test
- * teardown.
+ * Import `test` and `expect` from here instead of `@playwright/test` and
+ * write ordinary Playwright specs. Which browser runs them is the e2e bond
+ * (`@molecule/app-e2e`):
  *
- * This catches the failure mode where React (or any other client-side
- * module) throws on mount but the spec only asserts against
- * `page.request.get/post`, leaving the test green while the rendered
- * page is blank. A single quill-delta ESM/CJS interop error sat for
- * four days like this before we noticed — the replay videos were
- * 17 KB of nothing and the JSON reported PASS.
+ * - **`@molecule/app-e2e-preview`** drives the LIVE PREVIEW the molecule.dev
+ *   IDE is already showing — the page the person is looking at, in their own
+ *   browser — over a WebSocket through the dev server. No browser binary in
+ *   the sandbox, nothing to download. This is what a molecule sandbox uses.
+ * - **`@molecule/app-e2e-playwright`** launches real Playwright browsers. This
+ *   is what your own machine and CI use.
  *
- * To intentionally let a known error through (rare — almost always a
- * smell that should be fixed in the app), use
- * `test.info().annotations.push({ type: 'allow-console-error', description: 'why' })`
- * inside the test body BEFORE the error fires. The `description` is
- * matched against the error text as a regular expression; if it is not
- * a valid regex it is matched as a plain substring instead (so literal
- * error text with `[`/`(` can be pasted verbatim). An annotation with
- * no description allows every error — always provide one.
+ * The same spec file runs unchanged in both. The provider is picked by
+ * `resolveE2EProviderName()`: `MOL_E2E_PROVIDER` when set, otherwise `preview`
+ * inside a molecule sandbox (the `/etc/mol/app-root` marker exists) and
+ * `playwright` everywhere else. The scaffolded `e2e/bonds.ts` bonds the
+ * matching provider (and `test` bonds it by name as a fallback); `test` reads
+ * the same answer to decide whether to launch a browser.
  *
- * A small, fixed set of browser-noise patterns are ALWAYS ignored regardless
- * of `allow-console-error` (Vite HMR reconnect chatter, service-worker 404s
- * in headless Chrome, and a real Chrome DevTools "failed to load SourceMap"
- * message for any `https://`-hosted bundle — e.g. Stripe/Google Maps CDN
- * scripts shipped without source maps). That last pattern is verified
- * against the actual Chrome message text and constrained to `https://` so it
- * can never silence a genuinely broken source map in the app's OWN bundle
- * (served over plain `http://localhost` in dev/preview).
+ * Every test also carries the console-error guard: the page's `pageerror`
+ * and `console.error` events fail the test at teardown, so a spec that only
+ * asserts on `page.request` cannot stay green while the rendered page is
+ * blank. Allow a known error with
+ * `test.info().annotations.push({ type: 'allow-console-error', description: '<regex>' })`.
  *
  * @example
  * ```ts
- * // In fleet apps, the per-app `./_helpers.ts` re-exports these:
- * import { test, expect } from '@molecule/app-e2e-fixtures-default'
+ * // e2e/bonds.ts — scaffolded; wires the provider for THIS environment
+ * import { resolveE2EProviderName, setProvider } from '@molecule/app-e2e'
+ * import { provider as playwright } from '@molecule/app-e2e-playwright'
+ * import { provider as preview } from '@molecule/app-e2e-preview'
  *
- * test('login lands on dashboard', async ({ page }) => {
- *   await page.goto('/login')
- *   await page.getByLabel(/email/i).fill('user@example.com')
- *   // ...
+ * setProvider(resolveE2EProviderName() === 'preview' ? preview : playwright)
+ *
+ * // e2e/post.spec.ts — an ordinary Playwright spec
+ * import { expect, test } from '@molecule/app-e2e-fixtures-default'
+ *
+ * import './bonds.js'
+ *
+ * test('the phone layout keeps the prose large', async ({ page }) => {
+ *   await page.setViewportSize({ width: 390, height: 844 })
+ *   await page.goto('/blog/hello/')
+ *   const prose = page.locator('article p').first()
+ *   const size = await prose.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))
+ *   expect(size).toBeGreaterThanOrEqual(18)
+ *   await expect(page.getByRole('switch', { name: /summar/i })).toBeVisible()
  * })
  * ```
+ *
+ * @remarks
+ * - **What works over the preview** (the `@molecule/app-e2e-preview` bond):
+ *   `page.goto/reload/goBack/goForward/url/title/content`,
+ *   `page.evaluate/$eval/$$eval`, `page.locator` and every `getBy*` (role
+ *   with name/level/checked/pressed/expanded/selected, text, label,
+ *   placeholder, title, alt text, test id), `first/last/nth/filter/count/all`,
+ *   `click/dblclick/hover/tap/fill/clear/type/press/check/uncheck/setChecked/
+ *   selectOption/focus/blur/dispatchEvent/scrollIntoViewIfNeeded`,
+ *   `textContent/innerText/innerHTML/inputValue/getAttribute/isVisible/isHidden/
+ *   isEnabled/isDisabled/isEditable/isChecked/boundingBox/evaluate/evaluateAll/
+ *   waitFor`, `page.setViewportSize/viewportSize`, `page.mouse.*`,
+ *   `page.keyboard.*`, `page.request.get/post/put/patch/delete/fetch` (runs
+ *   `fetch` inside the page, cookies included), `waitForSelector/waitForURL/
+ *   waitForFunction/waitForLoadState/waitForTimeout`, `page.on('console' |
+ *   'pageerror' | 'dialog' | 'close')`, and `expect(locator)` with
+ *   `toBeVisible/toBeHidden/toBeAttached/toHaveCount/toHaveText/toContainText/
+ *   toHaveAttribute/toHaveClass/toContainClass/toHaveCSS/toHaveValue/toHaveId/
+ *   toBeChecked/toBeEnabled/toBeDisabled/toBeEditable/toBeEmpty/toBeFocused/
+ *   toBeInViewport/toHaveAccessibleName/toHaveRole` (+ `.not`, `expect.soft`,
+ *   `expect.configure`), `expect(page).toHaveTitle/toHaveURL`.
+ * - **The escape hatch is `page.evaluate()`.** Anything the list above does
+ *   not cover — a computed style, a scroll position, `matchMedia`, a
+ *   `fetch` — is one `evaluate` away; the function runs inside the real page
+ *   and returns JSON.
+ * - **Not available over the preview**, and the method THROWS naming the
+ *   alternative: screenshots and `toHaveScreenshot` (assert layout with
+ *   `boundingBox()` and computed styles instead), `page.route/waitForResponse/
+ *   waitForRequest` (read the response with `page.request` or `fetch` in
+ *   `evaluate`), element handles (`$`, `$$`, `elementHandle` — use locators),
+ *   `setInputFiles`, `dragTo`, iframes inside the preview, `emulateMedia`,
+ *   `addInitScript/exposeFunction`, `context.cookies/storageState` (read
+ *   `document.cookie`/`localStorage` in `evaluate`). The playwright bond
+ *   supports all of them.
+ * - **Viewport.** `page.setViewportSize` asks the IDE to resize the preview
+ *   frame and throws if the host did not (a preview opened in a plain tab
+ *   keeps the tab's width). Test phone layouts at 390×844 this way.
+ * - **Events.** `page.on('response')`/`'request'` never fire over the preview
+ *   (a one-time warning says so); `'console'` and `'pageerror'` do, so the
+ *   console-error guard works there too.
+ * - **The person's browser is the renderer.** If every tab showing the
+ *   preview is closed or asleep, actions wait for a page to reconnect and
+ *   then time out with a message saying so. Keep the IDE tab open (the IDE
+ *   holds a screen wake lock while a build runs) or open the preview URL in
+ *   any other tab — any connected viewer will do.
+ * - `createEvaluatePage()` is how a bond that can only run code inside a page
+ *   (an `E2ETransport`) gets the whole Playwright-shaped page; the preview
+ *   bond uses it, and so can any future one.
+ * - `@playwright/test` is a peer dependency: it supplies the runner
+ *   (`npx playwright test`), `expect` for plain values, and the `Page` types.
+ *   It never downloads browsers on install; only the playwright bond needs
+ *   `npx playwright install`.
  *
  * @module
  */
 
-import { type ConsoleMessage, expect, test as base } from '@playwright/test'
-
-interface ConsoleErrorEntry {
-  type: 'pageerror' | 'console.error'
-  text: string
-  location?: string
-}
-
-/** Substrings that are always ignored — browser noise that doesn't reflect app bugs. */
-const ALWAYS_IGNORE: readonly RegExp[] = [
-  // Vite HMR dev-only websocket reconnect warnings — happen on the
-  // test runner's first poll before vite is fully booted; harmless.
-  /\[vite\].*connecting/i,
-  /\[vite\].*server connection lost/i,
-  // Service worker registration failures in headless Chrome — VitePWA
-  // tries to register at /sw.js but our smoke build emits to /workbox-*
-  // and Playwright fixtures the user-agent. Cosmetic.
-  /service worker.*404/i,
-  // Chrome DevTools' own probe for source maps on third-party CDN bundles
-  // we don't ship maps for (Stripe, Google Maps, etc). Two bugs fixed here,
-  // both verified against a headless Chromium probe + the real reported
-  // message text (not guessed): (1) the verb was wrong — real Chrome output
-  // is "DevTools failed to load SourceMap: Could not load content for
-  // <url>: ...", not "failed to fetch source map", so the old pattern never
-  // matched real Chrome text at all; (2) the host check (`.cdn.`) doesn't
-  // match real vendor hosts (js.stripe.com, maps.googleapis.com contain no
-  // '.cdn.' substring). Now matches any `https://`-hosted source map
-  // (third-party CDN bundles are always TLS; the app's own dev/preview
-  // server is plain `http://localhost`, so same-origin source-map issues
-  // are never accidentally silenced by this pattern).
-  // NOTE (verified, not assumed): a probe with a broken `sourceMappingURL`
-  // produced ZERO console messages via `page.on('console')` under plain
-  // Playwright automation (with and without tracing) — Chrome only fetches
-  // source maps when a DevTools Sources panel is actually attached, which a
-  // headless Playwright run never does. So this entry currently matches
-  // nothing observed in practice; it is defense-in-depth against a future
-  // Chrome/Playwright behavior change, not an active filter today.
-  /devtools failed to load source ?map.*https:\/\//i,
-]
-
-/**
- * Custom Playwright `test` with an auto-attached browser console-error
- * guard. Drop-in replacement for `import { test } from '@playwright/test'`.
- */
-export const test = base.extend<{ consoleGuard: void }>({
-  consoleGuard: [
-    async ({ page }, use, testInfo) => {
-      const buffer: ConsoleErrorEntry[] = []
-
-      // Each allow-console-error description is tried as a regex; an invalid
-      // pattern (e.g. verbatim error text containing `[` or `(`) falls back to
-      // plain substring matching instead of throwing from inside the guard.
-      const matchesAllowed = (text: string, description: string | undefined): boolean => {
-        if (description === undefined) return true // no description = allow everything
-        try {
-          return new RegExp(description).test(text)
-        } catch (_error) {
-          // Invalid regex — treat the description as a literal substring.
-          return text.includes(description)
-        }
-      }
-
-      const shouldIgnore = (text: string): boolean => {
-        if (ALWAYS_IGNORE.some((re) => re.test(text))) return true
-        return testInfo.annotations
-          .filter((a) => a.type === 'allow-console-error')
-          .some((a) => matchesAllowed(text, a.description))
-      }
-
-      const onPageError = (err: Error): void => {
-        const text = err.message || String(err)
-        if (shouldIgnore(text)) return
-        buffer.push({ type: 'pageerror', text })
-      }
-      const onConsole = (msg: ConsoleMessage): void => {
-        if (msg.type() !== 'error') return
-        const text = msg.text()
-        if (shouldIgnore(text)) return
-        const loc = msg.location()
-        buffer.push({
-          type: 'console.error',
-          text,
-          location: loc?.url ? `${loc.url}:${loc.lineNumber}` : undefined,
-        })
-      }
-
-      page.on('pageerror', onPageError)
-      page.on('console', onConsole)
-
-      try {
-        await use()
-      } finally {
-        page.off('pageerror', onPageError)
-        page.off('console', onConsole)
-      }
-
-      if (buffer.length > 0) {
-        const lines = buffer
-          .map((e) => `  - [${e.type}] ${e.text}${e.location ? `  (${e.location})` : ''}`)
-          .join('\n')
-        throw new Error(
-          `Browser console error(s) during test (${buffer.length}):\n${lines}\n\n` +
-            `If this error is genuinely expected, add\n` +
-            `  test.info().annotations.push({ type: 'allow-console-error', description: '<regex>' })\n` +
-            `to the test body BEFORE the error fires.`,
-        )
-      }
-    },
-    { auto: true },
-  ],
-})
-
-export { expect }
-export type { ConsoleErrorEntry }
+export * from './console-guard.js'
+export * from './expect.js'
+export * from './page.js'
+export * from './playwright.js'
+export * from './runtime.js'
+export * from './test.js'

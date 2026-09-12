@@ -569,6 +569,10 @@ export function PreviewPanel({
   // rotatable device, never reset on a device switch) and PERSISTED across reloads
   // via the bonded storage provider, so a chosen landscape carries everywhere.
   const [orientation, setOrientation] = useState<DeviceOrientation>('portrait')
+  // A size the PREVIEWED PAGE asked for (`molecule:viewport`, posted by an e2e run's
+  // page.setViewportSize inside the preview). Overrides the device frame until the
+  // person picks a device again or the page asks for `width: null`.
+  const [requestedSize, setRequestedSize] = useState<{ width: number; height: number } | null>(null)
   // Restore the persisted orientation once on mount. Best-effort: if no storage
   // provider is bonded (tests / an app that didn't wire one) it just won't persist.
   useEffect(() => {
@@ -591,6 +595,7 @@ export function PreviewPanel({
   // a landscape choice applies to whichever rotatable device is selected next.
   const handleDeviceChange = useCallback(
     (device: typeof state.device) => {
+      setRequestedSize(null)
       setDevice(device)
     },
     [setDevice],
@@ -1384,6 +1389,29 @@ export function PreviewPanel({
           line: event.data.line ?? undefined,
           column: event.data.column ?? undefined,
         })
+      } else if (event.data?.type === 'molecule:viewport') {
+        // The previewed page asked for a viewport (an e2e spec's page.setViewportSize, relayed
+        // by the preview e2e client). Size the frame to it — the same mechanism as a device
+        // preset — and confirm; `width: null` returns to the selected device frame.
+        const width = Number(event.data.width)
+        const height = Number(event.data.height)
+        if (Number.isFinite(width) && width > 0) {
+          const next = {
+            width: Math.round(width),
+            height: Number.isFinite(height) && height > 0 ? Math.round(height) : 844,
+          }
+          setRequestedSize(next)
+          previewWindow.postMessage(
+            { type: 'molecule:viewport-result', id: event.data.id, ...next },
+            '*',
+          )
+        } else {
+          setRequestedSize(null)
+          previewWindow.postMessage(
+            { type: 'molecule:viewport-result', id: event.data.id, width: null, height: null },
+            '*',
+          )
+        }
       } else if (event.data?.type === 'molecule:heartbeat') {
         lastHeartbeatRef.current = Date.now()
       } else if (event.data?.type === 'molecule:ui-result') {
@@ -1948,7 +1976,9 @@ export function PreviewPanel({
   // Device frame sizes the iframe: fluid frames (responsive/desktop) fill the
   // area; fixed frames (tablet/mobile) get an explicit pixel width AND height,
   // swapped in landscape so rotation visibly re-proportions the preview.
-  const { width: iframeWidth, height: iframeHeight } = resolveDeviceSize(state.device, orientation)
+  const deviceSize = resolveDeviceSize(state.device, orientation)
+  const iframeWidth = requestedSize ? `${requestedSize.width}px` : deviceSize.width
+  const iframeHeight = requestedSize ? `${requestedSize.height}px` : deviceSize.height
   // `building` selects the overlay CONTENT ("Updating `X`…") while the overlay
   // is shown for a BROKEN preview during edits — it no longer forces the overlay
   // over a healthy iframe. It existed to mask the white flash of the old
