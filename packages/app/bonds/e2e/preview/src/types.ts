@@ -47,6 +47,8 @@ export interface PagePeer {
   title: string
   hidden: boolean
   framed: boolean
+  /** The app's base path as the page reports it ('/blog/'; '/' when none). */
+  base: string
   connectedAt: number
   lastSeen: number
 }

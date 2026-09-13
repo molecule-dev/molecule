@@ -26,8 +26,13 @@ export interface MolE2EPreviewPluginOptions {
 type Next = (err?: unknown) => void
 type Middleware = (req: IncomingMessage, res: ServerResponse, next: Next) => void
 
-const TAG =
-  `<script src="${E2E_CLIENT_PATH}" data-mol-e2e></script>` +
+/**
+ * The client and runtime tags. `data-base` carries the app's resolved Vite
+ * `base` ('/blog/'), which the client reports to the driver and announces to
+ * the IDE that frames the page, so navigation stays inside the app.
+ */
+const tags = (base: string): string =>
+  `<script src="${E2E_CLIENT_PATH}" data-mol-e2e data-base="${base}"></script>` +
   `<script src="${E2E_RUNTIME_PATH}" data-mol-e2e-runtime></script>`
 
 /**
@@ -38,10 +43,11 @@ const RUNTIME_SCRIPT = `;(${String(installE2ERuntime)})();`
 const RUNTIME_ETAG = `"mol-e2e-runtime-${E2E_RUNTIME_VERSION}"`
 
 /** Put the client and runtime tags at the top of `<head>` unless they are already there. */
-export const injectE2EClientTag = (html: string): string => {
+export const injectE2EClientTag = (html: string, base = '/'): string => {
   if (html.includes('data-mol-e2e')) return html
-  if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + TAG)
-  return TAG + html
+  const tag = tags(base)
+  if (/<head[^>]*>/i.test(html)) return html.replace(/<head[^>]*>/i, (m) => m + tag)
+  return tag + html
 }
 
 const serveClient: Middleware = (req, res, next) => {
@@ -68,53 +74,56 @@ const serveClient: Middleware = (req, res, next) => {
  * `vite preview` serves built files as-is, so the client is spliced into HTML
  * responses on the way out (navigations only — requests that accept HTML).
  */
-const injectIntoPreviewHtml: Middleware = (req, res, next) => {
-  if (req.method !== 'GET' && req.method !== 'HEAD') return next()
-  if (!String(req.headers.accept ?? '').includes('text/html')) return next()
-  const chunks: Buffer[] = []
-  let isHtml = false
-  const check = (): void => {
-    isHtml = String(res.getHeader('content-type') ?? '').includes('text/html')
-  }
-  const origSetHeader = res.setHeader.bind(res)
-  const origWriteHead = res.writeHead.bind(res)
-  const origWrite = res.write.bind(res)
-  const origEnd = res.end.bind(res)
-  res.setHeader = ((name: string, value: number | string | readonly string[]) => {
-    origSetHeader(name, value)
-    if (name.toLowerCase() === 'content-type') check()
-    return res
-  }) as typeof res.setHeader
-  res.writeHead = ((status: number, ...rest: unknown[]) => {
-    const headers = rest.find((r) => r && typeof r === 'object' && !Array.isArray(r)) as
-      Record<string, number | string | readonly string[]> | undefined
-    if (headers) for (const [k, v] of Object.entries(headers)) origSetHeader(k, v)
-    check()
-    if (isHtml) res.removeHeader('content-length')
-    const message = typeof rest[0] === 'string' ? rest[0] : undefined
-    return message ? origWriteHead(status, message) : origWriteHead(status)
-  }) as typeof res.writeHead
-  res.write = ((chunk: unknown, ...args: unknown[]) => {
-    check()
-    if (!isHtml) return (origWrite as (...a: unknown[]) => boolean)(chunk, ...args)
-    chunks.push(Buffer.from(chunk as string | Uint8Array))
-    const cb = args.find((a) => typeof a === 'function') as (() => void) | undefined
-    if (cb) cb()
-    return true
-  }) as typeof res.write
-  res.end = ((chunk?: unknown, ...args: unknown[]) => {
-    check()
-    if (!isHtml) return (origEnd as (...a: unknown[]) => ServerResponse)(chunk, ...args)
-    if (chunk && typeof chunk !== 'function') chunks.push(Buffer.from(chunk as string | Uint8Array))
-    const html = injectE2EClientTag(Buffer.concat(chunks).toString('utf8'))
-    if (!res.headersSent) {
-      res.removeHeader('content-length')
-      origSetHeader('content-length', Buffer.byteLength(html))
+const injectIntoPreviewHtml =
+  (base: string): Middleware =>
+  (req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next()
+    if (!String(req.headers.accept ?? '').includes('text/html')) return next()
+    const chunks: Buffer[] = []
+    let isHtml = false
+    const check = (): void => {
+      isHtml = String(res.getHeader('content-type') ?? '').includes('text/html')
     }
-    return origEnd(html)
-  }) as typeof res.end
-  next()
-}
+    const origSetHeader = res.setHeader.bind(res)
+    const origWriteHead = res.writeHead.bind(res)
+    const origWrite = res.write.bind(res)
+    const origEnd = res.end.bind(res)
+    res.setHeader = ((name: string, value: number | string | readonly string[]) => {
+      origSetHeader(name, value)
+      if (name.toLowerCase() === 'content-type') check()
+      return res
+    }) as typeof res.setHeader
+    res.writeHead = ((status: number, ...rest: unknown[]) => {
+      const headers = rest.find((r) => r && typeof r === 'object' && !Array.isArray(r)) as
+        Record<string, number | string | readonly string[]> | undefined
+      if (headers) for (const [k, v] of Object.entries(headers)) origSetHeader(k, v)
+      check()
+      if (isHtml) res.removeHeader('content-length')
+      const message = typeof rest[0] === 'string' ? rest[0] : undefined
+      return message ? origWriteHead(status, message) : origWriteHead(status)
+    }) as typeof res.writeHead
+    res.write = ((chunk: unknown, ...args: unknown[]) => {
+      check()
+      if (!isHtml) return (origWrite as (...a: unknown[]) => boolean)(chunk, ...args)
+      chunks.push(Buffer.from(chunk as string | Uint8Array))
+      const cb = args.find((a) => typeof a === 'function') as (() => void) | undefined
+      if (cb) cb()
+      return true
+    }) as typeof res.write
+    res.end = ((chunk?: unknown, ...args: unknown[]) => {
+      check()
+      if (!isHtml) return (origEnd as (...a: unknown[]) => ServerResponse)(chunk, ...args)
+      if (chunk && typeof chunk !== 'function')
+        chunks.push(Buffer.from(chunk as string | Uint8Array))
+      const html = injectE2EClientTag(Buffer.concat(chunks).toString('utf8'), base)
+      if (!res.headersSent) {
+        res.removeHeader('content-length')
+        origSetHeader('content-length', Buffer.byteLength(html))
+      }
+      return origEnd(html)
+    }) as typeof res.end
+    next()
+  }
 
 /**
  * The Vite plugin every scaffolded app carries (through its scaffold-owned
@@ -123,8 +132,13 @@ const injectIntoPreviewHtml: Middleware = (req, res, next) => {
  */
 export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): Plugin {
   const enabled = options.enabled ?? process.env['MOL_E2E_PREVIEW_PLUGIN'] !== '0'
+  /** The app's base path from the resolved config — '/blog/' when the site is served under one. */
+  let base = '/'
   return {
     name: 'molecule:e2e-preview',
+    configResolved(config) {
+      base = config.base || '/'
+    },
     configureServer(server) {
       if (!enabled) return
       if (server.httpServer) attachE2EHub(server.httpServer)
@@ -134,7 +148,7 @@ export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): P
       if (!enabled) return
       if (server.httpServer) attachE2EHub(server.httpServer)
       server.middlewares.use(serveClient)
-      server.middlewares.use(injectIntoPreviewHtml)
+      server.middlewares.use(injectIntoPreviewHtml(base))
     },
     transformIndexHtml: {
       order: 'pre',
@@ -145,7 +159,7 @@ export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): P
           tags: [
             {
               tag: 'script',
-              attrs: { src: E2E_CLIENT_PATH, 'data-mol-e2e': '' },
+              attrs: { src: E2E_CLIENT_PATH, 'data-mol-e2e': '', 'data-base': base },
               injectTo: 'head-prepend',
             },
             {

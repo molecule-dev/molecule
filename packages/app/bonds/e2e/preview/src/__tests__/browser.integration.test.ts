@@ -17,10 +17,13 @@ import { connectPreview, listPreviewPages } from '../provider.js'
 import { attachE2EHub, type E2EHub } from '../server.js'
 import { E2E_CLIENT_PATH } from '../types.js'
 
-const html = (title: string, body: string): string =>
-  `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><script src="${E2E_CLIENT_PATH}"></script></head><body>${body}</body></html>`
+const html = (title: string, body: string, base = ''): string =>
+  `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title><script src="${E2E_CLIENT_PATH}"${base ? ` data-base="${base}"` : ''}></script></head><body>${body}</body></html>`
 
 const PAGES: Record<string, string> = {
+  // An app served under a base path: the plugin tags the client with it.
+  '/blog/': html('Blog home', `<h1>Blog</h1><a href="/blog/about">About</a>`, '/blog/'),
+  '/blog/about': html('Blog about', `<h1>About the blog</h1>`, '/blog/'),
   '/': html(
     'Home',
     `<h1>Field Notes</h1>
@@ -169,6 +172,28 @@ describe('the preview bond in a real browser', () => {
       )
     } finally {
       await page.close()
+    }
+  }, 30_000)
+
+  it('knows the app base path: reports it, refuses a goto outside it, follows one inside it', async ({
+    skip,
+  }) => {
+    if (!browserAvailable) skip()
+    await tab!.goto(`http://127.0.0.1:${port}/blog/`)
+    const page = await connectPreview({ port, connectTimeout: 5_000, timeout: 3_000 })
+    try {
+      const pages = await listPreviewPages({ port, connectTimeout: 5_000 })
+      expect(pages.map((p) => p.base)).toContain('/blog/')
+      // Outside the base the dev server would answer with a hint page carrying no
+      // client — the page refuses at once and names the base instead.
+      await expect(page.goto('/about')).rejects.toThrow(/outside the app's base path \/blog\//)
+      await expect(page.goto(`http://localhost:${port}/about`)).rejects.toThrow(/\/blog\/about/)
+      await page.goto('/blog/about')
+      await expect(page).toHaveTitle('Blog about')
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('About the blog')
+    } finally {
+      await page.close()
+      await tab!.goto(`http://127.0.0.1:${port}/`)
     }
   }, 30_000)
 })

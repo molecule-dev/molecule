@@ -178,6 +178,7 @@ class HubClient {
         title: String(msg.title ?? ''),
         hidden: Boolean(msg.hidden),
         framed: Boolean(msg.framed),
+        base: typeof msg.base === 'string' && msg.base ? msg.base : '/',
         connectedAt: Number(msg.connectedAt ?? Date.now()),
         lastSeen: Date.now(),
       })
@@ -346,13 +347,18 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
       await new Promise((r) => setTimeout(r, 100))
     }
   }
-  /** Resolve when the current page is replaced by a new document (or changed its URL in place). */
+  /**
+   * Resolve when the current page is replaced by a new document (or changed
+   * its URL in place). `cancel` stands the wait down without an error — for a
+   * navigation the page refused before it began (a path outside its base).
+   */
   const awaitNavigation = (
     previous: string,
     timeout: number,
     graceForNoop: number | null,
-  ): Promise<void> =>
-    new Promise((resolve, reject) => {
+  ): { promise: Promise<void>; cancel: () => void } => {
+    let cancel = (): void => {}
+    const promise = new Promise<void>((resolve, reject) => {
       let done = false
       const finish = (fn: () => void): void => {
         if (done) return
@@ -363,6 +369,7 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
         offNav()
         fn()
       }
+      cancel = () => finish(resolve)
       const timer = setTimeout(
         () =>
           finish(() =>
@@ -387,6 +394,8 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
         finish(resolve)
       })
     })
+    return { promise, cancel }
+  }
 
   const transport: E2ETransport = {
     async evaluate(source, arg, opts) {
@@ -398,7 +407,7 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
           String(reply.pageId ?? hub.current ?? ''),
           navigationTimeout,
           null,
-        ).catch(() => undefined)
+        ).promise.catch(() => undefined)
         return { ok: true, navigated: true }
       }
       if (reply.ok === false) throw new Error(String(reply.error ?? 'evaluate failed'))
@@ -422,10 +431,11 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
         (error: Error): Dict => ({ ok: false, error: error.message }),
       )
       if (reply.ok === false && !reply.pageClosed) {
-        await pending.catch(() => undefined)
+        // The page refused before navigating (a path outside its base): nothing to wait for.
+        pending.cancel()
         throw new Error(`page.${kind === 'goto' ? 'goto' : kind}(): ${String(reply.error)}`)
       }
-      await pending
+      await pending.promise
       await settle(timeout)
     },
     async viewport(width, height): Promise<E2EViewport> {

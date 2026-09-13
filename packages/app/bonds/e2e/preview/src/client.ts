@@ -16,6 +16,9 @@ import { E2E_WS_PATH } from './types.js'
 export const E2E_PREVIEW_CLIENT_SCRIPT = `;(function () {
   if (window.__molE2EClient) return
   var PATH = ${JSON.stringify(E2E_WS_PATH)}
+  // The app's base path, from the plugin's resolved Vite config ('/blog/'); '/' when none.
+  var BASE = (document.currentScript && document.currentScript.getAttribute('data-base')) || '/'
+  if (BASE.charAt(BASE.length - 1) !== '/') BASE += '/'
   var proto = location.protocol === 'https:' ? 'wss://' : 'ws://'
   var pageId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + '-' + String(Math.random()).slice(2)
   var ws = null
@@ -62,6 +65,13 @@ export const E2E_PREVIEW_CLIENT_SCRIPT = `;(function () {
         })
       } else if (msg.op === 'goto') {
         var target = sameOrigin(msg.url)
+        var targetPath = new URL(target).pathname
+        if (BASE !== '/' && new URL(target).origin === location.origin && targetPath.indexOf(BASE) !== 0 && targetPath + '/' !== BASE) {
+          // Outside the app's base the dev server answers with a hint page that carries no
+          // app and no client: fail now, naming the base, instead of timing out on it.
+          reply({ ok: false, error: 'page.goto(' + JSON.stringify(msg.url) + '): the path ' + targetPath + ' is outside the app\\'s base path ' + BASE + ' — every URL of this app starts with ' + BASE + ' (try ' + BASE + targetPath.replace(/^\\//, '') + ')' })
+          return
+        }
         reply({ ok: true, navigating: true, target: target })
         leaving = true
         if (target === location.href) location.reload()
@@ -92,7 +102,13 @@ export const E2E_PREVIEW_CLIENT_SCRIPT = `;(function () {
     }
   }
   var hello = function () {
-    send({ hello: true, id: pageId, href: location.href, title: document.title, readyState: document.readyState, innerWidth: innerWidth, innerHeight: innerHeight, hidden: document.hidden, framed: window.parent !== window })
+    send({ hello: true, id: pageId, href: location.href, title: document.title, readyState: document.readyState, innerWidth: innerWidth, innerHeight: innerHeight, hidden: document.hidden, framed: window.parent !== window, base: BASE })
+  }
+  // Tell the IDE that frames this page where the app lives, so its own navigation
+  // stays inside the base path without anyone typing it into a settings panel.
+  var announceBase = function () {
+    if (window.parent === window) return
+    try { window.parent.postMessage({ type: 'molecule:base', base: BASE, href: location.href }, '*') } catch (e) {}
   }
   var connect = function () {
     if (leaving) return
@@ -141,7 +157,8 @@ export const E2E_PREVIEW_CLIENT_SCRIPT = `;(function () {
   wrapHistory('replaceState')
   document.addEventListener('visibilitychange', function () { send({ event: 'visibility', hidden: document.hidden, href: location.href }) })
   window.addEventListener('pagehide', function () { leaving = true; try { if (ws) ws.close() } catch (e) {} })
-  window.__molE2EClient = { pageId: pageId, version: 1 }
+  window.__molE2EClient = { pageId: pageId, version: 1, base: BASE }
+  announceBase()
   connect()
 })()
 `

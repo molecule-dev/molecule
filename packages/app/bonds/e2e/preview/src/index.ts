@@ -64,6 +64,13 @@
  * - **URLs.** `page.goto('/path')` navigates the previewed page relative to
  *   ITS origin; an absolute `http://localhost:<port>/path` is rewritten to the
  *   same path there, so specs written for a local base URL run unchanged.
+ * - **Base path.** An app served under a base (Vite `base: '/blog/'`) has
+ *   every URL under it; the page knows its base (the plugin tags the client
+ *   with it) and a `goto` outside it fails at once naming the base, instead
+ *   of landing on the dev server's "did you mean /blog/…" page — which has
+ *   no app and no client, so nothing there can be driven. The page also
+ *   announces the base to the IDE that frames it (`molecule:base`), so the
+ *   IDE's own navigation stays inside the app.
  * - **Viewport.** `page.setViewportSize` posts `molecule:viewport` to the
  *   framing IDE, which resizes the frame; in a plain tab the size cannot
  *   change and the call throws (the configured project viewport is applied

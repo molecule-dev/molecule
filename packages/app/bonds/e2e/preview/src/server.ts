@@ -106,6 +106,7 @@ export const attachE2EHub = (
       title: '',
       hidden: false,
       framed: false,
+      base: '/',
       connectedAt: Date.now(),
       lastSeen: Date.now(),
     }
@@ -130,6 +131,7 @@ export const attachE2EHub = (
         peer.title = String(msg.title ?? '')
         peer.hidden = Boolean(msg.hidden)
         peer.framed = Boolean(msg.framed)
+        peer.base = typeof msg.base === 'string' && msg.base ? String(msg.base) : '/'
         pages.set(id, { peer, ws })
         announced = true
         broadcast({
