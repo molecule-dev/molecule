@@ -74,7 +74,7 @@ const serveClient: Middleware = (req, res, next) => {
  * `vite preview` serves built files as-is, so the client is spliced into HTML
  * responses on the way out (navigations only — requests that accept HTML).
  */
-const injectIntoPreviewHtml =
+const injectIntoHtmlResponses =
   (base: string): Middleware =>
   (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next()
@@ -139,16 +139,27 @@ export function molE2EPreviewPlugin(options: MolE2EPreviewPluginOptions = {}): P
     configResolved(config) {
       base = config.base || '/'
     },
+    // Before every other plugin's server hooks: the HTML injector below wraps the
+    // response, so it has to be installed before any middleware that ends one.
+    enforce: 'pre',
     configureServer(server) {
       if (!enabled) return
       if (server.httpServer) attachE2EHub(server.httpServer)
       server.middlewares.use(serveClient)
+      // `transformIndexHtml` below only sees HTML that Vite itself serves. An
+      // app that renders pages from its own dev middleware — a static-site
+      // generator's post routes, an SSR handler — sends HTML this hook never
+      // touches, and those pages loaded in the preview with no client: the hub
+      // listed zero pages while the tab showed the app (X0 R65). Every HTML
+      // response the dev server sends gets the tags; the index, already tagged
+      // by the hook, is left alone.
+      server.middlewares.use(injectIntoHtmlResponses(base))
     },
     configurePreviewServer(server) {
       if (!enabled) return
       if (server.httpServer) attachE2EHub(server.httpServer)
       server.middlewares.use(serveClient)
-      server.middlewares.use(injectIntoPreviewHtml(base))
+      server.middlewares.use(injectIntoHtmlResponses(base))
     },
     transformIndexHtml: {
       order: 'pre',

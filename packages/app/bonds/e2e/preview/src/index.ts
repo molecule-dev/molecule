@@ -40,6 +40,11 @@
  * ```
  *
  * @remarks
+ * - **Every page the dev server sends is a page the driver can see.** The
+ *   plugin puts its client into every HTML response — Vite's own index and
+ *   the HTML an app renders from its own dev middleware alike (a static-site
+ *   generator's post routes, an SSR handler). A page the preview shows is a
+ *   page the hub lists; if it is not, the app is bypassing the dev server.
  * - **Someone must be looking.** The renderer is a browser tab showing the
  *   preview. `connect()` waits (30s by default) for a page to be connected
  *   and then fails with a message saying to open the preview in the IDE or
