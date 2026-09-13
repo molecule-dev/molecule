@@ -40,4 +40,13 @@ export interface CSSVariablesThemeConfig {
    * Provide an adapter for React Native (AsyncStorage wrapper) or custom stores.
    */
   storage?: ThemeStorageAdapter
+  /**
+   * With no persisted choice, start on the theme whose `mode` matches the
+   * OS preference (`prefers-color-scheme`) instead of `defaultTheme`.
+   * Browser-only: a render without a window — a server, a build-time
+   * prerender — starts on `defaultTheme`, which `getServerTheme()` reports
+   * so a hydrating client renders the markup it was sent before switching.
+   * Default: false.
+   */
+  systemDefault?: boolean
 }

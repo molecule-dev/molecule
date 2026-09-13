@@ -479,3 +479,77 @@ describe('createCSSVariablesThemeProvider', () => {
     })
   })
 })
+
+describe('systemDefault + getServerTheme', () => {
+  const matchMediaPreferring = (dark: boolean) =>
+    vi.fn((query: string) => ({ matches: dark && query.includes('dark') }))
+
+  it('starts on the theme whose mode matches the OS preference when nothing is persisted', () => {
+    vi.stubGlobal('document', makeDocumentStub())
+    vi.stubGlobal('matchMedia', matchMediaPreferring(true))
+    const provider = createCSSVariablesThemeProvider({
+      themes: [lightTheme, darkTheme],
+      defaultTheme: 'light',
+      systemDefault: true,
+    })
+    expect(provider.getTheme().name).toBe('dark')
+  })
+
+  it('stays on defaultTheme when the OS prefers light, and when systemDefault is off', () => {
+    vi.stubGlobal('document', makeDocumentStub())
+    vi.stubGlobal('matchMedia', matchMediaPreferring(false))
+    expect(
+      createCSSVariablesThemeProvider({
+        themes: [lightTheme, darkTheme],
+        defaultTheme: 'light',
+        systemDefault: true,
+      }).getTheme().name,
+    ).toBe('light')
+    vi.stubGlobal('matchMedia', matchMediaPreferring(true))
+    expect(
+      createCSSVariablesThemeProvider({
+        themes: [lightTheme, darkTheme],
+        defaultTheme: 'light',
+      }).getTheme().name,
+    ).toBe('light')
+  })
+
+  it('a persisted choice wins over the OS preference', () => {
+    vi.stubGlobal('document', makeDocumentStub())
+    vi.stubGlobal('matchMedia', matchMediaPreferring(true))
+    const provider = createCSSVariablesThemeProvider({
+      themes: [lightTheme, darkTheme],
+      defaultTheme: 'light',
+      systemDefault: true,
+      persistKey: 'k',
+      storage: { getItem: () => 'light', setItem: () => {} },
+    })
+    expect(provider.getTheme().name).toBe('light')
+  })
+
+  it('getServerTheme is defaultTheme whatever the browser restored or prefers', () => {
+    vi.stubGlobal('document', makeDocumentStub())
+    vi.stubGlobal('matchMedia', matchMediaPreferring(true))
+    const provider = createCSSVariablesThemeProvider({
+      themes: [lightTheme, darkTheme],
+      defaultTheme: 'light',
+      systemDefault: true,
+      persistKey: 'k',
+      storage: { getItem: () => 'dark', setItem: () => {} },
+    })
+    expect(provider.getTheme().name).toBe('dark')
+    expect(provider.getServerTheme?.().name).toBe('light')
+  })
+
+  it('without a window (a server or build-time render) the theme is defaultTheme', () => {
+    vi.stubGlobal('document', makeDocumentStub())
+    vi.stubGlobal('matchMedia', undefined)
+    const provider = createCSSVariablesThemeProvider({
+      themes: [lightTheme, darkTheme],
+      defaultTheme: 'light',
+      systemDefault: true,
+    })
+    expect(provider.getTheme().name).toBe('light')
+    expect(provider.getServerTheme?.().name).toBe('light')
+  })
+})

@@ -49,6 +49,16 @@ export interface ThemeProvider {
    * support multiple themes.
    */
   getThemes?(): Theme[]
+
+  /**
+   * Returns the theme a render WITHOUT a browser produces — a server or
+   * build-time render, which has no storage and no `prefers-color-scheme`
+   * to read. A hydrating client renders this theme first, so its markup
+   * matches what the server sent, and switches to `getTheme()` right
+   * after. Optional — a provider whose theme cannot differ between the two
+   * need not implement it.
+   */
+  getServerTheme?(): Theme
 }
 
 const BOND_TYPE = 'theme'

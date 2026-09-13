@@ -147,7 +147,14 @@ function applyThemeToDocument(themes: Theme[], activeTheme: Theme, prefix: strin
  * @returns A ThemeProvider that applies themes as CSS custom properties on the document root.
  */
 export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig): ThemeProvider {
-  const { themes, defaultTheme, prefix = 'mol', applyToDocument = true, persistKey } = config
+  const {
+    themes,
+    defaultTheme,
+    prefix = 'mol',
+    applyToDocument = true,
+    persistKey,
+    systemDefault = false,
+  } = config
 
   // If a persistKey is set without an explicit storage adapter, fall back to
   // window.localStorage. The previous behavior — persistKey but no storage =
@@ -172,15 +179,32 @@ export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig)
         }
       : undefined)
 
-  let currentTheme: Theme = themes.find((t) => t.name === defaultTheme) || themes[0]
+  // What a render without a browser starts on — no storage, no media query.
+  const serverTheme: Theme = themes.find((t) => t.name === defaultTheme) || themes[0]
+  let currentTheme: Theme = serverTheme
 
   const listeners = new Set<(theme: Theme) => void>()
 
   // Try to restore from storage adapter
+  let restored = false
   if (persistKey && storage) {
     const saved = storage.getItem(persistKey)
     if (saved) {
       const found = themes.find((t) => t.name === saved)
+      if (found) {
+        currentTheme = found
+        restored = true
+      }
+    }
+  }
+
+  // Nothing persisted: follow the OS preference when asked to (browser only).
+  if (!restored && systemDefault) {
+    const matchMedia = (globalThis as { matchMedia?: (query: string) => { matches: boolean } })
+      .matchMedia
+    if (typeof matchMedia === 'function') {
+      const mode = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      const found = themes.find((t) => t.mode === mode)
       if (found) currentTheme = found
     }
   }
@@ -227,6 +251,10 @@ export function createCSSVariablesThemeProvider(config: CSSVariablesThemeConfig)
 
     getThemes(): Theme[] {
       return themes
+    },
+
+    getServerTheme(): Theme {
+      return serverTheme
     },
   }
 

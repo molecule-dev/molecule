@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 
-import { act, renderHook, waitFor } from '@testing-library/react'
+import { act, render, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import React from 'react'
+import { renderToString } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { AuthClient, AuthState } from '@molecule/app-auth'
@@ -449,6 +450,65 @@ describe('useTheme', () => {
     })
 
     expect(result.current.themeName).toBe('dark')
+  })
+
+  // A static site prerenders on a server that reads no storage and no OS
+  // preference, then hydrates in a browser that reads both. The hook must
+  // render the server's theme while hydrating — the markup it was sent — and
+  // switch afterwards, or React logs a mismatch and (for text) throws the
+  // server markup away.
+  it('hydrates with the server theme, then switches to the live one, without a mismatch', async () => {
+    const light = createMockThemeProvider().getTheme()
+    const dark: Theme = { ...light, name: 'dark', mode: 'dark' }
+    const serverProvider = {
+      getTheme: () => light,
+      getServerTheme: () => light,
+      setTheme: () => {},
+      toggleMode: () => {},
+      subscribe: () => () => {},
+    } as unknown as ThemeProviderType
+    const clientProvider = {
+      getTheme: () => dark,
+      getServerTheme: () => light,
+      setTheme: () => {},
+      toggleMode: () => {},
+      subscribe: () => () => {},
+    } as unknown as ThemeProviderType
+    const Mode = (): React.JSX.Element => {
+      const { mode, themeName } = useTheme()
+      return (
+        <span data-mode={mode}>
+          {mode}
+          {themeName}
+        </span>
+      )
+    }
+    const html = renderToString(
+      <ThemeProvider provider={serverProvider}>
+        <Mode />
+      </ThemeProvider>,
+    )
+    expect(html).toContain('data-mode="light"')
+    const container = document.createElement('div')
+    container.innerHTML = html
+    document.body.appendChild(container)
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      render(
+        <ThemeProvider provider={clientProvider}>
+          <Mode />
+        </ThemeProvider>,
+        { container, hydrate: true },
+      )
+      await waitFor(() =>
+        expect(container.querySelector('span')?.getAttribute('data-mode')).toBe('dark'),
+      )
+      expect(container.querySelector('span')?.textContent).toBe('darkdark')
+      expect(consoleError).not.toHaveBeenCalled()
+    } finally {
+      consoleError.mockRestore()
+      container.remove()
+    }
   })
 })
 
