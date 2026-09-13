@@ -74,6 +74,20 @@ describe('molE2EPreviewPlugin on a dev server', () => {
     expect(index).toContain('data-base="/blog/"')
   })
 
+  // X0 R68: Vite prefixes the hook-injected tag's src with the base, and the
+  // base-prefixed path fell through to the SPA fallback — index.html served as
+  // the client script, so no page ever connected under a base path.
+  it('serves the client and runtime under the base path the tag actually uses', async () => {
+    const index = await html('/blog/')
+    const src = index.match(/<script src="([^"]*e2e-client\.js)"/)?.[1]
+    expect(src, 'the tag names the client').toBeTruthy()
+    const res = await fetch(origin + src)
+    expect(res.headers.get('content-type')).toContain('text/javascript')
+    expect(await res.text()).toContain('__molE2EClient')
+    const rt = await fetch(origin + '/blog/__mol/e2e-runtime.js')
+    expect(rt.headers.get('content-type')).toContain('text/javascript')
+  })
+
   it('leaves non-HTML responses alone', async () => {
     const res = await fetch(origin + '/blog/data.json', { headers: { accept: 'text/html' } })
     expect(await res.text()).toBe('{"ok":true}')

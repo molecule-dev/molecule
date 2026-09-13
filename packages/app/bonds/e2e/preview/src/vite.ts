@@ -51,7 +51,15 @@ export const injectE2EClientTag = (html: string, base = '/'): string => {
 }
 
 const serveClient: Middleware = (req, res, next) => {
-  const path = (req.url ?? '').split('?')[0]
+  const rawPath = (req.url ?? '').split('?')[0]
+  // Vite prefixes the hook-injected tag's src with the app's base
+  // (`/blog/__mol/e2e-client.js`), and a request for that path used to fall
+  // through to the SPA fallback: index.html served as text/html, executed as a
+  // script, a syntax error, no client on the page — the hub listed zero pages
+  // for every app served under a base path (X0 R63–R68). Answer the client and
+  // runtime paths under any base.
+  const path =
+    [E2E_RUNTIME_PATH, E2E_CLIENT_PATH].find((p) => rawPath === p || rawPath.endsWith(p)) ?? rawPath
   if (path === E2E_RUNTIME_PATH) {
     res.setHeader('etag', RUNTIME_ETAG)
     res.setHeader('cache-control', 'no-cache')
