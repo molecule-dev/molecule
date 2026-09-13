@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.5.0
+
+### Minor Changes
+
+- 740234e: Adds translations for the chat's `/timestamps` confirmations.
+
 ## 1.4.0
 
 ### Minor Changes
