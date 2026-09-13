@@ -679,6 +679,22 @@ describe('buildTools', () => {
     expect(result.exitCode).toBe(124)
     expect(result.error).toMatch(/stopped after 290s/)
     expect(result.error).toMatch(/one test file/)
+    expect(result.error).not.toMatch(/tail\/head/)
+
+    // A pipe through tail/head buffers EVERYTHING until the command ends, so an
+    // overrun hands back nothing at all (X0 R64: `… | tail -40` → empty stdout,
+    // exit 124). The error has to say so, or the model retries the same pipe.
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: '',
+      stderr: '',
+      exitCode: 124,
+    })
+    const piped = (await execCmd.execute({
+      command: 'cd app && npx playwright test 2>&1 | tail -40',
+    })) as { stdout: string; exitCode: number; error?: string }
+    expect(piped.stdout).toBe('')
+    expect(piped.error).toMatch(/pipe through tail\/head holds everything back/)
+    expect(piped.error).toMatch(/run it without the pipe/)
   })
 })
 

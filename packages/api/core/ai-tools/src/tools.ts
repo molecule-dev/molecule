@@ -580,8 +580,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             exitCode: result.exitCode,
             error:
               `The command was stopped after ${budgetSeconds}s, this tool's limit; the output above is ` +
-              'everything it printed until then. Run a smaller unit per command (one test file, one ' +
-              'build step) instead of chaining a build and a whole suite.',
+              'everything it printed until then' +
+              (/\|\s*(tail|head)\b/.test(command)
+                ? ' — and a pipe through tail/head holds everything back until the command ends, so it printed nothing: run it without the pipe (use a line reporter and let the output stream)'
+                : '') +
+              '. Run a smaller unit per command (one test file, one build step) instead of chaining ' +
+              'a build and a whole suite.',
           }
         }
         return { stdout, stderr, exitCode: result.exitCode }
