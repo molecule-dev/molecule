@@ -20,7 +20,9 @@ import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestam
 import { SETTINGS } from '../settings-metadata.js'
 
 const MINUTE = 60_000
-const NOW = Date.UTC(2026, 8, 13, 12, 0, 0)
+// Local noon, so "earlier today" / "another day" do not depend on the runner's time zone.
+const NOW = new Date(2026, 8, 13, 12, 0, 0).getTime()
+const HOUR = 60 * MINUTE
 
 /**
  * A working in-memory Storage (Node's experimental web-storage shadows jsdom's).
@@ -81,16 +83,24 @@ describe('parseTimestampsCommand', () => {
 })
 
 describe('formatChatRelativeTime', () => {
-  it('uses relative units under a week', () => {
+  it('uses relative minutes within the hour', () => {
     expect(formatChatRelativeTime(NOW - 10_000, NOW, 'en')).toBe('now')
     expect(formatChatRelativeTime(NOW - 5 * MINUTE, NOW, 'en')).toBe('5 minutes ago')
-    expect(formatChatRelativeTime(NOW - 2 * 60 * MINUTE, NOW, 'en')).toBe('2 hours ago')
-    expect(formatChatRelativeTime(NOW - 3 * 24 * 60 * MINUTE, NOW, 'en')).toBe('3 days ago')
+    expect(formatChatRelativeTime(NOW - 59 * MINUTE, NOW, 'en')).toBe('59 minutes ago')
   })
 
-  it('switches to the calendar date once a week old, adding the year only when it differs', () => {
-    expect(formatChatRelativeTime(Date.UTC(2026, 7, 1, 12), NOW, 'en')).toBe('Aug 1')
-    expect(formatChatRelativeTime(Date.UTC(2025, 7, 1, 12), NOW, 'en')).toBe('Aug 1, 2025')
+  it('uses the clock time for earlier today — never a coarse "N hours ago"', () => {
+    expect(formatChatRelativeTime(NOW - HOUR, NOW, 'en')).toBe('11:00 AM')
+    expect(formatChatRelativeTime(NOW - 2 * HOUR - 35 * MINUTE, NOW, 'en')).toBe('9:25 AM')
+  })
+
+  it('uses the date and time for another day, adding the year only when it differs', () => {
+    expect(formatChatRelativeTime(new Date(2026, 8, 12, 9, 25).getTime(), NOW, 'en')).toBe(
+      'Sep 12, 9:25 AM',
+    )
+    expect(formatChatRelativeTime(new Date(2025, 7, 1, 14, 5).getTime(), NOW, 'en')).toBe(
+      'Aug 1, 2025, 2:05 PM',
+    )
   })
 
   it('localizes through Intl', () => {
@@ -125,6 +135,15 @@ describe('planChatTimestamps', () => {
   it('collapses against the last RENDERED label, skipping hidden and empty slots', () => {
     const slots = [slot('user1', 3, true), slot('reply', 1), null, slot('user2', 3, true)]
     expect(plan(slots, false)).toEqual(['user1'])
+  })
+
+  it('never collapses an hour of history into one label (minute-precise at every age)', () => {
+    // A long build an hour ago: one item a minute from 9:25 to 9:43 — each minute
+    // is its own label, so each renders (a coarse "1 hour ago" showed only the first).
+    const slots = Array.from({ length: 19 }, (_, i) => slot(`m${i}`, 155 - i))
+    expect(plan(slots, true)).toHaveLength(19)
+    // Same-minute items still collapse to the first.
+    expect(plan([slot('x', 155), slot('y', 154.9)], true)).toEqual(['x'])
   })
 
   it('regroups as the clock advances', () => {

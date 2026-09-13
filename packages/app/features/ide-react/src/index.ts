@@ -64,8 +64,10 @@
  * - Chat timestamps are a PER-DEVICE preference in localStorage, OFF by
  *   default — not a `ChatPanel` prop or project setting. Off, only the user's
  *   own message headers and critical events show a time; on, every message and
- *   event card does. A run of items with the same label ("3 minutes ago") shows
- *   it once, at the top, and labels advance each minute. A host settings screen
+ *   event card does. Labels are minute-precise at every age ("3 minutes ago",
+ *   then "9:25 AM", then "Sep 12, 9:25 AM") and advance each minute; a run of
+ *   items with the same label shows it once, at the top, so only same-minute
+ *   runs collapse. A host settings screen
  *   toggles it with `setChatTimestampsVisible(bool)` and reads it with
  *   `useChatTimestampsVisible()`; `/timestamps [on | off]` writes the same value.
  * - A custom card is a critical event only when its factory sets

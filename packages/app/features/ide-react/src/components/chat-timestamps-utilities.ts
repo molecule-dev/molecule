@@ -147,13 +147,16 @@ export function parseTimestampsCommand(input: string): TimestampsCommand | null 
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
-const DAY = 24 * HOUR
 
 /**
- * Short, localized relative time for a chat item: "now", "5 minutes ago",
- * "2 hours ago", "3 days ago" — then the calendar date once it is a week old,
- * where a day count stops being useful. Localized by `Intl`, so it needs no
- * translation keys.
+ * Short, localized, MINUTE-precise time for a chat item: "now" and "5 minutes
+ * ago" within the hour, then the clock time ("9:25 AM") for earlier today, then
+ * the date and time ("Sep 12, 9:25 AM", with the year when it differs).
+ *
+ * Minute precision at every age is load-bearing: {@link planChatTimestamps}
+ * collapses runs of identical labels, so a coarse label ("1 hour ago", "3 days
+ * ago") would collapse a whole hour or day of history into one timestamp.
+ * Localized by `Intl`, so it needs no translation keys.
  *
  * @param ms - Epoch milliseconds of the item.
  * @param now - Epoch milliseconds to measure from.
@@ -162,19 +165,24 @@ const DAY = 24 * HOUR
  */
 export function formatChatRelativeTime(ms: number, now: number, locale: string): string {
   const elapsed = Math.max(0, now - ms)
-  if (elapsed >= 7 * DAY) {
-    const sameYear = new Date(ms).getFullYear() === new Date(now).getFullYear()
-    return new Intl.DateTimeFormat(locale, {
-      month: 'short',
-      day: 'numeric',
-      ...(sameYear ? {} : { year: 'numeric' }),
-    }).format(ms)
+  if (elapsed < HOUR) {
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+    return elapsed < MINUTE
+      ? rtf.format(0, 'second')
+      : rtf.format(-Math.floor(elapsed / MINUTE), 'minute')
   }
-  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
-  if (elapsed < MINUTE) return rtf.format(0, 'second')
-  if (elapsed < HOUR) return rtf.format(-Math.floor(elapsed / MINUTE), 'minute')
-  if (elapsed < DAY) return rtf.format(-Math.floor(elapsed / HOUR), 'hour')
-  return rtf.format(-Math.floor(elapsed / DAY), 'day')
+  const then = new Date(ms)
+  const current = new Date(now)
+  const clock = { hour: 'numeric', minute: '2-digit' } as const
+  if (then.toDateString() === current.toDateString()) {
+    return new Intl.DateTimeFormat(locale, clock).format(ms)
+  }
+  return new Intl.DateTimeFormat(locale, {
+    ...clock,
+    month: 'short',
+    day: 'numeric',
+    ...(then.getFullYear() === current.getFullYear() ? {} : { year: 'numeric' }),
+  }).format(ms)
 }
 
 /**
