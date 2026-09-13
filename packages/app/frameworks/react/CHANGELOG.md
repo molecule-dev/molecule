@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.4.3
+
+### Patch Changes
+
+- 73962e5: `useTheme()` hydrates with the provider's server theme and switches to the live one after, so a persisted or OS-preferred theme no longer causes a hydration mismatch on prerendered pages.
+
 ## 1.4.2
 
 ### Patch Changes

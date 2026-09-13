@@ -1,5 +1,11 @@
 # @molecule/app-theme
 
+## 1.0.2
+
+### Patch Changes
+
+- 73962e5: `ThemeProvider.getServerTheme()` (optional): the theme a render without a browser produces, so a hydrating client can render the markup it was sent before switching to the live theme.
+
 ## 1.0.1
 
 ### Patch Changes

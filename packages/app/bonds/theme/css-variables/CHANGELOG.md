@@ -1,5 +1,11 @@
 # @molecule/app-theme-css-variables
 
+## 1.0.2
+
+### Patch Changes
+
+- 73962e5: `systemDefault` option: with no persisted choice, start on the theme whose mode matches the OS preference; `getServerTheme()` reports `defaultTheme` for server and build-time renders.
+
 ## 1.0.1
 
 ### Patch Changes
