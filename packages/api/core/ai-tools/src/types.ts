@@ -83,6 +83,16 @@ export interface ToolBuildConfig {
   execTimeoutMs?: number
 
   /**
+   * Budget (ms) enforced INSIDE the sandbox for a single `exec_command`: the
+   * command runs under `timeout`, so when it overruns it is stopped and the
+   * tool still returns everything it printed until then (exit code 124 plus
+   * an `error` naming the limit). Without this, an outer per-tool timeout
+   * races the run and discards minutes of build or test output along with
+   * the result. Set it a little under that outer timeout. Unset = no wrapper.
+   */
+  commandBudgetMs?: number
+
+  /**
    * Directory names `search_files` and `find_files` skip (VS Code
    * `search.exclude` semantics). Defaults to `DEFAULT_SEARCH_EXCLUDED_DIRS`
    * (node_modules, VCS dirs, build output). Pass the consumer's per-project

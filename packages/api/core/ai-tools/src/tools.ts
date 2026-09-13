@@ -49,6 +49,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     blockDangerousCommands = false,
     blockCommand,
     execTimeoutMs = 120_000,
+    commandBudgetMs,
     searchExcludedDirs,
     onAfterWrite,
     onFileDiff,
@@ -556,12 +557,31 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       try {
         // exec_command runs installs/builds/tests — the old 30s hardcap killed
         // those spuriously; use the (generous, caller-configurable) budget.
-        const result = await backend.run(command, { cwd, timeout: execTimeoutMs })
+        // With a command budget, the command runs under `timeout` inside the
+        // sandbox: an overrun is stopped there (the whole process group) and
+        // everything printed until then comes back with exit code 124, instead
+        // of an outer timeout discarding the run and its output together.
+        const budgetSeconds = commandBudgetMs ? Math.max(1, Math.round(commandBudgetMs / 1000)) : 0
+        const wrapped = budgetSeconds
+          ? `timeout -k 5 ${budgetSeconds} bash -c ${shellQuote(command)}`
+          : command
+        const result = await backend.run(wrapped, { cwd, timeout: execTimeoutMs })
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
         // strands the executor with passing progress and no failure reason.
         const stdout = sanitizeOutput(truncateMiddle(result.stdout, MAX_OUTPUT_SIZE))
         const stderr = sanitizeOutput(truncateMiddle(result.stderr, MAX_OUTPUT_SIZE))
+        if (budgetSeconds && result.exitCode === 124) {
+          return {
+            stdout,
+            stderr,
+            exitCode: result.exitCode,
+            error:
+              `The command was stopped after ${budgetSeconds}s, this tool's limit; the output above is ` +
+              'everything it printed until then. Run a smaller unit per command (one test file, one ' +
+              'build step) instead of chaining a build and a whole suite.',
+          }
+        }
         return { stdout, stderr, exitCode: result.exitCode }
       } catch (e: unknown) {
         return { error: `Command failed: ${(e as Error).message}` }

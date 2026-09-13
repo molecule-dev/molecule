@@ -646,6 +646,38 @@ describe('buildTools', () => {
       timeout: 300_000,
     })
   })
+
+  it('exec_command with commandBudgetMs runs the command under `timeout` and hands back the output an overrun produced', async () => {
+    // Without a budget the command runs as given.
+    const bare = mockBackend()
+    await buildTools(bare)
+      .find((t) => t.name === 'exec_command')!
+      .execute({ command: 'npm test' })
+    expect((bare.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('npm test')
+
+    // With one, it is wrapped so the sandbox stops it (whole process group) a
+    // little before the caller's outer per-tool timeout would discard the run.
+    const backend = mockBackend()
+    const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
+      (t) => t.name === 'exec_command',
+    )!
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      stdout: '  ✓ home.spec.ts (4)\n  ✘ post.spec.ts (1)\n',
+      stderr: '',
+      exitCode: 124,
+    })
+    const result = (await execCmd.execute({
+      command: 'cd app && npm run build && npm run test:e2e',
+    })) as { stdout: string; exitCode: number; error?: string }
+    const ran = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(ran.startsWith('timeout -k 5 290 bash -c ')).toBe(true)
+    expect(ran).toContain('npm run test:e2e')
+    // The partial output survives, and the error names the limit and the remedy.
+    expect(result.stdout).toContain('post.spec.ts')
+    expect(result.exitCode).toBe(124)
+    expect(result.error).toMatch(/stopped after 290s/)
+    expect(result.error).toMatch(/one test file/)
+  })
 })
 
 // ── buildAgentPrompt ────────────────────────────────────────────────────────
