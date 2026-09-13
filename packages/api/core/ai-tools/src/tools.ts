@@ -557,15 +557,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       try {
         // exec_command runs installs/builds/tests — the old 30s hardcap killed
         // those spuriously; use the (generous, caller-configurable) budget.
-        // With a command budget, the command runs under `timeout` inside the
-        // sandbox: an overrun is stopped there (the whole process group) and
-        // everything printed until then comes back with exit code 124, instead
-        // of an outer timeout discarding the run and its output together.
+        // With a command budget, the BACKEND runs the command under `timeout` in
+        // its own shell (after any environment a consumer sources around it): an
+        // overrun is stopped there, the whole process group, and everything
+        // printed until then comes back with exit code 124 — instead of an outer
+        // timeout discarding the run and its output together.
         const budgetSeconds = commandBudgetMs ? Math.max(1, Math.round(commandBudgetMs / 1000)) : 0
-        const wrapped = budgetSeconds
-          ? `timeout -k 5 ${budgetSeconds} bash -c ${shellQuote(command)}`
-          : command
-        const result = await backend.run(wrapped, { cwd, timeout: execTimeoutMs })
+        const result = await backend.run(command, {
+          cwd,
+          timeout: execTimeoutMs,
+          ...(commandBudgetMs ? { budgetMs: commandBudgetMs } : {}),
+        })
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
         // strands the executor with passing progress and no failure reason.

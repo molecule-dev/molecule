@@ -647,16 +647,19 @@ describe('buildTools', () => {
     })
   })
 
-  it('exec_command with commandBudgetMs runs the command under `timeout` and hands back the output an overrun produced', async () => {
-    // Without a budget the command runs as given.
+  it('exec_command with commandBudgetMs asks the backend for the budget and hands back the output an overrun produced', async () => {
+    // Without a budget the command runs as given, and no budget is requested.
     const bare = mockBackend()
     await buildTools(bare)
       .find((t) => t.name === 'exec_command')!
       .execute({ command: 'npm test' })
-    expect((bare.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe('npm test')
+    const bareCall = (bare.run as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(bareCall[0]).toBe('npm test')
+    expect(bareCall[1]).not.toHaveProperty('budgetMs')
 
-    // With one, it is wrapped so the sandbox stops it (whole process group) a
-    // little before the caller's outer per-tool timeout would discard the run.
+    // With one, the BACKEND is asked to enforce it (inside its own shell, after
+    // any environment sourcing), and exit code 124 is read as "stopped at the
+    // budget": the partial output survives and the error names the remedy.
     const backend = mockBackend()
     const execCmd = buildTools(backend, { commandBudgetMs: 290_000 }).find(
       (t) => t.name === 'exec_command',
@@ -669,10 +672,9 @@ describe('buildTools', () => {
     const result = (await execCmd.execute({
       command: 'cd app && npm run build && npm run test:e2e',
     })) as { stdout: string; exitCode: number; error?: string }
-    const ran = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
-    expect(ran.startsWith('timeout -k 5 290 bash -c ')).toBe(true)
-    expect(ran).toContain('npm run test:e2e')
-    // The partial output survives, and the error names the limit and the remedy.
+    const call = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(call[0]).toBe('cd app && npm run build && npm run test:e2e')
+    expect(call[1]).toMatchObject({ budgetMs: 290_000 })
     expect(result.stdout).toContain('post.spec.ts')
     expect(result.exitCode).toBe(124)
     expect(result.error).toMatch(/stopped after 290s/)

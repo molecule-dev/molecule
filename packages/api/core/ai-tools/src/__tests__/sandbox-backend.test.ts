@@ -42,4 +42,21 @@ describe('createSandboxBackend.run — cwd shell-injection [C3-1]', () => {
     await backend.run('echo ok')
     expect(calls[0]).toBe('echo ok')
   })
+
+  it('runs the WHOLE anchored command under `timeout` when a budget is given, and passes 124 through', async () => {
+    const calls: string[] = []
+    const sandbox = makeSandbox(calls) as { exec: ReturnType<typeof vi.fn> }
+    sandbox.exec.mockImplementationOnce(async (cmd: string) => {
+      calls.push(cmd)
+      return { stdout: 'partial output', stderr: '', exitCode: 124 }
+    })
+    const backend = createSandboxBackend(sandbox as never)
+    // A consumer sources its environment AROUND the command (`{ . /etc/mol/env; … }`);
+    // the budget must wrap that too, or the command runs in a child shell that never
+    // sees the unexported variables.
+    const sourced = '{ [ -f /etc/mol/env ] && . /etc/mol/env; true; }; npm run test:e2e'
+    const result = await backend.run(sourced, { cwd: '/workspace/app', budgetMs: 290_000 })
+    expect(calls[0]).toBe(`timeout -k 5 290 bash -c 'cd '\\''/workspace/app'\\'' && ${sourced}'`)
+    expect(result).toEqual({ stdout: 'partial output', stderr: '', exitCode: 124 })
+  })
 })

