@@ -584,4 +584,8 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ને વિકલ્પોની જરૂર છે — /scripts ખોલ્યું જેથી તમે તેમને સેટ કરીને ચલાવી શકો.',
   'ide.chat.settings.effort.label': 'તર્કસંગત પ્રયાસ',
+  'ide.chat.timestampsShown': 'ટાઇમસ્ટેમ્પ બતાવવામાં આવ્યા.',
+  'ide.chat.timestampsHidden': 'ટાઇમસ્ટેમ્પ છુપાવવામાં આવ્યા.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

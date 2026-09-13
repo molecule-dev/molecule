@@ -585,4 +585,8 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '‏«{{name}}» به گزینه‌ها نیاز دارد — ‎/scripts باز شد تا آن‌ها را تنظیم کنید و اجرا نمایید.',
   'ide.chat.settings.effort.label': 'تلاش استدلالی',
+  'ide.chat.timestampsShown': 'مهرهای زمانی نمایش داده شدند.',
+  'ide.chat.timestampsHidden': 'مهرهای زمانی پنهان شدند.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

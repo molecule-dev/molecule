@@ -573,4 +573,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': '取消',
   'ide.chat.scripts.runNeedsOptions': '“{{name}}” 需要选项 — 已打开 /scripts，供你设置后运行。',
   'ide.chat.settings.effort.label': '推理过程',
+  'ide.chat.timestampsShown': '已显示时间戳。',
+  'ide.chat.timestampsHidden': '已隐藏时间戳。',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

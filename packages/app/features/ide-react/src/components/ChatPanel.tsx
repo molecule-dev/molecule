@@ -44,7 +44,7 @@ import {
   voiceEngineCoversLanguage,
 } from '@molecule/app-ai-voice'
 import { getCountryFlag } from '@molecule/app-country-flags'
-import { t } from '@molecule/app-i18n'
+import { getLocale, t } from '@molecule/app-i18n'
 import type { IconName } from '@molecule/app-icons'
 import { getLogger } from '@molecule/app-logger'
 import {
@@ -66,6 +66,7 @@ import type {
   ChatEventCardSegment,
 } from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
+import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ChatPanelProps, ChatUserIdentity, IdeClientAction } from '../types.js'
 import type { Activity } from './activity-utilities.js'
@@ -149,6 +150,14 @@ import {
 } from './chat-skills-utilities.js'
 import { estimateTurnTokens } from './chat-stream-utilities.js'
 import {
+  type ChatTimestampSlot,
+  getChatTimestampsVisible,
+  parseTimestampsCommand,
+  planChatTimestamps,
+  resolveChatLocale,
+  setChatTimestampsVisible,
+} from './chat-timestamps-utilities.js'
+import {
   ENTRY_TIP,
   pickIdleTip,
   shouldShowIdleTip,
@@ -156,6 +165,7 @@ import {
   TIP_MIN_MESSAGES,
 } from './chat-tips-utilities.js'
 import { ChatItemBoundary } from './ChatItemBoundary.js'
+import { ChatTimestamp } from './ChatTimestamp.js'
 import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
 import { MarkdownContent } from './MarkdownContent.js'
@@ -426,6 +436,8 @@ interface PlainSystemCard extends SystemCardBase {
    * not twice. See {@link ChatEventCard.coversLimitType}.
    */
   coversLimitType?: string
+  /** A critical event — keeps its timestamp with timestamps off. See {@link ChatEventCard.critical}. */
+  critical?: boolean
 }
 
 /** The `/settings` view. */
@@ -691,22 +703,6 @@ function relativeTime(iso: string): string {
   if (h < 24) return `${h}h ago`
   const d = Math.floor(h / 24)
   return `${d}d ago`
-}
-
-/**
- * Long-form relative time (e.g. "just now", "43 minutes ago", "2 hours ago",
- * "3 days ago") for the Slack-style message header.
- * @param ms - Epoch milliseconds of the message.
- * @returns A human-readable long-form relative time string.
- */
-function relativeTimeLong(ms: number): string {
-  const min = Math.floor((Date.now() - ms) / 60_000)
-  if (min < 1) return 'just now'
-  if (min < 60) return `${min} minute${min === 1 ? '' : 's'} ago`
-  const h = Math.floor(min / 60)
-  if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`
-  const d = Math.floor(h / 24)
-  return `${d} day${d === 1 ? '' : 's'} ago`
 }
 
 /**
@@ -1918,6 +1914,11 @@ export interface MessageItemProps {
   agentName?: string
   /** Whether the user may write shared project state — false hides/inertizes write affordances in the message (revert, ask_user answers). */
   canEdit?: boolean
+  /**
+   * Whether the header row shows the message's time — decided for the whole
+   * timeline by `planChatTimestamps` (a run of identical labels shows it once).
+   */
+  showTimestamp?: boolean
 }
 
 /**
@@ -1951,6 +1952,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     buildUpgradeCta,
     agentName,
     canEdit,
+    showTimestamp,
   } = props
 
   const cm = getClassMap()
@@ -2146,10 +2148,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     />
                   </span>
                 )}
-                {typeof msg.timestamp === 'number' && (
-                  <span className={cm.textMuted} style={{ fontSize: 11 }}>
-                    {relativeTimeLong(msg.timestamp)}
-                  </span>
+                {showTimestamp && typeof msg.timestamp === 'number' && (
+                  <ChatTimestamp timestamp={msg.timestamp} />
                 )}
               </div>
             )}
@@ -4186,6 +4186,25 @@ function ChatInner({
     }
   }, [])
 
+  // ── Timestamps (/timestamps) ────────────────────────────────────────────────
+  // A per-device display preference (localStorage, like sounds), off by default.
+  // The minute clock re-plans which items show a time (see planChatTimestamps),
+  // so labels advance and runs of identical labels regroup as time passes.
+  const timestampsVisible = useChatTimestampsVisible()
+  const minuteNow = useMinuteNow()
+  const applyTimestampsVisible = useCallback(
+    (visible: boolean): void => {
+      setChatTimestampsVisible(visible)
+      addSystemCard(
+        visible
+          ? t('ide.chat.timestampsShown', undefined, { defaultValue: 'Timestamps shown.' })
+          : t('ide.chat.timestampsHidden', undefined, { defaultValue: 'Timestamps hidden.' }),
+        { clientOnly: true },
+      )
+    },
+    [addSystemCard],
+  )
+
   // ── Panel overlay (/skills, /scripts, /settings — closeable popups) ──────────
   // These three commands open a closeable overlay above the composer (mirrors how
   // /model and /sounds own this popup region) instead of dropping an inline card
@@ -6074,6 +6093,9 @@ function ChatInner({
       } else if (id === 'sounds') {
         setInputValue('')
         setSoundsPicker({ selectedIdx: -1 })
+      } else if (id === 'timestamps') {
+        setInputValue('')
+        applyTimestampsVisible(!getChatTimestampsVisible())
       } else if (id === 'settings') {
         setInputValue('')
         // Opens the settings + command-reference card in a closeable overlay.
@@ -6117,6 +6139,7 @@ function ChatInner({
       }
     },
     [
+      applyTimestampsVisible,
       clearHistory,
       setInputAndCursorEnd,
       http,
@@ -6220,6 +6243,27 @@ function ChatInner({
       // Sounds owns the popup region exclusively — close any open panel overlay.
       setPanelOverlay(null)
       setSoundsPicker({ selectedIdx: -1 })
+      return
+    }
+
+    // Handle /timestamps [on | off] locally — a per-device display preference.
+    const timestampsCommand = parseTimestampsCommand(trimmed)
+    if (timestampsCommand) {
+      setInputValue('')
+      if (timestampsCommand.action === 'invalid') {
+        addSystemCard(
+          t('ide.chat.timestampsUsage', undefined, {
+            defaultValue: 'Usage: /timestamps [on | off]',
+          }),
+          { clientOnly: true },
+        )
+      } else {
+        applyTimestampsVisible(
+          timestampsCommand.action === 'toggle'
+            ? !getChatTimestampsVisible()
+            : timestampsCommand.action === 'on',
+        )
+      }
       return
     }
 
@@ -6679,6 +6723,7 @@ function ChatInner({
     setAttachmentError(null)
     sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
   }, [
+    applyTimestampsVisible,
     attachedFiles,
     http,
     projectId,
@@ -7448,6 +7493,7 @@ function ChatInner({
             ...(card.icon ? { icon: card.icon } : {}),
             ...(card.content ? { content: card.content } : {}),
             ...(card.coversLimitType ? { coversLimitType: card.coversLimitType } : {}),
+            ...(card.critical ? { critical: true } : {}),
             timestamp,
           }
         }
@@ -7628,7 +7674,102 @@ function ChatInner({
         { enabled: soundsSummary.enabled, total: soundsSummary.total },
         { defaultValue: '{{enabled}} of {{total}} events enabled' },
       ),
+      timestamps: timestampsVisible
+        ? t('ide.chat.settings.on', undefined, { defaultValue: 'On' })
+        : t('ide.chat.settings.off', undefined, { defaultValue: 'Off' }),
     })
+  }
+
+  const renderedTimeline =
+    timeline.length > maxVisibleItems ? timeline.slice(-maxVisibleItems) : timeline
+
+  /**
+   * Where (if anywhere) a timeline item carries its time. Typed user messages and
+   * team notes carry it in their header row and always qualify; Synthase replies
+   * and event cards get a line above them, and qualify with timestamps off only
+   * when critical. The command browsers (/settings, /skills, /scripts, /help) are
+   * this viewer's UI, not something that happened, so they never carry one.
+   *
+   * @param item - The timeline item.
+   * @returns Its slot, or `null` when it carries no timestamp.
+   */
+  const timestampSlotFor = (
+    item: TimelineItem,
+  ): (ChatTimestampSlot & { placement: 'header' | 'line'; align: 'left' | 'center' }) | null => {
+    if (item.kind === 'message') {
+      const { msg } = item
+      if (typeof msg.timestamp !== 'number') return null
+      const base = { id: msg.id, timestamp: msg.timestamp, align: 'left' as const }
+      if ((msg.role === 'user' && !msg.automatic) || msg.teamOnly)
+        return { ...base, alwaysShown: true, placement: 'header' }
+      // An assistant placeholder with nothing rendered yet (still thinking).
+      if (!msg.commitRecord && !msg.content && !msg.blocks?.length && !msg.toolCalls?.length)
+        return null
+      // A reply that failed verification or hit a resource limit is a critical event.
+      const critical = !!msg.blocks?.some((block) => {
+        const b = block as { type?: string; status?: string }
+        return (b.type === 'verification' && b.status === 'error') || b.type === 'resource_limit'
+      })
+      return { ...base, alwaysShown: critical, placement: 'line' }
+    }
+    const { card } = item
+    if (typeof card.timestamp !== 'number') return null
+    const base = { id: card.id, timestamp: card.timestamp, placement: 'line' as const }
+    if (item.kind === 'commit')
+      return { ...base, alwaysShown: item.card.status === 'error', align: 'left' }
+    if (item.kind === 'activity')
+      return { ...base, alwaysShown: item.card.activity.status === 'failed', align: 'left' }
+    if (item.kind === 'tip') return { ...base, alwaysShown: false, align: 'left' }
+    const systemCard = item.card
+    if (
+      systemCard.variant === 'settings' ||
+      systemCard.variant === 'skills' ||
+      systemCard.variant === 'skillsCreate' ||
+      systemCard.variant === 'scripts' ||
+      systemCard.variant === 'help'
+    )
+      return null
+    // Centered one-line notices center their time to match.
+    const centered =
+      systemCard.variant === 'skillsLoaded' ||
+      (systemCard.variant === undefined &&
+        !(systemCard.tone || systemCard.emphasized || systemCard.action) &&
+        !systemCard.text.includes('\n'))
+    return {
+      ...base,
+      alwaysShown: systemCard.variant === undefined && !!systemCard.critical,
+      align: centered ? 'center' : 'left',
+    }
+  }
+  const timestampSlots = renderedTimeline.map(timestampSlotFor)
+  const timestampSlotById = new Map(
+    timestampSlots.flatMap((slot) => (slot ? [[slot.id, slot] as const] : [])),
+  )
+  const shownTimestampIds = planChatTimestamps(timestampSlots, {
+    visible: timestampsVisible,
+    now: minuteNow,
+    locale: resolveChatLocale(getLocale),
+  })
+
+  /**
+   * Puts the item's time on its own line above a Synthase reply or an event card,
+   * when the timestamp plan shows it. Header-placed times render inside MessageItem.
+   *
+   * @param item - The timeline item being rendered.
+   * @param node - The item's rendered element tree.
+   * @returns The tree, preceded by its timestamp line when one applies.
+   */
+  const withTimelineTimestamp = (item: TimelineItem, node: ReactNode): ReactNode => {
+    if (node === null) return node
+    const id = item.kind === 'message' ? item.msg.id : item.card.id
+    const slot = timestampSlotById.get(id)
+    if (!slot || slot.placement !== 'line' || !shownTimestampIds.has(id)) return node
+    return (
+      <>
+        <ChatTimestamp timestamp={slot.timestamp} variant="line" align={slot.align} />
+        {node}
+      </>
+    )
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -7746,268 +7887,272 @@ function ChatInner({
         {/* Every item renders inside its own boundary: the timeline is built from
             model-authored data, so one malformed payload must cost one inline
             notice, never the whole IDE. See ChatItemBoundary. */}
-        {(timeline.length > maxVisibleItems ? timeline.slice(-maxVisibleItems) : timeline).map(
-          (item) => (
-            <ChatItemBoundary
-              key={item.kind === 'message' ? item.msg.id : item.card.id}
-              onError={onRenderError}
-              render={() => {
-                if (item.kind === 'commit')
-                  return (
-                    <CommitCardItem
-                      key={item.card.id}
-                      card={item.card}
-                      onRevert={canEdit === false ? undefined : handleRevertCommit}
-                    />
-                  )
+        {renderedTimeline.map((item) => (
+          <ChatItemBoundary
+            key={item.kind === 'message' ? item.msg.id : item.card.id}
+            onError={onRenderError}
+            render={() =>
+              withTimelineTimestamp(
+                item,
+                (() => {
+                  if (item.kind === 'commit')
+                    return (
+                      <CommitCardItem
+                        key={item.card.id}
+                        card={item.card}
+                        onRevert={canEdit === false ? undefined : handleRevertCommit}
+                      />
+                    )
 
-                if (item.kind === 'activity')
-                  return (
-                    <ActivityCard
-                      key={item.card.id}
-                      activity={item.card.activity}
-                      onActivityClick={onActivityClick}
-                    />
-                  )
+                  if (item.kind === 'activity')
+                    return (
+                      <ActivityCard
+                        key={item.card.id}
+                        activity={item.card.activity}
+                        onActivityClick={onActivityClick}
+                      />
+                    )
 
-                if (item.kind === 'tip')
-                  return (
-                    <TipCard
-                      key={item.card.id}
-                      text={item.card.text}
-                      accent={item.card.accent}
-                      icon={item.card.icon}
-                      onDismiss={() => dismissTip(item.card.id)}
-                    />
-                  )
+                  if (item.kind === 'tip')
+                    return (
+                      <TipCard
+                        key={item.card.id}
+                        text={item.card.text}
+                        accent={item.card.accent}
+                        icon={item.card.icon}
+                        onDismiss={() => dismissTip(item.card.id)}
+                      />
+                    )
 
-                if (item.kind === 'system') {
-                  if (item.card.variant === 'settings') {
-                    // Legacy inline branch — kept so any 'settings' card persisted
-                    // before /settings became an overlay still renders. New /settings
-                    // invocations open the closeable overlay (see panelOverlay below).
-                    return (
-                      <SettingsCard
-                        key={item.card.id}
-                        settings={computeSettingsList()}
-                        onRunCommand={(commandId) => void executeCommand(commandId)}
-                        onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
-                        isLight={isLight}
-                        agentName={agentName}
-                      />
-                    )
-                  }
-                  if (item.card.variant === 'skills' || item.card.variant === 'skillsCreate') {
-                    return (
-                      <SkillsCard
-                        key={item.card.id}
-                        projectId={projectId}
-                        initialQuery={item.card.query ?? ''}
-                        onLoad={loadSkill}
-                        onCreate={createSkill}
-                        // The 'skillsCreate' variant opens the card with its "New skill" form
-                        // already open (vs plain 'skills', which opens the browser).
-                        startCreating={item.card.variant === 'skillsCreate'}
-                        loadedSkillPaths={loadedSkillPaths}
-                        defaultSkillPaths={defaultSkillPaths}
-                        onToggleDefault={toggleDefaultSkill}
-                        onResetDefault={resetDefaultSkills}
-                        defaultsExplicit={defaultSkillsExplicitRef.current}
-                        isLight={isLight}
-                      />
-                    )
-                  }
-                  if (item.card.variant === 'scripts') {
-                    return (
-                      <ScriptsCard
-                        key={item.card.id}
-                        projectId={projectId}
-                        initialQuery={item.card.query ?? ''}
-                        isLight={isLight}
-                        agentName={agentName}
-                      />
-                    )
-                  }
-                  if (item.card.variant === 'help') {
-                    // The plan/upgrade blurb is app-specific (pricing, plan names), so the
-                    // host supplies it via buildHelpUpgradeSection — this shared package
-                    // hardcodes none. Read at render time (like the settings card's list).
-                    const upgradeSection = buildHelpUpgradeSection?.()
-                    return (
-                      <HelpCard
-                        key={item.card.id}
-                        isLight={isLight}
-                        agentName={agentName}
-                        productName={productName}
-                        upgradeLines={upgradeSection?.lines}
-                        upgradeAction={upgradeSection?.action ?? undefined}
-                      />
-                    )
-                  }
-                  if (item.card.variant === 'skillsLoaded') {
-                    // "🧠 Loaded {{count}} skills" — styled like the plain "🔨 Building your
-                    // app" phase notice (centered, muted, xs, emoji baked into the text), but
-                    // CLICKABLE: its onClick is created HERE at render time — opening the
-                    // /skills browser overlay, exactly what typing /skills does — so it
-                    // survives the persistence round-trip (which stores only variant + count +
-                    // text, never callbacks). Text restores from the persisted copy; re-derive
-                    // from `count` if a caller passed none.
-                    const skillsLoadedLabel =
-                      item.card.text ||
-                      t(
-                        'ide.chat.skills.loadedCount',
-                        { count: item.card.count ?? 0 },
-                        { defaultValue: '🧠 Loaded {{count}} skills' },
+                  if (item.kind === 'system') {
+                    if (item.card.variant === 'settings') {
+                      // Legacy inline branch — kept so any 'settings' card persisted
+                      // before /settings became an overlay still renders. New /settings
+                      // invocations open the closeable overlay (see panelOverlay below).
+                      return (
+                        <SettingsCard
+                          key={item.card.id}
+                          settings={computeSettingsList()}
+                          onRunCommand={(commandId) => void executeCommand(commandId)}
+                          onPrefillInput={(input) => setInputAndCursorEnd(`${input} `)}
+                          isLight={isLight}
+                          agentName={agentName}
+                        />
                       )
+                    }
+                    if (item.card.variant === 'skills' || item.card.variant === 'skillsCreate') {
+                      return (
+                        <SkillsCard
+                          key={item.card.id}
+                          projectId={projectId}
+                          initialQuery={item.card.query ?? ''}
+                          onLoad={loadSkill}
+                          onCreate={createSkill}
+                          // The 'skillsCreate' variant opens the card with its "New skill" form
+                          // already open (vs plain 'skills', which opens the browser).
+                          startCreating={item.card.variant === 'skillsCreate'}
+                          loadedSkillPaths={loadedSkillPaths}
+                          defaultSkillPaths={defaultSkillPaths}
+                          onToggleDefault={toggleDefaultSkill}
+                          onResetDefault={resetDefaultSkills}
+                          defaultsExplicit={defaultSkillsExplicitRef.current}
+                          isLight={isLight}
+                        />
+                      )
+                    }
+                    if (item.card.variant === 'scripts') {
+                      return (
+                        <ScriptsCard
+                          key={item.card.id}
+                          projectId={projectId}
+                          initialQuery={item.card.query ?? ''}
+                          isLight={isLight}
+                          agentName={agentName}
+                        />
+                      )
+                    }
+                    if (item.card.variant === 'help') {
+                      // The plan/upgrade blurb is app-specific (pricing, plan names), so the
+                      // host supplies it via buildHelpUpgradeSection — this shared package
+                      // hardcodes none. Read at render time (like the settings card's list).
+                      const upgradeSection = buildHelpUpgradeSection?.()
+                      return (
+                        <HelpCard
+                          key={item.card.id}
+                          isLight={isLight}
+                          agentName={agentName}
+                          productName={productName}
+                          upgradeLines={upgradeSection?.lines}
+                          upgradeAction={upgradeSection?.action ?? undefined}
+                        />
+                      )
+                    }
+                    if (item.card.variant === 'skillsLoaded') {
+                      // "🧠 Loaded {{count}} skills" — styled like the plain "🔨 Building your
+                      // app" phase notice (centered, muted, xs, emoji baked into the text), but
+                      // CLICKABLE: its onClick is created HERE at render time — opening the
+                      // /skills browser overlay, exactly what typing /skills does — so it
+                      // survives the persistence round-trip (which stores only variant + count +
+                      // text, never callbacks). Text restores from the persisted copy; re-derive
+                      // from `count` if a caller passed none.
+                      const skillsLoadedLabel =
+                        item.card.text ||
+                        t(
+                          'ide.chat.skills.loadedCount',
+                          { count: item.card.count ?? 0 },
+                          { defaultValue: '🧠 Loaded {{count}} skills' },
+                        )
+                      return (
+                        <div
+                          key={item.card.id}
+                          style={{ textAlign: 'center', marginBottom: TIMELINE_ITEM_GAP }}
+                        >
+                          <button
+                            type="button"
+                            data-mol-id="chat-skills-loaded"
+                            onClick={() => openPanelOverlay('skills')}
+                            className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                            style={{
+                              // Plain text like the build-phase notice — no border/fill/pill.
+                              background: 'none',
+                              border: 'none',
+                              margin: 0,
+                              padding: '6px 0',
+                              fontFamily: 'inherit',
+                              cursor: 'pointer',
+                            }}
+                            // Underline on hover is the only clickability hint (it otherwise
+                            // reads exactly like the plain phase message).
+                            onMouseEnter={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.textDecoration = 'underline'
+                            }}
+                            onMouseLeave={(e) => {
+                              ;(e.currentTarget as HTMLElement).style.textDecoration = 'none'
+                            }}
+                          >
+                            {skillsLoadedLabel}
+                          </button>
+                        </div>
+                      )
+                    }
+                    // Every rich variant is handled above; what remains is the plain notice /
+                    // tip card (no variant). Narrow to PlainSystemCard so the compiler knows
+                    // tone/content/emphasized exist here — and render nothing for any future
+                    // unhandled variant rather than mis-rendering it as a plain card.
+                    if (item.card.variant !== undefined) return null
+
+                    // ── Unified tip / notice card ────────────────────────────────────────────
+                    // EVERY host notice (upgrade, sign-up, model-intro, pre-alpha, saved-script,
+                    // build-degraded) renders through ONE structure so they look consistent: an
+                    // icon, a tinted body with a uniform 1px border, and — for action cards — a row
+                    // of accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
+                    // tone (or `emphasized`, or merely having an action) opts a card in; a card with
+                    // none of those stays a plain muted inline line (e.g. a "Now using <model>"
+                    // notice). `emphasized` without a tone → the neutral `info` tone.
+                    const tipTone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup' | null =
+                      item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
+
+                    if (tipTone) {
+                      // ONE shared treatment for every tone-accented notice — see NoticeCard.
+                      // The resource-limit / upgrade banner renders through the same component,
+                      // so their icon + buttons stay in lockstep.
+                      return (
+                        <NoticeCard
+                          key={item.card.id}
+                          tone={tipTone}
+                          text={item.card.text}
+                          content={item.card.content}
+                          action={item.card.action}
+                          icon={item.card.icon}
+                        />
+                      )
+                    }
+
+                    // Plain muted inline notice (no tone / not emphasized / no action) — e.g. a
+                    // "Now using <model>" line. Centered for one-liners; left-aligned mono for
+                    // multi-line.
+                    const isMultiLine = item.card.text.includes('\n')
                     return (
                       <div
                         key={item.card.id}
-                        style={{ textAlign: 'center', marginBottom: TIMELINE_ITEM_GAP }}
+                        className={cm.cn(cm.textSize('xs'), cm.textMuted)}
+                        style={{
+                          textAlign: isMultiLine ? 'left' : 'center',
+                          padding: isMultiLine ? '8px 12px' : '6px 0',
+                          marginBottom: TIMELINE_ITEM_GAP,
+                          whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
+                          fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
+                          lineHeight: isMultiLine ? 1.5 : undefined,
+                        }}
                       >
-                        <button
-                          type="button"
-                          data-mol-id="chat-skills-loaded"
-                          onClick={() => openPanelOverlay('skills')}
-                          className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-                          style={{
-                            // Plain text like the build-phase notice — no border/fill/pill.
-                            background: 'none',
-                            border: 'none',
-                            margin: 0,
-                            padding: '6px 0',
-                            fontFamily: 'inherit',
-                            cursor: 'pointer',
-                          }}
-                          // Underline on hover is the only clickability hint (it otherwise
-                          // reads exactly like the plain phase message).
-                          onMouseEnter={(e) => {
-                            ;(e.currentTarget as HTMLElement).style.textDecoration = 'underline'
-                          }}
-                          onMouseLeave={(e) => {
-                            ;(e.currentTarget as HTMLElement).style.textDecoration = 'none'
-                          }}
-                        >
-                          {skillsLoadedLabel}
-                        </button>
+                        {item.card.content
+                          ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
+                          : item.card.text}
                       </div>
                     )
                   }
-                  // Every rich variant is handled above; what remains is the plain notice /
-                  // tip card (no variant). Narrow to PlainSystemCard so the compiler knows
-                  // tone/content/emphasized exist here — and render nothing for any future
-                  // unhandled variant rather than mis-rendering it as a plain card.
-                  if (item.card.variant !== undefined) return null
 
-                  // ── Unified tip / notice card ────────────────────────────────────────────
-                  // EVERY host notice (upgrade, sign-up, model-intro, pre-alpha, saved-script,
-                  // build-degraded) renders through ONE structure so they look consistent: an
-                  // icon, a tinted body with a uniform 1px border, and — for action cards — a row
-                  // of accent buttons. Only the ACCENT COLOUR + ICON change, by `tone`. Picking a
-                  // tone (or `emphasized`, or merely having an action) opts a card in; a card with
-                  // none of those stays a plain muted inline line (e.g. a "Now using <model>"
-                  // notice). `emphasized` without a tone → the neutral `info` tone.
-                  const tipTone: 'info' | 'gold' | 'upgrade' | 'success' | 'signup' | null =
-                    item.card.tone ?? (item.card.emphasized || item.card.action ? 'info' : null)
+                  const { msg } = item
 
-                  if (tipTone) {
-                    // ONE shared treatment for every tone-accented notice — see NoticeCard.
-                    // The resource-limit / upgrade banner renders through the same component,
-                    // so their icon + buttons stay in lockstep.
+                  // Persisted commit records render as commit cards
+                  if (msg.commitRecord) {
+                    const files = msg.commitRecord.files.map((f: string | { path: string }) =>
+                      typeof f === 'string' ? f : f.path,
+                    )
+                    const hash = msg.commitRecord.hash
                     return (
-                      <NoticeCard
-                        key={item.card.id}
-                        tone={tipTone}
-                        text={item.card.text}
-                        content={item.card.content}
-                        action={item.card.action}
-                        icon={item.card.icon}
+                      <CommitCardItem
+                        key={msg.id}
+                        card={{
+                          id: msg.id,
+                          message: msg.commitRecord.message,
+                          files,
+                          timestamp: msg.timestamp,
+                          status: 'done',
+                          hash,
+                        }}
+                        onRevert={canEdit === false ? undefined : handleRevertCommit}
                       />
                     )
                   }
 
-                  // Plain muted inline notice (no tone / not emphasized / no action) — e.g. a
-                  // "Now using <model>" line. Centered for one-liners; left-aligned mono for
-                  // multi-line.
-                  const isMultiLine = item.card.text.includes('\n')
                   return (
-                    <div
-                      key={item.card.id}
-                      className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-                      style={{
-                        textAlign: isMultiLine ? 'left' : 'center',
-                        padding: isMultiLine ? '8px 12px' : '6px 0',
-                        marginBottom: TIMELINE_ITEM_GAP,
-                        whiteSpace: isMultiLine ? 'pre-wrap' : undefined,
-                        fontFamily: isMultiLine ? 'var(--mol-font-mono, monospace)' : undefined,
-                        lineHeight: isMultiLine ? 1.5 : undefined,
-                      }}
-                    >
-                      {item.card.content
-                        ? item.card.content.map((seg, i) => renderCardSegment(seg, i))
-                        : item.card.text}
-                    </div>
-                  )
-                }
-
-                const { msg } = item
-
-                // Persisted commit records render as commit cards
-                if (msg.commitRecord) {
-                  const files = msg.commitRecord.files.map((f: string | { path: string }) =>
-                    typeof f === 'string' ? f : f.path,
-                  )
-                  const hash = msg.commitRecord.hash
-                  return (
-                    <CommitCardItem
+                    <MessageItem
                       key={msg.id}
-                      card={{
-                        id: msg.id,
-                        message: msg.commitRecord.message,
-                        files,
-                        timestamp: msg.timestamp,
-                        status: 'done',
-                        hash,
-                      }}
-                      onRevert={canEdit === false ? undefined : handleRevertCommit}
+                      msg={msg}
+                      sendMessage={sendMessage}
+                      handleAskUserResponse={handleAskUserResponse}
+                      isLoading={isLoading}
+                      streamingStatus={streamingStatus}
+                      onNavigatePreview={onNavigatePreview}
+                      undoneTcIds={undoneTcIds}
+                      handleUndoToggle={handleUndoToggle}
+                      onFileOpen={onFileOpen}
+                      onFileDoubleClick={onFileDoubleClick}
+                      onFileDiff={onFileDiff}
+                      handleFileRevert={handleFileRevert}
+                      setInputAndCursorEnd={setInputAndCursorEnd}
+                      setModelPicker={setModelPicker}
+                      chatMode={liveModelMode}
+                      userAvatar={userAvatar}
+                      // Avatar/name clicks open the clicked AUTHOR's profile —
+                      // MessageItem builds the identity from the message's own
+                      // author (teammates included), so the host shows their
+                      // view-only profile and the viewer's editable own.
+                      onProfileClick={onProfileClick}
+                      currentUserId={currentUserId}
+                      showTimestamp={shownTimestampIds.has(msg.id)}
+                      discovery={discovery}
+                      buildUpgradeCta={buildUpgradeCta}
+                      agentName={agentName}
+                      canEdit={canEdit}
                     />
                   )
-                }
-
-                return (
-                  <MessageItem
-                    key={msg.id}
-                    msg={msg}
-                    sendMessage={sendMessage}
-                    handleAskUserResponse={handleAskUserResponse}
-                    isLoading={isLoading}
-                    streamingStatus={streamingStatus}
-                    onNavigatePreview={onNavigatePreview}
-                    undoneTcIds={undoneTcIds}
-                    handleUndoToggle={handleUndoToggle}
-                    onFileOpen={onFileOpen}
-                    onFileDoubleClick={onFileDoubleClick}
-                    onFileDiff={onFileDiff}
-                    handleFileRevert={handleFileRevert}
-                    setInputAndCursorEnd={setInputAndCursorEnd}
-                    setModelPicker={setModelPicker}
-                    chatMode={liveModelMode}
-                    userAvatar={userAvatar}
-                    // Avatar/name clicks open the clicked AUTHOR's profile —
-                    // MessageItem builds the identity from the message's own
-                    // author (teammates included), so the host shows their
-                    // view-only profile and the viewer's editable own.
-                    onProfileClick={onProfileClick}
-                    currentUserId={currentUserId}
-                    discovery={discovery}
-                    buildUpgradeCta={buildUpgradeCta}
-                    agentName={agentName}
-                    canEdit={canEdit}
-                  />
-                )
-              }}
-            />
-          ),
-        )}
+                })(),
+              )
+            }
+          />
+        ))}
 
         {error &&
           !isStaleAnonymousLimit &&

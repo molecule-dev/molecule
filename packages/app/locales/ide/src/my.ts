@@ -593,4 +593,8 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” တွင် ရွေးချယ်စရာများ လိုအပ်သည် — ၎င်းတို့ကို သတ်မှတ်ပြီး ဖွင့်နိုင်ရန် /scripts ကို ဖွင့်ထားသည်။',
   'ide.chat.settings.effort.label': 'ကျိုးကြောင်းဆင်ခြင်အားထုတ်မှု',
+  'ide.chat.timestampsShown': 'အချိန်တံဆိပ်များကို ပြထားသည်။',
+  'ide.chat.timestampsHidden': 'အချိန်တံဆိပ်များကို ဖျောက်ထားသည်။',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -588,4 +588,8 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” inahitaji chaguo — /scripts imefunguliwa ili uweze kuziweka na Kuendesha.',
   'ide.chat.settings.effort.label': 'Jitihada za kufikiri',
+  'ide.chat.timestampsShown': 'Mihuri ya muda inaonyeshwa.',
+  'ide.chat.timestampsHidden': 'Mihuri ya muda imefichwa.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

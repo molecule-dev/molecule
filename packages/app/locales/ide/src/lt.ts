@@ -599,4 +599,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ reikia parinkčių — atidariau /scripts, kad galėtumėte jas nustatyti ir Vykdyti.',
   'ide.chat.settings.effort.label': 'Mąstymo pastangos',
+  'ide.chat.timestampsShown': 'Laiko žymos rodomos.',
+  'ide.chat.timestampsHidden': 'Laiko žymos paslėptos.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

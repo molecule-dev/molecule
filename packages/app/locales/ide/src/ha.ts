@@ -589,4 +589,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” yana buƙatar zaɓuɓɓuka — an buɗe /scripts don ka saita su ka Gudanar.',
   'ide.chat.settings.effort.label': 'Kokarin tunani',
+  'ide.chat.timestampsShown': 'Ana nuna tambarin lokaci.',
+  'ide.chat.timestampsHidden': 'An ɓoye tambarin lokaci.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

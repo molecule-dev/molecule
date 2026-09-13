@@ -592,4 +592,8 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     'I-“{{name}}” idinga izinketho — kuvulwe i-/scripts ukuze uzisethe bese uyaQalisa.',
   'ide.chat.settings.effort.label': 'Umzamo wokucabanga',
+  'ide.chat.timestampsShown': 'Izitembu zesikhathi ziyaboniswa.',
+  'ide.chat.timestampsHidden': 'Izitembu zesikhathi zifihliwe.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -602,4 +602,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” heeft opties nodig — /scripts geopend zodat je ze kunt instellen en Uitvoeren.',
   'ide.chat.settings.effort.label': 'Redeneringsinspanning',
+  'ide.chat.timestampsShown': 'Tijdstempels weergegeven.',
+  'ide.chat.timestampsHidden': 'Tijdstempels verborgen.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

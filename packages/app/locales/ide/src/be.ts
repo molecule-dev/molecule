@@ -589,4 +589,8 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” патрабуе параметраў — адкрыта /scripts, каб задаць іх і Запусціць.',
   'ide.chat.settings.effort.label': 'Намаганні па разважанні',
+  'ide.chat.timestampsShown': 'Пазнакі часу паказаны.',
+  'ide.chat.timestampsHidden': 'Пазнакі часу схаваны.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

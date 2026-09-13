@@ -590,4 +590,8 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”-д сонголтууд шаардлагатай — тэдгээрийг тохируулан Ажиллуулахын тулд /scripts нээгдлээ.',
   'ide.chat.settings.effort.label': 'Ухаан зүйн хүчин чармайлт',
+  'ide.chat.timestampsShown': 'Цагийн тэмдэг харагдаж байна.',
+  'ide.chat.timestampsHidden': 'Цагийн тэмдэг нуугдсан.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

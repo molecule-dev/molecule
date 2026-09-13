@@ -590,4 +590,8 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” cần tùy chọn — đã mở /scripts để bạn thiết lập và Chạy.',
   'ide.chat.settings.effort.label': 'Nỗ lực lý luận',
+  'ide.chat.timestampsShown': 'Đã hiện dấu thời gian.',
+  'ide.chat.timestampsHidden': 'Đã ẩn dấu thời gian.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -586,4 +586,8 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” seçimlər tələb edir — onları təyin edib işə salmağınız üçün /scripts açıldı.',
   'ide.chat.settings.effort.label': 'Düşüncə səyi',
+  'ide.chat.timestampsShown': 'Vaxt möhürləri göstərilir.',
+  'ide.chat.timestampsHidden': 'Vaxt möhürləri gizlədildi.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

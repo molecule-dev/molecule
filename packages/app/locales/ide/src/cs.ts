@@ -590,4 +590,8 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ vyžaduje volby — otevřel jsem /scripts, abyste je nastavili a Spustili.',
   'ide.chat.settings.effort.label': 'Úsilí vynaložené na logické uvažování',
+  'ide.chat.timestampsShown': 'Časová razítka zobrazena.',
+  'ide.chat.timestampsHidden': 'Časová razítka skryta.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

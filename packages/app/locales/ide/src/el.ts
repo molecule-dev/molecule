@@ -605,4 +605,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     'Το «{{name}}» χρειάζεται επιλογές — άνοιξα το /scripts για να τις ορίσετε και να Εκτελέσετε.',
   'ide.chat.settings.effort.label': 'Προσπάθεια συλλογισμού',
+  'ide.chat.timestampsShown': 'Οι χρονοσημάνσεις εμφανίζονται.',
+  'ide.chat.timestampsHidden': 'Οι χρονοσημάνσεις αποκρύφθηκαν.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

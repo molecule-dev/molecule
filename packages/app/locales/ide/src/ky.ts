@@ -588,4 +588,8 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» параметрлерди талап кылат — аларды коюп, Иштетүү үчүн /scripts ачылды.',
   'ide.chat.settings.effort.label': 'Ой жүгүртүү аракети',
+  'ide.chat.timestampsShown': 'Убакыт белгилери көрсөтүлдү.',
+  'ide.chat.timestampsHidden': 'Убакыт белгилери жашырылды.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

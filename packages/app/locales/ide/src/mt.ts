@@ -588,4 +588,8 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” jeħtieġ għażliet — nfetaħ /scripts biex tissettjahom u Tħaddem.',
   'ide.chat.settings.effort.label': "Sforz ta' raġunament",
+  'ide.chat.timestampsShown': 'Il-ħin qed jintwera.',
+  'ide.chat.timestampsHidden': 'Il-ħin moħbi.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

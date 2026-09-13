@@ -598,4 +598,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}” necesită opțiuni — am deschis /scripts ca să le setați și să Rulați.',
   'ide.chat.settings.effort.label': 'Efortul de raționament',
+  'ide.chat.timestampsShown': 'Marcajele de timp sunt afișate.',
+  'ide.chat.timestampsHidden': 'Marcajele de timp sunt ascunse.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

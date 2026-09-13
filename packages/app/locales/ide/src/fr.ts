@@ -606,4 +606,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '« {{name}} » nécessite des options — /scripts ouvert pour que vous les définissiez et Exécutiez.',
   'ide.chat.settings.effort.label': 'Effort de raisonnement',
+  'ide.chat.timestampsShown': 'Horodatages affichés.',
+  'ide.chat.timestampsHidden': 'Horodatages masqués.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

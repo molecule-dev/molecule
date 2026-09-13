@@ -592,4 +592,8 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     "“{{name}}” kërkon opsione — u hap /scripts që t'i caktoni dhe të Ekzekutoni.",
   'ide.chat.settings.effort.label': 'Përpjekje arsyetimi',
+  'ide.chat.timestampsShown': 'Vulat kohore u shfaqën.',
+  'ide.chat.timestampsHidden': 'Vulat kohore u fshehën.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

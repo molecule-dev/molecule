@@ -571,4 +571,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': '取消',
   'ide.chat.scripts.runNeedsOptions': '「{{name}}」需要選項 — 已開啟 /scripts，供你設定後執行。',
   'ide.chat.settings.effort.label': '推理過程',
+  'ide.chat.timestampsShown': '已顯示時間戳記。',
+  'ide.chat.timestampsHidden': '已隱藏時間戳記。',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

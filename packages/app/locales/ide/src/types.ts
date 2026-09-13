@@ -540,6 +540,9 @@ export type IdeTranslationKey =
   | 'ide.chat.skills.createError'
   | 'ide.chat.skills.created'
   | 'ide.resizeHandle.label'
+  | 'ide.chat.timestampsShown'
+  | 'ide.chat.timestampsHidden'
+  | 'ide.chat.timestampsUsage'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

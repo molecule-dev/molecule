@@ -589,4 +589,8 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}»-ը պահանջում է ընտրանքներ — բացվեց /scripts, որ դրանք սահմանեք և Գործարկեք։',
   'ide.chat.settings.effort.label': 'Հիմնավորման ջանք',
+  'ide.chat.timestampsShown': 'Ժամանակի դրոշմները ցուցադրված են։',
+  'ide.chat.timestampsHidden': 'Ժամանակի դրոշմները թաքցված են։',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

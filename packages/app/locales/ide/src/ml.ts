@@ -590,4 +590,8 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ന് ഓപ്ഷനുകൾ ആവശ്യമാണ് — അവ സജ്ജീകരിച്ച് റൺ ചെയ്യാൻ /scripts തുറന്നു.',
   'ide.chat.settings.effort.label': 'യുക്തിസഹമായ ശ്രമം',
+  'ide.chat.timestampsShown': 'ടൈംസ്റ്റാമ്പുകൾ കാണിക്കുന്നു.',
+  'ide.chat.timestampsHidden': 'ടൈംസ്റ്റാമ്പുകൾ മറച്ചു.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

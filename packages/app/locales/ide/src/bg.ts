@@ -601,4 +601,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ изисква опции — отворих /scripts, за да ги зададете и да Изпълните.',
   'ide.chat.settings.effort.label': 'Усилие за разсъждение',
+  'ide.chat.timestampsShown': 'Времевите отметки са показани.',
+  'ide.chat.timestampsHidden': 'Времевите отметки са скрити.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

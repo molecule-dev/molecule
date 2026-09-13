@@ -232,6 +232,15 @@ export const COMMANDS: readonly CommandDef[] = [
     viewerSafe: true,
   },
   {
+    id: 'timestamps',
+    label: '/timestamps',
+    description: 'Show or hide the time on chat messages and events',
+    category: 'settings',
+    usage: '/timestamps [on | off]',
+    // Per-user, per-device display preference (localStorage) — nothing project-shared.
+    viewerSafe: true,
+  },
+  {
     id: 'mic',
     label: '/mic',
     description: 'Choose the dictation engine (on-device / browser native)',

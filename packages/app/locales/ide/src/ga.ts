@@ -587,4 +587,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     'Teastaíonn roghanna ó “{{name}}” — osclaíodh /scripts chun iad a shocrú agus Rith.',
   'ide.chat.settings.effort.label': 'Iarracht réasúnaíochta',
+  'ide.chat.timestampsShown': 'Stampaí ama á dtaispeáint.',
+  'ide.chat.timestampsHidden': 'Stampaí ama folaithe.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

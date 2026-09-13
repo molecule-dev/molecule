@@ -586,4 +586,8 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» опцияларды қажет етеді — оларды орнатып, Іске қосу үшін /scripts ашылды.',
   'ide.chat.settings.effort.label': 'Ойлау әрекеті',
+  'ide.chat.timestampsShown': 'Уақыт белгілері көрсетілді.',
+  'ide.chat.timestampsHidden': 'Уақыт белгілері жасырылды.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

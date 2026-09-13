@@ -589,4 +589,8 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     "«{{name}}» necessita opcions — s'ha obert /scripts perquè les definiu i Executeu.",
   'ide.chat.settings.effort.label': 'Esforç de raonament',
+  'ide.chat.timestampsShown': 'Marques de temps visibles.',
+  'ide.chat.timestampsHidden': 'Marques de temps amagades.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

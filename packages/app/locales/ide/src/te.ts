@@ -587,4 +587,8 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” కు ఎంపికలు అవసరం — వాటిని సెట్ చేసి రన్ చేయడానికి /scripts తెరవబడింది.',
   'ide.chat.settings.effort.label': 'తార్కిక ప్రయత్నం',
+  'ide.chat.timestampsShown': 'టైమ్‌స్టాంప్‌లు చూపబడ్డాయి.',
+  'ide.chat.timestampsHidden': 'టైమ్‌స్టాంప్‌లు దాచబడ్డాయి.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

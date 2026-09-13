@@ -589,4 +589,8 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” parametrlarni talab qiladi — ularni sozlab, Ishga tushirish uchun /scripts ochildi.',
   'ide.chat.settings.effort.label': 'Fikrlash harakati',
+  'ide.chat.timestampsShown': 'Vaqt belgilari koʻrsatildi.',
+  'ide.chat.timestampsHidden': 'Vaqt belgilari yashirildi.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

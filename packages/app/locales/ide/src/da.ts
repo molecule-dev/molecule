@@ -592,4 +592,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” kræver indstillinger — åbnede /scripts, så du kan angive dem og Køre.',
   'ide.chat.settings.effort.label': 'Ræsonnement',
+  'ide.chat.timestampsShown': 'Tidsstempler vises.',
+  'ide.chat.timestampsHidden': 'Tidsstempler skjult.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

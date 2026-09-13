@@ -597,4 +597,8 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” precisa de opções — abri /scripts para você defini-las e Executar.',
   'ide.chat.settings.effort.label': 'Esforço de raciocínio',
+  'ide.chat.timestampsShown': 'Carimbos de data/hora exibidos.',
+  'ide.chat.timestampsHidden': 'Carimbos de data/hora ocultos.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

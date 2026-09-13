@@ -580,4 +580,8 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '‏“{{name}}” דורש אפשרויות — נפתח ‎/scripts כדי שתגדיר אותן ותריץ.',
   'ide.chat.settings.effort.label': 'מאמץ חשיבה',
+  'ide.chat.timestampsShown': 'חותמות הזמן מוצגות.',
+  'ide.chat.timestampsHidden': 'חותמות הזמן הוסתרו.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

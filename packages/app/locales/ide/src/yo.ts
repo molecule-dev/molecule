@@ -621,4 +621,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” nílò àwọn àṣàyàn — ṣí /scripts kí o lè ṣètò wọn kí o sì Ṣiṣẹ́.',
   'ide.chat.settings.effort.label': 'Ìsapá ìrònú',
+  'ide.chat.timestampsShown': 'A ń fi àmì àkókò hàn.',
+  'ide.chat.timestampsHidden': 'A ti fi àmì àkókò pamọ́.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

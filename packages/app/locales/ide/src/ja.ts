@@ -595,4 +595,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '「{{name}}」にはオプションが必要です — /scripts を開いたので、設定して実行してください。',
   'ide.chat.settings.effort.label': '推論の取り組み',
+  'ide.chat.timestampsShown': 'タイムスタンプを表示しました。',
+  'ide.chat.timestampsHidden': 'タイムスタンプを非表示にしました。',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

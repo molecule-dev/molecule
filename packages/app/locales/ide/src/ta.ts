@@ -590,4 +590,8 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” க்கு விருப்பங்கள் தேவை — அவற்றை அமைத்து இயக்க /scripts திறக்கப்பட்டது.',
   'ide.chat.settings.effort.label': 'பகுத்தறிவு முயற்சி',
+  'ide.chat.timestampsShown': 'நேர முத்திரைகள் காட்டப்படுகின்றன.',
+  'ide.chat.timestampsHidden': 'நேர முத்திரைகள் மறைக்கப்பட்டன.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

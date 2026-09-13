@@ -599,4 +599,8 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» требует параметров — открыт /scripts, чтобы вы задали их и Запустили.',
   'ide.chat.settings.effort.label': 'Работа над аргументацией',
+  'ide.chat.timestampsShown': 'Метки времени показаны.',
+  'ide.chat.timestampsHidden': 'Метки времени скрыты.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -600,4 +600,8 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}” wymaga opcji — otwarto /scripts, abyś mógł je ustawić i Uruchomić.',
   'ide.chat.settings.effort.label': 'Wysiłek związany z rozumowaniem',
+  'ide.chat.timestampsShown': 'Znaczniki czasu widoczne.',
+  'ide.chat.timestampsHidden': 'Znaczniki czasu ukryte.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -597,4 +597,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '”{{name}}” tarvitsee asetuksia — avattiin /scripts, jotta voit määrittää ne ja Suorittaa.',
   'ide.chat.settings.effort.label': 'Päättelytyö',
+  'ide.chat.timestampsShown': 'Aikaleimat näytetään.',
+  'ide.chat.timestampsHidden': 'Aikaleimat piilotettu.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

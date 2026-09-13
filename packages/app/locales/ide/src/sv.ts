@@ -595,4 +595,8 @@ export const sv: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '”{{name}}” behöver alternativ — öppnade /scripts så att du kan ange dem och Köra.',
   'ide.chat.settings.effort.label': 'Resonemangsarbete',
+  'ide.chat.timestampsShown': 'Tidsstämplar visas.',
+  'ide.chat.timestampsHidden': 'Tidsstämplar dolda.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

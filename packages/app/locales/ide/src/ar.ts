@@ -587,4 +587,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '‏“{{name}}” يحتاج إلى خيارات — تم فتح ‎/scripts لتعيينها ثم التشغيل.',
   'ide.chat.settings.effort.label': 'جهد الاستدلال',
+  'ide.chat.timestampsShown': 'تم إظهار الطوابع الزمنية.',
+  'ide.chat.timestampsHidden': 'تم إخفاء الطوابع الزمنية.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -596,4 +596,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ vyžaduje voľby — otvoril som /scripts, aby ste ich nastavili a Spustili.',
   'ide.chat.settings.effort.label': 'Úsilie zamerané na logické uvažovanie',
+  'ide.chat.timestampsShown': 'Časové pečiatky zobrazené.',
+  'ide.chat.timestampsHidden': 'Časové pečiatky skryté.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

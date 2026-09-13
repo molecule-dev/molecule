@@ -53,6 +53,7 @@ export type SettingKey =
   | 'hooks'
   | 'autoApproveCommands'
   | 'sounds'
+  | 'timestamps'
 
 /** Canonical, value-free metadata for a single user-controllable setting. */
 export interface SettingMeta {
@@ -180,5 +181,12 @@ export const SETTINGS: readonly SettingMeta[] = [
     label: 'Notification sounds',
     description: 'Per-event notification sounds for responses, errors, file changes, and more.',
     editCommand: 'sounds',
+  },
+  {
+    id: 'timestamps',
+    label: 'Timestamps',
+    description:
+      'Show the time on every chat message and event. Off by default; your own messages and critical events always show it. This device only.',
+    editCommand: 'timestamps',
   },
 ] as const

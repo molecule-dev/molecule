@@ -596,4 +596,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” seçenekler gerektiriyor — bunları ayarlayıp Çalıştırabilmeniz için /scripts açıldı.',
   'ide.chat.settings.effort.label': 'Akıl yürütme çabası',
+  'ide.chat.timestampsShown': 'Zaman damgaları gösteriliyor.',
+  'ide.chat.timestampsHidden': 'Zaman damgaları gizlendi.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

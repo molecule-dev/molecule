@@ -586,4 +586,8 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ þarfnast valkosta — opnaði /scripts svo þú getir stillt þá og Keyrt.',
   'ide.chat.settings.effort.label': 'Rökhugsunaráreynsla',
+  'ide.chat.timestampsShown': 'Tímastimplar sýndir.',
+  'ide.chat.timestampsHidden': 'Tímastimplar faldir.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

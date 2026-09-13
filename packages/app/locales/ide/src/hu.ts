@@ -596,4 +596,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     'A(z) „{{name}}” beállításokat igényel — megnyílt a /scripts, hogy megadhassa őket és Futtathassa.',
   'ide.chat.settings.effort.label': 'Érvelési erőfeszítés',
+  'ide.chat.timestampsShown': 'Időbélyegek megjelenítve.',
+  'ide.chat.timestampsHidden': 'Időbélyegek elrejtve.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -635,4 +635,8 @@ export const en: IdeTranslations = {
     'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   // Resize sash between chat and preview (PV6).
   'ide.resizeHandle.label': 'Resize panels',
+  'ide.chat.timestampsShown': 'Timestamps shown.',
+  'ide.chat.timestampsHidden': 'Timestamps hidden.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

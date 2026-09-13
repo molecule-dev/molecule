@@ -590,4 +590,8 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '«{{name}}» necesita opcións — abriuse /scripts para que as configures e Executes.',
   'ide.chat.settings.effort.label': 'Esforzo de razoamento',
+  'ide.chat.timestampsShown': 'Marcas de tempo visibles.',
+  'ide.chat.timestampsHidden': 'Marcas de tempo ocultas.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

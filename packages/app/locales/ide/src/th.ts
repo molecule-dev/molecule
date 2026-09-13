@@ -586,4 +586,8 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ต้องการตัวเลือก — เปิด /scripts เพื่อให้คุณตั้งค่าและเรียกใช้',
   'ide.chat.settings.effort.label': 'ความพยายามในการใช้เหตุผล',
+  'ide.chat.timestampsShown': 'แสดงเวลาแล้ว',
+  'ide.chat.timestampsHidden': 'ซ่อนเวลาแล้ว',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

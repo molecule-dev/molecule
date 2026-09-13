@@ -577,4 +577,8 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.scripts.cancelRun': 'ሰርዝ',
   'ide.chat.scripts.runNeedsOptions': '“{{name}}” አማራጮች ይፈልጋል — /scripts ተከፍቷል፣ እነሱን አዘጋጅተው ያስኪዱ።',
   'ide.chat.settings.effort.label': 'የማመዛዘን ጥረት',
+  'ide.chat.timestampsShown': 'የጊዜ ማህተሞች ታይተዋል።',
+  'ide.chat.timestampsHidden': 'የጊዜ ማህተሞች ተደብቀዋል።',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

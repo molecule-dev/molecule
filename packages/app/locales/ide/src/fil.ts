@@ -591,4 +591,8 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     'Kailangan ng “{{name}}” ng mga opsyon — binuksan ang /scripts para maitakda mo ang mga ito at Patakbuhin.',
   'ide.chat.settings.effort.label': 'Pagsisikap sa pangangatwiran',
+  'ide.chat.timestampsShown': 'Ipinapakita ang mga timestamp.',
+  'ide.chat.timestampsHidden': 'Nakatago ang mga timestamp.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

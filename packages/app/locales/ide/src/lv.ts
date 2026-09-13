@@ -594,4 +594,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” nepieciešamas opcijas — atvēru /scripts, lai varētu tās iestatīt un Palaist.',
   'ide.chat.settings.effort.label': 'Loģiskās domāšanas prasmes',
+  'ide.chat.timestampsShown': 'Laika zīmogi parādīti.',
+  'ide.chat.timestampsHidden': 'Laika zīmogi paslēpti.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

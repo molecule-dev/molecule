@@ -588,4 +588,8 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ට විකල්ප අවශ්‍යයි — ඒවා සකසා ධාවනය කිරීමට /scripts විවෘත කරන ලදී.',
   'ide.chat.settings.effort.label': 'තර්කානුකූල උත්සාහය',
+  'ide.chat.timestampsShown': 'කාල මුද්‍රා පෙන්වයි.',
+  'ide.chat.timestampsHidden': 'කාල මුද්‍රා සඟවා ඇත.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

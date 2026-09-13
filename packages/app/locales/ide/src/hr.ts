@@ -587,4 +587,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ zahtijeva opcije — otvoren /scripts da ih postavite i pokrenete.',
   'ide.chat.settings.effort.label': 'Napor rasuđivanja',
+  'ide.chat.timestampsShown': 'Vremenske oznake prikazane.',
+  'ide.chat.timestampsHidden': 'Vremenske oznake skrivene.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

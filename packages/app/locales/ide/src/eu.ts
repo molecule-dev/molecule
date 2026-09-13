@@ -588,4 +588,8 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”(e)k aukerak behar ditu — /scripts ireki da, ezarri eta Exekutatzeko.',
   'ide.chat.settings.effort.label': 'Arrazoitzeko ahalegina',
+  'ide.chat.timestampsShown': 'Denbora-zigiluak ikusgai.',
+  'ide.chat.timestampsHidden': 'Denbora-zigiluak ezkutatuta.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

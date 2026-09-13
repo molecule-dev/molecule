@@ -594,4 +594,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ vajab valikuid — avasin /scripts, et saaksite need määrata ja Käivitada.',
   'ide.chat.settings.effort.label': 'Mõtlemisprotsess',
+  'ide.chat.timestampsShown': 'Ajatemplid on nähtaval.',
+  'ide.chat.timestampsHidden': 'Ajatemplid on peidetud.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

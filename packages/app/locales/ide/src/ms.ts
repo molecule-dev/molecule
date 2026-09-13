@@ -589,4 +589,8 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” memerlukan pilihan — /scripts dibuka supaya anda boleh menetapkannya dan Menjalankan.',
   'ide.chat.settings.effort.label': 'Usaha penaakulan',
+  'ide.chat.timestampsShown': 'Cap masa ditunjukkan.',
+  'ide.chat.timestampsHidden': 'Cap masa disembunyikan.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

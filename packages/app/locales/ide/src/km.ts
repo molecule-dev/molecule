@@ -589,4 +589,8 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ត្រូវការជម្រើស — បានបើក /scripts ដើម្បីឲ្យអ្នកកំណត់ពួកវា ហើយដំណើរការ។',
   'ide.chat.settings.effort.label': 'ការខិតខំប្រឹងប្រែងវែកញែក',
+  'ide.chat.timestampsShown': 'បានបង្ហាញត្រាពេលវេលា។',
+  'ide.chat.timestampsHidden': 'បានលាក់ត្រាពេលវេលា។',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

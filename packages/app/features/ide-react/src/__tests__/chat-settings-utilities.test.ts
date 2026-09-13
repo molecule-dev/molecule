@@ -34,6 +34,7 @@ const sampleValues: SettingsDisplayValues = {
   hooks: 'In project settings',
   autoApproveCommands: 'Off',
   sounds: '3 of 9 events enabled',
+  timestamps: 'On',
 }
 
 describe('buildSettingsList', () => {
@@ -59,6 +60,7 @@ describe('buildSettingsList', () => {
       'hooks',
       'autoApproveCommands',
       'sounds',
+      'timestamps',
     ])
   })
 
@@ -80,6 +82,7 @@ describe('buildSettingsList', () => {
       hooks: undefined,
       autoApproveCommands: 'autoapprove',
       sounds: 'sounds',
+      timestamps: 'timestamps',
     })
   })
 
@@ -114,6 +117,7 @@ describe('buildSettingsList', () => {
     expect(byId.autoCommit).toBe('Every 60s')
     expect(byId.hooks).toBe('In project settings')
     expect(byId.sounds).toBe('3 of 9 events enabled')
+    expect(byId.timestamps).toBe('On')
   })
 
   it('gives every setting a non-empty label and description', () => {
@@ -182,6 +186,7 @@ describe('the settings view is derived from the shared SETTINGS metadata (SYN11 
       'autofix',
       'autocommit',
       'sounds',
+      'timestamps',
     ]
     for (const id of settingChangingCommands) {
       expect(

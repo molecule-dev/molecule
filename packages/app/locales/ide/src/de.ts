@@ -610,4 +610,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ benötigt Optionen — /scripts geöffnet, damit du sie festlegen und Ausführen kannst.',
   'ide.chat.settings.effort.label': 'Aufwand für die Argumentation',
+  'ide.chat.timestampsShown': 'Zeitstempel eingeblendet.',
+  'ide.chat.timestampsHidden': 'Zeitstempel ausgeblendet.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

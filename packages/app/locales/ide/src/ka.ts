@@ -588,4 +588,8 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“-ს სჭირდება პარამეტრები — გაიხსნა /scripts, რომ დააყენოთ ისინი და გაუშვათ.',
   'ide.chat.settings.effort.label': 'მსჯელობის ძალისხმევა',
+  'ide.chat.timestampsShown': 'დროის ნიშნულები ნაჩვენებია.',
+  'ide.chat.timestampsHidden': 'დროის ნიშნულები დამალულია.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

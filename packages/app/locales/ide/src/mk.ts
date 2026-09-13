@@ -588,4 +588,8 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '„{{name}}“ бара опции — отворив /scripts за да ги поставите и да Извршите.',
   'ide.chat.settings.effort.label': 'Напор за расудување',
+  'ide.chat.timestampsShown': 'Временските ознаки се прикажани.',
+  'ide.chat.timestampsHidden': 'Временските ознаки се скриени.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

@@ -584,4 +584,8 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” chọrọ nhọrọ — emeghere /scripts ka ị hazie ha ma Gbaa.',
   'ide.chat.settings.effort.label': 'Mgbalị iche echiche',
+  'ide.chat.timestampsShown': 'A na-egosi stampụ oge.',
+  'ide.chat.timestampsHidden': 'Ezoro stampụ oge.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

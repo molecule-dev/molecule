@@ -61,6 +61,16 @@
  *   (`formatReportConfirmation(result)` returns the i18n key + default copy,
  *   and `result.url` is the filed issue). `ShareModal` does show the created
  *   link inline, but only until it is closed.
+ * - Chat timestamps are a PER-DEVICE preference in localStorage, OFF by
+ *   default — not a `ChatPanel` prop or project setting. Off, only the user's
+ *   own message headers and critical events show a time; on, every message and
+ *   event card does. A run of items with the same label ("3 minutes ago") shows
+ *   it once, at the top, and labels advance each minute. A host settings screen
+ *   toggles it with `setChatTimestampsVisible(bool)` and reads it with
+ *   `useChatTimestampsVisible()`; `/timestamps [on | off]` writes the same value.
+ * - A custom card is a critical event only when its factory sets
+ *   `critical: true` (a failure, a blocked action, a limit that stopped work) —
+ *   the package never infers it from tone or copy.
  * - Text routes through `t('ide.*')` — `@molecule/app-locales-ide` supplies
  *   translations.
  *

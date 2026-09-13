@@ -582,4 +582,8 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ຕ້ອງການຕົວເລືອກ — ເປີດ /scripts ເພື່ອໃຫ້ທ່ານຕັ້ງຄ່າ ແລະ ແລ່ນ.',
   'ide.chat.settings.effort.label': 'ຄວາມພະຍາຍາມໃນການຫາເຫດຜົນ',
+  'ide.chat.timestampsShown': 'ສະແດງເວລາແລ້ວ.',
+  'ide.chat.timestampsHidden': 'ເຊື່ອງເວລາແລ້ວ.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

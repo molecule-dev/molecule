@@ -587,4 +587,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}”에 옵션이 필요합니다 — 설정하고 실행할 수 있도록 /scripts를 열었습니다.',
   'ide.chat.settings.effort.label': '추론 과정',
+  'ide.chat.timestampsShown': '타임스탬프를 표시합니다.',
+  'ide.chat.timestampsHidden': '타임스탬프를 숨겼습니다.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }

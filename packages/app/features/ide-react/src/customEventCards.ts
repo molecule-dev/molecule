@@ -119,6 +119,13 @@ export interface ChatEventCard {
    * one). The app owns the identifier; the shared package only matches it.
    */
   coversLimitType?: string
+  /**
+   * Marks the card as a critical event — something failed, was blocked, or stopped
+   * the work (a refused deploy, a blocked outbound connection). A critical card
+   * keeps its timestamp even while the viewer has timestamps turned off. The app
+   * decides; the shared package never infers criticality from a card's tone or copy.
+   */
+  critical?: boolean
 }
 
 /**

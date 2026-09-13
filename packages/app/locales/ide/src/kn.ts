@@ -588,4 +588,8 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.scripts.runNeedsOptions':
     '“{{name}}” ಗೆ ಆಯ್ಕೆಗಳು ಬೇಕಾಗಿವೆ — ಅವುಗಳನ್ನು ಹೊಂದಿಸಿ ರನ್ ಮಾಡಲು /scripts ತೆರೆಯಲಾಗಿದೆ.',
   'ide.chat.settings.effort.label': 'ತಾರ್ಕಿಕ ಪ್ರಯತ್ನ',
+  'ide.chat.timestampsShown': 'ಸಮಯಮುದ್ರೆಗಳನ್ನು ತೋರಿಸಲಾಗಿದೆ.',
+  'ide.chat.timestampsHidden': 'ಸಮಯಮುದ್ರೆಗಳನ್ನು ಮರೆಮಾಡಲಾಗಿದೆ.',
+  // Command usage syntax: parked as English in every locale.
+  'ide.chat.timestampsUsage': 'Usage: /timestamps [on | off]',
 }
