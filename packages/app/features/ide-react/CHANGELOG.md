@@ -1,5 +1,12 @@
 # @molecule/app-ide-react
 
+## 1.12.1
+
+### Patch Changes
+
+- 5eaa9b2: The preview's freeze watchdog reports a frozen page only after the current document has heartbeat at least once; a page that has just reloaded and is still loading is not reported as frozen.
+- e9107c5: The preview's health probe no longer declares a heartbeating page down and reloads it while the sandbox is busy; only a page whose heartbeat has stopped is reloaded when the server answers again.
+
 ## 1.12.0
 
 ### Minor Changes

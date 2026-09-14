@@ -1,5 +1,11 @@
 # @molecule/app-e2e-preview
 
+## 1.0.5
+
+### Patch Changes
+
+- 183d661: `page.setViewportSize()` waits up to 4 seconds for the preview host to resize the frame before reporting the size it got; the real IDE resizes well after the old 1.5-second budget, which failed every phone-width spec.
+
 ## 1.0.4
 
 ### Patch Changes
