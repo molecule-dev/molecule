@@ -1605,7 +1605,18 @@ export function PreviewPanel({
       if (cancelled) return
       const up = await isServerUp(url)
       if (cancelled || urlRef.current !== url) return
-      if (up) {
+      // A document that is still heartbeating is ALIVE whatever the probe says. A
+      // sandbox busy with a build (vite build, a prerender, a test run) answers the
+      // status probe late — past PROBE_TIMEOUT_MS — while the page in the frame runs
+      // on untouched; two such misses used to be the down verdict, and the reload
+      // when the probe came back tore the app down and remounted it: "[vite]
+      // connecting… connected." every 3–15 seconds for as long as the build ran, the
+      // stuck-preview detector firing on the churn (X0 R78/R79, 2026-09-14). A server
+      // that really went away drops the document's heartbeat (and its Vite client
+      // reloads it itself once the server is back), so the down verdict is gated on
+      // the heartbeat the freeze watchdog already trusts.
+      const documentAlive = Date.now() - lastHeartbeatRef.current < FREEZE_THRESHOLD_MS
+      if (up || documentAlive) {
         misses = 0
         timer = setTimeout(() => void check(), HEALTH_POLL_MS)
         return

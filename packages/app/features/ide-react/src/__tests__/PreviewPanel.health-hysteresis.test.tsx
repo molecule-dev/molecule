@@ -132,16 +132,38 @@ describe('PreviewPanel — steady-state health check hysteresis', () => {
     expect(iframe.getAttribute('src')).not.toContain('_r=')
   })
 
-  it('still recovers a real outage: consecutive misses, then a reload when it answers', async () => {
-    const status = scriptedStatus([true, true, false, false, true])
+  it('still recovers a real outage: the document goes quiet, consecutive misses, then a reload when it answers', async () => {
+    // A real outage: the server stops answering AND the document's heartbeat stops
+    // (its bridge is gone with the server). Misses that land while the document is
+    // still within its heartbeat window are not strikes; the strikes start once it
+    // has gone quiet, and two of them are the verdict.
+    const status = scriptedStatus([true, true, false, false, false, false, false, true])
     vi.stubGlobal('fetch', status.fetch)
-
     const iframe = await mountRendered()
     const srcBefore = iframe.getAttribute('src')
-
-    await advance(15_000)
-
+    await advance(30_000)
     expect(iframe.getAttribute('src')).not.toBe(srcBefore)
     expect(iframe.getAttribute('src')).toContain('_r=')
+  })
+
+  // X0 R78/R79 (2026-09-14): a sandbox busy with a build answered the status probe
+  // late for minutes while the page in the frame ran on — every pair of late
+  // answers reloaded the frame ("[vite] connecting… connected." every 3–15 s), and
+  // the stuck-preview detector fired on the churn. A heartbeating document is
+  // alive whatever the probe says.
+  it('never reloads a document that keeps heartbeating, however many probes miss', async () => {
+    const status = scriptedStatus([true, true, false])
+    vi.stubGlobal('fetch', status.fetch)
+    const iframe = await mountRendered()
+    const srcBefore = iframe.getAttribute('src')
+    for (let i = 0; i < 12; i++) {
+      await advance(3_000)
+      await act(async () => {
+        postFromPreview({ type: 'molecule:heartbeat' })
+      })
+    }
+    expect(status.probes()).toBeGreaterThanOrEqual(8)
+    expect(iframe.getAttribute('src')).toBe(srcBefore)
+    expect(iframe.getAttribute('src')).not.toContain('_r=')
   })
 })
