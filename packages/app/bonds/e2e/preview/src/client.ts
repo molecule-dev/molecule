@@ -85,9 +85,13 @@ export const E2E_PREVIEW_CLIENT_SCRIPT = `;(function () {
         history.go(msg.delta)
       } else if (msg.op === 'viewport') {
         try { window.parent.postMessage({ type: 'molecule:viewport', id: id, width: msg.width, height: msg.height }, '*') } catch (e) {}
+        // The host resizes the frame through its own render cycle; in the real IDE
+        // the new size reached this window well after 1.5 s (X0 R79, 2026-09-14),
+        // and the old budget answered with the stale size and failed every phone
+        // spec. Poll until the size lands, up to 4 s (the driver waits 8 s).
         var started = Date.now()
         var check = function () {
-          if (Math.abs(innerWidth - msg.width) <= 2 || Date.now() - started > 1500) {
+          if (Math.abs(innerWidth - msg.width) <= 2 || Date.now() - started > 4000) {
             reply({ ok: true, value: { width: innerWidth, height: innerHeight, framed: window.parent !== window } })
           } else setTimeout(check, 50)
         }

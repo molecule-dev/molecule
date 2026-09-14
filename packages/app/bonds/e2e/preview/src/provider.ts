@@ -439,7 +439,8 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
       await settle(timeout)
     },
     async viewport(width, height): Promise<E2EViewport> {
-      const reply = await cmd({ op: 'viewport', width, height }, 5_000)
+      // The page client polls for the host's resize for up to 4 s before answering.
+      const reply = await cmd({ op: 'viewport', width, height }, 8_000)
       if (reply.ok === false) throw new Error(String(reply.error ?? 'viewport failed'))
       const v = reply.value as { width: number; height: number }
       return { width: v.width, height: v.height }
