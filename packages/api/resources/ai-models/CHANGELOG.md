@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.6.1
+
+### Patch Changes
+
+- Offers a `us` region for `deepseek-flash` (DeepSeek V4.1 Flash on the DeepInfra re-host, with its rate card) beside the native default.
+
 ## 1.6.0
 
 ### Minor Changes

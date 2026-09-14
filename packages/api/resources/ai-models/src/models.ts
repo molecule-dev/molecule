@@ -1437,15 +1437,19 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.003,
     // DeepSeek charges no cache-write premium — write bills at input.
     cacheWritePricePerMTok: 0.15,
-    // PINNED NATIVE — no US re-host is wired. DeepInfra does serve
-    // `deepseek-ai/DeepSeek-V4.1-Flash` (listed 2026-09-10) at $0.30/$1.20,
-    // cache read 0.02× input = $0.006 — exactly 2× this native off-peak card —
-    // but offering a us region needs a molecule-dev US_MODEL_MAP entry
-    // (region-model-maps.ts) plus a regionPricing row here, and that pair is a
-    // deliberate molecule-dev change (it also can't beat this card on the
-    // agentic mix, unlike the legacy 0731 re-host). Single-entry ['cn'] pins
-    // dispatch to the native endpoint regardless of per-model region choice.
-    regions: ['cn'],
+    // Native first (the default region); the DeepInfra US re-host
+    // (`deepseek-ai/DeepSeek-V4.1-Flash`, molecule-dev region-model-maps.ts)
+    // is offered as a SECOND region since 2026-09-14, when the native endpoint
+    // queued every completion for hours (SSE keep-alives, no token, three
+    // Synthase turns lost) while DeepInfra answered at once. Its card, read
+    // live from api.deepinfra.com/models on 2026-09-14: $0.20/$0.60, cache
+    // read 3% of input = $0.006 — roughly 2× this native off-peak card on
+    // cache reads, so native stays the default and `us` is the fallback a
+    // project picks when native is unavailable.
+    regions: ['cn', 'us'],
+    regionPricing: {
+      us: { inputPricePerMTok: 0.2, outputPricePerMTok: 0.6, cacheReadPricePerMTok: 0.006 },
+    },
     // Same peak windows as the family — the V4.1 card footnote is verbatim the
     // 2026-08-31 sentence: 01:00-04:00 and 06:00-10:00 UTC, Mon-Fri, ×2.
     peakPricing: {
