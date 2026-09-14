@@ -15,7 +15,7 @@
  * @module
  */
 
-import { act, cleanup, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -165,5 +165,65 @@ describe('PreviewPanel — steady-state health check hysteresis', () => {
     expect(status.probes()).toBeGreaterThanOrEqual(8)
     expect(iframe.getAttribute('src')).toBe(srcBefore)
     expect(iframe.getAttribute('src')).not.toContain('_r=')
+  })
+})
+
+describe('PreviewPanel — freeze watchdog and a document that has just reloaded', () => {
+  /** Mount with a stuck-report spy, confirm a render, and let the reveal settle. */
+  async function mountWithSpy(): Promise<{
+    iframe: HTMLIFrameElement
+    onPreviewStuck: ReturnType<typeof vi.fn>
+  }> {
+    const onPreviewStuck = vi.fn()
+    const { container } = render(
+      <Wrap provider={providerAtUrl()}>
+        <PreviewPanel isBuilding={false} onPreviewStuck={onPreviewStuck} />
+      </Wrap>,
+    )
+    for (let i = 0; i < 12 && !container.querySelector('iframe'); i++) {
+      await advance(50)
+    }
+    const iframe = container.querySelector('iframe') as HTMLIFrameElement
+    await act(async () => {
+      postFromPreview({ type: 'molecule:ready' })
+    })
+    await advance(1_500)
+    return { iframe, onPreviewStuck }
+  }
+
+  // X0 R78/R79 (2026-09-14): the "frozen" report fired within two minutes of a
+  // handoff, while the harness's post-turn verification loaded the sandbox and the
+  // preview had just been reloaded. A reloaded document beats only once it is up;
+  // until then a heartbeat gap is a load in progress, not a blocked thread.
+  it('does not report a freeze for a reloaded document that has not beaten yet', async () => {
+    vi.stubGlobal('fetch', scriptedStatus([true]).fetch)
+    const { iframe, onPreviewStuck } = await mountWithSpy()
+    for (let i = 0; i < 3; i++) {
+      await advance(3_000)
+      await act(async () => {
+        postFromPreview({ type: 'molecule:heartbeat' })
+      })
+    }
+    // A reload: the new document loads but is slow to beat (busy sandbox). Ten
+    // seconds of silence is past the freeze window and short of the never-displayed
+    // escalation — a freeze verdict here would be the false one.
+    await act(async () => {
+      fireEvent.load(iframe)
+    })
+    await advance(10_000)
+    expect(onPreviewStuck).not.toHaveBeenCalled()
+  })
+
+  it('still reports a real freeze: a document that rendered and beat, then went silent', async () => {
+    vi.stubGlobal('fetch', scriptedStatus([true]).fetch)
+    const { onPreviewStuck } = await mountWithSpy()
+    for (let i = 0; i < 3; i++) {
+      await advance(3_000)
+      await act(async () => {
+        postFromPreview({ type: 'molecule:heartbeat' })
+      })
+    }
+    await advance(20_000)
+    expect(onPreviewStuck).toHaveBeenCalledWith(expect.objectContaining({ reason: 'frozen' }))
   })
 })

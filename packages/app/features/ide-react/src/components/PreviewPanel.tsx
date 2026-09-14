@@ -1678,7 +1678,15 @@ export function PreviewPanel({
     lastHeartbeatRef.current = Date.now()
     const timer = setInterval(() => {
       if (document.visibilityState === 'hidden') return
-      setPreviewFrozen(Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS)
+      // "Frozen" means a document that RENDERED and then stopped beating. A document
+      // that was just (re)loaded — a navigation, a reload, an HMR full reload — has
+      // not beaten yet, and on a sandbox busy with a build its first beat can take
+      // longer than the freeze window; that gap is a load in progress, not a blocked
+      // thread. Only a gap AFTER the current document's own beat counts (X0 R78/R79,
+      // 2026-09-14: the frozen report fired within two minutes of a handoff, while the
+      // harness's post-turn verification was loading the sandbox, and cost a turn).
+      const beatSinceLoad = lastHeartbeatRef.current >= lastLoadAtRef.current
+      setPreviewFrozen(beatSinceLoad && Date.now() - lastHeartbeatRef.current > FREEZE_THRESHOLD_MS)
     }, FREEZE_CHECK_INTERVAL_MS)
     const onVisibility = (): void => {
       if (document.visibilityState !== 'visible') return
