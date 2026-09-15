@@ -184,6 +184,47 @@ visible box, and is reserved for icon-only hit targets whose visible glyph is
 small and whose enlarged hit area is invisible (workspace toolbar icons, ×
 dismiss buttons).
 
+#### Actions look like buttons (owner decision 2026-09-15)
+
+An action the user is meant to click — Run, Fix, Save, Apply, Stop, Create,
+Retry — is always rendered as a VISIBLE button: `variant: 'solid'` for the
+surface's one primary action, `variant: 'outline'` for every secondary action
+beside it. `ghost` and `link` are for dismiss/close controls and for
+show/hide toggles only — a ghost button reads as plain text, and a row of
+plain-text "Run" links is how the first Tests card shipped and got rejected.
+Sibling actions in one row share one size (`xs` inside chat cards, `sm`/`md` in
+panels and pages). This holds for Synthase-built apps too (the scaffolded
+styling skill says the same): an action that does not look like a button is a
+defect, not a style choice.
+
+### Command cards (chat) — `/scripts`, `/skills`, `/settings`, `/help`, `/test`
+
+The slash-command views share ONE chrome so a new command never has to be
+designed from scratch. `ScriptsCard` in `@molecule/app-ide-react` is the
+reference implementation; a new command card copies it rather than its own
+idea of a card:
+
+- Container, header (title left, primary action right; title suppressed when
+  embedded in the timeline) and search-field inset from `chatCardStyle()`; the
+  same `cm.borderT` row rhythm; the same `<pre>` output block; the same
+  `embedded` flag so the card renders identically as an overlay and as a
+  timeline system-card.
+- Buttons per the rule above: one `solid primary xs` primary action, `outline xs`
+  for row/group actions, `ghost xs` only for close and show/hide.
+- Status is a pill (`cm.textSuccess` / `cm.textError` / `cm.textMuted`), never
+  a bare word.
+- Long output (a runner's log, a script's captured stdout) is COLLAPSED by
+  default behind a Show/Hide output toggle; a failed row keeps its output
+  behind the same toggle.
+- A failure the assistant can act on carries a "Fix with Synthase" action that
+  sends ONE ordinary chat message with the file and the output — the same
+  hand-off the editor's "fix with AI" uses.
+- Every `button`/`input` carries a `data-mol-id` in the card's namespace
+  (`<card>-run-<id>`, `<card>-fix-<id>`, …); all text through `t()`.
+- Enforced by the `command-cards.design` test in `@molecule/app-ide-react`,
+  which renders each card and rejects an action button that is not
+  solid/outline.
+
 ### Cards
 
 - Border radius: `12px` (lg)
