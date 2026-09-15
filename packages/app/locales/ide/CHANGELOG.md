@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.6.0
+
+### Minor Changes
+
+- 20be04f: Adds the Tests bar: an expandable row above the composer that lists the project's end-to-end specs and unit tests and runs them, one at a time or all together, streaming each result inline (hosts provide `listTests`/`runTests`); the locale bond gains the `ide.tests.*` strings.
+
 ## 1.5.0
 
 ### Minor Changes
