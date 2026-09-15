@@ -621,4 +621,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ਪ੍ਰੋਜੈਕਟ ਦੇ ਟੈਸਟ ਦੇਖਣ ਲਈ ਇਸਨੂੰ ਸ਼ੁਰੂ ਕਰੋ।',
   'ide.tests.empty': 'ਇਸ ਪ੍ਰੋਜੈਕਟ ਵਿੱਚ ਅਜੇ ਕੋਈ ਟੈਸਟ ਨਹੀਂ ਹਨ।',
   'ide.tests.noMatch': 'ਤੁਹਾਡੀ ਖੋਜ ਨਾਲ ਕੋਈ ਟੈਸਟ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ।',
+  'ide.tests.fixWithSynthase': 'ਸਿੰਥੇਸ ਨਾਲ ਠੀਕ ਕਰੋ',
+  'ide.tests.fixFailures': 'ਠੀਕ ਕਰੋ {{count}} ਅਸਫਲਤਾਵਾਂ',
+  'ide.tests.fixBusy': 'ਮੌਜੂਦਾ ਵਾਰੀ ਦੇ ਖਤਮ ਹੋਣ ਦੀ ਉਡੀਕ ਕਰੋ।',
 }

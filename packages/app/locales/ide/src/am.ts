@@ -612,4 +612,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ሙከራዎቹን ለማየት ፕሮጀክቱን ይጀምሩ።',
   'ide.tests.empty': 'በዚህ ፕሮጀክት ላይ እስካሁን ምንም ሙከራዎች የሉም።',
   'ide.tests.noMatch': 'ከፍለጋዎ ጋር የሚዛመዱ ምንም ሙከራዎች የሉም።',
+  'ide.tests.fixWithSynthase': 'በሲንቴዝ ያስተካክሉ',
+  'ide.tests.fixFailures': 'አስተካክል {{count}} ውድቀቶች',
+  'ide.tests.fixBusy': 'የአሁኑ ዙር እስኪጠናቀቅ ድረስ ይጠብቁ።',
 }

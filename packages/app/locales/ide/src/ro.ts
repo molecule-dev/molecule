@@ -634,4 +634,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Pornește proiectul pentru a vedea testele acestuia.',
   'ide.tests.empty': 'În acest proiect nu există încă teste.',
   'ide.tests.noMatch': 'Nu există teste care să corespundă căutării tale.',
+  'ide.tests.fixWithSynthase': 'Remediere cu Synthase',
+  'ide.tests.fixFailures': 'Remedierea erorilor de tip „{{count}}”',
+  'ide.tests.fixBusy': 'Așteaptă să se încheie runda curentă.',
 }

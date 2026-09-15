@@ -628,4 +628,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Filloni projektin për të parë testet e tij.',
   'ide.tests.empty': 'Nuk ka ende teste në këtë projekt.',
   'ide.tests.noMatch': 'Asnjë test nuk përputhet me kërkimin tuaj.',
+  'ide.tests.fixWithSynthase': 'Fikso me sintazë',
+  'ide.tests.fixFailures': 'Rregullo {{count}} dështimet',
+  'ide.tests.fixBusy': 'Prisni që kthesa aktuale të përfundojë.',
 }

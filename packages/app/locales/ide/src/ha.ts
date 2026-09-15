@@ -625,4 +625,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Fara aikin don ganin gwaje-gwajensa.',
   'ide.tests.empty': 'Babu gwaje-gwaje a cikin wannan aikin tukuna.',
   'ide.tests.noMatch': 'Babu gwaje-gwaje da suka dace da bincikenka.',
+  'ide.tests.fixWithSynthase': 'Gyara da Synthase',
+  'ide.tests.fixFailures': 'Gyara {{count}} kasawa',
+  'ide.tests.fixBusy': 'Jira har sai juyawar da ke gudana ta ƙare.',
 }

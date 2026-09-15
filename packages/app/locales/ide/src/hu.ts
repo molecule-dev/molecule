@@ -632,4 +632,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Indítsd el a projektet, hogy megtekintsd a tesztjeit.',
   'ide.tests.empty': 'Ebben a projektben egyelőre nincs teszt.',
   'ide.tests.noMatch': 'A keresésednek nem találtunk megfelelő teszteket.',
+  'ide.tests.fixWithSynthase': 'Javítás a Synthase segítségével',
+  'ide.tests.fixFailures': '{{count}}-hibák kijavítása',
+  'ide.tests.fixBusy': 'Várd meg, amíg a jelenlegi kör véget ér.',
 }

@@ -616,4 +616,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'התחל את הפרויקט כדי לראות את הבדיקות שלו.',
   'ide.tests.empty': 'עדיין אין ניסויים בפרויקט הזה.',
   'ide.tests.noMatch': 'אין בדיקות התואמות את החיפוש שלך.',
+  'ide.tests.fixWithSynthase': 'תקן עם סינתזה',
+  'ide.tests.fixFailures': 'לִקְבּוֹעַ {{count}} כישלונות',
+  'ide.tests.fixBusy': 'המתן עד לסיום הסיבוב הנוכחי.',
 }

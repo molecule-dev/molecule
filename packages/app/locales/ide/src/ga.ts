@@ -624,4 +624,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Tosaigh an tionscadal chun a thástálacha a fheiceáil.',
   'ide.tests.empty': 'Níl aon tástálacha sa tionscadal seo go fóill.',
   'ide.tests.noMatch': 'Níl aon tástálacha a oireann do do chuardach.',
+  'ide.tests.fixWithSynthase': 'Deisigh le Synthase',
+  'ide.tests.fixFailures': 'Deisigh {{count}} teipeanna',
+  'ide.tests.fixBusy': 'Fan go dtí go mbeidh an casadh reatha críochnaithe.',
 }

@@ -623,4 +623,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ابدأ المشروع للاطلاع على الاختبارات الخاصة به.',
   'ide.tests.empty': 'لا توجد اختبارات في هذا المشروع حتى الآن.',
   'ide.tests.noMatch': 'لا توجد اختبارات تطابق بحثك.',
+  'ide.tests.fixWithSynthase': 'الإصلاح باستخدام Synthase',
+  'ide.tests.fixFailures': 'إصلاح أخطاء {{count}}',
+  'ide.tests.fixBusy': 'انتظر حتى تنتهي الجولة الحالية.',
 }

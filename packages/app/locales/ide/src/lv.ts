@@ -630,4 +630,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Palaižiet projektu, lai apskatītu tā testus.',
   'ide.tests.empty': 'Šajā projektā pagaidām nav veikti testi.',
   'ide.tests.noMatch': 'Nav testu, kas atbilstu jūsu meklējumam.',
+  'ide.tests.fixWithSynthase': 'Labot ar Synthase',
+  'ide.tests.fixFailures': '{{count}}a kļūdu novēršana',
+  'ide.tests.fixBusy': 'Pagaidi, līdz beigsies pašreizējā kārta.',
 }

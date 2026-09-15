@@ -23,6 +23,7 @@ import { classMap } from '@molecule/app-ui-tailwind'
 import {
   applyTestRunEvent,
   EMPTY_RUN_STATE,
+  type TestFailure,
   type TestsRunState,
 } from '../components/tests-card-utilities.js'
 import { TestsCard } from '../components/TestsCard.js'
@@ -86,9 +87,11 @@ function renderCard(overrides: Partial<ComponentProps<typeof TestsCard>> = {}): 
   container: HTMLElement
   selections: TestSelection[]
   cancels: { count: number }
+  fixes: TestFailure[][]
 } {
   const selections: TestSelection[] = []
   const cancels = { count: 0 }
+  const fixes: TestFailure[][] = []
   const { container } = render(
     <TestsCard
       tests={TESTS}
@@ -100,11 +103,13 @@ function renderCard(overrides: Partial<ComponentProps<typeof TestsCard>> = {}): 
       onCancel={() => {
         cancels.count += 1
       }}
+      onFix={(failures) => fixes.push(failures)}
+      fixDisabledReason={null}
       isLight={false}
       {...overrides}
     />,
   )
-  return { container, selections, cancels }
+  return { container, selections, cancels, fixes }
 }
 
 /**
@@ -117,6 +122,41 @@ function runStateOf(events: TestRunEvent[]): TestsRunState {
   return events.reduce(applyTestRunEvent, EMPTY_RUN_STATE)
 }
 
+/** A finished run: one pass, two failures with output. */
+const FAILED_RUN: TestRunEvent[] = [
+  {
+    type: 'start',
+    runId: 'r1',
+    ids: ['my-app/app:e2e/home.spec.ts', 'my-app/app:e2e/about.spec.ts'],
+  },
+  {
+    type: 'result',
+    id: 'my-app/app:e2e/home.spec.ts',
+    status: 'passed',
+    passed: 1,
+    failed: 0,
+    skipped: 0,
+  },
+  {
+    type: 'result',
+    id: 'my-app/app:e2e/about.spec.ts',
+    status: 'failed',
+    passed: 0,
+    failed: 1,
+    skipped: 0,
+    output: 'Error: expect(received).toBe(expected)',
+  },
+  {
+    type: 'result',
+    id: 'my-app/api:src/routes.test.ts',
+    status: 'failed',
+    passed: 0,
+    failed: 1,
+    skipped: 0,
+    output: 'AssertionError: expected 404 to be 200',
+  },
+  { type: 'done', outcome: 'completed', passed: 1, failed: 2, skipped: 0 },
+]
 describe('TestsCard — listing', () => {
   it('groups by kind and by the directory that owns each test', () => {
     const { container } = renderCard()
@@ -246,6 +286,7 @@ describe('TestsCard — a live run', () => {
     expect(
       molId(live.container, 'tests-card-status-my-app/app:e2e/home.spec.ts')?.textContent,
     ).toContain('Running')
+    fireEvent.click(molId(live.container, 'tests-card-output-toggle') as HTMLElement)
     expect(molId(live.container, 'tests-card-output')?.textContent).toContain('Running 1 test')
     cleanup()
 
@@ -286,7 +327,7 @@ describe('TestsCard — a live run', () => {
     expect(molId(done.container, 'tests-card-summary')?.textContent).toContain('1 failed')
   })
 
-  it('keeps a failure’s output under its row after the run ends', () => {
+  it('keeps a failure’s output under its row after the run ends, behind its toggle', () => {
     const { container } = renderCard({
       run: runStateOf([
         { type: 'start', runId: 'r1', ids: ['my-app/app:e2e/about.spec.ts'] },
@@ -302,6 +343,9 @@ describe('TestsCard — a live run', () => {
         { type: 'done', outcome: 'completed', passed: 0, failed: 1, skipped: 0 },
       ]),
     })
+    fireEvent.click(
+      molId(container, 'tests-card-failure-toggle-my-app/app:e2e/about.spec.ts') as HTMLElement,
+    )
     expect(
       molId(container, 'tests-card-failure-my-app/app:e2e/about.spec.ts')?.textContent,
     ).toContain('No tests found')
@@ -395,5 +439,111 @@ describe('TestsCard — module surface', () => {
     const barrel = await import('../index.js')
     expect(typeof (barrel as { TestsCard?: unknown }).TestsCard).toBe('function')
     expect(vi.isMockFunction((barrel as { TestsCard?: unknown }).TestsCard)).toBe(false)
+  })
+})
+
+describe('TestsCard — output is collapsed by default', () => {
+  it('shows the run output only after the toggle is clicked', () => {
+    const { container } = renderCard({
+      run: runStateOf([
+        { type: 'start', runId: 'r1', ids: [] },
+        { type: 'output', chunk: 'Running 1 test' },
+      ]),
+    })
+    expect(molId(container, 'tests-card-output-area')).not.toBeNull()
+    expect(molId(container, 'tests-card-output'), 'output starts collapsed').toBeNull()
+
+    const toggle = molId(container, 'tests-card-output-toggle') as HTMLElement
+    expect(toggle.textContent).toBe('Show output')
+    fireEvent.click(toggle)
+    expect(molId(container, 'tests-card-output')?.textContent).toContain('Running 1 test')
+    expect(molId(container, 'tests-card-output-toggle')?.textContent).toBe('Hide output')
+
+    fireEvent.click(molId(container, 'tests-card-output-toggle') as HTMLElement)
+    expect(molId(container, 'tests-card-output')).toBeNull()
+  })
+
+  it('stays collapsed WHILE a run streams — the pills carry the state', () => {
+    const { container } = renderCard({
+      run: runStateOf([
+        { type: 'start', runId: 'r1', ids: ['my-app/app:e2e/home.spec.ts'] },
+        { type: 'output', chunk: 'Running 1 test using 1 worker' },
+      ]),
+    })
+    expect(molId(container, 'tests-card-running')).not.toBeNull()
+    expect(molId(container, 'tests-card-output')).toBeNull()
+  })
+
+  it('a failure’s output starts collapsed behind the same toggle', () => {
+    const { container } = renderCard({ run: runStateOf(FAILED_RUN) })
+    const id = 'my-app/app:e2e/about.spec.ts'
+    expect(molId(container, `tests-card-failure-${id}`), 'starts collapsed').toBeNull()
+    const toggle = molId(container, `tests-card-failure-toggle-${id}`) as HTMLElement
+    expect(toggle.textContent).toBe('Show output')
+    fireEvent.click(toggle)
+    expect(molId(container, `tests-card-failure-${id}`)?.textContent).toContain('expect(received)')
+  })
+})
+
+describe('TestsCard — fix with Synthase', () => {
+  it('offers a fix on every failed row, and nowhere else', () => {
+    const { container } = renderCard({ run: runStateOf(FAILED_RUN) })
+    expect(molId(container, 'tests-card-fix-my-app/app:e2e/about.spec.ts')).not.toBeNull()
+    expect(molId(container, 'tests-card-fix-my-app/api:src/routes.test.ts')).not.toBeNull()
+    // The passing row and the never-run rows carry no fix action.
+    expect(molId(container, 'tests-card-fix-my-app/app:e2e/home.spec.ts')).toBeNull()
+    expect(molId(container, 'tests-card-fix-.:tests/tooling.test.ts')).toBeNull()
+  })
+
+  it('a row’s fix hands over exactly that test and its output', () => {
+    const { container, fixes } = renderCard({ run: runStateOf(FAILED_RUN) })
+    fireEvent.click(molId(container, 'tests-card-fix-my-app/app:e2e/about.spec.ts') as HTMLElement)
+    expect(fixes).toHaveLength(1)
+    expect(fixes[0]).toHaveLength(1)
+    expect(fixes[0]?.[0]?.item.id).toBe('my-app/app:e2e/about.spec.ts')
+    expect(fixes[0]?.[0]?.output).toContain('expect(received)')
+  })
+
+  it('the header batches EVERY failure into one hand-over', () => {
+    const { container, fixes } = renderCard({ run: runStateOf(FAILED_RUN) })
+    const all = molId(container, 'tests-card-fix-all') as HTMLElement
+    expect(all.textContent).toBe('Fix 2 failures')
+    fireEvent.click(all)
+    expect(fixes[0]?.map((f) => f.item.id)).toEqual([
+      'my-app/app:e2e/about.spec.ts',
+      'my-app/api:src/routes.test.ts',
+    ])
+  })
+
+  it('reads “Fix with Synthase” when there is only one failure', () => {
+    const { container } = renderCard({
+      run: runStateOf([
+        { type: 'start', runId: 'r1', ids: ['my-app/app:e2e/about.spec.ts'] },
+        {
+          type: 'result',
+          id: 'my-app/app:e2e/about.spec.ts',
+          status: 'failed',
+          passed: 0,
+          failed: 1,
+          skipped: 0,
+          output: 'boom',
+        },
+        { type: 'done', outcome: 'completed', passed: 0, failed: 1, skipped: 0 },
+      ]),
+    })
+    expect(molId(container, 'tests-card-fix-all')?.textContent).toBe('Fix with Synthase')
+  })
+
+  it('is disabled with the reason when the viewer cannot send', () => {
+    const { container, fixes } = renderCard({
+      run: runStateOf(FAILED_RUN),
+      fixDisabledReason: 'Wait for the current turn to finish.',
+    })
+    const fix = molId(container, 'tests-card-fix-my-app/app:e2e/about.spec.ts') as HTMLButtonElement
+    expect(fix.disabled).toBe(true)
+    expect(fix.getAttribute('title')).toBe('Wait for the current turn to finish.')
+    fireEvent.click(fix)
+    expect(fixes).toHaveLength(0)
+    expect((molId(container, 'tests-card-fix-all') as HTMLButtonElement).disabled).toBe(true)
   })
 })

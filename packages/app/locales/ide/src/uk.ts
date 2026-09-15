@@ -636,4 +636,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Запустіть проект, щоб переглянути його тести.',
   'ide.tests.empty': 'У цьому проєкті поки що немає тестів.',
   'ide.tests.noMatch': 'За вашим запитом не знайдено жодних тестів.',
+  'ide.tests.fixWithSynthase': 'Виправити за допомогою Synthase',
+  'ide.tests.fixFailures': 'Виправлення помилок {{count}}',
+  'ide.tests.fixBusy': 'Дочекайтеся закінчення поточного ходу.',
 }

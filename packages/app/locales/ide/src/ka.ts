@@ -624,4 +624,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'დაიწყეთ პროექტი მისი ტესტების სანახავად.',
   'ide.tests.empty': 'ამ პროექტში ტესტები ჯერ არ არის.',
   'ide.tests.noMatch': 'თქვენს ძიებას არცერთი ტესტი არ შეესაბამება.',
+  'ide.tests.fixWithSynthase': 'სინთაზათი დაფიქსირება',
+  'ide.tests.fixFailures': 'შეკეთება {{count}} წარუმატებლობები',
+  'ide.tests.fixBusy': 'დაელოდეთ მიმდინარე ბრუნვის დასრულებას.',
 }

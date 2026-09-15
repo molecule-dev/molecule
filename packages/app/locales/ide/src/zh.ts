@@ -608,4 +608,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': '启动该项目以查看其测试。',
   'ide.tests.empty': '该项目目前尚无测试。',
   'ide.tests.noMatch': '没有符合您搜索条件的测试。',
+  'ide.tests.fixWithSynthase': '使用Synthase进行修复',
+  'ide.tests.fixFailures': '修复 {{count}} 出现的错误',
+  'ide.tests.fixBusy': '请等待当前回合结束。',
 }

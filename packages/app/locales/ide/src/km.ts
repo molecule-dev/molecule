@@ -625,4 +625,7 @@ export const km: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ចាប់ផ្តើមគម្រោងដើម្បីមើលការធ្វើតេស្តរបស់វា។',
   'ide.tests.empty': 'មិនទាន់មានការសាកល្បងនៅក្នុងគម្រោងនេះនៅឡើយទេ។',
   'ide.tests.noMatch': 'គ្មានការធ្វើតេស្តណាមួយដែលត្រូវនឹងការស្វែងរករបស់អ្នកទេ។',
+  'ide.tests.fixWithSynthase': 'ជួសជុលជាមួយ Synthase',
+  'ide.tests.fixFailures': 'ជួសជុល {{count}} ការបរាជ័យ',
+  'ide.tests.fixBusy': 'រង់ចាំ​ឲ្យ​វេន​បច្ចុប្បន្ន​ចប់។',
 }

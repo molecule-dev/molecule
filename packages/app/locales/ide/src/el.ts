@@ -642,4 +642,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Ξεκινήστε το έργο για να δείτε τις δοκιμές του.',
   'ide.tests.empty': 'Δεν υπάρχουν ακόμα δοκιμές σε αυτό το έργο.',
   'ide.tests.noMatch': 'Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν με την αναζήτησή σας.',
+  'ide.tests.fixWithSynthase': 'Διόρθωση με Synthase',
+  'ide.tests.fixFailures': 'Επιδιόρθωση σφαλμάτων του «{{count}}»',
+  'ide.tests.fixBusy': 'Περίμενε να τελειώσει η τρέχουσα σειρά.',
 }

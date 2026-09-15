@@ -623,4 +623,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Ibda l-proġett biex tara t-testijiet tiegħu.',
   'ide.tests.empty': "Għad m'hemm l-ebda testijiet f'dan il-proġett.",
   'ide.tests.noMatch': 'L-ebda test ma jaqbel mat-tfittxija tiegħek.',
+  'ide.tests.fixWithSynthase': 'Irranġa bis-Synthase',
+  'ide.tests.fixFailures': 'Irranġa {{count}} fallimenti',
+  'ide.tests.fixBusy': 'Stenna sakemm jintemm id-dawra kurrenti.',
 }

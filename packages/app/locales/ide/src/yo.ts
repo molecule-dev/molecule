@@ -657,4 +657,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Bẹ̀rẹ̀ iṣẹ́ náà láti wo àwọn ìdánwò rẹ̀.',
   'ide.tests.empty': 'Kò sí ìdánwò kankan nínú iṣẹ́ yìí.',
   'ide.tests.noMatch': 'Kò sí àwọn ìdánwò tó bá ìwákiri rẹ mu.',
+  'ide.tests.fixWithSynthase': 'Ṣe àtúnṣe pẹ̀lú Synthase',
+  'ide.tests.fixFailures': 'Ṣe àtúnṣe {{count}} àwọn ìkùnà',
+  'ide.tests.fixBusy': 'Dúró fún ìgbà tí ìyípo ìsinsìnyí yóò parí.',
 }

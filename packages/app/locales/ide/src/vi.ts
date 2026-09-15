@@ -626,4 +626,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Khởi chạy dự án để xem các bài kiểm tra của nó.',
   'ide.tests.empty': 'Dự án này hiện chưa có bài kiểm tra nào.',
   'ide.tests.noMatch': 'Không có kết quả tìm kiếm nào phù hợp với từ khóa của bạn.',
+  'ide.tests.fixWithSynthase': 'Sửa chữa bằng Synthase',
+  'ide.tests.fixFailures': 'Sửa chữa {{count}} thất bại',
+  'ide.tests.fixBusy': 'Hãy đợi lượt chơi hiện tại kết thúc.',
 }

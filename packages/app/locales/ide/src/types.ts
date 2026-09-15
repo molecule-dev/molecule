@@ -575,6 +575,9 @@ export type IdeTranslationKey =
   | 'ide.tests.waitingForSandbox'
   | 'ide.tests.empty'
   | 'ide.tests.noMatch'
+  | 'ide.tests.fixWithSynthase'
+  | 'ide.tests.fixFailures'
+  | 'ide.tests.fixBusy'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

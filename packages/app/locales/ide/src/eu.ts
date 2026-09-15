@@ -624,4 +624,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Hasi proiektua bere probak ikusteko.',
   'ide.tests.empty': 'Ez dago probarik proiektu honetan oraindik.',
   'ide.tests.noMatch': 'Ez dago zure bilaketarekin bat datorren probarik.',
+  'ide.tests.fixWithSynthase': 'Konpondu sintasarekin',
+  'ide.tests.fixFailures': 'Konpondu {{count}} porrotak',
+  'ide.tests.fixBusy': 'Itxaron uneko txanda amaitu arte.',
 }

@@ -621,4 +621,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'त्याच्या चाचण्या पाहण्यासाठी प्रकल्प सुरू करा.',
   'ide.tests.empty': 'या प्रकल्पात अद्याप कोणतीही चाचणी नाही.',
   'ide.tests.noMatch': 'तुमच्या शोधाशी जुळणाऱ्या चाचण्या उपलब्ध नाहीत.',
+  'ide.tests.fixWithSynthase': 'सिंथेसने दुरुस्त करा',
+  'ide.tests.fixFailures': 'दुरुस्त करा {{count}} अपयश',
+  'ide.tests.fixBusy': 'सध्याची पाळी संपेपर्यंत थांबा.',
 }

@@ -625,4 +625,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Inicia el projecte per veure les seves proves.',
   'ide.tests.empty': 'Encara no hi ha proves en aquest projecte.',
   'ide.tests.noMatch': 'No hi ha proves que coincideixin amb la teva cerca.',
+  'ide.tests.fixWithSynthase': 'Corregir amb sintasa',
+  'ide.tests.fixFailures': 'Correcció {{count}} fracassos',
+  'ide.tests.fixBusy': "Espereu que s'acabi el torn actual.",
 }

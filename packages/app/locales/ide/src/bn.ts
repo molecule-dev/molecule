@@ -620,4 +620,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'এর পরীক্ষাগুলো দেখতে প্রজেক্টটি শুরু করুন।',
   'ide.tests.empty': 'এই প্রকল্পে এখনও কোনো পরীক্ষা করা হয়নি।',
   'ide.tests.noMatch': 'আপনার অনুসন্ধানের সাথে কোনো পরীক্ষাই মেলে না।',
+  'ide.tests.fixWithSynthase': 'সিন্থেস দিয়ে ঠিক করুন',
+  'ide.tests.fixFailures': 'ঠিক করুন {{count}} ব্যর্থতা',
+  'ide.tests.fixBusy': 'বর্তমান পালা শেষ হওয়া পর্যন্ত অপেক্ষা করুন।',
 }

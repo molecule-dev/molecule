@@ -626,4 +626,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Spusťte projekt, abyste si prohlédli jeho testy.',
   'ide.tests.empty': 'V tomto projektu zatím nejsou žádné testy.',
   'ide.tests.noMatch': 'Žádné testy neodpovídají vašemu vyhledávání.',
+  'ide.tests.fixWithSynthase': 'Oprava pomocí Synthase',
+  'ide.tests.fixFailures': 'Oprava chyb při použití příkazu „{{count}}“',
+  'ide.tests.fixBusy': 'Počkejte, až skončí aktuální tah.',
 }

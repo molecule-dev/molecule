@@ -623,4 +623,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'එහි පරීක්ෂණ බැලීමට ව්‍යාපෘතිය ආරම්භ කරන්න.',
   'ide.tests.empty': 'මෙම ව්‍යාපෘතියේ තවමත් පරීක්ෂණ නොමැත.',
   'ide.tests.noMatch': 'ඔබගේ සෙවුමට ගැලපෙන පරීක්ෂණ නොමැත.',
+  'ide.tests.fixWithSynthase': 'සින්තේස් සමඟ නිවැරදි කරන්න',
+  'ide.tests.fixFailures': 'නිවැරදි කරන්න {{count}} අසාර්ථකත්වයන්',
+  'ide.tests.fixBusy': 'වත්මන් වාරය අවසන් වන තෙක් රැඳී සිටින්න.',
 }

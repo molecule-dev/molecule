@@ -633,4 +633,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Execute o projeto para ver seus testes.',
   'ide.tests.empty': 'Ainda não há testes neste projeto.',
   'ide.tests.noMatch': 'Nenhum teste corresponde à sua pesquisa.',
+  'ide.tests.fixWithSynthase': 'Correção com Synthase',
+  'ide.tests.fixFailures': 'Corrigir falhas no `{{count}}`',
+  'ide.tests.fixBusy': 'Aguarde até que o turno atual termine.',
 }

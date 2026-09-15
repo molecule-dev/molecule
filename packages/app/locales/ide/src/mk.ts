@@ -623,4 +623,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Стартувајте го проектот за да ги видите неговите тестови.',
   'ide.tests.empty': 'Сè уште нема тестови во овој проект.',
   'ide.tests.noMatch': 'Нема тестови што одговараат на вашето пребарување.',
+  'ide.tests.fixWithSynthase': 'Фикс со синтаза',
+  'ide.tests.fixFailures': 'Поправка {{count}} неуспеси',
+  'ide.tests.fixBusy': 'Почекајте да заврши тековниот круг.',
 }

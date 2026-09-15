@@ -623,4 +623,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'దాని పరీక్షలను చూడటానికి ప్రాజెక్ట్‌ను ప్రారంభించండి.',
   'ide.tests.empty': 'ఈ ప్రాజెక్ట్‌లో ఇంకా పరీక్షలు జరగలేదు.',
   'ide.tests.noMatch': 'మీ శోధనకు సరిపోలే పరీక్షలు ఏవీ లేవు.',
+  'ide.tests.fixWithSynthase': 'సింథేస్‌తో పరిష్కరించండి',
+  'ide.tests.fixFailures': 'పరిష్కరించండి {{count}} వైఫల్యాలు',
+  'ide.tests.fixBusy': 'ప్రస్తుత వంతు ముగిసే వరకు వేచి ఉండండి.',
 }

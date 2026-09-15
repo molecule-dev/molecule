@@ -626,4 +626,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Start prosjektet for å se testene.',
   'ide.tests.empty': 'Det er foreløpig ingen tester i dette prosjektet.',
   'ide.tests.noMatch': 'Det ble ikke funnet noen tester som samsvarer med søket ditt.',
+  'ide.tests.fixWithSynthase': 'Løs med Synthase',
+  'ide.tests.fixFailures': 'Løs feil i «{{count}}»',
+  'ide.tests.fixBusy': 'Vent til den nåværende runden er over.',
 }

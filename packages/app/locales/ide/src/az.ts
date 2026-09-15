@@ -622,4 +622,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Layihənin sınaqlarını görmək üçün ona başlayın.',
   'ide.tests.empty': 'Bu layihədə hələlik heç bir sınaq yoxdur.',
   'ide.tests.noMatch': 'Axtarışınıza uyğun test yoxdur.',
+  'ide.tests.fixWithSynthase': 'Sintazla düzəldin',
+  'ide.tests.fixFailures': 'Düzəlt {{count}} uğursuzluqlar',
+  'ide.tests.fixBusy': 'Cari növbənin bitməsini gözləyin.',
 }

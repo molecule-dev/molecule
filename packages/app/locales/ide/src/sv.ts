@@ -631,4 +631,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Starta projektet för att se dess tester.',
   'ide.tests.empty': 'Det finns ännu inga tester i det här projektet.',
   'ide.tests.noMatch': 'Inga tester stämmer överens med din sökning.',
+  'ide.tests.fixWithSynthase': 'Åtgärda med Synthase',
+  'ide.tests.fixFailures': 'Åtgärda fel i {{count}}',
+  'ide.tests.fixBusy': 'Vänta tills den aktuella omgången är slut.',
 }

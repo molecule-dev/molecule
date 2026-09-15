@@ -633,4 +633,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Jalankan proyek tersebut untuk melihat pengujiannya.',
   'ide.tests.empty': 'Belum ada pengujian dalam proyek ini.',
   'ide.tests.noMatch': 'Tidak ada tes yang sesuai dengan pencarian Anda.',
+  'ide.tests.fixWithSynthase': 'Perbaiki dengan Synthase',
+  'ide.tests.fixFailures': 'Perbaiki masalah kegagalan {{count}}',
+  'ide.tests.fixBusy': 'Tunggu hingga giliran saat ini selesai.',
 }

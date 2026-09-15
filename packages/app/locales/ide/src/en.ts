@@ -673,4 +673,7 @@ export const en: IdeTranslations = {
   'ide.tests.waitingForSandbox': 'Start the project to see its tests.',
   'ide.tests.empty': 'No tests in this project yet.',
   'ide.tests.noMatch': 'No tests match your search.',
+  'ide.tests.fixWithSynthase': 'Fix with Synthase',
+  'ide.tests.fixFailures': 'Fix {{count}} failures',
+  'ide.tests.fixBusy': 'Wait for the current turn to finish.',
 }

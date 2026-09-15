@@ -313,3 +313,90 @@ export function parseTestCommand(input: string): { query: string; runAll: boolea
   if (argument.toLowerCase() === 'all') return { query: '', runAll: true }
   return { query: argument, runAll: false }
 }
+
+/** Output kept per failure when several are batched into one fix message. */
+export const MAX_FIX_OUTPUT_CHARS = 2_000
+
+/** Total output kept across a batched fix message, so one click cannot send a novel. */
+export const MAX_FIX_MESSAGE_OUTPUT_CHARS = 12_000
+
+/**
+ * Keep the LAST `max` characters — a runner failure’s useful part is its tail
+ * (the assertion and its stack), never its head.
+ *
+ * @param text - The output.
+ * @param max - The budget.
+ * @returns The tail, marked when it was cut.
+ */
+function tail(text: string, max: number): string {
+  const trimmed = text.trimEnd()
+  if (trimmed.length <= max) return trimmed
+  return `…(earlier output trimmed)\n${trimmed.slice(-max)}`
+}
+
+/** One failing test and the output that explains it. */
+export interface TestFailure {
+  item: TestItem
+  output?: string | undefined
+}
+
+/**
+ * Compose the ONE user message the card's “Fix with Synthase” action sends.
+ *
+ * It is a real turn the executor answers, so it reads like something a person
+ * would type: which test failed, where it lives, what the runner said, and to
+ * re-run it. This is a PROMPT, not UI copy — it is not translated, exactly like
+ * the auto-fix loop’s own `Fix these issues:` message.
+ *
+ * @param failures - The failing tests, in the order the card lists them.
+ * @returns The message, or `` when there is nothing to fix.
+ */
+export function buildTestFixMessage(failures: readonly TestFailure[]): string {
+  if (failures.length === 0) return ''
+  const perFailure = failures.length === 1 ? MAX_FIX_MESSAGE_OUTPUT_CHARS : MAX_FIX_OUTPUT_CHARS
+  let budget = MAX_FIX_MESSAGE_OUTPUT_CHARS
+  const where = (item: TestItem): string => (item.workspaceLabel ? ` (${item.workspaceLabel})` : '')
+  const block = (failure: TestFailure): string => {
+    const raw = (failure.output ?? '').trim()
+    if (!raw || budget <= 0) return ''
+    const kept = tail(raw, Math.min(perFailure, budget))
+    budget -= kept.length
+    return `\n\n\`\`\`\n${kept}\n\`\`\``
+  }
+  if (failures.length === 1) {
+    const only = failures[0] as TestFailure
+    return (
+      `Fix the failing test \`${only.item.file}\`${where(only.item)}.` +
+      block(only) +
+      '\n\nRe-run it with /test when you are done.'
+    )
+  }
+  const parts = failures.map(
+    (failure) => `\`${failure.item.file}\`${where(failure.item)}:${block(failure)}`,
+  )
+  return (
+    `Fix these ${failures.length} failing tests.\n\n${parts.join('\n\n')}` +
+    '\n\nRe-run them with /test when you are done.'
+  )
+}
+
+/**
+ * Every listed test whose last verdict was a failure, with its output — what
+ * the card's fix actions send.
+ *
+ * @param tests - The currently listed (and filtered) tests.
+ * @param results - The per-id outcomes.
+ * @returns The failures, in list order.
+ */
+export function failedTests(
+  tests: readonly TestItem[],
+  results: Record<string, TestResultEntry>,
+): TestFailure[] {
+  const failures: TestFailure[] = []
+  for (const item of tests) {
+    const entry = results[item.id]
+    if (entry?.status !== 'failed') continue
+    failures.push({ item, output: entry.output })
+  }
+  return failures
+}

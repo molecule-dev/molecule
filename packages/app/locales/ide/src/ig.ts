@@ -620,4 +620,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Malite ọrụ ahụ iji hụ ule ya.',
   'ide.tests.empty': "Enwebeghị ule ọ bụla n'ọrụ a.",
   'ide.tests.noMatch': 'Ọ dịghị ule ọ bụla dabara na ọchụchọ gị.',
+  'ide.tests.fixWithSynthase': 'Dozie ya na Synthase',
+  'ide.tests.fixFailures': 'Mdozi {{count}} ọdịda',
+  'ide.tests.fixBusy': 'Chere ka mgbanwe dị ugbu a gwụchaa.',
 }

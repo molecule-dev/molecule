@@ -624,4 +624,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Սկսեք նախագիծը՝ դրա փորձարկումները տեսնելու համար։',
   'ide.tests.empty': 'Այս նախագծում դեռևս փորձարկումներ չկան։',
   'ide.tests.noMatch': 'Ձեր որոնմանը համապատասխանող թեստեր չկան։',
+  'ide.tests.fixWithSynthase': 'Ուղղում սինթազի միջոցով',
+  'ide.tests.fixFailures': 'Շտկել {{count}} ձախողումներ',
+  'ide.tests.fixBusy': 'Սպասեք ընթացիկ շրջադարձի ավարտին։',
 }

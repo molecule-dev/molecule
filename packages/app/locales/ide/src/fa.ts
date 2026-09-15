@@ -621,4 +621,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'پروژه را شروع کنید تا تست‌های آن را ببینید.',
   'ide.tests.empty': 'هنوز هیچ آزمایشی در این پروژه انجام نشده است.',
   'ide.tests.noMatch': 'هیچ آزمایشی با جستجوی شما مطابقت ندارد.',
+  'ide.tests.fixWithSynthase': 'رفع با سنتاز',
+  'ide.tests.fixFailures': 'رفع {{count}} شکست‌ها',
+  'ide.tests.fixBusy': 'صبر کنید تا نوبت فعلی تمام شود.',
 }

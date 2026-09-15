@@ -625,4 +625,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': "Loyihani sinovdan o'tkazish uchun uni boshlang.",
   'ide.tests.empty': "Ushbu loyihada hali sinovlar yo'q.",
   'ide.tests.noMatch': 'Qidiruvingizga hech qanday test mos kelmadi.',
+  'ide.tests.fixWithSynthase': 'Sintaz bilan tuzatish',
+  'ide.tests.fixFailures': 'Tuzatish {{count}} muvaffaqiyatsizliklar',
+  'ide.tests.fixBusy': 'Joriy navbat tugashini kuting.',
 }

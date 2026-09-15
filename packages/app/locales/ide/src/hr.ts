@@ -622,4 +622,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Pokrenite projekt kako biste vidjeli njegove testove.',
   'ide.tests.empty': 'Još nema testova u ovom projektu.',
   'ide.tests.noMatch': 'Nijedan test ne odgovara vašoj pretrazi.',
+  'ide.tests.fixWithSynthase': 'Popravite sa sintazom',
+  'ide.tests.fixFailures': 'Popraviti {{count}} neuspjesi',
+  'ide.tests.fixBusy': 'Pričekajte da se završi trenutni potez.',
 }

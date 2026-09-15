@@ -623,4 +623,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': '프로젝트를 실행하여 테스트를 확인해 보세요.',
   'ide.tests.empty': '이 프로젝트에는 아직 테스트가 없습니다.',
   'ide.tests.noMatch': '검색 조건에 맞는 테스트가 없습니다.',
+  'ide.tests.fixWithSynthase': 'Synthase로 수정하기',
+  'ide.tests.fixFailures': '{{count}} 오류 수정',
+  'ide.tests.fixBusy': '현재 턴이 끝날 때까지 기다리세요.',
 }

@@ -632,4 +632,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Projeyi başlatarak testlerini inceleyin.',
   'ide.tests.empty': 'Bu projede henüz herhangi bir test bulunmamaktadır.',
   'ide.tests.noMatch': 'Aramanızla eşleşen test bulunamadı.',
+  'ide.tests.fixWithSynthase': 'Synthase ile düzeltme',
+  'ide.tests.fixFailures': "{{count}}'daki hataları düzelt",
+  'ide.tests.fixBusy': 'Mevcut turun bitmesini bekleyin.',
 }

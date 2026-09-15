@@ -183,9 +183,10 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
-import type { TestsRunState } from './tests-card-utilities.js'
+import type { TestFailure, TestsRunState } from './tests-card-utilities.js'
 import {
   applyTestRunEvent,
+  buildTestFixMessage,
   EMPTY_RUN_STATE,
   failRun,
   parseTestCommand,
@@ -4280,6 +4281,8 @@ function ChatInner({
   // would eventually capture stale.
   const testsRunningRef = useRef(false)
   testsRunningRef.current = testsRun.running
+  // Whether a TURN is in flight — a fix is a real message, so it waits its turn.
+  const testsBusyRef = useRef(false)
   // Live for the async callbacks, so a list resolving after an unmount, or a
   // run event arriving then, never sets state on a dead tree.
   const testsMountedRef = useRef(true)
@@ -4363,6 +4366,22 @@ function ChatInner({
       }
     },
     [runTests, canRunTests, canEdit, testsAvailable, refreshTests],
+  )
+
+  // Hand the failing tests to the agent as ONE ordinary user message — the same
+  // move as the editor’s "Fix with AI" and the auto-fix loop: compose the
+  // problem, send it through the normal path, let the turn answer. The overlay
+  // closes so the person watches the turn they just started.
+  const fixTests = useCallback(
+    (failures: TestFailure[]): void => {
+      if (canEdit === false || failures.length === 0) return
+      if (testsBusyRef.current) return
+      const message = buildTestFixMessage(failures)
+      if (!message) return
+      setPanelOverlay(null)
+      sendMessageRef.current(message)
+    },
+    [canEdit],
   )
 
   const cancelTestsRun = useCallback((): void => {
@@ -4815,6 +4834,8 @@ function ChatInner({
   // last file change and the turn's end, never mid-turn.
   const autoCommitArmed = isAutoCommitArmed(autoCommit)
   const autoCommitHeld = isLoading || isRemoteStreaming || autoFixCountdown !== null
+  // Keep the tests-card fix gate live (declared above, where the run state is).
+  testsBusyRef.current = isLoading || isRemoteStreaming
   useEffect(() => {
     if (!autoCommitArmed || autoCommitHeld) return
     const id = setInterval(() => dispatchAutoCommit({ type: 'tick' }), 1000)
@@ -8165,6 +8186,18 @@ function ChatInner({
                           canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
                           onRun={startTestsRun}
                           onCancel={cancelTestsRun}
+                          onFix={fixTests}
+                          fixDisabledReason={
+                            canEdit === false
+                              ? t('ide.tests.viewerCannotRun', undefined, {
+                                  defaultValue: 'Only editors can run this project’s tests.',
+                                })
+                              : isLoading || isRemoteStreaming
+                                ? t('ide.tests.fixBusy', undefined, {
+                                    defaultValue: 'Wait for the current turn to finish.',
+                                  })
+                                : null
+                          }
                           isLight={isLight}
                         />
                       )
@@ -10597,6 +10630,18 @@ function ChatInner({
                   canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
                   onRun={startTestsRun}
                   onCancel={cancelTestsRun}
+                  onFix={fixTests}
+                  fixDisabledReason={
+                    canEdit === false
+                      ? t('ide.tests.viewerCannotRun', undefined, {
+                          defaultValue: 'Only editors can run this project’s tests.',
+                        })
+                      : isLoading || isRemoteStreaming
+                        ? t('ide.tests.fixBusy', undefined, {
+                            defaultValue: 'Wait for the current turn to finish.',
+                          })
+                        : null
+                  }
                   isLight={isLight}
                   embedded
                 />

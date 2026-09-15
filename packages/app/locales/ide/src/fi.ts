@@ -633,4 +633,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Käynnistä projekti, jotta voit tarkastella sen testejä.',
   'ide.tests.empty': 'Tässä projektissa ei ole vielä testejä.',
   'ide.tests.noMatch': 'Hakusi mukaisia testejä ei löytynyt.',
+  'ide.tests.fixWithSynthase': 'Korjaa Synthase-ohjelmalla',
+  'ide.tests.fixFailures': '{{count}}-virheiden korjaaminen',
+  'ide.tests.fixBusy': 'Odota, että nykyinen vuoro päättyy.',
 }

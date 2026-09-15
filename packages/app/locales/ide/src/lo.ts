@@ -618,4 +618,7 @@ export const lo: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ເລີ່ມຕົ້ນໂຄງການເພື່ອເບິ່ງການທົດສອບຂອງມັນ.',
   'ide.tests.empty': 'ຍັງບໍ່ມີການທົດສອບໃນໂຄງການນີ້ເທື່ອ.',
   'ide.tests.noMatch': 'ບໍ່ມີການທົດສອບທີ່ກົງກັບການຄົ້ນຫາຂອງທ່ານ.',
+  'ide.tests.fixWithSynthase': 'ແກ້ໄຂດ້ວຍ Synthase',
+  'ide.tests.fixFailures': 'ແກ້ໄຂ {{count}} ຄວາມລົ້ມເຫຼວ',
+  'ide.tests.fixBusy': 'ລໍຖ້າໃຫ້ຮອບປັດຈຸບັນສິ້ນສຸດລົງ.',
 }

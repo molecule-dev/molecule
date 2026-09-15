@@ -629,4 +629,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Käivita projekt, et näha selle teste.',
   'ide.tests.empty': 'Selles projektis pole veel ühtegi testi.',
   'ide.tests.noMatch': 'Teie otsingule vastavaid teste ei leitud.',
+  'ide.tests.fixWithSynthase': 'Parandamine Synthase’iga',
+  'ide.tests.fixFailures': '{{count}}i tõrgete parandamine',
+  'ide.tests.fixBusy': 'Oota, kuni käesolev voor lõpeb.',
 }

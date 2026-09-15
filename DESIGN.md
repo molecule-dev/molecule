@@ -209,8 +209,12 @@ idea of a card:
   same `cm.borderT` row rhythm; the same `<pre>` output block; the same
   `embedded` flag so the card renders identically as an overlay and as a
   timeline system-card.
-- Buttons per the rule above: one `solid primary xs` primary action, `outline xs`
-  for row/group actions, `ghost xs` only for close and show/hide.
+- Buttons per the rule above, with one refinement for these dark, dense cards:
+  EVERY action is `solid primary xs` — the header's Run all, each group's Run,
+  each row's Run, each failure's Fix — exactly as ScriptsCard renders its Run
+  buttons. `outline` reads as plain text at `xs` on the card surface (its
+  border is a 60% border color), so it is not used inside chat cards; Stop is
+  `solid error xs`; `ghost xs` only for close and show/hide.
 - Status is a pill (`cm.textSuccess` / `cm.textError` / `cm.textMuted`), never
   a bare word.
 - Long output (a runner's log, a script's captured stdout) is COLLAPSED by

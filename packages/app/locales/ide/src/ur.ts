@@ -620,4 +620,7 @@ export const ur: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'اس کے ٹیسٹ دیکھنے کے لیے پروجیکٹ شروع کریں۔',
   'ide.tests.empty': 'اس پروجیکٹ میں ابھی تک کوئی ٹیسٹ نہیں ہوا۔',
   'ide.tests.noMatch': 'کوئی ٹیسٹ آپ کی تلاش سے مماثل نہیں ہے۔',
+  'ide.tests.fixWithSynthase': 'Synthase کے ساتھ درست کریں۔',
+  'ide.tests.fixFailures': 'درست کریں۔ {{count}} ناکامیاں',
+  'ide.tests.fixBusy': 'موجودہ موڑ کے ختم ہونے کا انتظار کریں۔',
 }

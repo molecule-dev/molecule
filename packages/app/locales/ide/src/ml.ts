@@ -627,4 +627,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'അതിന്റെ പരീക്ഷണങ്ങൾ കാണാൻ പ്രോജക്റ്റ് ആരംഭിക്കുക.',
   'ide.tests.empty': 'ഈ പ്രോജക്റ്റിൽ ഇതുവരെ പരീക്ഷണങ്ങളൊന്നുമില്ല.',
   'ide.tests.noMatch': 'നിങ്ങളുടെ തിരയലുമായി പൊരുത്തപ്പെടുന്ന പരിശോധനകളൊന്നുമില്ല.',
+  'ide.tests.fixWithSynthase': 'സിന്തസിസ് ഉപയോഗിച്ച് പരിഹരിക്കുക',
+  'ide.tests.fixFailures': 'പരിഹരിക്കുക {{count}} പരാജയങ്ങൾ',
+  'ide.tests.fixBusy': 'നിലവിലെ ഊഴം പൂർത്തിയാകുന്നതുവരെ കാത്തിരിക്കുക.',
 }

@@ -624,4 +624,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Anza mradi ili uone majaribio yake.',
   'ide.tests.empty': 'Hakuna majaribio katika mradi huu bado.',
   'ide.tests.noMatch': 'Hakuna majaribio yanayolingana na utafutaji wako.',
+  'ide.tests.fixWithSynthase': 'Rekebisha kwa kutumia Synthase',
+  'ide.tests.fixFailures': 'Rekebisha {{count}} kushindwa',
+  'ide.tests.fixBusy': 'Subiri zamu ya sasa imalizike.',
 }

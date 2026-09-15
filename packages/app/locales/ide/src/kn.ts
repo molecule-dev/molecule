@@ -624,4 +624,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ಅದರ ಪರೀಕ್ಷೆಗಳನ್ನು ನೋಡಲು ಯೋಜನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ.',
   'ide.tests.empty': 'ಈ ಯೋಜನೆಯಲ್ಲಿ ಇನ್ನೂ ಯಾವುದೇ ಪರೀಕ್ಷೆಗಳಿಲ್ಲ.',
   'ide.tests.noMatch': 'ನಿಮ್ಮ ಹುಡುಕಾಟಕ್ಕೆ ಯಾವುದೇ ಪರೀಕ್ಷೆಗಳು ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ.',
+  'ide.tests.fixWithSynthase': 'ಸಿಂಥೇಸ್‌ನೊಂದಿಗೆ ಸರಿಪಡಿಸಿ',
+  'ide.tests.fixFailures': 'ಸರಿಪಡಿಸಿ {{count}} ವೈಫಲ್ಯಗಳು',
+  'ide.tests.fixBusy': 'ಪ್ರಸ್ತುತ ಸರದಿ ಮುಗಿಯುವವರೆಗೆ ಕಾಯಿರಿ.',
 }

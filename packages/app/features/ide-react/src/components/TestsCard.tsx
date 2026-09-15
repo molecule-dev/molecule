@@ -37,15 +37,72 @@ import { getClassMap } from '@molecule/app-ui'
 
 import type { TestItem, TestKind, TestSelection, TestStatus } from '../types.js'
 import { chatCardStyle } from './chat-card-style.js'
-import type { TestGroup, TestResultEntry, TestsRunState } from './tests-card-utilities.js'
+import type {
+  TestFailure,
+  TestGroup,
+  TestResultEntry,
+  TestsRunState,
+} from './tests-card-utilities.js'
 import {
   countByKind,
+  failedTests,
   filterTests,
   groupTests,
   isRowRunning,
   summarizeResults,
   testRowLabel,
 } from './tests-card-utilities.js'
+
+/**
+ * The card's button vocabulary, which is the command cards' vocabulary (see
+ * molecule DESIGN.md → Command cards). Every ACTION is a button that LOOKS
+ * like a button — a filled or bordered box, never text on transparent:
+ *
+ * - {@link PRIMARY_ACTION} — the one headline action (Run all).
+ * - {@link SECONDARY_ACTION} — every other action (Run e2e/unit/group, a
+ *   row Run, Fix with Synthase). The SAME filled box as the headline action:
+ *   `outline` at `xs` on the card surface is a 60%-alpha hairline that reads
+ *   as plain text (the first restyle shipped that way and was rejected), and
+ *   ScriptsCard renders every one of its Run buttons filled.
+ * - {@link DESTRUCTIVE_ACTION} — Stop, in the design system's error colour.
+ * - {@link QUIET_TOGGLE} — `ghost` is reserved for dismiss/disclosure
+ *   controls (the Show/Hide output toggle), the only place the sibling cards
+ *   use it. An action rendered ghost is the bug this vocabulary exists to
+ *   prevent: it reads as a text link.
+ *
+ * @param cm - The active ClassMap.
+ * @returns The resolved class string.
+ */
+const PRIMARY_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
+  cm.button({ variant: 'solid', color: 'primary', size: 'xs' })
+
+/**
+ * A secondary action — the same filled `xs` button ScriptsCard uses for every
+ * action, so a row of Run buttons reads as a row of buttons.
+ *
+ * @param cm - The active ClassMap.
+ * @returns The resolved class string.
+ */
+const SECONDARY_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
+  cm.button({ variant: 'solid', color: 'primary', size: 'xs' })
+
+/**
+ * The destructive action (Stop), in the design system's error colour.
+ *
+ * @param cm - The active ClassMap.
+ * @returns The resolved class string.
+ */
+const DESTRUCTIVE_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
+  cm.button({ variant: 'solid', color: 'error', size: 'xs' })
+
+/**
+ * A disclosure toggle — the one place `ghost` belongs.
+ *
+ * @param cm - The active ClassMap.
+ * @returns The resolved class string.
+ */
+const QUIET_TOGGLE = (cm: ReturnType<typeof getClassMap>): string =>
+  cm.button({ variant: 'ghost', size: 'xs' })
 
 /** Discovery status for the tests list — mirrors {@link ScriptsCard}'s. */
 export type TestsStatus = 'loading' | 'ready' | 'error' | 'unavailable'
@@ -66,6 +123,17 @@ export interface TestsCardProps {
   onRun: (selection: TestSelection) => void
   /** Stops the run in flight. */
   onCancel: () => void
+  /**
+   * Hands the failing tests to the agent as ONE chat message — a real turn it
+   * answers, exactly like the editor’s “Fix with AI”.
+   */
+  onFix: (failures: TestFailure[]) => void
+  /**
+   * Why fixing is unavailable (a viewer, a turn already streaming), already
+   * translated by the host — `null` when it is available. The card states the
+   * reason on the disabled button rather than letting a click do nothing.
+   */
+  fixDisabledReason: string | null
   /** Light theme (drives the same row border + field inset the sibling cards use). */
   isLight: boolean
   /** Chrome-less inside the command overlay; full card chrome in the timeline. */
@@ -122,26 +190,33 @@ export function TestsCard({
   canRun,
   onRun,
   onCancel,
+  onFix,
+  fixDisabledReason,
   isLight,
   embedded,
 }: TestsCardProps): JSX.Element {
   const cm = getClassMap()
   const [query, setQuery] = useState(initialQuery)
+  // The run output starts COLLAPSED. ScriptsCard auto-expands nothing while a
+  // script runs, so neither does this; the status pills carry the state and the
+  // output is one click away when someone wants it.
+  const [showOutput, setShowOutput] = useState(false)
   const outputRef = useRef<HTMLPreElement | null>(null)
 
   // Keep the live output pinned to the newest line unless the reader scrolled up
-  // inside the block themselves.
+  // inside the block themselves. No-ops while it is collapsed (no element).
   useEffect(() => {
     const el = outputRef.current
     if (!el) return
     if (el.scrollHeight - el.scrollTop - el.clientHeight > 40) return
     el.scrollTop = el.scrollHeight
-  }, [run.output])
+  }, [run.output, showOutput])
 
   const filtered = useMemo(() => filterTests(tests, query), [tests, query])
   const groups = useMemo(() => groupTests(filtered), [filtered])
   const counts = useMemo(() => countByKind(filtered), [filtered])
   const summary = useMemo(() => summarizeResults(filtered, run.results), [filtered, run.results])
+  const failures = useMemo(() => failedTests(filtered, run.results), [filtered, run.results])
 
   const rowBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
   // The same neutral inset the sibling cards give their fields, so the search
@@ -167,6 +242,7 @@ export function TestsCard({
         })
       : null
   const runnable = canRun && status === 'ready' && !run.running
+  const fixable = fixDisabledReason === null
 
   return (
     <div
@@ -243,7 +319,7 @@ export function TestsCard({
                 onClick={() => onRun({ ids: idsOfKind(filtered, 'e2e') })}
                 disabled={!runnable}
                 title={disabledReason ?? undefined}
-                className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                className={cm.cn(SECONDARY_ACTION(cm))}
                 style={{ flexShrink: 0 }}
               >
                 {t('ide.tests.runE2e', undefined, { defaultValue: 'Run e2e' })}
@@ -254,19 +330,40 @@ export function TestsCard({
                 onClick={() => onRun({ ids: idsOfKind(filtered, 'unit') })}
                 disabled={!runnable}
                 title={disabledReason ?? undefined}
-                className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                className={cm.cn(SECONDARY_ACTION(cm))}
                 style={{ flexShrink: 0 }}
               >
                 {t('ide.tests.runUnit', undefined, { defaultValue: 'Run unit' })}
               </button>
             </>
           )}
+          {!run.running && failures.length > 0 && (
+            <button
+              type="button"
+              data-mol-id="tests-card-fix-all"
+              onClick={() => onFix(failures)}
+              disabled={!fixable}
+              title={fixDisabledReason ?? undefined}
+              className={cm.cn(SECONDARY_ACTION(cm))}
+              style={{ flexShrink: 0 }}
+            >
+              {failures.length === 1
+                ? t('ide.tests.fixWithSynthase', undefined, {
+                    defaultValue: 'Fix with Synthase',
+                  })
+                : t(
+                    'ide.tests.fixFailures',
+                    { count: failures.length },
+                    { defaultValue: 'Fix {{count}} failures' },
+                  )}
+            </button>
+          )}
           {run.running ? (
             <button
               type="button"
               data-mol-id="tests-card-cancel"
               onClick={onCancel}
-              className={cm.cn(cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }))}
+              className={cm.cn(DESTRUCTIVE_ACTION(cm))}
               style={{ flexShrink: 0 }}
             >
               {t('ide.tests.stop', undefined, { defaultValue: 'Stop' })}
@@ -279,7 +376,7 @@ export function TestsCard({
                 onClick={() => onRun({ ids: filtered.map((test) => test.id) })}
                 disabled={!runnable}
                 title={disabledReason ?? undefined}
-                className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+                className={cm.cn(PRIMARY_ACTION(cm))}
                 style={{ flexShrink: 0 }}
               >
                 {t('ide.tests.runAll', undefined, { defaultValue: 'Run all' })}
@@ -357,6 +454,9 @@ export function TestsCard({
             disabledReason={disabledReason}
             rowBorder={rowBorder}
             onRun={onRun}
+            onFix={onFix}
+            fixable={fixable}
+            fixDisabledReason={fixDisabledReason}
           />
         ))}
 
@@ -364,24 +464,38 @@ export function TestsCard({
           same block ScriptsCard shows a script's captured output in. */}
       {run.output.length > 0 && (
         <div data-mol-id="tests-card-output-area" style={{ marginTop: 6 }}>
-          <pre
-            ref={outputRef}
-            data-mol-id="tests-card-output"
-            className={cm.textSize('xs')}
-            style={{
-              margin: 0,
-              padding: '6px 8px',
-              borderRadius: 4,
-              border: `1px solid ${rowBorder}`,
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              maxHeight: 200,
-              overflow: 'auto',
-              fontFamily: 'var(--mol-font-mono, monospace)',
-            }}
+          <button
+            type="button"
+            data-mol-id="tests-card-output-toggle"
+            aria-expanded={showOutput}
+            onClick={() => setShowOutput((v) => !v)}
+            className={cm.cn(QUIET_TOGGLE(cm))}
+            style={{ flexShrink: 0 }}
           >
-            {run.output.join('\n')}
-          </pre>
+            {showOutput
+              ? t('ide.tests.hideOutput', undefined, { defaultValue: 'Hide output' })
+              : t('ide.tests.showOutput', undefined, { defaultValue: 'Show output' })}
+          </button>
+          {showOutput && (
+            <pre
+              ref={outputRef}
+              data-mol-id="tests-card-output"
+              className={cm.textSize('xs')}
+              style={{
+                margin: 0,
+                padding: '6px 8px',
+                borderRadius: 4,
+                border: `1px solid ${rowBorder}`,
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                maxHeight: 200,
+                overflow: 'auto',
+                fontFamily: 'var(--mol-font-mono, monospace)',
+              }}
+            >
+              {run.output.join('\n')}
+            </pre>
+          )}
         </div>
       )}
 
@@ -421,6 +535,9 @@ interface TestsCardGroupProps {
   disabledReason: string | null
   rowBorder: string
   onRun: (selection: TestSelection) => void
+  onFix: (failures: TestFailure[]) => void
+  fixable: boolean
+  fixDisabledReason: string | null
 }
 
 /**
@@ -437,6 +554,9 @@ function TestsCardGroup({
   disabledReason,
   rowBorder,
   onRun,
+  onFix,
+  fixable,
+  fixDisabledReason,
 }: TestsCardGroupProps): JSX.Element {
   const cm = getClassMap()
   const groupId = `${group.kind}-${group.workspace}`
@@ -464,7 +584,7 @@ function TestsCardGroup({
           onClick={() => onRun({ ids: group.items.map((item) => item.id) })}
           disabled={!runnable}
           title={disabledReason ?? undefined}
-          className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+          className={cm.cn(SECONDARY_ACTION(cm))}
           style={{ flexShrink: 0 }}
         >
           {t('ide.tests.runGroup', undefined, { defaultValue: 'Run group' })}
@@ -487,6 +607,9 @@ function TestsCardGroup({
           disabledReason={disabledReason}
           rowBorder={rowBorder}
           onRun={onRun}
+          onFix={onFix}
+          fixable={fixable}
+          fixDisabledReason={fixDisabledReason}
         />
       ))}
     </div>
@@ -502,6 +625,9 @@ interface TestsCardRowProps {
   disabledReason: string | null
   rowBorder: string
   onRun: (selection: TestSelection) => void
+  onFix: (failures: TestFailure[]) => void
+  fixable: boolean
+  fixDisabledReason: string | null
 }
 
 /**
@@ -520,8 +646,14 @@ function TestsCardRow({
   disabledReason,
   rowBorder,
   onRun,
+  onFix,
+  fixable,
+  fixDisabledReason,
 }: TestsCardRowProps): JSX.Element {
   const cm = getClassMap()
+  // A failure's output starts COLLAPSED too — the row's status pill says what
+  // happened; the detail is one click away for whoever wants it.
+  const [showFailure, setShowFailure] = useState(false)
   return (
     <div data-mol-id={`tests-card-row-${item.id}`} style={{ padding: '4px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -571,13 +703,44 @@ function TestsCardRow({
           onClick={() => onRun({ ids: [item.id] })}
           disabled={!runnable}
           title={disabledReason ?? undefined}
-          className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+          className={cm.cn(SECONDARY_ACTION(cm))}
           style={{ flexShrink: 0 }}
         >
           {t('ide.tests.run', undefined, { defaultValue: 'Run' })}
         </button>
       </div>
-      {result?.status === 'failed' && result.output && (
+      {result?.status === 'failed' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          {result.output && (
+            <button
+              type="button"
+              data-mol-id={`tests-card-failure-toggle-${item.id}`}
+              aria-expanded={showFailure}
+              onClick={() => setShowFailure((v) => !v)}
+              className={cm.cn(QUIET_TOGGLE(cm))}
+              style={{ flexShrink: 0 }}
+            >
+              {showFailure
+                ? t('ide.tests.hideOutput', undefined, { defaultValue: 'Hide output' })
+                : t('ide.tests.showOutput', undefined, { defaultValue: 'Show output' })}
+            </button>
+          )}
+          <button
+            type="button"
+            data-mol-id={`tests-card-fix-${item.id}`}
+            onClick={() => onFix([{ item, output: result.output }])}
+            disabled={!fixable}
+            title={fixDisabledReason ?? undefined}
+            className={cm.cn(SECONDARY_ACTION(cm))}
+            style={{ flexShrink: 0 }}
+          >
+            {t('ide.tests.fixWithSynthase', undefined, {
+              defaultValue: 'Fix with Synthase',
+            })}
+          </button>
+        </div>
+      )}
+      {result?.status === 'failed' && result.output && showFailure && (
         <pre
           data-mol-id={`tests-card-failure-${item.id}`}
           className={cm.textSize('xs')}

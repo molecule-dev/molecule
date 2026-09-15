@@ -629,4 +629,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'ပရောဂျက်ကို စတင်ပြီး ၎င်း၏ စမ်းသပ်မှုများကို ကြည့်ရှုပါ။',
   'ide.tests.empty': 'ဒီပရောဂျက်မှာ စမ်းသပ်မှုတွေ မရှိသေးပါဘူး။',
   'ide.tests.noMatch': 'သင့်ရှာဖွေမှုနှင့် ကိုက်ညီသော စစ်ဆေးမှုများ မရှိပါ။',
+  'ide.tests.fixWithSynthase': 'Synthase ဖြင့် ပြုပြင်ပါ',
+  'ide.tests.fixFailures': 'ပြင်ဆင်ရန် {{count}} ပျက်ကွက်မှုများ',
+  'ide.tests.fixBusy': 'လက်ရှိအလှည့်ပြီးအောင်စောင့်ပါ။',
 }

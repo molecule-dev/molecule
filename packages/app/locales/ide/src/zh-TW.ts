@@ -606,4 +606,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': '啟動專案以檢視其中的測試。',
   'ide.tests.empty': '此專案目前尚無任何測試。',
   'ide.tests.noMatch': '沒有任何測驗符合您的搜尋條件。',
+  'ide.tests.fixWithSynthase': '使用 Synthase 進行修復',
+  'ide.tests.fixFailures': '修復 {{count}} 的錯誤',
+  'ide.tests.fixBusy': '請等待本回合結束。',
 }

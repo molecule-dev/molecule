@@ -626,4 +626,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'அதன் சோதனைகளைக் காண திட்டத்தைத் தொடங்கவும்.',
   'ide.tests.empty': 'இந்தத் திட்டத்தில் இன்னும் சோதனைகள் எதுவும் செய்யப்படவில்லை.',
   'ide.tests.noMatch': 'உங்கள் தேடலுக்குப் பொருத்தமான சோதனைகள் எதுவும் இல்லை.',
+  'ide.tests.fixWithSynthase': 'சிந்தேஸ் கொண்டு சரிசெய்யவும்',
+  'ide.tests.fixFailures': 'சரிசெய்யவும் {{count}} தோல்விகள்',
+  'ide.tests.fixBusy': 'தற்போதைய முறை முடியும் வரை காத்திருங்கள்.',
 }

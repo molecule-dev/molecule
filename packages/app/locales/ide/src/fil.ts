@@ -628,4 +628,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Simulan ang proyekto upang makita ang mga pagsubok nito.',
   'ide.tests.empty': 'Wala pang mga pagsubok sa proyektong ito.',
   'ide.tests.noMatch': 'Walang mga pagsubok na tumutugma sa iyong paghahanap.',
+  'ide.tests.fixWithSynthase': 'Ayusin gamit ang Synthase',
+  'ide.tests.fixFailures': 'Ayusin {{count}} mga pagkabigo',
+  'ide.tests.fixBusy': 'Hintaying matapos ang kasalukuyang turno.',
 }

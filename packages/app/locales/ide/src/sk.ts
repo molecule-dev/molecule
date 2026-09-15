@@ -632,4 +632,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Spustite projekt, aby ste si prezreli jeho testy.',
   'ide.tests.empty': 'V tomto projekte zatiaľ nie sú žiadne testy.',
   'ide.tests.noMatch': 'Žiadne testy nezodpovedajú vášmu vyhľadávaniu.',
+  'ide.tests.fixWithSynthase': 'Oprava pomocou programu Synthase',
+  'ide.tests.fixFailures': 'Oprava chýb pri spustení programu „{{count}}“',
+  'ide.tests.fixBusy': 'Počkajte, kým sa ukončí aktuálne kolo.',
 }

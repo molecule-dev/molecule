@@ -625,4 +625,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Запусціце праект, каб паглядзець яго тэсты.',
   'ide.tests.empty': 'Пакуль няма тэстаў у гэтым праекце.',
   'ide.tests.noMatch': 'Няма тэстаў, якія адпавядаюць вашаму пошуку.',
+  'ide.tests.fixWithSynthase': 'Выправіць з дапамогай сінтазы',
+  'ide.tests.fixFailures': 'Выправіць {{count}} няўдачы',
+  'ide.tests.fixBusy': 'Пачакайце, пакуль скончыцца бягучы ход.',
 }

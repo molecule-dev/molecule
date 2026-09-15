@@ -622,4 +622,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Жобаның сынақтарын көру үшін оны бастаңыз.',
   'ide.tests.empty': 'Бұл жобада әлі сынақтар жоқ.',
   'ide.tests.noMatch': 'Іздеуіңізге сәйкес келетін тесттер жоқ.',
+  'ide.tests.fixWithSynthase': 'Синтезатормен түзету',
+  'ide.tests.fixFailures': 'Түзету {{count}} сәтсіздіктер',
+  'ide.tests.fixBusy': 'Ағымдағы айналымның аяқталуын күтіңіз.',
 }

@@ -622,4 +622,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Byrjaðu verkefnið til að sjá prófanir þess.',
   'ide.tests.empty': 'Engar prófanir í þessu verkefni ennþá.',
   'ide.tests.noMatch': 'Engar prófanir passa við leitina þína.',
+  'ide.tests.fixWithSynthase': 'Lagfæring með Synthase',
+  'ide.tests.fixFailures': 'Lagfæra {{count}} mistök',
+  'ide.tests.fixBusy': 'Bíddu eftir að núverandi beygju ljúki.',
 }

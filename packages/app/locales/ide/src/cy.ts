@@ -622,4 +622,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Dechreuwch y prosiect i weld ei brofion.',
   'ide.tests.empty': 'Dim profion yn y prosiect hwn eto.',
   'ide.tests.noMatch': "Does dim profion yn cyfateb i'ch chwiliad.",
+  'ide.tests.fixWithSynthase': 'Trwsio gyda Synthase',
+  'ide.tests.fixFailures': 'Trwsio {{count}} methiannau',
+  'ide.tests.fixBusy': "Arhoswch i'r tro presennol orffen.",
 }

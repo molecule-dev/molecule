@@ -628,4 +628,7 @@ export const zu: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Qala iphrojekthi ukuze ubone izivivinyo zayo.',
   'ide.tests.empty': 'Azikho izivivinyo kule phrojekthi okwamanje.',
   'ide.tests.noMatch': 'Azikho izivivinyo ezihambisana nosesho lwakho.',
+  'ide.tests.fixWithSynthase': 'Lungisa nge-Synthase',
+  'ide.tests.fixFailures': 'Lungisa {{count}} ukwehluleka',
+  'ide.tests.fixBusy': 'Linda ukuthi ukujika kwamanje kuphele.',
 }

@@ -620,4 +620,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Begin die projek om die toetse daarvan te sien.',
   'ide.tests.empty': 'Geen toetse nog in hierdie projek nie.',
   'ide.tests.noMatch': 'Geen toetse stem ooreen met jou soektog nie.',
+  'ide.tests.fixWithSynthase': 'Herstel met Synthase',
+  'ide.tests.fixFailures': 'Herstel {{count}} mislukkings',
+  'ide.tests.fixBusy': 'Wag totdat die huidige beurt klaar is.',
 }

@@ -628,4 +628,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Start projektet for at se dets tests.',
   'ide.tests.empty': 'Der er endnu ingen tests i dette projekt.',
   'ide.tests.noMatch': 'Der er ingen test, der matcher din søgning.',
+  'ide.tests.fixWithSynthase': 'Løsning med Synthase',
+  'ide.tests.fixFailures': 'Løsning af fejl i »{{count}}«',
+  'ide.tests.fixBusy': 'Vent, indtil den aktuelle runde er slut.',
 }

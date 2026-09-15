@@ -638,4 +638,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Start het project om de tests te bekijken.',
   'ide.tests.empty': 'Er zijn nog geen tests in dit project.',
   'ide.tests.noMatch': 'Er zijn geen testresultaten die aan je zoekopdracht voldoen.',
+  'ide.tests.fixWithSynthase': 'Oplossen met Synthase',
+  'ide.tests.fixFailures': '{{count}}-storingen verhelpen',
+  'ide.tests.fixBusy': 'Wacht tot de huidige beurt voorbij is.',
 }

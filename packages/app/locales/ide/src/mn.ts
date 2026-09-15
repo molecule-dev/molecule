@@ -626,4 +626,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Төслийг эхлүүлж, туршилтыг нь үзнэ үү.',
   'ide.tests.empty': 'Энэ төсөлд одоогоор туршилт хийгдээгүй байна.',
   'ide.tests.noMatch': 'Таны хайлтад тохирох тест алга.',
+  'ide.tests.fixWithSynthase': 'Синтезатороор засах',
+  'ide.tests.fixFailures': 'Засах {{count}} бүтэлгүйтэл',
+  'ide.tests.fixBusy': 'Одоогийн эргэлт дуусахыг хүлээнэ үү.',
 }

@@ -637,4 +637,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Стартирайте проекта, за да видите тестовете му.',
   'ide.tests.empty': 'Все още няма тестове в този проект.',
   'ide.tests.noMatch': 'Няма тестове, които да съответстват на вашето търсене.',
+  'ide.tests.fixWithSynthase': 'Поправка с Synthase',
+  'ide.tests.fixFailures': 'Отстраняване на грешките при „{{count}}“',
+  'ide.tests.fixBusy': 'Изчакайте да приключи текущият ход.',
 }

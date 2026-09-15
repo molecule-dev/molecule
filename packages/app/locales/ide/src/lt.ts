@@ -635,4 +635,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Paleiskite projektą, kad galėtumėte peržiūrėti jo testus.',
   'ide.tests.empty': 'Šiame projekte kol kas nėra jokių testų.',
   'ide.tests.noMatch': 'Nėra jūsų paieškai atitinkančių testų.',
+  'ide.tests.fixWithSynthase': 'Ištaisyti naudojant „Synthase“',
+  'ide.tests.fixFailures': 'Išspręsti „{{count}}“ veikimo sutrikimus',
+  'ide.tests.fixBusy': 'Palauk, kol baigsis dabartinis ėjimas.',
 }

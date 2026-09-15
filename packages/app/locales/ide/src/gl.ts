@@ -626,4 +626,7 @@ export const gl: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Inicia o proxecto para ver as súas probas.',
   'ide.tests.empty': 'Aínda non hai probas neste proxecto.',
   'ide.tests.noMatch': 'Non hai probas que coincidan coa túa busca.',
+  'ide.tests.fixWithSynthase': 'Corrixir con sintase',
+  'ide.tests.fixFailures': 'Corrixir {{count}} fracasos',
+  'ide.tests.fixBusy': 'Agarde a que remate a quenda actual.',
 }

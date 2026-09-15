@@ -619,4 +619,7 @@ export const gu: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'પ્રોજેક્ટના પરીક્ષણો જોવા માટે તેને શરૂ કરો.',
   'ide.tests.empty': 'આ પ્રોજેક્ટમાં હજુ સુધી કોઈ પરીક્ષણો નથી.',
   'ide.tests.noMatch': 'તમારી શોધ સાથે કોઈ પરીક્ષણો મેળ ખાતા નથી.',
+  'ide.tests.fixWithSynthase': 'સિન્થેઝ સાથે ઠીક કરો',
+  'ide.tests.fixFailures': 'ફિક્સ {{count}} નિષ્ફળતાઓ',
+  'ide.tests.fixBusy': 'વર્તમાન વળાંક પૂરો થાય ત્યાં સુધી રાહ જુઓ.',
 }

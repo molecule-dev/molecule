@@ -622,4 +622,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'เริ่มโปรเจ็กต์เพื่อดูผลการทดสอบ',
   'ide.tests.empty': 'ยังไม่มีการทดสอบใดๆ ในโครงการนี้',
   'ide.tests.noMatch': 'ไม่มีการทดสอบใดตรงกับผลการค้นหาของคุณ',
+  'ide.tests.fixWithSynthase': 'แก้ไขด้วยซินเทส',
+  'ide.tests.fixFailures': 'แก้ไข {{count}} ความล้มเหลว',
+  'ide.tests.fixBusy': 'รอจนกว่าตาปัจจุบันจะจบลง',
 }

@@ -625,4 +625,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'Mulakan projek untuk melihat ujiannya.',
   'ide.tests.empty': 'Tiada ujian dalam projek ini lagi.',
   'ide.tests.noMatch': 'Tiada ujian yang sepadan dengan carian anda.',
+  'ide.tests.fixWithSynthase': 'Betulkan dengan Sintase',
+  'ide.tests.fixFailures': 'Betulkan {{count}} kegagalan',
+  'ide.tests.fixBusy': 'Tunggu giliran semasa tamat.',
 }

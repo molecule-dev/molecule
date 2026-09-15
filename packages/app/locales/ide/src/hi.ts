@@ -620,4 +620,7 @@ export const hi: Partial<IdeTranslations> = {
   'ide.tests.waitingForSandbox': 'इसके परीक्षण देखने के लिए प्रोजेक्ट शुरू करें।',
   'ide.tests.empty': 'इस प्रोजेक्ट में अभी तक कोई परीक्षण नहीं किया गया है।',
   'ide.tests.noMatch': 'आपकी खोज से मेल खाने वाले कोई परीक्षण नहीं हैं।',
+  'ide.tests.fixWithSynthase': 'सिंथेस से ठीक करें',
+  'ide.tests.fixFailures': 'हल करना {{count}} विफलताएं',
+  'ide.tests.fixBusy': 'वर्तमान बारी के समाप्त होने की प्रतीक्षा करें।',
 }
