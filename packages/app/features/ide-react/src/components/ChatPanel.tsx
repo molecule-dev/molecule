@@ -6009,6 +6009,7 @@ function ChatInner({
             committed: boolean
             message?: string
             files?: string[]
+            hash?: string
           }>(`/projects/${projectId}/commit`)
           if (res.data.committed) {
             setCommitCards((prev) => [
@@ -6019,6 +6020,7 @@ function ChatInner({
                 files: res.data.files ?? [],
                 timestamp: Date.now(),
                 status: 'done' as const,
+                hash: res.data.hash,
               },
             ])
             refreshGitStatus()
@@ -7581,9 +7583,18 @@ function ChatInner({
         items.push({ kind: 'message', msg })
       }
     }
+    // The commit endpoint both returns the commit AND persists it as a `commitRecord`
+    // message, so once any history reload (tab refocus, end-of-turn reconcile) pulls
+    // that record into `messages`, this session's local card for the same commit is a
+    // duplicate. The persisted record wins; a local card is kept only until it lands.
+    const persistedCommitHashes = new Set(
+      visibleMessages.map((msg) => msg.commitRecord?.hash).filter((hash): hash is string => !!hash),
+    )
     // systemCards now holds ONLY this session's local command cards (ephemeral, see above).
     items.push(
-      ...commitCards.map((card) => ({ kind: 'commit' as const, card })),
+      ...commitCards
+        .filter((card) => !card.hash || !persistedCommitHashes.has(card.hash))
+        .map((card) => ({ kind: 'commit' as const, card })),
       ...systemCards.map((card) => ({ kind: 'system' as const, card })),
       ...activityCards.map((card) => ({ kind: 'activity' as const, card })),
       ...tipCards.map((card) => ({ kind: 'tip' as const, card })),
