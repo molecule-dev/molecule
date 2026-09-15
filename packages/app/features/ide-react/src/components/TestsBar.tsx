@@ -38,7 +38,6 @@ import type {
   TestRunHandle,
   TestSelection,
   TestStatus,
-  TestWorkspace,
 } from '../types.js'
 import type { TestGroup, TestResultEntry, TestsRunState } from './tests-bar-utilities.js'
 import {
@@ -74,20 +73,15 @@ const PASS_COLOR = 'var(--mol-color-success, #3fb950)'
 const FAIL_COLOR = 'var(--mol-color-error, #f85149)'
 
 /**
- * Human label for a workspace, shown beside the group heading so `app` vs `api`
- * is obvious in a project that tests both.
+ * Heading name for a group's project directory: its path as the host named it
+ * (`app`, `my-app/app`, …), or the translated "Project" for the workspace root,
+ * which has no name of its own.
  *
- * @param workspace - The workspace.
- * @returns The translated label.
+ * @param label - The group's label (`null` for the root).
+ * @returns The text to render.
  */
-function workspaceLabel(workspace: TestWorkspace): string {
-  if (workspace === 'app') {
-    return t('ide.tests.workspace.app', undefined, { defaultValue: 'App' })
-  }
-  if (workspace === 'api') {
-    return t('ide.tests.workspace.api', undefined, { defaultValue: 'API' })
-  }
-  return t('ide.tests.workspace.root', undefined, { defaultValue: 'Project' })
+function workspaceLabel(label: string | null): string {
+  return label ?? t('ide.tests.workspace.root', undefined, { defaultValue: 'Project' })
 }
 
 /**
@@ -587,7 +581,7 @@ function TestsBarGroup({
         }}
       >
         <span className={cm.cn(cm.textMuted, cm.textSize('xs'), cm.fontWeight('medium'))}>
-          {`${kindLabel(group.kind)} · ${workspaceLabel(group.workspace)}`}
+          {`${kindLabel(group.kind)} · ${workspaceLabel(group.label)}`}
         </span>
         <button
           type="button"

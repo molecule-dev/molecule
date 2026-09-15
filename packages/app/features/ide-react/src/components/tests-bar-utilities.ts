@@ -17,10 +17,12 @@ import type {
   TestWorkspace,
 } from '../types.js'
 
-/** One rendered group of rows: a kind within a workspace. */
+/** One rendered group of rows: a kind within a project directory. */
 export interface TestGroup {
   kind: TestKind
   workspace: TestWorkspace
+  /** The directory's name for the heading; `null` for the workspace root. */
+  label: string | null
   items: TestItem[]
 }
 
@@ -61,8 +63,32 @@ export const MAX_OUTPUT_LINES = 400
 /** Display order of the kinds: the preview-driven specs lead, unit tests follow. */
 const KIND_ORDER: readonly TestKind[] = ['e2e', 'unit']
 
-/** Display order of the workspaces. */
-const WORKSPACE_ORDER: readonly TestWorkspace[] = ['app', 'api', 'root']
+/**
+ * Display order of the project directories within a kind: by path, with the
+ * workspace root (`.`) last — it is the least specific place a test can live.
+ *
+ * @param a - One directory.
+ * @param b - The other.
+ * @returns The sort order.
+ */
+function compareWorkspaces(a: TestWorkspace, b: TestWorkspace): number {
+  if (a === b) return 0
+  if (a === '.') return 1
+  if (b === '.') return -1
+  return a.localeCompare(b)
+}
+
+/**
+ * The heading name for a directory: the host's label when it sent one, else
+ * the path itself, and `null` for the root either way.
+ *
+ * @param item - Any test in the group.
+ * @returns The label, or `null` for the workspace root.
+ */
+function labelFor(item: TestItem): string | null {
+  if (item.workspaceLabel !== undefined) return item.workspaceLabel
+  return item.workspace === '.' ? null : item.workspace
+}
 
 /** A run that has not started. */
 export const EMPTY_RUN_STATE: TestsRunState = {
@@ -79,8 +105,9 @@ export const EMPTY_RUN_STATE: TestsRunState = {
 }
 
 /**
- * Group tests for display: by kind (end-to-end first), then by workspace, with
- * the files sorted inside each group.
+ * Group tests for display: by kind (end-to-end first), then by project
+ * directory (whatever directories are present — `app`, `my-app/app`,
+ * `packages/web`, the root last), with the files sorted inside each group.
  *
  * @param tests - Every discovered test.
  * @returns The groups, in display order. Empty groups are never produced.
@@ -88,12 +115,15 @@ export const EMPTY_RUN_STATE: TestsRunState = {
 export function groupTests(tests: readonly TestItem[]): TestGroup[] {
   const groups: TestGroup[] = []
   for (const kind of KIND_ORDER) {
-    for (const workspace of WORKSPACE_ORDER) {
+    const workspaces = [
+      ...new Set(tests.filter((t) => t.kind === kind).map((t) => t.workspace)),
+    ].sort(compareWorkspaces)
+    for (const workspace of workspaces) {
       const items = tests
         .filter((t) => t.kind === kind && t.workspace === workspace)
         .slice()
         .sort((a, b) => a.file.localeCompare(b.file))
-      if (items.length > 0) groups.push({ kind, workspace, items })
+      if (items.length > 0) groups.push({ kind, workspace, label: labelFor(items[0]!), items })
     }
   }
   return groups

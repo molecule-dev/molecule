@@ -37,12 +37,56 @@ const TESTS: TestItem[] = [
 describe('groupTests', () => {
   it('puts the preview-driven specs first, then unit, and sorts inside a group', () => {
     const groups = groupTests(TESTS)
+    // Directories sort by path within a kind — nothing guarantees `app` or `api`
+    // exist, so there is no fixed order to prefer.
     expect(groups.map((g) => `${g.kind}:${g.workspace}`)).toEqual([
       'e2e:app',
-      'unit:app',
       'unit:api',
+      'unit:app',
     ])
     expect(groups[0]?.items.map((i) => i.file)).toEqual(['e2e/about.spec.ts', 'e2e/home.spec.ts'])
+  })
+
+  it('groups by whatever project directory owns the file, root last, labelled by the host', () => {
+    // R82's real layout: the executor named its project `my-app`, so the app
+    // lives at my-app/app — a fixed app/api/root trio dropped every row.
+    const nested: TestItem[] = [
+      {
+        id: 'my-app/app:e2e/home.spec.ts',
+        file: 'e2e/home.spec.ts',
+        kind: 'e2e',
+        workspace: 'my-app/app',
+        workspaceLabel: 'my-app/app',
+      },
+      {
+        id: '.:tests/root.test.ts',
+        file: 'tests/root.test.ts',
+        kind: 'unit',
+        workspace: '.',
+        workspaceLabel: null,
+      },
+      {
+        id: 'my-app/app:src/__tests__/content.test.ts',
+        file: 'src/__tests__/content.test.ts',
+        kind: 'unit',
+        workspace: 'my-app/app',
+        workspaceLabel: 'my-app/app',
+      },
+      // A host that predates `workspaceLabel`: the path itself is the label.
+      {
+        id: 'packages/web:e2e/x.spec.ts',
+        file: 'e2e/x.spec.ts',
+        kind: 'e2e',
+        workspace: 'packages/web',
+      },
+    ]
+    const groups = groupTests(nested)
+    expect(groups.map((g) => `${g.kind}:${g.workspace}:${g.label}`)).toEqual([
+      'e2e:my-app/app:my-app/app',
+      'e2e:packages/web:packages/web',
+      'unit:my-app/app:my-app/app',
+      'unit:.:null',
+    ])
   })
 
   it('never produces an empty group', () => {

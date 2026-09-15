@@ -73,11 +73,14 @@ export interface ChatUserIdentity {
 }
 
 /**
- * Which workspace of a project a test file belongs to. `root` is the project
- * root itself (a single-package project, or a workspace root that holds its own
- * tests).
+ * Which project directory a test file belongs to: the directory that OWNS the
+ * file (the nearest ancestor holding the runner's config or a `package.json`),
+ * as a path relative to the workspace root — `app`, `api`, `my-app/app`,
+ * `packages/web` — or `.` for the workspace root itself. Nothing guarantees
+ * `app/` or `api/` at the root: the executor names its project directory, so
+ * the value is a path, not an enum.
  */
-export type TestWorkspace = 'app' | 'api' | 'root'
+export type TestWorkspace = 'app' | 'api' | '.' | (string & {})
 
 /**
  * What a test file is: an end-to-end spec driven against the LIVE PREVIEW (the
@@ -94,6 +97,12 @@ export interface TestItem {
   file: string
   kind: TestKind
   workspace: TestWorkspace
+  /**
+   * The group's project name, ready to render: the same path as `workspace`,
+   * or `null` for the workspace root, which has no name of its own. Hosts that
+   * omit it get the path itself (and the translated "Project" for the root).
+   */
+  workspaceLabel?: string | null
   /** Human label for the row; the bar falls back to the file path without one. */
   title?: string
 }
@@ -107,8 +116,11 @@ export interface TestRunners {
 /** What {@link ChatPanelProps.listTests} resolves with. */
 export interface TestList {
   tests: TestItem[]
-  /** Per workspace, the runners the host found. Absent workspaces have no package. */
-  runners: Partial<Record<TestWorkspace, TestRunners>>
+  /**
+   * Per project directory (keyed like {@link TestItem.workspace}), the runners
+   * the host found. Only directories that hold a listed test appear.
+   */
+  runners: Record<string, TestRunners>
 }
 
 /** What the bar asks the host to run. */
