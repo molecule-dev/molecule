@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.15.0
+
+### Minor Changes
+
+- 6133613: The `/test` card's failed rows gain a "Fix with Synthase" action (and a batch action in the header) that hands the failing file and its runner output to the chat; runner output starts collapsed behind Show/Hide output; every action renders as a filled button, and a design guard test keeps command-card actions from shipping as text links.
+
 ## 1.14.0
 
 ### Minor Changes
