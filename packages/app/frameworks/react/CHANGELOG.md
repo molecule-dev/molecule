@@ -1,5 +1,11 @@
 # @molecule/app-react
 
+## 1.5.0
+
+### Minor Changes
+
+- Limit errors now carry `billingAction` and `upgradeTier`, and the IDE passes them together with `limitType` to `buildUpgradeCta`, so the host renders the call-to-action that matches the user's billing state instead of a generic upgrade button.
+
 ## 1.4.3
 
 ### Patch Changes

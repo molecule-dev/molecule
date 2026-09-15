@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat-http
 
+## 1.2.0
+
+### Minor Changes
+
+- Limit errors now carry `billingAction` and `upgradeTier`, and the IDE passes them together with `limitType` to `buildUpgradeCta`, so the host renders the call-to-action that matches the user's billing state instead of a generic upgrade button.
+
 ## 1.1.0
 
 ### Minor Changes
