@@ -617,4 +617,10 @@ export const si: Partial<IdeTranslations> = {
   'ide.tests.runError': 'පරීක්ෂණ ධාවනය ආරම්භ කිරීමට නොහැකි විය.',
   'ide.tests.viewerCannotRun': 'මෙම ව්‍යාපෘතියේ පරීක්ෂණ ක්‍රියාත්මක කළ හැක්කේ සංස්කාරකවරුන්ට පමණි.',
   'ide.tests.needsSandbox': 'එහි පරීක්ෂණ ක්‍රියාත්මක කිරීම සඳහා ව්‍යාපෘතිය ආරම්භ කරන්න.',
+  'ide.tests.heading': 'පරීක්ෂණ',
+  'ide.tests.searchPlaceholder': 'පෙරහන් පරීක්ෂණ...',
+  'ide.tests.loading': 'පරීක්ෂණ පූරණය වෙමින්…',
+  'ide.tests.waitingForSandbox': 'එහි පරීක්ෂණ බැලීමට ව්‍යාපෘතිය ආරම්භ කරන්න.',
+  'ide.tests.empty': 'මෙම ව්‍යාපෘතියේ තවමත් පරීක්ෂණ නොමැත.',
+  'ide.tests.noMatch': 'ඔබගේ සෙවුමට ගැලපෙන පරීක්ෂණ නොමැත.',
 }

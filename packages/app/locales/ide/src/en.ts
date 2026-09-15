@@ -667,4 +667,10 @@ export const en: IdeTranslations = {
   'ide.tests.runError': 'The test run could not start.',
   'ide.tests.viewerCannotRun': 'Only editors can run this project’s tests.',
   'ide.tests.needsSandbox': 'Start the project to run its tests.',
+  'ide.tests.heading': 'Tests',
+  'ide.tests.searchPlaceholder': 'Filter tests…',
+  'ide.tests.loading': 'Loading tests…',
+  'ide.tests.waitingForSandbox': 'Start the project to see its tests.',
+  'ide.tests.empty': 'No tests in this project yet.',
+  'ide.tests.noMatch': 'No tests match your search.',
 }

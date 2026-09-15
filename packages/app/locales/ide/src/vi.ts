@@ -620,4 +620,10 @@ export const vi: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Quá trình chạy thử không thể bắt đầu.',
   'ide.tests.viewerCannotRun': 'Chỉ người biên tập mới có thể chạy thử nghiệm dự án này.',
   'ide.tests.needsSandbox': 'Khởi động dự án để chạy các bài kiểm tra.',
+  'ide.tests.heading': 'Các bài kiểm tra',
+  'ide.tests.searchPlaceholder': 'Kiểm tra bộ lọc…',
+  'ide.tests.loading': 'Đang tải các bài kiểm tra…',
+  'ide.tests.waitingForSandbox': 'Khởi chạy dự án để xem các bài kiểm tra của nó.',
+  'ide.tests.empty': 'Dự án này hiện chưa có bài kiểm tra nào.',
+  'ide.tests.noMatch': 'Không có kết quả tìm kiếm nào phù hợp với từ khóa của bạn.',
 }

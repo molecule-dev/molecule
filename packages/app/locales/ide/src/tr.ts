@@ -626,4 +626,10 @@ export const tr: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Deneme çalıştırması başlatılamadı.',
   'ide.tests.viewerCannotRun': 'Bu projenin testlerini yalnızca editörler çalıştırabilir.',
   'ide.tests.needsSandbox': 'Projeyi başlatarak testlerini çalıştırın.',
+  'ide.tests.heading': 'Testler',
+  'ide.tests.searchPlaceholder': 'Filtre testleri…',
+  'ide.tests.loading': 'Testler yükleniyor…',
+  'ide.tests.waitingForSandbox': 'Projeyi başlatarak testlerini inceleyin.',
+  'ide.tests.empty': 'Bu projede henüz herhangi bir test bulunmamaktadır.',
+  'ide.tests.noMatch': 'Aramanızla eşleşen test bulunamadı.',
 }

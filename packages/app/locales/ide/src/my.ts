@@ -623,4 +623,10 @@ export const my: Partial<IdeTranslations> = {
   'ide.tests.runError': 'စမ်းသပ်ပြေးခြင်းကို စတင်၍မရပါ။',
   'ide.tests.viewerCannotRun': 'ဤပရောဂျက်၏ စမ်းသပ်မှုများကို တည်းဖြတ်သူများသာ လုပ်ဆောင်နိုင်ပါသည်။',
   'ide.tests.needsSandbox': 'စမ်းသပ်မှုများ လုပ်ဆောင်ရန် ပရောဂျက်ကို စတင်ပါ။',
+  'ide.tests.heading': 'စမ်းသပ်မှုများ',
+  'ide.tests.searchPlaceholder': 'စစ်ထုတ်စမ်းသပ်မှုများ…',
+  'ide.tests.loading': 'စမ်းသပ်မှုများကို တင်နေသည်…',
+  'ide.tests.waitingForSandbox': 'ပရောဂျက်ကို စတင်ပြီး ၎င်း၏ စမ်းသပ်မှုများကို ကြည့်ရှုပါ။',
+  'ide.tests.empty': 'ဒီပရောဂျက်မှာ စမ်းသပ်မှုတွေ မရှိသေးပါဘူး။',
+  'ide.tests.noMatch': 'သင့်ရှာဖွေမှုနှင့် ကိုက်ညီသော စစ်ဆေးမှုများ မရှိပါ။',
 }

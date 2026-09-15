@@ -614,4 +614,10 @@ export const ig: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Ọsọ ule ahụ enweghị ike ịmalite.',
   'ide.tests.viewerCannotRun': 'Naanị ndị nchịkọta akụkọ nwere ike ịgba ule ọrụ a.',
   'ide.tests.needsSandbox': 'Malite ọrụ ahụ iji mee nnwale ya.',
+  'ide.tests.heading': 'Ule',
+  'ide.tests.searchPlaceholder': 'Nnwale nzacha...',
+  'ide.tests.loading': 'Na-ebugo ule…',
+  'ide.tests.waitingForSandbox': 'Malite ọrụ ahụ iji hụ ule ya.',
+  'ide.tests.empty': "Enwebeghị ule ọ bụla n'ọrụ a.",
+  'ide.tests.noMatch': 'Ọ dịghị ule ọ bụla dabara na ọchụchọ gị.',
 }

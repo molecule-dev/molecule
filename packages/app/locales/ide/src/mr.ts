@@ -615,4 +615,10 @@ export const mr: Partial<IdeTranslations> = {
   'ide.tests.runError': 'चाचणी सुरू होऊ शकली नाही.',
   'ide.tests.viewerCannotRun': 'फक्त संपादकच या प्रकल्पाच्या चाचण्या चालवू शकतात.',
   'ide.tests.needsSandbox': 'त्याच्या चाचण्या चालवण्यासाठी प्रकल्प सुरू करा.',
+  'ide.tests.heading': 'चाचण्या',
+  'ide.tests.searchPlaceholder': 'फिल्टर चाचण्या…',
+  'ide.tests.loading': 'चाचण्या लोड होत आहेत…',
+  'ide.tests.waitingForSandbox': 'त्याच्या चाचण्या पाहण्यासाठी प्रकल्प सुरू करा.',
+  'ide.tests.empty': 'या प्रकल्पात अद्याप कोणतीही चाचणी नाही.',
+  'ide.tests.noMatch': 'तुमच्या शोधाशी जुळणाऱ्या चाचण्या उपलब्ध नाहीत.',
 }

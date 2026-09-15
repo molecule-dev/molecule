@@ -622,4 +622,10 @@ export const sq: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Testi nuk mund të fillonte.',
   'ide.tests.viewerCannotRun': 'Vetëm redaktorët mund të kryejnë testet e këtij projekti.',
   'ide.tests.needsSandbox': 'Nisni projektin për të ekzekutuar testet e tij.',
+  'ide.tests.heading': 'Testet',
+  'ide.tests.searchPlaceholder': 'Testet e filtrit…',
+  'ide.tests.loading': 'Duke ngarkuar testet…',
+  'ide.tests.waitingForSandbox': 'Filloni projektin për të parë testet e tij.',
+  'ide.tests.empty': 'Nuk ka ende teste në këtë projekt.',
+  'ide.tests.noMatch': 'Asnjë test nuk përputhet me kërkimin tuaj.',
 }

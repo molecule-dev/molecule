@@ -136,9 +136,14 @@ export const COMMANDS: readonly CommandDef[] = [
   {
     id: 'test',
     label: '/test',
-    description: 'Run project test suite',
+    description: "List and run the project's tests",
     category: 'code',
-    usage: '/test [args]',
+    usage: '/test [query | all]',
+    aliases: ['tests'],
+    // Listing is a read (the platform serves it to viewers too); RUNNING is an
+    // editor action, refused by the server and disabled in the card with its
+    // reason shown. So a viewer opens the browser and sees what is tested.
+    viewerSafe: true,
   },
   {
     id: 'undo',

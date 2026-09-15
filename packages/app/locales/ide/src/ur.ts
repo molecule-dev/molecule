@@ -614,4 +614,10 @@ export const ur: Partial<IdeTranslations> = {
   'ide.tests.runError': 'ٹیسٹ رن شروع نہیں ہو سکا۔',
   'ide.tests.viewerCannotRun': 'صرف ایڈیٹرز ہی اس پروجیکٹ کے ٹیسٹ چلا سکتے ہیں۔',
   'ide.tests.needsSandbox': 'اس کے ٹیسٹ چلانے کے لیے پروجیکٹ شروع کریں۔',
+  'ide.tests.heading': 'ٹیسٹ',
+  'ide.tests.searchPlaceholder': 'فلٹر ٹیسٹ…',
+  'ide.tests.loading': 'ٹیسٹ لوڈ ہو رہے ہیں…',
+  'ide.tests.waitingForSandbox': 'اس کے ٹیسٹ دیکھنے کے لیے پروجیکٹ شروع کریں۔',
+  'ide.tests.empty': 'اس پروجیکٹ میں ابھی تک کوئی ٹیسٹ نہیں ہوا۔',
+  'ide.tests.noMatch': 'کوئی ٹیسٹ آپ کی تلاش سے مماثل نہیں ہے۔',
 }

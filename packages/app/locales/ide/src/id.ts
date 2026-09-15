@@ -627,4 +627,10 @@ export const id: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Uji coba tidak dapat dimulai.',
   'ide.tests.viewerCannotRun': 'Hanya editor yang dapat menjalankan pengujian proyek ini.',
   'ide.tests.needsSandbox': 'Jalankan proyek tersebut untuk menjalankan serangkaian pengujiannya.',
+  'ide.tests.heading': 'Tes',
+  'ide.tests.searchPlaceholder': 'Uji filter…',
+  'ide.tests.loading': 'Sedang melakukan pengujian…',
+  'ide.tests.waitingForSandbox': 'Jalankan proyek tersebut untuk melihat pengujiannya.',
+  'ide.tests.empty': 'Belum ada pengujian dalam proyek ini.',
+  'ide.tests.noMatch': 'Tidak ada tes yang sesuai dengan pencarian Anda.',
 }

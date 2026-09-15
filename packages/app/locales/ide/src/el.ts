@@ -636,4 +636,10 @@ export const el: Partial<IdeTranslations> = {
   'ide.tests.viewerCannotRun':
     'Μόνο οι συντάκτες μπορούν να εκτελέσουν τις δοκιμές αυτού του έργου.',
   'ide.tests.needsSandbox': 'Ξεκινήστε το έργο για να εκτελεστούν οι δοκιμές του.',
+  'ide.tests.heading': 'Δοκιμές',
+  'ide.tests.searchPlaceholder': 'Δοκιμές φίλτρων…',
+  'ide.tests.loading': 'Δοκιμές φόρτωσης…',
+  'ide.tests.waitingForSandbox': 'Ξεκινήστε το έργο για να δείτε τις δοκιμές του.',
+  'ide.tests.empty': 'Δεν υπάρχουν ακόμα δοκιμές σε αυτό το έργο.',
+  'ide.tests.noMatch': 'Δεν βρέθηκαν αποτελέσματα που να ταιριάζουν με την αναζήτησή σας.',
 }

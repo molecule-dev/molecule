@@ -618,4 +618,10 @@ export const kn: Partial<IdeTranslations> = {
   'ide.tests.runError': 'ಪರೀಕ್ಷಾರ್ಥ ಓಟವನ್ನು ಪ್ರಾರಂಭಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.',
   'ide.tests.viewerCannotRun': 'ಈ ಯೋಜನೆಯ ಪರೀಕ್ಷೆಗಳನ್ನು ಸಂಪಾದಕರು ಮಾತ್ರ ನಡೆಸಬಹುದು.',
   'ide.tests.needsSandbox': 'ಅದರ ಪರೀಕ್ಷೆಗಳನ್ನು ನಡೆಸಲು ಯೋಜನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ.',
+  'ide.tests.heading': 'ಪರೀಕ್ಷೆಗಳು',
+  'ide.tests.searchPlaceholder': 'ಫಿಲ್ಟರ್ ಪರೀಕ್ಷೆಗಳು...',
+  'ide.tests.loading': 'ಪರೀಕ್ಷೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ...',
+  'ide.tests.waitingForSandbox': 'ಅದರ ಪರೀಕ್ಷೆಗಳನ್ನು ನೋಡಲು ಯೋಜನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ.',
+  'ide.tests.empty': 'ಈ ಯೋಜನೆಯಲ್ಲಿ ಇನ್ನೂ ಯಾವುದೇ ಪರೀಕ್ಷೆಗಳಿಲ್ಲ.',
+  'ide.tests.noMatch': 'ನಿಮ್ಮ ಹುಡುಕಾಟಕ್ಕೆ ಯಾವುದೇ ಪರೀಕ್ಷೆಗಳು ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ.',
 }

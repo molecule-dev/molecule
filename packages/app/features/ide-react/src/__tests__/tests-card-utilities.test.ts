@@ -1,5 +1,5 @@
 /**
- * The Tests bar's pure state: grouping, the collapsed summary, and the reducer
+ * The Tests card's pure state: grouping, the collapsed summary, and the reducer
  * that folds a run's streamed events into what the rows show.
  *
  * @module
@@ -12,13 +12,14 @@ import {
   countByKind,
   EMPTY_RUN_STATE,
   failRun,
+  filterTests,
   groupTests,
   isRowRunning,
-  isTestFilePath,
   MAX_OUTPUT_LINES,
+  parseTestCommand,
   summarizeResults,
   testRowLabel,
-} from '../components/tests-bar-utilities.js'
+} from '../components/tests-card-utilities.js'
 import type { TestItem } from '../types.js'
 
 const TESTS: TestItem[] = [
@@ -245,28 +246,47 @@ describe('testRowLabel', () => {
   })
 })
 
-describe('isTestFilePath', () => {
-  it('recognizes the spec/test shapes discovery looks for, in any workspace', () => {
-    for (const path of [
-      '/workspace/app/e2e/home.spec.ts',
-      'app/e2e/home.spec.tsx',
-      'api/src/__tests__/routes.test.ts',
-      'src/format.test.mjs',
-      'e2e/smoke.spec.cjs',
-    ]) {
-      expect(isTestFilePath(path), path).toBe(true)
-    }
+describe('filterTests', () => {
+  it('matches the file path, the title, and the project directory', () => {
+    expect(filterTests(TESTS, 'about').map((t) => t.file)).toEqual(['e2e/about.spec.ts'])
+    expect(filterTests(TESTS, 'home').map((t) => t.file)).toEqual(['e2e/home.spec.ts'])
+    expect(filterTests(TESTS, 'api').map((t) => t.workspace)).toEqual(['api'])
   })
 
-  it('ignores an ordinary write, so a normal edit never costs a re-list', () => {
-    for (const path of [
-      '/workspace/app/src/App.tsx',
-      'api/src/handlers/users.ts',
-      'README.md',
-      'e2e/_helpers.ts',
-      'src/testing.ts',
-    ]) {
-      expect(isTestFilePath(path), path).toBe(false)
+  it('is case-insensitive and returns everything for a blank query', () => {
+    expect(filterTests(TESTS, '  ABOUT ').map((t) => t.file)).toEqual(['e2e/about.spec.ts'])
+    expect(filterTests(TESTS, '')).toHaveLength(TESTS.length)
+    expect(filterTests(TESTS, '   ')).toHaveLength(TESTS.length)
+  })
+
+  it('returns nothing when nothing matches', () => {
+    expect(filterTests(TESTS, 'zzz')).toEqual([])
+  })
+})
+
+describe('parseTestCommand', () => {
+  it('parses the bare command and its alias', () => {
+    expect(parseTestCommand('/test')).toEqual({ query: '', runAll: false })
+    expect(parseTestCommand('/tests')).toEqual({ query: '', runAll: false })
+    expect(parseTestCommand('  /TEST  ')).toEqual({ query: '', runAll: false })
+  })
+
+  it('treats any argument but `all` as a filter, never as something to run', () => {
+    expect(parseTestCommand('/test home')).toEqual({ query: 'home', runAll: false })
+    expect(parseTestCommand('/tests my-app/app')).toEqual({
+      query: 'my-app/app',
+      runAll: false,
+    })
+  })
+
+  it('runs everything for `all`, in any case', () => {
+    expect(parseTestCommand('/test all')).toEqual({ query: '', runAll: true })
+    expect(parseTestCommand('/tests ALL')).toEqual({ query: '', runAll: true })
+  })
+
+  it('is not a /test command at all for anything else', () => {
+    for (const input of ['/testing', '/te', 'test', 'hello /test', '/scripts all']) {
+      expect(parseTestCommand(input), input).toBeNull()
     }
   })
 })

@@ -622,4 +622,10 @@ export const da: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Testkørslen kunne ikke startes.',
   'ide.tests.viewerCannotRun': 'Kun redaktører kan køre testene for dette projekt.',
   'ide.tests.needsSandbox': 'Start projektet for at køre testene.',
+  'ide.tests.heading': 'Tests',
+  'ide.tests.searchPlaceholder': 'Filtertests…',
+  'ide.tests.loading': 'Indlæser test…',
+  'ide.tests.waitingForSandbox': 'Start projektet for at se dets tests.',
+  'ide.tests.empty': 'Der er endnu ingen tests i dette projekt.',
+  'ide.tests.noMatch': 'Der er ingen test, der matcher din søgning.',
 }

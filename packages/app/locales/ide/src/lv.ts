@@ -624,4 +624,10 @@ export const lv: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Izmēģinājuma darbs nevarēja sākties.',
   'ide.tests.viewerCannotRun': 'Šī projekta testus var palaist tikai redaktori.',
   'ide.tests.needsSandbox': 'Uzsāciet projektu, lai veiktu tā testus.',
+  'ide.tests.heading': 'Testi',
+  'ide.tests.searchPlaceholder': 'Filtru testi…',
+  'ide.tests.loading': 'Tiek ielādēti testi…',
+  'ide.tests.waitingForSandbox': 'Palaižiet projektu, lai apskatītu tā testus.',
+  'ide.tests.empty': 'Šajā projektā pagaidām nav veikti testi.',
+  'ide.tests.noMatch': 'Nav testu, kas atbilstu jūsu meklējumam.',
 }

@@ -626,4 +626,10 @@ export const hu: Partial<IdeTranslations> = {
   'ide.tests.runError': 'A próbaüzem nem indult el.',
   'ide.tests.viewerCannotRun': 'Csak a szerkesztők futtathatják a projekt tesztjeit.',
   'ide.tests.needsSandbox': 'Indítsa el a projektet a tesztek futtatásához.',
+  'ide.tests.heading': 'Tesztek',
+  'ide.tests.searchPlaceholder': 'Szűrőtesztek…',
+  'ide.tests.loading': 'Tesztek betöltése…',
+  'ide.tests.waitingForSandbox': 'Indítsd el a projektet, hogy megtekintsd a tesztjeit.',
+  'ide.tests.empty': 'Ebben a projektben egyelőre nincs teszt.',
+  'ide.tests.noMatch': 'A keresésednek nem találtunk megfelelő teszteket.',
 }

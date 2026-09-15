@@ -627,4 +627,10 @@ export const pt: Partial<IdeTranslations> = {
   'ide.tests.runError': 'O teste não pôde ser iniciado.',
   'ide.tests.viewerCannotRun': 'Somente editores podem executar os testes deste projeto.',
   'ide.tests.needsSandbox': 'Inicie o projeto para executar seus testes.',
+  'ide.tests.heading': 'Testes',
+  'ide.tests.searchPlaceholder': 'Testes de filtro…',
+  'ide.tests.loading': 'Carregando os testes…',
+  'ide.tests.waitingForSandbox': 'Execute o projeto para ver seus testes.',
+  'ide.tests.empty': 'Ainda não há testes neste projeto.',
+  'ide.tests.noMatch': 'Nenhum teste corresponde à sua pesquisa.',
 }

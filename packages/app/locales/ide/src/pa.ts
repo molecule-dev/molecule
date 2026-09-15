@@ -615,4 +615,10 @@ export const pa: Partial<IdeTranslations> = {
   'ide.tests.runError': 'ਟੈਸਟ ਰਨ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕਿਆ।',
   'ide.tests.viewerCannotRun': 'ਸਿਰਫ਼ ਸੰਪਾਦਕ ਹੀ ਇਸ ਪ੍ਰੋਜੈਕਟ ਦੇ ਟੈਸਟ ਚਲਾ ਸਕਦੇ ਹਨ।',
   'ide.tests.needsSandbox': 'ਪ੍ਰੋਜੈਕਟ ਦੇ ਟੈਸਟ ਚਲਾਉਣ ਲਈ ਇਸਨੂੰ ਸ਼ੁਰੂ ਕਰੋ।',
+  'ide.tests.heading': 'ਟੈਸਟ',
+  'ide.tests.searchPlaceholder': 'ਫਿਲਟਰ ਟੈਸਟ...',
+  'ide.tests.loading': 'ਟੈਸਟ ਲੋਡ ਕੀਤੇ ਜਾ ਰਹੇ ਹਨ…',
+  'ide.tests.waitingForSandbox': 'ਪ੍ਰੋਜੈਕਟ ਦੇ ਟੈਸਟ ਦੇਖਣ ਲਈ ਇਸਨੂੰ ਸ਼ੁਰੂ ਕਰੋ।',
+  'ide.tests.empty': 'ਇਸ ਪ੍ਰੋਜੈਕਟ ਵਿੱਚ ਅਜੇ ਕੋਈ ਟੈਸਟ ਨਹੀਂ ਹਨ।',
+  'ide.tests.noMatch': 'ਤੁਹਾਡੀ ਖੋਜ ਨਾਲ ਕੋਈ ਟੈਸਟ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ।',
 }

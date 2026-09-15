@@ -627,4 +627,10 @@ export const fi: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Koeajoa ei voitu käynnistää.',
   'ide.tests.viewerCannotRun': 'Vain toimittajat voivat suorittaa tämän projektin testit.',
   'ide.tests.needsSandbox': 'Käynnistä projekti testien suorittamiseksi.',
+  'ide.tests.heading': 'Testit',
+  'ide.tests.searchPlaceholder': 'Suodatintestit…',
+  'ide.tests.loading': 'Testien lataaminen…',
+  'ide.tests.waitingForSandbox': 'Käynnistä projekti, jotta voit tarkastella sen testejä.',
+  'ide.tests.empty': 'Tässä projektissa ei ole vielä testejä.',
+  'ide.tests.noMatch': 'Hakusi mukaisia testejä ei löytynyt.',
 }

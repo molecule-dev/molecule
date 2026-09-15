@@ -68,7 +68,14 @@ import type {
 import { getCustomEventCardFactory } from '../customEventCards.js'
 import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
-import type { ChatPanelProps, ChatUserIdentity, IdeClientAction } from '../types.js'
+import type {
+  ChatPanelProps,
+  ChatUserIdentity,
+  IdeClientAction,
+  TestItem,
+  TestRunHandle,
+  TestSelection,
+} from '../types.js'
 import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
@@ -176,8 +183,15 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
-import { isTestFilePath } from './tests-bar-utilities.js'
-import { TestsBar } from './TestsBar.js'
+import type { TestsRunState } from './tests-card-utilities.js'
+import {
+  applyTestRunEvent,
+  EMPTY_RUN_STATE,
+  failRun,
+  parseTestCommand,
+} from './tests-card-utilities.js'
+import type { TestsStatus } from './TestsCard.js'
+import { TestsCard } from './TestsCard.js'
 import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
@@ -462,6 +476,12 @@ interface ScriptsSystemCard extends SystemCardBase {
   query?: string
 }
 
+/** The `/test` browser. `query` seeds the search (`/test <query>`). */
+interface TestsSystemCard extends SystemCardBase {
+  variant: 'tests'
+  query?: string
+}
+
 /** The `/help` high-level guide card. `text` carries the {@link buildHelpText} fallback. */
 interface HelpSystemCard extends SystemCardBase {
   variant: 'help'
@@ -489,6 +509,7 @@ type SystemCard =
   | SettingsSystemCard
   | SkillsSystemCard
   | ScriptsSystemCard
+  | TestsSystemCard
   | HelpSystemCard
   | SkillsLoadedSystemCard
 
@@ -3059,19 +3080,6 @@ function ChatInner({
   // bar LIVE while a turn is still streaming.
   const debouncedFetchPendingFilesRef = useRef<(() => void) | null>(null)
 
-  // Re-lists the Tests bar. Bumped only when the written file IS a spec/test, so
-  // an ordinary write never costs a sandbox walk, and debounced so a turn that
-  // writes several specs re-lists once. The bar also re-lists on
-  // `externalGitStatusTick` (a user-side rename/delete) and after every run.
-  const [testsRefreshTick, setTestsRefreshTick] = useState(0)
-  const testsRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(
-    () => () => {
-      if (testsRefreshTimerRef.current) clearTimeout(testsRefreshTimerRef.current)
-    },
-    [],
-  )
-
   const onFileChangeWrapped = useCallback(
     (path: string, content: string) => {
       // A file changed (AI write) — restart the auto-commit countdown if armed.
@@ -3079,14 +3087,6 @@ function ChatInner({
       // Keep the uncommitted-files bar live DURING the turn — it must track
       // files as they stream in, not appear only once the turn ends.
       debouncedFetchPendingFilesRef.current?.()
-      // A newly written spec must appear in the Tests bar without a reload.
-      if (isTestFilePath(path)) {
-        if (testsRefreshTimerRef.current) clearTimeout(testsRefreshTimerRef.current)
-        testsRefreshTimerRef.current = setTimeout(() => {
-          testsRefreshTimerRef.current = null
-          setTestsRefreshTick((n) => n + 1)
-        }, 800)
-      }
       if (autoFixCountdown) {
         const norm = path.replace(/^\/workspace\//, '')
         const isRelevant = autoFixCountdown.changedPaths.some(
@@ -4246,10 +4246,12 @@ function ChatInner({
   // into the timeline. `panelOverlayQuery` seeds the skills/scripts search from a
   // `/skills <query>` / `/scripts <query>` invocation. Mutually exclusive with the
   // model + sounds pickers — only one popup owns the region at a time.
-  const [panelOverlay, setPanelOverlay] = useState<'skills' | 'scripts' | 'settings' | null>(null)
+  const [panelOverlay, setPanelOverlay] = useState<
+    'skills' | 'scripts' | 'settings' | 'tests' | null
+  >(null)
   const [panelOverlayQuery, setPanelOverlayQuery] = useState('')
   const openPanelOverlay = useCallback(
-    (variant: 'skills' | 'scripts' | 'settings', query = ''): void => {
+    (variant: 'skills' | 'scripts' | 'settings' | 'tests', query = ''): void => {
       // Close any sibling popup so overlays never stack (matches how the model
       // picker / sounds picker each own this region exclusively).
       setModelPicker(null)
@@ -4260,6 +4262,124 @@ function ChatInner({
       setPanelOverlay(variant)
     },
     [],
+  )
+
+  // ── /test (the tests browser) ───────────────────────────────────────────────
+  // The list and the in-flight run live HERE, not inside TestsCard, for one
+  // reason: the card is an overlay the user closes. A run that is streaming
+  // (a preview-driven spec takes a minute) must survive that close and still be
+  // there when they re-open it, and re-running /test must re-list without
+  // killing it. So the card is presentational and this owns the state.
+  const [testsList, setTestsList] = useState<TestItem[]>([])
+  const [testsStatus, setTestsStatus] = useState<TestsStatus>('loading')
+  const [testsRun, setTestsRun] = useState<TestsRunState>(EMPTY_RUN_STATE)
+  const testsRunHandleRef = useRef<TestRunHandle | null>(null)
+  // Live "is a run in flight?" for the dispatchers, so `startTestsRun` keeps a
+  // stable identity — the command callbacks that hold it carry hand-written
+  // dependency lists, and a value that changes every run transition is one they
+  // would eventually capture stale.
+  const testsRunningRef = useRef(false)
+  testsRunningRef.current = testsRun.running
+  // Live for the async callbacks, so a list resolving after an unmount, or a
+  // run event arriving then, never sets state on a dead tree.
+  const testsMountedRef = useRef(true)
+  useEffect(
+    () => () => {
+      testsMountedRef.current = false
+      testsRunHandleRef.current?.cancel()
+    },
+    [],
+  )
+
+  const refreshTests = useCallback(async (): Promise<void> => {
+    // A host that wires no discovery has no tests to show. Say so rather than
+    // opening a browser that spins on "Loading…" forever.
+    if (!listTests) {
+      setTestsStatus('error')
+      return
+    }
+    // Nothing can be discovered while the environment is down, and an empty
+    // answer would WIPE the list the person was reading.
+    if (testsAvailable === false) {
+      setTestsStatus('unavailable')
+      return
+    }
+    setTestsStatus((prev) => (prev === 'ready' ? prev : 'loading'))
+    try {
+      const list = await listTests()
+      if (!testsMountedRef.current) return
+      setTestsList(list.tests ?? [])
+      setTestsStatus('ready')
+    } catch (error) {
+      logger.warn('Failed to list project tests', { error })
+      if (!testsMountedRef.current) return
+      setTestsStatus('error')
+    }
+  }, [listTests, testsAvailable])
+
+  const startTestsRun = useCallback(
+    (selection: TestSelection): void => {
+      if (!runTests) return
+      if (canRunTests === false || canEdit === false) return
+      if (testsAvailable === false || testsRunningRef.current) return
+      if (selection.ids?.length === 0) return
+      // Seed a running state immediately: the host's `start` event may be a
+      // round trip away, and a Run button that appears to do nothing is the
+      // failure this feature exists to remove.
+      setTestsRun((prev) => ({
+        ...prev,
+        running: true,
+        outcome: null,
+        error: null,
+        output: [],
+        currentId: null,
+        queued: selection.ids ?? [],
+        startedAt: Date.now(),
+        durationMs: null,
+      }))
+      try {
+        testsRunHandleRef.current = runTests(selection, (event) => {
+          if (!testsMountedRef.current) return
+          setTestsRun((prev) => applyTestRunEvent(prev, event))
+          if (event.type === 'done') {
+            testsRunHandleRef.current = null
+            // A run cannot create a test, but it CAN finish after the agent wrote
+            // one — re-list once it settles so the card is current.
+            void refreshTests()
+          }
+        })
+      } catch (error) {
+        logger.warn('Failed to start a test run', { error })
+        setTestsRun((prev) =>
+          failRun(
+            prev,
+            error instanceof Error
+              ? error.message
+              : t('ide.tests.runError', undefined, {
+                  defaultValue: 'The test run could not start.',
+                }),
+          ),
+        )
+      }
+    },
+    [runTests, canRunTests, canEdit, testsAvailable, refreshTests],
+  )
+
+  const cancelTestsRun = useCallback((): void => {
+    testsRunHandleRef.current?.cancel()
+    testsRunHandleRef.current = null
+    setTestsRun((prev) => ({ ...prev, running: false, currentId: null, outcome: 'cancelled' }))
+  }, [])
+
+  /** Open the tests browser, re-listing so a spec just written shows up. */
+  const openTestsBrowser = useCallback(
+    (query = '', runAll = false): void => {
+      openPanelOverlay('tests', query)
+      void refreshTests().then(() => {
+        if (runAll && testsMountedRef.current) startTestsRun({ kind: 'all' })
+      })
+    },
+    [openPanelOverlay, refreshTests, startTestsRun],
   )
 
   // Keep ref in sync so the streaming callback always sees latest config
@@ -6068,9 +6188,10 @@ function ChatInner({
         }
       } else if (id === 'test') {
         setInputValue('')
-        sendMessage(
-          'Run the project test suite (npm test) and report the results. If tests fail, analyze the failures.',
-        )
+        // Was: a natural-language "run npm test and report" message to the
+        // agent — a whole turn spent to read output the platform can run
+        // directly. Now it opens the tests browser, like /scripts.
+        openTestsBrowser('')
       } else if (id === 'explain') {
         setInputAndCursorEnd('/explain ')
       } else if (id === 'lint') {
@@ -6325,6 +6446,15 @@ function ChatInner({
     if (scriptsMatch) {
       setInputValue('')
       openPanelOverlay('scripts', scriptsMatch.query)
+      return
+    }
+
+    // Handle /test [query | all] locally — opens the tests browser overlay,
+    // seeded with the query (if any); `all` runs everything straight away.
+    const testMatch = parseTestCommand(trimmed)
+    if (testMatch) {
+      setInputValue('')
+      openTestsBrowser(testMatch.query, testMatch.runAll)
       return
     }
 
@@ -6656,18 +6786,6 @@ function ChatInner({
         }
       }
       setInputValue('')
-      return
-    }
-
-    // Handle /test [args] — inject prompt for AI to run tests
-    const testMatch = trimmed.match(/^\/test(?:\s+(.*))?$/i)
-    if (testMatch) {
-      const args = testMatch[1]?.trim()
-      const prompt = args
-        ? `Run this test command and report the results: npm test -- ${args}`
-        : 'Run the project test suite (npm test) and report the results. If tests fail, analyze the failures.'
-      setInputValue('')
-      sendMessage(prompt)
       return
     }
 
@@ -8033,6 +8151,21 @@ function ChatInner({
                           initialQuery={item.card.query ?? ''}
                           isLight={isLight}
                           agentName={agentName}
+                        />
+                      )
+                    }
+                    if (item.card.variant === 'tests') {
+                      return (
+                        <TestsCard
+                          key={item.card.id}
+                          tests={testsList}
+                          status={testsStatus}
+                          run={testsRun}
+                          initialQuery={item.card.query ?? ''}
+                          canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
+                          onRun={startTestsRun}
+                          onCancel={cancelTestsRun}
+                          isLight={isLight}
                         />
                       )
                     }
@@ -10386,7 +10519,9 @@ function ChatInner({
                   ? t('ide.chat.skills.heading', undefined, { defaultValue: 'Skills' })
                   : panelOverlay === 'scripts'
                     ? t('ide.chat.scripts.heading', undefined, { defaultValue: 'Scripts' })
-                    : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
+                    : panelOverlay === 'tests'
+                      ? t('ide.tests.heading', undefined, { defaultValue: 'Tests' })
+                      : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
               </span>
               <button
                 type="button"
@@ -10450,6 +10585,19 @@ function ChatInner({
                   initialQuery={panelOverlayQuery}
                   isLight={isLight}
                   agentName={agentName}
+                  embedded
+                />
+              )}
+              {panelOverlay === 'tests' && (
+                <TestsCard
+                  tests={testsList}
+                  status={testsStatus}
+                  run={testsRun}
+                  initialQuery={panelOverlayQuery}
+                  canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
+                  onRun={startTestsRun}
+                  onCancel={cancelTestsRun}
+                  isLight={isLight}
                   embedded
                 />
               )}
@@ -10809,30 +10957,6 @@ function ChatInner({
                 )}
               </div>
             </div>
-          )}
-
-        {/* Tests bar — the same slot and box model as the commit bar below it,
-            stacked directly above it. Rendered for a VIEWER too (unlike the
-            commit bar): what a project tests is worth reading even when running
-            it is not yours to do, and TestsBar itself disables every run control
-            and says why. Hidden while a popup menu owns the space above the
-            composer, exactly like the commit bar. It re-lists on
-            `externalGitStatusTick`, so a spec the agent just wrote shows up
-            without a reload. */}
-        {listTests &&
-          runTests &&
-          !commandMenu &&
-          !modelPicker &&
-          !effortPicker &&
-          !panelOverlay && (
-            <TestsBar
-              listTests={listTests}
-              runTests={runTests}
-              canRun={canRunTests ?? canEdit !== false}
-              available={testsAvailable ?? true}
-              refreshKey={(externalGitStatusTick ?? 0) + testsRefreshTick}
-              isCoarse={isCoarse}
-            />
           )}
 
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).

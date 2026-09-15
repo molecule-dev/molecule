@@ -616,4 +616,10 @@ export const az: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Test başlaya bilmədi.',
   'ide.tests.viewerCannotRun': 'Bu layihənin testlərini yalnız redaktorlar işlədə bilər.',
   'ide.tests.needsSandbox': 'Layihəni sınaqdan keçirmək üçün başlayın.',
+  'ide.tests.heading': 'Testlər',
+  'ide.tests.searchPlaceholder': 'Filtr testləri…',
+  'ide.tests.loading': 'Testlər yüklənir…',
+  'ide.tests.waitingForSandbox': 'Layihənin sınaqlarını görmək üçün ona başlayın.',
+  'ide.tests.empty': 'Bu layihədə hələlik heç bir sınaq yoxdur.',
+  'ide.tests.noMatch': 'Axtarışınıza uyğun test yoxdur.',
 }

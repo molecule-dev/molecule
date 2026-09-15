@@ -620,4 +620,10 @@ export const cs: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Zkušební provoz se nepodařilo spustit.',
   'ide.tests.viewerCannotRun': 'Testy tohoto projektu mohou spouštět pouze redaktoři.',
   'ide.tests.needsSandbox': 'Spusťte projekt, aby se provedly jeho testy.',
+  'ide.tests.heading': 'Testy',
+  'ide.tests.searchPlaceholder': 'Testy filtrů…',
+  'ide.tests.loading': 'Načítání testů…',
+  'ide.tests.waitingForSandbox': 'Spusťte projekt, abyste si prohlédli jeho testy.',
+  'ide.tests.empty': 'V tomto projektu zatím nejsou žádné testy.',
+  'ide.tests.noMatch': 'Žádné testy neodpovídají vašemu vyhledávání.',
 }

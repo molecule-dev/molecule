@@ -618,4 +618,10 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.viewerCannotRun':
     'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a rith.',
   'ide.tests.needsSandbox': 'Tosaigh an tionscadal chun a thástálacha a rith.',
+  'ide.tests.heading': 'Tástálacha',
+  'ide.tests.searchPlaceholder': 'Tástálacha scagaire…',
+  'ide.tests.loading': 'Ag lódáil tástálacha…',
+  'ide.tests.waitingForSandbox': 'Tosaigh an tionscadal chun a thástálacha a fheiceáil.',
+  'ide.tests.empty': 'Níl aon tástálacha sa tionscadal seo go fóill.',
+  'ide.tests.noMatch': 'Níl aon tástálacha a oireann do do chuardach.',
 }

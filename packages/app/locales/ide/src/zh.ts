@@ -602,4 +602,10 @@ export const zh: Partial<IdeTranslations> = {
   'ide.tests.runError': '无法开始试运行。',
   'ide.tests.viewerCannotRun': '只有编辑才能运行该项目的测试。',
   'ide.tests.needsSandbox': '启动该项目以运行其测试。',
+  'ide.tests.heading': '测试',
+  'ide.tests.searchPlaceholder': '过滤器测试……',
+  'ide.tests.loading': '正在加载测试……',
+  'ide.tests.waitingForSandbox': '启动该项目以查看其测试。',
+  'ide.tests.empty': '该项目目前尚无测试。',
+  'ide.tests.noMatch': '没有符合您搜索条件的测试。',
 }

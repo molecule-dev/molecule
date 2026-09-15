@@ -614,4 +614,10 @@ export const bn: Partial<IdeTranslations> = {
   'ide.tests.runError': 'পরীক্ষামূলক চালনা শুরু করা যায়নি।',
   'ide.tests.viewerCannotRun': 'শুধুমাত্র সম্পাদকেরাই এই প্রকল্পের পরীক্ষাগুলো চালাতে পারবেন।',
   'ide.tests.needsSandbox': 'এর পরীক্ষাগুলো চালানোর জন্য প্রজেক্টটি শুরু করুন।',
+  'ide.tests.heading': 'পরীক্ষা',
+  'ide.tests.searchPlaceholder': 'ফিল্টার পরীক্ষা…',
+  'ide.tests.loading': 'টেস্টগুলো লোড হচ্ছে…',
+  'ide.tests.waitingForSandbox': 'এর পরীক্ষাগুলো দেখতে প্রজেক্টটি শুরু করুন।',
+  'ide.tests.empty': 'এই প্রকল্পে এখনও কোনো পরীক্ষা করা হয়নি।',
+  'ide.tests.noMatch': 'আপনার অনুসন্ধানের সাথে কোনো পরীক্ষাই মেলে না।',
 }

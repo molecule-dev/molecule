@@ -622,4 +622,10 @@ export const zu: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Ukuhlolwa akukwazanga ukuqala.',
   'ide.tests.viewerCannotRun': 'Abahleli kuphela abangaqhuba izivivinyo zale phrojekthi.',
   'ide.tests.needsSandbox': 'Qala iphrojekthi ukuze uqalise izivivinyo zayo.',
+  'ide.tests.heading': 'Ukuhlolwa',
+  'ide.tests.searchPlaceholder': 'Ukuhlolwa kokuhlunga…',
+  'ide.tests.loading': 'Ilayisha izivivinyo…',
+  'ide.tests.waitingForSandbox': 'Qala iphrojekthi ukuze ubone izivivinyo zayo.',
+  'ide.tests.empty': 'Azikho izivivinyo kule phrojekthi okwamanje.',
+  'ide.tests.noMatch': 'Azikho izivivinyo ezihambisana nosesho lwakho.',
 }

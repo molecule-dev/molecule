@@ -619,4 +619,10 @@ export const km: Partial<IdeTranslations> = {
   'ide.tests.runError': 'ការសាកល្បង​មិនអាចចាប់ផ្តើមបានទេ។',
   'ide.tests.viewerCannotRun': 'មានតែអ្នកកែសម្រួលទេដែលអាចដំណើរការការធ្វើតេស្តគម្រោងនេះបាន។',
   'ide.tests.needsSandbox': 'ចាប់ផ្តើមគម្រោងដើម្បីដំណើរការការធ្វើតេស្តរបស់វា។',
+  'ide.tests.heading': 'ការធ្វើតេស្ត',
+  'ide.tests.searchPlaceholder': 'ការធ្វើតេស្តតម្រង…',
+  'ide.tests.loading': 'កំពុងផ្ទុកការធ្វើតេស្ត…',
+  'ide.tests.waitingForSandbox': 'ចាប់ផ្តើមគម្រោងដើម្បីមើលការធ្វើតេស្តរបស់វា។',
+  'ide.tests.empty': 'មិនទាន់មានការសាកល្បងនៅក្នុងគម្រោងនេះនៅឡើយទេ។',
+  'ide.tests.noMatch': 'គ្មានការធ្វើតេស្តណាមួយដែលត្រូវនឹងការស្វែងរករបស់អ្នកទេ។',
 }

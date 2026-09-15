@@ -629,4 +629,10 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Bandomasis paleidimas nepavyko.',
   'ide.tests.viewerCannotRun': 'Šio projekto testus gali vykdyti tik redaktoriai.',
   'ide.tests.needsSandbox': 'Paleiskite projektą, kad būtų atlikti jo testai.',
+  'ide.tests.heading': 'Testai',
+  'ide.tests.searchPlaceholder': 'Filtrų bandymai…',
+  'ide.tests.loading': 'Atliekami bandymai…',
+  'ide.tests.waitingForSandbox': 'Paleiskite projektą, kad galėtumėte peržiūrėti jo testus.',
+  'ide.tests.empty': 'Šiame projekte kol kas nėra jokių testų.',
+  'ide.tests.noMatch': 'Nėra jūsų paieškai atitinkančių testų.',
 }

@@ -614,4 +614,10 @@ export const af: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Die toetslopie kon nie begin nie.',
   'ide.tests.viewerCannotRun': 'Slegs redakteurs kan hierdie projek se toetse uitvoer.',
   'ide.tests.needsSandbox': 'Begin die projek om sy toetse uit te voer.',
+  'ide.tests.heading': 'Toetse',
+  'ide.tests.searchPlaceholder': 'Filtertoetse…',
+  'ide.tests.loading': 'Laai toetse…',
+  'ide.tests.waitingForSandbox': 'Begin die projek om die toetse daarvan te sien.',
+  'ide.tests.empty': 'Geen toetse nog in hierdie projek nie.',
+  'ide.tests.noMatch': 'Geen toetse stem ooreen met jou soektog nie.',
 }

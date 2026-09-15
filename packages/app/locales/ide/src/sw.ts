@@ -618,4 +618,10 @@ export const sw: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Jaribio halikuweza kuanza.',
   'ide.tests.viewerCannotRun': 'Wahariri pekee ndio wanaweza kuendesha majaribio ya mradi huu.',
   'ide.tests.needsSandbox': 'Anza mradi ili kuendesha majaribio yake.',
+  'ide.tests.heading': 'Majaribio',
+  'ide.tests.searchPlaceholder': 'Vipimo vya kuchuja…',
+  'ide.tests.loading': 'Inapakia majaribio…',
+  'ide.tests.waitingForSandbox': 'Anza mradi ili uone majaribio yake.',
+  'ide.tests.empty': 'Hakuna majaribio katika mradi huu bado.',
+  'ide.tests.noMatch': 'Hakuna majaribio yanayolingana na utafutaji wako.',
 }

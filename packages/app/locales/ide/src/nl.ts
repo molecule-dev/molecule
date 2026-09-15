@@ -632,4 +632,10 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tests.runError': 'De testrun kon niet worden gestart.',
   'ide.tests.viewerCannotRun': 'Alleen redacteuren kunnen de tests van dit project uitvoeren.',
   'ide.tests.needsSandbox': 'Start het project om de tests uit te voeren.',
+  'ide.tests.heading': 'Tests',
+  'ide.tests.searchPlaceholder': 'Filtertests…',
+  'ide.tests.loading': 'Tests worden geladen…',
+  'ide.tests.waitingForSandbox': 'Start het project om de tests te bekijken.',
+  'ide.tests.empty': 'Er zijn nog geen tests in dit project.',
+  'ide.tests.noMatch': 'Er zijn geen testresultaten die aan je zoekopdracht voldoen.',
 }

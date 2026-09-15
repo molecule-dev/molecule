@@ -615,4 +615,10 @@ export const fa: Partial<IdeTranslations> = {
   'ide.tests.runError': 'اجرای آزمایشی نتوانست شروع شود.',
   'ide.tests.viewerCannotRun': 'فقط ویراستاران می‌توانند آزمایش‌های این پروژه را اجرا کنند.',
   'ide.tests.needsSandbox': 'پروژه را برای اجرای تست‌هایش شروع کنید.',
+  'ide.tests.heading': 'آزمایش‌ها',
+  'ide.tests.searchPlaceholder': 'آزمایش‌های فیلتر…',
+  'ide.tests.loading': 'بارگذاری آزمایش‌ها…',
+  'ide.tests.waitingForSandbox': 'پروژه را شروع کنید تا تست‌های آن را ببینید.',
+  'ide.tests.empty': 'هنوز هیچ آزمایشی در این پروژه انجام نشده است.',
+  'ide.tests.noMatch': 'هیچ آزمایشی با جستجوی شما مطابقت ندارد.',
 }

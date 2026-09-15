@@ -600,4 +600,10 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.tests.runError': '無法啟動測試運行。',
   'ide.tests.viewerCannotRun': '只有編輯者才能執行此專案的測試。',
   'ide.tests.needsSandbox': '啟動專案以執行其測試。',
+  'ide.tests.heading': '測驗',
+  'ide.tests.searchPlaceholder': '過濾器測試……',
+  'ide.tests.loading': '正在載入測試……',
+  'ide.tests.waitingForSandbox': '啟動專案以檢視其中的測試。',
+  'ide.tests.empty': '此專案目前尚無任何測試。',
+  'ide.tests.noMatch': '沒有任何測驗符合您的搜尋條件。',
 }

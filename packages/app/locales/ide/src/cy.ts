@@ -616,4 +616,10 @@ export const cy: Partial<IdeTranslations> = {
   'ide.tests.runError': "Ni allai'r rhediad prawf ddechrau.",
   'ide.tests.viewerCannotRun': 'Dim ond golygyddion all gynnal profion y prosiect hwn.',
   'ide.tests.needsSandbox': 'Dechreuwch y prosiect i gynnal ei brofion.',
+  'ide.tests.heading': 'Profion',
+  'ide.tests.searchPlaceholder': 'Profion hidlo…',
+  'ide.tests.loading': "Wrthi'n llwytho profion…",
+  'ide.tests.waitingForSandbox': 'Dechreuwch y prosiect i weld ei brofion.',
+  'ide.tests.empty': 'Dim profion yn y prosiect hwn eto.',
+  'ide.tests.noMatch': "Does dim profion yn cyfateb i'ch chwiliad.",
 }

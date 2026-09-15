@@ -636,4 +636,10 @@ export const fr: Partial<IdeTranslations> = {
   'ide.tests.runError': "Le test n'a pas pu démarrer.",
   'ide.tests.viewerCannotRun': 'Seuls les éditeurs peuvent exécuter les tests de ce projet.',
   'ide.tests.needsSandbox': 'Lancez le projet pour exécuter ses tests.',
+  'ide.tests.heading': 'Tests',
+  'ide.tests.searchPlaceholder': 'Tests de filtres…',
+  'ide.tests.loading': 'Chargement des tests…',
+  'ide.tests.waitingForSandbox': 'Lancez le projet pour afficher ses tests.',
+  'ide.tests.empty': "Ce projet ne comporte pour l'instant aucun test.",
+  'ide.tests.noMatch': 'Aucun test ne correspond à votre recherche.',
 }

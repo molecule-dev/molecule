@@ -651,4 +651,10 @@ export const yo: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Ìdánwò náà kò lè bẹ̀rẹ̀.',
   'ide.tests.viewerCannotRun': 'Àwọn olóòtú nìkan ló lè ṣe àwọn ìdánwò iṣẹ́ yìí.',
   'ide.tests.needsSandbox': 'Bẹ̀rẹ̀ iṣẹ́ náà láti ṣe àwọn ìdánwò rẹ̀.',
+  'ide.tests.heading': 'Àwọn ìdánwò',
+  'ide.tests.searchPlaceholder': 'Àwọn ìdánwò àlẹ̀mọ́…',
+  'ide.tests.loading': 'N n gbe awọn idanwo soke…',
+  'ide.tests.waitingForSandbox': 'Bẹ̀rẹ̀ iṣẹ́ náà láti wo àwọn ìdánwò rẹ̀.',
+  'ide.tests.empty': 'Kò sí ìdánwò kankan nínú iṣẹ́ yìí.',
+  'ide.tests.noMatch': 'Kò sí àwọn ìdánwò tó bá ìwákiri rẹ mu.',
 }

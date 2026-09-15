@@ -613,4 +613,10 @@ export const gu: Partial<IdeTranslations> = {
   'ide.tests.runError': 'ટેસ્ટ રન શરૂ થઈ શક્યો નહીં.',
   'ide.tests.viewerCannotRun': 'ફક્ત સંપાદકો જ આ પ્રોજેક્ટના પરીક્ષણો ચલાવી શકે છે.',
   'ide.tests.needsSandbox': 'પ્રોજેક્ટના પરીક્ષણો ચલાવવા માટે તેને શરૂ કરો.',
+  'ide.tests.heading': 'પરીક્ષણો',
+  'ide.tests.searchPlaceholder': 'ફિલ્ટર પરીક્ષણો...',
+  'ide.tests.loading': 'પરીક્ષણો લોડ કરી રહ્યું છે…',
+  'ide.tests.waitingForSandbox': 'પ્રોજેક્ટના પરીક્ષણો જોવા માટે તેને શરૂ કરો.',
+  'ide.tests.empty': 'આ પ્રોજેક્ટમાં હજુ સુધી કોઈ પરીક્ષણો નથી.',
+  'ide.tests.noMatch': 'તમારી શોધ સાથે કોઈ પરીક્ષણો મેળ ખાતા નથી.',
 }

@@ -620,4 +620,10 @@ export const ta: Partial<IdeTranslations> = {
   'ide.tests.runError': 'சோதனை ஓட்டத்தைத் தொடங்க முடியவில்லை.',
   'ide.tests.viewerCannotRun': 'தொகுப்பாளர்கள் மட்டுமே இந்தத் திட்டத்தின் சோதனைகளை இயக்க முடியும்.',
   'ide.tests.needsSandbox': 'அதன் சோதனைகளை இயக்குவதற்கு திட்டத்தைத் தொடங்கவும்.',
+  'ide.tests.heading': 'சோதனைகள்',
+  'ide.tests.searchPlaceholder': 'சோதனைகளை வடிகட்டவும்…',
+  'ide.tests.loading': 'சோதனைகள் ஏற்றப்படுகின்றன…',
+  'ide.tests.waitingForSandbox': 'அதன் சோதனைகளைக் காண திட்டத்தைத் தொடங்கவும்.',
+  'ide.tests.empty': 'இந்தத் திட்டத்தில் இன்னும் சோதனைகள் எதுவும் செய்யப்படவில்லை.',
+  'ide.tests.noMatch': 'உங்கள் தேடலுக்குப் பொருத்தமான சோதனைகள் எதுவும் இல்லை.',
 }

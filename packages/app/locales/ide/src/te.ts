@@ -617,4 +617,10 @@ export const te: Partial<IdeTranslations> = {
   'ide.tests.runError': 'పరీక్ష ప్రారంభం కాలేదు.',
   'ide.tests.viewerCannotRun': 'ఈ ప్రాజెక్ట్ యొక్క పరీక్షలను ఎడిటర్లు మాత్రమే అమలు చేయగలరు.',
   'ide.tests.needsSandbox': 'దాని పరీక్షలను అమలు చేయడానికి ప్రాజెక్ట్‌ను ప్రారంభించండి.',
+  'ide.tests.heading': 'పరీక్షలు',
+  'ide.tests.searchPlaceholder': 'ఫిల్టర్ పరీక్షలు…',
+  'ide.tests.loading': 'పరీక్షలను లోడ్ చేస్తోంది…',
+  'ide.tests.waitingForSandbox': 'దాని పరీక్షలను చూడటానికి ప్రాజెక్ట్‌ను ప్రారంభించండి.',
+  'ide.tests.empty': 'ఈ ప్రాజెక్ట్‌లో ఇంకా పరీక్షలు జరగలేదు.',
+  'ide.tests.noMatch': 'మీ శోధనకు సరిపోలే పరీక్షలు ఏవీ లేవు.',
 }

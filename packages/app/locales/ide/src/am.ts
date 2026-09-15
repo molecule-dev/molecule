@@ -606,4 +606,10 @@ export const am: Partial<IdeTranslations> = {
   'ide.tests.runError': 'የሙከራ ሩጫው ሊጀመር አልቻለም።',
   'ide.tests.viewerCannotRun': 'የዚህን ፕሮጀክት ሙከራዎች ማስኬድ የሚችሉት አርታኢዎች ብቻ ናቸው።',
   'ide.tests.needsSandbox': 'ሙከራዎቹን ለማስኬድ ፕሮጀክቱን ይጀምሩ።',
+  'ide.tests.heading': 'ሙከራዎች',
+  'ide.tests.searchPlaceholder': 'የማጣሪያ ሙከራዎች…',
+  'ide.tests.loading': 'ሙከራዎችን በመጫን ላይ…',
+  'ide.tests.waitingForSandbox': 'ሙከራዎቹን ለማየት ፕሮጀክቱን ይጀምሩ።',
+  'ide.tests.empty': 'በዚህ ፕሮጀክት ላይ እስካሁን ምንም ሙከራዎች የሉም።',
+  'ide.tests.noMatch': 'ከፍለጋዎ ጋር የሚዛመዱ ምንም ሙከራዎች የሉም።',
 }

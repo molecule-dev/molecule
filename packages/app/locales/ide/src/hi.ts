@@ -614,4 +614,10 @@ export const hi: Partial<IdeTranslations> = {
   'ide.tests.runError': 'टेस्ट रन शुरू नहीं हो सका।',
   'ide.tests.viewerCannotRun': 'इस प्रोजेक्ट के टेस्ट केवल संपादक ही चला सकते हैं।',
   'ide.tests.needsSandbox': 'इसके परीक्षण चलाने के लिए प्रोजेक्ट शुरू करें।',
+  'ide.tests.heading': 'परीक्षण',
+  'ide.tests.searchPlaceholder': 'फ़िल्टर परीक्षण…',
+  'ide.tests.loading': 'परीक्षण लोड हो रहे हैं…',
+  'ide.tests.waitingForSandbox': 'इसके परीक्षण देखने के लिए प्रोजेक्ट शुरू करें।',
+  'ide.tests.empty': 'इस प्रोजेक्ट में अभी तक कोई परीक्षण नहीं किया गया है।',
+  'ide.tests.noMatch': 'आपकी खोज से मेल खाने वाले कोई परीक्षण नहीं हैं।',
 }

@@ -20,7 +20,7 @@
  * @module
  */
 
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -37,7 +37,8 @@ import { DEVICE_META } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 import { PreviewPanel } from '../components/PreviewPanel.js'
 import { StreamingIndicator } from '../components/StreamingIndicator.js'
-import { TestsBar } from '../components/TestsBar.js'
+import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
+import { TestsCard } from '../components/TestsCard.js'
 import type { TestList } from '../types.js'
 
 const fr = ideLocales.fr as Record<string, string>
@@ -381,32 +382,55 @@ describe('IDE chat/activity i18n debt closed (cross-cutting-i18n, final wave)', 
   })
 })
 
-describe('Tests bar i18n resolves through the locale bond (cross-cutting-i18n)', () => {
-  /** The bar's callbacks: one e2e spec and one unit test, and a run that does nothing. */
-  const listTests = async (): Promise<TestList> => ({
-    tests: [
-      {
-        id: 'app:e2e/home.spec.ts',
-        file: 'e2e/home.spec.ts',
-        kind: 'e2e',
-        workspace: 'app',
-        title: 'home',
-      },
-      {
-        id: 'api:src/routes.test.ts',
-        file: 'src/routes.test.ts',
-        kind: 'unit',
-        workspace: 'api',
-        title: 'routes',
-      },
-    ],
-    runners: { app: { e2e: 'playwright', unit: null }, api: { e2e: null, unit: 'vitest' } },
-  })
-  const runTests = (): { cancel: () => void } => ({ cancel: () => {} })
+describe('Tests card i18n resolves through the locale bond (cross-cutting-i18n)', () => {
+  /** Two tests, one of each kind, in two project directories. */
+  const TESTS: TestList['tests'] = [
+    {
+      id: 'my-app/app:e2e/home.spec.ts',
+      file: 'e2e/home.spec.ts',
+      kind: 'e2e',
+      workspace: 'my-app/app',
+      workspaceLabel: 'my-app/app',
+      title: 'home',
+    },
+    {
+      id: 'my-app/api:src/routes.test.ts',
+      file: 'src/routes.test.ts',
+      kind: 'unit',
+      workspace: 'my-app/api',
+      workspaceLabel: 'my-app/api',
+      title: 'routes',
+    },
+  ]
 
-  it('the bond defines every ide.tests.* key the bar renders', () => {
+  /**
+   * Render the card the way ChatPanel does.
+   *
+   * @param canRun - Whether the viewer may run tests.
+   * @returns The rendered container.
+   */
+  const renderCard = (canRun = true): HTMLElement =>
+    render(
+      <TestsCard
+        tests={TESTS}
+        status="ready"
+        run={EMPTY_RUN_STATE}
+        initialQuery=""
+        canRun={canRun}
+        onRun={() => {}}
+        onCancel={() => {}}
+        isLight={false}
+      />,
+    ).container
+
+  it('the bond defines every ide.tests.* key the card renders', () => {
     for (const key of [
-      'ide.tests.testCount',
+      'ide.tests.heading',
+      'ide.tests.searchPlaceholder',
+      'ide.tests.loading',
+      'ide.tests.waitingForSandbox',
+      'ide.tests.empty',
+      'ide.tests.noMatch',
       'ide.tests.run',
       'ide.tests.runAll',
       'ide.tests.runE2e',
@@ -421,12 +445,8 @@ describe('Tests bar i18n resolves through the locale bond (cross-cutting-i18n)',
       'ide.tests.statusSkipped',
       'ide.tests.kind.e2e',
       'ide.tests.kind.unit',
-      'ide.tests.workspace.app',
-      'ide.tests.workspace.api',
       'ide.tests.workspace.root',
       'ide.tests.e2eHint',
-      'ide.tests.showOutput',
-      'ide.tests.hideOutput',
       'ide.tests.cancelled',
       'ide.tests.listError',
       'ide.tests.runError',
@@ -438,15 +458,18 @@ describe('Tests bar i18n resolves through the locale bond (cross-cutting-i18n)',
     }
   })
 
-  it('the bar’s sentences are really TRANSLATED, not the English value copied in', () => {
+  it('the card’s sentences are really TRANSLATED, not the English value copied in', () => {
     // Scoped to keys whose French genuinely differs — 'API' is 'API' in most
     // languages, and a one-word label can legitimately round-trip unchanged, so
     // asserting that on EVERY key would be asserting a false premise.
     for (const key of [
+      'ide.tests.searchPlaceholder',
+      'ide.tests.loading',
+      'ide.tests.empty',
+      'ide.tests.noMatch',
       'ide.tests.runAll',
       'ide.tests.running',
       'ide.tests.statusPassed',
-      'ide.tests.statusFailed',
       'ide.tests.kind.e2e',
       'ide.tests.e2eHint',
       'ide.tests.listError',
@@ -457,48 +480,37 @@ describe('Tests bar i18n resolves through the locale bond (cross-cutting-i18n)',
     }
   })
 
-  it('the count keys keep {{count}} intact so the bar can interpolate them', () => {
+  it('the count keys keep {{count}} intact so the card can interpolate them', () => {
     for (const key of ['ide.tests.testCount', 'ide.tests.passedCount', 'ide.tests.failedCount']) {
       expect(fr[key], `${key} lost its {{count}} placeholder`).toContain('{{count}}')
       expect(fr[key], `${key} has a leftover <x> mask`).not.toContain('<x>')
     }
   })
 
-  it('renders the bar’s labels from the bonded locale, not the English defaults', async () => {
-    const { container } = render(
-      <TestsBar listTests={listTests} runTests={runTests} canRun available />,
-    )
-    await waitFor(() => {
-      expect(container.querySelector('[data-mol-id="tests-bar"]')).not.toBeNull()
-    })
-    fireEvent.click(container.querySelector('[data-mol-id="tests-bar-toggle"]') as HTMLElement)
-
-    expect(container.querySelector('[data-mol-id="tests-bar-run-all"]')?.textContent).toBe(
+  it('renders the card’s labels from the bonded locale, not the English defaults', () => {
+    const container = renderCard()
+    expect(container.querySelector('[data-mol-id="tests-card-run-all"]')?.textContent).toBe(
       fr['ide.tests.runAll'],
     )
     // The pre-fix bug: with the key absent, the English default would render.
-    expect(container.querySelector('[data-mol-id="tests-bar-run-all"]')?.textContent).not.toBe(
+    expect(container.querySelector('[data-mol-id="tests-card-run-all"]')?.textContent).not.toBe(
       'Run all',
     )
     expect(
-      container.querySelector('[data-mol-id="tests-bar-group-e2e-app"]')?.textContent,
+      container.querySelector('[data-mol-id="tests-card-search"]')?.getAttribute('placeholder'),
+    ).toBe(fr['ide.tests.searchPlaceholder'])
+    expect(
+      container.querySelector('[data-mol-id="tests-card-group-e2e-my-app/app"]')?.textContent,
     ).toContain(fr['ide.tests.kind.e2e'])
-    expect(container.querySelector('[data-mol-id="tests-bar-e2e-hint"]')?.textContent).toBe(
+    expect(container.querySelector('[data-mol-id="tests-card-e2e-hint"]')?.textContent).toBe(
       fr['ide.tests.e2eHint'],
-    )
-    expect(container.querySelector('[data-mol-id="tests-bar-toggle"]')?.textContent).toContain(
-      fr['ide.tests.testCount'].replace('{{count}}', '2'),
     )
   })
 
-  it('renders the viewer’s reason from the bonded locale', async () => {
-    const { container } = render(
-      <TestsBar listTests={listTests} runTests={runTests} canRun={false} available />,
+  it('renders the viewer’s reason from the bonded locale', () => {
+    const container = renderCard(false)
+    expect(container.querySelector('[data-mol-id="tests-card-disabled-reason"]')?.textContent).toBe(
+      fr['ide.tests.viewerCannotRun'],
     )
-    await waitFor(() => {
-      expect(
-        container.querySelector('[data-mol-id="tests-bar-disabled-reason"]')?.textContent,
-      ).toBe(fr['ide.tests.viewerCannotRun'])
-    })
   })
 })

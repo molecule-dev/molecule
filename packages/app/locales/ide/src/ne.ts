@@ -614,4 +614,10 @@ export const ne: Partial<IdeTranslations> = {
   'ide.tests.runError': 'परीक्षण रन सुरु हुन सकेन।',
   'ide.tests.viewerCannotRun': 'सम्पादकहरूले मात्र यस परियोजनाको परीक्षणहरू चलाउन सक्छन्।',
   'ide.tests.needsSandbox': 'यसको परीक्षणहरू चलाउन परियोजना सुरु गर्नुहोस्।',
+  'ide.tests.heading': 'परीक्षणहरू',
+  'ide.tests.searchPlaceholder': 'फिल्टर परीक्षणहरू...',
+  'ide.tests.loading': 'परीक्षणहरू लोड गर्दै...',
+  'ide.tests.waitingForSandbox': 'यसको परीक्षण हेर्न परियोजना सुरु गर्नुहोस्।',
+  'ide.tests.empty': 'यस परियोजनामा अहिलेसम्म कुनै परीक्षण गरिएको छैन।',
+  'ide.tests.noMatch': 'तपाईंको खोजसँग कुनै पनि परीक्षण मेल खाँदैन।',
 }

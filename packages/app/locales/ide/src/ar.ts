@@ -617,4 +617,10 @@ export const ar: Partial<IdeTranslations> = {
   'ide.tests.runError': 'لم يتمكن الاختبار التجريبي من البدء.',
   'ide.tests.viewerCannotRun': 'لا يمكن إلا للمحررين إجراء اختبارات هذا المشروع.',
   'ide.tests.needsSandbox': 'ابدأ تشغيل المشروع لإجراء الاختبارات عليه.',
+  'ide.tests.heading': 'الاختبارات',
+  'ide.tests.searchPlaceholder': 'اختبارات المرشحات…',
+  'ide.tests.loading': 'جاري تحميل الاختبارات…',
+  'ide.tests.waitingForSandbox': 'ابدأ المشروع للاطلاع على الاختبارات الخاصة به.',
+  'ide.tests.empty': 'لا توجد اختبارات في هذا المشروع حتى الآن.',
+  'ide.tests.noMatch': 'لا توجد اختبارات تطابق بحثك.',
 }

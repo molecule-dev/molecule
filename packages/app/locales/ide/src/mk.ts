@@ -617,4 +617,10 @@ export const mk: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Пробното извршување не можеше да започне.',
   'ide.tests.viewerCannotRun': 'Само уредниците можат да ги извршуваат тестовите на овој проект.',
   'ide.tests.needsSandbox': 'Стартувајте го проектот за да ги извршите неговите тестови.',
+  'ide.tests.heading': 'Тестови',
+  'ide.tests.searchPlaceholder': 'Тестови за филтрирање…',
+  'ide.tests.loading': 'Се вчитуваат тестови…',
+  'ide.tests.waitingForSandbox': 'Стартувајте го проектот за да ги видите неговите тестови.',
+  'ide.tests.empty': 'Сè уште нема тестови во овој проект.',
+  'ide.tests.noMatch': 'Нема тестови што одговараат на вашето пребарување.',
 }

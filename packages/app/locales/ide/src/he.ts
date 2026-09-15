@@ -610,4 +610,10 @@ export const he: Partial<IdeTranslations> = {
   'ide.tests.runError': 'לא ניתן היה להתחיל את ריצת הבדיקה.',
   'ide.tests.viewerCannotRun': 'רק עורכים יכולים להריץ את הבדיקות של הפרויקט הזה.',
   'ide.tests.needsSandbox': 'התחל את הפרויקט כדי להריץ את הבדיקות שלו.',
+  'ide.tests.heading': 'בדיקות',
+  'ide.tests.searchPlaceholder': 'בדיקות סינון…',
+  'ide.tests.loading': 'טוען בדיקות...',
+  'ide.tests.waitingForSandbox': 'התחל את הפרויקט כדי לראות את הבדיקות שלו.',
+  'ide.tests.empty': 'עדיין אין ניסויים בפרויקט הזה.',
+  'ide.tests.noMatch': 'אין בדיקות התואמות את החיפוש שלך.',
 }

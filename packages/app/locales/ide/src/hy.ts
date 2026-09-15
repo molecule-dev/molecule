@@ -618,4 +618,10 @@ export const hy: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Փորձարկման մեկնարկը հնարավոր չէր։',
   'ide.tests.viewerCannotRun': 'Միայն խմբագիրները կարող են գործարկել այս նախագծի թեստերը։',
   'ide.tests.needsSandbox': 'Սկսեք նախագիծը՝ դրա փորձարկումները կատարելու համար։',
+  'ide.tests.heading': 'Թեստեր',
+  'ide.tests.searchPlaceholder': 'Ֆիլտրի փորձարկումներ…',
+  'ide.tests.loading': 'Թեստերի բեռնում…',
+  'ide.tests.waitingForSandbox': 'Սկսեք նախագիծը՝ դրա փորձարկումները տեսնելու համար։',
+  'ide.tests.empty': 'Այս նախագծում դեռևս փորձարկումներ չկան։',
+  'ide.tests.noMatch': 'Ձեր որոնմանը համապատասխանող թեստեր չկան։',
 }

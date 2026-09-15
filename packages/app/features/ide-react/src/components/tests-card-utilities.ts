@@ -1,7 +1,7 @@
 /**
- * Pure state + grouping helpers for the {@link TestsBar}.
+ * Pure state + grouping helpers for the {@link TestsCard}.
  *
- * Everything here is a plain function over plain data, so the bar's behaviour
+ * Everything here is a plain function over plain data, so the card's behaviour
  * (which rows a group runs, how a streamed event moves the run forward, what
  * the collapsed summary says) is unit-testable without rendering anything.
  *
@@ -37,7 +37,7 @@ export interface TestResultEntry {
   output?: string
 }
 
-/** Everything the bar knows about the run it is showing. */
+/** Everything the card knows about the run it is showing. */
 export interface TestsRunState {
   runId: string | null
   running: boolean
@@ -51,7 +51,7 @@ export interface TestsRunState {
   results: Record<string, TestResultEntry>
   /** How the run ended, once it has. */
   outcome: TestRunOutcome | null
-  /** A run-level failure message (timeout, transport error) shown in the bar. */
+  /** A run-level failure message (timeout, transport error) shown in the card. */
   error: string | null
   startedAt: number | null
   durationMs: number | null
@@ -170,7 +170,7 @@ export function summarizeResults(
 /**
  * Fold one streamed event into the run state.
  *
- * Deliberately total: an event for an id the bar no longer lists is recorded
+ * Deliberately total: an event for an id the card no longer lists is recorded
  * anyway (a re-list may be in flight), and an unknown event type leaves the
  * state untouched rather than throwing inside a stream handler.
  *
@@ -243,7 +243,7 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
  * died, or its request failed before the server could answer.
  *
  * @param state - The current state.
- * @param message - What to show in the bar.
+ * @param message - What to show in the card.
  * @returns The next state, no longer running.
  */
 export function failRun(state: TestsRunState, message: string): TestsRunState {
@@ -275,14 +275,41 @@ export function testRowLabel(item: TestItem): string {
 }
 
 /**
- * Whether a written path is a test file, so the bar can re-list the moment the
- * agent writes a NEW spec instead of only on the next run or reload. Matches
- * the same `*.spec.*` / `*.test.*` shape the host's discovery looks for, so a
- * write that cannot change the list never costs a listing.
+ * Filters tests by a free-text query, matching (case-insensitively) against the
+ * file path, the row title, and the project directory. A blank query returns
+ * every test in input order — the same contract as `filterScripts`.
  *
- * @param path - The path that changed (absolute or workspace-relative).
- * @returns True when the path is a spec or test file.
+ * @param tests - The tests to filter.
+ * @param query - The search query.
+ * @returns The matching tests, in input order.
  */
-export function isTestFilePath(path: string): boolean {
-  return /\.(spec|test)\.[cm]?[jt]sx?$/.test(path)
+export function filterTests(tests: readonly TestItem[], query: string): TestItem[] {
+  const q = query.trim().toLowerCase()
+  if (!q) return [...tests]
+  return tests.filter(
+    (t) =>
+      t.file.toLowerCase().includes(q) ||
+      (t.title ?? '').toLowerCase().includes(q) ||
+      String(t.workspace).toLowerCase().includes(q),
+  )
+}
+
+/**
+ * Parses a `/test [query | all]` command (`/tests` is the registered alias).
+ *
+ * `all` is the one argument that ACTS: it runs everything immediately. Every
+ * other argument only filters the list, exactly the way `/scripts <query>` seeds
+ * the scripts browser — running ONE test by name is what the per-row Run button
+ * is for, and giving the argument a second meaning would make `/test <thing>`
+ * sometimes list and sometimes execute.
+ *
+ * @param input - The raw chat input.
+ * @returns `{ query, runAll }` when it is a `/test` command, else `null`.
+ */
+export function parseTestCommand(input: string): { query: string; runAll: boolean } | null {
+  const match = input.trim().match(/^\/tests?(?:\s+(.*))?$/i)
+  if (!match) return null
+  const argument = (match[1] ?? '').trim()
+  if (argument.toLowerCase() === 'all') return { query: '', runAll: true }
+  return { query: argument, runAll: false }
 }

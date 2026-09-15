@@ -620,4 +620,10 @@ export const nb: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Testkjøringen kunne ikke startes.',
   'ide.tests.viewerCannotRun': 'Bare redaktører kan kjøre testene for dette prosjektet.',
   'ide.tests.needsSandbox': 'Start prosjektet for å kjøre testene.',
+  'ide.tests.heading': 'Tester',
+  'ide.tests.searchPlaceholder': 'Filtertester…',
+  'ide.tests.loading': 'Laster tester…',
+  'ide.tests.waitingForSandbox': 'Start prosjektet for å se testene.',
+  'ide.tests.empty': 'Det er foreløpig ingen tester i dette prosjektet.',
+  'ide.tests.noMatch': 'Det ble ikke funnet noen tester som samsvarer med søket ditt.',
 }

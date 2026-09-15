@@ -620,4 +620,10 @@ export const mn: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Туршилтын ажиллагаа эхэлж чадсангүй.',
   'ide.tests.viewerCannotRun': 'Энэ төслийн тестийг зөвхөн редакторууд л ажиллуулж чадна.',
   'ide.tests.needsSandbox': 'Төслийг эхлүүлж, туршилтыг нь эхлүүлнэ үү.',
+  'ide.tests.heading': 'Тестүүд',
+  'ide.tests.searchPlaceholder': 'Шүүлтүүрийн туршилтууд...',
+  'ide.tests.loading': 'Тестүүдийг ачаалж байна…',
+  'ide.tests.waitingForSandbox': 'Төслийг эхлүүлж, туршилтыг нь үзнэ үү.',
+  'ide.tests.empty': 'Энэ төсөлд одоогоор туршилт хийгдээгүй байна.',
+  'ide.tests.noMatch': 'Таны хайлтад тохирох тест алга.',
 }

@@ -505,18 +505,19 @@ export interface ChatPanelProps {
    */
   feedbackUrl?: string
   /**
-   * Lists the project's tests for the Tests bar. Omit it (the default) and the
-   * bar is not rendered at all — the shared IDE owns no test-discovery route.
+   * Lists the project's tests for the `/test` browser. Omit it (the default)
+   * and `/test` has nothing to show — the shared IDE owns no test-discovery
+   * route of its own.
    *
-   * molecule.dev implements it over `GET /projects/:id/tests`. The bar re-lists
-   * whenever {@link ChatPanelProps.gitStatusTick} changes and after each run, so
-   * a spec the agent just wrote appears without a reload.
+   * molecule.dev implements it over `GET /projects/:id/tests`. It is called
+   * on every `/test` invocation and once more when a run finishes, so a spec
+   * the agent just wrote shows up the next time the browser is opened.
    */
   listTests?: () => Promise<TestList>
   /**
    * Runs the selected tests, streaming {@link TestRunEvent}s back as they
-   * happen. Required alongside {@link ChatPanelProps.listTests} for the bar's
-   * run controls to appear.
+   * happen. Required alongside {@link ChatPanelProps.listTests} for the
+   * browser's run controls to work.
    *
    * The returned handle's `cancel()` must stop the run (molecule.dev aborts the
    * SSE request, and the server kills the process tree on disconnect). The host
@@ -524,18 +525,22 @@ export interface ChatPanelProps {
    * in a sandbox that means `npx playwright test` with
    * `@molecule/app-e2e-preview` as the browser, so the spec drives the live
    * preview rather than a browser binary that is not installed there.
+   *
+   * The run is owned by `ChatPanel`, not by the card, so it keeps streaming
+   * while the browser is closed and is still there when it is re-opened.
    */
   runTests?: (selection: TestSelection, onEvent: (event: TestRunEvent) => void) => TestRunHandle
   /**
-   * Whether this viewer may RUN tests. `false` keeps the bar (a viewer can see
-   * what the project tests) but disables every run control and shows why.
-   * Defaults to `canEdit !== false`.
+   * Whether this viewer may RUN tests. `false` still lets them open `/test`
+   * and read what the project tests (the platform serves the listing to
+   * viewers) but disables every run control and shows why. Defaults to
+   * `canEdit !== false`.
    */
   canRunTests?: boolean
   /**
-   * Whether the environment the tests run in is up — a running sandbox. `false`
-   * disables the run controls with a "start the sandbox" reason instead of
-   * letting a click fail. Defaults to `true`.
+   * Whether the environment the tests run in is up — a running sandbox.
+   * `false` makes `/test` say to start the project instead of listing an empty
+   * browser or letting a Run click fail. Defaults to `true`.
    */
   testsAvailable?: boolean
   className?: string

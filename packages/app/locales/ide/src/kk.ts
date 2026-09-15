@@ -616,4 +616,10 @@ export const kk: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Сынақ іске қосу мүмкін болмады.',
   'ide.tests.viewerCannotRun': 'Бұл жобаның сынақтарын тек редакторлар ғана жүргізе алады.',
   'ide.tests.needsSandbox': 'Жобаны сынақтан өткізу үшін бастаңыз.',
+  'ide.tests.heading': 'Тесттер',
+  'ide.tests.searchPlaceholder': 'Сүзгі сынақтары…',
+  'ide.tests.loading': 'Тесттер жүктелуде…',
+  'ide.tests.waitingForSandbox': 'Жобаның сынақтарын көру үшін оны бастаңыз.',
+  'ide.tests.empty': 'Бұл жобада әлі сынақтар жоқ.',
+  'ide.tests.noMatch': 'Іздеуіңізге сәйкес келетін тесттер жоқ.',
 }

@@ -619,4 +619,10 @@ export const ca: Partial<IdeTranslations> = {
   'ide.tests.runError': "No s'ha pogut iniciar la prova d'execució.",
   'ide.tests.viewerCannotRun': "Només els editors poden executar les proves d'aquest projecte.",
   'ide.tests.needsSandbox': 'Inicia el projecte per executar les seves proves.',
+  'ide.tests.heading': 'Proves',
+  'ide.tests.searchPlaceholder': 'Proves de filtre…',
+  'ide.tests.loading': "S'estan carregant les proves…",
+  'ide.tests.waitingForSandbox': 'Inicia el projecte per veure les seves proves.',
+  'ide.tests.empty': 'Encara no hi ha proves en aquest projecte.',
+  'ide.tests.noMatch': 'No hi ha proves que coincideixin amb la teva cerca.',
 }

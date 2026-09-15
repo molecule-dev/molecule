@@ -618,4 +618,10 @@ export const ka: Partial<IdeTranslations> = {
   'ide.tests.runError': 'სატესტო გაშვება ვერ დაიწყო.',
   'ide.tests.viewerCannotRun': 'ამ პროექტის ტესტების გაშვება მხოლოდ რედაქტორებს შეუძლიათ.',
   'ide.tests.needsSandbox': 'დაიწყეთ პროექტი მისი ტესტების გასაშვებად.',
+  'ide.tests.heading': 'ტესტები',
+  'ide.tests.searchPlaceholder': 'ფილტრის ტესტები…',
+  'ide.tests.loading': 'ტესტები იტვირთება…',
+  'ide.tests.waitingForSandbox': 'დაიწყეთ პროექტი მისი ტესტების სანახავად.',
+  'ide.tests.empty': 'ამ პროექტში ტესტები ჯერ არ არის.',
+  'ide.tests.noMatch': 'თქვენს ძიებას არცერთი ტესტი არ შეესაბამება.',
 }

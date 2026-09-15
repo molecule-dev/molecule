@@ -633,4 +633,10 @@ export const es: Partial<IdeTranslations> = {
   'ide.tests.runError': 'No se ha podido iniciar la prueba.',
   'ide.tests.viewerCannotRun': 'Solo los editores pueden ejecutar las pruebas de este proyecto.',
   'ide.tests.needsSandbox': 'Inicia el proyecto para ejecutar sus pruebas.',
+  'ide.tests.heading': 'Pruebas',
+  'ide.tests.searchPlaceholder': 'Pruebas de filtros…',
+  'ide.tests.loading': 'Cargando pruebas…',
+  'ide.tests.waitingForSandbox': 'Inicia el proyecto para ver sus pruebas.',
+  'ide.tests.empty': 'Aún no hay pruebas en este proyecto.',
+  'ide.tests.noMatch': 'No hay pruebas que coincidan con tu búsqueda.',
 }

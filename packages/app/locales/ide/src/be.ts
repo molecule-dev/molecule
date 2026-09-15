@@ -619,4 +619,10 @@ export const be: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Тэставы запуск не змог пачацца.',
   'ide.tests.viewerCannotRun': 'Толькі рэдактары могуць запускаць тэсты гэтага праекта.',
   'ide.tests.needsSandbox': 'Запусціце праект, каб правесці яго тэсты.',
+  'ide.tests.heading': 'Тэсты',
+  'ide.tests.searchPlaceholder': 'Тэсты фільтраў…',
+  'ide.tests.loading': 'Загрузка тэстаў…',
+  'ide.tests.waitingForSandbox': 'Запусціце праект, каб паглядзець яго тэсты.',
+  'ide.tests.empty': 'Пакуль няма тэстаў у гэтым праекце.',
+  'ide.tests.noMatch': 'Няма тэстаў, якія адпавядаюць вашаму пошуку.',
 }

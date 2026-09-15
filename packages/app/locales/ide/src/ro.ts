@@ -628,4 +628,10 @@ export const ro: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Testul nu a putut fi demarat.',
   'ide.tests.viewerCannotRun': 'Numai editorii pot rula testele acestui proiect.',
   'ide.tests.needsSandbox': 'Porniți proiectul pentru a rula testele acestuia.',
+  'ide.tests.heading': 'Teste',
+  'ide.tests.searchPlaceholder': 'Teste de filtrare…',
+  'ide.tests.loading': 'Se încarcă testele…',
+  'ide.tests.waitingForSandbox': 'Pornește proiectul pentru a vedea testele acestuia.',
+  'ide.tests.empty': 'În acest proiect nu există încă teste.',
+  'ide.tests.noMatch': 'Nu există teste care să corespundă căutării tale.',
 }

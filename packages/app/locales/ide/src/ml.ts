@@ -621,4 +621,10 @@ export const ml: Partial<IdeTranslations> = {
   'ide.tests.viewerCannotRun':
     'ഈ പ്രോജക്റ്റിന്റെ പരീക്ഷണങ്ങൾ എഡിറ്റർമാർക്ക് മാത്രമേ പ്രവർത്തിപ്പിക്കാൻ കഴിയൂ.',
   'ide.tests.needsSandbox': 'പരീക്ഷണങ്ങൾ നടത്തുന്നതിനായി പ്രോജക്റ്റ് ആരംഭിക്കുക.',
+  'ide.tests.heading': 'ടെസ്റ്റുകൾ',
+  'ide.tests.searchPlaceholder': 'ഫിൽട്ടർ പരിശോധനകൾ...',
+  'ide.tests.loading': 'പരിശോധനകൾ ലോഡ് ചെയ്യുന്നു…',
+  'ide.tests.waitingForSandbox': 'അതിന്റെ പരീക്ഷണങ്ങൾ കാണാൻ പ്രോജക്റ്റ് ആരംഭിക്കുക.',
+  'ide.tests.empty': 'ഈ പ്രോജക്റ്റിൽ ഇതുവരെ പരീക്ഷണങ്ങളൊന്നുമില്ല.',
+  'ide.tests.noMatch': 'നിങ്ങളുടെ തിരയലുമായി പൊരുത്തപ്പെടുന്ന പരിശോധനകളൊന്നുമില്ല.',
 }

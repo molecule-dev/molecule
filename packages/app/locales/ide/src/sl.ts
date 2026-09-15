@@ -625,4 +625,10 @@ export const sl: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Preskusnega zagona ni bilo mogoče začeti.',
   'ide.tests.viewerCannotRun': 'Teste tega projekta lahko izvajajo le uredniki.',
   'ide.tests.needsSandbox': 'Zaženite projekt, da se izvedejo njegovi testi.',
+  'ide.tests.heading': 'Testi',
+  'ide.tests.searchPlaceholder': 'Testi filtrov…',
+  'ide.tests.loading': 'Nalaganje testov…',
+  'ide.tests.waitingForSandbox': 'Zaženite projekt, da si ogledate njegove teste.',
+  'ide.tests.empty': 'V tem projektu še ni nobenih testov.',
+  'ide.tests.noMatch': 'Nobeno preverjanje ne ustreza vašemu iskanju.',
 }

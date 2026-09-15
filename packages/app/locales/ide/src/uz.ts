@@ -619,4 +619,10 @@ export const uz: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Sinov jarayoni boshlanmadi.',
   'ide.tests.viewerCannotRun': "Ushbu loyihaning sinovlarini faqat muharrirlar o'tkazishi mumkin.",
   'ide.tests.needsSandbox': "Loyihani sinovdan o'tkazish uchun boshlang.",
+  'ide.tests.heading': 'Sinovlar',
+  'ide.tests.searchPlaceholder': 'Filtr sinovlari…',
+  'ide.tests.loading': 'Testlar yuklanmoqda…',
+  'ide.tests.waitingForSandbox': "Loyihani sinovdan o'tkazish uchun uni boshlang.",
+  'ide.tests.empty': "Ushbu loyihada hali sinovlar yo'q.",
+  'ide.tests.noMatch': 'Qidiruvingizga hech qanday test mos kelmadi.',
 }

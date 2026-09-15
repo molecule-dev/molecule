@@ -618,4 +618,10 @@ export const ky: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Сыноо башталган жок.',
   'ide.tests.viewerCannotRun': 'Бул долбоордун сыноолорун редакторлор гана жүргүзө алышат.',
   'ide.tests.needsSandbox': 'Сыноолорду жүргүзүү үчүн долбоорду баштаңыз.',
+  'ide.tests.heading': 'Тесттер',
+  'ide.tests.searchPlaceholder': 'Фильтрлөө тесттери…',
+  'ide.tests.loading': 'Тесттер жүктөлүүдө…',
+  'ide.tests.waitingForSandbox': 'Сыноолорун көрүү үчүн долбоорду баштаңыз.',
+  'ide.tests.empty': 'Бул долбоордо азырынча эч кандай сыноолор жок.',
+  'ide.tests.noMatch': 'Издөөңүзгө эч кандай тест дал келген жок.',
 }

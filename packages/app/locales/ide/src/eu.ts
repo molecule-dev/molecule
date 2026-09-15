@@ -618,4 +618,10 @@ export const eu: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Proba-exekuzioa ezin izan da hasi.',
   'ide.tests.viewerCannotRun': 'Editoreek bakarrik egin ditzakete proiektu honen probak.',
   'ide.tests.needsSandbox': 'Abiarazi proiektua bere probak exekutatzeko.',
+  'ide.tests.heading': 'Probak',
+  'ide.tests.searchPlaceholder': 'Iragazki probak…',
+  'ide.tests.loading': 'Probak kargatzen…',
+  'ide.tests.waitingForSandbox': 'Hasi proiektua bere probak ikusteko.',
+  'ide.tests.empty': 'Ez dago probarik proiektu honetan oraindik.',
+  'ide.tests.noMatch': 'Ez dago zure bilaketarekin bat datorren probarik.',
 }

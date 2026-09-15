@@ -612,4 +612,10 @@ export const lo: Partial<IdeTranslations> = {
   'ide.tests.runError': 'ບໍ່ສາມາດເລີ່ມຕົ້ນການທົດສອບໄດ້.',
   'ide.tests.viewerCannotRun': 'ມີພຽງບັນນາທິການເທົ່ານັ້ນທີ່ສາມາດດໍາເນີນການທົດສອບຂອງໂຄງການນີ້ໄດ້.',
   'ide.tests.needsSandbox': 'ເລີ່ມໂຄງການເພື່ອດໍາເນີນການທົດສອບຂອງມັນ.',
+  'ide.tests.heading': 'ການທົດສອບ',
+  'ide.tests.searchPlaceholder': 'ການທົດສອບການກັ່ນຕອງ…',
+  'ide.tests.loading': 'ກຳລັງໂຫຼດການທົດສອບ…',
+  'ide.tests.waitingForSandbox': 'ເລີ່ມຕົ້ນໂຄງການເພື່ອເບິ່ງການທົດສອບຂອງມັນ.',
+  'ide.tests.empty': 'ຍັງບໍ່ມີການທົດສອບໃນໂຄງການນີ້ເທື່ອ.',
+  'ide.tests.noMatch': 'ບໍ່ມີການທົດສອບທີ່ກົງກັບການຄົ້ນຫາຂອງທ່ານ.',
 }

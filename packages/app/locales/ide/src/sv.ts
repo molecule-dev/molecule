@@ -625,4 +625,10 @@ export const sv: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Testkörningen kunde inte startas.',
   'ide.tests.viewerCannotRun': 'Endast redaktörer kan köra testerna för detta projekt.',
   'ide.tests.needsSandbox': 'Starta projektet för att köra dess tester.',
+  'ide.tests.heading': 'Tester',
+  'ide.tests.searchPlaceholder': 'Filtertester…',
+  'ide.tests.loading': 'Laddar tester…',
+  'ide.tests.waitingForSandbox': 'Starta projektet för att se dess tester.',
+  'ide.tests.empty': 'Det finns ännu inga tester i det här projektet.',
+  'ide.tests.noMatch': 'Inga tester stämmer överens med din sökning.',
 }

@@ -626,4 +626,10 @@ export const sk: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Testovací beh sa nepodarilo spustiť.',
   'ide.tests.viewerCannotRun': 'Testy tohto projektu môžu spúšťať iba redaktori.',
   'ide.tests.needsSandbox': 'Spustite projekt, aby sa vykonali jeho testy.',
+  'ide.tests.heading': 'Testy',
+  'ide.tests.searchPlaceholder': 'Testy filtrov…',
+  'ide.tests.loading': 'Načítavanie testov…',
+  'ide.tests.waitingForSandbox': 'Spustite projekt, aby ste si prezreli jeho testy.',
+  'ide.tests.empty': 'V tomto projekte zatiaľ nie sú žiadne testy.',
+  'ide.tests.noMatch': 'Žiadne testy nezodpovedajú vášmu vyhľadávaniu.',
 }

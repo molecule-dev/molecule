@@ -616,4 +616,10 @@ export const is: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Ekki var hægt að hefja prufukeyrsluna.',
   'ide.tests.viewerCannotRun': 'Aðeins ritstjórar geta keyrt prófanir þessa verkefnis.',
   'ide.tests.needsSandbox': 'Byrjaðu verkefnið til að keyra prófanir þess.',
+  'ide.tests.heading': 'Prófanir',
+  'ide.tests.searchPlaceholder': 'Síunarprófanir…',
+  'ide.tests.loading': 'Hleður próf…',
+  'ide.tests.waitingForSandbox': 'Byrjaðu verkefnið til að sjá prófanir þess.',
+  'ide.tests.empty': 'Engar prófanir í þessu verkefni ennþá.',
+  'ide.tests.noMatch': 'Engar prófanir passa við leitina þína.',
 }

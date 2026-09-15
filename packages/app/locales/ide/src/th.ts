@@ -616,4 +616,10 @@ export const th: Partial<IdeTranslations> = {
   'ide.tests.runError': 'การทดสอบไม่สามารถเริ่มต้นได้',
   'ide.tests.viewerCannotRun': 'เฉพาะบรรณาธิการเท่านั้นที่สามารถเรียกใช้การทดสอบของโปรเจ็กต์นี้ได้',
   'ide.tests.needsSandbox': 'เริ่มโปรเจ็กต์เพื่อทำการทดสอบ',
+  'ide.tests.heading': 'การทดสอบ',
+  'ide.tests.searchPlaceholder': 'การทดสอบตัวกรอง…',
+  'ide.tests.loading': 'กำลังโหลดการทดสอบ…',
+  'ide.tests.waitingForSandbox': 'เริ่มโปรเจ็กต์เพื่อดูผลการทดสอบ',
+  'ide.tests.empty': 'ยังไม่มีการทดสอบใดๆ ในโครงการนี้',
+  'ide.tests.noMatch': 'ไม่มีการทดสอบใดตรงกับผลการค้นหาของคุณ',
 }

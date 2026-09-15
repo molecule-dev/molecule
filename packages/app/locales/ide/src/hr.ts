@@ -616,4 +616,10 @@ export const hr: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Probni rad nije mogao započeti.',
   'ide.tests.viewerCannotRun': 'Samo urednici mogu pokrenuti testove ovog projekta.',
   'ide.tests.needsSandbox': 'Pokrenite projekt kako biste izvršili njegove testove.',
+  'ide.tests.heading': 'Testovi',
+  'ide.tests.searchPlaceholder': 'Testovi filtera…',
+  'ide.tests.loading': 'Učitavanje testova…',
+  'ide.tests.waitingForSandbox': 'Pokrenite projekt kako biste vidjeli njegove testove.',
+  'ide.tests.empty': 'Još nema testova u ovom projektu.',
+  'ide.tests.noMatch': 'Nijedan test ne odgovara vašoj pretrazi.',
 }

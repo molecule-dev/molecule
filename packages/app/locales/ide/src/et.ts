@@ -623,4 +623,10 @@ export const et: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Katse käivitamine ei õnnestunud.',
   'ide.tests.viewerCannotRun': 'Selle projekti teste saavad käivitada ainult toimetajad.',
   'ide.tests.needsSandbox': 'Käivita projekt, et selle teste läbi viia.',
+  'ide.tests.heading': 'Testid',
+  'ide.tests.searchPlaceholder': 'Filtrite katsed…',
+  'ide.tests.loading': 'Katsete laadimine…',
+  'ide.tests.waitingForSandbox': 'Käivita projekt, et näha selle teste.',
+  'ide.tests.empty': 'Selles projektis pole veel ühtegi testi.',
+  'ide.tests.noMatch': 'Teie otsingule vastavaid teste ei leitud.',
 }

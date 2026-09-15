@@ -619,4 +619,10 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Gwajin gwajin bai iya farawa ba.',
   'ide.tests.viewerCannotRun': 'Editoci ne kawai za su iya gudanar da gwaje-gwajen wannan aikin.',
   'ide.tests.needsSandbox': 'Fara aikin don gudanar da gwaje-gwajensa.',
+  'ide.tests.heading': 'Gwaje-gwaje',
+  'ide.tests.searchPlaceholder': 'Gwaje-gwajen tacewa…',
+  'ide.tests.loading': 'Ana loda gwaje-gwaje…',
+  'ide.tests.waitingForSandbox': 'Fara aikin don ganin gwaje-gwajensa.',
+  'ide.tests.empty': 'Babu gwaje-gwaje a cikin wannan aikin tukuna.',
+  'ide.tests.noMatch': 'Babu gwaje-gwaje da suka dace da bincikenka.',
 }

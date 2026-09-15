@@ -619,4 +619,10 @@ export const ms: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Ujian tidak dapat dimulakan.',
   'ide.tests.viewerCannotRun': 'Hanya editor sahaja yang boleh menjalankan ujian projek ini.',
   'ide.tests.needsSandbox': 'Mulakan projek untuk menjalankan ujiannya.',
+  'ide.tests.heading': 'Ujian',
+  'ide.tests.searchPlaceholder': 'Ujian penapis…',
+  'ide.tests.loading': 'Memuatkan ujian…',
+  'ide.tests.waitingForSandbox': 'Mulakan projek untuk melihat ujiannya.',
+  'ide.tests.empty': 'Tiada ujian dalam projek ini lagi.',
+  'ide.tests.noMatch': 'Tiada ujian yang sepadan dengan carian anda.',
 }

@@ -617,4 +617,10 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.runError': '테스트 실행을 시작할 수 없습니다.',
   'ide.tests.viewerCannotRun': '이 프로젝트의 테스트는 편집자만 실행할 수 있습니다.',
   'ide.tests.needsSandbox': '프로젝트를 시작하여 테스트를 실행합니다.',
+  'ide.tests.heading': '시험',
+  'ide.tests.searchPlaceholder': '필터 테스트…',
+  'ide.tests.loading': '테스트 중…',
+  'ide.tests.waitingForSandbox': '프로젝트를 실행하여 테스트를 확인해 보세요.',
+  'ide.tests.empty': '이 프로젝트에는 아직 테스트가 없습니다.',
+  'ide.tests.noMatch': '검색 조건에 맞는 테스트가 없습니다.',
 }

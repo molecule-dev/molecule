@@ -620,4 +620,10 @@ export const gl: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Non se puido iniciar a proba de execución.',
   'ide.tests.viewerCannotRun': 'Só os editores poden executar as probas deste proxecto.',
   'ide.tests.needsSandbox': 'Inicia o proxecto para executar as súas probas.',
+  'ide.tests.heading': 'Probas',
+  'ide.tests.searchPlaceholder': 'Probas de filtro…',
+  'ide.tests.loading': 'Cargando probas…',
+  'ide.tests.waitingForSandbox': 'Inicia o proxecto para ver as súas probas.',
+  'ide.tests.empty': 'Aínda non hai probas neste proxecto.',
+  'ide.tests.noMatch': 'Non hai probas que coincidan coa túa busca.',
 }

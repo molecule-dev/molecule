@@ -622,4 +622,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.tests.viewerCannotRun':
     'Tanging mga editor lamang ang maaaring magpatakbo ng mga pagsubok sa proyektong ito.',
   'ide.tests.needsSandbox': 'Simulan ang proyekto upang patakbuhin ang mga pagsubok nito.',
+  'ide.tests.heading': 'Mga Pagsusulit',
+  'ide.tests.searchPlaceholder': 'Mga pagsubok sa pag-filter…',
+  'ide.tests.loading': 'Naglo-load ng mga pagsubok…',
+  'ide.tests.waitingForSandbox': 'Simulan ang proyekto upang makita ang mga pagsubok nito.',
+  'ide.tests.empty': 'Wala pang mga pagsubok sa proyektong ito.',
+  'ide.tests.noMatch': 'Walang mga pagsubok na tumutugma sa iyong paghahanap.',
 }

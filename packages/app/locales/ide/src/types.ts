@@ -569,6 +569,12 @@ export type IdeTranslationKey =
   | 'ide.tests.runError'
   | 'ide.tests.viewerCannotRun'
   | 'ide.tests.needsSandbox'
+  | 'ide.tests.heading'
+  | 'ide.tests.searchPlaceholder'
+  | 'ide.tests.loading'
+  | 'ide.tests.waitingForSandbox'
+  | 'ide.tests.empty'
+  | 'ide.tests.noMatch'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

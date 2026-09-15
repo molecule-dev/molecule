@@ -625,4 +625,10 @@ export const ja: Partial<IdeTranslations> = {
   'ide.tests.runError': 'テスト実行を開始できませんでした。',
   'ide.tests.viewerCannotRun': 'このプロジェクトのテストを実行できるのは、エディターのみです。',
   'ide.tests.needsSandbox': 'プロジェクトを起動して、そのテストを実行します。',
+  'ide.tests.heading': 'テスト',
+  'ide.tests.searchPlaceholder': 'フィルターのテスト…',
+  'ide.tests.loading': '負荷テスト中…',
+  'ide.tests.waitingForSandbox': 'プロジェクトを起動して、そのテストを確認してください。',
+  'ide.tests.empty': 'このプロジェクトにはまだテストがありません。',
+  'ide.tests.noMatch': '検索条件に一致するテストはありません。',
 }

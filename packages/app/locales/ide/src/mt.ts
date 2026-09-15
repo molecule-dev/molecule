@@ -617,4 +617,10 @@ export const mt: Partial<IdeTranslations> = {
   'ide.tests.runError': 'It-test ma setax jibda.',
   'ide.tests.viewerCannotRun': "L-edituri biss jistgħu jwettqu t-testijiet ta' dan il-proġett.",
   'ide.tests.needsSandbox': 'Ibda l-proġett biex iwettaq it-testijiet tiegħu.',
+  'ide.tests.heading': 'Testijiet',
+  'ide.tests.searchPlaceholder': 'Testijiet tal-filtru…',
+  'ide.tests.loading': 'Qed jitgħabbew it-testijiet…',
+  'ide.tests.waitingForSandbox': 'Ibda l-proġett biex tara t-testijiet tiegħu.',
+  'ide.tests.empty': "Għad m'hemm l-ebda testijiet f'dan il-proġett.",
+  'ide.tests.noMatch': 'L-ebda test ma jaqbel mat-tfittxija tiegħek.',
 }

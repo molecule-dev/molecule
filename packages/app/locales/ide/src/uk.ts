@@ -630,4 +630,10 @@ export const uk: Partial<IdeTranslations> = {
   'ide.tests.runError': 'Пробний запуск не вдалося запустити.',
   'ide.tests.viewerCannotRun': 'Виконувати тести цього проєкту можуть лише редактори.',
   'ide.tests.needsSandbox': 'Запустіть проєкт, щоб виконати його тести.',
+  'ide.tests.heading': 'Тести',
+  'ide.tests.searchPlaceholder': 'Випробування фільтрів…',
+  'ide.tests.loading': 'Завантаження тестів…',
+  'ide.tests.waitingForSandbox': 'Запустіть проект, щоб переглянути його тести.',
+  'ide.tests.empty': 'У цьому проєкті поки що немає тестів.',
+  'ide.tests.noMatch': 'За вашим запитом не знайдено жодних тестів.',
 }
