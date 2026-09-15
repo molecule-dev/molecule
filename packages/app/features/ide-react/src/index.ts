@@ -84,6 +84,25 @@
  *   the card steps aside while the banner is up — which only reads as one
  *   consistent message if the banner's button is resolved from the same
  *   `billingAction` the card used.
+ * - The **Tests bar** (`TestsBar`, rendered by `ChatPanel` directly above the
+ *   uncommitted-files bar) lists the project's tests and runs them. It owns no
+ *   routes: pass `listTests` and `runTests` and the bar appears; omit either and
+ *   it does not render at all. `runTests(selection, onEvent)` returns a handle
+ *   whose `cancel()` must really stop the run, and it must deliver exactly one
+ *   `done` event however the run ends — including when the request never opened
+ *   — or the bar spins forever. `canRunTests` (a viewer: false) and
+ *   `testsAvailable` (the environment is up) each disable the run controls and
+ *   state their own reason in the bar rather than failing on click; with
+ *   `testsAvailable: false` the bar does not even ask `listTests`, so whatever
+ *   was last listed stays readable. The bar re-lists on every `gitStatusTick`
+ *   change and after each run, so a spec the agent just wrote appears with no
+ *   reload.
+ * - **End-to-end specs are meant to run against the LIVE PREVIEW.** The host
+ *   should drive them through `@molecule/app-e2e-preview` (what every
+ *   `mlcl create` app already bonds in `e2e/bonds.ts`), not a browser binary —
+ *   in a sandbox there is none. That bond drives the page the person is
+ *   actually looking at, so **a preview must be open somewhere** or the driver
+ *   waits and fails; the bar says so next to the end-to-end group.
  * - Text routes through `t('ide.*')` — `@molecule/app-locales-ide` supplies
  *   translations.
  *

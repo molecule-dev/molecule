@@ -176,6 +176,8 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
+import { isTestFilePath } from './tests-bar-utilities.js'
+import { TestsBar } from './TestsBar.js'
 import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
@@ -2662,6 +2664,14 @@ export interface ChatInnerProps {
   extraCommands?: readonly CommandDef[]
   /** Command-menu "Report a problem" URL — see {@link ChatPanelProps.feedbackUrl}. */
   feedbackUrl?: string
+  /** Lists the project's tests for the Tests bar — see {@link ChatPanelProps.listTests}. */
+  listTests?: ChatPanelProps['listTests']
+  /** Runs the selected tests, streaming events — see {@link ChatPanelProps.runTests}. */
+  runTests?: ChatPanelProps['runTests']
+  /** Whether this viewer may run tests — see {@link ChatPanelProps.canRunTests}. */
+  canRunTests?: boolean
+  /** Whether the environment that runs them is up — see {@link ChatPanelProps.testsAvailable}. */
+  testsAvailable?: boolean
 }
 
 /**
@@ -2722,6 +2732,10 @@ function ChatInner({
   productName = DEFAULT_PRODUCT_NAME,
   version,
   extraCommands,
+  listTests,
+  runTests,
+  canRunTests,
+  testsAvailable,
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
@@ -3045,6 +3059,19 @@ function ChatInner({
   // bar LIVE while a turn is still streaming.
   const debouncedFetchPendingFilesRef = useRef<(() => void) | null>(null)
 
+  // Re-lists the Tests bar. Bumped only when the written file IS a spec/test, so
+  // an ordinary write never costs a sandbox walk, and debounced so a turn that
+  // writes several specs re-lists once. The bar also re-lists on
+  // `externalGitStatusTick` (a user-side rename/delete) and after every run.
+  const [testsRefreshTick, setTestsRefreshTick] = useState(0)
+  const testsRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(
+    () => () => {
+      if (testsRefreshTimerRef.current) clearTimeout(testsRefreshTimerRef.current)
+    },
+    [],
+  )
+
   const onFileChangeWrapped = useCallback(
     (path: string, content: string) => {
       // A file changed (AI write) — restart the auto-commit countdown if armed.
@@ -3052,6 +3079,14 @@ function ChatInner({
       // Keep the uncommitted-files bar live DURING the turn — it must track
       // files as they stream in, not appear only once the turn ends.
       debouncedFetchPendingFilesRef.current?.()
+      // A newly written spec must appear in the Tests bar without a reload.
+      if (isTestFilePath(path)) {
+        if (testsRefreshTimerRef.current) clearTimeout(testsRefreshTimerRef.current)
+        testsRefreshTimerRef.current = setTimeout(() => {
+          testsRefreshTimerRef.current = null
+          setTestsRefreshTick((n) => n + 1)
+        }, 800)
+      }
       if (autoFixCountdown) {
         const norm = path.replace(/^\/workspace\//, '')
         const isRelevant = autoFixCountdown.changedPaths.some(
@@ -10776,6 +10811,30 @@ function ChatInner({
             </div>
           )}
 
+        {/* Tests bar — the same slot and box model as the commit bar below it,
+            stacked directly above it. Rendered for a VIEWER too (unlike the
+            commit bar): what a project tests is worth reading even when running
+            it is not yours to do, and TestsBar itself disables every run control
+            and says why. Hidden while a popup menu owns the space above the
+            composer, exactly like the commit bar. It re-lists on
+            `externalGitStatusTick`, so a spec the agent just wrote shows up
+            without a reload. */}
+        {listTests &&
+          runTests &&
+          !commandMenu &&
+          !modelPicker &&
+          !effortPicker &&
+          !panelOverlay && (
+            <TestsBar
+              listTests={listTests}
+              runTests={runTests}
+              canRun={canRunTests ?? canEdit !== false}
+              available={testsAvailable ?? true}
+              refreshKey={(externalGitStatusTick ?? 0) + testsRefreshTick}
+              isCoarse={isCoarse}
+            />
+          )}
+
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
             Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
             so the bar is a dead control for them. */}
@@ -11832,6 +11891,10 @@ export function ChatPanel({
   version,
   extraCommands,
   feedbackUrl,
+  listTests,
+  runTests,
+  canRunTests,
+  testsAvailable,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -12289,6 +12352,10 @@ export function ChatPanel({
         version={version}
         extraCommands={extraCommands}
         feedbackUrl={feedbackUrl}
+        listTests={listTests}
+        runTests={runTests}
+        canRunTests={canRunTests}
+        testsAvailable={testsAvailable}
       />
     </div>
   )

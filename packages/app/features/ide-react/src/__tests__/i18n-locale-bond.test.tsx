@@ -20,7 +20,7 @@
  * @module
  */
 
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
@@ -37,6 +37,8 @@ import { DEVICE_META } from '../components/device-cycle.js'
 import { DeviceFrameSelector } from '../components/DeviceFrameSelector.js'
 import { PreviewPanel } from '../components/PreviewPanel.js'
 import { StreamingIndicator } from '../components/StreamingIndicator.js'
+import { TestsBar } from '../components/TestsBar.js'
+import type { TestList } from '../types.js'
 
 const fr = ideLocales.fr as Record<string, string>
 const en = ideLocales.en as Record<string, string>
@@ -376,5 +378,127 @@ describe('IDE chat/activity i18n debt closed (cross-cutting-i18n, final wave)', 
       expect(typeof en[key], `${key} missing from en`).toBe('string')
       expect(fr[key], `${key} should be the parked English fallback`).toBe(en[key])
     }
+  })
+})
+
+describe('Tests bar i18n resolves through the locale bond (cross-cutting-i18n)', () => {
+  /** The bar's callbacks: one e2e spec and one unit test, and a run that does nothing. */
+  const listTests = async (): Promise<TestList> => ({
+    tests: [
+      {
+        id: 'app:e2e/home.spec.ts',
+        file: 'e2e/home.spec.ts',
+        kind: 'e2e',
+        workspace: 'app',
+        title: 'home',
+      },
+      {
+        id: 'api:src/routes.test.ts',
+        file: 'src/routes.test.ts',
+        kind: 'unit',
+        workspace: 'api',
+        title: 'routes',
+      },
+    ],
+    runners: { app: { e2e: 'playwright', unit: null }, api: { e2e: null, unit: 'vitest' } },
+  })
+  const runTests = (): { cancel: () => void } => ({ cancel: () => {} })
+
+  it('the bond defines every ide.tests.* key the bar renders', () => {
+    for (const key of [
+      'ide.tests.testCount',
+      'ide.tests.run',
+      'ide.tests.runAll',
+      'ide.tests.runE2e',
+      'ide.tests.runUnit',
+      'ide.tests.runGroup',
+      'ide.tests.stop',
+      'ide.tests.running',
+      'ide.tests.passedCount',
+      'ide.tests.failedCount',
+      'ide.tests.statusPassed',
+      'ide.tests.statusFailed',
+      'ide.tests.statusSkipped',
+      'ide.tests.kind.e2e',
+      'ide.tests.kind.unit',
+      'ide.tests.workspace.app',
+      'ide.tests.workspace.api',
+      'ide.tests.workspace.root',
+      'ide.tests.e2eHint',
+      'ide.tests.showOutput',
+      'ide.tests.hideOutput',
+      'ide.tests.cancelled',
+      'ide.tests.listError',
+      'ide.tests.runError',
+      'ide.tests.viewerCannotRun',
+      'ide.tests.needsSandbox',
+    ]) {
+      expect(typeof fr[key], `${key} missing from app-locales-ide`).toBe('string')
+      expect(fr[key].length, `${key} empty in app-locales-ide`).toBeGreaterThan(0)
+    }
+  })
+
+  it('the bar’s sentences are really TRANSLATED, not the English value copied in', () => {
+    // Scoped to keys whose French genuinely differs — 'API' is 'API' in most
+    // languages, and a one-word label can legitimately round-trip unchanged, so
+    // asserting that on EVERY key would be asserting a false premise.
+    for (const key of [
+      'ide.tests.runAll',
+      'ide.tests.running',
+      'ide.tests.statusPassed',
+      'ide.tests.statusFailed',
+      'ide.tests.kind.e2e',
+      'ide.tests.e2eHint',
+      'ide.tests.listError',
+      'ide.tests.viewerCannotRun',
+      'ide.tests.needsSandbox',
+    ]) {
+      expect(fr[key], `${key} should be translated, not the English fallback`).not.toBe(en[key])
+    }
+  })
+
+  it('the count keys keep {{count}} intact so the bar can interpolate them', () => {
+    for (const key of ['ide.tests.testCount', 'ide.tests.passedCount', 'ide.tests.failedCount']) {
+      expect(fr[key], `${key} lost its {{count}} placeholder`).toContain('{{count}}')
+      expect(fr[key], `${key} has a leftover <x> mask`).not.toContain('<x>')
+    }
+  })
+
+  it('renders the bar’s labels from the bonded locale, not the English defaults', async () => {
+    const { container } = render(
+      <TestsBar listTests={listTests} runTests={runTests} canRun available />,
+    )
+    await waitFor(() => {
+      expect(container.querySelector('[data-mol-id="tests-bar"]')).not.toBeNull()
+    })
+    fireEvent.click(container.querySelector('[data-mol-id="tests-bar-toggle"]') as HTMLElement)
+
+    expect(container.querySelector('[data-mol-id="tests-bar-run-all"]')?.textContent).toBe(
+      fr['ide.tests.runAll'],
+    )
+    // The pre-fix bug: with the key absent, the English default would render.
+    expect(container.querySelector('[data-mol-id="tests-bar-run-all"]')?.textContent).not.toBe(
+      'Run all',
+    )
+    expect(
+      container.querySelector('[data-mol-id="tests-bar-group-e2e-app"]')?.textContent,
+    ).toContain(fr['ide.tests.kind.e2e'])
+    expect(container.querySelector('[data-mol-id="tests-bar-e2e-hint"]')?.textContent).toBe(
+      fr['ide.tests.e2eHint'],
+    )
+    expect(container.querySelector('[data-mol-id="tests-bar-toggle"]')?.textContent).toContain(
+      fr['ide.tests.testCount'].replace('{{count}}', '2'),
+    )
+  })
+
+  it('renders the viewer’s reason from the bonded locale', async () => {
+    const { container } = render(
+      <TestsBar listTests={listTests} runTests={runTests} canRun={false} available />,
+    )
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-mol-id="tests-bar-disabled-reason"]')?.textContent,
+      ).toBe(fr['ide.tests.viewerCannotRun'])
+    })
   })
 })

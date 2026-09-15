@@ -73,6 +73,95 @@ export interface ChatUserIdentity {
 }
 
 /**
+ * Which workspace of a project a test file belongs to. `root` is the project
+ * root itself (a single-package project, or a workspace root that holds its own
+ * tests).
+ */
+export type TestWorkspace = 'app' | 'api' | 'root'
+
+/**
+ * What a test file is: an end-to-end spec driven against the LIVE PREVIEW (the
+ * `@molecule/app-e2e-preview` bond every scaffolded app carries), or a plain
+ * unit test run by the project's own runner.
+ */
+export type TestKind = 'e2e' | 'unit'
+
+/** One test file the host discovered in the project. */
+export interface TestItem {
+  /** Stable id, unique across workspaces — used as the row key and to select by. */
+  id: string
+  /** Path relative to its workspace, e.g. `e2e/home.spec.ts`. */
+  file: string
+  kind: TestKind
+  workspace: TestWorkspace
+  /** Human label for the row; the bar falls back to the file path without one. */
+  title?: string
+}
+
+/** Which runner drives each kind in one workspace (`null` = none installed). */
+export interface TestRunners {
+  e2e: string | null
+  unit: string | null
+}
+
+/** What {@link ChatPanelProps.listTests} resolves with. */
+export interface TestList {
+  tests: TestItem[]
+  /** Per workspace, the runners the host found. Absent workspaces have no package. */
+  runners: Partial<Record<TestWorkspace, TestRunners>>
+}
+
+/** What the bar asks the host to run. */
+export interface TestSelection {
+  /** Specific {@link TestItem.id}s. Takes precedence over `kind`. */
+  ids?: string[]
+  /** Everything of this kind when no `ids` are given. */
+  kind?: TestKind | 'all'
+}
+
+/** How one test file ended. */
+export type TestStatus = 'passed' | 'failed' | 'skipped'
+
+/** How a whole run ended. */
+export type TestRunOutcome = 'completed' | 'cancelled' | 'timeout' | 'error'
+
+/**
+ * One event from a run in progress. The host streams these to the bar (over SSE
+ * in molecule.dev) in the order the run produces them: one `start`, then
+ * interleaved `output`/`result`, then exactly one `done`.
+ */
+export type TestRunEvent =
+  | { type: 'start'; runId: string; ids: string[]; startedAt?: string }
+  | { type: 'output'; id?: string; stream?: 'stdout' | 'stderr'; chunk: string }
+  | {
+      type: 'result'
+      id: string
+      status: TestStatus
+      durationMs?: number
+      passed?: number
+      failed?: number
+      skipped?: number
+      /** The runner's output for a FAILURE, which the bar keeps visible. */
+      output?: string
+    }
+  | {
+      type: 'done'
+      runId?: string
+      outcome: TestRunOutcome
+      passed?: number
+      failed?: number
+      skipped?: number
+      durationMs?: number
+      error?: string
+    }
+
+/** Handle to a run in flight, so the bar can stop it. */
+export interface TestRunHandle {
+  /** Stop the run — the host aborts its stream, which cancels the work. */
+  cancel(): void
+}
+
+/**
  * Props for the {@link ChatPanel} component — the IDE chat surface plus the
  * callbacks the host app uses to react to AI activity (file changes, boot, client
  * actions, etc.).
@@ -403,6 +492,40 @@ export interface ChatPanelProps {
    * modal — which POSTs to the project's own backend — is unaffected.
    */
   feedbackUrl?: string
+  /**
+   * Lists the project's tests for the Tests bar. Omit it (the default) and the
+   * bar is not rendered at all — the shared IDE owns no test-discovery route.
+   *
+   * molecule.dev implements it over `GET /projects/:id/tests`. The bar re-lists
+   * whenever {@link ChatPanelProps.gitStatusTick} changes and after each run, so
+   * a spec the agent just wrote appears without a reload.
+   */
+  listTests?: () => Promise<TestList>
+  /**
+   * Runs the selected tests, streaming {@link TestRunEvent}s back as they
+   * happen. Required alongside {@link ChatPanelProps.listTests} for the bar's
+   * run controls to appear.
+   *
+   * The returned handle's `cancel()` must stop the run (molecule.dev aborts the
+   * SSE request, and the server kills the process tree on disconnect). The host
+   * is responsible for running the e2e specs through the preview bond chain —
+   * in a sandbox that means `npx playwright test` with
+   * `@molecule/app-e2e-preview` as the browser, so the spec drives the live
+   * preview rather than a browser binary that is not installed there.
+   */
+  runTests?: (selection: TestSelection, onEvent: (event: TestRunEvent) => void) => TestRunHandle
+  /**
+   * Whether this viewer may RUN tests. `false` keeps the bar (a viewer can see
+   * what the project tests) but disables every run control and shows why.
+   * Defaults to `canEdit !== false`.
+   */
+  canRunTests?: boolean
+  /**
+   * Whether the environment the tests run in is up — a running sandbox. `false`
+   * disables the run controls with a "start the sandbox" reason instead of
+   * letting a click fail. Defaults to `true`.
+   */
+  testsAvailable?: boolean
   className?: string
 }
 
