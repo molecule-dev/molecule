@@ -86,7 +86,14 @@
  *   supports all of them.
  * - **Viewport.** `page.setViewportSize` asks the IDE to resize the preview
  *   frame and throws if the host did not (a preview opened in a plain tab
- *   keeps the tab's width). Test phone layouts at 390×844 this way.
+ *   keeps the tab's width). Test phone layouts at 390×844 this way. The size
+ *   is RE-ASSERTED after every `goto`/`reload`/`goBack`/`goForward`, because
+ *   the viewport belongs to the host's frame and not to the document: without
+ *   that, a navigation could land at the host's own width while the page kept
+ *   reporting the phone size, and every measurement after it was a desktop
+ *   number wearing a phone label. The re-assert WARNS instead of throwing (a
+ *   navigation must not fail over a frame size), so read `page.viewportSize()`
+ *   when a measurement has to be provably at the width you asked for.
  * - **Events.** `page.on('response')`/`'request'` never fire over the preview
  *   (a one-time warning says so); `'console'` and `'pageerror'` do, so the
  *   console-error guard works there too.

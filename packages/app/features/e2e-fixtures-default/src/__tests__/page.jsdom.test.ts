@@ -3,7 +3,7 @@
  * The Playwright-shaped page over a transport that evaluates in THIS jsdom
  * document — the whole driver/runtime round trip without a browser.
  */
-import { afterEach, beforeEach, describe, expect as vexpect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect as vexpect, it, vi } from 'vitest'
 
 import { E2EStrictModeError, type E2ETransport, E2EUnsupportedError } from '@molecule/app-e2e'
 
@@ -247,5 +247,126 @@ describe('createEvaluatePage over a jsdom transport', () => {
     }, 120)
     await expect(page.locator('#late')).toBeVisible({ timeout: 2_000 })
     await page.locator('#late').waitFor({ state: 'attached' })
+  })
+})
+
+/**
+ * The viewport survives a navigation — X0 R81/R82.
+ *
+ * The viewport is the HOST's frame, not the document, so a navigation can land
+ * in a frame that is no longer the size the spec set, and nothing in the page
+ * re-announces one. When that happened the page object kept REPORTING the phone
+ * size it no longer had, so every measurement after the navigation was a
+ * desktop number wearing a phone label: not a failure, a lie. The executor's
+ * own words in R82 were "the live preview's host pins the viewport, so a spec
+ * that sets 375/390px measures the host's own size" — and the one real gap that
+ * run was a phone-layout pixel.
+ *
+ * A host that FORGETS is the interesting case, so this transport forgets on
+ * every navigation, the way a remounted preview panel does.
+ */
+describe('viewport across navigation (X0 R81/R82)', () => {
+  const makeForgetfulTransport = (): { transport: E2ETransport; sizes: number[] } => {
+    let width = 1237
+    let height = 800
+    const sizes: number[] = []
+    const transport: E2ETransport = {
+      async evaluate(source, arg) {
+        const fn = new Function('return (' + source + ')')() as (a: unknown) => unknown
+        const value = await fn(arg)
+        return value === undefined ? null : JSON.parse(JSON.stringify(value))
+      },
+      async navigate() {
+        // The host drops the pin, exactly as a remounted preview panel does.
+        width = 1237
+        height = 800
+      },
+      async viewport(w, h) {
+        width = w
+        height = h
+        sizes.push(w)
+        return { width, height }
+      },
+      url: () => location.href,
+      on() {
+        return () => {}
+      },
+      async close() {
+        /* nothing */
+      },
+    }
+    return { transport, sizes }
+  }
+
+  it('re-asserts the size the spec set after goto, reload and back', async () => {
+    const { transport, sizes } = makeForgetfulTransport()
+    const page = await createEvaluatePage(transport, { timeout: 500, bondName: 'test' })
+    try {
+      await page.setViewportSize({ width: 390, height: 844 })
+      vexpect(page.viewportSize()?.width).toBe(390)
+
+      await page.goto('/post/')
+      vexpect(page.viewportSize()?.width, 'still a phone after goto').toBe(390)
+      await page.reload()
+      vexpect(page.viewportSize()?.width, 'still a phone after reload').toBe(390)
+      await page.goBack()
+      vexpect(page.viewportSize()?.width, 'still a phone after goBack').toBe(390)
+      await page.goForward()
+      vexpect(page.viewportSize()?.width, 'still a phone after goForward').toBe(390)
+
+      // One explicit set, then one re-assert per navigation — never more.
+      vexpect(sizes).toEqual([390, 390, 390, 390, 390])
+    } finally {
+      await page.close()
+    }
+  })
+
+  it('does not touch the viewport when the spec never set one', async () => {
+    const { transport, sizes } = makeForgetfulTransport()
+    const page = await createEvaluatePage(transport, { timeout: 500, bondName: 'test' })
+    try {
+      await page.goto('/post/')
+      await page.reload()
+      vexpect(sizes, 'no viewport traffic for a spec that never asked').toEqual([])
+    } finally {
+      await page.close()
+    }
+  })
+
+  it('warns and reports the truth when the host refuses after a navigation', async () => {
+    // A navigation must never FAIL over a frame size, so the re-assert warns —
+    // and viewportSize() then says what the measurements are really at.
+    const warnings: string[] = []
+    const warn = console.warn
+    console.warn = (m: unknown) => void warnings.push(String(m))
+    const stubborn: E2ETransport = {
+      async evaluate() {
+        return null
+      },
+      async navigate() {
+        /* nothing */
+      },
+      viewport: vi
+        .fn()
+        .mockResolvedValueOnce({ width: 390, height: 844 })
+        .mockResolvedValue({ width: 1237, height: 800 }),
+      url: () => location.href,
+      on() {
+        return () => {}
+      },
+      async close() {
+        /* nothing */
+      },
+    }
+    const page = await createEvaluatePage(stubborn, { timeout: 500, bondName: 'test' })
+    try {
+      await page.setViewportSize({ width: 390, height: 844 })
+      await page.goto('/post/')
+      vexpect(page.viewportSize()?.width, 'reports what it actually got').toBe(1237)
+      vexpect(warnings.join('\n')).toMatch(/after navigating, the preview host is 1237x800/)
+    } finally {
+      console.warn = warn
+      await page.close()
+    }
   })
 })

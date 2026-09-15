@@ -629,6 +629,12 @@ class PageImpl {
   navigationTimeout: number
   readonly testIdAttribute: string
   private viewport: E2EViewport | null
+  /**
+   * The size the SPEC asked for, as opposed to {@link viewport}, the size the
+   * host last reported. Re-asserted after every navigation so a phone-width
+   * measurement is never silently taken at the host's own width.
+   */
+  private requestedViewport: E2EViewport | null = null
   private closed = false
   private proxy!: Page
   private readonly listeners = new Map<string, Set<Listener>>()
@@ -802,6 +808,7 @@ class PageImpl {
     await this.transport.navigate('goto', this.resolveUrl(url), {
       timeout: opts.timeout ?? this.navigationTimeout,
     })
+    await this.reassertViewport()
     this.emit('load', this.proxy)
     return null
   }
@@ -810,6 +817,7 @@ class PageImpl {
     await this.transport.navigate('reload', undefined, {
       timeout: opts.timeout ?? this.navigationTimeout,
     })
+    await this.reassertViewport()
     this.emit('load', this.proxy)
     return null
   }
@@ -818,6 +826,7 @@ class PageImpl {
     await this.transport.navigate('back', undefined, {
       timeout: opts.timeout ?? this.navigationTimeout,
     })
+    await this.reassertViewport()
     return null
   }
   /** Playwright's `page.goForward()`. */
@@ -825,6 +834,7 @@ class PageImpl {
     await this.transport.navigate('forward', undefined, {
       timeout: opts.timeout ?? this.navigationTimeout,
     })
+    await this.reassertViewport()
     return null
   }
   /** Playwright's `url()`: the last known URL (or, on a response, its final URL). */
@@ -999,6 +1009,41 @@ class PageImpl {
       )
     }
     this.viewport = got
+    this.requestedViewport = { ...size }
+  }
+  /**
+   * Re-assert the size the spec asked for, after a navigation.
+   *
+   * The viewport is not a property of the document — it is the host's frame —
+   * so a navigation can land in a frame that is no longer the size the spec
+   * set, and nothing in the page re-announces one. When that happened, this
+   * page object kept REPORTING the phone size it no longer had, and every
+   * measurement after the navigation was taken at desktop width while claiming
+   * to be a phone: not a failure, a lie. (X0 R81/R82 — the executor said it
+   * could not verify the phone layout, and the one real gap in R82 was a
+   * phone-layout pixel.)
+   *
+   * Warns rather than throws: a navigation must not fail because the host
+   * happens not to honour resizes, and `viewportSize()` then tells the truth
+   * about what it got.
+   */
+  private async reassertViewport(): Promise<void> {
+    const want = this.requestedViewport
+    if (!want) return
+    try {
+      const got = await this.transport.viewport(want.width, want.height)
+      this.viewport = got
+      if (Math.abs(got.width - want.width) > 2)
+        this.warnOnce(
+          'viewport-navigation',
+          `[app-e2e] after navigating, the preview host is ${got.width}x${got.height}, not the ${want.width}x${want.height} this spec set. Measurements below are at ${got.width}px.`,
+        )
+    } catch (error) {
+      this.warnOnce(
+        'viewport-navigation',
+        `[app-e2e] could not re-apply the viewport after navigating: ${String(error)}`,
+      )
+    }
   }
   /** Apply the configured viewport without failing the test when the host cannot resize (used once at connect). */
   async applyInitialViewport(): Promise<void> {

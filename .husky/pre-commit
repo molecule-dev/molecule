@@ -25,6 +25,28 @@ if git diff --cached --name-only --diff-filter=ACM |
   fi
 fi
 
+# PATHSPEC COMMIT DETECTION — load-bearing for the README regen at the bottom.
+#
+# `git commit -- <paths>` (and `--only`) builds a TEMPORARY index from HEAD plus
+# the named paths, points GIT_INDEX_FILE at it, and runs this hook against that.
+# Measured on git 2.43: the hook's `git add` DOES reach the commit (it writes the
+# temp index, which is what gets committed) — but the REAL index is never
+# updated, and is LOCKED for the duration, so the hook cannot update it either.
+# The regenerated README.md files therefore land in the commit correctly and
+# then read as `MM` in `git status` forever after: a phantom diff between a
+# stale index entry and a HEAD that already agrees with the worktree. The next
+# agent meets that as foreign dirt they must not touch (workspace Rule 25), and
+# it survives every later commit until someone re-stages.
+#
+# So: do not block — the commit is correct — but say exactly what to run. Git
+# names the temp index `$GIT_DIR/next-index-<pid>`, which is the tell. (Keep
+# this block byte-stable: scripts/__tests__/precommit-pathspec.test.mjs extracts
+# and executes it.)
+PATHSPEC_COMMIT=0
+case "${GIT_INDEX_FILE:-}" in
+*next-index*) PATHSPEC_COMMIT=1 ;;
+esac
+
 STAGED=$(git diff --cached --name-only --diff-filter=AM)
 
 # mlcl is a workspace member of the parent checkout, so its bins hoist to the
@@ -157,6 +179,16 @@ if [ -n "$DOC_STAGED" ]; then
       echo "$REGENERATED" | while IFS= read -r md; do git add "$md"; done
       echo "✎ README.md + README.md regenerated + staged into this commit:"
       echo "$REGENERATED" | while IFS= read -r md; do echo "    $md"; done
+      if [ "$PATHSPEC_COMMIT" = 1 ]; then
+        # They ARE in the commit (see the block at the top). What is stale is
+        # the real index, which this hook cannot reach — so name the one command
+        # that clears the phantom diff, rather than leaving it for whoever runs
+        # `git status` next and cannot tell whose changes these are.
+        echo "⚠ This commit used an explicit pathspec, so your real index still holds the"
+        echo "  OLD blobs for those docs and they will read as modified until you re-stage."
+        echo "  After this commit, run:"
+        echo "      git add $(echo "$REGENERATED" | tr '\n' ' ')"
+      fi
     fi
   else
     echo "ℹ README.md regen skipped: mlcl deps not installed — run 'npm ci' in mlcl, then 'cd mlcl && npm run sync-docs:changed'"
