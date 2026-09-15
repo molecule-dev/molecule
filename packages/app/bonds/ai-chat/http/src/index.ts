@@ -26,6 +26,15 @@
  * `HttpChatProvider` beyond the core `ChatProvider` type. `loadHistory()`
  * returns `[]` on HTTP errors but REJECTS on network failure; wrap it.
  *
+ * A non-ok response becomes an `error` event, and a JSON body's `error`,
+ * `limitType`, `requiresSignup`, `billingAction` and `upgradeTier` are copied
+ * onto it — so a limit refusal (402/429/403) reaches the UI with both the rule
+ * that fired (`limitType`) and the remedy the backend resolved
+ * (`billingAction`, e.g. `add_funds` vs `add_payment_method` vs `upgrade`,
+ * with `upgradeTier: null` meaning there is no higher plan). Send those fields
+ * from your API and the client's call-to-action is yours to decide; omit them
+ * and the client can only guess.
+ *
  * @module
  */
 

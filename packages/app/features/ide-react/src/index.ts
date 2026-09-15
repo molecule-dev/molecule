@@ -73,6 +73,17 @@
  * - A custom card is a critical event only when its factory sets
  *   `critical: true` (a failure, a blocked action, a limit that stopped work) —
  *   the package never infers it from tone or copy.
+ * - `ChatPanel` owns no pricing or auth routes, so every limit/upgrade button
+ *   comes from the host's `buildUpgradeCta(context)`. The context forwards the
+ *   backend's whole description of the refusal: `requiresSignup`, `limitType`
+ *   (the rule that fired), `billingAction` (the remedy it resolved — e.g.
+ *   `add_funds`, `add_payment_method`, `raise_spend_cap`, `upgrade`, `none`) and
+ *   `upgradeTier` (`null` = no higher plan). Branch on `billingAction` first;
+ *   every field is optional, so keep a fallback. A live limit banner and a
+ *   recorded card that declares the same `coversLimitType` state one fact, so
+ *   the card steps aside while the banner is up — which only reads as one
+ *   consistent message if the banner's button is resolved from the same
+ *   `billingAction` the card used.
  * - Text routes through `t('ide.*')` — `@molecule/app-locales-ide` supplies
  *   translations.
  *

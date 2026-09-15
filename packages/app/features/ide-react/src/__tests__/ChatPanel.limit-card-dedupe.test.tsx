@@ -15,6 +15,12 @@
  * specific one (a platform-capacity refusal shares `limitType` with a personal-budget
  * one). A card covering a DIFFERENT limit is untouched.
  *
+ * Which only works if the banner's BUTTON says the same thing the hidden card's did:
+ * the panel forwards the backend's whole description of the refusal — `limitType`,
+ * `billingAction`, `upgradeTier` — to the host's `buildUpgradeCta`. It used to pass
+ * `requiresSignup` alone, so the host could only answer "Upgrade", and the dedupe then
+ * hid the correct "Add funds" card behind it.
+ *
  * A real jsdom render of {@link ChatPanel} driving a real send, not a grep.
  *
  * @module
@@ -22,7 +28,7 @@
 
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { ChatConfig, ChatMessage, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
 import type { HttpClient } from '@molecule/app-http'
@@ -41,6 +47,7 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ChatPanel } from '../components/ChatPanel.js'
 import { registerCustomEventCard } from '../customEventCards.js'
+import type { ChatPanelProps } from '../types.js'
 
 /** The card the interrupted turn recorded (the host's copy). */
 const CARD_TEXT = "You've used today's free AI budget for guests. It refreshes tomorrow."
@@ -81,6 +88,10 @@ function buildChatProvider(): ChatProvider {
         status: 429,
         limitType: 'ai_cost',
         requiresSignup: true,
+        // The backend's own answer to "what can this user do about it", alongside
+        // the rule that fired and the plan an upgrade would move to.
+        billingAction: 'sign_up',
+        upgradeTier: 'pro',
       } as ChatStreamEvent)
     },
     abort: (): void => {},
@@ -165,8 +176,15 @@ function buildThemeProvider(): ThemeProviderType {
   }
 }
 
-/** Render {@link ChatPanel} against the seeded provider. */
-function renderPanel(): HTMLElement {
+/** The CTA-builder contract the panel calls — the host's, forwarded verbatim. */
+type BuildUpgradeCta = NonNullable<ChatPanelProps['buildUpgradeCta']>
+
+/**
+ * Render {@link ChatPanel} against the seeded provider.
+ *
+ * @param buildUpgradeCta - Host CTA builder, when the test asserts on it.
+ */
+function renderPanel(buildUpgradeCta?: BuildUpgradeCta): HTMLElement {
   const wrap = (children: ReactNode): ReactElement => (
     <I18nProvider provider={createSimpleI18nProvider('en')}>
       <ThemeProvider provider={buildThemeProvider()}>
@@ -176,7 +194,11 @@ function renderPanel(): HTMLElement {
       </ThemeProvider>
     </I18nProvider>
   )
-  return render(wrap(<ChatPanel projectId="proj-limit" agentName="Synthase" />)).container
+  return render(
+    wrap(
+      <ChatPanel projectId="proj-limit" agentName="Synthase" buildUpgradeCta={buildUpgradeCta} />,
+    ),
+  ).container
 }
 
 beforeEach(() => {
@@ -237,5 +259,35 @@ describe('ChatPanel limit-card dedupe', () => {
     expect(container.textContent).not.toContain(CARD_TEXT)
     // A card covering a DIFFERENT limit is untouched.
     expect(container.textContent).toContain(OTHER_CARD_TEXT)
+  })
+
+  it('hands the host the backend’s limitType, billingAction and upgradeTier', async () => {
+    // The host can only pick the right button from what the panel passes it. This
+    // is the whole fix: the banner used to receive `requiresSignup` alone, so
+    // "Upgrade" was the only answer any host could give — while the card it hid
+    // said "Add funds".
+    const buildUpgradeCta = vi.fn<BuildUpgradeCta>((context) => [
+      { label: `cta:${context.billingAction ?? 'unknown'}`, href: '/signup' },
+    ])
+    const container = renderPanel(buildUpgradeCta)
+
+    const input = container.querySelector('[data-mol-chat-input]') as HTMLTextAreaElement
+    fireEvent.change(input, { target: { value: 'keep going' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    await waitFor(() => {
+      expect(container.textContent).toContain(BANNER_TEXT)
+    })
+
+    const contexts = buildUpgradeCta.mock.calls.map(([context]) => context)
+    expect(contexts).toContainEqual({
+      requiresSignup: true,
+      limitType: 'ai_cost',
+      billingAction: 'sign_up',
+      upgradeTier: 'pro',
+    })
+    // …and the button the host built from it is the one actually rendered, so the
+    // banner and the card it suppressed now say the same thing.
+    expect(container.textContent).toContain('cta:sign_up')
   })
 })

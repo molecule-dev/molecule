@@ -6578,7 +6578,15 @@ function ChatInner({
       } catch (err) {
         const data = (
           err as {
-            response?: { data?: { error?: string; limitType?: string; requiresSignup?: boolean } }
+            response?: {
+              data?: {
+                error?: string
+                limitType?: string
+                requiresSignup?: boolean
+                billingAction?: string
+                upgradeTier?: string | null
+              }
+            }
           }
         )?.response?.data
         if (data?.limitType === 'max_tool_loops') {
@@ -6587,9 +6595,20 @@ function ChatInner({
               t('ide.chat.maxLoopsReached', undefined, {
                 defaultValue: 'Max loops limit reached.',
               }),
-            // Host owns the upgrade/sign-in button(s); `requiresSignup` is the
-            // backend's hint that the user must sign up rather than upgrade.
-            { action: buildUpgradeCta?.({ requiresSignup: data.requiresSignup }) ?? undefined },
+            // Host owns the upgrade/sign-in button(s); forward the backend's whole
+            // description of the refusal — `requiresSignup`, the `limitType` that
+            // fired, the `billingAction` remedy it resolved, and `upgradeTier`
+            // (null = no higher plan) — so the host picks the right one instead of
+            // defaulting to "Upgrade".
+            {
+              action:
+                buildUpgradeCta?.({
+                  requiresSignup: data.requiresSignup,
+                  limitType: data.limitType,
+                  billingAction: data.billingAction,
+                  upgradeTier: data.upgradeTier,
+                }) ?? undefined,
+            },
           )
         } else {
           addSystemCard(
@@ -8159,9 +8178,19 @@ function ChatInner({
           (errorMeta?.limitType ? (
             // The CTA routes/copy are the host's — ask buildUpgradeCta for the FULL
             // upgrade/sign-in button set (none rendered if the host supplies nothing).
+            // Hand it EVERYTHING the backend said about the refusal: `limitType` (the
+            // rule), `billingAction` (the remedy it resolved) and `upgradeTier` (null =
+            // no higher plan). Dropping them left the host with only "is this a guest?"
+            // to go on, so an empty balance — whose own recorded card says "Add funds" —
+            // was answered here with "Upgrade".
             <ResourceLimitBanner
               message={error}
-              action={buildUpgradeCta?.({ requiresSignup: errorMeta.requiresSignup })}
+              action={buildUpgradeCta?.({
+                requiresSignup: errorMeta.requiresSignup,
+                limitType: errorMeta.limitType,
+                billingAction: errorMeta.billingAction,
+                upgradeTier: errorMeta.upgradeTier,
+              })}
             />
           ) : isViewerAccessDenied ? (
             // A viewer's denial is expected state, not an alarm: a brief, calm,

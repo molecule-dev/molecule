@@ -677,6 +677,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
   const [errorMeta, setErrorMeta] = useState<{
     limitType?: string
     requiresSignup?: boolean
+    billingAction?: string
+    upgradeTier?: string | null
   } | null>(null)
   // Active 5XX backoff-retry countdown, or null when none is pending. When a
   // backend error is a server error (HTTP 5XX) the hook does NOT surface a
@@ -1202,6 +1204,8 @@ export function useChat(options: UseChatOptions): UseChatResult {
         transport?: boolean
         limitType?: string
         requiresSignup?: boolean
+        billingAction?: string
+        upgradeTier?: string | null
       },
       target: RetryTarget,
     ): void => {
@@ -1217,9 +1221,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // reset the budget so a future, independent failure starts fresh.
       retryAttemptRef.current = 0
       setError(event.message)
+      // The backend's own answer to "what can this user do about it" rides along
+      // with the limit name: a CTA built from `limitType` alone can only guess,
+      // and guessing is how an empty balance ends up offering "Upgrade".
       setErrorMeta(
         event.limitType
-          ? { limitType: event.limitType, requiresSignup: event.requiresSignup }
+          ? {
+              limitType: event.limitType,
+              requiresSignup: event.requiresSignup,
+              billingAction: event.billingAction,
+              upgradeTier: event.upgradeTier,
+            }
           : null,
       )
     },

@@ -29,6 +29,14 @@
  *   a sanitizing renderer.
  * - Model output is UNTRUSTED (see api-ai): a tool call or action it suggests must be authorized
  *   + validated server-side, never auto-executed from the client.
+ * - An `error` event can carry limit metadata: `limitType` (the rule that fired),
+ *   `requiresSignup`, plus `billingAction` (the remedy the backend resolved — e.g.
+ *   `add_funds`, `add_payment_method`, `raise_spend_cap`, `upgrade`, `none`) and
+ *   `upgradeTier` (`null` when there is no higher plan). Build the call-to-action from
+ *   `billingAction`, not from `limitType` alone: the same limit needs a different button
+ *   depending on the account (an empty balance is "add funds" with a card on file and
+ *   "add a payment method" without one). The vocabulary belongs to your API — these are
+ *   typed as plain strings so the core stays free of any app's billing model.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

@@ -319,8 +319,22 @@ export interface UseChatResult {
    */
   noteRemoteStreamEvent: () => void
   error: string | null
-  /** Metadata about a limit-related error (for contextual upgrade CTAs). */
-  errorMeta: { limitType?: string; requiresSignup?: boolean } | null
+  /**
+   * Metadata about a limit-related error, for a contextual call-to-action.
+   * `limitType` names the RULE the backend enforced; `billingAction` names the
+   * REMEDY it resolved (e.g. `add_funds`, `add_payment_method`,
+   * `raise_spend_cap`, `upgrade`, `none`) and is what the button should be
+   * built from — the same limit needs a different button per account.
+   * `upgradeTier` is the plan an upgrade would move to, explicitly `null` when
+   * there is no higher tier. The backend owns these vocabularies, so the
+   * action/tier are plain strings here.
+   */
+  errorMeta: {
+    limitType?: string
+    requiresSignup?: boolean
+    billingAction?: string
+    upgradeTier?: string | null
+  } | null
   /** Current agent mode — plan (read-only research) or execute (full access). */
   mode: 'plan' | 'execute'
   /**

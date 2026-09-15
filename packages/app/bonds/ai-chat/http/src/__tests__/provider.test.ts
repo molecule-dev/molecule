@@ -150,6 +150,99 @@ describe('@molecule/app-ai-chat-http', () => {
       })
     })
 
+    it('forwards a limit body’s billingAction and upgradeTier onto the error event', async () => {
+      // A 402 the backend answers with both the rule that fired AND the remedy it
+      // resolved. The client builds its call-to-action from `billingAction`, so
+      // dropping it here is what makes an empty balance offer "Upgrade" instead of
+      // "Add funds".
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 402,
+        statusText: 'Payment Required',
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            error: 'Your usage balance is empty. Add funds in Billing to keep building.',
+            limitType: 'usage_balance',
+            billingAction: 'add_funds',
+            upgradeTier: null,
+          }),
+        ),
+        body: null,
+      })
+
+      const provider = new HttpChatProvider()
+      const onEvent = vi.fn()
+
+      await provider.sendMessage('Hi', defaultConfig, onEvent)
+
+      const errorCall = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
+      expect(errorCall).toMatchObject({
+        type: 'error',
+        status: 402,
+        message: 'Your usage balance is empty. Add funds in Billing to keep building.',
+        limitType: 'usage_balance',
+        billingAction: 'add_funds',
+      })
+      // `null` is the backend saying "there is no higher tier" — distinct from
+      // absent, so it must survive as null rather than collapse to undefined.
+      expect(errorCall.upgradeTier).toBeNull()
+    })
+
+    it('leaves billingAction/upgradeTier undefined when the body omits them', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 429,
+        statusText: 'Too Many Requests',
+        text: vi
+          .fn()
+          .mockResolvedValue(
+            JSON.stringify({ error: 'Slow down', limitType: 'api_rate', requiresSignup: true }),
+          ),
+        body: null,
+      })
+
+      const provider = new HttpChatProvider()
+      const onEvent = vi.fn()
+
+      await provider.sendMessage('Hi', defaultConfig, onEvent)
+
+      const errorCall = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
+      expect(errorCall).toMatchObject({
+        type: 'error',
+        limitType: 'api_rate',
+        requiresSignup: true,
+      })
+      expect(errorCall.billingAction).toBeUndefined()
+      expect(errorCall.upgradeTier).toBeUndefined()
+    })
+
+    it('ignores a non-string billingAction rather than forwarding a bad shape', async () => {
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 402,
+        statusText: 'Payment Required',
+        text: vi.fn().mockResolvedValue(
+          JSON.stringify({
+            error: 'Nope',
+            limitType: 'usage_balance',
+            billingAction: 42,
+            upgradeTier: 7,
+          }),
+        ),
+        body: null,
+      })
+
+      const provider = new HttpChatProvider()
+      const onEvent = vi.fn()
+
+      await provider.sendMessage('Hi', defaultConfig, onEvent)
+
+      const errorCall = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
+      expect(errorCall.limitType).toBe('usage_balance')
+      expect(errorCall.billingAction).toBeUndefined()
+      expect(errorCall.upgradeTier).toBeUndefined()
+    })
+
     it('should emit error when response has no body', async () => {
       mockFetch.mockResolvedValue({
         ok: true,

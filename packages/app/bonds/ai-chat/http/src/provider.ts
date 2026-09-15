@@ -139,14 +139,24 @@ export class HttpChatProvider implements ChatProvider {
         const text = await response!
           .text()
           .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
-        // Parse structured limit error metadata from JSON responses
+        // Parse structured limit error metadata from JSON responses. `limitType`
+        // names the rule that fired; `billingAction` names the remedy the backend
+        // resolved (add funds vs. add a payment method vs. upgrade vs. nothing to
+        // sell) and `upgradeTier` the plan an upgrade would move to (`null` = no
+        // higher tier). All three ride through to the client so the call-to-action
+        // is the backend's answer, not a client-side default.
         let limitType: string | undefined
         let requiresSignup: boolean | undefined
+        let billingAction: string | undefined
+        let upgradeTier: string | null | undefined
         let errorMessage: string | undefined
         try {
           const body = JSON.parse(text)
           if (typeof body.limitType === 'string') limitType = body.limitType
           if (typeof body.requiresSignup === 'boolean') requiresSignup = body.requiresSignup
+          if (typeof body.billingAction === 'string') billingAction = body.billingAction
+          if (typeof body.upgradeTier === 'string' || body.upgradeTier === null)
+            upgradeTier = body.upgradeTier
           if (typeof body.error === 'string') errorMessage = body.error
         } catch (_error) {
           // Not JSON — use raw text
@@ -165,6 +175,8 @@ export class HttpChatProvider implements ChatProvider {
             ),
           limitType,
           requiresSignup,
+          billingAction,
+          upgradeTier,
         })
         return
       }

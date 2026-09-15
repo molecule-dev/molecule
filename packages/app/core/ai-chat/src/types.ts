@@ -364,8 +364,33 @@ export type ChatStreamEvent =
        * it is backward-compatible.
        */
       transport?: boolean
+      /**
+       * The backend's name for the limit that refused the turn (e.g.
+       * `'usage_balance'`, `'spend_cap'`, `'ai_cost'`, `'max_tool_loops'`).
+       * The API owns this vocabulary, so it is typed as a plain `string` —
+       * consumers match on the values their own backend sends.
+       */
       limitType?: string
       requiresSignup?: boolean
+      /**
+       * What the user must actually DO to clear this limit, as the backend
+       * resolved it — e.g. `'sign_up'`, `'upgrade'`, `'add_payment_method'`,
+       * `'add_funds'`, `'raise_spend_cap'`, `'enable_extra_usage'`,
+       * `'contact_support'`, `'owner_only'`, `'none'`. The API owns this
+       * vocabulary (hence `string`), and it is what a call-to-action should be
+       * built from: `limitType` names the RULE that fired, `billingAction`
+       * names the REMEDY, and the two do not map one-to-one (an empty balance
+       * is "add funds" with a card on file and "add a payment method" without
+       * one). Additive + optional, so emitting it is backward-compatible.
+       */
+      billingAction?: string
+      /**
+       * The plan the user would move to, when upgrading is the remedy;
+       * explicitly `null` when there is no higher tier (so a client can render
+       * a terminal state instead of a plans page that has nothing to sell).
+       * Absent when the backend did not say.
+       */
+      upgradeTier?: string | null
     }
   // The active model changed (e.g. planner → executor); surfaced in the chat.
   // `timestamp` (ms, server clock): see the `mode` event above — same card-clock fix.

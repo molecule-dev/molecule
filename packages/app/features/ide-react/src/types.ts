@@ -314,9 +314,33 @@ export interface ChatPanelProps {
    * `null`/`undefined` (the default) to render the nudge text with no button.
    * `requiresSignup`, when set, is the backend's flag that the user must sign up
    * rather than upgrade an existing plan; when unset the host's own auth state decides.
+   *
+   * The rest of the context is the backend's own description of the limit that
+   * fired, forwarded verbatim so the host never has to guess the right button:
+   *
+   * - `limitType` — the RULE the backend enforced (e.g. `usage_balance`,
+   *   `spend_cap`, `ai_cost`, `max_tool_loops`).
+   * - `billingAction` — the REMEDY the backend resolved (e.g. `sign_up`,
+   *   `upgrade`, `add_payment_method`, `add_funds`, `raise_spend_cap`,
+   *   `enable_extra_usage`, `contact_support`, `owner_only`, `none`). Prefer this
+   *   over `limitType` when both are present: one limit can need different
+   *   buttons per account (an empty balance is "Add funds" with a card on file
+   *   and "Add a payment method" without one), and `none` means there is nothing
+   *   the user can do — render no button.
+   * - `upgradeTier` — the plan an upgrade would move to, explicitly `null` when
+   *   there is no higher tier, so a top-tier user is never sent to a plans page
+   *   with nothing to sell them.
+   *
+   * Both vocabularies belong to the host's API, so they are plain strings here —
+   * the shared IDE never interprets them. Every field is optional and may be
+   * absent (a backend that sends none of them keeps the old behavior), so the
+   * host must have a fallback.
    */
   buildUpgradeCta?: (context: {
     requiresSignup?: boolean
+    limitType?: string
+    billingAction?: string
+    upgradeTier?: string | null
   }) => ChatEventCardAction | ChatEventCardAction[] | null | undefined
   /**
    * Optional app-specific section appended to the `/help` output — e.g. a plan /

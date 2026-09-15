@@ -73,6 +73,13 @@
  *   top-level navigation with NO credentials: it answers 401 and the paid plan is never
  *   granted. The shipped confirmation pages (`@molecule/app-plan-updated-page-react`,
  *   `@molecule/app-legal-pages-react`) already call it.
+ * - **A limit error from `useChat` carries the backend's remedy, not just its name.**
+ *   `errorMeta` exposes `limitType` (the rule that fired), `requiresSignup`,
+ *   `billingAction` (what the user must DO — e.g. `add_funds`,
+ *   `add_payment_method`, `raise_spend_cap`, `upgrade`, `none`) and `upgradeTier`
+ *   (`null` = no higher plan). Build the call-to-action from `billingAction`;
+ *   deriving it from `limitType` alone offers "Upgrade" to someone who just needs
+ *   to add funds. Whatever your API omits arrives `undefined`.
  * - `RouterProvider` carries a molecule `Router` (e.g. `createReactRouter()` from
  *   `@molecule/app-routing-react-router`). react-router's own `<BrowserRouter>` context is
  *   separate — components that render react-router `<Link>` (several in
