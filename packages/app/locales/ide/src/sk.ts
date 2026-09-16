@@ -635,4 +635,14 @@ export const sk: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Oprava pomocou programu Synthase',
   'ide.tests.fixFailures': 'Oprava chýb pri spustení programu „{{count}}“',
   'ide.tests.fixBusy': 'Počkajte, kým sa ukončí aktuálne kolo.',
+  'ide.chat.skipToolCall': 'Preskočiť',
+  'ide.chat.skippingToolCall': 'Preskočiť…',
+  'ide.chat.skipToolCallViewer': 'Toto môžu preskočiť len redaktori.',
+  'ide.toolCall.statusSkipped': 'Preskočené',
+  'ide.tests.skip': 'Preskočiť',
+  'ide.tests.skipping': 'Preskočiť…',
+  'ide.tests.skippedCount': '{{count}} preskočené',
+  'ide.tests.skippedByUser':
+    'Spustenie bolo dokončené. Testy, ktoré ste preskočili, sa nespustili.',
+  'ide.tests.viewerCannotSkip': 'Testy tohto projektu môžu preskočiť iba redaktori.',
 }

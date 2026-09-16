@@ -642,4 +642,14 @@ export const es: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Solución con Synthase',
   'ide.tests.fixFailures': 'Solucionar los errores de «{{count}}»',
   'ide.tests.fixBusy': 'Espera a que termine el turno actual.',
+  'ide.chat.skipToolCall': 'Saltar',
+  'ide.chat.skippingToolCall': 'Saltando…',
+  'ide.chat.skipToolCallViewer': 'Solo los editores pueden saltarse esto.',
+  'ide.toolCall.statusSkipped': 'Omitido',
+  'ide.tests.skip': 'Saltar',
+  'ide.tests.skipping': 'Saltando…',
+  'ide.tests.skippedCount': '{{count}} omitido',
+  'ide.tests.skippedByUser':
+    'La ejecución ha finalizado. Las pruebas que te has saltado no se han ejecutado.',
+  'ide.tests.viewerCannotSkip': 'Solo los editores pueden saltarse las pruebas de este proyecto.',
 }

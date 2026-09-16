@@ -9,15 +9,20 @@ import { describe, expect, it } from 'vitest'
 
 import {
   applyTestRunEvent,
+  canSkipRun,
   countByKind,
+  currentRunRowId,
   EMPTY_RUN_STATE,
   failRun,
   filterTests,
   groupTests,
   isRowRunning,
+  markSkipUnavailable,
   MAX_OUTPUT_LINES,
   parseTestCommand,
+  requestSkip,
   summarizeResults,
+  testCaseLabel,
   testRowLabel,
 } from '../components/tests-card-utilities.js'
 import type { TestItem } from '../types.js'
@@ -200,6 +205,153 @@ describe('applyTestRunEvent', () => {
     expect(state.durationMs).toBe(600_000)
   })
 
+  it('case names the test on screen and keeps that file’s own tally', () => {
+    const id = 'app:e2e/home.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'r1', ids: [id] })
+    state = applyTestRunEvent(state, {
+      type: 'case',
+      id,
+      title: 'shows the sign-up form',
+      describe: 'home page',
+      status: 'running',
+    })
+    expect(state.currentId).toBe(id)
+    expect(state.cases[id]?.current).toEqual({
+      title: 'shows the sign-up form',
+      describe: 'home page',
+    })
+    expect(state.cases[id]).toMatchObject({ passed: 0, failed: 0, skipped: 0 })
+
+    state = applyTestRunEvent(state, {
+      type: 'case',
+      id,
+      title: 'shows the sign-up form',
+      describe: 'home page',
+      status: 'passed',
+      durationMs: 900,
+    })
+    // The test it named finished, so the "now running" line clears rather than
+    // leaving a finished test on screen as though it were still going.
+    expect(state.cases[id]?.current).toBeNull()
+    expect(state.cases[id]).toMatchObject({ passed: 1, failed: 0, skipped: 0 })
+
+    state = applyTestRunEvent(state, { type: 'case', id, title: 'logs in', status: 'running' })
+    state = applyTestRunEvent(state, { type: 'case', id, title: 'logs in', status: 'failed' })
+    expect(state.cases[id]).toMatchObject({ passed: 1, failed: 1, skipped: 0, current: null })
+  })
+
+  it('a case for an unknown id is recorded rather than thrown on', () => {
+    const state = applyTestRunEvent(EMPTY_RUN_STATE, {
+      type: 'case',
+      id: 'app:e2e/never-listed.spec.ts',
+      title: 'something',
+      status: 'running',
+    })
+    expect(state.cases['app:e2e/never-listed.spec.ts']?.current?.title).toBe('something')
+  })
+
+  it('a terminal case that is not the one on screen leaves the running line alone', () => {
+    const id = 'app:e2e/home.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, {
+      type: 'case',
+      id,
+      title: 'a',
+      status: 'running',
+    })
+    // A parallel runner can finish a DIFFERENT test first; "a" is still running.
+    state = applyTestRunEvent(state, { type: 'case', id, title: 'b', status: 'passed' })
+    expect(state.cases[id]?.current?.title).toBe('a')
+    expect(state.cases[id]?.passed).toBe(1)
+  })
+
+  it('a case that arrives after its file’s verdict is dropped, not applied', () => {
+    const id = 'app:e2e/home.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'r1', ids: [id] })
+    state = applyTestRunEvent(state, { type: 'result', id, status: 'passed' })
+    const after = applyTestRunEvent(state, { type: 'case', id, title: 'late', status: 'running' })
+    expect(after).toBe(state)
+    expect(after.cases[id]).toBeUndefined()
+  })
+
+  it('result collapses the per-test detail and fills counts the event omitted', () => {
+    const id = 'app:e2e/home.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'r1', ids: [id] })
+    state = applyTestRunEvent(state, { type: 'case', id, title: 'a', status: 'passed' })
+    state = applyTestRunEvent(state, { type: 'case', id, title: 'b', status: 'failed' })
+    state = applyTestRunEvent(state, { type: 'result', id, status: 'failed' })
+    expect(state.cases[id]).toBeUndefined()
+    expect(state.results[id]).toMatchObject({ status: 'failed', passed: 1, failed: 1, skipped: 0 })
+  })
+
+  it('a skipped file is recorded as skipped and summarized as skipped, never as a pass', () => {
+    const id = 'app:e2e/home.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'r1', ids: [id] })
+    state = requestSkip({ ...state, skipUnavailable: false })
+    expect(state.skipPending).toBe(true)
+    // The shape the server sends for a skipped command: no output, one skip.
+    state = applyTestRunEvent(state, {
+      type: 'result',
+      id,
+      status: 'skipped',
+      durationMs: 12,
+      passed: 0,
+      failed: 0,
+      skipped: 1,
+    })
+    expect(state.skipPending).toBe(false)
+    expect(state.results[id]?.status).toBe('skipped')
+    expect(summarizeResults(TESTS, state.results)).toEqual({
+      passed: 0,
+      failed: 0,
+      skipped: 1,
+      reported: 1,
+    })
+    state = applyTestRunEvent(state, { type: 'done', outcome: 'skipped-by-user' })
+    expect(state.outcome).toBe('skipped-by-user')
+    expect(state.running).toBe(false)
+  })
+
+  it('a trailing skipped result after a cancel still lands on the row', () => {
+    // The cancel path reports every file that never ran as skipped, AFTER the
+    // run has already been torn down — so no row keeps a stale verdict.
+    const id = 'app:e2e/about.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, { type: 'start', runId: 'r1', ids: [id] })
+    state = applyTestRunEvent(state, { type: 'done', outcome: 'cancelled' })
+    state = applyTestRunEvent(state, { type: 'result', id, status: 'skipped', skipped: 1 })
+    expect(state.running).toBe(false)
+    expect(state.outcome).toBe('cancelled')
+    expect(state.results[id]?.status).toBe('skipped')
+  })
+
+  it('start and done clear the live per-test detail', () => {
+    const id = 'app:e2e/home.spec.ts'
+    let state = applyTestRunEvent(EMPTY_RUN_STATE, {
+      type: 'case',
+      id,
+      title: 'a',
+      status: 'running',
+    })
+    state = applyTestRunEvent(state, { type: 'start', runId: 'r2', ids: [id] })
+    expect(state.cases).toEqual({})
+    state = applyTestRunEvent(state, { type: 'case', id, title: 'a', status: 'running' })
+    state = applyTestRunEvent(state, { type: 'done', outcome: 'completed' })
+    expect(state.cases).toEqual({})
+  })
+
+  it('start does NOT re-enable skipping — the panel decides that from the handle', () => {
+    const state = applyTestRunEvent(
+      { ...EMPTY_RUN_STATE, skipUnavailable: false },
+      { type: 'start', runId: 'r1', ids: [] },
+    )
+    expect(state.skipUnavailable).toBe(false)
+    const unsupported = applyTestRunEvent(EMPTY_RUN_STATE, {
+      type: 'start',
+      runId: 'r1',
+      ids: [],
+    })
+    expect(unsupported.skipUnavailable).toBe(true)
+  })
+
   it('leaves the state untouched for an event shape it does not know', () => {
     const state = applyTestRunEvent(EMPTY_RUN_STATE, {
       type: 'nonsense',
@@ -288,5 +440,67 @@ describe('parseTestCommand', () => {
     for (const input of ['/testing', '/te', 'test', 'hello /test', '/scripts all']) {
       expect(parseTestCommand(input), input).toBeNull()
     }
+  })
+})
+
+describe('requestSkip / markSkipUnavailable / canSkipRun', () => {
+  const live = { ...EMPTY_RUN_STATE, running: true, skipUnavailable: false }
+
+  it('records the request only while there is something to skip', () => {
+    expect(requestSkip(live).skipPending).toBe(true)
+    // Nothing running, already asked, or the host serves no skip: unchanged.
+    expect(requestSkip(EMPTY_RUN_STATE)).toBe(EMPTY_RUN_STATE)
+    const pending = { ...live, skipPending: true }
+    expect(requestSkip(pending)).toBe(pending)
+    const unsupported = { ...live, skipUnavailable: true }
+    expect(requestSkip(unsupported)).toBe(unsupported)
+  })
+
+  it('an unavailable skip drops the control without inventing an error', () => {
+    const next = markSkipUnavailable({ ...live, skipPending: true })
+    expect(next.skipPending).toBe(false)
+    expect(next.skipUnavailable).toBe(true)
+    expect(next.error).toBeNull()
+    expect(canSkipRun(next)).toBe(false)
+  })
+
+  it('canSkipRun is true only for a live run on a host that serves it', () => {
+    expect(canSkipRun(live)).toBe(true)
+    expect(canSkipRun({ ...live, running: false })).toBe(false)
+    expect(canSkipRun(EMPTY_RUN_STATE)).toBe(false)
+  })
+})
+
+describe('currentRunRowId', () => {
+  it('is the row the stream named', () => {
+    expect(
+      currentRunRowId({ ...EMPTY_RUN_STATE, running: true, queued: ['a', 'b'], currentId: 'b' }),
+    ).toBe('b')
+  })
+
+  it('falls back to the single row still awaiting a verdict', () => {
+    const state = {
+      ...EMPTY_RUN_STATE,
+      running: true,
+      queued: ['a', 'b'],
+      results: { a: { status: 'passed' as const, passed: 1, failed: 0, skipped: 0 } },
+    }
+    expect(currentRunRowId(state)).toBe('b')
+  })
+
+  it('is null when the run names no row and more than one is still open', () => {
+    expect(currentRunRowId({ ...EMPTY_RUN_STATE, running: true, queued: ['a', 'b'] })).toBeNull()
+    expect(currentRunRowId({ ...EMPTY_RUN_STATE, queued: ['a'], currentId: 'a' })).toBeNull()
+  })
+})
+
+describe('testCaseLabel', () => {
+  it('reads group then title, and copes with a runner that gives neither', () => {
+    expect(testCaseLabel({ title: 'logs in', describe: 'auth' })).toBe('auth › logs in')
+    expect(testCaseLabel({ title: 'logs in' })).toBe('logs in')
+    expect(testCaseLabel({ title: '  ', describe: 'auth' })).toBe('auth')
+    expect(testCaseLabel({ title: '' })).toBe('')
+    expect(testCaseLabel(null)).toBe('')
+    expect(testCaseLabel(undefined)).toBe('')
   })
 })

@@ -628,4 +628,13 @@ export const ca: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Corregir amb sintasa',
   'ide.tests.fixFailures': 'Correcció {{count}} fracassos',
   'ide.tests.fixBusy': "Espereu que s'acabi el torn actual.",
+  'ide.chat.skipToolCall': 'Omet',
+  'ide.chat.skippingToolCall': "S'està ometent…",
+  'ide.chat.skipToolCallViewer': 'Només els editors poden ometre això.',
+  'ide.toolCall.statusSkipped': 'Omès',
+  'ide.tests.skip': 'Omet',
+  'ide.tests.skipping': "S'està ometent…",
+  'ide.tests.skippedCount': '{{count}} omès',
+  'ide.tests.skippedByUser': "Execució finalitzada. Les proves que has omès no s'han executat.",
+  'ide.tests.viewerCannotSkip': "Només els editors poden ometre les proves d'aquest projecte.",
 }

@@ -629,4 +629,13 @@ export const gl: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Corrixir con sintase',
   'ide.tests.fixFailures': 'Corrixir {{count}} fracasos',
   'ide.tests.fixBusy': 'Agarde a que remate a quenda actual.',
+  'ide.chat.skipToolCall': 'Omitir',
+  'ide.chat.skippingToolCall': 'Omitindo…',
+  'ide.chat.skipToolCallViewer': 'Só os editores poden omitir isto.',
+  'ide.toolCall.statusSkipped': 'Omitido',
+  'ide.tests.skip': 'Omitir',
+  'ide.tests.skipping': 'Omitindo…',
+  'ide.tests.skippedCount': '{{count}} omitido',
+  'ide.tests.skippedByUser': 'Execución rematada. As probas que omitiches non se executaron.',
+  'ide.tests.viewerCannotSkip': 'Só os editores poden omitir as probas deste proxecto.',
 }

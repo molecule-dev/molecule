@@ -628,4 +628,13 @@ export const km: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'ជួសជុលជាមួយ Synthase',
   'ide.tests.fixFailures': 'ជួសជុល {{count}} ការបរាជ័យ',
   'ide.tests.fixBusy': 'រង់ចាំ​ឲ្យ​វេន​បច្ចុប្បន្ន​ចប់។',
+  'ide.chat.skipToolCall': 'រំលង',
+  'ide.chat.skippingToolCall': 'កំពុងរំលង…',
+  'ide.chat.skipToolCallViewer': 'មានតែអ្នកកែសម្រួលទេដែលអាចរំលងវាបាន។',
+  'ide.toolCall.statusSkipped': 'បានរំលង',
+  'ide.tests.skip': 'រំលង',
+  'ide.tests.skipping': 'កំពុងរំលង…',
+  'ide.tests.skippedCount': '{{count}} រំលង',
+  'ide.tests.skippedByUser': 'ដំណើរការ​រួចរាល់។ ការធ្វើតេស្តដែលអ្នកបានរំលងមិនដំណើរការទេ។',
+  'ide.tests.viewerCannotSkip': 'មានតែអ្នកកែសម្រួលទេដែលអាចរំលងការធ្វើតេស្តរបស់គម្រោងនេះបាន។',
 }

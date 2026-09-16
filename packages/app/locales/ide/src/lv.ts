@@ -633,4 +633,13 @@ export const lv: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Labot ar Synthase',
   'ide.tests.fixFailures': '{{count}}a kļūdu novēršana',
   'ide.tests.fixBusy': 'Pagaidi, līdz beigsies pašreizējā kārta.',
+  'ide.chat.skipToolCall': 'Pāriet tālāk',
+  'ide.chat.skippingToolCall': 'Izlaižot…',
+  'ide.chat.skipToolCallViewer': 'To var izlaist tikai redaktori.',
+  'ide.toolCall.statusSkipped': 'Izlaists',
+  'ide.tests.skip': 'Pāriet tālāk',
+  'ide.tests.skipping': 'Izlaižot…',
+  'ide.tests.skippedCount': '{{count}} izlaists',
+  'ide.tests.skippedByUser': 'Izpilde pabeigta. Izlaistie testi netika izpildīti.',
+  'ide.tests.viewerCannotSkip': 'Tikai redaktori var izlaist šī projekta testus.',
 }

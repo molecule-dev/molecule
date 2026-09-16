@@ -628,4 +628,13 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Gyara da Synthase',
   'ide.tests.fixFailures': 'Gyara {{count}} kasawa',
   'ide.tests.fixBusy': 'Jira har sai juyawar da ke gudana ta ƙare.',
+  'ide.chat.skipToolCall': 'Tsallake',
+  'ide.chat.skippingToolCall': 'Tsallakewa…',
+  'ide.chat.skipToolCallViewer': 'Editoci ne kawai za su iya tsallake wannan.',
+  'ide.toolCall.statusSkipped': 'An tsallake',
+  'ide.tests.skip': 'Tsallake',
+  'ide.tests.skipping': 'Tsallakewa…',
+  'ide.tests.skippedCount': '{{count}} tsallake',
+  'ide.tests.skippedByUser': 'Gudu ya ƙare. Gwaje-gwajen da ka tsallake ba su gudana ba.',
+  'ide.tests.viewerCannotSkip': 'Editoci ne kawai za su iya tsallake gwaje-gwajen wannan aikin.',
 }

@@ -638,4 +638,13 @@ export const ru: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Исправить с помощью Synthase',
   'ide.tests.fixFailures': 'Исправление ошибок при работе с файлами «{{count}}»',
   'ide.tests.fixBusy': 'Дождитесь окончания текущего хода.',
+  'ide.chat.skipToolCall': 'Пропустить',
+  'ide.chat.skippingToolCall': 'Пропускаю…',
+  'ide.chat.skipToolCallViewer': 'Пропустить этот шаг могут только редакторы.',
+  'ide.toolCall.statusSkipped': 'Пропущено',
+  'ide.tests.skip': 'Пропустить',
+  'ide.tests.skipping': 'Пропускаю…',
+  'ide.tests.skippedCount': '{{count}} пропущено',
+  'ide.tests.skippedByUser': 'Выполнение завершено. Пропущенные вами тесты не были запущены.',
+  'ide.tests.viewerCannotSkip': 'Только редакторы могут пропустить тесты этого проекта.',
 }

@@ -627,4 +627,13 @@ export const hy: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Ուղղում սինթազի միջոցով',
   'ide.tests.fixFailures': 'Շտկել {{count}} ձախողումներ',
   'ide.tests.fixBusy': 'Սպասեք ընթացիկ շրջադարձի ավարտին։',
+  'ide.chat.skipToolCall': 'Բաց թողնել',
+  'ide.chat.skippingToolCall': 'Բաց թողնելը…',
+  'ide.chat.skipToolCallViewer': 'Միայն խմբագիրները կարող են սա բաց թողնել։',
+  'ide.toolCall.statusSkipped': 'Բաց թողնված',
+  'ide.tests.skip': 'Բաց թողնել',
+  'ide.tests.skipping': 'Բաց թողնելը…',
+  'ide.tests.skippedCount': '{{count}} բաց թողնված',
+  'ide.tests.skippedByUser': 'Գործարկումն ավարտվեց։ Ձեր բաց թողած թեստերը չեն գործարկվել։',
+  'ide.tests.viewerCannotSkip': 'Միայն խմբագիրները կարող են բաց թողնել այս նախագծի թեստերը։',
 }

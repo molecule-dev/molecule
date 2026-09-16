@@ -660,4 +660,13 @@ export const yo: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Ṣe àtúnṣe pẹ̀lú Synthase',
   'ide.tests.fixFailures': 'Ṣe àtúnṣe {{count}} àwọn ìkùnà',
   'ide.tests.fixBusy': 'Dúró fún ìgbà tí ìyípo ìsinsìnyí yóò parí.',
+  'ide.chat.skipToolCall': 'Fò ó',
+  'ide.chat.skippingToolCall': 'Fífò…',
+  'ide.chat.skipToolCallViewer': 'Àwọn olóòtú nìkan ló lè fo èyí.',
+  'ide.toolCall.statusSkipped': 'A fò ó',
+  'ide.tests.skip': 'Fò ó',
+  'ide.tests.skipping': 'Fífò…',
+  'ide.tests.skippedCount': '{{count}} fò',
+  'ide.tests.skippedByUser': 'Sáré parí. Àwọn ìdánwò tí o fò kò ṣiṣẹ́.',
+  'ide.tests.viewerCannotSkip': 'Àwọn olóòtú nìkan ló lè fo àwọn ìdánwò iṣẹ́ yìí.',
 }

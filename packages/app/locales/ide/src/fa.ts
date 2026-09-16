@@ -624,4 +624,13 @@ export const fa: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'رفع با سنتاز',
   'ide.tests.fixFailures': 'رفع {{count}} شکست‌ها',
   'ide.tests.fixBusy': 'صبر کنید تا نوبت فعلی تمام شود.',
+  'ide.chat.skipToolCall': 'پرش',
+  'ide.chat.skippingToolCall': 'رد شدن…',
+  'ide.chat.skipToolCallViewer': 'فقط ویراستاران می‌توانند از این مورد صرف نظر کنند.',
+  'ide.toolCall.statusSkipped': 'رد شد',
+  'ide.tests.skip': 'پرش',
+  'ide.tests.skipping': 'رد شدن…',
+  'ide.tests.skippedCount': '{{count}} از قلم افتاد',
+  'ide.tests.skippedByUser': 'اجرا تمام شد. تست‌هایی که از آنها صرف نظر کردید، اجرا نشدند.',
+  'ide.tests.viewerCannotSkip': 'فقط ویراستاران می‌توانند از آزمایش‌های این پروژه صرف نظر کنند.',
 }

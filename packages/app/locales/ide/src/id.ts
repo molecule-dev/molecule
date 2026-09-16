@@ -636,4 +636,13 @@ export const id: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Perbaiki dengan Synthase',
   'ide.tests.fixFailures': 'Perbaiki masalah kegagalan {{count}}',
   'ide.tests.fixBusy': 'Tunggu hingga giliran saat ini selesai.',
+  'ide.chat.skipToolCall': 'Lewati',
+  'ide.chat.skippingToolCall': 'Melewati…',
+  'ide.chat.skipToolCallViewer': 'Hanya editor yang bisa melewati bagian ini.',
+  'ide.toolCall.statusSkipped': 'Dilewati',
+  'ide.tests.skip': 'Lewati',
+  'ide.tests.skipping': 'Melewati…',
+  'ide.tests.skippedCount': '{{count}} dilewati',
+  'ide.tests.skippedByUser': 'Proses telah selesai. Tes yang Anda lewati tidak dijalankan.',
+  'ide.tests.viewerCannotSkip': 'Hanya editor yang dapat melewati tes pada proyek ini.',
 }

@@ -636,4 +636,13 @@ export const fi: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Korjaa Synthase-ohjelmalla',
   'ide.tests.fixFailures': '{{count}}-virheiden korjaaminen',
   'ide.tests.fixBusy': 'Odota, että nykyinen vuoro päättyy.',
+  'ide.chat.skipToolCall': 'Ohita',
+  'ide.chat.skippingToolCall': 'Ohitan…',
+  'ide.chat.skipToolCallViewer': 'Vain toimittajat voivat ohittaa tämän.',
+  'ide.toolCall.statusSkipped': 'Ohitettu',
+  'ide.tests.skip': 'Ohita',
+  'ide.tests.skipping': 'Ohitan…',
+  'ide.tests.skippedCount': '{{count}} ohitettu',
+  'ide.tests.skippedByUser': 'Suoritus on päättynyt. Ohittamasi testit eivät suorituneet.',
+  'ide.tests.viewerCannotSkip': 'Vain toimittajat voivat ohittaa tämän projektin testit.',
 }

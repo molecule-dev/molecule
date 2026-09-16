@@ -19,6 +19,13 @@
  * connected the driver waits and then fails saying so, which the card states
  * next to the end-to-end group rather than leaving it a mystery.
  *
+ * A run of end-to-end specs takes minutes, so a running row NAMES the test on
+ * screen — the runner's own group and title, from the stream's `case` events —
+ * with a live per-file tally beside it, and carries a **Skip** that drops the
+ * command the run is on without ending the run. A skipped file's row says
+ * `Skipped` and the summary counts it as skipped; nothing in this card lets
+ * skipped work read as a pass.
+ *
  * This component is PRESENTATIONAL — the list and the in-flight run live in
  * `ChatPanel`, so a run keeps streaming while the overlay is closed and
  * re-opened, and re-running `/test` re-lists without losing it.
@@ -38,18 +45,22 @@ import { getClassMap } from '@molecule/app-ui'
 import type { TestItem, TestKind, TestSelection, TestStatus } from '../types.js'
 import { chatCardStyle } from './chat-card-style.js'
 import type {
+  TestCaseProgress,
   TestFailure,
   TestGroup,
   TestResultEntry,
   TestsRunState,
 } from './tests-card-utilities.js'
 import {
+  canSkipRun,
   countByKind,
+  currentRunRowId,
   failedTests,
   filterTests,
   groupTests,
   isRowRunning,
   summarizeResults,
+  testCaseLabel,
   testRowLabel,
 } from './tests-card-utilities.js'
 
@@ -121,8 +132,14 @@ export interface TestsCardProps {
   canRun: boolean
   /** Runs a selection. */
   onRun: (selection: TestSelection) => void
-  /** Stops the run in flight. */
+  /** Stops the run in flight — the whole run, every remaining file. */
   onCancel: () => void
+  /**
+   * Skips the command the run is on right now, WITHOUT ending it: that file
+   * comes back `Skipped` and the run moves to the next one. Omitted by a host
+   * that does not serve skipping — then no Skip control is rendered.
+   */
+  onSkipCurrent?: () => void
   /**
    * Hands the failing tests to the agent as ONE chat message — a real turn it
    * answers, exactly like the editor’s “Fix with AI”.
@@ -190,6 +207,7 @@ export function TestsCard({
   canRun,
   onRun,
   onCancel,
+  onSkipCurrent,
   onFix,
   fixDisabledReason,
   isLight,
@@ -243,6 +261,15 @@ export function TestsCard({
       : null
   const runnable = canRun && status === 'ready' && !run.running
   const fixable = fixDisabledReason === null
+  // The row the Skip acts on. The control exists only while the run is on an
+  // identifiable row AND the host serves skipping; a viewer still SEES it, with
+  // the reason on it, rather than watching it vanish without explanation.
+  const skipRowId = onSkipCurrent && canSkipRun(run) ? currentRunRowId(run) : null
+  const skipDisabledReason = !canRun
+    ? t('ide.tests.viewerCannotSkip', undefined, {
+        defaultValue: 'Only editors can skip this project’s tests.',
+      })
+    : null
 
   return (
     <div
@@ -303,6 +330,18 @@ export function TestsCard({
                       'ide.tests.failedCount',
                       { count: summary.failed },
                       { defaultValue: '{{count}} failed' },
+                    )}
+                  </span>
+                )}
+                {/* Skipped is its OWN number beside the other two. A file that
+                    was skipped did not pass, and the summary must never let it
+                    be read as one. */}
+                {summary.skipped > 0 && (
+                  <span data-mol-id="tests-card-summary-skipped" className={cm.textMuted}>
+                    {t(
+                      'ide.tests.skippedCount',
+                      { count: summary.skipped },
+                      { defaultValue: '{{count}} skipped' },
                     )}
                   </span>
                 )}
@@ -457,6 +496,10 @@ export function TestsCard({
             onFix={onFix}
             fixable={fixable}
             fixDisabledReason={fixDisabledReason}
+            skipRowId={skipRowId}
+            skipPending={run.skipPending}
+            skipDisabledReason={skipDisabledReason}
+            onSkipCurrent={onSkipCurrent}
           />
         ))}
 
@@ -510,6 +553,16 @@ export function TestsCard({
           {t('ide.tests.cancelled', undefined, { defaultValue: 'Run stopped.' })}
         </div>
       )}
+
+      {/* A run with skipped work in it finished, but it did not all pass — say
+          so plainly, because the rows alone leave it to be inferred. */}
+      {!run.running && run.outcome === 'skipped-by-user' && !run.error && (
+        <div data-mol-id="tests-card-skipped" className={cm.textMuted} style={{ marginTop: 6 }}>
+          {t('ide.tests.skippedByUser', undefined, {
+            defaultValue: 'Run finished. The tests you skipped did not run.',
+          })}
+        </div>
+      )}
     </div>
   )
 }
@@ -538,6 +591,13 @@ interface TestsCardGroupProps {
   onFix: (failures: TestFailure[]) => void
   fixable: boolean
   fixDisabledReason: string | null
+  /** The one row that carries a Skip control, or `null` when none does. */
+  skipRowId: string | null
+  /** A skip has been asked for and the run has not answered yet. */
+  skipPending: boolean
+  /** Why this viewer cannot skip, already translated — `null` when they can. */
+  skipDisabledReason: string | null
+  onSkipCurrent?: () => void
 }
 
 /**
@@ -557,6 +617,10 @@ function TestsCardGroup({
   onFix,
   fixable,
   fixDisabledReason,
+  skipRowId,
+  skipPending,
+  skipDisabledReason,
+  onSkipCurrent,
 }: TestsCardGroupProps): JSX.Element {
   const cm = getClassMap()
   const groupId = `${group.kind}-${group.workspace}`
@@ -603,6 +667,7 @@ function TestsCardGroup({
           item={item}
           result={run.results[item.id]}
           running={isRowRunning(run, item.id)}
+          progress={run.cases[item.id]}
           runnable={runnable}
           disabledReason={disabledReason}
           rowBorder={rowBorder}
@@ -610,6 +675,10 @@ function TestsCardGroup({
           onFix={onFix}
           fixable={fixable}
           fixDisabledReason={fixDisabledReason}
+          skippable={skipRowId === item.id}
+          skipPending={skipPending}
+          skipDisabledReason={skipDisabledReason}
+          onSkipCurrent={onSkipCurrent}
         />
       ))}
     </div>
@@ -621,6 +690,8 @@ interface TestsCardRowProps {
   item: TestItem
   result: TestResultEntry | undefined
   running: boolean
+  /** Live per-test progress while this file runs; `undefined` once it ends. */
+  progress: TestCaseProgress | undefined
   runnable: boolean
   disabledReason: string | null
   rowBorder: string
@@ -628,12 +699,22 @@ interface TestsCardRowProps {
   onFix: (failures: TestFailure[]) => void
   fixable: boolean
   fixDisabledReason: string | null
+  /** This is the row the run is on, so it is the row that carries the Skip. */
+  skippable: boolean
+  skipPending: boolean
+  skipDisabledReason: string | null
+  onSkipCurrent?: () => void
 }
 
 /**
  * One test file: its label, its last status pill, a Run button, and — when it
  * FAILED — the runner's output kept underneath, the same inline output
  * ScriptsCard shows for a script that exited non-zero.
+ *
+ * While the file is RUNNING it also names the test on screen (its group and
+ * title) with a live tally, so a five-minute spec run is something to read
+ * rather than a spinner to sit through; that detail collapses the moment the
+ * file reports its verdict.
  *
  * @param props - See {@link TestsCardRowProps}.
  * @returns The rendered row.
@@ -642,6 +723,7 @@ function TestsCardRow({
   item,
   result,
   running,
+  progress,
   runnable,
   disabledReason,
   rowBorder,
@@ -649,11 +731,17 @@ function TestsCardRow({
   onFix,
   fixable,
   fixDisabledReason,
+  skippable,
+  skipPending,
+  skipDisabledReason,
+  onSkipCurrent,
 }: TestsCardRowProps): JSX.Element {
   const cm = getClassMap()
   // A failure's output starts COLLAPSED too — the row's status pill says what
   // happened; the detail is one click away for whoever wants it.
   const [showFailure, setShowFailure] = useState(false)
+  const caseLabel = testCaseLabel(progress?.current)
+  const caseTally = (progress?.passed ?? 0) + (progress?.failed ?? 0) + (progress?.skipped ?? 0)
   return (
     <div data-mol-id={`tests-card-row-${item.id}`} style={{ padding: '4px 0' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -697,6 +785,24 @@ function TestsCardRow({
             </span>
           )
         )}
+        {/* Skip lives on the row the run is ON — Stop in the header is still
+            "stop everything". Same filled `xs` button as every other action on
+            this card (DESIGN.md → Command cards); nothing new to learn. */}
+        {skippable && (
+          <button
+            type="button"
+            data-mol-id={`tests-card-skip-${item.id}`}
+            onClick={() => onSkipCurrent?.()}
+            disabled={skipDisabledReason !== null || skipPending}
+            title={skipDisabledReason ?? undefined}
+            className={cm.cn(SECONDARY_ACTION(cm))}
+            style={{ flexShrink: 0 }}
+          >
+            {skipPending
+              ? t('ide.tests.skipping', undefined, { defaultValue: 'Skipping…' })
+              : t('ide.tests.skip', undefined, { defaultValue: 'Skip' })}
+          </button>
+        )}
         <button
           type="button"
           data-mol-id={`tests-card-run-${item.id}`}
@@ -709,6 +815,73 @@ function TestsCardRow({
           {t('ide.tests.run', undefined, { defaultValue: 'Run' })}
         </button>
       </div>
+      {/* What is on screen RIGHT NOW: the runner's own test title (and its
+          group), plus how this file's tests have gone so far. Muted, at the
+          card's own `xs` scale, wrapping rather than overflowing at 390px. */}
+      {running && (caseLabel !== '' || caseTally > 0) && (
+        <div
+          data-mol-id={`tests-card-case-${item.id}`}
+          className={cm.textMuted}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            flexWrap: 'wrap',
+            minWidth: 0,
+            lineHeight: 1.4,
+          }}
+        >
+          {caseLabel !== '' && (
+            <span
+              data-mol-id={`tests-card-case-title-${item.id}`}
+              title={caseLabel}
+              style={{
+                flex: '1 1 140px',
+                minWidth: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {caseLabel}
+            </span>
+          )}
+          {caseTally > 0 && (
+            <span
+              data-mol-id={`tests-card-case-tally-${item.id}`}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
+            >
+              {(progress?.passed ?? 0) > 0 && (
+                <span className={cm.textSuccess}>
+                  {t(
+                    'ide.tests.passedCount',
+                    { count: progress?.passed ?? 0 },
+                    { defaultValue: '{{count}} passed' },
+                  )}
+                </span>
+              )}
+              {(progress?.failed ?? 0) > 0 && (
+                <span className={cm.textError}>
+                  {t(
+                    'ide.tests.failedCount',
+                    { count: progress?.failed ?? 0 },
+                    { defaultValue: '{{count}} failed' },
+                  )}
+                </span>
+              )}
+              {(progress?.skipped ?? 0) > 0 && (
+                <span>
+                  {t(
+                    'ide.tests.skippedCount',
+                    { count: progress?.skipped ?? 0 },
+                    { defaultValue: '{{count}} skipped' },
+                  )}
+                </span>
+              )}
+            </span>
+          )}
+        </div>
+      )}
       {result?.status === 'failed' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           {result.output && (

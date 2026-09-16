@@ -640,4 +640,14 @@ export const bg: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Поправка с Synthase',
   'ide.tests.fixFailures': 'Отстраняване на грешките при „{{count}}“',
   'ide.tests.fixBusy': 'Изчакайте да приключи текущият ход.',
+  'ide.chat.skipToolCall': 'Пропусни',
+  'ide.chat.skippingToolCall': 'Пропускам…',
+  'ide.chat.skipToolCallViewer': 'Само редакторите могат да пропуснат това.',
+  'ide.toolCall.statusSkipped': 'Пропуснато',
+  'ide.tests.skip': 'Пропусни',
+  'ide.tests.skipping': 'Пропускам…',
+  'ide.tests.skippedCount': '{{count}} пропуснат',
+  'ide.tests.skippedByUser':
+    'Изпълнението приключи. Тестовете, които сте пропуснали, не са били изпълнени.',
+  'ide.tests.viewerCannotSkip': 'Само редакторите могат да пропуснат тестовете за този проект.',
 }

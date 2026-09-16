@@ -628,4 +628,13 @@ export const ms: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Betulkan dengan Sintase',
   'ide.tests.fixFailures': 'Betulkan {{count}} kegagalan',
   'ide.tests.fixBusy': 'Tunggu giliran semasa tamat.',
+  'ide.chat.skipToolCall': 'Langkau',
+  'ide.chat.skippingToolCall': 'Melangkau…',
+  'ide.chat.skipToolCallViewer': 'Hanya editor sahaja yang boleh melangkau ini.',
+  'ide.toolCall.statusSkipped': 'Dilangkau',
+  'ide.tests.skip': 'Langkau',
+  'ide.tests.skipping': 'Melangkau…',
+  'ide.tests.skippedCount': '{{count}} dilangkau',
+  'ide.tests.skippedByUser': 'Jalankan selesai. Ujian yang anda langkau tidak berjalan.',
+  'ide.tests.viewerCannotSkip': 'Hanya editor sahaja yang boleh melangkau ujian projek ini.',
 }

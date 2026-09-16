@@ -638,4 +638,13 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Ištaisyti naudojant „Synthase“',
   'ide.tests.fixFailures': 'Išspręsti „{{count}}“ veikimo sutrikimus',
   'ide.tests.fixBusy': 'Palauk, kol baigsis dabartinis ėjimas.',
+  'ide.chat.skipToolCall': 'Praleisti',
+  'ide.chat.skippingToolCall': 'Praleidžiama…',
+  'ide.chat.skipToolCallViewer': 'Tai praleisti gali tik redaktoriai.',
+  'ide.toolCall.statusSkipped': 'Praleista',
+  'ide.tests.skip': 'Praleisti',
+  'ide.tests.skipping': 'Pereinu prie…',
+  'ide.tests.skippedCount': '{{count}} praleista',
+  'ide.tests.skippedByUser': 'Vykdymas baigtas. Testai, kuriuos praleidote, nebuvo atlikti.',
+  'ide.tests.viewerCannotSkip': 'Tik redaktoriai gali praleisti šio projekto testus.',
 }

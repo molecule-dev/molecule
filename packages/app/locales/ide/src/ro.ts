@@ -637,4 +637,13 @@ export const ro: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Remediere cu Synthase',
   'ide.tests.fixFailures': 'Remedierea erorilor de tip „{{count}}”',
   'ide.tests.fixBusy': 'Așteaptă să se încheie runda curentă.',
+  'ide.chat.skipToolCall': 'Sari peste',
+  'ide.chat.skippingToolCall': 'Sari peste…',
+  'ide.chat.skipToolCallViewer': 'Doar editorii pot sări peste această secțiune.',
+  'ide.toolCall.statusSkipped': 'Omis',
+  'ide.tests.skip': 'Sari peste',
+  'ide.tests.skipping': 'Sari peste…',
+  'ide.tests.skippedCount': '{{count}} omise',
+  'ide.tests.skippedByUser': 'Execuția s-a încheiat. Testele pe care le-ai omis nu au fost rulate.',
+  'ide.tests.viewerCannotSkip': 'Doar editorii pot sări peste testele acestui proiect.',
 }

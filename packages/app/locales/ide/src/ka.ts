@@ -627,4 +627,13 @@ export const ka: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'სინთაზათი დაფიქსირება',
   'ide.tests.fixFailures': 'შეკეთება {{count}} წარუმატებლობები',
   'ide.tests.fixBusy': 'დაელოდეთ მიმდინარე ბრუნვის დასრულებას.',
+  'ide.chat.skipToolCall': 'გამოტოვება',
+  'ide.chat.skippingToolCall': 'გამოტოვება…',
+  'ide.chat.skipToolCallViewer': 'მხოლოდ რედაქტორებს შეუძლიათ ამის გამოტოვება.',
+  'ide.toolCall.statusSkipped': 'გამოტოვებულია',
+  'ide.tests.skip': 'გამოტოვება',
+  'ide.tests.skipping': 'გამოტოვება…',
+  'ide.tests.skippedCount': '{{count}} გამოტოვებული',
+  'ide.tests.skippedByUser': 'გაშვება დასრულდა. გამოტოვებული ტესტები არ შესრულდა.',
+  'ide.tests.viewerCannotSkip': 'ამ პროექტის ტესტების გამოტოვება მხოლოდ რედაქტორებს შეუძლიათ.',
 }

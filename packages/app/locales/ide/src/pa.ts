@@ -624,4 +624,13 @@ export const pa: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'ਸਿੰਥੇਸ ਨਾਲ ਠੀਕ ਕਰੋ',
   'ide.tests.fixFailures': 'ਠੀਕ ਕਰੋ {{count}} ਅਸਫਲਤਾਵਾਂ',
   'ide.tests.fixBusy': 'ਮੌਜੂਦਾ ਵਾਰੀ ਦੇ ਖਤਮ ਹੋਣ ਦੀ ਉਡੀਕ ਕਰੋ।',
+  'ide.chat.skipToolCall': 'ਛੱਡੋ',
+  'ide.chat.skippingToolCall': 'ਛੱਡਿਆ ਜਾ ਰਿਹਾ ਹੈ…',
+  'ide.chat.skipToolCallViewer': 'ਸਿਰਫ਼ ਸੰਪਾਦਕ ਹੀ ਇਸਨੂੰ ਛੱਡ ਸਕਦੇ ਹਨ।',
+  'ide.toolCall.statusSkipped': 'ਛੱਡਿਆ ਗਿਆ',
+  'ide.tests.skip': 'ਛੱਡੋ',
+  'ide.tests.skipping': 'ਛੱਡਿਆ ਜਾ ਰਿਹਾ ਹੈ…',
+  'ide.tests.skippedCount': '{{count}} ਛੱਡਿਆ ਗਿਆ',
+  'ide.tests.skippedByUser': 'ਦੌੜ ਪੂਰੀ ਹੋ ਗਈ। ਤੁਹਾਡੇ ਵੱਲੋਂ ਛੱਡੇ ਗਏ ਟੈਸਟ ਨਹੀਂ ਚੱਲੇ।',
+  'ide.tests.viewerCannotSkip': 'ਸਿਰਫ਼ ਸੰਪਾਦਕ ਹੀ ਇਸ ਪ੍ਰੋਜੈਕਟ ਦੇ ਟੈਸਟਾਂ ਨੂੰ ਛੱਡ ਸਕਦੇ ਹਨ।',
 }

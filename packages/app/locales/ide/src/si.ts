@@ -626,4 +626,13 @@ export const si: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'සින්තේස් සමඟ නිවැරදි කරන්න',
   'ide.tests.fixFailures': 'නිවැරදි කරන්න {{count}} අසාර්ථකත්වයන්',
   'ide.tests.fixBusy': 'වත්මන් වාරය අවසන් වන තෙක් රැඳී සිටින්න.',
+  'ide.chat.skipToolCall': 'මඟ හරින්න',
+  'ide.chat.skippingToolCall': 'මඟ හරිමින්...',
+  'ide.chat.skipToolCallViewer': 'මෙය මඟ හැරිය හැක්කේ සංස්කාරකවරුන්ට පමණි.',
+  'ide.toolCall.statusSkipped': 'මඟ හැරුණි',
+  'ide.tests.skip': 'මඟ හරින්න',
+  'ide.tests.skipping': 'මඟ හරිමින්...',
+  'ide.tests.skippedCount': '{{count}} මඟ හැරුණා',
+  'ide.tests.skippedByUser': 'ධාවනය අවසන්. ඔබ මඟ හැරිය පරීක්ෂණ ක්‍රියාත්මක නොවීය.',
+  'ide.tests.viewerCannotSkip': 'මෙම ව්‍යාපෘතියේ පරීක්ෂණ මඟ හැරිය හැක්කේ සංස්කාරකවරුන්ට පමණි.',
 }

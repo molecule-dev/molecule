@@ -5,6 +5,12 @@
  * one-line result summary. Expands on click to reveal formatted IN / OUT
  * sections: diffs for file edits, terminal output for commands, etc.
  *
+ * A call that is still RUNNING carries a **Skip** (when the host serves one):
+ * it drops that one tool call without ending the turn, so a person does not
+ * have to sit through a command they already know they do not want. The result
+ * comes back as `skipped_by_user`, and this card renders it as **Skipped** with
+ * a gray dot — never as a success, never as a failure.
+ *
  * @module
  */
 
@@ -23,6 +29,7 @@ import {
   basename,
   extractFilePath,
   fileDiffStats,
+  isSkippedByUser,
   moleculeDocPath,
   normalizeAskUserInput,
   num,
@@ -653,6 +660,8 @@ export const ToolCallCard = memo(function ToolCallCard({
   onFileDiff,
   onFileRevert,
   onAskUserResponse,
+  onSkip,
+  skipDisabledReason,
   className,
 }: ToolCallCardProps): JSX.Element | null {
   const cm = getClassMap()
@@ -668,8 +677,15 @@ export const ToolCallCard = memo(function ToolCallCard({
   const [isUndoneLocal, setIsUndoneLocal] = useState(false)
   const isUndone = isUndoneProp ?? isUndoneLocal
   const [isReverting, setIsReverting] = useState(false)
+  const [skipRequested, setSkipRequested] = useState(false)
+
+  // The person skipped this call. It is neither a success nor a failure, and
+  // the row has to say so — a green dot on a command that never ran is exactly
+  // the kind of quiet lie the honesty rule exists to stop.
+  const wasSkipped = isSkippedByUser(output)
 
   const hasError = (() => {
+    if (wasSkipped) return false
     if (status === 'error') return true
     if (typeof output !== 'object' || output === null) return false
     const out = output as Record<string, unknown>
@@ -685,9 +701,10 @@ export const ToolCallCard = memo(function ToolCallCard({
     return false
   })()
 
-  // gray → orange → green or red
+  // gray → orange → green or red; a skipped call stays gray, because it did
+  // not happen.
   const dotColor =
-    status === 'pending'
+    status === 'pending' || wasSkipped
       ? '#888888'
       : status === 'running'
         ? '#e8a000'
@@ -742,6 +759,25 @@ export const ToolCallCard = memo(function ToolCallCard({
     },
     [canRevert, isReverting, isUndone, fileDiff, filePath, onFileRevert, onUndoToggle, id],
   )
+
+  // Skip this call while it is still running — the turn keeps going, the model
+  // is told the command did not run. A host that answers `false` means the call
+  // had already finished (the stale-button race), which is not an error: the
+  // button simply returns to its resting state.
+  const canSkip = status === 'running' && onSkip != null
+  const handleSkip = useCallback(async (): Promise<void> => {
+    if (!onSkip || skipRequested || skipDisabledReason) return
+    setSkipRequested(true)
+    try {
+      const accepted = await onSkip(id)
+      if (accepted === false) setSkipRequested(false)
+    } catch (_error) {
+      // Deliberate noop: the host already logs whatever went wrong on its side,
+      // and there is nothing for the PERSON to do here — the call is still
+      // running, so the honest UI is the button back at rest to try again.
+      setSkipRequested(false)
+    }
+  }, [onSkip, skipRequested, skipDisabledReason, id])
 
   // Tools that expand to show details inline.
   const EXPANDABLE = new Set([
@@ -1139,202 +1175,231 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   return (
     <div className={className} style={{ marginBottom: '4px' }}>
-      <button
-        type="button"
-        onClick={handleClick}
-        onDoubleClick={
-          isNewFile && filePath && onFileDoubleClick
-            ? () => {
-                onFileDoubleClick(filePath)
-              }
-            : undefined
-        }
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        style={{
-          display: 'flex',
-          // Coarse: the undo icon's 32px touch box inflates the label row, so
-          // top-alignment would leave the diff stats/chevron riding high —
-          // center everything instead. Desktop keeps flex-start + px nudges.
-          alignItems: isCoarse ? 'center' : 'flex-start',
-          gap: '6px',
-          background: 'none',
-          border: 'none',
-          cursor: handleClick ? 'pointer' : 'default',
-          color: 'inherit',
-          textAlign: 'left',
-          padding: '2px 0',
-          // Touch: ~20px rows are untappable — 32px is the dense-row floor.
-          ...(isCoarse ? { minHeight: 32 } : {}),
-          width: '100%',
-        }}
-      >
-        {/* Label + undo icon + one-line summary */}
-        <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            {/* Colored status dot — inside the flex row so it auto-centers with the label */}
-            <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
-              <circle cx="5" cy="5" r="3" fill={dotColor} opacity="0.35" />
-              <circle cx="5" cy="5" r="3" fill="none" stroke={dotColor} strokeWidth="2" />
-            </svg>
+      {/* The row and its Skip are SIBLINGS: the row itself is a <button>, and a
+          real button nested inside one is invalid HTML (which is why the undo
+          control above has to be a role="button" span). Skip is an action the
+          person clicks, so it gets to be a genuine button. */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+        <button
+          type="button"
+          onClick={handleClick}
+          onDoubleClick={
+            isNewFile && filePath && onFileDoubleClick
+              ? () => {
+                  onFileDoubleClick(filePath)
+                }
+              : undefined
+          }
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          style={{
+            display: 'flex',
+            // Coarse: the undo icon's 32px touch box inflates the label row, so
+            // top-alignment would leave the diff stats/chevron riding high —
+            // center everything instead. Desktop keeps flex-start + px nudges.
+            alignItems: isCoarse ? 'center' : 'flex-start',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            cursor: handleClick ? 'pointer' : 'default',
+            color: 'inherit',
+            textAlign: 'left',
+            padding: '2px 0',
+            // Touch: ~20px rows are untappable — 32px is the dense-row floor.
+            ...(isCoarse ? { minHeight: 32 } : {}),
+            width: '100%',
+            // The row shares its line with the Skip button: without this it
+            // keeps its intrinsic min-width and pushes the Skip off a 390px
+            // screen instead of letting the label ellipsise.
+            minWidth: 0,
+          }}
+        >
+          {/* Label + undo icon + one-line summary */}
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {/* Colored status dot — inside the flex row so it auto-centers with the label */}
+              <svg width="10" height="10" viewBox="0 0 10 10" style={{ flexShrink: 0 }}>
+                <circle cx="5" cy="5" r="3" fill={dotColor} opacity="0.35" />
+                <circle cx="5" cy="5" r="3" fill="none" stroke={dotColor} strokeWidth="2" />
+              </svg>
+              <span
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}
+              </span>
+              {/* One-line status ("Running…"/"Done"/error count), on the SAME row as the
+                label and pushed to the right edge by the label's flex:1. */}
+              {summary && (
+                <span
+                  className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                  style={{ flexShrink: 0, marginLeft: '8px', whiteSpace: 'nowrap' }}
+                >
+                  {summary}
+                </span>
+              )}
+              {canRevert && status !== 'running' && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  title={
+                    isUndone
+                      ? t('ide.chat.redoChange', undefined, {
+                          defaultValue: 'Re-apply this change',
+                        })
+                      : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })
+                  }
+                  onClick={handleRevert}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleRevert(e as unknown as React.MouseEvent)
+                    }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                    e.currentTarget.style.opacity = '1'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.opacity = ''
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    // Touch: hover can't reveal it, so it rests visible at 0.6 and
+                    // gets a 32px hit box (the floor for these dense inline rows).
+                    width: isCoarse ? 32 : 20,
+                    height: isCoarse ? 32 : 20,
+                    borderRadius: 4,
+                    flexShrink: 0,
+                    // Nudge up 1px: the 13px glyph sat slightly below the text's
+                    // optical center of the compact 20px box (moot at 32px).
+                    position: 'relative',
+                    top: isCoarse ? 0 : '-1px',
+                    cursor: isReverting ? 'wait' : 'pointer',
+                    opacity: isReverting ? 0.3 : isHovered || isCoarse ? 0.6 : 0,
+                    transition: 'opacity 100ms, background 100ms',
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    width="13"
+                    height="13"
+                    fill="currentColor"
+                  >
+                    {isUndone ? (
+                      <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
+                    ) : (
+                      <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
+                    )}
+                  </svg>
+                </span>
+              )}
+            </span>
+          </span>
+
+          {/* Line diff stats for file-changing tools */}
+          {diffStats && (
             <span
               style={{
-                flex: 1,
-                minWidth: 0,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                display: 'flex',
+                gap: '4px',
+                flexShrink: 0,
+                marginTop: isCoarse ? 0 : '2px',
+                fontSize: '11px',
+                fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                opacity: isHovered ? 1 : 0.6,
+                transition: 'opacity 100ms',
               }}
             >
-              {renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}
-            </span>
-            {/* One-line status ("Running…"/"Done"/error count), on the SAME row as the
-                label and pushed to the right edge by the label's flex:1. */}
-            {summary && (
-              <span
-                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-                style={{ flexShrink: 0, marginLeft: '8px', whiteSpace: 'nowrap' }}
-              >
-                {summary}
-              </span>
-            )}
-            {canRevert && status !== 'running' && (
-              <span
-                role="button"
-                tabIndex={0}
-                title={
-                  isUndone
-                    ? t('ide.chat.redoChange', undefined, { defaultValue: 'Re-apply this change' })
-                    : t('ide.chat.undoChange', undefined, { defaultValue: 'Undo this change' })
-                }
-                onClick={handleRevert}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    handleRevert(e as unknown as React.MouseEvent)
-                  }
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                  e.currentTarget.style.opacity = '1'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.opacity = ''
-                }}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  // Touch: hover can't reveal it, so it rests visible at 0.6 and
-                  // gets a 32px hit box (the floor for these dense inline rows).
-                  width: isCoarse ? 32 : 20,
-                  height: isCoarse ? 32 : 20,
-                  borderRadius: 4,
-                  flexShrink: 0,
-                  // Nudge up 1px: the 13px glyph sat slightly below the text's
-                  // optical center of the compact 20px box (moot at 32px).
-                  position: 'relative',
-                  top: isCoarse ? 0 : '-1px',
-                  cursor: isReverting ? 'wait' : 'pointer',
-                  opacity: isReverting ? 0.3 : isHovered || isCoarse ? 0.6 : 0,
-                  transition: 'opacity 100ms, background 100ms',
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  width="13"
-                  height="13"
-                  fill="currentColor"
+              {diffStats.added > 0 && (
+                <span
+                  style={{
+                    color: isUndone
+                      ? isLight
+                        ? '#cf222e'
+                        : '#f47067'
+                      : isLight
+                        ? '#1a7f37'
+                        : '#57ab5a',
+                    textDecoration: isUndone ? 'line-through' : undefined,
+                  }}
                 >
-                  {isUndone ? (
-                    <path d="M14.78 6.28a.749.749 0 0 0 0-1.06l-3.5-3.5a.749.749 0 1 0-1.06 1.06L12.439 5H5.251l-.001.007L5.251 5a.8.8 0 0 0-.171.019A4.501 4.501 0 0 0 5.5 14h1.704a.75.75 0 0 0 0-1.5H5.5a3 3 0 1 1 0-6h6.939L10.22 8.72a.749.749 0 1 0 1.06 1.06l3.5-3.5Z" />
-                  ) : (
-                    <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
-                  )}
-                </svg>
-              </span>
-            )}
-          </span>
-        </span>
+                  +{diffStats.added}
+                </span>
+              )}
+              {diffStats.removed > 0 && (
+                <span
+                  style={{
+                    color: isUndone
+                      ? isLight
+                        ? '#1a7f37'
+                        : '#57ab5a'
+                      : isLight
+                        ? '#cf222e'
+                        : '#f47067',
+                    textDecoration: isUndone ? 'line-through' : undefined,
+                  }}
+                >
+                  -{diffStats.removed}
+                </span>
+              )}
+            </span>
+          )}
 
-        {/* Line diff stats for file-changing tools */}
-        {diffStats && (
-          <span
-            style={{
-              display: 'flex',
-              gap: '4px',
-              flexShrink: 0,
-              marginTop: isCoarse ? 0 : '2px',
-              fontSize: '11px',
-              fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-              opacity: isHovered ? 1 : 0.6,
-              transition: 'opacity 100ms',
+          {/* Expand / open chevron */}
+          {(hasDetails || isFileDiff || isDocOpen || (isNewFile && filePath && onFileOpen)) && (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              width="14"
+              height="14"
+              style={{
+                display: 'block',
+                flexShrink: 0,
+                marginTop: isCoarse ? 0 : '3px',
+                transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                transition: 'transform 150ms, opacity 100ms',
+                opacity: isHovered ? 0.85 : 0.35,
+              }}
+            >
+              <polyline
+                points="6,4 10,8 6,12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </button>
+        {canSkip && (
+          <button
+            type="button"
+            data-mol-id={`tool-call-skip-${id}`}
+            onClick={() => {
+              void handleSkip()
             }}
+            disabled={skipRequested || skipDisabledReason != null}
+            title={skipDisabledReason ?? undefined}
+            className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+            style={{ flexShrink: 0 }}
           >
-            {diffStats.added > 0 && (
-              <span
-                style={{
-                  color: isUndone
-                    ? isLight
-                      ? '#cf222e'
-                      : '#f47067'
-                    : isLight
-                      ? '#1a7f37'
-                      : '#57ab5a',
-                  textDecoration: isUndone ? 'line-through' : undefined,
-                }}
-              >
-                +{diffStats.added}
-              </span>
-            )}
-            {diffStats.removed > 0 && (
-              <span
-                style={{
-                  color: isUndone
-                    ? isLight
-                      ? '#1a7f37'
-                      : '#57ab5a'
-                    : isLight
-                      ? '#cf222e'
-                      : '#f47067',
-                  textDecoration: isUndone ? 'line-through' : undefined,
-                }}
-              >
-                -{diffStats.removed}
-              </span>
-            )}
-          </span>
+            {skipRequested
+              ? t('ide.chat.skippingToolCall', undefined, { defaultValue: 'Skipping…' })
+              : t('ide.chat.skipToolCall', undefined, { defaultValue: 'Skip' })}
+          </button>
         )}
-
-        {/* Expand / open chevron */}
-        {(hasDetails || isFileDiff || isDocOpen || (isNewFile && filePath && onFileOpen)) && (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            width="14"
-            height="14"
-            style={{
-              display: 'block',
-              flexShrink: 0,
-              marginTop: isCoarse ? 0 : '3px',
-              transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 150ms, opacity 100ms',
-              opacity: isHovered ? 0.85 : 0.35,
-            }}
-          >
-            <polyline
-              points="6,4 10,8 6,12"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
-      </button>
+      </div>
 
       {/* Expanded detail */}
       {expanded && hasDetails && (

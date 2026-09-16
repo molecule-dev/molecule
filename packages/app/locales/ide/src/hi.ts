@@ -623,4 +623,13 @@ export const hi: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'सिंथेस से ठीक करें',
   'ide.tests.fixFailures': 'हल करना {{count}} विफलताएं',
   'ide.tests.fixBusy': 'वर्तमान बारी के समाप्त होने की प्रतीक्षा करें।',
+  'ide.chat.skipToolCall': 'छोडना',
+  'ide.chat.skippingToolCall': 'रस्सी कूदना…',
+  'ide.chat.skipToolCallViewer': 'इसे केवल संपादक ही छोड़ सकते हैं।',
+  'ide.toolCall.statusSkipped': 'छोड़ा गया',
+  'ide.tests.skip': 'छोडना',
+  'ide.tests.skipping': 'रस्सी कूदना…',
+  'ide.tests.skippedCount': '{{count}} को छोड़ दिया',
+  'ide.tests.skippedByUser': 'रन पूरा हो गया। आपके द्वारा छोड़े गए टेस्ट नहीं चले।',
+  'ide.tests.viewerCannotSkip': 'इस प्रोजेक्ट के टेस्ट को केवल संपादक ही छोड़ सकते हैं।',
 }

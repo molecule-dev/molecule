@@ -635,4 +635,13 @@ export const tr: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Synthase ile düzeltme',
   'ide.tests.fixFailures': "{{count}}'daki hataları düzelt",
   'ide.tests.fixBusy': 'Mevcut turun bitmesini bekleyin.',
+  'ide.chat.skipToolCall': 'Atla',
+  'ide.chat.skippingToolCall': 'Atlama…',
+  'ide.chat.skipToolCallViewer': 'Yalnızca editörler bu adımı atlayabilir.',
+  'ide.toolCall.statusSkipped': 'Atlandı',
+  'ide.tests.skip': 'Atla',
+  'ide.tests.skipping': 'Atlama…',
+  'ide.tests.skippedCount': '{{count}} atlandı',
+  'ide.tests.skippedByUser': 'Çalıştırma tamamlandı. Atladığınız testler çalıştırılmadı.',
+  'ide.tests.viewerCannotSkip': 'Yalnızca editörler bu projenin testlerini atlayabilir.',
 }

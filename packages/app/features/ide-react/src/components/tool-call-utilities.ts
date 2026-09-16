@@ -214,6 +214,23 @@ export function toolLabel(name: string, input: unknown): string {
 }
 
 /**
+ * Whether a tool result says the PERSON skipped this call.
+ *
+ * It is the honest third outcome, and it has to be recognisable on sight:
+ * a skipped call did not fail (nothing went wrong) and it did not succeed
+ * (the work never happened). Reading it as either one is the lie this
+ * predicate exists to prevent — so the summary word, the status dot, and the
+ * card's error handling all ask here rather than each deciding for themselves.
+ *
+ * @param output - The raw tool output payload.
+ * @returns True when the call was skipped by the user.
+ */
+export function isSkippedByUser(output: unknown): boolean {
+  if (typeof output !== 'object' || output === null) return false
+  return (output as { status?: unknown }).status === 'skipped_by_user'
+}
+
+/**
  * One-line result summary shown beneath the label.
  * @param name - The tool name.
  * @param output - The raw tool output payload.
@@ -224,6 +241,11 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
   if (status === 'pending') return ''
   if (status === 'running')
     return t('ide.toolCall.statusRunning', undefined, { defaultValue: 'Running' })
+  // Checked BEFORE every per-tool branch: a skipped `exec_command` carries no
+  // exit code and a skipped `write_file` no diff, so the branches below would
+  // fall through to the empty summary that means "it worked".
+  if (isSkippedByUser(output))
+    return t('ide.toolCall.statusSkipped', undefined, { defaultValue: 'Skipped' })
 
   const out = output as Inp | undefined
   const hasError = typeof out === 'object' && out !== null && 'error' in out

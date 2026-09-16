@@ -636,4 +636,14 @@ export const pt: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Correção com Synthase',
   'ide.tests.fixFailures': 'Corrigir falhas no `{{count}}`',
   'ide.tests.fixBusy': 'Aguarde até que o turno atual termine.',
+  'ide.chat.skipToolCall': 'Pular',
+  'ide.chat.skippingToolCall': 'Pular…',
+  'ide.chat.skipToolCallViewer': 'Somente editores podem pular esta parte.',
+  'ide.toolCall.statusSkipped': 'Ignorado',
+  'ide.tests.skip': 'Pular',
+  'ide.tests.skipping': 'Pular…',
+  'ide.tests.skippedCount': '{{count}} pulado',
+  'ide.tests.skippedByUser':
+    'A execução foi concluída. Os testes que você ignorou não foram executados.',
+  'ide.tests.viewerCannotSkip': 'Somente editores podem pular os testes deste projeto.',
 }

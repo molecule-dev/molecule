@@ -134,17 +134,43 @@ export interface TestSelection {
 /** How one test file ended. */
 export type TestStatus = 'passed' | 'failed' | 'skipped'
 
-/** How a whole run ended. */
-export type TestRunOutcome = 'completed' | 'cancelled' | 'timeout' | 'error'
+/**
+ * How one TEST inside a file is doing: the three verdicts a file can end with,
+ * plus `running` — the state a file never reports, because a file is only ever
+ * seen finished.
+ */
+export type TestCaseStatus = TestStatus | 'running'
+
+/**
+ * How a whole run ended. `skipped-by-user` is a run that otherwise finished but
+ * had at least one command skipped from the card — deliberately its OWN outcome
+ * rather than `completed` plus a count, so nothing can read a run with skipped
+ * work in it as a clean pass. A real failure still wins: `error`, `timeout` and
+ * `cancelled` take precedence over it.
+ */
+export type TestRunOutcome = 'completed' | 'cancelled' | 'timeout' | 'error' | 'skipped-by-user'
 
 /**
  * One event from a run in progress. The host streams these to the bar (over SSE
  * in molecule.dev) in the order the run produces them: one `start`, then
- * interleaved `output`/`result`, then exactly one `done`.
+ * interleaved `output`/`case`/`result`, then exactly one `done`.
  */
 export type TestRunEvent =
   | { type: 'start'; runId: string; ids: string[]; startedAt?: string }
   | { type: 'output'; id?: string; stream?: 'stdout' | 'stderr'; chunk: string }
+  /**
+   * One TEST within a file — the runner's own title and group, so the person
+   * watching a five-minute spec run sees WHICH test is on screen instead of a
+   * spinner. `id` is the same file id `result` uses.
+   */
+  | {
+      type: 'case'
+      id: string
+      title: string
+      describe?: string
+      status: TestCaseStatus
+      durationMs?: number
+    }
   | {
       type: 'result'
       id: string
@@ -171,6 +197,16 @@ export type TestRunEvent =
 export interface TestRunHandle {
   /** Stop the run — the host aborts its stream, which cancels the work. */
   cancel(): void
+  /**
+   * Skip the command the run is on right now WITHOUT ending the run: the files
+   * that command owned come back as `result`s with `status: 'skipped'`, and the
+   * run moves to the next command.
+   *
+   * Optional, because a host may not serve it. Resolving `false` means there
+   * was nothing to skip (the run had already moved on) — a benign race the card
+   * answers by dropping the control, never by showing an error.
+   */
+  skipCurrent?(): void | Promise<boolean | void>
 }
 
 /**
@@ -543,6 +579,13 @@ export interface ChatPanelProps {
    * browser or letting a Run click fail. Defaults to `true`.
    */
   testsAvailable?: boolean
+  /**
+   * Skip the executor's tool call that is running right now, without ending the
+   * turn — the call comes back marked as skipped and the turn carries on. The
+   * host owns the request; omitting this renders no Skip control on tool calls.
+   * Resolving `false` means nothing was in flight, which is a benign race.
+   */
+  skipToolCall?: (toolCallId: string) => void | Promise<boolean | void>
   className?: string
 }
 
@@ -863,6 +906,21 @@ export interface ToolCallCardProps {
   onFileRevert?: (path: string, content: string) => Promise<void>
   /** Called when the user responds to an `ask_user` tool call (clicks an option or submits free text). */
   onAskUserResponse?: (response: string) => void
+  /**
+   * Skip this tool call while it is RUNNING, without ending the turn: the call
+   * comes back as skipped, the model is told it did not run, and the turn
+   * carries on. Omitted by a host that does not serve it — then no control is
+   * rendered at all. Resolving `false` means nothing was in flight (the call
+   * had already finished), which returns the button to its resting state rather
+   * than reporting an error.
+   */
+  onSkip?: (id: string) => void | Promise<boolean | void>
+  /**
+   * Why skipping is unavailable to THIS viewer, already translated by the host
+   * — `null` when it is available. The control stays visible and disabled with
+   * the reason on it, rather than vanishing without explanation.
+   */
+  skipDisabledReason?: string | null
   className?: string
 }
 

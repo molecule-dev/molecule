@@ -623,4 +623,13 @@ export const ur: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Synthase کے ساتھ درست کریں۔',
   'ide.tests.fixFailures': 'درست کریں۔ {{count}} ناکامیاں',
   'ide.tests.fixBusy': 'موجودہ موڑ کے ختم ہونے کا انتظار کریں۔',
+  'ide.chat.skipToolCall': 'چھوڑیں۔',
+  'ide.chat.skippingToolCall': 'نظر انداز کیا جا رہا ہے…',
+  'ide.chat.skipToolCallViewer': 'صرف ایڈیٹرز ہی اسے چھوڑ سکتے ہیں۔',
+  'ide.toolCall.statusSkipped': 'چھوڑ دیا',
+  'ide.tests.skip': 'چھوڑیں۔',
+  'ide.tests.skipping': 'نظر انداز کیا جا رہا ہے…',
+  'ide.tests.skippedCount': '{{count}} چھوڑ دیا',
+  'ide.tests.skippedByUser': 'رن ختم۔ آپ نے جو ٹیسٹ چھوڑے وہ نہیں چلے۔',
+  'ide.tests.viewerCannotSkip': 'صرف ایڈیٹرز ہی اس پروجیکٹ کے ٹیسٹ کو چھوڑ سکتے ہیں۔',
 }

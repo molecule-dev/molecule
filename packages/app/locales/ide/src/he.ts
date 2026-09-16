@@ -619,4 +619,13 @@ export const he: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'תקן עם סינתזה',
   'ide.tests.fixFailures': 'לִקְבּוֹעַ {{count}} כישלונות',
   'ide.tests.fixBusy': 'המתן עד לסיום הסיבוב הנוכחי.',
+  'ide.chat.skipToolCall': 'לְדַלֵג',
+  'ide.chat.skippingToolCall': 'מדלג...',
+  'ide.chat.skipToolCallViewer': 'רק עורכים יכולים לדלג על זה.',
+  'ide.toolCall.statusSkipped': 'דילג',
+  'ide.tests.skip': 'לְדַלֵג',
+  'ide.tests.skipping': 'מדלג...',
+  'ide.tests.skippedCount': '{{count}} דילג',
+  'ide.tests.skippedByUser': 'ההפעלה הסתיימה. הבדיקות שדילגת עליהן לא בוצעו.',
+  'ide.tests.viewerCannotSkip': 'רק עורכים יכולים לדלג על הבדיקות של פרויקט זה.',
 }

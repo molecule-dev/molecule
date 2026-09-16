@@ -645,4 +645,15 @@ export const el: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Διόρθωση με Synthase',
   'ide.tests.fixFailures': 'Επιδιόρθωση σφαλμάτων του «{{count}}»',
   'ide.tests.fixBusy': 'Περίμενε να τελειώσει η τρέχουσα σειρά.',
+  'ide.chat.skipToolCall': 'Παράλειψη',
+  'ide.chat.skippingToolCall': 'Παράλειψη…',
+  'ide.chat.skipToolCallViewer': 'Μόνο οι συντάκτες μπορούν να παραλείψουν αυτό το βήμα.',
+  'ide.toolCall.statusSkipped': 'Παράλειψη',
+  'ide.tests.skip': 'Παράλειψη',
+  'ide.tests.skipping': 'Παράλειψη…',
+  'ide.tests.skippedCount': '{{count}} παραλείφθηκε',
+  'ide.tests.skippedByUser':
+    'Η εκτέλεση ολοκληρώθηκε. Οι δοκιμές που παραλείψατε δεν εκτελέστηκαν.',
+  'ide.tests.viewerCannotSkip':
+    'Μόνο οι συντάκτες μπορούν να παραλείψουν τις δοκιμές αυτού του έργου.',
 }

@@ -629,4 +629,13 @@ export const mn: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Синтезатороор засах',
   'ide.tests.fixFailures': 'Засах {{count}} бүтэлгүйтэл',
   'ide.tests.fixBusy': 'Одоогийн эргэлт дуусахыг хүлээнэ үү.',
+  'ide.chat.skipToolCall': 'Алгасах',
+  'ide.chat.skippingToolCall': 'Алгасаж байна…',
+  'ide.chat.skipToolCallViewer': 'Зөвхөн редакторууд үүнийг алгасаж болно.',
+  'ide.toolCall.statusSkipped': 'Алгассан',
+  'ide.tests.skip': 'Алгасах',
+  'ide.tests.skipping': 'Алгасаж байна…',
+  'ide.tests.skippedCount': '{{count}} алгассан',
+  'ide.tests.skippedByUser': 'Ажиллуулалт дууссан. Таны алгассан тестүүд ажиллаагүй.',
+  'ide.tests.viewerCannotSkip': 'Зөвхөн редакторууд л энэ төслийн тестийг алгасаж болно.',
 }

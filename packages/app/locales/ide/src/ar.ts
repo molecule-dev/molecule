@@ -626,4 +626,13 @@ export const ar: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'الإصلاح باستخدام Synthase',
   'ide.tests.fixFailures': 'إصلاح أخطاء {{count}}',
   'ide.tests.fixBusy': 'انتظر حتى تنتهي الجولة الحالية.',
+  'ide.chat.skipToolCall': 'تخطي',
+  'ide.chat.skippingToolCall': 'تخطي...',
+  'ide.chat.skipToolCallViewer': 'لا يمكن تخطي هذا إلا للمحررين.',
+  'ide.toolCall.statusSkipped': 'تم تخطيها',
+  'ide.tests.skip': 'تخطي',
+  'ide.tests.skipping': 'تخطي…',
+  'ide.tests.skippedCount': '{{count}} تم تخطيه',
+  'ide.tests.skippedByUser': 'انتهى التشغيل. لم يتم تشغيل الاختبارات التي تخطيتها.',
+  'ide.tests.viewerCannotSkip': 'لا يمكن إلا للمحررين تخطي اختبارات هذا المشروع.',
 }

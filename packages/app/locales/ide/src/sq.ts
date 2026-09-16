@@ -631,4 +631,13 @@ export const sq: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Fikso me sintazë',
   'ide.tests.fixFailures': 'Rregullo {{count}} dështimet',
   'ide.tests.fixBusy': 'Prisni që kthesa aktuale të përfundojë.',
+  'ide.chat.skipToolCall': 'Kapërce',
+  'ide.chat.skippingToolCall': 'Duke anashkaluar…',
+  'ide.chat.skipToolCallViewer': 'Vetëm redaktorët mund ta anashkalojnë këtë.',
+  'ide.toolCall.statusSkipped': 'U anashkalua',
+  'ide.tests.skip': 'Kapërce',
+  'ide.tests.skipping': 'Duke anashkaluar…',
+  'ide.tests.skippedCount': '{{count}} anashkaluar',
+  'ide.tests.skippedByUser': 'Ekzekutimi përfundoi. Testet që anashkaluat nuk u ekzekutuan.',
+  'ide.tests.viewerCannotSkip': "Vetëm redaktorët mund t'i anashkalojnë testet e këtij projekti.",
 }

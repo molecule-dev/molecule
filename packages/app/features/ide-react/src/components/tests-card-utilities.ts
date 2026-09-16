@@ -17,6 +17,27 @@ import type {
   TestWorkspace,
 } from '../types.js'
 
+/** The one test a file is on right now, named the way its runner names it. */
+export interface TestCaseRef {
+  /** The runner's test title. */
+  title: string
+  /** Its enclosing group (`describe`), when it has one. */
+  describe?: string
+}
+
+/**
+ * What one FILE is doing while it runs: which test is on screen, and how its
+ * own tests have gone so far. Discarded the moment the file reports a `result`
+ * — the row's verdict pill takes over from there.
+ */
+export interface TestCaseProgress {
+  /** The test running right now, or `null` between tests. */
+  current: TestCaseRef | null
+  passed: number
+  failed: number
+  skipped: number
+}
+
 /** One rendered group of rows: a kind within a project directory. */
 export interface TestGroup {
   kind: TestKind
@@ -49,6 +70,19 @@ export interface TestsRunState {
   output: string[]
   /** Per-id outcome from this run (and from earlier runs, until re-run). */
   results: Record<string, TestResultEntry>
+  /**
+   * Per-id LIVE per-test progress, for the files that are running right now.
+   * An entry exists only between a file's first `case` event and its `result`.
+   */
+  cases: Record<string, TestCaseProgress>
+  /** A skip was asked for and the run has not answered it yet. */
+  skipPending: boolean
+  /**
+   * Skipping is not on offer: the host wired no `skipCurrent`, or it answered
+   * that there was nothing left to skip. The control is dropped — never
+   * replaced by an error the person cannot act on.
+   */
+  skipUnavailable: boolean
   /** How the run ended, once it has. */
   outcome: TestRunOutcome | null
   /** A run-level failure message (timeout, transport error) shown in the card. */
@@ -98,6 +132,11 @@ export const EMPTY_RUN_STATE: TestsRunState = {
   currentId: null,
   output: [],
   results: {},
+  cases: {},
+  skipPending: false,
+  // Nothing is running, so there is nothing to skip. The panel turns this off
+  // when it starts a run on a host whose handle implements `skipCurrent`.
+  skipUnavailable: true,
   outcome: null,
   error: null,
   startedAt: null,
@@ -171,8 +210,10 @@ export function summarizeResults(
  * Fold one streamed event into the run state.
  *
  * Deliberately total: an event for an id the card no longer lists is recorded
- * anyway (a re-list may be in flight), and an unknown event type leaves the
- * state untouched rather than throwing inside a stream handler.
+ * anyway (a re-list may be in flight), a `case` that arrives out of order (after
+ * its file already reported a verdict) is dropped rather than resurrecting a
+ * finished row, and an unknown event type leaves the state untouched rather
+ * than throwing inside a stream handler.
  *
  * @param state - The current state.
  * @param event - The event just received.
@@ -193,6 +234,10 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
         currentId: null,
         output: [],
         results,
+        cases: {},
+        skipPending: false,
+        // NOT reset: whether the host can skip at all is the panel's to say,
+        // and it says so when it creates the handle — before this arrives.
         outcome: null,
         error: null,
         startedAt: Date.now(),
@@ -207,17 +252,59 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
         output: output.length > MAX_OUTPUT_LINES ? output.slice(-MAX_OUTPUT_LINES) : output,
       }
     }
+    case 'case': {
+      // Out of order: this file already has this run's verdict, so its per-test
+      // detail is gone and `isRowRunning` must not be told otherwise.
+      if (state.results[event.id]) return state
+      const previous = state.cases[event.id] ?? {
+        current: null,
+        passed: 0,
+        failed: 0,
+        skipped: 0,
+      }
+      const next: TestCaseProgress =
+        event.status === 'running'
+          ? {
+              ...previous,
+              current: {
+                title: event.title,
+                ...(event.describe ? { describe: event.describe } : {}),
+              },
+            }
+          : {
+              passed: previous.passed + (event.status === 'passed' ? 1 : 0),
+              failed: previous.failed + (event.status === 'failed' ? 1 : 0),
+              skipped: previous.skipped + (event.status === 'skipped' ? 1 : 0),
+              // Clear the "now running" line only when THIS is the test it
+              // named — a parallel runner can finish a different one first.
+              current:
+                previous.current && previous.current.title === event.title
+                  ? null
+                  : previous.current,
+            }
+      return { ...state, currentId: event.id, cases: { ...state.cases, [event.id]: next } }
+    }
     case 'result': {
+      // The file is done: its live per-test detail collapses and the row's
+      // verdict pill takes over. A count the event omits falls back to what the
+      // per-test stream already counted, rather than silently reading as zero.
+      const cases = { ...state.cases }
+      const progress = cases[event.id]
+      delete cases[event.id]
       return {
         ...state,
+        cases,
+        // Whatever the verdict, the run answered — the Skip the person asked
+        // for has either landed or been overtaken.
+        skipPending: false,
         results: {
           ...state.results,
           [event.id]: {
             status: event.status,
             ...(event.durationMs != null ? { durationMs: event.durationMs } : {}),
-            passed: event.passed ?? 0,
-            failed: event.failed ?? 0,
-            skipped: event.skipped ?? 0,
+            passed: event.passed ?? progress?.passed ?? 0,
+            failed: event.failed ?? progress?.failed ?? 0,
+            skipped: event.skipped ?? progress?.skipped ?? 0,
             ...(event.output ? { output: event.output } : {}),
           },
         },
@@ -228,6 +315,8 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
         ...state,
         running: false,
         currentId: null,
+        cases: {},
+        skipPending: false,
         outcome: event.outcome,
         error: event.error ?? null,
         durationMs: event.durationMs ?? (state.startedAt ? Date.now() - state.startedAt : null),
@@ -239,6 +328,71 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
 }
 
 /**
+ * Record that the person asked to skip what is running. The state only says a
+ * request is OUT — the run's own `result` for the skipped file is what actually
+ * moves the row, so nothing here can make a skipped file read as anything else.
+ *
+ * @param state - The current state.
+ * @returns The next state, or the same one when there is nothing to skip.
+ */
+export function requestSkip(state: TestsRunState): TestsRunState {
+  if (!state.running || state.skipPending || state.skipUnavailable) return state
+  return { ...state, skipPending: true }
+}
+
+/**
+ * Record that skipping is not on offer — either the host wired no `skipCurrent`
+ * or it answered that the run had already moved on. The control is dropped; the
+ * person is not shown an error about a race they did not cause.
+ *
+ * @param state - The current state.
+ * @returns The next state.
+ */
+export function markSkipUnavailable(state: TestsRunState): TestsRunState {
+  return { ...state, skipPending: false, skipUnavailable: true }
+}
+
+/**
+ * Whether the host can be asked to skip right now.
+ *
+ * @param state - The run state.
+ * @returns True when a Skip control belongs on screen.
+ */
+export function canSkipRun(state: TestsRunState): boolean {
+  return state.running && !state.skipUnavailable
+}
+
+/**
+ * Which row the Skip acts on: the one the stream named as current, or — when it
+ * has not named one yet — the single row still awaiting a verdict, because with
+ * exactly one candidate there is nothing to be ambiguous about.
+ *
+ * @param state - The run state.
+ * @returns The row's id, or `null` when the run is not on an identifiable row.
+ */
+export function currentRunRowId(state: TestsRunState): string | null {
+  if (!state.running) return null
+  if (state.currentId) return state.currentId
+  const pending = state.queued.filter((id) => state.results[id] == null)
+  return pending.length === 1 ? (pending[0] as string) : null
+}
+
+/**
+ * The one-line name of the test a file is on: its group and its title, or just
+ * its title when the runner gave it no group.
+ *
+ * @param current - The running test, or `null`.
+ * @returns The label, or `` when nothing is named.
+ */
+export function testCaseLabel(current: TestCaseRef | null | undefined): string {
+  if (!current) return ''
+  const title = current.title.trim()
+  const describe = current.describe?.trim()
+  if (!title) return describe ?? ''
+  return describe ? `${describe} › ${title}` : title
+}
+
+/**
  * The state after a run that never produced a `done` event — the host's stream
  * died, or its request failed before the server could answer.
  *
@@ -247,7 +401,16 @@ export function applyTestRunEvent(state: TestsRunState, event: TestRunEvent): Te
  * @returns The next state, no longer running.
  */
 export function failRun(state: TestsRunState, message: string): TestsRunState {
-  return { ...state, running: false, currentId: null, outcome: 'error', error: message }
+  return {
+    ...state,
+    running: false,
+    currentId: null,
+    cases: {},
+    skipPending: false,
+    skipUnavailable: true,
+    outcome: 'error',
+    error: message,
+  }
 }
 
 /**

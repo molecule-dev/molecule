@@ -625,4 +625,13 @@ export const th: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'แก้ไขด้วยซินเทส',
   'ide.tests.fixFailures': 'แก้ไข {{count}} ความล้มเหลว',
   'ide.tests.fixBusy': 'รอจนกว่าตาปัจจุบันจะจบลง',
+  'ide.chat.skipToolCall': 'ข้าม',
+  'ide.chat.skippingToolCall': 'ข้ามไป…',
+  'ide.chat.skipToolCallViewer': 'เฉพาะบรรณาธิการเท่านั้นที่สามารถข้ามขั้นตอนนี้ได้',
+  'ide.toolCall.statusSkipped': 'ข้ามไป',
+  'ide.tests.skip': 'ข้าม',
+  'ide.tests.skipping': 'ข้ามไป…',
+  'ide.tests.skippedCount': '{{count}} ข้ามไป',
+  'ide.tests.skippedByUser': 'การดำเนินการเสร็จสิ้นแล้ว การทดสอบที่คุณข้ามไปไม่ได้ถูกดำเนินการ',
+  'ide.tests.viewerCannotSkip': 'เฉพาะบรรณาธิการเท่านั้นที่สามารถข้ามการทดสอบของโครงการนี้ได้',
 }

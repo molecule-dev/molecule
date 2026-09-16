@@ -629,4 +629,13 @@ export const nb: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Løs med Synthase',
   'ide.tests.fixFailures': 'Løs feil i «{{count}}»',
   'ide.tests.fixBusy': 'Vent til den nåværende runden er over.',
+  'ide.chat.skipToolCall': 'Hopp over',
+  'ide.chat.skippingToolCall': 'Hopper over…',
+  'ide.chat.skipToolCallViewer': 'Bare redaktører kan hoppe over dette.',
+  'ide.toolCall.statusSkipped': 'Hoppet over',
+  'ide.tests.skip': 'Hopp over',
+  'ide.tests.skipping': 'Hopper over…',
+  'ide.tests.skippedCount': '{{count}} hoppet over',
+  'ide.tests.skippedByUser': 'Kjøringen er fullført. Testene du hoppet over, ble ikke kjørt.',
+  'ide.tests.viewerCannotSkip': 'Bare redaktører kan hoppe over testene i dette prosjektet.',
 }

@@ -649,4 +649,14 @@ export const de: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Mit Synthase beheben',
   'ide.tests.fixFailures': '{{count}}-Fehler beheben',
   'ide.tests.fixBusy': 'Warte, bis die aktuelle Runde beendet ist.',
+  'ide.chat.skipToolCall': 'Überspringen',
+  'ide.chat.skippingToolCall': 'Überspringen…',
+  'ide.chat.skipToolCallViewer': 'Nur Redakteure können diesen Schritt überspringen.',
+  'ide.toolCall.statusSkipped': 'Übersprungen',
+  'ide.tests.skip': 'Überspringen',
+  'ide.tests.skipping': 'Überspringen…',
+  'ide.tests.skippedCount': '{{count}} übersprungen',
+  'ide.tests.skippedByUser':
+    'Der Lauf ist beendet. Die von Ihnen übersprungenen Tests wurden nicht ausgeführt.',
+  'ide.tests.viewerCannotSkip': 'Nur Redakteure können die Tests dieses Projekts überspringen.',
 }

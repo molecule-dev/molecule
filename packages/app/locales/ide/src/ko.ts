@@ -626,4 +626,13 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Synthase로 수정하기',
   'ide.tests.fixFailures': '{{count}} 오류 수정',
   'ide.tests.fixBusy': '현재 턴이 끝날 때까지 기다리세요.',
+  'ide.chat.skipToolCall': '건너뛰기',
+  'ide.chat.skippingToolCall': '건너뛰기…',
+  'ide.chat.skipToolCallViewer': '편집자만 이 단계를 건너뛸 수 있습니다.',
+  'ide.toolCall.statusSkipped': '건뜀',
+  'ide.tests.skip': '건너뛰기',
+  'ide.tests.skipping': '건너뛰기…',
+  'ide.tests.skippedCount': '{{count}} 건뜬',
+  'ide.tests.skippedByUser': '실행이 완료되었습니다. 건너뛴 테스트는 실행되지 않았습니다.',
+  'ide.tests.viewerCannotSkip': '이 프로젝트의 테스트를 건너뛸 수 있는 사람은 편집자뿐입니다.',
 }

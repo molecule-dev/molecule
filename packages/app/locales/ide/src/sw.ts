@@ -627,4 +627,13 @@ export const sw: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Rekebisha kwa kutumia Synthase',
   'ide.tests.fixFailures': 'Rekebisha {{count}} kushindwa',
   'ide.tests.fixBusy': 'Subiri zamu ya sasa imalizike.',
+  'ide.chat.skipToolCall': 'Ruka',
+  'ide.chat.skippingToolCall': 'Inaruka…',
+  'ide.chat.skipToolCallViewer': 'Wahariri pekee ndio wanaweza kuruka hili.',
+  'ide.toolCall.statusSkipped': 'Imerukwa',
+  'ide.tests.skip': 'Ruka',
+  'ide.tests.skipping': 'Inaruka…',
+  'ide.tests.skippedCount': '{{count}} ruka',
+  'ide.tests.skippedByUser': 'Mbio imekamilika. Majaribio uliyoyaruka hayakufanyika.',
+  'ide.tests.viewerCannotSkip': 'Wahariri pekee ndio wanaweza kuruka majaribio ya mradi huu.',
 }

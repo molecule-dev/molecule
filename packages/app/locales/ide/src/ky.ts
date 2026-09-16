@@ -627,4 +627,13 @@ export const ky: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Синтезатор менен оңдоо',
   'ide.tests.fixFailures': 'Оңдоо {{count}} ийгиликсиздиктер',
   'ide.tests.fixBusy': 'Учурдагы бурулуштун аякташын күтө туруңуз.',
+  'ide.chat.skipToolCall': 'Өткөрүп жиберүү',
+  'ide.chat.skippingToolCall': 'Өткөрүп жиберүүдө…',
+  'ide.chat.skipToolCallViewer': 'Муну редакторлор гана өткөрүп жибере алышат.',
+  'ide.toolCall.statusSkipped': 'Өткөрүп жиберилди',
+  'ide.tests.skip': 'Өткөрүп жиберүү',
+  'ide.tests.skipping': 'Өткөрүп жиберүүдө…',
+  'ide.tests.skippedCount': '{{count}} өткөрүлүп жиберилди',
+  'ide.tests.skippedByUser': 'Иштөө аяктады. Сиз өткөрүп жиберген тесттер ишке ашкан жок.',
+  'ide.tests.viewerCannotSkip': 'Бул долбоордун сыноолорун редакторлор гана өткөрүп жибере алышат.',
 }

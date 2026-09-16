@@ -627,4 +627,13 @@ export const eu: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Konpondu sintasarekin',
   'ide.tests.fixFailures': 'Konpondu {{count}} porrotak',
   'ide.tests.fixBusy': 'Itxaron uneko txanda amaitu arte.',
+  'ide.chat.skipToolCall': 'Saltatu',
+  'ide.chat.skippingToolCall': 'Saltatzen…',
+  'ide.chat.skipToolCallViewer': 'Editoreek bakarrik saltatu dezakete hau.',
+  'ide.toolCall.statusSkipped': 'Saltatua',
+  'ide.tests.skip': 'Saltatu',
+  'ide.tests.skipping': 'Saltatzen…',
+  'ide.tests.skippedCount': '{{count}} saltatua',
+  'ide.tests.skippedByUser': 'Exekuzioa amaitu da. Saltatu dituzun probak ez dira exekutatu.',
+  'ide.tests.viewerCannotSkip': 'Editoreek bakarrik salta ditzakete proiektu honen probak.',
 }

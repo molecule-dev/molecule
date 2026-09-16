@@ -626,4 +626,13 @@ export const bs: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Popravite sa sintazom',
   'ide.tests.fixFailures': 'Popravi {{count}} neuspjesi',
   'ide.tests.fixBusy': 'Sačekajte da se završi trenutni potez.',
+  'ide.chat.skipToolCall': 'Preskoči',
+  'ide.chat.skippingToolCall': 'Preskakanje…',
+  'ide.chat.skipToolCallViewer': 'Samo urednici mogu ovo preskočiti.',
+  'ide.toolCall.statusSkipped': 'Preskočeno',
+  'ide.tests.skip': 'Preskoči',
+  'ide.tests.skipping': 'Preskakanje…',
+  'ide.tests.skippedCount': '{{count}} preskočeno',
+  'ide.tests.skippedByUser': 'Izvršavanje završeno. Testovi koje ste preskočili nisu izvršeni.',
+  'ide.tests.viewerCannotSkip': 'Samo urednici mogu preskočiti testove ovog projekta.',
 }

@@ -84,9 +84,9 @@ function rendersAs(el: Element, resolved: string): boolean {
  */
 function isAction(el: Element): boolean {
   const molId = el.getAttribute('data-mol-id') ?? ''
-  if (molId.includes('-run-') || molId.includes('-fix-')) return true
+  if (molId.includes('-run-') || molId.includes('-fix-') || molId.includes('-skip-')) return true
   const text = (el.textContent ?? '').trim()
-  return /^(run|fix|stop|save|apply|create|refresh|retry)\b/i.test(text)
+  return /^(run|fix|skip|stop|save|apply|create|refresh|retry)\b/i.test(text)
 }
 
 const TESTS: TestItem[] = [
@@ -183,6 +183,35 @@ const CARDS: { name: string; element: () => ReactElement; actions: boolean }[] =
         canRun
         onRun={() => {}}
         onCancel={() => {}}
+        onFix={() => {}}
+        fixDisabledReason={null}
+        isLight={false}
+      />
+    ),
+    actions: true,
+  },
+  {
+    // The SAME card mid-run, because its Stop and its per-row Skip exist only
+    // while a run is live — a fixture that is always idle can never see them,
+    // and an action nothing renders is an action nothing enforces.
+    name: 'Tests (running)',
+    element: () => (
+      <TestsCard
+        tests={TESTS}
+        status="ready"
+        run={{
+          ...EMPTY_RUN_STATE,
+          running: true,
+          runId: 'r1',
+          queued: ['my-app/app:e2e/home.spec.ts'],
+          currentId: 'my-app/app:e2e/home.spec.ts',
+          skipUnavailable: false,
+        }}
+        initialQuery=""
+        canRun
+        onRun={() => {}}
+        onCancel={() => {}}
+        onSkipCurrent={() => {}}
         onFix={() => {}}
         fixDisabledReason={null}
         isLight={false}

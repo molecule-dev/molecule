@@ -631,4 +631,13 @@ export const zu: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Lungisa nge-Synthase',
   'ide.tests.fixFailures': 'Lungisa {{count}} ukwehluleka',
   'ide.tests.fixBusy': 'Linda ukuthi ukujika kwamanje kuphele.',
+  'ide.chat.skipToolCall': 'Yeqa',
+  'ide.chat.skippingToolCall': 'Ukweqa…',
+  'ide.chat.skipToolCallViewer': 'Abahleli kuphela abangakweqa lokhu.',
+  'ide.toolCall.statusSkipped': 'Kweqiwe',
+  'ide.tests.skip': 'Yeqa',
+  'ide.tests.skipping': 'Ukweqa…',
+  'ide.tests.skippedCount': '{{count}} kweqiwe',
+  'ide.tests.skippedByUser': 'Ukugijima kuqediwe. Ukuhlolwa okweqile akwenzekanga.',
+  'ide.tests.viewerCannotSkip': 'Abahleli kuphela abangakweqa ukuhlolwa kwale phrojekthi.',
 }

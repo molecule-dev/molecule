@@ -632,4 +632,13 @@ export const et: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Parandamine Synthase’iga',
   'ide.tests.fixFailures': '{{count}}i tõrgete parandamine',
   'ide.tests.fixBusy': 'Oota, kuni käesolev voor lõpeb.',
+  'ide.chat.skipToolCall': 'Vaheta',
+  'ide.chat.skippingToolCall': 'Vahelejätmine…',
+  'ide.chat.skipToolCallViewer': 'Seda saavad vahele jätta ainult toimetajad.',
+  'ide.toolCall.statusSkipped': 'Vahelejäänud',
+  'ide.tests.skip': 'Vaheta',
+  'ide.tests.skipping': 'Vahelejätmine…',
+  'ide.tests.skippedCount': '{{count}} vahele jäetud',
+  'ide.tests.skippedByUser': 'Käivitus lõppes. Vahele jäetud testid ei käivitatud.',
+  'ide.tests.viewerCannotSkip': 'Ainult toimetajad saavad selle projekti teste vahele jätta.',
 }

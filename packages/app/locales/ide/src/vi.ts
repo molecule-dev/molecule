@@ -629,4 +629,15 @@ export const vi: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Sửa chữa bằng Synthase',
   'ide.tests.fixFailures': 'Sửa chữa {{count}} thất bại',
   'ide.tests.fixBusy': 'Hãy đợi lượt chơi hiện tại kết thúc.',
+  'ide.chat.skipToolCall': 'Nhảy',
+  'ide.chat.skippingToolCall': 'Bỏ qua…',
+  'ide.chat.skipToolCallViewer': 'Chỉ người biên tập mới có thể bỏ qua bước này.',
+  'ide.toolCall.statusSkipped': 'Bỏ qua',
+  'ide.tests.skip': 'Nhảy',
+  'ide.tests.skipping': 'Bỏ qua…',
+  'ide.tests.skippedCount': '{{count}} bỏ qua',
+  'ide.tests.skippedByUser':
+    'Quá trình chạy đã hoàn tất. Các bài kiểm tra bạn đã bỏ qua không được thực thi.',
+  'ide.tests.viewerCannotSkip':
+    'Chỉ những người biên tập mới có thể bỏ qua các bài kiểm tra của dự án này.',
 }

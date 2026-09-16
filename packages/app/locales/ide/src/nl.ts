@@ -641,4 +641,14 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Oplossen met Synthase',
   'ide.tests.fixFailures': '{{count}}-storingen verhelpen',
   'ide.tests.fixBusy': 'Wacht tot de huidige beurt voorbij is.',
+  'ide.chat.skipToolCall': 'Overslaan',
+  'ide.chat.skippingToolCall': 'Overslaan…',
+  'ide.chat.skipToolCallViewer': 'Alleen redacteuren kunnen dit overslaan.',
+  'ide.toolCall.statusSkipped': 'Overgeslagen',
+  'ide.tests.skip': 'Overslaan',
+  'ide.tests.skipping': 'Overslaan…',
+  'ide.tests.skippedCount': '{{count}} overgeslagen',
+  'ide.tests.skippedByUser':
+    'De uitvoering is voltooid. De tests die je hebt overgeslagen, zijn niet uitgevoerd.',
+  'ide.tests.viewerCannotSkip': 'Alleen redacteuren kunnen de tests van dit project overslaan.',
 }

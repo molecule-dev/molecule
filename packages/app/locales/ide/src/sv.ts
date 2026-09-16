@@ -634,4 +634,13 @@ export const sv: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Åtgärda med Synthase',
   'ide.tests.fixFailures': 'Åtgärda fel i {{count}}',
   'ide.tests.fixBusy': 'Vänta tills den aktuella omgången är slut.',
+  'ide.chat.skipToolCall': 'Hoppa över',
+  'ide.chat.skippingToolCall': 'Hoppa över…',
+  'ide.chat.skipToolCallViewer': 'Endast redaktörer kan hoppa över detta.',
+  'ide.toolCall.statusSkipped': 'Hoppades över',
+  'ide.tests.skip': 'Hoppa över',
+  'ide.tests.skipping': 'Hoppa över…',
+  'ide.tests.skippedCount': '{{count}} hoppades över',
+  'ide.tests.skippedByUser': 'Körningen är avslutad. De tester som du hoppade över kördes inte.',
+  'ide.tests.viewerCannotSkip': 'Endast redaktörer kan hoppa över testerna för detta projekt.',
 }

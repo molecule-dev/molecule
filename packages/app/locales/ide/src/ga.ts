@@ -627,4 +627,14 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Deisigh le Synthase',
   'ide.tests.fixFailures': 'Deisigh {{count}} teipeanna',
   'ide.tests.fixBusy': 'Fan go dtí go mbeidh an casadh reatha críochnaithe.',
+  'ide.chat.skipToolCall': 'Léim',
+  'ide.chat.skippingToolCall': 'Ag scipeáil…',
+  'ide.chat.skipToolCallViewer': 'Ní féidir ach le heagarthóirí é seo a sheachaint.',
+  'ide.toolCall.statusSkipped': 'Scipeáilte',
+  'ide.tests.skip': 'Léim',
+  'ide.tests.skipping': 'Ag scipeáil…',
+  'ide.tests.skippedCount': '{{count}} scipeáilte',
+  'ide.tests.skippedByUser': 'Rith críochnaithe. Níor rith na tástálacha a scipeáil tú.',
+  'ide.tests.viewerCannotSkip':
+    'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a scipeáil.',
 }

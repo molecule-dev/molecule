@@ -628,4 +628,13 @@ export const be: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Выправіць з дапамогай сінтазы',
   'ide.tests.fixFailures': 'Выправіць {{count}} няўдачы',
   'ide.tests.fixBusy': 'Пачакайце, пакуль скончыцца бягучы ход.',
+  'ide.chat.skipToolCall': 'Прапусціць',
+  'ide.chat.skippingToolCall': 'Прапускаецца…',
+  'ide.chat.skipToolCallViewer': 'Толькі рэдактары могуць гэта прапусціць.',
+  'ide.toolCall.statusSkipped': 'Прапушчана',
+  'ide.tests.skip': 'Прапусціць',
+  'ide.tests.skipping': 'Прапускаецца…',
+  'ide.tests.skippedCount': '{{count}} прапушчана',
+  'ide.tests.skippedByUser': 'Выкананне завершана. Прапушчаныя вамі тэсты не былі выкананы.',
+  'ide.tests.viewerCannotSkip': 'Толькі рэдактары могуць прапусціць тэсты гэтага праекта.',
 }

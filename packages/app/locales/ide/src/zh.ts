@@ -611,4 +611,13 @@ export const zh: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': '使用Synthase进行修复',
   'ide.tests.fixFailures': '修复 {{count}} 出现的错误',
   'ide.tests.fixBusy': '请等待当前回合结束。',
+  'ide.chat.skipToolCall': '跳过',
+  'ide.chat.skippingToolCall': '跳过……',
+  'ide.chat.skipToolCallViewer': '只有编辑可以跳过此步骤。',
+  'ide.toolCall.statusSkipped': '已跳过',
+  'ide.tests.skip': '跳过',
+  'ide.tests.skipping': '跳过……',
+  'ide.tests.skippedCount': '{{count}} 跳过',
+  'ide.tests.skippedByUser': '运行已完成。您跳过的测试未被执行。',
+  'ide.tests.viewerCannotSkip': '只有编辑才能跳过该项目的测试。',
 }

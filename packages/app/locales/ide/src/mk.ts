@@ -626,4 +626,14 @@ export const mk: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Фикс со синтаза',
   'ide.tests.fixFailures': 'Поправка {{count}} неуспеси',
   'ide.tests.fixBusy': 'Почекајте да заврши тековниот круг.',
+  'ide.chat.skipToolCall': 'Прескокни',
+  'ide.chat.skippingToolCall': 'Прескокнување…',
+  'ide.chat.skipToolCallViewer': 'Само уредниците можат да го прескокнат ова.',
+  'ide.toolCall.statusSkipped': 'Прескокнато',
+  'ide.tests.skip': 'Прескокни',
+  'ide.tests.skipping': 'Прескокнување…',
+  'ide.tests.skippedCount': '{{count}} прескокнато',
+  'ide.tests.skippedByUser':
+    'Извршувањето е завршено. Тестовите што ги прескокнавте не се извршија.',
+  'ide.tests.viewerCannotSkip': 'Само уредниците можат да ги прескокнат тестовите на овој проект.',
 }

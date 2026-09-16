@@ -87,10 +87,12 @@ function renderCard(overrides: Partial<ComponentProps<typeof TestsCard>> = {}): 
   container: HTMLElement
   selections: TestSelection[]
   cancels: { count: number }
+  skips: { count: number }
   fixes: TestFailure[][]
 } {
   const selections: TestSelection[] = []
   const cancels = { count: 0 }
+  const skips = { count: 0 }
   const fixes: TestFailure[][] = []
   const { container } = render(
     <TestsCard
@@ -103,13 +105,16 @@ function renderCard(overrides: Partial<ComponentProps<typeof TestsCard>> = {}): 
       onCancel={() => {
         cancels.count += 1
       }}
+      onSkipCurrent={() => {
+        skips.count += 1
+      }}
       onFix={(failures) => fixes.push(failures)}
       fixDisabledReason={null}
       isLight={false}
       {...overrides}
     />,
   )
-  return { container, selections, cancels, fixes }
+  return { container, selections, cancels, skips, fixes }
 }
 
 /**
@@ -545,5 +550,161 @@ describe('TestsCard — fix with Synthase', () => {
     fireEvent.click(fix)
     expect(fixes).toHaveLength(0)
     expect((molId(container, 'tests-card-fix-all') as HTMLButtonElement).disabled).toBe(true)
+  })
+})
+
+describe('TestsCard — the test being run, by name', () => {
+  const HOME = 'my-app/app:e2e/home.spec.ts'
+  const ABOUT = 'my-app/app:e2e/about.spec.ts'
+
+  /**
+   * A run that is mid-file: two of this file's tests are decided and a third is
+   * on screen.
+   *
+   * @returns The run state.
+   */
+  const midFile = (): TestsRunState => ({
+    ...runStateOf([
+      { type: 'start', runId: 'r1', ids: [HOME, ABOUT] },
+      { type: 'case', id: HOME, title: 'shows the hero', describe: 'home page', status: 'passed' },
+      {
+        type: 'case',
+        id: HOME,
+        title: 'links to pricing',
+        describe: 'home page',
+        status: 'failed',
+      },
+      {
+        type: 'case',
+        id: HOME,
+        title: 'signs a user up',
+        describe: 'home page',
+        status: 'running',
+      },
+    ]),
+    skipUnavailable: false,
+  })
+
+  it('names the test on screen, with its group, and tallies that file as it goes', () => {
+    const { container } = renderCard({ run: midFile() })
+    expect(molId(container, `tests-card-case-title-${HOME}`)?.textContent).toBe(
+      'home page › signs a user up',
+    )
+    const tally = molId(container, `tests-card-case-tally-${HOME}`)?.textContent ?? ''
+    expect(tally).toContain('1 passed')
+    expect(tally).toContain('1 failed')
+    // The row still says it is running; the per-test line is detail beneath it.
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toContain('Running')
+  })
+
+  it('shows a running file with no case events yet without inventing a name', () => {
+    const { container } = renderCard({
+      run: runStateOf([{ type: 'start', runId: 'r1', ids: [HOME] }]),
+    })
+    expect(molId(container, `tests-card-case-${HOME}`)).toBeNull()
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toContain('Running')
+  })
+
+  it('collapses the per-test detail the moment the file reports its verdict', () => {
+    const { container } = renderCard({
+      run: runStateOf([
+        { type: 'start', runId: 'r1', ids: [HOME] },
+        { type: 'case', id: HOME, title: 'signs a user up', status: 'running' },
+        { type: 'result', id: HOME, status: 'passed', passed: 3, failed: 0, skipped: 0 },
+        { type: 'done', outcome: 'completed' },
+      ]),
+    })
+    expect(molId(container, `tests-card-case-${HOME}`)).toBeNull()
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Passed')
+  })
+})
+
+describe('TestsCard — skipping the file that is running', () => {
+  const HOME = 'my-app/app:e2e/home.spec.ts'
+  const ABOUT = 'my-app/app:e2e/about.spec.ts'
+
+  /**
+   * A live run whose host serves skipping, sitting on one named row.
+   *
+   * @param overrides - Run-state overrides.
+   * @returns The run state.
+   */
+  const live = (overrides: Partial<TestsRunState> = {}): TestsRunState => ({
+    ...runStateOf([
+      { type: 'start', runId: 'r1', ids: [HOME, ABOUT] },
+      { type: 'output', id: HOME, chunk: 'Running 3 tests' },
+    ]),
+    skipUnavailable: false,
+    ...overrides,
+  })
+
+  it('offers Skip on the row the run is on, and nowhere else', () => {
+    const { container, skips } = renderCard({ run: live() })
+    const skip = molId(container, `tests-card-skip-${HOME}`) as HTMLButtonElement
+    expect(skip).not.toBeNull()
+    expect(skip.textContent).toBe('Skip')
+    expect(molId(container, `tests-card-skip-${ABOUT}`)).toBeNull()
+    fireEvent.click(skip)
+    expect(skips.count).toBe(1)
+  })
+
+  it('Stop in the header is still the whole run — the two are different actions', () => {
+    const { container, cancels, skips } = renderCard({ run: live() })
+    fireEvent.click(molId(container, 'tests-card-cancel') as HTMLElement)
+    expect(cancels.count).toBe(1)
+    expect(skips.count).toBe(0)
+  })
+
+  it('says Skipping… and stops taking clicks while the request is out', () => {
+    const { container, skips } = renderCard({ run: live({ skipPending: true }) })
+    const skip = molId(container, `tests-card-skip-${HOME}`) as HTMLButtonElement
+    expect(skip.textContent).toBe('Skipping…')
+    expect(skip.disabled).toBe(true)
+    fireEvent.click(skip)
+    expect(skips.count).toBe(0)
+  })
+
+  it('renders no Skip at all when the host does not serve one', () => {
+    const { container } = renderCard({ run: live({ skipUnavailable: true }) })
+    expect(molId(container, `tests-card-skip-${HOME}`)).toBeNull()
+    // …and none when the host wired no callback, whatever the state says.
+    cleanup()
+    const without = renderCard({ run: live(), onSkipCurrent: undefined })
+    expect(molId(without.container, `tests-card-skip-${HOME}`)).toBeNull()
+  })
+
+  it('a viewer sees the Skip disabled, with the reason, rather than nothing', () => {
+    const { container, skips } = renderCard({ run: live(), canRun: false })
+    const skip = molId(container, `tests-card-skip-${HOME}`) as HTMLButtonElement
+    expect(skip.disabled).toBe(true)
+    expect(skip.getAttribute('title')).toBe('Only editors can skip this project’s tests.')
+    fireEvent.click(skip)
+    expect(skips.count).toBe(0)
+  })
+
+  it('a skipped file reads Skipped — never Passed — and the summary counts it', () => {
+    const { container } = renderCard({
+      run: runStateOf([
+        { type: 'start', runId: 'r1', ids: [HOME, ABOUT] },
+        { type: 'result', id: HOME, status: 'skipped', durationMs: 8, skipped: 1 },
+        { type: 'result', id: ABOUT, status: 'passed', passed: 2 },
+        { type: 'done', outcome: 'skipped-by-user' },
+      ]),
+    })
+    expect(molId(container, `tests-card-status-${HOME}`)?.textContent).toBe('Skipped')
+    expect(molId(container, 'tests-card-summary-skipped')?.textContent).toBe('1 skipped')
+    expect(molId(container, 'tests-card-summary')?.textContent).toContain('1 passed')
+    expect(molId(container, 'tests-card-skipped')?.textContent).toBe(
+      'Run finished. The tests you skipped did not run.',
+    )
+    // A skipped file offers no "Fix with Synthase" — there is nothing to fix.
+    expect(molId(container, `tests-card-fix-${HOME}`)).toBeNull()
+  })
+
+  it('every Skip carries a data-mol-id, like every other control', () => {
+    const { container } = renderCard({ run: live() })
+    for (const el of container.querySelectorAll('button, input')) {
+      expect(el.getAttribute('data-mol-id'), el.outerHTML.slice(0, 80)).toBeTruthy()
+    }
   })
 })

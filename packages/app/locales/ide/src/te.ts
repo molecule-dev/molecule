@@ -626,4 +626,13 @@ export const te: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'సింథేస్‌తో పరిష్కరించండి',
   'ide.tests.fixFailures': 'పరిష్కరించండి {{count}} వైఫల్యాలు',
   'ide.tests.fixBusy': 'ప్రస్తుత వంతు ముగిసే వరకు వేచి ఉండండి.',
+  'ide.chat.skipToolCall': 'దాటవేయి',
+  'ide.chat.skippingToolCall': 'దాటవేస్తున్నాను…',
+  'ide.chat.skipToolCallViewer': 'సంపాదకులు మాత్రమే దీన్ని దాటవేయగలరు.',
+  'ide.toolCall.statusSkipped': 'దాటవేయబడింది',
+  'ide.tests.skip': 'దాటవేయి',
+  'ide.tests.skipping': 'దాటవేస్తున్నాను…',
+  'ide.tests.skippedCount': '{{count}} దాటవేసారు',
+  'ide.tests.skippedByUser': 'రన్ పూర్తయింది. మీరు దాటవేసిన పరీక్షలు జరగలేదు.',
+  'ide.tests.viewerCannotSkip': 'ఈ ప్రాజెక్ట్ యొక్క పరీక్షలను ఎడిటర్లు మాత్రమే దాటవేయగలరు.',
 }

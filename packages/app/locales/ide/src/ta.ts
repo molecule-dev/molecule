@@ -629,4 +629,14 @@ export const ta: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'சிந்தேஸ் கொண்டு சரிசெய்யவும்',
   'ide.tests.fixFailures': 'சரிசெய்யவும் {{count}} தோல்விகள்',
   'ide.tests.fixBusy': 'தற்போதைய முறை முடியும் வரை காத்திருங்கள்.',
+  'ide.chat.skipToolCall': 'தவிர்க்கவும்',
+  'ide.chat.skippingToolCall': 'தவிர்க்கப்படுகிறது…',
+  'ide.chat.skipToolCallViewer': 'பதிப்பாசிரியர்கள் மட்டுமே இதைத் தவிர்க்க முடியும்.',
+  'ide.toolCall.statusSkipped': 'தவிர்க்கவும்',
+  'ide.tests.skip': 'தவிர்க்கவும்',
+  'ide.tests.skipping': 'தவிர்க்கப்படுகிறது…',
+  'ide.tests.skippedCount': '{{count}} தவிர்க்கப்பட்டது',
+  'ide.tests.skippedByUser': 'சோதனை ஓட்டம் நிறைவடைந்தது. நீங்கள் தவிர்த்த சோதனைகள் இயங்கவில்லை.',
+  'ide.tests.viewerCannotSkip':
+    'தொகுப்பாளர்கள் மட்டுமே இந்தத் திட்டத்தின் சோதனைகளைத் தவிர்க்க முடியும்.',
 }

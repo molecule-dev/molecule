@@ -625,4 +625,13 @@ export const cy: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Trwsio gyda Synthase',
   'ide.tests.fixFailures': 'Trwsio {{count}} methiannau',
   'ide.tests.fixBusy': "Arhoswch i'r tro presennol orffen.",
+  'ide.chat.skipToolCall': 'Hepgor',
+  'ide.chat.skippingToolCall': 'Yn hepgor…',
+  'ide.chat.skipToolCallViewer': 'Dim ond golygyddion all hepgor hyn.',
+  'ide.toolCall.statusSkipped': "Wedi'i hepgor",
+  'ide.tests.skip': 'Hepgor',
+  'ide.tests.skipping': 'Yn hepgor…',
+  'ide.tests.skippedCount': '{{count}} hepgor',
+  'ide.tests.skippedByUser': 'Gorffennwyd y rhediad. Ni redodd y profion a hepgorwyd gennych.',
+  'ide.tests.viewerCannotSkip': 'Dim ond golygyddion all hepgor profion y prosiect hwn.',
 }

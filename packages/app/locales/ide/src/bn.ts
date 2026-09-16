@@ -623,4 +623,14 @@ export const bn: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'সিন্থেস দিয়ে ঠিক করুন',
   'ide.tests.fixFailures': 'ঠিক করুন {{count}} ব্যর্থতা',
   'ide.tests.fixBusy': 'বর্তমান পালা শেষ হওয়া পর্যন্ত অপেক্ষা করুন।',
+  'ide.chat.skipToolCall': 'এড়িয়ে যান',
+  'ide.chat.skippingToolCall': 'এড়িয়ে যাওয়া…',
+  'ide.chat.skipToolCallViewer': 'শুধুমাত্র সম্পাদকরাই এটি এড়িয়ে যেতে পারেন।',
+  'ide.toolCall.statusSkipped': 'বাদ দেওয়া হয়েছে',
+  'ide.tests.skip': 'এড়িয়ে যান',
+  'ide.tests.skipping': 'এড়িয়ে যাওয়া…',
+  'ide.tests.skippedCount': '{{count}} বাদ দেওয়া হয়েছে',
+  'ide.tests.skippedByUser': 'রান শেষ হয়েছে। আপনি যে টেস্টগুলো বাদ দিয়েছেন, সেগুলো রান হয়নি।',
+  'ide.tests.viewerCannotSkip':
+    'শুধুমাত্র সম্পাদকরাই এই প্রকল্পের পরীক্ষাগুলো এড়িয়ে যেতে পারবেন।',
 }

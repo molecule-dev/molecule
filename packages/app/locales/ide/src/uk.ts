@@ -639,4 +639,13 @@ export const uk: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Виправити за допомогою Synthase',
   'ide.tests.fixFailures': 'Виправлення помилок {{count}}',
   'ide.tests.fixBusy': 'Дочекайтеся закінчення поточного ходу.',
+  'ide.chat.skipToolCall': 'Пропустити',
+  'ide.chat.skippingToolCall': 'Пропускаю…',
+  'ide.chat.skipToolCallViewer': 'Пропустити цей крок можуть лише редактори.',
+  'ide.toolCall.statusSkipped': 'Пропущено',
+  'ide.tests.skip': 'Пропустити',
+  'ide.tests.skipping': 'Пропускаю…',
+  'ide.tests.skippedCount': '{{count}} пропущено',
+  'ide.tests.skippedByUser': 'Виконання завершено. Тести, які ви пропустили, не були виконані.',
+  'ide.tests.viewerCannotSkip': 'Пройти тести цього проєкту можуть лише редактори.',
 }

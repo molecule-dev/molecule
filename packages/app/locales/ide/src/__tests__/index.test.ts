@@ -31,6 +31,25 @@ const AGENT_NAME_TIP_KEYS = new Set([
   'ide.chat.tip.plan',
 ])
 
+// The `/test` skip strings (added with the per-test progress + Skip controls).
+// `skippedCount` interpolates, and the bulk translator's placeholder masking is
+// exactly where an interpolation token goes missing: 32 languages first came
+// back with `{{count}}` TRANSLATED ({{telling}}, {{ಎಣಿಕೆ}}, {{đếm}}), which
+// interpolates to nothing and shows the person a literal brace token.
+const SKIP_KEYS = [
+  'ide.chat.skipToolCall',
+  'ide.chat.skippingToolCall',
+  'ide.chat.skipToolCallViewer',
+  'ide.toolCall.statusSkipped',
+  'ide.tests.skip',
+  'ide.tests.skipping',
+  'ide.tests.skippedCount',
+  'ide.tests.skippedByUser',
+  'ide.tests.viewerCannotSkip',
+] as const
+/** The skip strings that interpolate — their token must survive translation. */
+const COUNT_SKIP_KEYS = new Set(['ide.tests.skippedCount'])
+
 describe('ide locale bond', () => {
   it('exports at least 79 language tables (en + 78 stubs)', () => {
     expect(localeTables.length).toBeGreaterThanOrEqual(79)
@@ -52,6 +71,28 @@ describe('ide locale bond', () => {
       expect(typeof reference[key as keyof IdeTranslations], `en missing ${key}`).toBe('string')
     }
   })
+
+  it.each(localeTables)(
+    'locale "%s" translates every skip string with its placeholder intact',
+    (code, table) => {
+      for (const key of SKIP_KEYS) {
+        const value = table[key as keyof IdeTranslations] as string | undefined
+        expect(typeof value, `${code} missing ${key}`).toBe('string')
+        expect((value as string).length, `${code} empty ${key}`).toBeGreaterThan(0)
+        expect(value, `${code} ${key} has leftover <x> mask`).not.toContain('<x>')
+        if (COUNT_SKIP_KEYS.has(key)) {
+          expect(value, `${code} ${key} lost {{count}}`).toContain('{{count}}')
+          // Exactly one token: a translated second brace pair is the same bug.
+          expect(
+            (value as string).match(/\{\{[^}]*\}\}/g),
+            `${code} ${key} has an unexpected placeholder`,
+          ).toEqual(['{{count}}'])
+        } else {
+          expect(value, `${code} ${key} grew a stray placeholder`).not.toContain('{{')
+        }
+      }
+    },
+  )
 
   it.each(localeTables)(
     'locale "%s" translates every auto-tip with intact placeholders',

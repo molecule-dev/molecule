@@ -629,4 +629,14 @@ export const cs: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Oprava pomocí Synthase',
   'ide.tests.fixFailures': 'Oprava chyb při použití příkazu „{{count}}“',
   'ide.tests.fixBusy': 'Počkejte, až skončí aktuální tah.',
+  'ide.chat.skipToolCall': 'Přeskočit',
+  'ide.chat.skippingToolCall': 'Přeskočit…',
+  'ide.chat.skipToolCallViewer': 'Tuto část mohou přeskočit pouze redaktoři.',
+  'ide.toolCall.statusSkipped': 'Přeskočeno',
+  'ide.tests.skip': 'Přeskočit',
+  'ide.tests.skipping': 'Přeskočit…',
+  'ide.tests.skippedCount': '{{count}} přeskočeno',
+  'ide.tests.skippedByUser':
+    'Spuštění bylo dokončeno. Testy, které jste přeskočili, nebyly spuštěny.',
+  'ide.tests.viewerCannotSkip': 'Testy tohoto projektu mohou přeskočit pouze redaktoři.',
 }

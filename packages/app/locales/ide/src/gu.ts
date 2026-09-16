@@ -622,4 +622,13 @@ export const gu: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'સિન્થેઝ સાથે ઠીક કરો',
   'ide.tests.fixFailures': 'ફિક્સ {{count}} નિષ્ફળતાઓ',
   'ide.tests.fixBusy': 'વર્તમાન વળાંક પૂરો થાય ત્યાં સુધી રાહ જુઓ.',
+  'ide.chat.skipToolCall': 'છોડી દો',
+  'ide.chat.skippingToolCall': 'છોડી રહ્યું છે...',
+  'ide.chat.skipToolCallViewer': 'ફક્ત સંપાદકો જ આને છોડી શકે છે.',
+  'ide.toolCall.statusSkipped': 'છોડી દીધું',
+  'ide.tests.skip': 'છોડી દો',
+  'ide.tests.skipping': 'છોડી રહ્યું છે...',
+  'ide.tests.skippedCount': '{{count}} છોડી દીધું',
+  'ide.tests.skippedByUser': 'દોડ પૂરી થઈ. તમે જે પરીક્ષણો છોડી દીધા તે ચાલ્યા નહીં.',
+  'ide.tests.viewerCannotSkip': 'ફક્ત સંપાદકો જ આ પ્રોજેક્ટના પરીક્ષણો છોડી શકે છે.',
 }

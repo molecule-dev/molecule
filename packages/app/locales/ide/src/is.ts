@@ -625,4 +625,13 @@ export const is: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Lagfæring með Synthase',
   'ide.tests.fixFailures': 'Lagfæra {{count}} mistök',
   'ide.tests.fixBusy': 'Bíddu eftir að núverandi beygju ljúki.',
+  'ide.chat.skipToolCall': 'Sleppa',
+  'ide.chat.skippingToolCall': 'Sleppir…',
+  'ide.chat.skipToolCallViewer': 'Aðeins ritstjórar geta sleppt þessu.',
+  'ide.toolCall.statusSkipped': 'Sleppt',
+  'ide.tests.skip': 'Sleppa',
+  'ide.tests.skipping': 'Sleppir…',
+  'ide.tests.skippedCount': '{{count}} sleppt',
+  'ide.tests.skippedByUser': 'Keyrslu lokið. Prófin sem þú slepptir keyrðust ekki.',
+  'ide.tests.viewerCannotSkip': 'Aðeins ritstjórar geta sleppt prófunum í þessu verkefni.',
 }

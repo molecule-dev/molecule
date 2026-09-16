@@ -639,4 +639,14 @@ export const pl: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Napraw za pomocą Synthase',
   'ide.tests.fixFailures': 'Napraw błędy związane z plikiem „{{count}}”',
   'ide.tests.fixBusy': 'Poczekaj, aż zakończy się bieżąca tura.',
+  'ide.chat.skipToolCall': 'Pomiń',
+  'ide.chat.skippingToolCall': 'Pomijam…',
+  'ide.chat.skipToolCallViewer': 'Tylko redaktorzy mogą pominąć ten fragment.',
+  'ide.toolCall.statusSkipped': 'Pominięto',
+  'ide.tests.skip': 'Pomiń',
+  'ide.tests.skipping': 'Pomijam…',
+  'ide.tests.skippedCount': '{{count}} pominięto',
+  'ide.tests.skippedByUser':
+    'Wykonanie zakończone. Testy, które pominąłeś, nie zostały uruchomione.',
+  'ide.tests.viewerCannotSkip': 'Tylko redaktorzy mogą pominąć testy tego projektu.',
 }

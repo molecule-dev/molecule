@@ -634,4 +634,13 @@ export const ja: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Synthaseで修正',
   'ide.tests.fixFailures': '{{count}}の失敗を修正する',
   'ide.tests.fixBusy': '現在のターンが終わるまで待ちます。',
+  'ide.chat.skipToolCall': 'スキップ',
+  'ide.chat.skippingToolCall': 'スキップ…',
+  'ide.chat.skipToolCallViewer': '編集者のみがこの手順を省略できます。',
+  'ide.toolCall.statusSkipped': 'スキップしました',
+  'ide.tests.skip': 'スキップ',
+  'ide.tests.skipping': 'スキップ…',
+  'ide.tests.skippedCount': '{{count}} スキップした',
+  'ide.tests.skippedByUser': '実行が完了しました。スキップしたテストは実行されませんでした。',
+  'ide.tests.viewerCannotSkip': 'このプロジェクトのテストをスキップできるのは、編集者のみです。',
 }

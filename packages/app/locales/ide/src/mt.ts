@@ -626,4 +626,13 @@ export const mt: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Irranġa bis-Synthase',
   'ide.tests.fixFailures': 'Irranġa {{count}} fallimenti',
   'ide.tests.fixBusy': 'Stenna sakemm jintemm id-dawra kurrenti.',
+  'ide.chat.skipToolCall': 'Aqbeż',
+  'ide.chat.skippingToolCall': 'Qed taqbeż…',
+  'ide.chat.skipToolCallViewer': 'L-edituri biss jistgħu jaqbżu dan.',
+  'ide.toolCall.statusSkipped': 'Maqbuża',
+  'ide.tests.skip': 'Aqbeż',
+  'ide.tests.skipping': 'Qed taqbeż…',
+  'ide.tests.skippedCount': '{{count}} maqbuż',
+  'ide.tests.skippedByUser': 'It-tħaddim lest. It-testijiet li qbiżt ma twettqux.',
+  'ide.tests.viewerCannotSkip': "L-edituri biss jistgħu jaqbżu t-testijiet ta' dan il-proġett.",
 }

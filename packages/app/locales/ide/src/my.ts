@@ -632,4 +632,14 @@ export const my: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Synthase ဖြင့် ပြုပြင်ပါ',
   'ide.tests.fixFailures': 'ပြင်ဆင်ရန် {{count}} ပျက်ကွက်မှုများ',
   'ide.tests.fixBusy': 'လက်ရှိအလှည့်ပြီးအောင်စောင့်ပါ။',
+  'ide.chat.skipToolCall': 'ကျော်သွားပါ',
+  'ide.chat.skippingToolCall': 'ကျော်သွားနေသည်…',
+  'ide.chat.skipToolCallViewer': 'အယ်ဒီတာများသာ ၎င်းကို ကျော်သွားနိုင်ပါသည်။',
+  'ide.toolCall.statusSkipped': 'ကျော်သွားပါပြီ',
+  'ide.tests.skip': 'ကျော်သွားပါ',
+  'ide.tests.skipping': 'ကျော်သွားနေသည်…',
+  'ide.tests.skippedCount': '{{count}} ကျော်သွားသည်',
+  'ide.tests.skippedByUser':
+    'လုပ်ဆောင်ပြီးပါပြီ။ သင်ကျော်သွားသော စမ်းသပ်မှုများသည် လုပ်ဆောင်၍မရပါ။',
+  'ide.tests.viewerCannotSkip': 'ဤပရောဂျက်၏ စမ်းသပ်မှုများကို အယ်ဒီတာများသာ ကျော်သွားနိုင်ပါသည်။',
 }

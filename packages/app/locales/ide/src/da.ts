@@ -631,4 +631,13 @@ export const da: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Løsning med Synthase',
   'ide.tests.fixFailures': 'Løsning af fejl i »{{count}}«',
   'ide.tests.fixBusy': 'Vent, indtil den aktuelle runde er slut.',
+  'ide.chat.skipToolCall': 'Spring over',
+  'ide.chat.skippingToolCall': 'Springer over…',
+  'ide.chat.skipToolCallViewer': 'Kun redaktører kan springe dette over.',
+  'ide.toolCall.statusSkipped': 'Springet over',
+  'ide.tests.skip': 'Spring over',
+  'ide.tests.skipping': 'Springer over…',
+  'ide.tests.skippedCount': '{{count}} sprunget over',
+  'ide.tests.skippedByUser': 'Kørslen er afsluttet. De test, du sprang over, blev ikke kørt.',
+  'ide.tests.viewerCannotSkip': 'Kun redaktører kan springe dette projekts test over.',
 }

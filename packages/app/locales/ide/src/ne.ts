@@ -623,4 +623,13 @@ export const ne: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'सिन्थेजको साथ समाधान गर्नुहोस्',
   'ide.tests.fixFailures': 'फिक्स गर्नुहोस् {{count}} असफलताहरू',
   'ide.tests.fixBusy': 'हालको पालो समाप्त हुनको लागि पर्खनुहोस्।',
+  'ide.chat.skipToolCall': 'छोड्नुहोस्',
+  'ide.chat.skippingToolCall': 'छोड्दै...',
+  'ide.chat.skipToolCallViewer': 'सम्पादकहरूले मात्र यसलाई छोड्न सक्छन्।',
+  'ide.toolCall.statusSkipped': 'छोडियो',
+  'ide.tests.skip': 'छोड्नुहोस्',
+  'ide.tests.skipping': 'छोड्दै...',
+  'ide.tests.skippedCount': '{{count}} छोडियो',
+  'ide.tests.skippedByUser': 'दौड सकियो। तपाईंले छोड्नुभएका परीक्षणहरू चलेनन्।',
+  'ide.tests.viewerCannotSkip': 'यस परियोजनाको परीक्षणहरू सम्पादकहरूले मात्र छोड्न सक्छन्।',
 }

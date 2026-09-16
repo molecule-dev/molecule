@@ -624,4 +624,13 @@ export const mr: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'सिंथेसने दुरुस्त करा',
   'ide.tests.fixFailures': 'दुरुस्त करा {{count}} अपयश',
   'ide.tests.fixBusy': 'सध्याची पाळी संपेपर्यंत थांबा.',
+  'ide.chat.skipToolCall': 'वगळा',
+  'ide.chat.skippingToolCall': 'वगळत आहे…',
+  'ide.chat.skipToolCallViewer': 'फक्त संपादकच हे वगळू शकतात.',
+  'ide.toolCall.statusSkipped': 'वगळले',
+  'ide.tests.skip': 'वगळा',
+  'ide.tests.skipping': 'वगळत आहे…',
+  'ide.tests.skippedCount': '{{count}} वगळले',
+  'ide.tests.skippedByUser': 'रन पूर्ण झाले. तुम्ही वगळलेल्या चाचण्या रन झाल्या नाहीत.',
+  'ide.tests.viewerCannotSkip': 'फक्त संपादकच या प्रकल्पाच्या चाचण्या वगळू शकतात.',
 }

@@ -189,7 +189,9 @@ import {
   buildTestFixMessage,
   EMPTY_RUN_STATE,
   failRun,
+  markSkipUnavailable,
   parseTestCommand,
+  requestSkip,
 } from './tests-card-utilities.js'
 import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
@@ -1939,6 +1941,13 @@ export interface MessageItemProps {
   /** Whether the user may write shared project state — false hides/inertizes write affordances in the message (revert, ask_user answers). */
   canEdit?: boolean
   /**
+   * Skips a tool call that is running right now, without ending the turn.
+   * Undefined when the host serves no such route — then no Skip is rendered.
+   */
+  onSkipToolCall?: (toolCallId: string) => void | Promise<boolean | void>
+  /** Why this viewer cannot skip, already translated — `null` when they can. */
+  skipToolCallReason?: string | null
+  /**
    * Whether the header row shows the message's time — decided for the whole
    * timeline by `planChatTimestamps` (a run of identical labels shows it once).
    */
@@ -1976,6 +1985,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
     buildUpgradeCta,
     agentName,
     canEdit,
+    onSkipToolCall,
+    skipToolCallReason,
     showTimestamp,
   } = props
 
@@ -2385,6 +2396,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     onFileDiff={onFileDiff}
                     onFileRevert={canEdit === false ? undefined : handleFileRevert}
                     onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
+                    onSkip={onSkipToolCall}
+                    skipDisabledReason={skipToolCallReason ?? null}
                   />
                 </div>
               )
@@ -2436,6 +2449,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   onFileDiff={onFileDiff}
                   onFileRevert={canEdit === false ? undefined : handleFileRevert}
                   onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
+                  onSkip={onSkipToolCall}
+                  skipDisabledReason={skipToolCallReason ?? null}
                 />
               ))}
 
@@ -2458,6 +2473,8 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                 onFileDiff={onFileDiff}
                 onFileRevert={canEdit === false ? undefined : handleFileRevert}
                 onAskUserResponse={canEdit === false ? undefined : handleAskUserResponse}
+                onSkip={onSkipToolCall}
+                skipDisabledReason={skipToolCallReason ?? null}
               />
             ))}
 
@@ -2694,6 +2711,8 @@ export interface ChatInnerProps {
   canRunTests?: boolean
   /** Whether the environment that runs them is up — see {@link ChatPanelProps.testsAvailable}. */
   testsAvailable?: boolean
+  /** Skips the executor's running tool call — see {@link ChatPanelProps.skipToolCall}. */
+  skipToolCall?: ChatPanelProps['skipToolCall']
 }
 
 /**
@@ -2758,6 +2777,7 @@ function ChatInner({
   runTests,
   canRunTests,
   testsAvailable,
+  skipToolCall,
   // feedbackUrl: prop kept for back-compat (callers still pass it), but no longer
   // consumed here — its only use was the command-menu footer link removed in P3-21.
 }: ChatInnerProps): JSX.Element {
@@ -4341,7 +4361,7 @@ function ChatInner({
         durationMs: null,
       }))
       try {
-        testsRunHandleRef.current = runTests(selection, (event) => {
+        const handle = runTests(selection, (event) => {
           if (!testsMountedRef.current) return
           setTestsRun((prev) => applyTestRunEvent(prev, event))
           if (event.type === 'done') {
@@ -4351,6 +4371,12 @@ function ChatInner({
             void refreshTests()
           }
         })
+        testsRunHandleRef.current = handle
+        // Whether a Skip control belongs on screen is decided HERE, by whether
+        // this host's handle serves one — not by the card guessing, and not by
+        // a button that would do nothing when clicked.
+        const skips = typeof handle.skipCurrent === 'function'
+        setTestsRun((prev) => ({ ...prev, skipPending: false, skipUnavailable: !skips }))
       } catch (error) {
         logger.warn('Failed to start a test run', { error })
         setTestsRun((prev) =>
@@ -4387,8 +4413,63 @@ function ChatInner({
   const cancelTestsRun = useCallback((): void => {
     testsRunHandleRef.current?.cancel()
     testsRunHandleRef.current = null
-    setTestsRun((prev) => ({ ...prev, running: false, currentId: null, outcome: 'cancelled' }))
+    setTestsRun((prev) => ({
+      ...prev,
+      running: false,
+      currentId: null,
+      cases: {},
+      skipPending: false,
+      skipUnavailable: true,
+      outcome: 'cancelled',
+    }))
   }, [])
+
+  // Skip the executor's in-flight tool call WITHOUT ending the turn — the
+  // model is told the command did not run and carries on. The card owns its own
+  // pressed state, so this just forwards the host's answer: `false` means the
+  // call had already finished (a race the person did not cause), which the card
+  // answers by returning the button to rest rather than reporting anything.
+  const handleSkipToolCall = useCallback(
+    async (toolCallId: string): Promise<boolean | void> => {
+      if (canEdit === false || !skipToolCall) return false
+      try {
+        return await skipToolCall(toolCallId)
+      } catch (error) {
+        logger.warn('Failed to skip the running tool call', { error })
+        return false
+      }
+    },
+    [canEdit, skipToolCall],
+  )
+
+  // Skip the command the run is ON, leaving the run itself alive. The state
+  // only records that the request went out — the run's own `result` for that
+  // file is what moves the row, so a skip can never paint itself as a pass. A
+  // host answering "there was nothing to skip" is a race the person did not
+  // cause: the control goes away, no error line.
+  const skipCurrentTest = useCallback((): void => {
+    if (canEdit === false || canRunTests === false) return
+    const skip = testsRunHandleRef.current?.skipCurrent
+    if (!skip) {
+      setTestsRun((prev) => markSkipUnavailable(prev))
+      return
+    }
+    setTestsRun((prev) => requestSkip(prev))
+    const unavailable = (): void => {
+      if (testsMountedRef.current) setTestsRun((prev) => markSkipUnavailable(prev))
+    }
+    try {
+      const outcome = skip.call(testsRunHandleRef.current)
+      if (outcome) {
+        void outcome.then((accepted) => {
+          if (accepted === false) unavailable()
+        }, unavailable)
+      }
+    } catch (error) {
+      logger.warn('Failed to skip the running test', { error })
+      unavailable()
+    }
+  }, [canEdit, canRunTests])
 
   /** Open the tests browser, re-listing so a spec just written shows up. */
   const openTestsBrowser = useCallback(
@@ -8186,6 +8267,7 @@ function ChatInner({
                           canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
                           onRun={startTestsRun}
                           onCancel={cancelTestsRun}
+                          onSkipCurrent={skipCurrentTest}
                           onFix={fixTests}
                           fixDisabledReason={
                             canEdit === false
@@ -8377,6 +8459,14 @@ function ChatInner({
                       buildUpgradeCta={buildUpgradeCta}
                       agentName={agentName}
                       canEdit={canEdit}
+                      onSkipToolCall={skipToolCall ? handleSkipToolCall : undefined}
+                      skipToolCallReason={
+                        canEdit === false
+                          ? t('ide.chat.skipToolCallViewer', undefined, {
+                              defaultValue: 'Only editors can skip this.',
+                            })
+                          : null
+                      }
                     />
                   )
                 })(),
@@ -10630,6 +10720,7 @@ function ChatInner({
                   canRun={(canRunTests ?? canEdit !== false) && canEdit !== false}
                   onRun={startTestsRun}
                   onCancel={cancelTestsRun}
+                  onSkipCurrent={skipCurrentTest}
                   onFix={fixTests}
                   fixDisabledReason={
                     canEdit === false
@@ -12064,6 +12155,7 @@ export function ChatPanel({
   runTests,
   canRunTests,
   testsAvailable,
+  skipToolCall,
   className,
 }: ChatPanelProps): JSX.Element {
   const cm = getClassMap()
@@ -12525,6 +12617,7 @@ export function ChatPanel({
         runTests={runTests}
         canRunTests={canRunTests}
         testsAvailable={testsAvailable}
+        skipToolCall={skipToolCall}
       />
     </div>
   )

@@ -621,4 +621,13 @@ export const lo: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'ແກ້ໄຂດ້ວຍ Synthase',
   'ide.tests.fixFailures': 'ແກ້ໄຂ {{count}} ຄວາມລົ້ມເຫຼວ',
   'ide.tests.fixBusy': 'ລໍຖ້າໃຫ້ຮອບປັດຈຸບັນສິ້ນສຸດລົງ.',
+  'ide.chat.skipToolCall': 'ຂ້າມ',
+  'ide.chat.skippingToolCall': 'ກຳລັງຂ້າມ…',
+  'ide.chat.skipToolCallViewer': 'ມີແຕ່ບັນນາທິການເທົ່ານັ້ນທີ່ສາມາດຂ້າມສິ່ງນີ້ໄດ້.',
+  'ide.toolCall.statusSkipped': 'ຂ້າມແລ້ວ',
+  'ide.tests.skip': 'ຂ້າມ',
+  'ide.tests.skipping': 'ກຳລັງຂ້າມ…',
+  'ide.tests.skippedCount': '{{count}} ຂ້າມໄປແລ້ວ',
+  'ide.tests.skippedByUser': 'ແລ່ນສຳເລັດແລ້ວ. ການທົດສອບທີ່ທ່ານຂ້າມໄປບໍ່ໄດ້ແລ່ນ.',
+  'ide.tests.viewerCannotSkip': 'ມີພຽງບັນນາທິການເທົ່ານັ້ນທີ່ສາມາດຂ້າມການທົດສອບຂອງໂຄງການນີ້ໄດ້.',
 }

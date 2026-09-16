@@ -630,4 +630,14 @@ export const ml: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'സിന്തസിസ് ഉപയോഗിച്ച് പരിഹരിക്കുക',
   'ide.tests.fixFailures': 'പരിഹരിക്കുക {{count}} പരാജയങ്ങൾ',
   'ide.tests.fixBusy': 'നിലവിലെ ഊഴം പൂർത്തിയാകുന്നതുവരെ കാത്തിരിക്കുക.',
+  'ide.chat.skipToolCall': 'ഒഴിവാക്കുക',
+  'ide.chat.skippingToolCall': 'ഒഴിവാക്കുന്നു...',
+  'ide.chat.skipToolCallViewer': 'എഡിറ്റർമാർക്ക് മാത്രമേ ഇത് ഒഴിവാക്കാനാകൂ.',
+  'ide.toolCall.statusSkipped': 'ഒഴിവാക്കി',
+  'ide.tests.skip': 'ഒഴിവാക്കുക',
+  'ide.tests.skipping': 'ഒഴിവാക്കുന്നു...',
+  'ide.tests.skippedCount': '{{count}} ഒഴിവാക്കി',
+  'ide.tests.skippedByUser': 'ഓട്ടം പൂർത്തിയായി. നിങ്ങൾ ഒഴിവാക്കിയ പരിശോധനകൾ നടന്നില്ല.',
+  'ide.tests.viewerCannotSkip':
+    'എഡിറ്റർമാർക്ക് മാത്രമേ ഈ പ്രോജക്റ്റിന്റെ പരീക്ഷണങ്ങൾ ഒഴിവാക്കാൻ കഴിയൂ.',
 }

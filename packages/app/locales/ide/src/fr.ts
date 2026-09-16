@@ -645,4 +645,14 @@ export const fr: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Correction avec Synthase',
   'ide.tests.fixFailures': "Corriger les défaillances d'{{count}}",
   'ide.tests.fixBusy': 'Attendez que le tour en cours se termine.',
+  'ide.chat.skipToolCall': 'Passer',
+  'ide.chat.skippingToolCall': 'On passe…',
+  'ide.chat.skipToolCallViewer': 'Seuls les rédacteurs peuvent ignorer cette étape.',
+  'ide.toolCall.statusSkipped': 'Ignoré',
+  'ide.tests.skip': 'Passer',
+  'ide.tests.skipping': 'On passe…',
+  'ide.tests.skippedCount': '{{count}} sauté',
+  'ide.tests.skippedByUser':
+    "L'exécution est terminée. Les tests que vous avez ignorés n'ont pas été exécutés.",
+  'ide.tests.viewerCannotSkip': 'Seuls les éditeurs peuvent ignorer les tests de ce projet.',
 }

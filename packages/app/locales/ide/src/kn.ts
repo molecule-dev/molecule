@@ -627,4 +627,13 @@ export const kn: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'ಸಿಂಥೇಸ್‌ನೊಂದಿಗೆ ಸರಿಪಡಿಸಿ',
   'ide.tests.fixFailures': 'ಸರಿಪಡಿಸಿ {{count}} ವೈಫಲ್ಯಗಳು',
   'ide.tests.fixBusy': 'ಪ್ರಸ್ತುತ ಸರದಿ ಮುಗಿಯುವವರೆಗೆ ಕಾಯಿರಿ.',
+  'ide.chat.skipToolCall': 'ಬಿಟ್ಟುಬಿಡಿ',
+  'ide.chat.skippingToolCall': 'ಬಿಟ್ಟುಬಿಡಲಾಗುತ್ತಿದೆ...',
+  'ide.chat.skipToolCallViewer': 'ಸಂಪಾದಕರು ಮಾತ್ರ ಇದನ್ನು ಬಿಟ್ಟುಬಿಡಬಹುದು.',
+  'ide.toolCall.statusSkipped': 'ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ',
+  'ide.tests.skip': 'ಬಿಟ್ಟುಬಿಡಿ',
+  'ide.tests.skipping': 'ಬಿಟ್ಟುಬಿಡಲಾಗುತ್ತಿದೆ...',
+  'ide.tests.skippedCount': '{{count}} ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ',
+  'ide.tests.skippedByUser': 'ಓಟ ಮುಗಿದಿದೆ. ನೀವು ಬಿಟ್ಟುಬಿಟ್ಟ ಪರೀಕ್ಷೆಗಳು ನಡೆಯಲಿಲ್ಲ.',
+  'ide.tests.viewerCannotSkip': 'ಈ ಯೋಜನೆಯ ಪರೀಕ್ಷೆಗಳನ್ನು ಸಂಪಾದಕರು ಮಾತ್ರ ಬಿಟ್ಟುಬಿಡಬಹುದು.',
 }

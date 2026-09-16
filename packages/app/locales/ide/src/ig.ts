@@ -623,4 +623,13 @@ export const ig: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Dozie ya na Synthase',
   'ide.tests.fixFailures': 'Mdozi {{count}} ọdịda',
   'ide.tests.fixBusy': 'Chere ka mgbanwe dị ugbu a gwụchaa.',
+  'ide.chat.skipToolCall': 'Wụfee',
+  'ide.chat.skippingToolCall': 'Ịwụli elu...',
+  'ide.chat.skipToolCallViewer': 'Naanị ndị nchịkọta akụkọ nwere ike ịhapụ nke a.',
+  'ide.toolCall.statusSkipped': 'Awụfuru',
+  'ide.tests.skip': 'Wụfee',
+  'ide.tests.skipping': 'Ịwụli elu...',
+  'ide.tests.skippedCount': '{{count}} wụfuru',
+  'ide.tests.skippedByUser': 'Ọsọ agwụla. Ule ndị ị gbapụrụ agbaghị.',
+  'ide.tests.viewerCannotSkip': 'Naanị ndị nchịkọta akụkọ nwere ike ịgafe ule ọrụ a.',
 }

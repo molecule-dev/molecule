@@ -635,4 +635,13 @@ export const hu: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Javítás a Synthase segítségével',
   'ide.tests.fixFailures': '{{count}}-hibák kijavítása',
   'ide.tests.fixBusy': 'Várd meg, amíg a jelenlegi kör véget ér.',
+  'ide.chat.skipToolCall': 'Ugrás',
+  'ide.chat.skippingToolCall': 'Ugrás…',
+  'ide.chat.skipToolCallViewer': 'Ezt csak a szerkesztők hagyhatják ki.',
+  'ide.toolCall.statusSkipped': 'Kihagyva',
+  'ide.tests.skip': 'Ugrás',
+  'ide.tests.skipping': 'Ugrás…',
+  'ide.tests.skippedCount': '{{count}} kihagyott',
+  'ide.tests.skippedByUser': 'A futtatás befejeződött. Az áthugyozott tesztek nem futottak le.',
+  'ide.tests.viewerCannotSkip': 'Csak a szerkesztők hagyhatják ki ennek a projektnek a tesztjeit.',
 }

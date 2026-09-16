@@ -609,4 +609,13 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': '使用 Synthase 進行修復',
   'ide.tests.fixFailures': '修復 {{count}} 的錯誤',
   'ide.tests.fixBusy': '請等待本回合結束。',
+  'ide.chat.skipToolCall': '跳過',
+  'ide.chat.skippingToolCall': '跳過……',
+  'ide.chat.skipToolCallViewer': '只有編輯才能跳過此步驟。',
+  'ide.toolCall.statusSkipped': '跳過',
+  'ide.tests.skip': '跳過',
+  'ide.tests.skipping': '跳過……',
+  'ide.tests.skippedCount': '{{count}} 跳過',
+  'ide.tests.skippedByUser': '執行完成。您跳過的測試並未執行。',
+  'ide.tests.viewerCannotSkip': '只有編輯者才能跳過此專案的測試。',
 }

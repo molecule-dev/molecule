@@ -623,4 +623,13 @@ export const af: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Herstel met Synthase',
   'ide.tests.fixFailures': 'Herstel {{count}} mislukkings',
   'ide.tests.fixBusy': 'Wag totdat die huidige beurt klaar is.',
+  'ide.chat.skipToolCall': 'Slaan oor',
+  'ide.chat.skippingToolCall': 'Oorslaan…',
+  'ide.chat.skipToolCallViewer': 'Slegs redakteurs kan dit oorslaan.',
+  'ide.toolCall.statusSkipped': 'Oorgeslaan',
+  'ide.tests.skip': 'Slaan oor',
+  'ide.tests.skipping': 'Oorslaan…',
+  'ide.tests.skippedCount': '{{count}} oorgeslaan',
+  'ide.tests.skippedByUser': 'Loop voltooi. Die toetse wat jy oorgeslaan het, het nie geloop nie.',
+  'ide.tests.viewerCannotSkip': 'Slegs redakteurs kan hierdie projek se toetse oorslaan.',
 }

@@ -615,4 +615,13 @@ export const am: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'በሲንቴዝ ያስተካክሉ',
   'ide.tests.fixFailures': 'አስተካክል {{count}} ውድቀቶች',
   'ide.tests.fixBusy': 'የአሁኑ ዙር እስኪጠናቀቅ ድረስ ይጠብቁ።',
+  'ide.chat.skipToolCall': 'ዝለል',
+  'ide.chat.skippingToolCall': 'በመዝለል ላይ…',
+  'ide.chat.skipToolCallViewer': 'አርታኢዎች ብቻ ይህንን መዝለል ይችላሉ።',
+  'ide.toolCall.statusSkipped': 'ተዘልሏል',
+  'ide.tests.skip': 'ዝለል',
+  'ide.tests.skipping': 'በመዝለል ላይ…',
+  'ide.tests.skippedCount': '{{count}} ተዘልሏል',
+  'ide.tests.skippedByUser': 'ሩጫው ተጠናቋል። የዘለሉዋቸው ሙከራዎች አልተካሄዱም።',
+  'ide.tests.viewerCannotSkip': 'አርታኢዎች ብቻ የዚህን ፕሮጀክት ፈተናዎች መዝለል ይችላሉ።',
 }

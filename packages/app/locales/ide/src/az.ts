@@ -625,4 +625,13 @@ export const az: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Sintazla düzəldin',
   'ide.tests.fixFailures': 'Düzəlt {{count}} uğursuzluqlar',
   'ide.tests.fixBusy': 'Cari növbənin bitməsini gözləyin.',
+  'ide.chat.skipToolCall': 'Keçin',
+  'ide.chat.skippingToolCall': 'Atlanır…',
+  'ide.chat.skipToolCallViewer': 'Bunu yalnız redaktorlar atlaya bilər.',
+  'ide.toolCall.statusSkipped': 'Atlandı',
+  'ide.tests.skip': 'Keçin',
+  'ide.tests.skipping': 'Atlanır…',
+  'ide.tests.skippedCount': '{{count}} atlandı',
+  'ide.tests.skippedByUser': 'Çalışdırma tamamlandı. Buraxdığınız testlər başlamadı.',
+  'ide.tests.viewerCannotSkip': 'Yalnız redaktorlar bu layihənin testlərini atlaya bilərlər.',
 }

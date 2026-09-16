@@ -631,4 +631,15 @@ export const fil: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Ayusin gamit ang Synthase',
   'ide.tests.fixFailures': 'Ayusin {{count}} mga pagkabigo',
   'ide.tests.fixBusy': 'Hintaying matapos ang kasalukuyang turno.',
+  'ide.chat.skipToolCall': 'Laktawan',
+  'ide.chat.skippingToolCall': 'Nilalaktawan…',
+  'ide.chat.skipToolCallViewer': 'Mga editor lang ang maaaring lumaktaw dito.',
+  'ide.toolCall.statusSkipped': 'Nilaktawan',
+  'ide.tests.skip': 'Laktawan',
+  'ide.tests.skipping': 'Nilalaktawan…',
+  'ide.tests.skippedCount': '{{count}} nilaktawan',
+  'ide.tests.skippedByUser':
+    'Tapos na ang pagtakbo. Hindi tumakbo ang mga pagsubok na iyong nilaktawan.',
+  'ide.tests.viewerCannotSkip':
+    'Tanging ang mga editor lamang ang maaaring lumaktaw sa mga pagsubok ng proyektong ito.',
 }

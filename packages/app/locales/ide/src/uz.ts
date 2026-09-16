@@ -628,4 +628,14 @@ export const uz: Partial<IdeTranslations> = {
   'ide.tests.fixWithSynthase': 'Sintaz bilan tuzatish',
   'ide.tests.fixFailures': 'Tuzatish {{count}} muvaffaqiyatsizliklar',
   'ide.tests.fixBusy': 'Joriy navbat tugashini kuting.',
+  'ide.chat.skipToolCall': "O'tkazib yuborish",
+  'ide.chat.skippingToolCall': "O'tkazib yuborilmoqda…",
+  'ide.chat.skipToolCallViewer': "Buni faqat muharrirlar o'tkazib yuborishi mumkin.",
+  'ide.toolCall.statusSkipped': "O'tkazib yuborildi",
+  'ide.tests.skip': "O'tkazib yuborish",
+  'ide.tests.skipping': "O'tkazib yuborilmoqda…",
+  'ide.tests.skippedCount': "{{count}} o'tkazib yuborildi",
+  'ide.tests.skippedByUser': "Yugurish tugadi. Siz o'tkazib yuborgan testlar bajarilmadi.",
+  'ide.tests.viewerCannotSkip':
+    "Ushbu loyihaning sinovlarini faqat muharrirlar o'tkazib yuborishi mumkin.",
 }
