@@ -11,8 +11,8 @@ export const eu: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Laburki pentsatu',
   'ide.chat.thinking': 'Pentsatzen',
   'ide.chat.verificationPassed': 'Txekeak gaindituta',
@@ -210,7 +210,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Egiaztapenaren emaitza',
   'ide.chat.soundEvent.preview_error': 'Aurrebista errorea',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Sintesiak erantzuna amaitu du',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Zerbait gaizki joan da erantzun batean zehar',
   'ide.chat.soundEventDesc.tool_result':
     'Tresna-dei bat (fitxategi-irakurketa, komandoa, etab.) osatu da',

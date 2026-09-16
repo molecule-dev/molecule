@@ -11,8 +11,8 @@ export const ca: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Pensament breu',
   'ide.chat.thinking': 'Pensant',
   'ide.chat.verificationPassed': 'Comprovacions aprovades',
@@ -210,12 +210,12 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Resultat de la verificació',
   'ide.chat.soundEvent.preview_error': 'Error de previsualització',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'La sintasa ha acabat de respondre',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Alguna cosa ha anat malament durant una resposta',
   'ide.chat.soundEventDesc.tool_result':
     "S'ha completat una crida d'eina (lectura de fitxer, ordre, etc.)",
   'ide.chat.soundEventDesc.file_diff': "S'ha creat o modificat un fitxer",
-  'ide.chat.soundEventDesc.commit_suggestion': 'La sintasa suggereix fitxers per fer un commit.',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
   'ide.chat.soundEventDesc.mode': "Canvia entre el mode de planificació i el mode d'execució",
   'ide.chat.soundEventDesc.loop_limit_reached': "Arriba al límit màxim d'iteracions de l'eina",
   'ide.chat.soundEventDesc.verification_result':

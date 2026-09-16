@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const uz: Partial<CommonTranslations> = {
   'common.getStarted': 'Boshlash',
   'common.justNow': 'hozirgina',
-  'status.all': 'All ({{count}})',
+  'status.all': 'All',
   'status.overdue': 'Muddati oʻtgan vazifalar',
   'nav.settings': 'Sozlamalar',
   'nav.dashboard': 'Boshqaruv paneli',

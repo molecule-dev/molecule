@@ -7,8 +7,8 @@ export const fi: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'Kuitti ja planKey vaaditaan.',
   'user.payment.verificationNotConfigured':
     'Maksuvahvistusta ei ole määritetty palvelulle {{provider}}.',
-  'user.payment.invalidPlan': 'Virheellinen paketti.',
-  'user.payment.verificationFailed': 'Tilauksen vahvistus epäonnistui.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Tuntematon paketti.',
   'user.payment.invalidWebhookEvent': 'Virheellinen webhook-tapahtuma.',
 }

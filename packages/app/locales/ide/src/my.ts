@@ -11,8 +11,8 @@ export const my: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'ခဏလေး စဉ်းစားမိတယ်',
   'ide.chat.thinking': 'စဉ်းစားတွေးခေါ်ခြင်း',
   'ide.chat.verificationPassed': 'စစ်ဆေးမှုများ အောင်မြင်ပြီး',

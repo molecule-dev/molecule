@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for fa. */
 export const fa: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'اعلان‌ها',
   'notificationsPage.markAllRead': 'مارک {{count}} همانطور که خوانده شد',
   'notificationsPage.filterUnread': 'خوانده نشده',

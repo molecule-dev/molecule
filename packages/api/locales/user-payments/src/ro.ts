@@ -7,8 +7,8 @@ export const ro: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt și planKey sunt obligatorii.',
   'user.payment.verificationNotConfigured':
     'Verificarea plății nu este configurată pentru {{provider}}.',
-  'user.payment.invalidPlan': 'Plan invalid.',
-  'user.payment.verificationFailed': 'Nu s-a putut verifica abonamentul.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Plan necunoscut.',
   'user.payment.invalidWebhookEvent': 'Eveniment webhook invalid.',
 }

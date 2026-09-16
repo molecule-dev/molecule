@@ -11,8 +11,8 @@ export const cy: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Meddwl yn fyr',
   'ide.chat.thinking': 'Meddwl',
   'ide.chat.verificationPassed': "Sieciau wedi'u pasio",
@@ -88,8 +88,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.autoApproveError': "Methwyd diweddaru'r gosodiad cymeradwyo awtomatig.",
   'ide.chat.modelUsage':
     'Defnydd: /model<model-name> (e.e. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired':
-    'model ar gael ar Pro. Uwchraddiwch i gael mynediad at bob model.',
+  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
   'ide.chat.maxLoopsReached': 'Cyrhaeddwyd terfyn uchaf y dolenni.',
   'ide.chat.maxLoopsError': "Methwyd diweddaru'r uchafswm o iteriadau offeryn.",
   'ide.chat.dropFilesHere': 'Gollwng ffeiliau yma',

@@ -7,8 +7,8 @@ export const zu: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'i-receipt ne-planKey ziyadingeka.',
   'user.payment.verificationNotConfigured':
     'Ukuqinisekiswa kokukhokha akumisekanga nge-{{provider}}.',
-  'user.payment.invalidPlan': 'Uhlelo olungavumelekile.',
-  'user.payment.verificationFailed': 'Yehlulekile ukuqinisekisa isithangami.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Uhlelo olungaziwa.',
   'user.payment.invalidWebhookEvent': 'Isenzakalo se-webhook esingavumelekile.',
 }

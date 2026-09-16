@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const ur: Partial<CommonTranslations> = {
   'common.getStarted': 'شروع کریں',
   'common.justNow': 'ابھی ابھی',
-  'status.all': 'All ({{count}})',
+  'status.all': 'All',
   'status.overdue': 'مدت گزرے کام',
   'nav.settings': 'ترتیبات',
   'nav.dashboard': 'ڈیش بورڈ',

@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for sw. */
 export const sw: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Arifa',
   'notificationsPage.markAllRead': 'Marko {{count}} kama ilivyosomwa',
   'notificationsPage.filterUnread': 'Haijasomwa',

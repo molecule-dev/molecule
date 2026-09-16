@@ -9,7 +9,7 @@ export const lt: Partial<AudioRecorderTranslations> = {
   'audioRecorder.pause': 'Pauzė',
   'audioRecorder.resume': 'Gyvenimo aprašymas',
   'audioRecorder.stop': 'Stop',
-  'audioRecorder.elapsed': 'Praėjęs laikas laikas',
+  'audioRecorder.elapsed': 'Elapsed {{time}}',
   'audioRecorder.statusPaused': 'Pristabdyta',
   'audioRecorder.statusProcessed': 'Įrašyta',
   'audioRecorder.statusError': 'Klaida',

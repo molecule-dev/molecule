@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for zu. */
 export const zu: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Izaziso',
   'notificationsPage.markAllRead': 'Mark {{count}} njengoba kufundiwe',
   'notificationsPage.filterUnread': 'Akufundiwe',

@@ -11,8 +11,8 @@ export const sl: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Na kratko premislil',
   'ide.chat.thinking': 'Razmišljanje',
   'ide.chat.verificationPassed': 'Preverjanja so bila opravljena',
@@ -210,7 +210,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Rezultat preverjanja',
   'ide.chat.soundEvent.preview_error': 'Napaka predogleda',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Sintaza je končala z odzivom',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Med odgovorom je prišlo do napake',
   'ide.chat.soundEventDesc.tool_result':
     'Klic orodja (branje datoteke, ukaz itd.) je bil zaključen',

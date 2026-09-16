@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for ne. */
 export const ne: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'सूचनाहरू',
   'notificationsPage.markAllRead': 'मार्क {{count}} पढिएको रूपमा',
   'notificationsPage.filterUnread': 'नपढिएको',

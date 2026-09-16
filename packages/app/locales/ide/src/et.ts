@@ -11,8 +11,8 @@ export const et: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Mõtlesin lühidalt',
   'ide.chat.thinking': 'Mõtlemine',
   'ide.chat.verificationPassed': 'Kontrollid sooritatud',
@@ -188,7 +188,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.commit': 'Kinnita',
   'ide.chat.committed': 'Pühendunud',
   'ide.chat.retryCommit': 'Proovi uuesti',
-  'ide.chat.loopLimitReached': 'Saavutatud maksimum Maksimaalne tööriista iteratsioonid.',
+  'ide.chat.loopLimitReached': 'Reached the maximum of {{max}} tool iterations.',
   'ide.chat.maxLoopsSet': 'Tööriista iteratsioonide maksimaalarvuks on seatud {{n}}',
   'ide.chat.modelError': 'Vestlusmudeli värskendamine ebaõnnestus.',
   'ide.chat.revertFile': 'Taasta viimasele muudatustele',
@@ -210,7 +210,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Kontrollimise tulemus',
   'ide.chat.soundEvent.preview_error': 'Eelvaate viga',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Süntees lõpetas vastamise',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Vastamisel läks midagi valesti',
   'ide.chat.soundEventDesc.tool_result':
     'Tööriistakutse (faili lugemine, käsk jne) on lõpule viidud',

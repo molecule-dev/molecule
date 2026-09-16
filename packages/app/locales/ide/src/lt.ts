@@ -11,8 +11,8 @@ export const lt: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Trumpai pagalvojau',
   'ide.chat.thinking': 'Mąstymas',
   'ide.chat.verificationPassed': 'Patikrinimai sėkmingi',
@@ -210,7 +210,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Patvirtinimo rezultatas',
   'ide.chat.soundEvent.preview_error': 'Peržiūros klaida',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Sintezė baigė atsakyti',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Atsakymo metu kažkas nepavyko',
   'ide.chat.soundEventDesc.tool_result':
     'Įrankio iškvietimas (failo nuskaitymas, komanda ir pan.) baigtas',

@@ -11,8 +11,8 @@ export const sq: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Mendova shkurt',
   'ide.chat.thinking': 'Të menduarit',
   'ide.chat.verificationPassed': 'Çekët e kaluar',
@@ -211,7 +211,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Rezultati i verifikimit',
   'ide.chat.soundEvent.preview_error': 'Gabim i pamjes paraprake',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Sintaza përfundoi përgjigjen',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Diçka shkoi keq gjatë një përgjigjeje',
   'ide.chat.soundEventDesc.tool_result':
     'Një thirrje mjeti (lexim skedari, komandë, etj.) u përfundua',

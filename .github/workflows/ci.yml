@@ -92,6 +92,13 @@ jobs:
       # scripts/i18n-parity-baseline.json debt list, so the historical backlog is
       # paid down without turning the gate red today.
       - run: npm run check:i18n-parity
+      # Interpolation placeholders: a `{{name}}` in a translation is a VARIABLE
+      # the i18n core substitutes by name, so it must match en.ts exactly in all
+      # 79 languages. A translated, dropped or invented token renders as raw
+      # braces (or silently drops the value) — 558 such values shipped once,
+      # mostly in aria-labels. Ran only in the pre-commit hook until 2026-09-16,
+      # which meant a --no-verify commit or a machine without husky landed it.
+      - run: npm run check:locale-placeholders
       - run: npm run build
       # Record what each package's sources hashed to, so the NEXT run can reuse
       # this dist per-package instead of rebuilding the fleet. Written after the

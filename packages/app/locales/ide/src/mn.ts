@@ -11,8 +11,8 @@ export const mn: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Товчхон бодов',
   'ide.chat.thinking': 'Сэтгэлгээ',
   'ide.chat.verificationPassed': 'Шалгалтууд давсан',
@@ -210,7 +210,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Баталгаажуулалтын үр дүн',
   'ide.chat.soundEvent.preview_error': 'Урьдчилан харах алдаа',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Синтез хариу өгч дууслаа',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Хариу өгөх явцад ямар нэгэн алдаа гарлаа',
   'ide.chat.soundEventDesc.tool_result':
     'Хэрэгслийн дуудлага (файл унших, команд өгөх гэх мэт) дууссан',

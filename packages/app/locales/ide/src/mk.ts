@@ -11,8 +11,8 @@ export const mk: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Размислив накратко',
   'ide.chat.thinking': 'Размислување',
   'ide.chat.verificationPassed': 'Положени чекови',
@@ -210,12 +210,12 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Резултат од верификацијата',
   'ide.chat.soundEvent.preview_error': 'Грешка во прегледот',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Синтазата заврши со одговорот',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Нешто тргна наопаку за време на одговорот',
   'ide.chat.soundEventDesc.tool_result':
     'Повик на алатка (читање на датотека, команда, итн.) завршен',
   'ide.chat.soundEventDesc.file_diff': 'Датотека е креирана или изменета',
-  'ide.chat.soundEventDesc.commit_suggestion': 'Синтазата предлага датотеки за извршување',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} is suggesting files to commit',
   'ide.chat.soundEventDesc.mode': 'Префрлено помеѓу режим на планирање и режим на извршување',
   'ide.chat.soundEventDesc.loop_limit_reached':
     'Достигнете го ограничувањето за максимални итерации на алатката',

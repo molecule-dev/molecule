@@ -7,8 +7,8 @@ export const sr: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'receipt и planKey су обавезни.',
   'user.payment.verificationNotConfigured':
     'Верификација плаћања није конфигурисана за {{provider}}.',
-  'user.payment.invalidPlan': 'Неважећи план.',
-  'user.payment.verificationFailed': 'Верификација претплате није успела.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Непознат план.',
   'user.payment.invalidWebhookEvent': 'Неважећи webhook догађај.',
 }

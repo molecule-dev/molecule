@@ -4,7 +4,7 @@ import type { CommonTranslations } from './types.js'
 export const am: Partial<CommonTranslations> = {
   'common.getStarted': 'ጀምር',
   'common.justNow': 'አሁን',
-  'status.all': 'All ({{count}})',
+  'status.all': 'All',
   'status.overdue': 'የጊዜ ገደብ ያለፉባቸው ተግባራት',
   'nav.settings': 'ቅንብሮች',
   'nav.dashboard': 'ዳሽቦርድ',

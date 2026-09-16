@@ -23,7 +23,7 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Continua',
   'upgrade.viewPlans': 'Aggiorna',
   'upgrade.signUp': 'Registrati',
-  'ide.chat.modelUpgradeRequired': 'Registrati',
+  'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
   'ide.chat.autoFixCountdown': 'Riprendi',
   'ide.chat.autoFixPause': 'Pausa',
   'ide.chat.autoFixCancel': 'Annulla',
@@ -214,7 +214,7 @@ export const it: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Esito della verifica',
   'ide.chat.soundEvent.preview_error': 'Errore di anteprima',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Sintasi ha terminato la risposta',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Si è verificato un errore durante una risposta',
   'ide.chat.soundEventDesc.tool_result':
     'È stata completata una chiamata di strumento (lettura file, comando, ecc.).',

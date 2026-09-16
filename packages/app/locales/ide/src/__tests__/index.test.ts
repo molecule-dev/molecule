@@ -22,20 +22,22 @@ const TIP_KEYS = [
   'ide.chat.tip.commit',
   'ide.chat.tip.report',
 ] as const
-// The tips that personalise with the host agent identity, so the {{agentName}}
-// interpolation token MUST survive translation intact (a real bug: the bulk
-// translator once left it masked/translated, breaking interpolation).
-const AGENT_NAME_TIP_KEYS = new Set([
-  'ide.chat.tip.getStarted',
-  'ide.chat.tip.mention',
-  'ide.chat.tip.plan',
-])
+// INTERPOLATION TOKENS ARE NOT CHECKED HERE ANY MORE.
+//
+// This file used to assert, for nine hand-listed keys, that `{{agentName}}` and
+// `{{count}}` survived translation and that no `<x>` mask leaked. That caught
+// its nine keys and nothing else: when the list was written, 214 OTHER values in
+// this same bond — and 344 more across twenty other bonds — were already
+// shipping a lost, gained or renamed token. A per-bond list only ever guards
+// what someone remembered to add to it.
+//
+// The invariant now lives in ONE fleet-wide gate covering every bond, every
+// language and every key: `scripts/check-locale-placeholders.js` (run by the
+// pre-commit hook and by CI, asserted by
+// `scripts/__tests__/check-locale-placeholders.test.ts`). Do not re-add a
+// scoped copy here.
 
 // The `/test` skip strings (added with the per-test progress + Skip controls).
-// `skippedCount` interpolates, and the bulk translator's placeholder masking is
-// exactly where an interpolation token goes missing: 32 languages first came
-// back with `{{count}}` TRANSLATED ({{telling}}, {{ಎಣಿಕೆ}}, {{đếm}}), which
-// interpolates to nothing and shows the person a literal brace token.
 const SKIP_KEYS = [
   'ide.chat.skipToolCall',
   'ide.chat.skippingToolCall',
@@ -47,8 +49,6 @@ const SKIP_KEYS = [
   'ide.tests.skippedByUser',
   'ide.tests.viewerCannotSkip',
 ] as const
-/** The skip strings that interpolate — their token must survive translation. */
-const COUNT_SKIP_KEYS = new Set(['ide.tests.skippedCount'])
 
 describe('ide locale bond', () => {
   it('exports at least 79 language tables (en + 78 stubs)', () => {
@@ -72,44 +72,19 @@ describe('ide locale bond', () => {
     }
   })
 
-  it.each(localeTables)(
-    'locale "%s" translates every skip string with its placeholder intact',
-    (code, table) => {
-      for (const key of SKIP_KEYS) {
-        const value = table[key as keyof IdeTranslations] as string | undefined
-        expect(typeof value, `${code} missing ${key}`).toBe('string')
-        expect((value as string).length, `${code} empty ${key}`).toBeGreaterThan(0)
-        expect(value, `${code} ${key} has leftover <x> mask`).not.toContain('<x>')
-        if (COUNT_SKIP_KEYS.has(key)) {
-          expect(value, `${code} ${key} lost {{count}}`).toContain('{{count}}')
-          // Exactly one token: a translated second brace pair is the same bug.
-          expect(
-            (value as string).match(/\{\{[^}]*\}\}/g),
-            `${code} ${key} has an unexpected placeholder`,
-          ).toEqual(['{{count}}'])
-        } else {
-          expect(value, `${code} ${key} grew a stray placeholder`).not.toContain('{{')
-        }
-      }
-    },
-  )
+  it.each(localeTables)('locale "%s" translates every skip string', (code, table) => {
+    for (const key of SKIP_KEYS) {
+      const value = table[key as keyof IdeTranslations] as string | undefined
+      expect(typeof value, `${code} missing ${key}`).toBe('string')
+      expect((value as string).length, `${code} empty ${key}`).toBeGreaterThan(0)
+    }
+  })
 
-  it.each(localeTables)(
-    'locale "%s" translates every auto-tip with intact placeholders',
-    (code, table) => {
-      for (const key of TIP_KEYS) {
-        const value = table[key as keyof IdeTranslations] as string | undefined
-        expect(typeof value, `${code} missing ${key}`).toBe('string')
-        expect((value as string).length, `${code} empty ${key}`).toBeGreaterThan(0)
-        // No leftover masking tags from the translation pipeline.
-        expect(value, `${code} ${key} has leftover <x> mask`).not.toContain('<x>')
-        if (AGENT_NAME_TIP_KEYS.has(key)) {
-          // The exact interpolation token must survive (not translated/spaced).
-          expect(value, `${code} ${key} lost {{agentName}}`).toContain('{{agentName}}')
-        } else {
-          expect(value, `${code} ${key} grew a stray placeholder`).not.toContain('{{')
-        }
-      }
-    },
-  )
+  it.each(localeTables)('locale "%s" translates every auto-tip', (code, table) => {
+    for (const key of TIP_KEYS) {
+      const value = table[key as keyof IdeTranslations] as string | undefined
+      expect(typeof value, `${code} missing ${key}`).toBe('string')
+      expect((value as string).length, `${code} empty ${key}`).toBeGreaterThan(0)
+    }
+  })
 })

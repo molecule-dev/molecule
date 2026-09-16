@@ -7,8 +7,8 @@ export const nb: UserPaymentTranslations = {
   'user.payment.receiptAndPlanRequired': 'kvittering og planKey er påkrevd.',
   'user.payment.verificationNotConfigured':
     'Betalingsverifisering er ikke konfigurert for {{provider}}.',
-  'user.payment.invalidPlan': 'Ugyldig plan.',
-  'user.payment.verificationFailed': 'Kunne ikke verifisere abonnement.',
+  'user.payment.invalidPlan': 'Invalid plan for {{provider}}.',
+  'user.payment.verificationFailed': 'Payment verification failed for {{provider}}.',
   'user.payment.unknownPlan': 'Ukjent plan.',
   'user.payment.invalidWebhookEvent': 'Ugyldig webhook-hendelse.',
 }

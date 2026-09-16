@@ -11,8 +11,8 @@ export const bg: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Помислих си накратко',
   'ide.chat.thinking': 'Мислене',
   'ide.chat.verificationPassed': 'Проверките са преминали',
@@ -213,7 +213,7 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Резултат от проверката',
   'ide.chat.soundEvent.preview_error': 'Грешка в предварителния преглед',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Синтазата приключи с отговора',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Нещо се обърка по време на отговора',
   'ide.chat.soundEventDesc.tool_result':
     'Извикване на инструмент (четене на файл, команда и др.) е завършено',

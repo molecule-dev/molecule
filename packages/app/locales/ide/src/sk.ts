@@ -11,8 +11,8 @@ export const sk: Partial<IdeTranslations> = {
     'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
   'ide.chat.viewerReadOnlyNote':
     'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.soundAll': 'All ({{count}})',
-  'ide.search.replaceAllShort': 'All ({{count}})',
+  'ide.chat.soundAll': 'All',
+  'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Krátko sa zamyslel',
   'ide.chat.thinking': 'Myslenie',
   'ide.chat.verificationPassed': 'Kontroly prešli',
@@ -210,7 +210,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.verification_result': 'Výsledok overenia',
   'ide.chat.soundEvent.preview_error': 'Chyba ukážky',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
-  'ide.chat.soundEventDesc.done': 'Syntáza dokončila reakciu',
+  'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Počas odpovede sa niečo pokazilo',
   'ide.chat.soundEventDesc.tool_result':
     'Volanie nástroja (čítanie súboru, príkaz atď.) bolo dokončené',

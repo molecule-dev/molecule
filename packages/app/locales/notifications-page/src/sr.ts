@@ -2,7 +2,7 @@ import type { NotificationsPageTranslations } from './types.js'
 
 /** NotificationsPage translations for sr. */
 export const sr: Partial<NotificationsPageTranslations> = {
-  'notificationsPage.filterAll': 'All ({{count}})',
+  'notificationsPage.filterAll': 'All',
   'notificationsPage.title': 'Обавештења',
   'notificationsPage.markAllRead': 'Означи {{count}} као што је прочитано',
   'notificationsPage.filterUnread': 'Непрочитано',
