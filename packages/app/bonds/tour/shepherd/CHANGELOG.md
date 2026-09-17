@@ -1,5 +1,11 @@
 # @molecule/app-tour-shepherd
 
+## 1.0.2
+
+### Patch Changes
+
+- 1955dcd: Upgrades `shepherd.js` to 15.3.0 and `mailparser` to 3.9.28, the first releases of each that accept `deepmerge-ts` 8, clearing the stack-exhaustion advisory GHSA-ggr8-5vv4-36mx from both dependency chains.
+
 ## 1.0.1
 
 ### Patch Changes
