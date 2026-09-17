@@ -1,0 +1,160 @@
+/**
+ * The tests status bar — its visibility preference and the pure summary the bar
+ * renders. The component is `TestStatusBar.tsx`; the hook is
+ * `hooks/useTestsBarVisible.ts`.
+ *
+ * Visibility is a PER-DEVICE, per-user display preference in localStorage, the
+ * same shape as `/timestamps` and `/sounds` — never project settings, so a
+ * viewer can hide the bar without changing what a teammate sees. It defaults to
+ * SHOWN: a run drives the project's preview as it goes, and a preview that moves
+ * on its own with nothing on screen to explain it is the problem this bar
+ * exists to remove.
+ *
+ * @module
+ */
+
+import type { TestItem } from '../types.js'
+import type { TestsRunState } from './tests-card-utilities.js'
+
+/** localStorage key holding `'true'` / `'false'`. Absent = the default (shown). */
+export const TESTS_BAR_STORAGE_KEY = 'mol_chat_show_tests_bar'
+
+/** Window event dispatched (same tab) whenever the preference changes. */
+export const TESTS_BAR_EVENT = 'mol:tests-bar-changed'
+
+/**
+ * Parses the stored preference. Only an explicit `'false'` hides the bar, so a
+ * missing or unreadable value keeps the default (shown).
+ *
+ * @param raw - The raw localStorage value.
+ * @returns Whether the tests bar is visible.
+ */
+export function parseTestsBarVisible(raw: string | null): boolean {
+  return raw !== 'false'
+}
+
+/**
+ * Reads this device's preference.
+ *
+ * @returns Whether the tests bar is visible (default `true`).
+ */
+export function getTestsBarVisible(): boolean {
+  try {
+    return parseTestsBarVisible(localStorage.getItem(TESTS_BAR_STORAGE_KEY))
+  } catch (_error) {
+    // localStorage unavailable (private mode, SSR) — fall back to the default.
+    return true
+  }
+}
+
+/**
+ * Writes this device's preference and tells every mounted chat in this tab.
+ *
+ * @param visible - Whether the bar should be shown.
+ */
+export function setTestsBarVisible(visible: boolean): void {
+  try {
+    localStorage.setItem(TESTS_BAR_STORAGE_KEY, visible ? 'true' : 'false')
+  } catch (_error) {
+    // Unwritable storage still fires the event, so the current tab follows.
+  }
+  try {
+    window.dispatchEvent(new CustomEvent(TESTS_BAR_EVENT, { detail: { visible } }))
+  } catch (_error) {
+    // No window (SSR) — nothing is mounted to notify.
+  }
+}
+
+/**
+ * What `/test on|off|toggle` means. Anything else is not a visibility request —
+ * bare `/test` opens the tests browser, which is a different thing entirely.
+ *
+ * @param args - The text after `/test`.
+ * @param current - The current visibility, for `toggle`.
+ * @returns The requested visibility, or null when the argument is not one.
+ */
+export function parseTestsBarArg(args: string, current: boolean): boolean | null {
+  const word = args.trim().toLowerCase()
+  if (word === 'on' || word === 'show' || word === 'bar on') return true
+  if (word === 'off' || word === 'hide' || word === 'bar off') return false
+  if (word === 'toggle' || word === 'bar') return !current
+  return null
+}
+
+/** The bar's overall state, which decides its colour and its wording. */
+export type TestsBarTone = 'idle' | 'running' | 'passing' | 'failing' | 'stopped' | 'error'
+
+/** Everything the bar renders, derived from the run state in one place. */
+export interface TestsBarSummary {
+  tone: TestsBarTone
+  /** Files that finished with every test passing. */
+  passed: number
+  /** Files that finished with at least one failing test. */
+  failed: number
+  /** Files that were skipped, by the runner or by the person. */
+  skipped: number
+  /** Files this run still has to reach, when it is running. */
+  remaining: number
+  /** The file running right now, when the host says which. */
+  currentFile: string | null
+  /** The individual test running right now, when the runner names it. */
+  currentTest: string | null
+}
+
+/**
+ * Derive everything the bar shows from the run state.
+ *
+ * The tone is deliberately NOT "whatever the last file did": a single failing
+ * file among twenty passing ones is a failing suite, because that is the thing
+ * the person has to act on. Running always wins, since a count that is still
+ * moving is not a verdict.
+ *
+ * @param run - The chat panel's live run state.
+ * @param tests - The discovered tests, used to name the file running now.
+ * @returns The summary the bar renders.
+ */
+export function summariseTestsBar(run: TestsRunState, tests: TestItem[]): TestsBarSummary {
+  let passed = 0
+  let failed = 0
+  let skipped = 0
+  for (const entry of Object.values(run.results)) {
+    if (entry.status === 'passed') passed++
+    else if (entry.status === 'failed') failed++
+    else if (entry.status === 'skipped') skipped++
+  }
+
+  const byId = new Map(tests.map((test) => [test.id, test]))
+  const current = run.currentId ? (byId.get(run.currentId) ?? null) : null
+  const progress = run.currentId ? run.cases[run.currentId] : undefined
+  const currentCase = progress?.current ?? null
+  const currentTest = currentCase
+    ? currentCase.describe
+      ? `${currentCase.describe} › ${currentCase.title}`
+      : currentCase.title
+    : null
+
+  const done = passed + failed + skipped
+  const remaining = run.running ? Math.max(0, run.queued.length - done) : 0
+
+  const tone: TestsBarTone = run.running
+    ? 'running'
+    : run.error
+      ? 'error'
+      : run.outcome === 'cancelled' || run.outcome === 'skipped-by-user'
+        ? 'stopped'
+        : failed > 0
+          ? 'failing'
+          : passed > 0
+            ? 'passing'
+            : 'idle'
+
+  return {
+    tone,
+    passed,
+    failed,
+    skipped,
+    remaining,
+    currentFile: current?.title ?? current?.file ?? null,
+    currentTest,
+  }
+}

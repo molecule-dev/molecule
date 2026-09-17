@@ -67,6 +67,7 @@ import type {
 } from '../customEventCards.js'
 import { getCustomEventCardFactory } from '../customEventCards.js'
 import { useChatTimestampsVisible, useMinuteNow } from '../hooks/useChatTimestampsVisible.js'
+import { useTestsBarVisible } from '../hooks/useTestsBarVisible.js'
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type {
   ChatPanelProps,
@@ -183,6 +184,7 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
+import { getTestsBarVisible, parseTestsBarArg, setTestsBarVisible } from './tests-bar-utilities.js'
 import type { TestFailure, TestsRunState } from './tests-card-utilities.js'
 import {
   applyTestRunEvent,
@@ -195,6 +197,7 @@ import {
 } from './tests-card-utilities.js'
 import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
+import { TestStatusBar } from './TestStatusBar.js'
 import { TipCard } from './TipCard.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
@@ -3248,6 +3251,8 @@ function ChatInner({
     { path: string; status: string; additions?: number; deletions?: number }[] | null
   >(null)
   const [commitBarExpanded, setCommitBarExpanded] = useState(false)
+  // The tests strip sits above the commit bar and starts collapsed, like it.
+  const [testsBarExpanded, setTestsBarExpanded] = useState(false)
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
   /** Number of timeline items rendered in the DOM. Increases when user clicks "Show earlier". */
   const [maxVisibleItems, setMaxVisibleItems] = useState(60)
@@ -4247,6 +4252,7 @@ function ChatInner({
   // The minute clock re-plans which items show a time (see planChatTimestamps),
   // so labels advance and runs of identical labels regroup as time passes.
   const timestampsVisible = useChatTimestampsVisible()
+  const testsBarVisible = useTestsBarVisible()
   const minuteNow = useMinuteNow()
   const applyTimestampsVisible = useCallback(
     (visible: boolean): void => {
@@ -6506,6 +6512,25 @@ function ChatInner({
       return
     }
 
+    // `/test on | off | toggle` sets whether the TESTS STRIP is shown — a
+    // per-device display preference, the same shape as /timestamps. Bare
+    // `/test` is left alone: it opens the tests browser, which is a different
+    // thing and is what the command menu offers.
+    const testsBarMatch = /^\/test(?:s)?\s+(.+)$/i.exec(trimmed)
+    if (testsBarMatch) {
+      const next = parseTestsBarArg(testsBarMatch[1] ?? '', getTestsBarVisible())
+      if (next !== null) {
+        setInputValue('')
+        setTestsBarVisible(next)
+        addSystemCard(
+          next
+            ? t('ide.chat.testsBarShown', undefined, { defaultValue: 'Tests bar shown.' })
+            : t('ide.chat.testsBarHidden', undefined, { defaultValue: 'Tests bar hidden.' }),
+          { clientOnly: true },
+        )
+        return
+      }
+    }
     // Handle /timestamps [on | off] locally — a per-device display preference.
     const timestampsCommand = parseTimestampsCommand(trimmed)
     if (timestampsCommand) {
@@ -11095,6 +11120,22 @@ function ChatInner({
             </div>
           )}
 
+        {/* Tests status strip — sits directly ABOVE the commit bar and wears its
+            chrome, so the two read as one stack over the composer. Shown by
+            default (a run drives the preview, and an unexplained moving preview
+            is what this removes); hidden with `/test off`. Unlike the commit bar
+            it renders for a VIEWER too: watching is not editing, and a viewer
+            watching the preview move deserves the same explanation. */}
+        {testsBarVisible && !commandMenu && !modelPicker && !effortPicker && !panelOverlay && (
+          <TestStatusBar
+            run={testsRun}
+            tests={testsList}
+            expanded={testsBarExpanded}
+            onToggle={() => setTestsBarExpanded((v) => !v)}
+            onOpen={() => openTestsBrowser('')}
+            onStop={testsRun.running ? cancelTestsRun : undefined}
+          />
+        )}
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
             Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
             so the bar is a dead control for them. */}
