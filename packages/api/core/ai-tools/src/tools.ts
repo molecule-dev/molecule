@@ -136,6 +136,106 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     return result
   }
 
+  // ── Empty-read verification ────────────────────────────────────
+
+  /**
+   * The file's size in bytes as the backend's own shell reports it, or `null`
+   * when that could not be established (the probe failed, timed out, or printed
+   * something unparseable).
+   *
+   * `null` means "I could not look" and is deliberately DISTINCT from `0` ("I
+   * looked and the file is empty") — conflating the two is the very failure this
+   * probe exists to prevent. The last integer in stdout is taken rather than the
+   * whole string, so a consumer that wraps commands in environment sourcing
+   * cannot break the parse with stray output.
+   *
+   * @param path - The already-resolved, symlink-checked path.
+   * @returns The byte count, or null when it could not be determined.
+   */
+  async function probeFileSize(path: string): Promise<number | null> {
+    try {
+      const result = await backend.run(`wc -c < ${shellQuote(path)}`, { timeout: 10_000 })
+      if (result.exitCode !== 0) return null
+      const match = /(\d+)\s*$/.exec(result.stdout)
+      if (!match) return null
+      const bytes = Number.parseInt(match[1], 10)
+      return Number.isFinite(bytes) ? bytes : null
+    } catch (_error) {
+      // The probe is the cross-check for an ALREADY-suspect read; if it cannot
+      // run we must report "unverified", never "empty" — returning 0 here would
+      // reintroduce exactly the conflation this function exists to remove.
+      return null
+    }
+  }
+
+  /**
+   * Decide what an EMPTY string from `backend.readFile` actually means.
+   *
+   * A backend read can come back empty without throwing: a sandbox exec whose
+   * output stream ends early still reports the process's own exit code, an HTTP
+   * file read can return a 200 with no body, and a concurrent writer can be
+   * observed mid-truncate. Observed in production on 2026-09-16 (X0 rehearsal
+   * 84): several `read_file` calls on two real components returned no content
+   * while an exec shell showed both files present at 3,617 and 25,746 bytes; a
+   * later read of the same paths succeeded, so the failure was transient.
+   *
+   * Returning `{ content: '' }` for that is indistinguishable from a successful
+   * read of an empty file — and a model that believes a file is empty writes it
+   * from scratch, destroying work it never saw. So an empty read is verified
+   * against the file's real size before it is reported as content: genuinely
+   * empty is returned as empty and SAID so; non-empty is retried once and then
+   * reported as a FAILED read; unverifiable is also a failure, never an empty
+   * file.
+   *
+   * @param path - The already-resolved, symlink-checked path.
+   * @param tool - The calling tool's name, for the error message.
+   * @returns The file's real content (possibly empty, with a note), or an error.
+   */
+  async function classifyEmptyRead(
+    path: string,
+    tool: string,
+  ): Promise<{ content: string; note?: string } | { error: string }> {
+    const bytes = await probeFileSize(path)
+    if (bytes === 0) {
+      return {
+        content: '',
+        note: `${path} exists and is EMPTY (0 bytes) — that is the file's real content, not a failed read.`,
+      }
+    }
+    if (bytes === null) {
+      return {
+        error:
+          `${tool} obtained NO CONTENT for ${path}, and could not confirm the file's size ` +
+          `(the \`wc -c ${path}\` probe failed), so this may be a FAILED read rather than an ` +
+          `empty file. Do NOT write or edit ${path} from memory or from the plan — that would ` +
+          `overwrite a file you have never seen. Call read_file again, or run \`cat ${path}\` ` +
+          `with exec_command, and only proceed once you actually have its contents.`,
+      }
+    }
+    // Non-empty on disk: the read failed, and the observed failure is transient —
+    // so retry it once here rather than spending an executor turn on it.
+    try {
+      const retry = await backend.readFile(path)
+      if (typeof retry === 'string' && retry !== '') {
+        return {
+          content: retry,
+          note: `The first read of ${path} returned nothing; this content came from an immediate retry.`,
+        }
+      }
+    } catch (_error) {
+      // The retry's own failure adds nothing to the message below — the size
+      // probe is the authoritative fact, and it already said the file has bytes.
+    }
+    return {
+      error:
+        `${tool} obtained NO CONTENT for ${path}, but the file is ${bytes} bytes on disk — the ` +
+        `read FAILED, this is not an empty file (a retry returned nothing either). Do NOT write ` +
+        `or edit ${path} from memory or from the plan — that would overwrite a file you have ` +
+        `never seen. Call read_file again, or run \`cat ${path}\` with exec_command, and only ` +
+        `proceed once you actually have its contents.`,
+    }
+  }
+
   // ── Diff computation ───────────────────────────────────────────
 
   /**
@@ -184,6 +284,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (symlinkErr) return { error: symlinkErr }
       try {
         const content = await backend.readFile(path)
+        // A read that produced no usable text is verified against the file's real
+        // size before it can be reported as content (see classifyEmptyRead). The
+        // non-string arm covers a backend whose transport handed back an empty
+        // body as `undefined`; `content.length` below would otherwise raise an
+        // unactionable "Cannot read properties of undefined".
+        if (typeof content !== 'string' || content === '') {
+          const verdict = await classifyEmptyRead(path, 'read_file')
+          if ('error' in verdict) return verdict
+          return {
+            path,
+            content: sanitizeFileContent(verdict.content, path),
+            ...(verdict.content === '' ? { empty: true } : {}),
+            ...(verdict.note ? { note: verdict.note } : {}),
+          }
+        }
         if (content.length > MAX_READ_SIZE)
           return {
             error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
@@ -300,6 +415,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (symlinkErr) return { error: symlinkErr }
       try {
         let content = await backend.readFile(path)
+        // A transiently-empty read here made every old_string "not found", which
+        // steers the model to re-read and then rewrite a file it never saw. Same
+        // verification as read_file: empty is only believed once it is confirmed.
+        if (typeof content !== 'string' || content === '') {
+          const verdict = await classifyEmptyRead(path, 'edit_file')
+          if ('error' in verdict) return verdict
+          content = verdict.content
+        }
         const oldContent = content
 
         for (const { old_string: oldString, new_string: newString } of replacements) {

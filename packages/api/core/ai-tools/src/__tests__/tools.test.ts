@@ -373,6 +373,140 @@ describe('buildTools', () => {
     expect(result.error).toContain('/test/src/routes/_auth does not exist either')
   })
 
+  it('read_file reports a FAILED read (never empty content) when the backend returns "" for a file with bytes on disk', async () => {
+    // Observed in production (X0 rehearsal 84): several read_file calls on two real
+    // components came back with no content at all; an exec shell showed both files present
+    // (3,617 and 25,746 bytes). A later read of the same paths succeeded, so the read
+    // failure was TRANSIENT — but the tool reported it as a successful read of an EMPTY
+    // file, which a weak model acts on by writing the file from scratch.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('')
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '3617\n',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({
+      path: '/test/app/src/components/AnnotatedProse.tsx',
+    })) as { error?: string; content?: string }
+    expect(result.content).toBeUndefined()
+    expect(result.error).toContain('/test/app/src/components/AnnotatedProse.tsx')
+    expect(result.error).toMatch(/3617 bytes/)
+    expect(result.error).toMatch(/not an empty file/i)
+    expect(result.error).toMatch(/read_file/)
+  })
+
+  it('read_file recovers transparently when the immediate retry returns the bytes', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce('')
+      .mockResolvedValue('export const AnnotatedProse = () => null\n')
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '41',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/x.tsx' })) as {
+      error?: string
+      content?: string
+      note?: string
+    }
+    expect(result.error).toBeUndefined()
+    expect(result.content).toBe('export const AnnotatedProse = () => null\n')
+    expect(result.note).toMatch(/retry/i)
+  })
+
+  it('read_file still returns a GENUINELY empty file as empty, marked so it is not mistaken for a failure', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('')
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '0\n',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/empty.ts' })) as {
+      error?: string
+      content?: string
+      empty?: boolean
+      note?: string
+    }
+    expect(result.error).toBeUndefined()
+    expect(result.content).toBe('')
+    expect(result.empty).toBe(true)
+    expect(result.note).toMatch(/0 bytes/)
+  })
+
+  it('read_file treats an UNVERIFIABLE empty read as a failure, not as an empty file', async () => {
+    // The size probe itself failed (the sandbox is wedged / the exec came back empty too).
+    // "I could not look" must never read as "I looked and the file is empty".
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('')
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '',
+      stderr: '',
+      exitCode: 1,
+    })
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/x.tsx' })) as {
+      error?: string
+      content?: string
+    }
+    expect(result.content).toBeUndefined()
+    expect(result.error).toMatch(/no content/i)
+    expect(result.error).toMatch(/could not confirm/i)
+  })
+
+  it('read_file reports a failed read when the backend hands back a non-string (empty transport body)', async () => {
+    // deliberately invalid backend return — an HTTP file read that yields no body can
+    // resolve `undefined`, which used to surface as "Cannot read properties of undefined
+    // (reading 'length')": an error, but one the model cannot act on.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue(undefined)
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '512',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: '/test/x.tsx' })) as {
+      error?: string
+      content?: string
+    }
+    expect(result.content).toBeUndefined()
+    expect(result.error).toMatch(/512 bytes/)
+    expect(result.error).not.toMatch(/Cannot read properties/)
+  })
+
+  it('edit_file does not blame old_string when the file read came back empty but has bytes on disk', async () => {
+    // Same conflation, different tool: an empty read made every old_string "not found",
+    // steering the model to re-read and then rewrite a file it had never seen.
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('')
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '25746',
+      stderr: '',
+      exitCode: 0,
+    })
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/AnnotatedBody.tsx',
+      old_string: 'const body',
+      new_string: 'const annotatedBody',
+    })) as { error?: string }
+    expect(result.error).toMatch(/25746 bytes/)
+    expect(result.error).not.toMatch(/old_string not found/)
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
   it('list_files surfaces a THROWN readDir (missing directory) as an error, never an empty list', async () => {
     // The docker backend once returned [] for a nonexistent directory — the model read that
     // as "empty dir exists" and spent a turn theorizing about virtual files. The backend now
