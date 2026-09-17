@@ -41,6 +41,6 @@
     "vitest": "4.1.11"
   },
   "dependencies": {
-    "shepherd.js": "15.2.2"
+    "shepherd.js": "15.3.0"
   }
 }

@@ -31,7 +31,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "mailparser": "3.9.14"
+    "mailparser": "3.9.28"
   },
   "devDependencies": {
     "@molecule/api-emails": "1.0.1",
