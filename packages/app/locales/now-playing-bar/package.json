@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-now-playing-bar",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Translations for @molecule/app-now-playing-bar-react in 79 languages",
   "type": "module",
   "main": "dist/index.js",

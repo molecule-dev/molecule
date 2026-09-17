@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.8.0
+
+### Minor Changes
+
+- 8961d63: The `/test` card now names the test on screen while a run is in flight — the runner's own group and title with a live per-file tally — and a running file can be skipped without ending the run; a skipped file reads `Skipped`, never as a pass. The executor's own long-running command gains the same Skip.
+
 ## 1.7.0
 
 ### Minor Changes
