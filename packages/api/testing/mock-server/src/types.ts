@@ -148,6 +148,13 @@ export interface MockServerConfig {
   fixturesPath?: string
   /** Port to listen on (default 4000) */
   port?: number
+  /**
+   * Network address to bind (default `'127.0.0.1'` — loopback ONLY). Pass an
+   * explicit host (e.g. `'0.0.0.0'`) to opt into LAN-wide exposure; the
+   * server serves fixture data with permissive CORS, so binding beyond
+   * loopback is a deliberate act, never a default.
+   */
+  host?: string
   /** Default response delay in ms (default 0) */
   defaultDelay?: number
   /** Default state for all endpoints */
@@ -166,6 +173,8 @@ export interface MockServerConfig {
 export interface MockServer {
   /** The port the server is listening on */
   port: number
+  /** The network address the server bound (default `'127.0.0.1'`) */
+  host: string
   /** The app type being served */
   appType: string
   /**

@@ -63,7 +63,7 @@ describe('@molecule/api-mock-server × REAL express', () => {
       port: 0,
       logging: false,
     })
-    base = `http://localhost:${server.port}`
+    base = `http://127.0.0.1:${server.port}`
   })
 
   afterAll(async () => {
@@ -278,7 +278,7 @@ describe('fixture-file lifecycle × pool cache', () => {
         logging: false,
       })
       try {
-        const r1 = await fetch(`http://localhost:${first.port}/api/items`)
+        const r1 = await fetch(`http://127.0.0.1:${first.port}/api/items`)
         expect(await r1.json()).toEqual([{ id: 'before' }])
       } finally {
         await first.close()
@@ -292,7 +292,7 @@ describe('fixture-file lifecycle × pool cache', () => {
         logging: false,
       })
       try {
-        const r2 = await fetch(`http://localhost:${second.port}/api/items`)
+        const r2 = await fetch(`http://127.0.0.1:${second.port}/api/items`)
         expect(await r2.json()).toEqual([{ id: 'after', edited: true }])
       } finally {
         await second.close()
@@ -349,7 +349,7 @@ describe('handler scanner × real handler files', () => {
         // The scanner-discovered PATCH endpoint must be served — before PATCH
         // support the scanner regex skipped router.patch entirely and the
         // request hit the labeled catch-all.
-        const patched = await fetch(`http://localhost:${server.port}/api/profile/me`, {
+        const patched = await fetch(`http://127.0.0.1:${server.port}/api/profile/me`, {
           method: 'PATCH',
         })
         expect(patched.status).toBe(200)
@@ -357,7 +357,7 @@ describe('handler scanner × real handler files', () => {
         expect(await patched.json()).toEqual({ id: 'p-1', name: 'Pat' })
 
         // The sibling GET single-object endpoint synthesizes its fields.
-        const me = await fetch(`http://localhost:${server.port}/api/profile/me`)
+        const me = await fetch(`http://127.0.0.1:${server.port}/api/profile/me`)
         expect(me.status).toBe(200)
         const body = (await me.json()) as { displayName?: unknown; totalPosts?: unknown }
         expect(typeof body.displayName).toBe('string')
@@ -387,7 +387,7 @@ describe('handler scanner × real handler files', () => {
       })
       try {
         // Fixture-file endpoints still serve (scanner is best-effort)…
-        const res = await fetch(`http://localhost:${server.port}/api/things`)
+        const res = await fetch(`http://127.0.0.1:${server.port}/api/things`)
         expect(res.status).toBe(200)
         expect(await res.json()).toEqual([{ id: 't-1' }])
         // …but the failure is surfaced — a silent swallow made an explicitly

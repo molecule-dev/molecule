@@ -30,6 +30,13 @@
  * ```
  *
  * @remarks
+ * The server BINDS LOOPBACK ONLY by default (`127.0.0.1`). It serves fixture
+ * data with permissive CORS and runtime state/delay controls, so a
+ * LAN-wide default bind would expose both to every network peer. To listen
+ * on other interfaces — e.g. inside a container or VM where the host
+ * forwards traffic in — pass an explicit `host: '0.0.0.0'` in the config
+ * (CLI: `--host 0.0.0.0`). That is a deliberate opt-in, never the default.
+ *
  * The server uses deterministic seeded PRNG for stable fixture data, making
  * screenshot comparisons reliable. Fixture data comes from the JSON files in
  * `fixturesPath` (array files become CRUD resources; `reports`/`storefront`/

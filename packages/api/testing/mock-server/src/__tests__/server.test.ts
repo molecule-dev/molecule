@@ -52,6 +52,33 @@ describe('createMockServer', () => {
     expect(server.appType).toBe('personal-finance')
   })
 
+  it('binds loopback (127.0.0.1) by default — not all interfaces', async () => {
+    server = await createMockServer({
+      appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
+      port: 0,
+      logging: false,
+    })
+    expect(server.host).toBe('127.0.0.1')
+    // Reachable via loopback…
+    const response = await fetch(`http://127.0.0.1:${server.port}/health`)
+    expect(response.status).toBe(200)
+  })
+
+  it('binds an explicit host when the caller opts in', async () => {
+    server = await createMockServer({
+      appType: 'personal-finance',
+      fixturesPath: fixturesPathFor('personal-finance'),
+      port: 0,
+      host: '0.0.0.0',
+      logging: false,
+    })
+    expect(server.host).toBe('0.0.0.0')
+    // 0.0.0.0 covers loopback too, so the server is still reachable locally.
+    const response = await fetch(`http://127.0.0.1:${server.port}/health`)
+    expect(response.status).toBe(200)
+  })
+
   it('serves fixture data for GET /api/accounts', async () => {
     server = await createMockServer({
       appType: 'personal-finance',
@@ -60,7 +87,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts`)
     expect(response.status).toBe(200)
 
     // generateFixtures serves list GETs as a bare array unless the handler
@@ -87,7 +114,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/transactions`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/transactions`)
     expect(response.status).toBe(200)
 
     const data = await response.json()
@@ -108,7 +135,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts?_state=error`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts?_state=error`)
     expect(response.status).toBe(500)
 
     const data = await response.json()
@@ -123,7 +150,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts?_state=empty`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts?_state=empty`)
     expect(response.status).toBe(200)
 
     const data = await response.json()
@@ -140,7 +167,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts?_state=unauthorized`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts?_state=unauthorized`)
     expect(response.status).toBe(401)
 
     const data = await response.json()
@@ -155,7 +182,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts`, {
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts`, {
       headers: { 'X-Mock-State': 'error' },
     })
     expect(response.status).toBe(500)
@@ -169,7 +196,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/health`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/health`)
     expect(response.status).toBe(200)
 
     const data = await response.json()
@@ -186,7 +213,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts`)
     expect(response.headers.get('access-control-allow-origin')).toBe('*')
   })
 
@@ -199,12 +226,12 @@ describe('createMockServer', () => {
     })
 
     // Initially success
-    let response = await fetch(`http://localhost:${server.port}/api/accounts`)
+    let response = await fetch(`http://127.0.0.1:${server.port}/api/accounts`)
     expect(response.status).toBe(200)
 
     // Set to error
     server.setState('GET /api/accounts', { state: 'error' })
-    response = await fetch(`http://localhost:${server.port}/api/accounts`)
+    response = await fetch(`http://127.0.0.1:${server.port}/api/accounts`)
     expect(response.status).toBe(500)
   })
 
@@ -216,7 +243,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/products`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/products`)
     expect(response.status).toBe(200)
 
     const body = await response.json()
@@ -239,7 +266,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts/some-id`, {
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts/some-id`, {
       method: 'DELETE',
     })
     expect(response.status).toBe(204)
@@ -253,7 +280,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/accounts`, {
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/accounts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'Test', type: 'checking' }),
@@ -280,7 +307,7 @@ describe('createMockServer', () => {
       logging: false,
     })
 
-    const response = await fetch(`http://localhost:${server.port}/api/reports/spending-by-category`)
+    const response = await fetch(`http://127.0.0.1:${server.port}/api/reports/spending-by-category`)
     expect(response.status).toBe(200)
 
     const data = await response.json()

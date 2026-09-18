@@ -15,6 +15,7 @@ interface CliArgs {
   app: string
   fixturesPath?: string
   port: number
+  host?: string
   state: 'success' | 'empty' | 'error' | 'unauthorized'
   delay: number
   handlersPath?: string
@@ -93,6 +94,14 @@ function parseArgs(argv: string[]): CliArgs {
         args.handlersPath = next
         i++
         break
+      case '--host':
+        if (next && /^[A-Za-z0-9.:[\]-]+$/.test(next)) {
+          args.host = next
+        } else {
+          console.warn(`Warning: invalid --host "${next ?? ''}" — using 127.0.0.1 (loopback only).`)
+        }
+        i++
+        break
       case '--help':
       case '-h':
         args.help = true
@@ -121,6 +130,8 @@ function printHelp(): void {
     --state, -s <state>        Default response state: success|empty|error|unauthorized (default: success)
     --delay, -d <ms>           Default response delay in milliseconds (default: 0)
     --handlers-path <path>     Custom path to handler template files
+    --host <host>              Network address to bind (default: 127.0.0.1 — loopback only;
+                               pass e.g. 0.0.0.0 to deliberately expose on the LAN)
     --help, -h                 Show this help message
 
   Examples:
@@ -152,6 +163,7 @@ async function main(): Promise<void> {
       appType: args.app || 'custom',
       fixturesPath: args.fixturesPath,
       port: args.port,
+      host: args.host,
       defaultState: args.state,
       defaultDelay: args.delay,
       handlersPath: args.handlersPath,

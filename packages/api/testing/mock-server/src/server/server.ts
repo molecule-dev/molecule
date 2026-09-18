@@ -54,6 +54,12 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     appType,
     fixturesPath,
     port = 4000,
+    // Bind loopback ONLY by default. This server hands out fixture data with
+    // permissive CORS and a `_delay` control — a LAN-wide default bind made
+    // both reachable from any peer on the network. Binding beyond loopback
+    // (e.g. '0.0.0.0' for a container/VM where the host forwards in) is an
+    // explicit opt-in via config.host / --host.
+    host = '127.0.0.1',
     defaultDelay = 0,
     defaultState = 'success',
     endpointStates = {},
@@ -205,11 +211,11 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
   })
 
   // Start server
-  const server = await startServer(app, port)
+  const server = await startServer(app, port, host)
   const actualPort = (server.address() as { port: number }).port
 
   if (logging) {
-    console.log(`\n  Mock API server running at http://localhost:${actualPort}`)
+    console.log(`\n  Mock API server running at http://${host}:${actualPort}`)
     console.log(`  App type: ${appType}`)
     console.log(`  Endpoints: ${fixtures.endpoints.size}`)
     console.log(`  Default state: ${defaultState}\n`)
@@ -217,6 +223,7 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
 
   return {
     port: actualPort,
+    host,
     appType,
     setState(endpointKey: string, state: ResponseState) {
       stateOverrides.set(endpointKey, state)
@@ -364,10 +371,12 @@ function registerRoute(
  * Start the Express server, with special handling for port 0 (random port).
  * @param app
  * @param port
+ * @param host - Network address to bind (default `'127.0.0.1'` — loopback
+ *   only; broader binds are the caller's explicit opt-in).
  */
-function startServer(app: express.Express, port: number): Promise<Server> {
+function startServer(app: express.Express, port: number, host: string): Promise<Server> {
   return new Promise((resolve, reject) => {
-    const server = app.listen(port, () => {
+    const server = app.listen(port, host, () => {
       resolve(server)
     })
     server.on('error', reject)
