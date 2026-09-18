@@ -34,8 +34,20 @@ const UNIT_MS: Record<string, number> = {
 }
 
 /**
+ * Keys never merged from translation sources. `JSON.parse` creates OWN
+ * properties named `__proto__` (bypassing the prototype setter), and a
+ * naive `target[key] = …` assignment then pollutes `Object.prototype` —
+ * a prototype-pollution primitive should a translations source ever become
+ * remotely writable. `constructor`/`prototype` are guarded the same way.
+ * None of these are legitimate translation keys.
+ */
+const PROTOTYPE_POLLUTION_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
+/**
  * Recursively merges source translation entries into the target object,
- * preserving existing keys and overwriting conflicts.
+ * preserving existing keys and overwriting conflicts. Skips the
+ * prototype-pollution keys ({@link PROTOTYPE_POLLUTION_KEYS}) at every
+ * depth.
  *
  * @param target - The target translations object to merge into.
  * @param source - The source translations to merge from.
@@ -43,6 +55,7 @@ const UNIT_MS: Record<string, number> = {
  */
 const deepMerge = (target: Translations, source: Translations): Translations => {
   for (const key of Object.keys(source)) {
+    if (PROTOTYPE_POLLUTION_KEYS.has(key)) continue
     const sv = source[key]
     const tv = target[key]
     if (typeof sv === 'object' && sv !== null && typeof tv === 'object' && tv !== null) {

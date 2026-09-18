@@ -194,3 +194,25 @@ describe('@molecule/api-i18n', () => {
     })
   })
 })
+
+describe('addTranslations prototype-pollution guard', () => {
+  it('skips __proto__/constructor/prototype keys instead of writing through the prototype setter', async () => {
+    vi.resetModules()
+    const mod = await import('../translator.js')
+    // JSON.parse creates an OWN "__proto__" property (bypassing the setter),
+    // which a plain `target[key] = ...` merge would then write through —
+    // polluting Object.prototype for the whole process.
+    const malicious = JSON.parse(
+      '{"__proto__": {"polluted": "pwned"}, "constructor": {"polluted2": "pwned"}, "legit": "ok"}',
+    ) as Record<string, unknown>
+
+    mod.addTranslations('en', malicious as Parameters<typeof mod.addTranslations>[1])
+
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    expect(({} as Record<string, unknown>).polluted2).toBeUndefined()
+    // Legitimate keys still merge.
+    expect(mod.t('legit')).toBe('ok')
+    // The pollution keys are dropped, not stored.
+    expect(mod.t('__proto__')).toBe('__proto__')
+  })
+})
