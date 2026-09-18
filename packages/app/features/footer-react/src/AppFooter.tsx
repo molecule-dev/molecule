@@ -41,6 +41,21 @@ export interface AppFooterProps {
   dataMolId?: string
 }
 
+/**
+ * HTML-escapes an interpolation value before it enters a translation whose
+ * result is rendered as HTML (`dangerouslySetInnerHTML`). React escapes
+ * text children automatically but NOT values interpolated into HTML
+ * strings — an `appName` containing markup would otherwise execute inside
+ * the legal content.
+ */
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
 const isExternalHref = (href: string): boolean => /^https?:\/\//i.test(href)
 
 /**
@@ -161,7 +176,9 @@ export function AppFooter({
             title={t('footer.privacyPolicy', {}, { defaultValue: 'Privacy Policy' })}
             size="lg"
           >
-            {renderLegal(t('content.privacyPolicy', { appName }, { defaultValue: '' }))}
+            {renderLegal(
+              t('content.privacyPolicy', { appName: escapeHtml(appName) }, { defaultValue: '' }),
+            )}
           </Modal>
           <Modal
             open={termsOpen}
@@ -169,7 +186,9 @@ export function AppFooter({
             title={t('footer.termsOfService', {}, { defaultValue: 'Terms of Service' })}
             size="lg"
           >
-            {renderLegal(t('content.termsOfService', { appName }, { defaultValue: '' }))}
+            {renderLegal(
+              t('content.termsOfService', { appName: escapeHtml(appName) }, { defaultValue: '' }),
+            )}
           </Modal>
         </>
       )}

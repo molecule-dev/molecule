@@ -49,6 +49,21 @@ export interface LegalContentPageProps {
 }
 
 /**
+ * HTML-escapes an interpolation value before it enters a translation whose
+ * result is rendered as HTML (`dangerouslySetInnerHTML`). React escapes
+ * text children automatically but NOT values interpolated into HTML
+ * strings — an `appName` containing markup would otherwise execute inside
+ * the legal content.
+ */
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
+/**
  * Standalone Privacy / Terms page that renders the **same** bonded legal
  * HTML the footer modal shows (`content.privacyPolicy` /
  * `content.termsOfService` from `@molecule/app-locales-legal-default`),
@@ -88,7 +103,9 @@ export function LegalContentPage({
     }
   }, [loadContent, kind])
 
-  const html = t(CONTENT_KEY[kind], appName ? { appName } : {}, { defaultValue: '' })
+  const html = t(CONTENT_KEY[kind], appName ? { appName: escapeHtml(appName) } : {}, {
+    defaultValue: '',
+  })
 
   return (
     <ContentPageShell

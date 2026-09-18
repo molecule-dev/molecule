@@ -19,6 +19,9 @@
  * ```
  *
  * @remarks
+ * The `appName` interpolated into the Privacy/Terms modal HTML is
+ * HTML-escaped first — the modal bodies render via `dangerouslySetInnerHTML`,
+ * so a markup-carrying app name must arrive as inert entities.
  * - Must render inside BOTH a `react-router-dom` router (the About link and
  *   `legalMode="route"` links are `<Link>` elements — they throw outside a
  *   Router) and `@molecule/app-react`'s `I18nProvider` — `useTranslation()`

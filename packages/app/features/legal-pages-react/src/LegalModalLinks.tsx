@@ -27,6 +27,21 @@ export interface LegalModalsApi {
 }
 
 /**
+ * HTML-escapes an interpolation value before it enters a translation whose
+ * result is rendered as HTML (`dangerouslySetInnerHTML`). React escapes
+ * text children automatically but NOT values interpolated into HTML
+ * strings — an `appName` containing markup would otherwise execute inside
+ * the legal content.
+ */
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
+/**
  * Headless hook powering in-place Privacy/Terms modals. Use it when the
  * triggers live in different parts of a bespoke footer (or a signup
  * page); place `{modals}` once and wire `openPrivacy`/`openTerms` to your
@@ -68,7 +83,9 @@ export function useLegalModals({
         <div
           className={cm.prose}
           dangerouslySetInnerHTML={{
-            __html: t('content.privacyPolicy', appName ? { appName } : {}, { defaultValue: '' }),
+            __html: t('content.privacyPolicy', appName ? { appName: escapeHtml(appName) } : {}, {
+              defaultValue: '',
+            }),
           }}
         />
       </Modal>
@@ -81,7 +98,9 @@ export function useLegalModals({
         <div
           className={cm.prose}
           dangerouslySetInnerHTML={{
-            __html: t('content.termsOfService', appName ? { appName } : {}, { defaultValue: '' }),
+            __html: t('content.termsOfService', appName ? { appName: escapeHtml(appName) } : {}, {
+              defaultValue: '',
+            }),
           }}
         />
       </Modal>

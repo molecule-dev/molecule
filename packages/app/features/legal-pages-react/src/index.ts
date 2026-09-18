@@ -14,6 +14,10 @@
  *   `<LegalPageLayout>`, `<LegalPageSection>`.
  *
  * @remarks
+ * - **`appName` is HTML-escaped before interpolation.** The legal bodies are
+ *   rendered as HTML (`dangerouslySetInnerHTML`); an `appName` carrying
+ *   markup is escaped to inert entities first, so it can never execute
+ *   inside the legal content.
  * - `LegalContentPage` / `useLegalModals` render bonded HTML that defaults to an
  *   EMPTY string until the locale module is registered — pass your app's
  *   `loadContent` (from `src/config.ts`, re-exporting

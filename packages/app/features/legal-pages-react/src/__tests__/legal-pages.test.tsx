@@ -316,6 +316,30 @@ describe('LegalModalLinks (in-place modals)', () => {
   })
 })
 
+describe('legal content {{appName}} is HTML-escaped before entering legal HTML', () => {
+  it('a markup-carrying appName renders inert on the content page', () => {
+    const markup = html(
+      createElement(LegalContentPage, {
+        kind: 'privacy',
+        appName: 'Acme<img src=x onerror=alert(1)><script>evil()</script>',
+      }),
+    )
+    expect(markup).toContain('&lt;script&gt;')
+    expect(markup).toContain('&lt;img')
+    expect(markup).not.toContain('<script>evil')
+  })
+
+  it('a markup-carrying appName renders inert in the legal modals too', () => {
+    const markup = html(
+      createElement(LegalModalLinks, {
+        appName: 'Acme<img src=x onerror=alert(1)><script>evil()</script>',
+      }),
+    )
+    expect(markup).toContain('&lt;script&gt;')
+    expect(markup).not.toContain('<script>evil')
+  })
+})
+
 describe('LegalContentPage (standalone bonded pages)', () => {
   it('interpolates appName into the terms body', () => {
     const markup = html(createElement(LegalContentPage, { kind: 'terms', appName: 'Acme' }))

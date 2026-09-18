@@ -100,6 +100,26 @@ describe('AppFooter legal modals — no silently-blank modal (empty content)', (
   })
 })
 
+describe('AppFooter legal modals — {{appName}} is HTML-escaped before entering legal HTML', () => {
+  it('a markup-carrying appName renders inert, not as script/img tags', () => {
+    catalog['content.privacyPolicy'] = '<p>Privacy Policy for {{appName}}.</p>'
+    const { container, getByRole } = render(
+      createElement(AppFooter, {
+        appName: 'Acme<img src=x onerror=alert(1)><script>evil()</script>',
+        aboutHref: '/about',
+      }),
+    )
+    fireEvent.click(getByRole('button', { name: 'Privacy Policy' }))
+    const modal = container.querySelector<HTMLElement>('[data-modal]')!
+    const html = modal.firstElementChild!.innerHTML
+    expect(html).toContain('&lt;script&gt;')
+    expect(html).toContain('&lt;img')
+    // No live script/img element was created from the appName.
+    expect(modal.querySelector('script')).toBeNull()
+    expect(modal.querySelector('img')).toBeNull()
+  })
+})
+
 describe('AppFooter legal modals — app-registered content renders as HTML', () => {
   it('renders registered privacy HTML instead of the placeholder', () => {
     catalog['content.privacyPolicy'] = '<h2>Acme Privacy</h2><p>We collect nothing.</p>'
