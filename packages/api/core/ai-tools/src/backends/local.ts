@@ -20,6 +20,9 @@ import type { ExecutionBackend } from '../types.js'
 export function createLocalBackend(projectRoot: string): ExecutionBackend {
   return {
     projectRoot,
+    // Marks this backend as operating directly on the HOST filesystem —
+    // buildTools() uses it to warn loudly when path/symlink guards are off.
+    hostFs: true,
 
     async readFile(path: string) {
       return readFile(path, 'utf8')

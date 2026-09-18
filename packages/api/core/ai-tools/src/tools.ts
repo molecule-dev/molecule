@@ -58,6 +58,24 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
   const root = backend.projectRoot
 
+  // A host-filesystem backend with escape guards off is the combination the
+  // audit flagged: `pathGuards` off lets `..` paths out of the workspace,
+  // and `symlinkGuards` off lets a workspace SYMLINK redirect reads/writes
+  // anywhere on the host (npm-workspace layouts are full of such symlinks).
+  // Defaults are deliberately unchanged — but the state must be LOUD, not
+  // silent: one warn per buildTools() call, naming the exact gaps.
+  if (backend.hostFs && (!pathGuards || !symlinkGuards)) {
+    const off = [!pathGuards ? '`pathGuards`' : null, !symlinkGuards ? '`symlinkGuards`' : null]
+      .filter(Boolean)
+      .join(' and ')
+    console.warn(
+      `[ai-tools] ${off} disabled on a LOCAL-HOST backend (root ${backend.projectRoot}) — ` +
+        'model-driven file operations can escape the workspace via `..` paths or symlinks ' +
+        'into the host filesystem. Contained agent runs should use the sandbox backend; ' +
+        'host runs should enable both guards.',
+    )
+  }
+
   // One synchronized excluded-dir set for BOTH search tools (VS Code
   // `search.exclude` semantics). Names are validated defensively — they are
   // interpolated into shell commands, so anything outside the safe charset is

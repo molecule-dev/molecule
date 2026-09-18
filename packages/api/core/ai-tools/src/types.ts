@@ -12,6 +12,15 @@ export interface ExecutionBackend {
   /** The root directory for all operations (e.g. '/workspace' or '/Users/.../project'). */
   readonly projectRoot: string
 
+  /**
+   * Marks backends that operate DIRECTLY on the host filesystem (the local
+   * backend), as opposed to a contained sandbox. Consumers use it to judge
+   * how loud to be about disabled safety guards — a `..` path or symlink
+   * escape on a host backend reaches the operator's real files, while the
+   * same escape in a sandbox stays contained.
+   */
+  readonly hostFs?: boolean
+
   /** Read a file's content as UTF-8 string. */
   readFile(path: string): Promise<string>
 

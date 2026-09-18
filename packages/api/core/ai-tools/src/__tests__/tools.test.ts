@@ -949,4 +949,37 @@ describe('search excludes (VS Code search.exclude semantics)', () => {
     expect(cmd).not.toContain('node_modules')
     expect(cmd).not.toContain('rm -rf')
   })
+  describe('host-backend guard warning', () => {
+    let warnSpy: ReturnType<typeof vi.spyOn>
+    beforeEach(() => {
+      warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+    afterEach(() => {
+      warnSpy.mockRestore()
+    })
+
+    it('warns loudly when symlinkGuards/pathGuards are off on a LOCAL-HOST backend', () => {
+      const backend = { ...mockBackend(), hostFs: true }
+      buildTools(backend) // defaults: pathGuards on, symlinkGuards OFF
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('`symlinkGuards` disabled on a LOCAL-HOST backend'),
+      )
+
+      warnSpy.mockClear()
+      buildTools(backend, { pathGuards: false, symlinkGuards: false })
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('`pathGuards` and `symlinkGuards` disabled'),
+      )
+    })
+
+    it('does not warn when both guards are on, or on a sandbox (non-host) backend', () => {
+      const backend = { ...mockBackend(), hostFs: true }
+      buildTools(backend, { pathGuards: true, symlinkGuards: true })
+      expect(warnSpy).not.toHaveBeenCalled()
+
+      // Sandbox backend (no hostFs marker) with default guards: silent.
+      buildTools(mockBackend())
+      expect(warnSpy).not.toHaveBeenCalled()
+    })
+  })
 })

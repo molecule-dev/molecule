@@ -184,6 +184,9 @@ export function isEnvFilePath(path: string): boolean {
 
 /**
  * Commands that dump environment variables — blocked to prevent secret leakage.
+ * Also covers reads of `/etc/mol/…` (the molecule platform's secrets dir —
+ * `/etc/mol/env` carries the vault + platform secrets inside a sandbox),
+ * which is an env-dump by another door.
  *
  * `env` counts only when it DUMPS: bare, or with the `-0` / `--null` output
  * flags, followed by the end of the command or a separator / pipe / redirect.
@@ -193,9 +196,11 @@ export function isEnvFilePath(path: string): boolean {
  * workarounds (X0 rehearsal 14).
  */
 const BLOCKED_COMMANDS =
-  /(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv(?:\s+(?:-0|--null|--))?\s*(?:$|[;&|>)`'"])|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ)/i
+  /(?:^|[;&|`]\s*|(?:sh|bash|zsh|dash)\s+-c\s+['"]?\s*)(?:\/usr\/bin\/)?(?:\benv(?:\s+(?:-0|--null|--))?\s*(?:$|[;&|>)`'"])|\bprintenv\b|\bexport\s*$|\bset\s*$|\bdeclare\s+-x|cat\s+\/etc\/environment|cat\s+\/root\/\.bashrc|cat\s+\/proc\/\d+\/environ|cat\s+\/proc\/self\/environ|strings\s+\/proc|xargs[^;&|\n]*\/proc\/[^;&|\n]*environ|less\s+\/proc|head\s+\/proc|tail\s+\/proc|xxd\s+\/proc|od\s+\/proc|base64\s+\/proc|dd\s[^\n]*\/proc|sed\s[^\n]*\/proc\/[^\n]*environ|awk\s[^\n]*\/proc\/[^\n]*environ|cp\s[^\n]*\/proc\/[^\n]*environ|(?:cat|less|head|tail|xxd|od|base64|strings|dd|cp|sed|awk)\s[^\n;&|]*\/etc\/mol(?:\/|\b))/i
 /** Block shell redirects from /proc environ. */
 const BLOCKED_PROC_REDIRECT = /(?:<\s*\/proc\/(?:\d+|self)\/environ)/i
+/** Block shell redirects from the molecule platform secrets dir (`/etc/mol`). */
+const BLOCKED_MOL_REDIRECT = /(?:<\s*\/etc\/mol)/i
 /** Interpreter-based env dumping (python, node, ruby, perl). */
 const BLOCKED_INTERPRETER_ENV =
   /(?:python[23]?|node|ruby|perl)\s+(?:-e|-c)\s+[^\n]*(?:os\.environ|process\.env|ENV\[|%ENV|ENVIRON)/i
@@ -219,6 +224,8 @@ export function checkBlockedCommand(command: string): string | null {
     return `Command blocked: dumping environment variables is not allowed.${envDumpSteer}`
   if (BLOCKED_PROC_REDIRECT.test(command))
     return 'Command blocked: /proc/environ access is not allowed.' + envDumpSteer
+  if (BLOCKED_MOL_REDIRECT.test(command))
+    return 'Command blocked: /etc/mol (platform secrets) access is not allowed.' + envDumpSteer
   if (BLOCKED_INTERPRETER_ENV.test(command))
     return `Command blocked: dumping the environment from an interpreter is not allowed.${envDumpSteer}`
   return null

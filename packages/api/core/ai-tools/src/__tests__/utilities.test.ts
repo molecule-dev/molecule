@@ -229,6 +229,22 @@ describe('checkBlockedCommand', () => {
     expect(checkBlockedCommand('xxd < /proc/self/environ')).toMatch(/\/proc\/environ/)
   })
 
+  it('blocks reads of /etc/mol (platform secrets dir — /etc/mol/env holds vault + platform secrets)', () => {
+    expect(checkBlockedCommand('cat /etc/mol/env')).toMatch(/dumping environment/)
+    expect(checkBlockedCommand('cat /etc/mol/env.extra')).toMatch(/dumping environment/)
+    expect(checkBlockedCommand('cat /etc/mol')).toMatch(/dumping environment/)
+    expect(checkBlockedCommand('base64 /etc/mol/env')).toMatch(/dumping environment/)
+    expect(checkBlockedCommand('head -n 5 /etc/mol/env')).toMatch(/dumping environment/)
+    expect(checkBlockedCommand('strings /etc/mol/vault.json')).toMatch(/dumping environment/)
+    // A reader in front also blocks (reader rule fires first)…
+    expect(checkBlockedCommand('xxd < /etc/mol/env')).toMatch(/dumping environment/)
+    // …and a NON-reader command redirecting from /etc/mol hits the redirect rule.
+    expect(checkBlockedCommand('sha256sum < /etc/mol/env')).toMatch(/platform secrets/)
+    // Reads of sibling /etc paths that are NOT the platform secrets dir stay allowed.
+    expect(checkBlockedCommand('cat /etc/hostname')).toBeNull()
+    expect(checkBlockedCommand('cat /etc/motd')).toBeNull()
+  })
+
   it('blocks interpreter-based env dumps (python / node / ruby)', () => {
     expect(checkBlockedCommand('python -c "import os; print(os.environ)"')).toMatch(
       /from an interpreter/,
