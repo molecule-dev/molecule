@@ -24,6 +24,13 @@ const RULES = [
   ['Slack token', /\bxox[baprs]-[0-9A-Za-z-]{10,}/],
   ['Google API key', /\bAIza[0-9A-Za-z_-]{35}\b/],
   ['Stripe live key', /\b[sr]k_live_[0-9a-zA-Z]{16,}/],
+  // Stripe webhook signing secret. Real ones are `whsec_` + 24+ alphanumeric
+  // chars. `_` is deliberately NOT in the class: every `whsec_` already
+  // committed in this tree is a self-describing test constant
+  // (`whsec_unused_in_this_spec`, `whsec_capability_contract_secret`) whose
+  // underscores break the run, so the rule only ever matches a shape-valid
+  // value. (Audit 2026-09-17.)
+  ['Stripe webhook signing secret', /\bwhsec_[0-9A-Za-z]{20,}/],
   // npm granular access token. Added 2026-08-04, before the first @molecule/*
   // publish: the natural place to put one is `.npmrc`, and molecule/.npmrc is
   // TRACKED in a PUBLIC repo — so the obvious misstep was a world-readable
