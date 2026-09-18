@@ -119,4 +119,20 @@ describe('apiBaseForHost', () => {
     expect(provider.apiBaseForHost('gitlab.com')).toBe('https://gitlab.com/api/v4')
     expect(provider.apiBaseForHost('git.acme.dev')).toBe('https://git.acme.dev/api/v4')
   })
+
+  it('rejects a host carrying URL structure before any token-bearing call is built', () => {
+    // A host that smuggles a path, query, fragment, userinfo, or a scheme
+    // could reshape where the bearer token is sent.
+    expect(() => provider.apiBaseForHost('github.com/api/v3')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('token@github.com')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('github.com?x=1')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('github.com#f')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('https://github.com')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('')).toThrow(/Invalid git provider host/)
+  })
+
+  it('accepts a plain hostname or host:port (self-hosted instances)', () => {
+    expect(provider.apiBaseForHost('git.acme.dev')).toMatch(/^https:\/\/git\.acme\.dev/)
+    expect(() => provider.apiBaseForHost('git.acme.dev:8443')).not.toThrow()
+  })
 })

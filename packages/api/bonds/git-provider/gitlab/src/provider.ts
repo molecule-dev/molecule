@@ -49,6 +49,21 @@ const normalize = (project: GitLabProject): GitRepository | null => {
   }
 }
 
+/**
+ * Validates a (possibly user-supplied) host before it is interpolated into
+ * an API base URL. Fails closed: anything carrying URL structure — path
+ * separators, query strings, fragments, userinfo (`token@host`), scheme
+ * separators — is rejected, so the bearer-token-bearing request can never
+ * be reshaped to an attacker-chosen path or credential-prefixed URL.
+ * Allowed: hostname letters/digits/dots/hyphens plus an optional port.
+ */
+const assertValidHost = (host: string): string => {
+  if (!/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(host)) {
+    throw new Error(`Invalid git provider host: ${JSON.stringify(host)}`)
+  }
+  return host
+}
+
 /** The GitLab provider. */
 export const provider: GitProvider = {
   id: 'gitlab',
@@ -76,6 +91,7 @@ export const provider: GitProvider = {
   apiBaseForHost(host: string): string {
     // Uniform for gitlab.com and self-hosted alike — unlike GitHub, there is no
     // separate API host.
+    assertValidHost(host)
     return `https://${host}/api/v4`
   },
 

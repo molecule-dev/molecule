@@ -45,6 +45,29 @@ const normalize = (repo: GiteaRepo): GitRepository | null =>
     : null
 
 /**
+ * Validates a (possibly user-supplied) host before it is interpolated into
+ * an API base URL. Fails closed: anything carrying URL structure — path
+ * separators, query strings, fragments, userinfo (`token@host`), scheme
+ * separators — is rejected, so the bearer-token-bearing request can never
+ * be reshaped to an attacker-chosen path or credential-prefixed URL.
+ * Allowed: hostname letters/digits/dots/hyphens plus an optional port.
+ */
+const assertValidHost = (host: string): string => {
+  if (!/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(host)) {
+    throw new Error(`Invalid git provider host: ${JSON.stringify(host)}`)
+  }
+  return host
+}
+
+/**
+ * URL-encodes each `/`-separated segment of an `owner/name`-style repo
+ * path, preserving the separators: a path containing spaces, `?`, `#`, or
+ * other URL-meaningful bytes must not be able to alter the request target
+ * the token is sent to.
+ */
+const encodeRepoPath = (path: string): string => path.split('/').map(encodeURIComponent).join('/')
+
+/**
  * The Gitea provider.
  *
  * `defaultHost` is `gitea.com`, the project's own hosted instance, but Gitea is
@@ -71,6 +94,7 @@ export const provider: GitProvider = {
   basicAuthUsername: 'x-access-token',
 
   apiBaseForHost(host: string): string {
+    assertValidHost(host)
     return `https://${host}/api/v1`
   },
 
@@ -100,7 +124,7 @@ export const provider: GitProvider = {
     const { get } = await import('@molecule/api-http')
     const base = this.apiBaseForHost(input.host)
     try {
-      const response = await get<GiteaRepo>(`${base}/repos/${input.path}`, {
+      const response = await get<GiteaRepo>(`${base}/repos/${encodeRepoPath(input.path)}`, {
         headers: this.apiHeaders(input.token),
         timeout: 15_000,
       })

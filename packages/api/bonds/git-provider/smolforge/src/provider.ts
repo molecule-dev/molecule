@@ -63,6 +63,29 @@ const normalize = (repo: SmolForgeRepo, host: string): GitRepository | null => {
 }
 
 /**
+ * Validates a (possibly user-supplied) host before it is interpolated into
+ * an API base URL. Fails closed: anything carrying URL structure — path
+ * separators, query strings, fragments, userinfo (`token@host`), scheme
+ * separators — is rejected, so the bearer-token-bearing request can never
+ * be reshaped to an attacker-chosen path or credential-prefixed URL.
+ * Allowed: hostname letters/digits/dots/hyphens plus an optional port.
+ */
+const assertValidHost = (host: string): string => {
+  if (!/^[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::\d{1,5})?$/.test(host)) {
+    throw new Error(`Invalid git provider host: ${JSON.stringify(host)}`)
+  }
+  return host
+}
+
+/**
+ * URL-encodes each `/`-separated segment of an `owner/name`-style repo
+ * path, preserving the separators: a path containing spaces, `?`, `#`, or
+ * other URL-meaningful bytes must not be able to alter the request target
+ * the token is sent to.
+ */
+const encodeRepoPath = (path: string): string => path.split('/').map(encodeURIComponent).join('/')
+
+/**
  * The SmolForge provider.
  *
  * The first bond in this category with no OAuth: SmolForge's
@@ -86,6 +109,7 @@ export const provider: GitProvider = {
   basicAuthUsername: null,
 
   apiBaseForHost(host: string): string {
+    assertValidHost(host)
     return `https://${host}/api`
   },
 
@@ -118,10 +142,13 @@ export const provider: GitProvider = {
     const { get } = await import('@molecule/api-http')
     const base = this.apiBaseForHost(input.host)
     try {
-      const response = await get<{ repository?: SmolForgeRepo }>(`${base}/repos/${input.path}`, {
-        headers: this.apiHeaders(input.token),
-        timeout: 15_000,
-      })
+      const response = await get<{ repository?: SmolForgeRepo }>(
+        `${base}/repos/${encodeRepoPath(input.path)}`,
+        {
+          headers: this.apiHeaders(input.token),
+          timeout: 15_000,
+        },
+      )
       // Single lookups are wrapped too; fall back to the bare object so a shape
       // change in either direction still resolves rather than returning null.
       const repo = response.data?.repository ?? (response.data as SmolForgeRepo | undefined)

@@ -50,6 +50,22 @@ describe('apiBaseForHost', () => {
     // The reason this is a function and not a constant.
     expect(provider.apiBaseForHost('git.acme.dev')).toBe('https://git.acme.dev/api/v3')
   })
+
+  it('rejects a host carrying URL structure before any token-bearing call is built', () => {
+    // A host that smuggles a path, query, fragment, userinfo, or a scheme
+    // could reshape where the bearer token is sent.
+    expect(() => provider.apiBaseForHost('github.com/api/v3')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('token@github.com')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('github.com?x=1')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('github.com#f')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('https://github.com')).toThrow(/Invalid git provider host/)
+    expect(() => provider.apiBaseForHost('')).toThrow(/Invalid git provider host/)
+  })
+
+  it('accepts a plain hostname or host:port (self-hosted instances)', () => {
+    expect(provider.apiBaseForHost('git.acme.dev')).toMatch(/^https:\/\/git\.acme\.dev/)
+    expect(() => provider.apiBaseForHost('git.acme.dev:8443')).not.toThrow()
+  })
 })
 
 describe('apiHeaders', () => {
@@ -136,5 +152,12 @@ describe('getRepository', () => {
     await provider.getRepository({ host: 'github.com', token: 't', path: 'acme/app' })
 
     expect(String(http.get.mock.calls[0][0])).toContain('/repos/acme/app')
+  })
+
+  it('URL-encodes repo-path segments so path bytes cannot alter the request target', async () => {
+    http.get.mockResolvedValue({ data: repo() })
+    await provider.getRepository({ host: 'github.com', token: 't', path: 'own/er/re po?x=1' })
+    const url = http.get.mock.calls[0]![0] as string
+    expect(url).toContain('/repos/own/er/re%20po%3Fx%3D1')
   })
 })
