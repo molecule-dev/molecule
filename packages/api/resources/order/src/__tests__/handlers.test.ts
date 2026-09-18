@@ -101,6 +101,10 @@ describe('@molecule/api-resource-order handlers', () => {
     vi.clearAllMocks()
     // Default-DENY: every test starts with no merchant authorizer registered.
     setOrderMerchantAuthorizer(null)
+    // Default catalog probe FAILURE: no `products` table in the store → the
+    // create handler's re-pricer falls back to client-supplied body prices
+    // (the legacy behavior). Re-pricing tests override this per-case.
+    mockFindOne.mockRejectedValue(new Error('relation "products" does not exist'))
   })
 
   describe('create', () => {
@@ -288,6 +292,155 @@ describe('@molecule/api-resource-order handlers', () => {
       expect(mockCreate).toHaveBeenCalledWith(
         'orders',
         expect.objectContaining({ subtotal: 35, discount: 5, tax: 2, shipping: 4, total: 36 }),
+      )
+    })
+
+    it('RE-PRICING: uses catalog prices and ignores client-supplied unit prices when a products table exists', async () => {
+      // Client claims price 1 for a product whose catalog price is 1000.
+      mockFindOne.mockResolvedValueOnce({
+        id: 'prod-1',
+        price: 1000,
+        deletedAt: null,
+      })
+      mockCreate
+        .mockResolvedValueOnce({ data: ORDER_ROW })
+        .mockResolvedValueOnce({ data: ITEM_ROW })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } })
+
+      const req = mockReq({
+        body: { items: [{ productId: 'prod-1', name: 'Widget', price: 1, quantity: 2 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(mockFindOne).toHaveBeenCalledWith('products', [
+        { field: 'id', operator: '=', value: 'prod-1' },
+      ])
+      // subtotal = 1000*2 (catalog), NOT 1*2 (client); total likewise.
+      expect(mockCreate).toHaveBeenCalledWith(
+        'orders',
+        expect.objectContaining({ subtotal: 2000, total: 2000 }),
+      )
+      // The persisted order item carries the SERVER price.
+      expect(mockCreate).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ productId: 'prod-1', price: 1000, quantity: 2 }),
+      )
+    })
+
+    it('RE-PRICING: honours a product_variants price override over the product base price', async () => {
+      mockFindOne
+        .mockResolvedValueOnce({ id: 'prod-1', price: 1000, deletedAt: null }) // product
+        .mockResolvedValueOnce({ id: 'var-1', productId: 'prod-1', price: 750 }) // variant override
+      mockCreate
+        .mockResolvedValueOnce({ data: ORDER_ROW })
+        .mockResolvedValueOnce({ data: ITEM_ROW })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } })
+
+      const req = mockReq({
+        body: {
+          items: [
+            { productId: 'prod-1', variantId: 'var-1', name: 'Widget L', price: 1, quantity: 1 },
+          ],
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ price: 750, variantId: 'var-1' }),
+      )
+      expect(mockCreate).toHaveBeenCalledWith(
+        'orders',
+        expect.objectContaining({ subtotal: 750, total: 750 }),
+      )
+    })
+
+    it('RE-PRICING: a variant with null price falls back to the product base price', async () => {
+      mockFindOne
+        .mockResolvedValueOnce({ id: 'prod-1', price: 1000, deletedAt: null })
+        .mockResolvedValueOnce({ id: 'var-1', productId: 'prod-1', price: null })
+      mockCreate
+        .mockResolvedValueOnce({ data: ORDER_ROW })
+        .mockResolvedValueOnce({ data: ITEM_ROW })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } })
+
+      const req = mockReq({
+        body: {
+          items: [
+            { productId: 'prod-1', variantId: 'var-1', name: 'Widget', price: 1, quantity: 1 },
+          ],
+        },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(mockCreate).toHaveBeenCalledWith(
+        'order_items',
+        expect.objectContaining({ price: 1000 }),
+      )
+    })
+
+    it('RE-PRICING: rejects with 400 when the catalog does not contain a referenced product', async () => {
+      mockFindOne.mockResolvedValueOnce(null) // products table exists, row absent
+
+      const req = mockReq({
+        body: { items: [{ productId: 'ghost', name: 'X', price: 1, quantity: 1 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.unknownProduct' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('RE-PRICING: rejects with 400 when the referenced product is soft-deleted', async () => {
+      mockFindOne.mockResolvedValueOnce({
+        id: 'prod-1',
+        price: 1000,
+        deletedAt: '2024-01-01T00:00:00Z',
+      })
+
+      const req = mockReq({
+        body: { items: [{ productId: 'prod-1', name: 'X', price: 1, quantity: 1 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'order.error.unknownProduct' }),
+      )
+      expect(mockCreate).not.toHaveBeenCalled()
+    })
+
+    it('RE-PRICING: falls back to body prices when the products table is unreadable (no catalog)', async () => {
+      // beforeEach default: findOne rejects (no products table).
+      mockCreate
+        .mockResolvedValueOnce({ data: ORDER_ROW })
+        .mockResolvedValueOnce({ data: ITEM_ROW })
+        .mockResolvedValueOnce({ data: { id: 'event-1' } })
+
+      const req = mockReq({
+        body: { items: [{ productId: 'prod-1', name: 'Widget', price: 10, quantity: 2 }] },
+      })
+      const res = mockRes()
+
+      await create(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(201)
+      expect(mockCreate).toHaveBeenCalledWith(
+        'orders',
+        expect.objectContaining({ subtotal: 20, total: 20 }),
       )
     })
 

@@ -10,20 +10,27 @@
  * import { routes, requestHandlerMap } from '@molecule/api-resource-order'
  * ```
  * @remarks
- * **SECURITY — `create()` TRUSTS client-supplied prices; do NOT wire it to a
- * payment-charging path.** This resource is GENERIC: it owns no product/catalog
- * table, so it CANNOT verify a price. `create()` builds the order — and its
- * `total` (`subtotal − discount + tax + shipping`) — from the request body's
- * `items[].price`, `quantity`, `discount`, `tax`, and `shipping`. Input
- * validation rejects malformed money (negative `price`/`discount`/`tax`/
- * `shipping`, non-integer or `< 1` `quantity`) but does NOT establish that the
- * prices are CORRECT. A client can therefore submit `price: 0` (or otherwise
- * understate the total). Any code that CHARGES off an order MUST resolve each
- * unit price SERVER-SIDE from the product/menu table (keyed by `productId`/
- * `variantId`), ignore the client's `price`, and recompute the totals from
- * those trusted values — as every flagship checkout flow does. Use the stock
- * `create()` only for non-charging flows (drafts, internal/admin order entry,
- * an order that was already server-priced upstream).
+ * **SECURITY — unit prices are SERVER-RE-PRICED when a product catalog
+ * exists; without one, `create()` still trusts client-supplied amounts.**
+ * `create()` runs a server-side re-pricer: when the bonded data store
+ * exposes a `products` table (the catalog owned by
+ * `@molecule/api-resource-product`), each item's unit price is re-resolved
+ * from the catalog by `productId` (honouring a `product_variants` price
+ * override), `subtotal`/`total` are computed from the CATALOG prices, and
+ * the persisted `order_items.price` carries the server value — the
+ * client's `price` is discarded. Items whose product is missing from (or
+ * soft-deleted in) an existing catalog are rejected 400. FALLBACK: this
+ * resource is GENERIC and owns no catalog; when the data store has no
+ * readable `products` table, `create()` keeps the legacy behavior — the
+ * order `total` (`subtotal − discount + tax + shipping`) comes from the
+ * body's `items[].price`, `discount`, `tax`, and `shipping`, with only
+ * malformed money rejected (negative amounts, non-integer or `< 1`
+ * `quantity`). `discount`/`tax`/`shipping` are client-supplied in BOTH
+ * modes. Any code that CHARGES off an order must still resolve those
+ * server-side (or install the product catalog so item prices are
+ * authoritative). Use the stock `create()` for non-charging flows (drafts,
+ * internal/admin order entry, an order that was already server-priced
+ * upstream), or wire payments only alongside an installed catalog.
  *
  * Lifecycle ops (confirm/process/ship/deliver/refund, and cancelling an
  * already-progressed order) are MERCHANT-ONLY and DENY by default until an app
@@ -43,10 +50,14 @@
  * (pending/confirmed/processing/shipped/delivered/cancelled/refunded) and the
  * defined transitions — never a status the interface lacks:
  * - [ ] Placing an order creates it `pending` with the exact line items
- *   submitted (productId, name, price, quantity) and a correctly-computed
- *   total: `subtotal` = the sum of price x quantity across items, and `total`
+ *   submitted (productId, name, quantity) and a correctly-computed total:
+ *   `subtotal` = the sum of price x quantity across items, and `total`
  *   = subtotal - discount + tax + shipping. The amount the UI shows matches
- *   that formula to the cent.
+ *   that formula to the cent. NOTE the price SOURCE: with a `products`
+ *   catalog installed it is the server-resolved catalog price (a UI
+ *   displaying a stale/different price than the persisted order item is an
+ *   integration bug to fix on the UI side); without a catalog it is the
+ *   submitted `price` verbatim.
  * - [ ] The fulfillment lifecycle advances ONLY through the defined
  *   transitions — pending -> confirmed -> processing -> shipped -> delivered.
  *   An illegal jump (e.g. pending -> shipped, or shipped -> pending) is
