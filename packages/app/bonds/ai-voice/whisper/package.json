@@ -36,7 +36,7 @@
     "directory": "packages/app/bonds/ai-voice/whisper"
   },
   "dependencies": {
-    "@huggingface/transformers": "4.2.0"
+    "@huggingface/transformers": "4.3.0"
   },
   "devDependencies": {
     "@molecule/app-ai-voice": "1.0.1",

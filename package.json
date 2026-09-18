@@ -86,7 +86,8 @@
     "dompurify": "3.4.13",
     "vite": "8.1.5",
     "js-yaml": "4.3.2",
-    "svgo": "4.1.0"
+    "svgo": "4.1.0",
+    "devalue": "5.9.2"
   },
   "license": "Apache-2.0"
 }
