@@ -73,10 +73,20 @@ export const writeKeys = (outputPath = keysPath): void => {
     const { publicKey, privateKey } = generateKeyPairSync()
 
     if (!fs.existsSync(outputPath)) {
-      fs.mkdirSync(outputPath, { recursive: true })
+      // 0o700: owner-only — the directory holds the JWT signing private key.
+      fs.mkdirSync(outputPath, { recursive: true, mode: 0o700 })
     }
 
-    fs.writeFileSync(path.join(outputPath, 'jwt_private_key.pem'), privateKey, `utf8`)
+    // mode 0o600: the private key PEM must never be world-readable. Node's
+    // fs.writeFileSync `mode` only applies to CREATED files, so an existing
+    // file with looser permissions is chmod-ed down explicitly.
+    const privateKeyFile = path.join(outputPath, 'jwt_private_key.pem')
+    fs.writeFileSync(privateKeyFile, privateKey, { encoding: `utf8`, mode: 0o600 })
+    try {
+      fs.chmodSync(privateKeyFile, 0o600)
+    } catch (_error) {
+      /* best-effort on filesystems without chmod */
+    }
     fs.writeFileSync(path.join(outputPath, 'jwt_public_key.pem'), publicKey, `utf8`)
 
     logger.info(`JWT key pair successfully written to disk.`)
@@ -103,8 +113,15 @@ if (!process.env.JWT_PRIVATE_KEY) {
     // again (the new location is populated).
     if (fs.existsSync(legacyPrivateKeyPath) && fs.existsSync(legacyPublicKeyPath)) {
       try {
-        fs.mkdirSync(keysPath, { recursive: true })
+        fs.mkdirSync(keysPath, { recursive: true, mode: 0o700 })
+        // copyFileSync copies the SOURCE's permissions; the legacy file may
+        // predate 0o600 writes, so chmod the migrated private key down.
         fs.copyFileSync(legacyPrivateKeyPath, privateKeyPath)
+        try {
+          fs.chmodSync(privateKeyPath, 0o600)
+        } catch (_error) {
+          /* best-effort on filesystems without chmod */
+        }
         fs.copyFileSync(legacyPublicKeyPath, publicKeyPath)
         logger.warn(
           `Migrated JWT keys from the legacy node_modules-relative location (${legacyKeysPath}) ` +

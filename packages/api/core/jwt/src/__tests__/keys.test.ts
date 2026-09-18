@@ -17,7 +17,7 @@ vi.mock('@molecule/api-bond', () => ({
   }),
 }))
 
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -88,6 +88,25 @@ describe('writeKeys', () => {
     const second = await readFile(join(outDir, 'jwt_private_key.pem'), 'utf-8')
 
     expect(first).not.toBe(second)
+  })
+
+  it('writes the private key PEM owner-only (mode 0o600)', async () => {
+    writeKeys(outDir)
+
+    // The signing private key must never be world-readable. Mask off the
+    // file-type bits — only the permission bits matter here.
+    const privateMode = (await stat(join(outDir, 'jwt_private_key.pem'))).mode & 0o777
+    expect(privateMode).toBe(0o600)
+  })
+
+  it('chmods an existing world-readable private key file down to 0o600 on overwrite', async () => {
+    writeKeys(outDir)
+    await chmod(join(outDir, 'jwt_private_key.pem'), 0o644)
+
+    writeKeys(outDir)
+
+    const privateMode = (await stat(join(outDir, 'jwt_private_key.pem'))).mode & 0o777
+    expect(privateMode).toBe(0o600)
   })
 })
 
@@ -257,6 +276,9 @@ describe('default keys directory (JWT_KEYS_DIR override + legacy node_modules mi
     // legacy `node_modules` dir is wiped by a reinstall) still find it.
     const migratedPath = join(tmpCwd, '.keys', uniqueEnv, 'jwt_private_key.pem')
     await expect(readFile(migratedPath, 'utf8')).resolves.toBe(legacyPair.privateKey)
+    // The migrated private key is chmod-ed down to owner-only even when the
+    // legacy file predated 0o600 writes.
+    expect((await stat(migratedPath)).mode & 0o777).toBe(0o600)
 
     // The migration is a boot-time, actionable signal — not silent.
     expect(mockLoggerWarn).toHaveBeenCalledWith(expect.stringContaining('Migrated JWT keys'))
