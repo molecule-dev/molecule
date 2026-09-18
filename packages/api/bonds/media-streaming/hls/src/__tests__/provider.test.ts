@@ -1,3 +1,4 @@
+import { execFile } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -272,6 +273,54 @@ describe('HLS streaming provider', () => {
       const segment = await p.getSegment('hls-123', 0)
       expect(readFile).toHaveBeenCalledWith(expect.stringContaining('seg-000.ts'))
       expect(Buffer.isBuffer(segment)).toBe(true)
+    })
+  })
+
+  describe('string-input SSRF guard (security)', () => {
+    it('should reject an http(s) URL input without invoking ffmpeg', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.createStream('http://169.254.169.254/latest/meta-data/')).rejects.toThrow(
+        /local absolute file paths/,
+      )
+      await expect(p.createStream('https://attacker.example/x.mp4')).rejects.toThrow(
+        /local absolute file paths/,
+      )
+      expect(vi.mocked(execFile)).not.toHaveBeenCalled()
+    })
+
+    it('should reject scheme-only forms without a // separator', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.createStream('http:attacker.example/x.mp4')).rejects.toThrow(
+        /local absolute file paths/,
+      )
+      await expect(p.createStream('file:/etc/passwd')).rejects.toThrow(/local absolute file paths/)
+      expect(vi.mocked(execFile)).not.toHaveBeenCalled()
+    })
+
+    it('should reject relative paths (they resolve against ffmpeg CWD, not the caller)', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(p.createStream('videos/x.mp4')).rejects.toThrow(/local absolute file paths/)
+      await expect(p.createStream('./x.mp4')).rejects.toThrow(/local absolute file paths/)
+      expect(vi.mocked(execFile)).not.toHaveBeenCalled()
+    })
+
+    it('should reject URL inputs on the transcode path too', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await expect(
+        p.transcode('tcp://intra-host:6379/x', [
+          { name: '720p', width: 1280, height: 720, videoBitrate: 1, audioBitrate: 1 },
+        ]),
+      ).rejects.toThrow(/local absolute file paths/)
+      expect(vi.mocked(execFile)).not.toHaveBeenCalled()
+    })
+
+    it('should whitelist only local ffmpeg protocols', async () => {
+      const p = createProvider({ outputBasePath: '/tmp/test-streams' })
+      await p.createStream('/path/to/video.mp4')
+      const calls = vi.mocked(execFile).mock.calls
+      const whitelistArg = calls[calls.length - 1]![1] as string[]
+      const whitelistIndex = whitelistArg.indexOf('-protocol_whitelist')
+      expect(whitelistArg[whitelistIndex + 1]).toBe('file,crypto')
     })
   })
 

@@ -11,7 +11,7 @@
 import { execFile } from 'node:child_process'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { isAbsolute, join } from 'node:path'
 import { promisify } from 'node:util'
 
 import type {
@@ -29,6 +29,47 @@ import type { HlsConfig } from './types.js'
 import { assertSafePathComponent, assertSegmentIndex, resolveWithinBase } from './validate.js'
 
 const execFileAsync = promisify(execFile)
+
+/**
+ * Matches a URL scheme prefix (`scheme:`) the way ffmpeg's own protocol
+ * handler resolution does — including scheme-only forms like `http:host/x`
+ * that carry no `//`.
+ */
+const URL_SCHEME_PREFIX = /^[a-z][a-z0-9+.-]*:/i
+
+/**
+ * Asserts that a caller-supplied string input is a LOCAL ABSOLUTE FILE PATH.
+ *
+ * String inputs are passed verbatim as ffmpeg's `-i` argument, and ffmpeg
+ * natively speaks `http`, `https`, `tcp`, `tls`, `concat`, `gopher`, and
+ * more. Forwarding an unvalidated string therefore turns this bond into an
+ * SSRF / file-read primitive: `http://169.254.169.254/…` (cloud metadata),
+ * `http://intra-host/…`, or any other URL the host can reach, executed by
+ * ffmpeg with the server's network position. We reject:
+ *
+ * - anything containing `://` (absolute URLs),
+ * - anything with a `scheme:` prefix (ffmpeg accepts `http:host/x` too),
+ * - anything that is not an absolute path (`/…`) — a relative path would
+ *   resolve against ffmpeg's CWD, not the caller's.
+ *
+ * Applications that need remote media must fetch the bytes themselves (with
+ * their own SSRF guard) and pass a `Buffer`.
+ *
+ * Module-private: not part of the package's public export surface.
+ *
+ * @param inputPath - The caller-supplied string input.
+ * @returns The validated path, unchanged.
+ * @throws {Error} When the string is not a local absolute file path.
+ */
+const assertLocalInputPath = (inputPath: string): string => {
+  if (inputPath.includes('://') || URL_SCHEME_PREFIX.test(inputPath) || !isAbsolute(inputPath)) {
+    throw new Error(
+      `Invalid media input: string inputs must be local absolute file paths (got ${JSON.stringify(inputPath)}). ` +
+        'Fetch remote media yourself (with an SSRF guard) and pass a Buffer instead — ffmpeg URLs are rejected to prevent server-side request forgery.',
+    )
+  }
+  return inputPath
+}
 
 let streamCounter = 0
 
@@ -51,7 +92,10 @@ const generateStreamId = (): string => {
  */
 const prepareInput = async (input: Buffer | string, dir: string): Promise<string> => {
   if (typeof input === 'string') {
-    return input
+    // SSRF guard: a string is treated as a local absolute FILE path only —
+    // ffmpeg speaks http/tcp/… natively, so an unvalidated string is a
+    // fetch-anything primitive. Remote media must arrive as a Buffer.
+    return assertLocalInputPath(input)
   }
   const inputPath = join(dir, 'input.tmp')
   await writeFile(inputPath, input)
@@ -106,10 +150,13 @@ export const createProvider = (config: HlsConfig = {}): StreamingProvider => {
       const inputPath = await prepareInput(input, outputDir)
 
       await execFileAsync(ffmpegPath, [
-        // Restrict ffmpeg to safe protocols so a string input can't abuse dangerous
-        // ones (concat/gopher/ftp/subfile/unix) for LFI/SSRF escalation. [P5BONDS DiD]
+        // Defense-in-depth behind the string-input SSRF guard: restrict ffmpeg
+        // to LOCAL protocols only (file, crypto). Network protocols (http,
+        // https, tcp, tls) are deliberately NOT whitelisted — a string input
+        // must be a local absolute file path (see assertLocalInputPath), so
+        // nothing legitimate ever needs network access here. [P5BONDS DiD]
         '-protocol_whitelist',
-        'file,crypto,data,http,https,tcp,tls',
+        'file,crypto',
         '-i',
         inputPath,
         '-codec',
@@ -167,9 +214,11 @@ export const createProvider = (config: HlsConfig = {}): StreamingProvider => {
 
         const codec = profile.codec ?? 'h264'
         const args: string[] = [
-          // Restrict ffmpeg to safe protocols (no concat/gopher/ftp/subfile). [P5BONDS DiD]
+          // Defense-in-depth behind the string-input SSRF guard: local
+          // protocols only — see the createStream whitelist comment.
+          // [P5BONDS DiD]
           '-protocol_whitelist',
-          'file,crypto,data,http,https,tcp,tls',
+          'file,crypto',
           '-i',
           inputPath,
           '-c:v',

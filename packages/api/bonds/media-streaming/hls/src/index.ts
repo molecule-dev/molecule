@@ -20,6 +20,16 @@
  * ```
  *
  * @remarks
+ * - **String inputs must be local absolute file paths.** `createStream()` and
+ *   `transcode()` accept `Buffer | string`; a string is passed straight to
+ *   ffmpeg's `-i`, and ffmpeg natively fetches `http(s)`, `tcp`, `tls`, and
+ *   more — so an unvalidated string would make the bond an SSRF / file-read
+ *   primitive acting with your server's network position. Strings that
+ *   contain `://`, carry a `scheme:` prefix, or are not absolute paths are
+ *   rejected with a thrown error. For remote media, fetch the bytes yourself
+ *   (with your own SSRF guard) and pass a `Buffer`. As defense-in-depth the
+ *   ffmpeg protocol whitelist is trimmed to local protocols (`file,crypto`) —
+ *   network protocols are never enabled.
  * - **Requires the `ffmpeg` binary on the host** (resolved via PATH, or set
  *   `createProvider({ ffmpegPath })`). A missing binary fails at first
  *   `createStream()`/`transcode()` call with `spawn ffmpeg ENOENT` — verify
