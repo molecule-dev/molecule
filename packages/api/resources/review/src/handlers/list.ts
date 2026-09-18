@@ -11,6 +11,9 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { getReviewsByResource } from '../service.js'
 import type { ReviewQuery } from '../types.js'
 
+/** Upper bound for the list page size — an uncapped `limit` is a table-dump primitive (e.g. `?limit=999999999`). */
+const MAX_LIST_LIMIT = 500
+
 const VALID_SORT_FIELDS = ['createdAt', 'rating', 'helpful'] as const
 const VALID_SORT_DIRECTIONS = ['asc', 'desc'] as const
 
@@ -32,7 +35,7 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
     return
   }
 
-  const limit = parseInt(req.query.limit as string, 10) || 20
+  const limit = Math.min(MAX_LIST_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || 20))
   const offset = parseInt(req.query.offset as string, 10) || 0
 
   const options: ReviewQuery = { limit, offset }
