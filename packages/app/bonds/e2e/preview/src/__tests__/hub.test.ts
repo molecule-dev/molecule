@@ -22,13 +22,16 @@ const listen = (server: Server): Promise<number> =>
     })
   })
 
-const open = (url: string): Promise<WebSocket> =>
+const open = (url: string, wsOptions?: WebSocket.ClientOptions): Promise<WebSocket> =>
   new Promise((resolve, reject) => {
-    const ws = new WebSocket(url)
+    const ws = new WebSocket(url, wsOptions)
     ws.once('open', () => resolve(ws))
     ws.once('error', reject)
     ws.once('unexpected-response', (_req, res) => reject(new Error(`HTTP ${res.statusCode}`)))
   })
+
+/** Same-origin Origin for a page on this hub (browsers always send one). */
+const pageOrigin = (p: number): string => `http://127.0.0.1:${p}`
 
 const nextMessage = (ws: WebSocket, filter: (m: Dict) => boolean = () => true): Promise<Dict> =>
   new Promise((resolve) => {
@@ -82,7 +85,9 @@ describe('attachE2EHub', () => {
     const driver = await open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=driver&token=${hub.token}`)
     sockets.push(driver)
     const helloSeen = nextMessage(driver, (m) => m.event === 'page-hello')
-    const page = await open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=p1`)
+    const page = await open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=p1`, {
+      origin: pageOrigin(port),
+    })
     sockets.push(page)
     page.send(
       JSON.stringify({
@@ -122,7 +127,9 @@ describe('attachE2EHub', () => {
     })
 
     const helloSeen = nextMessage(driver, (m) => m.event === 'page-hello')
-    const page = await open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=p2`)
+    const page = await open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=p2`, {
+      origin: pageOrigin(port),
+    })
     page.send(
       JSON.stringify({
         hello: true,
@@ -143,5 +150,27 @@ describe('attachE2EHub', () => {
     page.close()
     expect(await failed).toMatchObject({ id: 'c2', ok: false, pageClosed: true, pageId: 'p2' })
     expect(await closed).toMatchObject({ pageId: 'p2' })
+  })
+  it('refuses a cross-origin page upgrade (result-spoofing guard)', async () => {
+    await expect(
+      open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=evil`, {
+        origin: 'https://attacker.example',
+      }),
+    ).rejects.toThrow(/403/)
+  })
+
+  it('refuses a page upgrade with no Origin header unless the hub token is presented', async () => {
+    // Non-browser client (no Origin): rejected bare, accepted with the token.
+    await expect(open(`ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=cli`)).rejects.toThrow(
+      /403/,
+    )
+    const page = await open(
+      `ws://127.0.0.1:${port}${E2E_WS_PATH}?role=page&id=cli&token=${hub.token}`,
+    )
+    sockets.push(page)
+    page.send(JSON.stringify({ hello: true, id: 'cli', href: 'http://x/', readyState: 'complete' }))
+    // Give the hub a beat to process the hello before asserting registration.
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(hub.pages().map((p) => p.id)).toEqual(['cli'])
   })
 })

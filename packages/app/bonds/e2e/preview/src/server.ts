@@ -1,7 +1,8 @@
 /**
  * The hub: a WebSocket endpoint attached to the dev server's HTTP server.
  * Preview pages connect as `role=page` (from the browser, same origin through
- * whatever proxy serves the preview); the test runner connects as
+ * whatever proxy serves the preview) — the upgrade is gated on a same-origin
+ * `Origin` check (or the hub token); the test runner connects as
  * `role=driver` (loopback only, with the hub's token). The hub forwards each
  * driver command to a page and the page's reply back, and broadcasts page
  * events (hello, navigated, console, pageerror, dialog, closed) to drivers.
@@ -218,6 +219,26 @@ export const attachE2EHub = (
       return
     }
     if (role === 'page') {
+      // The page side must prove it is the preview page itself, not a
+      // cross-origin site the developer happens to have open (which could
+      // otherwise connect, get driver commands, and spoof results/events on
+      // a dev machine). Browsers ALWAYS send `Origin` on WS upgrades, and
+      // the shipped client connects to `location.host`, so a legitimate
+      // page's Origin host:port equals the request's own `Host` header —
+      // fronting proxies forward the original Host (that is exactly why the
+      // sandbox vite config allows arbitrary hosts). A non-browser client
+      // (no Origin) can still connect by presenting the hub token.
+      const origin = req.headers.origin
+      const host = req.headers.host
+      const sameOrigin =
+        typeof origin === 'string' &&
+        typeof host === 'string' &&
+        origin.replace(/^https?:\/\//u, '') === host
+      if (!sameOrigin && url.searchParams.get('token') !== token) {
+        socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n')
+        socket.destroy()
+        return
+      }
       const id = url.searchParams.get('id') || randomUUID()
       wss.handleUpgrade(req, socket, head, (ws) => onPage(ws, id))
       return
