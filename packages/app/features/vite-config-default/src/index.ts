@@ -25,8 +25,24 @@
  * ```
  *
  * @remarks
+ * **Dev-server host exposure is environment-detected: molecule sandbox vs
+ * standalone machine.** Inside a molecule preview container (`/etc/mol`
+ * exists, or `VITE_HOST` is set) the dev server binds `0.0.0.0` with
+ * `allowedHosts: true` and `fs.strict: false` — the IDE preview iframe on
+ * the host must reach it by IP/internal hostname, and modules resolve
+ * through workspace symlinks outside the project root. Everywhere else
+ * (a developer's machine running `npm run dev`) those settings are the
+ * LAN-exposure + DNS-rebinding + `/@fs/` file-read triad, so standalone
+ * defaults are `host: 'localhost'`, Vite's Host allowlist (localhost
+ * variants, extended via `VITE_ALLOWED_HOSTS=myapp.test,dev.lan`;
+ * `VITE_ALLOWED_HOSTS=*` disables Host checking entirely), and Vite's
+ * strict `fs` confinement. `VITE_HOST` overrides the bind address in both
+ * modes.
+ *
  * Env conventions the config reads: `VITE_PORT` (dev port, default 3000),
- * `VITE_HOST` (default 0.0.0.0), `VITE_API_URL` (proxy target for /api,
+ * `VITE_HOST` (explicit bind address — also selects sandbox behavior),
+ * `VITE_ALLOWED_HOSTS` (standalone Host-allowlist extension),
+ * `VITE_API_URL` (proxy target for /api,
  * /health, /socket.io; defaults to http://localhost:PORT with PORT
  * defaulting to 4000), `VITE_CACHE_DIR` (per-app Vite cache dir — under
  * workspace-symlinked node_modules the default cache is shared machine-wide

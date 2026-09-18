@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@tailwindcss/vite', () => ({ default: () => ({ name: 'tailwindcss' }) }))
 vi.mock('@vitejs/plugin-react', () => ({ default: () => ({ name: 'react' }) }))
@@ -90,8 +90,8 @@ describe('@molecule/app-vite-config-default', () => {
     // vitest's default include (`**/*.{test,spec}.?(c|m)[jt]s?(x)`) collects
     // them and every one fails with "Playwright Test did not expect
     // test.describe() to be called here" before the user has written a line.
-    // `exclude` REPLACES vitest's defaults, so those must survive next to the
-    // e2e entry or node_modules would be collected instead.
+    // `exclude` REPLACES vitest's defaults, so those must survive next to
+    // the e2e entry or node_modules would be collected instead.
     const cfg = createDefaultViteConfig({
       APP_NAME: 'TestApp',
       APP_DESCRIPTION: 'A test app',
@@ -100,5 +100,58 @@ describe('@molecule/app-vite-config-default', () => {
     expect(cfg.test?.exclude).toEqual(
       expect.arrayContaining(['**/e2e/**', '**/node_modules/**', '**/.git/**']),
     )
+  })
+
+  describe('dev-server host exposure: standalone vs molecule sandbox', () => {
+    const originalEnv = { ...process.env }
+    const BRANDING = { APP_NAME: 'TestApp', APP_DESCRIPTION: 'A test app', BRAND_COLOR: '#ff0000' }
+
+    beforeEach(() => {
+      delete process.env.VITE_HOST
+      delete process.env.VITE_ALLOWED_HOSTS
+    })
+
+    afterEach(() => {
+      process.env = { ...originalEnv }
+    })
+
+    it('standalone (default): binds localhost, Host allowlist, strict fs — no LAN exposure, no DNS-rebind, no /@fs/ reads', () => {
+      // No /etc/mol marker and no VITE_HOST on a dev machine (this test
+      // environment is itself standalone).
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.host).toBe('localhost')
+      expect(cfg.server?.allowedHosts).toEqual(['localhost', '.localhost'])
+      // fs key absent → Vite's strict default confines /@fs/ to the project.
+      expect(cfg.server?.fs).toBeUndefined()
+    })
+
+    it('standalone: VITE_ALLOWED_HOSTS extends the Host allowlist', () => {
+      process.env.VITE_ALLOWED_HOSTS = 'myapp.test, dev.lan'
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.allowedHosts).toEqual(['localhost', '.localhost', 'myapp.test', 'dev.lan'])
+      expect(cfg.server?.host).toBe('localhost')
+    })
+
+    it('standalone: VITE_ALLOWED_HOSTS=* disables Host checking (explicit opt-in)', () => {
+      process.env.VITE_ALLOWED_HOSTS = '*'
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.allowedHosts).toBe(true)
+    })
+
+    it('sandbox: VITE_HOST selects the wide-open sandbox posture (0.0.0.0, any Host, fs.strict off)', () => {
+      process.env.VITE_HOST = '0.0.0.0'
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.host).toBe('0.0.0.0')
+      expect(cfg.server?.allowedHosts).toBe(true)
+      expect(cfg.server?.fs).toEqual({ strict: false })
+    })
+
+    it('sandbox: VITE_HOST pins a specific address while keeping allowedHosts/fs posture', () => {
+      process.env.VITE_HOST = '127.0.0.1'
+      const cfg = createDefaultViteConfig(BRANDING)
+      expect(cfg.server?.host).toBe('127.0.0.1')
+      expect(cfg.server?.allowedHosts).toBe(true)
+      expect(cfg.server?.fs).toEqual({ strict: false })
+    })
   })
 })

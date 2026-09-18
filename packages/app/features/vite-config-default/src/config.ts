@@ -1,5 +1,5 @@
 /// <reference types="vitest/config" />
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
@@ -175,6 +175,42 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     },
   }
 
+  // ── Dev-server host exposure: molecule sandbox vs standalone machine ──
+  //
+  // Inside a molecule preview container the dev server MUST be reachable
+  // from outside the container (the IDE preview iframe runs on the host)
+  // under whatever Host header the platform's proxy presents (IP literals,
+  // internal hostnames), and it serves modules through workspace symlinks
+  // that resolve outside the project root — so sandbox mode keeps
+  // `host: '0.0.0.0'`, `allowedHosts: true`, and `fs.strict: false`.
+  //
+  // On a developer's machine those same three settings are the classic
+  // LAN-exposure + DNS-rebinding + `/@fs/` arbitrary-file-read triad: any
+  // peer on the network can reach the server, a rebinding domain passes the
+  // Host check, and `/@fs/..` escapes the project. Standalone mode
+  // therefore binds `localhost`, keeps Vite's Host allowlist (localhost
+  // variants plus an env-overridable extension list), and leaves
+  // `fs.strict` at Vite's protective default.
+  //
+  // Detection: the platform marker directory `/etc/mol` exists in every
+  // molecule sandbox, and an explicit `VITE_HOST` is the operator saying
+  // "bind this" — either selects sandbox behavior.
+  const inMoleculeSandbox = existsSync('/etc/mol') || process.env.VITE_HOST !== undefined
+
+  // Extra Host values allowed in standalone mode, comma-separated via
+  // VITE_ALLOWED_HOSTS (e.g. 'myapp.test,dev.lan'). `*` disables Host
+  // checking entirely — same trust level as sandbox mode, opt-in only.
+  const extraAllowedHosts = (process.env.VITE_ALLOWED_HOSTS ?? '')
+    .split(',')
+    .map((host) => host.trim())
+    .filter((host) => host.length > 0)
+
+  const serverHost = process.env.VITE_HOST || (inMoleculeSandbox ? '0.0.0.0' : 'localhost')
+  const serverAllowedHosts: string[] | true =
+    inMoleculeSandbox || extraAllowedHosts.includes('*')
+      ? true
+      : ['localhost', '.localhost', ...extraAllowedHosts]
+
   return {
     plugins: [react(), tailwindcss(), VitePWA(pwaOptions), moleculePushServiceWorkerPlugin()],
     // Vite's default cacheDir (node_modules/.vite) resolves THROUGH a
@@ -222,8 +258,8 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
     },
     server: {
       port: parseInt(process.env.VITE_PORT || '3000'),
-      host: process.env.VITE_HOST || '0.0.0.0',
-      allowedHosts: true,
+      host: serverHost,
+      allowedHosts: serverAllowedHosts,
       open: process.env.VITE_OPEN !== 'false' && process.env.BROWSER !== 'none',
       // Origin-isolate this app so a buggy/looping build can't freeze the IDE that
       // previews it. The IDE and this dev server are the same site (localhost/
@@ -232,7 +268,11 @@ export function createDefaultViteConfig(branding: DefaultViteConfigBranding): Us
       // cluster (separate event loop), isolating the app's main thread from the
       // IDE's. Harmless when the app runs standalone.
       headers: { 'Origin-Agent-Cluster': '?1' },
-      fs: { strict: false },
+      // Sandbox-only: `fs.strict: false` lets the dev server serve modules
+      // through workspace symlinks that resolve outside the project root.
+      // Standalone keeps Vite's default (strict), which confines /@fs/ to
+      // the project root + workspace — see the host-exposure block above.
+      ...(inMoleculeSandbox ? { fs: { strict: false } } : {}),
       proxy: {
         '/api': {
           target:
