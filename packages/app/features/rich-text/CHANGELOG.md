@@ -1,5 +1,11 @@
 # @molecule/app-rich-text
 
+## 1.0.3
+
+### Patch Changes
+
+- ff97bf4: `textToValue()` now HTML-escapes the source text when building its `.html` output, so markup in the input (e.g. `<script>`/`<img onerror>`) arrives inert in the stored HTML instead of becoming a stored-XSS payload. The plain `text` field (and Quill `delta`) is unchanged.
+
 ## 1.0.2
 
 ### Patch Changes

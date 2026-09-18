@@ -1,5 +1,11 @@
 # @molecule/app-legal-pages-react
 
+## 1.1.1
+
+### Patch Changes
+
+- 22c0931: The `appName` interpolated into legal HTML (content page, legal modals, footer modals) is now HTML-escaped before it reaches `dangerouslySetInnerHTML`, so a markup-carrying app name renders inert instead of executing inside the legal content.
+
 ## 1.1.0
 
 ### Minor Changes

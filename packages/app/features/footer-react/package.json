@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-footer-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "App-shell footer with About link, Privacy/Terms modals (i18n-loaded HTML), language picker, and version display",
   "type": "module",
   "main": "dist/index.js",

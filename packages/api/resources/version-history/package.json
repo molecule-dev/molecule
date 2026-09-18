@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-version-history",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Append-only versions table with diff and restore — generic versioning helper for any resource.",
   "type": "module",
   "main": "dist/index.js",

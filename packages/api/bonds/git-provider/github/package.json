@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-git-provider-github",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Git hosting provider for GitHub (github.com) — OAuth endpoints, token auth shape, repository listing and lookup.",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/api-resource-review
 
+## 1.0.2
+
+### Patch Changes
+
+- e4d5855: The list endpoints now clamp the `limit` query parameter into 1..500 — an oversized `limit` previously passed through unbounded to the store query.
+
 ## 1.0.1
 
 ### Patch Changes

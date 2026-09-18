@@ -1,5 +1,11 @@
 # @molecule/api-queue-memory
 
+## 1.0.2
+
+### Patch Changes
+
+- The redelivery tests no longer race real seconds of wall clock.
+
 ## 1.0.1
 
 ### Patch Changes

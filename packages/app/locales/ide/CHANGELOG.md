@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.9.0
+
+### Minor Changes
+
+- Adds the locale keys for the structured ask_user card (multi-select confirm, selected count, preview), the working-plan checklist, the plan-review card, and the subagent card.
+
 ## 1.8.0
 
 ### Minor Changes

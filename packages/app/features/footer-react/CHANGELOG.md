@@ -1,5 +1,11 @@
 # @molecule/app-footer-react
 
+## 1.0.2
+
+### Patch Changes
+
+- 22c0931: The `appName` interpolated into legal HTML (content page, legal modals, footer modals) is now HTML-escaped before it reaches `dangerouslySetInnerHTML`, so a markup-carrying app name renders inert instead of executing inside the legal content.
+
 ## 1.0.1
 
 ### Patch Changes

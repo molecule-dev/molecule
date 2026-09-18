@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-trash",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Polymorphic soft-delete + restore + purge helper for any resource (note-taking, doc-collab, kanban, project-management, wiki, etc.).",
   "type": "module",
   "main": "dist/index.js",

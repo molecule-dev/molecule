@@ -1,5 +1,11 @@
 # @molecule/api-i18n
 
+## 1.0.2
+
+### Patch Changes
+
+- 87e7448: Translation merges skip `__proto__`/`constructor`/`prototype` keys at every depth, so a translations source carrying a JSON-parsed own `__proto__` property can no longer write through to `Object.prototype`.
+
 ## 1.0.1
 
 ### Patch Changes

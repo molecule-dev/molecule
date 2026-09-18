@@ -1,5 +1,15 @@
 # @molecule/app-ide-react
 
+## 1.17.0
+
+### Minor Changes
+
+- ask_user options accept `{ label, description?, preview? }` objects and `multiSelect` — descriptions render under labels, previews side-by-side (inline on narrow screens), multi-select confirms as one answer. New dedicated tool cards: the working-plan checklist (`update_task_list`), the plan-review approval layout (plan name, step count, checklist preview, prominent approve/request-changes CTAs), and `spawn_agent` subagents (explore/judge badge, judge `VERDICT: PASS/FAIL` banner with issues).
+
+### Patch Changes
+
+- e842b8c: Chat markdown links now only open http(s)/mailto URLs as anchors; any other scheme (e.g. `javascript:`) renders as plain text.
+
 ## 1.16.0
 
 ### Minor Changes

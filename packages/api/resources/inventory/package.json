@@ -36,7 +36,7 @@
   "devDependencies": {
     "@molecule/api-bond": "1.0.1",
     "@molecule/api-database": "1.0.1",
-    "@molecule/api-i18n": "1.0.1",
+    "@molecule/api-i18n": "1.0.2",
     "@molecule/api-logger": "1.0.1",
     "@molecule/api-resource": "1.0.1",
     "@types/node": "26.1.2",
