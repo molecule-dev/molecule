@@ -103,6 +103,12 @@
  *   in a sandbox there is none. That bond drives the page the person is
  *   actually looking at, so **a preview must be open** somewhere or the driver
  *   waits and fails; the card says so next to the end-to-end group.
+ * - **Chat markdown links are scheme-allowlisted.** `MarkdownContent` renders
+ *   `[label](href)` with a leading-slash or bare path as a preview-route
+ *   button and only `http(s):`/`mailto:` (plus `//host`) as real anchors;
+ *   every other scheme (`javascript:`, `data:`, …) renders as inert text.
+ *   Model output is prompt-injectable, so never loosen this to render raw
+ *   schemes — the markdown bonds' `isSafeUrl` keeps the same policy.
  * - Text routes through `t('ide.*')` — `@molecule/app-locales-ide` supplies
  *   translations.
  *

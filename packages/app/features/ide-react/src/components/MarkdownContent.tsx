@@ -18,13 +18,25 @@ import { useCoarsePointer } from '../hooks/useViewport.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 
 /**
+ * The only URL schemes that may become an `<a href>` anchor. Model output is
+ * prompt-injectable (the agent reads imported repos, shared projects, scraped
+ * content), and browsers percent-decode hrefs before executing them, so a
+ * `[x](javascript:fetch%28…%29)` link must never reach the DOM as an anchor —
+ * any other scheme renders as inert text (same policy as the markdown bonds'
+ * `isSafeUrl`).
+ */
+const EXTERNAL_LINK_SCHEMES = new Set(['http:', 'https:', 'mailto:'])
+
+/**
  * Renders a single markdown link `[label](href)`. A ROUTE link — any app-internal path, whether
  * written with a leading slash (`/transactions`) or without (`transactions`, `courses/:id`) — is a
  * page in the live preview: when an `onNavigatePreview` handler is wired (the chat context), it
  * renders as a button that navigates the PREVIEW to that route on click (the path is normalized to
  * a leading `/`), so the agent's "your app is ready" handoff can list clickable pages the user
- * jumps straight to. Only a genuinely EXTERNAL link — one with a URL scheme (`http(s):`, `mailto:`)
- * or protocol-relative (`//host`) — opens in a new tab; a bare route must never open a new tab. A
+ * jumps straight to. Only a genuinely EXTERNAL link — one with an allowlisted scheme
+ * (`http(s):`, `mailto:`) or protocol-relative (`//host`) — opens in a new tab; any OTHER
+ * scheme (`javascript:`, `data:`, …) renders as inert text, never an anchor. A bare route
+ * must never open a new tab. A
  * route link with no handler (e.g. a help card), or a parameterized route (`/courses/:id`) that has
  * no concrete destination, renders as plain text rather than a broken/IDE-navigating link. A
  * `#anchor` can't address a preview page, so it stays an inert anchor.
@@ -47,12 +59,21 @@ function LinkToken({
     textUnderlineOffset: '2px',
   } as const
 
-  // External = a URL scheme (http:, https:, mailto:, tel:, …) or protocol-relative (//host).
-  // Everything else is an app route for the preview — INCLUDING bare paths the agent emits
-  // WITHOUT a leading slash (`courses/:id`), which used to fall through to a new-tab anchor (the
-  // "opens a new tab instead of the preview" bug). A `#anchor` can't address a preview page.
-  const isExternal = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('//')
+  // External = an ALLOWLISTED scheme (http:, https:, mailto:) or protocol-relative (//host).
+  // A scheme outside the allowlist (`javascript:`, `data:`, `vbscript:`, …) is neither external
+  // nor a route — it renders as inert text below. Everything else without a scheme is an app
+  // route for the preview — INCLUDING bare paths the agent emits WITHOUT a leading slash
+  // (`courses/:id`), which used to fall through to a new-tab anchor (the "opens a new tab
+  // instead of the preview" bug). A `#anchor` can't address a preview page. Note a scheme
+  // broken by control characters (`java\tscript:`) fails the regex entirely, so it falls to
+  // route handling — it can never slip into the anchor branch.
+  const scheme = /^([a-z][a-z0-9+.-]*:)/i.exec(href)?.[1]?.toLowerCase()
+  const isExternal = (scheme != null && EXTERNAL_LINK_SCHEMES.has(scheme)) || href.startsWith('//')
   const isAnchor = href.startsWith('#')
+
+  // Unapproved scheme → inert text: no anchor (model output must not be able to mint a
+  // `javascript:` href) and no preview button (a `data:`/`ftp:` string is not an app route).
+  if (scheme != null && !isExternal) return <>{label}</>
 
   if (!isExternal && !isAnchor) {
     // Normalize to a root-relative path so the handler always receives a clean `/route`.
