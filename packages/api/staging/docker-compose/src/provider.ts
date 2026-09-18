@@ -8,7 +8,7 @@
  * @module
  */
 
-import { exec } from 'node:child_process'
+import { execFile } from 'node:child_process'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
@@ -29,9 +29,35 @@ import {
   generateNginxConf,
 } from './dockerfile-generator.js'
 
-const execAsync = promisify(exec)
+const execFileAsync = promisify(execFile)
 
 const STAGING_DIR = '.molecule/staging'
+
+/**
+ * Shape an environment slug must have before it is interpolated into file
+ * paths, Docker project names, and CLI arguments. Slugs reach this driver
+ * via a branch-name fallback path, and a branch name can carry anything —
+ * interpolating it raw into a shell command line was a command-injection
+ * sink (the `exec` call this guard replaced). Fail closed on anything
+ * outside `[a-z0-9-]`.
+ */
+const SAFE_SLUG = /^[a-z0-9][a-z0-9-]{0,62}$/
+
+/**
+ * Validates an environment slug before any interpolation.
+ *
+ * @param slug - The environment slug (as stored on the {@link StagingEnvironment}).
+ * @returns The validated slug, unchanged.
+ * @throws {Error} When the slug carries characters outside `[a-z0-9-]`.
+ */
+function assertSafeSlug(slug: string): string {
+  if (!SAFE_SLUG.test(slug)) {
+    throw new Error(
+      `Unsafe staging environment slug: ${JSON.stringify(slug)} — expected [a-z0-9-] only`,
+    )
+  }
+  return slug
+}
 
 /** Minimum Docker Compose version this driver's generated files require. */
 const REQUIRED_COMPOSE_VERSION = { major: 2, minor: 24 } as const
@@ -166,9 +192,15 @@ const COMPOSE_QUERY_TIMEOUT_MS = 2 * 60 * 1000
 /**
  * Runs a docker compose command for a staging environment.
  *
+ * Uses `execFile` with an argv array — NO shell — so the interpolated slug
+ * and paths can never be re-parsed as shell syntax (the previous
+ * `exec(\`… -p "${projectName(slug)}" ${command}\`)` form was a
+ * command-injection sink on the branch-name-derived slug).
+ *
  * @param projectPath - Absolute project root path.
- * @param slug - Environment slug.
- * @param command - The docker compose subcommand (e.g. 'up -d', 'down').
+ * @param slug - Environment slug (validated by {@link assertSafeSlug}).
+ * @param command - The docker compose subcommand and its args, as argv
+ *   (e.g. `['up', '-d', '--build']`).
  * @param timeoutMs - Kill the child after this long. Defaults to the build
  *   budget; pass {@link COMPOSE_QUERY_TIMEOUT_MS} for commands that only query.
  * @returns The command output.
@@ -176,23 +208,24 @@ const COMPOSE_QUERY_TIMEOUT_MS = 2 * 60 * 1000
 async function compose(
   projectPath: string,
   slug: string,
-  command: string,
+  command: string[],
   timeoutMs = COMPOSE_BUILD_TIMEOUT_MS,
 ): Promise<{ stdout: string; stderr: string }> {
+  assertSafeSlug(slug)
   const file = composeFilePath(projectPath, slug)
-  return execAsync(`docker compose -f "${file}" -p "${projectName(slug)}" ${command}`, {
+  return execFileAsync('docker', ['compose', '-f', file, '-p', projectName(slug), ...command], {
     cwd: projectPath,
-    // exec's default maxBuffer is 1 MB — a cold `up -d --build` (npm ci + vite
-    // build inside the images) easily exceeds that, and exceeding it KILLS the
-    // child mid-build with "maxBuffer length exceeded", which reads like a
-    // build failure. Give compose output generous headroom.
+    // A cold `up -d --build` (npm ci + vite build inside the images)
+    // easily exceeds execFile's 1 MB default maxBuffer, and exceeding it
+    // KILLS the child mid-build with "maxBuffer length exceeded", which
+    // reads like a build failure. Give compose output generous headroom.
     maxBuffer: 64 * 1024 * 1024,
-    // Unbounded before: `exec` has no default timeout, so an unresponsive Docker
-    // daemon left this promise pending FOREVER, and every caller awaits it — a
-    // teardown or health check could hang the request that triggered it with no
-    // error to log. A bounded call fails loudly instead, which every caller here
-    // already handles. Build and teardown get different budgets because their
-    // honest durations differ by two orders of magnitude.
+    // Unbounded before: an unresponsive Docker daemon left this promise
+    // pending FOREVER, and every caller awaits it — a teardown or health
+    // check could hang the request that triggered it with no error to
+    // log. A bounded call fails loudly instead, which every caller here
+    // already handles. Build and teardown get different budgets because
+    // their honest durations differ by two orders of magnitude.
     timeout: timeoutMs,
   })
 }
@@ -207,14 +240,14 @@ export const provider: StagingDriver = {
     const missing: string[] = []
 
     try {
-      await execAsync('docker --version')
+      await execFileAsync('docker', ['--version'])
     } catch (_error) {
       // docker not found — prerequisite check adds it to missing list
       missing.push('docker')
     }
 
     try {
-      const { stdout } = await execAsync('docker compose version')
+      const { stdout } = await execFileAsync('docker', ['compose', 'version'])
       const version = parseComposeVersion(stdout)
       // An unparseable version string is NOT treated as insufficient — the
       // command succeeded (the plugin exists), and failing open avoids a
@@ -237,6 +270,9 @@ export const provider: StagingDriver = {
   },
 
   async up(env: StagingEnvironment, config: StagingDriverConfig): Promise<EnvironmentUrls> {
+    // The slug reaches file paths and CLI args below (and `compose()`
+    // re-checks) — reject unsafe shapes before writing anything.
+    assertSafeSlug(env.slug)
     const stagingDir = join(config.projectPath, STAGING_DIR)
     await mkdir(stagingDir, { recursive: true })
 
@@ -287,7 +323,7 @@ export const provider: StagingDriver = {
     await writeFile(join(config.projectPath, `.env.staging.${env.slug}`), envContent)
 
     // Start containers
-    await compose(config.projectPath, env.slug, 'up -d --build')
+    await compose(config.projectPath, env.slug, ['up', '-d', '--build'])
 
     return {
       api: `http://localhost:${apiPort}`,
@@ -297,7 +333,7 @@ export const provider: StagingDriver = {
 
   async down(env: StagingEnvironment, config: StagingDriverConfig): Promise<void> {
     try {
-      await compose(config.projectPath, env.slug, 'down -v', COMPOSE_QUERY_TIMEOUT_MS)
+      await compose(config.projectPath, env.slug, ['down', '-v'], COMPOSE_QUERY_TIMEOUT_MS)
     } catch (_error) {
       // Containers may already be stopped — not an error
     }
@@ -348,7 +384,7 @@ export const provider: StagingDriver = {
       const { stdout } = await compose(
         config.projectPath,
         env.slug,
-        'ps --format json',
+        ['ps', '--format', 'json'],
         COMPOSE_QUERY_TIMEOUT_MS,
       )
 
@@ -405,13 +441,14 @@ export const provider: StagingDriver = {
 
     const service = options?.service ?? 'all'
     const tail = options?.tail ?? 100
-    const serviceArg = service === 'all' ? '' : ` ${service}`
+    const serviceArgs = service === 'all' ? [] : [service]
 
-    const { stdout } = await compose(
-      config.projectPath,
-      env.slug,
-      `logs --tail ${tail}${serviceArg}`,
-    )
+    const { stdout } = await compose(config.projectPath, env.slug, [
+      'logs',
+      '--tail',
+      String(tail),
+      ...serviceArgs,
+    ])
 
     return {
       lines: stdout.split('\n').filter(Boolean),

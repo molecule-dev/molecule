@@ -419,4 +419,28 @@ describe('health() status parsing (in-process, no docker exec)', () => {
     expect(containerStatus({ Service: 'db', State: 'running', Health: '' })).toBe('running')
     expect(containerStatus(undefined)).toBe('not found')
   })
+  describe('slug sanitization (command-injection guard)', () => {
+    it('up() rejects a slug carrying shell/path characters BEFORE any docker exec', async () => {
+      // A branch-name-derived slug can carry anything; the old shell-string
+      // exec made that a command-injection sink. The guard must fire BEFORE
+      // any file write or docker exec.
+      const { provider } = await import('../provider.js')
+      const badSlugs = ['feat/x; touch /tmp/pwned', 'a && b', '../escape', 'a$(id)', 'a`id`', 'A_B']
+      for (const slug of badSlugs) {
+        await expect(
+          provider.up(
+            {
+              slug,
+              branch: 'b',
+              type: 'staging',
+              name: 'n',
+              createdAt: '',
+              driver: 'docker-compose',
+            },
+            { projectPath: '/tmp/mol-stage-test' },
+          ),
+        ).rejects.toThrow(/Unsafe staging environment slug/)
+      }
+    })
+  })
 })
