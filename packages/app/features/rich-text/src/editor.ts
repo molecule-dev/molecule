@@ -46,6 +46,23 @@ const getPurifier = (): ReturnType<typeof createDOMPurify> => {
 const sanitizeHtml = (html: string): string => getPurifier().sanitize(html)
 
 /**
+ * HTML-escapes plain text before it is wrapped in the paragraph markup that
+ * `textToValue` produces. The resulting `.html` is a value apps persist and
+ * later render — raw markup in the source text (e.g. `<img onerror=…>`)
+ * would otherwise survive into the stored `.html` verbatim and become a
+ * stored-XSS payload wherever it is innerHTML-ed. The plain `text` field is
+ * returned UNCHANGED: it is rendered as text by consumers, and escaping it
+ * would corrupt it.
+ */
+const escapeHtmlText = (text: string): string =>
+  text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
+/**
  * Create a simple contentEditable-based rich text provider. This is a basic
  * fallback — for production use, prefer a dedicated provider like
  * `@molecule/app-rich-text-quill`.
@@ -74,7 +91,7 @@ export const createSimpleRichTextProvider = (): RichTextProvider => {
 
     textToValue: (text: string) => ({
       text,
-      html: `<p>${text.replace(/\n/g, '</p><p>')}</p>`,
+      html: `<p>${escapeHtmlText(text).replace(/\n/g, '</p><p>')}</p>`,
     }),
 
     createEditor: (options: EditorOptions): RichTextEditor => {

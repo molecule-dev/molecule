@@ -20,6 +20,23 @@ import type {
 } from './types.js'
 
 /**
+ * HTML-escapes plain text before it is wrapped in the paragraph markup that
+ * `textToValue` produces. The resulting `.html` is a value apps persist and
+ * later render — raw markup in the source text (e.g. `<img onerror=…>`)
+ * would otherwise survive into the stored `.html` verbatim and become a
+ * stored-XSS payload wherever it is innerHTML-ed. The plain `text` field is
+ * returned UNCHANGED: it is rendered as text by consumers, and escaping it
+ * would corrupt it.
+ */
+const escapeHtmlText = (text: string): string =>
+  text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+
+/**
  * Creates a Quill-based rich text provider implementing the molecule `RichTextProvider` interface.
  * Supports toolbar presets (`minimal`, `standard`, `full`), HTML/text/delta value conversion,
  * and Quill themes (`snow`, `bubble`).
@@ -55,7 +72,7 @@ export const createQuillProvider = (defaultOptions?: Partial<QuillOptions>): Ric
 
     textToValue: (text: string): RichTextValue => ({
       text,
-      html: `<p>${text.replace(/\n/g, '</p><p>')}</p>`,
+      html: `<p>${escapeHtmlText(text).replace(/\n/g, '</p><p>')}</p>`,
       delta: { ops: [{ insert: text + '\n' }] },
     }),
 

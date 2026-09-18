@@ -142,6 +142,17 @@ describe('Quill Rich Text Provider', () => {
       expect(value.delta).toEqual({ ops: [{ insert: 'Hello\nWorld\n' }] })
     })
 
+    it('should HTML-escape markup in textToValue source text (stored-XSS guard)', () => {
+      const provider = createQuillProvider()
+      const value = provider.textToValue('Hi <script>evil()</script>')
+
+      expect(value.html).toContain('&lt;script&gt;')
+      expect(value.html).not.toMatch(/<script/i)
+      // Plain text + delta stay verbatim — Quill treats them as text.
+      expect(value.text).toBe('Hi <script>evil()</script>')
+      expect(value.delta).toEqual({ ops: [{ insert: 'Hi <script>evil()</script>\n' }] })
+    })
+
     it('should accept default options', () => {
       const defaultOptions: Partial<QuillOptions> = {
         theme: 'bubble',

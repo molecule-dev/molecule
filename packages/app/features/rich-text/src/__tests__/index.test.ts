@@ -408,6 +408,18 @@ describe('@molecule/app-rich-text', () => {
         expect(value.html).toBe('<p></p>')
       })
 
+      it('should HTML-escape markup in the source text (stored-XSS guard)', () => {
+        const value = provider.textToValue('Hi <img src=x onerror=alert(1)><script>evil()</script>')
+
+        // The .html field is persisted and later innerHTML-ed by consumers —
+        // markup from the source text must arrive inert.
+        expect(value.html).toContain('&lt;img')
+        expect(value.html).toContain('&lt;script&gt;')
+        expect(value.html).not.toMatch(/<script|<img/i)
+        // The plain .text field is UNCHANGED (rendered as text by consumers).
+        expect(value.text).toBe('Hi <img src=x onerror=alert(1)><script>evil()</script>')
+      })
+
       it('should handle multiple newlines', () => {
         const text = 'Line 1\nLine 2\nLine 3'
         const value = provider.textToValue(text)
