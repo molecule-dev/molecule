@@ -70,6 +70,11 @@ new X509Certificate(certPem)
 
 const ALLOWED_CERT_URL = 'https://sns.us-east-1.amazonaws.com/SimpleNotificationService-test.pem'
 
+/** Realistic signed-topic ARN — 12-digit account id, as AWS always emits. */
+const DEFAULT_TOPIC_ARN = 'arn:aws:sns:us-east-1:123456789012:ses-inbound'
+/** The account id embedded in {@link DEFAULT_TOPIC_ARN}. */
+const DEFAULT_ACCOUNT_ID = '123456789012'
+
 const buildSignedNotification = (
   overrides: {
     Type?: string
@@ -91,7 +96,7 @@ const buildSignedNotification = (
   const MessageId = overrides.MessageId ?? 'mid-1'
   const Subject = overrides.Subject
   const Timestamp = overrides.Timestamp ?? '2024-01-01T00:00:00Z'
-  const TopicArn = overrides.TopicArn ?? 'arn:aws:sns:us-east-1:123:topic'
+  const TopicArn = overrides.TopicArn ?? DEFAULT_TOPIC_ARN
   const Token = overrides.Token
   const SubscribeURL = overrides.SubscribeURL
   const SigningCertURL = overrides.certUrl ?? ALLOWED_CERT_URL
@@ -164,6 +169,10 @@ describe('verifySignature', () => {
 
   beforeEach(async () => {
     process.env = { ...originalEnv }
+    // Default pin for the suite: verification is fail-closed without an
+    // origin pin (topic ARN or account id), so tests that don't care about
+    // pinning still need one configured to reach the signature path.
+    process.env.AWS_SES_INBOUND_TOPIC_ARN = DEFAULT_TOPIC_ARN
     vi.resetModules()
     const { _resetSigningCertCache } = await import('../provider.js')
     _resetSigningCertCache()
@@ -310,6 +319,104 @@ describe('verifySignature', () => {
     const { verifySignature } = await import('../provider.js')
     const { body } = buildSignedNotification()
     expect(await verifySignature({}, body)).toBe(false)
+  })
+
+  it('FAIL-CLOSED: throws a tagged config error when neither topic ARN nor account id is configured', async () => {
+    delete process.env.AWS_SES_INBOUND_TOPIC_ARN
+    delete process.env.AWS_SES_INBOUND_ACCOUNT_ID
+    installFetchMock(() => okCertResponse())
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification()
+
+    await expect(verifySignature({}, body)).rejects.toThrow(
+      /Neither AWS_SES_INBOUND_TOPIC_ARN nor AWS_SES_INBOUND_ACCOUNT_ID/u,
+    )
+    // The error must be the tagged misconfiguration class (503), not the
+    // 401 "invalid signature" path — a valid AWS signature is not enough
+    // without an origin pin.
+    const error = await verifySignature({}, body).catch((e: unknown) => e)
+    expect(error).toMatchObject({
+      statusCode: 503,
+      errorKey: 'config.notConfigured',
+    })
+  })
+
+  it('accepts a notification whose TopicArn matches the configured topic', async () => {
+    process.env.AWS_SES_INBOUND_TOPIC_ARN = DEFAULT_TOPIC_ARN
+    const fetchSpy = vi.fn(() => okCertResponse())
+    vi.stubGlobal('fetch', fetchSpy)
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification({ Subject: 'pinned' })
+    expect(await verifySignature({}, body)).toBe(true)
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects a foreign topic even when the signature itself is valid', async () => {
+    process.env.AWS_SES_INBOUND_TOPIC_ARN = 'arn:aws:sns:us-east-1:123456789012:ses-inbound'
+    // Validly signed by our test key, but published to a different topic —
+    // cross-account/topic forgery must be rejected BEFORE any cert fetch.
+    const fetchSpy = vi.fn(() => okCertResponse())
+    vi.stubGlobal('fetch', fetchSpy)
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification({
+      TopicArn: 'arn:aws:sns:eu-west-1:999999999999:attacker-topic',
+    })
+    expect(await verifySignature({}, body)).toBe(false)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('account-pinning: accepts via the 12-digit account field of the signed TopicArn', async () => {
+    delete process.env.AWS_SES_INBOUND_TOPIC_ARN
+    process.env.AWS_SES_INBOUND_ACCOUNT_ID = DEFAULT_ACCOUNT_ID
+    installFetchMock(() => okCertResponse())
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification({ Subject: 'account pin' })
+    expect(await verifySignature({}, body)).toBe(true)
+  })
+
+  it('account-pinning: accepts via the account-id segment of the SigningCertURL path', async () => {
+    delete process.env.AWS_SES_INBOUND_TOPIC_ARN
+    process.env.AWS_SES_INBOUND_ACCOUNT_ID = DEFAULT_ACCOUNT_ID
+    // Account-bearing cert URL shape (no account in the TopicArn).
+    const certUrl = `https://sns.us-east-1.amazonaws.com/${DEFAULT_ACCOUNT_ID}/SimpleNotificationService-x.pem`
+    installFetchMock(() => okCertResponse())
+    const { verifySignature } = await import('../provider.js')
+    const { body } = buildSignedNotification({
+      certUrl,
+      TopicArn: 'arn:aws:sns:us-east-1:0:ses-inbound',
+    })
+    expect(await verifySignature({}, body)).toBe(true)
+  })
+
+  it('account-pinning: rejects a notification from a foreign AWS account', async () => {
+    delete process.env.AWS_SES_INBOUND_TOPIC_ARN
+    process.env.AWS_SES_INBOUND_ACCOUNT_ID = DEFAULT_ACCOUNT_ID
+    const fetchSpy = vi.fn(() => okCertResponse())
+    vi.stubGlobal('fetch', fetchSpy)
+    const { verifySignature } = await import('../provider.js')
+    // Both account sources (cert URL path and TopicArn) belong to another
+    // account — must be rejected before any cert fetch.
+    const { body } = buildSignedNotification({
+      TopicArn: 'arn:aws:sns:us-east-1:999999999999:attacker-topic',
+      certUrl: 'https://sns.us-east-1.amazonaws.com/999999999999/SimpleNotificationService-x.pem',
+    })
+    expect(await verifySignature({}, body)).toBe(false)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('account-pinning: a short (non-12-digit) TopicArn account never satisfies the pin', async () => {
+    delete process.env.AWS_SES_INBOUND_TOPIC_ARN
+    process.env.AWS_SES_INBOUND_ACCOUNT_ID = DEFAULT_ACCOUNT_ID
+    const fetchSpy = vi.fn(() => okCertResponse())
+    vi.stubGlobal('fetch', fetchSpy)
+    const { verifySignature } = await import('../provider.js')
+    // Classic cert URL (no account segment) + a 3-digit account in the ARN —
+    // neither source yields a 12-digit account, so the pin cannot match.
+    const { body } = buildSignedNotification({
+      TopicArn: 'arn:aws:sns:us-east-1:123:ses-inbound',
+    })
+    expect(await verifySignature({}, body)).toBe(false)
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('caches fetched certs across calls', async () => {

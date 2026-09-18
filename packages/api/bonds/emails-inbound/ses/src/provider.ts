@@ -34,6 +34,7 @@ import type {
   InboundEmailReply,
   InboundEmailReplyResult,
 } from '@molecule/api-emails-inbound'
+import { configNotConfiguredError } from '@molecule/api-secrets'
 
 import type { SesInboundNotificationMessage, SnsNotificationPayload } from './types.js'
 import {
@@ -45,6 +46,49 @@ import {
   splitReferences,
   unwrapMessageId,
 } from './utilities.js'
+
+/**
+ * Extracts the AWS account id from an SNS `SigningCertURL` path, when the URL
+ * carries one. AWS account ids are exactly 12 decimal digits; any single path
+ * segment of that shape is treated as the publisher's account id. Returns
+ * `undefined` when the URL has no such segment (the classic AWS shape
+ * `https://sns.<region>.amazonaws.com/SimpleNotificationService-<hash>.pem`
+ * does not embed the account id — see {@link topicArnAccountId} for the
+ * signed-TopicArn source that covers it).
+ *
+ * Module-private: not part of the package's public export surface.
+ */
+const extractSigningCertAccountId = (url: string): string | undefined => {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch (_error) {
+    return undefined
+  }
+  for (const segment of parsed.pathname.split('/')) {
+    if (/^\d{12}$/u.test(segment)) return segment
+  }
+  return undefined
+}
+
+/**
+ * Extracts the AWS account id from an SNS topic ARN
+ * (`arn:<partition>:<service>:<region>:<account-id>:<resource>`). The
+ * `TopicArn` field is part of the SNS-signed canonical string, so — once the
+ * signature itself verifies against an `*.amazonaws.com` cert — the account
+ * id it carries is an attested fact, not a client-controlled claim. This is
+ * what makes account pinning work for notifications whose `SigningCertURL`
+ * path has no account-id segment (the common AWS shape).
+ *
+ * Module-private: not part of the package's public export surface.
+ */
+const topicArnAccountId = (arn: string | undefined): string | undefined => {
+  if (!arn) return undefined
+  const parts = arn.split(':')
+  // arn:<partition>:<service>:<region>:<account-id>:<resource>
+  const account = parts.length >= 6 ? parts[4] : undefined
+  return account !== undefined && /^\d{12}$/u.test(account) ? account : undefined
+}
 
 /**
  * Cache of fetched SNS signing certificate PEM bodies, keyed by
@@ -127,21 +171,33 @@ const isSnsPayload = (value: unknown): value is SnsNotificationPayload => {
  * AWS SNS signature-verification flow:
  *
  * 1. Parse the JSON body.
- * 2. Reject if `SigningCertURL` is not from an allowlisted host.
- * 3. Fetch the X.509 certificate from `SigningCertURL`.
- * 4. Build the canonical string per AWS docs (field order varies by
+ * 2. PIN THE PUBLISHER (fail-closed): accept the notification only when
+ *    EITHER `AWS_SES_INBOUND_TOPIC_ARN` is configured and matches the
+ *    payload's `TopicArn`, OR `AWS_SES_INBOUND_ACCOUNT_ID` is configured
+ *    and matches the AWS account id carried by the notification (the 12-digit
+ *    segment of the `SigningCertURL` path, or the account field of the
+ *    SIGNED `TopicArn`). When NEITHER is configured, verification THROWS a
+ *    tagged `config.notConfigured` error — a valid AWS signature only proves
+ *    that *some* AWS account published the message (the cert-hostname
+ *    allowlist admits every `sns.<region>.amazonaws.com` cert), so without
+ *    a pin ANY AWS account that can publish to SNS can forge inbound mail.
+ * 3. Reject if `SigningCertURL` is not from an allowlisted host.
+ * 4. Fetch the X.509 certificate from `SigningCertURL`.
+ * 5. Build the canonical string per AWS docs (field order varies by
  *    `Type`).
- * 5. Verify the base64-decoded `Signature` against the canonical string
+ * 6. Verify the base64-decoded `Signature` against the canonical string
  *    using SHA1 (`SignatureVersion === '1'`) or SHA256
  *    (`SignatureVersion === '2'`).
- * 6. When `AWS_SES_INBOUND_TOPIC_ARN` is set, also verify the payload's
- *    `TopicArn` matches.
  *
  * Errors NEVER leak signing material; failures simply return `false`.
+ * The ONLY throw is the misconfiguration error from step 2 (distinct
+ * failure class per the `InboundEmailProvider` contract).
  *
  * @param _headers - HTTP headers (unused — SNS signs the body).
  * @param body - Raw HTTP request body (JSON).
  * @returns `true` when the signature is valid, `false` otherwise.
+ * @throws {Error} Tagged `config.notConfigured` (503) when neither
+ *   `AWS_SES_INBOUND_TOPIC_ARN` nor `AWS_SES_INBOUND_ACCOUNT_ID` is set.
  */
 export const verifySignature = async (
   _headers: Record<string, string | string[] | undefined>,
@@ -157,7 +213,33 @@ export const verifySignature = async (
   if (!isSnsPayload(parsed)) return false
 
   const expectedTopic = process.env.AWS_SES_INBOUND_TOPIC_ARN
-  if (expectedTopic && parsed.TopicArn !== expectedTopic) return false
+  const expectedAccount = process.env.AWS_SES_INBOUND_ACCOUNT_ID
+
+  if (expectedTopic === undefined && expectedAccount === undefined) {
+    // Fail closed: without an origin pin, "signature valid" only proves some
+    // AWS account sent this — cross-account forgery. This is a deployment
+    // misconfiguration, not a forged request, so it throws the tagged config
+    // error (503) rather than collapsing into the 401 `false` path.
+    throw Object.assign(configNotConfiguredError('AWS_SES_INBOUND_TOPIC_ARN'), {
+      message:
+        'Neither AWS_SES_INBOUND_TOPIC_ARN nor AWS_SES_INBOUND_ACCOUNT_ID is set — ' +
+        'SES inbound webhook verification is fail-closed without an origin pin. ' +
+        'Set AWS_SES_INBOUND_TOPIC_ARN to the exact topic ARN your SES receipt rule publishes ' +
+        'to, or AWS_SES_INBOUND_ACCOUNT_ID to your 12-digit AWS account id, in api/.env.',
+    })
+  }
+
+  // Origin pinning: either the exact topic matches, or the publisher account
+  // matches. The TopicArn account field is itself covered by the SNS signature
+  // (verified below), so it is an attested fact, not a client claim.
+  const topicMatches = expectedTopic !== undefined && parsed.TopicArn === expectedTopic
+  const notificationAccounts = [
+    extractSigningCertAccountId(parsed.SigningCertURL),
+    topicArnAccountId(parsed.TopicArn),
+  ]
+  const accountMatches =
+    expectedAccount !== undefined && notificationAccounts.includes(expectedAccount)
+  if (!topicMatches && !accountMatches) return false
 
   if (!isAllowedSigningCertUrl(parsed.SigningCertURL)) return false
 

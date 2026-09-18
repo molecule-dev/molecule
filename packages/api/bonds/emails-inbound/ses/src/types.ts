@@ -39,7 +39,12 @@ export interface SnsNotificationPayload {
   /** A unique UUID for the message. */
   MessageId: string
 
-  /** The notification topic ARN. */
+  /**
+   * The notification topic ARN. Its account-id field is part of the
+   * SNS-signed canonical string, so after signature verification it is an
+   * attested publisher identity — the source used for
+   * `AWS_SES_INBOUND_ACCOUNT_ID` pinning.
+   */
   TopicArn?: string
 
   /**
@@ -59,7 +64,11 @@ export interface SnsNotificationPayload {
   /** Base64-encoded signature over the canonical string. */
   Signature: string
 
-  /** URL of the X.509 PEM cert used to sign the message. */
+  /**
+   * URL of the X.509 PEM cert used to sign the message. Must be HTTPS on an
+   * allowlisted `*.amazonaws.com` host; a 12-digit account-id path segment,
+   * when present, participates in `AWS_SES_INBOUND_ACCOUNT_ID` pinning.
+   */
   SigningCertURL: string
 
   /** Confirmation token (only on SubscriptionConfirmation messages). */
@@ -138,6 +147,18 @@ declare global {
        * `TopicArn` does not match are rejected.
        */
       AWS_SES_INBOUND_TOPIC_ARN?: string
+
+      /**
+       * Optional AWS account id (12 digits). When set, notifications are
+       * accepted only when the publisher account matches — sourced from the
+       * 12-digit segment of the `SigningCertURL` path or the account field
+       * of the SNS-signed `TopicArn`. Together with
+       * `AWS_SES_INBOUND_TOPIC_ARN` this is the fail-closed origin pin: when
+       * NEITHER is configured, `verifySignature` throws a tagged
+       * configuration error instead of accepting any validly-signed SNS
+       * message (which would admit cross-account forgery).
+       */
+      AWS_SES_INBOUND_ACCOUNT_ID?: string
     }
   }
 }

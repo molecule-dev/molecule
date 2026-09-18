@@ -41,10 +41,18 @@ export const emailsInboundSesSecretDefinitions: SecretDefinition[] = [
   {
     key: 'AWS_SES_INBOUND_TOPIC_ARN',
     description:
-      'SES inbound SNS topic ARN — ARN of the SNS topic your SES receipt rule publishes inbound mail to.',
+      'SES inbound SNS topic ARN — ARN of the SNS topic your SES receipt rule publishes inbound mail to. One of this or AWS_SES_INBOUND_ACCOUNT_ID must be set; inbound webhook verification fails closed without an origin pin.',
     helpUrl: 'https://console.aws.amazon.com/ses/',
     required: false,
     example: 'arn:aws:sns:us-east-1:123456789012:ses-inbound',
+  },
+  {
+    key: 'AWS_SES_INBOUND_ACCOUNT_ID',
+    description:
+      'SES inbound AWS account id — Your 12-digit AWS account id; SNS notifications published by any other AWS account are rejected. One of this or AWS_SES_INBOUND_TOPIC_ARN must be set; inbound webhook verification fails closed without an origin pin.',
+    helpUrl: 'https://console.aws.amazon.com/iam/',
+    required: false,
+    example: '123456789012',
   },
   {
     key: 'AWS_SNS_SIGNING_CERT_HOSTNAME_SUFFIXES',
