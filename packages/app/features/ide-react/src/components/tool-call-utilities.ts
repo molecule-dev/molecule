@@ -198,6 +198,10 @@ export function toolLabel(name: string, input: unknown): string {
     }
     case 'ask_user':
       return normalizeAskUserInput(inp).question || 'Question'
+    case 'update_task_list': {
+      const rows = normalizeTaskListInput(inp)
+      return rows.length > 0 ? `Working plan — ${rows.length} tasks` : 'Working plan'
+    }
     default: {
       const label = name.replace(/_/g, ' ')
       // Salient-argument fallback for tools without an explicit case: nearly every
@@ -461,12 +465,24 @@ function coerceToText(value: unknown): string {
   return ''
 }
 
+/** A single `ask_user` option after coercion — label is always safe as a React child. */
+export interface AskUserOption {
+  /** The clickable answer text — also the string sent back as the response. */
+  label: string
+  /** One-line explanation rendered under the label (rich options only). */
+  description?: string
+  /** Markdown artifact shown side-by-side for comparing options (rich options only). */
+  preview?: string
+}
+
 /** The `ask_user` tool input, after coercion — every field safe to render. */
 export interface AskUserInput {
   /** The question text (markdown). */
   question: string
-  /** Clickable answers, always plain strings. */
-  options: string[]
+  /** Clickable answers; a plain string or a rich { label, description?, preview? }. */
+  options: AskUserOption[]
+  /** Checkboxes — several options may be chosen at once. */
+  multiSelect: boolean
   /** Whether the free-text box is offered. `undefined` means "model didn't say" (defaults on). */
   allowFreeText: boolean | undefined
   /** Optional hint shown under the options. */
@@ -474,12 +490,42 @@ export interface AskUserInput {
 }
 
 /**
+ * Normalize one raw option (string or object) into an `AskUserOption`.
+ *
+ * The object form is the schema-sanctioned rich option, but the same recovery
+ * rules as `coerceToText` apply — a malformed object without a `label` still
+ * yields SOMETHING clickable (via the known text keys, or the JSON dump) rather
+ * than being dropped, so the user is never left with fewer answers than the
+ * model meant to offer.
+ */
+function normalizeAskUserOption(raw: unknown): AskUserOption | null {
+  if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
+    const record = raw as Record<string, unknown>
+    const label = coerceToText(record.label).trim()
+      ? coerceToText(record.label)
+      : coerceToText(record)
+    if (!label.trim()) return null
+    return {
+      label,
+      description: coerceToText(record.description).trim()
+        ? coerceToText(record.description)
+        : undefined,
+      preview: coerceToText(record.preview).trim() ? coerceToText(record.preview) : undefined,
+    }
+  }
+  const label = coerceToText(raw)
+  return label.trim() ? { label } : null
+}
+
+/**
  * Normalize raw `ask_user` tool input into renderable strings.
  *
- * The model is told `options` is `string[]`, and weaker models routinely send
- * `[{ label: 'Recipe box' }]` or `[{ label, value }]` instead. Rendering one of those
- * objects directly is React error #31, which crashes the entire IDE at the moment the
- * user submits their first prompt. Everything the card renders goes through here.
+ * The model is told `options` is a list of strings or `{ label, description?,
+ * preview? }` objects, and weaker models routinely send stranger shapes —
+ * `[{ label, value }]`, nested arrays, quote-escaped pseudo-JSON. Rendering one
+ * of those directly is React error #31, which crashes the entire IDE at the
+ * moment the user submits their first prompt. Everything the card renders goes
+ * through here.
  *
  * @param input - The raw tool input, straight off the model.
  * @returns The same fields, coerced so each is safe as a React child.
@@ -489,16 +535,56 @@ export function normalizeAskUserInput(input: unknown): AskUserInput {
   const rawOptions = Array.isArray(raw.options) ? raw.options : []
   return {
     question: coerceToText(raw.question),
-    options: rawOptions.map(coerceToText).filter((option) => option.trim() !== ''),
+    options: rawOptions
+      .map(normalizeAskUserOption)
+      .filter((option): option is AskUserOption => option !== null),
+    multiSelect: typeof raw.multiSelect === 'boolean' ? raw.multiSelect : false,
     allowFreeText: typeof raw.allowFreeText === 'boolean' ? raw.allowFreeText : undefined,
     hint: coerceToText(raw.hint),
   }
 }
 
+/** One row of an `update_task_list` call, after coercion — safe to render. */
+export interface TaskListRow {
+  content: string
+  status: 'pending' | 'in_progress' | 'completed'
+  priority?: 'high' | 'medium' | 'low'
+}
+
+/**
+ * Coerce raw `update_task_list` input into renderable rows. The input comes
+ * straight off the model — every field is degraded to a safe default rather
+ * than rendered raw (same contract as `normalizeAskUserInput`).
+ *
+ * @param input - The raw tool input.
+ * @returns The rows worth rendering; empty when the model sent nothing usable.
+ */
+export function normalizeTaskListInput(input: unknown): TaskListRow[] {
+  const raw = (input ?? {}) as Inp
+  if (!Array.isArray(raw.todos)) return []
+  const rows: TaskListRow[] = []
+  for (const entry of raw.todos.slice(0, 50)) {
+    if (entry == null || typeof entry !== 'object' || Array.isArray(entry)) continue
+    const record = entry as Record<string, unknown>
+    const content = coerceToText(record.content)
+    if (!content.trim()) continue
+    const status =
+      record.status === 'in_progress' || record.status === 'completed'
+        ? record.status
+        : ('pending' as const)
+    const priority =
+      record.priority === 'high' || record.priority === 'medium' || record.priority === 'low'
+        ? record.priority
+        : undefined
+    rows.push({ content: content.slice(0, 200), status, priority })
+  }
+  return rows
+}
+
 /**
  * Count truly added/removed lines between two line arrays using LCS.
  * @param oldLines - The original lines array.
- * @param newLines - The modified lines array.
+ * @param modifiedLines - The modified lines array.
  * @returns An object with the number of added and removed lines.
  */
 export function diffLineCount(

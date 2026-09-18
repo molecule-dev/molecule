@@ -32,6 +32,7 @@ import {
   isSkippedByUser,
   moleculeDocPath,
   normalizeAskUserInput,
+  normalizeTaskListInput,
   num,
   str,
   toolLabel,
@@ -815,6 +816,111 @@ export const ToolCallCard = memo(function ToolCallCard({
             }
           : undefined
 
+  // ── update_task_list: the working checklist the user watches ───────────────
+  if (name === 'update_task_list') {
+    const todos = normalizeTaskListInput(input)
+    const completed = todos.filter((todo) => todo.status === 'completed').length
+    const borderClr = isLight ? '#d0d7de' : '#3d444d'
+    const statusGlyph = (status: string): string =>
+      status === 'completed' ? '✓' : status === 'in_progress' ? '◐' : '○'
+    const statusColor = (status: string): string =>
+      status === 'completed'
+        ? '#3fb950'
+        : status === 'in_progress'
+          ? isLight
+            ? '#2563eb'
+            : '#60a5fa'
+          : isLight
+            ? '#848d97'
+            : '#6e7681'
+
+    return (
+      <div
+        className={className}
+        data-mol-id="task-list-card"
+        style={{
+          marginBottom: '8px',
+          marginTop: '8px',
+          borderRadius: '8px',
+          border: `1px solid ${borderClr}`,
+          background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+            padding: '6px 12px',
+            borderBottom: todos.length > 0 ? `1px solid ${borderClr}` : 'none',
+            fontSize: '12px',
+            fontWeight: 600,
+          }}
+        >
+          <span>{t('ide.chat.taskListTitle', undefined, { defaultValue: 'Working plan' })}</span>
+          {todos.length > 0 && (
+            <span style={{ fontWeight: 400, opacity: 0.65 }}>
+              {t(
+                'ide.chat.taskListProgress',
+                { done: completed, total: todos.length },
+                {
+                  defaultValue: '{{done}} of {{total}} done',
+                },
+              )}
+            </span>
+          )}
+        </div>
+        {todos.map((todo, i) => (
+          <div
+            key={i}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+              padding: '4px 12px',
+              borderTop:
+                i > 0 ? `1px solid ${isLight ? '#eaeef2' : 'rgba(255,255,255,0.06)'}` : 'none',
+              fontSize: '12.5px',
+              ...(todo.status === 'completed'
+                ? { opacity: 0.55, textDecoration: 'line-through' }
+                : {}),
+            }}
+          >
+            <span
+              aria-hidden
+              style={{
+                flexShrink: 0,
+                width: 16,
+                fontSize: '12px',
+                lineHeight: '17px',
+                color: statusColor(todo.status),
+                fontWeight: 600,
+              }}
+            >
+              {statusGlyph(todo.status)}
+            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              {todo.priority === 'high' && todo.status !== 'completed' && (
+                <span
+                  style={{
+                    color: isLight ? '#d63a2f' : '#f87171',
+                    fontWeight: 600,
+                    marginRight: '4px',
+                  }}
+                >
+                  !
+                </span>
+              )}
+              {todo.content}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   // ── save_plan: clickable row that opens the plan file in the editor ──────────
   if (name === 'save_plan') {
     const planOutput = (output ?? {}) as { path?: string }
@@ -900,10 +1006,11 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   // ── ask_user: render interactive option list instead of a normal tool card ──
   if (name === 'ask_user') {
-    // NEVER render raw tool input. `options` is declared `string[]` in the tool
-    // schema, but the schema is a request to a language model, not a guarantee —
-    // weaker models send `[{ label: 'Recipe box' }]`, and an object reaching JSX
-    // throws React error #31 during render, which takes down the entire IDE.
+    // NEVER render raw tool input. `options` is declared as strings-or-objects
+    // in the tool schema, but the schema is a request to a language model, not
+    // a guarantee — weaker models send `[{ label: 'Recipe box' }]`, nested
+    // arrays, or quote-escaped pseudo-JSON, and an object reaching JSX throws
+    // React error #31 during render, which takes down the entire IDE.
     const askInput = normalizeAskUserInput(input)
     const askOutput = output as { status?: string } | string | undefined
     const serverAwaiting =
@@ -914,6 +1021,12 @@ export const ToolCallCard = memo(function ToolCallCard({
     const selectedAnswer = isResponded ? (askOutput as string) : localAnswer
     const [freeText, setFreeText] = useState('')
     const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
+    // Multi-select picks in progress (labels); sent as one string joined with
+    // '; ' on confirm — the same shape an answered multi-select persists as.
+    const [multiPicks, setMultiPicks] = useState<string[]>([])
+    // Narrow screens have no room for the side-by-side preview pane; there a
+    // preview expands inline under its option row instead.
+    const [expandedPreviewIdx, setExpandedPreviewIdx] = useState<number | null>(null)
 
     // Don't render until the question has streamed in. `tool_use_start` surfaces
     // the card the instant the call begins — before its input arrives — which
@@ -924,6 +1037,27 @@ export const ToolCallCard = memo(function ToolCallCard({
 
     const borderClr = isLight ? '#d0d7de' : '#3d444d'
     const labelChar = (i: number): string => String.fromCharCode(65 + i) // A, B, C, …
+    const hasPreviews = askInput.options.some((option) => option.preview)
+    const multi = askInput.multiSelect && askInput.options.length > 0
+    const answeredLabels =
+      multi && typeof selectedAnswer === 'string'
+        ? selectedAnswer
+            .split('; ')
+            .map((part) => part.trim())
+            .filter(Boolean)
+        : []
+    const selectedSet = new Set([...multiPicks, ...answeredLabels])
+    // Which option's preview the pane shows: the hovered/focused one, else the
+    // picked one, else the first option that has a preview at all.
+    const previewIdx = (() => {
+      if (!hasPreviews) return null
+      const candidate = hoveredIdx ?? expandedPreviewIdx
+      if (candidate != null && askInput.options[candidate]?.preview) return candidate
+      const pickedIdx = askInput.options.findIndex((option) => selectedSet.has(option.label))
+      if (pickedIdx >= 0 && askInput.options[pickedIdx].preview) return pickedIdx
+      return askInput.options.findIndex((option) => option.preview)
+    })()
+    const previewOption = previewIdx != null ? askInput.options[previewIdx] : undefined
 
     return (
       <div
@@ -947,103 +1081,291 @@ export const ToolCallCard = memo(function ToolCallCard({
           }}
         >
           <MarkdownContent text={unescapeLiterals(askInput.question)} isStreaming={false} />
+          {multi && isAwaiting && (
+            <div style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.55, marginTop: '4px' }}>
+              {t('ide.chat.askUserMultiHint', undefined, {
+                defaultValue: 'You can choose more than one.',
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Full-width option rows */}
-        {askInput.options.map((option, i) => {
-          const isSelected = selectedAnswer === option
-          const isFaded = !isAwaiting && !isSelected
-          const isHover = isAwaiting && hoveredIdx === i
+        {/* Options, and — when any option carries a preview artifact — a
+            side-by-side preview pane on wide screens (narrow screens expand
+            the preview inline under its option row instead). */}
+        <div style={{ display: 'flex', alignItems: 'stretch' }}>
+          <div
+            style={{
+              flex: hasPreviews && !isNarrow ? '1 1 55%' : '1 1 100%',
+              minWidth: 0,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {askInput.options.map((option, i) => {
+              const isSelected = selectedSet.has(option.label)
+              const isFaded = !isAwaiting && !isSelected
+              const isHover = isAwaiting && hoveredIdx === i
+              const isPreviewExpanded = expandedPreviewIdx === i
 
-          return (
-            <button
-              key={i}
-              type="button"
-              data-mol-id={`ask-user-option-${i}`}
-              disabled={!isAwaiting || onAskUserResponse == null}
-              onClick={() => {
-                // No handler = read-only (a project viewer): answering is editor work.
-                if (onAskUserResponse == null) return
-                setLocalAnswer(option)
-                onAskUserResponse(option)
-              }}
-              onMouseEnter={() => {
-                if (isAwaiting) setHoveredIdx(i)
-              }}
-              onMouseLeave={() => setHoveredIdx(null)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                width: '100%',
-                padding: '8px 12px',
-                // Touch: full 44px rows — these are the PRIMARY discovery answers,
-                // so they get the standalone-control floor, not the dense-row 32.
-                ...(isCoarse ? { minHeight: 44 } : {}),
-                border: 'none',
-                borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                background: isSelected
-                  ? isLight
-                    ? '#dbeafe'
-                    : 'rgba(59,130,246,0.2)'
-                  : isHover
-                    ? isLight
-                      ? '#eaeef2'
-                      : 'rgba(255,255,255,0.06)'
-                    : 'transparent',
-                color: 'inherit',
-                cursor: isAwaiting ? 'pointer' : 'default',
-                textAlign: 'left',
-                fontSize: '13px',
-                opacity: isFaded ? 0.4 : 1,
-                transition: 'background 80ms, opacity 80ms',
-              }}
-            >
-              {/* Letter badge */}
-              <span
+              return (
+                <div key={i}>
+                  <div style={{ display: 'flex', alignItems: 'stretch' }}>
+                    <button
+                      type="button"
+                      data-mol-id={`ask-user-option-${i}`}
+                      disabled={!isAwaiting || onAskUserResponse == null}
+                      onClick={() => {
+                        // No handler = read-only (a project viewer): answering is editor work.
+                        if (onAskUserResponse == null) return
+                        if (multi) {
+                          // Multi-select toggles a pick; a Confirm row submits them.
+                          setMultiPicks((picks) =>
+                            picks.includes(option.label)
+                              ? picks.filter((p) => p !== option.label)
+                              : [...picks, option.label],
+                          )
+                          return
+                        }
+                        setLocalAnswer(option.label)
+                        onAskUserResponse(option.label)
+                      }}
+                      onFocus={() => {
+                        if (isAwaiting) setHoveredIdx(i)
+                      }}
+                      onMouseEnter={() => {
+                        if (isAwaiting) setHoveredIdx(i)
+                      }}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        flex: 1,
+                        minWidth: 0,
+                        padding: option.description ? '7px 12px' : '8px 12px',
+                        // Touch: full 44px rows — these are the PRIMARY discovery answers,
+                        // so they get the standalone-control floor, not the dense-row 32.
+                        ...(isCoarse ? { minHeight: 44 } : {}),
+                        border: 'none',
+                        borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                        background: isSelected
+                          ? isLight
+                            ? '#dbeafe'
+                            : 'rgba(59,130,246,0.2)'
+                          : isHover
+                            ? isLight
+                              ? '#eaeef2'
+                              : 'rgba(255,255,255,0.06)'
+                            : 'transparent',
+                        color: 'inherit',
+                        cursor: isAwaiting ? 'pointer' : 'default',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        opacity: isFaded ? 0.4 : 1,
+                        transition: 'background 80ms, opacity 80ms',
+                      }}
+                    >
+                      {/* Letter badge (checkbox-style when multi-select: filled
+                        letter = picked, hollow = not yet). */}
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 22,
+                          height: 22,
+                          borderRadius: multi ? '6px' : '5px',
+                          border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
+                          background: isSelected
+                            ? isLight
+                              ? '#3b82f6'
+                              : '#2563eb'
+                            : isLight
+                              ? '#fff'
+                              : 'rgba(255,255,255,0.08)',
+                          color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          flexShrink: 0,
+                          fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                        }}
+                      >
+                        {multi && isSelected ? '✓' : labelChar(i)}
+                      </span>
+
+                      {/* Option label + optional one-line description */}
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ display: 'block' }}>{option.label}</span>
+                        {option.description && (
+                          <span
+                            style={{
+                              display: 'block',
+                              fontSize: '11px',
+                              opacity: 0.65,
+                              marginTop: '1px',
+                            }}
+                          >
+                            {option.description}
+                          </span>
+                        )}
+                      </span>
+
+                      {/* Checkmark for a picked single-select option */}
+                      {!multi && isSelected && (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 16 16"
+                          width="14"
+                          height="14"
+                          fill={isLight ? '#2563eb' : '#60a5fa'}
+                        >
+                          <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Narrow screens: expand this option's preview inline (a
+                      sibling button — interactive elements never nest). */}
+                    {hasPreviews && isNarrow && option.preview && (
+                      <button
+                        type="button"
+                        data-mol-id={`ask-user-option-preview-${i}`}
+                        aria-label={t('ide.chat.askUserPreview', undefined, {
+                          defaultValue: 'Preview',
+                        })}
+                        disabled={!isAwaiting}
+                        onClick={() => setExpandedPreviewIdx(isPreviewExpanded ? null : i)}
+                        style={{
+                          flexShrink: 0,
+                          width: 36,
+                          border: 'none',
+                          borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                          borderLeft: `1px solid ${borderClr}`,
+                          background: isPreviewExpanded
+                            ? isLight
+                              ? '#eaeef2'
+                              : 'rgba(255,255,255,0.06)'
+                            : 'transparent',
+                          color: 'inherit',
+                          cursor: isAwaiting ? 'pointer' : 'default',
+                          fontSize: '14px',
+                          opacity: 0.7,
+                          transform: isPreviewExpanded ? 'rotate(90deg)' : 'none',
+                          transition: 'transform 80ms',
+                        }}
+                      >
+                        ›
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Inline preview (narrow screens only — wide screens use the
+                    side pane below). */}
+                  {hasPreviews && isNarrow && option.preview && isPreviewExpanded && (
+                    <div
+                      style={{
+                        borderTop: `1px solid ${borderClr}`,
+                        background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
+                        padding: '8px 12px',
+                        maxHeight: 240,
+                        overflowY: 'auto',
+                        fontSize: '12px',
+                      }}
+                    >
+                      <MarkdownContent text={option.preview} isStreaming={false} />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            {/* Multi-select confirm row — submits the picked labels as one
+                '; '-joined answer string. */}
+            {multi && isAwaiting && onAskUserResponse != null && (
+              <div
                 style={{
-                  display: 'inline-flex',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '8px',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 22,
-                  height: 22,
-                  borderRadius: '5px',
-                  border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
-                  background: isSelected
-                    ? isLight
-                      ? '#3b82f6'
-                      : '#2563eb'
-                    : isLight
-                      ? '#fff'
-                      : 'rgba(255,255,255,0.08)',
-                  color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  flexShrink: 0,
-                  fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                  padding: '8px 12px',
+                  borderTop: `1px solid ${borderClr}`,
                 }}
               >
-                {labelChar(i)}
-              </span>
-
-              {/* Option text */}
-              <span style={{ flex: 1 }}>{option}</span>
-
-              {/* Checkmark for selected */}
-              {isSelected && (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  width="14"
-                  height="14"
-                  fill={isLight ? '#2563eb' : '#60a5fa'}
+                <span style={{ fontSize: '11px', opacity: 0.6 }}>
+                  {t('ide.chat.askUserSelectedCount', undefined, {
+                    defaultValue: '{{count}} selected',
+                    count: multiPicks.length,
+                  })}
+                </span>
+                <button
+                  type="button"
+                  data-mol-id="ask-user-multiselect-confirm"
+                  disabled={multiPicks.length === 0}
+                  className={cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                    cm.touchTargetCompact,
+                  )}
+                  onClick={() => {
+                    if (multiPicks.length === 0) return
+                    setLocalAnswer(multiPicks.join('; '))
+                    onAskUserResponse(multiPicks.join('; '))
+                  }}
                 >
-                  <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
-                </svg>
-              )}
-            </button>
-          )
-        })}
+                  {t('ide.chat.askUserMultiConfirm', undefined, {
+                    defaultValue: 'Confirm choice',
+                  })}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Side-by-side preview pane (wide screens, rich options only). Shows
+              the hovered/focused option's artifact — mockups, code, API shapes
+              — so alternatives can be compared without scrolling. */}
+          {hasPreviews && !isNarrow && (
+            <div
+              style={{
+                flex: '1 1 45%',
+                minWidth: 0,
+                borderLeft: `1px solid ${borderClr}`,
+                display: 'flex',
+                flexDirection: 'column',
+                background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
+              }}
+            >
+              <div
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  opacity: 0.6,
+                  borderBottom: `1px solid ${borderClr}`,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {previewOption
+                  ? previewOption.label
+                  : t('ide.chat.askUserPreview', undefined, { defaultValue: 'Preview' })}
+              </div>
+              <div
+                style={{
+                  padding: '8px 12px',
+                  maxHeight: 360,
+                  overflowY: 'auto',
+                  fontSize: '12px',
+                }}
+              >
+                {previewOption?.preview && (
+                  <MarkdownContent text={previewOption.preview} isStreaming={false} />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Free-text input. Shown by DEFAULT so the user is never stuck on an
             open-ended question (e.g. "what's your bakery called?") that the model
@@ -1142,7 +1464,7 @@ export const ToolCallCard = memo(function ToolCallCard({
         )}
 
         {/* Show free-text response if it wasn't one of the preset options */}
-        {selectedAnswer && !askInput.options.includes(selectedAnswer) && (
+        {selectedAnswer && !askInput.options.some((option) => option.label === selectedAnswer) && (
           <div
             style={{
               padding: '8px 12px',

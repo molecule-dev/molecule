@@ -108,7 +108,44 @@ describe('normalizeAskUserInput', () => {
       question: 'What should we build?',
       options: [{ label: 'Recipe box' }, { label: 'Budget tracker', value: 'budget' }],
     })
-    expect(result.options).toEqual(['Recipe box', 'Budget tracker'])
+    expect(result.options.map((o) => o.label)).toEqual(['Recipe box', 'Budget tracker'])
+  })
+
+  it('preserves rich-option description and preview alongside the label', () => {
+    const result = normalizeAskUserInput({
+      question: 'Which data model?',
+      multiSelect: false,
+      options: [
+        {
+          label: 'Single table',
+          description: 'One row per order, items as JSON',
+          preview: 'CREATE TABLE orders (\n  id uuid PRIMARY KEY\n);',
+        },
+        'Two tables',
+      ],
+    })
+    expect(result.options).toHaveLength(2)
+    expect(result.options[0]).toEqual({
+      label: 'Single table',
+      description: 'One row per order, items as JSON',
+      preview: 'CREATE TABLE orders (\n  id uuid PRIMARY KEY\n);',
+    })
+    expect(result.options[1]).toEqual({ label: 'Two tables' })
+    expect(result.multiSelect).toBe(false)
+  })
+
+  it('carries the multiSelect flag through', () => {
+    const result = normalizeAskUserInput({
+      question: 'q',
+      multiSelect: true,
+      options: ['A', 'B'],
+    })
+    expect(result.multiSelect).toBe(true)
+  })
+
+  it('defaults multiSelect to false when the model omits it', () => {
+    const result = normalizeAskUserInput({ question: 'q', options: ['A'] })
+    expect(result.multiSelect).toBe(false)
   })
 
   it('reads the other text keys models use', () => {
@@ -116,12 +153,12 @@ describe('normalizeAskUserInput', () => {
       question: 'q',
       options: [{ value: 'v' }, { title: 't' }, { text: 'x' }, { name: 'n' }],
     })
-    expect(result.options).toEqual(['v', 't', 'x', 'n'])
+    expect(result.options.map((o) => o.label)).toEqual(['v', 't', 'x', 'n'])
   })
 
   it('keeps plain strings untouched', () => {
     const result = normalizeAskUserInput({ question: 'q', options: ['A', 'B'] })
-    expect(result.options).toEqual(['A', 'B'])
+    expect(result.options.map((o) => o.label)).toEqual(['A', 'B'])
   })
 
   it('unwraps option objects the model pre-serialized as JSON strings (observed live 2026-08-15)', () => {
@@ -132,7 +169,10 @@ describe('normalizeAskUserInput', () => {
         '{"key": "import-existing", "label": "Import my existing app"}',
       ],
     })
-    expect(result.options).toEqual(['Build a new app', 'Import my existing app'])
+    expect(result.options.map((o) => o.label)).toEqual([
+      'Build a new app',
+      'Import my existing app',
+    ])
   })
 
   it('leaves brace-shaped strings that are not JSON untouched', () => {
@@ -140,7 +180,7 @@ describe('normalizeAskUserInput', () => {
       question: 'q',
       options: ['{not json}', '[also not json'],
     })
-    expect(result.options).toEqual(['{not json}', '[also not json'])
+    expect(result.options.map((o) => o.label)).toEqual(['{not json}', '[also not json'])
   })
 
   it('recovers labels from MANGLED pseudo-JSON with mixed escaping (observed live 2026-08-15)', () => {
@@ -156,18 +196,18 @@ describe('normalizeAskUserInput', () => {
         '{"key":"nontech\\", \\"label\\": \\"I\'m not technical — just help me\\"}',
       ],
     })
-    expect(result.options).toEqual([
+    expect(result.options.map((o) => o.label)).toEqual([
       "I'm a developer — I know my way around code",
       'I have some technical knowledge',
       "I'm not technical — just help me",
     ])
   })
 
-  it('never yields a non-string option, for any hostile value', () => {
+  it('never yields a non-string option label, for any hostile value', () => {
     const result = normalizeAskUserInput({ question: 'q', options: HOSTILE_VALUES })
     for (const option of result.options) {
-      expect(typeof option).toBe('string')
-      expect(option).not.toBe('')
+      expect(typeof option.label).toBe('string')
+      expect(option.label).not.toBe('')
     }
   })
 

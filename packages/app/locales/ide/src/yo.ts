@@ -37,6 +37,12 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.searchConversations': 'W\\u00E1 \\u00ECj\\u00EDr\\u00F2r\\u00F2\\u2026',
   'ide.chat.askUserPlaceholder':
     'T\\u00E0b\\u00ED t\\u00E0\\u00EDp\\u00F9 ti\\u1EB9 r\\u1EB9\\u2026',
+  'ide.chat.askUserMultiHint': 'You can choose more than one.',
+  'ide.chat.askUserSelectedCount': '{{count}} selected',
+  'ide.chat.askUserMultiConfirm': 'Confirm choice',
+  'ide.chat.askUserPreview': 'Preview',
+  'ide.chat.taskListTitle': 'Working plan',
+  'ide.chat.taskListProgress': '{{done}} of {{total}} done',
   'ide.chat.askUserSubmit': 'Fir\\u00E1n\\u1E63\\u1EB9\\u0301',
   'ide.chat.attachFile': 'So f\\u00E1\\u00ECl\\u00EC p\\u00F2',
   'ide.chat.changeModel': 'Y\\u00ED m\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC pad\\u00E0',
