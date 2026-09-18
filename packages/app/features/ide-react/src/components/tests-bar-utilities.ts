@@ -10,6 +10,10 @@
  * on its own with nothing on screen to explain it is the problem this bar
  * exists to remove.
  *
+ * Shown, however, still means "once the project HAS tests" — see
+ * {@link shouldShowTestsBar}. The preference decides whether the person wants
+ * the bar; that predicate decides whether there is anything for it to say.
+ *
  * @module
  */
 
@@ -79,6 +83,30 @@ export function parseTestsBarArg(args: string, current: boolean): boolean | null
   if (word === 'off' || word === 'hide' || word === 'bar off') return false
   if (word === 'toggle' || word === 'bar') return !current
   return null
+}
+
+/**
+ * Whether there is anything for the bar to report.
+ *
+ * A project with no tests yet gets NO bar. The strip earns its slot above the
+ * composer by accounting for something — a suite's verdict, a run driving the
+ * preview — and a project that has not been given tests has neither; an empty
+ * strip saying "Tests not run yet" is noise in exactly the projects that are
+ * least ready for it. It appears on its own the moment discovery finds a spec.
+ *
+ * The run clauses come second on purpose: a run in flight, a run-level error or
+ * a finished outcome all mean tests EXIST, whatever the discovered list happens
+ * to hold at that moment (a list can be empty because discovery has not
+ * answered yet, not because the project is bare).
+ *
+ * @param run - The live run state.
+ * @param tests - The discovered tests.
+ * @returns Whether the bar should render at all.
+ */
+export function shouldShowTestsBar(run: TestsRunState, tests: TestItem[]): boolean {
+  if (tests.length > 0) return true
+  if (run.running || run.error != null || run.outcome != null) return true
+  return Object.keys(run.results).length > 0
 }
 
 /** The bar's overall state, which decides its colour and its wording. */

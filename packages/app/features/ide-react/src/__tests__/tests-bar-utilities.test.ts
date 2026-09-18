@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import {
   parseTestsBarArg,
   parseTestsBarVisible,
+  shouldShowTestsBar,
   summariseTestsBar,
 } from '../components/tests-bar-utilities.js'
 import type { TestsRunState } from '../components/tests-card-utilities.js'
@@ -64,6 +65,42 @@ describe('tests bar visibility', () => {
     // parser must not claim arguments it does not own.
     expect(parseTestsBarArg('', true)).toBeNull()
     expect(parseTestsBarArg('e2e/home.spec.ts', true)).toBeNull()
+  })
+})
+
+describe('shouldShowTestsBar', () => {
+  it('a project with no tests gets NO bar', () => {
+    // Nothing to account for: an empty strip saying "Tests not run yet" is noise
+    // in exactly the projects least ready for it.
+    expect(shouldShowTestsBar(EMPTY_RUN_STATE, [])).toBe(false)
+  })
+
+  it('appears the moment discovery finds a spec, before anything has run', () => {
+    expect(shouldShowTestsBar(EMPTY_RUN_STATE, TESTS)).toBe(true)
+  })
+
+  it('a run outranks an empty list — a run means tests exist', () => {
+    // The list can be empty because discovery has not answered yet, which is not
+    // the same thing as a project with no tests.
+    expect(shouldShowTestsBar(runState({ running: true }), [])).toBe(true)
+    expect(shouldShowTestsBar(runState({ outcome: 'completed' }), [])).toBe(true)
+    expect(shouldShowTestsBar(runState({ error: 'the runner died' }), [])).toBe(true)
+    expect(
+      shouldShowTestsBar(
+        runState({
+          results: {
+            'app:e2e/home.spec.ts': {
+              status: 'passed',
+              passed: 3,
+              failed: 0,
+              skipped: 0,
+              output: '',
+            },
+          },
+        }),
+        [],
+      ),
+    ).toBe(true)
   })
 })
 

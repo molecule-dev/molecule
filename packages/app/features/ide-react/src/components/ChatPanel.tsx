@@ -184,7 +184,12 @@ import { SettingsCard } from './SettingsCard.js'
 import { ShareModal } from './ShareModal.js'
 import { SkillsCard } from './SkillsCard.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
-import { getTestsBarVisible, parseTestsBarArg, setTestsBarVisible } from './tests-bar-utilities.js'
+import {
+  getTestsBarVisible,
+  parseTestsBarArg,
+  setTestsBarVisible,
+  shouldShowTestsBar,
+} from './tests-bar-utilities.js'
 import type { TestFailure, TestsRunState } from './tests-card-utilities.js'
 import {
   applyTestRunEvent,
@@ -4928,6 +4933,32 @@ function ChatInner({
     const id = setInterval(() => dispatchAutoCommit({ type: 'tick' }), 1000)
     return () => clearInterval(id)
   }, [autoCommitArmed, autoCommitHeld])
+
+  // The tests bar hides itself on a project with no tests, so it has to LEARN
+  // whether any exist without the person opening the browser first — otherwise
+  // "shown by default" would mean "shown after you ask for it once", which is
+  // not a default at all.
+  //
+  // Discovery runs when the environment comes up, and again when a turn ends
+  // while we still know of none: that is the turn that wrote the project's
+  // first spec. A project that already has tests never pays for the second
+  // probe, because the effect returns the moment the list is non-empty.
+  const turnInFlight = isLoading || isRemoteStreaming
+  useEffect(() => {
+    if (!testsBarVisible || !listTests) return
+    if (testsAvailable !== true) return
+    if (turnInFlight || testsRun.running) return
+    if (testsList.length > 0) return
+    void refreshTests()
+  }, [
+    testsBarVisible,
+    listTests,
+    testsAvailable,
+    turnInFlight,
+    testsRun.running,
+    testsList.length,
+    refreshTests,
+  ])
 
   // Wrap onFileRevert so undo/redo also refreshes git status
   const handleFileRevert = useCallback(
@@ -11125,17 +11156,26 @@ function ChatInner({
             default (a run drives the preview, and an unexplained moving preview
             is what this removes); hidden with `/test off`. Unlike the commit bar
             it renders for a VIEWER too: watching is not editing, and a viewer
-            watching the preview move deserves the same explanation. */}
-        {testsBarVisible && !commandMenu && !modelPicker && !effortPicker && !panelOverlay && (
-          <TestStatusBar
-            run={testsRun}
-            tests={testsList}
-            expanded={testsBarExpanded}
-            onToggle={() => setTestsBarExpanded((v) => !v)}
-            onOpen={() => openTestsBrowser('')}
-            onStop={testsRun.running ? cancelTestsRun : undefined}
-          />
-        )}
+            watching the preview move deserves the same explanation.
+
+            A project with no tests yet gets no bar at all — there is nothing for
+            it to account for, and it appears on its own as soon as discovery
+            finds the first spec. */}
+        {testsBarVisible &&
+          shouldShowTestsBar(testsRun, testsList) &&
+          !commandMenu &&
+          !modelPicker &&
+          !effortPicker &&
+          !panelOverlay && (
+            <TestStatusBar
+              run={testsRun}
+              tests={testsList}
+              expanded={testsBarExpanded}
+              onToggle={() => setTestsBarExpanded((v) => !v)}
+              onOpen={() => openTestsBrowser('')}
+              onStop={testsRun.running ? cancelTestsRun : undefined}
+            />
+          )}
         {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
             Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
             so the bar is a dead control for them. */}
