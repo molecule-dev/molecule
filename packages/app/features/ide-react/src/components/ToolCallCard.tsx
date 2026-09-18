@@ -34,6 +34,7 @@ import {
   normalizeAskUserInput,
   normalizeTaskListInput,
   num,
+  parseJudgeVerdict,
   str,
   toolLabel,
   toolSummary,
@@ -921,6 +922,167 @@ export const ToolCallCard = memo(function ToolCallCard({
     )
   }
 
+  // ── spawn_agent: subagent card — explore report / judge verdict ─────────────
+  if (name === 'spawn_agent') {
+    const inp = (input ?? {}) as Inp
+    const kind = inp.type === 'judge' ? 'judge' : 'explore'
+    const out = (output ?? {}) as { report?: unknown; error?: unknown }
+    const errorText = typeof out.error === 'string' ? out.error : ''
+    const report = typeof out.report === 'string' ? out.report : ''
+    const verdict = kind === 'judge' ? parseJudgeVerdict(report) : null
+    const [expanded, setExpanded] = useState(false)
+    const borderClr = isLight ? '#d0d7de' : '#3d444d'
+    const verdictTint = isLight ? 'rgba(63,185,80,0.08)' : 'rgba(63,185,80,0.12)'
+    const failTint = isLight ? 'rgba(248,81,73,0.08)' : 'rgba(248,81,73,0.14)'
+    const verdictColor = verdict?.verdict === 'PASS' ? '#3fb950' : '#f8554f'
+    const bodyText = verdict ? verdict.rest : report
+
+    return (
+      <div
+        className={className}
+        data-mol-id="subagent-card"
+        style={{
+          marginBottom: '8px',
+          marginTop: '8px',
+          borderRadius: '8px',
+          border: `1px solid ${borderClr}`,
+          background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '6px 12px',
+            fontSize: '12px',
+            fontWeight: 600,
+            borderBottom: report || errorText ? `1px solid ${borderClr}` : 'none',
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              flexShrink: 0,
+              background:
+                status === 'error' || errorText
+                  ? '#f04040'
+                  : status === 'done'
+                    ? '#3fb950'
+                    : status === 'running'
+                      ? '#e8a000'
+                      : '#888888',
+            }}
+          />
+          <span>
+            {kind === 'judge'
+              ? t('ide.chat.subagent.judge', undefined, { defaultValue: 'Acceptance judge' })
+              : t('ide.chat.subagent.explore', undefined, { defaultValue: 'Research subagent' })}
+          </span>
+          {status === 'running' && (
+            <span style={{ fontWeight: 400, opacity: 0.6 }}>
+              {t('ide.chat.subagent.working', undefined, { defaultValue: 'working…' })}
+            </span>
+          )}
+        </div>
+
+        {errorText && (
+          <div
+            style={{
+              padding: '8px 12px',
+              fontSize: '12px',
+              color: '#f8554f',
+              borderBottom: `1px solid ${borderClr}`,
+            }}
+          >
+            {errorText}
+          </div>
+        )}
+
+        {verdict && (
+          <div
+            data-mol-id="subagent-verdict"
+            style={{
+              padding: '8px 12px',
+              background: verdict.verdict === 'PASS' ? verdictTint : failTint,
+              borderBottom: `1px solid ${borderClr}`,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '13px',
+                fontWeight: 700,
+                color: verdictColor,
+              }}
+            >
+              {verdict.verdict === 'PASS' ? '✓' : '✕'}
+              {verdict.verdict === 'PASS'
+                ? t('ide.chat.subagent.verdictPass', undefined, { defaultValue: 'PASS' })
+                : t('ide.chat.subagent.verdictFail', undefined, { defaultValue: 'FAIL' })}
+            </div>
+            {verdict.issues.length > 0 && (
+              <ul
+                style={{
+                  margin: '6px 0 0',
+                  paddingLeft: '18px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  opacity: 0.9,
+                }}
+              >
+                {verdict.issues.map((issue, i) => (
+                  <li key={i}>{issue}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        {bodyText && (
+          <div style={{ padding: '8px 12px' }}>
+            <div
+              style={{
+                fontSize: '12px',
+                whiteSpace: 'pre-wrap',
+                maxHeight: expanded ? undefined : 150,
+                overflow: 'hidden',
+                opacity: 0.9,
+              }}
+            >
+              {bodyText}
+            </div>
+            {bodyText.length > 600 && (
+              <button
+                type="button"
+                data-mol-id="subagent-report-toggle"
+                className={cm.button({ variant: 'link', color: 'primary', size: 'xs' })}
+                onClick={() => setExpanded((e) => !e)}
+                style={{ marginTop: '4px' }}
+              >
+                {expanded
+                  ? t('ide.chat.subagent.hideReport', undefined, {
+                      defaultValue: 'Show less',
+                    })
+                  : t('ide.chat.subagent.showReport', undefined, {
+                      defaultValue: 'Show full report',
+                    })}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // ── save_plan: clickable row that opens the plan file in the editor ──────────
   if (name === 'save_plan') {
     const planOutput = (output ?? {}) as { path?: string }
@@ -1039,6 +1201,12 @@ export const ToolCallCard = memo(function ToolCallCard({
     const labelChar = (i: number): string => String.fromCharCode(65 + i) // A, B, C, …
     const hasPreviews = askInput.options.some((option) => option.preview)
     const multi = askInput.multiSelect && askInput.options.length > 0
+    // The plan-approval card renders its two decisions as prominent design-
+    // system CTAs (approve = primary solid, request changes = outline) instead
+    // of letter-badged rows — this is the product's single most consequential
+    // click, and it should look like it.
+    const reviewCtas =
+      !!askInput.planReview && !multi && askInput.options.length === 2 && !hasPreviews
     const answeredLabels =
       multi && typeof selectedAnswer === 'string'
         ? selectedAnswer
@@ -1071,24 +1239,117 @@ export const ToolCallCard = memo(function ToolCallCard({
           overflow: 'hidden',
         }}
       >
-        {/* Question header — rendered as markdown (the model formats questions
-            with **bold**, bullets, and line breaks). */}
-        <div
-          style={{
-            padding: '4px 12px 10px',
-            fontSize: '13px',
-            borderBottom: `1px solid ${borderClr}`,
-          }}
-        >
-          <MarkdownContent text={unescapeLiterals(askInput.question)} isStreaming={false} />
-          {multi && isAwaiting && (
-            <div style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.55, marginTop: '4px' }}>
-              {t('ide.chat.askUserMultiHint', undefined, {
-                defaultValue: 'You can choose more than one.',
+        {/* Question header — the plan-approval card gets the rich REVIEW
+            header (badge, plan name, step count, clickable path, checklist
+            preview); every other question renders as markdown (the model
+            formats questions with **bold**, bullets, and line breaks). */}
+        {askInput.planReview ? (
+          <div
+            data-mol-id="plan-review-card"
+            style={{
+              padding: '10px 12px 10px',
+              fontSize: '13px',
+              borderBottom: `1px solid ${borderClr}`,
+            }}
+          >
+            <div
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.03em',
+                textTransform: 'uppercase',
+                opacity: 0.6,
+                marginBottom: '6px',
+              }}
+            >
+              {t('ide.chat.planReview.badge', undefined, {
+                defaultValue: 'Plan ready for review',
               })}
             </div>
-          )}
-        </div>
+            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>
+              {askInput.planReview.name ||
+                (askInput.planReview.path ? basename(askInput.planReview.path) : '') ||
+                t('ide.chat.planReview.fallbackTitle', undefined, {
+                  defaultValue: 'Implementation plan',
+                })}
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                fontSize: '12px',
+                opacity: 0.75,
+                marginBottom: askInput.planReview.preview.length > 0 ? '8px' : 0,
+              }}
+            >
+              <span>
+                {t(
+                  'ide.chat.planReview.steps',
+                  { count: askInput.planReview.steps },
+                  {
+                    defaultValue: '{{count}} steps',
+                  },
+                )}
+              </span>
+              {askInput.planReview.path && onFileOpen && (
+                <button
+                  type="button"
+                  data-mol-id="plan-review-open"
+                  className={cm.button({ variant: 'link', color: 'primary', size: 'xs' })}
+                  onClick={() => onFileOpen(askInput.planReview!.path!)}
+                >
+                  {t('ide.chat.planReview.openPlan', undefined, { defaultValue: 'Open plan' })}
+                </button>
+              )}
+            </div>
+            {askInput.planReview.preview.length > 0 && (
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: '18px',
+                  fontSize: '12px',
+                  opacity: 0.8,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                }}
+              >
+                {askInput.planReview.preview.map((step, i) => (
+                  <li key={i}>{step}</li>
+                ))}
+              </ul>
+            )}
+            {askInput.planReview.steps > askInput.planReview.preview.length && (
+              <div style={{ fontSize: '11px', opacity: 0.55, marginTop: '4px' }}>
+                {t(
+                  'ide.chat.planReview.more',
+                  { count: askInput.planReview.steps - askInput.planReview.preview.length },
+                  { defaultValue: '+ {{count}} more steps' },
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            style={{
+              padding: '4px 12px 10px',
+              fontSize: '13px',
+              borderBottom: `1px solid ${borderClr}`,
+            }}
+          >
+            <MarkdownContent text={unescapeLiterals(askInput.question)} isStreaming={false} />
+            {multi && isAwaiting && (
+              <div
+                style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.55, marginTop: '4px' }}
+              >
+                {t('ide.chat.askUserMultiHint', undefined, {
+                  defaultValue: 'You can choose more than one.',
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Options, and — when any option carries a preview artifact — a
             side-by-side preview pane on wide screens (narrow screens expand
@@ -1102,183 +1363,225 @@ export const ToolCallCard = memo(function ToolCallCard({
               flexDirection: 'column',
             }}
           >
-            {askInput.options.map((option, i) => {
-              const isSelected = selectedSet.has(option.label)
-              const isFaded = !isAwaiting && !isSelected
-              const isHover = isAwaiting && hoveredIdx === i
-              const isPreviewExpanded = expandedPreviewIdx === i
-
-              return (
-                <div key={i}>
-                  <div style={{ display: 'flex', alignItems: 'stretch' }}>
+            {reviewCtas ? (
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                  padding: '10px 12px',
+                }}
+              >
+                {askInput.options.map((option, i) => {
+                  const isPicked = selectedAnswer === option.label
+                  return (
                     <button
+                      key={i}
                       type="button"
-                      data-mol-id={`ask-user-option-${i}`}
+                      data-mol-id={`plan-review-cta-${i}`}
                       disabled={!isAwaiting || onAskUserResponse == null}
+                      className={cm.cn(
+                        cm.button(
+                          i === 0
+                            ? { variant: 'solid', color: 'primary', size: 'sm' }
+                            : { variant: 'outline', color: 'secondary', size: 'sm' },
+                        ),
+                        cm.touchTargetCompact,
+                      )}
+                      style={{
+                        flex: isNarrow ? '1 1 100%' : '1 1 auto',
+                        ...(isPicked ? { outline: '2px solid #3fb950', outlineOffset: '1px' } : {}),
+                      }}
                       onClick={() => {
-                        // No handler = read-only (a project viewer): answering is editor work.
                         if (onAskUserResponse == null) return
-                        if (multi) {
-                          // Multi-select toggles a pick; a Confirm row submits them.
-                          setMultiPicks((picks) =>
-                            picks.includes(option.label)
-                              ? picks.filter((p) => p !== option.label)
-                              : [...picks, option.label],
-                          )
-                          return
-                        }
                         setLocalAnswer(option.label)
                         onAskUserResponse(option.label)
                       }}
-                      onFocus={() => {
-                        if (isAwaiting) setHoveredIdx(i)
-                      }}
-                      onMouseEnter={() => {
-                        if (isAwaiting) setHoveredIdx(i)
-                      }}
-                      onMouseLeave={() => setHoveredIdx(null)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        flex: 1,
-                        minWidth: 0,
-                        padding: option.description ? '7px 12px' : '8px 12px',
-                        // Touch: full 44px rows — these are the PRIMARY discovery answers,
-                        // so they get the standalone-control floor, not the dense-row 32.
-                        ...(isCoarse ? { minHeight: 44 } : {}),
-                        border: 'none',
-                        borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                        background: isSelected
-                          ? isLight
-                            ? '#dbeafe'
-                            : 'rgba(59,130,246,0.2)'
-                          : isHover
-                            ? isLight
-                              ? '#eaeef2'
-                              : 'rgba(255,255,255,0.06)'
-                            : 'transparent',
-                        color: 'inherit',
-                        cursor: isAwaiting ? 'pointer' : 'default',
-                        textAlign: 'left',
-                        fontSize: '13px',
-                        opacity: isFaded ? 0.4 : 1,
-                        transition: 'background 80ms, opacity 80ms',
-                      }}
                     >
-                      {/* Letter badge (checkbox-style when multi-select: filled
-                        letter = picked, hollow = not yet). */}
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: 22,
-                          height: 22,
-                          borderRadius: multi ? '6px' : '5px',
-                          border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
-                          background: isSelected
-                            ? isLight
-                              ? '#3b82f6'
-                              : '#2563eb'
-                            : isLight
-                              ? '#fff'
-                              : 'rgba(255,255,255,0.08)',
-                          color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          flexShrink: 0,
-                          fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
-                        }}
-                      >
-                        {multi && isSelected ? '✓' : labelChar(i)}
-                      </span>
-
-                      {/* Option label + optional one-line description */}
-                      <span style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ display: 'block' }}>{option.label}</span>
-                        {option.description && (
-                          <span
-                            style={{
-                              display: 'block',
-                              fontSize: '11px',
-                              opacity: 0.65,
-                              marginTop: '1px',
-                            }}
-                          >
-                            {option.description}
-                          </span>
-                        )}
-                      </span>
-
-                      {/* Checkmark for a picked single-select option */}
-                      {!multi && isSelected && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16"
-                          width="14"
-                          height="14"
-                          fill={isLight ? '#2563eb' : '#60a5fa'}
-                        >
-                          <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
-                        </svg>
-                      )}
+                      {isPicked ? `✓ ${option.label}` : option.label}
                     </button>
+                  )
+                })}
+              </div>
+            ) : (
+              askInput.options.map((option, i) => {
+                const isSelected = selectedSet.has(option.label)
+                const isFaded = !isAwaiting && !isSelected
+                const isHover = isAwaiting && hoveredIdx === i
+                const isPreviewExpanded = expandedPreviewIdx === i
 
-                    {/* Narrow screens: expand this option's preview inline (a
-                      sibling button — interactive elements never nest). */}
-                    {hasPreviews && isNarrow && option.preview && (
+                return (
+                  <div key={i}>
+                    <div style={{ display: 'flex', alignItems: 'stretch' }}>
                       <button
                         type="button"
-                        data-mol-id={`ask-user-option-preview-${i}`}
-                        aria-label={t('ide.chat.askUserPreview', undefined, {
-                          defaultValue: 'Preview',
-                        })}
-                        disabled={!isAwaiting}
-                        onClick={() => setExpandedPreviewIdx(isPreviewExpanded ? null : i)}
+                        data-mol-id={`ask-user-option-${i}`}
+                        disabled={!isAwaiting || onAskUserResponse == null}
+                        onClick={() => {
+                          // No handler = read-only (a project viewer): answering is editor work.
+                          if (onAskUserResponse == null) return
+                          if (multi) {
+                            // Multi-select toggles a pick; a Confirm row submits them.
+                            setMultiPicks((picks) =>
+                              picks.includes(option.label)
+                                ? picks.filter((p) => p !== option.label)
+                                : [...picks, option.label],
+                            )
+                            return
+                          }
+                          setLocalAnswer(option.label)
+                          onAskUserResponse(option.label)
+                        }}
+                        onFocus={() => {
+                          if (isAwaiting) setHoveredIdx(i)
+                        }}
+                        onMouseEnter={() => {
+                          if (isAwaiting) setHoveredIdx(i)
+                        }}
+                        onMouseLeave={() => setHoveredIdx(null)}
                         style={{
-                          flexShrink: 0,
-                          width: 36,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          flex: 1,
+                          minWidth: 0,
+                          padding: option.description ? '7px 12px' : '8px 12px',
+                          // Touch: full 44px rows — these are the PRIMARY discovery answers,
+                          // so they get the standalone-control floor, not the dense-row 32.
+                          ...(isCoarse ? { minHeight: 44 } : {}),
                           border: 'none',
                           borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
-                          borderLeft: `1px solid ${borderClr}`,
-                          background: isPreviewExpanded
+                          background: isSelected
                             ? isLight
-                              ? '#eaeef2'
-                              : 'rgba(255,255,255,0.06)'
-                            : 'transparent',
+                              ? '#dbeafe'
+                              : 'rgba(59,130,246,0.2)'
+                            : isHover
+                              ? isLight
+                                ? '#eaeef2'
+                                : 'rgba(255,255,255,0.06)'
+                              : 'transparent',
                           color: 'inherit',
                           cursor: isAwaiting ? 'pointer' : 'default',
-                          fontSize: '14px',
-                          opacity: 0.7,
-                          transform: isPreviewExpanded ? 'rotate(90deg)' : 'none',
-                          transition: 'transform 80ms',
+                          textAlign: 'left',
+                          fontSize: '13px',
+                          opacity: isFaded ? 0.4 : 1,
+                          transition: 'background 80ms, opacity 80ms',
                         }}
                       >
-                        ›
+                        {/* Letter badge (checkbox-style when multi-select: filled
+                        letter = picked, hollow = not yet). */}
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: 22,
+                            height: 22,
+                            borderRadius: multi ? '6px' : '5px',
+                            border: `1px solid ${isSelected ? (isLight ? '#93c5fd' : '#3b82f6') : borderClr}`,
+                            background: isSelected
+                              ? isLight
+                                ? '#3b82f6'
+                                : '#2563eb'
+                              : isLight
+                                ? '#fff'
+                                : 'rgba(255,255,255,0.08)',
+                            color: isSelected ? '#fff' : isLight ? '#57606a' : '#848d97',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            flexShrink: 0,
+                            fontFamily: '"SF Mono", Menlo, Consolas, "Courier New", monospace',
+                          }}
+                        >
+                          {multi && isSelected ? '✓' : labelChar(i)}
+                        </span>
+
+                        {/* Option label + optional one-line description */}
+                        <span style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ display: 'block' }}>{option.label}</span>
+                          {option.description && (
+                            <span
+                              style={{
+                                display: 'block',
+                                fontSize: '11px',
+                                opacity: 0.65,
+                                marginTop: '1px',
+                              }}
+                            >
+                              {option.description}
+                            </span>
+                          )}
+                        </span>
+
+                        {/* Checkmark for a picked single-select option */}
+                        {!multi && isSelected && (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 16 16"
+                            width="14"
+                            height="14"
+                            fill={isLight ? '#2563eb' : '#60a5fa'}
+                          >
+                            <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+                          </svg>
+                        )}
                       </button>
+
+                      {/* Narrow screens: expand this option's preview inline (a
+                      sibling button — interactive elements never nest). */}
+                      {hasPreviews && isNarrow && option.preview && (
+                        <button
+                          type="button"
+                          data-mol-id={`ask-user-option-preview-${i}`}
+                          aria-label={t('ide.chat.askUserPreview', undefined, {
+                            defaultValue: 'Preview',
+                          })}
+                          disabled={!isAwaiting}
+                          onClick={() => setExpandedPreviewIdx(isPreviewExpanded ? null : i)}
+                          style={{
+                            flexShrink: 0,
+                            width: 36,
+                            border: 'none',
+                            borderTop: i > 0 ? `1px solid ${borderClr}` : 'none',
+                            borderLeft: `1px solid ${borderClr}`,
+                            background: isPreviewExpanded
+                              ? isLight
+                                ? '#eaeef2'
+                                : 'rgba(255,255,255,0.06)'
+                              : 'transparent',
+                            color: 'inherit',
+                            cursor: isAwaiting ? 'pointer' : 'default',
+                            fontSize: '14px',
+                            opacity: 0.7,
+                            transform: isPreviewExpanded ? 'rotate(90deg)' : 'none',
+                            transition: 'transform 80ms',
+                          }}
+                        >
+                          ›
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Inline preview (narrow screens only — wide screens use the
+                    side pane below). */}
+                    {hasPreviews && isNarrow && option.preview && isPreviewExpanded && (
+                      <div
+                        style={{
+                          borderTop: `1px solid ${borderClr}`,
+                          background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
+                          padding: '8px 12px',
+                          maxHeight: 240,
+                          overflowY: 'auto',
+                          fontSize: '12px',
+                        }}
+                      >
+                        <MarkdownContent text={option.preview} isStreaming={false} />
+                      </div>
                     )}
                   </div>
-
-                  {/* Inline preview (narrow screens only — wide screens use the
-                    side pane below). */}
-                  {hasPreviews && isNarrow && option.preview && isPreviewExpanded && (
-                    <div
-                      style={{
-                        borderTop: `1px solid ${borderClr}`,
-                        background: isLight ? '#fff' : 'rgba(255,255,255,0.03)',
-                        padding: '8px 12px',
-                        maxHeight: 240,
-                        overflowY: 'auto',
-                        fontSize: '12px',
-                      }}
-                    >
-                      <MarkdownContent text={option.preview} isStreaming={false} />
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+                )
+              })
+            )}
 
             {/* Multi-select confirm row — submits the picked labels as one
                 '; '-joined answer string. */}

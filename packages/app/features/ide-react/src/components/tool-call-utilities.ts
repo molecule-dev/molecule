@@ -198,6 +198,10 @@ export function toolLabel(name: string, input: unknown): string {
     }
     case 'ask_user':
       return normalizeAskUserInput(inp).question || 'Question'
+    case 'spawn_agent': {
+      const kind = str(inp.type) ?? ''
+      return kind === 'judge' ? 'Subagent — acceptance judge' : 'Subagent — research'
+    }
     case 'update_task_list': {
       const rows = normalizeTaskListInput(inp)
       return rows.length > 0 ? `Working plan — ${rows.length} tasks` : 'Working plan'
@@ -487,6 +491,37 @@ export interface AskUserInput {
   allowFreeText: boolean | undefined
   /** Optional hint shown under the options. */
   hint: string
+  /** Present only on the plan-approval card — renders the rich review layout. */
+  planReview: AskUserPlanReview | undefined
+}
+
+/** Plan-review metadata carried by the plan-approval ask_user card. */
+export interface AskUserPlanReview {
+  /** Plan file path relative to the workspace (clickable in the card). */
+  path: string | null
+  /** The plan's display name, when the model gave one. */
+  name: string | null
+  /** Total checklist steps in the plan. */
+  steps: number
+  /** First few checklist step texts, for the in-card preview. */
+  preview: string[]
+}
+
+/** Coerce the plan-approval card's `planReview` payload (hostile-safe). */
+function normalizePlanReview(raw: unknown): AskUserPlanReview | undefined {
+  if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) return undefined
+  const record = raw as Record<string, unknown>
+  const path = typeof record.path === 'string' && record.path.trim() ? record.path : null
+  const name = typeof record.name === 'string' && record.name.trim() ? record.name : null
+  const steps = Number.isFinite(Number(record.steps)) ? Math.max(0, Number(record.steps)) : 0
+  const preview = Array.isArray(record.preview)
+    ? record.preview
+        .map((line) => coerceToText(line).slice(0, 160))
+        .filter((line) => line.trim() !== '')
+        .slice(0, 8)
+    : []
+  if (!path && !name && steps === 0) return undefined
+  return { path, name, steps, preview }
 }
 
 /**
@@ -541,6 +576,7 @@ export function normalizeAskUserInput(input: unknown): AskUserInput {
     multiSelect: typeof raw.multiSelect === 'boolean' ? raw.multiSelect : false,
     allowFreeText: typeof raw.allowFreeText === 'boolean' ? raw.allowFreeText : undefined,
     hint: coerceToText(raw.hint),
+    planReview: normalizePlanReview(raw.planReview),
   }
 }
 
@@ -579,6 +615,43 @@ export function normalizeTaskListInput(input: unknown): TaskListRow[] {
     rows.push({ content: content.slice(0, 200), status, priority })
   }
   return rows
+}
+
+/** A parsed judge-subagent verdict. */
+export interface JudgeVerdict {
+  verdict: 'PASS' | 'FAIL'
+  /** Concrete failure lines (the `- one line per failure` block under ISSUES:). */
+  issues: string[]
+  /** The report with the verdict scaffold stripped, for the expandable body. */
+  rest: string
+}
+
+/**
+ * Parse a judge subagent's report into a structured verdict.
+ *
+ * The judge system prompt fixes the shape (`VERDICT: PASS|FAIL` then optional
+ * `ISSUES:` bullets then per-criterion evidence), but the model is the author —
+ * parse defensively (case-insensitive, leading whitespace tolerated) and return
+ * `null` when no verdict line is present so the card renders the plain report.
+ *
+ * @param report - The judge subagent's final report text.
+ * @returns The structured verdict, or null when the report carries none.
+ */
+export function parseJudgeVerdict(report: string): JudgeVerdict | null {
+  const verdictMatch = report.match(/^\s*VERDICT:\s*(PASS|FAIL)\b/im)
+  if (!verdictMatch) return null
+  const verdict = verdictMatch[1].toUpperCase() as 'PASS' | 'FAIL'
+  const withoutVerdict = report
+    .slice(verdictMatch.index! + verdictMatch[0].length)
+    .replace(/^\s*VERDICT:\s*(?:PASS|FAIL)\b.*$/im, '')
+  const issuesBlock = withoutVerdict.match(/ISSUES:\s*\n?([\s\S]*?)(?=\n\s*\n|\n[A-Z]|\n-[^-]|$)/i)
+  const issues = (issuesBlock?.[1] ?? '')
+    .split('\n')
+    .map((line) => line.replace(/^\s*[-•*]\s*/, '').trim())
+    .filter((line) => line.length > 0)
+    .slice(0, 12)
+  const rest = withoutVerdict.replace(/^\s*ISSUES:\s*\n?/i, '').trim()
+  return { verdict, issues, rest }
 }
 
 /**
