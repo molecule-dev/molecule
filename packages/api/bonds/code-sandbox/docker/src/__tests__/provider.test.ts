@@ -2073,3 +2073,118 @@ describe('self-booting containers (SandboxConfig.command / restartPolicy)', () =
     expect(body.HostConfig?.RestartPolicy).toBeUndefined()
   })
 })
+
+// ─── Container-id validation + production plain-TCP DOCKER_HOST guard ────────
+
+describe('container id validation (Docker API path interpolation)', () => {
+  it('get() returns null for an id carrying path structure — no request is made', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+    for (const bad of [
+      '../../var/run/docker.sock',
+      'id?force=true',
+      'id#frag',
+      'id%2F..',
+      'in valid',
+      '',
+    ]) {
+      expect(await provider.get(bad)).toBeNull()
+    }
+    expect(httpRequestCalls).toHaveLength(0)
+  })
+
+  it('destroy() rejects an id carrying path structure before any request', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+    await expect(provider.destroy('../escape')).rejects.toThrow(/Invalid sandbox container id/)
+    expect(httpRequestCalls).toHaveLength(0)
+  })
+
+  it('accepts real Docker ids, names, and fly-style app:machine ids', async () => {
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ socketPath: '/test.sock' })
+    const hexId = 'a'.repeat(64)
+    enqueueJson(200, {
+      Id: hexId,
+      Config: { Labels: {} },
+      State: { Running: true },
+    })
+    const sandbox = await provider.get(hexId)
+    expect(sandbox?.id).toBe(hexId)
+
+    // fly-style `app:machine` id is a legitimate shape
+    enqueueJson(200, {
+      Id: 'app1:machine1',
+      Config: { Labels: {} },
+      State: { Running: false },
+    })
+    const fly = await provider.get('app1:machine1')
+    expect(fly?.id).toBe('app1:machine1')
+  })
+})
+
+describe('production plain-TCP DOCKER_HOST guard', () => {
+  const originalEnv = process.env
+
+  afterEach(() => {
+    process.env = { ...originalEnv }
+  })
+
+  it('refuses a plain-TCP DOCKER_HOST endpoint when NODE_ENV=production', async () => {
+    process.env.NODE_ENV = 'production'
+    process.env.DOCKER_HOST = 'tcp://docker.internal:2375'
+    delete process.env.MOL_DOCKER_ALLOW_PLAIN_TCP
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({})
+
+    enqueueNetworkCreate()
+    // The refusal is NOT memoized away when an early call site (the
+    // best-effort network ensure) swallows it — the container-create call
+    // that follows must keep refusing.
+    await expect(provider.create({ projectId: 'p-guard' })).rejects.toThrow(
+      /plain-TCP .* Docker endpoint .* refusing/u,
+    )
+  })
+
+  it('honors MOL_DOCKER_ALLOW_PLAIN_TCP=1 with a loud warning', async () => {
+    process.env.NODE_ENV = 'production'
+    process.env.DOCKER_HOST = 'tcp://docker.internal:2375'
+    process.env.MOL_DOCKER_ALLOW_PLAIN_TCP = '1'
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({})
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-guard-ok' })
+    const sandbox = await provider.create({ projectId: 'p-guard-ok' })
+    expect(sandbox.id).toBe('container-guard-ok')
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('PLAIN-TCP Docker endpoint'),
+    )
+  })
+
+  it('does not guard explicit config.host (a code-level decision), nor non-production env', async () => {
+    process.env.NODE_ENV = 'production'
+    delete process.env.DOCKER_HOST
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({ host: '10.0.0.5', port: 2375 })
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-config-tcp' })
+    const sandbox = await provider.create({ projectId: 'p-config-tcp' })
+    expect(sandbox.id).toBe('container-config-tcp')
+  })
+
+  it('allows plain-TCP DOCKER_HOST outside production (dev workflows)', async () => {
+    process.env.NODE_ENV = 'development'
+    process.env.DOCKER_HOST = 'tcp://192.168.1.9:2375'
+    delete process.env.MOL_DOCKER_ALLOW_PLAIN_TCP
+    const { createProvider } = await import('../provider.js')
+    const provider = createProvider({})
+
+    enqueueNetworkCreate()
+    enqueueJson(201, { Id: 'container-dev-tcp' })
+    const sandbox = await provider.create({ projectId: 'p-dev-tcp' })
+    expect(sandbox.id).toBe('container-dev-tcp')
+    expect(containerCreateCall().opts.host).toBe('192.168.1.9')
+  })
+})

@@ -17,7 +17,13 @@
  * remote or rootless daemon can be selected with `config.host`/`config.port` or a
  * `DOCKER_HOST` (`tcp://host:port` or `unix:///path`). Only PLAIN (unencrypted)
  * TCP is supported — front a TLS-protected daemon (2376) with a local socket
- * proxy. The provider never pulls images, so `create()` fails with a no-such-image
+ * proxy. When the plain-TCP endpoint comes from the ambient `DOCKER_HOST` env
+ * (not explicit config) and `NODE_ENV=production`, the provider REFUSES to
+ * connect — exec payloads would cross the network unencrypted — unless
+ * `MOL_DOCKER_ALLOW_PLAIN_TCP=1` is set, which is honored with a loud warning.
+ * Caller-supplied container ids are shape-validated (`[A-Za-z0-9][A-Za-z0-9_.:-]*`,
+ * so Docker hex ids, names, and fly-style `app:machine` ids pass) before they are
+ * interpolated into Docker API paths. The provider never pulls images, so `create()` fails with a no-such-image
  * error if the base image (default `node:22-slim`, or `config.baseImage`) is
  * absent. The isolated sandbox network is auto-created on first use; it is NOT a
  * prerequisite.

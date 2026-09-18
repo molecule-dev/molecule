@@ -137,19 +137,34 @@ function parseDockerHost(value: string | undefined): DockerEndpoint | null {
  * 2. `config.socketPath` → that unix socket;
  * 3. `DOCKER_HOST` env (`tcp://` or `unix://`, the docker-client convention);
  * 4. `DOCKER_SOCKET_PATH` env, else `/var/run/docker.sock` (the default transport).
+ *
+ * The result also reports whether the endpoint came from the ambient
+ * `DOCKER_HOST` env (vs. explicit code config) — the production plain-TCP
+ * guard treats those differently; see {@link DockerSandboxProvider.ensureEndpointSafety}.
+ *
  * @param config - the provider configuration.
- * @returns the resolved endpoint to spread into every Docker API request.
+ * @returns the resolved endpoint plus its source, to spread into every Docker
+ *   API request.
  */
-function resolveDockerEndpoint(config: DockerConfig): DockerEndpoint {
+function resolveDockerEndpoint(config: DockerConfig): {
+  endpoint: DockerEndpoint
+  fromDockerHostEnv: boolean
+} {
   if (config.host !== undefined || config.port !== undefined) {
-    return { host: config.host ?? '127.0.0.1', port: config.port ?? DEFAULT_DOCKER_TCP_PORT }
+    return {
+      endpoint: { host: config.host ?? '127.0.0.1', port: config.port ?? DEFAULT_DOCKER_TCP_PORT },
+      fromDockerHostEnv: false,
+    }
   }
   if (config.socketPath !== undefined) {
-    return { socketPath: config.socketPath }
+    return { endpoint: { socketPath: config.socketPath }, fromDockerHostEnv: false }
   }
   const fromEnv = parseDockerHost(process.env.DOCKER_HOST)
-  if (fromEnv) return fromEnv
-  return { socketPath: process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock' }
+  if (fromEnv) return { endpoint: fromEnv, fromDockerHostEnv: true }
+  return {
+    endpoint: { socketPath: process.env.DOCKER_SOCKET_PATH ?? '/var/run/docker.sock' },
+    fromDockerHostEnv: false,
+  }
 }
 
 /**
@@ -367,9 +382,17 @@ class DockerSandboxProvider implements SandboxProvider {
    * providers (and two tests) do not inherit each other's verdict.
    */
   private checkpoints = { supported: true }
+  /** Resolved daemon endpoint source: ambient `DOCKER_HOST` env vs explicit config. */
+  private endpointFromDockerHostEnv: boolean
+  /** {@link ensureEndpointSafety} runs once per provider instance (successful checks only). */
+  private endpointSafetyChecked = false
+  /** Whether the plain-TCP override warning has fired (once per provider). */
+  private plainTcpOverrideWarned = false
 
   constructor(config: DockerConfig = {}) {
-    this.endpoint = resolveDockerEndpoint(config)
+    const resolved = resolveDockerEndpoint(config)
+    this.endpoint = resolved.endpoint
+    this.endpointFromDockerHostEnv = resolved.fromDockerHostEnv
     this.baseImage = config.baseImage ?? DEFAULT_IMAGE
     this.labelPrefix = config.labelPrefix ?? LABEL_PREFIX
     this.previewUrlTemplate = config.previewUrlTemplate ?? 'http://localhost:{port}'
@@ -677,6 +700,9 @@ class DockerSandboxProvider implements SandboxProvider {
    */
   async get(id: string): Promise<Sandbox | null> {
     try {
+      // Validate before interpolation into `/containers/${id}/json` — an
+      // id carrying path structure could retarget the request.
+      this.assertContainerId(id)
       const info = (await this.dockerApi(`/containers/${id}/json`)) as {
         Id: string
         Config: { Labels: Record<string, string> }
@@ -727,6 +753,8 @@ class DockerSandboxProvider implements SandboxProvider {
    * @param id - The Docker container ID to destroy.
    */
   async destroy(id: string): Promise<void> {
+    // Validate before interpolation into `/containers/${id}...` paths.
+    this.assertContainerId(id)
     // Read volume name from container labels before removing
     let volumeName: string | undefined
     try {
@@ -773,6 +801,9 @@ class DockerSandboxProvider implements SandboxProvider {
     _projectId: string,
     initialStatus: Sandbox['status'] = 'stopped',
   ): Sandbox {
+    // Every method on the returned Sandbox interpolates containerId into
+    // Docker API paths (start/stop/exec) — validate once, here.
+    this.assertContainerId(containerId)
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const provider = this
 
@@ -1420,6 +1451,83 @@ class DockerSandboxProvider implements SandboxProvider {
    *   `X-Registry-Auth`, which the daemon requires even for anonymous pulls.
    * @returns The parsed JSON response, or raw text for non-JSON responses.
    */
+  /**
+   * Production guard for ambient plain-TCP daemon endpoints (DOCKER_HOST).
+   *
+   * A `tcp://` Docker endpoint speaks PLAIN HTTP: every API request —
+   * including exec payloads (arbitrary commands + file contents) and image
+   * operations — crosses the network unencrypted and unauthenticated.
+   * Reaching such a daemon because an ambient `DOCKER_HOST` env happens to
+   * be set is not a choice this library gets to make silently in production:
+   * it refuses unless the operator explicitly accepts the risk via
+   * `MOL_DOCKER_ALLOW_PLAIN_TCP=1` (which is honored with a loud warning).
+   *
+   * Explicit `config.host`/`config.port` is deliberately NOT guarded — that
+   * is a code-level decision by the embedding application, and dev/CI setups
+   * rely on it. Runs lazily (first API call) rather than in the constructor,
+   * matching the provider's env-reads-at-call-time convention.
+   */
+  private ensureEndpointSafety(): void {
+    if (this.endpointSafetyChecked) return
+    if (!this.endpointFromDockerHostEnv || !('host' in this.endpoint)) {
+      this.endpointSafetyChecked = true
+      return
+    }
+    if (process.env.NODE_ENV !== 'production') {
+      this.endpointSafetyChecked = true
+      return
+    }
+    const override = process.env.MOL_DOCKER_ALLOW_PLAIN_TCP
+    if (override === '1' || override === 'true') {
+      if (!this.plainTcpOverrideWarned) {
+        this.plainTcpOverrideWarned = true
+        logger.warn(
+          'DOCKER_HOST selects a PLAIN-TCP Docker endpoint while NODE_ENV=production — ' +
+            'container control traffic (incl. exec payloads) crosses the network unencrypted. ' +
+            'Accepted only because MOL_DOCKER_ALLOW_PLAIN_TCP is set; prefer a unix socket ' +
+            'or a TLS-terminating proxy.',
+        )
+      }
+      this.endpointSafetyChecked = true
+      return
+    }
+    // Refuse WITHOUT memoizing: an earlier refusal can land inside a
+    // best-effort try/catch (e.g. network ensure) and be swallowed — every
+    // subsequent call must keep refusing until the configuration changes.
+    throw new Error(
+      'DOCKER_HOST selects a plain-TCP (unencrypted, unauthenticated) Docker endpoint and ' +
+        'NODE_ENV=production — refusing. Set MOL_DOCKER_ALLOW_PLAIN_TCP=1 to explicitly accept ' +
+        'the risk, or point the provider at a unix socket / TLS-terminating proxy.',
+    )
+  }
+
+  /**
+   * Shape a caller-supplied container id must have before it is interpolated
+   * into a Docker API path. Docker's own ids are 64-char hex and container
+   * names match `[a-zA-Z0-9][a-zA-Z0-9_.-]*`; the E2B-style provider uses
+   * `app:machine` ids, so `:` is allowed too. Anything carrying URL/path
+   * structure (`/`, `?`, `#`), percent-encoding, or whitespace is rejected —
+   * interpolated raw, such a value could retarget the request path (e.g.
+   * `../exec` or `?force=true` on a different resource).
+   */
+  private static readonly CONTAINER_ID_SHAPE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/
+
+  /**
+   * Validates a container id before any Docker API path interpolation.
+   * @param id - the caller-supplied container id.
+   * @returns the validated id, unchanged.
+   * @throws {Error} when the id does not match {@link DockerSandboxProvider.CONTAINER_ID_SHAPE}.
+   */
+  private assertContainerId(id: string): string {
+    if (!DockerSandboxProvider.CONTAINER_ID_SHAPE.test(id)) {
+      throw new Error(`Invalid sandbox container id: ${JSON.stringify(id)}`)
+    }
+    return id
+  }
+
+  /**
+   * Performs a JSON Docker Engine API request against the resolved endpoint.
+   */
   private async dockerApi(
     path: string,
     method = 'GET',
@@ -1427,6 +1535,7 @@ class DockerSandboxProvider implements SandboxProvider {
     timeoutMs = 30_000,
     headers?: Record<string, string>,
   ): Promise<unknown> {
+    this.ensureEndpointSafety()
     return new Promise((resolve, reject) => {
       const opts: http.RequestOptions = {
         ...this.endpoint,
@@ -1601,6 +1710,7 @@ class DockerSandboxProvider implements SandboxProvider {
    * @returns The raw response buffer.
    */
   private async dockerApiRaw(path: string, method = 'GET', body?: unknown): Promise<Buffer> {
+    this.ensureEndpointSafety()
     return new Promise((resolve, reject) => {
       const opts: http.RequestOptions = {
         ...this.endpoint,
