@@ -1,0 +1,47 @@
+{
+  "name": "@molecule/api-analytics-http",
+  "version": "1.0.0",
+  "description": "Generic HTTP analytics provider — POSTs track/identify/page events to a configured first-party endpoint. Built for CLIs and services (mlcl, molecule-mcp) that emit into molecule.dev's own analytics.",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "analytics",
+    "http",
+    "telemetry"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/analytics/http"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@molecule/api-analytics": "1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}
