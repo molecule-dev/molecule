@@ -12,6 +12,7 @@
 // (not through the package barrel).
 import './secrets.js'
 import nodemailer from 'nodemailer'
+import type * as nodemailerTypes from 'nodemailer'
 import mailgun from 'nodemailer-mailgun-transport'
 
 import { getLogger } from '@molecule/api-bond'
@@ -26,13 +27,13 @@ const logger = getLogger()
  * @see https://www.npmjs.com/package/nodemailer
  * @see https://www.npmjs.com/package/nodemailer-mailgun-transport
  */
-let _transport: nodemailer.Transporter | null = null
+let _transport: nodemailerTypes.Transporter | null = null
 
 /**
  * Returns the lazily-initialized nodemailer transport configured with Mailgun credentials.
  * @returns The nodemailer `Transporter` instance.
  */
-function getTransport(): nodemailer.Transporter {
+function getTransport(): nodemailerTypes.Transporter {
   if (!_transport) {
     const apiKey = process.env.MAILGUN_API_KEY
     if (!apiKey) {
@@ -49,6 +50,9 @@ function getTransport(): nodemailer.Transporter {
     // self-hosted / credential-broker endpoint). When unset, nodemailer-mailgun-transport
     // uses its built-in default host, so behaviour is unchanged.
     const host = process.env.MAILGUN_API_HOST
+    // as-assert: @types/nodemailer-mailgun-transport (1.4.6, pre-generics) makes
+    // createTransport infer Transporter<object>; the transport resolves
+    // SentMessageInfo at runtime like every other nodemailer transport.
     _transport = nodemailer.createTransport(
       mailgun({
         auth: {
@@ -57,7 +61,7 @@ function getTransport(): nodemailer.Transporter {
         },
         ...(host ? { host } : {}),
       }),
-    )
+    ) as nodemailerTypes.Transporter
   }
   return _transport
 }
@@ -133,7 +137,7 @@ const collectRecipients = (sendOptions: {
  * @returns Send result with accepted/rejected addresses and message ID.
  */
 export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> => {
-  const sendOptions = message as nodemailer.SendMailOptions & Record<string, unknown>
+  const sendOptions = message as nodemailerTypes.SendMailOptions & Record<string, unknown>
   const testMode = isTestMode()
   if (testMode && !('o:testmode' in sendOptions)) {
     // The `o:testmode` flag is consumed by nodemailer-mailgun-transport
@@ -209,7 +213,7 @@ export const provider: EmailTransport = {
  * @deprecated Use `sendMail()` or `provider` instead.
  */
 export const transport = {
-  sendMail: (msg: nodemailer.SendMailOptions) => getTransport().sendMail(msg),
+  sendMail: (msg: nodemailerTypes.SendMailOptions) => getTransport().sendMail(msg),
 }
 
 /**

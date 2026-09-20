@@ -14,6 +14,7 @@ import './secrets.js'
 import { SendEmailCommand, SESv2Client } from '@aws-sdk/client-sesv2'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
 import nodemailer from 'nodemailer'
+import type * as nodemailerTypes from 'nodemailer'
 
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
@@ -26,7 +27,7 @@ const logger = getLogger()
  * built on first send — NOT at import — and memoized thereafter.
  */
 let _ses: SESv2Client | undefined
-let _nodemailerTransport: nodemailer.Transporter | undefined
+let _nodemailerTransport: nodemailerTypes.Transporter | undefined
 
 /**
  * Returns the AWS SESv2 client, constructing it from the environment on the
@@ -78,7 +79,7 @@ export const getSesClient = (): SESv2Client => {
  *
  * @returns The nodemailer `Transporter` backed by AWS SES.
  */
-const getTransport = (): nodemailer.Transporter => {
+const getTransport = (): nodemailerTypes.Transporter => {
   if (!_nodemailerTransport) {
     _nodemailerTransport = nodemailer.createTransport({
       SES: { sesClient: getSesClient(), SendEmailCommand },
@@ -97,7 +98,7 @@ const getTransport = (): nodemailer.Transporter => {
  */
 export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> => {
   try {
-    const result = await getTransport().sendMail(message as nodemailer.SendMailOptions)
+    const result = await getTransport().sendMail(message as nodemailerTypes.SendMailOptions)
 
     return {
       // nodemailer's SES transport resolves with `{ envelope, messageId,
@@ -131,7 +132,7 @@ export const provider: EmailTransport = {
  * @deprecated Use `sendMail()` or `provider` instead.
  */
 export const transport = {
-  sendMail: (msg: nodemailer.SendMailOptions) => getTransport().sendMail(msg),
+  sendMail: (msg: nodemailerTypes.SendMailOptions) => getTransport().sendMail(msg),
 }
 
 /**
