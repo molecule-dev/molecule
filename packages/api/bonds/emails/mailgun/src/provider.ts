@@ -11,8 +11,8 @@
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
 import './secrets.js'
-import nodemailer from 'nodemailer'
 import type * as nodemailerTypes from 'nodemailer'
+import nodemailer from 'nodemailer'
 import mailgun from 'nodemailer-mailgun-transport'
 
 import { getLogger } from '@molecule/api-bond'

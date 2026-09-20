@@ -13,8 +13,8 @@
 import './secrets.js'
 import { SendEmailCommand, SESv2Client } from '@aws-sdk/client-sesv2'
 import { defaultProvider } from '@aws-sdk/credential-provider-node'
-import nodemailer from 'nodemailer'
 import type * as nodemailerTypes from 'nodemailer'
+import nodemailer from 'nodemailer'
 
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
