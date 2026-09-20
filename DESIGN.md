@@ -150,12 +150,17 @@ All spacing follows an 8px base grid:
 
 ### Buttons
 
-- Border radius: `8px` (md)
-- Padding: `8px 16px` (sm-md)
-- Font weight: `500` (medium)
 - Variants: `solid` (filled), `outline` (bordered), `ghost` (transparent), `link` (text only)
-- Sizes: `xs` (28px height), `sm` (32px), `md` (40px), `lg` (48px), `xl` (56px)
+- Sizes: `xs`, `sm`, `md` (default), `lg`, `xl`, `icon`
 - Colors: primary, secondary, success, warning, error, info
+
+Radius, padding, height, font size and weight are **not** free parameters here —
+they are resolved by the ClassMap bond from the `size` you pass, and the
+resolved values are tabulated under "CTA button sizing, radius & typography"
+below. (Corrected 2026-09-20: this block used to list `8px` radius, `8px 16px`
+padding, `500` weight and a 28/32/40/48/56px height scale, none of which any
+shipped bond produces — a stale spec that reads exactly like a licence to pick
+your own px.)
 
 #### CTA color semantics (one action = one color, everywhere)
 
@@ -183,6 +188,87 @@ LABEL/TEXT button composes `cm.touchTargetCompact` (36px coarse-pointer floor)
 visible box, and is reserved for icon-only hit targets whose visible glyph is
 small and whose enlarged hit area is invisible (workspace toolbar icons, ×
 dismiss buttons).
+
+#### CTA button sizing, radius & typography (never inline style)
+
+Color is only half the contract. A button's **size, corner radius, typography,
+padding, fill, border and state transitions all come from `cm.button()`** — the
+same one call — and from nowhere else. Never from an inline `style`, never from
+a hand-picked px value, never from a literal hex or rgba.
+
+The size tier is the only knob, and it resolves (in `@molecule/app-ui-tailwind`)
+to fixed values every surface shares:
+
+| `cm.button({ size })` | Height | Padding | Font size | Radius | Use for                                       |
+| --------------------- | ------ | ------- | --------- | ------ | --------------------------------------------- |
+| `'xs'` / `'sm'`       | 26px   | 10px    | 13px      | 3px    | inline strip / bar / card / chat-card actions |
+| `'md'` (default)      | 30px   | 10px    | 15px      | 3px    | panel and page CTAs, form submits             |
+| `'lg'` / `'xl'`       | 40px   | 10px    | 18px      | 3px    | hero / full-width page CTAs                   |
+| `'icon'`              | 30×30  | —       | —         | 3px    | icon-only square buttons                      |
+
+Note the radius is **3px at every tier** — it is a system constant, not a
+per-button decision. Pick the tier that matches the surrounding surface and stop
+there; do not "adjust" a tier with inline px.
+
+The canonical recipe for every labelled action button:
+
+```tsx
+<button
+  type="button"
+  data-mol-id="<stable-id>"
+  className={cm.cn(
+    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+    cm.touchTargetCompact,
+  )}
+  onClick={onCommit}
+>
+  {t('commit', undefined, { defaultValue: 'Commit' })}
+</button>
+```
+
+And what NOT to write beside it: `fontSize`, `fontWeight`, `borderRadius`,
+`padding`, `background`, `color`, `border`, `boxShadow`, `transition` — plus
+`onMouseEnter`/`onMouseLeave` hover handlers, which the CVA already carries
+(`hover:` / `active:` / `focus-visible:` / `disabled:`), and
+`cursor: 'not-allowed'` + `opacity`, which the real `disabled` attribute
+replaces (`disabled:opacity-50 disabled:pointer-events-none`). An inline style
+**outranks** the ClassMap class it sits on, so writing one does not tweak the
+design system — it silently switches the button off it (anti-pattern 12).
+
+An inline `style` on a button is for what the ClassMap genuinely cannot express:
+a specific width, a grid placement, an SVG attribute, a dynamic user-chosen
+color. Those are layout and data, not design tokens.
+
+Why this is written down: the IDE shipped a "Tests" button at 13px/3px radius
+(through `cm.button({ size: 'xs' })`) stacked directly above a "Commit" button
+at 12px/6px (hand-rolled, with a hardcoded `#4070e0` and hand-written hover).
+Two buttons an inch apart, visibly different, because one of them opted out of
+the system.
+
+**Enforced at the moment of writing, not in review.** The ESLint rule
+`molecule-local/no-hand-styled-button` (in both `molecule` and
+`molecule-dev/app`, run on every staged `.tsx` by each repo's pre-commit hook)
+errors on a `<button>` — or any `role="button"` element — whose inline `style`
+sets a design-token property without going through `cm.button()`. Layout-only
+properties (`display`, `flex`, `gap`, `width`, `position`, `zIndex`,
+`transform`, `opacity`, `overflow`, `whiteSpace`, `marginLeft: 'auto'`, …) never
+trip it.
+
+Genuine icon-only chrome — a tab `×`, a chevron toggle, a carousel arrow, a
+color swatch whose fill IS the data — opts out with an explicit, reasoned
+directive comment on the element:
+
+```tsx
+{
+  /* mol-bespoke-button: icon-only tab close, 20px hit target, no label */
+}
+```
+
+The reason is mandatory (a bare `mol-bespoke-button` is itself an error), and
+every opt-out in the fleet is one `grep -rn 'mol-bespoke-button'` away. Bespoke
+chrome still takes color from theme tokens (`var(--mol-color-*)`) or `cm.*`,
+never a raw hex, and still carries `cm.touchTarget` (44px, icon-only) or
+`cm.touchTargetCompact` (36px, dense).
 
 #### Actions look like buttons (owner decision 2026-09-15)
 

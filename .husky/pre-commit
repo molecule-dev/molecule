@@ -25,6 +25,19 @@ if git diff --cached --name-only --diff-filter=ACM |
   fi
 fi
 
+# Shared-lint-rule drift (cross-repo), same shape as the scanner check above.
+# eslint-rules/*.mjs here are VENDORED copies of the workspace canonical
+# (../scripts/eslint-rules/). molecule-dev/app carries the same files, and a
+# rule that fires in one repo but not the other is worse than no rule — the
+# design inconsistency simply migrates to the repo whose copy fell behind.
+# Only checked when a copy is staged; skipped in a standalone clone.
+if git diff --cached --name-only --diff-filter=ACM |
+  grep -q '^eslint-rules/.*\.mjs$'; then
+  if [ -f ../scripts/sync-eslint-rules.mjs ]; then
+    (cd .. && node scripts/sync-eslint-rules.mjs --check)
+  fi
+fi
+
 # PATHSPEC COMMIT DETECTION — load-bearing for the README regen at the bottom.
 #
 # `git commit -- <paths>` (and `--only`) builds a TEMPORARY index from HEAD plus

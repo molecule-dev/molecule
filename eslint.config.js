@@ -4,15 +4,27 @@ import jsdoc from 'eslint-plugin-jsdoc'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import tseslint from 'typescript-eslint'
 
+import { noHandStyledButton } from './eslint-rules/no-hand-styled-button.mjs'
+
 /**
- * Local rules enforcing AGENTS.md Rule 14 (no silent error swallows).
- * `require-catch-binding` forbids bindingless `catch {` so every error can be
- * logged or explicitly ignored; with no-unused-vars caughtErrors:'all' +
+ * Local rules.
+ *
+ * `require-catch-binding` enforces AGENTS.md Rule 14 (no silent error
+ * swallows): it forbids bindingless `catch {` so every error can be logged or
+ * explicitly ignored; with no-unused-vars caughtErrors:'all' +
  * caughtErrorsIgnorePattern:'^_', a catch must use the error or be a
  * `catch (_error)` documented noop.
+ *
+ * `no-hand-styled-button` enforces Rule 5 / anti-pattern 12 at the one place
+ * they leak: a `<button>` whose size, radius, typography or colour comes from a
+ * hand-rolled inline `style` rather than `cm.button()`. It lives in
+ * `eslint-rules/` rather than inline because molecule-dev/app needs the exact
+ * same rule and is checked out alone in CI — see `scripts/sync-eslint-rules.mjs`
+ * in the workspace root for the canonical copy and the drift gate.
  */
 const moleculeLocal = {
   rules: {
+    'no-hand-styled-button': noHandStyledButton,
     'require-catch-binding': {
       meta: {
         type: 'problem',
@@ -49,6 +61,7 @@ export default tseslint.config(
     },
     rules: {
       'molecule-local/require-catch-binding': 'error',
+      'molecule-local/no-hand-styled-button': 'error',
       'jsdoc/require-jsdoc': [
         'warn',
         {
