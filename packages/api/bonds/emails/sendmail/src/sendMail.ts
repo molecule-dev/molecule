@@ -4,7 +4,7 @@
  * @module
  */
 
-import type nodemailer from 'nodemailer'
+import type * as nodemailer from 'nodemailer'
 
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult } from '@molecule/api-emails'
