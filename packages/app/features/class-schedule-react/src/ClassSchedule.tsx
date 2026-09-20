@@ -289,6 +289,11 @@ export function ClassSchedule({
                       { defaultValue: 'Empty slot, {{weekday}} {{time}}' },
                     )}
                     onClick={() => onSlotClick?.({ weekday, start: slotStart })}
+                    /* mol-bespoke-button: an INVISIBLE hour-slot hit target,
+                       absolutely positioned over the grid — it has no label,
+                       no surface and no chrome, so the inline
+                       background/border/padding are native resets. A
+                       `cm.button()` fill would paint the empty grid. */
                     style={{
                       position: 'absolute',
                       top: `${i * cellHeight}px`,
@@ -334,6 +339,11 @@ export function ClassSchedule({
                       cm.textSize('xs'),
                       cm.fontWeight('semibold'),
                     )}
+                    /* mol-bespoke-button: a calendar EVENT TILE, not a CTA —
+                       it is absolutely positioned and sized from the event's
+                       start/end times and lane, and its left border carries
+                       the caller's own `accentColor` (data, not a design
+                       token). No `cm.button()` tier can express either. */
                     style={{
                       position: 'absolute',
                       top: `${topPx}px`,

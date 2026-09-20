@@ -11,6 +11,7 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getLogger } from '@molecule/app-logger'
 import { useHttpClient, useThemeMode } from '@molecule/app-react'
+import type { ColorVariant } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
@@ -44,28 +45,44 @@ function FileTypeIcon({ name }: { name: string }): JSX.Element {
 }
 
 /**
- * Toggle button for search options (case sensitive, regex, whole word).
+ * Glyph toggle for a search option (match case, whole word, regex, filters).
+ *
+ * Deliberately NOT a `cm.button()` CTA: these are dense glyph affordances that
+ * sit in one strip under the search input — the same family as an editor's
+ * `Aa`/`.*` toggles — and an `xs` design-system button (26px, 13px text) reads
+ * as four competing actions beside the input. It keeps its compact box, but
+ * every colour is a theme token and the coarse-pointer floor is
+ * `cm.touchTargetCompact`, never a hand-rolled pixel min.
+ *
  * @param props - Component props.
  */
 const ToggleButton = memo(function ToggleButton({
   active,
   onClick,
   title,
+  molId,
   children,
-  isCoarse,
 }: {
   active: boolean
   onClick: () => void
   title: string
+  /** Stable id for agents/tests. */
+  molId: string
   children: string
-  /** Touch-first device — grow the compact toggle to a ≥36px tap target. */
-  isCoarse: boolean
 }): JSX.Element {
+  const cm = getClassMap()
   return (
     <button
       type="button"
       title={title}
+      aria-pressed={active}
+      data-mol-id={molId}
       onClick={onClick}
+      className={cm.touchTargetCompact}
+      /* mol-bespoke-button: glyph TOGGLE (Aa / ab / .* / ⋯), not an action —
+         four `xs` design-system buttons in this strip would read as four
+         competing CTAs beside the search input. Compact monospace box; every
+         colour is a theme token and the hit floor is cm.touchTargetCompact. */
       style={{
         padding: '2px 5px',
         fontSize: 11,
@@ -73,14 +90,14 @@ const ToggleButton = memo(function ToggleButton({
         border: '1px solid',
         borderColor: active ? 'var(--mol-color-primary, #4070e0)' : 'var(--color-border, #333)',
         borderRadius: 3,
-        background: active ? 'rgba(64,112,224,0.2)' : 'transparent',
+        background: active
+          ? 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 20%, transparent)'
+          : 'transparent',
         color: active
           ? 'var(--mol-color-primary, #4070e0)'
           : 'var(--mol-color-text-secondary, #888)',
         cursor: 'pointer',
         lineHeight: 1,
-        minWidth: isCoarse ? 36 : undefined,
-        minHeight: isCoarse ? 36 : undefined,
       }}
     >
       {children}
@@ -89,44 +106,40 @@ const ToggleButton = memo(function ToggleButton({
 })
 
 /**
- * Small action button used for replace actions.
+ * The replace strip's action button — a real design-system CTA.
+ *
  * @param props - Component props.
  */
 const ActionButton = memo(function ActionButton({
   onClick,
   title,
+  molId,
+  color,
   children,
   disabled,
-  isCoarse,
 }: {
   onClick: () => void
   title: string
+  /** Stable id for agents/tests. */
+  molId: string
+  /** Semantic CTA colour (DESIGN.md → CTA color semantics). */
+  color: ColorVariant
   children: string
   disabled?: boolean
-  /** Touch-first device — grow the compact action to a ≥36px tap target. */
-  isCoarse: boolean
 }): JSX.Element {
+  const cm = getClassMap()
   return (
     <button
       type="button"
       title={title}
+      data-mol-id={molId}
       onClick={onClick}
       disabled={disabled}
-      style={{
-        padding: '2px 6px',
-        fontSize: 11,
-        border: '1px solid var(--color-border, #333)',
-        borderRadius: 3,
-        background: 'transparent',
-        color: disabled
-          ? 'var(--mol-color-text-secondary, #555)'
-          : 'var(--mol-color-text, currentColor)',
-        cursor: disabled ? 'default' : 'pointer',
-        lineHeight: 1,
-        opacity: disabled ? 0.5 : 1,
-        minWidth: isCoarse ? 36 : undefined,
-        minHeight: isCoarse ? 36 : undefined,
-      }}
+      className={cm.cn(
+        cm.button({ variant: 'solid', color, size: 'xs' }),
+        cm.touchTargetCompact,
+        cm.shrink0,
+      )}
     >
       {children}
     </button>
@@ -143,16 +156,14 @@ const FileResultGroup = memo(function FileResultGroup({
   onReplaceInFile,
   isLight,
   showReplace,
-  isCoarse,
 }: {
   result: SearchResult
   onResultClick?: (path: string, line: number) => void
   onReplaceInFile?: (path: string) => void
   isLight: boolean
   showReplace: boolean
-  /** Touch-first device — result rows get a ≥36px min-height. */
-  isCoarse: boolean
 }): JSX.Element {
+  const cm = getClassMap()
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -166,7 +177,12 @@ const FileResultGroup = memo(function FileResultGroup({
       >
         <button
           type="button"
+          data-mol-id="search-file-toggle"
+          aria-expanded={!collapsed}
           onClick={() => setCollapsed(!collapsed)}
+          className={cm.touchTargetCompact}
+          /* mol-bespoke-button: a result-list ROW (file path + match count) that
+             collapses its group — a list item, not a CTA. */
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -179,8 +195,12 @@ const FileResultGroup = memo(function FileResultGroup({
             cursor: 'pointer',
             fontSize: 12,
             textAlign: 'left',
+            // Deliberately overrides the min-WIDTH half of touchTargetCompact:
+            // this row already spans the panel, and it must be allowed to
+            // shrink below its content for the path to ellipsize. The
+            // min-HEIGHT half — the part that matters for a tap target — is
+            // what the class is here for.
             minWidth: 0,
-            minHeight: isCoarse ? 36 : undefined,
           }}
         >
           <span style={{ fontSize: 10, width: 12, textAlign: 'center', flexShrink: 0 }}>
@@ -212,10 +232,15 @@ const FileResultGroup = memo(function FileResultGroup({
         {showReplace && onReplaceInFile && (
           <button
             type="button"
+            data-mol-id="search-replace-in-file"
             onClick={() => onReplaceInFile(result.file)}
             title={t('ide.search.replaceInFile', undefined, {
               defaultValue: 'Replace in this file',
             })}
+            className={cm.cn(cm.touchTargetCompact, cm.shrink0)}
+            /* mol-bespoke-button: icon-only ↻ affordance riding on a result
+               row's right edge; a filled button here would outweigh the row it
+               belongs to. Theme-token colour, ClassMap hit floor. */
             style={{
               padding: '2px 6px',
               marginRight: 4,
@@ -224,9 +249,6 @@ const FileResultGroup = memo(function FileResultGroup({
               color: 'var(--mol-color-text-secondary, #888)',
               cursor: 'pointer',
               fontSize: 11,
-              flexShrink: 0,
-              minWidth: isCoarse ? 36 : undefined,
-              minHeight: isCoarse ? 36 : undefined,
             }}
           >
             ↻
@@ -238,7 +260,11 @@ const FileResultGroup = memo(function FileResultGroup({
           <button
             key={`${result.file}:${match.line}`}
             type="button"
+            data-mol-id="search-match"
             onClick={() => onResultClick?.(result.file, match.line)}
+            className={cm.touchTargetCompact}
+            /* mol-bespoke-button: a match ROW — monospace line number + source
+               line, a list item that opens the file at that line. */
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -252,7 +278,6 @@ const FileResultGroup = memo(function FileResultGroup({
               fontSize: 12,
               textAlign: 'left',
               fontFamily: 'monospace',
-              minHeight: isCoarse ? 36 : undefined,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = isLight
@@ -480,11 +505,17 @@ export function SearchPanel({
           {!readOnly && (
             <button
               type="button"
+              data-mol-id="search-replace-toggle"
+              aria-expanded={showReplace}
               onClick={() => {
                 setShowReplace(!showReplace)
                 setConfirmAll(false)
               }}
               title={t('ide.search.toggleReplace', undefined, { defaultValue: 'Toggle Replace' })}
+              className={cm.cn(cm.touchTargetCompact, cm.shrink0)}
+              /* mol-bespoke-button: icon-only ▶/▼ disclosure chevron in the
+                 search input's left gutter; its width is the alignment column
+                 the replace input lines up against. */
               style={{
                 padding: 0,
                 border: 'none',
@@ -493,9 +524,10 @@ export function SearchPanel({
                 cursor: 'pointer',
                 fontSize: 10,
                 lineHeight: 1,
-                flexShrink: 0,
+                // The chevron column's width is what the replace input aligns
+                // against, so it is fixed here rather than by the tap-target
+                // class's min-width.
                 width: replaceToggleWidth,
-                minHeight: isCoarse ? 36 : undefined,
                 textAlign: 'center',
               }}
             >
@@ -523,8 +555,13 @@ export function SearchPanel({
           {query && (
             <button
               type="button"
+              data-mol-id="search-clear"
               onClick={() => setQuery('')}
               title={t('ide.search.clear', undefined, { defaultValue: 'Clear' })}
+              aria-label={t('ide.search.clear', undefined, { defaultValue: 'Clear' })}
+              className={cm.cn(cm.touchTargetCompact, cm.shrink0)}
+              /* mol-bespoke-button: icon-only × that clears the query, sitting
+                 inside the input row — a field affordance, not a CTA. */
               style={{
                 padding: '2px 4px',
                 border: 'none',
@@ -533,8 +570,6 @@ export function SearchPanel({
                 cursor: 'pointer',
                 fontSize: 14,
                 lineHeight: 1,
-                minWidth: isCoarse ? 36 : undefined,
-                minHeight: isCoarse ? 36 : undefined,
               }}
             >
               ×
@@ -578,8 +613,11 @@ export function SearchPanel({
                     })
                   : t('ide.search.replaceAll', undefined, { defaultValue: 'Replace All' })
               }
+              molId="search-replace-all"
+              // Amber while it waits for the second click — the same warning
+              // semantic the confirmation strip below it already uses.
+              color={confirmAll ? 'warning' : 'primary'}
               disabled={!query.trim() || replacing}
-              isCoarse={isCoarse}
             >
               {replacing
                 ? '…'
@@ -620,7 +658,7 @@ export function SearchPanel({
             active={caseSensitive}
             onClick={() => setCaseSensitive(!caseSensitive)}
             title={t('ide.search.caseSensitive', undefined, { defaultValue: 'Match Case' })}
-            isCoarse={isCoarse}
+            molId="search-toggle-case"
           >
             Aa
           </ToggleButton>
@@ -628,7 +666,7 @@ export function SearchPanel({
             active={wholeWord}
             onClick={() => setWholeWord(!wholeWord)}
             title={t('ide.search.wholeWord', undefined, { defaultValue: 'Match Whole Word' })}
-            isCoarse={isCoarse}
+            molId="search-toggle-whole-word"
           >
             ab
           </ToggleButton>
@@ -636,30 +674,22 @@ export function SearchPanel({
             active={useRegex}
             onClick={() => setUseRegex(!useRegex)}
             title={t('ide.search.regex', undefined, { defaultValue: 'Use Regular Expression' })}
-            isCoarse={isCoarse}
+            molId="search-toggle-regex"
           >
             .*
           </ToggleButton>
           <div style={{ flex: 1 }} />
-          <button
-            type="button"
+          {/* The filters toggle is the fourth member of this strip, so it IS a
+              ToggleButton — it was a hand-rolled copy that had drifted (no
+              active border/text colour, its own `rgba(64,112,224,0.2)`). */}
+          <ToggleButton
+            active={showFilters}
             onClick={() => setShowFilters(!showFilters)}
             title={t('ide.search.toggleFilters', undefined, { defaultValue: 'Toggle Filters' })}
-            style={{
-              padding: '2px 5px',
-              fontSize: 11,
-              border: '1px solid var(--color-border, #333)',
-              borderRadius: 3,
-              background: showFilters ? 'rgba(64,112,224,0.2)' : 'transparent',
-              color: 'var(--mol-color-text-secondary, #888)',
-              cursor: 'pointer',
-              lineHeight: 1,
-              minWidth: isCoarse ? 36 : undefined,
-              minHeight: isCoarse ? 36 : undefined,
-            }}
+            molId="search-toggle-filters"
           >
             ⋯
-          </button>
+          </ToggleButton>
         </div>
 
         {/* Include/Exclude filters */}
@@ -792,7 +822,6 @@ export function SearchPanel({
             onReplaceInFile={handleReplaceInFile}
             isLight={isLight}
             showReplace={showReplace}
-            isCoarse={isCoarse}
           />
         ))}
       </div>

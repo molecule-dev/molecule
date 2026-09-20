@@ -90,7 +90,7 @@ import {
   parseAutoCommitCommand,
   resolveAutoCommitSeconds,
 } from './chat-autocommit-utilities.js'
-import { CHAT_CARD_ICON_SIZE, chatCardBorder, chatCardStyle } from './chat-card-style.js'
+import { CHAT_CARD_ICON_SIZE, chatCardStyle } from './chat-card-style.js'
 import type { CommandId } from './chat-commands.js'
 import {
   COMMAND_CATEGORIES,
@@ -381,6 +381,7 @@ function renderCardSegment(seg: ChatEventCardSegment, key: number): ReactNode {
     </a>
   ) : (
     <button
+      /* mol-bespoke-button: inline mid-sentence card link — a <button> reset to plain link text so an action can sit inside a sentence, not a standalone CTA */
       key={key}
       type="button"
       onClick={act.onClick}
@@ -987,6 +988,7 @@ function ThinkingBlock({
   return (
     <div style={{ marginBottom: '6px' }}>
       <button
+        /* mol-bespoke-button: thinking disclosure toggle — chevron + muted label, a summary/details affordance with no button frame */
         type="button"
         onClick={() => setManualToggle((v) => !(v ?? isStreaming === true))}
         style={{
@@ -1156,6 +1158,7 @@ function CollapsibleUserMessage({
       )}
       {overflows && (
         <button
+          /* mol-bespoke-button: overflow disclosure strip — full-width unlabelled chevron that expands a clipped card */
           type="button"
           onClick={() => setExpanded((v) => !v)}
           onMouseEnter={(e) => {
@@ -1320,6 +1323,7 @@ function VerificationBadge({
       }}
     >
       <button
+        /* mol-bespoke-button: verify-error card header — the card's own expand/collapse header, tinted by severity; a disclosure, not an action */
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className={cm.cn(cm.textSize('xs'), cm.w('full'))}
@@ -1403,9 +1407,29 @@ const NOTICE_TONE: Record<
 }
 
 /**
+ * The SEMANTIC button colour each notice tone falls back to when the host gives
+ * an action no explicit `color`. Every notice-card action is a design-system
+ * button; this is only about which semantic it takes when the caller did not
+ * say. Without it a coloured action and a colourless one rendered side by side
+ * in the SAME card with two different box models (13px/3px vs a hand-rolled
+ * 12px/6px) — the exact mismatch this treatment exists to prevent.
+ */
+const NOTICE_TONE_BUTTON_COLOR: Record<
+  'info' | 'gold' | 'upgrade' | 'success' | 'signup',
+  NonNullable<ChatEventCardAction['color']>
+> = {
+  info: 'primary',
+  gold: 'warning',
+  upgrade: 'warning',
+  success: 'success',
+  signup: 'primary',
+}
+
+/**
  * The single shared notice-card treatment: a matched-weight accent {@link Icon},
- * an optional composable body (or plain text), and a left-aligned row of accent
- * outline action buttons. EVERY inline notice renders through this — the system
+ * an optional composable body (or plain text), and a left-aligned row of
+ * design-system action buttons (`cm.button`, `sm`) whose semantic colour comes
+ * from the action or, failing that, the tone. EVERY inline notice renders through this — the system
  * tip/notice cards AND the resource-limit / upgrade banners (see
  * {@link ResourceLimitBanner}) — so their icon + buttons can never drift apart
  * again. The host owns the button routes/copy; it passes them in as `action`.
@@ -1427,22 +1451,13 @@ function NoticeCard({
   icon?: IconName
 }): JSX.Element {
   const cm = getClassMap()
-  const isCoarse = useCoarsePointer()
   const { accent, icon: defaultIcon } = NOTICE_TONE[tone]
   const icon = iconOverride ?? defaultIcon
   const actions = action ? (Array.isArray(action) ? action : [action]) : []
   const multiLine = (text ?? '').includes('\n')
-  // Buttons sit ON the card's tint, so they need their OWN opaque background to read
-  // as real buttons (a transparent "ghost" fill blends into the card). Opaque surface
-  // + a stronger accent border than the card frame + a hairline shadow.
-  const buttonBg = 'var(--mol-color-surface, transparent)'
-  const buttonHoverBg = `color-mix(in srgb, ${accent} 15%, var(--mol-color-surface, transparent))`
-  const onEnter = (e: React.MouseEvent<HTMLElement>): void => {
-    ;(e.currentTarget as HTMLElement).style.background = buttonHoverBg
-  }
-  const onLeave = (e: React.MouseEvent<HTMLElement>): void => {
-    ;(e.currentTarget as HTMLElement).style.background = buttonBg
-  }
+  // The semantic colour an action takes when the host did not name one, so every
+  // action on the card renders the same design-system button.
+  const defaultActionColor = NOTICE_TONE_BUTTON_COLOR[tone]
   return (
     <div
       data-mol-id="chat-notice-card"
@@ -1472,63 +1487,21 @@ function NoticeCard({
         {!content && actions.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
             {actions.map((act, i) => {
-              // An action with a semantic `color` renders as a REAL design-system
-              // button (`cm.button`, sm) so the same CTA looks identical wherever
-              // the app shows it (auth page, banners, chat cards). No inline
-              // colors — the ClassMap owns the look, including hover states.
-              // Colorless actions keep the legacy accent-outline treatment.
-              if (act.color) {
-                // touchTargetCompact (36px), not the full 44px touchTarget — these
-                // sit inside a dense chat card (the floor agreed for its actions).
-                const className = cm.cn(
-                  cm.button({ color: act.color, size: 'sm' }),
-                  cm.touchTargetCompact,
-                )
-                const coloredStyle: React.CSSProperties = {
-                  textDecoration: 'none',
-                  fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
-                }
-                return act.href ? (
-                  <a
-                    key={i}
-                    href={act.href}
-                    target={act.href.startsWith('http') ? '_blank' : undefined}
-                    rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className={className}
-                    style={coloredStyle}
-                  >
-                    {act.label}
-                  </a>
-                ) : (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={act.onClick}
-                    className={className}
-                    style={coloredStyle}
-                  >
-                    {act.label}
-                  </button>
-                )
-              }
-              const style: React.CSSProperties = {
-                display: 'inline-flex',
-                alignItems: 'center',
-                fontSize: 12,
-                fontWeight: 600,
-                padding: '4px 10px',
-                // Secondary inline actions: 36px is the touch floor agreed for
-                // these (44 would overwhelm the compact card).
-                ...(isCoarse ? { minHeight: 36 } : {}),
-                borderRadius: 6,
-                cursor: 'pointer',
+              // EVERY action is a REAL design-system button (`cm.button`, sm) so the
+              // same CTA looks identical wherever the app shows it (auth page,
+              // banners, chat cards) — and so two actions on the SAME card can't
+              // render two different box models. The host names the semantic colour
+              // when it has one; otherwise the tone supplies it. No inline colors —
+              // the ClassMap owns the look, including hover/active/focus states.
+              // touchTargetCompact (36px), not the full 44px touchTarget — these sit
+              // inside a dense chat card (the floor agreed for its actions).
+              const className = cm.cn(
+                cm.button({ color: act.color ?? defaultActionColor, size: 'sm' }),
+                cm.touchTargetCompact,
+              )
+              const actionStyle: React.CSSProperties = {
                 textDecoration: 'none',
                 fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
-                border: `1px solid ${chatCardBorder(accent, 55)}`,
-                color: accent,
-                background: buttonBg,
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)',
-                transition: 'background 100ms',
               }
               return act.href ? (
                 <a
@@ -1536,9 +1509,8 @@ function NoticeCard({
                   href={act.href}
                   target={act.href.startsWith('http') ? '_blank' : undefined}
                   rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  style={style}
-                  onMouseEnter={onEnter}
-                  onMouseLeave={onLeave}
+                  className={className}
+                  style={actionStyle}
                 >
                   {act.label}
                 </a>
@@ -1547,9 +1519,8 @@ function NoticeCard({
                   key={i}
                   type="button"
                   onClick={act.onClick}
-                  style={style}
-                  onMouseEnter={onEnter}
-                  onMouseLeave={onLeave}
+                  className={className}
+                  style={actionStyle}
                 >
                   {act.label}
                 </button>
@@ -1644,6 +1615,7 @@ export function CommitCardItem({
     <div style={{ marginBottom: TIMELINE_ITEM_GAP }}>
       <div style={{ marginBottom: '4px' }}>
         <button
+          /* mol-bespoke-button: commit card header — expand/collapse disclosure for the commit's file list */
           type="button"
           onClick={hasFiles ? () => setExpanded((e) => !e) : undefined}
           onMouseEnter={() => setIsHovered(true)}
@@ -1713,6 +1685,7 @@ export function CommitCardItem({
               </span>
               {canRevert && (
                 <span
+                  /* mol-bespoke-button: icon-only revert affordance — 20px (32px coarse) hit box inside a dense commit row, no label */
                   role="button"
                   tabIndex={0}
                   title={
@@ -1867,6 +1840,7 @@ function AuthorNameButton({
   const [hover, setHover] = useState(false)
   return (
     <button
+      /* mol-bespoke-button: author name — a full <button> reset so the name renders byte-identical to the bold span it replaced; hover underline is the only affordance */
       type="button"
       onClick={onClick}
       onMouseEnter={() => setHover(true)}
@@ -2559,6 +2533,7 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                   </div>
                   {loopActions.map((opt, i) => (
                     <button
+                      /* mol-bespoke-button: loop-limit choice row — a full-width menu row with a letter chip, one of a list */
                       key={i}
                       type="button"
                       disabled={i === 0 && isLoading}
@@ -8208,16 +8183,17 @@ function ChatInner({
         {timeline.length > maxVisibleItems && (
           <div style={{ textAlign: 'center', padding: '8px 0' }}>
             <button
+              type="button"
+              data-mol-id="chat-show-earlier"
               onClick={() => setMaxVisibleItems((n) => n + 40)}
-              className={cm.cn(cm.textSize('xs'), cm.textMuted)}
-              style={{
-                background: 'none',
-                border: '1px solid currentColor',
-                borderRadius: 4,
-                padding: '4px 12px',
-                cursor: 'pointer',
-                opacity: 0.7,
-              }}
+              // A quiet, non-committal timeline action — SECONDARY, the semantic
+              // DESIGN.md reserves for what sits beside the real CTAs. Box model,
+              // type scale and hover come from the ClassMap instead of the
+              // hand-rolled 4px-radius currentColor frame this used to be.
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
+                cm.touchTargetCompact,
+              )}
             >
               {t('ide.chat.showEarlier', undefined, {
                 defaultValue: 'Show earlier messages',
@@ -8377,6 +8353,7 @@ function ChatInner({
                           style={{ textAlign: 'center', marginBottom: TIMELINE_ITEM_GAP }}
                         >
                           <button
+                            /* mol-bespoke-button: skills-loaded notice — deliberately a plain centered phase message that happens to be clickable; a button frame would make it shout */
                             type="button"
                             data-mol-id="chat-skills-loaded"
                             onClick={() => openPanelOverlay('skills')}
@@ -8699,54 +8676,49 @@ function ChatInner({
           {autoFixCountdown.paused ? (
             <button
               type="button"
+              data-mol-id="chat-autofix-resume"
               onClick={() =>
                 setAutoFixCountdown((prev) =>
                   prev ? { ...prev, paused: false, secondsLeft: 3 } : prev,
                 )
               }
-              style={{
-                fontSize: 11,
-                padding: '2px 8px',
-                borderRadius: 4,
-                border: '1px solid rgba(128,128,128,0.3)',
-                background: 'transparent',
-                color: 'inherit',
-                cursor: 'pointer',
-              }}
+              // This strip and the retry strip below it now share one button
+              // treatment, so a user never sees four near-identical controls at
+              // four slightly different sizes (they were 11px/4px-radius
+              // hand-rolled frames with a hardcoded grey border). Semantics per
+              // DESIGN.md's CTA table: Resume is the affirmative action
+              // (primary), its sibling Pause is pause-like (warning), and the
+              // Cancels are quiet dismissals (secondary).
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                cm.touchTargetCompact,
+              )}
             >
               {t('ide.chat.autoFixResume', undefined, { defaultValue: 'Resume' })}
             </button>
           ) : (
             <button
               type="button"
+              data-mol-id="chat-autofix-pause"
               onClick={() =>
                 setAutoFixCountdown((prev) => (prev ? { ...prev, paused: true } : prev))
               }
-              style={{
-                fontSize: 11,
-                padding: '2px 8px',
-                borderRadius: 4,
-                border: '1px solid rgba(128,128,128,0.3)',
-                background: 'transparent',
-                color: 'inherit',
-                cursor: 'pointer',
-              }}
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'warning', size: 'xs' }),
+                cm.touchTargetCompact,
+              )}
             >
               {t('ide.chat.autoFixPause', undefined, { defaultValue: 'Pause' })}
             </button>
           )}
           <button
             type="button"
+            data-mol-id="chat-autofix-cancel"
             onClick={() => setAutoFixCountdown(null)}
-            style={{
-              fontSize: 11,
-              padding: '2px 8px',
-              borderRadius: 4,
-              border: '1px solid rgba(128,128,128,0.3)',
-              background: 'transparent',
-              color: 'inherit',
-              cursor: 'pointer',
-            }}
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
+              cm.touchTargetCompact,
+            )}
           >
             {t('ide.chat.autoFixCancel', undefined, { defaultValue: 'Cancel' })}
           </button>
@@ -8790,15 +8762,13 @@ function ChatInner({
             type="button"
             data-mol-id="chat-retry-cancel"
             onClick={cancelRetry}
-            style={{
-              fontSize: 11,
-              padding: '2px 8px',
-              borderRadius: 4,
-              border: '1px solid rgba(128,128,128,0.3)',
-              background: 'transparent',
-              color: 'inherit',
-              cursor: 'pointer',
-            }}
+            // The same button as the auto-fix strip's Cancel directly above it —
+            // the two strips mirror each other, and DESIGN.md's rule is that one
+            // action keeps one colour on every surface.
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
+              cm.touchTargetCompact,
+            )}
           >
             {t('ide.chat.autoFixCancel', undefined, { defaultValue: 'Cancel' })}
           </button>
@@ -8872,6 +8842,7 @@ function ChatInner({
                     </span>
                   )}
                   <button
+                    /* mol-bespoke-button: attachment chip remove — icon-only x inside a 2px-padded chip, 32px coarse hit box */
                     type="button"
                     onClick={() => removeAttachment(key)}
                     style={{
@@ -8997,6 +8968,7 @@ function ChatInner({
                         }
                         return (
                           <button
+                            /* mol-bespoke-button: command menu row — full-width list item in the / popup */
                             key={cmd.id}
                             type="button"
                             onClick={() => void executeCommand(cmd.id as CommandId)}
@@ -9190,6 +9162,7 @@ function ChatInner({
                     : null
               return (
                 <button
+                  /* mol-bespoke-button: dictation engine row — full-width list item in the /mic popup */
                   key={def.id}
                   type="button"
                   data-mol-id={`chat-mic-engine-${def.id}`}
@@ -9456,6 +9429,7 @@ function ChatInner({
                     placement="top"
                   >
                     <button
+                      /* mol-bespoke-button: icon-only sort-direction toggle — 24px square matched to the adjacent selects' height */
                       type="button"
                       data-mol-id="model-sort-direction"
                       aria-label={t('ide.chat.modelSortDirection', undefined, {
@@ -9611,6 +9585,7 @@ function ChatInner({
                       <Fragment key={model.id}>
                         {dividerBefore && (
                           <button
+                            /* mol-bespoke-button: older-models collapse row — full-width disclosure row inside the model list */
                             type="button"
                             onClick={() => setShowDeprecated((s) => !s)}
                             className={cm.cn(cm.textSize('xs'), cm.textMuted, cm.w('full'))}
@@ -9631,6 +9606,7 @@ function ChatInner({
                           </button>
                         )}
                         <button
+                          /* mol-bespoke-button: model row — full-width list item in the model picker */
                           type="button"
                           onClick={() => {
                             if (lockReason === 'paid') {
@@ -10157,6 +10133,7 @@ function ChatInner({
                   })}
                   {!showDeprecated && deprecatedModels.length > 0 && (
                     <button
+                      /* mol-bespoke-button: older-models expand row — full-width disclosure row inside the model list */
                       type="button"
                       onClick={() => setShowDeprecated(true)}
                       className={cm.cn(cm.textSize('xs'), cm.textMuted, cm.w('full'))}
@@ -10190,6 +10167,7 @@ function ChatInner({
                   fallback; the theme token wins). */}
               {onManageCustomModels && (
                 <button
+                  /* mol-bespoke-button: manage-custom-models footer — anchored full-width footer row of the model list, keyboard-indexed with the rows */
                   type="button"
                   data-mol-id="chat-model-manage-custom"
                   onClick={() => {
@@ -10325,6 +10303,7 @@ function ChatInner({
                 </select>
               </div>
               <button
+                /* mol-bespoke-button: icon-only picker close — header x, no label */
                 type="button"
                 data-mol-id="chat-effort-picker-close"
                 onClick={() => setEffortPicker(null)}
@@ -10368,6 +10347,7 @@ function ChatInner({
               ) : (
                 effortPickerVisibleOptions.map((option, idx) => (
                   <button
+                    /* mol-bespoke-button: effort level row — full-width list item in the /effort popup */
                     key={option.value}
                     type="button"
                     data-mol-id={`chat-effort-level-${option.value}`}
@@ -10469,6 +10449,7 @@ function ChatInner({
                 })}
               </span>
               <button
+                /* mol-bespoke-button: icon-only picker close — header x, no label */
                 type="button"
                 onClick={() => setSoundsPicker(null)}
                 style={{
@@ -10515,6 +10496,7 @@ function ChatInner({
                   : t('ide.chat.soundMode.mixed', undefined, { defaultValue: 'mixed' })
                 return (
                   <button
+                    /* mol-bespoke-button: sounds "All" row — full-width list item in the /sounds popup */
                     type="button"
                     onClick={() => void cycleSoundMode('all')}
                     onMouseEnter={(e) => {
@@ -10570,6 +10552,7 @@ function ChatInner({
                       : { bg: 'rgba(128,128,128,0.2)', fg: 'inherit' }
                 return (
                   <button
+                    /* mol-bespoke-button: sounds per-event row — full-width list item in the /sounds popup */
                     key={eventType}
                     type="button"
                     onClick={() => void cycleSoundMode(eventType)}
@@ -10703,6 +10686,7 @@ function ChatInner({
                       : t('ide.chat.settings.heading', undefined, { defaultValue: 'Settings' })}
               </span>
               <button
+                /* mol-bespoke-button: icon-only overlay close — header x, no label */
                 type="button"
                 data-mol-id="panel-overlay-close"
                 aria-label={t('ide.chat.closeOverlay', undefined, { defaultValue: 'Close' })}
@@ -10835,6 +10819,7 @@ function ChatInner({
                   const isOpenTab = !isActive && openTabSet.has(entry.name)
                   return (
                     <button
+                      /* mol-bespoke-button: file picker row — full-width list item in the @ popup */
                       key={entry.name}
                       type="button"
                       onClick={() => selectFileEntry(entry)}
@@ -10969,40 +10954,34 @@ function ChatInner({
                         }}
                       />
                       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        {/* A Cancel/Save pair sitting side by side: the dismissive
+                            one is SECONDARY, the confirming one PRIMARY — the
+                            same pairing the rest of the app uses, instead of two
+                            hand-rolled frames separated only by a grey fill. */}
                         <button
                           type="button"
+                          data-mol-id="chat-queued-edit-cancel"
                           onClick={() => setEditingQueuedId(null)}
-                          className={cm.textSize('xs')}
-                          style={{
-                            padding: '4px 12px',
-                            border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
-                            borderRadius: '4px',
-                            background: 'transparent',
-                            color: 'inherit',
-                            cursor: 'pointer',
-                            ...(isCoarse ? { minHeight: 32 } : {}),
-                          }}
+                          className={cm.cn(
+                            cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
+                            cm.touchTargetCompact,
+                          )}
                         >
                           {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
                         </button>
                         <button
                           type="button"
+                          data-mol-id="chat-queued-edit-save"
                           onClick={() => {
                             const trimmed = editingQueuedText.trim()
                             if (trimmed) editQueuedMessage(qm.id, trimmed)
                             else deleteQueuedMessage(qm.id)
                             setEditingQueuedId(null)
                           }}
-                          className={cm.textSize('xs')}
-                          style={{
-                            padding: '4px 12px',
-                            border: `1px solid ${isLight ? '#d1d9e0' : 'rgba(255,255,255,0.1)'}`,
-                            borderRadius: '4px',
-                            background: 'rgba(128,128,128,0.1)',
-                            color: 'inherit',
-                            cursor: 'pointer',
-                            ...(isCoarse ? { minHeight: 32 } : {}),
-                          }}
+                          className={cm.cn(
+                            cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                            cm.touchTargetCompact,
+                          )}
                         >
                           {t('common.save', undefined, { defaultValue: 'Save' })}
                         </button>
@@ -11028,6 +11007,7 @@ function ChatInner({
                         {qm.content}
                       </span>
                       <button
+                        /* mol-bespoke-button: icon-only edit affordance — 22px (32px coarse) pencil on a dense queued-message row */
                         type="button"
                         title={t('ide.chat.editQueued', undefined, { defaultValue: 'Edit' })}
                         onClick={() => {
@@ -11062,6 +11042,7 @@ function ChatInner({
                         <Icon name="pencil" size={13} aria-hidden="true" />
                       </button>
                       <button
+                        /* mol-bespoke-button: icon-only delete affordance — 22px (32px coarse) trash on a dense queued-message row, theme error token */
                         type="button"
                         title={t('ide.chat.deleteQueued', undefined, { defaultValue: 'Delete' })}
                         onClick={() => deleteQueuedMessage(qm.id)}
@@ -11075,7 +11056,9 @@ function ChatInner({
                           border: 'none',
                           borderRadius: 4,
                           background: 'none',
-                          color: isLight ? 'rgb(185,28,28)' : 'rgb(248,113,113)',
+                          // Theme ERROR token, not a per-theme literal — the token
+                          // already resolves per theme.
+                          color: 'var(--mol-color-error, #dc2626)',
                           opacity: 0.6,
                           cursor: 'pointer',
                           padding: 0,
@@ -11083,7 +11066,8 @@ function ChatInner({
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.opacity = '1'
-                          e.currentTarget.style.background = 'rgba(220,38,38,0.12)'
+                          e.currentTarget.style.background =
+                            'color-mix(in srgb, var(--mol-color-error, #dc2626) 12%, transparent)'
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.opacity = '0.6'
@@ -11094,6 +11078,7 @@ function ChatInner({
                       </button>
                       {!isLoading && (
                         <button
+                          /* mol-bespoke-button: icon-only send affordance — 22px (32px coarse) arrow on a dense queued-message row, theme success token */
                           type="button"
                           title={t('ide.chat.sendQueued', undefined, { defaultValue: 'Send' })}
                           onClick={() => {
@@ -11111,7 +11096,8 @@ function ChatInner({
                             border: 'none',
                             borderRadius: 4,
                             background: 'none',
-                            color: isLight ? 'rgb(21,128,61)' : 'rgb(74,222,128)',
+                            // Theme SUCCESS token, not a per-theme literal.
+                            color: 'var(--mol-color-success, #16a34a)',
                             opacity: 0.7,
                             cursor: 'pointer',
                             padding: 0,
@@ -11119,7 +11105,8 @@ function ChatInner({
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.opacity = '1'
-                            e.currentTarget.style.background = 'rgba(34,197,94,0.14)'
+                            e.currentTarget.style.background =
+                              'color-mix(in srgb, var(--mol-color-success, #16a34a) 14%, transparent)'
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.opacity = '0.7'
@@ -11281,38 +11268,25 @@ function ChatInner({
                     return (
                       <button
                         type="button"
+                        data-mol-id="chat-commit-button"
                         onClick={(e) => {
                           e.stopPropagation()
                           if (commitBusy) return
                           handleCommit()
                         }}
                         disabled={commitBusy}
-                        onMouseEnter={(e) => {
-                          if (!commitBusy) {
-                            e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
-                            e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
-                            e.currentTarget.style.color = '#6090f0'
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(64,112,224,0.2)'
-                          e.currentTarget.style.borderColor = 'rgba(64,112,224,0.4)'
-                          e.currentTarget.style.color = '#4070e0'
-                        }}
-                        style={{
-                          fontSize: 12,
-                          padding: '4px 10px',
-                          // Touch floor for this inline bar action (36px, matching
-                          // the notice-card buttons).
-                          ...(isCoarse ? { minHeight: 36 } : {}),
-                          borderRadius: 6,
-                          border: '1px solid rgba(64,112,224,0.4)',
-                          background: 'rgba(64,112,224,0.2)',
-                          color: '#4070e0',
-                          cursor: commitBusy ? 'not-allowed' : 'pointer',
-                          opacity: commitBusy ? 0.5 : 1,
-                          transition: 'background 100ms, border-color 100ms, color 100ms',
-                        }}
+                        // The SAME design-system button as the tests bar's action
+                        // one strip above (and as the green AutoCommitBadge that
+                        // replaces this one when auto-commit is on) — only the
+                        // semantic colour differs. The CVA owns hover/active/focus
+                        // and the disabled look, so there is nothing to hand-roll:
+                        // this used to be an inline 12px/6px-radius button with
+                        // hardcoded rgba(64,112,224,*) and hand-written hover, and
+                        // it visibly mismatched the 13px/3px tests-bar button.
+                        className={cm.cn(
+                          cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                          cm.touchTargetCompact,
+                        )}
                       >
                         {commitState?.status === 'committing'
                           ? t('ide.chat.committing')
@@ -11326,11 +11300,14 @@ function ChatInner({
                 <div style={{ marginTop: 4, paddingLeft: 16, maxHeight: 200, overflowY: 'auto' }}>
                   {pendingFiles.map((f) => (
                     <button
+                      /* mol-bespoke-button: pending file row — dense monospace row that opens a diff, one of a list */
                       key={f.path}
                       type="button"
                       onClick={() => onFileDiff?.(f.path)}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.color = '#6090f0'
+                        // Theme PRIMARY token, not a literal blue — the row sits in
+                        // the same bar as the commit button, which is now primary.
+                        e.currentTarget.style.color = 'var(--mol-color-primary, #4070e0)'
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.color = ''
@@ -11373,6 +11350,7 @@ function ChatInner({
                       )}
                       {onFileRevert && (
                         <span
+                          /* mol-bespoke-button: icon-only per-file revert affordance — 18px (32px coarse) hit box on a dense file row */
                           role="button"
                           tabIndex={0}
                           title={t('ide.chat.revertFile', undefined, {
@@ -11533,6 +11511,7 @@ function ChatInner({
             {/* Plan/Execute mode toggle — hidden for viewers: the mode drives Synthase, which a viewer can't run. */}
             {canEdit !== false && (
               <button
+                /* mol-bespoke-button: icon-only composer toggle — shares the composer row's 24px / 40x32-coarse icon box model */
                 type="button"
                 onClick={() => {
                   const newMode = mode === 'plan' ? 'execute' : 'plan'
@@ -11602,6 +11581,7 @@ function ChatInner({
                 not a per-message one. */}
             {fastModeAvailable && canEdit !== false && (
               <button
+                /* mol-bespoke-button: icon-only composer toggle — shares the composer row's 24px / 40x32-coarse icon box model */
                 type="button"
                 data-mol-id="chat-fast-mode-toggle"
                 disabled={!canEdit}
@@ -11667,6 +11647,7 @@ function ChatInner({
                 picker with unusable engines disabled — it never just vanishes. */}
             {
               <button
+                /* mol-bespoke-button: icon-only composer toggle — shares the composer row's 24px / 40x32-coarse icon box model */
                 type="button"
                 data-mol-id="chat-mic-button"
                 onClick={toggleVoice}
@@ -11743,6 +11724,7 @@ function ChatInner({
             {/* Attachment button — hidden for viewers: attachments feed Synthase turns. */}
             {canEdit !== false && (
               <button
+                /* mol-bespoke-button: icon-only composer affordance — shares the composer row's 24px / 40x32-coarse icon box model */
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 title={t('ide.chat.attachFile', undefined, { defaultValue: 'Attach file' })}
@@ -11844,6 +11826,7 @@ function ChatInner({
               .filter(({ sym }) => canEdit !== false || sym !== '@')
               .map(({ sym, nudgeY, size: fontSize, title, onClick }) => (
                 <button
+                  /* mol-bespoke-button: glyph-only composer affordance — shares the composer row's 24px / 40x32-coarse icon box model */
                   key={sym}
                   type="button"
                   onClick={onClick}
@@ -12031,28 +12014,21 @@ function ChatInner({
               {canEdit !== false && (isLoading || isRemoteStreaming) && (
                 <button
                   type="button"
+                  data-mol-id="chat-stop-button"
                   onClick={handleAbort}
                   title={t('ide.chat.stop', undefined, { defaultValue: 'Stop' })}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(248,81,73,0.3)'
-                    e.currentTarget.style.borderColor = 'rgba(248,81,73,0.65)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(248,81,73,0.2)'
-                    e.currentTarget.style.borderColor = 'rgba(248,81,73,0.4)'
-                  }}
+                  // The composer's two action buttons (Stop, Send) are design-system
+                  // buttons in the ERROR and PRIMARY semantics — same radius, height
+                  // and states as every other action button in the panel. They were a
+                  // matched pair of hand-rolled 6px-radius frames with hardcoded
+                  // rgba(248,81,73,*) / rgba(96,160,240,*) and hand-written hover.
+                  className={cm.button({ variant: 'solid', color: 'error', size: 'xs' })}
                   style={{
-                    padding: '5px 10px',
-                    borderRadius: 6,
-                    border: '1px solid rgba(248,81,73,0.4)',
-                    background: 'rgba(248,81,73,0.2)',
-                    color: '#f85149',
-                    cursor: 'pointer',
-                    transition: 'background 100ms, border-color 100ms',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    // Touch hit-area floor for the composer's action buttons.
+                    // The composer's documented touch box: wide for hit spacing but
+                    // deliberately flat (40×32) so the row doesn't balloon. This is the
+                    // one thing the ClassMap can't express here, and the reason this is
+                    // NOT cm.touchTargetCompact — a 36px floor would out-grow the
+                    // neighbouring icon buttons.
                     ...(isCoarse ? { minWidth: 40, minHeight: 32 } : {}),
                   }}
                 >
@@ -12063,32 +12039,18 @@ function ChatInner({
               )}
               <button
                 type="button"
+                data-mol-id="chat-send-button"
                 onClick={() => void handleSubmit()}
                 title={t('ide.chat.send', undefined, { defaultValue: 'Send' })}
                 disabled={!hasInput && attachedFiles.length === 0}
-                onMouseEnter={(e) => {
-                  if (!e.currentTarget.disabled) {
-                    e.currentTarget.style.background = 'rgba(96,160,240,0.3)'
-                    e.currentTarget.style.borderColor = 'rgba(96,160,240,0.7)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(96,160,240,0.2)'
-                  e.currentTarget.style.borderColor = 'rgba(96,160,240,0.5)'
-                }}
+                // Stop's twin in the PRIMARY semantic. The real `disabled`
+                // attribute above carries the muted/inert look via the CVA
+                // (`disabled:opacity-50 disabled:pointer-events-none`), so the
+                // hand-rolled cursor/opacity pair is gone with the rest.
+                className={cm.button({ variant: 'solid', color: 'primary', size: 'xs' })}
                 style={{
-                  padding: '5px 10px',
-                  borderRadius: 6,
-                  border: '1px solid rgba(96,160,240,0.5)',
-                  background: 'rgba(96,160,240,0.2)',
-                  color: '#6aa3f0',
-                  cursor: !hasInput && attachedFiles.length === 0 ? 'not-allowed' : 'pointer',
-                  opacity: !hasInput && attachedFiles.length === 0 ? 0.5 : 1,
-                  transition: 'background 100ms, border-color 100ms, color 100ms',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  // Touch hit-area floor for the composer's action buttons.
+                  // See the Stop button: the composer's documented flat 40×32 touch
+                  // box, which the ClassMap can't express.
                   ...(isCoarse ? { minWidth: 40, minHeight: 32 } : {}),
                 }}
               >
@@ -12409,6 +12371,7 @@ export function ChatPanel({
         >
           {/* Conversation picker button */}
           <button
+            /* mol-bespoke-button: conversation picker — the header title row, a full-width disclosure for the history dropdown */
             type="button"
             onClick={handleToggleDropdown}
             className={cm.cn(cm.textSize('xs'), cm.textMuted)}
@@ -12590,6 +12553,7 @@ export function ChatPanel({
               )}
               {filteredConvs.map((conv) => (
                 <button
+                  /* mol-bespoke-button: conversation row — full-width list item in the history dropdown */
                   key={conv.id}
                   type="button"
                   onClick={() => handleSelectConversation(conv.id)}

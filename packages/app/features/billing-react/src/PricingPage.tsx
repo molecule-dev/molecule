@@ -501,28 +501,24 @@ function TierCard<TLimits>({
         <footer className={cm.cardFooter}>
           <button
             type="button"
+            // A page-level CTA takes the design system's largest tier. It used
+            // to hand-override height and padding inline, which silently beat
+            // whatever the ClassMap resolved (AGENTS.md anti-pattern 12) and
+            // made this button a different size from every other Upgrade CTA
+            // in the fleet — `pricing-page-react`'s identical action included.
             className={cm.cn(
               cm.button({
                 variant: popular ? 'solid' : 'outline',
-                size: 'md',
+                color: popular ? 'primary' : undefined,
+                size: 'lg',
                 fullWidth: true,
               }),
               popular && cm.gradientPrimary,
               cm.uppercase,
               cm.trackingWide,
               cm.fontWeight('semibold'),
-              cm.textSize('sm'),
+              cm.touchTargetCompact,
             )}
-            // Override the cramped default size — `cm.button({size: 'md'})`
-            // gives `h-[30px] px-2.5` which feels like a tag, not a CTA.
-            // Real button padding: ~14px vertical, ~20px horizontal.
-            style={{
-              height: 'auto',
-              paddingTop: '0.875rem',
-              paddingBottom: '0.875rem',
-              paddingLeft: '1.25rem',
-              paddingRight: '1.25rem',
-            }}
             disabled={!price?.stripePriceId || starting}
             onClick={() => onUpgrade(price?.stripePriceId ?? null)}
             data-mol-id={`pricing-cta-${tier.key}`}

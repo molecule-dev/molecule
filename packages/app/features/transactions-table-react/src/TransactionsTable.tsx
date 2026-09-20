@@ -116,13 +116,12 @@ export function TransactionsTable({
         <p className={cm.cn('text-tertiary', cm.textSize('sm'), cm.sp('mb', 3))}>{error}</p>
         {onRetry ? (
           <button
+            type="button"
+            data-mol-id="transactions-table-retry"
             onClick={onRetry}
             className={cm.cn(
-              cm.sp('px', 4),
-              cm.sp('py', 2),
-              cm.textSize('sm'),
-              cm.fontWeight('bold'),
-              'bg-primary text-on-primary rounded-lg',
+              cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+              cm.touchTargetCompact,
             )}
           >
             {retryLabel}

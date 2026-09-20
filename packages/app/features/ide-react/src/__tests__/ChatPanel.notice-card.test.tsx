@@ -30,7 +30,7 @@ import {
   ThemeProvider,
 } from '@molecule/app-react'
 import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-theme'
-import { setClassMap } from '@molecule/app-ui'
+import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { ChatPanel } from '../components/ChatPanel.js'
@@ -220,11 +220,29 @@ describe('ChatPanel unified notice cards', () => {
     expect(upgrade.textContent).toContain('Source')
     const upgradeBtn = upgrade.querySelector('a[href="/pricing"]') as HTMLElement
     expect(upgradeBtn).not.toBeNull()
-    // The buttons must read as ACTUAL buttons: an OPAQUE theme-surface background
-    // (distinct from the card's transparent tint — the ghost fill regression where
-    // "their background is the same exact color as the card") plus a shadow.
-    expect(upgradeBtn.style.background).toContain('var(--mol-color-surface')
-    expect(upgradeBtn.style.boxShadow).not.toBe('')
+    // The buttons must read as ACTUAL buttons — and as the SAME button the rest of
+    // the app shows, so a coloured action and a colourless one can't sit side by
+    // side on one card at two different sizes and radii. Every action goes through
+    // `cm.button`; an action without an explicit `color` takes the tone's semantic
+    // (upgrade → warning).
+    const cmForActions = getClassMap()
+    const expectedActionClasses = cmForActions
+      .cn(cmForActions.button({ color: 'warning', size: 'sm' }), cmForActions.touchTargetCompact)
+      .split(/\s+/)
+      .filter(Boolean)
+    for (const cls of expectedActionClasses) {
+      expect(
+        upgradeBtn.classList.contains(cls),
+        `notice-card action must carry the design-system class ${cls}`,
+      ).toBe(true)
+    }
+    // Nothing the design system owns may be set inline — inline styles outrank
+    // ClassMap classes (molecule AGENTS.md anti-pattern 12), which is exactly how
+    // the hand-rolled fill/shadow this replaced defeated it.
+    expect(upgradeBtn.style.background).toBe('')
+    expect(upgradeBtn.style.boxShadow).toBe('')
+    expect(upgradeBtn.style.borderRadius).toBe('')
+    expect(upgradeBtn.style.fontSize).toBe('')
 
     // The inline-content (gold) card renders its mid-sentence link, not a button row.
     const gold = container.querySelector('[data-tone="gold"]') as HTMLElement

@@ -55,23 +55,20 @@ export function NodeEditorToggle({
       </div>
       <button
         type="button"
-        className={cm.cn(
-          cm.w(8),
-          cm.h(4),
-          cm.cursorPointer,
-          cm.roundedFull,
-          'bg-primary/20 relative',
-        )}
+        data-mol-id="node-editor-toggle"
+        // The switch track/thumb come from the design system, which keys both
+        // off `data-state` — a hand-rolled track could not pick up a ClassMap
+        // swap, and its `bg-primary/20` track was invisible when checked.
+        className={cm.cn(cm.switchBase({ size: 'sm' }), cm.touchTargetCompact)}
+        data-state={checked ? 'checked' : 'unchecked'}
         role="switch"
         aria-checked={checked}
         aria-label={ariaLabel ?? (typeof title === 'string' ? title : undefined)}
         onClick={() => onChange(!checked)}
       >
-        <div
-          className={cm.cn(
-            'absolute top-0.5 w-3 h-3 bg-primary rounded-full transition-all',
-            checked ? 'right-0.5' : 'left-0.5',
-          )}
+        <span
+          className={cm.switchThumb({ size: 'sm' })}
+          data-state={checked ? 'checked' : 'unchecked'}
         />
       </button>
     </div>

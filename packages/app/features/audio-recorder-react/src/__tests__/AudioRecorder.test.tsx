@@ -17,6 +17,9 @@ vi.mock('@molecule/app-ui', () => ({
     flex: () => 'flex',
     textSize: () => 'text',
     fontWeight: () => 'fw',
+    button: (opts?: { variant?: string; color?: string; size?: string }) =>
+      `button-${opts?.variant ?? 'solid'}-${opts?.color ?? 'default'}-${opts?.size ?? 'md'}`,
+    touchTargetCompact: 'touch-target-compact',
   }),
 }))
 

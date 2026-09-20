@@ -218,11 +218,12 @@ function StageDot({ stage, status, index, total, t }: StageDotProps): JSX.Elemen
         disabled={!stage.onClick}
         aria-label={ariaLabel}
         data-mol-id="stage-timeline-dot"
-        style={{
-          ...dotStyle,
-          background: dotStyle.background,
-          padding: 0,
-        }}
+        /* mol-bespoke-button: a numbered/ticked step DOT on a progress rail —
+           a `dotSize`-diameter circle whose fill encodes done/current/upcoming,
+           which no `cm.button()` variant expresses, and which has to line up
+           with the connector line either side of it. Every colour already
+           comes from a `--mol-color-*` token (see `dotStyle`). */
+        style={{ ...dotStyle, padding: 0 }}
       >
         {isCompleted ? '✓' : index + 1}
       </button>

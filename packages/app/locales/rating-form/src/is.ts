@@ -2,6 +2,7 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for is. */
 export const is: Partial<RatingFormTranslations> = {
+  'rating.star': '{{n}} of {{max}}',
   'rating.label': 'Einkunn',
   'rating.commentPlaceholder': 'Deildu hugsunum þínum (valfrjálst)',
   'rating.submitting': 'Sendi inn…',

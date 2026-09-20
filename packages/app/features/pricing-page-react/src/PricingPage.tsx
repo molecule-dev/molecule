@@ -255,7 +255,13 @@ function PricingPageTierCard<TLimits>(
       <footer className={cm.cardFooter}>
         <button
           type="button"
-          className={cm.button({ variant: 'solid', size: 'md' })}
+          // Upgrade is a page-level CTA: same tier, colour and full width as
+          // the identical action in `@molecule/app-billing-react`, so the two
+          // pricing surfaces cannot drift apart.
+          className={cm.cn(
+            cm.button({ variant: 'solid', color: 'primary', size: 'lg', fullWidth: true }),
+            cm.touchTargetCompact,
+          )}
           disabled={!price?.stripePriceId || starting}
           onClick={() => price && onCheckout(tier, price)}
           data-mol-id={`pricing-page-cta-${tier.key}`}

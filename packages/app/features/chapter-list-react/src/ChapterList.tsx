@@ -229,6 +229,11 @@ export function ChapterList(props: ChapterListProps): ReactNode {
                 aria-label={seekLabel}
                 aria-current={isActive ? 'true' : undefined}
                 data-mol-id="chapter-list-row-button"
+                /* mol-bespoke-button: list ROW, not a CTA — the button is a
+                   transparent hit area wrapping the row's own content (title,
+                   timestamp, trailing slot), so the inline background/border/
+                   padding are native resets rather than a competing design.
+                   The row is already taller than the touch floor. */
                 className={cm.cn(cm.cursorPointer)}
                 style={{
                   display: 'block',
@@ -237,7 +242,6 @@ export function ChapterList(props: ChapterListProps): ReactNode {
                   background: 'transparent',
                   border: 'none',
                   padding: 0,
-                  cursor: 'pointer',
                 }}
               >
                 {rowContent}

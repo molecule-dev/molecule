@@ -51,7 +51,11 @@ export function NodeEditorPanel({
         {onClose ? (
           <button
             type="button"
-            className={cm.cn('text-on-surface-variant hover:text-on-surface transition-colors')}
+            data-mol-id="node-editor-panel-close"
+            // Icon-only chrome: the design system's dialog-close token carries
+            // the muted → foreground hover, and the 44px floor makes it
+            // tappable without changing how it looks on a pointer device.
+            className={cm.cn(cm.dialogClose, cm.touchTarget)}
             aria-label={closeAriaLabel}
             onClick={onClose}
           >

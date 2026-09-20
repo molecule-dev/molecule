@@ -11,6 +11,7 @@
 import { type JSX, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { getClassMap } from '@molecule/app-ui'
 
 import { Icon } from './Icon.js'
 import { resolveUserAvatar } from './user-avatar-utilities.js'
@@ -56,6 +57,7 @@ export interface UserAvatarProps {
  * @returns The avatar image or icon fallback, optionally wrapped in a button.
  */
 export function UserAvatar({ userAvatar, name, size = 24, onClick }: UserAvatarProps): JSX.Element {
+  const cm = getClassMap()
   const [hover, setHover] = useState(false)
   const src = resolveUserAvatar(userAvatar)
   // The avatar identifies the message's sender: the author's name when we have
@@ -138,6 +140,12 @@ export function UserAvatar({ userAvatar, name, size = 24, onClick }: UserAvatarP
       onBlur={() => setHover(false)}
       data-mol-id="chat-user-avatar-button"
       aria-label={t('ide.chat.viewProfile', undefined, { defaultValue: 'View profile' })}
+      className={cm.touchTargetCompact}
+      /* mol-bespoke-button: an AVATAR button — the control is the picture, and
+         its rounded-square crop plus the 1px hover/focus ring (primary theme
+         token, always present as transparent so hovering never shifts layout)
+         are things cm.button() has no opinion about. Its coarse hit floor now
+         comes from the ClassMap; it had none at all. */
       style={{
         padding: 0,
         margin: 0,

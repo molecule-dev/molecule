@@ -152,7 +152,7 @@ export function ShareModal({
             type="button"
             data-mol-id="share-close"
             onClick={onClose}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
           >
             {t('common.done', undefined, { defaultValue: 'Done' })}
           </button>

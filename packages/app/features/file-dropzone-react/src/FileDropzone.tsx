@@ -133,11 +133,20 @@ export function FileDropzone({
         !disabled ? cm.cursorPointer : undefined,
         className,
       )}
+      /* mol-bespoke-button: a drop SURFACE, not a CTA — a 140px dashed target
+         that the user drops files onto and whose border thickens on drag-over.
+         No `cm.button()` tier is a dashed drop region. The colours are theme
+         tokens now; the old `rgba(0,0,0,…)` dashes were invisible on a dark
+         background. */
       style={{
-        border: `2px dashed rgba(0,0,0,${dragging ? 0.4 : 0.15})`,
+        border: dragging
+          ? '2px dashed var(--mol-color-primary, #3366ff)'
+          : '2px dashed var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 12,
         minHeight: 140,
-        background: dragging ? 'rgba(0,0,0,0.02)' : undefined,
+        background: dragging
+          ? 'color-mix(in srgb, var(--mol-color-primary, #3366ff) 6%, transparent)'
+          : undefined,
       }}
     >
       <input

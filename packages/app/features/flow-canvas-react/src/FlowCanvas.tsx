@@ -581,6 +581,11 @@ export function FlowCanvas(props: FlowCanvasProps): React.JSX.Element {
                 )}
                 data-mol-id={`flow-canvas-node-handle-${node.id}`}
                 onPointerDown={(e) => onHandlePointerDown(e, node)}
+                /* mol-bespoke-button: a 12px connection HANDLE on a canvas
+                   node — no label, no button surface, dragged rather than
+                   clicked (cursor `crosshair`). Its `currentColor` fill is the
+                   node's own ink, and a `cm.button()` tier would swallow the
+                   handle at this size. */
                 style={{
                   position: 'absolute',
                   right: -6,

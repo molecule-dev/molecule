@@ -9,7 +9,6 @@ import type { JSX } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
-import { useCoarsePointer } from '../hooks/useViewport.js'
 import type { SidebarTabsProps } from '../types.js'
 import { Icon } from './Icon.js'
 
@@ -26,16 +25,17 @@ export function SidebarTabs({
   className,
 }: SidebarTabsProps): JSX.Element {
   const cm = getClassMap()
-  // ≥44px tab buttons on touch-first devices (WCAG tap-target floor for
-  // standalone controls); compact 32px on pointer devices (unchanged).
-  const tabHeight = useCoarsePointer() ? '44px' : '32px'
 
   return (
     <div
       className={cm.cn(cm.h('full'), cm.borderR, className)}
       style={{ display: 'flex', flexDirection: 'column' }}
     >
+      {/* A real tablist, like the editor's TabBar — the two `role="tab"`
+          buttons below need one to be valid. */}
       <div
+        role="tablist"
+        aria-label={t('ide.sidebar.tabs', undefined, { defaultValue: 'Sidebar' })}
         className={cm.cn(
           cm.flex({ direction: 'row', align: 'center' }),
           cm.shrink0,
@@ -45,16 +45,23 @@ export function SidebarTabs({
       >
         <button
           type="button"
+          data-mol-id="sidebar-tab-files"
+          role="tab"
+          aria-selected={activeTab === 'files'}
           onClick={() => onTabChange('files')}
           title={t('ide.sidebar.files', undefined, { defaultValue: 'Explorer' })}
           aria-label={t('ide.sidebar.files', undefined, { defaultValue: 'Explorer' })}
-          style={{ userSelect: 'none', height: tabHeight, flex: 1, justifyContent: 'center' }}
+          style={{ userSelect: 'none', height: '32px', flex: 1, justifyContent: 'center' }}
           className={cm.cn(
             cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
             cm.sp('px', 3),
             cm.textSize('sm'),
             cm.shrink0,
             cm.cursorPointer,
+            // Icon-only standalone control → the full 44px coarse floor, from
+            // the ClassMap rather than a hand-computed height (min-height beats
+            // the 32px compact height on touch, exactly as before).
+            cm.touchTarget,
             cm.borderR,
             activeTab === 'files' && cm.surface,
             activeTab === 'files' && cm.borderBPrimary,
@@ -69,16 +76,21 @@ export function SidebarTabs({
         </button>
         <button
           type="button"
+          data-mol-id="sidebar-tab-search"
+          role="tab"
+          aria-selected={activeTab === 'search'}
           onClick={() => onTabChange('search')}
           title={t('ide.sidebar.search', undefined, { defaultValue: 'Search' })}
           aria-label={t('ide.sidebar.search', undefined, { defaultValue: 'Search' })}
-          style={{ userSelect: 'none', height: tabHeight, flex: 1, justifyContent: 'center' }}
+          style={{ userSelect: 'none', height: '32px', flex: 1, justifyContent: 'center' }}
           className={cm.cn(
             cm.flex({ direction: 'row', align: 'center', gap: 'xs' }),
             cm.sp('px', 3),
             cm.textSize('sm'),
             cm.shrink0,
             cm.cursorPointer,
+            // Same 44px coarse floor as its sibling — one tab strip, one rule.
+            cm.touchTarget,
             activeTab === 'search' && cm.surface,
             activeTab === 'search' && cm.borderBPrimary,
           )}

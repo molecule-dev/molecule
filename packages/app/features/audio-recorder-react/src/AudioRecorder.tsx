@@ -273,16 +273,14 @@ export function AudioRecorder({
     verticalAlign: 'middle',
     animation: state === 'recording' ? 'mol-pulse 1.2s ease-in-out infinite' : undefined,
   }
-  const buttonBase: CSSProperties = {
-    background: 'none',
-    border: '1px solid currentColor',
-    padding: '0.4rem 0.9rem',
-    borderRadius: 6,
-    cursor: 'pointer',
-    color: 'inherit',
-    fontSize: 'inherit',
-    lineHeight: 1.2,
-  }
+  // Transport actions go through the design system so they match every other
+  // labelled action in the app: Record is the one coloured call to action
+  // (record-red), the rest are equal-weight outline controls.
+  const recordClass = cm.cn(
+    cm.button({ variant: 'solid', color: 'error', size: 'sm' }),
+    cm.touchTargetCompact,
+  )
+  const transportClass = cm.cn(cm.button({ variant: 'outline', size: 'sm' }), cm.touchTargetCompact)
 
   const showRecord = state === 'idle' || state === 'processed' || state === 'error'
   const showPause = state === 'recording'
@@ -324,7 +322,8 @@ export function AudioRecorder({
             onClick={handleStart}
             aria-label={recordLabel}
             data-action="record"
-            style={buttonBase}
+            data-mol-id="audio-recorder-record"
+            className={recordClass}
           >
             {recordLabel}
           </button>
@@ -335,7 +334,8 @@ export function AudioRecorder({
             onClick={handlePause}
             aria-label={pauseLabel}
             data-action="pause"
-            style={buttonBase}
+            data-mol-id="audio-recorder-pause"
+            className={transportClass}
           >
             {pauseLabel}
           </button>
@@ -346,7 +346,8 @@ export function AudioRecorder({
             onClick={handleResume}
             aria-label={resumeLabel}
             data-action="resume"
-            style={buttonBase}
+            data-mol-id="audio-recorder-resume"
+            className={transportClass}
           >
             {resumeLabel}
           </button>
@@ -357,7 +358,8 @@ export function AudioRecorder({
             onClick={handleStop}
             aria-label={stopLabel}
             data-action="stop"
-            style={buttonBase}
+            data-mol-id="audio-recorder-stop"
+            className={transportClass}
           >
             {stopLabel}
           </button>

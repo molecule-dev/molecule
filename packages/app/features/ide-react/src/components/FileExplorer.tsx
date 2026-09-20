@@ -573,11 +573,13 @@ const FileTreeItem = memo(function FileTreeItem({
   const sortedChildren = node.children ? sortNodes(node.children) : undefined
 
   // Compute background color: dropTarget > selection > activeFile > transparent
+  // Drop/selection tints follow the theme primary (a rebranded app tints its own
+  // tree), never a literal blue; the hex is only the CSS-var fallback.
   let background = 'transparent'
   if (isDropTarget) {
-    background = 'rgba(0,100,200,0.15)'
+    background = 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 15%, transparent)'
   } else if (isSelected) {
-    background = 'rgba(0,100,200,0.2)'
+    background = 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 20%, transparent)'
   } else if (node.path === activeFile) {
     background = 'rgba(128,128,128,0.15)'
   }
@@ -619,7 +621,11 @@ const FileTreeItem = memo(function FileTreeItem({
         onDragLeave={onDragLeave}
         onDrop={(e) => onDrop(node.path, e)}
         data-explorer-path={node.path}
-        className={cm.w('full')}
+        className={cm.cn(cm.w('full'), cm.touchTargetCompact)}
+        /* mol-bespoke-button: a file-TREE row — depth-indented, drag/drop and
+           long-press aware, a list item rather than a CTA. Its selection and
+           drop tints are theme tokens, and its ≥36px coarse floor comes from
+           the ClassMap (the compact ~24px pointer row is unchanged). */
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -628,10 +634,6 @@ const FileTreeItem = memo(function FileTreeItem({
           paddingTop: '1px',
           paddingBottom: '1px',
           paddingRight: '6px',
-          // ≥36px rows on touch-first devices (the agreed floor for dense file
-          // trees — chevron + row are then comfortably tappable); the compact
-          // ~24px pointer row is unchanged.
-          minHeight: isCoarse ? '36px' : undefined,
           // Keep the native text-selection/callout from fighting the long-press
           // gesture on touch devices; fine-pointer rows are untouched.
           WebkitUserSelect: isCoarse ? 'none' : undefined,
@@ -640,7 +642,7 @@ const FileTreeItem = memo(function FileTreeItem({
           border: 'none',
           background,
           outline: isDropTarget
-            ? '1px solid rgba(0,100,200,0.4)'
+            ? '1px solid color-mix(in srgb, var(--mol-color-primary, #4070e0) 40%, transparent)'
             : isFocused
               ? '1px dotted rgba(128,128,128,0.5)'
               : 'none',

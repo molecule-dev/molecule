@@ -475,22 +475,17 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
     gap: 4,
   }
 
-  const buttonBase: CSSProperties = {
-    minWidth: 28,
-    minHeight: 24,
-    padding: '2px 6px',
-    fontSize: 11,
-    fontWeight: 600,
-    cursor: 'pointer',
-    borderRadius: 4,
-    border: '1px solid currentColor',
-    background: 'transparent',
-    color: 'inherit',
-  }
-  const buttonActive: CSSProperties = {
-    background: 'currentColor',
-    color: 'transparent',
-  }
+  // Panel-header controls go through the design system. The bypass toggle is a
+  // labelled action (solid warning when the effect is bypassed, outline when
+  // live); the drag handle and the remove `×` are icon-only chrome, so they
+  // take the ghost icon button plus the full 44px touch floor.
+  const bypassClass = cm.cn(
+    effect.enabled
+      ? cm.button({ variant: 'outline', size: 'xs' })
+      : cm.button({ variant: 'solid', color: 'warning', size: 'xs' }),
+    cm.touchTargetCompact,
+  )
+  const iconButtonClass = cm.cn(cm.button({ variant: 'ghost', size: 'icon' }), cm.touchTarget)
 
   /**
    * Toggles the bypass state for this effect and emits an `onChange` patch.
@@ -548,7 +543,10 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
           type="button"
           aria-label={dragHandleLabel}
           data-mol-id="audio-effects-rack-drag-handle"
-          style={{ ...buttonBase, cursor: 'grab' }}
+          className={iconButtonClass}
+          // `grab` is the one thing the button CVA cannot express — it hardcodes
+          // `cursor-pointer`, and this control is dragged rather than clicked.
+          style={{ cursor: 'grab' }}
           onPointerDown={handleDragHandlePointerDown}
         >
           {/* unicode "vertical four dots" — a presentational glyph; not user-locale text */}
@@ -566,7 +564,7 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
           aria-label={bypassLabel}
           aria-pressed={!effect.enabled ? 'true' : 'false'}
           data-mol-id="audio-effects-rack-bypass"
-          style={{ ...buttonBase, ...(!effect.enabled ? buttonActive : null) }}
+          className={bypassClass}
           onClick={handleBypass}
         >
           {bypassLabel.charAt(0).toUpperCase()}
@@ -575,7 +573,7 @@ function EffectPanel(props: EffectPanelProps): JSX.Element {
           type="button"
           aria-label={removeLabel}
           data-mol-id="audio-effects-rack-remove"
-          style={buttonBase}
+          className={iconButtonClass}
           onClick={handleRemove}
         >
           <span aria-hidden="true">{'×'}</span>

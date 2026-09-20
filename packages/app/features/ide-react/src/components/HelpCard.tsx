@@ -140,7 +140,13 @@ export function HelpCard({
                     href={act.href}
                     target={act.href.startsWith('http') ? '_blank' : undefined}
                     rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+                    // The anchor form of the SAME CTA as the button below it —
+                    // same classes, same touch floor, so a link-backed upgrade
+                    // action is indistinguishable from a handler-backed one.
+                    className={cm.cn(
+                      cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                      cm.touchTargetCompact,
+                    )}
                   >
                     {act.label}
                   </a>
@@ -150,7 +156,10 @@ export function HelpCard({
                     type="button"
                     data-mol-id="help-upgrade-action"
                     onClick={act.onClick}
-                    className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
+                    className={cm.cn(
+                      cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                      cm.touchTargetCompact,
+                    )}
                   >
                     {act.label}
                   </button>

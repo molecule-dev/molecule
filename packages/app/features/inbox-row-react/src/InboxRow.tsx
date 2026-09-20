@@ -1,6 +1,7 @@
 import type * as React from 'react'
 import type { ReactNode } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 import { Avatar } from '@molecule/app-ui-react'
 
@@ -78,13 +79,25 @@ export function InboxRow({
             onToggleStar()
           }}
           aria-pressed={starred}
-          aria-label={starred ? 'Unstar' : 'Star'}
+          data-mol-id="inbox-row-star"
+          aria-label={
+            starred
+              ? t('inboxRow.unstar', undefined, { defaultValue: 'Unstar' })
+              : t('inboxRow.star', undefined, { defaultValue: 'Star' })
+          }
+          /* mol-bespoke-button: icon-only star toggle inside a list row, no
+             label and no button surface — the glyph is the control. The
+             inline colour is now a theme token (`#facc15` /
+             `rgba(0,0,0,0.3)` ignored the theme and the unstarred glyph
+             disappeared on a dark row); 44px touch floor from the ClassMap. */
+          className={cm.cn(cm.cursorPointer, cm.touchTarget)}
           style={{
             background: 'none',
             border: 'none',
-            cursor: 'pointer',
             fontSize: 16,
-            color: starred ? '#facc15' : 'rgba(0,0,0,0.3)',
+            color: starred
+              ? 'var(--mol-color-warning, #facc15)'
+              : 'var(--mol-color-border, rgba(128,128,128,0.5))',
           }}
         >
           ★

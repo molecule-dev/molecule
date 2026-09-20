@@ -23,6 +23,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'D\\u00FAr\\u00F3',
   'ide.chat.send': 'Fir\\u00E1n\\u1E63\\u1EB9\\u0301',
+  'ide.chat.code.copy': 'Copy',
+  'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Fi pam\\u1ECD\\u0301',
   'ide.chat.committing': 'N\\u0301 fi pam\\u1ECD\\u0301...',
   'ide.chat.committed': 'Ti fi pam\\u1ECD\\u0301',
@@ -263,9 +265,11 @@ export const yo: Partial<IdeTranslations> = {
     '\\u00C0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi s\\u00ED (f.\\u00E0. *.ts)',
   'ide.search.excludeFiles':
     '\\u00C0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti y\\u1ECD kuro (f.\\u00E0. *.min.js)',
+  'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': '\\u00C0w\\u1ECDn \\u00C0b\\u00F9j\\u00E1 B\\u1ECD\\u0301t\\u00ECn\\u00EC',
   'ide.shortcuts.hint':
     'B\\u1ECD\\u0301t\\u00ECn\\u00EC \\u00E0m\\u00EC \\u00F2n\\u00E0 l\\u00E1ti l\\u00E8l\\u00F2 \\u00B7 Enter l\\u00E1ti \\u1E63e \\u00B7 Esc l\\u00E1ti pa',
+  'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'A\\u1E63\\u00E0w\\u00E1k\\u00EDr\\u00ED',
   'ide.sidebar.search': '\\u00CCw\\u00E1',
   'ide.chat.thoughtBriefly': 'Ronú ní kúkúrú',

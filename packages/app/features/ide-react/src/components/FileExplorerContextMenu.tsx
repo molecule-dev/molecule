@@ -341,7 +341,10 @@ export function FileExplorerContextMenu({
           <div
             role="menuitem"
             tabIndex={0}
-            className={cm.dropdownItem}
+            data-mol-id={`file-context-${item.action}`}
+            // Menu rows take the same coarse-pointer floor as the preview's
+            // device menu — `dropdownItem` sets padding only.
+            className={cm.cn(cm.dropdownItem, cm.touchTargetCompact)}
             onClick={() => handleClick(item.action)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {

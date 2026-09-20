@@ -60,14 +60,13 @@ export function ChatbotTesterInput({
         )}
       />
       <button
+        type="button"
+        data-mol-id="chatbot-tester-send"
         onClick={onSend}
         disabled={loading || !value.trim()}
         className={cm.cn(
-          cm.sp('px', 4),
-          cm.sp('py', 2),
-          cm.textSize('sm'),
-          cm.fontWeight('semibold'),
-          'bg-primary text-on-primary rounded-xl disabled:opacity-50',
+          cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+          cm.touchTargetCompact,
         )}
       >
         {sendLabel}

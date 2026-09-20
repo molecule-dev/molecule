@@ -1064,7 +1064,16 @@ export const ToolCallCard = memo(function ToolCallCard({
               <button
                 type="button"
                 data-mol-id="subagent-report-toggle"
-                className={cm.button({ variant: 'link', color: 'primary', size: 'xs' })}
+                aria-expanded={expanded}
+                // A show/hide disclosure, so it is the `ghost` toggle every
+                // other card in the IDE uses for one (TestsCard's QUIET_TOGGLE).
+                // It asked for `variant: 'link'` but also passed `color`, which
+                // the ClassMap resolves ahead of the variant — so it had been
+                // rendering as a SOLID primary button all along.
+                className={cm.cn(
+                  cm.button({ variant: 'ghost', size: 'xs' }),
+                  cm.touchTargetCompact,
+                )}
                 onClick={() => setExpanded((e) => !e)}
                 style={{ marginTop: '4px' }}
               >
@@ -1100,9 +1109,13 @@ export const ToolCallCard = memo(function ToolCallCard({
       <div className={className} style={{ marginBottom: '4px' }}>
         <button
           type="button"
+          data-mol-id="save-plan-row"
           onClick={planHandleClick}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          /* mol-bespoke-button: a tool-call ROW — status dot, label, chevron —
+             that happens to open the plan file; a timeline list item, not a
+             CTA. Reset to inherit the row's ink and background. */
           style={{
             display: 'flex',
             alignItems: 'flex-start',
@@ -1296,7 +1309,16 @@ export const ToolCallCard = memo(function ToolCallCard({
                 <button
                   type="button"
                   data-mol-id="plan-review-open"
-                  className={cm.button({ variant: 'link', color: 'primary', size: 'xs' })}
+                  // Opening the plan is an ACTION, so it looks like a button —
+                  // the same solid `xs` primary as every other open/load action
+                  // in the chat. (It said `variant: 'link'`, but the `color` it
+                  // also passed wins in the ClassMap, so solid is what it has
+                  // always rendered as; this just says so.)
+                  className={cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                    cm.touchTargetCompact,
+                    cm.shrink0,
+                  )}
                   onClick={() => onFileOpen(askInput.planReview!.path!)}
                 >
                   {t('ide.chat.planReview.openPlan', undefined, { defaultValue: 'Open plan' })}
@@ -1381,16 +1403,28 @@ export const ToolCallCard = memo(function ToolCallCard({
                       data-mol-id={`plan-review-cta-${i}`}
                       disabled={!isAwaiting || onAskUserResponse == null}
                       className={cm.cn(
+                        // Filled on both: inside a chat card an `outline` at this
+                        // size reads as plain text (DESIGN.md → Command cards),
+                        // and passing a `color` alongside `variant: 'outline'`
+                        // resolved to a filled secondary anyway — so the second
+                        // CTA now says what it renders.
                         cm.button(
                           i === 0
                             ? { variant: 'solid', color: 'primary', size: 'sm' }
-                            : { variant: 'outline', color: 'secondary', size: 'sm' },
+                            : { variant: 'solid', color: 'secondary', size: 'sm' },
                         ),
                         cm.touchTargetCompact,
                       )}
                       style={{
                         flex: isNarrow ? '1 1 100%' : '1 1 auto',
-                        ...(isPicked ? { outline: '2px solid #3fb950', outlineOffset: '1px' } : {}),
+                        // The "you picked this" ring is the theme's success
+                        // colour, not a literal green.
+                        ...(isPicked
+                          ? {
+                              outline: '2px solid var(--mol-color-success, #16a34a)',
+                              outlineOffset: '1px',
+                            }
+                          : {}),
                       }}
                       onClick={() => {
                         if (onAskUserResponse == null) return
@@ -1439,6 +1473,13 @@ export const ToolCallCard = memo(function ToolCallCard({
                           if (isAwaiting) setHoveredIdx(i)
                         }}
                         onMouseLeave={() => setHoveredIdx(null)}
+                        /* mol-bespoke-button: an ask_user answer ROW — a
+                           lettered radio list (A/B/C badge, label, optional
+                           description, tick), stacked with hairline dividers.
+                           It is the list itself, not a row of CTAs; the card's
+                           actual CTAs (Confirm choice, Send) are design-system
+                           buttons. Tested at a 44px coarse floor because these
+                           are the primary discovery answers. */
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -1538,6 +1579,11 @@ export const ToolCallCard = memo(function ToolCallCard({
                           })}
                           disabled={!isAwaiting}
                           onClick={() => setExpandedPreviewIdx(isPreviewExpanded ? null : i)}
+                          /* mol-bespoke-button: icon-only › disclosure chevron
+                             welded to the right edge of the answer row beside
+                             it — it shares that row's dividers and background
+                             so the pair reads as one row, which a boxed button
+                             would break. */
                           style={{
                             flexShrink: 0,
                             width: 36,
@@ -1719,6 +1765,7 @@ export const ToolCallCard = memo(function ToolCallCard({
             />
             <button
               type="button"
+              data-mol-id="ask-user-free-text-submit"
               disabled={!freeText.trim()}
               onClick={() => {
                 if (freeText.trim()) {
@@ -1727,39 +1774,16 @@ export const ToolCallCard = memo(function ToolCallCard({
                   setFreeText('')
                 }
               }}
-              onMouseEnter={(e) => {
-                if (freeText.trim()) {
-                  e.currentTarget.style.background = 'rgba(64,112,224,0.3)'
-                  e.currentTarget.style.borderColor = 'rgba(64,112,224,0.65)'
-                  e.currentTarget.style.color = '#6090f0'
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = freeText.trim()
-                  ? 'rgba(64,112,224,0.2)'
-                  : 'transparent'
-                e.currentTarget.style.borderColor = freeText.trim()
-                  ? 'rgba(64,112,224,0.4)'
-                  : 'transparent'
-                e.currentTarget.style.color = freeText.trim() ? '#4070e0' : 'inherit'
-              }}
-              style={{
-                // Touch floor for the free-text Send action (40px in this dense
-                // composer row); fine pointers keep the compact 30px.
-                height: isCoarse ? 40 : 30,
-                padding: '0 10px',
-                borderRadius: 6,
-                border: freeText.trim()
-                  ? '1px solid rgba(64,112,224,0.4)'
-                  : '1px solid transparent',
-                background: freeText.trim() ? 'rgba(64,112,224,0.2)' : 'transparent',
-                color: freeText.trim() ? '#4070e0' : 'inherit',
-                cursor: freeText.trim() ? 'pointer' : 'default',
-                fontSize: '12px',
-                fontWeight: 500,
-                opacity: freeText.trim() ? 1 : 0.3,
-                transition: 'background 100ms, border-color 100ms, color 100ms',
-              }}
+              // The same design-system CTA as this card's own Confirm choice
+              // button a few rows up. It was a hand-rolled pill (12px/6px radius,
+              // rgba(64,112,224,…)/#4070e0, hand-written hover, opacity for
+              // "disabled") — the CVA carries hover/active/disabled itself, and
+              // the real `disabled` attribute now does the fading.
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.chat.askUserSubmit', undefined, { defaultValue: 'Send' })}
             </button>
@@ -1817,6 +1841,10 @@ export const ToolCallCard = memo(function ToolCallCard({
           }
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          /* mol-bespoke-button: the tool-call ROW itself — status dot, label,
+             diff stats, expand chevron — one line of the chat timeline, not a
+             CTA. Reset to inherit the timeline's ink and background; the
+             actions that ride on it (Skip) ARE design-system buttons. */
           style={{
             display: 'flex',
             // Coarse: the undo icon's 32px touch box inflates the label row, so
@@ -1894,6 +1922,11 @@ export const ToolCallCard = memo(function ToolCallCard({
                     e.currentTarget.style.background = 'transparent'
                     e.currentTarget.style.opacity = ''
                   }}
+                  /* mol-bespoke-button: icon-only undo/redo affordance INSIDE
+                     the row's label — it has to be a role="button" span because
+                     a real button cannot nest in the row button, and it is
+                     hover-revealed chrome (20px box, neutral scrim), not a CTA.
+                     Its 32px coarse box is asserted by the mobile-touch tests. */
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -2016,8 +2049,11 @@ export const ToolCallCard = memo(function ToolCallCard({
             }}
             disabled={skipRequested || skipDisabledReason != null}
             title={skipDisabledReason ?? undefined}
-            className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-            style={{ flexShrink: 0 }}
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+              cm.touchTargetCompact,
+              cm.shrink0,
+            )}
           >
             {skipRequested
               ? t('ide.chat.skippingToolCall', undefined, { defaultValue: 'Skipping…' })

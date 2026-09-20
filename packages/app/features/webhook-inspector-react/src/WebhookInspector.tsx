@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Shape of a single webhook delivery attempt shown in the inspector. */
@@ -110,13 +111,20 @@ export function WebhookInspector({
               {onRetry && d.status === 'failure' && (
                 <button
                   type="button"
+                  data-mol-id="webhook-inspector-retry"
+                  // Was an unstyled native button — the one shape guaranteed
+                  // NOT to match anything else in the app.
+                  className={cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                    cm.touchTargetCompact,
+                  )}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
                     onRetry(d)
                   }}
                 >
-                  Retry
+                  {t('webhookInspector.retry', undefined, { defaultValue: 'Retry' })}
                 </button>
               )}
             </summary>

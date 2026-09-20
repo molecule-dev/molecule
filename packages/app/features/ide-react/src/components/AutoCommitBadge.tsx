@@ -24,10 +24,12 @@
  *
  * Renders nothing when auto-commit is off (`/autocommit 0`).
  *
- * Visually it is the blue `/commit` button, but green: the same compact
- * translucent-bordered, 6px rounded-rectangle button with the same fontSize /
- * padding / transition, recolored from the theme's success token (no hardcoded
- * green, no pulse animation).
+ * Visually it IS the manual `/commit` button, but green: both render the design
+ * system's `cm.button({ variant: 'solid', size: 'xs' })` — identical height,
+ * radius, padding and type scale — and differ only in the semantic colour
+ * (`success` here, `primary` there). Nothing about the box model is written by
+ * hand, so the two can never drift apart again, and neither can drift from the
+ * tests bar's button one strip above. No hardcoded green, no pulse animation.
  *
  * @module
  */
@@ -35,6 +37,7 @@
 import type { JSX } from 'react'
 
 import { t } from '@molecule/app-i18n'
+import { getClassMap } from '@molecule/app-ui'
 
 import type { AutoCommitState } from './chat-autocommit-utilities.js'
 import {
@@ -42,17 +45,6 @@ import {
   isAutoCommitCountdownVisible,
   isAutoCommitEnabled,
 } from './chat-autocommit-utilities.js'
-
-/** The theme's success color, with a sensible fallback. */
-const SUCCESS_COLOR = 'var(--mol-color-success, #16a34a)'
-
-/** A lighter success color for the hover state (mirrors the blue button's brighter hover). */
-const SUCCESS_COLOR_BRIGHT = 'color-mix(in srgb, var(--mol-color-success, #16a34a) 70%, #ffffff)'
-
-/** The theme's success color (with the same fallback) at a given opacity, via color-mix. */
-function successTint(percent: number): string {
-  return `color-mix(in srgb, var(--mol-color-success, #16a34a) ${percent}%, transparent)`
-}
 
 /**
  * Renders the green auto-commit button while auto-commit is enabled: a "Commit"
@@ -78,6 +70,7 @@ export function AutoCommitBadge({
   disabled?: boolean
   inline?: boolean
 }): JSX.Element | null {
+  const cm = getClassMap()
   if (!isAutoCommitEnabled(state)) return null
   // A held countdown is paused, not imminent — never show the countdown label
   // while disabled, only the plain "Commit".
@@ -93,6 +86,15 @@ export function AutoCommitBadge({
       type="button"
       data-mol-id="chat-autocommit-badge"
       disabled={disabled}
+      // The manual commit button's exact treatment, recolored to the SUCCESS
+      // semantic. The CVA owns hover/active/focus-visible AND the disabled look
+      // (`disabled:opacity-50 disabled:pointer-events-none`), so the real
+      // `disabled` attribute above is the whole "muted + inert" story — no
+      // hand-written hover handlers, no cursor/opacity overrides.
+      className={cm.cn(
+        cm.button({ variant: 'solid', color: 'success', size: 'xs' }),
+        cm.touchTargetCompact,
+      )}
       onClick={(e) => {
         // Stop the click from bubbling to the commit-bar header's toggle
         // (setCommitBarExpanded) — clicking the button should only commit,
@@ -104,39 +106,15 @@ export function AutoCommitBadge({
       }}
       aria-label={showCountdown ? `${countdownLabel} — ${commitLabel}` : commitLabel}
       title={showCountdown ? commitLabel : undefined}
-      onMouseEnter={(e) => {
-        if (disabled) return
-        e.currentTarget.style.background = successTint(30)
-        e.currentTarget.style.borderColor = successTint(65)
-        e.currentTarget.style.color = SUCCESS_COLOR_BRIGHT
-      }}
-      onMouseLeave={(e) => {
-        if (disabled) return
-        e.currentTarget.style.background = successTint(20)
-        e.currentTarget.style.borderColor = successTint(40)
-        e.currentTarget.style.color = SUCCESS_COLOR
-      }}
+      // ONLY what the ClassMap cannot express: where the button sits, and the
+      // tabular figures that stop the countdown label jittering as it ticks.
       style={{
         // Inline (commit-bar slot) sits in normal flow; the default floats over
         // the input's top-right so it never blocks typing.
         ...(inline
           ? { position: 'relative' }
           : { position: 'absolute', top: -10, right: 8, zIndex: 50 }),
-        // The blue /commit button, but green (theme success token, not literal green).
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 12,
-        padding: '4px 10px',
-        borderRadius: 6,
-        border: `1px solid ${successTint(40)}`,
-        background: successTint(20),
-        color: SUCCESS_COLOR,
-        // Muted + inert while the agent is working; committing mid-turn is unsafe.
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.5 : 1,
         fontVariantNumeric: 'tabular-nums',
-        transition: 'background 100ms, border-color 100ms, color 100ms',
       }}
     >
       {showCountdown ? countdownLabel : commitLabel}

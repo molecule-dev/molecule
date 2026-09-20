@@ -164,7 +164,10 @@ export function SettingsCard({
                         ? onPrefillInput(setting.editInput)
                         : onRunCommand(setting.editCommand as CommandId)
                     }
-                    className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                    className={cm.cn(
+                      cm.button({ variant: 'ghost', size: 'xs' }),
+                      cm.touchTargetCompact,
+                    )}
                   >
                     {t('ide.chat.settings.edit', undefined, { defaultValue: 'Edit' })}
                   </button>

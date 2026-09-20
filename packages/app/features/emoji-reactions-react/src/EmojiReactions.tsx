@@ -163,7 +163,15 @@ export function EmojiReactions({
             data-mol-id="emoji-reaction-add"
             onClick={() => setPickerOpen((x) => !x)}
             aria-label={t('reactions.add', {}, { defaultValue: 'Add reaction' })}
-            className={cm.cn(cm.sp('px', 2), cm.sp('py', 1), cm.textSize('xs'))}
+            // Icon-only `+` affordance in a dense chip row: bespoke look, but
+            // the compact 36px floor keeps it tappable.
+            className={cm.cn(
+              cm.sp('px', 2),
+              cm.sp('py', 1),
+              cm.textSize('xs'),
+              cm.cursorPointer,
+              cm.touchTargetCompact,
+            )}
           >
             +
           </button>
@@ -178,8 +186,11 @@ export function EmojiReactions({
                 top: 'calc(100% + 4px)',
                 left: 0,
                 zIndex: 50,
-                background: 'var(--color-surface, #fff)',
-                border: '1px solid rgba(0,0,0,0.1)',
+                // Theme tokens, matching the rest of the fleet's `--mol-color-*`
+                // namespace — `--color-surface` is not a molecule token, so the
+                // popover always fell back to hardcoded white.
+                background: 'var(--mol-color-surface, #fff)',
+                border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
                 borderRadius: 8,
                 boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
               }}
@@ -194,7 +205,13 @@ export function EmojiReactions({
                     setPickerOpen(false)
                   }}
                   aria-label={emoji}
-                  className={cm.cn(cm.sp('px', 1), cm.sp('py', 1), cm.textSize('base'))}
+                  className={cm.cn(
+                    cm.sp('px', 1),
+                    cm.sp('py', 1),
+                    cm.textSize('base'),
+                    cm.cursorPointer,
+                    cm.touchTargetCompact,
+                  )}
                 >
                   {emoji}
                 </button>

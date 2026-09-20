@@ -249,8 +249,11 @@ export function ScriptsCard({
             type="button"
             data-mol-id="scripts-new-toggle"
             onClick={() => setCreating(true)}
-            className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-            style={{ flexShrink: 0 }}
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+              cm.touchTargetCompact,
+              cm.shrink0,
+            )}
           >
             {t('ide.chat.scripts.new', undefined, { defaultValue: 'New script' })}
           </button>
@@ -320,8 +323,11 @@ export function ScriptsCard({
               type="button"
               data-mol-id="scripts-cancel"
               onClick={() => setCreating(false)}
-              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
+              className={cm.cn(
+                cm.button({ variant: 'ghost', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.chat.scripts.cancelNew', undefined, { defaultValue: 'Cancel' })}
             </button>
@@ -330,8 +336,12 @@ export function ScriptsCard({
               data-mol-id="scripts-save"
               onClick={() => void handleSave()}
               disabled={saving}
-              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-              style={{ flexShrink: 0, opacity: saving ? 0.6 : 1 }}
+              // No inline opacity: the CVA fades a real `disabled` button itself.
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {saving
                 ? t('ide.chat.scripts.saving', undefined, { defaultValue: 'Saving…' })
@@ -414,8 +424,11 @@ export function ScriptsCard({
                   // button (a real button, never plain text on transparent). Self-
                   // explanatory, so no delayed touch-blind native `title` (consistent with
                   // SkillsCard's row actions which carry no native title — P5-09).
-                  className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-                  style={{ flexShrink: 0, opacity: run === 'running' ? 0.6 : 1 }}
+                  className={cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                    cm.touchTargetCompact,
+                    cm.shrink0,
+                  )}
                 >
                   {run === 'running'
                     ? t('ide.chat.scripts.running', undefined, { defaultValue: 'Running…' })
@@ -562,8 +575,11 @@ function ScriptOptionsForm({
           type="button"
           data-mol-id={`script-options-cancel-${script.name}`}
           onClick={onCancel}
-          className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-          style={{ flexShrink: 0 }}
+          className={cm.cn(
+            cm.button({ variant: 'ghost', size: 'xs' }),
+            cm.touchTargetCompact,
+            cm.shrink0,
+          )}
         >
           {t('ide.chat.scripts.cancelRun', undefined, { defaultValue: 'Cancel' })}
         </button>
@@ -572,8 +588,11 @@ function ScriptOptionsForm({
           data-mol-id={`script-options-run-${script.name}`}
           onClick={onSubmit}
           disabled={!canRun}
-          className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-          style={{ flexShrink: 0, opacity: canRun ? 1 : 0.6 }}
+          className={cm.cn(
+            cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+            cm.touchTargetCompact,
+            cm.shrink0,
+          )}
         >
           {t('ide.chat.scripts.run', undefined, { defaultValue: 'Run' })}
         </button>

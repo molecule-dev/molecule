@@ -261,7 +261,7 @@ export function ReportModal({
             type="button"
             data-mol-id="report-cancel"
             onClick={onClose}
-            className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }))}
+            className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
           >
             {t('common.cancel', undefined, { defaultValue: 'Cancel' })}
           </button>
@@ -270,8 +270,12 @@ export function ReportModal({
             data-mol-id="report-submit"
             onClick={() => void handleSubmit()}
             disabled={!valid || submitting}
-            className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'sm' }))}
-            style={{ opacity: !valid || submitting ? 0.6 : 1 }}
+            // No inline opacity — the CVA fades a real `disabled` button itself,
+            // and an inline value would override whatever it chooses.
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+              cm.touchTargetCompact,
+            )}
           >
             {submitting
               ? t('ide.chat.report.submitting', undefined, { defaultValue: 'Submitting…' })

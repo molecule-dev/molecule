@@ -51,31 +51,34 @@ export function FilterPill({
   return (
     <div className={cm.cn('relative')} ref={ref}>
       <button
+        type="button"
+        aria-haspopup="true"
+        aria-expanded={open}
         data-mol-id={dataMolId}
         onClick={() => setOpen((v) => !v)}
+        // A filter chip is a pill-shaped selectable trigger, so it takes the
+        // design system's soft-rounded tab trigger: the applied/open state is
+        // carried by `data-state`, not by hand-written background classes.
+        data-state={active || open ? 'active' : 'inactive'}
         className={cm.cn(
-          cm.sp('px', 4),
-          cm.sp('py', 2),
-          cm.roundedFull,
-          cm.textSize('xs'),
+          cm.tabsTrigger({ variant: 'soft-rounded', size: 'sm' }),
           cm.fontWeight('medium'),
-          cm.flex({ align: 'center', gap: 'sm' }),
-          leadingIcon
-            ? 'bg-surface-container-high hover:bg-surface-container-highest transition-colors'
-            : 'border border-outline-variant/30 hover:bg-surface-container-low transition-colors',
-          open ? (leadingIcon ? 'ring-2 ring-primary' : 'bg-surface-container-high') : '',
-          active && !leadingIcon ? 'ring-1 ring-primary text-primary' : '',
+          cm.touchTargetCompact,
         )}
       >
-        {leadingIcon ? (
-          <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>
-            {leadingIcon}
-          </span>
-        ) : null}
-        {label}
-        {!hideChevron ? (
-          <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>expand_more</span>
-        ) : null}
+        <span className={cm.flex({ align: 'center', gap: 'sm' })}>
+          {leadingIcon ? (
+            <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>
+              {leadingIcon}
+            </span>
+          ) : null}
+          {label}
+          {!hideChevron ? (
+            <span className={cm.cn(cm.textSize('sm'), 'material-symbols-outlined')}>
+              expand_more
+            </span>
+          ) : null}
+        </span>
       </button>
       {open && children ? (
         <div

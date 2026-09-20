@@ -120,7 +120,11 @@ export function QuickPicker({
     [filtered, selectedIndex, onSelect, onDismiss],
   )
 
-  const selectedBg = isLight ? 'rgba(64,112,224,0.12)' : 'rgba(64,112,224,0.25)'
+  // The selected-row tint follows the theme primary (so a rebranded app tints
+  // its own picker), never a literal blue; the hex is only the CSS-var fallback.
+  const selectedBg = isLight
+    ? 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 12%, transparent)'
+    : 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 25%, transparent)'
 
   return (
     <>
@@ -224,8 +228,14 @@ export function QuickPicker({
               <button
                 key={item.id}
                 type="button"
+                data-mol-id={`quick-picker-item-${item.id}`}
                 onClick={() => onSelect(item)}
                 onMouseEnter={() => setSelectedIndex(i)}
+                className={cm.touchTargetCompact}
+                /* mol-bespoke-button: a picker ROW (icon + label + detail) with
+                   keyboard-driven selection — a list item, not a CTA. Selected
+                   tint is a theme token; the ≥36px coarse floor is the
+                   ClassMap's (it was a hand-rolled `minHeight: 36`). */
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -238,8 +248,6 @@ export function QuickPicker({
                   cursor: 'pointer',
                   fontSize: 13,
                   textAlign: 'left',
-                  // ≥36px rows on touch-first devices; compact on pointer devices.
-                  minHeight: isCoarse ? 36 : undefined,
                 }}
               >
                 {item.icon}

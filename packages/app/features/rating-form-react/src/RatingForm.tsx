@@ -78,16 +78,26 @@ export function RatingForm({
             key={n}
             type="button"
             role="radio"
+            data-mol-id="rating-form-star"
             aria-checked={rating === n}
-            aria-label={`${n} of ${max}`}
+            aria-label={t('rating.star', { n, max }, { defaultValue: '{{n}} of {{max}}' })}
             onClick={() => setRating(n)}
             onMouseEnter={() => setHover(n)}
+            /* mol-bespoke-button: icon-only 28px star glyph, no label and no
+               button surface — the star IS the control, so the inline
+               background/border are native resets. Fill colour is a theme
+               token now (`#facc15` / `rgba(0,0,0,0.2)` ignored the theme and
+               the empty star vanished on a dark surface); 44px touch floor
+               from the ClassMap. */
+            className={cm.cn(cm.cursorPointer, cm.touchTarget)}
             style={{
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
               fontSize: 28,
-              color: n <= display ? '#facc15' : 'rgba(0,0,0,0.2)',
+              color:
+                n <= display
+                  ? 'var(--mol-color-warning, #facc15)'
+                  : 'var(--mol-color-border, rgba(128,128,128,0.4))',
             }}
           >
             ★

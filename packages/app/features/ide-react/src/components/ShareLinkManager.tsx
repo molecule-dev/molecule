@@ -263,11 +263,14 @@ export function ShareLinkManager({
                   type="button"
                   data-mol-id="share-link-copy"
                   onClick={() => handleCopy(link.id ?? link.slug, url)}
-                  className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'sm' }))}
+                  className={cm.cn(
+                    cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+                    cm.touchTargetCompact,
+                    cm.shrink0,
+                  )}
                   title={t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' })}
                   aria-label={t('ide.chat.share.copy', undefined, { defaultValue: 'Copy link' })}
                   style={{
-                    flexShrink: 0,
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 6,
@@ -304,8 +307,11 @@ export function ShareLinkManager({
                     data-mol-id={`share-link-revoke-${link.id}`}
                     onClick={() => void handleRevoke(link.id as string)}
                     disabled={revokingId === link.id}
-                    className={cm.cn(cm.button({ variant: 'ghost', color: 'error', size: 'sm' }))}
-                    style={{ flexShrink: 0 }}
+                    className={cm.cn(
+                      cm.button({ variant: 'ghost', color: 'error', size: 'sm' }),
+                      cm.touchTargetCompact,
+                      cm.shrink0,
+                    )}
                   >
                     {revokingId === link.id
                       ? t('ide.chat.share.revoking', undefined, { defaultValue: 'Revoking…' })
@@ -352,9 +358,12 @@ export function ShareLinkManager({
             data-mol-id="share-create"
             onClick={() => void handleCreate()}
             disabled={creating}
-            className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'sm' }))}
+            // No inline opacity — the CVA fades a real `disabled` button itself.
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
+              cm.touchTargetCompact,
+            )}
             style={{
-              opacity: creating ? 0.6 : 1,
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,

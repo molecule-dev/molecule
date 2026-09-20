@@ -105,8 +105,12 @@ export function TipCard({
         onClick={onDismiss}
         aria-label={t('ide.chat.tip.dismiss', undefined, { defaultValue: 'Dismiss tip' })}
         title={t('ide.chat.tip.dismiss', undefined, { defaultValue: 'Dismiss tip' })}
+        className={cm.cn(cm.touchTargetCompact, cm.shrink0)}
+        /* mol-bespoke-button: icon-only ✕ dismiss on a chat card — the IDE's
+           shared dismiss mark (18px box, 4px radius, 0.6 resting opacity, same
+           hover scrim as the tab close and the skill-suggestion dismiss), on
+           the compact 36px floor these dense cards use. */
         style={{
-          flexShrink: 0,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',

@@ -362,22 +362,21 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
     onChange?.({ id: channel.id, sendId, sendLevel: next })
   }
 
-  const buttonBase: CSSProperties = {
-    minWidth: 36,
-    minHeight: 28,
-    padding: '4px 8px',
-    fontSize: 11,
-    fontWeight: 600,
-    cursor: 'pointer',
-    borderRadius: 4,
-    border: '1px solid currentColor',
-    background: 'transparent',
-    color: 'inherit',
-  }
-  const buttonActive: CSSProperties = {
-    background: 'currentColor',
-    color: 'transparent',
-  }
+  /**
+   * Classes for a strip toggle (mute / solo). Engaged reads as a solid
+   * primary button, idle as an outline one — both from the design system,
+   * so a mixer toggle matches every other labelled action in the app.
+   *
+   * @param engaged - Whether the toggle is currently on.
+   * @returns The resolved class string.
+   */
+  const toggleClass = (engaged: boolean): string =>
+    cm.cn(
+      engaged
+        ? cm.button({ variant: 'solid', color: 'primary', size: 'xs' })
+        : cm.button({ variant: 'outline', size: 'xs' }),
+      cm.touchTargetCompact,
+    )
 
   const channelLevel = clampLevel(channel.level)
   const channelPan = clampPan(channel.pan)
@@ -436,7 +435,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           aria-label={muteLabel}
           aria-pressed={channel.muted ? 'true' : 'false'}
           data-mol-id="audio-mixer-mute"
-          style={{ ...buttonBase, ...(channel.muted ? buttonActive : null) }}
+          className={toggleClass(channel.muted === true)}
           onClick={handleMute}
         >
           {muteLabel.charAt(0).toUpperCase()}
@@ -446,7 +445,7 @@ function ChannelStrip(props: ChannelStripProps): JSX.Element {
           aria-label={soloLabel}
           aria-pressed={channel.solo ? 'true' : 'false'}
           data-mol-id="audio-mixer-solo"
-          style={{ ...buttonBase, ...(channel.solo ? buttonActive : null) }}
+          className={toggleClass(channel.solo === true)}
           onClick={handleSolo}
         >
           {soloLabel.charAt(0).toUpperCase()}

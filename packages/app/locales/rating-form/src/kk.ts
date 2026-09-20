@@ -2,6 +2,7 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for kk. */
 export const kk: Partial<RatingFormTranslations> = {
+  'rating.star': '{{n}} of {{max}}',
   'rating.label': 'Бағалау',
   'rating.commentPlaceholder': 'Ойларыңызбен бөлісіңіз (міндетті емес)',
   'rating.submitting': 'Жіберілуде…',

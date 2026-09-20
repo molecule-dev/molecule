@@ -283,6 +283,12 @@ export function DeviceFrameSelector({
                 data-mol-id={`preview-device-option-${frame}`}
                 onClick={() => select(frame)}
                 onMouseEnter={() => setActiveIndex(index)}
+                className={cm.touchTargetCompact}
+                /* mol-bespoke-button: a menuitemradio ROW inside the device
+                   menu — icon + label + check, the menu's own treatment, not a
+                   CTA. Its highlight is a theme token and its hit floor is the
+                   ClassMap's 36px row floor (the trigger's 44px would double
+                   the menu's height). */
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -342,6 +348,10 @@ export function DeviceFrameSelector({
                 data-mol-id={item.id}
                 onClick={() => runAction(item.run)}
                 onMouseEnter={() => setActiveIndex(index)}
+                className={cm.touchTargetCompact}
+                /* mol-bespoke-button: the action ROWS of the same menu (Rotate,
+                   Open in new tab) — identical row treatment and hit floor to
+                   the frame options above, so the menu reads as one list. */
                 style={{
                   display: 'flex',
                   alignItems: 'center',

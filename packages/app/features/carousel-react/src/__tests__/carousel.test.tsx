@@ -25,8 +25,19 @@ vi.mock('@molecule/app-ui', () => ({
 
 vi.mock('@molecule/app-react', () => ({
   useTranslation: () => ({
-    t: (_key: string, _values: unknown, opts?: { defaultValue?: string }) =>
-      opts?.defaultValue ?? _key,
+    // Interpolates `{{name}}` placeholders the way the real translator does,
+    // so a label built from values is asserted as the user would read it.
+    t: (
+      _key: string,
+      values?: Record<string, unknown>,
+      opts?: { defaultValue?: string },
+    ): string => {
+      let s = opts?.defaultValue ?? _key
+      if (values) {
+        for (const [k, v] of Object.entries(values)) s = s.replaceAll(`{{${k}}}`, String(v))
+      }
+      return s
+    },
   }),
 }))
 
@@ -72,8 +83,9 @@ describe('Carousel', () => {
 
   it('marks non-active slides aria-hidden', () => {
     const markup = html(createElement(Carousel, { children: slides(3) }))
-    // slides 1 and 2 hidden, slide 0 active
-    expect(markup.split('aria-hidden="true"').length - 1).toBe(2)
+    // slides 1 and 2 hidden, slide 0 active. Scoped to the slide wrappers so
+    // decorative `aria-hidden` elsewhere (the dot glyphs) cannot skew the count.
+    expect(markup.split('data-mol-id="carousel-slide" aria-hidden="true"').length - 1).toBe(2)
   })
 
   it('renders prev/next arrows when showArrows and there is more than one slide', () => {

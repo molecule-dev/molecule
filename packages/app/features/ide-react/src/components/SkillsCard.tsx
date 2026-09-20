@@ -263,8 +263,11 @@ export function SkillsCard({
               type="button"
               data-mol-id="skill-reset-defaults"
               onClick={() => onResetDefault()}
-              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
+              className={cm.cn(
+                cm.button({ variant: 'ghost', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.chat.skills.resetDefaults', undefined, {
                 defaultValue: 'Load all by default',
@@ -286,8 +289,11 @@ export function SkillsCard({
               type="button"
               data-mol-id="skill-new"
               onClick={() => setCreating(true)}
-              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.chat.skills.new', undefined, { defaultValue: 'New skill' })}
             </button>
@@ -342,8 +348,11 @@ export function SkillsCard({
                 setCreating(false)
                 setNewName('')
               }}
-              className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
+              className={cm.cn(
+                cm.button({ variant: 'ghost', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.chat.skills.cancel', undefined, { defaultValue: 'Cancel' })}
             </button>
@@ -351,8 +360,11 @@ export function SkillsCard({
               type="submit"
               data-mol-id="skill-create-submit"
               disabled={!newName.trim() || busy}
-              className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-              style={{ flexShrink: 0 }}
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.chat.skills.create', undefined, { defaultValue: 'Create' })}
             </button>
@@ -448,7 +460,11 @@ export function SkillsCard({
                     type="button"
                     data-mol-id={`skill-open-${skill.name}`}
                     onClick={() => onLoad(skill)}
-                    className={cm.fontWeight('medium')}
+                    className={cm.cn(cm.fontWeight('medium'), cm.touchTargetCompact)}
+                    /* mol-bespoke-button: the item NAME, clickable — not a CTA
+                       (the row's CTA is Load beside it). A button reset to read
+                       as the name text, tinted with the primary theme token,
+                       exactly like the relevant-skill suggestion's name. */
                     style={{
                       padding: 0,
                       margin: 0,
@@ -494,8 +510,11 @@ export function SkillsCard({
                     type="button"
                     data-mol-id={`skill-load-${skill.name}`}
                     onClick={() => onLoad(skill)}
-                    className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-                    style={{ flexShrink: 0 }}
+                    className={cm.cn(
+                      cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                      cm.touchTargetCompact,
+                      cm.shrink0,
+                    )}
                   >
                     {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
                   </button>
@@ -515,9 +534,15 @@ export function SkillsCard({
                           })
                     }
                     onClick={() => onToggleDefault(skill, !isDefault)}
-                    className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }))}
+                    // Icon-only star TOGGLE — `ghost` is legal for a toggle. It
+                    // takes the SAME 36px floor as the Load button it sits
+                    // beside: sibling controls in one row match each other.
+                    className={cm.cn(
+                      cm.button({ variant: 'ghost', size: 'xs' }),
+                      cm.touchTargetCompact,
+                      cm.shrink0,
+                    )}
                     style={{
-                      flexShrink: 0,
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',

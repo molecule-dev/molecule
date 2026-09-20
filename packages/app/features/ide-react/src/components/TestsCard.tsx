@@ -85,7 +85,7 @@ import {
  * @returns The resolved class string.
  */
 const PRIMARY_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
-  cm.button({ variant: 'solid', color: 'primary', size: 'xs' })
+  cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }), cm.touchTargetCompact)
 
 /**
  * A secondary action — the same filled `xs` button ScriptsCard uses for every
@@ -95,7 +95,7 @@ const PRIMARY_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
  * @returns The resolved class string.
  */
 const SECONDARY_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
-  cm.button({ variant: 'solid', color: 'primary', size: 'xs' })
+  cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }), cm.touchTargetCompact)
 
 /**
  * The destructive action (Stop), in the design system's error colour.
@@ -104,7 +104,7 @@ const SECONDARY_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
  * @returns The resolved class string.
  */
 const DESTRUCTIVE_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
-  cm.button({ variant: 'solid', color: 'error', size: 'xs' })
+  cm.cn(cm.button({ variant: 'solid', color: 'error', size: 'xs' }), cm.touchTargetCompact)
 
 /**
  * A disclosure toggle — the one place `ghost` belongs.
@@ -113,7 +113,7 @@ const DESTRUCTIVE_ACTION = (cm: ReturnType<typeof getClassMap>): string =>
  * @returns The resolved class string.
  */
 const QUIET_TOGGLE = (cm: ReturnType<typeof getClassMap>): string =>
-  cm.button({ variant: 'ghost', size: 'xs' })
+  cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTargetCompact)
 
 /** Discovery status for the tests list — mirrors {@link ScriptsCard}'s. */
 export type TestsStatus = 'loading' | 'ready' | 'error' | 'unavailable'

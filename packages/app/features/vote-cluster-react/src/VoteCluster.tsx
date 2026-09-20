@@ -170,6 +170,11 @@ export function VoteCluster({
         aria-label={upLabel}
         aria-pressed={upPressed}
         data-vote="up"
+        data-mol-id="vote-cluster-up"
+        // Icon-only arrow: bespoke by design (the arrow IS the control, with no
+        // button surface) and already themed via `--mol-color-*`; the 44px
+        // floor is the one thing it was missing.
+        className={cm.touchTarget}
         style={upStyle}
       >
         <UpArrow size={20} />
@@ -190,6 +195,9 @@ export function VoteCluster({
         aria-label={downLabel}
         aria-pressed={downPressed}
         data-vote="down"
+        data-mol-id="vote-cluster-down"
+        // Same icon-only arrow as the up vote above.
+        className={cm.touchTarget}
         style={downStyle}
       >
         <DownArrow size={20} />

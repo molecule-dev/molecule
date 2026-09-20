@@ -105,8 +105,9 @@ export function Carousel({
           {children.map((c, i) => (
             <div
               key={i}
-              style={{ width: `${100 / total}%`, flexShrink: 0 }}
+              data-mol-id="carousel-slide"
               aria-hidden={i !== active}
+              style={{ width: `${100 / total}%`, flexShrink: 0 }}
             >
               {c}
             </div>
@@ -148,18 +149,44 @@ export function Carousel({
             <button
               key={i}
               type="button"
-              aria-label={`Go to slide ${i + 1}`}
+              data-mol-id="carousel-dot"
+              data-active={i === active ? 'true' : 'false'}
+              aria-label={t(
+                'carousel.goToSlide',
+                { index: i + 1 },
+                { defaultValue: 'Go to slide {{index}}' },
+              )}
               aria-current={i === active ? 'true' : undefined}
               onClick={() => setIdx(i)}
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                border: 'none',
-                background: i === active ? 'currentColor' : 'rgba(0,0,0,0.2)',
-                cursor: 'pointer',
-              }}
-            />
+              /* mol-bespoke-button: slide-position dot indicator, no label —
+                 the 8px dot is the whole control, so the button is a bare
+                 transparent hit target (the inline background/border/padding
+                 are native resets, not a competing design). Sizing the dot to
+                 the touch floor would paint a 36px blob instead of a dot, so
+                 the BUTTON carries the touch target and the dot stays 8px. */
+              className={cm.cn(
+                cm.cursorPointer,
+                cm.touchTargetCompact,
+                cm.flex({ align: 'center', justify: 'center' }),
+              )}
+              style={{ background: 'transparent', border: 'none', padding: 4 }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  display: 'block',
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  // Theme tokens: the inactive dot was `rgba(0,0,0,0.2)`, which
+                  // is invisible on a dark surface.
+                  background:
+                    i === active
+                      ? 'var(--mol-color-primary, currentColor)'
+                      : 'var(--mol-color-border, rgba(128,128,128,0.4))',
+                }}
+              />
+            </button>
           ))}
         </div>
       )}

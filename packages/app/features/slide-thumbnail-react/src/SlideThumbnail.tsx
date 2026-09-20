@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react'
 
+import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 /** Props for the {@link SlideThumbnail} component. */
@@ -42,14 +43,21 @@ export function SlideThumbnail({
       type="button"
       onClick={onClick}
       aria-current={active ? 'true' : undefined}
-      aria-label={`Slide ${index}`}
+      data-mol-id="slide-thumbnail"
+      data-slide-index={index}
+      aria-label={t('slideThumbnail.label', { index }, { defaultValue: 'Slide {{index}}' })}
       className={cm.cn(cm.position('relative'), cm.cursorPointer, className)}
+      /* mol-bespoke-button: slide thumbnail CARD, not a CTA — the caller sizes
+         it and its whole face is the live preview, so the inline
+         background/border/padding are the card's canvas, not button chrome.
+         The canvas colour is a theme token now; the old hardcoded `#fff`
+         stayed white in dark mode. */
       style={{
         width,
         aspectRatio: aspect.replace('/', ' / '),
         outline: active ? '2px solid currentColor' : 'none',
         outlineOffset: 2,
-        background: '#fff',
+        background: 'var(--mol-color-surface, #fff)',
         overflow: 'hidden',
         border: 'none',
         padding: 0,

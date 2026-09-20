@@ -174,9 +174,13 @@ export function StorefrontTopNav({
                 cm.h(8),
                 cm.roundedFull,
                 cm.cursorPointer,
+                cm.touchTarget,
+                cm.borderAll,
                 cm.flex({ align: 'center', justify: 'center' }),
-                'overflow-hidden border border-gray-200',
               )}
+              // `overflow: hidden` clips the avatar image to the round button;
+              // the ClassMap has no overflow token, so it stays inline.
+              style={{ overflow: 'hidden' }}
               data-mol-id="profile-trigger-01"
               onClick={() => setProfileOpen((o) => !o)}
             >
@@ -229,12 +233,15 @@ export function StorefrontTopNav({
                   <>
                     <hr className={cm.cn(cm.sp('my', 1), 'border-gray-100')} />
                     <button
+                      type="button"
+                      // A menu row, not a CTA: the design system's dropdown-item
+                      // token carries the hover/focus treatment, so it can never
+                      // drift from the links above it.
                       className={cm.cn(
-                        cm.sp('px', 4),
-                        cm.sp('py', 2),
-                        cm.textSize('sm'),
+                        cm.dropdownItem,
                         cm.w('full'),
-                        'block text-left text-gray-700 hover:bg-gray-50',
+                        cm.textSize('sm'),
+                        cm.touchTargetCompact,
                       )}
                       data-mol-id="profile-link-signout"
                       onClick={() => {

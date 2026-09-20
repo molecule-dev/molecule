@@ -33,28 +33,24 @@ export function SegmentedControl<T extends string>({
   const cm = getClassMap()
   return (
     <div
-      className={cm.cn(
-        cm.flex({ align: 'center', gap: 'sm' }),
-        cm.sp('p', 1),
-        cm.roundedFull,
-        'bg-surface-container-low',
-        className,
-      )}
+      role="tablist"
+      className={cm.cn(cm.tabsList({ variant: 'solid-rounded', size: 'sm' }), className)}
     >
       {options.map((opt) => (
         <button
           key={opt.value}
+          type="button"
+          role="tab"
+          aria-selected={opt.value === value}
+          // `tabsTrigger` keys its selected styling off `data-state`, so the
+          // segment's look comes entirely from the design system.
+          data-state={opt.value === value ? 'active' : 'inactive'}
           data-mol-id={opt.dataMolId}
           onClick={() => onChange(opt.value)}
           className={cm.cn(
-            cm.sp('px', 4),
-            cm.roundedFull,
-            cm.textSize('xs'),
+            cm.tabsTrigger({ variant: 'solid-rounded', size: 'sm' }),
             cm.fontWeight('semibold'),
-            'py-1.5',
-            opt.value === value
-              ? 'bg-primary text-on-primary'
-              : 'text-on-surface-variant hover:bg-surface-container-high',
+            cm.touchTargetCompact,
           )}
         >
           {opt.label}

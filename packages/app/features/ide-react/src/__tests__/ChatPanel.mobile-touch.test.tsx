@@ -301,15 +301,20 @@ describe('ask_user discovery card — phone/touch', () => {
     }
   })
 
-  it('renders the free-text input at 16px and its Send at 40px on phones', () => {
+  it('renders the free-text input at 16px and its Send on the ClassMap touch floor', () => {
     stubPhone()
     const container = renderAskUser()
     const input = container.querySelector('input[type="text"]') as HTMLElement
     expect(input.style.fontSize).toBe('16px')
-    const send = Array.from(container.querySelectorAll('button')).find(
-      (b) => b.textContent === 'Send',
-    ) as HTMLElement
-    expect(send.style.height).toBe('40px')
+    const send = container.querySelector('[data-mol-id="ask-user-free-text-submit"]') as HTMLElement
+    // The Send is a design-system CTA now (same recipe as this card's own
+    // "Confirm choice"), so its coarse-pointer floor comes from
+    // `cm.touchTargetCompact` rather than a hand-rolled inline height. Resolved
+    // from the bond, never written here as a literal class (AGENTS.md rule 5).
+    for (const token of classMap.touchTargetCompact.split(/\s+/).filter(Boolean)) {
+      expect(send.classList.contains(token), `Send carries ${token}`).toBe(true)
+    }
+    expect(send.style.height, 'no hand-rolled pixel height survives').toBe('')
   })
 
   it('keeps the compact desktop card on fine pointers', () => {

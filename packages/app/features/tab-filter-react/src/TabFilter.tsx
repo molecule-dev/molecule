@@ -63,37 +63,39 @@ export function TabFilter({
     >
       {tabs.map((t) => {
         const active = t.id === activeId
-        const filledClasses = filled
-          ? active
-            ? 'bg-primary text-on-primary'
-            : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
-          : ''
         return (
           <button
             key={t.id}
             type="button"
             role="tab"
             aria-selected={active}
+            // `tabsTrigger` resolves its selected styling from `data-state`,
+            // so the pill's fill/hover comes from the design system rather
+            // than from hand-written classes.
+            data-state={active ? 'active' : 'inactive'}
+            data-mol-id={`tab-filter-${t.id}`}
             disabled={t.disabled}
             onClick={() => onChange(t.id)}
             className={cm.cn(
-              cm.flex({ align: 'center', gap: 'xs' }),
-              cm.sp('px', 3),
-              cm.sp('py', 1),
-              cm.textSize('sm'),
+              cm.tabsTrigger({
+                variant: filled ? 'solid-rounded' : 'soft-rounded',
+                size: 'md',
+              }),
               active ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
-              cm.roundedFull,
-              filledClasses,
-              'transition-colors',
+              cm.touchTargetCompact,
             )}
           >
-            {t.icon}
-            <span>{t.label}</span>
-            {t.count !== undefined && (
-              <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
-                ({t.count.toLocaleString()})
-              </span>
-            )}
+            {/* Inner row owns the gap — `tabsTrigger` is already `inline-flex`,
+                so a second display utility on the button would fight it. */}
+            <span className={cm.flex({ align: 'center', gap: 'xs' })}>
+              {t.icon}
+              <span>{t.label}</span>
+              {t.count !== undefined && (
+                <span className={cm.cn(cm.textSize('xs'), cm.fontWeight('medium'))}>
+                  ({t.count.toLocaleString()})
+                </span>
+              )}
+            </span>
           </button>
         )
       })}

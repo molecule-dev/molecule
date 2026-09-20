@@ -2,6 +2,7 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for zu. */
 export const zu: Partial<RatingFormTranslations> = {
+  'rating.star': '{{n}} of {{max}}',
   'rating.label': 'Isilinganiso',
   'rating.commentPlaceholder': 'Yabelana ngemicabango yakho (ongakukhetha)',
   'rating.submitting': 'Iyathumela…',

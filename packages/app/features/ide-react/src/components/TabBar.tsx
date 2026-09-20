@@ -202,6 +202,7 @@ function TabItem({
       </span>
       <button
         type="button"
+        data-mol-id="tab-close"
         onClick={(e) => {
           e.stopPropagation()
           onClose(path)
@@ -214,18 +215,22 @@ function TabItem({
           e.currentTarget.style.background = 'transparent'
           e.currentTarget.style.color = ''
         }}
-        className={cm.cn(cm.textMuted, cm.textSize('xs'), cm.cursorPointer)}
+        className={cm.cn(cm.textMuted, cm.textSize('xs'), cm.cursorPointer, cm.touchTargetCompact)}
+        /* mol-bespoke-button: icon-only ✕ tab close, hover-revealed, 16px
+           square so the mark sits dead-centre in a 32px tab. Its hit floor is
+           the ClassMap's 36px (min-width/height beat the 16px width/height
+           below) — it used to be a bespoke 32px. */
         style={{
           // Square button (equal width/height) with the glyph centered on both
           // axes — no asymmetric padding, so the ✕ sits dead-center in the tab.
-          // Touch-first devices get a 32px hit area (hover-reveal doesn't exist
-          // there, so the close is also always visible, dimmed).
+          // On touch-first devices hover-reveal doesn't exist, so the close is
+          // also always visible, dimmed.
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
           flexShrink: 0,
-          width: isCoarse ? '32px' : '16px',
-          height: isCoarse ? '32px' : '16px',
+          width: '16px',
+          height: '16px',
           border: 'none',
           padding: 0,
           background: 'transparent',

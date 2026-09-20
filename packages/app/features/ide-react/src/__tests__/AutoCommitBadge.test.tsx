@@ -11,8 +11,10 @@
  *   - It morphs into the live "Auto-commit in Ns" label only for the countdown's
  *     final `AUTO_COMMIT_COUNTDOWN_VISIBLE_SECONDS` seconds — right before the
  *     auto-commit fires — and clicking still commits now.
- *   - P4-10 styling holds: the button is the blue `/commit` button recolored
- *     from the theme success token — same box model, no pulse.
+ *   - P4-10 styling holds: it IS the manual `/commit` button — the same
+ *     `cm.button({ variant: 'solid', size: 'xs' })` from the design system —
+ *     differing only in the semantic colour (`success`), with nothing hand-rolled
+ *     inline and no pulse.
  *
  * This is a real jsdom render of the actual {@link AutoCommitBadge} asserting
  * all of that.
@@ -24,7 +26,7 @@ import { fireEvent, render } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
-import { setClassMap } from '@molecule/app-ui'
+import { getClassMap, setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
 import { AutoCommitBadge } from '../components/AutoCommitBadge.js'
@@ -93,7 +95,7 @@ describe('AutoCommitBadge — green commit button while enabled', () => {
     )
   })
 
-  it('looks exactly like the blue commit button, but green (P4-10)', () => {
+  it('is the manual commit button in the SUCCESS semantic — one design-system button, nothing hand-rolled (P4-10)', () => {
     const { container } = render(
       <AutoCommitBadge
         state={{ intervalSeconds: 30, remaining: 12 }}
@@ -102,28 +104,40 @@ describe('AutoCommitBadge — green commit button while enabled', () => {
       />,
     )
     const badge = badgeOf(container) as HTMLElement
-    // Same box model as the blue /commit button.
-    expect(badge.style.fontSize).toBe('12px')
-    expect(badge.style.padding).toBe('4px 10px')
-    // The pill shape became the 6px rounded-rectangle of the commit button.
-    expect(badge.style.borderRadius).toBe('6px')
-    // Same transition as the commit button.
-    expect(badge.style.transition).toContain('background 100ms')
-    expect(badge.style.transition).toContain('border-color 100ms')
-    expect(badge.style.transition).toContain('color 100ms')
-    // Recolored GREEN from the theme success token — not the blue commit button's
-    // color, and not a hardcoded literal green.
-    expect(badge.style.color).toBe('var(--mol-color-success, #16a34a)')
-    expect(badge.style.background).toContain('var(--mol-color-success')
-    expect(badge.style.border).toContain('var(--mol-color-success')
-    expect(badge.style.border).toContain('1px solid')
+    const cm = getClassMap()
+    // The EXACT classes the manual /commit button and the tests bar's button carry
+    // — same height, radius, padding and type scale — differing only in the
+    // semantic colour. The bug this pins: the commit button was a hand-rolled
+    // 12px/6px-radius pill while the tests bar's was 13px/3px, one strip apart.
+    const expected = cm
+      .cn(cm.button({ variant: 'solid', color: 'success', size: 'xs' }), cm.touchTargetCompact)
+      .split(/\s+/)
+      .filter(Boolean)
+    for (const cls of expected) {
+      expect(badge.classList.contains(cls), `missing design-system class ${cls}`).toBe(true)
+    }
+    // Nothing the design system owns is set inline — an inline style outranks a
+    // ClassMap class (molecule AGENTS.md anti-pattern 12), so this is the half of
+    // the contract that actually keeps the two buttons identical.
+    for (const property of [
+      'fontSize',
+      'padding',
+      'borderRadius',
+      'border',
+      'background',
+      'color',
+      'transition',
+    ] as const) {
+      expect(badge.style[property], `${property} must not be set inline`).toBe('')
+    }
     const styleAttr = badge.getAttribute('style') ?? ''
     // Not the blue commit button's color literally.
     expect(styleAttr).not.toContain('64, 112, 224')
     expect(styleAttr).not.toContain('64,112,224')
-    // Not the old hardcoded rgba green either.
+    // Not a hardcoded green either — the colour is the `success` semantic.
     expect(styleAttr).not.toContain('34, 197, 94')
     expect(styleAttr).not.toContain('34,197,94')
+    expect(styleAttr).not.toContain('16a34a')
   })
 
   it('has no pulse — no animation, no data-mol-pulse, no injected keyframes (P4-10)', () => {
@@ -192,8 +206,12 @@ describe('AutoCommitBadge — green commit button while enabled', () => {
       )
       const badge = badgeOf(container) as HTMLButtonElement
       expect(badge.disabled).toBe(true)
-      expect(badge.style.opacity).toBe('0.5')
-      expect(badge.style.cursor).toBe('not-allowed')
+      // The muted + inert look comes from the CVA's own disabled states, driven by
+      // the real `disabled` attribute — not from an inline opacity/cursor pair.
+      expect(badge.className).toContain('disabled:opacity-50')
+      expect(badge.className).toContain('disabled:pointer-events-none')
+      expect(badge.style.opacity).toBe('')
+      expect(badge.style.cursor).toBe('')
       fireEvent.click(badge)
       expect(onCommitNow, 'a held click must not commit').not.toHaveBeenCalled()
     })

@@ -2365,9 +2365,12 @@ export function PreviewPanel({
                 type="button"
                 data-mol-id="preview-load-failed-reload"
                 onClick={handleUserRetry}
+                // A LABELLED button, so the 36px compact floor — the 44px
+                // `touchTarget` is for the icon-only toolbar controls, whose
+                // enlarged hit area is invisible (DESIGN.md → CTA semantics).
                 className={cm.cn(
                   cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
-                  cm.touchTarget,
+                  cm.touchTargetCompact,
                 )}
               >
                 {t('ide.preview.reloadPreview', {}, { defaultValue: 'Reload preview' })}
@@ -2376,7 +2379,10 @@ export function PreviewPanel({
                 type="button"
                 data-mol-id="preview-load-failed-open"
                 onClick={openExternal}
-                className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTarget)}
+                className={cm.cn(
+                  cm.button({ variant: 'ghost', size: 'sm' }),
+                  cm.touchTargetCompact,
+                )}
               >
                 {t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
               </button>
@@ -2433,20 +2439,16 @@ export function PreviewPanel({
             </span>
             <button
               type="button"
+              data-mol-id="preview-frozen-reload"
               onClick={handleReloadFrozen}
-              // touchTarget grows the hit-area to ≥44px on coarse-pointer
-              // devices only; desktop keeps the compact banner button.
-              className={cm.touchTarget}
-              style={{
-                flexShrink: 0,
-                padding: '4px 12px',
-                fontSize: '12px',
-                border: '1px solid currentColor',
-                borderRadius: '4px',
-                background: 'transparent',
-                color: 'inherit',
-                cursor: 'pointer',
-              }}
+              // The same reload CTA as the load-failed and blank notice cards —
+              // one action, one colour, on every surface. It was a hand-rolled
+              // 12px/4px-radius `1px solid currentColor` pill.
+              className={cm.cn(
+                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                cm.touchTargetCompact,
+                cm.shrink0,
+              )}
             >
               {t('ide.preview.frozenReload', {}, { defaultValue: 'Reload app' })}
             </button>
@@ -2586,9 +2588,11 @@ function PreviewBlankNotice({
           type="button"
           data-mol-id="preview-blank-reload"
           onClick={onReload}
+          // Labelled CTA → the compact 36px floor, matching the identical
+          // Reload preview / Open in new tab pair on the load-failed card.
           className={cm.cn(
             cm.button({ variant: 'solid', color: 'primary', size: 'sm' }),
-            cm.touchTarget,
+            cm.touchTargetCompact,
           )}
         >
           {t('ide.preview.reloadPreview', {}, { defaultValue: 'Reload preview' })}
@@ -2597,7 +2601,7 @@ function PreviewBlankNotice({
           type="button"
           data-mol-id="preview-blank-open"
           onClick={onOpenExternal}
-          className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTarget)}
+          className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTargetCompact)}
         >
           {t('ide.preview.openNewTab', {}, { defaultValue: 'Open in new tab' })}
         </button>
@@ -2721,19 +2725,15 @@ function DefaultLoadingIndicator({
       {retryCount >= MAX_RECOVERY_CYCLES && onManualRetry && (
         <button
           type="button"
+          data-mol-id="preview-manual-retry"
           onClick={onManualRetry}
-          // ≥44px hit-area on coarse-pointer devices only (compact on desktop).
-          className={cm.touchTarget}
-          style={{
-            marginTop: '8px',
-            padding: '6px 16px',
-            fontSize: '12px',
-            border: '1px solid var(--mol-color-border, #ddd)',
-            borderRadius: '4px',
-            background: 'transparent',
-            color: 'inherit',
-            cursor: 'pointer',
-          }}
+          // Same recovery CTA as Reload preview / Reload app, so it is the same
+          // design-system button rather than another hand-rolled outline pill.
+          className={cm.cn(
+            cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+            cm.touchTargetCompact,
+          )}
+          style={{ marginTop: '8px' }}
         >
           {t('ide.preview.retryButton', {}, { defaultValue: 'Retry now' })}
         </button>

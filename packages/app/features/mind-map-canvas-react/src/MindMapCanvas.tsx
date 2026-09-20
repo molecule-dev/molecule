@@ -309,7 +309,11 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
                     aria-label={node.collapsed ? expandLabel : collapseLabel}
                     aria-expanded={!node.collapsed}
                     data-mol-id={`mind-map-node-toggle-${node.id}`}
-                    className={cm.cn(cm.cursorPointer)}
+                    // Icon-only node chrome: a 20px glyph inside a node card,
+                    // so it stays bespoke — but the corner rounding is the
+                    // ClassMap's, not an off-scale inline `borderRadius: 4`,
+                    // and the touch floor comes from the ClassMap too.
+                    className={cm.cn(cm.cursorPointer, cm.roundedFull, cm.touchTargetCompact)}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation()
@@ -319,7 +323,6 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
                       marginLeft: 'auto',
                       width: 20,
                       height: 20,
-                      borderRadius: 4,
                     }}
                   >
                     {node.collapsed ? '+' : '−'}
@@ -330,7 +333,8 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
                   type="button"
                   aria-label={addChildLabel}
                   data-mol-id={`mind-map-node-add-${node.id}`}
-                  className={cm.cn(cm.cursorPointer)}
+                  // Same icon-only node chrome as the collapse toggle above.
+                  className={cm.cn(cm.cursorPointer, cm.roundedFull, cm.touchTargetCompact)}
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation()
@@ -347,7 +351,6 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
                     marginLeft: hasChildren ? 4 : 'auto',
                     width: 20,
                     height: 20,
-                    borderRadius: 4,
                   }}
                 >
                   +

@@ -64,8 +64,14 @@ export function ColorSwatchPicker({
               role="radio"
               aria-checked={selected}
               aria-label={s.label ?? s.value}
+              data-mol-id={`color-swatch-${s.value}`}
+              data-selected={selected ? 'true' : 'false'}
               onClick={() => onChange(s.value)}
-              className={cm.roundedFull}
+              /* mol-bespoke-button: colour swatch, no label — the inline
+                 background IS the caller's data (the colour being picked), not
+                 a design token, and a `cm.button()` fill would hide it. Cursor
+                 and the compact touch floor come from the ClassMap. */
+              className={cm.cn(cm.roundedFull, cm.cursorPointer, cm.touchTargetCompact)}
               style={{
                 width: size,
                 height: size,
@@ -73,7 +79,6 @@ export function ColorSwatchPicker({
                 outline: selected ? '2px solid currentColor' : 'none',
                 outlineOffset: 2,
                 border: 'none',
-                cursor: 'pointer',
               }}
             />
           )

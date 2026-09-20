@@ -2,6 +2,7 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for ne. */
 export const ne: Partial<RatingFormTranslations> = {
+  'rating.star': '{{n}} of {{max}}',
   'rating.label': 'मूल्याङ्कन',
   'rating.commentPlaceholder': 'आफ्नो विचार साझा गर्नुहोस् (वैकल्पिक)',
   'rating.submitting': 'पेस गर्दै...',

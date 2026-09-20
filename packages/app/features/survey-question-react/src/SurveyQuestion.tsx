@@ -336,12 +336,20 @@ function MultiChoiceSingleControl({
               cm.sp('px', 3),
               cm.sp('py', 2),
               cm.textSize('sm'),
+              readOnly ? undefined : cm.cursorPointer,
+              cm.touchTargetCompact,
               selected ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
             )}
+            /* mol-bespoke-button: full-width radio option ROW, not a CTA — it
+               wraps to multiple lines and stays left-aligned, which the
+               fixed-height `cm.button()` tiers cannot do. The resting border
+               is a theme token now; `rgba(0,0,0,0.15)` was invisible on a dark
+               surface. */
             style={{
               borderRadius: 8,
-              border: `1px solid ${selected ? 'currentColor' : 'rgba(0,0,0,0.15)'}`,
-              cursor: readOnly ? 'not-allowed' : 'pointer',
+              border: `1px solid ${
+                selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
+              }`,
               opacity: readOnly ? 0.6 : 1,
               textAlign: 'left',
             }}
@@ -393,12 +401,18 @@ function MultiChoiceMultiControl({
               cm.sp('px', 3),
               cm.sp('py', 2),
               cm.textSize('sm'),
+              readOnly ? undefined : cm.cursorPointer,
+              cm.touchTargetCompact,
               selected ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
             )}
+            /* mol-bespoke-button: full-width checkbox option ROW, not a CTA —
+               same wrapping, left-aligned shape and theme-token border as
+               MultiChoiceSingleControl above. */
             style={{
               borderRadius: 8,
-              border: `1px solid ${selected ? 'currentColor' : 'rgba(0,0,0,0.15)'}`,
-              cursor: readOnly ? 'not-allowed' : 'pointer',
+              border: `1px solid ${
+                selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
+              }`,
               opacity: readOnly ? 0.6 : 1,
               textAlign: 'left',
             }}
@@ -485,7 +499,7 @@ function ShortTextControl({
       aria-label={question.prompt}
       className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
       style={{
-        border: '1px solid rgba(0,0,0,0.15)',
+        border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 8,
         outline: 'none',
         width: '100%',
@@ -519,7 +533,7 @@ function LongTextControl({
       aria-label={question.prompt}
       className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
       style={{
-        border: '1px solid rgba(0,0,0,0.15)',
+        border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 8,
         outline: 'none',
         width: '100%',
@@ -565,7 +579,7 @@ function NumericControl({
         aria-label={question.prompt}
         className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
         style={{
-          border: '1px solid rgba(0,0,0,0.15)',
+          border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
           borderRadius: 8,
           outline: 'none',
           width: question.unit ? '12rem' : '100%',
@@ -614,15 +628,27 @@ function RatingScaleControl({
               aria-checked={selected}
               disabled={readOnly}
               onClick={() => onChange(n)}
-              className={cm.cn(cm.textSize('sm'), cm.fontWeight(selected ? 'bold' : 'medium'))}
+              className={cm.cn(
+                cm.textSize('sm'),
+                cm.roundedFull,
+                readOnly ? undefined : cm.cursorPointer,
+                cm.fontWeight(selected ? 'bold' : 'medium'),
+              )}
+              /* mol-bespoke-button: a 36×36 rating-scale POINT, not a CTA —
+                 the square geometry and pill radius are the scale's, and
+                 `cm.button()` has no square-icon tier at this size. Border and
+                 fill are theme tokens; the old `rgba(0,0,0,…)` pair washed out
+                 on a dark surface. */
               style={{
-                border: `1px solid ${selected ? 'currentColor' : 'rgba(0,0,0,0.15)'}`,
-                borderRadius: 999,
+                border: `1px solid ${
+                  selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
+                }`,
                 width: 36,
                 height: 36,
-                cursor: readOnly ? 'not-allowed' : 'pointer',
                 opacity: readOnly ? 0.6 : 1,
-                background: selected ? 'rgba(0,0,0,0.05)' : undefined,
+                background: selected
+                  ? 'color-mix(in srgb, currentColor 8%, transparent)'
+                  : undefined,
               }}
               data-mol-id={`survey-option-${question.id}-${n}`}
             >
@@ -674,15 +700,25 @@ function NPSControl({
               aria-checked={selected}
               disabled={readOnly}
               onClick={() => onChange(n)}
-              className={cm.cn(cm.textSize('sm'), cm.fontWeight(selected ? 'bold' : 'medium'))}
+              className={cm.cn(
+                cm.textSize('sm'),
+                readOnly ? undefined : cm.cursorPointer,
+                cm.fontWeight(selected ? 'bold' : 'medium'),
+              )}
+              /* mol-bespoke-button: a 32×32 NPS scale POINT, not a CTA — same
+                 fixed scale geometry as RatingScaleControl, sized down so
+                 eleven of them fit one row. */
               style={{
-                border: `1px solid ${selected ? 'currentColor' : 'rgba(0,0,0,0.15)'}`,
+                border: `1px solid ${
+                  selected ? 'currentColor' : 'var(--mol-color-border, rgba(128,128,128,0.35))'
+                }`,
                 borderRadius: 6,
                 width: 32,
                 height: 32,
-                cursor: readOnly ? 'not-allowed' : 'pointer',
                 opacity: readOnly ? 0.6 : 1,
-                background: selected ? 'rgba(0,0,0,0.05)' : undefined,
+                background: selected
+                  ? 'color-mix(in srgb, currentColor 8%, transparent)'
+                  : undefined,
               }}
               data-mol-id={`survey-option-${question.id}-${n}`}
             >
@@ -723,7 +759,7 @@ function DateControl({
       aria-label={question.prompt}
       className={cm.cn(cm.textSize('base'), cm.sp('px', 3), cm.sp('py', 2))}
       style={{
-        border: '1px solid rgba(0,0,0,0.15)',
+        border: '1px solid var(--mol-color-border, rgba(128,128,128,0.35))',
         borderRadius: 8,
         outline: 'none',
       }}

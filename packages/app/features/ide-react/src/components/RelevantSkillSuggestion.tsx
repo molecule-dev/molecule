@@ -125,6 +125,11 @@ export function RelevantSkillSuggestion({
           type="button"
           data-mol-id="relevant-skill-name"
           onClick={() => onOpen(skill)}
+          className={cm.touchTargetCompact}
+          /* mol-bespoke-button: not a CTA — the ITEM itself (the skill's
+             monospace name), clickable the way a list row is; the CTA beside it
+             is Load. Keeps the row's monospace/ellipsis text treatment and a
+             button reset, and takes only its hit floor from the ClassMap. */
           style={{
             ...nameStyle,
             background: 'none',
@@ -150,8 +155,11 @@ export function RelevantSkillSuggestion({
         // every other primary create/action button in the chat (New skill, New script,
         // Create/Save). Replaces the bespoke inline color-mix tint so this Load matches
         // the rest; only flex layout stays inline.
-        className={cm.cn(cm.button({ variant: 'solid', color: 'primary', size: 'xs' }))}
-        style={{ flexShrink: 0 }}
+        className={cm.cn(
+          cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+          cm.touchTargetCompact,
+          cm.shrink0,
+        )}
       >
         {t('ide.chat.skills.load', undefined, { defaultValue: 'Load' })}
       </button>
@@ -163,19 +171,33 @@ export function RelevantSkillSuggestion({
         aria-label={t('ide.chat.skills.relevant.dismiss', undefined, {
           defaultValue: 'Dismiss suggestion',
         })}
+        className={cm.cn(cm.touchTargetCompact, cm.shrink0)}
+        /* mol-bespoke-button: icon-only ✕ dismiss, deliberately identical to the
+           TipCard dismiss it stacks with (18px box, 4px radius, 0.6 resting
+           opacity, same hover scrim, same 11px SVG mark) — it was a 20px/0.55/
+           no-hover variant of it. No native `title`: this affordance hints
+           through the framework's styled Tooltip only. */
         style={{
-          flexShrink: 0,
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: 20,
-          height: 20,
+          width: 18,
+          height: 18,
           borderRadius: 4,
           border: 'none',
           background: 'transparent',
           color: 'inherit',
           cursor: 'pointer',
-          opacity: 0.55,
+          opacity: 0.6,
+          transition: 'opacity 100ms, background 100ms',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.opacity = '1'
+          e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = '0.6'
+          e.currentTarget.style.background = 'transparent'
         }}
       >
         <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">

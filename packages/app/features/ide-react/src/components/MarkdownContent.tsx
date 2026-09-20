@@ -14,7 +14,6 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
-import { useCoarsePointer } from '../hooks/useViewport.js'
 import { StreamingIndicator } from './StreamingIndicator.js'
 
 /**
@@ -94,6 +93,10 @@ function LinkToken({
           { path },
           { defaultValue: 'Open {{path}} in the preview' },
         )}
+        /* mol-bespoke-button: an inline LINK inside rendered markdown prose —
+           it must sit in the text flow and match the anchors beside it
+           (`linkStyle`, the theme primary), so it is a button reset to a link,
+           never a design-system CTA in the middle of a sentence. */
         style={{
           ...linkStyle,
           background: 'none',
@@ -327,7 +330,6 @@ function Prose({
  */
 function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.Element {
   const cm = getClassMap()
-  const isCoarse = useCoarsePointer()
   const [copied, setCopied] = useState(false)
 
   /** Copies the code block content to clipboard and shows a brief confirmation. */
@@ -362,9 +364,16 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
         >
           {lang || 'text'}
         </span>
+        {/* mol-bespoke-button: chrome ON the content, not a CTA — it belongs to
+            the fence's 11px header strip the way a tab's ✕ belongs to its tab,
+            and a filled design-system button here would outweigh the code it
+            labels. Colour is inherited from the strip and the coarse floor is
+            the ClassMap's, not a pixel one-off. */}
         <button
           type="button"
+          data-mol-id="chat-code-copy"
           onClick={handleCopy}
+          className={cm.touchTargetCompact}
           style={{
             background: 'none',
             border: 'none',
@@ -372,12 +381,12 @@ function CodeBlock({ lang, content }: { lang: string; content: string }): JSX.El
             color: 'inherit',
             fontSize: '11px',
             padding: '2px 6px',
-            // Touch: ~17px is untappable — 32px dense-row floor, text unchanged.
-            ...(isCoarse ? { minHeight: 32 } : {}),
             opacity: 0.75,
           }}
         >
-          {copied ? '\u2713 Copied' : 'Copy'}
+          {copied
+            ? t('ide.chat.code.copied', undefined, { defaultValue: '\u2713 Copied' })
+            : t('ide.chat.code.copy', undefined, { defaultValue: 'Copy' })}
         </button>
       </div>
       <pre

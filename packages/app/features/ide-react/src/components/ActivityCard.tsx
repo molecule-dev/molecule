@@ -55,6 +55,9 @@ export function ActivityCard({ activity, onActivityClick }: ActivityCardProps): 
       onClick={clickable ? () => onActivityClick!(activity) : undefined}
       aria-label={t('ide.activity.cardAria', undefined, { defaultValue: 'View captured activity' })}
       className={cm.cn(cm.textSize('xs'), cm.w('full'))}
+      /* mol-bespoke-button: the whole CARD is the click target, sharing the
+         chat cards' chrome via chatCardStyle() — a clickable card, not a CTA;
+         its one design-token property is the inherited card colour. */
       style={{
         display: 'flex',
         alignItems: 'center',

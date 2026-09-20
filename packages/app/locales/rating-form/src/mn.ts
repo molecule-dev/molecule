@@ -2,6 +2,7 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for mn. */
 export const mn: Partial<RatingFormTranslations> = {
+  'rating.star': '{{n}} of {{max}}',
   'rating.label': 'Үнэлгээ',
   'rating.commentPlaceholder': 'Өөрийн бодлоо хуваалцаарай (заавал биш)',
   'rating.submitting': 'Илгээж байна…',

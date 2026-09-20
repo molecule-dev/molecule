@@ -81,20 +81,40 @@ export function QuizCard({
                 onClick={() => !submitted && setSelected(o.id)}
                 disabled={submitted}
                 aria-pressed={isSelected}
+                data-mol-id="quiz-card-option"
+                data-correct={isCorrect ? 'true' : undefined}
+                data-wrong={isWrong ? 'true' : undefined}
                 className={cm.cn(
                   cm.flex({ align: 'center', gap: 'sm' }),
                   cm.sp('px', 3),
                   cm.sp('py', 2),
                   cm.textSize('sm'),
+                  cm.cursorPointer,
+                  cm.touchTargetCompact,
                   isSelected ? cm.fontWeight('semibold') : cm.fontWeight('medium'),
                 )}
+                /* mol-bespoke-button: full-width answer ROW, not a CTA — it
+                   wraps to multiple lines and stays left-aligned, which the
+                   fixed-height `cm.button()` tiers cannot do, and its border
+                   carries a right/wrong verdict no button variant expresses.
+                   Every colour is a theme token now (`#22c55e` / `#ef4444` /
+                   `rgba(0,0,0,0.15)` ignored the theme and lost the verdict
+                   contrast in dark mode); compact touch floor applied. */
                 style={{
                   borderRadius: 8,
-                  border: `1px solid ${isCorrect ? '#22c55e' : isWrong ? '#ef4444' : isSelected ? 'currentColor' : 'rgba(0,0,0,0.15)'}`,
+                  border: `1px solid ${
+                    isCorrect
+                      ? 'var(--mol-color-success, #22c55e)'
+                      : isWrong
+                        ? 'var(--mol-color-error, #ef4444)'
+                        : isSelected
+                          ? 'currentColor'
+                          : 'var(--mol-color-border, rgba(128,128,128,0.35))'
+                  }`,
                   background: isCorrect
-                    ? 'rgba(34,197,94,0.1)'
+                    ? 'color-mix(in srgb, var(--mol-color-success, #22c55e) 12%, transparent)'
                     : isWrong
-                      ? 'rgba(239,68,68,0.1)'
+                      ? 'color-mix(in srgb, var(--mol-color-error, #ef4444) 12%, transparent)'
                       : undefined,
                 }}
               >

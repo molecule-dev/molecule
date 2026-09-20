@@ -2,6 +2,7 @@ import type { RatingFormTranslations } from './types.js'
 
 /** RatingForm translations for sw. */
 export const sw: Partial<RatingFormTranslations> = {
+  'rating.star': '{{n}} of {{max}}',
   'rating.label': 'Ukadiriaji',
   'rating.commentPlaceholder': 'Shiriki mawazo yako (si lazima)',
   'rating.submitting': 'Inawasilisha…',

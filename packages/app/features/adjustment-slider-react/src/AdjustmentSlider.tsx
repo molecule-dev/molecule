@@ -119,9 +119,8 @@ export function AdjustmentSlider({
           type="button"
           onClick={performReset}
           aria-label={resetAria}
-          className={cm.cn(cm.textSize('xs'))}
+          className={cm.cn(cm.button({ variant: 'ghost', size: 'xs' }), cm.touchTargetCompact)}
           data-mol-id="adjustment-slider-reset"
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}
         >
           {display}
         </button>

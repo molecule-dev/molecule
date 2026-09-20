@@ -233,7 +233,11 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
               title={visibilityLabel}
               aria-pressed={!layer.visible}
               data-mol-id={`layer-panel-visibility-${layer.id}`}
-              className={cm.cursorPointer}
+              /* mol-bespoke-button: icon-only visibility toggle in a layer
+                 row — a bare glyph with no button surface, so the inline
+                 background/border/padding are native resets. 44px touch
+                 floor from the ClassMap. */
+              className={cm.cn(cm.cursorPointer, cm.touchTarget)}
               style={{ background: 'transparent', border: 'none', padding: 0 }}
             >
               <span aria-hidden="true">{layer.visible ? '\u{1F441}' : '\u{1F441}\u{0338}'}</span>
@@ -249,7 +253,9 @@ export function LayerPanel(props: LayerPanelProps): JSX.Element {
               title={lockLabel}
               aria-pressed={layer.locked}
               data-mol-id={`layer-panel-lock-${layer.id}`}
-              className={cm.cursorPointer}
+              /* mol-bespoke-button: icon-only lock toggle — same bare-glyph
+                 row chrome as the visibility toggle above. */
+              className={cm.cn(cm.cursorPointer, cm.touchTarget)}
               style={{ background: 'transparent', border: 'none', padding: 0 }}
             >
               <span aria-hidden="true">{layer.locked ? '\u{1F512}' : '\u{1F513}'}</span>

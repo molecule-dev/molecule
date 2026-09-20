@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
+import { getClassMap } from '@molecule/app-ui'
 
 import type { KeyboardShortcutsPanelProps, ShortcutEntry } from '../types.js'
 
@@ -69,6 +70,7 @@ export function KeyboardShortcutsPanel({
   shortcuts,
   onDismiss,
 }: KeyboardShortcutsPanelProps): JSX.Element {
+  const cm = getClassMap()
   const isLight = useThemeMode() === 'light'
   const panelRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -132,7 +134,11 @@ export function KeyboardShortcutsPanel({
     panelRef.current?.focus()
   }, [])
 
-  const selectedBg = isLight ? 'rgba(64,112,224,0.12)' : 'rgba(64,112,224,0.25)'
+  // The selected-row tint follows the theme primary (so a rebranded app tints
+  // its own picker), never a literal blue; the hex is only the CSS-var fallback.
+  const selectedBg = isLight
+    ? 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 12%, transparent)'
+    : 'color-mix(in srgb, var(--mol-color-primary, #4070e0) 25%, transparent)'
 
   // Build a flat index counter to map grouped rendering back to flat index
   let flatIndex = -1
@@ -186,20 +192,49 @@ export function KeyboardShortcutsPanel({
           <span style={{ fontSize: 14, fontWeight: 600 }}>
             {t('ide.shortcuts.title', undefined, { defaultValue: 'Keyboard Shortcuts' })}
           </span>
+          {/* mol-bespoke-button: icon-only ✕ panel dismiss — the IDE's one
+              dismiss mark (same SVG, same 4px-radius square box, same hover
+              scrim as the tab close and the chat-card dismisses), on the full
+              44px coarse floor DESIGN.md reserves for icon-only ✕ dismisses.
+              It was a bare text × with no label and no hit floor. */}
           <button
             type="button"
+            data-mol-id="shortcuts-close"
             onClick={onDismiss}
+            aria-label={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
+            title={t('ide.shortcuts.close', undefined, { defaultValue: 'Close' })}
+            className={cm.cn(cm.touchTarget, cm.shrink0)}
             style={{
-              padding: '2px 6px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 18,
+              height: 18,
+              borderRadius: 4,
               border: 'none',
               background: 'transparent',
-              color: 'var(--mol-color-text-secondary, #888)',
+              color: 'inherit',
               cursor: 'pointer',
-              fontSize: 16,
-              lineHeight: 1,
+              opacity: 0.6,
+              transition: 'opacity 100ms, background 100ms',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '1'
+              e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '0.6'
+              e.currentTarget.style.background = 'transparent'
             }}
           >
-            ×
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M3 3l10 10M13 3L3 13"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
           </button>
         </div>
 
@@ -230,6 +265,7 @@ export function KeyboardShortcutsPanel({
                     key={entry.label}
                     type="button"
                     data-shortcut-row
+                    data-mol-id={`shortcut-row-${idx}`}
                     onClick={() => {
                       if (entry.execute) {
                         entry.execute()
@@ -237,6 +273,11 @@ export function KeyboardShortcutsPanel({
                       }
                     }}
                     onMouseEnter={() => setSelectedIndex(idx)}
+                    className={cm.touchTargetCompact}
+                    /* mol-bespoke-button: a shortcut-list ROW (label + key
+                       badges) with keyboard-driven selection — a list item, not
+                       a CTA. Its selected tint is a theme token and its 36px
+                       coarse floor comes from the ClassMap. */
                     style={{
                       display: 'flex',
                       alignItems: 'center',
