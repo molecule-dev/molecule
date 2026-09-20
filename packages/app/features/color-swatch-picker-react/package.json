@@ -2,6 +2,7 @@
   "name": "@molecule/app-color-swatch-picker-react",
   "version": "1.0.1",
   "description": "Grid of colored circle swatches with single-select state, for tag colors / labels / themes",
+  "homepage": "https://www.molecule.dev/packages/app-color-swatch-picker-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -46,7 +46,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/geolocation"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/geolocation",
+  "homepage": "https://www.molecule.dev/packages/api-geolocation",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

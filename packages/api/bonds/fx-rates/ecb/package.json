@@ -50,7 +50,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/fx-rates/ecb"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/fx-rates/ecb",
+  "homepage": "https://www.molecule.dev/packages/api-fx-rates-ecb",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

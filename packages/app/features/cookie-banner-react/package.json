@@ -2,6 +2,7 @@
   "name": "@molecule/app-cookie-banner-react",
   "version": "1.0.1",
   "description": "GDPR / cookie consent banner with accept/reject + per-category controls",
+  "homepage": "https://www.molecule.dev/packages/app-cookie-banner-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

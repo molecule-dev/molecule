@@ -2,6 +2,7 @@
   "name": "@molecule/app-virtual-scroll",
   "version": "1.0.1",
   "description": "Virtual scroll core interface for molecule.dev — virtual/infinite scrolling for large lists and grids",
+  "homepage": "https://www.molecule.dev/packages/app-virtual-scroll",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

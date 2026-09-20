@@ -2,6 +2,7 @@
   "name": "@molecule/app-feature-video-scrubber-react",
   "version": "1.0.1",
   "description": "Frame-accurate video scrubber — timeline strip with thumbnail filmstrip, playhead, frame-by-frame stepping, and keyboard scrubbing; composes with @molecule/app-feature-video-timeline-react",
+  "homepage": "https://www.molecule.dev/packages/app-feature-video-scrubber-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

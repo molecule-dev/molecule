@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-user-payments",
   "version": "1.0.2",
+  "homepage": "https://www.molecule.dev/packages/api-locales-user-payments",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

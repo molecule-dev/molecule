@@ -2,6 +2,7 @@
   "name": "@molecule/app-settings-panel-react",
   "version": "1.0.1",
   "description": "Composable settings panel — a SettingsContainer + family of section sub-components (Account, Auth, Notifications, Billing, Devices, ThisDevice, LogOutDelete). Apps compose via JSX children, picking which sections to include and what order.",
+  "homepage": "https://www.molecule.dev/packages/app-settings-panel-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-header-react",
   "version": "1.0.1",
   "description": "Top app-shell header: branded logo + appName on the left, slotted actions (theme toggle, user menu, extras) on the right",
+  "homepage": "https://www.molecule.dev/packages/app-header-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

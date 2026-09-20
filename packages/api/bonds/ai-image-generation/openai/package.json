@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-image-generation-openai",
   "version": "1.0.1",
   "description": "OpenAI image generation provider for molecule.dev — DALL-E 3 and gpt-image-1",
+  "homepage": "https://www.molecule.dev/packages/api-ai-image-generation-openai",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

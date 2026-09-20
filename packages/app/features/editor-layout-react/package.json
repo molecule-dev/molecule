@@ -2,6 +2,7 @@
   "name": "@molecule/app-editor-layout-react",
   "version": "1.0.1",
   "description": "Editor scaffold: top bar with save/publish, main canvas, optional side panel",
+  "homepage": "https://www.molecule.dev/packages/app-editor-layout-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

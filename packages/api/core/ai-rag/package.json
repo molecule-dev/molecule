@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-rag",
   "version": "1.0.1",
   "description": "Batteries-included Retrieval-Augmented Generation for molecule.dev — composes @molecule/api-semantic-search (retrieval) with the bonded @molecule/api-ai chat provider (generation) to answer questions grounded in your own documents",
+  "homepage": "https://www.molecule.dev/packages/api-ai-rag",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -43,7 +43,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/analytics"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/analytics",
+  "homepage": "https://www.molecule.dev/packages/api-analytics",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

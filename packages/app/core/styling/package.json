@@ -38,7 +38,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/core/styling"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/styling",
+  "homepage": "https://www.molecule.dev/packages/app-styling",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

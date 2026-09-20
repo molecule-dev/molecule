@@ -2,6 +2,7 @@
   "name": "@molecule/app-subscription-plan-card-react",
   "version": "1.0.1",
   "description": "Pricing / plan card with features, price + interval, primary CTA, recommended badge",
+  "homepage": "https://www.molecule.dev/packages/app-subscription-plan-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

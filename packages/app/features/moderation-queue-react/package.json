@@ -2,6 +2,7 @@
   "name": "@molecule/app-moderation-queue-react",
   "version": "1.0.1",
   "description": "Moderation queue UI: flagged items list with approve/reject/escalate/mute actions, severity, and bulk-select",
+  "homepage": "https://www.molecule.dev/packages/app-moderation-queue-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

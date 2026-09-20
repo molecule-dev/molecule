@@ -2,6 +2,7 @@
   "name": "@molecule/app-medication-row-react",
   "version": "1.0.1",
   "description": "Medication row — name, dosage, form, instructions, refills remaining, prescriber",
+  "homepage": "https://www.molecule.dev/packages/app-medication-row-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

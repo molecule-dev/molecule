@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-pricing-page",
   "version": "1.0.1",
+  "homepage": "https://www.molecule.dev/packages/app-locales-pricing-page",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

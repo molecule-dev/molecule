@@ -43,7 +43,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/emails/resend"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/emails/resend",
+  "homepage": "https://www.molecule.dev/packages/api-emails-resend",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

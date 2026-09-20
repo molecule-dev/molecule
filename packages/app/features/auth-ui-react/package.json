@@ -2,6 +2,7 @@
   "name": "@molecule/app-auth-ui-react",
   "version": "1.0.1",
   "description": "React auth-kit components (OAuthButtons, LoginForm scaffolds)",
+  "homepage": "https://www.molecule.dev/packages/app-auth-ui-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

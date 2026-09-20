@@ -45,7 +45,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/esign/hellosign"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/esign/hellosign",
+  "homepage": "https://www.molecule.dev/packages/api-esign-hellosign",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

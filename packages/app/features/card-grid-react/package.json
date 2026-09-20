@@ -2,6 +2,7 @@
   "name": "@molecule/app-card-grid-react",
   "version": "1.0.1",
   "description": "Responsive React card grid and bento-grid layouts",
+  "homepage": "https://www.molecule.dev/packages/app-card-grid-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

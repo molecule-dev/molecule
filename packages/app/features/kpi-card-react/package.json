@@ -2,6 +2,7 @@
   "name": "@molecule/app-kpi-card-react",
   "version": "1.0.1",
   "description": "React KPI / metric card components with trend, icon, and grid variants",
+  "homepage": "https://www.molecule.dev/packages/app-kpi-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

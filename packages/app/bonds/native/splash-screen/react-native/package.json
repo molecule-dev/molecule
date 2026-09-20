@@ -2,6 +2,7 @@
   "name": "@molecule/app-splash-screen-react-native",
   "version": "1.0.1",
   "description": "React Native splash screen provider for molecule.dev (expo-splash-screen)",
+  "homepage": "https://www.molecule.dev/packages/app-splash-screen-react-native",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

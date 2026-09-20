@@ -2,6 +2,7 @@
   "name": "@molecule/api-channel-whatsapp",
   "version": "1.0.1",
   "description": "WhatsApp channel bond — implements @molecule/api-channel via the WhatsApp Cloud API for sendMessage (text/template/interactive), x-hub-signature-256 HMAC-SHA256 webhook verification, and inbound message parsing.",
+  "homepage": "https://www.molecule.dev/packages/api-channel-whatsapp",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

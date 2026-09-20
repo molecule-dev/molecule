@@ -2,6 +2,7 @@
   "name": "@molecule/app-progress-bar-react",
   "version": "1.0.1",
   "description": "React labeled progress bar with card wrapper",
+  "homepage": "https://www.molecule.dev/packages/app-progress-bar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

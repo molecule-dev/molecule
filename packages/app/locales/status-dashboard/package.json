@@ -31,7 +31,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/locales/status-dashboard"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/locales/status-dashboard",
+  "homepage": "https://www.molecule.dev/packages/app-locales-status-dashboard",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

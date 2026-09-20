@@ -2,6 +2,7 @@
   "name": "@molecule/api-export-pptx",
   "version": "1.0.2",
   "description": "PPTX export — convert a deck definition into a downloadable PowerPoint (.pptx) buffer.",
+  "homepage": "https://www.molecule.dev/packages/api-export-pptx",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

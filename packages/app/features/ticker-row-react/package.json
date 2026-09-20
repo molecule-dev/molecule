@@ -2,6 +2,7 @@
   "name": "@molecule/app-ticker-row-react",
   "version": "1.0.1",
   "description": "Financial ticker row — symbol, price, change%, sparkline for crypto/stocks/markets",
+  "homepage": "https://www.molecule.dev/packages/app-ticker-row-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

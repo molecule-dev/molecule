@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-survey-question",
   "version": "1.0.1",
   "description": "Translations for @molecule/app-survey-question-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-survey-question",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

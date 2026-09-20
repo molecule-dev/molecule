@@ -2,6 +2,7 @@
   "name": "@molecule/api-workflow-database",
   "version": "1.0.1",
   "description": "Database-backed workflow provider — stores definitions, instances, and event history via the abstract DataStore.",
+  "homepage": "https://www.molecule.dev/packages/api-workflow-database",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

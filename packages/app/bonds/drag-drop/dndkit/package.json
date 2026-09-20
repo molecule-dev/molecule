@@ -2,6 +2,7 @@
   "name": "@molecule/app-drag-drop-dndkit",
   "version": "1.0.1",
   "description": "dnd-kit provider for @molecule/app-drag-drop",
+  "homepage": "https://www.molecule.dev/packages/app-drag-drop-dndkit",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

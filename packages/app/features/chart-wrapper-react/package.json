@@ -2,6 +2,7 @@
   "name": "@molecule/app-chart-wrapper-react",
   "version": "1.0.1",
   "description": "React ChartCard and ChartLegend wrappers around @molecule/app-charts",
+  "homepage": "https://www.molecule.dev/packages/app-chart-wrapper-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

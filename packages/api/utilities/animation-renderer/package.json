@@ -2,6 +2,7 @@
   "name": "@molecule/api-animation-renderer",
   "version": "1.0.1",
   "description": "Server-side animation rendering — render an animation document to Lottie JSON or MP4/GIF (frame-by-frame via canvas-render + ffmpeg). Queue-driven.",
+  "homepage": "https://www.molecule.dev/packages/api-animation-renderer",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

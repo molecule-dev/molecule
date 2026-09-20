@@ -2,6 +2,7 @@
   "name": "@molecule/app-weather-card-react",
   "version": "1.0.1",
   "description": "Atmospheric current-conditions hero card: gradient background, glass condition pill, 24h temperature sparkline, optional alert badge. Extracted from weather-dashboard flagship.",
+  "homepage": "https://www.molecule.dev/packages/app-weather-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

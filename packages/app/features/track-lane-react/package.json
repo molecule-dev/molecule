@@ -2,6 +2,7 @@
   "name": "@molecule/app-feature-track-lane-react",
   "version": "1.0.1",
   "description": "Horizontal track lane primitive for music-DAW, video-editor, animation-tool — a single row in a multi-track timeline rendering draggable/resizable clips on a time-base axis",
+  "homepage": "https://www.molecule.dev/packages/app-feature-track-lane-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-job-listing-row-react",
   "version": "1.0.1",
   "description": "Job-board row with title, company, location, type, salary range, posted date",
+  "homepage": "https://www.molecule.dev/packages/app-job-listing-row-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -43,7 +43,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/core/device"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/device",
+  "homepage": "https://www.molecule.dev/packages/app-device",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

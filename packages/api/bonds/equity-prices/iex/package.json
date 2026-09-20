@@ -46,7 +46,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/equity-prices/iex"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/equity-prices/iex",
+  "homepage": "https://www.molecule.dev/packages/api-equity-prices-iex",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

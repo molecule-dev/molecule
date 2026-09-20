@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-xai",
   "version": "1.0.2",
   "description": "xAI Grok AI provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-ai-xai",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

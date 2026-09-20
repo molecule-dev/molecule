@@ -2,6 +2,7 @@
   "name": "@molecule/app-leaderboard-row-react",
   "version": "1.0.1",
   "description": "Leaderboard row — rank, avatar, name, score, optional change indicator",
+  "homepage": "https://www.molecule.dev/packages/app-leaderboard-row-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

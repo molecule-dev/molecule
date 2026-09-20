@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-deepseek",
   "version": "1.0.2",
   "description": "DeepSeek AI provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-ai-deepseek",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

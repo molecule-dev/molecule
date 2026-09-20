@@ -2,6 +2,7 @@
   "name": "@molecule/app-shell-layout-react",
   "version": "1.0.1",
   "description": "Top-level app shell layout: header slot + main content (typically <Outlet />) + footer slot",
+  "homepage": "https://www.molecule.dev/packages/app-shell-layout-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-ai-copilot-default",
   "version": "1.0.1",
   "description": "Default HTTP/SSE copilot provider for inline AI suggestions",
+  "homepage": "https://www.molecule.dev/packages/app-ai-copilot-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

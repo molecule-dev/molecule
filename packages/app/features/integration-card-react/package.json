@@ -2,6 +2,7 @@
   "name": "@molecule/app-integration-card-react",
   "version": "1.0.1",
   "description": "Integration / connection card with icon, status, connect/disconnect action",
+  "homepage": "https://www.molecule.dev/packages/app-integration-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

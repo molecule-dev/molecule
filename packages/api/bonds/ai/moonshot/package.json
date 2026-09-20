@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-moonshot",
   "version": "1.1.0",
   "description": "Moonshot (Kimi) AI provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-ai-moonshot",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

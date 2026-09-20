@@ -2,6 +2,7 @@
   "name": "@molecule/app-tour-shepherd",
   "version": "1.0.2",
   "description": "Shepherd.js provider for @molecule/app-tour",
+  "homepage": "https://www.molecule.dev/packages/app-tour-shepherd",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

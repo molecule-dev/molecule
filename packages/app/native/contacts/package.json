@@ -43,7 +43,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/native/contacts"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/native/contacts",
+  "homepage": "https://www.molecule.dev/packages/app-contacts",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-course",
   "version": "1.0.1",
   "description": "Course / module / module-item / enrollment resource with access helpers.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-course",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

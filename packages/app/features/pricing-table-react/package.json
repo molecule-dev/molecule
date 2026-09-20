@@ -2,6 +2,7 @@
   "name": "@molecule/app-pricing-table-react",
   "version": "1.0.1",
   "description": "Features × plans matrix for side-by-side plan comparison",
+  "homepage": "https://www.molecule.dev/packages/app-pricing-table-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

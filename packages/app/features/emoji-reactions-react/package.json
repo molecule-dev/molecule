@@ -2,6 +2,7 @@
   "name": "@molecule/app-emoji-reactions-react",
   "version": "1.0.1",
   "description": "Generic emoji reaction-bar with toggle + add-reaction popover",
+  "homepage": "https://www.molecule.dev/packages/app-emoji-reactions-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

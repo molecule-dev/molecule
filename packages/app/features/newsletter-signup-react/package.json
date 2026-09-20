@@ -2,6 +2,7 @@
   "name": "@molecule/app-newsletter-signup-react",
   "version": "1.0.1",
   "description": "Email + subscribe button with success state for newsletter capture",
+  "homepage": "https://www.molecule.dev/packages/app-newsletter-signup-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

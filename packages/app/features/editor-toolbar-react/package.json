@@ -2,6 +2,7 @@
   "name": "@molecule/app-editor-toolbar-react",
   "version": "1.0.1",
   "description": "Top editor toolbar with title + version badge + primary/secondary action buttons",
+  "homepage": "https://www.molecule.dev/packages/app-editor-toolbar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

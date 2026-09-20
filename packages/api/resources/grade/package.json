@@ -64,7 +64,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/resources/grade"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/grade",
+  "homepage": "https://www.molecule.dev/packages/api-resource-grade",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

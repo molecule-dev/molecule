@@ -2,6 +2,7 @@
   "name": "@molecule/app-timeline-default",
   "version": "1.0.1",
   "description": "Default provider for @molecule/app-timeline",
+  "homepage": "https://www.molecule.dev/packages/app-timeline-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

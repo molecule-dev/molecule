@@ -1,6 +1,7 @@
 {
   "name": "@molecule/app-locales-auth",
   "version": "1.0.1",
+  "homepage": "https://www.molecule.dev/packages/app-locales-auth",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

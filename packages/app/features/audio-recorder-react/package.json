@@ -2,6 +2,7 @@
   "name": "@molecule/app-audio-recorder-react",
   "version": "1.0.1",
   "description": "Mic permission + MediaRecorder wrapper that emits a Blob — voice notes, meeting capture, AI voice agents",
+  "homepage": "https://www.molecule.dev/packages/app-audio-recorder-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

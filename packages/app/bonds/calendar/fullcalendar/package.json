@@ -2,6 +2,7 @@
   "name": "@molecule/app-calendar-fullcalendar",
   "version": "1.0.1",
   "description": "FullCalendar-style provider for @molecule/app-calendar",
+  "homepage": "https://www.molecule.dev/packages/app-calendar-fullcalendar",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

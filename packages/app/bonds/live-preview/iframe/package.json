@@ -46,7 +46,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/live-preview/iframe"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/live-preview/iframe",
+  "homepage": "https://www.molecule.dev/packages/app-live-preview-iframe",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

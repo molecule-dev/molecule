@@ -2,6 +2,7 @@
   "name": "@molecule/app-wiki-page-header-react",
   "version": "1.0.1",
   "description": "Wiki / docs page header with title, breadcrumbs, version, last-updated, edit/history actions, tags",
+  "homepage": "https://www.molecule.dev/packages/app-wiki-page-header-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

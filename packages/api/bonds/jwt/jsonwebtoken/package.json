@@ -46,7 +46,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/jwt/jsonwebtoken"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/jwt/jsonwebtoken",
+  "homepage": "https://www.molecule.dev/packages/api-jwt-jsonwebtoken",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

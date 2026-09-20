@@ -2,6 +2,7 @@
   "name": "@molecule/app-date-range-picker-default",
   "version": "1.0.1",
   "description": "Default provider for @molecule/app-date-range-picker",
+  "homepage": "https://www.molecule.dev/packages/app-date-range-picker-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

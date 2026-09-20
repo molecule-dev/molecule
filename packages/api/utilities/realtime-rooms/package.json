@@ -2,6 +2,7 @@
   "name": "@molecule/api-realtime-rooms",
   "version": "1.0.1",
   "description": "Realtime rooms abstraction: named pub/sub rooms with membership, capacity, join codes, role-based auth, built atop @molecule/api-realtime.",
+  "homepage": "https://www.molecule.dev/packages/api-realtime-rooms",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

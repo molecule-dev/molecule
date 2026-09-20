@@ -36,7 +36,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/middleware/cors"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/middleware/cors",
+  "homepage": "https://www.molecule.dev/packages/api-middleware-cors",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

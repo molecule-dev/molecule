@@ -45,7 +45,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/ai-summarization"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/ai-summarization",
+  "homepage": "https://www.molecule.dev/packages/api-ai-summarization",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

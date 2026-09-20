@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-vector-store-pgvector",
   "version": "1.0.1",
   "description": "PostgreSQL pgvector provider for molecule.dev — vector similarity search with pgvector",
+  "homepage": "https://www.molecule.dev/packages/api-ai-vector-store-pgvector",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

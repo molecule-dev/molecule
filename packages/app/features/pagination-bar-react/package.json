@@ -2,6 +2,7 @@
   "name": "@molecule/app-pagination-bar-react",
   "version": "1.0.1",
   "description": "React PaginationBar with page-window, size-select, and \"Showing X of Y\" text",
+  "homepage": "https://www.molecule.dev/packages/app-pagination-bar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

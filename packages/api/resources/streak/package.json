@@ -2,6 +2,7 @@
   "name": "@molecule/api-streak",
   "version": "1.0.1",
   "description": "Per-user per-activity streak tracking with freezes + cron audit.",
+  "homepage": "https://www.molecule.dev/packages/api-streak",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

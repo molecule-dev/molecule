@@ -58,7 +58,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/resources/api-key"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/api-key",
+  "homepage": "https://www.molecule.dev/packages/api-resource-api-key",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

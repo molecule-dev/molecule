@@ -60,7 +60,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/resources/reaction"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/reaction",
+  "homepage": "https://www.molecule.dev/packages/api-resource-reaction",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

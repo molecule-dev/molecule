@@ -38,7 +38,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/routing/vue-router"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/routing/vue-router",
+  "homepage": "https://www.molecule.dev/packages/app-routing-vue-router",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

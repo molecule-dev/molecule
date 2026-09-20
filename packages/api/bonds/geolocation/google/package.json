@@ -43,7 +43,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/geolocation/google"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/geolocation/google",
+  "homepage": "https://www.molecule.dev/packages/api-geolocation-google",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

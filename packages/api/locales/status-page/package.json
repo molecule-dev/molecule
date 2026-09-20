@@ -31,7 +31,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/locales/status-page"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/locales/status-page",
+  "homepage": "https://www.molecule.dev/packages/api-locales-status-page",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

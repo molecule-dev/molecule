@@ -2,6 +2,7 @@
   "name": "@molecule/app-footer-react",
   "version": "1.0.2",
   "description": "App-shell footer with About link, Privacy/Terms modals (i18n-loaded HTML), language picker, and version display",
+  "homepage": "https://www.molecule.dev/packages/app-footer-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-photo-lightbox-react",
   "version": "1.0.1",
   "description": "Fullscreen photo viewer with prev/next arrows, keyboard nav, close",
+  "homepage": "https://www.molecule.dev/packages/app-photo-lightbox-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

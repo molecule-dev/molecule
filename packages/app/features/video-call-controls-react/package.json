@@ -2,6 +2,7 @@
   "name": "@molecule/app-video-call-controls-react",
   "version": "1.0.1",
   "description": "Video-call participant tile + controls bar (mute/video/screen-share/end)",
+  "homepage": "https://www.molecule.dev/packages/app-video-call-controls-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

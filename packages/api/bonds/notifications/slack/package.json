@@ -41,7 +41,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/notifications/slack"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/notifications/slack",
+  "homepage": "https://www.molecule.dev/packages/api-notifications-slack",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

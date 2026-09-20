@@ -2,6 +2,7 @@
   "name": "@molecule/app-root-error-boundary-react",
   "version": "1.0.1",
   "description": "Top-level React error boundary that logs render errors via the bonded app logger and shows a minimal recovery surface",
+  "homepage": "https://www.molecule.dev/packages/app-root-error-boundary-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

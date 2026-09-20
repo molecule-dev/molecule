@@ -45,7 +45,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/search/elasticsearch"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/search/elasticsearch",
+  "homepage": "https://www.molecule.dev/packages/api-search-elasticsearch",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

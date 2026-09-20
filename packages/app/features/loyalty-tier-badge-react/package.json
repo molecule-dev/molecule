@@ -2,6 +2,7 @@
   "name": "@molecule/app-loyalty-tier-badge-react",
   "version": "1.0.1",
   "description": "Bronze/Silver/Gold/Platinum loyalty tier badge with progress to next tier — hotels, airlines, retail rewards",
+  "homepage": "https://www.molecule.dev/packages/app-loyalty-tier-badge-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

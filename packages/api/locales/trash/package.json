@@ -2,6 +2,7 @@
   "name": "@molecule/api-locales-trash",
   "version": "1.0.1",
   "description": "English-baseline translations for @molecule/api-trash error messages.",
+  "homepage": "https://www.molecule.dev/packages/api-locales-trash",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

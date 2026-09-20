@@ -2,6 +2,7 @@
   "name": "@molecule/app-contact-form-react",
   "version": "1.0.1",
   "description": "Generic name + email + message form with submit handler",
+  "homepage": "https://www.molecule.dev/packages/app-contact-form-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

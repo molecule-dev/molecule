@@ -2,6 +2,7 @@
   "name": "@molecule/api-image-compositor",
   "version": "1.0.1",
   "description": "Multi-layer photo composition with masks/blends — extends Sharp with blend-mode + mask compositing.",
+  "homepage": "https://www.molecule.dev/packages/api-image-compositor",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

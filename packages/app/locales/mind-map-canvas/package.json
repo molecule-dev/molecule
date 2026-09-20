@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-mind-map-canvas",
   "version": "1.0.1",
   "description": "Translations for @molecule/app-mind-map-canvas-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-mind-map-canvas",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

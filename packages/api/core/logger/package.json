@@ -35,7 +35,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/logger"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/logger",
+  "homepage": "https://www.molecule.dev/packages/api-logger",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

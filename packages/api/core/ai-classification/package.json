@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-classification",
   "version": "1.0.1",
   "description": "Zero-shot AI text classification — score text against candidate labels via the swappable ai chat bond",
+  "homepage": "https://www.molecule.dev/packages/api-ai-classification",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

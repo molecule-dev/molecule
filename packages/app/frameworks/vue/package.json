@@ -51,7 +51,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/frameworks/vue"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/frameworks/vue",
+  "homepage": "https://www.molecule.dev/packages/app-vue",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

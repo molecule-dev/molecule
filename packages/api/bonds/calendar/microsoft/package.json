@@ -50,7 +50,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/calendar/microsoft"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/calendar/microsoft",
+  "homepage": "https://www.molecule.dev/packages/api-calendar-microsoft",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

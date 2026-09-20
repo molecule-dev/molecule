@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-feature-barcode-scanner",
   "version": "1.0.1",
   "description": "Translations for @molecule/app-feature-barcode-scanner-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-feature-barcode-scanner",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

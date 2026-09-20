@@ -2,6 +2,7 @@
   "name": "@molecule/app-realtime-socketio",
   "version": "1.0.1",
   "description": "Socket.io provider for @molecule/app-realtime",
+  "homepage": "https://www.molecule.dev/packages/app-realtime-socketio",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-mind-map-canvas-react",
   "version": "1.0.1",
   "description": "React mind-map canvas — tree-structured nodes with parent/child links, automatic radial/horizontal/vertical tree layout, fold/unfold subtrees, inline edit-on-double-click; thin domain wrapper over @molecule/app-feature-canvas-react.",
+  "homepage": "https://www.molecule.dev/packages/app-mind-map-canvas-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

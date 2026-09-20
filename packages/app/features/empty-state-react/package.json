@@ -2,6 +2,7 @@
   "name": "@molecule/app-empty-state-react",
   "version": "1.0.1",
   "description": "React empty-state and CTA-card primitives",
+  "homepage": "https://www.molecule.dev/packages/app-empty-state-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

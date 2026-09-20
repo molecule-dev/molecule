@@ -2,6 +2,7 @@
   "name": "@molecule/app-share-link-card-react",
   "version": "1.0.1",
   "description": "Card with share URL, copy button, optional QR code placeholder, password toggle",
+  "homepage": "https://www.molecule.dev/packages/app-share-link-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

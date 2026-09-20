@@ -2,6 +2,7 @@
   "name": "@molecule/app-annotation-pin-react",
   "version": "1.0.1",
   "description": "Pin/annotation marker overlay with click-to-place pins and label/note popups for 3d-model-viewer, image annotations, map pins, hotspot tours",
+  "homepage": "https://www.molecule.dev/packages/app-annotation-pin-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

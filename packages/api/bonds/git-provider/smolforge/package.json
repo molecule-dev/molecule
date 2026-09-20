@@ -2,6 +2,7 @@
   "name": "@molecule/api-git-provider-smolforge",
   "version": "1.0.4",
   "description": "Git hosting provider for SmolForge (forge.smol.ai) — OAuth endpoints, token auth shape, repository listing and lookup.",
+  "homepage": "https://www.molecule.dev/packages/api-git-provider-smolforge",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

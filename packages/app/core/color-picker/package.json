@@ -2,6 +2,7 @@
   "name": "@molecule/app-color-picker",
   "version": "1.0.1",
   "description": "",
+  "homepage": "https://www.molecule.dev/packages/app-color-picker",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

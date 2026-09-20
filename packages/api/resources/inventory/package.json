@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-inventory",
   "version": "1.0.1",
   "description": "Inventory resource with stock tracking, reservations, low-stock alerts, movement history, and bulk updates.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-inventory",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

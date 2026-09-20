@@ -54,7 +54,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/middleware/billing-routes"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/middleware/billing-routes",
+  "homepage": "https://www.molecule.dev/packages/api-billing-routes",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -2,6 +2,7 @@
   "name": "@molecule/app-node-editor-panel-react",
   "version": "1.0.1",
   "description": "Right-side properties panel for node-based editors: titled aside, scroll body, sticky footer with save bar. Composable sub-primitives: Section, Slider, Toggle, RadioGroup. Generalised from ai-chatbot-builder BotEditorNodePropertiesPanel.",
+  "homepage": "https://www.molecule.dev/packages/app-node-editor-panel-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

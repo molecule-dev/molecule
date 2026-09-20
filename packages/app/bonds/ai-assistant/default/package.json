@@ -2,6 +2,7 @@
   "name": "@molecule/app-ai-assistant-default",
   "version": "1.0.1",
   "description": "Default HTTP/SSE AI assistant panel provider",
+  "homepage": "https://www.molecule.dev/packages/app-ai-assistant-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

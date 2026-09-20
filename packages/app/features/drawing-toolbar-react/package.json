@@ -2,6 +2,7 @@
   "name": "@molecule/app-drawing-toolbar-react",
   "version": "1.0.1",
   "description": "Whiteboard / canvas tool selector (select, rect, ellipse, arrow, text, sticky, pen)",
+  "homepage": "https://www.molecule.dev/packages/app-drawing-toolbar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

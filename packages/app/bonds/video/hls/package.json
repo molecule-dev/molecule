@@ -2,6 +2,7 @@
   "name": "@molecule/app-video-hls",
   "version": "1.0.1",
   "description": "hls.js provider for @molecule/app-video — HLS (.m3u8) streaming in every browser",
+  "homepage": "https://www.molecule.dev/packages/app-video-hls",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

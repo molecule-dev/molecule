@@ -2,6 +2,7 @@
   "name": "@molecule/app-inline-edit-react",
   "version": "1.0.1",
   "description": "Click-to-edit text + textarea + select with Save/Cancel",
+  "homepage": "https://www.molecule.dev/packages/app-inline-edit-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

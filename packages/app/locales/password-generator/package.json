@@ -8,6 +8,7 @@
     "directory": "packages/app/locales/password-generator"
   },
   "description": "Translations for @molecule/app-password-generator-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-password-generator",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

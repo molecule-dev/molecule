@@ -2,6 +2,7 @@
   "name": "@molecule/app-muscle-group-badge-react",
   "version": "1.0.1",
   "description": "Anatomical muscle-group badge with a body-silhouette glyph — workout-tracker exercise detail",
+  "homepage": "https://www.molecule.dev/packages/app-muscle-group-badge-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

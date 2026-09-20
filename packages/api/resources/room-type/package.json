@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-room-type",
   "version": "1.0.1",
   "description": "Room-type resource (capacity, rate plans, amenities) for hotel and rental marketplace apps.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-room-type",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -8,6 +8,7 @@
     "directory": "packages/app/locales/vote-cluster"
   },
   "description": "Translations for @molecule/app-vote-cluster-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-vote-cluster",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/api-qr-code",
   "version": "1.0.1",
   "description": "Server-side QR code generation — SVG / PNG / data-URL output for emails, PDFs, and push-notification icons.",
+  "homepage": "https://www.molecule.dev/packages/api-qr-code",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

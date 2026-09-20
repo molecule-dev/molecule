@@ -2,6 +2,7 @@
   "name": "@molecule/app-color-picker-react",
   "version": "1.0.1",
   "description": "HSV slider + RGB sliders + HEX input — controlled color picker for design canvases, photo editors, animation tools",
+  "homepage": "https://www.molecule.dev/packages/app-color-picker-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

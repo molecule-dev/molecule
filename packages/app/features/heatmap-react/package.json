@@ -2,6 +2,7 @@
   "name": "@molecule/app-heatmap-react",
   "version": "1.0.1",
   "description": "GitHub-contributions-style year-grid activity heatmap (SVG, no library dep)",
+  "homepage": "https://www.molecule.dev/packages/app-heatmap-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-data-table-ui-react",
   "version": "1.0.1",
   "description": "React row-level primitives for @molecule/app-ui-react Table (toolbar, row-with-actions, empty)",
+  "homepage": "https://www.molecule.dev/packages/app-data-table-ui-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

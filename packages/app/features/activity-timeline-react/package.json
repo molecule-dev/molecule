@@ -2,6 +2,7 @@
   "name": "@molecule/app-activity-timeline-react",
   "version": "1.0.1",
   "description": "Vertical activity timeline with connector line, dot markers, and per-event icons. Sister to @molecule/app-activity-feed-react for date-grouped chronological views.",
+  "homepage": "https://www.molecule.dev/packages/app-activity-timeline-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

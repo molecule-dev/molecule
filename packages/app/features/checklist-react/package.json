@@ -2,6 +2,7 @@
   "name": "@molecule/app-checklist-react",
   "version": "1.0.1",
   "description": "Onboarding checklist with checkable items + progress bar",
+  "homepage": "https://www.molecule.dev/packages/app-checklist-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

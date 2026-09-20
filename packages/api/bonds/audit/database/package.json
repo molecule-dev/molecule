@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/audit/database"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/audit/database",
+  "homepage": "https://www.molecule.dev/packages/api-audit-database",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -2,6 +2,7 @@
   "name": "@molecule/app-relative-time-react",
   "version": "1.0.1",
   "description": "formatRelativeTime utility + RelativeTime component with auto-refresh",
+  "homepage": "https://www.molecule.dev/packages/app-relative-time-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

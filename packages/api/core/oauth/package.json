@@ -36,7 +36,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/oauth"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/oauth",
+  "homepage": "https://www.molecule.dev/packages/api-oauth",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

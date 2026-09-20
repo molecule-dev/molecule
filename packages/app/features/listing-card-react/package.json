@@ -2,6 +2,7 @@
   "name": "@molecule/app-listing-card-react",
   "version": "1.0.1",
   "description": "React listing/product-card primitives with media, body, actions slots",
+  "homepage": "https://www.molecule.dev/packages/app-listing-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

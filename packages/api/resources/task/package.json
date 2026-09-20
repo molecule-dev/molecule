@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-task",
   "version": "1.0.1",
   "description": "Owner-scoped task CRUD with subtasks (parent_id), priorities, due dates, position ordering, and completion semantics. Extracted from the to-do-list flagship app.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-task",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

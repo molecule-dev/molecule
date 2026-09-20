@@ -2,6 +2,7 @@
   "name": "@molecule/app-stepper-react",
   "version": "1.0.1",
   "description": "Multi-step progress indicator: dots / bar / cards variants",
+  "homepage": "https://www.molecule.dev/packages/app-stepper-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

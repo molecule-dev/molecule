@@ -2,6 +2,7 @@
   "name": "@molecule/app-rating-form-react",
   "version": "1.0.1",
   "description": "Interactive star rating + textarea + submit form for collecting reviews",
+  "homepage": "https://www.molecule.dev/packages/app-rating-form-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

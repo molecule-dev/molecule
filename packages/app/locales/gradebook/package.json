@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-gradebook",
   "version": "1.0.2",
   "description": "Translations for @molecule/app-gradebook-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-gradebook",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

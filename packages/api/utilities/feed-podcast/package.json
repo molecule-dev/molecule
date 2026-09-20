@@ -2,6 +2,7 @@
   "name": "@molecule/api-feed-podcast",
   "version": "1.0.1",
   "description": "Podcast-specific RSS feed serializer with iTunes namespace and Podcast Index namespace support.",
+  "homepage": "https://www.molecule.dev/packages/api-feed-podcast",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-feature-canvas-react",
   "version": "1.0.1",
   "description": "Shared pan/zoom/select/transform infrastructure + node/edge primitives + pointer-event utilities for whiteboard / mind-map / design-canvas / presentation slide-canvas wrappers",
+  "homepage": "https://www.molecule.dev/packages/app-feature-canvas-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-help-button-react",
   "version": "1.0.1",
   "description": "Floating help button + help-popover chrome for support widgets",
+  "homepage": "https://www.molecule.dev/packages/app-help-button-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

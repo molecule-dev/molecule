@@ -2,6 +2,7 @@
   "name": "@molecule/app-join-code-react",
   "version": "1.0.1",
   "description": "Multi-slot join-code input with auto-advance, paste-to-fill, and alphabet validation. Used for live quiz join, virtual classroom room codes, and similar short-code entry UX.",
+  "homepage": "https://www.molecule.dev/packages/app-join-code-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

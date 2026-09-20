@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/feature-flags/database"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/feature-flags/database",
+  "homepage": "https://www.molecule.dev/packages/api-feature-flags-database",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

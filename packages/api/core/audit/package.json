@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/audit"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/audit",
+  "homepage": "https://www.molecule.dev/packages/api-audit",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

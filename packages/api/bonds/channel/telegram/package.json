@@ -2,6 +2,7 @@
   "name": "@molecule/api-channel-telegram",
   "version": "1.0.1",
   "description": "Telegram channel bond.",
+  "homepage": "https://www.molecule.dev/packages/api-channel-telegram",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

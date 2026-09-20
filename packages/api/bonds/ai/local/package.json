@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-local",
   "version": "1.0.2",
   "description": "AIProvider bond for any OpenAI-compatible local inference server (Ollama, LM Studio, llama.cpp, vLLM) — configurable base URL, keyless by default, streamed via raw fetch.",
+  "homepage": "https://www.molecule.dev/packages/api-ai-local",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

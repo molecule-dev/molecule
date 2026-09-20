@@ -2,6 +2,7 @@
   "name": "@molecule/app-floating-action-button-react",
   "version": "1.0.1",
   "description": "Fixed-position FAB with icon, tooltip, link-or-callback",
+  "homepage": "https://www.molecule.dev/packages/app-floating-action-button-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-feature-thread-tree",
   "version": "1.0.1",
   "description": "Translations for @molecule/app-feature-thread-tree-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-feature-thread-tree",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

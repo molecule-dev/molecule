@@ -2,6 +2,7 @@
   "name": "@molecule/app-currency-display-react",
   "version": "1.0.1",
   "description": "Currency amount formatting + CurrencyDisplay with optional original price + savings badge",
+  "homepage": "https://www.molecule.dev/packages/app-currency-display-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

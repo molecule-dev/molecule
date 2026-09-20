@@ -2,6 +2,7 @@
   "name": "@molecule/app-detail-header-react",
   "version": "1.0.1",
   "description": "Detail-page top bar with title, subtitle, status, actions, breadcrumb, optional search",
+  "homepage": "https://www.molecule.dev/packages/app-detail-header-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -8,6 +8,7 @@
     "directory": "packages/app/locales/common"
   },
   "description": "Common UI translations (close/continue/goBack/loading/saving/submit) shared across all molecule.dev apps in 73 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-common",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-file-dropzone-react",
   "version": "1.0.1",
   "description": "Drag-drop file upload area with click fallback and preview slot",
+  "homepage": "https://www.molecule.dev/packages/app-file-dropzone-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

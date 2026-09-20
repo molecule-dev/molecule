@@ -2,6 +2,7 @@
   "name": "@molecule/app-kanban",
   "version": "1.0.1",
   "description": "Kanban board core interface for molecule.dev — columns, cards, drag-to-move, WIP limits, and state subscriptions",
+  "homepage": "https://www.molecule.dev/packages/app-kanban",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

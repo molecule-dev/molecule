@@ -2,6 +2,7 @@
   "name": "@molecule/app-image-gallery-editor-react",
   "version": "1.0.1",
   "description": "Editable image gallery: hero drop zone + grid of thumbnail slots with click-to-remove and progress label. Extracted from property-listing ListingEditorImageGallery.",
+  "homepage": "https://www.molecule.dev/packages/app-image-gallery-editor-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -60,7 +60,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/frameworks/react-ui"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/frameworks/react-ui",
+  "homepage": "https://www.molecule.dev/packages/app-ui-react",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

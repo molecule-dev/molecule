@@ -2,6 +2,7 @@
   "name": "@molecule/app-vote-cluster-react",
   "version": "1.0.1",
   "description": "Up/down arrows + score; HN/Reddit-style voter cluster",
+  "homepage": "https://www.molecule.dev/packages/app-vote-cluster-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

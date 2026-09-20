@@ -2,6 +2,7 @@
   "name": "@molecule/app-now-playing-bar-react",
   "version": "1.0.1",
   "description": "Persistent now-playing bar — track artwork, title/artist, transport controls, scrubber, volume",
+  "homepage": "https://www.molecule.dev/packages/app-now-playing-bar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

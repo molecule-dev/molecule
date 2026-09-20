@@ -2,6 +2,7 @@
   "name": "@molecule/app-audio-player-react",
   "version": "1.0.1",
   "description": "HTML5 audio player chrome — play/pause, scrub, time, volume, optional waveform slot",
+  "homepage": "https://www.molecule.dev/packages/app-audio-player-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

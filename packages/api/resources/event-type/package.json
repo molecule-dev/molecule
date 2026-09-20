@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-event-type",
   "version": "1.0.1",
   "description": "Calendly-style event types + availability rules + booking flow",
+  "homepage": "https://www.molecule.dev/packages/api-resource-event-type",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

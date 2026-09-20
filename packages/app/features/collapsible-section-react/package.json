@@ -2,6 +2,7 @@
   "name": "@molecule/app-collapsible-section-react",
   "version": "1.0.1",
   "description": "Expandable section with optional \"show more / show less\" and count",
+  "homepage": "https://www.molecule.dev/packages/app-collapsible-section-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

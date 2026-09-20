@@ -8,6 +8,7 @@
     "directory": "packages/api/locales/property"
   },
   "description": "Property resource translations for 79 languages",
+  "homepage": "https://www.molecule.dev/packages/api-locales-property",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

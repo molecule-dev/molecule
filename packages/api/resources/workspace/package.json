@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-workspace",
   "version": "1.0.1",
   "description": "Workspaces + members + invites + role-aware authz.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-workspace",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

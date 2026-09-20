@@ -2,6 +2,7 @@
   "name": "@molecule/app-kanban-default",
   "version": "1.0.1",
   "description": "Default provider for @molecule/app-kanban — in-memory kanban board state management",
+  "homepage": "https://www.molecule.dev/packages/app-kanban-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

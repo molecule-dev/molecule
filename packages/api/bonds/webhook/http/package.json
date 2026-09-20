@@ -2,6 +2,7 @@
   "name": "@molecule/api-webhook-http",
   "version": "1.0.1",
   "description": "HTTP webhook provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-webhook-http",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

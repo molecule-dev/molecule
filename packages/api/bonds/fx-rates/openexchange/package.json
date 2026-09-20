@@ -48,7 +48,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/fx-rates/openexchange"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/fx-rates/openexchange",
+  "homepage": "https://www.molecule.dev/packages/api-fx-rates-openexchange",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

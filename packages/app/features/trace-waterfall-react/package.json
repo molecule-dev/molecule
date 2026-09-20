@@ -2,6 +2,7 @@
   "name": "@molecule/app-trace-waterfall-react",
   "version": "1.0.1",
   "description": "Distributed-trace span waterfall: hierarchical span bars positioned by time, indented by parent depth, with time axis and service color tags",
+  "homepage": "https://www.molecule.dev/packages/app-trace-waterfall-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

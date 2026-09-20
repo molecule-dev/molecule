@@ -58,7 +58,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/testing/mock-server"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/testing/mock-server",
+  "homepage": "https://www.molecule.dev/packages/api-mock-server",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

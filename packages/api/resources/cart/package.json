@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-cart",
   "version": "1.0.1",
   "description": "Shopping cart resource with item management, coupon support, and computed totals.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-cart",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

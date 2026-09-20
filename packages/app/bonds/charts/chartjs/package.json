@@ -2,6 +2,7 @@
   "name": "@molecule/app-charts-chartjs",
   "version": "1.0.1",
   "description": "Chart.js provider for @molecule/app-charts",
+  "homepage": "https://www.molecule.dev/packages/app-charts-chartjs",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

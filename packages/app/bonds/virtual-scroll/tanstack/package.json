@@ -2,6 +2,7 @@
   "name": "@molecule/app-virtual-scroll-tanstack",
   "version": "1.0.1",
   "description": "TanStack Virtual provider for @molecule/app-virtual-scroll",
+  "homepage": "https://www.molecule.dev/packages/app-virtual-scroll-tanstack",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

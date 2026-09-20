@@ -57,7 +57,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/code-editor/monaco"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/code-editor/monaco",
+  "homepage": "https://www.molecule.dev/packages/app-code-editor-monaco",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

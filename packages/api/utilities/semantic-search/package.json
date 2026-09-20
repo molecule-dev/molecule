@@ -2,6 +2,7 @@
   "name": "@molecule/api-semantic-search",
   "version": "1.0.1",
   "description": "Semantic search over any document corpus for molecule.dev — composes the ai-embeddings + ai-vector-store bonds (index + search)",
+  "homepage": "https://www.molecule.dev/packages/api-semantic-search",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

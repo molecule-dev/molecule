@@ -2,6 +2,7 @@
   "name": "@molecule/app-bulk-action-toolbar-react",
   "version": "1.0.1",
   "description": "Selection-aware floating toolbar that appears when N rows are selected",
+  "homepage": "https://www.molecule.dev/packages/app-bulk-action-toolbar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

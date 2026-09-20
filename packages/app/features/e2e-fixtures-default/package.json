@@ -51,7 +51,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/features/e2e-fixtures-default"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/features/e2e-fixtures-default",
+  "homepage": "https://www.molecule.dev/packages/app-e2e-fixtures-default",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -2,6 +2,7 @@
   "name": "@molecule/app-spreadsheet-grid-react",
   "version": "1.0.1",
   "description": "High-performance virtualized spreadsheet cell grid with frozen rows/columns, range selection, copy/paste, and in-cell editing — pairs with @molecule/api-formula-engine",
+  "homepage": "https://www.molecule.dev/packages/app-spreadsheet-grid-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

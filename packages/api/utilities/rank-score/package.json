@@ -2,6 +2,7 @@
   "name": "@molecule/api-rank-score",
   "version": "1.0.1",
   "description": "Pure-function ranking algorithms (HN decay, Reddit hot/best/controversial, recency, score).",
+  "homepage": "https://www.molecule.dev/packages/api-rank-score",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

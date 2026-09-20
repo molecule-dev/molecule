@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-vector-store-pinecone",
   "version": "1.0.1",
   "description": "Pinecone vector store provider for molecule.dev — serverless vector similarity search",
+  "homepage": "https://www.molecule.dev/packages/api-ai-vector-store-pinecone",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

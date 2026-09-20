@@ -39,7 +39,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/middleware/validation"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/middleware/validation",
+  "homepage": "https://www.molecule.dev/packages/api-middleware-validation",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

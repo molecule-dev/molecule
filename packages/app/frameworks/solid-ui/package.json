@@ -39,7 +39,7 @@
     "typescript": "6.0.3",
     "vitest": "4.1.11"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-solid",
+  "homepage": "https://www.molecule.dev/packages/app-ui-solid",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

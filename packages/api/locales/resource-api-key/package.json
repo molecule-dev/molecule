@@ -8,6 +8,7 @@
     "directory": "packages/api/locales/resource-api-key"
   },
   "description": "Locale bond for @molecule/api-resource-api-key.",
+  "homepage": "https://www.molecule.dev/packages/api-locales-resource-api-key",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

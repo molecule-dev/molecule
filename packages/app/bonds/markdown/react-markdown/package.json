@@ -2,6 +2,7 @@
   "name": "@molecule/app-markdown-react-markdown",
   "version": "1.0.1",
   "description": "react-markdown provider for @molecule/app-markdown",
+  "homepage": "https://www.molecule.dev/packages/app-markdown-react-markdown",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

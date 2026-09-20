@@ -2,6 +2,7 @@
   "name": "@molecule/api-bonds-default-express",
   "version": "1.0.1",
   "description": "Default API bond setup for Express-based apps. Provides setup functions for the 10 byte-identical bond wirings shared across the molecule fleet — config-env, database-postgresql, jwt-jsonwebtoken, middleware-{body-parser,cookie-parser,cors}-express, password-bcrypt, secrets-env, service-device, two-factor-otplib.",
+  "homepage": "https://www.molecule.dev/packages/api-bonds-default-express",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

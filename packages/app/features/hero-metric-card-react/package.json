@@ -2,6 +2,7 @@
   "name": "@molecule/app-hero-metric-card-react",
   "version": "1.0.1",
   "description": "React hero metric card — large primary metric, optional trend chip, icon/progress slot, accent border, used at the top of dashboards",
+  "homepage": "https://www.molecule.dev/packages/app-hero-metric-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-http-inspector-react",
   "version": "1.0.1",
   "description": "HTTP method + URL builder + headers/params/body tabs + response status/timing display",
+  "homepage": "https://www.molecule.dev/packages/app-http-inspector-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

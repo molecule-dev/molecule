@@ -2,6 +2,7 @@
   "name": "@molecule/app-nav-chrome-react",
   "version": "1.0.1",
   "description": "React shell components for top/side/bottom nav bars and footers",
+  "homepage": "https://www.molecule.dev/packages/app-nav-chrome-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

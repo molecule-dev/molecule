@@ -51,7 +51,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/oauth/apple"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/oauth/apple",
+  "homepage": "https://www.molecule.dev/packages/api-oauth-apple",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

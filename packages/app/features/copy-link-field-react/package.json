@@ -2,6 +2,7 @@
   "name": "@molecule/app-copy-link-field-react",
   "version": "1.0.1",
   "description": "Read-only input + copy-to-clipboard button for share links, API keys, webhook URLs",
+  "homepage": "https://www.molecule.dev/packages/app-copy-link-field-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

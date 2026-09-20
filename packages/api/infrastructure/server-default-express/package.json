@@ -2,6 +2,7 @@
   "name": "@molecule/api-server-default-express",
   "version": "1.0.1",
   "description": "Default Express server factory: bonds setup, DB migrations, body/cookie/cors middleware, /api router mount, /health endpoint, 401 normalization, optional HTTPS via self-signed pem certs. Extracts 80-line server.ts shipped by 79 fleet apps.",
+  "homepage": "https://www.molecule.dev/packages/api-server-default-express",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

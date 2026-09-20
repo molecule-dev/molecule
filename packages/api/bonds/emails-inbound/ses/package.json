@@ -51,7 +51,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/emails-inbound/ses"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/emails-inbound/ses",
+  "homepage": "https://www.molecule.dev/packages/api-emails-inbound-ses",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

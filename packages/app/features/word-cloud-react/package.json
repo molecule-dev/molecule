@@ -2,6 +2,7 @@
   "name": "@molecule/app-word-cloud-react",
   "version": "1.0.1",
   "description": "Word cloud visualization with hand-rolled spiral packing (SVG, no library dep)",
+  "homepage": "https://www.molecule.dev/packages/app-word-cloud-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

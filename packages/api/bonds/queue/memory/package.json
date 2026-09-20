@@ -41,7 +41,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/queue/memory"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/queue/memory",
+  "homepage": "https://www.molecule.dev/packages/api-queue-memory",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -2,6 +2,7 @@
   "name": "@molecule/api-locales-resource-course",
   "version": "1.0.1",
   "description": "Locale bond for @molecule/api-resource-course.",
+  "homepage": "https://www.molecule.dev/packages/api-locales-resource-course",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

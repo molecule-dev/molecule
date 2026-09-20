@@ -2,6 +2,7 @@
   "name": "@molecule/app-presence-indicator-react",
   "version": "1.0.1",
   "description": "Online/offline dot + presence overlay for avatars and user chips",
+  "homepage": "https://www.molecule.dev/packages/app-presence-indicator-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

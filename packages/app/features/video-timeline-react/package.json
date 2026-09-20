@@ -2,6 +2,7 @@
   "name": "@molecule/app-feature-video-timeline-react",
   "version": "1.0.1",
   "description": "Multi-track video timeline composing track-lane rows with a time ruler, playhead, zoom controls, and ripple/insert edit modes",
+  "homepage": "https://www.molecule.dev/packages/app-feature-video-timeline-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -8,6 +8,7 @@
     "directory": "packages/api/locales/product"
   },
   "description": "Product resource translations for 79 languages",
+  "homepage": "https://www.molecule.dev/packages/api-locales-product",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

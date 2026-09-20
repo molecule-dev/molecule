@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/kyc"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/kyc",
+  "homepage": "https://www.molecule.dev/packages/api-kyc",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

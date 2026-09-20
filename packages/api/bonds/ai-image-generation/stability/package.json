@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-image-generation-stability",
   "version": "1.0.1",
   "description": "Stability AI image generation provider for molecule.dev — Stable Diffusion 3, Stable Image Core/Ultra",
+  "homepage": "https://www.molecule.dev/packages/api-ai-image-generation-stability",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

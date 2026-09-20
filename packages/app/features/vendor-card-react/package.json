@@ -2,6 +2,7 @@
   "name": "@molecule/app-vendor-card-react",
   "version": "1.0.1",
   "description": "Seller / vendor / agent profile card with logo, description, rating, badges",
+  "homepage": "https://www.molecule.dev/packages/app-vendor-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

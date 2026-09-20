@@ -2,6 +2,7 @@
   "name": "@molecule/app-stepper-default",
   "version": "1.0.1",
   "description": "Default provider for @molecule/app-stepper",
+  "homepage": "https://www.molecule.dev/packages/app-stepper-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

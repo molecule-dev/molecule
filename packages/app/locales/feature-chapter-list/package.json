@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-feature-chapter-list",
   "version": "1.0.2",
   "description": "Translations for @molecule/app-feature-chapter-list-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-feature-chapter-list",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

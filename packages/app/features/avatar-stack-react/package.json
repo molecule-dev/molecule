@@ -2,6 +2,7 @@
   "name": "@molecule/app-avatar-stack-react",
   "version": "1.0.1",
   "description": "React stacked avatars and user-chip component",
+  "homepage": "https://www.molecule.dev/packages/app-avatar-stack-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

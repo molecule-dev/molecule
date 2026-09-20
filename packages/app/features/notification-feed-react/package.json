@@ -2,6 +2,7 @@
   "name": "@molecule/app-notification-feed-react",
   "version": "1.0.1",
   "description": "Vertical notification feed: typed icon + title + body + relative time + unread indicator, with optional per-row link wrapping",
+  "homepage": "https://www.molecule.dev/packages/app-notification-feed-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

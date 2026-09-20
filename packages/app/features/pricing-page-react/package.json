@@ -2,6 +2,7 @@
   "name": "@molecule/app-pricing-page-react",
   "version": "1.0.1",
   "description": "Drop-in pricing page composing pricing-table + subscription-plan-card + Stripe checkout, with PlanUpdated success page",
+  "homepage": "https://www.molecule.dev/packages/app-pricing-page-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

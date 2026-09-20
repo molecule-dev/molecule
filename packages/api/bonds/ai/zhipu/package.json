@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-zhipu",
   "version": "1.1.0",
   "description": "Zhipu GLM AI provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-ai-zhipu",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

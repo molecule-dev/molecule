@@ -2,6 +2,7 @@
   "name": "@molecule/app-tab-filter-react",
   "version": "1.0.1",
   "description": "Horizontal pill-tab filter with optional count badges and icons",
+  "homepage": "https://www.molecule.dev/packages/app-tab-filter-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-password-generator-react",
   "version": "1.0.1",
   "description": "Configurable secure password generator UI with length slider + character class toggles + regenerate + copy-to-clipboard",
+  "homepage": "https://www.molecule.dev/packages/app-password-generator-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/api-notification-center-database",
   "version": "1.0.1",
   "description": "Database-backed notification center provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-notification-center-database",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

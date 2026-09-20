@@ -2,6 +2,7 @@
   "name": "@molecule/app-detail-page-layout-react",
   "version": "1.0.1",
   "description": "Two/three-column detail-page layout: breadcrumb + topbar + sidebar + main content",
+  "homepage": "https://www.molecule.dev/packages/app-detail-page-layout-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

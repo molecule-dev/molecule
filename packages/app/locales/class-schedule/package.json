@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-class-schedule",
   "version": "1.0.2",
   "description": "Translations for @molecule/app-class-schedule-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-class-schedule",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

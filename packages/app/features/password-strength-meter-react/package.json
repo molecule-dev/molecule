@@ -2,6 +2,7 @@
   "name": "@molecule/app-password-strength-meter-react",
   "version": "1.0.1",
   "description": "Real-time password strength meter — 5-segment colored bar, score label, optional rule checklist",
+  "homepage": "https://www.molecule.dev/packages/app-password-strength-meter-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

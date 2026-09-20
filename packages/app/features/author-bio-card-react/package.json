@@ -2,6 +2,7 @@
   "name": "@molecule/app-author-bio-card-react",
   "version": "1.0.1",
   "description": "Author bio card with avatar, name, bio, social links, and follow button",
+  "homepage": "https://www.molecule.dev/packages/app-author-bio-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

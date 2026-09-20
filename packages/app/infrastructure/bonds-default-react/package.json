@@ -2,6 +2,7 @@
   "name": "@molecule/app-bonds-default-react",
   "version": "1.0.3",
   "description": "Default app-side bond wirings for React+Tailwind+react-router+localStorage+Arimo font+molecule icons. 5 setup functions consolidating 665 byte-identical per-app bond wiring files across the fleet.",
+  "homepage": "https://www.molecule.dev/packages/app-bonds-default-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

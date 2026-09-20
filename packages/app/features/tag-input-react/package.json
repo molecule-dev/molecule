@@ -2,6 +2,7 @@
   "name": "@molecule/app-tag-input-react",
   "version": "1.0.1",
   "description": "React tag-token input and tag-chip display",
+  "homepage": "https://www.molecule.dev/packages/app-tag-input-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

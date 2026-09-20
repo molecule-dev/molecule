@@ -2,6 +2,7 @@
   "name": "@molecule/app-feature-flag-row-react",
   "version": "1.0.1",
   "description": "Feature-flag list row: name + status + rollout% + environment toggles",
+  "homepage": "https://www.molecule.dev/packages/app-feature-flag-row-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

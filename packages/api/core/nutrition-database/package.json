@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/nutrition-database"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/nutrition-database",
+  "homepage": "https://www.molecule.dev/packages/api-nutrition-database",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

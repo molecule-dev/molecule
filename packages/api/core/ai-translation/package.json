@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-translation",
   "version": "1.0.1",
   "description": "",
+  "homepage": "https://www.molecule.dev/packages/api-ai-translation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

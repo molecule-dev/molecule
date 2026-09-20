@@ -2,6 +2,7 @@
   "name": "@molecule/api-workflow",
   "version": "1.0.1",
   "description": "Workflow/state machine core interface for molecule.dev — definitions, instances, transitions, and event history.",
+  "homepage": "https://www.molecule.dev/packages/api-workflow",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

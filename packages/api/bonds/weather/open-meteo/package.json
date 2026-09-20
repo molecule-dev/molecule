@@ -42,7 +42,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/weather/open-meteo"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/weather/open-meteo",
+  "homepage": "https://www.molecule.dev/packages/api-weather-open-meteo",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

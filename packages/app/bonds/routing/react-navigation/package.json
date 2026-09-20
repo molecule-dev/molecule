@@ -2,6 +2,7 @@
   "name": "@molecule/app-routing-react-navigation",
   "version": "1.0.1",
   "description": "React Navigation routing provider for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/app-routing-react-navigation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

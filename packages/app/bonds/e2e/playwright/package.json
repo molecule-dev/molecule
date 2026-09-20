@@ -32,7 +32,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/e2e/playwright"
   },
-  "homepage": "https://molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/app-e2e-playwright",
   "bugs": {
     "url": "https://github.com/molecule-dev/molecule/issues"
   },

@@ -2,6 +2,7 @@
   "name": "@molecule/app-whiteboard-canvas-react",
   "version": "1.0.1",
   "description": "React whiteboard canvas — pen / marker / eraser / sticky-note / line / arrow / shape / text tools layered on top of @molecule/app-feature-canvas-react",
+  "homepage": "https://www.molecule.dev/packages/app-whiteboard-canvas-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

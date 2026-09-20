@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/video-rooms"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/video-rooms",
+  "homepage": "https://www.molecule.dev/packages/api-video-rooms",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

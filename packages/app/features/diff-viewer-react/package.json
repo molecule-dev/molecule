@@ -2,6 +2,7 @@
   "name": "@molecule/app-diff-viewer-react",
   "version": "1.0.1",
   "description": "Side-by-side or unified text/code diff display",
+  "homepage": "https://www.molecule.dev/packages/app-diff-viewer-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

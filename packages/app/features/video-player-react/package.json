@@ -2,6 +2,7 @@
   "name": "@molecule/app-video-player-react",
   "version": "1.0.1",
   "description": "HTML5 video player chrome — play/pause, scrub, volume, fullscreen, optional caption track",
+  "homepage": "https://www.molecule.dev/packages/app-video-player-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

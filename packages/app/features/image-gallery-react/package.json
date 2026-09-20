@@ -2,6 +2,7 @@
   "name": "@molecule/app-image-gallery-react",
   "version": "1.0.1",
   "description": "Main image + thumbnail grid gallery with selection + optional upload",
+  "homepage": "https://www.molecule.dev/packages/app-image-gallery-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

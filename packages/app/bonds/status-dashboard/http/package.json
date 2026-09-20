@@ -48,7 +48,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/status-dashboard/http"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/status-dashboard/http",
+  "homepage": "https://www.molecule.dev/packages/app-status-dashboard-http",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

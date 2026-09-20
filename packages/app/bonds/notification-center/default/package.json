@@ -2,6 +2,7 @@
   "name": "@molecule/app-notification-center-default",
   "version": "1.0.1",
   "description": "Default provider for @molecule/app-notification-center",
+  "homepage": "https://www.molecule.dev/packages/app-notification-center-default",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

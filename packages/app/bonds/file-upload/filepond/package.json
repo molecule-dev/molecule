@@ -2,6 +2,7 @@
   "name": "@molecule/app-file-upload-filepond",
   "version": "1.0.1",
   "description": "FilePond-style file upload provider for @molecule/app-file-upload",
+  "homepage": "https://www.molecule.dev/packages/app-file-upload-filepond",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

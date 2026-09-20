@@ -2,6 +2,7 @@
   "name": "@molecule/app-embed-snippet-react",
   "version": "1.0.1",
   "description": "Configurable iframe-snippet generator + copy button — pre-formatted HTML/script snippets for embeddable widgets",
+  "homepage": "https://www.molecule.dev/packages/app-embed-snippet-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-note-card-react",
   "version": "1.0.1",
   "description": "Sticky-note style card with color, body, optional pin/archive actions",
+  "homepage": "https://www.molecule.dev/packages/app-note-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

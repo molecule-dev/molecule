@@ -47,7 +47,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/cron/bullmq"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/cron/bullmq",
+  "homepage": "https://www.molecule.dev/packages/api-cron-bullmq",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

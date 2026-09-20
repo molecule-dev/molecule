@@ -2,6 +2,7 @@
   "name": "@molecule/app-nps-distribution-react",
   "version": "1.0.1",
   "description": "Net Promoter Score distribution chart — 0-10 horizontal bars with detractor/passive/promoter color tiers and computed NPS score",
+  "homepage": "https://www.molecule.dev/packages/app-nps-distribution-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

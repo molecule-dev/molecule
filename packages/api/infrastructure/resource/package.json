@@ -59,7 +59,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/infrastructure/resource"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/infrastructure/resource",
+  "homepage": "https://www.molecule.dev/packages/api-resource",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

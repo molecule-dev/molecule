@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/calendar"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/calendar",
+  "homepage": "https://www.molecule.dev/packages/api-calendar",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

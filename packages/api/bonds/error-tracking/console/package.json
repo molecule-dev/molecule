@@ -41,7 +41,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/error-tracking/console"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/error-tracking/console",
+  "homepage": "https://www.molecule.dev/packages/api-error-tracking-console",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

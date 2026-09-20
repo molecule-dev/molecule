@@ -46,7 +46,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/emails/sendmail"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/emails/sendmail",
+  "homepage": "https://www.molecule.dev/packages/api-emails-sendmail",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

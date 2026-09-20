@@ -2,6 +2,7 @@
   "name": "@molecule/app-rating-display-react",
   "version": "1.0.1",
   "description": "Read-only and interactive star rating display with half-star support",
+  "homepage": "https://www.molecule.dev/packages/app-rating-display-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

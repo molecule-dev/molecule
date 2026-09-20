@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/code-sandbox"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/code-sandbox",
+  "homepage": "https://www.molecule.dev/packages/api-code-sandbox",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

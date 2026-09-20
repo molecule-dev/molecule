@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/state/redux"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/state/redux",
+  "homepage": "https://www.molecule.dev/packages/app-state-redux",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

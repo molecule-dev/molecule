@@ -2,6 +2,7 @@
   "name": "@molecule/app-adjustment-slider-react",
   "version": "1.0.1",
   "description": "Bipolar (zero-center) adjustment slider for photo-editor / DAW / animation parameters (brightness, exposure, gain, etc.) with double-click reset and arrow-key nudging",
+  "homepage": "https://www.molecule.dev/packages/app-adjustment-slider-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

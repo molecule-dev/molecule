@@ -2,6 +2,7 @@
   "name": "@molecule/api-reputation",
   "version": "1.0.1",
   "description": "Per-user reputation/karma scoring + badge tracking.",
+  "homepage": "https://www.molecule.dev/packages/api-reputation",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

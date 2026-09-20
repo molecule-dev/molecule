@@ -2,6 +2,7 @@
   "name": "@molecule/app-audio-howler",
   "version": "1.0.1",
   "description": "Howler.js provider for @molecule/app-audio",
+  "homepage": "https://www.molecule.dev/packages/app-audio-howler",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

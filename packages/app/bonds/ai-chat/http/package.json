@@ -48,7 +48,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/ai-chat/http"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ai-chat/http",
+  "homepage": "https://www.molecule.dev/packages/app-ai-chat-http",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

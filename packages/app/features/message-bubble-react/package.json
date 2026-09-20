@@ -2,6 +2,7 @@
   "name": "@molecule/app-message-bubble-react",
   "version": "1.0.1",
   "description": "React message bubble, composer, list, and thread indicator for chat UIs",
+  "homepage": "https://www.molecule.dev/packages/app-message-bubble-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

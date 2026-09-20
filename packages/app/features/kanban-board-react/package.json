@@ -2,6 +2,7 @@
   "name": "@molecule/app-kanban-board-react",
   "version": "1.0.1",
   "description": "React Kanban board, column, and card primitives",
+  "homepage": "https://www.molecule.dev/packages/app-kanban-board-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -43,7 +43,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/core/ide"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/core/ide",
+  "homepage": "https://www.molecule.dev/packages/app-ide",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

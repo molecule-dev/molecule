@@ -69,7 +69,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/testing"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/testing",
+  "homepage": "https://www.molecule.dev/packages/api-testing",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

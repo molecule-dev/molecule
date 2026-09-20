@@ -2,6 +2,7 @@
   "name": "@molecule/api-locales-resource-version-history",
   "version": "1.0.1",
   "description": "English-baseline translations for @molecule/api-resource-version-history error messages.",
+  "homepage": "https://www.molecule.dev/packages/api-locales-resource-version-history",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

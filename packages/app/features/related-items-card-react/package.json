@@ -2,6 +2,7 @@
   "name": "@molecule/app-related-items-card-react",
   "version": "1.0.1",
   "description": "Card container for cross-linked items: company→deals, contact→notes, ticket→articles",
+  "homepage": "https://www.molecule.dev/packages/app-related-items-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-onboarding-modal-react",
   "version": "1.0.1",
   "description": "Multi-step welcome / onboarding overlay with prev/next + skip",
+  "homepage": "https://www.molecule.dev/packages/app-onboarding-modal-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -51,7 +51,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/rich-text/quill"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/rich-text/quill",
+  "homepage": "https://www.molecule.dev/packages/app-rich-text-quill",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

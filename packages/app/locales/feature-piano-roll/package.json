@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-feature-piano-roll",
   "version": "1.0.2",
   "description": "Translations for @molecule/app-feature-piano-roll-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-feature-piano-roll",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

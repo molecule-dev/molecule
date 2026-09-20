@@ -2,6 +2,7 @@
   "name": "@molecule/app-habit-streak-card-react",
   "version": "1.0.1",
   "description": "Habit / streak card with current streak, best streak, completion heatmap",
+  "homepage": "https://www.molecule.dev/packages/app-habit-streak-card-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

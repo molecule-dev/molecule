@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-embeddings-openai",
   "version": "1.0.1",
   "description": "OpenAI embeddings provider for molecule.dev — text-embedding-3-small/large",
+  "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-openai",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

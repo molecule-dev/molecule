@@ -2,6 +2,7 @@
   "name": "@molecule/app-exif-panel-react",
   "version": "1.0.1",
   "description": "EXIF metadata renderer for photo-sharing apps — camera, lens, aperture, shutter, ISO, focal length, GPS, timestamp",
+  "homepage": "https://www.molecule.dev/packages/app-exif-panel-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

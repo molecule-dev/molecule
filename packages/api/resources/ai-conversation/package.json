@@ -62,7 +62,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/resources/ai-conversation"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/ai-conversation",
+  "homepage": "https://www.molecule.dev/packages/api-resource-ai-conversation",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

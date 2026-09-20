@@ -49,7 +49,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/realtime/socketio"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/realtime/socketio",
+  "homepage": "https://www.molecule.dev/packages/api-realtime-socketio",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

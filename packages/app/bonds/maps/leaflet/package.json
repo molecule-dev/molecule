@@ -2,6 +2,7 @@
   "name": "@molecule/app-maps-leaflet",
   "version": "1.0.1",
   "description": "Leaflet (OpenStreetMap) provider for @molecule/app-maps",
+  "homepage": "https://www.molecule.dev/packages/app-maps-leaflet",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

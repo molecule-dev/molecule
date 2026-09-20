@@ -2,6 +2,7 @@
   "name": "@molecule/app-mini-calendar-react",
   "version": "1.0.1",
   "description": "Month-view calendar with day selection and prev/next navigation",
+  "homepage": "https://www.molecule.dev/packages/app-mini-calendar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

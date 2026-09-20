@@ -2,6 +2,7 @@
   "name": "@molecule/app-log-viewer-react",
   "version": "1.0.1",
   "description": "Expandable log rows with timestamp, severity, service label, and JSON structured-data panel",
+  "homepage": "https://www.molecule.dev/packages/app-log-viewer-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

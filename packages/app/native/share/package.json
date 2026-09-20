@@ -44,7 +44,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/native/share"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/native/share",
+  "homepage": "https://www.molecule.dev/packages/app-share",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -60,7 +60,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/resources/template"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/resources/template",
+  "homepage": "https://www.molecule.dev/packages/api-resource-template",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -2,6 +2,7 @@
   "name": "@molecule/app-time-slot-picker-react",
   "version": "1.0.1",
   "description": "Pick a delivery / appointment slot from a list of available time windows",
+  "homepage": "https://www.molecule.dev/packages/app-time-slot-picker-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

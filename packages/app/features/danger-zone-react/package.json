@@ -2,6 +2,7 @@
   "name": "@molecule/app-danger-zone-react",
   "version": "1.0.1",
   "description": "DangerZoneSection + ConfirmDialog for destructive actions (delete account, reset, revoke)",
+  "homepage": "https://www.molecule.dev/packages/app-danger-zone-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

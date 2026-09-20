@@ -42,7 +42,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/multi-tenancy/schema"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/multi-tenancy/schema",
+  "homepage": "https://www.molecule.dev/packages/api-multi-tenancy-schema",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

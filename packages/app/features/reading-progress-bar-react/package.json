@@ -2,6 +2,7 @@
   "name": "@molecule/app-reading-progress-bar-react",
   "version": "1.0.1",
   "description": "Top-of-page scroll progress bar for article pages",
+  "homepage": "https://www.molecule.dev/packages/app-reading-progress-bar-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

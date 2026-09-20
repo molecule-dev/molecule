@@ -2,6 +2,7 @@
   "name": "@molecule/app-faceted-search-react",
   "version": "1.0.1",
   "description": "Faceted search primitives: segmented control, filter pill with dropdown, faceted bar container. Composable building blocks for property / catalog / report filter bars.",
+  "homepage": "https://www.molecule.dev/packages/app-faceted-search-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

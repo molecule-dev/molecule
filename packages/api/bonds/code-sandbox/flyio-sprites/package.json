@@ -50,7 +50,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/code-sandbox/flyio-sprites"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/code-sandbox/flyio-sprites",
+  "homepage": "https://www.molecule.dev/packages/api-code-sandbox-flyio-sprites",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

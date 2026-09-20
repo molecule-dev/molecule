@@ -2,6 +2,7 @@
   "name": "@molecule/app-notification-center-react",
   "version": "1.0.1",
   "description": "Notification dropdown panel with unread state, mark-all-read, item list, empty state",
+  "homepage": "https://www.molecule.dev/packages/app-notification-center-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

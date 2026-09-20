@@ -2,6 +2,7 @@
   "name": "@molecule/app-sidebar-layout-react",
   "version": "1.0.1",
   "description": "Vertical sidebar app shell: brand block + vertical NavLinks + user-menu slot, with React Router Outlet for nested routes",
+  "homepage": "https://www.molecule.dev/packages/app-sidebar-layout-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

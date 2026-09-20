@@ -30,7 +30,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/utilities/validation"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/utilities/validation",
+  "homepage": "https://www.molecule.dev/packages/api-utilities-validation",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

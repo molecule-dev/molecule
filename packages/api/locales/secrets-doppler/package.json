@@ -1,6 +1,7 @@
 {
   "name": "@molecule/api-locales-secrets-doppler",
   "version": "1.0.1",
+  "homepage": "https://www.molecule.dev/packages/api-locales-secrets-doppler",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

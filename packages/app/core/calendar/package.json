@@ -2,6 +2,7 @@
   "name": "@molecule/app-calendar",
   "version": "1.0.1",
   "description": "Calendar core interface for molecule.dev — month, week, day, and agenda views with drag-and-drop event editing",
+  "homepage": "https://www.molecule.dev/packages/app-calendar",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-layer-panel-react",
   "version": "1.0.1",
   "description": "Photoshop-style reorderable layer stack with visibility/lock toggles, opacity/blend-mode metadata, and inline rename — drag-to-reorder via pointer events",
+  "homepage": "https://www.molecule.dev/packages/app-layer-panel-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

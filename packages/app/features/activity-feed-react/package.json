@@ -2,6 +2,7 @@
   "name": "@molecule/app-activity-feed-react",
   "version": "1.0.1",
   "description": "React activity feed rows and date-grouped feed container",
+  "homepage": "https://www.molecule.dev/packages/app-activity-feed-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

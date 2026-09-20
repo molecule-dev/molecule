@@ -48,7 +48,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/rate-limit/redis"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/rate-limit/redis",
+  "homepage": "https://www.molecule.dev/packages/api-rate-limit-redis",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

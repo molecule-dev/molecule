@@ -2,6 +2,7 @@
   "name": "@molecule/app-order-timeline-react",
   "version": "1.0.1",
   "description": "Order / shipment progress timeline with placed → shipped → delivered milestones + ETA",
+  "homepage": "https://www.molecule.dev/packages/app-order-timeline-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

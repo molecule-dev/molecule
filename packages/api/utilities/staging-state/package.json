@@ -37,7 +37,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/utilities/staging-state"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/utilities/staging-state",
+  "homepage": "https://www.molecule.dev/packages/api-staging-state",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

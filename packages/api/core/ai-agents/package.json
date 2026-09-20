@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-agents",
   "version": "1.0.1",
   "description": "Batteries-included AI agent — a tool-calling loop over the swappable @molecule/api-ai chat bond",
+  "homepage": "https://www.molecule.dev/packages/api-ai-agents",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-translation-deepl",
   "version": "1.0.1",
   "description": "DeepL translation provider for molecule.dev — text translation via DeepL API",
+  "homepage": "https://www.molecule.dev/packages/api-ai-translation-deepl",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

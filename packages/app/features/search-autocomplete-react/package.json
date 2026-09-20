@@ -2,6 +2,7 @@
   "name": "@molecule/app-search-autocomplete-react",
   "version": "1.0.1",
   "description": "Search input with typeahead suggestion popover",
+  "homepage": "https://www.molecule.dev/packages/app-search-autocomplete-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

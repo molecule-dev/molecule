@@ -2,6 +2,7 @@
   "name": "@molecule/app-feature-animation-canvas-react",
   "version": "1.0.1",
   "description": "SVG animation canvas with state-machine keyframe graph + bezier easing curves for animation-tool flagships",
+  "homepage": "https://www.molecule.dev/packages/app-feature-animation-canvas-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

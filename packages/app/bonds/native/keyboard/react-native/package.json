@@ -2,6 +2,7 @@
   "name": "@molecule/app-keyboard-react-native",
   "version": "1.0.1",
   "description": "React Native keyboard provider for molecule.dev (Keyboard API)",
+  "homepage": "https://www.molecule.dev/packages/app-keyboard-react-native",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

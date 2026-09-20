@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-moderation-pipeline",
   "version": "1.0.1",
   "description": "AI content moderation pipeline — classify, policy-match, action, audit-log",
+  "homepage": "https://www.molecule.dev/packages/api-ai-moderation-pipeline",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

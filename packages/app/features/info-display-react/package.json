@@ -2,6 +2,7 @@
   "name": "@molecule/app-info-display-react",
   "version": "1.0.1",
   "description": "InfoCard and DefinitionList for structured label/value metadata display",
+  "homepage": "https://www.molecule.dev/packages/app-info-display-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

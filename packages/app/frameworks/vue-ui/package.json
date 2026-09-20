@@ -41,7 +41,7 @@
     "vue": "3.5.40",
     "vue-tsc": "3.3.8"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-vue",
+  "homepage": "https://www.molecule.dev/packages/app-ui-vue",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

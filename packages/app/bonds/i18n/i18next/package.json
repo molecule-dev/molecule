@@ -38,7 +38,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/i18n/i18next"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/i18n/i18next",
+  "homepage": "https://www.molecule.dev/packages/app-i18n-i18next",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

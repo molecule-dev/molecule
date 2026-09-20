@@ -2,6 +2,7 @@
   "name": "@molecule/app-address-display-react",
   "version": "1.0.1",
   "description": "Formatted multi-line address card with edit/delete actions",
+  "homepage": "https://www.molecule.dev/packages/app-address-display-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

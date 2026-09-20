@@ -2,6 +2,7 @@
   "name": "@molecule/app-class-schedule-react",
   "version": "1.0.1",
   "description": "Weekly class-schedule grid — 7-day × N-hour time grid with absolutely positioned events, click-event vs click-empty-slot dispatch, side-by-side stacking for overlaps",
+  "homepage": "https://www.molecule.dev/packages/app-class-schedule-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

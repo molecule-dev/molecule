@@ -2,6 +2,7 @@
   "name": "@molecule/app-canvas-engine-react",
   "version": "1.0.1",
   "description": "Vector design-tool canvas engine — rect/ellipse/line/path/text/group, multi-select + alignment + group/ungroup, snap-to-grid, undo/redo, blend modes. Thin wrapper consuming @molecule/app-feature-canvas-react.",
+  "homepage": "https://www.molecule.dev/packages/app-canvas-engine-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

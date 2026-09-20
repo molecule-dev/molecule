@@ -47,7 +47,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/bonds/pdf/pdfkit"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/bonds/pdf/pdfkit",
+  "homepage": "https://www.molecule.dev/packages/api-pdf-pdfkit",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

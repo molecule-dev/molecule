@@ -2,6 +2,7 @@
   "name": "@molecule/app-ai-voice",
   "version": "1.0.1",
   "description": "",
+  "homepage": "https://www.molecule.dev/packages/app-ai-voice",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

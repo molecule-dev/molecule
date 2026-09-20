@@ -2,6 +2,7 @@
   "name": "@molecule/app-breadcrumb-react",
   "version": "1.0.1",
   "description": "React breadcrumb navigation component",
+  "homepage": "https://www.molecule.dev/packages/app-breadcrumb-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

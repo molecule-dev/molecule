@@ -46,7 +46,7 @@
     "vitest": "4.1.11",
     "zone.js": "0.16.2"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/ui/tailwind-angular",
+  "homepage": "https://www.molecule.dev/packages/app-ui-angular",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

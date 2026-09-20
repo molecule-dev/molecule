@@ -2,6 +2,7 @@
   "name": "@molecule/api-ai-classification-llm",
   "version": "1.0.1",
   "description": "Zero-shot LLM text classifier for molecule.dev — scores candidate labels by composing the swappable ai chat bond",
+  "homepage": "https://www.molecule.dev/packages/api-ai-classification-llm",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-whiteboard-canvas",
   "version": "1.0.1",
   "description": "Translations for @molecule/app-whiteboard-canvas-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-whiteboard-canvas",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

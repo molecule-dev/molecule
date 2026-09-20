@@ -2,6 +2,7 @@
   "name": "@molecule/app-leaderboard-list-react",
   "version": "1.0.1",
   "description": "Wrapper list above leaderboard rows with podium / top-N highlighting",
+  "homepage": "https://www.molecule.dev/packages/app-leaderboard-list-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -2,6 +2,7 @@
   "name": "@molecule/app-secret-row-react",
   "version": "1.0.1",
   "description": "Secret/credential row: masked value + reveal/copy + rotation status + version",
+  "homepage": "https://www.molecule.dev/packages/app-secret-row-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

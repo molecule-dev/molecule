@@ -37,7 +37,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/app/bonds/storage/localstorage"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/app/bonds/storage/localstorage",
+  "homepage": "https://www.molecule.dev/packages/app-storage-localstorage",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

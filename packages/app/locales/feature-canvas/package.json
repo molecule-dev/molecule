@@ -2,6 +2,7 @@
   "name": "@molecule/app-locales-feature-canvas",
   "version": "1.0.1",
   "description": "Translations for @molecule/app-feature-canvas-react in 79 languages",
+  "homepage": "https://www.molecule.dev/packages/app-locales-feature-canvas",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

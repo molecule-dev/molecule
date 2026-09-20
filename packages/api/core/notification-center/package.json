@@ -2,6 +2,7 @@
   "name": "@molecule/api-notification-center",
   "version": "1.0.1",
   "description": "Notification center core interface for molecule.dev",
+  "homepage": "https://www.molecule.dev/packages/api-notification-center",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

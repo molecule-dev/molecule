@@ -2,6 +2,7 @@
   "name": "@molecule/app-progress-rings-react",
   "version": "1.0.1",
   "description": "Apple-Health-style SVG progress rings (single + concentric triad) — health summaries, onboarding, OKR",
+  "homepage": "https://www.molecule.dev/packages/app-progress-rings-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

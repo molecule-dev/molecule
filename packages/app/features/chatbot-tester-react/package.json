@@ -2,6 +2,7 @@
   "name": "@molecule/app-chatbot-tester-react",
   "version": "1.0.1",
   "description": "Sandbox UI for live-testing chatbots: bot picker, message thread, input area, error region. Extracted from ai-chatbot-builder TestChat.",
+  "homepage": "https://www.molecule.dev/packages/app-chatbot-tester-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

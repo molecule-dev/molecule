@@ -2,6 +2,7 @@
   "name": "@molecule/app-ui-nativewind",
   "version": "1.1.0",
   "description": "NativeWind UIClassMap bond for React Native",
+  "homepage": "https://www.molecule.dev/packages/app-ui-nativewind",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

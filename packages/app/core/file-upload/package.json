@@ -2,6 +2,7 @@
   "name": "@molecule/app-file-upload",
   "version": "1.0.1",
   "description": "File upload core interface for molecule.dev — progress tracking, validation, multi-file queues",
+  "homepage": "https://www.molecule.dev/packages/app-file-upload",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

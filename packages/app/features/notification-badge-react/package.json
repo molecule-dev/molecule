@@ -2,6 +2,7 @@
   "name": "@molecule/app-notification-badge-react",
   "version": "1.0.1",
   "description": "Unread count badge and positioned wrapper for attaching to any child",
+  "homepage": "https://www.molecule.dev/packages/app-notification-badge-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

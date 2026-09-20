@@ -2,6 +2,7 @@
   "name": "@molecule/app-status-badge-react",
   "version": "1.0.1",
   "description": "React status badge / pill with semantic kinds",
+  "homepage": "https://www.molecule.dev/packages/app-status-badge-react",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

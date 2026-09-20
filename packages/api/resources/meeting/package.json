@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-meeting",
   "version": "1.0.1",
   "description": "Meeting capture + transcription + action-item extraction",
+  "homepage": "https://www.molecule.dev/packages/api-resource-meeting",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

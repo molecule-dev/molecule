@@ -53,7 +53,7 @@
     "url": "https://github.com/molecule-dev/molecule.git",
     "directory": "packages/api/core/entitlements"
   },
-  "homepage": "https://github.com/molecule-dev/molecule/tree/main/packages/api/core/entitlements",
+  "homepage": "https://www.molecule.dev/packages/api-entitlements",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

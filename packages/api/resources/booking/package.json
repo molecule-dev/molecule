@@ -2,6 +2,7 @@
   "name": "@molecule/api-resource-booking",
   "version": "1.0.1",
   "description": "Booking/reservation resource with availability checking, lifecycle management, rescheduling, and resource-scoped queries.",
+  "homepage": "https://www.molecule.dev/packages/api-resource-booking",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
