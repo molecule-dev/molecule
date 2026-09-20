@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-command-palette",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Command palette core interface for molecule.dev — Cmd+K palette with hierarchical groups, nested pages, and fuzzy search",
   "homepage": "https://www.molecule.dev/packages/app-command-palette",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/app-bond": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.1",
+    "@molecule/app-bond": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

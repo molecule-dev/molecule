@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-activity-console",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Console activity sink for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -33,8 +33,8 @@
     "@molecule/api-logger": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-activity": "1.0.1",
-    "@molecule/api-logger": "1.0.1",
+    "@molecule/api-activity": "1.0.2",
+    "@molecule/api-logger": "1.0.2",
     "typescript": "6.0.3"
   },
   "repository": {

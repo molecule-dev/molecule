@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-solid",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Solid.js framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
     "solid-js": "^1.8.0"
   },
   "devDependencies": {
-    "@molecule/app-utilities": "1.0.1",
+    "@molecule/app-utilities": "1.0.2",
     "@types/node": "26.1.2",
     "solid-js": "1.9.14",
     "typescript": "6.0.3",

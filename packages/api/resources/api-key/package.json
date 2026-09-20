@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-api-key",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Hashed API tokens with scopes, masking, rotation, revocation, last-used tracking.",
   "type": "module",
   "main": "dist/index.js",
@@ -30,10 +30,10 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-bond": "1.0.1",
-    "@molecule/api-database": "1.0.1",
-    "@molecule/api-i18n": "1.0.2",
-    "@molecule/api-locales-resource-api-key": "1.0.1",
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-i18n": "1.0.3",
+    "@molecule/api-locales-resource-api-key": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-platform",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Platform detection and abstraction for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -34,8 +34,8 @@
     "@molecule/app-push": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-lifecycle": "1.0.1",
-    "@molecule/app-push": "1.0.1",
+    "@molecule/app-lifecycle": "1.0.2",
+    "@molecule/app-push": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

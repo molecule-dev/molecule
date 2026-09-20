@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-flow-canvas",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Translations for @molecule/app-flow-canvas-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-flow-canvas",
   "type": "module",

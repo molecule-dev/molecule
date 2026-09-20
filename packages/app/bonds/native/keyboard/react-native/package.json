@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-keyboard-react-native",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React Native keyboard provider for molecule.dev (Keyboard API)",
   "homepage": "https://www.molecule.dev/packages/app-keyboard-react-native",
   "type": "module",
@@ -33,9 +33,9 @@
     "directory": "packages/app/bonds/native/keyboard/react-native"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-keyboard": "1.0.1",
-    "@molecule/app-logger": "1.0.1",
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-keyboard": "1.0.2",
+    "@molecule/app-logger": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

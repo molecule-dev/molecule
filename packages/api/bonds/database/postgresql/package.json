@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-postgresql",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "PostgreSQL database client for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -25,7 +25,7 @@
     "pg": "8.22.0"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.1",
+    "@molecule/api-bond": "1.0.2",
     "@types/node": "26.1.2",
     "@types/pg": "8.20.0",
     "typescript": "6.0.3",

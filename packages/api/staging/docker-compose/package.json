@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-staging-docker-compose",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Docker Compose staging driver for local ephemeral environments in molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
     "@molecule/api-staging": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-staging": "1.0.1",
+    "@molecule/api-staging": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

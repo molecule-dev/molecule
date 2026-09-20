@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-vector-store-memory",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "In-memory vector store provider for molecule.dev — brute-force cosine similarity, zero external dependencies",
   "homepage": "https://www.molecule.dev/packages/api-ai-vector-store-memory",
   "type": "module",
@@ -39,7 +39,7 @@
     "@molecule/api-ai-vector-store": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai-vector-store": "1.0.1",
+    "@molecule/api-ai-vector-store": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

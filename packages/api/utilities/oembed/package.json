@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-oembed",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "oEmbed consumer + producer — discovers oEmbed endpoints and fetches normalized embed payloads (rich-link cards, Notion-style embeds).",
   "homepage": "https://www.molecule.dev/packages/api-oembed",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-sqlite",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "SQLite database provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -42,8 +42,8 @@
     "better-sqlite3": "13.0.2"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.1",
-    "@molecule/api-database": "1.0.1",
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-database": "1.0.2",
     "@types/better-sqlite3": "7.6.13",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

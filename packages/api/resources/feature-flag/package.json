@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-feature-flag",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Feature-flag CRUD with targeting rules, environments, and on/off/killed/scheduled states. Extracted from the feature-flag-manager flagship.",
   "homepage": "https://www.molecule.dev/packages/api-resource-feature-flag",
   "type": "module",

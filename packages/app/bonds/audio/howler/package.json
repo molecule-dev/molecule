@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-audio-howler",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Howler.js provider for @molecule/app-audio",
   "homepage": "https://www.molecule.dev/packages/app-audio-howler",
   "type": "module",
@@ -41,7 +41,7 @@
     ]
   },
   "devDependencies": {
-    "@molecule/app-audio": "1.0.1",
+    "@molecule/app-audio": "1.0.2",
     "@types/howler": "2.2.13",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

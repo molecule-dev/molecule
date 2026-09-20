@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-routing-react-navigation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React Navigation routing provider for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-routing-react-navigation",
   "type": "module",
@@ -34,8 +34,8 @@
     "directory": "packages/app/bonds/routing/react-navigation"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-routing": "1.0.1",
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-routing": "1.0.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",
     "react": "19.2.8",

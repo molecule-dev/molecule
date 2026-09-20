@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-sidebar-layout-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vertical sidebar app shell: brand block + vertical NavLinks + user-menu slot, with React Router Outlet for nested routes",
   "homepage": "https://www.molecule.dev/packages/app-sidebar-layout-react",
   "type": "module",
@@ -40,8 +40,8 @@
     "react-router": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "1.5.0",
-    "@molecule/app-ui": "1.1.0",
+    "@molecule/app-react": "1.5.1",
+    "@molecule/app-ui": "1.1.1",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-splash-screen-react-native",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React Native splash screen provider for molecule.dev (expo-splash-screen)",
   "homepage": "https://www.molecule.dev/packages/app-splash-screen-react-native",
   "type": "module",
@@ -34,9 +34,9 @@
     "directory": "packages/app/bonds/native/splash-screen/react-native"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-logger": "1.0.1",
-    "@molecule/app-splash-screen": "1.0.1",
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-logger": "1.0.2",
+    "@molecule/app-splash-screen": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

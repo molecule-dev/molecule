@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-canvas-engine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Translations for @molecule/app-canvas-engine-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-canvas-engine",
   "type": "module",

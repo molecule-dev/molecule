@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-grade",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Per-student per-course assignment grades + GPA computation + transcript aggregation",
   "type": "module",
   "main": "dist/index.js",
@@ -31,8 +31,8 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-locales-resource-grade": "1.0.1",
-    "@molecule/api-permissions": "1.0.1",
+    "@molecule/api-locales-resource-grade": "1.0.2",
+    "@molecule/api-permissions": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

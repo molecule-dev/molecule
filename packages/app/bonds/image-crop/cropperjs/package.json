@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-image-crop-cropperjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Cropper.js provider for @molecule/app-image-crop",
   "homepage": "https://www.molecule.dev/packages/app-image-crop-cropperjs",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/app-image-crop": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-image-crop": "1.0.1",
+    "@molecule/app-image-crop": "1.0.2",
     "@types/cropperjs": "1.3.3",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

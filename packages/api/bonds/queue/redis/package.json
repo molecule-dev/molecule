@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-queue-redis",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Redis/BullMQ queue provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

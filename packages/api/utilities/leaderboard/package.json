@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-leaderboard",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generic ranked-aggregate engine: record metrics, compute leaderboards over daily/weekly/monthly/all-time windows with rank tie-breaking, scope isolation, and cron rollup.",
   "homepage": "https://www.molecule.dev/packages/api-leaderboard",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-pdf-pdfkit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "PDFKit programmatic PDF generation provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -36,7 +36,7 @@
     "@molecule/api-pdf": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-pdf": "1.0.1",
+    "@molecule/api-pdf": "1.0.2",
     "@types/node": "26.1.2",
     "@types/pdfkit": "0.17.6",
     "typescript": "6.0.3",

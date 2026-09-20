@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-feature-audio-waveform",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Translations for @molecule/app-feature-audio-waveform-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-feature-audio-waveform",
   "type": "module",

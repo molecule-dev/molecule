@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-notification-center-default",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Default provider for @molecule/app-notification-center",
   "homepage": "https://www.molecule.dev/packages/app-notification-center-default",
   "type": "module",
@@ -36,7 +36,7 @@
     "@molecule/app-notification-center": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-notification-center": "1.0.1",
+    "@molecule/app-notification-center": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

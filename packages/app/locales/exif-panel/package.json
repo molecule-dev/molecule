@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-exif-panel",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Translations for @molecule/app-exif-panel-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-exif-panel",
   "type": "module",

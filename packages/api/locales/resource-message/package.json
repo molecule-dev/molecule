@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-locales-resource-message",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "English-baseline translations for @molecule/api-resource-message error and system messages.",
   "homepage": "https://www.molecule.dev/packages/api-locales-resource-message",
   "type": "module",

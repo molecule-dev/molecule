@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-routing-vue-router",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vue Router provider for @molecule/app-routing",
   "type": "module",
   "main": "dist/index.js",

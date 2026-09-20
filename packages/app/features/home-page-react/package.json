@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-home-page-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Authenticated home page rendering a personalized greeting (h2 with user name or fallback). Reads auth + i18n; styled via ClassMap.",
   "homepage": "https://www.molecule.dev/packages/app-home-page-react",
   "type": "module",
@@ -37,10 +37,10 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11",
-    "@molecule/app-auth": "1.1.0",
-    "@molecule/app-react": "1.5.0",
-    "@molecule/app-ui": "1.1.0",
-    "@molecule/app-locales-common": "1.0.2",
+    "@molecule/app-auth": "1.1.1",
+    "@molecule/app-react": "1.5.1",
+    "@molecule/app-ui": "1.1.1",
+    "@molecule/app-locales-common": "1.0.3",
     "@types/react": "19.2.17",
     "react": "19.2.8"
   },

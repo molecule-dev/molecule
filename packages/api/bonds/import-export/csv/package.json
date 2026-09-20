@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-import-export-csv",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CSV import/export provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -32,8 +32,8 @@
     "@molecule/api-import-export": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-database": "1.0.1",
-    "@molecule/api-import-export": "1.0.1",
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-import-export": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-icons-molecule",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Molecule default icon set for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
     "@molecule/app-icons": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-icons": "1.0.1",
+    "@molecule/app-icons": "1.0.2",
     "@primer/octicons": "19.32.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

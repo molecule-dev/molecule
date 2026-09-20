@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-virtual-scroll-tanstack",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "TanStack Virtual provider for @molecule/app-virtual-scroll",
   "homepage": "https://www.molecule.dev/packages/app-virtual-scroll-tanstack",
   "type": "module",
@@ -40,7 +40,7 @@
     "@molecule/app-virtual-scroll": ">=1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-virtual-scroll": "1.0.1",
+    "@molecule/app-virtual-scroll": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

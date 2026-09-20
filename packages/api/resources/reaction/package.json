@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-reaction",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Like/emoji reactions on any resource with polymorphic attachment",
   "type": "module",
   "main": "dist/index.js",

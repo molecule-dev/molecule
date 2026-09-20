@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-inbound-agentmail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AgentMail inbound email provider — verifies Svix-signed AgentMail webhooks and parses message.received payloads into normalized InboundEmail, replying through the AgentMail API.",
   "type": "module",
   "main": "dist/index.js",
@@ -31,7 +31,7 @@
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-emails-inbound": "1.0.1",
+    "@molecule/api-emails-inbound": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

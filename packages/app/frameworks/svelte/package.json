@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-svelte",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Svelte framework bindings for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -40,7 +40,7 @@
     "svelte": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@molecule/app-utilities": "1.0.1",
+    "@molecule/app-utilities": "1.0.2",
     "@types/node": "26.1.2",
     "svelte": "5.56.8",
     "typescript": "6.0.3",

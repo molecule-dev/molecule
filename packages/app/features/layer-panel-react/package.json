@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-layer-panel-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Photoshop-style reorderable layer stack with visibility/lock toggles, opacity/blend-mode metadata, and inline rename — drag-to-reorder via pointer events",
   "homepage": "https://www.molecule.dev/packages/app-layer-panel-react",
   "type": "module",
@@ -41,11 +41,11 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-react": "1.5.0",
-    "@molecule/app-ui": "1.1.0",
-    "@molecule/app-ui-react": "1.0.1",
-    "@molecule/app-ui-tailwind": "1.1.2",
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-react": "1.5.1",
+    "@molecule/app-ui": "1.1.1",
+    "@molecule/app-ui-react": "1.0.2",
+    "@molecule/app-ui-tailwind": "1.1.3",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",

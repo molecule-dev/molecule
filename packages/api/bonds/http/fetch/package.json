@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-http-fetch",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Native fetch HTTP client provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -32,7 +32,7 @@
     "@molecule/api-http": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-http": "1.0.1",
+    "@molecule/api-http": "1.0.2",
     "typescript": "6.0.3"
   },
   "repository": {

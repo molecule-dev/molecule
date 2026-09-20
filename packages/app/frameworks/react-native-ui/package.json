@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-react-native",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React Native UI component implementations for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/app-ui-react-native",
   "type": "module",
@@ -34,9 +34,9 @@
     "directory": "packages/app/frameworks/react-native-ui"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-icons": "1.0.1",
-    "@molecule/app-ui": "1.1.0",
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-icons": "1.0.2",
+    "@molecule/app-ui": "1.1.1",
     "@types/node": "26.1.2",
     "react": "19.2.8",
     "typescript": "6.0.3",

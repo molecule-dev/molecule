@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-i18n-default-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Default i18n bond setup with 80-language definitions, lazy-loading wrapper, and locale persistence via storage bond. Used by every flagship app — 113 lines of byte-identical wiring across the fleet.",
   "homepage": "https://www.molecule.dev/packages/app-i18n-default-react",
   "type": "module",
@@ -37,9 +37,9 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11",
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-locales-common": "1.0.2",
-    "@molecule/app-storage": "1.0.1"
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-locales-common": "1.0.3",
+    "@molecule/app-storage": "1.0.2"
   },
   "peerDependencies": {
     "@molecule/app-i18n": "^1.0.1",

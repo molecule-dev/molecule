@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-charts-chartjs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Chart.js provider for @molecule/app-charts",
   "homepage": "https://www.molecule.dev/packages/app-charts-chartjs",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/app-charts": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-charts": "1.0.1",
+    "@molecule/app-charts": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

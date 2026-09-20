@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-notification-center",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Notification center core interface for molecule.dev — in-app notification bell with pagination, read tracking, realtime updates, and polling",
   "homepage": "https://www.molecule.dev/packages/app-notification-center",
   "type": "module",
@@ -37,7 +37,7 @@
     "@molecule/app-bond": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-bond": "1.0.1",
+    "@molecule/app-bond": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

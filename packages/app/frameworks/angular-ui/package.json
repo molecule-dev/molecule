@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-angular",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Angular UI components for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -38,8 +38,8 @@
     "@angular/compiler-cli": "22.1.6",
     "@angular/core": "22.1.6",
     "@angular/platform-browser": "22.1.6",
-    "@molecule/app-i18n": "1.0.1",
-    "@molecule/app-icons": "1.0.1",
+    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-icons": "1.0.2",
     "@types/node": "26.1.2",
     "rxjs": "7.8.2",
     "typescript": "6.0.3",

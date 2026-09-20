@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-d1",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Database provider for Cloudflare D1 — SQLite on Workers, reusing the SQLite dialect with a D1-backed pool instead of a native driver.",
   "homepage": "https://www.molecule.dev/packages/api-database-d1",
   "type": "module",
@@ -33,8 +33,8 @@
     "directory": "packages/api/bonds/database/d1"
   },
   "devDependencies": {
-    "@molecule/api-database": "1.0.1",
-    "@molecule/api-database-sqlite": "1.0.3",
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-database-sqlite": "1.0.4",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
@@ -43,6 +43,6 @@
     "@molecule/api-database": "^1.0.1"
   },
   "dependencies": {
-    "@molecule/api-database-sqlite": "1.0.3"
+    "@molecule/api-database-sqlite": "1.0.4"
   }
 }

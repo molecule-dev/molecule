@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-locales-now-playing-bar",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Translations for @molecule/app-now-playing-bar-react in 79 languages",
   "homepage": "https://www.molecule.dev/packages/app-locales-now-playing-bar",
   "type": "module",

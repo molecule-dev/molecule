@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Resource CRUD operations and utilities for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -39,10 +39,10 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.1",
-    "@molecule/api-database": "1.0.1",
-    "@molecule/api-locales-resource": "1.0.1",
-    "@molecule/api-utilities-validation": "1.0.1",
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-locales-resource": "1.0.2",
+    "@molecule/api-utilities-validation": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-trash",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Polymorphic soft-delete + restore + purge helper for any resource (note-taking, doc-collab, kanban, project-management, wiki, etc.).",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-locales-trash": "1.0.1",
+    "@molecule/api-locales-trash": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11",

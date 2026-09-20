@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-footer-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "App-shell footer with About link, Privacy/Terms modals (i18n-loaded HTML), language picker, and version display",
   "homepage": "https://www.molecule.dev/packages/app-footer-react",
   "type": "module",
@@ -41,9 +41,9 @@
     "react-router": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "1.5.0",
-    "@molecule/app-ui": "1.1.0",
-    "@molecule/app-ui-react": "1.0.1",
+    "@molecule/app-react": "1.5.1",
+    "@molecule/app-ui": "1.1.1",
+    "@molecule/app-ui-react": "1.0.2",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",

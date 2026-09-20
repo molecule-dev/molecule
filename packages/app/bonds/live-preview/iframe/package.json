@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-live-preview-iframe",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Iframe-based live preview provider",
   "type": "module",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/app-live-preview": "1.0.1",
+    "@molecule/app-live-preview": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

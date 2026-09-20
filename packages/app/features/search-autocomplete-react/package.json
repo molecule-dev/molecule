@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-search-autocomplete-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Search input with typeahead suggestion popover",
   "homepage": "https://www.molecule.dev/packages/app-search-autocomplete-react",
   "type": "module",
@@ -39,9 +39,9 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "1.5.0",
-    "@molecule/app-ui": "1.1.0",
-    "@molecule/app-ui-react": "1.0.1",
+    "@molecule/app-react": "1.5.1",
+    "@molecule/app-ui": "1.1.1",
+    "@molecule/app-ui-react": "1.0.2",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",

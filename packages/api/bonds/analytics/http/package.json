@@ -38,7 +38,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@molecule/api-analytics": "1.0.1"
+    "@molecule/api-analytics": "1.0.2"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

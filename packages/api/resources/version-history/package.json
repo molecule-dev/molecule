@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-version-history",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Append-only versions table with diff and restore — generic versioning helper for any resource.",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   ],
   "license": "Apache-2.0",
   "devDependencies": {
-    "@molecule/api-locales-resource-version-history": "1.0.1",
+    "@molecule/api-locales-resource-version-history": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11",

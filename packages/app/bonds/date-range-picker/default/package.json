@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-date-range-picker-default",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Default provider for @molecule/app-date-range-picker",
   "homepage": "https://www.molecule.dev/packages/app-date-range-picker-default",
   "type": "module",
@@ -38,7 +38,7 @@
     "@molecule/app-date-range-picker": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-date-range-picker": "1.0.1",
+    "@molecule/app-date-range-picker": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

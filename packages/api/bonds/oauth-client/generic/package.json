@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-oauth-client-generic",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generic OAuth 2.0 client provider for molecule.dev — standard authorization code flow with PKCE support",
   "type": "module",
   "main": "dist/index.js",
@@ -33,7 +33,7 @@
     "@molecule/api-oauth-client": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-oauth-client": "1.0.1",
+    "@molecule/api-oauth-client": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

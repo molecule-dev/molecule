@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-notification",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Notification resource handlers for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/api-resource-notification",
   "type": "module",
@@ -36,7 +36,7 @@
     "@molecule/api-notification-center": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-notification-center": "1.0.1",
+    "@molecule/api-notification-center": "1.0.2",
     "@types/express": "5.0.6",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

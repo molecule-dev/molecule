@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-error-tracking-console",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Console (logger-based) error tracking provider for molecule.dev — zero-credential development default.",
   "type": "module",
   "main": "dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-wiki-page",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Wiki page CRUD with slug/breadcrumbs/parent, version-history via api-resource-version-history, optional search bond indexing.",
   "homepage": "https://www.molecule.dev/packages/api-resource-wiki-page",
   "type": "module",

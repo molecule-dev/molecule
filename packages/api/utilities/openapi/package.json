@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-openapi",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "OpenAPI 3.1 schema generator + validator + Swagger-UI-compatible JSON output.",
   "homepage": "https://www.molecule.dev/packages/api-openapi",
   "type": "module",
