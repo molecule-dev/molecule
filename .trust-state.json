@@ -46,6 +46,7 @@
   "@molecule/api-ai-xai",
   "@molecule/api-ai-zhipu",
   "@molecule/api-analytics",
+  "@molecule/api-analytics-http",
   "@molecule/api-analytics-mixpanel",
   "@molecule/api-analytics-posthog",
   "@molecule/api-animation-renderer",
