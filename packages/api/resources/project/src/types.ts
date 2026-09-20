@@ -53,6 +53,7 @@ export interface Project {
 export type CreateProjectInput = Pick<Project, 'name' | 'projectType'> & {
   framework?: string
   packages?: string[]
+  template?: string
 }
 
 /**

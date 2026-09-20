@@ -74,7 +74,14 @@ export async function create(req: MoleculeRequest, res: MoleculeResponse): Promi
       .track({
         name: 'project.created',
         userId,
-        properties: { projectType: input.projectType, framework: input.framework ?? null },
+        properties: {
+          projectType: input.projectType,
+          framework: input.framework ?? null,
+          // CLI telemetry carries these; add them here so the IDE-vs-CLI
+          // comparison dashboard sees the same dimensions from both surfaces.
+          template: input.template ?? null,
+          packages: (input.packages ?? []).slice(0, 10).join(','),
+        },
       })
       .catch(() => {})
     res.status(201).json(result.data)
