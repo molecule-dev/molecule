@@ -938,19 +938,28 @@ export function useChat(options: UseChatOptions): UseChatResult {
       if (store.streaming) return
       const serverStreaming =
         (provider as { isServerStreaming?: boolean }).isServerStreaming === true
-      // Overwrite when the server transcript DIFFERS from the local synced view —
-      // length AND last-message identity, not length alone: a transcript can
-      // change without growing (a teammate's note landed while a server-side
-      // cleanup dropped rows), and the old longer-only guard silently kept the
-      // stale view. An identical transcript still skips, so a plain foreground
-      // never churns. Locally-queued messages (not yet sent, so never in the
-      // server history) are re-appended rather than dropped.
-      const localQueued = store.messages.filter((m) => m.queued)
-      const localSynced = store.messages.filter((m) => !m.queued)
-      const historyChanged =
-        history.length !== localSynced.length ||
-        history[history.length - 1]?.id !== localSynced[localSynced.length - 1]?.id
-      if (history.length > 0 && historyChanged) setMessages([...history, ...localQueued])
+      // Converge on the server transcript, keeping everything the server does
+      // not have yet. Local-only messages are NOT just the queued ones: an
+      // answer the user just sent still carries its local id until the turn
+      // persists, and session-local cards (a tool card, a platform nudge) never
+      // reach history at all. Keeping only `queued` here deleted all of them
+      // whenever a lifecycle event or a push reconnect landed inside that
+      // window — the user watched their own answer and the card it answered
+      // vanish, then reappear when the next poll's merge brought them back
+      // (reported 2026-09-21). `localOnlyMessages` is the same helper the
+      // remote-history merge uses, so both paths preserve identically and its
+      // content-echo rule still drops the optimistic copy of a send the server
+      // has since persisted.
+      const prevMessages = store.messages
+      const extras = localOnlyMessages(prevMessages, history)
+      const next = extras.length > 0 ? [...history, ...extras] : history
+      // An identical transcript still skips, so a plain foreground never churns:
+      // compare the RESULT with what is on screen, not history with a filtered
+      // subset of it.
+      const changed =
+        next.length !== prevMessages.length ||
+        next[next.length - 1]?.id !== prevMessages[prevMessages.length - 1]?.id
+      if (history.length > 0 && changed) setMessages(next)
       if (serverStreaming && readOnly) {
         // Read-only watcher: re-enter the watch path instead of resuming.
         setStoreRemoteStreaming(storageKey, true)

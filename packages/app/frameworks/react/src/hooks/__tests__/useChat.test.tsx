@@ -2465,3 +2465,77 @@ describe('localOnlyMessages (remote-history merge)', () => {
     expect(localOnlyMessages(prev, history)).toEqual(prev)
   })
 })
+
+describe('reconcileHistory keeps what the server does not have yet', () => {
+  // The bug: a lifecycle event or a push-channel reconnect landing between a
+  // send and the turn's persist replaced the whole view with
+  // `[...history, ...queued]`, so an answer the user had just submitted — and
+  // the tool card it answered — disappeared from the chat, then reappeared when
+  // the next poll's merge brought them back (reported 2026-09-21).
+  it('keeps a just-sent answer that the reloaded history does not carry yet', async () => {
+    const { provider, startMessage, emitText, complete } = createMockProvider()
+    // History as the server has it a moment BEFORE the answer is persisted.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'srv-1', role: 'user', content: 'earlier question', timestamp: 1 },
+      { id: 'srv-2', role: 'assistant', content: 'earlier answer', timestamp: 2 },
+    ])
+
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('App not found or not live')
+    })
+    await act(async () => {
+      startMessage(0)
+      emitText(0, 'Thanks — checking.')
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+
+    const contents = result.current.messages.map((m) => m.content)
+    expect(contents).toContain('App not found or not live')
+    expect(contents).toContain('Thanks — checking.')
+    // The server's own rows are there too, and its copies lead.
+    expect(contents).toContain('earlier question')
+    expect(result.current.messages[0]?.id).toBe('srv-1')
+  })
+
+  it('still drops the optimistic echo once the server has persisted it', async () => {
+    const { provider, startMessage, complete } = createMockProvider()
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'srv-u', role: 'user', content: 'App not found or not live', timestamp: 1 },
+      { id: 'srv-a', role: 'assistant', content: 'Thanks — checking.', timestamp: 2 },
+    ])
+
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('App not found or not live')
+    })
+    await act(async () => {
+      startMessage(0)
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+
+    const userCopies = result.current.messages.filter(
+      (m) => m.role === 'user' && m.content === 'App not found or not live',
+    )
+    expect(userCopies).toHaveLength(1)
+    expect(userCopies[0]?.id).toBe('srv-u')
+  })
+})
