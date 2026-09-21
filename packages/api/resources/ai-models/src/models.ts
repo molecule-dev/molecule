@@ -104,6 +104,18 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   never under-charges when it lapses, per KNOWN_DIVERGENCES; -terra and
  *   -luna unchanged and matching the page; cache-read 0.1× and cache-write
  *   1.25× are now published first-party for all three tiers)
+ *   (re-verified 2026-09-21 on the pricing page: every cataloged OpenAI entry
+ *   is unchanged, and the -sol promo footnote still reads "available at least
+ *   through November 21, 2026". gpt-6-astra (released 2026-09-04) is listed at
+ *   $10/$50, cached input $1, cache writes $12.50 — and, like the Gemini/Grok
+ *   tiers, a long-context band above 272K prompt tokens that reprices the WHOLE
+ *   request ($20/$75, cached $2, cache writes $25): 2× input/cache, 1.5×
+ *   output. The catalog's price fields are flat per-MTok rates with no
+ *   context-band dimension, so that band is NOT modeled, exactly as the
+ *   >200K tiers above are not. It is moot for now — astra is deliberately NOT
+ *   in the catalog because it cannot serve a tool-carrying request on the
+ *   bond's /v1/chat/completions endpoint; see the DO NOT ADD block above the
+ *   OpenAI entries for the live 400s and the condition that lifts it.)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -578,6 +590,33 @@ export const MODELS: readonly ModelDefinition[] = [
   // high|xhigh, default medium); re-verify. Long-context 2× price variants
   // exist upstream — not modeled (same as the Gemini/Grok >200K tiers), and
   // neither are the Batch (0.5×) or Sol "Fast mode" (2×) cards.
+  //
+  // DO NOT ADD gpt-6-astra (OpenAI's flagship since 2026-09-04) UNTIL THE BOND
+  // MOVES TO /v1/responses. It is deliberately absent, not overlooked. The
+  // openai bond posts to /v1/chat/completions, and on that endpoint this model
+  // rejects EVERY request Synthase can send, because Synthase always carries
+  // function tools (probed live 2026-09-21 on our own key):
+  //   - tools + reasoning_effort low|medium|high|xhigh → 400 "Function tools
+  //     with reasoning_effort are not supported for gpt-6-astra in
+  //     /v1/chat/completions. To use function tools, use /v1/responses or set
+  //     reasoning_effort to 'none'."
+  //   - tools, field omitted → the same 400 (the model applies its own default)
+  //   - tools + reasoning_effort 'none' → 400 "Unsupported value: … does not
+  //     support 'none' with this model. Supported values are: 'low', 'medium',
+  //     'high', and 'xhigh'."
+  // So the gpt-5.6 workaround (`toolsRequireReasoningOff`, which pins an
+  // explicit 'none') does NOT carry over: OpenAI removed 'none' from this
+  // model's ladder, which closes the one door that made the 5.6 family usable.
+  // Nothing is wrong with the model or the account — no-tools chat and
+  // /v1/responses WITH tools both return 200. Both candidate entries were built
+  // and run through molecule-dev's verify:model-dispatch; both FAILED, so the
+  // entry was withheld rather than shipped broken (the glm-5.3-flash lesson:
+  // a catalog entry that cannot serve a Synthase-shaped turn breaks every turn
+  // on it). The freshness gate WILL keep listing it as a new-model candidate —
+  // that is correct; it becomes addable the day the bond speaks /v1/responses.
+  // Note also that the docs page advertises effort 'max', which
+  // /v1/chat/completions rejects for this model — verify the ladder against the
+  // endpoint, not the docs, when this is revisited.
   // ---------------------------------------------------------------------------
   {
     id: 'gpt-5.6-sol',
