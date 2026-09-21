@@ -336,12 +336,36 @@ const REMOTE_STREAM_POLL_MS = 3000
 const REMOTE_STREAM_POLL_MAX = 100
 
 /**
+ * Tool-call outputs that mean "this call is still open", not "this call
+ * finished". The server writes these sentinels when a call is waiting on the
+ * USER — an `ask_user` card, a hook-confirm gate — so a stored copy carrying
+ * one is BEHIND a live copy whose card the user has just answered. A bare
+ * `output !== undefined` check reads them as finished and scores the two copies
+ * equal, which is how an answered card got rewound to unanswered.
+ */
+const PENDING_TOOL_OUTPUT_STATUSES = new Set(['awaiting_response', 'blocked_by_hook'])
+
+/**
+ * Whether a tool call's output represents a RESOLVED call rather than one still
+ * waiting on the user.
+ *
+ * @param output - The tool call's output, as streamed or as persisted.
+ * @returns `true` when the call has a real result.
+ */
+function isResolvedToolOutput(output: unknown): boolean {
+  if (output === undefined) return false
+  const status = (output as { status?: unknown } | null)?.status
+  return !(typeof status === 'string' && PENDING_TOOL_OUTPUT_STATUSES.has(status))
+}
+
+/**
  * Rough forward-progress score for one message — how much of a streaming turn it
- * already holds. Used by {@link mergeRemoteHistory} to decide, per message id,
+ * already holds. Used by {@link convergeHistory} to decide, per message id,
  * whether the server snapshot or the locally-accumulated live copy is further
- * along, so a reconcile can only ever ADD content, never visibly rewind text a
- * pushed delta already rendered (the snapshot is throttled server-side and can
- * trail the live frames by a few seconds).
+ * along, so applying a history can only ever ADD content, never visibly rewind
+ * text a pushed delta already rendered (the snapshot is throttled server-side,
+ * and the full transcript is persisted only when the turn ENDS, so it can trail
+ * the live frames by anything from a few seconds to a whole turn).
  *
  * @param m - The message to score.
  * @returns A monotonic-ish progress score.
@@ -351,7 +375,9 @@ function messageProgress(m: ChatMessage): number {
   if (m.toolCalls) {
     for (const tc of m.toolCalls) {
       score += 50 // each started tool call is progress
-      if (tc.output !== undefined) score += 50 // …and each finished one, more
+      // …and each RESOLVED one, more. A call still marked awaiting_response /
+      // blocked_by_hook has not finished, so it must not score as though it had.
+      if (isResolvedToolOutput(tc.output)) score += 50
       score += tc.streamInputChars ?? 0
     }
   }
@@ -367,13 +393,43 @@ function messageProgress(m: ChatMessage): number {
 }
 
 /**
- * Merge a fresh server history into a conversation's live store WITHOUT
- * rewinding live progress. Per message id the further-along copy wins
- * ({@link messageProgress}); messages only the server has are added in the
- * server's order (fills gaps a watcher missed before it attached); messages only
- * the store has (optimistic bubbles, session-local cards) are preserved after
- * them. No-op while a local send owns the store — the sender's own stream is
- * authoritative and its post-send reconcile handles history.
+ * Converge a live store on a fresh server history WITHOUT rewinding anything
+ * already on screen. This is the ONE place a server transcript is applied to a
+ * local view — the page-lifecycle/push reconcile, the remote-turn poll, the
+ * dropped-stream reconcile and the resume poll all go through it, because two
+ * paths that almost agree is how a message came to vanish and come back
+ * (reported 2026-09-21).
+ *
+ * Per message id the further-along copy wins ({@link messageProgress}); a TIE
+ * keeps the local copy, so an unchanged transcript returns the same object
+ * references and a poll neither churns React nor rewinds. Messages only the
+ * server has are added in the server's order (filling gaps a watcher missed);
+ * messages only the store has ({@link localOnlyMessages} — an answer still
+ * carrying its local id, a session-local card, a turn the server has not
+ * persisted yet) are kept after them.
+ *
+ * @param prev - The store's current messages.
+ * @param history - The messages from the server's history endpoint.
+ * @returns The converged message list.
+ */
+export function convergeHistory(prev: ChatMessage[], history: ChatMessage[]): ChatMessage[] {
+  const prevById = new Map(prev.map((m) => [m.id, m]))
+  const merged = history.map((h) => {
+    const local = prevById.get(h.id)
+    if (!local) return h
+    // Keep the live copy when it is at least as far along; carry its streaming
+    // flag either way so an in-progress message keeps its spinner across merges.
+    const winner = messageProgress(local) >= messageProgress(h) ? local : h
+    return local.isStreaming && !winner.isStreaming ? { ...winner, isStreaming: true } : winner
+  })
+  const extras = localOnlyMessages(prev, history)
+  return extras.length > 0 ? [...merged, ...extras] : merged
+}
+
+/**
+ * Merge a fresh server history into a conversation's live store. No-op while a
+ * local send owns the store — the sender's own stream is authoritative and its
+ * post-send reconcile handles history.
  *
  * @param key - The conversation/project storage key.
  * @param history - The messages from the server's history endpoint.
@@ -382,19 +438,7 @@ function mergeRemoteHistory(key: string, history: ChatMessage[]): void {
   if (history.length === 0) return
   const store = getMessageStore(key)
   if (store.streaming) return
-  setStoreMessages(key, (prev) => {
-    const prevById = new Map(prev.map((m) => [m.id, m]))
-    const merged = history.map((h) => {
-      const local = prevById.get(h.id)
-      if (!local) return h
-      // Keep the live copy when it is further along; carry its streaming flag
-      // either way so an in-progress message keeps its spinner across merges.
-      const winner = messageProgress(local) > messageProgress(h) ? local : h
-      return local.isStreaming && !winner.isStreaming ? { ...winner, isStreaming: true } : winner
-    })
-    const extras = localOnlyMessages(prev, history)
-    return extras.length > 0 ? [...merged, ...extras] : merged
-  })
+  setStoreMessages(key, (prev) => convergeHistory(prev, history))
 }
 
 /**
@@ -946,19 +990,19 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // whenever a lifecycle event or a push reconnect landed inside that
       // window — the user watched their own answer and the card it answered
       // vanish, then reappear when the next poll's merge brought them back
-      // (reported 2026-09-21). `localOnlyMessages` is the same helper the
-      // remote-history merge uses, so both paths preserve identically and its
-      // content-echo rule still drops the optimistic copy of a send the server
-      // has since persisted.
+      // (reported 2026-09-21). `convergeHistory` is the same function the
+      // remote-history merge uses, so the two paths cannot drift again: it also
+      // refuses to rewind a message the server DOES have but has an older copy
+      // of, and its content-echo rule still drops the optimistic copy of a send
+      // the server has since persisted.
       const prevMessages = store.messages
-      const extras = localOnlyMessages(prevMessages, history)
-      const next = extras.length > 0 ? [...history, ...extras] : history
-      // An identical transcript still skips, so a plain foreground never churns:
-      // compare the RESULT with what is on screen, not history with a filtered
-      // subset of it.
+      const next = convergeHistory(prevMessages, history)
+      // An identical transcript still skips, so a plain foreground never churns.
+      // A tie keeps the local object, so an unchanged message converges to the
+      // very same reference — which makes an identity scan both exact and cheap,
+      // and catches a CONTENT-only change that a length/last-id compare misses.
       const changed =
-        next.length !== prevMessages.length ||
-        next[next.length - 1]?.id !== prevMessages[prevMessages.length - 1]?.id
+        next.length !== prevMessages.length || next.some((m, i) => m !== prevMessages[i])
       if (history.length > 0 && changed) setMessages(next)
       if (serverStreaming && readOnly) {
         // Read-only watcher: re-enter the watch path instead of resuming.
@@ -2163,7 +2207,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
           finalizeCurrent()
           try {
             const history = await provider.loadHistory(config)
-            if (mountedRef.current && history.length > 0) setMessages(history)
+            // Converge — never replace. "Usually completed" is not always: the
+            // server persists a turn's transcript when the turn ENDS, so a read
+            // taken while it is still running returns the PRE-turn transcript,
+            // and applying that verbatim wiped every message this turn had
+            // streamed until a later poll brought them back. The streamed
+            // messages carry the SERVER's own ids (each `message_start` sends
+            // the id it will persist under), so they fold back into place
+            // rather than duplicating once the turn does land.
+            if (mountedRef.current && history.length > 0) {
+              setMessages((prev) => convergeHistory(prev, history))
+            }
             applyServerMode()
             // The turn is often still RUNNING server-side (the socket died while
             // the page was backgrounded — mobile screen lock — or the edge proxy
@@ -2280,9 +2334,18 @@ export function useChat(options: UseChatOptions): UseChatResult {
           const history = await provider.loadHistory(config)
           if (!mountedRef.current) break
 
-          // Update displayed messages while keeping the spinner on the resumed message.
+          // Update displayed messages while keeping the spinner on the resumed
+          // message. This poll runs once a second for up to five minutes WHILE
+          // the server turn is still running — and the server persists nothing
+          // until it ends — so replacing the view with each read emptied the
+          // chat back to the pre-turn transcript for the whole wait. Converge
+          // instead: the read can only add what the store is missing.
           if (history.length > 0) {
-            setMessages(history.map((m) => (m.id === resumeId ? { ...m, isStreaming: true } : m)))
+            setMessages((prev) =>
+              convergeHistory(prev, history).map((m) =>
+                m.id === resumeId ? { ...m, isStreaming: true } : m,
+              ),
+            )
           }
 
           if (streamingProvider.isServerStreaming === false) break
@@ -2335,13 +2398,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
       }
 
       // Same dropped-stream reconcile as sendMessage: the resume stream closed
-      // with no terminal event while the server may still be streaming.
+      // with no terminal event while the server may still be streaming — so the
+      // same converge-never-replace rule applies (see the sendMessage site).
       let resumeAgain: { id: string; content: string } | null = null
       if (mountedRef.current && !receivedTerminal && !userAbortedRef.current) {
         finalizeCurrent()
         try {
           const history = await provider.loadHistory(config)
-          if (mountedRef.current && history.length > 0) setMessages(history)
+          if (mountedRef.current && history.length > 0) {
+            setMessages((prev) => convergeHistory(prev, history))
+          }
           if (
             (provider as { isServerStreaming?: boolean }).isServerStreaming === true &&
             history.length > 0

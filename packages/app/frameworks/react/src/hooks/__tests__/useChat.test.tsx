@@ -5,10 +5,15 @@ import type { ReactNode } from 'react'
 import React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { ChatEventHandler, ChatProvider, ChatStreamEvent } from '@molecule/app-ai-chat'
+import type {
+  ChatEventHandler,
+  ChatMessage,
+  ChatProvider,
+  ChatStreamEvent,
+} from '@molecule/app-ai-chat'
 
 import { ChatContext } from '../../contexts.js'
-import { localOnlyMessages, resetChatStoresForTests, useChat } from '../useChat.js'
+import { convergeHistory, localOnlyMessages, resetChatStoresForTests, useChat } from '../useChat.js'
 
 // ── Mock provider factory ─────────────────────────────────────────────────
 
@@ -33,6 +38,7 @@ function createMockProvider(): {
   emitText: (index: number, content: string) => void
   emit: (index: number, event: ChatStreamEvent) => void
   startMessage: (index: number, id?: string, timestamp?: number) => void
+  drop: (index: number) => void
 } {
   const deferreds: Deferred[] = []
 
@@ -106,6 +112,17 @@ function createMockProvider(): {
      */
     startMessage(index: number, id = `asst-${index}`, timestamp = 1_000) {
       deferreds[index].onEvent({ type: 'message_start', id, timestamp })
+    },
+    /**
+     * Close the i-th stream WITHOUT a terminal event — the socket dying, the
+     * edge proxy recycling the connection, a phone screen locking. This is the
+     * path that reconciles against the server's persisted history.
+     * @param index - The zero-based index of the sendMessage call to drop.
+     */
+    drop(index: number) {
+      const d = deferreds[index]
+      d.settled = true
+      d.resolve()
     },
   }
 }
@@ -2537,5 +2554,241 @@ describe('reconcileHistory keeps what the server does not have yet', () => {
     )
     expect(userCopies).toHaveLength(1)
     expect(userCopies[0]?.id).toBe('srv-u')
+  })
+})
+
+describe('applying a server history never rewinds what is already on screen', () => {
+  // The second half of the 2026-09-21 report. Keeping a local-only message is
+  // not enough: when the server DOES have the message but its copy is BEHIND
+  // the live one, replacing it wholesale rewinds the content under the user.
+  // The sharpest instance is an ask_user card: the client resolves it
+  // optimistically the moment the user answers, while the server's stored copy
+  // still reads `{ status: 'awaiting_response' }` until the answer POST lands.
+  // A reconcile in that window put the card back to unanswered and the user
+  // watched their own words disappear.
+  it('keeps a card the user just answered when the server still has it awaiting', async () => {
+    const { provider, startMessage, emit, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    // A turn that ends on an ask_user card.
+    await act(async () => {
+      result.current.sendMessage('deploy it')
+    })
+    await act(async () => {
+      startMessage(0, 'asst-ask', 1_000)
+      emit(0, {
+        type: 'tool_use',
+        id: 'tc-ask',
+        name: 'ask_user',
+        input: { question: 'Could you open the site and tell me what you see?' },
+      })
+      emit(0, { type: 'tool_result', id: 'tc-ask', output: { status: 'awaiting_response' } })
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    // The user answers it. `askUserAnswer` resolves the card in the store right
+    // away — this is the copy the server has not caught up with yet.
+    await act(async () => {
+      result.current.sendMessage('App not found or not live', undefined, {
+        suppressUserMessage: true,
+        askUserAnswer: true,
+      })
+    })
+    await act(async () => {
+      complete(1)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    // The server's transcript as it stood a moment before the answer persisted.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      {
+        id: 'asst-ask',
+        role: 'assistant',
+        content: '',
+        timestamp: 1_000,
+        toolCalls: [
+          {
+            id: 'tc-ask',
+            name: 'ask_user',
+            input: { question: 'Could you open the site and tell me what you see?' },
+            output: { status: 'awaiting_response' },
+          },
+        ],
+      },
+    ])
+
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+
+    const card = result.current.messages
+      .find((m) => m.id === 'asst-ask')
+      ?.toolCalls?.find((tc) => tc.id === 'tc-ask')
+    expect(card?.output).toBe('App not found or not live')
+  })
+
+  it('keeps the text a message has streamed when the server copy is shorter', async () => {
+    const { provider, startMessage, emitText, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    await act(async () => {
+      startMessage(0, 'asst-live', 1_000)
+      emitText(0, 'The full answer the user can already read.')
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    // A snapshot taken mid-turn: same id, less content.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'asst-live', role: 'assistant', content: 'The full', timestamp: 1_000 },
+    ])
+
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+
+    expect(result.current.messages.find((m) => m.id === 'asst-live')?.content).toBe(
+      'The full answer the user can already read.',
+    )
+  })
+
+  it('takes the server copy once it is the one that is further along', async () => {
+    const { provider, startMessage, emitText, complete } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    await act(async () => {
+      startMessage(0, 'asst-live', 1_000)
+      emitText(0, 'partial')
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      {
+        id: 'asst-live',
+        role: 'assistant',
+        content: 'partial, and then everything the turn went on to say',
+        timestamp: 1_000,
+      },
+    ])
+
+    await act(async () => {
+      await result.current.reconcileHistory()
+    })
+
+    expect(result.current.messages.find((m) => m.id === 'asst-live')?.content).toBe(
+      'partial, and then everything the turn went on to say',
+    )
+  })
+
+  it('does not wipe the turn when the stream drops before the server has persisted it', async () => {
+    const { provider, startMessage, emitText, drop } = createMockProvider()
+    // The server persists a turn's transcript only when the turn ENDS, so a
+    // history read taken while it is still running returns the PRE-turn
+    // transcript. The dropped-stream reconcile used to apply that verbatim,
+    // which wiped every message the turn had streamed until it finished and a
+    // later poll brought them back.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'srv-old', role: 'user', content: 'deploy it', timestamp: 1 },
+    ])
+
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('deploy it')
+    })
+    await act(async () => {
+      startMessage(0, 'asst-inflight', 2_000)
+      emitText(0, 'Deploying now…')
+      // The socket dies with no done/error event.
+      drop(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    const contents = result.current.messages.map((m) => m.content)
+    expect(contents).toContain('Deploying now…')
+  })
+})
+
+describe('convergeHistory', () => {
+  /**
+   * A minimal message for the converge unit tests.
+   * @param id - The message id.
+   * @param content - The message content.
+   * @param toolCalls - Optional tool calls to attach.
+   * @returns The message.
+   */
+  function msg(
+    id: string,
+    content: string,
+    toolCalls?: { id: string; name: string; output?: unknown }[],
+  ): ChatMessage {
+    return {
+      id,
+      role: 'assistant',
+      content,
+      timestamp: 1,
+      ...(toolCalls ? { toolCalls: toolCalls as ChatMessage['toolCalls'] } : {}),
+    }
+  }
+
+  it('returns the same object references when nothing moved, so a poll cannot churn', () => {
+    const prev = [msg('a', 'hello'), msg('b', 'world')]
+    const history = [msg('a', 'hello'), msg('b', 'world')]
+    const next = convergeHistory(prev, history)
+    expect(next[0]).toBe(prev[0])
+    expect(next[1]).toBe(prev[1])
+  })
+
+  it('does not count a call still awaiting the user as a finished one', () => {
+    const answered = msg('a', '', [{ id: 't', name: 'ask_user', output: 'my answer' }])
+    const awaiting = msg('a', '', [
+      { id: 't', name: 'ask_user', output: { status: 'awaiting_response' } },
+    ])
+    expect(convergeHistory([answered], [awaiting])[0]).toBe(answered)
+  })
+
+  it('does not count a call still blocked by a hook as a finished one', () => {
+    const approved = msg('a', '', [{ id: 't', name: 'exec_command', output: 'ok' }])
+    const blocked = msg('a', '', [
+      { id: 't', name: 'exec_command', output: { status: 'blocked_by_hook' } },
+    ])
+    expect(convergeHistory([approved], [blocked])[0]).toBe(approved)
+  })
+
+  it('takes the server copy once it carries more', () => {
+    const local = msg('a', 'partial')
+    const server = msg('a', 'partial and the rest of it')
+    expect(convergeHistory([local], [server])[0]).toBe(server)
+  })
+
+  it('keeps a turn the server has not persisted yet, after the rows it has', () => {
+    const prev = [msg('srv-1', 'earlier'), msg('live-1', 'streaming now')]
+    const history = [msg('srv-1', 'earlier')]
+    expect(convergeHistory(prev, history).map((m) => m.id)).toEqual(['srv-1', 'live-1'])
+  })
+
+  it('adds rows only the server has, in the server order', () => {
+    const prev = [msg('srv-1', 'earlier')]
+    const history = [msg('srv-1', 'earlier'), msg('srv-2', "a teammate's note")]
+    expect(convergeHistory(prev, history).map((m) => m.id)).toEqual(['srv-1', 'srv-2'])
   })
 })
