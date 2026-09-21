@@ -63,7 +63,7 @@
     "@molecule/app-bond": "1.0.2",
     "@molecule/app-e2e": "1.0.1",
     "@molecule/app-e2e-fixtures-default": "1.1.1",
-    "@playwright/test": "1.62.0",
+    "@playwright/test": "1.63.0",
     "@types/node": "26.1.2",
     "@types/ws": "8.18.1",
     "typescript": "6.0.3",
