@@ -256,7 +256,9 @@ describe('buildTools', () => {
     backend.readDir = vi.fn().mockResolvedValue([{ name: 'real.ts', type: 'file' }])
     const tools = buildTools(backend)
     const readFile = tools.find((t) => t.name === 'read_file')!
-    const result = (await readFile.execute({ paths: ['good.ts', 'missing.ts', 'also-good.ts'] })) as {
+    const result = (await readFile.execute({
+      paths: ['good.ts', 'missing.ts', 'also-good.ts'],
+    })) as {
       files: Array<{ content?: string; error?: string }>
     }
     expect(result.files).toHaveLength(3)
@@ -287,6 +289,72 @@ describe('buildTools', () => {
     const readFile = tools.find((t) => t.name === 'read_file')!
     const result = (await readFile.execute({ paths: [] })) as { error: string }
     expect(result.error).toContain('empty')
+  })
+
+  // ── the ceiling a command cannot survive ──────────────────────────────────
+  // Ten commands across six agent runs asked for 600-1200s, were stopped at
+  // 290s, and returned a few hundred bytes — every one of them piped into
+  // tail/grep, which print nothing until the pipeline ends. 49 minutes, 11% of
+  // all measured wall clock, for no information.
+
+  it('refuses a declared-long command whose output cannot survive the ceiling', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'cd app && timeout 900 node scripts/verify-all.mjs --browser 2>&1 | tail -60',
+    })) as { error: string }
+    expect(result.error).toContain('asks for 900s')
+    expect(result.error).toContain('stops at 290s')
+    expect(result.error).toContain('Nothing was run')
+    expect(backend.run).not.toHaveBeenCalled()
+  })
+
+  it('reads the declared budget from the timeout PARAMETER too', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: "npm test 2>&1 | grep -E 'Tests |Test Files'",
+      timeout: 900_000,
+    })) as { error?: string }
+    expect(result.error).toContain('asks for 900s')
+    expect(backend.run).not.toHaveBeenCalled()
+  })
+
+  it('still RUNS a declared-long command whose partial output would survive', async () => {
+    // Without a buffering pipe, an overrun hands back everything printed so
+    // far — there is something to learn, so it is not refused.
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      command: 'timeout 900 npx playwright test --reporter=line',
+    })) as { error?: string }
+    expect(result.error).toBeUndefined()
+    expect(backend.run).toHaveBeenCalled()
+  })
+
+  it('still RUNS a piped command that declares no budget of its own', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({ command: 'npm run build 2>&1 | tail -20' })) as {
+      error?: string
+    }
+    expect(result.error).toBeUndefined()
+    expect(backend.run).toHaveBeenCalled()
+  })
+
+  it("does not read a filename that merely contains 'timeout' as a budget", async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({ command: 'cat src/timeout900.ts | grep foo' })) as {
+      error?: string
+    }
+    expect(result.error).toBeUndefined()
+    expect(backend.run).toHaveBeenCalled()
   })
 
   it('find_files returns a clear error when pattern is missing (no crash)', async () => {

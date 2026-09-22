@@ -14,6 +14,7 @@ import { TOOL_SCHEMAS } from './schemas.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
+  declaredBudgetSeconds,
   DEFAULT_SEARCH_EXCLUDED_DIRS,
   directoryReadHint,
   isEnvFilePath,
@@ -25,6 +26,7 @@ import {
   MAX_READ_SIZE,
   MAX_SEARCH_RESULTS,
   MAX_WRITE_SIZE,
+  outputIsWithheldUntilExit,
   pathArgError,
   redactSecrets,
   redactSecretsInCode,
@@ -760,6 +762,30 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (blockCommand) {
         const blocked = blockCommand(command, cwd)
         if (blocked) return { error: blocked }
+      }
+
+      // A command that declares its OWN budget larger than this tool's ceiling,
+      // and whose output is withheld until the pipeline ends, cannot produce
+      // anything: it will be stopped at the ceiling having printed nothing.
+      // Measured across six agent runs, that combination was ten commands and
+      // 49 minutes — 11% of all wall clock — each returning a few hundred bytes.
+      // Refusing in five seconds, naming both ways out, is strictly better than
+      // spending the ceiling to say the same thing afterwards. A command that
+      // declares nothing still RUNS: partial output survives an overrun, so
+      // there is something to learn either way.
+      if (commandBudgetMs) {
+        const ceiling = Math.max(1, Math.round(commandBudgetMs / 1000))
+        const declared = declaredBudgetSeconds(command, input.timeout)
+        if (declared > ceiling && outputIsWithheldUntilExit(command)) {
+          return {
+            error:
+              `This command asks for ${declared}s and this tool stops at ${ceiling}s — and its output ` +
+              'is piped into tail/head/grep, which print nothing until the pipeline ends, so it ' +
+              'would spend the whole budget and hand you back nothing. Either run a smaller unit ' +
+              '(one spec file, one build step) that finishes inside the limit, or drop the pipe ' +
+              'and use a streaming reporter so the output survives being stopped. Nothing was run.',
+          }
+        }
       }
 
       try {

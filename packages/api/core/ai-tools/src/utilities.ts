@@ -180,6 +180,45 @@ export function isEnvFilePath(path: string): boolean {
   return base === '.env' || base.startsWith('.env.') || base.endsWith('.env')
 }
 
+/**
+ * The time budget a COMMAND declares for itself — a `timeout <seconds>` prefix
+ * anywhere in it, or the tool call's own `timeout` (ms) parameter, whichever is
+ * larger. Zero when it declares none.
+ *
+ * @param command - The shell command.
+ * @param timeoutParam - The tool call's `timeout` input, in milliseconds.
+ * @returns The declared budget in seconds, or 0.
+ */
+export function declaredBudgetSeconds(command: string, timeoutParam: unknown): number {
+  let declared = 0
+  for (const m of command.matchAll(
+    /(?:^|[;&|]\s*|\s)timeout\s+(?:-[a-zA-Z-]+\s+)*(\d+)(?![\d.])/g,
+  )) {
+    declared = Math.max(declared, Number(m[1]))
+  }
+  const asMs = Number(timeoutParam)
+  if (Number.isFinite(asMs) && asMs > 0) declared = Math.max(declared, Math.round(asMs / 1000))
+  return declared
+}
+
+/**
+ * Whether a command's output reaches the tool only when the whole pipeline
+ * ends — a pipe into `tail`, `grep`, `sort`, `wc` and friends, which
+ * block-buffer when stdout is not a terminal.
+ *
+ * It matters only in combination with an overrun: a command stopped at the
+ * tool's ceiling normally hands back everything it printed, but behind one of
+ * these it printed nothing, so the whole budget is spent for no information.
+ * Measured across six real agent runs: ten such commands, every one of them
+ * piped, 49 minutes returning a few hundred bytes each.
+ *
+ * @param command - The shell command.
+ * @returns True when a kill would return no useful output.
+ */
+export function outputIsWithheldUntilExit(command: string): boolean {
+  return /\|\s*(?:tail|head|grep|egrep|fgrep|sort|uniq|wc|jq)\b/.test(command)
+}
+
 // ── Command blocking ──────────────────────────────────────────────────────────
 
 /**
