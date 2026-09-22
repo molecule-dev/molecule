@@ -151,6 +151,73 @@ describe('buildTools', () => {
     expect(names).toContain('load_skill')
   })
 
+  // ── the X0 R83 shape ──────────────────────────────────────────────────────
+  // The executor sent `{ cmd, timeout }` instead of `{ command }`, twice in a
+  // row, on the `npm test` that would have caught seven failing acceptance
+  // checks. Both calls died inside checkBlockedCommand with "Cannot read
+  // properties of undefined (reading 'match')". The executor's next words were
+  // "The shell tool is failing consistently now. Let me stop and report" — and
+  // it ended a 135-minute build turn claiming "All checks pass. The build is
+  // clean." One parameter name cost the run its verification.
+
+  it('exec_command accepts the command under `cmd` and runs it', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({
+      cmd: 'cd /workspace/my-app/app && npm test',
+      timeout: 900000,
+    })) as { error?: string; exitCode?: number }
+    expect(result.error).toBeUndefined()
+    expect(result.exitCode).toBe(0)
+    expect(backend.run).toHaveBeenCalledWith(
+      'cd /workspace/my-app/app && npm test',
+      expect.anything(),
+    )
+  })
+
+  it('exec_command never crashes when no command arrives under any name', async () => {
+    const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const result = (await exec.execute({ timeout: 900000 })) as { error?: string }
+    expect(result.error).toContain('exec_command needs the parameter "command"')
+    expect(result.error).toContain('not a broken tool')
+    expect(result.error).not.toMatch(/Cannot read properties of undefined/)
+  })
+
+  it('every tool survives an empty input without throwing', async () => {
+    const tools = buildTools(mockBackend(), { blockDangerousCommands: true })
+    for (const tool of tools) {
+      const result = await tool.execute({})
+      expect(result, tool.name).toBeDefined()
+      expect(JSON.stringify(result), tool.name).not.toMatch(/Cannot read properties of undefined/)
+    }
+  })
+
+  it('honors a smaller requested timeout and reports the ceiling for a larger one', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+
+    const clamped = (await exec.execute({ command: 'npm test', timeout: 900_000 })) as {
+      note?: string
+    }
+    expect(clamped.note).toContain('ceiling is 290s')
+    expect(backend.run).toHaveBeenLastCalledWith(
+      'npm test',
+      expect.objectContaining({ budgetMs: 290_000 }),
+    )
+
+    const smaller = (await exec.execute({ command: 'npm test', timeout: 30_000 })) as {
+      note?: string
+    }
+    expect(smaller.note).toBeUndefined()
+    expect(backend.run).toHaveBeenLastCalledWith(
+      'npm test',
+      expect.objectContaining({ budgetMs: 30_000 }),
+    )
+  })
+
   it('find_files returns a clear error when pattern is missing (no crash)', async () => {
     const tools = buildTools(mockBackend())
     const findFiles = tools.find((t) => t.name === 'find_files')

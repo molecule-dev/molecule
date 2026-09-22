@@ -9,6 +9,7 @@
 
 import type { AITool } from '@molecule/api-ai'
 
+import { guardToolExecute, missingParamError } from './input-normalizer.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
@@ -683,6 +684,18 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const command = input.command as string
       const cwd = input.cwd ? resolve(input.cwd as string) : root
 
+      // A model that sent the command under another name (`cmd`, `script`, …)
+      // has already been normalized by guardToolExecute; reaching here with
+      // nothing means there is genuinely no command. Say so in the terms that
+      // let the model fix it. It used to fall through to
+      // checkBlockedCommand(undefined) and die with "Cannot read properties of
+      // undefined (reading 'match')" — the executor read that as a broken shell,
+      // stopped verifying, and ended the turn claiming all checks passed while
+      // seven acceptance checks failed (X0 rehearsal 83, 2026-09-16).
+      if (typeof command !== 'string' || command.trim() === '') {
+        return { error: missingParamError(TOOL_SCHEMAS.exec_command, input, ['command']) }
+      }
+
       if (blockDangerousCommands) {
         const blocked = checkBlockedCommand(command)
         if (blocked) return { error: blocked }
@@ -704,10 +717,31 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         // printed until then comes back with exit code 124 — instead of an outer
         // timeout discarding the run and its output together.
         const budgetSeconds = commandBudgetMs ? Math.max(1, Math.round(commandBudgetMs / 1000)) : 0
+
+        // A requested budget is honored DOWNWARD only. The model used to send
+        // `timeout: 900000` for a test suite, the field was not declared so it
+        // was silently dropped, and the command was killed at the ceiling with
+        // no hint that a ceiling existed — costing a full budget per attempt
+        // before the overrun message could teach anything (X0 R83/R84). Now the
+        // ceiling is reported the FIRST time a larger one is asked for.
+        const requestedMs = Number(input.timeout)
+        const wantsMore =
+          Number.isFinite(requestedMs) && requestedMs > 0 && requestedMs > (commandBudgetMs ?? 0)
+        const effectiveBudgetMs =
+          Number.isFinite(requestedMs) && requestedMs > 0 && commandBudgetMs
+            ? Math.min(requestedMs, commandBudgetMs)
+            : commandBudgetMs
+        const ceilingNote =
+          wantsMore && budgetSeconds
+            ? `You asked for ${Math.round(requestedMs / 1000)}s; this tool's ceiling is ${budgetSeconds}s. ` +
+              'Split the work into smaller commands (one test file, one build step) rather than ' +
+              're-running the same long one.'
+            : null
+
         const result = await backend.run(command, {
           cwd,
           timeout: execTimeoutMs,
-          ...(commandBudgetMs ? { budgetMs: commandBudgetMs } : {}),
+          ...(effectiveBudgetMs ? { budgetMs: effectiveBudgetMs } : {}),
         })
         // truncateMiddle (not truncate): a failing build/test/migration puts its
         // error at the TAIL, so keep the head AND the tail — head-only truncation
@@ -729,7 +763,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               'a build and a whole suite.',
           }
         }
-        return { stdout, stderr, exitCode: result.exitCode }
+        return {
+          stdout,
+          stderr,
+          exitCode: result.exitCode,
+          ...(ceilingNote ? { note: ceilingNote } : {}),
+        }
       } catch (e: unknown) {
         return { error: `Command failed: ${(e as Error).message}` }
       }
@@ -861,7 +900,16 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       name: schema.name,
       description: schema.description,
       parameters: schema.parameters,
-      execute: impl as (input: unknown) => Promise<unknown>,
+      // Every tool goes through the same guard: parameter aliases are moved onto
+      // the declared names, a missing required one returns a model-actionable
+      // error instead of reaching a handler as `undefined`, and a handler that
+      // throws returns an error rather than a bare internal message. See
+      // input-normalizer.ts for why (X0 R83: `{ cmd }` instead of
+      // `{ command }` crashed exec_command and the executor stopped verifying).
+      execute: guardToolExecute(
+        schema,
+        impl as (input: Record<string, unknown>) => Promise<unknown>,
+      ),
     })
   }
 

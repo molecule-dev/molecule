@@ -214,6 +214,11 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
           type: 'string',
           description: 'Working directory. Defaults to project root.',
         },
+        timeout: {
+          type: 'number',
+          description:
+            "Optional time budget in milliseconds. Clamped to this tool's ceiling — ask for more and the ceiling applies and is reported, so split the work into smaller commands instead of re-running the same long one.",
+        },
       },
       required: ['command'],
     },
