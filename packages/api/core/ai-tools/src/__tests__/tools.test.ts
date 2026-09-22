@@ -1595,7 +1595,7 @@ describe('read_file return ceiling', () => {
     expect(r.content.startsWith('line 0 ')).toBe(true)
     expect(r.totalLines).toBe(4000)
     expect(r.lines).toBeLessThan(4000)
-    expect(r.note).toContain('offset/limit')
+    expect(r.note).toContain('Next window: offset')
   })
 
   it('still honours an explicit window on a huge file', async () => {
@@ -1691,5 +1691,41 @@ describe('edit_file tolerates spacing around punctuation', () => {
     }
     expect(r.error).toBeDefined()
     expect(backend.written).toHaveLength(0)
+  })
+})
+
+// ── the window note decides the next call ───────────────────────────────────
+// X0 run x7: a 44 KB README was read as seven 300-line windows because the note
+// only ever said "read another window".
+
+describe('read_file window notes', () => {
+  const lines = Array.from({ length: 2000 }, (_, i) => `line ${i}`).join('\n') // ~19 KB
+  function backendWith(content: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue(content),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('tells the executor a small file fits in one call instead of inviting paging', async () => {
+    const read = buildTools(backendWith(lines)).find((t) => t.name === 'read_file')!
+    const r = (await read.execute({ path: 'README.md', offset: 300, limit: 300 })) as {
+      note?: string
+    }
+    expect(r.note).toContain('fits in ONE call')
+    expect(r.note).not.toContain('Next window')
+  })
+
+  it('names the exact next window for a file that does not fit', async () => {
+    const huge = Array.from({ length: 6000 }, (_, i) => `line ${i} ${'x'.repeat(40)}`).join('\n')
+    const read = buildTools(backendWith(huge)).find((t) => t.name === 'read_file')!
+    const r = (await read.execute({ path: 'README.md', offset: 1, limit: 500 })) as {
+      note?: string
+    }
+    expect(r.note).toContain('Next window: offset 501, limit 500')
   })
 })

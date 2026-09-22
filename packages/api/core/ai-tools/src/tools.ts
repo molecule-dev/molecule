@@ -368,11 +368,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           offset: windowed.offset,
           lines: windowed.lines,
           totalLines: windowed.totalLines,
+          // The note decides the executor's next call. Observed (X0 run x7): a
+          // 44 KB README read as seven 300-line windows, one round trip each,
+          // because the note only ever said "read another window" — when the
+          // whole file fits in one call, say that; when it does not, name the
+          // exact next window so the executor does not have to compute it.
           ...(windowed.truncated
             ? {
                 note:
-                  `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ` +
-                  `${windowed.totalLines}. Read another window with offset/limit.`,
+                  content.length <= MAX_READ_RETURN_CHARS
+                    ? `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ` +
+                      `${windowed.totalLines}. The whole file is ${Math.round(content.length / 1024)} KB ` +
+                      `and fits in ONE call — read it again with no offset/limit instead of paging.`
+                    : `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ` +
+                      `${windowed.totalLines}. Next window: offset ${windowed.offset + windowed.lines}, ` +
+                      `limit ${windowed.lines}.`,
               }
             : {}),
         }

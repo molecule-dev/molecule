@@ -43,7 +43,9 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
       'Read the full content of one file, or of SEVERAL files in a single call. Always read a ' +
       'file before editing it. When you need more than one file — surveying a project, ' +
       'gathering the files behind one feature — pass them all as `paths` in ONE call rather ' +
-      'than calling this tool once per file: same content, a fraction of the time.',
+      'than calling this tool once per file: same content, a fraction of the time. ' +
+      'For a @molecule package\u2019s docs call read_molecule_doc instead — one call, the whole ' +
+      'document. A file under 80 KB comes back whole; do not page through it with offset/limit.',
     parameters: {
       type: 'object',
       properties: {
