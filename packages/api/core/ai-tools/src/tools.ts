@@ -37,6 +37,8 @@ import {
   MAX_SEARCH_RESULTS,
   MAX_WRITE_SIZE,
   outputIsWithheldUntilExit,
+  parseCheckCommand,
+  parseCheckProblem,
   pathArgError,
   redactSecrets,
   redactSecretsInCode,
@@ -112,6 +114,29 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param path - Relative or absolute path requested by the tool input.
    * @returns A normalized path honoring `pathGuards` and the backend root.
    */
+  /**
+   * After a write or edit, parse the file and hand the error back IN THE SAME
+   * RESULT. An edit that leaves a file unparsable used to surface only at the
+   * next build or type-check, minutes and many calls later — x13 (2026-09-22)
+   * mangled a template literal in `scripts/prerender.mjs`, the site stopped
+   * building, and the fix round spent 500 calls on the fallout. `node --check`
+   * is ~50 ms; the executor sees the exact line while the edit is still in
+   * front of it.
+   */
+  async function syntaxErrorAfterWrite(path: string): Promise<{ syntaxError?: string }> {
+    const command = parseCheckCommand(path)
+    if (!command) return {}
+    const result = await backend
+      .run(command, { cwd: path.slice(0, path.lastIndexOf('/')) || '/', timeout: 15_000 })
+      .catch(() => null)
+    const problem = result ? parseCheckProblem(result) : null
+    return problem
+      ? {
+          syntaxError: `The file no longer parses after this change — fix it before anything else, every build and test fails until it does:\n${problem}`,
+        }
+      : {}
+  }
+
   function resolve(path: string): string {
     return pathGuards ? resolvePath(path, root) : path
   }
@@ -532,7 +557,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
         if (onFileChange) onFileChange({ type: oldContent === null ? 'created' : 'modified', path })
 
-        return { path, ok: true, diff }
+        return { path, ok: true, diff, ...(await syntaxErrorAfterWrite(path)) }
       } catch (e: unknown) {
         return { error: `Failed to write ${path}: ${(e as Error).message}` }
       }
@@ -706,7 +731,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
         if (onFileChange) onFileChange({ type: 'modified', path })
 
-        return { path, ok: true, replacementsApplied: replacements.length }
+        return {
+          path,
+          ok: true,
+          replacementsApplied: replacements.length,
+          ...(await syntaxErrorAfterWrite(path)),
+        }
       } catch (e: unknown) {
         return { error: `Failed to edit ${path}: ${(e as Error).message}` }
       }

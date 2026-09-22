@@ -576,3 +576,44 @@ export function whitespaceTolerantReplace(
     '\n',
   )
 }
+
+/** Files a parse check can vouch for cheaply right after a write. */
+export const PARSE_CHECKABLE = /\.(m?js|cjs|jsx|ts|tsx|mts|cts|json)$/
+
+/**
+ * The shell command that parses one file and exits non-zero with the error
+ * when it does not parse: `node --check` for JavaScript, `JSON.parse` for
+ * JSON, esbuild's transform (present wherever Vite is) for TypeScript.
+ *
+ * @param path - The file's absolute path.
+ * @returns The command, or null when the file type has no cheap parser.
+ */
+export function parseCheckCommand(path: string): string | null {
+  if (!PARSE_CHECKABLE.test(path)) return null
+  const q = shellQuote(path)
+  if (/\.(m?js|cjs)$/.test(path)) return `node --check ${q}`
+  if (/\.json$/.test(path))
+    return `node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" ${q}`
+  return (
+    `node -e "const p=process.argv[1];const src=require('fs').readFileSync(p,'utf8');` +
+    `require('esbuild').transformSync(src,{loader:p.endsWith('x')?'tsx':'ts',logLevel:'silent'})" ${q}`
+  )
+}
+
+/**
+ * What a failed parse check says to the executor, or null when the check
+ * passed or could not run (no parser available is not a syntax error).
+ *
+ * @param result - The check command's result.
+ * @returns The message for the tool result, or null.
+ */
+export function parseCheckProblem(result: {
+  stdout: string
+  stderr: string
+  exitCode: number
+}): string | null {
+  if (result.exitCode === 0) return null
+  const text = (result.stderr || result.stdout).trim()
+  if (/Cannot find module|not found/i.test(text) && !/SyntaxError/.test(text)) return null
+  return text.slice(0, 1200)
+}

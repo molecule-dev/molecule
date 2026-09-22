@@ -1785,3 +1785,82 @@ describe('wait_for_task on a stuck command', () => {
     expect(cmd).toContain(`echo $! > /tmp/${r.taskId}.pid`)
   })
 })
+
+describe('parse check after a write', () => {
+  function mockBackend(): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue('const a = 1\n'),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn().mockResolvedValue(undefined),
+      readDir: vi.fn().mockResolvedValue([]),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('edit_file returns the parse error in its own result when the file no longer parses', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockImplementation(async (command: string) =>
+      command.startsWith('node --check')
+        ? {
+            stdout: '',
+            stderr: '/test/scripts/prerender.mjs:162\n  `;\n   ^^^\nSyntaxError: Unexpected number',
+            exitCode: 1,
+          }
+        : { stdout: '', stderr: '', exitCode: 0 },
+    )
+    const tools = buildTools(backend)
+    const editFile = tools.find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/scripts/prerender.mjs',
+      old_string: 'const a = 1',
+      new_string: 'const a = `1',
+    })) as { ok?: boolean; syntaxError?: string }
+    expect(result.ok).toBe(true)
+    expect(result.syntaxError).toMatch(/no longer parses/)
+    expect(result.syntaxError).toMatch(/prerender\.mjs:162/)
+    expect(backend.run).toHaveBeenCalledWith(
+      expect.stringMatching(/^node --check/),
+      expect.objectContaining({ cwd: '/test/scripts' }),
+    )
+  })
+
+  it('write_file of a TypeScript file checks with esbuild and stays silent when it parses', async () => {
+    const backend = mockBackend()
+    const tools = buildTools(backend)
+    const writeFile = tools.find((t) => t.name === 'write_file')!
+    const result = (await writeFile.execute({
+      path: '/test/src/a.tsx',
+      content: 'export const a = 1\n',
+    })) as {
+      ok?: boolean
+      syntaxError?: string
+    }
+    expect(result.ok).toBe(true)
+    expect(result.syntaxError).toBeUndefined()
+    expect(backend.run).toHaveBeenCalledWith(
+      expect.stringMatching(/esbuild.*tsx/),
+      expect.anything(),
+    )
+  })
+
+  it('a missing parser is not a syntax error, and a .md file is not checked at all', async () => {
+    const backend = mockBackend()
+    ;(backend.run as ReturnType<typeof vi.fn>).mockResolvedValue({
+      stdout: '',
+      stderr: "Error: Cannot find module 'esbuild'",
+      exitCode: 1,
+    })
+    const tools = buildTools(backend)
+    const writeFile = tools.find((t) => t.name === 'write_file')!
+    const ts = (await writeFile.execute({ path: '/test/src/a.ts', content: 'x' })) as {
+      syntaxError?: string
+    }
+    expect(ts.syntaxError).toBeUndefined()
+    const md = (await writeFile.execute({ path: '/test/README.md', content: '# hi' })) as {
+      syntaxError?: string
+    }
+    expect(md.syntaxError).toBeUndefined()
+    expect(backend.run).toHaveBeenCalledTimes(1)
+  })
+})
