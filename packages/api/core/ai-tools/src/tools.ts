@@ -316,7 +316,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
   }
 
   /**
+   * Read one file for the model: symlink-checked, size-bounded, optionally
+   * windowed by line, and never more than MAX_READ_RETURN_CHARS at once.
    *
+   * @param rawPath - The path as the model sent it.
+   * @param window - Optional `offset`/`limit` in lines.
+   * @returns The file content (or a window of it) or a model-readable error.
    */
   async function readOneFile(
     rawPath: unknown,
