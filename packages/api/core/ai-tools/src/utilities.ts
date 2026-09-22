@@ -314,6 +314,20 @@ export const MAX_WRITE_SIZE = 10 * 1024 * 1024
 /** Max command output size (100KB per stream). */
 export const MAX_OUTPUT_SIZE = 100 * 1024
 /** Max search results. */
+/**
+ * Most files one batched `read_file` call returns. The cap exists so a survey
+ * of a large tree cannot swallow the turn's context in one result; the tool
+ * reports where it stopped so the model continues from there.
+ */
+export const MAX_BATCH_READ_FILES = 25
+
+/**
+ * Total content bytes one batched `read_file` call returns, across all files.
+ * The per-file {@link MAX_READ_SIZE} still applies to each one.
+ */
+export const MAX_BATCH_READ_BYTES = 400 * 1024
+
+/** Max search results. */
 export const MAX_SEARCH_RESULTS = 50
 /** Max find results. */
 export const MAX_FIND_RESULTS = 100

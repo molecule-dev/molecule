@@ -39,16 +39,28 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
 
   read_file: {
     name: 'read_file',
-    description: 'Read the full content of a file as text. Always read a file before editing it.',
+    description:
+      'Read the full content of one file, or of SEVERAL files in a single call. Always read a ' +
+      'file before editing it. When you need more than one file — surveying a project, ' +
+      'gathering the files behind one feature — pass them all as `paths` in ONE call rather ' +
+      'than calling this tool once per file: same content, a fraction of the time.',
     parameters: {
       type: 'object',
       properties: {
         path: {
           type: 'string',
-          description: 'Path to the file to read (relative or absolute).',
+          description: 'Path to a single file to read (relative or absolute).',
+        },
+        paths: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'Paths to SEVERAL files to read in one call — preferred whenever you want more ' +
+            'than one file. Returns `files`, one entry per path in the order given, each ' +
+            "with that file's content or its own error.",
         },
       },
-      required: ['path'],
+      required: [],
     },
   },
 

@@ -218,6 +218,77 @@ describe('buildTools', () => {
     )
   })
 
+  // ── batched reads ─────────────────────────────────────────────────────────
+  // The executor issues one tool call per round-trip 89% of the time, so a
+  // survey of 93 files cost 121 sequential calls and ten minutes of wall clock.
+
+  it('read_file reads several paths in one call, in the order given', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async (p: string) => `content of ${p}`)
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({
+      paths: ['a.ts', 'b.ts', 'c.ts'],
+    })) as { files: Array<{ path: string; content: string }>; note?: string }
+    expect(result.files).toHaveLength(3)
+    expect(result.files.map((f) => f.content)).toEqual([
+      'content of /test/a.ts',
+      'content of /test/b.ts',
+      'content of /test/c.ts',
+    ])
+    expect(result.note).toBeUndefined()
+  })
+
+  it('read_file still takes a single path, unchanged', async () => {
+    const tools = buildTools(mockBackend())
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ path: 'a.ts' })) as { content: string; files?: never }
+    expect(result.content).toBe('file content')
+    expect(result.files).toBeUndefined()
+  })
+
+  it('read_file reports one bad path per entry without failing the batch', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async (p: string) => {
+      if (p.endsWith('missing.ts')) throw new Error('No such file or directory')
+      return 'ok'
+    })
+    backend.readDir = vi.fn().mockResolvedValue([{ name: 'real.ts', type: 'file' }])
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ paths: ['good.ts', 'missing.ts', 'also-good.ts'] })) as {
+      files: Array<{ content?: string; error?: string }>
+    }
+    expect(result.files).toHaveLength(3)
+    expect(result.files[0].content).toBe('ok')
+    expect(result.files[1].error).toContain('No such file')
+    // …and the ENOENT DWIM listing still fires inside a batch entry.
+    expect(result.files[1].error).toContain('real.ts')
+    expect(result.files[2].content).toBe('ok')
+  })
+
+  it('read_file caps a batch and says where to resume', async () => {
+    const backend = mockBackend()
+    backend.readFile = vi.fn(async () => 'x')
+    const tools = buildTools(backend)
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const paths = Array.from({ length: 30 }, (_, i) => `f${i}.ts`)
+    const result = (await readFile.execute({ paths })) as {
+      files: unknown[]
+      note: string
+    }
+    expect(result.files).toHaveLength(25)
+    expect(result.note).toContain('25 of 30')
+    expect(result.note).toContain('f25.ts')
+  })
+
+  it('read_file rejects an empty paths array with a usable message', async () => {
+    const tools = buildTools(mockBackend())
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({ paths: [] })) as { error: string }
+    expect(result.error).toContain('empty')
+  })
+
   it('find_files returns a clear error when pattern is missing (no crash)', async () => {
     const tools = buildTools(mockBackend())
     const findFiles = tools.find((t) => t.name === 'find_files')

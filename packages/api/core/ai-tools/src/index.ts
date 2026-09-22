@@ -23,6 +23,19 @@
  *   rules via `blockCommand` (return an actionable error string to refuse — it is
  *   shown to the model verbatim) and enable `blockDangerousCommands` (default
  *   FALSE) where appropriate.
+ * - **`read_file` takes `paths` as well as `path`.** An agent that issues one
+ *   tool call per model round-trip pays a full round-trip per file, so a project
+ *   survey costs minutes; batched, the same reads cost one call each 25 files
+ *   (`MAX_BATCH_READ_FILES` / `MAX_BATCH_READ_BYTES`, which report where they
+ *   stopped). Each entry carries its own content or its own error, so one bad
+ *   path never fails the batch.
+ * - **A parameter under another name is not a broken tool.** Every tool's input
+ *   is normalized first (`cmd` → `command`, `file` → `path`, camelCase ⇄
+ *   snake_case), and a handler that throws returns an error naming the missing
+ *   parameter rather than a bare internal message — which a weak executor reads
+ *   as a broken tool and routes around, taking its verification with it. Use
+ *   `guardAITool` to give tools built elsewhere the same treatment, passing
+ *   `redactError` so a thrown message is masked by your own redactor.
  * - **Scope the tool set per agent** with `include`/`exclude` — a read-only agent
  *   should not receive `write_file`/`exec_command`.
  * - Outputs are size-capped (`MAX_READ_SIZE`, `MAX_OUTPUT_SIZE`, …) and searches

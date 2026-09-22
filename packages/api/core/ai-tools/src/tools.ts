@@ -18,6 +18,8 @@ import {
   directoryReadHint,
   isEnvFilePath,
   isValidGlob,
+  MAX_BATCH_READ_BYTES,
+  MAX_BATCH_READ_FILES,
   MAX_FIND_RESULTS,
   MAX_OUTPUT_SIZE,
   MAX_READ_SIZE,
@@ -282,6 +284,92 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
   // ── Tool implementations ───────────────────────────────────────
 
+  /**
+   * Read ONE file with every DWIM behavior read_file offers (directory
+   * listing, ENOENT parent listing, empty-read classification). Shared by the
+   * single-path and batched forms of the tool.
+   *
+   * @param rawPath - The path as the model sent it.
+   * @returns The same result shape read_file returns for one file.
+   */
+  async function readOneFile(rawPath: unknown): Promise<unknown> {
+    const argErr = pathArgError(rawPath, 'read_file')
+    if (argErr) return { error: argErr }
+    const path = resolve(rawPath as string)
+    const symlinkErr = await checkSymlink(path)
+    if (symlinkErr) return { error: symlinkErr }
+    try {
+      const content = await backend.readFile(path)
+      // A read that produced no usable text is verified against the file's real
+      // size before it can be reported as content (see classifyEmptyRead). The
+      // non-string arm covers a backend whose transport handed back an empty
+      // body as `undefined`; `content.length` below would otherwise raise an
+      // unactionable "Cannot read properties of undefined".
+      if (typeof content !== 'string' || content === '') {
+        const verdict = await classifyEmptyRead(path, 'read_file')
+        if ('error' in verdict) return verdict
+        return {
+          path,
+          content: sanitizeFileContent(verdict.content, path),
+          ...(verdict.content === '' ? { empty: true } : {}),
+          ...(verdict.note ? { note: verdict.note } : {}),
+        }
+      }
+      if (content.length > MAX_READ_SIZE)
+        return {
+          error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
+        }
+      return { path, content: sanitizeFileContent(content, path) }
+    } catch (e: unknown) {
+      // Backends (e.g. the docker provider's `cat`) already prefix "Failed to read <path>: ";
+      // strip it so the wrap below doesn't stutter ("Failed to read X: Failed to read X: …").
+      const rawMessage = (e as Error).message
+      const prefix = `Failed to read ${path}: `
+      const message = rawMessage.startsWith(prefix) ? rawMessage.slice(prefix.length) : rawMessage
+      // A weak model often read_file's a directory (handlers/, migrations/). Rather than
+      // erroring and costing it a retry loop (observed: 3 such misses + follow-up
+      // list_files in one custom build), DWIM: return the directory's listing — what it
+      // almost certainly wanted — with a note so it read_file's a specific entry next.
+      if (directoryReadHint(message, path)) {
+        try {
+          const entries = await backend.readDir(path)
+          return {
+            path,
+            isDirectory: true,
+            note: `${path} is a directory, not a file — returning its contents. read_file a specific entry inside it to see that file's content.`,
+            entries: entries.map((entry) => ({ name: entry.name, type: entry.type })),
+          }
+        } catch (_dirErr) {
+          // readDir also failed — fall through to the steer-to-list_files hint below.
+        }
+      }
+      // ENOENT DWIM: a weak model GUESSES paths from framework priors (observed: 65 of 89
+      // reads in one imported-app build were misses on files that never existed). Return
+      // ground truth in the SAME result — what the parent directory actually contains — so
+      // the next read uses a real name instead of another guess.
+      if (/No such file or directory/i.test(message)) {
+        const parent = path.replace(/\/[^/]*$/, '') || '/'
+        let listing: string
+        try {
+          const entries = await backend.readDir(parent)
+          const names = entries
+            .slice(0, 40)
+            .map((entry) => entry.name + (entry.type === 'directory' ? '/' : ''))
+          listing = names.length
+            ? `The directory ${parent} exists and contains: ${names.join(', ')}${entries.length > 40 ? ', …' : ''}.`
+            : `The directory ${parent} exists but is EMPTY.`
+        } catch (_parentErr) {
+          // Parent listing failed too — most usefully because it doesn't exist either.
+          listing = `The directory ${parent} does not exist either.`
+        }
+        return {
+          error: `No such file: ${path}. ${listing} Read one of the real entries (or use find_files) — do not guess paths.`,
+        }
+      }
+      return { error: directoryReadHint(message, path) ?? `Failed to read ${path}: ${message}` }
+    }
+  }
+
   const toolImpls: Record<string, (input: Record<string, unknown>) => Promise<unknown>> = {
     async list_files(input) {
       const path = resolve((input.path as string) || '')
@@ -296,81 +384,47 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     },
 
     async read_file(input) {
-      const argErr = pathArgError(input.path, 'read_file')
-      if (argErr) return { error: argErr }
-      const path = resolve(input.path as string)
-      const symlinkErr = await checkSymlink(path)
-      if (symlinkErr) return { error: symlinkErr }
-      try {
-        const content = await backend.readFile(path)
-        // A read that produced no usable text is verified against the file's real
-        // size before it can be reported as content (see classifyEmptyRead). The
-        // non-string arm covers a backend whose transport handed back an empty
-        // body as `undefined`; `content.length` below would otherwise raise an
-        // unactionable "Cannot read properties of undefined".
-        if (typeof content !== 'string' || content === '') {
-          const verdict = await classifyEmptyRead(path, 'read_file')
-          if ('error' in verdict) return verdict
+      // Several paths in ONE call. The executor issues one tool call per model
+      // round-trip 89% of the time (X0: 464 assistant messages, 515 tool calls,
+      // a ~10s mean gap), so a turn's wall clock IS its round-trip count — and
+      // the largest single block measured was a systematic scaffold survey:
+      // 121 sequential read_file calls, 108 of them in the first ten minutes,
+      // across 93 distinct files. The same reads batched cost the same tokens
+      // and a tenth of the latency.
+      if (Array.isArray(input.paths)) {
+        const requested = (input.paths as unknown[]).map((p) => String(p ?? '')).filter(Boolean)
+        if (requested.length === 0) {
           return {
-            path,
-            content: sanitizeFileContent(verdict.content, path),
-            ...(verdict.content === '' ? { empty: true } : {}),
-            ...(verdict.note ? { note: verdict.note } : {}),
+            error:
+              'read_file got an empty "paths" array. Pass "path" for one file, or "paths" with at ' +
+              'least one path for several.',
           }
         }
-        if (content.length > MAX_READ_SIZE)
-          return {
-            error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
+        const files: unknown[] = []
+        let budget = MAX_BATCH_READ_BYTES
+        let stoppedAt: string | null = null
+        for (const [index, requestedPath] of requested.entries()) {
+          if (index >= MAX_BATCH_READ_FILES || budget <= 0) {
+            stoppedAt = requestedPath
+            break
           }
-        return { path, content: sanitizeFileContent(content, path) }
-      } catch (e: unknown) {
-        // Backends (e.g. the docker provider's `cat`) already prefix "Failed to read <path>: ";
-        // strip it so the wrap below doesn't stutter ("Failed to read X: Failed to read X: …").
-        const rawMessage = (e as Error).message
-        const prefix = `Failed to read ${path}: `
-        const message = rawMessage.startsWith(prefix) ? rawMessage.slice(prefix.length) : rawMessage
-        // A weak model often read_file's a directory (handlers/, migrations/). Rather than
-        // erroring and costing it a retry loop (observed: 3 such misses + follow-up
-        // list_files in one custom build), DWIM: return the directory's listing — what it
-        // almost certainly wanted — with a note so it read_file's a specific entry next.
-        if (directoryReadHint(message, path)) {
-          try {
-            const entries = await backend.readDir(path)
-            return {
-              path,
-              isDirectory: true,
-              note: `${path} is a directory, not a file — returning its contents. read_file a specific entry inside it to see that file's content.`,
-              entries: entries.map((entry) => ({ name: entry.name, type: entry.type })),
-            }
-          } catch (_dirErr) {
-            // readDir also failed — fall through to the steer-to-list_files hint below.
-          }
+          const one = (await readOneFile(requestedPath)) as { content?: unknown }
+          files.push(one)
+          if (typeof one.content === 'string') budget -= one.content.length
         }
-        // ENOENT DWIM: a weak model GUESSES paths from framework priors (observed: 65 of 89
-        // reads in one imported-app build were misses on files that never existed). Return
-        // ground truth in the SAME result — what the parent directory actually contains — so
-        // the next read uses a real name instead of another guess.
-        if (/No such file or directory/i.test(message)) {
-          const parent = path.replace(/\/[^/]*$/, '') || '/'
-          let listing: string
-          try {
-            const entries = await backend.readDir(parent)
-            const names = entries
-              .slice(0, 40)
-              .map((entry) => entry.name + (entry.type === 'directory' ? '/' : ''))
-            listing = names.length
-              ? `The directory ${parent} exists and contains: ${names.join(', ')}${entries.length > 40 ? ', …' : ''}.`
-              : `The directory ${parent} exists but is EMPTY.`
-          } catch (_parentErr) {
-            // Parent listing failed too — most usefully because it doesn't exist either.
-            listing = `The directory ${parent} does not exist either.`
-          }
-          return {
-            error: `No such file: ${path}. ${listing} Read one of the real entries (or use find_files) — do not guess paths.`,
-          }
+        return {
+          files,
+          ...(stoppedAt
+            ? {
+                note:
+                  `Stopped after ${files.length} of ${requested.length} files (limit: ${MAX_BATCH_READ_FILES} ` +
+                  `files or ${Math.round(MAX_BATCH_READ_BYTES / 1024)}KB per call). Call read_file again ` +
+                  `starting at ${stoppedAt}.`,
+              }
+            : {}),
         }
-        return { error: directoryReadHint(message, path) ?? `Failed to read ${path}: ${message}` }
       }
+      return readOneFile(input.path)
     },
 
     async write_file(input) {
