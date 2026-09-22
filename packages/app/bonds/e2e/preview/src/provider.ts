@@ -35,12 +35,25 @@ type Dict = Record<string, unknown>
 type Listener = (payload: E2EConsolePayload | E2EErrorPayload | undefined) => void
 
 const BOND_NAME = 'the preview bond (@molecule/app-e2e-preview)'
-const DEFAULT_CONNECT_TIMEOUT = 30_000
+/**
+ * How long `connect()` waits for a page to be attached. Short on purpose: a
+ * suite whose tab is closed must fail in seconds, not sit through this wait
+ * once per test (the runner opens a fresh connection for every test).
+ */
+const DEFAULT_CONNECT_TIMEOUT = 8_000
+/**
+ * After one connect has waited the full timeout and found no page, later
+ * connects in the same process fail AT ONCE for this long, unless the hub's
+ * list shows a page by then — so a spec file of N tests reports "no page" once,
+ * in about one timeout, instead of N times.
+ */
+const NO_PAGE_MEMORY_MS = 60_000
+let noPageSince = 0
 
 const noPageMessage = (url: string): string =>
-  `No preview page is connected to the dev server at ${url}. ${BOND_NAME} drives the page a browser is showing: ` +
-  `open this project's preview in the molecule.dev IDE (or the preview URL in any browser tab) and keep that tab open, then run again. ` +
-  `If the tab is asleep, wake it — the IDE keeps the screen awake while a build runs.`
+  `No preview page is attached to the dev server at ${url}. ${BOND_NAME} drives the page a browser tab is showing, and none is. ` +
+  `Either open this project's preview in the molecule.dev IDE (or the preview URL in any browser tab) and run again, ` +
+  `or run with MOL_E2E_PROVIDER=playwright, which launches a real browser and needs no tab (a molecule sandbox ships one).`
 
 const candidatePorts = (options: PreviewConnectOptions): number[] => {
   const raw = [
@@ -300,7 +313,20 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
   const hub = await openHub(options)
   const connectTimeout = options.connectTimeout ?? DEFAULT_CONNECT_TIMEOUT
   const navigationTimeout = options.navigationTimeout ?? 15_000
-  hub.current = await hub.waitForPage({ timeout: connectTimeout, preferred: options.pageId })
+  if (hub.pages.size === 0 && noPageSince && Date.now() - noPageSince < NO_PAGE_MEMORY_MS) {
+    // A connect a moment ago already waited the full timeout for a page and
+    // found none; the hub's list still shows none. Say so at once.
+    hub.close()
+    throw new E2ETimeoutError(noPageMessage(hub.url))
+  }
+  try {
+    hub.current = await hub.waitForPage({ timeout: connectTimeout, preferred: options.pageId })
+  } catch (error) {
+    hub.close()
+    noPageSince = Date.now()
+    throw error
+  }
+  noPageSince = 0
   hub.lastHref = hub.pages.get(hub.current)?.href ?? ''
   const listeners = new Map<string, Set<Listener>>()
   const emit = (event: string, payload: E2EConsolePayload | E2EErrorPayload | undefined): void => {
