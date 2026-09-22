@@ -1627,3 +1627,69 @@ describe('read_file return ceiling', () => {
       expect(f.content.length).toBeLessThanOrEqual(MAX_READ_RETURN_CHARS + 100)
   })
 })
+
+// ── a missing space next to punctuation ─────────────────────────────────────
+// X0 run x6: with the file's exact text out of context, the executor sent
+// `readdirSync,readFileSync` for a file that reads `readdirSync, readFileSync`.
+// Runs of whitespace were already folded; a MISSING space is zero whitespace.
+
+describe('edit_file tolerates spacing around punctuation', () => {
+  const file = [
+    "import { createHash } from 'node:crypto'",
+    "import { existsSync, readdirSync, readFileSync } from 'node:fs'",
+    "import { join } from 'node:path'",
+    '',
+    'export const x = 1',
+  ].join('\n')
+  function backendWith(): ExecutionBackend & { written: string[] } {
+    const written: string[] = []
+    return {
+      projectRoot: '/test',
+      written,
+      readFile: vi.fn().mockResolvedValue(file),
+      writeFile: vi.fn(async (_p: string, c: string) => {
+        written.push(c)
+      }),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('applies an edit whose old_string lacks the space after a comma', async () => {
+    const backend = backendWith()
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'a.ts',
+      old_string: "import { existsSync, readdirSync,readFileSync } from 'node:fs'",
+      new_string: "import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'",
+    })) as { ok?: boolean; error?: string }
+    expect(r.error).toBeUndefined()
+    expect(backend.written[0]).toContain('statSync')
+    // The rest of the file is untouched.
+    expect(backend.written[0]).toContain("import { join } from 'node:path'")
+  })
+
+  it('still refuses a genuinely different token', async () => {
+    const backend = backendWith()
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'a.ts',
+      old_string: "import { existsSync, readdirSync, readFileSyncX } from 'node:fs'",
+      new_string: 'nope',
+    })) as { error?: string }
+    expect(r.error).toContain('not found')
+    expect(backend.written).toHaveLength(0)
+  })
+
+  it('still refuses an ambiguous match', async () => {
+    const backend = backendWith()
+    backend.readFile = vi.fn().mockResolvedValue('a, b\na,b\n')
+    const edit = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({ path: 'a.ts', old_string: 'a ,b', new_string: 'z' })) as {
+      error?: string
+    }
+    expect(r.error).toBeDefined()
+    expect(backend.written).toHaveLength(0)
+  })
+})

@@ -538,7 +538,20 @@ export function whitespaceTolerantReplace(
   oldString: string,
   newString: string,
 ): string | null {
-  const norm = (s: string): string => s.replace(/\s+/g, ' ').trim()
+  // Per-line normalization: runs of whitespace become one space, and spaces
+  // next to punctuation are dropped entirely. The second rule is for the edit
+  // a weak executor makes from memory with one space missing —
+  // `readdirSync,readFileSync` against a file that reads
+  // `readdirSync, readFileSync` (X0 run x6: 15 of 48 edits failed, most of
+  // them this shape, after the file's exact text had left the context). A
+  // missing space is zero whitespace, which the runs rule cannot see. This
+  // only decides WHERE the block is; the replacement text is applied
+  // verbatim, and uniqueness is still required.
+  const norm = (s: string): string =>
+    s
+      .replace(/\s*([,;:{}()[\]=<>.])\s*/g, '$1')
+      .replace(/\s+/g, ' ')
+      .trim()
   const fileLines = content.split('\n')
   const normOld = oldString.split('\n').map(norm)
   // Refuse a degenerate all-blank search block (would match any blank run).
