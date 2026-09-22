@@ -209,6 +209,8 @@ export function toolLabel(name: string, input: unknown): string {
       if (kind === 'build') return `Subagent — build${on}`
       return `Subagent — research${on}`
     }
+    case 'wait_for_task':
+      return `Wait for background task${code(truncate(str(inp.taskId) ?? ''))}`
     case 'list_sessions':
       return 'Other sessions on this project'
     case 'send_session_message':
@@ -374,6 +376,14 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
       return exitCode != null && exitCode !== 0
         ? t('ide.toolCall.statusFailed', undefined, { defaultValue: 'Failed' })
         : ''
+    }
+    case 'wait_for_task': {
+      const w = out as { exitCode?: number; status?: string } | undefined
+      if (w?.status === 'running')
+        return t('ide.toolCall.stillRunning', undefined, { defaultValue: 'Still running' })
+      if (w?.exitCode != null && w.exitCode !== 0)
+        return t('ide.toolCall.statusFailed', undefined, { defaultValue: 'Failed' })
+      return ''
     }
     case 'list_sessions': {
       const sessions = (out as { sessions?: unknown[] })?.sessions
