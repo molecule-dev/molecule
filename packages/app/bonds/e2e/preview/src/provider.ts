@@ -40,9 +40,11 @@ const BOND_NAME = 'the preview bond (@molecule/app-e2e-preview)'
 /**
  * How long `connect()` waits for a page to be attached. Short on purpose: a
  * suite whose tab is closed must fail in seconds, not sit through this wait
- * once per test (the runner opens a fresh connection for every test).
+ * once per test (the runner opens a fresh connection for every test). An open
+ * tab says hello within a second of the dev server coming up, so 5 s covers a
+ * reload; a spec file with no tab then reports in under 10 s end to end.
  */
-const DEFAULT_CONNECT_TIMEOUT = 8_000
+const DEFAULT_CONNECT_TIMEOUT = 5_000
 /**
  * After one connect has waited the full timeout and found no page, later
  * connects fail AT ONCE for this long, unless the hub's list shows a page by

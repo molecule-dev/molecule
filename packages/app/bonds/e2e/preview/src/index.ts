@@ -49,7 +49,7 @@
  *   generator's post routes, an SSR handler). A page the preview shows is a
  *   page the hub lists; if it is not, the app is bypassing the dev server.
  * - **Someone must be looking, and the bond fails fast when nobody is.** The
- *   renderer is a browser tab showing the preview. `connect()` waits 8 s
+ *   renderer is a browser tab showing the preview. `connect()` waits 5 s
  *   (`connectTimeout`) for a page to be attached and then fails naming the
  *   cause and the alternative: open the preview in the IDE or in any tab, or
  *   run with `MOL_E2E_PROVIDER=playwright`, which needs no tab. The runner
