@@ -1189,3 +1189,166 @@ describe('search excludes (VS Code search.exclude semantics)', () => {
     })
   })
 })
+
+// ── windowed reads and search context ───────────────────────────────────────
+// Across six real agent runs, 260 of 377 shell-inspection commands (69%) were
+// head/tail/sed -n windowing a file, and another 57 were grep — work the file
+// tools could not express, so the executor shelled out despite a prompt rule
+// forbidding exactly that in capital letters.
+
+describe('read_file windows', () => {
+  function windowBackend(lines: number): ExecutionBackend {
+    const content = Array.from({ length: lines }, (_, i) => `line ${i + 1}`).join('\n')
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue(content),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn().mockResolvedValue([]),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('returns only the requested window, 1-based, with its position', async () => {
+    const tools = buildTools(windowBackend(500))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts', offset: 100, limit: 3 })) as {
+      content: string
+      offset: number
+      lines: number
+      totalLines: number
+      note: string
+    }
+    expect(r.content).toBe('line 100\nline 101\nline 102')
+    expect(r.offset).toBe(100)
+    expect(r.lines).toBe(3)
+    expect(r.totalLines).toBe(500)
+    expect(r.note).toContain('Lines 100-102 of 500')
+  })
+
+  it('treats limit alone as "the first N lines" (the head case)', async () => {
+    const tools = buildTools(windowBackend(500))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts', limit: 2 })) as { content: string }
+    expect(r.content).toBe('line 1\nline 2')
+  })
+
+  it('reads to the end when only offset is given', async () => {
+    const tools = buildTools(windowBackend(5))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts', offset: 4 })) as {
+      content: string
+      note?: string
+    }
+    expect(r.content).toBe('line 4\nline 5')
+  })
+
+  it('reads the LAST n lines when offset is negative (the tail case)', async () => {
+    const tools = buildTools(windowBackend(500))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts', offset: -3 })) as {
+      content: string
+      offset: number
+      lines: number
+    }
+    expect(r.content).toBe('line 498\nline 499\nline 500')
+    expect(r.offset).toBe(498)
+    expect(r.lines).toBe(3)
+  })
+
+  it('clamps a negative offset larger than the file to its start', async () => {
+    const tools = buildTools(windowBackend(3))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts', offset: -99 })) as {
+      content: string
+      offset: number
+    }
+    expect(r.offset).toBe(1)
+    expect(r.content).toBe('line 1\nline 2\nline 3')
+  })
+
+  it('returns the whole file, unchanged, when no window is asked for', async () => {
+    const tools = buildTools(windowBackend(3))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts' })) as {
+      content: string
+      offset?: number
+      totalLines?: number
+    }
+    expect(r.content).toBe('line 1\nline 2\nline 3')
+    expect(r.offset).toBeUndefined()
+    expect(r.totalLines).toBeUndefined()
+  })
+
+  it('clamps an offset past the end instead of erroring', async () => {
+    const tools = buildTools(windowBackend(3))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ path: 'a.ts', offset: 9_999 })) as {
+      content: string
+      offset: number
+    }
+    expect(r.offset).toBe(3)
+    expect(r.content).toBe('line 3')
+  })
+
+  it('windows every entry of a BATCHED read', async () => {
+    const tools = buildTools(windowBackend(10))
+    const readFile = tools.find((t) => t.name === 'read_file')!
+    const r = (await readFile.execute({ paths: ['a.ts', 'b.ts'], offset: 2, limit: 1 })) as {
+      files: Array<{ content: string; offset: number }>
+    }
+    expect(r.files.map((f) => f.content)).toEqual(['line 2', 'line 2'])
+    expect(r.files[0].offset).toBe(2)
+  })
+})
+
+describe('search_files context lines', () => {
+  function grepBackend(stdout: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout, stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('asks grep for context and marks matches apart from context', async () => {
+    // grep -C emits `file-line-content` for context and `file:line:content` for
+    // hits, with `--` between groups.
+    const backend = grepBackend(
+      ['/test/a.ts-9-before', '/test/a.ts:10:HIT', '/test/a.ts-11-after', '--'].join('\n'),
+    )
+    const tools = buildTools(backend)
+    const search = tools.find((t) => t.name === 'search_files')!
+    const r = (await search.execute({ pattern: 'HIT', contextLines: 1 })) as {
+      matches: Array<{ line: number; content: string; match: boolean }>
+    }
+    expect((backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).toContain('-C 1')
+    expect(r.matches).toHaveLength(3)
+    expect(r.matches.map((m) => m.match)).toEqual([false, true, false])
+    expect(r.matches.map((m) => m.line)).toEqual([9, 10, 11])
+    expect(r.matches[1].content).toBe('HIT')
+  })
+
+  it('passes no context flag and keeps the old shape when none is asked for', async () => {
+    const backend = grepBackend('/test/a.ts:10:HIT')
+    const tools = buildTools(backend)
+    const search = tools.find((t) => t.name === 'search_files')!
+    const r = (await search.execute({ pattern: 'HIT' })) as {
+      matches: Array<{ line: number; match?: boolean }>
+    }
+    expect((backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).not.toContain('-C')
+    expect(r.matches[0].match).toBeUndefined()
+    expect(r.matches[0].line).toBe(10)
+  })
+
+  it('caps a generous context request rather than passing it through', async () => {
+    const backend = grepBackend('')
+    const tools = buildTools(backend)
+    const search = tools.find((t) => t.name === 'search_files')!
+    await search.execute({ pattern: 'x', contextLines: 10_000 })
+    expect((backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).toContain('-C 40')
+  })
+})

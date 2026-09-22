@@ -352,6 +352,60 @@ export const MAX_READ_SIZE = 5 * 1024 * 1024
 export const MAX_WRITE_SIZE = 10 * 1024 * 1024
 /** Max command output size (100KB per stream). */
 export const MAX_OUTPUT_SIZE = 100 * 1024
+/**
+ * Most lines of surrounding context `search_files` will return per match.
+ * Bounded so a broad pattern with a generous context cannot pull a whole tree
+ * into one reply.
+ */
+export const MAX_SEARCH_CONTEXT_LINES = 40
+
+/**
+ * Return a line window of `content`, or null when no window was asked for.
+ *
+ * `read_file` returned whole files only, so an executor that wanted part of one
+ * shelled out: across six real agent runs, 260 of 377 shell-inspection commands
+ * (69%) were `head`/`tail`/`sed -n` windowing a file the tool could have
+ * windowed itself. `offset` is 1-based, matching the line numbers every other
+ * tool reports and what `grep -n` prints.
+ *
+ * @param content - The file's full text.
+ * @param window - The requested `offset` (1-based) and `limit` (line count).
+ * @returns The window plus its position, or null when neither was given.
+ */
+export function sliceLines(
+  content: string,
+  window?: { offset?: unknown; limit?: unknown },
+): { text: string; offset: number; lines: number; totalLines: number; truncated: boolean } | null {
+  const rawOffset = Number(window?.offset)
+  const rawLimit = Number(window?.limit)
+  const hasOffset = Number.isFinite(rawOffset) && rawOffset !== 0
+  const hasLimit = Number.isFinite(rawLimit) && rawLimit > 0
+  if (!hasOffset && !hasLimit) return null
+
+  const all = content.split('\n')
+  const totalLines = all.length
+  // A NEGATIVE offset counts from the end, the `tail -N` convention. Without it
+  // "show me the last 30 lines" has no expression here, and the executor either
+  // reads the whole file or goes back to the shell — measured: asked for a
+  // file's tail with these tools available, it read the entire file 3 times out
+  // of 3 until this existed.
+  const fromEnd = hasOffset && rawOffset < 0
+  const offset = fromEnd
+    ? Math.max(1, totalLines + Math.trunc(rawOffset) + 1)
+    : hasOffset
+      ? Math.min(Math.trunc(rawOffset), totalLines)
+      : 1
+  const limit = hasLimit ? Math.trunc(rawLimit) : totalLines - offset + 1
+  const picked = all.slice(offset - 1, offset - 1 + limit)
+  return {
+    text: picked.join('\n'),
+    offset,
+    lines: picked.length,
+    totalLines,
+    truncated: offset > 1 || offset - 1 + picked.length < totalLines,
+  }
+}
+
 /** Max search results. */
 /**
  * Most files one batched `read_file` call returns. The cap exists so a survey

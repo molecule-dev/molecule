@@ -59,6 +59,19 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
             'than one file. Returns `files`, one entry per path in the order given, each ' +
             "with that file's content or its own error.",
         },
+        offset: {
+          type: 'number',
+          description:
+            'First line to return, 1-based. NEGATIVE counts from the end, so `offset: -30` ' +
+            'is the last 30 lines. Use with `limit` to read PART of a large file instead of ' +
+            'all of it — never pipe a file through head/tail in the shell.',
+        },
+        limit: {
+          type: 'number',
+          description:
+            'How many lines to return from `offset`. The result reports `offset`, `lines` ' +
+            'and `totalLines` so you can ask for the next window.',
+        },
       },
       required: [],
     },
@@ -136,6 +149,13 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
         include: {
           type: 'string',
           description: "File glob pattern to filter files (e.g. '*.ts', '*.tsx'). Optional.",
+        },
+        contextLines: {
+          type: 'number',
+          description:
+            'Lines of surrounding context to return with each match, like `grep -C`. Each ' +
+            'result carries `match: true` for the matching line and `false` for context. ' +
+            'Use this instead of grepping through the shell.',
         },
       },
       required: ['pattern'],

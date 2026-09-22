@@ -24,6 +24,7 @@ import {
   MAX_FIND_RESULTS,
   MAX_OUTPUT_SIZE,
   MAX_READ_SIZE,
+  MAX_SEARCH_CONTEXT_LINES,
   MAX_SEARCH_RESULTS,
   MAX_WRITE_SIZE,
   outputIsWithheldUntilExit,
@@ -32,6 +33,7 @@ import {
   redactSecretsInCode,
   resolvePath,
   shellQuote,
+  sliceLines,
   stripControlChars,
   truncateMiddle,
   whitespaceTolerantReplace,
@@ -294,7 +296,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param rawPath - The path as the model sent it.
    * @returns The same result shape read_file returns for one file.
    */
-  async function readOneFile(rawPath: unknown): Promise<unknown> {
+  async function readOneFile(
+    rawPath: unknown,
+    window?: { offset?: unknown; limit?: unknown },
+  ): Promise<unknown> {
     const argErr = pathArgError(rawPath, 'read_file')
     if (argErr) return { error: argErr }
     const path = resolve(rawPath as string)
@@ -321,6 +326,23 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
         }
+      const windowed = sliceLines(content, window)
+      if (windowed) {
+        return {
+          path,
+          content: sanitizeFileContent(windowed.text, path),
+          offset: windowed.offset,
+          lines: windowed.lines,
+          totalLines: windowed.totalLines,
+          ...(windowed.truncated
+            ? {
+                note:
+                  `Lines ${windowed.offset}-${windowed.offset + windowed.lines - 1} of ` +
+                  `${windowed.totalLines}. Read another window with offset/limit.`,
+              }
+            : {}),
+        }
+      }
       return { path, content: sanitizeFileContent(content, path) }
     } catch (e: unknown) {
       // Backends (e.g. the docker provider's `cat`) already prefix "Failed to read <path>: ";
@@ -410,7 +432,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             stoppedAt = requestedPath
             break
           }
-          const one = (await readOneFile(requestedPath)) as { content?: unknown }
+          const one = (await readOneFile(requestedPath, input)) as { content?: unknown }
           files.push(one)
           if (typeof one.content === 'string') budget -= one.content.length
         }
@@ -426,7 +448,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             : {}),
         }
       }
-      return readOneFile(input.path)
+      return readOneFile(input.path, input)
     },
 
     async write_file(input) {
@@ -619,6 +641,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       const pattern = input.pattern as string
       const path = resolve((input.path as string) || '')
       const include = input.include as string | undefined
+      // Lines of surrounding context per match. The executor reaches for
+      // `grep -A 20` through the shell because this tool could not express it;
+      // bounded so a broad pattern cannot pull the whole tree into the reply.
+      const rawContext = Number(input.contextLines ?? input.context)
+      const contextLines = Number.isFinite(rawContext)
+        ? Math.min(Math.max(Math.trunc(rawContext), 0), MAX_SEARCH_CONTEXT_LINES)
+        : 0
 
       if (include && !isValidGlob(include))
         return {
@@ -629,8 +658,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (symlinkErr) return { error: symlinkErr }
       try {
         const globArg = include ? `--include=${shellQuote(include)}` : ''
+        // With context, grep emits `file-line-content` for context lines and
+        // `file:line:content` for matches, plus `--` group separators. Both
+        // shapes are parsed below; without context the output is unchanged.
+        const contextArg = contextLines > 0 ? `-C ${contextLines}` : ''
         const result = await backend.run(
-          `grep -rn ${globArg} ${grepExcludeArgs} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
+          `grep -rn ${globArg} ${contextArg} ${grepExcludeArgs} --max-count=${MAX_SEARCH_RESULTS} -- ${shellQuote(pattern)} ${shellQuote(path)} 2>/dev/null || true`,
           { timeout: 10000 },
         )
         // grep emits `<file>:<line>:<content>`, so redaction runs PER MATCH on the
@@ -640,14 +673,32 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const output = stripControlChars(result.stdout.trim())
         if (!output) return { pattern, path, matches: [] }
 
+        const cap =
+          contextLines > 0 ? MAX_SEARCH_RESULTS * (contextLines * 2 + 2) : MAX_SEARCH_RESULTS
         const matches = output
           .split('\n')
-          .slice(0, MAX_SEARCH_RESULTS)
+          .slice(0, cap)
+          .filter((line) => line !== '--')
           .map((line) => {
-            const m = line.match(/^(.+?):(\d+):(.*)$/)
-            return m
-              ? { file: m[1], line: parseInt(m[2]), content: sanitizeFileContent(m[3], m[1]) }
-              : { file: '', line: 0, content: sanitizeFileContent(line, '') }
+            const hit = line.match(/^(.+?):(\d+):(.*)$/)
+            if (hit) {
+              return {
+                file: hit[1],
+                line: parseInt(hit[2]),
+                content: sanitizeFileContent(hit[3], hit[1]),
+                ...(contextLines > 0 ? { match: true } : {}),
+              }
+            }
+            const ctx = contextLines > 0 ? line.match(/^(.+?)-(\d+)-(.*)$/) : null
+            if (ctx) {
+              return {
+                file: ctx[1],
+                line: parseInt(ctx[2]),
+                content: sanitizeFileContent(ctx[3], ctx[1]),
+                match: false,
+              }
+            }
+            return { file: '', line: 0, content: sanitizeFileContent(line, '') }
           })
         return { pattern, path, matches }
       } catch (e: unknown) {
