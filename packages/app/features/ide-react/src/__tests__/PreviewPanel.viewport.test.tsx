@@ -63,7 +63,6 @@ function postFromPreview(data: Record<string, unknown>): void {
   })
 }
 
-
 /**
  * Advance fake timers INSIDE act() so React work scheduled by timer callbacks
  * (setState from the ceiling / stuck-retry / recovery timers) is flushed before

@@ -54,6 +54,7 @@ export type IdeTranslationKey =
   | 'ide.chat.subagent.build'
   | 'ide.chat.subagent.inBackground'
   | 'ide.chat.subagent.wroteFiles'
+  | 'ide.toolCall.stillRunning'
   | 'ide.toolCall.startedInBackground'
   | 'ide.toolCall.onlySession'
   | 'ide.toolCall.sessionCount'

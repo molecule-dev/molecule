@@ -186,6 +186,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.subagent.build': 'Build subagent',
   'ide.chat.subagent.inBackground': 'running in the background',
   'ide.chat.subagent.wroteFiles': '{{count}} files changed',
+  'ide.toolCall.stillRunning': 'Still running',
   'ide.toolCall.startedInBackground': 'Running in the background',
   'ide.toolCall.onlySession': 'Only this one',
   'ide.toolCall.sessionCount': '{{count}} other sessions',
