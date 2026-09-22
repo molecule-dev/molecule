@@ -1439,7 +1439,7 @@ describe('exec_command run_in_background', () => {
     expect(r.log).toBe(`/tmp/${r.taskId}.log`)
     expect(r.exitFile).toBe(`/tmp/${r.taskId}.exit`)
     expect(r.note).toContain('read_file')
-    expect(r.note).toContain('do not')
+    expect(r.note).toContain('never sleep')
   })
 
   it('writes the command to a FILE rather than re-quoting it into sh -c', async () => {
@@ -1489,5 +1489,77 @@ describe('exec_command run_in_background', () => {
     const r = (await exec.execute({ command: 'ls', run_in_background: true })) as { error: string }
     expect(r.error).toContain('Could not start the background command')
     expect(r.error).toContain('read-only filesystem')
+  })
+})
+
+// ── waiting on a background command ─────────────────────────────────────────
+// The handle alone made the executor wait by calling `sleep 75; cat <log>`
+// through exec_command — a round trip per poll, each at the full context.
+
+describe('wait_for_task', () => {
+  function backendWith(files: Record<string, string>): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(async (path: string) => {
+        if (!(path in files)) throw new Error(`ENOENT: ${path}`)
+        return files[path]
+      }),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn(),
+    }
+  }
+  const id = 'mol-bg-abc123-def456'
+
+  it('returns the exit code and output when the command has already finished', async () => {
+    const backend = backendWith({ [`/tmp/${id}.exit`]: '1\n', [`/tmp/${id}.log`]: '3 failed' })
+    const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: id })) as { exitCode: number; stdout: string }
+    expect(r.exitCode).toBe(1)
+    expect(r.stdout).toBe('3 failed')
+  })
+
+  it('polls until the exit file appears', async () => {
+    const files: Record<string, string> = {}
+    const backend = backendWith(files)
+    const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+    setTimeout(() => {
+      files[`/tmp/${id}.log`] = 'built'
+      files[`/tmp/${id}.exit`] = '0'
+    }, 50)
+    const r = (await wait.execute({ taskId: id, timeout: 5_000 })) as { exitCode: number }
+    expect(r.exitCode).toBe(0)
+    expect(backend.readFile).toHaveBeenCalled()
+  })
+
+  it('says it is still running when the budget ends, without an error', async () => {
+    const wait = buildTools(backendWith({})).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: id, timeout: 30 })) as {
+      status?: string
+      error?: string
+      note?: string
+    }
+    expect(r.error).toBeUndefined()
+    expect(r.status).toBe('running')
+    expect(r.note).toContain('wait_for_task again')
+  })
+
+  it('refuses an id it did not mint — the id names files under /tmp', async () => {
+    const wait = buildTools(backendWith({})).find((t) => t.name === 'wait_for_task')!
+    const r = (await wait.execute({ taskId: '../etc/passwd' })) as { error: string }
+    expect(r.error).toContain('taskId')
+  })
+
+  it('the handle tells the executor to wait with this tool, not with sleep', async () => {
+    const backend = backendWith({})
+    backend.writeFile = vi.fn().mockResolvedValue(undefined)
+    backend.run = vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 })
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: 'npm test', run_in_background: true })) as {
+      note: string
+    }
+    expect(r.note).toContain('wait_for_task')
+    expect(r.note).toContain('never sleep')
   })
 })

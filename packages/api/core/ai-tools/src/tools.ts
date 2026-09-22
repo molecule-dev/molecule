@@ -873,8 +873,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             note:
               `Started in the background. Its output is being written to ${log} — read it with ` +
               `read_file (use offset/limit to follow a long one). When it finishes, ${exitFile} ` +
-              `appears and holds the exit code. Get on with other work and check back; do not ` +
-              `sit and poll it.`,
+              `appears and holds the exit code. If you have other work, do it and check back. If ` +
+              `you need this result before you can continue, call wait_for_task with this taskId — ` +
+              `never sleep and read the log by hand.`,
           }
         } catch (e: unknown) {
           return {
@@ -1015,6 +1016,81 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       return {
         error: `Skill '${name}' not found. Searched .agents/skills/${name}/SKILL.md and .claude/skills/${name}/SKILL.md`,
+      }
+    },
+
+    // The other half of run_in_background. A handle is only useful if the
+    // executor has other work to do while the command runs; when it needs the
+    // result to continue — a build before the tests, tests before "done" — it
+    // has nothing to do but wait, and without this it waited by calling
+    // `sleep 75; cat <log>` in exec_command, one round trip per poll, each at
+    // the full context. Observed on X0 run x1 (2026-09-22): the first two
+    // background builds were each followed by a sleep-and-cat call. Waiting
+    // server-side costs no round trip and no context.
+    async wait_for_task(input) {
+      const taskId = typeof input.taskId === 'string' ? input.taskId.trim() : ''
+      // The id names files under /tmp; only an id this tool minted may be used
+      // to read them, so a crafted id cannot turn this into a file reader.
+      if (!/^mol-bg-[a-z0-9]+-[a-z0-9]+$/.test(taskId)) {
+        return {
+          error:
+            'taskId must be the id a run_in_background command returned (it looks like ' +
+            '`mol-bg-…`).',
+        }
+      }
+      const log = `/tmp/${taskId}.log`
+      const exitFile = `/tmp/${taskId}.exit`
+      // Leave the outer tool ceiling a margin so this returns a result rather
+      // than being killed by it.
+      const ceiling = Math.max(5_000, (commandBudgetMs ?? 290_000) - 10_000)
+      const requested = Number(input.timeout)
+      const budgetMs =
+        Number.isFinite(requested) && requested > 0 ? Math.min(requested, ceiling) : ceiling
+      const startedAt = Date.now()
+      const readExit = async (): Promise<number | null> => {
+        try {
+          const raw = await backend.readFile(exitFile)
+          const code = Number.parseInt(raw.trim(), 10)
+          return Number.isFinite(code) ? code : 0
+        } catch (_error) {
+          // No exit file yet — the command is still running. Not an error.
+          return null
+        }
+      }
+      let exitCode = await readExit()
+      while (exitCode === null && Date.now() - startedAt < budgetMs) {
+        await new Promise((r) =>
+          setTimeout(r, Math.min(2_000, budgetMs - (Date.now() - startedAt))),
+        )
+        exitCode = await readExit()
+      }
+      const waitedMs = Date.now() - startedAt
+      if (exitCode === null) {
+        return {
+          taskId,
+          status: 'running',
+          waitedMs,
+          note:
+            `Still running after ${Math.round(waitedMs / 1000)}s. Call wait_for_task again to ` +
+            `keep waiting, or read ${log} for its output so far.`,
+        }
+      }
+      let output: string
+      try {
+        output = await backend.readFile(log)
+      } catch (_error) {
+        // The command finished but wrote nothing (or the log was removed);
+        // an empty output with a real exit code is still a result.
+        output = ''
+      }
+      // Same shaping as a foreground exec result, so the executor reads both
+      // the same way.
+      return {
+        taskId,
+        exitCode,
+        waitedMs,
+        stdout: sanitizeOutput(truncateMiddle(output, MAX_OUTPUT_SIZE)),
+        ...(output.length > MAX_OUTPUT_SIZE ? { truncated: true, fullOutput: log } : {}),
       }
     },
 

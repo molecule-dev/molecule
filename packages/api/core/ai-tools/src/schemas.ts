@@ -260,10 +260,34 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
             'Use it for anything that may outrun the ceiling — a full test suite, a production ' +
             'build, a long install. The result gives a log path to read with read_file and an ' +
             'exit-code file that appears when it finishes. Do the next piece of work while it ' +
-            'runs; do not sit and poll it.',
+            'runs; when you need its result, call wait_for_task (one call, no polling).',
         },
       },
       required: ['command'],
+    },
+  },
+
+  wait_for_task: {
+    name: 'wait_for_task',
+    description:
+      'Wait for a command started with `run_in_background` and return its output and exit ' +
+      'code. Blocks until it finishes or the time budget runs out, then returns — one call, ' +
+      'no polling. Use it the moment you need that result to continue; never `sleep` and ' +
+      'read the log by hand. If it is still running when the budget ends, the result says so ' +
+      'and you can call it again.',
+    parameters: {
+      type: 'object',
+      properties: {
+        taskId: {
+          type: 'string',
+          description: 'The `taskId` the background command returned.',
+        },
+        timeout: {
+          type: 'number',
+          description: 'Optional time budget in milliseconds. Clamped to this tool’s ceiling.',
+        },
+      },
+      required: ['taskId'],
     },
   },
 
