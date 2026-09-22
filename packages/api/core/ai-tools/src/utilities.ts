@@ -424,7 +424,21 @@ export const MAX_BATCH_READ_FILES = 25
  * Total content bytes one batched `read_file` call returns, across all files.
  * The per-file {@link MAX_READ_SIZE} still applies to each one.
  */
-export const MAX_BATCH_READ_BYTES = 400 * 1024
+export const MAX_BATCH_READ_BYTES = 200 * 1024
+
+/**
+ * The most one read_file call returns for ONE file when no window was asked
+ * for, in chars. Larger files come back as their first window with a note
+ * saying how to read the rest.
+ *
+ * MAX_READ_SIZE (5 MB) is a bound on what the tool will open, not on what it
+ * should hand a model: a single batched read that returned a 1.2 MB README
+ * put the next three provider calls at 366k tokens (~330k of them fresh)
+ * against a 120k-token context cap (X0 run x5, call 26). ~80 KB is ~20–25k
+ * tokens — a fifth of that cap, and more than any one file read usually
+ * needs.
+ */
+export const MAX_READ_RETURN_CHARS = 80 * 1024
 
 /** Max search results. */
 export const MAX_SEARCH_RESULTS = 50

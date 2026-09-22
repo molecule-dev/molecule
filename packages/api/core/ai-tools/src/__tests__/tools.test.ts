@@ -11,6 +11,7 @@ import {
   TOOL_SCHEMAS,
 } from '../index.js'
 import type { ExecutionBackend } from '../types.js'
+import { MAX_READ_RETURN_CHARS } from '../utilities.js'
 
 // ── Utilities ───────────────────────────────────────────────────────────────
 
@@ -1561,5 +1562,68 @@ describe('wait_for_task', () => {
     }
     expect(r.note).toContain('wait_for_task')
     expect(r.note).toContain('never sleep')
+  })
+})
+
+// ── a file bigger than one call should return ────────────────────────────────
+// MAX_READ_SIZE bounds what the tool will open (5 MB), not what a model should
+// be handed: one 1.2 MB README in a batched read put three provider calls at
+// 366k tokens against a 120k cap (X0 run x5).
+
+describe('read_file return ceiling', () => {
+  const huge = Array.from({ length: 4000 }, (_, i) => `line ${i} ${'x'.repeat(40)}`).join('\n')
+  function backendWith(content: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue(content),
+      writeFile: vi.fn(),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('returns the first window of a huge file with a note, never the whole thing', async () => {
+    const read = buildTools(backendWith(huge)).find((t) => t.name === 'read_file')!
+    const r = (await read.execute({ path: 'README.md' })) as {
+      content: string
+      lines: number
+      totalLines: number
+      note?: string
+    }
+    expect(r.content.length).toBeLessThanOrEqual(MAX_READ_RETURN_CHARS + 100)
+    expect(r.content.startsWith('line 0 ')).toBe(true)
+    expect(r.totalLines).toBe(4000)
+    expect(r.lines).toBeLessThan(4000)
+    expect(r.note).toContain('offset/limit')
+  })
+
+  it('still honours an explicit window on a huge file', async () => {
+    const read = buildTools(backendWith(huge)).find((t) => t.name === 'read_file')!
+    const r = (await read.execute({ path: 'README.md', offset: 3000, limit: 5 })) as {
+      content: string
+      offset: number
+      lines: number
+    }
+    expect(r.offset).toBe(3000)
+    expect(r.lines).toBe(5)
+    expect(r.content.startsWith('line 2999 ')).toBe(true)
+  })
+
+  it('returns a small file whole, as before', async () => {
+    const read = buildTools(backendWith('hello\nworld')).find((t) => t.name === 'read_file')!
+    const r = (await read.execute({ path: 'a.txt' })) as { content: string; lines?: number }
+    expect(r.content).toBe('hello\nworld')
+    expect(r.lines).toBeUndefined()
+  })
+
+  it('bounds a batch to the ceiling per file, so one giant file cannot fill the call', async () => {
+    const read = buildTools(backendWith(huge)).find((t) => t.name === 'read_file')!
+    const r = (await read.execute({ paths: ['a.md', 'b.md', 'c.md'] })) as {
+      files: Array<{ content: string }>
+      note?: string
+    }
+    for (const f of r.files)
+      expect(f.content.length).toBeLessThanOrEqual(MAX_READ_RETURN_CHARS + 100)
   })
 })

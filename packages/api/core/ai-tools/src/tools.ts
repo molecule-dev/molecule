@@ -23,6 +23,7 @@ import {
   MAX_BATCH_READ_FILES,
   MAX_FIND_RESULTS,
   MAX_OUTPUT_SIZE,
+  MAX_READ_RETURN_CHARS,
   MAX_READ_SIZE,
   MAX_SEARCH_CONTEXT_LINES,
   MAX_SEARCH_RESULTS,
@@ -296,6 +297,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param rawPath - The path as the model sent it.
    * @returns The same result shape read_file returns for one file.
    */
+  /** How many leading lines of `content` fit in `chars` (at least one). */
+  function linesWithin(content: string, chars: number): number {
+    let used = 0
+    let lines = 0
+    for (const line of content.split('\n')) {
+      used += line.length + 1
+      if (used > chars && lines > 0) break
+      lines++
+    }
+    return Math.max(1, lines)
+  }
+
+  /**
+   *
+   */
   async function readOneFile(
     rawPath: unknown,
     window?: { offset?: unknown; limit?: unknown },
@@ -326,7 +342,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           error: `File too large (${Math.round(content.length / 1024)}KB). Maximum is ${MAX_READ_SIZE / 1024 / 1024}MB.`,
         }
-      const windowed = sliceLines(content, window)
+      // No window asked for and the file is bigger than one call should hand
+      // back: return its first window, sized to the ceiling, and say so. The
+      // model can read on with offset/limit; it cannot un-send 300k tokens.
+      const effectiveWindow =
+        !sliceLines(content, window) && content.length > MAX_READ_RETURN_CHARS
+          ? { offset: 1, limit: linesWithin(content, MAX_READ_RETURN_CHARS) }
+          : window
+      const windowed = sliceLines(content, effectiveWindow)
       if (windowed) {
         return {
           path,
