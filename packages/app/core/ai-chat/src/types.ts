@@ -8,6 +8,28 @@
  * An ordered block within an assistant message, preserving the interleaved
  * sequence of text chunks and tool calls as they were received from the stream.
  */
+/**
+ * A command running in the sandbox that outlived the tool call that started it.
+ *
+ * `exec_command` with `run_in_background` returns a handle immediately, so the
+ * command's real outcome arrives later. The UI tracks these separately from
+ * tool calls for that reason: one tool call, two states, minutes apart.
+ */
+export interface BackgroundTaskState {
+  /** The handle the tool returned, e.g. `mol-bg-1a2b3c`. */
+  id: string
+  /** What kind of work it is: a detached shell command, or a subagent. */
+  kind?: 'command' | 'agent'
+  /** The command as the executor wrote it, or the subagent's task. */
+  command: string
+  status: 'running' | 'succeeded' | 'failed'
+  /** Present once it has finished. */
+  exitCode?: number
+  /** Milliseconds, server clock. */
+  startedAt: number
+  finishedAt?: number
+}
+
 export type MessageBlock =
   | { type: 'text'; content: string }
   | { type: 'tool_call'; id: string }
@@ -311,6 +333,10 @@ export type ChatStreamEvent =
       errors: Array<{ message: string; source?: string; line?: number; column?: number }>
     }
   | { type: 'resource_limit'; resource: 'memory'; message: string }
+  // A command the executor detached with `run_in_background`. Emitted once when
+  // it starts and again when it finishes, so the UI can show work that outlives
+  // the tool call that started it — the tool returned a handle, not a result.
+  | { type: 'background_task'; task: BackgroundTaskState }
   // Generic extension point for app-specific stream events the SHARED package knows
   // nothing about. A consuming app emits `{ type: 'custom', name, data }` and (for
   // the react IDE) registers a renderer via `registerCustomEventCard(name, …)` from

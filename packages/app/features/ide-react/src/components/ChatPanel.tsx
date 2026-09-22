@@ -81,6 +81,7 @@ import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
 import { AutoCommitBadge } from './AutoCommitBadge.js'
+import { BackgroundTasksStrip } from './BackgroundTasksStrip.js'
 import {
   AUTO_COMMIT_DISABLED,
   autoCommitReducer,
@@ -3121,6 +3122,7 @@ function ChatInner({
     mode,
     fastMode,
     streamingStatus,
+    backgroundTasks,
     setMode,
     setFastMode,
     sendMessage,
@@ -8642,6 +8644,11 @@ function ChatInner({
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* ── Background commands ── a detached command outlives its tool call,
+          so its card goes green while the command is still running. This is the
+          one place that state is visible. */}
+      <BackgroundTasksStrip tasks={backgroundTasks} />
 
       {/* ── Auto-fix countdown banner ── */}
       {autoFixCountdown && (

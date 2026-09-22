@@ -7,6 +7,7 @@
 import type { ReactNode } from 'react'
 
 import type {
+  BackgroundTaskState,
   ChatAttachment,
   ChatMessage,
   ChatProvider,
@@ -351,6 +352,12 @@ export interface UseChatResult {
    * when no such phase is active.
    */
   streamingStatus: string | null
+  /**
+   * Commands the executor detached with `run_in_background`, newest last. Each
+   * appears here the moment it starts and is replaced in place when it finishes,
+   * so the UI can show work that outlives the tool call that started it.
+   */
+  backgroundTasks: BackgroundTaskState[]
   /**
    * Active 5XX backoff-retry countdown, or `null` when none is pending. After a
    * backend server error (HTTP 5XX) the hook does NOT surface a terminal error —

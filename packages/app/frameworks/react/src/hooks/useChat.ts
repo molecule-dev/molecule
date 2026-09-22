@@ -15,6 +15,7 @@ import {
 } from 'react'
 
 import type {
+  BackgroundTaskState,
   ChatAttachment,
   ChatConfig,
   ChatMessage,
@@ -762,6 +763,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
   // so the user sees the current step; cleared (null) by the server's status
   // event when the phase ends, and defensively on send/stream-end.
   const [streamingStatus, setStreamingStatus] = useState<string | null>(null)
+  // Commands the executor detached with `run_in_background`. Hook-level rather
+  // than per-message on purpose: one starts under one assistant message and
+  // finishes minutes later under another, so a message-scoped block could only
+  // ever show half of it.
+  const [backgroundTasks, setBackgroundTasks] = useState<BackgroundTaskState[]>([])
   // Pace status labels. A small change's verification (type-check + lint over a
   // couple of files) finishes in well under a second, so its step labels were
   // emitted in a rapid burst — they flashed by unreadably, or React batched the
@@ -1579,6 +1585,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
         })
         ctx.scheduleFlush(() => ({ blocks: [...ctx.blocks] }))
         break
+      case 'background_task': {
+        const incoming = event.task
+        setBackgroundTasks((prev) => {
+          const next = prev.filter((t) => t.id !== incoming.id)
+          next.push(incoming)
+          return next
+        })
+        break
+      }
       case 'resource_limit':
         ctx.blocks.push({
           type: 'resource_limit',
@@ -2603,6 +2618,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
     mode,
     fastMode,
     streamingStatus,
+    backgroundTasks,
     retryCountdown,
     setMode: exposedSetMode,
     setFastMode,

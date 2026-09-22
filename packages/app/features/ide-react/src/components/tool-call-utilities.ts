@@ -143,7 +143,11 @@ export function toolLabel(name: string, input: unknown): string {
       }
     }
     case 'exec_command': {
-      return `Bash${code(truncate(cmd ?? ''))}`
+      // A detached command has no result to show here — the card would read as
+      // finished the moment it started. Say which it is.
+      return inp.run_in_background === true
+        ? `Bash (background)${code(truncate(cmd ?? ''))}`
+        : `Bash${code(truncate(cmd ?? ''))}`
     }
     case 'sandbox_fetch': {
       // The interesting part is WHICH endpoint (usually one the model just built) —
@@ -352,6 +356,13 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
       }
     }
     case 'exec_command': {
+      // The handle a background command returns is not an outcome: the command
+      // is still running, and the strip above the composer owns its real status.
+      if ((out as { taskId?: unknown })?.taskId != null) {
+        return t('ide.toolCall.startedInBackground', undefined, {
+          defaultValue: 'Running in the background',
+        })
+      }
       const exitCode = (out as { exitCode?: number })?.exitCode
       return exitCode != null && exitCode !== 0
         ? t('ide.toolCall.statusFailed', undefined, { defaultValue: 'Failed' })
