@@ -1,8 +1,9 @@
+import { type JSX, useEffect, useState } from 'react'
+
 import type { BackgroundTaskState } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 import { Icon } from '@molecule/app-ui-react'
-import { type JSX, useEffect, useState } from 'react'
 
 /**
  * The commands running in the sandbox that outlived the tool call that started
