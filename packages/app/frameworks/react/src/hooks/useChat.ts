@@ -1648,6 +1648,52 @@ export function useChat(options: UseChatOptions): UseChatResult {
     // resume-vs-resend on error: seen → the turn started server-side → resume;
     // not seen → nothing was persisted → re-send.
     let sawServerEvent = false
+    // Whether this stream ATTACHED to a turn already running server-side (the
+    // `attached` frame): the frames before the attach are only in the persisted
+    // transcript, so the stream converges on it at the attach and once more at
+    // its terminal — the deltas between attach and adoption are otherwise lost
+    // until a reload.
+    let attachedToLiveTurn = false
+
+    /**
+     * Pull the server transcript and merge it under what is on screen (never a
+     * rewind — see convergeHistory). Used by the attach path while THIS client's
+     * own stream is live, which is exactly when reconcileHistory declines to run.
+     */
+    const convergeFromServer = async (): Promise<void> => {
+      try {
+        const history = await provider.loadHistory({ endpoint, projectId })
+        if (!mountedRef.current || history.length === 0) return
+        if (getMessageStore(storageKey).generation !== streamGeneration) return
+        setMessages((prev) => convergeHistory(prev, history))
+      } catch (_error) {
+        // Best-effort: the terminal converge, the lifecycle reconcile or a reload recovers.
+      }
+    }
+
+    /**
+     * If the store's copy of the current message is further along than the
+     * accumulator (the converge just brought a persisted prefix the accumulator
+     * never saw), reseed the accumulator so its next flush cannot rewind it.
+     * Same rule the remote-stream ingestion applies (applyRemoteEventImpl).
+     */
+    const reseedCurrentFromStore = (): void => {
+      const ctx = currentCtx
+      if (!ctx) return
+      const storeMsg = getMessageStore(storageKey).messages.find((m) => m.id === ctx.id)
+      if (!storeMsg) return
+      const ctxProgress = messageProgress({
+        id: ctx.id,
+        role: 'assistant',
+        timestamp: 0,
+        ...buildCtxUpdate(ctx),
+      } as ChatMessage)
+      if (messageProgress(storeMsg) > ctxProgress) {
+        ctx.assistantText = storeMsg.content
+        ctx.blocks = storeMsg.blocks ? [...storeMsg.blocks] : []
+        ctx.toolCalls = storeMsg.toolCalls ? storeMsg.toolCalls.map((tc) => ({ ...tc })) : []
+      }
+    }
 
     const finalizeCurrent = (): void => {
       const ctx = currentCtx
@@ -1706,6 +1752,42 @@ export function useChat(options: UseChatOptions): UseChatResult {
         case 'message_start':
           startMessage(event.id, event.timestamp)
           return
+        case 'attached': {
+          // Joined a turn that is already running (a reconnect, or a resume the
+          // server got to first — after a restart it resumes interrupted turns
+          // itself). Adopt the message it is inside so the deltas that follow
+          // land on it; open it fresh when the store has no copy yet (the
+          // converge below brings the persisted prefix, and the reseed folds it
+          // under the accumulator). No messageId: the turn is between messages
+          // and the next message_start opens the next one as usual.
+          attachedToLiveTurn = true
+          if (event.messageId) {
+            const store = getMessageStore(storageKey)
+            const existing = store.messages.find((m) => m.id === event.messageId)
+            if (currentCtx?.id !== event.messageId) {
+              if (existing) {
+                finalizeCurrent()
+                const { scheduleFlush, flushNow } = createFlushScheduler(existing.id)
+                currentCtx = {
+                  id: existing.id,
+                  assistantText: existing.content,
+                  blocks: existing.blocks ? [...existing.blocks] : [],
+                  toolCalls: existing.toolCalls ? existing.toolCalls.map((tc) => ({ ...tc })) : [],
+                  scheduleFlush,
+                  flushNow,
+                }
+                const adoptedId = existing.id
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === adoptedId ? { ...m, isStreaming: true } : m)),
+                )
+              } else {
+                startMessage(event.messageId, event.timestamp ?? Date.now())
+              }
+            }
+          }
+          void convergeFromServer().then(reseedCurrentFromStore)
+          return
+        }
         case 'card':
           // A complete inline card (model / mode / skills / custom) — append it to the ONE
           // message store as a card-message; it does NOT belong to the current streaming
@@ -1734,6 +1816,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
           // A clean finish ends the incident — reset the 5XX retry budget.
           retryAttemptRef.current = 0
           finalizeCurrent()
+          // An attached stream saw only the frames after its attach; the server
+          // transcript has the whole turn — take it now, never on a reload.
+          if (attachedToLiveTurn) void convergeFromServer()
           return
         case 'error':
           deps.markTerminal()
@@ -2334,10 +2419,17 @@ export function useChat(options: UseChatOptions): UseChatResult {
       resetStatusQueue()
       setStreamingFlag(storageKey)
 
-      // ── Phase 1: wait for the server to finish the old request ────────
+      // ── Phase 1: wait for the server to be reachable ─────────────────
+      // One successful history read is the whole wait. It used to poll until the
+      // server reported the turn finished (up to five minutes), because a resume
+      // sent into a live turn got a 409. The chat route now ATTACHES a resume
+      // to a live turn instead (the `attached` frame), and a server that
+      // restarted resumes the interrupted turn itself — so the moment the API
+      // answers, sending the resume is right: it either attaches to the running
+      // turn and streams live, or re-enters the interrupted one. Waiting longer
+      // only means watching a 1 s poll instead of the stream.
       const POLL_INTERVAL = 1000
       const MAX_POLLS = 300
-      const streamingProvider = provider as { isServerStreaming?: boolean }
 
       for (let i = 0; i < MAX_POLLS; i++) {
         if (!mountedRef.current || !sendingRef.current) break
@@ -2349,12 +2441,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
           const history = await provider.loadHistory(config)
           if (!mountedRef.current) break
 
-          // Update displayed messages while keeping the spinner on the resumed
-          // message. This poll runs once a second for up to five minutes WHILE
-          // the server turn is still running — and the server persists nothing
-          // until it ends — so replacing the view with each read emptied the
-          // chat back to the pre-turn transcript for the whole wait. Converge
-          // instead: the read can only add what the store is missing.
+          // Converge on what the server has (never replace — the read can only
+          // add what the store is missing), keeping the spinner on the resumed
+          // message.
           if (history.length > 0) {
             setMessages((prev) =>
               convergeHistory(prev, history).map((m) =>
@@ -2362,10 +2451,10 @@ export function useChat(options: UseChatOptions): UseChatResult {
               ),
             )
           }
-
-          if (streamingProvider.isServerStreaming === false) break
+          // The server answered — proceed to the resume.
+          break
         } catch (_error) {
-          // loadHistory failure during resume poll — keep polling until MAX_POLLS
+          // The server is not back yet (a restart in progress) — keep polling until MAX_POLLS
         }
       }
 

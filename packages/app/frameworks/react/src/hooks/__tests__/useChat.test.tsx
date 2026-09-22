@@ -2792,3 +2792,168 @@ describe('convergeHistory', () => {
     expect(convergeHistory(prev, history).map((m) => m.id)).toEqual(['srv-1', 'srv-2'])
   })
 })
+
+// ---------------------------------------------------------------------------
+// Attaching to a turn that is already running server-side — the `attached`
+// frame. A resume that lands while the turn is live (the server resumed it
+// itself after a restart, or it never stopped) joins the running stream
+// mid-message: the frames before the join are only in the persisted
+// transcript, and the deltas after it belong to a message whose message_start
+// this stream never saw.
+// ---------------------------------------------------------------------------
+describe('useChat — attaching to a live turn (the `attached` frame)', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+  afterEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+
+  it('adopts the message the server is inside and appends the deltas that follow to it', async () => {
+    const { provider, deferreds, emit, emitText, complete } = createMockProvider()
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'u1', role: 'user', content: 'go', timestamp: 1000 },
+      { id: 'a1', role: 'assistant', content: 'persisted prefix', timestamp: 1001 },
+    ])
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }),
+      { wrapper: createWrapper(provider) },
+    )
+    await waitFor(() => expect(result.current.messages.find((m) => m.id === 'a1')).toBeDefined())
+
+    await act(async () => {
+      result.current.sendMessage('continue')
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(1))
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockClear()
+
+    await act(async () => {
+      emit(0, { type: 'attached', messageId: 'a1', timestamp: 1001 })
+      emitText(0, ' and the live rest')
+    })
+    await waitFor(() => {
+      const a1 = result.current.messages.find((m) => m.id === 'a1')
+      expect(a1?.content).toBe('persisted prefix and the live rest')
+      expect(a1?.isStreaming).toBe(true)
+    })
+    // The attach converged on the server transcript (one read), no new message
+    // was opened for the deltas.
+    expect(provider.loadHistory).toHaveBeenCalledTimes(1)
+    expect(result.current.messages.filter((m) => m.role === 'assistant')).toHaveLength(1)
+
+    await act(async () => {
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.messages.find((m) => m.id === 'a1')?.isStreaming).toBe(false)
+  })
+
+  it('opens the named message fresh when the store has no copy, then folds in the persisted prefix', async () => {
+    const { provider, deferreds, emit, emitText, complete } = createMockProvider()
+    // The server's transcript already holds the prefix of the message it is
+    // streaming (a2) — this client has never seen a2.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { id: 'u1', role: 'user', content: 'go', timestamp: 1000 },
+      {
+        id: 'a2',
+        role: 'assistant',
+        content: 'the prefix streamed before the attach',
+        timestamp: 1002,
+      },
+    ])
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(1))
+
+    await act(async () => {
+      emit(0, { type: 'attached', messageId: 'a2', timestamp: 1002 })
+    })
+    // The converge brought the persisted prefix under the fresh accumulator…
+    await waitFor(() =>
+      expect(result.current.messages.find((m) => m.id === 'a2')?.content).toBe(
+        'the prefix streamed before the attach',
+      ),
+    )
+    // …and a later delta appends to it rather than rewinding it.
+    await act(async () => {
+      emitText(0, ' + live tail')
+    })
+    await waitFor(() =>
+      expect(result.current.messages.find((m) => m.id === 'a2')?.content).toBe(
+        'the prefix streamed before the attach + live tail',
+      ),
+    )
+    await act(async () => {
+      complete(0)
+    })
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+  })
+
+  it('converges on the server transcript again at the terminal, so nothing streamed before the attach is lost', async () => {
+    const { provider, deferreds, emit, complete } = createMockProvider()
+    const loadHistory = provider.loadHistory as ReturnType<typeof vi.fn>
+    loadHistory.mockResolvedValue([{ id: 'u1', role: 'user', content: 'go', timestamp: 1000 }])
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+    await act(async () => {
+      result.current.sendMessage('go')
+    })
+    await waitFor(() => expect(deferreds).toHaveLength(1))
+
+    await act(async () => {
+      emit(0, { type: 'attached' }) // between messages — nothing to adopt
+    })
+    await waitFor(() => expect(loadHistory).toHaveBeenCalledTimes(1))
+    // By the time the turn ends the server has persisted a whole message this
+    // stream never received a frame of.
+    loadHistory.mockResolvedValue([
+      { id: 'u1', role: 'user', content: 'go', timestamp: 1000 },
+      { id: 'a9', role: 'assistant', content: 'streamed while we were away', timestamp: 1009 },
+    ])
+    await act(async () => {
+      complete(0)
+    })
+    await waitFor(() =>
+      expect(result.current.messages.find((m) => m.id === 'a9')?.content).toBe(
+        'streamed while we were away',
+      ),
+    )
+    expect(loadHistory).toHaveBeenCalledTimes(2)
+  })
+
+  it('a resume sends as soon as the server answers, even while it reports the turn still live', async () => {
+    sessionStorage.setItem(`mol-chat-streaming-${PROJECT_ID}`, '1')
+    const { provider, deferreds } = createMockProvider()
+    const streamingProvider = provider as unknown as { isServerStreaming: boolean }
+    let polls = 0
+    // The server reports the turn live on EVERY read (it resumed the turn
+    // itself after the restart and is streaming it): under the old rule the
+    // resume waited up to five minutes for that flag to clear.
+    ;(provider.loadHistory as ReturnType<typeof vi.fn>).mockImplementation(async () => {
+      polls++
+      streamingProvider.isServerStreaming = true
+      return [
+        { id: 'h1', role: 'user', content: 'old msg', timestamp: 1000 },
+        { id: 'h2', role: 'assistant', content: 'partial...', timestamp: 1001 },
+      ]
+    })
+
+    renderHook(() => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: true }), {
+      wrapper: createWrapper(provider),
+    })
+    // The resume goes out after the FIRST successful poll (mount load + one
+    // poll), not after the turn ends.
+    await waitFor(() => expect(deferreds).toHaveLength(1), { timeout: 5000 })
+    expect(deferreds[0].message).toBe('')
+    expect(polls).toBeLessThanOrEqual(3)
+  })
+})

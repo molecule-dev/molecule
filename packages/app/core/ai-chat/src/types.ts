@@ -30,6 +30,7 @@ export interface BackgroundTaskState {
   finishedAt?: number
 }
 
+/** One ordered item of an assistant message: text, a tool-call reference, thinking, or a notice. */
 export type MessageBlock =
   | { type: 'text'; content: string }
   | { type: 'tool_call'; id: string }
@@ -299,6 +300,14 @@ export type ChatStreamEvent =
   // `done`/`error` (finalize the last). `timestamp` is ms and equals
   // `new Date(persistedISO).getTime()` so the live message is byte-identical to history.
   | { type: 'message_start'; id: string; timestamp: number }
+  // The server attached this request to a turn ALREADY running for the conversation —
+  // a reconnect or a resume that arrived while the turn was live (including a turn the
+  // server itself resumed after a restart). Every frame from here on is that live turn's.
+  // `messageId`/`timestamp` name the assistant message it is currently streaming (absent
+  // between messages), so the client can adopt that message as its accumulator instead of
+  // dropping every delta until the next `message_start`; whatever streamed before this
+  // moment is in the persisted transcript, which the client converges on.
+  | { type: 'attached'; messageId?: string; timestamp?: number }
   // An inline transcript CARD (model-switch / phase / skills / custom notice), recorded
   // by the server as a `role:'system'` message in the ONE transcript and emitted live with
   // the SAME `id` + `timestamp` it is persisted with — so the card the client renders live
