@@ -7,7 +7,9 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import process from 'node:process'
 
 import type { Page } from '@playwright/test'
@@ -43,12 +45,36 @@ const BOND_NAME = 'the preview bond (@molecule/app-e2e-preview)'
 const DEFAULT_CONNECT_TIMEOUT = 8_000
 /**
  * After one connect has waited the full timeout and found no page, later
- * connects in the same process fail AT ONCE for this long, unless the hub's
- * list shows a page by then — so a spec file of N tests reports "no page" once,
- * in about one timeout, instead of N times.
+ * connects fail AT ONCE for this long, unless the hub's list shows a page by
+ * then — so a spec file of N tests reports "no page" once, in about one
+ * timeout, instead of N times. The memory is a marker FILE beside the hub's
+ * token file, not module state: Playwright restarts its worker process after
+ * every failed test, so anything held in memory is gone before the next
+ * connect.
  */
 const NO_PAGE_MEMORY_MS = 60_000
-let noPageSince = 0
+
+const noPageMarkerPath = (hubUrl: string): string => {
+  const port = Number(new URL(hubUrl).port) || 80
+  return join(tmpdir(), `mol-e2e-${port}.nopage`)
+}
+
+const readNoPageSince = (hubUrl: string): number => {
+  try {
+    return Number(readFileSync(noPageMarkerPath(hubUrl), 'utf8')) || 0
+  } catch (_error) {
+    return 0 // no marker: no recent no-page failure
+  }
+}
+
+const writeNoPageSince = (hubUrl: string, at: number | null): void => {
+  try {
+    if (at === null) rmSync(noPageMarkerPath(hubUrl), { force: true })
+    else writeFileSync(noPageMarkerPath(hubUrl), String(at))
+  } catch (_error) {
+    // The temp dir is unwritable: the next connect simply waits the full timeout again.
+  }
+}
 
 const noPageMessage = (url: string): string =>
   `No preview page is attached to the dev server at ${url}. ${BOND_NAME} drives the page a browser tab is showing, and none is. ` +
@@ -313,7 +339,8 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
   const hub = await openHub(options)
   const connectTimeout = options.connectTimeout ?? DEFAULT_CONNECT_TIMEOUT
   const navigationTimeout = options.navigationTimeout ?? 15_000
-  if (hub.pages.size === 0 && noPageSince && Date.now() - noPageSince < NO_PAGE_MEMORY_MS) {
+  const noPageSince = hub.pages.size === 0 ? readNoPageSince(hub.url) : 0
+  if (noPageSince && Date.now() - noPageSince < NO_PAGE_MEMORY_MS) {
     // A connect a moment ago already waited the full timeout for a page and
     // found none; the hub's list still shows none. Say so at once.
     hub.close()
@@ -323,10 +350,10 @@ const openTransport = async (options: PreviewConnectOptions): Promise<E2ETranspo
     hub.current = await hub.waitForPage({ timeout: connectTimeout, preferred: options.pageId })
   } catch (error) {
     hub.close()
-    noPageSince = Date.now()
+    writeNoPageSince(hub.url, Date.now())
     throw error
   }
-  noPageSince = 0
+  writeNoPageSince(hub.url, null)
   hub.lastHref = hub.pages.get(hub.current)?.href ?? ''
   const listeners = new Map<string, Set<Listener>>()
   const emit = (event: string, payload: E2EConsolePayload | E2EErrorPayload | undefined): void => {

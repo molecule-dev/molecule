@@ -53,10 +53,11 @@
  *   (`connectTimeout`) for a page to be attached and then fails naming the
  *   cause and the alternative: open the preview in the IDE or in any tab, or
  *   run with `MOL_E2E_PROVIDER=playwright`, which needs no tab. The runner
- *   opens a connection per test, so after one full wait finds no page the
- *   next connects in that process fail at once (for a minute, or until the hub
- *   lists a page) — a spec file with no tab reports it once, in seconds,
- *   instead of hanging once per test. Any connected viewer will do — a desktop
+ *   opens a connection per test (in a fresh worker process after each
+ *   failure), so after one full wait finds no page the driver leaves a marker
+ *   beside the hub's token file and the next connects fail at once (for a
+ *   minute, or until the hub lists a page) — a spec file with no tab reports
+ *   it once, in seconds, instead of hanging once per test. Any connected viewer will do — a desktop
  *   tab keeps working while a phone sleeps. The IDE holds a screen wake lock
  *   during builds and re-delivers commands when a hidden tab wakes.
  * - **A background tab is as fast as a foreground one.** Browsers throttle a
