@@ -7,16 +7,19 @@
  * write ordinary Playwright specs. Which browser runs them is the e2e bond
  * (`@molecule/app-e2e`):
  *
+ * - **`@molecule/app-e2e-playwright`** launches a real Playwright browser.
+ *   Every molecule sandbox image bakes Chromium, so this is what a sandbox
+ *   uses as well as your own machine and CI — the specs run against the app's
+ *   dev server on `localhost`, no IDE tab involved.
  * - **`@molecule/app-e2e-preview`** drives the LIVE PREVIEW the molecule.dev
- *   IDE is already showing — the page the person is looking at, in their own
- *   browser — over a WebSocket through the dev server. No browser binary in
- *   the sandbox, nothing to download. This is what a molecule sandbox uses.
- * - **`@molecule/app-e2e-playwright`** launches real Playwright browsers. This
- *   is what your own machine and CI use.
+ *   IDE is showing — the page the person is looking at, in their own browser —
+ *   over a WebSocket through the dev server. Pick it with
+ *   `MOL_E2E_PROVIDER=preview` when the point is that tab.
  *
  * The same spec file runs unchanged in both. The provider is picked by
- * `resolveE2EProviderName()`: `MOL_E2E_PROVIDER` when set, otherwise `preview`
- * inside a molecule sandbox (the `/etc/mol/app-root` marker exists) and
+ * `resolveE2EProviderName()`: `MOL_E2E_PROVIDER` when set; otherwise, inside
+ * a molecule sandbox (the `/etc/mol/app-root` marker exists), `playwright`
+ * when a Playwright browser is installed and `preview` when none is; and
  * `playwright` everywhere else. The scaffolded `e2e/bonds.ts` bonds the
  * matching provider (and `test` bonds it by name as a fallback); `test` reads
  * the same answer to decide whether to launch a browser.
@@ -97,11 +100,13 @@
  * - **Events.** `page.on('response')`/`'request'` never fire over the preview
  *   (a one-time warning says so); `'console'` and `'pageerror'` do, so the
  *   console-error guard works there too.
- * - **The person's browser is the renderer.** If every tab showing the
- *   preview is closed or asleep, actions wait for a page to reconnect and
- *   then time out with a message saying so. Keep the IDE tab open (the IDE
- *   holds a screen wake lock while a build runs) or open the preview URL in
- *   any other tab — any connected viewer will do.
+ * - **Over the preview, the person's browser is the renderer.** If no tab
+ *   shows the preview, `connect()` fails within seconds — once per run, not
+ *   once per test — with a message naming the cause and the alternative
+ *   (`MOL_E2E_PROVIDER=playwright`, a real browser that needs no tab; every
+ *   sandbox ships one). Keep the IDE tab open (the IDE holds a screen wake
+ *   lock while a build runs) or open the preview URL in any other tab — any
+ *   connected viewer will do.
  * - `createEvaluatePage()` is how a bond that can only run code inside a page
  *   (an `E2ETransport`) gets the whole Playwright-shaped page; the preview
  *   bond uses it, and so can any future one.

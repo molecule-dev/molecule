@@ -37,7 +37,9 @@ export const provider: E2EProvider = {
       const message = String((error as Error).message ?? error)
       if (/Executable doesn't exist|browserType\.launch/.test(message)) {
         throw new Error(
-          `${message}\n\nInstall the browsers once with: npx playwright install ${browserName(options)}\n(inside a molecule sandbox use @molecule/app-e2e-preview instead — it drives the live preview and needs no browser).`,
+          `${message}\n\nInstall the browsers once with: npx playwright install ${browserName(options)}\n` +
+            '(a molecule sandbox ships Chromium under PLAYWRIGHT_BROWSERS_PATH — if it is missing there, the sandbox image predates it; ' +
+            'MOL_E2E_PROVIDER=preview drives the live IDE preview instead).',
           { cause: error },
         )
       }

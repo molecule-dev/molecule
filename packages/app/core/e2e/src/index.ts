@@ -3,20 +3,25 @@
  *
  * A provider opens a Playwright-shaped `Page`. Two bonds exist:
  *
+ * - **`@molecule/app-e2e-playwright`** launches a real Playwright browser.
+ *   Every molecule sandbox image bakes Chromium (headless shell + its system
+ *   libraries and fonts), so this is what a sandbox uses — the specs run there
+ *   exactly as they do on your own machine and in CI, with no IDE tab involved.
  * - **`@molecule/app-e2e-preview`** drives the LIVE PREVIEW the molecule.dev
- *   IDE is already showing — the page the person is looking at, in their own
- *   browser — over a WebSocket through the dev server. No browser binary in
- *   the sandbox, nothing to download. This is what a molecule sandbox uses.
- * - **`@molecule/app-e2e-playwright`** launches real Playwright browsers. This
- *   is what your own machine and CI use.
+ *   IDE is showing — the page the person is looking at, in their own browser —
+ *   over a WebSocket through the dev server. Pick it (`MOL_E2E_PROVIDER=preview`)
+ *   when the point is to drive the tab the person is watching; it needs that
+ *   tab to be open and fails fast when it is not.
  *
  * Specs do not import this package directly: they import `test` and `expect`
  * from `@molecule/app-e2e-fixtures-default` (a drop-in for `@playwright/test`
  * whose `page` fixture comes from the bonded provider) and stay identical in
  * both places. This core holds only the contract and the accessor, plus
  * `resolveE2EProviderName()`, the one rule that decides which bond an
- * environment gets: `MOL_E2E_PROVIDER` when set, otherwise `preview` inside a
- * molecule sandbox (the `/etc/mol/app-root` marker exists) and `playwright`
+ * environment gets: `MOL_E2E_PROVIDER` when set; otherwise, inside a molecule
+ * sandbox (the `/etc/mol/app-root` marker exists), `playwright` when a
+ * Playwright browser is installed (`hasInstalledBrowser()` — it looks under
+ * `PLAYWRIGHT_BROWSERS_PATH`) and `preview` when none is; and `playwright`
  * everywhere else.
  *
  * @example
@@ -42,6 +47,10 @@
  *   actually do is documented on the bond; the preview bond throws a one-line
  *   error naming the alternative for the few methods that need a real browser
  *   (screenshots, network interception, element handles, iframes).
+ * - `isMoleculeSandbox()` and `hasInstalledBrowser()` are the two facts the
+ *   rule is made of; a `playwright.config.ts` reads them to turn video, traces
+ *   and retries off inside a sandbox, where the run is a feedback loop and
+ *   nothing reads the artifacts.
  * - A bond that can only run code INSIDE a page implements {@link E2ETransport}
  *   (`evaluate`, `navigate`, `viewport`, events) and gets the whole
  *   Playwright-shaped page from `createEvaluatePage()` in

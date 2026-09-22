@@ -5,7 +5,9 @@
  * @module
  */
 
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
+import { homedir } from 'node:os'
+import { join } from 'node:path'
 import process from 'node:process'
 
 import { bond, get } from '@molecule/app-bond'
@@ -31,29 +33,62 @@ export const requireProvider = (): E2EProvider => {
   if (!provider) {
     throw new Error(
       "No e2e provider is bonded. Import your project's e2e/bonds.ts (or call setProvider() from @molecule/app-e2e) " +
-        'before the tests run. In a molecule sandbox that file bonds @molecule/app-e2e-preview, which drives the live preview; ' +
-        'on your own machine it bonds @molecule/app-e2e-playwright.',
+        'before the tests run. That file bonds @molecule/app-e2e-playwright (a real browser: baked into every molecule sandbox, ' +
+        'and on your own machine once you run `npx playwright install chromium`) or @molecule/app-e2e-preview (the live IDE preview).',
     )
   }
   return provider
 }
 
-/** The sandbox writes this marker at boot; its presence means "drive the live preview". */
+/** The molecule sandbox writes this marker at boot; its presence means "this is a molecule sandbox". */
 export const SANDBOX_MARKER_PATH = '/etc/mol/app-root'
+
+/** Whether this process runs inside a molecule sandbox (the marker file exists). */
+export const isMoleculeSandbox = (): boolean => {
+  try {
+    return existsSync(SANDBOX_MARKER_PATH)
+  } catch (_error) {
+    return false // an unreadable filesystem is not a sandbox
+  }
+}
+
+/**
+ * Where Playwright keeps its browsers: `PLAYWRIGHT_BROWSERS_PATH` when set
+ * (the molecule sandbox images bake Chromium under it), otherwise Playwright's
+ * own default, `~/.cache/ms-playwright`.
+ */
+export const playwrightBrowsersPath = (): string => {
+  const fromEnv = process.env['PLAYWRIGHT_BROWSERS_PATH']?.trim()
+  if (fromEnv && fromEnv !== '0') return fromEnv
+  return join(homedir(), '.cache', 'ms-playwright')
+}
+
+/**
+ * Whether a Playwright Chromium (the full browser or the headless shell) is
+ * installed where Playwright will look for it — that is, whether the
+ * `playwright` bond can launch here. The `PLAYWRIGHT_BROWSERS_PATH=0` layout
+ * (browsers inside `node_modules`) is not probed and reads as "not installed".
+ */
+export const hasInstalledBrowser = (): boolean => {
+  try {
+    return readdirSync(playwrightBrowsersPath()).some((entry) => /^chromium/u.test(entry))
+  } catch (_error) {
+    return false // no such directory: nothing is installed there
+  }
+}
 
 /**
  * Which provider this environment should use: `MOL_E2E_PROVIDER` when set;
- * otherwise `preview` inside a molecule sandbox (the marker file exists) and
- * `playwright` everywhere else. Both `test` and the scaffolded `e2e/bonds.ts`
- * read this, so the runner's shape and the bonded provider always agree.
+ * otherwise, inside a molecule sandbox, `playwright` when a Playwright browser
+ * is installed there (every current sandbox image bakes one) and `preview` when
+ * none is (an older image — the live IDE preview is then the only renderer);
+ * and `playwright` everywhere else. Both `test` and the scaffolded
+ * `e2e/bonds.ts` read this, so the runner's shape and the bonded provider
+ * always agree.
  */
 export const resolveE2EProviderName = (): E2EProviderName => {
   const fromEnv = process.env['MOL_E2E_PROVIDER']?.trim()
   if (fromEnv) return fromEnv
-  try {
-    if (existsSync(SANDBOX_MARKER_PATH)) return 'preview'
-  } catch (_error) {
-    /* unreadable filesystem — not a sandbox */
-  }
+  if (isMoleculeSandbox()) return hasInstalledBrowser() ? 'playwright' : 'preview'
   return 'playwright'
 }
