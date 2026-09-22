@@ -838,6 +838,51 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         if (blocked) return { error: blocked }
       }
 
+      // Detached: start it, hand back a handle, let the turn continue. A
+      // command that outlives the tool's ceiling is otherwise simply lost —
+      // measured across six agent runs, ten of them were killed at the
+      // ceiling for 49 minutes, 11% of all wall clock, every one returning
+      // nothing because it was piped through tail/grep. A full test suite or a
+      // slow production build could not be run at all, so the executor ran
+      // smaller and smaller pieces, or reported a result it never saw.
+      //
+      // Output goes to a file the executor reads with read_file (which takes
+      // offset/limit, so a long log is cheap to follow), and an `.exit` file
+      // appears when it finishes — so "is it done?" is a read, not a poll that
+      // blocks a turn.
+      if (input.run_in_background === true) {
+        const id = `mol-bg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+        const log = `/tmp/${id}.log`
+        const exitFile = `/tmp/${id}.exit`
+        const script = `/tmp/${id}.sh`
+        try {
+          // The command goes to a FILE rather than through nested quoting:
+          // an executor's commands routinely carry quotes, heredocs and
+          // newlines, and re-quoting them into a detached `sh -c` is how a
+          // background runner corrupts the very thing it is running.
+          await backend.writeFile(script, `${command}\n`)
+          await backend.run(
+            `nohup sh -c ${shellQuote(`sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`)} ` +
+              `> /dev/null 2>&1 &`,
+            { cwd, timeout: 15_000 },
+          )
+          return {
+            taskId: id,
+            log,
+            exitFile,
+            note:
+              `Started in the background. Its output is being written to ${log} — read it with ` +
+              `read_file (use offset/limit to follow a long one). When it finishes, ${exitFile} ` +
+              `appears and holds the exit code. Get on with other work and check back; do not ` +
+              `sit and poll it.`,
+          }
+        } catch (e: unknown) {
+          return {
+            error: `Could not start the background command: ${(e as Error).message}`,
+          }
+        }
+      }
+
       // A command that declares its OWN budget larger than this tool's ceiling,
       // and whose output is withheld until the pipeline ends, cannot produce
       // anything: it will be stopped at the ceiling having printed nothing.

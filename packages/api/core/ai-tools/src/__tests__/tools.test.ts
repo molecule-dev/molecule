@@ -1408,3 +1408,86 @@ describe('edit_file — which kind of miss it was', () => {
     expect(r.error).toContain('run()')
   })
 })
+
+// ── background execution ────────────────────────────────────────────────────
+// A command that outran the 290s ceiling was simply lost: ten of them across
+// six agent runs, 49 minutes, 11% of all wall clock, every one returning
+// nothing because it was piped through tail/grep. A full test suite could not
+// be run at all.
+
+describe('exec_command run_in_background', () => {
+  function bgBackend(): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn(),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('returns a handle at once instead of waiting', async () => {
+    const backend = bgBackend()
+    const tools = buildTools(backend, { commandBudgetMs: 290_000 })
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({
+      command: 'npx playwright test',
+      run_in_background: true,
+    })) as { taskId: string; log: string; exitFile: string; note: string }
+    expect(r.taskId).toMatch(/^mol-bg-/)
+    expect(r.log).toBe(`/tmp/${r.taskId}.log`)
+    expect(r.exitFile).toBe(`/tmp/${r.taskId}.exit`)
+    expect(r.note).toContain('read_file')
+    expect(r.note).toContain('do not')
+  })
+
+  it('writes the command to a FILE rather than re-quoting it into sh -c', async () => {
+    // Executor commands carry quotes, heredocs and newlines; re-quoting them
+    // into a nested sh -c is how a background runner corrupts what it runs.
+    const backend = bgBackend()
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const gnarly = `node -e "console.log('a\\"b')" <<'EOF'\nline\nEOF`
+    const r = (await exec.execute({ command: gnarly, run_in_background: true })) as {
+      taskId: string
+    }
+    const written = (backend.writeFile as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(written[0]).toBe(`/tmp/${r.taskId}.sh`)
+    expect(written[1]).toBe(`${gnarly}\n`)
+  })
+
+  it('detaches, and records the exit code where the executor can read it', async () => {
+    const backend = bgBackend()
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: 'npm test', run_in_background: true })) as {
+      taskId: string
+    }
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain('nohup')
+    expect(cmd.trimEnd().endsWith('&')).toBe(true)
+    expect(cmd).toContain(`${r.taskId}.log`)
+    expect(cmd).toContain(`echo $? > /tmp/${r.taskId}.exit`)
+  })
+
+  it('is not applied unless asked for', async () => {
+    const backend = bgBackend()
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: 'ls' })) as { taskId?: string; exitCode?: number }
+    expect(r.taskId).toBeUndefined()
+    expect(r.exitCode).toBe(0)
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
+  it('reports a failure to start rather than throwing', async () => {
+    const backend = bgBackend()
+    backend.writeFile = vi.fn().mockRejectedValue(new Error('read-only filesystem'))
+    const tools = buildTools(backend)
+    const exec = tools.find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: 'ls', run_in_background: true })) as { error: string }
+    expect(r.error).toContain('Could not start the background command')
+    expect(r.error).toContain('read-only filesystem')
+  })
+})

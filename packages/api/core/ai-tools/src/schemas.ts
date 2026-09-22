@@ -234,7 +234,9 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   exec_command: {
     name: 'exec_command',
     description:
-      'Run a shell command and return its output. Use for build checks, npm commands, verification, etc.',
+      'Run a shell command and return its output. Use for build checks, npm commands, verification, etc. ' +
+      'Pass `run_in_background` for anything long-running: it returns a handle at once instead of ' +
+      'being cut off at the time limit.',
     parameters: {
       type: 'object',
       properties: {
@@ -250,6 +252,15 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
           type: 'number',
           description:
             "Optional time budget in milliseconds. Clamped to this tool's ceiling — ask for more and the ceiling applies and is reported, so split the work into smaller commands instead of re-running the same long one.",
+        },
+        run_in_background: {
+          type: 'boolean',
+          description:
+            'Start the command DETACHED and return immediately with a handle instead of waiting. ' +
+            'Use it for anything that may outrun the ceiling — a full test suite, a production ' +
+            'build, a long install. The result gives a log path to read with read_file and an ' +
+            'exit-code file that appears when it finishes. Do the next piece of work while it ' +
+            'runs; do not sit and poll it.',
         },
       },
       required: ['command'],
