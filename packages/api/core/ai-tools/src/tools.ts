@@ -109,12 +109,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
   // ── Path helpers ───────────────────────────────────────────────
 
   /**
-   * Resolve a workspace-relative path using optional path guards.
-   *
-   * @param path - Relative or absolute path requested by the tool input.
-   * @returns A normalized path honoring `pathGuards` and the backend root.
-   */
-  /**
    * After a write or edit, parse the file and hand the error back IN THE SAME
    * RESULT. An edit that leaves a file unparsable used to surface only at the
    * next build or type-check, minutes and many calls later — x13 (2026-09-22)
@@ -137,6 +131,12 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       : {}
   }
 
+  /**
+   * Resolve a workspace-relative path using optional path guards.
+   *
+   * @param path - Relative or absolute path requested by the tool input.
+   * @returns A normalized path honoring `pathGuards` and the backend root.
+   */
   function resolve(path: string): string {
     return pathGuards ? resolvePath(path, root) : path
   }
