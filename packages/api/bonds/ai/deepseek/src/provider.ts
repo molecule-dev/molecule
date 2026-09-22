@@ -123,7 +123,27 @@ class DeepseekAIProviderImpl implements AIProvider {
     const allTools = [...functions, ...serverTools]
     if (allTools.length > 0) {
       body.tools = allTools
-      if (params.toolChoice === 'required') {
+      // DeepSeek REFUSES a forced tool choice while thinking is on — the request
+      // 400s with "Thinking mode does not support this tool_choice", which kills
+      // the turn outright. The caller asked for both; only one can be sent, so
+      // the quality setting is kept and the nudge is degraded to 'auto': a
+      // weaker nudge still produces a turn, and the agent loop has its own
+      // prose-only backstops, whereas a 400 produces nothing at all.
+      //
+      // Latent rather than live at the time of writing — no DeepSeek model in
+      // the catalog sets supportsThinking — but the model-health cron adds
+      // models to that catalog unattended, and the one place forceToolUse fires
+      // is discovery mode, i.e. the FIRST turn of every new conversation.
+      const forcedChoice =
+        params.toolChoice === 'required' ||
+        (typeof params.toolChoice === 'object' && params.toolChoice?.type === 'tool')
+      if (forcedChoice && params.thinking) {
+        console.warn(
+          '[ai-deepseek] thinking is enabled, so the forced tool choice was relaxed to ' +
+            '"auto" — DeepSeek rejects the combination (400: "Thinking mode does not ' +
+            'support this tool_choice").',
+        )
+      } else if (params.toolChoice === 'required') {
         body.tool_choice = 'required'
       } else if (typeof params.toolChoice === 'object' && params.toolChoice?.type === 'tool') {
         body.tool_choice = { type: 'function', function: { name: params.toolChoice.name } }

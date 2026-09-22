@@ -224,6 +224,47 @@ describe('chat() — request shape', () => {
   it('omits tool_choice when none is given', async () => {
     expect((await toolChoiceBody()).tool_choice).toBeUndefined()
   })
+
+  // DeepSeek 400s on a forced tool choice while thinking is on:
+  // "Thinking mode does not support this tool_choice". The caller asks for
+  // both; sending both kills the turn, so the nudge is relaxed and the quality
+  // setting kept. `forceToolUse` fires in discovery mode — the FIRST turn of
+  // every new conversation — so a 400 here would be maximally visible.
+  const thinkingToolChoiceBody = async (
+    toolChoice: 'required' | { type: 'tool'; name: string },
+  ) => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'x' } }] }))
+    await drain(
+      createProvider({ apiKey: 'k' }).chat({
+        messages: [{ role: 'user', content: 'hi' }],
+        stream: false,
+        tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
+        toolChoice,
+        thinking: { budgetTokens: 4096 },
+      }),
+    )
+    return JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+  }
+
+  it('relaxes a forced tool choice when thinking is enabled (DeepSeek rejects both)', async () => {
+    const body = await thinkingToolChoiceBody('required')
+    expect(body.tool_choice, 'no tool_choice is sent').toBeUndefined()
+    expect(body.thinking, 'thinking is kept').toEqual({ type: 'enabled' })
+    expect(body.tools, 'the tools themselves still go').toHaveLength(1)
+  })
+
+  it('relaxes a forced NAMED tool choice under thinking too', async () => {
+    const body = await thinkingToolChoiceBody({ type: 'tool', name: 'finalize' })
+    expect(body.tool_choice).toBeUndefined()
+    expect(body.thinking).toEqual({ type: 'enabled' })
+  })
+
+  it('still forces the tool choice when thinking is OFF', async () => {
+    const body = await toolChoiceBody('required')
+    expect(body.tool_choice).toBe('required')
+    expect(body.thinking).toEqual({ type: 'disabled' })
+  })
 })
 
 describe('chat() — streaming', () => {
