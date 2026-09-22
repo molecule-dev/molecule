@@ -36,7 +36,8 @@
  *   `npx playwright install chromium` (`@playwright/test` never downloads them
  *   on `npm install`). The launch error says so when they are missing.
  * - Inside a molecule sandbox nothing is installed by hand: the image ships
- *   Chromium under `PLAYWRIGHT_BROWSERS_PATH` (`/ms-playwright`), pinned to
+ *   Chromium where Playwright looks by default (`~/.cache/ms-playwright` of
+ *   the sandbox user; `PLAYWRIGHT_BROWSERS_PATH` points there too), pinned to
  *   the same Playwright version the scaffold's `@playwright/test` uses. It is
  *   the headless shell, so `headless: false` has no display to open, and the
  *   `firefox`/`webkit` engines are not baked — Chromium is the sandbox engine.
@@ -45,10 +46,11 @@
  *   where its per-launch profile goes.
  * - `MOL_E2E_BROWSER=firefox|webkit` picks the engine; `MOL_E2E_HEADED=1`
  *   shows the window (both are for your own machine).
- * - Budget, measured inside a sandbox at the free tier's cap (1 CPU, 1280 MB):
- *   the browser launches in about a second and a spec file of a dozen tests
- *   finishes in well under a minute — run ONE spec file per command so a run
- *   never meets the sandbox's per-command cap.
+ * - Budget, measured inside a sandbox at the free tier's cap (1 CPU, 1280 MB,
+ *   2026-09-22): the browser launches in 0.5–0.8 s; a spec file of four to
+ *   seven tests takes 4–13 s including the runner's startup, 0.1–3 s per test;
+ *   Chromium's peak RSS is ~170 MB and the runner's ~190 MB. Run ONE spec file
+ *   per command so a run never meets the sandbox's per-command cap.
  *
  * @module
  */
