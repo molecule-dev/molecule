@@ -11,6 +11,14 @@ import type { AITool } from '@molecule/api-ai'
 
 import { guardToolExecute, missingParamError } from './input-normalizer.js'
 import { TOOL_SCHEMAS } from './schemas.js'
+
+/**
+ * Total waiting, per background task, after which wait_for_task reports it
+ * stuck instead of waiting again. Env-tunable so a test can exercise it.
+ */
+const stuckAfterMs = (): number => Number(process.env.MOL_AI_BG_STUCK_AFTER_MS) || 5 * 60 * 1000
+/** Cumulative wait_for_task time per task id, this process. */
+const waitedByTask = new Map<string, number>()
 import type { ExecutionBackend, ToolBuildConfig } from './types.js'
 import {
   checkBlockedCommand,
@@ -907,7 +915,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           await backend.writeFile(script, `${command}\n`)
           await backend.run(
             `nohup sh -c ${shellQuote(`sh ${script} > ${log} 2>&1; echo $? > ${exitFile}`)} ` +
-              `> /dev/null 2>&1 &`,
+              `> /dev/null 2>&1 & echo $! > /tmp/${id}.pid`,
             { cwd, timeout: 15_000 },
           )
           return {
@@ -1073,6 +1081,22 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
     // server-side costs no round trip and no context.
     async wait_for_task(input) {
       const taskId = typeof input.taskId === 'string' ? input.taskId.trim() : ''
+      // A command that has been waited on for stuckAfterMs() in total without
+      // exiting is not going to: on one run the executor waited five times,
+      // 120 s each, on an e2e suite that could never start (no browser page
+      // attached). Say so once, name the pid, and refuse to wait on it again.
+      const waitedBefore = waitedByTask.get(taskId) ?? 0
+      if (taskId && waitedBefore >= stuckAfterMs()) {
+        return {
+          taskId,
+          status: 'stuck',
+          waitedMs: waitedBefore,
+          note:
+            `You have already waited ${Math.round(waitedBefore / 1000)}s on this command and it ` +
+            `has not exited — it is stuck, not slow. Kill it (exec_command: kill $(cat /tmp/${taskId}.pid) ` +
+            `2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
+        }
+      }
       // The id names files under /tmp; only an id this tool minted may be used
       // to read them, so a crafted id cannot turn this into a file reader.
       if (!/^mol-bg-[a-z0-9]+-[a-z0-9]+$/.test(taskId)) {
@@ -1109,7 +1133,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         exitCode = await readExit()
       }
       const waitedMs = Date.now() - startedAt
+      waitedByTask.set(taskId, waitedBefore + waitedMs)
       if (exitCode === null) {
+        if (waitedBefore + waitedMs >= stuckAfterMs()) {
+          return {
+            taskId,
+            status: 'stuck',
+            waitedMs: waitedBefore + waitedMs,
+            note:
+              `${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting and it has not exited — it is ` +
+              `stuck, not slow. Read /tmp/${taskId}.log for what it printed, kill it (exec_command: ` +
+              `kill $(cat /tmp/${taskId}.pid) 2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
+          }
+        }
         return {
           taskId,
           status: 'running',

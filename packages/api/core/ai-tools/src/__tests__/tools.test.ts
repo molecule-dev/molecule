@@ -1467,7 +1467,7 @@ describe('exec_command run_in_background', () => {
     }
     const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
     expect(cmd).toContain('nohup')
-    expect(cmd.trimEnd().endsWith('&')).toBe(true)
+    expect(cmd).toContain('> /dev/null 2>&1 &')
     expect(cmd).toContain(`${r.taskId}.log`)
     expect(cmd).toContain(`echo $? > /tmp/${r.taskId}.exit`)
   })
@@ -1727,5 +1727,61 @@ describe('read_file window notes', () => {
       note?: string
     }
     expect(r.note).toContain('Next window: offset 501, limit 500')
+  })
+})
+
+// ── a command that never exits ──────────────────────────────────────────────
+// X0 run x9: five waits of 120 s each on an e2e suite that could never start.
+
+describe('wait_for_task on a stuck command', () => {
+  it('reports it stuck once the total waiting crosses the threshold, then refuses to wait again', async () => {
+    process.env.MOL_AI_BG_STUCK_AFTER_MS = '40'
+    try {
+      const backend: ExecutionBackend = {
+        projectRoot: '/test',
+        readFile: vi.fn(async () => {
+          throw new Error('ENOENT')
+        }),
+        writeFile: vi.fn(),
+        deleteFile: vi.fn(),
+        readDir: vi.fn(),
+        run: vi.fn(),
+      }
+      const wait = buildTools(backend).find((t) => t.name === 'wait_for_task')!
+      const id = 'mol-bg-stuck00-abc123'
+      const first = (await wait.execute({ taskId: id, timeout: 30 })) as { status: string }
+      expect(first.status).toBe('running')
+      const second = (await wait.execute({ taskId: id, timeout: 30 })) as {
+        status: string
+        note: string
+      }
+      expect(second.status).toBe('stuck')
+      expect(second.note).toContain('kill')
+      expect(second.note).toContain(`${id}.pid`)
+      // A third call does not wait at all.
+      const t0 = Date.now()
+      const third = (await wait.execute({ taskId: id, timeout: 5000 })) as { status: string }
+      expect(third.status).toBe('stuck')
+      expect(Date.now() - t0).toBeLessThan(500)
+    } finally {
+      delete process.env.MOL_AI_BG_STUCK_AFTER_MS
+    }
+  })
+
+  it('records the pid of a background command so a stuck one can be killed', async () => {
+    const backend: ExecutionBackend = {
+      projectRoot: '/test',
+      readFile: vi.fn(),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+    const exec = buildTools(backend).find((t) => t.name === 'exec_command')!
+    const r = (await exec.execute({ command: 'npm test', run_in_background: true })) as {
+      taskId: string
+    }
+    const cmd = (backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0] as string
+    expect(cmd).toContain(`echo $! > /tmp/${r.taskId}.pid`)
   })
 })
