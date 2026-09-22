@@ -213,6 +213,15 @@ const READY_FRESH_MS = 1_500
 // --- Last-good-frame snapshot (molecule:snapshot trust boundary) ---
 
 /**
+ * Bounds on a viewport an inbound `molecule:viewport` may request. A spec
+ * drives this, so it is clamped rather than trusted: below the lower bound the
+ * frame is unusable, and above the upper one it would escape the panel.
+ */
+const MIN_REQUESTED_PX = 120
+/** Upper bound of the same clamp — see {@link MIN_REQUESTED_PX}. */
+const MAX_REQUESTED_PX = 4000
+
+/**
  * Max accepted size of an inbound `molecule:snapshot` data-URL (chars). The
  * sandbox sender downscales + JPEG-compresses, so a legitimate frame is well
  * under this; the cap defends the postMessage trust boundary against an oversized
@@ -1281,6 +1290,32 @@ export function PreviewPanel({
         !uiResolvedRef.current.has(pendingUi.payload.id as string)
       ) {
         previewWindow.postMessage(pendingUi.payload, '*')
+      }
+
+      // A spec asked for a viewport. The e2e preview client posts this and then
+      // polls its own innerWidth until the host honours it (up to 4s), so all
+      // this has to do is resize the frame — there is no reply to send.
+      //
+      // The state and the iframe's use of it already existed; nothing ever set
+      // it, so every `page.setViewportSize` was answered with the unchanged
+      // size and the bond warned "the preview host kept its own size". That is
+      // why a phone layout could not be verified from a build: three of the
+      // seven first-contact failures in X0 R83 were phone/geometry facts the
+      // executor had no way to observe.
+      if (event.data?.type === 'molecule:viewport') {
+        const width = Number(event.data.width)
+        const height = Number(event.data.height)
+        if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+          setRequestedSize({
+            width: Math.min(Math.max(Math.round(width), MIN_REQUESTED_PX), MAX_REQUESTED_PX),
+            height: Math.min(Math.max(Math.round(height), MIN_REQUESTED_PX), MAX_REQUESTED_PX),
+          })
+        } else {
+          // A zero/NaN size means "stop overriding" — hand the frame back to
+          // the device selector rather than pinning it at a nonsense width.
+          setRequestedSize(null)
+        }
+        return
       }
 
       if (event.data?.type === 'molecule:ready') {
