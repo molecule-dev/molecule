@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.9.2
+
+### Patch Changes
+
+- 04d3f3b: Every labelled button renders through `cm.button()`; none is hand-styled. Visual parity with the design system, no API change.
+
 ## 1.9.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-vote-cluster-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Up/down arrows + score; HN/Reddit-style voter cluster",
   "homepage": "https://www.molecule.dev/packages/app-vote-cluster-react",
   "type": "module",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.0.2",
-    "@molecule/app-react": "1.5.1",
+    "@molecule/app-react": "1.6.0",
     "@molecule/app-ui": "1.1.1",
     "@molecule/app-ui-tailwind": "1.1.3",
     "@testing-library/react": "16.3.2",

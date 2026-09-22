@@ -57,7 +57,7 @@
     "@molecule/api-database-postgresql": "1.0.3",
     "@molecule/api-emails": "1.0.2",
     "@molecule/api-emails-capture": "1.0.3",
-    "@molecule/api-emails-mailgun": "1.0.3",
+    "@molecule/api-emails-mailgun": "1.0.4",
     "@molecule/api-encryption": "1.0.2",
     "@molecule/api-encryption-aes": "1.0.2",
     "@molecule/api-entitlements": "1.0.2",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-chatbot-tester-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Sandbox UI for live-testing chatbots: bot picker, message thread, input area, error region. Extracted from ai-chatbot-builder TestChat.",
   "homepage": "https://www.molecule.dev/packages/app-chatbot-tester-react",
   "type": "module",
@@ -42,7 +42,7 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-react": "1.5.1",
+    "@molecule/app-react": "1.6.0",
     "@molecule/app-ui": "1.1.1",
     "@molecule/app-ui-react": "1.0.2",
     "@types/node": "26.1.2",

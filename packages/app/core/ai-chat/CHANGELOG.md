@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat
 
+## 1.5.0
+
+### Minor Changes
+
+- 9194e79: Work that outlives the tool call that started it is now visible: a `background_task` stream event carries each detached command or subagent, `useChat` exposes them as `backgroundTasks`, and the chat panel shows what is running, for how long, and how each one ended.
+
 ## 1.4.0
 
 ### Minor Changes

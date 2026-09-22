@@ -1,5 +1,12 @@
 # @molecule/app-ide-react
 
+## 1.18.0
+
+### Minor Changes
+
+- 9194e79: Work that outlives the tool call that started it is now visible: a `background_task` stream event carries each detached command or subagent, `useChat` exposes them as `backgroundTasks`, and the chat panel shows what is running, for how long, and how each one ended.
+- f4f5f3c: The preview panel now honours `molecule:viewport` from the preview bridge, so `page.setViewportSize` actually resizes the frame. The panel already read a requested size for the iframe but nothing ever set it, so every viewport request was answered with the unchanged size — phone-width layouts could not be measured from a build.
+
 ## 1.17.0
 
 ### Minor Changes

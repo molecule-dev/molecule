@@ -1,5 +1,11 @@
 # @molecule/api-resource-project
 
+## 1.0.3
+
+### Patch Changes
+
+- 04d3f3b: The `project.created` event now carries the template and the selected packages.
+
 ## 1.0.1
 
 ### Patch Changes

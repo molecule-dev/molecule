@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.0.4
+
+### Patch Changes
+
+- b1a0cdc: Relax a forced `toolChoice` to the model's own choice when thinking is enabled. DeepSeek rejects the combination with `400 Thinking mode does not support this tool_choice`, which fails the whole request; the thinking setting is kept and the tool nudge is degraded instead.
+
 ## 1.0.2
 
 ### Patch Changes

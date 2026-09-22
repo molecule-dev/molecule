@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-feature-audio-effects-rack-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Effects rack (chain of EQ/compressor/reverb/delay/distortion/etc.) for music-DAW — UI only; caller wires effects to actual audio engine",
   "homepage": "https://www.molecule.dev/packages/app-feature-audio-effects-rack-react",
   "type": "module",
@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@molecule/app-i18n": "1.0.2",
-    "@molecule/app-react": "1.5.1",
+    "@molecule/app-react": "1.6.0",
     "@molecule/app-ui": "1.1.1",
     "@testing-library/react": "16.3.2",
     "@types/node": "26.1.2",

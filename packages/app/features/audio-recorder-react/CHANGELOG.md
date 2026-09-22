@@ -1,5 +1,11 @@
 # @molecule/app-audio-recorder-react
 
+## 1.0.3
+
+### Patch Changes
+
+- 04d3f3b: Every labelled button renders through `cm.button()`; none is hand-styled. Visual parity with the design system, no API change.
+
 ## 1.0.1
 
 ### Patch Changes

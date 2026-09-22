@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-project",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "User project management with sandbox assignment",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/api-emails-ses
 
+## 1.0.5
+
+### Patch Changes
+
+- 04d3f3b: Type-only: nodemailer types are imported as a namespace. No runtime change.
+
 ## 1.0.3
 
 ### Patch Changes

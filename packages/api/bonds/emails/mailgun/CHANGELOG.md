@@ -1,5 +1,11 @@
 # @molecule/api-emails-mailgun
 
+## 1.0.4
+
+### Patch Changes
+
+- 04d3f3b: Type-only: nodemailer types are imported as a namespace. No runtime change.
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.6.3
+
+### Patch Changes
+
+- 04d3f3b: Docs: records why `gpt-6-astra` is not in the catalog.
+
 ## 1.6.1
 
 ### Patch Changes

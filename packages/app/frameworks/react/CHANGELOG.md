@@ -1,5 +1,16 @@
 # @molecule/app-react
 
+## 1.6.0
+
+### Minor Changes
+
+- 9194e79: Work that outlives the tool call that started it is now visible: a `background_task` stream event carries each detached command or subagent, `useChat` exposes them as `backgroundTasks`, and the chat panel shows what is running, for how long, and how each one ended.
+
+### Patch Changes
+
+- 5526548: Applying a server transcript to a live chat can no longer rewind it. Every path that reloads history — the page-lifecycle reconcile, the remote-turn poll, the dropped-stream reconcile and the resume poll — now converges through one function that keeps the further-along copy of each message, so a turn the server has not persisted yet stays on screen and a card the user has just answered is never shown as unanswered again.
+- f5b9f0a: Reconciling chat history no longer drops messages the server has not persisted yet. A page-lifecycle event or a push-channel reconnect arriving between a send and its persist replaced the view with the server transcript plus only the queued messages, so a just-sent message and any session-local card disappeared until the next poll restored them.
+
 ## 1.5.0
 
 ### Minor Changes
