@@ -297,7 +297,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
    * @param rawPath - The path as the model sent it.
    * @returns The same result shape read_file returns for one file.
    */
-  /** How many leading lines of `content` fit in `chars` (at least one). */
+  /**
+   * How many leading lines of a file fit in a char budget.
+   *
+   * @param content - The file text.
+   * @param chars - The budget in chars.
+   * @returns The line count, at least one.
+   */
   function linesWithin(content: string, chars: number): number {
     let used = 0
     let lines = 0
