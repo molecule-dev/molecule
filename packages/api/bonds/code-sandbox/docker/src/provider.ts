@@ -250,6 +250,45 @@ export function resolvePublishPorts(ports?: number[]): number[] {
 }
 
 /**
+ * Give an imported tree to whoever owns the sandbox's workspace root.
+ *
+ * Docker's putArchive preserves the tar's uid/gid — 0 — while the sandbox runs
+ * as the image's USER. Everything the sandbox does afterwards is done by that
+ * user, so an unrepaired import is a tree it cannot write.
+ *
+ * It has to be done from here, and as root: an ordinary exec runs as the same
+ * non-root user and `chown` answers "Operation not permitted" (which a pipe
+ * then hides behind exit 0 — that is how the repair went unnoticed).
+ *
+ * @param dockerApi - The provider's API client, bound by the caller.
+ * @param containerId - The sandbox to repair.
+ * @param path - The absolute path that was just imported.
+ */
+async function chownImportedTree(
+  dockerApi: (path: string, method?: string, body?: unknown) => Promise<unknown>,
+  containerId: string,
+  path: string,
+): Promise<void> {
+  try {
+    const created = (await dockerApi(`/containers/${containerId}/exec`, 'POST', {
+      // `|| true` so an image whose workspace root is already the running user
+      // (or a path that vanished) is a no-op rather than a thrown import.
+      Cmd: ['sh', '-c', `chown -R --reference=/workspace ${shellQuote(path)} || true`],
+      User: 'root',
+      AttachStdout: false,
+      AttachStderr: false,
+    })) as { Id?: string }
+    if (created?.Id) {
+      await dockerApi(`/exec/${created.Id}/start`, 'POST', { Detach: false, Tty: false })
+    }
+  } catch (_error) {
+    // Intentional noop: best-effort repair. A daemon that refuses a root exec
+    // leaves the tree exactly as the tar delivered it — the behaviour before
+    // this existed — and an import must not fail over it.
+  }
+}
+
+/**
  * Available memory in bytes, or `null` when it cannot be read.
  *
  * Prefers Linux `MemAvailable`, which is the kernel's estimate of what a new
@@ -1228,6 +1267,28 @@ class DockerSandboxProvider implements SandboxProvider {
           containerId,
           path,
           archive,
+        )
+        // Docker's putArchive preserves the tar's uid/gid, which is 0, while the
+        // sandbox runs as the image's USER (`node`, uid 1000). Without this the
+        // imported tree belongs to a user nothing runs as: the executor cannot
+        // write a file it just received, npm install cannot touch node_modules,
+        // and Vite cannot create `node_modules/.vite-temp/…`, so the dev server
+        // never starts.
+        //
+        // A caller cannot repair it afterwards — an ordinary exec runs as that
+        // same non-root user and `chown` answers "Operation not permitted". The
+        // repair has to happen here, on a root exec, which is a docker-ism and
+        // belongs in the docker bond. (E2B has no equivalent step: it extracts
+        // with --no-same-owner, so files already arrive on the executor's user.)
+        //
+        // `--reference=/workspace` takes the answer from the image itself
+        // rather than naming a user, so it is correct for a root-based image
+        // and a non-root one alike. Best-effort: a failure here must not fail
+        // the import, and on an already-correct tree it is a no-op.
+        await chownImportedTree(
+          (p, method, body) => provider.dockerApi(p, method, body),
+          containerId,
+          path,
         )
       },
 
