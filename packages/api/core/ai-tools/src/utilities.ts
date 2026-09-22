@@ -308,7 +308,13 @@ export function resolvePath(path: string, projectRoot: string): string {
  * @returns `true` when the pattern contains only allowed characters.
  */
 export function isValidGlob(pattern: string): boolean {
-  return /^[A-Za-z0-9*?._/()[\]-]+$/.test(pattern)
+  // `@` is in the set because every package in this ecosystem is scoped:
+  // measured on a live build, the executor tried
+  // `node_modules/@molecule/app-ui/*` twice and was refused both times, so in
+  // a molecule project it could not glob its own dependencies. The character
+  // is inert here — patterns are shell-quoted before they reach find/grep, and
+  // `@` has no meaning to either.
+  return /^[A-Za-z0-9@*?._/()[\]-]+$/.test(pattern)
 }
 
 /**

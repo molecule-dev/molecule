@@ -431,3 +431,24 @@ describe('whitespaceTolerantReplace', () => {
     expect(out).toContain('const y = x\n  return y')
   })
 })
+
+describe('isValidGlob — scoped packages', () => {
+  it('accepts a scoped package path', () => {
+    // Measured on a live build: the executor tried this twice and was refused
+    // both times, so in a molecule project it could not glob its own deps.
+    expect(isValidGlob('node_modules/@molecule/app-ui/*')).toBe(true)
+    expect(isValidGlob('@molecule/api-*/src/index.ts')).toBe(true)
+  })
+
+  it('still accepts what it always did', () => {
+    expect(isValidGlob('*.tsx')).toBe(true)
+    expect(isValidGlob('app/src/pages/[id]/page.tsx')).toBe(true)
+    expect(isValidGlob('Dashboard*')).toBe(true)
+  })
+
+  it('still refuses shell metacharacters', () => {
+    for (const bad of ['foo;rm -rf /', 'a|b', '$(whoami)', '`id`', 'a>b', 'a&b']) {
+      expect(isValidGlob(bad), bad).toBe(false)
+    }
+  })
+})

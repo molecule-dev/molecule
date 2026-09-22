@@ -651,7 +651,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
       if (include && !isValidGlob(include))
         return {
-          error: 'Invalid include glob pattern. Allowed: alphanumeric and * ? . _ - / [ ] ( ).',
+          error: 'Invalid include glob pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ).',
         }
 
       const symlinkErr = await checkSymlink(path)
@@ -721,7 +721,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       if (!isValidGlob(pattern))
         return {
           error:
-            'Invalid pattern. Allowed: alphanumeric and * ? . _ - / [ ] ( ) ' +
+            'Invalid pattern. Allowed: alphanumeric and @ * ? . _ - / [ ] ( ) ' +
             '(brackets/parens support Next.js route dirs like [id] or (group)).',
         }
 
