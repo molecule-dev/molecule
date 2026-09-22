@@ -933,7 +933,11 @@ describe('buildTools', () => {
       new_string: 'x',
     })) as Record<string, unknown>
     expect(result.ok).toBeUndefined()
-    expect(result.error).toMatch(/re-read the file/i)
+    // "Not in this file at all" and "here but ambiguous" call for different
+    // next moves, so the error says which one this is.
+    expect(result.error).toMatch(/NONE of its lines appear/i)
+    expect(result.error).toMatch(/read_file/i)
+    expect(result.error).toMatch(/do not retry the same old_string/i)
   })
 
   it('exec_command blocks dangerous commands when configured', async () => {
@@ -1350,5 +1354,57 @@ describe('search_files context lines', () => {
     const search = tools.find((t) => t.name === 'search_files')!
     await search.execute({ pattern: 'x', contextLines: 10_000 })
     expect((backend.run as ReturnType<typeof vi.fn>).mock.calls[0][0]).toContain('-C 40')
+  })
+})
+
+describe('edit_file — which kind of miss it was', () => {
+  function fileBackend(content: string): ExecutionBackend {
+    return {
+      projectRoot: '/test',
+      readFile: vi.fn().mockResolvedValue(content),
+      writeFile: vi.fn().mockResolvedValue(undefined),
+      deleteFile: vi.fn(),
+      readDir: vi.fn(),
+      run: vi.fn().mockResolvedValue({ stdout: '', stderr: '', exitCode: 0 }),
+    }
+  }
+
+  it('says so plainly when the text is nowhere in the file', async () => {
+    const tools = buildTools(fileBackend('export const a = 1\nexport const b = 2\n'))
+    const edit = tools.find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'f.ts',
+      replacements: [
+        { old_string: 'function totallyElsewhere() {\n  return 3\n}', new_string: 'x' },
+      ],
+    })) as { error: string }
+    expect(r.error).toContain('NONE of its lines appear')
+    expect(r.error).toContain('already applied')
+  })
+
+  it('says the opposite when parts ARE present but nothing is unique', async () => {
+    // The first line is invented (so the snippet fallback cannot anchor) while a
+    // later line exists twice (so no anchor is unique).
+    const dup = 'function a() {\n  sharedHelper()\n}\nfunction b() {\n  sharedHelper()\n}\n'
+    const tools = buildTools(fileBackend(dup))
+    const edit = tools.find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'f.ts',
+      replacements: [{ old_string: 'function invented() {\n  sharedHelper()\n}', new_string: 'y' }],
+    })) as { error: string }
+    expect(r.error).toContain('Parts of it ARE in the file')
+    expect(r.error).not.toContain('NONE of its lines')
+  })
+
+  it('still prefers showing real file content when it can anchor', async () => {
+    // The most useful answer of all — unchanged by the two branches above.
+    const tools = buildTools(fileBackend('if (x) {\n  run()\n}\n'))
+    const edit = tools.find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'f.ts',
+      replacements: [{ old_string: 'if (x) {\n  runDifferently()\n}', new_string: 'y' }],
+    })) as { error: string }
+    expect(r.error).toContain('ACTUAL content')
+    expect(r.error).toContain('run()')
   })
 })

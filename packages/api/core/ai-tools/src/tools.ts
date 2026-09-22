@@ -606,8 +606,31 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
               const idx = fileLines.findIndex((l) => l.includes(firstLine))
               if (idx >= 0) return showSnippet(idx)
             }
+            // Nothing anchored. Say WHICH of the two situations this is — they
+            // call for different next moves, and the old message implied the
+            // first while being returned for both. Measured across six agent
+            // runs, `old_string not found` was the largest remaining tool-error
+            // class (15 of 64) and every one of these fell through to a bare
+            // "re-read and copy the exact text", which is wrong advice when the
+            // text is not in the file at all.
+            const anchorsPresent = distinctiveLines.some((anchor) =>
+              fileLines.some((l) => l.includes(anchor)),
+            )
+            if (!anchorsPresent) {
+              return {
+                error:
+                  `old_string not found in ${path} — and NONE of its lines appear anywhere in ` +
+                  `that file, so this is not a whitespace problem. Either the edit was already ` +
+                  `applied, or this is the wrong file. read_file it and look before trying ` +
+                  `again; do not retry the same old_string.`,
+              }
+            }
             return {
-              error: `old_string not found in ${path}. Re-read the file with read_file and copy the exact current text — do not construct old_string from memory or the plan.`,
+              error:
+                `old_string not found in ${path}. Parts of it ARE in the file but no single ` +
+                `line is distinctive enough to locate the target. read_file the region you ` +
+                `mean and copy old_string verbatim from what it returns — including ` +
+                `indentation — or include more surrounding context to make it unique.`,
             }
           }
           if (count > 1)
