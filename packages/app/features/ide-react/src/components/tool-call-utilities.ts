@@ -204,8 +204,15 @@ export function toolLabel(name: string, input: unknown): string {
       return normalizeAskUserInput(inp).question || 'Question'
     case 'spawn_agent': {
       const kind = str(inp.type) ?? ''
-      return kind === 'judge' ? 'Subagent — acceptance judge' : 'Subagent — research'
+      const on = str(inp.model) ? ` on ${str(inp.model)}` : ''
+      if (kind === 'judge') return `Subagent — acceptance judge${on}`
+      if (kind === 'build') return `Subagent — build${on}`
+      return `Subagent — research${on}`
     }
+    case 'list_sessions':
+      return 'Other sessions on this project'
+    case 'send_session_message':
+      return `Message another session${code(truncate(str(inp.message) ?? ''))}`
     case 'update_task_list': {
       const rows = normalizeTaskListInput(inp)
       return rows.length > 0 ? `Working plan — ${rows.length} tasks` : 'Working plan'
@@ -366,6 +373,23 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
       const exitCode = (out as { exitCode?: number })?.exitCode
       return exitCode != null && exitCode !== 0
         ? t('ide.toolCall.statusFailed', undefined, { defaultValue: 'Failed' })
+        : ''
+    }
+    case 'list_sessions': {
+      const sessions = (out as { sessions?: unknown[] })?.sessions
+      if (!Array.isArray(sessions)) return ''
+      return sessions.length === 0
+        ? t('ide.toolCall.onlySession', undefined, { defaultValue: 'Only this one' })
+        : t(
+            'ide.toolCall.sessionCount',
+            { count: sessions.length },
+            { defaultValue: '{{count}} other sessions' },
+          )
+    }
+    case 'send_session_message': {
+      const to = (out as { to?: unknown })?.to
+      return typeof to === 'string'
+        ? t('ide.toolCall.sentTo', { to }, { defaultValue: 'Sent to {{to}}' })
         : ''
     }
     case 'find_package': {

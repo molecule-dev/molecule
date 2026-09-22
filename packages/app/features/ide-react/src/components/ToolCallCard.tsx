@@ -922,11 +922,24 @@ export const ToolCallCard = memo(function ToolCallCard({
     )
   }
 
-  // ── spawn_agent: subagent card — explore report / judge verdict ─────────────
+  // ── spawn_agent: subagent card — explore report / judge verdict / build summary ──
   if (name === 'spawn_agent') {
     const inp = (input ?? {}) as Inp
-    const kind = inp.type === 'judge' ? 'judge' : 'explore'
-    const out = (output ?? {}) as { report?: unknown; error?: unknown }
+    const kind = inp.type === 'judge' ? 'judge' : inp.type === 'build' ? 'build' : 'explore'
+    const out = (output ?? {}) as {
+      report?: unknown
+      error?: unknown
+      changedPaths?: unknown
+      agentId?: unknown
+      note?: unknown
+    }
+    // A background dispatch has no report yet — the strip above the composer
+    // carries its live status, so the card says what it started, not nothing.
+    const backgrounded = typeof out.agentId === 'string'
+    const wrote = Array.isArray(out.changedPaths)
+      ? out.changedPaths.filter((path): path is string => typeof path === 'string')
+      : []
+    const agentModel = typeof inp.model === 'string' ? inp.model : ''
     const errorText = typeof out.error === 'string' ? out.error : ''
     const report = typeof out.report === 'string' ? out.report : ''
     const verdict = kind === 'judge' ? parseJudgeVerdict(report) : null
@@ -981,11 +994,27 @@ export const ToolCallCard = memo(function ToolCallCard({
           <span>
             {kind === 'judge'
               ? t('ide.chat.subagent.judge', undefined, { defaultValue: 'Acceptance judge' })
-              : t('ide.chat.subagent.explore', undefined, { defaultValue: 'Research subagent' })}
+              : kind === 'build'
+                ? t('ide.chat.subagent.build', undefined, { defaultValue: 'Build subagent' })
+                : t('ide.chat.subagent.explore', undefined, { defaultValue: 'Research subagent' })}
           </span>
-          {status === 'running' && (
+          {agentModel && <span style={{ fontWeight: 400, opacity: 0.6 }}>{agentModel}</span>}
+          {(status === 'running' || backgrounded) && (
             <span style={{ fontWeight: 400, opacity: 0.6 }}>
-              {t('ide.chat.subagent.working', undefined, { defaultValue: 'working…' })}
+              {backgrounded
+                ? t('ide.chat.subagent.inBackground', undefined, {
+                    defaultValue: 'running in the background',
+                  })
+                : t('ide.chat.subagent.working', undefined, { defaultValue: 'working…' })}
+            </span>
+          )}
+          {wrote.length > 0 && (
+            <span style={{ fontWeight: 400, opacity: 0.6 }}>
+              {t(
+                'ide.chat.subagent.wroteFiles',
+                { count: wrote.length },
+                { defaultValue: '{{count}} files changed' },
+              )}
             </span>
           )}
         </div>
