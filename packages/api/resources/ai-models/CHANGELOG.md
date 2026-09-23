@@ -1,5 +1,18 @@
 # @molecule/api-resource-ai-models
 
+## 1.7.0
+
+### Minor Changes
+
+- 79524c5: Adds `gpt-6-sol` ($2/$10) and `gpt-6-luna` ($0.10/$0.50). The GPT-5.6 models are superseded by them and stay priced but are no longer selectable.
+- 9bb996f: Adds `rejectsForcedToolChoice` and `rejectsTemperature` to model definitions and sets them on the Claude, Kimi and other models whose providers reject a forced tool choice or a caller-chosen temperature. `deepseek-v4-pro` is offered again.
+- 552bc23: Peak pricing can exclude dates (`peakPricing.excludedDatesUtc`), and the DeepSeek models exclude Chinese public holidays, which DeepSeek bills off-peak. `peakPricing.rule` records the provider's own peak-hours sentence and where it is published.
+- 969d4e8: Adds glm-5.3-flashx ($0.37/$1.25).
+
+### Patch Changes
+
+- a659817: Keeps deepseek-v4-pro at its V4-Pro rates ($0.66/$1.98, cache read $0.022) after DeepSeek withdrew the planned 2026-09-14 switch to V4.1 Flash pricing.
+
 ## 1.6.3
 
 ### Patch Changes

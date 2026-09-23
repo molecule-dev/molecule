@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.0
+
+### Minor Changes
+
+- 4f5f2d8: Tests bar: the idle line says how many tests have not run yet, the status dot is gone, and the collapsed bar shows a coloured passed / failed / skipped count.
+
 ## 1.9.3
 
 ### Patch Changes

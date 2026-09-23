@@ -1,5 +1,12 @@
 # @molecule/api-ai-tools
 
+## 1.2.1
+
+### Patch Changes
+
+- f0d4cdf: `edit_file` reports an edit whose change is already in the file as applied, instead of failing with "old_string not found".
+- 9583ff4: A budgeted command now returns as soon as it finishes, even when it left a background process holding its output.
+
 ## 1.2.0
 
 ### Minor Changes

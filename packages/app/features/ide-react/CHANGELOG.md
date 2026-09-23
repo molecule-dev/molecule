@@ -1,5 +1,15 @@
 # @molecule/app-ide-react
 
+## 1.19.0
+
+### Minor Changes
+
+- 4f5f2d8: Tests bar: the idle line says how many tests have not run yet, the status dot is gone, and the collapsed bar shows a coloured passed / failed / skipped count.
+
+### Patch Changes
+
+- 552bc23: Peak pricing can exclude dates (`peakPricing.excludedDatesUtc`), and the DeepSeek models exclude Chinese public holidays, which DeepSeek bills off-peak. `peakPricing.rule` records the provider's own peak-hours sentence and where it is published.
+
 ## 1.18.1
 
 ### Patch Changes

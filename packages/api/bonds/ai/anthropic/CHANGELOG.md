@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.2.0
+
+### Minor Changes
+
+- 8336956: The default model is now `claude-opus-5-5` (was `claude-opus-5`) when `defaultModel` is not set.
+
 ## 1.1.0
 
 ### Minor Changes

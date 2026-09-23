@@ -1,5 +1,11 @@
 # @molecule/app-ai-models
 
+## 1.4.0
+
+### Minor Changes
+
+- 552bc23: Peak pricing can exclude dates (`peakPricing.excludedDatesUtc`), and the DeepSeek models exclude Chinese public holidays, which DeepSeek bills off-peak. `peakPricing.rule` records the provider's own peak-hours sentence and where it is published.
+
 ## 1.3.0
 
 ### Minor Changes

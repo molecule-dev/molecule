@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.2.0
+
+### Minor Changes
+
+- 79524c5: The default model is now `gpt-6-luna` (was `gpt-5.6-luna`) when `defaultModel` is not set.
+
 ## 1.1.0
 
 ### Minor Changes
