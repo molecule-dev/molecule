@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@molecule/app-bond": "1.0.2",
-    "@molecule/app-e2e": "1.1.0",
+    "@molecule/app-e2e": "1.2.0",
     "@playwright/test": "1.63.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
