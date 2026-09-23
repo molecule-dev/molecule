@@ -284,6 +284,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-fable-5-1',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Fable 5.1',
     description: 'Most capable Anthropic — frontier reasoning & long-horizon agents',
     contextWindow: 1_000_000,
@@ -297,6 +300,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // all five levels are supported (effort docs, verified 2026-09-01).
     // Default/recommended is high; xhigh/max for the most capability-sensitive
     // agentic work, medium/low for routine work.
+    // tool_choice any/tool → 400 "tool_choice: type "tool" and "any" are not
+    // supported for this model" (probed live 2026-09-23). Discovery and
+    // starting-point selection send `auto` for it instead (request-shape.ts).
+    rejectsForcedToolChoice: true,
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
@@ -319,6 +326,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-fable-5',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Fable 5',
     description: 'Most capable Anthropic — frontier reasoning & long-horizon agents',
     contextWindow: 1_000_000,
@@ -357,8 +367,15 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-opus-5-5',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Opus 5.5',
     description: 'Anthropic Opus flagship — long-running agentic coding, cheaper than Opus 5',
+    // tool_choice any/tool → 400 "tool_choice: type "tool" and "any" are not
+    // supported for this model" (probed live 2026-09-23). Discovery and
+    // starting-point selection send `auto` for it instead (request-shape.ts).
+    rejectsForcedToolChoice: true,
     // Fast mode (research preview, Claude API only): $8/$40 per MTok (pricing
     // page, fast-mode table, verified 2026-09-23). Cache multipliers stack on
     // the fast input rate: read 0.05× (this model's rate), write 1.25×.
@@ -401,6 +418,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-opus-5',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Opus 5',
     description: 'Anthropic Opus flagship — step-change agentic coding at 4.8 pricing',
     // Fast mode (research preview, Claude API only): same model at up to 2.5×
@@ -452,6 +472,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-opus-4-8',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Opus 4.8',
     description: 'Previous Opus — deep reasoning; the opus-5 refusal fallback',
     contextWindow: 1_000_000,
@@ -489,6 +512,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-sonnet-5',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Sonnet 5',
     description: 'Fast & capable — near-Opus coding at Sonnet cost',
     contextWindow: 1_000_000,
@@ -524,6 +550,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'claude-opus-4-7',
     provider: 'anthropic',
+    // temperature → 400 "`temperature` is deprecated for this model" (probed
+    // live 2026-09-23); callers omit it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
     label: 'Claude Opus 4.7',
     description: 'Older Opus — long-horizon agentic work, knowledge work & vision',
     contextWindow: 1_000_000,
@@ -1501,13 +1530,11 @@ export const MODELS: readonly ModelDefinition[] = [
     // DeepInfra's own card and was never affected.
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
-    // Deprecated 2026-09-14 on the expectation that the id would stop being
-    // itself (routed to V4.1 Flash); that routing was withdrawn and the id
-    // still serves real V4-Pro-0813 weights at the Pro card. It stays hidden
-    // from offering (DeepSeek's own testing has V4.1 Flash "comprehensively
-    // surpassing" Pro on performance/cost/speed) but selectable for existing
-    // selections; re-offering it is a product decision, not a catalog fix.
-    deprecatedAt: '2026-09-14',
+    // Was deprecated 2026-09-14 on the expectation that the id would stop
+    // being itself (routed to V4.1 Flash). DeepSeek withdrew that routing — V4
+    // Pro continues "with the billing method remaining unchanged" (updates
+    // page, re-read 2026-09-23) — so it is offered again (owner, 2026-09-23:
+    // "keep offering deepseek pro if it is available").
   },
   {
     id: 'deepseek-v4-flash',
@@ -1681,6 +1708,9 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'kimi-k3',
     provider: 'moonshot',
+    // Native Moonshot host: temperature 0 → 400 "invalid temperature: only 1 is
+    // allowed for this model" (probed 2026-09-23); callers omit it.
+    rejectsTemperature: true,
     label: 'Kimi K3',
     description: 'Moonshot flagship — 2.8T open weights, 1M context, multimodal',
     contextWindow: 1_000_000,
@@ -1724,6 +1754,12 @@ export const MODELS: readonly ModelDefinition[] = [
   {
     id: 'kimi-k2.7-code',
     provider: 'moonshot',
+    // Native Moonshot host (probed 2026-09-23): temperature 0 → 400 "only 1 is
+    // allowed"; and tool_choice 'required' → 400 "incompatible with thinking
+    // enabled" — thinking cannot be turned off on this model, so a forced tool
+    // call goes out as `auto` (request-shape.ts).
+    rejectsTemperature: true,
+    rejectsForcedToolChoice: true,
     label: 'Kimi K2.7 Code',
     description: 'Moonshot coding specialist — token-efficient agentic coding',
     contextWindow: 262_144,

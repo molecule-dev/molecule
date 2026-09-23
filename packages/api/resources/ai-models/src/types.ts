@@ -145,6 +145,31 @@ export interface ModelDefinition {
    */
   toolsRequireReasoningOff?: boolean
   /**
+   * The provider rejects a FORCED tool choice for this model — Anthropic
+   * `tool_choice` `any` / `tool` answer 400 on claude-fable-5-1 and
+   * claude-opus-5-5, and Moonshot rejects `required` while thinking is on,
+   * which it always is on kimi-k2.7-code (all probed live 2026-09-23). `auto`
+   * works and the model still calls the tool. Callers that would force a tool call (Synthase
+   * discovery, starting-point selection) must send `auto` for these models;
+   * molecule-dev resolves that in one place (`toolChoiceParam` in
+   * request-shape.ts) and its live dispatch check probes the forced shape for
+   * every model, so a new model with this restriction fails the check instead
+   * of every discovery turn.
+   */
+  rejectsForcedToolChoice?: boolean
+  /**
+   * The provider rejects a caller-chosen `temperature` for this model —
+   * Anthropic answers 400 "`temperature` is deprecated for this model" on the
+   * Claude 5 family and Opus 4.7/4.8 (Opus 4.6, Sonnet 4.6 and Haiku 4.5 still
+   * accept it), and Moonshot's native host allows only 1 on kimi-k3 and
+   * kimi-k2.7-code (all probed live 2026-09-23). Omitting it is always safe. Callers that set a temperature (commit
+   * messages, starting-point selection) must omit it for these models;
+   * molecule-dev resolves that in one place (`temperatureParam` in
+   * request-shape.ts), and its live dispatch check sends the tool-less,
+   * temperature-0 shape to every model.
+   */
+  rejectsTemperature?: boolean
+  /**
    * Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
    * When set, the chat handler sends this as a ServerTool alongside custom tools.
    * Omit if the model / provider does not support native web search.
