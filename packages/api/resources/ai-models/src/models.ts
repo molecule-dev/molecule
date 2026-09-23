@@ -242,6 +242,14 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   card again — $0.15/$0.50, cached input $0.03, no promo footnote. models.dev
  *   still carries the expired promo rate, so the KNOWN_DIVERGENCES entry now
  *   runs to a fixed 2026-12-09 re-verify date.)
+ *   (verified 2026-09-23: glm-5.3-flashx ADDED — the ~200 tokens/s tier of the
+ *   GLM-5.3-Flash series. Pricing page: $0.37/$1.25, cached input $0.075,
+ *   cache storage free. Chat-completion reference: id `glm-5.3-flashx` in the
+ *   vision request enum, 128K max output, reasoning_effort low|high|max
+ *   (default max), function tools supported. GLM-5.3-Flash guide: 1M ctx,
+ *   video/image/text/file input. No published knowledge cutoff. Not on
+ *   DeepInfra (zai-org/GLM-5.3-FlashX 404s), so cn-region-only. glm-5.3 and
+ *   glm-5.3-flash rates unchanged on the same page.)
  *
  * Knowledge-cutoff dates on non-Anthropic entries are best-effort estimates
  * where the provider doesn't publish one; the provider sources above verify
@@ -2103,6 +2111,43 @@ export const MODELS: readonly ModelDefinition[] = [
     regions: ['cn'],
     // Same base weights as glm-5.2, so the same best-effort estimate — Z.ai
     // publishes no cutoff.
+    knowledgeCutoff: '2025-06-01',
+  },
+  {
+    // The high-speed serving tier of the GLM-5.3-Flash series (~200 tokens/s
+    // per the GLM-5.3-Flash guide) — same series surface, higher rate card.
+    // Same 5.3 generation as glm-5.3-flash, so neither supersedes the other.
+    id: 'glm-5.3-flashx',
+    provider: 'zhipu',
+    label: 'GLM-5.3 FlashX',
+    description: 'High-speed native multimodal coding + agents — 1M context',
+    contextWindow: 1_048_576,
+    // "GLM-5.3-Flash series supports a maximum output length of 128K" —
+    // chat-completion API reference, checked 2026-09-23.
+    maxOutputTokens: 131_072,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    // Same surface as glm-5.3-flash: low|high|max only, default max, thinking
+    // cannot be disabled. high is the balanced tier we default to.
+    supportedEffortLevels: ['low', 'high', 'max'],
+    defaultEffortLevel: 'high',
+    // Series input: text, images, video, files (glm-5.3-flashx appears in the
+    // chat-completion reference's image examples).
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    // List card, verified 2026-09-23 on the Z.ai pricing page.
+    inputPricePerMTok: 0.37,
+    outputPricePerMTok: 1.25,
+    // GLM context cache: read ≈0.2× input, no write premium (storage free).
+    cacheReadPricePerMTok: 0.075,
+    cacheWritePricePerMTok: 0.37,
+    // Native host only: api.deepinfra.com/models/zai-org/GLM-5.3-FlashX is a
+    // 404 (checked 2026-09-23), so there is no US re-host to map.
+    regions: ['cn'],
+    // Not published by Z.ai — best-effort estimate for the 5.3 generation.
     knowledgeCutoff: '2025-06-01',
   },
   {
