@@ -62,7 +62,8 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  * 2026-07-30 GPT-5.6 repricing — cross-check prices against models.dev with
  * `npm run check:model-freshness` from the workspace root):
  * - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
- *   + /docs/en/build-with-claude/effort (fable-5 / opus-5 / sonnet-5 current;
+ *   + /docs/en/build-with-claude/effort (fable-5-1 / opus-5-5 / sonnet-5
+ *   current as of 2026-09-23 — see the dated notes below; historically fable-5 / opus-5 / sonnet-5 current;
  *   opus-4-8 superseded by opus-5 at identical pricing but still served — it is
  *   the recommended refusal-fallback model; effort ladder on all three current
  *   models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
@@ -92,6 +93,17 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   any/tool now 400s, thinking blocks are model-bound, editing earlier turns
  *   invalidates them) — Synthase sends tool_choice auto and is append-only,
  *   and the pre-commit dispatch probe covers the entry as sent.)
+ *   (verified 2026-09-23 — ADDED claude-opus-5-5, released 2026-09-22 and
+ *   listed as "Active (latest)" on /docs/en/models/opus-5-5/overview; the
+ *   overview page now lists claude-opus-5 under "Legacy models (still
+ *   available)" → superseded, with opus-4-8/4-7/4-6 repointed one hop.
+ *   Pricing page: $4/$20, 5m cache write $5, cache hits $0.20 (footnote 2:
+ *   0.05× input on Opus 5.5 only), fast mode $8/$40. 1M ctx / 128K out, text +
+ *   image input, reliable knowledge cutoff Jun 2026. Effort page: all five
+ *   levels, default MEDIUM. What's-new page: thinking always on
+ *   (disabled/budget_tokens 400), tool_choice any/tool 400, computer_20251124
+ *   400 — Synthase sends none of those. Every other Anthropic price on the
+ *   pricing page is unchanged.)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -343,6 +355,50 @@ export const MODELS: readonly ModelDefinition[] = [
     supersededBy: 'claude-fable-5-1',
   },
   {
+    id: 'claude-opus-5-5',
+    provider: 'anthropic',
+    label: 'Claude Opus 5.5',
+    description: 'Anthropic Opus flagship — long-running agentic coding, cheaper than Opus 5',
+    // Fast mode (research preview, Claude API only): $8/$40 per MTok (pricing
+    // page, fast-mode table, verified 2026-09-23). Cache multipliers stack on
+    // the fast input rate: read 0.05× (this model's rate), write 1.25×.
+    fastPricing: {
+      inputPricePerMTok: 8,
+      outputPricePerMTok: 40,
+      cacheReadPricePerMTok: 0.4,
+      cacheWritePricePerMTok: 10,
+    },
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // Adaptive thinking is ALWAYS ON: thinking {type:"disabled"} and manual
+    // budget_tokens both 400 — effort is the only depth control. All five
+    // levels supported; the API default is MEDIUM (not high like opus-5).
+    // tool_choice any/tool 400 on this model (auto/none only), as on
+    // fable-5-1. 512-token prompt-cache minimum. (Model page + what's-new,
+    // verified 2026-09-23.)
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search_20260209',
+    // Same server-tool versions as the rest of the 4.6+ Anthropic fleet. Not
+    // currently sent by Synthase beyond webSearchToolType.
+    codeExecutionToolType: 'code_execution_20260521',
+    webFetchToolType: 'web_fetch_20260209',
+    inputPricePerMTok: 4,
+    outputPricePerMTok: 20,
+    // Cache READ is a documented exception: 0.05× input ("$0.20 / MTok",
+    // pricing page footnote 2). 5-minute cache write is the usual 1.25×.
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 5,
+    // Reliable knowledge cutoff Jun 2026 (model page "Specifications").
+    knowledgeCutoff: '2026-06-01',
+  },
+  {
     id: 'claude-opus-5',
     provider: 'anthropic',
     label: 'Claude Opus 5',
@@ -387,6 +443,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 6.25,
     // Not published at verification time — best-effort estimate (≥ Opus 4.8's).
     knowledgeCutoff: '2026-01-01',
+    // Superseded by claude-opus-5-5 (released 2026-09-22, same Opus tier,
+    // cheaper at $4/$20); Anthropic now lists opus-5 under "Legacy models
+    // (still available)". Still served and priceable, just not OFFERED.
+    deprecatedAt: '2026-09-22',
+    supersededBy: 'claude-opus-5-5',
   },
   {
     id: 'claude-opus-4-8',
@@ -421,8 +482,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // Superseded by claude-opus-5 (same price, same tier); still served upstream
     // and the recommended refusal-fallback target, so it stays priceable and
     // callable by id — it is just not OFFERED, since opus-5 is a drop-in.
+    // `supersededBy` names the CURRENT selectable Opus (opus-5-5, one hop).
     deprecatedAt: '2026-07-28',
-    supersededBy: 'claude-opus-5',
+    supersededBy: 'claude-opus-5-5',
   },
   {
     id: 'claude-sonnet-5',
@@ -495,10 +557,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // still Active upstream (deprecations page 2026-08-06: retires no sooner
     // than 2027-04-16). NO fast mode — speed:"fast" on 4.7 returns an error
     // (pricing page, fast-mode section). `supersededBy` names the CURRENT
-    // selectable Opus (opus-5), not the also-superseded 4.8, so a saved
+    // selectable Opus (opus-5-5), not the also-superseded 4.8 / 5, so a saved
     // selection resolves forward in one hop.
     deprecatedAt: '2026-05-28',
-    supersededBy: 'claude-opus-5',
+    supersededBy: 'claude-opus-5-5',
   },
   {
     id: 'claude-opus-4-6',
@@ -530,9 +592,9 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 6.25,
     knowledgeCutoff: '2025-05-01',
-    // Superseded by the current Opus (opus-5) — kept priceable, not offered.
+    // Superseded by the current Opus (opus-5-5) — kept priceable, not offered.
     deprecatedAt: '2026-06-16',
-    supersededBy: 'claude-opus-5',
+    supersededBy: 'claude-opus-5-5',
   },
   {
     id: 'claude-sonnet-4-6',

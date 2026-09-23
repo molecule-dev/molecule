@@ -91,7 +91,8 @@ describe('list handler', () => {
       (m) => m.provider === 'anthropic' && !m.disabled && !m.supersededBy,
     ).length
     expect(models.length).toBe(anthropicCount)
-    expect(models.some((m) => m.id === 'claude-opus-5')).toBe(true)
+    expect(models.some((m) => m.id === 'claude-opus-5-5')).toBe(true)
+    expect(models.some((m) => m.id === 'claude-opus-5')).toBe(false)
     expect(models.some((m) => m.id === 'claude-opus-4-8')).toBe(false)
   })
 

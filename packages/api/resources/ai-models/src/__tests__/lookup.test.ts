@@ -1033,9 +1033,10 @@ describe('supersededBy', () => {
     // picker. Listed explicitly so removing one is a deliberate edit.
     const expected: Record<string, string> = {
       'claude-fable-5': 'claude-fable-5-1',
-      'claude-opus-4-8': 'claude-opus-5',
-      'claude-opus-4-7': 'claude-opus-5',
-      'claude-opus-4-6': 'claude-opus-5',
+      'claude-opus-5': 'claude-opus-5-5',
+      'claude-opus-4-8': 'claude-opus-5-5',
+      'claude-opus-4-7': 'claude-opus-5-5',
+      'claude-opus-4-6': 'claude-opus-5-5',
       'claude-sonnet-4-6': 'claude-sonnet-5',
       'gpt-5.6-sol': 'gpt-6-sol',
       'gpt-5.6-terra': 'gpt-6-sol',
@@ -1066,7 +1067,7 @@ describe('supersededBy', () => {
 describe('resolveSelectableModelId', () => {
   it('forwards a superseded id to its successor', () => {
     expect(resolveSelectableModelId('qwen3.7-max')).toBe('qwen3.8-max')
-    expect(resolveSelectableModelId('claude-opus-4-6')).toBe('claude-opus-5')
+    expect(resolveSelectableModelId('claude-opus-4-6')).toBe('claude-opus-5-5')
   })
 
   it('returns a selectable id unchanged', () => {
