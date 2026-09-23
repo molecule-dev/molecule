@@ -100,6 +100,18 @@ function loadBonds() {
 
 const KEY_RE = /^[a-zA-Z][\w-]*(\.[\w-]+)+$/
 
+/**
+ * CLDR plural suffixes. The app-i18n provider resolves `t(key, v, { count })`
+ * to `key_<form>` (falling back to `key_other`), so a bond may define ONLY the
+ * suffixed forms of a key the code names bare.
+ */
+const PLURAL_SUFFIX_RE = /_(zero|one|two|few|many|other)$/
+
+/** Whether `keys` defines `key` itself or any of its plural forms. */
+function definesKey(keys, key) {
+  return keys.has(key) || keys.has(`${key}_other`)
+}
+
 /** Scan all package source for translation-key usage signals. */
 function loadUsage() {
   const literals = new Set() // keys passed to t('…')
@@ -148,7 +160,7 @@ export function analyzeParity() {
     const owners = nsOwners.get(k.split('.')[0])
     if (!owners || owners.size !== 1) continue
     const bondId = [...owners][0]
-    if (!definedByBond.get(bondId).has(k)) missing.push(`${bondId}::${k}`)
+    if (!definesKey(definedByBond.get(bondId), k)) missing.push(`${bondId}::${k}`)
   }
 
   const coveredByDynamic = (k) => {
@@ -160,7 +172,8 @@ export function analyzeParity() {
   const orphans = []
   for (const b of bonds) {
     for (const k of b.keys) {
-      if (referenced.has(k) || coveredByDynamic(k)) continue
+      const base = k.replace(PLURAL_SUFFIX_RE, '')
+      if (referenced.has(k) || referenced.has(base) || coveredByDynamic(k)) continue
       orphans.push(`${b.id}::${k}`)
     }
   }

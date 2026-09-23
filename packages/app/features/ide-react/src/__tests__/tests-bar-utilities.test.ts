@@ -14,6 +14,7 @@ import {
 } from '../components/tests-bar-utilities.js'
 import type { TestsRunState } from '../components/tests-card-utilities.js'
 import { EMPTY_RUN_STATE } from '../components/tests-card-utilities.js'
+import { testsBarLabel } from '../components/TestStatusBar.js'
 import type { TestItem } from '../types.js'
 
 const TESTS: TestItem[] = [
@@ -70,7 +71,7 @@ describe('tests bar visibility', () => {
 
 describe('shouldShowTestsBar', () => {
   it('a project with no tests gets NO bar', () => {
-    // Nothing to account for: an empty strip saying "Tests not run yet" is noise
+    // Nothing to account for: an empty strip saying "0 tests not run yet" is noise
     // in exactly the projects least ready for it.
     expect(shouldShowTestsBar(EMPTY_RUN_STATE, [])).toBe(false)
   })
@@ -109,6 +110,25 @@ describe('summariseTestsBar', () => {
     const s = summariseTestsBar(runState({}), TESTS)
     expect(s.tone).toBe('idle')
     expect(s.passed).toBe(0)
+    expect(s.notRun).toBe(2)
+  })
+
+  it('counts only the files with no result as not run', () => {
+    const s = summariseTestsBar(
+      runState({
+        results: {
+          'app:e2e/home.spec.ts': {
+            status: 'passed',
+            passed: 1,
+            failed: 0,
+            skipped: 0,
+            output: '',
+          },
+        },
+      }),
+      TESTS,
+    )
+    expect(s.notRun).toBe(1)
   })
 
   it('a single failing file makes the whole suite failing', () => {
@@ -220,5 +240,14 @@ describe('summariseTestsBar', () => {
       TESTS,
     )
     expect(s.tone).toBe('error')
+  })
+})
+
+describe('testsBarLabel', () => {
+  it('says how many tests have not run, singular and plural', () => {
+    expect(testsBarLabel(summariseTestsBar(runState({}), TESTS))).toBe('2 tests not run yet')
+    expect(testsBarLabel(summariseTestsBar(runState({}), TESTS.slice(0, 1)))).toBe(
+      '1 test not run yet',
+    )
   })
 })

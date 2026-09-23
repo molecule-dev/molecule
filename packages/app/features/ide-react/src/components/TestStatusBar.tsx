@@ -13,9 +13,11 @@
  * the composer rather than two unrelated widgets. Collapsed is the resting
  * state; expanded adds the per-outcome counts and the running file.
  *
- * Colour is carried by the STATUS DOT and the count figures, never by the whole
- * strip: a bar that turns red across its full width reads as an error in the
- * chat itself. Every colour comes from a theme token with a fallback, per
+ * Colour is carried by the count figures only, never by the whole strip: a bar
+ * that turns red across its full width reads as an error in the chat itself.
+ * Once anything has a result, the collapsed row shows a coloured
+ * `passed / failed / skipped` readout (green / red / yellow) so the state reads
+ * at a glance without expanding. Every colour comes from a theme token with a fallback, per
  * DESIGN.md's semantic colours — no hardcoded palette.
  *
  * @module
@@ -80,7 +82,15 @@ export function testsBarLabel(summary: TestsBarSummary): string {
         )
       : t('ide.testsBar.passing', { passed }, { defaultValue: 'All {{passed}} passing' })
   }
-  return t('ide.testsBar.idle', undefined, { defaultValue: 'Tests not run yet' })
+  const count = summary.notRun
+  return t(
+    'ide.testsBar.notRun',
+    { count },
+    {
+      count,
+      defaultValue: count === 1 ? '{{count}} test not run yet' : '{{count}} tests not run yet',
+    },
+  )
 }
 
 /** What the bar needs from its host. */
@@ -115,7 +125,7 @@ export function TestStatusBar({
 }: TestStatusBarProps): JSX.Element {
   const cm = getClassMap()
   const summary = summariseTestsBar(run, tests)
-  const color = TONE_COLOR[summary.tone]
+  const hasResults = summary.passed + summary.failed + summary.skipped > 0
   const label = testsBarLabel(summary)
 
   return (
@@ -168,21 +178,6 @@ export function TestStatusBar({
               strokeLinejoin="round"
             />
           </svg>
-          {/* The status dot carries the colour. */}
-          <span
-            data-mol-id="tests-bar-dot"
-            aria-hidden="true"
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background: color,
-              flexShrink: 0,
-              // No pulse: the commit bar's own badge settled that question
-              // (AutoCommitBadge — "no pulse animation"), and "running" is
-              // already carried by the label, the count and the Stop button.
-            }}
-          />
           <span
             data-mol-id="tests-bar-label"
             className={cm.cn(cm.textMuted, cm.textSize('xs'))}
@@ -213,6 +208,25 @@ export function TestStatusBar({
           ) : null}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          {hasResults ? (
+            <span
+              data-mol-id="tests-bar-counts"
+              className={cm.textSize('xs')}
+              role="img"
+              aria-label={t(
+                'ide.testsBar.counts',
+                { passed: summary.passed, failed: summary.failed, skipped: summary.skipped },
+                { defaultValue: '{{passed}} passing, {{failed}} failing, {{skipped}} skipped' },
+              )}
+              style={{ fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
+            >
+              <span style={{ color: TONE_COLOR.passing }}>{summary.passed}</span>
+              <span style={{ opacity: 0.4 }}>{' / '}</span>
+              <span style={{ color: TONE_COLOR.failing }}>{summary.failed}</span>
+              <span style={{ opacity: 0.4 }}>{' / '}</span>
+              <span style={{ color: TONE_COLOR.stopped }}>{summary.skipped}</span>
+            </span>
+          ) : null}
           {run.running && onStop ? (
             <button
               type="button"

@@ -91,7 +91,7 @@ export function parseTestsBarArg(args: string, current: boolean): boolean | null
  * A project with no tests yet gets NO bar. The strip earns its slot above the
  * composer by accounting for something — a suite's verdict, a run driving the
  * preview — and a project that has not been given tests has neither; an empty
- * strip saying "Tests not run yet" is noise in exactly the projects that are
+ * strip saying "0 tests not run yet" is noise in exactly the projects that are
  * least ready for it. It appears on its own the moment discovery finds a spec.
  *
  * The run clauses come second on purpose: a run in flight, a run-level error or
@@ -123,6 +123,8 @@ export interface TestsBarSummary {
   skipped: number
   /** Files this run still has to reach, when it is running. */
   remaining: number
+  /** Discovered files with no result yet — what the idle line counts. */
+  notRun: number
   /** The file running right now, when the host says which. */
   currentFile: string | null
   /** The individual test running right now, when the runner names it. */
@@ -163,6 +165,7 @@ export function summariseTestsBar(run: TestsRunState, tests: TestItem[]): TestsB
 
   const done = passed + failed + skipped
   const remaining = run.running ? Math.max(0, run.queued.length - done) : 0
+  const notRun = tests.filter((test) => run.results[test.id] == null).length
 
   const tone: TestsBarTone = run.running
     ? 'running'
@@ -182,6 +185,7 @@ export function summariseTestsBar(run: TestsRunState, tests: TestItem[]): TestsB
     failed,
     skipped,
     remaining,
+    notRun,
     currentFile: current?.title ?? current?.file ?? null,
     currentTest,
   }
