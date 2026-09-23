@@ -33,7 +33,7 @@
     "@molecule/app-fonts": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-fonts": "1.0.2",
+    "@molecule/app-fonts": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

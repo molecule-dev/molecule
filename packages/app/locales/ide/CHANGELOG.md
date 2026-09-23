@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.9.3
+
+### Patch Changes
+
+- ae79a67: Adds the `ide.toolCall.stillRunning` translation key.
+
 ## 1.9.2
 
 ### Patch Changes

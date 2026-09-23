@@ -46,7 +46,7 @@
     "@molecule/app-command-palette-cmdk": "1.0.2",
     "@molecule/app-drag-drop": "1.0.2",
     "@molecule/app-drag-drop-dndkit": "1.0.2",
-    "@molecule/app-fonts": "1.0.2",
+    "@molecule/app-fonts": "1.1.0",
     "@molecule/app-fonts-arimo": "1.0.2",
     "@molecule/app-http": "1.0.2",
     "@molecule/app-icons": "1.0.2",

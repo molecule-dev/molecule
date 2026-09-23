@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.18.1
+
+### Patch Changes
+
+- ae79a67: Import order in `BackgroundTasksStrip` follows the package lint rules; no behavior change.
+
 ## 1.18.0
 
 ### Minor Changes
