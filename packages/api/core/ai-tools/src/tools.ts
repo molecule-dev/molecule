@@ -598,6 +598,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           content = verdict.content
         }
         const oldContent = content
+        let alreadyApplied = 0
 
         for (const { old_string: oldString, new_string: newString } of replacements) {
           // Validate each replacement is well-formed BEFORE touching content. A
@@ -611,6 +612,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             }
           }
           const count = content.split(oldString).length - 1
+          // The edit is ALREADY in the file: old_string is gone and a distinctive
+          // new_string is there exactly once. The executor re-sends an edit it
+          // made a few calls ago (it works from its memory of the file), and the
+          // "not found" error cost it a read_file plus a retry each time — 6 to 11
+          // times a build in X0 x30/x34. Report it as applied instead. Short or
+          // repeated new_strings still error: they could be there by coincidence.
+          if (
+            count === 0 &&
+            newString !== oldString &&
+            newString.trim().length >= 20 &&
+            content.split(newString).length - 1 === 1
+          ) {
+            alreadyApplied++
+            continue
+          }
           if (count === 0) {
             // A bare "old_string not found" gives the model nothing to correct, so
             // it retries blindly (the #1 edit_file failure mode). Diagnose WHY the
@@ -724,6 +740,14 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           content = content.slice(0, at) + newString + content.slice(at + oldString.length)
         }
 
+        const alreadyNote =
+          alreadyApplied > 0
+            ? `${alreadyApplied} of these edits ${alreadyApplied === 1 ? 'was' : 'were'} already in the file (its new_string is there and its old_string is not) — nothing to do for ${alreadyApplied === 1 ? 'it' : 'them'}.`
+            : null
+        if (content === oldContent) {
+          return { path, ok: true, replacementsApplied: 0, alreadyApplied, note: alreadyNote }
+        }
+
         if (onFileDiff) onFileDiff({ path, oldContent, newContent: content })
 
         await backend.writeFile(path, content)
@@ -734,7 +758,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         return {
           path,
           ok: true,
-          replacementsApplied: replacements.length,
+          replacementsApplied: replacements.length - alreadyApplied,
+          ...(alreadyApplied > 0 ? { alreadyApplied, note: alreadyNote } : {}),
           ...(await syntaxErrorAfterWrite(path)),
         }
       } catch (e: unknown) {

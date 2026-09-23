@@ -1383,6 +1383,48 @@ describe('edit_file — which kind of miss it was', () => {
     expect(r.error).toContain('already applied')
   })
 
+  it('reports an edit that is already in the file as applied, and writes nothing', async () => {
+    const backend = fileBackend('export function greet() {\n  return "hello, reader"\n}\n')
+    const tools = buildTools(backend)
+    const edit = tools.find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'f.ts',
+      replacements: [{ old_string: 'return "hi"', new_string: 'return "hello, reader"' }],
+    })) as { ok: boolean; alreadyApplied: number; note: string }
+    expect(r.ok).toBe(true)
+    expect(r.alreadyApplied).toBe(1)
+    expect(r.note).toContain('already in the file')
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
+  it('applies the rest of a batch when one of its edits is already in the file', async () => {
+    const backend = fileBackend('const title = "Provenance blog"\nconst count = 1\n')
+    const tools = buildTools(backend)
+    const edit = tools.find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'f.ts',
+      replacements: [
+        { old_string: 'const title = "Blog"', new_string: 'const title = "Provenance blog"' },
+        { old_string: 'const count = 1', new_string: 'const count = 2' },
+      ],
+    })) as { ok: boolean; replacementsApplied: number; alreadyApplied: number }
+    expect(r).toMatchObject({ ok: true, replacementsApplied: 1, alreadyApplied: 1 })
+    expect(backend.writeFile).toHaveBeenCalledWith(
+      expect.any(String),
+      'const title = "Provenance blog"\nconst count = 2\n',
+    )
+  })
+
+  it('still errors when a SHORT new_string happens to be in the file', async () => {
+    const tools = buildTools(fileBackend('let x = 2\nlet y = 3\n'))
+    const edit = tools.find((t) => t.name === 'edit_file')!
+    const r = (await edit.execute({
+      path: 'f.ts',
+      replacements: [{ old_string: 'let z = 9', new_string: 'let y = 3' }],
+    })) as { error?: string }
+    expect(r.error).toBeDefined()
+  })
+
   it('says the opposite when parts ARE present but nothing is unique', async () => {
     // The first line is invented (so the snippet fallback cannot anchor) while a
     // later line exists twice (so no anchor is unique).
