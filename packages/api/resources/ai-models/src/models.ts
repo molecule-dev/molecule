@@ -157,7 +157,12 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
  *   grok-code-fast-1 no longer listed — retires 2026-08-15)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
- *   /updates/ (verified 2026-09-10; legacy deepseek-chat/-reasoner ids fully
+ *   /updates/ (verified 2026-09-23 — the announced 2026-09-14 routing of
+ *   `deepseek-v4-pro` to V4.1 Flash was WITHDRAWN: V4 Pro keeps its card
+ *   0.66/1.98/0.022 off-peak, so its staged `scheduledPricing` was deleted.
+ *   The card now also says peak hours exclude Chinese public holidays, which
+ *   `peakPricing` cannot express — peak is billed on those weekdays too.
+ *   Earlier, 2026-09-10: legacy deepseek-chat/-reasoner ids fully
  *   retired 2026-07-24 — never in this catalog. The 2026-09-10 re-read caught
  *   the V4.1-Flash release DAY-OF: new evergreen id `deepseek-flash` at
  *   off-peak miss $0.15 / hit $0.003 / out $0.6 (peak ×2, same Mon-Fri UTC
@@ -1318,8 +1323,10 @@ export const MODELS: readonly ModelDefinition[] = [
   //      leans on that "temporary" routing until molecule-dev's default ids
   //      move to `deepseek-flash`.
   //   2. From 2026-09-14 12:00 Beijing (04:00 UTC), until V4.1 Pro ships, ALL
-  //      `deepseek-v4-pro` requests route to V4.1 Flash at Flash prices —
-  //      staged as `scheduledPricing` on the pro entry below.
+  //      `deepseek-v4-pro` requests were to route to V4.1 Flash at Flash
+  //      prices. WITHDRAWN before it landed (re-read 2026-09-23): V4 Pro keeps
+  //      being served after 2026-09-14 "with the billing method remaining
+  //      unchanged", so the staged `scheduledPricing` was deleted.
   // 2026-08-13: V4-Pro GA — and with it the price rise that the "coming soon"
   // note below had been waiting on. It was staged as `scheduledPricing`
   // effective 2026-08-16T16:00Z; that instant has PASSED and the rates are now
@@ -1421,32 +1428,23 @@ export const MODELS: readonly ModelDefinition[] = [
       ],
       multiplier: 2,
     },
-    // ANNOUNCED 2026-09-10 (updates page): from 2026-09-14 12:00 Beijing time
-    // (04:00 UTC), and until V4.1 Pro ships, every `deepseek-v4-pro` request is
-    // routed to V4.1 Flash and billed at the V4.1 FLASH price — so the base
-    // rates become the flash card below (the peak windows are identical, so
-    // they carry through unchanged). The US `regionPricing` above is DeepInfra's
-    // own card for its V4-Pro copy and is NOT touched by the native routing.
-    // Fold into the base fields once the instant has passed (the freshness
-    // gate gives models.dev its scheduled-landing grace meanwhile).
-    scheduledPricing: {
-      effectiveFrom: '2026-09-14T04:00:00Z',
-      inputPricePerMTok: 0.15,
-      outputPricePerMTok: 0.6,
-      cacheReadPricePerMTok: 0.003,
-      cacheWritePricePerMTok: 0.15,
-      source:
-        'https://api-docs.deepseek.com/updates/ (2026-09-10): deepseek-v4-pro → V4.1 Flash at Flash prices from 2026-09-14 12:00 Beijing',
-    },
+    // The 2026-09-10 announcement that this id would route to V4.1 Flash at
+    // Flash prices from 2026-09-14 was WITHDRAWN: the updates page now reads
+    // "we have decided to continue providing API services for DeepSeek V4 Pro
+    // after September 14, 2026, with the billing method remaining unchanged",
+    // and the pricing page still lists `deepseek-v4-pro` (V4-Pro-0813) at
+    // 0.66/1.98, cache hit 0.022 off-peak (both re-read 2026-09-23). So the
+    // staged `scheduledPricing` flash card was deleted rather than folded in —
+    // the base rates above are what DeepSeek bills. The US `regionPricing` is
+    // DeepInfra's own card and was never affected.
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
-    // Deprecated the day it stops being itself: DeepSeek's own testing has
-    // V4.1 Flash "comprehensively surpassing" Pro on performance/cost/speed,
-    // and from 2026-09-14 12:00 Beijing every `deepseek-v4-pro` request routes
-    // to V4.1 Flash at Flash prices (see scheduledPricing above) until V4.1 Pro
-    // ships — at which point this becomes a new entry's succession problem, not
-    // this one's. Until the 14th it still serves real V4-Pro-0813 weights at
-    // the Pro card, so it stays selectable for existing selections.
+    // Deprecated 2026-09-14 on the expectation that the id would stop being
+    // itself (routed to V4.1 Flash); that routing was withdrawn and the id
+    // still serves real V4-Pro-0813 weights at the Pro card. It stays hidden
+    // from offering (DeepSeek's own testing has V4.1 Flash "comprehensively
+    // surpassing" Pro on performance/cost/speed) but selectable for existing
+    // selections; re-offering it is a product decision, not a catalog fix.
     deprecatedAt: '2026-09-14',
   },
   {
