@@ -54,8 +54,8 @@ export function effectiveModelRegion(
 /**
  * The peak-hour multiplier in force for a model at an instant, in a region.
  *
- * Mirrors the server's `priceMultiplierAt`, including its `daysOfWeekUtc`
- * handling and the rule that matters
+ * Mirrors the server's `priceMultiplierAt`, including its `daysOfWeekUtc` and
+ * `excludedDatesUtc` (public holidays) handling and the rule that matters
  * most: peak belongs to the NATIVE provider, so a region with a `regionPricing`
  * override — a different host, billing its own flat card — never takes it.
  * Showing a 2× on a re-host the user is actually routed to would be a lie in
@@ -81,11 +81,16 @@ export function modelPeakMultiplier(
       ? minute >= w.startMinuteUtc || minute < w.endMinuteUtc
       : minute >= w.startMinuteUtc && minute < w.endMinuteUtc
     if (!inWindow) continue
+    // A wrapping window belongs to the day it STARTED on, so its
+    // post-midnight tail is matched against the previous UTC day.
+    const startedYesterday = wraps && minute < w.endMinuteUtc
     if (w.daysOfWeekUtc && w.daysOfWeekUtc.length > 0) {
-      // A wrapping window belongs to the day it STARTED on, so its
-      // post-midnight tail is matched against the previous UTC day.
-      const day = wraps && minute < w.endMinuteUtc ? (at.getUTCDay() + 6) % 7 : at.getUTCDay()
+      const day = startedYesterday ? (at.getUTCDay() + 6) % 7 : at.getUTCDay()
       if (!w.daysOfWeekUtc.includes(day)) continue
+    }
+    if (peak.excludedDatesUtc && peak.excludedDatesUtc.length > 0) {
+      const started = new Date(at.getTime() - (startedYesterday ? 86_400_000 : 0))
+      if (peak.excludedDatesUtc.includes(started.toISOString().slice(0, 10))) continue
     }
     return peak.multiplier
   }

@@ -154,7 +154,9 @@ export interface AppModelDefinition {
    * certain UTC weekdays (`0` = Sunday … `6` = Saturday); omitted means every
    * day. Providers that price peak by BUSINESS hours qualify them by day
    * (DeepSeek's card says "Monday through Friday"), and ignoring that shows a
-   * 2× on a weekend that is not being charged.
+   * 2× on a weekend that is not being charged. `excludedDatesUtc` lists
+   * `YYYY-MM-DD` dates on which no window applies — DeepSeek's peak excludes
+   * Chinese public holidays — matched against the day a window STARTS on.
    *
    * Applies to the BASE rates only. A region with a `regionPricing` override is
    * a different host billing its own card, which generally has no time-of-day
@@ -163,6 +165,7 @@ export interface AppModelDefinition {
   peakPricing?: {
     windows: { startMinuteUtc: number; endMinuteUtc: number; daysOfWeekUtc?: number[] }[]
     multiplier: number
+    excludedDatesUtc?: string[]
   }
   /**
    * Fast-mode ("priority speed") pricing. PRESENCE marks the model as

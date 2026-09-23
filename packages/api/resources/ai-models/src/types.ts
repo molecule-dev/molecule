@@ -275,10 +275,26 @@ export interface ModelDefinition {
    * over-bill this field exists to prevent. A wrapping window belongs to the
    * day it STARTS on, so its post-midnight tail is still matched against the
    * previous day.
+   *
+   * `excludedDatesUtc` lists `YYYY-MM-DD` dates on which no window applies —
+   * a provider's public holidays. DeepSeek's peak excludes Chinese public
+   * holidays (its pricing page, 2026-09-23); without the list those days bill
+   * at 2× while the provider charges off-peak. A date is matched against the
+   * day a window STARTS on (UTC), like `daysOfWeekUtc`. The list is DATA that
+   * runs out: check-model-freshness warns when the coming year has no dates.
+   *
+   * `rule` is the provider's own sentence defining these windows, verbatim,
+   * and the page that publishes it. check-model-freshness re-reads the page on
+   * every run and warns the moment the sentence changes — the windows are only
+   * as right as the last reading, and DeepSeek has amended its rule twice
+   * (a weekday qualifier by 2026-08-31, a holiday exclusion by 2026-09-23)
+   * without anything here noticing.
    */
   peakPricing?: {
     windows: { startMinuteUtc: number; endMinuteUtc: number; daysOfWeekUtc?: number[] }[]
     multiplier: number
+    excludedDatesUtc?: string[]
+    rule?: { url: string; text: string }
   }
   /**
    * A price change the provider has ANNOUNCED with a dated effective instant,
@@ -327,6 +343,8 @@ export interface ModelDefinition {
     peakPricing?: {
       windows: { startMinuteUtc: number; endMinuteUtc: number; daysOfWeekUtc?: number[] }[]
       multiplier: number
+      excludedDatesUtc?: string[]
+      rule?: { url: string; text: string }
     }
     /** Where the change was announced, for the re-verify pass after it lands. */
     source?: string

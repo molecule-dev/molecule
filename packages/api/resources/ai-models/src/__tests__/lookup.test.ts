@@ -850,6 +850,40 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
     expect(priceMultiplierAt(wrap, new Date('2026-08-21T00:30:00Z'))).toBe(1) // Fri tail
   })
 
+  it('Chinese public holidays bill off-peak on every DeepSeek model with peak pricing', () => {
+    // 2026-09-25 (Fri) is 中秋节 and 2026-10-01 (Thu) 国庆节 — weekday peak hours
+    // DeepSeek bills off-peak. The day before each is an ordinary peak weekday.
+    const peakModels = MODELS.filter((m) => m.peakPricing)
+    expect(peakModels.map((m) => m.id).sort()).toEqual([
+      'deepseek-flash',
+      'deepseek-v4-flash',
+      'deepseek-v4-pro',
+    ])
+    for (const model of peakModels) {
+      expect(priceMultiplierAt(model, new Date('2026-09-24T02:00:00Z'), 'cn'), model.id).toBe(2)
+      expect(priceMultiplierAt(model, new Date('2026-09-25T02:00:00Z'), 'cn'), model.id).toBe(1)
+      expect(priceMultiplierAt(model, new Date('2026-09-25T07:00:00Z'), 'cn'), model.id).toBe(1)
+      expect(priceMultiplierAt(model, new Date('2026-10-01T02:00:00Z'), 'cn'), model.id).toBe(1)
+      expect(priceMultiplierAt(model, new Date('2026-10-08T02:00:00Z'), 'cn'), model.id).toBe(2)
+    }
+  })
+
+  it('an excluded date is matched against the day a wrapping window STARTED', () => {
+    const model = {
+      id: 'x',
+      provider: 'p',
+      peakPricing: {
+        windows: [{ startMinuteUtc: 23 * 60, endMinuteUtc: 2 * 60 }],
+        multiplier: 3,
+        excludedDatesUtc: ['2026-01-10'],
+      },
+    } as unknown as Parameters<typeof priceMultiplierAt>[0]
+    // the 01:00 tail on the 11th belongs to the window that started on the (excluded) 10th
+    expect(priceMultiplierAt(model, new Date('2026-01-11T01:00:00Z'))).toBe(1)
+    // the window starting on the 11th is not excluded
+    expect(priceMultiplierAt(model, new Date('2026-01-11T23:30:00Z'))).toBe(3)
+  })
+
   it('the DeepSeek catalog entries carry the rate card’s live peak windows', () => {
     // Live on the provider's own card since 2026-08-16T16:00Z and re-read there
     // 2026-08-31: "Peak hours are 01:00 - 04:00 and 06:00 - 10:00 UTC, Monday
@@ -867,6 +901,13 @@ describe('priceMultiplierAt (peak-hour pricing)', () => {
           { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: [1, 2, 3, 4, 5] },
         ],
         multiplier: 2,
+        // "…excluding Chinese public holidays" (card re-read 2026-09-23)
+        excludedDatesUtc: expect.arrayContaining(['2026-09-25', '2026-10-01', '2026-10-07']),
+        // the provider's sentence, re-read by check-model-freshness every run
+        rule: {
+          url: 'https://api-docs.deepseek.com/quick_start/pricing',
+          text: expect.stringContaining('excluding Chinese public holidays'),
+        },
       })
       // The surcharge is the NATIVE host's — the US re-host card is flat.
       expect(priceMultiplierAt(model, new Date('2026-08-17T02:00:00Z'), 'cn'), id).toBe(2)

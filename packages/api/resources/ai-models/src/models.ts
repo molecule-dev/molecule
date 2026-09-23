@@ -17,6 +17,54 @@ import type { ModelDefinition } from './types.js'
 const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
 
 /**
+ * DeepSeek's own sentence defining its peak windows, verbatim (pricing page,
+ * re-read 2026-09-23). check-model-freshness warns when the page stops saying
+ * exactly this — then the windows and CHINA_PUBLIC_HOLIDAYS need re-reading.
+ */
+const DEEPSEEK_PEAK_RULE = {
+  url: 'https://api-docs.deepseek.com/quick_start/pricing',
+  text: 'Peak hours are 01:00 - 04:00 and 06:00 - 10:00 UTC, Monday through Friday, excluding Chinese public holidays.',
+}
+
+/**
+ * Every date from `from` to `to` inclusive, as YYYY-MM-DD.
+ *
+ * @param from - First date (YYYY-MM-DD).
+ * @param to - Last date (YYYY-MM-DD).
+ * @returns The dates.
+ */
+function dateRange(from: string, to: string): string[] {
+  const out: string[] = []
+  for (let t = Date.parse(`${from}T00:00:00Z`); t <= Date.parse(`${to}T00:00:00Z`); t += 86_400_000)
+    out.push(new Date(t).toISOString().slice(0, 10))
+  return out
+}
+
+/**
+ * Chinese public holidays (the 放假 ranges), for `peakPricing.excludedDatesUtc`
+ * on the DeepSeek models: their peak is "01:00 - 04:00 and 06:00 - 10:00 UTC,
+ * Monday through Friday, excluding Chinese public holidays" (pricing page,
+ * 2026-09-23). Those windows are 09:00–12:00 and 14:00–18:00 Beijing time, so
+ * the Beijing holiday date IS the UTC date of every window.
+ *
+ * Source — the State Council's notice for 2026 (国办发明电〔2025〕7号), read
+ * 2026-09-23 at https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html.
+ * Make-up working days (调休 weekends) need no entry: the peak is Mon–Fri only.
+ *
+ * ADD NEXT YEAR'S DATES when the State Council publishes them (each November);
+ * check-model-freshness warns 45 days before a year with no dates here.
+ */
+const CHINA_PUBLIC_HOLIDAYS = [
+  ...dateRange('2026-01-01', '2026-01-03'), // 元旦
+  ...dateRange('2026-02-15', '2026-02-23'), // 春节
+  ...dateRange('2026-04-04', '2026-04-06'), // 清明节
+  ...dateRange('2026-05-01', '2026-05-05'), // 劳动节
+  ...dateRange('2026-06-19', '2026-06-21'), // 端午节
+  ...dateRange('2026-09-25', '2026-09-27'), // 中秋节
+  ...dateRange('2026-10-01', '2026-10-07'), // 国庆节
+]
+
+/**
  * All available AI models, grouped by provider, ordered from most to least capable.
  *
  * To add or remove a model, edit this array. Both the server-side validation
@@ -168,6 +216,9 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   not modeled; reasoning_effort low|medium|high default high, image input;
  *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
  *   grok-code-fast-1 no longer listed — retires 2026-08-15)
+ * - Chinese public holidays (DeepSeek's peak excludes them):
+ *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html
+ *   (the State Council's 2026 notice; see CHINA_PUBLIC_HOLIDAYS)
  * - DeepSeek: https://api-docs.deepseek.com/quick_start/pricing +
  *   /updates/ (verified 2026-09-23 — the announced 2026-09-14 routing of
  *   `deepseek-v4-pro` to V4.1 Flash was WITHDRAWN: V4 Pro keeps its card
@@ -1518,6 +1569,8 @@ export const MODELS: readonly ModelDefinition[] = [
         { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: WEEKDAYS_UTC },
       ],
       multiplier: 2,
+      excludedDatesUtc: CHINA_PUBLIC_HOLIDAYS,
+      rule: DEEPSEEK_PEAK_RULE,
     },
     // The 2026-09-10 announcement that this id would route to V4.1 Flash at
     // Flash prices from 2026-09-14 was WITHDRAWN: the updates page now reads
@@ -1617,6 +1670,8 @@ export const MODELS: readonly ModelDefinition[] = [
         { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: WEEKDAYS_UTC },
       ],
       multiplier: 2,
+      excludedDatesUtc: CHINA_PUBLIC_HOLIDAYS,
+      rule: DEEPSEEK_PEAK_RULE,
     },
     // Not published by DeepSeek — best-effort estimate.
     knowledgeCutoff: '2025-07-01',
@@ -1681,6 +1736,8 @@ export const MODELS: readonly ModelDefinition[] = [
         { startMinuteUtc: 360, endMinuteUtc: 600, daysOfWeekUtc: WEEKDAYS_UTC },
       ],
       multiplier: 2,
+      excludedDatesUtc: CHINA_PUBLIC_HOLIDAYS,
+      rule: DEEPSEEK_PEAK_RULE,
     },
     // Not published by DeepSeek — best-effort estimate (family estimate; the
     // V4.1 announcement lists benchmarks but no training cutoff).
