@@ -10,10 +10,46 @@
 
 import { bond, get as bondGet, isBonded, unbondAll } from '@molecule/app-bond'
 
-import type { FontConfig, FontDefinition, FontRole } from './types.js'
+import type { FontConfig, FontDefinition, FontRole, SetFontOptions } from './types.js'
 import { buildFontFamily, systemMono, systemSans, systemSerif } from './utilities.js'
 
 const BOND_TYPE = 'font'
+
+/**
+ * Resolves the public base path local font files are served under, always
+ * with a leading and a trailing slash (`/`, `/blog/`).
+ *
+ * Order: the explicit `basePath` → the document's `<base href>` → Vite's
+ * `import.meta.env.BASE_URL` (the `base` option, present in Vite-built and
+ * Vite-served code) → `/`. A site served from a sub-path (`base: '/blog/'`)
+ * has its `public/fonts/` at `/blog/fonts/`, so a root-absolute `/fonts/…`
+ * 404s there and the fallback stack renders instead.
+ *
+ * @param basePath - An explicit base, e.g. `import.meta.env.BASE_URL` or `/blog`.
+ * @returns The normalized base path.
+ */
+export function resolveFontBasePath(basePath?: string): string {
+  let base = basePath?.trim()
+  if (!base && typeof document !== 'undefined') {
+    const baseHref = document.querySelector('base[href]')?.getAttribute('href')
+    if (baseHref) {
+      try {
+        base = new URL(baseHref, document.baseURI || 'http://localhost/').pathname
+      } catch (_error) {
+        // Not a URL the parser accepts: use the attribute as the path.
+        base = baseHref
+      }
+    }
+  }
+  if (!base) {
+    const env = (import.meta as unknown as { env?: { BASE_URL?: unknown } }).env
+    if (typeof env?.BASE_URL === 'string') base = env.BASE_URL
+  }
+  if (!base || base === '.' || base === './') return '/'
+  if (!base.startsWith('/')) base = `/${base}`
+  if (!base.endsWith('/')) base = `${base}/`
+  return base
+}
 
 /**
  * Registers a font definition for a specific role (`sans`, `serif`, or `mono`).
@@ -23,8 +59,11 @@ const BOND_TYPE = 'font'
  * into the document head (CDN `<link>` tags or `@font-face` declarations).
  *
  * @param font - The font definition including family, role, and source configuration.
+ * @param options - `basePath`: the public base the app is served under (pass
+ *   `import.meta.env.BASE_URL` in a Vite app); local faces load from
+ *   `<basePath>fonts/<file>`. See {@link resolveFontBasePath} for the default.
  */
-export function setFont(font: FontDefinition): void {
+export function setFont(font: FontDefinition, options: SetFontOptions = {}): void {
   bond(BOND_TYPE, font.role, font)
 
   if (typeof document !== 'undefined') {
@@ -58,13 +97,14 @@ export function setFont(font: FontDefinition): void {
       const existing = document.getElementById(styleId)
       if (existing) existing.remove()
 
+      const base = resolveFontBasePath(options.basePath)
       const css = font.source.faces
         .map((face) => {
           const weight = face.weight
           const style = face.style ?? 'normal'
           return `@font-face {
   font-family: '${font.family}';
-  src: url('/fonts/${face.file}');
+  src: url('${base}fonts/${face.file}');
   font-weight: ${weight};
   font-style: ${style};
   font-display: swap;

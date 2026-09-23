@@ -8,6 +8,7 @@ import {
   hasFont,
   hasFontConfig,
   resetFonts,
+  resolveFontBasePath,
   setFont,
   systemMono,
   systemSans,
@@ -76,6 +77,22 @@ const iconFont: FontDefinition = {
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
+
+describe('resolveFontBasePath', () => {
+  it('normalizes explicit bases to leading + trailing slash', () => {
+    expect(resolveFontBasePath('/blog/')).toBe('/blog/')
+    expect(resolveFontBasePath('/blog')).toBe('/blog/')
+    expect(resolveFontBasePath('blog')).toBe('/blog/')
+    expect(resolveFontBasePath('/')).toBe('/')
+  })
+
+  it('treats empty, "." and "./" as the root', () => {
+    expect(resolveFontBasePath('')).toBe('/')
+    expect(resolveFontBasePath('.')).toBe('/')
+    expect(resolveFontBasePath('./')).toBe('/')
+    expect(resolveFontBasePath(undefined)).toBe('/')
+  })
+})
 
 describe('@molecule/app-fonts', () => {
   beforeEach(() => {
@@ -290,6 +307,44 @@ describe('@molecule/app-fonts', () => {
       expect(styleEl.textContent).toContain("font-family: 'Arimo'")
       expect(styleEl.textContent).toContain('Arimo-Regular.ttf')
       expect(styleEl.textContent).toContain('Arimo-Bold.ttf')
+    })
+
+    it('loads local faces from the root when no base path applies', () => {
+      setFont(localFont)
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.textContent).toContain("src: url('/fonts/Arimo-Regular.ttf')")
+    })
+
+    it('prefixes local faces with an explicit basePath (a site under a sub-path)', () => {
+      setFont(localFont, { basePath: '/blog/' })
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Regular.ttf')")
+      expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Bold.ttf')")
+      expect(styleEl.textContent).not.toContain("url('/fonts/")
+    })
+
+    it('normalizes a basePath without slashes', () => {
+      setFont(localFont, { basePath: 'blog' })
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Regular.ttf')")
+    })
+
+    it('reads the base from the document <base href> when no basePath is given', () => {
+      mockQuerySelector.mockImplementation((selector: string) =>
+        selector === 'base[href]' ? { getAttribute: () => '/docs/' } : null,
+      )
+      setFont(localFont)
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.textContent).toContain("src: url('/docs/fonts/Arimo-Regular.ttf')")
+    })
+
+    it('lets an explicit basePath win over the document <base href>', () => {
+      mockQuerySelector.mockImplementation((selector: string) =>
+        selector === 'base[href]' ? { getAttribute: () => '/docs/' } : null,
+      )
+      setFont(localFont, { basePath: '/blog' })
+      const styleEl = mockAppendChild.mock.calls[0][0]
+      expect(styleEl.textContent).toContain("src: url('/blog/fonts/Arimo-Regular.ttf')")
     })
 
     it('should inject @font-face plus the utility class for icon fonts', () => {

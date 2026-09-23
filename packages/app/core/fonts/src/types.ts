@@ -59,6 +59,17 @@ export interface FontDefinition {
   utilityCss?: string
 }
 
+/** Options for `setFont()`. */
+export interface SetFontOptions {
+  /**
+   * The public base path the app is served under — Vite's `base`
+   * (`import.meta.env.BASE_URL`), `/blog/` for a site under a sub-path.
+   * Local faces are loaded from `<basePath>fonts/<file>`. When omitted the
+   * document's `<base href>`, then `import.meta.env.BASE_URL`, then `/` apply.
+   */
+  basePath?: string
+}
+
 /** Resolved font configuration for all three roles. */
 export interface FontConfig {
   sans: FontDefinition

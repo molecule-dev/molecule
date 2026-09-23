@@ -31,9 +31,17 @@
  * - **Consume fonts through the CSS variable (`var(--mol-font-sans)` etc.), never a
  *   hardcoded `font-family`** — the variable is the swap point; hardcoding defeats
  *   the bond. The app's theme/ClassMap layer normally references it already.
- * - **Local-source fonts load from `/fonts/<file>`.** Each `faces[].file` must be
- *   served at that public path or every face silently 404s and the fallback stack
- *   renders instead. CDN sources inject `<link>` tags (with preconnect origins).
+ * - **Local-source fonts load from `<basePath>fonts/<file>`.** Each `faces[].file`
+ *   must be served at that public path (copy the bond's `fonts/` into the app's
+ *   `public/fonts/`) or every face silently 404s and the fallback stack renders
+ *   instead. CDN sources inject `<link>` tags (with preconnect origins).
+ * - **A site served under a sub-path (Vite `base: '/blog/'`, `BASE_PATH`) MUST pass
+ *   the base: `setFont(font, { basePath: import.meta.env.BASE_URL })`.** Its
+ *   `public/fonts/` is at `/blog/fonts/`, so a root-absolute `/fonts/…` 404s on
+ *   every page — and an e2e console guard fails every test on that 404. Without
+ *   the option `setFont()` falls back to the document's `<base href>`, then
+ *   `import.meta.env.BASE_URL` where the bundler defines it, then `/`; passing
+ *   it is what makes the path certain in both dev and the built site.
  * - Call `setFont()` at startup, before first paint, to avoid a font flash; calling
  *   again for the same role replaces the font (idempotent per role).
  * - `getFontConfig()` always returns a complete config — roles never explicitly set
