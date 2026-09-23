@@ -24,6 +24,10 @@
  * `PLAYWRIGHT_BROWSERS_PATH`) and `preview` when none is; and `playwright`
  * everywhere else.
  *
+ * It also holds `e2eRunnerDefaults()`, the runner settings (workers,
+ * parallelism, retries, failure cap, per-test timeout) every scaffolded
+ * `playwright.config.ts` spreads first, so one change here reaches every app.
+ *
  * @example
  * ```ts
  * // e2e/bonds.ts — scaffolded into every app; wires the provider for THIS environment
@@ -32,6 +36,12 @@
  * import { provider as preview } from '@molecule/app-e2e-preview'
  *
  * setProvider(resolveE2EProviderName() === 'preview' ? preview : playwright)
+ *
+ * // playwright.config.ts — the shared runner settings first, so the app can override any of them
+ * import { defineConfig } from '@playwright/test'
+ * import { e2eRunnerDefaults } from '@molecule/app-e2e'
+ *
+ * export default defineConfig({ ...e2eRunnerDefaults(), testDir: './e2e' })
  *
  * // a script that measures the live page without a test runner
  * import { requireProvider } from '@molecule/app-e2e'
@@ -55,6 +65,25 @@
  *   (`evaluate`, `navigate`, `viewport`, events) and gets the whole
  *   Playwright-shaped page from `createEvaluatePage()` in
  *   `@molecule/app-e2e-fixtures-default`.
+ * - `e2eRunnerDefaults()` decides five runner fields; spread it FIRST in
+ *   `defineConfig({ ...e2eRunnerDefaults(), … })` so an app's own value wins.
+ *   Do not re-add `workers`/`fullyParallel`/`retries`/`maxFailures` per app —
+ *   that is how 150 template configs stopped receiving the shared settings.
+ *   - `workers: '50%'`, `fullyParallel: true` on a real browser (each worker
+ *     has its own browser against the same dev server; on an 8-vCPU sandbox 12
+ *     passing tests went 7.6 s on 1 worker → 1.6 s on 4). Over the preview there
+ *     is one page, so 1 worker, not fully parallel.
+ *   - `retries: 0` in a sandbox — the run is the executor's feedback loop and a
+ *     retry only replays the same failure and multiplies the run time. 2 under
+ *     CI, 1 on your machine.
+ *   - `maxFailures: 8` in a sandbox — a run failing everywhere (usually specs
+ *     aimed at the wrong server or base path) stops early and still reports the
+ *     failures it hit: 24 failing tests took 73.8 s uncapped → 23.7 s capped, and
+ *     one uncapped run with 21 failures took 534 s. No cap elsewhere.
+ *   - `timeout: 30_000` per test in a sandbox (video and traces are off there,
+ *     so a healthy test is well under it), `60_000` elsewhere. A test that
+ *     genuinely runs long says so itself (`test.slow()` / `test.setTimeout()`);
+ *     an app-wide `timeout` after the spread also overrides the sandbox value.
  * - `@playwright/test` is a peer dependency for its types only; it never
  *   downloads browsers on install.
  *
@@ -63,4 +92,5 @@
 
 export * from './errors.js'
 export * from './provider.js'
+export * from './runner.js'
 export * from './types.js'
