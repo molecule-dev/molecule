@@ -81,7 +81,7 @@ describe('createProvider / constructor', () => {
     }
   })
 
-  it('defaults model to gpt-5.6-luna and maxTokens to 4096', () => {
+  it('defaults model to gpt-6-luna and maxTokens to 4096', () => {
     // Indirectly verified through the request body in the test below.
     const provider = createProvider({ apiKey: 'k' })
     expect(provider).toBeInstanceOf(OpenaiAIProvider)

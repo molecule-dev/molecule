@@ -116,6 +116,14 @@ const WEEKDAYS_UTC = [1, 2, 3, 4, 5]
  *   in the catalog because it cannot serve a tool-carrying request on the
  *   bond's /v1/chat/completions endpoint; see the DO NOT ADD block above the
  *   OpenAI entries for the live 400s and the condition that lifts it.)
+ *   (re-verified 2026-09-23: ADDED gpt-6-sol ($2/$10, cached $0.20, cache
+ *   writes $2.50) and gpt-6-luna ($0.10/$0.50, cached $0.01, cache writes
+ *   $0.125), released 2026-09-22 — both with the same unmodeled >272K band,
+ *   1.05M ctx / 128K out, image input, knowledge cutoff Apr 20 / May 18 2026
+ *   per their model pages. Unlike astra they serve tool-carrying requests on
+ *   /v1/chat/completions with reasoning_effort 'none'. The 5.6 family is now
+ *   superseded; every 5.6 price on the page is unchanged and the -sol promo
+ *   footnote still reads "at least through November 21, 2026".)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -617,7 +625,74 @@ export const MODELS: readonly ModelDefinition[] = [
   // Note also that the docs page advertises effort 'max', which
   // /v1/chat/completions rejects for this model — verify the ladder against the
   // endpoint, not the docs, when this is revisited.
+  //
+  // gpt-6-sol and gpt-6-luna (released 2026-09-22) are NOT astra's case: both
+  // still accept reasoning_effort 'none', and tools + 'none' returns 200 on
+  // /v1/chat/completions (probed live 2026-09-23 on our own key), so the same
+  // `toolsRequireReasoningOff` pin that serves the 5.6 family serves them. On
+  // that endpoint both accept none|low|medium|high|xhigh and reject 'max' —
+  // again despite the docs pages listing it. GPT-6 has no Terra tier: sol at
+  // $2/$10 is priced at 5.6-terra's tier and undercuts 5.6-sol, so it supersedes
+  // both; luna supersedes 5.6-luna at half the price.
   // ---------------------------------------------------------------------------
+  {
+    id: 'gpt-6-sol',
+    provider: 'openai',
+    label: 'GPT-6 Sol',
+    description: 'OpenAI for complex coding & agentic work',
+    // Documented as 1.05M; floored to 1M like the 5.6 entries.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
+    // NO webSearchToolType: see gpt-5.6-sol — the bond calls
+    // /v1/chat/completions, which has no web_search tool type. Re-add when the
+    // bond moves to /v1/responses.
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier. A long-context band above 272K prompt tokens reprices the
+    // whole request ($4/$15, cached $0.40, cache writes $5) — not modeled, same
+    // as the other >200K tiers.
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 10,
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 2.5,
+    knowledgeCutoff: '2026-04-20',
+  },
+  {
+    id: 'gpt-6-luna',
+    provider: 'openai',
+    label: 'GPT-6 Luna',
+    description: 'Fast & cheap OpenAI — light tasks & subagents',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 8_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'medium',
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    toolsRequireReasoningOff: true,
+    // NO webSearchToolType: see gpt-5.6-sol.
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier; >272K band ($0.20/$0.75, cached $0.02, writes $0.25) not
+    // modeled.
+    inputPricePerMTok: 0.1,
+    outputPricePerMTok: 0.5,
+    cacheReadPricePerMTok: 0.01,
+    cacheWritePricePerMTok: 0.125,
+    knowledgeCutoff: '2026-05-18',
+  },
   {
     id: 'gpt-5.6-sol',
     provider: 'openai',
@@ -656,6 +731,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 6.25,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
+    // Superseded by gpt-6-sol ($2/$10 vs $5/$30 list). Still served and
+    // priceable — just not offered in the picker.
+    deprecatedAt: '2026-09-23',
+    supersededBy: 'gpt-6-sol',
   },
   {
     id: 'gpt-5.6-terra',
@@ -688,6 +767,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 2.5,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
+    // Superseded by gpt-6-sol: GPT-6 has no Terra tier, and sol sits at this
+    // tier's price ($2/$10 vs $2/$12).
+    deprecatedAt: '2026-09-23',
+    supersededBy: 'gpt-6-sol',
   },
   {
     id: 'gpt-5.6-luna',
@@ -725,6 +808,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // note for the same removal pattern).
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
+    // Superseded by gpt-6-luna ($0.10/$0.50 — half the price).
+    deprecatedAt: '2026-09-23',
+    supersededBy: 'gpt-6-luna',
   },
   {
     id: 'gpt-5.5',
@@ -757,10 +843,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.5,
     cacheWritePricePerMTok: 5,
     knowledgeCutoff: '2025-12-01',
-    // Superseded by gpt-5.6-sol (same frontier tier, same $5/$30); still listed
-    // as current by OpenAI, so it stays priceable — it is just not offered.
+    // Superseded by gpt-5.6-sol (same frontier tier, same $5/$30), and since
+    // 2026-09-23 points one hop to gpt-6-sol, 5.6-sol's own successor. Still
+    // listed as current by OpenAI, so it stays priceable — just not offered.
     deprecatedAt: '2026-07-09',
-    supersededBy: 'gpt-5.6-sol',
+    supersededBy: 'gpt-6-sol',
   },
   {
     id: 'gpt-5.4',
@@ -794,9 +881,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // OpenAI still lists gpt-5.4 as current, but gpt-5.6-terra covers this
     // balanced tier for LESS ($2/$12 vs $2.50/$15) — superseded, so the picker
     // offers only the 5.6 generation (this is OUR taxonomy, not OpenAI's
-    // deprecations page; the model stays priceable).
+    // deprecations page; the model stays priceable). Points one hop to
+    // gpt-6-sol since 2026-09-23, when 5.6-terra was itself superseded.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'gpt-5.6-terra',
+    supersededBy: 'gpt-6-sol',
   },
   {
     id: 'gpt-5.4-mini',
@@ -830,9 +918,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // Superseded by gpt-5.6-luna, which IS the newer cheap/fast tier and is
     // strictly better on every axis that made this the budget pick: $0.20/$1.20
     // vs $0.75/$4.50 after the 2026-07-30 repricing, and a 1M window vs 400K.
-    // Hiding it therefore costs OpenAI no cheap option. Stays priceable.
+    // Hiding it therefore costs OpenAI no cheap option. Stays priceable. Points
+    // one hop to gpt-6-luna since 2026-09-23, when 5.6-luna was superseded.
     deprecatedAt: '2026-08-01',
-    supersededBy: 'gpt-5.6-luna',
+    supersededBy: 'gpt-6-luna',
   },
 
   // ---------------------------------------------------------------------------
