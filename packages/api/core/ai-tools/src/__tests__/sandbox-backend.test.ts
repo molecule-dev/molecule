@@ -56,7 +56,36 @@ describe('createSandboxBackend.run — cwd shell-injection [C3-1]', () => {
     // sees the unexported variables.
     const sourced = '{ [ -f /etc/mol/env ] && . /etc/mol/env; true; }; npm run test:e2e'
     const result = await backend.run(sourced, { cwd: '/workspace/app', budgetMs: 290_000 })
-    expect(calls[0]).toBe(`timeout -k 5 290 bash -c 'cd '\\''/workspace/app'\\'' && ${sourced}'`)
+    expect(calls[0]).toContain(
+      `timeout -k 5 290 bash -c 'cd '\\''/workspace/app'\\'' && ${sourced}' > "$o" 2> "$e" < /dev/null`,
+    )
     expect(result).toEqual({ stdout: 'partial output', stderr: '', exitCode: 124 })
+  })
+
+  it('returns when the command does, even if it left a background subshell holding its stdout', async () => {
+    const { execSync } = await import('node:child_process')
+    const calls: string[] = []
+    const sandbox = makeSandbox(calls) as { exec: ReturnType<typeof vi.fn> }
+    sandbox.exec.mockImplementationOnce(async (cmd: string) => {
+      // A real shell, the way the sandbox runs it: the `&` backgrounds the whole
+      // `cd && sleep` list, so without the file capture this blocks for 20 s.
+      const t = Date.now()
+      let stdout: string
+      let exitCode = 0
+      try {
+        stdout = execSync(cmd, { shell: '/bin/sh', encoding: 'utf8', timeout: 15_000 })
+      } catch (e) {
+        exitCode = (e as { status?: number }).status ?? 1
+        stdout = String((e as { stdout?: string }).stdout ?? '')
+      }
+      return { stdout: `${stdout}ms=${Date.now() - t}`, stderr: '', exitCode }
+    })
+    const backend = createSandboxBackend(sandbox as never)
+    const result = await backend.run('cd /tmp && sleep 20 > /dev/null & echo started; exit 3', {
+      budgetMs: 60_000,
+    })
+    expect(result.stdout).toContain('started')
+    expect(result.exitCode).toBe(3)
+    expect(Number(/ms=(\d+)/.exec(result.stdout)?.[1])).toBeLessThan(5_000)
   })
 })

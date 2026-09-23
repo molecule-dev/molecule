@@ -64,9 +64,17 @@ export function createSandboxBackend(
       // printed still comes back, with exit code 124. Wrapping only the inner
       // command would run it in a child shell that never sees unexported variables
       // the consumer's sourcing set.
+      // Its output goes to files that are printed once the shell exits, never to
+      // the exec's own pipe: `cd app && server > log &` backgrounds a SUBSHELL whose
+      // stdout is still that pipe (the redirect covers the server only), and the
+      // exec waits for every holder of the pipe — past the budget, which kills the
+      // shell but not the detached subshell, until the caller's outer timeout
+      // throws the output away. Measured: three 300 s calls in two runs (X0 x31,
+      // x33). A background child now holds a file, and the call returns when the
+      // command does.
       const budgetSeconds = opts?.budgetMs ? Math.max(1, Math.round(opts.budgetMs / 1000)) : 0
       const fullCommand = budgetSeconds
-        ? `timeout -k 5 ${budgetSeconds} bash -c ${shellQuote(anchored)}`
+        ? `o=$(mktemp); e=$(mktemp); timeout -k 5 ${budgetSeconds} bash -c ${shellQuote(anchored)} > "$o" 2> "$e" < /dev/null; c=$?; cat "$o"; cat "$e" >&2; rm -f "$o" "$e"; exit $c`
         : anchored
       // sandbox.exec is the Sandbox interface method — runs inside Docker, inherently sandboxed
       const result = await sandbox.exec(fullCommand, { timeout: opts?.timeout })
