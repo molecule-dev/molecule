@@ -10,23 +10,47 @@
  *
  * @example
  * ```ts
- * import { createFeatureFlagRouter } from '@molecule/api-resource-feature-flag'
- * app.use('/flags', createFeatureFlagRouter())
- * ```
+ * import express from 'express'
  *
- * @example
- * ```ts
- * import { listFlagsForUser, createFlagForUser } from '@molecule/api-resource-feature-flag'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createFeatureFlagRouter,
+ *   createFlagForUser,
+ *   updateFlagForUser,
+ * } from '@molecule/api-resource-feature-flag'
  *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL), then mount the
+ * // router AFTER the global auth middleware that sets res.locals.session (else every call 401s).
+ * setStore(store)
+ * const app = express()
+ * app.use(express.json())
+ * app.use('/flags', createFeatureFlagRouter()) // GET/POST /flags, GET/PUT/DELETE /flags/:id, /:id/rules
+ *
+ * // Server-side equivalent of POST /flags then PUT /flags/:id, as the SESSION user:
+ * const userId = 'user-123'
  * const flag = await createFlagForUser(userId, {
  *   key: 'new-checkout-flow',
  *   name: 'New checkout flow',
  *   flag_type: 'boolean',
- *   rollout_percentage: 5,
+ *   rollout_percentage: 5, // integer percent 0–100
  * })
+ * // A new flag is created OFF (`is_enabled: false`, `state: 'off'`) — turn it on explicitly.
+ * const live = await updateFlagForUser(flag.id, userId, { is_enabled: true, state: 'on' })
+ * console.log(live?.state) // 'on'
  * ```
  *
  * @remarks
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ * New flags are created DISABLED (`is_enabled: false`, `state: 'off'`, and
+ * `rollout_percentage: 0` unless given) — enable them with `updateFlagForUser` /
+ * `PUT /flags/:id`. `GET /flags` paginates by `page` (1-based) + `limit`, not
+ * `offset`, and returns `{ data, total, page, limit }`.
+ *
+ * To EVALUATE flags at runtime (percentage rollout, targeting) use the separate
+ * core `@molecule/api-feature-flags` with a provider bond — this resource is a
+ * per-user flag CRUD store only.
+ *
  * Tables: `src/__setup__/feature_flags.sql` creates `feature_flags` +
  * `feature_flag_targeting_rules`. An mlcl-scaffolded API replays
  * `__setup__/*.sql` automatically on migrate; anywhere else run it once —

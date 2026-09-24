@@ -9,15 +9,34 @@
  *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-ai-conversation'
+ * import express from 'express'
  *
- * // Wired by mlcl inject:
- * // POST   /projects/:projectId/chat   — send a message, reply streams via SSE
- * // GET    /projects/:projectId/chat   — conversation history
- * // DELETE /projects/:projectId/chat   — clear the conversation
+ * import { setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-anthropic'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Conversation } from '@molecule/api-resource-ai-conversation'
+ *
+ * // Startup: bond BOTH prerequisites — the DataStore (reads DATABASE_URL) and an AI provider.
+ * setStore(store)
+ * setProvider('anthropic', createProvider({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ *
+ * // This is what `mlcl inject` generates in src/App/router.ts from `routes`: every route keeps
+ * // the `authUser` gate (session user must own :projectId), mounted after the global auth
+ * // middleware that sets res.locals.session.
+ * export const router = express.Router()
+ * router.post('/projects/:projectId/chat', Conversation.authUser, Conversation.chat)
+ * router.get('/projects/:projectId/chat', Conversation.authUser, Conversation.history)
+ * router.delete('/projects/:projectId/chat', Conversation.authUser, Conversation.clear)
+ *
+ * // Client: POST /projects/proj-1/chat { message: 'Add a dark mode toggle' } streams SSE:
+ * // data: {"type":"conversation","id":"…"} · data: {"type":"text","content":"…"} · data: {"type":"done"}
+ * // GET /projects/proj-1/chat → { messages: [{ role: 'user', … }, { role: 'assistant', … }] }
  * ```
  *
  * @remarks
+ * - **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`) —
+ *   every handler reads/writes through it and fails without one.
  * - **Two prerequisites this package does not create.** (1) An AI provider must
  *   be bonded before the first chat request (wire an `@molecule/api-ai-*` bond,
  *   e.g. `bond('ai', 'anthropic', provider)`, in `bonds.ts`) — the handler uses

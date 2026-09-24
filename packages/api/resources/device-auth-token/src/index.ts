@@ -11,20 +11,34 @@
  *
  * @example
  * ```typescript
- * import { issueToken, verifyToken, recordTokenUse } from '@molecule/api-resource-device-auth-token'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { issueToken, recordTokenUse, verifyToken } from '@molecule/api-resource-device-auth-token'
  *
- * // Issue a new token. The plaintext is returned exactly ONCE.
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // Provision a device the caller OWNS. The plaintext is returned exactly ONCE — hand it to the
+ * // device now; store/display only `token.masked`.
  * const { token, plaintext } = await issueToken({
- *   device_id: device.id,
+ *   device_id: 'device-42',
  *   scopes: ['telemetry:write'],
+ *   expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // a Date, not a duration
  * })
+ * console.log(token.masked) // e.g. 'dvt_…AbCd'
  *
- * // Later — incoming request bearing the plaintext token:
- * const verified = await verifyToken(plaintext)
- * if (verified) await recordTokenUse(verified.id, request.ip)
+ * // Later, in your device-auth middleware — the request's `Authorization: Bearer <token>`:
+ * const verified = await verifyToken(plaintext) // null when unknown, revoked or expired
+ * if (!verified || !verified.scopes.includes('telemetry:write')) {
+ *   throw new Error('Forbidden') // scopes are NOT enforced for you
+ * }
+ * await recordTokenUse(verified.id, '203.0.113.7') // last_used_at / last_used_ip (not automatic)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
  * - **Migration required.** The `src/__setup__/device_auth_tokens.sql` migration
  *   file ships with this package and must be applied to the target database
  *   before use.

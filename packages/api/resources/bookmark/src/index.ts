@@ -7,17 +7,27 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-bookmark'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { addBookmark, getBookmarks, isBookmarked } from '@molecule/api-resource-bookmark'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /bookmarks
- * // GET    /bookmarks
- * // GET    /bookmarks/folders
- * // GET    /bookmarks/check/:resourceType/:resourceId
- * // DELETE /bookmarks/:resourceType/:resourceId
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap` (POST/GET /bookmarks, GET /bookmarks/folders,
+ * // GET /bookmarks/check/:resourceType/:resourceId, DELETE /bookmarks/:resourceType/:resourceId).
+ * setStore(store)
+ *
+ * // Server-side code: the owner is always the SESSION user (res.locals.session.userId).
+ * const userId = 'user-123'
+ * const bookmark = await addBookmark(userId, 'post', 'post-42', 'reading-list')
+ * const saved = await isBookmarked(userId, 'post', 'post-42') // true
+ * const page = await getBookmarks(userId, { folder: 'reading-list' }) // { data, total, limit, offset }
+ * console.log(bookmark.id, saved, page.data.length)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

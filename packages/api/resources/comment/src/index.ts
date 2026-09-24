@@ -5,21 +5,40 @@
  * replies, pagination, and ownership-based authorization.
  *
  * @module
+ *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-comment'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createComment,
+ *   getCommentsByResource,
+ *   getReplies,
+ * } from '@molecule/api-resource-comment'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /:resourceType/:resourceId/comments
- * // GET    /:resourceType/:resourceId/comments
- * // GET    /comments/:commentId
- * // PUT    /comments/:commentId
- * // DELETE /comments/:commentId
- * // GET    /comments/:commentId/replies
- * // GET    /:resourceType/:resourceId/comments/count — cheap badge counts
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap` (/:resourceType/:resourceId/comments, /comments/:id…).
+ * setStore(store)
+ *
+ * // Server-side: the author is the SESSION user (res.locals.session.userId), never the body.
+ * const userId = 'user-123'
+ * const top = await createComment('post', 'post-42', userId, { body: 'Great write-up!' })
+ * const reply = await createComment('post', 'post-42', userId, { body: 'Agreed', parentId: top.id })
+ *
+ * const thread = await getCommentsByResource('post', 'post-42', { limit: 20 }) // top-level only
+ * const replies = await getReplies(top.id) // { data: [reply], total, limit, offset }
+ * console.log(thread.data.length, replies.data[0]?.id === reply.id)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
+ * - **`getCommentsByResource()` returns TOP-LEVEL comments only** (`parentId` is
+ *   null) — load each thread's replies with `getReplies(commentId)`.
+ * - **The service functions do NOT validate input.** The HTTP handlers run
+ *   `createCommentSchema`/`updateCommentSchema` first; custom server code calling
+ *   `createComment()` directly must `safeParse` with the same schema.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

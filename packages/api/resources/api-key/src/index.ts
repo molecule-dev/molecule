@@ -6,21 +6,33 @@
  *
  * @example
  * ```typescript
- * import { createApiKey, verifyApiKey, recordApiKeyUse } from '@molecule/api-resource-api-key'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { createApiKey, recordApiKeyUse, verifyApiKey } from '@molecule/api-resource-api-key'
  *
- * // Issue a new key. The plaintext is returned exactly ONCE.
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // Issue a key for the SESSION user. The plaintext is returned exactly ONCE — show it now.
  * const { apiKey, plaintext } = await createApiKey({
- *   user_id: user.id,
+ *   user_id: 'user-123',
  *   name: 'CI deploy key',
  *   scopes: ['deploy:write'],
  * })
+ * console.log(apiKey.masked) // e.g. 'sk_…AbCd' — the only form you may display later
  *
- * // Later — incoming request bearing the plaintext token:
- * const verified = await verifyApiKey(plaintext)
- * if (verified) await recordApiKeyUse(verified.id)
+ * // Later, in your auth middleware — the request's `Authorization: Bearer <token>`:
+ * const verified = await verifyApiKey(plaintext) // null when unknown, revoked or expired
+ * if (!verified || !verified.scopes.includes('deploy:write')) {
+ *   throw new Error('Forbidden') // scopes are NOT enforced for you
+ * }
+ * await recordApiKeyUse(verified.id) // updates last_used_at (not automatic)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
  * - **Migration required.** The `setup/api_keys.sql` migration file ships with
  *   this package and must be applied to the target database before use.
  * - **No routes ship — you own the HTTP surface AND the ownership checks.** The

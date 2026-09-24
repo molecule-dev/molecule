@@ -5,11 +5,44 @@
  * and computed totals (subtotal, discount, tax, total).
  *
  * @module
+ *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-cart'
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Cart } from '@molecule/api-resource-cart'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // This is what `mlcl inject` generates in src/App/router.ts from `routes` — one line per
+ * // route, mounted AFTER the app's global auth middleware (it sets res.locals.session;
+ * // without it every cart route answers 401).
+ * export const router = express.Router()
+ * router.get('/cart', Cart.getCart)
+ * router.post('/cart/items', Cart.addItem)
+ * router.put('/cart/items/:itemId', Cart.updateQuantity)
+ * router.delete('/cart/items/:itemId', Cart.removeItem)
+ * router.delete('/cart', Cart.clearCart)
+ * router.post('/cart/coupon', Cart.applyCoupon)
+ * router.delete('/cart/coupon', Cart.removeCoupon)
+ * router.get('/cart/summary', Cart.getCartSummary)
+ *
+ * // Client: POST /cart/items { productId: 'sku-1', name: 'Mug', price: 1200, quantity: 2 }
+ * // → 201 with the caller's whole Cart: { id, items, subtotal: 2400, discount, tax, total }.
  * ```
+ *
  * @remarks
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`) —
+ * every handler reads/writes through it and answers 500 without one.
+ *
+ * **There is no service layer to call** — this package exports only the
+ * `requestHandlerMap` (Express-shaped `(req, res)` handlers) plus pure
+ * `utilities`; do not invent `addToCart()`-style functions. `tax` is always `0`
+ * (the rate is a hard-coded constant) — compute real tax at checkout.
+ *
  * **SECURITY — cart item prices are CLIENT-SUPPLIED and unverified.** This
  * resource is GENERIC (no product/catalog table), so `addItem()` stores the
  * `price` from the request body verbatim; the computed `subtotal`/`discount`/

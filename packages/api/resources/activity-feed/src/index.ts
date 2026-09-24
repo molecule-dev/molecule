@@ -5,19 +5,36 @@
  * unseen-count tracking. Activities can reference any resource type.
  *
  * @module
+ *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-activity-feed'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { getTimeline, logActivity } from '@molecule/api-resource-activity-feed'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST /activities           — log an activity
- * // GET  /activities/feed      — paginated user feed
- * // GET  /activities/unseen    — unseen count
- * // POST /activities/seen      — mark seen up to ID
- * // GET  /activities/:resourceType/:resourceId — resource timeline
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap` (POST /activities, GET /activities/feed,
+ * // GET /activities/unseen, POST /activities/seen, GET /activities/:resourceType/:resourceId).
+ * setStore(store)
+ *
+ * // In your own server-side handler, after the domain write succeeds. The actor is the
+ * // SESSION user (res.locals.session.userId) — never a userId from the request body.
+ * const actorId = 'user-123'
+ * const activity = await logActivity(actorId, {
+ *   action: 'commented',
+ *   resourceType: 'post',
+ *   resourceId: 'post-42',
+ *   metadata: { excerpt: 'Great write-up!' },
+ * })
+ *
+ * const timeline = await getTimeline('post', 'post-42', { limit: 20 }) // { data, total, limit, offset }
+ * console.log(activity.id, timeline.data.length)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

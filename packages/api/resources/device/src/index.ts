@@ -8,19 +8,34 @@
  *
  * @example
  * ```typescript
- * import { createRequestHandler } from '@molecule/api-resource'
- * import {
- *   createRequestHandlerMap,
- *   resource,
- *   routes,
- * } from '@molecule/api-resource-device'
+ * import express from 'express'
  *
- * // Unlike newer resources, the handler map is a FACTORY — build it with the
- * // createRequestHandler from @molecule/api-resource (mlcl inject does this):
- * const requestHandlerMap = createRequestHandlerMap(createRequestHandler)
+ * import { mountDefaultDeviceRoutes } from '@molecule/api-bonds-default-express'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { createRequestHandler } from '@molecule/api-resource'
+ * import { createRequestHandlerMap, deviceService } from '@molecule/api-resource-device'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // The handler map is a FACTORY. Mount it after the global auth middleware that sets
+ * // res.locals.session (mlcl inject generates exactly this in src/App/router.ts).
+ * const Device = createRequestHandlerMap(createRequestHandler)
+ * export const router = express.Router()
+ * mountDefaultDeviceRoutes(router, Device) // GET/PATCH/DELETE /devices/:id, GET /devices, push key
+ *
+ * // The login/signup flow registers the caller's device (idempotent per user + name).
+ * const deviceId = await deviceService.createOrUpdate('user-123', 'Chrome on macOS')
+ * // Client (as user-123): GET /devices/<deviceId> → 200 { props: { id, userId, name, … } }
+ * console.log(deviceId)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ *   `deviceService` swallows-and-logs DB failures: `createOrUpdate()` then
+ *   returns `null` (not an id) and `delete*`/`updateLastSeen` silently no-op —
+ *   check for `null` instead of assuming an id. Only `exists()` re-throws.
  * - **Table setup:** `setup/devices.sql` ships with this package (the standard
  *   scaffold applies it as a base migration; `resource.tableName` is `devices`).
  *   When adding to an existing app, apply it before use.

@@ -5,20 +5,44 @@
  * (confirm, cancel, complete), rescheduling, and resource-scoped queries.
  *
  * @module
+ *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-booking'
+ * import express from 'express'
  *
- * // Wired by mlcl inject (all routes require authenticate):
- * // GET    /bookings/availability/:resourceType/:resourceId?date=YYYY-MM-DD[&duration=60]
- * // POST   /bookings                       — create (starts 'pending', 409 on overlap)
- * // GET    /bookings                       — the caller's bookings
- * // GET    /bookings/:id
- * // POST   /bookings/:id/cancel | /confirm | /complete
- * // PUT    /bookings/:id/reschedule
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Booking } from '@molecule/api-resource-booking'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // This is what `mlcl inject` generates in src/App/router.ts from `routes` — one line per
+ * // route, mounted AFTER the app's global auth middleware (it sets res.locals.session;
+ * // without it every booking route answers 401).
+ * export const router = express.Router()
+ * router.get('/bookings/availability/:resourceType/:resourceId', Booking.checkAvailability)
+ * router.post('/bookings', Booking.book)
+ * router.get('/bookings', Booking.getBookings)
+ * router.get('/bookings/:id', Booking.getById)
+ * router.post('/bookings/:id/cancel', Booking.cancel)
+ * router.put('/bookings/:id/reschedule', Booking.reschedule)
+ * router.post('/bookings/:id/confirm', Booking.confirm)
+ * router.post('/bookings/:id/complete', Booking.complete)
+ *
+ * // Client: POST /bookings { resourceType: 'room', resourceId: 'room-7',
+ * //   startTime: '2026-10-01T09:00:00.000Z', duration: 60 } // duration is in MINUTES
+ * // → 201 { id, status: 'pending', endTime: '2026-10-01T10:00:00.000Z', ... } (409 if taken)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`) —
+ *   every handler reads/writes through it and answers 500 without one.
+ * - **There is no service layer to call** — this package exports only the
+ *   `requestHandlerMap` (Express-shaped `(req, res)` handlers) plus pure
+ *   utilities (`computeEndTime`, `generateTimeSlots`, `toBooking`); do not invent
+ *   `createBooking()`-style functions. `duration` is in MINUTES and `startTime`
+ *   is an ISO-8601 string; `endTime` is computed server-side.
  * - **Migration required.** `src/__setup__/bookings.sql` ships with this package
  *   and must exist in the target database before use (scaffolded apps apply it
  *   automatically; existing apps must apply it first).

@@ -11,16 +11,37 @@
  *
  * @example
  * ```typescript
- * import { getModel, MODEL_IDS } from '@molecule/api-resource-ai-models'
+ * import {
+ *   effectiveBaseRates,
+ *   getAvailableModels,
+ *   getModel,
+ *   MODEL_IDS,
+ * } from '@molecule/api-resource-ai-models'
  *
- * // Server-side validation of a client-selected model id:
+ * // Server-side: validate the model id a client picked BEFORE calling the AI provider.
+ * const requestedId = 'claude-opus-5-5'
  * if (!MODEL_IDS.has(requestedId)) {
- *   throw new Error('Unknown or retired model')
+ *   throw new Error(`Unknown or retired model: ${requestedId}`)
  * }
- * const model = getModel(requestedId)! // full definition (pricing, effort levels)
+ * const model = getModel(requestedId)! // full definition: provider, contextWindow, effort levels…
+ *
+ * // Price usage with the rates in effect NOW (honours staged price changes), in USD per 1M tokens.
+ * const rates = effectiveBaseRates(model)
+ * const costUsd = (12_000 * rates.inputPricePerMTok + 3_000 * rates.outputPricePerMTok) / 1_000_000
+ *
+ * // What a model picker may offer: selectable models of the providers you actually bonded.
+ * const selectable = getAvailableModels(['anthropic'])
+ * console.log(model.provider, costUsd, selectable.length)
  * ```
  *
  * @remarks
+ * - **Do NOT hardcode model ids, labels or prices** anywhere else — client model
+ *   pickers read `GET /ai/models` (mounted from `requestHandlerMap.list`); server
+ *   code reads `MODELS`/`getModel()`. Prices are USD per MILLION tokens
+ *   (`inputPricePerMTok`), not per token or per thousand.
+ * - **Read prices through `effectiveBaseRates()` / `withEffectivePricing()`,** not
+ *   the raw `inputPricePerMTok` fields — a model may carry a staged
+ *   `scheduledPricing` that takes over at its `effectiveFrom` date.
  * - **No database, no migration — the catalog is code.** Add/retire models by
  *   editing `models.ts`; validation (`MODEL_IDS`) and the discovery endpoint
  *   update automatically.

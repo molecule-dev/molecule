@@ -8,14 +8,42 @@
  *
  * @example
  * ```ts
- * import { createForumThreadRouter } from '@molecule/api-resource-forum-thread'
+ * import express from 'express'
  *
- * app.use('/threads', createForumThreadRouter({
- *   isModeratorFor: async (userId) => userIsMod(userId),
- * }))
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createForumThreadRouter,
+ *   createReply,
+ *   createThread,
+ * } from '@molecule/api-resource-forum-thread'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // Moderator powers (pin, lock/archive, delete others' posts) are DENIED unless you pass a
+ * // real check — the default is `() => false`.
+ * const moderatorIds = new Set(['user-admin'])
+ * const app = express()
+ * app.use(express.json())
+ * // Mount AFTER the global auth middleware that sets res.locals.session (writes 401 without it).
+ * app.use('/threads', createForumThreadRouter({ isModeratorFor: (userId) => moderatorIds.has(userId) }))
+ *
+ * // Server-side equivalent of POST /threads then POST /threads/:id/replies, as the SESSION user:
+ * const thread = await createThread('user-123', { title: 'Welcome thread', body: 'Say hi!' })
+ * const reply = await createReply(thread.id, 'user-456', { body: 'Hi everyone' })
+ * // reply === null when the thread is 'locked' or 'archived' (the route answers 400)
+ * console.log(thread.slug, reply?.id) // 'welcome-thread'
  * ```
  *
  * @remarks
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ * Only `'locked'` and `'archived'` threads refuse replies — `'closed'` still
+ * accepts them. `slug` is derived from the title and is NOT unique. `GET /:id`
+ * bumps `view_count` on every fetch. Voting is one vote per user per target
+ * (`value` 1 or -1); re-sending the same value is a no-op — there is no
+ * un-vote. `GET /` returns `{ data, total }` paginated by `page` + `limit`.
+ *
  * Tables: `src/__setup__/forum_threads.sql` creates `forum_threads`,
  * `forum_replies`, and `forum_votes`. An mlcl-scaffolded API replays
  * `__setup__/*.sql` automatically on migrate; anywhere else run it once —

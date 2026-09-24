@@ -5,24 +5,41 @@
  * followers list, following list, and follow status checks.
  *
  * @module
+ *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-follow'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { follow, getFollowerCount, isFollowing, unfollow } from '@molecule/api-resource-follow'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /follow/:targetType/:targetId
- * // DELETE /follow/:targetType/:targetId
- * // GET    /:targetType/:targetId/followers
- * // GET    /following
- * // GET    /follow/check/:targetType/:targetId
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap` (POST/DELETE /follow/:targetType/:targetId,
+ * // GET /:targetType/:targetId/followers, GET /following, GET /follow/check/:targetType/:targetId).
+ * setStore(store)
+ *
+ * // Server-side: the follower is the SESSION user (res.locals.session.userId), never the body.
+ * const followerId = 'user-123'
+ * await follow(followerId, 'user', 'user-456') // idempotent — re-following returns the same row
+ * const following = await isFollowing(followerId, 'user', 'user-456') // true
+ * const followers = await getFollowerCount('user', 'user-456') // badge count
+ *
+ * await unfollow(followerId, 'user', 'user-456')
+ * console.log(following, followers)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
+ * - **Self-follows are NOT blocked** (neither in `follow()` nor the route) —
+ *   reject `targetType === 'user' && targetId === session.userId` yourself if
+ *   that matters.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
  *   the rows come back; reading the response as a bare array — or `res.data` alone (which is
  *   the envelope) — yields an EMPTY list.
+ *
  * Table: `src/__setup__/follows.sql` creates the single `follows` table. An
  * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
  * anywhere else run it once — nothing at runtime creates it.

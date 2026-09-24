@@ -7,30 +7,43 @@
  *
  * @example
  * ```typescript
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
  * import {
+ *   assertCourseStaff,
  *   createCourse,
  *   createEnrollment,
- *   assertCourseStaff,
- *   assertEnrolled,
+ *   isEnrolled,
+ *   NotCourseStaffError,
  * } from '@molecule/api-resource-course'
  *
- * const course = await createCourse({
- *   org_id: orgId,
- *   title: 'Algebra 101',
- *   created_by: instructorId,
- * })
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
  *
- * await createEnrollment({
- *   user_id: studentId,
- *   course_id: course.id,
- *   role: 'student',
- * })
+ * const instructorId = 'user-instructor'
+ * const studentId = 'user-student'
  *
- * // In a handler that mutates course content:
- * await assertCourseStaff(req.userId, course.id)
+ * const course = await createCourse({ org_id: 'org-1', title: 'Algebra 101', created_by: instructorId })
+ * // course.status === 'draft' until you publish it (updateCourse)
+ * await createEnrollment({ user_id: studentId, course_id: course.id, role: 'student' })
+ * const enrolled = await isEnrolled(studentId, course.id) // true (status defaults to 'active')
+ *
+ * // In YOUR handler, before any content mutation — map the typed errors to 403/404.
+ * try {
+ *   await assertCourseStaff(studentId, course.id)
+ * } catch (error) {
+ *   if (!(error instanceof NotCourseStaffError)) throw error
+ *   console.log('403', error.errorKey, enrolled)
+ * }
  * ```
  *
  * @remarks
+ * - **`createEnrollment()` is idempotent and does NOT update an existing row** —
+ *   re-enrolling a student as `ta` returns the old `student` enrollment
+ *   unchanged; change a role/status with `updateEnrollment(id, patch)`.
+ * - **Courses start as `'draft'`** unless you pass `status`; nothing here hides
+ *   drafts from students — call `listCourses(orgId, { status: 'published' })`
+ *   for student-facing lists (it returns every status when `status` is omitted).
  * - **Migration required.** `src/__setup__/courses.sql` ships with this package
  *   (tables `courses`, `course_modules`, `course_module_items`,
  *   `course_enrollments`) and must exist in the target database before use

@@ -7,20 +7,45 @@
  * grocery-delivery, multi-vendor-marketplace, online-store, subscription-box).
  *
  * @module
+ *
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-address'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { createAddress, getDefaultAddress } from '@molecule/api-resource-address'
  *
- * // Wire routes into your Express app via mlcl inject:
- * // POST   /addresses
- * // GET    /addresses
- * // GET    /addresses/:id
- * // PATCH  /addresses/:id
- * // POST   /addresses/:id/default     { kind: 'shipping' | 'billing' }
- * // DELETE /addresses/:id
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap` (/addresses CRUD + POST /addresses/:id/default).
+ * setStore(store)
+ *
+ * // Server-side: the owner is the SESSION user (res.locals.session.userId), never the body.
+ * const userId = 'user-123'
+ * const address = await createAddress({
+ *   userId,
+ *   label: 'Home',
+ *   recipientName: 'Ada Lovelace',
+ *   line1: '12 St James Square',
+ *   line2: null,
+ *   city: 'London',
+ *   region: null,
+ *   postalCode: 'SW1Y 4JH',
+ *   countryIso: 'gb', // stored uppercased: 'GB'
+ *   phone: null,
+ *   isDefaultShipping: true, // clears the user's previous default shipping address
+ *   isDefaultBilling: false,
+ * })
+ *
+ * const shipTo = await getDefaultAddress(userId, 'shipping') // the address above
+ * console.log(address.countryIso, shipTo?.id)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw
+ *   "DataStore not configured".
+ * - **The service functions do NOT validate input.** The HTTP handlers run
+ *   `createAddressSchema`/`updateAddressSchema` first; custom server code calling
+ *   `createAddress()` directly must `safeParse` with the same schema before writing.
  * - **Migration required.** `src/__setup__/addresses.sql` ships with this package
  *   and must exist in the target database before use (scaffolded apps apply it
  *   automatically; existing apps must apply it first).
