@@ -21,6 +21,7 @@ import type {
   TranslationUsage,
 } from '@molecule/api-ai-translation'
 
+import { maskText, unmaskText } from './protect.js'
 import type { DeeplConfig } from './types.js'
 
 /** Shape of a single translation in the DeepL API response. */
@@ -53,7 +54,7 @@ interface DeepLErrorResponse {
 }
 
 /** HTTP status codes that are retryable. */
-const RETRYABLE_STATUS_CODES = new Set([429, 503, 529])
+const RETRYABLE_STATUS_CODES = new Set([429, 500, 502, 503, 504, 529])
 
 /** Maximum number of retry attempts for retryable errors. */
 const MAX_RETRIES = 3
@@ -212,8 +213,13 @@ class DeeplTranslationProvider implements AITranslationProvider {
     texts: string[],
     params: TranslateParams,
   ): Promise<TranslationResult> {
+    const protect = params.protect ?? []
+    const callerMarkup = params.tagHandling !== undefined
+    const masked =
+      protect.length > 0 ? texts.map((text) => maskText(text, protect, callerMarkup)) : null
+
     const body: Record<string, unknown> = {
-      text: texts,
+      text: masked ? masked.map((m) => m.masked) : texts,
       target_lang: params.targetLang,
     }
 
@@ -243,6 +249,12 @@ class DeeplTranslationProvider implements AITranslationProvider {
       body.tag_handling = params.tagHandling
     }
 
+    if (masked) {
+      // XML even for plain text: it is what makes the <x> placeholders skippable.
+      body.tag_handling = params.tagHandling ?? 'xml'
+      body.ignore_tags = ['x']
+    }
+
     if (params.context) {
       body.context = params.context
     }
@@ -263,8 +275,8 @@ class DeeplTranslationProvider implements AITranslationProvider {
     const data = (await response.json()) as DeepLTranslateResponse
 
     return {
-      translations: data.translations.map((t) => ({
-        text: t.text,
+      translations: data.translations.map((t, i) => ({
+        text: masked ? unmaskText(t.text, masked[i].originals, callerMarkup) : t.text,
         detectedSourceLang: t.detected_source_language,
       })),
     }
@@ -330,7 +342,10 @@ class DeeplTranslationProvider implements AITranslationProvider {
       if (errorBody.length > 0 && errorBody.length < 200) detail = errorBody
     }
 
-    return new Error(`DeepL ${endpoint} API error: ${detail}`)
+    // `status` lets callers branch without parsing text (456 = quota exhausted).
+    return Object.assign(new Error(`DeepL ${endpoint} API error (${response.status}): ${detail}`), {
+      status: response.status,
+    })
   }
 }
 

@@ -360,7 +360,7 @@ describe('DeeplTranslationProvider', () => {
       mockFetch.mockResolvedValue(mockErrorResponse(403, JSON.stringify({ message: 'Forbidden' })))
 
       await expect(provider.translate({ text: 'test', targetLang: 'DE' })).rejects.toThrow(
-        'DeepL translate API error: Forbidden',
+        'DeepL translate API error (403): Forbidden',
       )
     })
 
@@ -369,17 +369,33 @@ describe('DeeplTranslationProvider', () => {
         mockErrorResponse(456, JSON.stringify({ message: 'Quota exceeded' })),
       )
 
+      await expect(provider.translate({ text: 'test', targetLang: 'DE' })).rejects.toMatchObject({
+        message: 'DeepL translate API error (456): Quota exceeded',
+        status: 456,
+      })
+    })
+
+    it('throws with the raw body when the error body is not JSON', async () => {
+      mockFetch.mockResolvedValue(mockErrorResponse(400, 'Bad Request'))
+
       await expect(provider.translate({ text: 'test', targetLang: 'DE' })).rejects.toThrow(
-        'DeepL translate API error: Quota exceeded',
+        'DeepL translate API error (400): Bad Request',
       )
     })
 
-    it('throws with HTTP status when error body is not JSON', async () => {
-      mockFetch.mockResolvedValue(mockErrorResponse(500, 'Internal Server Error'))
+    it('retries on 500 server errors', async () => {
+      mockFetch
+        .mockResolvedValueOnce(mockErrorResponse(500, 'Internal Server Error'))
+        .mockResolvedValueOnce(
+          mockTranslateResponse([{ detected_source_language: 'EN', text: 'Hallo' }]),
+        )
 
-      await expect(provider.translate({ text: 'test', targetLang: 'DE' })).rejects.toThrow(
-        'DeepL translate API error: Internal Server Error',
-      )
+      const promise = provider.translate({ text: 'Hello', targetLang: 'DE' })
+      await vi.advanceTimersByTimeAsync(5000)
+      const result = await promise
+
+      expect(result.translations[0].text).toBe('Hallo')
+      expect(mockFetch).toHaveBeenCalledTimes(2)
     })
 
     it('retries on 429 rate limit', async () => {
@@ -482,7 +498,7 @@ describe('DeeplTranslationProvider', () => {
 
       const promise = provider.translate({ text: 'test', targetLang: 'DE' })
       const assertion = expect(promise).rejects.toThrow(
-        'DeepL translate API error: Rate limit exceeded',
+        'DeepL translate API error (429): Rate limit exceeded',
       )
       await vi.advanceTimersByTimeAsync(60_000)
       await assertion
@@ -496,7 +512,7 @@ describe('DeeplTranslationProvider', () => {
       )
 
       await expect(provider.getSupportedLanguages()).rejects.toThrow(
-        'DeepL languages API error: Invalid auth key',
+        'DeepL languages API error (401): Invalid auth key',
       )
     })
 
@@ -505,7 +521,9 @@ describe('DeeplTranslationProvider', () => {
         mockErrorResponse(401, JSON.stringify({ message: 'Invalid auth key' })),
       )
 
-      await expect(provider.getUsage()).rejects.toThrow('DeepL usage API error: Invalid auth key')
+      await expect(provider.getUsage()).rejects.toThrow(
+        'DeepL usage API error (401): Invalid auth key',
+      )
     })
   })
 

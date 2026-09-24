@@ -27,6 +27,15 @@
  *   auth and rate-limit any endpoint that translates caller-supplied text.
  * - `formality` and glossaries are provider/language-dependent — treat them as
  *   best-effort hints, not guarantees.
+ * - **Placeholders: pass them in `protect`, never mask them yourself.** Machine
+ *   translators rewrite `{{count}}` into `{{Anzahl}}` or split its braces; each
+ *   bond knows its service's "do not translate" mechanism (DeepL `ignore_tags`,
+ *   Google `translate="no"`, …) and restores the originals. Still check the result
+ *   holds every placeholder before storing it — a translator can drop one.
+ * - **Output is plain text unless you set `tagHandling`.** Bonds that use markup
+ *   internally escape `&`/`<`/`>` on the way in and decode entities on the way out.
+ * - Failed requests throw an `Error` carrying the HTTP `status` when the service
+ *   returned one (e.g. DeepL 456 = quota exhausted), so callers can fall back.
  *
  * @example
  * ```typescript

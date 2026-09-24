@@ -29,6 +29,14 @@ export interface TranslateParams {
   context?: string
   /** Model type preference for quality vs latency trade-off. */
   modelType?: 'quality_optimized' | 'prefer_quality_optimized' | 'latency_optimized'
+  /**
+   * Literal substrings that must come back exactly as sent — interpolation
+   * placeholders (`{{count}}`), code, product names. Every bond keeps them out of
+   * the translator's reach with its own mechanism and restores them afterwards;
+   * callers never mask anything themselves. The translator may still move them
+   * within the sentence (word order differs between languages).
+   */
+  protect?: string[]
 }
 
 /**
