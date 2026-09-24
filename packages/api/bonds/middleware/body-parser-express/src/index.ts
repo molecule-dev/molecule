@@ -3,11 +3,36 @@
  *
  * @example
  * ```typescript
- * import { setBodyParser, setJsonParserFactory } from '@molecule/api-middleware-body-parser'
- * import { provider, jsonParserFactory } from '@molecule/api-middleware-body-parser-express'
+ * import express from 'express'
  *
+ * import {
+ *   bodyParser,
+ *   createJsonParser,
+ *   setBodyParser,
+ *   setJsonParserFactory,
+ * } from '@molecule/api-middleware-body-parser'
+ * import { jsonParserFactory, provider } from '@molecule/api-middleware-body-parser-express'
+ *
+ * // Startup: wire BOTH setters before mounting any parser.
  * setBodyParser(provider)
  * setJsonParserFactory(jsonParserFactory)
+ *
+ * const app = express()
+ *
+ * // A route that needs a bigger body gets its own parser, mounted BEFORE the global one.
+ * app.post('/api/imports', createJsonParser({ limit: '10mb' }), (req, res) => {
+ *   res.json({ rows: Array.isArray(req.body.rows) ? req.body.rows.length : 0 })
+ * })
+ *
+ * // Global parser: JSON (2 MB cap) and urlencoded/multipart FIELDS → req.body.
+ * app.use(bodyParser)
+ * app.post('/api/items', (req, res) => {
+ *   res.status(201).json({ item: req.body, rawBody: req.rawBody ?? null })
+ * })
+ *
+ * app.listen(Number(process.env.PORT ?? 4000))
+ * // POST /api/items  {"name":"Desk"}     → 201 {"item":{"name":"Desk"},"rawBody":"{\"name\":\"Desk\"}"}
+ * // POST /api/items  qty=3&active=true   → 201 {"item":{"qty":3,"active":true},"rawBody":null}
  * ```
  *
  * @remarks
@@ -16,8 +41,10 @@
  *   wiring only the factory leaves `getBodyParser()` throwing on the first
  *   request.
  * - JSON bodies are capped at **2 MB** (413 beyond it). For larger payloads
- *   create a custom parser via `setJsonParserFactory(jsonParserFactory)` +
- *   `createJsonParser({ limit: '10mb' })` from the core.
+ *   mount `createJsonParser({ limit: '10mb' })` from the core on that route,
+ *   BEFORE `app.use(bodyParser)` — once a body is parsed, later parsers skip it.
+ * - Parsers only run for a matching `Content-Type`; a JSON request sent
+ *   without `Content-Type: application/json` leaves `req.body` `undefined`.
  * - `multipart/form-data` and `application/x-www-form-urlencoded` are parsed
  *   by busboy: **file parts are skipped** (streams drained — use
  *   `@molecule/utilities-files` for uploads), and **each field value is

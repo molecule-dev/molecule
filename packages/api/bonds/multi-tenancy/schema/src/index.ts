@@ -64,32 +64,58 @@
  *   the in-process registry; tenants are per-process and lost on restart, so
  *   back them with a persistent store before relying on them in production.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider, getTenantMiddleware } from '@molecule/api-multi-tenancy'
- * import { provider, createProvider } from '@molecule/api-multi-tenancy-schema'
+ * import express from 'express'
  *
- * // Wire the provider at startup (default config)
- * setProvider(provider)
+ * import {
+ *   createTenant,
+ *   getTenant,
+ *   getTenantMiddleware,
+ *   setProvider,
+ * } from '@molecule/api-multi-tenancy'
+ * import { createProvider } from '@molecule/api-multi-tenancy-schema'
  *
- * // SECURE wiring: authorize the header against the authenticated principal.
- * // `req.user` is populated by your auth middleware mounted earlier in the chain.
- * const secureProvider = createProvider({
- *   tenantHeader: 'x-org-id',
- *   resolveAuthorizedTenantIds: (req) => {
- *     const user = req.user as { tenantIds?: string[] } | undefined
- *     return user?.tenantIds ?? []
- *   },
+ * // Startup — SECURE wiring: authorize the attacker-controlled `x-tenant-id` header
+ * // against the authenticated principal (403 for any tenant not in this list).
+ * setProvider(
+ *   createProvider({
+ *     resolveAuthorizedTenantIds: (req) => {
+ *       const user = req.user as { tenantIds?: string[] } | undefined
+ *       return user?.tenantIds ?? []
+ *     },
+ *   }),
+ * )
+ *
+ * // The registry is IN-MEMORY: create/load tenants at every boot.
+ * const acme = await createTenant({ name: 'Acme Corp' })
+ * const globex = await createTenant({ name: 'Globex' })
+ * const projects = [
+ *   { tenantId: acme.id, name: 'Rocket' },
+ *   { tenantId: globex.id, name: 'Widget' },
+ * ] // your database table in a real app
+ *
+ * const app = express()
+ * // Stand-in for your real auth middleware: it must set req.user from a VERIFIED session.
+ * app.use((req, _res, next) => {
+ *   Object.assign(req, { user: { id: 'u_1', tenantIds: [acme.id] } })
+ *   next()
  * })
- * setProvider(secureProvider)
- * // app.use(authMiddleware, getTenantMiddleware())
+ * // Framework-neutral handler types, so Express needs a cast.
+ * app.use(getTenantMiddleware() as unknown as express.RequestHandler)
  *
- * // ISOLATION IS YOUR JOB: this bond only tracks the active tenant. In your
- * // data layer, scope every query by getTenant() — e.g.:
- * //   import { getTenant } from '@molecule/api-multi-tenancy'
- * //   store.findMany('records', { where: { tenantId: getTenant() } })
+ * app.get('/api/projects', (_req, res) => {
+ *   const tenantId = getTenant() // request-scoped — this bond does NOT filter data for you
+ *   res.json(projects.filter((project) => project.tenantId === tenantId))
+ * })
+ *
+ * app.listen(Number(process.env.PORT ?? 4000))
+ * // GET /api/projects  x-tenant-id: <acme.id>   → 200 [{ tenantId: <acme.id>, name: 'Rocket' }]
+ * // GET /api/projects  x-tenant-id: <globex.id> → 403 (u_1 is not a member)
+ * // GET /api/projects  (no header)              → 400 Missing required header: x-tenant-id
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

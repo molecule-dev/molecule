@@ -6,17 +6,45 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-monitoring'
- * import { provider, createProvider } from '@molecule/api-monitoring-default'
+ * import {
+ *   createCustomCheck,
+ *   createHttpCheck,
+ *   getProvider,
+ *   runAll,
+ *   setProvider,
+ * } from '@molecule/api-monitoring'
+ * import { createProvider } from '@molecule/api-monitoring-default'
  *
- * // Bond the default provider
- * setProvider(provider)
+ * // Startup: bond once, then register checks ONCE (not per request).
+ * setProvider(createProvider({ checkTimeoutMs: 5000 }))
+ * const monitoring = getProvider()
+ * monitoring.register(
+ *   createHttpCheck(process.env.PAYMENTS_HEALTH_URL ?? 'https://payments.example.com/health', {
+ *     name: 'payments-api',
+ *     degradedThresholdMs: 1000,
+ *   }),
+ * )
+ * const queueBacklog = async (): Promise<number> => 12 // your queue's size() in a real app
+ * monitoring.register(
+ *   createCustomCheck('job-queue', async () => {
+ *     const waiting = await queueBacklog()
+ *     return waiting > 1000
+ *       ? { status: 'degraded', message: `${waiting} jobs waiting` }
+ *       : { status: 'operational' }
+ *   }),
+ * )
  *
- * // Or create a custom instance with options
- * const customProvider = createProvider({ checkTimeoutMs: 5000 })
- * setProvider(customProvider)
+ * // GET /health handler: runAll() never rejects — map the worst status to an HTTP code.
+ * const health = await runAll()
+ * const httpStatus = health.status === 'down' ? 503 : 200
+ * // health.checks['payments-api'] → { name, category: 'external', status, latencyMs, checkedAt }
  * ```
+ *
  * @remarks
+ * - Bond with `setProvider(...)` from `@molecule/api-monitoring`, then register
+ *   checks on `getProvider()` — `register()` is a PROVIDER method, not a core
+ *   export. Checks live in memory: re-register them on every process start.
+ * - `checkTimeoutMs` is MILLISECONDS per check (checks run in parallel).
  * - **`runAll()` never rejects.** A check that THROWS (easy with
  *   `createCustomCheck`) becomes a `'down'` entry carrying the thrown message;
  *   a check that exceeds `checkTimeoutMs` (default 10000) becomes a `'down'`

@@ -7,16 +7,36 @@
  *
  * @example
  * ```typescript
- * import { setProvider, createStream } from '@molecule/api-media-streaming'
- * import { provider } from '@molecule/api-media-streaming-hls'
+ * import { join } from 'node:path'
  *
- * setProvider(provider)
+ * import {
+ *   createStream,
+ *   generateManifest,
+ *   getSegment,
+ *   setProvider,
+ * } from '@molecule/api-media-streaming'
+ * import { createProvider } from '@molecule/api-media-streaming-hls'
  *
- * const manifest = await createStream('/path/to/video.mp4', {
- *   segmentDuration: 6,
- *   protocol: 'hls',
- * })
- * console.log(manifest.manifestUri) // '/hls-…/index.m3u8'
+ * // Startup (server only): bond once. Shells out to ffmpeg and writes under
+ * // `outputBasePath` — a directory your server actually serves.
+ * setProvider(
+ *   createProvider({
+ *     ffmpegPath: process.env.FFMPEG_PATH ?? 'ffmpeg',
+ *     outputBasePath: process.env.HLS_OUTPUT_DIR ?? '/srv/media/hls',
+ *     segmentDuration: 6, // seconds
+ *   }),
+ * )
+ *
+ * // Background job (not inside the upload request). Input: ABSOLUTE local path or Buffer.
+ * const upload = join(process.env.UPLOADS_DIR ?? '/srv/uploads', 'lecture-01.mp4')
+ * const stream = await createStream(upload)
+ * // { id: 'hls-…', protocol: 'hls', manifestUri: '/hls-…/index.m3u8', duration, segments }
+ * // On disk: <HLS_OUTPUT_DIR>/<id>/index.m3u8 + seg-000.ts, seg-001.ts, …
+ *
+ * // Playlist endpoint → Content-Type: application/vnd.apple.mpegurl (synchronous).
+ * const playlist = generateManifest(stream.segments)
+ * // Segment endpoint → Content-Type: video/mp2t.
+ * const firstSegment = await getSegment(stream.id, 0)
  * ```
  *
  * @remarks
@@ -45,6 +65,11 @@
  *   override writes segments where the fallback cannot find them after a
  *   restart, and `transcode()` ignores `outputPath` entirely (always writes
  *   under `outputBasePath`).
+ * - `createStream()` REMUXES (`-codec copy`) — no re-encode, so the input must
+ *   already be HLS-compatible (H.264/AAC). Use `transcode(input, profiles)` for
+ *   re-encoded multi-bitrate output (`master.m3u8`). `segment.uri` values are
+ *   `/<id>/seg-NNN.ts`, relative to `outputBasePath`.
+ * - `duration` is `segments × segmentDuration` (an estimate), not probed.
  * - `ffprobePath` in `HlsConfig` is currently RESERVED — no ffprobe call exists
  *   yet; segment durations come from the requested `segmentDuration`.
  *

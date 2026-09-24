@@ -7,23 +7,34 @@
  *
  * @example
  * ```typescript
- * import { logger, setLogger } from '@molecule/api-logger'
- * import { createLogger, provider } from '@molecule/api-logger-winston'
+ * import { logger, setLevel, setLogger } from '@molecule/api-logger'
+ * import { createLogger } from '@molecule/api-logger-winston'
  *
- * // Default: colorized console output
- * setLogger(provider)
- * logger.info('Server started on port', 3000)
- * logger.error('Database connection failed', error) // message + full stack
- *
- * // Custom instance: JSON to a file — level omitted, so this instance defers
- * // to the core's LOG_LEVEL/setLevel() gate
+ * // Startup: bond once. JSON to stdout, plus warnings and errors to a file. Leave the
+ * // top-level `level` unset — the core's LOG_LEVEL / setLevel() gate is the single filter.
  * setLogger(
  *   createLogger({
  *     format: 'json',
- *     transports: [{ type: 'file', options: { filename: 'app.log' } }],
+ *     transports: [
+ *       { type: 'console' },
+ *       { type: 'file', level: 'warn', options: { filename: 'logs/errors.log' } },
+ *     ],
  *   }),
  * )
+ *
+ * // Log through the CORE `logger` everywhere.
+ * logger.info('Server started', { port: 3000 }) // stdout only
+ * // → {"level":"info","message":"Server started","port":3000,"timestamp":"…"}
+ * logger.debug('Cache warmed', { keys: 42 }) // DROPPED: the core's default level is 'info'
+ * setLevel('debug') // or LOG_LEVEL=debug
+ *
+ * try {
+ *   JSON.parse('{not json')
+ * } catch (error) {
+ *   logger.error('Failed to parse webhook payload', { error }) // stdout AND logs/errors.log, with stack
+ * }
  * ```
+ *
  * @remarks
  * - Console-style variadic calls are bridged onto winston's
  *   `(message, meta)` shape: `logger.info('msg', contextObj)` merges
@@ -40,6 +51,8 @@
  * - `level: 'silent'` is implemented via winston's `silent: true` flag (there
  *   is no built-in winston 'silent' level) — it drops output unconditionally,
  *   regardless of the configured `level`.
+ * - The default `provider` is colorized, human-readable console output (`format:
+ *   'console'`) — use `createLogger({ format: 'json' })` for machine-parsed logs.
  * - Transport types: `console`, `file`, `http`, and `stream`
  *   (`options.stream` = any writable — handy for tests and in-process sinks).
  *   A transport's own `level` follows the same rules as `createLogger`'s

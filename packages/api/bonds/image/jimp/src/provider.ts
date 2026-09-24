@@ -179,10 +179,12 @@ export const createProvider = (config?: JimpConfig): ImageProvider => {
     async resize(input: Buffer, options: ResizeOptions): Promise<Buffer> {
       const image = await loadImage(input)
 
-      image.resize({
-        w: options.width ?? image.width,
-        h: options.height ?? image.height,
-      })
+      // A single dimension scales the other proportionally (matching sharp);
+      // substituting the ORIGINAL other dimension distorted the aspect ratio.
+      const ratio = image.width / image.height
+      const w = options.width ?? Math.round((options.height ?? image.height) * ratio)
+      const h = options.height ?? Math.round((options.width ?? image.width) / ratio)
+      image.resize({ w, h })
 
       return toBuffer(image)
     },

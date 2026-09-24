@@ -7,18 +7,28 @@
  *
  * @example
  * ```typescript
- * import { logger, setLogger } from '@molecule/api-logger'
- * import { createLogger, provider } from '@molecule/api-logger-pino'
+ * import { logger, setLevel, setLogger } from '@molecule/api-logger'
+ * import { createLogger } from '@molecule/api-logger-pino'
  *
- * // Default: pretty in development, JSON in production
- * setLogger(provider)
- * logger.info('Server started on port', 3000)
- * logger.error('Database connection failed', error) // Error lands under `err` with its stack
+ * // Startup: bond once. JSON lines to stdout (pretty in local dev). Leave `level` unset —
+ * // the core's LOG_LEVEL / setLevel() gate is the single filter.
+ * setLogger(createLogger({ name: 'api', pretty: process.env.NODE_ENV === 'development' }))
  *
- * // Custom instance (name, transport, or an in-process destination) — level
- * // omitted, so this instance defers to the core's LOG_LEVEL/setLevel() gate
- * setLogger(createLogger({ name: 'api' }))
+ * // Log through the CORE `logger` everywhere.
+ * logger.info('Server started', { port: 3000 })
+ * // → {"level":30,"time":…,"name":"api","port":3000,"msg":"Server started"}
+ * logger.debug('Cache warmed', { keys: 42 }) // DROPPED: the core's default level is 'info'
+ *
+ * setLevel('debug') // or LOG_LEVEL=debug
+ * logger.debug('Request received', { method: 'GET', path: '/api/items' })
+ *
+ * try {
+ *   JSON.parse('{not json')
+ * } catch (error) {
+ *   logger.error('Failed to parse webhook payload', { error }) // error.type/message/stack kept
+ * }
  * ```
+ *
  * @remarks
  * - Console-style variadic calls are bridged onto pino's `(object, message)`
  *   shape: `logger.info('msg', contextObj)` merges `contextObj` into the
@@ -32,6 +42,12 @@
  *   gate below the core's; a stricter level there makes the core's
  *   `setLevel('debug')` appear to do nothing — only do this if you actually
  *   want a second, independent filter on this specific instance.
+ * - Pass the error INSIDE an object (`{ error }` or `{ err }`) or as an argument —
+ *   both keys are serialized with `type`, `message` and `stack`; any other key
+ *   holding an `Error` serializes to `{}`.
+ * - The default `provider` pretty-prints whenever `NODE_ENV !== 'production'`
+ *   (pino-pretty worker thread); use `createLogger()` to choose explicitly.
+ *   `destination` (any `{ write(msg) }`) wins over `pretty`/`transport`.
  * - The default instance is created lazily on first log call (importing the
  *   package never spawns the pino-pretty worker thread).
  *
