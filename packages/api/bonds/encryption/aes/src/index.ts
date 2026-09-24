@@ -5,19 +5,20 @@
  * SHA-256 hashing, and timing-safe verification. Supports key rotation with
  * versioned ciphertext format.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-encryption'
- * import { provider } from '@molecule/api-encryption-aes'
- *
- * // Wire the provider at startup (reads ENCRYPTION_KEY from env)
- * setProvider(provider)
- *
- * // Or create with explicit config
+ * import { decrypt, encrypt, setProvider } from '@molecule/api-encryption'
  * import { createProvider } from '@molecule/api-encryption-aes'
- * const customProvider = createProvider({ key: 'your-64-char-hex-key' })
- * setProvider(customProvider)
+ *
+ * // Startup: bond once. ENCRYPTION_KEY = 64 hex chars (`openssl rand -hex 32`).
+ * const key = process.env.ENCRYPTION_KEY
+ * if (!key) throw new Error('ENCRYPTION_KEY is not set')
+ * setProvider(createProvider({ key }))
+ *
+ * // Encrypt a field before storing it; pass the SAME context (AAD) to decrypt.
+ * const stored = await encrypt('4111 1111 1111 1111', 'user:42:card')
+ * // 'v1:<iv hex>:<auth tag hex>:<ciphertext hex>'
+ * const card = await decrypt(stored, 'user:42:card') // '4111 1111 1111 1111'
  * ```
  *
  * @remarks
@@ -43,6 +44,10 @@
  * - `encrypt(plaintext, context)`: the optional `context` is GCM AAD — the
  *   SAME context string must be supplied to `decrypt()` or authentication
  *   fails.
+ * - `ENCRYPTION_KEY` must be exactly 64 hex characters (a 256-bit key) — a
+ *   passphrase or base64 key throws at construction, not on first encrypt.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

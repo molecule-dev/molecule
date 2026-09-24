@@ -9,10 +9,23 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-esign'
+ * import { createSignatureRequest, getSignatureRequest, setProvider } from '@molecule/api-esign'
  * import { provider } from '@molecule/api-esign-hellosign'
  *
+ * // Startup: bond once. Env: HELLOSIGN_API_KEY (Dropbox Sign → Settings → API).
  * setProvider(provider)
+ *
+ * // Every request is a REAL send — signers get an email from Dropbox Sign.
+ * const request = await createSignatureRequest({
+ *   title: 'Consulting Agreement',
+ *   message: 'Please review and sign.',
+ *   signers: [{ name: 'Ada Lovelace', email: 'ada@example.com' }],
+ *   document: { url: 'https://files.example.com/contracts/consulting.pdf' },
+ * })
+ * // { id: 'fa5c8a0b…', status: 'awaiting_signatures', signers: [{ …, status: 'pending' }] }
+ *
+ * const latest = await getSignatureRequest(request.id)
+ * console.log(latest.status) // 'awaiting_signatures' | 'signed' | 'declined' | 'cancelled'
  * ```
  *
  * @remarks
@@ -32,6 +45,12 @@
  *   use addresses you control in development.
  * - Requires `HELLOSIGN_API_KEY` (read lazily at call time; never echoed
  *   into error messages). A missing key throws at first use, not at import.
+ *   There is no `createProvider()` — the key comes only from the environment.
+ * - `document` is a `Buffer` (multipart upload, sent as `document.pdf`), a hosted
+ *   `{ url }` HelloSign can fetch, or `{ templateId, prefill }`; with a template, each
+ *   signer's `role` must match a template role (it defaults to `Signer 1`, `Signer 2`, …).
+ * - Webhook `signatureRequestId` / `signerEmail` come from the payload; the headers argument
+ *   of `processWebhook()` is ignored (the HMAC lives in `event.event_hash` inside the body).
  *
  * @see https://developers.hellosign.com/api/reference/
  *

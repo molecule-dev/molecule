@@ -19,10 +19,29 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-hotels'
- * import { provider } from '@molecule/api-hotels-amadeus'
+ * import { getHotelOffers, searchHotels, setProvider } from '@molecule/api-hotels'
+ * import { createProvider } from '@molecule/api-hotels-amadeus'
  *
- * setProvider(provider)
+ * // Startup: bond once. Same key pair as @molecule/api-flights-amadeus (test keys → test host).
+ * setProvider(
+ *   createProvider({
+ *     clientId: process.env.AMADEUS_CLIENT_ID,
+ *     clientSecret: process.env.AMADEUS_CLIENT_SECRET,
+ *     useProduction: process.env.AMADEUS_USE_PRODUCTION === 'true',
+ *   }),
+ * )
+ *
+ * const stay = { checkInDate: '2026-12-15', checkOutDate: '2026-12-18', adults: 2 } // YYYY-MM-DD
+ *
+ * // cityCode is an IATA CITY code ('PAR'), not a city name.
+ * const hotels = await searchHotels({ cityCode: 'PAR', ...stay }) // [{ hotelId, name, fromPrice? }]
+ *
+ * const first = hotels[0]
+ * if (first) {
+ *   const offers = await getHotelOffers(first.hotelId, stay)
+ *   // [{ offerId, hotelId, price: { total: 612.4, currency: 'EUR' }, roomDescription?, refundable? }]
+ *   console.log(first.name, offers[0]?.price.total)
+ * }
  * ```
  *
  * @remarks
@@ -37,6 +56,15 @@
  *   401ing on the wrong host.
  * - `bookHotel()` ALWAYS throws (see the core's remarks) — implement checkout
  *   on the vendor's hosted flow; search and priced offers are fully supported.
+ *   The error's `cause` is `{ code: BOOKING_NOT_SUPPORTED }`.
+ * - `searchHotels()` needs `cityCode` OR `location` (`{ lat, lon, radius? }`), and dates must
+ *   be exactly `YYYY-MM-DD` — otherwise it throws before calling Amadeus. `fromPrice` is
+ *   best-effort: a failed price lookup leaves it `undefined` rather than failing the search.
+ * - Failures are plain `Error`s with `cause.code` — `MISSING_CREDENTIALS`,
+ *   `TOKEN_MINT_FAILED` or `UPSTREAM_ERROR` (HTTP 429 included; there is no rate-limit class
+ *   here, unlike the flights bond). `createProvider()` falls back to
+ *   `AMADEUS_CLIENT_ID`/`AMADEUS_CLIENT_SECRET` for omitted credentials, but NOT to
+ *   `AMADEUS_USE_PRODUCTION` — pass `useProduction` yourself (as above).
  *
  * @module
  */

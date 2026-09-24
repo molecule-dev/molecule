@@ -22,39 +22,25 @@
  * `resetSupabase()` clears cached clients + settings (test hook).
  *
  * @example
- * ```ts
- * // bonds.ts — wire the provider at startup:
- * import { setProvider } from '@molecule/api-external-auth'
- * import { provider } from '@molecule/api-external-auth-supabase'
+ * ```typescript
+ * import { setProvider, verifyUserToken } from '@molecule/api-external-auth'
+ * import { configureSupabase, provider } from '@molecule/api-external-auth-supabase'
  *
+ * // Startup: bond once. Both values are PUBLIC (the anon key ships in the browser bundle).
+ * configureSupabase({
+ *   url: process.env.SUPABASE_URL, // e.g. https://abcd1234.supabase.co
+ *   anonKey: process.env.SUPABASE_ANON_KEY,
+ * })
  * setProvider(provider)
  *
- * // Then server routes verify the token the frontend already sends:
- * import { verifyUserToken } from '@molecule/api-external-auth'
- *
- * app.get('/api/me', async (req, res) => {
- *   const token = req.headers.authorization?.replace(/^Bearer /, '') ?? ''
- *   const user = await verifyUserToken(token)
- *   if (!user) {
- *     res.status(401).json({ error: 'Invalid or expired session.' })
- *     return
- *   }
- *   res.json({ userId: user.userId, email: user.email })
- * })
- * ```
- *
- * @example
- * ```ts
- * // Admin operations need the service-role key — ALWAYS gate on hasServiceRole():
- * import { getServiceClient, hasServiceRole } from '@molecule/api-external-auth-supabase'
- *
- * if (hasServiceRole()) {
- *   const admin = getServiceClient()
- *   await admin.from('profiles').update({ suspended: true }).eq('id', targetId)
+ * // In a route: verify the Supabase access token the frontend already sends.
+ * const authorization = 'Bearer supabase-access-token'
+ * const token = authorization.replace(/^Bearer /, '')
+ * const user = await verifyUserToken(token) // { userId, email? } or null
+ * if (!user) {
+ *   console.warn('401: invalid or expired Supabase session')
  * } else {
- *   // Degrade: store the flag in the provisioned DATABASE_URL Postgres,
- *   // or ask the user to connect SUPABASE_SERVICE_ROLE_KEY in the
- *   // Environment panel.
+ *   console.log(`signed in as ${user.userId} <${user.email ?? 'no email'}>`)
  * }
  * ```
  *
@@ -73,6 +59,13 @@
  * - This package is SERVER-ONLY. It throws immediately if bundled into
  *   browser/client code — import it only from server code, and never polyfill
  *   `Buffer`/`process` to silence the guard.
+ * - `verifyUserToken()` returns `null` for an empty, invalid or expired token — but THROWS
+ *   when no URL / anon key is configured (the error names the missing env vars). Each call
+ *   is a network round-trip to Supabase Auth (`auth.getUser(token)`), not a local JWT check.
+ * - Admin work goes through `getServiceClient()` only after `hasServiceRole()` returns
+ *   `true` — it throws without `SUPABASE_SERVICE_ROLE_KEY`, and it bypasses Row Level
+ *   Security. `configureSupabase()` merges settings, so `configureSupabase({ serviceRoleKey })`
+ *   can be called later on its own.
  *
  * @see https://www.npmjs.com/package/@supabase/supabase-js
  *

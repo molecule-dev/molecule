@@ -7,10 +7,25 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-geolocation'
- * import { provider } from '@molecule/api-geolocation-nominatim'
+ * import { distance, geocode, reverseGeocode, setProvider } from '@molecule/api-geolocation'
+ * import { createProvider } from '@molecule/api-geolocation-nominatim'
  *
- * setProvider(provider)
+ * // Startup: bond once. Keyless, but the User-Agent MUST identify your app.
+ * setProvider(
+ *   createProvider({
+ *     userAgent: process.env.NOMINATIM_USER_AGENT ?? 'acme-stores/1.0 (ops@acme.example)',
+ *     email: process.env.NOMINATIM_EMAIL,
+ *     countryCodes: ['gb'], // ISO 3166-1 alpha-2
+ *     limit: 5,
+ *   }),
+ * )
+ *
+ * const [store] = await geocode('10 Downing Street, London') // [] = not found
+ * if (store) {
+ *   const [here] = await reverseGeocode(51.5007, -0.1246) // lat, lng
+ *   const miles = distance(store, { lat: 51.5007, lng: -0.1246 }, 'mi') // default unit is km
+ *   console.log(store.components.postalCode, here?.formattedAddress, miles.toFixed(2))
+ * }
  * ```
  *
  * @remarks
@@ -25,6 +40,16 @@
  *   (or `config.baseUrl`) at it — the public-server limits then don't apply.
  * - `getTimezone` is not implemented (optional core capability) — feature-
  *   detect per the core's remarks, or use `@molecule/api-geolocation-google`.
+ * - **This bond does NOT throttle or cache.** Every call is one HTTP request;
+ *   staying under 1 request/second on the public server is the caller's job
+ *   (queue geocodes, store the coordinates with the address).
+ * - `createProvider()` REQUIRES `userAgent` and does not read the environment;
+ *   only the lazy `provider` export reads `NOMINATIM_USER_AGENT`,
+ *   `NOMINATIM_EMAIL` and `NOMINATIM_BASE_URL`.
+ * - `reverseGeocode()` returns `[]` (not an error) when nothing is there;
+ *   non-2xx responses throw `Nominatim API request failed with status N`.
+ *   `placeId` is Nominatim's numeric `place_id` as a string — it is not stable
+ *   across Nominatim data updates, so don't persist it as a key.
  *
  * @module
  */

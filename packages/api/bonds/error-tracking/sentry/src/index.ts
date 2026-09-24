@@ -7,18 +7,30 @@
  *
  * @see https://www.npmjs.com/package/@sentry/node
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider, captureException } from '@molecule/api-error-tracking'
+ * import { captureException, flush, setProvider, setUser } from '@molecule/api-error-tracking'
  * import { provider } from '@molecule/api-error-tracking-sentry'
  *
- * // Bond at startup (e.g. in setupBonds())
+ * // Startup: bond once. Env: SENTRY_DSN (required to send), SENTRY_ENVIRONMENT (optional).
  * setProvider(provider)
  *
- * // Anywhere in the app — delivered to Sentry once SENTRY_DSN is set
- * captureException(new Error('boom'), { tags: { source: 'worker' } })
+ * setUser({ id: 'user-42', email: 'ada@example.com' })
+ *
+ * try {
+ *   JSON.parse('{ not json')
+ * } catch (error) {
+ *   const eventId = captureException(error, {
+ *     tags: { source: 'import-job' },
+ *     extra: { fileName: 'contacts.csv' },
+ *   })
+ *   console.info(`reported to Sentry as ${eventId}`) // undefined while SENTRY_DSN is unset
+ * }
+ *
+ * // Before a short-lived process exits: wait up to 2000 ms for the buffered events.
+ * const delivered = await flush(2000)
  * ```
+ *
  * @remarks
  * - **Without `SENTRY_DSN` the provider is a documented no-op.** It never
  *   throws or crashes an app that installed it but hasn't configured the
@@ -33,6 +45,18 @@
  *   `flush(timeoutMs)` before process exit — `false` means events may have
  *   been dropped — and check the DSN/network before concluding the
  *   integration is broken.
+ * - **Report through the core** (`captureException` / `captureMessage` / `setUser` / `flush`
+ *   from `@molecule/api-error-tracking`), not `@sentry/node` directly — the core calls never
+ *   throw and are silent no-ops when nothing is bonded. There is no `createProvider()`;
+ *   configuration is env-only.
+ * - `flush(timeoutMs)` takes MILLISECONDS. `SENTRY_TRACES_SAMPLE_RATE` outside 0–1 is logged
+ *   and tracing is disabled, not rejected.
+ * - `Sentry.init()` runs on the first capture, i.e. after your modules have loaded — so the
+ *   SDK's automatic HTTP/framework instrumentation (which needs `init` before those imports)
+ *   is not set up. Only explicit captures are reported.
+ * - The request context is sent as `extra.request`, not as Sentry's native request interface.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'
