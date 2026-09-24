@@ -6,13 +6,35 @@
  *
  * @example
  * ```typescript
- * import { provider } from '@molecule/app-date-range-picker-default'
- * import { setProvider } from '@molecule/app-date-range-picker'
+ * import { requireProvider, setProvider } from '@molecule/app-date-range-picker'
+ * import type { DateRange } from '@molecule/app-date-range-picker'
+ * import { createProvider } from '@molecule/app-date-range-picker-default'
  *
- * setProvider(provider)
+ * // Startup: bond once.
+ * setProvider(createProvider())
+ *
+ * // In a report filter: create a picker through the core provider.
+ * let reportRange: DateRange | null = null
+ * const picker = requireProvider().createPicker({
+ *   startDate: new Date(2026, 8, 1),
+ *   endDate: new Date(2026, 8, 7),
+ *   maxDate: new Date(2026, 8, 24), // no future dates — ends past this are CLAMPED to it
+ *   onChange: (range) => {
+ *     reportRange = range // refetch the report here
+ *   },
+ * })
+ *
+ * picker.setValue({ startDate: new Date(2026, 8, 10), endDate: new Date(2026, 9, 1) })
+ * console.log(reportRange) // { startDate: Sep 10 2026, endDate: Sep 24 2026 } (clamped)
+ * picker.destroy() // on unmount
  * ```
  *
  * @remarks
+ * HEADLESS: `open()`/`close()` are no-ops and nothing is rendered — draw the calendar and
+ * `presets` yourself and call `setValue()`. Get pickers from
+ * `requireProvider().createPicker(...)` after `setProvider(...)`; the core has no top-level
+ * `createPicker()`.
+ *
  * This default instance is an in-memory range store that honors its options:
  * - `minDate`/`maxDate` **clamp** every stored selection (initial value and
  *   `setValue`) into range — a start below `minDate` becomes `minDate`, an end

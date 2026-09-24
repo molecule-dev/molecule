@@ -5,13 +5,37 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/app-code-editor'
- * import { provider } from '@molecule/app-code-editor-monaco'
+ * import { requireProvider, setProvider } from '@molecule/app-code-editor'
+ * import { createProvider } from '@molecule/app-code-editor-monaco'
  *
- * setProvider(provider) // custom fonts/theme: setProvider(createProvider({...}))
+ * // Startup: bond once. `monaco-editor` is a peer dependency your app installs.
+ * setProvider(createProvider({ fontSize: 14, tabSize: 2, minimap: false }))
+ *
+ * // Editor component: mount into a SIZED element (Monaco renders nothing in a 0px box).
+ * const container = document.getElementById('editor')
+ * if (!container) throw new Error('Missing #editor element')
+ *
+ * const editor = requireProvider()
+ * await editor.mount(container, { wordWrap: true }) // async: loads Monaco on first use
+ * editor.openFile({
+ *   path: '/src/greet.ts', // absolute path — becomes the model URI file:///src/greet.ts
+ *   content: 'export const greet = (name: string) => `Hi ${name}`\n',
+ *   language: 'typescript',
+ * })
+ *
+ * const unsubscribe = editor.onChange(({ path, content }) => console.log('edited', path, content))
+ * console.log(editor.getContent()) // the active file's current text
+ *
+ * // On unmount:
+ * unsubscribe()
+ * editor.dispose()
  * ```
  *
  * @remarks
+ * - The core has no top-level `mount()`/`openFile()` — call them on `requireProvider()`
+ *   after `setProvider(...)`. `mount()` returns a Promise — `await` it before relying on the
+ *   editor (only the file active at that point is shown once mount completes). The bare
+ *   `provider` export is `createProvider()` with default options.
  * - Monaco is code-split: `mount()` does `await import('monaco-editor')`
  *   (~1 MB) on first use — call `preloadMonaco()` during idle time to
  *   prefetch. `monaco-editor` is a peer dependency your app must install.

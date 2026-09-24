@@ -3,18 +3,24 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/app-analytics'
+ * import { group, hasProvider, identify, page, reset, setProvider, track } from '@molecule/app-analytics'
  * import { createProvider } from '@molecule/app-analytics-posthog'
  *
- * // Canonical wiring: read the browser-side key from Vite client env and pass
- * // it through options. `importMetaEnv` stands for Vite's `import.meta.env` —
- * // in your app write `import.meta.env?.VITE_POSTHOG_KEY` directly. Without a
- * // key, skip bonding — analytics calls no-op.
- * const apiKey = importMetaEnv?.VITE_POSTHOG_KEY as string | undefined
- * const host = importMetaEnv?.VITE_POSTHOG_HOST as string | undefined
+ * // Startup (your app's bond-setup file): the bond never reads env — pass key + host in.
+ * // In a Vite app: `import.meta.env.VITE_POSTHOG_KEY` / `import.meta.env.VITE_POSTHOG_HOST`.
+ * const apiKey: string | undefined = 'phc_your_project_key'
+ * const host: string | undefined = 'https://eu.i.posthog.com' // EU projects MUST set this
  * if (apiKey) {
  *   setProvider(createProvider({ apiKey, ...(host ? { host } : {}) }))
  * }
+ *
+ * // Anywhere: call the core helpers (they no-op when nothing is bonded).
+ * await identify({ userId: 'u_123', email: 'ada@example.com', name: 'Ada' }) // on login
+ * await group('org_42', { name: 'Acme' }) // PostHog group type "company"
+ * await page({ path: '/checkout', name: 'Checkout' }) // captured as `$pageview`
+ * await track({ name: 'order_placed', properties: { total: 42.5, currency: 'USD' } })
+ * await reset() // on logout
+ * console.log(hasProvider()) // false = no key, every call above was dropped
  * ```
  *
  * @remarks

@@ -6,13 +6,32 @@
  *
  * @example
  * ```typescript
- * import { provider } from '@molecule/app-color-picker-default'
- * import { setProvider } from '@molecule/app-color-picker'
+ * import { requireProvider, setProvider } from '@molecule/app-color-picker'
+ * import { createProvider } from '@molecule/app-color-picker-default'
  *
- * setProvider(provider)
+ * // Startup: bond once. `format` is the default for pickers that do not pass their own.
+ * setProvider(createProvider({ format: 'hex' }))
+ *
+ * // In a settings screen: create a picker through the core provider.
+ * let brandColor = '#3b82f6'
+ * const picker = requireProvider().createPicker({
+ *   value: brandColor,
+ *   presets: ['#3b82f6', '#10b981', '#f59e0b'], // for YOUR swatch UI — the instance ignores them
+ *   onChange: (color) => {
+ *     brandColor = color // persist / re-render here
+ *   },
+ * })
+ *
+ * picker.setValue('#10b981') // e.g. a swatch click — fires onChange('#10b981')
+ * console.log(picker.getValue(), picker.getFormat()) // '#10b981' 'hex'
+ * picker.destroy() // on unmount
  * ```
  *
  * @remarks
+ * HEADLESS: nothing is rendered — draw the swatches/input yourself from `getValue()` and
+ * call `setValue()` on user input. Get pickers from `requireProvider().createPicker(...)`
+ * after `setProvider(...)`; the core has no top-level `createPicker()`.
+ *
  * This default instance is a plain value/format store: `setFormat()` only
  * records the format — it does NOT convert the current value between
  * hex/rgb/hsl, and `setValue()` accepts any string without validation or

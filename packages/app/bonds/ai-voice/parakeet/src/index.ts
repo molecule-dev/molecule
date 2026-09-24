@@ -8,16 +8,33 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/app-ai-voice'
+ * import { requireProvider, setProvider } from '@molecule/app-ai-voice'
  * import { createProvider, supportsRecognitionLanguage } from '@molecule/app-ai-voice-parakeet'
  *
- * if (await supportsRecognitionLanguage(navigator.language)) {
+ * // Startup: bond once — only if the model covers the user's language.
+ * const language = 'en-US' // e.g. navigator.language
+ * if (await supportsRecognitionLanguage(language)) {
  *   setProvider(
  *     createProvider({
- *       onModelProgress: (e) => console.log(e.status, e.progress),
+ *       onModelProgress: ({ status, progress }) => console.log(status, progress ?? ''), // show this!
  *     }),
  *   )
  * }
+ *
+ * // Mic button: speech-to-text through the core provider (throws if nothing was bonded).
+ * const voice = requireProvider()
+ * const transcripts: string[] = []
+ * voice.startListening(
+ *   { language },
+ *   {
+ *     onStateChange: (state) => console.log(state), // 'processing' while the model loads, then 'listening'
+ *     onTranscript: ({ transcript }) => transcripts.push(transcript), // one FINAL result per pause
+ *     onError: ({ code, message }) => console.error(code, message), // e.g. 'not-allowed' (mic denied)
+ *   },
+ * )
+ *
+ * // Second click: stop. Speech still in progress is transcribed and delivered afterwards.
+ * voice.stopListening()
  * ```
  *
  * @remarks
@@ -29,6 +46,14 @@
  * instead (smaller download, broader language coverage, lower accuracy).
  * Transcripts arrive as final chunks after each pause; there are no
  * interim results.
+ *
+ * The core has no top-level `startListening()` — call it on `requireProvider()` after
+ * `setProvider(...)`; it returns `void` and text arrives only via `handlers.onTranscript`.
+ * Recognition needs `navigator.mediaDevices.getUserMedia`, `AudioContext` and WebAssembly
+ * (`isRecognitionSupported()`); WebGPU is optional. Apps with a `script-src 'self'` CSP must
+ * serve the ONNX Runtime files themselves and pass `wasmPaths` (e.g. `'/ort/'`), otherwise the
+ * runtime is fetched from the jsdelivr CDN and blocked. `speak()` uses the browser's
+ * SpeechSynthesis and THROWS where it is missing.
  *
  * @module
  */

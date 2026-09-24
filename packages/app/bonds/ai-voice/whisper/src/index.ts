@@ -8,14 +8,32 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/app-ai-voice'
+ * import { requireProvider, setProvider } from '@molecule/app-ai-voice'
  * import { createProvider } from '@molecule/app-ai-voice-whisper'
  *
+ * // Startup: bond once. Runs fully on-device — no key, no speech service.
  * setProvider(
  *   createProvider({
- *     onModelProgress: (e) => console.log(e.status, e.progress),
+ *     model: 'onnx-community/whisper-base', // multilingual (the default)
+ *     wasmPaths: '/transformers-ort/', // self-hosted ORT runtime files (needed under a strict CSP)
+ *     onModelProgress: ({ status, progress }) => console.log(status, progress ?? ''), // show this!
  *   }),
  * )
+ *
+ * // Mic button: speech-to-text through the core provider.
+ * const voice = requireProvider()
+ * const transcripts: string[] = []
+ * voice.startListening(
+ *   { language: 'fr-FR' }, // forwarded to multilingual Whisper models as 'fr'
+ *   {
+ *     onStateChange: (state) => console.log(state), // 'processing' while the model loads, then 'listening'
+ *     onTranscript: ({ transcript }) => transcripts.push(transcript), // one FINAL result per pause
+ *     onError: ({ code, message }) => console.error(code, message), // e.g. 'not-allowed' (mic denied)
+ *   },
+ * )
+ *
+ * // Second click: stop. Speech still in progress is transcribed and delivered afterwards.
+ * voice.stopListening()
  * ```
  *
  * @remarks
@@ -30,6 +48,12 @@
  * failed session is cached by transformers.js for the page's lifetime, so
  * a bad dtype cannot be retried without a reload — pick a working one up
  * front.
+ *
+ * The core has no top-level `startListening()` — call it on `requireProvider()` after
+ * `setProvider(...)`; it returns `void` and text arrives only via `handlers.onTranscript`
+ * (`confidence` is always 1 — Whisper reports none). `wasmPaths` must point at files you serve;
+ * without it the ONNX runtime is fetched from the jsdelivr CDN, which a `script-src 'self'` CSP
+ * blocks. `speak()` uses the browser's SpeechSynthesis and THROWS where it is missing.
  *
  * @module
  */

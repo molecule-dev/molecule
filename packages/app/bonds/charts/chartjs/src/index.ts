@@ -5,18 +5,30 @@
  * built-in default provider only paints a "no provider bonded" placeholder).
  *
  * @example
- * ```ts
- * import { setProvider, createLineChart } from '@molecule/app-charts'
+ * ```typescript
+ * import { createLineChart, getColor, setProvider } from '@molecule/app-charts'
  * import { provider } from '@molecule/app-charts-chartjs'
  *
- * setProvider(provider) // wire ONCE at app startup, before any create*Chart call
+ * // Startup: wire ONCE, before any create*Chart call (no key, no options).
+ * setProvider(provider)
  *
- * // In a component (React ref + effect), destroy on cleanup:
- * const chart = createLineChart(canvasEl, {
+ * // Browser code: pass a <canvas> (or a container element — a canvas is created inside it).
+ * const canvas = document.createElement('canvas')
+ * document.body.appendChild(canvas)
+ *
+ * const chart = createLineChart(canvas, {
  *   labels: ['Jan', 'Feb', 'Mar'],
- *   datasets: [{ label: 'Revenue', data: [12, 19, 8] }],
+ *   datasets: [
+ *     {
+ *       label: 'Revenue', // user-visible: translate with your app's own t() key
+ *       data: [12, 19, 8],
+ *       borderColor: getColor(0),
+ *     },
+ *   ],
  * })
- * // …later: chart.destroy()
+ *
+ * chart.addData('Apr', [15]) // appends a label + one value per dataset, then redraws
+ * chart.destroy() // on unmount — REQUIRED before re-creating a chart on the same canvas
  * ```
  *
  * @remarks

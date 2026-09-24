@@ -3,17 +3,21 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/app-analytics'
+ * import { hasProvider, identify, page, setProvider, track } from '@molecule/app-analytics'
  * import { createProvider } from '@molecule/app-analytics-mixpanel'
  *
- * // Canonical wiring: read the browser-side token from Vite env and pass it
- * // through options. Without a token, skip bonding — analytics calls no-op.
- * // VITE_MIXPANEL_TOKEN below stands for `import.meta.env.VITE_MIXPANEL_TOKEN`
- * // (write the `import.meta.env` read in your app's bond-setup file).
- * const token = VITE_MIXPANEL_TOKEN as string | undefined
+ * // Startup (your app's bond-setup file): the bond never reads env — pass the token in.
+ * // In a Vite app: `const token = import.meta.env.VITE_MIXPANEL_TOKEN as string | undefined`
+ * const token: string | undefined = 'your_mixpanel_project_token'
  * if (token) {
  *   setProvider(createProvider({ token }))
  * }
+ *
+ * // Anywhere: call the core helpers (they no-op when nothing is bonded).
+ * await identify({ userId: 'u_123', email: 'ada@example.com', name: 'Ada' }) // on login
+ * await page({ path: '/checkout', name: 'Checkout' }) // sent as a "Page View" event
+ * await track({ name: 'order_placed', properties: { total: 42.5, currency: 'USD' } })
+ * console.log(hasProvider()) // false = no token, every call above was dropped
  * ```
  *
  * @remarks

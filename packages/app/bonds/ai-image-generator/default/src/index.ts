@@ -4,13 +4,33 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/app-ai-image-generator'
- * import { provider } from '@molecule/app-ai-image-generator-default'
+ * import { requireProvider, setProvider } from '@molecule/app-ai-image-generator'
+ * import { createProvider } from '@molecule/app-ai-image-generator-default'
  *
- * setProvider(provider) // custom baseUrl/headers: setProvider(createProvider({...}))
+ * // Startup: bond once. `baseUrl` '' (default) = same origin; the image-model key stays on YOUR API.
+ * setProvider(createProvider({ baseUrl: '', headers: { 'X-Client': 'web' } }))
+ *
+ * // Anywhere: generate through the core provider.
+ * const generator = requireProvider()
+ * const config = { endpoint: '/api/images/generate' }
+ *
+ * const images = await generator.generate(
+ *   { prompt: 'A lighthouse at dusk, watercolor', size: '1024x1024', count: 1 },
+ *   config,
+ *   (event) => {
+ *     if (event.type === 'progress') console.log(`${event.percent}%`)
+ *     if (event.type === 'error') console.error(event.message) // generate() resolves [] on failure
+ *   },
+ * )
+ * const imageUrl = images[0]?.url // render with <img src={imageUrl} />
+ *
+ * const history = await generator.loadHistory(config) // GET on the same endpoint
  * ```
  *
  * @remarks
+ * The core has no top-level `generate()` — call it on `requireProvider()` after
+ * `setProvider(...)`, and pass the `ImageGenerationConfig` (required `endpoint`) on every call.
+ * The bare `provider` export is `createProvider()` with no options.
  * Talks to YOUR backend at `config.endpoint` — no vendor key in the browser.
  * Server contract: POST `{ prompt, negativePrompt?, size?, count?, format?,
  * quality?, style?, model? }`; reply EITHER as plain JSON

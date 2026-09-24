@@ -1,6 +1,28 @@
 /**
  * HTTP/SSE AI chat provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/app-ai-chat'
+ * import { createProvider } from '@molecule/app-ai-chat-http'
+ *
+ * // Startup: bond once. `baseUrl` '' (default) = same origin; the AI key stays on YOUR API.
+ * setProvider(createProvider({ baseUrl: '', headers: { 'X-Client': 'web' } }))
+ *
+ * // Anywhere: send a message through the core provider and collect the streamed reply.
+ * const chat = requireProvider()
+ * const config = { endpoint: '/api/ai/chat', model: 'claude-sonnet-4-5' }
+ *
+ * let reply = ''
+ * await chat.sendMessage('Summarize my open tasks', config, (event) => {
+ *   if (event.type === 'text') reply += event.content
+ *   if (event.type === 'error') console.error(event.message)
+ * })
+ * console.log(reply) // the assistant's full answer once `sendMessage` resolves
+ *
+ * const history = await chat.loadHistory(config) // GET on the same endpoint
+ * ```
+ *
  * @remarks
  * POSTs each message to YOUR backend chat endpoint (`config.endpoint`, a RELATIVE path like
  * `/api/ai/chat` on the app's `baseUrl`) and reads the reply as an SSE stream — it does NOT talk
@@ -9,6 +31,11 @@
  * (cookie/bearer), so never attach a provider key or an absolute AI-provider URL here. See
  * `@molecule/app-ai-chat` for the safe-render rules.
  *
+ * The core has no top-level `sendMessage()` — call it on `requireProvider()` after
+ * `setProvider(...)`, passing the `ChatConfig` (required `endpoint`) on EVERY call; the bond
+ * keeps no per-conversation config. `sendMessage` resolves when the stream ends and never
+ * returns the text: accumulate `text` events yourself (errors arrive as `error` events, not
+ * rejections). A new `sendMessage` silently aborts the previous in-flight one.
  *
  * Server contract (all on the ONE `config.endpoint` route): POST
  * `{ message, model?, attachments?, resume?, suppressUserMessage?,
