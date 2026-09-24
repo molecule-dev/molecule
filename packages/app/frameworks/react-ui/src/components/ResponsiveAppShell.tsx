@@ -444,13 +444,16 @@ export function ResponsiveAppShellTopBar({
             data-mol-id="shell-drawer-open"
             className={cm.cn(
               cm.flex({ align: 'center', justify: 'center' }),
-              // 11 × 4px = 44px — the fleet's minimum tap target.
-              cm.w(11),
-              cm.h(11),
               cm.shrink0,
               cm.roundedFull,
               cm.cursorPointer,
             )}
+            // 44px — the fleet's minimum tap target. Inline (Rule 5): the
+            // Tailwind bond never generates `.h-11` (no token scans to it)
+            // and `.w-11` only appears via an unrelated token, so class-based
+            // sizing here rendered a ~20px trigger (found by flashcard-app's
+            // adoption pass).
+            style={{ width: 44, height: 44 }}
           >
             {renderIcon('menu', cm.iconMd)}
           </button>
