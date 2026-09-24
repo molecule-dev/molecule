@@ -15,23 +15,37 @@
  * browser as usual.
  *
  * @example
- * ```ts
- * // e2e/bonds.ts (scaffolded)
- * import { resolveE2EProviderName, setProvider } from '@molecule/app-e2e'
- * import { provider as playwright } from '@molecule/app-e2e-playwright'
- * import { provider as preview } from '@molecule/app-e2e-preview'
+ * ```typescript
+ * // scripts/smoke.ts — run with `npx tsx scripts/smoke.ts` while the dev server is up.
+ * import { requireProvider, setProvider } from '@molecule/app-e2e'
+ * import { provider } from '@molecule/app-e2e-playwright'
  *
- * setProvider(resolveE2EProviderName() === 'preview' ? preview : playwright)
+ * // Bond once (the scaffolded e2e/bonds.ts does this for specs).
+ * setProvider(provider)
  *
- * // a script
- * import { connectPlaywright } from '@molecule/app-e2e-playwright'
- * const page = await connectPlaywright({ baseURL: 'http://localhost:3000', viewport: { width: 390, height: 844 } })
- * await page.goto('/')
- * await page.screenshot({ path: 'home-phone.png' })
- * await page.close() // closes the context and the browser too
+ * const page = await requireProvider().connect({
+ *   baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:5173', // relative goto() resolves here
+ *   viewport: { width: 390, height: 844 }, // phone
+ *   timeout: 10_000, // ms, for actions and waits
+ * })
+ * try {
+ *   await page.goto('/')
+ *   const heading = await page.locator('h1').first().textContent()
+ *   const screenshot = await page.screenshot({ fullPage: true }) // PNG Buffer
+ *   console.log(heading, `${screenshot.length} bytes`)
+ * } finally {
+ *   await page.close() // also closes the context AND the browser — always call it
+ * }
  * ```
  *
  * @remarks
+ * - Specs run by `npx playwright test` do NOT call `connect()` — Playwright's
+ *   own fixtures open the page. `connect()` (or the shortcut
+ *   `connectPlaywright(options)`) is for standalone scripts.
+ * - Every `connect()` launches a NEW browser; skipping `page.close()` leaks
+ *   a Chromium process per call.
+ * - Browser-specific knobs go in `browser`, `headed` and `launchOptions`
+ *   (passed straight to Playwright's `launch()`, e.g. `executablePath`).
  * - On your own machine, browsers are installed once with
  *   `npx playwright install chromium` (`@playwright/test` never downloads them
  *   on `npm install`). The launch error says so when they are missing.
@@ -55,5 +69,5 @@
  * @module
  */
 
-export { connectPlaywright, provider } from './provider.js'
+export * from './provider.js'
 export * from './types.js'
