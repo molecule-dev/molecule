@@ -1,3 +1,21 @@
+/**
+ * Translations for molecule user payment handlers in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-user-payments'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('user.payment.providerRequired', undefined, { locale: 'fr', defaultValue: 'Payment provider is required.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

@@ -1,3 +1,21 @@
+/**
+ * Translations for molecule base resource in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-resource'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('resource.error.unknownError', undefined, { locale: 'fr', defaultValue: 'Unknown error.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

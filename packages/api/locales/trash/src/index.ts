@@ -5,6 +5,18 @@
  * Wire by importing the resource package's `i18n.ts` (which calls
  * `registerLocaleModule` on this package).
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-trash'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('trash.error.alreadyResolved', undefined, { locale: 'fr', defaultValue: 'Trashed item has already been restored or purged' }) // → the French string
+ * ```
+ *
  * @module
  */
 

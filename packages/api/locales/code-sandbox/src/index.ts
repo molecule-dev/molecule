@@ -1,3 +1,21 @@
+/**
+ * Translations for molecule code sandbox in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-code-sandbox'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('codeSandbox.error.noProvider', undefined, { locale: 'fr', defaultValue: 'Code sandbox provider not configured. Bond a code-sandbox...' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

@@ -5,6 +5,18 @@
  * error keys. Wire by importing the resource package's `i18n.ts` (which calls
  * `registerLocaleModule` on this package).
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-resource-version-history'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('versionHistory.error.countFailed', undefined, { locale: 'fr', defaultValue: 'Failed to count versions' }) // → the French string
+ * ```
+ *
  * @module
  */
 

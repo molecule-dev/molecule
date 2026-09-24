@@ -1,3 +1,21 @@
+/**
+ * Translations for molecule notifications package in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-notifications'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('notifications.warn.noProviders', undefined, { locale: 'fr', defaultValue: 'No notification providers configured. Notification not sent.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

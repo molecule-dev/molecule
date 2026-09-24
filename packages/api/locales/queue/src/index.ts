@@ -1,3 +1,21 @@
+/**
+ * Translations for molecule queue package in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-queue'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('queue.error.noProvider', undefined, { locale: 'fr', defaultValue: 'Queue provider not configured. Call setProvider() first.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

@@ -5,6 +5,18 @@
  * error keys. Wire by importing the resource package's `i18n.ts` (which calls
  * `registerLocaleModule` on this package).
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-resource-course'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('resourceCourse.error.courseNotFound', undefined, { locale: 'fr', defaultValue: 'Course not found.' }) // → the French string
+ * ```
+ *
  * @module
  */
 

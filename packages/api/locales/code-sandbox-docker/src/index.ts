@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/api-code-sandbox-docker` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-code-sandbox-docker'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('codeSandbox.docker.error.readFailed', { path: 'Ada', error: 'Ada' }, { locale: 'fr', defaultValue: 'Failed to read {{path}}: {{error}}' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

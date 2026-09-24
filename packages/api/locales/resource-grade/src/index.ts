@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/api-resource-grade` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-resource-grade'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('grade.error.foreignKeysRequired', undefined, { locale: 'fr', defaultValue: 'enrollmentId, assignmentId, userId, and courseId are requ...' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

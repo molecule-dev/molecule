@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/api-secrets-doppler` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-secrets-doppler'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('secrets.doppler.error.tokenNotConfigured', undefined, { locale: 'fr', defaultValue: 'Doppler token not configured. Set DOPPLER_TOKEN or pass t...' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

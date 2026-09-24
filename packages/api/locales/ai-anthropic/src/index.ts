@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/api-bond-ai-anthropic` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import * as locales from '@molecule/api-locales-ai-anthropic'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * // Per-request locale goes in the options — never a process-global setLocale().
+ * t('ai.error.apiError', undefined, { locale: 'fr', defaultValue: 'AI service error. Please try again.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'
