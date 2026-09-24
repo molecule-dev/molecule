@@ -8,19 +8,28 @@
  *
  * @example
  * ```tsx
- * import { AmountInput } from '@molecule/app-amount-input-react'
+ * import { useState } from 'react'
  *
- * const [amount, setAmount] = useState<number | ''>(0)
- * const [type, setType] = useState<'income' | 'expense'>('expense')
+ * import { AmountInput, type AmountType, formatCurrency } from '@molecule/app-amount-input-react'
  *
- * <AmountInput
- *   amount={amount}
- *   onAmountChange={setAmount}
- *   type={type}
- *   onTypeChange={(t) => setType(t as 'income' | 'expense')}
- *   currencySymbol="$"
- *   size="lg"
- * />
+ * export function NewTransaction() {
+ *   const [amount, setAmount] = useState<number | ''>(42.5)
+ *   const [type, setType] = useState<AmountType>('expense')
+ *   return (
+ *     <form>
+ *       <AmountInput
+ *         amount={amount}
+ *         onAmountChange={setAmount}
+ *         type={type}
+ *         onTypeChange={setType}
+ *         typeOptions={['income', 'expense', 'transfer']}
+ *         currencySymbol="$"
+ *         size="lg"
+ *       />
+ *       <output>{amount === '' ? '' : formatCurrency(amount, 'USD', 'en-US')}</output>
+ *     </form>
+ *   )
+ * }
  * ```
  *
  * @remarks

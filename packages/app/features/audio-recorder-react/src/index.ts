@@ -7,15 +7,26 @@
  *
  * @example
  * ```tsx
- * import { AudioRecorder } from '@molecule/app-audio-recorder-react'
+ * import { useState } from 'react'
  *
- * <AudioRecorder
- *   maxDurationSeconds={300}
- *   onRecorded={({ blob, mimeType, durationSeconds }) => {
- *     console.log(`Captured ${durationSeconds}s of ${mimeType}`)
- *     uploadVoiceNote(blob)
- *   }}
- * />
+ * import { AudioRecorder, type AudioRecording } from '@molecule/app-audio-recorder-react'
+ *
+ * export function VoiceNote() {
+ *   const [note, setNote] = useState<{ url: string; seconds: number } | null>(null)
+ *   const handleRecorded = ({ blob, durationSeconds }: AudioRecording) =>
+ *     setNote({ url: URL.createObjectURL(blob), seconds: durationSeconds })
+ *   return (
+ *     <section>
+ *       <AudioRecorder
+ *         mimeType="audio/webm"
+ *         maxDurationSeconds={300}
+ *         dataMolId="voice-note-recorder"
+ *         onRecorded={handleRecorded}
+ *       />
+ *       {note && <audio controls src={note.url} data-mol-id="voice-note-playback" />}
+ *     </section>
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -32,6 +43,14 @@
  * itself (without it the dot is static but recording still works).
  * Translations come from the companion
  * `@molecule/app-locales-audio-recorder` locale bond.
+ *
+ * It calls `useTranslation()` from `@molecule/app-react`, so it MUST render
+ * inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise);
+ * `getClassMap()` throws unless `setClassMap(classMap)` ran at startup.
+ * It does NOT upload, transcribe, or keep the blob — `onRecorded` is the only
+ * way out, so send the blob to your backend (or `URL.createObjectURL` it for
+ * playback, and revoke it when done) there. `durationSeconds` is whole
+ * SECONDS, and `maxDurationSeconds` is seconds too (`0` = unlimited).
  *
  * @module
  */

@@ -8,17 +8,27 @@
  *
  * @example
  * ```tsx
- * import { AnnouncementBar } from '@molecule/app-announcement-bar-react'
+ * import { useState } from 'react'
  *
- * <AnnouncementBar
- *   kind="promo"
- *   icon={<span>🎉</span>}
- *   action={{ label: 'Learn more', href: '/pricing' }}
- *   onDismiss={() => console.log('dismissed')}
- *   dataMolId="promo-bar"
- * >
- *   New Pro plan — 3 months free for early adopters.
- * </AnnouncementBar>
+ * import { AnnouncementBar } from '@molecule/app-announcement-bar-react'
+ * import { useTranslation } from '@molecule/app-react'
+ *
+ * export function UpdateBanner() {
+ *   const { t } = useTranslation()
+ *   const [visible, setVisible] = useState(true)
+ *   return (
+ *     <AnnouncementBar
+ *       kind="info"
+ *       icon={<span aria-hidden="true">🚀</span>}
+ *       action={{ label: t('pwa.update', undefined, { defaultValue: 'Update' }), onClick: () => window.location.reload() }}
+ *       visible={visible}
+ *       onDismiss={() => setVisible(false)}
+ *       dataMolId="update-bar"
+ *     >
+ *       {t('pwa.updateAvailable', undefined, { defaultValue: 'New version available!' })}
+ *     </AnnouncementBar>
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -30,6 +40,13 @@
  * defaults to `true`. There is no default `data-mol-id`; pass `dataMolId`
  * so agents/E2E can target the bar. Translations come from the companion
  * `@molecule/app-locales-announcement-bar` locale bond.
+ *
+ * It calls `useTranslation()` from `@molecule/app-react`, so it MUST render
+ * inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise), and
+ * `getClassMap()` throws unless `setClassMap(classMap)` from `@molecule/app-ui`
+ * ran at startup. Nothing is remembered across reloads — to keep a bar
+ * dismissed, persist the flag yourself and feed it back through `visible`.
+ * An `action` with `href` renders an `<a>` and ignores `onClick`.
  *
  * @module
  */

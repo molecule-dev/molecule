@@ -11,18 +11,12 @@
  * @example
  * ```tsx
  * import { AuthBrandHeader } from '@molecule/app-auth-brand-header-react'
- * import { APP_NAME, APP_TAGLINE } from '../branding.js'
  *
- * export function MyAuthHeader() {
- *   return (
- *     <AuthBrandHeader
- *       appName={APP_NAME}
- *       tagline={APP_TAGLINE}
- *       icon="gavel"
- *       chipGradient="linear-gradient(135deg, #e05a2b, #f06a3b)"
- *       wordmarkColor="#e05a2b"
- *     />
- *   )
+ * const APP_NAME = 'Casebook'
+ * const APP_TAGLINE = 'Case management for small law firms'
+ *
+ * export function LoginHeader() {
+ *   return <AuthBrandHeader appName={APP_NAME} tagline={APP_TAGLINE} icon="gavel" chipShape="square" />
  * }
  * ```
  *
@@ -35,6 +29,17 @@
  * (`bg-primary`, `text-on-surface`) from the wired ClassMap bond — with
  * a non-Tailwind ClassMap, pass `chipGradient` / `wordmarkColor` /
  * `className` explicitly.
+ *
+ * It calls `useTranslation()` from `@molecule/app-react`, so it MUST render
+ * inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise);
+ * `getClassMap()` throws unless `setClassMap(classMap)` ran at startup. In
+ * preset mode `appName` and `tagline` are rendered through `t()` keys
+ * `authBrandHeader.appName` / `authBrandHeader.tagline` with the prop
+ * interpolated, so the text you pass shows unless a locale bond overrides
+ * those keys. Passing `children` switches to composed mode and silently
+ * ignores every preset prop (`appName`, `tagline`, `icon`, `chipGradient`,
+ * `chipShape`, `wordmarkColor`). It is only the header — no form, no auth
+ * calls.
  *
  * @module
  */

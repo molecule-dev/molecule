@@ -5,15 +5,27 @@
  *
  * @example
  * ```tsx
- * import { AudioPlayer } from '@molecule/app-audio-player-react'
+ * import { useState } from 'react'
  *
- * <AudioPlayer
- *   src="/audio/episode-42.mp3"
- *   title="Episode 42: Getting Started"
- *   subtitle="The Molecule Podcast"
- *   onPlay={() => console.log('playing')}
- *   onEnded={() => console.log('finished')}
- * />
+ * import { AudioPlayer } from '@molecule/app-audio-player-react'
+ * import { useTranslation } from '@molecule/app-react'
+ *
+ * export function EpisodePlayer() {
+ *   const { t } = useTranslation()
+ *   const [finished, setFinished] = useState(false)
+ *   return (
+ *     <section>
+ *       <AudioPlayer
+ *         src="/audio/episode-42.mp3"
+ *         title="Episode 42: Getting Started"
+ *         subtitle="The Molecule Podcast"
+ *         onPlay={() => setFinished(false)}
+ *         onEnded={() => setFinished(true)}
+ *       />
+ *       {finished && <p>{t('common.completed', undefined, { defaultValue: 'Completed' })}</p>}
+ *     </section>
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -25,6 +37,14 @@
  * `0:00` until `loadedmetadata` fires (`preload="metadata"`).
  * Translations come from the companion `@molecule/app-locales-audio-player`
  * locale bond.
+ *
+ * It calls `useTranslation()` from `@molecule/app-react`, so it MUST render
+ * inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise);
+ * `getClassMap()` throws unless `setClassMap(classMap)` ran at startup, and the
+ * buttons are `Button` from `@molecule/app-ui-react`. Playback state is
+ * internal — there is no `playing`/`currentTime` prop to control it from
+ * outside; react to `onPlay` / `onPause` / `onEnded` instead. `src` must be a
+ * URL the browser can fetch directly (it does not sign or proxy uploads).
  *
  * @module
  */

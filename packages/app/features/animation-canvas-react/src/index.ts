@@ -16,6 +16,8 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import {
  *   AnimationCanvas,
  *   type AnimationKeyframe,
@@ -26,13 +28,13 @@
  *   { time: 1, state: [{ id: 'box', x: 200, y: 50, rotation: 90, scale: 1.5, opacity: 1, easing: 'easeInOut' }] },
  * ]
  *
- * function Demo() {
- *   const [t, setT] = useState(0)
+ * export function AnimationEditor() {
+ *   const [time, setTime] = useState(0.5)
  *   return (
  *     <AnimationCanvas
  *       keyframes={keyframes}
- *       currentTime={t}
- *       onSeek={setT}
+ *       currentTime={time}
+ *       onSeek={setTime}
  *       width={400}
  *       height={200}
  *     />
@@ -54,6 +56,12 @@
  * - Aria labels resolve through `t()` with English fallbacks; companion
  *   locale bond: `@molecule/app-locales-feature-animation-canvas`.
  *   Requires a wired ClassMap bond and the app I18nProvider.
+ * - **Must render inside `<I18nProvider>` / `<MoleculeProvider>`** from `@molecule/app-react`: it
+ *   calls `useTranslation()`, which throws outside one. `getClassMap()` throws unless
+ *   `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
+ * - It does NOT play anything: there is no timer. Advance `currentTime` yourself (e.g. a
+ *   `requestAnimationFrame` loop or a scrubber). Time outside the keyframe range is clamped.
+ * - `easing` on a keyframe shapes the segment LEADING INTO that keyframe, not out of it.
  *
  * @module
  */

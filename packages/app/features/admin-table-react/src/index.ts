@@ -11,27 +11,48 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { AdminTable, type AdminTableColumn } from '@molecule/app-admin-table-react'
+ * import { t } from '@molecule/app-i18n'
  *
- * const columns: AdminTableColumn<Product>[] = [
- *   { id: 'name', header: 'Product', render: (p) => <Product p={p} /> },
- *   { id: 'price', header: 'Price', render: (p) => `$${(p.price / 100).toFixed(2)}`, align: 'right' },
- *   { id: 'stock', header: 'Stock', render: (p) => <StockBadge stock={p.stock} /> },
- * ]
+ * interface Product { id: string; name: string; priceCents: number; category: string }
  *
- * <AdminTable
- *   rows={products}
- *   columns={columns}
- *   rowKey={(p) => p.id}
- *   loading={loading}
- *   onRowClick={(p) => navigate(`/product/${p.id}`)}
- *   bulkSelect
- *   rowActions={[
- *     { label: 'Edit', hrefFor: (p) => `/product/${p.id}`, onSelect: () => {} },
- *     { label: 'Delete', destructive: true, onSelect: (p) => http.delete(`/api/products/${p.id}`) },
- *   ]}
- *   footer={pagination}
- * />
+ * export function AdminProductsPage() {
+ *   const [products, setProducts] = useState<Product[]>([
+ *     { id: 'p1', name: 'Desk Lamp', priceCents: 4999, category: 'Lighting' },
+ *     { id: 'p2', name: 'Office Chair', priceCents: 18900, category: 'Furniture' },
+ *   ])
+ *   const [openedId, setOpenedId] = useState<string | null>(null)
+ *   const columns: AdminTableColumn<Product>[] = [
+ *     { id: 'name', header: t('form.name', undefined, { defaultValue: 'Name' }), render: (p) => p.name },
+ *     { id: 'price', header: t('form.price', undefined, { defaultValue: 'Price' }), render: (p) => `$${(p.priceCents / 100).toFixed(2)}`, align: 'right' },
+ *     { id: 'category', header: t('form.category', undefined, { defaultValue: 'Category' }), render: (p) => p.category },
+ *   ]
+ *   return (
+ *     <>
+ *       <p>{openedId}</p>
+ *       <AdminTable
+ *         rows={products}
+ *         columns={columns}
+ *         rowKey={(p) => p.id}
+ *         onRowClick={(p) => setOpenedId(p.id)}
+ *         bulkSelect
+ *         tbodyDataMolId="admin-products-rows"
+ *         rowActionsAriaLabel={() => t('nav.actions', undefined, { defaultValue: 'Actions' })}
+ *         rowActions={[
+ *           { label: t('common.edit', undefined, { defaultValue: 'Edit' }), hrefFor: (p) => `/admin/products/${p.id}`, onSelect: () => {} },
+ *           {
+ *             label: t('common.delete', undefined, { defaultValue: 'Delete' }),
+ *             destructive: true,
+ *             dataMolIdFor: (p) => `admin-products-delete-${p.id}`,
+ *             onSelect: (p) => setProducts((rows) => rows.filter((r) => r.id !== p.id)),
+ *           },
+ *         ]}
+ *       />
+ *     </>
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -43,6 +64,13 @@
  *   restyling.
  * - `selectedIds` is honored only together with `onSelectedIdsChange`
  *   (controlled selection); omit both for internal selection state.
+ * - It does NOT fetch, sort, filter or paginate: pass the current page as `rows` and put your
+ *   pagination control in `footer`. `loading` swaps rows for `skeletonRowCount` (default 8)
+ *   skeleton rows.
+ * - A row action with `hrefFor` renders a plain `<a>` and its `onSelect` is never called (it is
+ *   still required by the type — pass a noop). Rows get `data-mol-id="admin-table-row-<key>"`.
+ * - The kebab's aria-label defaults to the untranslated `'Row actions'` — pass
+ *   `rowActionsAriaLabel` through `t()`.
  *
  * @module
  */

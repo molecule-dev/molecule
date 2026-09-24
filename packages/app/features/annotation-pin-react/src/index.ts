@@ -8,21 +8,27 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { AnnotationLayer, type Pin } from '@molecule/app-annotation-pin-react'
  *
- * function ImageAnnotator({ src, pins, setPins, activeId, setActiveId }) {
+ * export function ImageAnnotator() {
+ *   const [pins, setPins] = useState<Pin[]>([
+ *     { id: 'pin-1', position: { x: 0.25, y: 0.4 }, label: 1, note: 'Scratch on the lid' },
+ *   ])
+ *   const [activeId, setActiveId] = useState<string | null>(null)
  *   return (
  *     <AnnotationLayer
  *       pins={pins}
  *       activePinId={activeId}
  *       onPinClick={(id) => setActiveId(id === activeId ? null : id)}
  *       onSurfaceClick={({ x, y }) => {
- *         const id = crypto.randomUUID()
+ *         const id = `pin-${pins.length + 1}`
  *         setPins([...pins, { id, position: { x, y }, label: pins.length + 1 }])
  *         setActiveId(id)
  *       }}
  *     >
- *       <img src={src} alt="" style={{ width: '100%', display: 'block' }} />
+ *       <img src="/uploads/product-photo.jpg" alt="" style={{ width: '100%', display: 'block' }} />
  *     </AnnotationLayer>
  *   )
  * }
@@ -38,6 +44,13 @@
  * `position: relative` box; a bare `<AnnotationPin>` needs its own
  * positioned ancestor. Translations come from the companion
  * `@molecule/app-locales-annotation-pin` locale bond.
+ *
+ * Both components call `useTranslation()` from `@molecule/app-react`, so they
+ * MUST render inside `<I18nProvider>` / `<MoleculeProvider>` (it throws
+ * otherwise), and `getClassMap()` throws unless `setClassMap(classMap)` from
+ * `@molecule/app-ui` ran at startup. Nothing is persisted: `onSurfaceClick`
+ * only reports coordinates — adding the pin to state (and saving it) is yours.
+ * A selected pin with no `note` shows the translated "No notes for this pin."
  *
  * @module
  */
