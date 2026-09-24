@@ -12,6 +12,17 @@
  * give them back.**
  *
  * @remarks
+ * - **An archive captures ONLY the external state whose bond is REGISTERED — and the
+ *   caller then destroys the original.** Every state-owning provider the app uses (each
+ *   `@molecule/api-database` bond, …) needs its matching
+ *   `@molecule/api-project-archive-external-state-*` bond wired with
+ *   `setExternalStateProvider(...)` (registered under its own `kind`). Capture from
+ *   `getExternalStateProviders()` — ALL of them — before `archive()`, pack their `parts`,
+ *   and store their `records` in the artifact: restore routes each record to
+ *   `getExternalStateProvider(record.kind)` and must FAIL if that returns `null`. A capture
+ *   that throws means STOP — never archive-and-destroy without it. An external-state bond
+ *   never DISCOVERS what a project owns; its injected resolver DECLARES it, and only an
+ *   empty result means "owns nothing".
  * - **Wire it at startup with `setProvider(...)` — or the equivalent
  *   `bond('project-archive', provider)`.** This core routes through the shared
  *   `@molecule/api-bond` registry, so either call registers the same provider and
@@ -137,106 +148,90 @@
  *
  * @example
  * ```typescript
+ * import { execFile } from 'node:child_process'
+ * import { mkdtemp, readFile, rm } from 'node:fs/promises'
+ * import { tmpdir } from 'node:os'
+ * import { join } from 'node:path'
+ * import { promisify } from 'node:util'
+ *
+ * import type { ArchivePart, ProjectExternalStateRecord } from '@molecule/api-project-archive'
  * import {
- *   type ArchivePart,
+ *   getExternalStateProviders,
  *   requireProvider,
+ *   setExternalStateProvider,
  *   setProvider,
  * } from '@molecule/api-project-archive'
+ * import { createSqliteExternalStateProvider } from '@molecule/api-project-archive-external-state-sqlite'
  * import { provider as objectStorageArchive } from '@molecule/api-project-archive-object-storage'
+ * import { setProvider as setUploads } from '@molecule/api-uploads'
+ * import { provider as filesystemUploads } from '@molecule/api-uploads-filesystem'
  *
- * // Wire at startup (equivalently: bond('project-archive', objectStorageArchive)).
+ * const projectsRoot = join(process.cwd(), 'projects')
+ * const databasePathOf = (id: string) => join(process.cwd(), 'databases', `${id}.db`)
+ *
+ * // Startup: storage FIRST (FILE_UPLOAD_PATH; `-s3` in production), then the archive, then
+ * // ONE external-state bond per state-owning provider. Unregistered state is NOT captured —
+ * // and is then deleted with the project. Paths are DECLARED; `[]` = "owns no database".
+ * setUploads(filesystemUploads)
  * setProvider(objectStorageArchive)
+ * setExternalStateProvider(
+ *   createSqliteExternalStateProvider({ databasePaths: (id) => [databasePathOf(id)] }),
+ * )
  *
- * // …later, reaping a project that has been dormant for 30 days.
- * const archiveStore = requireProvider()
- * const previousStorageId = project.archiveStorageId // whatever we persisted last time
+ * const projectId = 'proj_123'
+ * const projectDir = join(projectsRoot, projectId)
+ * const archiveIdByProject = new Map<string, string>() // your projects table in a real app
  *
- * // WHICH files to archive is OUR call, and git already answers it: drop
- * // everything .gitignore calls disposable, then list what is left. No exclude
- * // list lives in the archive package.
- * await exec('git', ['clean', '-Xdf'], { cwd: dir })
- * const tracked = await exec('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { cwd: dir })
+ * // 1. Source: git decides what is disposable. Every part handed to archive() is kept.
+ * const git = async (...args: string[]) =>
+ *   (await promisify(execFile)('git', args, { cwd: projectDir })).stdout
+ * await git('clean', '-Xdf')
+ * const files = (await git('ls-files', '--cached', '--others', '--exclude-standard'))
+ *   .split('\n')
+ *   .filter(Boolean)
+ * const parts: ArchivePart[] = await Promise.all(
+ *   files.map(async (file) => ({
+ *     path: `source/${file}`,
+ *     content: await readFile(join(projectDir, file)),
+ *     kind: 'source',
+ *   })),
+ * )
  *
- * // ONE generic channel. Source, a database dump and a git bundle are all parts —
- * // the archive stores their bytes verbatim and never interprets `kind`/`meta`.
- * // (`git ls-files` does not list history: archive a bundle for that.)
- * const parts: ArchivePart[] = [
- *   ...(await Promise.all(
- *     tracked.split('\n').filter(Boolean).map(async (file) => ({
- *       path: `source/${file}`,
- *       content: await readFile(join(dir, file)),
- *       kind: 'source',
- *     })),
- *   )),
- *   {
- *     path: 'database/main.dump',
- *     content: await pgDumpCustom(projectId), // pg_dump -Fc bytes
- *     kind: 'database',
- *     meta: { engine: 'postgresql', format: 'pg_custom', database: 'main' },
- *   },
- *   {
- *     path: 'repos/api.bundle',
- *     content: await gitBundle(dir), // git bundle create - --all
- *     kind: 'repo',
- *     meta: { remote: 'origin', headSha: await gitHeadSha(dir) },
- *   },
- * ]
+ * // 2. State outside the tree: capture from EVERY registered bond. A throw aborts here.
+ * const records: ProjectExternalStateRecord[] = []
+ * const workDir = await mkdtemp(join(tmpdir(), 'archive-'))
+ * try {
+ *   for (const stateProvider of getExternalStateProviders().values()) {
+ *     const captured = await stateProvider.capture({ projectId, workDir })
+ *     parts.push(...captured.parts)
+ *     records.push(...captured.records)
+ *   }
+ * } finally {
+ *   await rm(workDir, { recursive: true, force: true })
+ * }
+ * // The record index is what restore routes by (getExternalStateProvider(record.kind)).
+ * const index = new TextEncoder().encode(JSON.stringify(records))
+ * parts.push({ path: 'external-state/records.json', content: index, kind: 'external-state' })
  *
- * const result = await archiveStore.archive({
+ * // 3. Archive, requiring every captured part so a partial walk THROWS.
+ * const result = await requireProvider().archive({
  *   projectId,
- *   parts, // every one of these is archived — a dotenv part would THROW
- *   // Guards against a silently-empty or partial walk: archive() THROWS rather
- *   // than returning a verified archive of nothing.
- *   minParts: 1,
- *   requiredPaths: ['source/package.json', 'source/package-lock.json', 'database/main.dump'],
+ *   parts,
+ *   requiredPaths: ['source/package.json', ...records.flatMap((r) => (r.part ? [r.part] : []))],
  *   metadata: { reason: 'dormant-30d' },
  * })
  *
- * if (!result.verified) {
- *   // Not an archive. Keep the live project AND the previous artifact; retry later.
- *   logger.error('project archive unverified — NOT releasing sandbox', {
- *     projectId,
- *     verification: result.verification, // downloaded/checksumMatched/manifestParsed/entriesMatched/digestMatched
- *   })
- *   return
- * }
- *
- * // Verified: re-read from storage, sha256 matched, manifest parsed, parts
- * // counted, and the unpacked parts digest matched the manifest.
- * // 1. PERSIST the minted storageId FIRST — without it the artifact is an
- * //    unreachable orphan (there is no lookup by projectId).
- * await db.projects.update(projectId, { archiveStorageId: result.storageId })
- *
- * // 2. Only now is it safe to release the live project…
- * await releaseSandboxAndDropDatabase(projectId)
- *
- * // 3. …and only now to delete the OLD archive: every archive() minted a NEW
- * //    storageId, so the previous artifact was never overwritten and stayed
- * //    intact as the fallback while the new one was being verified.
- * if (previousStorageId && previousStorageId !== result.storageId) {
- *   await archiveStore.remove(previousStorageId) // remove() takes a STORAGE ID
- * }
- *
- * // Waking it back up: restore() REQUIRES the persisted storageId, validates the
- * // payload against the manifest (throws on any mismatch), and returns BYTES —
- * // the caller re-provisions and routes each part by the kind/meta it recorded.
- * const storageId = project.archiveStorageId
- * const summary = await archiveStore.status(storageId) // status() takes a STORAGE ID too
- * const restored = await archiveStore.restore({ projectId, storageId })
- *
- * const sandbox = await provisionSandbox(projectId)
- * for (const part of restored.parts) {
- *   if (part.kind === 'database') {
- *     // The archive never interpreted this — meta.format is OUR label.
- *     await pgRestore(await provisionDatabase(projectId), part.content, part.meta?.format)
- *   } else if (part.kind === 'repo') {
- *     await gitCloneFromBundle(sandbox, part.content)
- *   } else {
- *     await writeFile(sandbox, part.path.replace(/^source\//, ''), part.content, part.mode)
+ * // 4. `verified: true` is the ONLY signal that allows destroying anything.
+ * if (result.verified) {
+ *   const previousStorageId = archiveIdByProject.get(projectId)
+ *   archiveIdByProject.set(projectId, result.storageId) // persist FIRST — no lookup by project
+ *   await rm(projectDir, { recursive: true, force: true })
+ *   await rm(databasePathOf(projectId), { force: true })
+ *   if (previousStorageId && previousStorageId !== result.storageId) {
+ *     await requireProvider().remove(previousStorageId) // old artifact only AFTER the new verified
  *   }
  * }
- * await writeSecretsFromVault(sandbox, projectId) // dotenv parts are REFUSED, never archived
- * await runInstallFromLockfile(sandbox)           // node_modules was .gitignored, never walked
+ * // Not verified: keep the live project AND the previous archive; log result.verification, retry.
  * ```
  *
  * @module

@@ -19,7 +19,6 @@ const logger = getLogger()
 /** Express-compatible request object (minimal shape). */
 interface Request {
   ip?: string
-  [key: string]: unknown
 }
 
 /** Express-compatible response object (minimal shape). */
@@ -31,7 +30,6 @@ interface Response {
   statusCode: number
   /** Registers a listener (used for the `'finish'` event) to observe completion. */
   on(event: string, listener: () => void): Response
-  [key: string]: unknown
 }
 
 /** Express-compatible next function. */

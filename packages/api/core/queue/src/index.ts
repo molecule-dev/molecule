@@ -4,6 +4,9 @@
  * Defines the standard interface for queue providers.
  *
  * @remarks
+ * - **Bond a provider first** (`setProvider(createProvider())` from a queue bond) —
+ *   `send`/`subscribe`/`receive` throw until one is bonded. `delaySeconds` is in SECONDS.
+ *
  * Delivery is AT-LEAST-ONCE — a message can arrive more than once (retry after a crash, a
  * redelivery), so:
  *
@@ -39,17 +42,32 @@
  * | `@molecule/api-queue-rabbitmq` | Per-delay "wait" queue (`x-message-ttl` + dead-letter back to the real queue) | Real delayed delivery with **no** `rabbitmq-delayed-message-exchange` plugin required — the bond creates one durable queue per distinct delay value used. |
  *
  * @example
- * ```ts
- * import { send, subscribe } from '@molecule/api-queue'
+ * ```typescript
+ * import { send, setProvider, subscribe } from '@molecule/api-queue'
+ * // In-process, dev/single-instance only; use `-redis` / `-sqs` / `-rabbitmq` in production.
+ * import { createProvider } from '@molecule/api-queue-memory'
  *
- * await send('emails', { body: { userId, kind: 'welcome' } }) // an id, not the email body/secret
+ * interface WelcomeJob {
+ *   userId: string
+ * }
  *
- * subscribe<{ userId: string; kind: string }>('emails', async (msg) => {
- *   const user = await findById('users', msg.body.userId) // re-load server-side; re-scope
- *   if (user?.welcomeSentAt) return // idempotent — already done, skip the redelivery
- *   await sendMail({ from, to: user.email, subject: 'Welcome' })
- *   await updateById('users', user.id, { welcomeSentAt: Date.now() })
+ * // Startup: bond exactly one provider.
+ * setProvider(createProvider())
+ *
+ * // Worker: returning normally ACKS; throwing = redelivery. Keep it IDEMPOTENT.
+ * const welcomed = new Set<string>() // a DB "already sent" flag in a real app
+ * const stop = subscribe<WelcomeJob>('welcome-emails', async (message) => {
+ *   const { userId } = message.body
+ *   if (welcomed.has(userId)) return // duplicate delivery → no second email
+ *   welcomed.add(userId) // …send the email for userId here, loading its data server-side
  * })
+ *
+ * // Producer: enqueue an ID (never a secret or the full record).
+ * const messageId = await send<WelcomeJob>('welcome-emails', { body: { userId: 'user-123' } })
+ * await send<WelcomeJob>('welcome-emails', { body: { userId: 'user-456' }, delaySeconds: 60 })
+ *
+ * // Shutdown: stop consuming.
+ * stop()
  * ```
  *
  * @e2e

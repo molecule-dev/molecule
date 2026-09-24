@@ -24,32 +24,43 @@
  * every join is allowed; multiple guards → ALL must return `true` (AND); a
  * guard that throws → the join is denied (the bond logs the error).
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider, createRoom, broadcast, onMessage, onJoinRequest } from '@molecule/api-realtime'
+ * import http from 'node:http'
  *
- * // Bond a provider at startup
- * setProvider(socketioProvider)
+ * import { getLogger } from '@molecule/api-bond'
+ * import { broadcast, onJoinRequest, onMessage, setProvider } from '@molecule/api-realtime'
+ * import { createProvider } from '@molecule/api-realtime-ws'
  *
- * // Authorize client-initiated joins (REQUIRED for apps with private rooms)
- * onJoinRequest(async ({ clientId, room, auth }) => {
- *   const userId = await verifyToken(auth.token)
- *   return userId !== undefined && (await canAccessRoom(userId, room))
+ * const logger = getLogger()
+ *
+ * // Startup: bond the provider, then attach it to the API's HTTP server (shared port).
+ * const server = http.createServer()
+ * const realtime = createProvider({ deferAttach: true })
+ * setProvider(realtime)
+ * realtime.attachHttpServer?.(server)
+ *
+ * // Authorize `molecule:join` { room } — with NO guard, EVERY join is allowed.
+ * // ws handshake auth = the upgrade URL's query params (ws://host/?token=…).
+ * const sessionUserByToken = new Map([['token-ada', 'user-ada']]) // your session store
+ * const channelMembers = new Map([['channel:general', new Set(['user-ada'])]])
+ * onJoinRequest(({ room, auth }) => {
+ *   const userId = sessionUserByToken.get(String(auth.token))
+ *   return userId !== undefined && (channelMembers.get(room)?.has(userId) ?? false)
  * })
  *
- * // Push to a client-joined room by NAME
- * await broadcast('channel:general', 'message', { text: 'Hello!' })
- *
- * // Managed (server-driven) rooms still work unchanged
- * const room = await createRoom('chat')
- * await broadcast(room.id, 'message', { text: 'Hello!' })
- *
- * // Listen for incoming messages (including molecule:room-send dispatches)
+ * // A client's `molecule:room-send` { room, event, data } lands here; fan it out to the room.
  * onMessage((roomId, clientId, event, data) => {
- *   console.log(`${clientId} sent ${event} in ${roomId}:`, data)
+ *   if (event !== 'chat') return
+ *   broadcast(roomId, 'chat', { from: clientId, text: data }).catch((error: unknown) => {
+ *     logger.error('realtime chat broadcast failed', { roomId, error })
+ *   })
  * })
+ *
+ * server.listen(Number(process.env.PORT ?? 3000))
  * ```
+ *
+ * @module
  * @remarks
  * - **Pick the provider by your host's server model (read this FIRST).** SSE
  *   (`@molecule/api-realtime-sse`) is HTTP-native: it streams from an ordinary
@@ -69,9 +80,16 @@
  *   forget step: wire `@molecule/app-realtime-*` and have the relevant screen
  *   `connect()` → `joinRoom(room)` → `on(event, …)` with the SAME room + event
  *   strings this call uses (usually a template literal like `` `listing:${id}` ``).
- *   A server that broadcasts to a room no client joined — or under an event name
- *   no client listens for — is a SILENT no-op (nothing errors). Verify the live
+ *   A broadcast under an event name no client listens for is a SILENT no-op. A
+ *   broadcast to a room no client joined is a silent no-op on `-socketio`, but
+ *   THROWS `Room "<id>" does not exist` on `-ws` (a protocol room disappears with
+ *   its last member) — catch it when the room may be empty. Verify the live
  *   two-session check below; do NOT assume a compiling broadcast works.
+ * - **Attach the transport to your server.** With `-ws`, a zero-config
+ *   `createProvider()` binds NOTHING until `attachHttpServer(server)` (or an explicit
+ *   `httpServer`/`port`) — no error, just no connections. `-socketio` without
+ *   `httpServer`/`deferAttach` instead binds its OWN port (`PORT + 1000`); prefer
+ *   `{ deferAttach: true }` + `attachHttpServer(server)` for both.
  * - **Without a registered join guard ANY connected client may join ANY room
  *   by name** — apps with private rooms MUST register `onJoinRequest` and
  *   validate the request's `auth` payload (e.g. verify a token grants access

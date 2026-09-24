@@ -26,24 +26,38 @@
  *
  * @example
  * ```typescript
- * import { setProvider, send, getAll, markRead } from '@molecule/api-notification-center'
+ * import { join } from 'node:path'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * // SQLite needs no server; swap to `@molecule/api-database-postgresql` when DATABASE_URL exists.
+ * import { createMigrator, store } from '@molecule/api-database-sqlite'
+ * import {
+ *   getAll,
+ *   getUnreadCount,
+ *   markRead,
+ *   send,
+ *   setProvider,
+ * } from '@molecule/api-notification-center'
  * import { createProvider } from '@molecule/api-notification-center-database'
  *
- * // Startup — after the @molecule/api-database DataStore is bonded
+ * // Startup: migrations/*.sql MUST create `notifications` + `notification_preferences`,
+ * // then bond the DataStore BEFORE the notification-center provider.
+ * await createMigrator(join(process.cwd(), 'migrations'))()
+ * setStore(store)
  * setProvider(createProvider())
  *
- * // Send an in-app notification
- * const notification = await send('user-123', {
+ * // userId comes from the authenticated session — never from the request body.
+ * const userId = 'user-123'
+ * const notification = await send(userId, {
  *   type: 'system',
  *   title: 'Welcome!',
  *   body: 'Your account is ready.',
+ *   data: { href: '/settings' },
  * })
  *
- * // List unread notifications
- * const { items, total } = await getAll('user-123', { read: false })
- *
- * // Mark as read (scoped to the owner — only affects this user's row)
- * await markRead('user-123', notification.id)
+ * const { items, total } = await getAll(userId, { read: false, limit: 20 }) // newest first
+ * const unread = await getUnreadCount(userId) // 1
+ * await markRead(userId, notification.id) // true — false if the id is not this user's
  * ```
  *
  * @e2e

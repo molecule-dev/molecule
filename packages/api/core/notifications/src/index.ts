@@ -6,15 +6,25 @@
  *
  * @example
  * ```typescript
- * import { setProvider, notifyAll } from '@molecule/api-notifications'
- * import { provider as webhook } from '@molecule/api-notifications-webhook'
+ * import { notifyAll, setProvider } from '@molecule/api-notifications'
+ * import { createProvider } from '@molecule/api-notifications-webhook'
  *
- * setProvider('webhook', webhook)
+ * // Startup: bond each channel under its own NAME (one bond per channel).
+ * setProvider(
+ *   'webhook',
+ *   createProvider({
+ *     url: process.env.NOTIFICATIONS_WEBHOOK_URL,
+ *     secret: process.env.NOTIFICATIONS_WEBHOOK_SECRET, // optional HMAC → X-Signature-256
+ *   }),
+ * )
  *
- * await notifyAll({
+ * // Fan out to every bonded channel — never throws; inspect each result.
+ * const results = await notifyAll({
  *   subject: 'Service Down',
  *   body: 'API is not responding',
+ *   metadata: { service: 'api', severity: 'critical' },
  * })
+ * const failed = results.filter((result) => !result.success) // [{ success, error, channel, sentAt }]
  * ```
  *
  * @remarks
@@ -24,6 +34,15 @@
  * (rejected result or thrown error) are isolated and logged; results are
  * always returned in the channels' registration order, regardless of which
  * settles first.
+ *
+ * - **`setProvider` takes TWO arguments** — `setProvider('webhook', provider)`;
+ *   the channel name is required (this is a named/multi-provider bond, not a
+ *   singleton).
+ * - **`notifyAll()` never throws** — a failed or unconfigured channel comes
+ *   back as `{ success: false, error }`; with NO channel bonded it logs a
+ *   warning and returns `[]`. Check the results when delivery matters.
+ * - This is for ops/broadcast alerts (Slack/webhook), NOT per-user in-app
+ *   notifications — use `@molecule/api-notification-center` for a user's inbox.
  *
  * @module
  *

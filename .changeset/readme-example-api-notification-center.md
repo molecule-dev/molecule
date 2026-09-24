@@ -1,0 +1,5 @@
+---
+'@molecule/api-notification-center': patch
+---
+
+README: complete, tested usage example

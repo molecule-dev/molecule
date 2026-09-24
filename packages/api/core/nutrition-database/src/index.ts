@@ -10,13 +10,36 @@
  *
  * @example
  * ```typescript
- * import { setProvider, searchFood, getFoodByBarcode } from '@molecule/api-nutrition-database'
- * import { provider as openFoodFacts } from '@molecule/api-nutrition-database-open-food-facts'
+ * import { getFoodByBarcode, searchFood, setProvider } from '@molecule/api-nutrition-database'
+ * import { createProvider } from '@molecule/api-nutrition-database-open-food-facts'
  *
- * setProvider(openFoodFacts)
- * const results = await searchFood('granola bar', { limit: 10 })
- * const lookup = await getFoodByBarcode('3017620422003')
+ * // Startup (server only): Open Food Facts is keyless; identify your app politely.
+ * setProvider(
+ *   createProvider({ userAgent: process.env.OPEN_FOOD_FACTS_USER_AGENT ?? 'MyApp/1.0' }),
+ * )
+ *
+ * const results = await searchFood('nutella', { limit: 10, page: 1 }) // FoodNutrition[]
+ * const food = await getFoodByBarcode('3017620422003') // null when not found
+ *
+ * // Scale an arbitrary portion from the per-100 g/ml panel; null = unknown, NOT zero.
+ * const grams = 30
+ * const kcal =
+ *   food && food.nutrition.calories !== null
+ *     ? (food.nutrition.calories * grams) / food.nutrition.referenceQuantity
+ *     : null // render "—", and leave it out of totals
  * ```
+ *
+ * @remarks
+ * - **Server-only.** Call it from your API and return the normalized
+ *   `FoodNutrition` to the client; the browser guard throws if bundled client-side.
+ * - **`nutrition` is per 100 g/ml** (`referenceQuantity`/`referenceUnit`);
+ *   `perServing` is the label's serving and is often `null`. Scale portions from
+ *   `nutrition`, never by multiplying `perServing`.
+ * - **Every nutrient is `number | null`** — `null` means unknown. Never coerce
+ *   it to `0` or sum it into a total. `sodium` is in MILLIGRAMS; the other
+ *   macros are grams, `calories` is kcal.
+ * - Not-found is `null` (barcode/id) or `[]` (search), not an error; upstream
+ *   HTTP failures (including rate limiting) DO throw — catch and surface them.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

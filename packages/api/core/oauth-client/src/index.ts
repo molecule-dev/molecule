@@ -33,23 +33,48 @@
  *
  * @example
  * ```typescript
- * import { setProvider, getAuthorizationUrl, getToken } from '@molecule/api-oauth-client'
- * import { provider as genericOAuth } from '@molecule/api-oauth-client-generic'
+ * import { createHash, randomBytes } from 'node:crypto'
  *
- * setProvider(genericOAuth)
+ * import type { OAuthConfig } from '@molecule/api-oauth-client'
+ * import {
+ *   getAuthorizationUrl,
+ *   getToken,
+ *   refreshToken,
+ *   request,
+ *   setProvider,
+ * } from '@molecule/api-oauth-client'
+ * import { createProvider } from '@molecule/api-oauth-client-generic'
  *
- * const config = {
+ * // Startup: bond the generic RFC 6749 client once.
+ * setProvider(createProvider({ userAgent: 'MyApp/1.0' }))
+ *
+ * // Server-side config — the secret comes from env, never a literal or the browser.
+ * const github: OAuthConfig = {
  *   id: 'github',
- *   clientId: 'abc123',
- *   clientSecret: 'secret',
+ *   clientId: process.env.GITHUB_CLIENT_ID ?? '',
+ *   clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
  *   authorizationUrl: 'https://github.com/login/oauth/authorize',
  *   tokenUrl: 'https://github.com/login/oauth/access_token',
- *   redirectUri: 'https://myapp.com/callback',
- *   scopes: ['user', 'repo'],
+ *   redirectUri: 'https://myapp.example.com/integrations/github/callback',
+ *   scopes: ['read:user', 'repo'],
  * }
  *
- * const authUrl = getAuthorizationUrl(config, { state: 'csrf-token' })
- * const tokens = await getToken(config, 'authorization-code')
+ * // "Connect" button: per-session state + PKCE (store both server-side), then redirect.
+ * const state = randomBytes(16).toString('hex')
+ * const codeVerifier = randomBytes(32).toString('base64url')
+ * const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url')
+ * const authUrl = getAuthorizationUrl(github, { state, codeChallenge, codeChallengeMethod: 'S256' })
+ *
+ * // Callback: verify the returned state FIRST, then exchange the code and persist the tokens.
+ * const callback = { code: 'code-from-query-string', state }
+ * if (callback.state !== state) throw new Error('Invalid OAuth state')
+ * let tokens = await getToken(github, callback.code, { codeVerifier })
+ *
+ * // Call the API; request() does NOT auto-refresh — refresh first when expired.
+ * if (tokens.refreshToken && tokens.expiresAt && Date.parse(tokens.expiresAt) <= Date.now()) {
+ *   tokens = await refreshToken(github, tokens.refreshToken)
+ * }
+ * const profile = await request(tokens, 'https://api.github.com/user') // parsed JSON
  * ```
  *
  * @e2e

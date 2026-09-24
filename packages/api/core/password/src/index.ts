@@ -7,6 +7,11 @@
  * Use {@link hash} and {@link compare} from the bonded provider — NEVER roll your own
  * password hashing.
  *
+ * - **Bond first:** `setProvider(provider)` from `@molecule/api-password-bcrypt` at startup —
+ *   `hash`/`compare` throw until a provider is bonded.
+ * - Both are ASYNC — `await` them; a forgotten `await` makes `compare` a truthy Promise that
+ *   lets every password in.
+ *
  * - **Never store, log, or return a password OR its hash to the client.** Persist only the
  *   hash server-side; a login response returns a session/token, never the hash.
  * - **Compare with {@link compare}, never `===`.** It is a constant-time check via the bond
@@ -23,16 +28,21 @@
  *   extra length past ~72 bytes (fewer with multi-byte UTF-8) adds strength.
  *
  * @example
- * ```ts
- * import { hash, compare } from '@molecule/api-password'
+ * ```typescript
+ * import { compare, hash, setProvider } from '@molecule/api-password'
+ * import { provider as bcrypt } from '@molecule/api-password-bcrypt'
  *
- * // Register: store ONLY the hash.
- * const passwordHash = await hash(req.body.password)
- * await createUser({ email, passwordHash })
+ * // Startup: bond the hasher once (cost = SALT_ROUNDS env, default 12, clamped 10–16).
+ * setProvider(bcrypt)
  *
- * // Log in: constant-time compare; never `user.passwordHash === x`.
- * const ok = await compare(req.body.password, user.passwordHash)
- * if (!ok) return res.status(401).json({ error: 'Invalid credentials.' }) // don't reveal which field
+ * // Sign-up: store ONLY the hash — never the password, never return the hash to a client.
+ * const signupPassword = 'correct horse battery staple'
+ * const passwordHash = await hash(signupPassword) // '$2b$12$…'
+ *
+ * // Log in: constant-time compare against the stored hash; never `===`.
+ * const loginPassword = 'correct horse battery staple'
+ * const ok = await compare(loginPassword, passwordHash) // true
+ * // On false, answer a generic 401 "Invalid credentials." — don't reveal which field was wrong.
  * ```
  *
  * @module

@@ -25,29 +25,47 @@
  * `@molecule/api-resource-user`'s `logInOAuth` already implements this flow correctly —
  * prefer wiring a provider bond into it over hand-rolling the endpoints.
  *
- * @example
- * ```ts
- * // Initiation: GET /users/oauth/:provider → 302 to the provider.
- * router.get('/oauth/:provider', (req, res) => {
- *   const state = randomToken()
- *   const { challenge, verifier } = pkce() // S256
- *   res.cookie('oauth_state', state, { httpOnly: true, sameSite: 'lax' })
- *   res.cookie('oauth_verifier', verifier, { httpOnly: true, sameSite: 'lax' })
- *   const url = buildAuthorizeUrl({ state, codeChallenge: challenge, codeChallengeMethod: 'S256' })
- *   if (!url) return res.status(404).json({ error: 'Provider not configured.' })
- *   res.redirect(url)
- * })
+ * - **This package has NO runtime functions** — only types. There is no
+ *   `setProvider`/`verifyOAuthCode` here: bond each provider bond as a NAMED
+ *   `oauth` bond keyed by its `serverName` (`bond('oauth', serverName, { serverName,
+ *   verify, getAuthorizeUrl })`) and call its `verify` / `getAuthorizeUrl`.
+ * - `verify` returns `null` when the provider REJECTS the code (403 to the user);
+ *   it THROWS on network/infrastructure failures (500).
+ * - `getAuthorizeUrl` returns `null` when the bond's client id env var is unset.
  *
- * // Callback: verify state FIRST, then exchange the code SERVER-SIDE.
- * router.get('/oauth/:provider/callback', async (req, res) => {
- *   if (!req.query.state || req.query.state !== req.cookies.oauth_state) {
- *     return res.status(403).json({ error: 'Invalid state.' }) // CSRF guard
- *   }
- *   const props = await verifyOAuthCode(String(req.query.code), req.cookies.oauth_verifier)
- *   if (!props) return res.status(401).json({ error: 'OAuth verification failed.' })
- *   // props.emailVerified must be === true before trusting props.email over a local account.
- *   await logInOrLink(res, props)
- * })
+ * @example
+ * ```typescript
+ * import { createHash, randomBytes } from 'node:crypto'
+ *
+ * import { bond, get } from '@molecule/api-bond'
+ * import type { OAuthProviderConfig, OAuthUserProps } from '@molecule/api-oauth'
+ * import { getAuthorizeUrl, serverName, verify } from '@molecule/api-oauth-github'
+ *
+ * // Startup: bond each provider NAMED by its serverName — `@molecule/api-resource-user`'s
+ * // oauthAuthorize / logInOAuth handlers look it up with get('oauth', ':provider').
+ * // Env: OAUTH_GITHUB_CLIENT_ID, OAUTH_GITHUB_CLIENT_SECRET (server only), APP_ORIGIN.
+ * const github: OAuthProviderConfig = { serverName, verify, getAuthorizeUrl }
+ * bond('oauth', serverName, github)
+ *
+ * // Initiation: a fresh CSRF state + PKCE pair per request, both kept in httpOnly cookies.
+ * const state = randomBytes(32).toString('hex')
+ * const codeVerifier = randomBytes(32).toString('base64url')
+ * const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url')
+ * const redirectUri = `${process.env.APP_ORIGIN}/`
+ * const provider = get<OAuthProviderConfig>('oauth', 'github')
+ * const authorizeUrl = provider?.getAuthorizeUrl?.({
+ *   state,
+ *   codeChallenge,
+ *   codeChallengeMethod: 'S256',
+ *   redirectUri,
+ * }) // 302 the browser here; null → provider not configured (404)
+ *
+ * // Callback: reject unless the returned state equals the cookie, THEN exchange server-side.
+ * const callback = { code: 'code-from-query-string', state }
+ * if (callback.state !== state) throw new Error('Invalid OAuth state')
+ * const props: OAuthUserProps | null = await github.verify(callback.code, codeVerifier, redirectUri)
+ * // Only an explicit emailVerified === true may match/link an existing local account.
+ * const trustedEmail = props?.emailVerified === true ? props.email : undefined
  * ```
  *
  * @e2e

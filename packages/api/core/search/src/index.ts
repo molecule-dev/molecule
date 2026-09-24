@@ -9,13 +9,32 @@
  *
  * @example
  * ```typescript
- * import { setProvider, search, index, suggest } from '@molecule/api-search'
- * import { provider as elasticsearch } from '@molecule/api-search-elasticsearch'
+ * import { deleteDocument, hasProvider, index, search, setProvider } from '@molecule/api-search'
+ * import { createProvider } from '@molecule/api-search-meilisearch'
  *
- * setProvider(elasticsearch)
- * await index('products', '1', { name: 'Widget', price: 9.99 })
- * const results = await search('products', { text: 'widget', highlight: true })
- * const suggestions = await suggest('products', 'wid', { limit: 5 })
+ * // Startup: bond the engine ONLY when one is provisioned — unbonded, search() throws.
+ * if (process.env.MEILISEARCH_URL) {
+ *   setProvider(
+ *     createProvider({
+ *       host: process.env.MEILISEARCH_URL,
+ *       apiKey: process.env.MEILISEARCH_API_KEY ?? '',
+ *     }),
+ *   )
+ * }
+ *
+ * // Write path: the index starts EMPTY — index on every create/update, delete on delete.
+ * if (hasProvider()) {
+ *   await index('products', 'p1', { name: 'Blue Widget', category: 'tools', price: 9.99 })
+ *   await index('products', 'p2', { name: 'Red Wagon', category: 'toys', price: 49 })
+ *   await deleteDocument('products', 'p2')
+ * }
+ *
+ * // Read path: '' = browse everything; null = no engine → fall back to a DataStore query.
+ * const searchProducts = async (text: string) =>
+ *   hasProvider() ? search('products', { text, page: 1, perPage: 20, highlight: true }) : null
+ *
+ * const results = await searchProducts('widget')
+ * // results?.hits[0] → { id: 'p1', score, document: { name: 'Blue Widget', … }, highlights }
  * ```
  *
  * @remarks

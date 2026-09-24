@@ -19,10 +19,11 @@
  * - Results are `Buffer`s: send them with a `Content-Type: application/pdf` response or
  *   store via the uploads package — never `JSON.stringify` a Buffer into an API payload,
  *   and avoid holding many large PDFs in memory at once.
- * - HTML from user input is an injection surface. `fromTemplate` HTML-escapes the
- *   interpolated `data` values for you (like Handlebars `{{ }}`); `fromHTML` does NOT —
- *   escape values yourself before assembling the string, or a malicious value can forge or
- *   restyle document content.
+ * - HTML from user input is an injection surface. The Puppeteer bond's `fromTemplate`
+ *   HTML-escapes interpolated `data` values (like Handlebars `{{ }}`); the PDFKit bond's
+ *   does NOT (a value containing tags is parsed as markup), and `fromHTML` never escapes —
+ *   escape untrusted values yourself, or a malicious value can forge or restyle document
+ *   content.
  * - **A browser-engine bond renders server-side, so resource URLs in the HTML are fetched by
  *   YOUR server (SSRF).** An `<img src>` / CSS `url()` / `<iframe>` pointing at an internal
  *   address (`169.254.169.254`, `10.…`, `localhost`) is requested with your server's network
@@ -32,13 +33,24 @@
  *
  * @example
  * ```typescript
- * import { setProvider, fromHTML, merge, getPageCount } from '@molecule/api-pdf'
- * import { provider as puppeteer } from '@molecule/api-pdf-puppeteer'
+ * import { addWatermark, fromTemplate, getPageCount, merge, setProvider } from '@molecule/api-pdf'
+ * // PDFKit runs in-process (no browser); use `@molecule/api-pdf-puppeteer` for full HTML/CSS.
+ * import { createProvider } from '@molecule/api-pdf-pdfkit'
  *
- * setProvider(puppeteer)
- * const pdf = await fromHTML('<h1>Hello World</h1>', { format: 'A4', margin: { top: '1cm' } })
- * const pageCount = await getPageCount(pdf)
- * const merged = await merge([pdf, anotherPdf])
+ * // Startup: bond exactly one provider.
+ * setProvider(createProvider({ defaultFontSize: 12 }))
+ *
+ * // {{key}} placeholders are filled from `data` (dot paths allowed); escape untrusted values.
+ * const invoice = await fromTemplate(
+ *   '<h1>Invoice {{number}}</h1><p>Bill to: {{customer}}</p><p>Total: {{total}}</p>',
+ *   { number: 'INV-1001', customer: 'Ada Lovelace', total: '$120.00' },
+ *   { format: 'A4', margin: { top: '2cm', bottom: '2cm' } },
+ * )
+ * const terms = await fromTemplate('<h2>Terms</h2><p>Payable within {{days}} days.</p>', { days: 30 })
+ *
+ * const draft = await addWatermark(await merge([invoice, terms]), 'DRAFT', { opacity: 0.2 })
+ * const pages = await getPageCount(draft) // 2
+ * // `draft` is a Buffer — send it with Content-Type: application/pdf, never JSON.stringify it.
  * ```
  *
  * @e2e
