@@ -7,23 +7,39 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-thread'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   addMessage,
+ *   createThread,
+ *   getMessages,
+ *   getUnreadCount,
+ *   markRead,
+ * } from '@molecule/api-resource-thread'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /threads
- * // GET    /threads
- * // GET    /threads/unread
- * // GET    /threads/:threadId
- * // PATCH  /threads/:threadId
- * // DELETE /threads/:threadId
- * // GET    /threads/:threadId/messages
- * // POST   /threads/:threadId/messages
- * // PUT    /threads/messages/:messageId
- * // DELETE /threads/messages/:messageId
- * // POST   /threads/:threadId/read
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap` (POST/GET /threads, GET /threads/unread,
+ * // GET/PATCH/DELETE /threads/:threadId, GET/POST /threads/:threadId/messages,
+ * // PUT/DELETE /threads/messages/:messageId, POST /threads/:threadId/read { lastReadMessageId }).
+ * setStore(store)
+ *
+ * // Server-side code: the caller is always the SESSION user (res.locals.session.userId).
+ * const userId = 'user-1'
+ * const thread = await createThread(userId, { title: 'Launch notes', resourceType: 'project', resourceId: 'p-1' })
+ * await addMessage(thread.id, userId, { body: 'Draft is up' })
+ * const last = await addMessage(thread.id, userId, { body: 'Reviewed' }) // null if closed / not the owner
+ *
+ * console.log(await getUnreadCount(userId)) // 1 — threads with unread messages, not messages
+ * if (last) await markRead(thread.id, userId, last.id)
+ * const page = await getMessages(thread.id) // { data: oldest-first messages, total: 2, limit: 50, offset: 0 }
+ * console.log(page.total, await getUnreadCount(userId)) // 2, 0
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call** (`setStore(...)`), or every service function and
+ *   handler throws.
+ * - `addMessage()` returns `null` (the handler answers 404) when the thread is closed, missing,
+ *   or not owned by the caller — check it before using the message.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

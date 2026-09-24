@@ -38,24 +38,44 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-workspace'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   acceptInvite,
+ *   assertMember,
+ *   createWorkspace,
+ *   inviteMember,
+ *   listMembers,
+ * } from '@molecule/api-resource-workspace'
  *
- * // Wire routes into your Express app via mlcl inject:
- * //   POST   /workspaces
- * //   GET    /workspaces
- * //   GET    /workspaces/:id
- * //   PATCH  /workspaces/:id
- * //   DELETE /workspaces/:id
- * //   GET    /workspaces/:id/members
- * //   PATCH  /workspaces/:id/members/:userId
- * //   DELETE /workspaces/:id/members/:userId
- * //   POST   /workspaces/:id/invites
- * //   GET    /workspaces/:id/invites
- * //   DELETE /workspaces/:id/invites/:inviteId
- * //   POST   /workspaces/invites/accept
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` (POST/GET /workspaces, GET/PATCH/DELETE /workspaces/:id, …/members,
+ * // …/members/:userId, POST/GET /workspaces/:id/invites, POST /workspaces/invites/accept).
+ * setStore(store)
+ *
+ * // Server-side code: user ids always come from the SESSION (res.locals.session.userId).
+ * const workspace = await createWorkspace('owner-1', { name: 'Acme Design' }) // slug 'acme-design'
+ *
+ * // Only an admin+ may invite, and never above their own role. Email the token yourself.
+ * const caller = await assertMember(workspace.id, 'owner-1', 'admin') // throws if not admin+
+ * const invite = await inviteMember(workspace.id, 'bo@example.com', caller.role, 'member')
+ *
+ * // POST /workspaces/invites/accept { token } runs this for the signed-in invitee:
+ * await acceptInvite(invite.token, 'user-2')
+ * const members = await listMembers(workspace.id)
+ * console.log(members.map((m) => `${m.userId}:${m.role}`)) // ['owner-1:owner', 'user-2:member']
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call** (`setStore(...)`), or every service function and
+ *   handler throws.
+ * - **`acceptInvite()` does NOT check the invitee's email** — whoever holds the token joins at
+ *   the invite's role. Treat the token as a secret and send it only to that address. Invites
+ *   expire after 7 days by default (`ttlMs`, in MILLISECONDS); re-inviting a pending email
+ *   returns the existing invite.
+ * - Service guards THROW `Error`s whose `code` is an i18n key (`workspace.error.notAMember`,
+ *   `…insufficientRole`, `…cannotGrantHigherRole`, `…lastOwner`, `…invalidInvite`) — the last
+ *   owner can be neither demoted nor removed. `deleteWorkspace()` is a soft delete.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

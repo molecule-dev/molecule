@@ -9,6 +9,14 @@
  * rows are never mutated.
  *
  * @remarks
+ * - **Bond the DataStore before any call** (`setStore(...)`), or every service function and
+ *   handler throws.
+ * - **Restoring does NOT touch your resource.** `restoreVersion()` / `POST
+ *   /versions/:versionId/restore` only append a new version holding the old snapshot — write that
+ *   snapshot back to the parent row yourself. Likewise nothing captures versions automatically:
+ *   call `createVersion()` from the parent's create/update path.
+ * - `changes` is a SHALLOW per-top-level-field diff (`{ field: { before, after } }`), `null` on
+ *   version 1; identical snapshots still append a version (with `changes: {}`).
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
@@ -79,41 +87,43 @@
  * @module
  * @example
  * ```typescript
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
  * import {
- *   routes,
- *   requestHandlerMap,
  *   createVersion,
+ *   diffVersions,
  *   registerOwnershipResolver,
+ *   restoreVersion,
  * } from '@molecule/api-resource-version-history'
  *
- * // REQUIRED before mounting the routes: tell version-history how to check
- * // parent-resource ownership for each resource type you version. Without this
- * // every read/list/diff/restore fails closed (404) — the routes are never open.
- * registerOwnershipResolver('document', async ({ resourceId, userId }) => {
- *   const doc = await findById('documents', resourceId)
- *   return doc?.userId === userId
- * })
+ * // Startup: bond the DataStore (the postgresql bond reads DATABASE_URL) and register an
+ * // ownership resolver per versioned type — without it every route answers 404. `mlcl inject`
+ * // then mounts `routes` (POST/GET /:resourceType/:resourceId/versions, …/versions/count,
+ * // …/versions/:version, GET /versions/:versionId, POST /versions/:versionId/restore,
+ * // GET /versions/:fromVersionId/diff/:toVersionId).
+ * setStore(store)
+ * const documentOwners = new Map([['doc-1', 'user-1']])
+ * registerOwnershipResolver('document', ({ resourceId, userId }) => documentOwners.get(resourceId) === userId)
  *
- * // Wire routes via mlcl inject:
- * //   POST   /:resourceType/:resourceId/versions
- * //   GET    /:resourceType/:resourceId/versions
- * //   GET    /:resourceType/:resourceId/versions/count
- * //   GET    /:resourceType/:resourceId/versions/:version
- * //   GET    /versions/:versionId
- * //   POST   /versions/:versionId/restore
- * //   GET    /versions/:fromVersionId/diff/:toVersionId
- *
- * // Or call the service directly from another resource's update handler.
- * // The acting user ALWAYS comes from the session (res.locals.session) —
- * // never from the request body:
- * const userId = (res.locals.session as { userId?: string } | undefined)?.userId
- * await createVersion({
+ * // From the document's create/update handler (userId from the SESSION, never the body):
+ * const v1 = await createVersion({
  *   resourceType: 'document',
- *   resourceId: doc.id,
- *   userId: userId ?? null,
- *   snapshot: doc,
+ *   resourceId: 'doc-1',
+ *   userId: 'user-1',
+ *   snapshot: { title: 'Draft', body: 'Hello' },
+ * })
+ * const v2 = await createVersion({
+ *   resourceType: 'document',
+ *   resourceId: 'doc-1',
+ *   userId: 'user-1',
+ *   snapshot: { title: 'Final', body: 'Hello' },
  *   reason: 'autosave',
  * })
+ * console.log(v2.version, v2.changes) // 2, { title: { before: 'Draft', after: 'Final' } }
+ *
+ * const diff = await diffVersions(v1.id, v2.id) // { from, to, changes } — null across resources
+ * const restored = await restoreVersion(v1.id, 'user-1') // APPENDS v3 with v1's snapshot
+ * console.log(diff?.changes, restored?.version, restored?.snapshot) // …, 3, { title: 'Draft', … }
  * ```
  */
 

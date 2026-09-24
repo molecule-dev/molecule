@@ -17,17 +17,37 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-subscriber'
+ * import express from 'express'
  *
- * for (const route of routes) {
- *   // Only the admin-only routes declare `middlewares` (routes is a const union).
- *   const names = 'middlewares' in route ? route.middlewares : []
- *   const middlewares = names.map((name) => requestHandlerMap[name])
- *   app[route.method](route.path, ...middlewares, requestHandlerMap[route.handler])
- * }
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Subscriber } from '@molecule/api-resource-subscriber'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`, mounted AFTER the global auth middleware.
+ * export const router = express.Router()
+ * router.post('/subscribers', Subscriber.subscribe) // public
+ * router.get('/subscribers/confirm/:token', Subscriber.confirm) // public (the emailed link)
+ * router.post('/subscribers/unsubscribe/:token', Subscriber.unsubscribe) // public, one-click
+ * router.get('/subscribers', Subscriber.requireAdmin, Subscriber.list)
+ * router.get('/subscribers/:id', Subscriber.requireAdmin, Subscriber.read)
+ * router.delete('/subscribers/:id', Subscriber.requireAdmin, Subscriber.del)
+ *
+ * // Visitor: POST /subscribers { channel: 'email', address: 'ada@example.com', topic: 'incidents' }
+ * //   → 201 { subscriber: { id, status: 'pending', ... }, confirmToken, unsubscribeToken }
+ * //   (tokens are returned ONCE — email the links yourself; this package sends nothing)
+ * // GET  /subscribers/confirm/<confirmToken>         → 200 { status: 'confirmed', ... }
+ * // POST /subscribers/unsubscribe/<unsubscribeToken> → 200 { status: 'unsubscribed', ... }
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before mounting** (`setStore(...)`), or every handler answers 500.
+ * - `channel` must be `'email' | 'sms' | 'webhook'` and `address` must match it (400 otherwise).
+ *   Only `confirmed` subscribers should receive sends — filter on `status` yourself.
+ * - `requireAdmin` rejects via `next(message)`, so without an app error handler Express answers
+ *   500 (the handlers themselves answer 401/403 JSON if the middleware is skipped).
  * Delivery is YOUR app's concern: `subscribe` stores the record and returns
  * `{ subscriber, confirmToken, unsubscribeToken }` exactly once (201) — this
  * package sends nothing. Build the confirm/unsubscribe links from those tokens

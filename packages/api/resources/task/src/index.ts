@@ -8,20 +8,39 @@
  * for use outside HTTP contexts.
  *
  * @example
- * ```ts
- * import { createTaskRouter } from '@molecule/api-resource-task'
- * router.use('/tasks', createTaskRouter())
- * ```
+ * ```typescript
+ * import express from 'express'
  *
- * @example
- * ```ts
- * import { listTasksForOwner, createTaskForOwner } from '@molecule/api-resource-task'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { createTaskForOwner, createTaskRouter } from '@molecule/api-resource-task'
  *
- * const tasks = await listTasksForOwner(userId, { filter: 'today' })
- * const created = await createTaskForOwner(userId, { title: 'Ship release', priority: 1 })
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * export const app = express()
+ * app.use(express.json())
+ * // The app's global auth middleware must set res.locals.session.userId BEFORE the router.
+ * app.use('/tasks', createTaskRouter()) // GET/POST /tasks, GET/PUT/DELETE /tasks/:id, POST /tasks/reorder
+ *
+ * // Client (signed in): POST /tasks { title: 'Ship release', priority: 1, due_date: '2026-10-01' }
+ * //   → 201 { id, title, priority: 1, due_date: '2026-10-01', completed: false, ... }
+ * // PUT /tasks/:id { is_completed: true } → 200 { completed: true, completed_at: '<ISO>' }
+ *
+ * // Outside HTTP (seed, import, cron) use the owner-scoped service functions directly.
+ * const task = await createTaskForOwner('user-1', { title: 'Water plants', recurrence_rule: 'every 1 week' })
+ * console.log(task.recurring) // 'weekly'
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before mounting** (`setStore(...)`); every route and service function
+ *   reads/writes the `tasks` table through it.
+ * - Fields are snake_case on the wire (`due_date`, `parent_id`, `recurrence_rule`); to complete a
+ *   task send `PUT /tasks/:id { is_completed: true }` (the response field is `completed`).
+ *   `priority` is an integer 1–4 (anything else is stored as 4); `parent_id` must be a UUID.
+ * - `recurrence_rule` is stored text only — completing a recurring task does NOT create the next
+ *   occurrence; `recurring` is just a label derived from `every N day|week|month|year`.
+ * - `GET /tasks` returns a bare `Task[]` (no pagination envelope); `?filter=today|upcoming`.
  * Session-auth prerequisite: every route reads the caller via
  * `requireUser(res)` (`res.locals.session.userId`, 401 fail-closed) — mount
  * `createTaskRouter()` behind your global auth middleware. All queries are

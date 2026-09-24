@@ -13,21 +13,29 @@
  * @module
  * @example
  * ```typescript
- * import { recordEvent, getScore, awardBadge } from '@molecule/api-reputation'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { awardBadge, getScore, listBadges, recordEvent } from '@molecule/api-reputation'
  *
- * await recordEvent('user-1', 'accepted-solution', 15, {
- *   sourceId: 'comment-42',
- * })
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts the read-only routes GET /users/:id/reputation and GET /users/:id/badges.
+ * setStore(store)
  *
- * const score = await getScore('user-1')
- * console.log(score.score, score.level)
+ * // YOUR domain code decides the delta — e.g. when an answer is accepted.
+ * const authorId = 'user-1'
+ * await recordEvent(authorId, 'accepted-solution', 60, { sourceId: 'comment-42' })
+ * const after = await recordEvent(authorId, 'upvote', 50, { sourceId: 'vote-7' })
+ * console.log(after.score, after.level) // 110, 1 (default thresholds [0, 100, 500, 1000, 5000])
  *
- * if (score.score >= 1000) {
- *   await awardBadge('user-1', 'top-contributor')
- * }
+ * if (after.score >= 100) await awardBadge(authorId, 'trusted') // idempotent
+ * const score = await getScore(authorId) // { userId, score: 110, level: 1, updatedAt }
+ * const badges = await listBadges(authorId) // [{ id, userId, kind: 'trusted', awardedAt }]
+ * console.log(score.level, badges.map((b) => b.kind))
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw.
  * - **Migration required.** Three files ship in `src/__setup__/`
  *   (`reputation_events.sql`, `reputation_scores.sql`, `badges.sql`) and must
  *   exist in the target database before use (scaffolded apps apply them

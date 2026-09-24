@@ -12,17 +12,37 @@
  * @module
  * @example
  * ```typescript
- * import { recordActivity } from '@molecule/api-streak'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { getStreak, recordActivity, setStreakConfigResolver } from '@molecule/api-streak'
  *
- * const result = await recordActivity('user-1', {
- *   activity_kind: 'lesson',
- *   reset_after_hours: 24,
- *   freezes_per_period: 1,
- * })
- * console.log(result.state.current_streak)
+ * // Startup: bond the DataStore (the postgresql bond reads DATABASE_URL). `mlcl inject` mounts
+ * // POST /streaks/:activityKind, GET /streaks/:activityKind and POST /streaks/:activityKind/freeze.
+ * setStore(store)
+ * // Server-side levers for those routes (default: 24h window, freezes OFF).
+ * setStreakConfigResolver(() => ({ reset_after_hours: 24, freezes_per_period: 1 }))
+ *
+ * // Trusted server code (cron, backfill, your own handler) passes config + timestamp explicitly.
+ * const config = { activity_kind: 'lesson', reset_after_hours: 24, freezes_per_period: 1 }
+ * await recordActivity('user-1', config, new Date('2026-03-01T09:00:00Z')) // streak 1
+ * await recordActivity('user-1', config, new Date('2026-03-02T09:00:00Z')) // 24–48h later → 2
+ * const late = await recordActivity('user-1', config, new Date('2026-03-04T10:00:00Z')) // ≥48h gap
+ * console.log(late.freezeConsumed, late.reset) // true, false — the freeze absorbed the gap
+ *
+ * const streak = await getStreak('user-1', 'lesson')
+ * console.log(streak.current_streak, streak.longest_streak, streak.freezes_used) // 3, 3, 1
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call** (`setStore(...)` at startup) — every service
+ *   function and handler reads/writes the `streaks` table through it.
+ * - **Windows are HOURS, not days, and rolling from the last event**: an event less than
+ *   `reset_after_hours` after the previous one is the SAME period (no increment); between 1× and
+ *   2× the window it continues (+1); beyond that it consumes a freeze or resets to `1`.
+ * - Fields are snake_case (`current_streak`, `longest_streak`, `freezes_used`,
+ *   `last_activity_date`), and `recordActivity(userId, config, when?)` takes the CONFIG second —
+ *   not an activity-kind string.
+ *
  * Session-auth prerequisite: all routes require an authenticated session
  * (`authenticate`) — handlers derive the user from `res.locals.session.userId`
  * (401 fail-closed) and NEVER from the body or path, so streaks are always

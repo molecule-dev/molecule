@@ -6,24 +6,44 @@
  * Extracted from the wiki flagship.
  *
  * @example
- * ```ts
- * import { createWikiPageRouter } from '@molecule/api-resource-wiki-page'
- * app.use('/pages', createWikiPageRouter())
- * ```
+ * ```typescript
+ * import express from 'express'
  *
- * @example
- * ```ts
- * import { createPage, getBreadcrumbs } from '@molecule/api-resource-wiki-page'
- * const page = await createPage({
- *   space_id: spaceId,
- *   slug: 'getting-started',
- *   title: 'Getting started',
- *   body: '# Welcome',
+ * import { create, setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { createPage, createWikiPageRouter, getBreadcrumbs } from '@molecule/api-resource-wiki-page'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * export const app = express()
+ * app.use(express.json())
+ * // The app's global auth middleware must set res.locals.session.userId BEFORE the router.
+ * app.use('/pages', createWikiPageRouter()) // GET/POST /pages, GET/PUT/DELETE /pages/:id,
+ * //   GET /pages/:id/breadcrumbs, GET /pages/by-slug/:spaceId/:slug, GET /pages?space_id=…
+ *
+ * // This package has NO space CRUD — create the owner's `wiki_spaces` row yourself first.
+ * const ownerId = '0b5c6a1e-3f7d-4c2a-9e1b-8d4f2a6c7e90' // the session user (uuid column)
+ * const { data: space } = await create<{ id: string }>('wiki_spaces', {
+ *   owner_id: ownerId,
+ *   name: 'Handbook',
+ *   slug: 'handbook',
+ *   is_public: true,
  * })
- * const crumbs = await getBreadcrumbs(page.id)
+ * if (!space) throw new Error('wiki space was not created')
+ *
+ * // Client (as the owner): POST /pages { space_id, title: 'Laptop Setup' } → 201 { slug: 'laptop-setup', … }
+ * // Server-side seeding uses the service directly (it does NOT slugify — pass `slug`).
+ * const parent = await createPage({ space_id: space.id, slug: 'onboarding', title: 'Onboarding' })
+ * const child = await createPage({ space_id: space.id, parent_id: parent.id, slug: 'vpn', title: 'VPN' })
+ * console.log(await getBreadcrumbs(child.id)) // [{ slug: 'onboarding', … }, { slug: 'vpn', … }]
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before mounting** (`setStore(...)`); every route and service call goes
+ *   through it. `space_id`/`parent_id` must be UUIDs (the route validates them).
+ * - `is_published` is only a stored flag (default `false`): reads do NOT hide unpublished pages
+ *   from space readers unless the client asks for `?is_published=true` — gate drafts yourself.
  * Session-auth prerequisite: every route reads the caller via
  * `requireUser(res)` (`res.locals.session.userId`, 401 fail-closed) — mount
  * `createWikiPageRouter()` behind your global auth middleware. There is no

@@ -11,28 +11,49 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-share'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   canAccess,
+ *   createShareLink,
+ *   grantShare,
+ *   requireRole,
+ *   resolveShareLink,
+ *   setShareAdminAuthorizer,
+ * } from '@molecule/api-resource-share'
  *
- * // Auto-mountable surface (via mlcl inject) — read-only + public link resolve:
- * // GET    /resource-shares/:resourceType/:resourceId        (full ACL — ownership-gated)
- * // GET    /resource-shares/:resourceType/:resourceId/role   (caller's own effective role)
- * // GET    /resource-share-links/:resourceType/:resourceId   (link list — ownership-gated)
- * // GET    /resource-share-links/resolve/:slug               (public — the slug is the credential)
- * //
- * // The MUTATING handlers (`create`/`update`/`del` grants, `createLink`/`revokeLink`)
- * // are intentionally NOT in `routes` — mount them yourself behind a
- * // resource-ownership gate. See @remarks.
- * ```
+ * // Startup: bond the DataStore (the postgresql bond reads DATABASE_URL) and say who may
+ * // hand out access — without this every mutating share handler answers 403.
+ * setStore(store)
+ * const documentOwners = new Map([['doc-1', 'owner-1']])
+ * setShareAdminAuthorizer((resourceType, resourceId, userId) =>
+ *   resourceType === 'document' && documentOwners.get(resourceId) === userId,
+ * )
  *
- * @example
- * ```typescript
- * import { canAccess, requireRole } from '@molecule/api-resource-share'
+ * // Server-side: the owner shares doc-1 with a collaborator and mints a public view link.
+ * await grantShare({
+ *   resourceType: 'document',
+ *   resourceId: 'doc-1',
+ *   principalType: 'user',
+ *   principalId: 'user-2',
+ *   role: 'editor',
+ *   grantedBy: 'owner-1',
+ * })
+ * const link = await createShareLink({ resourceType: 'document', resourceId: 'doc-1', role: 'viewer' })
  *
- * // Inside another resource's handler:
- * await requireRole('document', docId, 'editor', userId, teamIds)
+ * // Inside ANOTHER resource's handler — gate reads/writes on the effective role:
+ * console.log(await canAccess('document', 'doc-1', 'commenter', 'user-2')) // true (editor ≥ commenter)
+ * console.log(await canAccess('document', 'doc-1', 'viewer', 'user-3')) // false — no grant
+ * await requireRole('document', 'doc-1', 'editor', 'user-2') // throws Error('forbidden') if not
+ * console.log((await resolveShareLink(link.slug))?.role) // 'viewer' (null once revoked/expired)
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call** (`setStore(...)` at startup), or every service
+ *   function and handler throws.
+ * - **Roles are ordered** `viewer < commenter < editor < owner`; `canAccess(type, id, required,
+ *   userId, teamIds)` takes the REQUIRED role third and the user fourth. Team grants only count
+ *   when you pass the caller's `teamIds`.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

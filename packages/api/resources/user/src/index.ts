@@ -48,19 +48,43 @@
  * - `GET    /api/users/me` — the current user (session restore) · `GET /api/users/:id` — read one
  * The full, authoritative route list is the `routes` export (see `routes.ts`).
  *
- * @example
- * ```ts
- * // Extend safely: a display field in Props, a secret in SecretProps.
- * //   propsSchema:       { …, timezone: z.string().optional() }           // safe → client
- * //   secretPropsSchema: { …, passwordResetToken: z.string().optional() } // server-only, secrets table
+ * Extending the user: a display field goes in `propsSchema` (e.g. `timezone`), a secret in
+ * `secretPropsSchema` (e.g. `passwordResetToken`). A custom handler reads the id with
+ * `getUserId(res)` and returns `Props` only — never spread a secrets-table row into a response.
  *
- * // A custom handler returns SAFE props — never the secrets row.
- * router.get('/me/timezone', async (req, res) => {
- *   const userId = getUserId(res)
- *   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
- *   const user = await findById('users', userId) // the users table holds Props only
- *   res.json({ timezone: user?.timezone })        // never spread a secrets-table row here
- * })
+ * @example
+ * ```typescript
+ * import express from 'express'
+ *
+ * import {
+ *   mountDefaultUserAuthRoutes,
+ *   mountDefaultUserCrudRoutes,
+ *   setupJwtJsonwebtoken,
+ *   setupPasswordBcrypt,
+ *   setupServiceDevice,
+ * } from '@molecule/api-bonds-default-express'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { createRequestHandler } from '@molecule/api-resource'
+ * import { authorization, createRequestHandlerMap } from '@molecule/api-resource-user'
+ *
+ * // Startup: every one of these is REQUIRED for signup/login (an mlcl scaffold already does it).
+ * setStore(store) // users + usersSecrets + devices tables (reads DATABASE_URL)
+ * setupServiceDevice() // bond('device', …) — a session is a (userId, deviceId) pair
+ * setupJwtJsonwebtoken() // session JWTs from JWT_PRIVATE_KEY / JWT_PUBLIC_KEY
+ * setupPasswordBcrypt() // password hashing
+ *
+ * // The handler map is a FACTORY. verifyMiddleware() sets res.locals.session for every route.
+ * const User = createRequestHandlerMap(createRequestHandler)
+ * export const router = express.Router()
+ * router.use(authorization.verifyMiddleware())
+ * mountDefaultUserAuthRoutes(router, User) // POST /users, /users/log-in, /users/logout, /users/forgot-password
+ * mountDefaultUserCrudRoutes(router, User) // GET /users/me, GET/PATCH/DELETE /users/:id
+ *
+ * // Signup: POST /users { username: 'ada', email: 'ada@example.com', password: 'correct horse' }
+ * //   → 201 { user: { id, username, email, … }, accessToken } (+ httpOnly session cookies)
+ * // Login:  POST /users/log-in { email, password } → 200 { user, accessToken }
+ * // Restore: GET /users/me with `Authorization: Bearer <accessToken>` (or the cookie) → 200 { props }
  * ```
  *
  * @e2e

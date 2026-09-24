@@ -10,40 +10,53 @@
  * @module
  * @example
  * ```typescript
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
  * import {
- *   trashItem,
- *   restoreFromTrash,
+ *   countTrashedItems,
+ *   purgeExpired,
  *   registerRestoreCallback,
- *   routes,
- *   requestHandlerMap,
+ *   type RestoreCallback,
+ *   restoreFromTrash,
+ *   trashItem,
  * } from '@molecule/api-trash'
  *
- * // 1. Soft-delete from a parent resource's `delete` handler:
- * await trashItem({
+ * // Startup: bond the DataStore (the postgresql bond reads DATABASE_URL) and register a restore
+ * // callback for EVERY trashed type — without it POST /trash/:trashId/restore answers 501.
+ * setStore(store)
+ * const documents = new Map([['doc-1', { id: 'doc-1', title: 'Q3 plan' }]])
+ * const restoreDocument: RestoreCallback = async (snapshot) => {
+ *   const doc = snapshot as { id: string; title: string }
+ *   documents.set(doc.id, doc)
+ * }
+ * registerRestoreCallback('document', restoreDocument)
+ *
+ * // In the document's delete handler (userId from the SESSION): snapshot, then delete the parent.
+ * const doc = { id: 'doc-1', title: 'Q3 plan' }
+ * const trashed = await trashItem({
  *   resourceType: 'document',
  *   resourceId: doc.id,
- *   userId: (res.locals.session as { userId?: string } | undefined)?.userId,
+ *   userId: 'user-1',
  *   snapshot: doc,
  *   reason: 'user delete',
- *   ttlMs: 30 * 24 * 60 * 60 * 1000, // 30 days
+ *   ttlMs: 30 * 24 * 60 * 60 * 1000, // 30 days, in MILLISECONDS
  * })
+ * documents.delete(doc.id) // trashItem() does NOT delete the parent row
+ * console.log(await countTrashedItems({ userId: 'user-1' })) // 1
  *
- * // 2. Register a restore callback at startup so the HTTP `restore`
- * //    route can re-create the parent resource:
- * registerRestoreCallback('document', async (snapshot) => {
- *   await documentService.upsertFromSnapshot(snapshot)
- * })
- *
- * // 3. Wire routes via mlcl inject — surfaces:
- * //   POST   /:resourceType/:resourceId/trash
- * //   GET    /trash
- * //   GET    /trash/count
- * //   GET    /trash/:trashId
- * //   POST   /trash/:trashId/restore
- * //   POST   /trash/:trashId/purge
+ * await restoreFromTrash(trashed.id, 'user-1', restoreDocument) // null if already restored/purged
+ * console.log(documents.has('doc-1')) // true
+ * await purgeExpired() // run from a daily cron — nothing purges expired rows on its own
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call** (`setStore(...)`), or every service function and
+ *   handler throws.
+ * - **`trashItem()` only records a snapshot** — it does not delete (or hide) the parent resource;
+ *   remove it yourself right after. `ttlMs` only sets `expiresAt`; expired rows stay until you
+ *   call `purgeExpired()` (soft purge: stamps `purgedAt`).
+ * - `restoreFromTrash()` runs the callback FIRST and only stamps `restoredAt` if it succeeds, so a
+ *   throwing callback is safely retryable; the snapshot must be JSON-serialisable.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so

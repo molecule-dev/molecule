@@ -8,17 +8,41 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-room-type'
+ * import express from 'express'
  *
- * // Wire routes into your Express app via mlcl inject
- * // GET    /room-types          (public)
- * // GET    /room-types/:id      (public)
- * // POST   /room-types          (admin-only)
- * // PATCH  /room-types/:id      (admin-only)
- * // DELETE /room-types/:id      (admin-only)
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as RoomType } from '@molecule/api-resource-room-type'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session). Reads are public; writes need an ADMIN session
+ * // (`isAdmin: true`, `role: 'admin'`, or the `'roomType:manage'` permission).
+ * export const router = express.Router()
+ * router.get('/room-types', RoomType.list) // ?propertyId=&activeOnly=true&minCapacity=2&page=1&limit=20
+ * router.get('/room-types/:id', RoomType.read)
+ * router.post('/room-types', RoomType.requireAdmin, RoomType.create)
+ * router.patch('/room-types/:id', RoomType.requireAdmin, RoomType.update)
+ * router.delete('/room-types/:id', RoomType.requireAdmin, RoomType.del)
+ *
+ * // Admin: POST /room-types { propertyId: 'prop-1', name: 'Deluxe King', capacity: 2,
+ * //   baseRateCents: 18900, currency: 'USD', totalUnits: 12, amenities: ['wifi'] }
+ * //   → 201 { id, name, amenities: ['wifi'], active: true, ... }
+ * // Anyone: GET /room-types?propertyId=prop-1 → 200 { data: [...], total, page, limit }
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before mounting.** Every handler goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they answer 500.
+ * - **Money is in minor units** (`baseRateCents: 18900` = 189.00) and `capacity`/`totalUnits`
+ *   are required numbers — a missing field answers 400 with an `errorKey`.
+ * - **`requireAdmin` rejects via `next(message)`, not a 403 body.** Without an app error
+ *   handler Express turns that into a 500; the handlers themselves answer 401/403 JSON with an
+ *   `errorKey` if the middleware is skipped.
+ * - **List is a PAGE envelope** `{ data, total, page, limit }` (page-based, not offset).
+ *
  * Mutations are ADMIN-ONLY and DENY by default. A room type has no per-user
  * owner column (it carries a `propertyId`, not a `userId`), so
  * `create`/`update`/`del` are gated by the `requireAdmin` middleware AND

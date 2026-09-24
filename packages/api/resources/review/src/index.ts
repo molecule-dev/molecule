@@ -7,19 +7,39 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-review'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createReview,
+ *   getAverageRating,
+ *   getReviewsByResource,
+ *   markHelpful,
+ * } from '@molecule/api-resource-review'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /:resourceType/:resourceId/reviews
- * // GET    /:resourceType/:resourceId/reviews
- * // GET    /:resourceType/:resourceId/reviews/rating
- * // GET    /reviews/:reviewId
- * // PUT    /reviews/:reviewId
- * // DELETE /reviews/:reviewId
- * // POST   /reviews/:reviewId/helpful
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL). `mlcl inject`
+ * // mounts `routes` onto `requestHandlerMap`: POST/GET /:resourceType/:resourceId/reviews,
+ * // GET /:resourceType/:resourceId/reviews/rating, GET/PUT/DELETE /reviews/:reviewId,
+ * // POST /reviews/:reviewId/helpful.
+ * setStore(store)
+ *
+ * // Server-side code: the author is always the SESSION user (res.locals.session.userId).
+ * await createReview('product', 'prod-1', 'user-1', { rating: 5, title: 'Great', body: 'Love it' })
+ * const review = await createReview('product', 'prod-1', 'user-2', {
+ *   rating: 2,
+ *   title: 'Meh',
+ *   body: 'Broke after a week',
+ * })
+ * await markHelpful(review.id, 'user-1') // idempotent per (reviewId, userId)
+ *
+ * const stats = await getAverageRating('product', 'prod-1')
+ * console.log(stats.average, stats.count, stats.distribution) // 3.5, 2, { 1: 0, 2: 1, 3: 0, 4: 0, 5: 1 }
+ * const page = await getReviewsByResource('product', 'prod-1', { sortBy: 'rating' })
+ * console.log(page.total, page.data[0].rating) // 2, 5 — `{ data, total, limit, offset }` envelope
  * ```
  *
  * @remarks
+ * - **Bond the DataStore before any call.** Every service function and handler goes through
+ *   `@molecule/api-database`; without `setStore(...)` at startup they throw.
  * - **List endpoints return a PAGINATED envelope** `{ data, total, limit, offset }`, not a
  *   bare array — read the rows off `result.data` (server). On the client, `unwrapList(res)`
  *   from `@molecule/app-http` normalizes this envelope (pass it the whole HttpResponse), so
