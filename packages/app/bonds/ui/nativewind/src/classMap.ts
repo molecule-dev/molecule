@@ -23,6 +23,7 @@ import type {
   FlexClassOptions,
   GridClassOptions,
   ModalClassOptions,
+  ResponsiveBreakpoint,
   Size,
   ToastPosition,
   UIClassMap,
@@ -43,6 +44,20 @@ export const classMap: UIClassMap = {
   ...tailwindClassMap,
 
   // ---- Overrides for RN-incompatible classes ----
+
+  // NativeWind maps min-width breakpoints; the max-* variants the web bond
+  // uses are not relied on here. Literal strings so the class scan sees them.
+  hiddenBelow(breakpoint: ResponsiveBreakpoint): string {
+    return {
+      sm: 'hidden sm:flex',
+      md: 'hidden md:flex',
+      lg: 'hidden lg:flex',
+      xl: 'hidden xl:flex',
+    }[breakpoint]
+  },
+  hiddenFrom(breakpoint: ResponsiveBreakpoint): string {
+    return { sm: 'sm:hidden', md: 'md:hidden', lg: 'lg:hidden', xl: 'xl:hidden' }[breakpoint]
+  },
 
   cn(...classes: ClassMapValue[]): string {
     // NativeWind handles class merging via its own runtime; we still use

@@ -31,6 +31,7 @@ import type {
   ModalSize,
   PaginationClassOptions,
   RadioClassOptions,
+  ResponsiveBreakpoint,
   SelectClassOptions,
   SeparatorClassOptions,
   Size,
@@ -1094,6 +1095,19 @@ export const classMap: UIClassMap = {
 
   position(value: 'relative' | 'absolute' | 'fixed' | 'sticky'): string {
     return value
+  },
+
+  // Literal strings per breakpoint so Tailwind's source scan sees every class.
+  hiddenBelow(breakpoint: ResponsiveBreakpoint): string {
+    return {
+      sm: 'max-sm:hidden',
+      md: 'max-md:hidden',
+      lg: 'max-lg:hidden',
+      xl: 'max-xl:hidden',
+    }[breakpoint]
+  },
+  hiddenFrom(breakpoint: ResponsiveBreakpoint): string {
+    return { sm: 'sm:hidden', md: 'md:hidden', lg: 'lg:hidden', xl: 'xl:hidden' }[breakpoint]
   },
 
   inset0: 'inset-0',

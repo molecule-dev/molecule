@@ -14,6 +14,23 @@ describe('classMap', () => {
     expect(cm).toBeDefined()
   })
 
+  describe('hiddenBelow() / hiddenFrom()', () => {
+    it('hide below / from a breakpoint with literal classes the scanner can see', () => {
+      expect(classMap.hiddenBelow('md')).toBe('max-md:hidden')
+      expect(classMap.hiddenFrom('md')).toBe('md:hidden')
+      expect(classMap.hiddenBelow('xl')).toBe('max-xl:hidden')
+      expect(classMap.hiddenFrom('sm')).toBe('sm:hidden')
+      const source = readFileSync(
+        join(dirname(fileURLToPath(import.meta.url)), '..', 'classMap.ts'),
+        'utf8',
+      )
+      for (const bp of ['sm', 'md', 'lg', 'xl']) {
+        expect(source).toContain(`'max-${bp}:hidden'`)
+        expect(source).toContain(`'${bp}:hidden'`)
+      }
+    })
+  })
+
   describe('cn()', () => {
     it('should merge class strings', () => {
       const result = classMap.cn('foo', 'bar')

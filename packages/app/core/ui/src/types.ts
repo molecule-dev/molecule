@@ -1693,6 +1693,13 @@ export type SpacingProperty =
 export type SpacingOverrides = Partial<Record<SpacingProperty, SpacingScale>>
 
 /**
+ * Viewport breakpoints for responsive visibility (`hiddenBelow`/`hiddenFrom`):
+ * `sm` ≈ 640px, `md` ≈ 768px, `lg` ≈ 1024px, `xl` ≈ 1280px (each ClassMap
+ * bond maps them to its own breakpoints).
+ */
+export type ResponsiveBreakpoint = 'sm' | 'md' | 'lg' | 'xl'
+
+/**
  * Text size scale from extra-small to 4xl.
  */
 export type TextScale = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl'
@@ -2550,6 +2557,15 @@ export interface UIClassMap {
   displayInlineBlock: string
   /** Contents display (invisible wrapper). */
   displayContents: string
+  /**
+   * Hidden on viewports NARROWER than the breakpoint; the element keeps its
+   * own display from the breakpoint up. Pair with {@link UIClassMap.hiddenFrom}
+   * to swap a desktop surface (a side column) for a phone one (a bottom bar)
+   * in CSS alone — correct in server-rendered HTML before any JavaScript runs.
+   */
+  hiddenBelow(breakpoint: ResponsiveBreakpoint): string
+  /** Hidden on viewports AT OR WIDER than the breakpoint (the phone-only half of the pair). */
+  hiddenFrom(breakpoint: ResponsiveBreakpoint): string
 
   // ---- Layout utilities ----
 

@@ -1,0 +1,9 @@
+import type { MarginNotesTranslations } from './types.js'
+
+/** MarginNotes translations for hi. */
+export const hi: Partial<MarginNotesTranslations> = {
+  'marginNotes.aria.toggles': 'नोट्स दिखाएँ या छिपाएँ',
+  'marginNotes.aria.notes': 'नोट्स',
+  'marginNotes.aria.panel': 'इस अनुभाग के नोट्स',
+  'marginNotes.dismiss': 'बंद करें',
+}
