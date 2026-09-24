@@ -37,6 +37,14 @@
  * `data-mol-id` attributes for e2e locators; the buttons are also
  * text-labeled so `getByRole('button', { name })` reaches them.
  *
+ * WIZARD GOTCHA (learned the hard way, fleet migration 2026-09-24): a
+ * fulfilled submit calls `onClose()` — "close", not "cancel". A multi-stage
+ * flow that advances its stage INSIDE `onSubmit` gets clobbered if its
+ * `onClose` unconditionally resets to idle (the auto-close fires right
+ * after the stage advance). Make `onClose` stage-aware via functional
+ * state (`setStage((cur) => (cur === 'name' ? 'idle' : cur))`) so cancel
+ * still resets but the post-submit auto-close doesn't undo the advance.
+ *
  * @module
  */
 
