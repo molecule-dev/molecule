@@ -8,12 +8,21 @@
  *
  * @example
  * ```typescript
- * import { setProvider, track, identify } from '@molecule/api-analytics'
- * import { provider as mixpanel } from '@molecule/api-analytics-mixpanel'
+ * import { identify, setProvider, track } from '@molecule/api-analytics'
+ * import { createProvider } from '@molecule/api-analytics-mixpanel'
+ * import { logger } from '@molecule/api-logger'
  *
- * setProvider(mixpanel)
- * await identify({ userId: 'u_123', email: 'user@example.com' })
- * await track({ name: 'purchase.completed', properties: { amount: 49.99 } })
+ * // Startup (server only): bond one provider. The token comes from the server env.
+ * setProvider(createProvider({ token: process.env.MIXPANEL_TOKEN }))
+ *
+ * // In a handler: identify the user, then record what they did (tie events to userId).
+ * await identify({ userId: 'u_123', email: 'user@example.com', name: 'Ada' })
+ * await track({ name: 'purchase.completed', userId: 'u_123', properties: { amount: 49.99 } })
+ *
+ * // Fire-and-forget sites must not let an analytics outage fail the request.
+ * track({ name: 'report.viewed', userId: 'u_123' }).catch((error) => {
+ *   logger.warn('analytics track failed', { error })
+ * })
  * ```
  *
  * @remarks
@@ -28,6 +37,13 @@
  * (Mixpanel group key, PostHog group type), `'company'` by default in every
  * bond — overridable per bond via its `groupType` option or `*_GROUP_TYPE`
  * env var. Look under that group type (default "company") in the provider's UI.
+ *
+ * - Pass `userId` (or `anonymousId`) on EVERY `track()`/`page()` — the server has no
+ *   ambient session, so an event without one is not attributed to anybody.
+ * - `@molecule/api-analytics-mixpanel` / `-posthog` with no token/key configured return a
+ *   NO-OP provider (a boot-time warning, then silence) — events "never appearing" in the
+ *   dashboard usually means the env var is unset, not that tracking code is wrong.
+ * - `timestamp` is a `Date`, not a number.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

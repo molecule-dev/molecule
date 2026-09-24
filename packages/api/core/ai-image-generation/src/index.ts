@@ -29,22 +29,28 @@
  *   anything the app needs to keep.
  * - **Server-side only, gated and budgeted.** Keep the provider key on the API;
  *   require auth and rate-limit user-triggered generation — every image is billed.
+ * - The method is `generate()` and it returns `{ images, model }` — the images are an
+ *   ARRAY even when you asked for one. Provider errors THROW (unlike `@molecule/api-ai` chat).
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/api-ai-image-generation'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-image-generation'
  * import { createProvider } from '@molecule/api-ai-image-generation-openai'
  *
- * // Wire at startup. See the bond package for its config/env (e.g. OPENAI_API_KEY).
- * setProvider(createProvider())
+ * // Startup (server only): bond one provider. The key comes from the server env.
+ * setProvider(createProvider({ apiKey: process.env.OPENAI_API_KEY }))
  *
- * // Use anywhere after startup.
- * const { images } = await requireProvider().generate({
+ * const { images, model } = await requireProvider().generate({
  *   prompt: 'A watercolor fox reading a book',
  *   size: '1024x1024',
  *   responseFormat: 'base64',
  * })
- * // images[0] may carry url, base64, or data — handle what the bonded provider returns.
+ *
+ * // A result may carry `base64`, `url` or `data` — handle what the provider returned.
+ * const image = images[0]
+ * if (!image?.base64) throw new Error('No image returned')
+ * const png = Buffer.from(image.base64, 'base64') // persist it (e.g. via an uploads bond)
+ * console.log(model, png.byteLength) // 'gpt-image-1' 68
  * ```
  *
  * @e2e

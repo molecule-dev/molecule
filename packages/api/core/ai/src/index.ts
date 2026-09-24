@@ -29,22 +29,35 @@
  *   `requireProvider()` throws pointing at `getProviderByName(name)`. Call the explicit
  *   `setProvider(provider)` (no name) form if you want one provider to always win regardless of
  *   how many named providers you also register.
+ * - **Nothing works until a provider is bonded.** `requireProvider()` throws if no bond
+ *   (e.g. `@molecule/api-ai-anthropic`, `-openai`) was registered with `setProvider()` at
+ *   startup — this core package has no model of its own.
+ * - **Failures arrive as an `error` EVENT, not a thrown exception** — check
+ *   `event.type === 'error'` inside the loop; a `try/catch` around the loop alone misses them.
+ * - The method is `chat()` (an async iterable) — there is no `complete()`, `generate()` or
+ *   `sendMessage()`. Text chunks are `event.content` on `type: 'text'` events; token usage is
+ *   on the final `done` event.
  *
  * @example
  * ```typescript
- * import { requireProvider } from '@molecule/api-ai'
  * import type { ChatParams } from '@molecule/api-ai'
+ * import { requireProvider, setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-anthropic'
  *
- * const ai = requireProvider()
+ * // Startup (server only): bond one provider. The key comes from the server env.
+ * setProvider(createProvider({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ *
+ * // In a request handler: stream the reply and forward each chunk (e.g. over SSE).
  * const params: ChatParams = {
- *   messages: [{ role: 'user', content: 'Hello!' }],
- *   stream: true,
+ *   messages: [{ role: 'user', content: 'What is 2 + 2?' }],
+ *   maxTokens: 256,
  * }
  * let reply = ''
- * for await (const event of ai.chat(params)) {
- *   if (event.type === 'text') reply += event.content // or forward the chunk to the client (SSE)
+ * for await (const event of requireProvider().chat(params)) {
+ *   if (event.type === 'text') reply += event.content
+ *   if (event.type === 'error') throw new Error(event.message)
  * }
- * console.log(reply)
+ * console.log(reply) // '2 + 2 = 4.'
  * ```
  *
  * @e2e

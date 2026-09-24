@@ -5,20 +5,30 @@
  * trail entries. Bond a concrete provider (e.g. `@molecule/api-audit-database`,
  * `@molecule/api-audit-file`) at startup via `setProvider()`.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider, log, query } from '@molecule/api-audit'
- * import { provider } from '@molecule/api-audit-database'
+ * import { mkdir } from 'node:fs/promises'
  *
- * // Wire the provider at startup
- * setProvider(provider)
+ * import { auditExport, log, query, setProvider } from '@molecule/api-audit'
+ * import { createProvider } from '@molecule/api-audit-file'
  *
- * // Record an audit entry
- * await log({ actor: 'user:1', action: 'create', resource: 'project', resourceId: 'proj-42' })
+ * // Startup: the file bond does NOT create its directory — make it first.
+ * await mkdir('./audit-logs', { recursive: true })
+ * setProvider(createProvider({ directory: './audit-logs' }))
  *
- * // Query audit records
- * const results = await query({ actor: 'user:1', page: 1, perPage: 20 })
+ * // In the handler that performs the action (server-side, never from the client):
+ * await log({
+ *   actor: 'user:1',
+ *   action: 'project.create',
+ *   resource: 'project',
+ *   resourceId: 'proj-42',
+ *   ip: '203.0.113.7',
+ * })
+ *
+ * // Admin-only: read the trail (1-based pages) or export it.
+ * const { data, total } = await query({ actor: 'user:1', page: 1, perPage: 20 })
+ * console.log(total, data[0]?.action, data[0]?.timestamp instanceof Date) // 1 'project.create' true
+ * const csv = await auditExport({ resource: 'project' }, 'csv') // Buffer
  * ```
  *
  * @remarks
@@ -35,7 +45,10 @@
  * - **Log identifiers and outcomes, not payloads.** `details` is persisted verbatim
  *   and readable by anyone who can query the trail — no secrets, tokens, or raw PII.
  * - `query()` paginates with 1-based `page` + `perPage` and returns
- *   `PaginatedResult` (`data`, `total`, `page`, `perPage`).
+ *   `PaginatedResult` (`data`, `total`, `page`, `perPage`, `totalPages`).
+ * - Pick the bond by what exists: `@molecule/api-audit-file` needs only a writable
+ *   directory (dev/single instance); `@molecule/api-audit-database` needs a bonded
+ *   `@molecule/api-database` DataStore (production).
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
@@ -58,6 +71,8 @@
  * - [ ] History is append-only / tamper-evident: no endpoint edits or deletes a
  *   past entry to cover tracks (the interface exposes only log/query/export) —
  *   try to mutate one and confirm there is no route.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

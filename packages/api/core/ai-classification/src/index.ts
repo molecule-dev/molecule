@@ -9,21 +9,20 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
- * import { provider as anthropic } from '@molecule/api-ai-anthropic'
- * import { provider as classification } from '@molecule/api-ai-classification-llm'
- * import { requireProvider } from '@molecule/api-ai-classification'
+ * import { setProvider as setAiProvider } from '@molecule/api-ai'
+ * import { createProvider as createAnthropic } from '@molecule/api-ai-anthropic'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-classification'
+ * import { provider as classifier } from '@molecule/api-ai-classification-llm'
  *
- * // Wire an AI provider + the classifier at startup.
- * bond('ai', anthropic)
- * bond('ai-classification', classification)
+ * // Startup (server only): bond the chat model, then the classifier that uses it.
+ * setAiProvider(createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ * setProvider(classifier)
  *
- * // Use it anywhere.
  * const result = await requireProvider().classify({
  *   text: 'Win a FREE $1000 gift card now!!!',
  *   labels: ['spam', 'ham'],
  * })
- * console.log(result.top)    // 'spam'
+ * console.log(result.top) // 'spam'
  * console.log(result.labels) // [{ label: 'spam', score: 0.98 }, { label: 'ham', score: 0.02 }]
  * ```
  *
@@ -35,6 +34,12 @@
  * - `ClassifyResult.labels` is restricted to the candidate set, sorted
  *   descending by score. See the bonded provider for parsing/normalization
  *   semantics.
+ * - **Two bonds, not one:** the `ai` chat bond (`@molecule/api-ai` `setProvider`) AND this
+ *   package's `setProvider(classifier)`. Without the `ai` bond, `classify()` throws.
+ * - The method is `classify({ text, labels })` — `labels` is REQUIRED (zero-shot: you supply
+ *   the candidate set). Scores are `0..1`, not percentages; `top` is always one of `labels`,
+ *   even for ambiguous text — gate on `result.labels[0].score` if you need an "unsure" path.
+ * - Unparseable model output makes `classify()` THROW — catch it and show an unlabeled state.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

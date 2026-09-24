@@ -10,15 +10,17 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
- * import { requireProvider } from '@molecule/api-ai-agents'
- * import { provider as agents } from '@molecule/api-ai-agents-llm'
  * import type { AITool } from '@molecule/api-ai'
+ * import { setProvider as setAiProvider } from '@molecule/api-ai'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-agents'
+ * import { provider as agents } from '@molecule/api-ai-agents-llm'
+ * import { createProvider as createAnthropic } from '@molecule/api-ai-anthropic'
  *
- * // Wire at startup (an `ai` provider must already be bonded).
- * bond('ai-agents', agents)
+ * // Startup (server only): bond the chat model FIRST, then the agent loop that drives it.
+ * setAiProvider(createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ * setProvider(agents)
  *
- * const myTool: AITool = {
+ * const add: AITool = {
  *   name: 'add',
  *   description: 'Add two numbers',
  *   parameters: {
@@ -32,13 +34,10 @@
  *   },
  * }
  *
- * const result = await requireProvider().run({
- *   task: 'What is 1 + 2? Use the add tool.',
- *   tools: [myTool],
- * })
- * console.log(result.output) // final assistant answer
- * console.log(result.steps)  // intermediate tool calls + results
- * console.log(result.usage)  // token usage summed across all model calls
+ * const result = await requireProvider().run({ task: 'What is 1 + 2? Use the add tool.', tools: [add] })
+ * console.log(result.output) // final answer, e.g. '1 + 2 = 3.'
+ * console.log(result.steps[0]?.toolCalls[0]?.result) // 3 — your execute() really ran
+ * console.log(result.usage.inputTokens, result.usage.outputTokens) // summed across every model call
  * ```
  *
  * @remarks
@@ -60,6 +59,14 @@
  *   `getProviderByName(name)`. Call the explicit `setProvider(provider)` (no
  *   name) form if you want one provider to always win regardless of how many
  *   named providers you also register.
+ * - **Two bonds, not one:** the `ai` chat bond (`@molecule/api-ai` `setProvider`) AND the
+ *   `ai-agents` bond (this package's `setProvider`). Bonding only the agent makes `run()`
+ *   reject because no `ai` provider is configured.
+ * - `run()` takes EXACTLY one of `task` or `messages` — passing both (or neither) throws.
+ * - A tool's `execute()` that throws does NOT reject `run()`; it is recorded on the step as
+ *   `isError: true` and fed back to the model. Only an `ai`-provider failure rejects.
+ * - Tools run on YOUR server with the model choosing the arguments — validate `input` inside
+ *   `execute()` as untrusted data.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), give the

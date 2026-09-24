@@ -7,20 +7,34 @@
  *
  * @example
  * ```typescript
- * import { setProvider, listEvents } from '@molecule/api-calendar'
- * import { provider } from '@molecule/api-calendar-google'
+ * import type { CalendarUserCredentials } from '@molecule/api-calendar'
+ * import { listEvents, setProvider } from '@molecule/api-calendar'
+ * import { createProvider } from '@molecule/api-calendar-google'
  *
- * setProvider(provider)
- *
- * const { data, credentials } = await listEvents(
- *   userCreds,
- *   'primary',
- *   { timeMin: '2026-05-01T00:00:00Z', timeMax: '2026-05-08T00:00:00Z' },
+ * // Startup (server only): the OAuth client id/secret let the bond refresh expired tokens.
+ * setProvider(
+ *   createProvider({
+ *     clientId: process.env.OAUTH_GOOGLE_CLIENT_ID,
+ *     clientSecret: process.env.OAUTH_GOOGLE_CLIENT_SECRET,
+ *   }),
  * )
  *
- * if (credentials) {
- *   await persistRefreshedCredentials(userId, credentials)
- * }
+ * // The CALLING user's tokens, saved by your OAuth sign-in (with calendar scopes).
+ * const storedTokens = new Map<string, CalendarUserCredentials>([
+ *   ['user-123', { accessToken: 'ya29.old', refreshToken: '1//refresh' }],
+ * ])
+ * const userId = 'user-123'
+ * const userCreds = storedTokens.get(userId)
+ * if (!userCreds) throw new Error('Calendar not connected')
+ *
+ * const { data: events, credentials } = await listEvents(userCreds, 'primary', {
+ *   timeMin: '2026-05-01T00:00:00Z',
+ *   timeMax: '2026-05-08T00:00:00Z',
+ * })
+ * console.log(events.map((event) => `${event.start} ${event.summary}`))
+ *
+ * // Tokens were refreshed: SAVE them, or the user's next call fails.
+ * if (credentials) storedTokens.set(userId, credentials)
  * ```
  *
  * @remarks
@@ -38,6 +52,11 @@
  *   hardcoding.
  * - All wrappers throw when no provider is bonded (`setProvider` at startup);
  *   times are ISO 8601 strings.
+ * - The Google bond needs `OAUTH_GOOGLE_CLIENT_ID` + `OAUTH_GOOGLE_CLIENT_SECRET` (or the
+ *   `clientId`/`clientSecret` options) — without them an expired token cannot be
+ *   refreshed and the call throws. `expiresAt` is epoch MILLISECONDS.
+ * - This package does not run the OAuth sign-in; obtain the user's tokens with the app's
+ *   OAuth flow and store them per user.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

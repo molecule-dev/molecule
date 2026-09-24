@@ -19,9 +19,11 @@
  *   target side (e.g. 'EN-US' vs 'EN', 'PT-BR') — don't hardcode a guessed list;
  *   populate pickers from `getSupportedLanguages('target')` and pass codes through
  *   verbatim.
- * - **`translate` is batched:** pass `text: string[]` (max 50 per request) instead
- *   of looping; results return one `TranslatedText` per input, each with
- *   `detectedSourceLang` when `sourceLang` was omitted.
+ * - **`translate` is batched:** pass `text: string[]` instead of looping (the DeepL
+ *   bond splits arrays into requests of 50 for you); results return one
+ *   `TranslatedText` per input, in order, each with `detectedSourceLang`.
+ * - `translations` is ALWAYS an array — even for a single `text: string` input, read
+ *   `translations[0].text`. Provider HTTP errors THROW.
  * - **Server-side only + quota-aware.** Keep the provider key on the API;
  *   translation is billed per character (`getUsage()` exposes the period quota) —
  *   auth and rate-limit any endpoint that translates caller-supplied text.
@@ -30,18 +32,20 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/api-ai-translation'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-translation'
  * import { createProvider } from '@molecule/api-ai-translation-deepl'
  *
- * // Wire at startup. See the bond package for its config/env (e.g. DEEPL_API_KEY).
- * setProvider(createProvider())
+ * // Startup (server only): bond one provider. The key comes from the server env
+ * // (a free-tier DeepL key ends in ':fx' and is routed to the free endpoint automatically).
+ * setProvider(createProvider({ apiKey: process.env.DEEPL_API_KEY }))
  *
- * // Use anywhere after startup.
+ * // Batch: one call, one result per input, in the same order.
  * const { translations } = await requireProvider().translate({
  *   text: ['Hello world', 'Thanks for your order'],
  *   targetLang: 'DE',
  * })
- * console.log(translations[0].text, translations[0].detectedSourceLang) // 'Hallo Welt', 'EN'
+ * console.log(translations[0]?.text, translations[0]?.detectedSourceLang) // 'Hallo Welt' 'EN'
+ * console.log(translations[1]?.text) // 'Danke für Ihre Bestellung'
  * ```
  *
  * @e2e

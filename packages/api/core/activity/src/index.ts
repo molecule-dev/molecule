@@ -16,13 +16,21 @@
  * `logger.warn`, never re-thrown. `ActivitySink` implementations are
  * themselves documented to catch their own errors; this accessor-level catch
  * is defense-in-depth for a sink that doesn't honor that.
+ * - The setter is `setSink()` (bond key `'activity-sink'`), NOT `setProvider()` —
+ *   there is no `setProvider` export in this package.
+ * - With no sink bonded, `record()` silently does nothing — nothing is logged and
+ *   nothing throws, so a forgotten `setSink()` looks like "no activity".
+ * - This package only RECORDS events; it does not send emails/SMS/webhooks. Capture
+ *   provider bonds (e.g. an emails capture bond) call `record()` for you.
+ * - `timestamp` is an ISO 8601 string (`new Date().toISOString()`), not a `Date`
+ *   or epoch number; `type` is one of `'email' | 'sms' | 'push' | 'webhook' | 'channel'`.
  *
  * @example
  * ```typescript
- * import { setSink, record } from '@molecule/api-activity'
+ * import { record, setSink } from '@molecule/api-activity'
  * import { provider } from '@molecule/api-activity-console'
  *
- * // Wire a sink at startup
+ * // Startup: bond a sink (console logs each event via the bonded logger).
  * setSink(provider)
  *
  * // Record an event from a capture provider (no-ops if no sink bonded)

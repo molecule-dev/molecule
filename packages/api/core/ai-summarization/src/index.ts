@@ -9,30 +9,41 @@
  *
  * @example
  * ```typescript
- * import { provider as anthropic } from '@molecule/api-ai-anthropic'
- * import { requireProvider } from '@molecule/api-ai-summarization'
- * import { provider } from '@molecule/api-ai-summarization-llm'
- * import { bond } from '@molecule/api-bond'
+ * import { setProvider as setAiProvider } from '@molecule/api-ai'
+ * import { createProvider as createAnthropic } from '@molecule/api-ai-anthropic'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-summarization'
+ * import { provider as summarizer } from '@molecule/api-ai-summarization-llm'
  *
- * // Wire the AI chat provider the default composes, then bond the summarizer.
- * bond('ai', anthropic)
- * bond('ai-summarization', provider)
+ * // Startup (server only): bond the chat model, then the summarizer that uses it.
+ * setAiProvider(createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ * setProvider(summarizer)
  *
- * // Use anywhere after startup.
+ * const article =
+ *   'Acme Corp reported Q3 revenue of $12M, up 20% year over year, driven by its new ' +
+ *   'subscription tier. Operating costs rose 5%, and the company raised full-year guidance.'
+ *
  * const { summary, usage } = await requireProvider().summarize({
- *   text: longArticle,
+ *   text: article,
  *   format: 'bullets',
- *   maxLength: 60,
+ *   maxLength: 60, // WORDS, not characters or tokens
  *   focus: 'the financial impact',
  * })
+ * console.log(summary) // '- Revenue up 20% to $12M\n- Full-year guidance raised'
+ * console.log(usage?.outputTokens) // 14
  * ```
  *
  * @remarks
- * This core imports `@molecule/api-ai` only as a *type* (the shared `TokenUsage`
- * interface on `SummarizeResult`) — never for runtime use. A provider must be
- * bonded before `requireProvider()` resolves (it throws otherwise). Swap in a
- * custom `AISummarizationProvider` via `bond('ai-summarization', myProvider)`
- * without changing any call site.
+ * - **Two bonds, not one:** the `ai` chat bond (`@molecule/api-ai` `setProvider`) AND this
+ *   package's `setProvider(summarizer)`. This core ships no implementation, and the default
+ *   `@molecule/api-ai-summarization-llm` has no model of its own — without an `ai` bond,
+ *   `summarize()` throws.
+ * - `maxLength` is an approximate WORD count passed to the model as guidance — it is not
+ *   enforced; truncate yourself if you need a hard limit.
+ * - `summary` is a plain string (trimmed); `format: 'bullets'` yields markdown-style bullet
+ *   lines, not an array. A model `error` event makes `summarize()` THROW.
+ * - This core imports `@molecule/api-ai` only as a *type* (the shared `TokenUsage` on
+ *   `SummarizeResult`). Swap in a custom `AISummarizationProvider` via `setProvider(myProvider)`
+ *   without changing any call site.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

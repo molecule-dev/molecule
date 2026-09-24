@@ -28,27 +28,31 @@
  * - **Server-side only, gated and budgeted.** Keep the provider key on the API;
  *   auth + rate-limit user-facing synthesize/transcribe endpoints — both are billed
  *   per character/minute of audio.
+ * - Transcription `duration` and segment/word `start`/`end` are in SECONDS, not ms.
+ * - Provider HTTP errors THROW (after retrying rate limits) — wrap user-facing calls in try/catch.
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/api-ai-speech'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-speech'
  * import { createProvider } from '@molecule/api-ai-speech-openai'
  *
- * // Wire at startup. See the bond package for its config/env (e.g. OPENAI_API_KEY).
- * setProvider(createProvider())
+ * // Startup (server only): bond one provider. The key comes from the server env.
+ * setProvider(createProvider({ apiKey: process.env.OPENAI_API_KEY }))
  *
  * const speech = requireProvider()
  *
- * // TTS — feature-detect: providers implement optional subsets.
- * if (speech.synthesize) {
- *   const { audio, contentType } = await speech.synthesize({ input: 'Your order shipped!' })
- *   // respond with the raw bytes + contentType, or persist via the uploads bond
- * }
+ * // TTS — every method is optional, so feature-detect before calling.
+ * if (!speech.synthesize || !speech.transcribe) throw new Error('Speech not supported')
+ * const { audio, contentType } = await speech.synthesize({
+ *   input: 'Your order shipped!',
+ *   voice: 'alloy',
+ *   responseFormat: 'mp3',
+ * })
+ * console.log(contentType, audio.byteLength) // 'audio/mpeg' 4 — send these raw bytes as the response body
  *
- * // STT
- * if (speech.transcribe) {
- *   const { text } = await speech.transcribe({ audio: audioBytes, filename: 'note.webm' })
- * }
+ * // STT — raw audio bytes plus a filename hint for the container format.
+ * const { text, duration } = await speech.transcribe({ audio, filename: 'reply.mp3' })
+ * console.log(text, duration) // 'Your order shipped!' 1.2 (seconds)
  * ```
  *
  * @e2e

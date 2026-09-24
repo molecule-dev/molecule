@@ -25,20 +25,29 @@
  * - Most apps shouldn't call this directly: `@molecule/api-semantic-search` composes
  *   this bond with `@molecule/api-ai-vector-store` (index + query in one call), and
  *   `@molecule/api-ai-rag` builds grounded Q&A on top of both.
+ * - `embed()` returns `{ embeddings: number[][], model, usage }` — the vectors are under
+ *   `embeddings`, not `data`/`vectors`. `embedQuery()` returns a single `number[]`.
+ * - This core does not store or search vectors; persist them in a vector store bond.
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/api-ai-embeddings'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-embeddings'
  * import { createProvider } from '@molecule/api-ai-embeddings-openai'
  *
- * // Wire at startup. See the bond package for its config/env (e.g. OPENAI_API_KEY).
- * setProvider(createProvider({ defaultModel: 'text-embedding-3-small' }))
+ * // Startup (server only): bond one provider. The key comes from the server env.
+ * setProvider(
+ *   createProvider({ apiKey: process.env.OPENAI_API_KEY, defaultModel: 'text-embedding-3-small' }),
+ * )
  *
- * // Use anywhere after startup.
- * const { embeddings, usage } = await requireProvider().embed({
+ * // Batch-embed documents in ONE call (one vector per input, same order).
+ * const { embeddings, model, usage } = await requireProvider().embed({
  *   input: ['How do I reset my password?', 'Billing and invoices'],
  * })
+ * console.log(embeddings.length, model, usage.totalTokens) // 2 'text-embedding-3-small' 11
+ *
+ * // Embed a search query with the SAME model, then compare against the documents.
  * const queryVector = await requireProvider().embedQuery('forgot my password')
+ * console.log(queryVector.length === embeddings[0]?.length) // true
  * ```
  *
  * @e2e

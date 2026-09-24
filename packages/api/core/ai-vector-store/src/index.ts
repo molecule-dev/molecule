@@ -31,27 +31,42 @@
  * - `query` results are sorted by `score` (higher = more similar, 0–1 where
  *   possible); use `minScore` to drop weak matches rather than trusting `topK`
  *   alone.
+ * - `query` returns `{ record, score }[]` — the id/content are on `hit.record`, not on
+ *   the hit. `upsert` into a collection that was never created THROWS; call
+ *   `createCollection` first (it is a no-op when the collection already exists with
+ *   the same dimension).
+ * - The score scale is provider-specific — the memory bond maps cosine onto 0–1, so an
+ *   UNRELATED vector still scores ~0.5. Tune `minScore` for the bonded provider.
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-vector-store'
  * import { provider as memory } from '@molecule/api-ai-vector-store-memory'
  *
- * // Wire at startup — memory for dev; swap to pgvector/pinecone when provisioned.
+ * // Startup: memory needs nothing (dev/tests); swap to pgvector/pinecone when provisioned.
  * setProvider(memory)
  *
+ * // Vectors come from an embeddings bond; tiny 3-dim vectors keep the example readable.
  * const store = requireProvider()
- * await store.createCollection({ name: 'docs', dimension: 1536, metric: 'cosine' })
+ * await store.createCollection({ name: 'docs', dimension: 3, metric: 'cosine' })
  * await store.upsert({
  *   collection: 'docs',
- *   records: [{ id: 'a', embedding: vec, content: 'PTO policy…', metadata: { userId: 'u1' } }],
+ *   records: [
+ *     { id: 'pto', embedding: [1, 0, 0], content: 'PTO policy', metadata: { userId: 'u1' } },
+ *     { id: 'wfh', embedding: [0, 1, 0], content: 'Remote work', metadata: { userId: 'u1' } },
+ *     { id: 'other', embedding: [1, 0, 0], content: 'PTO (u2)', metadata: { userId: 'u2' } },
+ *   ],
  * })
+ *
+ * // ALWAYS scope by owner; results are sorted by score, highest first.
  * const hits = await store.query({
  *   collection: 'docs',
- *   embedding: queryVec,
+ *   embedding: [0.9, 0.1, 0],
  *   topK: 5,
+ *   minScore: 0.8,
  *   filter: [{ field: 'userId', operator: 'eq', value: 'u1' }],
  * })
+ * console.log(hits.map((hit) => [hit.record.id, hit.score.toFixed(2)])) // [['pto', '1.00']]
  * ```
  *
  * @e2e

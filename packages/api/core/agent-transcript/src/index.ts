@@ -18,17 +18,23 @@
  * @example
  * ```typescript
  * import { readFileSync } from 'node:fs'
+ *
  * import { readTranscript, setProvider } from '@molecule/api-agent-transcript'
  * import { provider } from '@molecule/api-agent-transcript-autodetect'
  *
+ * // Startup: bond the autodetecting reader (Claude Code, Codex CLI, Molecule IDE).
  * setProvider(provider)
  *
+ * // Keep the original file name — it is a detection hint.
  * const session = readTranscript({
  *   text: readFileSync('transcripts/my-post/claude-code-export.txt', 'utf8'),
  *   fileName: 'claude-code-export.txt',
  * })
+ *
+ * console.log(session.format, session.harnessVersion) // 'claude-code' '2.1.281'
  * for (const turn of session.turns) {
- *   console.log(turn.role, turn.model ?? session.model, turn.text.slice(0, 60), turn.files.map((f) => f.path))
+ *   const model = turn.model ?? session.model
+ *   console.log(turn.role, model, turn.text.slice(0, 60), turn.files.map((f) => f.path))
  * }
  * ```
  *
@@ -48,6 +54,10 @@
  *   recognized, and `read()` throws on it. Keep the transcript's original file
  *   name when you have it — it is a detection hint.
  * - Parsing is pure and synchronous; nothing is fetched or written.
+ * - `readTranscript()` takes the file's TEXT, not a path — read the file yourself
+ *   (`readFileSync(path, 'utf8')`) and pass `{ text, fileName }`. It throws if no
+ *   reader is bonded (call `setProvider()` first) or if the bonded reader does not
+ *   recognize the text; use `canReadTranscript()` to check without throwing.
  *
  * @module
  */
