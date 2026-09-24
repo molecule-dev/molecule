@@ -11,7 +11,8 @@ import { defaultTranslations } from './translations.js'
  */
 type TranslateFn = (
   key: string,
-  values?: Record<string, unknown>,
+  // Same value type as `@molecule/app-i18n`'s `InterpolationValues`, so its `t` is assignable.
+  values?: Record<string, string | number | boolean | Date>,
   options?: { defaultValue?: string },
 ) => string
 

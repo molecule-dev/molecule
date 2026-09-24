@@ -8,16 +8,52 @@
  *
  * @example
  * ```typescript
- * import { createVirtualizer } from '@molecule/app-virtual-scroll'
+ * import { getClassMap, setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ * import { createVirtualizer, setProvider } from '@molecule/app-virtual-scroll'
+ * import type { VirtualScrollInstance } from '@molecule/app-virtual-scroll'
+ * import { provider } from '@molecule/app-virtual-scroll-tanstack'
+ *
+ * // Startup (bonds.ts) — createVirtualizer() throws until a provider is bonded.
+ * setClassMap(classMap)
+ * setProvider(provider)
+ *
+ * const rows = Array.from({ length: 10_000 }, (_, i) => `Row ${i + 1}`)
+ * const cm = getClassMap()
+ *
+ * // (1) Scroll container: constrained height + its own scrollbar.
+ * const scrollElement = document.createElement('div')
+ * scrollElement.style.height = '480px'
+ * scrollElement.style.overflowY = 'auto'
+ * // (2) Spacer sized to the FULL list so the scrollbar is right.
+ * const spacer = document.createElement('div')
+ * spacer.className = cm.position('relative')
+ * scrollElement.append(spacer)
+ * document.body.append(scrollElement)
+ *
+ * // (3) Render ONLY the visible rows, each positioned at item.start (px).
+ * const render = (virtualizer: VirtualScrollInstance): void => {
+ *   spacer.style.height = `${virtualizer.getTotalSize()}px`
+ *   const rendered = virtualizer.getVirtualItems().map((item) => {
+ *     const row = document.createElement('div')
+ *     row.className = cm.cn(cm.position('absolute'), cm.w('full'))
+ *     row.style.transform = `translateY(${item.start}px)`
+ *     row.textContent = rows[item.index] ?? ''
+ *     return row
+ *   })
+ *   spacer.replaceChildren(...rendered)
+ * }
  *
  * const virtualizer = createVirtualizer(scrollElement, {
- *   count: 10000,
- *   estimateSize: () => 50,
+ *   count: rows.length,
+ *   estimateSize: () => 48, // px per row (use measureElement for variable heights)
  *   overscan: 5,
+ *   onChange: render, // pass it HERE — it re-renders as the user scrolls
+ *   enabled: false, // create disabled, then enable: see the TanStack note in @remarks
  * })
- *
- * const items = virtualizer.getVirtualItems()
- * const totalSize = virtualizer.getTotalSize()
+ * virtualizer.setOptions({ enabled: true })
+ * render(virtualizer) // first paint: 'Row 1' … 'Row 15' (10 visible + 5 overscan)
+ * // On unmount: virtualizer.destroy()
  * ```
  *
  * @remarks
@@ -33,8 +69,16 @@
  *   Rendering every row, or skipping the positioning, produces the overlap /
  *   blank-gap bugs the E2E checklist below catches.
  * - **Re-render on `onChange`.** The instance mutates internally as the user
- *   scrolls — pass `onChange: () => rerender()` (or your framework's subscription
- *   equivalent) or the visible window never updates.
+ *   scrolls — pass `onChange` in the INITIAL options (the TanStack bond cannot
+ *   attach one later via `setOptions`) or the visible window never updates.
+ * - **TanStack bond: create the virtualizer with `enabled: false`, then call
+ *   `setOptions({ enabled: true })`.** When the container already has a height, the
+ *   bond fires `onChange` DURING `createVirtualizer()` and crashes with
+ *   `Cannot access 'instance' before initialization`; enabling afterwards defers
+ *   that first notification until the instance exists.
+ * - A container whose height is `0` (not yet in the DOM, or no constrained
+ *   height) yields only the overscan rows — size and mount it before creating
+ *   the virtualizer. `estimateSize`/`start`/`size` are pixels.
  * - For infinite scroll call `setCount(newTotal)` after appending data (never
  *   recreate the virtualizer — that resets scroll). For variable-height rows,
  *   wire `measureElement(el)` on each rendered item.

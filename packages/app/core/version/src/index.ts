@@ -11,19 +11,37 @@
  * ```typescript
  * import {
  *   applyUpdate,
+ *   dismissUpdate,
  *   getProvider,
  *   setCurrentVersion,
  *   startPeriodicChecks,
  * } from '@molecule/app-version'
+ * import type { VersionInfo, VersionState } from '@molecule/app-version'
  *
- * // At startup — build-time values injected by the bundler:
- * setCurrentVersion({ buildId: __BUILD_ID__, version: __APP_VERSION__ })
- * startPeriodicChecks({ immediate: true }) // polls /version.json (default: every 5 min)
- *
- * // Render your own update UI from events:
- * getProvider().on('update-available', () => {
- *   showUpdateBanner({ onReload: () => applyUpdate() })
+ * // Startup — the values baked into THIS build (empty strings = updates are never detected):
+ * setCurrentVersion({
+ *   buildId: import.meta.env.VITE_BUILD_ID,
+ *   version: import.meta.env.VITE_APP_VERSION,
  * })
+ *
+ * let bannerVisible = false
+ * const stopListening = getProvider().on<{ current: VersionState; new: VersionInfo }>(
+ *   'update-available',
+ *   (update) => {
+ *     bannerVisible = true // render your own "New version — Reload" banner (t() + getClassMap())
+ *     console.log(update.current.version, '→', update.new.version) // '1.4.0' → '1.5.0'
+ *   },
+ * )
+ *
+ * startPeriodicChecks({ immediate: true, interval: 5 * 60_000 }) // ms; fetches same-origin /version.json
+ *
+ * // The banner's buttons — the user opts in; never reload unprompted:
+ * const onReloadClick = (): void => applyUpdate() // reloads (activates a waiting service worker first)
+ * const onLaterClick = (): void => {
+ *   dismissUpdate()
+ *   bannerVisible = false
+ * }
+ * // On teardown: stopListening()
  * ```
  *
  * @remarks
@@ -39,6 +57,12 @@
  * - **`applyUpdate()` reloads the page** (activating a waiting service worker
  *   first when present). Surface the `update-available` event in UI and let the
  *   user opt in — never call it unprompted; unsaved state is lost on reload.
+ * - The checker ALWAYS fetches `/version.json` — `UpdateCheckOptions.versionUrl` is currently
+ *   ignored, so serve the file at exactly that path. `interval` is in MILLISECONDS
+ *   (default 5 min); fetch errors only emit `check-error`, they never throw.
+ * - `dismissUpdate()` only clears `isUpdateAvailable` — the next periodic check still sees
+ *   the newer build and emits `update-available` again. `on()` returns an unsubscribe
+ *   function; handlers receive `{ current: VersionState, new: VersionInfo }`.
  * - `service-worker-template.ts` generates service-worker SOURCE at scaffold time
  *   (precache + push handlers); it is not a runtime service worker itself.
  *

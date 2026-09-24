@@ -8,19 +8,27 @@
  *
  * @example
  * ```typescript
- * import { setProvider, connect } from '@molecule/app-realtime'
+ * import { connect, setProvider } from '@molecule/app-realtime'
+ * import type { RealtimeEventHandler } from '@molecule/app-realtime'
  * import { provider } from '@molecule/app-realtime-socketio'
  *
- * setProvider(provider)
+ * setProvider(provider) // startup (bonds.ts) — connect() throws until a provider is bonded
  *
- * const connection = await connect('wss://api.example.com', {
- *   autoReconnect: true,
- *   auth: { token: 'my-jwt' },
- * })
+ * const listingId = 'l_42'
+ * const room = `listing:${listingId}` // must equal the server's broadcast(room, …) string EXACTLY
  *
- * await connection.joinRoom('chat-room-1')
- * connection.on('message', (data) => console.log('Received:', data))
- * connection.sendTo('chat-room-1', 'message', { text: 'Hello!' })
+ * // '/' = same origin as the page (your API serves /socket.io); credentials go in `auth`, not the URL.
+ * const connection = await connect('/', { autoReconnect: true, auth: { token: 'session-jwt' } })
+ * await connection.joinRoom(room) // resolves once the server confirms the join
+ *
+ * const onBid: RealtimeEventHandler = (data) => console.log('bid placed', data) // { amount: 120 }
+ * connection.on('bid:placed', onBid)
+ * connection.sendTo(room, 'bid:placed', { amount: 120 }) // the server validates + relays it to the room
+ *
+ * // On unmount / screen change — otherwise handlers stack up and fire N times:
+ * connection.off('bid:placed', onBid)
+ * await connection.leaveRoom(room)
+ * connection.disconnect()
  * ```
  *
  * @remarks

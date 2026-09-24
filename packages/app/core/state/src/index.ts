@@ -18,17 +18,48 @@
  *   `@molecule/app-storage`). Persist only non-sensitive UI state, via the storage
  *   ABSTRACTION, never raw `localStorage`.
  *
+ * - **`createStore()` THROWS until a provider is bonded** — call `setProvider(...)` once at
+ *   startup (the built-in `simpleProvider`, or a bond such as `@molecule/app-state-zustand`)
+ *   BEFORE any module-level `createStore(...)` runs.
+ * - `useStore()` from `@molecule/app-react` also throws outside a `<StateProvider>` (or
+ *   `<MoleculeProvider state={...}>`) — the bond alone is not enough for React.
+ * - `setState` SHALLOW-merges a partial (or an updater's result); nested objects are replaced,
+ *   not deep-merged.
+ *
  * @example
- * ```ts
- * import { createStore } from '@molecule/app-state'
- * import { useStore } from '@molecule/app-react'
+ * ```tsx
+ * import { StateProvider, useStore } from '@molecule/app-react'
+ * import { createStore, setProvider, simpleProvider } from '@molecule/app-state'
  *
- * const uiStore = createStore({ initialState: { sidebarOpen: false } })
+ * setProvider(simpleProvider) // startup — createStore() throws until a provider is bonded
  *
- * function Sidebar() {
- *   const { sidebarOpen } = useStore(uiStore) // subscribes to the store
- *   const toggle = () => uiStore.setState({ sidebarOpen: !sidebarOpen })
+ * interface UiState {
+ *   sidebarOpen: boolean
+ *   unread: number
  * }
+ *
+ * export const uiStore = createStore<UiState>({
+ *   name: 'ui',
+ *   initialState: { sidebarOpen: false, unread: 3 },
+ * })
+ *
+ * function UnreadBadge() {
+ *   // selector → re-renders only when `unread` changes
+ *   const unread = useStore(uiStore, { selector: (state) => state.unread })
+ *   return <span data-mol-id="unread-badge">{unread}</span>
+ * }
+ *
+ * export function App() {
+ *   return (
+ *     <StateProvider provider={simpleProvider}>
+ *       <UnreadBadge />
+ *     </StateProvider>
+ *   )
+ * }
+ *
+ * // Anywhere (event handlers, services): shallow-merged, subscribers re-render.
+ * uiStore.setState((state) => ({ unread: state.unread + 1 }))
+ * console.log(uiStore.getState()) // { sidebarOpen: false, unread: 4 }
  * ```
  *
  * @module

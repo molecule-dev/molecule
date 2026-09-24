@@ -9,17 +9,48 @@
  * @example
  * ```typescript
  * import { requireProvider, setProvider } from '@molecule/app-tree-view'
+ * import type { TreeNode } from '@molecule/app-tree-view'
  * import { provider } from '@molecule/app-tree-view-default'
  *
- * setProvider(provider) // once, at startup (bonds.ts)
+ * setProvider(provider) // once, at startup (bonds.ts) — requireProvider() throws until then
  *
- * const tree = requireProvider().createTree({
- *   data: [
- *     { id: 'root', label: 'Root', children: [{ id: 'child', label: 'Child' }] },
- *   ],
- *   onSelect: (node) => openNode(node),
+ * interface FileMeta {
+ *   path: string
+ * }
+ *
+ * const files: TreeNode<FileMeta>[] = [
+ *   {
+ *     id: 'src',
+ *     label: 'src',
+ *     data: { path: 'src' },
+ *     children: [
+ *       { id: 'main', label: 'main.ts', data: { path: 'src/main.ts' } },
+ *       { id: 'util', label: 'util.ts', data: { path: 'src/util.ts' } },
+ *     ],
+ *   },
+ *   { id: 'readme', label: 'README.md', data: { path: 'README.md' } },
+ * ]
+ *
+ * let openPath = ''
+ * const tree = requireProvider().createTree<FileMeta>({
+ *   data: files, // COPIED — later edits to `files` are not seen; use tree.setData()
+ *   draggable: true, // without it moveNode() just returns false
+ *   onSelect: (node) => {
+ *     openPath = node.data?.path ?? ''
+ *   },
+ *   onDrop: (source, target, position) => console.log(`${source.id} ${position} ${target.id}`),
  * })
- * tree.expandNode('root')
+ *
+ * tree.expandNode('src')
+ * tree.selectNode('main') // single-select: clears every other selection first
+ * tree.moveNode('readme', 'src', 'inside') // logs 'readme inside src' — persist the move here
+ *
+ * // No change events — re-render from getData() after every call:
+ * const src = tree.getData()[0]
+ * console.log(openPath, src?.expanded, src?.children?.map((node) => node.label))
+ * // 'src/main.ts' true ['main.ts', 'util.ts', 'README.md']
+ *
+ * tree.destroy() // on unmount
  * ```
  *
  * @remarks
@@ -37,6 +68,12 @@
  *   `getCheckedNodes()`, active only when `showCheckboxes: true`; the checkbox
  *   (`checked`) state is independent of selection (`selected`). `multiSelect`,
  *   `draggable`, and `showCheckboxes` all default to `false`.
+ * - The default bond works on a deep COPY of `data`: mutating your array/nodes
+ *   afterwards changes nothing, and `getData()` returns a fresh copy — call it
+ *   again after each operation to re-render. There is no subscription API.
+ * - `onExpand` fires on `collapseNode()` too (check `node.expanded`);
+ *   `expandAll()`/`collapseAll()` fire nothing. Disabled nodes cannot be
+ *   selected or checked.
  * - Call `destroy()` when the owning screen unmounts.
  *
  * @e2e

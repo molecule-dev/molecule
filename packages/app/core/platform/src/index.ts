@@ -11,14 +11,19 @@
  * ```typescript
  * import { isPlatform, onPlatform, platform } from '@molecule/app-platform'
  *
- * const info = platform() // cached PlatformInfo
- * if (info.isNative) initNativePlugins()
+ * const info = platform() // detected once, then cached
  *
- * const label = onPlatform({
- *   ios: () => 'App Store',
- *   android: () => 'Play Store',
- *   default: () => 'Web', // `default` is required — always a fallback
+ * const storeUrl = onPlatform({
+ *   ios: () => 'https://apps.apple.com/app/id000000000',
+ *   android: () => 'https://play.google.com/store/apps/details?id=dev.example.app',
+ *   default: () => '/download', // `default` is required — always a fallback
  * })
+ *
+ * const showInstallBanner = info.isWeb // true in any browser, including mobile Safari
+ * const canUseNativeShare = isPlatform('ios', 'android') // native app shells only
+ *
+ * console.log(info.platform, storeUrl, showInstallBanner, canUseNativeShare)
+ * // browser: 'web' '/download' true false — Capacitor iOS shell: 'ios' 'https://apps.apple.com/…' false true
  * ```
  *
  * @remarks

@@ -8,15 +8,32 @@
  * @example
  * ```typescript
  * import { requireProvider, setProvider } from '@molecule/app-stepper'
+ * import type { Step } from '@molecule/app-stepper'
  * import { provider } from '@molecule/app-stepper-default'
  *
- * setProvider(provider) // once, at startup (bonds.ts)
+ * setProvider(provider) // once, at startup (bonds.ts) — requireProvider() throws until then
  *
+ * const account: Step = { label: 'Account' }
+ * const profile: Step = { label: 'Profile', optional: true }
+ * const review: Step = { label: 'Review' }
+ *
+ * let activeStep = 0
  * const stepper = requireProvider().createStepper({
- *   steps: [{ label: 'Account' }, { label: 'Profile' }, { label: 'Review' }],
- *   onStepChange: (step) => rerender(step),
+ *   steps: [account, profile, review],
+ *   linear: true, // can't move past an incomplete, non-optional step
+ *   onStepChange: (step) => {
+ *     activeStep = step // re-render the indicator + step content from here
+ *   },
  * })
- * stepper.next()
+ *
+ * stepper.next() // no-op: 'Account' is not completed yet
+ * account.completed = true // after the step's form validates — the stepper reads these same objects
+ * stepper.next() // → 1 'Profile'
+ * stepper.next() // → 2 'Review' (optional steps may be skipped)
+ * review.completed = true
+ * console.log(activeStep, stepper.isComplete()) // 2 true
+ *
+ * stepper.destroy() // on unmount
  * ```
  *
  * @remarks
@@ -28,6 +45,15 @@
  * - **Wire it with THIS package's `setProvider()` or `bond('stepper', …)`.**
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
  *   both write the same slot; {@link requireProvider} throws until one has run.
+ * - **There is no `complete()`/`setCompleted()` method.** Mark a step done by
+ *   setting `completed = true` on the `Step` object you passed in (the default
+ *   bond keeps those object references). In `linear` mode `next()`/`goTo()` are
+ *   SILENT no-ops past an incomplete, non-optional step — no error, no callback.
+ * - `isComplete()` means "every step is `completed` or `optional`", not "the
+ *   last step is active"; `next()` on the last step does nothing — submit from
+ *   your own Finish button. `validate()` only checks the active step's `error`
+ *   string; it does not run your form validation.
+ * - `onStepChange` receives the new 0-based INDEX, not the `Step` object.
  * - Call `destroy()` when the owning screen unmounts.
  *
  * @e2e

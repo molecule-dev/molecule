@@ -7,40 +7,56 @@
  *
  * @example
  * ```typescript
+ * import 'shepherd.js/dist/css/shepherd.css' // once, in the app entry — the bond does NOT import it
  * import { requireProvider, setProvider } from '@molecule/app-tour'
- * import { provider } from '@molecule/app-tour-shepherd'
+ * import { createProvider } from '@molecule/app-tour-shepherd'
  *
- * setProvider(provider) // once, at startup (bonds.ts)
+ * // Startup (bonds.ts). Button labels are rendered by the bond — pass translated strings.
+ * setProvider(createProvider({ labels: { back: 'Back', next: 'Next', done: 'Done' } }))
  *
+ * let tourSeen = false // persist this per user (your API) so the tour only runs once
  * const tour = requireProvider().createTour({
  *   steps: [
- *     { target: '[data-mol-id="editor"]', title: 'Editor', content: 'Write code here',
- *       action: () => renderTourStep(tour.getCurrentStep()) },
+ *     {
+ *       target: '[data-mol-id="new-project-button"]',
+ *       title: 'Create a project',
+ *       content: 'Every app starts here.',
+ *     },
+ *     { target: '[data-mol-id="editor"]', title: 'Editor', content: 'Write code here.', placement: 'right' },
  *   ],
- *   onComplete: () => markTourSeen(),
+ *   onComplete: () => {
+ *     tourSeen = true // the user clicked Done on the last step
+ *   },
+ *   onCancel: () => {
+ *     tourSeen = true // closed with ✕ / Esc — also counts as seen
+ *   },
  * })
- * tour.start()
+ *
+ * // Client-only (needs the DOM, never during SSR) and after both targets are rendered:
+ * if (!tourSeen) tour.start() // shepherd draws the anchored tooltip, overlay and Back/Next/Done
+ * console.log(tour.isActive(), tour.getCurrentStep()) // true 0
  * ```
  *
  * @remarks
- * - **The provider manages tour STATE — it does not draw the overlay.** The
- *   bundled bond tracks the active step and fires each step's `action` plus
- *   `onComplete`/`onCancel`; the highlight/tooltip UI is the consumer's to
- *   render from `getCurrentStep()` and the step's `target`/`title`/`content`.
- *   Don't expect `start()` alone to put anything on screen.
- * - **Read the `overlay`/`showButtons` intent back off the instance.** Because
- *   the provider draws nothing, `TourOptions.overlay`/`showButtons` are surfaced
- *   for the consumer via `hasOverlay()`/`hasButtons()` (resolved: per-tour
- *   option → provider default → `true`). Gate the backdrop and nav buttons your
- *   render code paints on those accessors rather than re-deriving the flags.
- * - The instance has NO change subscription — drive re-renders from the
- *   per-step `action` callbacks (or wrap `next`/`previous`), not by polling.
- * - `target` is a CSS selector: prefer stable `[data-mol-id="…"]` selectors
+ * - **What appears on screen depends on the bond.** `@molecule/app-tour-shepherd`
+ *   RENDERS the tooltip, highlight, modal overlay and nav buttons (and needs
+ *   `shepherd.js/dist/css/shepherd.css` imported by the app, or it all renders
+ *   unstyled). A headless bond only tracks state — then render the step UI
+ *   yourself from `getCurrentStep()` and the step's `target`/`title`/`content`,
+ *   gating the backdrop/buttons on `hasOverlay()`/`hasButtons()` (resolved:
+ *   per-tour option → provider default → `true`).
+ * - The instance has NO change subscription — react to steps via each step's
+ *   `action` (fires when that step is shown) and to the end via
+ *   `onComplete`/`onCancel`, not by polling.
+ * - `next()` on the LAST step is a no-op — finish with `complete()` (the Done
+ *   button calls it). Persist "tour seen" yourself; nothing is remembered.
+ * - `target` is a CSS selector that must match an element that is ALREADY in
+ *   the DOM when the step shows — prefer stable `[data-mol-id="…"]` selectors
  *   over styling class names (class strings are ClassMap-bond-owned and
  *   swappable).
  * - Step `title`/`content` are UI text — source them via
- *   `t('key', values, { defaultValue })`, and style the rendered tour UI with
- *   `getClassMap()` from `@molecule/app-ui`.
+ *   `t('key', values, { defaultValue })` in a real app, and style any tour UI
+ *   you render yourself with `getClassMap()` from `@molecule/app-ui`.
  * - **Wire it with THIS package's `setProvider()` or `bond('tour', …)`.**
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so
  *   both write the same slot; {@link requireProvider} throws until one has run.

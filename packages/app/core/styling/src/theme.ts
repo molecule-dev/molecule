@@ -11,11 +11,13 @@ import { camelToKebab } from './utilities.js'
  * Structurally compatible with Theme from `@molecule/app-theme`.
  */
 interface ThemeLike {
-  colors: Record<string, string | number>
-  spacing: Record<string, string | number>
-  typography: { fontSize: Record<string, string | number> }
-  borderRadius: Record<string, string | number>
-  shadows: Record<string, string | number>
+  // `object` (not `Record<string, …>`) so interface-typed themes such as
+  // `@molecule/app-theme`'s `Theme` — which have no index signature — are accepted.
+  colors: object
+  spacing: object
+  typography: { fontSize: object }
+  borderRadius: object
+  shadows: object
 }
 
 /**

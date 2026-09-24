@@ -10,11 +10,26 @@
  *
  * @example
  * ```typescript
- * import { getProvider } from '@molecule/app-theme'
+ * import { darkTheme, getProvider, lightTheme, setProvider } from '@molecule/app-theme'
+ * import { createCSSVariablesThemeProvider } from '@molecule/app-theme-css-variables'
  *
- * const theme = getProvider() // null until a bond is wired at startup
- * theme?.toggleMode() // light <-> dark
- * const unsubscribe = theme?.subscribe((t) => applyBranding(t))
+ * // Startup (bonds.ts): writes the --mol-* CSS variables + data-mol-mode on <html>
+ * setProvider(
+ *   createCSSVariablesThemeProvider({
+ *     themes: [lightTheme, darkTheme], // toggleMode() needs one theme of EACH mode
+ *     defaultTheme: 'light',
+ *     systemDefault: true, // follow prefers-color-scheme until the user picks one
+ *     persistKey: 'app-theme', // remember the user's choice across reloads
+ *   }),
+ * )
+ *
+ * const theme = getProvider() // null when no theme bond is wired — guard, don't assume
+ * const unsubscribe = theme?.subscribe((next) => console.log(next.mode, next.colors.background))
+ *
+ * theme?.toggleMode() // logs 'dark' '#…' — e.g. from the header's light/dark toggle
+ * console.log(document.documentElement.getAttribute('data-mol-mode')) // 'dark'
+ *
+ * unsubscribe?.() // on unmount
  * ```
  *
  * @remarks
@@ -31,6 +46,12 @@
  *   from the theme so light AND dark both work.
  * - {@link getProvider} returns `null` when nothing is bonded — theme switching
  *   is optional; guard rather than throw.
+ * - `setTheme('name')` with a name that is not in the provider's `themes` is a
+ *   SILENT no-op, and `toggleMode()` does nothing unless a theme of the opposite
+ *   `mode` is registered.
+ * - `createLightTheme`/`createDarkTheme` overrides REPLACE whole sections
+ *   (`colors: {...}` must be a complete `ThemeColors`) — spread
+ *   `lightTheme.colors` yourself to change a few colors.
  *
  * @module
  */

@@ -9,18 +9,33 @@
  *
  * @example
  * ```typescript
- * import { debounce, formatCurrency, getErrorMessage } from '@molecule/app-utilities'
- * import { t } from '@molecule/app-i18n'
+ * import { getLocale, t } from '@molecule/app-i18n'
+ * import { debounce, formatCurrency, getErrorMessage, retry, toQueryString } from '@molecule/app-utilities'
  *
- * const onSearch = debounce((q: unknown) => runSearch(q as string), 300)
- * const price = formatCurrency(1234.56, 'EUR', 'de-DE')
- *
- * try {
- *   await saveThing()
- * } catch (error) {
- *   // Pass the app's `t` so the message is localized — defaults are English-only.
- *   showToast(getErrorMessage(error, undefined, t))
+ * interface Product {
+ *   name: string
+ *   price: number
  * }
+ *
+ * const render = (lines: string[]): void => console.log(lines)
+ *
+ * const loadProducts = async (query: string): Promise<Product[]> => {
+ *   const response = await fetch(`/api/products${toQueryString({ q: query, limit: 5 })}`) // '?q=fern&limit=5'
+ *   if (!response.ok) throw new Error(`Search failed (${response.status})`)
+ *   return (await response.json()) as Product[]
+ * }
+ *
+ * // debounce/throttle callbacks must type their params `unknown` (the generic is `(...args: unknown[])`).
+ * const onSearchInput = debounce((value: unknown) => {
+ *   retry(() => loadProducts(String(value)), { maxAttempts: 3, initialDelay: 500 }) // delays in ms
+ *     .then((products) =>
+ *       render(products.map((p) => `${p.name} ${formatCurrency(p.price, 'EUR', getLocale())}`)),
+ *     ) // ['Fern €12.50'] with the 'en' locale
+ *     .catch((error: unknown) => render([getErrorMessage(error, undefined, t)])) // pass `t` to localize
+ * }, 300)
+ *
+ * onSearchInput('f')
+ * onSearchInput('fern') // only 'fern' is fetched — 300 ms after the last call
  * ```
  *
  * @remarks
@@ -36,8 +51,15 @@
  *   `handleAnchorClick`, `isInternalUrl`) touch `window`/`document`/`navigator` —
  *   guard them in SSR/native contexts. `copyToClipboard` resolves `false` on
  *   failure rather than throwing; check the result before showing a "Copied" state.
- * - `debounce`/`throttle` return void-returning wrappers — do not await them. For
- *   async retries use `retry(fn, { maxAttempts, initialDelay })` (exponential backoff).
+ * - `debounce`/`throttle` return void-returning wrappers — do not await them, and type the
+ *   wrapped callback's params as `unknown` (a `(q: string) => …` callback is a type error).
+ *   For async retries use `retry(fn, { maxAttempts, initialDelay })` (exponential backoff,
+ *   all delays in MILLISECONDS); it re-throws the LAST error, and non-`Error` rejections are
+ *   wrapped as `new Error(String(value))` — throw real `Error`s or the message becomes
+ *   `'[object Object]'`.
+ * - `formatCurrency`/`formatNumber`/`formatPercent` default to `'en-US'`, NOT the app's
+ *   locale — pass `getLocale()` from `@molecule/app-i18n`. `formatPercent(0.75)` expects a
+ *   FRACTION (→ `'75%'`), not `75`.
  *
  * @module
  */

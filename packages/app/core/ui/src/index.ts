@@ -28,15 +28,35 @@
  *   attribute selector the caller sets, not one of these options. `cm.switchBase(opts)` also
  *   accepts a `color` ({@link SwitchClassOptions}) alongside `size`.
  *
+ * - **`getClassMap()` THROWS until `setClassMap(classMap)` has run** — wire the ClassMap bond
+ *   at startup and call `getClassMap()` inside render, not at module top level (a module
+ *   imported before `bonds.ts` runs would throw).
+ * - The helpers take OPTION OBJECTS (`cm.button({ variant: 'solid', color: 'primary' })`,
+ *   `cm.flex({ justify: 'end', gap: 'sm' })`), not positional strings.
+ *
  * @example
  * ```tsx
- * import { getClassMap, molIdProps } from '@molecule/app-ui'
- * const cm = getClassMap()
+ * import { t } from '@molecule/app-i18n'
+ * import { getClassMap, molIdProps, setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
  *
- * <button
- *   className={cm.cn(cm.surface, cm.textSize('sm'))} // resolved classes — never a raw "px-3 text-sm"
- *   {...molIdProps('save-button')} // data-mol-id for agents/tests
- * >…</button>
+ * setClassMap(classMap) // startup (bonds.ts) — getClassMap() throws until then
+ *
+ * export function SaveBar({ onSave }: { onSave: () => void }) {
+ *   const cm = getClassMap() // resolve at render time
+ *   return (
+ *     <div className={cm.cn(cm.flex({ justify: 'end', gap: 'sm' }), cm.surface)}>
+ *       <button
+ *         type="button"
+ *         className={cm.button({ variant: 'solid', color: 'primary', size: 'sm' })} // never a raw "px-3 text-sm"
+ *         onClick={onSave}
+ *         {...molIdProps('save-button')} // data-mol-id for agents/tests
+ *       >
+ *         {t('common.save', undefined, { defaultValue: 'Save' })}
+ *       </button>
+ *     </div>
+ *   )
+ * }
  * ```
  *
  * @module

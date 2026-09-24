@@ -17,28 +17,41 @@
  * - **Never put a secret or token in a route param or query string.** URLs leak into browser
  *   history, server logs, and the `Referer` header — deliver a reset/verify token as a
  *   one-time link you validate server-side, and don't persist it client-side afterward.
+ * - **`navigate()` applies ASYNCHRONOUSLY** (guards are awaited first) and returns `void`, so
+ *   `getParams()`/`getQuery()` on the very next line still read the OLD route. React to route
+ *   changes in `router.subscribe(...)` (or the framework hook), not right after `navigate()`.
+ * - `requiresAuth`/`roles` on a route are metadata only — nothing enforces them. Redirect with
+ *   `router.addGuard((to) => ...)` returning a path (and still protect the API).
+ * - `getParams()` returns the params of the FIRST registered route whose pattern matches
+ *   (prefix match unless `exact: true`), so a `'/projects'` route listed before
+ *   `'/projects/:id'` yields `{}` — list specific routes first or mark list routes `exact`.
+ * - In React Router apps use `MoleculeRouterProvider` from `@molecule/app-routing-react-router`
+ *   (it calls `setRouter` for you) instead of `createBrowserRouter`.
  *
  * @example
- * ```ts
- * import { createBrowserRouter, setRouter, navigate, getParams, getQuery } from '@molecule/app-routing'
+ * ```typescript
+ * import { createBrowserRouter, getParams, getQuery, navigate, setRouter } from '@molecule/app-routing'
  *
  * // Wire the router ONCE at app startup (before any navigate/getParams call):
- * setRouter(
- *   createBrowserRouter({
- *     routes: [
- *       { path: '/', name: 'home' },
- *       { path: '/projects/:id', name: 'project', requiresAuth: true },
- *     ],
- *   }),
- * )
+ * const router = createBrowserRouter({
+ *   routes: [
+ *     { path: '/', name: 'home', exact: true },
+ *     { path: '/projects/:id', name: 'project' },
+ *   ],
+ * })
+ * setRouter(router)
  *
- * // Navigate in-app (SPA — no full reload). `replace` skips a history entry.
- * navigate('/projects/42')
- * navigate('/login', { replace: true, state: { from: '/projects/42' } })
+ * // Re-render from route changes — navigate() applies asynchronously.
+ * const stop = router.subscribe((location, action) => {
+ *   const { id } = getParams<{ id: string }>()
+ *   const { sort } = getQuery()
+ *   console.log(action, location.pathname, id, sort) // 'push' '/projects/42' '42' 'recent'
+ * })
  *
- * // Read the current route's params + query string anywhere:
- * const { id } = getParams<{ id: string }>() // '42' on /projects/:id
- * const query = getQuery() // { sort: 'recent' } on ?sort=recent
+ * // In-app SPA navigation (history.pushState — no reload). Build URLs from named routes:
+ * navigate(router.generatePath('project', { id: '42' }, { sort: 'recent' })) // '/projects/42?sort=recent'
+ *
+ * // On unmount: stop()
  * ```
  *
  * @module
