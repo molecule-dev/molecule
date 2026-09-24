@@ -1,5 +1,11 @@
 # @molecule/api-ai-translation-deepl
 
+## 1.1.0
+
+### Minor Changes
+
+- f18c83a: Support `protect`, escape `&`/`<`/`>` for XML requests and decode entities in results, retry 5xx responses, and include the HTTP `status` on errors.
+
 ## 1.0.1
 
 ### Patch Changes

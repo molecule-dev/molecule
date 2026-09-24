@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 1.0.3
+
+### Patch Changes
+
+- The push-notifications switch has an accessible name.
+
 ## 1.0.1
 
 ### Patch Changes

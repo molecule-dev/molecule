@@ -1,5 +1,11 @@
 # @molecule/app-styling
 
+## 1.0.3
+
+### Patch Changes
+
+- Document how `cn()` resolves conflicting classes by order.
+
 ## 1.0.1
 
 ### Patch Changes

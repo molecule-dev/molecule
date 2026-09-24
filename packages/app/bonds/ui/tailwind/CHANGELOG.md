@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.1
+
+### Patch Changes
+
+- `Switch` has a 40×40 hit area centred on its track; the visual size is unchanged.
+
 ## 1.2.0
 
 ### Minor Changes

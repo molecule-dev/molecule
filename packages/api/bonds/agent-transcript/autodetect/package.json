@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-autodetect",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Picks the reader that recognizes a transcript and delegates to it; bundles the Claude Code, Codex and Molecule IDE readers",
   "type": "module",
   "main": "dist/index.js",
@@ -39,7 +39,7 @@
     "@molecule/api-agent-transcript": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-agent-transcript": "1.0.0",
+    "@molecule/api-agent-transcript": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

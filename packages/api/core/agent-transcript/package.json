@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads a coding agent's session export (Claude Code, Codex, Molecule IDE) into one normalized session: turns, models and the files the agent wrote",
   "type": "module",
   "main": "dist/index.js",

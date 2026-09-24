@@ -1,5 +1,11 @@
 # @molecule/api-ai-translation
 
+## 1.1.0
+
+### Minor Changes
+
+- f18c83a: Add `TranslateParams.protect`: literal substrings (such as `{{count}}` placeholders) that providers must return unchanged.
+
 ## 1.0.1
 
 ### Patch Changes

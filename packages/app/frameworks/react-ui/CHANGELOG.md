@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.1.0
+
+### Minor Changes
+
+- Add `ConfirmButton` (two-step confirm for destructive actions); `Icon` renders a placeholder instead of throwing for an unknown name; theme toggle and user menu triggers meet a 40px touch target.
+
 ## 1.0.1
 
 ### Patch Changes
