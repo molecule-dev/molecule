@@ -893,7 +893,20 @@ export class E2BSandboxProvider implements SandboxProvider {
     })
     // Apply the egress allow-list immediately, before any user code runs.
     if (this.config.defaultAllowOut.length > 0) {
-      await handle.applyNetwork(this.config.defaultAllowOut)
+      try {
+        await handle.applyNetwork(this.config.defaultAllowOut)
+      } catch (error) {
+        // The sandbox exists on E2B but the caller never receives its handle, so
+        // nothing else can ever destroy it: it would run until its timeout and
+        // then sit paused (billed storage) forever. Kill it before rethrowing.
+        await this.destroy(sbx.sandboxId).catch((destroyError: unknown) => {
+          throw new Error(
+            `E2B sandbox ${sbx.sandboxId} was created but its egress policy failed to apply, and destroying it failed too — it is orphaned: ${destroyError instanceof Error ? destroyError.message : String(destroyError)}`,
+            { cause: error },
+          )
+        })
+        throw error
+      }
     }
     return handle
   }
@@ -1281,7 +1294,7 @@ export class E2BSandboxProvider implements SandboxProvider {
    * @returns The observed egress verdict.
    */
   async verifyEgress(): Promise<EgressVerdict> {
-    let handle: Sandbox | null = null
+    let handle: Sandbox
     try {
       handle = await this.create({ projectId: `egress-probe-${Date.now()}`, env: {} })
     } catch (error) {
@@ -1291,6 +1304,41 @@ export class E2BSandboxProvider implements SandboxProvider {
         remediation: 'Check E2B_API_KEY and account capacity.',
       }
     }
+    const verdict = await this.probeEgress(handle)
+    // The probe sandbox is destroyed on EVERY path. A failed destroy is retried,
+    // and one that still fails is reported in the verdict's detail: the sandbox
+    // was created to pause at its timeout, so a silently leaked probe is billed
+    // storage forever.
+    const leaked = await this.destroyProbe(handle.id)
+    return leaked ? { ...verdict, detail: `${verdict.detail} ${leaked}` } : verdict
+  }
+
+  /**
+   * Destroy an egress-probe sandbox, retrying once.
+   *
+   * @param id - The probe sandbox id.
+   * @returns Null when it was destroyed, else a sentence naming the leaked sandbox.
+   */
+  private async destroyProbe(id: string): Promise<string | null> {
+    let lastError: unknown = null
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        await this.destroy(id)
+        return null
+      } catch (error) {
+        lastError = error
+      }
+    }
+    return `(The probe sandbox ${id} could not be destroyed and is left behind: ${lastError instanceof Error ? lastError.message : String(lastError)}.)`
+  }
+
+  /**
+   * Run the egress checks inside an already-created probe sandbox.
+   *
+   * @param handle - The probe sandbox.
+   * @returns The observed verdict; any failure is `inconclusive`.
+   */
+  private async probeEgress(handle: Sandbox): Promise<EgressVerdict> {
     try {
       // Force a KNOWN deny-default policy for the probe regardless of config.
       await (handle as E2BSandbox).applyNetwork([
@@ -1299,7 +1347,7 @@ export class E2BSandboxProvider implements SandboxProvider {
       ])
       const code = async (host: string): Promise<string> =>
         (
-          await handle!.exec(
+          await handle.exec(
             `curl -s -o /dev/null -m 8 -w '%{http_code}' https://${host}/ || echo 000`,
           )
         ).stdout.trim()
@@ -1325,15 +1373,6 @@ export class E2BSandboxProvider implements SandboxProvider {
       return {
         state: 'inconclusive',
         detail: `Egress probe could not run: ${error instanceof Error ? error.message : String(error)}`,
-      }
-    } finally {
-      // Best-effort cleanup of the throwaway probe sandbox; a failed destroy
-      // must not mask the verdict (E2B auto-pauses idle sandboxes regardless).
-      if (handle) {
-        await this.destroy(handle.id).catch((_error) => {
-          // intentional noop — probe teardown is best-effort; the sandbox
-          // auto-pauses and the verdict is what matters.
-        })
       }
     }
   }

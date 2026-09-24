@@ -208,6 +208,83 @@ describe('create() — pause at the timeout, never kill', () => {
   })
 })
 
+describe('sandboxes the caller never receives are destroyed, not leaked', () => {
+  /** A sandbox whose egress update and commands behave as the test says. */
+  function probeSandbox(opts: { network?: 'ok' | 'throw'; curl?: string }): E2BSandboxLike {
+    const sbx = fakeSandbox('sbx-probe')
+    sbx.updateNetwork = async () => {
+      if (opts.network === 'throw') throw new Error('network policy rejected')
+    }
+    sbx.commands.run = (async () => ({
+      stdout: opts.curl ?? '000',
+      stderr: '',
+      exitCode: 0,
+    })) as E2BSandboxLike['commands']['run']
+    return sbx
+  }
+
+  it('create() kills the sandbox when its egress policy fails to apply, then rethrows', async () => {
+    const killed: string[] = []
+    const client: E2BSandboxClientLike = {
+      create: async () => probeSandbox({ network: 'throw' }),
+      connect: async (id) => fakeSandbox(id),
+      list: async () => [],
+      kill: async (id) => {
+        killed.push(id)
+        return true
+      },
+    }
+    const provider = new E2BSandboxProvider(
+      { apiKey: 'test', defaultAllowOut: ['registry.npmjs.org'] },
+      client,
+    )
+    await expect(provider.create({ projectId: 'p', env: {} })).rejects.toThrow(
+      'network policy rejected',
+    )
+    expect(killed).toEqual(['sbx-probe'])
+  })
+
+  it('verifyEgress() destroys its probe sandbox when the probe itself fails', async () => {
+    const killed: string[] = []
+    const client: E2BSandboxClientLike = {
+      create: async () => {
+        const sbx = probeSandbox({})
+        sbx.commands.run = (async () => {
+          throw new Error('envd unreachable')
+        }) as E2BSandboxLike['commands']['run']
+        return sbx
+      },
+      connect: async (id) => fakeSandbox(id),
+      list: async () => [],
+      kill: async (id) => {
+        killed.push(id)
+        return true
+      },
+    }
+    const provider = new E2BSandboxProvider({ apiKey: 'test' }, client)
+    const verdict = await provider.verifyEgress()
+    expect(verdict.state).toBe('inconclusive')
+    expect(killed).toEqual(['sbx-probe'])
+  })
+
+  it('verifyEgress() retries a failed teardown and names a probe it could not destroy', async () => {
+    let attempts = 0
+    const client: E2BSandboxClientLike = {
+      create: async () => probeSandbox({}),
+      connect: async (id) => fakeSandbox(id),
+      list: async () => [],
+      kill: async () => {
+        attempts++
+        throw new Error('kill 503')
+      },
+    }
+    const provider = new E2BSandboxProvider({ apiKey: 'test' }, client)
+    const verdict = await provider.verifyEgress()
+    expect(attempts).toBe(2)
+    expect(verdict.detail).toContain('sbx-probe could not be destroyed')
+  })
+})
+
 describe('list() — enumerating an account must not wake it', () => {
   it('skips paused sandboxes rather than connecting to them', async () => {
     const { provider, calls } = providerWith({
