@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-agent-transcript",
+  "version": "1.0.0",
+  "description": "Reads a coding agent's session export (Claude Code, Codex, Molecule IDE) into one normalized session: turns, models and the files the agent wrote",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "agent",
+    "transcript",
+    "session",
+    "claude-code",
+    "codex",
+    "provenance"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-i18n": "1.0.3",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/agent-transcript"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-agent-transcript",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

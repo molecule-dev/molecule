@@ -1,0 +1,224 @@
+{
+  "id": "00000000-0000-4000-8000-000000000001",
+  "projectId": "00000000-0000-4000-8000-000000000002",
+  "messages": [
+    {
+      "id": "bbb0ea07-82d0-4f39-90ea-d807836d8dab",
+      "role": "user",
+      "author": {
+        "id": "de5f3f70-f4c5-492e-aca6-e1c3cf6a1fae",
+        "name": "Test",
+        "avatar": null
+      },
+      "content": "**The provenance blog, a static site generator.** A command that turns a\ndirectory of markdown posts and their session transcripts into a static\nsite: plain files, servable by any static host, no server of its own. One\nfeature no blog engine has: every post's page shows which words the AI wrote\nand the prompt each came from, derived from the transcript that wrote it,\nand a toggleable summary per section. Every requir",
+      "timestamp": "2026-09-24T01:36:58.061Z"
+    },
+    {
+      "id": "952c44a0-4e50-4983-8eb3-bf04680840ae",
+      "role": "user",
+      "hidden": true,
+      "content": "[project-context] Live project state for this turn (refreshed every turn — trust it over what you remember):\n\n## Environment already provided\n\nThese variables are set for this project in the Environme",
+      "timestamp": "2026-09-24T01:36:58.108Z"
+    },
+    {
+      "id": "dba04612-500f-4e84-bfaf-aa40df2c610f",
+      "role": "system",
+      "content": "",
+      "cardEvent": {
+        "type": "card"
+      },
+      "timestamp": "2026-09-24T01:36:58.095Z",
+      "hiddenFromAi": true
+    },
+    {
+      "id": "0b097932-ecd9-437b-b280-75f438bc375d",
+      "role": "assistant",
+      "model": "deepseek-flash",
+      "blocks": [],
+      "content": "",
+      "timestamp": "2026-09-24T01:41:53.635Z",
+      "toolCalls": [
+        {
+          "id": "call_00_cxxDG9jJWkMhIskR4PMV1045",
+          "name": "edit_file",
+          "input": {
+            "path": "/workspace/my-app/app/src/bonds/ai-anthropic.ts",
+            "replacements": [
+              {
+                "new_string": "import { createProvider } from '@molecule/api-ai-anthropic'\nimport { setProvider } from '@molecule/api-ai'",
+                "old_string": "import { AnthropicProvider } from '@molecule/api-ai-anthropic'\nimport { setProvider } from '@molecule/api-ai'"
+              },
+              {
+                "new_string": "  setProvider(\n    'anthropic',\n    createProvider({\n      ...(process.env.ANTHROPIC_API_KEY ? { apiKey: process.env.ANTHROPIC_API_KEY } : {}),\n      defaultModel: AI_MODEL,\n    }),\n  )",
+                "old_string": "  setProvider(\n    'anthropic',\n    new AnthropicProvider({\n      apiKey: process.env.ANTHROPIC_API_KEY,\n      defaultModel: AI_MODEL,\n    }),\n  )"
+              }
+            ]
+          },
+          "output": {
+            "ok": true
+          }
+        },
+        {
+          "id": "call_01_g6cYAXvSPTWURbKz6Pbd9939",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/src/bonds/ai.ts",
+            "content": "/**\n * The site's own AI bonds.\n *\n * The site has no API and no request-time AI: these two exist for\n * `scripts/site-build.mjs`, which bonds whichever provider it finds a key for\n * and uses it to write the section summaries into the cache before Vite runs.\n * They are set up by the build script itself — `setupProviders()` (the app's\n * provider wiring) deliberately leaves them alone, so the browser bundle never\n * pulls an AI vendor in.\n */\n\nexport { AI_MODEL, setupAiAnthropic } from './ai-anthropic.js'\nexport { setupAiSummarizationLlm } from './ai-summarization-llm.js'\n"
+          },
+          "output": {
+            "ok": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "4d23994e-3096-4f74-94aa-84c0a77315d4",
+      "role": "assistant",
+      "model": "deepseek-flash",
+      "blocks": [],
+      "content": "I have what I need. Writing the new content now.",
+      "timestamp": "2026-09-24T01:39:11.767Z",
+      "toolCalls": [
+        {
+          "id": "call_00_nXy9zOuLp6xR4cep1onV4473",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/posts/publishing-this-blog.md",
+            "content": "[elided 387 chars; the file is on disk]"
+          },
+          "output": {
+            "ok": true
+          }
+        },
+        {
+          "id": "call_01_gTOh8OGGUezGLGk73m9r2461",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/transcripts/claude-code-session/how-this-post-was-written.txt",
+            "content": "[elided 389 chars; the file is on disk]"
+          },
+          "output": {
+            "ok": true
+          }
+        },
+        {
+          "id": "call_02_4Q9vPlguK2FhRy2PF6uS2790",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/transcripts/codex-cli-session/how-this-post-was-written.md",
+            "content": "[elided 389 chars; the file is on disk]"
+          },
+          "output": {
+            "ok": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "0b097932-ecd9-437b-b280-75f438bc375d",
+      "role": "assistant",
+      "model": "deepseek-flash",
+      "blocks": [],
+      "content": "",
+      "timestamp": "2026-09-24T01:41:53.635Z",
+      "toolCalls": [
+        {
+          "id": "call_00_cxxDG9jJWkMhIskR4PMV1045",
+          "name": "edit_file",
+          "input": {
+            "path": "/workspace/my-app/app/src/bonds/ai-anthropic.ts",
+            "replacements": [
+              {
+                "new_string": "import { createProvider } from '@molecule/api-ai-anthropic'\nimport { setProvider } from '@molecule/api-ai'",
+                "old_string": "import { AnthropicProvider } from '@molecule/api-ai-anthropic'\nimport { setProvider } from '@molecule/api-ai'"
+              },
+              {
+                "new_string": "  setProvider(\n    'anthropic',\n    createProvider({\n      ...(process.env.ANTHROPIC_API_KEY ? { apiKey: process.env.ANTHROPIC_API_KEY } : {}),\n      defaultModel: AI_MODEL,\n    }),\n  )",
+                "old_string": "  setProvider(\n    'anthropic',\n    new AnthropicProvider({\n      apiKey: process.env.ANTHROPIC_API_KEY,\n      defaultModel: AI_MODEL,\n    }),\n  )"
+              }
+            ]
+          },
+          "output": {
+            "ok": true
+          }
+        },
+        {
+          "id": "call_01_g6cYAXvSPTWURbKz6Pbd9939",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/src/bonds/ai.ts",
+            "content": "/**\n * The site's own AI bonds.\n *\n * The site has no API and no request-time AI: these two exist for\n * `scripts/site-build.mjs`, which bonds whichever provider it finds a key for\n * and uses it to write the section summaries into the cache before Vite runs.\n * They are set up by the build script itself — `setupProviders()` (the app's\n * provider wiring) deliberately leaves them alone, so the browser bundle never\n * pulls an AI vendor in.\n */\n\nexport { AI_MODEL, setupAiAnthropic } from './ai-anthropic.js'\nexport { setupAiSummarizationLlm } from './ai-summarization-llm.js'\n"
+          },
+          "output": {
+            "ok": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "205cd618-0041-48be-a167-1710103a441b",
+      "role": "assistant",
+      "model": "deepseek-flash",
+      "blocks": [],
+      "content": "I'll start building. First, the inputs — copying the fixtures and setting up the content layout.",
+      "timestamp": "2026-09-24T01:38:58.247Z",
+      "toolCalls": [
+        {
+          "id": "call_01_J1JrUfjCUNjbPzfJwYKL4072",
+          "name": "exec_command",
+          "input": {
+            "command": "cd /workspace/my-app/app && mkdir -p posts transcripts && cp /workspace/fixtures/posts/*.md posts/ && ls posts/ && rm -f content/posts/*.md && rm -f content/README.md && rmdir content/posts 2>/dev/null; ls -la content/ 2>/dev/null; echo \"---\"; ls content 2>/dev/null"
+          },
+          "output": {}
+        }
+      ]
+    },
+    {
+      "id": "696d9736-1f33-4645-ba7f-a2af83fdc225",
+      "role": "user",
+      "author": {
+        "id": "de5f3f70-f4c5-492e-aca6-e1c3cf6a1fae",
+        "name": "Test",
+        "avatar": null
+      },
+      "content": "Acceptance run on the build: 58 passed, 5 failed, 2 skipped.\n\n\u001b[1A\u001b[2K[1/65] build.spec.ts:5:1 › every internal link and asset URL carries the base path\n\u001b[1A\u001b[2K[2/65] annotations.spec.ts:8:1 › the header shows the AI word share and prompt count\n\u001b[1A\u001b[2K[3/65] annotations.spec.ts:54:1 › the prompts ",
+      "timestamp": "2026-09-24T02:29:05.841Z"
+    },
+    {
+      "id": "5840567f-4b18-4324-aadd-8707fcb20db8",
+      "role": "assistant",
+      "model": "deepseek-flash",
+      "blocks": [],
+      "content": "Now the transcript parsers and provenance engine. Starting with types and parsers.",
+      "timestamp": "2026-09-24T01:40:03.162Z",
+      "toolCalls": [
+        {
+          "id": "call_00_IhcGBKIoNHmFFhS4NONW0447",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/src/transcripts/types.ts",
+            "content": "[elided 389 chars; the file is on disk]"
+          },
+          "output": {
+            "ok": true
+          }
+        },
+        {
+          "id": "call_01_SkzMa677Qpz2Q7XExeUq2397",
+          "name": "write_file",
+          "input": {
+            "path": "/workspace/my-app/app/src/transcripts/detect.ts",
+            "content": "[elided 389 chars; the file is on disk]"
+          },
+          "output": {
+            "ok": true
+          }
+        }
+      ]
+    }
+  ],
+  "aiContext": {
+    "chatModel": "deepseek-flash"
+  },
+  "createdAt": "2026-09-24T01:36:58.06616+00:00"
+}

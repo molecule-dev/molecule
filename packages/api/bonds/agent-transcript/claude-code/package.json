@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-agent-transcript-claude-code",
+  "version": "1.0.0",
+  "description": "Reads Claude Code sessions — the /export text and the session .jsonl — into a normalized agent session",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "agent",
+    "transcript",
+    "claude-code",
+    "export",
+    "jsonl"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "peerDependencies": {
+    "@molecule/api-agent-transcript": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-agent-transcript": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/agent-transcript/claude-code"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-agent-transcript-claude-code",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}

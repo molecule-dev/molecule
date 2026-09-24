@@ -1,0 +1,56 @@
+ ▐▛███▛█   Claude Code v2.1.281
+▝▜██████▀  Haiku 4.5 · Claude Max
+  ▝▝ ▝▝    ~/logs-demo
+
+
+❯ Reply with a markdown heading "## Why logs first", then two short paragraphs  
+  about reading logs before code, one with bold words, then a bullet list of    
+  two items. Do not use any tools.                                              
+
+● Why logs first
+
+  When debugging, logs are your most direct window into what the code actually 
+  did. Before diving into source code, read the logs because they reveal the
+  execution path, state transitions, and where things diverged from
+  expectations. Logs show you the timeline of events — the order in which things
+  happened, the values that flowed through the system, and the exact point
+  where something broke. Source code tells you what could happen; logs tell you
+  what did happen.
+
+  Reading logs first saves you from overthinking. You won't waste time tracing
+  through conditional branches the code never hit, or wondering about race
+  conditions that didn't occur. Logs compress hours of mental simulation into
+  seconds. Once you know the actual failure point from the logs, you can jump
+  directly to the relevant code section and understand why it failed in that
+  specific scenario.
+
+  - Log context is temporal — it captures the full sequence of events leading up
+    to the failure, which code inspection alone cannot reconstruct.
+  - Logs eliminate false paths — they rule out entire categories of bugs
+    immediately, letting you focus your code review on what actually matters.
+
+✻ Cogitated for 5s · done 8:43 AM
+
+❯ Now use the Write tool to create notes.md with a heading "# Notes" and two    
+  sentences. Then edit it with the Edit tool to change "Notes" to "Field        
+  notes". Then say: written                                                     
+
+● Write(notes.md)
+  ⎿  Wrote 3 lines to notes.md
+      1 # Notes
+      2 
+      3 This is the first sentence of my notes. This is the second senten
+        ce of my notes.
+
+● Update(notes.md)
+  ⎿  Added 1 line, removed 1 line
+      1 -# Notes                                                         
+      1 +# Field notes                                                   
+      2  
+      3  This is the first sentence of my notes. This is the second sente
+         nce of my notes.
+      4   No newline at end of file
+
+● written
+
+✻ Cooked for 5s · done 8:43 AM

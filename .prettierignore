@@ -3,3 +3,5 @@ node_modules/
 *.sql
 *.json
 coverage/
+# Test fixtures are real files kept byte-for-byte (a parser is tested against exactly what a tool wrote).
+**/__tests__/fixtures/

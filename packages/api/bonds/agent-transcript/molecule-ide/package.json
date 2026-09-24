@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-agent-transcript-molecule-ide",
+  "version": "1.0.0",
+  "description": "Reads a Molecule IDE conversation (its stored JSON) into a normalized agent session",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "agent",
+    "transcript",
+    "molecule",
+    "ide",
+    "conversation"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "peerDependencies": {
+    "@molecule/api-agent-transcript": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/api-agent-transcript": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/agent-transcript/molecule-ide"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-agent-transcript-molecule-ide",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
