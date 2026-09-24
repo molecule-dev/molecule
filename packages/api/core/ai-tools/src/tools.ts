@@ -9,6 +9,14 @@
 
 import type { AITool } from '@molecule/api-ai'
 
+import {
+  addChangeSpan,
+  changedSpan,
+  type CharSpan,
+  countLines,
+  renderEditExcerpt,
+  renderSmallFile,
+} from './edit-excerpt.js'
 import { guardToolExecute, missingParamError } from './input-normalizer.js'
 import { TOOL_SCHEMAS } from './schemas.js'
 
@@ -557,7 +565,17 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
         if (onFileChange) onFileChange({ type: oldContent === null ? 'created' : 'modified', path })
 
-        return { path, ok: true, diff, ...(await syntaxErrorAfterWrite(path)) }
+        // The line count (and, for a small file, the numbered text) so the next
+        // edit or read does not need a read_file just to learn line numbers.
+        const echo = renderSmallFile(finalContent)
+        return {
+          path,
+          ok: true,
+          diff,
+          totalLines: countLines(finalContent),
+          ...(echo !== null ? { excerpt: sanitizeFileContent(echo, path) } : {}),
+          ...(await syntaxErrorAfterWrite(path)),
+        }
       } catch (e: unknown) {
         return { error: `Failed to write ${path}: ${(e as Error).message}` }
       }
@@ -599,6 +617,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         }
         const oldContent = content
         let alreadyApplied = 0
+        // Where each applied replacement landed, in the coordinates of the
+        // latest content — rendered into the result so the model sees the edit.
+        let spans: CharSpan[] = []
 
         for (const { old_string: oldString, new_string: newString } of replacements) {
           // Validate each replacement is well-formed BEFORE touching content. A
@@ -644,6 +665,7 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             // churn source. Uniqueness keeps this safe; ambiguous matches error.
             const fuzzy = whitespaceTolerantReplace(content, oldString, newString)
             if (fuzzy !== null) {
+              spans = addChangeSpan(spans, content, fuzzy)
               content = fuzzy
               continue
             }
@@ -737,7 +759,9 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           // a self-inflicted syntax error written with ok:true that the executor
           // then can't locate. count === 1 here, so indexOf is the unique site.
           const at = content.indexOf(oldString)
-          content = content.slice(0, at) + newString + content.slice(at + oldString.length)
+          const spliced = content.slice(0, at) + newString + content.slice(at + oldString.length)
+          spans = addChangeSpan(spans, content, spliced)
+          content = spliced
         }
 
         const alreadyNote =
@@ -755,11 +779,29 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
 
         if (onFileChange) onFileChange({ type: 'modified', path })
 
+        // Show the edited regions as they now read, numbered. Measured: most
+        // re-reads of a just-edited file were to see the result or to find line
+        // numbers for the next edit — a full round-trip each. If an after-write
+        // hook rewrote the file (a formatter), show what is really on disk.
+        let finalContent = content
+        if (onAfterWrite) {
+          // A failed re-read just means the excerpt shows what was written.
+          const reread = await backend.readFile(path).catch(() => null)
+          if (typeof reread === 'string' && reread !== '' && reread !== content) {
+            finalContent = reread
+            const whole = changedSpan(oldContent, reread)
+            spans = whole ? [whole] : []
+          }
+        }
+        const excerpt = renderEditExcerpt(finalContent, spans)
+
         return {
           path,
           ok: true,
           replacementsApplied: replacements.length - alreadyApplied,
           ...(alreadyApplied > 0 ? { alreadyApplied, note: alreadyNote } : {}),
+          totalLines: countLines(finalContent),
+          ...(excerpt ? { excerpt: sanitizeFileContent(excerpt, path) } : {}),
           ...(await syntaxErrorAfterWrite(path)),
         }
       } catch (e: unknown) {

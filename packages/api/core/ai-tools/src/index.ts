@@ -29,6 +29,15 @@
  *   (`MAX_BATCH_READ_FILES` / `MAX_BATCH_READ_BYTES`, which report where they
  *   stopped). Each entry carries its own content or its own error, so one bad
  *   path never fails the batch.
+ * - **`edit_file` shows the result, so the model need not re-read.** A
+ *   successful edit returns `excerpt`: each edited region as it now reads, with
+ *   1-based line numbers (`N: text`) and a few lines of context, capped at
+ *   60 lines in total (what did not fit is named by line range),
+ *   plus `totalLines`. `write_file` returns `totalLines`, and `excerpt` only
+ *   for a small file (up to 40 lines) — a big file is never echoed back.
+ *   Line numbers count the way `read_file` does, so they are valid offsets. The
+ *   excerpt is redacted like a read. The existing fields (`ok`,
+ *   `replacementsApplied`, `alreadyApplied`, `syntaxError`) are unchanged.
  * - **A parameter under another name is not a broken tool.** Every tool's input
  *   is normalized first (`cmd` → `command`, `file` → `path`, camelCase ⇄
  *   snake_case), and a handler that throws returns an error naming the missing

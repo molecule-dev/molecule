@@ -82,7 +82,7 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   write_file: {
     name: 'write_file',
     description:
-      'Create or overwrite a file with full content. Use edit_file for small targeted changes instead.',
+      "Create or overwrite a file with full content. Use edit_file for small targeted changes instead. The result gives the file's line count (and a small file's numbered lines).",
     parameters: {
       type: 'object',
       properties: {
@@ -102,7 +102,7 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
   edit_file: {
     name: 'edit_file',
     description:
-      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file.',
+      'Make targeted search-and-replace edits to a file. Preferred over write_file for small changes. Each old_string must match exactly once in the file. The result shows each edited region as it now reads, with line numbers, so there is no need to re-read the file to check an edit.',
     parameters: {
       type: 'object',
       properties: {
