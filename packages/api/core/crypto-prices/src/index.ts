@@ -13,12 +13,20 @@
  *
  * @example
  * ```typescript
- * import { setProvider, getPrice, listCoins } from '@molecule/api-crypto-prices'
- * import { provider as coingecko } from '@molecule/api-crypto-prices-coingecko'
+ * import { getHistorical, getPrice, listCoins, setProvider } from '@molecule/api-crypto-prices'
+ * import { createProvider } from '@molecule/api-crypto-prices-coingecko'
  *
- * setProvider(coingecko)
- * const top = await listCoins({ limit: 50 })
- * const btc = await getPrice('bitcoin', 'usd')
+ * // Startup: bond once. No key = CoinGecko's free public API; a key switches to Pro.
+ * setProvider(createProvider({ apiKey: process.env.COINGECKO_API_KEY }))
+ *
+ * // One listCoins() call feeds a whole market table (top by market cap, desc).
+ * const top = await listCoins({ vsCurrency: 'usd', limit: 10 })
+ *
+ * // Resolve the provider's coin ID at runtime instead of hardcoding one ('BTC' is a symbol).
+ * const btcId = top.find((coin) => coin.symbol.toLowerCase() === 'btc')?.id ?? 'bitcoin'
+ * const quote = await getPrice(btcId, 'usd') // { id, vsCurrency, price, change24h, asOf }
+ * const week = await getHistorical(btcId, 7, 'usd') // [{ ts: Date, price: number }, ...] oldest first
+ * console.log(`${quote.price} USD`, top.length, week.length)
  * ```
  *
  * @remarks
@@ -34,6 +42,8 @@
  *   `getPrice()` per page render gets the app throttled. Cache quotes
  *   server-side (seconds–minutes of staleness is fine for display) and prefer
  *   one `listCoins()` over N `getPrice()` calls.
+ * - **Bond first:** `setProvider(...)` at startup — every function throws until then.
+ *   `getPrice()` THROWS for an id the provider has no quote for (it never returns a 0 price).
  * - `getHistorical(id, days)` takes a positive integer count of days back from
  *   now (`7`, `30`, `365`) — not a date or a range string.
  *

@@ -14,21 +14,50 @@
  *
  * @example
  * ```typescript
+ * import express from 'express'
+ *
+ * import { setTransport } from '@molecule/api-emails'
  * import {
- *   setProvider,
  *   parseWebhookPayload,
+ *   replyTo,
+ *   setProvider,
+ *   supportsReply,
  *   verifySignature,
  * } from '@molecule/api-emails-inbound'
- * import { provider as mailgunInbound } from '@molecule/api-emails-inbound-mailgun'
+ * import { provider as mailgunRoutes } from '@molecule/api-emails-inbound-mailgun'
+ * import { provider as mailgunTransport } from '@molecule/api-emails-mailgun'
  *
- * setProvider(mailgunInbound)
+ * // Startup: bond the inbound provider AND an outbound transport (replies go through it).
+ * // Env: MAILGUN_API_KEY (verifies the webhook and sends), MAILGUN_DOMAIN.
+ * setProvider(mailgunRoutes)
+ * setTransport(mailgunTransport)
  *
- * // In an HTTP handler bound to the inbound webhook URL:
- * const ok = await verifySignature(req.headers, req.rawBody)
- * if (!ok) return res.status(401).end()
+ * // Your ticket store — in an app this is a DataStore table keyed by the email id.
+ * const tickets = new Map<string, { from: string; subject: string; body: string }>()
  *
- * const email = await parseWebhookPayload(req.headers, req.rawBody)
- * await createTicketFromEmail(email)
+ * const app = express()
+ * // PUBLIC route: keep the RAW bytes for any content type (register before global parsers).
+ * app.post('/webhooks/inbound-email', express.raw({ type: () => true }), async (req, res) => {
+ *   // Verify FIRST. false = forged/stale → 401; a thrown config error → 5xx (don't catch it).
+ *   if (!(await verifySignature(req.headers, req.body))) {
+ *     res.status(401).end()
+ *     return
+ *   }
+ *   const email = await parseWebhookPayload(req.headers, req.body)
+ *
+ *   // Providers retry — dedupe on the normalized id so a retry never files a second ticket.
+ *   if (!tickets.has(email.id)) {
+ *     tickets.set(email.id, { from: email.from, subject: email.subject, body: email.textBody ?? '' })
+ *     if (supportsReply()) {
+ *       await replyTo(email, {
+ *         from: `support@${process.env.MAILGUN_DOMAIN}`,
+ *         textBody: `Thanks, we opened a ticket for "${email.subject}".`,
+ *       })
+ *     }
+ *   }
+ *   res.status(200).end()
+ * })
+ * app.listen(3000)
  * ```
  *
  * @remarks

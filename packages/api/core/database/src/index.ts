@@ -6,26 +6,47 @@
  *
  * @example
  * ```typescript
- * import { setStore, findById, findMany, create, updateById, deleteById } from '@molecule/api-database'
- * import { store } from '@molecule/api-database-postgresql'
+ * import { join } from 'node:path'
  *
- * // Wire the DataStore at app startup
- * setStore(store)
+ * import { count, create, deleteById, findMany, findOne, setPool, setStore } from '@molecule/api-database'
+ * // SQLite needs no server (SQLITE_PATH, default ./data/app.db); swap to
+ * // `@molecule/api-database-postgresql` when a DATABASE_URL is provisioned.
+ * import { createMigrator, pool, store } from '@molecule/api-database-sqlite'
  *
- * // CRUD operations — database-agnostic
- * const user = await findById<User>('users', userId)
+ * // Startup: tables come ONLY from migrations/*.sql — then bond the pool and the store once.
+ * await createMigrator(join(process.cwd(), 'migrations'))()
+ * setPool(pool) // raw query() / connect() for transactions
+ * setStore(store) // the CRUD functions below
  *
- * const activeUsers = await findMany<User>('users', {
- *   where: [
- *     { field: 'status', operator: '=', value: 'active' },
- *   ],
- *   orderBy: [{ field: 'createdAt', direction: 'desc' }],
+ * interface Note {
+ *   id: string
+ *   user_id: string
+ *   title: string
+ *   status: 'open' | 'done'
+ * }
+ *
+ * // userId comes from the authenticated session — never from the request body.
+ * const userId = '5b0f6f3e-2c1a-4a8e-9a57-6d2f1c0e7b11'
+ * const { data: note } = await create<Note>('notes', { user_id: userId, title: 'Buy milk', status: 'open' })
+ *
+ * // EVERY read is owner-scoped with a `where` ARRAY of { field, operator, value }.
+ * const mine = await findMany<Note>('notes', {
+ *   where: [{ field: 'user_id', operator: '=', value: userId }],
+ *   orderBy: [{ field: 'title', direction: 'asc' }],
  *   limit: 50,
  * })
+ * const openCount = await count('notes', [
+ *   { field: 'user_id', operator: '=', value: userId },
+ *   { field: 'status', operator: '=', value: 'open' },
+ * ])
  *
- * await create('users', { id, username, email })
- * await updateById('users', id, { name: 'New Name' })
- * await deleteById('users', id)
+ * // Single-row write on a client-supplied id: load it scoped to the owner first (404 if null).
+ * const noteId = note?.id ?? ''
+ * const owned = await findOne<Note>('notes', [
+ *   { field: 'id', operator: '=', value: noteId },
+ *   { field: 'user_id', operator: '=', value: userId },
+ * ])
+ * if (owned) await deleteById('notes', owned.id)
  * ```
  *
  * @remarks
@@ -37,6 +58,10 @@
  *   caller's (404, not 403 — don't leak existence). An unscoped `findById`/`updateById`/
  *   `deleteById` on a client-supplied id is an IDOR (one user edits another's data). See the
  *   `auth` skill.
+ * - **Bond BOTH at startup:** `setStore(store)` powers the CRUD functions and
+ *   `setPool(pool)` powers `query()`/`connect()`/`end()` — each throws until its own
+ *   setter ran. Pick the bond by what is provisioned: `-sqlite` needs nothing (a local
+ *   file); `-postgresql` needs `DATABASE_URL`, `-mysql` needs `MYSQL_URL`.
  * - **CRUD goes through the exported data functions** (`findById`, `findOne`,
  *   `findMany`, `count`, `create`, `updateById`, `deleteById`). Filter with a
  *   `where` ARRAY of `{ field, operator, value }`:

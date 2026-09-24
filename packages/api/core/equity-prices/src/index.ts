@@ -14,15 +14,30 @@
  *
  * @example
  * ```typescript
- * import { setProvider, getQuote, getHistorical } from '@molecule/api-equity-prices'
- * import { provider as alphaVantage } from '@molecule/api-equity-prices-alpha-vantage'
+ * import { getHistorical, getQuote, searchSymbol, setProvider } from '@molecule/api-equity-prices'
+ * import { createProvider } from '@molecule/api-equity-prices-alpha-vantage'
  *
- * setProvider(alphaVantage)
- * const quote = await getQuote('AAPL')
- * const bars = await getHistorical('AAPL', '1y')
+ * // Startup: bond once. Alpha Vantage needs ALPHA_VANTAGE_API_KEY (free tier is tightly rate-limited).
+ * setProvider(createProvider({ apiKey: process.env.ALPHA_VANTAGE_API_KEY }))
+ *
+ * // Resolve user input to a ticker the provider actually knows.
+ * const [match] = await searchSymbol('apple') // { symbol: 'AAPL', name: 'Apple Inc', currency: 'USD' }
+ * const symbol = match?.symbol ?? 'AAPL'
+ *
+ * const quote = await getQuote(symbol) // { symbol, price, currency, ts }
+ * // Format with the quote's own ISO 4217 currency — never hardcode '$'.
+ * const display = new Intl.NumberFormat('en-US', { style: 'currency', currency: quote.currency })
+ *   .format(quote.price) // '$189.42'
+ *
+ * const bars = await getHistorical(symbol, '1m') // [{ ts: Date, close: number }, ...] oldest first
+ * console.log(display, bars.length)
  * ```
  *
  * @remarks
+ * - **Bond first:** `setProvider(...)` at startup — every function throws until then. The
+ *   Alpha Vantage bond throws (`cause.code === 'MISSING_API_KEY'`) on the first call when
+ *   `ALPHA_VANTAGE_API_KEY` is unset, and `cause.code === 'RATE_LIMITED'` when the quota is
+ *   spent — both are errors to surface, not empty results.
  * - **Server-side only.** Provider API keys are secrets; fetch quotes in API
  *   handlers/jobs and serve the UI through the app's own endpoints.
  * - **Cache aggressively.** Free market-data tiers are severely rate-limited

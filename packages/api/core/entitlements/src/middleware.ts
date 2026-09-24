@@ -21,20 +21,17 @@ import { getProvider } from './provider.js'
 import type { LimitErrorPayload, LimitType, Tier } from './types.js'
 
 /**
- * Minimal request shape consumed by the entitlements middleware. The
- * structural type lets Express's full `Request` flow in transparently
- * (Express types are assignable to this) without forcing this package to
- * take a hard dependency on `express`.
+ * Minimal request shape consumed by the entitlements middleware: any object.
+ * The structural type lets Express's full `Request` flow in transparently
+ * without forcing this package to take a hard dependency on `express`.
  *
  * The middleware never reads off `req` directly; auth context lives on
  * `res.locals.session.userId` and is read via the response object instead.
- * The optional `_skipReason` field exists purely so this is not an empty
- * interface (which ESLint's `@typescript-eslint/no-empty-interface` flags).
+ * It is deliberately `object`, not an interface of optional fields: an
+ * all-optional ("weak") type rejects Express's `Request` ("has no properties
+ * in common"), which made these handlers unmountable on an Express router.
  */
-interface Request {
-  /** Reserved — not consumed by the middleware. */
-  readonly _skipReason?: never
-}
+type Request = object
 
 /** Minimal response shape — Express's `Response` is assignable to this. */
 interface Response {

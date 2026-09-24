@@ -9,29 +9,45 @@
  *
  * @example
  * ```typescript
- * import { setProvider, schedule, list, close } from '@molecule/api-cron'
- * import { provider as nodeCron } from '@molecule/api-cron-node-cron'
+ * import { close, list, pause, runNow, schedule, setProvider } from '@molecule/api-cron'
+ * import { createProvider } from '@molecule/api-cron-node-cron'
  *
- * setProvider(nodeCron)
+ * // Startup: bond one scheduler (node-cron is in-process — no Redis, no env vars).
+ * setProvider(createProvider({ timezone: 'UTC' }))
  *
- * const jobId = await schedule('cleanup', '0 3 * * *', async () => {
- *   console.log('Running nightly cleanup...')
- * })
+ * // Register every job at startup; keep the RETURNED id — it is not the name.
+ * const jobId = await schedule(
+ *   'nightly-cleanup',
+ *   '0 3 * * *', // 03:00 every day in the provider's timezone
+ *   async () => {
+ *     console.log('nightly cleanup ran')
+ *   },
+ *   { noOverlap: true },
+ * )
  *
- * const jobs = await list()
+ * await runNow(jobId) // run it immediately (e.g. from an admin-only endpoint)
+ * await pause(jobId) // stop future ticks; resume(jobId) restarts them
+ * const [job] = await list() // { name: 'nightly-cleanup', status: 'paused', runCount: 1, ... }
  *
- * // On graceful shutdown / test teardown:
- * await close()
+ * // Graceful shutdown: stop timers/connections so the process can exit.
+ * process.on('SIGTERM', () => void close())
  * ```
  *
  * @remarks
- * `close()` releases the bonded provider's resources (timers, queue/worker
- * connections) and is a no-op if the provider doesn't implement it — call
- * it during shutdown instead of reaching for `getProvider().close?.()`
- * directly. `CronOptions.noOverlap` (per-job, default `false`) skips a tick
- * that arrives while the previous run of the same job is still executing;
- * support and cross-process coordination are provider-specific — see each
- * bond's module docs.
+ * - **Use the id `schedule()` returns** for `runNow`/`pause`/`resume`/`cancel` — passing the
+ *   job NAME throws "Cron job not found".
+ * - **Bond first:** `setProvider(...)` at startup; every function throws until then. With the
+ *   in-process node-cron bond, jobs live in memory — re-register them on every boot.
+ * - The handler must return a Promise (`async () => {...}`). There is no retry: a handler
+ *   that throws on a scheduled tick is logged and simply runs again at its NEXT tick, while
+ *   `runNow()` rejects with the handler's error.
+ * - `close()` releases the bonded provider's resources (timers, queue/worker
+ *   connections) and is a no-op if the provider doesn't implement it — call
+ *   it during shutdown instead of reaching for `getProvider().close?.()`
+ *   directly. `CronOptions.noOverlap` (per-job, default `false`) skips a tick
+ *   that arrives while the previous run of the same job is still executing;
+ *   support and cross-process coordination are provider-specific — see each
+ *   bond's module docs.
  *
  * @e2e
  * Integration checklist — drive the real flow (no mocks), adapt each item to

@@ -10,30 +10,37 @@
  * (is the database up?). Error tracking captures individual unexpected
  * exceptions with context so they can be aggregated and triaged.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider, captureException, captureMessage } from '@molecule/api-error-tracking'
- * import { provider } from '@molecule/api-error-tracking-sentry'
+ * import { captureException, captureMessage, flush, setProvider } from '@molecule/api-error-tracking'
+ * // Logs captures, needs no credentials; bond `@molecule/api-error-tracking-sentry`
+ * // (SENTRY_DSN) instead when a Sentry project exists.
+ * import { provider as consoleTracker } from '@molecule/api-error-tracking-console'
  *
- * // Bond a provider at startup (skip this and every capture is a no-op)
- * setProvider(provider)
+ * // Startup: bond one tracker (skip this and every capture is a silent no-op).
+ * setProvider(consoleTracker)
  *
- * // Report an unexpected exception with normalized context
+ * const order = { id: 'ord_42', userId: 'user-123' }
+ * const chargeCustomer = async (o: { id: string }): Promise<void> => {
+ *   throw new Error(`card declined for ${o.id}`)
+ * }
+ *
  * try {
  *   await chargeCustomer(order)
  * } catch (error) {
- *   captureException(error, {
+ *   // Never throws — no try/catch needed around it. Returns the event id (or undefined).
+ *   const eventId = captureException(error, {
  *     tags: { source: 'billing' },
  *     user: { id: order.userId },
  *     extra: { orderId: order.id },
  *   })
- *   throw error
+ *   console.error(`Charge failed; report ${eventId}`)
  * }
  *
- * // Report a standalone message
  * captureMessage('Payment retry queue is backing up', 'warning')
+ * await flush(2000) // ms — call before the process exits so buffered reports are sent
  * ```
+ *
  * @remarks
  * - **The convenience functions NEVER throw and no-op when unbonded.** Error
  *   tracking is a diagnostic side-channel: an app without a bonded tracker
@@ -49,6 +56,10 @@
  *   convenience functions or `getOptionalProvider()` in reporting paths.
  * - Context is normalized (`tags`/`user`/`extra`/`request`) — never pass
  *   provider-specific (e.g. Sentry) scope objects through this interface.
+ * - `flush(timeoutMs)` takes MILLISECONDS and resolves `false` (never rejects) when delivery
+ *   did not finish in time.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

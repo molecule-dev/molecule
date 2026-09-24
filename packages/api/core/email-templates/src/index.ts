@@ -12,11 +12,21 @@
  *
  * @example
  * ```typescript
+ * import { setSink } from '@molecule/api-activity'
+ * import { provider as consoleSink } from '@molecule/api-activity-console'
  * import { sendTemplate, TEMPLATE_KEYS } from '@molecule/api-email-templates'
+ * import { setTransport } from '@molecule/api-emails'
+ * import { provider as captureOnly } from '@molecule/api-emails-capture'
  *
- * await sendTemplate(TEMPLATE_KEYS.subscriptionStarted, {
- *   from: 'support@example.com',
- *   to: 'user@example.com',
+ * // Startup: bond an emails transport. The capture bond RECORDS mail (to the activity sink)
+ * // without delivering it — for production bond an ESP (e.g. `@molecule/api-emails-mailgun`).
+ * setSink(consoleSink)
+ * setTransport(captureOnly)
+ *
+ * // `to` is the authenticated account's address — never an address the client named.
+ * const result = await sendTemplate(TEMPLATE_KEYS.subscriptionStarted, {
+ *   from: 'billing@example.com',
+ *   to: 'lou@example.com',
  *   locale: 'en',
  *   variables: {
  *     appName: 'Personal Finance',
@@ -27,15 +37,21 @@
  *     manageUrl: 'https://app.example.com/billing',
  *   },
  * })
+ * // result.accepted → ['lou@example.com']; subject 'Welcome to Pro on Personal Finance'
  * ```
  *
  * @remarks
- * This is a library on top of two bonds — BOTH must be wired before
- * `sendTemplate()` works:
+ * This is a library on top of the emails transport — wire it before `sendTemplate()`:
  *
- * - **`@molecule/api-emails` transport bonded** (`sendTemplate` dispatches via
- *   the bonded transport and throws when none is wired) and
- *   **`@molecule/api-i18n` bonded** (subject/text/html resolve through `t()`).
+ * - **`@molecule/api-emails` transport bonded** (`setTransport(...)`) — `sendTemplate`
+ *   dispatches via the bonded transport and throws when none is wired. There is no
+ *   `setProvider` in THIS package.
+ * - **`@molecule/api-i18n` is optional for English.** With no i18n provider bonded the
+ *   templates' English defaults render (with `{{variables}}` filled); bond an i18n provider
+ *   plus translations to get other locales.
+ * - **Variables are NOT HTML-escaped.** Values are interpolated verbatim into the html
+ *   body, so escape any user-supplied text (names, notes) before passing it in
+ *   `variables`, or a name like `<img onerror=...>` becomes live markup.
  * - **`sendTemplate` throws on an unregistered key.** Built-ins cover only the
  *   subscription lifecycle (`TEMPLATE_KEYS.*`). Any other template must be
  *   registered at startup first:
@@ -43,7 +59,7 @@
  *   Overriding a built-in = registering with the SAME key (overrides win).
  * - **Interpolation is `{{variable}}` via i18n.** Pass every variable the
  *   template references in `variables`; strings/numbers/booleans/Dates pass
- *   through, anything else is JSON-stringified.
+ *   through, `null`/`undefined` become `''`, anything else is JSON-stringified.
  * - For non-email channels (SMS, in-app inbox), call `renderTemplate(...)` and
  *   dispatch the `RenderedEmail` yourself.
  * - The emails-core rules apply to every send: the recipient comes from the

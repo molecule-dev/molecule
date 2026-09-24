@@ -5,22 +5,22 @@
  * decryption, hashing, and key rotation. Bond a concrete provider
  * (e.g. `@molecule/api-encryption-aes`) at startup via `setProvider()`.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider, encrypt, decrypt, hash, verify } from '@molecule/api-encryption'
- * import { provider } from '@molecule/api-encryption-aes'
+ * import { decrypt, encrypt, setProvider } from '@molecule/api-encryption'
+ * // Reads ENCRYPTION_KEY (64 hex chars) from the environment on first use.
+ * import { provider as aes } from '@molecule/api-encryption-aes'
  *
- * // Wire the provider at startup
- * setProvider(provider)
+ * // Startup: bond once.
+ * setProvider(aes)
  *
- * // Field-level encryption for sensitive data at rest
- * const ciphertext = await encrypt(accessToken)
- * const plaintext = await decrypt(ciphertext)
+ * // Field-level encryption: bind the ciphertext to its record with a context string.
+ * const userId = 'user-123'
+ * const context = `user:${userId}:taxId`
+ * const stored = await encrypt('123-45-6789', context) // 'v1:<iv>:<tag>:<data>' — save this
  *
- * // Integrity hashing (checksums, dedupe keys) — NOT for passwords
- * const checksum = await hash(documentBody)
- * const untampered = await verify(documentBody, checksum)
+ * // Later: decrypt with the SAME context.
+ * const taxId = await decrypt(stored, context) // '123-45-6789'
  * ```
  *
  * @remarks
@@ -41,6 +41,14 @@
  *   but then the id can never change.
  * - `decrypt()` throws on a wrong key or tampered ciphertext — treat that as
  *   corruption/misconfiguration to surface, not a condition to retry.
+ * - **Bond first:** `setProvider(provider)` at startup — every function throws until then.
+ *   The AES bond's `provider` reads `ENCRYPTION_KEY` (exactly 64 hex chars = 256 bits,
+ *   `openssl rand -hex 32`) on first use and throws when it is missing or malformed.
+ * - `encrypt()` returns a self-describing STRING (`v1:iv:tag:data` in the AES bond) and
+ *   is non-deterministic (random IV) — store it as text; the same plaintext never yields
+ *   the same ciphertext twice.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

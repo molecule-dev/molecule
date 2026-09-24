@@ -10,12 +10,26 @@
  *
  * @example
  * ```typescript
- * import { setProvider, searchDrug, checkInteractions } from '@molecule/api-drug-database'
+ * import { checkInteractions, getDrug, searchDrug, setProvider } from '@molecule/api-drug-database'
  * import { provider as rxnorm } from '@molecule/api-drug-database-rxnorm'
  *
+ * // Startup: bond once (RxNorm/RxNav is keyless — no env vars).
  * setProvider(rxnorm)
- * const matches = await searchDrug('metformin')
- * const interactions = await checkInteractions(['860975', '1191'])
+ *
+ * // Ids are provider-specific (RxCUIs here) — take them from searchDrug(), never hardcode.
+ * const [metformin] = await searchDrug('metformin')
+ * const [lisinopril] = await searchDrug('lisinopril')
+ *
+ * const detail = metformin ? await getDrug(metformin.id) : null // null → respond 404
+ * console.log(detail?.name, detail?.dosageForms, detail?.ingredients.map((i) => i.name))
+ *
+ * const ids = [metformin, lisinopril].flatMap((match) => (match ? [match.id] : []))
+ * const interactions = await checkInteractions(ids)
+ * // [] means "none FOUND" (the upstream may lack coverage) — never render it as "safe".
+ * const summary =
+ *   interactions.length === 0
+ *     ? 'No known interactions found. Always confirm with a pharmacist.'
+ *     : interactions.map((ix) => `${ix.severity}: ${ix.description}`).join('\n')
  * ```
  *
  * @remarks

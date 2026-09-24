@@ -29,20 +29,36 @@
  *   (the exact env var for the sending domain is provider-specific; `MAILGUN_DOMAIN` for
  *   Mailgun). One canonical `EMAIL_FROM` override + a default derived from the verified
  *   domain = email that delivers out of the box.
+ * - **Bond a transport first** with `setTransport(provider)` (not `setProvider`) —
+ *   `sendMail()` throws until one is bonded. `html`/`text` are sent as given: escape any
+ *   user-supplied text you put into `html` yourself.
  *
  * @example
- * ```ts
- * import { sendMail } from '@molecule/api-emails'
+ * ```typescript
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * // Env: MAILGUN_API_KEY + MAILGUN_DOMAIN. In dev without a key, bond
+ * // `@molecule/api-emails-capture` instead (records mail, delivers nothing).
+ * import { provider as mailgun } from '@molecule/api-emails-mailgun'
  *
- * // Account email → the authenticated user's OWN address (not a client-named one).
- * await sendMail({
- *   // `emailFrom`: a domain VERIFIED with your provider, read from config (see @remarks) —
- *   // e.g. `getConfig('EMAIL_FROM', `no-reply@${MAILGUN_DOMAIN}`)`, never a placeholder.
- *   from: emailFrom,
- *   to: user.email, // validated, owned by the session
+ * // Startup: bond one transport.
+ * setTransport(mailgun)
+ *
+ * // Sender on your VERIFIED domain; links from the configured origin, never request headers.
+ * const from = process.env.EMAIL_FROM ?? `no-reply@${process.env.MAILGUN_DOMAIN}`
+ * const origin = process.env.SITE_ORIGIN ?? 'http://localhost:3000'
+ *
+ * // The recipient is the authenticated account's OWN address; the token is single-use.
+ * const user = { email: 'ada@example.com' }
+ * const resetLink = `${origin}/reset-password?token=${encodeURIComponent('one-time-token')}`
+ *
+ * const result = await sendMail({
+ *   from,
+ *   to: user.email,
  *   subject: 'Reset your password',
- *   html: `<a href="${resetLink}">Reset</a>`, // a single-use link, not the raw token
+ *   text: `Reset your password: ${resetLink}`,
+ *   html: `<p><a href="${resetLink}">Reset your password</a></p>`,
  * })
+ * // result → { accepted: ['ada@example.com'], rejected: [], messageId: '<…>' }
  * ```
  *
  * @e2e

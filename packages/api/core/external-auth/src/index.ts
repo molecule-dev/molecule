@@ -14,28 +14,28 @@
  * `@molecule/api-external-auth-supabase`.
  *
  * @example
- * ```ts
- * // bonds.ts — wire the provider matching the imported app's auth platform:
- * import { setProvider } from '@molecule/api-external-auth'
- * import { provider } from '@molecule/api-external-auth-supabase'
+ * ```typescript
+ * import express from 'express'
  *
- * setProvider(provider)
- * ```
+ * import { setProvider, verifyUserToken } from '@molecule/api-external-auth'
+ * // Reads SUPABASE_URL + SUPABASE_ANON_KEY (public values — no service-role secret needed).
+ * import { provider as supabaseAuth } from '@molecule/api-external-auth-supabase'
  *
- * @example
- * ```ts
- * // A protected server route — verify the token the frontend already sends:
- * import { verifyUserToken } from '@molecule/api-external-auth'
+ * // Startup: bond the provider matching the imported app's auth platform.
+ * setProvider(supabaseAuth)
  *
+ * const app = express()
+ * // A protected route — verify the token the app's frontend already sends.
  * app.get('/api/me', async (req, res) => {
  *   const token = req.headers.authorization?.replace(/^Bearer /, '') ?? ''
- *   const user = await verifyUserToken(token)
+ *   const user = await verifyUserToken(token) // null = invalid/expired/empty → 401, never 500
  *   if (!user) {
  *     res.status(401).json({ error: 'Invalid or expired session.' })
  *     return
  *   }
  *   res.json({ userId: user.userId, email: user.email })
  * })
+ * app.listen(3000)
  * ```
  *
  * @remarks
@@ -47,8 +47,11 @@
  *
  * - A bad token is a normal runtime condition: `verifyUserToken()` resolves
  *   `null` for invalid/expired/empty tokens — map that to a 401, never a 500.
- * - `verifyUserToken()` THROWS only when no provider is bonded — that is a
- *   wiring bug: call `setProvider()` from the matching bond at startup.
+ * - `verifyUserToken()` THROWS only on a wiring/config bug, never for a bad
+ *   token: when no provider is bonded (call `setProvider()` from the matching
+ *   bond at startup), or when the bond is unconfigured — the Supabase bond
+ *   throws if `SUPABASE_URL` / `SUPABASE_ANON_KEY` (or their `VITE_` variants)
+ *   are missing. Let that surface as a server error, don't map it to 401.
  * - The verified `userId` is the external platform's stable user id — key
  *   your server-side records on it.
  *

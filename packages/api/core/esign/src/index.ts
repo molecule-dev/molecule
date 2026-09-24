@@ -13,28 +13,42 @@
  *
  * @example
  * ```typescript
- * import {
- *   setProvider,
- *   createSignatureRequest,
- *   processWebhook,
- * } from '@molecule/api-esign'
- * import { provider } from '@molecule/api-esign-hellosign'
+ * import express from 'express'
  *
- * // Wire the provider at startup
- * setProvider(provider)
+ * import { createSignatureRequest, processWebhook, setProvider } from '@molecule/api-esign'
+ * // Needs HELLOSIGN_API_KEY. Sends are LIVE — signers receive real emails.
+ * import { provider as hellosign } from '@molecule/api-esign-hellosign'
  *
- * // Create a request from an uploaded document; persist request.id on your record
+ * // Startup: bond once.
+ * setProvider(hellosign)
+ *
+ * // Your contract records — in an app, a DataStore table keyed by the request id.
+ * const contracts = new Map<string, { title: string; status: string }>()
+ *
+ * // Signing happens LATER on the vendor's site: store the id; status is 'awaiting_signatures'.
  * const request = await createSignatureRequest({
  *   title: 'Lease Agreement',
  *   signers: [{ name: 'Alice Tenant', email: 'alice@example.com', role: 'Tenant' }],
- *   document: pdfBuffer,
+ *   document: { url: 'https://files.example.com/lease.pdf', filename: 'lease.pdf' },
  * })
+ * contracts.set(request.id, { title: 'Lease Agreement', status: request.status })
  *
- * // In the HTTP handler bound to the provider's webhook URL:
- * const event = await processWebhook(req.headers, req.body)
- * if (event.type === 'signature_request_all_signed') {
- *   await markContractSigned(event.signatureRequestId)
- * }
+ * const app = express()
+ * // Dropbox Sign posts form-encoded `json=...`; processWebhook verifies it and THROWS if forged.
+ * app.post('/webhooks/esign', express.urlencoded({ extended: false }), async (req, res) => {
+ *   const event = await processWebhook(req.headers, req.body).catch((error: unknown) => {
+ *     console.warn('Rejected e-sign webhook', error)
+ *     return null
+ *   })
+ *   if (!event) {
+ *     res.status(400).end()
+ *     return
+ *   }
+ *   const contract = contracts.get(event.signatureRequestId)
+ *   if (contract && event.type === 'signature_request_all_signed') contract.status = 'signed'
+ *   res.status(200).send('Hello API Event Received') // the exact body Dropbox Sign expects
+ * })
+ * app.listen(3000)
  * ```
  *
  * @remarks
@@ -46,6 +60,10 @@
  *   The webhook endpoint is public — let that rejection become a 4xx and never
  *   touch the event body first. Treat `type: 'unknown'` as ignorable (2xx),
  *   not an error.
+ * - **Bond first** with `setProvider(provider)` — every function throws until then. The
+ *   webhook body format is the vendor's: the HelloSign bond needs a urlencoded parser
+ *   (`{ json: '...' }`, not a raw/JSON body) and a 200 reply with the literal text
+ *   `Hello API Event Received`, or Dropbox Sign keeps retrying and disables the callback.
  * - **`getSignedDocument()` is only available once status is `'signed'`** —
  *   gate the download on status AND authorize it (only parties to the
  *   document may fetch it).

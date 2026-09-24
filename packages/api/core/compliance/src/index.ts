@@ -9,21 +9,43 @@
  * @module
  * @example
  * ```typescript
- * import { setProvider, exportUserData, deleteUserData, getConsent, setConsent } from '@molecule/api-compliance'
- * import { provider } from '@molecule/api-compliance-gdpr'
+ * import {
+ *   deleteUserData,
+ *   exportUserData,
+ *   getConsent,
+ *   setConsent,
+ *   setProvider,
+ * } from '@molecule/api-compliance'
+ * import { createProvider } from '@molecule/api-compliance-gdpr'
  *
- * // Wire the provider at startup
- * setProvider(provider)
+ * // Your real data source — in an app this is your DataStore/table.
+ * const profiles = new Map([['user-123', { name: 'Ada', email: 'ada@example.com' }]])
  *
- * // Export user data for a data portability request
- * const exportData = await exportUserData('user-123', 'json')
+ * // Startup: register one collector per category you manage (collect = export, delete = erase).
+ * setProvider(
+ *   createProvider({
+ *     legalObligationCategories: ['billing'],
+ *     dataCollectors: [
+ *       {
+ *         category: 'profile',
+ *         collect: async (userId) => profiles.get(userId) ?? null,
+ *         delete: async (userId) => {
+ *           profiles.delete(userId)
+ *         },
+ *       },
+ *     ],
+ *   }),
+ * )
  *
- * // Handle a deletion request (right to erasure)
- * const result = await deleteUserData('user-123', { retainLegalObligations: true })
+ * // userId comes from the AUTHENTICATED session, never from the request body.
+ * const userId = 'user-123'
+ * await setConsent(userId, { purpose: 'marketing', granted: false })
+ * const consent = await getConsent(userId) // consents: [{ purpose: 'marketing', granted: false, ... }]
  *
- * // Manage user consent
- * await setConsent('user-123', { purpose: 'marketing', granted: false })
- * const consent = await getConsent('user-123')
+ * const exported = await exportUserData(userId, 'json') // exported.data.profile → { name: 'Ada', ... }
+ *
+ * const result = await deleteUserData(userId, { categories: ['profile', 'billing'] })
+ * // result.status === 'completed', deletedCategories ['profile'], retainedCategories ['billing']
  * ```
  *
  * @remarks
@@ -44,6 +66,11 @@
  *   does the processing — a client-side flag is not consent enforcement.
  * - Wire the provider once at startup (`setProvider(provider)` in the app's
  *   bond setup); every convenience function throws until then.
+ * - **The GDPR bond only exports/erases what your `dataCollectors` cover.** With no
+ *   collectors, `exportUserData()` returns no user data (only consents) and
+ *   `deleteUserData()` returns `'failed'` — it never reaches your database on its own.
+ * - `deleteUserData()` retains legal-obligation categories (default `['billing']`) unless
+ *   `retainLegalObligations: false`; read `retainedCategories`, don't assume a full wipe.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

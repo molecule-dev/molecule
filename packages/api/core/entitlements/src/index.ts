@@ -12,35 +12,57 @@
  *
  * @example
  * ```typescript
- * import { defineTiers, setProvider, enforceLimit, requireCategoryAtLeast } from '@molecule/api-entitlements'
- * import { count } from '@molecule/api-database'
+ * import express from 'express'
+ *
+ * import { count, create } from '@molecule/api-database'
+ * import {
+ *   defineTiers,
+ *   enforceLimit,
+ *   requireCategoryAtLeast,
+ *   setProvider,
+ * } from '@molecule/api-entitlements'
  *
  * interface BlogLimits {
  *   maxPosts: number
- *   maxCommentsPerDay: number
  * }
  *
- * const registry = defineTiers<BlogLimits>({
- *   tiers: {
- *     free: { planKey: 'free', category: 'free', name: 'Free', limits: { maxPosts: 5, maxCommentsPerDay: 50 } },
- *     stripeMonthly: { planKey: 'stripeMonthly', category: 'pro', name: 'Pro', limits: { maxPosts: 100, maxCommentsPerDay: 1000 } },
- *   },
- *   defaultPlanKey: 'free',
- *   categoryOrder: ['free', 'pro'],
- * })
+ * // Startup: define the app's tiers once and bond them. (A DataStore must be bonded too —
+ * // the plan cache reads `users.planKey` through `@molecule/api-database`.)
+ * setProvider(
+ *   defineTiers<BlogLimits>({
+ *     tiers: {
+ *       free: { planKey: 'free', category: 'free', name: 'Free', limits: { maxPosts: 2 } },
+ *       stripeMonthly: { planKey: 'stripeMonthly', category: 'pro', name: 'Pro', limits: { maxPosts: 100 } },
+ *     },
+ *     defaultPlanKey: 'free',
+ *     categoryOrder: ['free', 'pro'],
+ *   }),
+ * )
  *
- * setProvider(registry)
- *
- * // Gate the API routes — the SERVER enforces tiers, never the UI alone:
- * router.post('/posts',
+ * // Mount this router AFTER your auth middleware: the gates read res.locals.session.userId.
+ * const router = express.Router()
+ * router.post(
+ *   '/posts',
+ *   express.json(),
  *   enforceLimit<BlogLimits>({
  *     limitType: 'maxPosts',
  *     getLimit: (limits) => limits.maxPosts,
  *     getCurrent: (userId) => count('posts', [{ field: 'userId', operator: '=', value: userId }]),
  *   }),
- *   handlers.createPost,
+ *   async (req, res) => {
+ *     const userId = res.locals.session?.userId
+ *     if (!userId) {
+ *       res.status(401).end() // unreachable after enforceLimit — narrows the type
+ *       return
+ *     }
+ *     const { data } = await create('posts', { userId, title: String(req.body.title) })
+ *     res.status(201).json(data)
+ *   },
  * )
- * router.get('/analytics', requireCategoryAtLeast('pro'), handlers.analytics)
+ * router.get('/analytics', requireCategoryAtLeast('pro'), (_req, res) => {
+ *   res.json({ views: 42 })
+ * })
+ * // Free user's 3rd POST /posts → 403 { limitType: 'maxPosts', currentTier: 'free', upgradeTier: ... }
  * ```
  *
  * @remarks
@@ -49,6 +71,10 @@
  *   not entitlement enforcement. The middleware reads the authenticated user
  *   from `res.locals.session.userId`, so it must be registered AFTER the auth
  *   middleware; unauthenticated requests get a 401.
+ * - **Bond BOTH the tiers and a DataStore.** `setProvider(defineTiers(...))` — there is no
+ *   `bond('entitlements', ...)` package to install — and the plan cache reads
+ *   `users.planKey`/`planExpiresAt` with `findById('users', ...)` from
+ *   `@molecule/api-database`, so an unbonded store makes every gated request throw.
  * - **`enforceLimit` blocks at `current >= limit`** and responds with a
  *   structured `LimitErrorPayload` (default 403; pass `status: 429` for
  *   usage-style limits) that the app's limit/upgrade notice renders — don't
