@@ -7,11 +7,16 @@
  * convenience functions which delegate to the bonded provider.
  *
  * @remarks
- * - **`guard` / `onEnter` / `onExit` / `action` identifiers are DECLARATIVE ONLY.** The
- *   bundled bonds do not evaluate guards or execute hooks — `guard: 'isPaid'` blocks
- *   nothing. Enforce preconditions and side-effects in YOUR handler around
- *   {@link transition} (check, then transition, then act), or in a bond that documents
- *   hook execution.
+ * - **`guard` / `onEnter` / `onExit` / `action` are string KEYS, not code.** This core never
+ *   evaluates them — the bonded provider does. `@molecule/api-workflow-database` runs them
+ *   against handlers you register at EVERY startup (`registerGuard` / `registerAction` /
+ *   `registerHook`): a falsy guard rejects the transition, and a key with no registered
+ *   handler THROWS on transition. A provider that documents no hook execution ignores them —
+ *   then enforce preconditions/side-effects in your handler around {@link transition}.
+ * - `transition(instanceId, action, data)` takes the ACTION name (a key of the current
+ *   state's `transitions`), NOT the target state.
+ * - `createWorkflow()` stores a NEW definition on every call — create it once (or find it
+ *   via {@link listWorkflows}), never on every boot.
  * - `transition()` THROWS when the action is not valid for the instance's current state —
  *   catch it and answer 4xx; build action buttons from {@link getAvailableActions} so the
  *   UI only offers legal moves.
@@ -25,24 +30,50 @@
  *
  * @example
  * ```typescript
- * import { setProvider, createWorkflow, startInstance, transition } from '@molecule/api-workflow'
- * import { provider as dbWorkflow } from '@molecule/api-workflow-database'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createWorkflow,
+ *   getAvailableActions,
+ *   getHistory,
+ *   listWorkflows,
+ *   setProvider,
+ *   startInstance,
+ *   transition,
+ * } from '@molecule/api-workflow'
+ * import { provider, registerGuard } from '@molecule/api-workflow-database'
  *
- * setProvider(dbWorkflow)
+ * // Startup: DataStore (DATABASE_URL; apply the bond's __setup__/workflow.sql first), then
+ * // the workflow provider, then EVERY guard/hook key the definitions reference.
+ * setStore(store)
+ * setProvider(provider)
+ * registerGuard('isPaid', (ctx) => ctx.data.paid === true)
  *
- * const workflow = await createWorkflow({
- *   name: 'order-lifecycle',
- *   initialState: 'pending',
- *   states: {
- *     pending: { transitions: { confirm: { target: 'confirmed' } } },
- *     confirmed: { transitions: { ship: { target: 'shipped' } }, final: false },
- *     shipped: { transitions: { deliver: { target: 'delivered' } } },
- *     delivered: { final: true, transitions: {} },
- *   },
- * })
+ * // Create the definition ONCE — createWorkflow() inserts a new row on every call.
+ * const existing = (await listWorkflows()).find((workflow) => workflow.name === 'order-lifecycle')
+ * const orderFlow =
+ *   existing ??
+ *   (await createWorkflow({
+ *     name: 'order-lifecycle',
+ *     initialState: 'pending',
+ *     states: {
+ *       pending: {
+ *         transitions: {
+ *           ship: { target: 'shipped', guard: 'isPaid' },
+ *           cancel: { target: 'cancelled' },
+ *         },
+ *       },
+ *       shipped: { transitions: {}, final: true },
+ *       cancelled: { transitions: {}, final: true },
+ *     },
+ *   }))
  *
- * const instance = await startInstance(workflow.id, { orderId: '123' })
- * await transition(instance.id, 'confirm')
+ * const order = await startInstance(orderFlow.id, { orderId: 'ord_123', paid: false })
+ * const actions = await getAvailableActions(order.id) // ['ship', 'cancel'] → render the buttons
+ *
+ * // ACTION name (not the target state); the data merges into the instance before the guard runs.
+ * const shipped = await transition(order.id, 'ship', { paid: true }) // shipped.state === 'shipped'
+ * const history = await getHistory(order.id) // [{ action: 'ship', fromState: 'pending', toState: 'shipped', … }]
  * ```
  *
  * @e2e
@@ -57,9 +88,9 @@
  *   `getState()` at every stage and `getHistory()` lists the fromState ->
  *   toState hops in the exact order they happened.
  * - [ ] A step whose work must succeed before advancing actually gates the
- *   next transition. `guard`/`action` identifiers are DECLARATIVE ONLY — the
- *   bundled bonds never evaluate or run them — so the handler enforces it
- *   around `transition()` (check, then transition, then act): a required
+ *   next transition — via a registered guard (`@molecule/api-workflow-database`
+ *   evaluates `guard` keys) or a check in the handler around `transition()`
+ *   (check, then transition, then act): a required
  *   approval or input holds the instance in its current state, the advancing
  *   action only appears in `getAvailableActions()` once the precondition is
  *   met, and the UI cannot move on until the real work succeeded.

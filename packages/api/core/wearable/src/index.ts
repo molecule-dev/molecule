@@ -10,14 +10,48 @@
  *
  * @example
  * ```typescript
- * import { setProvider, getProvider } from '@molecule/api-wearable'
- * import { createProvider as createFitbit } from '@molecule/api-wearable-fitbit'
+ * import type { UserConnection, WearableCredentialsStore } from '@molecule/api-wearable'
+ * import { getProvider, listProviders, setProvider } from '@molecule/api-wearable'
+ * import { createProvider, PROVIDER_NAME } from '@molecule/api-wearable-fitbit'
  *
- * setProvider('fitbit', createFitbit({ credentialsStore, redirectUri: '...' }))
+ * // YOUR per-user device-token store (use a DB table; encrypt tokens at rest).
+ * const connections = new Map<string, UserConnection>()
+ * const credentialsStore: WearableCredentialsStore = {
+ *   read: async (userId, provider) => connections.get(`${provider}:${userId}`) ?? null,
+ *   write: async (provider, conn) => void connections.set(`${provider}:${conn.userId}`, conn),
+ *   remove: async (userId, provider) => void connections.delete(`${provider}:${userId}`),
+ * }
  *
- * const fitbit = getProvider('fitbit')
- * const today = await fitbit.getDailyActivity('user-1', '2026-05-01')
+ * // Startup: register each wearable under its NAME. Env: OAUTH_FITBIT_CLIENT_ID (+ _SECRET).
+ * setProvider(
+ *   PROVIDER_NAME, // 'fitbit'
+ *   createProvider({ redirectUri: 'https://app.example.com/auth/fitbit/callback', credentialsStore }),
+ * )
+ * // Linking a user's device is the bond's OAuth flow (Fitbit: startAuthorize → connectWithVerifier),
+ * // which writes a UserConnection into credentialsStore.
+ *
+ * // Handler / sync job: read the signed-in user's day from every wearable they connected.
+ * const userId = 'user-123' // the AUTHENTICATED user — never an id from the request body
+ * const date = '2026-09-23' // YYYY-MM-DD in the user's local calendar
+ * for (const name of listProviders()) {
+ *   if (!(await credentialsStore.read(userId, name))) continue // not connected to this one
+ *   const wearable = getProvider(name)
+ *   const activity = await wearable.getDailyActivity(userId, date)
+ *   const sleep = await wearable.getDailySleep(userId, date)
+ *   const mainSleep = sleep.find((session) => session.isMainSleep)
+ *   console.log(name, activity.steps, activity.distanceMeters, mainSleep?.timeAsleepMinutes)
+ * }
  * ```
+ *
+ * @remarks
+ * - **Named multi-provider:** `setProvider(name, provider)` / `getProvider(name)` — BOTH take
+ *   the provider name first. `getProvider(name)` throws when that name is not bonded;
+ *   `getOptionalProvider(name)` returns `null`.
+ * - The core does NOT store tokens — you supply the `WearableCredentialsStore`; the bundled
+ *   bonds' `getDaily*` calls throw for a user with no stored connection (check `read()` first).
+ * - Units are fixed: `distanceMeters` (meters), `weightKg` (kg), sleep in MINUTES, segment
+ *   `durationSeconds` in seconds. Dates are `YYYY-MM-DD` strings, not `Date`s.
+ * - A day with no data returns zeros for `DailyActivity` — not an error and not "no data".
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview), adapt each item to

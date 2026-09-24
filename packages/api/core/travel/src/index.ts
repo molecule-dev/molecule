@@ -10,21 +10,45 @@
  *
  * @example
  * ```typescript
- * import { setProvider, searchTripOptions } from '@molecule/api-travel'
- * import { provider as amadeus } from '@molecule/api-travel-amadeus'
+ * import { searchTripOptions, setProvider } from '@molecule/api-travel'
+ * import { createProvider } from '@molecule/api-travel-amadeus'
  *
- * setProvider(amadeus)
+ * // Startup: bond the provider. Amadeus defaults to its TEST sandbox.
+ * setProvider(
+ *   createProvider({
+ *     clientId: process.env.AMADEUS_CLIENT_ID,
+ *     clientSecret: process.env.AMADEUS_CLIENT_SECRET,
+ *     useProduction: process.env.AMADEUS_USE_PRODUCTION === 'true',
+ *   }),
+ * )
+ *
  * const trip = await searchTripOptions({
- *   origin: 'JFK',
+ *   origin: 'JFK', // IATA codes
  *   destination: 'PAR',
- *   departureDate: '2026-07-15',
- *   returnDate: '2026-07-22',
+ *   departureDate: '2026-07-15', // YYYY-MM-DD
+ *   returnDate: '2026-07-22', // REQUIRED for hotel prices (check-out date)
  *   travelers: { adults: 2 },
  *   includeFlights: true,
  *   includeHotels: true,
+ *   maxResultsPerCategory: 5,
  * })
- * console.log(trip.flights.length, trip.hotels.length)
+ *
+ * for (const flight of trip.flights) {
+ *   // price.total is a NUMBER for ALL travelers; format it with price.currency.
+ *   console.log(flight.id, flight.duration, `${flight.price.total} ${flight.price.currency}`)
+ * }
+ * console.log(trip.hotels.map((hotel) => `${hotel.name}: ${hotel.price.total}`))
  * ```
+ *
+ * @remarks
+ * - **Bond first.** Every call throws until `setProvider(...)` runs.
+ * - **Search only — there is no booking call.** Offer ids are short-lived; record the
+ *   SELECTED offer (price + itinerary) and book out-of-band.
+ * - A vertical that is off, or the provider can't serve, comes back as an EMPTY array, not an
+ *   error. With Amadeus, `cars` is ALWAYS `[]`, and `hotels` is `[]` without `returnDate`.
+ * - `includeFlights`/`includeHotels` default to `true` with the Amadeus bond;
+ *   `includeActivities` defaults to `false`.
+ * - `price.total` is a number (unlike shipping's string amounts); never assume USD.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

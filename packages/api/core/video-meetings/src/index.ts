@@ -11,6 +11,8 @@
  * ephemeral collaboration spaces with no scheduling semantics.
  *
  * @remarks
+ * - **Bond first.** Every call throws until `setProvider(...)` runs. Bonds export
+ *   `createProvider(...)` — wire it via this core's `setProvider`, not a `bond()` call.
  * - **Server-side only.** Provider credentials (for the bundled Zoom bond:
  *   `ZOOM_ACCOUNT_ID`, `ZOOM_CLIENT_ID`, `ZOOM_CLIENT_SECRET`) live in the API's env and
  *   must never reach the browser. Create/update/list meetings in YOUR API; hand the client
@@ -28,26 +30,37 @@
  * @module
  * @example
  * ```typescript
- * import {
- *   setProvider,
- *   createMeeting,
- *   listMeetings,
- * } from '@molecule/api-video-meetings'
+ * import { createMeeting, listMeetings, setProvider } from '@molecule/api-video-meetings'
+ * import type { Meeting } from '@molecule/api-video-meetings'
  * import { createProvider } from '@molecule/api-video-meetings-zoom'
  *
- * // Bond a provider at startup (reads ZOOM_* env vars when config is omitted)
- * setProvider(createProvider())
+ * // Startup. The Zoom bond THROWS here if ZOOM_ACCOUNT_ID/_CLIENT_ID/_CLIENT_SECRET are unset.
+ * setProvider(
+ *   createProvider({
+ *     accountId: process.env.ZOOM_ACCOUNT_ID,
+ *     clientId: process.env.ZOOM_CLIENT_ID,
+ *     clientSecret: process.env.ZOOM_CLIENT_SECRET,
+ *   }),
+ * )
  *
- * // Schedule a meeting
+ * // Schedule a meeting (startTime is a Date; duration is in MINUTES).
  * const meeting = await createMeeting({
  *   topic: 'Quarterly review',
  *   startTime: new Date('2027-01-15T17:00:00Z'),
  *   durationMinutes: 60,
- *   settings: { waitingRoom: true, autoRecording: 'cloud' },
+ *   timezone: 'America/New_York',
+ *   settings: { waitingRoom: true, muteUponEntry: true },
  * })
+ * // Persist meeting.id; give participants meeting.joinUrl (startUrl is HOST-only).
  *
- * // List the current user's upcoming meetings
- * const page = await listMeetings('me', { type: 'scheduled' })
+ * // List ALL of the host's scheduled meetings — results are paginated.
+ * const all: Meeting[] = []
+ * let pageToken: string | undefined
+ * do {
+ *   const page = await listMeetings('me', { type: 'scheduled', pageSize: 100, pageToken })
+ *   all.push(...page.meetings)
+ *   pageToken = page.nextPageToken
+ * } while (pageToken)
  * ```
  *
  * @e2e

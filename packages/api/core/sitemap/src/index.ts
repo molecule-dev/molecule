@@ -8,20 +8,36 @@
  *
  * @example
  * ```typescript
- * import { setProvider, addUrl, generate, rss } from '@molecule/api-sitemap'
+ * import { addUrl, generate, rss, setProvider } from '@molecule/api-sitemap'
  * import { provider as xml } from '@molecule/api-sitemap-xml'
  *
+ * // Startup: bond the provider once.
  * setProvider(xml)
  *
- * addUrl({ loc: 'https://example.com/', changefreq: 'daily', priority: 1.0 })
- * addUrl({ loc: 'https://example.com/about', changefreq: 'monthly' })
- * const sitemap = await generate()
+ * const posts = [
+ *   { slug: 'hello', title: 'Hello', summary: 'First post', publishedAt: new Date('2026-01-05') },
+ * ]
  *
- * const feed = await rss({
+ * // Per request/job: re-add EVERY url, then generate — generate() drains the list.
+ * const renderSitemapXml = async (): Promise<string> => {
+ *   addUrl({ loc: 'https://example.com/', changefreq: 'daily', priority: 1.0 })
+ *   for (const post of posts) {
+ *     addUrl({ loc: `https://example.com/blog/${post.slug}`, lastmod: post.publishedAt })
+ *   }
+ *   return generate()
+ * }
+ * const sitemapXml = await renderSitemapXml() // serve as application/xml at /sitemap.xml
+ *
+ * const feedXml = await rss({
  *   title: 'My Blog',
  *   description: 'Latest posts',
  *   link: 'https://example.com',
- *   items: [{ title: 'Hello', description: 'First post', link: 'https://example.com/hello' }],
+ *   items: posts.map((post) => ({
+ *     title: post.title,
+ *     description: post.summary,
+ *     link: `https://example.com/blog/${post.slug}`,
+ *     pubDate: post.publishedAt,
+ *   })),
  * })
  * ```
  *

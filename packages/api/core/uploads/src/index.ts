@@ -4,6 +4,12 @@
  * Defines the standard interface for upload providers.
  *
  * @remarks
+ * - **Bond first.** `getProvider()` throws until `setProvider(...)` runs.
+ * - **`upload()` is SYNCHRONOUS** and returns immediately — the bytes are stored only after
+ *   `await file.uploadPromise`. A size-limit hit only calls `onError`; the bundled bonds keep
+ *   writing the truncated stream unless you `abortUpload(file)` there.
+ * - `getFile` is OPTIONAL on the interface — call it as `getFile?.(id)` and 404 on `null`.
+ *
  * A weak upload integration leaks files or trusts the client. Enforce these in your
  * handler around {@link UploadProvider.upload} / {@link UploadProvider.getFile} /
  * `deleteFile`:
@@ -43,25 +49,56 @@
  *   abort. See {@link UploadAbortedError} for the full contract.
  *
  * @example
- * ```ts
- * import { getProvider } from '@molecule/api-uploads'
- * // a bond (e.g. `@molecule/api-uploads-s3`) called setProvider() at startup
+ * ```typescript
+ * import busboy from 'busboy'
+ * import express from 'express'
  *
- * router.post('/files', async (req, res) => {
- *   const userId = getUserId(res)
- *   if (!userId) return res.status(401).json({ error: 'Authentication required.' })
- *   // busboy/multer yields (fieldname, stream, info) — validate BEFORE trusting it.
- *   if (!ALLOWED_TYPES.has(info.mimeType)) return res.status(415).json({ error: 'Unsupported type.' })
- *   const file = getProvider().upload(fieldname, stream, info, (e) => res.status(500).json({ error: e.message }))
- *   await saveFileRow({ id: file.id, userId, name: info.filename }) // own it
- *   res.json({ id: file.id })
+ * import { logger } from '@molecule/api-logger'
+ * import { getProvider, setProvider, UploadAbortedError } from '@molecule/api-uploads'
+ * import { provider as filesystemUploads } from '@molecule/api-uploads-filesystem'
+ *
+ * // Startup (FILE_UPLOAD_PATH is read when the bond is imported; swap in -s3 for S3).
+ * setProvider(filesystemUploads)
+ *
+ * const MAX_BYTES = 10 * 1024 * 1024
+ * const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'application/pdf'])
+ * // YOUR file rows keyed by file.id (use a DB table) — never persist file.location.
+ * const fileRows = new Map<string, { userId: string; filename: string; mimetype: string }>()
+ *
+ * const router = express.Router() // mount AFTER your auth middleware sets res.locals.userId
+ *
+ * router.post('/files', (req, res) => {
+ *   const userId = String(res.locals.userId)
+ *   const parser = busboy({ headers: req.headers, limits: { files: 1, fileSize: MAX_BYTES } })
+ *   parser.on('file', (fieldname, stream, info) => {
+ *     if (!ALLOWED_TYPES.has(info.mimeType)) {
+ *       stream.resume() // drain it, or the request hangs
+ *       return void res.status(415).json({ error: 'Unsupported file type' })
+ *     }
+ *     const uploads = getProvider()
+ *     // onError fires on busboy's fileSize limit — abort so the partial file is removed.
+ *     const file = uploads.upload(fieldname, stream, info, () => void uploads.abortUpload(file))
+ *     file.uploadPromise
+ *       ?.then(() => {
+ *         fileRows.set(file.id, { userId, filename: info.filename, mimetype: info.mimeType })
+ *         res.status(201).json({ id: file.id })
+ *       })
+ *       .catch((error: unknown) => {
+ *         logger.warn('Upload failed', { error, userId })
+ *         const status = error instanceof UploadAbortedError ? 413 : 500 // aborted = too large
+ *         res.status(status).json({ error: 'Upload failed' })
+ *       })
+ *   })
+ *   req.pipe(parser)
  * })
  *
  * router.get('/files/:id', async (req, res) => {
- *   const row = await getFileRow(req.params.id)
- *   if (!row || row.userId !== getUserId(res)) return res.status(404).end() // ownership → no IDOR
- *   const stream = await getProvider().getFile?.(row.id)
- *   if (!stream) return res.status(404).end()
+ *   const row = fileRows.get(req.params.id)
+ *   // Ownership check → 404 (not 403) for someone else's id: no IDOR, no enumeration.
+ *   if (!row || row.userId !== String(res.locals.userId)) return void res.status(404).end()
+ *   const stream = await getProvider().getFile?.(req.params.id)
+ *   if (!stream) return void res.status(404).end()
+ *   res.type(row.mimetype).set('X-Content-Type-Options', 'nosniff')
  *   stream.pipe(res)
  * })
  * ```

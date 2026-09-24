@@ -7,21 +7,34 @@
  * @module
  * @example
  * ```typescript
- * import { setProvider, send, getStatus } from '@molecule/api-sms'
- * import { createProvider } from '@molecule/api-sms-twilio' // bonds export createProvider(), not a prebuilt provider
+ * import { getStatus, send, setProvider } from '@molecule/api-sms'
+ * import { createProvider } from '@molecule/api-sms-twilio'
  *
- * // Bond a provider at startup (credentials come from env — see the bond's docs)
- * setProvider(createProvider())
+ * // Startup: bond a provider (bonds export createProvider(), not a prebuilt provider).
+ * setProvider(
+ *   createProvider({
+ *     accountSid: process.env.TWILIO_ACCOUNT_SID,
+ *     authToken: process.env.TWILIO_AUTH_TOKEN,
+ *     defaultFrom: process.env.TWILIO_FROM_NUMBER, // E.164 sender, e.g. '+15551234567'
+ *   }),
+ * )
  *
- * // Send a message
- * const result = await send('+1234567890', 'Hello from Molecule!')
+ * // Send to an E.164 number (the user's own VERIFIED number — never an arbitrary input).
+ * const result = await send('+15557654321', 'Your verification code is 482913')
+ * console.log(result.id, result.status) // 'SM…', 'queued'
  *
- * // Check delivery status (provider-dependent — see @remarks)
+ * // Poll delivery (Twilio only — Vonage throws; use options.callbackUrl there).
  * const status = await getStatus(result.id)
- * console.log(status.status) // 'delivered'
+ * console.log(status.status) // 'queued' | 'sent' | 'delivered' | 'failed'
  * ```
  *
  * @remarks
+ * - **Bond first.** Every call throws until `setProvider(...)` runs.
+ * - Twilio credentials are NOT validated at bond time — a missing
+ *   `TWILIO_ACCOUNT_SID`/`TWILIO_AUTH_TOKEN`/`TWILIO_FROM_NUMBER` only throws on the first
+ *   `send()`.
+ * - `sendBulk()` never throws per recipient — check `result.failed` / each result's `status`.
+ *
  * Delivery-status polling (`getStatus()`) is PROVIDER-DEPENDENT, not a
  * universal capability — the Quick Start's `getStatus()` call is not safe to
  * assume for every bonded provider:

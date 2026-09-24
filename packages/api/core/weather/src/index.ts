@@ -14,13 +14,37 @@
  *
  * @example
  * ```typescript
- * import { setProvider, getCurrent, getForecast } from '@molecule/api-weather'
+ * import { getCurrent, getForecast, getHourly, setProvider } from '@molecule/api-weather'
  * import { provider as openMeteo } from '@molecule/api-weather-open-meteo'
  *
+ * // Startup: bond a provider. Open-Meteo is keyless (no env vars for the public endpoint).
  * setProvider(openMeteo)
- * const now = await getCurrent({ lat: 40.7128, lon: -74.006 })
- * const week = await getForecast({ lat: 40.7128, lon: -74.006 }, 7)
+ *
+ * // Coordinates, not a city name — geocode first if the user typed a place.
+ * const nyc = { lat: 40.7128, lon: -74.006, timezone: 'America/New_York' }
+ *
+ * const now = await getCurrent(nyc)
+ * console.log(`${now.temperatureC}°C, ${now.summary}`) // metric: °C, mm, km/h
+ *
+ * const week = await getForecast(nyc, 7) // days
+ * for (const day of week) {
+ *   console.log(day.date.toDateString(), day.temperatureMinC, day.temperatureMaxC, day.code)
+ * }
+ *
+ * const next12Hours = await getHourly(nyc, 12) // hours
+ * const rainSoon = next12Hours.some((hour) => hour.precipitationMm > 0)
  * ```
+ *
+ * @remarks
+ * - **Bond first.** Every call throws until `setProvider(...)` runs.
+ * - **Metric only.** Values are °C / mm / km/h — convert for imperial display yourself;
+ *   never label `temperatureC` as °F.
+ * - `code` is a WMO 4677 weather code (e.g. `61` = rain), not a provider icon id; `summary`
+ *   is an English label — translate via your own i18n keys keyed on `code` for UI text.
+ * - `getForecast(location, days)` counts DAYS and `getHourly(location, hours)` counts HOURS;
+ *   both return arrays, possibly shorter than requested.
+ * - Proxy weather through YOUR API (this package is server-only) and cache it — do not let
+ *   the browser call the provider or forward arbitrary coordinates unthrottled.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

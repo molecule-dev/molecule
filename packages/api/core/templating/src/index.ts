@@ -9,18 +9,39 @@
  *
  * @example
  * ```typescript
- * import { setProvider, render, compile, renderCompiled } from '@molecule/api-templating'
- * import { provider as handlebars } from '@molecule/api-templating-handlebars'
+ * import {
+ *   compile,
+ *   registerHelper,
+ *   registerPartial,
+ *   render,
+ *   renderCompiled,
+ *   setProvider,
+ * } from '@molecule/api-templating'
+ * import { createProvider } from '@molecule/api-templating-handlebars'
  *
- * setProvider(handlebars)
+ * // Startup: bond the provider, then register helpers/partials BEFORE any render.
+ * setProvider(createProvider({ escape: true }))
+ * registerHelper('upper', (value) => String(value).toUpperCase())
+ * registerPartial('footer', '<p>Sent by {{appName}}</p>')
  *
- * const html = await render('Hello {{name}}!', { name: 'World' })
+ * // Trusted template + untrusted DATA: `{{name}}` is HTML-escaped.
+ * const html = await render('<h1>Hello {{upper name}}</h1>{{> footer}}', {
+ *   name: '<b>ada</b>',
+ *   appName: 'Acme',
+ * })
+ * // '<h1>Hello &lt;B&gt;ADA&lt;/B&gt;</h1><p>Sent by Acme</p>'
  *
- * const compiled = await compile('Hello {{name}}!')
- * const fast = await renderCompiled(compiled, { name: 'Fast' })
+ * // Hot path: compile once, render many.
+ * const greeting = await compile('Hi {{name}}, your order #{{orderId}} shipped.')
+ * const recipients = [
+ *   { name: 'Ada', orderId: 1001 },
+ *   { name: 'Grace', orderId: 1002 },
+ * ]
+ * const bodies = await Promise.all(recipients.map((r) => renderCompiled(greeting, r)))
  * ```
  *
  * @remarks
+ * - **Bond first.** Every function throws until `setProvider(...)` runs.
  * - **User input goes in the DATA argument, never into the template string.** A template is
  *   CODE to the engine (expressions, helpers, partials) — concatenating user text into it is
  *   template injection. `render(trustedTemplate, userData)` is the safe shape.

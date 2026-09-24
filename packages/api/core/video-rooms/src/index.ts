@@ -7,6 +7,9 @@
  * sharing.
  *
  * @remarks
+ * - **Bond first.** Every call throws until `setProvider(...)` runs.
+ * - `createRoom()` does NOT return a join token with the Daily.co bond — call
+ *   `createMeetingToken()` for each participant.
  * - **Rooms are PUBLIC by default.** `privacy` defaults to `'public'` when omitted — anyone
  *   with the room URL can join. For anything user-scoped, create the room with
  *   `privacy: 'private'` and mint short-lived per-user join tokens via
@@ -51,37 +54,42 @@
  *   user's request mints a token, and no unauthenticated caller joins a `private`
  *   room by guessing its `name`/URL without one.
  *
- * @module
  * @example
  * ```typescript
  * import {
- *   setProvider,
- *   createRoom,
  *   createMeetingToken,
+ *   createRoom,
  *   listRecordings,
+ *   setProvider,
  * } from '@molecule/api-video-rooms'
  * import { createProvider } from '@molecule/api-video-rooms-daily-co'
  *
- * // Bond a provider at startup (reads DAILY_CO_API_KEY when config is omitted)
- * setProvider(createProvider())
+ * // Startup. The Daily.co bond THROWS here if DAILY_CO_API_KEY is missing (server-only key).
+ * setProvider(createProvider({ apiKey: process.env.DAILY_CO_API_KEY }))
  *
- * // Create a room
+ * const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000) // Dates, not seconds
  * const room = await createRoom({
  *   name: 'class-101',
- *   privacy: 'private',
+ *   privacy: 'private', // default is PUBLIC — anyone with the URL could join
  *   maxParticipants: 30,
  *   recording: true,
+ *   expiresAt: oneHourFromNow,
  * })
+ * // Persist room.name on your own record.
  *
- * // Issue a join token for a student
- * const token = await createMeetingToken(room.name, {
+ * // One short-lived token PER participant (isOwner only for the host).
+ * const studentToken = await createMeetingToken(room.name, {
  *   userName: 'Ada',
- *   expiresAt: new Date(Date.now() + 60 * 60_000),
+ *   expiresAt: oneHourFromNow,
  * })
+ * // Return { url: room.url, token: studentToken } to that user's client — never the API key.
  *
- * // After the meeting, list recordings
+ * // After the session: recordings (duration in SECONDS; downloadUrl expires — copy it promptly).
  * const recordings = await listRecordings(room.name)
+ * const ready = recordings.filter((recording) => recording.status === 'ready')
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

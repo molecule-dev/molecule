@@ -24,6 +24,11 @@
  *   (identical payloads sign identically). Each delivery carries a stable id header
  *   (`x-webhook-delivery-id` on the HTTP bond) that is the SAME across all retries of one
  *   logical delivery and unique per new event — receivers dedup on it (process each id once).
+ * - **`dispatch(event)` is NOT owner-scoped.** It delivers to every active registration whose
+ *   `events` include that exact name, across all users — dispatching a plain `order.created`
+ *   for one user's order leaks it to every user's endpoint. Put the owner in the event name
+ *   (as in the example) or keep registrations admin-only.
+ * - **Bond first.** Every call throws until `setProvider(...)` runs.
  * - **Scope registrations to their owner.** Persist the returned {@link WebhookRegistration}
  *   id with the owner's `user_id` and scope list/delete by it — an unscoped list/delete is
  *   an IDOR.
@@ -32,18 +37,41 @@
  *
  * @example
  * ```typescript
- * import { setProvider, register, dispatch } from '@molecule/api-webhook'
- * import { createProvider } from '@molecule/api-webhook-http'
- * setProvider(createProvider()) // bond at startup
+ * import { isIP } from 'node:net'
  *
- * // SSRF guard: reject private/link-local/metadata destinations BEFORE registering.
- * if (!isAllowedWebhookUrl(url)) throw new Error('Destination not allowed')
- * const hook = await register(url, ['order.created']) // provider signs deliveries with hook.secret
- * await saveWebhookRow({ id: hook.id, userId: getUserId(res) }) // own it → scope list/delete by user
- * // Share hook.secret with the receiver so they can verify the signature header.
+ * import express from 'express'
  *
- * const results = await dispatch('order.created', { orderId: '123' })
- * console.log(results[0].success) // true
+ * import { dispatch, register, setProvider } from '@molecule/api-webhook'
+ * import { createProvider, isPrivateAddress } from '@molecule/api-webhook-http'
+ *
+ * // Startup: bond the dispatcher (timeout/retryDelay in ms; retryCount = retries after the 1st).
+ * setProvider(createProvider({ timeout: 10_000, retryCount: 3, retryDelay: 2000 }))
+ *
+ * // Registration-time SSRF guard for a friendly 400 (the HTTP bond also blocks at connect).
+ * const isAllowedWebhookUrl = (raw: string): boolean => {
+ *   if (!URL.canParse(raw)) return false
+ *   const url = new URL(raw)
+ *   const host = url.hostname.replace(/^\[|\]$/g, '')
+ *   const isInternal = host === 'localhost' || (isIP(host) !== 0 && isPrivateAddress(host))
+ *   return url.protocol === 'https:' && !isInternal
+ * }
+ *
+ * // dispatch() hits EVERY registration for an event name — scope the name to its owner.
+ * const orderCreatedFor = (userId: string): string => `user.${userId}.order.created`
+ *
+ * const router = express.Router() // mount AFTER your auth middleware sets res.locals.userId
+ * router.post('/webhooks', express.json(), async (req, res) => {
+ *   const url = String(req.body?.url ?? '')
+ *   if (!isAllowedWebhookUrl(url)) return void res.status(400).json({ error: 'URL not allowed' })
+ *   const hook = await register(url, [orderCreatedFor(String(res.locals.userId))])
+ *   // Persist hook.id with the user (registrations are in-memory in this bond). Return the
+ *   // secret ONCE so the receiver can verify the x-webhook-signature HMAC.
+ *   res.status(201).json({ id: hook.id, secret: hook.secret })
+ * })
+ *
+ * // When the event happens for a user — never throws on delivery failure:
+ * const results = await dispatch(orderCreatedFor('user-123'), { orderId: 'ord_123', total: 4999 })
+ * const failed = results.filter((result) => !result.success) // status 0 = network/blocked/timeout
  * ```
  *
  * @e2e

@@ -19,22 +19,42 @@
  *   Vault) so they're never committed. {@link getRequired} throws at startup when unset
  *   (fail fast) — prefer it for anything the app can't run without.
  * - Use {@link validate} at boot to surface every missing/invalid secret at once.
+ * - With NO provider bonded, `get`/`getRequired` silently fall back to `process.env` — a `.env`
+ *   file is only read once `@molecule/api-secrets-env` (or another bond) is wired via
+ *   `setProvider(...)`.
+ * - `getRequired` treats an EMPTY string as missing and throws.
+ * - The env bond lets an already-set `process.env` value WIN over the `.env` file unless
+ *   `createEnvProvider({ override: true })`.
+ * - `logConfigReport` only logs — it never throws. Use `report.ok` / `getRequired` to actually
+ *   stop boot.
  *
  * @example
  * ```typescript
- * import { get, getRequired, validate, COMMON_SECRETS } from '@molecule/api-secrets'
+ * import {
+ *   buildConfigReport,
+ *   getRequired,
+ *   logConfigReport,
+ *   registerSecret,
+ *   setProvider,
+ * } from '@molecule/api-secrets'
+ * import { createEnvProvider } from '@molecule/api-secrets-env'
  *
- * // Get a secret (returns undefined if not set)
- * const apiKey = await get('STRIPE_SECRET_KEY')
+ * // Startup: bond the provider (reads `.env`, then process.env) before any secret lookup.
+ * setProvider(createEnvProvider({ path: '.env' }))
  *
- * // Get a required secret (throws if not set)
- * const dbUrl = await getRequired('DATABASE_URL')
+ * // Declare what this app needs (provider bonds register their own at import time).
+ * registerSecret({
+ *   key: 'GEOCODER_API_KEY',
+ *   description: 'API key for the geocoding service',
+ *   helpUrl: 'https://geocoder.example.com/keys',
+ * })
  *
- * // Validate multiple secrets
- * const results = await validate([
- *   COMMON_SECRETS.DATABASE_URL,
- *   COMMON_SECRETS.STRIPE_SECRET_KEY,
- * ])
+ * // Boot report: one warning per missing REQUIRED secret — it never throws.
+ * const report = logConfigReport(await buildConfigReport(['GEOCODER_API_KEY', 'PORT']))
+ * console.log(report.ok) // false when any required secret is missing
+ *
+ * // Fail fast for anything the app cannot run without (throws when unset or empty).
+ * const geocoderKey = await getRequired('GEOCODER_API_KEY')
  * ```
  *
  * @module
