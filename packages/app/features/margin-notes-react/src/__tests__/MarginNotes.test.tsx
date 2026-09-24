@@ -65,6 +65,17 @@ describe('<MarginNotes>', () => {
     expect(byMol('margin-note-panel-s1').hidden).toBe(false)
   })
 
+  it('a tap shows a tap-kind note even while its switch is off; follow kinds obey theirs', () => {
+    render(withI18n(<MarginNotes {...doc} />))
+    fireEvent.click(byMol('margin-notes-switch-bar-summary'))
+    fireEvent.click(byMol('margin-notes-block-p2'))
+    expect(byMol('margin-note-panel-q1').hidden).toBe(false)
+    expect(byMol('margin-note-gutter-q1').hidden).toBe(true)
+    expect(document.querySelector('[data-mol-id="margin-note-panel-s1"]')).toBeNull()
+    fireEvent.click(byMol('margin-notes-block-p2'))
+    expect(document.querySelector('[data-mol-id="margin-note-panel-q1"]')).toBeNull()
+  })
+
   it('reports switch changes and honours a controlled shownKinds', () => {
     const onChange = vi.fn()
     render(withI18n(<MarginNotes {...doc} shownKinds={['prompt']} onShownKindsChange={onChange} />))

@@ -142,9 +142,14 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
     const ids = rows.find((r) => r.id === readingRow)?.noteIds ?? []
     return ids.filter((id) => !tapOnly.has(notesById.get(id)?.kind ?? ''))
   }, [pinnedBlock, readingRow, blocks, rows, tapOnly, notesById])
+  // A tapped block's tap-kind notes show whatever their switch says: on a phone
+  // the tap is the only way to reach a note about one paragraph (a prompt that
+  // defaults off). Follow-kind notes keep obeying their switch.
+  const inPanel = (note: MarginNote): boolean =>
+    isShown(note) || (pinnedBlock !== null && tapOnly.has(note.kind))
   const panelNotes = panelNoteIds
     .map((id) => notesById.get(id))
-    .filter((n): n is MarginNote => !!n && isShown(n))
+    .filter((n): n is MarginNote => !!n && inPanel(n))
 
   const switches = (placement: 'side' | 'bar'): JSX.Element | null =>
     kinds.length === 0 ? null : (
@@ -174,7 +179,7 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
     return (
       <aside
         key={note.id}
-        hidden={!isShown(note)}
+        hidden={where === 'panel' ? !inPanel(note) : !isShown(note)}
         tabIndex={where === 'gutter' ? 0 : -1}
         data-note-kind={note.kind}
         data-note-emphasis={emphasised ? 'true' : undefined}
