@@ -14,19 +14,27 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
+ * import { registerLocaleModule, t } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
  * import { setClassMap } from '@molecule/app-ui'
  * import { classMap } from '@molecule/app-ui-nativewind'
  * import { Button, Card, CardContent, CardTitle } from '@molecule/app-ui-react-native'
  *
- * // Once at startup, before first render:
+ * // Once at startup, before the first render (NativeWind must also be set up — see @remarks).
  * setClassMap(classMap)
+ * registerLocaleModule(commonLocales) // translations for the `common.*` keys below
  *
- * function Greeting() {
+ * export function InboxCard() {
+ *   const [unread, setUnread] = useState(3)
  *   return (
  *     <Card>
- *       <CardTitle>Hello</CardTitle>
+ *       <CardTitle>{t('common.countUnread', { count: unread }, { defaultValue: '{{count}} unread' })}</CardTitle>
  *       <CardContent>
- *         <Button color="primary" onClick={() => {}}>Tap me</Button>
+ *         <Button color="primary" onClick={() => setUnread(0)}>
+ *           {t('common.markAllRead', undefined, { defaultValue: 'Mark all read' })}
+ *         </Button>
  *       </CardContent>
  *     </Card>
  *   )

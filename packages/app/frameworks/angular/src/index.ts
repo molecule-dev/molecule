@@ -7,55 +7,66 @@
  *
  * @example
  * ```typescript
- * // main.ts — wire concrete providers into Angular DI:
+ * // main.ts
+ * import { AsyncPipe } from '@angular/common'
+ * import { Component, inject } from '@angular/core'
  * import { bootstrapApplication } from '@angular/platform-browser'
- * import { provideMolecule } from '@molecule/app-angular'
+ *
+ * import { MoleculeAuthService, MoleculeThemeService, provideMolecule, t } from '@molecule/app-angular'
  * import { createJWTAuthClient } from '@molecule/app-auth'
- * import { provider as stateProvider } from '@molecule/app-state-zustand'
+ * import {
+ *   registerLocaleModule,
+ *   setProvider as setI18nProvider,
+ *   simpleProvider as i18nProvider,
+ * } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
  * import { provider as themeProvider } from '@molecule/app-theme-css-variables'
  *
- * const authClient = createJWTAuthClient({ baseURL: '/api' })
+ * interface User {
+ *   id: string
+ *   name: string
+ * }
  *
- * bootstrapApplication(AppComponent, {
- *   providers: [
- *     provideMolecule({
- *       state: stateProvider,
- *       auth: authClient,
- *       theme: themeProvider,
- *     }),
- *   ],
- * })
- *
- * // dashboard.component.ts — inject the Molecule services:
- * import { Component, inject } from '@angular/core'
- * import { MoleculeAuthService, MoleculeThemeService, t } from '@molecule/app-angular'
+ * // `t()` translates through the BONDED i18n provider — bond it AND pass it to provideMolecule.
+ * setI18nProvider(i18nProvider)
+ * registerLocaleModule(commonLocales) // translations for the `auth.*` / `theme.*` keys below
+ * const authClient = createJWTAuthClient<User>({ baseURL: '/api' })
  *
  * @Component({
- *   selector: 'app-dashboard',
+ *   selector: 'app-root',
+ *   imports: [AsyncPipe],
  *   template: `
- *     <div [style.background]="(theme$ | async)?.colors.background">
- *       <h1>{{ t('dashboard.welcome', {}, { defaultValue: 'Welcome!' }) }}</h1>
- *       <p>{{ (user$ | async)?.name }}</p>
- *       <button (click)="logout()">
- *         {{ t('auth.logout', {}, { defaultValue: 'Log out' }) }}
+ *     <main [attr.data-theme]="mode$ | async">
+ *       <h1>
+ *         @if (isAuthenticated$ | async) {
+ *           {{ t('auth.login.signInTitle', undefined, { defaultValue: 'Welcome back' }) }}
+ *         } @else {
+ *           {{ t('auth.login.logIn', undefined, { defaultValue: 'Log in' }) }}
+ *         }
+ *       </h1>
+ *       <button type="button" data-mol-id="toggle-theme" (click)="toggleTheme()">
+ *         {{ t('theme.toggle', undefined, { defaultValue: 'Toggle theme' }) }}
  *       </button>
- *     </div>
+ *     </main>
  *   `,
  * })
- * class DashboardComponent {
+ * class AppComponent {
  *   // Expose the reactive t() so template bindings re-evaluate on locale change.
  *   protected readonly t = t
+ *   private readonly auth: MoleculeAuthService<User> = inject(MoleculeAuthService)
+ *   private readonly theme = inject(MoleculeThemeService)
+ *   protected readonly isAuthenticated$ = this.auth.isAuthenticated$
+ *   protected readonly mode$ = this.theme.mode$ // Observable<'light' | 'dark'>
  *
- *   private authService = inject(MoleculeAuthService)
- *   private themeService = inject(MoleculeThemeService)
- *
- *   user$ = this.authService.user$     // Observable<UserProfile | null>
- *   theme$ = this.themeService.theme$  // Observable<Theme>
- *
- *   logout(): void {
- *     void this.authService.logout()
+ *   toggleTheme(): void {
+ *     this.theme.toggleTheme()
  *   }
  * }
+ *
+ * // index.html contains <app-root></app-root>.
+ * await bootstrapApplication(AppComponent, {
+ *   providers: [provideMolecule({ auth: authClient, theme: themeProvider, i18n: i18nProvider })],
+ * })
  * ```
  *
  * @remarks
@@ -69,6 +80,14 @@
  *   renders once and goes stale. The signal is bumped by `provideMolecule` —
  *   pass your `i18n` provider there (or call `bumpLocaleVersion()` from your
  *   own locale-change hook) for the reactivity to fire.
+ * - **`t()` does NOT read the `i18n` you pass to `provideMolecule`.** It translates through
+ *   the provider bonded in `@molecule/app-i18n` (`setProvider(...)`); `provideMolecule({ i18n })`
+ *   only subscribes that provider's `onLocaleChange` to re-render. Bond and pass the SAME
+ *   instance, or locale switches re-render with the wrong translations.
+ * - Services are `providedIn: 'root'` but inject a token (`AUTH_CLIENT`, `THEME_PROVIDER`, ...):
+ *   `inject(MoleculeAuthService)` fails with a NullInjectorError unless `auth` was provided.
+ *   They expose RxJS observables (`user$`, `isAuthenticated$`, `mode$`) — render them with
+ *   `AsyncPipe` (add it to the standalone component's `imports`).
  * - `provideMolecule` only registers the providers you pass; injecting a
  *   Molecule service whose token was never provided fails at DI time.
  *   Per-concern helpers (`provideAuth`, `provideTheme`, ...) exist for

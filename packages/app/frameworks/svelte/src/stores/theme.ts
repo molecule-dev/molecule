@@ -46,6 +46,8 @@ export function createThemeStores(): ThemeStores & { colors: Readable<Theme['col
 
   // Main theme store
   const theme: Readable<Theme> = readable(provider.getTheme(), (set: (value: Theme) => void) => {
+    // Re-sync on (re)subscribe: `readable` keeps its last value while unsubscribed.
+    set(provider.getTheme())
     return provider.subscribe(() => {
       set(provider.getTheme())
     })
@@ -55,6 +57,7 @@ export function createThemeStores(): ThemeStores & { colors: Readable<Theme['col
   const themeName: Readable<string> = readable(
     provider.getTheme().name,
     (set: (value: string) => void) => {
+      set(provider.getTheme().name)
       return provider.subscribe(() => {
         set(provider.getTheme().name)
       })
@@ -121,6 +124,8 @@ export function createThemeColorsStore(theme: Readable<Theme>): Readable<Theme['
  */
 export function createThemeStoresFromProvider(provider: ThemeProvider): ThemeStores {
   const theme: Readable<Theme> = readable(provider.getTheme(), (set: (value: Theme) => void) => {
+    // Re-sync on (re)subscribe: `readable` keeps its last value while unsubscribed.
+    set(provider.getTheme())
     return provider.subscribe(() => {
       set(provider.getTheme())
     })
@@ -129,6 +134,7 @@ export function createThemeStoresFromProvider(provider: ThemeProvider): ThemeSto
   const themeName: Readable<string> = readable(
     provider.getTheme().name,
     (set: (value: string) => void) => {
+      set(provider.getTheme().name)
       return provider.subscribe(() => {
         set(provider.getTheme().name)
       })

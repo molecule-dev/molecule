@@ -25,29 +25,33 @@
  *
  * @example
  * ```tsx
- * // src/main.tsx
+ * // src/main.tsx — the whole entry point of a scaffolded React app.
  * import {
  *   bootstrapApp,
  *   createDefaultAuthClientWithHttpSync,
  *   setupAllDefaultBonds,
  * } from '@molecule/app-bonds-default-react'
- * // Optional providers come from their own subpath — see @remarks.
- * import { setupAppCodeEditorMonaco } from '@molecule/app-bonds-default-react/optional/code-editor-monaco.js'
+ * // Optional providers come from their own subpath — only for pairs the app installs.
+ * import { setupAppKeyboardShortcutsHotkeys } from '@molecule/app-bonds-default-react/optional/keyboard-shortcuts-hotkeys.js'
+ * import { registerLocaleModule, t } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
  *
- * import { App } from './App.js'
- * import { authConfig } from './config.js'
+ * function App() {
+ *   return <h1>{t('auth.login.signInTitle', undefined, { defaultValue: 'Welcome back' })}</h1>
+ * }
  *
- * const { authClient, setupAuthDefault } =
- *   createDefaultAuthClientWithHttpSync(authConfig)
+ * const { authClient, setupAuthDefault } = createDefaultAuthClientWithHttpSync({ baseURL: '/api' })
  *
+ * // Mounts <App /> on the existing `<div id="root">` in index.html.
  * bootstrapApp({
  *   App,
  *   authClient,
  *   // Async so optional async bonds are AWAITED before the first render.
  *   setupProviders: async () => {
  *     setupAllDefaultBonds()
+ *     registerLocaleModule(commonLocales) // translations for the `common.*` / `auth.*` keys
  *     setupAuthDefault()
- *     await setupAppCodeEditorMonaco() // only if the app uses the code editor
+ *     await setupAppKeyboardShortcutsHotkeys()
  *   },
  * })
  * ```
@@ -75,6 +79,9 @@
  *   `createDefaultAuthClientWithHttpSync` (or `...WithFetchClient` to also
  *   bond a fetch client with a `baseURL`) — otherwise those endpoints return
  *   401 after a page reload or token refresh.
+ * - `bootstrapApp()` returns `void`, not a promise, and needs a `<div id="root">` already in
+ *   the DOM (`index.html`). Do NOT call `createRoot(...).render()` yourself as well — that
+ *   mounts the app twice.
  * - `getDefaultThemeProvider()` constructs lazily because the CSS-variables
  *   theme provider touches `localStorage` at construction — importing this
  *   package is SSR/test-safe, but only CALL it in a DOM environment. Apps

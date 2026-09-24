@@ -9,36 +9,54 @@
  *
  * @example
  * ```tsx
- * import { MoleculeProvider, createAuth, createTheme } from '@molecule/app-solid'
  * import { Show } from 'solid-js'
+ * import { render } from 'solid-js/web'
+ *
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
+ * import { createAuth, createI18n, createTheme, MoleculeProvider } from '@molecule/app-solid'
  * import { provider as stateProvider } from '@molecule/app-state-zustand'
  * import { provider as themeProvider } from '@molecule/app-theme-css-variables'
- * import { createJWTAuthClient } from '@molecule/app-auth'
  *
- * const authClient = createJWTAuthClient({ baseURL: '/api' })
+ * interface User {
+ *   id: string
+ *   name: string
+ * }
  *
- * function UserProfile() {
- *   const { user, isAuthenticated, logout } = createAuth<{ name?: string }>()
- *   const { theme, toggleTheme } = createTheme()
+ * registerLocaleModule(commonLocales) // translations for the `auth.*` / `theme.*` keys below
+ * const authClient = createJWTAuthClient<User>({ baseURL: '/api' })
  *
+ * function Dashboard() {
+ *   // Primitives return accessors — call them: isAuthenticated(), user(), mode().
+ *   const { user, isAuthenticated } = createAuth<User>()
+ *   const { t } = createI18n()
+ *   const { mode, toggleTheme } = createTheme()
  *   return (
- *     <Show when={isAuthenticated()} fallback={<a href="/login">Log in</a>}>
- *       <div style={{ background: theme().colors.background }}>
- *         <h1>Welcome, {user()?.name}</h1>
- *         <button onClick={toggleTheme}>Toggle Theme</button>
- *         <button onClick={() => logout()}>Logout</button>
- *       </div>
- *     </Show>
+ *     <main data-theme={mode()}>
+ *       <Show
+ *         when={isAuthenticated()}
+ *         fallback={<h1>{t('auth.login.logIn', undefined, { defaultValue: 'Log in' })}</h1>}
+ *       >
+ *         <h1>{t('auth.modal.loggedInAs', { who: user()?.name ?? '' }, { defaultValue: 'Logged in as {{who}}' })}</h1>
+ *       </Show>
+ *       <button type="button" data-mol-id="toggle-theme" onClick={toggleTheme}>
+ *         {t('theme.toggle', undefined, { defaultValue: 'Toggle theme' })}
+ *       </button>
+ *     </main>
  *   )
  * }
  *
  * function App() {
  *   return (
- *     <MoleculeProvider config={{ state: stateProvider, auth: authClient, theme: themeProvider }}>
- *       <UserProfile />
+ *     <MoleculeProvider config={{ state: stateProvider, auth: authClient, theme: themeProvider, i18n: getI18nProvider() }}>
+ *       <Dashboard />
  *     </MoleculeProvider>
  *   )
  * }
+ *
+ * // index.html contains <div id="root"></div>.
+ * render(() => <App />, document.getElementById('root') as HTMLElement)
  * ```
  *
  * @remarks
@@ -49,6 +67,11 @@
  * - Primitive results are Solid accessors — call them (`isAuthenticated()`, `theme()`,
  *   `user()`), never read them bare; a bare `theme.colors` is a type error, and a bare
  *   `isAuthenticated` is always truthy.
+ * - **`createI18n().t` translates through the `i18n` in `config`** and re-renders on
+ *   `setLocale()`. The plain `t` from `@molecule/app-i18n` reads the BONDED provider instead and
+ *   is not reactive inside Solid components.
+ * - `createTheme().toggleTheme()` calls the provider's `toggleMode()` (light ↔ dark), NOT a cycle
+ *   through `getThemes()`; use `setTheme(name)` to pick a named theme.
  * - Call primitives at component setup (top level of the component function), not inside JSX
  *   callbacks, so subscriptions are established once.
  *

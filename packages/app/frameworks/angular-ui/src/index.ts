@@ -12,38 +12,74 @@
  * compose them from ClassMap classes via `getClassMap()`.
  *
  * @example
- * ```ts
+ * ```typescript
+ * // main.ts
  * import { Component } from '@angular/core'
- * import { setClassMap } from '@molecule/app-ui'
- * import { classMap } from '@molecule/app-ui-tailwind'
- * import { MoleculeButton, MoleculeInput } from '@molecule/app-ui-angular'
+ * import { bootstrapApplication } from '@angular/platform-browser'
  *
- * // Once at startup, before the first component renders:
+ * import { registerLocaleModule, t } from '@molecule/app-i18n'
+ * import { setIconSet } from '@molecule/app-icons'
+ * import { iconSet } from '@molecule/app-icons-molecule'
+ * import * as commonLocales from '@molecule/app-locales-common'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { MoleculeAlert, MoleculeButton, MoleculeInput } from '@molecule/app-ui-angular'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ *
+ * // Once, BEFORE bootstrapApplication: components throw without a ClassMap, and
+ * // mol-alert / mol-input render icons from the bonded icon set.
  * setClassMap(classMap)
+ * setIconSet(iconSet)
+ * registerLocaleModule(commonLocales) // translations for the `form.*` / `common.*` keys below
  *
  * @Component({
- *   selector: 'app-save-panel',
- *   standalone: true,
- *   imports: [MoleculeButton, MoleculeInput],
+ *   selector: 'app-root',
+ *   imports: [MoleculeAlert, MoleculeButton, MoleculeInput],
  *   template: `
- *     <mol-input placeholder="Name" [value]="name" (handleInput)="onName($event)"></mol-input>
- *     <mol-button color="primary" [loading]="saving" (handleClick)="save()">Save</mol-button>
+ *     <mol-input [label]="nameLabel" [value]="name" (handleInput)="onName($event)"></mol-input>
+ *     <mol-button color="primary" testId="save-profile" (handleClick)="save()">{{ saveLabel }}</mol-button>
+ *     @if (savedName) {
+ *       <mol-alert status="success">{{ savedMessage }}</mol-alert>
+ *     }
  *   `,
  * })
- * class SavePanel {
+ * class ProfileForm {
  *   name = ''
- *   saving = false
+ *   savedName = ''
+ *
+ *   get nameLabel(): string {
+ *     return t('form.displayName', undefined, { defaultValue: 'Display name' })
+ *   }
+ *   get saveLabel(): string {
+ *     return t('common.saveProfile', undefined, { defaultValue: 'Save profile' })
+ *   }
+ *   get savedMessage(): string {
+ *     return t('common.profileSavedPeriod', undefined, { defaultValue: 'Profile saved.' })
+ *   }
+ *
+ *   // Outputs emit the raw DOM event — read the value from its target.
  *   onName(event: Event): void {
  *     this.name = (event.target as HTMLInputElement).value
  *   }
- *   save(): void {}
+ *   save(): void {
+ *     this.savedName = this.name
+ *   }
  * }
+ *
+ * // index.html contains <app-root></app-root>.
+ * await bootstrapApplication(ProfileForm)
  * ```
  *
  * @remarks
  * - **`setClassMap()` must run before any component renders** — every component resolves its
  *   classes through `getClassMap()`, which THROWS until a ClassMap bond (e.g.
  *   `@molecule/app-ui-tailwind`) is set. Call it in `main.ts` before `bootstrapApplication`.
+ * - **`mol-alert` (status icon) and `mol-input` (`clearable`) render icons** through
+ *   `@molecule/app-icons` — call `setIconSet(iconSet)` (e.g. `@molecule/app-icons-molecule`)
+ *   at startup too, or they throw on first render.
+ * - **Known gap: those icons do not currently show.** `mol-alert`, `mol-toast` and the `mol-input`
+ *   clear button bind the icon SVG STRING to `[innerHTML]`, so Angular's sanitizer strips the
+ *   `<svg>` (dev console: "sanitizing HTML stripped some content"); only `mol-modal`'s close
+ *   icon (which uses `DomSanitizer`) renders. The text, status classes and outputs work.
  * - Components are standalone — add them to the `imports` array of the consuming component or
  *   route; there is no NgModule.
  * - Event outputs are `handle*`, not the DOM names: `(handleClick)` on `mol-button`,

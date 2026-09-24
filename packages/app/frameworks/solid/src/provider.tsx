@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { JSX, ParentComponent } from 'solid-js'
+import { type Context, createComponent, type JSX, type ParentComponent } from 'solid-js'
 
 import {
   AuthContext,
@@ -26,15 +26,15 @@ import type { MoleculeConfig } from './types.js'
  * @example
  * ```tsx
  * import { MoleculeProvider } from '@molecule/app-solid'
- * import { createZustandProvider } from '@molecule/app-state-zustand'
- * import { createJwtAuthClient } from '@molecule/app-auth-jwt'
+ * import { provider as stateProvider } from '@molecule/app-state-zustand'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
  *
  * function App() {
  *   return (
  *     <MoleculeProvider
  *       config={{
- *         state: createZustandProvider(),
- *         auth: createJwtAuthClient({ baseUrl: '/api' }),
+ *         state: stateProvider,
+ *         auth: createJWTAuthClient({ baseURL: '/api' }),
  *       }}
  *     >
  *       <MyApp />
@@ -47,57 +47,33 @@ export const MoleculeProvider: ParentComponent<{ config: MoleculeConfig }> = (pr
   // Build nested providers lazily — children must NOT be evaluated until all
   // providers are in the component tree, otherwise child components that call
   // useContext will find undefined (Solid evaluates children eagerly).
+  //
+  // Written with `createComponent` (exactly what the Solid compiler emits for
+  // `<Ctx.Provider value={v}>{inner()}</Ctx.Provider>`) rather than JSX, so this
+  // module is plain JavaScript and loads without the Solid JSX transform.
   let render: () => JSX.Element = () => props.children as JSX.Element
 
-  if (props.config.logger) {
+  const wrap = <T,>(ctx: Context<T | undefined>, value: () => T): void => {
     const inner = render
-    render = () => (
-      <LoggerContext.Provider value={props.config.logger!}>{inner()}</LoggerContext.Provider>
-    )
+    render = () =>
+      createComponent(ctx.Provider, {
+        get value() {
+          return value()
+        },
+        get children() {
+          return inner()
+        },
+      })
   }
 
-  if (props.config.storage) {
-    const inner = render
-    render = () => (
-      <StorageContext.Provider value={props.config.storage!}>{inner()}</StorageContext.Provider>
-    )
-  }
-
-  if (props.config.http) {
-    const inner = render
-    render = () => <HttpContext.Provider value={props.config.http!}>{inner()}</HttpContext.Provider>
-  }
-
-  if (props.config.i18n) {
-    const inner = render
-    render = () => <I18nContext.Provider value={props.config.i18n!}>{inner()}</I18nContext.Provider>
-  }
-
-  if (props.config.router) {
-    const inner = render
-    render = () => (
-      <RouterContext.Provider value={props.config.router!}>{inner()}</RouterContext.Provider>
-    )
-  }
-
-  if (props.config.theme) {
-    const inner = render
-    render = () => (
-      <ThemeContext.Provider value={props.config.theme!}>{inner()}</ThemeContext.Provider>
-    )
-  }
-
-  if (props.config.auth) {
-    const inner = render
-    render = () => <AuthContext.Provider value={props.config.auth!}>{inner()}</AuthContext.Provider>
-  }
-
-  if (props.config.state) {
-    const inner = render
-    render = () => (
-      <StateContext.Provider value={props.config.state!}>{inner()}</StateContext.Provider>
-    )
-  }
+  if (props.config.logger) wrap(LoggerContext, () => props.config.logger!)
+  if (props.config.storage) wrap(StorageContext, () => props.config.storage!)
+  if (props.config.http) wrap(HttpContext, () => props.config.http!)
+  if (props.config.i18n) wrap(I18nContext, () => props.config.i18n!)
+  if (props.config.router) wrap(RouterContext, () => props.config.router!)
+  if (props.config.theme) wrap(ThemeContext, () => props.config.theme!)
+  if (props.config.auth) wrap(AuthContext, () => props.config.auth!)
+  if (props.config.state) wrap(StateContext, () => props.config.state!)
 
   return render()
 }

@@ -85,9 +85,10 @@ export function useTranslation(): UseTranslationReturn {
   const locales = computed(() => currentLocales.value)
 
   // Translation function (reactive - will re-render on locale or translation change)
-  const t = (key: string, values?: InterpolationValues): string => {
+  const t: I18nProvider['t'] = (key, values, options) => {
     void translationVersion.value
-    return provider.t(key, values)
+    // Forward `options` too — dropping them silently lost every `defaultValue`.
+    return options === undefined ? provider.t(key, values) : provider.t(key, values, options)
   }
 
   // Actions
@@ -115,7 +116,11 @@ export function useTranslation(): UseTranslationReturn {
  */
 export function useT() {
   const provider = useI18nProvider()
-  return (key: string, values?: InterpolationValues) => provider.t(key, values)
+  return (
+    key: string,
+    values?: InterpolationValues,
+    options?: Parameters<I18nProvider['t']>[2],
+  ): string => (options === undefined ? provider.t(key, values) : provider.t(key, values, options))
 }
 
 /**

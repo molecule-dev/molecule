@@ -59,6 +59,9 @@ export function createAuthStores<T = unknown>(): AuthStores<T> & {
   const state: Readable<AuthState<T>> = readable(
     client.getState(),
     (set: (value: AuthState<T>) => void) => {
+      // Re-sync on (re)subscribe: `readable` keeps its last value while it has no
+      // subscribers, so a login that happened meanwhile would otherwise read stale.
+      set(client.getState())
       return client.onAuthChange(() => {
         set(client.getState())
       })
@@ -113,6 +116,9 @@ export function createAuthStoresFromClient<T = unknown>(client: AuthClient<T>): 
   const state: Readable<AuthState<T>> = readable(
     client.getState(),
     (set: (value: AuthState<T>) => void) => {
+      // Re-sync on (re)subscribe: `readable` keeps its last value while it has no
+      // subscribers, so a login that happened meanwhile would otherwise read stale.
+      set(client.getState())
       return client.onAuthChange(() => {
         set(client.getState())
       })

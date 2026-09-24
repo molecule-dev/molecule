@@ -8,32 +8,50 @@
  *
  * @example
  * ```tsx
- * import { MoleculeProvider, useAuth, useAppState, useSafeArea } from '@molecule/app-react-native'
- * import { SafeAreaProvider } from 'react-native-safe-area-context'
- * import { View } from 'react-native'
- * import { provider as stateProvider } from '@molecule/app-state-zustand'
  * import { createJWTAuthClient } from '@molecule/app-auth'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
+ * import { MoleculeProvider, useAppState, useAuth, useSafeArea, useTranslation } from '@molecule/app-react-native'
+ * import { provider as stateProvider } from '@molecule/app-state-zustand'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-nativewind'
+ * import { Alert, Container } from '@molecule/app-ui-react-native'
  *
- * const authClient = createJWTAuthClient({ baseURL: 'https://api.example.com' })
+ * // Once at startup, before the first render.
+ * setClassMap(classMap)
+ * registerLocaleModule(commonLocales) // translations for the `auth.*` keys below
  *
- * function Shell() {
- *   const { isAuthenticated } = useAuth()
+ * interface User {
+ *   id: string
+ *   name: string
+ * }
+ *
+ * const authClient = createJWTAuthClient<User>({ baseURL: 'https://api.example.com' })
+ *
+ * function HomeScreen() {
+ *   const { user, isAuthenticated } = useAuth<User>()
  *   const { isActive } = useAppState()
  *   const insets = useSafeArea()
+ *   const { t } = useTranslation()
+ *
  *   return (
- *     <View style={{ paddingTop: insets.top }}>
- *       {isAuthenticated && isActive ? <View /> : null}
- *     </View>
+ *     <Container style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+ *       <Alert status={isActive ? 'info' : 'warning'}>
+ *         {isAuthenticated
+ *           ? t('auth.modal.loggedInAs', { who: user?.name ?? '' }, { defaultValue: 'Logged in as {{who}}' })
+ *           : t('auth.login.logIn', undefined, { defaultValue: 'Log in' })}
+ *       </Alert>
+ *     </Container>
  *   )
  * }
  *
- * function App() {
+ * // Register as the root component. Wrap it in `<SafeAreaProvider>` from
+ * // `react-native-safe-area-context` in the real app, or the insets stay 0.
+ * export function App() {
  *   return (
- *     <SafeAreaProvider>
- *       <MoleculeProvider state={stateProvider} auth={authClient}>
- *         <Shell />
- *       </MoleculeProvider>
- *     </SafeAreaProvider>
+ *     <MoleculeProvider state={stateProvider} auth={authClient} i18n={getI18nProvider()}>
+ *       <HomeScreen />
+ *     </MoleculeProvider>
  *   )
  * }
  * ```
@@ -46,6 +64,10 @@
  *   the root; without it — or without the library installed — it silently returns zero insets
  *   rather than throwing, so a notch-overlapped header means missing provider, not a bug in the hook.
  * - `useBackHandler` only fires on Android; iOS has no hardware back button.
+ * - `useAppState()` reports `'active'` (and `isActive: true`) wherever `react-native`'s
+ *   `AppState` is unavailable (web, tests) — it never throws, so it cannot detect a missing RN.
+ * - **Not a component library.** This package ships hooks + providers only; the UI in the
+ *   example comes from `@molecule/app-ui-react-native`.
  * - For components/styling pair this with `@molecule/app-ui-react-native`, whose ClassMap
  *   styling requires the NativeWind setup (`@molecule/app-ui-nativewind`) — see that package's docs.
  *

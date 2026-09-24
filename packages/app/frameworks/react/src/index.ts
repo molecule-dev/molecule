@@ -8,39 +8,48 @@
  *
  * @example
  * ```tsx
- * import { MoleculeProvider, useAuth, useTheme, useTranslation } from '@molecule/app-react'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
+ * import { MoleculeProvider, useAuth, useStore, useTheme, useTranslation } from '@molecule/app-react'
  * import { provider as stateProvider } from '@molecule/app-state-zustand'
  * import { provider as themeProvider } from '@molecule/app-theme-css-variables'
- * import { provider as i18nProvider } from '@molecule/app-i18n-react-i18next'
- * import { createJWTAuthClient } from '@molecule/app-auth'
  *
- * const authClient = createJWTAuthClient({ baseURL: '/api' })
+ * interface User {
+ *   id: string
+ *   name: string
+ * }
+ *
+ * // Create clients/stores ONCE at module scope, never inside a component.
+ * registerLocaleModule(commonLocales) // translations for the `common.*` / `auth.*` keys below
+ * const authClient = createJWTAuthClient<User>({ baseURL: '/api' })
+ * const inbox = stateProvider.createStore({ initialState: { unread: 3 } })
  *
  * function Dashboard() {
- *   const { user, isAuthenticated, logout } = useAuth<{ name?: string }>()
+ *   const { user, isAuthenticated } = useAuth<User>()
  *   const { t } = useTranslation()
- *   const { theme, toggleTheme } = useTheme()
+ *   const { mode, toggleTheme } = useTheme()
+ *   const unread = useStore(inbox, { selector: (state) => state.unread })
  *
- *   if (!isAuthenticated) {
- *     return <p>{t('auth.required', undefined, { defaultValue: 'Please log in.' })}</p>
- *   }
  *   return (
- *     <div style={{ background: theme.colors.background }}>
- *       <h1>{t('greeting.welcome', { name: user?.name }, { defaultValue: 'Welcome, {{name}}!' })}</h1>
+ *     <main data-theme={mode}>
+ *       <h1>
+ *         {isAuthenticated
+ *           ? t('auth.modal.loggedInAs', { who: user?.name ?? '' }, { defaultValue: 'Logged in as {{who}}' })
+ *           : t('auth.login.logIn', undefined, { defaultValue: 'Log in' })}
+ *       </h1>
+ *       <p>{t('common.countUnread', { count: unread }, { defaultValue: '{{count}} unread' })}</p>
+ *       <button onClick={() => inbox.setState({ unread: 0 })}>
+ *         {t('common.markAllRead', undefined, { defaultValue: 'Mark all read' })}
+ *       </button>
  *       <button onClick={toggleTheme}>{t('theme.toggle', undefined, { defaultValue: 'Toggle theme' })}</button>
- *       <button onClick={() => logout()}>{t('auth.logout', undefined, { defaultValue: 'Log out' })}</button>
- *     </div>
+ *     </main>
  *   )
  * }
  *
- * function App() {
+ * export function App() {
  *   return (
- *     <MoleculeProvider
- *       state={stateProvider}
- *       auth={authClient}
- *       theme={themeProvider}
- *       i18n={i18nProvider}
- *     >
+ *     <MoleculeProvider state={stateProvider} auth={authClient} theme={themeProvider} i18n={getI18nProvider()}>
  *       <Dashboard />
  *     </MoleculeProvider>
  *   )
@@ -56,6 +65,11 @@
  *   "useXProvider must be used within an XProvider" means the matching prop (or individual
  *   provider component) is missing ABOVE the component that calls the hook — fix the wiring,
  *   never wrap the hook in try/catch.
+ * - **`useStore(store, { selector })` takes a `Store` instance, not the provider.** Create it
+ *   once at module scope (`stateProvider.createStore({ initialState })`, or `createStore()` from
+ *   `@molecule/app-state` after its `setProvider()`); creating it inside a component makes a
+ *   fresh, empty store on every render.
+ * - `createJWTAuthClient<User>()` requires `User` to extend `UserProfile` (it must have `id`).
  * - **Locale-reactive text requires the hook.** Inside components always read `t` from
  *   `useTranslation()` (or `useT()`); it re-renders on `onLocaleChange` — even when
  *   `addTranslations()` only adds keys for the current locale. Calling the raw `t()` import from
