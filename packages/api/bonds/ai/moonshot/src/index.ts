@@ -18,6 +18,33 @@
  * `reasoning_effort`. Note: on kimi-k2.6 even `minimal` produces ~1000 chars of reasoning
  * per turn (~5x slower than `disabled`, but more reliable for complex multi-step tasks).
  *
+ * - **Bond it by NAME: `setProvider('moonshot', createProvider(...))`** from `@molecule/api-ai`.
+ *   The first named provider also becomes the default for `requireProvider()`; once you bond a
+ *   SECOND named provider, `requireProvider()` throws as ambiguous — select with
+ *   `getProviderByName('moonshot')` instead. Importing this package wires nothing by itself.
+ * - Default model is `kimi-k3` (override with `defaultModel` or per-call `params.model`).
+ *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-moonshot'
+ *
+ * // Startup (server only): bond by name. The key comes from the server env.
+ * setProvider('moonshot', createProvider({ apiKey: process.env.MOONSHOT_API_KEY }))
+ *
+ * // In a request handler: stream the reply (forward each chunk to the client, e.g. over SSE).
+ * let reply = ''
+ * for await (const event of requireProvider().chat({
+ *   messages: [{ role: 'user', content: 'What is 2 + 2?' }],
+ *   maxTokens: 256,
+ * })) {
+ *   if (event.type === 'text') reply += event.content
+ *   if (event.type === 'error') throw new Error(event.message) // failures are events, not throws
+ *   if (event.type === 'done') console.log(event.usage) // { inputTokens: 14, outputTokens: 8 }
+ * }
+ * console.log(reply) // '2 + 2 = 4.'
+ * ```
+ *
  * @module
  */
 

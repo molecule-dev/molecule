@@ -10,6 +10,46 @@
  * malformed tool schema) gets its own non-retryable message distinct from the generic
  * "AI service error. Please try again." used for retryable failures.
  *
+ * - **Bond it by NAME: `setProvider('local', createProvider(...))`** from `@molecule/api-ai`.
+ *   The first named provider also becomes the default for `requireProvider()`; once you bond a
+ *   SECOND named provider, `requireProvider()` throws as ambiguous — select with
+ *   `getProviderByName('local')` instead. Importing this package wires nothing by itself.
+ * - **`baseUrl` MUST include the version segment** (`http://localhost:11434/v1`, not
+ *   `http://localhost:11434`) — the request goes to `${baseUrl}/chat/completions`. Resolution:
+ *   `baseUrl` → `LOCAL_AI_BASE_URL` → `OLLAMA_BASE_URL` → `http://localhost:11434/v1`.
+ * - The config key for the default model is `model` (NOT `defaultModel`); it falls back to
+ *   `LOCAL_AI_MODEL`, then `llama3.1`. The model must already be pulled on the server
+ *   (e.g. `ollama pull llama3.1`) — this bond does not download models.
+ * - No API key is required: the `Authorization` header is sent only when `apiKey` /
+ *   `LOCAL_AI_API_KEY` is set, and a missing key never throws.
+ *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-local'
+ *
+ * // Startup (server only): bond by name. Points at a local Ollama server by default.
+ * setProvider(
+ *   'local',
+ *   createProvider({
+ *     baseUrl: process.env.LOCAL_AI_BASE_URL ?? 'http://localhost:11434/v1',
+ *     model: process.env.LOCAL_AI_MODEL ?? 'llama3.1',
+ *   }),
+ * )
+ *
+ * // In a request handler: stream the reply (forward each chunk to the client, e.g. over SSE).
+ * let reply = ''
+ * for await (const event of requireProvider().chat({
+ *   messages: [{ role: 'user', content: 'What is 2 + 2?' }],
+ *   maxTokens: 256,
+ * })) {
+ *   if (event.type === 'text') reply += event.content
+ *   if (event.type === 'error') throw new Error(event.message) // failures are events, not throws
+ *   if (event.type === 'done') console.log(event.usage) // { inputTokens: 14, outputTokens: 8 }
+ * }
+ * console.log(reply) // '2 + 2 = 4.'
+ * ```
+ *
  * @module
  */
 

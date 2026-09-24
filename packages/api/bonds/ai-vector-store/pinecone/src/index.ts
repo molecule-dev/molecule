@@ -6,11 +6,28 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/api-ai-vector-store'
- * import { provider } from '@molecule/api-ai-vector-store-pinecone'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-vector-store'
+ * import { createProvider } from '@molecule/api-ai-vector-store-pinecone'
  *
- * setProvider(provider) // at startup — lazy; reads PINECONE_API_KEY on first use
- * // or pass explicit config: setProvider(createProvider({ apiKey }))
+ * // Startup (server only): the key comes from the server env.
+ * setProvider(
+ *   createProvider({ apiKey: process.env.PINECONE_API_KEY, cloud: 'aws', region: 'us-east-1' }),
+ * )
+ *
+ * const store = requireProvider()
+ * // Create ONCE at provisioning time — creates serverless index `mol-docs` and waits until ready.
+ * await store.createCollection({ name: 'docs', dimension: 3, metric: 'cosine' })
+ * await store.upsert({
+ *   collection: 'docs',
+ *   records: [
+ *     { id: 'billing', embedding: [0.9, 0.1, 0], metadata: { topic: 'billing' }, content: 'Invoices' },
+ *     { id: 'login', embedding: [0, 0.2, 0.9], metadata: { topic: 'auth' }, content: 'Reset password' },
+ *   ],
+ * })
+ *
+ * // In real code the query vector comes from `@molecule/api-ai-embeddings` `embedQuery()`.
+ * const hits = await store.query({ collection: 'docs', embedding: [0, 0.1, 1], topK: 1 })
+ * console.log(hits[0]?.record.id, hits[0]?.record.content, hits[0]?.score) // 'login' 'Reset password' 0.99
  * ```
  *
  * @remarks
@@ -22,6 +39,15 @@
  *   regions; existing indexes are never moved). With `waitUntilReady` (default `true`)
  *   `createCollection` blocks until the index is live, which can take ~a minute — create
  *   collections at startup/provisioning time, not inside request handlers.
+ * - `createCollection` is NOT idempotent — Pinecone rejects creating an index name that
+ *   already exists. Collection names become index names (`mol-<name>`), so use lowercase
+ *   letters, digits and hyphens only (no underscores/uppercase).
+ * - Pinecone is eventually consistent: a `query` right after `upsert` may not see the new
+ *   records yet. Upserts are sent in batches of 100.
+ * - Metadata values must be string / number / boolean / string[] (no nested objects or
+ *   null); `content` is stored under the `_content` metadata key and stripped on read.
+ * - `score` is normalised so HIGHER is closer: cosine and dot product are returned as-is,
+ *   euclidean → `1 / (1 + distance)`.
  *
  * @module
  */

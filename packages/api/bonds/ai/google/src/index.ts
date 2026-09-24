@@ -10,6 +10,36 @@
  * malformed tool schema) gets its own non-retryable message distinct from the generic
  * "AI service error. Please try again." used for retryable failures.
  *
+ * - **Bond it by NAME: `setProvider('google', createProvider(...))`** from `@molecule/api-ai`.
+ *   The first named provider also becomes the default for `requireProvider()`; once you bond a
+ *   SECOND named provider, `requireProvider()` throws as ambiguous — select with
+ *   `getProviderByName('google')` instead. Importing this package wires nothing by itself.
+ * - The config key for the default model is `model` (NOT `defaultModel` as in the other AI
+ *   bonds); it falls back to `GOOGLE_AI_MODEL`, then `gemini-3.8-flash`.
+ * - The key travels as the `?key=` query parameter (Google's REST auth), not an
+ *   `Authorization` header.
+ *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-google'
+ *
+ * // Startup (server only): bond by name. The key comes from the server env.
+ * setProvider('google', createProvider({ apiKey: process.env.GOOGLE_AI_API_KEY }))
+ *
+ * // In a request handler: stream the reply (forward each chunk to the client, e.g. over SSE).
+ * let reply = ''
+ * for await (const event of requireProvider().chat({
+ *   messages: [{ role: 'user', content: 'What is 2 + 2?' }],
+ *   maxTokens: 256,
+ * })) {
+ *   if (event.type === 'text') reply += event.content
+ *   if (event.type === 'error') throw new Error(event.message) // failures are events, not throws
+ *   if (event.type === 'done') console.log(event.usage) // { inputTokens: 14, outputTokens: 8 }
+ * }
+ * console.log(reply) // '2 + 2 = 4.'
+ * ```
+ *
  * @module
  */
 
