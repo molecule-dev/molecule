@@ -29,6 +29,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "audit:examples": "node scripts/audit-package-examples.mjs",
     "build": "node scripts/build.js",
     "changeset": "changeset",
     "check:feature-jsdocs": "node scripts/check-feature-jsdocs.mjs --check",

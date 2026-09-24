@@ -40,3 +40,6 @@ npm-debug.log*
 # CI dist-cache index (written by scripts/dist-cache-manifest.mjs, restored from
 # the Actions cache). Build-output metadata, never source.
 .dist-manifest.json
+
+# Scratch snippets written (and removed) by scripts/audit-package-examples.mjs
+.example-audit
