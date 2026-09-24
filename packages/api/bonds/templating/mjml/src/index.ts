@@ -8,25 +8,33 @@
  *
  * @example
  * ```typescript
- * import { setProvider, render } from '@molecule/api-templating'
- * import { provider } from '@molecule/api-templating-mjml'
+ * import { render, setProvider } from '@molecule/api-templating'
+ * import { createProvider } from '@molecule/api-templating-mjml'
  *
- * setProvider(provider)
+ * // Startup: bond once. 'strict' makes render() throw on invalid MJML instead of guessing.
+ * setProvider(createProvider({ validationLevel: 'strict' }))
  *
- * const html = await render(`
- *   <mjml>
+ * // Handlebars placeholders are filled FIRST (HTML-escaped), then MJML becomes email HTML.
+ * const html = await render(
+ *   `<mjml>
  *     <mj-body>
  *       <mj-section>
  *         <mj-column>
- *           <mj-text>Hello {{name}}!</mj-text>
+ *           <mj-text font-size="20px">Welcome, {{name}}!</mj-text>
+ *           <mj-button href="{{verifyUrl}}">Verify your email</mj-button>
  *         </mj-column>
  *       </mj-section>
  *     </mj-body>
- *   </mjml>
- * `, { name: 'World' })
+ *   </mjml>`,
+ *   { name: 'Ada', verifyUrl: 'https://app.example.com/verify?token=abc123' },
+ * )
+ * // A full '<!doctype html>…' document (inline styles + tables) — pass it as `html` to sendMail().
  * ```
  *
  * @remarks
+ * - **The template must be a complete `<mjml><mj-body>…</mj-body></mjml>` document** — a
+ *   bare HTML fragment is not MJML. The result is a whole HTML document, not a fragment to
+ *   embed; it does NOT send anything (hand it to `sendMail()` from `@molecule/api-emails`).
  * - Validation defaults to `'soft'` (render despite MJML errors). Set
  *   `createProvider({ validationLevel: 'strict' })` to make `render()` throw
  *   on invalid MJML — but note `renderCompiled()` skips validation entirely.

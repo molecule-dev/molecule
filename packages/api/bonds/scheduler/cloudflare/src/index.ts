@@ -11,30 +11,36 @@
  *
  * @example
  * ```typescript
- * import { schedule, setProvider, start } from '@molecule/api-scheduler'
+ * import { getStatus, schedule, setProvider, start } from '@molecule/api-scheduler'
  * import { createProvider } from '@molecule/api-scheduler-cloudflare'
  *
+ * // Startup (module scope of the Worker): bond, register tasks, then start().
  * const scheduler = createProvider()
  * setProvider(scheduler)
  *
+ * let sweeps = 0
  * schedule({
  *   name: 'monitor-sweep',
- *   intervalMs: 60000,
+ *   intervalMs: 60_000, // ignored by default: the Cron Trigger in wrangler.toml IS the schedule
  *   async handler() {
- *     // ...
+ *     sweeps++
  *   },
  * })
+ * start() // REQUIRED: runDueTasks() on a stopped scheduler runs nothing
  *
- * // REQUIRED, same as the default provider: nothing runs until start().
- * // Unlike it, start() begins no timers — a Worker has no process to hold one.
- * start()
+ * // wrangler.toml: [triggers] crons = ["* * * * *"]
+ * export default {
+ *   async scheduled(
+ *     _event: unknown,
+ *     _env: unknown,
+ *     ctx: { waitUntil(promise: Promise<unknown>): void },
+ *   ): Promise<void> {
+ *     ctx.waitUntil(scheduler.runDueTasks())
+ *   },
+ * }
  *
- * // Then, from the Worker's scheduled() handler, wrapped in ctx.waitUntil():
- * //   export default { async scheduled(event, env, ctx) {
- * //     ctx.waitUntil(scheduler.runDueTasks())
- * //   } }
- * // and in wrangler.toml:  [triggers] crons = ["* * * * *"]
- * void scheduler.runDueTasks()
+ * // After a trigger fires: getStatus('monitor-sweep')?.totalRuns === 1, sweeps === 1
+ * console.log(getStatus('monitor-sweep')?.totalRuns, sweeps)
  * ```
  *
  * @remarks

@@ -7,15 +7,45 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-search'
- * import { provider } from '@molecule/api-search-postgres'
+ * import { setPool } from '@molecule/api-database'
+ * import { pool } from '@molecule/api-database-postgresql'
+ * import { createIndex, index, search, setProvider } from '@molecule/api-search'
+ * import { createProvider } from '@molecule/api-search-postgres'
  *
- * setProvider(provider)
+ * // Startup: bond the database POOL first (raw query(); DATABASE_URL), then search.
+ * setPool(pool)
+ * setProvider(createProvider({ searchConfig: 'english', tablePrefix: 'search_' }))
+ *
+ * // Idempotent (CREATE TABLE IF NOT EXISTS) — safe to run on every boot.
+ * await createIndex('products', {
+ *   fields: { name: 'text', category: 'keyword', price: 'number' },
+ *   sortableFields: ['price'],
+ * })
+ *
+ * await index('products', 'p1', { name: 'Wireless Headphones', category: 'audio', price: 99 })
+ *
+ * const result = await search('products', {
+ *   text: 'headphones',
+ *   filters: { category: 'audio' }, // exact text equality on a top-level key
+ *   sort: [{ field: 'price', direction: 'asc' }], // cast to number via the declared schema
+ *   page: 1,
+ *   perPage: 20,
+ * })
+ * // result.total === 1, result.hits[0].id === 'p1', result.hits[0].document.name === 'Wireless Headphones'
  * ```
  *
  * @remarks
  * Provider-specific behavior to know before debugging:
  *
+ * - **Needs a PostgreSQL pool bonded with `setPool()` from `@molecule/api-database`**
+ *   (e.g. `pool` from `@molecule/api-database-postgresql`) BEFORE the first call — it runs
+ *   raw `query()`, not the `DataStore`, so `setStore()` alone is not enough. It uses
+ *   `tsvector`/`to_tsquery`/`JSONB`, so it does NOT work on a SQLite or MySQL pool.
+ * - **Each index is its own table, `<tablePrefix><name>`** (default `search_products`),
+ *   created by `createIndex()` — not by your migrations. `index()`/`search()` on an index
+ *   whose `createIndex()` never ran fail with Postgres "relation does not exist".
+ *   `searchableFields`/`filterableFields` in the schema are ignored (all top-level strings are
+ *   searchable, every top-level key is filterable); only `fields` types are recorded (for sort).
  * - **Empty/whitespace-only search text is "browse" mode** — matches ALL
  *   documents (filters/sort/pagination still apply), per the core
  *   `SearchQuery.text` contract, consistent with the meilisearch/typesense

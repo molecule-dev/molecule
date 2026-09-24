@@ -6,15 +6,20 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-sms'
- * import { provider } from '@molecule/api-sms-capture'
+ * import { setSink } from '@molecule/api-activity'
+ * import { provider as consoleSink } from '@molecule/api-activity-console'
+ * import { send, setProvider } from '@molecule/api-sms'
+ * import { provider as smsCapture } from '@molecule/api-sms-capture'
  *
- * setProvider(provider) // intercept-only: nothing is actually sent
+ * // Startup (dev/sandbox): bond an activity sink FIRST, or captures are visible nowhere.
+ * setSink(consoleSink)
+ * setProvider(smsCapture) // intercept-only: nothing reaches a handset
+ * // Production instead — really send AND record the outcome (tee mode):
+ * //   setProvider(createSMSCaptureProvider(twilio())) // twilio = createProvider from '@molecule/api-sms-twilio'
  *
- * // Tee mode: really send AND record the real outcome
- * // import { createSMSCaptureProvider } from '@molecule/api-sms-capture'
- * // import { createProvider as twilio } from '@molecule/api-sms-twilio'
- * // setProvider(createSMSCaptureProvider(twilio()))
+ * const result = await send('+15551234567', 'Your verification code is 123456')
+ * // { id: 'captured-<uuid>', status: 'sent', to: '+15551234567' }
+ * // logger.info: '[activity] sms captured → +15551234567: Your verification code is 123456'
  * ```
  *
  * @remarks

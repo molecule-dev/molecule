@@ -6,23 +6,44 @@
  *
  * @example
  * ```typescript
- * import { schedule, setProvider, start } from '@molecule/api-scheduler'
- * import { provider } from '@molecule/api-scheduler-default'
+ * import { getStatus, schedule, setProvider, start, stop } from '@molecule/api-scheduler'
+ * import { createProvider } from '@molecule/api-scheduler-default'
  *
- * setProvider(provider)
+ * // Startup: bond once (or `setProvider(provider)` for the default 2000ms stagger).
+ * setProvider(createProvider({ staggerMs: 2000 }))
  *
+ * let purged = 0
  * schedule({
- *   name: 'cleanup',
- *   intervalMs: 60000,
+ *   name: 'purge-expired-sessions',
+ *   intervalMs: 15 * 60_000, // MILLISECONDS — every 15 minutes
  *   async handler() {
- *     // ...
+ *     purged++ // e.g. delete expired rows through the database core
  *   },
  * })
  *
- * // REQUIRED: nothing runs until start() — scheduling alone does not execute
- * // tasks. Tasks scheduled after start() begin automatically (staggered).
+ * // REQUIRED: nothing runs until start(). The first run happens right away
+ * // (first task: 0ms, later tasks staggered by staggerMs), then every intervalMs.
  * start()
+ *
+ * // Moments later: getStatus('purge-expired-sessions')?.totalRuns === 1, purged === 1
+ * console.log(getStatus('purge-expired-sessions')?.totalRuns, purged)
+ *
+ * process.on('SIGTERM', () => stop())
  * ```
+ *
+ * @remarks
+ * - **Nothing runs until `start()`** — `schedule()` only registers. Tasks scheduled
+ *   after `start()` begin on their own (staggered).
+ * - **The first run is NOT after `intervalMs`**: each task fires once after its stagger
+ *   delay (`index * staggerMs`, so the first task at 0ms) and then every `intervalMs`.
+ * - **`intervalMs` and `staggerMs` are milliseconds**, not seconds; there is no cron syntax.
+ * - **Timers are `unref()`'d** — the scheduler alone does NOT keep a Node process alive. It
+ *   is meant to run inside a long-lived server (e.g. next to the HTTP listener). It does not
+ *   work on Workers/serverless — use `@molecule/api-scheduler-cloudflare` there.
+ * - **In-process only**: every replica runs every task, and nothing is persisted — status
+ *   counters reset on restart. A run still in progress when the next tick arrives is
+ *   skipped (logged), never overlapped. A throwing handler is caught, logged, and counted
+ *   in `totalFailures`; it does not stop the schedule.
  *
  * @module
  */

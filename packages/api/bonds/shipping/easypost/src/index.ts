@@ -8,20 +8,42 @@
  *
  * @see https://docs.easypost.com
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-shipping'
+ * import { createLabel, createShipment, setProvider } from '@molecule/api-shipping'
  * import { provider } from '@molecule/api-shipping-easypost'
  *
+ * // Startup: bond once. Env: EASYPOST_API_KEY (EZTK… test key or EZAK… production key).
  * setProvider(provider)
  *
- * // Then anywhere in your app:
- * import { createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
+ * // Quote: ONE parcel per EasyPost shipment. Units default to inches + pounds.
  * const { shipmentId, rates } = await createShipment({
- *   from, to, parcels: [{ length, width, height, weight }],
+ *   from: {
+ *     name: 'Acme Store',
+ *     street1: '417 Montgomery St',
+ *     city: 'San Francisco',
+ *     state: 'CA',
+ *     postalCode: '94104',
+ *     country: 'US',
+ *   },
+ *   to: {
+ *     name: 'Ada Lovelace',
+ *     street1: '179 N Harbor Dr',
+ *     city: 'Redondo Beach',
+ *     state: 'CA',
+ *     postalCode: '90277',
+ *     country: 'US',
+ *   },
+ *   parcels: [{ length: 10, width: 8, height: 4, weight: 2, distanceUnit: 'in', massUnit: 'lb' }],
  * })
- * const label = await createLabel(shipmentId, rates[0])
+ *
+ * // Rates are NOT sorted; amount is a decimal STRING — compare numerically.
+ * const cheapest = [...rates].sort((a, b) => Number(a.amount.amount) - Number(b.amount.amount))[0]
+ * if (!cheapest) throw new Error('No rates returned for this shipment')
+ *
+ * // Buy: pass the shipmentId from the SAME quote. Persist label.id to void (refund) later.
+ * const label = await createLabel(shipmentId, cheapest)
+ * // label.trackingNumber, label.labelUrl (PDF/PNG to print), label.amount
  * ```
  *
  * @remarks
@@ -43,6 +65,12 @@
  *   same by either provider.
  * - `voidLabel(labelId)` refunds via `POST /shipments/:id/refund` — pass
  *   `ShippingLabel.id` (the EasyPost shipment id) returned by `createLabel`.
+ * - **Rates come back in EasyPost's order, not cheapest-first**, and
+ *   `MonetaryAmount.amount` is a decimal string (`'7.58'`) — never add/compare it as-is.
+ * - **A test key (`EZTK…`) buys test labels only** (no charge, not shippable); switch to the
+ *   production key for real postage.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

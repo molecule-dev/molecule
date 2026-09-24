@@ -15,21 +15,26 @@
  * `VONAGE_*` later in the same process has no effect until the provider is
  * re-created (an API restart after filling in secrets does this).
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-sms'
+ * import { send, setProvider } from '@molecule/api-sms'
  * import { createProvider } from '@molecule/api-sms-vonage'
  *
- * // Bond at startup (reads VONAGE_* env vars by default)
- * setProvider(createProvider())
+ * // Startup: bond once. Env: VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_FROM_NUMBER.
+ * setProvider(
+ *   createProvider({
+ *     apiKey: process.env.VONAGE_API_KEY,
+ *     apiSecret: process.env.VONAGE_API_SECRET,
+ *     defaultFrom: process.env.VONAGE_FROM_NUMBER, // your Vonage number, e.g. '15557654321'
+ *   }),
+ * )
  *
- * // Or with explicit config
- * setProvider(createProvider({
- *   apiKey: 'abc123',
- *   apiSecret: 'secret',
- *   defaultFrom: '+15551234567',
- * }))
+ * // Vonage numbers are E.164 digits WITHOUT the leading '+'. No polling — delivery
+ * // receipts are POSTed to callbackUrl (a route you expose).
+ * const result = await send('15551234567', 'Your verification code is 123456', {
+ *   callbackUrl: 'https://api.example.com/webhooks/vonage/dlr',
+ * })
+ * // { id: '<Vonage message-id>', status: 'queued', to: '15551234567' }
  * ```
  *
  * @remarks
@@ -45,6 +50,14 @@
  * `send()`/`sendBulk()` call instead, so a scaffolded app that selected
  * Vonage before filling in secrets still boots (SMS just degrades until the
  * secret is set), matching the slack/web-push bonds in this category.
+ *
+ * **`getStatus()` ALWAYS throws** (the core `getStatus()` too, with this bond) — do not
+ * build a status poller on Vonage; pass `options.callbackUrl` and read the DLR webhook.
+ * A resolved `send()` means Vonage accepted the message (`status: 'queued'`); a rejected
+ * one (e.g. "Non-Whitelisted Destination" on trial accounts) throws with Vonage's
+ * `errorText` in the message. `sendBulk()` never rejects — failures are counted in `failed`.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

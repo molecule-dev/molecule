@@ -7,16 +7,50 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-search'
- * import { provider } from '@molecule/api-search-typesense'
+ * import { createIndex, index, search, setProvider } from '@molecule/api-search'
+ * import { createProvider } from '@molecule/api-search-typesense'
  *
- * setProvider(provider)
+ * // Startup: bond once. Env: TYPESENSE_HOST, TYPESENSE_PORT, TYPESENSE_PROTOCOL, TYPESENSE_API_KEY.
+ * setProvider(
+ *   createProvider({
+ *     nodes: [
+ *       {
+ *         host: process.env.TYPESENSE_HOST ?? 'localhost',
+ *         port: Number(process.env.TYPESENSE_PORT ?? 8108),
+ *         protocol: process.env.TYPESENSE_PROTOCOL ?? 'http',
+ *       },
+ *     ],
+ *     apiKey: process.env.TYPESENSE_API_KEY,
+ *     connectionTimeoutSeconds: 5, // SECONDS
+ *   }),
+ * )
+ *
+ * // Once (a setup/seed step): only schema fields are indexed; filter fields must be filterable.
+ * await createIndex('products', {
+ *   fields: { name: 'text', category: 'keyword', price: 'number' },
+ *   filterableFields: ['category'],
+ *   sortableFields: ['price'],
+ * })
+ *
+ * await index('products', 'p1', { name: 'Wireless Headphones', category: 'audio', price: 99 })
+ *
+ * const result = await search('products', {
+ *   text: 'headphones',
+ *   filters: { category: 'audio' },
+ *   sort: [{ field: 'price', direction: 'asc' }],
+ * })
+ * // result.total === 1, result.hits[0].id === 'p1', result.hits[0].document.name === 'Wireless Headphones'
  * ```
  *
  * @remarks
  * Provider-specific behavior to know before debugging (verified against
  * Typesense 29.0):
  *
+ * - **Wire it through the core** (`setProvider(...)` from `@molecule/api-search`) and call
+ *   the core functions; the core's document removal is `deleteDocument()`, not `delete()`.
+ * - **`createIndex()` is not idempotent** — creating a collection that already exists is
+ *   rejected by Typesense (HTTP 409). Run it once at setup, not on every boot.
+ * - **Index names are used verbatim as collection names** — there is no prefix option.
  * - **`date` fields map to `int64`** — index date values as epoch numbers
  *   (e.g. `Date.now()` or Unix seconds), NOT as `Date` objects or ISO strings,
  *   or the document is rejected by the collection schema.

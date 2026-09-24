@@ -10,14 +10,47 @@
  *
  * @example
  * ```typescript
+ * import type { AgentSession } from '@molecule/api-agent-transcript'
  * import { attributeText, setProvider } from '@molecule/api-text-provenance'
  * import { provider } from '@molecule/api-text-provenance-overlap'
  *
+ * // Startup: bond once.
  * setProvider(provider)
- * const { paragraphs, aiShare, prompts } = attributeText({ paragraphs: blocks, sessions })
+ *
+ * // Sessions normally come from readTranscript() (`@molecule/api-agent-transcript` + a reader bond).
+ * const sessions: AgentSession[] = [
+ *   {
+ *     format: 'claude-code',
+ *     harness: 'Claude Code',
+ *     model: 'claude-opus-4-5',
+ *     turns: [
+ *       { role: 'user', text: 'Write an intro about tide pools.', files: [] },
+ *       {
+ *         role: 'assistant',
+ *         text: 'Tide pools are rocky hollows that trap seawater when the ocean retreats at low tide.',
+ *         files: [],
+ *       },
+ *     ],
+ *   },
+ * ]
+ *
+ * // The published text, already split into paragraphs by you.
+ * const paragraphs = [
+ *   'Tide pools are rocky hollows that trap seawater when the ocean retreats at low tide.',
+ *   'I spent every summer of my childhood poking at anemones on the Oregon coast.',
+ * ]
+ *
+ * const result = attributeText({ paragraphs, sessions }) // synchronous — no await
+ * // result.paragraphs[0].origin === 'ai' (prompt: 'Write an intro about tide pools.')
+ * // result.paragraphs[1].origin === 'human'
+ * // result.aiShare === 15 / 29, result.prompts === ['Write an intro about tide pools.']
  * ```
  *
  * @remarks
+ * - **`attributeText()` is synchronous** and works on the paragraphs YOU pass — it does not
+ *   split text, read files, or parse transcripts (use `readTranscript()` for that).
+ * - **`aiShare` is by whole paragraphs**: `words` of every `ai` paragraph over all words, not
+ *   the per-paragraph `aiWords` overlap. `prompts` lists each distinct source prompt once.
  * - Compares words only (letters and digits, lowercase), so markdown in the
  *   session (`**bold**`, `## heading`, links) matches the rendered prose, and a
  *   Claude Code `/export`'s re-wrapped text matches too.

@@ -7,15 +7,46 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-search'
- * import { provider } from '@molecule/api-search-meilisearch'
+ * import { createIndex, index, search, setProvider } from '@molecule/api-search'
+ * import { createProvider } from '@molecule/api-search-meilisearch'
  *
- * setProvider(provider)
+ * // Startup: bond once. Env: MEILISEARCH_URL (default http://localhost:7700) and
+ * // MEILISEARCH_API_KEY (the master key or a scoped key; optional for keyless local instances).
+ * setProvider(
+ *   createProvider({
+ *     host: process.env.MEILISEARCH_URL,
+ *     apiKey: process.env.MEILISEARCH_API_KEY,
+ *   }),
+ * )
+ *
+ * // Once (e.g. a setup/seed step): filters and sort only work on declared attributes.
+ * await createIndex('products', {
+ *   fields: { name: 'text', category: 'keyword', price: 'number' },
+ *   searchableFields: ['name'],
+ *   filterableFields: ['category'],
+ *   sortableFields: ['price'],
+ * })
+ *
+ * await index('products', 'p1', { name: 'Wireless Headphones', category: 'audio', price: 99 })
+ *
+ * const result = await search('products', {
+ *   text: 'headphones',
+ *   filters: { category: 'audio' },
+ *   sort: [{ field: 'price', direction: 'asc' }],
+ * })
+ * // result.hits[0].id === 'p1', result.hits[0].document.name === 'Wireless Headphones'
  * ```
  *
  * @remarks
  * Provider-specific behavior to know before debugging:
  *
+ * - **Wire it through the core** (`setProvider(...)` from `@molecule/api-search`) and call
+ *   the core functions; the core's document removal is `deleteDocument()`, not `delete()`.
+ * - **`bulkIndex()` never throws on a failed task** — it RESOLVES with
+ *   `{ indexed: 0, failed: documents.length, errors }` (one message per id). Check
+ *   `result.failed`, not just that the promise resolved. `index()` (single document) does throw.
+ * - **The primary key is always `id`** — the `id` argument is written into the stored document
+ *   and stripped again from `getDocument()`'s result.
  * - **Write operations wait for the Meilisearch task and THROW if it failed**,
  *   with the Meilisearch error code in the message (e.g.
  *   `index_already_exists`, `index_not_found`, `invalid_document_fields`) —

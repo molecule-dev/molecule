@@ -9,20 +9,42 @@
  *
  * @see https://docs.goshippo.com
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-shipping'
+ * import { createLabel, createShipment, setProvider } from '@molecule/api-shipping'
  * import { provider } from '@molecule/api-shipping-shippo'
  *
+ * // Startup: bond once. Env: SHIPPO_API_KEY (shippo_test_… or shippo_live_… token).
  * setProvider(provider)
  *
- * // Then anywhere in your app:
- * import { createShipment, createLabel, trackPackage } from '@molecule/api-shipping'
+ * // Quote. Units default to inches + pounds — set them explicitly for metric parcels.
  * const { shipmentId, rates } = await createShipment({
- *   from, to, parcels: [{ length, width, height, weight }],
+ *   from: {
+ *     name: 'Acme Store',
+ *     street1: '417 Montgomery St',
+ *     city: 'San Francisco',
+ *     state: 'CA',
+ *     postalCode: '94104',
+ *     country: 'US',
+ *   },
+ *   to: {
+ *     name: 'Ada Lovelace',
+ *     street1: '179 N Harbor Dr',
+ *     city: 'Redondo Beach',
+ *     state: 'CA',
+ *     postalCode: '90277',
+ *     country: 'US',
+ *   },
+ *   parcels: [{ length: 10, width: 8, height: 4, weight: 2, distanceUnit: 'in', massUnit: 'lb' }],
  * })
- * const label = await createLabel(shipmentId, rates[0])
+ *
+ * // Rates are NOT sorted; amount is a decimal STRING — compare numerically.
+ * const cheapest = [...rates].sort((a, b) => Number(a.amount.amount) - Number(b.amount.amount))[0]
+ * if (!cheapest) throw new Error('No rates returned for this shipment')
+ *
+ * // Buy (a PDF label). Persist label.id — it is the transaction id voidLabel() needs.
+ * const label = await createLabel(shipmentId, cheapest)
+ * // label.trackingNumber, label.labelUrl, label.amount
  * ```
  *
  * @remarks
@@ -47,6 +69,13 @@
  * buys by `rateId` alone. The id still comes from the core `createShipment(shipment)`
  * → `{ shipmentId, rates }` path (the same one EasyPost's buy endpoint requires), so
  * callers wire the flow identically regardless of the bonded provider.
+ *
+ * **Rates come back in Shippo's order, not cheapest-first**, and
+ * `MonetaryAmount.amount` is a decimal string (`'7.58'`). `createLabel()` THROWS when the
+ * Shippo transaction status is not `SUCCESS` (the carrier's messages are in the error) — a
+ * resolved promise means a usable label. Labels are always PDF.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'
