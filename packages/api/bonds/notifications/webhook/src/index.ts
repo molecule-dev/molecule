@@ -5,10 +5,27 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-notifications'
- * import { provider } from '@molecule/api-notifications-webhook'
+ * import { notifyAll, setProvider } from '@molecule/api-notifications'
+ * import { createProvider } from '@molecule/api-notifications-webhook'
  *
- * setProvider('webhook', provider)
+ * // Startup: the notifications core is NAMED — setProvider(name, provider).
+ * // Env: NOTIFICATIONS_WEBHOOK_URL, optional NOTIFICATIONS_WEBHOOK_SECRET (enables X-Signature-256).
+ * setProvider(
+ *   'webhook',
+ *   createProvider({
+ *     url: process.env.NOTIFICATIONS_WEBHOOK_URL,
+ *     secret: process.env.NOTIFICATIONS_WEBHOOK_SECRET,
+ *     timeoutMs: 5000, // milliseconds
+ *   }),
+ * )
+ *
+ * const [result] = await notifyAll({
+ *   subject: 'Order paid',
+ *   body: 'Order #1042 was paid.',
+ *   metadata: { orderId: '1042' },
+ * })
+ * // POST { subject, body, timestamp, metadata } → result: { success: true, channel: 'webhook', sentAt }
+ * if (!result?.success) console.error('webhook delivery failed:', result?.error)
  * ```
  *
  * @remarks
@@ -28,6 +45,8 @@
  * - **`send()` never throws — it fails open.** Missing URL, non-2xx, or
  *   timeout (default 10 s) resolve to `{ success: false, error }`; check
  *   `result.success` when delivery matters.
+ * - **`setProvider` takes a channel NAME first** (`setProvider('webhook', …)`).
+ *   The ready-made `provider` export reads the two env vars instead of options.
  * - URL/secret/timeout are captured on first use (lazy) and frozen — env
  *   changes after the first send require a restart or a fresh
  *   `createProvider()` instance.

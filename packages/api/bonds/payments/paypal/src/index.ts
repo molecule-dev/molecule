@@ -8,12 +8,33 @@
  * webhook handling.
  *
  * @example
- * ```ts
- * import { bond } from '@molecule/api-bond'
- * import { paymentProvider } from '@molecule/api-payments-paypal'
+ * ```typescript
+ * import { bond, get } from '@molecule/api-bond'
+ * import type { PaymentProviderInterface } from '@molecule/api-payments'
+ * import { resolveCheckoutRedirectUrls } from '@molecule/api-payments'
+ * import { createSubscription, paymentProvider } from '@molecule/api-payments-paypal'
  *
- * // Named bond, mirroring the stripe convention: bond('payments', '<name>', provider).
+ * // Startup: NAMED bond. Env (server only): PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET,
+ * // PAYPAL_BASE_URL (default = SANDBOX host), APP_ORIGIN; PAYPAL_WEBHOOK_ID for webhooks.
  * bond('payments', 'paypal', paymentProvider)
+ *
+ * // 1. Start a subscription on an EXISTING billing plan (P-…), server-chosen.
+ * const userId = 'user-123'
+ * const { successUrl, cancelUrl } = resolveCheckoutRedirectUrls({ provider: 'paypal' })
+ * const checkout = await createSubscription({
+ *   planId: process.env.PAYPAL_PLAN_ID_PRO ?? 'P-5ML4271244454362WXNWU5NQ',
+ *   returnUrl: successUrl, // PayPal appends ?subscription_id=I-…&ba_token=…&token=…
+ *   cancelUrl,
+ *   customId: userId,
+ * })
+ * // → redirect the browser to checkout.url (the buyer-approval link)
+ *
+ * // 2. The app's /plan-updated page posts back subscription_id → verify SERVER-side.
+ * const paypal = get<PaymentProviderInterface>('payments', 'paypal')
+ * const verified = await paypal?.verifySubscription?.(checkout.id)
+ * // ACTIVE → { productId: 'PROD-…', priceId: 'P-…', transactionId: 'I-…', expiresAt, autoRenews: true }
+ * // null → APPROVAL_PENDING/APPROVED/SUSPENDED/… (grant nothing; retry briefly after approval)
+ * console.log(checkout.url, verified?.transactionId)
  * ```
  *
  * @remarks

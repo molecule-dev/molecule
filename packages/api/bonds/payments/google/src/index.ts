@@ -5,7 +5,38 @@
  *
  * @see https://developer.android.com/google/play/billing
  *
+ * @example
+ * ```typescript
+ * import { bond, get } from '@molecule/api-bond'
+ * import type { PaymentProviderInterface } from '@molecule/api-payments'
+ * import { paymentProvider } from '@molecule/api-payments-google'
+ *
+ * // Startup: NAMED bond. Env (server only): GOOGLE_PLAY_PACKAGE_NAME (e.g. com.example.app) and
+ * // GOOGLE_API_SERVICE_KEY_OBJECT (the service-account key JSON, as ONE string).
+ * bond('payments', 'google', paymentProvider)
+ *
+ * // Verify route: the Android client sends the purchase token from Play Billing's Purchase.
+ * const purchaseToken = 'purchase-token-from-play-billing'
+ * const google = get<PaymentProviderInterface>('payments', 'google')
+ * const verified = await google?.verifyPurchase?.(purchaseToken, 'pro_monthly') // (token, subscription id)
+ * // { productId: 'pro_monthly', transactionId: 'GPA.…', expiresAt: ISO, autoRenews } — and acknowledged
+ * // null → wrong product / pending / on hold / revoked / expired / bad token (grant nothing)
+ * console.log(verified?.transactionId, verified?.expiresAt)
+ * ```
+ *
  * @remarks
+ * - **Bond it NAMED — `bond('payments', 'google', paymentProvider)`** — and call
+ *   `verifyPurchase(purchaseToken, productId)`: TOKEN FIRST. There is no
+ *   `verifySubscription` on the adapter (the exported `verifySubscription`
+ *   function is the raw Play API call and THROWS instead of returning `null`).
+ * - `verifyPurchase` checks SUBSCRIPTIONS only (`purchases.subscriptionsv2`);
+ *   one-time products need `verifyProduct` + `acknowledgeProduct`. On success
+ *   it acknowledges the purchase for you — Google auto-refunds purchases left
+ *   unacknowledged for 3 days.
+ * - The service account must be granted access in Play Console (Users and
+ *   permissions → financial data / manage orders), or every call fails 401/403
+ *   and `verifyPurchase` returns `null`.
+ *
  * **`parseNotification` handles all three RTDN kinds** — `subscriptionNotification`
  * (the primary flow: verified via `purchases.subscriptionsv2.get`, mapped to
  * `renewed`/`canceled`/`expired`/etc.), `oneTimeProductNotification` (verified via

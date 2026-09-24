@@ -3,7 +3,48 @@
  *
  * @see https://www.npmjs.com/package/stripe
  *
+ * @example
+ * ```typescript
+ * import { bond, get } from '@molecule/api-bond'
+ * import type { PaymentProviderInterface } from '@molecule/api-payments'
+ * import { resolveCheckoutRedirectUrls } from '@molecule/api-payments'
+ * import { createCheckoutSession, paymentProvider } from '@molecule/api-payments-stripe'
+ *
+ * // Startup: NAMED bond. Env (server only): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, APP_ORIGIN.
+ * bond('payments', 'stripe', paymentProvider)
+ *
+ * // 1. Checkout with a SERVER-configured price id (never an amount from the client).
+ * const userId = 'user-123'
+ * const { successUrl, cancelUrl } = resolveCheckoutRedirectUrls({
+ *   provider: 'stripe',
+ *   sessionIdToken: '{CHECKOUT_SESSION_ID}', // Stripe substitutes the real cs_… id
+ * })
+ * const session = await createCheckoutSession({
+ *   priceId: process.env.STRIPE_PRICE_ID_PRO ?? 'price_pro_monthly',
+ *   successUrl,
+ *   cancelUrl,
+ *   clientReferenceId: userId,
+ *   metadata: { userId },
+ * })
+ * // → redirect the browser to session.url
+ *
+ * // 2. The app's /plan-updated page posts back ?sessionId=cs_… → verify SERVER-side.
+ * const stripe = get<PaymentProviderInterface>('payments', 'stripe')
+ * const verified = await stripe?.verifySubscription?.(session.id)
+ * // { productId: 'prod_…', priceId: 'price_…', transactionId: 'sub_…', expiresAt, autoRenews }
+ * // null → not active/trialing (grant nothing)
+ * console.log(session.url, verified?.transactionId)
+ * ```
+ *
  * @remarks
+ * - **Bond it NAMED: `bond('payments', 'stripe', paymentProvider)`** — the
+ *   adapter is `paymentProvider` (not `provider`), and there is no
+ *   `setProvider` on `@molecule/api-payments`.
+ * - `verifySubscription()` accepts a Checkout Session id (`cs_…`) OR a
+ *   subscription id (`sub_…`) and returns `null` unless the subscription is
+ *   `active`/`trialing` with an unexpired period. `expiresAt` is an ISO string
+ *   (Stripe's seconds are converted).
+ *
  * Bond this as the payments provider so `@molecule/api-payments`'s `verifySubscription` (and
  * the payment resource) work server-side — don't call the Stripe SDK directly for
  * verification. Env: `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` are SERVER-ONLY; only the

@@ -6,10 +6,20 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-notifications'
- * import { provider } from '@molecule/api-notifications-slack'
+ * import { notifyAll, setProvider } from '@molecule/api-notifications'
+ * import { provider as slack } from '@molecule/api-notifications-slack'
  *
- * setProvider('slack', provider)
+ * // Startup: env NOTIFICATIONS_SLACK_WEBHOOK_URL (https://hooks.slack.com/services/...).
+ * // The notifications core is NAMED: setProvider(name, provider), one entry per channel.
+ * setProvider('slack', slack)
+ *
+ * const results = await notifyAll({
+ *   subject: 'New signup',
+ *   body: 'ada@example.com just created an account.',
+ * })
+ * // [{ success: true, channel: 'slack', sentAt: '2026-…' }] — never throws; check success
+ * const failed = results.filter((result) => !result.success)
+ * console.log(failed.map((result) => `${result.channel}: ${result.error}`))
  * ```
  *
  * @remarks
@@ -18,6 +28,10 @@
  *   `{ success: false, error }`. If delivery matters, check `result.success`
  *   (or the per-channel results from the core `notifyAll()`); an
  *   unconfigured channel is otherwise silent.
+ * - **`setProvider` takes a channel NAME first** (`setProvider('slack', slack)`);
+ *   `setProvider(slack)` is a type error. Use `createProvider({ webhookUrl,
+ *   timeoutMs })` instead of `provider` to pass the URL explicitly (timeout in
+ *   MILLISECONDS).
  * - The message is a single mrkdwn `text` field: `*subject*` newline `body`.
  *   **`Notification.metadata` is not sent to Slack** — bake anything the
  *   receiver needs into `body`.

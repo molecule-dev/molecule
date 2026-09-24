@@ -49,8 +49,48 @@
  *
  * > **Your users should now be able to log in via Twitter!**
  *
+ * @example
+ * ```typescript
+ * import { createHash, randomBytes } from 'node:crypto'
+ *
+ * import { bond } from '@molecule/api-bond'
+ * import type { OAuthProviderConfig } from '@molecule/api-oauth'
+ * import { getAuthorizeUrl, serverName, verify } from '@molecule/api-oauth-twitter'
+ *
+ * // Startup: bond NAMED by serverName ('twitter'). Env: OAUTH_TWITTER_CLIENT_ID,
+ * // OAUTH_TWITTER_CLIENT_SECRET (server only), APP_ORIGIN.
+ * const twitter: OAuthProviderConfig = { serverName, verify, getAuthorizeUrl }
+ * bond('oauth', serverName, twitter)
+ *
+ * // Initiation: X REQUIRES PKCE — fresh state + verifier per request (httpOnly cookies).
+ * const state = randomBytes(32).toString('hex')
+ * const codeVerifier = randomBytes(32).toString('base64url')
+ * const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url')
+ * const redirectUri = process.env.APP_ORIGIN ?? 'https://app.example.com'
+ * const authorizeUrl = getAuthorizeUrl({ state, codeChallenge, codeChallengeMethod: 'S256', redirectUri })
+ * // → 302 the browser to authorizeUrl; null means OAUTH_TWITTER_CLIENT_ID is unset.
+ *
+ * // Callback (after checking the returned state equals the cookie): pass the SAME verifier.
+ * const user = await verify('code-from-callback-query', codeVerifier, redirectUri)
+ * // user: { username: 'ada@twitter', email: undefined, emailVerified: false, oauthId: X user id }
+ * // null → X rejected the code (respond 403); a throw → network/config failure.
+ * console.log(authorizeUrl, user?.username)
+ * ```
+ *
  * @remarks
- * The token exchange (`verify`'s call to X's token endpoint) is
+ * - **Bond it NAMED: `bond('oauth', serverName, { serverName, verify,
+ *   getAuthorizeUrl })`** — there is no `setProvider` and no default export.
+ * - **PKCE is mandatory on X**: always send `codeChallenge` in the authorize
+ *   URL and the matching `codeVerifier` to `verify()`, or the exchange fails.
+ *   The client secret goes in an HTTP Basic header (confidential client).
+ * - **No email.** Scopes are fixed to `users.read tweet.read`, so `email` is
+ *   normally `undefined` and `emailVerified` is ALWAYS `false` — key accounts
+ *   on `oauthServer` + `oauthId`, never on email.
+ * - `verify()` returns `null` for a rejected/expired code (`invalid_grant`);
+ *   other failures throw. Mock servers: override
+ *   `OAUTH_TWITTER_AUTHORIZE_URL`, `OAUTH_TWITTER_TOKEN_URL`,
+ *   `OAUTH_TWITTER_USER_URL`.
+ * - The token exchange (`verify`'s call to X's token endpoint) is
  * `application/x-www-form-urlencoded`, per RFC 6749 §4.1.3 and X's own docs —
  * matching every other molecule.dev OAuth bond (google, gitlab, github,
  * apple, microsoft).

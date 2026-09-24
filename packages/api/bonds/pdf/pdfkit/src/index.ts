@@ -8,15 +8,22 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-pdf'
- * import { provider } from '@molecule/api-pdf-pdfkit'
- *
- * setProvider(provider)
- *
- * // Or create with custom config:
+ * import { addWatermark, fromTemplate, getPageCount, setProvider } from '@molecule/api-pdf'
  * import { createProvider } from '@molecule/api-pdf-pdfkit'
- * const customProvider = createProvider({ defaultFont: 'Helvetica', defaultFontSize: 14 })
- * setProvider(customProvider)
+ *
+ * // Startup: bond once (singleton). Pure JS — no browser, no native deps.
+ * setProvider(createProvider({ defaultFont: 'Helvetica', defaultFontSize: 11 }))
+ *
+ * const invoice = { number: 'INV-1042', customer: { name: 'Ada Lovelace' }, total: '$120.00' }
+ * const pdf = await fromTemplate(
+ *   '<h1>Invoice {{number}}</h1><p>Billed to <b>{{customer.name}}</b></p><ul><li>Total: {{total}}</li></ul>',
+ *   invoice,
+ *   { format: 'Letter', margin: { top: '1in', bottom: '1in', left: '0.75in', right: '0.75in' } },
+ * )
+ * const stamped = await addWatermark(pdf, 'PAID', { fontSize: 72, opacity: 0.2 })
+ * const pages = await getPageCount(stamped) // 1
+ * // `stamped` is a Buffer: send it with content-type application/pdf or store it.
+ * console.log(pages, stamped.length)
  * ```
  *
  * @remarks
@@ -26,6 +33,12 @@
  * attributes are ignored entirely. Feed it simple semantic markup (or use
  * `fromTemplate` with `{{key}}` interpolation); switch to
  * `@molecule/api-pdf-puppeteer` when the PDF must look like the HTML.
+ *
+ * `fromTemplate` interpolation is plain `{{key}}` / `{{a.b}}` substitution — no
+ * loops, conditionals, or HTML escaping (missing keys become `''`). Of
+ * `PDFOptions` only `format`, `landscape`, `margin` (`pt`/`px`/`mm`/`cm`/`in`
+ * strings) and `width`/`height` are honored; `headerTemplate`,
+ * `footerTemplate`, `printBackground`, `pageRanges` and `scale` are ignored.
  *
  * This bond does NOT implement the core contract's optional `toImages()` —
  * calling it is a runtime "not a function" error. The puppeteer bond implements

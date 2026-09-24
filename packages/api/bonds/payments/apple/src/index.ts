@@ -5,8 +5,39 @@
  *
  * @see https://developer.apple.com/documentation/storekit/in-app_purchase
  *
+ * @example
+ * ```typescript
+ * import { bond, get } from '@molecule/api-bond'
+ * import { setProvider as setConfigProvider } from '@molecule/api-config'
+ * import { provider as envConfig } from '@molecule/api-config-env'
+ * import type { PaymentProviderInterface } from '@molecule/api-payments'
+ * import { paymentProvider } from '@molecule/api-payments-apple'
+ *
+ * // Startup: NAMED bond. Env (server only): APPLE_SHARED_SECRET (App Store Connect →
+ * // App-Specific Shared Secret). The sandbox check reads APPLE_ALLOW_SANDBOX_RECEIPTS through
+ * // `@molecule/api-config`, so bond a config provider too.
+ * setConfigProvider(envConfig)
+ * bond('payments', 'apple', paymentProvider)
+ *
+ * // Verify route: the iOS client sends the base64 app receipt + the product it bought.
+ * const receiptData = 'MIIT…base64-app-receipt'
+ * const apple = get<PaymentProviderInterface>('payments', 'apple')
+ * const verified = await apple?.verifyReceipt?.(receiptData, 'com.example.pro.monthly')
+ * // { productId, transactionId: original_transaction_id, expiresAt: ISO, autoRenews }
+ * // null → bad receipt / product mismatch / refunded / expired / not a subscription
+ * console.log(verified?.transactionId, verified?.expiresAt)
+ * ```
+ *
  * @remarks
  * Scope limits to know BEFORE wiring this bond:
+ *
+ * - **Bond it NAMED — `bond('payments', 'apple', paymentProvider)`** — and
+ *   call `verifyReceipt(receipt, productId)` (RECEIPT first). The adapter has
+ *   no `verifySubscription`/`verifyPurchase`. `transactionId` is the
+ *   `original_transaction_id` (stable across renewals) — store and dedupe on it.
+ * - **Without a bonded `@molecule/api-config` provider a SANDBOX receipt
+ *   (Apple status 21007) cannot be evaluated** — the lookup throws and
+ *   `verifyReceipt` returns `null`. Production receipts never read config.
  *
  * - **Subscriptions only.** Verification looks for the latest entry with an
  *   `expires_date_ms`, so a valid ONE-TIME (consumable/non-consumable) purchase

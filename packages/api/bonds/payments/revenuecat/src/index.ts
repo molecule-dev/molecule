@@ -11,15 +11,40 @@
  * @see https://www.revenuecat.com/docs/api-v1
  *
  * @example
- * ```ts
- * import { bond } from '@molecule/api-bond'
+ * ```typescript
+ * import { bond, get } from '@molecule/api-bond'
+ * import { setProvider as setConfigProvider } from '@molecule/api-config'
+ * import { provider as envConfig } from '@molecule/api-config-env'
+ * import type { PaymentProviderInterface } from '@molecule/api-payments'
  * import { paymentProvider } from '@molecule/api-payments-revenuecat'
  *
- * bond('payments', paymentProvider)
+ * // Startup: this bond reads REVENUECAT_BASE_URL / REVENUECAT_ALLOW_SANDBOX through
+ * // `@molecule/api-config`, so a config provider MUST be bonded too.
+ * // Env (server only): REVENUECAT_SECRET_API_KEY (the SECRET v1 key, not the public SDK key).
+ * setConfigProvider(envConfig)
+ * bond('payments', 'revenuecat', paymentProvider) // NAMED — handlers look up get('payments', name)
+ *
+ * // Verify route: the App User ID is the id of the user THIS request authenticated
+ * // (the client called Purchases.logIn(user.id)) — never a value from the request body.
+ * const authenticatedUserId = 'user-123'
+ * const revenuecat = get<PaymentProviderInterface>('payments', 'revenuecat')
+ * const verified = await revenuecat?.verifyReceipt?.(authenticatedUserId, 'pro') // entitlement OR store product id
+ * // { productId: 'com.example.pro.monthly', priceId: 'pro', transactionId, expiresAt, autoRenews }
+ * // null → no active (unrefunded, unexpired, non-sandbox) subscription for 'pro'
+ * console.log(verified?.productId, verified?.expiresAt)
  * ```
  *
  * @remarks
  * Facts to know BEFORE wiring this bond:
+ *
+ * - **Bond it NAMED — `bond('payments', 'revenuecat', paymentProvider)`**, not
+ *   `bond('payments', paymentProvider)`: the user resource's verify/webhook
+ *   handlers resolve providers with `get('payments', '<name>')`. **Bond a
+ *   `@molecule/api-config` provider first** (e.g. `@molecule/api-config-env`) —
+ *   every verify/webhook reads config through it and throws "No configuration
+ *   provider set" otherwise.
+ * - **It is `verifyReceipt(appUserId, identifier)`, not `verifySubscription`.**
+ *   `verifyFlow` is `'receipt'`; there is no checkout or portal to create.
  *
  * - **The App User ID is an IDENTIFIER, not a proof of purchase.** Apple and
  *   Google receipt bonds verify a cryptographic artifact only the buyer's
