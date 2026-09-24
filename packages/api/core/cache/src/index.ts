@@ -44,15 +44,29 @@
  *
  * @example
  * ```typescript
- * import { setProvider, get, set, getOrSet } from '@molecule/api-cache'
+ * import { del, get, getOrSet, set, setProvider } from '@molecule/api-cache'
  * // Pick the bond by what's provisioned — in-memory needs nothing (safe default); swap to
  * // `@molecule/api-cache-redis` ONLY when a managed Redis exists (REDIS_URL is in the env).
  * import { createProvider } from '@molecule/api-cache-memory'
  *
+ * interface Profile {
+ *   id: string
+ *   name: string
+ * }
+ *
+ * // Startup: bond exactly one provider before any cache call.
  * setProvider(createProvider())
- * await set('user:123', userData, { ttl: 3600 })
- * const cached = await get<UserData>('user:123')
- * const fresh = await getOrSet('user:456', () => fetchUser('456'), { ttl: 600 })
+ *
+ * // Per-user values carry the user id in the KEY.
+ * await set<Profile>('user:123:profile', { id: '123', name: 'Ada' }, { ttl: 3600 })
+ * const cached = await get<Profile>('user:123:profile') // { id: '123', name: 'Ada' }
+ *
+ * // Cache-aside: the loader runs on a miss only; within the TTL the cached copy is served.
+ * const loadProfile = async (id: string): Promise<Profile> => ({ id, name: 'Grace' })
+ * const fresh = await getOrSet('user:456:profile', () => loadProfile('456'), { ttl: 600 })
+ *
+ * // Invalidate on write so the next read is not stale.
+ * await del('user:123:profile')
  * ```
  *
  * @e2e
