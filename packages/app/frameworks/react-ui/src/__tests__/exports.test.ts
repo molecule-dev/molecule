@@ -56,6 +56,11 @@ describe('module exports', () => {
       'Dropdown',
       'DropdownLabel',
       'DropdownSeparator',
+      'ResponsiveAppShell',
+      'ResponsiveAppShellTopBar',
+      'ResponsiveAppShellSidebar',
+      'ResponsiveAppShellDrawer',
+      'ResponsiveAppShellContent',
     ]
 
     for (const name of expectedComponents) {
@@ -70,6 +75,11 @@ describe('module exports', () => {
     it('should export useToast hook', () => {
       expect(allExports.useToast).toBeDefined()
       expect(typeof allExports.useToast).toBe('function')
+    })
+
+    it('should export useIsDesktop hook', () => {
+      expect(allExports.useIsDesktop).toBeDefined()
+      expect(typeof allExports.useIsDesktop).toBe('function')
     })
   })
 })
