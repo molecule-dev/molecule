@@ -7,13 +7,32 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-notification'
+ * import express from 'express'
  *
- * // Routes are registered automatically by mlcl inject
- * // Manual usage:
- * for (const route of routes) {
- *   app[route.method](route.path, requestHandlerMap[route.handler])
- * }
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { send, setProvider } from '@molecule/api-notification-center'
+ * import { createProvider } from '@molecule/api-notification-center-database'
+ * import { requestHandlerMap as Notification } from '@molecule/api-resource-notification'
+ *
+ * // Startup: bond the DataStore (the postgresql bond reads DATABASE_URL), THEN the
+ * // notification-center provider that these handlers call.
+ * setStore(store)
+ * setProvider(createProvider())
+ *
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session; without it every route answers 401).
+ * export const router = express.Router()
+ * router.get('/notifications', Notification.list) // { items, total, offset, limit }
+ * router.get('/notifications/unread-count', Notification.unreadCount) // { count }
+ * router.get('/notifications/preferences', Notification.getPreferences)
+ * router.post('/notifications/:id/read', Notification.markRead) // 204, 404 if not yours
+ * router.post('/notifications/read-all', Notification.markAllRead)
+ * router.put('/notifications/preferences', Notification.updatePreferences)
+ * router.delete('/notifications/:id', Notification.del)
+ *
+ * // Feature code CREATES notifications through the core (there is no POST route here):
+ * await send('user-123', { type: 'order', title: 'Order shipped', body: 'Order #1042 is on its way.' })
  * ```
  *
  * @remarks
@@ -37,7 +56,10 @@
  *
  * The route table carries no auth middleware — each handler reads the
  * authenticated user from `res.locals.session` (mount behind your global auth
- * middleware) and 401s without one. Everything is self-scoped: a user can
+ * middleware) and 401s without one. `GET /notifications` returns
+ * `{ items, total, offset, limit }` (read the rows off `items`, paginate with
+ * `?limit`/`?offset`, filter with `?read=true|false` / `?type=`), and
+ * `GET /notifications/unread-count` returns `{ count }`. Everything is self-scoped: a user can
  * only ever see, mark, or delete their OWN notifications.
  */
 

@@ -23,6 +23,15 @@
  *   report the product on a subscription while checkout uses the price.
  * - Re-verify entitlement server-side wherever it gates access; never cache "is subscribed"
  *   somewhere the client can set.
+ * - **`paymentRecordService.store` only throws on a duplicate.** Any other
+ *   insert failure (missing table, connection error) is LOGGED and the promise
+ *   still resolves — a successful `await` does not prove the row exists. Check
+ *   `findByTransaction` afterwards if you must be certain before granting.
+ * - `findByCustomerData` runs raw PostgreSQL JSON SQL (`"data"->>$2`) through
+ *   `query()` — bond `setPool(pool)` too, and expect it to fail (logged, returns
+ *   `null`) on other databases.
+ * - `findPlanByProductId` matches `platformProductId` OR any `platformPriceIds`
+ *   entry; the `''` key is the free default plan (`getDefaultPlan()`).
  *
  * The `payments` table ships in `setup/payments.sql` — an mlcl-scaffolded API
  * copies and replays it automatically on migrate; anywhere else run it once.
@@ -68,18 +77,44 @@
  *   SERVER-ONLY.
  *
  * @example
- * ```ts
- * import { registerPlans, stripeMonthly, stripeYearly } from '@molecule/api-resource-payment'
+ * ```typescript
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import type { NormalizedSubscription } from '@molecule/api-payments'
+ * import {
+ *   PaymentRecordConflictError,
+ *   paymentRecordService,
+ *   planService,
+ *   registerPlans,
+ *   stripeMonthly,
+ * } from '@molecule/api-resource-payment'
  *
- * // Register your plan catalogue at startup. The keys are YOUR plan ids; the ready-made
- * // Plan objects carry the env-configured Stripe price/product ids (also register the
- * // apple and google plan exports when you support those providers):
- * registerPlans({ monthly: stripeMonthly, yearly: stripeYearly })
+ * // Startup: bond the DataStore (the postgresql bond reads DATABASE_URL), then register YOUR
+ * // catalogue — the built-in plans carry placeholder ids that never match a real payment.
+ * setStore(store)
+ * registerPlans({
+ *   stripeMonthly: { ...stripeMonthly, platformPriceIds: [process.env.STRIPE_PRICE_MONTHLY ?? ''] },
+ * })
  *
- * // Then grant a plan ONLY after a SERVER-VERIFIED payment — never from a client field.
- * // The full verify → record (replay-guarded) → resolve → grant flow lives in the scaffolded
- * // user `verifyPayment` handler; verify receipts against @molecule/api-payments and store
- * // them with `paymentRecordService.store` (it THROWS on a replayed transactionId — reject).
+ * // Call ONLY with the result of your payments provider's SERVER-SIDE verification.
+ * export async function grantVerifiedSubscription(userId: string, verified: NormalizedSubscription) {
+ *   if (!verified.isActive) return null
+ *   const record = {
+ *     userId,
+ *     platformKey: verified.provider,
+ *     transactionId: verified.subscriptionId,
+ *     productId: verified.productId,
+ *     data: verified.rawData,
+ *   }
+ *   try {
+ *     await paymentRecordService.store(record)
+ *   } catch (error) {
+ *     if (!(error instanceof PaymentRecordConflictError)) throw error
+ *     const owner = await paymentRecordService.findByTransaction(record.platformKey, record.transactionId)
+ *     if (owner?.userId !== userId) throw new Error('Subscription is bound to another account', { cause: error })
+ *   }
+ *   return planService.findPlanByProductId(verified.productId) // null → unknown plan: grant nothing
+ * }
  * ```
  *
  * @module `@molecule/api-resource-payment`

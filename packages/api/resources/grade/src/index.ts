@@ -11,17 +11,41 @@
  * @module
  * @example
  * ```typescript
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
  * import {
- *   routes,
- *   requestHandlerMap,
- *   getCourseAverage,
- *   getGpa,
- *   getTranscript,
  *   defaultGradeScale,
+ *   getCourseAverage,
+ *   requestHandlerMap as Grade,
  * } from '@molecule/api-resource-grade'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`: the gate middleware comes FIRST on every
+ * // route. Mount AFTER the app's global auth middleware (it sets res.locals.session).
+ * export const router = express.Router()
+ * router.post('/grades', Grade.requireAdmin, Grade.create)
+ * router.get('/grades', Grade.authenticate, Grade.list)
+ * router.get('/grades/:id', Grade.authenticate, Grade.read)
+ * router.patch('/grades/:id', Grade.requireAdmin, Grade.update)
+ * router.delete('/grades/:id', Grade.requireAdmin, Grade.del)
+ * router.get('/enrollments/:enrollmentId/grade-average', Grade.authenticate, Grade.courseAverage)
+ * router.get('/users/:userId/gpa', Grade.requireSelfOrAdmin, Grade.gpa)
+ * router.get('/users/:userId/transcript', Grade.requireSelfOrAdmin, Grade.transcript)
+ *
+ * // Server-side aggregate (no auth check — only call it for an authorized viewer):
+ * const average = await getCourseAverage('enr-1', defaultGradeScale)
+ * console.log(average?.averagePercent, average?.letter) // e.g. 90, 'A-' (null when no grades)
  * ```
  *
  * @remarks
+ * `POST /grades` stores `letter: null` unless the body carries a `scale` — the
+ * letter is NOT derived from `defaultGradeScale` at write time (the aggregate
+ * routes apply `defaultGradeScale` when they read).
+ *
  * Table: `src/__setup__/grades.sql` creates `grades`. An mlcl-scaffolded API
  * replays `__setup__/*.sql` automatically on migrate; anywhere else run it
  * once — nothing at runtime creates it.
@@ -42,6 +66,11 @@
  * callers whose session userId ≠ `:userId` unless they are a grade admin —
  * handlers read the authenticated user from `res.locals.session` (mount
  * behind your global auth middleware).
+ *
+ * The `requireAdmin` middleware rejects by calling `next(message)` — the status comes
+ * from YOUR Express error handler (the mlcl scaffold's answers 500), not a 403.
+ * The handlers re-check and answer 401/403 JSON themselves, so routes wired
+ * without the middleware still fail closed with a proper status.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks) against

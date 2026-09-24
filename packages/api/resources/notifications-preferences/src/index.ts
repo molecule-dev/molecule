@@ -10,20 +10,33 @@
  * @module
  * @example
  * ```typescript
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
  * import {
- *   routes,
- *   requestHandlerMap,
  *   isEnabled,
+ *   requestHandlerMap as NotificationPreferences,
+ *   updatePreferences,
  * } from '@molecule/api-notifications-preferences'
  *
- * // Wire HTTP routes (mlcl inject does this automatically):
- * //   GET /me/notification-preferences
- * //   PUT /me/notification-preferences
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
  *
- * // Gate delivery in a notification dispatcher:
- * if (await isEnabled(userId, 'order.shipped', 'email')) {
- *   await sendEmail(...)
- * }
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session; without it both routes answer 401).
+ * export const router = express.Router()
+ * router.get('/me/notification-preferences', NotificationPreferences.getPreferences)
+ * router.put('/me/notification-preferences', NotificationPreferences.updatePreferences)
+ *
+ * // PUT body (the bare map, not wrapped): { "order.shipped": { "email": false } }
+ * const userId = 'user-123' // the SESSION user
+ * await updatePreferences(userId, { 'order.shipped': { email: false } })
+ *
+ * // Gate EVERY dispatch path — absence of a preference means enabled.
+ * const sendEmail = await isEnabled(userId, 'order.shipped', 'email') // false
+ * const sendPush = await isEnabled(userId, 'order.shipped', 'push') // true (untouched channel)
+ * console.log(sendEmail, sendPush)
  * ```
  *
  * @remarks
@@ -43,6 +56,11 @@
  * - **Routes are session-scoped** (`/me/notification-preferences`, `authenticate`):
  *   the handlers take the user from the session — never accept a target userId
  *   from the client for reads or writes.
+ * - **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ * - The `PUT` body IS the partial map (`{ [type]: { email?, push?, sms?, inApp? } }`,
+ *   booleans only — anything else is a 400); both routes answer
+ *   `{ preferences: {...} }`, so read `.preferences` off the response JSON.
+ *   Channel names are exactly `email`, `push`, `sms`, `inApp` (camelCase).
  * - Type slugs are free-form strings: keep ONE canonical slug per event (e.g.
  *   `order.shipped`) shared by the preferences UI and every dispatch call — a
  *   mismatched slug silently bypasses the user's choice (default-on).

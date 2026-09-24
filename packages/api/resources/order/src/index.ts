@@ -7,8 +7,38 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-order'
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   requestHandlerMap as Order,
+ *   setOrderMerchantAuthorizer,
+ * } from '@molecule/api-resource-order'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL), and say who may
+ * // act as the MERCHANT — without this every confirm/ship/deliver/refund answers 403.
+ * setStore(store)
+ * const merchantIds = new Set(['merchant-1'])
+ * setOrderMerchantAuthorizer((_order, userId) => merchantIds.has(userId))
+ *
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session; without it every route answers 401).
+ * export const router = express.Router()
+ * router.post('/orders', Order.create)
+ * router.get('/orders', Order.list)
+ * router.get('/orders/:id', Order.read)
+ * router.put('/orders/:id/status', Order.updateStatus) // { status: 'confirmed' | 'processing' | … }
+ * router.post('/orders/:id/cancel', Order.cancel)
+ * router.post('/orders/:id/refund', Order.refund)
+ * router.get('/orders/:id/history', Order.getHistory)
+ *
+ * // Buyer: POST /orders { items: [{ productId: 'prod-1', name: 'Mug', price: 1200, quantity: 2 }],
+ * //   shipping: 500 } → 201 { id, status: 'pending', subtotal: 2400, total: 2900, items, ... }
+ * //   (item prices are replaced by the `products` catalog price when that table exists)
+ * // Merchant: PUT /orders/:id/status { status: 'confirmed' } → 200; a buyer gets 403
  * ```
+ *
  * @remarks
  * **SECURITY — unit prices are SERVER-RE-PRICED when a product catalog
  * exists; without one, `create()` still trusts client-supplied amounts.**
@@ -36,6 +66,14 @@
  * already-progressed order) are MERCHANT-ONLY and DENY by default until an app
  * registers a merchant authorizer via `setOrderMerchantAuthorizer` — the order
  * row records only the BUYER (`userId`), so it cannot know who the seller is.
+ *
+ * Transitions follow `STATUS_TRANSITIONS` (pending → confirmed → processing →
+ * shipped → delivered → refunded; cancel from pending/confirmed/processing) —
+ * anything else is 409. The buyer may only cancel their own PENDING order.
+ * Amounts are plain numbers; this resource does no currency math, so use one
+ * unit everywhere (the product catalog stores the smallest unit, e.g. cents).
+ * `create()` records `paymentId` but never charges, and `refund` only moves the
+ * status — no payment provider is called; move the money yourself.
  *
  * Tables: `src/__setup__/orders.sql` creates `orders`, `order_items`, and
  * `order_events`. An mlcl-scaffolded API replays `__setup__/*.sql`

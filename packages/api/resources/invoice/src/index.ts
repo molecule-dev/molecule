@@ -7,24 +7,41 @@
  * Extracted from the invoice-billing flagship.
  *
  * @example
- * ```ts
- * import { createInvoiceRouter } from '@molecule/api-resource-invoice'
- * app.use('/invoices', createInvoiceRouter())
- * ```
+ * ```typescript
+ * import express from 'express'
  *
- * @example
- * ```ts
- * import { createInvoiceForUser, recordPayment } from '@molecule/api-resource-invoice'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createInvoiceForUser,
+ *   createInvoiceRouter,
+ *   recordPayment,
+ * } from '@molecule/api-resource-invoice'
  *
- * const inv = await createInvoiceForUser(userId, {
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL), then mount the
+ * // router AFTER the global auth middleware that sets res.locals.session (else every call 401s).
+ * setStore(store)
+ * const app = express()
+ * app.use(express.json())
+ * app.use('/invoices', createInvoiceRouter()) // GET/POST /invoices, GET/PUT/DELETE /:id, POST /:id/payment
+ *
+ * // Server-side equivalent of POST /invoices then POST /invoices/:id/payment, as the SESSION user:
+ * const userId = 'user-123'
+ * const invoice = await createInvoiceForUser(userId, {
  *   client_id: 'acme-co',
  *   items: [{ description: 'Consulting', quantity: 10, unit_price: 250 }],
- *   tax_rate: 8.5,
+ *   tax_rate: 8.5, // PERCENT, not a fraction
  * })
- * await recordPayment(inv.id, userId, 2710.00) // marks paid
+ * console.log(invoice.number, invoice.status, invoice.total) // e.g. 'INV-2026-0001' 'draft' 2712.5
+ *
+ * const paid = await recordPayment(invoice.id, userId, 2712.5) // null if not the caller's invoice
+ * console.log(paid?.status, paid?.amount_paid) // 'paid' 2712.5 (less than total → 'partial')
  * ```
  *
  * @remarks
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`) —
+ * every service call and route goes through it.
+ *
  * Table: `src/__setup__/invoices.sql` creates the single `invoices` table. An
  * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
  * anywhere else run it once. The bundled `computeTotals(items, taxRate)`
@@ -36,6 +53,14 @@
  * auth middleware; 401 otherwise). `recordPayment` is bookkeeping — "record a
  * payment I received" against my own invoice — it never talks to a payment
  * provider; wire actual charging separately (see `@molecule/api-payments`).
+ *
+ * Money is plain decimal numbers in the invoice `currency` (not cents), and
+ * `tax_rate` is a percent (`8.5` = 8.5%). `recordPayment` does NOT reject an
+ * overpayment or a payment on a `paid`/`void` invoice — it adds the amount and
+ * sets `partial`/`paid`; enforce those rules in your route if you need them.
+ * Nothing flips a status to `overdue` or `sent` automatically — set it via
+ * `updateInvoiceForUser` / `PUT /invoices/:id`. `GET /invoices` paginates by
+ * `page` (1-based, default `limit` 50) and returns `{ data, total, page, limit }`.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

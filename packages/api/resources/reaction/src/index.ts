@@ -7,12 +7,35 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-reaction'
+ * import express from 'express'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /:resourceType/:resourceId/reactions
- * // DELETE /:resourceType/:resourceId/reactions
- * // GET    /:resourceType/:resourceId/reactions
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   addReaction,
+ *   getReactionSummary,
+ *   removeReaction,
+ *   requestHandlerMap as Reaction,
+ * } from '@molecule/api-resource-reaction'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session; POST/DELETE answer 401 without it, GET stays public).
+ * export const router = express.Router()
+ * router.post('/:resourceType/:resourceId/reactions', Reaction.create) // body { type: 'like' }
+ * router.delete('/:resourceType/:resourceId/reactions', Reaction.del) // ?type=like, else ALL of mine
+ * router.get('/:resourceType/:resourceId/reactions', Reaction.list)
+ *
+ * // Server-side equivalent, as the SESSION user:
+ * const userId = 'user-123'
+ * await addReaction('post', 'post-42', userId, 'like')
+ * await addReaction('post', 'post-42', userId, 'like') // idempotent — still one 'like'
+ * await addReaction('post', 'post-42', userId, 'love') // a user may hold several types at once
+ * await removeReaction('post', 'post-42', userId, 'love')
+ * const summary = await getReactionSummary('post', 'post-42', userId)
+ * console.log(summary) // { total: 1, counts: { like: 1 }, userReactions: ['like'] }
  * ```
  *
  * @remarks
@@ -22,6 +45,13 @@
  * string). Reactions are always owner-scoped: handlers derive the reacting
  * user from the SESSION, never from the request body, and `del` removes only
  * the caller's own reactions (optionally a single `type` via `?type=`).
+ *
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ * Reactions are NOT exclusive (a user can both `like` and `love` the same
+ * target — enforce one-per-user yourself if you want that) and `type` is any
+ * 1–50 character string: `DEFAULT_REACTION_TYPES` is a suggestion, not
+ * validated. `DELETE` without `?type=` removes ALL of the caller's reactions
+ * on that target. The GET answers `{ total, counts, userReactions }`.
  *
  * The GET summary route is PUBLIC by default (no `authenticate`) so anonymous
  * visitors can see counts; when a session is present it also includes the

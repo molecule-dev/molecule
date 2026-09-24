@@ -9,18 +9,56 @@
  * path falls back automatically so key rotation never bricks reads).
  *
  * @example
- * ```ts
- * import { createJournalEntryRouter } from '@molecule/api-resource-journal-entry'
+ * ```typescript
  * import express from 'express'
  *
+ * import { setPool, setStore } from '@molecule/api-database'
+ * import { pool, store } from '@molecule/api-database-postgresql'
+ * import {
+ *   computeStreak,
+ *   createEntryForOwner,
+ *   createJournalEntryRouter,
+ * } from '@molecule/api-resource-journal-entry'
+ *
+ * // Startup: bond BOTH the DataStore and the raw pool (mood upserts and the streak use raw
+ * // SQL). The postgresql bond reads DATABASE_URL. Mount AFTER the global auth middleware that
+ * // sets res.locals.session (else every call 401s).
+ * setPool(pool)
+ * setStore(store)
  * const app = express()
- * app.use('/api/journal', createJournalEntryRouter())
+ * app.use(express.json())
+ * app.use('/api/journal', createJournalEntryRouter()) // /entries, /entries/:id, /streak, /export/:format
+ *
+ * // Server-side equivalent of POST /api/journal/entries, as the SESSION user:
+ * const userId = 'user-123'
+ * const entry = await createEntryForOwner(userId, {
+ *   title: 'Morning pages',
+ *   body: 'Slept well and went for a run before work.',
+ *   mood: 'good', // 'radiant' | 'good' | 'neutral' | 'low' | 'struggling'
+ *   tags: ['sleep', 'exercise'],
+ * })
+ * console.log(entry?.mood, entry?.word_count) // 'good' 9
+ * console.log(await computeStreak(userId)) // consecutive UTC days with an entry, e.g. 1
  * ```
  *
  * @remarks
- * Schema lives in `__setup__/journal_entries.sql` — two tables:
- * `journal_entries` + `mood_entries`. Mood rows are upserted per
- * (user, day) so multiple entries in a day share one mood row.
+ * - **Bond `setPool(pool)` as well as `setStore(store)`.** Writing with a `mood`
+ *   and `computeStreak` / `GET /streak` call raw `query()` from
+ *   `@molecule/api-database`, and that SQL is PostgreSQL-only (`::date`,
+ *   `to_char`) — with only a store bonded those paths throw.
+ * - Schema lives in `__setup__/journal_entries.sql` — two tables:
+ *   `journal_entries` + `mood_entries`. Mood rows are upserted per
+ *   (user, day) so multiple entries in a day share one mood row.
+ * - **Encryption does not remove the plaintext.** With `@molecule/api-encryption`
+ *   bonded, `body_encrypted` is written — but the plaintext `body` column is
+ *   still written too. Without a bond, only plaintext is stored.
+ * - Everything is owner-scoped: service functions take the session `userId`
+ *   first and return `null`/`false` for rows the caller doesn't own. The list
+ *   endpoint returns a bare array (newest first, `?limit` 1–200, default 100),
+ *   not a paginated envelope. `mood` is a word, not a number (`SCORE_BY_LEVEL`
+ *   maps it to 1–5).
+ * - `GET /export/:format` takes `json`, `csv` or `txt` (400 otherwise) and
+ *   streams a download, not a JSON envelope.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

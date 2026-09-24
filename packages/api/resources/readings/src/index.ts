@@ -10,21 +10,36 @@
  *
  * @example
  * ```typescript
- * import { createReadingsRouter } from '@molecule/api-resource-readings'
+ * import express from 'express'
  *
- * // Mount behind your global auth middleware — every route requires a session.
+ * import { setPool, setStore } from '@molecule/api-database'
+ * import { pool, store } from '@molecule/api-database-postgresql'
+ * import {
+ *   createReadingsRouter,
+ *   ingestReading,
+ *   listAggregatedReadings,
+ *   listRawReadings,
+ * } from '@molecule/api-resource-readings'
+ *
+ * // Startup: bond the DataStore AND the raw pool — rollups (granularity ≠ raw) use raw SQL.
+ * // The postgresql bond reads DATABASE_URL. Mount behind your global auth middleware.
+ * setPool(pool)
+ * setStore(store)
+ * const app = express()
+ * app.use(express.json())
  * app.use('/readings', createReadingsRouter())
- * // POST /readings        — ingest one reading
- * // POST /readings/bulk   — ingest up to 10 000 readings
+ * // POST /readings · POST /readings/bulk { readings: [...] } (≤ 10 000)
  * // GET  /readings?granularity=raw|5min|hour|day&sensor_id=…&metric=…&from=…&to=…
- * ```
  *
- * @example
- * ```typescript
- * import { ingestReading, listAggregatedReadings } from '@molecule/api-resource-readings'
+ * // Server-side equivalent, as the SESSION user:
+ * const userId = 'user-123'
+ * const reading = { sensor_id: 'meter-1', metric: 'kwh', unit: 'kWh' }
+ * await ingestReading(userId, { ...reading, value: 1.4, recorded_at: '2026-09-24T10:05:00Z' })
+ * await ingestReading(userId, { ...reading, value: 1.6, recorded_at: '2026-09-24T10:35:00Z' })
  *
- * await ingestReading(userId, { sensor_id: 'meter-1', metric: 'kwh', value: 1.42 })
+ * const raw = await listRawReadings(userId, { sensor_id: 'meter-1' }) // oldest first
  * const hourly = await listAggregatedReadings(userId, { granularity: 'hour', metric: 'kwh' })
+ * console.log(raw.length, hourly[0]?.sum, hourly[0]?.avg) // 2 3 1.5
  * ```
  *
  * @remarks
@@ -40,8 +55,12 @@
  * `::int` casts, and `interval` literals — **PostgreSQL-only**. On the
  * SQLite/MySQL bonds use `granularity=raw` (DataStore-based, portable) and
  * bucket in application code, or supply your own dialect's aggregation.
+ * Bond `setPool(pool)` as well as `setStore(store)` or every rollup throws.
  * `ingestBulk` inserts sequentially (one INSERT per reading, max 10 000 per
- * request).
+ * request) with no transaction, so a mid-batch failure leaves the earlier
+ * rows written. Raw queries default to `limit` 1000 (rollups 5000) — pass
+ * `from`/`to` (ISO strings, compared against `recorded_at`) for long series.
+ * `recorded_at` defaults to NOW when omitted: send the device timestamp.
  *
  * Tables: `src/__setup__/readings.sql` creates `readings` (owner-scoped via
  * `owner_id`). An mlcl-scaffolded API replays `__setup__/*.sql` automatically

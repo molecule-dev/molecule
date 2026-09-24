@@ -8,7 +8,34 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-property'
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Property } from '@molecule/api-resource-property'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session; writes answer 401 without it, reads stay public).
+ * export const router = express.Router()
+ * router.post('/properties', Property.create)
+ * router.get('/properties', Property.list) // ?type=&city=&page=&perPage= — ACTIVE only
+ * router.get('/properties/:id', Property.read)
+ * router.patch('/properties/:id', Property.update)
+ * router.delete('/properties/:id', Property.del)
+ * router.get('/properties/:id/units', Property.listUnits)
+ * router.post('/properties/:id/units', Property.createUnit)
+ * router.get('/properties/:id/photos', Property.listPhotos)
+ * router.post('/properties/:id/photos', Property.createPhoto)
+ * router.get('/properties/:id/amenities', Property.listAmenities)
+ * router.post('/properties/:id/amenities', Property.createAmenity)
+ *
+ * // Owner client:
+ * // POST /properties { name: 'Harbour View', addressLine1: '1 Quay St', city: 'Lisbon',
+ * //   countryCode: 'pt' } → 201 { id, ownerId, slug: 'harbour-view', status: 'draft', countryCode: 'PT', ... }
+ * // PATCH /properties/:id { status: 'active' } → now visible in GET /properties { data, page, perPage }
  * ```
  *
  * @remarks
@@ -22,6 +49,12 @@
  * (draft/inactive/archived) or soft-deleted property 404s for everyone but
  * its owner — 404, not 403, so its existence isn't leaked. If your app's
  * inventory is private, gate the read routes yourself.
+ *
+ * **A new property is `'draft'` and INVISIBLE in `GET /properties`** until the
+ * owner PATCHes `status: 'active'`. `addressLine1`, `city` and `countryCode`
+ * are required (400 otherwise); `type` defaults to `'apartment'`. The list
+ * answers `{ data, page, perPage }` (no `total`). `unitCount` is maintained by
+ * `POST …/units` — don't set it yourself.
  *
  * Writes are OWNER-scoped and fail closed: `create` reads the caller from
  * `res.locals.session` (401 without one; mount behind your global auth

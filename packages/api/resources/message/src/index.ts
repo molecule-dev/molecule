@@ -8,18 +8,39 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-message'
+ * import express from 'express'
  *
- * // Wire routes into your Express app via mlcl inject
- * // POST   /message-threads
- * // GET    /message-threads
- * // GET    /message-threads/unread-count
- * // GET    /message-threads/:threadId
- * // GET    /message-threads/:threadId/messages
- * // POST   /message-threads/:threadId/messages
- * // POST   /message-threads/:threadId/read
- * // PATCH  /message-threads/messages/:messageId
- * // DELETE /message-threads/messages/:messageId
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import {
+ *   getOrCreateThread,
+ *   getTotalUnreadCount,
+ *   markRead,
+ *   requestHandlerMap as Message,
+ *   sendMessage,
+ * } from '@molecule/api-resource-message'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`. Mount AFTER the app's global auth middleware
+ * // (it sets res.locals.session; without it every route answers 401).
+ * export const router = express.Router()
+ * router.post('/message-threads', Message.createThread) // body { participantId }
+ * router.get('/message-threads', Message.listThreads)
+ * router.get('/message-threads/unread-count', Message.unreadCount) // before /:threadId
+ * router.get('/message-threads/:threadId', Message.readThread)
+ * router.get('/message-threads/:threadId/messages', Message.listMessages)
+ * router.post('/message-threads/:threadId/messages', Message.sendMessage) // body { body, attachments? }
+ * router.post('/message-threads/:threadId/read', Message.markRead)
+ * router.patch('/message-threads/messages/:messageId', Message.editMessage)
+ * router.delete('/message-threads/messages/:messageId', Message.deleteMessage)
+ *
+ * // Server-side (e.g. a system DM): the service THROWS on a non-participant or empty body.
+ * const thread = await getOrCreateThread('user-alice', 'user-bob') // same row for (bob, alice)
+ * await sendMessage(thread.id, 'user-alice', 'Your order has shipped!')
+ * console.log(await getTotalUnreadCount('user-bob')) // 1
+ * await markRead(thread.id, 'user-bob') // resets bob's counter to 0
  * ```
  *
  * @remarks
@@ -33,6 +54,15 @@
  * mount behind your global auth middleware) and rejects non-participants with
  * 403/404. The sender is always the session user — never accept a sender id
  * from the request body.
+ *
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ * The service functions do NOT return `null` for bad input — `sendMessage` /
+ * `markRead` throw when the thread is missing or the user is not a
+ * participant, and `getOrCreateThread` throws for the same user on both sides.
+ * They also do NOT check that the other participant exists or that the caller
+ * may message them — gate that in your app. `GET …/:threadId/messages` returns
+ * `{ data, limit }`, newest first (paginate with `?before=<ISO timestamp>`);
+ * deleted messages stay in the list with `deletedAt` set and an empty body.
  *
  * Realtime delivery is best-effort — messages are persisted before any
  * broadcast attempt and a missing realtime bond is silently a no-op.

@@ -4,11 +4,28 @@
  * `requestHandlerMap`.
  *
  * @example
- * ```ts
- * import { routes, requestHandlerMap } from '@molecule/api-resource-project'
- * // POST|GET /projects · GET|PATCH|DELETE /projects/:id — registered by
- * // mlcl inject, or manually:
- * // for (const r of routes) app[r.method](r.path, requestHandlerMap[r.handler])
+ * ```typescript
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Project } from '@molecule/api-resource-project'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // What `mlcl inject` generates from `routes`: `authUser` (the owner check) goes FIRST on every
+ * // /:id route. Mount AFTER the app's global auth middleware (it sets res.locals.session).
+ * export const router = express.Router()
+ * router.post('/projects', Project.create)
+ * router.get('/projects', Project.list) // bare array of the caller's projects
+ * router.get('/projects/:id', Project.authUser, Project.read)
+ * router.patch('/projects/:id', Project.authUser, Project.update)
+ * router.delete('/projects/:id', Project.authUser, Project.del)
+ *
+ * // Client: POST /projects { name: 'My Shop', projectType: 'full-stack' }
+ * //   → 201 { id, userId, slug: 'my-shop', projectType: 'full-stack', sandboxStatus: 'stopped', ... }
+ * // PATCH /projects/:id { settings: { theme: 'dark' } } merges into the stored settings.
  * ```
  *
  * @remarks
@@ -22,6 +39,16 @@
  * a richer access model (e.g. owner-or-team) can gate the route with its own
  * middleware and set `res.locals.project` to the pre-authorized row — `read`,
  * `update`, and `del` reuse it instead of re-deriving ownership.
+ *
+ * **Bond the DataStore first** (`setStore(...)` from `@molecule/api-database`).
+ * `authUser` answers 403 (not 404) for an id that does not exist OR belongs to
+ * someone else — do not treat 403 as "wrong password". `PATCH` applies only
+ * `name`, `settings` and `envVars` (both MERGED key-by-key, not replaced),
+ * `sandboxId` and `sandboxStatus`; `framework`, `packages`, `projectType`,
+ * `templateSlug` and `brandingSpec` are in `UpdateProjectInput` but the handler
+ * silently ignores them. `projectType` is not validated against its union on
+ * create. `envVars` are stored as plain JSON — do not put secrets there
+ * unless the table is protected.
  *
  * Table: `src/__setup__/projects.sql` creates `projects`. An mlcl-scaffolded
  * API replays `__setup__/*.sql` automatically on migrate; anywhere else run

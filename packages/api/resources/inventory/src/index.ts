@@ -7,7 +7,31 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-inventory'
+ * import express from 'express'
+ *
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { requestHandlerMap as Inventory } from '@molecule/api-resource-inventory'
+ *
+ * // Startup: bond the DataStore once (the postgresql bond reads DATABASE_URL).
+ * setStore(store)
+ *
+ * // Mount AFTER the app's global auth middleware (it sets res.locals.session). Static paths
+ * // (`/inventory/alerts`, `/inventory/bulk`, `/inventory/reservations/…`) go BEFORE `/:productId`.
+ * export const router = express.Router()
+ * router.get('/inventory/alerts', Inventory.getAlerts)
+ * router.post('/inventory/bulk', Inventory.requireInventoryAdmin, Inventory.bulkUpdate)
+ * router.post('/inventory/reservations/:reservationId/confirm', Inventory.confirm)
+ * router.delete('/inventory/reservations/:reservationId', Inventory.release)
+ * router.get('/inventory/:productId', Inventory.getStock)
+ * router.put('/inventory/:productId', Inventory.requireInventoryAdmin, Inventory.updateStock)
+ * router.post('/inventory/:productId/reserve', Inventory.reserve)
+ * router.get('/inventory/:productId/movements', Inventory.getMovements)
+ *
+ * // Admin client: PUT /inventory/prod-1 { type: 'add', quantity: 25 } // 'add' | 'remove' | 'set'
+ * //   → 200 { productId: 'prod-1', total: 25, reserved: 0, available: 25, isLowStock: false, ... }
+ * // Checkout:     POST /inventory/prod-1/reserve { quantity: 2, orderId: 'order-9' }
+ * //   → 201 { id, productId: 'prod-1', quantity: 2, orderId: 'order-9', ... } (409 if short)
  * ```
  *
  * @remarks
@@ -18,17 +42,32 @@
  *
  * Stock rows are keyed by `productId` — SHARED app-wide state, not per-user
  * rows. Writing stock (`PUT /inventory/:productId`) and
- * `POST /inventory/bulk` are role-gated and DENY BY DEFAULT (admin session
- * claim or an `@molecule/api-permissions` grant), enforced both as the
- * `requireInventoryAdmin` route middleware and inside the handlers
- * (fail-closed). Out of the box no one can mutate stock — grant the role
+ * `POST /inventory/bulk` are role-gated and DENY BY DEFAULT: the session needs
+ * an admin claim (`isAdmin: true`, `role`/`roles` `'admin'`, or an `'admin'` /
+ * `'inventory:manage'` entry in `permissions`) — there is NO
+ * `@molecule/api-permissions` lookup, so set the claim in your auth middleware.
+ * The gate is enforced both as the `requireInventoryAdmin` route middleware and
+ * inside the handlers (fail-closed). Out of the box no one can mutate stock — grant the role
  * first; never "fix" the 403 by removing the gate.
  *
  * Reservation flow: `POST /inventory/:productId/reserve` holds quantity →
  * `POST /inventory/reservations/:id/confirm` deducts it,
  * `DELETE /inventory/reservations/:id` releases the hold. All handlers read
  * the authenticated user from `res.locals.session` (mount behind your global
- * auth middleware; 401 otherwise).
+ * auth middleware; 401 otherwise). `routes` lists `'authenticate'` as a
+ * middleware but `requestHandlerMap` has no such key — authentication is YOUR
+ * global middleware's job.
+ *
+ * Route order matters in Express: `GET /inventory/:productId` declared before
+ * `GET /inventory/alerts` swallows the alerts request (it looks up a product
+ * named `alerts` and 404s) — register the static paths first, as above.
+ * A first `PUT` on an unknown product CREATES its stock row
+ * (`lowStockThreshold: 10`); `reserve` on an unknown product 404s.
+ *
+ * The `requireInventoryAdmin` middleware rejects by calling `next(message)` — the status comes
+ * from YOUR Express error handler (the mlcl scaffold's answers 500), not a 403.
+ * The handlers re-check and answer 401/403 JSON themselves, so routes wired
+ * without the middleware still fail closed with a proper status.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

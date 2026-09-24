@@ -7,16 +7,37 @@
  * @module
  * @example
  * ```typescript
- * import { routes, requestHandlerMap } from '@molecule/api-resource-payment-method'
+ * import express from 'express'
  *
- * // Mount via mlcl-generated router; service-level usage:
+ * import { bond } from '@molecule/api-bond'
+ * import { setStore } from '@molecule/api-database'
+ * import { store } from '@molecule/api-database-postgresql'
+ * import { paymentProvider } from '@molecule/api-payments-stripe'
  * import {
- *   createSetupIntent,
  *   attachPaymentMethod,
- *   listPaymentMethods,
- *   setDefaultPaymentMethod,
- *   deletePaymentMethod,
+ *   requestHandlerMap as PaymentMethods,
  * } from '@molecule/api-resource-payment-method'
+ *
+ * // Startup: bond the DataStore (reads DATABASE_URL) and Stripe under the NAME 'stripe'
+ * // (reads STRIPE_SECRET_KEY) — a singleton bond('payments', provider) is NOT found.
+ * setStore(store)
+ * bond('payments', 'stripe', paymentProvider)
+ *
+ * // What `mlcl inject` generates from `routes`, mounted AFTER the global auth middleware
+ * // (it sets res.locals.session; without it every route answers 401):
+ * export const router = express.Router()
+ * router.post('/me/payment-methods/setup-intent', PaymentMethods.createSetupIntent) // → { clientSecret, ... }
+ * router.get('/me/payment-methods', PaymentMethods.listPaymentMethods)
+ * router.put('/me/payment-methods/:id/default', PaymentMethods.setDefaultPaymentMethod)
+ * router.delete('/me/payment-methods/:id', PaymentMethods.deletePaymentMethod)
+ *
+ * // NO attach route ships — add one for the client to call after stripe.confirmCardSetup():
+ * router.post('/me/payment-methods', async (req, res) => {
+ *   const userId = res.locals.session?.userId as string | undefined
+ *   if (!userId) return void res.status(401).end()
+ *   const method = await attachPaymentMethod(userId, String(req.body.paymentMethodId)) // 'pm_…'
+ *   res.status(201).json(method) // { brand, last4, expMonth, expYear, isDefault, ... }
+ * })
  * ```
  *
  * @remarks
@@ -26,6 +47,20 @@
  * runs, and set `STRIPE_SECRET_KEY`. The provider name is currently fixed
  * (`PROVIDER_NAME = 'stripe'`); other card-style providers plug in by
  * implementing the same SetupIntent-shaped `PaymentProvider` surface.
+ *
+ * **There is no route for `attachPaymentMethod`** — the shipped `routes` only
+ * create the SetupIntent, list, set-default and delete. Add your own POST (as
+ * above) or saved cards never appear. The first attached card becomes the
+ * default automatically.
+ *
+ * The customer id returned by `createSetupIntent` is NOT persisted by it; the
+ * first `attachPaymentMethod` stores `providerCustomerId: ''` (a warning is
+ * logged) because it only copies the id from earlier rows. If you need the
+ * customer id later (off-session charges), store it yourself from the
+ * setup-intent response.
+ *
+ * `deletePaymentMethod` removes the row even when the provider detach fails
+ * (logged). Deleting the default card does NOT promote another one.
  *
  * Table: `src/__setup__/payment_methods.sql` creates `payment_methods`. An
  * mlcl-scaffolded API replays `__setup__/*.sql` automatically on migrate;
