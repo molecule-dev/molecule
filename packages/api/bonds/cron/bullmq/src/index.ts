@@ -10,21 +10,42 @@
  *
  * @example
  * ```typescript
- * import { setProvider, schedule } from '@molecule/api-cron'
+ * import { close, list, schedule, setProvider } from '@molecule/api-cron'
  * import { createProvider } from '@molecule/api-cron-bullmq'
  *
- * const provider = createProvider({
- *   connection: { host: 'localhost', port: 6379 },
- *   onError: (error) => console.error('cron Redis connection error', error),
- * })
- * setProvider(provider)
+ * // Startup: bond the BullMQ scheduler once. It needs a REACHABLE Redis.
+ * setProvider(
+ *   createProvider({
+ *     connection: { url: process.env.REDIS_URL }, // e.g. rediss://… for managed Redis (TLS)
+ *     timezone: 'UTC',
+ *   }),
+ * )
  *
- * await schedule('cleanup', '0 3 * * *', async () => {
- *   console.log('Nightly cleanup')
- * })
+ * // Re-register EVERY job on EVERY boot — the handler only lives in this process.
+ * const jobId = await schedule(
+ *   'nightly-cleanup',
+ *   '0 3 * * *', // 03:00 every day
+ *   async () => {
+ *     console.log('nightly cleanup ran at', new Date().toISOString())
+ *   },
+ *   { noOverlap: true },
+ * )
+ *
+ * const jobs = await list() // one entry: id 'nightly-cleanup', status 'active'
+ *
+ * // Graceful shutdown: release the queue + worker Redis connections.
+ * process.on('SIGTERM', () => void close())
  * ```
  *
  * @remarks
+ * - **Needs a running Redis.** Use this bond only when a managed Redis is provisioned
+ *   (`REDIS_URL` set); with none, `schedule()` hangs while ioredis retries the connection. For a
+ *   single process with no Redis, use `@molecule/api-cron-node-cron` instead.
+ * - **Wire it through the core** (`setProvider(createProvider({...}))` from `@molecule/api-cron`),
+ *   not `bond('cron-bullmq', ...)`. `connection` is required — `createProvider()` with no
+ *   argument does not type-check.
+ * - **The job id IS the job name.** `schedule()` returns `name`; scheduling the same name again
+ *   upserts (replaces) that job's schedule rather than adding a second one.
  * - **`schedule()` must be called for every job on every process boot** —
  *   including after a restart. The repeatable job scheduler lives in Redis
  *   and keeps ticking across restarts, but the JavaScript handler function

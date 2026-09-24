@@ -1,6 +1,34 @@
 /**
  * The PostgreSQL client.
  *
+ * @example
+ * ```typescript
+ * import { create, findMany, setPool, setStore, updateById } from '@molecule/api-database'
+ * import { pool, store } from '@molecule/api-database-postgresql'
+ *
+ * // Startup: bond once. The connection comes from DATABASE_URL (read lazily on first query).
+ * setPool(pool) // raw query() + transactions
+ * setStore(store) // the CRUD API app code uses
+ *
+ * interface Post {
+ *   id: string
+ *   title: string
+ *   status: 'draft' | 'published'
+ * }
+ *
+ * // The `posts` table comes from a migration; create() generates a uuid `id` when omitted.
+ * const { data: draft } = await create<Post>('posts', { title: 'Hello Postgres', status: 'draft' })
+ * if (draft) {
+ *   await updateById<Post>('posts', draft.id, { status: 'published' })
+ * }
+ *
+ * const published = await findMany<Post>('posts', {
+ *   where: [{ field: 'status', operator: '=', value: 'published' }],
+ *   orderBy: [{ field: 'title', direction: 'asc' }],
+ *   limit: 20,
+ * })
+ * ```
+ *
  * @remarks
  * Bond this as the DataStore (`setStore(store)`); app code then uses the abstract
  * `@molecule/api-database` functions (findMany/create/…), never raw pg. The connection comes

@@ -22,18 +22,34 @@
  *   actually-SENT email into an apparent failure, causing callers to retry
  *   and recipients to get duplicates.
  * - Captured events go to the bonded activity sink (`@molecule/api-activity`).
- *   Without a sink bonded, `record()` is a silent no-op.
+ *   Without a sink bonded, `record()` is a silent no-op — the mail is then neither delivered
+ *   (intercept mode) nor visible anywhere.
+ * - **There is no `createTransport()` export** on this or the ESP bonds: wrap an ESP bond's
+ *   `provider` (`createEmailCaptureProvider(mailgunProvider)`). Bond the result with the
+ *   emails core's `setTransport(...)`, not `bond('emails-capture', ...)`.
  *
  * @example
  * ```typescript
- * import { setTransport } from '@molecule/api-emails'
- * import { createEmailCaptureProvider, provider } from '@molecule/api-emails-capture'
+ * import { setSink } from '@molecule/api-activity'
+ * import { provider as consoleSink } from '@molecule/api-activity-console'
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * import { createEmailCaptureProvider, provider as captureOnly } from '@molecule/api-emails-capture'
+ * import { provider as mailgun } from '@molecule/api-emails-mailgun'
  *
- * setTransport(provider) // intercept-only: nothing is actually delivered
+ * // Startup: bond a sink so captured mail is visible (without one, recording is a no-op).
+ * setSink(consoleSink)
  *
- * // Tee mode: really send AND record the real outcome
- * // import { createTransport } from '@molecule/api-emails-mailgun'
- * // setTransport(createEmailCaptureProvider(createTransport()))
+ * // Real ESP configured → deliver through it AND record the outcome (tee).
+ * // No ESP key (dev/sandbox) → intercept: recorded, NOT delivered.
+ * setTransport(process.env.MAILGUN_API_KEY ? createEmailCaptureProvider(mailgun) : captureOnly)
+ *
+ * const result = await sendMail({
+ *   from: 'no-reply@mg.example.com',
+ *   to: 'ada@example.com',
+ *   subject: 'Welcome to Acme',
+ *   text: 'Thanks for signing up!',
+ * })
+ * // intercept mode: { accepted: ['ada@example.com'], rejected: [], messageId: 'captured-<uuid>' }
  * ```
  *
  * @module

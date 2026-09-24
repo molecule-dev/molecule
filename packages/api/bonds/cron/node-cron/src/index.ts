@@ -8,17 +8,34 @@
  *
  * @example
  * ```typescript
- * import { setProvider, schedule } from '@molecule/api-cron'
- * import { provider } from '@molecule/api-cron-node-cron'
+ * import { close, list, runNow, schedule, setProvider } from '@molecule/api-cron'
+ * import { createProvider } from '@molecule/api-cron-node-cron'
  *
- * setProvider(provider)
+ * // Startup: bond the in-process scheduler once (no Redis, no env vars needed).
+ * setProvider(createProvider({ timezone: 'UTC' }))
  *
- * await schedule('cleanup', '0 3 * * *', async () => {
- *   console.log('Nightly cleanup')
- * })
+ * // Register every job at startup — jobs are in-memory and gone after a restart.
+ * const jobId = await schedule(
+ *   'nightly-cleanup',
+ *   '0 3 * * *', // 03:00 every day (UTC, from the provider's timezone)
+ *   async () => {
+ *     console.log('nightly cleanup ran at', new Date().toISOString())
+ *   },
+ *   { noOverlap: true },
+ * )
+ *
+ * await runNow(jobId) // run it immediately, e.g. from an admin endpoint
+ * const [job] = await list() // job.status === 'active', job.runCount === 1
+ *
+ * // Graceful shutdown: stop the timers so the process can exit.
+ * process.on('SIGTERM', () => void close())
  * ```
  *
  * @remarks
+ * - **Wire it through the core**: `setProvider(provider)` (or `createProvider({ timezone })`)
+ *   from `@molecule/api-cron`, not `bond('cron-node-cron', ...)`.
+ * - **`schedule()` returns a generated job id, NOT the name** — keep the returned id for
+ *   `runNow`/`pause`/`resume`/`cancel`; passing the name throws "Cron job not found".
  * - A handler that throws does NOT cancel the job: the error is logged (with
  *   the job id and name) and the job stays `active` for its next tick — the
  *   same keep-running semantics as the BullMQ bond and real crontab. Add your

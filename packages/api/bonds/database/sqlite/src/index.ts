@@ -7,16 +7,46 @@
  *
  * @example
  * ```typescript
- * import { setPool, setStore } from '@molecule/api-database'
- * import { pool, store } from '@molecule/api-database-sqlite'
+ * import { join } from 'node:path'
  *
- * setPool(pool)
- * setStore(store)
+ * import { create, findMany, setPool, setStore, updateById } from '@molecule/api-database'
+ * import { createMigrator, pool, store } from '@molecule/api-database-sqlite'
+ *
+ * // Startup: apply migrations/*.sql to SQLITE_PATH (default ./data/app.db), then bond once.
+ * await createMigrator(join(process.cwd(), 'migrations'))()
+ * setPool(pool) // raw query() + transactions
+ * setStore(store) // the CRUD API app code uses
+ *
+ * interface Post {
+ *   id: string
+ *   title: string
+ *   status: 'draft' | 'published'
+ * }
+ *
+ * // create() generates a uuid `id` when omitted (the table must have an `id` column).
+ * const { data: draft } = await create<Post>('posts', { title: 'Hello SQLite', status: 'draft' })
+ * if (draft) {
+ *   await updateById<Post>('posts', draft.id, { status: 'published' })
+ * }
+ *
+ * const published = await findMany<Post>('posts', {
+ *   where: [{ field: 'status', operator: '=', value: 'published' }],
+ *   orderBy: [{ field: 'title', direction: 'asc' }],
+ *   limit: 20,
+ * })
  * ```
  *
  * @remarks
- * Configure via the SQLITE_PATH environment variable (default: ./data/app.db).
- * WAL mode and foreign key constraints are enabled by default.
+ * - **Bond with `setStore(store)` (and `setPool(pool)` for raw SQL)** from
+ *   `@molecule/api-database` — not `bond('database-sqlite', ...)`. Configure the file via the
+ *   `SQLITE_PATH` env var (default `./data/app.db`; the parent directory is created for you).
+ *   WAL mode and foreign key constraints are enabled by default.
+ * - **One file, one process.** better-sqlite3 is a native, synchronous driver on local disk:
+ *   it does not run on Cloudflare Workers (use `@molecule/api-database-d1`) and the data is lost
+ *   on hosts with an ephemeral filesystem unless `SQLITE_PATH` points at a persistent volume.
+ * - **Migrations may be written in Postgres dialect** — the migrator translates
+ *   `gen_random_uuid()`, `now()`, `::casts` and index `USING` clauses. Booleans are stored as
+ *   0/1 and objects/arrays as JSON text.
  * - **`pool.transaction()` calls and plain `pool.query()` calls are serialized**
  *   behind an internal FIFO queue (better-sqlite3 has only ONE shared connection
  *   — there is no per-transaction isolation). A `transaction()` holds the queue

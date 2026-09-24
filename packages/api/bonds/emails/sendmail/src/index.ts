@@ -9,7 +9,33 @@
  * `/usr/lib/sendmail`, or an msmtp/mhsendmail shim in containers). The path
  * is read once at module load.
  *
+ * @example
+ * ```typescript
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * import { provider as sendmail } from '@molecule/api-emails-sendmail'
+ *
+ * // Startup: bond once. Needs a local `sendmail` binary (default /usr/sbin/sendmail;
+ * // override with SENDMAIL_PATH, set BEFORE this module is imported).
+ * setTransport(sendmail)
+ *
+ * const result = await sendMail({
+ *   from: 'Acme <no-reply@acme.example>',
+ *   to: 'ada@example.com',
+ *   subject: 'Welcome to Acme',
+ *   text: 'Thanks for signing up!',
+ * })
+ * // { accepted: ['ada@example.com'], rejected: [], messageId: '<…@acme.example>',
+ * //   response: 'Messages queued for delivery' }
+ * ```
+ *
  * @remarks
+ * - **Bond it with the emails core's `setTransport(provider)`** (not `setProvider`, not
+ *   `bond('emails-sendmail', ...)`), then send with the core's `sendMail()`.
+ * - **"Queued" is not "delivered".** Success only means the local MTA accepted the message;
+ *   delivery, bounces and SPF/DKIM are the MTA's job. Most containers and serverless hosts have
+ *   no sendmail binary — use an API bond (`@molecule/api-emails-resend`, `-sendgrid`,
+ *   `-mailgun`, `-ses`) there.
+ *
  * On success, `sendMail()` resolves with `accepted` set to the envelope
  * recipients (sendmail queues the message for all of them once the binary
  * exits 0) and `response: 'Messages queued for delivery'`. Failures reject

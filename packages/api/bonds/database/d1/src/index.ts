@@ -10,24 +10,48 @@
  *
  * @example
  * ```typescript
- * import { setStore } from '@molecule/api-database'
+ * import { create, findMany, setStore } from '@molecule/api-database'
  * import { createProvider, type D1DatabaseLike } from '@molecule/api-database-d1'
  *
- * // Worker bindings arrive per-invocation on `env`; they are not in module
- * // scope and not in process.env, so setupBonds() takes `env` on Workers.
- * // (Here `env` stands in for the real `scheduled(event, env, ctx)` argument.)
- * const env = { DB: {} as D1DatabaseLike }
+ * // wrangler.toml declares the binding:  [[d1_databases]]  binding = "DB"  database_name = "my-app"
+ * interface Env {
+ *   DB: D1DatabaseLike
+ * }
  *
- * setStore(createProvider({ database: env.DB }))
+ * interface Todo {
+ *   id: string
+ *   title: string
+ *   done: number // SQLite has no boolean: 0 / 1
+ * }
  *
- * // wrangler.toml:
- * //   [[d1_databases]]
- * //   binding = "DB"
- * //   database_name = "my-app"
- * //   database_id = "<id>"
+ * export default {
+ *   async fetch(request: Request, env: Env): Promise<Response> {
+ *     // Bindings arrive per invocation on `env` — bond the store HERE, not at import time.
+ *     setStore(createProvider({ database: env.DB }))
+ *
+ *     if (request.method === 'POST') {
+ *       const { title } = (await request.json()) as { title: string }
+ *       const { data } = await create<Todo>('todos', { title, done: 0 }) // id auto-generated
+ *       return Response.json(data, { status: 201 })
+ *     }
+ *
+ *     const open = await findMany<Todo>('todos', {
+ *       where: [{ field: 'done', operator: '=', value: 0 }],
+ *       orderBy: [{ field: 'title', direction: 'asc' }],
+ *       limit: 50,
+ *     })
+ *     return Response.json(open)
+ *   },
+ * }
  * ```
  *
  * @remarks
+ * - **Use `setStore(...)`, not `setPool(...)` / `bond('database', ...)`.** `createProvider()`
+ *   returns a `DataStore` (the CRUD API: `findMany`, `create`, `updateById` and the rest). For raw SQL
+ *   use `createDatabasePool({ database: env.DB })` with the core's `setPool()`.
+ * - **The table must already exist** — apply it with `wrangler d1 migrations apply` (see below);
+ *   `create()` fills in a uuid `id` only when the table has an `id` column and you omit it. It
+ *   uses `node:crypto`'s `randomUUID`, so the Worker needs the `nodejs_compat` compatibility flag.
  * - **The binding must be PASSED IN; it cannot be discovered.** A Worker's
  *   bindings arrive per-invocation on `env` — they are not in the module scope
  *   and not in `process.env`. So `setupBonds()` takes `env` on Workers, and the

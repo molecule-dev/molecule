@@ -5,6 +5,9 @@
  * @see https://aws.amazon.com/ses/
  *
  * @remarks
+ * - **Bond it with the emails core's `setTransport(provider)`** (not `setProvider`, not
+ *   `bond('emails-ses', ...)`), then send with the core's `sendMail()`. It uses the SESv2
+ *   `SendEmail` API (raw MIME via nodemailer), not SMTP credentials.
  * - **Configuration is lazy and env-driven**: the SES client is constructed on
  *   the FIRST send — NOT at import — so `AWS_SES_REGION` (default `us-east-1`)
  *   and the optional `AWS_SES_ENDPOINT` are read at send time. A region resolved
@@ -35,10 +38,21 @@
  *
  * @example
  * ```typescript
- * import { setTransport } from '@molecule/api-emails'
- * import { provider } from '@molecule/api-emails-ses'
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * import { provider as ses } from '@molecule/api-emails-ses'
  *
- * setTransport(provider)
+ * // Startup: bond once. Env: AWS_SES_REGION (default us-east-1) and AWS credentials
+ * // (AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY, or an instance role) — read on first send.
+ * setTransport(ses)
+ *
+ * const result = await sendMail({
+ *   from: 'Acme <no-reply@acme.example>', // an SES-VERIFIED identity (domain or address)
+ *   to: 'ada@example.com',
+ *   subject: 'Welcome to Acme',
+ *   text: 'Thanks for signing up!',
+ *   html: '<p>Thanks for signing up!</p>',
+ * })
+ * // { accepted: ['ada@example.com'], rejected: [], messageId: '<SES MessageId@<region>.amazonses.com>' }
  * ```
  *
  * @module

@@ -4,6 +4,8 @@
  * @see https://resend.com/docs/api-reference/emails/send-email
  *
  * @remarks
+ * - **Bond it with the emails core's `setTransport(provider)`** (not `setProvider`, not
+ *   `bond('emails-resend', ...)`), then send with the core's `sendMail()`.
  * - **Zero dependencies — talks to Resend's REST API with the runtime's global
  *   `fetch`** (`POST https://api.resend.com/emails`), so every app that installs
  *   this bond stays dependency-free; the official `resend` SDK can be swapped in
@@ -44,10 +46,20 @@
  *
  * @example
  * ```typescript
- * import { setTransport } from '@molecule/api-emails'
- * import { provider } from '@molecule/api-emails-resend'
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * import { provider as resend } from '@molecule/api-emails-resend'
  *
- * setTransport(provider)
+ * // Startup: bond once. Env: RESEND_API_KEY (re_…) and RESEND_FROM (a sender on a VERIFIED domain).
+ * setTransport(resend)
+ *
+ * const result = await sendMail({
+ *   from: process.env.RESEND_FROM ?? 'onboarding@resend.dev', // resend.dev: owner inbox only
+ *   to: ['ada@example.com'],
+ *   subject: 'Welcome to Acme',
+ *   text: 'Thanks for signing up!',
+ *   html: '<p>Thanks for signing up!</p>',
+ * })
+ * // { accepted: ['ada@example.com'], rejected: [], messageId: '<resend email id>', response: '200' }
  * ```
  *
  * @module

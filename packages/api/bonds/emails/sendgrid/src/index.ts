@@ -4,6 +4,10 @@
  * @see https://www.npmjs.com/package/@sendgrid/mail
  *
  * @remarks
+ * - **Bond it with the emails core's `setTransport(provider)`** (not `setProvider`, not
+ *   `bond('emails-sendgrid', ...)`), then send with the core's `sendMail()`.
+ * - **`from` must be a verified Single Sender or on an authenticated domain** in SendGrid, or
+ *   the send is rejected with a 403 — never hardcode a placeholder sender.
  * - **Configuration is lazy and env-driven**: `SENDGRID_API_KEY` (and the
  *   optional `SENDGRID_BASE_URL`) are read on the FIRST send via
  *   `getClient()` — NOT at import time — and applied once. So a key resolved
@@ -23,10 +27,20 @@
  *
  * @example
  * ```typescript
- * import { setTransport } from '@molecule/api-emails'
- * import { provider } from '@molecule/api-emails-sendgrid'
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * import { provider as sendgrid } from '@molecule/api-emails-sendgrid'
  *
- * setTransport(provider)
+ * // Startup: bond once. Env: SENDGRID_API_KEY (SG.…); SENDGRID_TEST_MODE=true = sandbox (no delivery).
+ * setTransport(sendgrid)
+ *
+ * const result = await sendMail({
+ *   from: { name: 'Acme', address: 'no-reply@acme.example' }, // a VERIFIED SendGrid sender
+ *   to: 'ada@example.com',
+ *   subject: 'Welcome to Acme',
+ *   text: 'Thanks for signing up!',
+ *   html: '<p>Thanks for signing up!</p>',
+ * })
+ * // { accepted: ['ada@example.com'], rejected: [], messageId: '<x-message-id header>', response: '202' }
  * ```
  *
  * @module

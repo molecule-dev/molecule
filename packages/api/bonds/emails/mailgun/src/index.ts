@@ -5,6 +5,9 @@
  * @see https://www.npmjs.com/package/nodemailer-mailgun-transport
  *
  * @remarks
+ * - **Bond it with the emails core's `setTransport(provider)`** — not `setProvider` and not
+ *   `bond('emails-mailgun', ...)` — then send with the core's `sendMail()`. There is no
+ *   `createTransport()` export.
  * - **EU-region Mailgun accounts must set `MAILGUN_API_HOST=api.eu.mailgun.net`**
  *   (optional env; defaults to Mailgun's US endpoint). Without it every send
  *   fails upstream with 401 even though the key is valid — wrong region, not
@@ -28,10 +31,22 @@
  *
  * @example
  * ```typescript
- * import { setTransport } from '@molecule/api-emails'
- * import { provider } from '@molecule/api-emails-mailgun'
+ * import { sendMail, setTransport } from '@molecule/api-emails'
+ * import { provider as mailgun } from '@molecule/api-emails-mailgun'
  *
- * setTransport(provider)
+ * // Startup: bond once. Env: MAILGUN_API_KEY, MAILGUN_DOMAIN (the verified sending domain),
+ * // and MAILGUN_API_HOST=api.eu.mailgun.net for EU-region accounts.
+ * setTransport(mailgun)
+ *
+ * const result = await sendMail({
+ *   // The sender MUST be on MAILGUN_DOMAIN.
+ *   from: process.env.EMAIL_FROM ?? `no-reply@${process.env.MAILGUN_DOMAIN}`,
+ *   to: 'ada@example.com',
+ *   subject: 'Welcome to Acme',
+ *   text: 'Thanks for signing up!',
+ *   html: '<p>Thanks for signing up!</p>',
+ * })
+ * // { accepted: ['ada@example.com'], rejected: [], messageId: '<…@mg.example.com>', response: 'Queued. Thank you.' }
  * ```
  *
  * @module

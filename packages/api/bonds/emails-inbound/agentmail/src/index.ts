@@ -45,6 +45,9 @@
  *   record `parseWebhookPayload()` kept — set `AGENTMAIL_INBOX_ID` whenever
  *   a reply is sent from a later request or after a restart. When set it
  *   also makes `parseWebhookPayload()` reject events for any other inbox.
+ * - **Do not catch-and-200 in the route.** Let errors reach the error middleware (Express 5
+ *   forwards a rejected async handler automatically; on Express 4 wrap it and call
+ *   `next(error)`) so AgentMail gets a non-2xx and redelivers instead of the mail being lost.
  * - `InboundEmail.id` is AgentMail's `message_id` verbatim — the Message-ID
  *   INCLUDING angle brackets, which is also the path parameter of every
  *   per-message endpoint; `messageId` is the same value without brackets.
@@ -54,10 +57,36 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-emails-inbound'
+ * import express from 'express'
+ *
+ * import {
+ *   parseWebhookPayload,
+ *   replyTo,
+ *   setProvider,
+ *   verifySignature,
+ * } from '@molecule/api-emails-inbound'
  * import { provider as agentMailInbound } from '@molecule/api-emails-inbound-agentmail'
  *
+ * // Startup: bond once. Env: AGENTMAIL_WEBHOOK_SECRET (whsec_…), AGENTMAIL_API_KEY (am_…),
+ * // AGENTMAIL_INBOX_ID (recommended: needed to reply after a restart / from another process).
  * setProvider(agentMailInbound)
+ *
+ * const app = express()
+ *
+ * // PUBLIC route, RAW body — register it BEFORE any global express.json().
+ * app.post('/webhooks/agentmail', express.raw({ type: 'application/json' }), async (req, res) => {
+ *   // Throws (→ 503) when AGENTMAIL_WEBHOOK_SECRET is unset; false = forged/stale → 401.
+ *   if (!(await verifySignature(req.headers, req.body))) {
+ *     res.status(401).end()
+ *     return
+ *   }
+ *   const email = await parseWebhookPayload(req.headers, req.body) // may download attachments
+ *   console.log(email.id, email.from, email.subject, email.textBody)
+ *
+ *   // Sent from the receiving inbox, threaded by AgentMail (reply.subject / reply.from ignored).
+ *   await replyTo(email, { textBody: `Thanks, we received "${email.subject}".` })
+ *   res.status(204).end()
+ * })
  * ```
  *
  * @module
