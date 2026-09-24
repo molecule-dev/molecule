@@ -5,15 +5,33 @@
  *
  * @example
  * ```tsx
- * import { MuscleGroupBadge } from '@molecule/app-muscle-group-badge-react'
+ * import { type MuscleGroup, MuscleGroupBadge } from '@molecule/app-muscle-group-badge-react'
  *
- * <MuscleGroupBadge group="chest" />
- * <MuscleGroupBadge group="quads" variant="compact" size="sm" />
+ * export function ExerciseMuscles() {
+ *   const exercise: { name: string; primary: MuscleGroup; secondary: MuscleGroup[] } = {
+ *     name: 'Barbell bench press',
+ *     primary: 'chest',
+ *     secondary: ['triceps', 'shoulders'],
+ *   }
+ *   return (
+ *     <section>
+ *       <h2>{exercise.name}</h2>
+ *       <MuscleGroupBadge group={exercise.primary} size="lg" />
+ *       {exercise.secondary.map((group) => (
+ *         <MuscleGroupBadge key={group} group={group} variant="compact" size="sm" />
+ *       ))}
+ *     </section>
+ *   )
+ * }
  * ```
  *
  * @remarks
- * Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
- * `getClassMap()` and `useTranslation()` both throw before wiring.
+ * Requires a wired ClassMap bond (`setClassMap(classMap)` from `@molecule/app-ui`) and a React
+ * `I18nProvider` ancestor (from `@molecule/app-react`) — `getClassMap()` and `useTranslation()`
+ * both throw before wiring.
+ *
+ * `group` must be one of the fixed `MuscleGroup` ids (`'fullBody'`, not `'full-body'`); there is
+ * no free-form group. It is display-only — no click handler.
  *
  * Labels resolve through `t('muscleGroupBadge.group.<group>')` but no
  * companion locale bond ships these keys yet — without app-registered

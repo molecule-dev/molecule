@@ -11,29 +11,51 @@
  *
  * @example
  * ```tsx
- * import { ModerationQueue, type ModerationItem } from '@molecule/app-moderation-queue-react'
+ * import { useState } from 'react'
  *
- * const items: ModerationItem[] = [
- *   {
- *     id: 'r-1',
- *     kind: 'comment',
- *     preview: <p>Some flagged comment</p>,
- *     reason: 'Hate speech',
- *     reportedBy: '@alice',
- *     reportedAt: '2 min ago',
- *     severity: 'high',
- *   },
+ * import { type ModerationItem, ModerationQueue } from '@molecule/app-moderation-queue-react'
+ *
+ * const flagged: ModerationItem[] = [
+ *   { id: 'r-1', kind: 'comment', preview: <p>Buy cheap followers here!</p>, reason: 'Spam', reportedBy: '@alice', reportedAt: '2 min ago', severity: 'medium' },
+ *   { id: 'r-2', kind: 'post', preview: <p>You are all idiots.</p>, reason: 'Harassment', reportedAt: '1 hour ago', severity: 'high' },
  * ]
  *
- * <ModerationQueue
- *   items={items}
- *   onApprove={(id) => api.approve(id)}
- *   onReject={(id) => api.reject(id)}
- *   onEscalate={(id) => api.escalate(id)}
- *   onMute={(id) => api.mute(id)}
- *   onBulkAction={(action, ids) => api.bulk(action, ids)}
- * />
+ * export function ModerationPage() {
+ *   const [items, setItems] = useState(flagged)
+ *   const [log, setLog] = useState<string[]>([])
+ *   const resolve = (action: string, ids: string[]) => {
+ *     setLog((prev) => [...prev, `${action}: ${ids.join(', ')}`]) // call your moderation API here
+ *     setItems((prev) => prev.filter((item) => !ids.includes(item.id)))
+ *   }
+ *   return (
+ *     <>
+ *       <ModerationQueue
+ *         items={items}
+ *         onApprove={(id) => resolve('approve', [id])}
+ *         onReject={(id) => resolve('reject', [id])}
+ *         onEscalate={(id) => resolve('escalate', [id])}
+ *         onBulkAction={(action, ids) => resolve(action, ids)}
+ *         emptyState={<p>All caught up.</p>}
+ *       />
+ *       <ul>{log.map((entry) => <li key={entry}>{entry}</li>)}</ul>
+ *     </>
+ *   )
+ * }
  * ```
+ *
+ * @remarks
+ * - **Needs providers.** It calls `useTranslation()` (throws outside an `I18nProvider` from
+ *   `@molecule/app-react`) and `getClassMap()` (throws unless `setClassMap(classMap)` from
+ *   `@molecule/app-ui` ran at startup, e.g. with `@molecule/app-ui-tailwind`). Buttons come from
+ *   `@molecule/app-ui-react` (peer dependency).
+ * - It is controlled and does NOT remove handled items or call any API: the callbacks only
+ *   report the id(s); drop resolved items from `items` yourself.
+ * - `onApprove` and `onReject` are REQUIRED. The Escalate/Mute buttons (row and bulk) render only
+ *   when `onEscalate`/`onMute` are passed; the bulk toolbar buttons render only with
+ *   `onBulkAction`, which receives `'approve' | 'reject' | 'escalate' | 'mute'` plus the selected
+ *   ids and then clears the selection.
+ * - `loading` replaces the list with a status row; `emptyState` shows only when `items` is empty.
+ * - `severity` maps low/medium/high to info/warning/error colors; omit it to hide the chip.
  *
  * @module
  */

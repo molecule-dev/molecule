@@ -12,26 +12,46 @@
  *
  * @example
  * ```tsx
- * import { AppShellTopNav, type NavItem } from '@molecule/app-nav-chrome-react'
+ * import type { ReactNode } from 'react'
+ *
+ * import { AppShellFooter, AppShellTopNav, type NavItem } from '@molecule/app-nav-chrome-react'
+ * import { useLocation, useNavigate } from '@molecule/app-react'
  *
  * const navItems: NavItem[] = [
- *   { id: 'home', label: 'Home', to: '/' },
- *   { id: 'settings', label: 'Settings', to: '/settings' },
+ *   { id: '/', label: 'Home', to: '/' },
+ *   { id: '/projects', label: 'Projects', to: '/projects', badge: <span>3</span> },
+ *   { id: '/settings', label: 'Settings', to: '/settings' },
  * ]
  *
- * declare function navigate(to: string): void
- *
- * <AppShellTopNav
- *   logo={<img src="/logo.svg" alt="App" />}
- *   items={navItems}
- *   activeId="home"
- *   onItemClick={(item) => { if (item.to) navigate(item.to) }}
- *   right={<span>account menu slot</span>}
- * />
+ * export function AppLayout({ children }: { children: ReactNode }) {
+ *   const navigate = useNavigate()
+ *   const { pathname } = useLocation()
+ *   return (
+ *     <>
+ *       <AppShellTopNav
+ *         logo={<strong>Acme</strong>}
+ *         items={navItems}
+ *         activeId={pathname}
+ *         onItemClick={(item) => item.to && navigate(item.to)}
+ *         right={<button type="button" onClick={() => navigate('/account')}>Account</button>}
+ *       />
+ *       <main>{children}</main>
+ *       <AppShellFooter
+ *         copyright={`© ${new Date().getFullYear()} Acme Inc.`}
+ *         links={[{ label: 'Privacy', to: '/privacy' }, { label: 'Terms', to: '/terms' }]}
+ *       />
+ *     </>
+ *   )
+ * }
  * ```
  *
  * @remarks
- * Requires a wired ClassMap bond — `getClassMap()` throws before wiring.
+ * Requires a wired ClassMap bond — `getClassMap()` throws before wiring. The example's
+ * `useNavigate()` / `useLocation()` come from `@molecule/app-react` and throw outside its
+ * `RouterProvider`; the shells themselves need no router.
+ *
+ * `activeId` is matched against `NavItem.id` (NOT `to`) — use the route path as the id, as above,
+ * to highlight the current page via `aria-current="page"`.
  *
  * Router-agnostic BY DESIGN: nav items render as `<button>` elements,
  * never links — `NavItem.to` is only carried through so YOUR

@@ -25,16 +25,24 @@
  *   NodeEditorToggle,
  * } from '@molecule/app-node-editor-panel-react'
  *
- * function Inspector() {
+ * type ResponseFormat = 'conversational' | 'structured'
+ *
+ * export function NodeInspector() {
+ *   const [open, setOpen] = useState(true)
  *   const [temperature, setTemperature] = useState(0.7)
  *   const [kbEnabled, setKbEnabled] = useState(false)
- *   const [format, setFormat] = useState('conversational')
+ *   const [format, setFormat] = useState<ResponseFormat>('conversational')
+ *   if (!open) return null
  *   return (
- *     <NodeEditorPanel title="Node Properties" onClose={() => {}}>
- *       <NodeEditorSlider label="Temperature" value={temperature} onChange={setTemperature} />
- *       <NodeEditorToggle title="Knowledge Base" icon="database" checked={kbEnabled} onChange={setKbEnabled} />
+ *     <NodeEditorPanel
+ *       title="Node Properties"
+ *       onClose={() => setOpen(false)}
+ *       footer={<p>{`temperature=${temperature} kb=${kbEnabled} format=${format}`}</p>}
+ *     >
+ *       <NodeEditorSlider label="Temperature" value={temperature} onChange={setTemperature} min={0} max={2} step={0.1} />
+ *       <NodeEditorToggle title="Knowledge Base" subtitle="Answer from uploaded docs" icon="database" checked={kbEnabled} onChange={setKbEnabled} />
  *       <NodeEditorSection label="Response Format">
- *         <NodeEditorRadioGroup
+ *         <NodeEditorRadioGroup<ResponseFormat>
  *           value={format}
  *           onChange={setFormat}
  *           options={[
@@ -64,6 +72,12 @@
  * LIGATURES — without the "Material Symbols Outlined" font loaded and a
  * `material-symbols-outlined` CSS class defined, icon names render as
  * plain text (e.g. the word "close").
+ *
+ * Every control is CONTROLLED: the package keeps no form state and has no save/submit logic —
+ * hold values in your own state and persist them yourself (e.g. from a button in `footer`).
+ * `NodeEditorSlider` defaults to `min=0`, `max=1`, `step=0.1`; pass them for other ranges. The
+ * close button renders only when `onClose` is passed, and closing does not unmount the panel —
+ * stop rendering it yourself.
  *
  * A wired ClassMap bond is still required for the layout helpers —
  * `getClassMap()` throws before wiring. The close button's default

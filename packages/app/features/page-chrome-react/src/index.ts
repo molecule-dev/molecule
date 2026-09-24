@@ -14,25 +14,37 @@
  * @example
  * ```tsx
  * import { useState } from 'react'
- * import { PageHeader, HeroSection } from '@molecule/app-page-chrome-react'
+ *
+ * import { HeroSection, PageHeader } from '@molecule/app-page-chrome-react'
  * import { Button } from '@molecule/app-ui-react'
  *
- * function ProjectsPage() {
- *   const [open, setOpen] = useState(false)
+ * export function ProjectsPage() {
+ *   const [projects, setProjects] = useState(['Website redesign', 'Mobile app'])
  *   return (
- *     <>
+ *     <main>
  *       <PageHeader
+ *         breadcrumbs={<nav aria-label="Breadcrumb"><a href="/">Home</a> / Projects</nav>}
  *         title="Projects"
  *         subtitle="Manage your active projects"
- *         actions={<Button onClick={() => setOpen(true)}>New project</Button>}
+ *         meta={<span>{`${projects.length} active`}</span>}
+ *         actions={<Button onClick={() => setProjects((p) => [...p, `Project ${p.length + 1}`])}>New project</Button>}
+ *         dataMolId="projects-header"
  *       />
- *       <HeroSection
- *         eyebrow="Welcome back"
- *         title="Your workspace"
- *         description="Everything you need to ship faster."
- *         primaryAction={<Button variant="solid">Get started</Button>}
- *       />
- *     </>
+ *       <ul>{projects.map((name) => <li key={name}>{name}</li>)}</ul>
+ *     </main>
+ *   )
+ * }
+ *
+ * export function LandingPage() {
+ *   return (
+ *     <HeroSection
+ *       align="center"
+ *       eyebrow="New in 2.0"
+ *       title="Ship your app this week"
+ *       description="Everything you need to launch, in one workspace."
+ *       primaryAction={<Button variant="solid" color="primary">Get started</Button>}
+ *       secondaryAction={<Button variant="ghost">See pricing</Button>}
+ *     />
  *   )
  * }
  * ```
@@ -42,6 +54,11 @@
  * (props: `title`/`description`/`actions`/`breadcrumbs`): THIS PageHeader
  * takes `subtitle` (not `description`) and adds `icon`, `meta`, and
  * `emphasis`. Import from the package that matches the props you pass.
+ * BOTH components render an `<h1>` — use one per page (a `PageHeader` OR a `HeroSection`), not
+ * both. Every slot is plain `ReactNode`: `breadcrumbs`, `actions` and the hero CTAs are NOT
+ * generated for you (no router links, no default buttons), and no text is translated — pass
+ * already-translated strings. Neither component is sticky or sets a background.
+ *
  * Styling resolves via `getClassMap()` from `@molecule/app-ui`, so a ClassMap
  * bond (e.g. `@molecule/app-ui-tailwind`) must be wired before render.
  *

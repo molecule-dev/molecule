@@ -10,17 +10,32 @@
  *
  * @example
  * ```tsx
- * import { NpsDistribution, computeNps } from '@molecule/app-nps-distribution-react'
+ * import { computeNps, NpsDistribution } from '@molecule/app-nps-distribution-react'
  *
- * const scores = [10, 9, 9, 7, 6, 0, 8, 10]
- * const { score } = computeNps(scores)
- *
- * function ResultsCard() {
- *   return <NpsDistribution scores={scores} />
+ * export function SurveyResults() {
+ *   const responses = [
+ *     { id: 'r1', score: 10 }, { id: 'r2', score: 9 }, { id: 'r3', score: 9 }, { id: 'r4', score: 7 },
+ *     { id: 'r5', score: 6 }, { id: 'r6', score: 0 }, { id: 'r7', score: 8 }, { id: 'r8', score: 10 },
+ *   ]
+ *   const scores = responses.map((r) => r.score)
+ *   const nps = computeNps(scores) // 4 promoters, 2 passives, 2 detractors → score 25
+ *   return (
+ *     <section>
+ *       <h2>{`Promoters: ${nps.promoters} · Passives: ${nps.passives} · Detractors: ${nps.detractors}`}</h2>
+ *       <NpsDistribution scores={scores} dataMolId="survey-nps-chart" />
+ *     </section>
+ *   )
  * }
  * ```
  *
  * @remarks
+ * `scores` is the RAW list of 0..10 answers (one number per response), NOT pre-counted
+ * buckets — `[10, 9, 9]`, not `{ 9: 2, 10: 1 }`. Non-integer / out-of-range values are
+ * silently dropped. The chart computes the score itself (`showScore` defaults to true); use
+ * `computeNps()` only when you need the numbers elsewhere. `computeNps` takes positional
+ * cutoffs `(scores, detractorMax = 6, passiveMax = 8)` — not an options object. It needs no
+ * `I18nProvider`.
+ *
  * Bar widths scale relative to the tallest bucket. Color tiers map to
  * the semantic ClassMap CSS custom properties
  * (`--mol-color-error|warning|success`) so the chart re-themes

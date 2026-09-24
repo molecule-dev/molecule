@@ -9,10 +9,31 @@
  *
  * @example
  * ```tsx
- * import { NotificationsPage } from '@molecule/app-notifications-page-react'
+ * import { BrowserRouter } from 'react-router'
  *
- * export function NotificationsRoute() {
- *   return <NotificationsPage pageSize={25} />
+ * import { getClient } from '@molecule/app-http'
+ * import { createSimpleI18nProvider } from '@molecule/app-i18n'
+ * import { NotificationsPage } from '@molecule/app-notifications-page-react'
+ * import { MoleculeProvider } from '@molecule/app-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ *
+ * setClassMap(classMap) // startup — getClassMap() throws until then
+ *
+ * export function App() {
+ *   // `http` feeds useHttpClient(), `i18n` feeds useTranslation(); the router is for `data.href` rows.
+ *   return (
+ *     <MoleculeProvider http={getClient()} i18n={createSimpleI18nProvider('en')}>
+ *       <BrowserRouter>
+ *         <NotificationsPage
+ *           pageSize={25}
+ *           endpoint="/api/notifications" // GET ?limit=25&offset=0 (+ read=false | type=mention)
+ *           markAllReadEndpoint="/api/notifications/read-all" // POST
+ *           typeIcons={{ deploy: 'rocket_launch' }}
+ *         />
+ *       </BrowserRouter>
+ *     </MoleculeProvider>
+ *   )
  * }
  * ```
  *
@@ -21,6 +42,12 @@
  * bond `@molecule/app-locales-notifications-page`. All styling
  * resolves through `getClassMap()` — no Tailwind class names live in
  * this package.
+ *
+ * The endpoint must answer `{ items, total, offset, limit }` (`NotificationsPageResult`) — a
+ * bare array renders nothing. It paginates by `offset`/`limit`, NOT cursors, and the unread
+ * count / "Mark N as read" button only counts the CURRENT page. Rows are not clickable to mark
+ * a single notification read; only `data.href` makes a row a link. A failed "mark all read"
+ * POST is ignored (the list just reloads).
  *
  * Prereqs: an `<HttpProvider>` ancestor (from `@molecule/app-react` —
  * `useHttpClient()` throws without it), a wired ClassMap bond, and an

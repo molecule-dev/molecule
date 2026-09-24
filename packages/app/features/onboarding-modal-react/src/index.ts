@@ -15,23 +15,35 @@
  *   { id: 'done', title: "You're all set", body: 'Start your first project.' },
  * ]
  *
- * function Onboarding() {
+ * export function Onboarding() {
  *   const [open, setOpen] = useState(true)
+ *   const [status, setStatus] = useState<'pending' | 'completed' | 'skipped'>('pending')
  *   return (
- *     <OnboardingModal
- *       open={open}
- *       steps={steps}
- *       onClose={() => setOpen(false)}
- *       onComplete={() => setOpen(false)}
- *     />
+ *     <>
+ *       <p>Onboarding: {status}</p>
+ *       <OnboardingModal
+ *         open={open}
+ *         steps={steps}
+ *         onComplete={() => setStatus('completed')} // final "Get started" only
+ *         onClose={() => {
+ *           setOpen(false) // also called after onComplete, and by Skip / X / backdrop / Escape
+ *           setStatus((s) => (s === 'pending' ? 'skipped' : s))
+ *         }}
+ *       />
+ *     </>
  *   )
  * }
  * ```
  *
  * @remarks
- * Requires a wired ClassMap bond and a React `I18nProvider` ancestor —
- * the composed `Modal` / `Button` (from `@molecule/app-ui-react`) and
- * `useTranslation()` all depend on them. Pair with
+ * Requires a wired ClassMap bond, an icon set (`setIconSet(iconSet)` from `@molecule/app-icons`
+ * — the `Modal`'s close button icon throws without it) and a React `I18nProvider` ancestor —
+ * the composed `Modal` / `Button` (from `@molecule/app-ui-react`) and `useTranslation()` all
+ * depend on them. The `Modal` portals into `document.body`.
+ *
+ * It is CONTROLLED by `open` — it never hides itself: set `open` to false in `onClose`, which
+ * also runs right after `onComplete` on the last step. It stores nothing ("seen" flags are
+ * yours to persist), and an empty `steps` array renders `null`. Pair with
  * `@molecule/app-locales-onboarding-modal` for the Skip / Back / Next /
  * Get-started strings in 79 languages.
  *

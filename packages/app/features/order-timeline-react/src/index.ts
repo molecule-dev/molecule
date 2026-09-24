@@ -5,16 +5,34 @@
  *
  * @example
  * ```tsx
- * import { OrderTimeline, type OrderMilestone } from '@molecule/app-order-timeline-react'
+ * import { type OrderMilestone, OrderTimeline } from '@molecule/app-order-timeline-react'
  *
- * const milestones: OrderMilestone[] = [
- *   { id: 'placed', label: 'Order placed', completed: true },
- *   { id: 'shipped', label: 'Shipped', completed: true, detail: 'Jun 3 via FedEx' },
- *   { id: 'delivery', label: 'Out for delivery', current: true },
+ * const STAGES = [
+ *   { id: 'placed', label: 'Order placed' },
+ *   { id: 'shipped', label: 'Shipped' },
+ *   { id: 'out_for_delivery', label: 'Out for delivery' },
  *   { id: 'delivered', label: 'Delivered' },
  * ]
  *
- * <OrderTimeline milestones={milestones} eta="Estimated arrival: today by 8 pm" />
+ * export function OrderStatus() {
+ *   const order = { status: 'out_for_delivery', shippedAt: 'Jun 3', carrier: 'FedEx', eta: 'today by 8 pm' }
+ *   const reached = STAGES.findIndex((stage) => stage.id === order.status)
+ *   const isDelivered = order.status === 'delivered'
+ *   const milestones: OrderMilestone[] = STAGES.map((stage, i) => ({
+ *     id: stage.id,
+ *     label: stage.label,
+ *     detail: stage.id === 'shipped' ? `${order.shippedAt} via ${order.carrier}` : undefined,
+ *     completed: i < reached || isDelivered,
+ *     current: i === reached && !isDelivered,
+ *   }))
+ *   return (
+ *     <OrderTimeline
+ *       milestones={milestones}
+ *       orientation="vertical"
+ *       eta={isDelivered ? undefined : `Estimated arrival: ${order.eta}`}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -26,7 +44,8 @@
  * Status node colors are currently fixed hex values (blue = current,
  * green = completed, gray = pending) rather than theme variables — the
  * pending gray has low contrast on dark surfaces. `completed` and
- * `current` are independent booleans: mark every finished milestone
+ * `current` are independent booleans — the component does NOT derive them from an order status,
+ * so map your status to them yourself as above: mark every finished milestone
  * `completed: true` and exactly one in-progress milestone
  * `current: true`; a milestone with neither renders as pending.
  *

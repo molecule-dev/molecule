@@ -9,24 +9,36 @@
  * @example
  * ```tsx
  * import { useState } from 'react'
+ *
  * import { PasswordGenerator } from '@molecule/app-password-generator-react'
  *
- * function NewLoginForm() {
+ * export function NewLoginForm() {
  *   const [password, setPassword] = useState('')
  *   return (
- *     <>
- *       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+ *     <form>
+ *       <label>
+ *         Password
+ *         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+ *       </label>
  *       <PasswordGenerator
- *         defaultLength={24}
+ *         defaultLength={24} // clamped to 8..64
+ *         defaultCharset={{ noSimilar: true }} // merged over the all-on defaults
  *         autoCopy
- *         onPick={(generated) => setPassword(generated)}
+ *         onPick={(generated) => setPassword(generated)} // fires on "Use this password" only
  *       />
- *     </>
+ *     </form>
  *   )
  * }
  * ```
  *
  * @remarks
+ * `onPick` is the ONLY way the password leaves the component — it fires when the user clicks
+ * "Use this password", not on every regenerate, and the component never writes into your
+ * form field itself. It regenerates on mount and on every length / character-class change
+ * (so with `autoCopy` the clipboard is written on mount too). Needs a wired ClassMap bond and
+ * a React `I18nProvider` ancestor (`useTranslation()` throws without it). Use the exported
+ * `generatePassword(length, charset)` for generation without UI.
+ *
  * Companion locale bond: `@molecule/app-locales-password-generator`.
  * Copy/autoCopy use the async Clipboard API, which is unavailable on insecure
  * (non-HTTPS, non-localhost) origins — the write fails silently and no

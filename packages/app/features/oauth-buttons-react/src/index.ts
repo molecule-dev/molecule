@@ -29,24 +29,45 @@
  *
  * @example
  * ```tsx
- * import { OAuthButtons } from '@molecule/app-oauth-buttons-react'
+ * import { OAuthButtons, OAuthDivider } from '@molecule/app-oauth-buttons-react'
  * import { useOAuth } from '@molecule/app-react'
- * import { oauthConfig } from '../config'
  *
- * function LoginPage() {
- *   const { providers, redirect } = useOAuth(oauthConfig)
+ * // Module scope, so useOAuth's memoised callbacks stay stable across renders.
+ * const oauthConfig = {
+ *   baseURL: import.meta.env.VITE_API_URL,
+ *   oauthEndpoint: '/users/oauth', // GET /users/oauth/:provider (`@molecule/api-resource-user`)
+ *   oauthProviders: ['google', 'github', 'apple'],
+ *   onSuccess: () => window.location.assign('/dashboard'),
+ * }
+ *
+ * export function LoginPage() {
+ *   // Also mount this on the page the provider returns to — useOAuth finishes the ?code exchange there.
+ *   const { providers, loginViaPopup } = useOAuth(oauthConfig)
  *   return (
- *     <OAuthButtons
- *       providers={providers}
- *       onSelect={redirect}
- *       layout="grid"
- *       showLabels
- *     />
+ *     <section>
+ *       <OAuthDivider />
+ *       <OAuthButtons
+ *         providers={providers}
+ *         onSelect={loginViaPopup} // or `redirect` for a full-page flow
+ *         layout="vertical"
+ *         showLabels
+ *         brandButtons
+ *       />
+ *     </section>
  *   )
  * }
  * ```
  *
  * @remarks
+ * `useOAuth()` calls `useAuthClient()`, so the tree needs a `MoleculeProvider` with BOTH `auth`
+ * (e.g. `createJWTAuthClient({ baseURL })` from `@molecule/app-auth`) and `i18n` — either missing
+ * throws. `useOAuth` defaults `oauthEndpoint` to `/oauth`; the molecule user resource serves
+ * `/users/oauth/:provider`, so set it explicitly as above. `providers` comes ONLY from
+ * `oauthProviders` — nothing asks the API which providers are enabled; an empty list renders
+ * `null`. Labels are hidden unless `showLabels` is set (each button still has a
+ * "Continue with <Provider>" aria-label). The divider's `oauth.orContinueWith` key lives in
+ * `@molecule/app-locales-common`, the provider names in `@molecule/app-locales-oauth-buttons`.
+ *
  * Rendering-only: this package draws the buttons; the OAuth handshake
  * itself — authorize redirect, and the callback/code-to-session
  * exchange on return — belongs to `useOAuth(config)` (which needs the

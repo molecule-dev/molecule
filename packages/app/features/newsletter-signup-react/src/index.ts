@@ -7,17 +7,22 @@
  *
  * @example
  * ```tsx
+ * import { post } from '@molecule/app-http'
  * import { NewsletterSignup } from '@molecule/app-newsletter-signup-react'
  *
- * declare const api: { subscribe: (email: string) => Promise<void> }
- *
- * <NewsletterSignup
- *   title="Stay in the loop"
- *   description="Get weekly updates delivered to your inbox."
- *   onSubscribe={async (email) => { await api.subscribe(email) }}
- *   layout="inline"
- *   successContent={<p>Thanks for subscribing!</p>}
- * />
+ * export function NewsletterSection() {
+ *   return (
+ *     <NewsletterSignup
+ *       title="Stay in the loop"
+ *       description="Get weekly updates delivered to your inbox."
+ *       onSubscribe={async (email) => {
+ *         await post('/newsletter/subscribe', { email }) // rejects on non-2xx → message shown under the form
+ *       }}
+ *       layout="inline"
+ *       successContent={<p>Thanks for subscribing!</p>}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @remarks
