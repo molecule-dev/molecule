@@ -6,10 +6,16 @@
  * with `{{appName}}` placeholders interpolated by the i18n provider.
  *
  * @example
- * ```ts
- * import * as legal from '@molecule/app-locales-legal-default'
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-legal-default'
  *
- * // legal.en === { 'content.privacyPolicy': '...', 'content.termsOfService': '...' }
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * // The privacy policy as French HTML, with {{appName}} filled in.
+ * t('content.privacyPolicy', { appName: 'Acme' }, { defaultValue: '' }) // → the French string
  * ```
  *
  * @module

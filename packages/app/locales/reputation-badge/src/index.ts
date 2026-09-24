@@ -3,6 +3,18 @@
  * provides translation strings for the `<ReputationBadge>` and
  * `<BadgeShelf>` components in 79 languages.
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-reputation-badge'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('reputationBadge.caption', undefined, { defaultValue: 'Reputation' }) // → the French string
+ * ```
+ *
  * @module
  */
 

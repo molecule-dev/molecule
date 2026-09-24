@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/app-feature-piano-roll-react` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-feature-piano-roll'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('pianoRoll.aria.roll', undefined, { defaultValue: 'Piano roll' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/app-video-call-controls-react` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-video-call-controls'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('call.leave', undefined, { defaultValue: 'Leave' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

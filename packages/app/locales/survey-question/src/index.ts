@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/app-survey-question-react` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-survey-question'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('surveyQuestion.required', undefined, { defaultValue: 'This question requires an answer.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

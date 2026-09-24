@@ -1,3 +1,21 @@
+/**
+ * Translations for molecule status dashboard in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-status-dashboard'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('statusDashboard.error.noProvider', undefined, { defaultValue: 'Status dashboard provider not configured.' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

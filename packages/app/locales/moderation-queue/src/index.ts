@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/app-moderation-queue-react` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-moderation-queue'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('moderationQueue.aria.region', undefined, { defaultValue: 'Moderation queue' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

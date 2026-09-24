@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/app-routing` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-routing'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('routing.error.useMoleculeRouterOutsideProvider', undefined, { defaultValue: 'useMoleculeRouter must be used within a MoleculeRouterPro...' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

@@ -4,12 +4,16 @@
  * supported molecule.dev languages.
  *
  * @example
- * import { en as commonEn } from '@molecule/app-locales-common'
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-common'
  *
- * createSimpleI18nProvider('en', [
- *   { code: 'en', name: 'English', direction: 'ltr',
- *     translations: { ...commonEn, ...appEn } },
- * ])
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('common.close', undefined, { defaultValue: 'Close' }) // → the French string
+ * ```
  *
  * @module
  */

@@ -1,3 +1,21 @@
+/**
+ * Locale bond for `@molecule/app-trace-waterfall-react`.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-trace-waterfall'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('traceWaterfall.aria.label', undefined, { defaultValue: 'Distributed trace waterfall' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

@@ -3,6 +3,18 @@
  * provides translation strings for the `<AuthorBioCard>` component in
  * 79 languages.
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-author-bio-card'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('authorBioCard.follow', undefined, { defaultValue: 'Follow' }) // → the French string
+ * ```
+ *
  * @module
  */
 

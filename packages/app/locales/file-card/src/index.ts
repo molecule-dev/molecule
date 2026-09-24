@@ -5,6 +5,18 @@
  * base; non-English files are stubs that ship the English defaults until
  * translated, so the keys remain type-safe and missing locales never hard-fail.
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-file-card'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('file-card.kind.image', undefined, { defaultValue: 'Image file' }) // → the French string
+ * ```
+ *
  * @module
  */
 

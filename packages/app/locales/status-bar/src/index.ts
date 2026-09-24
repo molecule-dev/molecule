@@ -1,3 +1,21 @@
+/**
+ * Translations for `@molecule/app-status-bar` in 79 languages.
+ *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-status-bar'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('statusBar.error.noProvider', undefined, { defaultValue: '@molecule/app-status-bar: No provider set. Call setProvid...' }) // → the French string
+ * ```
+ *
+ * @module
+ */
+
 export * from './af.js'
 export * from './am.js'
 export * from './ar.js'

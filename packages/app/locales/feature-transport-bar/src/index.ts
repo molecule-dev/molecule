@@ -4,6 +4,18 @@
  * Provides 79-language translations for the transport-bar UI strings
  * (play / pause / stop / record / skip / loop button aria labels).
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-feature-transport-bar'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('transportBar.aria.region', undefined, { defaultValue: 'Playback transport controls' }) // → the French string
+ * ```
+ *
  * @module
  */
 

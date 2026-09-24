@@ -4,6 +4,18 @@
  * and the dismiss button. Note-kind labels and the margin mark's label are the
  * caller's own strings.
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-margin-notes'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('marginNotes.aria.toggles', undefined, { defaultValue: 'Show or hide notes' }) // → the French string
+ * ```
+ *
  * @module
  */
 

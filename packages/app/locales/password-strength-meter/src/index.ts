@@ -7,11 +7,15 @@
  * Register all exports with the i18n provider via `registerLocaleModule`:
  *
  * @example
- * ```ts
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
  * import * as locales from '@molecule/app-locales-password-strength-meter'
- * import { registerLocaleModule } from '@molecule/app-i18n'
  *
+ * // Startup: register every language this bond ships in one call.
  * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('passwordStrengthMeter.label.0', undefined, { defaultValue: 'Very weak' }) // → the French string
  * ```
  *
  * @module

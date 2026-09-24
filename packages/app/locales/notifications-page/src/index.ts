@@ -4,6 +4,18 @@
  * Provides 79-language translations for the notifications page UI strings
  * (header, filter chips, empty state, pagination, mark-all-read action).
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-notifications-page'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('notificationsPage.title', undefined, { defaultValue: 'Notifications' }) // → the French string
+ * ```
+ *
  * @module
  */
 

@@ -4,6 +4,18 @@
  * Provides 79-language translations for the thread-tree UI strings
  * (collapse / expand toggles, reply / upvote labels, score chip).
  *
+ * @example
+ * ```typescript
+ * import { registerLocaleModule, setLocale, t } from '@molecule/app-i18n'
+ * import * as locales from '@molecule/app-locales-feature-thread-tree'
+ *
+ * // Startup: register every language this bond ships in one call.
+ * registerLocaleModule(locales)
+ *
+ * await setLocale('fr')
+ * t('threadTree.collapse', undefined, { defaultValue: 'Collapse thread' }) // → the French string
+ * ```
+ *
  * @module
  */
 
