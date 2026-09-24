@@ -8,28 +8,36 @@
  * embeddable Zapier engine inside your app.
  *
  * @example
- * ```ts
+ * ```typescript
+ * import { setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-anthropic'
  * import { createWorkflowEngine } from '@molecule/api-ai-workflow-engine'
  *
+ * // Startup (server only): only `ai_prompt` steps need the AI bond.
+ * setProvider(createProvider({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ *
+ * const savedNotes: string[] = []
  * const engine = createWorkflowEngine({
- *   triggers: {
- *     'webhook.received': async (ctx) => ctx.payload,
- *   },
+ *   // A trigger's return value is merged into the run context (`$`).
+ *   triggers: { 'order.created': async (ctx) => ({ order: ctx.order }) },
  *   actions: {
- *     'slack.message': async ({ channel, text }) => slackClient.chat.postMessage({ channel, text }),
+ *     'notes.save': async ({ text }) => savedNotes.push(String(text)),
  *   },
  * })
  *
  * const run = await engine.execute({
- *   trigger: 'webhook.received',
- *   triggerInput: { payload: req.body },
+ *   trigger: 'order.created',
+ *   triggerInput: { order: { id: 'ord_1', amount: 250, customer: 'Ada' } },
  *   steps: [
- *     { type: 'condition', expression: '$.event === "purchase"' },
- *     // Native HTTP step — routed through the swappable `@molecule/api-http` core:
- *     { type: 'http', method: 'POST', url: 'https://hooks.example.com/${$.id}', body: { amount: '${$.amount}' }, output: 'webhook' },
- *     { type: 'action', action: 'slack.message', params: { channel: '#sales', text: 'New sale: ${$.amount}' } },
+ *     { type: 'condition', expression: '$.order.amount >= 100' }, // false → run stops, ok: true
+ *     { type: 'ai_prompt', prompt: 'One-line thank-you to ${$.order.customer}.', output: 'note' },
+ *     // Sent through `@molecule/api-http` (built-in fetch client unless another is bonded).
+ *     { type: 'http', method: 'POST', url: 'https://hooks.example.com/orders/${$.order.id}', body: { note: '${$.note}' }, output: 'webhook' },
+ *     { type: 'action', action: 'notes.save', params: { text: '${$.note}' } },
  *   ],
  * })
+ * if (!run.ok) throw new Error(run.trace.find((t) => t.outcome === 'errored')?.error)
+ * console.log(run.context.note, savedNotes) // 'Thank you, Ada!' ['Thank you, Ada!']
  * ```
  *
  * @remarks

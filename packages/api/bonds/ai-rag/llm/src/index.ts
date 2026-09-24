@@ -16,22 +16,24 @@
  * default for the `ai-rag` core; swap `bond('ai-rag', myProvider)` to replace it.
  *
  * @example
- * ```ts
- * import { bond } from '@molecule/api-bond'
- * import { provider as embeddings } from '@molecule/api-ai-embeddings-openai'
- * import { provider as vectorStore } from '@molecule/api-ai-vector-store-memory'
- * import { provider as ai } from '@molecule/api-ai-anthropic'
- * import { requireProvider } from '@molecule/api-ai-rag'
+ * ```typescript
+ * import { setProvider as setAi } from '@molecule/api-ai'
+ * import { createProvider as createAnthropic } from '@molecule/api-ai-anthropic'
+ * import { setProvider as setEmbeddings } from '@molecule/api-ai-embeddings'
+ * import { createProvider as createOpenaiEmbeddings } from '@molecule/api-ai-embeddings-openai'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-rag'
  * import { provider as rag } from '@molecule/api-ai-rag-llm'
+ * import { setProvider as setVectorStore } from '@molecule/api-ai-vector-store'
+ * import { provider as vectorStore } from '@molecule/api-ai-vector-store-memory'
  *
- * // Bond the retrieval + generation dependencies first, then RAG itself.
- * bond('ai-embeddings', embeddings)
- * bond('ai-vector-store', vectorStore)
- * bond('ai', ai)
- * bond('ai-rag', rag)
+ * // Startup (server only): wire ALL THREE dependencies, then this RAG provider.
+ * setEmbeddings(createOpenaiEmbeddings({ apiKey: process.env.OPENAI_API_KEY }))
+ * setVectorStore(vectorStore)
+ * setAi(createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ * setProvider(rag)
  *
- * // Ingest a corpus.
- * await requireProvider().ingest({
+ * // Ingest a corpus (embeds + upserts; the collection is created on first ingest).
+ * const { indexed } = await requireProvider().ingest({
  *   collection: 'handbook',
  *   documents: [
  *     { id: 'pto', text: 'Employees accrue 15 PTO days per year.' },
@@ -40,23 +42,24 @@
  * })
  *
  * // Ask a grounded question.
- * const { answer, sources, usage } = await requireProvider().query({
+ * const { answer, sources } = await requireProvider().query({
  *   collection: 'handbook',
  *   query: 'How many PTO days do I get?',
- *   topK: 5,
+ *   topK: 1,
  * })
- * // answer: "You accrue 15 PTO days per year [1]."  sources: [{ id: 'pto', … }]
+ * console.log(indexed, answer, sources[0]?.id) // 2 'You accrue 15 PTO days per year [1].' 'pto'
  * ```
  *
  * @remarks
  * This provider needs THREE bonds present at runtime: a `ai` chat provider
  * (generation) plus the `ai-embeddings` and `ai-vector-store` providers
  * (retrieval, via `@molecule/api-semantic-search`). Bond those before calling
- * `query`/`ingest`, or the underlying accessors throw. `query` still calls the
- * model when retrieval returns zero chunks, but instructs it to say it has no
- * information rather than hallucinate. The whole capability is swappable:
- * `bond('ai-rag', myProvider)` replaces this composed default with your own
- * `AIRagProvider`.
+ * `query`/`ingest` — each with its own core's `setProvider(...)` (equivalent to
+ * `bond('<category>', …)`) — or the underlying accessors throw. The collection
+ * is created on first `ingest`. `query` still calls the model when retrieval
+ * returns zero chunks, but instructs it to say it has no information rather
+ * than hallucinate. The whole capability is swappable: `bond('ai-rag',
+ * myProvider)` replaces this composed default with your own `AIRagProvider`.
  *
  * @module
  */

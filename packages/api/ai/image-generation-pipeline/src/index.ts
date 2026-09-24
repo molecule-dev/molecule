@@ -9,31 +9,43 @@
  * when no provider is bonded.
  *
  * @example
- * ```ts
- * import { runImageGeneration, enhancePrompt } from '@molecule/api-ai-image-generation-pipeline'
+ * ```typescript
+ * import { setProvider as setAIProvider } from '@molecule/api-ai'
+ * import { createProvider as createChatProvider } from '@molecule/api-ai-anthropic'
+ * import { setProvider as setImageProvider } from '@molecule/api-ai-image-generation'
+ * import { createProvider as createImageProvider } from '@molecule/api-ai-image-generation-openai'
+ * import { enhancePrompt, runImageGeneration } from '@molecule/api-ai-image-generation-pipeline'
  *
- * const enhanced = await enhancePrompt({ prompt: 'a cat' })
+ * // Startup (server only): TWO bonds — the image core (required) and the chat core
+ * // (only for enhancePrompt). Keys come from the server env.
+ * setImageProvider(createImageProvider({ apiKey: process.env.OPENAI_API_KEY }))
+ * setAIProvider(createChatProvider({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ *
+ * // In a request handler:
+ * const enhanced = await enhancePrompt({ prompt: 'a cat on a windowsill' })
  * const result = await runImageGeneration({
  *   prompt: enhanced.text,
  *   size: '1024x1024',
  *   stylePromptModifier: 'photorealistic, golden hour lighting',
- *   model: 'reverie-xl-v3',
- *   provider: 'openai',
+ *   model: 'gpt-image-1',
  * })
- * if (result.status === 'succeeded') console.log(result.imageUrl)
+ * if (result.status !== 'succeeded') throw new Error(result.error ?? 'No image provider bonded')
+ * console.log(result.imageUrl) // 'data:image/png;base64,...' (gpt-image-1 returns base64)
  * ```
  *
  * @remarks
- * Wiring — this package composes TWO different accessor mechanisms:
- * - `runImageGeneration()` resolves `@molecule/api-ai-image-generation`, whose
- *   core keeps its OWN singleton: wire it with THAT package's `setProvider(...)`
- *   (e.g. `setProvider(createProvider())` from
- *   `@molecule/api-ai-image-generation-openai`). A generic
- *   `bond('ai-image-generation', …)` call is never seen by that core — the
- *   pipeline then returns `status: 'queued'` forever with no error to debug.
- * - `enhancePrompt()` resolves the registry-based `@molecule/api-ai` chat bond
- *   (`bond('ai', provider)` / named providers); with none bonded it returns
- *   `{ enhanced: false, text: prompt }` instead of failing.
+ * Wiring — bond BOTH cores at startup, each with its own core's `setProvider(...)`
+ * (aliased in the example because both are named `setProvider`):
+ * - `runImageGeneration()` resolves `@molecule/api-ai-image-generation` (e.g.
+ *   `setProvider(createProvider(...))` with `@molecule/api-ai-image-generation-openai`).
+ *   With none bonded it does NOT throw — it returns `status: 'queued'`.
+ * - `enhancePrompt()` resolves the `@molecule/api-ai` chat provider (or the
+ *   named one in `providerName`); with none bonded — or on any stream error —
+ *   it returns `{ enhanced: false, text: prompt }` instead of failing.
+ *
+ * `size` is passed through; the OpenAI bond snaps it to the model's supported
+ * sizes. `style` is dropped by the OpenAI bond (the Images API rejects it) —
+ * put style words in `stylePromptModifier` (appended to the prompt) instead.
  *
  * `status: 'queued'` means "no image provider wired" (the graceful no-op path),
  * NOT "an async job is pending" — nothing retries it. Treat a persistent

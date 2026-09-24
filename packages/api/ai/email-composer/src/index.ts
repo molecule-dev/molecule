@@ -6,8 +6,13 @@
  * previous message.
  *
  * @example
- * ```ts
+ * ```typescript
+ * import { setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-anthropic'
  * import { composeEmail } from '@molecule/api-ai-email-composer'
+ *
+ * // Startup (server only): bond the AI provider the composer calls.
+ * setProvider(createProvider({ apiKey: process.env.ANTHROPIC_API_KEY }))
  *
  * const draft = await composeEmail({
  *   brief: 'Tell the team the launch moved to Friday; apologize for the short notice.',
@@ -16,13 +21,16 @@
  *   audience: 'the engineering team',
  *   senderName: 'Priya',
  * })
- * // draft = { subject, body, reasoning? }
+ * // A malformed model reply RESOLVES with this subject instead of rejecting.
+ * if (draft.subject === '(draft failed)') throw new Error('Email draft failed')
+ * console.log(draft.subject) // e.g. 'Launch moved to Friday'
+ * console.log(draft.body) // e.g. 'Hi team,\n\nSorry for the short notice...\n\nPriya'
  * ```
  *
  * @remarks
  * Requires a bonded `ai` chat provider — `composeEmail()` resolves it via
  * `@molecule/api-ai`'s `requireProvider()` and throws if none is bonded. Wire
- * one at startup (`bond('ai', provider)` or a named provider); with several
+ * one at startup (`setProvider(createProvider(...))` from `@molecule/api-ai`); with several
  * named providers and no explicit default, resolution declines — see the
  * `@molecule/api-ai` core docs.
  *

@@ -9,31 +9,33 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
- * import { provider as anthropic } from '@molecule/api-ai-anthropic'
- * import { provider as classification } from '@molecule/api-ai-classification-llm'
- * import { requireProvider } from '@molecule/api-ai-classification'
+ * import { setProvider as setAiProvider } from '@molecule/api-ai'
+ * import { createProvider as createAnthropic } from '@molecule/api-ai-anthropic'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-classification'
+ * import { provider as classifier } from '@molecule/api-ai-classification-llm'
  *
- * // Wire an AI provider + the classifier at startup.
- * bond('ai', anthropic)
- * bond('ai-classification', classification)
+ * // Startup (server only): bond the chat model, then this classifier that uses it.
+ * setAiProvider(createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ * setProvider(classifier)
  *
- * // Use it anywhere.
  * const result = await requireProvider().classify({
  *   text: 'Win a FREE $1000 gift card now!!!',
  *   labels: ['spam', 'ham'],
+ *   instructions: '"ham" is any legitimate, non-promotional message.',
  * })
- * console.log(result.top)    // 'spam'
- * console.log(result.labels) // [{ label: 'spam', score: 0.98 }, ...]
+ * console.log(result.top) // 'spam'
+ * console.log(result.labels) // [{ label: 'spam', score: 0.98 }, { label: 'ham', score: 0.02 }]
  * ```
  *
  * @remarks
  * - **Requires a bonded `ai` provider.** `classify()` resolves the AI provider
- *   from the bond registry at call time — bond one (`bond('ai', anthropic)`)
- *   before classifying, or pass `provider: '<name>'` to target a specific
- *   named AI provider. It throws if none is bonded.
- * - **Swappable.** Both the classifier (`bond('ai-classification', ...)`) and
- *   the underlying model (`bond('ai', ...)`) are swappable at runtime.
+ *   from the bond registry at call time — bond one first
+ *   (`setProvider(createProvider(...))` from `@molecule/api-ai`), or pass
+ *   `provider: '<name>'` to target a specific named AI provider. It throws if
+ *   none is bonded.
+ * - **Swappable.** Both the classifier (`setProvider` from
+ *   `@molecule/api-ai-classification`) and the underlying model (`setProvider`
+ *   from `@molecule/api-ai`) are swappable at runtime.
  * - Pass `multiLabel: true` when several labels can apply at once, and
  *   `instructions` to give the model label definitions or extra guidance.
  * - `result.labels` is restricted to the candidate set, sorted descending by

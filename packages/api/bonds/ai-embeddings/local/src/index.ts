@@ -7,16 +7,21 @@
  * `@molecule/api-ai-embeddings` core anywhere.
  *
  * @example
- * ```ts
- * import { setProvider } from '@molecule/api-ai-embeddings'
- * import { provider } from '@molecule/api-ai-embeddings-local'
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-ai-embeddings'
+ * import { createProvider } from '@molecule/api-ai-embeddings-local'
  *
- * setProvider(provider) // at startup
+ * // Startup: no API key. Options fall back to the MOL_EMBEDDINGS_LOCAL_* env vars.
+ * setProvider(createProvider({ model: 'Xenova/bge-small-en-v1.5' }))
  *
- * // anywhere after:
- * import { requireProvider } from '@molecule/api-ai-embeddings'
- * const vector = await requireProvider().embedQuery('some text') // number[] (384 dims)
- * const vectors = await requireProvider().embedDocuments(['a', 'b']) // number[][]
+ * const docs = ['How do I reset my password?', 'Billing and invoices']
+ * const docVectors = await requireProvider().embedDocuments(docs) // number[][], 384 dims each
+ * const query = await requireProvider().embedQuery('forgot my password') // number[]
+ *
+ * // Outputs are L2-normalized, so the dot product IS the cosine similarity.
+ * const dot = (a: number[], b: number[]) => a.reduce((sum, x, i) => sum + x * (b[i] ?? 0), 0)
+ * const scores = docVectors.map((vector) => dot(vector, query))
+ * console.log(docs[scores.indexOf(Math.max(...scores))]) // 'How do I reset my password?'
  * ```
  *
  * @remarks

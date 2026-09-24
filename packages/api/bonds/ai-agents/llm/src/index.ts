@@ -11,15 +11,17 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
- * import { requireProvider } from '@molecule/api-ai-agents'
- * import { provider as agents } from '@molecule/api-ai-agents-llm'
  * import type { AITool } from '@molecule/api-ai'
+ * import { setProvider as setAiProvider } from '@molecule/api-ai'
+ * import { requireProvider, setProvider } from '@molecule/api-ai-agents'
+ * import { provider as agents } from '@molecule/api-ai-agents-llm'
+ * import { createProvider as createAnthropic } from '@molecule/api-ai-anthropic'
  *
- * // Wire at startup (an `ai` provider must already be bonded).
- * bond('ai-agents', agents)
+ * // Startup (server only): bond the chat model FIRST, then this agent loop that drives it.
+ * setAiProvider(createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ * setProvider(agents)
  *
- * const myTool: AITool = {
+ * const add: AITool = {
  *   name: 'add',
  *   description: 'Add two numbers',
  *   parameters: {
@@ -35,11 +37,12 @@
  *
  * const result = await requireProvider().run({
  *   task: 'What is 1 + 2? Use the add tool.',
- *   tools: [myTool],
+ *   tools: [add],
+ *   maxSteps: 5,
  * })
- * console.log(result.output) // final assistant answer
- * console.log(result.steps)  // intermediate tool calls + results
- * console.log(result.usage)  // token usage summed across all model calls
+ * console.log(result.output) // final answer, e.g. '1 + 2 = 3.'
+ * console.log(result.steps[0]?.toolCalls[0]?.result) // 3 — your execute() really ran
+ * console.log(result.usage.inputTokens, result.usage.outputTokens) // summed across every model call
  * ```
  *
  * @remarks
@@ -78,7 +81,8 @@
  *   assistant text or an explicit "step budget exhausted" note.
  *
  * Swappable like any bond: replace this LLM agent with your own
- * `AIAgentsProvider` via `bond('ai-agents', myProvider)` — nothing else changes.
+ * `AIAgentsProvider` via `setProvider(myProvider)` from `@molecule/api-ai-agents` —
+ * nothing else changes.
  *
  * @module
  */

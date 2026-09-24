@@ -7,20 +7,30 @@
  * This package adds AI-assisted generation + free-response grading.
  *
  * @example
- * ```ts
+ * ```typescript
+ * import { setProvider } from '@molecule/api-ai'
+ * import { createProvider } from '@molecule/api-ai-anthropic'
  * import { generateQuiz, gradeResponses } from '@molecule/api-ai-quiz-generation'
  *
+ * // Startup (server only): bond the AI provider both calls use.
+ * setProvider(createProvider({ apiKey: process.env.ANTHROPIC_API_KEY }))
+ *
+ * const chapterText = 'Photosynthesis converts light energy into chemical energy in chloroplasts.'
  * const quiz = await generateQuiz({
  *   source: chapterText,
- *   questionCount: 10,
+ *   questionCount: 2,
  *   types: ['multiple_choice', 'short_answer'],
- *   difficulty: 'medium',
+ *   difficulty: 'easy',
  * })
+ * // An empty list means the model output failed to parse — offer a retry, don't render it.
+ * if (quiz.questions.length === 0) throw new Error('Quiz generation failed')
  *
+ * // Later, when the student submits (answers keyed by the generated question ids):
  * const result = await gradeResponses({
  *   quiz,
- *   responses: studentAnswers,
+ *   responses: quiz.questions.map((q) => ({ question_id: q.id, submitted: 'chloroplasts' })),
  * })
+ * console.log(`${result.earned}/${result.total} (${result.percentage}%)`) // e.g. '1.5/2 (75%)'
  * ```
  *
  * @remarks

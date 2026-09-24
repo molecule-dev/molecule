@@ -10,11 +10,26 @@
  * @example
  * ```typescript
  * import { readFileSync } from 'node:fs'
+ *
  * import { readTranscript, setProvider } from '@molecule/api-agent-transcript'
  * import { provider } from '@molecule/api-agent-transcript-molecule-ide'
  *
+ * // Startup: bond this reader through the transcript core.
  * setProvider(provider)
- * const session = readTranscript({ text: readFileSync('conversation.json', 'utf8'), fileName: 'conversation.json' })
+ *
+ * // The conversation JSON molecule.dev stores for a project's chat.
+ * // Pass the file's TEXT plus its original name (a detection hint), never a path.
+ * const session = readTranscript({
+ *   text: readFileSync('transcripts/conversation.json', 'utf8'),
+ *   fileName: 'conversation.json',
+ * })
+ *
+ * console.log(session.harness, session.model) // 'Molecule IDE' 'deepseek-flash'
+ * for (const turn of session.turns) {
+ *   const files = turn.files.map((f) => `${f.kind} ${f.path}${f.complete ? '' : ' (elided)'}`)
+ *   console.log(turn.role, turn.text.slice(0, 40), files)
+ *   // 'assistant' 'I have what I need…' ['edit /workspace/my-app/app/src/bonds/ai-anthropic.ts', …]
+ * }
  * ```
  *
  * @remarks

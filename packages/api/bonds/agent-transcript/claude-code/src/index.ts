@@ -12,12 +12,27 @@
  * @example
  * ```typescript
  * import { readFileSync } from 'node:fs'
+ *
  * import { readTranscript, setProvider } from '@molecule/api-agent-transcript'
  * import { provider } from '@molecule/api-agent-transcript-claude-code'
  *
+ * // Startup: bond this reader through the transcript core.
  * setProvider(provider)
- * const session = readTranscript({ text: readFileSync('session.jsonl', 'utf8'), fileName: 'session.jsonl' })
- * // session.turns: [{ role: 'user', text: '…as typed…' }, { role: 'assistant', model: 'claude-…', text, files }]
+ *
+ * // A session log copied from ~/.claude/projects/<project>/<session-id>.jsonl (preferred),
+ * // or the text file `/export` wrote — both are recognized.
+ * // Pass the file's TEXT plus its original name (a detection hint), never a path.
+ * const session = readTranscript({
+ *   text: readFileSync('transcripts/session.jsonl', 'utf8'),
+ *   fileName: 'session.jsonl',
+ * })
+ *
+ * console.log(session.harnessVersion, session.model) // '2.1.281' 'claude-haiku-4-5-20251001'
+ * for (const turn of session.turns) {
+ *   const files = turn.files.map((f) => `${f.kind} ${f.path}`)
+ *   console.log(turn.role, turn.text.slice(0, 40), files)
+ *   // 'assistant' 'written' ['create /home/user/logs-demo/notes.md', 'edit /home/user/logs-demo/notes.md']
+ * }
  * ```
  *
  * @remarks

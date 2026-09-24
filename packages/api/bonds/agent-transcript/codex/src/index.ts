@@ -10,11 +10,27 @@
  * @example
  * ```typescript
  * import { readFileSync } from 'node:fs'
+ *
  * import { readTranscript, setProvider } from '@molecule/api-agent-transcript'
  * import { provider } from '@molecule/api-agent-transcript-codex'
  *
+ * // Startup: bond this reader through the transcript core.
  * setProvider(provider)
- * const session = readTranscript({ text: readFileSync('codex-session.md', 'utf8'), fileName: 'codex-session.md' })
+ *
+ * // A rollout copied from ~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl (has models and times),
+ * // or the Markdown `/export` → "Save to file" wrote — both are recognized.
+ * // Pass the file's TEXT plus its original name (a detection hint), never a path.
+ * const session = readTranscript({
+ *   text: readFileSync('transcripts/rollout.jsonl', 'utf8'),
+ *   fileName: 'rollout.jsonl',
+ * })
+ *
+ * console.log(session.harnessVersion, session.model) // '0.156.1' 'gpt-6-astra'
+ * for (const turn of session.turns) {
+ *   const files = turn.files.map((f) => `${f.kind} ${f.path}`)
+ *   console.log(turn.role, turn.text.slice(0, 40), files)
+ *   // 'assistant' 'I’ll create `notes.md`…' ['create notes.md', 'edit notes.md']
+ * }
  * ```
  *
  * @remarks

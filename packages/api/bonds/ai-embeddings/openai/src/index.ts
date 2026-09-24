@@ -1,6 +1,28 @@
 /**
  * OpenAI ai-embeddings provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-ai-embeddings'
+ * import { createProvider } from '@molecule/api-ai-embeddings-openai'
+ *
+ * // Startup (server only): the key comes from the server env.
+ * setProvider(
+ *   createProvider({
+ *     apiKey: process.env.OPENAI_API_KEY,
+ *     defaultModel: 'text-embedding-3-small',
+ *     dimensions: 512, // optional: shorten vectors (text-embedding-3 models only)
+ *   }),
+ * )
+ *
+ * // One request for the whole batch; vectors are under `embeddings`.
+ * const { embeddings, usage } = await requireProvider().embed({
+ *   input: ['How do I reset my password?', 'Billing and invoices'],
+ * })
+ * const query = await requireProvider().embedQuery('forgot my password') // number[]
+ * console.log(embeddings.length, embeddings[0]?.length, query.length, usage.totalTokens) // 2 512 512 11
+ * ```
+ *
  * @remarks
  * Config: `OPENAI_API_KEY` (SERVER-side only) plus optional `defaultModel`
  * (default `text-embedding-3-small`; also supports `text-embedding-3-large`
@@ -9,9 +31,9 @@
  * automatically), and a base URL override (`OPENAI_BASE_URL` env var or
  * `baseUrl`, for proxies/gateways).
  *
- * Wire it with the core's `setProvider()` — NOT `bond('ai-embeddings', …)`:
- * the `@molecule/api-ai-embeddings` core keeps its own singleton and never
- * reads the bond registry (see the core's docs).
+ * Wire it with the core's `setProvider(...)` from `@molecule/api-ai-embeddings`
+ * (equivalent to `bond('ai-embeddings', …)`) — importing this package does not
+ * wire anything by itself.
  *
  * Unlike the chat AI bonds, a missing `OPENAI_API_KEY` does NOT fail fast —
  * the first embed call fails with the upstream 401. Validate the key at boot
