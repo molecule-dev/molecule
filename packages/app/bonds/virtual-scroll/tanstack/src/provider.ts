@@ -102,6 +102,12 @@ function createVirtualizerInstance(
 
   let currentOptions = { ...options }
   let cleanup: (() => void) | undefined
+  // TanStack can notify `onChange` synchronously while this function is still
+  // mounting the virtualizer (before `instance` below exists). Hold that first
+  // notification until the instance is assigned instead of reading `instance`
+  // in its temporal dead zone.
+  let instanceReady = false
+  let pendingChange = false
 
   const virtualizer = new Virtualizer<Element | Window, Element>({
     count: options.count,
@@ -122,6 +128,10 @@ function createVirtualizerInstance(
     useScrollendEvent: config.useScrollendEvent,
     onChange: options.onChange
       ? () => {
+          if (!instanceReady) {
+            pendingChange = true
+            return
+          }
           if (currentOptions.onChange) {
             currentOptions.onChange(instance)
           }
@@ -227,6 +237,11 @@ function createVirtualizerInstance(
         cleanup = undefined
       }
     },
+  }
+
+  instanceReady = true
+  if (pendingChange && currentOptions.onChange) {
+    currentOptions.onChange(instance)
   }
 
   return instance
