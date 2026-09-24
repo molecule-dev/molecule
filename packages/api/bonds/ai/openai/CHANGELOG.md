@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.3.0
+
+### Minor Changes
+
+- b703490: Call OpenAI's Responses API (`/v1/responses`) on OpenAI's own endpoint, which lets reasoning models use function tools with reasoning enabled and forwards `serverTools` such as `web_search`; other base URLs keep `/v1/chat/completions`, and the new `api` option overrides the choice.
+
 ## 1.2.0
 
 ### Minor Changes

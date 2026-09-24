@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-ui-nativewind",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "NativeWind UIClassMap bond for React Native",
   "homepage": "https://www.molecule.dev/packages/app-ui-nativewind",
   "type": "module",
@@ -36,15 +36,15 @@
   },
   "devDependencies": {
     "@molecule/app-styling": "1.0.2",
-    "@molecule/app-ui": "1.1.1",
-    "@molecule/app-ui-tailwind": "1.1.3",
+    "@molecule/app-ui": "1.2.0",
+    "@molecule/app-ui-tailwind": "1.2.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
   },
   "peerDependencies": {
     "@molecule/app-styling": "^1.0.1",
-    "@molecule/app-ui": "^1.0.1",
+    "@molecule/app-ui": "^1.2.0",
     "@molecule/app-ui-tailwind": "^1.0.1"
   },
   "peerDependenciesMeta": {

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.8.0
+
+### Minor Changes
+
+- b703490: Add `gpt-6-astra`.
+
 ## 1.7.0
 
 ### Minor Changes

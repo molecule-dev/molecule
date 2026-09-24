@@ -1,5 +1,11 @@
 # @molecule/app-ui-nativewind
 
+## 1.2.0
+
+### Minor Changes
+
+- 6fb7157: Add `hiddenBelow(breakpoint)` and `hiddenFrom(breakpoint)` to the ClassMap, for swapping desktop and phone surfaces in CSS.
+
 ## 1.1.0
 
 ### Minor Changes

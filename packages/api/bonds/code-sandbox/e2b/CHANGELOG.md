@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.2
+
+### Patch Changes
+
+- d230e8c: `create()` destroys the sandbox when its egress policy fails to apply, and `verifyEgress()` retries destroying its probe sandbox and reports one it could not remove.
+
 ## 1.2.0
 
 ### Minor Changes

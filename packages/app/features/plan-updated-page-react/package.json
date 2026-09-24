@@ -39,7 +39,7 @@
     "typescript": "6.0.3",
     "vitest": "4.1.11",
     "@molecule/app-react": "1.6.0",
-    "@molecule/app-ui": "1.1.1",
+    "@molecule/app-ui": "1.2.0",
     "@molecule/app-ui-react": "1.0.2",
     "@molecule/app-locales-common": "1.0.3",
     "@types/react": "19.2.17",
