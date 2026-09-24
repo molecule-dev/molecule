@@ -9,24 +9,42 @@
  * ```tsx
  * import { CollapsibleSection, ShowMore } from '@molecule/app-collapsible-section-react'
  *
- * <CollapsibleSection title="Key concepts" defaultExpanded={true}>
- *   <p>Content revealed when expanded.</p>
- * </CollapsibleSection>
- *
- * <ShowMore initialCount={3}>
- *   {items.map((item) => <div key={item.id}>{item.label}</div>)}
- * </ShowMore>
+ * export function LessonSidebar() {
+ *   const concepts = [
+ *     { id: 'props', label: 'Props' },
+ *     { id: 'state', label: 'State' },
+ *     { id: 'effects', label: 'Effects' },
+ *     { id: 'context', label: 'Context' },
+ *     { id: 'refs', label: 'Refs' },
+ *   ]
+ *   return (
+ *     <CollapsibleSection title="Key concepts" badge={<span>{concepts.length}</span>} defaultExpanded>
+ *       <ShowMore initialCount={3}>
+ *         {concepts.map((c) => (
+ *           <div key={c.id}>{c.label}</div>
+ *         ))}
+ *       </ShowMore>
+ *     </CollapsibleSection>
+ *   )
+ * }
  * ```
  *
  * @remarks
- * `<CollapsibleSection>` is uncontrolled by default (`defaultExpanded`);
- * passing `expanded` makes it fully controlled — then you must update it from
- * `onExpandedChange`. The header renders as a single `<button>`, so anything
- * passed to `actions` must NOT contain buttons/links (nested interactive
- * elements are invalid HTML) — put row actions outside the section instead.
- * `<ShowMore>`'s labels use the i18n keys `showMore.more` / `showMore.less`
- * with English `defaultValue`s; no companion locale bond ships these keys —
- * add them to your app's locale resources (or pass custom `moreKey`/`lessKey`).
+ * - `<CollapsibleSection>` starts COLLAPSED (`defaultExpanded` defaults to `false`) and
+ *   unmounts its body while collapsed. Passing `expanded` makes it fully controlled — then you
+ *   must update it from `onExpandedChange`, or clicks do nothing.
+ * - The header renders as a single `<button>` inside an `<h3>` (change with `level`), so
+ *   anything passed to `actions` must NOT contain buttons/links (nested interactive elements are
+ *   invalid HTML) — put row actions outside the section instead.
+ * - `<ShowMore>`'s `children` must be an ARRAY (e.g. from `.map`) — it slices it; items get no
+ *   wrapper, so give each a `key`. The toggle only renders when there are more than
+ *   `initialCount` (default 3) items.
+ * - `<ShowMore>` calls `useTranslation()` from `@molecule/app-react`, so it MUST render inside
+ *   `<I18nProvider>` / `<MoleculeProvider>`; both components call `getClassMap()`, which throws
+ *   unless `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
+ * - `<ShowMore>`'s labels use the i18n keys `showMore.more` (receives `{{remaining}}`) /
+ *   `showMore.less` with English `defaultValue`s; no companion locale bond ships these keys —
+ *   add them to your app's locale resources (or pass custom `moreKey`/`lessKey`).
  *
  * @module
  */

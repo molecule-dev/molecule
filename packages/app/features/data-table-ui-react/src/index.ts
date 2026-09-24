@@ -16,33 +16,57 @@
  *
  * @example
  * ```tsx
- * import { DataTableCard } from '@molecule/app-data-table-ui-react'
+ * import { useState } from 'react'
  *
- * const columns = [
- *   { key: 'name', header: t('members.name', {}, { defaultValue: 'Name' }), cell: (row) => row.name },
- *   { key: 'email', header: t('members.email', {}, { defaultValue: 'Email' }), cell: (row) => row.email },
- * ]
+ * import { DataTableCard, type DataTableColumn } from '@molecule/app-data-table-ui-react'
+ * import { t } from '@molecule/app-i18n'
  *
- * <DataTableCard
- *   title={t('members.title', {}, { defaultValue: 'Team members' })}
- *   columns={columns}
- *   rows={members}
- *   rowKey={(row) => row.id}
- *   onRowClick={(row) => navigate(`/members/${row.id}`)}
- *   emptyMessage={t('members.empty', {}, { defaultValue: 'No members yet.' })}
- * />
+ * interface Member { id: string; name: string; email: string; role: string }
+ *
+ * export function MembersTable() {
+ *   const members: Member[] = [
+ *     { id: 'u1', name: 'Ada Lovelace', email: 'ada@example.com', role: 'Owner' },
+ *     { id: 'u2', name: 'Alan Turing', email: 'alan@example.com', role: 'Editor' },
+ *   ]
+ *   const [openedId, setOpenedId] = useState<string | null>(null)
+ *   const columns: DataTableColumn<Member>[] = [
+ *     { key: 'name', header: t('form.name', undefined, { defaultValue: 'Name' }), cell: (m) => m.name },
+ *     { key: 'email', header: t('settings.email', undefined, { defaultValue: 'Email' }), cell: (m) => m.email },
+ *     { key: 'role', header: t('form.role', undefined, { defaultValue: 'Role' }), cell: (m) => m.role },
+ *   ]
+ *   return (
+ *     <>
+ *       <DataTableCard
+ *         title={t('nav.members', undefined, { defaultValue: 'Members' })}
+ *         columns={columns}
+ *         rows={members}
+ *         rowKey={(m) => m.id}
+ *         onRowClick={(m) => setOpenedId(m.id)}
+ *         emptyMessage={t('ui.table.empty', undefined, { defaultValue: 'No data available' })}
+ *         dataMolId="members-table"
+ *       />
+ *       <p>{openedId}</p>
+ *     </>
+ *   )
+ * }
  * ```
  *
  * @remarks
- * All text (`title`, column `header`s, `emptyMessage`) is consumer-provided —
- * pass translated strings; there is no built-in copy and no locale bond.
- * `DataTableCard`'s chrome uses Tailwind classes with Material-3 theme tokens
- * (`bg-surface-container-lowest`, `divide-surface-container`,
- * `text-on-surface-variant`, …) — the app's Tailwind theme must define those
- * tokens (molecule's default Tailwind ClassMap bond does); with a
- * non-Tailwind ClassMap the card surface, dividers, and skeleton styling
- * drop out. `onRowClick` makes rows pointer-clickable only — add your own
- * keyboard path (e.g. a link/button in a cell) where accessibility matters.
+ * - The column shape is `{ key, header, cell: (row) => ReactNode }` — NOT `accessor`/`render`/
+ *   `id`. `rowKey` is REQUIRED. It does NOT fetch, sort, filter, select or paginate — pass the
+ *   current page as `rows` and put pagination in a `<TableFooter right={...}>` below it.
+ * - `loading` replaces the rows with 5 skeleton rows; `emptyMessage` shows only when `rows` is
+ *   empty and not loading (with no `emptyMessage` the empty cell is blank).
+ * - All text (`title`, column `header`s, `emptyMessage`) is consumer-provided — pass translated
+ *   strings; there is no built-in copy and no locale bond.
+ * - `getClassMap()` throws unless `setClassMap(classMap)` from `@molecule/app-ui` ran at
+ *   startup. `DataTableCard`'s chrome ALSO uses literal Tailwind classes with Material-3 theme
+ *   tokens (`bg-surface-container-lowest`, `divide-surface-container`,
+ *   `text-on-surface-variant`, …) — the app's Tailwind theme must define those tokens
+ *   (molecule's default Tailwind ClassMap bond does); with a non-Tailwind ClassMap the card
+ *   surface, dividers, and skeleton styling drop out.
+ * - `onRowClick` makes rows pointer-clickable only — add your own keyboard path (e.g. a
+ *   link/button in a cell) where accessibility matters.
  *
  * @module
  */
