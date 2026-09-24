@@ -8,26 +8,32 @@
  * @module
  * @example
  * ```typescript
- * import { setProvider, importCSV, exportJSON, getJobStatus } from '@molecule/api-import-export'
- * import { provider } from '@molecule/api-import-export-csv'
+ * import { exportCSV, getJobStatus, importCSV, setProvider } from '@molecule/api-import-export'
+ * import { createProvider } from '@molecule/api-import-export-csv'
  *
- * // Wire the provider at startup
- * setProvider(provider)
+ * // Startup: the `@molecule/api-database` bond must already be wired and the
+ * // `contacts` table migrated — imports insert rows through the DataStore.
+ * setProvider(createProvider({ maxExportRows: 10_000 }))
  *
- * // Import CSV data
- * const result = await importCSV('users', csvBuffer, {
- *   mapping: { 'Full Name': 'name', 'Email Address': 'email' },
+ * // Import an uploaded CSV (a Buffer). Headers are renamed to column names via `mapping`.
+ * const upload = Buffer.from(
+ *   'Full Name,Email Address,Plan\nAda Lovelace,ada@example.com,pro\nNo Email,,free\n',
+ * )
+ * const result = await importCSV('contacts', upload, {
+ *   mapping: { 'Full Name': 'name', 'Email Address': 'email', Plan: 'plan' },
+ *   validateRow: (row) => typeof row.email === 'string' && row.email.includes('@'),
  *   skipDuplicates: true,
  * })
+ * // result: { totalRows: 2, importedRows: 1, skippedRows: 1, errors: [] } — report partial imports.
+ * const job = await getJobStatus(result.jobId) // { status: 'completed', result }
  *
- * // Export data as JSON
- * const rows = await exportJSON('users', {
- *   filters: [{ field: 'active', operator: 'eq', value: true }],
+ * // Export: a WHITELISTED table, explicit columns, and server-side filters.
+ * const csv = await exportCSV('contacts', {
+ *   filters: [{ field: 'plan', operator: 'eq', value: 'pro' }],
  *   columns: ['name', 'email'],
+ *   orderBy: [{ field: 'name', direction: 'asc' }],
  * })
- *
- * // Check import job status
- * const status = await getJobStatus(result.jobId)
+ * // Set Content-Type: text/csv + Content-Disposition yourself when sending `csv` (a Buffer).
  * ```
  *
  * @remarks
@@ -43,6 +49,13 @@
  * - Exports return the file CONTENT (`Buffer` for CSV/Excel, rows for JSON) —
  *   the endpoint must set `Content-Type` / `Content-Disposition` itself for a
  *   download.
+ * - With `@molecule/api-import-export-csv`, every imported CSV value is a
+ *   STRING (`'42'`, `'true'`) — coerce types in `validateRow`/your schema; the
+ *   `between` filter operator is NOT supported there (it silently degrades to
+ *   `eq`), and `exportExcel()` returns an XML Spreadsheet 2003 document
+ *   (`.xls`), not an `.xlsx` workbook.
+ * - Imports run to completion before the promise resolves; `getJobStatus()` is
+ *   an in-process record (lost on restart, not shared across instances).
  * - Import failures are per-row (`result.errors`, 1-based row numbers) with
  *   `skippedRows` counted separately — surface them; don't report success when
  *   `importedRows < totalRows`.

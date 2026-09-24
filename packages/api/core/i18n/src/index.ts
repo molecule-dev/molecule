@@ -10,17 +10,25 @@
  *
  * @example
  * ```typescript
- * import { registerLocaleModule, t } from '@molecule/api-i18n'
+ * import { registerLocaleModule, setProvider, t } from '@molecule/api-i18n'
+ * import { provider } from '@molecule/api-i18n-simple'
  * import * as locales from '@molecule/api-locales-user'
  *
- * // Startup: register a companion locale bond (all 79 locales in one call)
+ * // Startup: bond a real provider (pluralization + locale fallback), then register a
+ * // companion locale bond (all 79 locales in one call).
+ * setProvider(provider)
  * registerLocaleModule(locales)
  *
- * // Error responses — default locale
- * t('user.error.notFound', undefined, { defaultValue: 'User not found.' })
+ * // Error responses — default locale ('en').
+ * const message = t('user.error.notFound', undefined, { defaultValue: 'Not found.' })
  *
- * // Per-user content (emails, notifications) — per-request locale OPTION
- * t('user.email.resetSubject', { appName }, { locale: user.locale, defaultValue: '{{appName}} password reset' })
+ * // Per-user content (emails, notifications) — per-call locale OPTION, never setLocale().
+ * const user = { locale: 'fr' }
+ * const subject = t(
+ *   'user.email.passwordResetSubject',
+ *   { appName: 'Acme' },
+ *   { locale: user.locale, defaultValue: '{{appName}} - Password Reset' },
+ * ) // 'Acme - Réinitialisation du mot de passe'
  * ```
  *
  * @remarks

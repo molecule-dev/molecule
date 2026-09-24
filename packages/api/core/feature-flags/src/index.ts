@@ -9,20 +9,24 @@
  * @module
  * @example
  * ```typescript
- * import { setProvider, isEnabled, setFlag, evaluateForUser } from '@molecule/api-feature-flags'
+ * import { evaluateForUser, isEnabled, setFlag, setProvider } from '@molecule/api-feature-flags'
  * import { provider } from '@molecule/api-feature-flags-database'
  *
- * // Wire the provider at startup
+ * // Startup: the database bond (`@molecule/api-database`) must already be wired and the
+ * // `feature_flags` table migrated — this bond reads/writes it through the DataStore.
  * setProvider(provider)
  *
- * // Create a feature flag with percentage rollout
+ * // Admin-only: upsert a flag (keyed on `name`) rolled out to 50% of users.
  * await setFlag({ name: 'new-dashboard', enabled: true, percentage: 50 })
  *
- * // Check if a flag is enabled for a user
- * const enabled = await isEnabled('new-dashboard', { userId: 'user-123' })
+ * // Per request: ALWAYS pass the authenticated user's id — the rollout is sticky per userId.
+ * const showDashboard = await isEnabled('new-dashboard', { userId: 'user-123' })
  *
- * // Evaluate all flags for a user
- * const flags = await evaluateForUser('user-123')
+ * // Ship booleans (not flag definitions) to the client.
+ * const flags = await evaluateForUser('user-123') // { 'new-dashboard': true }
+ *
+ * // Unknown flags fail closed.
+ * const unknown = await isEnabled('does-not-exist', { userId: 'user-123' }) // false
  * ```
  *
  * @remarks
@@ -39,6 +43,11 @@
  * - **Rollouts must be sticky per user.** Evaluate with the same stable
  *   `userId` every time — a session id (or none) makes features flicker
  *   between requests.
+ * - **Nothing works until a provider is bonded.** Every function throws
+ *   `Feature flag provider not configured` before `setProvider()`. The
+ *   `@molecule/api-feature-flags-database` bond additionally needs the
+ *   `@molecule/api-database` bond wired and its `feature_flags` table migrated
+ *   (it never creates the table).
  * - `setFlag()` is an upsert keyed on `name`. Flag CRUD (`setFlag`,
  *   `deleteFlag`, `getAllFlags`) is an admin surface — put it behind an admin
  *   authorizer, not a public route.

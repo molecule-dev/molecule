@@ -16,6 +16,9 @@
  * - **`distance()` still requires a bonded provider**, even though it's a pure
  *   Haversine calculation with no API call — with nothing bonded it throws the
  *   same "no provider" error as the network methods.
+ * - `geocode()`/`reverseGeocode()` return an ARRAY (possibly empty) — never assume
+ *   `[0]` exists; an empty array means "not found", not an error.
+ * - `distance()` returns KILOMETRES unless you pass `'mi'`; it is not metres.
  * - Geocoding calls are metered third-party requests: debounce autocomplete
  *   input and persist geocoded coordinates alongside the stored address instead
  *   of re-geocoding on every read/render.
@@ -25,13 +28,28 @@
  *
  * @example
  * ```typescript
- * import { setProvider, geocode, reverseGeocode, distance } from '@molecule/api-geolocation'
- * import { provider as google } from '@molecule/api-geolocation-google'
+ * import { distance, geocode, reverseGeocode, setProvider } from '@molecule/api-geolocation'
+ * import { createProvider } from '@molecule/api-geolocation-nominatim'
  *
- * setProvider(google)
- * const results = await geocode('1600 Amphitheatre Parkway, Mountain View, CA')
- * const addresses = await reverseGeocode(37.4224764, -122.0842499)
- * const km = distance({ lat: 40.7128, lng: -74.006 }, { lat: 34.0522, lng: -118.2437 })
+ * // Startup (server only): bond one provider. Nominatim is keyless but REQUIRES an
+ * // identifying User-Agent (swap to `@molecule/api-geolocation-google` for timezones).
+ * setProvider(
+ *   createProvider({
+ *     userAgent: process.env.NOMINATIM_USER_AGENT ?? 'acme-stores/1.0 (ops@acme.example)',
+ *     email: process.env.NOMINATIM_EMAIL,
+ *   }),
+ * )
+ *
+ * // Geocode once when the address is saved; persist lat/lng with it.
+ * const [store] = await geocode('1600 Amphitheatre Parkway, Mountain View, CA')
+ * if (!store) throw new Error('Address not found')
+ *
+ * // Reverse-geocode a device position into a human-readable address.
+ * const [here] = await reverseGeocode(37.3861, -122.0839)
+ *
+ * // Pure Haversine distance (kilometres by default, pass 'mi' for miles).
+ * const km = distance({ lat: here?.lat ?? 37.3861, lng: here?.lng ?? -122.0839 }, store)
+ * const miles = distance({ lat: 37.3861, lng: -122.0839 }, store, 'mi')
  * ```
  *
  * @e2e

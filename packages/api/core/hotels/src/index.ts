@@ -23,6 +23,12 @@
  *   `getHotelOffers` expires; book promptly after selection, and on a booking
  *   failure re-fetch offers and re-confirm the price with the user — never
  *   retry a stale offer id or present a cached price as bookable.
+ * - **Nothing works until a provider is bonded** — every function throws before
+ *   `setProvider()`. `@molecule/api-hotels-amadeus` needs `AMADEUS_CLIENT_ID` /
+ *   `AMADEUS_CLIENT_SECRET` and ALWAYS throws `BOOKING_NOT_SUPPORTED` from
+ *   `bookHotel()`.
+ * - `searchHotels()` needs `cityCode` OR `location` (`{ lat, lon }` — `lon`,
+ *   not `lng`); dates must be exact `YYYY-MM-DD` strings, not `Date` objects.
  * - Booking is a real-money, PII-bearing call: keep it SERVER-SIDE behind an
  *   authenticated endpoint (provider API keys live in the bond's config, never
  *   in app code), validate `guestInfo` server-side, and persist the returned
@@ -30,21 +36,40 @@
  *
  * @example
  * ```typescript
- * import { setProvider, searchHotels, getHotelOffers } from '@molecule/api-hotels'
- * import { provider as amadeus } from '@molecule/api-hotels-amadeus'
+ * import { bookHotel, getHotelOffers, searchHotels, setProvider } from '@molecule/api-hotels'
+ * import { createProvider } from '@molecule/api-hotels-amadeus'
  *
- * setProvider(amadeus)
- * const hits = await searchHotels({
- *   cityCode: 'PAR',
- *   checkInDate: '2026-06-01',
- *   checkOutDate: '2026-06-04',
- *   adults: 2,
- * })
- * const offers = await getHotelOffers(hits[0].hotelId, {
- *   checkInDate: '2026-06-01',
- *   checkOutDate: '2026-06-04',
- *   adults: 2,
- * })
+ * // Startup (server only): bond one provider. Credentials come from the server env.
+ * setProvider(
+ *   createProvider({
+ *     clientId: process.env.AMADEUS_CLIENT_ID,
+ *     clientSecret: process.env.AMADEUS_CLIENT_SECRET,
+ *   }),
+ * )
+ *
+ * // IATA city code + ISO YYYY-MM-DD dates. `fromPrice` is filled when the provider has one.
+ * const stay = { checkInDate: '2026-06-01', checkOutDate: '2026-06-04', adults: 2 }
+ * const hotels = await searchHotels({ cityCode: 'PAR', ...stay })
+ * const hotel = hotels[0]
+ * if (!hotel) throw new Error('No hotels found for this city and dates')
+ *
+ * // Live, short-lived quotes for the chosen hotel.
+ * const offers = await getHotelOffers(hotel.hotelId, stay)
+ * const offer = offers[0]
+ * if (!offer) throw new Error('No rooms available')
+ *
+ * // Booking is optional per provider — fall back to the provider's hosted checkout.
+ * try {
+ *   const booking = await bookHotel(offer.offerId, {
+ *     firstName: 'Ada',
+ *     lastName: 'Lovelace',
+ *     email: 'ada@example.com',
+ *   })
+ * } catch (error) {
+ *   const code = ((error as Error).cause as { code?: string } | undefined)?.code
+ *   if (code !== 'BOOKING_NOT_SUPPORTED') throw error
+ *   // Amadeus lands here: send the guest to the hosted checkout with `offer.offerId`.
+ * }
  * ```
  *
  * @e2e

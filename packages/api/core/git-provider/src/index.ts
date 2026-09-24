@@ -26,21 +26,28 @@
  *   requireGitProvider,
  * } from '@molecule/api-git-provider'
  * import { provider as github } from '@molecule/api-git-provider-github'
- * import { provider as gitea } from '@molecule/api-git-provider-gitea'
+ * import { provider as gitlab } from '@molecule/api-git-provider-gitlab'
  *
+ * // Startup: register every host users may connect (named, not a singleton).
  * registerGitProvider(github)
- * registerGitProvider(gitea)
+ * registerGitProvider(gitlab)
  *
  * // What a "connect your repo" picker offers — not a hardcoded list.
- * listGitProviders().map((p) => ({ id: p.id, label: p.label }))
+ * const options = listGitProviders().map((p) => ({ id: p.id, label: p.label }))
  *
- * const p = requireGitProvider('github')
- * const repos = await p.listRepositories({
- *   host: p.defaultHost,
- *   token: '<oauth token>',
- *   page: 1,
- *   perPage: 30,
- * })
+ * // Handler: list the repos the user's stored OAuth token can see, page by page.
+ * async function importableRepos(providerId: string, token: string) {
+ *   const git = requireGitProvider(providerId) // throws if that id is not registered
+ *   const repos = []
+ *   for (let page = 1; ; page++) {
+ *     const batch = await git.listRepositories({ host: git.defaultHost, token, page, perPage: 100 })
+ *     if (batch.length === 0) break // `[]` past the last page — never an error
+ *     repos.push(...batch)
+ *   }
+ *   return repos.map((r) => ({ fullName: r.fullName, cloneUrl: r.url, branch: r.defaultBranch }))
+ * }
+ *
+ * const repos = await importableRepos('github', 'user-oauth-token')
  * ```
  *
  * @remarks
@@ -58,6 +65,11 @@
  * - **`apiBaseForHost` takes the host** because the same provider serves a
  *   different base for its public host than for a self-hosted instance
  *   (`api.github.com` vs `<host>/api/v3`). A constant cannot express that.
+ * - **Bonds call the network through `@molecule/api-http`** (its built-in fetch
+ *   client works with no wiring). The token passed to `listRepositories` is
+ *   the USER's OAuth/PAT token for that host, never an app-wide secret.
+ * - Call `registerGitProvider()` at startup, before any `requireGitProvider()`
+ *   — an unregistered id throws `No git provider is wired for "<id>"`.
  * - **`listRepositories` returns `[]` past the last page**, never an error — a
  *   caller paginating until empty is the normal shape, and a throw there turns
  *   an ordinary end-of-list into a failed import.

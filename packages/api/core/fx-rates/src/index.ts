@@ -13,13 +13,39 @@
  *
  * @example
  * ```typescript
- * import { setProvider, getRate, convert } from '@molecule/api-fx-rates'
- * import { provider as ecb } from '@molecule/api-fx-rates-ecb'
+ * import { convert, getRate, listSupportedCurrencies, setProvider } from '@molecule/api-fx-rates'
+ * import { createProvider } from '@molecule/api-fx-rates-ecb'
  *
- * setProvider(ecb)
+ * // Startup (server only): bond one provider. The ECB feed is keyless; snapshots are
+ * // cached in memory for `cacheTtlMs` (default 1h).
+ * setProvider(createProvider({ cacheTtlMs: 60 * 60 * 1000 }))
+ *
+ * // Validate user-supplied codes first — an unsupported code throws.
+ * const supported = await listSupportedCurrencies() // ['EUR', 'GBP', 'JPY', 'USD', ...]
+ *
+ * // 1 EUR = `eurUsd` USD.
  * const eurUsd = await getRate('EUR', 'USD')
- * const usdCents = await convert(10_000, 'EUR', 'USD') // 10000 EUR cents -> USD cents
+ *
+ * // Amounts are integer MINOR units: €100.00 = 10_000 cents → USD cents.
+ * const usdCents = await convert(10_000, 'EUR', 'USD')
+ * const label = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
+ *   usdCents / 100,
+ * )
  * ```
+ *
+ * @remarks
+ * - **Nothing works until a provider is bonded** — every function throws before
+ *   `setProvider()`.
+ * - **`convert()` does not rescale between currencies' minor units.** It returns
+ *   `Math.round(amountMinor * rate)`; converting USD cents to JPY (0 decimals)
+ *   yields a number 100x too large unless YOU divide by 100. Scale by each
+ *   currency's decimals yourself.
+ * - **Unknown/unsupported codes throw** — never fall back to a rate of 0 or 1.
+ *   Check against `listSupportedCurrencies()` before calling.
+ * - The ECB bond publishes once per business day (EUR-pivoted) and its
+ *   historical `asOf` lookups only cover the last 90 days — an older `asOf`
+ *   throws.
+ * - Server-only: never call these from the browser or expose a provider key.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

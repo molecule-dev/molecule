@@ -22,25 +22,41 @@
  * - `generateManifest` is synchronous (no await); `getSegment` resolves
  *   segments for a previously created stream — persist `StreamManifest.id`
  *   with your media record.
+ * - A string `input` must be an ABSOLUTE local file path — the HLS bond rejects
+ *   URLs and relative paths (SSRF guard). Fetch remote media yourself and pass a
+ *   `Buffer`.
  * - Runtime prerequisites (e.g. an ffmpeg binary for real transcoding) are
  *   bond-specific — check the bonded package's docs before shipping.
  *
  * @example
  * ```typescript
- * import { setProvider, createStream, transcode } from '@molecule/api-media-streaming'
- * import { provider as hls } from '@molecule/api-media-streaming-hls'
+ * import {
+ *   createStream,
+ *   generateManifest,
+ *   getSegment,
+ *   setProvider,
+ * } from '@molecule/api-media-streaming'
+ * import { createProvider } from '@molecule/api-media-streaming-hls'
  *
- * setProvider(hls)
+ * // Startup (server only): bond one provider. The HLS bond shells out to `ffmpeg` (must be
+ * // on PATH) and writes under `outputBasePath` — a directory your server actually serves.
+ * setProvider(
+ *   createProvider({
+ *     outputBasePath: process.env.HLS_OUTPUT_DIR ?? '/srv/media/hls',
+ *     segmentDuration: 6, // seconds
+ *   }),
+ * )
  *
- * const manifest = await createStream('/path/to/video.mp4', {
- *   segmentDuration: 6,
- *   protocol: 'hls',
- * })
+ * // Background job (not inside the upload request): segment an uploaded file.
+ * // Input is an ABSOLUTE local path or a Buffer — never a URL.
+ * const stream = await createStream('/srv/uploads/lecture-01.mp4', { segmentDuration: 6 })
+ * // Persist stream.id + stream.manifestUri ('/<id>/index.m3u8') with the media record.
  *
- * const result = await transcode('/path/to/video.mp4', [
- *   { name: '720p', width: 1280, height: 720, videoBitrate: 2_500_000, audioBitrate: 128_000 },
- *   { name: '1080p', width: 1920, height: 1080, videoBitrate: 5_000_000, audioBitrate: 192_000 },
- * ])
+ * // Playlist endpoint → Content-Type: application/vnd.apple.mpegurl (synchronous, no await).
+ * const playlist = generateManifest(stream.segments, { segmentDuration: 6 })
+ *
+ * // Segment endpoint → Content-Type: video/mp2t.
+ * const firstSegment = await getSegment(stream.id, 0)
  * ```
  *
  * @e2e

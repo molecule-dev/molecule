@@ -6,25 +6,27 @@
  *
  * @example
  * ```typescript
- * import { logger, setLevel, setLogger, resetLogger } from '@molecule/api-logger'
+ * import { logger, setLevel, setLogger } from '@molecule/api-logger'
+ * import { createLogger } from '@molecule/api-logger-pino'
  *
- * // Use the default console logger
- * logger.info('Server started on port', 3000)
- * logger.warn('Rate limit approaching')
- * logger.error('Database connection failed', error)
+ * // Startup: bond a provider (JSON lines to stdout). Leave `level` unset — the core's
+ * // LOG_LEVEL / setLevel() gate is the single filter. (No bond = built-in console logger.)
+ * setLogger(createLogger({ name: 'api' }))
  *
- * // The minimum level defaults to 'info' — trace/debug are DROPPED until
- * // you lower the gate (or set LOG_LEVEL=debug in the environment):
- * setLevel('debug')
- * logger.debug('Request received', { method: 'GET', path: '/api' })
+ * logger.info('Server started', { port: 3000 })
+ * logger.debug('Cache warmed', { keys: 42 }) // DROPPED: the default minimum level is 'info'
  *
- * // Set a custom logger provider
- * import { log } from '@molecule/api-logger-loglevel'
- * setLogger(log)
+ * setLevel('debug') // or LOG_LEVEL=debug in the environment
+ * logger.debug('Request received', { method: 'GET', path: '/api/items' })
  *
- * // Reset to default console logger
- * resetLogger()
+ * // Errors: say what failed and pass the error itself so the stack is kept.
+ * try {
+ *   JSON.parse('{not json')
+ * } catch (error) {
+ *   logger.error('Failed to parse webhook payload', { error })
+ * }
  * ```
+ *
  * @remarks
  * - **`logger.debug(...)`/`logger.trace(...)` print nothing by default.** The
  *   minimum level is `'info'` (from the `LOG_LEVEL` env var, falling back to
@@ -42,6 +44,9 @@
  *   invoked. Provider bonds (pino/winston/loglevel) deliberately pass every
  *   level through, so this gate is the single knob — don't also configure a
  *   level in the bond unless you want a second, stricter gate.
+ * - Log caught errors as `logger.error('what failed', { error })` — pass the
+ *   error object itself (the pino bond serializes `error`/`err` keys with their
+ *   stack); `String(error)` or `error.message` alone loses the stack.
  * - `setLevel('silent')` drops everything, including `logger.error(...)`.
  * - **`hasLogger()` reflects the bond registry**, not just `setLogger()`
  *   calls: it also returns `true` after `bond('logger', provider)` wired a

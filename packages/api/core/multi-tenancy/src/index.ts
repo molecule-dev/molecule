@@ -29,6 +29,16 @@
  *   (`allowUnauthorizedTenantHeader: true` on the schema bond), and then the middleware
  *   MUST sit strictly behind that gate. A server-configured `defaultTenantId` (used only
  *   when no header is present) is trusted config and bypasses these checks.
+ * - **`getTenantMiddleware()` returns a framework-neutral `TenancyRequestHandler`.**
+ *   Express's `Request`/`Response` interfaces are not assignable to its
+ *   index-signature `TenancyRequest`/`TenancyResponse`, so mounting it on an
+ *   Express app/router needs `as unknown as express.RequestHandler` (runtime
+ *   behaviour is compatible: it reads `req.headers`, calls `res.status().json()`
+ *   and `next()`).
+ * - With the schema bond, a request with NO tenant header gets 400 unless
+ *   `defaultTenantId` is configured; an unknown tenant id gets 404 and a
+ *   non-`active` one 403 — tenants must exist in its in-memory registry
+ *   (lost on restart, not shared across instances).
  * - **Tenant context is request-scoped, never a module global.** `getTenant()` reflects
  *   the currently executing request, and the schema provider's `setTenant()` THROWS
  *   outside a request scope (this prevents cross-request tenant bleed). For background
@@ -74,12 +84,19 @@
  * @module
  * @example
  * ```typescript
- * import { setProvider, createTenant, getTenantMiddleware } from '@molecule/api-multi-tenancy'
+ * import express from 'express'
+ *
+ * import { findMany } from '@molecule/api-database'
+ * import {
+ *   createTenant,
+ *   getTenant,
+ *   getTenantMiddleware,
+ *   setProvider,
+ * } from '@molecule/api-multi-tenancy'
  * import { createProvider } from '@molecule/api-multi-tenancy-schema'
  *
- * // SECURE wiring: authorize the (attacker-controlled) tenant header against the
- * // authenticated principal. `req.user` is populated by your auth middleware earlier
- * // in the chain; the middleware 403s if the header tenant isn't in this list.
+ * // Startup — SECURE wiring: authorize the (attacker-controlled) `x-tenant-id` header
+ * // against the authenticated principal; the middleware 403s tenants not in this list.
  * setProvider(
  *   createProvider({
  *     resolveAuthorizedTenantIds: (req) => {
@@ -89,11 +106,20 @@
  *   }),
  * )
  *
- * // Create a new tenant
- * const tenant = await createTenant({ name: 'Acme Corp' })
+ * // The schema bond's registry is IN-MEMORY: re-create/load tenants at every boot.
+ * const acme = await createTenant({ name: 'Acme Corp' })
  *
- * // Mount tenant resolution AFTER auth so the membership check has req.user.
- * app.use(authMiddleware, getTenantMiddleware())
+ * // Mount this router AFTER your auth middleware (it must set `req.user`).
+ * const router = express.Router()
+ * // The handler is framework-neutral (index-signature req/res types), so Express needs a cast.
+ * router.use(getTenantMiddleware() as unknown as express.RequestHandler)
+ * router.get('/projects', async (_req, res) => {
+ *   const tenantId = getTenant() // request-scoped; the provider does NOT filter data
+ *   const projects = await findMany('projects', {
+ *     where: [{ field: 'tenantId', operator: '=', value: tenantId }], // scope EVERY query
+ *   })
+ *   res.json({ tenantId, projects })
+ * })
  * ```
  */
 
