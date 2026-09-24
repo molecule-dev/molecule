@@ -23,6 +23,7 @@
  * @example
  * ```tsx
  * import { useState } from 'react'
+ *
  * import { LayerPanel, type Layer } from '@molecule/app-layer-panel-react'
  *
  * const initial: Layer[] = [
@@ -30,7 +31,7 @@
  *   { id: 'fg', name: 'Sketch', visible: true, locked: false, opacity: 0.8 },
  * ]
  *
- * function Editor() {
+ * export function Editor() {
  *   const [layers, setLayers] = useState<Layer[]>(initial)
  *   const [activeId, setActiveId] = useState<string | undefined>()
  *   return (
@@ -52,6 +53,21 @@
  *   )
  * }
  * ```
+ *
+ * @remarks
+ * - It is fully CONTROLLED and mutates nothing: every one of `onReorder`, `onVisibilityToggle`,
+ *   `onLockToggle`, `onSelect` and `onRename` is REQUIRED, and you must write the change back
+ *   into `layers` or the click/drag/rename visibly does nothing.
+ * - `onReorder` receives the WHOLE reordered array (pass `setLayers` directly); the others
+ *   receive only the layer `id` (plus the new name for `onRename`) — toggle the flag yourself.
+ * - `opacity` is a 0–1 fraction (`0.8` → "80%"), NOT a percentage. Index 0 is the front-most
+ *   layer (top row); do not reverse the array for display.
+ * - Locked layers cannot be dragged or renamed (rename is double-click, Enter/blur commits,
+ *   Escape cancels; empty or unchanged names never reach `onRename`). Selecting and the
+ *   eye/lock toggles still work on locked layers.
+ * - It calls `useTranslation()` from `@molecule/app-react`, so it MUST render inside
+ *   `<I18nProvider>` / `<MoleculeProvider>`; `getClassMap()` throws unless
+ *   `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
  *
  * @module
  */

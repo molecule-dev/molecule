@@ -23,16 +23,17 @@
  *
  * import { MindMapCanvas, type MindMapNode } from '@molecule/app-mind-map-canvas-react'
  *
- * function Demo() {
+ * export function ProjectMindMap() {
  *   const [root, setRoot] = useState<MindMapNode>({
  *     id: 'r',
  *     text: 'Project',
  *     children: [
- *       { id: 'a', text: 'Plan', children: [] },
- *       { id: 'b', text: 'Build', children: [] },
+ *       { id: 'plan', text: 'Plan', children: [{ id: 'scope', text: 'Scope', children: [] }] },
+ *       { id: 'build', text: 'Build', children: [] },
  *     ],
  *   })
- *   return <MindMapCanvas root={root} onChange={setRoot} layout="radial" />
+ *   // Controlled: every fold / rename / add-child hands back the next tree — persist it here.
+ *   return <MindMapCanvas root={root} onChange={setRoot} layout="horizontal" width={960} height={540} />
  * }
  * ```
  *
@@ -49,8 +50,15 @@
  * the measured pixels down; CSS alone will clip, not resize.
  *
  * Supplying `onChange` makes the tree fully controlled (every
- * fold / edit / add-child calls it with the next root); omitting it lets
- * the canvas manage an internal copy seeded from `root`.
+ * fold / edit / add-child calls it with the next root); you MUST write it
+ * back into `root` or nothing visibly changes. Omitting it lets the canvas
+ * manage an internal copy seeded from `root` (later `root` changes are then
+ * NOT picked up, and edits are lost on unmount).
+ *
+ * Node `id`s must be unique across the whole tree. Added children get
+ * generated ids (`<parentId>-c-<timestamp>-<n>`) and the translated
+ * "New idea" text; rename is double-click, Enter commits, Escape cancels.
+ * There is no delete button — call `removeNode(root, id)` yourself.
  *
  * @module
  */

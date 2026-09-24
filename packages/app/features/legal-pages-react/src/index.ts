@@ -18,10 +18,16 @@
  *   rendered as HTML (`dangerouslySetInnerHTML`); an `appName` carrying
  *   markup is escaped to inert entities first, so it can never execute
  *   inside the legal content.
- * - `LegalContentPage` / `useLegalModals` render bonded HTML that defaults to an
- *   EMPTY string until the locale module is registered — pass your app's
- *   `loadContent` (from `src/config.ts`, re-exporting
- *   `@molecule/app-locales-legal-default`) or the page/modal body will be blank.
+ * - Prefer `LegalContentPage` over hand-writing policy text: it renders the real bonded
+ *   privacy/terms HTML. That HTML defaults to an EMPTY string until the content module is
+ *   registered — pass `loadContent` (from `@molecule/app-locales-legal-default`, or your app's
+ *   `src/config.ts` re-export of it) or the page/modal body will be blank. `loadContent`
+ *   registers into the BONDED i18n provider (`getProvider()` from `@molecule/app-i18n`), so
+ *   the `<I18nProvider>` / `<MoleculeProvider>` above the page must be given that same
+ *   provider — a separate `createSimpleI18nProvider()` instance never sees the content.
+ * - Every page calls `useTranslation()` from `@molecule/app-react` (so it must render inside
+ *   `<I18nProvider>` / `<MoleculeProvider>`), and `getClassMap()` throws unless
+ *   `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
  * - `PlanUpdatedPage` requires BOTH a react-router `<Router>` ancestor (it renders
  *   a `<Link>`) and wired auth state from `@molecule/app-react` — without an auth
  *   provider it shows a spinner forever (`state.initialized` never flips). The
@@ -43,19 +49,24 @@
  *
  * @example
  * ```tsx
- * import { ContentPageShell, LegalPageLayout, LegalPageSection, TermsPage } from '@molecule/app-legal-pages-react'
+ * import { getProvider } from '@molecule/app-i18n'
+ * import { LegalContentPage } from '@molecule/app-legal-pages-react'
+ * import { loadContent } from '@molecule/app-locales-legal-default'
+ * import { I18nProvider } from '@molecule/app-react'
  *
- * // Drop-in Terms page (boilerplate body):
- * <TermsPage />
+ * // Route component for `/privacy` (use kind="terms" for `/terms`).
+ * export function PrivacyRoute() {
+ *   return <LegalContentPage kind="privacy" appName="Acme Notes" loadContent={loadContent} />
+ * }
  *
- * // Custom Terms page with structured sections:
- * <ContentPageShell eyebrow="Legal" title="Terms of Service" subtitle="Last updated June 2025">
- *   <LegalPageLayout title="Terms of Service">
- *     <LegalPageSection title="Acceptance">
- *       <p>By using this service you agree to these terms.</p>
- *     </LegalPageSection>
- *   </LegalPageLayout>
- * </ContentPageShell>
+ * // App root: the React i18n context must be the SAME bonded provider `loadContent` writes into.
+ * export function App() {
+ *   return (
+ *     <I18nProvider provider={getProvider()}>
+ *       <PrivacyRoute />
+ *     </I18nProvider>
+ *   )
+ * }
  * ```
  *
  * @module

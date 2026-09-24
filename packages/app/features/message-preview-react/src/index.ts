@@ -18,8 +18,10 @@
  * - `channelIcon` renders a `material-symbols-outlined` glyph: the Material
  *   Symbols font must be loaded by the app (molecule scaffolds include it) or
  *   the icon shows as literal text like "mail".
- * - `to` renders a react-router-dom `<Link>` — it requires a `<Router>` ancestor
- *   and the react-router-dom peer; omit `to` (use `onClick`) in router-less apps.
+ * - `to` renders a `react-router` `<Link>` — it THROWS without a `<Router>` ancestor
+ *   (`react-router` is a peer dependency); omit `to` (use `onClick`) in router-less apps.
+ * - It is one row, display-only: no data fetching, no unread tracking, and `active` is not
+ *   derived from the URL — compute it yourself (e.g. from the route param).
  * - The avatar is initials-only (no image URL prop). Initials are derived from
  *   `name` only when it is a plain string — pass `initials` when `name` is a
  *   ReactNode.
@@ -36,16 +38,31 @@
  * ```tsx
  * import { MessagePreview } from '@molecule/app-message-preview-react'
  *
- * <MessagePreview
- *   name="Maya Patel"
- *   preview="Thanks! That fixed it."
- *   timestamp="2m"
- *   unread={3}
- *   presence="online"
- *   channelIcon="mail"
- *   active={activeThreadId === 't1'}
- *   to="/conversation/t1"
- * />
+ * const threads = [
+ *   { id: 't1', name: 'Maya Patel', lastMessage: 'Thanks! That fixed it.', ago: '2m', unread: 3, presence: 'online', channel: 'mail' },
+ *   { id: 't2', name: 'Jon Okafor', lastMessage: 'Can we move the call to 3pm?', ago: '1h', unread: 0, presence: 'away', channel: 'chat' },
+ * ] as const
+ *
+ * // Renders inside the app's react-router <Router> (required by `to`).
+ * export function InboxSidebar({ activeId }: { activeId?: string }) {
+ *   return (
+ *     <nav>
+ *       {threads.map((thread) => (
+ *         <MessagePreview
+ *           key={thread.id}
+ *           name={thread.name}
+ *           preview={thread.lastMessage}
+ *           timestamp={thread.ago}
+ *           unread={thread.unread}
+ *           presence={thread.presence}
+ *           channelIcon={thread.channel}
+ *           active={thread.id === activeId}
+ *           to={`/conversations/${thread.id}`}
+ *         />
+ *       ))}
+ *     </nav>
+ *   )
+ * }
  * ```
  *
  * @module

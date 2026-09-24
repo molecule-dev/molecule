@@ -35,29 +35,37 @@
  *   (`maps.placeholder.title` / `maps.placeholder.description`) or the
  *   `createSimpleMapProvider({ placeholderTitle, placeholderDescription })`
  *   options.
+ * - `map.on(event, handler)` passes the provider's RAW event object (e.g. a Leaflet event
+ *   with `latlng`, not the `MapClickEvent` shape) — prefer `onMarkerClick`, which hands you
+ *   the normalized `MarkerConfig`.
+ * - Always `destroy()` the instance on unmount; re-creating a map over a live container
+ *   throws in real SDKs (Leaflet: "Map container is already initialized").
  * - Custom providers must return the normalized `MapInstance` shape — never
  *   leak the underlying SDK object except through `getInstance()`.
  *
  * @example
- * ```tsx
- * import { createSimpleMapProvider, setProvider, getProvider } from '@molecule/app-maps'
+ * ```typescript
+ * // App entry, ONCE — without Leaflet's CSS the tiles and markers are mispositioned.
+ * import 'leaflet/dist/leaflet.css'
+ * import { createMap, setProvider } from '@molecule/app-maps'
+ * import { provider } from '@molecule/app-maps-leaflet'
  *
- * // Development placeholder (renders a grey panel, NOT a real map).
- * // For production, implement MapProvider against your map SDK and wire that
- * // provider here instead.
- * setProvider(createSimpleMapProvider())
+ * setProvider(provider) // real OpenStreetMap map; no API key
  *
- * const container = document.getElementById('map')
- * if (container) {
- *   const map = await getProvider().createMap({
- *     container, // must have an explicit CSS height
- *     center: { lat: 37.7749, lng: -122.4194 },
- *     zoom: 12,
- *   })
- *   map.addMarker({ id: 'hq', position: { lat: 37.7749, lng: -122.4194 }, title: 'HQ' })
- *   map.on('click', (e) => console.log('clicked', e))
- * }
+ * // Anywhere after wiring — the container MUST have an explicit height.
+ * const container = document.createElement('div')
+ * container.style.height = '400px'
+ * document.body.appendChild(container)
+ *
+ * const map = await createMap({ container, center: { lat: 37.7749, lng: -122.4194 }, zoom: 12 })
+ * map.addMarker({ id: 'hq', position: { lat: 37.7749, lng: -122.4194 }, title: 'HQ', popup: 'Headquarters' })
+ * const stopListening = map.onMarkerClick('hq', (marker) => console.log('clicked', marker.title))
+ *
+ * // On teardown (e.g. React effect cleanup): unsubscribe, then destroy.
+ * stopListening()
+ * map.destroy()
  * ```
+ *
  * @module
  */
 

@@ -24,22 +24,53 @@
  *   don't overflow on mobile. Override `className` for a fixed grid.
  * - `overlay` children are rendered inside an absolutely-positioned inset-0 layer;
  *   give interactive overlays their own pointer handling and stopPropagation.
- * - Styling resolves through `getClassMap()`; the shell uses `<Card>` from
- *   `@molecule/app-ui-react` — wire a ClassMap bond first.
+ * - They are display primitives only: no data fetching, favorites persistence, price
+ *   formatting or routing — format `price` yourself and navigate in `onClick`.
+ * - Styling resolves through `getClassMap()`, which throws unless `setClassMap(classMap)` from
+ *   `@molecule/app-ui` ran at startup; the shell uses `<Card>` from `@molecule/app-ui-react`
+ *   (a peer dependency).
  *
  * @example
  * ```tsx
- * import { ListingCard, ListingCardMedia, ListingCardBody, ListingCardActions, ListingGrid } from '@molecule/app-listing-card-react'
+ * import { useState } from 'react'
  *
- * <ListingGrid columns={3}>
- *   <ListingCard onClick={() => navigate(`/listings/${item.id}`)}>
- *     <ListingCardMedia src={item.imageUrl} aspect="4/3" alt={item.name} />
- *     <ListingCardBody title={item.name} subtitle={item.location} price={`$${item.price}/night`} />
- *     <ListingCardActions>
- *       <button onClick={(e) => { e.stopPropagation(); saveListing(item.id) }}>Save</button>
- *     </ListingCardActions>
- *   </ListingCard>
- * </ListingGrid>
+ * import {
+ *   ListingCard,
+ *   ListingCardActions,
+ *   ListingCardBody,
+ *   ListingCardMedia,
+ *   ListingGrid,
+ * } from '@molecule/app-listing-card-react'
+ *
+ * const listings = [
+ *   { id: 'l1', name: 'Seaside Cottage', location: 'Brighton, UK', price: 180, imageUrl: '/img/cottage.jpg' },
+ *   { id: 'l2', name: 'City Loft', location: 'Berlin, DE', price: 140, imageUrl: '/img/loft.jpg' },
+ * ]
+ *
+ * export function ListingsPage({ onOpen }: { onOpen: (id: string) => void }) {
+ *   const [saved, setSaved] = useState<string[]>([])
+ *   return (
+ *     <ListingGrid columns={3}>
+ *       {listings.map((item) => (
+ *         <ListingCard key={item.id} dataMolId={`listing-${item.id}`} onClick={() => onOpen(item.id)}>
+ *           <ListingCardMedia src={item.imageUrl} alt={item.name} aspect="4/3" />
+ *           <ListingCardBody title={item.name} subtitle={item.location} price={`$${item.price}/night`} />
+ *           <ListingCardActions>
+ *             <button
+ *               type="button"
+ *               onClick={(e) => {
+ *                 e.stopPropagation() // otherwise the card's onClick fires too
+ *                 setSaved((ids) => [...ids, item.id])
+ *               }}
+ *             >
+ *               {saved.includes(item.id) ? 'Saved' : 'Save'}
+ *             </button>
+ *           </ListingCardActions>
+ *         </ListingCard>
+ *       ))}
+ *     </ListingGrid>
+ *   )
+ * }
  * ```
  *
  * @module

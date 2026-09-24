@@ -17,20 +17,46 @@
  *   never trigger the row `onClick`.
  * - `disabled` halves the opacity and disables `onClick`; there is no
  *   `data-mol-id` prop.
- * - Styling resolves through `getClassMap()` — wire a ClassMap bond first.
+ * - With `onClick` the row gets `role="button"` and `tabIndex={0}`, but NO key handler —
+ *   Enter/Space do not fire `onClick`. Add your own keyboard handling (or a real button in
+ *   `actions`) if keyboard users must activate the row.
+ * - It renders ONE row with no list semantics or container — wrap rows yourself.
+ * - Styling resolves through `getClassMap()`, which throws unless `setClassMap(classMap)` from
+ *   `@molecule/app-ui` ran at startup.
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { ListItemRow } from '@molecule/app-list-item-row-react'
  *
- * <ListItemRow
- *   title="Project Alpha"
- *   subtitle="Last edited 2 hours ago"
- *   metadata="3 collaborators · 12 files"
- *   leading={<img src="/icons/folder.svg" alt="" width={32} height={32} />}
- *   actions={<button onClick={() => openMenu('alpha')}>Menu</button>}
- *   onClick={() => navigate('/projects/alpha')}
- * />
+ * export function ProjectList() {
+ *   const [projects, setProjects] = useState([
+ *     { id: 'alpha', name: 'Project Alpha', edited: 'Last edited 2 hours ago', collaborators: 3, files: 12 },
+ *     { id: 'beta', name: 'Project Beta', edited: 'Last edited yesterday', collaborators: 1, files: 4 },
+ *   ])
+ *   const [selectedId, setSelectedId] = useState<string | null>(null)
+ *   return (
+ *     <div role="listbox">
+ *       {projects.map((p) => (
+ *         <ListItemRow
+ *           key={p.id}
+ *           title={p.name}
+ *           subtitle={p.edited}
+ *           metadata={`${p.collaborators} collaborators · ${p.files} files`}
+ *           leading={<img src={`/icons/${p.id}.svg`} alt="" width={32} height={32} />}
+ *           selected={p.id === selectedId}
+ *           onClick={() => setSelectedId(p.id)}
+ *           actions={
+ *             <button type="button" onClick={() => setProjects((ps) => ps.filter((x) => x.id !== p.id))}>
+ *               Archive
+ *             </button>
+ *           }
+ *         />
+ *       ))}
+ *     </div>
+ *   )
+ * }
  * ```
  *
  * @module

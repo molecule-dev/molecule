@@ -34,19 +34,33 @@
  * ```tsx
  * import { KpiCard, KpiCardGrid, KpiCardTrend } from '@molecule/app-kpi-card-react'
  *
- * <KpiCardGrid columns={3}>
- *   <KpiCard
- *     title="Monthly Revenue"
- *     value="$48,200"
- *     trend={<KpiCardTrend delta={12.4} />}
- *     accentSide="top"
- *     upperLabel
- *     emphasizeValue
- *     hoverLift
- *     dataMolId="kpi-revenue"
- *   />
- * </KpiCardGrid>
+ * export function DashboardKpis() {
+ *   const metrics = [
+ *     { id: 'revenue', title: 'Monthly Revenue', value: 48200, previous: 42900, format: 'currency' },
+ *     { id: 'orders', title: 'Orders', value: 1284, previous: 1310, format: 'number' },
+ *     { id: 'customers', title: 'New Customers', value: 312, previous: 312, format: 'number' },
+ *   ] as const
+ *   const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+ *   const num = new Intl.NumberFormat('en-US')
+ *   return (
+ *     <KpiCardGrid columns={3}>
+ *       {metrics.map((m) => (
+ *         <KpiCard
+ *           key={m.id}
+ *           title={m.title}
+ *           value={m.format === 'currency' ? usd.format(m.value) : num.format(m.value)}
+ *           trend={<KpiCardTrend delta={Math.round(((m.value - m.previous) / m.previous) * 1000) / 10} />}
+ *           subtitle="vs. last month"
+ *           accentSide="top"
+ *           upperLabel
+ *           dataMolId={`kpi-${m.id}`}
+ *         />
+ *       ))}
+ *     </KpiCardGrid>
+ *   )
+ * }
  * ```
+ *
  * @module
  */
 

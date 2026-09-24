@@ -19,21 +19,25 @@
  * import { MarginNotes } from '@molecule/app-margin-notes-react'
  *
  * // blocks: your rendered paragraphs, in order; notes: what goes beside them.
- * <MarginNotes
- *   blocks={[
- *     { id: 'p1', content: <p>Every post carries a map of who wrote what.</p>, noteIds: ['s1'] },
- *     { id: 'p2', content: <p>The map is built from the session export.</p>, noteIds: ['s1', 'q1'], marked: true },
- *   ]}
- *   notes={[
- *     { id: 's1', kind: 'summary', content: <p>How the map is made.</p> },
- *     { id: 'q1', kind: 'prompt', content: <p>“explain the map” — claude-opus-4</p> },
- *   ]}
- *   kinds={[
- *     { id: 'summary', label: t('post.summaries', undefined, { defaultValue: 'Summaries' }), defaultOn: true },
- *     { id: 'prompt', label: t('post.prompts', undefined, { defaultValue: 'Prompts' }), defaultOn: false, panel: 'tap' },
- *   ]}
- *   markLabel={t('post.aiWritten', undefined, { defaultValue: 'Written with AI' })}
- * />
+ * export function AnnotatedPost() {
+ *   return (
+ *     <MarginNotes
+ *       blocks={[
+ *         { id: 'p1', content: <p>Every post carries a map of who wrote what.</p>, noteIds: ['s1'] },
+ *         { id: 'p2', content: <p>The map is built from the session export.</p>, noteIds: ['s1', 'q1'], marked: true },
+ *       ]}
+ *       notes={[
+ *         { id: 's1', kind: 'summary', content: <p>How the map is made.</p> },
+ *         { id: 'q1', kind: 'prompt', content: <p>“explain the map” — claude-opus-4</p> },
+ *       ]}
+ *       kinds={[
+ *         { id: 'summary', label: 'Summaries', defaultOn: true },
+ *         { id: 'prompt', label: 'Prompts', defaultOn: false, panel: 'tap' },
+ *       ]}
+ *       markLabel="Written with AI"
+ *     />
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -60,6 +64,12 @@
  *   on the second tap.
  * - **Controlled or not.** Pass `shownKinds` + `onShownKindsChange` to own the
  *   switches' state (e.g. to remember it); otherwise the component does.
+ * - It calls `useTranslation()` from `@molecule/app-react`, so it MUST render inside
+ *   `<I18nProvider>` / `<MoleculeProvider>`; `getClassMap()` throws unless
+ *   `setClassMap(classMap)` from `@molecule/app-ui` ran at startup; the switches are `Switch`
+ *   from `@molecule/app-ui-react` (a peer dependency).
+ * - A note id in `noteIds` with no matching entry in `notes` is silently dropped, and a
+ *   note's `kind` missing from `kinds` is ALWAYS shown (no switch).
  * - The phone bar reserves space at the end of the text so it never covers the
  *   last paragraph. UI strings come from the companion locale bond
  *   `@molecule/app-locales-margin-notes`; kind labels and `markLabel` are yours

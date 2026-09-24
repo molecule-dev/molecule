@@ -7,16 +7,41 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { MiniCalendar } from '@molecule/app-mini-calendar-react'
  *
- * <MiniCalendar
- *   selected={new Date('2026-06-15')}
- *   onSelect={(date) => console.log(date.toISOString())}
- *   locale="en-US"
- * />
+ * export function AppointmentDatePicker() {
+ *   const [date, setDate] = useState<Date>()
+ *   const now = new Date()
+ *   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+ *   return (
+ *     <div>
+ *       <MiniCalendar
+ *         selected={date} // pass the pick back — the calendar does not remember it
+ *         onSelect={setDate}
+ *         locale="en-US"
+ *         isDisabled={(d) => d < startOfToday || d.getDay() === 0 || d.getDay() === 6}
+ *       />
+ *       {date && <p>Appointment on {date.toLocaleDateString('en-US', { dateStyle: 'full' })}</p>}
+ *     </div>
+ *   )
+ * }
  * ```
  *
  * @remarks
+ * `selected` is display-only: the component does NOT store the picked day —
+ * feed `onSelect`'s date back into `selected` (as above) or nothing looks
+ * selected. The selected day is marked only by bold text and
+ * `aria-current="date"`; there is no range selection.
+ *
+ * `onSelect` receives LOCAL midnight of the clicked day. Do not send it via
+ * `toISOString()` (that converts to UTC and can land on the previous/next
+ * day); format the local date yourself. Likewise a `selected` string like
+ * `'2026-06-15'` is parsed by `new Date()` as UTC midnight and can show as
+ * June 14 west of UTC — pass `new Date(2026, 5, 15)` instead. Weeks always
+ * start on Sunday, whatever the `locale`.
+ *
  * Requires a wired ClassMap bond (`setClassMap(...)` at startup) —
  * `getClassMap()` throws before wiring, and the prev/next buttons come
  * from `@molecule/app-ui-react`.

@@ -22,6 +22,9 @@
  *   `message.body`) if you want classic chat bubbles.
  * - `timestamp` renders exactly what you pass — no time-ago or date formatting.
  *   Pre-format ("2m ago", "10:01") before passing; raw ISO strings display as-is.
+ * - Nothing is sent or stored for you: `MessageComposer.onSubmit` receives only the trimmed
+ *   text (return value ignored, not awaited — errors are yours to surface) and `MessageList`
+ *   renders only the `messages` you pass. Append to your own state and call your API.
  * - The composer submits on the Send button or Ctrl/Cmd+Enter (`submitOnEnter`),
  *   NOT plain Enter; it trims and clears on submit and blocks empty sends.
  * - Composer strings route through `t()` (`composer.placeholder`,
@@ -35,16 +38,29 @@
  *
  * @example
  * ```tsx
- * import { MessageComposer, MessageList } from '@molecule/app-message-bubble-react'
- * import type { MessageData } from '@molecule/app-message-bubble-react'
+ * import { useState } from 'react'
  *
- * const messages: MessageData[] = [
- *   { id: '1', author: { id: 'u1', name: 'Alice', avatarSrc: '/alice.png' }, body: 'Hey there!', timestamp: '10:00' },
- *   { id: '2', author: { id: 'u2', name: 'Bob' }, body: 'Hi Alice!', timestamp: '10:01' },
- * ]
+ * import { post } from '@molecule/app-http'
+ * import { MessageComposer, type MessageData, MessageList } from '@molecule/app-message-bubble-react'
  *
- * <MessageList messages={messages} selfAuthorId="u1" />
- * <MessageComposer onSubmit={(text) => sendMessage(text)} />
+ * const me = { id: 'u1', name: 'Alice', avatarSrc: '/avatars/alice.png' }
+ * const time = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' })
+ *
+ * export function ConversationPage() {
+ *   const [messages, setMessages] = useState<MessageData[]>([
+ *     { id: 'm1', author: { id: 'u2', name: 'Bob' }, body: 'Hi Alice! Ready for the demo?', timestamp: '10:01 AM' },
+ *   ])
+ *   async function send(text: string): Promise<void> {
+ *     setMessages((ms) => [...ms, { id: crypto.randomUUID(), author: me, body: text, timestamp: time.format(new Date()) }])
+ *     await post('/conversations/c1/messages', { body: text })
+ *   }
+ *   return (
+ *     <section>
+ *       <MessageList messages={messages} selfAuthorId={me.id} emptyState={<p>No messages yet.</p>} />
+ *       <MessageComposer onSubmit={(text) => void send(text)} />
+ *     </section>
+ *   )
+ * }
  * ```
  *
  * @module

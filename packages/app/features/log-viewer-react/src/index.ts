@@ -17,20 +17,38 @@
  * - Severity badges use a fixed hex palette with white text (trace grey → fatal
  *   dark red) that does not follow the app theme; the level name renders raw and
  *   uppercased (not localized).
+ * - It does NOT fetch, filter, search, sort or tail logs — pass the already-filtered, ordered
+ *   `entries`. `level` must be one of `trace | debug | info | warn | error | fatal` (map
+ *   `warning` → `warn` yourself; an unknown level gets no badge color).
+ * - `traceId` renders in the always-visible summary row, NOT in the expanded panel; only
+ *   `data` is behind the expander, and entries without `data` expand to nothing.
+ * - `emptyState` renders INSTEAD of the `role="log"` container when `entries` is empty.
+ * - Styling resolves through `getClassMap()`, which throws unless `setClassMap(classMap)` from
+ *   `@molecule/app-ui` ran at startup.
  * - `data` is pretty-printed with `JSON.stringify(…, null, 2)`; strings render
  *   verbatim. Large payloads scroll horizontally inside the panel.
  *
  * @example
  * ```tsx
- * import { LogViewer } from '@molecule/app-log-viewer-react'
- * import type { LogEntry } from '@molecule/app-log-viewer-react'
+ * import { type LogEntry, type LogLevel, LogViewer } from '@molecule/app-log-viewer-react'
  *
- * const entries: LogEntry[] = [
- *   { id: '1', timestamp: '12:00:01', level: 'info', message: 'Server started', service: 'api' },
- *   { id: '2', timestamp: '12:00:05', level: 'error', message: 'DB connect failed', service: 'db', data: { code: 'ECONNREFUSED' } },
+ * const records = [
+ *   { id: '1', at: '2026-09-24T12:00:01.000Z', level: 'info', msg: 'Server started', service: 'api' },
+ *   { id: '2', at: '2026-09-24T12:00:05.000Z', level: 'error', msg: 'DB connect failed', service: 'db', requestId: 'req-42', detail: { code: 'ECONNREFUSED', port: 5432 } },
  * ]
  *
- * <LogViewer entries={entries} onToggle={(id, open) => console.log(id, open)} />
+ * export function ServiceLogs() {
+ *   const entries: LogEntry[] = records.map((r) => ({
+ *     id: r.id,
+ *     timestamp: r.at.slice(11, 19), // short HH:mm:ss — the time column is only 48px wide
+ *     level: r.level as LogLevel,
+ *     message: r.msg,
+ *     service: r.service,
+ *     traceId: r.requestId,
+ *     data: r.detail,
+ *   }))
+ *   return <LogViewer entries={entries} emptyState={<p>No log entries yet.</p>} />
+ * }
  * ```
  *
  * @module
