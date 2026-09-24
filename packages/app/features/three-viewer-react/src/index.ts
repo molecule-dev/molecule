@@ -9,24 +9,27 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { ThreeViewer } from '@molecule/app-three-viewer-react'
  *
- * function ModelPage() {
- *   // Inline callbacks/arrays are safe — they do not tear down WebGL.
+ * export function ProductModel() {
+ *   const product = { name: 'Rubber duck', modelUrl: '/models/duck.glb' }
+ *   const [loaded, setLoaded] = useState(false)
  *   return (
- *     <div style={{ height: 480 }}>
- *       <ThreeViewer
- *         src="/models/duck.glb"
- *         lighting="studio"
- *         autoRotate
- *         onLoad={() => console.log('loaded')}
- *       />
- *     </div>
+ *     <figure style={{ height: 480 }} aria-busy={!loaded}>
+ *       <ThreeViewer src={product.modelUrl} lighting="studio" autoRotate onLoad={() => setLoaded(true)} />
+ *       <figcaption>{product.name}</figcaption>
+ *     </figure>
  *   )
  * }
  * ```
  *
  * @remarks
+ * - The prop is `src` (NOT `url`/`model`) and it must point at a model FILE
+ *   (`.glb`, `.gltf`, `.obj`, `.stl`) — not a `File`/`Blob` object (use
+ *   `URL.createObjectURL(file)` for uploads). Load failures show a built-in
+ *   "Failed to load 3D model." overlay and call `onError(error)`.
  * - Ships a REAL pinned `three` dependency — a substantial bundle-size
  *   add. Lazy-load the importing route/component (`React.lazy` / dynamic
  *   import) so non-3D pages do not pay for it.

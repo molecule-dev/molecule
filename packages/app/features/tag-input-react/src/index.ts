@@ -11,20 +11,31 @@
  * ```tsx
  * import { useState } from 'react'
  *
- * import { TagChip, TagInput } from '@molecule/app-tag-input-react'
+ * import { TagInput } from '@molecule/app-tag-input-react'
  *
- * function TagEditor() {
+ * export function ArticleTagsField() {
  *   const [tags, setTags] = useState<string[]>(['react'])
  *   return (
- *     <>
- *       <TagInput value={tags} onChange={setTags} placeholder="Add a tag…" maxTags={10} />
- *       <TagChip onRemove={() => setTags(tags.filter((t) => t !== 'react'))}>react</TagChip>
- *     </>
+ *     <TagInput
+ *       value={tags}
+ *       onChange={setTags}
+ *       placeholder="Add a tag…"
+ *       maxTags={5}
+ *       normalize={(raw, current) => {
+ *         const tag = raw.trim().toLowerCase()
+ *         return tag && !current.includes(tag) ? tag : null
+ *       }}
+ *     />
  *   )
  * }
  * ```
  *
  * @remarks
+ * - It is CONTROLLED: `value` (a `string[]`) and `onChange(next)` are
+ *   REQUIRED — without updating your state from `onChange` no tag ever
+ *   appears. It does NOT fetch suggestions or autocomplete.
+ * - A custom `normalize` REPLACES the default entirely — re-implement the
+ *   trim/empty/duplicate checks in it, as the example does.
  * - Must render inside the app's i18n provider and with a ClassMap bond
  *   wired (`useTranslation()` / `getClassMap()` throw otherwise).
  * - Committing happens on Enter/comma/Tab AND on blur — clicking away

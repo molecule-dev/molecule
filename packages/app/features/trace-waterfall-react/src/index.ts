@@ -7,21 +7,42 @@
  *
  * @example
  * ```tsx
- * import { TraceWaterfall } from '@molecule/app-trace-waterfall-react'
+ * import { useState } from 'react'
  *
- * <TraceWaterfall
- *   spans={[
- *     { id: 'root', name: 'GET /checkout', service: 'api-gw', startTime: 0, duration: 320, status: 'ok' },
- *     { id: 'auth', parentId: 'root', name: 'verifyToken', service: 'auth-svc', startTime: 5, duration: 40, status: 'ok' },
- *     { id: 'db', parentId: 'root', name: 'db.query', service: 'postgres', startTime: 50, duration: 210, status: 'ok' },
- *     { id: 'cache', parentId: 'root', name: 'cache.get', service: 'redis', startTime: 45, duration: 8, status: 'error' },
- *   ]}
- *   onSpanClick={(span) => console.log('selected', span.id)}
- *   emptyState={<p>No trace data.</p>}
- * />
+ * import { type Span, TraceWaterfall } from '@molecule/app-trace-waterfall-react'
+ *
+ * const spans: Span[] = [
+ *   { id: 'root', name: 'GET /checkout', service: 'api-gw', startTime: 0, duration: 320, status: 'ok' },
+ *   { id: 'auth', parentId: 'root', name: 'verifyToken', service: 'auth-svc', startTime: 5, duration: 40, status: 'ok' },
+ *   { id: 'cache', parentId: 'root', name: 'cache.get', service: 'redis', startTime: 45, duration: 8, status: 'error' },
+ *   { id: 'db', parentId: 'root', name: 'db.query', service: 'postgres', startTime: 50, duration: 210, attributes: { rows: 42 } },
+ * ]
+ *
+ * export function TraceDetail() {
+ *   const [selected, setSelected] = useState<Span | null>(null)
+ *   return (
+ *     <section>
+ *       <TraceWaterfall spans={spans} onSpanClick={setSelected} emptyState={<p>No trace data.</p>} />
+ *       {selected && (
+ *         <pre>
+ *           {selected.name}: {JSON.stringify(selected.attributes ?? {})}
+ *         </pre>
+ *       )}
+ *     </section>
+ *   )
+ * }
  * ```
  *
  * @remarks
+ * Input is a FLAT `Span[]` linked by `parentId` — do not pre-nest
+ * children. `startTime`/`duration` are NUMBERS (not `Date`s or ISO
+ * strings): convert timestamps to milliseconds relative to one origin
+ * first. Must render inside `<I18nProvider>` / `<MoleculeProvider>`
+ * (`useTranslation()` throws otherwise) with a ClassMap bond wired
+ * (`setClassMap(classMap)` from `@molecule/app-ui`). It does NOT fetch
+ * traces or show a span-detail panel — `onSpanClick(span)` hands you the
+ * span to render your own.
+ *
  * Duration labels assume time values are MILLISECONDS: `formatDurationLabel`
  * renders values below 1 as microseconds and 1000+ as seconds, so
  * seconds-unit spans get wrong axis/row labels even though bar layout itself

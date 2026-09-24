@@ -18,15 +18,21 @@
  * ```tsx
  * import { useState } from 'react'
  *
- * import { SpreadsheetGrid, type CellMap } from '@molecule/app-spreadsheet-grid-react'
+ * import {
+ *   type CellMap,
+ *   SpreadsheetGrid,
+ *   type SpreadsheetSelection,
+ * } from '@molecule/app-spreadsheet-grid-react'
  *
- * function Sheet() {
- *   const [cells, setCells] = useState<CellMap>(new Map())
- *   const [selection, setSelection] = useState({ r1: 0, c1: 0, r2: 0, c2: 0 })
+ * export function BudgetSheet() {
+ *   const [cells, setCells] = useState<CellMap>(
+ *     () => new Map<string, string | number>([['A1', 'Item'], ['B1', 'Cost'], ['A2', 'Rent'], ['B2', 1200]]),
+ *   )
+ *   const [selection, setSelection] = useState<SpreadsheetSelection>({ r1: 0, c1: 0, r2: 0, c2: 0 })
  *   return (
  *     <SpreadsheetGrid
- *       rows={1000}
- *       columns={26}
+ *       rows={100}
+ *       columns={10}
  *       cells={cells}
  *       onCellChange={(ref, value) => {
  *         setCells((prev) => {
@@ -46,6 +52,12 @@
  * ```
  *
  * @remarks
+ * - It is CONTROLLED: it never stores cells or selection itself. `cells`,
+ *   `onCellChange`, `selection` and `onSelectionChange` are all REQUIRED —
+ *   apply `onCellChange(ref, value)` to your own `Map` (a `null` value means
+ *   "cell cleared": delete the key) or edits vanish on the next render.
+ * - It does NOT evaluate formulas: `'=SUM(A1:A3)'` is shown as typed. Evaluate
+ *   yourself and pass results via `cells` (or `renderCell`).
  * - Must render inside the app's i18n provider and with a ClassMap bond
  *   wired (`useTranslation()` / `getClassMap()` throw otherwise).
  * - The viewport is FIXED-PIXEL: `viewportWidth`/`viewportHeight`

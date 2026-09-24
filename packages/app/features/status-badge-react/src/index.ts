@@ -15,18 +15,38 @@
  *
  * @example
  * ```tsx
- * import { StatusBadge, StatusPill } from '@molecule/app-status-badge-react'
+ * import { StatusBadge, type StatusKind, StatusPill } from '@molecule/app-status-badge-react'
  *
- * <StatusBadge kind="success">Open</StatusBadge>
- *
- * <StatusBadge kind="warning" icon={<span aria-hidden>!</span>}>Pending</StatusBadge>
- *
- * <StatusPill kind="error">Overdue</StatusPill>
+ * export function TicketStatusList() {
+ *   const kindByStatus: Record<string, StatusKind> = { open: 'info', resolved: 'success', overdue: 'error' }
+ *   const tickets = [
+ *     { id: 'T-101', title: 'Login fails on Safari', status: 'open', statusLabel: 'Open' },
+ *     { id: 'T-102', title: 'Invoice PDF is blank', status: 'resolved', statusLabel: 'Resolved' },
+ *     { id: 'T-103', title: 'Refund not issued', status: 'overdue', statusLabel: 'Overdue' },
+ *   ]
+ *   return (
+ *     <ul>
+ *       {tickets.map((ticket) => (
+ *         <li key={ticket.id}>
+ *           {ticket.title} <StatusBadge kind={kindByStatus[ticket.status]}>{ticket.statusLabel}</StatusBadge>
+ *         </li>
+ *       ))}
+ *       <li>
+ *         Support queue <StatusPill kind="success">Online</StatusPill>
+ *       </li>
+ *     </ul>
+ *   )
+ * }
  * ```
  *
  * @remarks
- * - Requires a wired ClassMap bond (e.g. `@molecule/app-ui-tailwind`) —
- *   `getClassMap()` throws before bonding.
+ * - `kind` is one of `'success' | 'warning' | 'error' | 'info' | 'neutral'`
+ *   (NOT `'danger'`, `'primary'` or an app status string) and defaults to
+ *   `'neutral'` — map your own statuses to a `StatusKind` first.
+ * - Requires a wired ClassMap bond (`setClassMap(classMap)` from
+ *   `@molecule/app-ui`, e.g. with `@molecule/app-ui-tailwind`) —
+ *   `getClassMap()` throws before bonding. `<StatusBadge>` also renders
+ *   `Badge` from `@molecule/app-ui-react` (a peer dependency).
  * - Both `appearance` variants color through the ClassMap `badge` tokens
  *   (`cm.badge({ variant })` → real `bg-*` / `text-*` theme utilities), so
  *   the `'uppercase-pill'` variant is visibly colored per kind in every

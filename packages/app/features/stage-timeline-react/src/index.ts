@@ -5,17 +5,19 @@
  *
  * @example
  * ```tsx
- * import { StageTimeline } from '@molecule/app-stage-timeline-react'
+ * import { StageTimeline, type StageTimelineStage } from '@molecule/app-stage-timeline-react'
  *
- * <StageTimeline
- *   currentIndex={2}
- *   stages={[
+ * export function ApplicationProgress() {
+ *   const application = { stage: 'onsite', onsiteDate: 'Mar 14' }
+ *   const stages: StageTimelineStage[] = [
  *     { id: 'applied', label: 'Applied' },
- *     { id: 'screen',  label: 'Phone Screen' },
- *     { id: 'onsite',  label: 'On-site' },
- *     { id: 'offer',   label: 'Offer' },
- *   ]}
- * />
+ *     { id: 'screen', label: 'Phone Screen' },
+ *     { id: 'onsite', label: 'On-site', subtitle: application.onsiteDate },
+ *     { id: 'offer', label: 'Offer' },
+ *   ]
+ *   const currentIndex = stages.findIndex((s) => s.id === application.stage)
+ *   return <StageTimeline stages={stages} currentIndex={currentIndex} />
+ * }
  * ```
  *
  * @remarks
@@ -28,6 +30,9 @@
  *   (blue #3366ff, black-alpha grays). Define those `--mol-color-*`
  *   variables in your theme (both light and dark) or the timeline stays
  *   default-blue and looks wrong in dark mode.
+ * - It is display-only and stateless: it does NOT advance stages itself —
+ *   compute `currentIndex` (a 0-based NUMBER, not a stage id) from your
+ *   data and re-render.
  * - `currentIndex` semantics: stages before it render completed, after
  *   it upcoming; pass `-1` for "not started" and `stages.length` for
  *   "all done".

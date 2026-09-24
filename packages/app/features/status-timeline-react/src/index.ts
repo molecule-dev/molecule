@@ -7,24 +7,29 @@
  *
  * @example
  * ```tsx
- * import { StatusTimeline } from '@molecule/app-status-timeline-react'
+ * import { StatusTimeline, type StatusTimelineStep } from '@molecule/app-status-timeline-react'
  *
- * <StatusTimeline
- *   steps={[
- *     { key: 'placed', label: 'Order Placed' },
+ * export function OrderStatus() {
+ *   const order = { id: 'ORD-1042', status: 'shipped' }
+ *   const steps: StatusTimelineStep[] = [
+ *     { key: 'placed', label: 'Order placed' },
  *     { key: 'processing', label: 'Processing' },
  *     { key: 'shipped', label: 'Shipped' },
  *     { key: 'delivered', label: 'Delivered' },
- *   ]}
- *   currentKey="shipped"
- *   ariaLabel="Order status"
- * />
+ *   ]
+ *   return <StatusTimeline steps={steps} currentKey={order.status} ariaLabel={`Order ${order.id} status`} />
+ * }
  * ```
  *
  * @remarks
  * - Requires a wired ClassMap bond (`getClassMap()` throws before
  *   bonding). No i18n dependency — pass pre-translated `label` strings
  *   and a translated `ariaLabel`.
+ * - Steps use `key` (NOT `id`) and `label` must be a plain STRING — not a
+ *   ReactNode; `currentKey` is a step key, not an index.
+ * - It is display-only: no click handlers, no timestamps per step, and
+ *   the current step gets no `aria-current` — put dates in the label if
+ *   you need them.
  * - If `currentKey` matches no step, EVERY step renders as unreached —
  *   there is no error; double-check the key values.
  * - Reached dots use `bg-primary` (works with the scaffold theme);

@@ -10,15 +10,27 @@
  *
  * @example
  * ```tsx
- * import { Stepper } from '@molecule/app-stepper-react'
+ * import { useState } from 'react'
  *
- * const steps = [
- *   { id: 'account', label: 'Account' },
- *   { id: 'plan', label: 'Choose plan' },
- *   { id: 'payment', label: 'Payment' },
- * ]
+ * import { Stepper, type StepperStep } from '@molecule/app-stepper-react'
  *
- * <Stepper steps={steps} currentStep={1} variant="dots" />
+ * export function CheckoutProgress() {
+ *   const steps: StepperStep[] = [
+ *     { id: 'cart', label: 'Cart' },
+ *     { id: 'shipping', label: 'Shipping', description: 'Address and delivery speed' },
+ *     { id: 'payment', label: 'Payment' },
+ *     { id: 'review', label: 'Review' },
+ *   ]
+ *   const [currentStep, setCurrentStep] = useState(2)
+ *   return (
+ *     <Stepper
+ *       steps={steps}
+ *       currentStep={currentStep}
+ *       variant="cards"
+ *       onStepClick={(_stepId, index) => setCurrentStep(index)}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -26,6 +38,9 @@
  *   step-STATE core with its own bond) — do NOT wire `bond('stepper')`
  *   for this component; you own `currentStep` in app state and this
  *   package only renders it.
+ * - `currentStep` is a 0-based INDEX (not a step id), and the prop is
+ *   `currentStep` — not `activeStep`/`current`. Keep it in your own state
+ *   and update it from `onStepClick` / your Next button.
  * - Requires a wired ClassMap bond (`getClassMap()` throws before
  *   bonding). Step labels are ReactNode — pass translated strings.
  * - Status is derived from `currentStep` unless a step sets an explicit
