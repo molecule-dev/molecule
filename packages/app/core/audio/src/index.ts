@@ -13,6 +13,8 @@
  *   click/tap handler, and treat "no sound on page load" as policy, not a bug.
  * - `destroy()` the player when its view unmounts — leaked instances keep buffers and
  *   callbacks alive across navigation.
+ * - **Units:** `seek()`, `getCurrentTime()`, `getDuration()` and `onProgress(time, duration)`
+ *   are in SECONDS (not ms); volume is 0–1 (the Howler bond clamps out-of-range values).
  * - `getDuration()` returns 0 until the audio metadata has loaded; read it in
  *   `onProgress` (or after playback starts), not synchronously after `createPlayer`.
  *
@@ -51,12 +53,23 @@
  *
  * setProvider(provider) // at startup
  *
+ * let finished = false
  * const player = requireProvider().createPlayer({
- *   src: '/audio/track.mp3',
- *   volume: 0.8,
- *   onEnd: () => console.log('Playback finished'),
+ *   src: '/audio/track.mp3', // served from the app's own origin
+ *   volume: 0.8, // 0–1
+ *   onProgress: (time, duration) => console.log(`${time}s / ${duration}s`), // seconds
+ *   onEnd: () => {
+ *     finished = true
+ *   },
  * })
- * playButton.onclick = () => player.play() // user gesture — autoplay is blocked
+ *
+ * // Call from a click/tap handler — play() without a user gesture is blocked by browsers.
+ * const onPlayClick = (): void => player.play()
+ * onPlayClick()
+ * player.seek(30) // seconds, not ms
+ * player.setVolume(0.5)
+ *
+ * player.destroy() // when the view unmounts
  * ```
  */
 

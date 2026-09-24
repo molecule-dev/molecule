@@ -20,21 +20,37 @@
  *   `/auth/register`, `/auth/refresh`, `/users/logout`, `/users/me`, …).
  *   Align them via `createJWTAuthClient({ baseURL, ...endpoints })` — never by
  *   hand-editing fetch calls in components.
+ * - **`login()` THROWS on a non-2xx response** (wrong password, locked account) — wrap it
+ *   in `try/catch` and show the error. A 2FA-enabled account does NOT throw: it resolves
+ *   `{ twoFactorRequired: true }` and stays signed OUT until you call `login()` again with
+ *   `twoFactorToken`.
  * - Client-side auth state is UX only — the server enforces authorization on
  *   every request; hiding a screen is not protection.
  *
  * @example
  * ```typescript
- * import { createJWTAuthClient, setClient } from '@molecule/app-auth'
+ * import {
+ *   createJWTAuthClient,
+ *   getUser,
+ *   isAuthenticated,
+ *   login,
+ *   logout,
+ *   setClient,
+ * } from '@molecule/app-auth'
  *
- * const client = createJWTAuthClient({ baseURL: '/api' })
+ * // Startup: bond the client once, then restore the session from the httpOnly cookie.
+ * const client = createJWTAuthClient({ baseURL: 'https://api.example.com' })
  * setClient(client)
- * await client.initialize() // restore the session from the httpOnly cookie
+ * await client.initialize()
  *
- * // anywhere in the app
- * import { getUser, isAuthenticated, login, logout } from '@molecule/app-auth'
- * await login({ email, password })
- * if (isAuthenticated()) console.log(getUser()?.email)
+ * // Login form submit (anywhere in the app) — POSTs to `${baseURL}/auth/login`.
+ * const form = { email: 'ada@example.com', password: 'correct horse battery staple' }
+ * const result = await login({ email: form.email, password: form.password })
+ * // 2FA accounts: not signed in yet — ask for the code, then login({ ...form, twoFactorToken }).
+ * if (result.twoFactorRequired) console.log('prompt for the authenticator code')
+ * if (isAuthenticated()) console.log(getUser()?.email) // 'ada@example.com'
+ *
+ * await logout() // POSTs `/users/logout` and clears local auth state
  * ```
  *
  * @e2e

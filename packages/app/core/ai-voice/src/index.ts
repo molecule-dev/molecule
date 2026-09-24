@@ -29,18 +29,30 @@
  * import { requireProvider, setProvider } from '@molecule/app-ai-voice'
  * import { createProvider } from '@molecule/app-ai-voice-default'
  *
- * setProvider(createProvider()) // at startup
+ * // Startup: bond once. No key — the browser's Web Speech API does the work.
+ * setProvider(createProvider())
  *
+ * // In a mic button's click handler (a user gesture — never on page load):
  * const voice = requireProvider()
+ * let order = ''
+ * let micDenied = false
  * if (voice.isRecognitionSupported()) {
- *   // start from a user gesture (click/tap), never on page load
- *   voice.startListening({ language: 'en-US', interimResults: true }, {
- *     onTranscript: ({ transcript, isFinal }) => isFinal && submit(transcript),
- *     onError: ({ code, message }) => showError(code === 'not-allowed'
- *       ? 'Microphone access was denied.' : message),
- *   })
+ *   voice.startListening(
+ *     { language: 'en-US', interimResults: true },
+ *     {
+ *       onTranscript: ({ transcript, isFinal }) => {
+ *         if (isFinal) order = transcript // interim results are unstable — act on final only
+ *       },
+ *       onError: ({ code }) => {
+ *         micDenied = code === 'not-allowed' // show a visible "microphone blocked" message
+ *       },
+ *     },
+ *   )
  * }
- * await voice.speak('Order confirmed.')
+ *
+ * // Text-to-speech resolves when the utterance finishes.
+ * if (voice.isSynthesisSupported()) await voice.speak('Order confirmed.')
+ * voice.dispose() // on unmount: stops recognition/speech and drops handlers
  * ```
  *
  * @e2e

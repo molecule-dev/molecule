@@ -8,11 +8,17 @@
  *
  * @example
  * ```typescript
- * import { setProvider, createPalette } from '@molecule/app-command-palette'
+ * import { createPalette, setProvider } from '@molecule/app-command-palette'
  * import { provider } from '@molecule/app-command-palette-cmdk'
  *
- * setProvider(provider)
+ * setProvider(provider) // at startup
  *
+ * const visited: string[] = []
+ * const navigate = (path: string): void => {
+ *   visited.push(path) // your router's navigate()
+ * }
+ *
+ * // Labels are shown as-is — pass them through t() before building the options.
  * const palette = createPalette({
  *   groups: [
  *     {
@@ -20,12 +26,25 @@
  *       label: 'Navigation',
  *       commands: [
  *         { id: 'home', label: 'Go Home', onSelect: () => navigate('/') },
- *         { id: 'settings', label: 'Settings', onSelect: () => navigate('/settings') },
+ *         {
+ *           id: 'settings',
+ *           label: 'Settings',
+ *           keywords: ['preferences'],
+ *           onSelect: () => navigate('/settings'),
+ *         },
  *       ],
  *     },
  *   ],
  *   placeholder: 'Type a command…',
  * })
+ *
+ * palette.open() // from YOUR Cmd+K / Ctrl+K handler — the palette binds no keys
+ * palette.setQuery('prefs') // from the input's onChange; then re-read the results
+ * const [first] = palette.getFilteredGroups()[0]?.commands ?? []
+ * const page = first?.onSelect() // Enter: run the highlighted command
+ * if (typeof page === 'string') palette.pushPage(page) // a returned string = open that sub-page
+ * else palette.close()
+ * console.log(visited) // ['/settings']
  * ```
  *
  * @remarks
@@ -36,11 +55,15 @@
  *   `t('key', values, { defaultValue })`.
  * - **Bind the open shortcut yourself** (e.g. register Cmd+K / Ctrl+K through the
  *   app's keyboard-shortcuts layer and call `palette.open()`); wire Escape to
- *   `palette.close()` and Enter to `selectCommand(...)`.
+ *   `palette.close()`. **There is no `selectCommand()` / `execute()` on the
+ *   instance** — Enter/click calls the highlighted item's own `onSelect()` (taken
+ *   from `getFilteredGroups()`).
  * - Pass command/group `label`s through i18n BEFORE building the options — the
  *   palette never translates for you.
- * - An `onSelect` returning a string navigates to that palette page id — return
- *   nothing for plain actions.
+ * - An `onSelect` returning a string is a palette page id (from `options.pages`):
+ *   when YOU call `onSelect()`, pass that string to `pushPage()` yourself (the
+ *   instance does not see the return value). Return nothing for plain actions,
+ *   then `close()`. `close()` also resets the query and page stack.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

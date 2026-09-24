@@ -8,17 +8,37 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/app-date-range-picker'
+ * import type { DatePreset, DateRange } from '@molecule/app-date-range-picker'
+ * import { requireProvider, setProvider } from '@molecule/app-date-range-picker'
  * import { provider } from '@molecule/app-date-range-picker-default'
+ * import { t } from '@molecule/app-i18n'
  *
- * setProvider(provider)                    // once, at app startup (bonds.ts)
+ * setProvider(provider) // once, at app startup (bonds.ts)
  *
+ * const DAY_MS = 86_400_000
+ * const today = new Date()
+ * const daysAgo = (n: number): Date => new Date(today.getTime() - n * DAY_MS)
+ * const last30: DatePreset = {
+ *   label: t('dates.last30', undefined, { defaultValue: 'Last 30 days' }),
+ *   range: { startDate: daysAgo(30), endDate: today },
+ * }
+ *
+ * let reportRange: DateRange | null = null
  * const picker = requireProvider().createPicker({
- *   startDate: new Date('2025-01-01'),
- *   endDate: new Date('2025-01-31'),
- *   presets: [{ label: t('dates.last30', undefined, { defaultValue: 'Last 30 days' }), range: last30 }],
- *   onChange: (range) => loadReport(range),
+ *   startDate: daysAgo(7),
+ *   endDate: today,
+ *   maxDate: today, // picks after today are clamped to today
+ *   presets: [last30], // your UI renders these as buttons
+ *   onChange: (range) => {
+ *     reportRange = range // re-query the report
+ *   },
  * })
+ *
+ * // A preset button's click handler feeds its range into the instance.
+ * const onPresetClick = (preset: DatePreset): void => picker.setValue(preset.range)
+ * onPresetClick(last30)
+ * const selected = picker.getValue() // DateRange | null
+ * const query = { from: selected?.startDate.toISOString(), to: selected?.endDate.toISOString() }
  * ```
  *
  * @remarks
@@ -29,6 +49,11 @@
  * - **Wire with THIS package's `setProvider()` or `bond('date-range-picker', …)`** —
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
  *   write the same slot; `requireProvider()` throws until one has run.
+ * - **The default bond only CLAMPS to `minDate`/`maxDate` — it never swaps an
+ *   inverted range** (`startDate > endDate` is stored as given). Order the two dates
+ *   in your UI before `setValue()`. `presets` are not applied by the instance: your
+ *   preset button calls `setValue(preset.range)`. `onChange` fires only from
+ *   `setValue()` (not from the initial options or `clear()`).
  * - **There is no `locale` option** — the instance is a pure value store of
  *   `Date` objects and emits no formatted/labelled output, so a locale knob here
  *   would be inert. Format displayed dates in your rendering layer with the i18n

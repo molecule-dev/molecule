@@ -8,15 +8,30 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/app-code-editor'
+ * import { requireProvider, setProvider } from '@molecule/app-code-editor'
  * import { provider } from '@molecule/app-code-editor-monaco'
  *
- * setProvider(provider)                    // once, at app startup (bonds.ts)
+ * setProvider(provider) // once, at app startup (bonds.ts)
+ *
+ * // In a component: the ref'd element, AFTER it is rendered and attached.
+ * const container = document.createElement('div')
+ * document.body.append(container)
  *
  * const editor = requireProvider()
- * await editor.mount(containerElement, { theme: 'dark', fontSize: 13 })
- * editor.openFile({ path: 'src/index.ts', content: source, language: 'typescript' })
- * const unsubscribe = editor.onChange((event) => save(event.path, event.content))
+ * await editor.mount(container, { theme: 'molecule-dark', fontSize: 13 }) // lazy-loads Monaco
+ *
+ * const drafts = new Map<string, string>()
+ * const unsubscribe = editor.onChange((event) => drafts.set(event.path, event.content)) // auto-save hook
+ * editor.openFile({
+ *   path: '/src/index.ts', // absolute, leading slash
+ *   content: 'export const answer = 42\n',
+ *   language: 'typescript',
+ * })
+ * console.log(editor.getContent(), editor.getTabs()[0]?.label) // 'export const answer = 42\n' 'index.ts'
+ *
+ * // On unmount:
+ * unsubscribe()
+ * editor.dispose()
  * ```
  *
  * @remarks
@@ -29,6 +44,10 @@
  * - **Feature-detect optional capabilities.** `openDiff`, `connectLsp`,
  *   `setContentSilent`, `markSaved`, `onFixWithAI`, `getDiagnostics`, etc. are
  *   optional provider methods — check `editor.openDiff?.(…)` before relying on them.
+ * - **`onChange` also fires on `openFile()`** (with the file's initial content), not only on
+ *   user edits — an auto-save listener must tolerate "saving" unchanged content, or compare
+ *   against the last saved copy. Pass absolute paths with a leading slash (`/src/index.ts`);
+ *   the Monaco bond builds model URIs as `file://${path}`.
  * - `onChange` returns an unsubscribe function — keep it and call it on teardown to
  *   avoid leaked listeners across route changes.
  * - The editor renders its own chrome; any surrounding UI you add (toolbars, tab

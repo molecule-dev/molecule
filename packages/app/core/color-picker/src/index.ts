@@ -8,17 +8,28 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/app-color-picker'
+ * import { requireProvider, setProvider } from '@molecule/app-color-picker'
  * import { provider } from '@molecule/app-color-picker-default'
  *
- * setProvider(provider)                    // once, at app startup (bonds.ts)
+ * setProvider(provider) // once, at app startup (bonds.ts)
  *
+ * // Persist the chosen color as app data (e.g. PATCH the workspace's brand color).
+ * let brandColor = '#3498db'
  * const picker = requireProvider().createPicker({
- *   value: '#3498db',
+ *   value: brandColor,
  *   format: 'hex',
- *   showAlpha: true,
- *   onChange: (color) => applyBrandColor(color),
+ *   presets: ['#3498db', '#e74c3c', '#2ecc71'],
+ *   onChange: (color) => {
+ *     brandColor = color
+ *   },
  * })
+ *
+ * // Headless: your swatch's click handler feeds the pick into the instance.
+ * const onSwatchClick = (color: string): void => picker.setValue(color)
+ * onSwatchClick('#e74c3c')
+ * console.log(picker.getValue(), brandColor) // '#e74c3c' '#e74c3c'
+ *
+ * picker.destroy() // on unmount
  * ```
  *
  * @remarks
@@ -30,6 +41,10 @@
  * - **Wire with THIS package's `setProvider()` or `bond('color-picker', …)`.**
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
  *   write the same slot; `requireProvider()` throws until one has run.
+ * - **The default bond does NOT validate or convert colors.** `setValue()` stores
+ *   the string as-is and `setFormat()` only changes what `getFormat()` reports — it
+ *   does not rewrite the current value. Validate/normalize user-typed input yourself
+ *   before calling `setValue()`. `onChange` fires only from `setValue()`.
  * - Treat the emitted color as an app data value — do not hardcode it into CSS or
  *   theme files; persist it and apply through your theme/branding layer.
  *

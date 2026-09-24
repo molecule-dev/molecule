@@ -28,15 +28,25 @@
  * import { requireProvider, setProvider } from '@molecule/app-ai-assistant'
  * import { createProvider } from '@molecule/app-ai-assistant-default'
  *
- * setProvider(createProvider()) // at startup; same-origin base URL by default
+ * // Startup: bond once. `baseUrl` '' (default) = same origin as the app.
+ * setProvider(createProvider({ baseUrl: '' }))
  *
+ * // Anywhere: the panel talks to YOUR backend route, which holds the AI key.
  * const assistant = requireProvider()
  * const config = { endpoint: '/api/assistant' }
- * const unsubscribe = assistant.subscribe((state) => renderPanel(state))
+ *
+ * const unsubscribe = assistant.subscribe((state) => {
+ *   console.log(state.isLoading, state.messages.length) // re-render your panel here
+ * })
+ * assistant.open(config)
+ * // What the user is looking at — sent with every message as `context`.
  * assistant.setContext([{ type: 'page', label: 'Invoices', value: '/invoices' }])
  * await assistant.sendMessage('Why is this invoice overdue?', config, (event) => {
- *   if (event.type === 'error') showError(event.message)
+ *   if (event.type === 'error') console.error(event.message)
  * })
+ *
+ * const reply = assistant.getState().messages.at(-1)?.content // the streamed assistant text
+ * unsubscribe()
  * ```
  *
  * @e2e

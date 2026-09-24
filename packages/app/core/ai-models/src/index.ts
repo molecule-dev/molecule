@@ -17,11 +17,25 @@
  *
  * @example
  * ```typescript
- * import { getClient } from '@molecule/app-http'
- * import { loadAIModels, partitionByDeprecation } from '@molecule/app-ai-models'
+ * import {
+ *   formatTokenCount,
+ *   loadAIModels,
+ *   partitionByDeprecation,
+ *   pickFreeTierModel,
+ * } from '@molecule/app-ai-models'
+ * import { createFetchClient, getClient, setClient } from '@molecule/app-http'
  *
+ * // Startup: bond the app's HTTP client (base URL of YOUR API) and attach the session.
+ * setClient(createFetchClient({ baseURL: 'https://api.example.com' }))
+ * const sessionToken = 'user-session-jwt'
+ * getClient().setAuthToken(sessionToken) // GET /ai/models is session-gated
+ *
+ * // Load once and keep the result — this loader does not cache.
  * const models = await loadAIModels(getClient())
- * const { current, deprecated } = partitionByDeprecation(models)
+ * const { current, deprecated } = partitionByDeprecation(models) // drops disabled/superseded
+ * const selected = pickFreeTierModel(models) ?? current[0]
+ * const options = current.map((m) => `${m.label} · ${formatTokenCount(m.contextWindow)}`)
+ * console.log(selected?.id, options, deprecated.length) // e.g. 'Sonnet · 200K'
  * ```
  *
  * @module

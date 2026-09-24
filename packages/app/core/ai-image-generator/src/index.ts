@@ -18,6 +18,9 @@
  *   If the app keeps a gallery, have the server download and persist the bytes
  *   (e.g. via the uploads package) and store YOUR url — storing the returned
  *   url alone ships dead links.
+ * - **A failed generation does NOT throw** in the default bond: it emits an
+ *   `error` event and `generate()` resolves `[]`. Check the `error` event (or an
+ *   empty array) — a `try/catch` alone never sees HTTP/model failures.
  * - `count` is bounded 1–10; generation is slow — drive the UI from the
  *   `progress` / `image` events rather than blocking on the promise alone.
  *
@@ -26,17 +29,20 @@
  * import { requireProvider, setProvider } from '@molecule/app-ai-image-generator'
  * import { createProvider } from '@molecule/app-ai-image-generator-default'
  *
- * setProvider(createProvider()) // at startup
+ * // Startup: bond once. `baseUrl` '' (default) = same origin; the image-model key stays on YOUR API.
+ * setProvider(createProvider({ baseUrl: '' }))
  *
  * const generator = requireProvider()
+ * let percent = 0
  * const images = await generator.generate(
  *   { prompt: 'A watercolor fox', size: '1024x1024', count: 1 },
  *   { endpoint: '/api/images/generate' },
  *   (event) => {
- *     if (event.type === 'progress') setProgress(event.percent)
- *     if (event.type === 'error') showError(event.message)
+ *     if (event.type === 'progress') percent = event.percent // drive a progress bar
+ *     if (event.type === 'error') console.error(event.message) // generate() then resolves []
  *   },
  * )
+ * console.log(percent, images[0]?.url) // GeneratedImage: { id, url, prompt, width, height, createdAt }
  * ```
  *
  * @e2e

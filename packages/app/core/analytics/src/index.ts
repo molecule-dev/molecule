@@ -6,17 +6,20 @@
  *
  * @example
  * ```typescript
- * import { identify, reset, setProvider, track } from '@molecule/app-analytics'
+ * import { hasProvider, identify, page, reset, setProvider, track } from '@molecule/app-analytics'
  * import { createProvider } from '@molecule/app-analytics-posthog'
  *
- * // At startup — the key comes from your build-time env (in Vite:
- * // import.meta.env.VITE_POSTHOG_KEY); a missing key yields a warning +
- * // no-op provider, never a crash.
- * setProvider(createProvider({ apiKey: posthogApiKey }))
+ * // Startup: in a Vite app the key is `import.meta.env.VITE_POSTHOG_KEY`. A missing key
+ * // yields a console warning + no-op provider, never a crash.
+ * const apiKey = 'phc_your_project_key'
+ * setProvider(createProvider({ apiKey }))
+ * console.log(hasProvider()) // true — the ONLY sign events are really being sent
  *
- * identify({ userId: user.id, email: user.email })      // on login
- * track({ name: 'order_placed', properties: { total } })
- * reset()                                               // on logout
+ * const user = { id: 'u_123', email: 'ada@example.com', name: 'Ada' }
+ * await identify({ userId: user.id, email: user.email, name: user.name }) // on login
+ * await page({ path: '/checkout', name: 'Checkout' })
+ * await track({ name: 'order_placed', properties: { total: 42.5, currency: 'USD' } })
+ * await reset() // on logout
  * ```
  *
  * @remarks

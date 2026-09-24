@@ -6,15 +6,21 @@
  * import { requireProvider, setProvider } from '@molecule/app-ai-chat'
  * import { createProvider } from '@molecule/app-ai-chat-http'
  *
- * setProvider(createProvider()) // at startup; same-origin base URL by default
+ * // Startup: bond once. `baseUrl` '' (default) = same origin; the AI key stays on YOUR API.
+ * setProvider(createProvider({ baseUrl: '' }))
  *
+ * // Anywhere: send a message and collect the streamed reply.
  * const chat = requireProvider()
  * const config = { endpoint: '/api/chat' }
+ *
+ * let reply = ''
  * await chat.sendMessage('Summarize my open orders', config, (event) => {
- *   if (event.type === 'text') appendTokens(event.content)
- *   if (event.type === 'error') showError(event.message)
+ *   if (event.type === 'text') reply += event.content // append to the visible message
+ *   if (event.type === 'error') console.error(event.message)
  * })
- * const history = await chat.loadHistory(config)
+ * console.log(reply) // the full answer once `sendMessage` resolves
+ *
+ * const history = await chat.loadHistory(config) // GET on the same endpoint → ChatMessage[]
  * ```
  *
  * @remarks
@@ -24,6 +30,8 @@
  * (see `@molecule/api-ai`) — the browser NEVER calls Anthropic/OpenAI directly or holds a
  * provider key, which would ship the key to every user.
  *
+ * - **`sendMessage` returns `Promise<void>` — the reply arrives ONLY through the `onEvent`
+ *   callback** (`text` events carry `content` deltas; append them). Do not await it for a string.
  * - **Render model output safely.** Never `dangerouslySetInnerHTML` / `v-html` a raw model
  *   response — a model (or an injected prompt) can emit `<script>`/HTML. Render markdown through
  *   a sanitizing renderer.
