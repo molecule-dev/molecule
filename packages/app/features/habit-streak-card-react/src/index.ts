@@ -5,22 +5,25 @@
  *
  * @example
  * ```tsx
- * import type { StreakDay } from '@molecule/app-habit-streak-card-react'
- * import { HabitStreakCard } from '@molecule/app-habit-streak-card-react'
+ * import { HabitStreakCard, type StreakDay } from '@molecule/app-habit-streak-card-react'
  *
- * const recentDays: StreakDay[] = [
- *   { date: '2026-07-01', count: 1 },
- *   { date: '2026-07-02', count: 3 },
- * ]
- *
- * <HabitStreakCard
- *   name="Morning Run"
- *   icon={<span>🏃</span>}
- *   currentStreak={14}
- *   bestStreak={30}
- *   totalCompletions={87}
- *   heatmap={recentDays}
- * />
+ * export function MorningRunWidget() {
+ *   const recentDays: StreakDay[] = [
+ *     { date: '2026-07-01', count: 0 },
+ *     { date: '2026-07-02', count: 1 },
+ *     { date: '2026-07-03', count: 3 },
+ *   ]
+ *   return (
+ *     <HabitStreakCard
+ *       name="Morning Run"
+ *       icon={<span aria-hidden="true">🏃</span>}
+ *       currentStreak={14}
+ *       bestStreak={30}
+ *       totalCompletions={87}
+ *       heatmap={recentDays}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -31,6 +34,10 @@
  *   (`rgba(0,0,0,0.08)`) rendered as inline styles — on dark themes the empty
  *   cells are nearly invisible. For a theme-aware year grid use
  *   `@molecule/app-heatmap-react` with a custom `colorScale` instead.
+ * - It is display-only: it does NOT compute streaks from `heatmap` — pass
+ *   `currentStreak` (required), `bestStreak` and `totalCompletions` yourself.
+ *   `bestStreak` / `totalCompletions` are hidden when omitted.
+ * - Cards render inside `Card` from `@molecule/app-ui-react` (a peer dependency).
  * - `heatmapDays` truncates `heatmap` from the END (most recent days win).
  *
  * @module

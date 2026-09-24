@@ -11,10 +11,16 @@
  * Use for OAuth/API integrations, bank-connect CTAs, webhook setup cards.
  *
  * @remarks
- * - The status label text ('Connected', 'Connecting…', 'Error', 'Not connected') is
- *   hardcoded English — there is no i18n hook and no override prop. In a non-English
- *   app, render your own translated status next to the card (or hide it via CSS)
- *   until the package routes these through `t()`.
+ * - It does NOT connect anything: `status` is controlled and `action.onClick` is where
+ *   you call your API (through `@molecule/app-http`) and move the status
+ *   `disconnected` → `pending` → `connected` / `error` yourself. `action.loading` is
+ *   also yours to set (the card never tracks the click's promise).
+ * - The status label calls `useTranslation()` from `@molecule/app-react`, so the card
+ *   MUST render inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise).
+ *   Labels use `integrationCard.status.*` keys with English fallbacks ('Connected',
+ *   'Connecting…', 'Error', 'Not connected'); no companion locale bond ships them yet
+ *   and there is no override prop. `title`, `description` and `action.label` are
+ *   yours — pass translated text.
  * - `variant="cta"` paints an inline `linear-gradient` background over the Card using
  *   `var(--color-primary)` (falls back to a fixed blue when the theme token is
  *   missing). Inline styles beat ClassMap classes, so this overrides the themed card
@@ -27,16 +33,47 @@
  *
  * @example
  * ```tsx
- * import { IntegrationCard } from '@molecule/app-integration-card-react'
+ * import { useState } from 'react'
  *
- * <IntegrationCard
- *   title="Slack"
- *   description="Send notifications to your team channels."
- *   status="disconnected"
- *   action={{ label: 'Connect', onClick: () => { window.location.href = '/oauth/slack' } }}
- *   dataMolId="slack-integration-card"
- * />
+ * import { del, post } from '@molecule/app-http'
+ * import { IntegrationCard, type IntegrationStatus } from '@molecule/app-integration-card-react'
+ * import { useTranslation } from '@molecule/app-react'
+ *
+ * export function SlackIntegration({ initialStatus }: { initialStatus: IntegrationStatus }) {
+ *   const { t } = useTranslation()
+ *   const [status, setStatus] = useState<IntegrationStatus>(initialStatus)
+ *   const connected = status === 'connected'
+ *
+ *   async function toggle(): Promise<void> {
+ *     setStatus('pending')
+ *     try {
+ *       if (connected) await del('/integrations/slack')
+ *       else await post('/integrations/slack')
+ *       setStatus(connected ? 'disconnected' : 'connected')
+ *     } catch (_err) {
+ *       // Surfaced to the user as the card's "Error" status; the button offers a retry.
+ *       setStatus('error')
+ *     }
+ *   }
+ *
+ *   return (
+ *     <IntegrationCard
+ *       title="Slack"
+ *       description="Send notifications to your team channels."
+ *       status={status}
+ *       action={{
+ *         label: connected
+ *           ? t('common.disconnect', undefined, { defaultValue: 'Disconnect' })
+ *           : t('common.connect', undefined, { defaultValue: 'Connect' }),
+ *         onClick: () => void toggle(),
+ *         loading: status === 'pending',
+ *       }}
+ *       dataMolId="slack-integration-card"
+ *     />
+ *   )
+ * }
  * ```
+ *
  * @module
  */
 

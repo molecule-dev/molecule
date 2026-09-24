@@ -12,31 +12,61 @@
  *
  * @example
  * ```tsx
- * import { ImageCanvas, type ImageCanvasExportHandle } from '@molecule/app-feature-image-canvas-react'
+ * import { useRef, useState } from 'react'
  *
- * function Editor() {
+ * import {
+ *   ImageCanvas,
+ *   type ImageCanvasExportHandle,
+ *   type PanOffset,
+ * } from '@molecule/app-feature-image-canvas-react'
+ * import { useTranslation } from '@molecule/app-react'
+ * import { Button } from '@molecule/app-ui-react'
+ *
+ * export function PhotoEditor() {
+ *   const { t } = useTranslation()
  *   const exportRef = useRef<ImageCanvasExportHandle>(null)
  *   const [zoom, setZoom] = useState(1)
- *   const [pan, setPan] = useState({ x: 0, y: 0 })
+ *   const [pan, setPan] = useState<PanOffset>({ x: 0, y: 0 })
+ *   const [exported, setExported] = useState<string | null>(null)
  *   return (
  *     <>
  *       <ImageCanvas
  *         src="/photo.jpg"
+ *         width={640}
+ *         height={480}
  *         filters={{ brightness: 1.1, contrast: 1.2, sepia: 0.3 }}
  *         zoom={zoom}
  *         pan={pan}
- *         onChange={({ zoom, pan }) => { setZoom(zoom); setPan(pan) }}
+ *         onChange={(next) => {
+ *           setZoom(next.zoom)
+ *           setPan(next.pan)
+ *         }}
  *         exportRef={exportRef}
  *       />
- *       <button onClick={() => download(exportRef.current?.toDataURL('image/jpeg', 0.92))}>
- *         Save
- *       </button>
+ *       <Button onClick={() => setExported(exportRef.current?.toDataURL('image/jpeg', 0.92) ?? null)}>
+ *         {t('common.export', undefined, { defaultValue: 'Export' })}
+ *       </Button>
+ *       {exported && (
+ *         <a href={exported} download="photo-edited.jpg">
+ *           {t('common.download', undefined, { defaultValue: 'Download' })}
+ *         </a>
+ *       )}
  *     </>
  *   )
  * }
  * ```
  *
  * @remarks
+ * It calls `useTranslation()` from `@molecule/app-react`, so it MUST render
+ * inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise), and
+ * `getClassMap()` throws unless `setClassMap(classMap)` from
+ * `@molecule/app-ui` ran at startup.
+ *
+ * It does NOT save or upload anything: `toDataURL(type, quality)` returns a
+ * `data:` URL string (`''` before the canvas mounts) — you download or POST
+ * it yourself. Filter values are multipliers (`1` = unchanged), not
+ * percentages; `hue` is in degrees and `blur` in CSS pixels.
+ *
  * Pan / zoom interaction is CONTROLLED-ONLY: pointer-drag and wheel
  * events call `onChange` with the proposed `{ zoom, pan }` and never
  * mutate internal state. If you do not pass `onChange` and feed the

@@ -11,17 +11,46 @@
  *
  * @example
  * ```ts
+ * import { t } from '@molecule/app-i18n'
  * import { setupI18nDefault } from '@molecule/app-i18n-default-react'
  *
- * // `en` is the app's eagerly-imported English UI translations —
- * // in your app: `import { ui as en } from '../locales/en/ui.js'`.
- * // The lazy loader MUST stay in the app so Vite can code-split
- * // each locale's ui.ts into its own chunk.
- * const lazyLoadUi = (code: string) =>
- *   import(`../locales/${code}/ui.ts`).then((m) => m.ui)
+ * // The app's own UI strings — in a scaffolded app these are `src/locales/<code>/ui.ts`.
+ * const enUi = { 'trips.title': 'My trips' }
+ * const uiByLocale: Record<string, Record<string, string>> = {
+ *   es: { 'trips.title': 'Mis viajes' },
+ * }
  *
- * setupI18nDefault({ enUi: en, lazyLoadUi })
+ * const i18n = setupI18nDefault({
+ *   enUi,
+ *   lazyLoadUi: async (code) => uiByLocale[code] ?? {},
+ *   supportedLocales: ['es'],
+ * })
+ *
+ * t('trips.title') // 'My trips'
+ * t('common.close') // 'Close' — the common bond is merged in automatically
+ * await i18n.setLocale('es')
+ * t('trips.title') // 'Mis viajes'
+ * t('common.close') // 'Cerrar'
  * ```
+ *
+ * @remarks
+ * - Call it ONCE at startup, before rendering: it creates the provider AND
+ *   bonds it (`setProvider`), so `t()` from `@molecule/app-i18n` works right
+ *   away. Pass the returned provider to `@molecule/app-react`'s
+ *   `<I18nProvider provider={...}>` so components re-render on locale change.
+ * - Only English is loaded eagerly. Every other locale loads through
+ *   `lazyLoadUi(code)` on `setLocale()`; in a Vite app make it a dynamic
+ *   `import()` of `../locales/<code>/ui.ts` returning its `ui` export, so each
+ *   language is its own chunk. A loader that returns `{}` (or rejects) marks the locale
+ *   UNSUPPORTED and it is removed from `getLocales()` — pass
+ *   `supportedLocales` to skip that async probe (`'en'` is always kept).
+ * - `@molecule/app-locales-common` (`common.*`, `home.*`, …) is merged
+ *   automatically; other packages' companion bonds are NOT — star-import each
+ *   (`import * as authLocales from '@molecule/app-locales-auth'`) and pass
+ *   `packageLocales: [authLocales]`. App `enUi` / `lazyLoadUi` keys win over bond keys.
+ * - The chosen locale is persisted through `@molecule/app-storage` under
+ *   `molecule-locale` only if a storage provider is bonded; otherwise
+ *   persistence is silently skipped. Despite the name, it does not import React.
  *
  * @module
  */

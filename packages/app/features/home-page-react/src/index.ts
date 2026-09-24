@@ -14,9 +14,17 @@
  *
  * @example
  * ```tsx
+ * import { Route, Routes } from 'react-router'
+ *
  * import { Home } from '@molecule/app-home-page-react'
  *
- * <Route path="/" element={<Home />} />
+ * export function AppRoutes() {
+ *   return (
+ *     <Routes>
+ *       <Route path="/" element={<Home />} />
+ *     </Routes>
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -28,6 +36,10 @@
  *   `setupI18nDefault()` (from `@molecule/app-i18n-default-react`) merges
  *   automatically. A custom i18n setup must register the common bond or the
  *   raw keys render on screen.
+ * - It takes NO props and does NOT guard the route: signed-out visitors see
+ *   "Hello, World!". Put your own auth redirect around the route if the page
+ *   must be private. The name comes from the auth client's current user
+ *   (`name`, else `email`).
  *
  * @module
  */

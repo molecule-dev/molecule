@@ -9,17 +9,27 @@
  * @example
  * ```tsx
  * import { AppHeader } from '@molecule/app-header-react'
- * import { UserMenu } from '@molecule/app-ui-react'
+ * import { useTranslation } from '@molecule/app-react'
+ * import { Button, usePanelClose, UserMenu } from '@molecule/app-ui-react'
  *
- * function Shell() {
- *   // UserMenu takes the settings panel as CHILDREN (no renderPanel prop);
- *   // panel content dismisses the drawer via usePanelClose().
+ * function SettingsPanel() {
+ *   const { t } = useTranslation()
+ *   const close = usePanelClose()
+ *   return (
+ *     <section>
+ *       <h2>{t('settings.account', undefined, { defaultValue: 'Account' })}</h2>
+ *       <Button onClick={close}>{t('common.close', undefined, { defaultValue: 'Close' })}</Button>
+ *     </section>
+ *   )
+ * }
+ *
+ * export function Shell() {
  *   return (
  *     <AppHeader
  *       appName="Bearing"
  *       userMenu={
  *         <UserMenu>
- *           <div>Your settings panel here</div>
+ *           <SettingsPanel />
  *         </UserMenu>
  *       }
  *     />
@@ -28,8 +38,14 @@
  * ```
  *
  * @remarks
- * - Must render inside a `react-router-dom` router — the brand link is a
- *   `<Link>` and throws outside a Router context.
+ * - Must render inside a `react-router` router (`<BrowserRouter>` /
+ *   `RouterProvider`) — the brand link is a `<Link>` and throws outside a
+ *   Router context (so does `<UserMenu>`, which closes itself on navigation).
+ * - `<UserMenu>` takes the settings panel as CHILDREN (there is no
+ *   `renderPanel` prop); the panel closes the drawer via `usePanelClose()`.
+ *   `<UserMenu>` calls `useTranslation()` (needs `I18nProvider`) and renders
+ *   an icon, so an icon set must be bonded (`setIconSet(iconSet)` from
+ *   `@molecule/app-icons` + `@molecule/app-icons-molecule`).
  * - The DEFAULT `themeToggle` slot renders `<ThemeToggle />` (which calls
  *   `useTheme()` + `useTranslation()`) ONLY when `@molecule/app-react`'s
  *   `ThemeProvider` + `I18nProvider` are both mounted above the header — it

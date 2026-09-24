@@ -16,16 +16,46 @@
  *
  * @example
  * ```tsx
- * import { GraphView, type GraphNode, type GraphEdge } from '@molecule/app-feature-graph-view-react'
+ * import { useState } from 'react'
  *
- * function NoteGraph({ notes, links }: { notes: Note[]; links: Link[] }) {
+ * import { type GraphEdge, type GraphNode, GraphView } from '@molecule/app-feature-graph-view-react'
+ *
+ * export function NoteGraph() {
+ *   const notes = [
+ *     { id: 'inbox', title: 'Inbox', linkCount: 2 },
+ *     { id: 'ideas', title: 'Ideas', linkCount: 1 },
+ *     { id: 'reading', title: 'Reading list', linkCount: 1 },
+ *   ]
+ *   const links = [
+ *     { id: 'l1', from: 'inbox', to: 'ideas' },
+ *     { id: 'l2', from: 'inbox', to: 'reading' },
+ *   ]
+ *   const [selectedId, setSelectedId] = useState<string>()
  *   const nodes: GraphNode[] = notes.map((n) => ({ id: n.id, label: n.title, weight: n.linkCount }))
  *   const edges: GraphEdge[] = links.map((l) => ({ id: l.id, source: l.from, target: l.to }))
- *   return <GraphView nodes={nodes} edges={edges} onNodeClick={(n) => open(n.id)} />
+ *   return (
+ *     <div style={{ height: 480 }}>
+ *       <GraphView
+ *         nodes={nodes}
+ *         edges={edges}
+ *         selectedNodeId={selectedId}
+ *         onNodeClick={(node) => setSelectedId(node.id)}
+ *       />
+ *     </div>
+ *   )
  * }
  * ```
  *
  * @remarks
+ * It calls `useTranslation()` from `@molecule/app-react`, so it MUST render
+ * inside `<I18nProvider>` / `<MoleculeProvider>` (it throws otherwise), and
+ * `getClassMap()` throws unless `setClassMap(classMap)` from `@molecule/app-ui`
+ * ran at startup.
+ *
+ * It does NOT track selection itself: `selectedNodeId` is controlled — keep it
+ * in your own state and update it from `onNodeClick`. Edges whose `source` /
+ * `target` id is not in `nodes` are silently skipped.
+ *
  * The root element fills 100% of its parent — the PARENT must have an
  * explicit height (e.g. a fixed-height panel or a flex/grid track) or
  * the graph renders zero-tall and appears blank.
