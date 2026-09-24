@@ -172,10 +172,12 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   request ($20/$75, cached $2, cache writes $25): 2× input/cache, 1.5×
  *   output. The catalog's price fields are flat per-MTok rates with no
  *   context-band dimension, so that band is NOT modeled, exactly as the
- *   >200K tiers above are not. It is moot for now — astra is deliberately NOT
- *   in the catalog because it cannot serve a tool-carrying request on the
- *   bond's /v1/chat/completions endpoint; see the DO NOT ADD block above the
- *   OpenAI entries for the live 400s and the condition that lifts it.)
+ *   >200K tiers above are not. Astra was withheld at the time: it could not serve a
+ *   tool-carrying request on /v1/chat/completions.)
+ *   (re-verified 2026-09-24 on the gpt-6-astra model page: ADDED gpt-6-astra
+ *   ($10/$50, cached $1, cache writes $12.50; 1.05M ctx / 128K out; image
+ *   input; knowledge cutoff Apr 30 2026; effort low|medium|high|xhigh|max),
+ *   now that the bond calls /v1/responses.)
  *   (re-verified 2026-09-23: ADDED gpt-6-sol ($2/$10, cached $0.20, cache
  *   writes $2.50) and gpt-6-luna ($0.10/$0.50, cached $0.01, cache writes
  *   $0.125), released 2026-09-22 — both with the same unmodeled >272K band,
@@ -754,32 +756,14 @@ export const MODELS: readonly ModelDefinition[] = [
   // exist upstream — not modeled (same as the Gemini/Grok >200K tiers), and
   // neither are the Batch (0.5×) or Sol "Fast mode" (2×) cards.
   //
-  // DO NOT ADD gpt-6-astra (OpenAI's flagship since 2026-09-04) UNTIL THE BOND
-  // MOVES TO /v1/responses. It is deliberately absent, not overlooked. The
-  // openai bond posts to /v1/chat/completions, and on that endpoint this model
-  // rejects EVERY request Synthase can send, because Synthase always carries
-  // function tools (probed live 2026-09-21 on our own key):
-  //   - tools + reasoning_effort low|medium|high|xhigh → 400 "Function tools
-  //     with reasoning_effort are not supported for gpt-6-astra in
-  //     /v1/chat/completions. To use function tools, use /v1/responses or set
-  //     reasoning_effort to 'none'."
-  //   - tools, field omitted → the same 400 (the model applies its own default)
-  //   - tools + reasoning_effort 'none' → 400 "Unsupported value: … does not
-  //     support 'none' with this model. Supported values are: 'low', 'medium',
-  //     'high', and 'xhigh'."
-  // So the gpt-5.6 workaround (`toolsRequireReasoningOff`, which pins an
-  // explicit 'none') does NOT carry over: OpenAI removed 'none' from this
-  // model's ladder, which closes the one door that made the 5.6 family usable.
-  // Nothing is wrong with the model or the account — no-tools chat and
-  // /v1/responses WITH tools both return 200. Both candidate entries were built
-  // and run through molecule-dev's verify:model-dispatch; both FAILED, so the
-  // entry was withheld rather than shipped broken (the glm-5.3-flash lesson:
-  // a catalog entry that cannot serve a Synthase-shaped turn breaks every turn
-  // on it). The freshness gate WILL keep listing it as a new-model candidate —
-  // that is correct; it becomes addable the day the bond speaks /v1/responses.
-  // Note also that the docs page advertises effort 'max', which
-  // /v1/chat/completions rejects for this model — verify the ladder against the
-  // endpoint, not the docs, when this is revisited.
+  // gpt-6-astra (OpenAI's flagship since 2026-09-04) was withheld until the
+  // bond moved to /v1/responses: on /v1/chat/completions it rejects every
+  // tool-carrying request (tools + any reasoning_effort → 400, and it has no
+  // 'none' effort to fall back on — probed live 2026-09-21). The bond calls
+  // /v1/responses on OpenAI's own endpoint since 2026-09-24, where tools +
+  // every effort low..max return 200 (probed live 2026-09-24), so astra needs
+  // no `toolsRequireReasoningOff` pin. The docs page lists chat/completions
+  // tool support too; the live endpoint disagrees — trust the endpoint.
   //
   // gpt-6-sol and gpt-6-luna (released 2026-09-22) are NOT astra's case: both
   // still accept reasoning_effort 'none', and tools + 'none' returns 200 on
@@ -790,6 +774,37 @@ export const MODELS: readonly ModelDefinition[] = [
   // $2/$10 is priced at 5.6-terra's tier and undercuts 5.6-sol, so it supersedes
   // both; luna supersedes 5.6-luna at half the price.
   // ---------------------------------------------------------------------------
+  {
+    id: 'gpt-6-astra',
+    provider: 'openai',
+    label: 'GPT-6 Astra',
+    description: 'OpenAI flagship — the hardest reasoning & coding work',
+    // Documented as 1.05M; floored to 1M like the other OpenAI entries.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // No 'none' on this model. 'max' verified accepted with tools on
+    // /v1/responses (2026-09-24).
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // temperature → 400 "Unsupported parameter: 'temperature' is not supported
+    // with this model" (probed live 2026-09-24).
+    rejectsTemperature: true,
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // NO webSearchToolType yet: /v1/responses serves `web_search` (verified
+    // 2026-09-24), but its per-call fee is not metered — add with metering.
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier; >272K band ($20/$75, cached $2, writes $25) not modeled.
+    inputPricePerMTok: 10,
+    outputPricePerMTok: 50,
+    cacheReadPricePerMTok: 1,
+    cacheWritePricePerMTok: 12.5,
+    knowledgeCutoff: '2026-04-30',
+  },
   {
     id: 'gpt-6-sol',
     provider: 'openai',
@@ -807,10 +822,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-5.6-sol — the bond calls
-    // /v1/chat/completions, which has no web_search tool type. Re-add when the
-    // bond moves to /v1/responses.
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     // Standard tier. A long-context band above 272K prompt tokens reprices the
     // whole request ($4/$15, cached $0.40, cache writes $5) — not modeled, same
@@ -837,6 +853,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
     // NO webSearchToolType: see gpt-5.6-sol.
     codeExecutionToolType: 'code_interpreter',
@@ -866,12 +884,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
-    // has no web_search tool type (it is a Responses-API construct), and the
-    // bond deliberately forwards no server tools. Advertising one here surfaced
-    // web search in the system prompt while it could never work. Re-add when
-    // the bond moves to /v1/responses (verified 2026-08-28).
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     // LIST price. OpenAI ran a >20% PROMO from 2026-08-22 ($4/$20, cache read
     // $0.40, cache write $5) — "GPT-5.6 Sol's promotional pricing is available
@@ -907,12 +924,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
-    // has no web_search tool type (it is a Responses-API construct), and the
-    // bond deliberately forwards no server tools. Advertising one here surfaced
-    // web search in the system prompt while it could never work. Re-add when
-    // the bond moves to /v1/responses (verified 2026-08-28).
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     // Repriced 2026-07-30 (20% cut from $2.50/$15).
     inputPricePerMTok: 2,
@@ -943,12 +959,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
-    // has no web_search tool type (it is a Responses-API construct), and the
-    // bond deliberately forwards no server tools. Advertising one here surfaced
-    // web search in the system prompt while it could never work. Re-add when
-    // the bond moves to /v1/responses (verified 2026-08-28).
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     // Repriced 2026-07-30 (80% cut from $1/$6).
     inputPricePerMTok: 0.2,
@@ -985,12 +1000,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
-    // has no web_search tool type (it is a Responses-API construct), and the
-    // bond deliberately forwards no server tools. Advertising one here surfaced
-    // web search in the system prompt while it could never work. Re-add when
-    // the bond moves to /v1/responses (verified 2026-08-28).
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 5,
     outputPricePerMTok: 30,
@@ -1020,12 +1034,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
-    // has no web_search tool type (it is a Responses-API construct), and the
-    // bond deliberately forwards no server tools. Advertising one here surfaced
-    // web search in the system prompt while it could never work. Re-add when
-    // the bond moves to /v1/responses (verified 2026-08-28).
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2.5,
     outputPricePerMTok: 15,
@@ -1057,12 +1070,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
+    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
+    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: the OpenAI bond calls /v1/chat/completions, which
-    // has no web_search tool type (it is a Responses-API construct), and the
-    // bond deliberately forwards no server tools. Advertising one here surfaced
-    // web search in the system prompt while it could never work. Re-add when
-    // the bond moves to /v1/responses (verified 2026-08-28).
+    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
+    // its per-call fee is not metered yet.
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 0.75,
     outputPricePerMTok: 4.5,

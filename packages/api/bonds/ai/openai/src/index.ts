@@ -4,6 +4,16 @@
  * @remarks
  * Config: `OPENAI_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
  *
+ * **Endpoint**: on OpenAI's own API (`https://api.openai.com`, the default) the provider calls
+ * the Responses API (`/v1/responses`); on any other `baseUrl` it calls `/v1/chat/completions`,
+ * the endpoint OpenAI-compatible servers (Ollama, LM Studio, gateways) implement. Override
+ * with `api: 'responses' | 'chat-completions'`. Current OpenAI reasoning models only accept
+ * function tools together with reasoning on `/v1/responses` (gpt-6-astra rejects every
+ * tool-carrying request on chat/completions), and only Responses carries OpenAI's server-side
+ * tools (`serverTools`, e.g. `{ type: 'web_search', name: 'web_search' }`); chat/completions
+ * ignores `serverTools`. `extraBody` is merged into whichever endpoint's body is sent, so its
+ * keys must be that endpoint's params (e.g. `reasoning`, not `reasoning_effort`, on Responses).
+ *
  * **Missing `OPENAI_API_KEY` fails fast**: the provider throws naming the exact env var on
  * first use (the exported `provider` is a lazy proxy, so this fires on the first `chat()` call,
  * not at bond/module-load time) — it never silently sends an empty key.

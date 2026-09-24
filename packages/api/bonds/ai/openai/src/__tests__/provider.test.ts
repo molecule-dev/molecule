@@ -132,6 +132,9 @@ describe('createProvider / constructor', () => {
   })
 })
 
+// The chat() suites below exercise the /v1/chat/completions transport; the
+// default base URL selects /v1/responses, so they pin the endpoint explicitly.
+// The Responses transport is covered in responses.test.ts.
 describe('chat() — request shape', () => {
   it('POSTs to baseUrl + /v1/chat/completions with Authorization header', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
@@ -191,7 +194,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: 'ok' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'hi' }],
       system: 'You are a teapot.',
@@ -218,7 +221,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: 'done' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [
         { role: 'user', content: 'pick one' },
@@ -274,7 +277,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       stream: false,
@@ -296,7 +299,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       stream: false,
@@ -316,7 +319,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       temperature: 0.42,
@@ -336,7 +339,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       model: 'gpt-4-turbo',
@@ -363,7 +366,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       model: 'qwen3.8',
@@ -399,7 +402,7 @@ describe('chat() — request shape', () => {
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       tools: [{ name: 'add', description: 'Sum two ints', parameters: { type: 'object' } }],
@@ -421,7 +424,7 @@ describe('chat() — request shape', () => {
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: '' } }], usage: {} }),
     )
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     for await (const _ of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
       tools: [{ name: 'finalize', description: 'f', parameters: { type: 'object' } }],
@@ -461,7 +464,7 @@ describe('chat() — non-streaming response parsing', () => {
       }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -488,7 +491,7 @@ describe('chat() — non-streaming response parsing', () => {
       }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -522,7 +525,7 @@ describe('chat() — non-streaming response parsing', () => {
       }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -553,7 +556,7 @@ describe('chat() — non-streaming response parsing', () => {
       }),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     let toolEvent: { type: string; input: unknown } | undefined
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -576,7 +579,7 @@ describe('chat() — HTTP error handling', () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(429, { error: { message: 'too many' } }))
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -592,7 +595,7 @@ describe('chat() — HTTP error handling', () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(401, { error: { message: 'Invalid API key sk-xxx' } }))
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -610,7 +613,7 @@ describe('chat() — HTTP error handling', () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(400, { error: { message: 'context length exceeded' } }))
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -625,7 +628,7 @@ describe('chat() — HTTP error handling', () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(503, { error: { message: 'overloaded' } }))
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -641,7 +644,7 @@ describe('chat() — HTTP error handling', () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(500, { error: { message: 'boom' } }))
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -658,7 +661,7 @@ describe('chat() — HTTP error handling', () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(jsonResponse(400, { error: { message: 'temperature must be <= 2' } }))
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({
       messages: [{ role: 'user', content: 'x' }],
@@ -692,7 +695,7 @@ describe('chat() — Retry-After header parsing', () => {
         return Promise.resolve(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
       })
 
-      const provider = createProvider({ apiKey: 'k' })
+      const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
       const eventsPromise = (async () => {
         const events: unknown[] = []
         for await (const e of provider.chat({
@@ -731,7 +734,7 @@ describe('chat() — streaming response parsing', () => {
       ]),
     )
 
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({ messages: [{ role: 'user', content: 'x' }] })) {
       events.push(e)
@@ -758,7 +761,7 @@ describe('chat() — streaming response parsing', () => {
         'data: [DONE]',
       ]),
     )
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({ messages: [{ role: 'user', content: 'x' }] })) {
       events.push(e)
@@ -776,7 +779,7 @@ describe('chat() — streaming response parsing', () => {
         'data: [DONE]',
       ]),
     )
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({ messages: [{ role: 'user', content: 'x' }] })) {
       events.push(e)
@@ -794,7 +797,7 @@ describe('chat() — streaming response parsing', () => {
         'data: [DONE]',
       ]),
     )
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: unknown[] = []
     for await (const e of provider.chat({ messages: [{ role: 'user', content: 'x' }] })) {
       events.push(e)
@@ -821,7 +824,7 @@ describe('chat() — streaming response parsing', () => {
         'data: {"error":{"message":"Rate limit reached","type":"rate_limit_error","code":"rate_limit_exceeded"}}',
       ]),
     )
-    const provider = createProvider({ apiKey: 'k' })
+    const provider = createProvider({ apiKey: 'k', api: 'chat-completions' })
     const events: Array<{ type: string; message?: string; errorKey?: string }> = []
     for await (const e of provider.chat({ messages: [{ role: 'user', content: 'x' }] })) {
       events.push(e as { type: string; message?: string; errorKey?: string })

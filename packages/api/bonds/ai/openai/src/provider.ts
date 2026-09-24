@@ -1,9 +1,10 @@
 /**
  * OpenAI implementation of AIProvider.
  *
- * Uses the OpenAI HTTP API (`/v1/chat/completions`) for streaming chat
- * completions. Mirrors the shape of `@molecule/api-ai-anthropic` so the
- * same handler code can dispatch to either provider.
+ * Calls OpenAI's Responses API (`/v1/responses`, see `responses.ts`) on
+ * OpenAI's own endpoint, and `/v1/chat/completions` on any other base URL
+ * (OpenAI-compatible servers). Mirrors the shape of `@molecule/api-ai-anthropic`
+ * so the same handler code can dispatch to either provider.
  *
  * @module
  */
@@ -24,9 +25,34 @@ import type {
 } from '@molecule/api-ai'
 import { getLogger } from '@molecule/api-bond'
 
-import type { OpenaiConfig } from './types.js'
+import {
+  buildResponsesBody,
+  parseResponsesNonStreaming,
+  parseResponsesStream,
+} from './responses.js'
+import type { OpenaiApi, OpenaiConfig } from './types.js'
+import { streamErrorEvent } from './utilities.js'
 
 const logger = getLogger()
+
+/** OpenAI's own API host — the only one assumed to serve `/v1/responses`. */
+const OPENAI_API_HOST = 'api.openai.com'
+
+/**
+ * Pick the default endpoint for a base URL: Responses for OpenAI's own API,
+ * chat/completions for anything else.
+ *
+ * @param baseUrl - The configured base URL.
+ * @returns The endpoint to use.
+ */
+function defaultApiFor(baseUrl: string): OpenaiApi {
+  try {
+    return new URL(baseUrl).host === OPENAI_API_HOST ? 'responses' : 'chat-completions'
+  } catch (_error) {
+    // An unparseable base URL is not OpenAI's; the request itself will report it.
+    return 'chat-completions'
+  }
+}
 
 /** Mutable streaming state for the OpenAI parser. */
 interface OpenaiStreamState {
@@ -48,6 +74,7 @@ export class OpenaiAIProvider implements AIProvider {
   private maxTokens: number
   private baseUrl: string
   private onRateLimit?: AiRateLimitCallback
+  private api: OpenaiApi
 
   constructor(config: OpenaiConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.OPENAI_API_KEY ?? ''
@@ -55,6 +82,7 @@ export class OpenaiAIProvider implements AIProvider {
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.OPENAI_BASE_URL ?? 'https://api.openai.com'
     this.onRateLimit = config.onRateLimit
+    this.api = config.api ?? defaultApiFor(this.baseUrl)
 
     // Fail fast with an actionable local error rather than a cryptic 401 on the
     // first request. The default `provider` export constructs lazily on first
@@ -71,15 +99,20 @@ export class OpenaiAIProvider implements AIProvider {
   }
 
   /**
-   * Send a chat request and yield streamed `ChatEvent`s.
+   * Build the request body for `POST /v1/chat/completions`.
    *
-   * @param params - Chat parameters.
-   * @yields {ChatEvent}
+   * @param params - The caller's chat parameters.
+   * @param model - The resolved model id.
+   * @param maxTokens - The resolved output-token limit.
+   * @param useStream - Whether to request an SSE stream.
+   * @returns The JSON request body.
    */
-  async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
-    const model = params.model ?? this.defaultModel
-    const maxTokens = params.maxTokens ?? this.maxTokens
-
+  private buildChatCompletionsBody(
+    params: ChatParams,
+    model: string,
+    maxTokens: number,
+    useStream: boolean,
+  ): Record<string, unknown> {
     const messages = this.formatMessages(params.messages, params.system)
 
     const body: Record<string, unknown> = {
@@ -131,11 +164,29 @@ export class OpenaiAIProvider implements AIProvider {
       }
     }
 
-    const useStream = params.stream !== false
     if (useStream) {
       body.stream = true
       body.stream_options = { include_usage: true }
     }
+    return body
+  }
+
+  /**
+   * Send a chat request and yield streamed `ChatEvent`s.
+   *
+   * @param params - Chat parameters.
+   * @yields {ChatEvent}
+   */
+  async *chat(params: ChatParams): AsyncIterable<ChatEvent> {
+    const model = params.model ?? this.defaultModel
+    const maxTokens = params.maxTokens ?? this.maxTokens
+    const useStream = params.stream !== false
+    const isResponses = this.api === 'responses'
+
+    const body = isResponses
+      ? buildResponsesBody(params, model, maxTokens, useStream)
+      : this.buildChatCompletionsBody(params, model, maxTokens, useStream)
+    const path = isResponses ? '/v1/responses' : '/v1/chat/completions'
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -149,7 +200,7 @@ export class OpenaiAIProvider implements AIProvider {
     const MAX_RETRIES = 3
     let response: Response | null = null
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+      response = await fetch(`${this.baseUrl}${path}`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
@@ -240,11 +291,11 @@ export class OpenaiAIProvider implements AIProvider {
 
     if (!useStream) {
       const data = (await response!.json()) as Record<string, unknown>
-      yield* this.parseNonStreamingResponse(data)
+      yield* isResponses ? parseResponsesNonStreaming(data) : this.parseNonStreamingResponse(data)
       return
     }
 
-    yield* this.parseStreamingResponse(response!)
+    yield* isResponses ? parseResponsesStream(response!) : this.parseStreamingResponse(response!)
   }
 
   /**
@@ -536,12 +587,7 @@ export class OpenaiAIProvider implements AIProvider {
             code: streamError.code,
             message: streamError.message,
           })
-          const clientMessage = /overload|capacity|503|529/i.test(detail)
-            ? 'AI service is temporarily overloaded. Please try again in a moment.'
-            : /rate.?limit|429|quota/i.test(detail)
-              ? 'AI rate limit exceeded. Please try again shortly.'
-              : 'AI service error. Please try again.'
-          yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
+          yield streamErrorEvent(detail)
           continue
         }
         const choices = event.choices as Array<Record<string, unknown>> | undefined

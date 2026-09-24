@@ -18,7 +18,17 @@ export interface OpenaiConfig {
   baseUrl?: string
   /** Called on each rate-limited/overloaded upstream response, before any retry sleep. */
   onRateLimit?: AiRateLimitCallback
+  /**
+   * Which OpenAI endpoint to call. Defaults to `'responses'` (`/v1/responses`)
+   * when the base URL is OpenAI's own API, and to `'chat-completions'`
+   * (`/v1/chat/completions`) for any other base URL, since OpenAI-compatible
+   * servers generally implement only chat/completions.
+   */
+  api?: OpenaiApi
 }
+
+/** The OpenAI endpoint a provider instance calls. */
+export type OpenaiApi = 'responses' | 'chat-completions'
 
 /** Environment variables read by this provider. */
 export interface ProcessEnv {
