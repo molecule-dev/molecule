@@ -5,5 +5,5 @@ export const mt: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Uri jew aħbi n-noti',
   'marginNotes.aria.notes': 'Noti',
   'marginNotes.aria.panel': 'Noti għal din it-taqsima',
-  'marginNotes.dismiss': 'Agħlaq',
+  'marginNotes.dismiss': 'Aħbi n-noti',
 }

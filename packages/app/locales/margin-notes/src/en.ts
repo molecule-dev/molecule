@@ -5,5 +5,5 @@ export const en: MarginNotesTranslations = {
   'marginNotes.aria.toggles': 'Show or hide notes',
   'marginNotes.aria.notes': 'Notes',
   'marginNotes.aria.panel': 'Notes for this section',
-  'marginNotes.dismiss': 'Dismiss',
+  'marginNotes.dismiss': 'Hide notes',
 }

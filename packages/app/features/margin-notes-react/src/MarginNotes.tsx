@@ -312,7 +312,7 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
                   className={cm.cn(cm.button({ variant: 'ghost', size: 'sm' }), cm.touchTarget)}
                   data-mol-id="margin-notes-dismiss"
                 >
-                  {t('marginNotes.dismiss', undefined, { defaultValue: 'Dismiss' })}
+                  {t('marginNotes.dismiss', undefined, { defaultValue: 'Hide notes' })}
                 </button>
               )}
             </div>

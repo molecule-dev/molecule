@@ -4,6 +4,6 @@ import type { MarginNotesTranslations } from './types.js'
 export const sv: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Visa eller dölj anteckningar',
   'marginNotes.aria.notes': 'Anteckningar',
-  'marginNotes.aria.panel': 'Anteckningar för det här avsnittet',
-  'marginNotes.dismiss': 'Stäng',
+  'marginNotes.aria.panel': 'Anteckningar för detta avsnitt',
+  'marginNotes.dismiss': 'Dölj anteckningar',
 }

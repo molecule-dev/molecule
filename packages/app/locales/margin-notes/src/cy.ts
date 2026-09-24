@@ -5,5 +5,5 @@ export const cy: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Dangos neu guddio nodiadau',
   'marginNotes.aria.notes': 'Nodiadau',
   'marginNotes.aria.panel': 'Nodiadau ar gyfer yr adran hon',
-  'marginNotes.dismiss': 'Cau',
+  'marginNotes.dismiss': 'Cuddio nodiadau',
 }

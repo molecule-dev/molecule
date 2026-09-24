@@ -4,6 +4,6 @@ import type { MarginNotesTranslations } from './types.js'
 export const it: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Mostra o nascondi le note',
   'marginNotes.aria.notes': 'Note',
-  'marginNotes.aria.panel': 'Note di questa sezione',
-  'marginNotes.dismiss': 'Chiudi',
+  'marginNotes.aria.panel': 'Note per questa sezione',
+  'marginNotes.dismiss': 'Biglietti nascosti',
 }

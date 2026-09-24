@@ -4,6 +4,6 @@ import type { MarginNotesTranslations } from './types.js'
 export const kn: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'ಟಿಪ್ಪಣಿಗಳನ್ನು ತೋರಿಸಿ ಅಥವಾ ಮರೆಮಾಡಿ',
   'marginNotes.aria.notes': 'ಟಿಪ್ಪಣಿಗಳು',
-  'marginNotes.aria.panel': 'ಈ ವಿಭಾಗದ ಟಿಪ್ಪಣಿಗಳು',
-  'marginNotes.dismiss': 'ಮುಚ್ಚಿ',
+  'marginNotes.aria.panel': 'ಈ ವಿಭಾಗಕ್ಕೆ ಟಿಪ್ಪಣಿಗಳು',
+  'marginNotes.dismiss': 'ಟಿಪ್ಪಣಿಗಳನ್ನು ಮರೆಮಾಡಿ',
 }

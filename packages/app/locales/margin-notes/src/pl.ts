@@ -5,5 +5,5 @@ export const pl: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Pokaż lub ukryj notatki',
   'marginNotes.aria.notes': 'Notatki',
   'marginNotes.aria.panel': 'Notatki do tej sekcji',
-  'marginNotes.dismiss': 'Zamknij',
+  'marginNotes.dismiss': 'Ukryj notatki',
 }

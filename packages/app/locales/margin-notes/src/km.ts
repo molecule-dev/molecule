@@ -5,5 +5,5 @@ export const km: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'បង្ហាញ ឬលាក់កំណត់ចំណាំ',
   'marginNotes.aria.notes': 'កំណត់ចំណាំ',
   'marginNotes.aria.panel': 'កំណត់ចំណាំសម្រាប់ផ្នែកនេះ',
-  'marginNotes.dismiss': 'បិទ',
+  'marginNotes.dismiss': 'លាក់កំណត់ចំណាំ',
 }

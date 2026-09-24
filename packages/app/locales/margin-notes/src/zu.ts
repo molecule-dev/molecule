@@ -4,6 +4,6 @@ import type { MarginNotesTranslations } from './types.js'
 export const zu: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Bonisa noma fihla amanothi',
   'marginNotes.aria.notes': 'Amanothi',
-  'marginNotes.aria.panel': 'Amanothi ale ngxenye',
-  'marginNotes.dismiss': 'Vala',
+  'marginNotes.aria.panel': 'Amanothi alesi sigaba',
+  'marginNotes.dismiss': 'Fihla amanothi',
 }

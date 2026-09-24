@@ -4,6 +4,6 @@ import type { MarginNotesTranslations } from './types.js'
 export const hr: Partial<MarginNotesTranslations> = {
   'marginNotes.aria.toggles': 'Prikaži ili sakrij bilješke',
   'marginNotes.aria.notes': 'Bilješke',
-  'marginNotes.aria.panel': 'Bilješke za ovaj odjeljak',
-  'marginNotes.dismiss': 'Zatvori',
+  'marginNotes.aria.panel': 'Napomene za ovaj odjeljak',
+  'marginNotes.dismiss': 'Sakrij bilješke',
 }
