@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.3.0
+
+### Minor Changes
+
+- 3cdba83: `edit_file` results now include the edited regions as they read after the edit, with line numbers and the file's total line count; `write_file` results include the line count and, for a small file, its numbered lines.
+
 ## 1.2.1
 
 ### Patch Changes
