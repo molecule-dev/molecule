@@ -31,7 +31,8 @@ import { fileURLToPath } from 'node:url'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'docs', 'package-example-audit.json')
-const WORK = join(ROOT, '.example-audit')
+// Per-process scratch dir: concurrent audits (parallel agents) must not delete each other's snippets.
+const WORK = join(ROOT, '.example-audit', String(process.pid))
 const REGISTRY = join(ROOT, '..', 'mlcl', 'registry.json')
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.turbo', 'coverage'])
 const BATCH = 120
@@ -180,13 +181,10 @@ function compileBatch(rows, paths) {
     writeFileSync(file, `${pragma}${row.code}\nexport {}\n`)
     files.set(file, row)
   }
+  // vite's `./client` export is types-only, so probe the file rather than require.resolve it.
+  // Without it, examples reading `import.meta.env.VITE_*` cannot type-check.
   const types = ['node']
-  try {
-    require.resolve('vite/client')
-    types.push('vite/client')
-  } catch (_error) {
-    // vite is optional here; without it only examples using import.meta.env fail.
-  }
+  if (existsSync(join(ROOT, 'node_modules', 'vite', 'client.d.ts'))) types.push('vite/client')
   const program = ts.createProgram([...files.keys()], {
     target: ts.ScriptTarget.ES2022,
     module: ts.ModuleKind.NodeNext,
