@@ -7,27 +7,52 @@
  *
  * @example
  * ```tsx
- * import { CardGrid, BentoGrid } from '@molecule/app-card-grid-react'
+ * import { BentoGrid, CardGrid } from '@molecule/app-card-grid-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
  *
- * <CardGrid columns={3} gap="md">
- *   <ProductCard product={products[0]} />
- *   <ProductCard product={products[1]} />
- *   <ProductCard product={products[2]} />
- * </CardGrid>
+ * setClassMap(classMap) // once, at startup
  *
- * <BentoGrid
- *   items={[
- *     { id: 'hero', content: <HeroCard />, colSpan: 8, rowSpan: 2 },
- *     { id: 'stats', content: <StatsCard />, colSpan: 4 },
- *   ]}
- * />
+ * const products = [
+ *   { id: 'mug', name: 'Enamel Mug', price: '$18' },
+ *   { id: 'tote', name: 'Canvas Tote', price: '$24' },
+ *   { id: 'cap', name: 'Wool Cap', price: '$32' },
+ * ]
+ *
+ * export function ShopHome() {
+ *   return (
+ *     <main>
+ *       <BentoGrid
+ *         items={[
+ *           { id: 'hero', content: <h2>Spring collection</h2>, colSpan: 8, rowSpan: 2 },
+ *           { id: 'sale', content: <p>20% off accessories</p>, colSpan: 4 },
+ *           { id: 'news', content: <p>New arrivals weekly</p>, colSpan: 4 },
+ *         ]}
+ *       />
+ *       <CardGrid columns={3} gap="md">
+ *         {products.map((p) => (
+ *           <article key={p.id}>
+ *             <h3>{p.name}</h3>
+ *             <p>{p.price}</p>
+ *           </article>
+ *         ))}
+ *       </CardGrid>
+ *     </main>
+ *   )
+ * }
  * ```
  *
  * @remarks
- * `<CardGrid>` collapses to one column on narrow viewports and grows to
- * `columns` (1–6) at the md+ breakpoint via the ClassMap grid. In
- * `<BentoGrid>`, span mode uses a `columns`-wide grid (default 12) with
- * per-item `colSpan`/`rowSpan`; passing `areas` switches to named
+ * Both are layout-only: they render your children/`content` as given — no
+ * card chrome, no data fetching, no empty state. Both call `getClassMap()`,
+ * which throws until `setClassMap(...)` from `@molecule/app-ui` ran.
+ *
+ * `<CardGrid>` passes `columns` (1–6, default 3) to the ClassMap's
+ * `grid({ cols })`, whose responsive ramp decides the breakpoints — with
+ * `@molecule/app-ui-tailwind`, `columns={3}` is 1 column on phones, 2 at
+ * `sm`, 3 at `lg`. `<BentoGrid>` is NOT responsive: span mode is an inline
+ * `columns`-wide grid (default 12) at every width, with per-item `colSpan`
+ * (default 4) / `rowSpan` (default 1); passing `areas` switches to named
  * `grid-template-areas` — then every item must set a matching `area`
  * token or it falls out of the template.
  *

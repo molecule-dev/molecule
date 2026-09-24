@@ -11,23 +11,36 @@
  * @example
  * ```tsx
  * import { AvatarStack, UserChip } from '@molecule/app-avatar-stack-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
  *
- * // Overlapping avatar row for assignees
- * <AvatarStack
- *   people={[
- *     { name: 'Alice Kim', src: '/avatars/alice.jpg' },
- *     { name: 'Bob Lee' },
- *     { name: 'Carol Díaz', src: '/avatars/carol.jpg' },
- *   ]}
- *   max={3}
- *   size="sm"
- * />
+ * setClassMap(classMap) // once, at startup
  *
- * // Single user row in a dropdown
- * <UserChip name="Alice Kim" src="/avatars/alice.jpg" subtitle="Admin" />
+ * const assignees = [
+ *   { name: 'Alice Kim', src: '/avatars/alice.jpg' },
+ *   { name: 'Bob Lee' },
+ *   { name: 'Carol Díaz', src: '/avatars/carol.jpg' },
+ *   { name: 'Dan Wu' },
+ *   { name: 'Eve Ortiz' },
+ * ]
+ *
+ * export function TaskAssignees() {
+ *   return (
+ *     <div>
+ *       <AvatarStack people={assignees} max={3} size="sm" />
+ *       <UserChip name="Alice Kim" src="/avatars/alice.jpg" subtitle="Admin" />
+ *     </div>
+ *   )
+ * }
  * ```
  *
  * @remarks
+ * Both components call `getClassMap()`, which throws until the app called
+ * `setClassMap(...)` from `@molecule/app-ui`; `@molecule/app-ui-react` is a
+ * peer dependency. `max` defaults to 4 and `size` to `'sm'`; people beyond
+ * `max` are NOT rendered, only counted. Neither component is interactive —
+ * wrap `UserChip` in your own button/menu item for click handling.
+ *
  * The overflow chip announces "+N more" — this is the only user-visible
  * text (currently English-only). Avatar fallbacks (initials, color hash)
  * come from `<Avatar>` in `@molecule/app-ui-react`. The overlap is an

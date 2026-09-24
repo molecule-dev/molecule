@@ -15,20 +15,45 @@
  *
  * @example
  * ```tsx
- * import { BarcodeScanner } from '@molecule/app-feature-barcode-scanner-react'
+ * import { useState } from 'react'
  *
- * function ScanPanel() {
+ * import { BarcodeScanner } from '@molecule/app-feature-barcode-scanner-react'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import * as barcodeScannerLocales from '@molecule/app-locales-feature-barcode-scanner'
+ * import { I18nProvider } from '@molecule/app-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ *
+ * // Startup, once.
+ * setClassMap(classMap)
+ * registerLocaleModule(barcodeScannerLocales)
+ *
+ * export function ScanPanel() {
+ *   const [code, setCode] = useState<string | null>(null)
+ *   const [error, setError] = useState<string | null>(null)
  *   return (
- *     <BarcodeScanner
- *       formats={['ean_13', 'upc_a']}
- *       onScan={({ format, value }) => addLineItem(value)}
- *       onError={(err) => showToast(err.message)}
- *     />
+ *     <I18nProvider provider={getI18nProvider()}>
+ *       <BarcodeScanner
+ *         formats={['ean_13', 'upc_a']}
+ *         onScan={({ value }) => setCode(value)}
+ *         onError={(err) => setError(err.message)}
+ *       />
+ *       {code && <output>{code}</output>}
+ *       {error && <p role="alert">{error}</p>}
+ *     </I18nProvider>
  *   )
  * }
  * ```
  *
  * @remarks
+ * It calls `useTranslation()` from `@molecule/app-react` (throws without an
+ * `I18nProvider` / `MoleculeProvider i18n` above it) and `getClassMap()`
+ * (throws until `setClassMap(...)` ran). The camera starts on MOUNT — render
+ * it only when the user asked to scan, and unmount it to release the camera.
+ * By default (`continuous={false}`) it stops the camera after the FIRST
+ * successful read; remount it (e.g. change its `key`) to scan again, or pass
+ * `continuous`. `scanIntervalMs` / `dedupeMs` are milliseconds.
+ *
  * Camera access requires a SECURE CONTEXT — HTTPS or `localhost` — and a
  * user permission grant. On plain http (or when the user denies), the
  * component stays on its localized error overlay and fires `onError`

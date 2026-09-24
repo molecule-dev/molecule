@@ -12,17 +12,24 @@
  * @example
  * ```tsx
  * import { useEffect, useRef } from 'react'
- * import { createLineChart } from '@molecule/app-charts'
+ *
+ * import { createLineChart, getColor, setProvider } from '@molecule/app-charts'
+ * import { provider } from '@molecule/app-charts-chartjs'
+ *
+ * // Startup, once — BEFORE any create*Chart call. Without it you get a placeholder, not a chart.
+ * setProvider(provider)
+ *
+ * const revenue = { labels: ['Jan', 'Feb', 'Mar', 'Apr'], values: [4200, 5800, 5100, 7300] }
  *
  * export function RevenueChart() {
  *   const canvasRef = useRef<HTMLCanvasElement>(null)
  *   useEffect(() => {
  *     if (!canvasRef.current) return
  *     const chart = createLineChart(canvasRef.current, {
- *       labels: ['Jan', 'Feb', 'Mar', 'Apr'],
- *       datasets: [{ label: 'Revenue', data: [4200, 5800, 5100, 7300] }],
+ *       labels: revenue.labels,
+ *       datasets: [{ label: 'Revenue', data: revenue.values, borderColor: getColor(0) }],
  *     })
- *     return () => chart.destroy()
+ *     return () => chart.destroy() // REQUIRED: re-creating on the same canvas throws otherwise
  *   }, [])
  *   return <canvas ref={canvasRef} width={600} height={300} />
  * }
@@ -42,6 +49,13 @@
  * `ChartProvider` interface around it — but the Chart.js bond covers the common
  * cases.) Do not import a chart library directly in screens/components — keep it
  * behind the provider so it stays swappable.
+ *
+ * It is imperative, not a React component: there is no `<LineChart>` /
+ * `<BarChart>` in this package. Create the chart in an effect on a mounted
+ * `<canvas>` (or a container element) and `destroy()` it in the cleanup;
+ * to change data call `chart.update({ data })` / `chart.addData(label,
+ * values)` instead of re-creating it. `setProvider(...)` is a singleton
+ * `bond('charts', provider)` — call it once.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

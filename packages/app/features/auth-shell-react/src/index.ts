@@ -24,31 +24,47 @@
  *
  * @example
  * ```tsx
- * import { AuthShell, useAuthFormStateContext } from '@molecule/app-auth-shell-react'
- * import { createSessionStorageProvider } from '@molecule/app-storage-localstorage'
- * import { AuthBrandHeader } from './AuthBrandHeader.js'
- * import { Orbs } from './Orbs.js'
+ * import { useState } from 'react'
+ * import { BrowserRouter, Link } from 'react-router'
  *
- * const sessionStore = createSessionStorageProvider({ prefix: 'auth_' })
+ * import { AuthShell, useAuthFormStateContext } from '@molecule/app-auth-shell-react'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import * as authShellLocales from '@molecule/app-locales-auth-shell'
+ * import { MoleculeProvider } from '@molecule/app-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ *
+ * // Startup, once.
+ * setClassMap(classMap)
+ * registerLocaleModule(authShellLocales) // "Back to home" in 79 languages
  *
  * function LoginForm() {
+ *   // Shared with every other auth view inside an <AuthShell>; clear() after success.
  *   const { fields, setField, clear } = useAuthFormStateContext()
- *   // bind <input value={fields.email} onChange={(e) => setField('email', e.target.value)} />
- *   // call clear() after a successful sign-in
+ *   const [password, setPassword] = useState('')
+ *   return (
+ *     <form onSubmit={(e) => { e.preventDefault(); clear() }}>
+ *       <input type="email" value={fields.email ?? ''} onChange={(e) => setField('email', e.target.value)} />
+ *       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+ *       <button type="submit">Sign in</button>
+ *     </form>
+ *   )
  * }
  *
- * export function Login() {
+ * export function App() {
  *   return (
- *     <AuthShell
- *       heading="Sign in"
- *       subheading="Welcome back."
- *       brand={<AuthBrandHeader />}
- *       decoration={<Orbs />}
- *       formStateStorage={sessionStore}
- *       footer={<p>No account? <Link to="/signup">Sign up</Link></p>}
- *     >
- *       <LoginForm />
- *     </AuthShell>
+ *     <MoleculeProvider i18n={getI18nProvider()}>
+ *       <BrowserRouter>
+ *         <AuthShell
+ *           heading="Sign in"
+ *           subheading="Welcome back."
+ *           brand={<strong>Acme</strong>}
+ *           footer={<Link to="/signup">Create an account</Link>}
+ *         >
+ *           <LoginForm />
+ *         </AuthShell>
+ *       </BrowserRouter>
+ *     </MoleculeProvider>
  *   )
  * }
  * ```
@@ -56,7 +72,12 @@
  * @remarks
  * `AuthShell` renders a react-router `<Link>` ("Back to home") by default,
  * so it MUST be rendered inside a `<Router>`; pass `showBackLink={false}`
- * in router-less setups. The back link's arrow uses the Material Symbols
+ * in router-less setups. That link reads `useTranslation()` from
+ * `@molecule/app-react`, which throws unless an i18n provider is mounted
+ * above it (`MoleculeProvider i18n={...}`). `useAuthFormStateContext()`
+ * throws outside `<AuthShell>` / `<AuthFormStateProvider>`. `heading`,
+ * `subheading` and `children` are required; `heading`/`subheading` are
+ * plain strings rendered as-is (translate them before passing). The back link's arrow uses the Material Symbols
  * icon font — load it, or the glyph renders as text. The default glass
  * card treatment (`rounded-3xl`, translucent surface, backdrop blur) and
  * the panel's `hidden lg:flex` collapse are Tailwind classes resolved by

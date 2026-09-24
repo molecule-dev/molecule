@@ -15,15 +15,42 @@
  *
  * @example
  * ```tsx
- * import { OAuthButtons } from '@molecule/app-auth-ui-react'
- * import { oauthConfig } from './config.js'
+ * import { BrowserRouter, Route, Routes, useNavigate } from 'react-router'
  *
- * // On the Login/Signup page (the OAuth redirect must land back here):
- * <OAuthButtons
- *   oauthConfig={oauthConfig}
- *   showLabels
- *   onSuccess={() => navigate('/dashboard')}
- * />
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ * import { OAuthButtons } from '@molecule/app-auth-ui-react'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import * as commonLocales from '@molecule/app-locales-common'
+ * import * as oauthButtonLocales from '@molecule/app-locales-oauth-buttons'
+ * import { MoleculeProvider } from '@molecule/app-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
+ *
+ * // Startup, once.
+ * setClassMap(classMap)
+ * registerLocaleModule(commonLocales) // divider: "Or continue with"
+ * registerLocaleModule(oauthButtonLocales) // provider names + aria labels
+ * const authClient = createJWTAuthClient({ baseURL: import.meta.env.VITE_API_URL })
+ * const oauthConfig = { baseURL: import.meta.env.VITE_API_URL, oauthProviders: ['github', 'google'] }
+ *
+ * function LoginPage() {
+ *   const navigate = useNavigate()
+ *   // The provider redirects back to THIS page with ?code&state; the component exchanges it.
+ *   return <OAuthButtons oauthConfig={oauthConfig} showLabels onSuccess={() => navigate('/dashboard')} />
+ * }
+ *
+ * export function App() {
+ *   return (
+ *     <MoleculeProvider auth={authClient} i18n={getI18nProvider()}>
+ *       <BrowserRouter>
+ *         <Routes>
+ *           <Route path="/login" element={<LoginPage />} />
+ *           <Route path="/dashboard" element={<h1>Dashboard</h1>} />
+ *         </Routes>
+ *       </BrowserRouter>
+ *     </MoleculeProvider>
+ *   )
+ * }
  * ```
  *
  * @remarks
@@ -32,8 +59,19 @@
  * to, or the code exchange never runs. A failed exchange renders an
  * inline `role="alert"` error (`data-mol-id="oauth-error"`) and also
  * calls `onError`. Divider copy defaults to "or continue with"
- * (override via `dividerKey` / `dividerDefault`); translations come from
- * the companion `@molecule/app-locales-oauth-buttons` locale bond.
+ * (override via `dividerKey` / `dividerDefault`). Translations: the
+ * divider's `oauth.orContinueWith` lives in `@molecule/app-locales-common`,
+ * provider names/aria labels in `@molecule/app-locales-oauth-buttons` —
+ * register both.
+ *
+ * It needs a `MoleculeProvider` with BOTH `auth` (the code exchange calls
+ * `useAuthClient()`) and `i18n` (the button row calls `useTranslation()`);
+ * either missing throws. `oauthConfig.oauthProviders` is the ONLY source of
+ * providers — it does not ask the API which ones are enabled. Clicking a
+ * button is a full-page redirect to `${baseURL}${oauthEndpoint}/<provider>`
+ * (default endpoint `/oauth`); for an in-place popup flow use
+ * `@molecule/app-auth-modal-react` instead. The exchange POSTs to
+ * `${baseURL}/users/log-in/oauth` (override with `oauthConfig.loginEndpoint`).
  *
  * @module
  */

@@ -30,6 +30,21 @@
  * onto a `/pricing` route.
  *
  * @remarks
+ * **It does not define the API.** `<PricingPage>` GETs `/api/billing/tiers`
+ * (`{ data: PricingTierEntry[] }`) on mount and POSTs `{ priceId }` to
+ * `/api/billing/checkout` on Upgrade; `<BillingStatusBadge>` GETs
+ * `/api/billing/status`. Those paths are hard-coded — the server routes come
+ * from `@molecule/api-entitlements`. A tier whose price for the selected
+ * `period` has `stripePriceId: null` renders a disabled "Current plan"
+ * button. After checkout it calls `window.location.assign(checkoutUrl)`
+ * (new subscriber) or `window.location.reload()` (plan change).
+ *
+ * **Required wiring** (each missing piece throws on render): a
+ * `MoleculeProvider` (from `@molecule/app-react`) with `http` (the hooks
+ * use `useHttpClient()`), `auth` (`useAuth()`) and `i18n`
+ * (`useTranslation()`); `setClassMap(...)`; and `setIconSet(...)` from
+ * `@molecule/app-icons` for the check / dash icons.
+ *
  * **Name collision:** `PricingPage` is also exported by
  * `@molecule/app-pricing-page-react` (a tier-card grid with a monthly/yearly
  * toggle driven by `usePricingTiers()`). THIS package's `<PricingPage>` is the
@@ -41,20 +56,45 @@
  *
  * @example
  * ```tsx
- * import { PricingPage } from '@molecule/app-billing-react'
- * import type { PersonalFinanceLimits } from '../tiers'
+ * import { createJWTAuthClient } from '@molecule/app-auth'
+ * import { LimitsItem, LimitsList, PricingPage } from '@molecule/app-billing-react'
+ * import { createFetchClient } from '@molecule/app-http'
+ * import { getProvider as getI18nProvider, registerLocaleModule } from '@molecule/app-i18n'
+ * import { setIconSet } from '@molecule/app-icons'
+ * import { iconSet } from '@molecule/app-icons-molecule'
+ * import * as billingLocales from '@molecule/app-locales-billing'
+ * import { MoleculeProvider } from '@molecule/app-react'
+ * import { setClassMap } from '@molecule/app-ui'
+ * import { classMap } from '@molecule/app-ui-tailwind'
  *
- * const Pricing = () => (
- *   <PricingPage<PersonalFinanceLimits>
- *     period="month"
- *     renderLimits={(l) => (
- *       <ul>
- *         <li>{l.maxAccounts} accounts</li>
- *         <li>{l.maxTransactionsPerMonth} transactions / month</li>
- *       </ul>
- *     )}
- *   />
- * )
+ * // Startup, once.
+ * setClassMap(classMap)
+ * setIconSet(iconSet)
+ * registerLocaleModule(billingLocales)
+ * const http = createFetchClient() // the hooks call `/api/billing/*` on this client
+ * const authClient = createJWTAuthClient({ baseURL: '/api' })
+ *
+ * // Must match the `limits` your API's tier registry returns.
+ * interface TierLimits {
+ *   maxProjects: number
+ *   canExport: boolean
+ * }
+ *
+ * export function Pricing() {
+ *   return (
+ *     <MoleculeProvider http={http} auth={authClient} i18n={getI18nProvider()}>
+ *       <PricingPage<TierLimits>
+ *         period="month"
+ *         renderLimits={(limits) => (
+ *           <LimitsList>
+ *             <LimitsItem>{limits.maxProjects} projects</LimitsItem>
+ *             <LimitsItem included={limits.canExport}>Data export</LimitsItem>
+ *           </LimitsList>
+ *         )}
+ *       />
+ *     </MoleculeProvider>
+ *   )
+ * }
  * ```
  *
  * @e2e
