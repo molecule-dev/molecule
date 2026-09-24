@@ -11,31 +11,44 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
- * import { provider } from '@molecule/api-code-sandbox-flyio-sprites'
+ * import { requireProvider, setProvider } from '@molecule/api-code-sandbox'
+ * import { createProvider } from '@molecule/api-code-sandbox-flyio-sprites'
  *
- * bond('codeSandbox', provider)
- * // Requires SPRITE_TOKEN in the environment (see `sprite org auth`).
- * ```
+ * // Startup: bond once. SPRITE_TOKEN comes from `sprite org auth`.
+ * setProvider(
+ *   createProvider({
+ *     token: process.env.SPRITE_TOKEN,
+ *     namePrefix: 'mol-', // sprite name = prefix + sanitized projectId
+ *     // Unset = NO egress policy (observed: unrestricted). Listed domains are allowed.
+ *     defaultNetworkRules: [
+ *       { domain: 'registry.npmjs.org', action: 'allow' },
+ *       { domain: 'github.com', action: 'allow' },
+ *     ],
+ *   }),
+ * )
  *
- * @example
- * ```typescript
- * import { createProvider, ensureService } from '@molecule/api-code-sandbox-flyio-sprites'
- *
- * const provider = createProvider({
- *   namePrefix: 'mol-',
- *   urlAuth: 'public',
- *   defaultNetworkRules: [
- *     { domain: 'registry.npmjs.org', action: 'allow' },
- *     { domain: 'github.com', action: 'allow' },
- *   ],
+ * const sandbox = await requireProvider().create({
+ *   projectId: 'proj_123',
+ *   env: { NODE_ENV: 'development' }, // also written to /etc/mol/env inside the sprite
  * })
- * const sandbox = await provider.create({ projectId, env: { NODE_ENV: 'development' } })
+ * await sandbox.writeFile('/workspace/hello.js', "console.log('hello from a sprite')")
+ * // exec RETURNS non-zero exits (it does not throw) — check exitCode; timeout is ms.
+ * const result = await sandbox.exec('node /workspace/hello.js', { timeout: 30_000 })
+ * if (result.exitCode !== 0) throw new Error(`sandbox exec failed: ${result.stderr}`)
+ * console.log(result.stdout) // 'hello from a sprite\n'
+ * console.log(sandbox.getPreviewUrl()) // the sprite's own https://….sprites.app URL
+ *
+ * // Sprites sleep/wake by themselves; destroy only when the project is deleted.
+ * await requireProvider().destroy(sandbox.id)
  * ```
  *
  * @remarks
  * Traps a consumer must know, each observed against the real platform:
  *
+ * - **Wire it through the core** — `setProvider(createProvider({...}))` from
+ *   `@molecule/api-code-sandbox` (bond key `'code-sandbox'`, NOT `'codeSandbox'`). A missing
+ *   `SPRITE_TOKEN` throws when the provider is CREATED (the exported `provider` defers that to
+ *   first use).
  * - **`templateId` THROWS.** Sprite checkpoints are per-sprite overlay
  *   snapshots and cannot seed a different sprite, so there is no cross-sprite
  *   template mechanism. Fast cold starts come from a pre-warmed sprite pool

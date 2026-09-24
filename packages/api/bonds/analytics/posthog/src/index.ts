@@ -5,17 +5,28 @@
  *
  * @example
  * ```typescript
- * import { setProvider, track } from '@molecule/api-analytics'
- * import { provider, shutdown } from '@molecule/api-analytics-posthog'
+ * import { flush, identify, setProvider, track } from '@molecule/api-analytics'
+ * import { createProvider } from '@molecule/api-analytics-posthog'
  *
- * setProvider(provider) // reads POSTHOG_API_KEY / POSTHOG_HOST lazily
- * await track({ name: 'purchase.completed', userId: 'u_123' })
+ * // Startup: bond once. EU projects MUST set POSTHOG_HOST=https://eu.i.posthog.com.
+ * setProvider(
+ *   createProvider({
+ *     apiKey: process.env.POSTHOG_API_KEY, // phc_… project API key
+ *     host: process.env.POSTHOG_HOST, // unset → https://us.i.posthog.com
+ *   }),
+ * )
  *
- * // PostHog BATCHES events — flush before the process exits:
- * await shutdown()
+ * await identify({ userId: 'u_123', email: 'ada@example.com', name: 'Ada Lovelace' })
+ * // Server-side: always pass userId (or anonymousId) or it lands on one shared 'anonymous' person.
+ * await track({ name: 'purchase.completed', userId: 'u_123', properties: { plan: 'pro' } })
+ *
+ * // Events are QUEUED — flush before a short-lived process (CLI, cron, serverless) exits.
+ * await flush()
  * ```
  *
  * @remarks
+ * - **Wire it through the core** (`setProvider(...)` from `@molecule/api-analytics`), not
+ *   `bond('analytics-posthog', ...)`.
  * - Events are QUEUED, not sent per call: `track()` resolves immediately and
  *   the SDK delivers in batches (`flushAt`, default 20 events / `flushInterval`,
  *   default 10s). A short-lived process (CLI, cron job, serverless handler,

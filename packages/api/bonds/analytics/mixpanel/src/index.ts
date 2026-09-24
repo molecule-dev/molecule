@@ -3,14 +3,31 @@
  *
  * @example
  * ```typescript
- * import { setProvider, track } from '@molecule/api-analytics'
- * import { provider } from '@molecule/api-analytics-mixpanel'
+ * import { identify, setProvider, track } from '@molecule/api-analytics'
+ * import { createProvider } from '@molecule/api-analytics-mixpanel'
  *
- * setProvider(provider) // reads MIXPANEL_TOKEN lazily — safe when unset
- * await track({ name: 'purchase.completed', userId: 'u_123' })
+ * // Startup: bond once. With no token this logs ONE warning and every call no-ops.
+ * setProvider(
+ *   createProvider({
+ *     token: process.env.MIXPANEL_TOKEN, // Mixpanel → Project Settings → Project Token
+ *     groupType: 'workspace', // group() key; defaults to 'company'
+ *   }),
+ * )
+ *
+ * await identify({ userId: 'u_123', email: 'ada@example.com', name: 'Ada Lovelace' })
+ *
+ * // Server-side: always pass userId (or anonymousId) or the event is unattributed.
+ * await track({
+ *   name: 'purchase.completed',
+ *   userId: 'u_123',
+ *   properties: { plan: 'pro', amountCents: 4900 },
+ * }).catch((error) => console.error('mixpanel track failed', error))
  * ```
  *
  * @remarks
+ * - **Wire it through the core** (`setProvider(...)` from `@molecule/api-analytics`), not
+ *   `bond('analytics-mixpanel', ...)`. `setProvider(provider)` (the lazy default instance) also
+ *   works and reads `MIXPANEL_TOKEN` on first use.
  * - Configuration is lazy and failure-safe: importing this package or bonding
  *   `provider` never throws. When MIXPANEL_TOKEN is unset, the bond logs ONE
  *   actionable warning naming the key and analytics calls no-op (resolve) —

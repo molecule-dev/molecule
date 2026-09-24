@@ -2,6 +2,12 @@
  * Redis cache provider for molecule.dev.
  *
  * @remarks
+ * - **Wire it through the core** (`setProvider(createProvider({...}))` from `@molecule/api-cache`),
+ *   not `bond('cache-redis', ...)`. The core delete function is `del()` (not `delete()`).
+ * - **`ttl` is SECONDS** (`SETEX`); `commandTimeout` is milliseconds. No `ttl` = no expiry.
+ * - With no `url`, no `REDIS_URL` and no `host`, it connects to `localhost:6379` — in a deployed
+ *   app with no Redis that means every write hangs/retries. Use `@molecule/api-cache-memory` when
+ *   no Redis is provisioned.
  * - **Explicit config beats ambient env.** `createProvider({ host, port, ... })` connects
  *   to exactly that server even when `REDIS_URL` is set in the environment — env vars
  *   only fill in options the call site left unspecified.
@@ -26,6 +32,32 @@
  *   `invalidateTag()` never deletes a key that no longer carries that tag. The tag SETs
  *   themselves are still stored WITHOUT a TTL and are only cleared by `invalidateTag()` or
  *   `clear()` (a tagged key that merely expires leaves its tag membership until then).
+ *
+ * @example
+ * ```typescript
+ * import { del, get, getOrSet, set, setProvider } from '@molecule/api-cache'
+ * import { createProvider } from '@molecule/api-cache-redis'
+ *
+ * // Startup: use this bond ONLY when a managed Redis is provisioned (REDIS_URL in the env).
+ * const cache = createProvider({
+ *   url: process.env.REDIS_URL, // e.g. rediss://redis.example.com:6380
+ *   keyPrefix: 'myapp:', // default 'molecule:'
+ *   maxRetriesPerRequest: 1, // fail fast instead of ioredis' ~10s+ offline retries
+ *   commandTimeout: 2000, // ms
+ * })
+ * setProvider(cache)
+ *
+ * await set('user:123:profile', { name: 'Ada' }, { ttl: 3600 }) // ttl is SECONDS
+ * const profile = await get<{ name: string }>('user:123:profile') // { name: 'Ada' }
+ *
+ * // Cache-aside: the loader runs on a miss only.
+ * const stats = await getOrSet('stats:daily', async () => ({ visits: 42 }), { ttl: 600 })
+ *
+ * await del('user:123:profile')
+ *
+ * // Graceful shutdown: release the Redis connection.
+ * process.on('SIGTERM', () => void cache.close?.())
+ * ```
  *
  * @see https://www.npmjs.com/package/ioredis
  *

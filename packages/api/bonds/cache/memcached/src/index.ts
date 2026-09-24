@@ -2,6 +2,10 @@
  * Memcached cache provider for molecule.dev.
  *
  * @remarks
+ * - **Wire it through the core** (`setProvider(createProvider({...}))` from `@molecule/api-cache`),
+ *   not `bond('cache-memcached', ...)`. The core delete function is `del()` (not `delete()`).
+ * - With no `servers`, `host`/`port` or `MEMCACHED_*` env it connects to `localhost:11211`. Use
+ *   `@molecule/api-cache-memory` when no memcached is provisioned. No `ttl` = no expiry.
  * - **Explicit config beats ambient env.** `createProvider({ host, port })` connects to
  *   exactly that server even when `MEMCACHED_SERVERS` is set in the environment — env
  *   vars only fill in options the call site left unspecified.
@@ -30,6 +34,30 @@
  *   removals from the SAME tag can still race and leave a stale entry (harmless:
  *   `invalidateTag()` deleting an already-gone key is a no-op). If exact tag membership
  *   matters, use the Redis bond instead (native `SADD`/`SREM`).
+ *
+ * @example
+ * ```typescript
+ * import { del, get, getOrSet, set, setProvider } from '@molecule/api-cache'
+ * import { createProvider } from '@molecule/api-cache-memcached'
+ *
+ * // Startup: use this bond ONLY when a memcached server is provisioned (MEMCACHED_SERVERS).
+ * const cache = createProvider({
+ *   servers: process.env.MEMCACHED_SERVERS?.split(','), // e.g. 'cache-1:11211,cache-2:11211'
+ *   keyPrefix: 'myapp:', // default 'molecule:'
+ * })
+ * setProvider(cache)
+ *
+ * await set('user:123:profile', { name: 'Ada' }, { ttl: 3600 }) // ttl is SECONDS
+ * const profile = await get<{ name: string }>('user:123:profile') // { name: 'Ada' }
+ *
+ * // Cache-aside: the loader runs on a miss only.
+ * const stats = await getOrSet('stats:daily', async () => ({ visits: 42 }), { ttl: 600 })
+ *
+ * await del('user:123:profile')
+ *
+ * // Graceful shutdown: close the memcached connections.
+ * process.on('SIGTERM', () => void cache.close?.())
+ * ```
  *
  * @see https://www.npmjs.com/package/memcached
  *

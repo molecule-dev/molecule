@@ -1,7 +1,45 @@
 /**
  * Docker code-sandbox provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-code-sandbox'
+ * import { createProvider } from '@molecule/api-code-sandbox-docker'
+ *
+ * // Startup: bond once. The daemon is DOCKER_HOST, else DOCKER_SOCKET_PATH, else
+ * // /var/run/docker.sock — and `baseImage` must ALREADY be pulled (this bond never pulls).
+ * setProvider(
+ *   createProvider({
+ *     baseImage: 'node:22-slim',
+ *     defaultMemoryMB: 1024,
+ *     previewUrlTemplate: 'https://{port}-preview.example.com', // your reverse proxy
+ *   }),
+ * )
+ *
+ * const sandbox = await requireProvider().create({ projectId: 'proj_123' })
+ * try {
+ *   await sandbox.start() // create() returns a STOPPED container
+ *   await sandbox.writeFile('/workspace/hello.js', "console.log('hello from docker')")
+ *   // exec RETURNS non-zero exits (it does not throw) — check exitCode; timeout is ms.
+ *   const result = await sandbox.exec('node /workspace/hello.js', { timeout: 30_000 })
+ *   if (result.exitCode !== 0) throw new Error(`sandbox exec failed: ${result.stderr}`)
+ *   console.log(result.stdout) // 'hello from docker\n'
+ *   console.log(sandbox.getPreviewUrl(5173)) // 'https://5173-preview.example.com'
+ * } finally {
+ *   await requireProvider().destroy(sandbox.id) // force-removes the container (and its volume)
+ * }
+ * ```
+ *
  * @remarks
+ * **Wire it through the core** — `setProvider(createProvider({...}))` from
+ * `@molecule/api-code-sandbox` (bond key `'code-sandbox'`), not `bond('code-sandbox-docker', ...)`.
+ * **`create()` does not start the container** — call `sandbox.start()` first (an `exec` on a
+ * stopped container retries once after starting it, but do not rely on that).
+ * **`getPreviewUrl(port)` is pure string substitution** into `previewUrlTemplate` (default
+ * `http://localhost:{port}`). The container's ports are published to RANDOM `127.0.0.1` host
+ * ports, so the default URL does not reach the sandbox — point the template at the reverse
+ * proxy that routes to it.
+ *
  * **Tenant network isolation (secure default).** Each sandbox is placed on a dedicated
  * user-defined Docker network created with inter-container communication DISABLED
  * (`com.docker.network.bridge.enable_icc=false`), so one tenant's sandbox cannot reach another

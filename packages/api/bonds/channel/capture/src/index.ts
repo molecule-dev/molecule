@@ -6,13 +6,35 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-channel'
- * import { provider } from '@molecule/api-channel-capture'
+ * import { setSink } from '@molecule/api-activity'
+ * import { provider as consoleSink } from '@molecule/api-activity-console'
+ * import { requireProviderByName, setProvider } from '@molecule/api-channel'
+ * import { createChannelCaptureProvider, provider as captureOnly } from '@molecule/api-channel-capture'
+ * import { createProvider as createSlack } from '@molecule/api-channel-slack'
  *
- * setProvider(provider)
+ * // Startup: bond a sink so captured messages are visible (without one, recording is a no-op).
+ * setSink(consoleSink)
+ *
+ * // Real token configured → post through Slack AND record the outcome (tee).
+ * // No token (dev/sandbox) → intercept: recorded, NOT posted.
+ * setProvider(
+ *   'slack',
+ *   process.env.SLACK_BOT_TOKEN
+ *     ? createChannelCaptureProvider(createSlack({ botToken: process.env.SLACK_BOT_TOKEN }))
+ *     : captureOnly,
+ * )
+ *
+ * const sent = await requireProviderByName('slack').sendMessage('C0123ABCD', {
+ *   kind: 'text',
+ *   text: 'New order #1042 — $49.00',
+ * })
+ * // intercept mode: { messageId: 'captured-<uuid>', deliveredAt: Date }
  * ```
  *
  * @remarks
+ * - **Not `bond('channel-capture', ...)`.** Register it with the channel core's
+ *   `setProvider(name, provider)` under the channel name the app sends through (`'slack'`),
+ *   so switching capture on/off never changes call sites.
  * - **Two modes, and the choice decides whether the message is POSTED.**
  *   INTERCEPT-ONLY (`provider`, or `createChannelCaptureProvider()` with no
  *   argument) records the message and returns a synthetic success — nothing

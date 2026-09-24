@@ -14,14 +14,38 @@
  *   every matching record into memory — fine for dev/single-instance volumes;
  *   use `@molecule/api-audit-database` for sustained production write rates.
  *
- * @module
+ * - **Wire it through the core** (`setProvider(...)` from `@molecule/api-audit`), not
+ *   `bond('audit-file', ...)`. Export with the core's `auditExport(query, 'csv' | 'json')` — a
+ *   `Buffer` of ALL matching records (`page`/`perPage` are ignored).
+ * - Files are named `<filePrefix>-YYYY-MM-DD.ndjson` (UTC date); `maxFileSize` is BYTES
+ *   (default 10 MB) — over it, a new timestamped file is started. Old files are never deleted.
+ *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-audit'
- * import { provider } from '@molecule/api-audit-file'
+ * import { mkdir } from 'node:fs/promises'
  *
- * setProvider(provider)
+ * import { auditExport, log, query, setProvider } from '@molecule/api-audit'
+ * import { createProvider } from '@molecule/api-audit-file'
+ *
+ * // Startup: the directory MUST exist before the first log() — the provider does not create it.
+ * const directory = process.env.AUDIT_LOG_DIR ?? './audit-logs'
+ * await mkdir(directory, { recursive: true })
+ * setProvider(createProvider({ directory, maxFileSize: 10 * 1024 * 1024 }))
+ *
+ * await log({
+ *   actor: 'user:123',
+ *   action: 'project.delete',
+ *   resource: 'project',
+ *   resourceId: 'proj-42',
+ *   details: { name: 'Old site' },
+ * })
+ *
+ * // Newest first, paginated: { data: AuditRecord[], total, page, perPage, totalPages }
+ * const recent = await query({ actor: 'user:123', page: 1, perPage: 20 })
+ * const csv = await auditExport({ resource: 'project' }, 'csv') // Buffer, header row first
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

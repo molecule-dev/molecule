@@ -16,20 +16,34 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-analytics'
+ * import { identify, setProvider, track } from '@molecule/api-analytics'
  * import { createHttpAnalyticsProvider } from '@molecule/api-analytics-http'
  *
+ * // Startup: bond once. With no `url` (and no MOLECULE_ANALYTICS_URL) every call is a no-op.
  * setProvider(
  *   createHttpAnalyticsProvider({
- *     url: 'https://api.molecule.dev/v1/telemetry/cli',
- *     // Optional request tagging — defaults to 'unknown'.
- *     source: 'mlcl',
+ *     url: process.env.MOLECULE_ANALYTICS_URL, // e.g. https://api.example.com/v1/telemetry
+ *     source: 'my-cli', // tags every payload; defaults to 'unknown'
+ *     onError: (error) => console.debug('telemetry POST failed', error),
  *   }),
  * )
- * // track() now POSTs; failures are swallowed.
+ *
+ * await identify({ userId: 'user-123', email: 'ada@example.com' })
+ * // POSTs { kind: 'track', source: 'my-cli', sentAt: '<ISO>', event: { name: 'project.created', ... } }
+ * await track({ name: 'project.created', userId: 'user-123', properties: { template: 'blog' } })
  * ```
  *
  * @remarks
+ * - **Wire it through the core** (`setProvider(...)` from `@molecule/api-analytics`), not
+ *   `bond('analytics-http', ...)`. There is no default `provider` export — call
+ *   `createHttpAnalyticsProvider()`.
+ * - **No endpoint = silent no-op.** The URL is read ONCE when the provider is created (the `url`
+ *   option, else `MOLECULE_ANALYTICS_URL`); setting the env var later has no effect.
+ * - **Failures never throw.** Network errors, timeouts and non-2xx responses only reach the
+ *   optional `onError` observer — `track()` resolves either way, so do not rely on it for
+ *   delivery guarantees. `timeoutMs` is milliseconds (default `5000`).
+ * - No batching, queueing or retry: one POST per call, so `flush()`/`reset()` are no-ops.
+ *
  * Wire format — one JSON object per call:
  *
  * ```json

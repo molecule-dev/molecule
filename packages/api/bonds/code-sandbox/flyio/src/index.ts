@@ -9,52 +9,44 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
+ * import { requireProvider, setProvider } from '@molecule/api-code-sandbox'
  * import { createProvider } from '@molecule/api-code-sandbox-flyio'
  *
- * // The API token is read from FLY_API_TOKEN (or FLY_ACCESS_TOKEN) unless you
- * // pass `apiToken` explicitly. Every option below has an env fallback too.
- * bond(
- *   'code-sandbox',
+ * // Startup: bond once. Every option also has an env fallback (FLY_API_TOKEN, FLY_ORG_SLUG, …).
+ * setProvider(
  *   createProvider({
- *     orgSlug: 'my-org',
+ *     apiToken: process.env.FLY_API_TOKEN, // org token that can create apps + Machines
+ *     orgSlug: process.env.FLY_ORG_SLUG, // default 'personal'
  *     region: 'iad',
- *     baseImage: 'registry.fly.io/molecule-sandbox:latest',
+ *     baseImage: 'registry.fly.io/my-sandbox-image:latest', // must contain node for this example
  *   }),
  * )
  *
- * // Elsewhere, through the core interface:
- * import { requireProvider } from '@molecule/api-code-sandbox'
- *
+ * // One Fly APP per project (its own 6PN network), one Machine inside it.
  * const sandbox = await requireProvider().create({
  *   projectId: 'a3f1c0de-0000-4000-8000-000000000001',
- *   volumeName: 'mol-a3f1c0de',
- *   resources: { cpu: 2, memoryMB: 2048, diskMB: 10240 },
+ *   resources: { cpu: 1, memoryMB: 1024, diskMB: 10240 },
  * })
+ * console.log(sandbox.id) // '<app>:<machineId>' — persist the WHOLE id; get(id) needs both
  *
- * await sandbox.exec('npm install', { timeout: 600_000 })
- * await sandbox.sleep() // Fly suspend — memory snapshot, storage-only billing
- * await sandbox.wake() // Fly start — resumes from the snapshot
+ * await sandbox.writeFile('/workspace/hello.js', "console.log('hello from fly')")
+ * // timeout is ms; above Fly's 60 s exec cap the command runs detached and is polled.
+ * const result = await sandbox.exec('node /workspace/hello.js', { timeout: 30_000 })
+ * if (result.exitCode !== 0) throw new Error(`sandbox exec failed: ${result.stderr}`)
+ * console.log(result.stdout, sandbox.getPreviewUrl()) // 'hello from fly\n' https://<app>.fly.dev
  *
- * // Warm start. Capture the prepared filesystem once…
- * const provider = requireProvider()
- * await provider.commitTemplate?.({
- *   sandboxId: sandbox.id,
- *   templateId: 'react-postgres-v3',
- *   // REQUIRED here: the archive of these paths IS the template.
- *   capturePaths: ['/workspace'],
- * })
- *
- * // …then every later boot of the same configuration restores it instead of
- * // re-running `mlcl create` + `npm install`. A missing template THROWS.
- * const warm = await provider.create({
- *   projectId: 'b7d2…',
- *   volumeName: 'mol-b7d2',
- *   templateId: 'react-postgres-v3',
- * })
+ * await sandbox.sleep() // Fly SUSPEND: memory snapshot, storage-only billing (never stop() it)
+ * await sandbox.wake() // resumes from the snapshot in a few hundred ms
+ * await requireProvider().destroy(sandbox.id) // deletes the Machine AND the per-project app
  * ```
  *
  * @remarks
+ * **Wire it through the core** — `setProvider(createProvider({...}))` from
+ * `@molecule/api-code-sandbox` (bond key `'code-sandbox'`). A missing token throws on the first
+ * API call, not at startup. Warm starts from a snapshot use `commitTemplate({ sandboxId,
+ * templateId, capturePaths })` then `create({ ..., templateId })` — `capturePaths` is REQUIRED
+ * and a missing template THROWS rather than falling back to the base image.
+ *
  * **Sources.** Every endpoint, payload field and documented behaviour used here
  * was checked against Fly's own material, not recalled:
  * the OpenAPI specification (https://docs.machines.dev/openapi.json,

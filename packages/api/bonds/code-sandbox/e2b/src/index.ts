@@ -18,27 +18,38 @@
  *
  * @example
  * ```typescript
- * import { bond } from '@molecule/api-bond'
- * import { provider } from '@molecule/api-code-sandbox-e2b'
- *
- * bond('codeSandbox', provider)
- * // Requires E2B_API_KEY (and E2B_TEMPLATE_ID for the golden superset template).
- * ```
- *
- * @example
- * ```typescript
+ * import { requireProvider, setProvider } from '@molecule/api-code-sandbox'
  * import { createProvider } from '@molecule/api-code-sandbox-e2b'
  *
- * const provider = createProvider({
- *   templateId: 'molecule-superset',
- *   defaultPreviewPort: 5173,
- *   // Deny-by-default egress: everything not listed here is blocked, raw IPs
- *   // included. An empty/omitted list applies NO policy at all.
- *   defaultAllowOut: ['registry.npmjs.org', '*.npmjs.org', 'github.com'],
- * })
+ * // Startup: bond once. E2B_API_KEY is required; E2B_TEMPLATE_ID defaults to E2B's 'base' image.
+ * setProvider(
+ *   createProvider({
+ *     apiKey: process.env.E2B_API_KEY,
+ *     templateId: process.env.E2B_TEMPLATE_ID,
+ *     defaultPreviewPort: 5173,
+ *   }),
+ * )
+ *
+ * const sandbox = await requireProvider().create({ projectId: 'proj_123' })
+ * try {
+ *   await sandbox.writeFile('/workspace/hello.js', "console.log('hello from e2b')")
+ *   // exec RETURNS non-zero exits (it does not throw) — check exitCode; timeout is ms.
+ *   const result = await sandbox.exec('node /workspace/hello.js', { timeout: 30_000 })
+ *   if (result.exitCode !== 0) throw new Error(`sandbox exec failed: ${result.stderr}`)
+ *   console.log(result.stdout) // 'hello from e2b\n'
+ *   console.log(sandbox.getPreviewUrl(5173)) // https://5173-<sandbox id>.e2b.app
+ * } finally {
+ *   await requireProvider().destroy(sandbox.id) // otherwise it PAUSES at its timeout (billed storage)
+ * }
  * ```
  *
  * @remarks
+ * **Wire it through the core: `setProvider(createProvider({...}))` from
+ * `@molecule/api-code-sandbox`** (the bond key is `'code-sandbox'` — NOT `'codeSandbox'`).
+ * A missing API key throws on the first sandbox call, not at startup. For egress control pass
+ * `defaultAllowOut: ['registry.npmjs.org', 'github.com']` — deny-by-default, raw IPs included;
+ * an empty/omitted list applies NO policy at all.
+ *
  * **`verifyEgress` OBSERVES, it never attests.** It boots a throwaway sandbox,
  * applies `{ allowOut: [npm], denyOut: [ALL_TRAFFIC] }`, and curls an
  * allow-listed host, a non-allow-listed host AND a raw IP from inside it;
