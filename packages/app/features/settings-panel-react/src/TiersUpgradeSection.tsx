@@ -2,7 +2,7 @@ import { type JSX, useEffect, useState } from 'react'
 
 import { useHttpClient, useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Alert, Button, Flex, Modal } from '@molecule/app-ui-react'
+import { Alert, Button, ConfirmButton, Flex, Modal } from '@molecule/app-ui-react'
 
 interface TierPrice {
   stripePriceId?: string
@@ -116,14 +116,6 @@ export function TiersUpgradeSection(): JSX.Element {
   }
 
   const handleCancelSubscription = async (): Promise<void> => {
-    if (
-      !window.confirm(
-        t('settings.billing.cancelConfirm', undefined, {
-          defaultValue: 'Cancel your subscription?',
-        }),
-      )
-    )
-      return
     setUpgradeError('')
     try {
       await http.post('/api/billing/cancel', {})
@@ -156,9 +148,16 @@ export function TiersUpgradeSection(): JSX.Element {
               {t('settings.upgrade', undefined, { defaultValue: 'Upgrade' })}
             </Button>
           ) : (
-            <Button variant="outline" size="sm" onClick={handleCancelSubscription}>
-              {t('settings.billing.cancel', undefined, { defaultValue: 'Cancel' })}
-            </Button>
+            <ConfirmButton
+              variant="outline"
+              size="sm"
+              label={t('settings.billing.cancel', undefined, { defaultValue: 'Cancel' })}
+              confirmLabel={t('settings.billing.cancelConfirm', undefined, {
+                defaultValue: 'Cancel your subscription?',
+              })}
+              onConfirm={handleCancelSubscription}
+              data-mol-id="billing-cancel-subscription"
+            />
           )}
         </Flex>
       </section>

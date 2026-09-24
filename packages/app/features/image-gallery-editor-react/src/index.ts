@@ -1,7 +1,8 @@
 /**
  * `@molecule/app-image-gallery-editor-react` — hero drop zone + side grid of
  * thumbnail slots. Click an empty slot or the drop zone to upload; click a
- * filled slot to remove (native `window.confirm`).
+ * filled slot to remove (confirmed via the shared `ConfirmDialog` from
+ * `@molecule/app-ui-react`).
  *
  * Stateless about persistence — the consumer owns the slot array and handles
  * uploads via `onPickFiles` (defaults to local object URLs for preview).

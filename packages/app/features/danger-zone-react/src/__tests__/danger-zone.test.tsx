@@ -56,6 +56,9 @@ vi.mock('@molecule/app-ui-react', () => ({
   }) => createElement('div', { 'data-card': '', 'data-mol-id': molId, className }, children),
   Modal: ({ open, children }: { open: boolean; children?: ReactNode }) =>
     open ? createElement('div', { 'data-modal': '' }, children) : null,
+  // Sentinel for the re-export identity test — the real component lives in
+  // the framework bundle now; this file only asserts the shim forwards it.
+  ConfirmDialog: () => createElement('div', { 'data-confirm-dialog': '' }),
 }))
 
 const { ConfirmDialog } = await import('../ConfirmDialog.js')
@@ -65,67 +68,10 @@ const html = (el: Parameters<typeof renderToStaticMarkup>[0]): string => renderT
 
 const noop = (): void => {}
 
-describe('ConfirmDialog', () => {
-  const base = {
-    onClose: noop,
-    onConfirm: noop,
-    title: 'Delete account',
-    description: 'This cannot be undone.',
-  }
-
-  it('renders nothing while open is false', () => {
-    const markup = html(createElement(ConfirmDialog, { ...base, open: false }))
-    expect(markup).toBe('')
-  })
-
-  it('renders the title and description once open', () => {
-    const markup = html(createElement(ConfirmDialog, { ...base, open: true }))
-    expect(markup).toContain('data-modal=""')
-    expect(markup).toContain('Delete account')
-    expect(markup).toContain('This cannot be undone.')
-  })
-
-  it('uses the default Cancel / Confirm labels', () => {
-    const markup = html(createElement(ConfirmDialog, { ...base, open: true }))
-    expect(markup).toContain('Cancel')
-    expect(markup).toContain('Confirm')
-  })
-
-  it('honours custom confirm / cancel labels', () => {
-    const markup = html(
-      createElement(ConfirmDialog, {
-        ...base,
-        open: true,
-        confirmLabel: 'Delete',
-        cancelLabel: 'Keep it',
-      }),
-    )
-    expect(markup).toContain('Delete')
-    expect(markup).toContain('Keep it')
-  })
-
-  it('shows the loading glyph and disables both buttons while loading', () => {
-    const markup = html(createElement(ConfirmDialog, { ...base, open: true, loading: true }))
-    expect(markup).toContain('…')
-    expect(markup.match(/<button[^>]*disabled/g) ?? []).toHaveLength(2)
-  })
-
-  it('colors the confirm button error when destructive and primary otherwise', () => {
-    const destructive = html(createElement(ConfirmDialog, { ...base, open: true }))
-    expect(destructive).toContain('data-color="error"')
-    const safe = html(createElement(ConfirmDialog, { ...base, open: true, destructive: false }))
-    expect(safe).toContain('data-color="primary"')
-  })
-
-  it('renders extra children between description and footer', () => {
-    const markup = html(
-      createElement(ConfirmDialog, {
-        ...base,
-        open: true,
-        children: createElement('input', { 'data-extra': '' }),
-      }),
-    )
-    expect(markup).toContain('data-extra=""')
+describe('ConfirmDialog re-export', () => {
+  it('re-exports the framework bundle component unchanged', async () => {
+    const framework = (await import('@molecule/app-ui-react')) as Record<string, unknown>
+    expect(ConfirmDialog).toBe(framework.ConfirmDialog)
   })
 })
 

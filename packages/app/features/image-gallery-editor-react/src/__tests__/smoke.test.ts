@@ -31,6 +31,8 @@ vi.mock('@molecule/app-ui', () => ({
 vi.mock('@molecule/app-ui-react', () => ({
   Icon: ({ name, className }: { name: string; className?: string }) =>
     createElement('i', { 'data-icon': name, className }),
+  ConfirmDialog: ({ open, title }: { open: boolean; title?: string }) =>
+    open ? createElement('div', { 'data-confirm-dialog': '' }, title) : null,
 }))
 
 const { ImageGalleryEditor } = await import('../ImageGalleryEditor.js')

@@ -24,7 +24,7 @@ import { type JSX, type ReactNode, useRef, useState } from 'react'
 
 import type { IconName } from '@molecule/app-icons'
 import { getClassMap } from '@molecule/app-ui'
-import { Icon } from '@molecule/app-ui-react'
+import { ConfirmDialog, Icon } from '@molecule/app-ui-react'
 
 /** Props for {@link ImageGalleryEditor}. */
 export interface ImageGalleryEditorProps {
@@ -74,17 +74,24 @@ export function ImageGalleryEditor({
   const cm = getClassMap()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingSlot, setUploadingSlot] = useState<number | null>(null)
+  const [removeIndex, setRemoveIndex] = useState<number | null>(null)
 
   const handleSlotClick = (index: number): void => {
     if (slots[index]) {
-      if (!window.confirm(confirmRemoveMessage)) return
-      const next = [...slots]
-      next[index] = null
-      onChange(next)
+      // Confirm through the shared ConfirmDialog — window.confirm is broken
+      // headless (it hangs e2e) and awkward on touch.
+      setRemoveIndex(index)
     } else {
       setUploadingSlot(index)
       fileInputRef.current?.click()
     }
+  }
+
+  const removeSlot = (index: number): void => {
+    const next = [...slots]
+    next[index] = null
+    onChange(next)
+    setRemoveIndex(null)
   }
 
   const handleUploadAreaClick = (): void => {
@@ -237,6 +244,15 @@ export function ImageGalleryEditor({
         accept="image/*"
         style={{ display: 'none' }}
         onChange={handleFileChange}
+      />
+      <ConfirmDialog
+        open={removeIndex !== null}
+        onClose={() => setRemoveIndex(null)}
+        title="Remove image?"
+        description={confirmRemoveMessage}
+        onConfirm={() => {
+          if (removeIndex !== null) removeSlot(removeIndex)
+        }}
       />
     </section>
   )

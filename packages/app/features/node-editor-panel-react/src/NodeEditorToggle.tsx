@@ -8,6 +8,7 @@
 import type { JSX, ReactNode } from 'react'
 
 import { getClassMap } from '@molecule/app-ui'
+import { Switch } from '@molecule/app-ui-react'
 
 /** Props for {@link NodeEditorToggle}. */
 export interface NodeEditorToggleProps {
@@ -53,24 +54,17 @@ export function NodeEditorToggle({
           ) : null}
         </div>
       </div>
-      <button
-        type="button"
-        data-mol-id="node-editor-toggle"
-        // The switch track/thumb come from the design system, which keys both
-        // off `data-state` — a hand-rolled track could not pick up a ClassMap
-        // swap, and its `bg-primary/20` track was invisible when checked.
-        className={cm.cn(cm.switchBase({ size: 'sm' }), cm.touchTargetCompact)}
-        data-state={checked ? 'checked' : 'unchecked'}
-        role="switch"
-        aria-checked={checked}
+      {/* Shared accessible switch (role="switch", aria-checked, 40x40 touch
+          hit-area, real change event). The ClassMap still keys the
+          track/thumb styling off data-state — the shared component applies
+          cm.switchBase/cm.switchThumb internally. */}
+      <Switch
+        size="sm"
+        checked={checked}
         aria-label={ariaLabel ?? (typeof title === 'string' ? title : undefined)}
-        onClick={() => onChange(!checked)}
-      >
-        <span
-          className={cm.switchThumb({ size: 'sm' })}
-          data-state={checked ? 'checked' : 'unchecked'}
-        />
-      </button>
+        data-mol-id="node-editor-toggle"
+        onChange={(e) => onChange((e.target as HTMLInputElement).checked)}
+      />
     </div>
   )
 }
