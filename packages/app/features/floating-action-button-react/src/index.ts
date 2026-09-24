@@ -7,23 +7,40 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { FloatingActionButton } from '@molecule/app-floating-action-button-react'
- * import { getClassMap } from '@molecule/app-ui'
  * import { Icon } from '@molecule/app-ui-react'
  *
- * function CreateFab() {
+ * export function NotesPage() {
+ *   const [notes, setNotes] = useState<string[]>([])
  *   return (
- *     <FloatingActionButton
- *       icon={<Icon name="plus" size={24} />}
- *       label="Create new item"
- *       position="bottom-right"
- *       onClick={() => setCreateOpen(true)}
- *     />
+ *     <main>
+ *       <ul>{notes.map((note) => <li key={note}>{note}</li>)}</ul>
+ *       <FloatingActionButton
+ *         icon={<Icon name="plus" size={24} />}
+ *         label="Create new note"
+ *         position="bottom-right"
+ *         onClick={() => setNotes((prev) => [...prev, `Note ${prev.length + 1}`])}
+ *       />
+ *     </main>
  *   )
  * }
  * ```
  *
  * @remarks
+ * `icon` and `label` are REQUIRED — `label` is the button's only accessible
+ * name (there is no visible text). It is `position: fixed` 24px from the
+ * chosen corner with `z-index: 40`: it overlays content (add bottom padding
+ * to scrolling lists so the last row stays reachable) and it is not a
+ * speed-dial/menu. An `<Icon>` from `@molecule/app-ui-react` needs an icon
+ * set bonded (`setIconSet(iconSet)` from `@molecule/app-icons` +
+ * `@molecule/app-icons-molecule`) or it throws at render.
+ *
+ * It calls `useTranslation()`, so it must render inside `<I18nProvider>` /
+ * `<MoleculeProvider>`; `getClassMap()` throws unless
+ * `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
+ *
  * The FAB ships with a visible default surface — a primary gradient plus
  * soft elevation (the `gradientPrimary` + `shadowLifted` ClassMap tokens,
  * which also supply a contrasting `on-primary` icon color) — so an

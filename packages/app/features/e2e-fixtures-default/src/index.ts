@@ -32,21 +32,18 @@
  *
  * @example
  * ```ts
- * // e2e/bonds.ts — scaffolded; wires the provider for THIS environment
+ * // e2e/post.spec.ts — an ordinary Playwright spec, run with `npx playwright test`
  * import { resolveE2EProviderName, setProvider } from '@molecule/app-e2e'
+ * import { expect, test } from '@molecule/app-e2e-fixtures-default'
  * import { provider as playwright } from '@molecule/app-e2e-playwright'
  * import { provider as preview } from '@molecule/app-e2e-preview'
  *
+ * // The scaffolded e2e/bonds.ts does exactly this; specs then `import './bonds.js'`.
  * setProvider(resolveE2EProviderName() === 'preview' ? preview : playwright)
- *
- * // e2e/post.spec.ts — an ordinary Playwright spec
- * import { expect, test } from '@molecule/app-e2e-fixtures-default'
- *
- * import './bonds.js'
  *
  * test('the phone layout keeps the prose large', async ({ page }) => {
  *   await page.setViewportSize({ width: 390, height: 844 })
- *   await page.goto('/blog/hello/')
+ *   await page.goto('/blog/hello/') // resolved against `use.baseURL` in playwright.config.ts
  *   const prose = page.locator('article p').first()
  *   const size = await prose.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))
  *   expect(size).toBeGreaterThanOrEqual(18)
@@ -55,6 +52,16 @@
  * ```
  *
  * @remarks
+ * - **Import `test` and `expect` from here, NOT from `@playwright/test`** — a
+ *   spec that imports Playwright's own `test` silently loses the console-error
+ *   guard and, in a sandbox without a browser, the preview `page`.
+ * - Relative `page.goto('/path')` needs `use.baseURL` in `playwright.config.ts`
+ *   (pointing at the app's dev server); this package does not start a server.
+ * - Wire the provider (`setProvider(...)` from `@molecule/app-e2e`) at the top
+ *   of the spec or in an imported `e2e/bonds.ts` — with the `playwright`
+ *   provider it is not consulted, but with `preview` and no bond (and no
+ *   installed `@molecule/app-e2e-preview` to auto-bond by name) every test
+ *   fails in its `page` fixture.
  * - **What works over the preview** (the `@molecule/app-e2e-preview` bond):
  *   `page.goto/reload/goBack/goForward/url/title/content`,
  *   `page.evaluate/$eval/$$eval`, `page.locator` and every `getBy*` (role

@@ -15,25 +15,52 @@
  *
  * @example
  * ```tsx
+ * import { useState } from 'react'
+ *
  * import { FileCard, type FileSummary } from '@molecule/app-file-card-react'
+ * import { getClassMap } from '@molecule/app-ui'
  *
- * const file: FileSummary = {
- *   id: 'f-1',
- *   name: 'Q3-report.pdf',
- *   size: 482_137,
- *   kind: 'document',
- *   modifiedAt: '2026-04-30T18:23:00Z',
+ * export function AttachmentsList() {
+ *   const cm = getClassMap()
+ *   const files: FileSummary[] = [
+ *     { id: 'f-1', name: 'Q3-report.pdf', size: 482_137, kind: 'document', modifiedAt: '2026-04-30T18:23:00Z' },
+ *     { id: 'f-2', name: 'Designs', size: 0, kind: 'folder' },
+ *   ]
+ *   const [selectedId, setSelectedId] = useState<string | null>(null)
+ *   return (
+ *     <div>
+ *       {files.map((file) => (
+ *         <FileCard
+ *           key={file.id}
+ *           file={file}
+ *           layout="row"
+ *           selected={file.id === selectedId}
+ *           className={file.id === selectedId ? cm.surfaceSecondary : undefined}
+ *           onClick={(f) => setSelectedId(f.id)}
+ *           actions={file.kind === 'folder' ? undefined : <a href={`/files/${file.id}/download`} download>Download</a>}
+ *         />
+ *       ))}
+ *     </div>
+ *   )
  * }
- *
- * <FileCard
- *   file={file}
- *   layout="grid"
- *   onClick={(f) => openFile(f.id)}
- *   actions={<KebabMenu fileId={file.id} />}
- * />
  * ```
  *
  * @remarks
+ * - `selected` only sets `aria-pressed` / `data-selected` — it adds NO visual
+ *   highlight. Pass a highlight class yourself (e.g. `cm.surfaceSecondary`
+ *   via `className`) when selected.
+ * - `onClick` makes the card `role="button"` + focusable, but there is NO
+ *   Enter/Space key handling — keep a keyboard path in `actions` (a real
+ *   link/button) for anything important. Clicks inside `actions` never
+ *   fire `onClick`.
+ * - `size` is BYTES (formatted by `bytes()`, 1024-based); folders never show
+ *   a size. `modifiedAt` renders as relative text (`2 days ago`), switching
+ *   to an ISO date (`2026-04-30`) after 365 days — pass `now` for
+ *   deterministic output in tests/snapshots.
+ * - Must render inside `<I18nProvider>` / `<MoleculeProvider>` (it calls
+ *   `useTranslation()`), and `getClassMap()` throws unless
+ *   `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
+ *
  * All styling routes through `getClassMap()` from `@molecule/app-ui` —
  * swap the ClassMap bond to restyle without touching this package.
  *

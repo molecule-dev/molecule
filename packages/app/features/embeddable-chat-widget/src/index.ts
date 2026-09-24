@@ -18,17 +18,29 @@
  * ```tsx
  * import { EmbeddableChatWidget } from '@molecule/app-embeddable-chat-widget'
  *
- * <EmbeddableChatWidget
- *   config={{
- *     apiBaseUrl: 'https://api.example.com',
- *     brandName: 'Acme',
- *     position: 'bottom-right',
- *     theme: { primaryColor: '#7c3aed' },
- *   }}
- * />
+ * export function HelpCenterPage() {
+ *   return (
+ *     <main>
+ *       <h1>Help center</h1>
+ *       <EmbeddableChatWidget
+ *         config={{
+ *           apiBaseUrl: 'https://api.example.com', // POSTs https://api.example.com/chat
+ *           brandName: 'Acme',
+ *           position: 'bottom-right',
+ *           theme: { primaryColor: '#7c3aed' },
+ *         }}
+ *       />
+ *     </main>
+ *   )
+ * }
  * ```
  *
  * @remarks
+ * **It is NOT an AI client.** It never calls a model or `@molecule/app-ai-chat`;
+ * it only POSTs to YOUR backend's `${apiBaseUrl}/chat` (see the wire contract
+ * below) — you must expose that route (one trailing slash on `apiBaseUrl`
+ * is stripped). `brandName` is required. The transcript is lost on unmount/reload.
+ *
  * **True drop-in — no provider wiring required.** The widget renders with
  * sensible English defaults and fully inlined styling when no molecule
  * `I18nProvider` or ClassMap bond is present, so it does NOT throw on a bare

@@ -7,21 +7,40 @@
  * ```tsx
  * import { ForumThreadRow } from '@molecule/app-forum-thread-row-react'
  *
- * const thread = { id: 't1', title: 'How do I reset my password?' }
+ * const threads = [
+ *   { id: 't1', title: 'Forum rules — read first', votes: 120, replies: 0, views: 5400, author: 'mod', createdAt: 'Jan 2', pinned: true, locked: true },
+ *   { id: 't2', title: 'How do I reset my password?', excerpt: 'The reset email never arrives.', votes: 42, replies: 7, views: 320, author: 'alice', createdAt: '2 hours ago' },
+ * ]
  *
- * <ForumThreadRow
- *   title={thread.title}
- *   excerpt="I tried the forgot-password link but never received an email."
- *   voteScore={42}
- *   replyCount={7}
- *   viewCount={320}
- *   author="alice"
- *   createdAt="2 hours ago"
- *   onClick={() => console.log('open thread', thread.id)}
- * />
+ * export function ForumIndex() {
+ *   return (
+ *     <section>
+ *       {threads.map((thread) => (
+ *         <ForumThreadRow
+ *           key={thread.id}
+ *           title={<a href={`/forum/${thread.id}`}>{thread.title}</a>}
+ *           excerpt={thread.excerpt}
+ *           voteScore={thread.votes}
+ *           replyCount={thread.replies}
+ *           viewCount={thread.views}
+ *           author={thread.author}
+ *           createdAt={thread.createdAt}
+ *           pinned={thread.pinned}
+ *           locked={thread.locked}
+ *         />
+ *       ))}
+ *     </section>
+ *   )
+ * }
  * ```
  *
  * @remarks
+ * - Display-only: it does not fetch threads, vote, or navigate. `onClick`
+ *   lands on a plain `<article>` (no role, not focusable, no Enter key) —
+ *   make the `title` a real link for keyboard/screen-reader users.
+ * - `voteScore` is HIDDEN when `voteControls` is passed — render the score
+ *   inside your own controls. `createdAt` is shown as given (format it
+ *   yourself); counts are raw numbers with no pluralisation (`1 replies`).
  * - Styling routes through `getClassMap()` — a ClassMap bond
  *   (e.g. `@molecule/app-ui-tailwind`) must be wired or rendering throws.
  * - KNOWN GAP: the counter labels ("votes", "replies", "views") and the

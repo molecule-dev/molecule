@@ -8,21 +8,41 @@
  *
  * @example
  * ```tsx
- * import { EmojiReactions } from '@molecule/app-emoji-reactions-react'
+ * import { useState } from 'react'
  *
- * <EmojiReactions
- *   reactions={[
+ * import { type EmojiReaction, EmojiReactions } from '@molecule/app-emoji-reactions-react'
+ * import { post } from '@molecule/app-http'
+ *
+ * export function PostReactions() {
+ *   const postId = 'post-42'
+ *   const [reactions, setReactions] = useState<EmojiReaction[]>([
  *     { emoji: '👍', count: 12, reactedByMe: true },
  *     { emoji: '❤️', count: 5 },
- *   ]}
- *   onToggle={(emoji) => toggleReaction(postId, emoji)}
- *   onAdd={(emoji) => addReaction(postId, emoji)}
- * />
+ *   ])
+ *   function toggle(emoji: string): void {
+ *     setReactions((prev) => {
+ *       const existing = prev.find((r) => r.emoji === emoji)
+ *       if (!existing) return [...prev, { emoji, count: 1, reactedByMe: true }]
+ *       const reactedByMe = !existing.reactedByMe
+ *       return prev
+ *         .map((r) => (r.emoji === emoji ? { ...r, reactedByMe, count: r.count + (reactedByMe ? 1 : -1) } : r))
+ *         .filter((r) => r.count > 0)
+ *     })
+ *     void post(`/posts/${postId}/reactions/toggle`, { emoji })
+ *   }
+ *   function add(emoji: string): void {
+ *     if (!reactions.some((r) => r.emoji === emoji && r.reactedByMe)) toggle(emoji)
+ *   }
+ *   return <EmojiReactions reactions={reactions} onToggle={toggle} onAdd={add} />
+ * }
  * ```
  *
  * @remarks
  * - Fully controlled: the component renders `reactions` as given and emits
- *   `onToggle` / `onAdd` — it never mutates counts itself.
+ *   `onToggle` / `onAdd` — it never mutates counts, never adds a chip for a
+ *   picked emoji and never persists anything. Update your own state (and call
+ *   your API) in those handlers, or clicks appear to do nothing. `onAdd` also
+ *   fires for an emoji that already has a chip — de-duplicate it yourself.
  * - The "+" button and quick-pick popover render only when `onAdd` is
  *   passed. Default quick picks: 👍 ❤️ 🎉 😄 😢 🙏 (override via `quickPicks`).
  * - `renderTooltip(r)` renders custom tooltip content (e.g. an avatar list of
@@ -36,8 +56,9 @@
  * - Every interactive element carries a `data-mol-id`: `emoji-reaction` on each
  *   chip, `emoji-reaction-add` on the "+" button, `emoji-reaction-pick` on each
  *   quick-pick.
- * - Requires a wired ClassMap bond and the app I18nProvider (standard
- *   molecule app setup).
+ * - Must render inside `<I18nProvider>` / `<MoleculeProvider>` (it calls
+ *   `useTranslation()`, which throws otherwise), and `getClassMap()` throws
+ *   unless `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
  *
  * @module
  */

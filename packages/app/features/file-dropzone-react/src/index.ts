@@ -7,22 +7,45 @@
  *
  * @example
  * ```tsx
- * import { FileDropzone } from '@molecule/app-file-dropzone-react'
+ * import { useState } from 'react'
  *
- * function AvatarUpload() {
+ * import { FileDropzone } from '@molecule/app-file-dropzone-react'
+ * import { post } from '@molecule/app-http'
+ *
+ * export function AvatarUpload() {
+ *   const [status, setStatus] = useState('')
+ *   async function upload(files: File[]): Promise<void> {
+ *     const body = new FormData()
+ *     body.append('file', files[0])
+ *     setStatus(`Uploading ${files[0].name}…`)
+ *     await post('/uploads', body) // FormData is sent as multipart, not JSON
+ *     setStatus(`Uploaded ${files[0].name}`)
+ *   }
  *   return (
- *     <FileDropzone
- *       accept="image/*"
- *       multiple={false}
- *       maxSize={5 * 1024 * 1024}
- *       onFiles={(files) => uploadAvatar(files[0])}
- *       onRejected={(files) => showError(files[0].name)}
- *     />
+ *     <>
+ *       <FileDropzone
+ *         accept="image/*"
+ *         maxSize={5 * 1024 * 1024}
+ *         onFiles={(files) => void upload(files)}
+ *         onRejected={(files) => setStatus(`${files.map((f) => f.name).join(', ')}: not an image under 5 MB`)}
+ *       />
+ *       <p role="status">{status}</p>
+ *     </>
  *   )
  * }
  * ```
  *
  * @remarks
+ * It does NOT upload, preview or show progress — `onFiles` just receives
+ * `File` objects; send them yourself (e.g. `post(url, formData)` from
+ * `@molecule/app-http`). `maxSize` is in BYTES. The hidden input is never
+ * reset, so picking the SAME file twice in a row via the dialog does not
+ * fire `onFiles` again.
+ *
+ * It calls `useTranslation()`, so it must render inside `<I18nProvider>` /
+ * `<MoleculeProvider>`, and `getClassMap()` throws unless
+ * `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
+ *
  * With `multiple={false}` (the default) only the FIRST accepted file is
  * delivered to `onFiles`, even when the user drops several at once.
  *

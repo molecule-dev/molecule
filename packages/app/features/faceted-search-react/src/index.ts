@@ -14,35 +14,54 @@
  *
  * @example
  * ```tsx
- * import {
- *   FacetedSearchBar,
- *   SegmentedControl,
- *   FilterPill,
- * } from '@molecule/app-faceted-search-react'
+ * import { useState } from 'react'
  *
- * // PriceRangePanel / MoreFiltersPanel are your own panel components.
- * <FacetedSearchBar topOffsetPx={64}>
- *   <SegmentedControl
- *     value={listingType}
- *     onChange={setListingType}
- *     options={[{ value: 'buy', label: 'Buy' }, { value: 'rent', label: 'Rent' }]}
- *   />
- *   <FilterPill label="Price" active={hasPriceFilter}>
- *     <PriceRangePanel filters={filters} onChange={onFilterChange} />
- *   </FilterPill>
- *   <FilterPill leadingIcon="tune" label="Filters" hideChevron panelAlign="right">
- *     <MoreFiltersPanel filters={filters} onChange={onFilterChange} />
- *   </FilterPill>
- * </FacetedSearchBar>
+ * import { FacetedSearchBar, FilterPill, SegmentedControl } from '@molecule/app-faceted-search-react'
+ *
+ * export function ListingsPage() {
+ *   const [listingType, setListingType] = useState<'buy' | 'rent'>('buy')
+ *   const [maxPrice, setMaxPrice] = useState<number | null>(null)
+ *   const contentTop = 64 + 64 // top nav + the filter bar, which is position: fixed and reserves no space
+ *   return (
+ *     <>
+ *       <FacetedSearchBar topOffsetPx={64}>
+ *         <SegmentedControl
+ *           value={listingType}
+ *           onChange={setListingType}
+ *           options={[{ value: 'buy', label: 'Buy' }, { value: 'rent', label: 'Rent' }]}
+ *         />
+ *         <FilterPill label={maxPrice ? `Under $${maxPrice}` : 'Price'} active={maxPrice !== null} dataMolId="filter-price">
+ *           <label>
+ *             Max price
+ *             <select value={maxPrice ?? ''} onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : null)}>
+ *               <option value="">Any</option>
+ *               <option value="500000">$500000</option>
+ *               <option value="1000000">$1000000</option>
+ *             </select>
+ *           </label>
+ *         </FilterPill>
+ *       </FacetedSearchBar>
+ *       <main style={{ paddingTop: contentTop }}>
+ *         <p>Showing {listingType} listings{maxPrice ? ` under $${maxPrice}` : ''}</p>
+ *       </main>
+ *     </>
+ *   )
+ * }
  * ```
  *
  * @remarks
  * - **The bar is `position: fixed`, not sticky.** It overlays the page at
  *   `top: topOffsetPx` and reserves NO layout space — add matching top
  *   padding to the content below it.
- * - **Styling prereqs:** these components emit Tailwind + Material-3 token
- *   class literals (`bg-surface-container-high`, `ring-primary`,
- *   `text-on-primary`, `border-outline-variant/20`, …). They only style
+ * - **It holds NO filter state and does no searching.** `SegmentedControl` is
+ *   controlled (`value` + `onChange`), `FilterPill` only toggles its panel;
+ *   keep filter values in your own state and query with them yourself.
+ *   `FilterPill` does not close when a value is picked — only on a second
+ *   click of the pill or an outside mousedown.
+ * - **Styling prereqs:** the bar and the pill panel emit Tailwind + Material-3
+ *   token class literals (`bg-surface-container-high`,
+ *   `border-outline-variant/20`, `fixed`, `absolute`, …) next to
+ *   `getClassMap()` classes, so `setClassMap(classMap)` must have run. They only style
  *   correctly with a Tailwind-based ClassMap bond whose theme defines the
  *   M3 color tokens (the molecule scaffold default). On other ClassMap
  *   bonds the pills lose surfaces/rings but remain functional.

@@ -15,20 +15,29 @@
  *
  * @example
  * ```tsx
- * import { FlowCanvas, type FlowNode, type FlowEdge } from '@molecule/app-flow-canvas-react'
+ * import { useState } from 'react'
  *
- * function Builder() {
- *   const [nodes, setNodes] = useState<FlowNode[]>(initialNodes)
- *   const [edges, setEdges] = useState<FlowEdge[]>(initialEdges)
+ * import { FlowCanvas, type FlowEdge, type FlowNode } from '@molecule/app-flow-canvas-react'
+ *
+ * export function WorkflowBuilder() {
+ *   const [nodes, setNodes] = useState<FlowNode[]>([
+ *     { id: 'signup', type: 'step', position: { x: 40, y: 40 }, data: { label: 'New signup' } },
+ *     { id: 'email', type: 'step', position: { x: 320, y: 40 }, data: { label: 'Send welcome email' } },
+ *     { id: 'slack', type: 'step', position: { x: 600, y: 40 }, data: { label: 'Notify #sales' } },
+ *   ])
+ *   const [edges, setEdges] = useState<FlowEdge[]>([{ id: 'e1', source: 'signup', target: 'email' }])
  *   return (
- *     <FlowCanvas
- *       nodes={nodes}
- *       edges={edges}
- *       onChange={({ nodes, edges }) => { setNodes(nodes); setEdges(edges) }}
- *       nodeRenderers={{
- *         task: (n) => <strong>{(n.data as { label: string }).label}</strong>,
- *       }}
- *     />
+ *     <div style={{ height: 480 }}>
+ *       <FlowCanvas
+ *         nodes={nodes}
+ *         edges={edges}
+ *         onChange={(next) => {
+ *           setNodes(next.nodes)
+ *           setEdges(next.edges)
+ *         }}
+ *         nodeRenderers={{ step: (n) => <strong>{(n.data as { label: string }).label}</strong> }}
+ *       />
+ *     </div>
  *   )
  * }
  * ```
@@ -42,7 +51,19 @@
  * (node drag, connect, Backspace/Delete) call `onChange` with the full
  * next `{ nodes, edges }` and the caller re-renders with them. Without
  * `onChange` the canvas manages internal copies and `nodes` / `edges`
- * act as initial values only.
+ * act as initial values only. With `onChange` but WITHOUT feeding
+ * `next.nodes` / `next.edges` back in, drags and connections snap back.
+ *
+ * `nodeRenderers` is keyed by `node.type` — a node whose `type` has no
+ * renderer shows `children` (or nothing). `data` is untyped (`unknown`):
+ * cast it in the renderer. It does not persist, validate (e.g. cycles), or
+ * auto-layout the graph; new edges get generated ids. Backspace/Delete is a
+ * WINDOW-level listener that removes the current selection (ignored while
+ * typing in inputs) — pass `disableDeleteShortcut` if that clashes.
+ *
+ * It calls `useTranslation()`, so it must render inside `<I18nProvider>` /
+ * `<MoleculeProvider>`; `getClassMap()` throws unless
+ * `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
  *
  * @module
  */

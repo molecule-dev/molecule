@@ -8,18 +8,36 @@
  *
  * @example
  * ```tsx
- * import { EmbedSnippet } from '@molecule/app-embed-snippet-react'
+ * import { useState } from 'react'
  *
- * <EmbedSnippet
- *   template={'<iframe src="https://example.com/embed" width="{{width}}" height="{{height}}" data-theme="{{theme}}" />'}
- *   controls={{ width: true, height: true, theme: true }}
- *   values={values}
- *   onChange={setValues}
- *   language="iframe"
- * />
+ * import { EmbedSnippet, type EmbedSnippetValues } from '@molecule/app-embed-snippet-react'
+ *
+ * export function ShareWidgetPanel() {
+ *   const widgetUrl = 'https://widgets.example.com/chat/acme'
+ *   const [values, setValues] = useState<EmbedSnippetValues>({ width: 400, height: 600, theme: 'light' })
+ *   return (
+ *     <EmbedSnippet
+ *       template={`<iframe src="${widgetUrl}?theme={{theme}}" style="width:{{width}};height:{{height}};border:0"></iframe>`}
+ *       controls={{ width: true, height: true, theme: true }}
+ *       values={values}
+ *       onChange={setValues}
+ *       language="iframe"
+ *       onCopy={(code) => console.info('embed code copied', code.length)}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @remarks
+ * It is CONTROLLED: the inputs only call `onChange` — without `values` +
+ * `onChange` wired to your own state, typing in the controls changes nothing.
+ * The width/height inputs emit STRINGS exactly as typed, so a user typing
+ * `640` yields `640` (no `px`); only numbers you pass in yourself get `px`.
+ *
+ * It must render inside `<I18nProvider>` / `<MoleculeProvider>` (it calls
+ * `useTranslation()`, which throws otherwise), and `getClassMap()` throws
+ * unless `setClassMap(classMap)` from `@molecule/app-ui` ran at startup.
+ *
  * All UI text resolves through `useTranslation()` from `@molecule/app-react`
  * with English fallbacks. Companion locale bond:
  * `@molecule/app-locales-embed-snippet`.

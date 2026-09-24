@@ -8,13 +8,32 @@
  *
  * @example
  * ```tsx
- * import { AppFooter } from '@molecule/app-footer-react'
+ * import { BrowserRouter } from 'react-router'
  *
- * function Shell() {
- *   const loadContent = async (key: 'privacyPolicy' | 'termsOfService') => {
- *     // lazy-load the legal HTML into the i18n catalog before the modal opens
- *   }
- *   return <AppFooter appName="Bearing" aboutHref="https://example.com" loadContent={loadContent} />
+ * import { AppFooter } from '@molecule/app-footer-react'
+ * import { createSimpleI18nProvider } from '@molecule/app-i18n'
+ * import { I18nProvider } from '@molecule/app-react'
+ *
+ * const i18n = createSimpleI18nProvider('en')
+ *
+ * // The legal HTML is YOURS to supply — registered on first open of each modal.
+ * function loadContent(key: 'privacyPolicy' | 'termsOfService'): void {
+ *   const html = {
+ *     privacyPolicy: '<p>{{appName}} stores only your email address.</p>',
+ *     termsOfService: '<p>Use {{appName}} responsibly.</p>',
+ *   }[key]
+ *   i18n.addTranslations('en', { content: { [key]: html } })
+ * }
+ *
+ * export function App() {
+ *   return (
+ *     <I18nProvider provider={i18n}>
+ *       <BrowserRouter>
+ *         <main>Dashboard</main>
+ *         <AppFooter appName="Bearing" aboutHref="/about" loadContent={loadContent} />
+ *       </BrowserRouter>
+ *     </I18nProvider>
+ *   )
  * }
  * ```
  *
@@ -22,12 +41,15 @@
  * The `appName` interpolated into the Privacy/Terms modal HTML is
  * HTML-escaped first — the modal bodies render via `dangerouslySetInnerHTML`,
  * so a markup-carrying app name must arrive as inert entities.
- * - Must render inside BOTH a `react-router-dom` router (the About link and
- *   `legalMode="route"` links are `<Link>` elements — they throw outside a
- *   Router) and `@molecule/app-react`'s `I18nProvider` — `useTranslation()`
- *   THROWS without it. `getClassMap()` needs a bonded ClassMap
- *   (e.g. `@molecule/app-ui-tailwind`); version display works unbonded (the
- *   version core falls back to a web provider).
+ * - Must render inside BOTH a React Router router (the About link and
+ *   `legalMode="route"` links are `<Link>` from `react-router` — they throw
+ *   outside a Router) and `@molecule/app-react`'s `I18nProvider` —
+ *   `useTranslation()` THROWS without it. `getClassMap()` needs a bonded
+ *   ClassMap (`setClassMap(classMap)`, e.g. `@molecule/app-ui-tailwind`), and
+ *   the globe/close icons need an icon set (`setIconSet(iconSet)` from
+ *   `@molecule/app-icons` + `@molecule/app-icons-molecule`). Version display
+ *   works unbonded (the version core falls back to a web provider) and shows
+ *   `v1.0.0` until a version is known.
  * - The privacy/terms modals render whatever HTML the i18n catalog holds under
  *   `content.privacyPolicy` / `content.termsOfService`. The companion
  *   `@molecule/app-locales-footer` bond ships those keys EMPTY BY DESIGN — a
