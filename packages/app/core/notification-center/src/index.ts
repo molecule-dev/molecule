@@ -9,25 +9,52 @@
  *
  * @example
  * ```typescript
- * import { setProvider, createNotificationCenter } from '@molecule/app-notification-center'
+ * import { get, post } from '@molecule/app-http'
+ * import { createNotificationCenter, setProvider } from '@molecule/app-notification-center'
+ * import type { AppNotification } from '@molecule/app-notification-center'
  * import { provider } from '@molecule/app-notification-center-default'
  *
- * setProvider(provider)
+ * setProvider(provider) // at startup — createNotificationCenter() throws until bonded
+ *
+ * type NotificationJson = Omit<AppNotification, 'createdAt'> & { createdAt: string }
+ * type Page = { items: NotificationJson[]; nextCursor?: string; hasMore: boolean }
  *
  * const center = createNotificationCenter({
- *   fetchNotifications: (opts) => api.get('/notifications', opts),
- *   fetchUnreadCount: () => api.get('/notifications/unread-count'),
- *   markAsRead: (id) => api.post(`/notifications/${id}/read`),
- *   markAllAsRead: () => api.post('/notifications/read-all'),
- *   pollInterval: 30_000,
+ *   fetchNotifications: async ({ cursor, limit }) => {
+ *     const { data } = await get<Page>('/notifications', { params: { cursor, limit } })
+ *     const items = data.items.map((n) => ({ ...n, createdAt: new Date(n.createdAt) }))
+ *     return { ...data, items } // createdAt MUST be a Date
+ *   },
+ *   fetchUnreadCount: async () => {
+ *     const { data } = await get<{ count: number }>('/notifications/unread-count')
+ *     return data.count
+ *   },
+ *   markAsRead: async (id) => {
+ *     await post(`/notifications/${id}/read`)
+ *   },
+ *   markAllAsRead: async () => {
+ *     await post('/notifications/read-all')
+ *   },
+ *   pollInterval: 30_000, // ms
  * })
  *
- * center.onUpdate((state) => {
- *   console.log('Unread:', state.unreadCount)
- * })
+ * // Re-render the bell / list from every update:
+ * center.onUpdate((state) => console.log(state.unreadCount, state.lastError?.message))
+ * await center.refresh() // REQUIRED first load — nothing is fetched until you call it
+ *
+ * const [newest] = center.getNotifications()
+ * if (newest) await center.markAsRead(newest.id) // API call first, then unreadCount - 1
+ * center.destroy() // on unmount — stops polling and drops subscribers
  * ```
  *
  * @remarks
+ * - **Nothing is fetched on creation** — call `refresh()` for the first page; polling
+ *   (`pollInterval`, in MILLISECONDS) only merges NEW items into the first page and
+ *   re-reads the unread count. `loadMore()` fetches the next page by `nextCursor`.
+ * - Your `fetchNotifications` must return real `Date`s in `createdAt` — the bond does
+ *   not parse JSON strings from your API (realtime pushes are parsed).
+ * - `onUpdate()` returns `void`; unsubscribe with `offUpdate(sameHandler)` or `destroy()`.
+ *
  * `NotificationCenterState.lastError` is the error surface for a failed
  * `refresh()` / `loadMore()` / `poll()` attempt. Without it, a provider that
  * documents fetch failures as a silent noop renders a FIRST-load failure

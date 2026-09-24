@@ -5,23 +5,33 @@
  * HTTP libraries (fetch, axios, ky, etc.).
  *
  * @example
- * ```tsx
- * // In a React component, get the configured client from context and call it.
- * // The hook is exported by the framework binding (@molecule/app-react), not
- * // this core package — never construct your own fetch/axios client.
- * import { useHttpClient } from '@molecule/app-react'
+ * ```typescript
+ * import { get, post, setClient, unwrapList } from '@molecule/app-http'
+ * import { createAxiosClient } from '@molecule/app-http-axios'
  *
- * function Plants() {
- *   const http = useHttpClient()
- *   const load = async () => {
- *     const res = await http.get<Plant[]>('/plants')   // baseURL ('/api') is prepended
- *     setPlants(res.data)
- *   }
- *   // http.post(url, body), http.put, http.delete are also available.
+ * // Startup (bonds.ts) — BEFORE the first request, or early calls use the built-in fetch fallback.
+ * setClient(createAxiosClient({ baseURL: '/api', timeout: 10_000 }))
+ *
+ * interface Plant {
+ *   id: string
+ *   name: string
  * }
+ *
+ * const res = await get<Plant[]>('/plants') // → GET /api/plants
+ * const plants = unwrapList<Plant>(res) // accepts `Plant[]` AND `{ data: Plant[] }` bodies
+ * console.log(plants.map((plant) => plant.name)) // ['Fern', 'Cactus']
+ *
+ * const created = await post<Plant>('/plants', { name: 'Monstera' }) // body sent as JSON
+ * console.log(created.status, created.data.id) // 201 'p3'
  * ```
  *
  * @remarks
+ * - Every call resolves to `HttpResponse<T>` — the body is `.data`, not the return value
+ *   itself. Non-2xx responses REJECT with `HttpError` (`error.status`), they do not resolve.
+ * - In React components use `useHttpClient()` from `@molecule/app-react` (same methods);
+ *   outside components use the `get`/`post`/`put`/`patch`/`del` functions above (`delete`
+ *   is a reserved word — the function is `del`).
+ *
  * Make ALL API calls through this client (via the framework hook `useHttpClient()` in
  * React / the Vue composable) — it carries the configured `baseURL`, auth headers, and
  * interceptors. Do NOT call `fetch()` / `axios` directly in components — that bypasses auth

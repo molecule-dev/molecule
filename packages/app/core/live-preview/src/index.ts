@@ -15,12 +15,29 @@
  * setProvider(provider) // once, at startup (bonds.ts)
  *
  * const preview = requireProvider()
+ * const frame = document.createElement('iframe')
+ * document.body.append(frame)
+ *
+ * let loadedNonce = -1
  * const unsubscribe = preview.subscribe((state) => {
- *   // (re)load the frame from state.url, keyed on state.loadNonce;
- *   // show state.currentUrl in the URL bar (NOT state.url)
+ *   if (state.loadNonce !== loadedNonce) {
+ *     loadedNonce = state.loadNonce // (re)load ONLY when the nonce changes
+ *     frame.src = state.url
+ *   }
+ *   console.log(state.currentUrl, state.canGoBack) // URL bar text + Back button state
  * })
- * preview.setUrl('http://localhost:5173')
- * preview.refresh() // force-reload the SAME url — repeated setUrl is a no-op
+ *
+ * // The previewed app reports its route changes with postMessage({ type: 'molecule:navigate', url }).
+ * window.addEventListener('message', (event: MessageEvent<{ type?: string; url?: string }>) => {
+ *   if (event.source !== frame.contentWindow || event.data?.type !== 'molecule:navigate') return
+ *   if (event.data.url) preview.recordNavigation(event.data.url)
+ * })
+ *
+ * preview.setUrl('http://localhost:5173/') // loads → 'http://localhost:5173/' false
+ * // …the user clicks to /settings inside the app → 'http://localhost:5173/settings' true
+ * preview.setUrl('http://localhost:5173/') // NO-OP — same url as the last setUrl
+ * preview.refresh() // force-reloads where the preview IS: frame.src = '…/settings'
+ * unsubscribe() // when the panel unmounts
  * ```
  *
  * @remarks
@@ -36,6 +53,9 @@
  *   the previewed app at scaffold time (owned by the scaffolder, not this
  *   package); without it the preview still works, but `currentUrl` stays at the
  *   last load target and Back/Forward remain disabled.
+ * - Check `event.source === frame.contentWindow` before forwarding a
+ *   `molecule:navigate` message — any window can `postMessage` to yours.
+ * - `refresh()` reloads `currentUrl` (where the preview IS), not the last `setUrl()` target.
  * - Back/Forward post a `molecule:nav-command` into the frame so the preview
  *   runs its own `history.back()`/`forward()` — SPA state and scroll survive.
  *   Guard the buttons with `canGoBack`/`canGoForward`.

@@ -10,12 +10,19 @@
  *
  * @example
  * ```typescript
- * import { setFont } from '@molecule/app-fonts'
- * import { font as sans } from '@molecule/app-fonts-inter'
+ * import { getFontConfig, setFont } from '@molecule/app-fonts'
+ * import { font as sans } from '@molecule/app-fonts-arimo'
  * import { font as mono } from '@molecule/app-fonts-jetbrains-mono'
  *
- * setFont(sans)   // once, at app startup — before first paint
- * setFont(mono)
+ * // Once, at app startup — before first paint. Copy each bond's `fonts/` into `public/fonts/`.
+ * setFont(sans, { basePath: import.meta.env.BASE_URL })
+ * setFont(mono, { basePath: import.meta.env.BASE_URL })
+ *
+ * // <html style="--mol-font-sans: Arimo, system-ui, -apple-system, sans-serif; …"> plus
+ * // <style id="mol-font-sans">@font-face { … src: url('/fonts/Arimo-Regular.ttf') … }</style>
+ * console.log(document.documentElement.style.getPropertyValue('--mol-font-mono'))
+ * // "'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+ * console.log(getFontConfig().serif.family) // 'Georgia' — unset roles keep the system stack
  * ```
  *
  * @remarks

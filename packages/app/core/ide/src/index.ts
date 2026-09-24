@@ -9,21 +9,34 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/app-ide'
+ * import { requireProvider, setProvider } from '@molecule/app-ide'
  * import { provider } from '@molecule/app-ide-default'
  *
- * setProvider(provider)                    // once, at app startup (bonds.ts)
+ * setProvider(provider) // once, at app startup (bonds.ts) — before the workspace mounts
  *
  * const workspace = requireProvider()
- * workspace.togglePanel('terminal')
- * const unsubscribe = workspace.subscribe((state) => renderLayout(state))
+ * const unsubscribe = workspace.subscribe((state) => {
+ *   // Re-render your panels from `state` (React: `@molecule/app-ide-react` does this for you).
+ *   console.log([...state.collapsedPanels], state.activePanel, state.layout.sizes.left)
+ * })
+ *
+ * workspace.togglePanel('chat') // → ['chat'] null [25] — chat collapsed
+ * workspace.setActivePanel('editor') // → ['chat'] 'editor' [25]
+ * workspace.resizePanel('chat', 30) // → ['chat'] 'editor' [30] — sizes are percentages
+ * console.log(workspace.getLayout().panels.map((panel) => panel.id)) // ['chat', 'editor', 'preview']
+ *
+ * unsubscribe() // on unmount
  * ```
  *
  * @remarks
  * - **This core manages layout STATE only — panels render via a framework
  *   binding** (React: `@molecule/app-ide-react`) or your own components reading
  *   `getLayout()` + `subscribe()`. Wire the bond before the workspace mounts.
- * - `subscribe()` returns an unsubscribe function — call it on teardown to avoid
+ * - `togglePanel(id)` toggles the COLLAPSED state (`state.collapsedPanels`); it does
+ *   not change `panel.visible` in `getLayout()`. With the default bond only the layout
+ *   (panels + sizes) is persisted — collapse and active-panel state reset on reload.
+ * - `subscribe()` does NOT fire immediately with the current state — read `getLayout()`
+ *   for the first render. It returns an unsubscribe function — call it on teardown to avoid
  *   duplicate renders after remounts.
  * - `PanelId` accepts custom strings beyond the built-ins ('chat' | 'editor' |
  *   'preview' | 'terminal' | 'deploy' | 'files') — register custom panels in the

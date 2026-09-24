@@ -6,6 +6,29 @@
  * (e.g. `@molecule/app-keyboard-shortcuts-hotkeys`) to supply
  * the concrete implementation.
  *
+ * @example
+ * ```typescript
+ * import { t } from '@molecule/app-i18n'
+ * import { requireProvider, setProvider } from '@molecule/app-keyboard-shortcuts'
+ * import { provider } from '@molecule/app-keyboard-shortcuts-hotkeys'
+ *
+ * setProvider(provider) // once, at app startup (bonds.ts)
+ *
+ * const saveDocument = (): void => console.log('saved')
+ *
+ * // When the editor screen mounts:
+ * const shortcuts = requireProvider()
+ * const unregister = shortcuts.register({
+ *   keys: 'ctrl+s, command+s', // comma = alternatives (Windows/Linux, macOS)
+ *   handler: () => saveDocument(), // browser "Save page" is suppressed automatically
+ *   description: t('common.save', undefined, { defaultValue: 'Save' }),
+ * })
+ * console.log(shortcuts.getAll().map((s) => s.description)) // ['Save'] — for a help overlay
+ *
+ * // When the editor screen unmounts:
+ * unregister()
+ * ```
+ *
  * @remarks
  * - **Wire with THIS package's `setProvider()` or `bond('keyboard-shortcuts', …)`**
  *   (e.g. the `provider` export of `@molecule/app-keyboard-shortcuts-hotkeys`) once at
@@ -17,24 +40,13 @@
  *   input/textarea/contenteditable has focus). After wiring, PRESS a registered
  *   combo and confirm the real action runs — a registry that accepts `register()`
  *   calls but never fires handlers is an integration bug to fix, not to skip.
+ * - Combos are hotkeys-js syntax: lowercase, `+` joins modifiers (`ctrl+shift+k`),
+ *   `,` separates alternatives. Registering the same `keys` string again REPLACES the
+ *   earlier handler.
  * - `register()` returns an unregister function — call it when the owning
  *   screen/component unmounts, or stale shortcuts ghost-fire elsewhere.
  * - Shortcut `description`s surface in help overlays: pass them through
  *   `t('key', values, { defaultValue })`.
- *
- * @module
- *
- * @example
- * ```typescript
- * import { requireProvider } from '@molecule/app-keyboard-shortcuts'
- *
- * const shortcuts = requireProvider()
- * const unregister = shortcuts.register({
- *   keys: 'ctrl+s',
- *   handler: (e) => { e.preventDefault(); save() },
- *   description: 'Save document',
- * })
- * ```
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt
@@ -50,6 +62,8 @@
  *   elsewhere causes no ghost actions.
  * - [ ] If a shortcuts help overlay exists, it lists the shortcuts that are
  *   actually registered (no phantom or missing entries).
+ *
+ * @module
  */
 
 export * from './provider.js'

@@ -9,12 +9,20 @@
  * @example
  * ```typescript
  * import { requireProvider, setProvider } from '@molecule/app-markdown'
- * import { provider } from '@molecule/app-markdown-react-markdown'
+ * import { provider } from '@molecule/app-markdown-marked'
  *
- * setProvider(provider) // once, at startup (bonds.ts)
+ * setProvider(provider) // once, at startup (bonds.ts) — marked also works in Node build scripts
  *
- * const result = requireProvider().render('# Hello World', { gfm: true })
- * console.log(result.html) // sanitized HTML string
+ * const reply = // e.g. a chat reply or user comment — untrusted
+ *   '## Getting started\n\nRead the [docs](https://example.com/docs).\n\n<img src=x onerror=alert(1)>'
+ * const { html, toc } = requireProvider().render(reply, { linkTarget: '_blank' })
+ *
+ * console.log(html)
+ * // <h2 id="getting-started">Getting started</h2>
+ * // <p>Read the <a href="https://example.com/docs" target="_blank" rel="noopener noreferrer">docs</a>.</p>
+ * // &lt;img src=x onerror=alert(1)&gt;   ← raw HTML escaped (sanitize defaults to true)
+ * console.log(toc) // [{ id: 'getting-started', text: 'Getting started', level: 2 }]
+ * // Inject `html` with your framework's raw-HTML mechanism (React: dangerouslySetInnerHTML).
  * ```
  *
  * @remarks
@@ -25,6 +33,7 @@
  *   only safe because it was sanitized. NEVER pass `sanitize: false` for
  *   user-supplied or model-generated markdown (chat replies, comments, notes);
  *   reserve it for fully trusted, app-authored content.
+ * - `render()` is SYNCHRONOUS and returns `{ html, toc }` — not a string, not a Promise.
  * - Options are per-call (`gfm`, `breaks`, `linkTarget`); `result.toc` carries
  *   extracted headings when the provider supports it. Syntax highlighting is a
  *   provider concern — e.g. the react-markdown bond wires a rehype highlighter

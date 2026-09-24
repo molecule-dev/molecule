@@ -5,13 +5,30 @@
  * with different i18n libraries (react-i18next, FormatJS, etc.).
  *
  * @example
- * ```tsx
- * import { t } from '@molecule/app-i18n'
- * // ALWAYS pass a defaultValue — it renders immediately as the English text.
- * <button>{t('settings.save', undefined, { defaultValue: 'Save' })}</button>
+ * ```typescript
+ * import { registerLocaleModule, setLocale, setProvider, t } from '@molecule/app-i18n'
+ * import { createI18nextProvider } from '@molecule/app-i18n-i18next'
+ * import * as commonLocales from '@molecule/app-locales-common'
+ *
+ * // Startup (bonds.ts). React apps use `@molecule/app-i18n-react-i18next` the same way.
+ * const i18n = createI18nextProvider({ defaultLocale: 'en', detection: false })
+ * setProvider(i18n)
+ * registerLocaleModule(commonLocales) // every language that locale bond ships, in one call
+ * await i18n.initialize()
+ *
+ * // ALWAYS pass a defaultValue — it is the English copy the user sees if the key is missing.
+ * console.log(t('common.close', undefined, { defaultValue: 'Close' })) // 'Close'
+ *
+ * await setLocale('fr') // throws for a locale that was never registered
+ * console.log(t('common.close', undefined, { defaultValue: 'Close' })) // 'Fermer'
+ * console.log(t('footer.about', { appName: 'Acme' }, { defaultValue: 'About {{appName}}' }))
+ * // 'À propos de Acme' — DOUBLE braces
  * ```
  *
  * @remarks
+ * Without `setProvider()`, `t()` auto-bonds this package's in-memory simple provider — it
+ * works, but has no language detection; bond a real provider at startup.
+ *
  * Every user-visible string must go through `t()` — never hardcode UI text. And
  * ALWAYS supply `{ defaultValue: 'English text' }`: a bare `t('settings.save')`
  * renders the raw KEY string ("settings.save") in the UI until a translation for

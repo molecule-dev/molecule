@@ -8,26 +8,49 @@
  *
  * @example
  * ```typescript
- * import { setProvider, createBoard } from '@molecule/app-kanban'
+ * import { patch } from '@molecule/app-http'
+ * import { createBoard, setProvider } from '@molecule/app-kanban'
+ * import type { KanbanUpdateHandler } from '@molecule/app-kanban'
  * import { provider } from '@molecule/app-kanban-default'
  *
- * setProvider(provider)
+ * setProvider(provider) // at startup — createBoard() throws until a provider is bonded
  *
- * const board = createBoard({
+ * interface Task {
+ *   title: string
+ * }
+ *
+ * const board = createBoard<Task>({
  *   columns: [
- *     { id: 'todo', title: 'To Do', cards: [] },
- *     { id: 'in-progress', title: 'In Progress', cards: [], limit: 3 },
+ *     { id: 'todo', title: 'To Do', cards: [{ id: 'c1', data: { title: 'Write spec' } }] },
+ *     { id: 'doing', title: 'In Progress', cards: [], limit: 3 },
  *     { id: 'done', title: 'Done', cards: [] },
  *   ],
- *   onCardMove: (cardId, from, to, pos) => {
- *     api.post('/cards/move', { cardId, from, to, pos })
+ *   // Fires on every moveCard() — persist the move here.
+ *   onCardMove: (cardId, fromColumnId, toColumnId, position) => {
+ *     void patch(`/cards/${cardId}`, { columnId: toColumnId, position })
  *   },
  * })
  *
- * board.onUpdate((state) => {
- *   console.log('Columns:', state.columns.length)
- * })
+ * const render: KanbanUpdateHandler<Task> = (state) =>
+ *   console.log(state.columns.map((column) => `${column.id}:${column.cards.length}`))
+ * board.onUpdate(render) // re-render your columns from here
+ *
+ * // Your drag-and-drop UI reports "c1 dropped at index 0 of 'doing'":
+ * board.moveCard('c1', 'doing', 0) // logs ['todo:0', 'doing:1', 'done:0'] + PATCH /cards/c1
+ * console.log(board.findCard('c1')?.columnId) // 'doing'
+ * board.offUpdate(render) // on unmount — onUpdate() returns nothing
  * ```
+ *
+ * @remarks
+ * - **Headless — `createBoard()` renders NOTHING and has no drag-and-drop.** Render the
+ *   columns/cards yourself (`getClassMap()`/`cm.*`, text via `t()`), translate your drag
+ *   events (e.g. `@molecule/app-drag-drop`) into `moveCard`/`reorderColumns`, and re-render
+ *   from `onUpdate`.
+ * - `onCardMove` is REQUIRED and fires only for `moveCard()` (not `addCard`/`removeCard`);
+ *   column order changes go to the optional `onColumnReorder`.
+ * - `limit` (WIP) is stored, NOT enforced — `moveCard()` into a full column succeeds;
+ *   check `getColumn(id)` yourself before moving.
+ * - `onUpdate()` returns `void`; unsubscribe with `offUpdate(sameHandler)`.
  *
  * @e2e
  * Integration checklist — drive the real UI (live preview, no mocks), adapt

@@ -30,28 +30,34 @@
  *
  * @example
  * ```ts
- * // e2e/bonds.ts — scaffolded into every app; wires the provider for THIS environment
- * import { resolveE2EProviderName, setProvider } from '@molecule/app-e2e'
+ * import { requireProvider, resolveE2EProviderName, setProvider } from '@molecule/app-e2e'
  * import { provider as playwright } from '@molecule/app-e2e-playwright'
  * import { provider as preview } from '@molecule/app-e2e-preview'
  *
+ * // e2e/bonds.ts — scaffolded into every app; wires the provider for THIS environment
  * setProvider(resolveE2EProviderName() === 'preview' ? preview : playwright)
  *
- * // playwright.config.ts — the shared runner settings first, so the app can override any of them
- * import { defineConfig } from '@playwright/test'
- * import { e2eRunnerDefaults } from '@molecule/app-e2e'
- *
- * export default defineConfig({ ...e2eRunnerDefaults(), testDir: './e2e' })
- *
- * // a script that measures the live page without a test runner
- * import { requireProvider } from '@molecule/app-e2e'
- * const page = await requireProvider().connect({ viewport: { width: 390, height: 844 } })
+ * // A script that measures the running app without a test runner:
+ * const page = await requireProvider().connect({
+ *   baseURL: 'http://localhost:5173',
+ *   viewport: { width: 390, height: 844 },
+ * })
  * await page.goto('/blog/hello/')
- * console.log(await page.locator('article p').first().evaluate((el) => getComputedStyle(el).fontSize))
- * await page.close()
+ * const fontSize = await page
+ *   .locator('article p')
+ *   .first()
+ *   .evaluate((el) => getComputedStyle(el).fontSize)
+ * console.log(fontSize) // e.g. '16px'
+ * await page.close() // a browser bond also closes the context + browser it opened
  * ```
  *
  * @remarks
+ * - **Specs never call `connect()`** — they import `test`/`expect` from
+ *   `@molecule/app-e2e-fixtures-default` and get `page` as a fixture; `connect()` is for
+ *   scripts. And `playwright.config.ts` is `defineConfig({ ...e2eRunnerDefaults(), testDir:
+ *   './e2e' })` — the spread FIRST (see below).
+ * - `requireProvider()` throws until `setProvider()` ran; `getProvider()` returns `null`
+ *   instead. There is no `getPage()`/`launch()` on the core.
  * - `connect()` returns Playwright's `Page` TYPE in every bond, so specs,
  *   helpers and editor completions are the same everywhere. What a bond can
  *   actually do is documented on the bond; the preview bond throws a one-line

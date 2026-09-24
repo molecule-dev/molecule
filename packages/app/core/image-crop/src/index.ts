@@ -8,18 +8,27 @@
  *
  * @example
  * ```typescript
- * import { setProvider, requireProvider } from '@molecule/app-image-crop'
+ * import { post } from '@molecule/app-http'
+ * import { requireProvider, setProvider } from '@molecule/app-image-crop'
  * import { provider } from '@molecule/app-image-crop-cropperjs'
+ * // + `import 'cropperjs/dist/cropper.css'` once in your app entry
  *
- * setProvider(provider)                    // once, at app startup (bonds.ts)
+ * setProvider(provider) // once, at app startup (bonds.ts)
  *
- * const cropper = requireProvider().createCropper({
- *   src: '/photos/avatar.jpg',
- *   aspectRatio: 1,
- *   circular: true,
- * })
- * const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 })
- * canvas.toBlob((blob) => uploadAvatar(blob))
+ * // Browser only (a client-side effect) — cropperjs needs the DOM.
+ * const cropper = requireProvider().createCropper({ src: '/photos/avatar.jpg', aspectRatio: 1 })
+ *
+ * // From your drag handles, after the image loaded — NATURAL-image pixel coordinates:
+ * cropper.setCropData({ x: 120, y: 40, width: 400, height: 400, rotate: 0, scaleX: 1, scaleY: 1 })
+ * const canvas = cropper.getCroppedCanvas({ width: 256, height: 256, fillColor: '#ffffff' })
+ * cropper.destroy()
+ *
+ * canvas.toBlob(async (blob) => {
+ *   if (!blob) return
+ *   const body = new FormData()
+ *   body.append('file', blob, 'avatar.png')
+ *   await post('/users/me/avatar', body) // the server re-validates type/size
+ * }, 'image/png')
  * ```
  *
  * @remarks
@@ -34,6 +43,10 @@
  * - **Wire with THIS package's `setProvider()` or `bond('image-crop', …)`** —
  *   `setProvider()` delegates into the shared `@molecule/app-bond` registry, so both
  *   write the same slot; `requireProvider()` throws until one has run.
+ * - Read/export AFTER the image has loaded (cropperjs initializes on `load`), or set
+ *   the region with `setCropData()` first — otherwise the output is empty.
+ * - `circular: true` does NOT produce round pixels with the cropperjs bond — round the
+ *   crop box in CSS and mask the returned canvas yourself.
  * - Upload the result as a Blob (`canvas.toBlob`) through your upload path; the
  *   server must re-validate the file (type/size) — client cropping is UX, not a
  *   boundary.
