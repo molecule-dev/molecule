@@ -194,7 +194,11 @@ export const switchBase = cva(
   // ANY theme background. The old surface-secondary track matched the panel
   // background in light theme, collapsing an OFF switch (white thumb on a
   // same-color track) into one solid shape.
-  'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+  // Touch hit-area: the visual track is 20-28px tall (sm/md/lg), below every
+  // touch-target floor. The after: pseudo expands the clickable area to a
+  // 40x40 box centered on the track WITHOUT changing the visual size - the
+  // pseudo is part of the <button>, so clicks there drive the same control.
+  'peer relative inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-10 after:w-10 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[""] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       color: {
@@ -805,7 +809,9 @@ export const languagePickerTrigger =
 
 /** Theme toggle button classes. */
 export const themeToggleButton =
-  'w-[30px] h-[30px] p-0 border-0 bg-transparent text-foreground-secondary hover:text-foreground cursor-pointer flex items-center justify-center'
+  // 40x40 trigger (WCAG 2.5.8 target floor with margin); the 20px icon is
+  // centered inside, so the VISUAL size is unchanged - only the hit area grew.
+  'h-10 w-10 p-0 border-0 bg-transparent text-foreground-secondary hover:text-foreground cursor-pointer flex items-center justify-center'
 
 /** OAuth divider classes (horizontal line with text). */
 export const oauthDivider =

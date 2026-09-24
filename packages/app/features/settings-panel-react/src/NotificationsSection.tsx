@@ -106,6 +106,9 @@ export function NotificationsSection(): JSX.Element {
         <Switch
           checked={enabled}
           disabled={busy}
+          // The visible text is a SIBLING span, not the Switch's label —
+          // without aria-label the control is announced as just "switch".
+          aria-label={t('settings.pushNotifications')}
           onChange={(e) => handleToggle((e.target as HTMLInputElement).checked)}
           size="sm"
           data-mol-id="settings-push-toggle"

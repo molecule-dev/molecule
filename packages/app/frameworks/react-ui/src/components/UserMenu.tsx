@@ -99,7 +99,10 @@ export function UserMenu({
         onClick={onClick ?? (() => setOpen(true))}
         aria-label={t(ariaLabelKey, {}, { defaultValue: ariaLabelDefault })}
         data-mol-id={dataMolId}
-        className={className}
+        // 40x40 trigger floor: the icon-only `size="sm"` button measured
+        // 42x26px fleet-wide (flagged as a tiny target in every app QA).
+        // Apps can still widen via `className`; the floor is the default.
+        className={cm.cn('min-h-10 min-w-10', className)}
         disabled={disabled}
       >
         <Icon name={triggerIcon} size={triggerIconSize} />

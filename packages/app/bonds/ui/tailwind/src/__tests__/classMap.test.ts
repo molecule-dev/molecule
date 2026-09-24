@@ -194,8 +194,11 @@ describe('classMap', () => {
       // The unchecked track is foreground/20 (2026-08): the old
       // surface-secondary matched panel backgrounds in light theme, collapsing
       // an OFF switch into one solid shape.
+      // 2026-09: + `relative` and the after: 40x40 touch hit-area expansion —
+      // the visual track is 20-28px tall, below the touch-target floor; the
+      // pseudo is part of the button so taps there drive the same control.
       const EXPECTED_SWITCH_BASE =
-        'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-foreground/20 focus-visible:ring-primary h-6 w-11'
+        'peer relative inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-sm transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-10 after:w-10 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[""] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-foreground/20 focus-visible:ring-primary h-6 w-11'
       const tokens = (s: string): string[] => s.split(/\s+/).filter(Boolean).sort()
       expect(tokens(classMap.switchBase())).toEqual(tokens(EXPECTED_SWITCH_BASE))
     })

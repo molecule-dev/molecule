@@ -51,7 +51,32 @@ export interface IconProps extends Omit<
  * @returns An `<svg>` element rendering the named glyph.
  */
 export function Icon({ name, size = 20, className, ...rest }: IconProps): React.JSX.Element {
-  const icon = getIcon(name)
+  // Graceful degradation: an icon name missing from the bonded set (icon-set
+  // version skew, a custom-set with a smaller catalog) must NOT crash the
+  // whole app — multi-vendor-marketplace shipped a dead app over this. Warn
+  // once per name and render a neutral placeholder circle instead.
+  let icon: ReturnType<typeof getIcon>
+  try {
+    icon = getIcon(name)
+  } catch (error) {
+    console.warn(`Icon: no bonded glyph for "${name}" — rendering a placeholder.`, error)
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 20 20"
+        fill="none"
+        className={className}
+        aria-hidden={
+          rest['aria-label'] == null && rest['aria-labelledby'] == null && rest.role == null
+        }
+        focusable="false"
+        {...rest}
+      >
+        <circle cx="10" cy="10" r="8" fill="currentColor" opacity="0.15" />
+      </svg>
+    )
+  }
   const viewBox = icon.viewBox || '0 0 20 20'
   // Placed BEFORE {...rest} so an explicit caller aria-hidden/role wins.
   const decorativeProps =

@@ -34,6 +34,15 @@ export const setClassMerger = (merger: ClassMerger | null): void => {
  * `gap-*` classes are resolved by it; otherwise the joined string is returned
  * as-is.
  *
+ * @remarks
+ * **ORDERING TRAP (bit a fleet QA repeatedly):** the merger keeps the LAST
+ * occurrence of any conflicting utility group. A responsive show/hide written
+ * as `cn(hidden, 'cm.flex')` silently DROPS the `hidden` — `cm.flex` and
+ * `hidden` are both `display` utilities, and `cm.flex` came last. Always put
+ * the conditional/breakpoint class LAST: `cn('cm.flex', 'hidden md:flex')`.
+ * The same rule covers `overflow-hidden` vs `overflow-x-auto`, `px-*` pairs,
+ * and every other tailwind-merge conflict group.
+ *
  * @param classes - Class values to merge (strings, booleans, objects, arrays).
  * @returns A single space-separated class string.
  *
@@ -41,6 +50,8 @@ export const setClassMerger = (merger: ClassMerger | null): void => {
  * ```typescript
  * cn('btn', 'btn-primary', isActive && 'active')
  * // => 'btn btn-primary active' (if isActive is true)
+ * cn('cm.flex', 'hidden md:flex') // hidden below md, flex above — CORRECT
+ * cn('hidden', 'cm.flex')         // flex at EVERY width — the trap
  * ```
  */
 export const cn = (...classes: ClassValue[]): string => {
