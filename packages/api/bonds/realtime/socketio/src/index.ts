@@ -20,20 +20,50 @@
  *   `broadcast(roomId, …)` emits to, so `broadcast('channel:x', …)` reaches
  *   protocol-joined clients directly. The guard's `auth` payload is the client's
  *   `socket.handshake.auth`.
+ * - **Cross-origin browsers need CORS** — Socket.io v4 allows none by default and this bond
+ *   adds none. When the app is served from another origin than the API, pass
+ *   `serverOptions: { cors: { origin, credentials: true } }`.
+ * - Without a registered `onJoinRequest` guard, ANY connected client may join ANY room by name.
  *
- * @module
  * @example
  * ```typescript
- * import { createProvider } from '@molecule/api-realtime-socketio'
- * import { setProvider } from '@molecule/api-realtime'
  * import http from 'node:http'
  *
- * const server = http.createServer()
- * const realtimeProvider = createProvider({ httpServer: server })
- * setProvider(realtimeProvider)
+ * import { getLogger } from '@molecule/api-bond'
+ * import { broadcast, onJoinRequest, onMessage, setProvider } from '@molecule/api-realtime'
+ * import { createProvider } from '@molecule/api-realtime-socketio'
  *
- * server.listen(3000)
+ * const logger = getLogger()
+ *
+ * // Startup: share the API's HTTP server (served at /socket.io/) instead of a standalone port.
+ * const server = http.createServer()
+ * const realtime = createProvider({
+ *   deferAttach: true,
+ *   serverOptions: { cors: { origin: process.env.APP_ORIGIN, credentials: true } },
+ * })
+ * setProvider(realtime)
+ * realtime.attachHttpServer?.(server)
+ *
+ * // Authorize `molecule:join` { room }. auth = the client's `io(url, { auth: { token } })`.
+ * const sessionUserByToken = new Map([['token-ada', 'user-ada']]) // your session store
+ * const channelMembers = new Map([['channel:general', new Set(['user-ada'])]])
+ * onJoinRequest(({ room, auth }) => {
+ *   const userId = sessionUserByToken.get(String(auth.token))
+ *   return userId !== undefined && (channelMembers.get(room)?.has(userId) ?? false)
+ * })
+ *
+ * // A client's `molecule:room-send` { room, event, data } lands here; fan it out to the room.
+ * onMessage((roomId, clientId, event, data) => {
+ *   if (event !== 'chat') return
+ *   broadcast(roomId, 'chat', { from: clientId, text: data }).catch((error: unknown) => {
+ *     logger.error('realtime chat broadcast failed', { roomId, error })
+ *   })
+ * })
+ *
+ * server.listen(Number(process.env.PORT ?? 3000))
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

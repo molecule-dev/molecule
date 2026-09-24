@@ -20,32 +20,41 @@
  *   last member leaves/disconnects. Guard server-side pushes accordingly (the
  *   `-socketio` bond silently no-ops instead).
  *
- * @module
  * @example
  * ```typescript
  * import http from 'node:http'
+ *
+ * import { getLogger } from '@molecule/api-bond'
+ * import { broadcast, onJoinRequest, onMessage, setProvider } from '@molecule/api-realtime'
  * import { createProvider } from '@molecule/api-realtime-sse'
- * import { setProvider } from '@molecule/api-realtime'
  *
- * // Attach the SSE endpoints to the API's own HTTP server so realtime
- * // shares the API port (a standalone `port` binds a SECOND port that a
- * // containerized/proxied deployment usually does not expose — and the
- * // default port 3000 collides with the typical API port).
+ * const logger = getLogger()
+ *
+ * // Startup: mount GET/POST /sse on the API's own HTTP server (shared port).
  * const server = http.createServer()
- * const sseProvider = createProvider({ httpServer: server, path: '/sse' })
+ * const realtime = createProvider({ httpServer: server, path: '/sse', corsOrigin: process.env.APP_ORIGIN })
+ * setProvider(realtime)
  *
- * // Bond it as the active realtime provider
- * setProvider(sseProvider)
+ * // Authorize joins. auth = the subscribe query params except room/rooms (+ Authorization header).
+ * // Browser: new EventSource('/sse?token=token-ada&room=channel:general')
+ * const sessionUserByToken = new Map([['token-ada', 'user-ada']]) // your session store
+ * const channelMembers = new Map([['channel:general', new Set(['user-ada'])]])
+ * onJoinRequest(({ room, auth }) => {
+ *   const userId = sessionUserByToken.get(String(auth.token))
+ *   return userId !== undefined && (channelMembers.get(room)?.has(userId) ?? false)
+ * })
  *
- * server.listen(3000)
+ * // POST /sse { clientId, event: 'molecule:room-send', data: { room, event: 'chat', data } }
+ * onMessage((roomId, clientId, event, data) => {
+ *   if (event !== 'chat') return
+ *   broadcast(roomId, 'chat', { from: clientId, text: data }).catch((error: unknown) => {
+ *     logger.error('realtime chat broadcast failed', { roomId, error }) // throws for an empty room
+ *   })
+ * })
  *
- * // When the HTTP server doesn't exist yet at wiring time (e.g. a server
- * // factory that creates it later), defer instead of passing httpServer:
- * // const sseProvider = createProvider({ deferAttach: true, path: '/sse' })
- * // setProvider(sseProvider)
- * // // once the server exists (e.g. a server-created hook):
- * // sseProvider.attachHttpServer(server)
+ * server.listen(Number(process.env.PORT ?? 3000))
  * ```
+ *
  * @remarks
  * - **`createProvider()` with NO `port`, NO `httpServer`, and NO
  *   `deferAttach` does NOT bind anything** — creating a provider must never
@@ -64,6 +73,12 @@
  *   default; only when neither is configured does it fall back to `'*'`,
  *   logging a warning naming the risk. Set `corsOrigin` explicitly to
  *   override either way.
+ * - **SSE is the only realtime bond that fits a serverless / no-persistent-server host**
+ *   (e.g. Next.js App Router) — but `broadcast()` reaches only clients connected to THIS
+ *   process; multi-instance deployments need sticky sessions or a pub/sub fan-out.
+ * - Without a registered `onJoinRequest` guard, ANY subscriber may join ANY room by name.
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

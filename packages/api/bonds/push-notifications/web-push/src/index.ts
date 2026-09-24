@@ -8,10 +8,27 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-push-notifications'
- * import { provider } from '@molecule/api-push-notifications-web-push'
+ * import type { PushSubscription } from '@molecule/api-push-notifications'
+ * import { getPublicKey, sendMany, setProvider } from '@molecule/api-push-notifications'
+ * import { createProvider } from '@molecule/api-push-notifications-web-push'
  *
- * setProvider(provider) // VAPID config is read from env on first send
+ * // Startup. Env: VAPID_EMAIL, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY — read on the FIRST send.
+ * setProvider(createProvider())
+ *
+ * // Serve this to the browser for `pushManager.subscribe({ applicationServerKey })`.
+ * const applicationServerKey = getPublicKey()
+ *
+ * // What the browser's `PushSubscription.toJSON()` sent you (store it per user).
+ * const subscriptions: PushSubscription[] = [
+ *   { endpoint: 'https://fcm.googleapis.com/fcm/send/abc123', keys: { p256dh: 'BNc...', auth: 'tBH...' } },
+ *   { endpoint: 'https://updates.push.services.mozilla.com/wpush/v2/def456', keys: { p256dh: 'BPx...', auth: 'k3r...' } },
+ * ]
+ * const results = await sendMany(subscriptions, {
+ *   title: 'New message',
+ *   options: { body: 'Ada sent you a message', data: { url: '/inbox' } },
+ * })
+ * // One dead subscription never aborts the batch — it comes back with `error` set.
+ * const failedEndpoints = results.filter((entry) => entry.error).map((entry) => entry.subscription.endpoint)
  * ```
  *
  * @remarks
@@ -30,6 +47,15 @@
  * needed for manual provisioning or rotation. `sendMany()` uses
  * `Promise.allSettled`: one dead subscription never aborts the batch (check
  * each result's `error`).
+ *
+ * - **The payload is `JSON.stringify(payload)`** — your service worker's `push` handler
+ *   must `event.data.json()` and call `showNotification(title, options)` itself; nothing
+ *   is displayed without it.
+ * - **Prune expired subscriptions yourself.** A failed entry's `error` is `web-push`'s
+ *   `WebPushError`; a `statusCode` of 404 or 410 means the browser unsubscribed — delete
+ *   that stored subscription, or every later send fails for it again.
+ * - VAPID details are set on the `web-push` module GLOBALLY: two instances configured
+ *   with different keys overwrite each other.
  *
  * @module
  */

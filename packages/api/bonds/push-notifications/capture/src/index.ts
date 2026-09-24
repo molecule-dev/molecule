@@ -6,10 +6,25 @@
  *
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-push-notifications'
- * import { provider } from '@molecule/api-push-capture'
+ * import type { ActivityEvent } from '@molecule/api-activity'
+ * import { setSink } from '@molecule/api-activity'
+ * import { createPushCaptureProvider } from '@molecule/api-push-capture'
+ * import { send, setProvider } from '@molecule/api-push-notifications'
  *
- * setProvider(provider)
+ * // Startup (dev / preview): an activity sink to receive the captured events, then the
+ * // INTERCEPT-ONLY capture provider. Nothing is delivered to the subscriber.
+ * // (Production: `createPushCaptureProvider(realProvider)` delivers AND records.)
+ * const captured: ActivityEvent[] = []
+ * setSink({ record: async (event) => void captured.push(event) })
+ * setProvider(createPushCaptureProvider())
+ *
+ * const result = await send(
+ *   { endpoint: 'https://push.example.com/sub/abc', keys: { p256dh: 'p256dh-key', auth: 'auth-key' } },
+ *   { title: 'Order shipped', options: { body: 'Your order is on the way' } },
+ * )
+ * // result.statusCode === 201 (synthetic)
+ * // captured[0] → { type: 'push', status: 'captured', recipient: 'https://push.example.com/sub/abc',
+ * //                 summary: 'Order shipped', ... }
  * ```
  *
  * @remarks
@@ -21,6 +36,9 @@
  *   records the real outcome. Anywhere real notifications must go out
  *   (production), wrap the real provider — never bond the intercept-only
  *   provider.
+ * - **Bond an activity sink** (`setSink(...)` from `@molecule/api-activity`, e.g.
+ *   `@molecule/api-activity-console`) — with no sink, `record()` silently no-ops and the
+ *   intercepted notification leaves no trace at all.
  * - Recording is best-effort: a bonded `ActivitySink` that throws NEVER changes
  *   the outcome of `send()` — a successful real send still resolves and a
  *   failed one still rejects with the REAL provider error.

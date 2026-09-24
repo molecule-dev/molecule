@@ -12,16 +12,41 @@
  *
  * @example
  * ```typescript
- * import { setProvider, send, subscribe } from '@molecule/api-queue'
- * import { provider } from '@molecule/api-queue-sqs'
+ * import { send, setProvider, subscribe } from '@molecule/api-queue'
+ * import { createProvider } from '@molecule/api-queue-sqs'
  *
- * setProvider(provider)
+ * // Startup. Env: AWS_REGION + the standard AWS credential chain (AWS_ACCESS_KEY_ID /
+ * // AWS_SECRET_ACCESS_KEY, or an IAM role). SQS_ENDPOINT only for LocalStack.
+ * const sqs = createProvider({ region: process.env.AWS_REGION })
+ * setProvider(sqs)
  *
- * subscribe<{ userId: string }>('emails', async (message) => {
- *   await deliver(message.body) // returning normally acks (deletes) the message
+ * // Queues must EXIST (here, or in IaC). The DLQ first — the redrive policy needs its ARN.
+ * await sqs.createQueue?.('emails-dlq')
+ * await sqs.createQueue?.('emails', {
+ *   visibilityTimeout: 60, // seconds a received message stays hidden before a retry
+ *   deadLetterQueue: { name: 'emails-dlq', maxReceiveCount: 5 },
  * })
  *
- * await send('emails', { body: { userId: 'u1' } })
+ * interface WelcomeEmailJob {
+ *   to: string
+ *   name: string
+ * }
+ * const greeted: string[] = []
+ * // Long-polls (20 s); returning = ack (DeleteMessage); a throw = retry after visibilityTimeout.
+ * const unsubscribe = subscribe<WelcomeEmailJob>('emails', async (message) => {
+ *   greeted.push(`Welcome, ${message.body.name} <${message.body.to}>`)
+ * })
+ *
+ * await send<WelcomeEmailJob>('emails', { body: { to: 'ada@example.com', name: 'Ada' } })
+ * await send<WelcomeEmailJob>('emails', {
+ *   body: { to: 'grace@example.com', name: 'Grace' },
+ *   delaySeconds: 60, // SECONDS; SQS caps it at 900
+ * })
+ *
+ * process.on('SIGTERM', () => {
+ *   unsubscribe()
+ *   void sqs.close?.()
+ * })
  * ```
  *
  * @remarks

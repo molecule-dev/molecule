@@ -7,16 +7,40 @@
  *
  * @example
  * ```typescript
- * import { setProvider, send, subscribe } from '@molecule/api-queue'
- * import { provider } from '@molecule/api-queue-redis'
+ * import { send, setProvider, subscribe } from '@molecule/api-queue'
+ * import { createProvider } from '@molecule/api-queue-redis'
  *
- * setProvider(provider) // connects lazily using REDIS_* env vars
+ * // Startup. Env: REDIS_URL (e.g. rediss://redis.example.com:6380). No REDIS_URL/REDIS_HOST
+ * // means localhost:6379.
+ * const redisQueues = createProvider({ url: process.env.REDIS_URL, prefix: 'myapp:queue:' })
+ * setProvider(redisQueues)
  *
- * subscribe<{ userId: string }>('emails', async (message) => {
- *   await deliver(message.body) // returning normally acks the message
+ * interface WelcomeEmailJob {
+ *   to: string
+ *   name: string
+ * }
+ * const greeted: string[] = []
+ * // Worker: returning = ack; a throw retries (3 attempts, exponential backoff from 1 s).
+ * const unsubscribe = subscribe<WelcomeEmailJob>(
+ *   'emails',
+ *   async (message) => {
+ *     greeted.push(`Welcome, ${message.body.name} <${message.body.to}>`)
+ *   },
+ *   { maxMessages: 5 }, // worker concurrency
+ * )
+ *
+ * const job = { to: 'ada@example.com', name: 'Ada' }
+ * await send<WelcomeEmailJob>('emails', { body: job, deduplicationId: 'welcome-user-1' })
+ * await send<WelcomeEmailJob>('emails', { body: job, deduplicationId: 'welcome-user-1' }) // no-op
+ * await send<WelcomeEmailJob>('emails', {
+ *   body: { to: 'grace@example.com', name: 'Grace' },
+ *   delaySeconds: 60, // SECONDS, not ms
  * })
  *
- * await send('emails', { body: { userId: 'u1' } })
+ * process.on('SIGTERM', () => {
+ *   unsubscribe()
+ *   void redisQueues.close?.() // releases every Redis connection
+ * })
  * ```
  *
  * @remarks

@@ -7,16 +7,37 @@
  *
  * @example
  * ```typescript
- * import { setProvider, send, subscribe } from '@molecule/api-queue'
- * import { provider } from '@molecule/api-queue-rabbitmq'
+ * import { send, setProvider, subscribe } from '@molecule/api-queue'
+ * import { createProvider } from '@molecule/api-queue-rabbitmq'
  *
- * setProvider(provider) // connects on first operation using RABBITMQ_* env vars
+ * // Startup. Env: RABBITMQ_URL (e.g. amqps://rabbit.example.com:5671/app). The first
+ * // connection attempt REJECTS on a bad URL / unreachable broker — boot fails fast.
+ * const rabbit = await createProvider({ url: process.env.RABBITMQ_URL, prefetch: 10 })
+ * setProvider(rabbit)
  *
- * subscribe<{ userId: string }>('emails', async (message) => {
- *   await deliver(message.body) // returning normally acks the message
+ * // A handler throw requeues ONCE, then dead-letters — with no DLQ the message is DROPPED.
+ * await rabbit.createQueue?.('emails.dead')
+ * await rabbit.createQueue?.('emails', { deadLetterQueue: { name: 'emails.dead', maxReceiveCount: 2 } })
+ *
+ * interface WelcomeEmailJob {
+ *   to: string
+ *   name: string
+ * }
+ * const greeted: string[] = []
+ * const unsubscribe = subscribe<WelcomeEmailJob>('emails', async (message) => {
+ *   greeted.push(`Welcome, ${message.body.name} <${message.body.to}>`) // returning = ack
  * })
  *
- * await send('emails', { body: { userId: 'u1' } })
+ * await send<WelcomeEmailJob>('emails', { body: { to: 'ada@example.com', name: 'Ada' } })
+ * await send<WelcomeEmailJob>('emails', {
+ *   body: { to: 'grace@example.com', name: 'Grace' },
+ *   delaySeconds: 60, // SECONDS; parked on the `emails.delay.60000` wait queue
+ * })
+ *
+ * process.on('SIGTERM', () => {
+ *   unsubscribe()
+ *   void rabbit.close?.()
+ * })
  * ```
  *
  * @remarks
@@ -28,7 +49,15 @@
  * - **A handler throw = one immediate requeue.** A message that fails again
  *   after redelivery is routed to the queue's dead-letter exchange when one was
  *   configured (`createQueue(name, { deadLetterQueue })`) — otherwise it is
- *   DROPPED. Configure a dead-letter queue for anything you cannot afford to lose.
+ *   DROPPED. Configure a dead-letter queue for anything you cannot afford to lose,
+ *   and create the dead-letter queue itself first (the broker drops messages routed to
+ *   a queue that does not exist). `deadLetterQueue.maxReceiveCount` is IGNORED here —
+ *   it is always one requeue.
+ * - **Use `createProvider()` (async) or the lazy `provider` export** — the lazy one
+ *   connects on first use, so a bad `RABBITMQ_URL` surfaces at the first `send()`, not
+ *   at boot. With neither `RABBITMQ_URL` nor `RABBITMQ_HOST` it dials
+ *   `amqp://guest:guest@localhost:5672/`. `createQueue`/`close` are optional on the
+ *   core `QueueProvider` type, hence `rabbit.createQueue?.(...)`.
  * - **`delaySeconds` works out of the box — no `rabbitmq-delayed-message-exchange`
  *   plugin required.** A message with `delaySeconds` is parked on a
  *   per-delay wait queue (named `<queue>.delay.<ms>`, created on demand)

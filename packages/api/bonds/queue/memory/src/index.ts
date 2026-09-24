@@ -12,19 +12,32 @@
  *
  * @example
  * ```typescript
- * import { setProvider, queue } from '@molecule/api-queue'
- * import { provider } from '@molecule/api-queue-memory'
+ * import { send, setProvider, subscribe } from '@molecule/api-queue'
+ * import { createProvider } from '@molecule/api-queue-memory'
  *
- * setProvider(provider) // no configuration, no env vars
+ * // Startup: no configuration, no env vars (dev / tests / single process only).
+ * setProvider(createProvider())
  *
- * const emails = queue('emails')
- * const unsubscribe = emails.subscribe(async (message) => {
- *   await deliver(message.body)
- *   await message.ack() // handler success also auto-acks
+ * interface WelcomeEmailJob {
+ *   to: string
+ *   name: string
+ * }
+ * const greeted: string[] = []
+ *
+ * // Worker: returning normally ACKs; throwing redelivers (at-least-once, up to 3 times).
+ * const unsubscribe = subscribe<WelcomeEmailJob>('emails', async (message) => {
+ *   greeted.push(`Welcome, ${message.body.name} <${message.body.to}>`)
  * })
  *
- * await emails.send({ body: { to: 'a@b.c' } })
- * await emails.send({ body: { to: 'later@b.c' }, delaySeconds: 60 })
+ * await send<WelcomeEmailJob>('emails', { body: { to: 'ada@example.com', name: 'Ada' } })
+ * await send<WelcomeEmailJob>('emails', {
+ *   body: { to: 'grace@example.com', name: 'Grace' },
+ *   delaySeconds: 60, // SECONDS, not ms
+ * })
+ * // Shortly after: greeted → ['Welcome, Ada <ada@example.com>']; Grace ~60 s later.
+ *
+ * // Shutdown: stop consuming.
+ * unsubscribe()
  * ```
  *
  * @remarks
