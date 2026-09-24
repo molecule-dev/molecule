@@ -4,14 +4,6 @@
  * Records every `dispatch()` call as an activity event. Intercept-only by
  * default; delegates + tees when wrapping a real provider.
  *
- * @example
- * ```typescript
- * import { setProvider } from '@molecule/api-webhook'
- * import { provider } from '@molecule/api-webhook-capture'
- *
- * setProvider(provider)
- * ```
- *
  * @remarks
  * - **Two modes, and the choice decides whether the webhook is DELIVERED.**
  *   INTERCEPT-ONLY (`provider`, or `createWebhookCaptureProvider()` with no
@@ -37,6 +29,28 @@
  * - To capture AND really deliver, wrap a real provider:
  *   `setProvider(createWebhookCaptureProvider(createProvider()))` with
  *   `createProvider` from `@molecule/api-webhook-http`.
+ * - Wire it with the core's `setProvider()` from `@molecule/api-webhook` (not
+ *   `bond('webhook-capture', ...)`), and the sink with `setSink()` from
+ *   `@molecule/api-activity` (not `setProvider`). The recorded event is
+ *   `{ type: 'webhook', status: 'captured' | 'sent' | 'failed', recipient: <event name> }`.
+ *
+ * @example
+ * ```typescript
+ * import { setSink } from '@molecule/api-activity'
+ * import { provider as consoleSink } from '@molecule/api-activity-console'
+ * import { dispatch, register, setProvider } from '@molecule/api-webhook'
+ * import { provider as captureWebhooks } from '@molecule/api-webhook-capture'
+ *
+ * // Startup (dev/preview ONLY — intercept-only mode delivers nothing):
+ * setSink(consoleSink) // without a sink, captures leave no trace at all
+ * setProvider(captureWebhooks)
+ *
+ * await register('https://hooks.example.com/orders', ['order.created'], { secret: 'whsec-dev' })
+ *
+ * const results = await dispatch('order.created', { orderId: 'ord_123', total: 4999 })
+ * // [{ webhookId: 'captured-…', deliveryId: 'captured-…', status: 200, success: true, duration: 0 }]
+ * // …and the sink received { type: 'webhook', status: 'captured', recipient: 'order.created', … }
+ * ```
  *
  * @module
  */

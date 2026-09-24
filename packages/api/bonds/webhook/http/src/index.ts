@@ -23,23 +23,34 @@
  * - `dispatch()` never throws on delivery failure — check each result's
  *   `success` (network errors/timeouts appear as `status: 0`). Retries are
  *   synchronous: `dispatch()` resolves only after all attempts finish.
+ * - Receivers MUST dedup on the `x-webhook-delivery-id` header — it is stable across the
+ *   retries of one logical delivery (delivery is at-least-once), while the result's
+ *   `deliveryId` is per attempt and only for this app's delivery log.
+ * - `retryCount` is the number of RETRIES after the first attempt (default 3 → up to 4
+ *   POSTs); `timeout` and `retryDelay` are milliseconds. Only 2xx counts as success.
+ * - Wire it with the core's `setProvider()` from `@molecule/api-webhook` (not
+ *   `bond('webhook-http', ...)`). No env vars or secrets — `register()` generates a random
+ *   per-registration `secret` when you omit one; hand it to the receiver.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-webhook'
+ * import { dispatch, register, setProvider } from '@molecule/api-webhook'
  * import { createProvider } from '@molecule/api-webhook-http'
  *
- * // Bond at startup
- * setProvider(createProvider())
+ * // Startup. In-memory registrations: re-register saved subscriptions after every boot.
+ * setProvider(createProvider({ timeout: 10_000, retryCount: 3, retryDelay: 2000 })) // ms
  *
- * // Or with custom configuration
- * setProvider(createProvider({
- *   timeout: 10_000,
- *   retryCount: 5,
- *   retryDelay: 2000,
- * }))
+ * const hook = await register('https://hooks.partner.example.com/orders', ['order.created'], {
+ *   secret: process.env.ORDERS_WEBHOOK_SECRET, // omit → a random secret is generated
+ * })
+ * // Persist hook.id + hook.secret; the receiver verifies x-webhook-signature with the secret.
+ *
+ * const results = await dispatch('order.created', { orderId: 'ord_123', total: 4999 })
+ * // One result per matching registration — dispatch() never throws on delivery failure:
+ * const failed = results.filter((r) => !r.success) // status 0 = network/SSRF-blocked/timeout
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

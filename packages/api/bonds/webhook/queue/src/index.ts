@@ -33,23 +33,36 @@
  *   hex HMAC-SHA256 of the body in `x-webhook-signature` (configurable),
  *   private/metadata destinations refused at connect (failed deliveries in
  *   the log, never a throw).
+ * - **Unlike the http bond, it sends NO `x-webhook-delivery-id` header** — receivers
+ *   cannot dedup retried deliveries by id; make receiver handlers idempotent on your own
+ *   payload id (e.g. `orderId`).
+ * - Wire it with the core's `setProvider()` from `@molecule/api-webhook` (not
+ *   `bond('webhook-queue', ...)`). No env vars; `baseDelay`/`maxDelay`/`timeout` are
+ *   milliseconds. `getDeliveryLog()` has NO entry for a delivery until its final attempt
+ *   finishes (it stays `undefined` while queued or retrying).
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-webhook'
+ * import { dispatch, getDeliveryLog, register, setProvider } from '@molecule/api-webhook'
  * import { createProvider } from '@molecule/api-webhook-queue'
  *
- * // Bond at startup
- * setProvider(createProvider())
+ * // Startup. In-memory queue + registrations: re-register saved subscriptions after every boot.
+ * setProvider(createProvider({ maxRetries: 5, baseDelay: 1000, maxDelay: 60_000, concurrency: 10 }))
  *
- * // Or with custom configuration
- * setProvider(createProvider({
- *   maxRetries: 10,
- *   baseDelay: 2000,
- *   concurrency: 5,
- * }))
+ * const hook = await register('https://hooks.partner.example.com/orders', ['order.created'], {
+ *   secret: process.env.ORDERS_WEBHOOK_SECRET, // omit → a random secret is generated
+ * })
+ *
+ * const [receipt] = await dispatch('order.created', { orderId: 'ord_123', total: 4999 })
+ * // receipt: { webhookId: hook.id, deliveryId, status: 202, success: true } — QUEUED, not delivered
+ *
+ * // Later (e.g. an admin "deliveries" view): the REAL outcome, once the final attempt ran.
+ * const log = await getDeliveryLog(hook.id)
+ * const outcome = log.find((delivery) => delivery.id === receipt?.deliveryId)
+ * // outcome?.success / outcome?.status → the receiver's response; undefined while pending
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'

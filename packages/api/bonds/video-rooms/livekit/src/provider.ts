@@ -14,6 +14,8 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
+
 // Side-effect import: registers this bond's secret definitions so the
 // runtime registry is populated even when provider.js is imported directly
 // (not through the package barrel).
@@ -319,9 +321,15 @@ export function createProvider(config: LiveKitVideoRoomsConfig = {}): VideoRooms
   ): Promise<string> {
     const ttl = toTtlSeconds(options.expiresAt) ?? defaultTokenTtl
 
-    const tokenOptions: { ttl: number; identity?: string; name?: string } = { ttl }
+    // LiveKit refuses to sign a roomJoin token without an identity ("identity is
+    // required for join but not set"), which made createRoom()'s owner token — and
+    // any createMeetingToken() call without a userName — throw against the real SDK.
+    // Fall back to a unique generated identity when no userName is given.
+    const tokenOptions: { ttl: number; identity: string; name?: string } = {
+      ttl,
+      identity: options.userName ?? `participant-${randomUUID()}`,
+    }
     if (options.userName !== undefined) {
-      tokenOptions.identity = options.userName
       tokenOptions.name = options.userName
     }
 

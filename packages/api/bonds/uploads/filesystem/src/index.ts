@@ -24,6 +24,43 @@
  *   and the directory is created immediately — importing this package throws
  *   an actionable error if the path is not writable, and changing the env
  *   var later in the same process has no effect (restart required).
+ * - **`FILE_UPLOAD_PATH` is RELATIVE to `process.cwd()`** (it is `path.join`ed onto it — an
+ *   absolute path is NOT honored as absolute). Files are stored under a bare uuid (the
+ *   returned `file.id`) with NO extension and NO metadata — persist `filename`/`mimetype`
+ *   yourself if you need them to serve the file back.
+ * - **There is no `bond('uploads-filesystem', ...)`** — wire it with the core's
+ *   `setProvider(provider)` from `@molecule/api-uploads`. It exports no `createProvider()`:
+ *   the only configuration is the env var.
+ * - `upload()` returns synchronously — the bytes are on disk only after `await
+ *   file.uploadPromise`. `getFile(id)` resolves `null` for an unknown id (never an erroring
+ *   stream); an id that escapes the upload directory throws `Invalid file ID`.
+ *
+ * @example
+ * ```typescript
+ * import { Readable } from 'node:stream'
+ *
+ * import { getProvider, setProvider } from '@molecule/api-uploads'
+ * import { provider as filesystemUploads } from '@molecule/api-uploads-filesystem'
+ *
+ * // Startup. Env: FILE_UPLOAD_PATH (relative to process.cwd(), default 'uploads') — read at import.
+ * setProvider(filesystemUploads)
+ *
+ * const uploads = getProvider()
+ * const source = Readable.from([Buffer.from('Hello, uploads!')]) // e.g. busboy's file stream
+ * const file = uploads.upload(
+ *   'document',
+ *   source,
+ *   { filename: 'hello.txt', encoding: '7bit', mimeType: 'text/plain' },
+ *   (error) => console.error('Upload failed', error),
+ * )
+ * await file.uploadPromise // file.uploaded === true, file.size === 15
+ *
+ * // Persist file.id (NOT a path). Later, stream it back or delete it:
+ * const stored = await uploads.getFile?.(file.id) // ReadStream, or null if missing
+ * let text = ''
+ * for await (const chunk of stored ?? []) text += String(chunk) // 'Hello, uploads!'
+ * await uploads.deleteFile(file.id)
+ * ```
  *
  * @module
  */

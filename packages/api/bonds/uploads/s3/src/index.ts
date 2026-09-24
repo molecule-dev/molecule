@@ -43,6 +43,43 @@
  *   otherwise). An internal S3-compatible endpoint listed in `NO_PROXY` keeps
  *   connecting directly, and with no proxy configured nothing is passed at all.
  *   Allowlist `*.amazonaws.com` (or your store's host) on the proxy.
+ * - **There is no `createProvider()` and no `bond('uploads-s3', ...)`** — wire the exported
+ *   `provider` with the core's `setProvider()` from `@molecule/api-uploads`. Env is read
+ *   lazily (on the first S3 call), so secrets resolved after import are honored.
+ * - **A missing `AWS_S3_BUCKET` does NOT throw from `upload()`** — it is reported through
+ *   `onError` and the returned file has `uploaded: false` and no `uploadPromise`. Always pass
+ *   a real `onError`.
+ * - The object key is a bare uuid (`file.id`); `file.location` is the raw bucket URL — persist
+ *   `file.id`, never `location` (it 403s on a private bucket). `getFile(id)` resolves `null`
+ *   only for `NoSuchKey`; a wrong bucket or bad credentials still throw.
+ *
+ * @example
+ * ```typescript
+ * import { Readable } from 'node:stream'
+ *
+ * import { getProvider, setProvider } from '@molecule/api-uploads'
+ * import { provider as s3Uploads } from '@molecule/api-uploads-s3'
+ *
+ * // Startup. Env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET, AWS_S3_REGION
+ * // (+ AWS_S3_ENDPOINT for R2/MinIO/Spaces). Keep the bucket PRIVATE.
+ * setProvider(s3Uploads)
+ *
+ * const uploads = getProvider()
+ * const source = Readable.from([Buffer.from('Hello, uploads!')]) // e.g. busboy's file stream
+ * const file = uploads.upload(
+ *   'document',
+ *   source,
+ *   { filename: 'hello.txt', encoding: '7bit', mimeType: 'text/plain' },
+ *   (error) => console.error('Upload failed', error),
+ * )
+ * await file.uploadPromise // file.uploaded === true; the S3 object key is file.id
+ *
+ * // Persist file.id (NOT file.location). Later, stream it back through your API or delete it:
+ * const stored = await uploads.getFile?.(file.id) // readable stream, or null if the key is gone
+ * let text = ''
+ * for await (const chunk of stored ?? []) text += String(chunk) // 'Hello, uploads!'
+ * await uploads.deleteFile(file.id)
+ * ```
  *
  * @module
  */

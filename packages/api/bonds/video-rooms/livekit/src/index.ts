@@ -32,29 +32,45 @@
  *   `roomAdmin` — there is no subscribe-only token option in this revision.
  * - `createProvider()` throws at bond time when LIVEKIT_URL /
  *   LIVEKIT_API_KEY / LIVEKIT_API_SECRET are unset.
+ * - **Wire it through the core's `setProvider()`** from `@molecule/api-video-rooms` (not
+ *   `bond('video-rooms-livekit', ...)`), then call the core's `createRoom()` /
+ *   `createMeetingToken()` / `getRoom()` / `deleteRoom()` / `listRecordings()`.
+ * - `createRoom()` ALSO returns an owner token (`room.token`, `roomAdmin` grant) — hand that
+ *   to the creator only; issue every other participant their own `createMeetingToken()`.
+ *   `userName` becomes the token's LiveKit `identity`, so give each participant a UNIQUE
+ *   one (two joins with the same identity kick each other out); without `userName` a random
+ *   `participant-<uuid>` identity is generated.
+ * - The API secret is server-only: send `{ url: room.url, token }` to the client, which
+ *   connects with a LiveKit client SDK. Tokens are HS256 JWTs signed locally — issuing one
+ *   makes no network call.
  *
- * @module
  * @example
  * ```typescript
- * import { setProvider } from '@molecule/api-video-rooms'
+ * import { createMeetingToken, createRoom, setProvider } from '@molecule/api-video-rooms'
  * import { createProvider } from '@molecule/api-video-rooms-livekit'
  *
- * // Bond at startup (reads LIVEKIT_URL / LIVEKIT_API_KEY /
- * // LIVEKIT_API_SECRET by default)
- * setProvider(createProvider())
+ * // Startup. Env: LIVEKIT_URL (wss:// or https://), LIVEKIT_API_KEY, LIVEKIT_API_SECRET
+ * // — createProvider() throws right here if any is missing.
+ * setProvider(
+ *   createProvider({
+ *     host: process.env.LIVEKIT_URL,
+ *     apiKey: process.env.LIVEKIT_API_KEY,
+ *     apiSecret: process.env.LIVEKIT_API_SECRET,
+ *   }),
+ * )
  *
- * // Explicit config. For real cloud recording, also pass `recordingEgress` — a
- * // LiveKit `RoomEgress` (built with RoomCompositeEgressRequest + EncodedFileOutput
- * // + your S3/GCP/Azure upload), or a `(roomName) => RoomEgress` factory; see the
- * // `recordingEgress` docs in @remarks. With it, `createRoom({ recording: true })`
- * // starts a real room-composite egress; WITHOUT it, that call throws rather than
- * // silently not recording.
- * setProvider(createProvider({
- *   host: 'https://livekit.example.com',
- *   apiKey: 'APIxxx',
- *   apiSecret: 'secretxxx',
- * }))
+ * // No `privacy: 'public'` (throws) and no `recording: true` without `recordingEgress` (throws).
+ * const room = await createRoom({ name: 'standup-2026-10-01', maxParticipants: 10 })
+ * // room.url → 'wss://…' (the server, not a join link); room.token → the creator's owner token
+ *
+ * const token = await createMeetingToken(room.name, {
+ *   userName: 'grace-hopper', // becomes the LiveKit identity — unique per participant
+ *   expiresAt: new Date(Date.now() + 60 * 60 * 1000), // a Date; default TTL is 6 hours
+ * })
+ * // Send { url: room.url, token } to the participant's LiveKit client SDK.
  * ```
+ *
+ * @module
  */
 
 export * from './browser-guard.js'
