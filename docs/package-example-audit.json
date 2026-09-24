@@ -1,10 +1,10 @@
 {
   "summary": {
     "packages": 942,
-    "hasExample": 702,
-    "compiles": 442,
-    "tested": 0,
-    "done": 0
+    "hasExample": 891,
+    "compiles": 635,
+    "tested": 193,
+    "done": 193
   },
   "packages": [
     {
@@ -640,14 +640,12 @@
       "type": "provider",
       "category": "cache",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-cache-redis",
@@ -2835,14 +2833,10 @@
       "inRegistry": "y",
       "hasExample": "y",
       "exampleCount": 1,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "L7: Cannot find name 'userData'.",
-        "L8: Cannot find name 'UserData'.",
-        "L9: Cannot find name 'fetchUser'."
-      ],
-      "done": "n"
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-calendar",
@@ -3915,10 +3909,8 @@
       "hasExample": "y",
       "exampleCount": 1,
       "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "L13: Cannot find module '@molecule/api-resource/schema' or its corresponding type declarations."
-      ],
+      "compiles": "y",
+      "compileErrors": [],
       "done": "n"
     },
     {
@@ -3944,14 +3936,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-ai-anthropic",
@@ -3959,14 +3949,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-ai-conversation",
@@ -3974,14 +3962,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-analytics",
@@ -3989,14 +3975,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-body-parser",
@@ -4004,14 +3988,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-cache",
@@ -4019,14 +4001,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-code-sandbox",
@@ -4034,14 +4014,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-code-sandbox-docker",
@@ -4049,14 +4027,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-config",
@@ -4064,14 +4040,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-database",
@@ -4079,14 +4053,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-device",
@@ -4094,14 +4066,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-emails",
@@ -4109,14 +4079,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-monitoring",
@@ -4124,14 +4092,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-notifications",
@@ -4139,14 +4105,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-payment",
@@ -4154,14 +4118,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-payments-google",
@@ -4169,14 +4131,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-payments-stripe",
@@ -4184,14 +4144,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-product",
@@ -4199,14 +4157,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-project",
@@ -4214,14 +4170,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-property",
@@ -4229,14 +4183,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-queue",
@@ -4244,14 +4196,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-queue-rabbitmq",
@@ -4259,14 +4209,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-resource",
@@ -4274,14 +4222,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-resource-api-key",
@@ -4289,14 +4235,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-resource-course",
@@ -4304,14 +4248,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-resource-grade",
@@ -4319,14 +4261,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-resource-message",
@@ -4334,14 +4274,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-resource-version-history",
@@ -4349,14 +4287,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-scheduler",
@@ -4364,14 +4300,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-secrets",
@@ -4379,14 +4313,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-secrets-doppler",
@@ -4394,14 +4326,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-status-page",
@@ -4409,14 +4339,12 @@
       "type": "locales",
       "category": "status-page",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-tag",
@@ -4424,14 +4352,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-trash",
@@ -4439,14 +4365,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-uploads",
@@ -4454,14 +4378,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-user",
@@ -4469,14 +4391,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-locales-user-payments",
@@ -4484,14 +4404,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/api-middleware-analytics",
@@ -6064,10 +5982,8 @@
       "hasExample": "y",
       "exampleCount": 1,
       "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "L9: Cannot find module '@molecule/app-e2e-preview/vite' or its corresponding type declarations."
-      ],
+      "compiles": "y",
+      "compileErrors": [],
       "done": "n"
     },
     {
@@ -6918,7 +6834,7 @@
       "tested": "n",
       "compiles": "n",
       "compileErrors": [
-        "L18: Cannot find name 'element'. Did you mean 'Element'?"
+        "L18: Cannot find name 'element'."
       ],
       "done": "n"
     },
@@ -8620,7 +8536,7 @@
         "L11: ':' expected.",
         "L15: Expression expected.",
         "L17: Expression expected.",
-        "L4: Type 'boolean' must have a '[Symbol.iterator]()' method that returns an iterator."
+        "L4: Operator '<' cannot be applied to types '[string, Dispatch<SetStateAction<string>>]' and '({ tools, selectedId, onSelect, extras, orientation, className, }: DrawingToolbarProps) => Element'."
       ],
       "done": "n"
     },
@@ -10481,7 +10397,7 @@
       "tested": "n",
       "compiles": "n",
       "compileErrors": [
-        "L4: Cannot find name 'comments'. Did you mean 'Comment'?",
+        "L4: Cannot find name 'comments'.",
         "L5: Cannot find name 'openReplyForm'.",
         "L6: Cannot find name 'upvote'."
       ],
@@ -11049,14 +10965,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-ai-chat",
@@ -11064,14 +10978,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-annotation-pin",
@@ -11079,14 +10991,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-announcement-bar",
@@ -11094,14 +11004,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-audio-player",
@@ -11109,14 +11017,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-audio-recorder",
@@ -11124,14 +11030,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-auth",
@@ -11139,14 +11043,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-auth-shell",
@@ -11154,14 +11056,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-author-bio-card",
@@ -11169,14 +11069,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-badge",
@@ -11184,14 +11082,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-battery",
@@ -11199,14 +11095,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-bias-indicator",
@@ -11214,14 +11108,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-billing",
@@ -11229,14 +11121,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-biometrics",
@@ -11244,14 +11134,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-bluetooth",
@@ -11259,14 +11147,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-brightness",
@@ -11274,14 +11160,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-bulk-action-toolbar",
@@ -11289,14 +11173,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-calendar",
@@ -11304,14 +11186,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-camera",
@@ -11319,14 +11199,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-canvas-engine",
@@ -11334,14 +11212,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-carousel",
@@ -11349,14 +11225,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-charts",
@@ -11364,14 +11238,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-class-schedule",
@@ -11379,14 +11251,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-clipboard",
@@ -11394,14 +11264,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-code-block",
@@ -11409,14 +11277,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-code-editor",
@@ -11424,14 +11290,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-color-picker",
@@ -11439,14 +11303,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-common",
@@ -11456,13 +11318,10 @@
       "inRegistry": "y",
       "hasExample": "y",
       "exampleCount": 1,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "L3: Cannot find name 'createSimpleI18nProvider'.",
-        "L5: Cannot find name 'appEn'."
-      ],
-      "done": "n"
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-contact-form",
@@ -11470,14 +11329,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-contacts",
@@ -11485,14 +11342,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-cookie-banner",
@@ -11500,14 +11355,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-copy-link-field",
@@ -11515,14 +11368,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-danger-zone",
@@ -11530,14 +11381,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-day-timeline",
@@ -11545,14 +11394,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-drawing-toolbar",
@@ -11560,14 +11407,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-embed-snippet",
@@ -11575,14 +11420,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-embeddable-chat-widget",
@@ -11590,14 +11433,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-emoji-reactions",
@@ -11605,14 +11446,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-exif-panel",
@@ -11620,14 +11459,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-animation-canvas",
@@ -11635,14 +11472,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-audio-effects-rack",
@@ -11650,14 +11485,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-audio-mixer",
@@ -11665,14 +11498,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-audio-waveform",
@@ -11680,14 +11511,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-barcode-scanner",
@@ -11695,14 +11524,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-canvas",
@@ -11710,14 +11537,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-chapter-list",
@@ -11725,14 +11550,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-graph-view",
@@ -11740,14 +11563,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-image-canvas",
@@ -11755,14 +11576,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-map-drawing",
@@ -11770,14 +11589,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-piano-roll",
@@ -11785,14 +11602,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-thread-tree",
@@ -11800,14 +11615,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-three-viewer",
@@ -11815,14 +11628,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-track-lane",
@@ -11830,14 +11641,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-transport-bar",
@@ -11845,14 +11654,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-video-scrubber",
@@ -11860,14 +11667,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-feature-video-timeline",
@@ -11875,14 +11680,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-file-card",
@@ -11890,14 +11693,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-file-dropzone",
@@ -11905,14 +11706,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-filesystem",
@@ -11920,14 +11719,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-filter-bar",
@@ -11935,14 +11732,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-flashcard-card",
@@ -11950,14 +11745,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-flow-canvas",
@@ -11965,14 +11758,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-footer",
@@ -11980,14 +11771,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-forms",
@@ -11995,14 +11784,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-geolocation",
@@ -12010,14 +11797,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-gradebook",
@@ -12025,14 +11810,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-habit-streak-card",
@@ -12040,14 +11823,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-haptics",
@@ -12055,14 +11836,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-health",
@@ -12070,14 +11849,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-heatmap",
@@ -12085,14 +11862,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-help-button",
@@ -12100,14 +11875,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-hero-metric-card",
@@ -12115,14 +11888,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-http",
@@ -12130,14 +11901,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-http-inspector",
@@ -12145,14 +11914,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-i18n",
@@ -12160,14 +11927,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-iap",
@@ -12175,14 +11940,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-icons",
@@ -12190,14 +11953,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-ide",
@@ -12205,14 +11966,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-inline-edit",
@@ -12220,14 +11979,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-join-code",
@@ -12235,14 +11992,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-keyboard",
@@ -12250,14 +12005,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-layer-panel",
@@ -12265,14 +12018,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-legal-default",
@@ -12282,10 +12033,10 @@
       "inRegistry": "y",
       "hasExample": "y",
       "exampleCount": 1,
-      "tested": "n",
+      "tested": "y",
       "compiles": "y",
       "compileErrors": [],
-      "done": "n"
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-live-preview",
@@ -12293,14 +12044,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-loyalty-tier-badge",
@@ -12308,14 +12057,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-maps",
@@ -12323,14 +12070,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-margin-notes",
@@ -12338,14 +12083,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-medication-row",
@@ -12353,14 +12096,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-message-bubble",
@@ -12368,14 +12109,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-mind-map-canvas",
@@ -12383,14 +12122,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-moderation-queue",
@@ -12398,14 +12135,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-motion",
@@ -12413,14 +12148,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-network",
@@ -12428,14 +12161,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-newsletter-signup",
@@ -12443,14 +12174,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-nfc",
@@ -12458,14 +12187,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-notification-center",
@@ -12473,14 +12200,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-notifications-page",
@@ -12488,14 +12213,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-now-playing-bar",
@@ -12503,14 +12226,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-nps-distribution",
@@ -12518,14 +12239,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-oauth-buttons",
@@ -12533,14 +12252,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-onboarding-modal",
@@ -12548,14 +12265,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-pagination-bar",
@@ -12563,14 +12278,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-password-generator",
@@ -12578,14 +12291,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-password-strength-meter",
@@ -12595,10 +12306,10 @@
       "inRegistry": "y",
       "hasExample": "y",
       "exampleCount": 1,
-      "tested": "n",
+      "tested": "y",
       "compiles": "y",
       "compileErrors": [],
-      "done": "n"
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-photo-lightbox",
@@ -12606,14 +12317,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-plan-updated-page",
@@ -12621,14 +12330,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-pricing-page",
@@ -12636,14 +12343,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-progress-rings",
@@ -12651,14 +12356,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-push",
@@ -12666,14 +12369,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-qr-code",
@@ -12681,14 +12382,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-quiz-card",
@@ -12696,14 +12395,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-rating-form",
@@ -12711,14 +12408,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-react",
@@ -12726,14 +12421,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-react-native-ui",
@@ -12741,14 +12434,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-react-ui",
@@ -12756,14 +12447,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-reading-progress-bar",
@@ -12771,14 +12460,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-reputation-badge",
@@ -12786,14 +12473,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-root-error-boundary",
@@ -12801,14 +12486,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-routing",
@@ -12816,14 +12499,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-rule-builder",
@@ -12831,14 +12512,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-screen-orientation",
@@ -12846,14 +12525,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-search-autocomplete",
@@ -12861,14 +12538,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-secret-row",
@@ -12876,14 +12551,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-settings-actions-bar",
@@ -12891,14 +12564,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-settings-panel",
@@ -12906,14 +12577,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-share",
@@ -12921,14 +12590,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-share-link-card",
@@ -12936,14 +12603,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-social-share-buttons",
@@ -12951,14 +12616,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-solid",
@@ -12966,14 +12629,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-solid-ui",
@@ -12981,14 +12642,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-sort-picker",
@@ -12996,14 +12655,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-splash-screen",
@@ -13011,14 +12668,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-spreadsheet-grid",
@@ -13026,14 +12681,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-stage-timeline",
@@ -13041,14 +12694,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-status-bar",
@@ -13056,14 +12707,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-status-dashboard",
@@ -13071,14 +12720,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-storage",
@@ -13086,14 +12733,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-subscription-plan-card",
@@ -13101,14 +12746,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-survey-question",
@@ -13116,14 +12759,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-svelte",
@@ -13131,14 +12772,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-tag-input",
@@ -13146,14 +12785,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-time-slot-picker",
@@ -13161,14 +12798,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-trace-waterfall",
@@ -13176,14 +12811,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-ui",
@@ -13191,14 +12824,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-utilities",
@@ -13206,14 +12837,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-version",
@@ -13221,14 +12850,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-video",
@@ -13236,14 +12863,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-video-call-controls",
@@ -13251,14 +12876,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-video-player",
@@ -13266,14 +12889,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-vote-cluster",
@@ -13281,14 +12902,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-vue",
@@ -13296,14 +12915,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-whiteboard-canvas",
@@ -13311,14 +12928,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-wiki-page-header",
@@ -13326,14 +12941,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-locales-word-cloud",
@@ -13341,14 +12954,12 @@
       "type": "locales",
       "category": "i18n",
       "inRegistry": "y",
-      "hasExample": "n",
-      "exampleCount": 0,
-      "tested": "n",
-      "compiles": "n",
-      "compileErrors": [
-        "no module-level @example"
-      ],
-      "done": "n"
+      "hasExample": "y",
+      "exampleCount": 1,
+      "tested": "y",
+      "compiles": "y",
+      "compileErrors": [],
+      "done": "y"
     },
     {
       "name": "@molecule/app-badge",
