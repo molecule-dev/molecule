@@ -43,13 +43,14 @@ import type { JSX } from 'react'
 import React, { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
+import type { HTMLElementProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Alert } from './Alert.js'
 import { Button } from './Button.js'
 
 /** Props for {@link LoadErrorBanner}. */
-export interface LoadErrorBannerProps {
+export interface LoadErrorBannerProps extends HTMLElementProps {
   /** The primary error line (e.g. the localized "Could not load X."). */
   message: React.ReactNode
   /** Secondary line under the message (status code, hint). */

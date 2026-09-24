@@ -331,6 +331,13 @@ function ResponsiveAppShellBase({
         cm.minH('screen'),
         className,
       )}
+      // Row on desktop (sidebar beside content), COLUMN below 768px (the
+      // top bar must stack ABOVE the content at mobile widths — a bare
+      // flex-row squeezed the TopBar into a side column and collapsed
+      // `<main>` to zero width; found by the first eight adopting apps).
+      // Inline because it is breakpoint-owned by the shell; consumer
+      // className still applies on top for width/overflow concerns.
+      style={{ flexDirection: isDesktop ? 'row' : 'column' }}
       data-mol-id={dataMolId}
     >
       <ShellContext.Provider
@@ -711,6 +718,13 @@ export function ResponsiveAppShellDrawer({
       <div className={cm.overlay} aria-hidden="true" />
       <div
         className={cm.cn(cm.position('fixed'), cm.inset0)}
+        // The WRAPPER carries the z-index: a positioned element with
+        // z-index:auto forms its own stacking context, which would trap
+        // the panel's z-index inside it and let the z-40 backdrop paint
+        // ABOVE the whole drawer — every tap hit the inert backdrop
+        // (click-dead drawer; found by the first eight adopting apps).
+        // 41 keeps the wrapper (and everything in it) above the backdrop.
+        style={{ zIndex: 41 }}
         onClick={(e: React.MouseEvent) => {
           if (e.target === e.currentTarget) closeDrawer()
         }}
@@ -726,15 +740,14 @@ export function ResponsiveAppShellDrawer({
           // Inline exceptions (Rule 5, documented): the ClassMap `drawer`
           // token is a RIGHT-anchored settings panel (`!right-0 !left-auto
           // !max-w-sm`) and cannot serve a LEFT nav drawer; there are no
-          // `left: 0`, max-width-vw, standalone `overflow-y: auto` or
-          // z-index tokens. Geometry mirrors the fleet drawers (full-height
-          // left panel, never wider than 85vw) and `zIndex: 40` matches the
-          // `cm.overlay` backdrop it must sit above.
+          // `left: 0`, max-width-vw or standalone `overflow-y: auto`
+          // tokens. Geometry mirrors the fleet drawers (full-height left
+          // panel, never wider than 85vw). Stacking lives on the wrapper
+          // above — see its comment.
           style={{
             width: sidebarWidthPx,
             maxWidth: '85vw',
             overflowY: 'auto',
-            zIndex: 40,
           }}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
           data-mol-id={dataMolId}
