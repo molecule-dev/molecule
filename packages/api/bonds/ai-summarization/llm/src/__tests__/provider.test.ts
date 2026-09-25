@@ -8,7 +8,7 @@ import {
 } from '@molecule/api-ai-summarization'
 import { configure, reset } from '@molecule/api-bond'
 
-import { provider } from '../provider.js'
+import { cleanSummary, countWords, firstSentences, meetsCap, provider } from '../provider.js'
 
 // ---------------------------------------------------------------------------
 // Fake AI provider — records the params it received so we can assert the prompt.
@@ -119,6 +119,93 @@ describe('ai-summarization-llm provider', () => {
     setAIProvider(errorAI)
 
     await expect(provider.summarize({ text: 'x' })).rejects.toThrow(/rate limited/)
+  })
+
+  describe('hard caps (maxWords / sentences)', () => {
+    /** A fake AI that answers each call with the next scripted reply. */
+    function scripted(replies: string[]) {
+      const calls: ChatParams[] = []
+      const ai: AIProvider = {
+        name: 'scripted',
+        async *chat(params: ChatParams) {
+          calls.push(structuredClone({ ...params, signal: undefined }))
+          yield {
+            type: 'text' as const,
+            content: replies[Math.min(calls.length - 1, replies.length - 1)],
+          }
+          yield { type: 'done' as const, usage: { inputTokens: 1, outputTokens: 1 } }
+        },
+      }
+      return { ai, calls }
+    }
+    const long = Array.from({ length: 40 }, (_, i) => `word${i}`).join(' ') + '.'
+
+    it('accepts a compliant answer in one call, stripping labels and quotes', async () => {
+      const { ai, calls } = scripted(['TL;DR: "The post explains how builds are logged."'])
+      setAIProvider(ai)
+      const r = await provider.summarize({ text: 'x', format: 'tldr', maxWords: 25 })
+      expect(r).toMatchObject({
+        summary: 'The post explains how builds are logged.',
+        withinCap: true,
+        attempts: 1,
+      })
+      expect(calls[0].temperature).toBeUndefined()
+      expect(calls[0].maxTokens).toBeGreaterThanOrEqual(2048)
+      expect(calls[0].system).toContain('at most 25 words')
+    })
+
+    it('keeps whole sentences only — the extra sentence and a trailing fragment are dropped', async () => {
+      const { ai } = scripted(['It logs builds. It also pairs each session and'])
+      setAIProvider(ai)
+      const r = await provider.summarize({ text: 'x', maxWords: 25, sentences: 1 })
+      expect(r.summary).toBe('It logs builds.')
+    })
+
+    it('asks again when the answer runs long, and never slices a sentence', async () => {
+      const { ai, calls } = scripted([long, 'A short sentence that fits.'])
+      setAIProvider(ai)
+      const r = await provider.summarize({ text: 'x', format: 'tldr', maxWords: 25 })
+      expect(r).toMatchObject({
+        summary: 'A short sentence that fits.',
+        withinCap: true,
+        attempts: 2,
+      })
+      expect(calls[1].messages.at(-1)?.content).toMatch(/40 words/)
+    })
+
+    it('rejects an answer ending on a function word and retries', async () => {
+      const { ai } = scripted([
+        'It pairs each session with the.',
+        'It pairs each session with its prompt.',
+      ])
+      setAIProvider(ai)
+      const r = await provider.summarize({ text: 'x', format: 'tldr', maxWords: 25 })
+      expect(r.summary).toBe('It pairs each session with its prompt.')
+    })
+
+    it('after every attempt runs long, returns the shortest complete sentence with withinCap false', async () => {
+      const { ai } = scripted([long])
+      setAIProvider(ai)
+      const r = await provider.summarize({ text: 'x', format: 'tldr', maxWords: 25, attempts: 2 })
+      expect(r).toMatchObject({ summary: long, withinCap: false, attempts: 2 })
+    })
+
+    it('an empty answer (hidden reasoning used the budget) retries, then throws', async () => {
+      const { ai } = scripted(['<think>long reasoning</think>'])
+      setAIProvider(ai)
+      await expect(provider.summarize({ text: 'x', format: 'tldr', maxWords: 25 })).rejects.toThrow(
+        /no usable summary/,
+      )
+    })
+
+    it('helpers: countWords, cleanSummary, firstSentences, meetsCap', () => {
+      expect(countWords('  one two  three ')).toBe(3)
+      expect(cleanSummary('**Summary:** Hello there.')).toBe('Hello there.')
+      expect(firstSentences('One. Two. Three', 2)).toBe('One. Two.')
+      expect(firstSentences('no ending here', 1)).toBe('')
+      expect(meetsCap('It works for e.g. blogs.', 25)).toBe(true)
+      expect(meetsCap('It stops at the', 25)).toBe(false)
+    })
   })
 
   it('can be bonded and resolved through the summarization core requireProvider', async () => {

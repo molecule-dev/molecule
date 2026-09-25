@@ -18,8 +18,18 @@ import type { TokenUsage } from '@molecule/api-ai'
 export interface SummarizeInput {
   /** The source text to summarize. */
   text: string
-  /** Approximate target length in words. */
+  /** Approximate target length in words (a hint to the model, not enforced). */
   maxLength?: number
+  /**
+   * HARD cap in words, enforced in code by the provider: the answer is cut
+   * back to whole sentences and, when it still runs long, the model is asked
+   * again. A summary is never sliced mid-phrase to fit.
+   */
+  maxWords?: number
+  /** How many sentences the summary may have. Defaults to 1 for `'tldr'`. */
+  sentences?: number
+  /** Model calls allowed to reach the caps (default 3). */
+  attempts?: number
   /** Output shape. Defaults to `'paragraph'`. */
   format?: 'paragraph' | 'bullets' | 'tldr'
   /** Optional angle or extra instructions to steer the summary. */
@@ -40,6 +50,14 @@ export interface SummarizeResult {
   summary: string
   /** Token usage reported by the underlying AI provider, when available. */
   usage?: TokenUsage
+  /**
+   * With `maxWords`/`sentences`: whether the summary meets them. `false` means
+   * every attempt ran long and this is the shortest complete sentence the
+   * model gave — never a cut-off one.
+   */
+  withinCap?: boolean
+  /** Model calls made. */
+  attempts?: number
 }
 
 /**
