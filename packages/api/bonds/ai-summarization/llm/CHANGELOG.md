@@ -1,11 +1,5 @@
 # @molecule/api-ai-summarization-llm
 
-## 1.1.0
-
-### Minor Changes
-
-- Hard word/sentence caps enforced in code (whole sentences only, re-asks when long), plus a file cache keyed by a hash of the text.
-
 ## 1.0.1
 
 ### Patch Changes
