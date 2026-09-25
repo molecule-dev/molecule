@@ -1,0 +1,49 @@
+{
+  "name": "@molecule/api-ai-speech-molecule",
+  "version": "1.0.0",
+  "description": "molecule.dev hosted speech provider — text-to-speech and transcription billed to your molecule project, no vendor account",
+  "homepage": "https://www.molecule.dev/packages/api-ai-speech-molecule",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "speech",
+    "tts",
+    "transcription",
+    "hosted"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-speech/molecule"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-speech": ">=1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-speech": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "author": "Molecule Dev, Inc. (https://molecule.dev)"
+}

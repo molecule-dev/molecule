@@ -18,8 +18,9 @@
  *
  * @remarks
  * - **Wiring**: bond the lazy `provider` export once — `setProvider(provider)` — or
- *   `setProvider(createProvider(config?))` to pass explicit config. Use the core's
- *   `setProvider`, NOT `bond('ai-speech', …)` (the core keeps its own singleton).
+ *   `setProvider(createProvider(config?))` to pass explicit config. The core's
+ *   `setProvider` registers the `'ai-speech'` bond; a second provider can run beside
+ *   it as a NAMED bond (`bond('ai-speech', 'name', p)` / `get('ai-speech', 'name')`).
  * - **Subset**: implements `synthesize`, `transcribe`, and `translate`. It does NOT
  *   implement `synthesizeSpeech`/`synthesizeStream`/`listVoices` — feature-detect per
  *   the core; pick `@molecule/api-ai-speech-elevenlabs` for streaming TTS/voice lists.
