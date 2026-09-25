@@ -57,18 +57,17 @@ describe('webSearchToolType', () => {
     )
   })
 
-  it('is set on Google and Zhipu models, and NOT on OpenAI', () => {
-    // OpenAI entries carry no webSearchToolType: the bond calls
-    // /v1/chat/completions, which has no web_search tool type (a Responses-API
-    // construct) and forwards no server tools — advertising one surfaced web
-    // search in the system prompt while it could never work (2026-08-28 audit).
-    for (const m of MODELS.filter((m) => m.provider === 'openai')) {
-      expect(m.webSearchToolType).toBeUndefined()
-    }
-    const zhipu = MODELS.filter((m) => m.provider === 'zhipu')
-    expect(zhipu.length).toBeGreaterThan(0)
-    for (const m of zhipu) {
+  it('is set on Google and OpenAI models, and NOT on Zhipu', () => {
+    // OpenAI: the bond calls /v1/responses, which serves `web_search`.
+    const openai = MODELS.filter((m) => m.provider === 'openai')
+    expect(openai.length).toBeGreaterThan(0)
+    for (const m of openai) {
       expect(m.webSearchToolType).toBe('web_search')
+    }
+    // Zhipu's web_search never runs with function tools present or on a
+    // stream — advertising it told the model it had a tool that never ran.
+    for (const m of MODELS.filter((m) => m.provider === 'zhipu')) {
+      expect(m.webSearchToolType).toBeUndefined()
     }
     const google = MODELS.filter((m) => m.provider === 'google')
     for (const m of google) {
@@ -86,6 +85,22 @@ describe('webSearchToolType', () => {
   it('models without webSearchToolType have it undefined', () => {
     for (const m of modelsWithoutWebSearch) {
       expect(m.webSearchToolType).toBeUndefined()
+    }
+  })
+
+  it('every model with webSearchToolType prices its searches (no unmetered search tool)', () => {
+    const unpriced = modelsWithWebSearch.filter(
+      (m) =>
+        typeof m.webSearchPricePer1k !== 'number' ||
+        !Number.isFinite(m.webSearchPricePer1k) ||
+        m.webSearchPricePer1k <= 0,
+    )
+    expect(unpriced.map((m) => m.id)).toEqual([])
+  })
+
+  it('no model prices searches it cannot run', () => {
+    for (const m of modelsWithoutWebSearch) {
+      expect(m.webSearchPricePer1k).toBeUndefined()
     }
   })
 })

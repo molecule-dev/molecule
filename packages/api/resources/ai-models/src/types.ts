@@ -173,8 +173,21 @@ export interface ModelDefinition {
    * Provider-specific server tool type for web search (e.g. `'web_search_20250305'`).
    * When set, the chat handler sends this as a ServerTool alongside custom tools.
    * Omit if the model / provider does not support native web search.
+   *
+   * Set it only when a search actually runs on a Synthase-shaped request
+   * (function tools present, streaming) — some providers accept the tool and
+   * silently never search in that shape. Requires {@link webSearchPricePer1k}.
    */
   webSearchToolType?: string
+  /**
+   * USD per 1,000 web searches the provider bills on top of tokens, applied to
+   * `TokenUsage.webSearchRequests`. Required whenever `webSearchToolType` is
+   * set (enforced by the catalog tests) — a search tool with no price is
+   * unmetered spend. Search-result tokens are billed as ordinary input tokens
+   * and need nothing here. Free monthly allowances are account-wide, not
+   * per-user, so they are not modeled: every search is metered at list price.
+   */
+  webSearchPricePer1k?: number
   /**
    * Provider-specific server tool type for code execution (e.g. `'code_execution_20250825'`).
    * Omit if the model / provider does not support native code execution.

@@ -109,6 +109,15 @@ export interface TokenUsage {
   /** Number of input tokens read from the prompt cache. */
   cacheReadInputTokens?: number
   /**
+   * Number of web searches the provider ran for this request through a server
+   * tool (`ServerTool`, e.g. web search / search grounding). Providers bill
+   * these per search, on top of tokens, so bonds MUST report every search the
+   * provider executed — absent means none ran. Counted the way the provider
+   * bills: Anthropic reports it (`server_tool_use.web_search_requests`),
+   * OpenAI bills per `web_search_call`, Gemini per search query issued.
+   */
+  webSearchRequests?: number
+  /**
    * The speed tier the provider REPORTS the request ran at (Anthropic wires it
    * as `usage.speed` per the fast-mode docs, and as `usage.service_tier` on
    * observed live responses — bonds read both). Only set by bonds whose

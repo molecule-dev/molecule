@@ -54,6 +54,14 @@ interface GoogleStreamState {
   cachedInputTokens: number
   /** Monotonic counter used to synthesize stable ids for streamed function calls. */
   toolCounter: number
+  /**
+   * Search queries issued through server-side `GOOGLE_SEARCH_WEB` tool calls
+   * (the `toolCall` parts sent when function tools are present). Every round
+   * of searching appears here; `groundingMetadata` lists only the last one.
+   */
+  searchQueriesInvoked: number
+  /** Most queries any `groundingMetadata.webSearchQueries` listed. */
+  searchQueriesGrounded: number
 }
 
 /**
@@ -80,6 +88,36 @@ function snapshotUsage(state: GoogleStreamState): TokenUsage {
     inputTokens: Math.max(0, state.inputTokens - state.cachedInputTokens),
     outputTokens: state.outputTokens,
     ...(state.cachedInputTokens ? { cacheReadInputTokens: state.cachedInputTokens } : {}),
+    ...webSearchUsage(state),
+  }
+}
+
+/**
+ * The `webSearchRequests` part of a `TokenUsage`. Google bills search
+ * grounding per query issued, so this is the larger of the two places queries
+ * are reported (see {@link GoogleStreamState.searchQueriesInvoked}).
+ *
+ * @param state - The streaming parser state.
+ * @returns A spreadable partial: the query count when any ran, else nothing.
+ */
+function webSearchUsage(state: GoogleStreamState): Pick<TokenUsage, 'webSearchRequests'> {
+  const queries = Math.max(state.searchQueriesInvoked, state.searchQueriesGrounded)
+  return queries > 0 ? { webSearchRequests: queries } : {}
+}
+
+/**
+ * Record a candidate's `groundingMetadata.webSearchQueries` on the state.
+ *
+ * @param candidate - A Gemini response candidate.
+ * @param state - Mutable stream state to update.
+ */
+function applyGrounding(candidate: Record<string, unknown>, state: GoogleStreamState): void {
+  const grounding = candidate.groundingMetadata as { webSearchQueries?: unknown } | undefined
+  if (Array.isArray(grounding?.webSearchQueries)) {
+    state.searchQueriesGrounded = Math.max(
+      state.searchQueriesGrounded,
+      grounding.webSearchQueries.length,
+    )
   }
 }
 
@@ -512,9 +550,12 @@ class GoogleAIProvider implements AIProvider {
       outputTokens: 0,
       cachedInputTokens: 0,
       toolCounter: 0,
+      searchQueriesInvoked: 0,
+      searchQueriesGrounded: 0,
     }
     const candidates = data.candidates as Array<Record<string, unknown>> | undefined
     for (const candidate of candidates ?? []) {
+      applyGrounding(candidate, state)
       const content = candidate.content as { parts?: Array<Record<string, unknown>> } | undefined
       for (const part of content?.parts ?? []) {
         yield* this.emitPart(part, state)
@@ -551,6 +592,8 @@ class GoogleAIProvider implements AIProvider {
       outputTokens: 0,
       cachedInputTokens: 0,
       toolCounter: 0,
+      searchQueriesInvoked: 0,
+      searchQueriesGrounded: 0,
     }
 
     try {
@@ -649,14 +692,18 @@ class GoogleAIProvider implements AIProvider {
           continue
         }
         const candidates = chunk.candidates as Array<Record<string, unknown>> | undefined
+        const searchesBefore = Math.max(state.searchQueriesInvoked, state.searchQueriesGrounded)
         for (const candidate of candidates ?? []) {
+          applyGrounding(candidate, state)
           const content = candidate.content as
             { parts?: Array<Record<string, unknown>> } | undefined
           for (const part of content?.parts ?? []) {
             yield* this.emitPart(part, state)
           }
         }
-        if (chunk.usageMetadata) {
+        const searchesRan =
+          Math.max(state.searchQueriesInvoked, state.searchQueriesGrounded) > searchesBefore
+        if (chunk.usageMetadata || searchesRan) {
           this.applyUsage(chunk.usageMetadata, state)
           // Metering snapshot (latest wins): if the stream is cut after this
           // point, the consumer books these provider-reported counts instead of
@@ -685,6 +732,18 @@ class GoogleAIProvider implements AIProvider {
         yield { type: 'thinking', content: part.text }
       } else {
         yield { type: 'text', content: part.text }
+      }
+      return
+    }
+
+    // A server-side tool invocation (Google Search run by the provider when
+    // function tools are also present): nothing to surface, but billed per query.
+    const toolCall = part.toolCall as
+      { toolType?: string; args?: { queries?: unknown } } | undefined
+    if (toolCall) {
+      if (toolCall.toolType === 'GOOGLE_SEARCH_WEB') {
+        const queries = toolCall.args?.queries
+        state.searchQueriesInvoked += Array.isArray(queries) ? queries.length : 1
       }
       return
     }

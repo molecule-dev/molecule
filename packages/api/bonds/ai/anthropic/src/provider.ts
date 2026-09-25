@@ -38,6 +38,10 @@ interface AnthropicStreamState {
   cacheReadInputTokens: number
   /** Speed tier the provider reported for this request (fast-mode metering). */
   speed: 'standard' | 'fast' | null
+  /** Web searches the provider REPORTED (`usage.server_tool_use`), once reported. */
+  webSearchRequests: number | null
+  /** `web_search` server-tool calls seen in the stream — the count until one is reported. */
+  webSearchBlocks: number
   pendingTool: { id: string; name: string; inputJson: string } | null
   pendingThinking: string | null
 }
@@ -59,7 +63,24 @@ function snapshotUsage(state: AnthropicStreamState): TokenUsage {
       : {}),
     ...(state.cacheReadInputTokens ? { cacheReadInputTokens: state.cacheReadInputTokens } : {}),
     ...(state.speed ? { speed: state.speed } : {}),
+    ...webSearchUsage(state.webSearchRequests ?? state.webSearchBlocks),
   }
+}
+
+/**
+ * The `webSearchRequests` part of a `TokenUsage`: the count when searches ran,
+ * nothing otherwise.
+ *
+ * @param count - Web searches billed for the request.
+ * @returns A spreadable partial.
+ */
+function webSearchUsage(count: number | null | undefined): Pick<TokenUsage, 'webSearchRequests'> {
+  return count ? { webSearchRequests: count } : {}
+}
+
+/** Anthropic's server-tool usage counters (`usage.server_tool_use`). */
+interface ServerToolUse {
+  web_search_requests?: number | null
 }
 
 /**
@@ -451,6 +472,7 @@ class AnthropicAIProvider implements AIProvider {
           cache_read_input_tokens?: number | null
           speed?: string
           service_tier?: string
+          server_tool_use?: ServerToolUse | null
         }
       | undefined
     const servedSpeed = parseSpeed(usage)
@@ -466,6 +488,7 @@ class AnthropicAIProvider implements AIProvider {
           ? { cacheReadInputTokens: usage.cache_read_input_tokens }
           : {}),
         ...(servedSpeed ? { speed: servedSpeed } : {}),
+        ...webSearchUsage(usage?.server_tool_use?.web_search_requests),
       },
     }
   }
@@ -495,6 +518,8 @@ class AnthropicAIProvider implements AIProvider {
       cacheCreationInputTokens: 0,
       cacheReadInputTokens: 0,
       speed: null,
+      webSearchRequests: null,
+      webSearchBlocks: 0,
       pendingTool: null,
       pendingThinking: null,
     }
@@ -618,6 +643,10 @@ class AnthropicAIProvider implements AIProvider {
             yield { type: 'tool_use_start', id: block.id as string, name: block.name as string }
           } else if (block.type === 'thinking') {
             state.pendingThinking = ''
+          } else if (block.type === 'server_tool_use' && block.name === 'web_search') {
+            // Billed per search. Counted here so a stream cut before
+            // message_delta (which carries the reported count) still meters it.
+            state.webSearchBlocks++
           }
         } else if (eventType === 'content_block_stop') {
           // Emit completed tool_use with accumulated input
@@ -641,7 +670,10 @@ class AnthropicAIProvider implements AIProvider {
             state.pendingThinking = null
           }
         } else if (eventType === 'message_delta') {
-          const usage = event.usage as { output_tokens?: number } | undefined
+          const usage = event.usage as
+            { output_tokens?: number; server_tool_use?: ServerToolUse | null } | undefined
+          const reportedSearches = usage?.server_tool_use?.web_search_requests
+          if (typeof reportedSearches === 'number') state.webSearchRequests = reportedSearches
           if (usage?.output_tokens) {
             state.outputTokens = usage.output_tokens
             // Metering snapshot (latest wins): if the stream is cut after this

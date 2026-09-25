@@ -205,7 +205,10 @@ export function formatResponsesTools(
  * @param usage - The `usage` object of a completed response.
  * @returns The normalized usage.
  */
-export function responsesUsage(usage: ResponsesUsage | undefined | null): TokenUsage {
+export function responsesUsage(
+  usage: ResponsesUsage | undefined | null,
+  webSearchCalls = 0,
+): TokenUsage {
   const cached = usage?.input_tokens_details?.cached_tokens ?? 0
   const written = usage?.input_tokens_details?.cache_write_tokens ?? 0
   return {
@@ -213,6 +216,7 @@ export function responsesUsage(usage: ResponsesUsage | undefined | null): TokenU
     outputTokens: usage?.output_tokens ?? 0,
     cacheReadInputTokens: cached,
     ...(written > 0 ? { cacheCreationInputTokens: written } : {}),
+    ...(webSearchCalls > 0 ? { webSearchRequests: webSearchCalls } : {}),
   }
 }
 
@@ -239,7 +243,9 @@ function parseArgs(args: string | undefined): unknown {
  */
 export function* parseResponsesNonStreaming(data: Record<string, unknown>): Iterable<ChatEvent> {
   const output = (data.output as Array<Record<string, unknown>> | undefined) ?? []
+  let webSearchCalls = 0
   for (const item of output) {
+    if (item.type === 'web_search_call') webSearchCalls++
     if (item.type === 'message') {
       for (const part of (item.content as Array<Record<string, unknown>> | undefined) ?? []) {
         if (part.type === 'output_text' && typeof part.text === 'string' && part.text.length > 0) {
@@ -255,7 +261,10 @@ export function* parseResponsesNonStreaming(data: Record<string, unknown>): Iter
       }
     }
   }
-  yield { type: 'done', usage: responsesUsage(data.usage as ResponsesUsage | undefined) }
+  yield {
+    type: 'done',
+    usage: responsesUsage(data.usage as ResponsesUsage | undefined, webSearchCalls),
+  }
 }
 
 /**
@@ -280,6 +289,11 @@ export async function* parseResponsesStream(response: Response): AsyncIterable<C
   let usage: TokenUsage | null = null
   /** Function calls in progress, keyed by output item id. */
   const calls = new Map<string, { callId: string; name: string }>()
+  /**
+   * `web_search_call` items started — OpenAI bills each one. Counted when the
+   * call starts so a stream cut mid-search still meters it.
+   */
+  let webSearchCalls = 0
 
   /**
    * Turn one SSE data payload into zero or more ChatEvents.
@@ -303,7 +317,14 @@ export async function* parseResponsesStream(response: Response): AsyncIterable<C
         }
         return
       case 'response.output_item.added':
-        if (item?.type === 'function_call') {
+        if (item?.type === 'web_search_call') {
+          webSearchCalls++
+          // Metering snapshot: the search is billed even if the turn is cut.
+          yield {
+            type: 'usage',
+            usage: { inputTokens: 0, outputTokens: 0, webSearchRequests: webSearchCalls },
+          }
+        } else if (item?.type === 'function_call') {
           const callId = String(item.call_id ?? '')
           const name = String(item.name ?? '')
           calls.set(String(item.id ?? ''), { callId, name })
@@ -336,7 +357,7 @@ export async function* parseResponsesStream(response: Response): AsyncIterable<C
       case 'response.completed':
       case 'response.incomplete': {
         const res = event.response as { usage?: ResponsesUsage; incomplete_details?: unknown }
-        usage = responsesUsage(res?.usage)
+        usage = responsesUsage(res?.usage, webSearchCalls)
         if (event.type === 'response.incomplete') {
           logger.warn('OpenAI response incomplete', { details: res?.incomplete_details })
         }

@@ -348,6 +348,42 @@ describe('Responses parsing', () => {
     expect(events.find((e) => e.type === 'done')).toBeUndefined()
   })
 
+  it('non-streaming: counts web_search_call items as webSearchRequests', async () => {
+    ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      jsonResponse(200, {
+        output: [
+          { type: 'web_search_call', status: 'completed', action: { type: 'search' } },
+          { type: 'web_search_call', status: 'completed', action: { type: 'search' } },
+          { type: 'message', content: [{ type: 'output_text', text: 'found' }] },
+        ],
+        usage: { input_tokens: 10, output_tokens: 2 },
+      }),
+    )
+    expect((await run({ stream: false })).at(-1)).toMatchObject({
+      type: 'done',
+      usage: { webSearchRequests: 2 },
+    })
+  })
+
+  it('streaming: counts each web_search_call as it starts, snapshots it, and reports it on done', async () => {
+    ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      sseResponse([
+        {
+          type: 'response.output_item.added',
+          item: { id: 'ws_1', type: 'web_search_call', status: 'in_progress' },
+        },
+        { type: 'response.web_search_call.searching', item_id: 'ws_1' },
+        completed({ input_tokens: 10, output_tokens: 2 }),
+      ]),
+    )
+    const events = await run({})
+    // Snapshot so a turn cut mid-search still meters the search.
+    expect(events.find((e) => e.type === 'usage')).toMatchObject({
+      usage: { webSearchRequests: 1 },
+    })
+    expect(events.at(-1)).toMatchObject({ type: 'done', usage: { webSearchRequests: 1 } })
+  })
+
   it('streaming: events that carry nothing (server-tool progress) yield keep_alive', async () => {
     ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
       sseResponse([

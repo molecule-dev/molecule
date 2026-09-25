@@ -109,6 +109,13 @@ const CHINA_PUBLIC_HOLIDAYS = [
  * Sources (verified 2026-07-28; OpenAI re-verified 2026-07-31 after the
  * 2026-07-30 GPT-5.6 repricing — cross-check prices against models.dev with
  * `npm run check:model-freshness` from the workspace root):
+ * - Web search (`webSearchPricePer1k`, billed per search on top of tokens;
+ *   verified 2026-09-25 on each provider's pricing page): Anthropic $10 per
+ *   1,000 searches (failed searches are not billed); OpenAI $10 per 1,000
+ *   web_search_call items on reasoning models; Google $14 per 1,000 search
+ *   queries after 5,000/month free, shared across the account, so not
+ *   modeled; Z.ai $0.01 per use, but its search never runs on a Synthase-shaped
+ *   request, so GLM entries carry no webSearchToolType.
  * - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
  *   + /docs/en/build-with-claude/effort (fable-5-1 / opus-5-5 / sonnet-5
  *   current as of 2026-09-23 — see the dated notes below; historically fable-5 / opus-5 / sonnet-5 current;
@@ -361,6 +368,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Dynamic-filtering server tools, same as the rest of the 4.6+ Anthropic
     // fleet. Not currently sent by Synthase beyond webSearchToolType
     // (request-shape.ts forwards only that one).
@@ -399,6 +407,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -455,6 +464,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Same server-tool versions as the rest of the 4.6+ Anthropic fleet. Not
     // currently sent by Synthase beyond webSearchToolType.
     codeExecutionToolType: 'code_execution_20260521',
@@ -502,6 +512,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -543,6 +554,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -584,6 +596,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -623,6 +636,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -662,6 +676,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -697,6 +712,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
     // Current server-tool type per the API reference (verified 2026-08-28);
     // 'code_execution_20250825' was the BETA HEADER date (code-execution-2025-08-25),
     // not a tool type — sending it as one is a 400. Not currently sent by
@@ -733,6 +749,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'web_search_20250305',
+    webSearchPricePer1k: 10,
     webFetchToolType: 'web_fetch_20250910',
     inputPricePerMTok: 1,
     outputPricePerMTok: 5,
@@ -795,8 +812,10 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // NO webSearchToolType yet: /v1/responses serves `web_search` (verified
-    // 2026-09-24), but its per-call fee is not metered — add with metering.
+    webSearchToolType: 'web_search',
+    // $10 per 1,000 web_search_call items on reasoning models (the bond counts
+    // them); search-result tokens bill as input.
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     // Standard tier; >272K band ($20/$75, cached $2, writes $25) not modeled.
     inputPricePerMTok: 10,
@@ -825,8 +844,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     // Standard tier. A long-context band above 272K prompt tokens reprices the
     // whole request ($4/$15, cached $0.40, cache writes $5) — not modeled, same
@@ -856,7 +875,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-5.6-sol.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     // Standard tier; >272K band ($0.20/$0.75, cached $0.02, writes $0.25) not
     // modeled.
@@ -887,8 +907,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     // LIST price. OpenAI ran a >20% PROMO from 2026-08-22 ($4/$20, cache read
     // $0.40, cache write $5) — "GPT-5.6 Sol's promotional pricing is available
@@ -927,8 +947,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     // Repriced 2026-07-30 (20% cut from $2.50/$15).
     inputPricePerMTok: 2,
@@ -962,8 +982,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     // Repriced 2026-07-30 (80% cut from $1/$6).
     inputPricePerMTok: 0.2,
@@ -1003,8 +1023,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 5,
     outputPricePerMTok: 30,
@@ -1037,8 +1057,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 2.5,
     outputPricePerMTok: 15,
@@ -1073,8 +1093,8 @@ export const MODELS: readonly ModelDefinition[] = [
     // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
     // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
     toolsRequireReasoningOff: true,
-    // NO webSearchToolType: see gpt-6-astra — served on /v1/responses, but
-    // its per-call fee is not metered yet.
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
     codeExecutionToolType: 'code_interpreter',
     inputPricePerMTok: 0.75,
     outputPricePerMTok: 4.5,
@@ -1122,6 +1142,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
     codeExecutionToolType: 'code_execution',
     webFetchToolType: 'url_context',
     // "New Stable" 2026-09-02. LIST price $1.50/$7.50 — same card as 3.7- and
@@ -1158,6 +1179,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
     codeExecutionToolType: 'code_execution',
     webFetchToolType: 'url_context',
     // "New Stable" 2026-08-13. LIST price $1.50/$7.50 — same as 3.6-flash.
@@ -1200,6 +1222,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
     codeExecutionToolType: 'code_execution',
     webFetchToolType: 'url_context',
     // GA 2026-07-21 — same input price as 3.5-flash, CHEAPER output ($7.50 vs $9).
@@ -1244,6 +1267,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
     codeExecutionToolType: 'code_execution',
     webFetchToolType: 'url_context',
     inputPricePerMTok: 1.5,
@@ -1278,6 +1302,7 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     webSearchToolType: 'google_search',
+    webSearchPricePer1k: 14,
     codeExecutionToolType: 'code_execution',
     webFetchToolType: 'url_context',
     // ≤200K-token prompts; >200K bills $4/$18 (tiering not modeled).
@@ -2260,7 +2285,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // The chat-completion reference gates web_search per model only in its
     // VISION section; for text models the tool is listed unconditionally, as it
     // was when glm-5.2 was cataloged.
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: Zhipu's web_search never runs alongside function
+    // tools or on a stream (see @molecule/api-ai-zhipu), so it cannot serve
+    // Synthase — sending it only told the model it had a tool that never ran.
     inputPricePerMTok: 1.4,
     outputPricePerMTok: 4.4,
     // GLM context cache: read ≈0.19× input, no write premium.
@@ -2302,7 +2329,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: Zhipu's web_search never runs alongside function
+    // tools or on a stream (see @molecule/api-ai-zhipu), so it cannot serve
+    // Synthase — sending it only told the model it had a tool that never ran.
     // List card, verified 2026-09-23 on the Z.ai pricing page.
     inputPricePerMTok: 0.37,
     outputPricePerMTok: 1.25,
@@ -2336,7 +2365,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: Zhipu's web_search never runs alongside function
+    // tools or on a stream (see @molecule/api-ai-zhipu), so it cannot serve
+    // Synthase — sending it only told the model it had a tool that never ran.
     // List card, re-verified 2026-09-10 on the Z.ai pricing page after the
     // 50%-off launch promo ($0.075/$0.25, cached $0.015) ended on schedule
     // 2026-09-09 24:00 UTC+8 — this IS what the provider bills now; models.dev
@@ -2378,7 +2409,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: Zhipu's web_search never runs alongside function
+    // tools or on a stream (see @molecule/api-ai-zhipu), so it cannot serve
+    // Synthase — sending it only told the model it had a tool that never ran.
     inputPricePerMTok: 1.4,
     outputPricePerMTok: 4.4,
     // GLM context cache: read ≈0.19× input, no write premium.
@@ -2418,7 +2451,9 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: false,
     supportsPromptCaching: true,
     supportsTools: true,
-    webSearchToolType: 'web_search',
+    // NO webSearchToolType: Zhipu's web_search never runs alongside function
+    // tools or on a stream (see @molecule/api-ai-zhipu), so it cannot serve
+    // Synthase — sending it only told the model it had a tool that never ran.
     // Repriced by Z.ai around the GLM-5.1 launch (was $0.72/$2.30).
     inputPricePerMTok: 1,
     outputPricePerMTok: 3.2,

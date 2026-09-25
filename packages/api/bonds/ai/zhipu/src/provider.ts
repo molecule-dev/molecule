@@ -9,6 +9,13 @@
  * e.g. DeepInfra) they are dropped rather than forwarded, since any server
  * tool entry fails the whole request there.
  *
+ * Zhipu's `web_search` is retrieval before generation, not a tool the model
+ * calls: it searches only with `web_search: { enable: true }`, on a
+ * NON-streaming request, with NO function tools present (verified live
+ * 2026-09-25 — otherwise the request succeeds without searching). When it does
+ * search, the response carries a `web_search` results array, and each such
+ * response is reported as one billed search (`TokenUsage.webSearchRequests`).
+ *
  * @module
  */
 
@@ -39,6 +46,19 @@ interface ZhipuStreamState {
   inputTokens: number
   outputTokens: number
   cacheReadTokens: number
+  /** Whether a chunk carried `web_search` results (one billed search). */
+  searched: boolean
+}
+
+/**
+ * Whether a response or chunk carries web search results — Zhipu bills each
+ * search-grounded response as one use.
+ *
+ * @param payload - A parsed response body or stream chunk.
+ * @returns True when a non-empty `web_search` array is present.
+ */
+function carriesSearchResults(payload: Record<string, unknown>): boolean {
+  return Array.isArray(payload.web_search) && payload.web_search.length > 0
 }
 
 /**
@@ -442,6 +462,7 @@ class ZhipuAIProvider implements AIProvider {
         inputTokens: Math.max(0, (usage?.prompt_tokens ?? 0) - cachedTokens),
         outputTokens: usage?.completion_tokens ?? 0,
         ...(cachedTokens ? { cacheReadInputTokens: cachedTokens } : {}),
+        ...(carriesSearchResults(data) ? { webSearchRequests: 1 } : {}),
       },
     }
   }
@@ -466,7 +487,12 @@ class ZhipuAIProvider implements AIProvider {
 
     const decoder = new TextDecoder()
     let buffer = ''
-    const state: ZhipuStreamState = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0 }
+    const state: ZhipuStreamState = {
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
+      searched: false,
+    }
 
     // Track pending tool calls (accumulated across deltas)
     const pendingTools: Map<number, { id: string; name: string; args: string }> = new Map()
@@ -533,6 +559,7 @@ class ZhipuAIProvider implements AIProvider {
         inputTokens: Math.max(0, state.inputTokens - state.cacheReadTokens),
         outputTokens: state.outputTokens,
         ...(state.cacheReadTokens ? { cacheReadInputTokens: state.cacheReadTokens } : {}),
+        ...(state.searched ? { webSearchRequests: 1 } : {}),
       },
     }
   }
@@ -582,6 +609,8 @@ class ZhipuAIProvider implements AIProvider {
           yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
           continue
         }
+
+        if (carriesSearchResults(event)) state.searched = true
 
         // Usage info (may appear in the final chunk)
         const usage = event.usage as

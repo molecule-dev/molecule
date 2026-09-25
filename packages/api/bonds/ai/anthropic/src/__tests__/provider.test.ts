@@ -924,6 +924,52 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
     expect(events.some((e) => e.type === 'keep_alive')).toBe(false)
   })
 
+  it('reports usage.server_tool_use.web_search_requests as webSearchRequests (billed per search)', async () => {
+    mockFetch.mockResolvedValue(
+      streamResponse([
+        { type: 'message_start', message: { usage: { input_tokens: 10 } } },
+        {
+          type: 'content_block_start',
+          index: 0,
+          content_block: { type: 'server_tool_use', id: 'srv_1', name: 'web_search' },
+        },
+        { type: 'content_block_stop', index: 0 },
+        {
+          type: 'message_delta',
+          usage: { output_tokens: 5, server_tool_use: { web_search_requests: 2 } },
+        },
+        { type: 'message_stop' },
+      ]),
+    )
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+    // The reported count wins over the one block seen (it is what is billed).
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { inputTokens: 10, outputTokens: 5, webSearchRequests: 2 },
+    })
+  })
+
+  it('counts web_search blocks when the stream is cut before the count is reported', async () => {
+    mockFetch.mockResolvedValue(
+      streamResponse([
+        { type: 'message_start', message: { usage: { input_tokens: 10 } } },
+        {
+          type: 'content_block_start',
+          index: 0,
+          content_block: { type: 'server_tool_use', id: 'srv_1', name: 'web_search' },
+        },
+        { type: 'content_block_stop', index: 0 },
+      ]),
+    )
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { webSearchRequests: 1 },
+    })
+  })
+
   it('surfaces a MID-STREAM `overloaded_error` event as an `error` (not a silent drop + misleading `done`)', async () => {
     // Anthropic sends `overloaded_error` as an SSE `error` event AFTER the 200 OK
     // during high load — the streaming analogue of an HTTP 529. It must NOT be
@@ -1114,6 +1160,21 @@ describe('AnthropicAIProvider — non-streaming response (stream: false)', () =>
     )
     const done = events.find((e) => e.type === 'done') as { usage?: { speed?: string } }
     expect(done.usage?.speed).toBeUndefined()
+  })
+
+  it('reports non-streaming web searches from usage.server_tool_use', async () => {
+    mockFetch.mockResolvedValue(
+      jsonResponse({
+        content: [{ type: 'text', text: 'ok' }],
+        usage: { input_tokens: 10, output_tokens: 5, server_tool_use: { web_search_requests: 3 } },
+      }),
+    )
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'hi' }], stream: false }),
+    )
+    expect(events.find((e) => e.type === 'done')).toMatchObject({
+      usage: { webSearchRequests: 3 },
+    })
   })
 
   it('reads the tier from usage.service_tier when usage.speed is absent (live wire format)', async () => {

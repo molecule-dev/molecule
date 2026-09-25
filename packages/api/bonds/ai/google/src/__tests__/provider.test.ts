@@ -181,6 +181,75 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     expect(events[events.length - 1].type).toBe('done')
   })
 
+  it('bills every search query: server-side toolCall rounds, not only the last grounding set', async () => {
+    // Shapes from the live API (2026-09-25): with function tools present,
+    // each round of searching arrives as a GOOGLE_SEARCH_WEB toolCall part,
+    // and groundingMetadata lists only the final round's queries.
+    const searchCall = (queries: string[]) =>
+      sse({
+        candidates: [
+          {
+            content: {
+              role: 'model',
+              parts: [{ toolCall: { toolType: 'GOOGLE_SEARCH_WEB', args: { queries } } }],
+            },
+          },
+        ],
+        usageMetadata: { promptTokenCount: 5 },
+      })
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        searchCall(['a', 'b', 'c']),
+        sse({ candidates: [{ content: { role: 'model', parts: [{ toolResponse: {} }] } }] }),
+        searchCall(['d', 'e']),
+        sse({
+          candidates: [
+            {
+              content: { role: 'model', parts: [{ text: 'answer' }] },
+              groundingMetadata: { webSearchQueries: ['d', 'e'] },
+            },
+          ],
+          usageMetadata: { promptTokenCount: 20, candidatesTokenCount: 4 },
+        }),
+      ]),
+    )
+    const events = await collectEvents(provider.chat(minimalParams))
+    // The server-side parts surface nothing to the caller.
+    expect(events.filter((e) => e.type === 'tool_use')).toEqual([])
+    expect(events.at(-1)).toMatchObject({ type: 'done', usage: { webSearchRequests: 5 } })
+  })
+
+  it('counts groundingMetadata queries when no toolCall parts are sent (no function tools)', async () => {
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        sse({
+          candidates: [
+            {
+              content: { role: 'model', parts: [{ text: 'answer' }] },
+              groundingMetadata: { webSearchQueries: ['x', 'y', 'z'] },
+            },
+          ],
+          usageMetadata: { promptTokenCount: 20, candidatesTokenCount: 4 },
+        }),
+      ]),
+    )
+    const events = await collectEvents(provider.chat(minimalParams))
+    expect(events.at(-1)).toMatchObject({ type: 'done', usage: { webSearchRequests: 3 } })
+  })
+
+  it('reports no webSearchRequests when nothing was searched', async () => {
+    mockFetch.mockResolvedValue(
+      streamRaw([
+        sse({
+          candidates: [{ content: { role: 'model', parts: [{ text: 'hi' }] } }],
+          usageMetadata: { promptTokenCount: 2, candidatesTokenCount: 1 },
+        }),
+      ]),
+    )
+    const events = await collectEvents(provider.chat(minimalParams))
+    expect(events.at(-1)?.usage).not.toHaveProperty('webSearchRequests')
+  })
+
   it('emits keep_alive for a chunk that produces no ChatEvent (SSE ping)', async () => {
     mockFetch.mockResolvedValue(
       streamRaw([

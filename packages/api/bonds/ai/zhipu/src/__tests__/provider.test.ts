@@ -504,3 +504,54 @@ describe('secret registration', () => {
     expect(getSecretDefinition('ZHIPU_API_KEY')).toBeDefined()
   })
 })
+
+describe('web search metering', () => {
+  const drain = async (
+    provider: ReturnType<typeof createProvider>,
+    stream: boolean,
+  ): Promise<Array<{ type: string; usage?: Record<string, unknown> }>> => {
+    const events: Array<{ type: string; usage?: Record<string, unknown> }> = []
+    for await (const e of provider.chat({ messages: [{ role: 'user', content: 'q' }], stream })) {
+      events.push(e as { type: string; usage?: Record<string, unknown> })
+    }
+    return events
+  }
+
+  it('reports one billed search when a response carries web_search results', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, {
+        choices: [{ message: { content: 'found' } }],
+        web_search: [{ title: 'a' }, { title: 'b' }],
+        usage: { prompt_tokens: 4000, completion_tokens: 10 },
+      }),
+    )
+    const events = await drain(createProvider({ apiKey: 'k' }), false)
+    expect(events.at(-1)).toMatchObject({ type: 'done', usage: { webSearchRequests: 1 } })
+  })
+
+  it('reports no search when the response carries no results', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, {
+        choices: [{ message: { content: 'hi' } }],
+        usage: { prompt_tokens: 20, completion_tokens: 2 },
+      }),
+    )
+    const events = await drain(createProvider({ apiKey: 'k' }), false)
+    expect(events.at(-1)?.usage).not.toHaveProperty('webSearchRequests')
+  })
+
+  it('reports one billed search when a stream chunk carries web_search results', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      sseResponse([
+        `data: ${JSON.stringify({ web_search: [{ title: 'a' }], choices: [{ delta: { content: 'x' } }] })}`,
+        `data: ${JSON.stringify({ choices: [], usage: { prompt_tokens: 4000, completion_tokens: 3 } })}`,
+        'data: [DONE]',
+      ]),
+    )
+    const events = await drain(createProvider({ apiKey: 'k' }), true)
+    expect(events.at(-1)).toMatchObject({ type: 'done', usage: { webSearchRequests: 1 } })
+  })
+})
