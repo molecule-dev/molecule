@@ -1,0 +1,51 @@
+{
+  "name": "@molecule/api-ai-translation-madlad",
+  "version": "1.0.0",
+  "description": "Self-hosted translation provider for molecule.dev — Google MADLAD-400 (400+ languages) through a small CTranslate2 sidecar server, shipped with the package",
+  "homepage": "https://www.molecule.dev/packages/api-ai-translation-madlad",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "sidecar",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "translation",
+    "madlad",
+    "madlad-400",
+    "ctranslate2",
+    "machine-translation",
+    "self-hosted"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-translation/madlad"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-translation": ">=1.1.0"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-translation": "1.1.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}
