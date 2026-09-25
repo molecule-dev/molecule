@@ -9,9 +9,11 @@
  * automatically), and a base URL override (`OPENAI_BASE_URL` env var or
  * `baseUrl`, for proxies/gateways).
  *
- * Wire it with the core's `setProvider()` — NOT `bond('ai-embeddings', …)`:
- * the `@molecule/api-ai-embeddings` core keeps its own singleton and never
- * reads the bond registry (see the core's docs).
+ * Wire it with the core's `setProvider()` (it registers the bond
+ * `'ai-embeddings'`, so `bond('ai-embeddings', provider)` is equivalent). To
+ * run a second embeddings provider next to the app's default, bond it NAMED —
+ * `bond('ai-embeddings', 'search', provider)` — and read it with
+ * `get('ai-embeddings', 'search')` from `@molecule/api-bond`.
  *
  * Unlike the chat AI bonds, a missing `OPENAI_API_KEY` does NOT fail fast —
  * the first embed call fails with the upstream 401. Validate the key at boot
