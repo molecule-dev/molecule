@@ -151,7 +151,7 @@ describe('ai-summarization-llm provider', () => {
       })
       expect(calls[0].temperature).toBeUndefined()
       expect(calls[0].maxTokens).toBeGreaterThanOrEqual(2048)
-      expect(calls[0].system).toContain('at most 25 words')
+      expect(calls[0].system).toContain('about 18 words (never more than 25)')
     })
 
     it('keeps whole sentences only — the extra sentence and a trailing fragment are dropped', async () => {
@@ -201,6 +201,12 @@ describe('ai-summarization-llm provider', () => {
     it('helpers: countWords, cleanSummary, firstSentences, meetsCap', () => {
       expect(countWords('  one two  three ')).toBe(3)
       expect(cleanSummary('**Summary:** Hello there.')).toBe('Hello there.')
+      expect(
+        cleanSummary(
+          'It documents `useAsyncExtendedState`, a **React** _hook_ from [mlcl](https://x.dev).',
+        ),
+      ).toBe('It documents useAsyncExtendedState, a React hook from mlcl.')
+      expect(cleanSummary('Keeps snake_case_names intact.')).toBe('Keeps snake_case_names intact.')
       expect(firstSentences('One. Two. Three', 2)).toBe('One. Two.')
       expect(firstSentences('no ending here', 1)).toBe('')
       expect(meetsCap('It works for e.g. blogs.', 25)).toBe(true)

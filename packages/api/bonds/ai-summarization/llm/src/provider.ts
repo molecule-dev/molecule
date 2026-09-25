@@ -155,6 +155,15 @@ export function cleanSummary(raw: string): string {
   s = s.replace(/\s+/g, ' ').trim()
   s = s.replace(/^(?:\*\*)?(?:tl;?\s?dr|summary)(?:\*\*)?\s*[:\-–—]\s*/i, '')
   s = s.replace(/^(\*\*|__|["“'‘])+/, '').replace(/(\*\*|__|["”'’])+$/, '')
+  // A summary is plain text: markdown the model added (`code`, **bold**, _em_,
+  // [links](url)) would show literally wherever the summary is displayed.
+  s = s
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/(^|[\s(])[*_]([^*_\s][^*_]*?)[*_](?=[\s).,;:!?]|$)/g, '$1$2')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/`/g, '')
   return s.trim()
 }
 
@@ -213,8 +222,11 @@ async function summarizeCapped(
   const cap = input.maxWords
   const attempts = Math.max(1, input.attempts ?? 3)
   const shape = sentences === 1 ? 'one sentence' : `at most ${sentences} sentences`
+  // Models treat a stated maximum as the target and land on it exactly, so ask
+  // for a length well under the cap; the cap itself is enforced below.
+  const target = cap ? Math.max(5, Math.round(cap * 0.7)) : undefined
   const system = [
-    `Summarize the user's text in ${shape}${cap ? ` of at most ${cap} words in total` : ''}, stating what the text does or says.`,
+    `Summarize the user's text in ${shape}${cap ? ` of about ${target} words (never more than ${cap})` : ''}, stating what the text does or says.`,
     input.focus ? `Focus on: ${input.focus}` : '',
     'Reply with the summary only: no preamble, no label, no quotes, no markdown.',
   ]
