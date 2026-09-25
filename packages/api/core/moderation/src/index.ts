@@ -22,11 +22,30 @@
  * }
  * ```
  *
+ *
+ * **Scoring only? Use a classifier.** Classifier bonds score content and store
+ * nothing; bond one with `setClassifier` and call `requireClassifier()`:
+ *
+ * ```typescript
+ * import { setClassifier, requireClassifier } from '@molecule/api-content-moderation'
+ * import { classifier } from '@molecule/api-content-moderation-openai' // or -molecule
+ *
+ * setClassifier(classifier)
+ *
+ * const verdict = await requireClassifier().check(comment.body)
+ * if (verdict.flagged) throw new Error('This comment breaks the community rules.')
+ * ```
+ *
  * @remarks
- * - **There is no prebuilt bond for this category.** Implement
- *   `ContentModerationProvider` in the app — typically a thin object composing
- *   the app's bonded AI provider (`@molecule/api-ai`) for `check()`/`checkImage()`
- *   and the DataStore for reports — and `setProvider()` it at startup.
+ * - **Two bond slots.** `setClassifier` / `requireClassifier` hold a
+ *   `ContentClassifierProvider` (scores only — OpenAI, molecule.dev hosted). The
+ *   full `ContentModerationProvider` (`setProvider`) adds user reports and a
+ *   moderator queue; no package ships one, so implement it in the app: delegate
+ *   `check()` / `checkImage()` to `requireClassifier()` and store reports with
+ *   the DataStore. Never `setProvider(classifier)` — it lacks the report methods.
+ * - Classifier category names are the provider's own (`harassment/threatening`,
+ *   `sexual/minors`, …), not the `ModerationCategory` union — filter with
+ *   `options.categories` using the names the provider returns.
  * - **Unlike most cores, there are NO module-level convenience delegates.**
  *   Call methods on `requireProvider()` (throws when unbonded). Note
  *   `getProvider()` returns `null` rather than throwing — don't optional-chain

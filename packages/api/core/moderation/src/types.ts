@@ -210,3 +210,50 @@ export interface ContentModerationConfig {
   /** Whether to include reasoning in moderation results. */
   includeReasoning?: boolean
 }
+
+/**
+ * Options for classifying an image.
+ */
+export interface ImageModerationOptions extends ModerationOptions {
+  /** The image's MIME type, e.g. `image/png`. Defaults to `image/jpeg`. */
+  mimeType?: string
+}
+
+/**
+ * A content CLASSIFIER — scores text (and optionally images) against moderation
+ * categories and nothing else. No report storage.
+ *
+ * This is the part of moderation a vendor or model actually provides (OpenAI's
+ * moderation endpoint, a self-hosted model, molecule.dev's hosted service). It
+ * is bonded separately (`setClassifier`) so a classifier bond does not have to
+ * be a report database too. An app's {@link ContentModerationProvider} can
+ * delegate its `check()` / `checkImage()` to `requireClassifier()` and keep its
+ * reports in the app's own DataStore.
+ *
+ * Category names are the provider's own (e.g. `harassment/threatening`); every
+ * result carries a 0–1 `score` per category and an overall `flagged`.
+ */
+export interface ContentClassifierProvider {
+  /** Provider name (e.g. 'openai', 'molecule'). */
+  readonly name: string
+
+  /**
+   * Classify text.
+   *
+   * @param content - The text to classify.
+   * @param options - `threshold` overrides the provider's own flag decision:
+   *   when set, a category is flagged iff its score ≥ threshold. `categories`
+   *   limits the returned (and flag-deciding) categories.
+   * @returns Per-category scores and the overall decision.
+   */
+  check(content: string, options?: ModerationOptions): Promise<ModerationResult>
+
+  /**
+   * Classify an image. Optional — absent when the classifier is text-only.
+   *
+   * @param image - The image bytes.
+   * @param options - As for `check`, plus the image's MIME type.
+   * @returns Per-category scores and the overall decision.
+   */
+  checkImage?(image: Uint8Array, options?: ImageModerationOptions): Promise<ModerationResult>
+}
