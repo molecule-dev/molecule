@@ -1,5 +1,11 @@
 # @molecule/api-ai-speech-openai
 
+## 1.0.3
+
+### Patch Changes
+
+- 42db6a6: Correct the wiring note: `setProvider()` registers the `ai-speech` bond, and a second provider can be bonded by name.
+
 ## 1.0.1
 
 ### Patch Changes

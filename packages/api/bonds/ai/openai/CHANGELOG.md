@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.4.0
+
+### Minor Changes
+
+- 1412226: Add `TokenUsage.webSearchRequests`, the number of provider-run web searches billed per search on top of tokens; each AI bond reports the searches its provider ran.
+
 ## 1.3.0
 
 ### Minor Changes

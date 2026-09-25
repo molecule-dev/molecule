@@ -1,5 +1,11 @@
 # @molecule/api-content-moderation
 
+## 1.1.0
+
+### Minor Changes
+
+- 1023a19: Add `ContentClassifierProvider` and `setClassifier` / `requireClassifier`: a separate slot for providers that score content without storing reports.
+
 ## 1.0.1
 
 ### Patch Changes

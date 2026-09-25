@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-openai
 
+## 1.0.3
+
+### Patch Changes
+
+- fee1c2d: Correct the wiring note: `setProvider()` registers the `ai-embeddings` bond, and a second provider can be bonded by name.
+
 ## 1.0.1
 
 ### Patch Changes

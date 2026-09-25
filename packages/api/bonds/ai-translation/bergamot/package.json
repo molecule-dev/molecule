@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-translation-bergamot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Self-hosted translation provider for molecule.dev — Mozilla's Firefox Translations (Bergamot) models on the CPU, in-process, no API key",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation-bergamot",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.9.0
+
+### Minor Changes
+
+- 1412226: Add `webSearchPricePer1k` to price web searches; enable web search on OpenAI models and remove it from Zhipu GLM models, where it never runs alongside function tools.
+
 ## 1.8.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-translation-llm",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Language-model translation provider for molecule.dev — translates through any @molecule/api-ai model, hosted or self-hosted",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation-llm",
   "type": "module",
@@ -39,7 +39,7 @@
     "@molecule/api-ai-translation": ">=1.1.0"
   },
   "devDependencies": {
-    "@molecule/api-ai": "1.2.1",
+    "@molecule/api-ai": "1.3.0",
     "@molecule/api-ai-deepseek": "1.0.4",
     "@molecule/api-ai-translation": "1.1.0",
     "@types/node": "26.1.2",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-speech-openai",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "OpenAI speech provider for molecule.dev — Whisper STT + TTS",
   "homepage": "https://www.molecule.dev/packages/api-ai-speech-openai",
   "type": "module",

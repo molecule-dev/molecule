@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-translation-madlad",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Self-hosted translation provider for molecule.dev — Google MADLAD-400 (400+ languages) through a small CTranslate2 sidecar server, shipped with the package",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation-madlad",
   "type": "module",

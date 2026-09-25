@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 1.0.4
+
+### Patch Changes
+
+- Confirmations and toggles now use the shared `ConfirmDialog`, `ConfirmButton` and `Switch` from `@molecule/app-ui-react` instead of `window.confirm` and hand-built controls.
+
 ## 1.0.3
 
 ### Patch Changes

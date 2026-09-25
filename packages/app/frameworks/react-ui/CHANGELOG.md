@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.2.0
+
+### Minor Changes
+
+- Adds ResponsiveAppShell, LoadErrorBanner, ConfirmDialog and PromptDialog.
+
 ## 1.1.0
 
 ### Minor Changes
