@@ -43,14 +43,19 @@ import type { JSX } from 'react'
 import React, { useState } from 'react'
 
 import { useTranslation } from '@molecule/app-react'
-import type { HTMLElementProps } from '@molecule/app-ui'
 import { getClassMap } from '@molecule/app-ui'
 
 import { Alert } from './Alert.js'
 import { Button } from './Button.js'
 
-/** Props for {@link LoadErrorBanner}. */
-export interface LoadErrorBannerProps extends HTMLElementProps {
+/**
+ * Props for {@link LoadErrorBanner}. Rest props are forwarded to the root
+ * `<div>`, so they are typed as its attributes.
+ */
+export interface LoadErrorBannerProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'children'
+> {
   /** The primary error line (e.g. the localized "Could not load X."). */
   message: React.ReactNode
   /** Secondary line under the message (status code, hint). */
@@ -90,7 +95,12 @@ export function LoadErrorBanner({
   const handleRetry = (): void => {
     if (!onRetry || pending) return
     setPending(true)
-    void Promise.resolve(onRetry()).finally(() => setPending(false))
+    // A rejected retry means "still failing": the caller owns that error and
+    // keeps showing the banner, so ignoring it here only stops it becoming an
+    // unhandled rejection.
+    void Promise.resolve(onRetry())
+      .catch((_error: unknown) => undefined)
+      .finally(() => setPending(false))
   }
 
   return (
