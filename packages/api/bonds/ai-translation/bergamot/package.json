@@ -1,0 +1,50 @@
+{
+  "name": "@molecule/api-ai-translation-bergamot",
+  "version": "1.0.0",
+  "description": "Self-hosted translation provider for molecule.dev — Mozilla's Firefox Translations (Bergamot) models on the CPU, in-process, no API key",
+  "homepage": "https://www.molecule.dev/packages/api-ai-translation-bergamot",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "translation",
+    "bergamot",
+    "firefox-translations",
+    "machine-translation",
+    "self-hosted",
+    "offline"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-translation/bergamot"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-translation": ">=1.1.0"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-translation": "1.1.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}
