@@ -1,0 +1,47 @@
+{
+  "name": "@molecule/api-ai-translation-molecule",
+  "version": "1.0.0",
+  "description": "molecule.dev hosted translation provider — translate through molecule.dev with a project API key, no translation-vendor account",
+  "homepage": "https://www.molecule.dev/packages/api-ai-translation-molecule",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "translation",
+    "hosted",
+    "molecule.dev"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-translation/molecule"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-translation": ">=1.1.0",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-translation": "1.1.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}
