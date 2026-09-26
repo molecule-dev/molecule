@@ -1,5 +1,11 @@
 # @molecule/api-ai-google
 
+## 1.3.1
+
+### Patch Changes
+
+- 43012ca: Replay a tool call Gemini did not make (history from another model) with Google's placeholder thought signature instead of failing the request.
+
 ## 1.3.0
 
 ### Minor Changes

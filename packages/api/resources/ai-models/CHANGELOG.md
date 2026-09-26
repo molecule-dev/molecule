@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.9.1
+
+### Patch Changes
+
+- 43012ca: Mark the OpenAI gpt-5.5, gpt-5.6 and gpt-6 sol/luna entries `rejectsTemperature`, and document `toolsRequireReasoningOff` as applying to tool-less calls only.
+
 ## 1.9.0
 
 ### Minor Changes

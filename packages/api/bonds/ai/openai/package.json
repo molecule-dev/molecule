@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-openai",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "",
   "homepage": "https://www.molecule.dev/packages/api-ai-openai",
   "type": "module",

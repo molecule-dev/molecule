@@ -37,7 +37,7 @@
     "@molecule/api-ai-anthropic": "1.3.0",
     "@molecule/api-ai-embeddings": "1.0.2",
     "@molecule/api-ai-embeddings-openai": "1.0.3",
-    "@molecule/api-ai-openai": "1.4.0",
+    "@molecule/api-ai-openai": "1.4.1",
     "@molecule/api-ai-speech": "1.0.2",
     "@molecule/api-ai-speech-openai": "1.0.3",
     "@molecule/api-ai-vector-store": "1.0.2",

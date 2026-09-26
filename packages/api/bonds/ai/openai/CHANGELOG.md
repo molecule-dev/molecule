@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.4.1
+
+### Patch Changes
+
+- 43012ca: Replay each tool call's preceding reasoning and web search items on the Responses API, so a model that searched does not search again and repeat its tool call on the next turn.
+
 ## 1.4.0
 
 ### Minor Changes
