@@ -2060,8 +2060,11 @@ export interface UIClassMap {
   cardDescription: string
   cardContent: string
   cardFooter: string
-  /** Left-accent strip classes for Alert variant="left-accent" (status-keyed). */
-  alertLeftAccent: string
+  /**
+   * Left-accent strip classes for Alert variant="left-accent", keyed by the
+   * alert's status (Alert calls `cm.alertLeftAccent({ variant })`).
+   */
+  alertLeftAccent(opts?: { variant?: 'default' | 'info' | 'success' | 'warning' | 'error' }): string
   alertTitle: string
   alertDescription: string
   avatarImage: string
