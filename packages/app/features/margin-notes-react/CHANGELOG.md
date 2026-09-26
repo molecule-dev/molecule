@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-react
 
+## 1.0.3
+
+### Patch Changes
+
+- cce2f84: A section's notes share one row for the whole section, so a sticky summary stays pinned until the section ends.
+
 ## 1.0.2
 
 ### Patch Changes
