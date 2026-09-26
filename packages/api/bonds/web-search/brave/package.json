@@ -1,0 +1,47 @@
+{
+  "name": "@molecule/api-web-search-brave",
+  "version": "1.0.0",
+  "description": "Brave Search web search provider for molecule.dev — independent index, free monthly credits, per-1k pricing beyond them",
+  "homepage": "https://www.molecule.dev/packages/api-web-search-brave",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "web-search",
+    "brave",
+    "search"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/web-search/brave"
+  },
+  "peerDependencies": {
+    "@molecule/api-web-search": ">=1.0.0",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-web-search": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "author": "Molecule Dev, Inc. (https://molecule.dev)"
+}
