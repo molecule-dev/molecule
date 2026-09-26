@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-margin-notes-react",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Long-form reading layout with notes beside each paragraph: aligned notes column, margin marks, two-way hover, switchable note kinds, and a phone bar that follows the reader",
   "homepage": "https://www.molecule.dev/packages/app-margin-notes-react",
   "type": "module",
