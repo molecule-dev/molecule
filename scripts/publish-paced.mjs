@@ -467,6 +467,27 @@ for (const pkg of todo) {
           // the run is long or gets cancelled — this is the only place the reason
           // reaches the CI log, since stdio is piped.
           process.stderr.write(`  \u2717 ${pkg.name}: ${reason}\n`)
+          // npm's own reason for a bare 403 is only in its debug log (the terminal
+          // text is the generic "In most cases\u2026"). Print the request/response and
+          // OIDC lines so the CI log names the cause \u2014 app-margin-notes-react got a
+          // bare 403 on every run from 2026-09-26 with nothing else to go on.
+          // npm redacts tokens in this log.
+          const logPath = /complete log of this run can be found in:\s*(\S+)/.exec(out)?.[1]
+          if (logPath) {
+            try {
+              const lines = readFileSync(logPath, 'utf8')
+                .split('\n')
+                .filter((l) => /http|oidc|403|forbidden|publish|provenance|access|error/i.test(l))
+                .slice(-40)
+              process.stderr.write(
+                `    npm debug log (${logPath}):\n${lines.map((l) => `      ${l}`).join('\n')}\n`,
+              )
+            } catch (logError) {
+              process.stderr.write(
+                `    (could not read npm debug log ${logPath}: ${logError.message})\n`,
+              )
+            }
+          }
         }
       }
     }
