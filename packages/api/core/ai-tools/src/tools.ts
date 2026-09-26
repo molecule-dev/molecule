@@ -999,7 +999,21 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // offset/limit, so a long log is cheap to follow), and an `.exit` file
       // appears when it finishes — so "is it done?" is a read, not a poll that
       // blocks a turn.
-      if (input.run_in_background === true) {
+      // A command that declares its OWN budget larger than this tool's ceiling,
+      // and whose output is withheld until the pipeline ends, would be stopped
+      // at the ceiling having printed nothing. It used to be REFUSED ("Nothing
+      // was run") — which cost the executor a whole step in 48 of 48
+      // conversations that tried one (production analytics, 2026-09-26). It
+      // now runs in the background instead: the step does the work, and the
+      // executor gets a handle to wait on.
+      const ceilingSeconds = commandBudgetMs ? Math.max(1, Math.round(commandBudgetMs / 1000)) : 0
+      const declaredSeconds = commandBudgetMs ? declaredBudgetSeconds(command, input.timeout) : 0
+      const overCeiling =
+        commandBudgetMs !== undefined &&
+        declaredSeconds > ceilingSeconds &&
+        outputIsWithheldUntilExit(command)
+
+      if (input.run_in_background === true || overCeiling) {
         const id = `mol-bg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
         const log = `/tmp/${id}.log`
         const exitFile = `/tmp/${id}.exit`
@@ -1020,6 +1034,10 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             log,
             exitFile,
             note:
+              (overCeiling
+                ? `This command asks for ${declaredSeconds}s, more than this tool's ${ceilingSeconds}s, and its ` +
+                  'output only appears when it ends — so it was started in the background instead. '
+                : '') +
               `Started in the background. Its output is being written to ${log} — read it with ` +
               `read_file (use offset/limit to follow a long one). When it finishes, ${exitFile} ` +
               `appears and holds the exit code. If you have other work, do it and check back. If ` +
@@ -1029,30 +1047,6 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         } catch (e: unknown) {
           return {
             error: `Could not start the background command: ${(e as Error).message}`,
-          }
-        }
-      }
-
-      // A command that declares its OWN budget larger than this tool's ceiling,
-      // and whose output is withheld until the pipeline ends, cannot produce
-      // anything: it will be stopped at the ceiling having printed nothing.
-      // Measured across six agent runs, that combination was ten commands and
-      // 49 minutes — 11% of all wall clock — each returning a few hundred bytes.
-      // Refusing in five seconds, naming both ways out, is strictly better than
-      // spending the ceiling to say the same thing afterwards. A command that
-      // declares nothing still RUNS: partial output survives an overrun, so
-      // there is something to learn either way.
-      if (commandBudgetMs) {
-        const ceiling = Math.max(1, Math.round(commandBudgetMs / 1000))
-        const declared = declaredBudgetSeconds(command, input.timeout)
-        if (declared > ceiling && outputIsWithheldUntilExit(command)) {
-          return {
-            error:
-              `This command asks for ${declared}s and this tool stops at ${ceiling}s — and its output ` +
-              'is piped into tail/head/grep, which print nothing until the pipeline ends, so it ' +
-              'would spend the whole budget and hand you back nothing. Either run a smaller unit ' +
-              '(one spec file, one build step) that finishes inside the limit, or drop the pipe ' +
-              'and use a streaming reporter so the output survives being stopped. Nothing was run.',
           }
         }
       }

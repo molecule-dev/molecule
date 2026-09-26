@@ -298,17 +298,20 @@ describe('buildTools', () => {
   // tail/grep, which print nothing until the pipeline ends. 49 minutes, 11% of
   // all measured wall clock, for no information.
 
-  it('refuses a declared-long command whose output cannot survive the ceiling', async () => {
+  it('runs a declared-long command whose output cannot survive the ceiling in the background', async () => {
+    // It used to be refused ("Nothing was run"), costing a step in 48 of 48
+    // production conversations that tried one; now the step does the work.
     const backend = mockBackend()
     const tools = buildTools(backend, { commandBudgetMs: 290_000 })
     const exec = tools.find((t) => t.name === 'exec_command')!
     const result = (await exec.execute({
       command: 'cd app && timeout 900 node scripts/verify-all.mjs --browser 2>&1 | tail -60',
-    })) as { error: string }
-    expect(result.error).toContain('asks for 900s')
-    expect(result.error).toContain('stops at 290s')
-    expect(result.error).toContain('Nothing was run')
-    expect(backend.run).not.toHaveBeenCalled()
+    })) as { error?: string; taskId?: string; note?: string }
+    expect(result.error).toBeUndefined()
+    expect(result.taskId).toMatch(/^mol-bg-/)
+    expect(result.note).toContain('asks for 900s')
+    expect(result.note).toContain('290s')
+    expect(backend.writeFile).toHaveBeenCalled()
   })
 
   it('reads the declared budget from the timeout PARAMETER too', async () => {
@@ -318,9 +321,10 @@ describe('buildTools', () => {
     const result = (await exec.execute({
       command: "npm test 2>&1 | grep -E 'Tests |Test Files'",
       timeout: 900_000,
-    })) as { error?: string }
-    expect(result.error).toContain('asks for 900s')
-    expect(backend.run).not.toHaveBeenCalled()
+    })) as { error?: string; taskId?: string; note?: string }
+    expect(result.error).toBeUndefined()
+    expect(result.taskId).toMatch(/^mol-bg-/)
+    expect(result.note).toContain('asks for 900s')
   })
 
   it('still RUNS a declared-long command whose partial output would survive', async () => {
