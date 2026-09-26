@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-web-search-brave",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Brave Search web search provider for molecule.dev — independent index, free monthly credits, per-1k pricing beyond them",
   "homepage": "https://www.molecule.dev/packages/api-web-search-brave",
   "type": "module",
@@ -38,7 +38,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-web-search": "1.0.0",
+    "@molecule/api-web-search": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
