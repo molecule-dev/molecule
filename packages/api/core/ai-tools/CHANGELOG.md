@@ -1,5 +1,14 @@
 # @molecule/api-ai-tools
 
+## 1.4.1
+
+### Patch Changes
+
+- 3659fb9: An ambiguous edit_file old_string now reports the lines it matched.
+- 3164c42: The blocked environment-dump message now shows how to check whether one variable is set without printing it.
+- 6787825: list_files on a missing path now answers with what the parent directory contains.
+- a4809c7: read_file on a missing @molecule README in node_modules points at read_molecule_doc.
+
 ## 1.4.0
 
 ### Minor Changes
