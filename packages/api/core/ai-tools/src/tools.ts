@@ -775,10 +775,19 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 `indentation — or include more surrounding context to make it unique.`,
             }
           }
-          if (count > 1)
+          if (count > 1) {
+            // Say WHERE, so the retry can widen old_string around the one it means.
+            const lines: number[] = []
+            for (
+              let at = content.indexOf(oldString);
+              at >= 0 && lines.length < 10;
+              at = content.indexOf(oldString, at + 1)
+            )
+              lines.push(content.slice(0, at).split('\n').length)
             return {
-              error: `old_string found ${count} times in ${path} — must be unique. Include more surrounding context.`,
+              error: `old_string found ${count} times in ${path} (starting at lines ${lines.join(', ')}${count > lines.length ? ', …' : ''}) — must be unique. Include more surrounding context from the one you mean, or make one edit per occurrence.`,
             }
+          }
           // Splice by index rather than `content.replace(oldString, newString)`:
           // String.replace treats `$&`, `$$`, `` $` ``, `$'` in the REPLACEMENT as
           // special patterns, so a new_string containing regex-replacement code

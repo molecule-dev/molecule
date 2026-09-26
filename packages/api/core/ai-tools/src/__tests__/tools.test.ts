@@ -738,6 +738,19 @@ describe('buildTools', () => {
     expect(result.error).toMatch(/No such directory: \/test\/ghost/)
   })
 
+  it('edit_file with an ambiguous old_string names the lines it matched', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockResolvedValue('a\nfoo()\nb\nfoo()\nc\n')
+    const editFile = buildTools(backend).find((t) => t.name === 'edit_file')!
+    const result = (await editFile.execute({
+      path: '/test/x.ts',
+      old_string: 'foo()',
+      new_string: 'bar()',
+    })) as { error?: string }
+    expect(result.error).toMatch(/found 2 times .*lines 2, 4/)
+    expect(backend.writeFile).not.toHaveBeenCalled()
+  })
+
   it('read_file of a missing @molecule README in node_modules points at read_molecule_doc', async () => {
     const backend = mockBackend()
     ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
