@@ -1,5 +1,11 @@
 # @molecule/api-ai-summarization-llm
 
+## 1.1.1
+
+### Patch Changes
+
+- 8edbd22: Summaries are plain text (markdown the model adds is removed) and the model is asked for a length under the cap, so answers stop landing exactly on it.
+
 ## 1.1.0
 
 ### Minor Changes
