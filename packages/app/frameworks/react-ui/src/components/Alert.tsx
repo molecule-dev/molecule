@@ -54,7 +54,7 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
       children,
       title,
       status = 'info',
-      variant: _variant,
+      variant,
       live = true,
       dismissible,
       onDismiss,
@@ -71,7 +71,13 @@ export const Alert = forwardRef<HTMLDivElement, AlertProps & { live?: boolean }>
     const iconName = statusIconMap[alertVariant]
     const defaultIcon = iconName ? renderIcon(iconName, cm.iconMd) : null
 
-    const alertClasses = cm.cn(cm.alert({ variant: alertVariant }), className)
+    const alertClasses = cm.cn(
+      cm.alert({ variant: alertVariant }),
+      // The core contract types variant="left-accent"; render it as a 4px
+      // status-colored leading bar (previously silently dropped).
+      variant === 'left-accent' && cm.alertLeftAccent({ variant: alertVariant }),
+      className,
+    )
     const role = live ? 'alert' : 'status'
 
     return (

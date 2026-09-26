@@ -4,7 +4,7 @@ import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
 
 /**
- * Auth-page brand header — a centered `<header>` wrapper holding a
+ * Auth-page brand header — a centered `<div>` wrapper holding a
  * gradient chip + wordmark + tagline.
  *
  * Composable by `children`: drop in `<AuthBrandHeaderChip>`,
@@ -152,10 +152,10 @@ export function AuthBrandHeaderTagline({
 export interface AuthBrandHeaderProps {
   /**
    * Composed header content. When set, the preset props below are
-   * ignored and `children` renders inside the centered `<header>`.
+   * ignored and `children` renders inside the centered wrapper `<div>`.
    */
   children?: ReactNode
-  /** Extra classes appended to the `<header>` wrapper. */
+  /** Extra classes appended to the wrapper `<div>`. */
   className?: string
   // --- preset mode (used only when `children` is omitted) ---
   /** Brand name for the default wordmark. */
@@ -189,7 +189,10 @@ export function AuthBrandHeader({
   const { t } = useTranslation()
 
   return (
-    <header className={cm.cn(cm.flex({ direction: 'col', align: 'center', gap: 'sm' }), className)}>
+    // A `<div>`, not `<header>` — several hosts render their own top bar on
+    // auth screens; a second `<header>` here reads as a duplicated app bar.
+    // This block is brand intro content, not a banner.
+    <div className={cm.cn(cm.flex({ direction: 'col', align: 'center', gap: 'sm' }), className)}>
       {children ?? (
         <>
           {icon ? (
@@ -211,7 +214,7 @@ export function AuthBrandHeader({
           </AuthBrandHeaderTagline>
         </>
       )}
-    </header>
+    </div>
   )
 }
 

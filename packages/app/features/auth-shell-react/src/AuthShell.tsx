@@ -364,6 +364,12 @@ export function AuthShellCardColumn({
     <Tag
       className={cm.cn(
         cm.flex({ direction: 'col', align: 'center', justify: 'center' }),
+        // min-w-0: this element is a flex item of the auth row. The default
+        // min-width:auto makes it refuse to shrink below the form's min-content
+        // width, so a wide form pushes the whole page past the viewport on
+        // mobile (a 24-87px horizontal overflow). min-w-0 lets it shrink; the
+        // card's own max-w-* still caps its width.
+        'min-w-0',
         className,
       )}
       {...rest}

@@ -53,7 +53,12 @@ export const Alert = defineComponent({
     return () => {
       const alertVariant = statusVariantMap[props.status] || 'default'
 
-      const alertClasses = cm.cn(cm.alert({ variant: alertVariant }), props.class)
+      const alertClasses = cm.cn(
+        cm.alert({ variant: alertVariant }),
+        // variant="left-accent" was typed but dropped; render the status-colored bar.
+        props.variant === 'left-accent' && cm.alertLeftAccent({ variant: alertVariant }),
+        props.class,
+      )
 
       const iconName = statusIconMap[alertVariant]
 

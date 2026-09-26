@@ -267,7 +267,10 @@ export function PricingPage<TLimits = unknown>(
       className={cm.cn(cm.maxW('6xl'), cm.mxAuto, cm.sp('px', 6), cm.sp('py', 12), className)}
       data-mol-id="pricing-page"
     >
-      <header className={cm.cn(cm.textCenter, cm.sp('mb', 10))}>
+      {/* A `<section>`, not `<header>`: the app's own top bar (the `header` slot
+         most hosts pass to this page) is the page's single banner — a second
+         header element here reads as a duplicated app bar. */}
+      <section className={cm.cn(cm.textCenter, cm.sp('mb', 10))}>
         <h1
           className={cm.cn(cm.textSize('4xl'), cm.fontWeight('bold'), cm.sp('mb', 3))}
           style={headlineStyle}
@@ -283,7 +286,7 @@ export function PricingPage<TLimits = unknown>(
             {t(subheadingKey, undefined, { defaultValue: subheadingDefault })}
           </p>
         )}
-      </header>
+      </section>
       <div
         className={cm.flex({
           direction: 'row',
@@ -425,7 +428,8 @@ function TierCard<TLimits>({
             {t('billing.pricing.mostPopular', undefined, { defaultValue: 'Most popular' })}
           </span>
         )}
-        <header className={cm.cardHeader}>
+        {/* Card heading, not a page banner — see the section note above. */}
+        <div className={cm.cardHeader}>
           {!popular && (
             <p
               className={cm.cn(
@@ -490,7 +494,7 @@ function TierCard<TLimits>({
               </>
             )}
           </p>
-        </header>
+        </div>
         <div className={cm.cn(cm.cardContent, cm.flex1)}>
           {renderLimits ? (
             renderLimits(tier.limits)

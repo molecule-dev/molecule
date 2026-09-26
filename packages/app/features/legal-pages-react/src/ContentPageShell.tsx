@@ -6,7 +6,7 @@ import { getClassMap } from '@molecule/app-ui'
  * Props for {@link ContentPageShell}.
  */
 export interface ContentPageShellProps {
-  /** `data-mol-id` applied to the hero `<header>` for AI-agent selectors. */
+  /** `data-mol-id` applied to the hero band for AI-agent selectors. */
   dataMolId?: string
   /** Small uppercase label above the title (e.g. "Legal", "Billing"). */
   eyebrow?: ReactNode
@@ -77,7 +77,10 @@ export function ContentPageShell({
       {header}
 
       {title ? (
-        <header
+        // A `<section>`, not `<header>`: the app's own top bar (the `header`
+        // slot above) is the page's single banner — a second `<header>` here
+        // reads as a duplicated app bar to audits, users, and assistive tech.
+        <section
           data-mol-id={dataMolId}
           className={cm.cn('relative overflow-hidden', cm.sp('px', 6), cm.sp('py', 16))}
           style={heroStyle}
@@ -123,7 +126,7 @@ export function ContentPageShell({
               </p>
             ) : null}
           </div>
-        </header>
+        </section>
       ) : null}
 
       <main className={cm.cn(cm.flex1, cm.sp('px', 6), cm.sp('py', 10))}>

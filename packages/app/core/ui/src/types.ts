@@ -2060,6 +2060,8 @@ export interface UIClassMap {
   cardDescription: string
   cardContent: string
   cardFooter: string
+  /** Left-accent strip classes for Alert variant="left-accent" (status-keyed). */
+  alertLeftAccent: string
   alertTitle: string
   alertDescription: string
   avatarImage: string
@@ -2391,6 +2393,8 @@ export interface UIClassMap {
   borderT: string
   /** Right border in theme border color. */
   borderR: string
+  /** Left border in theme border color. */
+  borderL: string
   /** All-sides border in theme border color. */
   borderAll: string
   /** Primary-colored bottom border (e.g. active tab indicator). */

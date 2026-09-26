@@ -75,7 +75,7 @@ describe('AuthBrandHeader (preset mode)', () => {
 })
 
 describe('AuthBrandHeader (children mode)', () => {
-  it('renders children verbatim inside the <header> and ignores preset props', () => {
+  it('renders children verbatim inside the wrapper <div> and ignores preset props', () => {
     const markup = html(
       createElement(AuthBrandHeader, {
         appName: 'IgnoredName',
@@ -83,7 +83,7 @@ describe('AuthBrandHeader (children mode)', () => {
         children: createElement('div', { 'data-custom': '' }, 'Bespoke'),
       }),
     )
-    expect(markup).toContain('<header')
+    expect(markup).toContain('<div')
     expect(markup).toContain('data-custom=""')
     expect(markup).toContain('Bespoke')
     expect(markup).not.toContain('IgnoredName')

@@ -353,6 +353,28 @@ export const alert = cva(
 )
 
 /**
+ * Left-accent strip for Alert's `variant="left-accent"` — a 4px colored bar
+ * on the leading edge, colored by the alert's STATUS (the base `alert` cva
+ * keys its variants off status too, so the two compose 1:1). Previously the
+ * variant was typed in the core contract but silently dropped by every
+ * Alert implementation, so left-accent call sites rendered as plain alerts.
+ */
+export const alertLeftAccent = cva('border-l-4', {
+  variants: {
+    variant: {
+      default: 'border-l-foreground',
+      info: 'border-l-info',
+      success: 'border-l-success',
+      warning: 'border-l-warning',
+      error: 'border-l-error',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+})
+
+/**
  * The alert title.
  */
 export const alertTitle = 'mb-1 font-medium leading-none tracking-tight'
@@ -855,15 +877,15 @@ export const iconSm = 'h-4 w-4'
 export const iconMd = 'h-5 w-5'
 
 /** Button left icon spacing classes. */
-export const buttonIconLeft = 'mr-2'
+export const buttonIconLeft = 'shrink-0'
 /**
  * The button icon right.
  */
-export const buttonIconRight = 'ml-2'
+export const buttonIconRight = 'shrink-0'
 /**
  * The button spinner.
  */
-export const buttonSpinner = 'mr-2'
+export const buttonSpinner = 'shrink-0'
 
 /** Interactive card classes (hover shadow effect). */
 export const cardInteractive = 'cursor-pointer hover:shadow-md transition-shadow'
@@ -1223,6 +1245,10 @@ export const borderT = 'border-t border-border'
  * Tailwind classes for a right border with the theme border color.
  */
 export const borderR = 'border-r border-border'
+/**
+ * Tailwind classes for a left border with the theme border color.
+ */
+export const borderL = 'border-l border-border'
 /**
  * The border all.
  */
