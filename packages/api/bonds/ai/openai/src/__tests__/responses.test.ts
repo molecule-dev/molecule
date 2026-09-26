@@ -230,7 +230,16 @@ describe('Responses parsing', () => {
     )
     expect(await run({ stream: false })).toEqual([
       { type: 'text', content: 'hello' },
-      { type: 'tool_use', id: 'c1', name: 'add', input: { a: 1 } },
+      {
+        type: 'tool_use',
+        id: 'c1',
+        name: 'add',
+        input: { a: 1 },
+        // The reasoning that preceded the call rides along for replay.
+        signature:
+          'openai-responses-items:v1:' +
+          JSON.stringify({ model: 'gpt-6-luna', items: [{ type: 'reasoning', summary: [] }] }),
+      },
       {
         type: 'done',
         usage: {
@@ -394,5 +403,124 @@ describe('Responses parsing', () => {
     const events = await run({})
     expect(events.some((e) => e.type === 'keep_alive')).toBe(true)
     expect(events.at(-1)?.type).toBe('done')
+  })
+})
+
+describe('replaying reasoning and web search items (no re-search loop)', () => {
+  const reasoning = { id: 'rs_1', type: 'reasoning', summary: [], encrypted_content: 'ENC' }
+  const search = {
+    id: 'ws_1',
+    type: 'web_search_call',
+    status: 'completed',
+    action: { type: 'search' },
+  }
+  const sig = (model: string, items: unknown[]): string =>
+    'openai-responses-items:v1:' + JSON.stringify({ model, items })
+  const history = (signature?: string): ChatParams['messages'] => [
+    { role: 'user', content: 'search then write' },
+    {
+      role: 'assistant',
+      content: [
+        {
+          type: 'tool_use',
+          id: 'call_1',
+          name: 'write_file',
+          input: { p: 1 },
+          ...(signature ? { signature } : {}),
+        },
+      ],
+    },
+    { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }] },
+  ]
+
+  beforeEach(() => {
+    ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      jsonResponse(200, { output: [], usage: {} }),
+    )
+  })
+
+  it('requests encrypted reasoning so it can be replayed statelessly', async () => {
+    await run({ stream: false })
+    expect(sentBody().include).toEqual(['reasoning.encrypted_content'])
+  })
+
+  it('streaming: attaches the reasoning + search items before a call to that call', async () => {
+    ;(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+      sseResponse([
+        { type: 'response.output_item.done', item: reasoning },
+        { type: 'response.output_item.done', item: search },
+        {
+          type: 'response.output_item.done',
+          item: {
+            id: 'fc_1',
+            type: 'function_call',
+            call_id: 'call_1',
+            name: 'w',
+            arguments: '{}',
+          },
+        },
+        {
+          type: 'response.output_item.done',
+          item: {
+            id: 'fc_2',
+            type: 'function_call',
+            call_id: 'call_2',
+            name: 'w',
+            arguments: '{}',
+          },
+        },
+        completed({ input_tokens: 1, output_tokens: 1 }),
+      ]),
+    )
+    const uses = (await run({ model: 'gpt-6-astra' })).filter(
+      (e) => e.type === 'tool_use',
+    ) as Array<{
+      signature?: string
+    }>
+    expect(uses[0].signature).toBe(sig('gpt-6-astra', [reasoning, search]))
+    // Each item replays once: the second call carries nothing new.
+    expect(uses[1].signature).toBeUndefined()
+  })
+
+  it('replays the items immediately before the rebuilt function_call', async () => {
+    await run({
+      stream: false,
+      model: 'gpt-6-astra',
+      messages: history(sig('gpt-6-astra', [reasoning, search])),
+    })
+    expect(sentBody().input).toEqual([
+      { role: 'user', content: 'search then write' },
+      reasoning,
+      search,
+      { type: 'function_call', call_id: 'call_1', name: 'write_file', arguments: '{"p":1}' },
+      { type: 'function_call_output', call_id: 'call_1', output: 'ok' },
+    ])
+  })
+
+  it('drops another model’s reasoning but keeps its web search items', async () => {
+    await run({
+      stream: false,
+      model: 'gpt-6-luna',
+      messages: history(sig('gpt-6-astra', [reasoning, search])),
+    })
+    const input = sentBody().input as Array<{ type?: string }>
+    expect(input.map((i) => i.type)).toEqual([
+      undefined,
+      'web_search_call',
+      'function_call',
+      'function_call_output',
+    ])
+  })
+
+  it('ignores a signature from another provider (e.g. a Gemini thought signature)', async () => {
+    await run({ stream: false, messages: history('Q2lxYTEyMzQ=') })
+    const input = sentBody().input as Array<{ type?: string }>
+    expect(input.map((i) => i.type)).toEqual([undefined, 'function_call', 'function_call_output'])
+  })
+
+  it('drops an unreadable replay signature instead of failing the request', async () => {
+    await run({ stream: false, messages: history('openai-responses-items:v1:{not json') })
+    const input = sentBody().input as Array<{ type?: string }>
+    expect(input.map((i) => i.type)).toEqual([undefined, 'function_call', 'function_call_output'])
   })
 })

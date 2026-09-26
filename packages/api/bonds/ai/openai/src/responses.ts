@@ -11,10 +11,16 @@
  * server-side tools (`web_search`). Verified live 2026-09-24.
  *
  * Requests are stateless (`store: false`): the full conversation is sent each
- * time, as with chat/completions. Prior tool calls are replayed as
- * `function_call` items WITHOUT an item `id` — an id makes the API look for the
- * stored reasoning item that preceded the call, which a stateless request does
- * not have.
+ * time, as with chat/completions. A prior tool call is replayed as a
+ * `function_call` item rebuilt from its `tool_use` block, preceded by the
+ * reasoning and `web_search_call` items the model produced before it. Those
+ * travel in the tool call's `signature` (the provider-opaque replay token
+ * callers persist with each `tool_use`), and reasoning is requested in its
+ * encrypted form so it survives without server-side storage. Without them the
+ * model cannot see that it already searched: after a tool result it searched
+ * again and re-issued the same call, turn after turn (reproduced live
+ * 2026-09-26 on gpt-6-luna and gpt-6-astra; replaying them ended the loop).
+ * Reasoning is only replayed to the model that produced it.
  *
  * @module
  */
@@ -33,6 +39,76 @@ import { getLogger } from '@molecule/api-bond'
 import { streamErrorEvent } from './utilities.js'
 
 const logger = getLogger()
+
+/** Prefix marking a `tool_use.signature` that carries Responses API items to replay. */
+const REPLAY_PREFIX = 'openai-responses-items:v1:'
+
+/** Output item types replayed ahead of the function call they preceded. */
+const REPLAYED_ITEM_TYPES = new Set(['reasoning', 'web_search_call'])
+
+/**
+ * Collects the reasoning and web search items that precede each function call
+ * in a response, so they can ride on that call's `signature`.
+ */
+class ReplayItems {
+  private items: Array<Record<string, unknown>> = []
+
+  /**
+   * Start an empty collector for one response.
+   *
+   * @param model - The model producing the response (reasoning is model-bound).
+   */
+  constructor(private readonly model: string) {}
+
+  /**
+   * Record an output item if it is one that must be replayed.
+   *
+   * @param item - A completed output item.
+   */
+  add(item: Record<string, unknown>): void {
+    if (REPLAYED_ITEM_TYPES.has(String(item.type))) this.items.push(item)
+  }
+
+  /**
+   * The `signature` partial for the next function call, emptying the buffer.
+   *
+   * @returns `{ signature }` when items preceded the call, else `{}`.
+   */
+  take(): { signature?: string } {
+    if (this.items.length === 0) return {}
+    const signature = REPLAY_PREFIX + JSON.stringify({ model: this.model, items: this.items })
+    this.items = []
+    return { signature }
+  }
+}
+
+/**
+ * The items to replay ahead of a prior tool call, decoded from its signature.
+ * A signature from another provider (no prefix) yields nothing; reasoning from
+ * a different model is dropped, since encrypted reasoning is bound to the model
+ * that produced it, while its web search items are kept.
+ *
+ * @param signature - The stored `tool_use.signature`.
+ * @param model - The model this request targets.
+ * @returns The items to place before the `function_call`.
+ */
+function replayedItems(
+  signature: string | undefined,
+  model: string,
+): Array<Record<string, unknown>> {
+  if (!signature?.startsWith(REPLAY_PREFIX)) return []
+  try {
+    const payload = JSON.parse(signature.slice(REPLAY_PREFIX.length)) as {
+      model?: string
+      items?: Array<Record<string, unknown>>
+    }
+    const items = Array.isArray(payload.items) ? payload.items : []
+    return payload.model === model ? items : items.filter((i) => i.type !== 'reasoning')
+  } catch (error) {
+    logger.warn('Dropping an unreadable OpenAI replay signature', { error })
+    return []
+  }
+}
 
 /** Usage object as reported on a Responses API `response`. */
 interface ResponsesUsage {
@@ -63,9 +139,11 @@ export function buildResponsesBody(
     ...(params.extraBody ?? {}),
     ...(params.endUserId ? { safety_identifier: params.endUserId } : {}),
     model,
-    input: formatResponsesInput(params.messages),
+    input: formatResponsesInput(params.messages, model),
     max_output_tokens: maxTokens,
     store: false,
+    // Encrypted reasoning, so it can be replayed without server-side storage.
+    include: ['reasoning.encrypted_content'],
   }
   if (params.system) body.instructions = params.system
   if (params.temperature !== undefined) body.temperature = params.temperature
@@ -87,12 +165,17 @@ export function buildResponsesBody(
 /**
  * Convert `ChatMessage`s to Responses API input items. Text and images become
  * message items; `tool_use` blocks become `function_call` items and
- * `tool_result` blocks `function_call_output` items, in block order.
+ * `tool_result` blocks `function_call_output` items, in block order. A tool
+ * call's replay items (see the module docs) go immediately before it.
  *
  * @param messages - The conversation.
+ * @param model - The model this request targets.
  * @returns The `input` array.
  */
-export function formatResponsesInput(messages: ChatMessage[]): Array<Record<string, unknown>> {
+export function formatResponsesInput(
+  messages: ChatMessage[],
+  model: string,
+): Array<Record<string, unknown>> {
   const out: Array<Record<string, unknown>> = []
   for (const m of messages) {
     if (m.role === 'system') {
@@ -116,6 +199,7 @@ export function formatResponsesInput(messages: ChatMessage[]): Array<Record<stri
       switch (block.type) {
         case 'tool_use':
           flush()
+          out.push(...replayedItems(block.signature, model))
           out.push({
             type: 'function_call',
             call_id: block.id,
@@ -241,11 +325,16 @@ function parseArgs(args: string | undefined): unknown {
  * @param data - The parsed JSON response body.
  * @yields {ChatEvent} Text, tool-use, and done events.
  */
-export function* parseResponsesNonStreaming(data: Record<string, unknown>): Iterable<ChatEvent> {
+export function* parseResponsesNonStreaming(
+  data: Record<string, unknown>,
+  model: string,
+): Iterable<ChatEvent> {
   const output = (data.output as Array<Record<string, unknown>> | undefined) ?? []
+  const replay = new ReplayItems(model)
   let webSearchCalls = 0
   for (const item of output) {
     if (item.type === 'web_search_call') webSearchCalls++
+    replay.add(item)
     if (item.type === 'message') {
       for (const part of (item.content as Array<Record<string, unknown>> | undefined) ?? []) {
         if (part.type === 'output_text' && typeof part.text === 'string' && part.text.length > 0) {
@@ -258,6 +347,7 @@ export function* parseResponsesNonStreaming(data: Record<string, unknown>): Iter
         id: String(item.call_id ?? ''),
         name: String(item.name ?? ''),
         input: parseArgs(item.arguments as string | undefined),
+        ...replay.take(),
       }
     }
   }
@@ -271,9 +361,13 @@ export function* parseResponsesNonStreaming(data: Record<string, unknown>): Iter
  * Parse a streaming SSE response from `/v1/responses`.
  *
  * @param response - The fetch Response whose body is an SSE stream.
+ * @param model - The model the request targeted.
  * @yields {ChatEvent} Text, tool-call progress, tool-use, keep-alive, and done events.
  */
-export async function* parseResponsesStream(response: Response): AsyncIterable<ChatEvent> {
+export async function* parseResponsesStream(
+  response: Response,
+  model: string,
+): AsyncIterable<ChatEvent> {
   const reader = response.body?.getReader()
   if (!reader) {
     yield {
@@ -289,6 +383,7 @@ export async function* parseResponsesStream(response: Response): AsyncIterable<C
   let usage: TokenUsage | null = null
   /** Function calls in progress, keyed by output item id. */
   const calls = new Map<string, { callId: string; name: string }>()
+  const replay = new ReplayItems(model)
   /**
    * `web_search_call` items started — OpenAI bills each one. Counted when the
    * call starts so a stream cut mid-search still meters it.
@@ -351,7 +446,10 @@ export async function* parseResponsesStream(response: Response): AsyncIterable<C
             id: String(item.call_id ?? ''),
             name: String(item.name ?? ''),
             input: parseArgs(item.arguments as string | undefined),
+            ...replay.take(),
           }
+        } else if (item) {
+          replay.add(item)
         }
         return
       case 'response.completed':

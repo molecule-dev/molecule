@@ -840,9 +840,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // temperature → 400 "not supported with this model" unless reasoning is
+    // off (probed live on /v1/responses 2026-09-26); callers omit it.
+    rejectsTemperature: true,
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -871,9 +873,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // temperature → 400 "not supported with this model" unless reasoning is
+    // off (probed live on /v1/responses 2026-09-26); callers omit it.
+    rejectsTemperature: true,
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -903,9 +907,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // temperature → 400 "not supported with this model" unless reasoning is
+    // off (probed live on /v1/responses 2026-09-26); callers omit it.
+    rejectsTemperature: true,
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -943,9 +949,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // temperature → 400 "not supported with this model" unless reasoning is
+    // off (probed live on /v1/responses 2026-09-26); callers omit it.
+    rejectsTemperature: true,
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -978,9 +986,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // temperature → 400 "not supported with this model" unless reasoning is
+    // off (probed live on /v1/responses 2026-09-26); callers omit it.
+    rejectsTemperature: true,
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -1019,9 +1029,11 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // temperature → 400 "not supported with this model" unless reasoning is
+    // off (probed live on /v1/responses 2026-09-26); callers omit it.
+    rejectsTemperature: true,
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -1053,9 +1065,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,
@@ -1089,9 +1100,8 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsVision: true,
     supportsPromptCaching: true,
     supportsTools: true,
-    // Tools + ANY reasoning is a 400 on /v1/chat/completions for this family.
-    // The bond now calls /v1/responses, where it is not (verified 2026-09-24);
-    // lifting this pin changes reasoning quality/cost, so it waits for a model eval.
+    // Tool-less utility calls (commit messages) run with reasoning off. See the
+    // field's type docs.
     toolsRequireReasoningOff: true,
     webSearchToolType: 'web_search',
     webSearchPricePer1k: 10,

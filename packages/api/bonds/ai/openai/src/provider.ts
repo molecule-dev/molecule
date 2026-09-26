@@ -291,11 +291,15 @@ export class OpenaiAIProvider implements AIProvider {
 
     if (!useStream) {
       const data = (await response!.json()) as Record<string, unknown>
-      yield* isResponses ? parseResponsesNonStreaming(data) : this.parseNonStreamingResponse(data)
+      yield* isResponses
+        ? parseResponsesNonStreaming(data, model)
+        : this.parseNonStreamingResponse(data)
       return
     }
 
-    yield* isResponses ? parseResponsesStream(response!) : this.parseStreamingResponse(response!)
+    yield* isResponses
+      ? parseResponsesStream(response!, model)
+      : this.parseStreamingResponse(response!)
   }
 
   /**

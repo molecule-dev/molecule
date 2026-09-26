@@ -124,24 +124,18 @@ export interface ModelDefinition {
   /** Whether the model supports tool use / function calling. */
   supportsTools: boolean
   /**
-   * The model cannot combine function tools with ANY reasoning on the provider's
-   * chat-completions endpoint, so a request carrying tools must pin reasoning
-   * OFF or it is rejected outright.
+   * Tool-less utility calls (commit messages) run this model with reasoning
+   * explicitly off (`effort: 'none'`); tool-carrying turns use the turn's
+   * reasoning effort like any other model. Set for the OpenAI gpt-5.4+ entries
+   * that accept `'none'`. (A temperature on those that reject one is handled
+   * by `rejectsTemperature`, not by this.)
    *
-   * Set for the gpt-5.6 family, which answers a tools request with:
-   * `Function tools with reasoning_effort are not supported for <model> in
-   * /v1/chat/completions. To use function tools, use /v1/responses or set
-   * reasoning_effort to 'none'.` (400 — verified live, 2026-07-30). Omitting the
-   * effort field entirely does NOT help: the model applies its own default and
-   * still 400s. Only an explicit `'none'` works.
-   *
-   * This is a per-model API fact, so it lives in the catalogue rather than as a
-   * model-name branch inside a bond.
-   *
-   * **This is a workaround, not the fix.** Pinning reasoning off means an agentic
-   * caller — which always carries tools — never gets reasoning from these models.
-   * The real fix is migrating the OpenAI bond to `/v1/responses`, which supports
-   * both together; until then, working-without-reasoning beats 400.
+   * The name is historical: on /v1/chat/completions these models also rejected
+   * function tools combined with reasoning, so tool-carrying calls were pinned
+   * off too. The OpenAI bond calls /v1/responses, where tools and reasoning
+   * combine, and that pin was lifted — reasoning off with web search made the
+   * model search again and repeat its tool call on every turn. Kept under this
+   * name because renaming a published field breaks consumers.
    */
   toolsRequireReasoningOff?: boolean
   /**

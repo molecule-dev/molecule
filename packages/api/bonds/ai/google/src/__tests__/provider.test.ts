@@ -379,8 +379,11 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
     // Roles: user→user, assistant→model.
     expect(body.contents[0]).toEqual({ role: 'user', parts: [{ text: 'Hi' }] })
     expect(body.contents[1].role).toBe('model')
+    // A call with no Gemini signature (history Gemini did not produce) gets
+    // Google's placeholder — without one Gemini 3.x rejects the replay.
     expect(body.contents[1].parts[0]).toEqual({
       functionCall: { name: 'search', args: { q: 'x' } },
+      thoughtSignature: 'skip_thought_signature_validator',
     })
     // tool_result → functionResponse, name recovered from the earlier tool_use id.
     expect(body.contents[2].role).toBe('user')
@@ -464,8 +467,36 @@ describe('GoogleAIProvider — streaming + request mapping', () => {
       functionCall: { name: 'read_file', args: { path: 'a.ts' } },
       thoughtSignature: 'sig-abc',
     })
-    // A signature-less block (non-Gemini history) stays a bare functionCall.
-    expect(body.contents[1].parts[0].thoughtSignature).toBeDefined()
+  })
+
+  it('replaces another provider’s signature with the placeholder (mid-conversation model switch)', async () => {
+    mockFetch.mockResolvedValue(emptyStream())
+    await collectEvents(
+      provider.chat({
+        model: 'gemini-3.1-pro-preview',
+        messages: [
+          { role: 'user', content: 'go' },
+          {
+            role: 'assistant',
+            content: [
+              {
+                type: 'tool_use',
+                id: 'call_1',
+                name: 'read_file',
+                input: {},
+                // An OpenAI replay payload: not base64, so Gemini would 400 on it.
+                signature: 'openai-responses-items:v1:{"model":"gpt-6-luna","items":[]}',
+              },
+            ],
+          },
+          {
+            role: 'user',
+            content: [{ type: 'tool_result', tool_use_id: 'call_1', content: 'ok' }],
+          },
+        ],
+      }),
+    )
+    expect(bodyOf().contents[1].parts[0].thoughtSignature).toBe('skip_thought_signature_validator')
   })
 
   it('prefers thinking.effort as thinkingLevel and never sends the budget alongside', async () => {

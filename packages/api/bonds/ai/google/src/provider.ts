@@ -40,6 +40,24 @@ const logger = getLogger()
  * adds one — every other bond in this category sends it.
  */
 
+/**
+ * Google's documented placeholder `thoughtSignature` for a function call the
+ * model did not produce itself (history injected or carried over from another
+ * model); it tells Gemini to skip signature validation for that call.
+ */
+const FOREIGN_CALL_THOUGHT_SIGNATURE = 'skip_thought_signature_validator'
+
+/**
+ * Whether a stored tool-call signature is a Gemini thought signature — a
+ * base64 token — rather than another provider's replay data or nothing.
+ *
+ * @param signature - The `tool_use.signature` from history.
+ * @returns True when it can be echoed to Gemini as `thoughtSignature`.
+ */
+function isGeminiSignature(signature: string | undefined): signature is string {
+  return typeof signature === 'string' && /^[A-Za-z0-9+/_-]+={0,2}$/.test(signature)
+}
+
 /** Mutable state shared across SSE line-processing calls for the Gemini streaming parser. */
 interface GoogleStreamState {
   /**
@@ -487,10 +505,17 @@ class GoogleAIProvider implements AIProvider {
       case 'tool_use':
         // `thoughtSignature` (surfaced to callers as `signature`) MUST be
         // echoed on replayed functionCall parts: Gemini 3.x rejects a replayed
-        // call without it (400 "Function call is missing a thought_signature").
+        // call without it (400 "Function call is missing a thought_signature")
+        // and rejects one that is not its own base64 token (400 "Base64
+        // decoding failed"). A call Gemini did not make — history from another
+        // model after a mid-conversation switch — gets Google's documented
+        // placeholder instead (verified 200 on 3.8-flash and 3.1-pro,
+        // 2026-09-26).
         return {
           functionCall: { name: block.name, args: block.input ?? {} },
-          ...(block.signature ? { thoughtSignature: block.signature } : {}),
+          thoughtSignature: isGeminiSignature(block.signature)
+            ? block.signature
+            : FOREIGN_CALL_THOUGHT_SIGNATURE,
         }
       case 'tool_result':
         return {
