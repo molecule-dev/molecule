@@ -58,7 +58,37 @@ describe('renderMarginNotes', () => {
     const rows = [...doc.querySelectorAll('[data-mn-row]')].map((r) =>
       r.getAttribute('data-mn-row'),
     )
-    expect(rows).toEqual(['b0', 'b1', 'b2', 'b3'])
+    // b2 is in b1's section (both refer to s1): one row, so s1 stays pinned
+    // through the whole section and p0 joins its gutter.
+    expect(rows).toEqual(['b0', 'b1', 'b3'])
+  })
+
+  it('keeps a section in one row while its summary covers it, prompts changing or not', () => {
+    const doc = parse(
+      renderMarginNotes({
+        blocks: [
+          { id: 'h', html: '<h2>S</h2>', noteIds: ['s'] },
+          { id: 'a', html: '<p>a</p>', noteIds: ['s', 'p1'] },
+          { id: 'b', html: '<p>b</p>', noteIds: ['s', 'p2'] },
+          { id: 'c', html: '<p>c</p>', noteIds: ['s'] },
+          { id: 'n', html: '<h2>Next</h2>', noteIds: ['t'] },
+        ],
+        notes: [
+          { id: 's', kind: 'summary', label: 'TL;DR', html: '<p>s</p>' },
+          { id: 't', kind: 'summary', label: 'TL;DR', html: '<p>t</p>' },
+          { id: 'p1', kind: 'prompt', label: 'Prompt', html: '<p>1</p>' },
+          { id: 'p2', kind: 'prompt', label: 'Prompt', html: '<p>2</p>' },
+        ],
+        kinds,
+      }).html,
+    )
+    const rows = [...doc.querySelectorAll('[data-mn-row]')]
+    expect(rows.map((r) => r.getAttribute('data-mn-row'))).toEqual(['h', 'n'])
+    const first = [...rows[0].querySelectorAll('[data-mn-where="gutter"]')].map((n) =>
+      n.getAttribute('data-mn-note'),
+    )
+    expect(first).toEqual(['s', 'p1', 'p2'])
+    expect(rows[0].querySelectorAll('[data-mn-block]')).toHaveLength(4)
   })
 
   it('the phone panel starts on the lead section, with only the kinds that follow and are on', () => {

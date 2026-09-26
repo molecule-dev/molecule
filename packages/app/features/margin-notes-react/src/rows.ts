@@ -3,11 +3,14 @@ import type { MarginNote, MarginNotesBlock, MarginNotesRow } from './types.js'
 /**
  * Group blocks into layout rows and place each note once.
  *
- * A row is a run of consecutive blocks that refer to exactly the same set of
- * notes (a paragraph run sharing one note), or a run of consecutive blocks
- * with no notes. Each note is shown beside the FIRST row that refers to it and
- * never again, so a note covering several paragraphs — even ones that are not
- * next to each other — appears once on the page.
+ * A row runs for as long as its blocks are covered by a note it holds: a
+ * section's summary (every block of the section refers to it) keeps the whole
+ * section in one row, and a note that first appears mid-row — a prompt behind
+ * one of the section's paragraphs — joins that row's gutter. A sticky note is
+ * bounded by its row, so this is what keeps a summary pinned until its section
+ * ends; splitting the row wherever the note set changed released it after the
+ * first paragraph. A run of blocks with no notes is a row of its own. Each note
+ * is shown once, in the first row that refers to it.
  *
  * @param blocks - The text, in reading order.
  * @param notes - Every note the blocks refer to; ids with no note are ignored.
@@ -25,8 +28,15 @@ export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []):
   for (const block of blocks) {
     const ids = known(block.noteIds)
     const k = key(ids)
-    if (current && k === currentKey) {
+    const stillCovered = current !== null && ids.some((id) => current!.noteIds.includes(id))
+    if (current && (k === currentKey || stillCovered)) {
       current.blocks.push(block)
+      for (const id of ids) {
+        if (!current.noteIds.includes(id)) current.noteIds.push(id)
+        if (placed.has(id)) continue
+        placed.add(id)
+        current.notes.push(byId.get(id)!)
+      }
       continue
     }
     current = { id: block.id, blocks: [block], notes: [], noteIds: ids }

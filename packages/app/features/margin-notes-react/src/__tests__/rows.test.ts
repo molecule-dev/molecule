@@ -14,15 +14,23 @@ describe('buildRows', () => {
     expect(rows[0].notes.map((x) => x.id)).toEqual(['s'])
   })
 
-  it('starts a new row when the note set changes, and never repeats a note', () => {
+  it('keeps a section in one row while its summary covers it, and never repeats a note', () => {
+    // Every block of the section refers to its summary s; the prompts change
+    // paragraph by paragraph. One row, so s stays pinned through the section.
     const rows = buildRows(
-      [b('h', ['s']), b('p1', ['s', 'q1']), b('p2', ['s', 'q2']), b('p3', ['s', 'q1'])],
-      [n('s'), n('q1', 'prompt'), n('q2', 'prompt')],
+      [
+        b('h', ['s']),
+        b('p1', ['s', 'q1']),
+        b('p2', ['s', 'q2']),
+        b('p3', ['s', 'q1']),
+        b('x', ['t']),
+      ],
+      [n('s'), n('t'), n('q1', 'prompt'), n('q2', 'prompt')],
     )
-    expect(rows.map((r) => r.blocks.map((x) => x.id))).toEqual([['h'], ['p1'], ['p2'], ['p3']])
-    expect(rows.map((r) => r.notes.map((x) => x.id))).toEqual([['s'], ['q1'], ['q2'], []])
-    // the phone panel still knows every note a row refers to
-    expect(rows[3].noteIds.sort()).toEqual(['q1', 's'])
+    expect(rows.map((r) => r.blocks.map((x) => x.id))).toEqual([['h', 'p1', 'p2', 'p3'], ['x']])
+    expect(rows.map((r) => r.notes.map((x) => x.id))).toEqual([['s', 'q1', 'q2'], ['t']])
+    // the phone panel knows every note the row refers to
+    expect([...rows[0].noteIds].sort()).toEqual(['q1', 'q2', 's'])
   })
 
   it('treats note order as irrelevant and ignores ids with no note', () => {
