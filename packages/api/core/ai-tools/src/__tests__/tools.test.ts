@@ -735,7 +735,25 @@ describe('buildTools', () => {
       entries?: unknown[]
     }
     expect(result.entries).toBeUndefined()
-    expect(result.error).toMatch(/No such file or directory/)
+    expect(result.error).toMatch(/No such directory: \/test\/ghost/)
+  })
+
+  it("list_files on a missing path answers with the parent's real contents", async () => {
+    const backend = mockBackend()
+    ;(backend.readDir as ReturnType<typeof vi.fn>).mockImplementation(async (p: string) => {
+      if (p === '/test/.agents')
+        return [
+          { name: 'skills', type: 'directory' },
+          { name: 'plans', type: 'directory' },
+        ]
+      throw new Error(`ls: cannot access '${p}': No such file or directory`)
+    })
+    const listFiles = buildTools(backend).find((t) => t.name === 'list_files')!
+    const result = (await listFiles.execute({ path: '/test/.agents/settings.json' })) as {
+      error?: string
+    }
+    expect(result.error).toMatch(/No such directory: \/test\/\.agents\/settings\.json/)
+    expect(result.error).toMatch(/\/test\/\.agents contains: skills\/, plans\//)
   })
 
   it('write_file and edit_file also guard a missing path (no crash)', async () => {

@@ -488,7 +488,27 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
         const entries = await backend.readDir(path)
         return { path, entries: entries.map((e) => ({ name: e.name, type: e.type })) }
       } catch (e: unknown) {
-        return { error: `Failed to list ${path}: ${(e as Error).message}` }
+        const message = (e as Error).message
+        // Same ground-truth answer as read_file's miss: a guessed path gets the parent's
+        // real contents back, so the next call names something that exists.
+        if (/No such file or directory|cannot access/i.test(message)) {
+          const parent = path.replace(/\/[^/]*$/, '') || '/'
+          try {
+            const siblings = await backend.readDir(parent)
+            return {
+              error: `No such directory: ${path}. ${parent} contains: ${
+                siblings
+                  .slice(0, 40)
+                  .map((s) => s.name + (s.type === 'directory' ? '/' : ''))
+                  .join(', ') || '(nothing)'
+              }${siblings.length > 40 ? ', …' : ''}.`,
+            }
+          } catch (_parentErr) {
+            // The parent is missing too; the plain message below says so.
+            return { error: `No such directory: ${path} (and ${parent} does not exist either).` }
+          }
+        }
+        return { error: `Failed to list ${path}: ${message}` }
       }
     },
 
