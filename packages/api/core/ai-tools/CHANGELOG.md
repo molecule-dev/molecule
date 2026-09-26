@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.4.0
+
+### Minor Changes
+
+- c0acaf7: exec_command runs a command that asks for more time than its ceiling, with output held until the end, in the background (returning a task id) instead of refusing it.
+
 ## 1.3.0
 
 ### Minor Changes
