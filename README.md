@@ -27,7 +27,7 @@ Try it: [www.molecule.dev](https://www.molecule.dev). Describe an app and Syntha
 ## How it works
 
 1. **Describe** the app at [www.molecule.dev](https://www.molecule.dev). Synthase asks a few questions before it plans.
-2. **Synthase composes packages** from this catalog (925 packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
+2. **Synthase composes packages** from this catalog (952 packages, all Apache-2.0, all on npm) into a real TypeScript project: an Express API plus a React, Vue, Svelte, Solid, Angular, or React Native app.
 3. **Bonds wire providers** at startup. Application code only ever calls the core interface.
 4. **A live sandbox** runs the project with a preview while you work, and deploys it when you are ready.
 5. **Export anytime.** One archive with the project code, a database dump, and `.env` files holding the keys you own (`GET /projects/:id/export`). Unpack it and run it anywhere.
@@ -88,6 +88,21 @@ Every package with user-facing text has a companion locale bond with translation
 ## Using the packages without the IDE
 
 Everything here is published to npm under `@molecule/*`. Install the core for a category, install a bond for it, and wire them the way the swap example at the top does. Each package's `README.md` carries its installation, API, and environment variables.
+
+### The molecule CLI (`mlcl`) and MCP server
+
+The fastest way to use these packages is the CLI — it scaffolds, wires, and manages projects from the terminal:
+
+```bash
+npx mlcl create my-app --template blog --no-interactive   # scaffold a flagship app
+npx mlcl search payments                                    # find packages by capability
+npx mlcl add @molecule/api-payments-stripe --inject        # install + wire in one step
+npx mlcl swap @molecule/api-database-mysql                 # change a provider
+```
+
+For AI agents: `npx mlcl mcp install` registers the molecule MCP server (search, scaffold, add, swap, deploy, manage — all as structured tools). `npx mlcl agent init` makes any coding agent molecule-aware. The full agent guide: [docs/AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
+
+Every scaffolded project ships an `AGENTS.md` with the full conventions, so any agent that opens a molecule-built app immediately understands the bond system, ClassMap styling, and handler patterns.
 
 ## Standard Tooling
 
