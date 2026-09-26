@@ -1,5 +1,11 @@
 # AGENTS.md — molecule.dev
 
+> **Parallel-agent machine:** before a release, any `npm install`, or killing a
+> process, register with the shared presence registry:
+> `node ../scripts/agent-presence.mjs register --repo molecule --work "<what>"`
+> then `list` / `claim --exclusive release` / `verify --pid <pid>` — see
+> `../docs/agent-presence.md`. Claude Code sessions are auto-registered by hook.
+
 ## The Decoupling Principle
 
 Before writing any import, literal value, or function call, apply this test:
