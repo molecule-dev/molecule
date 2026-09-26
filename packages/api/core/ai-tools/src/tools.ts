@@ -456,6 +456,13 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
       // reads in one imported-app build were misses on files that never existed). Return
       // ground truth in the SAME result — what the parent directory actually contains — so
       // the next read uses a real name instead of another guess.
+      // A package's docs are one tool call away wherever node_modules happens to live.
+      const moleculePkg = /node_modules\/(@molecule\/[^/]+)\//.exec(path)?.[1]
+      if (moleculePkg && /No such file or directory/i.test(message)) {
+        return {
+          error: `No such file: ${path}. Read ${moleculePkg}'s documentation with read_molecule_doc("${moleculePkg}") instead of looking for it in node_modules.`,
+        }
+      }
       if (/No such file or directory/i.test(message)) {
         const parent = path.replace(/\/[^/]*$/, '') || '/'
         let listing: string

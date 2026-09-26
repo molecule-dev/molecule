@@ -738,6 +738,18 @@ describe('buildTools', () => {
     expect(result.error).toMatch(/No such directory: \/test\/ghost/)
   })
 
+  it('read_file of a missing @molecule README in node_modules points at read_molecule_doc', async () => {
+    const backend = mockBackend()
+    ;(backend.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error("path '/x' does not exist: No such file or directory"),
+    )
+    const readFile = buildTools(backend).find((t) => t.name === 'read_file')!
+    const result = (await readFile.execute({
+      path: '/test/app/node_modules/@molecule/api-feed-rss/README.md',
+    })) as { error?: string }
+    expect(result.error).toMatch(/read_molecule_doc\("@molecule\/api-feed-rss"\)/)
+  })
+
   it("list_files on a missing path answers with the parent's real contents", async () => {
     const backend = mockBackend()
     ;(backend.readDir as ReturnType<typeof vi.fn>).mockImplementation(async (p: string) => {
