@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-margin-notes-html",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Framework-free long-form reading layout with notes beside each paragraph: renders to an HTML string (build time or server), plus a small browser script for the switches, two-way hover and a phone panel that follows the reader",
   "homepage": "https://www.molecule.dev/packages/app-margin-notes-html",
   "type": "module",
