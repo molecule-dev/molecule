@@ -206,6 +206,13 @@ describe('checkBlockedCommand', () => {
     expect(checkBlockedCommand('printenv')).toMatch(/dumping environment variables/)
   })
 
+  it('names a way to check one variable, and that way is allowed', () => {
+    const steer = checkBlockedCommand('printenv | grep DEEPSEEK') ?? ''
+    const suggested = /`(test -n [^`]+)`/.exec(steer)?.[1]
+    expect(suggested).toBeDefined()
+    expect(checkBlockedCommand(suggested!.replace('NAME', 'DEEPSEEK_API_KEY'))).toBeNull()
+  })
+
   it('blocks env through sh -c wrapper', () => {
     expect(checkBlockedCommand('sh -c "env"')).toMatch(/dumping environment variables/)
     expect(checkBlockedCommand('bash -c env')).toMatch(/dumping environment variables/)

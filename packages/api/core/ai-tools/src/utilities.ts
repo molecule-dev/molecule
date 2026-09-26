@@ -258,7 +258,8 @@ export function checkBlockedCommand(command: string): string | null {
     ' You do NOT need to dump it: the managed service values (DATABASE_URL, etc.) are already ' +
     'in the process environment — read them IN CODE via process.env / your config loader, or ' +
     "check the project's provisioned env file to see WHICH services exist. Printing them only " +
-    'leaks secrets into the transcript.'
+    'leaks secrets into the transcript. To check whether ONE variable is set without printing ' +
+    'it: `test -n "$NAME" && echo set || echo missing`.'
   if (BLOCKED_COMMANDS.test(command))
     return `Command blocked: dumping environment variables is not allowed.${envDumpSteer}`
   if (BLOCKED_PROC_REDIRECT.test(command))
