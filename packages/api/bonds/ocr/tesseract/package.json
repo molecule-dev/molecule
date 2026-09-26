@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ocr-tesseract",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Self-hosted Tesseract OCR provider for molecule.dev — text extraction from images in your own process, no vendor account, no per-call cost",
   "homepage": "https://www.molecule.dev/packages/api-ocr-tesseract",
   "type": "module",
@@ -36,7 +36,7 @@
     "@molecule/api-ocr": ">=1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-ocr": "1.0.0",
+    "@molecule/api-ocr": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
