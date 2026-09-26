@@ -52,7 +52,10 @@ export function attachMarginNotes(doc: Document = document): void {
       const ids = pinned
         ? words(pinned.getAttribute('data-mn-notes'))
         : words(reading?.getAttribute('data-mn-row-notes') ?? '').filter(
-            (id) => !tapKinds.has(kindOf(id)),
+            // A tap kind follows the reader too once its switch is ON: turning
+            // the switch on must show something (x183, 2026-09-26: on a phone
+            // "Prompt" on showed nothing until a paragraph was tapped).
+            (id) => !tapKinds.has(kindOf(id)) || shown.has(kindOf(id)),
           )
       const visible = new Set(
         ids.filter((id) => {

@@ -54,15 +54,23 @@ describe('<MarginNotes>', () => {
 
   it('tapping a block pins its notes in the phone panel; tapping again lets go', () => {
     render(withI18n(<MarginNotes {...doc} />))
-    fireEvent.click(byMol('margin-notes-switch-bar-prompt'))
     fireEvent.click(byMol('margin-notes-block-p2'))
     expect(byMol('margin-note-panel-q1').hidden).toBe(false)
     expect(byMol('margin-notes-dismiss')).toBeTruthy()
     fireEvent.click(byMol('margin-notes-block-p2'))
     expect(document.querySelector('[data-mol-id="margin-notes-dismiss"]')).toBeNull()
-    // a tap-only kind leaves with the second tap; the section note stays
+    // with its switch off, a tap kind leaves with the second tap; the section note stays
     expect(document.querySelector('[data-mol-id="margin-note-panel-q1"]')).toBeNull()
     expect(byMol('margin-note-panel-s1').hidden).toBe(false)
+  })
+
+  it('a tap kind switched ON follows the reader in the phone panel, without a tap', () => {
+    render(withI18n(<MarginNotes {...doc} />))
+    expect(document.querySelector('[data-mol-id="margin-note-panel-q1"]')).toBeNull()
+    fireEvent.click(byMol('margin-notes-switch-bar-prompt'))
+    expect(byMol('margin-note-panel-q1').hidden).toBe(false)
+    fireEvent.click(byMol('margin-notes-switch-bar-prompt'))
+    expect(document.querySelector('[data-mol-id="margin-note-panel-q1"]')).toBeNull()
   })
 
   it('a tap shows a tap-kind note even while its switch is off; follow kinds obey theirs', () => {

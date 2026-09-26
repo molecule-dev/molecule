@@ -164,7 +164,7 @@ export function renderMarginNotes(options: RenderMarginNotesOptions): RenderedMa
     const initial = new Set(
       (first?.noteIds ?? []).filter((nid) => {
         const n = notes.find((x) => x.id === nid)
-        return !!n && !tapOnly.has(n.kind) && isShown(n)
+        return !!n && isShown(n) && (!tapOnly.has(n.kind) || shown.includes(n.kind))
       }),
     )
     const panelNotes = notes.map((n) => renderNote(n, kinds, 'panel', !initial.has(n.id))).join('')

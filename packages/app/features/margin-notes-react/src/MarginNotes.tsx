@@ -140,8 +140,13 @@ export function MarginNotes(props: MarginNotesProps): JSX.Element {
   const panelNoteIds = useMemo(() => {
     if (pinnedBlock) return blocks.find((b) => b.id === pinnedBlock)?.noteIds ?? []
     const ids = rows.find((r) => r.id === readingRow)?.noteIds ?? []
-    return ids.filter((id) => !tapOnly.has(notesById.get(id)?.kind ?? ''))
-  }, [pinnedBlock, readingRow, blocks, rows, tapOnly, notesById])
+    // A tap kind follows the reader too once its switch is ON: turning the
+    // switch on must show something on a phone, not wait for a tap.
+    return ids.filter((id) => {
+      const note = notesById.get(id)
+      return !!note && (!tapOnly.has(note.kind) || isShown(note))
+    })
+  }, [pinnedBlock, readingRow, blocks, rows, tapOnly, notesById, isShown])
   // A tapped block's tap-kind notes show whatever their switch says: on a phone
   // the tap is the only way to reach a note about one paragraph (a prompt that
   // defaults off). Follow-kind notes keep obeying their switch.

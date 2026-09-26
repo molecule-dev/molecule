@@ -99,6 +99,17 @@ describe('attachMarginNotes', () => {
     expect($<HTMLElement>('[data-mn-dismiss]').hidden).toBe(true)
   })
 
+  it('a tap kind switched ON follows the reader on a phone, without a tap', async () => {
+    layoutRows(900) // reading section one, which has an AI paragraph
+    window.dispatchEvent(new Event('scroll'))
+    await flushFrames()
+    expect(panelVisible()).toEqual(['s1'])
+    $('[data-mn-switches="bar"] [data-mn-kind="prompt"]').click()
+    expect(panelVisible()).toEqual(expect.arrayContaining(['s1', 'p0']))
+    $('[data-mn-switches="bar"] [data-mn-kind="prompt"]').click()
+    expect(panelVisible()).toEqual(['s1'])
+  })
+
   it('attaching twice does not double-bind', () => {
     attachMarginNotes(document)
     $('[data-mn-switches="side"] [data-mn-kind="prompt"]').click()

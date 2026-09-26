@@ -208,8 +208,10 @@
  * - Section notes follow the reader; paragraph notes wait for a tap. On a
  *   phone the panel shows the kinds with `panel: 'follow'` (the default) for
  *   the section in view. A kind about ONE paragraph (a prompt, a citation)
- *   gets `panel: 'tap'`: it shows when that paragraph is tapped — even while
- *   its switch is off — and goes on the second tap.
+ *   gets `panel: 'tap'`: while its switch is off it shows only when that
+ *   paragraph is tapped (and goes on the second tap); once its switch is ON it
+ *   follows the section in view like a `'follow'` kind, so the switch always
+ *   shows something.
  * - The mark is drawn on the block, as an absolutely-placed dot inside the
  *   block's own wrapper (hidden on phones). At rest a marked block is typeset
  *   exactly like an unmarked one.
