@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-agent-run",
+  "version": "1.0.0",
+  "description": "Abstract unattended agent run interface — run a coding agent in an ephemeral, isolated environment and get artifacts back",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "agent",
+    "claude",
+    "sandbox",
+    "automation"
+  ],
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-i18n": "1.0.3",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/agent-run"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-agent-run",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Molecule Dev, Inc. (https://molecule.dev)"
+}
