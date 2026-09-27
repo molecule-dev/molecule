@@ -20,7 +20,7 @@ import { useNarrowViewport } from '../hooks/useViewport.js'
 
 /**
  * Animated molecule spinner — renders the platform's SINGLE spinner mark
- * (`moleculeSpinnerMarkSvg` from @molecule/app-ui): the 3-phase atom swap
+ * (`moleculeSpinnerMarkSvg` from `@molecule/app-ui`): the 3-phase atom swap
  * with swap-synced glints, the same motion and paint the IDE spinner and the
  * deployed-app attribution badge use. Decorative here — the surrounding row
  * carries `role="status"` and the label.
