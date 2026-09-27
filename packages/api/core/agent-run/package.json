@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-run",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Abstract unattended agent run interface — run a coding agent in an ephemeral, isolated environment and get artifacts back",
   "type": "module",
   "main": "dist/index.js",

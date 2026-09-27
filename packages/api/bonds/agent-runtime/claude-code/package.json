@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-agent-runtime-claude-code",
-  "version": "1.0.0",
-  "description": "Claude Code agent runtime \u2014 unattended runs in ephemeral cloud sandboxes; artifacts-only return, per-run credentials, deny-by-default egress",
+  "version": "1.1.0",
+  "description": "Claude Code agent runtime — unattended runs in ephemeral cloud sandboxes; artifacts-only return, per-run credentials, deny-by-default egress",
   "homepage": "https://www.molecule.dev/packages/api-agent-runtime-claude-code",
   "type": "module",
   "main": "dist/index.js",
@@ -40,7 +40,7 @@
     "@molecule/api-code-sandbox": ">=1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-agent-run": "1.0.0",
+    "@molecule/api-agent-run": "1.1.0",
     "@molecule/api-ai-tools": "1.4.2",
     "@molecule/api-code-sandbox": "1.2.1",
     "@types/node": "26.1.2",
