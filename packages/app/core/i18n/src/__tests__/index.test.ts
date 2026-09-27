@@ -133,6 +133,18 @@ describe('@molecule/app-i18n', () => {
   })
 
   describe('interpolate', () => {
+    it('fills a single-brace placeholder for a key that was passed', () => {
+      expect(interpolate('Move to {column}', { column: 'Done' })).toBe('Move to Done')
+      expect(interpolate('Move to { column }', { column: 'Done' })).toBe('Move to Done')
+    })
+
+    it('leaves single braces alone when nothing by that name was passed', () => {
+      expect(interpolate('Use {curly} braces, {{name}}', { name: 'Ada' })).toBe(
+        'Use {curly} braces, Ada',
+      )
+      expect(interpolate('JSON: {"a":1}', { a: 2 })).toBe('JSON: {"a":1}')
+    })
+
     it('should interpolate string values', () => {
       const result = interpolate('Hello, {{name}}!', { name: 'John' })
       expect(result).toBe('Hello, John!')

@@ -72,10 +72,19 @@ export const interpolate = (text: string, values: InterpolationValues): string =
   // Tolerate inner whitespace ("{{ name }}") — i18next trims interpolation
   // tokens, and translators routinely add the spaces. Without this, swapping
   // the i18next bond for the simple provider rendered "{{ name }}" literally.
-  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
+  const render = (value: unknown): string =>
+    value instanceof Date ? value.toLocaleDateString() : String(value)
+  const doubled = text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, key) => {
     const value = values[key]
     if (value === undefined) return `{{${key}}}`
-    if (value instanceof Date) return value.toLocaleDateString()
-    return String(value)
+    return render(value)
   })
+  // A single-brace `{key}` is filled too, but ONLY for a key the caller passed:
+  // `t('move', { column }, { defaultValue: 'Move to {column}' })` is a mistake
+  // with one obvious meaning, and it shipped to a live site as the literal text
+  // "Move to {column}" on every card (2026-09-27) despite the docs saying
+  // double braces. Braces around anything that is not a passed key stay as written.
+  return doubled.replace(/(?<!\{)\{\s*(\w+)\s*\}(?!\})/g, (whole, key) =>
+    values[key] === undefined ? whole : render(values[key]),
+  )
 }

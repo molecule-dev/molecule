@@ -20,13 +20,13 @@
  * keys to the app's `locales/en/ui.ts` (and per-locale `{code}/ui.ts`) — not in
  * feature packages.
  *
- * Interpolation tokens use **DOUBLE braces** `{{var}}`, never single `{var}` — a
- * single brace is NOT interpolated and renders LITERALLY (you see "{name}" on the
- * page). This applies to BOTH the `defaultValue` and any matching locale-file
- * entry: `t('hero', { tagline }, { defaultValue: 'Eat well — {{tagline}}' })` and
- * `heroTitle: 'Eat well — {{tagline}}'`. The locale entry takes priority over the
- * `defaultValue`, so a single-brace locale entry shows `{tagline}` even when the
- * default is correct — the #1 i18n footgun.
+ * Interpolation tokens use **DOUBLE braces** `{{var}}` — in BOTH the
+ * `defaultValue` and any matching locale-file entry:
+ * `t('hero', { tagline }, { defaultValue: 'Eat well — {{tagline}}' })` and
+ * `heroTitle: 'Eat well — {{tagline}}'`. The simple provider also fills a
+ * single-brace `{var}` when `var` is one of the values you passed (a common slip
+ * that used to render "{var}" on the page), but other providers (i18next) do
+ * not, so write double braces.
  *
  * **Fleet provider contract** (every `I18nProvider` — this package's own
  * `createSimpleI18nProvider`, `@molecule/api-i18n-simple`,
