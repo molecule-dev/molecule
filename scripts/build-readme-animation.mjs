@@ -732,7 +732,7 @@ function build(theme) {
 </defs>
 <style>
   ${keyframes.join('\n  ')}
-  svg:hover *{animation-play-state:paused}
+  svg:hover *{animation-play-state:paused !important}
   @media (prefers-reduced-motion: reduce){ *{animation:none !important} #scene-1,#scene-2,#scene-3,#scene-4{display:none} }
 </style>
 <rect width="1200" height="700" rx="16" fill="${C.bg}"/>

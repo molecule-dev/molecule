@@ -378,7 +378,7 @@
   @keyframes k91{0%{opacity:0;visibility:hidden;transform:translateY(14px)}84.5%{opacity:0;visibility:hidden;transform:translateY(14px)}86%{opacity:1;visibility:visible;transform:none}99%{opacity:1;visibility:visible;transform:none}100%{opacity:0;visibility:hidden;transform:translateY(14px)}100%{opacity:0;visibility:hidden;transform:translateY(14px)}}
   @keyframes k92{0%{opacity:0;visibility:hidden;transform:translateY(10px)}87.333%{opacity:0;visibility:hidden;transform:translateY(10px)}88.833%{opacity:1;visibility:visible;transform:none}99%{opacity:1;visibility:visible;transform:none}100%{opacity:0;visibility:hidden;transform:translateY(10px)}100%{opacity:0;visibility:hidden;transform:translateY(10px)}}
   @keyframes k93{0%{opacity:0;visibility:hidden;transform:translateY(10px)}90.667%{opacity:0;visibility:hidden;transform:translateY(10px)}92.167%{opacity:1;visibility:visible;transform:none}99%{opacity:1;visibility:visible;transform:none}100%{opacity:0;visibility:hidden;transform:translateY(10px)}100%{opacity:0;visibility:hidden;transform:translateY(10px)}}
-  svg:hover *{animation-play-state:paused}
+  svg:hover *{animation-play-state:paused !important}
   @media (prefers-reduced-motion: reduce){ *{animation:none !important} #scene-1,#scene-2,#scene-3,#scene-4{display:none} }
 </style>
 <rect width="1200" height="700" rx="16" fill="#0e0e0e"/>
