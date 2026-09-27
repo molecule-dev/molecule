@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://www.molecule.dev"><picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-molecule-works-dark.svg">
-    <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, generated code is verified and fed back until green, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%">
+    <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, every app ships with analytics, error tracking and feedback that the AI uses to keep improving it, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%">
   </picture></a>
 </p>
 <p align="right"><sub><a href="https://how-molecule-works.apps.mlcl.dev">Interactive</a></sub></p>
@@ -17,7 +17,7 @@
 - **Higher quality.** Generated code is type-checked, linted and tested before it reaches you, with errors fed back to the agent until green. Unit, integration and E2E tests ship with the project.
 - **Easier to maintain and scale.** Every provider (database, auth, payments, email, AI, analytics, 80+ categories) and every frontend framework (React, Vue, Svelte, Solid, Angular, React Native) sits behind a swappable bond. Change the wiring, not the app. The same architecture serves a side project and an enterprise.
 - **Built in by default.** Auth and OAuth, payments, migrations, i18n in 80 languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility, CI/CD, and an `AGENTS.md` that teaches any coding agent the conventions.
-- **Self-improving.** The verify-and-fix loop runs on every build. Failure patterns from past builds feed a refine pipeline that improves the prompts, skills and packages, so a fix lands once and every project benefits.
+- **Self-improving.** Every app ships with analytics, error tracking and user feedback built in. The AI reads what real users do, improves the app, ships and measures again, in your workspace, with you approving or letting it run. Generated code is type-checked and tested before it ships, and the packages themselves improve from every fix.
 - **If you are an AI agent.** Read a package's `README.md` (generated from its source), call the core interface and never a vendor SDK, wire providers in `bonds.ts`, and run `npx mlcl agent init` or `npx mlcl mcp install` for the tooling. Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
 
 Open-source, composable full-stack packages that an AI can wire correctly, and real TypeScript code you can export and run anywhere. Every provider sits behind an abstract interface, so swapping the database, email, or payments provider means changing the bond that wires it, not the code that uses it.
