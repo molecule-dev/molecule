@@ -17,6 +17,33 @@ import type { OcrInput, OcrOptions, OcrProvider, OcrResult } from '@molecule/api
 import type { TesseractOcrConfig } from './types.js'
 
 /**
+ * A Tesseract language code, or several joined with `+`/`-`: one or more runs
+ * of letters, digits and underscores separated by single `+` or `-`. This is
+ * all tesseract.js needs for traineddata lookup — and it keeps the language
+ * from carrying path separators, `..`, whitespace or shell characters into
+ * the traineddata path tesseract.js composes under the configured cache dir.
+ */
+const LANGUAGE_PATTERN = /^[A-Za-z0-9_]+([+-][A-Za-z0-9_]+)*$/
+
+/**
+ * Validates a language code before it reaches tesseract.js.
+ *
+ * @param language - The caller-supplied language code(s).
+ * @returns The same value, when it is a plain Tesseract language code.
+ * @throws {Error} When the value is not a plain Tesseract language code.
+ */
+function validateLanguage(language: string): string {
+  if (!LANGUAGE_PATTERN.test(language)) {
+    throw new Error(
+      `Invalid Tesseract language code: ${JSON.stringify(language)}. ` +
+        'Use traineddata code(s) like "eng", "eng+deu" or "chi_sim" — ' +
+        'letters, digits and underscores joined by "+" or "-", without path separators.',
+    )
+  }
+  return language
+}
+
+/**
  * OCR provider backed by self-hosted Tesseract.
  */
 class TesseractOcrProvider implements OcrProvider {
@@ -35,12 +62,15 @@ class TesseractOcrProvider implements OcrProvider {
    *
    * @param input - The image bytes and MIME type.
    * @param options - Language hint as Tesseract traineddata code(s), e.g. `eng`
-   *   or `eng+deu` — a BCP-47 tag like `en` fails traineddata lookup.
+   *   or `eng+deu` — a BCP-47 tag like `en` fails traineddata lookup. The value
+   *   must match `/^[A-Za-z0-9_]+([+-][A-Za-z0-9_]+)*$/`; anything else
+   *   (empty, `..`, path separators) is rejected before it reaches Tesseract,
+   *   whose loader composes traineddata paths from it.
    * @returns One page with Tesseract's text and its own mean confidence.
    */
   async recognize(input: OcrInput, options?: OcrOptions): Promise<OcrResult> {
     const language = options?.language ?? this.config.language ?? 'eng'
-    const worker = await this.worker(language)
+    const worker = await this.worker(validateLanguage(language))
     const { data } = await worker.recognize(Buffer.from(input.data))
     const text = data.text ?? ''
     return {

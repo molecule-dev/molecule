@@ -29,7 +29,10 @@
  *   the work behind a queue (e.g. `@molecule/api-cron` + a job table), not the
  *   create/update handler.
  * - **`language` is a TESSERACT code, not a BCP-47 tag** — `eng`, `deu`,
- *   `eng+deu`. `en` fails traineddata lookup on first use. The first call in a
+ *   `eng+deu`. `en` fails traineddata lookup on first use. Codes must match
+ *   `/^[A-Za-z0-9_]+([+-][A-Za-z0-9_]+)*$/` — anything else (empty, `..`,
+ *   path separators) is rejected before it reaches Tesseract, whose loader
+ *   composes traineddata paths from the value. The first call in a
  *   new language downloads its traineddata (a few MB, cached in `cachePath`);
  *   point `langPath` at your own mirror for offline installs.
  * - **Recognize at real size.** Tesseract wants ~300 DPI grayscale input; a

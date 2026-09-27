@@ -56,6 +56,47 @@ describe('api-ocr-tesseract', () => {
     expect(createWorker).toHaveBeenNthCalledWith(2, 'eng+deu', 1, {})
   })
 
+  it('accepts plain Tesseract language codes', async () => {
+    vi.mocked(createWorker).mockResolvedValue(fakeWorker() as never)
+    const provider = createProvider()
+    for (const language of ['eng', 'eng+he', 'chi_sim', 'eng-deu']) {
+      await provider.recognize(IMAGE, { language })
+    }
+    expect(createWorker).toHaveBeenCalledWith('eng', 1, {})
+    expect(createWorker).toHaveBeenCalledWith('eng+he', 1, {})
+    expect(createWorker).toHaveBeenCalledWith('chi_sim', 1, {})
+    expect(createWorker).toHaveBeenCalledWith('eng-deu', 1, {})
+  })
+
+  it('rejects a language that is not a plain Tesseract code before creating a worker', async () => {
+    vi.mocked(createWorker).mockResolvedValue(fakeWorker() as never)
+    const provider = createProvider()
+    for (const language of [
+      '',
+      '..',
+      '../etc/passwd',
+      'eng/../train',
+      'eng/deu',
+      'eng\\deu',
+      'eng deu',
+      'eng;',
+      'eng+',
+      '+eng',
+    ]) {
+      await expect(provider.recognize(IMAGE, { language })).rejects.toThrow(
+        /Invalid Tesseract language code/,
+      )
+    }
+    expect(createWorker).not.toHaveBeenCalled()
+  })
+
+  it('rejects an invalid configured default language too', async () => {
+    vi.mocked(createWorker).mockResolvedValue(fakeWorker() as never)
+    const provider = createProvider({ language: '../evil' })
+    await expect(provider.recognize(IMAGE)).rejects.toThrow(/Invalid Tesseract language code/)
+    expect(createWorker).not.toHaveBeenCalled()
+  })
+
   it('does not cache a failed worker creation — the next call retries', async () => {
     vi.mocked(createWorker)
       .mockRejectedValueOnce(new Error('traineddata download failed'))
