@@ -1074,11 +1074,11 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
                 ? `This command asks for ${declaredSeconds}s, more than this tool's ${ceilingSeconds}s, and its ` +
                   'output only appears when it ends — so it was started in the background instead. '
                 : '') +
-              `Started in the background. Its output is being written to ${log} — read it with ` +
-              `read_file (use offset/limit to follow a long one). When it finishes, ${exitFile} ` +
-              `appears and holds the exit code. If you have other work, do it and check back. If ` +
-              `you need this result before you can continue, call wait_for_task with this taskId — ` +
-              `never sleep and read the log by hand.`,
+              `Started in the background. Its output is written to ${log} and comes back as the ` +
+              `stdout of wait_for_task when the command finishes (read_file cannot reach /tmp — ` +
+              `to peek mid-run, exec_command: tail ${log}). If you have other work, do it and ` +
+              `check back. If you need this result before you can continue, call wait_for_task ` +
+              `with this taskId — never sleep and read the log by hand.`,
           }
         } catch (e: unknown) {
           return {
@@ -1269,7 +1269,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
             waitedMs: waitedBefore + waitedMs,
             note:
               `${Math.round((waitedBefore + waitedMs) / 1000)}s of waiting and it has not exited — it is ` +
-              `stuck, not slow. Read /tmp/${taskId}.log for what it printed, kill it (exec_command: ` +
+              `stuck, not slow. See what it printed with exec_command (tail /tmp/${taskId}.log — ` +
+              `read_file cannot reach /tmp), kill it (exec_command: ` +
               `kill $(cat /tmp/${taskId}.pid) 2>/dev/null; pkill -f ${taskId}.sh) and move on; do not wait on it again.`,
           }
         }
@@ -1279,7 +1280,8 @@ export function buildTools(backend: ExecutionBackend, config?: ToolBuildConfig):
           waitedMs,
           note:
             `Still running after ${Math.round(waitedMs / 1000)}s. Call wait_for_task again to ` +
-            `keep waiting, or read ${log} for its output so far.`,
+            `keep waiting — its result carries the log output. To peek at the output so far, ` +
+            `exec_command: tail ${log} (read_file cannot reach /tmp).`,
         }
       }
       let output: string
