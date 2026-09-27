@@ -116,7 +116,9 @@ describe('GoogleTranslationProvider', () => {
     const languages = await createProvider({ apiKey: 'secret-key' }).getSupportedLanguages()
 
     const [url, init] = mockFetch.mock.calls[0]
-    expect(String(url)).toBe('https://translation.googleapis.com/language/translate/v2/languages?target=en')
+    expect(String(url)).toBe(
+      'https://translation.googleapis.com/language/translate/v2/languages?target=en',
+    )
     expect(String(url)).not.toContain('secret-key')
     expect(init.headers).toEqual({ 'X-goog-api-key': 'secret-key' })
     expect(languages).toEqual([{ language: 'de', name: 'German' }])

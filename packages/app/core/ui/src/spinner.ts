@@ -215,7 +215,11 @@ const ATOMS = [
  * (`className`, `style`, `gradientId`, colors) are interpolated verbatim.
  */
 function escapeAttr(value: string): string {
-  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
 }
 
 /**
@@ -231,7 +235,8 @@ export function moleculeSpinnerMarkSvg(options: MoleculeSpinnerMarkOptions = {})
   const gradientId = options.gradientId ?? 'mol-spinner-gradient'
   const gradient = (options.paint ?? 'gradient') === 'gradient'
 
-  const sizeAttrs = options.size !== undefined ? ` width="${options.size}" height="${options.size}"` : ''
+  const sizeAttrs =
+    options.size !== undefined ? ` width="${options.size}" height="${options.size}"` : ''
   const classAttrs = options.className ? ` class="${options.className}"` : ''
   const styleAttr = options.style ? ` style="${options.style}"` : ''
   const a11yAttrs = options.ariaLabel
