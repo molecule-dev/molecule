@@ -1,16 +1,23 @@
-const { mockGetTemplate, mockUpdateTemplate, mockDeleteTemplate, mockInstantiateTemplate } =
-  vi.hoisted(() => ({
-    mockGetTemplate: vi.fn(),
-    mockUpdateTemplate: vi.fn(),
-    mockDeleteTemplate: vi.fn(),
-    mockInstantiateTemplate: vi.fn(),
-  }))
+const {
+  mockGetTemplate,
+  mockUpdateTemplate,
+  mockDeleteTemplate,
+  mockInstantiateTemplate,
+  mockListTemplates,
+} = vi.hoisted(() => ({
+  mockGetTemplate: vi.fn(),
+  mockUpdateTemplate: vi.fn(),
+  mockDeleteTemplate: vi.fn(),
+  mockInstantiateTemplate: vi.fn(),
+  mockListTemplates: vi.fn(),
+}))
 
 vi.mock('../service.js', () => ({
   getTemplate: mockGetTemplate,
   updateTemplate: mockUpdateTemplate,
   deleteTemplate: mockDeleteTemplate,
   instantiateTemplate: mockInstantiateTemplate,
+  listTemplates: mockListTemplates,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -30,6 +37,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { del } from '../handlers/del.js'
 import { instantiate } from '../handlers/instantiate.js'
+import { list } from '../handlers/list.js'
 import { read } from '../handlers/read.js'
 import { update } from '../handlers/update.js'
 
@@ -179,6 +187,23 @@ describe('@molecule/api-resource-template — handler authorization (P5RES-01)',
       await update(mockReq({ body: { name: 'New' } }), res)
       expect(res.status).toHaveBeenCalledWith(404)
       expect(mockUpdateTemplate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('list', () => {
+    it('401 when no session', async () => {
+      const res = mockRes(null)
+      await list(mockReq(), res)
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(mockListTemplates).not.toHaveBeenCalled()
+    })
+
+    it('clamps the limit query into 1..500 before the service sees it (table-dump primitive)', async () => {
+      mockListTemplates.mockResolvedValue({ data: [], total: 0, limit: 500, offset: 0 })
+      const res = mockRes({ userId: OWNER })
+      await list(mockReq({ query: { limit: '999999999', offset: '0' } }), res)
+      expect(mockListTemplates).toHaveBeenCalledWith(expect.objectContaining({ limit: 500 }))
+      expect(res.json).toHaveBeenCalledWith({ data: [], total: 0, limit: 500, offset: 0 })
     })
   })
 

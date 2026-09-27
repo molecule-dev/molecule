@@ -226,6 +226,18 @@ describe('@molecule/api-resource-thread handlers', () => {
         offset: 0,
       })
     })
+
+    it('clamps the limit query into 1..500 (uncapped limit is a table-dump primitive)', async () => {
+      mockFindMany.mockResolvedValue([])
+      mockCount.mockResolvedValue(0)
+
+      const req = mockReq({ query: { limit: '999999999', offset: '0' } })
+      const res = mockRes()
+
+      await list(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ data: [], total: 0, limit: 500, offset: 0 })
+    })
   })
 
   describe('update', () => {
@@ -332,6 +344,21 @@ describe('@molecule/api-resource-thread handlers', () => {
         limit: 50,
         offset: 0,
       })
+    })
+
+    it('clamps the limit query into 1..500 (uncapped limit is a table-dump primitive)', async () => {
+      mockFindMany.mockResolvedValue([])
+      mockCount.mockResolvedValue(0)
+
+      const req = mockReq({
+        params: { threadId: 't1' },
+        query: { limit: '999999999', offset: '0' },
+      })
+      const res = mockRes()
+
+      await listMessages(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ data: [], total: 0, limit: 500, offset: 0 })
     })
   })
 

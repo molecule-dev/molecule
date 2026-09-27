@@ -10,6 +10,9 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import { getFollowing } from '../service.js'
 
+/** Upper bound for the list page size — an uncapped `limit` is a table-dump primitive (e.g. `?limit=999999999`). */
+const MAX_LIST_LIMIT = 500
+
 /**
  * Lists targets the current user is following.
  *
@@ -26,7 +29,7 @@ export async function following(req: MoleculeRequest, res: MoleculeResponse): Pr
     return
   }
 
-  const limit = parseInt(req.query.limit as string, 10) || 20
+  const limit = Math.min(MAX_LIST_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || 20))
   const offset = parseInt(req.query.offset as string, 10) || 0
 
   try {

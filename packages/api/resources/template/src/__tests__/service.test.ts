@@ -268,6 +268,22 @@ describe('@molecule/api-resource-template — service', () => {
       expect(result).toEqual({ data: [{ id: 't1' }], total: 1, limit: 10, offset: 0 })
     })
 
+    it('clamps the limit into 1..500 (uncapped limit is a table-dump primitive)', async () => {
+      mockFindMany.mockResolvedValue([])
+      const result = await listTemplates({ limit: 999999, offset: 0 })
+      expect(result.limit).toBe(500)
+      // The over-fetch handed to the store is bounded by the clamped page too.
+      for (const call of mockFindMany.mock.calls) {
+        expect(call[1].limit).toBeLessThanOrEqual(500)
+      }
+    })
+
+    it('clamps a sub-one limit up to 1', async () => {
+      mockFindMany.mockResolvedValue([])
+      const result = await listTemplates({ limit: 0 })
+      expect(result.limit).toBe(1)
+    })
+
     it('passes resourceType filter to where clause', async () => {
       mockFindMany.mockResolvedValue([])
       mockCount.mockResolvedValue(0)

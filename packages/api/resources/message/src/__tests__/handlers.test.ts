@@ -243,6 +243,17 @@ describe('@molecule/api-resource-message handlers', () => {
       await listMessagesHandler(mockReq({ params: { threadId: 't1' } }), res)
       expect(res.json).toHaveBeenCalledWith({ data: [{ id: 'm1' }], limit: 50 })
     })
+
+    it('clamps the limit query into 1..500 (uncapped limit is a table-dump primitive)', async () => {
+      mockFindById.mockResolvedValue(baseThread)
+      mockFindMany.mockResolvedValue([])
+      const res = mockRes()
+      await listMessagesHandler(
+        mockReq({ params: { threadId: 't1' }, query: { limit: '999999999' } }),
+        res,
+      )
+      expect(res.json).toHaveBeenCalledWith({ data: [], limit: 500 })
+    })
   })
 
   describe('markReadHandler', () => {

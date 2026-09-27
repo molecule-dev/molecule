@@ -31,6 +31,9 @@ import type {
 
 const TABLE = 'resource-templates'
 
+/** Upper bound for the list page size — an uncapped `limit` is a table-dump primitive (e.g. `?limit=999999999`). */
+const MAX_LIST_LIMIT = 500
+
 /**
  * Matches a single `{{name}}` placeholder. Whitespace inside the braces
  * is tolerated; the captured group is the bare variable name.
@@ -265,7 +268,9 @@ export async function getTemplateBySlug(
  * @returns Paginated list of viewer-visible templates.
  */
 export async function listTemplates(query: TemplateQuery = {}): Promise<PaginatedResult<Template>> {
-  const limit = query.limit ?? 50
+  // Clamp here too, not just in the handler: listTemplates is exported, so any
+  // caller-supplied limit is bounded at the same chokepoint as the query itself.
+  const limit = Math.min(MAX_LIST_LIMIT, Math.max(1, query.limit ?? 50))
   const offset = query.offset ?? 0
   const viewerId = query.viewerId
 

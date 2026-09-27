@@ -11,6 +11,9 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 import { getThreadById, listMessages, sendMessage } from '../service.js'
 import { sendMessageSchema } from '../validation.js'
 
+/** Upper bound for the list page size — an uncapped `limit` is a table-dump primitive (e.g. `?limit=999999999`). */
+const MAX_LIST_LIMIT = 500
+
 /**
  * Lists messages in a thread, newest first.
  *
@@ -63,7 +66,7 @@ export async function listMessagesHandler(
   }
 
   const before = typeof req.query.before === 'string' ? req.query.before : undefined
-  const limit = parseInt(req.query.limit as string, 10) || 50
+  const limit = Math.min(MAX_LIST_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || 50))
 
   try {
     const messages = await listMessages(threadId, { before, limit })

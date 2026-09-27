@@ -196,6 +196,18 @@ describe('@molecule/api-resource-activity-feed handlers', () => {
       )
     })
 
+    it('clamps the limit query into 1..500 (uncapped limit is a table-dump primitive)', async () => {
+      mockFindMany.mockResolvedValue([])
+      mockCount.mockResolvedValue(0)
+
+      const req = mockReq({ query: { limit: '999999999', offset: '0' } })
+      const res = mockRes()
+
+      await feed(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ data: [], total: 0, limit: 500, offset: 0 })
+    })
+
     it('should return 500 on error', async () => {
       mockFindMany.mockRejectedValue(new Error('DB error'))
 
@@ -246,6 +258,21 @@ describe('@molecule/api-resource-activity-feed handlers', () => {
         limit: 10,
         offset: 0,
       })
+    })
+
+    it('clamps the limit query into 1..500 (uncapped limit is a table-dump primitive)', async () => {
+      mockFindMany.mockResolvedValue([])
+      mockCount.mockResolvedValue(0)
+
+      const req = mockReq({
+        params: { resourceType: 'post', resourceId: 'p1' },
+        query: { limit: '999999999', offset: '0' },
+      })
+      const res = mockRes()
+
+      await timeline(req, res)
+
+      expect(res.json).toHaveBeenCalledWith({ data: [], total: 0, limit: 500, offset: 0 })
     })
 
     it('should return 500 on error', async () => {

@@ -10,6 +10,9 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import { listTemplates } from '../service.js'
 
+/** Upper bound for the list page size — an uncapped `limit` is a table-dump primitive (e.g. `?limit=999999999`). */
+const MAX_LIST_LIMIT = 500
+
 /**
  * Lists templates with optional filtering by `resourceType`, `tags`, and
  * `publicOnly`.
@@ -39,7 +42,7 @@ export async function list(req: MoleculeRequest, res: MoleculeResponse): Promise
           .map((s) => s.trim())
           .filter(Boolean)
       : undefined
-  const limit = parseInt(req.query.limit as string, 10) || 50
+  const limit = Math.min(MAX_LIST_LIMIT, Math.max(1, parseInt(req.query.limit as string, 10) || 50))
   const offset = parseInt(req.query.offset as string, 10) || 0
 
   try {

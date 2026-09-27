@@ -7,9 +7,12 @@ import { t } from '@molecule/api-i18n'
 
 import type * as types from '../types.js'
 
+/** Upper bound for the query page size — an uncapped `limit` is a table-dump primitive. Aligned with the other resources' 1..500 list clamp. */
+const MAX_LIST_LIMIT = 500
+
 /**
  * Queries all devices belonging to the authenticated user. Supports pagination via `before`/`after`
- * cursor filters on `createdAt`/`updatedAt`, configurable `limit` (1–10000, default 100), and
+ * cursor filters on `createdAt`/`updatedAt`, configurable `limit` (1–500, default 100), and
  * `orderBy`/`orderDirection` params. Sorts the current session's device to the front of results
  * and marks it with `isCurrent: true`.
  * @param resource - The device resource configuration (tableName).
@@ -31,7 +34,7 @@ export const query =
         }
       }
 
-      const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 10000)
+      const limit = Math.min(MAX_LIST_LIMIT, Math.max(Number(req.query.limit) || 100, 1))
       const orderByField = req.query.orderBy === 'createdAt' ? 'createdAt' : 'updatedAt'
       const orderDirection = req.query.orderDirection === 'asc' ? 'asc' : ('desc' as const)
 
