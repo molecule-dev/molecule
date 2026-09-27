@@ -1,5 +1,21 @@
 # molecule
 
+<p align="center">
+  <a href="https://www.molecule.dev"><img src="docs/assets/how-molecule-works.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, generated code is verified and fed back until green, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%"></a>
+</p>
+
+## At a glance (humans and AI agents)
+
+- **What it is.** An AI-first, open-source ecosystem of 959 composable `@molecule/*` packages (Apache-2.0, on npm) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
+- **How it works.** Describe the app. Synthase or `mlcl create` picks packages and wires them. Bonds connect providers behind core interfaces. A live sandbox previews it. Deploy with us, or export the code, a database dump and your `.env` files.
+- **Faster.** You start from a working, tested app (150 flagship templates) instead of a blank prompt, and nothing common is written twice.
+- **Cheaper.** The integrations every app needs are packages, not tokens. Strict interfaces and READMEs generated from source let an agent wire a package in one pass, on smaller models.
+- **Higher quality.** Generated code is type-checked, linted and tested before it reaches you, with errors fed back to the agent until green. Unit, integration and E2E tests ship with the project.
+- **Easier to maintain and scale.** Every provider (database, auth, payments, email, AI, analytics, 80+ categories) and every frontend framework (React, Vue, Svelte, Solid, Angular, React Native) sits behind a swappable bond. Change the wiring, not the app. The same architecture serves a side project and an enterprise.
+- **Built in by default.** Auth and OAuth, payments, migrations, i18n in 80 languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility, CI/CD, and an `AGENTS.md` that teaches any coding agent the conventions.
+- **Self-improving.** The verify-and-fix loop runs on every build. Failure patterns from past builds feed a refine pipeline that improves the prompts, skills and packages, so a fix lands once and every project benefits.
+- **If you are an AI agent.** Read a package's `README.md` (generated from its source), call the core interface and never a vendor SDK, wire providers in `bonds.ts`, and run `npx mlcl agent init` or `npx mlcl mcp install` for the tooling. Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
+
 Open-source, composable full-stack packages that an AI can wire correctly, and real TypeScript code you can export and run anywhere. Every provider sits behind an abstract interface, so swapping the database, email, or payments provider means changing the bond that wires it, not the code that uses it.
 
 Here is the database wiring every flagship template ships with (via `@molecule/api-bonds-default-express`):
