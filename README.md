@@ -10,13 +10,13 @@
 
 ## At a glance (humans and AI agents)
 
-- **What it is.** An AI-first, open-source ecosystem of 959 composable `@molecule/*` packages (Apache-2.0, on npm) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
+- **What it is.** An AI-first, open-source ecosystem of hundreds of composable `@molecule/*` packages (Apache-2.0, on npm, growing daily) and the tools that assemble them: [molecule.dev](https://www.molecule.dev) with Synthase, the `mlcl` CLI, and the molecule MCP server. The output is plain TypeScript you own and can run anywhere.
 - **How it works.** Describe the app. Synthase or `mlcl create` picks packages and wires them. Bonds connect providers behind core interfaces. A live sandbox previews it. Deploy with us, or export the code, a database dump and your `.env` files.
-- **Faster.** You start from a working, tested app (150 flagship templates) instead of a blank prompt, and nothing common is written twice.
+- **Faster.** You start from a working, tested app (a library of flagship templates) instead of a blank prompt, and nothing common is written twice.
 - **Cheaper.** The integrations every app needs are packages, not tokens. Strict interfaces and READMEs generated from source let an agent wire a package in one pass, on smaller models.
 - **Higher quality.** Generated code is type-checked, linted and tested before it reaches you, with errors fed back to the agent until green. Unit, integration and E2E tests ship with the project.
 - **Easier to maintain and scale.** Every provider (database, auth, payments, email, AI, analytics, 80+ categories) and every frontend framework (React, Vue, Svelte, Solid, Angular, React Native) sits behind a swappable bond. Change the wiring, not the app. The same architecture serves a side project and an enterprise.
-- **Built in by default.** Auth and OAuth, payments, migrations, i18n in 80 languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility, CI/CD, and an `AGENTS.md` that teaches any coding agent the conventions.
+- **Built in by default.** Auth and OAuth, payments, migrations, i18n in dozens of languages, analytics and telemetry, logging and monitoring, error tracking, realtime, uploads, push, search, feature flags, accessibility, CI/CD, and an `AGENTS.md` that teaches any coding agent the conventions.
 - **Self-improving.** Every app ships with analytics, error tracking and user feedback built in. The AI reads what real users do, improves the app, ships and measures again, in your workspace, with you approving or letting it run. Generated code is type-checked and tested before it ships, and the packages themselves improve from every fix.
 - **If you are an AI agent.** Read a package's `README.md` (generated from its source), call the core interface and never a vendor SDK, wire providers in `bonds.ts`, and run `npx mlcl agent init` or `npx mlcl mcp install` for the tooling. Details below and in [AGENTS-AND-HARNESSES.md](https://github.com/molecule-dev/mlcl/blob/main/docs/AGENTS-AND-HARNESSES.md).
 
