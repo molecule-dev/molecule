@@ -79,6 +79,24 @@ export function registerPWA(): void {
 }
 
 /**
+ * Escapes a string for interpolation into an innerHTML template. The banner
+ * interpolates `t()` values — locale data is developer-owned today, but it is
+ * translated out of repo, so a `<`, `&` or quote character in a translated
+ * string must render as text, never become markup.
+ *
+ * @param value - The raw text to interpolate.
+ * @returns The text, safe to embed in an innerHTML template.
+ */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
  * Shows a styled update banner fixed to the bottom of the screen.
  * Uses the app's CSS custom properties for consistent theming.
  */
@@ -144,8 +162,8 @@ function showUpdateBanner(onUpdate: () => void): void {
   banner.id = 'pwa-update-banner'
   banner.setAttribute('role', 'alert')
   banner.innerHTML = `
-    <span>${t('pwa.updateAvailable')}</span>
-    <button id="pwa-update-btn">${t('pwa.update')}</button>
+    <span>${escapeHtml(t('pwa.updateAvailable'))}</span>
+    <button id="pwa-update-btn">${escapeHtml(t('pwa.update'))}</button>
   `
 
   document.head.appendChild(style)
