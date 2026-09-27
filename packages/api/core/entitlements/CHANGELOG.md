@@ -1,5 +1,11 @@
 # @molecule/api-entitlements
 
+## 1.1.0
+
+### Minor Changes
+
+- bffb150: The effective-plan-key resolver now also receives the user id, so an app can grant a plan based on who the user is (for example, an operator-configured allowlist of internal accounts).
+
 ## 1.0.1
 
 ### Patch Changes

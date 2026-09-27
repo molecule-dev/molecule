@@ -60,7 +60,7 @@
     "@molecule/api-emails-mailgun": "1.0.4",
     "@molecule/api-encryption": "1.0.2",
     "@molecule/api-encryption-aes": "1.0.2",
-    "@molecule/api-entitlements": "1.0.2",
+    "@molecule/api-entitlements": "1.1.0",
     "@molecule/api-error-tracking": "1.0.2",
     "@molecule/api-error-tracking-console": "1.0.2",
     "@molecule/api-error-tracking-sentry": "1.0.2",
