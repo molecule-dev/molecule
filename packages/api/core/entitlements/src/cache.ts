@@ -46,13 +46,21 @@ const cache = new Map<string, PlanCacheEntry>()
  * here so the hot path and the app's own `resolveEffectivePlanKey` cannot
  * diverge — there is one demotion implementation, reused.
  *
- * @param planKey - The user's stored plan key (or `null` when unset).
+ * The user id is passed too, for rules that depend on WHO the user is rather
+ * than what they pay — e.g. an operator-configured allowlist of internal
+ * accounts that get a plan no billing event can write. It is called with the
+ * plan key already demoted by expiry (possibly `null`), so such a rule still
+ * applies to a user with no current plan.
+ *
+ * @param planKey - The user's stored plan key (or `null` when unset or expired).
  * @param planExpiresAt - The user's stored plan expiry, or `null`.
+ * @param userId - The user whose plan is being resolved.
  * @returns The effective plan key (possibly demoted), or `null` for default tier.
  */
 export type EffectivePlanKeyResolver = (
   planKey: string | null,
   planExpiresAt: string | null | undefined,
+  userId: string,
 ) => string | null
 
 /** Configuration options for the plan cache. */
@@ -171,7 +179,7 @@ export const getCachedPlanState = async (
     // app cannot diverge — e.g. an `apple*`/`google*` IAP key with NO expiry is
     // unverified and demotes to free here, exactly as it does off the hot path.
     // (Anonymous keeps its 'anonymous' key — the resolver only sees real plans.)
-    planKey = resolveEffective(planKey, user?.planExpiresAt ?? null)
+    planKey = resolveEffective(planKey, user?.planExpiresAt ?? null, userId)
   }
 
   if (cache.size >= maxEntries) {

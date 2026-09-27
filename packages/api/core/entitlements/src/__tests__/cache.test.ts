@@ -180,6 +180,27 @@ describe('plan cache', () => {
       expect(await cacheModule.getCachedPlanKey('iap-3')).toBe('appleMonthly')
     })
 
+    it('passes the user id, so a rule about WHO the user is applies even with no plan', async () => {
+      const staff = new Set(['staff-1'])
+      const seen: Array<[string | null, string]> = []
+      cacheModule.configurePlanCache({
+        effectivePlanKeyResolver: (planKey, _planExpiresAt, userId) => {
+          seen.push([planKey, userId])
+          return staff.has(userId) ? 'staff' : planKey
+        },
+      })
+      // An expired plan reaches the resolver already demoted to null — the
+      // allowlist still grants the internal plan.
+      setUser({ planKey: 'stripeMonthly', planExpiresAt: '2000-01-01T00:00:00Z' })
+      expect(await cacheModule.getCachedPlanKey('staff-1')).toBe('staff')
+      setUser({ planKey: 'stripeMonthly', planExpiresAt: null })
+      expect(await cacheModule.getCachedPlanKey('user-2')).toBe('stripeMonthly')
+      expect(seen).toEqual([
+        [null, 'staff-1'],
+        ['stripeMonthly', 'user-2'],
+      ])
+    })
+
     it('passing null clears a previously-set resolver back to identity', async () => {
       cacheModule.configurePlanCache({ effectivePlanKeyResolver: demoteIapNoExpiry })
       cacheModule.configurePlanCache({ effectivePlanKeyResolver: null })
