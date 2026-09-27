@@ -27,6 +27,33 @@ import { StreamingIndicator } from './StreamingIndicator.js'
 const EXTERNAL_LINK_SCHEMES = new Set(['http:', 'https:', 'mailto:'])
 
 /**
+ * Whether `href` may become an `<a href>` anchor at all. A URL whose scheme is
+ * NOT on the allowlist (`javascript:`, `data:`, `vbscript:`, …) must render as
+ * inert text everywhere model-authored links render — markdown links, ChatPanel
+ * card actions and the HelpCard's action anchors included. A href with NO
+ * scheme (app routes, `#anchor`, `//host`) carries nothing executable, so it is
+ * allowed through this gate; whether it anchors or navigates the preview is the
+ * caller's decision.
+ *
+ * Browsers strip tab/CR/LF anywhere in a URL (and leading C0 controls/space)
+ * BEFORE scheme parsing, so `java\tscript:…` executes as `javascript:`. This
+ * gate strips those characters first and reads the scheme the way the browser
+ * will.
+ *
+ * @param href - The raw href from model output or a card action.
+ * @returns True when the href may render as an anchor.
+ */
+export function isAllowedLinkHref(href: string): boolean {
+  const cleaned = href.replace(/[\t\r\n]/g, '').replace(
+    // eslint-disable-next-line no-control-regex -- strip LEADING C0 controls/space the way a URL parser does before scheme parsing
+    /^[\u0000-\u0020]+/,
+    '',
+  )
+  const scheme = /^([a-z][a-z0-9+.-]*:)/i.exec(cleaned)?.[1]?.toLowerCase()
+  return scheme == null || EXTERNAL_LINK_SCHEMES.has(scheme)
+}
+
+/**
  * Renders a single markdown link `[label](href)`. A ROUTE link — any app-internal path, whether
  * written with a leading slash (`/transactions`) or without (`transactions`, `courses/:id`) — is a
  * page in the live preview: when an `onNavigatePreview` handler is wired (the chat context), it
@@ -67,12 +94,13 @@ function LinkToken({
   // broken by control characters (`java\tscript:`) fails the regex entirely, so it falls to
   // route handling — it can never slip into the anchor branch.
   const scheme = /^([a-z][a-z0-9+.-]*:)/i.exec(href)?.[1]?.toLowerCase()
-  const isExternal = (scheme != null && EXTERNAL_LINK_SCHEMES.has(scheme)) || href.startsWith('//')
+  const allowlisted = isAllowedLinkHref(href)
+  const isExternal = (scheme != null && allowlisted) || href.startsWith('//')
   const isAnchor = href.startsWith('#')
 
   // Unapproved scheme → inert text: no anchor (model output must not be able to mint a
   // `javascript:` href) and no preview button (a `data:`/`ftp:` string is not an app route).
-  if (scheme != null && !isExternal) return <>{label}</>
+  if (scheme != null && !allowlisted) return <>{label}</>
 
   if (!isExternal && !isAnchor) {
     // Normalize to a root-relative path so the handler always receives a clean `/route`.

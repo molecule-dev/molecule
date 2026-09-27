@@ -177,7 +177,7 @@ import { ChatItemBoundary } from './ChatItemBoundary.js'
 import { ChatTimestamp } from './ChatTimestamp.js'
 import { HelpCard } from './HelpCard.js'
 import { Icon } from './Icon.js'
-import { MarkdownContent } from './MarkdownContent.js'
+import { isAllowedLinkHref, MarkdownContent } from './MarkdownContent.js'
 import { RelevantSkillSuggestion } from './RelevantSkillSuggestion.js'
 import { ReportModal } from './ReportModal.js'
 import { ScriptsCard } from './ScriptsCard.js'
@@ -376,10 +376,18 @@ function renderCardSegment(seg: ChatEventCardSegment, key: number): ReactNode {
   const linkStyle: React.CSSProperties = act.code
     ? { ...CHAT_CARD_CODE_STYLE, color: CHAT_CARD_LINK_STYLE.color, cursor: 'pointer' }
     : CHAT_CARD_LINK_STYLE
+  // An unapproved scheme (`javascript:`, `data:` …) never becomes an anchor —
+  // the label renders as inert text, same policy as markdown links.
   return act.href ? (
-    <a key={key} href={act.href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
-      {act.label}
-    </a>
+    isAllowedLinkHref(act.href) ? (
+      <a key={key} href={act.href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+        {act.label}
+      </a>
+    ) : (
+      <span key={key} style={linkStyle}>
+        {act.label}
+      </span>
+    )
   ) : (
     <button
       /* mol-bespoke-button: inline mid-sentence card link — a <button> reset to plain link text so an action can sit inside a sentence, not a standalone CTA */
@@ -1504,17 +1512,26 @@ function NoticeCard({
                 textDecoration: 'none',
                 fontFamily: act.code ? 'var(--mol-font-mono, monospace)' : 'inherit',
               }
+              // An unapproved scheme (`javascript:`, `data:` …) never becomes an
+              // anchor — the label renders as inert text, same policy as the
+              // markdown link allowlist.
               return act.href ? (
-                <a
-                  key={i}
-                  href={act.href}
-                  target={act.href.startsWith('http') ? '_blank' : undefined}
-                  rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className={className}
-                  style={actionStyle}
-                >
-                  {act.label}
-                </a>
+                isAllowedLinkHref(act.href) ? (
+                  <a
+                    key={i}
+                    href={act.href}
+                    target={act.href.startsWith('http') ? '_blank' : undefined}
+                    rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className={className}
+                    style={actionStyle}
+                  >
+                    {act.label}
+                  </a>
+                ) : (
+                  <span key={i} className={className} style={actionStyle}>
+                    {act.label}
+                  </span>
+                )
               ) : (
                 <button
                   key={i}

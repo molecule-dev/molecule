@@ -27,6 +27,7 @@ import type { ChatEventCardAction } from '../customEventCards.js'
 import { chatCardStyle } from './chat-card-style.js'
 import { HELP_INTRO, HELP_MODES, HELP_SHORTCUTS, HELP_TIPS } from './chat-help-utilities.js'
 import { Icon } from './Icon.js'
+import { isAllowedLinkHref } from './MarkdownContent.js'
 
 /**
  * The `/help` high-level guide card.
@@ -134,22 +135,30 @@ export function HelpCard({
             <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
               {upgradeActions.map((act, i) =>
                 act.href ? (
-                  <a
-                    key={i}
-                    data-mol-id="help-upgrade-action"
-                    href={act.href}
-                    target={act.href.startsWith('http') ? '_blank' : undefined}
-                    rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    // The anchor form of the SAME CTA as the button below it —
-                    // same classes, same touch floor, so a link-backed upgrade
-                    // action is indistinguishable from a handler-backed one.
-                    className={cm.cn(
-                      cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-                      cm.touchTargetCompact,
-                    )}
-                  >
-                    {act.label}
-                  </a>
+                  isAllowedLinkHref(act.href) ? (
+                    <a
+                      key={i}
+                      data-mol-id="help-upgrade-action"
+                      href={act.href}
+                      target={act.href.startsWith('http') ? '_blank' : undefined}
+                      rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      // The anchor form of the SAME CTA as the button below it —
+                      // same classes, same touch floor, so a link-backed upgrade
+                      // action is indistinguishable from a handler-backed one.
+                      className={cm.cn(
+                        cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                        cm.touchTargetCompact,
+                      )}
+                    >
+                      {act.label}
+                    </a>
+                  ) : (
+                    // An unapproved scheme (`javascript:`, `data:` …) never becomes
+                    // an anchor — inert text, same policy as markdown links.
+                    <span key={i} data-mol-id="help-upgrade-action">
+                      {act.label}
+                    </span>
+                  )
                 ) : (
                   <button
                     key={i}
