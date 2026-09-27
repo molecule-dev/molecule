@@ -6,6 +6,7 @@
     <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, generated code is verified and fed back until green, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%">
   </picture></a>
 </p>
+<p align="center"><a href="https://how-molecule-works.apps.mlcl.dev">Interactive version</a> — pause, scrub, or jump between scenes. <sub>The site is itself a molecule.dev project.</sub></p>
 
 ## At a glance (humans and AI agents)
 
