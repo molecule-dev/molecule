@@ -1,7 +1,10 @@
 # molecule
 
 <p align="center">
-  <a href="https://www.molecule.dev"><img src="docs/assets/how-molecule-works.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, generated code is verified and fed back until green, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%"></a>
+  <a href="https://www.molecule.dev"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-molecule-works-dark.svg">
+    <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, generated code is verified and fed back until green, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%">
+  </picture></a>
 </p>
 
 ## At a glance (humans and AI agents)
