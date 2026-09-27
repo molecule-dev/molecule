@@ -207,18 +207,25 @@ let scene1 = caption(
   const py = 210
   const pw = 400
   const ph = 118
-  const typeStart = pct(s + 0.7)
-  const typeEnd = pct(s + 2.6)
-  const sceneEnd = pct(s + SCENE)
+  const line1 = prompt.slice(0, 33)
+  const line2 = prompt.slice(33)
+  const w1 = tw(line1, 16, 500)
+  const w2 = tw(line2, 16, 500)
+  const kt = (t) => (pct(s + t) / 100).toFixed(4)
+  const sceneEnd = kt(SCENE)
+  const x0 = px + 20
+  // Each line has its own clip that widens while it "types"; the cursor tracks the pen.
   scene1 += `<g ${A(promptK)}>
     <rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="14" fill="${C.card}" stroke="${C.border}"/>
-    ${text(px + 20, py + 30, 'You', { size: 12, weight: 700, color: C.faint })}
-    <clipPath id="typeClip"><rect x="${px + 20}" y="${py + 40}" width="0" height="60"><animate attributeName="width" values="0;0;${pw - 40};${pw - 40};0" keyTimes="0;${typeStart / 100};${typeEnd / 100};${sceneEnd / 100};1" dur="${LOOP}s" repeatCount="indefinite"/></rect></clipPath>
-    <g clip-path="url(#typeClip)">
-      ${text(px + 20, py + 62, prompt.slice(0, 33), { size: 16, weight: 500 })}
-      ${text(px + 20, py + 86, prompt.slice(33), { size: 16, weight: 500 })}
-    </g>
-    <rect x="${px + 20}" y="${py + 72}" width="2" height="18" fill="${C.primaryHi}"><animate attributeName="x" values="${px + 20};${px + 20};${px + 20 + tw(prompt.slice(33), 16, 500)};${px + 20 + tw(prompt.slice(33), 16, 500)};${px + 20}" keyTimes="0;${pct(s + 1.7) / 100};${typeEnd / 100};${sceneEnd / 100};1" dur="${LOOP}s" repeatCount="indefinite"/></rect>
+    ${text(x0, py + 30, 'You', { size: 12, weight: 700, color: C.faint })}
+    <clipPath id="typeClip1"><rect x="${x0}" y="${py + 44}" width="0" height="26"><animate attributeName="width" values="0;0;${w1};${w1};0" keyTimes="0;${kt(0.7)};${kt(1.7)};${sceneEnd};1" dur="${LOOP}s" repeatCount="indefinite"/></rect></clipPath>
+    <clipPath id="typeClip2"><rect x="${x0}" y="${py + 68}" width="0" height="26"><animate attributeName="width" values="0;0;${w2};${w2};0" keyTimes="0;${kt(1.7)};${kt(2.6)};${sceneEnd};1" dur="${LOOP}s" repeatCount="indefinite"/></rect></clipPath>
+    <g clip-path="url(#typeClip1)">${text(x0, py + 62, line1, { size: 16, weight: 500 })}</g>
+    <g clip-path="url(#typeClip2)">${text(x0, py + 86, line2, { size: 16, weight: 500 })}</g>
+    <rect x="${x0}" y="${py + 48}" width="2" height="18" fill="${C.primaryHi}">
+      <animate attributeName="x" values="${x0};${x0};${x0 + w1};${x0};${x0 + w2};${x0 + w2};${x0}" keyTimes="0;${kt(0.7)};${kt(1.7)};${kt(1.7)};${kt(2.6)};${sceneEnd};1" dur="${LOOP}s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="${py + 48};${py + 48};${py + 72};${py + 72};${py + 48}" keyTimes="0;${kt(1.7)};${kt(1.7)};${sceneEnd};1" dur="${LOOP}s" repeatCount="indefinite"/>
+    </rect>
   </g>`
 
   // Synthase / mlcl badge under the prompt.
