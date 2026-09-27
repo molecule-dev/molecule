@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ocr-molecule",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "molecule.dev hosted OCR provider — text extraction from images billed to your molecule project, no vendor account",
   "homepage": "https://www.molecule.dev/packages/api-ocr-molecule",
   "type": "module",

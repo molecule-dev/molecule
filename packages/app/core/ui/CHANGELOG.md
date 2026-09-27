@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.3.0
+
+### Minor Changes
+
+- Adds `moleculeSpinnerMarkSvg` — the animated molecule spinner mark as a framework-agnostic SVG string (3-phase atom swap, swap-synced atom glints, seamless blue flow, `currentColor` mono mode), the single source every molecule.dev surface renders.
+
 ## 1.2.1
 
 ### Patch Changes

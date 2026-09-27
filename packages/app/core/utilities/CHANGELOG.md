@@ -1,5 +1,11 @@
 # @molecule/app-utilities
 
+## 1.0.3
+
+### Patch Changes
+
+- bd70b65: `openUrl` now navigates only to http(s) or relative targets — a `javascript:`, `data:` or other scriptable scheme is refused with a `console.warn` and no navigation.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-pwa-default
 
+## 1.0.4
+
+### Patch Changes
+
+- 726caa8: The service-worker update banner escapes the localized strings it interpolates into its markup, so a `<`, `&` or quote character in a translated string renders as text instead of becoming markup.
+
 ## 1.0.2
 
 ### Patch Changes

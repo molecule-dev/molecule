@@ -1,5 +1,11 @@
 # @molecule/api-secrets-molecule
 
+## 1.0.3
+
+### Patch Changes
+
+- 5bb052e: Vault error bodies embedded in thrown messages and warn logs are now capped at 200 characters, so an oversized or gateway-generated error page can no longer flood an exception message or the log stream.
+
 ## 1.0.1
 
 ### Patch Changes

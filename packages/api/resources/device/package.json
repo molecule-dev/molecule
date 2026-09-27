@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-device",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Device resource types and schema for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",

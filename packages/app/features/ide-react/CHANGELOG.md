@@ -1,5 +1,13 @@
 # @molecule/app-ide-react
 
+## 1.19.1
+
+### Patch Changes
+
+- be01db9: Card actions in chat cards and the help card now go through the same URL-scheme allowlist as markdown links — an action whose `href` carries a scriptable scheme (`javascript:`, `data:`, …) renders as inert text instead of an anchor.
+- 616cb0c: The preview panel's outbound postMessage bridge commands are now targeted at the preview iframe's current origin instead of a wildcard, so page-driving commands are only deliverable to the page the panel is actually talking to.
+- The streaming indicator renders the shared `moleculeSpinnerMarkSvg` mark instead of its own inline copy, so it matches the IDE spinner and the deployed-app attribution badge exactly.
+
 ## 1.19.0
 
 ### Minor Changes

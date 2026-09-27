@@ -1,5 +1,11 @@
 # @molecule/api-resource-device
 
+## 1.0.3
+
+### Patch Changes
+
+- dbd0dd1: The list endpoints clamp the `limit` query parameter into 1..500 — an oversized `limit` previously passed through unbounded to the store query (and the device query allowed up to 10000).
+
 ## 1.0.1
 
 ### Patch Changes

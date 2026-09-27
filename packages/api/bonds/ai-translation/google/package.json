@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-translation-google",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Google Cloud Translation provider for molecule.dev — text translation via the Google Translate API",
   "homepage": "https://www.molecule.dev/packages/api-ai-translation-google",
   "type": "module",
