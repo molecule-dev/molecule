@@ -28,6 +28,7 @@ const logger = getLogger()
 // (not through the package barrel).
 import './secrets.js'
 
+import { toAnthropicToolId } from './tool-ids.js'
 import type { AnthropicConfig } from './types.js'
 
 /** Mutable state shared across SSE line-processing calls for the Anthropic streaming parser. */
@@ -413,9 +414,18 @@ class AnthropicAIProvider implements AIProvider {
           text: `[Video attachment (${block.mediaType}) — not supported by this provider]`,
         }
       case 'tool_use':
-        return { type: 'tool_use', id: block.id, name: block.name, input: block.input }
+        return {
+          type: 'tool_use',
+          id: toAnthropicToolId(block.id),
+          name: block.name,
+          input: block.input,
+        }
       case 'tool_result':
-        return { type: 'tool_result', tool_use_id: block.tool_use_id, content: block.content }
+        return {
+          type: 'tool_result',
+          tool_use_id: toAnthropicToolId(block.tool_use_id),
+          content: block.content,
+        }
       default:
         return block as Record<string, unknown>
     }

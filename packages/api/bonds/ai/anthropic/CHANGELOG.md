@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.1
+
+### Patch Changes
+
+- Tool-call ids outside the Messages API pattern (`^[a-zA-Z0-9_-]+$`) are mapped to a valid, stable id instead of failing the request with a 400.
+
 ## 1.3.0
 
 ### Minor Changes
