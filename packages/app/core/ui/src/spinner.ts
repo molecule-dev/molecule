@@ -254,9 +254,16 @@ export function moleculeSpinnerMarkSvg(options: MoleculeSpinnerMarkOptions = {})
       ATOMS.map(
         (atom, i) =>
           `<linearGradient id="${gradientId}-a${i}" x1="0" y1="0" x2="1" y2="1">` +
-          `<stop offset="0" stop-color="${colors.light}">` +
-          `<animate attributeName="stop-color" dur="${timings.dur}" repeatCount="indefinite" values="${atom.glintValues.map((v) => (v ? colors.light : colors.peach)).join(';')}" keyTimes="${atom.glintKeyTimes}" calcMode="spline" keySplines="${atom.glintSplines}"/>` +
+          // The warm glint animates stop-OPACITY of a peach head stop laid
+          // over the light base — NEVER stop-color. SMIL interpolates colors
+          // numerically, and `var()` color strings cannot interpolate, so a
+          // color animation silently dies and the gradient paints flat (the
+          // 1.3.0 production bug); opacity is numeric and always works, with
+          // any palette form (var() or literal).
+          `<stop offset="0" stop-color="${colors.peach}">` +
+          `<animate attributeName="stop-opacity" dur="${timings.dur}" repeatCount="indefinite" values="${atom.glintValues.map((v) => (v ? 0 : 1)).join(';')}" keyTimes="${atom.glintKeyTimes}" calcMode="spline" keySplines="${atom.glintSplines}"/>` +
           '</stop>' +
+          `<stop offset="0.3" stop-color="${colors.light}"/>` +
           `<stop offset="1" stop-color="${colors.blue}"/>` +
           '</linearGradient>',
       ).join('') +

@@ -1,5 +1,13 @@
 # @molecule/app-ui
 
+## 1.3.1
+
+### Patch Changes
+
+- Fixes the spinner mark's atom glints: the warm pulse now animates a peach
+  stop's opacity over the light base instead of animating stop-color, which
+  could not interpolate CSS `var()` colors and left the gradient flat.
+
 ## 1.3.0
 
 ### Minor Changes

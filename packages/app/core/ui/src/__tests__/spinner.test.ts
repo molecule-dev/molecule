@@ -58,8 +58,26 @@ describe('moleculeSpinnerMarkSvg', () => {
       colors: { blue: '#185eff', light: '#487dfb', peach: '#dc9152' },
     })
     expect(hexes).toContain('stop-color="#185eff"')
-    expect(hexes).toContain('values="#487dfb;#487dfb;#dc9152;#487dfb;#487dfb"')
+    expect(hexes).toContain('stop-color="#dc9152"')
     expect(moleculeSpinnerMarkSvg()).toContain('var(--mol-spin-blue, #4f86f0)')
+  })
+
+  it('never animates stop-COLOR and never puts var() inside an animate values list (the 1.3.0 flat-gradient bug)', () => {
+    const svg = moleculeSpinnerMarkSvg()
+    const animates = svg.match(/<animate [^>]*>/g) ?? []
+    expect(animates.length).toBeGreaterThanOrEqual(11)
+    for (const a of animates) {
+      const attr = /attributeName="([^"]+)"/.exec(a)?.[1]
+      expect(attr).not.toBe('stop-color')
+      const values = /values="([^"]+)"/.exec(a)?.[1] ?? ''
+      expect(values).not.toContain('var(')
+    }
+    // the glint is a peach head whose OPACITY ignites (0 → 1) mid-flight
+    const glint = animates.find((a) => a.includes('stop-opacity'))
+    expect(glint).toBeTruthy()
+    expect(glint).toContain('values="0;0;1;0;0"')
+    expect(svg).toContain('stop-opacity')
+    expect(svg).not.toContain('<animate attributeName="stop-color"')
   })
 
   it('carries className, style and the hub-centering glyph matrix', () => {
