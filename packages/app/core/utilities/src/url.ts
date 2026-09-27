@@ -77,8 +77,33 @@ export const isInternalUrl = (url: string): boolean => {
 }
 
 /**
+ * The only schemes {@link openUrl} will navigate to. A `javascript:`, `data:`
+ * or `vbscript:` target executes in (or corrupts) the app's own origin and
+ * must never reach `window.open` / `location.href`; a URL without any scheme
+ * is treated as a relative app path and allowed.
+ */
+const OPEN_URL_ALLOWED_SCHEMES = new Set(['http:', 'https:'])
+
+/**
+ * Scheme check for {@link openUrl}. Tab/CR/LF are stripped first because
+ * browsers ignore them anywhere in a URL — `java\tscript:alert(1)` parses as
+ * `javascript:` — and the scheme is then read the way a URL parser will.
+ *
+ * @param rawUrl - The raw target URL.
+ * @returns `true` when the target is relative or http(s).
+ */
+const hasOpenUrlAllowedScheme = (rawUrl: string): boolean => {
+  const cleaned = rawUrl.replace(/[\t\r\n]/g, '')
+  const scheme = /^([a-z][a-z0-9+.-]*:)/i.exec(cleaned)?.[1]?.toLowerCase()
+  return scheme === undefined || OPEN_URL_ALLOWED_SCHEMES.has(scheme)
+}
+
+/**
  * Opens a URL by navigating in the current tab or opening a new
- * window/tab with `noopener,noreferrer` for security.
+ * window/tab with `noopener,noreferrer` for security. Only http:, https: and
+ * relative targets are allowed — anything else (a model-authored or
+ * user-supplied `javascript:`/`data:` URL, say) is refused with a
+ * `console.warn` and no navigation.
  *
  * @param url - The URL to open.
  * @param options - Navigation options.
@@ -86,6 +111,12 @@ export const isInternalUrl = (url: string): boolean => {
  * @param options.target - The window target name (default: `'_blank'` when `newWindow` is true).
  */
 export const openUrl = (url: string, options?: { newWindow?: boolean; target?: string }): void => {
+  if (!hasOpenUrlAllowedScheme(url)) {
+    // Refuse without throwing: openUrl call sites sit in click/render paths
+    // where a throw would take the surrounding app down too.
+    console.warn(`openUrl refused a non-http(s) target: ${JSON.stringify(url.slice(0, 100))}`)
+    return
+  }
   if (options?.newWindow) {
     window.open(url, options.target || '_blank', 'noopener,noreferrer')
   } else {

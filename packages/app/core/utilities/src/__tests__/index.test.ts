@@ -611,6 +611,40 @@ describe('@molecule/app-utilities', () => {
           'noopener,noreferrer',
         )
       })
+
+      it('should allow relative targets', () => {
+        openUrl('/dashboard')
+        expect(window.location.href).toBe('/dashboard')
+      })
+
+      it('should refuse scriptable schemes with a console.warn and no navigation', () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        // The window.open spy above is created fresh per test on the SAME
+        // underlying spy (spyOn is idempotent), so old call counts leak — clear.
+        windowOpenSpy.mockClear()
+
+        openUrl('javascript:alert(1)')
+        openUrl('data:text/html,<script>alert(1)</script>')
+        openUrl('vbscript:msgbox(1)', { newWindow: true })
+
+        expect(warnSpy).toHaveBeenCalledTimes(3)
+        expect(windowOpenSpy).not.toHaveBeenCalled()
+        expect(window.location.href).toBe('')
+
+        warnSpy.mockRestore()
+      })
+
+      it('should refuse a scheme smuggled past the parser with a tab (browsers strip it)', () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        warnSpy.mockClear()
+
+        openUrl('java\tscript:alert(1)')
+
+        expect(warnSpy).toHaveBeenCalledTimes(1)
+        expect(window.location.href).toBe('')
+
+        warnSpy.mockRestore()
+      })
     })
 
     describe('handleAnchorClick', () => {
