@@ -32,6 +32,24 @@ const logger = getLogger()
 
 const DEFAULT_VAULT_URL = 'https://api.molecule.dev/v1/vault'
 
+/** Maximum raw error-body characters carried in thrown messages and warns. */
+const MAX_ERROR_BODY_CHARS = 200
+
+/**
+ * Caps a raw error body before it is embedded in a thrown message or a warn
+ * log. The body is upstream output (proxy/gateway pages included) that no app
+ * code chose — bounding it keeps exception messages and the log stream small
+ * no matter what the vault or an intermediary returns.
+ *
+ * @param body - The raw response body of a failed vault call.
+ * @returns The body, at most {@link MAX_ERROR_BODY_CHARS} characters plus a truncation marker.
+ */
+function capErrorBody(body: string): string {
+  return body.length > MAX_ERROR_BODY_CHARS
+    ? `${body.slice(0, MAX_ERROR_BODY_CHARS)}…(truncated)`
+    : body
+}
+
 /**
  * Creates a managed-vault secrets provider that fetches a single app's secrets
  * from molecule.dev's vault, caches them for the TTL, serves stale cache on
@@ -126,7 +144,9 @@ export function createMoleculeSecretsProvider(
       })
 
       if (!response.ok) {
-        const error = await response.text()
+        // Capped so the body cannot flood the thrown message — and, transitively,
+        // the stale-while-error logger.warn below that re-logs this error.
+        const error = capErrorBody(await response.text())
         throw new Error(
           t(
             'secrets.molecule.error.vaultError',
@@ -215,7 +235,7 @@ export function createMoleculeSecretsProvider(
       })
 
       if (!response.ok) {
-        const error = await response.text()
+        const error = capErrorBody(await response.text())
         throw new Error(
           t(
             'secrets.molecule.error.vaultError',
@@ -244,7 +264,7 @@ export function createMoleculeSecretsProvider(
       })
 
       if (!response.ok) {
-        const error = await response.text()
+        const error = capErrorBody(await response.text())
         throw new Error(
           t(
             'secrets.molecule.error.vaultError',

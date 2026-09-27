@@ -623,6 +623,68 @@ describe('@molecule/api-secrets-molecule', () => {
     })
   })
 
+  describe('error-body cap', () => {
+    it('caps a huge vault error body embedded in a set() error message', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: () => Promise.resolve('E'.repeat(5000)),
+      })
+
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test' })
+      const error = (await provider.set!('KEY', 'value').catch((e: unknown) => e)) as Error
+
+      expect(error.message).toContain('E'.repeat(200))
+      expect(error.message).toContain('(truncated)')
+      // The full 5000-char body must NOT ride along.
+      expect(error.message).not.toContain('E'.repeat(201))
+      expect(error.message.length).toBeLessThan(300)
+    })
+
+    it('passes a short error body through uncapped', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        text: () => Promise.resolve('Bad request'),
+      })
+
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test' })
+      const error = (await provider.set!('KEY', 'value').catch((e: unknown) => e)) as Error
+
+      expect(error.message).toContain('400 Bad request')
+      expect(error.message).not.toContain('(truncated)')
+    })
+
+    it('caps the error body in the stale-while-error warn log', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      vi.useFakeTimers()
+
+      // Prime the cache with a good fetch.
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ KEY: 'good-value' }),
+      })
+      const provider = createMoleculeSecretsProvider({ token: 'mol.test', cacheTtl: 1000 })
+      expect(await provider.get('KEY')).toBe('good-value')
+
+      // Expire the cache, then fail the refetch with a huge error body.
+      vi.advanceTimersByTime(1001)
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: () => Promise.resolve('F'.repeat(2000)),
+      })
+      await provider.get('KEY')
+
+      const warnText = warnSpy.mock.calls.flat().map(String).join(' ')
+      expect(warnText).toContain('F'.repeat(200))
+      expect(warnText).not.toContain('F'.repeat(201))
+
+      vi.useRealTimers()
+      warnSpy.mockRestore()
+    })
+  })
+
   describe('default provider export', () => {
     it('should export a default provider instance', async () => {
       const { provider } = await import('../provider.js')
