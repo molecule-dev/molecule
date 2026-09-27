@@ -1,12 +1,12 @@
 # molecule
 
-<p align="center">
+<div align="center">
   <a href="https://www.molecule.dev"><picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/how-molecule-works-dark.svg">
     <img src="docs/assets/how-molecule-works-light.svg" alt="How Molecule works: describe an app, Synthase composes it from open-source @molecule packages, bonds make every provider swappable, auth/payments/i18n/analytics/tests are built in, every app ships with analytics, error tracking and feedback that the AI uses to keep improving it, and the result is faster, cheaper, higher-quality full-stack apps that are easier to maintain and scale." width="100%">
   </picture></a>
-</p>
-<p align="right"><sub><a href="https://how-molecule-works.apps.mlcl.dev">Interactive</a></sub></p>
+</div>
+<div align="right"><small><sup><a href="https://how-molecule-works.apps.mlcl.dev">Interactive</a></sup></small></div>
 
 ## At a glance (humans and AI agents)
 
