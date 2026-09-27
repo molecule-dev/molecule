@@ -127,10 +127,12 @@ class GoogleTranslationProvider implements AITranslationProvider {
    */
   async getSupportedLanguages(_type?: 'source' | 'target'): Promise<SupportedLanguage[]> {
     const url = new URL('/language/translate/v2/languages', this.baseUrl)
-    url.searchParams.set('key', this.apiKey)
     url.searchParams.set('target', 'en')
 
-    const response = await this.fetchWithRetry(url.toString(), { method: 'GET' })
+    const response = await this.fetchWithRetry(url.toString(), {
+      method: 'GET',
+      headers: this.authHeaders(),
+    })
     if (!response.ok) throw await this.buildError('languages', response)
 
     const data = (await response.json()) as GoogleLanguagesResponse
@@ -164,7 +166,6 @@ class GoogleTranslationProvider implements AITranslationProvider {
     const masked = texts.map((text) => maskText(text, params.protect ?? [], callerMarkup))
 
     const url = new URL('/language/translate/v2', this.baseUrl)
-    url.searchParams.set('key', this.apiKey)
     const body: Record<string, unknown> = {
       q: masked.map((m) => m.masked),
       target: params.targetLang,
@@ -174,7 +175,7 @@ class GoogleTranslationProvider implements AITranslationProvider {
 
     const response = await this.fetchWithRetry(url.toString(), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...this.authHeaders() },
       body: JSON.stringify(body),
     })
     if (!response.ok) throw await this.buildError('translate', response)
@@ -207,6 +208,17 @@ class GoogleTranslationProvider implements AITranslationProvider {
       break
     }
     return response!
+  }
+
+  /**
+   * API-key auth headers for every request. The key rides in the
+   * `X-goog-api-key` HEADER, never the query string, so it cannot leak into
+   * access logs, proxies or error reports that record full URLs.
+   *
+   * @returns The headers carrying the API key.
+   */
+  private authHeaders(): Record<string, string> {
+    return { 'X-goog-api-key': this.apiKey }
   }
 
   /**

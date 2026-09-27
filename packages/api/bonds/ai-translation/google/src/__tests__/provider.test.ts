@@ -76,7 +76,7 @@ describe('GoogleTranslationProvider', () => {
     mockFetch.mockReset()
   })
 
-  it('posts html-format requests with the key and restores placeholders', async () => {
+  it('posts html-format requests and sends the key in the X-goog-api-key header', async () => {
     mockFetch.mockResolvedValue(
       translateResponse(['<span translate="no">0</span> Artikel &amp; mehr']),
     )
@@ -88,7 +88,12 @@ describe('GoogleTranslationProvider', () => {
     })
 
     const [url, init] = mockFetch.mock.calls[0]
-    expect(String(url)).toBe('https://translation.googleapis.com/language/translate/v2?key=k')
+    expect(String(url)).toBe('https://translation.googleapis.com/language/translate/v2')
+    expect(String(url)).not.toContain('key=')
+    expect(init.headers).toMatchObject({
+      'Content-Type': 'application/json',
+      'X-goog-api-key': 'k',
+    })
     expect(JSON.parse(init.body as string)).toEqual({
       q: ['<span translate="no">0</span> items &amp; more'],
       target: 'de',
@@ -97,6 +102,24 @@ describe('GoogleTranslationProvider', () => {
     expect(result.translations).toEqual([
       { text: '{{count}} Artikel & mehr', detectedSourceLang: 'en' },
     ])
+  })
+
+  it('authenticates the languages request via header too, never the query string', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: vi.fn().mockResolvedValue({
+        data: { languages: [{ language: 'de', name: 'German' }] },
+      }),
+    })
+    const languages = await createProvider({ apiKey: 'secret-key' }).getSupportedLanguages()
+
+    const [url, init] = mockFetch.mock.calls[0]
+    expect(String(url)).toBe('https://translation.googleapis.com/language/translate/v2/languages?target=en')
+    expect(String(url)).not.toContain('secret-key')
+    expect(init.headers).toEqual({ 'X-goog-api-key': 'secret-key' })
+    expect(languages).toEqual([{ language: 'de', name: 'German' }])
   })
 
   it('splits more than 128 texts into several requests, preserving order', async () => {
