@@ -113,7 +113,12 @@ describe('PreviewPanel Back/Forward (PV2/PV3 — client-side nav, not a reload)'
 
     // (1) The host posted a client-side Back command into the iframe — NOT a
     // host-side reload. The exact shape matches the scaffold receiver's contract.
-    expect(postSpy).toHaveBeenCalledWith({ type: 'molecule:nav-command', action: 'back' }, '*')
+    // Targeted at the iframe src's ORIGIN (no wildcard), per the outbound
+    // postMessage trust boundary.
+    expect(postSpy).toHaveBeenCalledWith(
+      { type: 'molecule:nav-command', action: 'back' },
+      'http://localhost:5173',
+    )
 
     // (2) No cold reload: loadNonce is untouched (the iframe was never re-mounted).
     expect(provider.getState().loadNonce).toBe(loadNonceBefore)
@@ -153,7 +158,7 @@ describe('PreviewPanel Back/Forward (PV2/PV3 — client-side nav, not a reload)'
 
     expect(postSpy).toHaveBeenLastCalledWith(
       { type: 'molecule:nav-command', action: 'forward' },
-      '*',
+      'http://localhost:5173',
     )
     expect(provider.getState().loadNonce).toBe(loadNonceBefore) // still no reload
     expect(provider.getState().currentUrl).toBe('http://localhost:5173/settings')

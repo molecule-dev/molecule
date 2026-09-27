@@ -302,7 +302,7 @@ describe('PreviewPanel back/forward navigation', () => {
       /handleForward = useCallback\(\(\) => \{\s*forward\(\)\s*postNavCommand\('forward'\)/,
     )
     expect(source).toMatch(
-      /iframeRef\.current\?\.contentWindow\?\.postMessage\(\{ type: 'molecule:nav-command', action \}/,
+      /iframeRef\.current\?\.contentWindow\?\.postMessage\(\s*\{ type: 'molecule:nav-command', action \},\s*previewTargetOrigin\(iframeRef\.current\),?\s*\)/,
     )
   })
 

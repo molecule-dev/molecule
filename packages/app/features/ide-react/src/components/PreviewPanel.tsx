@@ -483,6 +483,34 @@ async function isServerUp(url: string, externalSignal?: AbortSignal): Promise<bo
 }
 
 /**
+ * The targetOrigin for an OUTBOUND postMessage into the preview iframe: the
+ * iframe's CURRENT src origin when that parses, `'*'` only when it doesn't.
+ *
+ * Why: the inbound side of this bridge is gated on window identity
+ * (`event.source === iframe.contentWindow`), but the outbound side grew six
+ * wildcard posts — commands that can drive the page (click/fill/navigate)
+ * deliverable to WHATEVER page ever ended up in this frame. Targeting the
+ * frame's current src origin pins delivery to the page the panel believes it
+ * is talking to. The fallback stays `'*'` (never break the bridge: a stranded
+ * command loop is the whole preview going dark), and an unparsable src is
+ * exactly the case where no origin is known anyway.
+ *
+ * @param iframe - The preview iframe element (may be null pre-mount).
+ * @returns The targetOrigin string for `postMessage`.
+ */
+export function previewTargetOrigin(iframe: HTMLIFrameElement | null): string {
+  const src = iframe?.getAttribute('src')
+  if (src) {
+    try {
+      return new URL(src).origin
+    } catch (_error) {
+      // Unparsable src — no known origin to target; keep the bridge alive.
+    }
+  }
+  return '*'
+}
+
+/**
  * Live preview panel with iframe, device frame selector, and URL bar.
  * @param props - Component props.
  * @returns The rendered preview panel element.
@@ -555,7 +583,7 @@ export function PreviewPanel({
     // hit to a Next.js/Nuxt/SvelteKit route commonly takes 10-30s (and an auth redirect compiles a
     // SECOND route), so a 12s window timed out navigate_preview on every imported meta-framework app.
     const post = (): void => {
-      iframeRef.current?.contentWindow?.postMessage(payload, '*')
+      iframeRef.current?.contentWindow?.postMessage(payload, previewTargetOrigin(iframeRef.current))
     }
     post()
     const deadline = Date.now() + 40_000
@@ -1289,7 +1317,7 @@ export function PreviewPanel({
         Date.now() <= pendingUi.deadline &&
         !uiResolvedRef.current.has(pendingUi.payload.id as string)
       ) {
-        previewWindow.postMessage(pendingUi.payload, '*')
+        previewWindow.postMessage(pendingUi.payload, previewTargetOrigin(iframeRef.current))
       }
 
       // A spec asked for a viewport. The e2e preview client posts this and then
@@ -1438,13 +1466,13 @@ export function PreviewPanel({
           setRequestedSize(next)
           previewWindow.postMessage(
             { type: 'molecule:viewport-result', id: event.data.id, ...next },
-            '*',
+            previewTargetOrigin(iframeRef.current),
           )
         } else {
           setRequestedSize(null)
           previewWindow.postMessage(
             { type: 'molecule:viewport-result', id: event.data.id, width: null, height: null },
-            '*',
+            previewTargetOrigin(iframeRef.current),
           )
         }
       } else if (event.data?.type === 'molecule:heartbeat') {
@@ -1548,7 +1576,10 @@ export function PreviewPanel({
     // with the bridge alive the whole time (X0 rehearsal 28, G46).
     const pending = pendingUiPostRef.current
     if (pending && Date.now() <= pending.deadline) {
-      iframeRef.current?.contentWindow?.postMessage(pending.payload, '*')
+      iframeRef.current?.contentWindow?.postMessage(
+        pending.payload,
+        previewTargetOrigin(iframeRef.current),
+      )
     }
     // The document that just loaded is the raw file a link click announced (feed.xml,
     // provenance.json, llms.txt): the browser shows it with its own viewer and no bridge will
@@ -2015,7 +2046,10 @@ export function PreviewPanel({
   // the preview has reported navigations (history is built from them), so the
   // scaffold nav-bridge receiver is always present when these fire.
   const postNavCommand = useCallback((action: 'back' | 'forward'): void => {
-    iframeRef.current?.contentWindow?.postMessage({ type: 'molecule:nav-command', action }, '*')
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: 'molecule:nav-command', action },
+      previewTargetOrigin(iframeRef.current),
+    )
   }, [])
   const handleBack = useCallback(() => {
     back()
