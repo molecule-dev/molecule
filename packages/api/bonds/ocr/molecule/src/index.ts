@@ -26,7 +26,8 @@
  * @remarks
  * - Config: `MOLECULE_API_KEY` (SERVER-side only) — a molecule project API key
  *   (`mk_…`) with scope `broker` or `broker:ocr`. Optional
- *   `MOLECULE_SERVICES_URL` (default `https://api.molecule.dev/api/v1/services`).
+ *   `MOLECULE_SERVICES_URL` (default `https://api.molecule.dev/api/v1/services`;
+ *   https required — a plain-http URL is refused unless it points at localhost).
  * - At most 8 MB of image (png, jpeg, webp or gif) per recognition. Larger
  *   scans must be split or downscaled — the service refuses oversized bodies
  *   with 413 rather than resampling them.

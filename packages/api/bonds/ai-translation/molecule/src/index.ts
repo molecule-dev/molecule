@@ -26,7 +26,8 @@
  * - Config: `MOLECULE_API_KEY` (required — a project key from
  *   `mlcl apikey create`; in a molecule.dev sandbox the platform writes it for you)
  *   and `MOLECULE_SERVICES_URL` (optional, default
- *   `https://api.molecule.dev/api/v1/services`).
+ *   `https://api.molecule.dev/api/v1/services`; https required — a plain-http
+ *   URL is refused unless it points at localhost).
  * - **Server-side only.** The key bills your project — never ship it to a browser;
  *   call this from your API and rate-limit any route that translates user input.
  * - Per call: at most 200 texts, 5,000 characters each, 50,000 in total. Split larger

@@ -24,7 +24,8 @@
  * - Config: `MOLECULE_API_KEY` (SERVER-side only) — a molecule project API key
  *   (`mk_…`) with scope `broker` or `broker:embeddings`. In the molecule.dev IDE
  *   the platform can write it for you. Optional `MOLECULE_SERVICES_URL`
- *   (default `https://api.molecule.dev/api/v1/services`).
+ *   (default `https://api.molecule.dev/api/v1/services`; https required — a
+ *   plain-http URL is refused unless it points at localhost).
  * - Models: `text-embedding-3-small` (default, 1536 dims) and
  *   `text-embedding-3-large` (3072). Other model ids are refused with a 400 —
  *   the service never runs a model it cannot price. `dimensions` (1–3072)

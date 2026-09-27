@@ -14,6 +14,42 @@ import type { MoleculeWebSearchConfig } from './types.js'
 /** Default hosted services base URL. */
 export const DEFAULT_SERVICES_URL = 'https://api.molecule.dev/api/v1/services'
 
+/**
+ * Validates the hosted-services base URL and strips trailing slashes.
+ *
+ * The project API key rides as a Bearer token on every call, so a plain-http
+ * base URL would send it in cleartext. Mirroring the docker sandbox bond's
+ * plain-TCP production refusal, non-https URLs are refused unless they point
+ * at loopback (http://localhost or http://127.0.0.1), where a self-hosted
+ * services instance runs for local development. Duplicated across the six
+ * molecule service bonds on purpose: they are independent published
+ * packages with no shared runtime dependency.
+ *
+ * @param raw - The configured or defaulted base URL.
+ * @returns The validated base URL, without trailing slashes.
+ * @throws {Error} When the URL is not https and not loopback http.
+ */
+function resolveServicesUrl(raw: string): string {
+  const trimmed = raw.replace(/\/+$/, '')
+  let parsed: URL
+  try {
+    parsed = new URL(trimmed)
+  } catch (_error) {
+    // Not a URL at all (e.g. a bare hostname) — refuse it with the fix spelled out.
+    throw new Error(
+      `Invalid MOLECULE_SERVICES_URL "${raw}" — it must be an absolute https URL (default ${DEFAULT_SERVICES_URL}).`,
+      { cause: _error },
+    )
+  }
+  const host = parsed.hostname.toLowerCase()
+  const loopback = host === 'localhost' || host === '127.0.0.1' || host === '[::1]'
+  if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && loopback)) return trimmed
+  throw new Error(
+    `MOLECULE_SERVICES_URL "${raw}" must use https: the project API key is sent as a Bearer token on every request and would cross the network in cleartext. ` +
+      `Point it at ${DEFAULT_SERVICES_URL} or a private https endpoint; only http://localhost or http://127.0.0.1 is allowed, for a local services instance.`,
+  )
+}
+
 /** Per-request limits of the hosted service. */
 export const WEB_SEARCH_SERVICE_LIMITS = {
   maxQueryChars: 400,
@@ -69,11 +105,9 @@ export class MoleculeWebSearchProvider implements WebSearchProvider {
    */
   constructor(config: MoleculeWebSearchConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.MOLECULE_API_KEY ?? ''
-    this.servicesUrl = (
-      config.servicesUrl ??
-      process.env.MOLECULE_SERVICES_URL ??
-      DEFAULT_SERVICES_URL
-    ).replace(/\/+$/, '')
+    this.servicesUrl = resolveServicesUrl(
+      config.servicesUrl ?? process.env.MOLECULE_SERVICES_URL ?? DEFAULT_SERVICES_URL,
+    )
     this.timeoutMs = config.timeoutMs ?? 15_000
   }
 

@@ -77,3 +77,23 @@ describe('MoleculeContentClassifier', () => {
     expect((e as Error).message).toContain(hint)
   })
 })
+
+describe('servicesUrl guard', () => {
+  it('accepts an https base and loopback http bases', () => {
+    expect(() =>
+      createClassifier({ apiKey: 'mk_t', servicesUrl: 'https://services.example.com/api/v1' }),
+    ).not.toThrow()
+    expect(() =>
+      createClassifier({ apiKey: 'mk_t', servicesUrl: 'http://localhost:4000/api/v1/services' }),
+    ).not.toThrow()
+    expect(() =>
+      createClassifier({ apiKey: 'mk_t', servicesUrl: 'http://127.0.0.1:4000/api/v1/services' }),
+    ).not.toThrow()
+  })
+
+  it('refuses a plain-http base on a public host, naming the misconfiguration', () => {
+    expect(() =>
+      createClassifier({ apiKey: 'mk_t', servicesUrl: 'http://services.example.com/api/v1' }),
+    ).toThrow(/must use https.*Bearer token/s)
+  })
+})

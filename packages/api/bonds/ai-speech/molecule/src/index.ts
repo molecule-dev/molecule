@@ -21,7 +21,8 @@
  * @remarks
  * - Config: `MOLECULE_API_KEY` (SERVER-side only) — a molecule project API key
  *   (`mk_…`) with scope `broker` or `broker:speech`. Optional
- *   `MOLECULE_SERVICES_URL` (default `https://api.molecule.dev/api/v1/services`).
+ *   `MOLECULE_SERVICES_URL` (default `https://api.molecule.dev/api/v1/services`;
+ *   https required — a plain-http URL is refused unless it points at localhost).
  * - Implements ONLY `synthesize` and `transcribe`. `synthesizeSpeech`,
  *   `synthesizeStream`, `listVoices` and `translate` are absent — check before
  *   calling (`if (speech.listVoices)`), or bond the ElevenLabs provider for them.

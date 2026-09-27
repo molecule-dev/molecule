@@ -94,3 +94,23 @@ describe('api-ocr-molecule', () => {
     expect((error as MoleculeServiceError).message).toContain('non-JSON body')
   })
 })
+
+describe('servicesUrl guard', () => {
+  it('accepts an https base and loopback http bases', () => {
+    expect(() =>
+      createProvider({ apiKey: 'mk_test', servicesUrl: 'https://services.example.com/api/v1' }),
+    ).not.toThrow()
+    expect(() =>
+      createProvider({ apiKey: 'mk_test', servicesUrl: 'http://localhost:4000/api/v1/services' }),
+    ).not.toThrow()
+    expect(() =>
+      createProvider({ apiKey: 'mk_test', servicesUrl: 'http://127.0.0.1:4000/api/v1/services' }),
+    ).not.toThrow()
+  })
+
+  it('refuses a plain-http base on a public host, naming the misconfiguration', () => {
+    expect(() =>
+      createProvider({ apiKey: 'mk_test', servicesUrl: 'http://services.example.com/api/v1' }),
+    ).toThrow(/must use https.*Bearer token/s)
+  })
+})
