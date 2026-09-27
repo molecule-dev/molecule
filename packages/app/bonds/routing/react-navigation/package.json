@@ -34,7 +34,7 @@
     "directory": "packages/app/bonds/routing/react-navigation"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@molecule/app-routing": "1.0.2",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",

@@ -34,7 +34,7 @@
     "directory": "packages/app/bonds/native/splash-screen/react-native"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@molecule/app-logger": "1.0.2",
     "@molecule/app-splash-screen": "1.0.2",
     "@types/node": "26.1.2",

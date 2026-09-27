@@ -38,7 +38,7 @@
     "@angular/compiler-cli": "22.1.6",
     "@angular/core": "22.1.6",
     "@angular/platform-browser": "22.1.6",
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@molecule/app-icons": "1.0.2",
     "@types/node": "26.1.2",
     "rxjs": "7.8.2",

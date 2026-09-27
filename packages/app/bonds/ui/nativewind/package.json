@@ -36,8 +36,8 @@
   },
   "devDependencies": {
     "@molecule/app-styling": "1.0.3",
-    "@molecule/app-ui": "1.2.0",
-    "@molecule/app-ui-tailwind": "1.2.1",
+    "@molecule/app-ui": "1.2.1",
+    "@molecule/app-ui-tailwind": "1.2.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

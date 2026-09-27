@@ -35,7 +35,7 @@
     "directory": "packages/app/bonds/native/push/react-native"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@molecule/app-logger": "1.0.2",
     "@molecule/app-push": "1.0.2",
     "@types/node": "26.1.2",

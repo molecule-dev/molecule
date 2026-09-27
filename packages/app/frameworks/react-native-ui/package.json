@@ -34,9 +34,9 @@
     "directory": "packages/app/frameworks/react-native-ui"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@molecule/app-icons": "1.0.2",
-    "@molecule/app-ui": "1.2.0",
+    "@molecule/app-ui": "1.2.1",
     "@types/node": "26.1.2",
     "react": "19.2.8",
     "typescript": "6.0.3",

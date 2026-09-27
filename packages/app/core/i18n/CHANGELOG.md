@@ -1,5 +1,11 @@
 # @molecule/app-i18n
 
+## 1.0.3
+
+### Patch Changes
+
+- 1024442: The simple provider fills a single-brace placeholder when that key was passed.
+
 ## 1.0.1
 
 ### Patch Changes

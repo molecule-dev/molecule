@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@molecule/app-clipboard": "1.0.2",
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@molecule/app-logger": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

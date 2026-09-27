@@ -40,7 +40,7 @@
     "@molecule/app-i18n": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/app-i18n": "1.0.2",
+    "@molecule/app-i18n": "1.0.3",
     "@types/node": "26.1.2",
     "jsdom": "30.0.1",
     "typescript": "6.0.3",
