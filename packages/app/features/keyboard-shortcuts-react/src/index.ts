@@ -14,7 +14,7 @@
  * function Search() {
  *   const input = useRef<HTMLInputElement>(null)
  *   useKeyboardShortcut('/', () => input.current?.focus(), {
- *     description: t('search.shortcut', undefined, { defaultValue: 'Focus search' }),
+ *     description: t('catalogSearch.focus', undefined, { defaultValue: 'Focus search' }),
  *   })
  *   useKeyboardShortcut('mod+k', () => openPalette())
  *   return <input ref={input} />
