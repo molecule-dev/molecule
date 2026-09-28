@@ -87,6 +87,15 @@ if [ -n "$JSTS" ]; then
   echo "$JSTS" | xargs npx --no-install eslint --no-error-on-unmatched-pattern --max-warnings 0
 fi
 
+# Every staged TypeScript file must PARSE (milliseconds; the parser only, no
+# types). A `*/` inside a JSDoc example once ended the doc comment early and the
+# package built as garbage; eslint and the doc-example verifier both read past
+# it, and the first parser it met was the owner's trust:new run before a publish.
+TS_STAGED=$(echo "$STAGED" | grep -E '\.(ts|tsx|mts|cts)$' || true)
+if [ -n "$TS_STAGED" ]; then
+  echo "$TS_STAGED" | xargs node scripts/check-syntax.mjs
+fi
+
 # .md is checked here (it was `.prettierignore`d until 2026-08-03, which is how
 # ~900 generated README.md files drifted). *.json is still ignored on purpose —
 # registry.json and the locale data are machine-written.
@@ -112,6 +121,11 @@ npm run check:peer-deps
 # all, and ten declared a wrong one — including a stranger's GitHub repo — which
 # nothing noticed for four months because nothing read the field.
 npm run check:package-repository
+# …and the rest of what a publish needs: Apache-2.0 license field, a LICENSE
+# copy in the package dir, the molecule.dev homepage, README.md in files. A
+# generated package shipped without any of them and the registry was the first
+# thing to notice (2026-09-28).
+npm run check:package-metadata
 # i18n parity (cross-cutting-i18n) — full-tree scan, but fast (~0.1s) and it
 # only fails on NEW missing keys vs the baseline, so a string shipped as an
 # inline defaultValue without its bond key is caught here at commit time, not

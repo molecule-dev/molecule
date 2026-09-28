@@ -99,6 +99,21 @@ jobs:
       # mostly in aria-labels. Ran only in the pre-commit hook until 2026-09-16,
       # which meant a --no-verify commit or a machine without husky landed it.
       - run: npm run check:locale-placeholders
+      # Publish-day metadata, checked on every push instead: the repository
+      # field provenance verifies against, plus license / LICENSE copy /
+      # homepage / files[README.md]. Both ran only in the pre-commit hook until
+      # 2026-09-28, so a --no-verify commit shipped a package the registry then
+      # rejected (E422) at publish.
+      - run: npm run check:package-repository
+      - run: npm run check:package-metadata
+      # Every source file parses (the TypeScript parser alone, ~4s for the
+      # fleet). Cheaper than the build below and names the file instead of a
+      # wall of follow-on errors; a `*/` in a JSDoc example is the known shape.
+      - run: npm run check:syntax
+      # Versioning is local and lands with the change; a changeset still under
+      # .changeset/ on a pushed commit means a package was changed and never
+      # versioned, and the Release workflow refuses to run while one exists.
+      - run: npm run check:changesets-consumed
       - run: npm run build
       # Record what each package's sources hashed to, so the NEXT run can reuse
       # this dist per-package instead of rebuilding the fleet. Written after the

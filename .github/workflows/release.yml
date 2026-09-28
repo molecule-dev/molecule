@@ -142,6 +142,17 @@ jobs:
       # missing. A leftover changeset file means someone forgot to version
       # locally — publishing now would be a silent no-op (versions still match
       # npm), so fail loudly with the fix instead.
+      # ---- 2a. Guard — every package carries what npm will demand ----------
+      # Provenance verifies `repository`; the tarball needs LICENSE, license,
+      # homepage, README.md; every source file must parse before it can build.
+      # Cheap, and it fails here — before a single package is published —
+      # instead of half-way through a paced publish.
+      - name: Guard — publish metadata and syntax
+        run: |
+          npm run check:package-repository
+          npm run check:package-metadata
+          npm run check:syntax
+
       - name: Guard — no unconsumed changesets (version locally first)
         run: |
           set -eu
