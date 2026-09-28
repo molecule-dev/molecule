@@ -134,3 +134,12 @@ describe('renderMarginNotes', () => {
     expect(escapeHtml(`"'<>&`)).toBe('&quot;&#39;&lt;&gt;&amp;')
   })
 })
+
+describe('phone bar space', () => {
+  it('is reserved after everything on the page at phone width', async () => {
+    const { marginNotesCss } = await import('../styles.js')
+    expect(marginNotesCss).toMatch(
+      /@media \(max-width: 767\.98px\)[\s\S]*body::after[\s\S]*var\(--mn-bar-space/,
+    )
+  })
+})

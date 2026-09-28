@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-html
 
+## 1.0.5
+
+### Patch Changes
+
+- The phone bar reserves its height at the end of the page, not just the article, so a footer or anything else below the notes is no longer covered by the open panel; the reserved height follows the bar as it resizes.
+
 ## 1.0.4
 
 ### Patch Changes

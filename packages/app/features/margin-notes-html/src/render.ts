@@ -170,7 +170,6 @@ export function renderMarginNotes(options: RenderMarginNotesOptions): RenderedMa
     const panelNotes = notes.map((n) => renderNote(n, kinds, 'panel', !initial.has(n.id))).join('')
     const dismiss = escapeHtml(t('marginNotes.dismiss', undefined, { defaultValue: 'Hide notes' }))
     bar =
-      `<div data-mn-spacer aria-hidden="true"></div>` +
       `<div data-mn-bar data-mol-id="margin-notes-bar">` +
       `<div data-mn-panel role="region" aria-live="polite" aria-label="${escapeHtml(
         t('marginNotes.aria.panel', undefined, { defaultValue: 'Notes for this section' }),

@@ -126,7 +126,6 @@ export const marginNotesCss = `
   transition: transform 0.15s;
 }
 [data-mn-switch][aria-checked="true"] [data-mn-knob] { transform: translateX(18px); }
-[data-mn-spacer] { height: var(--mn-bar-space, 9rem); }
 [data-mn-bar] {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
   box-sizing: border-box;
@@ -153,6 +152,11 @@ export const marginNotesCss = `
 [data-mn-dismiss][hidden] { display: none; }
 @media (max-width: 767.98px) {
   [data-mn-root] { font-size: var(--mn-prose-size-phone); }
+  /* The bar is fixed to the viewport, so it covers the END OF THE PAGE, not just
+     the article: reserve its height after everything the page shows. */
+  html:has([data-mn-root][data-mn-has-notes] [data-mn-bar]) body::after {
+    content: ''; display: block; height: var(--mn-bar-space, 9rem);
+  }
 }
 @media (min-width: 768px) {
   [data-mn-root][data-mn-has-notes] [data-mn-row] {
@@ -163,7 +167,7 @@ export const marginNotesCss = `
   [data-mn-gutter] { display: block; }
   [data-mn-mark] { display: block; }
   [data-mn-switches="side"] { display: flex; }
-  [data-mn-bar], [data-mn-spacer] { display: none; }
+  [data-mn-bar] { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   [data-mn-panel], [data-mn-knob], [data-mn-track], [data-mn-note], [data-mn-block] { transition: none; }

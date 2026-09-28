@@ -67,13 +67,20 @@ export function attachMarginNotes(doc: Document = document): void {
       if (panel) panel.toggleAttribute('data-mn-open', visible.size > 0)
       if (dismiss) dismiss.hidden = pinned === null
       for (const b of blocks) b.toggleAttribute('data-mn-pinned', b === pinned)
-      if (bar) {
-        // Room below the text for the bar and the open panel, so the last line clears it.
-        win.requestAnimationFrame(() => {
-          root.style.setProperty('--mn-bar-space', `${bar.offsetHeight + 16}px`)
-        })
-      }
+      reserve()
     }
+
+    // Room at the end of the PAGE for the bar and its open panel, so nothing
+    // below the text — the site's footer included — ends up under the bar. It
+    // follows the bar's real size: the panel opens with a height transition, so
+    // one measurement on the next frame caught it half open and reserved too
+    // little (x291, 2026-09-28: the footer's last line sat under the open panel).
+    const reserve = (): void => {
+      if (bar) doc.documentElement.style.setProperty('--mn-bar-space', `${bar.offsetHeight + 16}px`)
+    }
+    if (bar && typeof win.ResizeObserver === 'function')
+      new win.ResizeObserver(reserve).observe(bar)
+    bar?.addEventListener('transitionend', reserve)
 
     for (const sw of switches) {
       sw.addEventListener('click', () => {

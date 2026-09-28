@@ -123,3 +123,43 @@ describe('attachMarginNotes', () => {
     expect($('[data-mn-where="gutter"][data-mn-note="p0"]').hasAttribute('hidden')).toBe(false)
   })
 })
+
+describe('the phone bar reserves its space at the end of the page', () => {
+  beforeEach(() => {
+    document.documentElement.style.removeProperty('--mn-bar-space')
+    document.body.innerHTML = `<main>${layout.html}</main><footer>© footer</footer>`
+    vi.stubGlobal('innerHeight', 800)
+    layoutRows(0)
+  })
+
+  it('sets the space on the document, not the article, so a footer after it clears the bar', () => {
+    attachMarginNotes(document)
+    expect(document.documentElement.style.getPropertyValue('--mn-bar-space')).toMatch(/px$/)
+    expect(document.querySelector('[data-mn-spacer]')).toBeNull()
+  })
+
+  it('re-measures whenever the bar changes size (the panel opens with a transition)', () => {
+    // x291, 2026-09-28: measured once on the next frame, the half-open panel
+    // reserved too little and the footer's last line sat under it.
+    let resized: (() => void) | null = null
+    let observed: Element | null = null
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(cb: () => void) {
+          resized = cb
+        }
+        observe(el: Element): void {
+          observed = el
+        }
+        disconnect(): void {}
+      },
+    )
+    attachMarginNotes(document)
+    expect(observed).toBe(document.querySelector('[data-mn-bar]'))
+    Object.defineProperty(observed, 'offsetHeight', { configurable: true, value: 300 })
+    resized?.()
+    expect(document.documentElement.style.getPropertyValue('--mn-bar-space')).toBe('316px')
+    vi.unstubAllGlobals()
+  })
+})
