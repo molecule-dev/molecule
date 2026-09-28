@@ -1,0 +1,49 @@
+{
+  "name": "@molecule/app-clipboard-web",
+  "version": "1.0.0",
+  "description": "Web clipboard provider for molecule.dev — the browser's async Clipboard API, with a selection-and-copy fallback for older contexts",
+  "homepage": "https://www.molecule.dev/packages/app-clipboard-web",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "clipboard",
+    "copy",
+    "web"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/native/clipboard/web"
+  },
+  "peerDependencies": {
+    "@molecule/app-clipboard": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/app-clipboard": "1.0.2",
+    "@types/node": "26.1.2",
+    "jsdom": "30.0.1",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

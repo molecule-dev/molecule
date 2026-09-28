@@ -219,6 +219,62 @@ export function matchesText(
 }
 
 /**
+ * Puts a parsed query back into text, for editing one part of it (removing a
+ * filter chip). Terms and phrases keep their order; exclusions and filters follow.
+ *
+ * @param parsed - The structured query.
+ * @returns Text that {@link parseQuery} reads back to the same structure.
+ */
+export function formatQuery(parsed: Omit<ParsedQuery, 'raw'>): string {
+  const parts: string[] = []
+  if (parsed.text.trim()) parts.push(parsed.text.trim())
+  for (const p of parsed.phrases) parts.push(`"${p}"`)
+  for (const x of parsed.exclude) parts.push(x.includes(' ') ? `-"${x}"` : `-${x}`)
+  for (const f of parsed.filters) {
+    const values = f.values.map((v) => (v.includes(' ') ? `"${v}"` : v)).join(',')
+    parts.push(`${f.negate ? '-' : ''}${f.field}:${values}`)
+  }
+  return parts.join(' ')
+}
+
+/** A piece of text, marked when it matched a query term. */
+export interface HighlightSegment {
+  /** The text of this piece. */
+  text: string
+  /** Whether it matched. */
+  hit: boolean
+}
+
+/**
+ * Splits text into plain and matched segments so a UI can mark what matched:
+ * each term matches at the start of a word, case-insensitively, longest terms
+ * first. No terms yields one plain segment.
+ *
+ * @param text - The text to mark.
+ * @param terms - The matched terms (a hit's `terms`).
+ * @returns The segments, in order.
+ */
+export function highlightMatches(text: string, terms: string[]): HighlightSegment[] {
+  const clean = terms.map((t) => t.trim()).filter((t) => t.length > 0)
+  if (!text || !clean.length) return [{ text, hit: false }]
+  const alternation = [...new Set(clean)]
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+    .join('|')
+  const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${alternation})`, 'giu')
+  const out: HighlightSegment[] = []
+  let last = 0
+  for (const m of text.matchAll(re)) {
+    const start = (m.index ?? 0) + m[1].length
+    if (start > last) out.push({ text: text.slice(last, start), hit: false })
+    out.push({ text: m[2], hit: true })
+    last = start + m[2].length
+  }
+  if (last < text.length) out.push({ text: text.slice(last), hit: false })
+  return out
+}
+
+/**
  * Escapes a string for use inside a RegExp.
  *
  * @param s - Literal text.

@@ -44,12 +44,19 @@
  *   ignores keys with modifiers, so `Cmd+Enter` and friends stay free for the
  *   app. Wire `Enter` to real navigation (the URL changes), not just a
  *   highlight.
+ * - `useSearchSession` is the whole thing wired up: text ↔ `#q=` in the address
+ *   bar, a remembered query across pages (through the bonded storage), keyboard
+ *   navigation, Enter opening a hit, top hits prefetched, and an optional
+ *   `augment` that appends hits from elsewhere (an API) as "related".
  * - These hooks render nothing and register no global key. Bind `/` or
  *   `Cmd+K` to focus the input through `@molecule/app-keyboard-shortcuts-react`.
  *
  * @module
  */
 
+export * from './hashQuery.js'
 export * from './useClientSearch.js'
 export * from './useClientSearchIndex.js'
+export * from './useLazyDocs.js'
 export * from './useListNavigation.js'
+export * from './useSearchSession.js'

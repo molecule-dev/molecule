@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import {
   extractFieldText,
+  formatQuery,
+  highlightMatches,
   filterFieldsOf,
   matchesFilter,
   matchesFilters,
@@ -131,5 +133,50 @@ describe('helpers', () => {
   it('defaults filter fields to the searched fields', () => {
     expect(filterFieldsOf({ idField: 'id', fields: ['a', 'b'] })).toEqual(['a', 'b'])
     expect(filterFieldsOf({ idField: 'id', fields: ['a'], filterFields: ['c'] })).toEqual(['c'])
+  })
+})
+
+describe('formatQuery', () => {
+  it('round-trips through parseQuery', () => {
+    const raw = 'oauth "sign in" -deprecated -"magic link" category:auth type:bond,core -stack:api'
+    const parsed = parseQuery(raw)
+    const text = formatQuery(parsed)
+    expect(text).toBe(
+      'oauth "sign in" -deprecated -"magic link" category:auth type:bond,core -stack:api',
+    )
+    expect(parseQuery(text)).toEqual({ ...parsed, raw: text })
+  })
+
+  it('quotes values with spaces', () => {
+    expect(
+      formatQuery({
+        text: '',
+        phrases: [],
+        exclude: [],
+        filters: [{ field: 'label', values: ['Feature flags'] }],
+      }),
+    ).toBe('label:"Feature flags"')
+  })
+})
+
+describe('highlightMatches', () => {
+  it('marks terms at word starts, longest first, case-insensitively', () => {
+    expect(highlightMatches('User feedback for users', ['user', 'feedback'])).toEqual([
+      { text: 'User', hit: true },
+      { text: ' ', hit: false },
+      { text: 'feedback', hit: true },
+      { text: ' for ', hit: false },
+      { text: 'user', hit: true },
+      { text: 's', hit: false },
+    ])
+    expect(highlightMatches('api-flights', ['flight', 'flights'])).toEqual([
+      { text: 'api-', hit: false },
+      { text: 'flights', hit: true },
+    ])
+  })
+
+  it('returns one plain segment with no terms or no text', () => {
+    expect(highlightMatches('abc', [])).toEqual([{ text: 'abc', hit: false }])
+    expect(highlightMatches('', ['a'])).toEqual([{ text: '', hit: false }])
   })
 })

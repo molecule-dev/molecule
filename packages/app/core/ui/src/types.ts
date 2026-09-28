@@ -2696,4 +2696,51 @@ export interface UIClassMap {
   pageHeaderBreadcrumbItem: string
   /** PageHeader breadcrumb separator character. */
   pageHeaderBreadcrumbSeparator: string
+
+  // ---- Search UI tokens (SearchBox, SearchResults, QuickSearch) ----
+
+  /** SearchBox field: the bordered bar holding the icon, the input and its actions; focus ring via focus-within. */
+  searchField: string
+  /** SearchBox leading icon slot. */
+  searchFieldIcon: string
+  /** SearchBox text input: borderless, fills the bar, left-aligned, visible placeholder. */
+  searchFieldInput: string
+  /** SearchBox trailing slot: the clear button and the shortcut hint. */
+  searchFieldActions: string
+  /** SearchBox icon-only clear button. */
+  searchFieldClear: string
+  /** SearchBox status row under the field: filter chips at the left, the count and tips at the right. */
+  searchStatusRow: string
+  /** SearchBox syntax tips line. */
+  searchTips: string
+  /** A key cap (`/`, `↵`). */
+  kbd: string
+  /** A removable filter chip (`category: auth ×`). */
+  filterChip: string
+  /** Added to a filter chip that EXCLUDES its value. */
+  filterChipNegated: string
+  /** The × inside a filter chip. */
+  filterChipRemove: string
+  /** SearchResults list container: bordered, rows divided. */
+  resultList: string
+  /** One result row. */
+  resultItem: string
+  /** Added to the keyboard- or pointer-active result row. */
+  resultItemActive: string
+  /** A result row's body: the link that fills the row. */
+  resultBody: string
+  /** A result row's title. */
+  resultTitle: string
+  /** Added to a result title that is code (a package name). */
+  resultTitleMono: string
+  /** A result row's meta line (type · category · related). */
+  resultMeta: string
+  /** A result row's description, clamped to two lines. */
+  resultDescription: string
+  /** A matched term inside a result. */
+  resultMark: string
+  /** A result row's trailing action slot. */
+  resultAction: string
+  /** A results empty state. */
+  resultEmpty: string
 }

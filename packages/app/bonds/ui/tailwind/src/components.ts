@@ -1318,3 +1318,60 @@ export const pageHeaderBreadcrumbs =
 export const pageHeaderBreadcrumbItem = 'hover:text-gray-700 dark:hover:text-gray-200'
 /** PageHeader breadcrumb separator. */
 export const pageHeaderBreadcrumbSeparator = 'mx-1'
+
+// ---- Search UI tokens (SearchBox, SearchResults, QuickSearch) ----
+
+/** SearchBox field: a bordered bar; the ring appears while anything inside has focus. */
+export const searchField =
+  'relative flex h-11 w-full items-center gap-2 rounded-xl border border-border bg-input-background px-3 text-foreground transition-colors focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(64,112,224,0.18)]'
+/** SearchBox leading icon slot. */
+export const searchFieldIcon = 'flex flex-none items-center text-foreground-secondary'
+/** SearchBox input: borderless, fills the bar, left-aligned, visible placeholder. */
+export const searchFieldInput =
+  'h-full min-w-0 flex-1 border-0 bg-transparent p-0 text-left text-[15px] leading-none text-foreground placeholder:text-foreground-secondary placeholder:opacity-100 focus:outline-none focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden'
+/** SearchBox trailing slot. */
+export const searchFieldActions = 'flex flex-none items-center gap-1.5'
+/** SearchBox icon-only clear button. */
+export const searchFieldClear =
+  'flex h-7 w-7 items-center justify-center rounded-md text-foreground-secondary hover:bg-surface-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+/** SearchBox status row: chips left, count and tips right. */
+export const searchStatusRow =
+  'mt-2 flex min-h-6 flex-wrap items-center gap-1.5 text-[13px] text-foreground-secondary'
+/** SearchBox syntax tips line. */
+export const searchTips = 'mt-1 text-[13px] leading-relaxed text-foreground-secondary'
+/** A key cap. */
+export const kbd =
+  'inline-flex h-5 min-w-5 items-center justify-center rounded-md border border-border px-1.5 font-mono text-[11px] leading-none text-foreground-secondary'
+/** A removable filter chip. */
+export const filterChip =
+  'inline-flex cursor-pointer items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-foreground transition-colors hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+/** Added to a filter chip that excludes its value. */
+export const filterChipNegated = 'border-warning/50 bg-warning/10'
+/** The × inside a filter chip. */
+export const filterChipRemove = 'text-foreground-secondary'
+/** SearchResults list container. */
+export const resultList =
+  'm-0 mt-4 list-none divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface p-0'
+/** One result row. */
+export const resultItem =
+  'relative flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors hover:bg-surface-secondary'
+/** The active result row. */
+export const resultItemActive =
+  'bg-surface-secondary before:absolute before:bottom-2 before:left-0 before:top-2 before:w-0.5 before:rounded-full before:bg-primary'
+/** A result row's body: the link that fills the row. */
+export const resultBody = 'block min-w-0 flex-1 no-underline'
+/** A result row's title. */
+export const resultTitle = 'font-semibold text-foreground'
+/** Added to a result title that is code. */
+export const resultTitleMono = 'font-mono text-[0.95em]'
+/** A result row's meta line. */
+export const resultMeta = 'text-xs text-foreground-secondary'
+/** A result row's description. */
+export const resultDescription =
+  'mt-0.5 line-clamp-2 text-[13.5px] leading-snug text-foreground-secondary'
+/** A matched term inside a result. */
+export const resultMark = 'rounded-[3px] bg-primary/20 px-0.5 text-inherit'
+/** A result row's trailing action slot. */
+export const resultAction = 'flex-none self-center'
+/** A results empty state. */
+export const resultEmpty = 'py-10 text-center text-[13.5px] text-foreground-secondary'
