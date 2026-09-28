@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-client-search-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "React hooks for @molecule/app-client-search — build an index from a list, search it as the person types, and move through the hits with the keyboard",
   "homepage": "https://www.molecule.dev/packages/app-client-search-react",
   "type": "module",

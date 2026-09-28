@@ -1,5 +1,11 @@
 # @molecule/app-client-search-react
 
+## 1.0.3
+
+### Patch Changes
+
+- a630a78: When no record holds every word typed, the session's augmenting hits (for example the ones a semantic index finds) lead the list instead of following it.
+
 ## 1.0.2
 
 ### Patch Changes
