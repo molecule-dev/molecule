@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-query-tanstack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TanStack Query bond for @molecule/app-query — the query-core cache behind the molecule contract",
   "homepage": "https://www.molecule.dev/packages/app-query-tanstack",
   "type": "module",
@@ -40,7 +40,7 @@
     "@molecule/app-query": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/app-query": "1.0.0",
+    "@molecule/app-query": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

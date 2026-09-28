@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-client-search",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Client-side search core interface for molecule.dev — index a list already in the browser, then search it with typo tolerance, field filters (`category:auth`), phrases and exclusions",
   "homepage": "https://www.molecule.dev/packages/app-client-search",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-query",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Client-side data cache and prefetch core interface for molecule.dev — fetch once, read synchronously, warm ahead of navigation; the cache engine is a bond",
   "homepage": "https://www.molecule.dev/packages/app-query",
   "type": "module",

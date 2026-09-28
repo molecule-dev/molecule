@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.3.3
+
+### Patch Changes
+
+- 44ba621: Search UI tokens: searchField, filterChip, kbd, resultList and friends, for search boxes and result lists.
+
 ## 1.3.2
 
 ### Patch Changes
