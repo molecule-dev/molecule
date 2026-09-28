@@ -65,19 +65,38 @@ describe('moleculeSpinnerMarkSvg', () => {
   it('never animates stop-COLOR and never puts var() inside an animate values list (the 1.3.0 flat-gradient bug)', () => {
     const svg = moleculeSpinnerMarkSvg()
     const animates = svg.match(/<animate [^>]*>/g) ?? []
-    expect(animates.length).toBeGreaterThanOrEqual(11)
+    expect(animates.length).toBeGreaterThanOrEqual(15)
     for (const a of animates) {
       const attr = /attributeName="([^"]+)"/.exec(a)?.[1]
       expect(attr).not.toBe('stop-color')
       const values = /values="([^"]+)"/.exec(a)?.[1] ?? ''
       expect(values).not.toContain('var(')
     }
-    // the glint is a peach head whose OPACITY ignites (0 → 1) mid-flight
-    const glint = animates.find((a) => a.includes('stop-opacity'))
-    expect(glint).toBeTruthy()
-    expect(glint).toContain('values="0;0;1;0;0"')
-    expect(svg).toContain('stop-opacity')
+    // the glint is a peach overlay circle whose ELEMENT opacity ignites
     expect(svg).not.toContain('<animate attributeName="stop-color"')
+    expect(svg).not.toContain('<animate attributeName="stop-opacity"')
+    expect(svg).toContain('values="0;0;1;0;0"')
+  })
+
+  it('keeps every BASE gradient stop fully opaque — no edge shows the background through (the 1.3.1 transparent-rim bug)', () => {
+    const svg = moleculeSpinnerMarkSvg()
+    // base gradients (-a*) carry no stop-opacity at all; only the overlay
+    // tail (-g*) has one, and it sits on a second circle stacked over an
+    // opaque base, never alone.
+    for (const m of svg.matchAll(
+      /<linearGradient id="[^"]*-a\d+"[^>]*>([\s\S]*?)<\/linearGradient>/g,
+    )) {
+      expect(m[1]).not.toContain('stop-opacity')
+    }
+    const circles = svg.match(/<circle [^>]*>/g) ?? []
+    expect(circles).toHaveLength(8) // base + glint overlay per atom
+    const overlayStrokes = circles.filter((c) => /-g\d+\)"/.test(c))
+    expect(overlayStrokes).toHaveLength(4)
+    // the overlay carries the glint opacity animate with the swap keyTimes
+    const overlayCircle =
+      svg.match(/<circle [^>]*stroke="url\([^"]*-g0\)"[\s\S]*?<\/circle>/)?.[0] ?? ''
+    expect(overlayCircle).toContain('<animate attributeName="opacity"')
+    expect(overlayCircle).toContain('keyTimes="0;0.033;0.1;0.167;1"')
   })
 
   it('carries className, style and the hub-centering glyph matrix', () => {

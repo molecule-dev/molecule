@@ -17,10 +17,11 @@
  * - a 3-phase atom-swap cycle (one outer atom exchanges with the hub per
  *   phase; the connecting bond fades for the swap);
  * - a slow hub-centered whole-figure rotation;
- * - paint: a seamless one-way blue gradient flow on the bonds plus per-atom
- *   "glint" gradients whose light end warms exactly while that atom is in
- *   flight (keyed to the same keyTimes/easing as the motion), or a plain
- *   `currentColor` outline via `paint: 'mono'`.
+ * - paint: a seamless one-way blue gradient flow on the bonds plus a warm
+ *   glint on each atom — an opaque light→blue base stroke with a peach
+ *   head overlay whose ELEMENT opacity ignites exactly while that atom is
+ *   in flight (keyed to the same keyTimes/easing as the motion) — or a
+ *   plain `currentColor` outline via `paint: 'mono'`.
  *
  * **Gotchas a weak executor gets wrong:**
  * - `gradientId` must be unique per rendered instance on a page — two svgs
@@ -253,18 +254,21 @@ export function moleculeSpinnerMarkSvg(options: MoleculeSpinnerMarkOptions = {})
       '</linearGradient>' +
       ATOMS.map(
         (atom, i) =>
+          // Two gradients per atom, composited as two stacked circles: an
+          // always-opaque light→blue BASE, and a peach HEAD→transparent-tail
+          // OVERLAY whose element opacity ignites with the swap. Never fade a
+          // stop of the base itself — a zero-opacity stop makes that arc
+          // segment semi-transparent and the background shows through the
+          // rim on light backgrounds (the 1.3.1 bug); overlaying keeps every
+          // edge opaque underneath. Element opacity animates numerically, so
+          // var() palette colors are safe here.
           `<linearGradient id="${gradientId}-a${i}" x1="0" y1="0" x2="1" y2="1">` +
-          // The warm glint animates stop-OPACITY of a peach head stop laid
-          // over the light base — NEVER stop-color. SMIL interpolates colors
-          // numerically, and `var()` color strings cannot interpolate, so a
-          // color animation silently dies and the gradient paints flat (the
-          // 1.3.0 production bug); opacity is numeric and always works, with
-          // any palette form (var() or literal).
-          `<stop offset="0" stop-color="${colors.peach}">` +
-          `<animate attributeName="stop-opacity" dur="${timings.dur}" repeatCount="indefinite" values="${atom.glintValues.map((v) => (v ? 0 : 1)).join(';')}" keyTimes="${atom.glintKeyTimes}" calcMode="spline" keySplines="${atom.glintSplines}"/>` +
-          '</stop>' +
-          `<stop offset="0.3" stop-color="${colors.light}"/>` +
+          `<stop offset="0" stop-color="${colors.light}"/>` +
           `<stop offset="1" stop-color="${colors.blue}"/>` +
+          '</linearGradient>' +
+          `<linearGradient id="${gradientId}-g${i}" x1="0" y1="0" x2="1" y2="1">` +
+          `<stop offset="0" stop-color="${colors.peach}"/>` +
+          `<stop offset="0.55" stop-color="${colors.peach}" stop-opacity="0"/>` +
           '</linearGradient>',
       ).join('') +
       '</defs>'
@@ -279,15 +283,24 @@ export function moleculeSpinnerMarkSvg(options: MoleculeSpinnerMarkOptions = {})
       '</line>',
   ).join('')
 
-  const atoms = ATOMS.map(
-    (atom, i) =>
-      `<circle cx="${atom.cx}" cy="${atom.cy}" r="2.976"${gradient ? ` stroke="url(#${gradientId}-a${i})"` : ''}>` +
+  const atoms = ATOMS.map((atom, i) => {
+    // The swap motion, shared verbatim by the base and the glint overlay so
+    // the two circles travel as one.
+    const swapAnimates =
       `<animate attributeName="cx" dur="${timings.dur}" repeatCount="indefinite" values="${atom.cxValues}" keyTimes="${atom.keyTimes}" calcMode="spline" keySplines="${atom.keySplines}"/>` +
       (atom.cyValues
         ? `<animate attributeName="cy" dur="${timings.dur}" repeatCount="indefinite" values="${atom.cyValues}" keyTimes="${atom.keyTimes}" calcMode="spline" keySplines="${atom.keySplines}"/>`
-        : '') +
-      '</circle>',
-  ).join('')
+        : '')
+    if (!gradient) {
+      return `<circle cx="${atom.cx}" cy="${atom.cy}" r="2.976">${swapAnimates}</circle>`
+    }
+    return (
+      `<circle cx="${atom.cx}" cy="${atom.cy}" r="2.976" stroke="url(#${gradientId}-a${i})">${swapAnimates}</circle>` +
+      `<circle cx="${atom.cx}" cy="${atom.cy}" r="2.976" stroke="url(#${gradientId}-g${i})">${swapAnimates}` +
+      `<animate attributeName="opacity" dur="${timings.dur}" repeatCount="indefinite" values="${atom.glintValues.map((v) => (v ? 0 : 1)).join(';')}" keyTimes="${atom.glintKeyTimes}" calcMode="spline" keySplines="${atom.glintSplines}"/>` +
+      '</circle>'
+    )
+  }).join('')
 
   return (
     `<svg xmlns="http://www.w3.org/2000/svg"${sizeAttrs}${classAttrs}${styleAttr}` +

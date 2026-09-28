@@ -1,5 +1,14 @@
 # @molecule/app-ui
 
+## 1.3.2
+
+### Patch Changes
+
+- The spinner's warm glint now rides a peach overlay circle stacked over an
+  always-opaque base stroke. Fading a stop of the base itself made part of each
+  atom's rim semi-transparent, which showed the background through on light
+  surfaces.
+
 ## 1.3.1
 
 ### Patch Changes
