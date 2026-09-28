@@ -417,7 +417,7 @@ export const avatarFallback =
  * blurring the dialog itself. A parent's backdrop-filter can never affect its
  * children, by spec.
  */
-export const dialogOverlay = 'fixed inset-0 z-[1300] bg-overlay pointer-events-none'
+export const dialogOverlay = 'fixed inset-0 z-[9998] bg-overlay pointer-events-none'
 
 /**
  * The dialog content.
@@ -471,7 +471,7 @@ export const dialogCloseFloating =
  * the tint overlay so the dialog's stacking never depends on DOM order.
  */
 export const dialogWrapper =
-  'fixed inset-0 z-[1301] flex items-center justify-center px-4 py-10 backdrop-blur-[2px]'
+  'fixed inset-0 z-[9999] flex items-center justify-center px-4 py-10 backdrop-blur-[2px]'
 /**
  * The dialog body.
  */
@@ -479,7 +479,7 @@ export const dialogBody = 'flex-1 min-h-0 overflow-y-auto px-6 py-6'
 
 /** Action sheet: bottom-anchored panel for pickers and action menus. */
 export const actionSheet =
-  'fixed bottom-0 left-0 right-0 z-[1300] bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden'
+  'fixed bottom-0 left-0 right-0 z-[9998] bg-surface rounded-t-2xl max-h-[50vh] overflow-hidden'
 /** Action sheet header with bottom border. */
 export const actionSheetHeader = 'flex-shrink-0 px-4 py-3 border-b border-border'
 

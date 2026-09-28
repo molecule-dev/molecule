@@ -622,7 +622,7 @@ describe('dialog components', () => {
   it('dialogOverlay should have correct classes', () => {
     expect(dialogOverlay).toContain('fixed')
     expect(dialogOverlay).toContain('inset-0')
-    expect(dialogOverlay).toContain('z-[1300]')
+    expect(dialogOverlay).toContain('z-[9998]')
   })
 
   describe('dialogContent', () => {
