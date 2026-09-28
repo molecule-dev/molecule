@@ -55,6 +55,8 @@
  * }
  * ```
  *
+ * (`searchPlaceholder` and `nothingMatches` are the app's own translated strings.)
+ *
  * @remarks
  * - **Pass a router link through `renderLink`**, or every row is a full page
  *   load: the list renders a plain `<a>` by default because it does not know

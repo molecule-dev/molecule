@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import {
   extractFieldText,
+  filterFieldsOf,
   formatQuery,
   highlightMatches,
-  filterFieldsOf,
   matchesFilter,
   matchesFilters,
   matchesText,
