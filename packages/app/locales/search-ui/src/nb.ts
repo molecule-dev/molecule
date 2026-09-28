@@ -8,11 +8,10 @@ export const nb: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Tøm søk',
   'searchUi.removeFilter': 'Fjern filteret {{filter}}',
   'searchUi.count': '{{count}} resultater',
-  'searchUi.tipsHide': 'Skjul tips',
-  'searchUi.tips': 'Tips',
   'searchUi.syntax': 'Avgrens med et felt, siter en frase eller ekskluder et ord:',
   'searchUi.keys': 'Piltastene beveger seg gjennom resultatene, og Enter åpner et.',
   'searchUi.results': 'Søkeresultater',
   'searchUi.relatedTitle': 'Samsvarer med betydningen av søket ditt, ikke ordene',
   'searchUi.related': 'relatert',
+  'searchUi.help': 'Søketips',
 }

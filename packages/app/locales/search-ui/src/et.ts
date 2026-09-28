@@ -7,11 +7,10 @@ export const et: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Tühjenda otsing',
   'searchUi.removeFilter': 'Eemalda filter {{filter}}',
   'searchUi.count': '{{count}} tulemused',
-  'searchUi.tipsHide': 'Peida näpunäited',
-  'searchUi.tips': 'Näpunäited',
   'searchUi.syntax': 'Täpsusta valikut väljaga, tsiteeri fraasi või jäta sõna välja:',
   'searchUi.keys': 'Nooleklahvid liiguvad tulemuste vahel ja Enter avab ühe.',
   'searchUi.results': 'Otsingutulemused',
   'searchUi.relatedTitle': 'Vastab teie otsingu tähendusele, mitte selle sõnadele',
   'searchUi.related': 'seotud',
+  'searchUi.help': 'Otsinguvihjed',
 }

@@ -8,8 +8,6 @@ export const de: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Suche löschen',
   'searchUi.removeFilter': 'Filter entfernen {{filter}}',
   'searchUi.count': '{{count}} Ergebnisse',
-  'searchUi.tipsHide': 'Tipps ausblenden',
-  'searchUi.tips': 'Tipps',
   'searchUi.syntax':
     'Filtern Sie mit einem Feld, zitieren Sie eine Phrase oder schließen Sie ein Wort aus:',
   'searchUi.keys':
@@ -18,4 +16,5 @@ export const de: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle':
     'Entspricht der Bedeutung Ihrer Suchanfrage, nicht den einzelnen Wörtern.',
   'searchUi.related': 'verwandt',
+  'searchUi.help': 'Suchtipps',
 }

@@ -8,8 +8,6 @@ export const id: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Hapus pencarian',
   'searchUi.removeFilter': 'Hapus filter {{filter}}',
   'searchUi.count': '{{count}} hasil',
-  'searchUi.tipsHide': 'Sembunyikan tips',
-  'searchUi.tips': 'Tips',
   'searchUi.syntax':
     'Persempit dengan sebuah bidang, kutip sebuah frasa, atau kecualikan sebuah kata:',
   'searchUi.keys':
@@ -17,4 +15,5 @@ export const id: Partial<SearchUiTranslations> = {
   'searchUi.results': 'Hasil pencarian',
   'searchUi.relatedTitle': 'Sesuai dengan arti pencarian Anda, bukan kata-katanya.',
   'searchUi.related': 'terkait',
+  'searchUi.help': 'Tips pencarian',
 }

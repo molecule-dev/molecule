@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-search-ui-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React search UI for @molecule/app-client-search — a search box with filter chips and tips, a ranked results list with matched terms marked, and a quick-search dialog; styled through the ClassMap",
   "homepage": "https://www.molecule.dev/packages/app-search-ui-react",
   "type": "module",

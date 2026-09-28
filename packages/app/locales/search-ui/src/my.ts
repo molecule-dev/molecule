@@ -8,8 +8,6 @@ export const my: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'ရှာဖွေမှုကို ရှင်းလင်းပါ',
   'searchUi.removeFilter': 'စစ်ထုတ်မှုကို ဖယ်ရှားပါ {{filter}}',
   'searchUi.count': '{{count}} ရလဒ်များ',
-  'searchUi.tipsHide': 'အကြံပြုချက်များကို ဝှက်ပါ',
-  'searchUi.tips': 'အကြံပြုချက်များ',
   'searchUi.syntax':
     'အကွက်တစ်ခုဖြင့် ကျဉ်းမြောင်းအောင်လုပ်ပါ၊ စကားစုတစ်ခုကို ကိုးကားပါ သို့မဟုတ် စကားလုံးတစ်လုံးကို ချန်လှပ်ပါ-',
   'searchUi.keys':
@@ -18,4 +16,5 @@ export const my: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle':
     'သင့်ရှာဖွေမှု၏ အဓိပ္ပာယ်နှင့် ကိုက်ညီပြီး ၎င်း၏စကားလုံးများနှင့် ကိုက်ညီသည်',
   'searchUi.related': 'ဆက်စပ်သော',
+  'searchUi.help': 'ရှာဖွေမှု အကြံပြုချက်များ',
 }

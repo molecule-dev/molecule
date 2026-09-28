@@ -8,12 +8,11 @@ export const it: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Cancella ricerca',
   'searchUi.removeFilter': 'Rimuovi filtro {{filter}}',
   'searchUi.count': '{{count}} risultati',
-  'searchUi.tipsHide': 'Nascondi suggerimenti',
-  'searchUi.tips': 'Suggerimenti',
   'searchUi.syntax': 'Restringi il campo, cita una frase o escludi una parola:',
   'searchUi.keys':
     'I tasti freccia consentono di scorrere i risultati e il tasto Invio ne apre uno.',
   'searchUi.results': 'Risultati della ricerca',
   'searchUi.relatedTitle': 'Corrisponde al significato della tua ricerca, non alle sue parole',
   'searchUi.related': 'imparentato',
+  'searchUi.help': 'Suggerimenti per la ricerca',
 }

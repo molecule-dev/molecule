@@ -8,8 +8,6 @@ export const vi: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Xóa tìm kiếm',
   'searchUi.removeFilter': 'Xóa bộ lọc {{filter}}',
   'searchUi.count': '{{count}} kết quả',
-  'searchUi.tipsHide': 'Ẩn mẹo',
-  'searchUi.tips': 'Mẹo',
   'searchUi.syntax':
     'Thu hẹp phạm vi tìm kiếm bằng một trường, trích dẫn một cụm từ hoặc loại trừ một từ:',
   'searchUi.keys': 'Các phím mũi tên di chuyển qua các kết quả và phím Enter mở một kết quả.',
@@ -17,4 +15,5 @@ export const vi: Partial<SearchUiTranslations> = {
   'searchUi.relatedTitle':
     'Khớp với ý nghĩa của từ khóa tìm kiếm, chứ không phải là nội dung từ ngữ.',
   'searchUi.related': 'có liên quan',
+  'searchUi.help': 'Mẹo tìm kiếm',
 }

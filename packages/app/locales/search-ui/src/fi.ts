@@ -8,11 +8,10 @@ export const fi: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Tyhjennä haku',
   'searchUi.removeFilter': 'Poista suodatin {{filter}}',
   'searchUi.count': '{{count}} tulokset',
-  'searchUi.tipsHide': 'Piilota vinkit',
-  'searchUi.tips': 'Vinkkejä',
   'searchUi.syntax': 'Rajaa hakua kentän avulla, lainaa lausetta tai sulje pois sana:',
   'searchUi.keys': 'Nuolinäppäimillä liikutaan tulosten välillä ja Enter-näppäimellä avataan yksi.',
   'searchUi.results': 'Hakutulokset',
   'searchUi.relatedTitle': 'Vastaa hakusi merkitystä, ei sen sanoja',
   'searchUi.related': 'liittyvä',
+  'searchUi.help': 'Hakuvinkkejä',
 }

@@ -8,12 +8,11 @@ export const fil: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'I-clear ang paghahanap',
   'searchUi.removeFilter': 'Alisin ang pansala {{filter}}',
   'searchUi.count': '{{count}} mga resulta',
-  'searchUi.tipsHide': 'Itago ang mga tip',
-  'searchUi.tips': 'Mga Tip',
   'searchUi.syntax':
     'Paliitin gamit ang isang patlang, sipiin ang isang parirala, o ibukod ang isang salita:',
   'searchUi.keys': 'Gumagalaw ang mga arrow key sa mga resulta at magbubukas ang Enter ng isa.',
   'searchUi.results': 'Mga resulta ng paghahanap',
   'searchUi.relatedTitle': 'Tumutugma sa kahulugan ng iyong paghahanap, hindi sa mga salita nito',
   'searchUi.related': 'kaugnay',
+  'searchUi.help': 'Mga tip sa paghahanap',
 }

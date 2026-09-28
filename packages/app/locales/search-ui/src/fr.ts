@@ -8,8 +8,6 @@ export const fr: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Recherche propre',
   'searchUi.removeFilter': 'Supprimer le filtre {{filter}}',
   'searchUi.count': '{{count}} résultats',
-  'searchUi.tipsHide': 'Masquer les astuces',
-  'searchUi.tips': 'Conseils',
   'searchUi.syntax':
     "Réduire la recherche à l'aide d'un champ, citer une phrase ou exclure un mot :",
   'searchUi.keys':
@@ -17,4 +15,5 @@ export const fr: Partial<SearchUiTranslations> = {
   'searchUi.results': 'Résultats de la recherche',
   'searchUi.relatedTitle': 'Correspond au sens de votre recherche, et non à ses mots.',
   'searchUi.related': 'en rapport',
+  'searchUi.help': 'Conseils de recherche',
 }

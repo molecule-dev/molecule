@@ -7,11 +7,10 @@ export const am: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'ፍለጋን አጽዳ',
   'searchUi.removeFilter': 'ማጣሪያውን አስወግድ {{filter}}',
   'searchUi.count': '{{count}} ውጤቶች',
-  'searchUi.tipsHide': 'ጠቃሚ ምክሮችን ደብቅ',
-  'searchUi.tips': 'ጠቃሚ ምክሮች',
   'searchUi.syntax': 'በመስክ አጥብብ፣ ሐረግን መጥቀስ ወይም አንድ ቃል ማስወገድ፡',
   'searchUi.keys': 'የቀስት ቁልፎቹ በውጤቶቹ ውስጥ ይንቀሳቀሳሉ እና Enter አንዱን ይከፍታል።',
   'searchUi.results': 'የፍለጋ ውጤቶች',
   'searchUi.relatedTitle': 'ከፍለጋዎ ትርጉም ጋር ይዛመዳል፣ ከቃላቶቹ ጋር አይዛመድም።',
   'searchUi.related': 'ተዛማጅ',
+  'searchUi.help': 'የፍለጋ ምክሮች',
 }

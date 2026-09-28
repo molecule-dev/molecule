@@ -8,11 +8,10 @@ export const ha: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Share bincike',
   'searchUi.removeFilter': 'Cire matatar {{filter}}',
   'searchUi.count': '{{count}} sakamako',
-  'searchUi.tipsHide': 'Ɓoye shawarwari',
-  'searchUi.tips': 'Nasihu',
   'searchUi.syntax': 'Rage girman filin, ambaton jimla, ko kuma cire kalma:',
   'searchUi.keys': 'Maɓallan kibiya suna motsawa ta cikin sakamakon sannan Enter ya buɗe ɗaya.',
   'searchUi.results': 'Sakamakon Bincike',
   'searchUi.relatedTitle': "Ya dace da ma'anar bincikenka, ba kalmominsa ba",
   'searchUi.related': 'mai alaƙa',
+  'searchUi.help': 'Nasihu kan Bincike',
 }

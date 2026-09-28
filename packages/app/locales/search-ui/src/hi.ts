@@ -8,8 +8,6 @@ export const hi: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'खोज साफ़ करें',
   'searchUi.removeFilter': 'फ़िल्टर हटाएँ {{filter}}',
   'searchUi.count': '{{count}} परिणाम',
-  'searchUi.tipsHide': 'सुझाव छिपाएँ',
-  'searchUi.tips': 'सुझावों',
   'searchUi.syntax':
     'किसी क्षेत्र को सीमित करें, किसी वाक्यांश को उद्धृत करें, या किसी शब्द को बाहर करें:',
   'searchUi.keys':
@@ -17,4 +15,5 @@ export const hi: Partial<SearchUiTranslations> = {
   'searchUi.results': 'खोज के परिणाम',
   'searchUi.relatedTitle': 'यह आपके खोज के अर्थ से मेल खाता है, शब्दों से नहीं।',
   'searchUi.related': 'संबंधित',
+  'searchUi.help': 'युक्तियां खोजें',
 }

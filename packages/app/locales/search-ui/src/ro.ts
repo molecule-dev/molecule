@@ -8,11 +8,10 @@ export const ro: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Șterge căutarea',
   'searchUi.removeFilter': 'Eliminați filtrul {{filter}}',
   'searchUi.count': '{{count}} rezultate',
-  'searchUi.tipsHide': 'Ascunde sfaturile',
-  'searchUi.tips': 'Sfaturi',
   'searchUi.syntax': 'Restrângeți cu un câmp, citați o frază sau excludeți un cuvânt:',
   'searchUi.keys': 'Tastele săgeată vă permit să parcurgeți rezultatele, iar Enter deschide unul.',
   'searchUi.results': 'Rezultate căutare',
   'searchUi.relatedTitle': 'Se potrivește cu sensul căutării tale, nu cu cuvintele acesteia',
   'searchUi.related': 'înrudit',
+  'searchUi.help': 'Sfaturi de căutare',
 }

@@ -8,11 +8,10 @@ export const kn: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'ಹುಡುಕಾಟ ತೆರವುಗೊಳಿಸಿ',
   'searchUi.removeFilter': 'ಫಿಲ್ಟರ್ ತೆಗೆದುಹಾಕಿ {{filter}}',
   'searchUi.count': '{{count}} ಫಲಿತಾಂಶಗಳು',
-  'searchUi.tipsHide': 'ಸಲಹೆಗಳನ್ನು ಮರೆಮಾಡಿ',
-  'searchUi.tips': 'ಸಲಹೆಗಳು',
   'searchUi.syntax': 'ಕ್ಷೇತ್ರದೊಂದಿಗೆ ಕಿರಿದುಗೊಳಿಸಿ, ಪದಗುಚ್ಛವನ್ನು ಉಲ್ಲೇಖಿಸಿ ಅಥವಾ ಪದವನ್ನು ಹೊರಗಿಡಿ:',
   'searchUi.keys': 'ಬಾಣದ ಕೀಲಿಗಳು ಫಲಿತಾಂಶಗಳ ಮೂಲಕ ಚಲಿಸುತ್ತವೆ ಮತ್ತು Enter ಒಂದನ್ನು ತೆರೆಯುತ್ತದೆ.',
   'searchUi.results': 'ಹುಡುಕಾಟ ಫಲಿತಾಂಶಗಳು',
   'searchUi.relatedTitle': 'ನಿಮ್ಮ ಹುಡುಕಾಟದ ಅರ್ಥಕ್ಕೆ ಹೊಂದಿಕೆಯಾಗುತ್ತದೆ, ಅದರ ಪದಗಳಿಗಲ್ಲ.',
   'searchUi.related': 'ಸಂಬಂಧಿತ',
+  'searchUi.help': 'ಹುಡುಕಾಟ ಸಲಹೆಗಳು',
 }

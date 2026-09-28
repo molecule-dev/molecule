@@ -8,8 +8,6 @@ export const hu: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Keresés törlése',
   'searchUi.removeFilter': 'Szűrő eltávolítása {{filter}}',
   'searchUi.count': '{{count}} eredmények',
-  'searchUi.tipsHide': 'Tippek elrejtése',
-  'searchUi.tips': 'Tippek',
   'searchUi.syntax':
     'Szűkítse le a keresést egy mezővel, idézzen egy kifejezést, vagy zárjon ki egy szót:',
   'searchUi.keys':
@@ -17,4 +15,5 @@ export const hu: Partial<SearchUiTranslations> = {
   'searchUi.results': 'Keresési eredmények',
   'searchUi.relatedTitle': 'A keresés jelentésével egyezik, nem a benne szereplő szavakkal',
   'searchUi.related': 'összefüggő',
+  'searchUi.help': 'Keresési tippek',
 }

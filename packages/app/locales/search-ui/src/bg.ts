@@ -8,11 +8,10 @@ export const bg: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Изчистване на търсенето',
   'searchUi.removeFilter': 'Премахване на филтъра {{filter}}',
   'searchUi.count': '{{count}} резултати',
-  'searchUi.tipsHide': 'Скриване на съвети',
-  'searchUi.tips': 'Съвети',
   'searchUi.syntax': 'Стеснете обхвата с поле, цитирайте фраза или изключете дума:',
   'searchUi.keys': 'Клавишите със стрелки се придвижват през резултатите, а Enter отваря такъв.',
   'searchUi.results': 'Резултати от търсенето',
   'searchUi.relatedTitle': 'Съвпада със значението на вашето търсене, а не с думите в него',
   'searchUi.related': 'свързани',
+  'searchUi.help': 'Съвети за търсене',
 }

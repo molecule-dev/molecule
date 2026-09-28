@@ -7,11 +7,10 @@ export const he: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'נקה חיפוש',
   'searchUi.removeFilter': 'הסר מסנן {{filter}}',
   'searchUi.count': '{{count}} תוצאות',
-  'searchUi.tipsHide': 'הסתר טיפים',
-  'searchUi.tips': 'טיפים',
   'searchUi.syntax': 'צמצם באמצעות שדה, צטט ביטוי או אל תכלול מילה:',
   'searchUi.keys': 'מקשי החצים עוברים בין התוצאות ו-Enter פותח אחת.',
   'searchUi.results': 'תוצאות חיפוש',
   'searchUi.relatedTitle': 'תואם את משמעות החיפוש שלך, לא את המילים שלו',
   'searchUi.related': 'קָשׁוּר',
+  'searchUi.help': 'טיפים לחיפוש',
 }

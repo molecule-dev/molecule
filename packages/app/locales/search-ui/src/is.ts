@@ -8,11 +8,10 @@ export const is: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Hreinsa leit',
   'searchUi.removeFilter': 'Fjarlægja síu {{filter}}',
   'searchUi.count': '{{count}} niðurstöður',
-  'searchUi.tipsHide': 'Fela ráð',
-  'searchUi.tips': 'Ráðleggingar',
   'searchUi.syntax': 'Þrengdu með reit, vitnaðu í orðasamband eða útilokaðu orð:',
   'searchUi.keys': 'Örvatakkar færa sig í gegnum niðurstöðurnar og Enter opnar eina.',
   'searchUi.results': 'Leitarniðurstöður',
   'searchUi.relatedTitle': 'Samsvarar merkingu leitarorðanna, ekki orðunum.',
   'searchUi.related': 'tengd',
+  'searchUi.help': 'Leitarráð',
 }

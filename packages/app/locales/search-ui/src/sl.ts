@@ -8,11 +8,10 @@ export const sl: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Počisti iskanje',
   'searchUi.removeFilter': 'Odstrani filter {{filter}}',
   'searchUi.count': '{{count}} rezultati',
-  'searchUi.tipsHide': 'Skrij nasvete',
-  'searchUi.tips': 'Nasveti',
   'searchUi.syntax': 'Zožite s poljem, citirajte besedno zvezo ali izključite besedo:',
   'searchUi.keys': 'S puščičnimi tipkami se premikate med rezultati, Enter pa enega od njih odpre.',
   'searchUi.results': 'Rezultati iskanja',
   'searchUi.relatedTitle': 'Ujema se s pomenom iskanja, ne z njegovimi besedami',
   'searchUi.related': 'sorodno',
+  'searchUi.help': 'Nasveti za iskanje',
 }

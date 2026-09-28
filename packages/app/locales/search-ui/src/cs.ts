@@ -8,11 +8,10 @@ export const cs: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Vymazat vyhledávání',
   'searchUi.removeFilter': 'Odebrat filtr {{filter}}',
   'searchUi.count': '{{count}} výsledky',
-  'searchUi.tipsHide': 'Skrýt tipy',
-  'searchUi.tips': 'Tipy',
   'searchUi.syntax': 'Zúžení pomocí pole, citace fráze nebo vyloučení slova:',
   'searchUi.keys': 'Klávesy se šipkami procházejí výsledky a klávesa Enter nový otevře.',
   'searchUi.results': 'Výsledky vyhledávání',
   'searchUi.relatedTitle': 'Odpovídá významu vašeho vyhledávání, nikoli jeho slovům',
   'searchUi.related': 'související',
+  'searchUi.help': 'Tipy pro vyhledávání',
 }

@@ -3,8 +3,9 @@
  *
  * Three pieces that fit a `useSearchSession` from
  * `@molecule/app-client-search-react`: {@link SearchBox} (the field, its
- * clear button and shortcut cap, the active filter chips, the hit count and
- * a tips line), {@link SearchResults} (ranked rows with the matched terms
+ * clear button and shortcut cap, a help icon whose tooltip shows the search
+ * syntax, an `afterField` slot for the consumer's own tabs, the active
+ * filter chips and the hit count), {@link SearchResults} (ranked rows with the matched terms
  * marked, keyboard-active row, hover prefetch, an optional action per row),
  * and {@link QuickSearchDialog} (both in a `mod+k` dialog). Every class comes
  * from the ClassMap's search tokens (`searchField`, `resultList`, …), so a
@@ -67,7 +68,7 @@
  *   remount it per search.
  * - `placeholder`, `emptyText` and the like are already-translated strings
  *   from the app; the package translates only its own chrome ("Clear
- *   search", "{{count}} results", "Tips") through `@molecule/app-locales-search-ui`.
+ *   search", "{{count}} results", "Search tips") through `@molecule/app-locales-search-ui`.
  * - The quick dialog needs a session created with `syncUrl: false` and
  *   `onEscape: onClose`; the page's own session keeps the URL.
  *

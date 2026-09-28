@@ -8,8 +8,6 @@ export const ru: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Очистить поиск',
   'searchUi.removeFilter': 'Удалить фильтр {{filter}}',
   'searchUi.count': '{{count}} результаты',
-  'searchUi.tipsHide': 'Скрыть советы',
-  'searchUi.tips': 'Советы',
   'searchUi.syntax':
     'Сузить поиск, используя поле поиска, процитировать фразу или исключить слово:',
   'searchUi.keys':
@@ -17,4 +15,5 @@ export const ru: Partial<SearchUiTranslations> = {
   'searchUi.results': 'Результаты поиска',
   'searchUi.relatedTitle': 'Соответствует смыслу вашего запроса, а не его словам.',
   'searchUi.related': 'связанный',
+  'searchUi.help': 'Советы по поиску',
 }

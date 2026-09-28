@@ -8,11 +8,10 @@ export const el: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Εκκαθάριση αναζήτησης',
   'searchUi.removeFilter': 'Αφαίρεση φίλτρου {{filter}}',
   'searchUi.count': '{{count}} αποτελέσματα',
-  'searchUi.tipsHide': 'Απόκρυψη συμβουλών',
-  'searchUi.tips': 'Συμβουλές',
   'searchUi.syntax': 'Περιορίστε με ένα πεδίο, παραθέστε μια φράση ή εξαιρέστε μια λέξη:',
   'searchUi.keys': 'Τα πλήκτρα βέλους μετακινούνται στα αποτελέσματα και το Enter ανοίγει ένα.',
   'searchUi.results': 'Αποτελέσματα αναζήτησης',
   'searchUi.relatedTitle': 'Αντιστοιχεί στο νόημα της αναζήτησής σας, όχι στις λέξεις της',
   'searchUi.related': 'συγγενεύων',
+  'searchUi.help': 'Συμβουλές αναζήτησης',
 }

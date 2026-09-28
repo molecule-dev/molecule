@@ -8,11 +8,10 @@ export const kk: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Іздеуді тазалау',
   'searchUi.removeFilter': 'Сүзгіні алып тастау {{filter}}',
   'searchUi.count': '{{count}} нәтижелер',
-  'searchUi.tipsHide': 'Кеңестерді жасыру',
-  'searchUi.tips': 'Кеңестер',
   'searchUi.syntax': 'Өріспен тарылыңыз, сөз тіркесін келтіріңіз немесе сөзді алып тастаңыз:',
   'searchUi.keys': 'Көрсеткі пернелер нәтижелер арқылы жылжиды, ал Enter пернесі нәтижені ашады.',
   'searchUi.results': 'Іздеу нәтижелері',
   'searchUi.relatedTitle': 'Іздеу сұрауыңыздың сөздеріне емес, мағынасына сәйкес келеді',
   'searchUi.related': 'байланысты',
+  'searchUi.help': 'Іздеу бойынша кеңестер',
 }

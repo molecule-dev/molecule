@@ -1,10 +1,10 @@
-import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react'
+import type { KeyboardEvent as ReactKeyboardEvent, ReactNode, RefObject } from 'react'
 import { useEffect, useState } from 'react'
 
 import type { ClientSearchFilter } from '@molecule/app-client-search'
 import { useTranslation } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
-import { Icon } from '@molecule/app-ui-react'
+import { Icon, Tooltip } from '@molecule/app-ui-react'
 
 import { Kbd } from './Kbd.js'
 
@@ -30,23 +30,33 @@ export interface SearchBoxProps {
   onRemoveFilter?: (index: number) => void
   /** Clears the text. Shown as an × while there is text. */
   onClear?: () => void
-  /** Example tokens for the tips line, e.g. `['category:auth', 'type:bond']`. Omit for no tips. */
+  /**
+   * Example tokens for the search tips, e.g. `['category:auth', 'type:bond']`.
+   * Given, a help icon sits inside the field and shows the syntax on hover or
+   * focus. Omit for no help icon.
+   */
   examples?: string[]
   /** The key that focuses the box, shown as a cap while it is empty. `null` hides it. Defaults to `/`. */
   shortcut?: string | null
   /** Focus the input on mount. */
   autoFocus?: boolean
-  /** `data-mol-id` prefix: `<molId>-input`, `-clear`, `-filter`, `-count`, `-tips`. */
+  /**
+   * Rendered directly under the field, before the status row (chips and
+   * count), so a consumer can put its own controls — tabs, a scope switch —
+   * right below the input.
+   */
+  afterField?: ReactNode
+  /** `data-mol-id` prefix: `<molId>-input`, `-clear`, `-help`, `-filter`, `-count`. */
   molId?: string
   /** Extra classes composed onto the field. */
   className?: string
 }
 
 /**
- * A search field: a leading icon, the input, an × to clear, and the shortcut
- * cap; under it, the active filters as removable chips, the hit count and a
- * one-line syntax tip behind a "Tips" toggle. The field stays mounted, and
- * its text with it, across searches.
+ * A search field: a leading icon, the input, a help icon that shows the
+ * syntax on hover, an × to clear, and the shortcut cap; under it, whatever
+ * `afterField` holds, then the active filters as removable chips and the
+ * hit count. The field stays mounted, and its text with it, across searches.
  *
  * @param props - See {@link SearchBoxProps}.
  * @returns The field and its status row.
@@ -65,12 +75,12 @@ export function SearchBox({
   examples,
   shortcut = '/',
   autoFocus,
+  afterField,
   molId = 'search',
   className,
 }: SearchBoxProps): React.JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const [tips, setTips] = useState(false)
   const [focused, setFocused] = useState(false)
 
   useEffect(() => {
@@ -78,8 +88,29 @@ export function SearchBox({
   }, [autoFocus, inputRef])
 
   const showCount = count !== undefined && value.trim().length > 0
-  const showTips = Boolean(examples?.length)
-  const hasStatus = filters.length > 0 || showCount || showTips
+  const showHelp = Boolean(examples?.length)
+  const hasStatus = filters.length > 0 || showCount
+
+  const help = showHelp ? (
+    // The tooltip's content class keeps short labels on one line; the tips
+    // are a sentence or two, so the inner block wraps on its own.
+    <div className={cm.searchTips} style={{ whiteSpace: 'normal', maxWidth: 360 }}>
+      {t('searchUi.syntax', undefined, {
+        defaultValue: 'Narrow with a field, quote a phrase, or exclude a word:',
+      })}{' '}
+      {[...(examples ?? []), '"exact phrase"', '-word'].map((ex, i) => (
+        <span key={ex}>
+          {i > 0 ? ' · ' : ''}
+          <code>{ex}</code>
+        </span>
+      ))}
+      {' · '}
+      <Kbd>↑</Kbd> <Kbd>↓</Kbd> <Kbd>↵</Kbd>{' '}
+      {t('searchUi.keys', undefined, {
+        defaultValue: 'The arrow keys move through the results and Enter opens one.',
+      })}
+    </div>
+  ) : null
 
   return (
     <div data-mol-id={`${molId}-box`}>
@@ -105,6 +136,18 @@ export function SearchBox({
           data-mol-id={`${molId}-input`}
         />
         <span className={cm.searchFieldActions}>
+          {help ? (
+            <Tooltip content={help} placement="bottom-end">
+              <button
+                type="button"
+                aria-label={t('searchUi.help', undefined, { defaultValue: 'Search tips' })}
+                className={cm.searchFieldClear}
+                data-mol-id={`${molId}-help`}
+              >
+                <Icon name="question" size={16} />
+              </button>
+            </Tooltip>
+          ) : null}
           {value && onClear ? (
             <button
               type="button"
@@ -122,6 +165,7 @@ export function SearchBox({
           {shortcut && !value && !focused ? <Kbd>{shortcut}</Kbd> : null}
         </span>
       </div>
+      {afterField}
       {hasStatus ? (
         <div className={cm.searchStatusRow}>
           {filters.map((f, i) => {
@@ -153,38 +197,7 @@ export function SearchBox({
               {t('searchUi.count', { count }, { defaultValue: '{{count}} results' })}
             </span>
           ) : null}
-          {showTips ? (
-            <button
-              type="button"
-              onClick={() => setTips((v) => !v)}
-              aria-expanded={tips}
-              className={cm.cn(cm.link, cm.textSize('sm'))}
-              data-mol-id={`${molId}-tips`}
-            >
-              {tips
-                ? t('searchUi.tipsHide', undefined, { defaultValue: 'Hide tips' })
-                : t('searchUi.tips', undefined, { defaultValue: 'Tips' })}
-            </button>
-          ) : null}
         </div>
-      ) : null}
-      {tips && showTips ? (
-        <p className={cm.searchTips} data-mol-id={`${molId}-tips-text`}>
-          {t('searchUi.syntax', undefined, {
-            defaultValue: 'Narrow with a field, quote a phrase, or exclude a word:',
-          })}{' '}
-          {[...(examples ?? []), '"exact phrase"', '-word'].map((ex, i) => (
-            <span key={ex}>
-              {i > 0 ? ' · ' : ''}
-              <code>{ex}</code>
-            </span>
-          ))}
-          {' · '}
-          <Kbd>↑</Kbd> <Kbd>↓</Kbd> <Kbd>↵</Kbd>{' '}
-          {t('searchUi.keys', undefined, {
-            defaultValue: 'The arrow keys move through the results and Enter opens one.',
-          })}
-        </p>
       ) : null}
     </div>
   )

@@ -15,6 +15,8 @@ vi.mock('@molecule/app-ui-react', () => ({
   Icon: ({ name }: { name: string }) => createElement('svg', { 'data-icon': name }),
   Modal: ({ open, children }: { open: boolean; children: React.ReactNode }) =>
     open ? createElement('div', { role: 'dialog' }, children) : null,
+  Tooltip: ({ content, children }: { content: React.ReactNode; children: React.ReactNode }) =>
+    createElement('span', null, children, createElement('span', { 'data-tooltip': '' }, content)),
 }))
 
 const { SearchBox } = await import('../SearchBox.js')
@@ -39,7 +41,7 @@ function render(node: React.ReactElement): HTMLDivElement {
 const q = (sel: string): HTMLElement | null => container.querySelector(sel)
 
 describe('SearchBox', () => {
-  it('shows the placeholder, the shortcut cap while empty, and the count, chips and tips while searching', () => {
+  it('shows the placeholder, the shortcut cap and the help icon while empty, and the count and chips while searching', () => {
     const onChange = vi.fn()
     const onRemove = vi.fn()
     const onClear = vi.fn()
@@ -49,13 +51,25 @@ describe('SearchBox', () => {
         onChange,
         placeholder: 'Search packages',
         examples: ['category:auth'],
+        afterField: createElement('nav', { 'data-mol-id': 'cat-tabs' }),
         molId: 'cat',
       }),
     )
     const input = q('[data-mol-id="cat-input"]') as HTMLInputElement
     expect(input.placeholder).toBe('Search packages')
-    expect(container.querySelector('kbd')?.textContent).toBe('/')
+    const caps = () => [...container.querySelectorAll('kbd')].map((k) => k.textContent)
+    expect(caps()).toContain('/')
     expect(q('[data-mol-id="cat-clear"]')).toBeNull()
+    // The help icon lives inside the field, keyboard reachable, and its tooltip carries the syntax.
+    const helpButton = q('[data-mol-id="cat-help"]') as HTMLButtonElement
+    expect(helpButton.tagName).toBe('BUTTON')
+    expect(helpButton.getAttribute('aria-label')).toBe('Search tips')
+    expect(helpButton.querySelector('[data-icon="question"]')).not.toBeNull()
+    expect(q('[data-tooltip]')?.textContent).toContain('category:auth')
+    // No status row while nothing is typed and no filter is active; afterField sits right under the field.
+    const field = q('[data-mol-id="cat-input"]')!.parentElement!
+    expect(field.nextElementSibling?.getAttribute('data-mol-id')).toBe('cat-tabs')
+    expect(q('[data-mol-id="cat-count"]')).toBeNull()
 
     act(() =>
       root!.render(
@@ -72,7 +86,7 @@ describe('SearchBox', () => {
         }),
       ),
     )
-    expect(container.querySelector('kbd')).toBeNull()
+    expect(caps()).not.toContain('/')
     expect(q('[data-mol-id="cat-count"]')?.textContent).toBe('7 results')
     const chip = q('[data-mol-id="cat-filter"]') as HTMLButtonElement
     expect(chip.textContent).toContain('category: auth')
@@ -80,9 +94,7 @@ describe('SearchBox', () => {
     expect(onRemove).toHaveBeenCalledWith(0)
     act(() => (q('[data-mol-id="cat-clear"]') as HTMLButtonElement).click())
     expect(onClear).toHaveBeenCalled()
-    expect(q('[data-mol-id="cat-tips-text"]')).toBeNull()
-    act(() => (q('[data-mol-id="cat-tips"]') as HTMLButtonElement).click())
-    expect(q('[data-mol-id="cat-tips-text"]')?.textContent).toContain('category:auth')
+    expect(q('[data-mol-id="cat-tips"]')).toBeNull()
   })
 })
 

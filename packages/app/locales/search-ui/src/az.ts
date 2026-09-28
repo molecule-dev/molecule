@@ -8,11 +8,10 @@ export const az: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Axtarışı təmizləyin',
   'searchUi.removeFilter': 'Filtri silin {{filter}}',
   'searchUi.count': '{{count}} nəticələr',
-  'searchUi.tipsHide': 'İpuçları gizlət',
-  'searchUi.tips': 'Məsləhətlər',
   'searchUi.syntax': 'Sahəni daraldın, bir ifadəni sitat gətirin və ya bir sözü çıxarın:',
   'searchUi.keys': 'Ox düymələri nəticələr arasında hərəkət edir və Enter birini açır.',
   'searchUi.results': 'Axtarış nəticələri',
   'searchUi.relatedTitle': 'Axtarışınızın sözləri ilə deyil, mənası ilə uyğun gəlir',
   'searchUi.related': 'əlaqəli',
+  'searchUi.help': 'Axtarış məsləhətləri',
 }

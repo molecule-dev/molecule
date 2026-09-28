@@ -8,12 +8,11 @@ export const uk: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Очистити пошук',
   'searchUi.removeFilter': 'Видалити фільтр {{filter}}',
   'searchUi.count': '{{count}} результати',
-  'searchUi.tipsHide': 'Приховати поради',
-  'searchUi.tips': 'Поради',
   'searchUi.syntax': 'Звузьте поле, цитуйте фразу або виключіть слово:',
   'searchUi.keys':
     'Клавіші зі стрілками переміщуються між результатами, а Enter відкриває результат.',
   'searchUi.results': 'Результати пошуку',
   'searchUi.relatedTitle': 'Відповідає значенню вашого пошукового запиту, а не його словам',
   'searchUi.related': "пов'язані",
+  'searchUi.help': 'Поради щодо пошуку',
 }

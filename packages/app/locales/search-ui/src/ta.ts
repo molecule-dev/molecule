@@ -8,8 +8,6 @@ export const ta: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'தேடலைத் தெளிவுபடுத்து',
   'searchUi.removeFilter': 'வடிப்பானை அகற்று {{filter}}',
   'searchUi.count': '{{count}} முடிவுகள்',
-  'searchUi.tipsHide': 'குறிப்புகளை மறைக்கவும்',
-  'searchUi.tips': 'குறிப்புகள்',
   'searchUi.syntax':
     'ஒரு புலத்தைக் கொண்டு சுருக்கவும், ஒரு சொற்றொடரை மேற்கோள் காட்டவும், அல்லது ஒரு சொல்லை விலக்கவும்:',
   'searchUi.keys':
@@ -17,4 +15,5 @@ export const ta: Partial<SearchUiTranslations> = {
   'searchUi.results': 'தேடல் முடிவுகள்',
   'searchUi.relatedTitle': 'உங்கள் தேடலின் வார்த்தைகளுடன் அல்ல, அதன் பொருளுடன் பொருந்துகிறது.',
   'searchUi.related': 'தொடர்புடைய',
+  'searchUi.help': 'தேடல் குறிப்புகள்',
 }

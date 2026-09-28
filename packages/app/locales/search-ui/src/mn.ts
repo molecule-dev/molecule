@@ -8,11 +8,10 @@ export const mn: Partial<SearchUiTranslations> = {
   'searchUi.clear': 'Хайлтыг цэвэрлэх',
   'searchUi.removeFilter': 'Шүүлтүүрийг арилгах {{filter}}',
   'searchUi.count': '{{count}} үр дүн',
-  'searchUi.tipsHide': 'Зөвлөгөөг нуух',
-  'searchUi.tips': 'Зөвлөгөө',
   'searchUi.syntax': 'Талбараар нарийсгах, хэллэгийг иш татах эсвэл үгийг хасах:',
   'searchUi.keys': 'Сумнууд үр дүнгүүдээр дамжин өнгөрөх бөгөөд Enter нь нэгийг нээнэ.',
   'searchUi.results': 'Хайлтын үр дүн',
   'searchUi.relatedTitle': 'Хайлтын үгстэй нь биш, харин таны хайлтын утгатай тохирч байна',
   'searchUi.related': 'холбоотой',
+  'searchUi.help': 'Хайлтын зөвлөмжүүд',
 }
