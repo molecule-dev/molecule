@@ -14,9 +14,11 @@
  * ```tsx
  * import { useSearchSession } from '@molecule/app-client-search-react'
  * import { SearchBox, SearchResults } from '@molecule/app-search-ui-react'
+ * import { useTranslation } from '@molecule/app-react'
  *
  * function Catalog({ packages }: { packages: Pkg[] }) {
  *   const navigate = useNavigate()
+ *   const { t } = useTranslation()
  *   const session = useSearchSession({
  *     docs: packages,
  *     options: PACKAGE_INDEX_OPTIONS,
@@ -31,7 +33,7 @@
  *         onChange={session.setQuery}
  *         onKeyDown={session.onKeyDown}
  *         inputRef={session.inputRef}
- *         placeholder={searchPlaceholder /* from the app's own t() */}
+ *         placeholder={t('catalog.search', undefined, { defaultValue: 'Search packages' })}
  *         count={session.hits.length}
  *         filters={session.parsed.filters}
  *         onRemoveFilter={session.removeFilter}
@@ -46,7 +48,7 @@
  *         onOpen={session.open}
  *         onPrefetch={session.prefetch}
  *         renderLink={(p) => <Link to={p.href} state={p.state} className={p.className} onClick={p.onClick} data-mol-id={p['data-mol-id']}>{p.children}</Link>}
- *         emptyText={nothingMatches /* from the app's own t() */}
+ *         emptyText={t('catalog.empty', undefined, { defaultValue: 'Nothing matches' })}
  *       />
  *     </>
  *   )
