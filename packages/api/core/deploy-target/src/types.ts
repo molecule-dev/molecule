@@ -73,6 +73,9 @@ export interface DeployRouting {
   unmatchedPaths: DeployUnmatchedPaths
 }
 
+/** A step of a deploy, reported through {@link DeployTargetRequest.onPhase}. */
+export type DeployTargetPhase = 'building' | 'publishing'
+
 /** One deploy, as handed to a target. */
 export interface DeployTargetRequest {
   /**
@@ -106,6 +109,12 @@ export interface DeployTargetRequest {
   env?: Readonly<Record<string, string>>
   /** Progress lines for the person watching the deploy. Never throws into the target. */
   log?: (line: string) => void | Promise<void>
+  /**
+   * Phase transitions, for a caller that mirrors them onto its own record:
+   * `building` (a target that builds the app itself is about to) and
+   * `publishing` (the release is being written or launched).
+   */
+  onPhase?: (phase: DeployTargetPhase) => void | Promise<void>
   /**
    * Cooperative cancellation, consulted between steps. When it answers true
    * the target stops, removes what it created for THIS release (never an

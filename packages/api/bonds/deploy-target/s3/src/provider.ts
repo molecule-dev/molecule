@@ -290,6 +290,12 @@ export function createS3DeployTarget(config: S3DeployTargetConfig): DeployTarget
       bytes += file.body.byteLength
     }
 
+    try {
+      await request.onPhase?.('publishing')
+    } catch (_error) {
+      // Mirroring a phase onto the caller's record is reporting, not work the
+      // release depends on — a failed mirror must not fail the publish.
+    }
     await log(
       `[deploy-target:${name}] Uploading ${files.length} files ` +
         `(${(bytes / 1024 / 1024).toFixed(2)} MB) to ${bucket}/${root}`,
