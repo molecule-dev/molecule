@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-html
 
+## 1.0.3
+
+### Patch Changes
+
+- A prompt that produced several paragraphs is shown once, and a prompt spanning two sections no longer carries a section's summary into the previous section.
+
 ## 1.0.2
 
 ### Patch Changes

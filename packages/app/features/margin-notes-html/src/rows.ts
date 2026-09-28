@@ -3,10 +3,13 @@ import type { MarginNote, MarginNotesBlock, MarginNotesRow } from './types.js'
 /**
  * Group blocks into layout rows and place each note once.
  *
- * A row runs for as long as its blocks are covered by a note it holds: a
+ * A row runs for as long as its blocks are covered by a note it OPENED with: a
  * section's summary (every block of the section refers to it) keeps the whole
  * section in one row, and a note that first appears mid-row — a prompt behind
- * one of the section's paragraphs — joins that row's gutter. A sticky note is
+ * one of the section's paragraphs — joins that row's gutter but does not
+ * extend the row. (A prompt that produced paragraphs in several sections once
+ * carried a row across the next heading, and that section's summary was drawn
+ * beside the previous section.) A sticky note is
  * bounded by its row, so this is what keeps a summary pinned until its section
  * ends; splitting the row wherever the note set changed released it after the
  * first paragraph. A run of blocks with no notes is a row of its own. Each note
@@ -17,6 +20,7 @@ import type { MarginNote, MarginNotesBlock, MarginNotesRow } from './types.js'
  * @returns The rows, in reading order.
  */
 export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []): MarginNotesRow[] {
+  blocks = mergeRepeatedNotes(blocks, notes)
   const byId = new Map(notes.map((n) => [n.id, n]))
   const known = (ids: string[] | undefined): string[] =>
     [...new Set(ids ?? [])].filter((id) => byId.has(id))
@@ -25,10 +29,11 @@ export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []):
   const placed = new Set<string>()
   let current: MarginNotesRow | null = null
   let currentKey = ''
+  let opening: string[] = []
   for (const block of blocks) {
     const ids = known(block.noteIds)
     const k = key(ids)
-    const stillCovered = current !== null && ids.some((id) => current!.noteIds.includes(id))
+    const stillCovered = current !== null && ids.some((id) => opening.includes(id))
     if (current && (k === currentKey || stillCovered)) {
       current.blocks.push(block)
       for (const id of ids) {
@@ -39,8 +44,9 @@ export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []):
       }
       continue
     }
-    current = { id: block.id, blocks: [block], notes: [], noteIds: ids }
+    current = { id: block.id, blocks: [block], notes: [], noteIds: [...ids] }
     currentKey = k
+    opening = ids
     for (const id of ids) {
       if (placed.has(id)) continue
       placed.add(id)
@@ -49,6 +55,45 @@ export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []):
     rows.push(current)
   }
   return rows
+}
+
+/**
+ * One note per act of writing: when consecutive blocks each carry their own
+ * note with the same kind, label and HTML (one prompt that produced three
+ * paragraphs, recorded as three notes), every later block is pointed at the
+ * first block's note instead. {@link buildRows} places each note once, so the
+ * prompt is shown once, beside the first paragraph it produced, and hovering
+ * any of those paragraphs highlights that one note. The same text appearing
+ * again after a block without it is a new act, and keeps its own note.
+ *
+ * @param blocks - The text, in reading order.
+ * @param notes - Every note the blocks refer to.
+ * @returns The blocks, with repeated notes pointed at the first copy.
+ */
+export function mergeRepeatedNotes(
+  blocks: MarginNotesBlock[],
+  notes: MarginNote[] = [],
+): MarginNotesBlock[] {
+  const byId = new Map(notes.map((n) => [n.id, n]))
+  const content = (n: MarginNote): string => `${n.kind}\u0000${n.label ?? ''}\u0000${n.html.trim()}`
+  // Content → id of the note the PREVIOUS block showed for it.
+  let previous = new Map<string, string>()
+  return blocks.map((block) => {
+    const current = new Map<string, string>()
+    let changed = false
+    const noteIds = (block.noteIds ?? []).map((id) => {
+      const note = byId.get(id)
+      if (!note) return id
+      const key = content(note)
+      const first = previous.get(key)
+      const use = first ?? id
+      if (use !== id) changed = true
+      if (!current.has(key)) current.set(key, use)
+      return use
+    })
+    previous = current
+    return changed ? { ...block, noteIds: [...new Set(noteIds)] } : block
+  })
 }
 
 /**

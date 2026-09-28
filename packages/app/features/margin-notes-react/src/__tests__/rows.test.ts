@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildRows, defaultShownKinds } from '../rows.js'
+import { buildRows, defaultShownKinds, mergeRepeatedNotes } from '../rows.js'
 import type { MarginNote, MarginNotesBlock } from '../types.js'
 
 const b = (id: string, noteIds?: string[]): MarginNotesBlock => ({ id, content: id, noteIds })
@@ -54,5 +54,43 @@ describe('defaultShownKinds', () => {
         { id: 'aside' },
       ]),
     ).toEqual(['summary', 'aside'])
+  })
+})
+
+describe('buildRows — prompts that span sections, and repeated prompts', () => {
+  it('starts a new row at the next section even when a prompt spans both (x273)', () => {
+    const rows = buildRows(
+      [
+        b('h4', ['s4']),
+        b('b5', ['s4']),
+        b('b6', ['s4', 'p0']),
+        b('h9', ['s9', 'p0']),
+        b('b10', ['s9']),
+      ],
+      [n('s4'), n('s9'), n('p0', 'prompt')],
+    )
+    expect(rows.map((r) => r.blocks.map((x) => x.id))).toEqual([
+      ['h4', 'b5', 'b6'],
+      ['h9', 'b10'],
+    ])
+  })
+
+  it('shows one prompt once when consecutive paragraphs each carry a copy of it', () => {
+    const same = (id: string): MarginNote => ({ id, kind: 'prompt', content: 'Write the intro' })
+    const rows = buildRows([b('a', ['q1']), b('c', ['q2'])], [same('q1'), same('q2')])
+    expect(rows.flatMap((r) => r.notes.map((x) => x.id))).toEqual(['q1'])
+  })
+
+  it('never merges notes whose content is a rendered element', () => {
+    const el = (id: string): MarginNote => ({
+      id,
+      kind: 'prompt',
+      content: { type: 'q', props: {} } as never,
+    })
+    expect(
+      mergeRepeatedNotes([b('a', ['e1']), b('c', ['e2'])], [el('e1'), el('e2')]).map(
+        (x) => x.noteIds,
+      ),
+    ).toEqual([['e1'], ['e2']])
   })
 })
