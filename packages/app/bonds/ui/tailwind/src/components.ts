@@ -353,24 +353,73 @@ export const alert = cva(
 )
 
 /**
+ * The accent-bar recipe every "colored leading edge" block shares: a 4px bar
+ * with rounded ends, inset 12px from the leading edge and 14px from the top
+ * and bottom so it stays clear of a card's rounded corners, with the content
+ * pushed right of it. A hard `border-left` on the edge reads as a table rule;
+ * this reads as a label for the block.
+ */
+const ACCENT_BAR =
+  "relative pl-[30px] before:pointer-events-none before:absolute before:bottom-3.5 before:left-3 before:top-3.5 before:w-1 before:rounded-sm before:content-['']"
+
+/**
  * Left-accent strip for Alert's `variant="left-accent"` — a 4px colored bar
  * on the leading edge, colored by the alert's STATUS (the base `alert` cva
  * keys its variants off status too, so the two compose 1:1). Previously the
  * variant was typed in the core contract but silently dropped by every
  * Alert implementation, so left-accent call sites rendered as plain alerts.
  */
-export const alertLeftAccent = cva('border-l-4', {
+export const alertLeftAccent = cva(ACCENT_BAR, {
   variants: {
     variant: {
-      default: 'border-l-foreground',
-      info: 'border-l-info',
-      success: 'border-l-success',
-      warning: 'border-l-warning',
-      error: 'border-l-error',
+      default: 'before:bg-foreground',
+      info: 'before:bg-info',
+      success: 'before:bg-success',
+      warning: 'before:bg-warning',
+      error: 'before:bg-error',
     },
   },
   defaultVariants: {
     variant: 'default',
+  },
+})
+
+/**
+ * A block with the accent bar down its leading edge (see {@link ACCENT_BAR}).
+ * `custom` reads `--mol-accent`, set inline by the caller for data-driven colors.
+ */
+export const accentCard = cva(ACCENT_BAR, {
+  variants: {
+    tone: {
+      default: 'before:bg-foreground',
+      primary: 'before:bg-primary',
+      info: 'before:bg-info',
+      success: 'before:bg-success',
+      warning: 'before:bg-warning',
+      error: 'before:bg-error',
+      custom: 'before:bg-[var(--mol-accent)]',
+    },
+  },
+  defaultVariants: {
+    tone: 'primary',
+  },
+})
+
+/** The small uppercase heading of an accent block, in the bar's color. */
+export const accentCardLabel = cva('text-[11px] font-semibold uppercase tracking-[0.14em]', {
+  variants: {
+    tone: {
+      default: 'text-foreground',
+      primary: 'text-primary',
+      info: 'text-info',
+      success: 'text-success',
+      warning: 'text-warning',
+      error: 'text-error',
+      custom: 'text-[var(--mol-accent)]',
+    },
+  },
+  defaultVariants: {
+    tone: 'primary',
   },
 })
 

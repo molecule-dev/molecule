@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.5
+
+### Patch Changes
+
+- `accentCard` / `accentCardLabel` tokens; the Alert `left-accent` variant now renders the same inset rounded bar instead of a hard border-left.
+
 ## 1.2.4
 
 ### Patch Changes

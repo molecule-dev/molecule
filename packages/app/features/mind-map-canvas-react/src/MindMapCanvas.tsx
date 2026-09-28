@@ -240,8 +240,10 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
           if (!pos) return null
           const isEditing = editingId === node.id
           const hasChildren = node.children.length > 0
+          // node.color drives an inset accent bar on the body (DESIGN.md →
+          // "Accent bars"); the recipe's class carries the left padding.
           const accentStyle: CSSProperties = node.color
-            ? { borderLeft: `4px solid ${node.color}` }
+            ? { ['--mol-accent' as string]: node.color }
             : {}
           const bodyStyle: CSSProperties = {
             ...accentStyle,
@@ -250,7 +252,7 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
             boxSizing: 'border-box',
             display: 'flex',
             alignItems: 'center',
-            padding: '0 8px',
+            padding: node.color ? '0 8px 0 30px' : '0 8px',
           }
           return (
             <CanvasNode
@@ -272,7 +274,12 @@ export function MindMapCanvas(props: MindMapCanvasProps): JSX.Element {
             >
               <div
                 data-mol-id={`mind-map-node-body-${node.id}`}
-                className={cm.cn(cm.surface, cm.borderAll, cm.cursorPointer)}
+                className={cm.cn(
+                  cm.surface,
+                  cm.borderAll,
+                  cm.cursorPointer,
+                  node.color && cm.accentCard({ tone: 'custom' }),
+                )}
                 style={bodyStyle}
                 onDoubleClick={(e) => {
                   e.stopPropagation()

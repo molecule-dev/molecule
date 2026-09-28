@@ -1,5 +1,11 @@
 # @molecule/app-day-timeline-react
 
+## 1.0.3
+
+### Patch Changes
+
+- Event blocks carry their accent color as the shared inset accent bar, with the caption in the same color.
+
 ## 1.0.1
 
 ### Patch Changes

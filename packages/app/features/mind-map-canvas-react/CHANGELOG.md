@@ -1,5 +1,11 @@
 # @molecule/app-mind-map-canvas-react
 
+## 1.0.4
+
+### Patch Changes
+
+- A node's color renders as the shared inset accent bar on the node body instead of a border-left.
+
 ## 1.0.3
 
 ### Patch Changes

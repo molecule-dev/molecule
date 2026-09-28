@@ -338,10 +338,13 @@ export function ClassSchedule({
                       cm.sp('p', 1),
                       cm.textSize('xs'),
                       cm.fontWeight('semibold'),
+                      // The caller's accentColor drives an inset bar (DESIGN.md →
+                      // "Accent bars"), not a hard border-left.
+                      event.accentColor && cm.accentCard({ tone: 'custom' }),
                     )}
                     /* mol-bespoke-button: a calendar EVENT TILE, not a CTA —
                        it is absolutely positioned and sized from the event's
-                       start/end times and lane, and its left border carries
+                       start/end times and lane, and its accent bar carries
                        the caller's own `accentColor` (data, not a design
                        token). No `cm.button()` tier can express either. */
                     style={{
@@ -353,7 +356,9 @@ export function ClassSchedule({
                       overflow: 'hidden',
                       textAlign: 'left',
                       cursor: onEventClick ? 'pointer' : 'default',
-                      borderLeft: event.accentColor ? `3px solid ${event.accentColor}` : undefined,
+                      ...(event.accentColor
+                        ? { ['--mol-accent' as string]: event.accentColor }
+                        : {}),
                     }}
                   >
                     <span data-mol-id="class-schedule-event-title">{event.title}</span>
@@ -368,7 +373,11 @@ export function ClassSchedule({
                     {event.meta && (
                       <span
                         data-mol-id="class-schedule-event-meta"
-                        className={cm.cn(cm.textSize('xs'), cm.fontWeight('normal'))}
+                        className={
+                          event.accentColor
+                            ? cm.accentCardLabel({ tone: 'custom' })
+                            : cm.cn(cm.textSize('xs'), cm.fontWeight('normal'))
+                        }
                       >
                         {event.meta}
                       </span>

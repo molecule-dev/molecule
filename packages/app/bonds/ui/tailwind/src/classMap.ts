@@ -50,6 +50,8 @@ import type {
 } from '@molecule/app-ui'
 
 import {
+  accentCard,
+  accentCardLabel,
   accordion as accordionRoot,
   accordionChevron,
   accordionContent,
@@ -778,6 +780,8 @@ export const classMap: UIClassMap = {
   cardContent,
   cardFooter,
   alertTitle,
+  accentCard,
+  accentCardLabel,
   alertLeftAccent,
   alertDescription,
   avatarImage,

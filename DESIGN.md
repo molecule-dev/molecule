@@ -343,8 +343,26 @@ idea of a card:
 
 - Border radius: `8px` (md)
 - Padding: `12px 16px`
-- Border-left: `4px solid` (accent variant)
+- Accent variant: the inset accent bar below (`cm.alertLeftAccent({ variant })`), never a hard border-left
 - Variants: info (blue), success (green), warning (yellow), error (red)
+
+### Accent bars (a colored leading edge with a heading and text)
+
+Any block that carries a colored left edge to say what kind of thing it is — a
+signal card, a status alert, a stat card colored by its series, a margin note,
+a picker row colored by its provider — uses ONE treatment (owner decision
+2026-09-28, from the landing page's "From the running app" cards):
+
+- The bar sits INSIDE the block: `4px` wide, `2px` radius (rounded ends),
+  inset `12px` from the leading edge and `14px` from the top and bottom, so it
+  stays clear of the block's rounded corners. Content starts `30px` in.
+- The block's small uppercase heading (11px, 600, 0.14em tracking) takes the
+  bar's color; body text keeps the normal foreground.
+- Tones: the semantic colors, `primary`, or `custom` (the `--mol-accent`
+  variable set inline for data-driven colors).
+- `cm.accentCard({ tone })` on the block + `cm.accentCardLabel({ tone })` on
+  the heading. Never a `border-left` for this purpose; a 1px border-left is a
+  rule (a divider, a rail), not an accent.
 
 ### Modals
 

@@ -63,15 +63,28 @@ export const marginNotesCss = `
   margin-top: var(--mn-offset, 0px);
 }
 [data-mn-note] {
+  position: relative;
   box-sizing: border-box;
   font-family: inherit;
   font-size: calc(var(--mn-prose-size) * var(--mn-note-scale));
   line-height: 1.5;
-  padding: 0.625rem 0.75rem;
-  border-left: 3px solid var(--mn-note-accent, var(--mn-accent-1));
+  padding: 0.625rem 0.75rem 0.625rem 1.5rem;
   border-radius: 0.375rem;
   background: color-mix(in srgb, var(--mn-note-accent, var(--mn-accent-1)) 7%, transparent);
   transition: background-color 0.15s, box-shadow 0.15s;
+}
+/* The accent bar sits inside the note, clear of its rounded corners, and the
+   label carries the same color (the fleet's accent-bar treatment). */
+[data-mn-note]::before {
+  content: '';
+  position: absolute;
+  left: 0.625rem;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--mn-note-accent, var(--mn-accent-1));
+  pointer-events: none;
 }
 [data-mn-note][hidden] { display: none !important; }
 [data-mn-note][data-mn-emphasis] {

@@ -27,9 +27,9 @@ export interface MindMapNode {
    */
   collapsed?: boolean
   /**
-   * Optional accent color (CSS color string). Used as the inline
-   * border-left accent on the node body; ClassMap drives the rest of
-   * the chrome.
+   * Optional accent color (CSS color string). Drawn as the inset accent
+   * bar on the node body (the ClassMap `accentCard` recipe, fed through
+   * the `--mol-accent` variable); ClassMap drives the rest of the chrome.
    */
   color?: string
 }

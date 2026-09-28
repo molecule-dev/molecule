@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.2
+
+### Patch Changes
+
+- Model picker rows carry their provider color as the shared inset accent bar.
+
 ## 1.19.1
 
 ### Patch Changes

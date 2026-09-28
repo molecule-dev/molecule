@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-html
 
+## 1.0.4
+
+### Patch Changes
+
+- Notes carry their accent as an inset rounded bar inside the note instead of a border-left.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -9683,16 +9683,19 @@ function ChatInner({
                                 ? 'rgba(128,128,128,0.1)'
                                 : 'transparent'
                           }}
-                          className={cm.w('full')}
+                          // The provider color is the row's accent: an inset bar
+                          // (DESIGN.md → "Accent bars"); the provider label below
+                          // already carries the same color.
+                          className={cm.cn(cm.w('full'), cm.accentCard({ tone: 'custom' }))}
                           style={{
+                            ['--mol-accent' as string]: accent,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'flex-start',
                             gap: '2px',
-                            padding: '8px 12px 8px 15px',
+                            padding: '8px 12px 8px 30px',
                             border: 'none',
                             borderTop: '1px solid rgba(128,128,128,0.12)',
-                            borderLeft: `3px solid ${accent}`,
                             cursor: locked ? 'default' : 'pointer',
                             color: 'inherit',
                             textAlign: 'left',

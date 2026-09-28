@@ -194,6 +194,26 @@ describe('<ClassSchedule>', () => {
     )
   })
 
+  it('draws an accentColor as the inset accent bar (never a border-left) and colors the meta caption', () => {
+    const { container } = render(
+      <Wrap>
+        <ClassSchedule events={[{ ...events[0], accentColor: '#ff0000' }, events[1]]} />
+      </Wrap>,
+    )
+    const tiles = container.querySelectorAll<HTMLElement>('[data-mol-id="class-schedule-event"]')
+    const math = Array.from(tiles).find((t) => t.textContent?.includes('Math')) as HTMLElement
+    const english = Array.from(tiles).find((t) => t.textContent?.includes('English')) as HTMLElement
+    expect(math.className).toContain('accentCard')
+    expect(math.style.getPropertyValue('--mol-accent')).toBe('#ff0000')
+    expect(math.style.borderLeft).toBe('')
+    expect(math.querySelector('[data-mol-id="class-schedule-event-meta"]')?.className).toContain(
+      'accentCardLabel',
+    )
+    // No accentColor: no bar, no variable.
+    expect(english.className).not.toContain('accentCard')
+    expect(english.style.getPropertyValue('--mol-accent')).toBe('')
+  })
+
   it('fires onEventClick when an event tile is clicked', () => {
     const onEventClick = vi.fn()
     const { container } = render(

@@ -1,5 +1,11 @@
 # @molecule/app-ui
 
+## 1.3.4
+
+### Patch Changes
+
+- `accentCard({ tone })` and `accentCardLabel({ tone })`: a block with an inset colored bar down its leading edge and a heading in the bar's color, with semantic, primary and custom (`--mol-accent`) tones.
+
 ## 1.3.3
 
 ### Patch Changes

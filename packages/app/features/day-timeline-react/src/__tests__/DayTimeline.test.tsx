@@ -14,6 +14,8 @@ vi.mock('@molecule/app-ui', () => ({
     cn: (...args: unknown[]) => args.flat().filter(Boolean).join(' '),
     textSize: () => 'text',
     fontWeight: () => 'fw',
+    accentCard: () => 'accent-card',
+    accentCardLabel: () => 'accent-card-label',
   }),
 }))
 
@@ -141,14 +143,27 @@ describe('<DayTimeline>', () => {
     expect(onClick).toHaveBeenCalledTimes(3)
   })
 
-  it('paints a per-event accent color via the left border', () => {
+  it('paints a per-event accent color as the inset accent bar, never a border-left', () => {
     const { container } = render(
       <DayTimeline
-        events={[{ id: 'red', title: 'Red', startHour: 9, endHour: 10, accentColor: '#ff0000' }]}
+        events={[
+          {
+            id: 'red',
+            title: 'Red',
+            subtitle: 'Room 4',
+            startHour: 9,
+            endHour: 10,
+            accentColor: '#ff0000',
+          },
+        ]}
       />,
     )
     const red = container.querySelector('[data-event-id="red"]') as HTMLElement
-    expect(red.style.borderLeft).toContain('rgb(255, 0, 0)')
+    expect(red.className).toContain('accent-card')
+    expect(red.style.getPropertyValue('--mol-accent')).toBe('#ff0000')
+    expect(red.style.borderLeft).toBe('')
+    // The caption takes the bar's color through the label recipe.
+    expect(red.querySelector('.accent-card-label')?.textContent).toBe('Room 4')
   })
 
   it('translates the event aria-label with title and times', () => {

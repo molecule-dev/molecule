@@ -1,5 +1,11 @@
 # @molecule/app-class-schedule-react
 
+## 1.0.4
+
+### Patch Changes
+
+- Accented tiles carry their color as the shared inset accent bar, with the meta caption in the same color.
+
 ## 1.0.3
 
 ### Patch Changes

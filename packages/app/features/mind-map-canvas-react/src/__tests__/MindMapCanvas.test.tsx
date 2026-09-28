@@ -100,6 +100,22 @@ describe('<MindMapCanvas>', () => {
     expect(container.querySelector('[data-mol-id="mind-map-node-body-b"]')).not.toBeNull()
   })
 
+  it('draws node.color as the inset accent bar on the body, never a border-left', () => {
+    const root = sample()
+    root.children[0].color = '#00ff00'
+    const { container } = render(
+      <Wrap>
+        <MindMapCanvas root={root} />
+      </Wrap>,
+    )
+    const alpha = container.querySelector('[data-mol-id="mind-map-node-body-a"]') as HTMLElement
+    const beta = container.querySelector('[data-mol-id="mind-map-node-body-b"]') as HTMLElement
+    expect(alpha.className).toContain('accentCard')
+    expect(alpha.style.getPropertyValue('--mol-accent')).toBe('#00ff00')
+    expect(alpha.style.borderLeft).toBe('')
+    expect(beta.className).not.toContain('accentCard')
+  })
+
   it('hides descendants when the toggle collapses a subtree', () => {
     const { container } = render(
       <Wrap>

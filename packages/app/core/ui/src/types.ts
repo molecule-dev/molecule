@@ -1962,6 +1962,9 @@ export interface GridClassOptions {
 export type ToastPosition =
   'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
 
+/** Tones of an accent bar: the semantic colors, the brand primary, or `custom` (the `--mol-accent` variable). */
+export type AccentTone = 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error' | 'custom'
+
 /**
  * UIClassMap interface — the contract for styling-agnostic class resolution.
  *
@@ -2062,9 +2065,25 @@ export interface UIClassMap {
   cardFooter: string
   /**
    * Left-accent strip classes for Alert variant="left-accent", keyed by the
-   * alert's status (Alert calls `cm.alertLeftAccent({ variant })`).
+   * alert's status (Alert calls `cm.alertLeftAccent({ variant })`). Renders
+   * the same inset bar as {@link UIClassMap.accentCard}.
    */
   alertLeftAccent(opts?: { variant?: 'default' | 'info' | 'success' | 'warning' | 'error' }): string
+  /**
+   * A block with a colored bar down its leading edge: the bar sits INSIDE the
+   * block (inset from the edge, clear of rounded corners, rounded ends) rather
+   * than as a hard border-left. The block's own padding, background and border
+   * come from the caller (a card, a list row, a note). `tone: 'custom'` reads
+   * the color from the `--mol-accent` CSS variable the caller sets inline, for
+   * data-driven colors (a chart series, a provider). Pair the heading with
+   * {@link UIClassMap.accentCardLabel} in the same tone so it matches the bar.
+   */
+  accentCard(opts?: { tone?: AccentTone }): string
+  /**
+   * The small uppercase heading of an {@link UIClassMap.accentCard} block, in
+   * the bar's color. Same tones as the card.
+   */
+  accentCardLabel(opts?: { tone?: AccentTone }): string
   alertTitle: string
   alertDescription: string
   avatarImage: string

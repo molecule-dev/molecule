@@ -174,11 +174,15 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
     left: 6,
     right: 6,
     height,
-    padding: '0.4rem 0.6rem',
+    // The recipe's own left padding is in the class; the shorthand here must
+    // not override it.
+    padding: '0.4rem 0.6rem 0.4rem 30px',
     borderRadius: 6,
     overflow: 'hidden',
     background: 'var(--mol-color-surface-variant, rgba(0,0,0,0.04))',
-    borderLeft: `4px solid ${event.accentColor ?? 'var(--mol-color-primary, #3366ff)'}`,
+    // The event's accent color drives an inset bar (DESIGN.md → "Accent
+    // bars"), not a hard border-left.
+    ['--mol-accent' as string]: event.accentColor ?? 'var(--mol-color-primary, #3366ff)',
     cursor: event.onClick ? 'pointer' : 'default',
   }
 
@@ -206,16 +210,12 @@ function DayEvent({ event, startHour, pxPerHour, t }: DayEventProps): ReactEleme
       }}
       tabIndex={event.onClick ? 0 : -1}
       aria-label={ariaLabel}
+      className={cm.accentCard({ tone: 'custom' })}
       style={style}
     >
       <div className={cm.cn(cm.textSize('sm'), cm.fontWeight('semibold'))}>{event.title}</div>
       {event.subtitle && (
-        <div
-          className={cm.textSize('xs')}
-          style={{ color: 'var(--mol-color-on-surface-variant, #666)' }}
-        >
-          {event.subtitle}
-        </div>
+        <div className={cm.accentCardLabel({ tone: 'custom' })}>{event.subtitle}</div>
       )}
     </div>
   )
