@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-keyboard-shortcuts-react",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React hook for @molecule/app-keyboard-shortcuts — register a shortcut for the life of a component",
   "homepage": "https://www.molecule.dev/packages/app-keyboard-shortcuts-react",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/app-auth
 
+## 1.1.2
+
+### Patch Changes
+
+- A failed cookie-session restore (401) now clears the stale `mol_auth` presence hint, so an expired server-side session (or a DB reset) no longer re-fires a guaranteed-401 `/users/me` probe — and its console error — on every subsequent page load. The next real login re-sets the hint alongside the fresh cookie.
+
 ## 1.1.0
 
 ### Minor Changes

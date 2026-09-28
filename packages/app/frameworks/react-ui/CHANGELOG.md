@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.2.2
+
+### Patch Changes
+
+- 55b76aa: The UserMenu trigger has a border that matches the LanguagePicker.
+
 ## 1.2.1
 
 ### Patch Changes

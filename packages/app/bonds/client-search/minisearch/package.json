@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-client-search-minisearch",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MiniSearch bond for @molecule/app-client-search — in-memory full-text search with prefix matching, typo tolerance and field boosts",
   "homepage": "https://www.molecule.dev/packages/app-client-search-minisearch",
   "type": "module",

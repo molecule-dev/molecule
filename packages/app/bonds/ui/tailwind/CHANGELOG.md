@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.3
+
+### Patch Changes
+
+- 55b76aa: Dialogs and bottom sheets render above other fixed layers (z-index 9999 / 9998).
+
 ## 1.2.2
 
 ### Patch Changes
