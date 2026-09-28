@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/app-query-react",
+  "version": "1.0.0",
+  "description": "React hooks for @molecule/app-query — read a cached document synchronously, observe it, and prefetch on intent",
+  "homepage": "https://www.molecule.dev/packages/app-query-react",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "query",
+    "cache",
+    "prefetch",
+    "react",
+    "hooks"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/features/query-react"
+  },
+  "peerDependencies": {
+    "@molecule/app-query": "^1.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-query": "1.0.0",
+    "@molecule/app-query-memory": "1.0.0",
+    "@types/node": "26.1.2",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "jsdom": "30.0.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
