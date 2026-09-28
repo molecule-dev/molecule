@@ -122,6 +122,38 @@ describe('minisearch provider', () => {
     ).toEqual(['api-payments-stripe', 'app-auth'])
   })
 
+  it('ranks a document containing the words as a phrase above one containing them apart', () => {
+    const index = provider.createIndex(
+      [
+        {
+          name: 'api-resource-user',
+          description: 'User accounts, with a feedback flag per user',
+          category: 'users',
+          type: 'core',
+          exports: [],
+        },
+        {
+          name: 'app-feedback-widget',
+          description: 'Collect user feedback inside the app',
+          category: 'feedback',
+          type: 'core',
+          exports: [],
+        },
+      ],
+      options,
+    )
+    expect(index.search('user feedback').map((h) => h.id)).toEqual([
+      'app-feedback-widget',
+      'api-resource-user',
+    ])
+  })
+
+  it('drops union matches that hit fewer than half of the terms', () => {
+    const index = provider.createIndex(docs, options)
+    expect(index.search('zzz stripe qqq')).toEqual([])
+    expect(index.search('stripe qqq').map((h) => h.id)).toEqual(['api-payments-stripe'])
+  })
+
   it('browses with filters when the text is empty, in insertion order, scored 0', () => {
     const index = provider.createIndex(docs, options)
     const hits = index.search('category:payments')

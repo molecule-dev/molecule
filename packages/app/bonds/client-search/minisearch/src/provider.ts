@@ -102,11 +102,17 @@ class MinisearchIndex<T extends ClientSearchDocument> implements ClientSearchInd
       }
       if (this.options.fuzzy !== false) base.fuzzy = this.options.fuzzy ?? 0.2
       if (this.options.boost) base.boost = this.options.boost
+      // MiniSearch reports only the query terms that matched, so count the typed ones here.
+      const termCount = text.split(/[^\p{L}\p{N}]+/u).filter(Boolean).length
       let results = this.mini.search(text, { ...base, combineWith: this.combineWith })
       // A query MiniSearch tokenizes into several terms (spaces, or an unknown
-      // `word:thing` kept as text) may match none of them together: rank the union.
+      // `word:thing` kept as text) may match none of them together: rank the
+      // union, but only documents matching at least half of the terms, so a
+      // query with one real word among nonsense does not return loose matches.
       if (!results.length && this.combineWith === 'AND') {
-        results = this.mini.search(text, { ...base, combineWith: 'OR' })
+        results = this.mini
+          .search(text, { ...base, combineWith: 'OR' })
+          .filter((r) => r.queryTerms.length * 2 >= termCount)
       }
       hits = results.map((r) => ({
         id: String(r.id),
@@ -115,6 +121,20 @@ class MinisearchIndex<T extends ClientSearchDocument> implements ClientSearchInd
         terms: r.terms,
         fields: Array.from(new Set(Object.values(r.match).flat())),
       }))
+      // Several words typed together are usually a phrase ("user feedback"):
+      // a document that contains them adjacent, in any searched field, ranks
+      // above one that merely contains each of them somewhere.
+      const needle = text.toLowerCase().replace(/\s+/g, ' ')
+      if (needle.includes(' ')) {
+        for (const h of hits) {
+          if (
+            this.options.fields.some((f) => this.extract(h.doc, f).toLowerCase().includes(needle))
+          ) {
+            h.score *= 2.5
+          }
+        }
+        hits.sort((a, b) => b.score - a.score)
+      }
     }
     return q.limit != null ? hits.slice(0, q.limit) : hits
   }
