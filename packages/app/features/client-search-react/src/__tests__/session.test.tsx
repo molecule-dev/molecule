@@ -149,6 +149,36 @@ describe('useSearchSession', () => {
     expect(h.value().hits.every((x) => !x.related)).toBe(true)
   })
 
+  it('leads with augmented hits when no record holds every word typed', async () => {
+    const augment = vi.fn(async () => [DOCS[2], DOCS[0]])
+    const h = renderHook(() =>
+      useSearchSession<Doc>({
+        docs: DOCS,
+        options: OPTIONS,
+        onOpen: () => {},
+        augment,
+        syncUrl: false,
+      }),
+    )
+    // "google" and "payments" each match one record; nothing matches both.
+    act(() => h.value().setQuery('google payments'))
+    expect(
+      h
+        .value()
+        .hits.map((x) => x.id)
+        .sort(),
+    ).toEqual(['b', 'c'])
+    await act(async () => {
+      vi.advanceTimersByTime(300)
+      await Promise.resolve()
+    })
+    expect(h.value().hits.map((x) => [x.id, Boolean(x.related)])).toEqual([
+      ['c', true],
+      ['a', true],
+      ['b', false],
+    ])
+  })
+
   it('warms the top hits once results settle', () => {
     const prefetch = vi.fn()
     const h = renderHook(() =>

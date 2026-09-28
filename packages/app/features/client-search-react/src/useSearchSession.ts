@@ -119,6 +119,16 @@ interface Remembered {
 const defaultAugmentWhen = (parsed: ParsedQuery): boolean =>
   parsed.phrases.length > 0 || parsed.text.trim().split(/\s+/).filter(Boolean).length >= 2
 
+/** How many distinct words the free text and phrases hold. */
+const wordsOf = (parsed: ParsedQuery): number =>
+  new Set(
+    [parsed.text, ...parsed.phrases]
+      .join(' ')
+      .toLowerCase()
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean),
+  ).size
+
 /**
  * The search state for one list, wired to the address bar and the keyboard.
  * The text starts from `#q=`, then from what was last typed under
@@ -279,16 +289,29 @@ export function useSearchSession<T extends ClientSearchDocument>(
   const hits = useMemo<SessionHit<T>[]>(() => {
     const own: SessionHit<T>[] = search.hits
     if (!wanted || related.raw !== raw || !related.docs.length) return own
-    const seen = new Set(own.map((h) => h.id))
+    const byId = new Map(own.map((h) => [h.id, h]))
+    // When no record contains every word typed, the words alone rank poorly
+    // (one common word in a title outweighs the rare one that carried the
+    // meaning), so the augmenting hits lead; otherwise they follow.
+    const typed = wordsOf(search.parsed)
+    const complete = typed > 0 && own.some((h) => new Set(h.terms).size >= typed)
     const extra: SessionHit<T>[] = []
+    const seen = new Set<string>()
     for (const doc of related.docs) {
       const id = String(doc[options.idField])
       if (seen.has(id)) continue
       seen.add(id)
+      const existing = byId.get(id)
+      if (existing) {
+        if (!complete) extra.push({ ...existing, related: true })
+        continue
+      }
       extra.push({ id, score: 0, doc, terms: [], fields: [], related: true })
     }
-    return extra.length ? [...own, ...extra] : own
-  }, [search.hits, wanted, related, raw, options.idField])
+    if (!extra.length) return own
+    if (complete) return [...own, ...extra]
+    return [...extra, ...own.filter((h) => !seen.has(h.id))]
+  }, [search.hits, search.parsed, wanted, related, raw, options.idField])
 
   const nav = useListNavigation({
     count: hits.length,

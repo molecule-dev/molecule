@@ -37,7 +37,8 @@ export interface QuickSearchDialogProps<T extends ClientSearchDocument> {
 
 /**
  * A search dialog for `mod+k`: the box on top with focus, the hits below in
- * a scrolling pane, and the key hints in the footer. Enter opens the active
+ * a scrolling pane, and the key hints in the footer. Before anything is
+ * typed the pane shows `idleText` rather than a browse list. Enter opens the active
  * hit through the session (which closes the dialog by the caller's `onOpen`).
  *
  * @param props - See {@link QuickSearchDialogProps}.
@@ -74,7 +75,7 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
         onKeyDown={session.onKeyDown}
         inputRef={session.inputRef}
         placeholder={placeholder}
-        count={session.hits.length}
+        count={session.active ? session.hits.length : undefined}
         filters={session.parsed.filters}
         onRemoveFilter={session.removeFilter}
         onClear={session.clear}
@@ -85,7 +86,7 @@ export function QuickSearchDialog<T extends ClientSearchDocument>({
       />
       <div className={cm.dialogBody} data-mol-id={`${molId}-pane`}>
         <SearchResults
-          hits={session.hits}
+          hits={session.active ? session.hits : []}
           view={view}
           activeIndex={session.activeIndex}
           onActivate={session.setActiveIndex}
