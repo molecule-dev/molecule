@@ -68,9 +68,10 @@
  * }
  *
  * // In the page template: the switches under the title, the body, then the
- * // stylesheet (once, e.g. appended to your site CSS file) and the script (once, end of <body>):
+ * // stylesheet (once, BEFORE your site CSS so your own rules win a tie) and
+ * // the script (once, end of <body>):
  * //   <header><h1>…</h1>${switches}</header>${body}${marginNotesScriptTag()}
- * //   fs.appendFileSync('dist/styles.css', marginNotesCss)
+ * //   fs.writeFileSync('dist/styles.css', marginNotesCss + siteCss)
  * ```
  *
  * @remarks
@@ -105,6 +106,24 @@
  *   the keys of `@molecule/app-locales-margin-notes`; kind labels, note
  *   labels and `markLabel` are yours to translate.
  * - One layout per page by default; give each an `id` if you render more.
+ * - **Order the stylesheet BEFORE your site's CSS.** Its rules are plain
+ *   attribute selectors, so whichever sheet comes last wins a tie: put
+ *   `marginNotesCss` first and your overrides (tokens or rules) after it.
+ * - **Selectors for tests** — every piece carries a `data-mol-id` (placement
+ *   is `side` for the desktop switches, `bar` for the phone bar):
+ *
+ *   | Element | `data-mol-id` | also |
+ *   |---|---|---|
+ *   | the layout root | `margin-notes` | `[data-mn-root]` |
+ *   | a switch group | `margin-notes-switches-<placement>` | `[data-mn-switches]` |
+ *   | one switch (the button to click) | `margin-notes-switch-<placement>-<kind>` | `[data-mn-switch][data-mn-kind=<kind>]`, `aria-checked` |
+ *   | a row | `margin-notes-row-<blockId>` | `[data-mn-row]` |
+ *   | a block | `margin-notes-block-<blockId>` | `[data-mn-block]`, `[data-mn-notes]` |
+ *   | a note | `margin-note-<gutter\|panel>-<noteId>` | `[data-mn-note]`, `hidden` when off |
+ *   | the phone bar / its panel | `margin-notes-bar` / `margin-notes-panel` | `[data-mn-open]` when showing notes |
+ *   | "Hide notes" | `margin-notes-dismiss` | shown while a block is pinned |
+ *
+ *   At phone width the `side` switches are hidden: click the `bar` ones.
  *
  * @module
  */

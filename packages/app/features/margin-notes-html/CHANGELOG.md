@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-html
 
+## 1.0.6
+
+### Patch Changes
+
+- Docs: the stylesheet goes before the site's own CSS so the site's overrides win, and a table of the `data-mol-id` selector for every part of the layout, for tests.
+
 ## 1.0.5
 
 ### Patch Changes
