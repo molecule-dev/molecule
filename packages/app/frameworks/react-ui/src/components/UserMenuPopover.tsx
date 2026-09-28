@@ -209,7 +209,7 @@ export function UserMenuPopoverTrigger({
         cm.flex({ align: 'center', gap: 'sm' }),
         cm.sp('px', 3),
         cm.sp('py', 3),
-        'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors',
+        'w-full text-left rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors border border-border-secondary',
         className,
       )}
     >
