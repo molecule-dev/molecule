@@ -14,7 +14,7 @@ import type {
   ClientSearchIndexOptions,
   ParsedQuery,
 } from '@molecule/app-client-search'
-import { formatQuery } from '@molecule/app-client-search'
+import { extractFieldText, formatQuery } from '@molecule/app-client-search'
 import {
   get as storageGet,
   hasProvider as hasStorage,
@@ -119,15 +119,16 @@ interface Remembered {
 const defaultAugmentWhen = (parsed: ParsedQuery): boolean =>
   parsed.phrases.length > 0 || parsed.text.trim().split(/\s+/).filter(Boolean).length >= 2
 
-/** How many distinct words the free text and phrases hold. */
-const wordsOf = (parsed: ParsedQuery): number =>
-  new Set(
+/** The distinct words the free text and phrases hold, lower-cased. */
+const wordsOf = (parsed: ParsedQuery): string[] => [
+  ...new Set(
     [parsed.text, ...parsed.phrases]
       .join(' ')
       .toLowerCase()
       .split(/[^\p{L}\p{N}]+/u)
       .filter(Boolean),
-  ).size
+  ),
+]
 
 /**
  * The search state for one list, wired to the address bar and the keyboard.
@@ -293,8 +294,11 @@ export function useSearchSession<T extends ClientSearchDocument>(
     // When no record contains every word typed, the words alone rank poorly
     // (one common word in a title outweighs the rare one that carried the
     // meaning), so the augmenting hits lead; otherwise they follow.
-    const typed = wordsOf(search.parsed)
-    const complete = typed > 0 && own.some((h) => new Set(h.terms).size >= typed)
+    const words = wordsOf(search.parsed)
+    const extract = options.extractField ?? extractFieldText
+    const holdsAll = (doc: T): boolean =>
+      words.every((w) => options.fields.some((f) => extract(doc, f).toLowerCase().includes(w)))
+    const complete = words.length > 0 && own.some((h) => holdsAll(h.doc))
     const extra: SessionHit<T>[] = []
     const seen = new Set<string>()
     for (const doc of related.docs) {
@@ -311,7 +315,7 @@ export function useSearchSession<T extends ClientSearchDocument>(
     if (!extra.length) return own
     if (complete) return [...own, ...extra]
     return [...extra, ...own.filter((h) => !seen.has(h.id))]
-  }, [search.hits, search.parsed, wanted, related, raw, options.idField])
+  }, [search.hits, search.parsed, wanted, related, raw, options])
 
   const nav = useListNavigation({
     count: hits.length,
