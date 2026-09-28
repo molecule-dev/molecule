@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-client-search-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React hooks for @molecule/app-client-search — build an index from a list, search it as the person types, and move through the hits with the keyboard",
   "homepage": "https://www.molecule.dev/packages/app-client-search-react",
   "type": "module",
@@ -39,8 +39,8 @@
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@molecule/app-client-search": "1.0.0",
-    "@molecule/app-client-search-minisearch": "1.0.0",
+    "@molecule/app-client-search": "1.0.1",
+    "@molecule/app-client-search-minisearch": "1.0.1",
     "@types/node": "26.1.2",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",

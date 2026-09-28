@@ -1,5 +1,11 @@
 # @molecule/app-bonds-default-react
 
+## 1.0.5
+
+### Patch Changes
+
+- d2d82c2: Optional `setupAppClientSearchMinisearch()` wiring helper.
+
 ## 1.0.3
 
 ### Patch Changes
