@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-ai-decisions",
+  "version": "1.0.0",
+  "description": "Typed AI decisions for molecule.dev — answer choice, score and yes/no questions about text or JSON with calibrated probabilities, behind swappable bonds (Laya, Jev, any LLM)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "decisions",
+    "classification",
+    "routing",
+    "triage",
+    "system-one"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-i18n": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-i18n": "1.0.3",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/core/ai-decisions"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-ai-decisions",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
