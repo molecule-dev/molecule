@@ -288,7 +288,7 @@ export const mk: Partial<CommonTranslations> = {
   'common.or': 'или',
   'common.toggleLightDark': 'Префрлувајте помеѓу светлиот и темниот режим.',
   'common.chooseTheLanguage': 'Изберете го јазикот што ќе се користи низ целата апликација.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . Изградено со молекула.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Сите права се задржани.',
   'common.countUnread': '{{count}} непрочитано',
   'common.countNew': '{{count}} нов',

@@ -132,7 +132,7 @@ export const fr: Partial<CommonTranslations> = {
   'common.atLeast8Characters': 'Au moins 8 caractères',
   'common.atLeast12Characters': 'Au moins 12 caractères',
   'common.or': 'ou',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Conçu avec Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Tous droits réservés.',
   'common.countUnread': '{{count}} non lues',
   'common.countNew': '{{count}} nouveaux',

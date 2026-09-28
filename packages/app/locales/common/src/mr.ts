@@ -287,7 +287,7 @@ export const mr: Partial<CommonTranslations> = {
   'common.or': 'किंवा',
   'common.toggleLightDark': 'लाईट आणि डार्क मोडमध्ये टॉगल करा.',
   'common.chooseTheLanguage': 'संपूर्ण ॲपमध्ये वापरली जाणारी भाषा निवडा.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} मॉलिक्यूलने बनवलेले.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} सर्व हक्क राखीव.',
   'common.countUnread': '{{count}} न वाचलेले',
   'common.countNew': '{{count}} नवीन',

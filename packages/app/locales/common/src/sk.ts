@@ -282,7 +282,7 @@ export const sk: Partial<CommonTranslations> = {
   'common.justNow': 'práve teraz',
   'common.toggleLightDark': 'Prepínanie medzi svetlým a tmavým režimom.',
   'common.chooseTheLanguage': 'Vyberte jazyk používaný v celej aplikácii.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Vyrobené s Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Všetky práva vyhradené.',
   'common.countUnread': '{{count}} neprečítané',
   'common.countNew': '{{count}} nový',

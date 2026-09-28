@@ -288,7 +288,7 @@ export const ta: Partial<CommonTranslations> = {
   'common.or': 'அல்லது',
   'common.toggleLightDark': 'ஒளி மற்றும் இருண்ட பயன்முறைகளுக்கு இடையே மாறவும்.',
   'common.chooseTheLanguage': 'செயலி முழுவதும் பயன்படுத்தப்படும் மொழியைத் தேர்ந்தெடுக்கவும்.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} மாலிக்யூல் கொண்டு உருவாக்கப்பட்டது.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.',
   'common.countUnread': '{{count}} படிக்காத',
   'common.countNew': '{{count}} புதிய',

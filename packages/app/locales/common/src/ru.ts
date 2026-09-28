@@ -286,7 +286,7 @@ export const ru: Partial<CommonTranslations> = {
   'common.or': 'или',
   'common.toggleLightDark': 'Переключайтесь между светлым и темным режимом.',
   'common.chooseTheLanguage': 'Выберите язык, используемый во всем приложении.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Создано с помощью Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . Все права защищены.',
   'common.countUnread': '{{count}} непрочитано',
   'common.countNew': '{{count}} новый',

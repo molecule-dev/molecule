@@ -286,7 +286,7 @@ export const pa: Partial<CommonTranslations> = {
   'common.or': 'ਜਾਂ',
   'common.toggleLightDark': 'ਲਾਈਟ ਅਤੇ ਡਾਰਕ ਮੋਡ ਵਿਚਕਾਰ ਟੌਗਲ ਕਰੋ।',
   'common.chooseTheLanguage': 'ਪੂਰੀ ਐਪ ਵਿੱਚ ਵਰਤੀ ਗਈ ਭਾਸ਼ਾ ਚੁਣੋ।',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} । ਅਣੂ ਨਾਲ ਬਣਾਇਆ ਗਿਆ।',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . ਸਾਰੇ ਹੱਕ ਰਾਖਵੇਂ ਹਨ.',
   'common.countUnread': '{{count}} ਨਾ ਪੜ੍ਹਿਆ ਹੋਇਆ',
   'common.countNew': '{{count}} ਨਵਾਂ',

@@ -282,7 +282,7 @@ export const lt: Partial<CommonTranslations> = {
   'common.justNow': 'ką tik',
   'common.toggleLightDark': 'Perjungti šviesų ir tamsų režimus.',
   'common.chooseTheLanguage': 'Pasirinkite kalbą, naudojamą visoje programėlėje.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Sukurta naudojant molekulę.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Visos teisės saugomos.',
   'common.countUnread': '{{count}} neskaitytas',
   'common.countNew': '{{count}} naujas',

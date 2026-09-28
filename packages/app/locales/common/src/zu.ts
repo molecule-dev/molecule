@@ -284,7 +284,7 @@ export const zu: Partial<CommonTranslations> = {
   'common.justNow': 'khona manje',
   'common.toggleLightDark': 'Shintsha phakathi kwemodi yokukhanya neyomnyama.',
   'common.chooseTheLanguage': 'Khetha ulimi olusetshenziswa kulo lonke uhlelo lokusebenza.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Yakhiwe ngeMolekyuli.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . Wonke Amalungelo Agodliwe.',
   'common.countUnread': '{{count}} okungafundiwe',
   'common.countNew': '{{count}} okusha',

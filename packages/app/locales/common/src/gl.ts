@@ -284,7 +284,7 @@ export const gl: Partial<CommonTranslations> = {
   'common.justNow': 'agora mesmo',
   'common.toggleLightDark': 'Alternar entre o modo claro e o modo escuro.',
   'common.chooseTheLanguage': 'Escolle o idioma que se usa en toda a aplicación.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Construído con Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Todos os dereitos reservados.',
   'common.countUnread': '{{count}} sen ler',
   'common.countNew': '{{count}} novo',

@@ -120,7 +120,7 @@ export const ms: Partial<CommonTranslations> = {
   'common.justNow': 'baru sahaja',
   'common.toggleLightDark': 'Togol antara mod cerah dan gelap.',
   'common.chooseTheLanguage': 'Pilih bahasa yang digunakan di seluruh aplikasi.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Dibina dengan Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Hak cipta terpelihara.',
   'common.countUnread': '{{count}} belum dibaca',
   'common.countReviews': '{{count}} semakan',

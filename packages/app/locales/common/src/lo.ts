@@ -287,7 +287,7 @@ export const lo: Partial<CommonTranslations> = {
   'common.or': 'ຫຼື',
   'common.toggleLightDark': 'ສະຫຼັບລະຫວ່າງໂໝດສະຫວ່າງ ແລະ ໂໝດມືດ.',
   'common.chooseTheLanguage': 'ເລືອກພາສາທີ່ໃຊ້ໃນທົ່ວແອັບ.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . ສ້າງດ້ວຍໂມເລກຸນ.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . ສະຫງວນລິຂະສິດທຸກປະການ.',
   'common.countUnread': '{{count}} ຍັງບໍ່ໄດ້ອ່ານ',
   'common.countNew': '{{count}} ໃໝ່',

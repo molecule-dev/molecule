@@ -113,7 +113,7 @@ export const fil: Partial<CommonTranslations> = {
   'common.justNow': 'ngayon lang',
   'common.toggleLightDark': 'Mag-toggle sa pagitan ng light at dark mode.',
   'common.chooseTheLanguage': 'Piliin ang wikang gagamitin sa buong app.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Ginawa gamit ang Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Lahat ng karapatan ay nakalaan.',
   'common.countUnread': '{{count}} hindi pa nabasa',
   'common.countReviews': '{{count}} review',

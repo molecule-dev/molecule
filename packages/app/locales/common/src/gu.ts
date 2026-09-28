@@ -286,7 +286,7 @@ export const gu: Partial<CommonTranslations> = {
   'common.or': 'અથવા',
   'common.toggleLightDark': 'લાઇટ અને ડાર્ક મોડ વચ્ચે ટૉગલ કરો.',
   'common.chooseTheLanguage': 'સમગ્ર એપ્લિકેશનમાં વપરાયેલી ભાષા પસંદ કરો.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . અણુથી બનેલ.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . બધા હકો અમારી પાસે રાખેલા છે.',
   'common.countUnread': '{{count}} વાંચ્યા વગરનું',
   'common.countNew': '{{count}} નવું',

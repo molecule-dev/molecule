@@ -140,7 +140,7 @@ export const id: Partial<CommonTranslations> = {
   'common.justNow': 'baru saja',
   'common.toggleLightDark': 'Beralih antara mode terang dan gelap.',
   'common.chooseTheLanguage': 'Pilih bahasa yang digunakan di seluruh aplikasi.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Dibangun dengan Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Hak cipta dilindungi.',
   'common.countUnread': '{{count}} belum dibaca',
   'common.countNew': '{{count}} baru',

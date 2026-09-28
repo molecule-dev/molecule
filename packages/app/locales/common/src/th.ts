@@ -288,7 +288,7 @@ export const th: Partial<CommonTranslations> = {
   'common.or': 'หรือ',
   'common.toggleLightDark': 'สลับระหว่างโหมดสว่างและโหมดมืด',
   'common.chooseTheLanguage': 'เลือกภาษาที่จะใช้ในแอปพลิเคชันทั้งหมด',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} สร้างด้วย Molecule',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} สงวนลิขสิทธิ์ทุกประการ',
   'common.countUnread': '{{count}} ยังไม่ได้อ่าน',
   'common.countNew': '{{count}} ใหม่',

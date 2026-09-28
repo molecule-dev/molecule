@@ -120,7 +120,7 @@ export const cs: Partial<CommonTranslations> = {
   'common.justNow': 'právě teď',
   'common.toggleLightDark': 'Přepínejte mezi světlým a tmavým režimem.',
   'common.chooseTheLanguage': 'Vyberte jazyk používaný v celé aplikaci.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Postaveno s Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Všechna práva vyhrazena.',
   'common.countUnread': '{{count}} nepřečtených',
   'common.countReviews': '{{count}} kontrol',

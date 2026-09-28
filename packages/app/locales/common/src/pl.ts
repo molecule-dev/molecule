@@ -143,7 +143,7 @@ export const pl: Partial<CommonTranslations> = {
   'common.justNow': 'przed chwilą',
   'common.toggleLightDark': 'Przełączaj między trybem jasnym i ciemnym.',
   'common.chooseTheLanguage': 'Proszę wybrać język używany w całej aplikacji.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Zbudowane z Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Wszelkie prawa zastrzeżone.',
   'common.countUnread': '{{count}} nieprzeczytanych',
   'common.countNew': '{{count}} nowych',

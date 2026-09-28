@@ -286,7 +286,7 @@ export const ca: Partial<CommonTranslations> = {
   'common.justNow': 'ara mateix',
   'common.toggleLightDark': 'Alterna entre el mode clar i el mode fosc.',
   'common.chooseTheLanguage': "Trieu l'idioma que s'utilitzarà a tota l'aplicació.",
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Construït amb Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Tots els drets reservats.',
   'common.countUnread': '{{count}} sense llegir',
   'common.countNew': '{{count}} nou',

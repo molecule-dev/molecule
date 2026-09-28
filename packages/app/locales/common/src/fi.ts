@@ -120,7 +120,7 @@ export const fi: Partial<CommonTranslations> = {
   'common.justNow': 'juuri nyt',
   'common.toggleLightDark': 'Vaihda vaalean ja tumman tilan välillä.',
   'common.chooseTheLanguage': 'Valitse koko sovelluksessa käytettävä kieli.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Rakennettu Moleculella.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Kaikki oikeudet pidätetään.',
   'common.countUnread': '{{count}} lukematonta',
   'common.countReviews': '{{count}} tarkistusta',

@@ -289,7 +289,7 @@ export const my: Partial<CommonTranslations> = {
   'common.or': 'သို့မဟုတ်',
   'common.toggleLightDark': 'အလင်းနှင့် အမှောင်မုဒ်အကြား ပြောင်းပါ။',
   'common.chooseTheLanguage': 'အက်ပ်တစ်လျှောက်လုံး အသုံးပြုသည့် ဘာသာစကားကို ရွေးချယ်ပါ။',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} .မော်လီကျူးဖြင့်တည်ဆောက်ထားသည်။',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} ။ မူပိုင်ခွင့်ကိုလက်ဝယ်ထားသည်။',
   'common.countUnread': '{{count}} မဖတ်ရသေးသော',
   'common.countNew': '{{count}} အသစ်',

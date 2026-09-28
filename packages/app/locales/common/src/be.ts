@@ -280,7 +280,7 @@ export const be: Partial<CommonTranslations> = {
   'common.justNow': 'толькі што',
   'common.toggleLightDark': 'Пераключэнне паміж светлым і цёмным рэжымамі.',
   'common.chooseTheLanguage': 'Выберыце мову, якая будзе выкарыстоўвацца ва ўсім дадатку.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Пабудаваны з дапамогай Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Усе правы абаронены.',
   'common.countUnread': '{{count}} непрачытаныя',
   'common.countNew': '{{count}} новы',

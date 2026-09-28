@@ -286,7 +286,7 @@ export const bn: Partial<CommonTranslations> = {
   'common.or': 'অথবা',
   'common.toggleLightDark': 'লাইট ও ডার্ক মোডের মধ্যে পরিবর্তন করুন।',
   'common.chooseTheLanguage': 'অ্যাপ জুড়ে ব্যবহৃত ভাষাটি বেছে নিন।',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} অণু দিয়ে নির্মিত।',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} সর্বস্বত্ব সংরক্ষিত।',
   'common.countUnread': '{{count}} অপঠিত',
   'common.countNew': '{{count}} নতুন',

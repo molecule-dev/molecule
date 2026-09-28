@@ -117,7 +117,7 @@ export const da: Partial<CommonTranslations> = {
   'common.justNow': 'lige nu',
   'common.toggleLightDark': 'Skift mellem lys og mørk tilstand.',
   'common.chooseTheLanguage': 'Vælg det sprog, der bruges i hele appen.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Bygget med Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Alle rettigheder forbeholdes.',
   'common.countUnread': '{{count}} ulæste',
   'common.countReviews': '{{count}} anmeldelser',

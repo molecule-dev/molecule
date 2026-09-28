@@ -281,7 +281,7 @@ export const ky: Partial<CommonTranslations> = {
   'common.justNow': 'азыр эле',
   'common.toggleLightDark': 'Жарык жана караңгы режимдердин ортосунда которулуңуз.',
   'common.chooseTheLanguage': 'Колдонмодо колдонулган тилди тандаңыз.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Молекула менен курулган.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Бардык укуктар корголгон.',
   'common.countUnread': '{{count}} окула элек',
   'common.countNew': '{{count}} жаңы',

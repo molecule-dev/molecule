@@ -295,7 +295,7 @@ export const en: CommonTranslations = {
   'common.justNow': 'just now',
   'common.toggleLightDark': 'Toggle between light and dark mode.',
   'common.chooseTheLanguage': 'Choose the language used throughout the app.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Built with Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. All rights reserved.',
   'common.countUnread': '{{count}} unread',
   'common.countNew': '{{count}} new',

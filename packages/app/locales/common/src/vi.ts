@@ -141,7 +141,7 @@ export const vi: Partial<CommonTranslations> = {
   'common.justNow': 'vừa xong',
   'common.toggleLightDark': 'Chuyển đổi giữa chế độ sáng và tối.',
   'common.chooseTheLanguage': 'Chọn ngôn ngữ được sử dụng trong toàn bộ ứng dụng.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Xây dựng với Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Bảo lưu mọi quyền.',
   'common.countUnread': '{{count}} chưa đọc',
   'common.countNew': '{{count}} mới',

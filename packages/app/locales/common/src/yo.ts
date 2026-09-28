@@ -279,7 +279,7 @@ export const yo: Partial<CommonTranslations> = {
   'common.justNow': 'ni bayi',
   'common.toggleLightDark': 'Yipada laarin ipo ina ati ipo dudu.',
   'common.chooseTheLanguage': 'Yan èdè tí a lò jákèjádò àpù náà.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . A fi Mólékúùlù kọ́ ọ.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . Gbogbo awọn ẹtọ wa ni ipamọ.',
   'common.countUnread': '{{count}} a kò kà',
   'common.countNew': '{{count}} tuntun',

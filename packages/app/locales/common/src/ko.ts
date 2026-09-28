@@ -145,7 +145,7 @@ export const ko: Partial<CommonTranslations> = {
   'common.justNow': '방금 전',
   'common.toggleLightDark': '라이트 모드와 다크 모드를 전환합니다.',
   'common.chooseTheLanguage': '앱 전체에서 사용할 언어를 선택하세요.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Molecule로 제작되었습니다.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. 모든 권리 보유.',
   'common.countUnread': '{{count}}개 읽지 않음',
   'common.countNew': '신규 {{count}}건',

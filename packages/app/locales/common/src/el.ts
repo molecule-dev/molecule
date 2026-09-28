@@ -116,7 +116,7 @@ export const el: Partial<CommonTranslations> = {
   'common.justNow': 'μόλις τώρα',
   'common.toggleLightDark': 'Εναλλαγή μεταξύ φωτεινής και σκοτεινής λειτουργίας.',
   'common.chooseTheLanguage': 'Επιλέξτε τη γλώσσα που χρησιμοποιείται σε ολόκληρη την εφαρμογή.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Κατασκευάστηκε με Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Με επιφύλαξη παντός δικαιώματος.',
   'common.countUnread': '{{count}} αδιάβαστα',
   'common.countReviews': '{{count}} αξιολογήσεις',

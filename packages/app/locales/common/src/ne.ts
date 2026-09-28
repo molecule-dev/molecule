@@ -288,7 +288,7 @@ export const ne: Partial<CommonTranslations> = {
   'common.or': 'वा',
   'common.toggleLightDark': 'लाइट र डार्क मोड बीच टगल गर्नुहोस्।',
   'common.chooseTheLanguage': 'एपभरि प्रयोग गरिएको भाषा छान्नुहोस्।',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} । अणुले निर्मित।',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} । सबै अधिकार सुरक्षित।',
   'common.countUnread': '{{count}} नपढिएको',
   'common.countNew': '{{count}} नयाँ',

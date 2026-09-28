@@ -281,7 +281,7 @@ export const lv: Partial<CommonTranslations> = {
   'common.justNow': 'tikko',
   'common.toggleLightDark': 'Pārslēgties starp gaišo un tumšo režīmu.',
   'common.chooseTheLanguage': 'Izvēlieties valodu, kas tiek izmantota visā lietotnē.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Veidots ar molekulu.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Visas tiesības aizsargātas.',
   'common.countUnread': '{{count}} nelasīts',
   'common.countNew': '{{count}} jauns',

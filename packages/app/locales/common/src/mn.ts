@@ -286,7 +286,7 @@ export const mn: Partial<CommonTranslations> = {
   'common.justNow': 'дөнгөж сая',
   'common.toggleLightDark': 'Гэрэл болон харанхуй горимын хооронд шилжих/унтраах.',
   'common.chooseTheLanguage': 'Аппликейшнд ашигласан хэлийг сонгоно уу.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Молекулаар бүтээгдсэн.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Бүх эрх хуулиар хамгаалагдсан.',
   'common.countUnread': '{{count}} уншаагүй',
   'common.countNew': '{{count}} шинэ',

@@ -120,7 +120,7 @@ export const hu: Partial<CommonTranslations> = {
   'common.justNow': 'épp most',
   'common.toggleLightDark': 'Váltás a világos és sötét mód között.',
   'common.chooseTheLanguage': 'Válassza ki az alkalmazásban használt nyelvet.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Molecule segítségével készült.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Minden jog fenntartva.',
   'common.countUnread': '{{count}} olvasatlan',
   'common.countReviews': '{{count}} review',

@@ -291,7 +291,7 @@ export const ml: Partial<CommonTranslations> = {
   'common.or': 'അല്ലെങ്കിൽ',
   'common.toggleLightDark': 'ലൈറ്റ്, ഡാർക്ക് മോഡുകൾക്കിടയിൽ ടോഗിൾ ചെയ്യുക.',
   'common.chooseTheLanguage': 'ആപ്പിൽ ഉടനീളം ഉപയോഗിക്കുന്ന ഭാഷ തിരഞ്ഞെടുക്കുക.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . തന്മാത്ര ഉപയോഗിച്ച് നിർമ്മിച്ചത്.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . എല്ലാ അവകാശങ്ങളും നിക്ഷിപ്തം.',
   'common.countUnread': '{{count}} വായിക്കാത്തത്',
   'common.countNew': '{{count}} പുതിയത്',

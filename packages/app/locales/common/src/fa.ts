@@ -288,7 +288,7 @@ export const fa: Partial<CommonTranslations> = {
   'common.or': 'یا',
   'common.toggleLightDark': 'بین حالت روشن و تاریک جابجا شوید.',
   'common.chooseTheLanguage': 'زبان مورد استفاده در سراسر برنامه را انتخاب کنید.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} ساخته شده با مولکول.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} تمامی حقوق محفوظ است.',
   'common.countUnread': '{{count}} خوانده نشده',
   'common.countNew': '{{count}} جدید',

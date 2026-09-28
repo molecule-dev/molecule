@@ -143,7 +143,7 @@ export const sv: Partial<CommonTranslations> = {
   'common.justNow': 'just nu',
   'common.toggleLightDark': 'Växla mellan ljust och mörkt läge.',
   'common.chooseTheLanguage': 'Välj språket som används i hela appen.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Byggd med Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Alla rättigheter förbehållna.',
   'common.countUnread': '{{count}} olästa',
   'common.countNew': '{{count}} nya',

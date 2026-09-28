@@ -280,7 +280,7 @@ export const ha: Partial<CommonTranslations> = {
   'common.justNow': 'yanzu kawai',
   'common.toggleLightDark': 'Canja tsakanin yanayin haske da duhu.',
   'common.chooseTheLanguage': 'Zaɓi harshen da aka yi amfani da shi a cikin manhajar.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} An gina shi da ƙwayoyin halitta.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} An kiyaye duk haƙƙoƙi.',
   'common.countUnread': '{{count}} ba a karanta ba',
   'common.countNew': '{{count}} sabo',

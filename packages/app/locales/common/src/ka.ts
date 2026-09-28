@@ -287,7 +287,7 @@ export const ka: Partial<CommonTranslations> = {
   'common.or': 'ან',
   'common.toggleLightDark': 'გადართვა ღია და ბნელ რეჟიმებს შორის.',
   'common.chooseTheLanguage': 'აირჩიეთ აპლიკაციაში გამოყენებული ენა.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . მოლეკულით აგებული.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} ყველა უფლება დაცულია.',
   'common.countUnread': '{{count}} წაუკითხავი',
   'common.countNew': '{{count}} ახალი',

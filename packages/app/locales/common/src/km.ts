@@ -288,7 +288,7 @@ export const km: Partial<CommonTranslations> = {
   'common.or': 'ឬ',
   'common.toggleLightDark': 'ប្តូររវាងរបៀបភ្លឺ និងងងឹត។',
   'common.chooseTheLanguage': 'ជ្រើសរើសភាសាដែលប្រើនៅទូទាំងកម្មវិធី។',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} សាងសង់ឡើងជាមួយម៉ូលេគុល។',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} រក្សាសិទ្ធិគ្រប់យ៉ាង។',
   'common.countUnread': '{{count}} មិនទាន់អាន',
   'common.countNew': '{{count}} ថ្មី',

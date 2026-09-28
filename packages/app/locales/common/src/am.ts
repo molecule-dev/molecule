@@ -284,7 +284,7 @@ export const am: Partial<CommonTranslations> = {
   'common.or': 'ወይም',
   'common.toggleLightDark': 'በብርሃን እና በጨለማ ሁነታ መካከል ይቀያይሩ።',
   'common.chooseTheLanguage': 'በመተግበሪያው ውስጥ ጥቅም ላይ የዋለውን ቋንቋ ይምረጡ።',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} በሞለኪውል የተገነባ።',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} መብቱ በህግ የተጠበቀ ነው።',
   'common.countUnread': '{{count}} ያልተነበበ',
   'common.countNew': '{{count}} አዲስ',

@@ -288,7 +288,7 @@ export const kn: Partial<CommonTranslations> = {
   'common.or': 'ಅಥವಾ',
   'common.toggleLightDark': 'ಬೆಳಕು ಮತ್ತು ಕತ್ತಲೆ ಮೋಡ್ ನಡುವೆ ಟಾಗಲ್ ಮಾಡಿ.',
   'common.chooseTheLanguage': 'ಆ್ಯಪ್‌ನಾದ್ಯಂತ ಬಳಸಲಾದ ಭಾಷೆಯನ್ನು ಆರಿಸಿ.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . ಅಣುವಿನೊಂದಿಗೆ ನಿರ್ಮಿಸಲಾಗಿದೆ.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} ಎಲ್ಲಾ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.',
   'common.countUnread': '{{count}} ಓದದಿರುವುದು',
   'common.countNew': '{{count}} ಹೊಸದು',

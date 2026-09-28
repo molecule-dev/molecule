@@ -144,7 +144,7 @@ export const ja: Partial<CommonTranslations> = {
   'common.or': 'または',
   'common.justNow': 'たった今',
   'common.chooseTheLanguage': 'アプリ全体で使用する言語を選択します。',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Moleculeで構築。',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. 無断複製禁止。',
   'common.countUnread': '{{count}} 件未読',
   'common.countNew': '{{count}} 件の新着',

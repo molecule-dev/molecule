@@ -287,7 +287,7 @@ export const uz: Partial<CommonTranslations> = {
   'common.or': 'yoki',
   'common.toggleLightDark': "Yorug'lik va qorong'u rejimlar o'rtasida almashinish.",
   'common.chooseTheLanguage': 'Ilova davomida ishlatiladigan tilni tanlang.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Molecule bilan qurilgan.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Barcha huquqlar himoyalangan.',
   'common.countUnread': "{{count}} o'qilmagan",
   'common.countNew': '{{count}} yangi',

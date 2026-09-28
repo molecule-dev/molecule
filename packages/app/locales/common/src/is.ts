@@ -282,7 +282,7 @@ export const is: Partial<CommonTranslations> = {
   'common.justNow': 'rétt í þessu',
   'common.toggleLightDark': 'Skipta á milli ljóss og dökks stillingar.',
   'common.chooseTheLanguage': 'Veldu tungumálið sem notað er í öllu forritinu.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Smíðað með Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Öll réttindi áskilin.',
   'common.countUnread': '{{count}} ólesið',
   'common.countNew': '{{count}} nýtt',

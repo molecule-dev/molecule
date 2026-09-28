@@ -144,7 +144,7 @@ export const zh: Partial<CommonTranslations> = {
   'common.or': '或',
   'common.justNow': '刚刚',
   'common.chooseTheLanguage': '选择整个应用使用的语言。',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}。由 Molecule 构建。',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. 保留所有权利。',
   'common.countUnread': '{{count}} 条未读',
   'common.countNew': '{{count}} 条新消息',

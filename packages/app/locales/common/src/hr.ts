@@ -282,7 +282,7 @@ export const hr: Partial<CommonTranslations> = {
   'common.justNow': 'upravo sada',
   'common.toggleLightDark': 'Prebacivanje između svijetlog i tamnog načina rada.',
   'common.chooseTheLanguage': 'Odaberite jezik koji će se koristiti u cijeloj aplikaciji.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Izrađeno s Moleculeom.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Sva prava pridržana.',
   'common.countUnread': '{{count}} nepročitano',
   'common.countNew': '{{count}} novi',

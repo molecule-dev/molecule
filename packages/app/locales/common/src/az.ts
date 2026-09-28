@@ -283,7 +283,7 @@ export const az: Partial<CommonTranslations> = {
   'common.justNow': 'elə indicə',
   'common.toggleLightDark': 'İşıq və qaranlıq rejim arasında keçid edin.',
   'common.chooseTheLanguage': 'Tətbiq boyunca istifadə olunan dili seçin.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Molekul ilə inşa edilib.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Bütün hüquqlar qorunur.',
   'common.countUnread': '{{count}} oxunmamış',
   'common.countNew': '{{count}} yeni',

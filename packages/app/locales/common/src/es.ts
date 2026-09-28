@@ -145,7 +145,7 @@ export const es: Partial<CommonTranslations> = {
   'common.or': 'o',
   'common.justNow': 'ahora mismo',
   'common.chooseTheLanguage': 'Elige el idioma utilizado en toda la aplicación.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Hecho con Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Todos los derechos reservados.',
   'common.countUnread': '{{count}} sin leer',
   'common.countNew': '{{count}} nuevos',

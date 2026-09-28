@@ -138,7 +138,7 @@ export const it: Partial<CommonTranslations> = {
   'common.or': 'oppure',
   'common.justNow': 'ora',
   'common.toggleLightDark': 'Alterni tra modalità chiara e scura.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Realizzato con Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Tutti i diritti riservati.',
   'common.countUnread': '{{count}} non lette',
   'common.countNew': '{{count}} nuovi',

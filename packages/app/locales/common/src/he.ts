@@ -334,7 +334,7 @@ export const he: Partial<CommonTranslations> = {
   'common.advancedFeatures': 'תכונות מתקדמות',
   'common.endToEndEncrypted': 'מוצפן מקצה לקצה',
   'common.atLeast8Characters': 'לפחות 8 תווים',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Built with Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. All rights reserved.',
   'common.countUnread': '{{count}} לא נקרא',
   'common.countNew': '{{count}} חָדָשׁ',

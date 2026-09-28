@@ -119,7 +119,7 @@ export const nb: Partial<CommonTranslations> = {
   'common.justNow': 'akkurat nå',
   'common.toggleLightDark': 'Bytt mellom lys og mørk modus.',
   'common.chooseTheLanguage': 'Velg språket som brukes i hele appen.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Bygget med Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Alle rettigheter forbeholdt.',
   'common.countUnread': '{{count}} uleste',
   'common.countReviews': '{{count}} gjennomganger',

@@ -286,7 +286,7 @@ export const te: Partial<CommonTranslations> = {
   'common.or': 'లేదా',
   'common.toggleLightDark': 'లైట్ మరియు డార్క్ మోడ్‌ల మధ్య మారండి.',
   'common.chooseTheLanguage': 'యాప్ అంతటా ఉపయోగించే భాషను ఎంచుకోండి.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} మాలిక్యూల్‌తో నిర్మించబడింది.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} సర్వ హక్కులు సంరక్షించబడినవి.',
   'common.countUnread': '{{count}} చదవని',
   'common.countNew': '{{count}} కొత్త',

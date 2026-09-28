@@ -282,7 +282,7 @@ export const kk: Partial<CommonTranslations> = {
   'common.justNow': 'жаңа ғана',
   'common.toggleLightDark': 'Жарық және қараңғы режимдер арасында ауысу.',
   'common.chooseTheLanguage': 'Қолданба бойы қолданылатын тілді таңдаңыз.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Молекуламен жасалған.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Барлық құқықтар қорғалған.',
   'common.countUnread': '{{count}} оқылмаған',
   'common.countNew': '{{count}} жаңа',

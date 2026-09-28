@@ -143,7 +143,7 @@ export const nl: Partial<CommonTranslations> = {
   'common.justNow': 'zojuist',
   'common.toggleLightDark': 'Schakel tussen lichte en donkere modus.',
   'common.chooseTheLanguage': 'Kies de taal die in de hele app wordt gebruikt.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Gebouwd met Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Alle rechten voorbehouden.',
   'common.countUnread': '{{count}} ongelezen',
   'common.countNew': '{{count}} nieuw',

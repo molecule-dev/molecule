@@ -282,7 +282,7 @@ export const mt: Partial<CommonTranslations> = {
   'common.justNow': 'issa stess',
   'common.toggleLightDark': 'Aqleb bejn il-modalità ċara u skura.',
   'common.chooseTheLanguage': 'Agħżel il-lingwa użata fl-app kollha.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Mibni bil-Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Id-drittijiet kollha riżervati.',
   'common.countUnread': '{{count}} mhux moqri',
   'common.countNew': '{{count}} ġdid',

@@ -282,7 +282,7 @@ export const sw: Partial<CommonTranslations> = {
   'common.justNow': 'sasa hivi',
   'common.toggleLightDark': 'Badilisha kati ya hali ya mwanga na giza.',
   'common.chooseTheLanguage': 'Chagua lugha inayotumika katika programu yote.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Imejengwa kwa Molekuli.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Haki zote zimehifadhiwa.',
   'common.countUnread': '{{count}} haijasomwa',
   'common.countNew': '{{count}} mpya',

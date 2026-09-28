@@ -145,7 +145,7 @@ export const hi: Partial<CommonTranslations> = {
   'common.justNow': 'अभी',
   'common.toggleLightDark': 'लाइट और डार्क मोड के बीच टॉगल करें।',
   'common.chooseTheLanguage': 'ऐप में उपयोग की जाने वाली भाषा चुनें।',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Molecule के साथ निर्मित।',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. सर्वाधिकार सुरक्षित।',
   'common.countUnread': '{{count}} अपठित',
   'common.countNew': '{{count}} नए',

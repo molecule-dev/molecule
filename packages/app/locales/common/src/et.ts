@@ -281,7 +281,7 @@ export const et: Partial<CommonTranslations> = {
   'common.justNow': 'just praegu',
   'common.toggleLightDark': 'Lülitage heleda ja tumeda režiimi vahel.',
   'common.chooseTheLanguage': 'Valige kogu rakenduses kasutatav keel.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Ehitatud molekuliga.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Kõik õigused kaitstud.',
   'common.countUnread': '{{count}} lugemata',
   'common.countNew': '{{count}} uus',

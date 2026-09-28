@@ -279,7 +279,7 @@ export const ig: Partial<CommonTranslations> = {
   'common.justNow': 'naanị ugbu a',
   'common.toggleLightDark': "Gbanwee n'etiti ọnọdụ ìhè na ọnọdụ gbara ọchịchịrị.",
   'common.chooseTheLanguage': "Họrọ asụsụ ejiri mee ihe n'ime ngwa ahụ dum.",
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} E ji Molekulụ rụọ ya.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . Ikike niile echekwabara.',
   'common.countUnread': '{{count}} agụghị ya',
   'common.countNew': '{{count}} ọhụrụ',

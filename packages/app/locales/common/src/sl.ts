@@ -282,7 +282,7 @@ export const sl: Partial<CommonTranslations> = {
   'common.justNow': 'ravnokar',
   'common.toggleLightDark': 'Preklapljanje med svetlim in temnim načinom.',
   'common.chooseTheLanguage': 'Izberite jezik, ki se uporablja v celotni aplikaciji.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Zgrajeno z Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Vse pravice pridržane.',
   'common.countUnread': '{{count}} neprebrano',
   'common.countNew': '{{count}} novo',

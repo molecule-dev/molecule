@@ -285,7 +285,7 @@ export const sq: Partial<CommonTranslations> = {
   'common.justNow': 'pikërisht tani',
   'common.toggleLightDark': 'Kaloni midis modalitetit të ndriçuar dhe të errët.',
   'common.chooseTheLanguage': 'Zgjidhni gjuhën e përdorur në të gjithë aplikacionin.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Ndërtuar me Molekulë.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Të gjitha të drejtat e rezervuara.',
   'common.countUnread': '{{count}} i palexuar',
   'common.countNew': '{{count}} i ri',

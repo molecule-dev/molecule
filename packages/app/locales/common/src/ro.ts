@@ -120,7 +120,7 @@ export const ro: Partial<CommonTranslations> = {
   'common.justNow': 'chiar acum',
   'common.toggleLightDark': 'Comutați între modul luminos și întunecat.',
   'common.chooseTheLanguage': 'Alegeți limba utilizată în întreaga aplicație.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Construit cu Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Toate drepturile rezervate.',
   'common.countUnread': '{{count}} necitite',
   'common.countReviews': '{{count}} recenzii',

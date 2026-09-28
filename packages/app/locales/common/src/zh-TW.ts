@@ -282,7 +282,7 @@ export const zhTW: Partial<CommonTranslations> = {
   'common.or': '或者',
   'common.toggleLightDark': '切換淺色模式和深色模式。',
   'common.chooseTheLanguage': '選擇應用程式內使用的語言。',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}使用 Molecule 建置。',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} 。 版權所有。',
   'common.countUnread': '{{count}}未讀',
   'common.countNew': '{{count}}新的',

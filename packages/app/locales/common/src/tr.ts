@@ -145,7 +145,7 @@ export const tr: Partial<CommonTranslations> = {
   'common.justNow': 'az önce',
   'common.toggleLightDark': 'Açık ve koyu mod arasında geçiş yapın.',
   'common.chooseTheLanguage': 'Uygulama genelinde kullanılan dili seçin.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Molecule ile geliştirildi.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Tüm hakları saklıdır.',
   'common.countUnread': '{{count}} okunmamış',
   'common.countNew': '{{count}} yeni',

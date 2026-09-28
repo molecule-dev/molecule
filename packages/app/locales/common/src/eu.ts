@@ -284,7 +284,7 @@ export const eu: Partial<CommonTranslations> = {
   'common.justNow': 'oraintxe bertan',
   'common.toggleLightDark': 'Aldatu modu argiaren eta ilunaren artean.',
   'common.chooseTheLanguage': 'Aukeratu aplikazio osoan erabiliko den hizkuntza.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Molekularekin eraikia.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Eskubide guztiak erreserbatuta.',
   'common.countUnread': '{{count}} irakurri gabe',
   'common.countNew': '{{count}} berria',

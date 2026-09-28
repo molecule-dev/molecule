@@ -287,7 +287,7 @@ export const ur: Partial<CommonTranslations> = {
   'common.or': 'یا',
   'common.toggleLightDark': 'لائٹ اور ڈارک موڈ کے درمیان ٹوگل کریں۔',
   'common.chooseTheLanguage': 'پوری ایپ میں استعمال ہونے والی زبان کا انتخاب کریں۔',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . مالیکیول کے ساتھ بنایا گیا ہے۔',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . جملہ حقوق محفوظ ہیں۔',
   'common.countUnread': '{{count}} بغیر پڑھے ہوئے',
   'common.countNew': '{{count}} نیا',

@@ -287,7 +287,7 @@ export const hy: Partial<CommonTranslations> = {
   'common.or': 'կամ',
   'common.toggleLightDark': 'Անցնել բաց և մութ ռեժիմների միջև։',
   'common.chooseTheLanguage': 'Ընտրեք հավելվածում օգտագործվող լեզուն։',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Կառուցված է մոլեկուլով։',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Բոլոր իրավունքները պաշտպանված են։',
   'common.countUnread': '{{count}} չկարդացված',
   'common.countNew': '{{count}} նոր',

@@ -119,7 +119,7 @@ export const uk: Partial<CommonTranslations> = {
   'common.justNow': 'щойно',
   'common.toggleLightDark': 'Перемикання між світлим і темним режимом.',
   'common.chooseTheLanguage': 'Виберіть мову, яка використовується в усьому додатку.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. Побудовано на Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. Всі права захищено.',
   'common.countUnread': '{{count}} непрочитаних',
   'common.countReviews': '{{count}} перевірок',

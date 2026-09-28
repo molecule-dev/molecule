@@ -287,7 +287,7 @@ export const si: Partial<CommonTranslations> = {
   'common.or': 'හෝ',
   'common.toggleLightDark': 'ආලෝකය සහ අඳුරු මාදිලිය අතර මාරු වන්න.',
   'common.chooseTheLanguage': 'යෙදුම පුරා භාවිතා වන භාෂාව තෝරන්න.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} . අණු සමඟ ගොඩනගා ඇත.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} . සියලු හිමිකම් ඇවිරිණි.',
   'common.countUnread': '{{count}} නොකියවූ',
   'common.countNew': '{{count}} අලුත්',

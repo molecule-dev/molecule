@@ -282,7 +282,7 @@ export const af: Partial<CommonTranslations> = {
   'common.justNow': 'nou net',
   'common.toggleLightDark': 'Wissel tussen lig- en donkermodus.',
   'common.chooseTheLanguage': 'Kies die taal wat dwarsdeur die toepassing gebruik word.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Gebou met Molekule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Alle regte voorbehou.',
   'common.countUnread': '{{count}} ongelees',
   'common.countNew': '{{count}} nuut',

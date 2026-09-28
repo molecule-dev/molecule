@@ -145,7 +145,7 @@ export const ar: Partial<CommonTranslations> = {
   'common.justNow': 'الآن',
   'common.toggleLightDark': 'بدّل بين الوضع الفاتح والداكن.',
   'common.chooseTheLanguage': 'اختر اللغة المستخدمة في جميع أنحاء التطبيق.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}. مبني باستخدام Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}}. جميع الحقوق محفوظة.',
   'common.countUnread': '{{count}} غير مقروءة',
   'common.countNew': '{{count}} جديد',

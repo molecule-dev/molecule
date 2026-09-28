@@ -283,7 +283,7 @@ export const ga: Partial<CommonTranslations> = {
   'common.justNow': 'díreach anois',
   'common.toggleLightDark': 'Athraigh idir mód geal agus dorcha.',
   'common.chooseTheLanguage': 'Roghnaigh an teanga a úsáidtear ar fud an aip.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Tógtha le Móilín.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Gach ceart ar cosaint.',
   'common.countUnread': '{{count}} gan léamh',
   'common.countNew': '{{count}} nua',

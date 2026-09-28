@@ -289,7 +289,7 @@ export const bg: Partial<CommonTranslations> = {
   'common.or': 'или',
   'common.toggleLightDark': 'Превключване между светъл и тъмен режим.',
   'common.chooseTheLanguage': 'Изберете езика, използван в цялото приложение.',
-  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}} Изграден с Molecule.',
+  'common.copyrightBuiltWithMolecule': '© {{year}} {{app}}',
   'common.copyrightAllRightsReserved': '© {{year}} {{app}} Всички права запазени.',
   'common.countUnread': '{{count}} непрочетено',
   'common.countNew': '{{count}} нов',
