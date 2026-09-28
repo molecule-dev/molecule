@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.2
+
+### Patch Changes
+
+- `create()` deletes the app it created when a later step fails (for example, the organization has reached its Machine limit), so a failed create no longer leaves an empty app, its addresses and its volume behind. An app that existed before the call is never deleted.
+
 ## 1.2.0
 
 ### Minor Changes

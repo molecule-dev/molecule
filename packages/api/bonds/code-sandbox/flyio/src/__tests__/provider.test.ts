@@ -86,6 +86,36 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching('POST /apps').filter((call) => call.path === '/apps')).toHaveLength(0)
   })
 
+  it('deletes the app it just created when the Machine cannot be created', async () => {
+    // Production 2026-09-28: the org hit its Machine limit, every POST
+    // /machines answered 422, and each attempt left an empty app behind (34).
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 422,
+        body: { error: 'Your organization has reached its machine limit.' },
+      })
+      .on(`DELETE /apps/${APP}`, { status: 202, body: {} })
+
+    await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
+
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+  })
+
+  it('never deletes an app that existed before a failed create', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 422,
+        body: { error: 'Your organization has reached its machine limit.' },
+      })
+
+    await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
+
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
+  })
+
   it('waits for the Machine to reach started before returning, so the first exec is not 412', async () => {
     // POST .../machines returns as soon as the Machine is SCHEDULED (state
     // `created`), not running. Without the wait, the caller's first exec fails

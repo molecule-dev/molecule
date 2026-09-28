@@ -455,8 +455,9 @@ class FlyioSandboxProvider implements SandboxProvider {
   private async ensureApp(
     app: string,
     options: { privateRoutes?: boolean } = {},
-  ): Promise<Record<string, string>> {
+  ): Promise<{ routes: Record<string, string>; created: boolean }> {
     const existing = await this.client.request<{ name: string }>(`/apps/${app}`, { nullOn: [404] })
+    let createdHere = false
 
     if (!existing) {
       const body: Record<string, unknown> = { name: app, org_slug: this.orgSlug() }
@@ -478,13 +479,47 @@ class FlyioSandboxProvider implements SandboxProvider {
         }
       }
 
-      if (created && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
+      createdHere = created
     }
 
-    await this.applyEgressPolicy(app)
+    try {
+      if (createdHere && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
+      await this.applyEgressPolicy(app)
+      if (options.privateRoutes === false) return { routes: {}, created: createdHere }
+      return {
+        routes: await this.ensurePrivateRoutes(app, Boolean(existing)),
+        created: createdHere,
+      }
+    } catch (error) {
+      if (createdHere) await this.discardCreatedApp(app, {})
+      throw error
+    }
+  }
 
-    if (options.privateRoutes === false) return {}
-    return this.ensurePrivateRoutes(app, Boolean(existing))
+  /**
+   * Deletes an app THIS call created, after a later step of the same create
+   * failed. Without it every failed create leaves an app behind with its
+   * addresses and volume: on 2026-09-28, 34 empty `mol-prod-*` apps had piled
+   * up in production, one per deploy that hit the organization's Machine limit
+   * (`POST /machines` → 422) after its app was already made. An app that
+   * existed before the call is never touched — it may hold a working Machine.
+   * @param app - The app this call created.
+   * @param privateRoutes - Flycast addresses already allocated for it.
+   */
+  private async discardCreatedApp(
+    app: string,
+    privateRoutes: Record<string, string>,
+  ): Promise<void> {
+    try {
+      await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
+      logger.info('Deleted a Fly sandbox app whose create failed', { app })
+    } catch (error) {
+      logger.error('Failed to delete a Fly sandbox app after its create failed — it leaks', {
+        app,
+        error,
+      })
+    }
+    await this.releasePrivateRoutes(privateRoutes)
   }
 
   /**
@@ -1047,8 +1082,30 @@ class FlyioSandboxProvider implements SandboxProvider {
     assertPrivateRoutesForEnv({ ...config.env, ...config.selfDeliveredEnv }, this.privateServices())
 
     const app = this.resolveApp(config.projectId)
-    const privateRoutes = await this.ensureApp(app)
+    const { routes: privateRoutes, created } = await this.ensureApp(app)
+    try {
+      return await this.createInApp(app, privateRoutes, config, manifest)
+    } catch (error) {
+      if (created && this.appPerProject()) await this.discardCreatedApp(app, privateRoutes)
+      throw error
+    }
+  }
 
+  /**
+   * The part of {@link create} that runs once the app exists: clear stale
+   * Machines, provision the volume, create the Machine and wait for it.
+   * @param app - The app.
+   * @param privateRoutes - Flycast addresses allocated for the app.
+   * @param config - The sandbox config.
+   * @param manifest - The template manifest, when creating from a template.
+   * @returns The running sandbox.
+   */
+  private async createInApp(
+    app: string,
+    privateRoutes: Record<string, string>,
+    config: SandboxConfig,
+    manifest: templates.TemplateManifest | null,
+  ): Promise<Sandbox> {
     // Clear any stale Machine from a prior failed/partial create before
     // provisioning — otherwise it still holds the app's single-attach volume and
     // `POST /machines` fails with `412 volume already claimed`. Makes create
