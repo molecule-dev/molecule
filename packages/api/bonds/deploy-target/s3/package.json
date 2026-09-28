@@ -1,0 +1,56 @@
+{
+  "name": "@molecule/api-deploy-target-s3",
+  "version": "1.0.0",
+  "description": "Static-site deploy target for molecule.dev on any S3-compatible bucket (Tigris, Cloudflare R2, AWS S3, MinIO)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "deploy",
+    "static-site",
+    "s3",
+    "tigris",
+    "r2"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1098.0",
+    "@molecule/api-proxy-agent": "1.1.1"
+  },
+  "devDependencies": {
+    "@molecule/api-deploy-target": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "peerDependencies": {
+    "@molecule/api-deploy-target": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/deploy-target/s3"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-deploy-target-s3",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
