@@ -40,6 +40,8 @@
   "devDependencies": {
     "@molecule/app-auth": "1.1.1",
     "@molecule/app-charts-chartjs": "1.0.2",
+    "@molecule/app-client-search": "1.0.0",
+    "@molecule/app-client-search-minisearch": "1.0.0",
     "@molecule/app-code-editor": "1.0.2",
     "@molecule/app-code-editor-monaco": "1.0.2",
     "@molecule/app-command-palette": "1.0.2",
@@ -80,6 +82,8 @@
     "@molecule/app-auth": "^1.0.1",
     "@molecule/app-charts": "^1.0.1",
     "@molecule/app-charts-chartjs": "^1.0.1",
+    "@molecule/app-client-search": "^1.0.0",
+    "@molecule/app-client-search-minisearch": "^1.0.0",
     "@molecule/app-code-editor": "^1.0.1",
     "@molecule/app-code-editor-monaco": "^1.0.1",
     "@molecule/app-command-palette": "^1.0.1",
@@ -118,6 +122,12 @@
       "optional": true
     },
     "@molecule/app-charts-chartjs": {
+      "optional": true
+    },
+    "@molecule/app-client-search": {
+      "optional": true
+    },
+    "@molecule/app-client-search-minisearch": {
       "optional": true
     },
     "@molecule/app-code-editor": {

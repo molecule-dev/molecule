@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/app-client-search-minisearch",
+  "version": "1.0.0",
+  "description": "MiniSearch bond for @molecule/app-client-search — in-memory full-text search with prefix matching, typo tolerance and field boosts",
+  "homepage": "https://www.molecule.dev/packages/app-client-search-minisearch",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "search",
+    "client-search",
+    "minisearch",
+    "fuzzy"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/client-search/minisearch"
+  },
+  "dependencies": {
+    "minisearch": "7.2.0"
+  },
+  "peerDependencies": {
+    "@molecule/app-client-search": "^1.0.0"
+  },
+  "devDependencies": {
+    "@molecule/app-client-search": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

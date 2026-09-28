@@ -15,7 +15,7 @@
  *   re-exports of these).
  * - **Optional provider wirings live behind subpaths**, one module per pair:
  *   `@molecule/app-bonds-default-react/optional/<pair>.js` — `realtime-socketio`,
- *   `keyboard-shortcuts-hotkeys`, `command-palette-cmdk`, `code-editor-monaco`,
+ *   `keyboard-shortcuts-hotkeys`, `command-palette-cmdk`, `client-search-minisearch`, `code-editor-monaco`,
  *   `virtual-scroll-tanstack`, `drag-drop-dndkit`, `charts-chartjs`,
  *   `maps-leaflet`, `video-hls`. Import ONLY the ones the app installs.
  * - Auth/http factories — `createDefaultAuthClient(authConfig)` returns
