@@ -56,7 +56,7 @@
  * // The span indexes that start a section: 0 (the lead), then every heading at the post's
  * // shallowest heading level. Key your summaries by these indexes.
  * export function sectionStarts(spans: PostSpan[]): number[] {
- *   const level = (text: string): number => /^(#{1,6})\s/.exec(text)?.[1].length ?? 0
+ *   const level = (text: string): number => text.match(/^#{1,6}(?=\s)/)?.[0].length ?? 0
  *   const top = Math.min(...spans.map((span) => level(span.text) || 7))
  *   return spans.flatMap((span, i) => (i === 0 || level(span.text) === top ? [i] : []))
  * }

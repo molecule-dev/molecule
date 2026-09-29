@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-react
 
+## 1.0.6
+
+### Patch Changes
+
+- The README example detects heading levels with `text.match()`; behavior is unchanged. First release to carry the fixes listed under 1.0.2–1.0.5.
+
 ## 1.0.5
 
 ### Patch Changes
