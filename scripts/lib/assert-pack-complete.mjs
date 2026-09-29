@@ -59,7 +59,16 @@ export function assertPackComplete(dir) {
       stdio: ['ignore', 'pipe', 'ignore'],
     }),
   )
-  const files = new Set((packed[0]?.files ?? []).map((f) => f.path))
+  // npm ≤11 prints an array of results; npm 12 prints an object keyed by name.
+  const result = Array.isArray(packed)
+    ? packed[0]
+    : (packed[manifest.name] ?? Object.values(packed)[0])
+  if (!Array.isArray(result?.files)) {
+    throw new Error(
+      `${manifest.name}@${manifest.version}: could not read the file list from \`npm pack --json\`.`,
+    )
+  }
+  const files = new Set(result.files.map((f) => f.path))
   const missing = entryPoints(manifest).filter((p) => !files.has(p))
   if (missing.length) {
     throw new Error(
