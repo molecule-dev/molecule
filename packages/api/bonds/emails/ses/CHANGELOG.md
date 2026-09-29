@@ -1,5 +1,11 @@
 # @molecule/api-emails-ses
 
+## 1.0.6
+
+### Patch Changes
+
+- Security dependency bumps for the audit gate: e2b 2.38.3 → 2.51.0, nodemailer 9.1.1 → 10.0.12 (a process-global DNS cache could reuse a TLS `servername` across transports), undici 7.29.0 → 7.30.0 (DoS via an unhandled WebSocket-permessage error). No API changes — the same `createTransport`/`sendMail` calls, the same webhook delivery and preview-fetch code, the same E2B `Sandbox` methods.
+
 ## 1.0.5
 
 ### Patch Changes
