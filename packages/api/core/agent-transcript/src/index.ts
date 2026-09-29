@@ -30,7 +30,7 @@
  * import { attributeText, setProvider as setAttribution } from '@molecule/api-text-provenance'
  * import { provider as wordOverlap } from '@molecule/api-text-provenance-overlap'
  *
- * setTranscriptReader(anyTranscript) // reads Claude Code, Codex and Molecule IDE exports
+ * setTranscriptReader(anyTranscript) // reads every supported harness, plus plain Markdown chats
  * setAttribution(wordOverlap)
  *
  * // One block of the post, in page order. `prompt` and `model` are on every ai span.
