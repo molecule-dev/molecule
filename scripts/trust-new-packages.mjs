@@ -35,7 +35,6 @@ import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
-
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,

@@ -24,8 +24,8 @@ import { join } from 'node:path'
 /**
  * Every file path a manifest names as an entry point.
  *
- * @param {Record<string, unknown>} manifest - The package.json.
- * @returns {string[]} Normalized relative paths (no leading `./`).
+ * @param manifest - The package.json.
+ * @returns Normalized relative paths (no leading `./`).
  */
 export function entryPoints(manifest) {
   const out = new Set()
@@ -47,8 +47,8 @@ export function entryPoints(manifest) {
 /**
  * Throws when the package's tarball would be missing an entry point.
  *
- * @param {string} dir - The package directory.
- * @returns {number} How many files the tarball holds.
+ * @param dir - The package directory.
+ * @returns How many files the tarball holds.
  */
 export function assertPackComplete(dir) {
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
