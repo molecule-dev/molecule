@@ -1,5 +1,11 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.1.0
+
+### Minor Changes
+
+- Also reads Gemini CLI, Cline / Roo Code, OpenCode, GitHub Copilot Chat, Cursor and Aider transcripts, and — tried last — any plain Markdown / text chat with User / Assistant markers. `harnessReaders` is the list without the generic reader.
+
 ## 1.0.1
 
 ### Patch Changes

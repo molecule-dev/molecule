@@ -1,0 +1,4 @@
+Human: What does the build script do?
+AI: It compiles TypeScript into dist/.
+Human: And the test script?
+AI: It runs vitest once.

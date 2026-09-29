@@ -1,0 +1,20 @@
+{
+  "responderUsername": "Workspace Helper",
+  "initialLocation": "panel",
+  "requests": [
+    {
+      "requestId": "r",
+      "message": {
+        "text": "hi",
+        "parts": []
+      },
+      "response": [
+        {
+          "value": "hello"
+        }
+      ],
+      "timestamp": 1790582400000,
+      "modelId": "copilot/claude-sonnet-4.5"
+    }
+  ]
+}

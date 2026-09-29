@@ -1,0 +1,64 @@
+[
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "<session_context>\nThis is the Gemini CLI. We are setting up the context for our chat.\n</session_context>"
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Got it. Thanks for the context!"
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "text": "Create notes.md with a heading and one sentence about logs."
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "I will create `notes.md` now."
+      },
+      {
+        "functionCall": {
+          "name": "write_file",
+          "args": {
+            "file_path": "/home/user/demo/notes.md",
+            "content": "# Notes\n\nLogs show what happened first."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "role": "user",
+    "parts": [
+      {
+        "functionResponse": {
+          "name": "write_file",
+          "response": {
+            "output": "Successfully created and wrote to new file: /home/user/demo/notes.md."
+          }
+        }
+      }
+    ]
+  },
+  {
+    "role": "model",
+    "parts": [
+      {
+        "text": "Created the file."
+      }
+    ]
+  }
+]

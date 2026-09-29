@@ -1,0 +1,80 @@
+[
+  {
+    "ts": 1790582401500,
+    "type": "say",
+    "say": "task",
+    "text": "Create notes.md with a heading and one sentence about logs."
+  },
+  {
+    "ts": 1790582403000,
+    "type": "say",
+    "say": "api_req_started",
+    "text": "{\"request\":\"<task>…</task>\",\"tokensIn\":1200,\"tokensOut\":0,\"cost\":0}"
+  },
+  {
+    "ts": 1790582404500,
+    "type": "say",
+    "say": "text",
+    "text": "I will create the notes file.",
+    "partial": true
+  },
+  {
+    "ts": 1790582406000,
+    "type": "say",
+    "say": "text",
+    "text": "I will create the notes file."
+  },
+  {
+    "ts": 1790582407500,
+    "type": "ask",
+    "ask": "tool",
+    "text": "{\"tool\":\"newFileCreated\",\"path\":\"notes.md\",\"content\":\"# Notes\\n\\nLogs show what happened first.\",\"operationIsLocatedInWorkspace\":true}"
+  },
+  {
+    "ts": 1790582409000,
+    "type": "say",
+    "say": "tool",
+    "text": "{\"tool\":\"newFileCreated\",\"path\":\"notes.md\",\"content\":\"# Notes\\n\\nLogs show what happened first.\"}"
+  },
+  {
+    "ts": 1790582410500,
+    "type": "say",
+    "say": "checkpoint_created"
+  },
+  {
+    "ts": 1790582412000,
+    "type": "ask",
+    "ask": "followup",
+    "text": "{\"question\":\"Should the heading say \\\"Field notes\\\" instead?\",\"options\":[\"Yes\",\"No\"],\"selected\":\"Yes\"}"
+  },
+  {
+    "ts": 1790582413500,
+    "type": "say",
+    "say": "user_feedback",
+    "text": "Yes, rename it."
+  },
+  {
+    "ts": 1790582415000,
+    "type": "say",
+    "say": "tool",
+    "text": "{\"tool\":\"editedExistingFile\",\"path\":\"notes.md\",\"diff\":\"------- SEARCH\\n# Notes\\n=======\\n# Field notes\\n+++++++ REPLACE\"}"
+  },
+  {
+    "ts": 1790582416500,
+    "type": "say",
+    "say": "tool",
+    "text": "{\"tool\":\"readFile\",\"path\":\"notes.md\",\"content\":\"/home/user/demo/notes.md\"}"
+  },
+  {
+    "ts": 1790582418000,
+    "type": "say",
+    "say": "completion_result",
+    "text": "Created notes.md and renamed its heading to \"Field notes\"."
+  },
+  {
+    "ts": 1790582419500,
+    "type": "ask",
+    "ask": "completion_result",
+    "text": ""
+  }
+]

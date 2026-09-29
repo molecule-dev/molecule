@@ -2,10 +2,23 @@
  * The transcript reader to bond when files can come from more than one harness.
  *
  * Implements `@molecule/api-agent-transcript` by trying each bundled reader's
- * `detect()` and delegating to the first that recognizes the file: Claude Code
- * (`/export` text, session `.jsonl`), Codex CLI (Markdown export, rollout
- * `.jsonl`) and the Molecule IDE (stored conversation JSON). `createReader()`
- * composes any other list, including readers of your own. The example is the
+ * `detect()` and delegating to the first that recognizes the file:
+ *
+ * | Harness | Files |
+ * |---|---|
+ * | Claude Code | `/export` text, session `.jsonl` |
+ * | Codex CLI | Markdown export, rollout `.jsonl` |
+ * | Molecule IDE | stored conversation JSON |
+ * | Gemini CLI | session `.jsonl` / `.json`, `/chat save` checkpoint |
+ * | Cline / Roo Code | a task's `ui_messages.json` |
+ * | OpenCode | `opencode export` JSON |
+ * | GitHub Copilot Chat | VS Code's "Export Chat…" `chat.json` |
+ * | Cursor | "Export Chat" Markdown |
+ * | Aider | `.aider.chat.history.md` |
+ * | anything else | a Markdown / text chat with `## User`, `**User:**` or `User:` markers (tried last) |
+ *
+ * `createReader()` composes any other list, including readers of your own;
+ * `harnessReaders` is the list without the generic Markdown chat reader. The example is the
  * usual job: read a post's folder of transcript exports at build time and
  * attribute its paragraphs with `@molecule/api-text-provenance`, writing
  * `provenance.json`.
@@ -25,7 +38,7 @@
  * import { attributeText, setProvider as setAttribution } from '@molecule/api-text-provenance'
  * import { provider as wordOverlap } from '@molecule/api-text-provenance-overlap'
  *
- * setTranscriptReader(anyTranscript) // reads Claude Code, Codex and Molecule IDE exports
+ * setTranscriptReader(anyTranscript) // reads every supported harness, plus plain Markdown chats
  * setAttribution(wordOverlap)
  *
  * // One block of the post, in page order. `prompt` and `model` are on every ai span.
@@ -109,14 +122,19 @@
  *   never read as an empty session. Filter with `canReadTranscript()` first,
  *   as the example does.
  * - **Do NOT parse an export yourself or bond a single-format reader "to be
- *   safe".** This bond reads all three formats; a user turn is already only
+ *   safe".** This bond reads every format above; a user turn is already only
  *   what the person typed.
+ * - **A plain chat with speaker markers is read too — as `markdown-chat`,
+ *   never as a harness.** When only a real harness's own file may count
+ *   (attributing text to a model, say), check `session.format !==
+ *   'markdown-chat'`, or bond `createReader(harnessReaders)` instead.
  * - **Do NOT import this from page or client code** — it is server-only and
  *   throws in a browser bundle.
  * - Install all four packages the example uses:
  *   `npm install @molecule/api-agent-transcript @molecule/api-agent-transcript-autodetect @molecule/api-text-provenance @molecule/api-text-provenance-overlap`.
- * - Order matters only for a file two readers would both accept; the bundled
- *   readers accept disjoint formats.
+ * - Order matters only for a file two readers would both accept. The harness
+ *   readers accept disjoint formats; the generic Markdown chat reader is
+ *   tried last, so it never claims a harness's own file.
  *
  * @module
  */

@@ -1,0 +1,288 @@
+{
+  "info": {
+    "id": "ses_01k6abcd1234efgh5678ijkl90",
+    "slug": "notes-about-logs",
+    "projectID": "prj_demo",
+    "directory": "/home/user/demo",
+    "title": "Notes about logs",
+    "version": "1.14.2",
+    "time": {
+      "created": 1790582400000,
+      "updated": 1790582460000
+    }
+  },
+  "messages": [
+    {
+      "info": {
+        "id": "msg_01k600000000000000000001",
+        "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+        "role": "user",
+        "time": {
+          "created": 1790582401000
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "anthropic",
+          "modelID": "claude-sonnet-4-5"
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_01k600000000000000000005",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000001",
+          "type": "text",
+          "text": "Create @notes.md with a heading and one sentence about logs."
+        },
+        {
+          "id": "prt_01k600000000000000000006",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000001",
+          "type": "text",
+          "text": "Called the Read tool with the following input: {\"filePath\":\"/home/user/demo/notes.md\"}",
+          "synthetic": true
+        },
+        {
+          "id": "prt_01k600000000000000000007",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000001",
+          "type": "file",
+          "mime": "text/plain",
+          "filename": "notes.md",
+          "url": "file:///home/user/demo/notes.md"
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_01k600000000000000000002",
+        "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+        "role": "assistant",
+        "time": {
+          "created": 1790582402000,
+          "completed": 1790582405000
+        },
+        "parentID": "msg_01k600000000000000000001",
+        "modelID": "claude-sonnet-4-5",
+        "providerID": "anthropic",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/demo",
+          "root": "/home/user/demo"
+        },
+        "cost": 0.004,
+        "tokens": {
+          "input": 1200,
+          "output": 90,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop"
+      },
+      "parts": [
+        {
+          "id": "prt_01k600000000000000000008",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000002",
+          "type": "step-start"
+        },
+        {
+          "id": "prt_01k600000000000000000009",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000002",
+          "type": "reasoning",
+          "text": "Plan the file.",
+          "time": {
+            "start": 1790582400000,
+            "end": 1790582400005
+          }
+        },
+        {
+          "id": "prt_01k600000000000000000010",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000002",
+          "type": "text",
+          "text": "Creating `notes.md` now."
+        },
+        {
+          "id": "prt_01k600000000000000000011",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000002",
+          "type": "tool",
+          "callID": "call_write",
+          "tool": "write",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/home/user/demo/notes.md",
+              "content": "# Notes\n\nLogs show what happened first."
+            },
+            "output": "ok",
+            "title": "write",
+            "metadata": {},
+            "time": {
+              "start": 1790582400000,
+              "end": 1790582400010
+            }
+          }
+        },
+        {
+          "id": "prt_01k600000000000000000012",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000002",
+          "type": "text",
+          "text": "Done."
+        },
+        {
+          "id": "prt_01k600000000000000000013",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000002",
+          "type": "step-finish",
+          "reason": "stop",
+          "cost": 0.004,
+          "tokens": {
+            "input": 1200,
+            "output": 90,
+            "reasoning": 0,
+            "cache": {
+              "read": 0,
+              "write": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_01k600000000000000000003",
+        "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+        "role": "user",
+        "time": {
+          "created": 1790582420000
+        },
+        "agent": "build",
+        "model": {
+          "providerID": "anthropic",
+          "modelID": "claude-sonnet-4-5"
+        }
+      },
+      "parts": [
+        {
+          "id": "prt_01k600000000000000000014",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000003",
+          "type": "text",
+          "text": "Rename the heading to Field notes, and add a changelog."
+        }
+      ]
+    },
+    {
+      "info": {
+        "id": "msg_01k600000000000000000004",
+        "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+        "role": "assistant",
+        "time": {
+          "created": 1790582421000,
+          "completed": 1790582424000
+        },
+        "parentID": "msg_01k600000000000000000003",
+        "modelID": "claude-sonnet-4-5",
+        "providerID": "anthropic",
+        "mode": "build",
+        "agent": "build",
+        "path": {
+          "cwd": "/home/user/demo",
+          "root": "/home/user/demo"
+        },
+        "cost": 0.004,
+        "tokens": {
+          "input": 1200,
+          "output": 90,
+          "reasoning": 0,
+          "cache": {
+            "read": 0,
+            "write": 0
+          }
+        },
+        "finish": "stop"
+      },
+      "parts": [
+        {
+          "id": "prt_01k600000000000000000015",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000004",
+          "type": "text",
+          "text": "Renamed it and added CHANGELOG.md."
+        },
+        {
+          "id": "prt_01k600000000000000000016",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000004",
+          "type": "tool",
+          "callID": "call_edit",
+          "tool": "edit",
+          "state": {
+            "status": "completed",
+            "input": {
+              "filePath": "/home/user/demo/notes.md",
+              "oldString": "# Notes",
+              "newString": "# Field notes"
+            },
+            "output": "ok",
+            "title": "edit",
+            "metadata": {},
+            "time": {
+              "start": 1790582400000,
+              "end": 1790582400010
+            }
+          }
+        },
+        {
+          "id": "prt_01k600000000000000000017",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000004",
+          "type": "tool",
+          "callID": "call_apply_patch",
+          "tool": "apply_patch",
+          "state": {
+            "status": "completed",
+            "input": {
+              "patchText": "*** Begin Patch\n*** Add File: CHANGELOG.md\n+# Changelog\n+\n+- Renamed the notes heading.\n*** End Patch"
+            },
+            "output": "ok",
+            "title": "apply_patch",
+            "metadata": {},
+            "time": {
+              "start": 1790582400000,
+              "end": 1790582400010
+            }
+          }
+        },
+        {
+          "id": "prt_01k600000000000000000018",
+          "sessionID": "ses_01k6abcd1234efgh5678ijkl90",
+          "messageID": "msg_01k600000000000000000004",
+          "type": "tool",
+          "callID": "call_x",
+          "tool": "write",
+          "state": {
+            "status": "error",
+            "input": {
+              "filePath": "/x",
+              "content": "x"
+            },
+            "error": "denied",
+            "time": {
+              "start": 1790582400000,
+              "end": 1790582400000
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,11 +1,12 @@
 import { readFileSync } from 'node:fs'
+import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
 import type { AgentTranscriptReader } from '@molecule/api-agent-transcript'
 
-import { createReader, provider } from '../provider.js'
+import { createReader, harnessReaders, provider } from '../provider.js'
 
 // The real fixtures each reader is tested against.
 const bond = (name: string, file: string): string =>
@@ -22,6 +23,11 @@ describe('the bundled reader', () => {
       ['codex', 'export-v0.156.1.md', 'codex'],
       ['codex', 'rollout-v0.156.1.jsonl', 'codex'],
       ['molecule-ide', 'conversation.json', 'molecule-ide'],
+      ['gemini-cli', 'session-2026-09-29T10-00-a1b2c3d4.jsonl', 'gemini-cli'],
+      ['cline', 'cline-ui_messages.json', 'cline'],
+      ['opencode', 'opencode-export.json', 'opencode'],
+      ['copilot-chat', 'chat.json', 'copilot-chat'],
+      ['aider', '.aider.chat.history.md', 'aider'],
     ]
     for (const [dir, file, format] of cases) {
       const text = bond(dir, file)
@@ -33,13 +39,51 @@ describe('the bundled reader', () => {
     }
   })
 
-  it('throws on a file no reader recognizes, naming it and the readers tried', () => {
-    // A hand-written "Human:/Assistant:" imitation is not any harness's real export.
+  it('reads a hand-written chat as a Markdown chat, never as a harness — and the harness list refuses it', () => {
+    // A "Human:/Assistant:" imitation is not any harness's real export.
     const imitation = 'Claude Code · 2026-08-14\n\nHuman: write a post\n\nAssistant: Here it is.\n'
-    expect(provider.detect({ text: imitation })).toBe(false)
-    expect(() => provider.read({ text: imitation, fileName: 'fake.txt' })).toThrow(
-      /No transcript reader recognizes fake\.txt\. Readers tried: Claude Code, Codex CLI, Molecule IDE\./,
+    expect(provider.read({ text: imitation }).format).toBe('markdown-chat')
+    const harnessOnly = createReader(harnessReaders)
+    expect(harnessOnly.detect({ text: imitation })).toBe(false)
+    expect(() => harnessOnly.read({ text: imitation, fileName: 'fake.txt' })).toThrow(
+      /No transcript reader recognizes fake\.txt\. Readers tried: Claude Code, Codex CLI, Molecule IDE, Gemini CLI, Cline \/ Roo Code, OpenCode, GitHub Copilot Chat, Cursor, Aider\./,
     )
+  })
+
+  it('throws on a file no reader recognizes, naming it', () => {
+    expect(() => provider.read({ text: 'just some notes', fileName: 'notes.txt' })).toThrow(
+      /No transcript reader recognizes notes\.txt\. Readers tried: .*Markdown chat\./,
+    )
+  })
+
+  it('claims every fixture of every reader bond with exactly its own reader', () => {
+    const dirs: Array<[string, string]> = [
+      ['claude-code', 'claude-code'],
+      ['codex', 'codex'],
+      ['molecule-ide', 'molecule-ide'],
+      ['gemini-cli', 'gemini-cli'],
+      ['cline', 'cline'],
+      ['opencode', 'opencode'],
+      ['copilot-chat', 'copilot-chat'],
+      ['cursor', 'cursor'],
+      ['aider', 'aider'],
+      ['markdown-chat', 'markdown-chat'],
+    ]
+    const all = [...harnessReaders]
+    let checked = 0
+    for (const [dir, format] of dirs) {
+      const fixtures = join(__dirname, '..', '..', '..', dir, 'src', '__tests__', 'fixtures')
+      for (const file of readdirSync(fixtures)) {
+        const text = readFileSync(join(fixtures, file), 'utf8')
+        const input = { text, fileName: file }
+        expect(provider.read(input).format, `${dir}/${file}`).toBe(format)
+        // No OTHER harness reader accepts it, whatever the order.
+        const claimants = all.filter((r) => r.detect(input)).map((r) => r.format)
+        expect(claimants, `${dir}/${file}`).toEqual(format === 'markdown-chat' ? [] : [format])
+        checked++
+      }
+    }
+    expect(checked).toBeGreaterThanOrEqual(20)
   })
 })
 

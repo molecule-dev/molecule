@@ -1,0 +1,124 @@
+{
+  "responderUsername": "GitHub Copilot",
+  "initialLocation": "panel",
+  "requests": [
+    {
+      "requestId": "request_1",
+      "message": {
+        "parts": [
+          {
+            "range": {
+              "start": 0,
+              "endExclusive": 52
+            },
+            "editorRange": {
+              "startLineNumber": 1,
+              "startColumn": 1,
+              "endLineNumber": 1,
+              "endColumn": 53
+            },
+            "text": "Add a greet function to #file:app.ts that says hello.",
+            "kind": "text"
+          }
+        ],
+        "text": "Add a greet function to #file:app.ts that says hello."
+      },
+      "variableData": {
+        "variables": [
+          {
+            "id": "vscode.file",
+            "name": "file:app.ts",
+            "value": {
+              "$mid": 1,
+              "fsPath": "/home/user/demo/src/app.ts",
+              "external": "file:///home/user/demo/src/app.ts",
+              "path": "/home/user/demo/src/app.ts",
+              "scheme": "file"
+            }
+          }
+        ]
+      },
+      "response": [
+        {
+          "kind": "thinking",
+          "value": "Plan the edit."
+        },
+        {
+          "value": "I added `greet` to ",
+          "supportThemeIcons": false,
+          "supportHtml": false
+        },
+        {
+          "kind": "inlineReference",
+          "inlineReference": {
+            "$mid": 1,
+            "fsPath": "/home/user/demo/src/app.ts",
+            "external": "file:///home/user/demo/src/app.ts",
+            "path": "/home/user/demo/src/app.ts",
+            "scheme": "file"
+          }
+        },
+        {
+          "value": ".\n\n```ts\nexport function greet(name: string): string {\n  return `Hello, ${name}`\n}\n```",
+          "supportThemeIcons": false
+        },
+        {
+          "kind": "textEditGroup",
+          "uri": {
+            "$mid": 1,
+            "fsPath": "/home/user/demo/src/app.ts",
+            "external": "file:///home/user/demo/src/app.ts",
+            "path": "/home/user/demo/src/app.ts",
+            "scheme": "file"
+          },
+          "edits": [
+            [
+              {
+                "range": {
+                  "startLineNumber": 1,
+                  "startColumn": 1,
+                  "endLineNumber": 1,
+                  "endColumn": 1
+                },
+                "text": "export function greet(name: string): string {\n  return `Hello, ${name}`\n}\n"
+              }
+            ],
+            []
+          ],
+          "done": true
+        },
+        {
+          "kind": "toolInvocationSerialized",
+          "invocationMessage": "Reading app.ts",
+          "pastTenseMessage": "Read app.ts",
+          "isConfirmed": true,
+          "isComplete": true,
+          "toolCallId": "t1",
+          "toolId": "copilot_readFile"
+        }
+      ],
+      "result": {
+        "metadata": {}
+      },
+      "followups": [],
+      "isCanceled": false,
+      "timestamp": 1790582400000,
+      "modelId": "copilot/gpt-5.3",
+      "responseId": "response_1"
+    },
+    {
+      "requestId": "request_2",
+      "message": "Explain what it returns.",
+      "variableData": {
+        "variables": []
+      },
+      "response": [
+        {
+          "value": "It returns a greeting string."
+        }
+      ],
+      "timestamp": 1790582430000,
+      "modelId": "copilot/gpt-5.3"
+    }
+  ]
+}

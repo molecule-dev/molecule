@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-agent-transcript-autodetect",
-  "version": "1.0.1",
-  "description": "Picks the reader that recognizes a transcript and delegates to it; bundles the Claude Code, Codex and Molecule IDE readers",
+  "version": "1.1.0",
+  "description": "Picks the reader that recognizes a transcript and delegates to it; bundles readers for Claude Code, Codex CLI, the Molecule IDE, Gemini CLI, Cline / Roo Code, OpenCode, GitHub Copilot Chat, Cursor and Aider, plus a generic Markdown chat reader",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,14 +26,27 @@
     "transcript",
     "detect",
     "claude-code",
-    "codex"
+    "codex",
+    "gemini-cli",
+    "aider",
+    "cursor",
+    "cline",
+    "opencode",
+    "copilot"
   ],
   "license": "Apache-2.0",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "dependencies": {
+    "@molecule/api-agent-transcript-aider": "1.0.0",
     "@molecule/api-agent-transcript-claude-code": "1.0.0",
+    "@molecule/api-agent-transcript-cline": "1.0.0",
     "@molecule/api-agent-transcript-codex": "1.0.0",
-    "@molecule/api-agent-transcript-molecule-ide": "1.0.0"
+    "@molecule/api-agent-transcript-copilot-chat": "1.0.0",
+    "@molecule/api-agent-transcript-cursor": "1.0.0",
+    "@molecule/api-agent-transcript-gemini-cli": "1.0.0",
+    "@molecule/api-agent-transcript-markdown-chat": "1.0.0",
+    "@molecule/api-agent-transcript-molecule-ide": "1.0.0",
+    "@molecule/api-agent-transcript-opencode": "1.0.0"
   },
   "peerDependencies": {
     "@molecule/api-agent-transcript": "^1.0.0"

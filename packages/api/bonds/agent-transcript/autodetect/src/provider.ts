@@ -9,9 +9,16 @@ import type {
   AgentTranscriptReader,
   TranscriptInput,
 } from '@molecule/api-agent-transcript'
+import { provider as aider } from '@molecule/api-agent-transcript-aider'
 import { provider as claudeCode } from '@molecule/api-agent-transcript-claude-code'
+import { provider as cline } from '@molecule/api-agent-transcript-cline'
 import { provider as codex } from '@molecule/api-agent-transcript-codex'
+import { provider as copilotChat } from '@molecule/api-agent-transcript-copilot-chat'
+import { provider as cursor } from '@molecule/api-agent-transcript-cursor'
+import { provider as geminiCli } from '@molecule/api-agent-transcript-gemini-cli'
+import { provider as markdownChat } from '@molecule/api-agent-transcript-markdown-chat'
 import { provider as moleculeIde } from '@molecule/api-agent-transcript-molecule-ide'
+import { provider as opencode } from '@molecule/api-agent-transcript-opencode'
 
 /**
  * Compose readers: the first whose `detect()` accepts the input reads it.
@@ -41,6 +48,28 @@ export function createReader(readers: readonly AgentTranscriptReader[]): AgentTr
 }
 
 /**
- * Reads any Claude Code, Codex CLI or Molecule IDE transcript.
+ * Every harness-specific reader, in the order they are tried. Each accepts
+ * only its own harness's files, so the order only matters for the generic
+ * Markdown chat reader, which is not in this list. Compose
+ * `createReader(harnessReaders)` when only a real harness's own file should
+ * be read.
  */
-export const provider: AgentTranscriptReader = createReader([claudeCode, codex, moleculeIde])
+export const harnessReaders: readonly AgentTranscriptReader[] = [
+  claudeCode,
+  codex,
+  moleculeIde,
+  geminiCli,
+  cline,
+  opencode,
+  copilotChat,
+  cursor,
+  aider,
+]
+
+/**
+ * Reads a transcript from any supported harness — Claude Code, Codex CLI,
+ * the Molecule IDE, Gemini CLI, Cline / Roo Code, OpenCode, GitHub Copilot
+ * Chat, Cursor and Aider — and, last, any plain Markdown / text chat with
+ * User / Assistant speaker markers.
+ */
+export const provider: AgentTranscriptReader = createReader([...harnessReaders, markdownChat])
