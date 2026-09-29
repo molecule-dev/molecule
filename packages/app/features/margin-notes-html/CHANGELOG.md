@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-html
 
+## 1.0.7
+
+### Patch Changes
+
+- A note of a `tap` kind (about one paragraph) no longer carries a layout row into the next section, so that section's summary sits beside its own heading instead of under the previous section's.
+
 ## 1.0.6
 
 ### Patch Changes

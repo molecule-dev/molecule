@@ -118,7 +118,7 @@ function renderNote(
  */
 export function renderMarginNotes(options: RenderMarginNotesOptions): RenderedMarginNotes {
   const { blocks, notes = [], kinds = [], markLabel, id = 'margin-notes' } = options
-  const rows = buildRows(blocks, notes)
+  const rows = buildRows(blocks, notes, kinds)
   const hasNotes = rows.some((r) => r.notes.length > 0)
   const shown = defaultShownKinds(kinds)
   const switchable = new Set(kinds.map((k) => k.id))

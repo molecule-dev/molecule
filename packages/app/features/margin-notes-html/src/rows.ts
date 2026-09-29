@@ -1,4 +1,4 @@
-import type { MarginNote, MarginNotesBlock, MarginNotesRow } from './types.js'
+import type { MarginNote, MarginNoteKind, MarginNotesBlock, MarginNotesRow } from './types.js'
 
 /**
  * Group blocks into layout rows and place each note once.
@@ -15,13 +15,28 @@ import type { MarginNote, MarginNotesBlock, MarginNotesRow } from './types.js'
  * first paragraph. A run of blocks with no notes is a row of its own. Each note
  * is shown once, in the first row that refers to it.
  *
+ * Only a note about the whole section keeps a row going: a note of a `'tap'`
+ * kind is about one paragraph, so it never carries a row past its block. Before
+ * that, a prompt that wrote a post's opening AND the next section's first
+ * paragraph opened the first row with the summary, and the next section's
+ * summary was stacked under it, 180–200 px above its own heading (X0 x375,
+ * x376, 2026-09-29).
+ *
  * @param blocks - The text, in reading order.
  * @param notes - Every note the blocks refer to; ids with no note are ignored.
+ * @param kinds - The note kinds; a `'tap'` kind never extends a row. Without
+ *   them every note does.
  * @returns The rows, in reading order.
  */
-export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []): MarginNotesRow[] {
+export function buildRows(
+  blocks: MarginNotesBlock[],
+  notes: MarginNote[] = [],
+  kinds: MarginNoteKind[] = [],
+): MarginNotesRow[] {
   blocks = mergeRepeatedNotes(blocks, notes)
   const byId = new Map(notes.map((n) => [n.id, n]))
+  const paragraphKinds = new Set(kinds.filter((k) => k.panel === 'tap').map((k) => k.id))
+  const extendsRow = (id: string): boolean => !paragraphKinds.has(byId.get(id)!.kind)
   const known = (ids: string[] | undefined): string[] =>
     [...new Set(ids ?? [])].filter((id) => byId.has(id))
   const key = (ids: string[]): string => [...ids].sort().join('\u0000')
@@ -33,7 +48,8 @@ export function buildRows(blocks: MarginNotesBlock[], notes: MarginNote[] = []):
   for (const block of blocks) {
     const ids = known(block.noteIds)
     const k = key(ids)
-    const stillCovered = current !== null && ids.some((id) => opening.includes(id))
+    const stillCovered =
+      current !== null && ids.some((id) => opening.includes(id) && extendsRow(id))
     if (current && (k === currentKey || stillCovered)) {
       current.blocks.push(block)
       for (const id of ids) {

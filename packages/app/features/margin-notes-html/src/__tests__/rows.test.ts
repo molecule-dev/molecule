@@ -71,6 +71,49 @@ describe('buildRows', () => {
     expect(rows[1].notes.map((n) => n.id)).toEqual(['s9'])
   })
 
+  it('starts the next section’s row when a prompt that opened the row spans both (x375, x376)', () => {
+    const summary = (id: string): MarginNote => ({ id, kind: 'summary', html: `<p>${id}</p>` })
+    const notes = [
+      summary('s0'),
+      summary('s2'),
+      prompt('p0', 'Write the opening and the next part'),
+    ]
+    const kinds = [
+      { id: 'summary', label: 'Summaries' },
+      { id: 'prompt', label: 'Prompts', panel: 'tap' as const },
+    ]
+    const blocks = [
+      block('b0', ['s0', 'p0']),
+      block('b1', ['s0', 'p0']),
+      block('h2', ['s2', 'p0']),
+      block('b3', ['s2']),
+    ]
+    const rows = buildRows(blocks, notes, kinds)
+    expect(rows.map((r) => r.blocks.map((b) => b.id))).toEqual([
+      ['b0', 'b1'],
+      ['h2', 'b3'],
+    ])
+    expect(rows[1].notes.map((n) => n.id)).toEqual(['s2'])
+    // Without the kinds, the old grouping stands.
+    expect(buildRows(blocks, notes)[0].blocks.map((b) => b.id)).toContain('h2')
+  })
+
+  it('keeps a section in one row when a new prompt starts mid-section', () => {
+    const summary: MarginNote = { id: 's0', kind: 'summary', html: '<p>s0</p>' }
+    const notes = [summary, prompt('p0', 'first'), prompt('p1', 'second')]
+    const kinds = [
+      { id: 'summary', label: 'Summaries' },
+      { id: 'prompt', label: 'Prompts', panel: 'tap' as const },
+    ]
+    const rows = buildRows(
+      [block('a', ['s0', 'p0']), block('b', ['s0', 'p1']), block('c', ['s0'])],
+      notes,
+      kinds,
+    )
+    expect(rows).toHaveLength(1)
+    expect(rows[0].notes.map((n) => n.id)).toEqual(['s0', 'p0', 'p1'])
+  })
+
   it('shows a prompt that produced several paragraphs once', () => {
     const notes = [prompt('p1', 'Write the intro'), prompt('p2', 'Write the intro')]
     const rows = buildRows([block('a', ['p1']), block('b', ['p2'])], notes)
