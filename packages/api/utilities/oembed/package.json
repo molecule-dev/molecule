@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-oembed",
   "version": "1.0.2",
-  "description": "oEmbed consumer + producer — discovers oEmbed endpoints and fetches normalized embed payloads (rich-link cards, Notion-style embeds).",
+  "description": "oEmbed consumer + producer \u2014 discovers oEmbed endpoints and fetches normalized embed payloads (rich-link cards, Notion-style embeds).",
   "homepage": "https://www.molecule.dev/packages/api-oembed",
   "type": "module",
   "main": "dist/index.js",
@@ -33,7 +33,7 @@
     "directory": "packages/api/utilities/oembed"
   },
   "dependencies": {
-    "undici": "7.29.0"
+    "undici": "7.30.0"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

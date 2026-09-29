@@ -1,7 +1,7 @@
 {
   "name": "@molecule/api-link-preview",
   "version": "1.0.2",
-  "description": "URL preview / OG-image scraper — extracts Open Graph, Twitter Card, and oEmbed metadata from a URL.",
+  "description": "URL preview / OG-image scraper \u2014 extracts Open Graph, Twitter Card, and oEmbed metadata from a URL.",
   "homepage": "https://www.molecule.dev/packages/api-link-preview",
   "type": "module",
   "main": "dist/index.js",
@@ -33,7 +33,7 @@
     "directory": "packages/api/utilities/link-preview"
   },
   "dependencies": {
-    "undici": "7.29.0"
+    "undici": "7.30.0"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

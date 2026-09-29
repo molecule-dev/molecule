@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/webhook/http"
   },
   "dependencies": {
-    "undici": "7.29.0"
+    "undici": "7.30.0"
   },
   "peerDependencies": {
     "@molecule/api-logger": "^1.0.1",

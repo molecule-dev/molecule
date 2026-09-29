@@ -33,7 +33,7 @@
     "directory": "packages/api/bonds/webhook/queue"
   },
   "dependencies": {
-    "undici": "7.29.0"
+    "undici": "7.30.0"
   },
   "peerDependencies": {
     "@molecule/api-webhook": "^1.0.1"
