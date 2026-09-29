@@ -9,7 +9,7 @@
  * @module
  */
 
-import type { AIProvider, ChatParams, TokenUsage } from '@molecule/api-ai'
+import type { AIProvider, ChatParams, ContentBlock, TokenUsage } from '@molecule/api-ai'
 import {
   getProviderByName as getAIProviderByName,
   requireProvider as requireAIProvider,
@@ -213,16 +213,32 @@ export function createProvider(config: LlmDecisionsConfig = {}): AIDecisionsProv
       ].join('\n')
       const state =
         typeof input.state === 'string' ? input.state : JSON.stringify(input.state, null, 2)
+      const images = input.images ?? []
       const user = [
         'State:',
         state,
+        ...(images.length
+          ? ['', `The ${images.length} attached image(s) are part of the state.`]
+          : []),
         '',
         'Questions:',
         ...entries.map(([id, q]) => describeQuestion(id, q)),
       ].join('\n')
+      // Images ride as generic content blocks; the bonded `ai` provider maps
+      // them to its native vision format (and errors if its model has none).
+      const content: string | ContentBlock[] = images.length
+        ? [
+            ...images.map((image): ContentBlock => ({
+              type: 'image',
+              mediaType: image.mimeType,
+              data: image.data,
+            })),
+            { type: 'text', text: user },
+          ]
+        : user
 
       const { text, usage } = await complete(ai, {
-        messages: [{ role: 'user', content: user }],
+        messages: [{ role: 'user', content }],
         system,
         model: input.model ?? config.model,
         temperature: 0,

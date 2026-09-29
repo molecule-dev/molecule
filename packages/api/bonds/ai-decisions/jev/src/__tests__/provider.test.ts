@@ -145,4 +145,15 @@ describe('ai-decisions-jev', () => {
       vi.useRealTimers()
     }
   })
+
+  it('refuses images instead of answering from the text alone', async () => {
+    await expect(
+      createProvider({ apiKey: 'k' }).decide({
+        state: 's',
+        questions: QUESTIONS,
+        images: [{ mimeType: 'image/png', data: 'iVBORw0KGgo=' }],
+      }),
+    ).rejects.toThrow(/reads text only/)
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
 })

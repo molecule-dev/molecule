@@ -1,7 +1,7 @@
 {
-  "name": "@molecule/api-ai-decisions",
-  "version": "1.1.0",
-  "description": "Typed AI decisions for molecule.dev — answer choice, score and yes/no questions about text, JSON or images with calibrated probabilities, behind swappable bonds (Laya, Jeff, Intern-Decision, Jev, any LLM)",
+  "name": "@molecule/api-ai-decisions-jeff",
+  "version": "1.0.0",
+  "description": "Jeff decisions provider for molecule.dev — typed choice/score/yes-no answers from the open-weights Jeff models on your own jeff-serve host",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,20 +24,19 @@
     "molecule",
     "ai",
     "decisions",
-    "classification",
-    "routing",
-    "triage",
-    "system-one"
+    "jeff",
+    "self-hosted",
+    "open-weights"
   ],
   "license": "Apache-2.0",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "peerDependencies": {
-    "@molecule/api-bond": "^1.0.1",
-    "@molecule/api-i18n": "^1.0.1"
+    "@molecule/api-ai-decisions": "^1.1.0",
+    "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.2",
-    "@molecule/api-i18n": "1.0.3",
+    "@molecule/api-ai-decisions": "1.1.0",
+    "@molecule/api-secrets": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
@@ -45,9 +44,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/core/ai-decisions"
+    "directory": "packages/api/bonds/ai-decisions/jeff"
   },
-  "homepage": "https://www.molecule.dev/packages/api-ai-decisions",
+  "homepage": "https://www.molecule.dev/packages/api-ai-decisions-jeff",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

@@ -14,8 +14,10 @@
  * | Bond | What answers | When |
  * |---|---|---|
  * | `@molecule/api-ai-decisions-laya` | the open-weights Laya model (Apache-2.0) on a `laya-serve` host you run — or any other self-hosted `/v1/systemone` server, such as Kev (Qwen-based, GPU/MLX) | self-hosted, ~30–40 ms/question on a GPU (Laya), data stays with you |
+ * | `@molecule/api-ai-decisions-jeff` | the open-weights Jeff models (Qwen3.5 0.8B/2B, Gemma 4 E2B fine-tunes) on a `jeff-serve` host you run | self-hosted on a GPU or Apple MLX, ~20–30 ms/request; English only; ≤26 options |
+ * | `@molecule/api-ai-decisions-intern-decision` | the open-weights Intern-Decision models (0.8B/2B/4B) on the Intern-Decision FastAPI service you run | self-hosted on a GPU; the only bond here whose model also reads `images` besides the LLM bond |
  * | `@molecule/api-ai-decisions-jev` | TypeSafe's hosted Jev API | no model to host; English-first |
- * | `@molecule/api-ai-decisions-llm` | whatever `ai` chat bond is bonded | no extra service; slower and costlier per call |
+ * | `@molecule/api-ai-decisions-llm` | whatever `ai` chat bond is bonded | no extra service; slower and costlier per call; passes `images` to vision chat models |
  *
  * @example
  * ```typescript
@@ -70,6 +72,11 @@
  * - **Keep state short.** Laya's English checkpoint reads 512 tokens (the
  *   multilingual one 1,024); longer state is truncated, not refused. Put the
  *   decisive text first.
+ * - **`images` is opt-in per bond.** Pass `images: [{ mimeType: 'image/png',
+ *   data: '<base64, no data: prefix>' }]` only with a bond whose model sees
+ *   images (Intern-Decision, Jeff's PyTorch backend, the LLM bond over a
+ *   vision model). Laya and Jev throw when `images` is set — they never
+ *   answer from the text alone as if the image had been read.
  * - **Never use it to generate text** — there is no text output. For a
  *   free-text label set that changes per request, use
  *   `@molecule/api-ai-classification`.

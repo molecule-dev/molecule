@@ -59,6 +59,11 @@ class LayaDecisionsProvider implements AIDecisionsProvider {
     if (!input.questions || Object.keys(input.questions).length === 0) {
       throw new Error('ai-decisions: decide() requires at least one question')
     }
+    if (input.images?.length) {
+      throw new Error(
+        'ai-decisions-laya: Laya reads text only, so `images` is not supported. Bond @molecule/api-ai-decisions-intern-decision or @molecule/api-ai-decisions-llm (over a vision model) to ask about images.',
+      )
+    }
     const model = input.model ?? this.model
     const body = await postSystemOne({
       url: `${this.baseUrl}/v1/systemone`,

@@ -101,4 +101,19 @@ describe('ai-decisions-llm', () => {
     expect(r.answers.refund.answer).toBe(false)
     expect(lastParams?.model).toBe('m-1')
   })
+
+  it('passes images to the ai bond as image content blocks before the prompt', async () => {
+    bondAI('{"refund":{"probability":0.2}}')
+    await provider.decide({
+      state: 'receipt',
+      questions: { refund: QUESTIONS.refund },
+      images: [{ mimeType: 'image/png', data: 'iVBORw0KGgo=' }],
+    })
+    const content = lastParams?.messages[0]?.content
+    expect(Array.isArray(content)).toBe(true)
+    const blocks = content as Exclude<typeof content, string | undefined>
+    expect(blocks[0]).toEqual({ type: 'image', mediaType: 'image/png', data: 'iVBORw0KGgo=' })
+    expect(blocks[1]).toMatchObject({ type: 'text' })
+    expect(JSON.stringify(blocks[1])).toContain('attached image(s) are part of the state')
+  })
 })

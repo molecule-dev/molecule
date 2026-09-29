@@ -62,6 +62,11 @@ class JevDecisionsProvider implements AIDecisionsProvider {
     if (!input.questions || Object.keys(input.questions).length === 0) {
       throw new Error('ai-decisions: decide() requires at least one question')
     }
+    if (input.images?.length) {
+      throw new Error(
+        'ai-decisions-jev: Jev reads text only, so `images` is not supported. Bond @molecule/api-ai-decisions-intern-decision or @molecule/api-ai-decisions-llm (over a vision model) to ask about images.',
+      )
+    }
     if (!this.apiKey) {
       throw new Error(
         'ai-decisions-jev: TYPESAFE_API_KEY is not set. Create a key at typesafe.ai, or bond @molecule/api-ai-decisions-laya to self-host.',

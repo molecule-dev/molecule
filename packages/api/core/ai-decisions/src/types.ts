@@ -119,6 +119,16 @@ export type AnswersFor<Q extends Record<string, DecisionQuestion>> = {
       : YesNoAnswer
 }
 
+/**
+ * An image the questions are also about (a screenshot, a photo of a receipt).
+ */
+export interface DecisionImage {
+  /** The image's media type: `'image/png'`, `'image/jpeg'`, `'image/webp'`, … */
+  mimeType: string
+  /** The raw image bytes, base64-encoded — no `data:` URL prefix. */
+  data: string
+}
+
 /** Input to one decision request. */
 export interface DecideInput<
   Q extends Record<string, DecisionQuestion> = Record<string, DecisionQuestion>,
@@ -127,6 +137,12 @@ export interface DecideInput<
   state: DecisionState
   /** The questions, keyed by an id you choose; answers come back under the same ids. */
   questions: Q
+  /**
+   * Images the questions are also about, read alongside `state`. Only bonds
+   * whose model sees images accept this; every other bond THROWS when it is
+   * set rather than silently answering from the text alone.
+   */
+  images?: DecisionImage[]
   /** Provider-specific model / checkpoint id (e.g. `'jev-latest'`, `'multilingual'`). */
   model?: string
   /** Mark answers whose `confidence` is below this (`0..1`) with `lowConfidence: true`. */

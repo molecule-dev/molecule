@@ -221,4 +221,15 @@ describe('ai-decisions-laya', () => {
     ).rejects.toThrow(/requires a `state`/)
     expect(mockFetch).not.toHaveBeenCalled()
   })
+
+  it('refuses images instead of answering from the text alone', async () => {
+    await expect(
+      createProvider().decide({
+        state: 's',
+        questions: QUESTIONS,
+        images: [{ mimeType: 'image/png', data: 'iVBORw0KGgo=' }],
+      }),
+    ).rejects.toThrow(/reads text only/)
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
 })
