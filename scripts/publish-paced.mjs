@@ -42,6 +42,8 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
+import { assertPackComplete } from './lib/assert-pack-complete.mjs'
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 /**
@@ -280,6 +282,15 @@ for (const pkg of todo) {
   // night, publishing 80 packages in 8 hours. The correct response is to stop,
   // let the window cool for a full 24h, and resume in small batches (--limit).
   let realAttempts = 0
+
+  // A tarball missing its own entry points installs and then fails every
+  // import (ERR_MODULE_NOT_FOUND) — refuse it here, before npm has it.
+  try {
+    assertPackComplete(pkg.dir)
+  } catch (error) {
+    failed.push({ name: pkg.name, error: error.message })
+    continue
+  }
 
   while (!published && realAttempts < 3) {
     try {

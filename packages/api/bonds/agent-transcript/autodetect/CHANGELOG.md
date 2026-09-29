@@ -1,5 +1,11 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.1.1
+
+### Patch Changes
+
+- Depends on the Copilot Chat and Markdown chat readers 1.0.1, which carry their compiled code.
+
 ## 1.1.0
 
 ### Minor Changes

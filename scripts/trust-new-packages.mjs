@@ -34,6 +34,8 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
+import { assertPackComplete } from './lib/assert-pack-complete.mjs'
+
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
@@ -244,6 +246,8 @@ for (const pkg of untrusted) {
         cwd: ROOT,
         stdio: 'inherit',
       })
+      // The build must have produced every entry point before anything uploads.
+      assertPackComplete(join(ROOT, pkg.dir))
       // stdio: 'inherit' so npm runs its OWN 2FA prompt. `npm publish` has no
       // --otp we can satisfy from here, and collecting a code we cannot pass on
       // is worse than not collecting one.

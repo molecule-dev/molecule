@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-copilot-chat",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads VS Code GitHub Copilot Chat exports (Chat: Export Chat…) into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",
