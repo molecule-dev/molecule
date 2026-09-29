@@ -17,8 +17,8 @@ export interface ClaudeCodeRuntimeConfig extends AgentRunConfig {
   cliPackage?: string
   /**
    * Model id passed to the CLI when a spec names none. This is a CATALOG id
-   * (`claude-sonnet-5`); the runtime maps catalog ids to the CLI's model
-   * argument. Default `claude-sonnet-5`.
+   * (`claude-sonnet-5-5`); the runtime maps catalog ids to the CLI's model
+   * argument. Default `claude-sonnet-5-5`.
    */
   defaultModel?: string
   /**

@@ -1093,7 +1093,8 @@ describe('supersededBy', () => {
       'claude-opus-4-8': 'claude-opus-5-5',
       'claude-opus-4-7': 'claude-opus-5-5',
       'claude-opus-4-6': 'claude-opus-5-5',
-      'claude-sonnet-4-6': 'claude-sonnet-5',
+      'claude-sonnet-5': 'claude-sonnet-5-5',
+      'claude-sonnet-4-6': 'claude-sonnet-5-5',
       'gpt-5.6-sol': 'gpt-6-sol',
       'gpt-5.6-terra': 'gpt-6-sol',
       'gpt-5.6-luna': 'gpt-6-luna',
@@ -1127,7 +1128,7 @@ describe('resolveSelectableModelId', () => {
   })
 
   it('returns a selectable id unchanged', () => {
-    expect(resolveSelectableModelId('claude-sonnet-5')).toBe('claude-sonnet-5')
+    expect(resolveSelectableModelId('claude-sonnet-5-5')).toBe('claude-sonnet-5-5')
   })
 
   it('returns undefined for unknown and disabled ids', () => {

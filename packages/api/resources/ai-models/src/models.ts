@@ -117,8 +117,8 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   modeled; Z.ai $0.01 per use, but its search never runs on a Synthase-shaped
  *   request, so GLM entries carry no webSearchToolType.
  * - Anthropic: https://platform.claude.com/docs/en/about-claude/models/overview
- *   + /docs/en/build-with-claude/effort (fable-5-1 / opus-5-5 / sonnet-5
- *   current as of 2026-09-23 — see the dated notes below; historically fable-5 / opus-5 / sonnet-5 current;
+ *   + /docs/en/build-with-claude/effort (fable-5-1 / opus-5-5 / sonnet-5-5
+ *   current as of 2026-09-29 — see the dated notes below; historically fable-5 / opus-5 / sonnet-5 current;
  *   opus-4-8 superseded by opus-5 at identical pricing but still served — it is
  *   the recommended refusal-fallback model; effort ladder on all three current
  *   models is low|medium|high|xhigh|max; budget_tokens 400s on 4.7+)
@@ -159,6 +159,16 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   (disabled/budget_tokens 400), tool_choice any/tool 400, computer_20251124
  *   400 — Synthase sends none of those. Every other Anthropic price on the
  *   pricing page is unchanged.)
+ *   (verified 2026-09-29 — ADDED claude-sonnet-5-5, released 2026-09-28 and
+ *   listed as "Active (latest)" on /docs/en/models/sonnet-5-5/overview; the
+ *   overview page now lists claude-sonnet-5 under "Legacy models (still
+ *   available)" → superseded, with sonnet-4-6 repointed one hop. Pricing
+ *   page: $2/$10, 5m cache write $2.50, cache hits $0.20 (standard 0.1×).
+ *   1M ctx / 128K out, text + image input, reliable knowledge cutoff Jun
+ *   2026. Effort page: all five levels, default high. Model/what's-new
+ *   pages: non-default temperature 400, tool_choice any/tool 400,
+ *   thinking "disabled" replaced by "between_tools" — Synthase sends none of
+ *   those. Every other Anthropic price on the pricing page is unchanged.)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -575,6 +585,50 @@ export const MODELS: readonly ModelDefinition[] = [
     supersededBy: 'claude-opus-5-5',
   },
   {
+    id: 'claude-sonnet-5-5',
+    provider: 'anthropic',
+    // Setting temperature/top_p/top_k to a non-default value → 400 (model
+    // page "Good to know", verified 2026-09-29); callers omit it
+    // (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
+    label: 'Claude Sonnet 5.5',
+    description: 'Fast & capable — the best mix of speed and intelligence at Sonnet cost',
+    // Forced tool use (tool_choice any/tool) → 400, a breaking change from
+    // sonnet-5 (what's-new page, verified 2026-09-29). Discovery and
+    // starting-point selection send `auto` for it instead (request-shape.ts).
+    rejectsForcedToolChoice: true,
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'high',
+    // Adaptive thinking on by default; all five levels, API default high, and
+    // the levels are recalibrated vs sonnet-5 (effort page, verified
+    // 2026-09-29). thinking {type:"disabled"} is replaced by "between_tools"
+    // — the bond never sends either. Text between tool calls now arrives in
+    // thinking blocks, which the bond streams as `thinking` events.
+    // 512-token prompt-cache minimum.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
+    // Same server-tool versions as the rest of the 4.6+ Anthropic fleet. Not
+    // currently sent by Synthase beyond webSearchToolType.
+    codeExecutionToolType: 'code_execution_20260521',
+    webFetchToolType: 'web_fetch_20260209',
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 10,
+    // Standard Anthropic ratios (pricing page: $0.20 cache hits, $2.50 5m
+    // cache write, verified 2026-09-29).
+    cacheReadPricePerMTok: 0.2,
+    cacheWritePricePerMTok: 2.5,
+    // Reliable knowledge cutoff Jun 2026 (model page "Specifications").
+    knowledgeCutoff: '2026-06-01',
+  },
+  {
     id: 'claude-sonnet-5',
     provider: 'anthropic',
     // temperature → 400 "`temperature` is deprecated for this model" (probed
@@ -612,6 +666,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2026-01-01',
+    // Superseded by claude-sonnet-5-5 (released 2026-09-28, same Sonnet tier,
+    // same $2/$10); Anthropic now lists sonnet-5 under "Legacy models (still
+    // available)". Still served and priceable, just not OFFERED.
+    deprecatedAt: '2026-09-28',
+    supersededBy: 'claude-sonnet-5-5',
   },
   {
     id: 'claude-opus-4-7',
@@ -725,9 +784,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.3,
     cacheWritePricePerMTok: 3.75,
     knowledgeCutoff: '2025-08-01',
-    // Superseded by claude-sonnet-5 (same tier) — kept priceable, not offered.
+    // Superseded by the current Sonnet (sonnet-5-5, one hop) — kept
+    // priceable, not offered.
     deprecatedAt: '2026-07-07',
-    supersededBy: 'claude-sonnet-5',
+    supersededBy: 'claude-sonnet-5-5',
   },
   {
     id: 'claude-haiku-4-5-20251001',

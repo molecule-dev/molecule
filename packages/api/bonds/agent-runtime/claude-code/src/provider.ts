@@ -120,7 +120,7 @@ export class ClaudeCodeAgentRuntime implements AgentRuntimeProvider {
     this.defaults = {
       timeoutMs: config.timeoutMs ?? 600_000,
       cliPackage: config.cliPackage ?? '@anthropic-ai/claude-code@latest',
-      defaultModel: config.defaultModel ?? 'claude-sonnet-5',
+      defaultModel: config.defaultModel ?? 'claude-sonnet-5-5',
       setupSlackMs: config.setupSlackMs ?? 240_000,
     }
   }
@@ -324,7 +324,7 @@ function shellQuote(value: string): string {
 
 /**
  * Map a catalog model id to the CLI's --model flag. Claude CLI accepts
- * `claude-sonnet-5` style ids directly.
+ * `claude-sonnet-5-5` style ids directly.
  *
  * @param model - Catalog model id.
  * @returns The flag, or '' for default.
