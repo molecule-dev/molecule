@@ -1,8 +1,9 @@
 {
-  "name": "@molecule/api-ai-image-generation-openai",
-  "version": "1.0.2",
-  "description": "OpenAI image generation provider for molecule.dev — DALL-E 3 and gpt-image-1",
-  "homepage": "https://www.molecule.dev/packages/api-ai-image-generation-openai",
+  "name": "@molecule/api-ai-image-generation-vllm-omni",
+  "version": "1.0.0",
+  "description": "vLLM-Omni image generation provider for molecule.dev — self-hosted Qwen-Image-2.1 and other diffusion models over the OpenAI-compatible Images API",
+  "homepage": "https://www.molecule.dev/packages/api-ai-image-generation-vllm-omni",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,18 +27,19 @@
     "ai",
     "image",
     "generation",
-    "openai",
-    "dall-e",
-    "gpt-image"
+    "vllm",
+    "vllm-omni",
+    "qwen-image",
+    "self-hosted"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/bonds/ai-image-generation/openai"
+    "directory": "packages/api/bonds/ai-image-generation/vllm-omni"
   },
   "peerDependencies": {
-    "@molecule/api-ai-image-generation": ">=1.0.1",
+    "@molecule/api-ai-image-generation": ">=1.1.0",
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {

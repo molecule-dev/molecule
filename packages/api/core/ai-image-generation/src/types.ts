@@ -73,6 +73,12 @@ export interface GenerateImageParams {
 export interface ImageEditParams {
   /** The source image to edit, as a Buffer of PNG data or a base64-encoded string. */
   image: Buffer | string
+  /**
+   * Additional reference images for multi-reference editing, sent after `image`
+   * (Buffer of image data or base64 string each). Only providers that support
+   * multi-reference edits read it; others ignore it and use `image` alone.
+   */
+  images?: (Buffer | string)[]
   /** Text description of the desired edits. */
   prompt: string
   /** Optional mask indicating areas to edit (white = edit, black = keep). */

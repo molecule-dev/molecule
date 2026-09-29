@@ -23,6 +23,10 @@
  *   `count`, `steps`). A provider honors ITS dialect and silently ignores the
  *   other's fields — check the bonded provider's docs before relying on anything
  *   beyond `prompt`.
+ * - **`edit({ images })` is multi-reference and optional.** Extra reference images
+ *   go in `images` (sent after `image`); only providers that support
+ *   multi-reference edits (e.g. `@molecule/api-ai-image-generation-vllm-omni`)
+ *   read it — the others silently use `image` alone.
  * - **Handle every result shape, and persist what you must keep.** A
  *   `GeneratedImage` may carry `url`, `base64`, or raw `data` bytes — provider URLs
  *   are typically short-lived, so download and store (e.g. via the uploads bond)

@@ -1,5 +1,11 @@
 # @molecule/api-ai-image-generation
 
+## 1.1.0
+
+### Minor Changes
+
+- `ImageEditParams` gains an optional `images` field for multi-reference edits; providers that do not support it keep using `image` alone.
+
 ## 1.0.1
 
 ### Patch Changes
