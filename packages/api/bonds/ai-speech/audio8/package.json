@@ -1,8 +1,9 @@
 {
-  "name": "@molecule/api-ai-speech",
-  "version": "1.1.0",
-  "description": "",
-  "homepage": "https://www.molecule.dev/packages/api-ai-speech",
+  "name": "@molecule/api-ai-speech-audio8",
+  "version": "1.0.0",
+  "description": "Audio8-ASR-Infinite speech provider for molecule.dev — self-hosted low-latency streaming speech-to-text for Chinese and English",
+  "homepage": "https://www.molecule.dev/packages/api-ai-speech-audio8",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,19 +25,24 @@
   "keywords": [
     "molecule",
     "ai",
-    "speech"
+    "speech",
+    "audio8",
+    "asr",
+    "streaming",
+    "self-hosted"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/core/ai-speech"
+    "directory": "packages/api/bonds/ai-speech/audio8"
   },
   "peerDependencies": {
-    "@molecule/api-bond": "^1.0.1"
+    "@molecule/api-ai-speech": ">=1.1.0",
+    "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-ai-speech": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

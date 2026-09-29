@@ -139,6 +139,13 @@ export interface TranscribeParams {
   responseFormat?: TranscriptionFormat
   /** Whether to include word-level timestamps (if supported). */
   timestampGranularity?: 'word' | 'segment' | 'both'
+  /**
+   * Label who is speaking (speaker diarization), if the provider supports it.
+   * Speaker labels land on `words[].speaker` / `segments[].speaker`.
+   */
+  diarize?: boolean
+  /** Upper bound on the number of distinct speakers to label (diarization only). */
+  maxSpeakers?: number
 }
 
 /**
@@ -153,6 +160,12 @@ export interface TranscriptionSegment {
   end: number
   /** Transcribed text for this segment. */
   text: string
+  /**
+   * Normalized speaker label (e.g. `"speaker_0"`) when diarization was
+   * requested. Labels are per call: `speaker_0` in one result is not the same
+   * person as `speaker_0` in another.
+   */
+  speaker?: string
 }
 
 /**
@@ -165,6 +178,89 @@ export interface TranscriptionWord {
   start: number
   /** End time in seconds. */
   end: number
+  /** Normalized speaker label (e.g. `"speaker_0"`) when diarization was requested. */
+  speaker?: string
+}
+
+// ---------------------------------------------------------------------------
+// Streaming STT
+// ---------------------------------------------------------------------------
+
+/**
+ * Parameters for streaming speech-to-text.
+ *
+ * The audio passed alongside these params is raw PCM16 little-endian MONO at
+ * `sampleRate` Hz — not a WAV/webm/m4a container.
+ */
+export interface TranscribeStreamParams {
+  /** Sample rate of the PCM16 input in Hz. Defaults to 16000. */
+  sampleRate?: number
+  /** Language of the input audio (provider-specific code, usually ISO 639-1). */
+  language?: string
+  /** Model to use (provider-specific). */
+  model?: string
+  /** Optional context / hotword prompt, where the provider supports one. */
+  prompt?: string
+  /** Label who is speaking, where the provider supports it in streaming mode. */
+  diarize?: boolean
+  /** Cancels the stream: the provider closes its connection and the iterable ends. */
+  signal?: AbortSignal
+}
+
+/**
+ * An event from a streaming transcription.
+ *
+ * Text arrives as increments that build up the CURRENT segment:
+ * - `partial` — a provisional increment that the next `final` may revise.
+ * - `delta` — an append-only increment that will never change.
+ * - `final` — the complete, settled text of the current segment. It REPLACES
+ *   the increments received since the previous `final` (for append-only
+ *   providers it equals their concatenation), then a new segment begins.
+ * - `turn-end` — the provider detected the end of a speaker turn or a segment
+ *   boundary.
+ * - `error` — the stream failed; no further events follow.
+ */
+export type TranscriptionStreamEvent =
+  | { type: 'partial'; text: string }
+  | { type: 'delta'; text: string }
+  | { type: 'final'; text: string; words?: TranscriptionWord[] }
+  | { type: 'turn-end' }
+  | { type: 'error'; message: string }
+
+// ---------------------------------------------------------------------------
+// Diarization (who spoke when)
+// ---------------------------------------------------------------------------
+
+/**
+ * Parameters for speaker diarization without transcription.
+ */
+export interface DiarizeParams {
+  /** Audio data to diarize. */
+  audio: Uint8Array | Buffer
+  /** Filename hint for the audio (helps with format detection). */
+  filename?: string
+  /** Upper bound on the number of distinct speakers to label. */
+  maxSpeakers?: number
+}
+
+/**
+ * A span of audio attributed to one speaker.
+ */
+export interface DiarizationSegment {
+  /** Start time in seconds. */
+  start: number
+  /** End time in seconds. */
+  end: number
+  /** Normalized speaker label (e.g. `"speaker_0"`), per call. */
+  speaker: string
+}
+
+/**
+ * Result of a diarization request.
+ */
+export interface DiarizeResult {
+  /** Speaker spans in time order. */
+  segments: DiarizationSegment[]
 }
 
 /**
@@ -282,6 +378,33 @@ export interface AISpeechProvider {
    * @returns Translated English text with optional metadata.
    */
   translate?(params: TranslateParams): Promise<TranslateResult>
+
+  /**
+   * Whether `transcribeStream` text is append-only: `true` means text already
+   * emitted never changes (the provider emits `delta` events), `false` or
+   * absent means shown text may be revised by a later `final`.
+   */
+  readonly streamingAppendOnly?: boolean
+
+  /**
+   * Transcribe live audio as it arrives.
+   *
+   * @param audio - Raw PCM16 little-endian mono chunks at `params.sampleRate` Hz.
+   * @param params - Streaming parameters (sample rate, language, abort signal).
+   * @returns Async iterable of transcription events; ends after the last `final` or an `error`.
+   */
+  transcribeStream?(
+    audio: AsyncIterable<Uint8Array>,
+    params?: TranscribeStreamParams,
+  ): AsyncIterable<TranscriptionStreamEvent>
+
+  /**
+   * Label who spoke when, without transcribing.
+   *
+   * @param params - Diarization parameters including audio data.
+   * @returns Speaker spans with normalized per-call labels.
+   */
+  diarize?(params: DiarizeParams): Promise<DiarizeResult>
 }
 
 /**

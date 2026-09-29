@@ -25,6 +25,21 @@
  *   return them as a binary response with that Content-Type (or store via the uploads
  *   bond); never JSON-encode the audio. For STT, pass raw audio bytes plus a
  *   `filename` hint so the provider can detect the container format.
+ * - **Streaming STT is optional too — check `if (speech.transcribeStream)` first.**
+ *   Its input is raw PCM16 little-endian MONO at `sampleRate` (default 16000), not
+ *   a webm/m4a container: decode browser audio to PCM before feeding it. Text
+ *   arrives as `partial` (may still be revised) or `delta` (never revised)
+ *   increments for the current segment, and `final` REPLACES everything since the
+ *   previous `final`. Read `speech.streamingAppendOnly` to know whether text you
+ *   already showed can change. A browser microphone streams to YOUR API, which
+ *   calls `transcribeStream` — never connect the browser to the model host.
+ * - **Diarization labels are per call, not identities.** `diarize: true` fills
+ *   `words[].speaker` / `segments[].speaker` with normalized labels
+ *   (`"speaker_0"`, `"speaker_1"`, …) numbered by who spoke first IN THAT CALL;
+ *   `speaker_1` in two results can be two different people. It is not speaker
+ *   identification. `diarize()` returns speaker spans without text — merge them
+ *   with a transcript by timestamp. A provider that cannot diarize ignores the
+ *   flag, so check that `speaker` is present before rendering "who said what".
  * - **Server-side only, gated and budgeted.** Keep the provider key on the API;
  *   auth + rate-limit user-facing synthesize/transcribe endpoints — both are billed
  *   per character/minute of audio.
@@ -48,6 +63,19 @@
  * // STT
  * if (speech.transcribe) {
  *   const { text } = await speech.transcribe({ audio: audioBytes, filename: 'note.webm' })
+ * }
+ *
+ * // Streaming STT — `pcmChunks` is an AsyncIterable<Uint8Array> of PCM16 mono audio.
+ * if (speech.transcribeStream) {
+ *   let settled = ''
+ *   let pending = ''
+ *   for await (const event of speech.transcribeStream(pcmChunks, { sampleRate: 16000 })) {
+ *     if (event.type === 'partial' || event.type === 'delta') pending += event.text
+ *     else if (event.type === 'final') {
+ *       settled += event.text
+ *       pending = ''
+ *     } else if (event.type === 'error') throw new Error(event.message)
+ *   }
  * }
  * ```
  *

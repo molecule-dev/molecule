@@ -1,5 +1,11 @@
 # @molecule/api-ai-speech
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds optional streaming speech-to-text (`transcribeStream`, `streamingAppendOnly`), speaker diarization (`diarize()`, `TranscribeParams.diarize`/`maxSpeakers`) and `speaker` labels on transcription words and segments.
+
 ## 1.0.1
 
 ### Patch Changes

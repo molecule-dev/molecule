@@ -1,8 +1,9 @@
 {
-  "name": "@molecule/api-ai-speech-molecule",
-  "version": "1.1.1",
-  "description": "molecule.dev hosted speech provider — text-to-speech and transcription billed to your molecule project, no vendor account",
-  "homepage": "https://www.molecule.dev/packages/api-ai-speech-molecule",
+  "name": "@molecule/api-ai-speech-nemo-speech",
+  "version": "1.0.0",
+  "description": "NVIDIA NeMo-Speech.cpp speech provider for molecule.dev — self-hosted batch and streaming speech-to-text with speaker diarization (Nemotron-3-Diarization)",
+  "homepage": "https://www.molecule.dev/packages/api-ai-speech-nemo-speech",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,18 +26,20 @@
     "molecule",
     "ai",
     "speech",
-    "tts",
-    "transcription",
-    "hosted"
+    "nemo",
+    "nemotron",
+    "diarization",
+    "streaming",
+    "self-hosted"
   ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/bonds/ai-speech/molecule"
+    "directory": "packages/api/bonds/ai-speech/nemo-speech"
   },
   "peerDependencies": {
-    "@molecule/api-ai-speech": ">=1.0.1",
+    "@molecule/api-ai-speech": ">=1.1.0",
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
@@ -44,6 +47,5 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
-  },
-  "author": "Molecule Dev, Inc. (https://molecule.dev)"
+  }
 }
