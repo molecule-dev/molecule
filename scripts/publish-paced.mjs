@@ -527,6 +527,9 @@ if (failed.length) {
   writeFileSync(join(ROOT, '.publish-failures.json'), JSON.stringify(failed, null, 2))
   failed.slice(0, 10).forEach((f) => process.stderr.write(`  ${f.name}: ${f.error}\n`))
   process.stderr.write(`full list: molecule/.publish-failures.json\n`)
+  // A failed publish is a failed run. Exiting 0 here let a Release refuse every
+  // package it was asked to publish and still report success (2026-09-29).
+  process.exitCode = 1
 }
 if (inconclusive.length) {
   // An inconclusive read means a package MAY still need publishing — the run is
