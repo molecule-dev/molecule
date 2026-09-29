@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.10.0
+
+### Minor Changes
+
+- b18384d: Adds claude-sonnet-5-5 ($2/$10) and marks claude-sonnet-5 as superseded by it.
+
 ## 1.9.1
 
 ### Patch Changes
