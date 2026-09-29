@@ -38,7 +38,7 @@
     "directory": "packages/app/infrastructure/bonds-default-react"
   },
   "devDependencies": {
-    "@molecule/app-auth": "1.1.1",
+    "@molecule/app-auth": "1.1.2",
     "@molecule/app-charts-chartjs": "1.0.2",
     "@molecule/app-client-search": "1.0.2",
     "@molecule/app-client-search-minisearch": "1.0.2",

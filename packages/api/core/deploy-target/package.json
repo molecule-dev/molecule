@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-deploy-target",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Deploy target interface for molecule.dev — publish a built app to static storage, a machine, or any host behind one contract",
   "type": "module",
   "main": "dist/index.js",
