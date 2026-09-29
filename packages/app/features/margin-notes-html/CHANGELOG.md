@@ -1,5 +1,11 @@
 # @molecule/app-margin-notes-html
 
+## 1.0.8
+
+### Patch Changes
+
+- On a phone the notes panel takes at most 30% of the screen height, and a tapped paragraph that the opening panel would cover scrolls clear of it, so a second tap on the same paragraph always reaches it.
+
 ## 1.0.7
 
 ### Patch Changes

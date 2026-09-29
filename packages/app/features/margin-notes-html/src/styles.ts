@@ -139,7 +139,7 @@ export const marginNotesCss = `
   max-height: 0; overflow: hidden;
   transition: max-height 0.2s ease;
 }
-[data-mn-panel][data-mn-open] { max-height: 45vh; overflow-y: auto; padding-top: 0.5rem; }
+[data-mn-panel][data-mn-open] { max-height: 30vh; overflow-y: auto; padding-top: 0.5rem; }
 [data-mn-panel] [data-mn-note] {
   font-size: calc(var(--mn-prose-size-phone) * var(--mn-panel-scale));
   margin-bottom: 0.5rem;

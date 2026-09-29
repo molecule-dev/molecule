@@ -99,6 +99,27 @@ describe('attachMarginNotes', () => {
     expect($<HTMLElement>('[data-mn-dismiss]').hidden).toBe(true)
   })
 
+  it('a tap that opens the panel over its paragraph scrolls the paragraph clear, so a second tap reaches it', async () => {
+    // x426, 2026-09-29: a whole-brief prompt grew the panel over the paragraph
+    // just tapped; the second tap landed on the panel and nothing let go.
+    const bar = $('[data-mn-bar]')
+    bar.getBoundingClientRect = () => ({ top: 500 }) as DOMRect
+    $('#b2').getBoundingClientRect = () => ({ top: 470, height: 60 }) as DOMRect
+    const scrollBy = vi.fn()
+    vi.stubGlobal('scrollBy', scrollBy)
+    $('#b2').click()
+    await new Promise((r) => setTimeout(r, 300))
+    expect(scrollBy).toHaveBeenCalledWith(0, 470 + 60 - 500 + 16)
+    // Already clear of the bar: the page stays where the reader left it.
+    $('#b2').click()
+    $('#b0').getBoundingClientRect = () => ({ top: 100, height: 60 }) as DOMRect
+    scrollBy.mockClear()
+    $('#b0').click()
+    await new Promise((r) => setTimeout(r, 300))
+    expect(scrollBy).not.toHaveBeenCalled()
+    vi.unstubAllGlobals()
+  })
+
   it('a tap kind switched ON follows the reader on a phone, without a tap', async () => {
     layoutRows(900) // reading section one, which has an AI paragraph
     window.dispatchEvent(new Event('scroll'))

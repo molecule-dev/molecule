@@ -82,6 +82,22 @@ export function attachMarginNotes(doc: Document = document): void {
       new win.ResizeObserver(reserve).observe(bar)
     bar?.addEventListener('transitionend', reserve)
 
+    // A pinned block stays where the reader can tap it again: the panel opens
+    // over the lower part of the screen, and a long note (a whole prompt) once
+    // grew it over the paragraph just tapped, so the second tap hit the panel
+    // and the prompt could not be dismissed (x426, 2026-09-29). Measured after
+    // the panel's height transition, and only if the block ended up under the bar.
+    const reveal = (block: HTMLElement): void => {
+      if (!bar) return
+      win.setTimeout(() => {
+        if (pinned !== block) return
+        const barTop = bar.getBoundingClientRect().top
+        const r = block.getBoundingClientRect()
+        const reach = r.top + Math.min(r.height, 80)
+        if (barTop > 0 && reach > barTop - 8) win.scrollBy(0, reach - barTop + 16)
+      }, 250)
+    }
+
     for (const sw of switches) {
       sw.addEventListener('click', () => {
         const kind = sw.getAttribute('data-mn-kind') ?? ''
@@ -111,6 +127,7 @@ export function attachMarginNotes(doc: Document = document): void {
         if ((event.target as Element | null)?.closest('a, button, input, select, textarea')) return
         pinned = pinned === block ? null : block
         render()
+        if (pinned === block) reveal(block)
       })
       block.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter' && event.key !== ' ') return
