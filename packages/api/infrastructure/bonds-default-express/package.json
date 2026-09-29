@@ -111,7 +111,7 @@
     "@molecule/api-reporting": "1.0.2",
     "@molecule/api-reporting-database": "1.0.2",
     "@molecule/api-resource": "1.0.2",
-    "@molecule/api-resource-device": "1.0.2",
+    "@molecule/api-resource-device": "1.0.3",
     "@molecule/api-resource-payment": "1.0.2",
     "@molecule/api-resource-user": "1.4.1",
     "@molecule/api-search": "1.0.2",
