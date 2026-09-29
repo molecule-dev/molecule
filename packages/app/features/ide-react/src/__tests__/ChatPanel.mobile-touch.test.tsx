@@ -306,6 +306,12 @@ describe('ask_user discovery card — phone/touch', () => {
     const container = renderAskUser()
     const input = container.querySelector('input[type="text"]') as HTMLElement
     expect(input.style.fontSize).toBe('16px')
+    // The input rides the SAME coarse 36px floor as the Send beside it —
+    // resolved from the bond, never written here as a literal class
+    // (AGENTS.md rule 5).
+    for (const token of classMap.touchTargetCompact.split(/\s+/).filter(Boolean)) {
+      expect(input.classList.contains(token), `input carries ${token}`).toBe(true)
+    }
     const send = container.querySelector('[data-mol-id="ask-user-free-text-submit"]') as HTMLElement
     // The Send is a design-system CTA now (same recipe as this card's own
     // "Confirm choice"), so its coarse-pointer floor comes from
@@ -322,7 +328,12 @@ describe('ask_user discovery card — phone/touch', () => {
     const row = container.querySelector('[data-mol-id="ask-user-option-0"]') as HTMLElement
     expect(row.style.minHeight).toBe('')
     const input = container.querySelector('input[type="text"]') as HTMLElement
-    expect(input.style.fontSize).toBe('12px')
+    // The field shares the Send button's box: 13px label at the design
+    // system's 26px height and 3px radius — one control family with the
+    // card's buttons.
+    expect(input.style.fontSize).toBe('13px')
+    expect(input.style.height).toBe('26px')
+    expect(input.style.borderRadius).toBe('3px')
   })
 })
 

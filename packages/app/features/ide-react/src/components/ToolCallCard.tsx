@@ -1439,8 +1439,8 @@ export const ToolCallCard = memo(function ToolCallCard({
                         // CTA now says what it renders.
                         cm.button(
                           i === 0
-                            ? { variant: 'solid', color: 'primary', size: 'sm' }
-                            : { variant: 'solid', color: 'secondary', size: 'sm' },
+                            ? { variant: 'solid', color: 'primary', size: 'xs' }
+                            : { variant: 'solid', color: 'secondary', size: 'xs' },
                         ),
                         cm.touchTargetCompact,
                       )}
@@ -1778,17 +1778,24 @@ export const ToolCallCard = memo(function ToolCallCard({
                       defaultValue: 'Or something else…',
                     })
               }
+              className={cm.touchTargetCompact}
+              /* The field box IS the Send button's box: the design-system 26px
+                 height and 3px radius every card button carries, so the pair
+                 reads as one control (the coarse 36px floor comes from the same
+                 cm.touchTargetCompact class Send has). */
               style={{
                 flex: 1,
                 minWidth: 0,
-                padding: '5px 8px',
-                borderRadius: '5px',
+                height: 26,
+                padding: '0 8px',
+                borderRadius: '3px',
                 border: `1px solid ${borderClr}`,
                 background: 'transparent',
                 color: 'inherit',
                 // Deliberate iOS-zoom guard: a focused input below 16px makes iOS
                 // Safari zoom the whole page on phone-width / touch-first viewports.
-                fontSize: isNarrow || isCoarse ? '16px' : '12px',
+                // Desktop sits at the 13px button-label size it sits beside.
+                fontSize: isNarrow || isCoarse ? '16px' : '13px',
                 outline: 'none',
               }}
             />

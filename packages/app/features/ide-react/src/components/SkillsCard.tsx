@@ -330,10 +330,13 @@ export function SkillsCard({
               defaultValue: 'New skill name…',
             })}
             className={cm.cn(cm.textSize('xs'))}
+            // The 26px/3px card-button box (the size every field in the chat
+            // cards shares — see TestsCard's fieldStyle).
             style={{
               width: '100%',
-              padding: '4px 6px',
-              borderRadius: 4,
+              height: 26,
+              padding: '0 6px',
+              borderRadius: 3,
               border: `1px solid ${rowBorder}`,
               background: fieldBg,
               color: 'inherit',
@@ -381,11 +384,13 @@ export function SkillsCard({
           defaultValue: 'Filter skills…',
         })}
         className={cm.cn(cm.textSize('xs'))}
+        // Same 26px/3px card-button box as the create-name field above.
         style={{
           width: '100%',
-          padding: '4px 6px',
+          height: 26,
+          padding: '0 6px',
           marginBottom: 6,
-          borderRadius: 4,
+          borderRadius: 3,
           border: `1px solid ${rowBorder}`,
           background: fieldBg,
           color: 'inherit',

@@ -240,10 +240,13 @@ export function TestsCard({
   // The same neutral inset the sibling cards give their fields, so the search
   // box READS as a field on the clean overlay surface.
   const fieldBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'
+  // Same box as every card button: 26px tall, 3px radius (the button CVA's
+  // h-[26px] / rounded-[3px]) — the chat's fields and buttons share one size.
   const fieldStyle: CSSProperties = {
     width: '100%',
-    padding: '4px 6px',
-    borderRadius: 4,
+    height: 26,
+    padding: '0 6px',
+    borderRadius: 3,
     border: `1px solid ${rowBorder}`,
     background: fieldBg,
     color: 'inherit',

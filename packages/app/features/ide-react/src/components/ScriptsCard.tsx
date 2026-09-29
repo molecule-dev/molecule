@@ -197,14 +197,24 @@ export function ScriptsCard({
   // clean overlay surface (not just a faint border). Theme-aware, matching the
   // SettingsCard toggle inset; the SAME value is used in SkillsCard's fields.
   const fieldBg = isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)'
+  // Base box (the textarea): 3px radius, the same corner every card button
+  // carries. Single-line controls take fieldInputStyle below, which pins the
+  // button CVA's 26px height so fields and buttons share one size.
   const fieldStyle = {
     width: '100%',
     padding: '4px 6px',
-    borderRadius: 4,
+    borderRadius: 3,
     border: `1px solid ${rowBorder}`,
     background: fieldBg,
     color: 'inherit',
     outline: 'none',
+  } as const
+  const fieldInputStyle = {
+    ...fieldStyle,
+    height: 26,
+    // No vertical padding on a fixed height (a select clips descenders if the
+    // content box shrinks; an input centers its line on its own).
+    padding: '0 6px',
   } as const
 
   return (
@@ -282,7 +292,7 @@ export function ScriptsCard({
               defaultValue: 'Script name (e.g. run-tests)',
             })}
             className={cm.textSize('xs')}
-            style={fieldStyle}
+            style={fieldInputStyle}
           />
           <input
             value={newDescription}
@@ -292,7 +302,7 @@ export function ScriptsCard({
               defaultValue: 'What does it do?',
             })}
             className={cm.textSize('xs')}
-            style={fieldStyle}
+            style={fieldInputStyle}
           />
           <textarea
             value={newBody}
@@ -360,7 +370,7 @@ export function ScriptsCard({
           defaultValue: 'Filter scripts…',
         })}
         className={cm.textSize('xs')}
-        style={{ ...fieldStyle, marginBottom: 6 }}
+        style={{ ...fieldInputStyle, marginBottom: 6 }}
       />
 
       {status === 'loading' && (
@@ -439,12 +449,14 @@ export function ScriptsCard({
               </div>
 
               {/* Option form — shown when a script with params is being run, so
-                  the user fills its typed options before the run dispatches. */}
+                  the user fills its typed options before the run dispatches.
+                  Its select + input are both single-line, so they take the
+                  26px field box like every other field in the card. */}
               {script.params?.length && openForms[script.name] && (
                 <ScriptOptionsForm
                   script={script}
                   values={paramValues[script.name] ?? {}}
-                  fieldStyle={fieldStyle}
+                  fieldStyle={fieldInputStyle}
                   onChange={(paramName, value) => setParam(script.name, paramName, value)}
                   onCancel={() => setOpenForms((prev) => ({ ...prev, [script.name]: false }))}
                   onSubmit={() => submitForm(script)}
