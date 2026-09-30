@@ -118,10 +118,15 @@ const withRrwebRecording: TestType<
             if (Array.isArray(events) && events.length > 0) {
               const fs = await import('node:fs')
               const { join } = await import('node:path')
-              fs.writeFileSync(
-                join(testInfo.outputDir, 'rrweb-events.json'),
-                JSON.stringify(events),
-              )
+              const filePath = join(testInfo.outputDir, 'rrweb-events.json')
+              fs.writeFileSync(filePath, JSON.stringify(events))
+              // Push as a Playwright attachment so the replay reporter
+              // can copy it to the chapter dir alongside the video.
+              testInfo.attachments.push({
+                name: 'rrweb-events',
+                path: filePath,
+                contentType: 'application/json',
+              })
             }
           } catch {
             // rrweb events are a bonus — never fail the test for them.
