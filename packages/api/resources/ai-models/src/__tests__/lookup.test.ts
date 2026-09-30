@@ -999,6 +999,16 @@ const INTENTIONAL_FAMILY_OVERLAPS: { older: string; newer: string; why: string }
       'Same coder-specialist exception. qwen3.8-flash is a general-purpose cheap tier ' +
       '(it is what ended coder-plus being the ONLY cheap Alibaba tier), not a coder id.',
   },
+  {
+    older: 'gpt-6-astra',
+    newer: 'gpt-6.1-sol',
+    why: "OpenAI's flagship tier ($10/$50); GPT-6.1 so far ships only the Sol tier ($2/$10).",
+  },
+  {
+    older: 'gpt-6-luna',
+    newer: 'gpt-6.1-sol',
+    why: "OpenAI's cheap tier ($0.10/$0.50); GPT-6.1 so far ships only the Sol tier ($2/$10).",
+  },
 ]
 
 describe('model families', () => {
@@ -1095,11 +1105,12 @@ describe('supersededBy', () => {
       'claude-opus-4-6': 'claude-opus-5-5',
       'claude-sonnet-5': 'claude-sonnet-5-5',
       'claude-sonnet-4-6': 'claude-sonnet-5-5',
-      'gpt-5.6-sol': 'gpt-6-sol',
-      'gpt-5.6-terra': 'gpt-6-sol',
+      'gpt-6-sol': 'gpt-6.1-sol',
+      'gpt-5.6-sol': 'gpt-6.1-sol',
+      'gpt-5.6-terra': 'gpt-6.1-sol',
       'gpt-5.6-luna': 'gpt-6-luna',
-      'gpt-5.5': 'gpt-6-sol',
-      'gpt-5.4': 'gpt-6-sol',
+      'gpt-5.5': 'gpt-6.1-sol',
+      'gpt-5.4': 'gpt-6.1-sol',
       'gpt-5.4-mini': 'gpt-6-luna',
       'gemini-3.5-flash': 'gemini-3.8-flash',
       'gemini-3.6-flash': 'gemini-3.8-flash',

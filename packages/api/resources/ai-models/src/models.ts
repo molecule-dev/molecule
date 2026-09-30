@@ -203,6 +203,14 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   /v1/chat/completions with reasoning_effort 'none'. The 5.6 family is now
  *   superseded; every 5.6 price on the page is unchanged and the -sol promo
  *   footnote still reads "at least through November 21, 2026".)
+ *   (re-verified 2026-09-30 on the pricing page + the gpt-6.1-sol model page:
+ *   ADDED gpt-6.1-sol ($2/$10, cached $0.10 — 5% of input, not 10% — cache
+ *   writes $2.50; >272K band $4/$15, cached $0.20, writes $5 not modeled;
+ *   1.05M ctx / 128K out; image input; knowledge cutoff Apr 30 2026; effort
+ *   low|medium|high|xhigh|max, no none/minimal; tools on /v1/responses only).
+ *   It supersedes gpt-6-sol. Every other GPT-6 and 5.6 price on the page is
+ *   unchanged and the 5.6-sol promo footnote still reads "at least through
+ *   November 21, 2026".)
  * - Google: https://ai.google.dev/gemini-api/docs/pricing (gemini-3.6-flash GA
  *   2026-07-21 $1.50/$7.50 supersedes 3.5-flash as the agentic flagship;
  *   gemini-3.1-pro-preview still the pro tier — "3.5 Pro" has NOT shipped as
@@ -850,6 +858,13 @@ export const MODELS: readonly ModelDefinition[] = [
   // again despite the docs pages listing it. GPT-6 has no Terra tier: sol at
   // $2/$10 is priced at 5.6-terra's tier and undercuts 5.6-sol, so it supersedes
   // both; luna supersedes 5.6-luna at half the price.
+  //
+  // gpt-6.1-sol (released 2026-09-29) IS astra's case: its model page lists no
+  // 'none'/'minimal' effort and says "Use the Responses API for tool calling.
+  // Chat Completions is supported without tool calling." The bond calls
+  // /v1/responses on OpenAI's own endpoint, so, like astra, it needs no
+  // `toolsRequireReasoningOff` pin. Same list price as gpt-6-sol with half the
+  // cached-input rate, so it supersedes gpt-6-sol.
   // ---------------------------------------------------------------------------
   {
     id: 'gpt-6-astra',
@@ -885,6 +900,37 @@ export const MODELS: readonly ModelDefinition[] = [
     knowledgeCutoff: '2026-04-30',
   },
   {
+    id: 'gpt-6.1-sol',
+    provider: 'openai',
+    label: 'GPT-6.1 Sol',
+    description: 'OpenAI for complex coding & agentic work',
+    // Documented as 1.05M; floored to 1M like the other OpenAI entries.
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // No 'none' or 'minimal' on this model (model page, 2026-09-30).
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // Omitted like the rest of the reasoning family; the pre-commit dispatch
+    // probe sends the temperature-0 shape.
+    rejectsTemperature: true,
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search',
+    webSearchPricePer1k: 10,
+    codeExecutionToolType: 'code_interpreter',
+    // Standard tier. Cached input is 5% of input (not the 10% of GPT-6);
+    // >272K band ($4/$15, cached $0.20, writes $5) not modeled.
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 10,
+    cacheReadPricePerMTok: 0.1,
+    cacheWritePricePerMTok: 2.5,
+    knowledgeCutoff: '2026-04-30',
+  },
+  {
     id: 'gpt-6-sol',
     provider: 'openai',
     label: 'GPT-6 Sol',
@@ -917,6 +963,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 2.5,
     knowledgeCutoff: '2026-04-20',
+    // Superseded by gpt-6.1-sol (same $2/$10, cached input $0.10 vs $0.20).
+    // Still served and priceable — just not offered in the picker.
+    deprecatedAt: '2026-09-30',
+    supersededBy: 'gpt-6.1-sol',
   },
   {
     id: 'gpt-6-luna',
@@ -989,10 +1039,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 6.25,
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
-    // Superseded by gpt-6-sol ($2/$10 vs $5/$30 list). Still served and
+    // Superseded by gpt-6-sol ($2/$10 vs $5/$30 list); points one hop to
+    // gpt-6.1-sol since 2026-09-30, when gpt-6-sol was superseded. Still served and
     // priceable — just not offered in the picker.
     deprecatedAt: '2026-09-23',
-    supersededBy: 'gpt-6-sol',
+    supersededBy: 'gpt-6.1-sol',
   },
   {
     id: 'gpt-5.6-terra',
@@ -1027,9 +1078,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // Not published — best-effort estimate.
     knowledgeCutoff: '2026-03-01',
     // Superseded by gpt-6-sol: GPT-6 has no Terra tier, and sol sits at this
-    // tier's price ($2/$10 vs $2/$12).
+    // tier's price ($2/$10 vs $2/$12). Points one hop to gpt-6.1-sol since
+    // 2026-09-30.
     deprecatedAt: '2026-09-23',
-    supersededBy: 'gpt-6-sol',
+    supersededBy: 'gpt-6.1-sol',
   },
   {
     id: 'gpt-5.6-luna',
@@ -1105,10 +1157,11 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 5,
     knowledgeCutoff: '2025-12-01',
     // Superseded by gpt-5.6-sol (same frontier tier, same $5/$30), and since
-    // 2026-09-23 points one hop to gpt-6-sol, 5.6-sol's own successor. Still
+    // 2026-09-23 points one hop to gpt-6-sol, 5.6-sol's own successor (gpt-6.1-sol
+    // since 2026-09-30). Still
     // listed as current by OpenAI, so it stays priceable — just not offered.
     deprecatedAt: '2026-07-09',
-    supersededBy: 'gpt-6-sol',
+    supersededBy: 'gpt-6.1-sol',
   },
   {
     id: 'gpt-5.4',
@@ -1141,9 +1194,10 @@ export const MODELS: readonly ModelDefinition[] = [
     // balanced tier for LESS ($2/$12 vs $2.50/$15) — superseded, so the picker
     // offers only the 5.6 generation (this is OUR taxonomy, not OpenAI's
     // deprecations page; the model stays priceable). Points one hop to
-    // gpt-6-sol since 2026-09-23, when 5.6-terra was itself superseded.
+    // gpt-6-sol since 2026-09-23, when 5.6-terra was itself superseded, and to
+    // gpt-6.1-sol since 2026-09-30.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'gpt-6-sol',
+    supersededBy: 'gpt-6.1-sol',
   },
   {
     id: 'gpt-5.4-mini',
