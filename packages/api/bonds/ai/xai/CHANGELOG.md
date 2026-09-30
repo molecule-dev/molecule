@@ -1,5 +1,11 @@
 # @molecule/api-ai-xai
 
+## 1.0.4
+
+### Patch Changes
+
+- 8963d38: Default model is now grok-4.7.
+
 ## 1.0.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/api-resource-ai-models
 
+## 1.12.0
+
+### Minor Changes
+
+- 8963d38: Adds grok-4.7 ($2/$6, cached $0.50) and marks grok-4.5 as superseded by it.
+- f72ed43: Adds grok-4.6 ($2/$6, cached $0.50), marked superseded by grok-4.7.
+
 ## 1.11.0
 
 ### Minor Changes
