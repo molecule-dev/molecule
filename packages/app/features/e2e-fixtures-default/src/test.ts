@@ -77,6 +77,60 @@ const providerAware: TestType<
       })
 
 /**
+ * rrweb DOM-mutation recording — captures the page's DOM as a compact
+ * event stream (a few KB of JSON) alongside the video recording. The
+ * replay viewer's "DOM replay" toggle replays these events through the
+ * rrweb player, enabling programmatic DOM inspection that video cannot
+ * provide.
+ *
+ * Only injected when the `playwright` provider is active (a real browser
+ * is driving the page); the preview provider does not support
+ * `addInitScript` and rrweb is a bonus, not a requirement.
+ *
+ * Events are extracted in `afterEach` and saved as `rrweb-events.json`
+ * in the test's output dir, next to the video.
+ */
+const RRWEB_INIT = `
+  window.__rrwebEvents = [];
+  (function() {
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/rrweb@2.0.0-alpha.4/dist/rrweb-all.js';
+    s.onload = function() {
+      rrweb.record({ emit: function(e) { window.__rrwebEvents.push(e); } });
+    };
+    document.head.appendChild(s);
+  })();
+`
+
+const withRrwebRecording: TestType<
+  PlaywrightTestArgs & PlaywrightTestOptions,
+  PlaywrightWorkerArgs & PlaywrightWorkerOptions
+> =
+  e2eProviderName === 'playwright'
+    ? providerAware.extend<{ page: Page }>({
+        page: async ({ page }, use, testInfo) => {
+          await page.addInitScript(RRWEB_INIT)
+          await use(page)
+          try {
+            const events = (await page.evaluate(
+              () => (window as unknown as { __rrwebEvents?: unknown[] }).__rrwebEvents,
+            )) as unknown[]
+            if (Array.isArray(events) && events.length > 0) {
+              const fs = await import('node:fs')
+              const { join } = await import('node:path')
+              fs.writeFileSync(
+                join(testInfo.outputDir, 'rrweb-events.json'),
+                JSON.stringify(events),
+              )
+            }
+          } catch {
+            // rrweb events are a bonus — never fail the test for them.
+          }
+        },
+      })
+    : providerAware
+
+/**
  * Drop-in for `import { test } from '@playwright/test'`.
  *
  * With the `playwright` provider this IS Playwright's `test` — real browsers,
@@ -89,4 +143,4 @@ const providerAware: TestType<
 export const test: TestType<
   PlaywrightTestArgs & PlaywrightTestOptions & ConsoleGuardFixtures,
   PlaywrightWorkerArgs & PlaywrightWorkerOptions
-> = withConsoleGuard(providerAware)
+> = withConsoleGuard(withRrwebRecording)
