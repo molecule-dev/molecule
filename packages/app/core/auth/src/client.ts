@@ -230,7 +230,11 @@ export const createJWTAuthClient = <T extends UserProfile = UserProfile>(
       }
     } catch (_error) {
       // No valid session cookie (401) or no current-user endpoint — remain
-      // logged out. This is an expected path for anonymous visitors.
+      // logged out. This is an expected path for anonymous visitors. Drop the
+      // presence hint: a stale hint (server-side session expired, or a DB
+      // reset) would otherwise re-fire a guaranteed-401 probe on every load.
+      // The next real login re-sets it alongside the fresh cookie.
+      clearSessionHintCookie()
     }
     return null
   }

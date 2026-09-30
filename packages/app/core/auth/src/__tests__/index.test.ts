@@ -719,6 +719,39 @@ describe('JWT Auth Client', () => {
       expect((call?.[1] as RequestInit | undefined)?.credentials).toBe('include')
     })
 
+    it('[M1-1] a failed cookie restore (401) clears the stale mol_auth hint', async () => {
+      // Stale hint regression: the hint survives a server-side session
+      // expiry (or a DB reset), so every subsequent load re-fired a
+      // guaranteed-401 probe — console noise on every public page. The
+      // restore must clear the hint when the probe 401s; the next real
+      // login re-sets it alongside the fresh cookie.
+      ;(globalThis as { document?: { cookie: string } }).document = { cookie: 'mol_auth=1' }
+      mockFetch.mockImplementation(() => createMockResponse({ error: 'Unauthorized' }, 401))
+      const client = createJWTAuthClient({
+        baseURL: 'https://api.example.com',
+        autoRefresh: false,
+      })
+      try {
+        await client.initialize()
+        expect(client.isAuthenticated()).toBe(false)
+        const cookie = (globalThis as { document?: { cookie: string } }).document.cookie
+        expect(cookie).not.toContain('mol_auth=1')
+
+        // and the skip-gate works: no further probe without the hint
+        mockFetch.mockClear()
+        const client2 = createJWTAuthClient({
+          baseURL: 'https://api.example.com',
+          autoRefresh: false,
+        })
+        await client2.initialize()
+        expect(mockFetch.mock.calls.filter((c) => String(c[0]).includes('/users/me'))).toHaveLength(
+          0,
+        )
+      } finally {
+        delete (globalThis as { document?: unknown }).document
+      }
+    })
+
     it('[M1-1] logs out server-side after a cookie-restored session (no in-memory token)', async () => {
       // Regression: after a reload the in-memory bearer token is gone but the
       // session is restored from the httpOnly cookie (authenticated, no token).
