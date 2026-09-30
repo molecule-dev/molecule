@@ -12,7 +12,9 @@
  *
  * So before each publish: pack with `--dry-run`, and require every entry
  * point the manifest names — `main`, `types`, and each string target inside
- * `exports` — to be in the file list.
+ * `exports` — to be in the file list, plus README.md and LICENSE. The same
+ * day five more readers went out without README.md (generated at commit time,
+ * after they had been published), so their npm pages were blank.
  *
  * @module
  */
@@ -20,6 +22,9 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+
+/** Files every published tarball carries: the npm page and the license. */
+const ALWAYS_PACKED = ['README.md', 'LICENSE']
 
 /**
  * Every file path a manifest names as an entry point.
@@ -69,11 +74,11 @@ export function assertPackComplete(dir) {
     )
   }
   const files = new Set(result.files.map((f) => f.path))
-  const missing = entryPoints(manifest).filter((p) => !files.has(p))
+  const missing = [...entryPoints(manifest), ...ALWAYS_PACKED].filter((p) => !files.has(p))
   if (missing.length) {
     throw new Error(
       `${manifest.name}@${manifest.version}: the tarball would be missing ${missing.join(', ')} ` +
-        `(${files.size} files packed). Build the package before publishing it.`,
+        `(${files.size} files packed). Build the package and commit it (the pre-commit hook writes README.md) before publishing it.`,
     )
   }
   return files.size

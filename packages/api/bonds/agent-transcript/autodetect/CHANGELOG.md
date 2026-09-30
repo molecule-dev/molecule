@@ -1,5 +1,11 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.1.2
+
+### Patch Changes
+
+- Depends on the Aider, Cline, Cursor, Gemini CLI and OpenCode readers at 1.0.1.
+
 ## 1.1.1
 
 ### Patch Changes

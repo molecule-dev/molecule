@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-aider",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads Aider's chat history file (.aider.chat.history.md) into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",

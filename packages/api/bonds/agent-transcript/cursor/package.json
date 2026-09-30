@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-cursor",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads Cursor's \"Export Chat\" Markdown into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",

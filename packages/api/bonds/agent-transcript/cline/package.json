@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-transcript-cline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reads Cline and Roo Code task history (ui_messages.json) into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",
