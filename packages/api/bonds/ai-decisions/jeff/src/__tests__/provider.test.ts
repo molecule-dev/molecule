@@ -293,4 +293,20 @@ describe('ai-decisions-jeff', () => {
     expect(aiDecisionsJeffSecretDefinitions.map((s) => s.key)).toEqual(['JEFF_URL', 'JEFF_API_KEY'])
     expect(aiDecisionsJeffSecretDefinitions.every((s) => s.required === false)).toBe(true)
   })
+  it('resolves the headers hook before each request and merges it over the defaults', async () => {
+    mockFetch.mockResolvedValueOnce(ok(JEFF_RESPONSE))
+    let calls = 0
+    await createProvider({
+      baseUrl: 'https://hosted.example/',
+      headers: async () => {
+        calls++
+        return { authorization: 'Bearer short-lived-id-token', 'x-extra': 'yes' }
+      },
+    }).decide({ state: 'charged twice', questions: QUESTIONS })
+    const [, init] = mockFetch.mock.calls[0]!
+    expect(calls).toBe(1)
+    expect(init.headers.authorization).toBe('Bearer short-lived-id-token')
+    expect(init.headers['x-extra']).toBe('yes')
+    expect(init.headers['content-type']).toBe('application/json')
+  })
 })

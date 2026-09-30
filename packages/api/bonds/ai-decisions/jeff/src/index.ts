@@ -66,6 +66,10 @@
  * - **Calibrate on your own data.** The checkpoints carry one fitted
  *   temperature from the maker's training mix; recalibrate on labelled samples
  *   of your inputs and gate on `minConfidence`. See the core's remarks.
+ * - **Hosted on rented compute?** Pass `headers: () => hosting.authHeaders(endpoint.id)`
+ *   (`@molecule/api-model-hosting`) when the host's auth expires or is not a
+ *   bearer token — e.g. a Cloud Run ID token or Modal proxy auth. It runs before
+ *   every request and is merged over the defaults.
  * - Use the core's `setProvider`, not `bond('ai-decisions', …)` directly.
  *
  * @module

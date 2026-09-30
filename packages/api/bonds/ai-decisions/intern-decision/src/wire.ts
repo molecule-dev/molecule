@@ -190,6 +190,8 @@ export interface PostOptions {
   url: string
   /** Bearer token, if any. */
   apiKey?: string
+  /** Extra headers resolved before the request (merged over the defaults). */
+  headers?: () => Record<string, string> | Promise<Record<string, string>>
   /** Request body. */
   body: Record<string, unknown>
   /** Abort signal. */
@@ -211,6 +213,7 @@ export async function postDecisions(opts: PostOptions): Promise<WireResponse> {
   const { url, apiKey, body, signal, label, maxRetries = 3 } = opts
   const headers: Record<string, string> = { 'content-type': 'application/json' }
   if (apiKey) headers.authorization = `Bearer ${apiKey}`
+  if (opts.headers) Object.assign(headers, await opts.headers())
   for (let attempt = 0; ; attempt++) {
     const response = await fetch(url, {
       method: 'POST',

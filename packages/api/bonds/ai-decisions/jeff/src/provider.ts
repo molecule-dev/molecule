@@ -92,6 +92,8 @@ class JeffDecisionsProvider implements AIDecisionsProvider {
   readonly name = 'jeff'
   private readonly baseUrl: string
   private readonly apiKey: string | undefined
+  private readonly headers:
+    (() => Record<string, string> | Promise<Record<string, string>>) | undefined
   private readonly model: string
   private readonly maxOptions: number
 
@@ -103,6 +105,7 @@ class JeffDecisionsProvider implements AIDecisionsProvider {
   constructor(config: JeffConfig = {}) {
     this.baseUrl = (config.baseUrl || process.env.JEFF_URL || DEFAULT_JEFF_URL).replace(/\/+$/, '')
     this.apiKey = config.apiKey ?? (process.env.JEFF_API_KEY || undefined)
+    this.headers = config.headers
     this.model = config.model || DEFAULT_JEFF_MODEL
     this.maxOptions = config.maxOptions ?? DEFAULT_JEFF_MAX_OPTIONS
   }
@@ -127,6 +130,7 @@ class JeffDecisionsProvider implements AIDecisionsProvider {
     const body = await postSystemOne({
       url: `${this.baseUrl}/v1/systemone`,
       apiKey: this.apiKey,
+      headers: this.headers,
       body: {
         model: input.model || this.model,
         state: input.state,

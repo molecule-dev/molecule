@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-decisions-laya",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Laya decisions provider for molecule.dev — typed choice/score/yes-no answers from the open-weights Laya model on your own laya-serve host",
   "type": "module",
   "main": "dist/index.js",

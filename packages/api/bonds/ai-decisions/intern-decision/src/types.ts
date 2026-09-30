@@ -18,4 +18,11 @@ export interface InternDecisionConfig {
    * no authentication. Defaults to the `INTERN_DECISION_API_KEY` env var.
    */
   apiKey?: string
+  /**
+   * Extra request headers, resolved before each call and merged over the
+   * defaults — for a host whose auth expires or is not a bearer token (a Cloud
+   * Run ID token, Modal proxy auth). Pair with `@molecule/api-model-hosting`:
+   * `headers: () => hosting.authHeaders(endpoint.id)`.
+   */
+  headers?: () => Record<string, string> | Promise<Record<string, string>>
 }

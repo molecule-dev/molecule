@@ -118,6 +118,8 @@ class InternDecisionProvider implements AIDecisionsProvider {
   readonly name = 'intern-decision'
   private readonly baseUrl: string
   private readonly apiKey: string | undefined
+  private readonly headers:
+    (() => Record<string, string> | Promise<Record<string, string>>) | undefined
 
   /**
    * Creates the provider.
@@ -131,6 +133,7 @@ class InternDecisionProvider implements AIDecisionsProvider {
       DEFAULT_INTERN_DECISION_URL
     ).replace(/\/+$/, '')
     this.apiKey = config.apiKey ?? (process.env.INTERN_DECISION_API_KEY || undefined)
+    this.headers = config.headers
   }
 
   /**
@@ -154,6 +157,7 @@ class InternDecisionProvider implements AIDecisionsProvider {
     const body = await postDecisions({
       url: `${this.baseUrl}/v1/decisions`,
       apiKey: this.apiKey,
+      headers: this.headers,
       body: {
         state: input.state,
         questions: toWireQuestions(input.questions),

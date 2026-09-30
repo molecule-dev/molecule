@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-decisions-intern-decision",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Intern-Decision decisions provider for molecule.dev — typed choice/score/yes-no answers about text and images from the open-weights Intern-Decision models on your own server",
   "type": "module",
   "main": "dist/index.js",

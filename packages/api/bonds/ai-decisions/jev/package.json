@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-decisions-jev",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Jev decisions provider for molecule.dev — typed choice/score/yes-no answers from TypeSafe's hosted Jev System One API",
   "type": "module",
   "main": "dist/index.js",

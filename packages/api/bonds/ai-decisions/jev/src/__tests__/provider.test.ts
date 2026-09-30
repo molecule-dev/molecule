@@ -156,4 +156,21 @@ describe('ai-decisions-jev', () => {
     ).rejects.toThrow(/reads text only/)
     expect(mockFetch).not.toHaveBeenCalled()
   })
+  it('resolves the headers hook before each request and merges it over the defaults', async () => {
+    vi.stubEnv('TYPESAFE_API_KEY', 'ts-key')
+    mockFetch.mockResolvedValueOnce(ok(JEV_RESPONSE))
+    let calls = 0
+    await createProvider({
+      baseUrl: 'https://hosted.example/',
+      headers: async () => {
+        calls++
+        return { authorization: 'Bearer short-lived-id-token', 'x-extra': 'yes' }
+      },
+    }).decide({ state: 'charged twice', questions: QUESTIONS })
+    const [, init] = mockFetch.mock.calls[0]!
+    expect(calls).toBe(1)
+    expect(init.headers.authorization).toBe('Bearer short-lived-id-token')
+    expect(init.headers['x-extra']).toBe('yes')
+    expect(init.headers['content-type']).toBe('application/json')
+  })
 })

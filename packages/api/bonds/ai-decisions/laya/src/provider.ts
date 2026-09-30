@@ -31,6 +31,8 @@ class LayaDecisionsProvider implements AIDecisionsProvider {
   readonly name = 'laya'
   private readonly baseUrl: string
   private readonly apiKey: string | undefined
+  private readonly headers:
+    (() => Record<string, string> | Promise<Record<string, string>>) | undefined
   private readonly model: string | undefined
 
   /**
@@ -41,6 +43,7 @@ class LayaDecisionsProvider implements AIDecisionsProvider {
   constructor(config: LayaConfig = {}) {
     this.baseUrl = (config.baseUrl || process.env.LAYA_URL || DEFAULT_LAYA_URL).replace(/\/+$/, '')
     this.apiKey = config.apiKey ?? (process.env.LAYA_API_KEY || undefined)
+    this.headers = config.headers
     this.model = config.model
   }
 
@@ -68,6 +71,7 @@ class LayaDecisionsProvider implements AIDecisionsProvider {
     const body = await postSystemOne({
       url: `${this.baseUrl}/v1/systemone`,
       apiKey: this.apiKey,
+      headers: this.headers,
       body: {
         ...(model ? { model } : {}),
         state: input.state,

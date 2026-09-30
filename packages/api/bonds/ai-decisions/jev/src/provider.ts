@@ -31,6 +31,8 @@ class JevDecisionsProvider implements AIDecisionsProvider {
   readonly name = 'jev'
   private readonly baseUrl: string
   private readonly apiKey: string | undefined
+  private readonly headers:
+    (() => Record<string, string> | Promise<Record<string, string>>) | undefined
   private readonly model: string
 
   /**
@@ -44,6 +46,7 @@ class JevDecisionsProvider implements AIDecisionsProvider {
       '',
     )
     this.apiKey = config.apiKey ?? (process.env.TYPESAFE_API_KEY || undefined)
+    this.headers = config.headers
     this.model = config.model ?? DEFAULT_JEV_MODEL
   }
 
@@ -75,6 +78,7 @@ class JevDecisionsProvider implements AIDecisionsProvider {
     const body = await postSystemOne({
       url: `${this.baseUrl}/v1/systemone`,
       apiKey: this.apiKey,
+      headers: this.headers,
       body: {
         model: input.model ?? this.model,
         state: input.state,
