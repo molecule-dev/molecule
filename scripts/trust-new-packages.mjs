@@ -254,10 +254,18 @@ for (const pkg of untrusted) {
         cwd: join(ROOT, pkg.dir),
         stdio: 'inherit',
       })
-    } catch (_error) {
-      // Intentionally ignored: npm printed a more specific reason to the
-      // inherited stdio than anything reconstructable from the exit code.
-      console.error(`  ✗ ${pkg.name}: publish failed (see npm output above)`)
+    } catch (error) {
+      // `npm publish` with stdio: 'inherit' prints its own reason, so its
+      // "Command failed" wrapper adds nothing — but the build and the
+      // pack-completeness gate throw BEFORE npm runs, and swallowing their
+      // message printed "see npm output above" with nothing above (the
+      // 2026-09-30 model-hosting wave sat on a missing-README.md diagnosis
+      // that read like an npm failure).
+      const reason =
+        error instanceof Error && !/^Command failed/.test(error.message)
+          ? error.message
+          : 'npm printed the reason above'
+      console.error(`  ✗ ${pkg.name}: publish failed — ${reason}`)
       failed.push(pkg.name)
       continue
     }
