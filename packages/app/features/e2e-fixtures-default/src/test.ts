@@ -128,8 +128,8 @@ const withRrwebRecording: TestType<
                 contentType: 'application/json',
               })
             }
-          } catch {
-            // rrweb events are a bonus — never fail the test for them.
+          } catch (_error) {
+            // rrweb events are a bonus — never fail the test for them (intentional noop).
           }
         },
       })
