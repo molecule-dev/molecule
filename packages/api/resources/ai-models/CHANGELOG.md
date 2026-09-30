@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.11.0
+
+### Minor Changes
+
+- 5b95c8c: Adds gpt-6.1-sol ($2/$10, cached input $0.10), which supersedes gpt-6-sol.
+
 ## 1.10.0
 
 ### Minor Changes
