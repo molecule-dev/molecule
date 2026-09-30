@@ -238,11 +238,15 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   low|medium|high, vision, tools, caching, search grounding, code execution,
  *   url context — identical surface to 3.7-flash. Knowledge cutoff is published
  *   by neither Google nor models.dev for this id)
- * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-5
- *   (grok-4.5 flagship 2026-07-08: $2/$6, 500K ctx, ≥200K prompts bill 2× —
- *   not modeled; reasoning_effort low|medium|high default high, image input;
- *   grok-4.3 still served at $1.25/$2.50 with the bigger 1M window;
- *   grok-code-fast-1 no longer listed — retires 2026-08-15)
+ * - xAI: https://docs.x.ai/developers/models + /developers/grok-4-7 +
+ *   /developers/model-capabilities/text/reasoning (re-read 2026-09-30:
+ *   grok-4.7 flagship: $2/$6, cached $0.50, 500K ctx, ≥200K prompts bill 2× —
+ *   not modeled; reasoning_effort low|medium|high|xhigh default high, image
+ *   input, knowledge cutoff May 2026, "No text output limit"; live-probed on
+ *   /v1/chat/completions with tools, forced + required tool_choice,
+ *   temperature 0, xhigh and an image — all 200, effort 'none' 400s.
+ *   grok-4.5 still served at $2/$6, cached $0.30; grok-4.3 still served at
+ *   $1.25/$2.50 with the bigger 1M window; grok-code-fast-1 no longer listed)
  * - Chinese public holidays (DeepSeek's peak excludes them):
  *   https://www.12371.gov.cn/web/article/web/content_1451614684968525824.html
  *   (the State Council's 2026 notice; see CHINA_PUBLIC_HOLIDAYS)
@@ -1445,13 +1449,45 @@ export const MODELS: readonly ModelDefinition[] = [
 
   // ---------------------------------------------------------------------------
   // xAI (Grok)
-  // Verified: https://docs.x.ai/developers/models + /developers/grok-4-5
-  //           (2026-07-28)
-  // grok-4.5 (2026-07-08) is the flagship: 500K ctx, reasoning_effort
-  // low|medium|high default high, image input. grok-4.3 stays served as the
-  // value tier with the BIGGER 1M window (reasoning_effort none|low|medium|
-  // high, default low). Max output tokens still not documented for any model.
+  // Verified: https://docs.x.ai/developers/models + /developers/grok-4-7 +
+  //           /developers/model-capabilities/text/reasoning (2026-09-30)
+  // grok-4.7 is the flagship: 500K ctx, reasoning_effort low|medium|high|xhigh
+  // default high ("xhigh is available on grok-4.6 and later"), image input,
+  // knowledge cutoff May 2026. grok-4.5 is still served but superseded.
+  // grok-4.3 stays served with the BIGGER 1M window (reasoning_effort
+  // none|low|medium|high, default low). Max output tokens still not documented
+  // for any model (grok-4.7's page says "No text output limit").
   // ---------------------------------------------------------------------------
+  {
+    id: 'grok-4.7',
+    provider: 'xai',
+    label: 'Grok 4.7',
+    description: 'xAI frontier — coding, agentic tasks & knowledge work',
+    contextWindow: 500_000,
+    // "No text output limit" per docs.x.ai — conservative cap.
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // reasoning_effort low|medium|high|xhigh, default high (docs.x.ai/developers/
+    // grok-4-7). No 'none' tier — the live endpoint 400s on it (2026-09-30).
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'high',
+    // Multimodal input (text + images), text out.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // <200K-token prompts; ≥200K bills 2× ($4/$1.00/$12 — tiering not
+    // modeled, same as grok-4.5 and the Gemini 3.1 Pro >200K tier).
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 6,
+    // xAI cached input billed at a flat $0.50/M (up from 4.5's $0.30), no
+    // write premium.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 2,
+    // Official (docs.x.ai): May 2026.
+    knowledgeCutoff: '2026-05-01',
+  },
   {
     id: 'grok-4.5',
     provider: 'xai',
@@ -1480,6 +1516,10 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 2,
     // Official (docs.x.ai): 2026-02-01.
     knowledgeCutoff: '2026-02-01',
+    // Superseded by grok-4.7: same general-purpose Grok line, same list price
+    // and window, newer weights. Stays priceable for saved selections.
+    deprecatedAt: '2026-09-30',
+    supersededBy: 'grok-4.7',
   },
   {
     id: 'grok-4.3',
@@ -1505,13 +1545,13 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2025-12-01',
-    // Superseded by grok-4.5: the previous version of the same general-purpose
-    // Grok line, not a separately-named tier. It keeps a bigger window (1M vs
-    // 500K) and a lower price, which is why it was previously left selectable —
-    // but offering two generations of one family is exactly what the picker no
-    // longer does, and grok-4.5 is xAI's own recommendation. Stays priceable.
+    // Superseded by grok-4.7 (was grok-4.5 until 2026-09-30): the previous
+    // version of the same general-purpose Grok line, not a separately-named
+    // tier. It keeps a bigger window (1M vs 500K) and a lower price, which is
+    // why it was previously left selectable — but offering two generations of
+    // one family is exactly what the picker no longer does. Stays priceable.
     deprecatedAt: '2026-07-28',
-    supersededBy: 'grok-4.5',
+    supersededBy: 'grok-4.7',
   },
   {
     id: 'grok-build-0.1',

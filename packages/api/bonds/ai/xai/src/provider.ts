@@ -34,7 +34,8 @@ interface XaiStreamState {
 /**
  * Fallback: map thinking budget tokens to an xAI reasoning_effort level when the
  * caller didn't resolve a native value from the model catalog. Current Grok
- * models (grok-4.3) accept `none | low | medium | high` (default `low`) —
+ * models accept `low | medium | high | xhigh` (grok-4.7, default `high`) or
+ * `none | low | medium | high` (grok-4.3, default `low`) —
  * callers should prefer passing `thinking.effort` with one of those values.
  *
  * @param budgetTokens - Requested thinking budget in tokens.
@@ -59,7 +60,7 @@ class XaiAIProvider implements AIProvider {
 
   constructor(config: XaiConfig = {}) {
     this.apiKey = config.apiKey ?? process.env.XAI_API_KEY ?? ''
-    this.defaultModel = config.defaultModel ?? 'grok-4.5'
+    this.defaultModel = config.defaultModel ?? 'grok-4.7'
     this.maxTokens = config.maxTokens ?? 4096
     this.baseUrl = config.baseUrl ?? process.env.XAI_BASE_URL ?? 'https://api.x.ai'
     this.onRateLimit = config.onRateLimit
@@ -114,8 +115,8 @@ class XaiAIProvider implements AIProvider {
     }
 
     if (params.thinking) {
-      // Prefer the caller-resolved native value (none | low | medium | high on
-      // grok-4.3, from the model catalog); fall back to the budget threshold.
+      // Prefer the caller-resolved native value (from the model catalog, e.g.
+      // low | medium | high | xhigh on grok-4.7); fall back to the budget threshold.
       body.reasoning_effort = params.thinking.effort ?? budgetToEffort(params.thinking.budgetTokens)
     } else if (params.temperature !== undefined) {
       body.temperature = params.temperature

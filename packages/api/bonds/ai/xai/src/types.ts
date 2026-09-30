@@ -12,7 +12,7 @@ import type { AiRateLimitCallback } from '@molecule/api-ai'
 export interface XaiConfig {
   /** API key. Defaults to XAI_API_KEY env var. */
   apiKey?: string
-  /** Default model. Defaults to 'grok-4.5'. */
+  /** Default model. Defaults to 'grok-4.7'. */
   defaultModel?: string
   /** Maximum tokens for completions. */
   maxTokens?: number

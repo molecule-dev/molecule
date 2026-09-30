@@ -236,7 +236,7 @@ describe('chat() — request shape', () => {
     expect(body.max_tokens).toBeUndefined()
   })
 
-  it('defaults model to grok-4.5', async () => {
+  it('defaults model to grok-4.7', async () => {
     const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
     fetch.mockResolvedValue(
       jsonResponse(200, { choices: [{ message: { content: 'ok' } }], usage: {} }),
@@ -250,7 +250,7 @@ describe('chat() — request shape', () => {
       // drain
     }
     const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
-    expect(body.model).toBe('grok-4.5')
+    expect(body.model).toBe('grok-4.7')
   })
 
   it('passes caller-supplied model verbatim', async () => {

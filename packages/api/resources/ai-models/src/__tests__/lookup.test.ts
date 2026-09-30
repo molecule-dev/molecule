@@ -501,10 +501,11 @@ describe('getAvailableModels', () => {
 
   it('excludes superseded models even when their provider is available', () => {
     // The picker offers ONE generation per family: an older generation that is
-    // still served upstream (grok-4.3 next to grok-4.5) must not be listed.
+    // still served upstream (grok-4.5 next to grok-4.7) must not be listed.
     const xaiModels = getAvailableModels(['xai'])
     expect(xaiModels.some((m) => m.id === 'grok-4.3')).toBe(false)
-    expect(xaiModels.some((m) => m.id === 'grok-4.5')).toBe(true)
+    expect(xaiModels.some((m) => m.id === 'grok-4.5')).toBe(false)
+    expect(xaiModels.some((m) => m.id === 'grok-4.7')).toBe(true)
     for (const m of getAvailableModels(new Set(MODELS.map((x) => x.provider)))) {
       expect(m.supersededBy, m.id).toBeUndefined()
     }
@@ -1115,7 +1116,8 @@ describe('supersededBy', () => {
       'gemini-3.5-flash': 'gemini-3.8-flash',
       'gemini-3.6-flash': 'gemini-3.8-flash',
       'gemini-3.7-flash': 'gemini-3.8-flash',
-      'grok-4.3': 'grok-4.5',
+      'grok-4.5': 'grok-4.7',
+      'grok-4.3': 'grok-4.7',
       'kimi-k2.6': 'kimi-k3',
       'kimi-k2.5': 'kimi-k3',
       'minimax-m2.7': 'minimax-m3',
