@@ -1,5 +1,11 @@
 # @molecule/api-realtime-socketio
 
+## 1.0.3
+
+### Patch Changes
+
+- Updates engine.io to 6.6.11 (GHSA-2gc4-cqfq-p2gv).
+
 ## 1.0.1
 
 ### Patch Changes

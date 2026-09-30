@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-realtime-socketio",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Socket.io realtime provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",
@@ -30,7 +30,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "socket.io": "4.8.3",
-    "engine.io": "6.6.9",
+    "engine.io": "6.6.11",
     "socket.io-adapter": "2.5.8"
   },
   "peerDependencies": {
