@@ -245,6 +245,11 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   input, knowledge cutoff May 2026, "No text output limit"; live-probed on
  *   /v1/chat/completions with tools, forced + required tool_choice,
  *   temperature 0, xhigh and an image — all 200, effort 'none' 400s.
+ *   grok-4.6 (re-read 2026-09-30 from the models page's model list — its own
+ *   page now redirects to grok-4-7; specs from that page as archived
+ *   2026-09-10): $2/$6, cached $0.50, 500K ctx, image input, reasoning_effort
+ *   low|medium|high|xhigh default high, knowledge cutoff February 1, 2026 —
+ *   cataloged superseded by grok-4.7.
  *   grok-4.5 still served at $2/$6, cached $0.30; grok-4.3 still served at
  *   $1.25/$2.50 with the bigger 1M window; grok-code-fast-1 no longer listed)
  * - Chinese public holidays (DeepSeek's peak excludes them):
@@ -1487,6 +1492,39 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheWritePricePerMTok: 2,
     // Official (docs.x.ai): May 2026.
     knowledgeCutoff: '2026-05-01',
+  },
+  {
+    id: 'grok-4.6',
+    provider: 'xai',
+    label: 'Grok 4.6',
+    description: 'xAI frontier — coding, agentic tasks & knowledge work',
+    contextWindow: 500_000,
+    // "No text output limit" per docs.x.ai — conservative cap.
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    // reasoning_effort low|medium|high|xhigh, default high (xAI's model list
+    // `reasoningEffortOptions` for grok-4.6). Same surface as grok-4.7.
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffortLevel: 'high',
+    // Multimodal input (text + images), text out.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    // <200K-token prompts; ≥200K bills 2× ($4/$1.00/$12 — tiering not modeled).
+    inputPricePerMTok: 2,
+    outputPricePerMTok: 6,
+    // xAI cached input billed at a flat $0.50/M, no write premium.
+    cacheReadPricePerMTok: 0.5,
+    cacheWritePricePerMTok: 2,
+    // Official (docs.x.ai/developers/grok-4-6, as of 2026-09-10): February 1, 2026.
+    knowledgeCutoff: '2026-02-01',
+    // Superseded by grok-4.7 on arrival: same general-purpose Grok line, same
+    // list price, window and effort levels, newer weights. Cataloged so a
+    // request naming grok-4.6 is priced; never offered in the picker.
+    deprecatedAt: '2026-09-30',
+    supersededBy: 'grok-4.7',
   },
   {
     id: 'grok-4.5',

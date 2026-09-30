@@ -505,6 +505,7 @@ describe('getAvailableModels', () => {
     const xaiModels = getAvailableModels(['xai'])
     expect(xaiModels.some((m) => m.id === 'grok-4.3')).toBe(false)
     expect(xaiModels.some((m) => m.id === 'grok-4.5')).toBe(false)
+    expect(xaiModels.some((m) => m.id === 'grok-4.6')).toBe(false)
     expect(xaiModels.some((m) => m.id === 'grok-4.7')).toBe(true)
     for (const m of getAvailableModels(new Set(MODELS.map((x) => x.provider)))) {
       expect(m.supersededBy, m.id).toBeUndefined()
@@ -1116,6 +1117,7 @@ describe('supersededBy', () => {
       'gemini-3.5-flash': 'gemini-3.8-flash',
       'gemini-3.6-flash': 'gemini-3.8-flash',
       'gemini-3.7-flash': 'gemini-3.8-flash',
+      'grok-4.6': 'grok-4.7',
       'grok-4.5': 'grok-4.7',
       'grok-4.3': 'grok-4.7',
       'kimi-k2.6': 'kimi-k3',
