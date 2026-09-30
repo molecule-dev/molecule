@@ -55,6 +55,12 @@ export interface UserMenuProps {
    * (e.g. to open an auth modal for guest users).
    */
   onClick?: () => void
+  /**
+   * Which side of the viewport the panel opens from. Defaults to
+   * `'right'`. Apps whose sidebar trigger sits on the left should pass
+   * `'left'` so the panel opens adjacent to the trigger.
+   */
+  side?: 'left' | 'right'
 }
 
 /**
@@ -77,6 +83,7 @@ export function UserMenu({
   className,
   disabled,
   onClick,
+  side = 'right',
 }: UserMenuProps): JSX.Element {
   const cm = getClassMap()
   const { t } = useTranslation()
@@ -110,7 +117,7 @@ export function UserMenu({
       <Modal
         open={open}
         onClose={() => setOpen(false)}
-        className={cm.drawer}
+        className={side === 'left' ? cm.cn(cm.drawer, '!right-auto !left-0') : cm.drawer}
         // The drawer has no `title`, so without an explicit label the
         // dialog is announced as an unnamed "dialog" — give it a name.
         aria-label={t('userMenu.panelLabel', {}, { defaultValue: 'Account menu' })}
