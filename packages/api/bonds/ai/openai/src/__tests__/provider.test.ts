@@ -850,3 +850,48 @@ describe('secret registration', () => {
     expect(getSecretDefinition('OPENAI_API_KEY')).toBeDefined()
   })
 })
+
+describe('chat() — mixed tool-result + image message (chat-completions path)', () => {
+  it('emits non-tool parts (a screenshot riding a tool result) instead of dropping them', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(
+      jsonResponse(200, { choices: [{ message: { content: 'ok' } }], usage: {} }),
+    )
+    const provider = createProvider({ apiKey: 'sk-abc', baseUrl: 'https://proxy.test' })
+    for await (const _ of provider.chat({
+      stream: false,
+      messages: [
+        { role: 'user', content: 'shoot the page' },
+        {
+          role: 'assistant',
+          content: [
+            { type: 'text', text: 'taking the screenshot' },
+            { type: 'tool_use', id: 'tc1', name: 'screenshot_preview', input: { path: '/' } },
+          ],
+        },
+        {
+          role: 'user',
+          content: [
+            { type: 'tool_result', tool_use_id: 'tc1', content: 'Screenshot saved.' },
+            { type: 'image', mediaType: 'image/jpeg', data: 'QUJD' },
+          ],
+        },
+      ],
+    })) {
+      // drain
+    }
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    const toolMsg = body.messages.find(
+      (m: { role: string; tool_call_id?: string }) => m.role === 'tool' && m.tool_call_id === 'tc1',
+    )
+    expect(toolMsg).toBeDefined()
+    const imageMsg = body.messages.find(
+      (m: { content?: Array<{ type?: string }> }) =>
+        Array.isArray(m.content) && m.content.some((p) => p?.type === 'image_url'),
+    )
+    expect(imageMsg).toBeDefined()
+    expect(imageMsg.role).toBe('user')
+    expect(imageMsg.content[0].image_url.url).toBe('data:image/jpeg;base64,QUJD')
+    expect(body.messages.indexOf(imageMsg)).toBeGreaterThan(body.messages.indexOf(toolMsg))
+  })
+})

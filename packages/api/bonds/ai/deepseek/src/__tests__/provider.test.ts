@@ -401,3 +401,50 @@ describe('secret registration', () => {
     expect(getSecretDefinition('DEEPSEEK_API_KEY')).toBeDefined()
   })
 })
+
+describe('chat() — mixed tool-result + image message', () => {
+  it('emits non-tool parts (a screenshot riding a tool result) instead of dropping them', async () => {
+    const fetch = globalThis.fetch as ReturnType<typeof vi.fn>
+    fetch.mockResolvedValue(jsonResponse(200, { choices: [{ message: { content: 'ok' } }] }))
+    const provider = createProvider({ apiKey: 'k' })
+    await drain(
+      provider.chat({
+        stream: false,
+        messages: [
+          { role: 'user', content: 'shoot the page' },
+          {
+            role: 'assistant',
+            content: [
+              { type: 'text', text: 'taking the screenshot' },
+              { type: 'tool_use', id: 'tc1', name: 'screenshot_preview', input: { path: '/' } },
+            ],
+          },
+          {
+            role: 'user',
+            content: [
+              { type: 'tool_result', tool_use_id: 'tc1', content: 'Screenshot saved.' },
+              { type: 'image', mediaType: 'image/jpeg', data: 'QUJD' },
+            ],
+          },
+        ],
+      }),
+    )
+    const body = JSON.parse((fetch.mock.calls[0][1] as RequestInit).body as string)
+    const toolMsg = body.messages.find(
+      (m: { role: string; tool_call_id?: string }) => m.role === 'tool' && m.tool_call_id === 'tc1',
+    )
+    expect(toolMsg).toBeDefined()
+    expect(toolMsg.content).toBe('Screenshot saved.')
+    // The image part must arrive as its own user message AFTER the tool result —
+    // not be silently dropped (the pre-2026-09-30 behavior).
+    const imageMsg = body.messages.find(
+      (m: { role: string; content?: unknown[] }) =>
+        Array.isArray(m.content) && m.content.some((p) => p?.type === 'image_url'),
+    )
+    expect(imageMsg).toBeDefined()
+    expect(imageMsg.role).toBe('user')
+    expect(imageMsg.content[0].image_url.url).toBe('data:image/jpeg;base64,QUJD')
+    const imageMsgIdx = body.messages.indexOf(imageMsg)
+    expect(imageMsgIdx).toBeGreaterThan(body.messages.indexOf(toolMsg))
+  })
+})

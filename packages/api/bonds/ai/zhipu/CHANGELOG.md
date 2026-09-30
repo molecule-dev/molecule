@@ -1,5 +1,11 @@
 # @molecule/api-ai-zhipu
 
+## 1.2.1
+
+### Patch Changes
+
+- A user message mixing `tool_result` blocks with other content parts (an image riding a tool result — the screenshot tool's capture) no longer loses the non-tool parts on the Chat Completions path: they are emitted as a user message after the tool messages, matching what the Responses, Anthropic and Gemini transports already did. Previously any such part was silently dropped.
+
 ## 1.2.0
 
 ### Minor Changes

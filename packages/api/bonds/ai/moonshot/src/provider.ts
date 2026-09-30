@@ -356,6 +356,10 @@ class MoonshotAIProvider implements AIProvider {
         for (const tr of toolResults) {
           formatted.push(tr)
         }
+        // Non-tool parts of the SAME message (an image riding a tool result — the
+        // screenshot tool) must not be dropped: Chat Completions accepts a user
+        // message after the tool messages, so emit them instead of losing them.
+        if (parts.length > 0) formatted.push({ role: m.role, content: parts })
       } else if (toolCalls.length > 0) {
         // Assistant message with tool calls — replay reasoning_content so
         // preserved-thinking models (kimi-k3, kimi-k2.7-code) keep reasoning

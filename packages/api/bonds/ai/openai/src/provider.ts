@@ -366,6 +366,10 @@ export class OpenaiAIProvider implements AIProvider {
       // in practice (assistant emits tool_use, the next user turn the results).
       if (toolResults.length > 0) {
         for (const tr of toolResults) out.push(tr)
+        // Non-tool parts of the SAME message (an image riding a tool result — the
+        // screenshot tool) must not be dropped: Chat Completions accepts a user
+        // message after the tool messages, so emit them instead of losing them.
+        if (parts.length > 0) out.push({ role: m.role, content: parts })
       } else if (toolCalls.length > 0) {
         out.push({
           role: 'assistant',
