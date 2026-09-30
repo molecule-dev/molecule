@@ -102,6 +102,22 @@ describe('ai-decisions-llm', () => {
     expect(lastParams?.model).toBe('m-1')
   })
 
+  it('uses a provider instance passed directly, without bonding it', async () => {
+    bondAI('{"refund":{"probability":0.9}}') // the bonded singleton must NOT be used
+    const routed: AIProvider = {
+      name: 'routed',
+      async *chat(params: ChatParams) {
+        lastParams = params
+        yield { type: 'text' as const, content: '{"refund":{"probability":0.1}}' }
+        yield { type: 'done' as const, usage: { inputTokens: 5, outputTokens: 3 } }
+      },
+    }
+    const p = createProvider({ aiProvider: routed, model: 'm-2' })
+    const r = await p.decide({ state: 's', questions: { refund: QUESTIONS.refund } })
+    expect(r.answers.refund.answer).toBe(false)
+    expect(lastParams?.model).toBe('m-2')
+  })
+
   it('passes images to the ai bond as image content blocks before the prompt', async () => {
     bondAI('{"refund":{"probability":0.2}}')
     await provider.decide({

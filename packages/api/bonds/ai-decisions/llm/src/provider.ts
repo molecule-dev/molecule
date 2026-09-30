@@ -26,8 +26,12 @@ import type {
  * Configuration for the LLM decisions provider.
  */
 export interface LlmDecisionsConfig {
-  /** Named `ai` provider to use (defaults to the bonded singleton). */
-  aiProvider?: string
+  /**
+   * The `ai` provider to use: a bonded provider's NAME, or a provider instance
+   * (when the caller routes per request — by region, or to a user's own
+   * endpoint). Defaults to the bonded singleton.
+   */
+  aiProvider?: string | AIProvider
   /** Default chat model id (per-call `model` wins). */
   model?: string
 }
@@ -198,7 +202,9 @@ export function createProvider(config: LlmDecisionsConfig = {}): AIDecisionsProv
         throw new Error('ai-decisions: decide() requires at least one question')
 
       let ai: AIProvider | null
-      if (config.aiProvider) {
+      if (config.aiProvider && typeof config.aiProvider === 'object') {
+        ai = config.aiProvider
+      } else if (config.aiProvider) {
         ai = getAIProviderByName(config.aiProvider)
         if (!ai)
           throw new Error(`ai-decisions-llm: AI provider "${config.aiProvider}" is not bonded`)

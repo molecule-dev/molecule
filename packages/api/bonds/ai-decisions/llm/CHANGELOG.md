@@ -1,5 +1,11 @@
 # @molecule/api-ai-decisions-llm
 
+## 1.2.0
+
+### Minor Changes
+
+- `aiProvider` also accepts a provider instance, for callers that route each request to a different `ai` provider.
+
 ## 1.1.0
 
 ### Minor Changes

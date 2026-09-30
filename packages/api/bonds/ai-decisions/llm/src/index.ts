@@ -26,7 +26,9 @@
  *
  * @remarks
  * - **Requires a bonded `ai` provider** — resolved at call time. Pick a named
- *   one with `createProvider({ aiProvider: 'openai', model: '…' })`.
+ *   one with `createProvider({ aiProvider: 'openai', model: '…' })`, or pass a
+ *   provider instance (`createProvider({ aiProvider: routedProvider })`) when you
+ *   choose the provider per request.
  * - **Probabilities are the model's own estimate**, renormalized to sum to 1
  *   (missing options count as 0; an all-zero answer becomes uniform). They are
  *   NOT calibrated the way Laya's/Jev's are — gate on `minConfidence` and
