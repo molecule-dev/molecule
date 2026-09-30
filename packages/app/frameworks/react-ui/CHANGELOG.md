@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.2.4
+
+### Patch Changes
+
+- 83e525d: UserMenu gains a `side` prop (`'left' | 'right'`, default `'right'`). Apps whose sidebar trigger sits on the left should pass `side="left"` so the panel opens adjacent to the trigger instead of always from the right viewport edge.
+
 ## 1.2.3
 
 ### Patch Changes
