@@ -550,7 +550,7 @@ export function ResponsiveAppShellSidebar({
       {footer ? (
         <div
           className={cm.cn(
-            cm.flex({ direction: 'col', gap: 'sm' }),
+            cm.flex({ align: 'center', justify: 'between', gap: 'sm' }),
             cm.borderT,
             cm.sp('p', 3),
             cm.shrink0,
