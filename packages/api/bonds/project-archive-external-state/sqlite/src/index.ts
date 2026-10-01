@@ -5,7 +5,8 @@
  * It dumps to a file and loads the file back. That is the whole package —
  * `sqlite3 <db> .dump` on the way out, replayed on the way in.
  *
- * ```ts
+ * @example
+ * ```typescript
  * import { setExternalStateProvider } from '@molecule/api-project-archive'
  * import { createSqliteExternalStateProvider } from '@molecule/api-project-archive-external-state-sqlite'
  *

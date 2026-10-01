@@ -1,6 +1,21 @@
 /**
  * Stability AI image generation provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-image-generation-stability --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai-image-generation'
+ * import { provider } from '@molecule/api-ai-image-generation-stability'
+ *
+ * setProvider(provider) // reads STABILITY_API_KEY from the environment
+ *
+ * const { images } = await requireProvider().generate({
+ *   prompt: 'A watercolor fox reading a book',
+ *   aspectRatio: '16:9', // or width/height — see @molecule/api-ai-image-generation
+ * })
+ * // images[0] may carry url, base64, or data — persist what the app needs to keep.
+ * ```
+ *
  * @module
  */
 

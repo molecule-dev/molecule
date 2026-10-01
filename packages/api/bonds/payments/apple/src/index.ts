@@ -42,6 +42,19 @@
  *   OFF mid-period has no `cancellation_date` yet, so the inferred value
  *   alone reports `willRenew: true` right up until expiry.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-payments-apple --workspace=api
+ * // Env: APPLE_SHARED_SECRET (server-side; APPLE_ALLOW_SANDBOX_RECEIPTS=true
+ * // only for local/CI testing).
+ * import { bond } from '@molecule/api-bond'
+ * import { paymentProvider } from '@molecule/api-payments-apple'
+ *
+ * // api/src/bonds/payments-apple.ts, called from setupBonds() — verifyReceipt
+ * // on it verifies App Store receipts server-side (subscriptions only).
+ * bond('payments', 'apple', paymentProvider)
+ * ```
+ *
  * @module
  */
 

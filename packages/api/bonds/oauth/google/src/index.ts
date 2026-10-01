@@ -57,6 +57,24 @@
  * docs — matching every other molecule.dev OAuth bond (gitlab, twitter,
  * github, apple, microsoft).
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-oauth-google --workspace=api
+ * // Env: OAUTH_GOOGLE_CLIENT_ID, OAUTH_GOOGLE_CLIENT_SECRET (server-only).
+ * import { bond } from '@molecule/api-bond'
+ * import { getAuthorizeUrl, serverName, verify } from '@molecule/api-oauth-google'
+ *
+ * // api/src/bonds/oauth-google.ts, called from setupBonds() — the `oauth`
+ * // category is NAMED: providers coexist, and the bond name IS the
+ * // serverName ('google').
+ * bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
+ *
+ * // Redirect: Google matches redirect URIs exactly — register the app origin
+ * // + each OAuth-starting page path (e.g. {origin} and {origin}/login) under
+ * // "Authorized redirect URIs"; the login button just links to
+ * // GET /users/oauth/google.
+ * ```
+ *
  * @module
  */
 

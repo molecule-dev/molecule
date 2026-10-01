@@ -47,6 +47,15 @@
  *   under a `__setup__` directory (run via the exported `setup` namespace);
  *   versioned schema belongs in `migrations` only.
  *
+ * @example
+ * ```typescript
+ * import { setPool, setStore } from '@molecule/api-database'
+ * import { pool, store } from '@molecule/api-database-postgresql'
+ *
+ * setPool(pool) // reads DATABASE_URL lazily on first use
+ * setStore(store)
+ * ```
+ *
  * @module
  */
 

@@ -25,6 +25,14 @@
  *   an actionable error if the path is not writable, and changing the env
  *   var later in the same process has no effect (restart required).
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-uploads'
+ * import { provider } from '@molecule/api-uploads-filesystem'
+ *
+ * setProvider(provider) // files land under FILE_UPLOAD_PATH (default ./uploads)
+ * ```
+ *
  * @module
  */
 

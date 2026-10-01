@@ -4,6 +4,22 @@
  * Text-to-speech via the ElevenLabs API: high-quality single-shot synthesis,
  * chunked streaming synthesis, and voice listing.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-speech-elevenlabs --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai-speech'
+ * import { provider } from '@molecule/api-ai-speech-elevenlabs'
+ *
+ * setProvider(provider) // reads ELEVENLABS_API_KEY from the environment
+ *
+ * const speech = requireProvider()
+ * const { audio, contentType } = await speech.synthesizeSpeech!({
+ *   text: 'Your order has shipped.',
+ *   voiceId: 'JBFqnCBsd6RMkjVDRZzb', // "George" — call listVoices!() for the catalog
+ * })
+ * // synthesizeStream!({ text, voiceId }) yields Uint8Array chunks as they are synthesized.
+ * ```
+ *
  * @remarks
  * - **TTS-only subset**: implements `synthesizeSpeech(SpeechParams)`, `synthesizeStream`,
  *   and `listVoices`. It does NOT implement `synthesize` (the other TTS dialect),

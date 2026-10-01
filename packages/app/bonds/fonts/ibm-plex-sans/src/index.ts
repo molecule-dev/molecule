@@ -1,6 +1,14 @@
 /**
  * IBM Plex Sans font for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * import { setFont } from '@molecule/app-fonts'
+ * import { font } from '@molecule/app-fonts-ibm-plex-sans'
+ *
+ * setFont(font)   // once, at app startup — before first paint
+ * ```
+ *
  * @module
  */
 

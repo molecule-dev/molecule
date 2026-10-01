@@ -5,6 +5,25 @@
  * OpenAI `chat/completions` protocol (Ollama, LM Studio, llama.cpp, vLLM),
  * keyless by default.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-local --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai'
+ * import { provider } from '@molecule/api-ai-local'
+ *
+ * // Named registration — several AI providers can be bonded side by side
+ * // (getProviderByName('local') targets this one); the FIRST one
+ * // registered also answers requireProvider() (see @molecule/api-ai).
+ * setProvider('local', provider) // keyless: LOCAL_AI_BASE_URL (Ollama http://localhost:11434/v1 by default), LOCAL_AI_MODEL (llama3.1)
+ *
+ * let reply = ''
+ * for await (const event of requireProvider().chat({
+ *   messages: [{ role: 'user', content: 'Hello!' }],
+ * })) {
+ *   if (event.type === 'text') reply += event.content // or forward the chunk to the client (SSE)
+ * }
+ * ```
+ *
  * @remarks
  * **Error message disambiguation**: a plain 400 that ISN'T a context-length error (bad param,
  * malformed tool schema) gets its own non-retryable message distinct from the generic

@@ -14,6 +14,23 @@
  *   or strict proxy would otherwise reject the exchange with an error that
  *   looks unrelated to the missing parameter.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-oauth-github --workspace=api
+ * // Env: OAUTH_GITHUB_CLIENT_ID, OAUTH_GITHUB_CLIENT_SECRET (server-only).
+ * import { bond } from '@molecule/api-bond'
+ * import { getAuthorizeUrl, serverName, verify } from '@molecule/api-oauth-github'
+ *
+ * // api/src/bonds/oauth-github.ts, called from setupBonds() — the `oauth`
+ * // category is NAMED: providers coexist, and the bond name IS the
+ * // serverName ('github').
+ * bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
+ *
+ * // Redirect: register the app origin + each OAuth-starting page path
+ * // (e.g. {origin} and {origin}/login) as the OAuth App's "Authorization
+ * // callback URL"; the login button just links to GET /users/oauth/github.
+ * ```
+ *
  * @module
  */
 

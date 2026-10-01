@@ -27,6 +27,19 @@
  * returns — so a caller can tell "the operator forgot to set the secret" apart
  * from "this purchase isn't valid" and surface the actionable 503.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-payments-google --workspace=api
+ * // Env: GOOGLE_API_SERVICE_KEY_OBJECT (service-account JSON) +
+ * // GOOGLE_PLAY_PACKAGE_NAME (server-side).
+ * import { bond } from '@molecule/api-bond'
+ * import { paymentProvider } from '@molecule/api-payments-google'
+ *
+ * // api/src/bonds/payments-google.ts, called from setupBonds() —
+ * // verifyPurchase on it verifies Play purchases/subscriptions server-side.
+ * bond('payments', 'google', paymentProvider)
+ * ```
+ *
  * @module
  */
 

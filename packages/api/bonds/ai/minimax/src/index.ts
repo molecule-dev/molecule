@@ -1,6 +1,25 @@
 /**
  * MiniMax AI provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-minimax --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai'
+ * import { provider } from '@molecule/api-ai-minimax'
+ *
+ * // Named registration — several AI providers can be bonded side by side
+ * // (getProviderByName('minimax') targets this one); the FIRST one
+ * // registered also answers requireProvider() (see @molecule/api-ai).
+ * setProvider('minimax', provider) // reads MINIMAX_API_KEY from the environment
+ *
+ * let reply = ''
+ * for await (const event of requireProvider().chat({
+ *   messages: [{ role: 'user', content: 'Hello!' }],
+ * })) {
+ *   if (event.type === 'text') reply += event.content // or forward the chunk to the client (SSE)
+ * }
+ * ```
+ *
  * @remarks
  * Config: `MINIMAX_API_KEY` (SERVER-side only) plus an optional default model id/base URL.
  *

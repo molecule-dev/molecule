@@ -30,6 +30,14 @@
  * (`lib/sendmail-transport/index.js`), not the shipped `.d.ts` — the typings
  * are exactly what drifted last time.
  *
+ * @example
+ * ```typescript
+ * import { setTransport } from '@molecule/api-emails'
+ * import { provider } from '@molecule/api-emails-sendmail'
+ *
+ * setTransport(provider) // requires the local sendmail binary (SENDMAIL_PATH overrides)
+ * ```
+ *
  * @see https://www.npmjs.com/package/nodemailer
  *
  * @module

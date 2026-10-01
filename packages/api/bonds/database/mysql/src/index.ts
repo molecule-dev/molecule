@@ -23,6 +23,15 @@
  *   now FAILS the boot with every broken file named, instead of warn-logging and
  *   booting with a partial schema.
  *
+ * @example
+ * ```typescript
+ * import { setPool, setStore } from '@molecule/api-database'
+ * import { pool, store } from '@molecule/api-database-mysql'
+ *
+ * setPool(pool) // reads MYSQL_URL (or MYSQL_HOST/…) lazily on first use
+ * setStore(store)
+ * ```
+ *
  * @module
  */
 

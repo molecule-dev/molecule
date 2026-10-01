@@ -1,6 +1,23 @@
 /**
  * HTTP/SSE AI chat provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/app-ai-chat-http --workspace=app
+ * import { setProvider, requireProvider } from '@molecule/app-ai-chat'
+ * import { createProvider } from '@molecule/app-ai-chat-http'
+ *
+ * setProvider(createProvider()) // same-origin base URL by default
+ *
+ * const chat = requireProvider()
+ * const config = { endpoint: '/api/ai/chat' } // YOUR backend route (SSE) — the AI key lives there
+ * await chat.sendMessage('Summarize my open orders', config, (event) => {
+ *   if (event.type === 'text') appendTokens(event.content) // streamed chunks
+ *   if (event.type === 'error') showError(event.message)
+ * })
+ * const history = await chat.loadHistory(config)
+ * ```
+ *
  * @remarks
  * POSTs each message to YOUR backend chat endpoint (`config.endpoint`, a RELATIVE path like
  * `/api/ai/chat` on the app's `baseUrl`) and reads the reply as an SSE stream — it does NOT talk

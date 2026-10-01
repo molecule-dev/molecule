@@ -5,7 +5,8 @@
  * It dumps to a file and loads the file back. That is the whole package —
  * `pg_dump --format=custom` on the way out, `pg_restore` on the way in.
  *
- * ```ts
+ * @example
+ * ```typescript
  * import { setExternalStateProvider } from '@molecule/api-project-archive'
  * import { createPostgresqlExternalStateProvider } from '@molecule/api-project-archive-external-state-postgresql'
  *

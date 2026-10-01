@@ -77,6 +77,17 @@
  * `admits` is always `null`: Docker has no quota of its own to consult, so the
  * floors and the refusal stay with the caller.
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-code-sandbox'
+ * import { provider } from '@molecule/api-code-sandbox-docker'
+ *
+ * setProvider(provider) // at startup
+ * // Reaches the daemon at /var/run/docker.sock (DOCKER_SOCKET_PATH / DOCKER_HOST).
+ * // The base image (default node:22-slim) must already exist on the host — it
+ * // is never pulled.
+ * ```
+ *
  * @module
  */
 

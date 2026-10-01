@@ -15,6 +15,14 @@
  * - The default cost reads `SALT_ROUNDS`, clamped to 10–16: cost is EXPONENTIAL and
  *   bcryptjs accepts absurd values (32 = hours per hash, silently).
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-password'
+ * import { provider } from '@molecule/api-password-bcrypt'
+ *
+ * setProvider(provider) // cost reads SALT_ROUNDS (default 12, clamped 10-16)
+ * ```
+ *
  * @see https://www.npmjs.com/package/bcryptjs
  *
  * @module

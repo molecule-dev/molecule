@@ -27,6 +27,18 @@
  *   themselves are still stored WITHOUT a TTL and are only cleared by `invalidateTag()` or
  *   `clear()` (a tagged key that merely expires leaves its tag membership until then).
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-cache'
+ * import { createProvider, provider } from '@molecule/api-cache-redis'
+ *
+ * // Default provider reads REDIS_URL (or REDIS_HOST/REDIS_PORT/REDIS_PASSWORD) lazily:
+ * setProvider(provider)
+ *
+ * // Or an explicit server — explicit config beats ambient env:
+ * setProvider(createProvider({ url: 'redis://my-redis:6379' }))
+ * ```
+ *
  * @see https://www.npmjs.com/package/ioredis
  *
  * @module

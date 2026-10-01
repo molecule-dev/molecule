@@ -1,6 +1,25 @@
 /**
  * Anthropic ai-anthropic provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-anthropic --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai'
+ * import { provider } from '@molecule/api-ai-anthropic'
+ *
+ * // Named registration — several AI providers can be bonded side by side
+ * // (getProviderByName('anthropic') targets this one); the FIRST one
+ * // registered also answers requireProvider() (see @molecule/api-ai).
+ * setProvider('anthropic', provider) // reads ANTHROPIC_API_KEY from the environment
+ *
+ * let reply = ''
+ * for await (const event of requireProvider().chat({
+ *   messages: [{ role: 'user', content: 'Hello!' }],
+ * })) {
+ *   if (event.type === 'text') reply += event.content // or forward the chunk to the client (SSE)
+ * }
+ * ```
+ *
  * @remarks
  * Bond this as an AI provider (see `@molecule/api-ai` for the `chat()` streaming loop and the
  * key-server-side / never-blindly-trust-model-output rules). Config: `ANTHROPIC_API_KEY`

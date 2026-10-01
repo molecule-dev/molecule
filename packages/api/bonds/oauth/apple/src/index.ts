@@ -32,6 +32,23 @@
  *
  * > **Your users should now be able to log in via Apple!**
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-oauth-apple --workspace=api
+ * // Env: OAUTH_APPLE_CLIENT_ID (the Services ID), OAUTH_APPLE_TEAM_ID,
+ * // OAUTH_APPLE_KEY_ID, OAUTH_APPLE_PRIVATE_KEY (.p8 contents) — server-only.
+ * import { bond } from '@molecule/api-bond'
+ * import { getAuthorizeUrl, serverName, verify } from '@molecule/api-oauth-apple'
+ *
+ * // api/src/bonds/oauth-apple.ts, called from setupBonds() — the `oauth`
+ * // category is NAMED: providers coexist, and the bond name IS the
+ * // serverName ('apple').
+ * bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
+ *
+ * // Redirect: register the exact redirect URI(s) the app will use on the
+ * // Services ID; the login button just links to GET /users/oauth/apple.
+ * ```
+ *
  * @module
  */
 

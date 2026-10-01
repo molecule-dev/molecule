@@ -79,6 +79,19 @@
  * SDK keeps its own default agent — a standalone app behaves exactly as before.
  * Allowlist `api.stripe.com` on the proxy.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-payments-stripe --workspace=api
+ * // Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET — server-side only (only
+ * // the pk_… publishable key is client-side).
+ * import { bond } from '@molecule/api-bond'
+ * import { paymentProvider } from '@molecule/api-payments-stripe'
+ *
+ * // api/src/bonds/payments-stripe.ts, called from setupBonds() — powers
+ * // hosted Checkout and server-verified subscription entitlement.
+ * bond('payments', 'stripe', paymentProvider)
+ * ```
+ *
  * @module
  */
 

@@ -5,7 +5,8 @@
  * It dumps to a file and loads the file back. That is the whole package —
  * `mysqldump` on the way out, `mysql` on the way in.
  *
- * ```ts
+ * @example
+ * ```typescript
  * import { setExternalStateProvider } from '@molecule/api-project-archive'
  * import { createMysqlExternalStateProvider } from '@molecule/api-project-archive-external-state-mysql'
  *

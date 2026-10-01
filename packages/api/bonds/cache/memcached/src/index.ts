@@ -31,6 +31,18 @@
  *   `invalidateTag()` deleting an already-gone key is a no-op). If exact tag membership
  *   matters, use the Redis bond instead (native `SADD`/`SREM`).
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-cache'
+ * import { createProvider, provider } from '@molecule/api-cache-memcached'
+ *
+ * // Default provider reads MEMCACHED_SERVERS (or MEMCACHED_HOST/MEMCACHED_PORT) lazily:
+ * setProvider(provider)
+ *
+ * // Or an explicit server list — explicit config beats ambient env:
+ * setProvider(createProvider({ servers: 'cache.internal:11211' }))
+ * ```
+ *
  * @see https://www.npmjs.com/package/memcached
  *
  * @module

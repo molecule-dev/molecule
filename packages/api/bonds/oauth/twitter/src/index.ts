@@ -55,6 +55,24 @@
  * matching every other molecule.dev OAuth bond (google, gitlab, github,
  * apple, microsoft).
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-oauth-twitter --workspace=api
+ * // Env: OAUTH_TWITTER_CLIENT_ID, OAUTH_TWITTER_CLIENT_SECRET (server-only).
+ * import { bond } from '@molecule/api-bond'
+ * import { getAuthorizeUrl, serverName, verify } from '@molecule/api-oauth-twitter'
+ *
+ * // api/src/bonds/oauth-twitter.ts, called from setupBonds() — the `oauth`
+ * // category is NAMED: providers coexist, and the bond name IS the
+ * // serverName ('twitter').
+ * bond('oauth', serverName, { serverName, verify, getAuthorizeUrl })
+ *
+ * // Redirect: X matches callback URIs exactly — register the app origin +
+ * // each OAuth-starting page path (e.g. {origin} and {origin}/login) under
+ * // "User authentication settings"; the login button just links to
+ * // GET /users/oauth/twitter.
+ * ```
+ *
  * @module
  */
 

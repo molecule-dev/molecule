@@ -44,6 +44,15 @@
  *   connecting directly, and with no proxy configured nothing is passed at all.
  *   Allowlist `*.amazonaws.com` (or your store's host) on the proxy.
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-uploads'
+ * import { provider } from '@molecule/api-uploads-s3'
+ *
+ * // Config is env-only, server-side — see the first remark for the full list.
+ * setProvider(provider)
+ * ```
+ *
  * @module
  */
 

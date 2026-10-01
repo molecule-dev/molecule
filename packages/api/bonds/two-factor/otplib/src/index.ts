@@ -20,6 +20,14 @@
  * — generate immediately before submitting. Never mock `verify()` to test the
  * flow; a generated real code exercises the same path a user's app does.
  *
+ * @example
+ * ```typescript
+ * import { setProvider } from '@molecule/api-two-factor'
+ * import { provider } from '@molecule/api-two-factor-otplib'
+ *
+ * setProvider(provider)
+ * ```
+ *
  * @see https://www.npmjs.com/package/otplib
  *
  * @module

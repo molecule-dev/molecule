@@ -1,6 +1,23 @@
 /**
  * OpenAI image-generation provider for molecule.dev (gpt-image-1 + DALL·E 3).
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-image-generation-openai --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai-image-generation'
+ * import { createProvider } from '@molecule/api-ai-image-generation-openai'
+ *
+ * // This bond exports createProvider() ONLY — there is no eager `provider` const.
+ * setProvider(createProvider()) // reads OPENAI_API_KEY from the environment
+ *
+ * const { images } = await requireProvider().generate({
+ *   prompt: 'A watercolor fox reading a book',
+ *   size: '1024x1024', // mapped to the closest size the active model supports
+ *   responseFormat: 'base64',
+ * })
+ * // images[0] may carry url, base64, or data — persist what the app needs to keep.
+ * ```
+ *
  * @remarks
  * This bond exports `createProvider()` ONLY — there is no eager `provider`
  * const (unlike sibling bonds). Wire it with the core's

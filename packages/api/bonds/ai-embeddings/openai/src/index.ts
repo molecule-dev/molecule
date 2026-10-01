@@ -1,6 +1,21 @@
 /**
  * OpenAI ai-embeddings provider for molecule.dev.
  *
+ * @example
+ * ```typescript
+ * // npm install @molecule/api-ai-embeddings-openai --workspace=api
+ * import { setProvider, requireProvider } from '@molecule/api-ai-embeddings'
+ * import { provider } from '@molecule/api-ai-embeddings-openai'
+ *
+ * setProvider(provider) // reads OPENAI_API_KEY from the environment
+ *
+ * // Batch, don't loop: one call for many texts (default model text-embedding-3-small).
+ * const { embeddings, usage } = await requireProvider().embed({
+ *   input: ['How do I reset my password?', 'Billing and invoices'],
+ * })
+ * const queryVector = await requireProvider().embedQuery('forgot my password')
+ * ```
+ *
  * @remarks
  * Config: `OPENAI_API_KEY` (SERVER-side only) plus optional `defaultModel`
  * (default `text-embedding-3-small`; also supports `text-embedding-3-large`
