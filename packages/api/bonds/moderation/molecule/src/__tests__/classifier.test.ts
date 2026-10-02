@@ -91,6 +91,35 @@ describe('servicesUrl guard', () => {
     ).not.toThrow()
   })
 
+  it('accepts private-network http: the sandbox gateway and RFC 1918 hosts', () => {
+    for (const url of [
+      'http://host.docker.internal:4000/api/v1/services',
+      'http://10.0.0.7:4000/api/v1/services',
+      'http://172.16.0.9:4000/api/v1/services',
+      'http://172.31.255.255:4000/api/v1/services',
+      'http://192.168.1.10:4000/api/v1/services',
+    ]) {
+      expect(() => createClassifier({ apiKey: 'mk_t', servicesUrl: url })).not.toThrow()
+    }
+  })
+
+  it('still refuses public cleartext shapes that only LOOK private', () => {
+    // 172.32+ is public, and a hostname that merely starts with a
+    // private-looking label never matches.
+    for (const url of [
+      'http://172.32.0.1:4000/api/v1/services',
+      'http://192.168.example.com/api/v1/services',
+      'http://10.0.0.1.nip.io/api/v1/services',
+    ]) {
+      expect(() => createClassifier({ apiKey: 'mk_t', servicesUrl: url })).toThrow(
+        /must use https.*Bearer token/s,
+      )
+    }
+    // An out-of-range octet never even parses as a URL — refused as invalid.
+    expect(() =>
+      createClassifier({ apiKey: 'mk_t', servicesUrl: 'http://10.0.0.300:4000/api/v1/services' }),
+    ).toThrow(/Invalid MOLECULE_SERVICES_URL/)
+  })
   it('refuses a plain-http base on a public host, naming the misconfiguration', () => {
     expect(() =>
       createClassifier({ apiKey: 'mk_t', servicesUrl: 'http://services.example.com/api/v1' }),

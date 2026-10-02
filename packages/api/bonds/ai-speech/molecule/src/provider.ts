@@ -30,16 +30,19 @@ export const DEFAULT_SERVICES_URL = 'https://api.molecule.dev/api/v1/services'
  * Validates the hosted-services base URL and strips trailing slashes.
  *
  * The project API key rides as a Bearer token on every call, so a plain-http
- * base URL would send it in cleartext. Mirroring the docker sandbox bond's
- * plain-TCP production refusal, non-https URLs are refused unless they point
- * at loopback (http://localhost or http://127.0.0.1), where a self-hosted
- * services instance runs for local development. Duplicated across the six
- * molecule service bonds on purpose: they are independent published
- * packages with no shared runtime dependency.
+ * base URL must never send it across the PUBLIC internet in cleartext.
+ * Mirroring the docker sandbox bond's plain-TCP production refusal, non-https
+ * URLs are refused unless the host is loopback (a self-hosted services
+ * instance for local development) or a PRIVATE-network endpoint — RFC 1918
+ * addresses and `*.docker.internal` — which is how an in-sandbox app reaches
+ * its platform's hosted-services gateway (`http://host.docker.internal:…`),
+ * traffic that never leaves the host's virtual network. Public cleartext is
+ * still refused. Duplicated across the molecule service bonds on purpose:
+ * they are independent published packages with no shared runtime dependency.
  *
  * @param raw - The configured or defaulted base URL.
  * @returns The validated base URL, without trailing slashes.
- * @throws {Error} When the URL is not https and not loopback http.
+ * @throws {Error} When the URL is not https and not loopback/private http.
  */
 function resolveServicesUrl(raw: string): string {
   const trimmed = raw.replace(/\/+$/, '')
@@ -54,12 +57,37 @@ function resolveServicesUrl(raw: string): string {
     )
   }
   const host = parsed.hostname.toLowerCase()
-  const loopback = host === 'localhost' || host === '127.0.0.1' || host === '[::1]'
-  if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && loopback)) return trimmed
+  if (parsed.protocol === 'https:' || (parsed.protocol === 'http:' && isPrivateHttpHost(host))) {
+    return trimmed
+  }
   throw new Error(
-    `MOLECULE_SERVICES_URL "${raw}" must use https: the project API key is sent as a Bearer token on every request and would cross the network in cleartext. ` +
-      `Point it at ${DEFAULT_SERVICES_URL} or a private https endpoint; only http://localhost or http://127.0.0.1 is allowed, for a local services instance.`,
+    `MOLECULE_SERVICES_URL "${raw}" must use https: the project API key is sent as a Bearer token on every request and must not cross the public internet in cleartext. ` +
+      `Point it at ${DEFAULT_SERVICES_URL} or a private https endpoint; only loopback and private-network (RFC 1918 / *.docker.internal) http is allowed, for a local services instance or an in-sandbox app reaching its own platform.`,
   )
+}
+
+/**
+ * Whether a plain-http URL to this host never leaves a trusted network: the
+ * loopback addresses, the RFC 1918 private ranges (each octet range-checked —
+ * a public address must not parse its way past this guard), and the docker
+ * host-gateway names an in-sandbox app uses to reach its own platform.
+ *
+ * @param host - Lowercased URL hostname.
+ * @returns True when plain http to this host is a private-network hop.
+ */
+function isPrivateHttpHost(host: string): boolean {
+  if (host === 'localhost' || host === '[::1]' || host === '::1' || host.startsWith('127.')) {
+    return true
+  }
+  if (host === 'host.docker.internal' || host.endsWith('.docker.internal')) return true
+  const octets = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(host)
+  if (!octets) return false
+  const [a, b, c, d] = octets.slice(1).map(Number)
+  if ([a, b, c, d].some((n) => n > 255)) return false
+  if (a === 10) return true
+  if (a === 172) return b >= 16 && b <= 31
+  if (a === 192) return b === 168
+  return false
 }
 
 /** Per-request limits of the hosted service. */

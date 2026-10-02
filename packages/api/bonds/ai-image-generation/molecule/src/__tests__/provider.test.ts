@@ -109,4 +109,24 @@ describe('api-ai-image-generation-molecule', () => {
       /must use https/,
     )
   })
+
+  it('accepts the sandbox gateway and RFC 1918 hosts; still refuses public-lookalikes', () => {
+    for (const url of [
+      'http://host.docker.internal:4000/api/v1/services',
+      'http://10.0.0.7:4000/api/v1/services',
+      'http://192.168.1.10:4000/api/v1/services',
+    ]) {
+      expect(() => createProvider({ servicesUrl: url })).not.toThrow()
+    }
+    for (const url of [
+      'http://172.32.0.1:4000/api/v1/services',
+      'http://10.0.0.1.nip.io/api/v1/services',
+    ]) {
+      expect(() => createProvider({ servicesUrl: url })).toThrow(/must use https/)
+    }
+    // An out-of-range octet never even parses as a URL — refused as invalid.
+    expect(() => createProvider({ servicesUrl: 'http://10.0.0.300:4000/api/v1/services' })).toThrow(
+      /Invalid MOLECULE_SERVICES_URL/,
+    )
+  })
 })

@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-molecule
 
+## 1.1.2
+
+### Patch Changes
+
+- The services URL now accepts plain http to private-network hosts (RFC 1918 and *.docker.internal, e.g. an in-sandbox app reaching its platform's gateway) — public cleartext is still refused.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -25,7 +25,7 @@
  * - Config: `MOLECULE_API_KEY` (SERVER-side only) — a molecule project API key
  *   (`mk_…`) with scope `broker` or `broker:moderation`. Optional
  *   `MOLECULE_SERVICES_URL` (default `https://api.molecule.dev/api/v1/services`;
- *   https required — a plain-http URL is refused unless it points at localhost).
+ *   required — plain-http is refused unless the host is loopback or a private-network endpoint (RFC 1918 / *.docker.internal, e.g. the sandbox gateway host.docker.internal)).
  * - Served by OpenAI's `omni-moderation-latest`, so category names are OpenAI's
  *   (`harassment`, `hate/threatening`, `sexual/minors`, `violence/graphic`, …),
  *   sorted highest score first. `threshold` re-decides each category by score;
