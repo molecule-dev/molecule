@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-fonts-ibm-plex-sans",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "IBM Plex Sans font provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.0
+
+### Minor Changes
+
+- Automatic rrweb DOM-replay recording in every test; events ship as Playwright attachments for the replay reporter.
+
 ## 1.1.3
 
 ### Patch Changes

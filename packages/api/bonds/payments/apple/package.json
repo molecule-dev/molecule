@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-payments-apple",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Apple In-App Purchase provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",

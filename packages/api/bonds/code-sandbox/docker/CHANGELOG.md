@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-docker
 
+## 1.1.4
+
+### Patch Changes
+
+- A project tree restored from an imported archive is writable by the sandbox.
+
 ## 1.1.3
 
 ### Patch Changes

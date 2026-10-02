@@ -1,5 +1,11 @@
 # @molecule/api-uploads-s3
 
+## 1.0.5
+
+### Patch Changes
+
+- SDK clients honor the proxy environment, and the env names provisioning tools actually export are accepted.
+
 ## 1.0.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-oauth-twitter
 
+## 1.2.0
+
+### Minor Changes
+
+- The provider profile is captured on signup (name/bio/avatar), and avatars are re-hosted as inline data URIs, never third-party URLs.
+
 ## 1.1.0
 
 ### Minor Changes

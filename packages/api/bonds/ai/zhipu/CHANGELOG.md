@@ -1,5 +1,11 @@
 # @molecule/api-ai-zhipu
 
+## 1.2.2
+
+### Patch Changes
+
+- Tool-result messages keep their non-tool content parts instead of dropping them.
+
 ## 1.2.1
 
 ### Patch Changes

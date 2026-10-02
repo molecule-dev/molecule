@@ -1,5 +1,11 @@
 # @molecule/api-ai-openai
 
+## 1.4.3
+
+### Patch Changes
+
+- Tool-result messages keep their non-tool content parts instead of dropping them.
+
 ## 1.4.2
 
 ### Patch Changes

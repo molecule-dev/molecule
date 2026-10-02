@@ -1,5 +1,11 @@
 # @molecule/app-ui-showcase
 
+## 1.0.3
+
+### Patch Changes
+
+- Exports are re-exported through export-* barrels so every framework wrapper resolves.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-minimax
 
+## 1.1.3
+
+### Patch Changes
+
+- Tool-result messages keep their non-tool content parts instead of dropping them.
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-deepseek
 
+## 1.0.6
+
+### Patch Changes
+
+- Tool-result messages keep their non-tool content parts instead of dropping them.
+
 ## 1.0.5
 
 ### Patch Changes

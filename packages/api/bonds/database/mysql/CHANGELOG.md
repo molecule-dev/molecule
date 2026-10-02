@@ -1,5 +1,11 @@
 # @molecule/api-database-mysql
 
+## 1.0.4
+
+### Patch Changes
+
+- Identifiers containing hyphens are accepted — they are quoted at every interpolation site.
+
 ## 1.0.2
 
 ### Patch Changes

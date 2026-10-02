@@ -1,5 +1,11 @@
 # @molecule/api-ai-google
 
+## 1.3.2
+
+### Patch Changes
+
+- Gemini accepts other models' tool calls.
+
 ## 1.3.1
 
 ### Patch Changes

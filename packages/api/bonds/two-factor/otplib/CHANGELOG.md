@@ -1,5 +1,11 @@
 # @molecule/api-two-factor-otplib
 
+## 1.0.3
+
+### Patch Changes
+
+- Documentation: the README now ships runnable example code, with the proven-correct TOTP snippet for otplib v13.
+
 ## 1.0.1
 
 ### Patch Changes

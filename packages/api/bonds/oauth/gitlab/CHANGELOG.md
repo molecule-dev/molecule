@@ -1,5 +1,11 @@
 # @molecule/api-oauth-gitlab
 
+## 1.2.0
+
+### Minor Changes
+
+- The provider profile image is captured as the user's avatar.
+
 ## 1.1.0
 
 ### Minor Changes

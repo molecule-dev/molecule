@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-fonts-merriweather",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Merriweather font provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

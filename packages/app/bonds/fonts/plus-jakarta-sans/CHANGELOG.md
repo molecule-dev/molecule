@@ -1,5 +1,11 @@
 # @molecule/app-fonts-plus-jakarta-sans
 
+## 1.0.3
+
+### Patch Changes
+
+- Documentation: the README now ships runnable example code (and the server-only browser guard/formatting was regenerated).
+
 ## 1.0.1
 
 ### Patch Changes

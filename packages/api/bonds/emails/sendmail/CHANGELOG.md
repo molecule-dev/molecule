@@ -1,5 +1,11 @@
 # @molecule/api-emails-sendmail
 
+## 1.0.6
+
+### Patch Changes
+
+- Fixed the type import for nodemailer's namespace export.
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.4
+
+### Patch Changes
+
+- Subscription updates set (and type) the seat quantity.
+
 ## 1.2.2
 
 ### Patch Changes

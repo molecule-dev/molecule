@@ -1,5 +1,11 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.2
+
+### Patch Changes
+
+- Tool-call ids the Messages API rejects are mapped to valid stable ids.
+
 ## 1.3.1
 
 ### Patch Changes

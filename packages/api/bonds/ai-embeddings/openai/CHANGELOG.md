@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-openai
 
+## 1.0.4
+
+### Patch Changes
+
+- Documentation: the README example and wiring note now match the core (the core registers the `ai-embeddings` bond).
+
 ## 1.0.3
 
 ### Patch Changes

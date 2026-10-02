@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat-http
 
+## 1.3.0
+
+### Minor Changes
+
+- Limit errors carry the billing action and upgrade tier through to the upgrade CTA.
+
 ## 1.2.0
 
 ### Minor Changes
