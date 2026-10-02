@@ -26,6 +26,15 @@
       "severity": "moderate",
       "expires": "2026-10-23",
       "reason": "Prototype replacement in csv-parse when BOTH columns:true AND group_columns_by_name:true are set and a duplicated __proto__ header appears in the input (advisory published 2026-09-08T18:01Z — it went red mid-release). Reached only via @molecule/api-permissions-casbin -> casbin 5.51.1 -> csv-parse 5.6.0. NO upstream fix exists at or above the pinned versions: casbin 5.51.1 is the LATEST release and npm's fixAvailable is a DOWNGRADE to casbin 5.4.1; csv-parse is patched only in 7.0.2, and forcing csv-parse 7 under casbin is a blind major bump of an indirect. MITIGATED BY REACHABILITY: casbin invokes csv-parse/sync parse(line, {delimiter, skip_empty_lines, trim, relax_quotes}) with NEITHER vulnerable option set (verified in casbin 5.51.1 lib/cjs/persist/helper.js — it parses policy lines into token ARRAYS, never objects with column mapping), so the __proto__ setter branch cannot execute through this path. Residual risk: a future casbin release that adds column mapping would re-expose it — the gate goes red again at expiry. Re-checked 2026-09-23: casbin latest is still 5.51.1 and still declares csv-parse ^5.5.6, so no upstream fix; the patched csv-parse 7.0.2 could only be forced by a root `overrides`, which does not reach a consumer installing @molecule/api-permissions-casbin, so the reachability mitigation stands. Re-check for a casbin release accepting csv-parse 7 (or shipping the fix) at expiry, and drop this entry then."
+    },
+    {
+      "package": "node-forge (via @molecule/api-wallet-pass)",
+      "advisories": [
+        "GHSA-86w9-cpqp-85rv"
+      ],
+      "severity": "high",
+      "expires": "2026-11-01",
+      "reason": "RSA PKCS#1 v1.5 signature VERIFICATION accepts extra nested DigestAlgorithm elements (advisory published 2026-10-01/02 — it went red mid-release on the version-packages commit). NO upstream fix exists: node-forge 1.4.0 is the LATEST published version and the advisory range is `*`; npm audit reports fixAvailable: false. node-forge is a direct dependency of @molecule/api-wallet-pass only, which uses it to SIGN Apple Wallet passes locally with developer-provided certificates — it never runs signature VERIFICATION on untrusted input, so the vulnerable code path (verification) is not reachable from the package's API surface. Residual risk: a future refactor that feeds untrusted signatures into node-forge would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check for a node-forge release (or a maintained fork) at expiry, and drop this entry then."
     }
   ]
 }
