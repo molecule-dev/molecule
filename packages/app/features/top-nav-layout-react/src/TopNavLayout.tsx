@@ -71,6 +71,10 @@ export function TopNavLayout({
               <NavLink
                 key={item.key}
                 to={item.to}
+                // Below `md` the label span hides and the link becomes
+                // icon-only; the icon span is aria-hidden, so the link's
+                // accessible name must come from here.
+                aria-label={item.label}
                 className={({ isActive }) =>
                   cm.cn(
                     cm.flex({ align: 'center', gap: 'xs' }),
