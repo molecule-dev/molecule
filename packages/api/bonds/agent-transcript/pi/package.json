@@ -1,7 +1,7 @@
 {
-  "name": "@molecule/api-text-provenance-overlap",
-  "version": "1.0.1",
-  "description": "Attributes paragraphs to agent turns by overlapping word sequences, tolerant of light human edits and never crediting the user's own words to the AI",
+  "name": "@molecule/api-agent-transcript-pi",
+  "version": "1.0.0",
+  "description": "Reads Pi coding-agent session files and pi --mode json output into a normalized agent session",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,22 +22,19 @@
   ],
   "keywords": [
     "molecule",
-    "provenance",
-    "attribution",
-    "overlap",
-    "shingles"
+    "agent",
+    "transcript",
+    "pi",
+    "session",
+    "jsonl"
   ],
   "license": "Apache-2.0",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "peerDependencies": {
-    "@molecule/api-agent-transcript": "^1.0.0",
-    "@molecule/api-text-provenance": "^1.0.0"
+    "@molecule/api-agent-transcript": "^1.0.0"
   },
   "devDependencies": {
     "@molecule/api-agent-transcript": "1.0.1",
-    "@molecule/api-agent-transcript-autodetect": "1.2.0",
-    "@molecule/api-agent-transcript-claude-code": "1.0.0",
-    "@molecule/api-text-provenance": "1.0.1",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
@@ -45,9 +42,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/bonds/text-provenance/overlap"
+    "directory": "packages/api/bonds/agent-transcript/pi"
   },
-  "homepage": "https://www.molecule.dev/packages/api-text-provenance-overlap",
+  "homepage": "https://www.molecule.dev/packages/api-agent-transcript-pi",
   "bugs": "https://github.com/molecule-dev/molecule/issues",
   "publishConfig": {
     "access": "public"

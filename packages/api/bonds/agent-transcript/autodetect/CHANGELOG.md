@@ -1,5 +1,16 @@
 # @molecule/api-agent-transcript-autodetect
 
+## 1.2.0
+
+### Minor Changes
+
+- Recognizes and reads Pi session files and `pi --mode json` output.
+
+### Patch Changes
+
+- Updated dependencies
+  - @molecule/api-agent-transcript-pi@1.0.0
+
 ## 1.1.2
 
 ### Patch Changes

@@ -19,6 +19,7 @@ import { provider as geminiCli } from '@molecule/api-agent-transcript-gemini-cli
 import { provider as markdownChat } from '@molecule/api-agent-transcript-markdown-chat'
 import { provider as moleculeIde } from '@molecule/api-agent-transcript-molecule-ide'
 import { provider as opencode } from '@molecule/api-agent-transcript-opencode'
+import { provider as pi } from '@molecule/api-agent-transcript-pi'
 
 /**
  * Compose readers: the first whose `detect()` accepts the input reads it.
@@ -61,6 +62,7 @@ export const harnessReaders: readonly AgentTranscriptReader[] = [
   geminiCli,
   cline,
   opencode,
+  pi,
   copilotChat,
   cursor,
   aider,
@@ -68,7 +70,7 @@ export const harnessReaders: readonly AgentTranscriptReader[] = [
 
 /**
  * Reads a transcript from any supported harness — Claude Code, Codex CLI,
- * the Molecule IDE, Gemini CLI, Cline / Roo Code, OpenCode, GitHub Copilot
+ * the Molecule IDE, Gemini CLI, Cline / Roo Code, OpenCode, Pi, GitHub Copilot
  * Chat, Cursor and Aider — and, last, any plain Markdown / text chat with
  * User / Assistant speaker markers.
  */

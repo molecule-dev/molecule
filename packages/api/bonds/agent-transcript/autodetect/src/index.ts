@@ -12,6 +12,7 @@
  * | Gemini CLI | session `.jsonl` / `.json`, `/chat save` checkpoint |
  * | Cline / Roo Code | a task's `ui_messages.json` |
  * | OpenCode | `opencode export` JSON |
+ * | Pi | session `.jsonl`, `pi --mode json` output |
  * | GitHub Copilot Chat | VS Code's "Export Chat…" `chat.json` |
  * | Cursor | "Export Chat" Markdown |
  * | Aider | `.aider.chat.history.md` |

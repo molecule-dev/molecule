@@ -1,0 +1,459 @@
+/**
+ * Pi agent runtime — unattended runs in an ephemeral cloud sandbox.
+ *
+ * One call = one sandbox created for the run and destroyed before the artifact
+ * returns. The sandbox holds nothing worth stealing: no platform env, no vault,
+ * no project scaffold (created through the sandbox bond's minimal path, never
+ * the project env-materialization). Credentials ride only the exec calls that
+ * need them (clone: the GitHub token; agent: the ONE model provider's key),
+ * never the sandbox-wide environment. Egress is deny-by-default where the
+ * sandbox can enforce it, and the run verifies — not assumes — the policy
+ * before any credential arrives. The only return channel is the artifact: a
+ * unified diff + credential-redacted logs.
+ *
+ * @module
+ */
+
+import type {
+  AgentRunArtifact,
+  AgentRunOptions,
+  AgentRunSpec,
+  AgentRuntimeProvider,
+} from '@molecule/api-agent-run'
+import { redactSecrets } from '@molecule/api-ai-tools'
+import type { Sandbox } from '@molecule/api-code-sandbox'
+import { requireProvider as requireSandboxProvider } from '@molecule/api-code-sandbox'
+
+import { summarizePiEvents } from './events.js'
+import type { ResolvedPiModel } from './models.js'
+import { DEFAULT_MODEL_MAP, PI_PROVIDERS, resolvePiModel } from './models.js'
+import type { PiProviderAccess, PiRuntimeConfig } from './types.js'
+
+/**
+ * Hosts the runtime's own tooling needs, always allowed on top of the spec's
+ * and the model provider's API host. `pi.dev` is deliberately absent: the CLI
+ * runs with `--offline`, `PI_SKIP_VERSION_CHECK=1` and `PI_TELEMETRY=0`.
+ */
+export const RUNTIME_ALLOWED_HOSTS = [
+  'github.com',
+  'api.github.com',
+  'codeload.github.com',
+  'objects.githubusercontent.com',
+  'registry.npmjs.org',
+] as const
+
+/** The exact Pi CLI version the runtime installs by default. */
+export const DEFAULT_PI_CLI_PACKAGE = '@earendil-works/pi-coding-agent@1.0.0'
+
+/** Where the repo is cloned inside the sandbox. */
+const REPO_DIR = '/workspace/repo'
+
+/** Where the task instructions are written (stdin to the CLI, never argv). */
+const PROMPT_PATH = '/workspace/prompt.md'
+
+/** Environment that keeps Pi from making background network calls. */
+const PI_QUIET_ENV = {
+  PI_OFFLINE: '1',
+  PI_SKIP_VERSION_CHECK: '1',
+  PI_TELEMETRY: '0',
+} as const
+
+/** A sandbox handle that can enforce a per-run egress policy (E2B today). */
+type NetworkCapableSandbox = Sandbox & {
+  applyNetwork?: (allowOut: string[]) => Promise<void>
+}
+
+/**
+ * Probe that egress is deny-by-default BEFORE any credential enters the
+ * sandbox: an allowed host must connect (any HTTP status counts — the policy
+ * question is reachability, not the response) and a NOT-allowed host must fail
+ * to connect. Observation, never attestation.
+ *
+ * @param handle - The run's sandbox.
+ * @param allowedHosts - The effective allowlist.
+ * @returns A promise that rejects when the probe contradicts the policy or cannot run.
+ * @throws {Error} When the probe contradicts the policy or cannot run.
+ */
+async function assertEgress(handle: Sandbox, allowedHosts: string[]): Promise<void> {
+  const probe = async (host: string): Promise<boolean> => {
+    const r = await handle.exec(
+      `node -e "fetch('https://${host}/').then(r => process.exit(0)).catch(() => process.exit(1))" --input-type=module 2>/dev/null`,
+      { timeout: 15_000 },
+    )
+    return r.exitCode === 0
+  }
+  const allowed = allowedHosts[0]
+  const denied = 'example.com'
+  const [allowedOk, deniedBlocked] = await Promise.all([probe(allowed), probe(denied)])
+  if (!allowedOk) {
+    throw new Error(
+      `Egress pre-flight failed: ${allowed} is on the run's allowlist but was not reachable — refusing to inject credentials into a sandbox whose network is not what the run assumed.`,
+    )
+  }
+  if (deniedBlocked) {
+    throw new Error(
+      `Egress pre-flight failed: ${denied} is NOT on the run's allowlist but was reachable — egress is not deny-by-default. Refusing to inject credentials.`,
+    )
+  }
+}
+
+/**
+ * Pi coding-agent runtime backed by an ephemeral cloud sandbox.
+ */
+export class PiAgentRuntime implements AgentRuntimeProvider {
+  readonly name = 'pi'
+
+  private readonly defaults: {
+    timeoutMs: number
+    cliPackage: string
+    defaultModel: string
+    setupSlackMs: number
+    approveProjectFiles: boolean
+    tools: string[] | undefined
+    modelMap: Record<string, string>
+    providers: Record<string, PiProviderAccess>
+  }
+
+  /**
+   * Create the runtime.
+   *
+   * @param config - CLI package, default model, model map, providers, budgets.
+   */
+  constructor(config: PiRuntimeConfig = {}) {
+    this.defaults = {
+      timeoutMs: config.timeoutMs ?? 600_000,
+      cliPackage: config.cliPackage ?? DEFAULT_PI_CLI_PACKAGE,
+      defaultModel: config.defaultModel ?? 'claude-sonnet-5-5',
+      setupSlackMs: config.setupSlackMs ?? 240_000,
+      approveProjectFiles: config.approveProjectFiles ?? false,
+      tools: config.tools,
+      modelMap: { ...DEFAULT_MODEL_MAP, ...config.modelMap },
+      providers: { ...PI_PROVIDERS, ...config.providers },
+    }
+  }
+
+  /**
+   * Execute one unattended agent run in a fresh ephemeral sandbox.
+   *
+   * @param spec - The task.
+   * @param opts - Per-run credentials (used ONLY by the exec calls that need
+   *   them), log sink, cancellation signal.
+   * @returns Artifacts: patch, redacted logs, usage, sandbox id, compute time.
+   */
+  async run(spec: AgentRunSpec, opts: AgentRunOptions): Promise<AgentRunArtifact> {
+    const provider = requireSandboxProvider()
+    const totalBudgetMs = spec.timeoutMs ?? this.defaults.timeoutMs
+    const sandboxBudgetMs = totalBudgetMs + this.defaults.setupSlackMs
+    const started = Date.now()
+    const logs: string[] = []
+    const log = (line: string): void => {
+      logs.push(line)
+      try {
+        opts.onLog?.(line)
+      } catch (_error) {
+        // Intentional noop: a throwing log sink must not fail the run.
+      }
+    }
+    const abortCheck = (): void => {
+      if (opts.signal?.aborted) throw new CANCELLED()
+    }
+
+    let sandboxId: string | undefined
+    // Any exit from here destroys the sandbox FIRST — credentials die with it.
+    try {
+      abortCheck()
+      // Resolve the model and its credential BEFORE a sandbox exists: an
+      // unmappable model or a missing key fails the run for free.
+      const resolved = resolvePiModel(
+        spec.model || this.defaults.defaultModel,
+        this.defaults.modelMap,
+        this.defaults.providers,
+      )
+      const modelKey = opts.env[resolved.access.keyEnv]
+      if (!modelKey) {
+        throw new Error(
+          `${resolved.access.keyEnv} is missing from opts.env — Pi needs it to call ${resolved.provider} (${resolved.qualified}).`,
+        )
+      }
+      // The provider's API host first: it is the host the egress probe dials.
+      const allowOut = [
+        ...new Set([resolved.access.host, ...RUNTIME_ALLOWED_HOSTS, ...(spec.allowedHosts ?? [])]),
+      ]
+
+      const handle: NetworkCapableSandbox = await provider.create({
+        // NOT a project id: no env-materialization, no scaffold, no vault —
+        // the sandbox boots from the bare template and stays bare.
+        projectId: `agent-run-${Date.now().toString(36)}`,
+        env: {},
+        labels: { 'molecule.agent-run': '1' },
+      })
+      sandboxId = handle.id
+
+      // Egress policy + OBSERVED proof of it, before any credential exists here.
+      if (typeof handle.applyNetwork === 'function') {
+        await handle.applyNetwork(allowOut)
+        await assertEgress(handle, allowOut)
+      }
+      abortCheck()
+
+      // Clone with the credential carried by THIS command's env only. The
+      // token travels by URL (git-over-https needs it there); logs are
+      // redacted before leaving the bond, and the env dies with the sandbox.
+      const cloneUrl = cloneUrlWithToken(spec.repoUrl, opts.env.GITHUB_TOKEN ?? '')
+      const clone = await handle.exec(`git clone --depth 1 ${cloneUrl} ${REPO_DIR}`, {
+        env: { GITHUB_TOKEN: opts.env.GITHUB_TOKEN ?? '' },
+        timeout: Math.min(180_000, sandboxBudgetMs),
+      })
+      if (clone.exitCode !== 0) {
+        throw new Error(
+          `clone failed: ${redact(clone.stderr || clone.stdout, opts.env).slice(0, 300)}`,
+        )
+      }
+      if (spec.baseBranch) {
+        const co = await handle.exec(
+          `cd ${REPO_DIR} && git fetch --depth 1 origin ${shellQuote(spec.baseBranch)} && git checkout ${shellQuote(spec.baseBranch)}`,
+          { env: { GITHUB_TOKEN: opts.env.GITHUB_TOKEN ?? '' }, timeout: 120_000 },
+        )
+        if (co.exitCode !== 0) {
+          throw new Error(
+            `checkout ${spec.baseBranch} failed: ${redact(co.stderr, opts.env).slice(0, 200)}`,
+          )
+        }
+      }
+      abortCheck()
+
+      // Pi needs Node >= 22.19 — say so plainly instead of a cryptic CLI crash.
+      const nodeCheck = await handle.exec(
+        `node -e "const [a,b]=process.versions.node.split('.').map(Number);process.exit(a>22||(a===22&&b>=19)?0:1)"`,
+        { timeout: 15_000 },
+      )
+      if (nodeCheck.exitCode !== 0) {
+        throw new Error('pi CLI needs Node.js >= 22.19 in the sandbox image.')
+      }
+
+      // Install the agent CLI at run start, from the egress-allowed npm
+      // registry. Pi needs no lifecycle scripts, so none run.
+      const install = await handle.exec(
+        `npm install -g --ignore-scripts ${shellQuote(this.defaults.cliPackage)}`,
+        { timeout: Math.min(300_000, sandboxBudgetMs) },
+      )
+      if (install.exitCode !== 0) {
+        throw new Error(`pi CLI install failed: ${redactSecrets(install.stderr).slice(0, 300)}`)
+      }
+      abortCheck()
+
+      // The task travels by FILE + stdin, never argv, never the environment.
+      await handle.writeFile(PROMPT_PATH, spec.instructions)
+      const deadlineMs = Math.max(30_000, totalBudgetMs - (Date.now() - started))
+      const agentStarted = Date.now()
+      const agent = await handle.exec(
+        `cd ${REPO_DIR} && cat ${PROMPT_PATH} | ${this.piCommand(resolved)}`,
+        {
+          env: {
+            ...PI_QUIET_ENV,
+            [resolved.access.keyEnv]: modelKey,
+          },
+          timeout: deadlineMs,
+        },
+      )
+      abortCheck()
+
+      const events = summarizePiEvents(agent.stdout)
+      for (const line of events.lines) log(redact(line, opts.env))
+      if (events.lastText) log(redact(events.lastText.slice(-4000), opts.env))
+      if (events.unparsed) log(`[agent-run] ${events.unparsed} non-JSON stdout record(s) ignored`)
+      if (!events.sawSessionHeader) {
+        log(
+          `[agent-run] pi wrote no session header: ${redact(agent.stderr, opts.env).slice(-1000)}`,
+        )
+      }
+
+      // Pi exits 0 even when the model call failed — the events decide.
+      let exitStatus: AgentRunArtifact['exitStatus'] = 'completed'
+      if (!events.settled) {
+        const ranOut = Date.now() - agentStarted >= deadlineMs - 1_000
+        exitStatus = ranOut ? 'timeout' : 'failed'
+        log(`[agent-run] pi ended before agent_settled (exit ${agent.exitCode})`)
+      } else if (events.lastStopReason === 'aborted') {
+        exitStatus = 'cancelled'
+      } else if (
+        events.lastStopReason === 'error' ||
+        events.lastStopReason === undefined ||
+        events.retryFailure !== undefined ||
+        agent.exitCode !== 0
+      ) {
+        exitStatus = 'failed'
+      }
+      const wrongModel = events.answeredBy.filter(
+        (who) => who !== `${resolved.provider}/${stripThinking(resolved.model)}`,
+      )
+      if (wrongModel.length) {
+        exitStatus = 'failed'
+        log(
+          `[agent-run] pi answered with ${wrongModel.join(', ')}, not the requested ${resolved.qualified}`,
+        )
+      }
+
+      // Artifacts, collected INSIDE the sandbox, shipped out as text.
+      const stage = await handle.exec(
+        `cd ${REPO_DIR} && git add -A && (git diff --cached --stat && git diff --cached)`,
+        { timeout: 60_000 },
+      )
+      const patch = extractPatch(stage.stdout)
+
+      return {
+        exitStatus,
+        patch,
+        logs: redact(logs.join('\n'), opts.env),
+        usage: events.usage,
+        sandboxId,
+        computeMs: Date.now() - started,
+      }
+    } catch (error) {
+      const cancelled = error instanceof CANCELLED
+      const timedOut = !cancelled && isTimeoutError(error)
+      return {
+        exitStatus: cancelled ? 'cancelled' : timedOut ? 'timeout' : 'failed',
+        patch: '',
+        logs: redact(
+          `${logs.join('\n')}\n[agent-run] ${cancelled ? 'cancelled by caller' : timedOut ? 'task budget exhausted' : 'run failed'}: ${error instanceof Error ? error.message : String(error)}`,
+          opts.env,
+        ),
+        sandboxId,
+        computeMs: Date.now() - started,
+      }
+    } finally {
+      if (sandboxId) {
+        // The destroy failure is tolerated on purpose: the artifact is already
+        // out of the sandbox, and E2B pauses the sandbox at its timeout anyway.
+        await provider.destroy(sandboxId).catch((_error: unknown) => undefined)
+      }
+    }
+  }
+
+  /**
+   * The Pi invocation for one run (stdin carries the prompt).
+   *
+   * @param resolved - The resolved model.
+   * @returns The shell command.
+   */
+  private piCommand(resolved: ResolvedPiModel): string {
+    const parts = [
+      'pi',
+      '--mode json',
+      '--no-session',
+      '--offline',
+      this.defaults.approveProjectFiles ? '--approve' : '--no-approve',
+      `--model ${shellQuote(resolved.qualified)}`,
+    ]
+    if (this.defaults.tools?.length)
+      parts.push(`--tools ${shellQuote(this.defaults.tools.join(','))}`)
+    return parts.join(' ')
+  }
+}
+
+/** Internal cancellation marker. */
+class CANCELLED extends Error {
+  constructor() {
+    super('cancelled')
+  }
+}
+
+/**
+ * Drop a `:<thinking>` suffix from a Pi model id (`claude-opus-5-5:high`).
+ *
+ * @param model - Pi model id, possibly with a thinking suffix.
+ * @returns The bare model id.
+ */
+function stripThinking(model: string): string {
+  return model.replace(/:(off|minimal|low|medium|high|xhigh|max)$/, '')
+}
+
+/**
+ * Redact the run's own secrets FIRST (the token appears inside clone URLs,
+ * which generic pattern-matching does not catch), then the generic
+ * credential-shaped patterns.
+ *
+ * @param text - Raw output.
+ * @param env - The run's credential env — every VALUE is a secret.
+ * @returns Redacted text.
+ */
+function redact(text: string, env: AgentRunOptions['env']): string {
+  let out = text
+  for (const value of Object.values(env)) {
+    if (value && value.length >= 8) out = out.split(value).join('[REDACTED]')
+  }
+  return redactSecrets(out)
+}
+
+/**
+ * Whether the error looks like a timeout.
+ *
+ * @param error - The error to inspect.
+ * @returns True when the message names a timeout.
+ */
+function isTimeoutError(error: unknown): boolean {
+  const m = error instanceof Error ? error.message : String(error)
+  return /timed? ?out|timeout|ETIMEDOUT/i.test(m)
+}
+
+/**
+ * Inject the run's token into an https GitHub URL (git-over-https needs the
+ * credential in the URL). Callers MUST redact() any output that can carry it.
+ *
+ * @param repoUrl - The https repo URL.
+ * @param token - The run's GitHub token.
+ * @returns The credentialed URL.
+ */
+function cloneUrlWithToken(repoUrl: string, token: string): string {
+  if (!token) return repoUrl
+  return repoUrl.replace(/^https:\/\//, `https://x-access-token:${token}@`)
+}
+
+/**
+ * Quote a shell argument.
+ *
+ * @param value - Raw value.
+ * @returns Single-quoted value.
+ */
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`
+}
+
+/**
+ * Split `git diff --cached` output into stats + patch body.
+ *
+ * @param stdout - The staged diff output.
+ * @returns Just the unified diff (the stats lines precede the diff header and are dropped).
+ */
+function extractPatch(stdout: string): string {
+  const at = stdout.indexOf('diff --git ')
+  // git apply REJECTS a patch whose final line has no trailing newline — keep it.
+  return at === -1 ? '' : stdout.slice(at).replace(/\n*$/, '\n')
+}
+
+/**
+ * Create a Pi agent runtime.
+ *
+ * @param config - CLI package, default model, model map, providers, budgets.
+ * @returns An `AgentRuntimeProvider` running the Pi CLI in ephemeral sandboxes.
+ */
+export function createProvider(config?: PiRuntimeConfig): AgentRuntimeProvider {
+  return new PiAgentRuntime(config)
+}
+
+/** Lazily-initialized provider singleton (uses the bonded sandbox provider). */
+let _provider: AgentRuntimeProvider | null = null
+/**
+ * The provider implementation (wire with the agent-run core's `setProvider`).
+ */
+export const provider: AgentRuntimeProvider = new Proxy({} as AgentRuntimeProvider, {
+  get(_, prop, receiver) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.get(_provider, prop, receiver)
+  },
+  set(_, prop, value) {
+    if (!_provider) _provider = createProvider()
+    return Reflect.set(_provider, prop, value)
+  },
+})

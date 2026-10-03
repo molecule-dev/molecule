@@ -26,6 +26,7 @@ describe('the bundled reader', () => {
       ['gemini-cli', 'session-2026-09-29T10-00-a1b2c3d4.jsonl', 'gemini-cli'],
       ['cline', 'cline-ui_messages.json', 'cline'],
       ['opencode', 'opencode-export.json', 'opencode'],
+      ['pi', 'session-v1.0.0.jsonl', 'pi'],
       ['copilot-chat', 'chat.json', 'copilot-chat'],
       ['aider', '.aider.chat.history.md', 'aider'],
     ]
@@ -46,7 +47,7 @@ describe('the bundled reader', () => {
     const harnessOnly = createReader(harnessReaders)
     expect(harnessOnly.detect({ text: imitation })).toBe(false)
     expect(() => harnessOnly.read({ text: imitation, fileName: 'fake.txt' })).toThrow(
-      /No transcript reader recognizes fake\.txt\. Readers tried: Claude Code, Codex CLI, Molecule IDE, Gemini CLI, Cline \/ Roo Code, OpenCode, GitHub Copilot Chat, Cursor, Aider\./,
+      /No transcript reader recognizes fake\.txt\. Readers tried: Claude Code, Codex CLI, Molecule IDE, Gemini CLI, Cline \/ Roo Code, OpenCode, Pi, GitHub Copilot Chat, Cursor, Aider\./,
     )
   })
 
@@ -64,6 +65,7 @@ describe('the bundled reader', () => {
       ['gemini-cli', 'gemini-cli'],
       ['cline', 'cline'],
       ['opencode', 'opencode'],
+      ['pi', 'pi'],
       ['copilot-chat', 'copilot-chat'],
       ['cursor', 'cursor'],
       ['aider', 'aider'],
