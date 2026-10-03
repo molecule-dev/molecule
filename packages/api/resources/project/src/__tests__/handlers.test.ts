@@ -444,6 +444,49 @@ describe('@molecule/api-resource-project handlers', () => {
       expect(updateData.envVars).toBe('{"API_KEY":"abc"}')
     })
 
+    it('should persist the starting-point fields UpdateProjectInput advertises', async () => {
+      // The template demo sweep persists a chosen flagship exactly this way
+      // (POST /projects, then PATCH { templateSlug }). When the handler
+      // dropped these fields every demo scaffolded the blank starter and
+      // deployed "project-app" under the template's URL (2026-10-01).
+      mockFindById.mockResolvedValue({ id: '1' })
+      mockUpdateById.mockResolvedValue({ data: { id: '1' } })
+
+      const req = mockReq({
+        params: { id: '1' },
+        body: {
+          projectType: 'full-stack',
+          framework: 'react',
+          packages: ['api-database-sqlite'],
+          templateSlug: 'accounting-invoicing',
+          brandingSpec: { name: 'Acme' },
+        },
+      })
+      const res = mockRes()
+
+      await update(req, res)
+
+      const updateData = mockUpdateById.mock.calls[0][2] as Record<string, unknown>
+      expect(updateData.projectType).toBe('full-stack')
+      expect(updateData.framework).toBe('react')
+      expect(updateData.packages).toBe('["api-database-sqlite"]')
+      expect(updateData.templateSlug).toBe('accounting-invoicing')
+      expect(updateData.brandingSpec).toBe('{"name":"Acme"}')
+    })
+
+    it('should allow explicitly clearing templateSlug (custom build)', async () => {
+      mockFindById.mockResolvedValue({ id: '1', templateSlug: 'blog' })
+      mockUpdateById.mockResolvedValue({ data: { id: '1' } })
+
+      const req = mockReq({ params: { id: '1' }, body: { templateSlug: null } })
+      const res = mockRes()
+
+      await update(req, res)
+
+      const updateData = mockUpdateById.mock.calls[0][2] as Record<string, unknown>
+      expect(updateData.templateSlug).toBeNull()
+    })
+
     it('should merge incoming settings/envVars keys onto existing ones (not overwrite)', async () => {
       mockFindById.mockResolvedValue({
         id: '1',

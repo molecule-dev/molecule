@@ -72,6 +72,19 @@ export async function update(req: MoleculeRequest, res: MoleculeResponse): Promi
   }
   if (input.sandboxId !== undefined) data.sandboxId = input.sandboxId
   if (input.sandboxStatus !== undefined) data.sandboxStatus = input.sandboxStatus
+  // The starting-point fields UpdateProjectInput advertises. These MUST land
+  // or a caller that persists a chosen flagship via this route (the template
+  // demo sweep: POST /projects then PATCH { templateSlug }) silently keeps
+  // `templateSlug: null`, the sandbox scaffolds the blank starter, and the
+  // deploy ships "project-app" under the template's name (2026-10-01: all 152
+  // demo previews). Same shapes the AI selection step writes directly via
+  // updateById and create() persists — JSON columns stringify, null is a legal
+  // explicit clear.
+  if (input.framework !== undefined) data.framework = input.framework
+  if (input.projectType !== undefined) data.projectType = input.projectType
+  if (input.packages !== undefined) data.packages = JSON.stringify(input.packages)
+  if (input.templateSlug !== undefined) data.templateSlug = input.templateSlug
+  if (input.brandingSpec !== undefined) data.brandingSpec = JSON.stringify(input.brandingSpec)
 
   try {
     const result = await updateById<Project>('projects', id, data)
