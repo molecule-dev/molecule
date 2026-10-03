@@ -1,5 +1,11 @@
 # @molecule/app-top-nav-layout-react
 
+## 1.0.3
+
+### Patch Changes
+
+- 448916a: Give every nav link an `aria-label`: below the `md` breakpoint the visible label hides and the link collapses to an icon-only target whose icon is `aria-hidden`, so screen readers previously announced an unnamed link.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ui-react
 
+## 1.3.1
+
+### Patch Changes
+
+- 031daf7: `ResponsiveAppShell` closes its drawer on same-route navigations too — the fleet's `#top` safe-target pattern appends a hash when the current nav item is re-tapped, which changed neither pathname nor search, and the drawer previously stayed open over the page.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/api-agent-transcript": "1.0.1",
-    "@molecule/api-agent-transcript-autodetect": "1.2.1",
+    "@molecule/api-agent-transcript-autodetect": "1.2.2",
     "@molecule/api-agent-transcript-claude-code": "1.0.0",
     "@molecule/api-text-provenance": "1.0.1",
     "@types/node": "26.1.2",
