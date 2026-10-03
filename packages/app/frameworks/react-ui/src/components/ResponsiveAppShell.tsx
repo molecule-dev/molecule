@@ -303,10 +303,13 @@ function ResponsiveAppShellBase({
 
   // Close the drawer whenever the route changes — without it the drawer
   // stays mounted over the next page and blocks clicks underneath (the
-  // fleet templates all carry this; it belongs in the shell).
+  // fleet templates all carry this; it belongs in the shell). Key on
+  // `location.key` rather than pathname/search: the fleet's `#top`
+  // safe-target pattern appends a hash when the current item is re-tapped,
+  // changing neither, and the drawer must still dismiss.
   useEffect(() => {
     setDrawerOpen(false)
-  }, [location.pathname, location.search])
+  }, [location.key])
 
   // A resize crossing to desktop unmounts the drawer panel; dropping the
   // logical open state too means resizing back to mobile doesn't surface a

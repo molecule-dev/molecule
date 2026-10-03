@@ -13,7 +13,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // A mutable location the mocked `useLocation` returns — tests advance it to
 // simulate SPA navigation, then re-render.
-const mockLocation = { pathname: '/dashboard', search: '', hash: '' }
+const mockLocation = { pathname: '/dashboard', search: '', hash: '', key: 'key-0' }
 
 // ---------------------------------------------------------------------------
 // matchMedia mock. jsdom has no `window.matchMedia`; the shell reads it
@@ -108,6 +108,7 @@ afterEach(() => {
   mockLocation.pathname = '/dashboard'
   mockLocation.search = ''
   mockLocation.hash = ''
+  mockLocation.key = 'key-0'
 })
 
 const nav = (
@@ -241,6 +242,21 @@ describe('ResponsiveAppShell on mobile (<768px)', () => {
     expect(screen.getByRole('dialog')).toBeDefined()
 
     mockLocation.pathname = '/projects'
+    mockLocation.key = 'key-1'
+    rerender(<Shell />)
+
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('closes on a same-route #top navigation — hash-only changes dismiss too', () => {
+    const { rerender } = render(<Shell />)
+    fireEvent.click(trigger())
+    expect(screen.getByRole('dialog')).toBeDefined()
+
+    // The fleet's safe-target pattern appends a hash to the CURRENT path:
+    // pathname and search are unchanged, only the router key moves.
+    mockLocation.hash = '#top'
+    mockLocation.key = 'key-2'
     rerender(<Shell />)
 
     expect(screen.queryByRole('dialog')).toBeNull()
