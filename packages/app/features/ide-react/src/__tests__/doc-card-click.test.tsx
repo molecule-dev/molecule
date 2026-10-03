@@ -107,7 +107,10 @@ describe('package-doc cards open the file on click', () => {
         <ToolCallCard
           name="find_package"
           input={{ query: 'ui' }}
-          output={{ found: 2, results: [{ name: '@molecule/app-ui' }, { name: '@molecule/app-ui-react' }] }}
+          output={{
+            found: 2,
+            results: [{ name: '@molecule/app-ui' }, { name: '@molecule/app-ui-react' }],
+          }}
           status="done"
           onFileOpen={onFileOpen}
         />,
