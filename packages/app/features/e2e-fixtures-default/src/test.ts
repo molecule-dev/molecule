@@ -90,15 +90,21 @@ const providerAware: TestType<
  * Events are extracted in `afterEach` and saved as `rrweb-events.json`
  * in the test's output dir, next to the video.
  */
+/**
+ * rrweb DOM-mutation recording — OPT-IN via `MOL_E2E_RRWEB=1`.
+ *
+ * Captures the page's DOM as an event stream saved next to the video for the
+ * replay viewer's DOM-replay toggle. Off by default because it (a) loads
+ * rrweb from unpkg — unreachable in sandboxed egress and blocked by the CSP
+ * that billing/pricing pages ship (each blocked load logs a console.error
+ * that fails console-guarded tests fleet-wide), and (b) ran its loader in the
+ * init phase where `document.head` can be null. Videos record either way.
+ */
 const RRWEB_INIT = `
   window.__rrwebEvents = [];
   (function() {
-    // addInitScript also runs on the initial about:blank document, where
-    // document.head can be null (Chromium changed init-phase timing) — the
-    // appendChild then throws a pageerror on EVERY page, failing every
-    // console-guarded test fleet-wide. Recording is a bonus: skip when head
-    // is absent and retry on the next real document load.
-    if (!document.head) return;
+    var meta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+    if (!document.head || (meta && meta.content.indexOf('script-src') !== -1 && meta.content.indexOf('unpkg.com') === -1)) return;
     var s = document.createElement('script');
     s.src = 'https://unpkg.com/rrweb@2.0.0-alpha.4/dist/rrweb-all.js';
     s.onload = function() {
@@ -115,7 +121,7 @@ const withRrwebRecording: TestType<
   e2eProviderName === 'playwright'
     ? providerAware.extend<{ page: Page }>({
         page: async ({ page }, use, testInfo) => {
-          await page.addInitScript(RRWEB_INIT)
+          if (process.env.MOL_E2E_RRWEB === '1') await page.addInitScript(RRWEB_INIT)
           await use(page)
           try {
             const events = (await page.evaluate(
