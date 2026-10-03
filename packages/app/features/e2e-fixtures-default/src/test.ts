@@ -93,6 +93,12 @@ const providerAware: TestType<
 const RRWEB_INIT = `
   window.__rrwebEvents = [];
   (function() {
+    // addInitScript also runs on the initial about:blank document, where
+    // document.head can be null (Chromium changed init-phase timing) — the
+    // appendChild then throws a pageerror on EVERY page, failing every
+    // console-guarded test fleet-wide. Recording is a bonus: skip when head
+    // is absent and retry on the next real document load.
+    if (!document.head) return;
     var s = document.createElement('script');
     s.src = 'https://unpkg.com/rrweb@2.0.0-alpha.4/dist/rrweb-all.js';
     s.onload = function() {
