@@ -380,17 +380,39 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         // Create a new user.
         const id = uuid()
 
-        // Generate a unique username from OAuth data.
-        let username = oauthProps.username || oauthProps.oauthId
-        username = username.replace(/[^a-zA-Z0-9]/g, '').substring(0, 255)
+        // Derive a username from the OAuth profile. Bonds return
+        // `{provider_username}@{provider_name}` (e.g. `vialoh@github`) — the
+        // part before the `@` is the user's own handle on that provider, so
+        // claim it as-is rather than flattening the whole string into a mash
+        // like `vialohgithub`. A bond that ignores the `handle@provider`
+        // format (no `@` at all) still works: the whole string IS the handle
+        // then. When no usable handle exists at all, fall back to the
+        // provider id — never to the flattened provider name (`github`),
+        // which the full-string sanitize would produce.
+        const sanitize = (raw: string): string => raw.replace(/[^a-zA-Z0-9]/g, '').substring(0, 255)
+        const base =
+          sanitize((oauthProps.username || '').split('@')[0]) ||
+          sanitize(oauthProps.oauthId) ||
+          `user${id.substring(0, 8)}`
 
-        // Ensure username is unique.
-        const existing = await findOne<{ id: string }>(tableName, [
-          { field: 'username', operator: '=', value: username },
-        ])
-
-        if (existing) {
-          username = `${username}${id.substring(0, 8)}`
+        // Claim a free username: the handle itself first, then short numeric
+        // suffixes (`vialoh2`, `vialoh3`, …) that still read as human, then
+        // id-based suffixes that are effectively collision-free. Every
+        // candidate is re-checked against the table, so the loop only exits
+        // on a name no row holds; once the attempt budget is spent the last
+        // candidate is accepted (near-unique, like the historical one-shot
+        // fallback) instead of failing the signup. Trim the BASE (not the
+        // suffixed string) so the suffix always survives the 255-char cap —
+        // trimming after would re-create the taken base when base is at the
+        // cap and the loop could never converge.
+        let username = base
+        for (let attempt = 1; ; attempt++) {
+          const existing = await findOne<{ id: string }>(tableName, [
+            { field: 'username', operator: '=', value: username },
+          ])
+          if (!existing || attempt > 20) break
+          const suffix = attempt <= 10 ? String(attempt + 1) : `${id.substring(0, 8)}${attempt}`
+          username = `${base.substring(0, 255 - suffix.length)}${suffix}`
         }
 
         // Prefer the provider's display name; when the provider exposes none

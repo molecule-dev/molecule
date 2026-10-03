@@ -1114,6 +1114,154 @@ describe('logInOAuth handler — profile capture on account creation', () => {
   })
 })
 
+// ===== 5b. OAuth username derivation (logInOAuth.ts) ========================
+
+describe('logInOAuth handler — username derivation on account creation', () => {
+  const handler = logInOAuth(testResource)
+
+  const wireGet = (username?: string, oauthId = '123456789') =>
+    mockGet.mockImplementation((category: string) => {
+      if (category === 'oauth') {
+        return {
+          verify: vi.fn().mockResolvedValue({
+            oauthServer: 'github',
+            oauthId,
+            ...(username !== undefined ? { username } : {}),
+            email: 'newuser@example.com',
+            emailVerified: false,
+            oauthData: {},
+          }),
+        }
+      }
+      if (category === 'device') return { createOrUpdate: vi.fn().mockResolvedValue('device-id') }
+      return null
+    })
+
+  /** findOne that reports only the usernames in `taken` as existing rows. */
+  const takenUsernames = (...taken: string[]) =>
+    mockFindOne.mockImplementation(async (_table: string, filters: Array<{ value: unknown }>) => {
+      const value = filters[0]?.value
+      return taken.includes(value as string) ? { id: `holder-of-${value}` } : null
+    })
+
+  const createdUsername = (): string => {
+    const calls = mockResourceCreate.mock.calls as Array<[{ props: { username: string } }, unknown]>
+    const { props } = calls.at(-1)?.[0] ?? { props: { username: '' } }
+    return props.username
+  }
+
+  const run = () =>
+    handler(
+      makeReq({ body: { server: 'github', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+  beforeEach(() => {
+    mockGetConfig.mockImplementation((key: string) =>
+      key === 'OAUTH_REQUIRE_STATE' ? 'false' : key === 'NODE_ENV' ? 'production' : undefined,
+    )
+    takenUsernames()
+    mockResourceCreate.mockResolvedValue({
+      statusCode: 201,
+      body: { props: { id: 'created-id', username: 'created' } },
+    })
+    mockStoreCreate.mockResolvedValue({ affected: 1 })
+    vi.spyOn(authorization, 'set').mockImplementation(() => {})
+  })
+
+  it('claims the provider handle (`vialoh@github` → `vialoh`), not the flattened mash', async () => {
+    wireGet('vialoh@github')
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    expect(createdUsername()).toBe('vialoh')
+  })
+
+  it('works for every bond format: gitlab handle, google email, plain non-contract username', async () => {
+    // GitLab-style handle.
+    wireGet('octo-fan@gitlab')
+    await run()
+    expect(createdUsername()).toBe('octofan')
+
+    // Google-style email-based handle (email, then `@google`).
+    wireGet('jane.doe@gmail.com@google')
+    await run()
+    expect(createdUsername()).toBe('janedoe')
+
+    // A bond that ignores the `handle@provider` contract entirely (no `@`).
+    wireGet('zoe.chan')
+    await run()
+    expect(createdUsername()).toBe('zoechan')
+  })
+
+  it('falls back to the oauthId when the provider sends no username at all', async () => {
+    wireGet(undefined, 'gh-98765')
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    expect(createdUsername()).toBe('gh98765')
+  })
+
+  it('falls back to the oauthId when the handle sanitizes to nothing (never the provider name)', async () => {
+    wireGet('!!!@github', '555001')
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    // `!!!` sanitizes to nothing and flattening the full string would yield
+    // the provider name `github` — the oauthId is the sensible fallback.
+    expect(createdUsername()).toBe('555001')
+  })
+
+  it('appends a short numeric suffix when the handle is taken, re-checking each candidate', async () => {
+    wireGet('vialoh@github')
+    takenUsernames('vialoh')
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    expect(createdUsername()).toBe('vialoh2')
+  })
+
+  it('walks numeric suffixes until one is free', async () => {
+    wireGet('vialoh@github')
+    takenUsernames('vialoh', 'vialoh2', 'vialoh3', 'vialoh4', 'vialoh5')
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    expect(createdUsername()).toBe('vialoh6')
+  })
+
+  it('switches to an id-based suffix after the numeric budget, so the loop always terminates', async () => {
+    wireGet('vialoh@github')
+    const taken: string[] = ['vialoh']
+    for (let i = 2; i <= 11; i++) taken.push(`vialoh${i}`)
+    takenUsernames(...taken)
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    // Attempts 11+ append `00000000` (the mocked uuid's first 8 chars) + attempt.
+    expect(createdUsername()).toBe('vialoh0000000011')
+  })
+
+  it('caps the derived username at 255 characters even with a suffix', async () => {
+    const longHandle = `${'a'.repeat(300)}@github`
+    wireGet(longHandle)
+    takenUsernames('a'.repeat(255))
+
+    const result = await run()
+
+    expect(result?.statusCode).toBe(200)
+    const username = createdUsername()
+    expect(username.length).toBeLessThanOrEqual(255)
+    expect(username).toBe(`${'a'.repeat(254)}2`)
+  })
+})
+
 // ===== 5c. OAuth email verification + verified-trust linking (logInOAuth.ts) =
 
 describe('logInOAuth handler — email verification + verified-trust linking', () => {
