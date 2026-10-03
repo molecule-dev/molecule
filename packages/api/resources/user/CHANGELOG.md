@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.2
+
+### Patch Changes
+
+- 67e9ffc: OAuth account creation now claims the provider handle as the username (`vialoh` from GitHub's `vialoh@github`) instead of flattening it into `vialohgithub`; collisions append re-checked numeric then id-based suffixes.
+
 ## 1.4.0
 
 ### Minor Changes

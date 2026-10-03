@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.5
+
+### Patch Changes
+
+- 91f061b: Package-doc card clicks open the package's README.md, not the pre-rename MOLECULE.md path.
+
 ## 1.19.4
 
 ### Patch Changes
