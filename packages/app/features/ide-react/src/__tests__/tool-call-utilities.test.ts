@@ -555,12 +555,12 @@ describe('extractFilePath', () => {
     expect(extractFilePath('read_file', null)).toBeNull()
   })
 
-  it('maps read_molecule_doc to the sandbox MOLECULE.md path', () => {
+  it('maps read_molecule_doc to the sandbox README.md path', () => {
     expect(extractFilePath('read_molecule_doc', { name: '@molecule/api-payments-stripe' })).toBe(
-      '/workspace/node_modules/@molecule/api-payments-stripe/MOLECULE.md',
+      '/workspace/node_modules/@molecule/api-payments-stripe/README.md',
     )
     expect(extractFilePath('read_molecule_doc', { name: 'app-ui' })).toBe(
-      '/workspace/node_modules/@molecule/app-ui/MOLECULE.md',
+      '/workspace/node_modules/@molecule/app-ui/README.md',
     )
     expect(extractFilePath('read_molecule_doc', {})).toBeNull()
   })
@@ -571,12 +571,12 @@ describe('extractFilePath', () => {
 // ---------------------------------------------------------------------------
 
 describe('moleculeDocPath', () => {
-  it('builds the sandbox MOLECULE.md path with or without the @molecule/ prefix', () => {
+  it('builds the sandbox README.md path with or without the @molecule/ prefix', () => {
     expect(moleculeDocPath('@molecule/api-cache-redis')).toBe(
-      '/workspace/node_modules/@molecule/api-cache-redis/MOLECULE.md',
+      '/workspace/node_modules/@molecule/api-cache-redis/README.md',
     )
     expect(moleculeDocPath('api-cache-redis')).toBe(
-      '/workspace/node_modules/@molecule/api-cache-redis/MOLECULE.md',
+      '/workspace/node_modules/@molecule/api-cache-redis/README.md',
     )
   })
 

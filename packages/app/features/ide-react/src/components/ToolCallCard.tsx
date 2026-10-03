@@ -184,7 +184,7 @@ function packageResults(output: unknown): PackageResult[] {
 
 /**
  * Clickable rows for find_package matches — each opens the package's
- * MOLECULE.md in the editor.
+ * README.md in the editor.
  * @param props - Component props.
  * @returns The rendered result rows.
  */
@@ -793,7 +793,7 @@ export const ToolCallCard = memo(function ToolCallCard({
   ])
   const hasDetails = EXPANDABLE.has(name) && (input !== undefined || output !== undefined)
 
-  // read_molecule_doc: clicking the row opens the package's MOLECULE.md in the
+  // read_molecule_doc: clicking the row opens the package's README.md in the
   // editor (filePath is derived from the input's package name).
   const isDocOpen = name === 'read_molecule_doc' && filePath != null && onFileOpen != null
 
@@ -2168,7 +2168,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                 output !== undefined &&
                 renderOut(name, output)}
 
-              {/* find_package: clickable package matches — each opens its MOLECULE.md */}
+              {/* find_package: clickable package matches — each opens its README.md */}
               {name === 'find_package' && output !== undefined && (
                 <PackageResultRows results={packageResults(output)} onFileOpen={onFileOpen} />
               )}

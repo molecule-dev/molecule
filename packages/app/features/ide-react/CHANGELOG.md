@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.4
+
+### Patch Changes
+
+- Clicking a package name on a `read_molecule_doc` or `find_package` card opens the package's `README.md` in the editor. The link still named the pre-rename `MOLECULE.md`, so the editor switched views but no file ever loaded.
+
 ## 1.19.2
 
 ### Patch Changes

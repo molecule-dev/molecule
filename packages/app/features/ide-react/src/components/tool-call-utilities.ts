@@ -64,18 +64,22 @@ export function basename(path: string | undefined): string {
 }
 
 /**
- * Path of a `@molecule/*` package's MOLECULE.md inside the sandbox, where every
+ * Path of a `@molecule/*` package's README.md inside the sandbox, where every
  * package is pre-installed. Used by the find_package / read_molecule_doc cards
- * so clicking a package opens its docs in the editor.
+ * so clicking a package opens its docs in the editor. The filename here must
+ * stay the one npm tarballs actually ship — `molecule-doc-path-reality.test.ts`
+ * anchors it against the real installed fleet, because a doc-file rename that
+ * missed this consumer (MOLECULE.md → README.md, 2026-08-04) silently broke
+ * every card click: the editor opened a path that no longer existed.
  * @param packageName - The package name, with or without the `@molecule/` prefix.
- * @returns The absolute sandbox path to the package's MOLECULE.md, or null for
+ * @returns The absolute sandbox path to the package's README.md, or null for
  * a name that isn't a plain molecule package slug.
  */
 export function moleculeDocPath(packageName: string | undefined): string | null {
   if (!packageName) return null
   const bare = packageName.trim().replace(/^@molecule\//, '')
   if (!/^[a-z0-9-]+$/.test(bare)) return null
-  return `/workspace/node_modules/@molecule/${bare}/MOLECULE.md`
+  return `/workspace/node_modules/@molecule/${bare}/README.md`
 }
 
 /** Truncate a string to `max` characters with a trailing ellipsis. */
@@ -779,7 +783,7 @@ export function extractFilePath(name: string, input: unknown): string | null {
     case 'rename_file':
       return str(inp.new_path) || null
     case 'read_molecule_doc':
-      // Clicking the card opens the package's MOLECULE.md (pre-installed in the sandbox).
+      // Clicking the card opens the package's README.md (pre-installed in the sandbox).
       return moleculeDocPath(str(inp.name))
     default:
       return null
