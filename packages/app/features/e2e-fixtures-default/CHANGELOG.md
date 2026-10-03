@@ -1,5 +1,11 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.1
+
+### Patch Changes
+
+- rrweb DOM-recording is now opt-in via `MOL_E2E_RRWEB=1`. On by default it failed console-guarded tests fleet-wide: the loader ran in the init phase where `document.head` can be null (a pageerror on every page), and its unpkg load is blocked by billing/pricing pages' CSP (a console.error per load). The loader keeps both guards for whoever opts in; videos record either way.
+
 ## 1.2.0
 
 ### Minor Changes
