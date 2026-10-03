@@ -35,6 +35,15 @@
       "severity": "high",
       "expires": "2026-11-01",
       "reason": "RSA PKCS#1 v1.5 signature VERIFICATION accepts extra nested DigestAlgorithm elements (advisory published 2026-10-01/02 — it went red mid-release on the version-packages commit). NO upstream fix exists: node-forge 1.4.0 is the LATEST published version and the advisory range is `*`; npm audit reports fixAvailable: false. node-forge is a direct dependency of @molecule/api-wallet-pass only, which uses it to SIGN Apple Wallet passes locally with developer-provided certificates — it never runs signature VERIFICATION on untrusted input, so the vulnerable code path (verification) is not reachable from the package's API surface. Residual risk: a future refactor that feeds untrusted signatures into node-forge would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check for a node-forge release (or a maintained fork) at expiry, and drop this entry then."
+    },
+    {
+      "package": "braces (via micromatch -> @changesets/*, @manypkg, globby, fast-glob)",
+      "advisories": [
+        "GHSA-vfj7-8cjw-p6xm"
+      ],
+      "severity": "high",
+      "expires": "2027-01-03",
+      "reason": "Stack-exhaustion DoS in braces when compiling a deeply-nested glob pattern (advisory published 2026-09-18T18:31Z — CI went red on it before the 2026-10-03 app-ide-react release). NO upstream fix exists: the advisory range is braces <= 3.0.3 with first_patched_version null — every released version is vulnerable, and npm audit reports the only remediation as a DOWNGRADE of @changesets/cli 2.31.1 to 2.25.2 (2022), which is arborist picking an older tree that happens to lack micromatch, not a patched chain. Dev-only by reachability: the chain lives entirely in the repo-root devDependencies that run versioning/docs tooling locally and in CI; the --omit=dev audit does not contain braces, micromatch, globby, fast-glob or any @changesets package, and no @molecule package declares any of them, so nothing shipped or scaffolded carries the code. The DoS also requires feeding a crafted nested glob to the matcher — here the patterns are our own workspace globs, not attacker input. Residual risk: a future tooling change that passes external input as a glob would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check at expiry for a patched braces release or a changesets/micromatch chain without it, bump, and drop this entry."
     }
   ]
 }
