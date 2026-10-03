@@ -48,7 +48,7 @@
     "@molecule/api-agent-transcript-markdown-chat": "1.0.1",
     "@molecule/api-agent-transcript-molecule-ide": "1.0.0",
     "@molecule/api-agent-transcript-opencode": "1.0.1",
-    "@molecule/api-agent-transcript-pi": "1.0.0"
+    "@molecule/api-agent-transcript-pi": "1.0.1"
   },
   "peerDependencies": {
     "@molecule/api-agent-transcript": "^1.0.0"
