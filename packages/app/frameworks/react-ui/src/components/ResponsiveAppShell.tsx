@@ -236,16 +236,6 @@ interface ShellContextValue {
   hasDrawer: boolean
   /** Called by the Drawer on mount/unmount to set {@link hasDrawer}. */
   registerDrawer: (present: boolean) => void
-  /**
-   * Whether a `Sidebar` sub-component is part of the composition. The
-   * Sidebar registers itself on mount so the TopBar can suppress itself on
-   * desktop — a TopBar rendered beside a sidebar in the shell's flex-row is
-   * the squeezed-column artifact every adopting app hit (see
-   * {@link ResponsiveAppShellTopBar}).
-   */
-  hasSidebar: boolean
-  /** Called by the Sidebar on mount/unmount to set {@link hasSidebar}. */
-  registerSidebar: (present: boolean) => void
 }
 
 const ShellContext = createContext<ShellContextValue | null>(null)
@@ -309,7 +299,6 @@ function ResponsiveAppShellBase({
   const location = useLocation()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [hasDrawer, setHasDrawer] = useState(false)
-  const [hasSidebar, setHasSidebar] = useState(false)
   const drawerId = useId()
 
   // Close the drawer whenever the route changes — without it the drawer
@@ -364,8 +353,6 @@ function ResponsiveAppShellBase({
           drawerId,
           hasDrawer,
           registerDrawer: setHasDrawer,
-          hasSidebar,
-          registerSidebar: setHasSidebar,
         }}
       >
         {children}
@@ -410,9 +397,7 @@ export interface ResponsiveAppShellTopBarProps {
  * the viewport is below the breakpoint.
  *
  * @param props - Brand/actions slots, `mobileOnly`, and class/id overrides.
- * @returns The header landmark, or `null` on desktop when `mobileOnly` is set
- *   or when a `Sidebar` is part of the composition (the sidebar owns desktop;
- *   a bar rendered beside it in the root flex-row is a squeezed column).
+ * @returns The header landmark, or `null` when `mobileOnly` is set on desktop.
  */
 export function ResponsiveAppShellTopBar({
   brand,
@@ -426,14 +411,7 @@ export function ResponsiveAppShellTopBar({
   const { t } = useTranslation()
   const shell = useShellContext('ResponsiveAppShell.TopBar')
 
-  // Suppress on desktop when a Sidebar owns that breakpoint. `mobileOnly`
-  // covers the explicit form; `hasSidebar` makes EVERY Sidebar+TopBar
-  // composition correct even when the prop is omitted — a non-mobileOnly
-  // TopBar beside the sidebar in the root flex-row rendered as a squeezed
-  // column (the artifact event-ticketing shipped, and every hand-rolled
-  // migration re-derived the mobileOnly rule to avoid). Top-nav-only shells
-  // (no Sidebar) keep the always-on bar.
-  if ((mobileOnly || shell.hasSidebar) && shell.isDesktop) return null
+  if (mobileOnly && shell.isDesktop) return null
 
   const triggerLabel = t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' })
 
@@ -542,15 +520,7 @@ export function ResponsiveAppShellSidebar({
 }: ResponsiveAppShellSidebarProps): JSX.Element | null {
   const cm = getClassMap()
   const { t } = useTranslation()
-  const { isDesktop, sidebarWidthPx, registerSidebar } = useShellContext(
-    'ResponsiveAppShell.Sidebar',
-  )
-
-  // Register presence so the TopBar knows to suppress itself on desktop.
-  useEffect(() => {
-    registerSidebar(true)
-    return () => registerSidebar(false)
-  }, [registerSidebar])
+  const { isDesktop, sidebarWidthPx } = useShellContext('ResponsiveAppShell.Sidebar')
 
   if (!isDesktop) return null
 

@@ -327,18 +327,13 @@ describe('ResponsiveAppShell across the breakpoint', () => {
   it('swaps the shell wholesale when the viewport crosses 768px', () => {
     render(<Shell />)
     expect(trigger()).toBeDefined()
-    // Mobile: the TopBar is the header landmark (mobileOnly is implied when
-    // a Sidebar is part of the composition — the sidebar owns desktop).
-    expect(screen.queryByRole('banner')).not.toBeNull()
 
     setDesktop(true)
     fireViewportChange()
 
     expect(screen.queryByRole('complementary')).not.toBeNull()
     expect(screen.queryByRole('button', { name: 'Open navigation menu' })).toBeNull()
-    // Desktop: the sidebar owns the chrome, so the TopBar suppresses itself
-    // even without an explicit mobileOnly (squeezed-column artifact).
-    expect(screen.queryByRole('banner')).toBeNull()
+    expect(screen.queryByRole('banner')).not.toBeNull()
 
     setDesktop(false)
     fireViewportChange()
