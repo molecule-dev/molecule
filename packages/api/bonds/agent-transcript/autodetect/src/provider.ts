@@ -26,12 +26,11 @@ import { provider as opencode } from '@molecule/api-agent-transcript-opencode'
 // install graph — autodetect 1.2.0 was uninstallable from npm for exactly
 // this reason). Resolve it dynamically and join it to the reader list only
 // when the consuming project actually ships it.
-const pi: AgentTranscriptReader | undefined = await import(
-  '@molecule/api-agent-transcript-pi'
-).then(
-  (m) => m.provider,
-  () => undefined,
-)
+const pi: AgentTranscriptReader | undefined =
+  await import('@molecule/api-agent-transcript-pi').then(
+    (m) => m.provider,
+    () => undefined,
+  )
 
 /**
  * Compose readers: the first whose `detect()` accepts the input reads it.
