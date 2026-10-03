@@ -1,5 +1,11 @@
 # @molecule/app-ui-tailwind
 
+## 1.2.6
+
+### Patch Changes
+
+- Switch: the track button now carries a 40×40 `after:` touch hit-area (visual sm/md/lg unchanged) — meets WCAG 2.5.8 by default instead of shipping 20–28px targets. ThemeToggle trigger grew from 30px to a 40×40 hit area (20px icon centered, visual unchanged).
+
 ## 1.2.5
 
 ### Patch Changes

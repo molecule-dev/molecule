@@ -1,5 +1,11 @@
 # @molecule/app-e2e-fixtures-default
 
+## 1.2.2
+
+### Patch Changes
+
+- rrweb DOM recording is now opt-in via MOL_E2E_RRWEB=1. The injected loader ran in the addInitScript phase where document.head can be null (pageerror on every page, failing every console-guarded test fleet-wide) and loaded rrweb from unpkg, which billing/pricing pages' CSP blocks with a console.error per load. Videos record either way.
+
 ## 1.2.1
 
 ### Patch Changes

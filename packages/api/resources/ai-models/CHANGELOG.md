@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-models
 
+## 1.13.0
+
+### Minor Changes
+
+- Add claude-opus-5-5 (released 2026-09-22; provider-verified). Supersession re-pointed one hop: opus-5/4-8/4-7/4-6 → opus-5-5.
+
 ## 1.12.0
 
 ### Minor Changes

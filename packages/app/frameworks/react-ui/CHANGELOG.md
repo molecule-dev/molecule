@@ -1,5 +1,18 @@
 # @molecule/app-ui-react
 
+## 1.3.0
+
+### Minor Changes
+
+- NEW ConfirmButton: the two-step destructive-action pattern (click arms → "Confirm?" → second click commits, auto-disarm, Escape, aria-live, pending state) as one shared, theme-aware component — replaces the arm-confirm state machines ~30 apps hand-rolled.
+- ResponsiveAppShell hardening from the first adoption wave: drawer wrapper z-index fix (backdrop painted above the panel on the first eight adopting apps), focus-trap + reference-counted scroll lock (coexists with stacked Modal), TopBar min-width guard so long brands never push actions off-screen, mobile-first root flexDirection. Docs: documented the cn() tailwind-merge ordering trap behind the styling package's cn().
+- Switch: the track button now carries a 40×40 `after:` touch hit-area (visual sm/md/lg unchanged) — meets WCAG 2.5.8 by default instead of shipping 20–28px targets. ThemeToggle trigger grew from 30px to a 40×40 hit area (20px icon centered, visual unchanged).
+
+### Patch Changes
+
+- Icon: an unknown bonded-set name now warns and renders a neutral placeholder circle instead of throwing — a missing glyph must never white-screen an app.
+- UserMenu trigger: default 40×40 touch-target floor (the icon-only size="sm" trigger measured 42×26px fleet-wide). Apps can still widen via className.
+
 ## 1.2.4
 
 ### Patch Changes

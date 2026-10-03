@@ -1,5 +1,11 @@
 # @molecule/app-settings-panel-react
 
+## 1.0.5
+
+### Patch Changes
+
+- Push-notification Switch carries aria-label — the visible text was a sibling span, so the control was announced as a bare "switch".
+
 ## 1.0.4
 
 ### Patch Changes
