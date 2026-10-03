@@ -1,6 +1,5 @@
 ---
 '@molecule/api-agent-transcript-autodetect': patch
-'@molecule/api-agent-runtime-pi': patch
 ---
 
-Pin `@molecule/api-agent-transcript-pi` to 1.0.1 — 1.2.0 of autodetect shipped a dependency on a version npm will never serve (the bond moved to 1.0.1 before its first publish), making autodetect 1.2.0 uninstallable from the registry.
+Make the Pi reader an optional dynamic import instead of a dependency: 1.2.0 shipped a hard dependency on `@molecule/api-agent-transcript-pi`, which is not yet published to the public registry, making every registry install of autodetect fail outright (E404 resolving the install graph). The Pi reader now joins `harnessReaders` only when the consuming project ships the bond itself.

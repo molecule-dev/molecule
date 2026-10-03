@@ -19,7 +19,19 @@ import { provider as geminiCli } from '@molecule/api-agent-transcript-gemini-cli
 import { provider as markdownChat } from '@molecule/api-agent-transcript-markdown-chat'
 import { provider as moleculeIde } from '@molecule/api-agent-transcript-molecule-ide'
 import { provider as opencode } from '@molecule/api-agent-transcript-opencode'
-import { provider as pi } from '@molecule/api-agent-transcript-pi'
+
+// Pi is an OPTIONAL peer, not a dependency: the bond is not yet published to
+// the public registry, and a hard dependency on an unresolvable name made
+// every registry install of this package fail outright (E404 resolving the
+// install graph — autodetect 1.2.0 was uninstallable from npm for exactly
+// this reason). Resolve it dynamically and join it to the reader list only
+// when the consuming project actually ships it.
+const pi: AgentTranscriptReader | undefined = await import(
+  '@molecule/api-agent-transcript-pi'
+).then(
+  (m) => m.provider,
+  () => undefined,
+)
 
 /**
  * Compose readers: the first whose `detect()` accepts the input reads it.
@@ -62,7 +74,7 @@ export const harnessReaders: readonly AgentTranscriptReader[] = [
   geminiCli,
   cline,
   opencode,
-  pi,
+  ...(pi ? [pi] : []),
   copilotChat,
   cursor,
   aider,
