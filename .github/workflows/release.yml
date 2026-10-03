@@ -1,5 +1,13 @@
 name: Release
 
+# Who dispatched — echoed into the run-name so a dispatcher can find and watch
+# ITS OWN run instead of racing on "the newest run" (2026-10-03: an orphaned
+# script dispatched in the same window as release.mjs; both watchers grabbed
+# the newest run via --limit 1, watched each other's, and the release died on
+# a cancellation it never owned). scripts/release.mjs always sends its
+# agent-presence session id here. Manual dispatches leave it blank.
+run-name: Release${{ inputs.requester && format(' ({0})', inputs.requester) || '' }}
+
 # PUBLISH-ONLY, NO BOT COMMITS (2026-08-08). This workflow makes ZERO commits —
 # github-actions[bot] never writes to the repo. Versioning is a LOCAL step done
 # in the same commit as the change:
@@ -35,6 +43,10 @@ on:
         type: string
       trust_otp:
         description: 'npm one-time code. Trusts any package that has none, then publishes it — both in CI. npm has no OIDC path for trust config, so this is the only way to do it without a local prompt. Single-use and expires in ~30s, so it is dead before the log is readable.'
+        required: false
+        type: string
+      requester:
+        description: 'Who dispatched (agent-presence session id). Tags the run-name so the dispatcher watches its OWN run — see run-name above.'
         required: false
         type: string
 
