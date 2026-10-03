@@ -246,6 +246,13 @@ interface ShellContextValue {
   hasSidebar: boolean
   /** Called by the Sidebar on mount/unmount to set {@link hasSidebar}. */
   registerSidebar: (present: boolean) => void
+  /**
+   * Whether the root was composed with `md:flex-wrap` — the full-width
+   * wrap-bar layout where the (non-mobileOnly) TopBar spans ABOVE the
+   * sidebar on desktop instead of beside it. The TopBar must NOT suppress
+   * itself in that composition.
+   */
+  wrapLayout: boolean
 }
 
 const ShellContext = createContext<ShellContextValue | null>(null)
@@ -311,6 +318,9 @@ function ResponsiveAppShellBase({
   const [hasDrawer, setHasDrawer] = useState(false)
   const [hasSidebar, setHasSidebar] = useState(false)
   const drawerId = useId()
+  // The wrap-bar composition: `md:flex-wrap` on the root makes the
+  // (non-mobileOnly) TopBar span full-width ABOVE the sidebar on desktop.
+  const wrapLayout = /(^|\s)md:flex-wrap(\s|$)/.test(className ?? '')
 
   // Close the drawer whenever the route changes — without it the drawer
   // stays mounted over the next page and blocks clicks underneath (the
@@ -366,6 +376,7 @@ function ResponsiveAppShellBase({
           registerDrawer: setHasDrawer,
           hasSidebar,
           registerSidebar: setHasSidebar,
+          wrapLayout,
         }}
       >
         {children}
@@ -411,8 +422,9 @@ export interface ResponsiveAppShellTopBarProps {
  *
  * @param props - Brand/actions slots, `mobileOnly`, and class/id overrides.
  * @returns The header landmark, or `null` on desktop when `mobileOnly` is set
- *   or when a `Sidebar` is part of the composition (the sidebar owns desktop;
- *   a bar rendered beside it in the root flex-row is a squeezed column).
+ *   or when a `Sidebar` is part of the composition without the wrap-bar root
+ *   (`md:flex-wrap`) — a bar rendered beside the sidebar in the root flex-row
+ *   is a squeezed column.
  */
 export function ResponsiveAppShellTopBar({
   brand,
@@ -427,13 +439,16 @@ export function ResponsiveAppShellTopBar({
   const shell = useShellContext('ResponsiveAppShell.TopBar')
 
   // Suppress on desktop when a Sidebar owns that breakpoint. `mobileOnly`
-  // covers the explicit form; `hasSidebar` makes EVERY Sidebar+TopBar
-  // composition correct even when the prop is omitted — a non-mobileOnly
-  // TopBar beside the sidebar in the root flex-row rendered as a squeezed
-  // column (the artifact event-ticketing shipped, and every hand-rolled
-  // migration re-derived the mobileOnly rule to avoid). Top-nav-only shells
-  // (no Sidebar) keep the always-on bar.
-  if ((mobileOnly || shell.hasSidebar) && shell.isDesktop) return null
+  // covers the explicit form; `hasSidebar && !wrapLayout` makes every naive
+  // Sidebar+TopBar composition correct even when the prop is omitted — a
+  // non-mobileOnly TopBar beside the sidebar in the root flex-row renders as
+  // a squeezed column (the artifact event-ticketing shipped). The wrap-bar
+  // layout (`md:flex-wrap` root, `w-full` bar) spans the bar ABOVE the
+  // sidebar instead and keeps it; top-nav-only shells (no Sidebar) keep the
+  // always-on bar too.
+  if ((mobileOnly || (shell.hasSidebar && !shell.wrapLayout)) && shell.isDesktop) {
+    return null
+  }
 
   const triggerLabel = t('appShell.openMenu', {}, { defaultValue: 'Open navigation menu' })
 
