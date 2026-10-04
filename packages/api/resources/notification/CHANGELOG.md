@@ -1,5 +1,11 @@
 # @molecule/api-resource-notification
 
+## 1.0.3
+
+### Patch Changes
+
+- 7ad1d5b: The notification list endpoint clamps the `limit` query parameter to 1–500 and the `offset` to 0 or more.
+
 ## 1.0.1
 
 ### Patch Changes

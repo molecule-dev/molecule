@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.4
+
+### Patch Changes
+
+- dc5c6b6: Account deletion removes the user row first, so a failed delete cannot leave an account without its password.
+
 ## 1.4.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.7
+
+### Patch Changes
+
+- ae06e16: Chat card actions with protocol-relative URLs (`//host`) open in a new tab with `noopener noreferrer` instead of navigating the current tab to another origin.
+
 ## 1.19.6
 
 ### Patch Changes

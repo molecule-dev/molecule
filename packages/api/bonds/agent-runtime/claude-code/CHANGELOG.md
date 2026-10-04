@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-claude-code
 
+## 1.1.2
+
+### Patch Changes
+
+- 7a007e2: Agent runs validate caller input before any exec (https GitHub repo URL, GitHub token shape, bare-hostname allowlist entries), authenticate the clone through an in-sandbox git credential helper so the token never rides the clone URL or git argv, probe every allowlisted egress host plus a blocked canary, refuse sandbox providers that cannot enforce per-run egress, install the Claude Code CLI at a pinned version instead of @latest, and forward `ANTHROPIC_BASE_URL`/`ANTHROPIC_AUTH_TOKEN` to the CLI when the caller supplies them.
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-mailgun",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Mailgun email provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/api-emails-mailgun
 
+## 1.0.6
+
+### Patch Changes
+
+- e293dc1: The Mailgun transport now has a request timeout (10 s, overridable), so a stalled send fails instead of hanging.
+
 ## 1.0.5
 
 ### Patch Changes

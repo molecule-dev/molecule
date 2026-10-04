@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-agent-runtime-pi",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pi coding-agent runtime — unattended runs on any Pi-supported model provider in ephemeral cloud sandboxes; artifacts-only return, per-run credentials, deny-by-default egress",
   "homepage": "https://www.molecule.dev/packages/api-agent-runtime-pi",
   "type": "module",
