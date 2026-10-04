@@ -61,11 +61,11 @@ declare global {
       AWS_S3_CONNECTION_TIMEOUT_MS?: string
 
       /**
-       * Milliseconds to wait for an S3 request to complete.
+       * Milliseconds of socket inactivity before an S3 request is abandoned.
        *
        * @default 60000
        */
-      AWS_S3_REQUEST_TIMEOUT_MS?: string
+      AWS_S3_SOCKET_TIMEOUT_MS?: string
     }
   }
 }
