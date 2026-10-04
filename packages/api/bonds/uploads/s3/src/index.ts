@@ -10,6 +10,22 @@
  * (Cloudflare R2, MinIO, DigitalOcean Spaces) set `AWS_S3_ENDPOINT` (plus
  * `AWS_S3_FORCE_PATH_STYLE=true` for MinIO) — no code change.
  *
+ * - **The exported `provider` is the default, env-configured store, and stays that way.**
+ *   Existing apps need no change. To run MORE stores in the same app (user uploads on one,
+ *   backups on another with its own endpoint, credentials, bucket and storage class), call
+ *   `createProvider({ bucket, endpoint?, region?, forcePathStyle?, credentials?, storageClass?,
+ *   keyPrefix?, connectionTimeoutMs?, socketTimeoutMs?, maxAttempts? })` once per extra store.
+ *   Each instance has its own lazily-created client and reads NOTHING from the environment
+ *   (except that, with no `credentials`, the AWS SDK falls back to its default chain — pass
+ *   `credentials` for a second account). `configFromEnv()` returns the config the default
+ *   uses, if you want to derive one from it.
+ * - **`keyPrefix` is part of the id.** An instance with `keyPrefix: 'backups/'` returns ids like
+ *   `backups/<uuid>`; pass them back to `getFile`/`deleteFile`/`headFile` unchanged — never
+ *   strip or re-add the prefix yourself.
+ * - **`headFile(id)`** (on `createProvider` instances and the default `provider`) returns
+ *   `{ bytes, etag?, lastModified? }` without downloading, `null` when the object does not
+ *   exist, and throws on any other failure (bad credentials, missing bucket, network).
+ *
  * - **Keep the bucket PRIVATE — block all public access.** A public-read bucket/object leaks
  *   every user's files to anyone with the URL. Serve private files THROUGH your API (stream via
  *   `getFile`, scoped to the owner) or hand out a short-lived presigned URL; never make an
@@ -49,8 +65,30 @@
  * import { setProvider } from '@molecule/api-uploads'
  * import { provider } from '@molecule/api-uploads-s3'
  *
- * // Config is env-only, server-side — see the first remark for the full list.
+ * // Default store: config is env-only, server-side — see the first remark for the full list.
  * setProvider(provider)
+ * ```
+ *
+ * @example
+ * ```typescript
+ * import { createProvider } from '@molecule/api-uploads-s3'
+ *
+ * // A second, independent store (e.g. backups on Backblaze B2), alongside the default provider.
+ * export const backups = createProvider({
+ *   bucket: process.env.BACKUP_S3_BUCKET!,
+ *   endpoint: process.env.BACKUP_S3_ENDPOINT,
+ *   region: process.env.BACKUP_S3_REGION,
+ *   credentials: {
+ *     accessKeyId: process.env.BACKUP_S3_ACCESS_KEY_ID!,
+ *     secretAccessKey: process.env.BACKUP_S3_SECRET_ACCESS_KEY!,
+ *   },
+ *   storageClass: 'STANDARD_IA',
+ *   keyPrefix: 'nightly/',
+ * })
+ *
+ * const file = backups.upload('dump', dumpStream, info, onError) // file.id === 'nightly/<uuid>'
+ * await file.uploadPromise
+ * const head = await backups.headFile(file.id) // { bytes, etag, lastModified } | null
  * ```
  *
  * @module

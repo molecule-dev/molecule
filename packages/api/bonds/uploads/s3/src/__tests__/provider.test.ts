@@ -25,6 +25,9 @@ vi.mock('@aws-sdk/client-s3', () => ({
   GetObjectCommand: vi.fn(function (params: unknown) {
     return { params, type: 'GetObjectCommand' }
   }),
+  HeadObjectCommand: vi.fn(function (params: unknown) {
+    return { params, type: 'HeadObjectCommand' }
+  }),
 }))
 
 // Mock @aws-sdk/lib-storage
@@ -1039,5 +1042,254 @@ describe('S3 env resolution — accepts the names provisioning tools export', ()
         params: expect.objectContaining({ Bucket: 'explicit-bucket' }),
       }),
     )
+  })
+})
+
+// ─── createProvider: several stores per app ───────────────────────────────────
+
+describe('createProvider — independent S3 stores', () => {
+  beforeEach(async () => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    vi.stubEnv('AWS_S3_BUCKET', 'env-bucket')
+    vi.stubEnv('AWS_S3_REGION', 'us-east-1')
+    const { bond } = await import('@molecule/api-bond')
+    bond('logger', mockLogger)
+  })
+
+  afterEach(async () => {
+    const { unbond } = await import('@molecule/api-bond')
+    unbond('logger')
+    vi.unstubAllEnvs()
+  })
+
+  const s3Calls = async (): Promise<Record<string, unknown>[]> => {
+    const { S3Client } = await import('@aws-sdk/client-s3')
+    return (S3Client as unknown as ReturnType<typeof vi.fn>).mock.calls.map(
+      (c) => c[0] as Record<string, unknown>,
+    )
+  }
+
+  it('builds the client lazily, on first use', async () => {
+    const { createProvider } = await import('../provider.js')
+    const store = createProvider({ bucket: 'b' })
+    expect(await s3Calls()).toHaveLength(0)
+    void store.client
+    void store.client
+    expect(await s3Calls()).toHaveLength(1)
+  })
+
+  it('gives two providers separate clients, endpoints and buckets', async () => {
+    mockSend.mockResolvedValue({})
+    const { createProvider } = await import('../provider.js')
+    const uploads = createProvider({ bucket: 'user-uploads' })
+    const backups = createProvider({
+      bucket: 'backups',
+      endpoint: 'https://s3.eu-central-003.backblazeb2.com',
+      region: 'eu-central-003',
+      forcePathStyle: true,
+    })
+
+    expect(uploads.client).not.toBe(backups.client)
+    expect(uploads.bucket).toBe('user-uploads')
+    expect(backups.bucket).toBe('backups')
+
+    const calls = await s3Calls()
+    expect(calls).toHaveLength(2)
+    expect(calls[0]).not.toHaveProperty('endpoint')
+    expect(calls[0]).toMatchObject({ region: 'us-east-1', maxAttempts: 3 })
+    expect(calls[1]).toMatchObject({
+      endpoint: 'https://s3.eu-central-003.backblazeb2.com',
+      region: 'eu-central-003',
+      forcePathStyle: true,
+    })
+
+    await backups.deleteFile('k1')
+    await uploads.deleteFile('k2')
+    expect(mockSend).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ params: { Bucket: 'backups', Key: 'k1' } }),
+    )
+    expect(mockSend).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ params: { Bucket: 'user-uploads', Key: 'k2' } }),
+    )
+  })
+
+  it('does not touch the default env-configured provider', async () => {
+    mockSend.mockResolvedValue({})
+    const { createProvider, deleteFile, provider } = await import('../provider.js')
+    const backups = createProvider({ bucket: 'backups' })
+    void backups.client
+    await deleteFile('k')
+    expect(provider.bucket).toBe('env-bucket')
+    expect(provider.client).not.toBe(backups.client)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({ params: { Bucket: 'env-bucket', Key: 'k' } }),
+    )
+  })
+
+  it('passes static credentials, timeouts and maxAttempts to the client', async () => {
+    const { createProvider } = await import('../provider.js')
+    const store = createProvider({
+      bucket: 'b',
+      credentials: { accessKeyId: 'AKID', secretAccessKey: 'SECRET', sessionToken: 'TOKEN' },
+      connectionTimeoutMs: 1234,
+      socketTimeoutMs: 5678,
+      maxAttempts: 7,
+    })
+    void store.client
+    const [config] = await s3Calls()
+    expect(config).toMatchObject({
+      credentials: { accessKeyId: 'AKID', secretAccessKey: 'SECRET', sessionToken: 'TOKEN' },
+      requestHandler: { connectionTimeout: 1234, socketTimeout: 5678 },
+      maxAttempts: 7,
+    })
+  })
+
+  it('leaves credentials to the SDK chain when none are configured', async () => {
+    const { createProvider } = await import('../provider.js')
+    void createProvider({ bucket: 'b' }).client
+    const [config] = await s3Calls()
+    expect(config).not.toHaveProperty('credentials')
+  })
+
+  it('prepends keyPrefix to minted keys and returns the full key as the id', async () => {
+    mockUploadDone.mockResolvedValue({ Location: 'x' })
+    const { Upload } = await import('@aws-sdk/lib-storage')
+    const { createProvider } = await import('../provider.js')
+    const store = createProvider({ bucket: 'backups', keyPrefix: 'nightly/' })
+
+    const file = store.upload(
+      'file',
+      new PassThrough(),
+      { filename: 'db.dump', encoding: '7bit', mimeType: 'application/octet-stream' },
+      vi.fn(),
+    )
+
+    expect(file.id).toBe('nightly/test-uuid-1234')
+    expect(Upload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        params: expect.objectContaining({ Bucket: 'backups', Key: 'nightly/test-uuid-1234' }),
+      }),
+    )
+  })
+
+  it('passes storageClass as StorageClass, and omits it when unset', async () => {
+    mockUploadDone.mockResolvedValue({ Location: 'x' })
+    const { Upload } = await import('@aws-sdk/lib-storage')
+    const { createProvider } = await import('../provider.js')
+    const info = { filename: 'a.bin', encoding: '7bit', mimeType: 'application/octet-stream' }
+
+    createProvider({ bucket: 'cold', storageClass: 'GLACIER_IR' }).upload(
+      'file',
+      new PassThrough(),
+      info,
+      vi.fn(),
+    )
+    createProvider({ bucket: 'hot' }).upload('file', new PassThrough(), info, vi.fn())
+
+    const calls = (Upload as unknown as ReturnType<typeof vi.fn>).mock.calls.map(
+      (c) => (c[0] as { params: Record<string, unknown> }).params,
+    )
+    expect(calls[0]).toMatchObject({ Bucket: 'cold', StorageClass: 'GLACIER_IR' })
+    expect(calls[1]).not.toHaveProperty('StorageClass')
+  })
+
+  it('fails fast when the configured bucket is empty', async () => {
+    const { Upload } = await import('@aws-sdk/lib-storage')
+    const { createProvider } = await import('../provider.js')
+    const onError = vi.fn()
+    const file = createProvider({ bucket: '' }).upload(
+      'file',
+      new PassThrough(),
+      { filename: 'a.txt', encoding: '7bit', mimeType: 'text/plain' },
+      onError,
+    )
+    expect(file.uploaded).toBe(false)
+    expect(onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('createProvider') }),
+    )
+    expect(Upload).not.toHaveBeenCalled()
+  })
+
+  it('getFile returns null for NoSuchKey on an instance', async () => {
+    mockSend.mockRejectedValue(Object.assign(new Error('nope'), { name: 'NoSuchKey' }))
+    const { createProvider } = await import('../provider.js')
+    expect(await createProvider({ bucket: 'b' }).getFile('missing')).toBeNull()
+  })
+
+  describe('headFile', () => {
+    it('returns size, etag and lastModified', async () => {
+      const lastModified = new Date('2026-10-01T00:00:00Z')
+      mockSend.mockResolvedValue({ ContentLength: 42, ETag: '"abc"', LastModified: lastModified })
+      const { createProvider } = await import('../provider.js')
+      const head = await createProvider({ bucket: 'b' }).headFile('k')
+      expect(head).toEqual({ bytes: 42, etag: '"abc"', lastModified })
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'HeadObjectCommand', params: { Bucket: 'b', Key: 'k' } }),
+      )
+    })
+
+    it('returns null for NotFound and NoSuchKey', async () => {
+      const { createProvider } = await import('../provider.js')
+      const store = createProvider({ bucket: 'b' })
+      mockSend.mockRejectedValueOnce(Object.assign(new Error('x'), { name: 'NotFound' }))
+      expect(await store.headFile('k')).toBeNull()
+      mockSend.mockRejectedValueOnce(Object.assign(new Error('x'), { name: 'NoSuchKey' }))
+      expect(await store.headFile('k')).toBeNull()
+    })
+
+    it('throws for any other failure', async () => {
+      mockSend.mockRejectedValue(
+        Object.assign(new Error('Access Denied'), { name: 'AccessDenied' }),
+      )
+      const { createProvider } = await import('../provider.js')
+      await expect(createProvider({ bucket: 'b' }).headFile('k')).rejects.toThrow('Access Denied')
+    })
+
+    it('is available on the default provider, against the env bucket', async () => {
+      mockSend.mockResolvedValue({ ContentLength: 1 })
+      const { provider } = await import('../provider.js')
+      expect(await provider.headFile('k')).toEqual({ bytes: 1 })
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({ params: { Bucket: 'env-bucket', Key: 'k' } }),
+      )
+    })
+  })
+
+  describe('configFromEnv', () => {
+    it('reads the env names the default provider uses, leaving credentials to the SDK', async () => {
+      vi.stubEnv('AWS_S3_BUCKET', '')
+      vi.stubEnv('BUCKET_NAME', 'fly-bucket')
+      vi.stubEnv('AWS_S3_ENDPOINT', '')
+      vi.stubEnv('AWS_ENDPOINT_URL_S3', 'https://fly.storage.tigris.dev')
+      vi.stubEnv('AWS_S3_REGION', '')
+      vi.stubEnv('AWS_REGION', 'auto')
+      vi.stubEnv('AWS_S3_FORCE_PATH_STYLE', 'true')
+      vi.stubEnv('AWS_S3_SOCKET_TIMEOUT_MS', '9000')
+      const { configFromEnv } = await import('../provider.js')
+      expect(configFromEnv()).toEqual({
+        bucket: 'fly-bucket',
+        region: 'auto',
+        endpoint: 'https://fly.storage.tigris.dev',
+        forcePathStyle: true,
+        connectionTimeoutMs: 10_000,
+        socketTimeoutMs: 9000,
+        maxAttempts: 3,
+      })
+    })
+
+    it('still reads the bucket from the env on every call of the default provider', async () => {
+      mockSend.mockResolvedValue({})
+      const { deleteFile } = await import('../provider.js')
+      await deleteFile('a')
+      vi.stubEnv('AWS_S3_BUCKET', 'changed-bucket')
+      await deleteFile('b')
+      expect(mockSend).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ params: { Bucket: 'changed-bucket', Key: 'b' } }),
+      )
+    })
   })
 })

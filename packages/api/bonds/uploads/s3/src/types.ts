@@ -79,3 +79,84 @@ export interface File extends UploadedFile {
    */
   abort?: () => Promise<void>
 }
+
+/**
+ * Configuration for one S3-compatible store, passed to `createProvider()`.
+ *
+ * Every field except `bucket` is optional; an omitted field falls back to the
+ * AWS SDK's own default (region, endpoint, credentials) or to this bond's
+ * default (timeouts, retries). Nothing here is read from the environment — use
+ * `configFromEnv()` for the env-driven configuration the default `provider`
+ * uses.
+ */
+export interface S3UploadsConfig {
+  /** The bucket every object of this store is written to and read from. */
+  bucket: string
+
+  /**
+   * The bucket's region.
+   *
+   * @default 'us-east-1'
+   */
+  region?: string
+
+  /**
+   * Service endpoint of an S3-compatible store (Cloudflare R2, MinIO,
+   * DigitalOcean Spaces, Tigris, Backblaze B2, …). When unset the SDK resolves
+   * the AWS regional endpoint. Outbound proxy agents are resolved against this
+   * endpoint (or the regional one), so a `NO_PROXY`-listed internal host keeps
+   * connecting directly.
+   */
+  endpoint?: string
+
+  /** Use path-style addressing (`endpoint/bucket/key`), required by e.g. MinIO. */
+  forcePathStyle?: boolean
+
+  /**
+   * Static credentials for this store. When set they take precedence over the
+   * SDK's default chain (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`, profiles,
+   * instance roles); when unset that chain is used.
+   */
+  credentials?: {
+    /** Access key id. */
+    accessKeyId: string
+    /** Secret access key. */
+    secretAccessKey: string
+    /** Session token, for temporary credentials. */
+    sessionToken?: string
+  }
+
+  /**
+   * Storage class sent as `StorageClass` on every upload (e.g. `STANDARD_IA`,
+   * `GLACIER_IR`). When unset the bucket's default class applies.
+   */
+  storageClass?: string
+
+  /**
+   * Prefix prepended to every object key this store mints (e.g. `backups/`).
+   * The id returned by `upload()` includes it, so ids stay opaque: pass them
+   * back to `getFile`/`deleteFile`/`headFile` unchanged.
+   */
+  keyPrefix?: string
+
+  /**
+   * Milliseconds to wait for a connection to open.
+   *
+   * @default 10000
+   */
+  connectionTimeoutMs?: number
+
+  /**
+   * Milliseconds of socket inactivity before a request is abandoned.
+   *
+   * @default 60000
+   */
+  socketTimeoutMs?: number
+
+  /**
+   * Total attempts per request, including the first.
+   *
+   * @default 3
+   */
+  maxAttempts?: number
+}
