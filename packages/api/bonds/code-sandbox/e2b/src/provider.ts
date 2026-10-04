@@ -868,6 +868,28 @@ export class E2BSandboxProvider implements SandboxProvider {
    * @returns A live sandbox handle.
    */
   async create(config: SandboxConfig): Promise<Sandbox> {
+    return this.createSandbox(config, 'pause')
+  }
+
+  /**
+   * {@link create} with the sandbox's timeout action chosen by the caller.
+   *
+   * `'pause'` is E2B's `lifecycle: { onTimeout: { action: 'pause', keepMemory:
+   * true } }` — the data-safe default for anything that may hold a project
+   * (see {@link create}). `'kill'` is `lifecycle: { onTimeout: 'kill' }` — for a
+   * THROWAWAY sandbox this bond destroys itself (the egress probe): pausing one
+   * at its deadline would write a full memory + filesystem snapshot to the
+   * host's disk for a sandbox nobody will ever resume. E2B cannot change a
+   * sandbox's `onTimeout` after create, so the choice is made here, once.
+   *
+   * @param config - As for {@link create}.
+   * @param onTimeout - What E2B does at the sandbox's deadline.
+   * @returns A live sandbox handle.
+   */
+  private async createSandbox(
+    config: SandboxConfig,
+    onTimeout: 'pause' | 'kill',
+  ): Promise<Sandbox> {
     const client = await this.client()
     const templateId = config.templateId ?? this.config.templateId
     if (config.volumeName && !config.volumeMountPath) {
@@ -882,7 +904,10 @@ export class E2BSandboxProvider implements SandboxProvider {
       timeoutMs: this.config.defaultTimeoutMs,
       envs: config.env ?? {},
       metadata: { projectId: config.projectId, ...(config.labels ?? {}) },
-      lifecycle: { onTimeout: { action: 'pause', keepMemory: true } },
+      lifecycle:
+        onTimeout === 'kill'
+          ? { onTimeout: 'kill' }
+          : { onTimeout: { action: 'pause', keepMemory: true } },
       ...(config.volumeName
         ? { volumeMounts: { [config.volumeMountPath as string]: config.volumeName } }
         : {}),
@@ -1296,7 +1321,12 @@ export class E2BSandboxProvider implements SandboxProvider {
   async verifyEgress(): Promise<EgressVerdict> {
     let handle: Sandbox
     try {
-      handle = await this.create({ projectId: `egress-probe-${Date.now()}`, env: {} })
+      // Kill, not pause, at its deadline: a leaked probe must not leave a
+      // snapshot on the host's disk (see createSandbox).
+      handle = await this.createSandbox(
+        { projectId: `egress-probe-${Date.now()}`, env: {} },
+        'kill',
+      )
     } catch (error) {
       return {
         state: 'inconclusive',
@@ -1307,8 +1337,7 @@ export class E2BSandboxProvider implements SandboxProvider {
     const verdict = await this.probeEgress(handle)
     // The probe sandbox is destroyed on EVERY path. A failed destroy is retried,
     // and one that still fails is reported in the verdict's detail: the sandbox
-    // was created to pause at its timeout, so a silently leaked probe is billed
-    // storage forever.
+    // is killed at its own deadline, but until then it runs metered.
     const leaked = await this.destroyProbe(handle.id)
     return leaked ? { ...verdict, detail: `${verdict.detail} ${leaked}` } : verdict
   }

@@ -144,6 +144,13 @@
  * would be destroyed with its files. This bond creates every sandbox with
  * `lifecycle: { onTimeout: { action: 'pause', keepMemory: true } }`; the memory
  * snapshot is what lets `resume()` truthfully report `processesPreserved: true`.
+ * The one exception is the throwaway `verifyEgress()` probe, created with
+ * `lifecycle: { onTimeout: 'kill' }`: a pause writes a full snapshot to the
+ * host's disk, and nobody resumes a probe. Every pause and every
+ * `commitTemplate()` is a new snapshot build on a self-hosted box's disk, so
+ * a pause-on-timeout sandbox you do not need back is disk you pay for — keep a
+ * sandbox you intend to keep warm alive with `keepAlive(ms)`, and destroy one
+ * you are done with rather than letting it time out.
  * Extending the deadline is `keepAlive(ms)` — call it from a real activity
  * signal (an open editor's heartbeat), never as a side effect of polling.
  *

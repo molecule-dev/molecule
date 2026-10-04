@@ -42,10 +42,12 @@ describe('classifyEgressProbe', () => {
 
 describe('verifyEgress() end to end over a fake sandbox', () => {
   function providerAnswering(codes: Record<string, string>): {
+    createOpts: Record<string, unknown>[]
     provider: E2BSandboxProvider
     commands: string[]
   } {
     const commands: string[] = []
+    const createOpts: Record<string, unknown>[] = []
     const sbx: E2BSandboxLike = {
       sandboxId: 'sbx-probe',
       commands: {
@@ -73,12 +75,15 @@ describe('verifyEgress() end to end over a fake sandbox', () => {
       async updateNetwork() {},
     }
     const client: E2BSandboxClientLike = {
-      create: async () => sbx,
+      create: async (_templateId, opts) => {
+        createOpts.push(opts as Record<string, unknown>)
+        return sbx
+      },
       connect: async () => sbx,
       list: async () => [],
       kill: async () => true,
     }
-    return { provider: new E2BSandboxProvider({ apiKey: 'test' }, client), commands }
+    return { provider: new E2BSandboxProvider({ apiKey: 'test' }, client), commands, createOpts }
   }
 
   it('reports inconclusive when nothing answers, and curls without an `|| echo 000` fallback', async () => {
@@ -108,5 +113,19 @@ describe('verifyEgress() end to end over a fake sandbox', () => {
       '1.1.1.1': '000',
     })
     expect((await provider.verifyEgress()).state).toBe('open')
+  })
+
+  it('creates the throwaway probe sandbox to be KILLED at its deadline, never paused (a pause is a snapshot on the host disk)', async () => {
+    const { provider, createOpts } = providerAnswering({
+      'registry.npmjs.org': '200',
+      'example.com': '000',
+      '1.1.1.1': '000',
+    })
+    await provider.verifyEgress()
+    expect(createOpts).toHaveLength(1)
+    expect(createOpts[0]?.lifecycle).toEqual({ onTimeout: 'kill' })
+    // A project sandbox still pauses.
+    await provider.create({ projectId: 'proj-1', env: {} })
+    expect(createOpts[1]?.lifecycle).toEqual({ onTimeout: { action: 'pause', keepMemory: true } })
   })
 })
