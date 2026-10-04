@@ -1,5 +1,12 @@
 # @molecule/api-analytics-axiom
 
+## 1.0.2
+
+### Patch Changes
+
+- 932c8c2: Bounded queue size in bytes, shutdown deadline applies to in-flight sends, and a configurable shutdown budget.
+- a653f59: `shutdown()` drains within a bounded budget and reports what it could not send.
+
 ## 1.0.1
 
 ### Patch Changes

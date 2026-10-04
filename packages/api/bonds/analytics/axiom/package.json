@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-analytics-axiom",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Axiom analytics provider for molecule.dev — batches tracked events into an Axiom dataset over the ingest API, never blocking the caller.",
   "homepage": "https://www.molecule.dev/packages/api-analytics-axiom",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
