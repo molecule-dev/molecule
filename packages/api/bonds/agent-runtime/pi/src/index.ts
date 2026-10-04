@@ -37,11 +37,23 @@
  * @remarks
  * - **Isolation contract (same as the Claude Code runtime):** the sandbox is
  *   created through the code-sandbox bond's MINIMAL path; credentials ride
- *   ONLY the exec calls that need them — the GitHub token the clone, the
+ *   ONLY the exec calls that need them — the clone authenticates through an
+ *   in-sandbox `GIT_ASKPASS` helper staged at an unguessable path and removed
+ *   after (the GitHub token never appears in a clone URL or git argv), the
  *   model provider's key the agent; egress is deny-by-default where the
  *   sandbox supports network policy and is PROBED before any credential is
  *   injected; the sandbox is destroyed on every exit path. Never run Pi on the
  *   API host: it has no permission prompts and no sandbox of its own.
+ * - **A sandbox provider without per-run egress enforcement is refused** (M-3):
+ *   if the bonded provider has no `applyNetwork`, the run fails before any
+ *   credential is injected — an unimplemented capability is `inconclusive`,
+ *   never safe.
+ * - **Caller input is validated before any exec** (M-1): `repoUrl` must match
+ *   `https://github.com/<owner>/<repo>` (same gate the REST route applies), a
+ *   non-empty `GITHUB_TOKEN` must have a GitHub token shape
+ *   (`ghp_`/`gho_`/`ghu_`/`ghs_`/`github_pat_` + ≥20 more characters), and
+ *   every `allowedHosts` entry must be a bare hostname. Anything else refuses
+ *   the run before a sandbox exists.
  * - **Pass the model provider's key under Pi's env var name** —
  *   `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `XAI_API_KEY`,
  *   `DEEPSEEK_API_KEY`, `MOONSHOT_API_KEY`, `MINIMAX_API_KEY` or

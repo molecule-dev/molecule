@@ -12,7 +12,10 @@ import type { AgentRunConfig } from '@molecule/api-agent-run'
 export interface ClaudeCodeRuntimeConfig extends AgentRunConfig {
   /**
    * npm package spec for the Claude Code CLI, installed at run start from the
-   * egress-allowed npm registry. Default `@anthropic-ai/claude-code@latest`.
+   * egress-allowed npm registry. Default
+   * `@anthropic-ai/claude-code@2.1.289` — PINNED EXACTLY, never `@latest`:
+   * its postinstall runs in the sandbox, so the version that runs there must
+   * be a deliberate choice.
    */
   cliPackage?: string
   /**

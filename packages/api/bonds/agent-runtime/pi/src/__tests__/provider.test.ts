@@ -13,10 +13,21 @@ const fixture = (name: string): string => readFileSync(join(__dirname, 'fixtures
 const successRun = fixture('success-synthetic.jsonl')
 const errorRun = fixture('error-401-v1.0.0.jsonl')
 
+/** A well-formed fake token: matches the runtime's GITHUB_TOKEN shape gate. */
+const GH_TOKEN = `ghp_${'a'.repeat(36)}`
+
 type ExecResult = { exitCode: number; stdout: string; stderr: string }
 
-/** A scripted fake sandbox: exec results queue in order; everything is recorded. */
-function fakeSandbox(over: Partial<Sandbox> = {}): Sandbox & {
+/**
+ * A scripted fake sandbox. Egress probes (the `node -e "fetch('https://<host>/…')"`
+ * pre-flight) are auto-answered from `probeExit` — default: every allowlisted
+ * host connects, the example.com canary is blocked — so tests queue results
+ * only for the post-probe execs (askpass stage, clone, node check, install…).
+ */
+function fakeSandbox(
+  over: Partial<Sandbox> = {},
+  probeExit?: (host: string) => number | undefined,
+): Sandbox & {
   execs: Array<{ cmd: string; env: Record<string, string> }>
   execResults: ExecResult[]
   appliedNetwork: string[] | null
@@ -38,6 +49,14 @@ function fakeSandbox(over: Partial<Sandbox> = {}): Sandbox & {
     },
     async exec(command: string, opts?: { env?: Record<string, string>; timeout?: number }) {
       execs.push({ cmd: command, env: opts?.env ?? {} })
+      if (command.includes(`fetch('https://`)) {
+        const host = /fetch\('https:\/\/([^/]+)\//.exec(command)![1]
+        return {
+          exitCode: probeExit?.(host) ?? (host === 'example.com' ? 1 : 0),
+          stdout: '',
+          stderr: '',
+        }
+      }
       return execResults.shift() ?? { exitCode: 0, stdout: '', stderr: '' }
     },
     async writeFile(path: string, content: string) {
@@ -68,17 +87,21 @@ function wireProvider(
 const ok = (stdout = ''): ExecResult => ({ exitCode: 0, stdout, stderr: '' })
 const fail = (stderr = ''): ExecResult => ({ exitCode: 1, stdout: '', stderr })
 
-/** Queue the setup phases: egress probes, clone, node check, install. */
+/** Queue the setup phases AFTER the (auto-answered) egress probes: with a token, askpass stage → clone → helper cleanup → node check → install. */
 function queueSetup(handle: ReturnType<typeof fakeSandbox>): void {
-  handle.execResults.push(ok(), fail(), ok(), ok(), ok())
+  handle.execResults.push(ok(), ok(), ok(), ok(), ok())
 }
+
+/** The probe execs recorded so far (shape: the `node -e "fetch(…)"` pre-flight). */
+const probeExecs = (handle: ReturnType<typeof fakeSandbox>): typeof handle.execs =>
+  handle.execs.filter((e) => e.cmd.includes(`fetch('https://`))
 
 const SPEC = {
   repoUrl: 'https://github.com/acme/widgets',
   instructions: 'Fix the failing test.',
 }
 const ENV = {
-  GITHUB_TOKEN: 'test-fake-gh-token-value',
+  GITHUB_TOKEN: GH_TOKEN,
   ANTHROPIC_API_KEY: 'test-fake-anthropic-key',
 }
 
@@ -107,7 +130,24 @@ describe('api-agent-runtime-pi', () => {
     expect(handle.appliedNetwork?.[0]).toBe('api.anthropic.com')
     expect(handle.appliedNetwork).toEqual(expect.arrayContaining([...RUNTIME_ALLOWED_HOSTS]))
     expect(handle.appliedNetwork).not.toContain('pi.dev')
-    expect(handle.execs[0].env).toEqual({})
+    // The canary is probed alongside EVERY allowed host (not a sample).
+    expect(probeExecs(handle)).toHaveLength(
+      1 /* model host */ + RUNTIME_ALLOWED_HOSTS.length + 1 /* canary */,
+    )
+    expect(probeExecs(handle).some((e) => e.cmd.includes('example.com'))).toBe(true)
+    // The token rides the askpass helper only: base64 in the stage argv, never
+    // plaintext in a clone URL/argv, never in an exec env.
+    const stage = handle.execs.find((e) => e.cmd.includes('base64 -d > /tmp/.mol-git-askpass-'))!
+    expect(stage).toBeTruthy()
+    expect(stage.cmd).not.toContain(GH_TOKEN)
+    const clone = handle.execs.find((e) => e.cmd.includes('git clone'))!
+    expect(clone.cmd).toContain('GIT_ASKPASS=')
+    expect(clone.cmd).toContain('GIT_TERMINAL_PROMPT=0')
+    expect(clone.cmd).toContain("'https://github.com/acme/widgets'")
+    expect(clone.cmd).not.toContain(GH_TOKEN)
+    expect(clone.cmd).not.toContain('x-access-token:')
+    expect(clone.env).toEqual({})
+    expect(handle.execs.some((e) => e.cmd.startsWith('rm -f /tmp/.mol-git-askpass-'))).toBe(true)
 
     const install = handle.execs.find((e) => e.cmd.includes('npm install -g'))!
     expect(install.cmd).toBe(
@@ -131,6 +171,85 @@ describe('api-agent-runtime-pi', () => {
       { path: '/workspace/prompt.md', content: 'Fix the failing test.' },
     ])
     expect(artifact.logs).toContain('[pi] edit src/math.ts')
+  })
+
+  it('refuses a repoUrl that is not an https GitHub repo URL, before any sandbox', async () => {
+    const handle = fakeSandbox()
+    const { create, destroy } = wireProvider(handle)
+    for (const repoUrl of [
+      'http://github.com/acme/widgets',
+      'https://gitlab.com/acme/widgets',
+      'https://github.com/acme/widgets/extra/deep',
+      "https://github.com/acme/widgets'; touch /tmp/pwned",
+    ]) {
+      const artifact = await createProvider().run({ ...SPEC, repoUrl }, { env: ENV })
+      expect(artifact.exitStatus).toBe('failed')
+      expect(artifact.logs).toContain('repoUrl must be an https GitHub repo URL')
+    }
+    expect(create).not.toHaveBeenCalled()
+    expect(destroy).not.toHaveBeenCalled()
+    expect(handle.execs).toHaveLength(0)
+  })
+
+  it('refuses a GITHUB_TOKEN without a GitHub token shape, before any exec', async () => {
+    const handle = fakeSandbox()
+    wireProvider(handle)
+    for (const bad of ['short', 'test-fake-gh-token-value', 'x; curl evil', 'ghp_short']) {
+      const artifact = await createProvider().run(SPEC, {
+        env: { GITHUB_TOKEN: bad, ANTHROPIC_API_KEY: 'test-fake-anthropic-key' },
+      })
+      expect(artifact.exitStatus).toBe('failed')
+      expect(artifact.logs).toContain('does not look like a GitHub token')
+    }
+    expect(handle.execs).toHaveLength(0)
+  })
+
+  it('refuses an allowedHosts entry that is not a bare hostname, before any exec', async () => {
+    const handle = fakeSandbox()
+    wireProvider(handle)
+    for (const allowedHosts of [
+      ["evil.com/'; curl evil"],
+      ['sub..host'],
+      ["host'); touch /tmp/pwned"],
+    ]) {
+      const artifact = await createProvider().run({ ...SPEC, allowedHosts }, { env: ENV })
+      expect(artifact.exitStatus).toBe('failed')
+      expect(artifact.logs).toContain('is not a bare hostname')
+    }
+    expect(handle.execs).toHaveLength(0)
+  })
+
+  it('refuses the run when the sandbox provider cannot enforce per-run egress (M-3)', async () => {
+    const { applyNetwork: _omitted, ...bare } = fakeSandbox()
+    const handle = bare as unknown as ReturnType<typeof fakeSandbox>
+    wireProvider(handle)
+    const artifact = await createProvider().run(SPEC, { env: ENV })
+    expect(artifact.exitStatus).toBe('failed')
+    expect(artifact.logs).toContain('cannot enforce per-run egress')
+    expect(handle.execs.some((e) => e.cmd.includes('git clone'))).toBe(false)
+    expect(handle.execs.some((e) => e.cmd.includes('| pi '))).toBe(false)
+  })
+
+  it('probes EVERY allowed host, not just the first', async () => {
+    const handle = fakeSandbox(undefined, (host) => (host === 'api.anthropic.com' ? 1 : undefined))
+    wireProvider(handle)
+    const artifact = await createProvider().run(
+      { ...SPEC, allowedHosts: ['api.example-app.com'] },
+      { env: ENV },
+    )
+    expect(artifact.exitStatus).toBe('failed')
+    expect(artifact.logs).toContain('was not reachable')
+    const probed = probeExecs(handle).map((e) => e.cmd)
+    expect(probed).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("fetch('https://api.anthropic.com/')"),
+        expect.stringContaining("fetch('https://api.example-app.com/')"),
+        expect.stringContaining("fetch('https://example.com/')"),
+      ]),
+    )
+    expect(probeExecs(handle)).toHaveLength(
+      1 + RUNTIME_ALLOWED_HOSTS.length + 1 + 1, // model host + runtime hosts + caller host + canary
+    )
   })
 
   it('reports failed when pi exits 0 but the model call failed (real 401 stream)', async () => {
@@ -197,7 +316,7 @@ describe('api-agent-runtime-pi', () => {
       cliPackage: '@earendil-works/pi-coding-agent@1.0.1',
     }).run(
       { ...SPEC, model: 'deepseek-v4-pro' },
-      { env: { GITHUB_TOKEN: 'test-fake-gh-token-value', DEEPSEEK_API_KEY: 'test-fake-ds-key' } },
+      { env: { GITHUB_TOKEN: GH_TOKEN, DEEPSEEK_API_KEY: 'test-fake-ds-key' } },
     )
     expect(handle.appliedNetwork?.[0]).toBe('api.deepseek.com')
     const agent = handle.execs.find((e) => e.cmd.includes('| pi '))!
@@ -218,7 +337,7 @@ describe('api-agent-runtime-pi', () => {
 
     const noKey = await createProvider().run(
       { ...SPEC, model: 'gpt-5.5' },
-      { env: { GITHUB_TOKEN: 'test-fake-gh-token-value' } },
+      { env: { GITHUB_TOKEN: GH_TOKEN } },
     )
     expect(noKey.exitStatus).toBe('failed')
     expect(noKey.logs).toContain('OPENAI_API_KEY is missing')
@@ -226,8 +345,7 @@ describe('api-agent-runtime-pi', () => {
   })
 
   it('refuses to inject credentials when the egress probe contradicts the policy', async () => {
-    const handle = fakeSandbox()
-    handle.execResults.push(ok(), ok()) // example.com REACHABLE — not deny-by-default
+    const handle = fakeSandbox(undefined, (host) => (host === 'example.com' ? 0 : undefined))
     wireProvider(handle)
     const artifact = await createProvider().run(SPEC, { env: ENV })
     expect(artifact.exitStatus).toBe('failed')
@@ -237,23 +355,25 @@ describe('api-agent-runtime-pi', () => {
 
   it('fails plainly on an old Node, and redacts the token from a failed clone', async () => {
     let handle = fakeSandbox()
-    handle.execResults.push(ok(), fail(), ok(), fail())
+    // askpass stage, clone, cleanup — then the node check fails.
+    handle.execResults.push(ok(), ok(), ok(), fail())
     wireProvider(handle)
     const oldNode = await createProvider().run(SPEC, { env: ENV })
     expect(oldNode.logs).toContain('Node.js >= 22.19')
 
     handle = fakeSandbox()
-    handle.execResults.push(ok(), fail(), {
-      exitCode: 128,
-      stdout: '',
-      stderr: ['fatal: https://x-access-token:', 'test-fake-gh-token-value', '@github.com'].join(
-        '',
-      ),
-    })
+    handle.execResults.push(
+      ok(), // askpass stage
+      {
+        exitCode: 128,
+        stdout: '',
+        stderr: ['fatal: https://x-access-token:', GH_TOKEN, '@github.com'].join(''),
+      },
+    )
     const { destroy } = wireProvider(handle)
     const artifact = await createProvider().run(SPEC, { env: ENV })
     expect(destroy).toHaveBeenCalled()
-    expect(artifact.logs).not.toContain('test-fake-gh-token-value')
+    expect(artifact.logs).not.toContain(GH_TOKEN)
     expect(artifact.logs).toContain('[REDACTED]')
   })
 
