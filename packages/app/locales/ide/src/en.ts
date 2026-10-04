@@ -242,6 +242,8 @@ export const en: IdeTranslations = {
   'ide.chat.you': 'You',
   // Gold badge on a human-only team note (/teamsay): members-only, agent-ignored.
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
+  // Red mic badge on a message composed through the mic button's dictation.
+  'ide.chat.viaDictation.badge': 'Dictated by voice',
   'ide.chat.itemRenderError': "This message couldn't be displayed.",
   'ide.chat.viewProfile': 'View profile',
   'ide.chat.molecule': 'Molecule',

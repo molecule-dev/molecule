@@ -2194,6 +2194,68 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
                     />
                   </span>
                 )}
+                {isUser && msg.viaDictation && (
+                  // Red mic badge right after the username (left of the time): this
+                  // message was composed by voice — the mic button's dictated
+                  // transcript was still in the composer at submit. Same inline
+                  // mic glyph as the composer's own mic button (no bonded mic
+                  // glyph exists; the icon-set `microphone` is a speaker), the
+                  // theme's muted danger red — loud enough to spot in a
+                  // scroll-back without reading as an error state — and the same
+                  // centered-in-header geometry as the team-only badge above.
+                  <span
+                    title={t('ide.chat.viaDictation.badge', undefined, {
+                      defaultValue: 'Dictated by voice',
+                    })}
+                    aria-label={t('ide.chat.viaDictation.badge', undefined, {
+                      defaultValue: 'Dictated by voice',
+                    })}
+                    style={{
+                      display: 'inline-flex',
+                      alignSelf: 'center',
+                      flexShrink: 0,
+                      position: 'relative',
+                      top: -0.5,
+                    }}
+                    data-mol-id="chat-dictated-badge"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 16 16"
+                      width="16"
+                      height="16"
+                      style={{ display: 'block', color: isLight ? '#cf222e' : '#f85149' }}
+                      aria-hidden="true"
+                    >
+                      <rect x="6" y="1" width="4" height="8" rx="2" fill="currentColor" />
+                      <path
+                        d="M4 7v1a4 4 0 008 0V7"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.25"
+                        strokeLinecap="round"
+                      />
+                      <line
+                        x1="8"
+                        y1="12"
+                        x2="8"
+                        y2="15"
+                        stroke="currentColor"
+                        strokeWidth="1.25"
+                        strokeLinecap="round"
+                      />
+                      <line
+                        x1="6"
+                        y1="15"
+                        x2="10"
+                        y2="15"
+                        stroke="currentColor"
+                        strokeWidth="1.25"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </span>
+                )}
                 {showTimestamp && typeof msg.timestamp === 'number' && (
                   <ChatTimestamp timestamp={msg.timestamp} />
                 )}
@@ -3345,6 +3407,20 @@ function ChatInner({
   const [hasInput, setHasInput] = useState(() => Boolean(inputRef.current))
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  // Transcripts the mic button's dictation inserted into the CURRENT draft —
+  // one entry per final result, pruned on every draft edit so deleting the
+  // dictated text (or clearing the composer by any path) un-marks it. At
+  // submit, a send whose text still carries any entry is flagged
+  // `viaDictation`: the mic badge in the conversation history.
+  const dictatedSnippetsRef = useRef<string[]>([])
+  /** Drop transcripts no longer present in the draft (called on every edit). */
+  const pruneDictatedSnippets = useCallback(() => {
+    const snippets = dictatedSnippetsRef.current
+    if (snippets.length === 0) return
+    const value = inputRef.current
+    dictatedSnippetsRef.current = value ? snippets.filter((s) => value.includes(s)) : []
+  }, [])
+
   /** Auto-resize the textarea to fit its content (max 200px). */
   const autoResize = useCallback(() => {
     const ta = textareaRef.current
@@ -3382,6 +3458,7 @@ function ChatInner({
   const setInputValue = useCallback(
     (val: string) => {
       inputRef.current = val
+      pruneDictatedSnippets()
       const ta = textareaRef.current
       if (ta && ta.value !== val) ta.value = val
       // A viewer's composer is pre-filled with '/teamsay ' — the BARE prefix is
@@ -3398,7 +3475,7 @@ function ChatInner({
         }
       }
     },
-    [draftKey, autoResize, canEdit],
+    [draftKey, autoResize, canEdit, pruneDictatedSnippets],
   )
 
   // Persist draft text to sessionStorage so it survives refresh (debounced)
@@ -3550,6 +3627,7 @@ function ChatInner({
           if (voiceDiscardRef.current || !event.isFinal || !event.transcript) return
           const prev = inputRef.current as string
           setInputValue(prev ? `${prev} ${event.transcript}` : event.transcript)
+          dictatedSnippetsRef.current.push(event.transcript)
           autoResize()
         },
         onStateChange: (state) => {
@@ -3681,6 +3759,7 @@ function ChatInner({
       if (transcript) {
         const prev = inputRef.current as string
         setInputValue(prev ? `${prev} ${transcript}` : transcript)
+        dictatedSnippetsRef.current.push(transcript)
         autoResize()
       }
     }
@@ -5742,6 +5821,7 @@ function ChatInner({
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const val = e.target.value
       inputRef.current = val
+      pruneDictatedSnippets()
       setHasInput(Boolean(val.trim()))
       autoResize()
       persistDraft()
@@ -5801,7 +5881,7 @@ function ChatInner({
         setCommandMenu(null)
       }
     },
-    [openFilePicker, autoResize, persistDraft, liveModelMode],
+    [openFilePicker, autoResize, persistDraft, liveModelMode, pruneDictatedSnippets],
   )
 
   // ── Execute command ────────────────────────────────────────────────────────
@@ -7055,10 +7135,21 @@ function ChatInner({
       }
     }
 
+    // A send still carrying dictated text — any mic-button transcript survived
+    // the live prune — is flagged `viaDictation` so history badges it with the
+    // mic. Checked against the FINAL text (after /explain etc. rewrites it, the
+    // synthesized prompt is not what was dictated, so no badge). The list is
+    // consumed here; setInputValue('') below prunes it anyway.
+    const viaDictation = dictatedSnippetsRef.current.some((s) => message.includes(s))
+    dictatedSnippetsRef.current = []
     setInputValue('')
     setAttachedFiles([])
     setAttachmentError(null)
-    sendMessage(message, chatAttachments.length > 0 ? chatAttachments : undefined)
+    sendMessage(
+      message,
+      chatAttachments.length > 0 ? chatAttachments : undefined,
+      viaDictation ? { viaDictation: true } : undefined,
+    )
   }, [
     applyTimestampsVisible,
     attachedFiles,

@@ -42,6 +42,7 @@ type QueueEntry = {
   suppressUserMessage?: boolean
   automatic?: boolean
   userInitiated?: boolean
+  viaDictation?: boolean
 }
 
 /** Prefix used by auto-fix messages so we can identify them in the queue. */
@@ -1456,7 +1457,16 @@ export function useChat(options: UseChatOptions): UseChatResult {
           pendingRef.current.push(...rest)
           setTimeout(() => {
             if (mountedRef.current) {
-              sendMessageRef.current(first.message, first.attachments)
+              // Re-send with the entry's own intent flags — a queue persisted
+              // before a refresh must re-send as what it was (an auto-sent
+              // fix stays automatic, a dictated message keeps its flag), not
+              // degraded to a plain typed message.
+              sendMessageRef.current(first.message, first.attachments, {
+                ...(first.suppressUserMessage ? { suppressUserMessage: true } : {}),
+                ...(first.automatic ? { automatic: true } : {}),
+                ...(first.userInitiated ? { userInitiated: true } : {}),
+                ...(first.viaDictation ? { viaDictation: true } : {}),
+              })
             }
           }, 0)
         }
@@ -2117,6 +2127,9 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // but flagged so it renders in the distinct auto-sent style, not like a
       // typed user message.
       const automatic = options?.automatic === true
+      // Composed (fully or in part) through the mic button's dictation — the
+      // persisted message keeps the flag so history can badge it with a mic.
+      const viaDictation = options?.viaDictation === true
 
       // A user Stop is a standing order: drop every AUTONOMOUS automatic send
       // (preview-health / preview-error / verification auto-fix dispatches) until
@@ -2169,6 +2182,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         content: message,
         timestamp: Date.now(),
         ...(automatic ? { automatic: true } : {}),
+        ...(viaDictation ? { viaDictation: true } : {}),
         ...(attachments?.length
           ? {
               attachments: attachments.map((a) => ({
@@ -2191,6 +2205,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           attachments,
           ...(automatic ? { automatic: true } : {}),
           ...(options?.userInitiated ? { userInitiated: true } : {}),
+          ...(viaDictation ? { viaDictation: true } : {}),
           ...(suppressUserMessage ? { suppressUserMessage } : { userMsgId: userMsg.id }),
         })
         persistQueue(storageKey, pendingRef.current)
@@ -2224,6 +2239,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
         ...(suppressUserMessage ? { suppressUserMessage: true } : { userMsgId: userMsg.id }),
         ...(automatic ? { automatic: true } : {}),
         ...(options?.userInitiated ? { userInitiated: true } : {}),
+        ...(viaDictation ? { viaDictation: true } : {}),
       }
 
       // Set when the LAST iteration's stream dropped without a terminal event
@@ -2287,6 +2303,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
               ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
               ...(current.automatic ? { automatic: true } : {}),
               ...(current.userInitiated ? { userInitiated: true } : {}),
+              ...(current.viaDictation ? { viaDictation: true } : {}),
             },
             userMsgId: current.userMsgId,
           },
@@ -2303,6 +2320,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
           ...(current.suppressUserMessage ? { suppressUserMessage: true } : {}),
           ...(current.automatic ? { automatic: true } : {}),
           ...(current.userInitiated ? { userInitiated: true } : {}),
+          ...(current.viaDictation ? { viaDictation: true } : {}),
         }
         try {
           await provider.sendMessage(currentMsg, sendConfig, onEvent, currentAttachments)

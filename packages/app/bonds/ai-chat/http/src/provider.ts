@@ -108,6 +108,7 @@ export class HttpChatProvider implements ChatProvider {
             ...(config.suppressUserMessage ? { suppressUserMessage: true } : {}),
             ...(config.automatic ? { automatic: true } : {}),
             ...(config.userInitiated ? { userInitiated: true } : {}),
+            ...(config.viaDictation ? { viaDictation: true } : {}),
           }),
           signal,
         })

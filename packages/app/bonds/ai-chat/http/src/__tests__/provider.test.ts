@@ -133,6 +133,30 @@ describe('@molecule/app-ai-chat-http', () => {
       )
     })
 
+    it('forwards per-send intent flags in the body (suppressUserMessage/automatic/userInitiated/viaDictation)', async () => {
+      mockFetch.mockResolvedValue(createMockStreamResponse(['data: {"type":"done"}']))
+
+      const provider = new HttpChatProvider({ baseUrl: 'http://localhost:3000' })
+      const onEvent = vi.fn()
+
+      await provider.sendMessage(
+        'add a login page',
+        { ...defaultConfig, viaDictation: true },
+        onEvent,
+      )
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:3000/api/chat',
+        expect.objectContaining({
+          body: JSON.stringify({
+            message: 'add a login page',
+            model: 'test-model',
+            viaDictation: true,
+          }),
+        }),
+      )
+    })
+
     it('should parse SSE stream events', async () => {
       mockFetch.mockResolvedValue(
         createMockStreamResponse([
@@ -493,6 +517,7 @@ describe('@molecule/app-ai-chat-http', () => {
               content: 'auto-fix',
               timestamp: 2,
               automatic: true,
+              viaDictation: true,
               author: { id: 'x', name: 'Ada', avatar: null },
             },
           ],
@@ -507,6 +532,7 @@ describe('@molecule/app-ai-chat-http', () => {
       expect(messages[0].aborted).toBe(true)
       expect(messages[0].loopLimitReached).toBe(25)
       expect(messages[1].automatic).toBe(true)
+      expect(messages[1].viaDictation).toBe(true)
       expect(messages[1].author).toEqual({ id: 'x', name: 'Ada', avatar: null })
     })
 

@@ -295,6 +295,13 @@ export interface SendMessageOptions {
    * normal send path on providers without side-channel support.
    */
   sideChannel?: boolean
+  /**
+   * Mark this send as composed through voice dictation — the mic button's
+   * transcript was still present in the composer at submit. The optimistic
+   * bubble and the persisted message are flagged `viaDictation` so the chat
+   * renders a mic badge on the message, live and after a reload.
+   */
+  viaDictation?: boolean
 }
 
 /**

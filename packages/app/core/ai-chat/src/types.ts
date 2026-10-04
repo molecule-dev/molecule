@@ -162,6 +162,13 @@ export interface ChatMessage {
    * messages) and carries {@link author} for attribution.
    */
   teamOnly?: boolean
+  /**
+   * The user composed this message through voice dictation — text the mic
+   * button dictated was still present in the composer at submit. Display-only:
+   * the chat renders a mic badge on the message (live and on reload) so the
+   * transcript shows HOW it was written; the model request ignores it.
+   */
+  viaDictation?: boolean
 }
 
 /**
@@ -245,6 +252,13 @@ export interface ChatConfig {
    * (and clears the stop). Sent to the server in the request body.
    */
   userInitiated?: boolean
+  /**
+   * When true, the user composed this message through voice dictation (the mic
+   * button's transcript was still present in the composer at submit). Sent to
+   * the server in the request body so it tags the persisted user message —
+   * the mic badge then survives a reload like the live one.
+   */
+  viaDictation?: boolean
 }
 
 /**
