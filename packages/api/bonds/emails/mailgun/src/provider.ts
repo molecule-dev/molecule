@@ -50,18 +50,22 @@ function getTransport(): nodemailerTypes.Transporter {
     // self-hosted / credential-broker endpoint). When unset, nodemailer-mailgun-transport
     // uses its built-in default host, so behaviour is unchanged.
     const host = process.env.MAILGUN_API_HOST
+    const envTimeout = Number(process.env.MAILGUN_TIMEOUT_MS)
+    const timeout = Number.isFinite(envTimeout) && envTimeout > 0 ? envTimeout : 10_000
+    // `timeout` is read by nodemailer-mailgun-transport (src/index.js passes
+    // `options.timeout` to mailgun.js) but missing from @types/nodemailer-mailgun-transport,
+    // so the options live in a variable (no excess-property check, no cast). Without it a
+    // stalled request hangs the sender, and a send that completes after a caller's own
+    // timer fired is reported as failed.
+    const options = {
+      auth: { api_key: apiKey, domain },
+      ...(host ? { host } : {}),
+      timeout,
+    }
     // as-assert: @types/nodemailer-mailgun-transport (1.4.6, pre-generics) makes
     // createTransport infer Transporter<object>; the transport resolves
     // SentMessageInfo at runtime like every other nodemailer transport.
-    _transport = nodemailer.createTransport(
-      mailgun({
-        auth: {
-          api_key: apiKey,
-          domain,
-        },
-        ...(host ? { host } : {}),
-      }),
-    ) as nodemailerTypes.Transporter
+    _transport = nodemailer.createTransport(mailgun(options)) as nodemailerTypes.Transporter
   }
   return _transport
 }

@@ -29,6 +29,12 @@ declare global {
        * the transport's built-in default host is used.
        */
       MAILGUN_API_HOST?: string
+
+      /**
+       * Request timeout for the Mailgun API call, in milliseconds. Default
+       * `10000`. A send that exceeds it fails instead of hanging.
+       */
+      MAILGUN_TIMEOUT_MS?: string
     }
   }
 }

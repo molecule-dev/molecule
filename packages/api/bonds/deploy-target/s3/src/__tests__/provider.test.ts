@@ -263,12 +263,13 @@ describe('S3 client timeouts', () => {
 
   it('applies default timeouts', async () => {
     const c = await build()
-    expect(c.requestHandler).toMatchObject({ connectionTimeout: 10_000, requestTimeout: 60_000 })
+    expect(c.requestHandler).toMatchObject({ connectionTimeout: 10_000, socketTimeout: 60_000 })
+    expect(c.requestHandler).not.toHaveProperty('requestTimeout')
     expect(c.maxAttempts).toBe(3)
   })
 
   it('lets config override them', async () => {
-    const c = await build({ connectionTimeoutMs: 1000, requestTimeoutMs: 2000 })
-    expect(c.requestHandler).toMatchObject({ connectionTimeout: 1000, requestTimeout: 2000 })
+    const c = await build({ connectionTimeoutMs: 1000, socketTimeoutMs: 2000 })
+    expect(c.requestHandler).toMatchObject({ connectionTimeout: 1000, socketTimeout: 2000 })
   })
 })

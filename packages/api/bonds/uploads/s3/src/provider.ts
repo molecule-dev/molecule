@@ -77,13 +77,16 @@ function getS3Client(): S3Client {
       region,
       ...(endpoint ? { endpoint } : {}),
       ...(process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ? { forcePathStyle: true } : {}),
-      // Without timeouts a hung S3 socket stalls the caller forever (the SDK's
-      // request timeout defaults to 0 = wait indefinitely). Plain handler options
+      // Without timeouts a hung S3 socket stalls the caller forever. `socketTimeout`
+      // is an inactivity timeout that destroys a stalled socket (large transfers
+      // that keep moving are unaffected). `requestTimeout` is deliberately unset:
+      // it is a total-time cap that only warns unless `throwOnRequestTimeout` is on,
+      // and enabling that would kill legitimate large uploads. Plain handler options
       // merge with the proxy agents; no `@smithy/*` dependency is needed.
       requestHandler: {
         ...proxy,
         connectionTimeout: envMs('AWS_S3_CONNECTION_TIMEOUT_MS', 10_000),
-        requestTimeout: envMs('AWS_S3_REQUEST_TIMEOUT_MS', 60_000),
+        socketTimeout: envMs('AWS_S3_SOCKET_TIMEOUT_MS', 60_000),
       },
       maxAttempts: 3,
     })

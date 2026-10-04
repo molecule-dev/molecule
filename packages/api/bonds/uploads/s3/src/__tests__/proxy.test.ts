@@ -97,17 +97,18 @@ describe('S3 provider — outbound proxy', () => {
     let config = await buildClient()
     expect(config.requestHandler).toMatchObject({
       connectionTimeout: 10_000,
-      requestTimeout: 60_000,
+      socketTimeout: 60_000,
     })
     expect(config.maxAttempts).toBe(3)
     process.env.AWS_S3_CONNECTION_TIMEOUT_MS = '2000'
-    process.env.AWS_S3_REQUEST_TIMEOUT_MS = '5000'
+    process.env.AWS_S3_SOCKET_TIMEOUT_MS = '5000'
     try {
       config = await buildClient()
-      expect(config.requestHandler).toMatchObject({ connectionTimeout: 2000, requestTimeout: 5000 })
+      expect(config.requestHandler).toMatchObject({ connectionTimeout: 2000, socketTimeout: 5000 })
+      expect(config.requestHandler).not.toHaveProperty('requestTimeout')
     } finally {
       delete process.env.AWS_S3_CONNECTION_TIMEOUT_MS
-      delete process.env.AWS_S3_REQUEST_TIMEOUT_MS
+      delete process.env.AWS_S3_SOCKET_TIMEOUT_MS
     }
   })
 })

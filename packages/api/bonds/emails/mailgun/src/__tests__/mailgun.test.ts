@@ -225,6 +225,26 @@ describe('Mailgun Email Provider', () => {
     })
   })
 
+  describe('request timeout', () => {
+    it('defaults to 10 s and honours MAILGUN_TIMEOUT_MS', async () => {
+      mockSendMail.mockResolvedValue({ accepted: [], rejected: [] })
+      const mailgun = (await import('nodemailer-mailgun-transport')).default as ReturnType<
+        typeof vi.fn
+      >
+      const { sendMail } = await import('../provider.js')
+      await sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+      expect(mailgun).toHaveBeenLastCalledWith(expect.objectContaining({ timeout: 10_000 }))
+
+      vi.resetModules()
+      process.env.MAILGUN_TIMEOUT_MS = '2500'
+      const mg2 = (await import('nodemailer-mailgun-transport')).default as ReturnType<typeof vi.fn>
+      const mod2 = await import('../provider.js')
+      await mod2.sendMail({ to: 'test@test.com', subject: 'Test', text: 'x' })
+      expect(mg2).toHaveBeenLastCalledWith(expect.objectContaining({ timeout: 2500 }))
+      delete process.env.MAILGUN_TIMEOUT_MS
+    })
+  })
+
   describe('MAILGUN_API_HOST override', () => {
     it('should pass host to the transport when MAILGUN_API_HOST is set', async () => {
       process.env.MAILGUN_API_HOST = 'api.eu.mailgun.net'
@@ -260,6 +280,7 @@ describe('Mailgun Email Provider', () => {
       expect(opts).not.toHaveProperty('host')
       expect(opts).toEqual({
         auth: { api_key: 'test-mailgun-api-key', domain: 'test.mailgun.org' },
+        timeout: 10_000,
       })
     })
   })

@@ -148,12 +148,14 @@ function buildClient(config: S3DeployTargetConfig): S3SendClient {
     // S3-compatible stores reject the SDK's default CRC32 trailers on PUT.
     requestChecksumCalculation: 'WHEN_REQUIRED',
     responseChecksumValidation: 'WHEN_REQUIRED',
-    // Without timeouts a hung S3 socket stalls the caller forever (the SDK's
-    // request timeout defaults to 0 = wait indefinitely).
+    // Without timeouts a hung S3 socket stalls the caller forever. `socketTimeout`
+    // is an inactivity timeout that destroys a stalled socket. `requestTimeout` is
+    // deliberately unset: it is a total-time cap that only warns unless
+    // `throwOnRequestTimeout` is on, which would kill legitimate large uploads.
     requestHandler: {
       ...proxy,
       connectionTimeout: config.connectionTimeoutMs ?? 10_000,
-      requestTimeout: config.requestTimeoutMs ?? 60_000,
+      socketTimeout: config.socketTimeoutMs ?? 60_000,
     },
     maxAttempts: 3,
   })

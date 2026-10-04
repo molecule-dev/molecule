@@ -75,8 +75,8 @@ export interface S3DeployTargetConfig {
   name?: string
   /** Milliseconds to wait for the S3 connection to open. Default 10000. */
   connectionTimeoutMs?: number
-  /** Milliseconds to wait for an S3 request to complete. Default 60000. */
-  requestTimeoutMs?: number
+  /** Milliseconds of socket inactivity after which a stalled S3 request is aborted. Default 60000. */
+  socketTimeoutMs?: number
   /** Parallel uploads per deploy. Default 16. */
   concurrency?: number
   /**
