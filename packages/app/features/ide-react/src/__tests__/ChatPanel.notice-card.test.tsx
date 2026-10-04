@@ -249,4 +249,44 @@ describe('ChatPanel unified notice cards', () => {
     expect(gold.querySelector('a[href="/pricing"]')).not.toBeNull()
     expect(gold.textContent).toContain('upgrade options')
   })
+
+  it('opens a protocol-relative //host action like an external link (new tab + noopener)', async () => {
+    // `//host` carries no scheme, so the scheme gate lets it anchor — but the
+    // browser resolves it against the page's protocol to ANOTHER origin. It
+    // must open like an http(s) action: `target="_blank"` +
+    // `rel="noopener noreferrer"`, never a same-tab off-origin navigation.
+    registerCustomEventCard('t_proto_relative', () => ({
+      text: 'Your session expired.',
+      tone: 'info',
+      action: [
+        { label: 'Re-auth', href: '//accounts.example.test/login' },
+        { label: 'Docs', href: '/docs' },
+        { label: 'Status', href: 'https://status.example.test' },
+      ],
+    }))
+    const container = renderWithCards(['t_proto_relative'])
+    await waitFor(() => {
+      expect(container.querySelectorAll('[data-mol-id="chat-notice-card"]').length).toBe(1)
+    })
+
+    const protoRelative = container.querySelector(
+      'a[href="//accounts.example.test/login"]',
+    ) as HTMLAnchorElement
+    expect(protoRelative).not.toBeNull()
+    expect(protoRelative.getAttribute('target')).toBe('_blank')
+    expect(protoRelative.getAttribute('rel')).toBe('noopener noreferrer')
+
+    // An app-ROUTE action stays same-tab (no target/rel)…
+    const route = container.querySelector('a[href="/docs"]') as HTMLAnchorElement
+    expect(route).not.toBeNull()
+    expect(route.getAttribute('target')).toBeNull()
+    expect(route.getAttribute('rel')).toBeNull()
+
+    // …and an https action opens in a new tab with noopener as before.
+    const https = container.querySelector(
+      'a[href="https://status.example.test"]',
+    ) as HTMLAnchorElement
+    expect(https.getAttribute('target')).toBe('_blank')
+    expect(https.getAttribute('rel')).toBe('noopener noreferrer')
+  })
 })

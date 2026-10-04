@@ -1514,14 +1514,20 @@ function NoticeCard({
               }
               // An unapproved scheme (`javascript:`, `data:` …) never becomes an
               // anchor — the label renders as inert text, same policy as the
-              // markdown link allowlist.
+              // markdown link allowlist. A protocol-relative href (`//host`)
+              // carries no scheme either, but the browser resolves it against
+              // the page's protocol to ANOTHER origin — so it opens like an
+              // http(s) link: new tab, `noopener noreferrer`, never a same-tab
+              // navigation off-origin.
+              const externalHref =
+                !!act.href && (/^https?:\/\//i.test(act.href) || act.href.startsWith('//'))
               return act.href ? (
                 isAllowedLinkHref(act.href) ? (
                   <a
                     key={i}
                     href={act.href}
-                    target={act.href.startsWith('http') ? '_blank' : undefined}
-                    rel={act.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    target={externalHref ? '_blank' : undefined}
+                    rel={externalHref ? 'noopener noreferrer' : undefined}
                     className={className}
                     style={actionStyle}
                   >
