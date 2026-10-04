@@ -645,6 +645,35 @@ describe('@molecule/app-utilities', () => {
 
         warnSpy.mockRestore()
       })
+
+      it('should refuse a scheme hidden behind leading C0 controls/space (parsers strip them pre-scheme)', () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        warnSpy.mockClear()
+
+        // '\u0001javascript:…' used to pass as "relative" (no visible scheme)
+        // while the browser executes it as javascript: after stripping the
+        // leading control. Same for a leading space.
+        openUrl('\u0001javascript:alert(1)')
+        openUrl(' javascript:alert(1)')
+        openUrl('\u0000\u0010javascript:alert(1)', { newWindow: true })
+
+        expect(warnSpy).toHaveBeenCalledTimes(3)
+        expect(windowOpenSpy).not.toHaveBeenCalled()
+        expect(window.location.href).toBe('')
+
+        warnSpy.mockRestore()
+      })
+
+      it('should still allow a leading control/space before a relative path or https URL', () => {
+        openUrl(' /dashboard')
+        expect(window.location.href).toBe(' /dashboard')
+        openUrl('\u0001https://example.com', { newWindow: true })
+        expect(windowOpenSpy).toHaveBeenCalledWith(
+          '\u0001https://example.com',
+          '_blank',
+          'noopener,noreferrer',
+        )
+      })
     })
 
     describe('handleAnchorClick', () => {

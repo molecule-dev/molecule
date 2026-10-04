@@ -87,13 +87,19 @@ const OPEN_URL_ALLOWED_SCHEMES = new Set(['http:', 'https:'])
 /**
  * Scheme check for {@link openUrl}. Tab/CR/LF are stripped first because
  * browsers ignore them anywhere in a URL — `java\tscript:alert(1)` parses as
- * `javascript:` — and the scheme is then read the way a URL parser will.
+ * `javascript:` — and leading C0 controls/space are stripped too, because a
+ * URL parser drops them BEFORE scheme detection (`'\u0001javascript:…'`
+ * executes as `javascript:`, so it must not read as a scheme-less relative
+ * path). The scheme is then read the way a URL parser will.
  *
  * @param rawUrl - The raw target URL.
  * @returns `true` when the target is relative or http(s).
  */
 const hasOpenUrlAllowedScheme = (rawUrl: string): boolean => {
-  const cleaned = rawUrl.replace(/[\t\r\n]/g, '')
+  const cleaned = rawUrl
+    .replace(/[\t\r\n]/g, '')
+    // eslint-disable-next-line no-control-regex -- strip LEADING C0 controls/space the way a URL parser does before scheme parsing
+    .replace(/^[\u0000-\u0020]+/, '')
   const scheme = /^([a-z][a-z0-9+.-]*:)/i.exec(cleaned)?.[1]?.toLowerCase()
   return scheme === undefined || OPEN_URL_ALLOWED_SCHEMES.has(scheme)
 }
