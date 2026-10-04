@@ -39,6 +39,15 @@
  * doubling backoff) so return 409 rather than erroring; and Stop/unload
  * aborts POST to `<endpoint>-abort` (suffix on the pathname, query kept)
  * with `{ conversationId?, userInitiated? }` via sendBeacon.
+ *
+ * The 409 and the resume flag work together: a resume send (`resume: true`,
+ * empty body) carries `Accept: text/event-stream`, so a server whose turn is
+ * STILL RUNNING can attach the request to that live turn as a stream
+ * subscriber (an `attached` frame, then the turn's remaining frames) instead
+ * of 409ing. NEW sends deliberately do NOT send that Accept header — the
+ * attach path never reads the request body, so a new message must keep the
+ * 409-retry path to run after the current turn; serving it the attach
+ * response would silently drop it.
  * `abortOnServer()`, `isServerStreaming`, and `lastMeta` are extensions on
  * `HttpChatProvider` beyond the core `ChatProvider` type. `loadHistory()`
  * returns `[]` on HTTP errors but REJECTS on network failure; wrap it.

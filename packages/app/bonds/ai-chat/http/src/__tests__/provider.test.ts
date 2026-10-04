@@ -107,6 +107,37 @@ describe('@molecule/app-ai-chat-http', () => {
       const err = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
       expect(err.message).toBe(sentence)
     })
+
+    it('a resume send asks for the event stream so the server can attach it to a live turn', async () => {
+      mockFetch.mockResolvedValue(
+        createMockStreamResponse([
+          'data: {"type":"attached","messageId":"m1"}',
+          'data: {"type":"token","content":"more"}',
+          'data: {"type":"done"}',
+        ]),
+      )
+      const onEvent = vi.fn()
+
+      await new HttpChatProvider().sendMessage('', { ...defaultConfig, resume: true }, onEvent)
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          headers: expect.objectContaining({ Accept: 'text/event-stream' }),
+        }),
+      )
+      expect(onEvent.mock.calls.some(([e]) => e.type === 'attached')).toBe(true)
+      expect(onEvent.mock.calls.some(([e]) => e.type === 'error')).toBe(false)
+    })
+
+    it('a NEW send does not ask for the event stream (its 409 must retry, not attach)', async () => {
+      mockFetch.mockResolvedValue(createMockStreamResponse(['data: {"type":"done"}']))
+
+      await new HttpChatProvider().sendMessage('Hi', defaultConfig, vi.fn())
+
+      const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>
+      expect(headers.Accept).toBeUndefined()
+    })
   })
 
   describe('sendMessage', () => {

@@ -93,6 +93,12 @@ export class HttpChatProvider implements ChatProvider {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            // A resume re-POSTs a turn that may still be RUNNING server-side —
+            // asking for the event stream lets the server attach this request to
+            // that live turn (the `attached` frame) instead of 409ing. New sends
+            // must NOT ask: attaching never reads the body, so a new message has
+            // to keep the 409-retry path below to run after the current turn.
+            ...(config.resume ? { Accept: 'text/event-stream' } : {}),
             ...this.config.headers,
           },
           body: JSON.stringify({
