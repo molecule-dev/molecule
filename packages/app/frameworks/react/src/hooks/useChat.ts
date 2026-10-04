@@ -1721,9 +1721,12 @@ export function useChat(options: UseChatOptions): UseChatResult {
     }
 
     const applyOrphanToolResult = (toolCallId: string, output: unknown): void => {
-      const holder = getMessageStore(storageKey).messages.find((m) =>
-        m.toolCalls?.some((tc) => tc.id === toolCallId),
-      )
+      // Newest-first, and only a call with no output yet: providers whose call ids
+      // restart per response (call_1, call_2…) must not overwrite an older, finished call.
+      const msgs = getMessageStore(storageKey).messages
+      const isPending = (tc: { id: string; output?: unknown }): boolean =>
+        tc.id === toolCallId && tc.output === undefined
+      const holder = [...msgs].reverse().find((m) => m.toolCalls?.some(isPending))
       if (!holder) return
       setMessages((prev) =>
         prev.map((m) =>
@@ -1731,7 +1734,7 @@ export function useChat(options: UseChatOptions): UseChatResult {
             ? {
                 ...m,
                 toolCalls: m.toolCalls.map((tc) =>
-                  tc.id === toolCallId ? { ...tc, output, status: deriveToolStatus(output) } : tc,
+                  isPending(tc) ? { ...tc, output, status: deriveToolStatus(output) } : tc,
                 ),
               }
             : m,

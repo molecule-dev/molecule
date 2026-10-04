@@ -85,6 +85,9 @@ export class HttpChatProvider implements ChatProvider {
       // Retry loop for HTTP 409 — the server holds a per-conversation lock
       // that may not be released yet after a page refresh or rapid resend.
       let response: Response | undefined
+      // Body of a 409, read exactly once per attempt (a body can be consumed only
+      // once, so the error path below reuses this instead of reading it again).
+      let conflictText: string | undefined
       for (let attempt = 0; attempt <= HttpChatProvider.CONFLICT_MAX_RETRIES; attempt++) {
         response = await fetch(url, {
           method: 'POST',
@@ -111,8 +114,18 @@ export class HttpChatProvider implements ChatProvider {
 
         if (response.status !== 409) break
 
-        // Consume the 409 response body to free the connection for the next attempt
-        await response.text().catch(() => {})
+        // Read the 409 body once. The lock-held answer carries no `errorKey`; a
+        // 409 with one (for example `project.deleting`) is a final answer from the
+        // server, shown at once instead of retried.
+        conflictText = await response.text().catch(() => undefined)
+        let hasErrorKey = false
+        try {
+          const parsed = conflictText ? JSON.parse(conflictText) : undefined
+          hasErrorKey = typeof parsed?.errorKey === 'string' && parsed.errorKey.length > 0
+        } catch (_error) {
+          // Not JSON — treat as the legacy lock-held shape.
+        }
+        if (hasErrorKey) break
 
         // 409 Conflict — server lock still held. Wait with exponential backoff.
         if (attempt < HttpChatProvider.CONFLICT_MAX_RETRIES) {
@@ -136,9 +149,11 @@ export class HttpChatProvider implements ChatProvider {
       }
 
       if (!response!.ok) {
-        const text = await response!
-          .text()
-          .catch(() => t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' }))
+        const text =
+          (response!.status === 409
+            ? conflictText
+            : await response!.text().catch(() => undefined)) ??
+          t('chat.error.unknownError', undefined, { defaultValue: 'Unknown error' })
         // Parse structured limit error metadata from JSON responses. `limitType`
         // names the rule that fired; `billingAction` names the remedy the backend
         // resolved (add funds vs. add a payment method vs. upgrade vs. nothing to

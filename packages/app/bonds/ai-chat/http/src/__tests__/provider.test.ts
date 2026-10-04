@@ -50,6 +50,65 @@ describe('@molecule/app-ai-chat-http', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any
 
+  describe('sendMessage — 409 handling', () => {
+    const conflict = (body: string): Record<string, unknown> => {
+      const text = vi.fn().mockResolvedValueOnce(body).mockRejectedValue(new Error('body used'))
+      return { ok: false, status: 409, statusText: 'Conflict', text, body: null }
+    }
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('shows a 409 with an errorKey at once, with the server sentence', async () => {
+      const sentence = 'This project is being deleted.'
+      mockFetch.mockResolvedValue(
+        conflict(JSON.stringify({ error: sentence, errorKey: 'project.deleting' })),
+      )
+      const onEvent = vi.fn()
+
+      await new HttpChatProvider().sendMessage('Hi', defaultConfig, onEvent)
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      const err = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
+      expect(err).toMatchObject({ status: 409, message: sentence })
+    })
+
+    it('retries the lock-held 409 (no errorKey) and then streams', async () => {
+      vi.useFakeTimers()
+      mockFetch
+        .mockResolvedValueOnce(
+          conflict(JSON.stringify({ error: 'A chat request is already in progress' })),
+        )
+        .mockResolvedValueOnce(createMockStreamResponse(['data: {"type":"done"}']))
+      const onEvent = vi.fn()
+
+      const p = new HttpChatProvider().sendMessage('Hi', defaultConfig, onEvent)
+      await vi.runAllTimersAsync()
+      await p
+
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      expect(onEvent.mock.calls.some(([e]) => e.type === 'error')).toBe(false)
+    })
+
+    it("reports the server's text when the lock-held 409 never clears", async () => {
+      vi.useFakeTimers()
+      const sentence = 'A chat request is already in progress for this conversation'
+      mockFetch.mockImplementation(() =>
+        Promise.resolve(conflict(JSON.stringify({ error: sentence }))),
+      )
+      const onEvent = vi.fn()
+
+      const p = new HttpChatProvider().sendMessage('Hi', defaultConfig, onEvent)
+      await vi.runAllTimersAsync()
+      await p
+
+      expect(mockFetch).toHaveBeenCalledTimes(11)
+      const err = onEvent.mock.calls.find(([e]) => e.type === 'error')?.[0]
+      expect(err.message).toBe(sentence)
+    })
+  })
+
   describe('sendMessage', () => {
     it('should send POST request with message and model', async () => {
       mockFetch.mockResolvedValue(

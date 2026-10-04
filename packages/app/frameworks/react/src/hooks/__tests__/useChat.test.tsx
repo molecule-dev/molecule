@@ -3008,6 +3008,48 @@ describe('useChat — resumed turns', () => {
     })
   })
 
+  it('attaches a repeated call id to the newest pending call, leaving an older finished call untouched', async () => {
+    const { provider, emit, complete, startMessage } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('one')
+    })
+    await act(async () => {
+      startMessage(0, 'a1')
+      emit(0, { type: 'tool_use', id: 'call_1', name: 'read_file', input: {} })
+      emit(0, { type: 'tool_result', id: 'call_1', output: { success: true, old: true } })
+      complete(0)
+    })
+    await act(async () => {
+      result.current.sendMessage('two')
+    })
+    await act(async () => {
+      startMessage(1, 'a2')
+      emit(1, { type: 'tool_use', id: 'call_1', name: 'write_file', input: {} })
+      complete(1)
+    })
+    await act(async () => {
+      result.current.sendMessage('three')
+    })
+    const fresh = { success: true, fresh: true }
+    await act(async () => {
+      emit(2, { type: 'tool_result', id: 'call_1', output: fresh })
+      startMessage(2, 'a3')
+      complete(2)
+    })
+
+    await waitFor(() => {
+      const newer = result.current.messages.find((m) => m.id === 'a2')
+      expect(newer?.toolCalls?.[0]?.output).toEqual(fresh)
+    })
+    const older = result.current.messages.find((m) => m.id === 'a1')
+    expect(older?.toolCalls?.[0]?.output).toEqual({ success: true, old: true })
+  })
+
   it('a status line does not end the turn, and clears once the resumed reply starts', async () => {
     const { provider, emit, complete, startMessage, emitText } = createMockProvider()
     const { result } = renderHook(
