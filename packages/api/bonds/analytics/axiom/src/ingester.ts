@@ -172,7 +172,11 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
    * those are counted as dropped, since resending the same events fails the
    * same way).
    */
-  const sendBatch = async (lines: string[], retries = maxRetries): Promise<boolean> => {
+  const sendBatch = async (
+    lines: string[],
+    retries = maxRetries,
+    deadlineAt = Infinity,
+  ): Promise<boolean> => {
     const body = lines.join('\n')
     for (let attempt = 0; attempt <= retries; attempt++) {
       let retryable = true
@@ -182,7 +186,8 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
           method: 'POST',
           headers,
           body,
-          signal: AbortSignal.timeout(timeoutMs),
+          // Inside shutdown() a request never outlives the drain budget.
+          signal: AbortSignal.timeout(Math.max(1, Math.min(timeoutMs, deadlineAt - Date.now()))),
         })
         if (response.ok) {
           let text = ''
@@ -204,7 +209,9 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
         }
         retryable = response.status === 429 || response.status >= 500
         if (response.status === 429 || response.status === 503) {
-          waitMs = retryAfterMs(response.headers.get('retry-after'))
+          const asked = retryAfterMs(response.headers.get('retry-after'))
+          // A `Retry-After: 0` must not remove the backoff.
+          waitMs = asked === null ? null : Math.max(retryBaseMs, asked)
         }
         if (!retryable) {
           let detail = ''
@@ -326,26 +333,45 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
       }
     },
     flush,
-    async shutdown(): Promise<void> {
+    async shutdown({ deadlineMs = 5_000 }: { deadlineMs?: number } = {}): Promise<void> {
       closed = true
       if (timer) clearInterval(timer)
       timer = null
-      if (flushing) await flushing
-      await flush()
-      if (!enabled || queue.length === 0) return
-      // flush() stops at the first batch that ran out of retries (Axiom is
-      // unreachable right now). At shutdown there is no next tick to wait for:
-      // say how much is left, then give every remaining batch one attempt.
+      if (!enabled) return
+      // One budget for the whole drain, so a host's kill timeout (Fly's, a
+      // container's) is never reached mid-drain: no retries here, and no
+      // request or wait outlives what is left of the budget.
+      const deadlineAt = Date.now() + Math.max(0, deadlineMs)
+      if (flushing) {
+        let timeout: ReturnType<typeof setTimeout> | undefined
+        await Promise.race([
+          flushing,
+          new Promise<void>((resolve) => {
+            timeout = setTimeout(resolve, Math.max(0, deadlineAt - Date.now()))
+          }),
+        ])
+        clearTimeout(timeout)
+      }
+      if (queue.length === 0) return
       const pending = queue.length
       const droppedBefore = counters.dropped
-      warn(
-        'shutdown',
-        `shutdown with ${pending} event(s) still pending after a failed batch; trying each remaining batch once`,
-        { pending },
-      )
-      while (queue.length > 0) await sendBatch(takeBatch(), 0)
+      while (queue.length > 0 && Date.now() < deadlineAt) {
+        await sendBatch(takeBatch(), 0, deadlineAt)
+      }
+      let exhausted = 0
+      if (queue.length > 0) {
+        exhausted = queue.length
+        counters.dropped += exhausted
+        queue.length = 0
+      }
       const lost = counters.dropped - droppedBefore
-      if (lost > 0) {
+      if (exhausted > 0) {
+        warn(
+          'shutdown-lost',
+          `shutdown: budget of ${deadlineMs} ms exhausted; ${lost} of ${pending} pending event(s) could not be sent`,
+          { lost, pending, deadlineMs },
+        )
+      } else if (lost > 0) {
         warn(
           'shutdown-lost',
           `shutdown: ${lost} of ${pending} pending event(s) could not be sent`,

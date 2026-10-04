@@ -47,9 +47,11 @@
  *   logger that mirrors into Axiom cannot loop.
  * - **Short-lived processes must `await provider.shutdown()`** (or `flush()`)
  *   before exiting, or queued events are lost. The flush timer is `unref`'d and
- *   does not keep a process alive. If a batch runs out of retries during
- *   `shutdown()`, it warns with the pending count and gives every remaining
- *   batch one attempt. Events tracked after `shutdown()` are counted as
+ *   does not keep a process alive. `shutdown({ deadlineMs = 5000 })`
+ *   drains within that total budget: each remaining batch gets one attempt (no
+ *   retries), no request outlives the budget, and events still queued when it
+ *   runs out are counted as `dropped` and reported in one warning with the
+ *   pending count. A `Retry-After` never waits less than `retryBaseMs`. Events tracked after `shutdown()` are counted as
  *   `dropped`, never queued.
  * - Event shape: `{ _time, kind, event, userId?, anonymousId?, properties?,
  *   service?, env?, region?, version? }`. `kind` is `track` / `identify` /

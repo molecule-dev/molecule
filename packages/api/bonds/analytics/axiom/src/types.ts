@@ -73,10 +73,12 @@ export interface AxiomIngester {
   /** Send everything queued now. Resolves when the queue is drained or a batch has exhausted its retries. */
   flush(): Promise<void>
   /**
-   * Stop the timer and flush what is left. If a batch runs out of retries it warns with the
-   * pending count and gives every remaining batch one attempt, so nothing is abandoned silently.
+   * Stop the timer and drain what is left within a total budget (`deadlineMs`, default 5000):
+   * each remaining batch gets one attempt (no retries) and no request outlives the budget. Events
+   * still queued when it runs out are counted as dropped and reported in one warning with the
+   * pending count.
    */
-  shutdown(): Promise<void>
+  shutdown(options?: { deadlineMs?: number }): Promise<void>
   /** Current counters. */
   stats(): AxiomIngesterStats
 }

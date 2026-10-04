@@ -222,7 +222,7 @@ describe('createAxiomIngester', () => {
     for (let i = 0; i < 5; i++) ingester.ingest({ i })
     await ingester.shutdown()
     expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('still pending'),
+      expect.stringMatching(/shutdown: \d+ of \d+ pending event\(s\) could not be sent/),
       expect.objectContaining({ pending: expect.any(Number) }),
     )
     // every event was either sent or counted, nothing is left in memory
@@ -252,6 +252,76 @@ describe('createAxiomIngester', () => {
       expect.stringMatching(/shutdown: \d+ of \d+ pending event\(s\) could not be sent/),
       expect.anything(),
     )
+  })
+
+  it('shutdown stops at its budget: the rest is counted lost with one warning', async () => {
+    vi.useFakeTimers()
+    const warn = vi.fn()
+    // every request hangs until its own abort signal fires
+    const hang = vi.fn(
+      (_url: string | URL | Request, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+        }),
+    )
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch: hang as unknown as typeof fetch,
+      warn,
+      maxBatchEvents: 1,
+      flushIntervalMs: 60_000,
+    })
+    // one batch is already in flight (hung) when shutdown starts; five are still queued
+    for (let i = 0; i < 6; i++) ingester.ingest({ i })
+    const done = ingester.shutdown({ deadlineMs: 1_000 })
+    await vi.advanceTimersByTimeAsync(1_100)
+    await done
+    expect(ingester.stats()).toMatchObject({ sent: 0, dropped: 5, pending: 0 })
+    const lostWarns = warn.mock.calls.filter(([m]) => String(m).includes('budget'))
+    expect(lostWarns).toHaveLength(1)
+    expect(lostWarns[0][1]).toMatchObject({ pending: 5 })
+    expect(warn).toHaveBeenCalledTimes(1)
+    // the abandoned requests were bounded by the budget, never the full 10 s timeout
+    expect(hang.mock.calls.length).toBeLessThanOrEqual(2)
+  })
+
+  it('a Retry-After of 0 still waits the base backoff', async () => {
+    vi.useFakeTimers()
+    const { fetch, calls } = mockFetch([
+      new Response('slow down', { status: 429, headers: { 'retry-after': '0' } }),
+      okResponse(),
+    ])
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      retryBaseMs: 500,
+      flushIntervalMs: 60_000,
+    })
+    ingester.ingest({ n: 1 })
+    const done = ingester.flush()
+    await vi.advanceTimersByTimeAsync(400)
+    expect(calls).toHaveLength(1)
+    await vi.advanceTimersByTimeAsync(200)
+    await done
+    expect(calls).toHaveLength(2)
+    await ingester.shutdown()
+  })
+
+  it('a 20 s budget drains three small batches', async () => {
+    const { fetch, calls } = mockFetch()
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      maxBatchEvents: 2,
+      flushIntervalMs: 60_000,
+    })
+    for (let i = 0; i < 6; i++) ingester.ingest({ i })
+    await ingester.shutdown({ deadlineMs: 20_000 })
+    expect(calls).toHaveLength(3)
+    expect(ingester.stats()).toMatchObject({ sent: 6, dropped: 0, pending: 0 })
   })
 
   it('ingest after shutdown is a counted no-op, never a queue that nothing drains', async () => {
