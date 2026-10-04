@@ -73,6 +73,10 @@ export interface S3DeployTargetConfig {
   keyPrefix?: string
   /** Provider name recorded on each release. Default `s3`. */
   name?: string
+  /** Milliseconds to wait for the S3 connection to open. Default 10000. */
+  connectionTimeoutMs?: number
+  /** Milliseconds to wait for an S3 request to complete. Default 60000. */
+  requestTimeoutMs?: number
   /** Parallel uploads per deploy. Default 16. */
   concurrency?: number
   /**

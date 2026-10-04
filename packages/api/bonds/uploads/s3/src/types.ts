@@ -52,6 +52,20 @@ declare global {
        * (e.g. MinIO). When unset, the SDK's default addressing is used.
        */
       AWS_S3_FORCE_PATH_STYLE?: string
+
+      /**
+       * Milliseconds to wait for the S3 connection to open.
+       *
+       * @default 10000
+       */
+      AWS_S3_CONNECTION_TIMEOUT_MS?: string
+
+      /**
+       * Milliseconds to wait for an S3 request to complete.
+       *
+       * @default 60000
+       */
+      AWS_S3_REQUEST_TIMEOUT_MS?: string
     }
   }
 }

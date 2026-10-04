@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { DeployTargetRequest, StaticSiteManifest } from '@molecule/api-deploy-target'
 
@@ -239,5 +239,36 @@ describe('contentTypeFor', () => {
     expect(contentTypeFor('/feed.xml')).toBe('application/xml')
     expect(contentTypeFor('/LICENSE')).toBe('application/octet-stream')
     expect(contentTypeFor('/.htaccess')).toBe('application/octet-stream')
+  })
+})
+
+describe('S3 client timeouts', () => {
+  const build = async (extra: Record<string, unknown> = {}): Promise<Record<string, unknown>> => {
+    vi.resetModules()
+    const ctor = vi.fn()
+    vi.doMock('@aws-sdk/client-s3', async (orig) => ({
+      ...(await orig<object>()),
+      S3Client: vi.fn(function (this: unknown, c: unknown) {
+        ctor(c)
+        return { send: vi.fn(async () => ({})) }
+      }),
+    }))
+    const mod = await import('../provider.js')
+    await mod
+      .createS3DeployTarget({ bucket: 'b', publicBaseUrl: 'https://b', ...extra })
+      .remove('x')
+    vi.doUnmock('@aws-sdk/client-s3')
+    return ctor.mock.calls[0][0] as Record<string, unknown>
+  }
+
+  it('applies default timeouts', async () => {
+    const c = await build()
+    expect(c.requestHandler).toMatchObject({ connectionTimeout: 10_000, requestTimeout: 60_000 })
+    expect(c.maxAttempts).toBe(3)
+  })
+
+  it('lets config override them', async () => {
+    const c = await build({ connectionTimeoutMs: 1000, requestTimeoutMs: 2000 })
+    expect(c.requestHandler).toMatchObject({ connectionTimeout: 1000, requestTimeout: 2000 })
   })
 })

@@ -481,9 +481,9 @@ describe('S3 Provider', () => {
       // Trigger lazy initialization by accessing a property
       void s3Client.config
 
-      expect(S3Client).toHaveBeenCalledWith({
-        region: 'us-east-1',
-      })
+      expect(S3Client).toHaveBeenCalledWith(
+        expect.objectContaining({ region: 'us-east-1', maxAttempts: 3 }),
+      )
     })
 
     it('should default region to us-east-1', async () => {
@@ -496,9 +496,9 @@ describe('S3 Provider', () => {
       // Trigger lazy initialization by accessing a property
       void s3Client.config
 
-      expect(S3Client).toHaveBeenCalledWith({
-        region: 'us-east-1',
-      })
+      expect(S3Client).toHaveBeenCalledWith(
+        expect.objectContaining({ region: 'us-east-1', maxAttempts: 3 }),
+      )
     })
 
     it('should not set endpoint or forcePathStyle by default', async () => {

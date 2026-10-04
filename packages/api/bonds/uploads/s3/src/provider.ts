@@ -30,6 +30,18 @@ import type { File } from './types.js'
  * process.env values have been populated by resolveAll() first.
  */
 let _s3Client: S3Client | null = null
+
+/**
+ * Read a positive millisecond value from the environment.
+ *
+ * @param name - Environment variable name.
+ * @param fallback - Value used when unset or not a positive number.
+ * @returns The milliseconds.
+ */
+function envMs(name: string, fallback: number): number {
+  const n = Number(process.env[name])
+  return Number.isFinite(n) && n > 0 ? n : fallback
+}
 /**
  * Returns the lazily-initialized S3 client. Reads `AWS_S3_REGION` on first call.
  * @returns The shared `S3Client` instance.
@@ -65,7 +77,15 @@ function getS3Client(): S3Client {
       region,
       ...(endpoint ? { endpoint } : {}),
       ...(process.env.AWS_S3_FORCE_PATH_STYLE === 'true' ? { forcePathStyle: true } : {}),
-      ...(proxy ? { requestHandler: proxy } : {}),
+      // Without timeouts a hung S3 socket stalls the caller forever (the SDK's
+      // request timeout defaults to 0 = wait indefinitely). Plain handler options
+      // merge with the proxy agents; no `@smithy/*` dependency is needed.
+      requestHandler: {
+        ...proxy,
+        connectionTimeout: envMs('AWS_S3_CONNECTION_TIMEOUT_MS', 10_000),
+        requestTimeout: envMs('AWS_S3_REQUEST_TIMEOUT_MS', 60_000),
+      },
+      maxAttempts: 3,
     })
   }
   return _s3Client

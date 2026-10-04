@@ -148,7 +148,14 @@ function buildClient(config: S3DeployTargetConfig): S3SendClient {
     // S3-compatible stores reject the SDK's default CRC32 trailers on PUT.
     requestChecksumCalculation: 'WHEN_REQUIRED',
     responseChecksumValidation: 'WHEN_REQUIRED',
-    ...(proxy ? { requestHandler: proxy } : {}),
+    // Without timeouts a hung S3 socket stalls the caller forever (the SDK's
+    // request timeout defaults to 0 = wait indefinitely).
+    requestHandler: {
+      ...proxy,
+      connectionTimeout: config.connectionTimeoutMs ?? 10_000,
+      requestTimeout: config.requestTimeoutMs ?? 60_000,
+    },
+    maxAttempts: 3,
   })
 }
 

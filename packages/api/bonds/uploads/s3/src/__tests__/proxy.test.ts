@@ -66,7 +66,7 @@ describe('S3 provider — outbound proxy', () => {
 
   it('passes NO requestHandler when the proxy env is absent', async () => {
     const config = await buildClient()
-    expect(config).not.toHaveProperty('requestHandler')
+    expect(config.requestHandler).not.toHaveProperty('httpsAgent')
     expect(config.region).toBe('us-east-1')
   })
 
@@ -90,6 +90,24 @@ describe('S3 provider — outbound proxy', () => {
     process.env.HTTP_PROXY = 'http://proxy.internal:3128'
     process.env.NO_PROXY = 'minio.internal'
     const config = await buildClient()
-    expect(config).not.toHaveProperty('requestHandler')
+    expect(config.requestHandler).not.toHaveProperty('httpAgent')
+  })
+
+  it('sets default timeouts and lets the environment override them', async () => {
+    let config = await buildClient()
+    expect(config.requestHandler).toMatchObject({
+      connectionTimeout: 10_000,
+      requestTimeout: 60_000,
+    })
+    expect(config.maxAttempts).toBe(3)
+    process.env.AWS_S3_CONNECTION_TIMEOUT_MS = '2000'
+    process.env.AWS_S3_REQUEST_TIMEOUT_MS = '5000'
+    try {
+      config = await buildClient()
+      expect(config.requestHandler).toMatchObject({ connectionTimeout: 2000, requestTimeout: 5000 })
+    } finally {
+      delete process.env.AWS_S3_CONNECTION_TIMEOUT_MS
+      delete process.env.AWS_S3_REQUEST_TIMEOUT_MS
+    }
   })
 })
