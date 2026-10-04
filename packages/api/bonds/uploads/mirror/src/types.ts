@@ -143,13 +143,22 @@ export interface MirrorUploadProvider extends UploadProvider {
   /**
    * Reads a file from the first target (in config order) that has it.
    *
+   * A copy whose target is NOT in this mirror's config counts as an error for
+   * that copy (not as missing): the read moves on to the next copy, and when
+   * no copy served, the error is thrown rather than `null`.
+   *
    * @param id - A mirror id, or a raw id stored before mirroring.
    * @returns A stream, or `null` when every target reported the file missing.
    */
   getFile(id: string): Promise<NodeJS.ReadableStream | null>
 
   /**
-   * Deletes every copy of a file.
+   * Deletes every copy of a file. THROWS when a REQUIRED target's delete fails
+   * or when the id names a target that is not in this mirror's config; a
+   * failed delete on an optional target is reported (`onTargetFailure` +
+   * `trackBondFailure`) and the call still resolves — a caller that must
+   * know a particular copy went deletes it through a mirror whose target is
+   * marked required.
    *
    * @param id - A mirror id, or a raw id stored before mirroring.
    */
