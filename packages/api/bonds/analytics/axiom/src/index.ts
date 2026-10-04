@@ -41,17 +41,23 @@
  *   exponential backoff (`maxRetries` 4, from `retryBaseMs` 500 ms); a 429/503
  *   with `Retry-After` waits that long instead (at most 60 s); other 4xx drop
  *   the batch. A 200 whose body reports `failed` events counts only the stored
- *   ones as `sent` and the rest as `dropped` (with a warning). When `maxQueueEvents` (10 000) are waiting, new events are
- *   dropped. Every kind of failure warns at most once a minute, through
+ *   ones as `sent` and the rest as `dropped` (with a warning). When `maxQueueEvents` (10 000) are waiting, or the
+ *   queue holds `maxQueueBytes` (32 MB, never less than `maxBatchBytes`), a new
+ *   event is dropped and counted — the older queued events are kept, so the
+ *   record stays contiguous from where sending stopped; a single event larger
+ *   than `maxBatchBytes` is dropped, never queued. Every kind of failure warns at most once a minute, through
  *   `console.warn` (or the `warn` option) — never through a logger bond, so a
  *   logger that mirrors into Axiom cannot loop.
  * - **Short-lived processes must `await provider.shutdown()`** (or `flush()`)
  *   before exiting, or queued events are lost. The flush timer is `unref`'d and
- *   does not keep a process alive. `shutdown({ deadlineMs = 5000 })`
- *   drains within that total budget: each remaining batch gets one attempt (no
- *   retries), no request outlives the budget, and events still queued when it
- *   runs out are counted as `dropped` and reported in one warning with the
- *   pending count. A `Retry-After` never waits less than `retryBaseMs`. Events tracked after `shutdown()` are counted as
+ *   does not keep a process alive. `shutdown({ deadlineMs })` (default
+ *   5000 ms; pass a larger budget if your host waits longer before killing the
+ *   process) drains within that total budget: each remaining batch gets one
+ *   attempt (no retries). At the deadline everything still running stops,
+ *   including a flush already in flight with its retries and `Retry-After`
+ *   waits, so nothing keeps the process alive after `shutdown()` resolves.
+ *   Events not sent by then (queued or in flight) are counted as `dropped`
+ *   and reported in one warning with the pending count. A `Retry-After` never waits less than `retryBaseMs`. Events tracked after `shutdown()` are counted as
  *   `dropped`, never queued.
  * - Event shape: `{ _time, kind, event, userId?, anonymousId?, properties?,
  *   service?, env?, region?, version? }`. `kind` is `track` / `identify` /

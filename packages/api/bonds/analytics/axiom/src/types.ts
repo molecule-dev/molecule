@@ -31,6 +31,12 @@ export interface AxiomIngesterOptions {
   /** Most events held in memory (default 10_000). Further events are dropped. */
   maxQueueEvents?: number
   /**
+   * Most bytes held in memory, counting each serialized event plus its newline (default
+   * 32_000_000; never less than `maxBatchBytes`). When a new event would exceed it, that new event
+   * is dropped and counted; the queued (older) events are kept.
+   */
+  maxQueueBytes?: number
+  /**
    * Retries per batch after the first attempt, for network errors, 429 and 5xx (default 4).
    * A 429/503 with `Retry-After` waits that long (at most 60 s) instead of the backoff.
    */
@@ -47,6 +53,15 @@ export interface AxiomIngesterOptions {
   warn?: (message: string, detail?: Record<string, unknown>) => void
 }
 
+/** Options for `shutdown()`. */
+export interface AxiomShutdownOptions {
+  /**
+   * Total budget in ms for the final drain (default 5000). At the deadline every request in
+   * flight, retry wait and drain still running stops; whatever was not sent is counted as dropped.
+   */
+  deadlineMs?: number
+}
+
 /** Running counters, for health reporting and tests. */
 export interface AxiomIngesterStats {
   /** Events accepted into the queue. */
@@ -54,7 +69,7 @@ export interface AxiomIngesterStats {
   /** Events Axiom stored (a 200 can report some events of a batch as failed; those are not sent). */
   sent: number
   /**
-   * Events dropped (queue full, oversized, unserializable, rejected, failed inside an
+   * Events dropped (queue full by count or bytes, oversized, unserializable, rejected, failed inside an
    * acknowledged batch, out of retries, or ingested after `shutdown()`).
    */
   dropped: number
@@ -74,11 +89,12 @@ export interface AxiomIngester {
   flush(): Promise<void>
   /**
    * Stop the timer and drain what is left within a total budget (`deadlineMs`, default 5000):
-   * each remaining batch gets one attempt (no retries) and no request outlives the budget. Events
-   * still queued when it runs out are counted as dropped and reported in one warning with the
-   * pending count.
+   * each remaining batch gets one attempt (no retries). At the deadline everything still running
+   * stops — including a flush that was already in flight, with its retries — so no work outlives
+   * the returned promise. Events not sent by then (queued or in flight) are counted as dropped and
+   * reported in one warning with the pending count.
    */
-  shutdown(options?: { deadlineMs?: number }): Promise<void>
+  shutdown(options?: AxiomShutdownOptions): Promise<void>
   /** Current counters. */
   stats(): AxiomIngesterStats
 }
@@ -105,8 +121,8 @@ export interface AxiomAnalyticsProvider extends AnalyticsProvider {
   group(groupId: string, traits?: Record<string, unknown>): Promise<void>
   /** Send everything queued now. */
   flush(): Promise<void>
-  /** Stop the flush timer and send what is left. Call before the process exits. */
-  shutdown(): Promise<void>
+  /** Stop the flush timer and send what is left within `deadlineMs` (default 5000). Call before the process exits. */
+  shutdown(options?: AxiomShutdownOptions): Promise<void>
   /** Queue/sent/dropped counters. */
   stats(): AxiomIngesterStats
 }

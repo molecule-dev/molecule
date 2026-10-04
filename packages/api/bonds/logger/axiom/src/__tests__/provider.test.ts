@@ -34,6 +34,7 @@ const recorder = (): Logger & { lines: Array<[string, unknown[]]> } => {
 }
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.unstubAllEnvs()
 })
 
@@ -101,5 +102,55 @@ describe('createLogger', () => {
     log.info('hi', { a: 1 })
     await log.flush()
     expect(parse(bodies[0])[0].fields).toEqual({ a: 1 })
+  })
+
+  it('passes the shutdown budget through to the ingester', async () => {
+    vi.useFakeTimers()
+    const warn = vi.fn()
+    const hang = vi.fn(
+      (_url: string | URL | Request, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+        }),
+    )
+    const log = createLogger({
+      token: 't',
+      dataset: 'd',
+      fetch: hang as unknown as typeof fetch,
+      inner: null,
+      warn,
+      flushIntervalMs: 60_000,
+    })
+    log.error('boom')
+    let resolved = false
+    const done = log.shutdown({ deadlineMs: 300 }).then(() => {
+      resolved = true
+    })
+    await vi.advanceTimersByTimeAsync(299)
+    expect(resolved).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+    await done
+    expect(resolved).toBe(true)
+    expect(warn.mock.calls[0][1]).toMatchObject({ deadlineMs: 300, lost: 1 })
+  })
+
+  it('drops new lines past maxQueueBytes but still writes them to the inner logger', async () => {
+    const inner = recorder()
+    const { fetch, bodies } = okFetch()
+    const log = createLogger({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      inner,
+      warn: () => {},
+      maxBatchBytes: 2_000,
+      maxQueueBytes: 3_500, // two ~1.5 KB lines fit, a third does not
+      flushIntervalMs: 60_000,
+    })
+    const big = 'x'.repeat(1_400)
+    for (let i = 0; i < 4; i++) log.warn('line', { i, big })
+    await log.flush()
+    expect(inner.lines).toHaveLength(4)
+    expect(bodies.flatMap(parse)).toHaveLength(2)
   })
 })

@@ -80,7 +80,7 @@ export function createProvider(options: AxiomAnalyticsOptions = {}): AxiomAnalyt
       emit('group', { event: 'group', groupId, properties: traits })
     },
     flush: () => ingester.flush(),
-    shutdown: () => ingester.shutdown(),
+    shutdown: (shutdownOptions) => ingester.shutdown(shutdownOptions),
     stats: () => ingester.stats(),
   }
 }
@@ -105,6 +105,6 @@ export const provider: AxiomAnalyticsProvider = {
   page: (pageView) => getDefault().page(pageView),
   group: (groupId, traits) => getDefault().group(groupId, traits),
   flush: () => getDefault().flush(),
-  shutdown: () => getDefault().shutdown(),
+  shutdown: (shutdownOptions) => getDefault().shutdown(shutdownOptions),
   stats: () => getDefault().stats(),
 }

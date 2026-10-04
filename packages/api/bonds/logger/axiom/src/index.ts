@@ -48,6 +48,14 @@
  * - Ingest failures warn through `console.warn` at most once a minute per kind
  *   and never through this logger, so an unreachable Axiom cannot loop.
  * - Short-lived processes: `await logger.shutdown()` (or `flush()`) before exit.
+ *   `shutdown({ deadlineMs })` bounds the final drain (default 5000 ms; raise it
+ *   if your host waits longer before killing the process): at the deadline
+ *   every send still running stops, including one already in flight, and
+ *   unsent lines are counted as dropped with one warning.
+ * - Memory is bounded twice: at most `maxQueueEvents` (10 000) lines and
+ *   `maxQueueBytes` (32 MB) wait in memory; past either, NEW lines are dropped
+ *   (the inner logger still gets them), and a single line larger than
+ *   `maxBatchBytes` (1 MB) is never queued.
  *
  * @module
  */

@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { AxiomIngesterOptions } from '@molecule/api-analytics-axiom'
+import type { AxiomIngesterOptions, AxiomShutdownOptions } from '@molecule/api-analytics-axiom'
 import type { Logger, LogLevel } from '@molecule/api-logger'
 
 /** How a log line's structured fields are stored in Axiom. */
@@ -38,6 +38,6 @@ export interface AxiomLogger extends Logger {
   readonly enabled: boolean
   /** Send every queued line now. */
   flush(): Promise<void>
-  /** Stop the flush timer and send what is left. */
-  shutdown(): Promise<void>
+  /** Stop the flush timer and send what is left within `deadlineMs` (default 5000). */
+  shutdown(options?: AxiomShutdownOptions): Promise<void>
 }

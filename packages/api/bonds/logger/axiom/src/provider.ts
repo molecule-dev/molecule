@@ -113,7 +113,7 @@ export function createLogger(options: AxiomLoggerOptions = {}): AxiomLogger {
     warn: write('warn'),
     error: write('error'),
     flush: () => ingester.flush(),
-    shutdown: () => ingester.shutdown(),
+    shutdown: (shutdownOptions) => ingester.shutdown(shutdownOptions),
   }
 }
 
@@ -135,5 +135,5 @@ export const provider: AxiomLogger = {
   warn: (...args) => getDefault().warn(...args),
   error: (...args) => getDefault().error(...args),
   flush: () => getDefault().flush(),
-  shutdown: () => getDefault().shutdown(),
+  shutdown: (shutdownOptions) => getDefault().shutdown(shutdownOptions),
 }

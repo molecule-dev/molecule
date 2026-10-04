@@ -277,13 +277,48 @@ describe('createAxiomIngester', () => {
     const done = ingester.shutdown({ deadlineMs: 1_000 })
     await vi.advanceTimersByTimeAsync(1_100)
     await done
-    expect(ingester.stats()).toMatchObject({ sent: 0, dropped: 5, pending: 0 })
+    // the in-flight batch is counted too, not silently abandoned
+    expect(ingester.stats()).toMatchObject({ sent: 0, dropped: 6, pending: 0 })
     const lostWarns = warn.mock.calls.filter(([m]) => String(m).includes('budget'))
     expect(lostWarns).toHaveLength(1)
-    expect(lostWarns[0][1]).toMatchObject({ pending: 5 })
+    expect(lostWarns[0][1]).toMatchObject({ pending: 6, lost: 6 })
     expect(warn).toHaveBeenCalledTimes(1)
     // the abandoned requests were bounded by the budget, never the full 10 s timeout
     expect(hang.mock.calls.length).toBeLessThanOrEqual(2)
+  })
+
+  it('shutdown stops an in-flight drain at the deadline: no retry or Retry-After wait outlives it', async () => {
+    vi.useFakeTimers()
+    const warn = vi.fn()
+    const slowDown = (): Response =>
+      new Response('slow down', { status: 429, headers: { 'retry-after': '60' } })
+    const { fetch, calls } = mockFetch([slowDown(), slowDown(), slowDown(), slowDown(), slowDown()])
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      warn,
+      maxBatchEvents: 2,
+      flushIntervalMs: 60_000,
+    })
+    // a full batch starts a drain that gets a 429 and waits 60 s before its retry
+    for (let i = 0; i < 3; i++) ingester.ingest({ i })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(calls).toHaveLength(1)
+    let resolved = false
+    const done = ingester.shutdown({ deadlineMs: 1_000 }).then(() => {
+      resolved = true
+    })
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(resolved).toBe(true)
+    await done
+    // in flight (2) + queued (1) were all counted, in one warning
+    expect(ingester.stats()).toMatchObject({ sent: 0, dropped: 3, pending: 0 })
+    expect(warn).toHaveBeenCalledTimes(1)
+    expect(warn.mock.calls[0][1]).toMatchObject({ pending: 3, lost: 3 })
+    // and the abandoned drain never sends again
+    await vi.advanceTimersByTimeAsync(10 * 60_000)
+    expect(calls).toHaveLength(1)
   })
 
   it('a Retry-After of 0 still waits the base backoff', async () => {
@@ -351,6 +386,62 @@ describe('createAxiomIngester', () => {
     for (let i = 0; i < 6; i++) ingester.ingest({ i })
     expect(ingester.stats()).toMatchObject({ pending: 2, dropped: 4 })
     expect(warn.mock.calls.filter(([m]) => String(m).includes('queue full'))).toHaveLength(1)
+  })
+
+  it('drops a NEW event once the queue holds maxQueueBytes, keeping the older ones', () => {
+    const warn = vi.fn()
+    const { fetch } = mockFetch()
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      warn,
+      maxBatchBytes: 2_000,
+      maxQueueBytes: 5_000,
+      maxBatchEvents: 100,
+      flushIntervalMs: 60_000,
+    })
+    const big = 'x'.repeat(1_400) // each event ~1.45 KB serialized: three fit in 5 KB, four do not
+    for (let i = 0; i < 6; i++) ingester.ingest({ i, big })
+    expect(ingester.stats()).toMatchObject({ queued: 3, pending: 3, dropped: 3 })
+    expect(
+      warn.mock.calls.filter(([m]) => String(m).includes('queue full (5000 bytes)')),
+    ).toHaveLength(1)
+    // a small event still fits in what is left
+    ingester.ingest({ small: true })
+    expect(ingester.stats()).toMatchObject({ pending: 4, dropped: 3 })
+  })
+
+  it('frees queue bytes as batches are sent, and never queues an event over maxBatchBytes', async () => {
+    const warn = vi.fn()
+    const { fetch, calls } = mockFetch()
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      warn,
+      maxBatchBytes: 2_000,
+      maxQueueBytes: 3_000,
+      maxBatchEvents: 100,
+      flushIntervalMs: 60_000,
+    })
+    const big = 'x'.repeat(1_400)
+    ingester.ingest({ big: 'y'.repeat(5_000) })
+    expect(ingester.stats()).toMatchObject({ queued: 0, pending: 0, dropped: 1 })
+    expect(
+      warn.mock.calls.filter(([m]) => String(m).includes('larger than 2000 bytes')),
+    ).toHaveLength(1)
+    ingester.ingest({ n: 1, big })
+    ingester.ingest({ n: 2, big })
+    ingester.ingest({ n: 3, big })
+    expect(ingester.stats()).toMatchObject({ pending: 2, dropped: 2 })
+    await ingester.flush()
+    expect(calls).toHaveLength(2)
+    // the sent bytes were released, so the queue takes two more
+    ingester.ingest({ n: 4, big })
+    ingester.ingest({ n: 5, big })
+    expect(ingester.stats()).toMatchObject({ pending: 2, dropped: 2, sent: 2 })
+    await ingester.shutdown()
   })
 
   it('applies beforeSend and drops events it returns null for', async () => {
@@ -432,6 +523,35 @@ describe('createProvider', () => {
     expect(identify).toMatchObject({ kind: 'identify', properties: { email: 'a@b.c' } })
     expect(page).toMatchObject({ kind: 'page', event: 'page.view', properties: { path: '/x' } })
     expect(group).toMatchObject({ kind: 'group', groupId: 'g1', properties: { plan: 'team' } })
+  })
+
+  it('passes the shutdown budget through to the ingester', async () => {
+    vi.useFakeTimers()
+    const warn = vi.fn()
+    const hang = vi.fn(
+      (_url: string | URL | Request, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+        }),
+    )
+    const axiom = createProvider({
+      token: 't',
+      dataset: 'd',
+      fetch: hang as unknown as typeof fetch,
+      warn,
+      flushIntervalMs: 60_000,
+    })
+    await axiom.track({ name: 'x' })
+    let resolved = false
+    const done = axiom.shutdown({ deadlineMs: 300 }).then(() => {
+      resolved = true
+    })
+    await vi.advanceTimersByTimeAsync(299)
+    expect(resolved).toBe(false)
+    await vi.advanceTimersByTimeAsync(1)
+    await done
+    expect(resolved).toBe(true)
+    expect(warn.mock.calls[0][1]).toMatchObject({ deadlineMs: 300, lost: 1 })
   })
 
   it('resolves immediately even while Axiom is unreachable', async () => {

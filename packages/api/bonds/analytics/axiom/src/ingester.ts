@@ -6,7 +6,12 @@
  * @module
  */
 
-import type { AxiomIngester, AxiomIngesterOptions, AxiomIngesterStats } from './types.js'
+import type {
+  AxiomIngester,
+  AxiomIngesterOptions,
+  AxiomIngesterStats,
+  AxiomShutdownOptions,
+} from './types.js'
 
 /** Default Axiom API origin (the dataset-path ingest endpoint lives here). */
 export const AXIOM_DEFAULT_API_URL = 'https://api.axiom.co'
@@ -107,10 +112,27 @@ export function axiomIngestUrl(dataset: string, edgeUrl?: string): string {
   return edge ? `${edge}/v1/ingest/${name}` : `${AXIOM_DEFAULT_API_URL}/v1/datasets/${name}/ingest`
 }
 
-const sleep = (ms: number): Promise<void> =>
+/** Longest timer Node accepts; a longer `setTimeout` fires at once. */
+const MAX_TIMER_MS = 2_147_483_647
+
+/**
+ * Wait `ms`, or less if `stop` aborts first (shutdown's deadline).
+ *
+ * @param ms - How long to wait.
+ * @param stop - Ends the wait early when aborted.
+ * @returns Resolves when the wait is over.
+ */
+const sleep = (ms: number, stop: AbortSignal): Promise<void> =>
   new Promise((resolve) => {
-    const t = setTimeout(resolve, ms)
+    if (stop.aborted) return resolve()
+    const done = (): void => {
+      clearTimeout(t)
+      stop.removeEventListener('abort', done)
+      resolve()
+    }
+    const t = setTimeout(done, ms)
     t.unref?.()
+    stop.addEventListener('abort', done, { once: true })
   })
 
 /**
@@ -130,6 +152,8 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
   const maxBatchEvents = Math.max(1, Math.min(10_000, options.maxBatchEvents ?? 500))
   const maxBatchBytes = Math.max(1_024, options.maxBatchBytes ?? 1_000_000)
   const maxQueueEvents = Math.max(1, options.maxQueueEvents ?? 10_000)
+  // Never below one full batch, so any event that fits a request also fits the queue.
+  const maxQueueBytes = Math.max(maxBatchBytes, options.maxQueueBytes ?? 32_000_000)
   const maxRetries = Math.max(0, options.maxRetries ?? 4)
   const retryBaseMs = Math.max(1, options.retryBaseMs ?? 500)
   const timeoutMs = Math.max(100, options.timeoutMs ?? 10_000)
@@ -142,9 +166,19 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
   const counters = { queued: 0, sent: 0, dropped: 0 }
   /** Serialized NDJSON lines waiting to be sent. */
   const queue: string[] = []
+  /** Bytes held in `queue` (each line plus its newline). */
+  let queueBytes = 0
+  /** Events in the batch a request is carrying right now. */
+  let inFlightEvents = 0
   let timer: ReturnType<typeof setInterval> | null = null
   let flushing: Promise<void> | null = null
   let closed = false
+  /**
+   * Aborted when shutdown's budget runs out: every request in flight, every
+   * retry wait and every drain loop (including one already running when
+   * `shutdown()` was called) stops at that moment.
+   */
+  const stopper = new AbortController()
   const lastWarnAt = new Map<string, number>()
 
   const warn = (kind: string, message: string, detail?: Record<string, unknown>): void => {
@@ -167,78 +201,95 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
   if (orgId) headers['x-axiom-org-id'] = orgId
 
   /**
+   * POST one body. The request is aborted by its own timeout or by shutdown's
+   * deadline, whichever comes first.
+   */
+  const post = async (body: string): Promise<{ response: Response; text: string | null }> => {
+    const controller = new AbortController()
+    const abort = (): void => controller.abort()
+    const t = setTimeout(abort, timeoutMs)
+    t.unref?.()
+    stopper.signal.addEventListener('abort', abort, { once: true })
+    try {
+      const response = await doFetch(url, {
+        method: 'POST',
+        headers,
+        body,
+        signal: controller.signal,
+      })
+      let text: string | null = null
+      try {
+        text = await response.text()
+      } catch (_error) {
+        // The status alone is enough to act on.
+      }
+      return { response, text }
+    } finally {
+      clearTimeout(t)
+      stopper.signal.removeEventListener('abort', abort)
+    }
+  }
+
+  /**
    * Send one batch, retrying network errors, 429 and 5xx. Returns true when
    * Axiom acknowledged the batch (some events in it may still have failed —
    * those are counted as dropped, since resending the same events fails the
-   * same way).
+   * same way). Stops at shutdown's deadline: the batch is then counted as
+   * dropped and left for shutdown to report.
    */
-  const sendBatch = async (
-    lines: string[],
-    retries = maxRetries,
-    deadlineAt = Infinity,
-  ): Promise<boolean> => {
+  const sendBatch = async (lines: string[], retries = maxRetries): Promise<boolean> => {
     const body = lines.join('\n')
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      let retryable = true
-      let waitMs: number | null = null
-      try {
-        const response = await doFetch(url, {
-          method: 'POST',
-          headers,
-          body,
-          // Inside shutdown() a request never outlives the drain budget.
-          signal: AbortSignal.timeout(Math.max(1, Math.min(timeoutMs, deadlineAt - Date.now()))),
-        })
-        if (response.ok) {
-          let text = ''
-          try {
-            text = await response.text()
-          } catch (_error) {
-            // The 2xx alone acknowledges the batch.
+    inFlightEvents = lines.length
+    try {
+      for (let attempt = 0; attempt <= retries && !stopper.signal.aborted; attempt++) {
+        let retryable = true
+        let waitMs: number | null = null
+        try {
+          const { response, text } = await post(body)
+          if (response.ok) {
+            const { failed, errors } = ingestOutcome(text ?? '', lines.length)
+            counters.sent += lines.length - failed
+            if (failed > 0) {
+              counters.dropped += failed
+              warn('partial', `Axiom stored ${lines.length - failed} of ${lines.length} events`, {
+                failed,
+                errors,
+              })
+            }
+            return true
           }
-          const { failed, errors } = ingestOutcome(text, lines.length)
-          counters.sent += lines.length - failed
-          if (failed > 0) {
-            counters.dropped += failed
-            warn('partial', `Axiom stored ${lines.length - failed} of ${lines.length} events`, {
-              failed,
-              errors,
+          retryable = response.status === 429 || response.status >= 500
+          if (response.status === 429 || response.status === 503) {
+            const asked = retryAfterMs(response.headers.get('retry-after'))
+            // A `Retry-After: 0` must not remove the backoff.
+            waitMs = asked === null ? null : Math.max(retryBaseMs, asked)
+          }
+          if (!retryable) {
+            warn(`http-${response.status}`, `Axiom refused a batch (${response.status})`, {
+              status: response.status,
+              detail: (text ?? '').slice(0, 300),
+              events: lines.length,
             })
           }
-          return true
-        }
-        retryable = response.status === 429 || response.status >= 500
-        if (response.status === 429 || response.status === 503) {
-          const asked = retryAfterMs(response.headers.get('retry-after'))
-          // A `Retry-After: 0` must not remove the backoff.
-          waitMs = asked === null ? null : Math.max(retryBaseMs, asked)
-        }
-        if (!retryable) {
-          let detail = ''
-          try {
-            detail = (await response.text()).slice(0, 300)
-          } catch (_error) {
-            // The status alone is enough to act on.
+        } catch (error) {
+          if (attempt === retries && !stopper.signal.aborted) {
+            warn('network', 'could not reach Axiom', {
+              error: error instanceof Error ? error.message : String(error),
+            })
           }
-          warn(`http-${response.status}`, `Axiom refused a batch (${response.status})`, {
-            status: response.status,
-            detail,
-            events: lines.length,
-          })
         }
-      } catch (error) {
-        if (attempt === retries) {
-          warn('network', 'could not reach Axiom', {
-            error: error instanceof Error ? error.message : String(error),
-          })
-        }
+        if (!retryable) break
+        if (attempt < retries) await sleep(waitMs ?? retryBaseMs * 2 ** attempt, stopper.signal)
       }
-      if (!retryable) break
-      if (attempt < retries) await sleep(waitMs ?? retryBaseMs * 2 ** attempt)
+      counters.dropped += lines.length
+      // Stopped by shutdown's deadline: shutdown reports the loss in its own warning.
+      if (retries > 0 && !stopper.signal.aborted) {
+        warn('retries', 'dropped a batch after retries', { events: lines.length })
+      }
+      return false
+    } finally {
+      inFlightEvents = 0
     }
-    counters.dropped += lines.length
-    if (retries > 0) warn('retries', 'dropped a batch after retries', { events: lines.length })
-    return false
   }
 
   /** Take the next batch off the front of the queue, within the event and byte caps. */
@@ -250,6 +301,7 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
       const size = Buffer.byteLength(next) + 1
       if (lines.length > 0 && bytes + size > maxBatchBytes) break
       queue.shift()
+      queueBytes -= size
       lines.push(next)
       bytes += size
     }
@@ -257,7 +309,7 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
   }
 
   const drain = async (): Promise<void> => {
-    while (queue.length > 0) {
+    while (queue.length > 0 && !stopper.signal.aborted) {
       const ok = await sendBatch(takeBatch())
       // One batch out of retries means Axiom is unreachable right now: stop and
       // let the next tick try again rather than burning through the queue.
@@ -316,12 +368,23 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
           warn('unserializable', 'dropped an event that could not be serialized')
           return
         }
-        if (Buffer.byteLength(line) + 1 > maxBatchBytes) {
+        const size = Buffer.byteLength(line) + 1
+        if (size > maxBatchBytes) {
           counters.dropped++
           warn('oversized', `dropped an event larger than ${maxBatchBytes} bytes`)
           return
         }
+        // Full by bytes: drop the NEW event, the same policy as the event cap.
+        // The queued events are older, so they are the ones a backlog would
+        // lose first if Axiom stays down; keeping them keeps the record
+        // contiguous from where sending stopped instead of punching holes in it.
+        if (queueBytes + size > maxQueueBytes) {
+          counters.dropped++
+          warn('queue-full-bytes', `queue full (${maxQueueBytes} bytes); dropping events`)
+          return
+        }
         queue.push(line)
+        queueBytes += size
         counters.queued++
         ensureTimer()
         if (queue.length >= maxBatchEvents) void flush()
@@ -333,39 +396,46 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
       }
     },
     flush,
-    async shutdown({ deadlineMs = 5_000 }: { deadlineMs?: number } = {}): Promise<void> {
+    async shutdown({ deadlineMs = 5_000 }: AxiomShutdownOptions = {}): Promise<void> {
       closed = true
       if (timer) clearInterval(timer)
       timer = null
       if (!enabled) return
       // One budget for the whole drain, so a host's kill timeout (Fly's, a
-      // container's) is never reached mid-drain: no retries here, and no
-      // request or wait outlives what is left of the budget.
-      const deadlineAt = Date.now() + Math.max(0, deadlineMs)
-      if (flushing) {
-        let timeout: ReturnType<typeof setTimeout> | undefined
-        await Promise.race([
-          flushing,
-          new Promise<void>((resolve) => {
-            timeout = setTimeout(resolve, Math.max(0, deadlineAt - Date.now()))
-          }),
-        ])
-        clearTimeout(timeout)
-      }
-      if (queue.length === 0) return
-      const pending = queue.length
+      // container's) is never reached mid-drain. At the deadline the stopper
+      // aborts everything still running — the requests shutdown sends AND a
+      // drain that was already in flight (with its retries and Retry-After
+      // waits) — so no work outlives the promise this returns.
+      const budgetMs = Math.min(MAX_TIMER_MS, Math.max(0, deadlineMs))
+      const pending = queue.length + inFlightEvents
       const droppedBefore = counters.dropped
-      while (queue.length > 0 && Date.now() < deadlineAt) {
-        await sendBatch(takeBatch(), 0, deadlineAt)
+      let timedOut = false
+      const stop = (): void => {
+        timedOut = true
+        stopper.abort()
       }
-      let exhausted = 0
-      if (queue.length > 0) {
-        exhausted = queue.length
+      const deadline = setTimeout(stop, budgetMs)
+      deadline.unref?.()
+      if (budgetMs === 0) stop()
+      try {
+        if (flushing) await flushing
+        // No retries here: each remaining batch gets one attempt.
+        while (queue.length > 0 && !stopper.signal.aborted) {
+          await sendBatch(takeBatch(), 0)
+        }
+      } finally {
+        clearTimeout(deadline)
+        // Nothing may run after shutdown resolves, even if Axiom answered in time.
+        stopper.abort()
+      }
+      const exhausted = queue.length
+      if (exhausted > 0) {
         counters.dropped += exhausted
         queue.length = 0
+        queueBytes = 0
       }
       const lost = counters.dropped - droppedBefore
-      if (exhausted > 0) {
+      if (timedOut && lost > 0) {
         warn(
           'shutdown-lost',
           `shutdown: budget of ${deadlineMs} ms exhausted; ${lost} of ${pending} pending event(s) could not be sent`,
