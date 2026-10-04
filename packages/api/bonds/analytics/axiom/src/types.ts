@@ -30,7 +30,10 @@ export interface AxiomIngesterOptions {
   maxBatchBytes?: number
   /** Most events held in memory (default 10_000). Further events are dropped. */
   maxQueueEvents?: number
-  /** Retries per batch after the first attempt, for network errors, 429 and 5xx (default 4). */
+  /**
+   * Retries per batch after the first attempt, for network errors, 429 and 5xx (default 4).
+   * A 429/503 with `Retry-After` waits that long (at most 60 s) instead of the backoff.
+   */
   maxRetries?: number
   /** First retry delay in ms; doubles per attempt (default 500). */
   retryBaseMs?: number
@@ -48,9 +51,12 @@ export interface AxiomIngesterOptions {
 export interface AxiomIngesterStats {
   /** Events accepted into the queue. */
   queued: number
-  /** Events Axiom acknowledged. */
+  /** Events Axiom stored (a 200 can report some events of a batch as failed; those are not sent). */
   sent: number
-  /** Events dropped (queue full, oversized, unserializable, rejected or out of retries). */
+  /**
+   * Events dropped (queue full, oversized, unserializable, rejected, failed inside an
+   * acknowledged batch, out of retries, or ingested after `shutdown()`).
+   */
   dropped: number
   /** Events waiting in memory right now. */
   pending: number
@@ -62,11 +68,14 @@ export interface AxiomIngester {
   readonly enabled: boolean
   /** The dataset events go to, or null when disabled. */
   readonly dataset: string | null
-  /** Queue one event. Synchronous, never throws, never waits on the network. */
+  /** Queue one event. Synchronous, never throws, never waits on the network. After `shutdown()` it only counts the event as dropped. */
   ingest(event: Record<string, unknown>): void
   /** Send everything queued now. Resolves when the queue is drained or a batch has exhausted its retries. */
   flush(): Promise<void>
-  /** Stop the timer and flush what is left. */
+  /**
+   * Stop the timer and flush what is left. If a batch runs out of retries it warns with the
+   * pending count and gives every remaining batch one attempt, so nothing is abandoned silently.
+   */
   shutdown(): Promise<void>
   /** Current counters. */
   stats(): AxiomIngesterStats

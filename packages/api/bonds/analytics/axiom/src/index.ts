@@ -38,14 +38,19 @@
  * - Batching: a batch is sent every `flushIntervalMs` (2 s), or at once when
  *   `maxBatchEvents` (500) are queued; a request body never exceeds
  *   `maxBatchBytes` (1 MB). Network errors, 429 and 5xx are retried with
- *   exponential backoff (`maxRetries` 4, from `retryBaseMs` 500 ms); other 4xx
- *   drop the batch. When `maxQueueEvents` (10 000) are waiting, new events are
+ *   exponential backoff (`maxRetries` 4, from `retryBaseMs` 500 ms); a 429/503
+ *   with `Retry-After` waits that long instead (at most 60 s); other 4xx drop
+ *   the batch. A 200 whose body reports `failed` events counts only the stored
+ *   ones as `sent` and the rest as `dropped` (with a warning). When `maxQueueEvents` (10 000) are waiting, new events are
  *   dropped. Every kind of failure warns at most once a minute, through
  *   `console.warn` (or the `warn` option) — never through a logger bond, so a
  *   logger that mirrors into Axiom cannot loop.
  * - **Short-lived processes must `await provider.shutdown()`** (or `flush()`)
  *   before exiting, or queued events are lost. The flush timer is `unref`'d and
- *   does not keep a process alive.
+ *   does not keep a process alive. If a batch runs out of retries during
+ *   `shutdown()`, it warns with the pending count and gives every remaining
+ *   batch one attempt. Events tracked after `shutdown()` are counted as
+ *   `dropped`, never queued.
  * - Event shape: `{ _time, kind, event, userId?, anonymousId?, properties?,
  *   service?, env?, region?, version? }`. `kind` is `track` / `identify` /
  *   `page` / `group`; `event` is the event name (`page.view` for pages,

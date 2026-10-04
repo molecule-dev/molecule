@@ -12,6 +12,56 @@ import type { AxiomIngester, AxiomIngesterOptions, AxiomIngesterStats } from './
 export const AXIOM_DEFAULT_API_URL = 'https://api.axiom.co'
 
 const WARN_INTERVAL_MS = 60_000
+/** The longest a `Retry-After` may hold a batch back. */
+const MAX_RETRY_AFTER_MS = 60_000
+
+/**
+ * Milliseconds a `Retry-After` header asks for (delta-seconds or an HTTP
+ * date), capped at {@link MAX_RETRY_AFTER_MS}; null when absent or unreadable.
+ *
+ * @param header - The header value.
+ * @returns The wait in ms, or null.
+ */
+export function retryAfterMs(header: string | null): number | null {
+  if (!header) return null
+  const trimmed = header.trim()
+  const seconds = Number(trimmed)
+  const ms = /^\d+(\.\d+)?$/.test(trimmed)
+    ? seconds * 1000
+    : Number.isFinite(Date.parse(trimmed))
+      ? Date.parse(trimmed) - Date.now()
+      : NaN
+  if (!Number.isFinite(ms)) return null
+  return Math.min(MAX_RETRY_AFTER_MS, Math.max(0, ms))
+}
+
+/**
+ * The per-event outcome in an ingest answer: Axiom returns 200 with
+ * `{ ingested, failed, failures: [{ error }] }`, so a 200 can still carry
+ * events it did not store.
+ *
+ * @param body - The response text.
+ * @param events - Events in the batch.
+ * @returns How many failed (clamped to the batch) and the first errors.
+ */
+function ingestOutcome(body: string, events: number): { failed: number; errors: string[] } {
+  try {
+    const parsed = JSON.parse(body) as { failed?: unknown; failures?: unknown }
+    const failed = Number(parsed?.failed)
+    const errors = Array.isArray(parsed?.failures)
+      ? parsed.failures
+          .slice(0, 3)
+          .map((x) => String((x as { error?: unknown })?.error ?? x).slice(0, 200))
+      : []
+    return {
+      failed: Number.isFinite(failed) && failed > 0 ? Math.min(events, Math.floor(failed)) : 0,
+      errors,
+    }
+  } catch (_error) {
+    // No readable body: Axiom acknowledged the batch and said nothing more.
+    return { failed: 0, errors: [] }
+  }
+}
 
 /**
  * JSON.stringify that survives what loggers and analytics callers pass in:
@@ -116,11 +166,17 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
   }
   if (orgId) headers['x-axiom-org-id'] = orgId
 
-  /** Send one batch with retries. Returns true when Axiom acknowledged it. */
-  const sendBatch = async (lines: string[]): Promise<boolean> => {
+  /**
+   * Send one batch, retrying network errors, 429 and 5xx. Returns true when
+   * Axiom acknowledged the batch (some events in it may still have failed —
+   * those are counted as dropped, since resending the same events fails the
+   * same way).
+   */
+  const sendBatch = async (lines: string[], retries = maxRetries): Promise<boolean> => {
     const body = lines.join('\n')
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
       let retryable = true
+      let waitMs: number | null = null
       try {
         const response = await doFetch(url, {
           method: 'POST',
@@ -129,10 +185,27 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
           signal: AbortSignal.timeout(timeoutMs),
         })
         if (response.ok) {
-          counters.sent += lines.length
+          let text = ''
+          try {
+            text = await response.text()
+          } catch (_error) {
+            // The 2xx alone acknowledges the batch.
+          }
+          const { failed, errors } = ingestOutcome(text, lines.length)
+          counters.sent += lines.length - failed
+          if (failed > 0) {
+            counters.dropped += failed
+            warn('partial', `Axiom stored ${lines.length - failed} of ${lines.length} events`, {
+              failed,
+              errors,
+            })
+          }
           return true
         }
         retryable = response.status === 429 || response.status >= 500
+        if (response.status === 429 || response.status === 503) {
+          waitMs = retryAfterMs(response.headers.get('retry-after'))
+        }
         if (!retryable) {
           let detail = ''
           try {
@@ -147,17 +220,17 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
           })
         }
       } catch (error) {
-        if (attempt === maxRetries) {
+        if (attempt === retries) {
           warn('network', 'could not reach Axiom', {
             error: error instanceof Error ? error.message : String(error),
           })
         }
       }
       if (!retryable) break
-      if (attempt < maxRetries) await sleep(retryBaseMs * 2 ** attempt)
+      if (attempt < retries) await sleep(waitMs ?? retryBaseMs * 2 ** attempt)
     }
     counters.dropped += lines.length
-    if (maxRetries > 0) warn('retries', 'dropped a batch after retries', { events: lines.length })
+    if (retries > 0) warn('retries', 'dropped a batch after retries', { events: lines.length })
     return false
   }
 
@@ -213,6 +286,13 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
     dataset: enabled ? dataset : null,
     ingest(event: Record<string, unknown>): void {
       if (!enabled) return
+      if (closed) {
+        // After shutdown nothing drains the queue, so queueing would hold the
+        // event forever: count it as dropped and say so (throttled).
+        counters.dropped++
+        warn('closed', 'an event arrived after shutdown(); dropped')
+        return
+      }
       try {
         let doc: Record<string, unknown> | null = { ...stamp, ...event }
         if (doc._time === undefined) doc._time = new Date().toISOString()
@@ -252,6 +332,29 @@ export function createAxiomIngester(options: AxiomIngesterOptions = {}): AxiomIn
       timer = null
       if (flushing) await flushing
       await flush()
+      if (!enabled || queue.length === 0) return
+      // flush() stops at the first batch that ran out of retries (Axiom is
+      // unreachable right now). At shutdown there is no next tick to wait for:
+      // say how much is left, then give every remaining batch one attempt.
+      const pending = queue.length
+      const droppedBefore = counters.dropped
+      warn(
+        'shutdown',
+        `shutdown with ${pending} event(s) still pending after a failed batch; trying each remaining batch once`,
+        { pending },
+      )
+      while (queue.length > 0) await sendBatch(takeBatch(), 0)
+      const lost = counters.dropped - droppedBefore
+      if (lost > 0) {
+        warn(
+          'shutdown-lost',
+          `shutdown: ${lost} of ${pending} pending event(s) could not be sent`,
+          {
+            lost,
+            pending,
+          },
+        )
+      }
     },
     stats(): AxiomIngesterStats {
       return { ...counters, pending: queue.length }

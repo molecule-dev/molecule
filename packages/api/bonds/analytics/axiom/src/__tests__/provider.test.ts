@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { axiomIngestUrl, createAxiomIngester, safeStringify } from '../ingester.js'
+import { axiomIngestUrl, createAxiomIngester, retryAfterMs, safeStringify } from '../ingester.js'
 import { createProvider } from '../provider.js'
 
 interface Call {
@@ -152,6 +152,118 @@ describe('createAxiomIngester', () => {
     expect(ingester.stats()).toMatchObject({ sent: 0, dropped: 1 })
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('403'), expect.anything())
     await ingester.shutdown()
+  })
+
+  it('a 200 that reports failed events counts only the stored ones as sent', async () => {
+    const warn = vi.fn()
+    const { fetch } = mockFetch([
+      new Response(
+        JSON.stringify({
+          ingested: 2,
+          failed: 1,
+          failures: [{ timestamp: 'x', error: 'bad _time' }],
+        }),
+      ),
+    ])
+    const ingester = createAxiomIngester({ token: 't', dataset: 'd', fetch, warn })
+    for (let i = 0; i < 3; i++) ingester.ingest({ i })
+    await ingester.flush()
+    expect(ingester.stats()).toMatchObject({ queued: 3, sent: 2, dropped: 1, pending: 0 })
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('stored 2 of 3'),
+      expect.objectContaining({ failed: 1, errors: ['bad _time'] }),
+    )
+    await ingester.shutdown()
+  })
+
+  it('honours Retry-After on a 429 (capped at 60 s) instead of the backoff', async () => {
+    vi.useFakeTimers()
+    const { fetch, calls } = mockFetch([
+      new Response('slow down', { status: 429, headers: { 'retry-after': '2' } }),
+      okResponse(),
+    ])
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      retryBaseMs: 1,
+      flushIntervalMs: 60_000,
+    })
+    ingester.ingest({ n: 1 })
+    const done = ingester.flush()
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(calls).toHaveLength(1)
+    await vi.advanceTimersByTimeAsync(1_000)
+    await done
+    expect(calls).toHaveLength(2)
+    expect(ingester.stats()).toMatchObject({ sent: 1, dropped: 0 })
+    expect(retryAfterMs('120')).toBe(60_000)
+    expect(retryAfterMs('0')).toBe(0)
+    expect(retryAfterMs(new Date(Date.now() + 5_000).toUTCString())).toBeGreaterThan(3_000)
+    expect(retryAfterMs('soon')).toBeNull()
+    expect(retryAfterMs(null)).toBeNull()
+    await ingester.shutdown()
+  })
+
+  it('shutdown after a failed batch warns with the pending count and tries every remaining batch once', async () => {
+    const warn = vi.fn()
+    const down = (): Response => new Response('down', { status: 503 })
+    // 1: the full-batch flush while ingesting; 2: shutdown's own flush; 3: the retry pass
+    const { fetch, calls } = mockFetch([down(), down(), okResponse()])
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      warn,
+      maxRetries: 0,
+      maxBatchEvents: 2,
+      flushIntervalMs: 60_000,
+    })
+    for (let i = 0; i < 5; i++) ingester.ingest({ i })
+    await ingester.shutdown()
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('still pending'),
+      expect.objectContaining({ pending: expect.any(Number) }),
+    )
+    // every event was either sent or counted, nothing is left in memory
+    const st = ingester.stats()
+    expect(st.pending).toBe(0)
+    expect(st).toMatchObject({ sent: 1, dropped: 4 })
+    expect(calls.length).toBe(3)
+  })
+
+  it('shutdown says how many pending events could not be sent when Axiom stays down', async () => {
+    const warn = vi.fn()
+    const down = (): Response => new Response('down', { status: 503 })
+    const { fetch } = mockFetch([down(), down(), down()])
+    const ingester = createAxiomIngester({
+      token: 't',
+      dataset: 'd',
+      fetch,
+      warn,
+      maxRetries: 0,
+      maxBatchEvents: 1,
+      flushIntervalMs: 60_000,
+    })
+    for (let i = 0; i < 3; i++) ingester.ingest({ i })
+    await ingester.shutdown()
+    expect(ingester.stats()).toMatchObject({ sent: 0, dropped: 3, pending: 0 })
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/shutdown: \d+ of \d+ pending event\(s\) could not be sent/),
+      expect.anything(),
+    )
+  })
+
+  it('ingest after shutdown is a counted no-op, never a queue that nothing drains', async () => {
+    const warn = vi.fn()
+    const { fetch, calls } = mockFetch()
+    const ingester = createAxiomIngester({ token: 't', dataset: 'd', fetch, warn })
+    await ingester.shutdown()
+    ingester.ingest({ late: true })
+    ingester.ingest({ late: true })
+    expect(ingester.stats()).toMatchObject({ queued: 0, dropped: 2, pending: 0 })
+    expect(calls).toHaveLength(0)
+    expect(warn.mock.calls.filter(([m]) => String(m).includes('after shutdown'))).toHaveLength(1)
   })
 
   it('drops events once the queue is full and warns once per minute', () => {
