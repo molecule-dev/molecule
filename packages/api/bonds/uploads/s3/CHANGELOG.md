@@ -1,5 +1,11 @@
 # @molecule/api-uploads-s3
 
+## 1.0.7
+
+### Patch Changes
+
+- 477d2d4: The documented environment variable for the socket-inactivity timeout is `AWS_S3_SOCKET_TIMEOUT_MS`, the name the provider reads.
+
 ## 1.0.6
 
 ### Patch Changes

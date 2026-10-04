@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.1
+
+### Patch Changes
+
+- 83e8d04: Three new chat strings: an interrupted tool call, a failed subagent.
+
 ## 1.10.0
 
 ### Minor Changes

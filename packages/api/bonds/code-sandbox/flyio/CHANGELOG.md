@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.3
+
+### Patch Changes
+
+- 9a94727: `destroy()` now reports a failed machine or app delete instead of swallowing it, so a caller can retry; a 404 still counts as already gone.
+
 ## 1.2.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.8
+
+### Patch Changes
+
+- 83e8d04: A recovered provider blip no longer ends the turn in the chat; an interrupted tool call is shown as interrupted, not done; a failed subagent shows one plain line.
+
 ## 1.19.7
 
 ### Patch Changes

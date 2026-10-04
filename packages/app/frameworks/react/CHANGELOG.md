@@ -1,5 +1,12 @@
 # @molecule/app-react
 
+## 1.6.1
+
+### Patch Changes
+
+- ae549bc: A tool result that arrives before its message is attached to the newest pending call, never to an older finished one.
+- 83e8d04: A recovered provider blip no longer ends the turn in the chat; an interrupted tool call is shown as interrupted, not done; a failed subagent shows one plain line.
+
 ## 1.6.0
 
 ### Minor Changes
