@@ -62,6 +62,8 @@ describe('optional capabilities', () => {
     expect(minimalSandbox.setResources).toBeUndefined()
     expect(minimalSandbox.exportFiles).toBeUndefined()
     expect(minimalSandbox.importFiles).toBeUndefined()
+    expect(minimalSandbox.readFileBytes).toBeUndefined()
+    expect(minimalSandbox.writeFileBytes).toBeUndefined()
   })
 
   it('distinguishes "cannot" from "could not" at the call site', async () => {

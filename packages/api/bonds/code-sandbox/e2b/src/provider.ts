@@ -631,6 +631,27 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
+   * Read a file's exact bytes through envd's file API (never command stdout,
+   * which envd truncates for large outputs).
+   *
+   * @param path - Absolute path inside the sandbox.
+   * @returns The file's bytes.
+   */
+  async readFileBytes(path: string): Promise<Uint8Array> {
+    return this.sbx.files.read(path, { format: 'bytes' })
+  }
+
+  /**
+   * Write exact bytes to a file through envd's file API, replacing it.
+   *
+   * @param path - Absolute path inside the sandbox.
+   * @param data - The bytes to write.
+   */
+  async writeFileBytes(path: string, data: Uint8Array): Promise<void> {
+    await this.sbx.files.write(path, data)
+  }
+
+  /**
    * List a directory. Throws when the path does not exist (an empty array
    * means "exists and is empty", never "missing").
    *

@@ -111,3 +111,22 @@ describe('E2B exportFiles / importFiles archive rooting', () => {
     expect(extract).toContain("-C '/workspace' --no-same-owner --no-same-permissions")
   })
 })
+
+describe('E2B readFileBytes / writeFileBytes', () => {
+  it('reads exact bytes through the file API, never command stdout', async () => {
+    const bytes = new Uint8Array(300_000).map((_, i) => i % 251)
+    const { sbx, commands } = fakeSandbox('sbx-b1', bytes)
+    const sandbox = await providerFor(sbx).get('sbx-b1')
+    const read = await sandbox!.readFileBytes!('/tmp/archive.tar.gz')
+    expect(read).toEqual(bytes)
+    expect(commands).toHaveLength(0)
+  })
+
+  it('writes exact bytes through the file API', async () => {
+    const { sbx, writes, commands } = fakeSandbox('sbx-b2')
+    const sandbox = await providerFor(sbx).get('sbx-b2')
+    await sandbox!.writeFileBytes!('/tmp/part', new Uint8Array(4096))
+    expect(writes).toEqual([{ path: '/tmp/part', size: 4096 }])
+    expect(commands).toHaveLength(0)
+  })
+})

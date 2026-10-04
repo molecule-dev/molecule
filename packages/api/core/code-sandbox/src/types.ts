@@ -294,6 +294,33 @@ export interface Sandbox {
 
   readFile(path: string): Promise<string>
   writeFile(path: string, content: string): Promise<void>
+
+  /**
+   * Read a file's exact bytes through the provider's FILE API.
+   *
+   * `readFile` decodes to a string, and command output (`exec` stdout) is not a
+   * binary channel: providers truncate or re-encode large outputs (E2B's envd
+   * cut a 256 KB chunk's base64 to 60 KB). Use this for archives and any
+   * non-text file. It returns the whole file, so callers bound memory by
+   * reading fixed-size pieces (e.g. `dd … of=<part>` then this on the part).
+   *
+   * Optional: a provider without a binary file read leaves it unimplemented.
+   *
+   * @param path - Absolute path inside the sandbox.
+   * @returns The file's bytes, exactly.
+   */
+  readFileBytes?(path: string): Promise<Uint8Array>
+
+  /**
+   * Write exact bytes to a file through the provider's FILE API (the inverse of
+   * {@link Sandbox.readFileBytes}), creating parent directories as needed and
+   * replacing any existing file.
+   *
+   * @param path - Absolute path inside the sandbox.
+   * @param data - The bytes to write.
+   */
+  writeFileBytes?(path: string, data: Uint8Array): Promise<void>
+
   /** List a directory. THROWS when the path does not exist — an empty array means "exists and is empty", never "missing". */
   readDir(path: string): Promise<DirEntry[]>
   deleteFile(path: string): Promise<void>

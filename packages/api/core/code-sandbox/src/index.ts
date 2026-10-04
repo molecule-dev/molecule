@@ -17,7 +17,8 @@
  * reconciliation, **hibernation fidelity** (`hibernate`/`resume`) for knowing
  * whether a woken sandbox's processes survived, **`setResources`** for applying
  * an entitlement after creation, **`exportFiles`/`importFiles`** for bulk
- * workspace transfer, and **`capacity`** for refusing a boot before it damages
+ * workspace transfer, **`readFileBytes`/`writeFileBytes`** for exact binary
+ * file I/O, and **`capacity`** for refusing a boot before it damages
  * the sandboxes already running.
  *
  * @remarks
@@ -60,6 +61,12 @@
  *   and the inverse is `importFiles(dirname(path), archive)`. Never assume `./…`
  *   rooting and never extract at `/` unless you exported a top-level directory —
  *   a differently rooted archive lands files in the wrong place with no error.
+ * - **Never move binary data through `exec` stdout.** Command output is not a
+ *   binary channel: a provider may truncate or re-encode a large output (E2B's
+ *   envd cut a 256 KB chunk's base64 to 60 KB) and `exec` still reports success.
+ *   Read and write bytes with `readFileBytes`/`writeFileBytes` (optional —
+ *   feature-detect); to bound memory, cut the file into pieces inside the sandbox
+ *   (`dd … of=<part>`) and read each piece.
  *
  * @example
  * ```typescript
