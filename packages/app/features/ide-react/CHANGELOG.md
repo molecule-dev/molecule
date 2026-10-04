@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.6
+
+### Patch Changes
+
+- 76b8cd6: A chat message whose author account was deleted (an `author` with a name but no id) renders its name as plain text instead of a profile button, so the click no longer opens the viewer's own profile.
+
 ## 1.19.5
 
 ### Patch Changes

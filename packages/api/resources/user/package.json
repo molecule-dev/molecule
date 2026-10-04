@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-resource-user",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "User resource types and schema for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
