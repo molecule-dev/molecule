@@ -106,7 +106,7 @@ export interface AesEncryptionProvider extends EncryptionProvider {
    *
    * @param options - AAD context and chunk size.
    * @returns A Transform: plaintext in, ciphertext out.
-   * @throws {Error} `EncryptionStreamError` on an out-of-range chunk size.
+   * @throws {Error} `EncryptionStreamError` (code `internal`) on an out-of-range chunk size.
    */
   encryptStream(options?: AesEncryptStreamOptions): Transform
 
@@ -114,8 +114,9 @@ export interface AesEncryptionProvider extends EncryptionProvider {
    * Authenticates and decrypts a stream from {@link encryptStream}, picking
    * the key by the header's version from the keyring. Plaintext is emitted
    * only after each chunk's tag verifies; the stream errors with an
-   * `EncryptionStreamError` on tampering, a wrong context, an unknown key
-   * version, reordering, or truncation.
+   * `EncryptionStreamError` whose `code` is `auth` (tampering, reordering,
+   * a wrong context), `unknown-key-version`, `unknown-key` (a different key
+   * under the same version), `bad-header` or `truncated`.
    *
    * @param options - The AAD context used to encrypt.
    * @returns A Transform: ciphertext in, plaintext out.

@@ -180,6 +180,7 @@ describe('@molecule/api-uploads-encrypted', () => {
     const forged = encodeEncryptedId('not-avatar', innerId)
     const { data, error } = await collectUntilError((await provider.getFile(forged))!)
     expect(error?.name).toBe('EncryptionStreamError')
+    expect((error as { code?: string } | undefined)?.code).toBe('auth')
     expect(data.length).toBe(0)
   })
 
@@ -273,6 +274,8 @@ describe('@molecule/api-uploads-encrypted', () => {
     // A provider with a different key cannot read it.
     const { data, error } = await collectUntilError((await provider.getFile(file.id))!)
     expect(error?.name).toBe('EncryptionStreamError')
+    // ...and says it is the key, not the object.
+    expect((error as { code?: string } | undefined)?.code).toBe('unknown-key')
     expect(data.length).toBe(0)
   })
 

@@ -30,7 +30,7 @@ import './secrets.js'
 
 import type { EncryptStreamOptions } from '@molecule/api-encryption'
 
-import { createDecryptStream, createEncryptStream } from './stream.js'
+import { createDecryptStream, createEncryptStream, missingKeyMessage } from './stream.js'
 import type { AesConfig, AesEncryptionProvider, AesEncryptStreamOptions } from './types.js'
 
 /** AES-256-GCM algorithm identifier. */
@@ -47,16 +47,6 @@ const parseKeyVersion = (tag: string): number | null => {
   const match = /^v(\d+)$/.exec(tag)
   return match ? Number(match[1]) : null
 }
-
-/**
- * The error message for a ciphertext whose key version is not in the keyring.
- *
- * @param version - The missing key version.
- * @returns The message.
- */
-const missingKeyMessage = (version: number): string =>
-  `No encryption key available for key version ${version}; ` +
-  `seed it via priorKeys or do not prune it before re-encrypting its ciphertext`
 
 /** A 256-bit key is exactly 64 hex characters. */
 const HEX_256_BIT = /^[0-9a-fA-F]{64}$/
@@ -205,11 +195,7 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
     decryptStream(options?: EncryptStreamOptions) {
       return createDecryptStream({
         context: options?.context,
-        resolveKey: (version) => {
-          const key = keyring.get(version)
-          if (!key) throw new Error(missingKeyMessage(version))
-          return key
-        },
+        resolveKey: (version) => keyring.get(version),
       })
     },
 

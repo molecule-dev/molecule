@@ -29,7 +29,10 @@
  *   released one chunk at a time, only after that chunk's tag verifies; on
  *   tampering, a wrong context or truncation the returned stream is destroyed
  *   with an `EncryptionStreamError`, so always handle its `error` event (or use
- *   `stream/promises` `pipeline`) and discard partial output on error.
+ *   `stream/promises` `pipeline`) and discard partial output on error. Its
+ *   `code` separates a damaged object (`auth`) from a key configuration
+ *   problem (`unknown-key`, `unknown-key-version`) and an early end that may
+ *   be transport (`truncated`).
  *   `getFile(id, { expectContext })` throws an `EncryptionContextMismatchError`
  *   before reading anything when the id was written under a different context
  *   — use it when the caller knows which object this must be.

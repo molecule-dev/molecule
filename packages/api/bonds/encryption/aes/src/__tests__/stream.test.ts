@@ -1,13 +1,25 @@
-import { randomBytes } from 'node:crypto'
+import { createHmac, hkdfSync, randomBytes } from 'node:crypto'
 import { Readable, type Transform, Writable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
 import { describe, expect, it } from 'vitest'
 
-import { hasStreamEncryption } from '@molecule/api-encryption'
+import {
+  type EncryptionStreamErrorCode,
+  hasStreamEncryption,
+  isEncryptionStreamError,
+} from '@molecule/api-encryption'
 
 import { createProvider } from '../provider.js'
-import { STREAM_HEADER_BYTES } from '../stream.js'
+import {
+  createDecryptStream,
+  createEncryptStream,
+  deriveStreamMaterial,
+  STREAM_HEADER_BYTES,
+  STREAM_KEY_ID_BYTES,
+  STREAM_SALT_BYTES,
+  streamKeyId,
+} from '../stream.js'
 
 const generateKey = (): string => randomBytes(32).toString('hex')
 const CHUNK = 4096
@@ -74,6 +86,8 @@ describe('AES-256-GCM stream encryption', () => {
     })
 
     it('uses the 1 MiB default chunk size and the header layout', async () => {
+      expect(STREAM_HEADER_BYTES).toBe(8 + 2 + 4 + STREAM_SALT_BYTES + STREAM_KEY_ID_BYTES)
+      expect(STREAM_HEADER_BYTES).toBe(54)
       const cipher = await run(provider.encryptStream(), [Buffer.from('hi')])
       expect(cipher.subarray(0, 8).toString('ascii')).toBe('MOLAEAD1')
       expect(cipher.readUInt16BE(8)).toBe(1)
@@ -114,50 +128,78 @@ describe('AES-256-GCM stream encryption', () => {
   })
 
   describe('detection', () => {
-    const expectStreamError = async (promise: Promise<unknown>, message: RegExp): Promise<void> => {
+    const expectStreamError = async (
+      promise: Promise<unknown>,
+      code: EncryptionStreamErrorCode,
+      message?: RegExp,
+    ): Promise<void> => {
       const err = (await promise.then(
         () => null,
         (e: unknown) => e,
       )) as Error | null
       expect(err).toBeInstanceOf(Error)
       expect(err?.name).toBe('EncryptionStreamError')
-      expect(err?.message).toMatch(message)
+      expect(isEncryptionStreamError(err)).toBe(true)
+      expect((err as { code?: string }).code).toBe(code)
+      if (message) expect(err?.message).toMatch(message)
     }
 
-    it('fails on a context mismatch', async () => {
+    it('auth: fails on a context mismatch', async () => {
       const cipher = await encrypt(randomBytes(100), 'backup:1')
-      await expectStreamError(decrypt(cipher, 'backup:2'), /failed authentication/)
-      await expectStreamError(decrypt(cipher), /failed authentication/)
+      await expectStreamError(decrypt(cipher, 'backup:2'), 'auth', /failed authentication/)
+      await expectStreamError(decrypt(cipher), 'auth', /failed authentication/)
     })
 
-    it('fails on a flipped header magic byte', async () => {
+    it('bad-header: fails on a flipped header magic byte', async () => {
       const cipher = await encrypt(randomBytes(100))
       cipher[0] ^= 0x01
-      await expectStreamError(decrypt(cipher), /not an encrypted stream/)
+      await expectStreamError(decrypt(cipher), 'bad-header', /not an encrypted stream/)
     })
 
-    it('fails on a flipped nonce-prefix byte in the header', async () => {
+    it('auth: fails on a flipped salt byte in the header', async () => {
+      const cipher = await encrypt(randomBytes(100))
+      cipher[14] ^= 0x01
+      await expectStreamError(decrypt(cipher), 'auth', /Chunk 0 .*failed authentication/)
+    })
+
+    it('unknown-key: a flipped key-id byte reads as a key mismatch', async () => {
       const cipher = await encrypt(randomBytes(100))
       cipher[STREAM_HEADER_BYTES - 1] ^= 0x01
-      await expectStreamError(decrypt(cipher), /failed authentication/)
+      await expectStreamError(decrypt(cipher), 'unknown-key', /different key/)
     })
 
-    it('fails on a header naming an invalid chunk size', async () => {
+    it('bad-header: fails on a header naming an invalid chunk size', async () => {
       const cipher = await encrypt(randomBytes(100))
       cipher.writeUInt32BE(1, 10)
-      await expectStreamError(decrypt(cipher), /invalid chunk size/)
+      await expectStreamError(decrypt(cipher), 'bad-header', /invalid chunk size/)
     })
 
-    it('fails on a flipped body byte', async () => {
+    it('auth: an edited (still valid) chunk size fails authentication, header is bound', async () => {
+      const cipher = await encrypt(randomBytes(100))
+      cipher.writeUInt32BE(CHUNK * 2, 10)
+      await expectStreamError(decrypt(cipher), 'auth', /failed authentication/)
+    })
+
+    it('auth: fails on a flipped body byte', async () => {
       const cipher = await encrypt(randomBytes(CHUNK * 2 + 10))
       cipher[STREAM_HEADER_BYTES + RECORD + 5] ^= 0x80
-      await expectStreamError(decrypt(cipher), /Chunk 1 .*failed authentication/)
+      await expectStreamError(decrypt(cipher), 'auth', /Chunk 1 .*failed authentication/)
     })
 
-    it('fails on a flipped tag byte', async () => {
+    it('auth: fails on a flipped tag byte', async () => {
       const cipher = await encrypt(randomBytes(CHUNK * 2 + 10))
       cipher[STREAM_HEADER_BYTES + RECORD - 1] ^= 0x01
-      await expectStreamError(decrypt(cipher), /Chunk 0 .*failed authentication/)
+      await expectStreamError(decrypt(cipher), 'auth', /Chunk 0 .*failed authentication/)
+    })
+
+    it('auth: a header swapped in from another stream under the same key fails authentication', async () => {
+      const a = await encrypt(randomBytes(CHUNK + 10))
+      const b = await encrypt(randomBytes(CHUNK + 10))
+      const forged = Buffer.concat([
+        b.subarray(0, STREAM_HEADER_BYTES),
+        a.subarray(STREAM_HEADER_BYTES),
+      ])
+      await expectStreamError(decrypt(forged), 'auth', /Chunk 0 .*failed authentication/)
     })
 
     it('emits no plaintext from a chunk whose tag fails', async () => {
@@ -174,7 +216,7 @@ describe('AES-256-GCM stream encryption', () => {
       expect(Buffer.concat(received).equals(plain.subarray(0, CHUNK))).toBe(true)
     })
 
-    it('fails when two chunks are swapped', async () => {
+    it('auth: fails when two chunks are swapped', async () => {
       const cipher = await encrypt(randomBytes(CHUNK * 3 + 10))
       const h = cipher.subarray(0, STREAM_HEADER_BYTES)
       const c0 = cipher.subarray(STREAM_HEADER_BYTES, STREAM_HEADER_BYTES + RECORD)
@@ -182,58 +224,144 @@ describe('AES-256-GCM stream encryption', () => {
       const rest = cipher.subarray(STREAM_HEADER_BYTES + 2 * RECORD)
       await expectStreamError(
         decrypt(Buffer.concat([h, c1, c0, rest])),
+        'auth',
         /Chunk 0 .*failed authentication/,
       )
     })
 
-    it('fails at flush when truncated after N full chunks', async () => {
+    it('truncated: fails at flush when cut after N full chunks', async () => {
       const cipher = await encrypt(randomBytes(CHUNK * 4 + 10))
       const cut = cipher.subarray(0, STREAM_HEADER_BYTES + 2 * RECORD)
-      await expectStreamError(decrypt(cut), /truncated: it ended after 2 chunk\(s\)/)
+      await expectStreamError(decrypt(cut), 'truncated', /ended after 2 chunk\(s\)/)
     })
 
-    it('fails when the empty final chunk is dropped', async () => {
+    it('truncated: fails when the empty final chunk is dropped', async () => {
       const cipher = await encrypt(randomBytes(CHUNK * 2))
       await expectStreamError(
         decrypt(cipher.subarray(0, cipher.length - 16)),
-        /truncated: it ended after 2 chunk\(s\)/,
+        'truncated',
+        /ended after 2 chunk\(s\)/,
       )
     })
 
-    it('fails when the final chunk is cut mid-way', async () => {
+    it('truncated: a stream holding only its header', async () => {
+      const cipher = await encrypt(randomBytes(10))
+      await expectStreamError(
+        decrypt(cipher.subarray(0, STREAM_HEADER_BYTES)),
+        'truncated',
+        /ended after 0 chunk\(s\)/,
+      )
+    })
+
+    it('auth: fails when the final chunk is cut mid-way', async () => {
       const cipher = await encrypt(randomBytes(CHUNK + 100))
       await expectStreamError(
         decrypt(cipher.subarray(0, cipher.length - 30)),
+        'auth',
         /failed authentication/,
       )
     })
 
-    it('fails on a truncated header', async () => {
+    it('bad-header: fails on a truncated header', async () => {
       const cipher = await encrypt(randomBytes(10))
-      await expectStreamError(decrypt(cipher.subarray(0, 10)), /before its header was complete/)
-      await expectStreamError(decrypt(Buffer.alloc(0)), /before its header was complete/)
+      await expectStreamError(
+        decrypt(cipher.subarray(0, STREAM_HEADER_BYTES - 1)),
+        'bad-header',
+        /before its 54-byte header was complete/,
+      )
+      await expectStreamError(decrypt(Buffer.alloc(0)), 'bad-header', /header was complete/)
     })
 
-    it('fails on an unknown key version', async () => {
-      const cipher = await encrypt(randomBytes(10))
-      cipher.writeUInt16BE(9, 8)
-      await expectStreamError(decrypt(cipher), /No encryption key available for key version 9/)
+    it('unknown-key-version: the header names a version the keyring lacks', async () => {
+      const key = generateKey()
+      const v2 = createProvider({ key, keyVersion: 2 })
+      const cipher = await run(v2.encryptStream({ chunkBytes: CHUNK }), [randomBytes(10)])
+      const withoutV2 = createProvider({ key, keyVersion: 1 })
+      await expectStreamError(
+        run(withoutV2.decryptStream(), [cipher]),
+        'unknown-key-version',
+        /No encryption key available for key version 2/,
+      )
     })
 
-    it('fails under a different key', async () => {
+    it('unknown-key: a different key under the same version is not reported as tampering', async () => {
       const cipher = await encrypt(randomBytes(10))
       const other = createProvider({ key: generateKey() })
-      await expectStreamError(run(other.decryptStream(), [cipher]), /failed authentication/)
+      await expectStreamError(run(other.decryptStream(), [cipher]), 'unknown-key', /key id/)
     })
 
-    it('rejects an out-of-range chunk size at creation', () => {
-      expect(() => provider.encryptStream({ chunkBytes: 1024 })).toThrow(
-        /between 4096 and 16777216/,
+    it('internal: rejects an out-of-range chunk size at creation', () => {
+      for (const chunkBytes of [1024, 32 * 1024 * 1024, 5000.5]) {
+        let err: unknown
+        try {
+          provider.encryptStream({ chunkBytes })
+        } catch (e) {
+          err = e
+        }
+        expect(isEncryptionStreamError(err)).toBe(true)
+        expect((err as { code: string }).code).toBe('internal')
+        expect((err as Error).message).toMatch(/between 4096 and 16777216/)
+      }
+    })
+
+    it('internal: rejects an out-of-range key version at creation', () => {
+      expect(() => createEncryptStream({ key: randomBytes(32), version: 0x10000 })).toThrow(
+        expect.objectContaining({ code: 'internal' }),
       )
-      expect(() => provider.encryptStream({ chunkBytes: 32 * 1024 * 1024 })).toThrow(
-        /between 4096 and 16777216/,
+    })
+  })
+
+  describe('key derivation', () => {
+    it('derives the stream key and nonce prefix with HKDF-SHA256 deterministically', () => {
+      const key = randomBytes(32)
+      const salt = randomBytes(STREAM_SALT_BYTES)
+      const a = deriveStreamMaterial(key, salt)
+      const b = deriveStreamMaterial(key, salt)
+      expect(a.key.length).toBe(32)
+      expect(a.noncePrefix.length).toBe(8)
+      expect(a.key.equals(b.key)).toBe(true)
+      expect(a.noncePrefix.equals(b.noncePrefix)).toBe(true)
+      const okm = Buffer.from(hkdfSync('sha256', key, salt, Buffer.from('mol-aead-chunked-v1'), 40))
+      expect(a.key.equals(okm.subarray(0, 32))).toBe(true)
+      expect(a.noncePrefix.equals(okm.subarray(32))).toBe(true)
+      expect(a.key.equals(key)).toBe(false)
+    })
+
+    it('computes the key id as truncated HMAC-SHA256 over the label', () => {
+      const key = randomBytes(32)
+      const expected = createHmac('sha256', key)
+        .update('mol-aead-chunked-v1/kid')
+        .digest()
+        .subarray(0, 8)
+      expect(streamKeyId(key).equals(expected)).toBe(true)
+    })
+
+    it('writes the salt and key id into the header and derives a fresh subkey per stream', async () => {
+      const rawHex = generateKey()
+      const raw = Buffer.from(rawHex, 'hex')
+      const p = createProvider({ key: rawHex })
+      const s1 = await run(p.encryptStream({ chunkBytes: CHUNK }), [Buffer.from('x')])
+      const s2 = await run(p.encryptStream({ chunkBytes: CHUNK }), [Buffer.from('x')])
+      const salt1 = s1.subarray(14, 14 + STREAM_SALT_BYTES)
+      const salt2 = s2.subarray(14, 14 + STREAM_SALT_BYTES)
+      expect(salt1.equals(salt2)).toBe(false)
+      expect(s1.subarray(46, 54).equals(streamKeyId(raw))).toBe(true)
+      expect(s2.subarray(46, 54).equals(streamKeyId(raw))).toBe(true)
+      const m1 = deriveStreamMaterial(raw, salt1)
+      const m2 = deriveStreamMaterial(raw, salt2)
+      expect(m1.key.equals(m2.key)).toBe(false)
+      expect(m1.noncePrefix.equals(m2.noncePrefix)).toBe(false)
+    })
+
+    it('works through the low-level transforms with a resolver', async () => {
+      const key = randomBytes(32)
+      const plain = randomBytes(CHUNK + 7)
+      const cipher = await run(createEncryptStream({ key, version: 7, chunkBytes: CHUNK }), [plain])
+      const out = await run(
+        createDecryptStream({ resolveKey: (v) => (v === 7 ? key : undefined) }),
+        [cipher],
       )
-      expect(() => provider.encryptStream({ chunkBytes: 5000.5 })).toThrow(/between/)
+      expect(out.equals(plain)).toBe(true)
     })
   })
 
@@ -273,9 +401,10 @@ describe('AES-256-GCM stream encryption', () => {
       const cipher = await run(p.encryptStream(), [Buffer.from('x')])
       await p.rotateKey(oldKey, generateKey())
       p.pruneKeyVersions()
-      await expect(run(p.decryptStream(), [cipher])).rejects.toThrow(
-        /No encryption key available for key version 1/,
-      )
+      await expect(run(p.decryptStream(), [cipher])).rejects.toMatchObject({
+        code: 'unknown-key-version',
+        message: expect.stringMatching(/No encryption key available for key version 1/),
+      })
     })
   })
 })

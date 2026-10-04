@@ -107,9 +107,11 @@ export interface EncryptionProvider {
    * OPTIONAL. Creates a streaming decryptor, the reverse of
    * {@link EncryptionProvider.encryptStream}. It emits a chunk's plaintext
    * only after that chunk's authentication tag has verified, and destroys
-   * itself with an `EncryptionStreamError` on a bad header, an unknown key
-   * version, a failed tag (tampering or a wrong context), chunks out of
-   * order, or input that ends before the final chunk (truncation).
+   * itself with an `EncryptionStreamError` whose `code` names the cause: a
+   * bad header (`bad-header`), an unknown key version (`unknown-key-version`),
+   * a key that is not the one that wrote the stream (`unknown-key`), a failed
+   * tag — tampering, chunks out of order or a wrong context (`auth`) — or
+   * input that ends before the final chunk (`truncated`).
    *
    * @param options - Optional stream options; `context` must match the one
    *   used to encrypt.
