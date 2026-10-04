@@ -8,6 +8,8 @@
  * @module
  */
 
+import type { Transform } from 'node:stream'
+
 /**
  * Configuration options for an encryption provider.
  */
@@ -20,6 +22,19 @@ export interface EncryptionConfig {
 
   /** Optional key version for rotation tracking. */
   keyVersion?: number
+}
+
+/**
+ * Options for {@link EncryptionProvider.encryptStream} and
+ * {@link EncryptionProvider.decryptStream}.
+ */
+export interface EncryptStreamOptions {
+  /**
+   * Optional additional authenticated data bound to every chunk of the
+   * stream (e.g. a backup id). The identical context is required to
+   * decrypt; a mismatch fails authentication on the first chunk.
+   */
+  context?: string
 }
 
 /**
@@ -75,4 +90,30 @@ export interface EncryptionProvider {
    * @param newKey - The new encryption key to rotate to.
    */
   rotateKey(oldKey: string, newKey: string): Promise<void>
+
+  /**
+   * OPTIONAL. Creates a streaming encryptor: plaintext bytes in,
+   * authenticated ciphertext bytes out, never holding more than one chunk
+   * in memory. Providers that implement it use the
+   * {@link ENCRYPTED_STREAM_FORMAT} framing. Check with
+   * `hasStreamEncryption(provider)` before calling.
+   *
+   * @param options - Optional stream options (AAD context).
+   * @returns A Node `Transform` stream.
+   */
+  encryptStream?(options?: EncryptStreamOptions): Transform
+
+  /**
+   * OPTIONAL. Creates a streaming decryptor, the reverse of
+   * {@link EncryptionProvider.encryptStream}. It emits a chunk's plaintext
+   * only after that chunk's authentication tag has verified, and destroys
+   * itself with an `EncryptionStreamError` on a bad header, an unknown key
+   * version, a failed tag (tampering or a wrong context), chunks out of
+   * order, or input that ends before the final chunk (truncation).
+   *
+   * @param options - Optional stream options; `context` must match the one
+   *   used to encrypt.
+   * @returns A Node `Transform` stream.
+   */
+  decryptStream?(options?: EncryptStreamOptions): Transform
 }

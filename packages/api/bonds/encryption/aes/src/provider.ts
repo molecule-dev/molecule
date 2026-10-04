@@ -28,7 +28,10 @@ import {
 // (not through the package barrel).
 import './secrets.js'
 
-import type { AesConfig, AesEncryptionProvider } from './types.js'
+import type { EncryptStreamOptions } from '@molecule/api-encryption'
+
+import { createDecryptStream, createEncryptStream } from './stream.js'
+import type { AesConfig, AesEncryptionProvider, AesEncryptStreamOptions } from './types.js'
 
 /** AES-256-GCM algorithm identifier. */
 const ALGORITHM = 'aes-256-gcm'
@@ -44,6 +47,16 @@ const parseKeyVersion = (tag: string): number | null => {
   const match = /^v(\d+)$/.exec(tag)
   return match ? Number(match[1]) : null
 }
+
+/**
+ * The error message for a ciphertext whose key version is not in the keyring.
+ *
+ * @param version - The missing key version.
+ * @returns The message.
+ */
+const missingKeyMessage = (version: number): string =>
+  `No encryption key available for key version ${version}; ` +
+  `seed it via priorKeys or do not prune it before re-encrypting its ciphertext`
 
 /** A 256-bit key is exactly 64 hex characters. */
 const HEX_256_BIT = /^[0-9a-fA-F]{64}$/
@@ -126,10 +139,7 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
       // the current key — so pre-rotation ciphertext decrypts with its own key.
       const key = keyring.get(version)
       if (!key) {
-        throw new Error(
-          `No encryption key available for key version ${version}; ` +
-            `seed it via priorKeys or do not prune it before re-encrypting its ciphertext`,
-        )
+        throw new Error(missingKeyMessage(version))
       }
 
       const iv = Buffer.from(parts[1], 'hex')
@@ -181,6 +191,26 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
       currentVersion += 1
       currentKey = newBuffer
       keyring.set(currentVersion, currentKey)
+    },
+
+    encryptStream(options?: AesEncryptStreamOptions) {
+      return createEncryptStream({
+        key: currentKey,
+        version: currentVersion,
+        context: options?.context,
+        chunkBytes: options?.chunkBytes ?? config.streamChunkBytes,
+      })
+    },
+
+    decryptStream(options?: EncryptStreamOptions) {
+      return createDecryptStream({
+        context: options?.context,
+        resolveKey: (version) => {
+          const key = keyring.get(version)
+          if (!key) throw new Error(missingKeyMessage(version))
+          return key
+        },
+      })
     },
 
     pruneKeyVersions(keep?: number[]): number[] {

@@ -21,6 +21,25 @@
  * // Integrity hashing (checksums, dedupe keys) — NOT for passwords
  * const checksum = await hash(documentBody)
  * const untampered = await verify(documentBody, checksum)
+ *
+ * // Streaming encryption (optional capability) for large payloads such as
+ * // backup archives — never whole in memory
+ * import { createReadStream, createWriteStream } from 'node:fs'
+ * import { pipeline } from 'node:stream/promises'
+ * import { getProvider, hasStreamEncryption } from '@molecule/api-encryption'
+ *
+ * const enc = getProvider()
+ * if (!hasStreamEncryption(enc)) throw new Error('bonded encryption provider cannot stream')
+ * await pipeline(
+ *   createReadStream('backup.tar'),
+ *   enc.encryptStream({ context: 'backup:2026-10-04' }),
+ *   createWriteStream('backup.tar.enc'),
+ * )
+ * await pipeline(
+ *   createReadStream('backup.tar.enc'),
+ *   enc.decryptStream({ context: 'backup:2026-10-04' }), // rejects on tampering/truncation
+ *   createWriteStream('restored.tar'),
+ * )
  * ```
  *
  * @remarks
@@ -41,8 +60,31 @@
  *   but then the id can never change.
  * - `decrypt()` throws on a wrong key or tampered ciphertext — treat that as
  *   corruption/misconfiguration to surface, not a condition to retry.
+ * - **Stream encryption is OPTIONAL in the contract.** `encryptStream()` /
+ *   `decryptStream()` return Node `Transform` streams for payloads too large
+ *   to hold in memory (backup archives, exports). Not every bond implements
+ *   them: call `hasStreamEncryption(provider)` first and fail clearly if it
+ *   is false — never fall back to buffering the whole payload through
+ *   `encrypt()` (strings only, and it would load gigabytes into memory).
+ * - **Stream framing is `ENCRYPTED_STREAM_FORMAT` (`mol-aead-chunked-v1`),
+ *   shared by every bond:** a 22-byte header (magic `MOLAEAD1`, key version
+ *   uint16, chunk size uint32, 8-byte random nonce prefix), then chunks of
+ *   ciphertext + 16-byte tag. Each chunk's nonce is `noncePrefix || counter`
+ *   and its AAD is `context || counter || finalFlag`, so a flipped bit,
+ *   reordered/duplicated/dropped chunks, a wrong key or a wrong `context`
+ *   all fail authentication.
+ * - **`decryptStream()` releases plaintext only after each chunk's tag
+ *   verifies**, and buffers at most one chunk. A failure destroys the stream
+ *   with an `EncryptionStreamError` (`err.name === 'EncryptionStreamError'`),
+ *   so `pipeline()` rejects. Chunks that verified before a later failure
+ *   were already written downstream — write to a temp file and only rename
+ *   or use it once the pipeline resolves.
+ * - **Truncation is detected.** The encryptor always closes with a flagged
+ *   final chunk (possibly holding zero bytes), so a stream cut at a chunk
+ *   boundary still fails at the end instead of passing as a shorter file.
  */
 
 export * from './browser-guard.js'
 export * from './provider.js'
+export * from './stream.js'
 export * from './types.js'

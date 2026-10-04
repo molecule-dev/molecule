@@ -4,7 +4,9 @@
  * @module
  */
 
-import type { EncryptionProvider } from '@molecule/api-encryption'
+import type { Transform } from 'node:stream'
+
+import type { EncryptionProvider, EncryptStreamOptions } from '@molecule/api-encryption'
 
 /**
  * A historical (pre-rotation) key, retained so ciphertext encrypted under it
@@ -50,6 +52,28 @@ export interface AesConfig {
    * @default []
    */
   priorKeys?: PriorKey[]
+
+  /**
+   * Default plaintext bytes per chunk for `encryptStream()` (4 KiB to 16 MiB).
+   * A per-call `chunkBytes` overrides it. Decryption reads the size from the
+   * stream header, so this never needs to match at decrypt time.
+   *
+   * @default 1048576 (1 MiB)
+   */
+  streamChunkBytes?: number
+}
+
+/**
+ * Options for the AES bond's `encryptStream()`.
+ */
+export interface AesEncryptStreamOptions extends EncryptStreamOptions {
+  /**
+   * Plaintext bytes per chunk (4 KiB to 16 MiB). Larger chunks mean less
+   * overhead (16 bytes per chunk) but more memory per chunk on both sides.
+   *
+   * @default AesConfig.streamChunkBytes, else 1048576 (1 MiB)
+   */
+  chunkBytes?: number
 }
 
 /**
@@ -75,4 +99,26 @@ export interface AesEncryptionProvider extends EncryptionProvider {
    * @returns The versions that were removed.
    */
   pruneKeyVersions(keep?: number[]): number[]
+
+  /**
+   * Encrypts a byte stream under the CURRENT key in the core's
+   * `mol-aead-chunked-v1` framing (chunked AES-256-GCM).
+   *
+   * @param options - AAD context and chunk size.
+   * @returns A Transform: plaintext in, ciphertext out.
+   * @throws {Error} `EncryptionStreamError` on an out-of-range chunk size.
+   */
+  encryptStream(options?: AesEncryptStreamOptions): Transform
+
+  /**
+   * Authenticates and decrypts a stream from {@link encryptStream}, picking
+   * the key by the header's version from the keyring. Plaintext is emitted
+   * only after each chunk's tag verifies; the stream errors with an
+   * `EncryptionStreamError` on tampering, a wrong context, an unknown key
+   * version, reordering, or truncation.
+   *
+   * @param options - The AAD context used to encrypt.
+   * @returns A Transform: ciphertext in, plaintext out.
+   */
+  decryptStream(options?: EncryptStreamOptions): Transform
 }
