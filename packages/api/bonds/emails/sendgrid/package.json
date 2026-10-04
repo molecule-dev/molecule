@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-sendgrid",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "SendGrid email provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@molecule/api-analytics": "1.0.2",
+    "@molecule/api-analytics": "1.1.0",
     "@sendgrid/mail": "8.1.6"
   },
   "devDependencies": {

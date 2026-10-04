@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-analytics-http",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generic HTTP analytics provider — POSTs track/identify/page events to a configured first-party endpoint. Built for CLIs and services (mlcl, molecule-mcp) that emit into molecule.dev's own analytics.",
   "homepage": "https://www.molecule.dev/packages/api-analytics-http",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
@@ -38,7 +38,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@molecule/api-analytics": "1.0.2"
+    "@molecule/api-analytics": "1.1.0"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

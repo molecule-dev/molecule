@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.4
+
+### Patch Changes
+
+- 7c23e98: A probe sandbox with no network is reported as inconclusive, not as open egress.
+
 ## 1.2.3
 
 ### Patch Changes

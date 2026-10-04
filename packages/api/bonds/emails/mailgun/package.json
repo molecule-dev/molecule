@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-mailgun",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Mailgun email provider for molecule.dev.",
   "type": "module",
   "main": "dist/index.js",
@@ -28,7 +28,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "@molecule/api-analytics": "1.0.2",
+    "@molecule/api-analytics": "1.1.0",
     "nodemailer": "10.0.12",
     "nodemailer-mailgun-transport": "2.1.5"
   },
