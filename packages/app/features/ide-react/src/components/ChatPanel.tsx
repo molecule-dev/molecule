@@ -2015,7 +2015,12 @@ const MessageItem = memo(function MessageItem(props: MessageItemProps): JSX.Elem
   const authorIdentity: ChatUserIdentity = msg.author
     ? { id: msg.author.id, name: msg.author.name, avatar: msg.author.avatar ?? null }
     : { id: currentUserId, avatar: userAvatar ?? null }
-  const openAuthorProfile = onProfileClick ? (): void => onProfileClick(authorIdentity) : undefined
+  // An author whose account is gone keeps its name (the platform rewrites it to
+  // a 'Deleted user' marker with no id) and has no profile to open: the name
+  // renders as plain text, never as a click that would land on the viewer's own.
+  const authorGone = Boolean(msg.author) && !msg.author?.id
+  const openAuthorProfile =
+    onProfileClick && !authorGone ? (): void => onProfileClick(authorIdentity) : undefined
 
   // Spacing follows the one timeline convention (see TIMELINE_ITEM_GAP above): a
   // single bottom margin, no top margin, no negatives — so a message can never
