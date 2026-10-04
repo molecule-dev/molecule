@@ -702,4 +702,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} praleista',
   'ide.tests.skippedByUser': 'Vykdymas baigtas. Testai, kuriuos praleidote, nebuvo atlikti.',
   'ide.tests.viewerCannotSkip': 'Tik redaktoriai gali praleisti šio projekto testus.',
+  'ide.toolCall.interruptedByRestart':
+    'Šį veiksmą nutraukė paleidimas iš naujo; jo poveikis nežinomas.',
+  'ide.toolCall.statusInterrupted': 'Pertrauktas',
+  'ide.chat.subagent.failedFallback': 'Šis subagentas sustojo nespėjęs baigti.',
 }

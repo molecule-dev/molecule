@@ -695,4 +695,8 @@ export const sq: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} anashkaluar',
   'ide.tests.skippedByUser': 'Ekzekutimi përfundoi. Testet që anashkaluat nuk u ekzekutuan.',
   'ide.tests.viewerCannotSkip': "Vetëm redaktorët mund t'i anashkalojnë testet e këtij projekti.",
+  'ide.toolCall.interruptedByRestart':
+    'Ky hap u ndërpre nga një rinisje; efekti i tij është i panjohur.',
+  'ide.toolCall.statusInterrupted': 'Ndërprerë',
+  'ide.chat.subagent.failedFallback': 'Ky nën-agjent u ndal para se të mbaronte.',
 }

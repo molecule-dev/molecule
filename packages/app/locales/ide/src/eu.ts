@@ -691,4 +691,8 @@ export const eu: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} saltatua',
   'ide.tests.skippedByUser': 'Exekuzioa amaitu da. Saltatu dituzun probak ez dira exekutatu.',
   'ide.tests.viewerCannotSkip': 'Editoreek bakarrik salta ditzakete proiektu honen probak.',
+  'ide.toolCall.interruptedByRestart':
+    'Urrats hau berrabiarazi batek eten du; ezezaguna da haren eragina.',
+  'ide.toolCall.statusInterrupted': 'Eten eginda',
+  'ide.chat.subagent.failedFallback': 'Azpi-agente hau amaitu aurretik gelditu da.',
 }

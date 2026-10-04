@@ -691,4 +691,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} გამოტოვებული',
   'ide.tests.skippedByUser': 'გაშვება დასრულდა. გამოტოვებული ტესტები არ შესრულდა.',
   'ide.tests.viewerCannotSkip': 'ამ პროექტის ტესტების გამოტოვება მხოლოდ რედაქტორებს შეუძლიათ.',
+  'ide.toolCall.interruptedByRestart': 'ეს ეტაპი გადატვირთვის გამო შეწყდა; მისი ეფექტი უცნობია.',
+  'ide.toolCall.statusInterrupted': 'შეწყვეტილია',
+  'ide.chat.subagent.failedFallback': 'ეს ქვეაგენტი დასრულებამდე გაჩერდა.',
 }

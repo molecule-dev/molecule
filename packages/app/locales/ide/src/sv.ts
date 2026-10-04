@@ -698,4 +698,7 @@ export const sv: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} hoppades över',
   'ide.tests.skippedByUser': 'Körningen är avslutad. De tester som du hoppade över kördes inte.',
   'ide.tests.viewerCannotSkip': 'Endast redaktörer kan hoppa över testerna för detta projekt.',
+  'ide.toolCall.interruptedByRestart': 'Detta steg avbröts av en omstart; dess effekt är okänd.',
+  'ide.toolCall.statusInterrupted': 'Avbruten',
+  'ide.chat.subagent.failedFallback': 'Denna underagent slutade innan den var klar.',
 }

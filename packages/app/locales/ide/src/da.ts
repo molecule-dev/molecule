@@ -695,4 +695,8 @@ export const da: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} sprunget over',
   'ide.tests.skippedByUser': 'Kørslen er afsluttet. De test, du sprang over, blev ikke kørt.',
   'ide.tests.viewerCannotSkip': 'Kun redaktører kan springe dette projekts test over.',
+  'ide.toolCall.interruptedByRestart':
+    'Dette trin blev afbrudt af en genstart; effekten er ukendt.',
+  'ide.toolCall.statusInterrupted': 'Afbrudt',
+  'ide.chat.subagent.failedFallback': 'Denne underagent stoppede, før den var færdig.',
 }

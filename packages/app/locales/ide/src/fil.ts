@@ -697,4 +697,8 @@ export const fil: Partial<IdeTranslations> = {
     'Tapos na ang pagtakbo. Hindi tumakbo ang mga pagsubok na iyong nilaktawan.',
   'ide.tests.viewerCannotSkip':
     'Tanging ang mga editor lamang ang maaaring lumaktaw sa mga pagsubok ng proyektong ito.',
+  'ide.toolCall.interruptedByRestart':
+    'Naantala ang hakbang na ito ng isang pag-restart; hindi alam ang epekto nito.',
+  'ide.toolCall.statusInterrupted': 'Naantala',
+  'ide.chat.subagent.failedFallback': 'Tumigil ang subagent na ito bago pa man ito matapos.',
 }

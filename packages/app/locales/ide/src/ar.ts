@@ -690,4 +690,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} تم تخطيه',
   'ide.tests.skippedByUser': 'انتهى التشغيل. لم يتم تشغيل الاختبارات التي تخطيتها.',
   'ide.tests.viewerCannotSkip': 'لا يمكن إلا للمحررين تخطي اختبارات هذا المشروع.',
+  'ide.toolCall.interruptedByRestart':
+    'تم إيقاف هذه الخطوة بسبب إعادة التشغيل؛ وتأثيرها غير معروف.',
+  'ide.toolCall.statusInterrupted': 'مقاطعة',
+  'ide.chat.subagent.failedFallback': 'توقف هذا العميل الفرعي قبل أن ينهي مهمته.',
 }

@@ -706,4 +706,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'De uitvoering is voltooid. De tests die je hebt overgeslagen, zijn niet uitgevoerd.',
   'ide.tests.viewerCannotSkip': 'Alleen redacteuren kunnen de tests van dit project overslaan.',
+  'ide.toolCall.interruptedByRestart':
+    'Deze stap werd onderbroken door een herstart; het effect hiervan is onbekend.',
+  'ide.toolCall.statusInterrupted': 'Onderbroken',
+  'ide.chat.subagent.failedFallback': 'Deze subagent is gestopt voordat hij klaar was.',
 }

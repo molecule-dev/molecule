@@ -699,4 +699,8 @@ export const sl: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'Izvajanje je končano. Preskusi, ki ste jih preskočili, se niso izvedli.',
   'ide.tests.viewerCannotSkip': 'Samo uredniki lahko preskočijo teste tega projekta.',
+  'ide.toolCall.interruptedByRestart':
+    'Ta korak je bil prekinjen s ponovnim zagonom; njegov učinek ni znan.',
+  'ide.toolCall.statusInterrupted': 'Prekinjeno',
+  'ide.chat.subagent.failedFallback': 'Ta podagent se je ustavil, preden je končal.',
 }

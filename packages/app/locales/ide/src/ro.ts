@@ -701,4 +701,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} omise',
   'ide.tests.skippedByUser': 'Execuția s-a încheiat. Testele pe care le-ai omis nu au fost rulate.',
   'ide.tests.viewerCannotSkip': 'Doar editorii pot sări peste testele acestui proiect.',
+  'ide.toolCall.interruptedByRestart':
+    'Acest pas a fost întrerupt de o repornire; efectul său este necunoscut.',
+  'ide.toolCall.statusInterrupted': 'Întrerupt',
+  'ide.chat.subagent.failedFallback': 'Acest subagent s-a oprit înainte să termine.',
 }

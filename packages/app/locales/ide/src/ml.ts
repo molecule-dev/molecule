@@ -694,4 +694,8 @@ export const ml: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser': 'ഓട്ടം പൂർത്തിയായി. നിങ്ങൾ ഒഴിവാക്കിയ പരിശോധനകൾ നടന്നില്ല.',
   'ide.tests.viewerCannotSkip':
     'എഡിറ്റർമാർക്ക് മാത്രമേ ഈ പ്രോജക്റ്റിന്റെ പരീക്ഷണങ്ങൾ ഒഴിവാക്കാൻ കഴിയൂ.',
+  'ide.toolCall.interruptedByRestart':
+    'ഈ ഘട്ടം ഒരു പുനരാരംഭത്താൽ തടസ്സപ്പെട്ടു; അതിന്റെ ഫലം അജ്ഞാതമാണ്.',
+  'ide.toolCall.statusInterrupted': 'തടസ്സപ്പെട്ടു',
+  'ide.chat.subagent.failedFallback': 'ഈ ഉപ ഏജന്റ് പൂർത്തിയാകുന്നതിന് മുമ്പ് നിർത്തി.',
 }

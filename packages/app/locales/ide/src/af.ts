@@ -687,4 +687,8 @@ export const af: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} oorgeslaan',
   'ide.tests.skippedByUser': 'Loop voltooi. Die toetse wat jy oorgeslaan het, het nie geloop nie.',
   'ide.tests.viewerCannotSkip': 'Slegs redakteurs kan hierdie projek se toetse oorslaan.',
+  'ide.toolCall.interruptedByRestart':
+    "Hierdie stap is deur 'n herbegin onderbreek; die effek daarvan is onbekend.",
+  'ide.toolCall.statusInterrupted': 'Onderbreek',
+  'ide.chat.subagent.failedFallback': 'Hierdie subagent het gestop voordat dit klaar was.',
 }

@@ -700,4 +700,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} dilewati',
   'ide.tests.skippedByUser': 'Proses telah selesai. Tes yang Anda lewati tidak dijalankan.',
   'ide.tests.viewerCannotSkip': 'Hanya editor yang dapat melewati tes pada proyek ini.',
+  'ide.toolCall.interruptedByRestart':
+    'Langkah ini terhenti karena proses restart; dampaknya tidak diketahui.',
+  'ide.toolCall.statusInterrupted': 'Terputus',
+  'ide.chat.subagent.failedFallback': 'Subagen ini berhenti sebelum menyelesaikan tugasnya.',
 }

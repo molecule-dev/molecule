@@ -687,4 +687,8 @@ export const ur: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} چھوڑ دیا',
   'ide.tests.skippedByUser': 'رن ختم۔ آپ نے جو ٹیسٹ چھوڑے وہ نہیں چلے۔',
   'ide.tests.viewerCannotSkip': 'صرف ایڈیٹرز ہی اس پروجیکٹ کے ٹیسٹ کو چھوڑ سکتے ہیں۔',
+  'ide.toolCall.interruptedByRestart':
+    'یہ مرحلہ دوبارہ شروع کرنے سے روکا گیا تھا۔ اس کا اثر نامعلوم ہے.',
+  'ide.toolCall.statusInterrupted': 'خلل ڈالا۔',
+  'ide.chat.subagent.failedFallback': 'یہ سبجینٹ ختم ہونے سے پہلے ہی رک گیا۔',
 }

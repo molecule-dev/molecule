@@ -710,4 +710,8 @@ export const fr: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     "L'exécution est terminée. Les tests que vous avez ignorés n'ont pas été exécutés.",
   'ide.tests.viewerCannotSkip': 'Seuls les éditeurs peuvent ignorer les tests de ce projet.',
+  'ide.toolCall.interruptedByRestart':
+    'Cette étape a été interrompue par un redémarrage ; son effet est inconnu.',
+  'ide.toolCall.statusInterrupted': 'Interrompu',
+  'ide.chat.subagent.failedFallback': "Ce sous-agent s'est arrêté avant d'avoir terminé.",
 }

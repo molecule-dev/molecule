@@ -679,4 +679,7 @@ export const am: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ተዘልሏል',
   'ide.tests.skippedByUser': 'ሩጫው ተጠናቋል። የዘለሉዋቸው ሙከራዎች አልተካሄዱም።',
   'ide.tests.viewerCannotSkip': 'አርታኢዎች ብቻ የዚህን ፕሮጀክት ፈተናዎች መዝለል ይችላሉ።',
+  'ide.toolCall.interruptedByRestart': 'ይህ እርምጃ እንደገና በመጀመር ተቋርጧል፤ ውጤቱ አይታወቅም።',
+  'ide.toolCall.statusInterrupted': 'ተቋርጧል',
+  'ide.chat.subagent.failedFallback': 'ይህ ንዑስ ወኪል ከመጠናቀቁ በፊት ቆሟል።',
 }

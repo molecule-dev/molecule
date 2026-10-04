@@ -256,6 +256,62 @@ export function isSkippedByUser(output: unknown): boolean {
 }
 
 /**
+ * Whether a tool result says a server restart cut this call off mid-run.
+ *
+ * Like a skip, it is neither a success nor a failure: whether the call took
+ * effect is unknown. The summary, the status dot and the card body all ask
+ * here so none of them shows it as "done".
+ *
+ * @param output - The raw tool output payload.
+ * @returns True when the call was interrupted by a restart.
+ */
+export function isInterruptedByRestart(output: unknown): boolean {
+  if (typeof output !== 'object' || output === null) return false
+  return (output as { status?: unknown }).status === 'interrupted_by_restart'
+}
+
+/**
+ * The sentence a card shows for a call a restart interrupted.
+ *
+ * @returns The localized sentence.
+ */
+export function interruptedByRestartLine(): string {
+  return t('ide.toolCall.interruptedByRestart', undefined, {
+    defaultValue: 'This step was interrupted by a restart; its effect is unknown.',
+  })
+}
+
+/** Report openings the server writes when a subagent run did not finish. */
+const SUBAGENT_FAILURE_REPORT = /^Subagent (failed|aborted|stopped)\b/
+
+/** Text that is a transport/runtime error, not a sentence written for a person. */
+const RAW_ERROR_TEXT = /^\s*[A-Za-z]*Error\b|fetch failed|\bE[A-Z]{3,}\b|\n\s+at\s/
+
+/**
+ * The one line a subagent card shows when the run failed, or '' when it did not.
+ *
+ * The server's `error` is already a plain sentence and is shown as is; raw
+ * error text (`Error: fetch failed`) and a failure with no `error` at all
+ * get the translated fallback instead.
+ *
+ * @param error - The result's `error` field.
+ * @param report - The result's `report` field (model-facing).
+ * @returns The line to show, or '' for a run that did not fail.
+ */
+export function subagentErrorLine(error: unknown, report: string): string {
+  const fallback = (): string =>
+    t('ide.chat.subagent.failedFallback', undefined, {
+      defaultValue: 'This subagent stopped before it finished.',
+    })
+  if (typeof error === 'string') {
+    if (error.trim()) return RAW_ERROR_TEXT.test(error) ? fallback() : error.trim()
+  } else if (error != null && error !== false) {
+    return fallback()
+  }
+  return SUBAGENT_FAILURE_REPORT.test(report) ? fallback() : ''
+}
+
+/**
  * One-line result summary shown beneath the label.
  * @param name - The tool name.
  * @param output - The raw tool output payload.
@@ -271,6 +327,8 @@ export function toolSummary(name: string, output: ToolOutput, status: string): s
   // fall through to the empty summary that means "it worked".
   if (isSkippedByUser(output))
     return t('ide.toolCall.statusSkipped', undefined, { defaultValue: 'Skipped' })
+  if (isInterruptedByRestart(output))
+    return t('ide.toolCall.statusInterrupted', undefined, { defaultValue: 'Interrupted' })
 
   const out = output as Inp | undefined
   const hasError = typeof out === 'object' && out !== null && 'error' in out

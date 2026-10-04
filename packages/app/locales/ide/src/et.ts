@@ -696,4 +696,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} vahele jäetud',
   'ide.tests.skippedByUser': 'Käivitus lõppes. Vahele jäetud testid ei käivitatud.',
   'ide.tests.viewerCannotSkip': 'Ainult toimetajad saavad selle projekti teste vahele jätta.',
+  'ide.toolCall.interruptedByRestart':
+    'See samm katkestati taaskäivitamise tõttu; selle mõju on teadmata.',
+  'ide.toolCall.statusInterrupted': 'Katkestatud',
+  'ide.chat.subagent.failedFallback': 'See subagent peatus enne, kui lõpetas.',
 }

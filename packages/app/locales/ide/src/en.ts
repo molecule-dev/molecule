@@ -740,4 +740,8 @@ export const en: IdeTranslations = {
   'ide.tests.fixWithSynthase': 'Fix with Synthase',
   'ide.tests.fixFailures': 'Fix {{count}} failures',
   'ide.tests.fixBusy': 'Wait for the current turn to finish.',
+  'ide.toolCall.interruptedByRestart':
+    'This step was interrupted by a restart; its effect is unknown.',
+  'ide.toolCall.statusInterrupted': 'Interrupted',
+  'ide.chat.subagent.failedFallback': 'This subagent stopped before it finished.',
 }

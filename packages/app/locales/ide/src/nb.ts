@@ -693,4 +693,8 @@ export const nb: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} hoppet over',
   'ide.tests.skippedByUser': 'Kjøringen er fullført. Testene du hoppet over, ble ikke kjørt.',
   'ide.tests.viewerCannotSkip': 'Bare redaktører kan hoppe over testene i dette prosjektet.',
+  'ide.toolCall.interruptedByRestart':
+    'Dette trinnet ble avbrutt av en omstart; effekten er ukjent.',
+  'ide.toolCall.statusInterrupted': 'Avbrutt',
+  'ide.chat.subagent.failedFallback': 'Denne underagenten stoppet før den var ferdig.',
 }

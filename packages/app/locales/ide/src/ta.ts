@@ -693,4 +693,8 @@ export const ta: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser': 'சோதனை ஓட்டம் நிறைவடைந்தது. நீங்கள் தவிர்த்த சோதனைகள் இயங்கவில்லை.',
   'ide.tests.viewerCannotSkip':
     'தொகுப்பாளர்கள் மட்டுமே இந்தத் திட்டத்தின் சோதனைகளைத் தவிர்க்க முடியும்.',
+  'ide.toolCall.interruptedByRestart':
+    'மறுதொடக்கம் காரணமாக இந்தப் படிநிலை தடைபட்டது; அதன் விளைவு அறியப்படவில்லை.',
+  'ide.toolCall.statusInterrupted': 'குறுக்கிடப்பட்டது',
+  'ide.chat.subagent.failedFallback': 'இந்த துணை முகவர் தன் வேலையை முடிப்பதற்குள் நின்றுவிட்டது.',
 }

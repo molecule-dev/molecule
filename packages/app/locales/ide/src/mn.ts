@@ -693,4 +693,8 @@ export const mn: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} алгассан',
   'ide.tests.skippedByUser': 'Ажиллуулалт дууссан. Таны алгассан тестүүд ажиллаагүй.',
   'ide.tests.viewerCannotSkip': 'Зөвхөн редакторууд л энэ төслийн тестийг алгасаж болно.',
+  'ide.toolCall.interruptedByRestart':
+    'Энэ алхамыг дахин эхлүүлснээр тасалдуулсан; үр нөлөө нь тодорхойгүй байна.',
+  'ide.toolCall.statusInterrupted': 'Тасалдсан',
+  'ide.chat.subagent.failedFallback': 'Энэ дэд агент дуусахаас өмнө зогссон.',
 }

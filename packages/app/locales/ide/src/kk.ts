@@ -689,4 +689,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} өткізіп жіберілді',
   'ide.tests.skippedByUser': 'Іске қосу аяқталды. Сіз өткізіп жіберген сынақтар іске қосылмады.',
   'ide.tests.viewerCannotSkip': 'Бұл жобаның сынақтарын тек редакторлар ғана өткізіп жібере алады.',
+  'ide.toolCall.interruptedByRestart': 'Бұл қадам қайта іске қосумен үзілді; оның әсері белгісіз.',
+  'ide.toolCall.statusInterrupted': 'Үзілді',
+  'ide.chat.subagent.failedFallback': 'Бұл қосалқы агент аяқталмай тұрып тоқтады.',
 }

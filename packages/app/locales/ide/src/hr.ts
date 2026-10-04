@@ -689,4 +689,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} preskočeno',
   'ide.tests.skippedByUser': 'Izvršavanje završeno. Testovi koje ste preskočili nisu izvršeni.',
   'ide.tests.viewerCannotSkip': 'Samo urednici mogu preskočiti testove ovog projekta.',
+  'ide.toolCall.interruptedByRestart':
+    'Ovaj korak je prekinut ponovnim pokretanjem; njegov učinak nije poznat.',
+  'ide.toolCall.statusInterrupted': 'Prekinuto',
+  'ide.chat.subagent.failedFallback': 'Ovaj subagent se zaustavio prije nego što je završio.',
 }

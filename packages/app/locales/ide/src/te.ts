@@ -690,4 +690,8 @@ export const te: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} దాటవేసారు',
   'ide.tests.skippedByUser': 'రన్ పూర్తయింది. మీరు దాటవేసిన పరీక్షలు జరగలేదు.',
   'ide.tests.viewerCannotSkip': 'ఈ ప్రాజెక్ట్ యొక్క పరీక్షలను ఎడిటర్లు మాత్రమే దాటవేయగలరు.',
+  'ide.toolCall.interruptedByRestart':
+    'పునఃప్రారంభం కారణంగా ఈ దశకు అంతరాయం కలిగింది; దాని ప్రభావం తెలియదు.',
+  'ide.toolCall.statusInterrupted': 'అంతరాయం కలిగింది',
+  'ide.chat.subagent.failedFallback': 'ఈ ఉప-ఏజెంట్ పూర్తి కాకముందే ఆగిపోయింది.',
 }

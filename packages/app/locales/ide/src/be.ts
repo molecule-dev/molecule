@@ -692,4 +692,8 @@ export const be: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} прапушчана',
   'ide.tests.skippedByUser': 'Выкананне завершана. Прапушчаныя вамі тэсты не былі выкананы.',
   'ide.tests.viewerCannotSkip': 'Толькі рэдактары могуць прапусціць тэсты гэтага праекта.',
+  'ide.toolCall.interruptedByRestart':
+    'Гэты крок быў перапынены перазагрузкай; яго эфект невядомы.',
+  'ide.toolCall.statusInterrupted': 'Перапынена',
+  'ide.chat.subagent.failedFallback': 'Гэты падагент спыніўся, не дачакаўшыся свайго завяршэння.',
 }

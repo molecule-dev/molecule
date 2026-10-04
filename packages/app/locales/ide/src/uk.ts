@@ -703,4 +703,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} пропущено',
   'ide.tests.skippedByUser': 'Виконання завершено. Тести, які ви пропустили, не були виконані.',
   'ide.tests.viewerCannotSkip': 'Пройти тести цього проєкту можуть лише редактори.',
+  'ide.toolCall.interruptedByRestart':
+    'Цей крок було перервано перезапуском; його ефект невідомий.',
+  'ide.toolCall.statusInterrupted': 'Перервано',
+  'ide.chat.subagent.failedFallback': 'Цей субагент зупинився, не дочекавшись завершення.',
 }

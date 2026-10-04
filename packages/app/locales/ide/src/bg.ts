@@ -705,4 +705,8 @@ export const bg: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'Изпълнението приключи. Тестовете, които сте пропуснали, не са били изпълнени.',
   'ide.tests.viewerCannotSkip': 'Само редакторите могат да пропуснат тестовете за този проект.',
+  'ide.toolCall.interruptedByRestart':
+    'Тази стъпка беше прекъсната от рестартиране; ефектът от нея е неизвестен.',
+  'ide.toolCall.statusInterrupted': 'Прекъснато',
+  'ide.chat.subagent.failedFallback': 'Тозият подагент спря преди да е завършил.',
 }

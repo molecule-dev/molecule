@@ -699,4 +699,8 @@ export const tr: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} atlandı',
   'ide.tests.skippedByUser': 'Çalıştırma tamamlandı. Atladığınız testler çalıştırılmadı.',
   'ide.tests.viewerCannotSkip': 'Yalnızca editörler bu projenin testlerini atlayabilir.',
+  'ide.toolCall.interruptedByRestart':
+    'Bu adım bir yeniden başlatma işlemiyle kesintiye uğradı; etkisi bilinmiyor.',
+  'ide.toolCall.statusInterrupted': 'Kesintiye uğradı',
+  'ide.chat.subagent.failedFallback': 'Bu alt ajan işini bitirmeden durdu.',
 }

@@ -688,4 +688,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} वगळले',
   'ide.tests.skippedByUser': 'रन पूर्ण झाले. तुम्ही वगळलेल्या चाचण्या रन झाल्या नाहीत.',
   'ide.tests.viewerCannotSkip': 'फक्त संपादकच या प्रकल्पाच्या चाचण्या वगळू शकतात.',
+  'ide.toolCall.interruptedByRestart': 'हा टप्पा रीस्टार्टमुळे थांबला; त्याचा परिणाम अज्ञात आहे.',
+  'ide.toolCall.statusInterrupted': 'व्यत्यय आला',
+  'ide.chat.subagent.failedFallback': 'हा उप-एजंट काम पूर्ण होण्याआधीच थांबला.',
 }

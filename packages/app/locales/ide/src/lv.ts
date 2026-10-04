@@ -697,4 +697,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} izlaists',
   'ide.tests.skippedByUser': 'Izpilde pabeigta. Izlaistie testi netika izpildīti.',
   'ide.tests.viewerCannotSkip': 'Tikai redaktori var izlaist šī projekta testus.',
+  'ide.toolCall.interruptedByRestart': 'Šo darbību pārtrauca restartēšana; tās ietekme nav zināma.',
+  'ide.toolCall.statusInterrupted': 'Pārtraukts',
+  'ide.chat.subagent.failedFallback': 'Šis apakšaģents apstājās, pirms tas bija beidzies.',
 }

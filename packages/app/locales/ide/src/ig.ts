@@ -687,4 +687,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} wụfuru',
   'ide.tests.skippedByUser': 'Ọsọ agwụla. Ule ndị ị gbapụrụ agbaghị.',
   'ide.tests.viewerCannotSkip': 'Naanị ndị nchịkọta akụkọ nwere ike ịgafe ule ọrụ a.',
+  'ide.toolCall.interruptedByRestart': 'Mmalitegharịa kwụsịrị usoro a; amaghị mmetụta ya.',
+  'ide.toolCall.statusInterrupted': 'Ekwusiri ya',
+  'ide.chat.subagent.failedFallback': 'Ihe nnọchite anya a kwụsịrị tupu ọ gwụchaa.',
 }

@@ -692,4 +692,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser': 'Rith críochnaithe. Níor rith na tástálacha a scipeáil tú.',
   'ide.tests.viewerCannotSkip':
     'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a scipeáil.',
+  'ide.toolCall.interruptedByRestart':
+    'Cuireadh isteach ar an gcéim seo le hatosú; níl a éifeacht ar eolas.',
+  'ide.toolCall.statusInterrupted': 'Curtha isteach',
+  'ide.chat.subagent.failedFallback': 'Stop an fo-ghníomhaire seo sular chríochnaigh sé.',
 }

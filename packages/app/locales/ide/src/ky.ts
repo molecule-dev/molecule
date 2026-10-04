@@ -691,4 +691,8 @@ export const ky: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} өткөрүлүп жиберилди',
   'ide.tests.skippedByUser': 'Иштөө аяктады. Сиз өткөрүп жиберген тесттер ишке ашкан жок.',
   'ide.tests.viewerCannotSkip': 'Бул долбоордун сыноолорун редакторлор гана өткөрүп жибере алышат.',
+  'ide.toolCall.interruptedByRestart':
+    'Бул кадам кайра жүктөө менен үзгүлтүккө учурады; анын таасири белгисиз.',
+  'ide.toolCall.statusInterrupted': 'Үзгүлтүккө учурады',
+  'ide.chat.subagent.failedFallback': 'Бул субагент бүтө электе эле токтоп калды.',
 }

@@ -693,4 +693,8 @@ export const gl: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} omitido',
   'ide.tests.skippedByUser': 'Execución rematada. As probas que omitiches non se executaron.',
   'ide.tests.viewerCannotSkip': 'Só os editores poden omitir as probas deste proxecto.',
+  'ide.toolCall.interruptedByRestart':
+    'Este paso foi interrompido por un reinicio; descoñécese o seu efecto.',
+  'ide.toolCall.statusInterrupted': 'Interrompido',
+  'ide.chat.subagent.failedFallback': 'Este subaxente parou antes de rematar.',
 }

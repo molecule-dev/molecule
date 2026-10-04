@@ -29,6 +29,8 @@ import {
   basename,
   extractFilePath,
   fileDiffStats,
+  interruptedByRestartLine,
+  isInterruptedByRestart,
   isSkippedByUser,
   moleculeDocPath,
   normalizeAskUserInput,
@@ -36,6 +38,7 @@ import {
   num,
   parseJudgeVerdict,
   str,
+  subagentErrorLine,
   toolLabel,
   toolSummary,
 } from './tool-call-utilities.js'
@@ -402,6 +405,12 @@ function renderIn(name: string, input: unknown): ReactNode {
 function renderOut(name: string, output: unknown): ReactNode {
   const out = (output ?? {}) as Inp
 
+  // The result's `message` is written for the model ("Check the actual state
+  // first…"); the person gets one plain sentence.
+  if (isInterruptedByRestart(output)) {
+    return <span style={{ opacity: 0.7 }}>{interruptedByRestartLine()}</span>
+  }
+
   if (typeof out === 'object' && out !== null && 'error' in out) {
     return (
       <pre style={{ ...PRE, color: '#f47067' }}>{str(out.error) ?? JSON.stringify(out.error)}</pre>
@@ -685,9 +694,12 @@ export const ToolCallCard = memo(function ToolCallCard({
   // the row has to say so — a green dot on a command that never ran is exactly
   // the kind of quiet lie the honesty rule exists to stop.
   const wasSkipped = isSkippedByUser(output)
+  // A restart cut the call off: its effect is unknown, so it is shown like a
+  // skip (gray, never green) with its own word and sentence.
+  const wasInterrupted = isInterruptedByRestart(output)
 
   const hasError = (() => {
-    if (wasSkipped) return false
+    if (wasSkipped || wasInterrupted) return false
     if (status === 'error') return true
     if (typeof output !== 'object' || output === null) return false
     const out = output as Record<string, unknown>
@@ -704,9 +716,9 @@ export const ToolCallCard = memo(function ToolCallCard({
   })()
 
   // gray → orange → green or red; a skipped call stays gray, because it did
-  // not happen.
+  // not happen, and so does an interrupted one, because nobody knows if it did.
   const dotColor =
-    status === 'pending' || wasSkipped
+    status === 'pending' || wasSkipped || wasInterrupted
       ? '#888888'
       : status === 'running'
         ? '#e8a000'
@@ -940,8 +952,17 @@ export const ToolCallCard = memo(function ToolCallCard({
       ? out.changedPaths.filter((path): path is string => typeof path === 'string')
       : []
     const agentModel = typeof inp.model === 'string' ? inp.model : ''
-    const errorText = typeof out.error === 'string' ? out.error : ''
-    const report = typeof out.report === 'string' ? out.report : ''
+    // A failed run carries `error` (one sentence for the person) and `report`
+    // (instructions for the model: "Treat its part as unfinished…"). The card
+    // shows only the first; the report is never the person's to read. A card
+    // recorded before `error` rode every failure path has only the report, so
+    // a report that opens as a failure counts as one too.
+    const rawReport = typeof out.report === 'string' ? out.report : ''
+    const interrupted = isInterruptedByRestart(output)
+    const errorText = interrupted
+      ? interruptedByRestartLine()
+      : subagentErrorLine(out.error, rawReport)
+    const report = errorText ? '' : rawReport
     const verdict = kind === 'judge' ? parseJudgeVerdict(report) : null
     const [expanded, setExpanded] = useState(false)
     const borderClr = isLight ? '#d0d7de' : '#3d444d'
@@ -981,8 +1002,9 @@ export const ToolCallCard = memo(function ToolCallCard({
               height: 8,
               borderRadius: '50%',
               flexShrink: 0,
-              background:
-                status === 'error' || errorText
+              background: interrupted
+                ? '#888888'
+                : status === 'error' || errorText
                   ? '#f04040'
                   : status === 'done'
                     ? '#3fb950'
@@ -1024,7 +1046,7 @@ export const ToolCallCard = memo(function ToolCallCard({
             style={{
               padding: '8px 12px',
               fontSize: '12px',
-              color: '#f8554f',
+              ...(interrupted ? { opacity: 0.7 } : { color: '#f8554f' }),
               borderBottom: `1px solid ${borderClr}`,
             }}
           >

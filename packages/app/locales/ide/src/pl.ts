@@ -704,4 +704,8 @@ export const pl: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'Wykonanie zakończone. Testy, które pominąłeś, nie zostały uruchomione.',
   'ide.tests.viewerCannotSkip': 'Tylko redaktorzy mogą pominąć testy tego projektu.',
+  'ide.toolCall.interruptedByRestart':
+    'Ten krok został przerwany przez ponowne uruchomienie; jego skutek nie jest znany.',
+  'ide.toolCall.statusInterrupted': 'Przerwany',
+  'ide.chat.subagent.failedFallback': 'Ten podagent zatrzymał się przed zakończeniem pracy.',
 }

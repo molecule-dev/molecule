@@ -673,4 +673,7 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} 跳過',
   'ide.tests.skippedByUser': '執行完成。您跳過的測試並未執行。',
   'ide.tests.viewerCannotSkip': '只有編輯者才能跳過此專案的測試。',
+  'ide.toolCall.interruptedByRestart': '此步驟因重啟而中斷；其影響未知。',
+  'ide.toolCall.statusInterrupted': '中斷',
+  'ide.chat.subagent.failedFallback': '這個分包商在任務完成前就停止了。',
 }

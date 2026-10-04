@@ -691,4 +691,8 @@ export const kn: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ಬಿಟ್ಟುಬಿಡಲಾಗಿದೆ',
   'ide.tests.skippedByUser': 'ಓಟ ಮುಗಿದಿದೆ. ನೀವು ಬಿಟ್ಟುಬಿಟ್ಟ ಪರೀಕ್ಷೆಗಳು ನಡೆಯಲಿಲ್ಲ.',
   'ide.tests.viewerCannotSkip': 'ಈ ಯೋಜನೆಯ ಪರೀಕ್ಷೆಗಳನ್ನು ಸಂಪಾದಕರು ಮಾತ್ರ ಬಿಟ್ಟುಬಿಡಬಹುದು.',
+  'ide.toolCall.interruptedByRestart':
+    'ಈ ಹಂತವು ಪುನರಾರಂಭದಿಂದ ಅಡ್ಡಿಪಡಿಸಲ್ಪಟ್ಟಿದೆ; ಅದರ ಪರಿಣಾಮ ತಿಳಿದಿಲ್ಲ.',
+  'ide.toolCall.statusInterrupted': 'ಅಡಚಣೆ ಉಂಟಾಗಿದೆ',
+  'ide.chat.subagent.failedFallback': 'ಈ ಉಪ ಏಜೆಂಟ್ ಮುಗಿಯುವ ಮೊದಲೇ ನಿಂತುಹೋಯಿತು.',
 }

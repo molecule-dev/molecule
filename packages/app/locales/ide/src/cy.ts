@@ -688,4 +688,8 @@ export const cy: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} hepgor',
   'ide.tests.skippedByUser': 'Gorffennwyd y rhediad. Ni redodd y profion a hepgorwyd gennych.',
   'ide.tests.viewerCannotSkip': 'Dim ond golygyddion all hepgor profion y prosiect hwn.',
+  'ide.toolCall.interruptedByRestart':
+    'Torrwyd ar draws y cam hwn gan ailgychwyn; nid yw ei effaith yn hysbys.',
+  'ide.toolCall.statusInterrupted': "Wedi'i dorri ar draws",
+  'ide.chat.subagent.failedFallback': 'Stopiodd yr is-asiant hwn cyn iddo orffen.',
 }

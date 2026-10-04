@@ -707,4 +707,8 @@ export const es: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'La ejecución ha finalizado. Las pruebas que te has saltado no se han ejecutado.',
   'ide.tests.viewerCannotSkip': 'Solo los editores pueden saltarse las pruebas de este proyecto.',
+  'ide.toolCall.interruptedByRestart':
+    'Este paso se vio interrumpido por un reinicio; se desconoce su efecto.',
+  'ide.toolCall.statusInterrupted': 'Interrumpido',
+  'ide.chat.subagent.failedFallback': 'Este subagente se detuvo antes de terminar.',
 }

@@ -585,6 +585,11 @@ function buildCtxUpdate(ctx: MsgStreamCtx): Partial<ChatMessage> {
  * provider's loadHistory derivation so the live and reloaded tool cards agree
  * (status is not persisted — both sides derive it from `output`).
  *
+ * A call the person skipped (`skipped_by_user`) or a restart interrupted
+ * (`interrupted_by_restart`) is terminal but neither a success nor a failure:
+ * it derives 'done' here (finished, nothing to wait for), and the tool card
+ * reads the output's `status` to show it gray with its own word, never green.
+ *
  * @param output - The tool call's output payload.
  * @returns 'error' if the output looks like an error object, else 'done'.
  */
@@ -1715,6 +1720,25 @@ export function useChat(options: UseChatOptions): UseChatResult {
       ctx.flushNow(() => ({ ...buildCtxUpdate(ctx), isStreaming: false }))
     }
 
+    const applyOrphanToolResult = (toolCallId: string, output: unknown): void => {
+      const holder = getMessageStore(storageKey).messages.find((m) =>
+        m.toolCalls?.some((tc) => tc.id === toolCallId),
+      )
+      if (!holder) return
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === holder.id && m.toolCalls
+            ? {
+                ...m,
+                toolCalls: m.toolCalls.map((tc) =>
+                  tc.id === toolCallId ? { ...tc, output, status: deriveToolStatus(output) } : tc,
+                ),
+              }
+            : m,
+        ),
+      )
+    }
+
     const startMessage = (id: string, timestamp: number): void => {
       // Flush + finalize the OUTGOING message BEFORE re-pointing the shared flush timer,
       // so its last batched text isn't overwritten and lost at the boundary (EC-3).
@@ -1750,6 +1774,11 @@ export function useChat(options: UseChatOptions): UseChatResult {
       // ── Structural / ctx-independent events ──
       switch (event.type) {
         case 'message_start':
+          // A status line shown before this message (e.g. "The AI provider
+          // dropped the reply, so Synthase is resuming it…") has done its job
+          // once the resumed reply starts: clear it after its dwell instead of
+          // leaving it pinned over the new text.
+          enqueueStatus(null)
           startMessage(event.id, event.timestamp)
           return
         case 'attached': {
@@ -1842,7 +1871,15 @@ export function useChat(options: UseChatOptions): UseChatResult {
 
       // ── Content events — belong to the CURRENT message ──
       const ctx = currentCtx
-      if (!ctx) return // a content event before any message_start — ignore (shouldn't happen)
+      if (!ctx) {
+        // A tool result before any message_start: this tab's resume restarted
+        // the turn and the server settled a call from the PREVIOUS message (an
+        // interrupted write reported as `interrupted_by_restart`). Apply it to
+        // the message that holds that call, or its card stays "Running" until
+        // a reload. Any other content event before a message_start is ignored.
+        if (event.type === 'tool_result') applyOrphanToolResult(event.id, event.output)
+        return
+      }
 
       applyContentEvent(ctx, event)
     }

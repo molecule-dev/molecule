@@ -699,4 +699,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} kihagyott',
   'ide.tests.skippedByUser': 'A futtatás befejeződött. Az áthugyozott tesztek nem futottak le.',
   'ide.tests.viewerCannotSkip': 'Csak a szerkesztők hagyhatják ki ennek a projektnek a tesztjeit.',
+  'ide.toolCall.interruptedByRestart':
+    'Ezt a lépést egy újraindítás szakította félbe; a hatása ismeretlen.',
+  'ide.toolCall.statusInterrupted': 'Megszakított',
+  'ide.chat.subagent.failedFallback': 'Ez az alügynök megállt, mielőtt befejezte volna.',
 }

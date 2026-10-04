@@ -683,4 +683,7 @@ export const he: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} דילג',
   'ide.tests.skippedByUser': 'ההפעלה הסתיימה. הבדיקות שדילגת עליהן לא בוצעו.',
   'ide.tests.viewerCannotSkip': 'רק עורכים יכולים לדלג על הבדיקות של פרויקט זה.',
+  'ide.toolCall.interruptedByRestart': 'שלב זה נקטע על ידי הפעלה מחדש; השפעתו אינה ידועה.',
+  'ide.toolCall.statusInterrupted': 'מוּפרָע',
+  'ide.chat.subagent.failedFallback': 'סוכן המשנה הזה עצר לפני שסיים.',
 }

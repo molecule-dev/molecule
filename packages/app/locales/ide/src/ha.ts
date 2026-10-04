@@ -692,4 +692,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} tsallake',
   'ide.tests.skippedByUser': 'Gudu ya ƙare. Gwaje-gwajen da ka tsallake ba su gudana ba.',
   'ide.tests.viewerCannotSkip': 'Editoci ne kawai za su iya tsallake gwaje-gwajen wannan aikin.',
+  'ide.toolCall.interruptedByRestart':
+    'An katse wannan matakin ta hanyar sake kunnawa; ba a san tasirinsa ba.',
+  'ide.toolCall.statusInterrupted': 'An katse',
+  'ide.chat.subagent.failedFallback': 'Wannan wakilin ya tsaya kafin ya gama.',
 }

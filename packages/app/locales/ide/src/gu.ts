@@ -686,4 +686,8 @@ export const gu: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} છોડી દીધું',
   'ide.tests.skippedByUser': 'દોડ પૂરી થઈ. તમે જે પરીક્ષણો છોડી દીધા તે ચાલ્યા નહીં.',
   'ide.tests.viewerCannotSkip': 'ફક્ત સંપાદકો જ આ પ્રોજેક્ટના પરીક્ષણો છોડી શકે છે.',
+  'ide.toolCall.interruptedByRestart':
+    'આ પગલું પુનઃપ્રારંભ દ્વારા અટકાવવામાં આવ્યું હતું; તેની અસર અજાણ છે.',
+  'ide.toolCall.statusInterrupted': 'વિક્ષેપિત',
+  'ide.chat.subagent.failedFallback': 'આ સબએજન્ટ કામ પૂરું થાય તે પહેલાં જ બંધ થઈ ગયો.',
 }

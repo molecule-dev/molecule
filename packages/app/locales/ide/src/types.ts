@@ -642,6 +642,9 @@ export type IdeTranslationKey =
   | 'ide.tests.fixWithSynthase'
   | 'ide.tests.fixFailures'
   | 'ide.tests.fixBusy'
+  | 'ide.toolCall.interruptedByRestart'
+  | 'ide.toolCall.statusInterrupted'
+  | 'ide.chat.subagent.failedFallback'
 
 /** Translation record mapping ide keys to translated strings. */
 export type IdeTranslations = Record<IdeTranslationKey, string>

@@ -688,4 +688,8 @@ export const pa: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ਛੱਡਿਆ ਗਿਆ',
   'ide.tests.skippedByUser': 'ਦੌੜ ਪੂਰੀ ਹੋ ਗਈ। ਤੁਹਾਡੇ ਵੱਲੋਂ ਛੱਡੇ ਗਏ ਟੈਸਟ ਨਹੀਂ ਚੱਲੇ।',
   'ide.tests.viewerCannotSkip': 'ਸਿਰਫ਼ ਸੰਪਾਦਕ ਹੀ ਇਸ ਪ੍ਰੋਜੈਕਟ ਦੇ ਟੈਸਟਾਂ ਨੂੰ ਛੱਡ ਸਕਦੇ ਹਨ।',
+  'ide.toolCall.interruptedByRestart':
+    'ਇਸ ਕਦਮ ਨੂੰ ਮੁੜ ਚਾਲੂ ਕਰਨ ਨਾਲ ਰੋਕਿਆ ਗਿਆ ਸੀ; ਇਸਦਾ ਪ੍ਰਭਾਵ ਅਣਜਾਣ ਹੈ।',
+  'ide.toolCall.statusInterrupted': 'ਰੁਕਾਵਟ ਆਈ',
+  'ide.chat.subagent.failedFallback': 'ਇਹ ਸਬ-ਏਜੰਟ ਆਪਣੇ ਕੰਮ ਖਤਮ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਹੀ ਰੁਕ ਗਿਆ।',
 }

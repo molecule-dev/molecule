@@ -695,4 +695,8 @@ export const vi: Partial<IdeTranslations> = {
     'Quá trình chạy đã hoàn tất. Các bài kiểm tra bạn đã bỏ qua không được thực thi.',
   'ide.tests.viewerCannotSkip':
     'Chỉ những người biên tập mới có thể bỏ qua các bài kiểm tra của dự án này.',
+  'ide.toolCall.interruptedByRestart':
+    'Bước này đã bị gián đoạn do khởi động lại; tác động của việc này chưa được biết.',
+  'ide.toolCall.statusInterrupted': 'Bị gián đoạn',
+  'ide.chat.subagent.failedFallback': 'Tác nhân phụ này đã dừng lại trước khi hoàn thành.',
 }

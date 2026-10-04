@@ -700,4 +700,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'Spustenie bolo dokončené. Testy, ktoré ste preskočili, sa nespustili.',
   'ide.tests.viewerCannotSkip': 'Testy tohto projektu môžu preskočiť iba redaktori.',
+  'ide.toolCall.interruptedByRestart':
+    'Tento krok bol prerušený reštartom; jeho účinok nie je známy.',
+  'ide.toolCall.statusInterrupted': 'Prerušené',
+  'ide.chat.subagent.failedFallback': 'Tento subagent sa zastavil pred dokončením.',
 }

@@ -690,4 +690,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} 건뜬',
   'ide.tests.skippedByUser': '실행이 완료되었습니다. 건너뛴 테스트는 실행되지 않았습니다.',
   'ide.tests.viewerCannotSkip': '이 프로젝트의 테스트를 건너뛸 수 있는 사람은 편집자뿐입니다.',
+  'ide.toolCall.interruptedByRestart':
+    '이 단계는 재시작으로 인해 중단되었으며, 그 영향은 알 수 없습니다.',
+  'ide.toolCall.statusInterrupted': '중단된',
+  'ide.chat.subagent.failedFallback': '이 하위 요원은 작업을 완료하기 전에 멈췄습니다.',
 }

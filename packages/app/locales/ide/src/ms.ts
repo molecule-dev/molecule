@@ -692,4 +692,8 @@ export const ms: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} dilangkau',
   'ide.tests.skippedByUser': 'Jalankan selesai. Ujian yang anda langkau tidak berjalan.',
   'ide.tests.viewerCannotSkip': 'Hanya editor sahaja yang boleh melangkau ujian projek ini.',
+  'ide.toolCall.interruptedByRestart':
+    'Langkah ini terganggu oleh permulaan semula; kesannya tidak diketahui.',
+  'ide.toolCall.statusInterrupted': 'Terganggu',
+  'ide.chat.subagent.failedFallback': 'Subejen ini berhenti sebelum ia selesai.',
 }

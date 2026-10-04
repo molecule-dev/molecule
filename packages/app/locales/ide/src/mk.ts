@@ -691,4 +691,8 @@ export const mk: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'Извршувањето е завршено. Тестовите што ги прескокнавте не се извршија.',
   'ide.tests.viewerCannotSkip': 'Само уредниците можат да ги прескокнат тестовите на овој проект.',
+  'ide.toolCall.interruptedByRestart':
+    'Овој чекор беше прекинат со рестартирање; неговиот ефект е непознат.',
+  'ide.toolCall.statusInterrupted': 'Прекинато',
+  'ide.chat.subagent.failedFallback': 'Овој подагент застана пред да заврши.',
 }

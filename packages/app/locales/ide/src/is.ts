@@ -689,4 +689,8 @@ export const is: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} sleppt',
   'ide.tests.skippedByUser': 'Keyrslu lokið. Prófin sem þú slepptir keyrðust ekki.',
   'ide.tests.viewerCannotSkip': 'Aðeins ritstjórar geta sleppt prófunum í þessu verkefni.',
+  'ide.toolCall.interruptedByRestart':
+    'Þetta skref var truflað af endurræsingu; áhrif þess eru óþekkt.',
+  'ide.toolCall.statusInterrupted': 'Truflað',
+  'ide.chat.subagent.failedFallback': 'Þessi undirfulltrúi hætti áður en hann kláraði.',
 }

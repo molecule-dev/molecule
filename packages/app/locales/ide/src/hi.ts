@@ -687,4 +687,8 @@ export const hi: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} को छोड़ दिया',
   'ide.tests.skippedByUser': 'रन पूरा हो गया। आपके द्वारा छोड़े गए टेस्ट नहीं चले।',
   'ide.tests.viewerCannotSkip': 'इस प्रोजेक्ट के टेस्ट को केवल संपादक ही छोड़ सकते हैं।',
+  'ide.toolCall.interruptedByRestart':
+    'यह चरण एक रीस्टार्ट के कारण बाधित हुआ; इसका प्रभाव अज्ञात है।',
+  'ide.toolCall.statusInterrupted': 'बाधित',
+  'ide.chat.subagent.failedFallback': 'यह उप-एजेंट अपना कार्य पूरा करने से पहले ही रुक गया।',
 }

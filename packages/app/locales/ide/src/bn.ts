@@ -688,4 +688,8 @@ export const bn: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser': 'রান শেষ হয়েছে। আপনি যে টেস্টগুলো বাদ দিয়েছেন, সেগুলো রান হয়নি।',
   'ide.tests.viewerCannotSkip':
     'শুধুমাত্র সম্পাদকরাই এই প্রকল্পের পরীক্ষাগুলো এড়িয়ে যেতে পারবেন।',
+  'ide.toolCall.interruptedByRestart':
+    'রিস্টার্টের কারণে এই ধাপটি বাধাগ্রস্ত হয়েছিল; এর প্রভাব অজানা।',
+  'ide.toolCall.statusInterrupted': 'বাধাগ্রস্ত',
+  'ide.chat.subagent.failedFallback': 'এই উপ-এজেন্টটি শেষ করার আগেই থেমে গেল।',
 }

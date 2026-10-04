@@ -690,4 +690,8 @@ export const mt: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} maqbuż',
   'ide.tests.skippedByUser': 'It-tħaddim lest. It-testijiet li qbiżt ma twettqux.',
   'ide.tests.viewerCannotSkip': "L-edituri biss jistgħu jaqbżu t-testijiet ta' dan il-proġett.",
+  'ide.toolCall.interruptedByRestart':
+    'Dan il-pass ġie interrott minn bidu mill-ġdid; l-effett tiegħu mhux magħruf.',
+  'ide.toolCall.statusInterrupted': 'Interrott',
+  'ide.chat.subagent.failedFallback': 'Dan is-subaġent waqaf qabel ma spiċċa.',
 }

@@ -695,4 +695,8 @@ export const zu: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} kweqiwe',
   'ide.tests.skippedByUser': 'Ukugijima kuqediwe. Ukuhlolwa okweqile akwenzekanga.',
   'ide.tests.viewerCannotSkip': 'Abahleli kuphela abangakweqa ukuhlolwa kwale phrojekthi.',
+  'ide.toolCall.interruptedByRestart':
+    'Lesi sinyathelo siphazanyiswe ukuqala kabusha; umphumela waso awaziwa.',
+  'ide.toolCall.statusInterrupted': 'Kuphazanyisiwe',
+  'ide.chat.subagent.failedFallback': 'Lo mthengisi omncane wama ngaphambi kokuba aqede.',
 }

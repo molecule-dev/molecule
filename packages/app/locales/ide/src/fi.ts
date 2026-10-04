@@ -700,4 +700,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ohitettu',
   'ide.tests.skippedByUser': 'Suoritus on päättynyt. Ohittamasi testit eivät suorituneet.',
   'ide.tests.viewerCannotSkip': 'Vain toimittajat voivat ohittaa tämän projektin testit.',
+  'ide.toolCall.interruptedByRestart':
+    'Tämä vaihe keskeytettiin uudelleenkäynnistyksellä; sen vaikutusta ei tiedetä.',
+  'ide.toolCall.statusInterrupted': 'Keskeytetty',
+  'ide.chat.subagent.failedFallback': 'Tämä alasigentti pysähtyi ennen kuin se ehti valmistua.',
 }

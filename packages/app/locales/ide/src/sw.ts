@@ -691,4 +691,8 @@ export const sw: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ruka',
   'ide.tests.skippedByUser': 'Mbio imekamilika. Majaribio uliyoyaruka hayakufanyika.',
   'ide.tests.viewerCannotSkip': 'Wahariri pekee ndio wanaweza kuruka majaribio ya mradi huu.',
+  'ide.toolCall.interruptedByRestart':
+    'Hatua hii ilikatizwa na kuanza upya; athari yake haijulikani.',
+  'ide.toolCall.statusInterrupted': 'Imekatizwa',
+  'ide.chat.subagent.failedFallback': 'Mhudumu huyu alisimama kabla hajamaliza.',
 }

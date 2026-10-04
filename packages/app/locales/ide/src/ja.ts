@@ -698,4 +698,8 @@ export const ja: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} スキップした',
   'ide.tests.skippedByUser': '実行が完了しました。スキップしたテストは実行されませんでした。',
   'ide.tests.viewerCannotSkip': 'このプロジェクトのテストをスキップできるのは、編集者のみです。',
+  'ide.toolCall.interruptedByRestart':
+    'この手順は再起動によって中断されました。その影響は不明です。',
+  'ide.toolCall.statusInterrupted': '中断',
+  'ide.chat.subagent.failedFallback': 'このサブエージェントは完了する前に停止しました。',
 }

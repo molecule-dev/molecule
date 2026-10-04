@@ -692,4 +692,8 @@ export const km: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} រំលង',
   'ide.tests.skippedByUser': 'ដំណើរការ​រួចរាល់។ ការធ្វើតេស្តដែលអ្នកបានរំលងមិនដំណើរការទេ។',
   'ide.tests.viewerCannotSkip': 'មានតែអ្នកកែសម្រួលទេដែលអាចរំលងការធ្វើតេស្តរបស់គម្រោងនេះបាន។',
+  'ide.toolCall.interruptedByRestart':
+    'ជំហាននេះត្រូវបានរំខានដោយការចាប់ផ្តើមឡើងវិញ; ឥទ្ធិពលរបស់វាមិនទាន់ដឹងនៅឡើយទេ។',
+  'ide.toolCall.statusInterrupted': 'រំខាន',
+  'ide.chat.subagent.failedFallback': 'ភ្នាក់ងាររងនេះបានឈប់មុនពេលវាបញ្ចប់។',
 }

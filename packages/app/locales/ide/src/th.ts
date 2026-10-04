@@ -689,4 +689,8 @@ export const th: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ข้ามไป',
   'ide.tests.skippedByUser': 'การดำเนินการเสร็จสิ้นแล้ว การทดสอบที่คุณข้ามไปไม่ได้ถูกดำเนินการ',
   'ide.tests.viewerCannotSkip': 'เฉพาะบรรณาธิการเท่านั้นที่สามารถข้ามการทดสอบของโครงการนี้ได้',
+  'ide.toolCall.interruptedByRestart':
+    'ขั้นตอนนี้ถูกขัดจังหวะด้วยการรีสตาร์ท ผลกระทบที่เกิดขึ้นยังไม่ทราบแน่ชัด',
+  'ide.toolCall.statusInterrupted': 'ถูกขัดจังหวะ',
+  'ide.chat.subagent.failedFallback': 'ตัวแทนย่อยนี้หยุดทำงานก่อนที่จะเสร็จสิ้น',
 }

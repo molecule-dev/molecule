@@ -711,4 +711,8 @@ export const el: Partial<IdeTranslations> = {
     'Η εκτέλεση ολοκληρώθηκε. Οι δοκιμές που παραλείψατε δεν εκτελέστηκαν.',
   'ide.tests.viewerCannotSkip':
     'Μόνο οι συντάκτες μπορούν να παραλείψουν τις δοκιμές αυτού του έργου.',
+  'ide.toolCall.interruptedByRestart':
+    'Αυτό το βήμα διακόπηκε από επανεκκίνηση. Η επίδρασή του είναι άγνωστη.',
+  'ide.toolCall.statusInterrupted': 'Διακόπηκε',
+  'ide.chat.subagent.failedFallback': 'Αυτός ο υποπράκτορας σταμάτησε πριν τελειώσει.',
 }

@@ -693,4 +693,8 @@ export const uz: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser': "Yugurish tugadi. Siz o'tkazib yuborgan testlar bajarilmadi.",
   'ide.tests.viewerCannotSkip':
     "Ushbu loyihaning sinovlarini faqat muharrirlar o'tkazib yuborishi mumkin.",
+  'ide.toolCall.interruptedByRestart':
+    "Bu qadam qayta ishga tushirish bilan to'xtatildi; uning ta'siri noma'lum.",
+  'ide.toolCall.statusInterrupted': "To'xtatildi",
+  'ide.chat.subagent.failedFallback': "Bu subagent tugashidan oldin to'xtadi.",
 }

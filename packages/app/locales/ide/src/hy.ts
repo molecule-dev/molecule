@@ -691,4 +691,8 @@ export const hy: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} բաց թողնված',
   'ide.tests.skippedByUser': 'Գործարկումն ավարտվեց։ Ձեր բաց թողած թեստերը չեն գործարկվել։',
   'ide.tests.viewerCannotSkip': 'Միայն խմբագիրները կարող են բաց թողնել այս նախագծի թեստերը։',
+  'ide.toolCall.interruptedByRestart':
+    'Այս քայլը ընդհատվեց վերագործարկմամբ. դրա ազդեցությունը անհայտ է։',
+  'ide.toolCall.statusInterrupted': 'Ընդհատված',
+  'ide.chat.subagent.failedFallback': 'Այս ենթագործակալը կանգ առավ նախքան ավարտը։',
 }

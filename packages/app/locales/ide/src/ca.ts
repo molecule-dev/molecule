@@ -692,4 +692,8 @@ export const ca: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} omès',
   'ide.tests.skippedByUser': "Execució finalitzada. Les proves que has omès no s'han executat.",
   'ide.tests.viewerCannotSkip': "Només els editors poden ometre les proves d'aquest projecte.",
+  'ide.toolCall.interruptedByRestart':
+    "Aquest pas ha estat interromput per un reinici; se'n desconeix l'efecte.",
+  'ide.toolCall.statusInterrupted': 'Interromput',
+  'ide.chat.subagent.failedFallback': "Aquest subagent es va aturar abans d'acabar.",
 }

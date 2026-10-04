@@ -688,4 +688,8 @@ export const fa: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} از قلم افتاد',
   'ide.tests.skippedByUser': 'اجرا تمام شد. تست‌هایی که از آنها صرف نظر کردید، اجرا نشدند.',
   'ide.tests.viewerCannotSkip': 'فقط ویراستاران می‌توانند از آزمایش‌های این پروژه صرف نظر کنند.',
+  'ide.toolCall.interruptedByRestart':
+    'این مرحله با یک راه‌اندازی مجدد قطع شد؛ تأثیر آن ناشناخته است.',
+  'ide.toolCall.statusInterrupted': 'قطع شد',
+  'ide.chat.subagent.failedFallback': 'این نماینده فرعی قبل از اینکه کارش تمام شود، ایستاد.',
 }

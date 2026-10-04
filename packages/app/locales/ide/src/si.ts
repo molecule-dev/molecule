@@ -690,4 +690,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} මඟ හැරුණා',
   'ide.tests.skippedByUser': 'ධාවනය අවසන්. ඔබ මඟ හැරිය පරීක්ෂණ ක්‍රියාත්මක නොවීය.',
   'ide.tests.viewerCannotSkip': 'මෙම ව්‍යාපෘතියේ පරීක්ෂණ මඟ හැරිය හැක්කේ සංස්කාරකවරුන්ට පමණි.',
+  'ide.toolCall.interruptedByRestart': 'මෙම පියවර නැවත ආරම්භ කිරීමකින් බාධා විය; එහි බලපෑම නොදනී.',
+  'ide.toolCall.statusInterrupted': 'බාධා කරන ලදී',
+  'ide.chat.subagent.failedFallback': 'මෙම උප නියෝජිතයා එය අවසන් වීමට පෙර නතර විය.',
 }

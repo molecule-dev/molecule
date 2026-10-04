@@ -697,4 +697,8 @@ export const my: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'လုပ်ဆောင်ပြီးပါပြီ။ သင်ကျော်သွားသော စမ်းသပ်မှုများသည် လုပ်ဆောင်၍မရပါ။',
   'ide.tests.viewerCannotSkip': 'ဤပရောဂျက်၏ စမ်းသပ်မှုများကို အယ်ဒီတာများသာ ကျော်သွားနိုင်ပါသည်။',
+  'ide.toolCall.interruptedByRestart':
+    'ဤအဆင့်ကို ပြန်လည်စတင်ခြင်းဖြင့် အနှောင့်အယှက်ဖြစ်စေခဲ့ပြီး ၎င်း၏အကျိုးသက်ရောက်မှုကို မသိရသေးပါ။',
+  'ide.toolCall.statusInterrupted': 'အနှောင့်အယှက်ဖြစ်သွားသည်',
+  'ide.chat.subagent.failedFallback': 'ဤလက်အောက်ခံအေးဂျင့်သည် မပြီးမီ ရပ်သွားသည်။',
 }

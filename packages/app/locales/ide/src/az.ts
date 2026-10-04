@@ -689,4 +689,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} atlandı',
   'ide.tests.skippedByUser': 'Çalışdırma tamamlandı. Buraxdığınız testlər başlamadı.',
   'ide.tests.viewerCannotSkip': 'Yalnız redaktorlar bu layihənin testlərini atlaya bilərlər.',
+  'ide.toolCall.interruptedByRestart': 'Bu addım yenidən başlatma ilə kəsildi; təsiri məlum deyil.',
+  'ide.toolCall.statusInterrupted': 'Dayandırıldı',
+  'ide.chat.subagent.failedFallback': 'Bu subagent bitməmişdən əvvəl dayandı.',
 }

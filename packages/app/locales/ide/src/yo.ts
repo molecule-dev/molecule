@@ -724,4 +724,7 @@ export const yo: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} fò',
   'ide.tests.skippedByUser': 'Sáré parí. Àwọn ìdánwò tí o fò kò ṣiṣẹ́.',
   'ide.tests.viewerCannotSkip': 'Àwọn olóòtú nìkan ló lè fo àwọn ìdánwò iṣẹ́ yìí.',
+  'ide.toolCall.interruptedByRestart': 'A dá ìgbésẹ̀ yìí dúró nípa àtúnṣe; a kò mọ ipa rẹ̀.',
+  'ide.toolCall.statusInterrupted': 'Dídínà',
+  'ide.chat.subagent.failedFallback': 'Alábòójútó yìí dúró kí ó tó parí.',
 }

@@ -685,4 +685,8 @@ export const lo: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ຂ້າມໄປແລ້ວ',
   'ide.tests.skippedByUser': 'ແລ່ນສຳເລັດແລ້ວ. ການທົດສອບທີ່ທ່ານຂ້າມໄປບໍ່ໄດ້ແລ່ນ.',
   'ide.tests.viewerCannotSkip': 'ມີພຽງບັນນາທິການເທົ່ານັ້ນທີ່ສາມາດຂ້າມການທົດສອບຂອງໂຄງການນີ້ໄດ້.',
+  'ide.toolCall.interruptedByRestart':
+    'ຂັ້ນຕອນນີ້ຖືກຂັດຂວາງໂດຍການຣີສະຕາດ; ຜົນກະທົບຂອງມັນຍັງບໍ່ຮູ້ເທື່ອ.',
+  'ide.toolCall.statusInterrupted': 'ຖືກຂັດຂວາງ',
+  'ide.chat.subagent.failedFallback': 'ຕົວແທນຍ່ອຍນີ້ຢຸດກ່ອນທີ່ມັນຈະສຳເລັດ.',
 }

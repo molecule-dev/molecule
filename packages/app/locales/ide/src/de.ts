@@ -714,4 +714,8 @@ export const de: Partial<IdeTranslations> = {
   'ide.tests.skippedByUser':
     'Der Lauf ist beendet. Die von Ihnen übersprungenen Tests wurden nicht ausgeführt.',
   'ide.tests.viewerCannotSkip': 'Nur Redakteure können die Tests dieses Projekts überspringen.',
+  'ide.toolCall.interruptedByRestart':
+    'Dieser Schritt wurde durch einen Neustart unterbrochen; dessen Auswirkungen sind unbekannt.',
+  'ide.toolCall.statusInterrupted': 'Unterbrochen',
+  'ide.chat.subagent.failedFallback': 'Dieser Unteragent hat vor Abschluss der Aufgabe gestoppt.',
 }

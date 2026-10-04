@@ -687,4 +687,7 @@ export const ne: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} छोडियो',
   'ide.tests.skippedByUser': 'दौड सकियो। तपाईंले छोड्नुभएका परीक्षणहरू चलेनन्।',
   'ide.tests.viewerCannotSkip': 'यस परियोजनाको परीक्षणहरू सम्पादकहरूले मात्र छोड्न सक्छन्।',
+  'ide.toolCall.interruptedByRestart': 'यो चरण पुन: सुरु गरेर अवरुद्ध भयो; यसको प्रभाव अज्ञात छ।',
+  'ide.toolCall.statusInterrupted': 'अवरोध भयो',
+  'ide.chat.subagent.failedFallback': 'यो सबएजेन्टले काम सकिनुभन्दा पहिले नै रोकियो।',
 }

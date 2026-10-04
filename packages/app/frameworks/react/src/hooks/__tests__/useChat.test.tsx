@@ -2957,3 +2957,98 @@ describe('useChat — attaching to a live turn (the `attached` frame)', () => {
     expect(polls).toBeLessThanOrEqual(3)
   })
 })
+
+// ── A turn the server resumes ─────────────────────────────────────────────
+
+describe('useChat — resumed turns', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+
+  afterEach(() => {
+    sessionStorage.clear()
+    resetChatStoresForTests()
+  })
+
+  it('applies a tool_result that arrives before any message_start to the message holding the call', async () => {
+    const { provider, emit, complete, startMessage, emitText } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build it')
+    })
+    await act(async () => {
+      startMessage(0, 'a1')
+      emit(0, { type: 'tool_use', id: 'tc-1', name: 'write_file', input: { path: 'a.ts' } })
+      complete(0)
+    })
+    const running = result.current.messages.find((m) => m.id === 'a1')
+    expect(running?.toolCalls?.[0]?.status).toBe('running')
+
+    await act(async () => {
+      result.current.sendMessage('go on')
+    })
+    const interrupted = { status: 'interrupted_by_restart', message: 'unknown effect' }
+    await act(async () => {
+      // The restarted turn settles the previous message's call first.
+      emit(1, { type: 'tool_result', id: 'tc-1', output: interrupted })
+      startMessage(1, 'a2')
+      emitText(1, 'checking the file')
+      complete(1)
+    })
+
+    await waitFor(() => {
+      const holder = result.current.messages.find((m) => m.id === 'a1')
+      expect(holder?.toolCalls?.[0]?.status).toBe('done')
+      expect(holder?.toolCalls?.[0]?.output).toEqual(interrupted)
+    })
+  })
+
+  it('a status line does not end the turn, and clears once the resumed reply starts', async () => {
+    const { provider, emit, complete, startMessage, emitText } = createMockProvider()
+    const { result } = renderHook(
+      () => useChat({ endpoint: ENDPOINT, projectId: PROJECT_ID, loadOnMount: false }),
+      { wrapper: createWrapper(provider) },
+    )
+
+    await act(async () => {
+      result.current.sendMessage('build it')
+    })
+    await act(async () => {
+      startMessage(0, 'a1')
+      emitText(0, 'partial')
+      emit(0, {
+        type: 'status',
+        label: 'The AI provider dropped the reply, so Synthase is resuming it…',
+      })
+    })
+    await waitFor(() => {
+      expect(result.current.streamingStatus).toBe(
+        'The AI provider dropped the reply, so Synthase is resuming it…',
+      )
+    })
+    expect(result.current.isLoading).toBe(true)
+    expect(result.current.error).toBeNull()
+
+    await act(async () => {
+      startMessage(0, 'a2')
+      emitText(0, 'continuing')
+    })
+    await waitFor(
+      () => {
+        expect(result.current.streamingStatus).toBeNull()
+      },
+      { timeout: 2_000 },
+    )
+    expect(result.current.isLoading).toBe(true)
+
+    await act(async () => {
+      complete(0)
+    })
+    expect(result.current.isLoading).toBe(false)
+  })
+})
