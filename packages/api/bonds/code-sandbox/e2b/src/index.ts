@@ -47,6 +47,12 @@
  * could not look" must not reach a control plane as "I looked, and it is safe"
  * (Rule 18: never trade cost for security).
  *
+ * **A probe that sees NO network is `inconclusive`, not `open`.** When the
+ * allow-listed control host does not answer either, the probe sandbox itself has
+ * no network and observed nothing about the policy. `open` requires a denied
+ * probe to answer a real HTTP status. (A no-network probe once read as open and
+ * kept a control plane from booting.)
+ *
  * **E2B pauses, it does not stop.** `sleep()`/`stop()` both map to E2B pause
  * (FS + memory snapshot); `wake()`/`start()` reconnect by id. `hibernate()`/
  * `resume()` report `processesPreserved: true` because the memory snapshot

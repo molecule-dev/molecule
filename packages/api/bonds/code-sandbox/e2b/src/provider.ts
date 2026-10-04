@@ -1348,7 +1348,10 @@ export class E2BSandboxProvider implements SandboxProvider {
       const code = async (host: string): Promise<string> =>
         (
           await handle.exec(
-            `curl -s -o /dev/null -m 8 -w '%{http_code}' https://${host}/ || echo 000`,
+            // No `|| echo 000`: exec RETURNS a non-zero exit as data, and curl
+            // already prints `000` for "no response" — the fallback appended a
+            // second one (`000000`).
+            `curl -s -o /dev/null -m 8 -w '%{http_code}' https://${host}/`,
           )
         ).stdout.trim()
       const [allowed, deniedHost, deniedIp] = await Promise.all([
@@ -1356,25 +1359,70 @@ export class E2BSandboxProvider implements SandboxProvider {
         code(EGRESS_PROBE_DENY),
         code('1.1.1.1'),
       ])
-      const blocked = (c: string): boolean => c === '' || c.startsWith('000')
-      if (blocked(deniedHost) && blocked(deniedIp) && !blocked(allowed)) {
-        return {
-          state: 'filtered',
-          detail: `deny-by-default verified: ${EGRESS_PROBE_ALLOW}=${allowed} reachable; ${EGRESS_PROBE_DENY}=${deniedHost} and raw IP=${deniedIp} blocked.`,
-        }
-      }
-      return {
-        state: 'open',
-        detail: `Non-allow-listed egress was reachable (host=${deniedHost}, rawIP=${deniedIp}, allowed=${allowed}).`,
-        remediation:
-          'Ensure updateNetwork applies allowOut + denyOut:[0.0.0.0/0]; check the E2B account supports network policy.',
-      }
+      return classifyEgressProbe({ allowed, deniedHost, deniedIp })
     } catch (error) {
       return {
         state: 'inconclusive',
         detail: `Egress probe could not run: ${error instanceof Error ? error.message : String(error)}`,
       }
     }
+  }
+}
+
+/** The three curl `%{http_code}` outputs an egress probe observes. */
+export interface EgressProbeCodes {
+  /** The allow-listed control host — must answer for the probe to mean anything. */
+  allowed: string
+  /** A non-allow-listed hostname. */
+  deniedHost: string
+  /** A raw IP outside the allowlist. */
+  deniedIp: string
+}
+
+/**
+ * Turn the probe's curl codes into a verdict.
+ *
+ * - `open` only when a denied probe answered a real HTTP status — reachable
+ *   egress was OBSERVED;
+ * - `inconclusive` whenever the allow-listed control host did not answer — a
+ *   probe sandbox with no network at all blocks everything, which says nothing
+ *   about the policy (2026-10-04: `host=000, rawIP=000, allowed=000` was read
+ *   as open and production refused to boot);
+ * - `filtered` only when the control host answered AND both denied probes were
+ *   blocked (`000` / empty).
+ *
+ * @param codes - The observed curl codes.
+ * @returns The verdict.
+ */
+export function classifyEgressProbe(codes: EgressProbeCodes): EgressVerdict {
+  const { allowed, deniedHost, deniedIp } = codes
+  const answered = (c: string): boolean => /^[1-5]\d\d$/.test(c)
+  const blocked = (c: string): boolean => c === '' || /^0+$/.test(c)
+  if (answered(deniedHost) || answered(deniedIp)) {
+    return {
+      state: 'open',
+      detail: `Non-allow-listed egress was reachable (host=${deniedHost}, rawIP=${deniedIp}, allowed=${allowed}).`,
+      remediation:
+        'Ensure updateNetwork applies allowOut + denyOut:[0.0.0.0/0]; check the E2B account supports network policy.',
+    }
+  }
+  if (!answered(allowed)) {
+    return {
+      state: 'inconclusive',
+      detail: `probe sandbox had no network (allowed=${allowed}; host=${deniedHost}, rawIP=${deniedIp}).`,
+      remediation:
+        'The allow-listed control host did not answer, so the probe observed nothing. Check the sandbox template / E2B networking.',
+    }
+  }
+  if (blocked(deniedHost) && blocked(deniedIp)) {
+    return {
+      state: 'filtered',
+      detail: `deny-by-default verified: ${EGRESS_PROBE_ALLOW}=${allowed} reachable; ${EGRESS_PROBE_DENY}=${deniedHost} and raw IP=${deniedIp} blocked.`,
+    }
+  }
+  return {
+    state: 'inconclusive',
+    detail: `Egress probe output was unreadable (host=${deniedHost}, rawIP=${deniedIp}, allowed=${allowed}).`,
   }
 }
 
