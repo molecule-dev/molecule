@@ -9,10 +9,12 @@
  * @module
  */
 
-import type { StorageClass } from '@aws-sdk/client-s3'
+import type { ChecksumAlgorithm, StorageClass } from '@aws-sdk/client-s3'
 import {
   DeleteObjectCommand,
+  GetBucketVersioningCommand,
   GetObjectCommand,
+  GetObjectLockConfigurationCommand,
   HeadObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
@@ -33,7 +35,7 @@ import './secrets.js'
 
 import { t } from '@molecule/api-i18n'
 
-import type { File, S3UploadsConfig } from './types.js'
+import type { File, ObjectLockRetentionMode, S3UploadsConfig } from './types.js'
 
 /**
  * Metadata of a stored object, as returned by `headFile()`.
@@ -45,6 +47,64 @@ export interface S3FileHead {
   etag?: string
   /** When the object was last written, when the store returns it. */
   lastModified?: Date
+}
+
+/**
+ * A bucket's protection against overwrite and deletion, as reported by
+ * `describeBucketProtection()`.
+ */
+export interface BucketProtection {
+  /** Bucket versioning state; `'off'` when versioning was never enabled. */
+  versioning: 'Enabled' | 'Suspended' | 'off'
+  /** The bucket's Object Lock configuration. */
+  objectLock: {
+    /** Whether Object Lock is enabled on the bucket. */
+    enabled: boolean
+    /** Mode of the bucket's default retention rule, when one is set. */
+    mode?: ObjectLockRetentionMode
+    /** Default retention in days, when the rule is expressed in days. */
+    days?: number
+    /** Default retention in years, when the rule is expressed in years. */
+    years?: number
+  }
+  /** ISO-8601 time the bucket was checked. */
+  checkedAt: string
+}
+
+/**
+ * Checks a bucket's reported protection against a required minimum: versioning
+ * `Enabled`, Object Lock enabled, a default retention mode at least as strict as
+ * wanted (`COMPLIANCE` satisfies a `GOVERNANCE` want, not the reverse) and a
+ * default retention of at least `minDays` (years count as 365 days).
+ * @param protection - The result of `describeBucketProtection()`.
+ * @param want - The required mode and minimum default retention in days.
+ * @param want.mode - The weakest acceptable default retention mode.
+ * @param want.minDays - The shortest acceptable default retention, in days.
+ * @returns `ok`, and one plain-language reason per unmet requirement.
+ */
+export function bucketProtectionMeets(
+  protection: BucketProtection,
+  want: { mode: ObjectLockRetentionMode; minDays: number },
+): { ok: boolean; reasons: string[] } {
+  const reasons: string[] = []
+  if (protection.versioning !== 'Enabled') {
+    reasons.push(`versioning is ${protection.versioning}, not Enabled`)
+  }
+  const lock = protection.objectLock
+  if (!lock.enabled) {
+    reasons.push('object lock is not enabled on the bucket')
+  } else {
+    if (!lock.mode) {
+      reasons.push('the bucket has no default retention rule')
+    } else if (want.mode === 'COMPLIANCE' && lock.mode !== 'COMPLIANCE') {
+      reasons.push(`default retention mode is ${lock.mode}, COMPLIANCE is required`)
+    }
+    const days = (lock.days ?? 0) + (lock.years ?? 0) * 365
+    if (lock.mode && days < want.minDays) {
+      reasons.push(`default retention is ${days} days, at least ${want.minDays} are required`)
+    }
+  }
+  return { ok: reasons.length === 0, reasons }
 }
 
 /**
@@ -87,6 +147,15 @@ export interface S3UploadProvider extends UploadProvider {
    * @returns The object's metadata, or `null` if it does not exist.
    */
   headFile(id: string): Promise<S3FileHead | null>
+  /**
+   * Reads the bucket's versioning state and Object Lock configuration (including
+   * its default retention), so an app can assert at boot and periodically that an
+   * immutable bucket is still immutable. A bucket with no Object Lock
+   * configuration reports `objectLock.enabled: false`; any other failure (auth,
+   * missing bucket, network) throws.
+   * @returns The bucket's protection.
+   */
+  describeBucketProtection(): Promise<BucketProtection>
 }
 
 /**
@@ -176,6 +245,11 @@ function buildClient(config: S3UploadsConfig): S3Client {
     ...(endpoint ? { endpoint } : {}),
     ...(config.forcePathStyle ? { forcePathStyle: true } : {}),
     ...(config.credentials ? { credentials: { ...config.credentials } } : {}),
+    // 'none' opts this store out of the SDK's automatic CRC32 trailer (for an
+    // S3-compatible store that rejects it); otherwise the SDK default applies.
+    ...(config.checksumAlgorithm === 'none'
+      ? { requestChecksumCalculation: 'WHEN_REQUIRED' as const }
+      : {}),
     // Without timeouts a hung S3 socket stalls the caller forever. `socketTimeout`
     // is an inactivity timeout that destroys a stalled socket (large transfers
     // that keep moving are unaffected). `requestTimeout` is deliberately unset:
@@ -275,6 +349,15 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     const body = new PassThrough()
     stream.pipe(body)
 
+    // Object Lock retention is computed per upload, from the moment it starts.
+    // A lock PUT needs a checksum; with no explicit algorithm, CRC32 is named
+    // outright so an env-level WHEN_REQUIRED setting cannot drop it.
+    const checksum =
+      config.checksumAlgorithm && config.checksumAlgorithm !== 'none'
+        ? config.checksumAlgorithm
+        : config.objectLock
+          ? 'CRC32'
+          : undefined
     const s3Upload = new Upload({
       client: getClient(),
       params: {
@@ -286,6 +369,15 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
         ...(config.storageClass
           ? {
               StorageClass: config.storageClass as StorageClass,
+            }
+          : {}),
+        ...(checksum ? { ChecksumAlgorithm: checksum as ChecksumAlgorithm } : {}),
+        ...(config.objectLock
+          ? {
+              ObjectLockMode: config.objectLock.mode,
+              ObjectLockRetainUntilDate: new Date(
+                Date.now() + config.objectLock.retainDays * 86_400_000,
+              ),
             }
           : {}),
       },
@@ -462,6 +554,47 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     }
   }
 
+  const describeBucketProtection = async (): Promise<BucketProtection> => {
+    const bucket = config.bucket
+    if (!bucket) throw new Error(missingBucketMessage(envDriven))
+    let versioning: BucketProtection['versioning']
+    try {
+      const res = await getClient().send(new GetBucketVersioningCommand({ Bucket: bucket }))
+      versioning =
+        res.Status === 'Enabled' ? 'Enabled' : res.Status === 'Suspended' ? 'Suspended' : 'off'
+    } catch (error) {
+      trackBondFailure({ bond: 'uploads-s3', operation: 'describe-protection', error })
+      throw error
+    }
+    let objectLock: BucketProtection['objectLock']
+    try {
+      const res = await getClient().send(new GetObjectLockConfigurationCommand({ Bucket: bucket }))
+      const cfg = res.ObjectLockConfiguration
+      const retention = cfg?.Rule?.DefaultRetention
+      objectLock = {
+        enabled: cfg?.ObjectLockEnabled === 'Enabled',
+        ...(retention?.Mode ? { mode: retention.Mode as ObjectLockRetentionMode } : {}),
+        ...(retention?.Days !== undefined ? { days: retention.Days } : {}),
+        ...(retention?.Years !== undefined ? { years: retention.Years } : {}),
+      }
+    } catch (error) {
+      // A bucket created without Object Lock answers ObjectLockConfigurationNotFoundError
+      // (404). That is a fact about the bucket, not a failure to look; everything
+      // else (AccessDenied, NoSuchBucket, network) is a failure and must stay loud.
+      const e = error as { name?: string; $metadata?: { httpStatusCode?: number } }
+      if (
+        e.name === 'ObjectLockConfigurationNotFoundError' ||
+        (e.$metadata?.httpStatusCode === 404 && e.name !== 'NoSuchBucket')
+      ) {
+        objectLock = { enabled: false }
+      } else {
+        trackBondFailure({ bond: 'uploads-s3', operation: 'describe-protection', error })
+        throw error
+      }
+    }
+    return { versioning, objectLock, checkedAt: new Date().toISOString() }
+  }
+
   return {
     get client() {
       return getClient()
@@ -474,6 +607,7 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
     deleteFile,
     getFile,
     headFile,
+    describeBucketProtection,
   }
 }
 
@@ -483,13 +617,34 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
  * default env-configured `provider` and of every other instance.
  *
  * The client is created on first use. Upload, abort, delete and get behave
- * exactly like the default provider's, against this store.
+ * exactly like the default provider's, against this store. With `objectLock`,
+ * every upload carries its own Object Lock retention.
  *
  * @param config - The store configuration.
  * @returns A provider for that store.
  */
-export const createProvider = (config: S3UploadsConfig): S3UploadProvider =>
-  buildProvider({ ...config }, false)
+export const createProvider = (config: S3UploadsConfig): S3UploadProvider => {
+  if (config.objectLock) {
+    const { mode, retainDays } = config.objectLock
+    if (mode !== 'COMPLIANCE' && mode !== 'GOVERNANCE') {
+      throw new Error(`objectLock.mode must be 'COMPLIANCE' or 'GOVERNANCE' (got ${String(mode)}).`)
+    }
+    if (!Number.isFinite(retainDays) || retainDays <= 0) {
+      throw new Error(
+        `objectLock.retainDays must be a positive number (got ${String(retainDays)}).`,
+      )
+    }
+    if (config.checksumAlgorithm === 'none') {
+      throw new Error(
+        "checksumAlgorithm 'none' cannot be combined with objectLock: S3 rejects an Object Lock upload without a checksum.",
+      )
+    }
+  }
+  return buildProvider(
+    { ...config, ...(config.objectLock ? { objectLock: { ...config.objectLock } } : {}) },
+    false,
+  )
+}
 
 /**
  * The default, env-configured instance. Built on first use so `process.env` has
@@ -599,4 +754,5 @@ export const provider: S3UploadProvider = {
   deleteFile,
   getFile,
   headFile: (id: string) => getDefault().headFile(id),
+  describeBucketProtection: () => getDefault().describeBucketProtection(),
 }

@@ -6,6 +6,9 @@
 
 import type { UploadedFile } from '@molecule/api-uploads'
 
+/** S3 Object Lock retention mode. */
+export type ObjectLockRetentionMode = 'COMPLIANCE' | 'GOVERNANCE'
+
 export type { FileInfo, UploadedFile } from '@molecule/api-uploads'
 
 declare global {
@@ -138,6 +141,45 @@ export interface S3UploadsConfig {
    * back to `getFile`/`deleteFile`/`headFile` unchanged.
    */
   keyPrefix?: string
+
+  /**
+   * Per-object S3 Object Lock retention, asserted on every upload this provider
+   * makes (single PutObject and multipart alike): `ObjectLockMode` is `mode` and
+   * `ObjectLockRetainUntilDate` is `retainDays` days after the moment that
+   * upload starts. Use it for a backup/immutable bucket, so retention does not
+   * depend only on the bucket's default rule (which a full-access credential can
+   * shorten or remove).
+   *
+   * The bucket must have been created with Object Lock enabled; a PUT carrying
+   * lock headers to a bucket without it is rejected. An Object Lock PUT also
+   * needs a content checksum (Content-MD5 or an `x-amz-checksum-*`) — see
+   * `checksumAlgorithm`. When `objectLock` is set and `checksumAlgorithm` is not,
+   * `ChecksumAlgorithm: 'CRC32'` is sent explicitly, so an
+   * `AWS_REQUEST_CHECKSUM_CALCULATION=WHEN_REQUIRED` environment cannot drop it.
+   * `createProvider()` throws if `retainDays` is not a positive number or if
+   * `checksumAlgorithm` is `'none'`.
+   */
+  objectLock?: {
+    /** `COMPLIANCE`: no one can shorten or remove it. `GOVERNANCE`: holders of `s3:BypassGovernanceRetention` can. */
+    mode: ObjectLockRetentionMode
+    /** Retention length in days, counted from each upload's start. */
+    retainDays: number
+  }
+
+  /**
+   * Checksum algorithm sent as `ChecksumAlgorithm` on every upload. When unset the
+   * AWS SDK default applies (`requestChecksumCalculation: 'WHEN_SUPPORTED'`: a
+   * CRC32 checksum sent as a trailer). `'none'` turns the SDK's automatic
+   * checksum off for this store (`requestChecksumCalculation: 'WHEN_REQUIRED'`),
+   * for an S3-compatible store that rejects checksum trailers; it cannot be
+   * combined with `objectLock`.
+   *
+   * S3-compatible stores differ in which checksums (and whether streamed
+   * trailers) they accept — test an Object Lock upload against the real store
+   * before relying on it (e.g. Hetzner Object Storage). `'SHA256'` is the most
+   * portable explicit choice.
+   */
+  checksumAlgorithm?: 'CRC32' | 'CRC32C' | 'SHA1' | 'SHA256' | 'none'
 
   /**
    * Milliseconds to wait for a connection to open.
