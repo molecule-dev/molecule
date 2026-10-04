@@ -612,6 +612,28 @@ describe('get / list / destroy', () => {
     expect(double.calls.at(-1)?.path).toBe(`/apps/${APP}`)
   })
 
+  it('throws naming the machine step when the Machine delete fails', async () => {
+    const double = createFetchDouble().fallback({ status: 500, text: 'boom' })
+    await expect(makeProvider({}, double).destroy(`${APP}:m1`)).rejects.toThrow(
+      /machine delete.*HTTP 500/,
+    )
+  })
+
+  it('throws naming the app step when the app delete fails', async () => {
+    const double = createFetchDouble()
+    double.on(`DELETE /apps/${APP}/machines/m1`, { status: 200, body: {} })
+    double.on(`DELETE /apps/${APP}`, { status: 500, text: 'boom' })
+    double.fallback({ status: 500, text: 'boom' })
+    await expect(makeProvider({}, double).destroy(`${APP}:m1`)).rejects.toThrow(
+      /app delete.*HTTP 500/,
+    )
+  })
+
+  it('treats a 404 on both deletes as already gone', async () => {
+    const double = createFetchDouble().fallback({ status: 404, text: 'not found' })
+    await expect(makeProvider({}, double).destroy(`${APP}:m1`)).resolves.toBeUndefined()
+  })
+
   it('removes the Machine’s own volumes in shared-app mode', async () => {
     process.env.NODE_ENV = 'development'
     const double = createFetchDouble().on('GET /apps/shared/machines/m1', {

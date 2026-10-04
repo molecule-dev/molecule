@@ -74,6 +74,19 @@ import { shellQuote } from './utilities.js'
 const logger = getLogger()
 
 /**
+ * Words a failed `destroy()` step so the caller's log and retry say which step failed.
+ * @param step - The step that failed (`machine delete` or `app delete`).
+ * @param id - The composite sandbox id.
+ * @param error - The underlying failure.
+ * @returns The error message, naming the step and the HTTP status when known.
+ */
+function describeDestroyFailure(step: string, id: string, error: unknown): string {
+  const status = error instanceof FlyApiError ? `HTTP ${error.status}` : 'no HTTP status'
+  const reason = error instanceof Error ? error.message : String(error)
+  return `Fly sandbox destroy failed at the ${step} for ${id} (${status}): ${reason}`
+}
+
+/**
  * Default sandbox image. Fly pulls images itself, so this MUST be a reference
  * Fly can resolve — a tag in the org's `registry.fly.io` repository or a public
  * registry. A local `molecule-sandbox:latest` is invisible to Fly.
@@ -1496,6 +1509,9 @@ class FlyioSandboxProvider implements SandboxProvider {
    * are read from the Machine's metadata FIRST — the Machine is the only record
    * of which address belongs to which network — and released last.
    * @param id - The composite sandbox id.
+   * @throws {Error} When the Machine delete or the app delete fails with anything
+   * other than a 404 (which counts as already gone), naming the failed step and
+   * HTTP status, so the caller can retry instead of forgetting a billed app.
    */
   async destroy(id: string): Promise<void> {
     const { app, machineId } = parseSandboxId(id)
@@ -1531,19 +1547,30 @@ class FlyioSandboxProvider implements SandboxProvider {
         nullOn: [404],
       })
     } catch (error) {
-      logger.warn('Failed to destroy Fly Machine', { id, error })
+      // The app delete is not attempted: removing the app under a Machine that
+      // is still alive would hide it. The private addresses are left for the
+      // retry, which re-reads them from the Machine's metadata.
+      logger.error('Failed to destroy Fly Machine', { id, error })
+      throw new Error(describeDestroyFailure('machine delete', id, error), { cause: error })
     }
 
     if (this.appPerProject()) {
+      let appError: unknown
       try {
         await this.client.request(`/apps/${app}`, { method: 'DELETE', nullOn: [404] })
       } catch (error) {
-        logger.warn('Failed to delete Fly sandbox app — its volumes and 6PN network may leak', {
+        appError = error
+        logger.error('Failed to delete Fly sandbox app — its volumes and 6PN network may leak', {
           app,
           error,
         })
       }
+      // Released even when the app delete failed: the Machine is gone, so a
+      // retry could no longer read these addresses from its metadata.
       await this.releasePrivateRoutes(privateRoutes)
+      if (appError !== undefined) {
+        throw new Error(describeDestroyFailure('app delete', id, appError), { cause: appError })
+      }
       return
     }
 
