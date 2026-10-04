@@ -89,6 +89,8 @@ const sanitizeError = (error: unknown, secrets: Array<string | undefined>): Erro
 const DEFAULT_TOKEN_URL = `https://github.com/login/oauth/access_token`
 /** Default GitHub user-info endpoint. Overridable via `OAUTH_GITHUB_USER_URL`. */
 const DEFAULT_USER_URL = `https://api.github.com/user`
+/** Default GitHub emails endpoint. Overridable via `OAUTH_GITHUB_EMAILS_URL`. */
+const DEFAULT_EMAILS_URL = `https://api.github.com/user/emails`
 /** Default GitHub authorization endpoint. Overridable via `OAUTH_GITHUB_AUTHORIZE_URL`. */
 const DEFAULT_AUTHORIZE_URL = `https://github.com/login/oauth/authorize`
 
@@ -221,14 +223,49 @@ export const verify: OAuthVerifier = async (
       timeout: 15_000,
     })
 
-    const email = (oauthData.email as string) || undefined
+    // The public-profile email: verified by construction when present (GitHub
+    // only allows a VERIFIED address to be set as the public email). Null for
+    // most users, who never publish one.
+    const publicEmail = (oauthData.email as string) || undefined
 
-    // GitHub's `/user.email` is the user's *public profile* email, and GitHub
-    // only permits a **verified** address to be set as the public email — an
-    // unverified address can never appear here. So a present `/user.email` is
-    // verified by construction. (A null public email yields `undefined` here →
-    // unverified, which is the safe default.)
-    const emailVerified = email !== undefined
+    // The `user:email` scope this bond requests unlocks GET /user/emails —
+    // ALL the user's addresses, including the private primary, each with
+    // GitHub's own verified flag. Relying on /user's public `email` alone
+    // created accounts with NO email for every user who had not published
+    // one (while the consent screen still advertised the email permission).
+    // Best-effort by design: a legacy token granted before the scope existed
+    // (403), a GitHub Enterprise deployment without the endpoint, or a
+    // transient failure must not fail the LOGIN — fall back to the
+    // public-profile semantics and continue without an email.
+    let email = publicEmail
+    let emailVerified = publicEmail !== undefined
+    try {
+      const emailsUrl = process.env.OAUTH_GITHUB_EMAILS_URL || DEFAULT_EMAILS_URL
+      const { data: emailsResponse } = await get<
+        Array<{ email: string; primary?: boolean; verified?: boolean }>
+      >(emailsUrl, {
+        headers: {
+          accept: `application/json`,
+          authorization: `Bearer ${token}`,
+        },
+        timeout: 15_000,
+      })
+      const emails = Array.isArray(emailsResponse) ? emailsResponse : []
+      // Verified addresses only — an unverified list adds nothing over no
+      // email. Prefer the primary.
+      const chosen =
+        emails.find((entry) => entry.primary && entry.verified) ??
+        emails.find((entry) => entry.verified)
+      if (chosen?.email) {
+        email = chosen.email
+        emailVerified = true
+      }
+    } catch (error) {
+      // Status only — the message could echo request internals (CWE-532).
+      logger.warn('GitHub OAuth email lookup failed; continuing without a provider email', {
+        status: (error as { response?: { status?: number } })?.response?.status,
+      })
+    }
 
     return {
       username: `${oauthData.login}@github`,

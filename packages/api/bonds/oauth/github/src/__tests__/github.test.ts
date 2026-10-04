@@ -62,15 +62,30 @@ describe('GitHub OAuth Provider', () => {
         },
       })
 
-      mockGet.mockResolvedValue({
-        data: {
-          id: 12345,
-          login: 'testuser',
-          name: 'Test User',
-          bio: 'Building things.',
-          avatar_url: 'https://avatars.githubusercontent.com/u/12345',
-          email: 'testuser@example.com',
-        },
+      mockGet.mockImplementation(async (url: string) => {
+        if (url === 'https://api.github.com/user/emails') {
+          return {
+            data: [
+              { email: 'public@example.com', primary: false, verified: true, visibility: 'public' },
+              {
+                email: 'testuser@example.com',
+                primary: true,
+                verified: true,
+                visibility: 'private',
+              },
+            ],
+          }
+        }
+        return {
+          data: {
+            id: 12345,
+            login: 'testuser',
+            name: 'Test User',
+            bio: 'Building things.',
+            avatar_url: 'https://avatars.githubusercontent.com/u/12345',
+            email: 'public@example.com',
+          },
+        }
       })
 
       const { verify } = await import('../provider.js')
@@ -100,15 +115,23 @@ describe('GitHub OAuth Provider', () => {
         },
         timeout: 15000,
       })
+      // The user:email scope unlocks the PRIVATE primary address — the public
+      // profile email alone is null for most users.
+      expect(mockGet).toHaveBeenCalledWith('https://api.github.com/user/emails', {
+        headers: {
+          accept: 'application/json',
+          authorization: 'Bearer test-access-token',
+        },
+        timeout: 15000,
+      })
 
       expect(result).toEqual({
         username: 'testuser@github',
         name: 'Test User',
         bio: 'Building things.',
         avatar: 'https://avatars.githubusercontent.com/u/12345',
+        // The primary VERIFIED address from /user/emails, not the public one.
         email: 'testuser@example.com',
-        // GitHub only allows a verified address to be the public profile email,
-        // so a present `/user.email` is verified by construction.
         emailVerified: true,
         oauthServer: 'github',
         oauthId: '12345',
@@ -118,7 +141,7 @@ describe('GitHub OAuth Provider', () => {
           name: 'Test User',
           bio: 'Building things.',
           avatar_url: 'https://avatars.githubusercontent.com/u/12345',
-          email: 'testuser@example.com',
+          email: 'public@example.com',
         },
       })
     })
@@ -512,6 +535,67 @@ describe('GitHub OAuth Provider', () => {
 
       expect(exports.serverName).toBeDefined()
       expect(exports.verify).toBeDefined()
+    })
+  })
+
+  describe('email capture (GET /user/emails — the user:email scope)', () => {
+    /** Wire /user → profile with NO public email, /user/emails → the list. */
+    const wire = async (emails: unknown, profileEmail?: string) => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'tok', token_type: 'bearer', scope: 'read:user user:email' },
+      })
+      mockGet.mockImplementation(async (url: string) => {
+        if (url === 'https://api.github.com/user/emails') return { data: emails }
+        return { data: { id: 7, login: 'u', ...(profileEmail ? { email: profileEmail } : {}) } }
+      })
+      return (await import('../provider.js')).verify('c')
+    }
+
+    it('prefers the primary VERIFIED address (most users: the private primary)', async () => {
+      const r = await wire([
+        { email: 'secondary@example.com', primary: false, verified: true },
+        { email: 'primary@example.com', primary: true, verified: true },
+      ])
+      expect(r?.email).toBe('primary@example.com')
+      expect(r?.emailVerified).toBe(true)
+    })
+
+    it('falls back to the first VERIFIED address when the primary is unverified', async () => {
+      const r = await wire([
+        { email: 'primary-unverified@example.com', primary: true, verified: false },
+        { email: 'verified-other@example.com', primary: false, verified: true },
+      ])
+      expect(r?.email).toBe('verified-other@example.com')
+      expect(r?.emailVerified).toBe(true)
+    })
+
+    it('returns NO email when nothing anywhere is verified', async () => {
+      const r = await wire([{ email: 'x@example.com', primary: true, verified: false }])
+      expect(r?.email).toBeUndefined()
+      expect(r?.emailVerified).toBe(false)
+    })
+
+    it('falls back to the public profile email when /user/emails fails (403 legacy scope, GHE, transient) — and never throws', async () => {
+      mockPost.mockResolvedValue({
+        data: { access_token: 'tok', token_type: 'bearer', scope: 'read:user' },
+      })
+      mockGet.mockImplementation(async (url: string) => {
+        if (url === 'https://api.github.com/user/emails')
+          throw Object.assign(new Error('Request failed with status code 403'), {
+            response: { status: 403 },
+          })
+        return { data: { id: 7, login: 'u', email: 'public@example.com' } }
+      })
+      const { verify } = await import('../provider.js')
+      const r = await verify('c')
+      expect(r?.email).toBe('public@example.com')
+      expect(r?.emailVerified).toBe(true) // public profile emails are verified by construction
+    })
+
+    it('continues with no email at all when both sources are empty (no throw)', async () => {
+      const r = await wire([])
+      expect(r?.email).toBeUndefined()
+      expect(r?.emailVerified).toBe(false)
     })
   })
 })

@@ -1112,6 +1112,139 @@ describe('logInOAuth handler — profile capture on account creation', () => {
     expect(updateArgs.bio).toBeUndefined()
     expect(updateArgs.avatar).toBeUndefined()
   })
+
+  it('backfills a MISSING email from a provider-VERIFIED email on existing-account login', async () => {
+    // The shape this exists for: accounts created while the provider bond
+    // could not see the user's address (GitHub long exposed only the PUBLIC
+    // profile email, null for most users) — the account has no email at all.
+    wireGet({
+      verify: vi.fn().mockResolvedValue({
+        oauthServer: 'google',
+        oauthId: 'existing-google-id',
+        username: 'existinguser',
+        email: 'real-owner@example.com',
+        emailVerified: true,
+        oauthData: {},
+      }),
+    })
+    mockFindOne
+      .mockResolvedValueOnce({
+        id: 'existing-id',
+        username: 'existinguser',
+        oauthServer: 'google',
+        oauthId: 'existing-google-id',
+      })
+      // Second lookup: the email-collision check for the backfill — free.
+      .mockResolvedValueOnce(null)
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const updateArgs = mockUpdateById.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(updateArgs.email).toBe('real-owner@example.com')
+    expect(updateArgs.emailVerified).toBe(true)
+    // The returned session payload reflects the backfill.
+    expect((result?.body?.props as Record<string, unknown>).email).toBe('real-owner@example.com')
+  })
+
+  it('does NOT backfill the email when another account already holds it', async () => {
+    wireGet({
+      verify: vi.fn().mockResolvedValue({
+        oauthServer: 'google',
+        oauthId: 'existing-google-id',
+        username: 'existinguser',
+        email: 'taken@example.com',
+        emailVerified: true,
+        oauthData: {},
+      }),
+    })
+    mockFindOne
+      .mockResolvedValueOnce({
+        id: 'existing-id',
+        username: 'existinguser',
+        oauthServer: 'google',
+        oauthId: 'existing-google-id',
+      })
+      // The email-collision check finds a DIFFERENT account holding it.
+      .mockResolvedValueOnce({ id: 'holder-id', username: 'someone-else' })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const updateArgs = mockUpdateById.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(updateArgs.email).toBeUndefined()
+    expect(updateArgs.emailVerified).toBeUndefined()
+  })
+
+  it('does NOT backfill an UNverified provider email', async () => {
+    wireGet({
+      verify: vi.fn().mockResolvedValue({
+        oauthServer: 'google',
+        oauthId: 'existing-google-id',
+        username: 'existinguser',
+        email: 'unverified@example.com',
+        emailVerified: false,
+        oauthData: {},
+      }),
+    })
+    mockFindOne.mockResolvedValueOnce({
+      id: 'existing-id',
+      username: 'existinguser',
+      oauthServer: 'google',
+      oauthId: 'existing-google-id',
+    })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const updateArgs = mockUpdateById.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(updateArgs.email).toBeUndefined()
+  })
+
+  it('upgrades an existing UNverified email to verified when the provider verifies the SAME address', async () => {
+    wireGet({
+      verify: vi.fn().mockResolvedValue({
+        oauthServer: 'google',
+        oauthId: 'existing-google-id',
+        username: 'existinguser',
+        email: 'mine@example.com',
+        emailVerified: true,
+        oauthData: {},
+      }),
+    })
+    mockFindOne.mockResolvedValueOnce({
+      id: 'existing-id',
+      username: 'existinguser',
+      email: 'mine@example.com',
+      emailVerified: false,
+      oauthServer: 'google',
+      oauthId: 'existing-google-id',
+    })
+    mockUpdateById.mockResolvedValue({ affected: 1 })
+
+    const result = await handler(
+      makeReq({ body: { server: 'google', code: 'auth-code' } }) as MoleculeRequest,
+      makeRes() as MoleculeResponse,
+    )
+
+    expect(result?.statusCode).toBe(200)
+    const updateArgs = mockUpdateById.mock.calls[0]?.[2] as Record<string, unknown>
+    expect(updateArgs.emailVerified).toBe(true)
+    // The address itself is never rewritten by the upgrade path.
+    expect(updateArgs.email).toBeUndefined()
+  })
 })
 
 // ===== 5b. OAuth username derivation (logInOAuth.ts) ========================

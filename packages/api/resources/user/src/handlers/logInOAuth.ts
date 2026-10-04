@@ -522,11 +522,34 @@ export const logInOAuth = ({ name, tableName, schema }: types.Resource) => {
         // (accounts created before profile capture existed, or whose provider
         // only now exposes them). Fill-if-empty only — a value the user set
         // themselves is never overwritten.
-        const backfill: Record<string, string> = {}
+        const backfill: Record<string, string | boolean> = {}
         if (!user.name) {
           const fallbackName =
             oauthProps.name || (email ? email.split('@')[0] : undefined) || undefined
           if (fallbackName) backfill.name = fallbackName
+        }
+        // Backfill a MISSING email from a provider-VERIFIED address — accounts
+        // created while a provider bond could not see the user's address (the
+        // GitHub bond long read only the PUBLIC profile email, null for most
+        // users) have none at all. Strictly non-destructive: only when the
+        // account has no email, the provider affirmatively verified the
+        // address, and NO other account already holds it — the
+        // verified-owner-claim logic is for CREATION; a backfill never wrests
+        // an address away from an existing row. An account already holding the
+        // same address UNverified gets it upgraded to verified instead (the
+        // provider just proved ownership of exactly that address).
+        if (email && oauthEmailVerified) {
+          if (!user.email) {
+            const emailTaken = await findOne<{ id: string }>(tableName, [
+              { field: 'email', operator: '=', value: email },
+            ])
+            if (!emailTaken) {
+              backfill.email = email
+              backfill.emailVerified = true
+            }
+          } else if (user.email === email && user.emailVerified !== true) {
+            backfill.emailVerified = true
+          }
         }
         if (!user.bio && oauthProps.bio) {
           backfill.bio = oauthProps.bio.substring(0, MAX_BIO_LENGTH)
