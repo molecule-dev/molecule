@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox
 
+## 1.3.0
+
+### Minor Changes
+
+- e273dde: Optional `readFileBytes` / `writeFileBytes` on the sandbox handle for exact binary file I/O; the E2B bond implements them through the envd file API.
+
 ## 1.2.0
 
 ### Minor Changes

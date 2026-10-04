@@ -1,5 +1,12 @@
 # @molecule/api-logger-axiom
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies [9ce3bc3]
+  - @molecule/api-analytics-axiom@1.0.1
+
 ## 1.0.0
 
 ### Major Changes

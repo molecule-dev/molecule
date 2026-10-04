@@ -1,5 +1,12 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.5
+
+### Patch Changes
+
+- 3e5f830: The `verifyEgress()` probe sandbox is now created to be killed at its deadline instead of paused, so a leaked probe never leaves a snapshot on the host.
+- e273dde: Optional `readFileBytes` / `writeFileBytes` on the sandbox handle for exact binary file I/O; the E2B bond implements them through the envd file API.
+
 ## 1.2.4
 
 ### Patch Changes

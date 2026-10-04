@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-logger-axiom",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Axiom logger provider for molecule.dev — mirrors log lines with structured fields into an Axiom dataset while still printing them locally.",
   "homepage": "https://www.molecule.dev/packages/api-logger-axiom",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
@@ -40,7 +40,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@molecule/api-analytics-axiom": "1.0.0"
+    "@molecule/api-analytics-axiom": "1.0.1"
   },
   "peerDependencies": {
     "@molecule/api-logger": "^1.0.1"
