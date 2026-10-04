@@ -1,0 +1,57 @@
+{
+  "name": "@molecule/api-logger-axiom",
+  "version": "1.0.0",
+  "description": "Axiom logger provider for molecule.dev — mirrors log lines with structured fields into an Axiom dataset while still printing them locally.",
+  "homepage": "https://www.molecule.dev/packages/api-logger-axiom",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "logger",
+    "axiom",
+    "observability",
+    "logs"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/logger/axiom"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@molecule/api-analytics-axiom": "1.0.0"
+  },
+  "peerDependencies": {
+    "@molecule/api-logger": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-logger": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
