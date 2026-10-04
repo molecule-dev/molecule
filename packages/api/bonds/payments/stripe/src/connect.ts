@@ -19,6 +19,7 @@
 
 import type Stripe from 'stripe'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 
 import { getClient, verifyWebhookSignature } from './provider.js'
@@ -264,6 +265,11 @@ export const createConnectedAccount = async (
     )
     return { id: account.id }
   } catch (error) {
+    trackBondFailure({
+      bond: 'payments-stripe-connect',
+      operation: 'createConnectedAccount',
+      error: error,
+    })
     logger.error('Error creating Stripe connected account:', error)
     throw error
   }
@@ -291,6 +297,11 @@ export const createAccountLink = async (
     )
     return { url: link.url, expiresAt: link.expires_at }
   } catch (error) {
+    trackBondFailure({
+      bond: 'payments-stripe-connect',
+      operation: 'createAccountLink',
+      error: error,
+    })
     logger.error('Error creating Stripe account link:', error)
     throw error
   }
@@ -328,6 +339,7 @@ export const createTransfer = async (
       transferGroup: transfer.transfer_group ?? undefined,
     }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe-connect', operation: 'createTransfer', error: error })
     logger.error('Error creating Stripe transfer:', error)
     throw error
   }
@@ -363,6 +375,7 @@ export const createPayout = async (params: CreatePayoutParams): Promise<CreatePa
       arrivalDate: payout.arrival_date,
     }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe-connect', operation: 'createPayout', error: error })
     logger.error('Error creating Stripe payout:', error)
     throw error
   }
@@ -387,6 +400,11 @@ export const getAccountStatus = async (accountId: string): Promise<AccountStatus
       currentlyDue: [...currentlyDue],
     }
   } catch (error) {
+    trackBondFailure({
+      bond: 'payments-stripe-connect',
+      operation: 'getAccountStatus',
+      error: error,
+    })
     logger.error('Error retrieving Stripe connected account:', error)
     throw error
   }

@@ -15,6 +15,7 @@ import type * as nodemailerTypes from 'nodemailer'
 import nodemailer from 'nodemailer'
 import mailgun from 'nodemailer-mailgun-transport'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
 import { configNotConfiguredError } from '@molecule/api-secrets'
@@ -200,6 +201,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
         response: 'sandbox-test-mode',
       }
     }
+    trackBondFailure({ bond: 'emails-mailgun', operation: 'send', error })
     logger.error('Mailgun sendMail error:', error)
     throw error
   }

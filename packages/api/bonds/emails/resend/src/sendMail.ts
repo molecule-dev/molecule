@@ -4,6 +4,7 @@
  * @module
  */
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import type {
   EmailAddress,
@@ -151,6 +152,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
       response: String(status),
     }
   } catch (error) {
+    trackBondFailure({ bond: 'emails-resend', operation: 'send', error })
     logger.error('Resend sendMail error:', error)
     throw error
   }

@@ -11,6 +11,7 @@ import { Upload } from '@aws-sdk/lib-storage'
 import { PassThrough } from 'stream'
 import { v4 as uuid } from 'uuid'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import { getProxyAgents } from '@molecule/api-proxy-agent'
 import type { FileInfo, UploadProvider } from '@molecule/api-uploads'
@@ -225,6 +226,7 @@ export const upload = (
           reject(new UploadAbortedError())
           return
         }
+        trackBondFailure({ bond: 'uploads-s3', operation: 'upload', error })
         onError(error)
         reject(error)
       })
@@ -318,6 +320,7 @@ export const deleteFile = async (id: string): Promise<void> => {
       }),
     )
   } catch (error) {
+    trackBondFailure({ bond: 'uploads-s3', operation: 'delete', error })
     logger.error(`Error deleting S3 file (id: ${id})`, error)
     throw error
   }
@@ -347,6 +350,7 @@ export const getFile = async (id: string): Promise<NodeJS.ReadableStream | null>
     if ((error as { name?: string }).name === 'NoSuchKey') {
       return null
     }
+    trackBondFailure({ bond: 'uploads-s3', operation: 'get', error })
     throw error
   }
 }

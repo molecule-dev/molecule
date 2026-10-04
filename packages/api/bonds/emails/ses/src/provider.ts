@@ -16,6 +16,7 @@ import { defaultProvider } from '@aws-sdk/credential-provider-node'
 import type * as nodemailerTypes from 'nodemailer'
 import nodemailer from 'nodemailer'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult, EmailTransport } from '@molecule/api-emails'
 import { getProxyAgents } from '@molecule/api-proxy-agent'
@@ -115,6 +116,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
       response: result.response,
     }
   } catch (error) {
+    trackBondFailure({ bond: 'emails-ses', operation: 'send', error })
     logger.error('SES sendMail error:', error)
     throw error
   }

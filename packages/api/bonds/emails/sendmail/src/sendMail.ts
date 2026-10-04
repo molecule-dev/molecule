@@ -6,6 +6,7 @@
 
 import type * as nodemailer from 'nodemailer'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import type { EmailMessage, EmailSendResult } from '@molecule/api-emails'
 
@@ -37,6 +38,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
       response: result.response,
     }
   } catch (error) {
+    trackBondFailure({ bond: 'emails-sendmail', operation: 'send', error })
     logger.error('Sendmail sendMail error:', error)
     throw error
   }

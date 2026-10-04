@@ -76,3 +76,6 @@ export * from './types.js'
 
 // Provider exports
 export * from './provider.js'
+
+// Bond failure telemetry (the emit half of the catch → telemetry → autofix loop)
+export * from './bond-failure.js'

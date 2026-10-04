@@ -4,6 +4,7 @@
  * @module
  */
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 import type {
   EmailAddress,
@@ -136,6 +137,7 @@ export const sendMail = async (message: EmailMessage): Promise<EmailSendResult> 
       response: String(response.statusCode),
     }
   } catch (error) {
+    trackBondFailure({ bond: 'emails-sendgrid', operation: 'send', error })
     logger.error('SendGrid sendMail error:', error)
     throw error
   }

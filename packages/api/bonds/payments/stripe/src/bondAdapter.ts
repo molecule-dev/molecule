@@ -9,6 +9,7 @@
 
 import crypto from 'crypto'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 import { get } from '@molecule/api-bond'
@@ -163,6 +164,7 @@ export const paymentProvider: PaymentProvider = {
         },
       }
     } catch (error) {
+      trackBondFailure({ bond: 'payments-stripe', operation: 'verifySubscription', error })
       // A missing STRIPE_SECRET_KEY (getClient()) is a DIFFERENT failure than
       // "no active subscription" — rethrow so the resource handler's catch can
       // surface the actionable 503 instead of a generic 400. Swallowing it into
@@ -265,6 +267,7 @@ export const paymentProvider: PaymentProvider = {
         },
       }
     } catch (error) {
+      trackBondFailure({ bond: 'payments-stripe', operation: 'handleWebhookEvent', error })
       logger.error('Stripe bondAdapter handleWebhookEvent error:', error)
       return null
     }
@@ -400,6 +403,7 @@ export const paymentProvider: PaymentProvider = {
 
       return { updated: false }
     } catch (error) {
+      trackBondFailure({ bond: 'payments-stripe', operation: 'updateSubscription', error })
       // See the matching comment in verifySubscription: a missing secret must
       // reach the caller as its real 503, not be flattened into the same
       // `{ updated: false }` a genuine update failure (e.g. Stripe declining
@@ -474,6 +478,7 @@ export const paymentProvider: PaymentProvider = {
 
       return !!updated
     } catch (error) {
+      trackBondFailure({ bond: 'payments-stripe', operation: 'cancelSubscription', error })
       // See the matching comment in verifySubscription.
       if (isConfigNotConfiguredError(error)) {
         throw error
@@ -512,6 +517,7 @@ export const paymentProvider: PaymentProvider = {
         returnUrl: params.returnUrl,
       })
     } catch (error) {
+      trackBondFailure({ bond: 'payments-stripe', operation: 'createPortalSession', error })
       if (isConfigNotConfiguredError(error)) {
         throw error
       }

@@ -8,6 +8,7 @@
 
 import Stripe from 'stripe'
 
+import { trackBondFailure } from '@molecule/api-analytics'
 import { getLogger } from '@molecule/api-bond'
 const logger = getLogger()
 // Side-effect import: registers this bond's secret definitions so the
@@ -181,6 +182,7 @@ export const createCheckoutSession = async (options: {
 
     return { id: session.id, url: session.url }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'createCheckoutSession', error: error })
     logger.error(`Error creating Stripe checkout session:`, error)
     throw error
   }
@@ -210,6 +212,7 @@ export const createPortalSession = async (options: {
     })
     return { id: session.id, url: session.url }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'createPortalSession', error: error })
     logger.error(`Error creating Stripe billing portal session:`, error)
     return null
   }
@@ -230,6 +233,7 @@ export const getCheckoutSession = async (sessionId: string): Promise<CheckoutSes
         : (session.subscription as { id?: string } | null)?.id
     return { id: session.id, url: session.url, subscription }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'getCheckoutSession', error: error })
     logger.error(`Error retrieving Stripe checkout session:`, error)
     throw error
   }
@@ -248,6 +252,7 @@ export const getSubscription = async (subscriptionId: string): Promise<Subscript
     })
     return toSubscriptionResult(subscription)
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'getSubscription', error: error })
     logger.error(`Error retrieving Stripe subscription:`, error)
     throw error
   }
@@ -264,6 +269,7 @@ export const cancelSubscription = async (subscriptionId: string): Promise<Subscr
     const subscription = await getClient().subscriptions.cancel(subscriptionId)
     return toSubscriptionResult(subscription)
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'cancelSubscription', error: error })
     logger.error(`Error canceling Stripe subscription:`, error)
     throw error
   }
@@ -287,6 +293,7 @@ export const updateSubscription = async (
     )
     return toSubscriptionResult(subscription)
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'updateSubscription', error: error })
     logger.error(`Error updating Stripe subscription:`, error)
     throw error
   }
@@ -368,6 +375,7 @@ export const createSetupIntent = async (options: {
       customerId,
     }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'createSetupIntent', error: error })
     logger.error('Error creating Stripe SetupIntent:', error)
     throw error
   }
@@ -399,6 +407,7 @@ export const retrievePaymentMethod = async (
       expYear: pm.card.exp_year,
     }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'retrievePaymentMethod', error: error })
     logger.error('Error retrieving Stripe payment method:', error)
     return null
   }
@@ -415,6 +424,7 @@ export const detachPaymentMethod = async (paymentMethodId: string): Promise<bool
     await getClient().paymentMethods.detach(paymentMethodId)
     return true
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'detachPaymentMethod', error: error })
     logger.error('Error detaching Stripe payment method:', error)
     return false
   }
@@ -480,6 +490,7 @@ export const reportUsageOverage = async (options: {
     )
     return { id: invoiceItem.id, amountCents: invoiceItem.amount }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'reportUsageOverage', error: error })
     // Never log the customer id or amounts at error level beyond the bare fact.
     logger.error('Error reporting Stripe usage overage:', error)
     throw error
@@ -557,6 +568,7 @@ export const chargeOffSession = async (options: {
         paymentMethodId = typeof defaultPm === 'string' ? defaultPm : (defaultPm?.id ?? undefined)
       }
     } catch (error) {
+      trackBondFailure({ bond: 'payments-stripe', operation: 'chargeOffSession', error: error })
       logger.error('Error resolving Stripe default payment method:', error)
     }
   }
@@ -609,6 +621,7 @@ export const chargeOffSession = async (options: {
         : {}),
     }
   } catch (error) {
+    trackBondFailure({ bond: 'payments-stripe', operation: 'chargeOffSession', error: error })
     // A declined off-session charge arrives as a thrown StripeCardError whose
     // payload carries the intent — a normal, expected outcome (an expired or
     // insufficient-funds card), so it is reported, not re-thrown.
