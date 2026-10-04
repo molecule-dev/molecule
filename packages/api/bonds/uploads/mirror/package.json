@@ -1,0 +1,55 @@
+{
+  "name": "@molecule/api-uploads-mirror",
+  "version": "1.0.0",
+  "description": "Mirrored upload provider for molecule.dev — writes every file to several upload providers and reads it back from whichever has it.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "molecule",
+    "uploads",
+    "mirror",
+    "replication",
+    "backup",
+    "files"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "dependencies": {
+    "@molecule/api-analytics": "1.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "peerDependencies": {
+    "@molecule/api-uploads": "^1.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/uploads/mirror"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-uploads-mirror",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
