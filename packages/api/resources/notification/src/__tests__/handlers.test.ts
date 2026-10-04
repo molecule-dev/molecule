@@ -116,6 +116,50 @@ describe('@molecule/api-resource-notification handlers', () => {
       })
     })
 
+    it('clamps limit to 1..500 and offset to >= 0 (caller-controlled query params)', async () => {
+      const { list } = await import('../handlers/list.js')
+      mockGetAll.mockResolvedValueOnce({ items: [], total: 0, offset: 0, limit: 500 })
+
+      const req = createMockReq({ query: { limit: '100000', offset: '-10' } })
+      const res = createMockRes()
+
+      await list(req as never, res as never)
+
+      expect(mockGetAll).toHaveBeenCalledWith('user-1', {
+        limit: 500, // ceiling applied
+        offset: 0, // negative offsets clamp to 0
+        read: undefined,
+        type: undefined,
+      })
+
+      mockGetAll.mockClear()
+      mockGetAll.mockResolvedValueOnce({ items: [], total: 0, offset: 0, limit: 1 })
+      await list(
+        createMockReq({ query: { limit: '0.5', offset: '2.9' } }) as never,
+        createMockRes() as never,
+      )
+      expect(mockGetAll).toHaveBeenCalledWith('user-1', {
+        limit: 1, // below-floor / fractional limits clamp to the floor
+        offset: 2,
+        read: undefined,
+        type: undefined,
+      })
+
+      // Garbage falls back to the provider default (undefined), not NaN.
+      mockGetAll.mockClear()
+      mockGetAll.mockResolvedValueOnce({ items: [], total: 0, offset: 0, limit: 50 })
+      await list(
+        createMockReq({ query: { limit: 'abc', offset: 'xyz' } }) as never,
+        createMockRes() as never,
+      )
+      expect(mockGetAll).toHaveBeenCalledWith('user-1', {
+        limit: undefined,
+        offset: undefined,
+        read: undefined,
+        type: undefined,
+      })
+    })
+
     it('returns 401 (not a 500) when there is no authenticated session', async () => {
       const { list } = await import('../handlers/list.js')
       const req = createMockReq({ query: {} })
