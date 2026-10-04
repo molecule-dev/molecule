@@ -6,11 +6,11 @@
  * disk, a mirror) never sees plaintext.
  *
  * @remarks
- * - **What is stored.** The ciphertext uses the `mol-aead-chunked-v1` framing
+ * - **What is stored.** The ciphertext uses the `mol-aead-chunked-v2` framing
  *   from `@molecule/api-encryption` (`ENCRYPTED_STREAM_FORMAT`): a header, then
  *   independently authenticated chunks. A flipped bit, reordered or dropped
  *   chunks, a wrong context and a truncated object all fail authentication. The
- *   AES bond's objects start with the `MOLAEAD1` magic.
+ *   AES bond's objects start with the `MOLAEAD2` magic.
  * - **Needs stream encryption.** The encryption provider (by default the one
  *   bonded to `@molecule/api-encryption`, resolved on every call) must implement
  *   `encryptStream`/`decryptStream` — e.g. `@molecule/api-encryption-aes`. If it

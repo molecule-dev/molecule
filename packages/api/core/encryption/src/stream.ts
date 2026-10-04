@@ -13,18 +13,18 @@
 import type { EncryptionProvider } from './types.js'
 
 /**
- * Identifier of the chunked-AEAD stream framing (`mol-aead-chunked-v1`).
+ * Identifier of the chunked-AEAD stream framing (`mol-aead-chunked-v2`).
  *
  * Layout (all integers big-endian):
  *
- * - **Header, 54 bytes**: ASCII magic `MOLAEAD1` (8) · key version uint16 (2)
+ * - **Header, 54 bytes**: ASCII magic `MOLAEAD2` (8) · key version uint16 (2)
  *   · chunk size in plaintext bytes uint32 (4, 4 KiB to 16 MiB) · random salt
  *   (32) · key id (8).
  * - **Key id**: the first 8 bytes of HMAC-SHA256(key = the raw key for that
- *   version, data = UTF-8 `mol-aead-chunked-v1/kid`). It lets a reader tell
+ *   version, data = UTF-8 `mol-aead-chunked-v2/kid`). It lets a reader tell
  *   "this stream was written under a different key" from tampering.
  * - **Per-stream material**: HKDF-SHA256(ikm = the raw key, salt = the
- *   header's salt, info = UTF-8 `mol-aead-chunked-v1`, length 40). Bytes 0–31
+ *   header's salt, info = UTF-8 `mol-aead-chunked-v2`, length 40). Bytes 0–31
  *   are the stream's own AEAD key, bytes 32–39 its nonce prefix. Every stream
  *   therefore runs under a fresh subkey, domain-separated from any other use
  *   of the same long-lived key.
@@ -45,7 +45,7 @@ import type { EncryptionProvider } from './types.js'
  * Reordered, dropped, duplicated or truncated chunks and any flipped bit fail;
  * plaintext is released only after its chunk verifies.
  */
-export const ENCRYPTED_STREAM_FORMAT = 'mol-aead-chunked-v1' as const
+export const ENCRYPTED_STREAM_FORMAT = 'mol-aead-chunked-v2' as const
 
 /** Error name every stream decryptor uses when it rejects its input. */
 export const ENCRYPTION_STREAM_ERROR_NAME = 'EncryptionStreamError' as const

@@ -21,7 +21,7 @@ const base = (): EncryptionProvider => ({
 
 describe('stream encryption contract', () => {
   it('names the framing', () => {
-    expect(ENCRYPTED_STREAM_FORMAT).toBe('mol-aead-chunked-v1')
+    expect(ENCRYPTED_STREAM_FORMAT).toBe('mol-aead-chunked-v2')
   })
 
   it('EncryptionStreamError carries its name, code and cause', () => {

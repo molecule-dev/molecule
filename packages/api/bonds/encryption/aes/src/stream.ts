@@ -1,6 +1,6 @@
 /**
  * Chunked AES-256-GCM stream encryption in the core's
- * `mol-aead-chunked-v1` framing (see `ENCRYPTED_STREAM_FORMAT` in
+ * `mol-aead-chunked-v2` framing (see `ENCRYPTED_STREAM_FORMAT` in
  * `@molecule/api-encryption`).
  *
  * Each stream draws a 32-byte random salt and derives its own AES-256 key and
@@ -29,7 +29,7 @@ import { Transform } from 'node:stream'
 import { EncryptionStreamError } from '@molecule/api-encryption'
 
 /** ASCII magic that opens every encrypted stream. */
-export const STREAM_MAGIC = Buffer.from('MOLAEAD1', 'ascii')
+export const STREAM_MAGIC = Buffer.from('MOLAEAD2', 'ascii')
 
 /** Salt length in the header. */
 export const STREAM_SALT_BYTES = 32
@@ -60,8 +60,8 @@ const MAX_COUNTER = 0xffffffff
 const MAX_KEY_VERSION = 0xffff
 const SALT_OFFSET = 14
 const KEY_ID_OFFSET = SALT_OFFSET + STREAM_SALT_BYTES
-const HKDF_INFO = Buffer.from('mol-aead-chunked-v1', 'utf-8')
-const KEY_ID_LABEL = Buffer.from('mol-aead-chunked-v1/kid', 'utf-8')
+const HKDF_INFO = Buffer.from('mol-aead-chunked-v2', 'utf-8')
+const KEY_ID_LABEL = Buffer.from('mol-aead-chunked-v2/kid', 'utf-8')
 
 /**
  * The message for a stream (or ciphertext) whose key version is not in the
@@ -76,7 +76,7 @@ export const missingKeyMessage = (version: number): string =>
 
 /**
  * Computes the 8-byte key id written into the header: the first 8 bytes of
- * HMAC-SHA256(key, `mol-aead-chunked-v1/kid`).
+ * HMAC-SHA256(key, `mol-aead-chunked-v2/kid`).
  *
  * @param key - The raw 32-byte key.
  * @returns The key id.
@@ -94,7 +94,7 @@ export interface StreamMaterial {
 
 /**
  * Derives a stream's AES key and nonce prefix:
- * HKDF-SHA256(ikm = key, salt, info = `mol-aead-chunked-v1`, 40 bytes).
+ * HKDF-SHA256(ikm = key, salt, info = `mol-aead-chunked-v2`, 40 bytes).
  *
  * @param key - The raw 32-byte long-lived key.
  * @param salt - The stream's 32-byte salt.
@@ -342,7 +342,7 @@ export const createDecryptStream = (params: DecryptStreamParams): Transform => {
     if (!bytes.subarray(0, 8).equals(STREAM_MAGIC)) {
       throw new EncryptionStreamError(
         'bad-header',
-        'This is not an encrypted stream (its header does not start with MOLAEAD1).',
+        'This is not an encrypted stream (its header does not start with MOLAEAD2).',
       )
     }
     const version = bytes.readUInt16BE(8)

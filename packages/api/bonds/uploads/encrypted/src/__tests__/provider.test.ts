@@ -132,7 +132,7 @@ describe('@molecule/api-uploads-encrypted', () => {
     const file = await uploadBytes(provider, plaintext)
     const { innerId } = provider.parseId(file.id)!
     const stored = inner.store.get(innerId)!
-    expect(stored.subarray(0, 8).toString('ascii')).toBe('MOLAEAD1')
+    expect(stored.subarray(0, 8).toString('ascii')).toBe('MOLAEAD2')
     expect(stored.includes(plaintext)).toBe(false)
     expect(file.size).toBe(stored.length)
     expect(file.uploaded).toBe(true)

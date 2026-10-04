@@ -58,12 +58,12 @@
  *   SAME context string must be supplied to `decrypt()` or authentication
  *   fails.
  * - **`encryptStream()` / `decryptStream()`** implement the core's
- *   `mol-aead-chunked-v1` framing with AES-256-GCM. Header (54 bytes) =
- *   `MOLAEAD1` magic (8), key version (uint16 BE), chunk size (uint32 BE),
+ *   `mol-aead-chunked-v2` framing with AES-256-GCM. Header (54 bytes) =
+ *   `MOLAEAD2` magic (8), key version (uint16 BE), chunk size (uint32 BE),
  *   32-byte random salt, 8-byte key id (first 8 bytes of
- *   HMAC-SHA256(key, `mol-aead-chunked-v1/kid`)). Each stream derives its own
+ *   HMAC-SHA256(key, `mol-aead-chunked-v2/kid`)). Each stream derives its own
  *   AES-256 key and 8-byte nonce prefix with HKDF-SHA256(key, salt,
- *   `mol-aead-chunked-v1`, 40 bytes) — the configured key (often shared with
+ *   `mol-aead-chunked-v2`, 40 bytes) — the configured key (often shared with
  *   field encryption) never seals a chunk directly, and nonces cannot repeat
  *   across streams. Chunks of up to `chunkBytes` plaintext are sealed with
  *   nonce `prefix || counter` (uint32 BE, from 0) and AAD

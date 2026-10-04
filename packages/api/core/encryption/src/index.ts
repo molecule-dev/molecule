@@ -66,12 +66,12 @@
  *   them: call `hasStreamEncryption(provider)` first and fail clearly if it
  *   is false — never fall back to buffering the whole payload through
  *   `encrypt()` (strings only, and it would load gigabytes into memory).
- * - **Stream framing is `ENCRYPTED_STREAM_FORMAT` (`mol-aead-chunked-v1`),
- *   shared by every bond:** a 54-byte header (magic `MOLAEAD1`, key version
+ * - **Stream framing is `ENCRYPTED_STREAM_FORMAT` (`mol-aead-chunked-v2`),
+ *   shared by every bond:** a 54-byte header (magic `MOLAEAD2`, key version
  *   uint16, chunk size uint32, 32-byte random salt, 8-byte key id), then
  *   chunks of ciphertext + 16-byte tag. Each stream encrypts under its own
  *   HKDF-SHA256 subkey and nonce prefix derived from the key and the salt
- *   (info `mol-aead-chunked-v1`), so the long-lived key is never used
+ *   (info `mol-aead-chunked-v2`), so the long-lived key is never used
  *   directly and is domain-separated from its other uses. Each chunk's nonce
  *   is `noncePrefix || counter` and its AAD is
  *   `header || context || counter || finalFlag`, so a flipped bit, an edited

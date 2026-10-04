@@ -102,7 +102,7 @@ export interface AesEncryptionProvider extends EncryptionProvider {
 
   /**
    * Encrypts a byte stream under the CURRENT key in the core's
-   * `mol-aead-chunked-v1` framing (chunked AES-256-GCM).
+   * `mol-aead-chunked-v2` framing (chunked AES-256-GCM).
    *
    * @param options - AAD context and chunk size.
    * @returns A Transform: plaintext in, ciphertext out.
