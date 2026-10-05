@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for nb. */
 export const nb: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Se abonnementer',
   'ide.chat.fileCount': '{{count}} filer',
   'common.cancel': 'Avbryt',
@@ -69,8 +65,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Endre modell',
   'ide.chat.increaseLoops': 'Øk maks. løkker',
   'ide.chat.continuePrompt': 'Fortsett å implementere der du slapp.',
-  'guest.reminder.message':
-    'Registrer deg eller logg inn for å beholde arbeidet ditt \\\\u2014 gjesteøkter utløper etter 72 timer.',
+  'guest.reminder.message': 'Registrer deg eller logg inn for å beholde arbeidet ditt \\\\u2014 gjesteøkter utløper etter 72 timer.',
   'guest.reminder.logIn': 'Logg inn',
   'ide.chat.soundsError': 'Kunne ikke oppdatere lydinnstillingene.',
   'ide.chat.commitFailed': 'Utføring mislyktes',
@@ -82,26 +77,23 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Byttet til planmodus',
   'ide.chat.switchedToExecute': 'Byttet til utførelsesmodus',
   'ide.chat.costError': 'Kan ikke hente bruksdata.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'topp ×{{multiplier}} nå',
   'ide.chat.models.peakLater': '×{{multiplier}} i topptimene',
-  'ide.chat.models.peakHint':
-    'Denne modellen koster ×{{multiplier}} mellom {{windows}}. Resten av dagen gjelder normal pris.',
+  'ide.chat.models.peakHint': 'Denne modellen koster ×{{multiplier}} mellom {{windows}}. Resten av dagen gjelder normal pris.',
   'ide.chat.undoNoChanges': 'Ingen filendringer å angre.',
   'ide.chat.undoComplete': 'Kunne ikke tilbakestille endringene.',
   'ide.chat.commitNoChanges': 'Ingen endringer å forplikte.',
@@ -109,13 +101,10 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatisk korrigering aktivert.',
   'ide.chat.autoFixDisabled': 'Automatisk reparasjon deaktivert.',
   'ide.chat.autoFixError': 'Kunne ikke oppdatere innstillingen for automatisk reparasjon.',
-  'ide.chat.autoApproveEnabled':
-    'Automatisk godkjenning på — ødeleggende kommandoer kjøres uten å spørre. Eksfiltreringsvakten spør fortsatt. Slå av med /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'Automatisk godkjenning av — ødeleggende kommandoer spør før de kjøres.',
+  'ide.chat.autoApproveEnabled': 'Automatisk godkjenning på — ødeleggende kommandoer kjøres uten å spørre. Eksfiltreringsvakten spør fortsatt. Slå av med /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Automatisk godkjenning av — ødeleggende kommandoer spør før de kjøres.',
   'ide.chat.autoApproveError': 'Kunne ikke oppdatere innstillingen for automatisk godkjenning.',
-  'ide.chat.modelUsage':
-    'Bruk: /modell<model-name> (f.eks. claude-opus-4-6, claude-sonnett-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Bruk: /modell<model-name> (f.eks. claude-opus-4-6, claude-sonnett-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Maksimalt antall løkker er nådd.',
   'ide.chat.maxLoopsError': 'Kunne ikke oppdatere maksimalt antall verktøyiterasjoner.',
   'ide.chat.dropFilesHere': 'Slipp filer her',
@@ -265,8 +254,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Forbereder diktering — det kan ta et øyeblikk første gang.',
   'ide.chat.voiceTranscribeFailed': 'Transkripsjon mislyktes.',
   'ide.chat.voiceEngineTitle': 'Dikteringsmotor',
-  'ide.chat.voiceEnginePrivacy':
-    'Hvert alternativ kjører på enheten din — lyd forlater aldri nettleseren.',
+  'ide.chat.voiceEnginePrivacy': 'Hvert alternativ kjører på enheten din — lyd forlater aldri nettleseren.',
   'ide.chat.voiceEngineNoDownload': 'ingen nedlasting',
   'ide.chat.voiceEngineDownload': '~{{mb}} MB nedlasting, deretter bufret',
   'ide.chat.voiceEngineDownloadRange': '~{{min}}–{{max}} MB nedlasting, deretter bufret',
@@ -312,8 +300,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Sikker (HTTPS)',
   'ide.preview.address': 'Forhåndsvisningsadresse',
   'ide.preview.updating': 'Oppdatering',
-  'ide.preview.frozen':
-    'Denne appen reagerer ikke lenger – en uendelig sløyfe eller en løpsk rendering har ført til at forhåndsvisningen har frosset. IDE-en er ikke berørt.',
+  'ide.preview.frozen': 'Denne appen reagerer ikke lenger – en uendelig sløyfe eller en løpsk rendering har ført til at forhåndsvisningen har frosset. IDE-en er ikke berørt.',
   'ide.preview.frozenReload': 'Oppdater appen',
   'ide.search.results': '{{count}} fører til filer med filtypen {{files}}',
   'ide.activity.cardAria': 'Vis registrert aktivitet',
@@ -345,31 +332,21 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Innstillinger',
   'ide.chat.tip.dismiss': 'Lukk tips',
-  'ide.chat.tip.getStarted':
-    'Tips: Skriv inn / for å se alle kommandoer, eller @ et filnavn for å gi «{{agentName}}» en fil å jobbe med.',
-  'ide.chat.tip.mention':
-    'Tips: Skriv inn @filnavn for å legge ved en prosjektfil som kontekst — {{agentName}} leser den direkte.',
-  'ide.chat.tip.slash':
-    'Tips: Skriv inn / for å se alle kommandoene (commit, diff, model og flere).',
-  'ide.chat.tip.plan':
-    'Tips: Bruk /plan for å la {{agentName}} undersøke saken og foreslå en plan før den redigerer noen filer.',
-  'ide.chat.tip.undo':
-    'Tips: Bruk /undo for å umiddelbart tilbakestille filendringene fra den siste AI-runden hvis det gikk galt.',
-  'ide.chat.tip.compact':
-    'Tips: Lang samtale? /compact komprimerer konteksten, slik at du får mer plass til å jobbe.',
-  'ide.chat.tip.commit':
-    'Tips: Bruk /commit for å lagre endringene dine som en Git-commit du alltid kan gå tilbake til.',
-  'ide.chat.tip.report':
-    'Tips: Er det noe som ikke stemmer? /report sender en feilmelding eller tilbakemelding til teamet, med den siste chat-historikken din vedlagt.',
+  'ide.chat.tip.getStarted': 'Tips: Skriv inn / for å se alle kommandoer, eller @ et filnavn for å gi «{{agentName}}» en fil å jobbe med.',
+  'ide.chat.tip.mention': 'Tips: Skriv inn @filnavn for å legge ved en prosjektfil som kontekst — {{agentName}} leser den direkte.',
+  'ide.chat.tip.slash': 'Tips: Skriv inn / for å se alle kommandoene (commit, diff, model og flere).',
+  'ide.chat.tip.plan': 'Tips: Bruk /plan for å la {{agentName}} undersøke saken og foreslå en plan før den redigerer noen filer.',
+  'ide.chat.tip.undo': 'Tips: Bruk /undo for å umiddelbart tilbakestille filendringene fra den siste AI-runden hvis det gikk galt.',
+  'ide.chat.tip.compact': 'Tips: Lang samtale? /compact komprimerer konteksten, slik at du får mer plass til å jobbe.',
+  'ide.chat.tip.commit': 'Tips: Bruk /commit for å lagre endringene dine som en Git-commit du alltid kan gå tilbake til.',
+  'ide.chat.tip.report': 'Tips: Er det noe som ikke stemmer? /report sender en feilmelding eller tilbakemelding til teamet, med den siste chat-historikken din vedlagt.',
   'ide.chat.undoError': 'Det lyktes ikke å tilbakestille endringene.',
   'ide.chat.autoCommit.badge': 'Automatisk lagring i {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Avbryt automatisk lagring',
   'ide.chat.autoCommit.cancelled': 'Automatisk lagring avbrutt.',
-  'ide.chat.autoCommit.enabled':
-    'Automatisk lagring aktivert: lagrer {{seconds}} s etter siste filendring. /autocommit 0 for å avbryte.',
+  'ide.chat.autoCommit.enabled': 'Automatisk lagring aktivert: lagrer {{seconds}} s etter siste filendring. /autocommit 0 for å avbryte.',
   'ide.chat.effort.error': 'Det gikk ikke å oppdatere begrunnelsen.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -384,14 +361,11 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Gratis',
   'ide.chat.models.sortBy': 'Sorter etter {{column}}',
   'ide.chat.modelsLoading': 'Laster inn modeller…',
-  'ide.chat.modelsNone':
-    'Det finnes ingen modeller ennå – be administratoren din om å koble til en AI-leverandør.',
+  'ide.chat.modelsNone': 'Det finnes ingen modeller ennå – be administratoren din om å koble til en AI-leverandør.',
   'ide.chat.modelInUse': 'Bruker nå {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'Den valgte modellen «{{removed}}» er ikke lenger tilgjengelig. Du er nå omdirigert til «{{fallback}}». Skriv inn /model for å velge en annen.',
-  'ide.chat.modelRemovedNoFallback':
-    'Den valgte modellen «{{removed}}» er ikke lenger tilgjengelig, og det er ikke registrert noen erstatningsmodell på serveren. Be administratoren din om å koble til en AI-leverandør.',
+  'ide.chat.modelRemoved': 'Den valgte modellen «{{removed}}» er ikke lenger tilgjengelig. Du er nå omdirigert til «{{fallback}}». Skriv inn /model for å velge en annen.',
+  'ide.chat.modelRemovedNoFallback': 'Den valgte modellen «{{removed}}» er ikke lenger tilgjengelig, og det er ikke registrert noen erstatningsmodell på serveren. Be administratoren din om å koble til en AI-leverandør.',
   'ide.chat.olderModelsCollapse': 'Eldre modeller ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Eldre modeller ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Velg modell i kjøringsmodus',
@@ -413,41 +387,31 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} feil i lint',
   'ide.chat.lintWarningsCount': '{{count}} advarsler',
   'ide.chat.typeErrorsCount': '{{count}} skrivefeil',
   'ide.chat.help.commandsHeading': '── Kommandoer ──',
-  'ide.chat.help.intro':
-    '{{agentName}} er en AI-basert programmeringsassistent fr{{productName}}. Beskriv hva du ønsker å lage, så vil den hjelpe deg med å lage struktur, skrive kode og forbedre løsningen sammen med deg.',
+  'ide.chat.help.intro': '{{agentName}} er en AI-basert programmeringsassistent fr{{productName}}. Beskriv hva du ønsker å lage, så vil den hjelpe deg med å lage struktur, skrive kode og forbedre løsningen sammen med deg.',
   'ide.chat.help.introHeading': '── Kom i gang ──',
-  'ide.chat.help.modeDiscovery':
-    'Discovery – her starter nye samtaler. «{{agentName}}» stiller avklarende spørsmål for å avklare kravene før man begynner å skrive kode.',
-  'ide.chat.help.modeExecute':
-    'Utfør — standard arbeidsmodus. «{{agentName}}» skriver kode, kjører verktøy, implementerer endringer og kontrollerer dem deretter.',
-  'ide.chat.help.modePlan':
-    'Plan — {{agentName}} undersøker kodebasen og foreslår en plan UTEN å endre filene. Slå til eller fra med /plan. Passer best for store eller risikofylte endringer.',
+  'ide.chat.help.modeDiscovery': 'Discovery – her starter nye samtaler. «{{agentName}}» stiller avklarende spørsmål for å avklare kravene før man begynner å skrive kode.',
+  'ide.chat.help.modeExecute': 'Utfør — standard arbeidsmodus. «{{agentName}}» skriver kode, kjører verktøy, implementerer endringer og kontrollerer dem deretter.',
+  'ide.chat.help.modePlan': 'Plan — {{agentName}} undersøker kodebasen og foreslår en plan UTEN å endre filene. Slå til eller fra med /plan. Passer best for store eller risikofylte endringer.',
   'ide.chat.help.modesHeading': '── Moduser ──',
   'ide.chat.help.shortcuts': 'Trykk på Cmd+/ (Ctrl+/ på Windows/Linux) for å se alle hurtigtaster.',
   'ide.chat.help.tipCompact': '• Bruk /compact for å komprimere samtalen når den blir lang.',
-  'ide.chat.help.tipPlan':
-    '• Bruk /plan for å få en oversikt over endringene ({{agentName}}) før du gjennomfører dem.',
+  'ide.chat.help.tipPlan': '• Bruk /plan for å få en oversikt over endringene ({{agentName}}) før du gjennomfører dem.',
   'ide.chat.help.tipSlash': '• Skriv inn / for å bla gjennom alle kommandoene ovenfor.',
-  'ide.chat.help.tipSpecific':
-    '• Vær konkret — «Legg til en påloggingsside med e-post/passord og Google OAuth» er bedre enn «legg til autentisering».',
-  'ide.chat.help.tipUndo':
-    '• Bruk /undo for å tilbakestille filendringene fra den siste AI-runden hvis det går galt.',
+  'ide.chat.help.tipSpecific': '• Vær konkret — «Legg til en påloggingsside med e-post/passord og Google OAuth» er bedre enn «legg til autentisering».',
+  'ide.chat.help.tipUndo': '• Bruk /undo for å tilbakestille filendringene fra den siste AI-runden hvis det går galt.',
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Rapporter en feil',
   'ide.chat.report.openReport': 'Rapporter en feil',
-  'ide.chat.report.subheading':
-    'Fortell oss hva som gikk galt, eller hva du ønsker å se. Tilbakemeldingen sendes til teamet bak «{{productName}}».',
+  'ide.chat.report.subheading': 'Fortell oss hva som gikk galt, eller hva du ønsker å se. Tilbakemeldingen sendes til teamet bak «{{productName}}».',
   'ide.chat.report.titleLabel': 'Tittel',
   'ide.chat.report.titlePlaceholder': 'Kort oppsummering',
   'ide.chat.report.descriptionLabel': 'Beskrivelse',
@@ -470,8 +434,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Lagrer…',
   'ide.chat.scripts.saveError': 'Det gikk ikke å lagre skriptet. Prøv på nytt.',
   'ide.chat.scripts.invalid': 'Et skript må ha et navn og en tekstdel som ikke er tom.',
-  'ide.chat.scripts.empty':
-    'Ingen lagrede skript ennå. Opprett et ovenfor, eller be {{agentName}} om å skrive og lagre et.',
+  'ide.chat.scripts.empty': 'Ingen lagrede skript ennå. Opprett et ovenfor, eller be {{agentName}} om å skrive og lagre et.',
   'ide.chat.scripts.loading': 'Laster inn skript…',
   'ide.chat.scripts.error': 'Det var ikke mulig å laste inn skript for dette prosjektet.',
   'ide.chat.scripts.noMatch': 'Det finnes ingen skript som samsvarer med «{{query}}».',
@@ -480,8 +443,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.scripts.running': 'Løper…',
   'ide.chat.scripts.runError': 'Det gikk ikke å kjøre skriptet.',
   'ide.chat.scripts.runNone': 'Ingen lagrede skript ennå. Åpne /scripts for å opprette et.',
-  'ide.chat.scripts.runNotFound':
-    'Det finnes ikke noe skript med navnet «{{name}}». Tilgjengelig: {{names}}',
+  'ide.chat.scripts.runNotFound': 'Det finnes ikke noe skript med navnet «{{name}}». Tilgjengelig: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} avsluttet 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} avsluttet med feilkode{{code}}',
   'ide.chat.scripts.exitOk': 'Avsluttet 0',
@@ -505,8 +467,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Del prosjekt',
-  'ide.chat.share.subheading':
-    'Opprett en offentlig lenke. Alle som har lenken, får den rollen du velger – en visningslenke gir kun lesetilgang.',
+  'ide.chat.share.subheading': 'Opprett en offentlig lenke. Alle som har lenken, får den rollen du velger – en visningslenke gir kun lesetilgang.',
   'ide.chat.share.roleLabel': 'Rolle',
   'ide.chat.share.create': 'Opprett lenke',
   'ide.chat.share.creating': 'Laster inn…',
@@ -518,27 +479,20 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Kopiert',
   'ide.chat.share.openLink': 'Åpne lenken',
   'ide.chat.share.error': 'Det gikk ikke å opprette en delingslenke. Prøv på nytt.',
-  'ide.chat.share.usage':
-    'Bruk: /share [rolle] — opprett en offentlig lenke. Roller: {{roles}} (standard: leser).',
-  'ide.chat.share.notAllowed':
-    'Administrasjon av delingslenker krever en administratorrolle i dette prosjektet.',
+  'ide.chat.share.usage': 'Bruk: /share [rolle] — opprett en offentlig lenke. Roller: {{roles}} (standard: leser).',
+  'ide.chat.share.notAllowed': 'Administrasjon av delingslenker krever en administratorrolle i dette prosjektet.',
   'ide.chat.skills.heading': 'Ferdigheter',
   'ide.chat.skills.searchPlaceholder': 'Filtrer ferdigheter…',
   'ide.chat.skills.load': 'Last',
   'ide.chat.skills.loadTitle': 'Åpne i redigeringsprogrammet og legg ved som kontekst',
-  'ide.chat.skills.loaded':
-    'Funksjonen «{{name}}» er lastet inn – den er åpnet i redigeringsverktøyet og lagt til som kontekst for din neste melding.',
+  'ide.chat.skills.loaded': 'Funksjonen «{{name}}» er lastet inn – den er åpnet i redigeringsverktøyet og lagt til som kontekst for din neste melding.',
   'ide.chat.skills.loading': 'Laster ferdigheter…',
   'ide.chat.skills.error': 'Det var ikke mulig å laste inn ferdigheter for dette prosjektet.',
-  'ide.chat.skills.empty':
-    'Det ble ikke funnet noen ferdigheter i .agents/skills/ for dette prosjektet.',
+  'ide.chat.skills.empty': 'Det ble ikke funnet noen ferdigheter i .agents/skills/ for dette prosjektet.',
   'ide.chat.skills.noMatch': 'Det finnes ingen ferdigheter som samsvarer med «{{query}}».',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -561,8 +515,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Det gikk ikke å sende inn rapporten din. Prøv på nytt.',
   'ide.chat.report.submitted': 'Takk! Meldingen din er sendt til teamet bak «{{productName}}».',
-  'ide.chat.report.submittedWithLink':
-    'Takk! Rapporten din er sendt inn – du kan følge med på den via lenken til saken.',
+  'ide.chat.report.submittedWithLink': 'Takk! Rapporten din er sendt inn – du kan følge med på den via lenken til saken.',
   'ide.chat.settings.modelFollowsDefault': 'Følger standardmodellen',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -576,8 +529,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Opprett',
   'ide.chat.skills.cancel': 'Avbryt',
   'ide.chat.skills.createError': 'Det gikk ikke å opprette ferdigheten – prøv på nytt.',
-  'ide.chat.skills.created':
-    'Opprettet ferdigheten «{{name}}» — åpnet i redigeringsverktøyet. Fyll ut beskrivelsen og trinnene.',
+  'ide.chat.skills.created': 'Opprettet ferdigheten «{{name}}» — åpnet i redigeringsverktøyet. Fyll ut beskrivelsen og trinnene.',
   'ide.chat.autoCommit.on': 'Automatisk lagring på',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -585,12 +537,10 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Forhåndsvisning kan ikke lastes inn her',
-  'ide.preview.loadFailedHint':
-    'Prøv å oppdatere siden, eller åpne forhåndsvisningen i en ny fane.',
+  'ide.preview.loadFailedHint': 'Prøv å oppdatere siden, eller åpne forhåndsvisningen i en ny fane.',
   'ide.preview.reloadPreview': 'Last inn forhåndsvisning på nytt',
   'ide.preview.lastWorkingFrame': 'Siste forhåndsvisning',
-  'ide.chat.effort.notSupportedForModel':
-    '{{level}} er ikke tilgjengelig på {{model}}. Tilgjengelig: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{level}} er ikke tilgjengelig på {{model}}. Tilgjengelig: {{levels}}',
   'ide.chat.modelSortLabel': 'Sorter',
   'ide.chat.modelSortDirection': 'Bytt sorteringsretning',
   'ide.chat.skills.loadedBadge': 'Lastet',
@@ -603,11 +553,9 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Lukk',
   'ide.chat.retryCountdown': 'Serverfeil — prøver på nytt om {{seconds}} s… (forsøk {{attempt}})',
   'ide.preview.blankTitle': 'Forhåndsvisningen er tom',
-  'ide.preview.blankHint':
-    'Appen ble lastet inn, men det ble ikke vist noe — det kan være en feil. Synthase har blitt varslet. Du kan laste inn siden på nytt eller åpne forhåndsvisningen i en ny fane.',
+  'ide.preview.blankHint': 'Appen ble lastet inn, men det ble ikke vist noe — det kan være en feil. Synthase har blitt varslet. Du kan laste inn siden på nytt eller åpne forhåndsvisningen i en ny fane.',
   'ide.chat.previewLinkTitle': 'Åpne {{path}} i forhåndsvisningen',
-  'ide.chat.report.diagnosticsNote':
-    'Appversjonen din, nettleseren din og skjermstørrelsen er vedlagt for å hjelpe oss med feilsøkingen.',
+  'ide.chat.report.diagnosticsNote': 'Appversjonen din, nettleseren din og skjermstørrelsen er vedlagt for å hjelpe oss med feilsøkingen.',
   'ide.chat.skills.loadedCount': '🧠 Har omfattende kunnskap om «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'Venter på at sandkassen skal fullføre oppstarten…',
   'ide.chat.skills.resetDefaults': 'Last inn alt som standard',
@@ -617,14 +565,12 @@ export const nb: Partial<IdeTranslations> = {
   'ide.toolCall.openPackageDoc': 'Åpne dokumentasjonen til pakken',
   'ide.chat.fastModeOn': 'Hurtigmodus aktivert — raskere svar med høyere frekvens',
   'ide.chat.fastModeOff': 'Hurtigmodus av',
-  'ide.chat.fastModeEnable':
-    'Hurtigmodus — opptil 2,5 ganger raskere utdata ved høyere tokenfrekvens',
+  'ide.chat.fastModeEnable': 'Hurtigmodus — opptil 2,5 ganger raskere utdata ved høyere tokenfrekvens',
   'ide.chat.fastModeDisable': 'Slå av hurtigmodus',
   'ide.chat.scripts.runWithOptions': 'Kjør…',
   'ide.chat.scripts.required': '(påkrevd)',
   'ide.chat.scripts.cancelRun': 'Avbryt',
-  'ide.chat.scripts.runNeedsOptions':
-    '«{{name}}» trenger alternativer — åpnet /scripts så du kan angi dem og Kjøre.',
+  'ide.chat.scripts.runNeedsOptions': '«{{name}}» trenger alternativer — åpnet /scripts så du kan angi dem og Kjøre.',
   'ide.chat.settings.effort.label': 'Resonnement',
   'ide.chat.timestampsShown': 'Tidsstempler vises.',
   'ide.chat.timestampsHidden': 'Tidsstempler skjult.',
@@ -647,8 +593,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'App',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Prosjekt',
-  'ide.tests.e2eHint':
-    'Disse kjører i bakgrunnen mens forhåndsvisningen er aktiv, så sørg for at forhåndsvisningen forblir åpen.',
+  'ide.tests.e2eHint': 'Disse kjører i bakgrunnen mens forhåndsvisningen er aktiv, så sørg for at forhåndsvisningen forblir åpen.',
   'ide.tests.showOutput': 'Vis utdata',
   'ide.tests.hideOutput': 'Skjul utdata',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -693,8 +638,8 @@ export const nb: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} hoppet over',
   'ide.tests.skippedByUser': 'Kjøringen er fullført. Testene du hoppet over, ble ikke kjørt.',
   'ide.tests.viewerCannotSkip': 'Bare redaktører kan hoppe over testene i dette prosjektet.',
-  'ide.toolCall.interruptedByRestart':
-    'Dette trinnet ble avbrutt av en omstart; effekten er ukjent.',
+  'ide.toolCall.interruptedByRestart': 'Dette trinnet ble avbrutt av en omstart; effekten er ukjent.',
   'ide.toolCall.statusInterrupted': 'Avbrutt',
   'ide.chat.subagent.failedFallback': 'Denne underagenten stoppet før den var ferdig.',
+  'ide.chat.viaDictation.badge': 'Diktert med stemmen',
 }

@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for zh. */
 export const zh: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': '查看套餐',
   'ide.chat.commitLabel': '提交',
   'ide.chat.fileCount': '{{count}} 个文件',
@@ -127,26 +123,23 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': '已切换到计划模式',
   'ide.chat.switchedToExecute': '已切换到执行模式',
   'ide.chat.costError': '无法获取使用情况数据。',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': '当前高峰 ×{{multiplier}}',
   'ide.chat.models.peakLater': '高峰时段 ×{{multiplier}}',
-  'ide.chat.models.peakHint':
-    '该模型在 {{windows}} 期间的费用为 ×{{multiplier}}，其余时段按正常费率计费。',
+  'ide.chat.models.peakHint': '该模型在 {{windows}} 期间的费用为 ×{{multiplier}}，其余时段按正常费率计费。',
   'ide.chat.undoNoChanges': '没有可撤销的文件更改。',
   'ide.chat.undoComplete': '撤销更改失败。',
   'ide.chat.commitNoChanges': '无需提交任何更改。',
@@ -154,12 +147,10 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': '已启用自动修复功能。',
   'ide.chat.autoFixDisabled': '自动修复功能已禁用。',
   'ide.chat.autoFixError': '自动修复设置更新失败。',
-  'ide.chat.autoApproveEnabled':
-    '已启用自动批准——破坏性命令将无需确认即可执行。数据泄露防护仍会请求确认。使用 /autoapprove 关闭。',
+  'ide.chat.autoApproveEnabled': '已启用自动批准——破坏性命令将无需确认即可执行。数据泄露防护仍会请求确认。使用 /autoapprove 关闭。',
   'ide.chat.autoApproveDisabled': '自动批准已关闭——破坏性命令在执行前会请求确认。',
   'ide.chat.autoApproveError': '自动批准设置更新失败。',
-  'ide.chat.modelUsage':
-    '用法：/model<model-name> （例如克劳德-opus-4-6、克劳德-十四行诗-4-6、克劳德-俳句-4-5-20251001）',
+  'ide.chat.modelUsage': '用法：/model<model-name> （例如克劳德-opus-4-6、克劳德-十四行诗-4-6、克劳德-俳句-4-5-20251001）',
   'ide.chat.maxLoopsReached': '已达到最大循环次数限制。',
   'ide.chat.maxLoopsError': '更新最大工具迭代次数失败。',
   'ide.chat.dropFilesHere': '文件拖放到这里',
@@ -309,8 +300,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.preview.secure': '安全连接 (HTTPS)',
   'ide.preview.address': '预览地址',
   'ide.preview.updating': '正在更新',
-  'ide.preview.frozen':
-    '该应用程序已停止响应——可能是无限循环或渲染失控导致预览界面卡死。IDE 未受影响。',
+  'ide.preview.frozen': '该应用程序已停止响应——可能是无限循环或渲染失控导致预览界面卡死。IDE 未受影响。',
   'ide.preview.frozenReload': '重新加载应用',
   'ide.search.results': '{{count}} 生成的文件位于{{files}}目录下',
   'ide.activity.cardAria': '查看已记录的活动',
@@ -342,29 +332,21 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '简历',
   'ide.chat.openSettings': '设置',
   'ide.chat.tip.dismiss': '关闭提示',
-  'ide.chat.tip.getStarted':
-    '提示：输入 / 可查看所有命令，或在文件名前加 @ 符号，为 `{{agentName}}` 指定要处理的文件。',
-  'ide.chat.tip.mention':
-    '提示：输入 @filename 可将项目文件作为上下文附加——{{agentName}} 会直接读取该文件。',
+  'ide.chat.tip.getStarted': '提示：输入 / 可查看所有命令，或在文件名前加 @ 符号，为 `{{agentName}}` 指定要处理的文件。',
+  'ide.chat.tip.mention': '提示：输入 @filename 可将项目文件作为上下文附加——{{agentName}} 会直接读取该文件。',
   'ide.chat.tip.slash': '提示：输入 / 可浏览所有命令（commit、diff、model 等）。',
-  'ide.chat.tip.plan':
-    '提示：使用 /plan 命令，{{agentName}} 会在编辑任何文件之前进行调研并提出方案。',
-  'ide.chat.tip.undo':
-    '提示：如果AI的最后一步操作出了问题，可以使用 /undo 命令立即撤销该步骤对文件的更改。',
+  'ide.chat.tip.plan': '提示：使用 /plan 命令，{{agentName}} 会在编辑任何文件之前进行调研并提出方案。',
+  'ide.chat.tip.undo': '提示：如果AI的最后一步操作出了问题，可以使用 /undo 命令立即撤销该步骤对文件的更改。',
   'ide.chat.tip.compact': '提示：对话太长？使用 /compact 命令可压缩对话内容，为你腾出操作空间。',
-  'ide.chat.tip.commit':
-    '提示：使用 /commit 命令将更改保存为 Git 提交，这样你随时可以回溯到该提交。',
-  'ide.chat.tip.report':
-    '提示：发现问题？发送 /report 指令，即可将您的近期聊天记录作为附件一并发送给团队，以便反馈问题或提出建议。',
+  'ide.chat.tip.commit': '提示：使用 /commit 命令将更改保存为 Git 提交，这样你随时可以回溯到该提交。',
+  'ide.chat.tip.report': '提示：发现问题？发送 /report 指令，即可将您的近期聊天记录作为附件一并发送给团队，以便反馈问题或提出建议。',
   'ide.chat.undoError': '无法撤销更改。',
   'ide.chat.autoCommit.badge': '{{countdown}} 中的自动提交',
   'ide.chat.autoCommit.cancel': '取消自动提交',
   'ide.chat.autoCommit.cancelled': '自动提交已取消。',
-  'ide.chat.autoCommit.enabled':
-    '已启用自动提交：在最后一次文件修改后提交{{seconds}}。若要取消，请将 /autocommit 设为 0。',
+  'ide.chat.autoCommit.enabled': '已启用自动提交：在最后一次文件修改后提交{{seconds}}。若要取消，请将 /autocommit 设为 0。',
   'ide.chat.effort.error': '更新推理过程失败。',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -382,10 +364,8 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': '目前尚无可用模型——请联系管理员接入人工智能服务提供商。',
   'ide.chat.modelInUse': '目前使用 {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    '您选择的模型“{{removed}}”已不可用。已切换至“{{fallback}}”。请输入 /model 选择其他模型。',
-  'ide.chat.modelRemovedNoFallback':
-    '您选择的模型“{{removed}}”已不可用，且服务器上未绑定任何替代模型。请联系管理员配置一个 AI 提供商。',
+  'ide.chat.modelRemoved': '您选择的模型“{{removed}}”已不可用。已切换至“{{fallback}}”。请输入 /model 选择其他模型。',
+  'ide.chat.modelRemovedNoFallback': '您选择的模型“{{removed}}”已不可用，且服务器上未绑定任何替代模型。请联系管理员配置一个 AI 提供商。',
   'ide.chat.olderModelsCollapse': '旧款机型 ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': '旧款机型 ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': '选择执行模式模型',
@@ -407,40 +387,31 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint 错误',
   'ide.chat.lintWarningsCount': '{{count}} 警告',
   'ide.chat.typeErrorsCount': '{{count}} 类型错误',
   'ide.chat.help.commandsHeading': '── 命令 ──',
-  'ide.chat.help.intro':
-    '{{agentName}} 是{{productName}}的AI编程助手。只需描述你想构建的内容，它就会协助你搭建框架、编写代码并进行迭代。',
+  'ide.chat.help.intro': '{{agentName}} 是{{productName}}的AI编程助手。只需描述你想构建的内容，它就会协助你搭建框架、编写代码并进行迭代。',
   'ide.chat.help.introHeading': '── 入门指南 ──',
-  'ide.chat.help.modeDiscovery':
-    '探索——新的对话由此开始。在编写任何代码之前，{{agentName}} 会提出澄清性问题以明确需求。',
-  'ide.chat.help.modeExecute':
-    '执行 — 默认工作模式。{{agentName}} 会编写代码、运行工具、应用更改，然后进行验证。',
-  'ide.chat.help.modePlan':
-    '计划 — {{agentName}} 会分析代码库并提出方案，且无需修改文件。使用 /plan 切换。最适合进行大规模或高风险的更改。',
+  'ide.chat.help.modeDiscovery': '探索——新的对话由此开始。在编写任何代码之前，{{agentName}} 会提出澄清性问题以明确需求。',
+  'ide.chat.help.modeExecute': '执行 — 默认工作模式。{{agentName}} 会编写代码、运行工具、应用更改，然后进行验证。',
+  'ide.chat.help.modePlan': '计划 — {{agentName}} 会分析代码库并提出方案，且无需修改文件。使用 /plan 切换。最适合进行大规模或高风险的更改。',
   'ide.chat.help.modesHeading': '── 模式 ──',
   'ide.chat.help.shortcuts': '按 Cmd+/（Windows/Linux 系统请按 Ctrl+/）查看所有键盘快捷键。',
   'ide.chat.help.tipCompact': '• 当对话内容过长时，请使用 /compact 命令进行压缩。',
   'ide.chat.help.tipPlan': '• 在进行更改前，请使用 /plan 命令让 {{agentName}} 进行分析。',
   'ide.chat.help.tipSlash': '• 输入 / 可浏览上述所有命令。',
-  'ide.chat.help.tipSpecific':
-    '• 具体说明——“添加一个支持邮箱/密码和 Google OAuth 的登录页面”比“添加身份验证”更明确。',
-  'ide.chat.help.tipUndo':
-    '• 如果 AI 的最后一次回合操作出现偏差，请使用 /undo 命令撤销该回合的文件更改。',
+  'ide.chat.help.tipSpecific': '• 具体说明——“添加一个支持邮箱/密码和 Google OAuth 的登录页面”比“添加身份验证”更明确。',
+  'ide.chat.help.tipUndo': '• 如果 AI 的最后一次回合操作出现偏差，请使用 /undo 命令撤销该回合的文件更改。',
   'ide.chat.help.tipsHeading': '── 提示 ──',
   'ide.chat.report.heading': '报告错误',
   'ide.chat.report.openReport': '报告错误',
-  'ide.chat.report.subheading':
-    '请告诉我们哪里出了问题，或者您希望看到什么。您的反馈将发送给 {{productName}} 的团队。',
+  'ide.chat.report.subheading': '请告诉我们哪里出了问题，或者您希望看到什么。您的反馈将发送给 {{productName}} 的团队。',
   'ide.chat.report.titleLabel': '标题',
   'ide.chat.report.titlePlaceholder': '简要概述',
   'ide.chat.report.descriptionLabel': '描述',
@@ -463,8 +434,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': '正在保存……',
   'ide.chat.scripts.saveError': '无法保存脚本。请重试。',
   'ide.chat.scripts.invalid': '脚本需要一个名称和一个非空的主体。',
-  'ide.chat.scripts.empty':
-    '目前尚未保存任何脚本。您可以在上方创建一个，或请 {{agentName}} 撰写并保存一个。',
+  'ide.chat.scripts.empty': '目前尚未保存任何脚本。您可以在上方创建一个，或请 {{agentName}} 撰写并保存一个。',
   'ide.chat.scripts.loading': '正在加载脚本……',
   'ide.chat.scripts.error': '无法加载此项目的脚本。',
   'ide.chat.scripts.noMatch': '没有脚本与“{{query}}”匹配。',
@@ -497,8 +467,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': '分享项目',
-  'ide.chat.share.subheading':
-    '创建一个公开链接。任何拥有该链接的人都将获得您指定的角色——查看者链接仅限查看。',
+  'ide.chat.share.subheading': '创建一个公开链接。任何拥有该链接的人都将获得您指定的角色——查看者链接仅限查看。',
   'ide.chat.share.roleLabel': '角色',
   'ide.chat.share.create': '创建链接',
   'ide.chat.share.creating': '正在创建……',
@@ -510,25 +479,20 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.share.copied': '已复制',
   'ide.chat.share.openLink': '打开链接',
   'ide.chat.share.error': '无法创建分享链接。请重试。',
-  'ide.chat.share.usage':
-    '用法：/share [角色] — 创建公共链接。角色：{{roles}}（默认角色为查看者）。',
+  'ide.chat.share.usage': '用法：/share [角色] — 创建公共链接。角色：{{roles}}（默认角色为查看者）。',
   'ide.chat.share.notAllowed': '管理分享链接需要此项目的管理员角色。',
   'ide.chat.skills.heading': '技能',
   'ide.chat.skills.searchPlaceholder': '筛选技能……',
   'ide.chat.skills.load': '加载',
   'ide.chat.skills.loadTitle': '在编辑器中打开并作为上下文附加',
-  'ide.chat.skills.loaded':
-    '已加载技能“{{name}}”——已在编辑器中打开，并作为上下文附加到您的下一条消息中。',
+  'ide.chat.skills.loaded': '已加载技能“{{name}}”——已在编辑器中打开，并作为上下文附加到您的下一条消息中。',
   'ide.chat.skills.loading': '正在加载技能……',
   'ide.chat.skills.error': '无法加载此项目的技能。',
   'ide.chat.skills.empty': '在该项目的 .agents/skills/ 目录下未找到任何技能。',
   'ide.chat.skills.noMatch': '没有技能与“{{query}}”匹配。',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -589,8 +553,7 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': '关闭',
   'ide.chat.retryCountdown': '服务器错误——将在 {{seconds}} 秒后重试……（尝试 {{attempt}}）',
   'ide.preview.blankTitle': '预览内容为空',
-  'ide.preview.blankHint':
-    '该应用已加载，但未显示任何内容——可能出现了错误。Synthase 已收到通知。您可以重新加载页面，或在新的标签页中打开预览。',
+  'ide.preview.blankHint': '该应用已加载，但未显示任何内容——可能出现了错误。Synthase 已收到通知。您可以重新加载页面，或在新的标签页中打开预览。',
   'ide.chat.previewLinkTitle': '在预览中打开 {{path}}',
   'ide.chat.report.diagnosticsNote': '已附上您的应用版本、浏览器和屏幕尺寸，以帮助我们进行调试。',
   'ide.chat.skills.loadedCount': '🧠 掌握了{{count}}的各项技能',
@@ -678,4 +641,5 @@ export const zh: Partial<IdeTranslations> = {
   'ide.toolCall.interruptedByRestart': '此步骤因重启而中断；其影响未知。',
   'ide.toolCall.statusInterrupted': '中断',
   'ide.chat.subagent.failedFallback': '这个分包商在任务完成前就停止了。',
+  'ide.chat.viaDictation.badge': '语音播报',
 }

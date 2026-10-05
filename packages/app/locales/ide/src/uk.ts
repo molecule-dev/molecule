@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for uk. */
 export const uk: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Переглянути плани',
   'ide.chat.fileCount': '{{count}} файлів',
   'common.cancel': 'Скасувати',
@@ -103,8 +99,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Змінити модель',
   'ide.chat.increaseLoops': 'Збільшити максимальну кількість циклів',
   'ide.chat.continuePrompt': 'Продовжуйте впровадження з того місця, де ви зупинилися.',
-  'guest.reminder.message':
-    'Зареєструйтесь або увійдіть, щоб зберегти свою роботу \\\\uГостьові сесії 2014 року закінчуються через 72 години.',
+  'guest.reminder.message': 'Зареєструйтесь або увійдіть, щоб зберегти свою роботу \\\\uГостьові сесії 2014 року закінчуються через 72 години.',
   'guest.reminder.logIn': 'Увійти',
   'ide.chat.soundsError': 'Не вдалося оновити налаштування звуку.',
   'ide.chat.commitFailed': 'Не вдалося завершити',
@@ -116,26 +111,23 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Переключено в режим плану',
   'ide.chat.switchedToExecute': 'Переключено в режим виконання',
   'ide.chat.costError': 'Не вдається отримати дані про використання.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'пік ×{{multiplier}} зараз',
   'ide.chat.models.peakLater': '×{{multiplier}} у години пік',
-  'ide.chat.models.peakHint':
-    'Ця модель коштує ×{{multiplier}} у період {{windows}}. Решту доби діє звичайний тариф.',
+  'ide.chat.models.peakHint': 'Ця модель коштує ×{{multiplier}} у період {{windows}}. Решту доби діє звичайний тариф.',
   'ide.chat.undoNoChanges': 'Немає змін у файлі для скасування.',
   'ide.chat.undoComplete': 'Не вдалося скасувати зміни.',
   'ide.chat.commitNoChanges': 'Немає змін для фіксації.',
@@ -143,13 +135,10 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Автоматичне виправлення ввімкнено.',
   'ide.chat.autoFixDisabled': 'Автоматичне виправлення вимкнено.',
   'ide.chat.autoFixError': 'Не вдалося оновити налаштування автоматичного виправлення.',
-  'ide.chat.autoApproveEnabled':
-    'Автоматичне підтвердження увімкнено — деструктивні команди виконуються без запиту. Захист від витоку даних усе одно запитує підтвердження. Вимкнути можна командою /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'Автоматичне підтвердження вимкнено — деструктивні команди запитують підтвердження перед виконанням.',
+  'ide.chat.autoApproveEnabled': 'Автоматичне підтвердження увімкнено — деструктивні команди виконуються без запиту. Захист від витоку даних усе одно запитує підтвердження. Вимкнути можна командою /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Автоматичне підтвердження вимкнено — деструктивні команди запитують підтвердження перед виконанням.',
   'ide.chat.autoApproveError': 'Не вдалося оновити налаштування автоматичного підтвердження.',
-  'ide.chat.modelUsage':
-    'Використання: /модель<model-name> (наприклад, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Використання: /модель<model-name> (наприклад, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Досягнуто максимальної кількості циклів.',
   'ide.chat.maxLoopsError': 'Не вдалося оновити максимальну кількість ітерацій інструменту.',
   'ide.chat.dropFilesHere': 'Перетягніть файли сюди',
@@ -229,7 +218,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.code.copy': 'Copy',
   'ide.chat.code.copied': '✓ Copied',
   'ide.chat.commit': 'Здійснити',
-  'ide.chat.committed': "Зобов'язаний",
+  'ide.chat.committed': 'Зобов\'язаний',
   'ide.chat.loopLimitReached': 'Досягнуто максимуму {{max}} ітерації інструменту.',
   'ide.chat.maxLoopsSet': 'Максимальна кількість ітерацій інструменту встановлена на {{n}}',
   'ide.chat.modelError': 'Не вдалося оновити модель чату.',
@@ -252,25 +241,20 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Щось пішло не так під час відповіді',
-  'ide.chat.soundEventDesc.tool_result':
-    'Виклик інструменту (читання файлу, команда тощо) завершено',
+  'ide.chat.soundEventDesc.tool_result': 'Виклик інструменту (читання файлу, команда тощо) завершено',
   'ide.chat.soundEventDesc.file_diff': 'Файл було створено або змінено',
-  'ide.chat.soundEventDesc.commit_suggestion':
-    '{{agentName}} пропонує файли для фіксації (коміту).',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} пропонує файли для фіксації (коміту).',
   'ide.chat.soundEventDesc.mode': 'Перемикання між режимом планування та режимом виконання',
-  'ide.chat.soundEventDesc.loop_limit_reached':
-    'Досягнуто максимальної кількості ітерацій інструменту',
+  'ide.chat.soundEventDesc.loop_limit_reached': 'Досягнуто максимальної кількості ітерацій інструменту',
   'ide.chat.soundEventDesc.verification_result': 'Перевірка Lint або типу завершена',
-  'ide.chat.soundEventDesc.preview_error':
-    'Під час попереднього перегляду в реальному часі сталася помилка',
+  'ide.chat.soundEventDesc.preview_error': 'Під час попереднього перегляду в реальному часі сталася помилка',
   'ide.chat.voice': 'Голос',
   'ide.chat.voiceUnavailable': 'Диктування недоступне в цьому браузері.',
   'ide.chat.voiceMicBlocked': 'Доступ до мікрофона заблоковано.',
   'ide.chat.voicePreparing': 'Підготовка диктування — першого разу це може зайняти трохи часу.',
   'ide.chat.voiceTranscribeFailed': 'Не вдалося розшифрувати.',
   'ide.chat.voiceEngineTitle': 'Рушій диктування',
-  'ide.chat.voiceEnginePrivacy':
-    'Кожен варіант працює на вашому пристрої — звук ніколи не покидає браузер.',
+  'ide.chat.voiceEnginePrivacy': 'Кожен варіант працює на вашому пристрої — звук ніколи не покидає браузер.',
   'ide.chat.voiceEngineNoDownload': 'без завантаження',
   'ide.chat.voiceEngineDownload': 'завантаження ~{{mb}} МБ, потім кешується',
   'ide.chat.voiceEngineDownloadRange': 'завантаження ~{{min}}–{{max}} МБ, потім кешується',
@@ -316,8 +300,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Захищено (HTTPS)',
   'ide.preview.address': 'Адреса попереднього перегляду',
   'ide.preview.updating': 'Оновлення',
-  'ide.preview.frozen':
-    'Ця програма перестала відповідати — попередній перегляд завис через нескінченний цикл або неконтрольований процес рендерингу. Це не вплинуло на роботу IDE.',
+  'ide.preview.frozen': 'Ця програма перестала відповідати — попередній перегляд завис через нескінченний цикл або неконтрольований процес рендерингу. Це не вплинуло на роботу IDE.',
   'ide.preview.frozenReload': 'Оновити додаток',
   'ide.search.results': '{{count}} результати зберігаються у файлах {{files}}',
   'ide.activity.cardAria': 'Переглянути зафіксовані дії',
@@ -349,31 +332,21 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Резюме',
   'ide.chat.openSettings': 'Налаштування',
   'ide.chat.tip.dismiss': 'Закрити підказку',
-  'ide.chat.tip.getStarted':
-    'Порада: введіть /, щоб переглянути всі команди, або @ім’я_файлу, щоб вказати програмі «{{agentName}}» файл для обробки.',
-  'ide.chat.tip.mention':
-    'Порада: введіть @filename, щоб додати файл проекту як контекст — програма {{agentName}} прочитає його безпосередньо.',
-  'ide.chat.tip.slash':
-    'Порада: введіть /, щоб переглянути всі команди (commit, diff, model та інші).',
-  'ide.chat.tip.plan':
-    'Порада: скористайтеся командою /plan, щоб програма «{{agentName}}» проаналізувала ситуацію та запропонувала план дій, перш ніж розпочинати редагування файлів.',
-  'ide.chat.tip.undo':
-    'Порада: скористайтеся командою /undo, щоб миттєво скасувати зміни, внесені в файл під час останнього ходу ШІ, якщо все пішло не так, як треба.',
-  'ide.chat.tip.compact':
-    'Порада: довга розмова? Команда /compact стискає контекст, щоб у вас залишалося місце для роботи.',
-  'ide.chat.tip.commit':
-    'Порада: скористайтеся командою /commit, щоб зберегти зміни у вигляді коміту Git, до якого ви завжди зможете повернутися.',
-  'ide.chat.tip.report':
-    'Порада: щось не так? Команда отримає повідомлення про помилку або відгук із вашим останнім чатом у вкладенні, якщо ви надішлете команду /report.',
+  'ide.chat.tip.getStarted': 'Порада: введіть /, щоб переглянути всі команди, або @ім’я_файлу, щоб вказати програмі «{{agentName}}» файл для обробки.',
+  'ide.chat.tip.mention': 'Порада: введіть @filename, щоб додати файл проекту як контекст — програма {{agentName}} прочитає його безпосередньо.',
+  'ide.chat.tip.slash': 'Порада: введіть /, щоб переглянути всі команди (commit, diff, model та інші).',
+  'ide.chat.tip.plan': 'Порада: скористайтеся командою /plan, щоб програма «{{agentName}}» проаналізувала ситуацію та запропонувала план дій, перш ніж розпочинати редагування файлів.',
+  'ide.chat.tip.undo': 'Порада: скористайтеся командою /undo, щоб миттєво скасувати зміни, внесені в файл під час останнього ходу ШІ, якщо все пішло не так, як треба.',
+  'ide.chat.tip.compact': 'Порада: довга розмова? Команда /compact стискає контекст, щоб у вас залишалося місце для роботи.',
+  'ide.chat.tip.commit': 'Порада: скористайтеся командою /commit, щоб зберегти зміни у вигляді коміту Git, до якого ви завжди зможете повернутися.',
+  'ide.chat.tip.report': 'Порада: щось не так? Команда отримає повідомлення про помилку або відгук із вашим останнім чатом у вкладенні, якщо ви надішлете команду /report.',
   'ide.chat.undoError': 'Не вдалося скасувати зміни.',
   'ide.chat.autoCommit.badge': 'Автоматичне збереження змін у програмі «{{countdown}}»',
   'ide.chat.autoCommit.cancel': 'Скасувати автоматичне збереження',
   'ide.chat.autoCommit.cancelled': 'Автоматичне збереження скасовано.',
-  'ide.chat.autoCommit.enabled':
-    'Увімкнено автоматичне фіксування: фіксування {{seconds}} с після останньої зміни файлу. Введіть /autocommit 0, щоб скасувати.',
+  'ide.chat.autoCommit.enabled': 'Увімкнено автоматичне фіксування: фіксування {{seconds}} с після останньої зміни файлу. Введіть /autocommit 0, щоб скасувати.',
   'ide.chat.effort.error': 'Не вдалося оновити процес міркування.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -388,14 +361,11 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Безкоштовно',
   'ide.chat.models.sortBy': 'Сортувати за {{column}}',
   'ide.chat.modelsLoading': 'Завантаження моделей…',
-  'ide.chat.modelsNone':
-    'Наразі моделей немає — попросіть адміністратора підключити постачальника послуг штучного інтелекту.',
+  'ide.chat.modelsNone': 'Наразі моделей немає — попросіть адміністратора підключити постачальника послуг штучного інтелекту.',
   'ide.chat.modelInUse': 'Зараз використовується {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'Вибрана вами модель «{{removed}}» більше не доступна. Замість неї запропоновано «{{fallback}}». Введіть /model, щоб вибрати іншу.',
-  'ide.chat.modelRemovedNoFallback':
-    'Вибрана вами модель «{{removed}}» більше не доступна, і на сервері немає її замінника. Попросіть адміністратора підключити постачальника штучного інтелекту.',
+  'ide.chat.modelRemoved': 'Вибрана вами модель «{{removed}}» більше не доступна. Замість неї запропоновано «{{fallback}}». Введіть /model, щоб вибрати іншу.',
+  'ide.chat.modelRemovedNoFallback': 'Вибрана вами модель «{{removed}}» більше не доступна, і на сервері немає її замінника. Попросіть адміністратора підключити постачальника штучного інтелекту.',
   'ide.chat.olderModelsCollapse': 'Попередні моделі ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Старі моделі ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Вибрати модель у режимі виконання',
@@ -417,43 +387,31 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} помилки, пов’язані з пухом',
   'ide.chat.lintWarningsCount': '{{count}} попередження',
   'ide.chat.typeErrorsCount': '{{count}} типові помилки',
   'ide.chat.help.commandsHeading': '── Команди ──',
-  'ide.chat.help.intro':
-    '{{agentName}} — це агент для програмування на основі штучного інтелекту від {{productName}}. Опишіть, що ви хочете створити, і він допоможе вам розробити структуру, написати код та вдосконалити проект.',
+  'ide.chat.help.intro': '{{agentName}} — це агент для програмування на основі штучного інтелекту від {{productName}}. Опишіть, що ви хочете створити, і він допоможе вам розробити структуру, написати код та вдосконалити проект.',
   'ide.chat.help.introHeading': '── Початок роботи ──',
-  'ide.chat.help.modeDiscovery':
-    '«Відкриття» — саме тут починаються нові розмови. Метод «{{agentName}}» передбачає постановку уточнюючих запитань для точного визначення вимог ще до початку написання коду.',
-  'ide.chat.help.modeExecute':
-    'Виконати — стандартний режим роботи. Функція «{{agentName}}» генерує код, запускає інструменти, застосовує зміни, а потім перевіряє їх.',
-  'ide.chat.help.modePlan':
-    'План — команда «{{agentName}}» аналізує код і пропонує план БЕЗ редагування файлів. Увімкнути/вимкнути за допомогою команди /plan. Найкраще підходить для великих або ризикованих змін.',
+  'ide.chat.help.modeDiscovery': '«Відкриття» — саме тут починаються нові розмови. Метод «{{agentName}}» передбачає постановку уточнюючих запитань для точного визначення вимог ще до початку написання коду.',
+  'ide.chat.help.modeExecute': 'Виконати — стандартний режим роботи. Функція «{{agentName}}» генерує код, запускає інструменти, застосовує зміни, а потім перевіряє їх.',
+  'ide.chat.help.modePlan': 'План — команда «{{agentName}}» аналізує код і пропонує план БЕЗ редагування файлів. Увімкнути/вимкнути за допомогою команди /plan. Найкраще підходить для великих або ризикованих змін.',
   'ide.chat.help.modesHeading': '── Режими ──',
-  'ide.chat.help.shortcuts':
-    'Натисніть Cmd+/ (Ctrl+/ у Windows/Linux), щоб переглянути всі комбінації клавіш.',
-  'ide.chat.help.tipCompact':
-    '• Використовуйте команду /compact для стиснення контексту, коли розмова стає занадто довгою.',
-  'ide.chat.help.tipPlan':
-    '• Скористайтеся командою /plan, щоб система «{{agentName}}» проаналізувала ситуацію перед внесенням змін.',
+  'ide.chat.help.shortcuts': 'Натисніть Cmd+/ (Ctrl+/ у Windows/Linux), щоб переглянути всі комбінації клавіш.',
+  'ide.chat.help.tipCompact': '• Використовуйте команду /compact для стиснення контексту, коли розмова стає занадто довгою.',
+  'ide.chat.help.tipPlan': '• Скористайтеся командою /plan, щоб система «{{agentName}}» проаналізувала ситуацію перед внесенням змін.',
   'ide.chat.help.tipSlash': '• Наберіть /, щоб переглянути всі наведені вище команди.',
-  'ide.chat.help.tipSpecific':
-    '• Будьте конкретні — «Додати сторінку входу з адресою електронної пошти/паролем та Google OAuth» краще, ніж «додати авторизацію».',
-  'ide.chat.help.tipUndo':
-    '• Використовуйте команду /undo, щоб скасувати зміни, внесені в файл під час останнього ходу ШІ, якщо він пішов не так, як треба.',
+  'ide.chat.help.tipSpecific': '• Будьте конкретні — «Додати сторінку входу з адресою електронної пошти/паролем та Google OAuth» краще, ніж «додати авторизацію».',
+  'ide.chat.help.tipUndo': '• Використовуйте команду /undo, щоб скасувати зміни, внесені в файл під час останнього ходу ШІ, якщо він пішов не так, як треба.',
   'ide.chat.help.tipsHeading': '── Поради ──',
   'ide.chat.report.heading': 'Повідомити про помилку',
   'ide.chat.report.openReport': 'Повідомити про помилку',
-  'ide.chat.report.subheading':
-    'Розкажіть нам, що пішло не так або що ви хотіли б побачити. Ваше повідомлення надійде до команди {{productName}}.',
+  'ide.chat.report.subheading': 'Розкажіть нам, що пішло не так або що ви хотіли б побачити. Ваше повідомлення надійде до команди {{productName}}.',
   'ide.chat.report.titleLabel': 'Назва',
   'ide.chat.report.titlePlaceholder': 'Короткий огляд',
   'ide.chat.report.descriptionLabel': 'Опис',
@@ -475,9 +433,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.scripts.save': 'Зберегти скрипт',
   'ide.chat.scripts.saving': 'Зберігається…',
   'ide.chat.scripts.saveError': 'Не вдалося зберегти скрипт. Спробуйте ще раз.',
-  'ide.chat.scripts.invalid': "Скрипт повинен мати ім'я та непусте тіло.",
-  'ide.chat.scripts.empty':
-    'Поки що немає збережених скриптів. Створіть його вище або попросіть {{agentName}} написати та зберегти його.',
+  'ide.chat.scripts.invalid': 'Скрипт повинен мати ім\'я та непусте тіло.',
+  'ide.chat.scripts.empty': 'Поки що немає збережених скриптів. Створіть його вище або попросіть {{agentName}} написати та зберегти його.',
   'ide.chat.scripts.loading': 'Завантаження скриптів…',
   'ide.chat.scripts.error': 'Не вдалося завантажити скрипти для цього проєкту.',
   'ide.chat.scripts.noMatch': 'Скриптів, що відповідають запиту «{{query}}», не знайдено.',
@@ -485,10 +442,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Запустіть цей скрипт у пісочниці',
   'ide.chat.scripts.running': 'Біг…',
   'ide.chat.scripts.runError': 'Не вдалося виконати скрипт.',
-  'ide.chat.scripts.runNone':
-    'Сценарії ще не збережено. Відкрийте папку /scripts, щоб створити новий.',
-  'ide.chat.scripts.runNotFound':
-    'Сценарію з назвою «{{name}}» не знайдено. Доступно за адресою: {{names}}',
+  'ide.chat.scripts.runNone': 'Сценарії ще не збережено. Відкрийте папку /scripts, щоб створити новий.',
+  'ide.chat.scripts.runNotFound': 'Сценарію з назвою «{{name}}» не знайдено. Доступно за адресою: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} вихід 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} завершилося з кодом {{code}}',
   'ide.chat.scripts.exitOk': 'Вийшов із програми 0',
@@ -512,8 +467,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Поділитися проектом',
-  'ide.chat.share.subheading':
-    'Створіть загальнодоступне посилання. Кожен, хто отримає це посилання, отримає обрану вами роль — посилання для перегляду надає доступ лише для перегляду.',
+  'ide.chat.share.subheading': 'Створіть загальнодоступне посилання. Кожен, хто отримає це посилання, отримає обрану вами роль — посилання для перегляду надає доступ лише для перегляду.',
   'ide.chat.share.roleLabel': 'Роль',
   'ide.chat.share.create': 'Створити посилання',
   'ide.chat.share.creating': 'Створюється…',
@@ -525,27 +479,20 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Скопійовано',
   'ide.chat.share.openLink': 'Відкрити посилання',
   'ide.chat.share.error': 'Не вдалося створити посилання для спільного доступу. Спробуйте ще раз.',
-  'ide.chat.share.usage':
-    'Використання: /share [роль] — створити загальнодоступне посилання. Ролі: {{roles}} (за замовчуванням — «переглядач»).',
-  'ide.chat.share.notAllowed':
-    'Для керування посиланнями спільного доступу потрібна роль адміністратора в цьому проєкті.',
+  'ide.chat.share.usage': 'Використання: /share [роль] — створити загальнодоступне посилання. Ролі: {{roles}} (за замовчуванням — «переглядач»).',
+  'ide.chat.share.notAllowed': 'Для керування посиланнями спільного доступу потрібна роль адміністратора в цьому проєкті.',
   'ide.chat.skills.heading': 'Навички',
   'ide.chat.skills.searchPlaceholder': 'Відфільтрувати навички…',
   'ide.chat.skills.load': 'Завантажити',
   'ide.chat.skills.loadTitle': 'Відкрити в редакторі та додати як контекст',
-  'ide.chat.skills.loaded':
-    'Завантажено навичку «{{name}}» — відкрито в редакторі та додано як контекст для вашого наступного повідомлення.',
+  'ide.chat.skills.loaded': 'Завантажено навичку «{{name}}» — відкрито в редакторі та додано як контекст для вашого наступного повідомлення.',
   'ide.chat.skills.loading': 'Завантаження навичок…',
   'ide.chat.skills.error': 'Не вдалося завантажити навички для цього проєкту.',
-  'ide.chat.skills.empty':
-    'У каталозі .agents/skills/ для цього проєкту не знайдено жодних навичок.',
+  'ide.chat.skills.empty': 'У каталозі .agents/skills/ для цього проєкту не знайдено жодних навичок.',
   'ide.chat.skills.noMatch': 'Не знайдено відповідних навичок для «{{query}}».',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -559,7 +506,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.streaming.crafting': 'Готується відповідь...',
   'ide.chat.streaming.working': 'Працюю над цим...',
   'ide.chat.streaming.processing': 'Обробка...',
-  'ide.chat.streaming.connecting': "З'єднаємо крапки...",
+  'ide.chat.streaming.connecting': 'З\'єднаємо крапки...',
   'ide.chat.streaming.almostThere': 'Вже майже готово...',
   'ide.chat.help.card.heading': 'Допомога',
   'ide.chat.help.card.commandsTitle': 'Команди',
@@ -568,8 +515,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Не вдалося надіслати звіт. Спробуйте ще раз.',
   'ide.chat.report.submitted': 'Дякуємо! Ваше повідомлення надіслано команді {{productName}}.',
-  'ide.chat.report.submittedWithLink':
-    'Дякуємо! Ваше повідомлення надіслано — ви можете відстежувати його за посиланням на відповідну проблему.',
+  'ide.chat.report.submittedWithLink': 'Дякуємо! Ваше повідомлення надіслано — ви можете відстежувати його за посиланням на відповідну проблему.',
   'ide.chat.settings.modelFollowsDefault': 'Відповідає стандартній моделі',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -583,8 +529,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Створити',
   'ide.chat.skills.cancel': 'Скасувати',
   'ide.chat.skills.createError': 'Не вдалося створити навичку — спробуйте ще раз.',
-  'ide.chat.skills.created':
-    'Створено навичку «{{name}}» — вона відкрилася в редакторі. Заповніть її опис та покрокові інструкції.',
+  'ide.chat.skills.created': 'Створено навичку «{{name}}» — вона відкрилася в редакторі. Заповніть її опис та покрокові інструкції.',
   'ide.chat.autoCommit.on': 'Увімкнути автоматичне підтвердження',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -592,38 +537,30 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Попередній перегляд не завантажується',
-  'ide.preview.loadFailedHint':
-    'Спробуйте оновити сторінку або відкрити попередній перегляд у новій вкладці.',
+  'ide.preview.loadFailedHint': 'Спробуйте оновити сторінку або відкрити попередній перегляд у новій вкладці.',
   'ide.preview.reloadPreview': 'Оновити попередній перегляд',
   'ide.preview.lastWorkingFrame': 'Останній робочий попередній перегляд',
-  'ide.chat.effort.notSupportedForModel':
-    '{{level}} не доступно за адресою {{model}}. Доступно за адресою: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{level}} не доступно за адресою {{model}}. Доступно за адресою: {{levels}}',
   'ide.chat.modelSortLabel': 'Сортувати',
   'ide.chat.modelSortDirection': 'Перемикати напрямок сортування',
   'ide.chat.skills.loadedBadge': 'Завантажено',
   'ide.chat.skills.defaultBadge': 'За замовчуванням',
   'ide.chat.skills.setDefault': 'Завантажити за замовчуванням',
   'ide.chat.skills.unsetDefault': 'За замовчуванням зупинити завантаження',
-  'ide.chat.skills.matchHint':
-    'Рекомендовано на основі ключових слів у ваших останніх повідомленнях',
+  'ide.chat.skills.matchHint': 'Рекомендовано на основі ключових слів у ваших останніх повідомленнях',
   'ide.device.select': 'Рама пристрою',
   'ide.device.rotate': 'Повернути',
   'ide.chat.closeOverlay': 'Закрити',
-  'ide.chat.retryCountdown':
-    'Помилка сервера — повторюю спробу через {{seconds}} секунд… (спроба {{attempt}})',
+  'ide.chat.retryCountdown': 'Помилка сервера — повторюю спробу через {{seconds}} секунд… (спроба {{attempt}})',
   'ide.preview.blankTitle': 'Попередній перегляд порожній',
-  'ide.preview.blankHint':
-    'Додаток завантажився, але нічого не відобразилося — можливо, сталася помилка. Про це повідомлено Synthase. Ви можете перезавантажити сторінку або відкрити попередній перегляд у новій вкладці.',
+  'ide.preview.blankHint': 'Додаток завантажився, але нічого не відобразилося — можливо, сталася помилка. Про це повідомлено Synthase. Ви можете перезавантажити сторінку або відкрити попередній перегляд у новій вкладці.',
   'ide.chat.previewLinkTitle': 'Відкрити файл «{{path}}» у попередньому перегляді',
-  'ide.chat.report.diagnosticsNote':
-    'Для полегшення налагодження ми додали інформацію про версію вашого додатка, браузер та розмір екрана.',
+  'ide.chat.report.diagnosticsNote': 'Для полегшення налагодження ми додали інформацію про версію вашого додатка, браузер та розмір екрана.',
   'ide.chat.skills.loadedCount': '🧠 Володію навичками роботи з {{count}}',
   'ide.chat.skills.waitingForSandbox': 'Очікування завершення запуску пісочниці…',
   'ide.chat.skills.resetDefaults': 'Завантажити все за замовчуванням',
-  'ide.search.excludedDirs':
-    'Виключені папки (стосується всіх пошуків, включаючи пошук за допомогою агента)',
-  'ide.chat.costStreamingNote':
-    'Поточний підсумок — включає відповідь, яка зараз передається у режимі потокової передачі.',
+  'ide.search.excludedDirs': 'Виключені папки (стосується всіх пошуків, включаючи пошук за допомогою агента)',
+  'ide.chat.costStreamingNote': 'Поточний підсумок — включає відповідь, яка зараз передається у режимі потокової передачі.',
   'ide.toolCall.packageCount': '{{count}} пакети',
   'ide.toolCall.openPackageDoc': 'Відкрити документацію до пакета',
   'ide.chat.fastModeOn': 'Увімкнено швидкий режим — швидші відповіді з більшою частотою',
@@ -633,8 +570,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': 'Запустити…',
   'ide.chat.scripts.required': '(обовʼязково)',
   'ide.chat.scripts.cancelRun': 'Скасувати',
-  'ide.chat.scripts.runNeedsOptions':
-    '«{{name}}» потребує параметрів — відкрито /scripts, щоб ви задали їх і Запустили.',
+  'ide.chat.scripts.runNeedsOptions': '«{{name}}» потребує параметрів — відкрито /scripts, щоб ви задали їх і Запустили.',
   'ide.chat.settings.effort.label': 'Робота з логічним мисленням',
   'ide.chat.timestampsShown': 'Позначки часу показано.',
   'ide.chat.timestampsHidden': 'Позначки часу приховано.',
@@ -657,8 +593,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Додаток',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Проєкт',
-  'ide.tests.e2eHint':
-    'Ці дії виконуються на тлі попереднього перегляду в режимі реального часу, тому залиште вікно попереднього перегляду відкритим.',
+  'ide.tests.e2eHint': 'Ці дії виконуються на тлі попереднього перегляду в режимі реального часу, тому залиште вікно попереднього перегляду відкритим.',
   'ide.tests.showOutput': 'Показати результат',
   'ide.tests.hideOutput': 'Приховати вихідні дані',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -703,8 +638,8 @@ export const uk: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} пропущено',
   'ide.tests.skippedByUser': 'Виконання завершено. Тести, які ви пропустили, не були виконані.',
   'ide.tests.viewerCannotSkip': 'Пройти тести цього проєкту можуть лише редактори.',
-  'ide.toolCall.interruptedByRestart':
-    'Цей крок було перервано перезапуском; його ефект невідомий.',
+  'ide.toolCall.interruptedByRestart': 'Цей крок було перервано перезапуском; його ефект невідомий.',
   'ide.toolCall.statusInterrupted': 'Перервано',
   'ide.chat.subagent.failedFallback': 'Цей субагент зупинився, не дочекавшись завершення.',
+  'ide.chat.viaDictation.badge': 'Продиктовано голосом',
 }

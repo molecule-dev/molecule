@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for ar. */
 export const ar: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'عرض الخطط',
   'ide.chat.commitLabel': 'الالتزام',
   'ide.chat.fileCount': '{{count}} ملفًا',
@@ -114,8 +110,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'تغيير النموذج',
   'ide.chat.increaseLoops': 'زيادة الحد الأقصى للتكرارات',
   'ide.chat.continuePrompt': 'استمر في التنفيذ من حيث توقفت.',
-  'guest.reminder.message':
-    'قم بالتسجيل أو تسجيل الدخول للاحتفاظ بعملك - تنتهي صلاحية جلسات الضيوف بعد 72 ساعة.',
+  'guest.reminder.message': 'قم بالتسجيل أو تسجيل الدخول للاحتفاظ بعملك - تنتهي صلاحية جلسات الضيوف بعد 72 ساعة.',
   'guest.reminder.logIn': 'تسجيل الدخول',
   'ide.chat.soundsError': 'فشل تحديث إعدادات الصوت.',
   'ide.chat.commitFailed': 'فشلت عملية الالتزام',
@@ -127,26 +122,23 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'تم التبديل إلى وضع التخطيط',
   'ide.chat.switchedToExecute': 'تم التبديل إلى وضع التنفيذ',
   'ide.chat.costError': 'تعذر جلب بيانات الاستخدام.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'الذروة ×{{multiplier}} الآن',
   'ide.chat.models.peakLater': '×{{multiplier}} في ساعات الذروة',
-  'ide.chat.models.peakHint':
-    'يكلف هذا النموذج ×{{multiplier}} بين {{windows}}. وهو السعر العادي في بقية اليوم.',
+  'ide.chat.models.peakHint': 'يكلف هذا النموذج ×{{multiplier}} بين {{windows}}. وهو السعر العادي في بقية اليوم.',
   'ide.chat.undoNoChanges': 'لا توجد تغييرات في الملفات يمكن التراجع عنها.',
   'ide.chat.undoComplete': 'فشل في التراجع عن التغييرات.',
   'ide.chat.commitNoChanges': 'لا توجد تغييرات يجب الالتزام بها.',
@@ -154,13 +146,10 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'تم تفعيل خاصية الإصلاح التلقائي.',
   'ide.chat.autoFixDisabled': 'تم تعطيل خاصية الإصلاح التلقائي.',
   'ide.chat.autoFixError': 'فشل تحديث إعدادات الإصلاح التلقائي.',
-  'ide.chat.autoApproveEnabled':
-    'الموافقة التلقائية مفعّلة - تُنفَّذ الأوامر المدمرة دون طلب التأكيد. حماية تسريب البيانات لا تزال تطلب التأكيد. أوقفها باستخدام /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'الموافقة التلقائية معطّلة - تطلب الأوامر المدمرة التأكيد قبل التنفيذ.',
+  'ide.chat.autoApproveEnabled': 'الموافقة التلقائية مفعّلة - تُنفَّذ الأوامر المدمرة دون طلب التأكيد. حماية تسريب البيانات لا تزال تطلب التأكيد. أوقفها باستخدام /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'الموافقة التلقائية معطّلة - تطلب الأوامر المدمرة التأكيد قبل التنفيذ.',
   'ide.chat.autoApproveError': 'فشل تحديث إعدادات الموافقة التلقائية.',
-  'ide.chat.modelUsage':
-    'طريقة الاستخدام: /model<model-name> (على سبيل المثال، كلود-أوبوس-4-6، كلود-سونيت-4-6، كلود-هايكو-4-5-20251001)',
+  'ide.chat.modelUsage': 'طريقة الاستخدام: /model<model-name> (على سبيل المثال، كلود-أوبوس-4-6، كلود-سونيت-4-6، كلود-هايكو-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'تم الوصول إلى الحد الأقصى لعدد الحلقات.',
   'ide.chat.maxLoopsError': 'فشل تحديث الحد الأقصى لعدد تكرارات الأداة.',
   'ide.chat.dropFilesHere': 'قم بإسقاط الملفات هنا',
@@ -190,8 +179,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.contextMenu.copyRelativePath': 'نسخ المسار النسبي',
   'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': 'اختصارات لوحة المفاتيح',
-  'ide.shortcuts.hint':
-    'استخدم مفاتيح الأسهم للتنقل · اضغط على مفتاح الإدخال للتشغيل · اضغط على مفتاح الهروب للإغلاق',
+  'ide.shortcuts.hint': 'استخدم مفاتيح الأسهم للتنقل · اضغط على مفتاح الإدخال للتشغيل · اضغط على مفتاح الهروب للإغلاق',
   'ide.preview.starting': 'جارٍ تحميل المعاينة...',
   'ide.preview.restarting': 'جارٍ تحميل المعاينة...',
   'ide.preview.retryCount': 'محاولة إعادة المحاولة {{count}}',
@@ -256,8 +244,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'حدث خطأ ما أثناء الاستجابة',
   'ide.chat.soundEventDesc.tool_result': 'تم إكمال استدعاء الأداة (قراءة ملف، أمر، إلخ).',
   'ide.chat.soundEventDesc.file_diff': 'تم إنشاء ملف أو تعديله',
-  'ide.chat.soundEventDesc.commit_suggestion':
-    'يقترح برنامج {{agentName}} ملفات لإضافتها إلى المستودع.',
+  'ide.chat.soundEventDesc.commit_suggestion': 'يقترح برنامج {{agentName}} ملفات لإضافتها إلى المستودع.',
   'ide.chat.soundEventDesc.mode': 'تم التبديل بين وضع التخطيط ووضع التنفيذ',
   'ide.chat.soundEventDesc.loop_limit_reached': 'تم الوصول إلى الحد الأقصى لعدد تكرارات الأداة',
   'ide.chat.soundEventDesc.verification_result': 'انتهى تشغيل فحص الأخطاء أو التدقيق الإملائي',
@@ -313,8 +300,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.preview.secure': 'آمن (HTTPS)',
   'ide.preview.address': 'عنوان المعاينة',
   'ide.preview.updating': 'التحديث',
-  'ide.preview.frozen':
-    'توقف هذا التطبيق عن الاستجابة — تسبب حلقة لا نهائية أو عملية عرض خارجة عن السيطرة في تجميد المعاينة. ولم يتأثر بيئة تطوير التطبيقات (IDE) بذلك.',
+  'ide.preview.frozen': 'توقف هذا التطبيق عن الاستجابة — تسبب حلقة لا نهائية أو عملية عرض خارجة عن السيطرة في تجميد المعاينة. ولم يتأثر بيئة تطوير التطبيقات (IDE) بذلك.',
   'ide.preview.frozenReload': 'إعادة تحميل التطبيق',
   'ide.search.results': '{{count}} ينتج عنها ملفات {{files}}',
   'ide.activity.cardAria': 'عرض الأنشطة المسجلة',
@@ -346,30 +332,21 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'السيرة الذاتية',
   'ide.chat.openSettings': 'الإعدادات',
   'ide.chat.tip.dismiss': 'إغلاق النصيحة',
-  'ide.chat.tip.getStarted':
-    'نصيحة: اكتب / لعرض جميع الأوامر، أو اكتب @ متبوعًا باسم ملف لتزويد "{{agentName}}" بملف للعمل عليه.',
-  'ide.chat.tip.mention':
-    'نصيحة: اكتب @filename لإرفاق ملف مشروع كسياق — حيث يقرأه برنامج {{agentName}} مباشرةً.',
+  'ide.chat.tip.getStarted': 'نصيحة: اكتب / لعرض جميع الأوامر، أو اكتب @ متبوعًا باسم ملف لتزويد "{{agentName}}" بملف للعمل عليه.',
+  'ide.chat.tip.mention': 'نصيحة: اكتب @filename لإرفاق ملف مشروع كسياق — حيث يقرأه برنامج {{agentName}} مباشرةً.',
   'ide.chat.tip.slash': 'نصيحة: اكتب / لتصفح جميع الأوامر (commit و diff و model وغيرها).',
-  'ide.chat.tip.plan':
-    'نصيحة: استخدم الأمر /plan لكي يقوم برنامج "{{agentName}}" بالبحث واقتراح خطة قبل أن يقوم بتعديل أي ملفات.',
-  'ide.chat.tip.undo':
-    'نصيحة: استخدم الأمر /undo لإلغاء التغييرات التي أجراها الذكاء الاصطناعي في الجولة الأخيرة على الفور، إذا لم تسر الأمور على النحو المطلوب.',
-  'ide.chat.tip.compact':
-    'نصيحة: هل المحادثة طويلة؟ /compact يضغط السياق لتبقى لديك مساحة كافية للعمل.',
-  'ide.chat.tip.commit':
-    'نصيحة: استخدم الأمر /commit لحفظ التغييرات في شكل "التزام" في Git يمكنك الرجوع إليه في أي وقت.',
-  'ide.chat.tip.report':
-    'نصيحة: هل هناك خطب ما؟ /report ترسل بلاغًا عن خطأ أو ملاحظة إلى الفريق مع إرفاق محادثةك الأخيرة.',
+  'ide.chat.tip.plan': 'نصيحة: استخدم الأمر /plan لكي يقوم برنامج "{{agentName}}" بالبحث واقتراح خطة قبل أن يقوم بتعديل أي ملفات.',
+  'ide.chat.tip.undo': 'نصيحة: استخدم الأمر /undo لإلغاء التغييرات التي أجراها الذكاء الاصطناعي في الجولة الأخيرة على الفور، إذا لم تسر الأمور على النحو المطلوب.',
+  'ide.chat.tip.compact': 'نصيحة: هل المحادثة طويلة؟ /compact يضغط السياق لتبقى لديك مساحة كافية للعمل.',
+  'ide.chat.tip.commit': 'نصيحة: استخدم الأمر /commit لحفظ التغييرات في شكل "التزام" في Git يمكنك الرجوع إليه في أي وقت.',
+  'ide.chat.tip.report': 'نصيحة: هل هناك خطب ما؟ /report ترسل بلاغًا عن خطأ أو ملاحظة إلى الفريق مع إرفاق محادثةك الأخيرة.',
   'ide.chat.undoError': 'فشل في التراجع عن التغييرات.',
   'ide.chat.autoCommit.badge': 'التثبيت التلقائي في {{countdown}}',
   'ide.chat.autoCommit.cancel': 'إلغاء التسجيل التلقائي',
   'ide.chat.autoCommit.cancelled': 'تم إلغاء التسجيل التلقائي.',
-  'ide.chat.autoCommit.enabled':
-    'تشغيل ميزة "التسجيل التلقائي": يتم تسجيل التغييرات {{seconds}}s بعد آخر تعديل على الملف. استخدم الأمر /autocommit 0 لإلغاء هذه الميزة.',
+  'ide.chat.autoCommit.enabled': 'تشغيل ميزة "التسجيل التلقائي": يتم تسجيل التغييرات {{seconds}}s بعد آخر تعديل على الملف. استخدم الأمر /autocommit 0 لإلغاء هذه الميزة.',
   'ide.chat.effort.error': 'فشل تحديث عملية الاستدلال.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -384,14 +361,11 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ مجانًا',
   'ide.chat.models.sortBy': 'الترتيب حسب {{column}}',
   'ide.chat.modelsLoading': 'جاري تحميل النماذج…',
-  'ide.chat.modelsNone':
-    'لا توجد نماذج متاحة حتى الآن — اطلب من المسؤول لديك توصيل مزود خدمات الذكاء الاصطناعي.',
+  'ide.chat.modelsNone': 'لا توجد نماذج متاحة حتى الآن — اطلب من المسؤول لديك توصيل مزود خدمات الذكاء الاصطناعي.',
   'ide.chat.modelInUse': 'يتم الآن استخدام {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'الطراز الذي اخترته "{{removed}}" لم يعد متوفراً. تم التبديل إلى "{{fallback}}". اكتب /model لاختيار طراز آخر.',
-  'ide.chat.modelRemovedNoFallback':
-    'لم يعد الطراز الذي اخترته "{{removed}}" متاحًا، ولا يوجد بديل مسجل على الخادم. اطلب من المسؤول تفعيل مزود AI.',
+  'ide.chat.modelRemoved': 'الطراز الذي اخترته "{{removed}}" لم يعد متوفراً. تم التبديل إلى "{{fallback}}". اكتب /model لاختيار طراز آخر.',
+  'ide.chat.modelRemovedNoFallback': 'لم يعد الطراز الذي اخترته "{{removed}}" متاحًا، ولا يوجد بديل مسجل على الخادم. اطلب من المسؤول تفعيل مزود AI.',
   'ide.chat.olderModelsCollapse': 'الموديلات القديمة ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'الموديلات القديمة ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'اختر نموذج وضع التنفيذ',
@@ -413,42 +387,31 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} أخطاء لينت',
   'ide.chat.lintWarningsCount': '{{count}} تحذيرات',
   'ide.chat.typeErrorsCount': '{{count}} أخطاء في الكتابة',
   'ide.chat.help.commandsHeading': '── الأوامر ──',
-  'ide.chat.help.intro':
-    '{{agentName}} هو وكيل البرمجة المدعوم بالذكاء الاصطناعي من {{productName}}. ما عليك سوى وصف ما تريد إنشاؤه، وسيقوم الوكيل بوضع الهيكل الأساسي والبرمجة والتحسين معك.',
+  'ide.chat.help.intro': '{{agentName}} هو وكيل البرمجة المدعوم بالذكاء الاصطناعي من {{productName}}. ما عليك سوى وصف ما تريد إنشاؤه، وسيقوم الوكيل بوضع الهيكل الأساسي والبرمجة والتحسين معك.',
   'ide.chat.help.introHeading': '── البدء ──',
-  'ide.chat.help.modeDiscovery':
-    'الاكتشاف — هنا تبدأ المحادثات الجديدة. يطرح كتاب «{{agentName}}» أسئلة توضيحية لتحديد المتطلبات بدقة قبل كتابة أي كود.',
-  'ide.chat.help.modeExecute':
-    'التنفيذ — وضع العمل الافتراضي. يقوم "{{agentName}}" بكتابة التعليمات البرمجية وتشغيل الأدوات وتطبيق التغييرات، ثم التحقق منها.',
-  'ide.chat.help.modePlan':
-    'الخطة — يقوم الأمر `{{agentName}}` بفحص قاعدة الكود ويقترح خطة دون تعديل الملفات. يمكن تشغيل هذه الميزة باستخدام الأمر `/plan`. يُنصح باستخدامها عند إجراء تغييرات كبيرة أو محفوفة بالمخاطر.',
+  'ide.chat.help.modeDiscovery': 'الاكتشاف — هنا تبدأ المحادثات الجديدة. يطرح كتاب «{{agentName}}» أسئلة توضيحية لتحديد المتطلبات بدقة قبل كتابة أي كود.',
+  'ide.chat.help.modeExecute': 'التنفيذ — وضع العمل الافتراضي. يقوم "{{agentName}}" بكتابة التعليمات البرمجية وتشغيل الأدوات وتطبيق التغييرات، ثم التحقق منها.',
+  'ide.chat.help.modePlan': 'الخطة — يقوم الأمر `{{agentName}}` بفحص قاعدة الكود ويقترح خطة دون تعديل الملفات. يمكن تشغيل هذه الميزة باستخدام الأمر `/plan`. يُنصح باستخدامها عند إجراء تغييرات كبيرة أو محفوفة بالمخاطر.',
   'ide.chat.help.modesHeading': '── الأوضاع ──',
-  'ide.chat.help.shortcuts':
-    'اضغط على Cmd+/ (Ctrl+/ في أنظمة ويندوز/لينكس) لعرض جميع اختصارات لوحة المفاتيح.',
+  'ide.chat.help.shortcuts': 'اضغط على Cmd+/ (Ctrl+/ في أنظمة ويندوز/لينكس) لعرض جميع اختصارات لوحة المفاتيح.',
   'ide.chat.help.tipCompact': '• استخدم الأمر /compact لتكثيف المحادثة عندما تصبح طويلة.',
-  'ide.chat.help.tipPlan':
-    '• استخدم الأمر /plan لإجراء بحث في "{{agentName}}" قبل إجراء أي تغييرات.',
+  'ide.chat.help.tipPlan': '• استخدم الأمر /plan لإجراء بحث في "{{agentName}}" قبل إجراء أي تغييرات.',
   'ide.chat.help.tipSlash': '• اكتب / لتصفح جميع الأوامر المذكورة أعلاه.',
-  'ide.chat.help.tipSpecific':
-    '• كن محددًا — "أضف صفحة تسجيل دخول باستخدام البريد الإلكتروني/كلمة المرور وGoogle OAuth" أفضل من "أضف المصادقة".',
-  'ide.chat.help.tipUndo':
-    '• استخدم الأمر /undo لإلغاء التغييرات التي أجراها الذكاء الاصطناعي في آخر دور له في الملف، في حال انحرف عن المسار الصحيح.',
+  'ide.chat.help.tipSpecific': '• كن محددًا — "أضف صفحة تسجيل دخول باستخدام البريد الإلكتروني/كلمة المرور وGoogle OAuth" أفضل من "أضف المصادقة".',
+  'ide.chat.help.tipUndo': '• استخدم الأمر /undo لإلغاء التغييرات التي أجراها الذكاء الاصطناعي في آخر دور له في الملف، في حال انحرف عن المسار الصحيح.',
   'ide.chat.help.tipsHeading': '── نصائح ──',
   'ide.chat.report.heading': 'الإبلاغ عن خطأ',
   'ide.chat.report.openReport': 'الإبلاغ عن خطأ',
-  'ide.chat.report.subheading':
-    'أخبرنا بما واجهتك من مشاكل أو بما تود رؤيته. ستصل رسالتك إلى فريق موقع {{productName}}.',
+  'ide.chat.report.subheading': 'أخبرنا بما واجهتك من مشاكل أو بما تود رؤيته. ستصل رسالتك إلى فريق موقع {{productName}}.',
   'ide.chat.report.titleLabel': 'العنوان',
   'ide.chat.report.titlePlaceholder': 'ملخص موجز',
   'ide.chat.report.descriptionLabel': 'الوصف',
@@ -471,8 +434,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'جاري الحفظ…',
   'ide.chat.scripts.saveError': 'تعذر حفظ البرنامج النصي. يرجى المحاولة مرة أخرى.',
   'ide.chat.scripts.invalid': 'يجب أن يحتوي البرنامج النصي على اسم ونص غير فارغ.',
-  'ide.chat.scripts.empty':
-    'لا توجد نصوص محفوظة حتى الآن. يمكنك إنشاء نص جديد أعلاه، أو طلب من {{agentName}} كتابة نص وحفظه.',
+  'ide.chat.scripts.empty': 'لا توجد نصوص محفوظة حتى الآن. يمكنك إنشاء نص جديد أعلاه، أو طلب من {{agentName}} كتابة نص وحفظه.',
   'ide.chat.scripts.loading': 'جاري تحميل البرامج النصية...',
   'ide.chat.scripts.error': 'تعذر تحميل البرامج النصية لهذا المشروع.',
   'ide.chat.scripts.noMatch': 'لا توجد نصوص مطابقة لعبارة "{{query}}".',
@@ -505,8 +467,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'مشاركة المشروع',
-  'ide.chat.share.subheading':
-    'إنشاء رابط عام. سيحصل أي شخص لديه الرابط على الدور الذي تختاره — رابط "المشاهد" هو رابط للقراءة فقط.',
+  'ide.chat.share.subheading': 'إنشاء رابط عام. سيحصل أي شخص لديه الرابط على الدور الذي تختاره — رابط "المشاهد" هو رابط للقراءة فقط.',
   'ide.chat.share.roleLabel': 'الدور',
   'ide.chat.share.create': 'إنشاء رابط',
   'ide.chat.share.creating': 'جاري التحميل…',
@@ -518,25 +479,20 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'تم النسخ',
   'ide.chat.share.openLink': 'افتح الرابط',
   'ide.chat.share.error': 'تعذر إنشاء رابط المشاركة. يرجى المحاولة مرة أخرى.',
-  'ide.chat.share.usage':
-    'الاستخدام: /share [الدور] — إنشاء رابط عام. الأدوار: {{roles}} (المشاهد الافتراضي).',
+  'ide.chat.share.usage': 'الاستخدام: /share [الدور] — إنشاء رابط عام. الأدوار: {{roles}} (المشاهد الافتراضي).',
   'ide.chat.share.notAllowed': 'تتطلب إدارة روابط المشاركة دور مسؤول في هذا المشروع.',
   'ide.chat.skills.heading': 'المهارات',
   'ide.chat.skills.searchPlaceholder': 'تصفية المهارات…',
   'ide.chat.skills.load': 'تحميل',
   'ide.chat.skills.loadTitle': 'فتح في المحرر وإرفاقه كسياق',
-  'ide.chat.skills.loaded':
-    'تم تحميل المهارة «{{name}}» — تم فتحها في المحرر وإرفاقها كسياق لرسالتك التالية.',
+  'ide.chat.skills.loaded': 'تم تحميل المهارة «{{name}}» — تم فتحها في المحرر وإرفاقها كسياق لرسالتك التالية.',
   'ide.chat.skills.loading': 'جاري تحميل المهارات...',
   'ide.chat.skills.error': 'تعذر تحميل المهارات الخاصة بهذا المشروع.',
   'ide.chat.skills.empty': 'لم يتم العثور على أي مهارات في المجلد .agents/skills/ لهذا المشروع.',
   'ide.chat.skills.noMatch': 'لا توجد مهارات مطابقة لـ "{{query}}".',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -559,8 +515,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'تعذر إرسال تقريرك. يرجى المحاولة مرة أخرى.',
   'ide.chat.report.submitted': 'شكرًا! تم إرسال تقريرك إلى فريق موقع {{productName}}.',
-  'ide.chat.report.submittedWithLink':
-    'شكرًا! تم إرسال تقريرك — يمكنك متابعة حالته من خلال الرابط المرفق.',
+  'ide.chat.report.submittedWithLink': 'شكرًا! تم إرسال تقريرك — يمكنك متابعة حالته من خلال الرابط المرفق.',
   'ide.chat.settings.modelFollowsDefault': 'يتبع النموذج الافتراضي',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -574,8 +529,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'إنشاء',
   'ide.chat.skills.cancel': 'إلغاء',
   'ide.chat.skills.createError': 'تعذر إنشاء المهارة — يرجى المحاولة مرة أخرى.',
-  'ide.chat.skills.created':
-    'تم إنشاء المهارة "{{name}}" — وهي مفتوحة الآن في المحرر. قم بملء الوصف والخطوات الخاصة بها.',
+  'ide.chat.skills.created': 'تم إنشاء المهارة "{{name}}" — وهي مفتوحة الآن في المحرر. قم بملء الوصف والخطوات الخاصة بها.',
   'ide.chat.autoCommit.on': 'تشغيل ميزة "التسجيل التلقائي"',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -586,8 +540,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.preview.loadFailedHint': 'حاول إعادة التحميل، أو افتح المعاينة في علامة تبويب جديدة.',
   'ide.preview.reloadPreview': 'إعادة تحميل المعاينة',
   'ide.preview.lastWorkingFrame': 'آخر نسخة تجريبية',
-  'ide.chat.effort.notSupportedForModel':
-    '{{level}} غير متاح على الرابط {{model}}. متاح على الرابط: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{level}} غير متاح على الرابط {{model}}. متاح على الرابط: {{levels}}',
   'ide.chat.modelSortLabel': 'فرز',
   'ide.chat.modelSortDirection': 'تبديل اتجاه الفرز',
   'ide.chat.skills.loadedBadge': 'تم التحميل',
@@ -598,14 +551,11 @@ export const ar: Partial<IdeTranslations> = {
   'ide.device.select': 'إطار الجهاز',
   'ide.device.rotate': 'تدوير',
   'ide.chat.closeOverlay': 'إغلاق',
-  'ide.chat.retryCountdown':
-    'خطأ في الخادم — إعادة المحاولة خلال {{seconds}} ثانية… (المحاولة {{attempt}})',
+  'ide.chat.retryCountdown': 'خطأ في الخادم — إعادة المحاولة خلال {{seconds}} ثانية… (المحاولة {{attempt}})',
   'ide.preview.blankTitle': 'المعاينة فارغة',
-  'ide.preview.blankHint':
-    'تم تحميل التطبيق ولكنه لم يعرض أي شيء — ربما يكون هناك خطأ ما. تم إخطار Synthase بذلك. يمكنك إعادة التحميل، أو فتح المعاينة في علامة تبويب جديدة.',
+  'ide.preview.blankHint': 'تم تحميل التطبيق ولكنه لم يعرض أي شيء — ربما يكون هناك خطأ ما. تم إخطار Synthase بذلك. يمكنك إعادة التحميل، أو فتح المعاينة في علامة تبويب جديدة.',
   'ide.chat.previewLinkTitle': 'افتح ملف «{{path}}» في «المعاينة»',
-  'ide.chat.report.diagnosticsNote':
-    'تم إرفاق إصدار التطبيق والمتصفح وحجم الشاشة لمساعدتنا في تصحيح الأخطاء.',
+  'ide.chat.report.diagnosticsNote': 'تم إرفاق إصدار التطبيق والمتصفح وحجم الشاشة لمساعدتنا في تصحيح الأخطاء.',
   'ide.chat.skills.loadedCount': '🧠 مهارات متقدمة في استخدام برنامج «{{count}}»',
   'ide.chat.skills.waitingForSandbox': 'في انتظار انتهاء عملية تشغيل بيئة الاختبار...',
   'ide.chat.skills.resetDefaults': 'تحميل الكل بشكل افتراضي',
@@ -620,8 +570,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': 'تشغيل…',
   'ide.chat.scripts.required': '(مطلوب)',
   'ide.chat.scripts.cancelRun': 'إلغاء',
-  'ide.chat.scripts.runNeedsOptions':
-    '‏“{{name}}” يحتاج إلى خيارات — تم فتح ‎/scripts لتعيينها ثم التشغيل.',
+  'ide.chat.scripts.runNeedsOptions': '‏“{{name}}” يحتاج إلى خيارات — تم فتح ‎/scripts لتعيينها ثم التشغيل.',
   'ide.chat.settings.effort.label': 'جهد الاستدلال',
   'ide.chat.timestampsShown': 'تم إظهار الطوابع الزمنية.',
   'ide.chat.timestampsHidden': 'تم إخفاء الطوابع الزمنية.',
@@ -644,8 +593,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'التطبيق',
   'ide.tests.workspace.api': 'واجهة برمجة التطبيقات (API)',
   'ide.tests.workspace.root': 'المشروع',
-  'ide.tests.e2eHint':
-    'تُجرى هذه الاختبارات على المعاينة المباشرة، لذا يُرجى إبقاء نافذة المعاينة مفتوحة.',
+  'ide.tests.e2eHint': 'تُجرى هذه الاختبارات على المعاينة المباشرة، لذا يُرجى إبقاء نافذة المعاينة مفتوحة.',
   'ide.tests.showOutput': 'عرض النتيجة',
   'ide.tests.hideOutput': 'إخفاء الناتج',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -690,8 +638,8 @@ export const ar: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} تم تخطيه',
   'ide.tests.skippedByUser': 'انتهى التشغيل. لم يتم تشغيل الاختبارات التي تخطيتها.',
   'ide.tests.viewerCannotSkip': 'لا يمكن إلا للمحررين تخطي اختبارات هذا المشروع.',
-  'ide.toolCall.interruptedByRestart':
-    'تم إيقاف هذه الخطوة بسبب إعادة التشغيل؛ وتأثيرها غير معروف.',
+  'ide.toolCall.interruptedByRestart': 'تم إيقاف هذه الخطوة بسبب إعادة التشغيل؛ وتأثيرها غير معروف.',
   'ide.toolCall.statusInterrupted': 'مقاطعة',
   'ide.chat.subagent.failedFallback': 'توقف هذا العميل الفرعي قبل أن ينهي مهمته.',
+  'ide.chat.viaDictation.badge': 'تم إملاءها بالصوت',
 }

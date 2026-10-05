@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for ha. */
 export const ha: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.title': 'Hira',
   'ide.chat.placeholder': 'Aika saƙo...',
   'ide.chat.placeholderViewer': 'Message your team',
@@ -82,10 +78,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'An kai iyakar yawan zagaye.',
   'ide.chat.modelError': 'An kasa sabunta tsarin hira.',
   'ide.chat.modelSet': 'An saita tsarin hira zuwa {{name}}',
-  'ide.chat.modelUsage':
-    'Amfani: /model <model-name>  (misali claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired':
-    '{{model}} yana samuwa a Pro. Haɓaka don samun damar duk samfurori.',
+  'ide.chat.modelUsage': 'Amfani: /model <model-name>  (misali claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired': '{{model}} yana samuwa a Pro. Haɓaka don samun damar duk samfurori.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'A jerin jira',
   'ide.chat.queuedCount': '{{count}} a jere',
@@ -101,10 +95,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'An kunna gyara kai tsaye.',
   'ide.chat.autoFixDisabled': 'An kashe gyara kai tsaye.',
   'ide.chat.autoFixError': 'An kasa sabunta saitunan gyara kai tsaye.',
-  'ide.chat.autoApproveEnabled':
-    'An kunna amincewa kai tsaye — ana gudanar da umarnin lalatawa ba tare da tambaya ba. Matakin kariya daga satar bayanai har yanzu yana tambaya. A kashe da /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'An kashe amincewa kai tsaye — umarnin lalatawa suna tambaya kafin a gudanar da su.',
+  'ide.chat.autoApproveEnabled': 'An kunna amincewa kai tsaye — ana gudanar da umarnin lalatawa ba tare da tambaya ba. Matakin kariya daga satar bayanai har yanzu yana tambaya. A kashe da /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'An kashe amincewa kai tsaye — umarnin lalatawa suna tambaya kafin a gudanar da su.',
   'ide.chat.autoApproveError': 'An kasa sabunta saitunan amincewa kai tsaye.',
   'ide.chat.viewPlans': 'Duba shirye-shirye',
   'ide.chat.cancel': 'Soke',
@@ -131,11 +123,9 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} ya gama amsawa',
   'ide.chat.soundEventDesc.error': 'Wani abu bai yi daidai ba yayin amsa',
-  'ide.chat.soundEventDesc.tool_result':
-    'Kiran kayan aiki (karatun fayil, umarni, da sauransu) ya kammala',
+  'ide.chat.soundEventDesc.tool_result': 'Kiran kayan aiki (karatun fayil, umarni, da sauransu) ya kammala',
   'ide.chat.soundEventDesc.file_diff': 'An ƙirƙiri ko gyara fayil',
-  'ide.chat.soundEventDesc.commit_suggestion':
-    '{{agentName}} yana ba da shawarar fayiloli don aika',
+  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} yana ba da shawarar fayiloli don aika',
   'ide.chat.soundEventDesc.mode': 'An canza tsakanin yanayin shiri da yanayin aiwatarwa',
   'ide.chat.soundEventDesc.loop_limit_reached': 'An kai iyakar zagayowar kayan aiki',
   'ide.chat.soundEventDesc.preview_error': 'Duban kai tsaye ya samu kuskure',
@@ -145,8 +135,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Ana shirya rubutu ta murya — na farko na iya ɗaukar ɗan lokaci.',
   'ide.chat.voiceTranscribeFailed': 'Rubutawa ta gaza.',
   'ide.chat.voiceEngineTitle': 'Injin rubutu ta murya',
-  'ide.chat.voiceEnginePrivacy':
-    'Kowane zaɓi yana aiki a na’urarka — sauti ba ya taɓa barin burauzarka.',
+  'ide.chat.voiceEnginePrivacy': 'Kowane zaɓi yana aiki a na’urarka — sauti ba ya taɓa barin burauzarka.',
   'ide.chat.voiceEngineNoDownload': 'babu saukewa',
   'ide.chat.voiceEngineDownload': 'saukewa ~{{mb}} MB, sannan a adana',
   'ide.chat.voiceEngineDownloadRange': 'saukewa ~{{min}}–{{max}} MB, sannan a adana',
@@ -252,7 +241,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.sidebar.files': 'Mai bincike',
   'ide.sidebar.search': 'Nema',
   'ide.chat.thoughtBriefly': 'An yi tunani a takaice',
-  'ide.chat.typeErrorCount': "Kuskuren nau'i 1",
+  'ide.chat.typeErrorCount': 'Kuskuren nau\'i 1',
   'ide.chat.lintErrorCount': 'Kuskuren lint 1',
   'ide.chat.lintWarningCount': 'Gargaɗi 1',
   'ide.chat.runtimeErrors': 'Kurakuran lokacin gudu',
@@ -262,8 +251,7 @@ export const ha: Partial<IdeTranslations> = {
   'common.save': 'Ajiye',
   'ide.chat.sendQueued': 'Aika',
   'upgrade.viewPlans': 'Haɓakawa',
-  'guest.reminder.message':
-    'Yi rijista ko shiga don ci gaba da aikinka \\\\u2014 zaman baƙi yana ƙarewa bayan awanni 72.',
+  'guest.reminder.message': 'Yi rijista ko shiga don ci gaba da aikinka \\\\u2014 zaman baƙi yana ƙarewa bayan awanni 72.',
   'upgrade.signUp': 'Yi rijista',
   'guest.reminder.logIn': 'Shiga',
   'ide.chat.compacting': 'Tattaunawa mai zurfi...',
@@ -272,26 +260,23 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'An canza zuwa yanayin tsari',
   'ide.chat.switchedToExecute': 'An canza zuwa yanayin aiwatarwa',
   'ide.chat.costError': 'Ba za a iya ɗaukar bayanan amfani ba.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'kololuwa ×{{multiplier}} yanzu',
   'ide.chat.models.peakLater': '×{{multiplier}} a lokutan kololuwa',
-  'ide.chat.models.peakHint':
-    'Wannan samfurin yana kashe ×{{multiplier}} tsakanin {{windows}}. Sauran lokutan ranar farashi na yau da kullum ne.',
+  'ide.chat.models.peakHint': 'Wannan samfurin yana kashe ×{{multiplier}} tsakanin {{windows}}. Sauran lokutan ranar farashi na yau da kullum ne.',
   'ide.chat.undoNoChanges': 'Babu wani canje-canje da za a yi wa fayil ɗin.',
   'ide.chat.undoComplete': 'An kasa dawo da canje-canje.',
   'ide.chat.commitNoChanges': 'Babu canje-canje da za a yi don aiwatarwa.',
@@ -315,8 +300,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Amintacce (HTTPS)',
   'ide.preview.address': 'Adireshin samfoti',
   'ide.preview.updating': 'Sabuntawa',
-  'ide.preview.frozen':
-    'Wannan manhajar ta daina amsawa — wani madauki mara iyaka ko kuma wani abu mai gudu ya danne samfoti. IDE ba shi da tasiri.',
+  'ide.preview.frozen': 'Wannan manhajar ta daina amsawa — wani madauki mara iyaka ko kuma wani abu mai gudu ya danne samfoti. IDE ba shi da tasiri.',
   'ide.preview.frozenReload': 'Sake loda manhaja',
   'ide.search.results': '{{count}} sakamakon {{files}} fayiloli',
   'ide.activity.cardAria': 'Duba ayyukan da aka kama',
@@ -348,41 +332,29 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Shawara: rubuta / don ganin kowane umarni, ko @ sunan fayil don bayarwa{{agentName}} fayil ɗin da za a yi aiki da shi.',
-  'ide.chat.tip.mention':
-    'Shawara: rubuta @filename don haɗa fayil ɗin aiki a matsayin mahallin -{{agentName}} yana karanta shi kai tsaye.',
-  'ide.chat.tip.slash':
-    'Shawara: rubuta / don bincika kowace umarni (alƙawari, bambanci, samfuri, da ƙari).',
-  'ide.chat.tip.plan':
-    'Shawara: amfani/shirin samun{{agentName}} bincike da kuma gabatar da wani shiri kafin ya gyara duk wani fayil.',
-  'ide.chat.tip.undo':
-    'Shawara: yi amfani da / gyara don dawo da canje-canjen fayil ɗin AI na ƙarshe idan ya tafi ba daidai ba.',
-  'ide.chat.tip.compact':
-    'Shawara: dogon tattaunawa? /compact yana matse mahallin don haka kuna da isasshen sarari don yin aiki.',
-  'ide.chat.tip.commit':
-    'Shawara: yi amfani da /commit don adana canje-canjenku azaman git commit da zaku iya komawa akai-akai.',
-  'ide.chat.tip.report':
-    "Shawara: wani abu ya lalace? /rahoton yana aika kuskure ko ra'ayi ga ƙungiyar tare da an haɗa tattaunawar ku ta baya-bayan nan.",
+  'ide.chat.tip.getStarted': 'Shawara: rubuta / don ganin kowane umarni, ko @ sunan fayil don bayarwa{{agentName}} fayil ɗin da za a yi aiki da shi.',
+  'ide.chat.tip.mention': 'Shawara: rubuta @filename don haɗa fayil ɗin aiki a matsayin mahallin -{{agentName}} yana karanta shi kai tsaye.',
+  'ide.chat.tip.slash': 'Shawara: rubuta / don bincika kowace umarni (alƙawari, bambanci, samfuri, da ƙari).',
+  'ide.chat.tip.plan': 'Shawara: amfani/shirin samun{{agentName}} bincike da kuma gabatar da wani shiri kafin ya gyara duk wani fayil.',
+  'ide.chat.tip.undo': 'Shawara: yi amfani da / gyara don dawo da canje-canjen fayil ɗin AI na ƙarshe idan ya tafi ba daidai ba.',
+  'ide.chat.tip.compact': 'Shawara: dogon tattaunawa? /compact yana matse mahallin don haka kuna da isasshen sarari don yin aiki.',
+  'ide.chat.tip.commit': 'Shawara: yi amfani da /commit don adana canje-canjenku azaman git commit da zaku iya komawa akai-akai.',
+  'ide.chat.tip.report': 'Shawara: wani abu ya lalace? /rahoton yana aika kuskure ko ra\'ayi ga ƙungiyar tare da an haɗa tattaunawar ku ta baya-bayan nan.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
-  'ide.chat.autoCommit.enabled':
-    'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.autoCommit.enabled': 'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
   'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -394,10 +366,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
-  'ide.chat.modelRemovedNoFallback':
-    'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+  'ide.chat.modelRemoved': 'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+  'ide.chat.modelRemovedNoFallback': 'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Select execute-mode model',
@@ -419,43 +389,32 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',
   'ide.chat.help.commandsHeading': '── Commands ──',
-  'ide.chat.help.intro':
-    "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
+  'ide.chat.help.intro': '{{agentName}} is {{productName}}\'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.',
   'ide.chat.help.introHeading': '── Getting Started ──',
-  'ide.chat.help.modeDiscovery':
-    'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
-  'ide.chat.help.modeExecute':
-    'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
-  'ide.chat.help.modePlan':
-    'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+  'ide.chat.help.modeDiscovery': 'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+  'ide.chat.help.modeExecute': 'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+  'ide.chat.help.modePlan': 'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
   'ide.chat.help.modesHeading': '── Modes ──',
-  'ide.chat.help.shortcuts':
-    'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+  'ide.chat.help.shortcuts': 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
   'ide.chat.help.tipCompact': '• Use /compact to compress context when the conversation gets long.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Use /plan to have {{agentName}} research before making changes.',
   'ide.chat.help.tipSlash': '• Type / to browse every command above.',
-  'ide.chat.help.tipSpecific':
-    '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
-  'ide.chat.help.tipUndo':
-    "• Use /undo to revert the last AI turn's file changes if it goes off track.",
+  'ide.chat.help.tipSpecific': '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
+  'ide.chat.help.tipUndo': '• Use /undo to revert the last AI turn\'s file changes if it goes off track.',
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Report a bug',
   'ide.chat.report.openReport': 'Report a bug',
-  'ide.chat.report.subheading':
-    'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+  'ide.chat.report.subheading': 'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
   'ide.chat.report.titleLabel': 'Title',
   'ide.chat.report.titlePlaceholder': 'Brief summary',
   'ide.chat.report.descriptionLabel': 'Description',
@@ -478,8 +437,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Saving…',
   'ide.chat.scripts.saveError': 'Could not save the script. Please try again.',
   'ide.chat.scripts.invalid': 'A script needs a name and a non-empty body.',
-  'ide.chat.scripts.empty':
-    'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
+  'ide.chat.scripts.empty': 'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
   'ide.chat.scripts.loading': 'Loading scripts…',
   'ide.chat.scripts.error': 'Could not load scripts for this project.',
   'ide.chat.scripts.noMatch': 'No scripts match “{{query}}”.',
@@ -513,8 +471,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Share project',
-  'ide.chat.share.subheading':
-    'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+  'ide.chat.share.subheading': 'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
   'ide.chat.share.roleLabel': 'Role',
   'ide.chat.share.create': 'Create link',
   'ide.chat.share.creating': 'Creating…',
@@ -526,16 +483,13 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Copied',
   'ide.chat.share.openLink': 'Open link',
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
-  'ide.chat.share.usage':
-    'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
-  'ide.chat.share.notAllowed':
-    'Sarrafa hanyoyin rabawa yana buƙatar matsayin admin a wannan aikin.',
+  'ide.chat.share.usage': 'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed': 'Sarrafa hanyoyin rabawa yana buƙatar matsayin admin a wannan aikin.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',
   'ide.chat.skills.loadTitle': 'Open in editor and attach as context',
-  'ide.chat.skills.loaded':
-    'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
+  'ide.chat.skills.loaded': 'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
@@ -560,9 +514,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Could not submit your report. Please try again.',
-  'ide.chat.report.submitted': "Thanks! Your report was submitted to {{productName}}'s team.",
-  'ide.chat.report.submittedWithLink':
-    'Thanks! Your report was submitted — track it on the linked issue.',
+  'ide.chat.report.submitted': 'Thanks! Your report was submitted to {{productName}}\'s team.',
+  'ide.chat.report.submittedWithLink': 'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -576,20 +529,18 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Create',
   'ide.chat.skills.cancel': 'Cancel',
   'ide.chat.skills.createError': 'Could not create the skill — please try again.',
-  'ide.chat.skills.created':
-    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+  'ide.chat.skills.created': 'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   'ide.chat.autoCommit.on': 'Auto-commit on',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
-  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailed': 'Preview can\'t load here',
   'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
-  'ide.chat.effort.notSupportedForModel':
-    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.notSupportedForModel': '{{level}} isn\'t available for {{model}}. Available: {{levels}}',
   'ide.chat.modelSortLabel': 'Sort',
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   'ide.chat.skills.loadedBadge': 'Loaded',
@@ -602,11 +553,9 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Close',
   'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.preview.blankTitle': 'The preview is blank',
-  'ide.preview.blankHint':
-    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
-  'ide.chat.report.diagnosticsNote':
-    'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
@@ -616,14 +565,12 @@ export const ha: Partial<IdeTranslations> = {
   'ide.toolCall.openPackageDoc': 'Open package docs',
   'ide.chat.fastModeOn': 'Yanayi mai sauri yana kunne - amsoshi masu sauri a mafi girma',
   'ide.chat.fastModeOff': 'Yanayin sauri ya kashe',
-  'ide.chat.fastModeEnable':
-    'Yanayin sauri - har zuwa fitarwa mafi sauri 2.5× a ƙimar alama mafi girma',
+  'ide.chat.fastModeEnable': 'Yanayin sauri - har zuwa fitarwa mafi sauri 2.5× a ƙimar alama mafi girma',
   'ide.chat.fastModeDisable': 'Kashe yanayin sauri',
   'ide.chat.scripts.runWithOptions': 'Gudanar…',
   'ide.chat.scripts.required': '(ana buƙata)',
   'ide.chat.scripts.cancelRun': 'Soke',
-  'ide.chat.scripts.runNeedsOptions':
-    '“{{name}}” yana buƙatar zaɓuɓɓuka — an buɗe /scripts don ka saita su ka Gudanar.',
+  'ide.chat.scripts.runNeedsOptions': '“{{name}}” yana buƙatar zaɓuɓɓuka — an buɗe /scripts don ka saita su ka Gudanar.',
   'ide.chat.settings.effort.label': 'Kokarin tunani',
   'ide.chat.timestampsShown': 'Ana nuna tambarin lokaci.',
   'ide.chat.timestampsHidden': 'An ɓoye tambarin lokaci.',
@@ -632,7 +579,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.run': 'Gudu',
   'ide.tests.runAll': 'Gudu duk',
   'ide.tests.runE2e': 'Gudu e2e',
-  'ide.tests.runUnit': "Na'urar gudu",
+  'ide.tests.runUnit': 'Na\'urar gudu',
   'ide.tests.runGroup': 'Gudanar da rukuni',
   'ide.tests.stop': 'Tsaya',
   'ide.tests.running': 'Gudun…',
@@ -646,8 +593,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Manhaja',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Aiki',
-  'ide.tests.e2eHint':
-    'Waɗannan suna gudana akan samfoti kai tsaye, don haka a ci gaba da buɗe samfoti.',
+  'ide.tests.e2eHint': 'Waɗannan suna gudana akan samfoti kai tsaye, don haka a ci gaba da buɗe samfoti.',
   'ide.tests.showOutput': 'Nuna fitarwa',
   'ide.tests.hideOutput': 'Ɓoye fitarwa',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -692,8 +638,8 @@ export const ha: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} tsallake',
   'ide.tests.skippedByUser': 'Gudu ya ƙare. Gwaje-gwajen da ka tsallake ba su gudana ba.',
   'ide.tests.viewerCannotSkip': 'Editoci ne kawai za su iya tsallake gwaje-gwajen wannan aikin.',
-  'ide.toolCall.interruptedByRestart':
-    'An katse wannan matakin ta hanyar sake kunnawa; ba a san tasirinsa ba.',
+  'ide.toolCall.interruptedByRestart': 'An katse wannan matakin ta hanyar sake kunnawa; ba a san tasirinsa ba.',
   'ide.toolCall.statusInterrupted': 'An katse',
   'ide.chat.subagent.failedFallback': 'Wannan wakilin ya tsaya kafin ya gama.',
+  'ide.chat.viaDictation.badge': 'An furta ta hanyar murya',
 }

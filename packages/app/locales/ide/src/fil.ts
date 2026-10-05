@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for fil. */
 export const fil: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Tingnan ang mga plano',
   'ide.chat.fileCount': '{{count}} na file',
   'common.cancel': 'Kanselahin',
@@ -99,8 +95,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Baguhin ang modelo',
   'ide.chat.increaseLoops': 'Dagdagan ang pinakamataas na loop',
   'ide.chat.continuePrompt': 'Ipagpatuloy ang pagpapatupad mula sa kung saan ka tumigil.',
-  'guest.reminder.message':
-    'Mag-sign up o mag-log in para mapanatiling mag-e-expire ang iyong mga sesyon ng trabaho at bisita pagkalipas ng 72 oras.',
+  'guest.reminder.message': 'Mag-sign up o mag-log in para mapanatiling mag-e-expire ang iyong mga sesyon ng trabaho at bisita pagkalipas ng 72 oras.',
   'guest.reminder.logIn': 'Mag-log in',
   'ide.chat.soundsError': 'Nabigong i-update ang mga setting ng tunog.',
   'ide.chat.commitFailed': 'Nabigo ang pag-commit',
@@ -112,26 +107,23 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Lumipat sa plan mode',
   'ide.chat.switchedToExecute': 'Lumipat sa execute mode',
   'ide.chat.costError': 'Hindi makuha ang datos ng paggamit.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'peak ×{{multiplier}} ngayon',
   'ide.chat.models.peakLater': '×{{multiplier}} tuwing peak hours',
-  'ide.chat.models.peakHint':
-    'Nagkakahalaga ang modelong ito ng ×{{multiplier}} sa pagitan ng {{windows}}. Normal na rate naman sa natitirang oras ng araw.',
+  'ide.chat.models.peakHint': 'Nagkakahalaga ang modelong ito ng ×{{multiplier}} sa pagitan ng {{windows}}. Normal na rate naman sa natitirang oras ng araw.',
   'ide.chat.undoNoChanges': 'Walang mga pagbabago sa file na dapat i-undo.',
   'ide.chat.undoComplete': 'Nabigong ibalik ang mga pagbabago.',
   'ide.chat.commitNoChanges': 'Walang mga pagbabagong iko-commit.',
@@ -139,13 +131,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Naka-enable ang awtomatikong pag-aayos.',
   'ide.chat.autoFixDisabled': 'Hindi pinagana ang awtomatikong pag-aayos.',
   'ide.chat.autoFixError': 'Nabigong i-update ang setting ng auto-fix.',
-  'ide.chat.autoApproveEnabled':
-    'Naka-on ang auto-approve — awtomatikong tumatakbo ang mga mapanirang command nang walang paghingi ng kumpirmasyon. Humihingi pa rin ng kumpirmasyon ang exfiltration guard. I-off gamit ang /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'Naka-off ang auto-approve — humihingi muna ng kumpirmasyon ang mga mapanirang command bago tumakbo.',
+  'ide.chat.autoApproveEnabled': 'Naka-on ang auto-approve — awtomatikong tumatakbo ang mga mapanirang command nang walang paghingi ng kumpirmasyon. Humihingi pa rin ng kumpirmasyon ang exfiltration guard. I-off gamit ang /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Naka-off ang auto-approve — humihingi muna ng kumpirmasyon ang mga mapanirang command bago tumakbo.',
   'ide.chat.autoApproveError': 'Nabigong i-update ang setting ng auto-approve.',
-  'ide.chat.modelUsage':
-    'Paggamit: /modelo<model-name> (hal. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Paggamit: /modelo<model-name> (hal. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Naabot na ang limitasyon sa max loops.',
   'ide.chat.maxLoopsError': 'Nabigong i-update ang pinakamataas na mga iterasyon ng tool.',
   'ide.chat.dropFilesHere': 'I-drop ang mga file dito',
@@ -248,25 +237,20 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'May nangyaring mali habang tumutugon',
-  'ide.chat.soundEventDesc.tool_result':
-    'Nakumpleto ang isang tool call (pagbasa ng file, utos, atbp.)',
+  'ide.chat.soundEventDesc.tool_result': 'Nakumpleto ang isang tool call (pagbasa ng file, utos, atbp.)',
   'ide.chat.soundEventDesc.file_diff': 'Isang file ang nilikha o binago',
-  'ide.chat.soundEventDesc.commit_suggestion':
-    'Nagmumungkahi ang {{agentName}} ng mga file na iko-commit',
+  'ide.chat.soundEventDesc.commit_suggestion': 'Nagmumungkahi ang {{agentName}} ng mga file na iko-commit',
   'ide.chat.soundEventDesc.mode': 'Lumipat sa pagitan ng plan mode at execute mode',
-  'ide.chat.soundEventDesc.loop_limit_reached':
-    'Abutin ang pinakamataas na limitasyon sa mga pag-ulit ng tool',
+  'ide.chat.soundEventDesc.loop_limit_reached': 'Abutin ang pinakamataas na limitasyon sa mga pag-ulit ng tool',
   'ide.chat.soundEventDesc.verification_result': 'Tapos na ang pagtakbo ng lint o type-check',
   'ide.chat.soundEventDesc.preview_error': 'Nagkaroon ng error sa live preview',
   'ide.chat.voice': 'Boses',
   'ide.chat.voiceUnavailable': 'Hindi available ang diktasyon sa browser na ito.',
   'ide.chat.voiceMicBlocked': 'Naka-block ang access sa mikropono.',
-  'ide.chat.voicePreparing':
-    'Inihahanda ang diktasyon — maaaring magtagal nang kaunti sa unang paggamit.',
+  'ide.chat.voicePreparing': 'Inihahanda ang diktasyon — maaaring magtagal nang kaunti sa unang paggamit.',
   'ide.chat.voiceTranscribeFailed': 'Nabigo ang transkripsyon.',
   'ide.chat.voiceEngineTitle': 'Makina ng diktasyon',
-  'ide.chat.voiceEnginePrivacy':
-    'Bawat opsyon ay tumatakbo sa iyong device — hindi kailanman umaalis ang audio sa browser mo.',
+  'ide.chat.voiceEnginePrivacy': 'Bawat opsyon ay tumatakbo sa iyong device — hindi kailanman umaalis ang audio sa browser mo.',
   'ide.chat.voiceEngineNoDownload': 'walang download',
   'ide.chat.voiceEngineDownload': '~{{mb}} MB na download, pagkatapos ay naka-cache',
   'ide.chat.voiceEngineDownloadRange': '~{{min}}–{{max}} MB na download, pagkatapos ay naka-cache',
@@ -316,8 +300,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Ligtas (HTTPS)',
   'ide.preview.address': 'Address ng preview',
   'ide.preview.updating': 'Ina-update',
-  'ide.preview.frozen':
-    'Huminto sa pagtugon ang app na ito — isang infinite loop o runaway render ang nagpatigil sa preview. Hindi maaapektuhan ang IDE.',
+  'ide.preview.frozen': 'Huminto sa pagtugon ang app na ito — isang infinite loop o runaway render ang nagpatigil sa preview. Hindi maaapektuhan ang IDE.',
   'ide.preview.frozenReload': 'I-reload ang app',
   'ide.search.results': '{{count}} nagreresulta sa {{files}} mga file',
   'ide.activity.cardAria': 'Tingnan ang nakunang aktibidad',
@@ -349,41 +332,29 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Tip: i-type ang / para makita ang bawat command, o @ isang filename para ibigay{{agentName}} isang file na mapagtatrabahuhan.',
-  'ide.chat.tip.mention':
-    'Tip: i-type ang @filename para ilakip ang isang project file bilang konteksto —{{agentName}} direktang binabasa ito.',
-  'ide.chat.tip.slash':
-    'Tip: i-type ang / para i-browse ang bawat command (commit, diff, model, at higit pa).',
-  'ide.chat.tip.plan':
-    'Tip: gamitin /planong magkaroon{{agentName}} magsaliksik at magmungkahi ng plano bago nito i-edit ang anumang mga file.',
-  'ide.chat.tip.undo':
-    'Tip: gamitin ang /undo para agad na ibalik ang mga pagbabago sa file ng huling AI turn kung mali ang naging resulta.',
-  'ide.chat.tip.compact':
-    'Tip: mahabang usapan? /compact ay nagpipiga sa konteksto para may espasyo kang mapagtatrabahuhan.',
-  'ide.chat.tip.commit':
-    'Tip: gamitin ang /commit upang i-save ang iyong mga pagbabago bilang isang git commit na maaari mong balikan anumang oras.',
-  'ide.chat.tip.report':
-    'Tip: may mali? Ang /report ay nagpapadala ng bug o feedback sa team kasama ang iyong kamakailang chat.',
+  'ide.chat.tip.getStarted': 'Tip: i-type ang / para makita ang bawat command, o @ isang filename para ibigay{{agentName}} isang file na mapagtatrabahuhan.',
+  'ide.chat.tip.mention': 'Tip: i-type ang @filename para ilakip ang isang project file bilang konteksto —{{agentName}} direktang binabasa ito.',
+  'ide.chat.tip.slash': 'Tip: i-type ang / para i-browse ang bawat command (commit, diff, model, at higit pa).',
+  'ide.chat.tip.plan': 'Tip: gamitin /planong magkaroon{{agentName}} magsaliksik at magmungkahi ng plano bago nito i-edit ang anumang mga file.',
+  'ide.chat.tip.undo': 'Tip: gamitin ang /undo para agad na ibalik ang mga pagbabago sa file ng huling AI turn kung mali ang naging resulta.',
+  'ide.chat.tip.compact': 'Tip: mahabang usapan? /compact ay nagpipiga sa konteksto para may espasyo kang mapagtatrabahuhan.',
+  'ide.chat.tip.commit': 'Tip: gamitin ang /commit upang i-save ang iyong mga pagbabago bilang isang git commit na maaari mong balikan anumang oras.',
+  'ide.chat.tip.report': 'Tip: may mali? Ang /report ay nagpapadala ng bug o feedback sa team kasama ang iyong kamakailang chat.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
-  'ide.chat.autoCommit.enabled':
-    'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.autoCommit.enabled': 'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
   'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -395,10 +366,8 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
-  'ide.chat.modelRemovedNoFallback':
-    'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+  'ide.chat.modelRemoved': 'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+  'ide.chat.modelRemovedNoFallback': 'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Select execute-mode model',
@@ -420,43 +389,32 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',
   'ide.chat.help.commandsHeading': '── Commands ──',
-  'ide.chat.help.intro':
-    "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
+  'ide.chat.help.intro': '{{agentName}} is {{productName}}\'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.',
   'ide.chat.help.introHeading': '── Getting Started ──',
-  'ide.chat.help.modeDiscovery':
-    'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
-  'ide.chat.help.modeExecute':
-    'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
-  'ide.chat.help.modePlan':
-    'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+  'ide.chat.help.modeDiscovery': 'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+  'ide.chat.help.modeExecute': 'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+  'ide.chat.help.modePlan': 'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
   'ide.chat.help.modesHeading': '── Modes ──',
-  'ide.chat.help.shortcuts':
-    'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+  'ide.chat.help.shortcuts': 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
   'ide.chat.help.tipCompact': '• Use /compact to compress context when the conversation gets long.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Use /plan to have {{agentName}} research before making changes.',
   'ide.chat.help.tipSlash': '• Type / to browse every command above.',
-  'ide.chat.help.tipSpecific':
-    '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
-  'ide.chat.help.tipUndo':
-    "• Use /undo to revert the last AI turn's file changes if it goes off track.",
+  'ide.chat.help.tipSpecific': '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
+  'ide.chat.help.tipUndo': '• Use /undo to revert the last AI turn\'s file changes if it goes off track.',
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Report a bug',
   'ide.chat.report.openReport': 'Report a bug',
-  'ide.chat.report.subheading':
-    'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+  'ide.chat.report.subheading': 'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
   'ide.chat.report.titleLabel': 'Title',
   'ide.chat.report.titlePlaceholder': 'Brief summary',
   'ide.chat.report.descriptionLabel': 'Description',
@@ -479,8 +437,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Saving…',
   'ide.chat.scripts.saveError': 'Could not save the script. Please try again.',
   'ide.chat.scripts.invalid': 'A script needs a name and a non-empty body.',
-  'ide.chat.scripts.empty':
-    'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
+  'ide.chat.scripts.empty': 'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
   'ide.chat.scripts.loading': 'Loading scripts…',
   'ide.chat.scripts.error': 'Could not load scripts for this project.',
   'ide.chat.scripts.noMatch': 'No scripts match “{{query}}”.',
@@ -514,8 +471,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Share project',
-  'ide.chat.share.subheading':
-    'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+  'ide.chat.share.subheading': 'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
   'ide.chat.share.roleLabel': 'Role',
   'ide.chat.share.create': 'Create link',
   'ide.chat.share.creating': 'Creating…',
@@ -527,16 +483,13 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Copied',
   'ide.chat.share.openLink': 'Open link',
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
-  'ide.chat.share.usage':
-    'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
-  'ide.chat.share.notAllowed':
-    'Kailangan ng admin na tungkulin sa proyektong ito para pamahalaan ang mga share link.',
+  'ide.chat.share.usage': 'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed': 'Kailangan ng admin na tungkulin sa proyektong ito para pamahalaan ang mga share link.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',
   'ide.chat.skills.loadTitle': 'Open in editor and attach as context',
-  'ide.chat.skills.loaded':
-    'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
+  'ide.chat.skills.loaded': 'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
@@ -561,9 +514,8 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Could not submit your report. Please try again.',
-  'ide.chat.report.submitted': "Thanks! Your report was submitted to {{productName}}'s team.",
-  'ide.chat.report.submittedWithLink':
-    'Thanks! Your report was submitted — track it on the linked issue.',
+  'ide.chat.report.submitted': 'Thanks! Your report was submitted to {{productName}}\'s team.',
+  'ide.chat.report.submittedWithLink': 'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -577,20 +529,18 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Create',
   'ide.chat.skills.cancel': 'Cancel',
   'ide.chat.skills.createError': 'Could not create the skill — please try again.',
-  'ide.chat.skills.created':
-    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+  'ide.chat.skills.created': 'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   'ide.chat.autoCommit.on': 'Auto-commit on',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
-  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailed': 'Preview can\'t load here',
   'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
-  'ide.chat.effort.notSupportedForModel':
-    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.notSupportedForModel': '{{level}} isn\'t available for {{model}}. Available: {{levels}}',
   'ide.chat.modelSortLabel': 'Sort',
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   'ide.chat.skills.loadedBadge': 'Loaded',
@@ -603,11 +553,9 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Close',
   'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.preview.blankTitle': 'The preview is blank',
-  'ide.preview.blankHint':
-    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
-  'ide.chat.report.diagnosticsNote':
-    'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
@@ -615,17 +563,14 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.costStreamingNote': 'Running total — includes the response currently streaming.',
   'ide.toolCall.packageCount': '{{count}} packages',
   'ide.toolCall.openPackageDoc': 'Open package docs',
-  'ide.chat.fastModeOn':
-    'Mabilis na mode na naka-on — mas mabilis na mga tugon sa mas mataas na bilis',
+  'ide.chat.fastModeOn': 'Mabilis na mode na naka-on — mas mabilis na mga tugon sa mas mataas na bilis',
   'ide.chat.fastModeOff': 'Naka-off ang mabilis na mode',
-  'ide.chat.fastModeEnable':
-    'Mabilis na mode — hanggang 2.5× na mas mabilis na output sa mas mataas na token rate',
+  'ide.chat.fastModeEnable': 'Mabilis na mode — hanggang 2.5× na mas mabilis na output sa mas mataas na token rate',
   'ide.chat.fastModeDisable': 'I-off ang mabilis na mode',
   'ide.chat.scripts.runWithOptions': 'Patakbuhin…',
   'ide.chat.scripts.required': '(kinakailangan)',
   'ide.chat.scripts.cancelRun': 'Kanselahin',
-  'ide.chat.scripts.runNeedsOptions':
-    'Kailangan ng “{{name}}” ng mga opsyon — binuksan ang /scripts para maitakda mo ang mga ito at Patakbuhin.',
+  'ide.chat.scripts.runNeedsOptions': 'Kailangan ng “{{name}}” ng mga opsyon — binuksan ang /scripts para maitakda mo ang mga ito at Patakbuhin.',
   'ide.chat.settings.effort.label': 'Pagsisikap sa pangangatwiran',
   'ide.chat.timestampsShown': 'Ipinapakita ang mga timestamp.',
   'ide.chat.timestampsHidden': 'Nakatago ang mga timestamp.',
@@ -648,8 +593,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Aplikasyon',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Proyekto',
-  'ide.tests.e2eHint':
-    'Ang mga ito ay tumatakbo laban sa live preview, kaya panatilihing bukas ang preview.',
+  'ide.tests.e2eHint': 'Ang mga ito ay tumatakbo laban sa live preview, kaya panatilihing bukas ang preview.',
   'ide.tests.showOutput': 'Ipakita ang resulta',
   'ide.tests.hideOutput': 'Itago ang resulta',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -674,8 +618,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.tests.cancelled': 'Tumigil ang pagtakbo.',
   'ide.tests.listError': 'Hindi mailista ang mga pagsubok ng proyektong ito.',
   'ide.tests.runError': 'Hindi makapagsimula ang test run.',
-  'ide.tests.viewerCannotRun':
-    'Tanging mga editor lamang ang maaaring magpatakbo ng mga pagsubok sa proyektong ito.',
+  'ide.tests.viewerCannotRun': 'Tanging mga editor lamang ang maaaring magpatakbo ng mga pagsubok sa proyektong ito.',
   'ide.tests.needsSandbox': 'Simulan ang proyekto upang patakbuhin ang mga pagsubok nito.',
   'ide.tests.heading': 'Mga Pagsusulit',
   'ide.tests.searchPlaceholder': 'Mga pagsubok sa pag-filter…',
@@ -693,12 +636,10 @@ export const fil: Partial<IdeTranslations> = {
   'ide.tests.skip': 'Laktawan',
   'ide.tests.skipping': 'Nilalaktawan…',
   'ide.tests.skippedCount': '{{count}} nilaktawan',
-  'ide.tests.skippedByUser':
-    'Tapos na ang pagtakbo. Hindi tumakbo ang mga pagsubok na iyong nilaktawan.',
-  'ide.tests.viewerCannotSkip':
-    'Tanging ang mga editor lamang ang maaaring lumaktaw sa mga pagsubok ng proyektong ito.',
-  'ide.toolCall.interruptedByRestart':
-    'Naantala ang hakbang na ito ng isang pag-restart; hindi alam ang epekto nito.',
+  'ide.tests.skippedByUser': 'Tapos na ang pagtakbo. Hindi tumakbo ang mga pagsubok na iyong nilaktawan.',
+  'ide.tests.viewerCannotSkip': 'Tanging ang mga editor lamang ang maaaring lumaktaw sa mga pagsubok ng proyektong ito.',
+  'ide.toolCall.interruptedByRestart': 'Naantala ang hakbang na ito ng isang pag-restart; hindi alam ang epekto nito.',
   'ide.toolCall.statusInterrupted': 'Naantala',
   'ide.chat.subagent.failedFallback': 'Tumigil ang subagent na ito bago pa man ito matapos.',
+  'ide.chat.viaDictation.badge': 'Idinidikta ng boses',
 }

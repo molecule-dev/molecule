@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for hu. */
 export const hu: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Csomagok megtekintése',
   'ide.chat.fileCount': '{{count}} fájl',
   'common.cancel': 'Mégse',
@@ -103,8 +99,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Modell módosítása',
   'ide.chat.increaseLoops': 'Növelje a maximális hurkok számát',
   'ide.chat.continuePrompt': 'Folytasd a megvalósítást onnan, ahol abbahagytad.',
-  'guest.reminder.message':
-    'Regisztráljon vagy jelentkezzen be, hogy a vendégmunkamenetei 72 óra elteltével lejárjanak.',
+  'guest.reminder.message': 'Regisztráljon vagy jelentkezzen be, hogy a vendégmunkamenetei 72 óra elteltével lejárjanak.',
   'guest.reminder.logIn': 'Bejelentkezés',
   'ide.chat.soundsError': 'Nem sikerült frissíteni a hangbeállításokat.',
   'ide.chat.commitFailed': 'Sikertelen véglegesítés',
@@ -116,26 +111,23 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Tervezési módba kapcsolva',
   'ide.chat.switchedToExecute': 'Végrehajtási módba kapcsolva',
   'ide.chat.costError': 'Nem sikerült lekérni a használati adatokat.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'csúcsidő ×{{multiplier}} most',
   'ide.chat.models.peakLater': '×{{multiplier}} csúcsidőben',
-  'ide.chat.models.peakHint':
-    'Ez a modell ×{{multiplier}} díjba kerül {{windows}} között. A nap többi részében a szokásos díj érvényes.',
+  'ide.chat.models.peakHint': 'Ez a modell ×{{multiplier}} díjba kerül {{windows}} között. A nap többi részében a szokásos díj érvényes.',
   'ide.chat.undoNoChanges': 'Nincsenek visszavonható fájlmódosítások.',
   'ide.chat.undoComplete': 'Nem sikerült visszaállítani a változtatásokat.',
   'ide.chat.commitNoChanges': 'Nincsenek véglegesítendő változtatások.',
@@ -143,13 +135,10 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatikus javítás engedélyezve.',
   'ide.chat.autoFixDisabled': 'Automatikus javítás letiltva.',
   'ide.chat.autoFixError': 'Nem sikerült frissíteni az automatikus javítás beállítását.',
-  'ide.chat.autoApproveEnabled':
-    'Automatikus jóváhagyás engedélyezve — a káros parancsok megerősítés nélkül futnak le. A kiszivárgás elleni védelem továbbra is megerősítést kér. Kikapcsolás: /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'Automatikus jóváhagyás letiltva — a káros parancsok futtatás előtt megerősítést kérnek.',
+  'ide.chat.autoApproveEnabled': 'Automatikus jóváhagyás engedélyezve — a káros parancsok megerősítés nélkül futnak le. A kiszivárgás elleni védelem továbbra is megerősítést kér. Kikapcsolás: /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Automatikus jóváhagyás letiltva — a káros parancsok futtatás előtt megerősítést kérnek.',
   'ide.chat.autoApproveError': 'Nem sikerült frissíteni az automatikus jóváhagyás beállítását.',
-  'ide.chat.modelUsage':
-    'Használat: /modell<model-name> (pl. claude-opus-4-6, claude-szonett-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Használat: /modell<model-name> (pl. claude-opus-4-6, claude-szonett-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Elérte a maximális ciklusszámot.',
   'ide.chat.maxLoopsError': 'Nem sikerült frissíteni a maximális eszköziterációk számát.',
   'ide.chat.dropFilesHere': 'Húzd ide a fájlokat',
@@ -257,8 +246,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.commit_suggestion': 'A {{agentName}} fájlokat javasol commitolásra.',
   'ide.chat.soundEventDesc.mode': 'Váltás a tervezési és a végrehajtási mód között',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Elérte a maximális eszköz iterációs korlátot',
-  'ide.chat.soundEventDesc.verification_result':
-    'A Lint vagy a típusellenőrzés futása befejeződött.',
+  'ide.chat.soundEventDesc.verification_result': 'A Lint vagy a típusellenőrzés futása befejeződött.',
   'ide.chat.soundEventDesc.preview_error': 'Az élő előnézet hibába ütközött',
   'ide.chat.voice': 'Hang',
   'ide.chat.voiceUnavailable': 'A diktálás nem érhető el ebben a böngészőben.',
@@ -266,8 +254,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Diktálás előkészítése — első alkalommal eltarthat egy pillanatig.',
   'ide.chat.voiceTranscribeFailed': 'Az átírás nem sikerült.',
   'ide.chat.voiceEngineTitle': 'Diktálómotor',
-  'ide.chat.voiceEnginePrivacy':
-    'Minden lehetőség az eszközödön fut — a hang soha nem hagyja el a böngészőt.',
+  'ide.chat.voiceEnginePrivacy': 'Minden lehetőség az eszközödön fut — a hang soha nem hagyja el a böngészőt.',
   'ide.chat.voiceEngineNoDownload': 'nincs letöltés',
   'ide.chat.voiceEngineDownload': '~{{mb}} MB letöltés, utána gyorsítótárban',
   'ide.chat.voiceEngineDownloadRange': '~{{min}}–{{max}} MB letöltés, utána gyorsítótárban',
@@ -313,8 +300,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Biztonságos (HTTPS)',
   'ide.preview.address': 'Előnézeti cím',
   'ide.preview.updating': 'Frissítés',
-  'ide.preview.frozen':
-    'Az alkalmazás nem reagál – egy végtelen ciklus vagy egy elszabadult renderelés miatt lefagyott az előnézet. Az IDE működése nem érintett.',
+  'ide.preview.frozen': 'Az alkalmazás nem reagál – egy végtelen ciklus vagy egy elszabadult renderelés miatt lefagyott az előnézet. Az IDE működése nem érintett.',
   'ide.preview.frozenReload': 'Az alkalmazás újratöltése',
   'ide.search.results': '{{count}} {{files}}-fájlokban jelenik meg',
   'ide.activity.cardAria': 'A rögzített tevékenységek megtekintése',
@@ -346,31 +332,21 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Önéletrajz',
   'ide.chat.openSettings': 'Beállítások',
   'ide.chat.tip.dismiss': 'Tipp elrejtése',
-  'ide.chat.tip.getStarted':
-    'Tipp: Írja be a / parancsot az összes parancs megtekintéséhez, vagy a @ jel után egy fájlnevet, hogy megadja az „{{agentName}}” parancsnak a feldolgozandó fájlt.',
-  'ide.chat.tip.mention':
-    'Tipp: Írja be az @filename parancsot, ha egy projektfájlt szeretne kontextusként csatolni – az {{agentName}} közvetlenül beolvassa azt.',
-  'ide.chat.tip.slash':
-    'Tipp: Írja be a / parancsot az összes parancs (commit, diff, model stb.) megtekintéséhez.',
-  'ide.chat.tip.plan':
-    'Tipp: A /plan parancs használatával elérheted, hogy {{agentName}} a fájlok szerkesztése előtt felmérje a helyzetet és javaslatot tegyen egy tervre.',
-  'ide.chat.tip.undo':
-    'Tipp: a /undo parancs segítségével azonnal visszaállíthatod az AI legutóbbi lépése során végrehajtott fájlváltozásokat, ha az nem a kívánt eredményt hozta.',
-  'ide.chat.tip.compact':
-    'Tipp: Hosszú beszélgetés? A /compact parancs összefoglalja a kontextust, így marad helyed a munkához.',
-  'ide.chat.tip.commit':
-    'Tipp: Használd a /commit parancsot, hogy a módosításokat git-commitként mentsd el, amelyhez bármikor visszatérhetsz.',
-  'ide.chat.tip.report':
-    'Tipp: Valami nem stimmel? A /report parancs segítségével hibajelentést vagy visszajelzést küldhetsz a csapatnak, a legutóbbi csevegésed mellékletként csatolva.',
+  'ide.chat.tip.getStarted': 'Tipp: Írja be a / parancsot az összes parancs megtekintéséhez, vagy a @ jel után egy fájlnevet, hogy megadja az „{{agentName}}” parancsnak a feldolgozandó fájlt.',
+  'ide.chat.tip.mention': 'Tipp: Írja be az @filename parancsot, ha egy projektfájlt szeretne kontextusként csatolni – az {{agentName}} közvetlenül beolvassa azt.',
+  'ide.chat.tip.slash': 'Tipp: Írja be a / parancsot az összes parancs (commit, diff, model stb.) megtekintéséhez.',
+  'ide.chat.tip.plan': 'Tipp: A /plan parancs használatával elérheted, hogy {{agentName}} a fájlok szerkesztése előtt felmérje a helyzetet és javaslatot tegyen egy tervre.',
+  'ide.chat.tip.undo': 'Tipp: a /undo parancs segítségével azonnal visszaállíthatod az AI legutóbbi lépése során végrehajtott fájlváltozásokat, ha az nem a kívánt eredményt hozta.',
+  'ide.chat.tip.compact': 'Tipp: Hosszú beszélgetés? A /compact parancs összefoglalja a kontextust, így marad helyed a munkához.',
+  'ide.chat.tip.commit': 'Tipp: Használd a /commit parancsot, hogy a módosításokat git-commitként mentsd el, amelyhez bármikor visszatérhetsz.',
+  'ide.chat.tip.report': 'Tipp: Valami nem stimmel? A /report parancs segítségével hibajelentést vagy visszajelzést küldhetsz a csapatnak, a legutóbbi csevegésed mellékletként csatolva.',
   'ide.chat.undoError': 'A módosítások visszaállítása nem sikerült.',
   'ide.chat.autoCommit.badge': 'Az automatikus elküldés az „{{countdown}}” verzióban',
   'ide.chat.autoCommit.cancel': 'Az automatikus mentés törlése',
   'ide.chat.autoCommit.cancelled': 'Az automatikus mentés törölve.',
-  'ide.chat.autoCommit.enabled':
-    'Automatikus elküldés bekapcsolva: az utolsó fájlmódosítás után {{seconds}} másodperccel elküldi a változásokat. A funkció kikapcsolásához állítsa be az /autocommit 0 értéket.',
+  'ide.chat.autoCommit.enabled': 'Automatikus elküldés bekapcsolva: az utolsó fájlmódosítás után {{seconds}} másodperccel elküldi a változásokat. A funkció kikapcsolásához állítsa be az /autocommit 0 értéket.',
   'ide.chat.effort.error': 'A logikai művelet frissítése nem sikerült.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -385,14 +361,11 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Ingyenes',
   'ide.chat.models.sortBy': 'Rendezés:{{column}}',
   'ide.chat.modelsLoading': 'Modellek betöltése…',
-  'ide.chat.modelsNone':
-    'Még nincsenek elérhető modellek – kérje meg a rendszergazdát, hogy állítson be egy mesterséges intelligencia szolgáltatót.',
+  'ide.chat.modelsNone': 'Még nincsenek elérhető modellek – kérje meg a rendszergazdát, hogy állítson be egy mesterséges intelligencia szolgáltatót.',
   'ide.chat.modelInUse': 'Mostantól az {{model}} oldalt használjuk',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'A kiválasztott „{{removed}}” modell már nem elérhető. Átváltottunk a „{{fallback}}” modellre. Írja be a /model parancsot egy másik modell kiválasztásához.',
-  'ide.chat.modelRemovedNoFallback':
-    'A kiválasztott „{{removed}}” modell már nem elérhető, és a szerveren nincs hozzá rendelt helyettesítő modell. Kérje meg a rendszergazdát, hogy állítson be egy AI-szolgáltatót.',
+  'ide.chat.modelRemoved': 'A kiválasztott „{{removed}}” modell már nem elérhető. Átváltottunk a „{{fallback}}” modellre. Írja be a /model parancsot egy másik modell kiválasztásához.',
+  'ide.chat.modelRemovedNoFallback': 'A kiválasztott „{{removed}}” modell már nem elérhető, és a szerveren nincs hozzá rendelt helyettesítő modell. Kérje meg a rendszergazdát, hogy állítson be egy AI-szolgáltatót.',
   'ide.chat.olderModelsCollapse': 'Régebbi modellek ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Régebbi modellek ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Válassza ki a végrehajtási módú modellt',
@@ -414,43 +387,31 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} szöveghibák',
   'ide.chat.lintWarningsCount': '{{count}} figyelmeztetések',
   'ide.chat.typeErrorsCount': '{{count}} típushibák',
   'ide.chat.help.commandsHeading': '── Parancsok ──',
-  'ide.chat.help.intro':
-    '{{agentName}} {{productName}} mesterséges intelligenciával működő programozási asszisztense. Csak írja le, mit szeretne létrehozni, és a rendszer segít a vázlat elkészítésében, a kód írásában, valamint a fejlesztés során végig kíséri Önt.',
+  'ide.chat.help.intro': '{{agentName}} {{productName}} mesterséges intelligenciával működő programozási asszisztense. Csak írja le, mit szeretne létrehozni, és a rendszer segít a vázlat elkészítésében, a kód írásában, valamint a fejlesztés során végig kíséri Önt.',
   'ide.chat.help.introHeading': '── Bevezetés ──',
-  'ide.chat.help.modeDiscovery':
-    'Felfedezés – itt kezdődnek az új beszélgetések. A „{{agentName}}” módszer tisztázó kérdéseket tesz fel a követelmények pontos meghatározása érdekében, még mielőtt egy sor kódot is írnánk.',
-  'ide.chat.help.modeExecute':
-    'Végrehajtás – az alapértelmezett működési mód. Az „{{agentName}}” kódot ír, eszközöket futtat, végrehajtja a módosításokat, majd ellenőrzi azok helyességét.',
-  'ide.chat.help.modePlan':
-    'Terv — Az `{{agentName}}` parancs átvizsgálja a kódbázist, és fájlok szerkesztése nélkül javasol egy tervet. A /plan kapcsolóval lehet be- és kikapcsolni. Leginkább nagy vagy kockázatos változtatásokhoz ajánlott.',
+  'ide.chat.help.modeDiscovery': 'Felfedezés – itt kezdődnek az új beszélgetések. A „{{agentName}}” módszer tisztázó kérdéseket tesz fel a követelmények pontos meghatározása érdekében, még mielőtt egy sor kódot is írnánk.',
+  'ide.chat.help.modeExecute': 'Végrehajtás – az alapértelmezett működési mód. Az „{{agentName}}” kódot ír, eszközöket futtat, végrehajtja a módosításokat, majd ellenőrzi azok helyességét.',
+  'ide.chat.help.modePlan': 'Terv — Az `{{agentName}}` parancs átvizsgálja a kódbázist, és fájlok szerkesztése nélkül javasol egy tervet. A /plan kapcsolóval lehet be- és kikapcsolni. Leginkább nagy vagy kockázatos változtatásokhoz ajánlott.',
   'ide.chat.help.modesHeading': '── Módok ──',
-  'ide.chat.help.shortcuts':
-    'A Cmd+/ billentyűkombinációval (Windows/Linux esetén Ctrl+/) megtekintheted az összes billentyűparancsot.',
-  'ide.chat.help.tipCompact':
-    '• Ha a beszélgetés hosszúra nyúlik, használja a /compact parancsot a szöveg tömörítéséhez.',
-  'ide.chat.help.tipPlan':
-    '• A /plan parancs használatával kérje meg az {{agentName}} rendszert, hogy végezzen előzetes vizsgálatot a módosítások végrehajtása előtt.',
+  'ide.chat.help.shortcuts': 'A Cmd+/ billentyűkombinációval (Windows/Linux esetén Ctrl+/) megtekintheted az összes billentyűparancsot.',
+  'ide.chat.help.tipCompact': '• Ha a beszélgetés hosszúra nyúlik, használja a /compact parancsot a szöveg tömörítéséhez.',
+  'ide.chat.help.tipPlan': '• A /plan parancs használatával kérje meg az {{agentName}} rendszert, hogy végezzen előzetes vizsgálatot a módosítások végrehajtása előtt.',
   'ide.chat.help.tipSlash': '• Írja be az / parancsot a fenti parancsok között való böngészéshez.',
-  'ide.chat.help.tipSpecific':
-    '• Legyen konkrét — a „Hozzon létre egy bejelentkezési oldalt e-mail/jelszóval és Google OAuth-val” jobb, mint a „hozzon létre hitelesítést”.',
-  'ide.chat.help.tipUndo':
-    '• Az /undo parancs segítségével visszaállíthatod az AI legutóbbi lépése során végrehajtott fájlváltozásokat, ha az nem a kívánt irányba haladt.',
+  'ide.chat.help.tipSpecific': '• Legyen konkrét — a „Hozzon létre egy bejelentkezési oldalt e-mail/jelszóval és Google OAuth-val” jobb, mint a „hozzon létre hitelesítést”.',
+  'ide.chat.help.tipUndo': '• Az /undo parancs segítségével visszaállíthatod az AI legutóbbi lépése során végrehajtott fájlváltozásokat, ha az nem a kívánt irányba haladt.',
   'ide.chat.help.tipsHeading': '── Tippek ──',
   'ide.chat.report.heading': 'Hiba jelentése',
   'ide.chat.report.openReport': 'Hiba jelentése',
-  'ide.chat.report.subheading':
-    'Mondja el nekünk, mi nem működött megfelelően, vagy mit szeretne látni. Az üzenet az {{productName}} csapatához kerül.',
+  'ide.chat.report.subheading': 'Mondja el nekünk, mi nem működött megfelelően, vagy mit szeretne látni. Az üzenet az {{productName}} csapatához kerül.',
   'ide.chat.report.titleLabel': 'Cím',
   'ide.chat.report.titlePlaceholder': 'Rövid összefoglaló',
   'ide.chat.report.descriptionLabel': 'Leírás',
@@ -473,8 +434,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Mentés…',
   'ide.chat.scripts.saveError': 'A szkript mentése nem sikerült. Kérjük, próbálja meg újra.',
   'ide.chat.scripts.invalid': 'Egy szkriptnek nevet és nem üres törzset kell tartalmaznia.',
-  'ide.chat.scripts.empty':
-    'Még nincs mentett szkript. Készítsen egyet a fenti mezőben, vagy kérje meg {{agentName}}-t, hogy írjon és mentse el egyet.',
+  'ide.chat.scripts.empty': 'Még nincs mentett szkript. Készítsen egyet a fenti mezőben, vagy kérje meg {{agentName}}-t, hogy írjon és mentse el egyet.',
   'ide.chat.scripts.loading': 'Szkriptek betöltése…',
   'ide.chat.scripts.error': 'A projekthez tartozó szkriptek betöltése nem sikerült.',
   'ide.chat.scripts.noMatch': 'Nincs olyan szkript, amely megfelelne a „{{query}}” kifejezésnek.',
@@ -482,8 +442,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Futtasd ezt a szkriptet a homokozóban',
   'ide.chat.scripts.running': 'Futás…',
   'ide.chat.scripts.runError': 'A szkript futtatása sikertelen volt.',
-  'ide.chat.scripts.runNone':
-    'Még nincs mentett szkript. Nyisd meg a /scripts mappát, hogy létrehozz egyet.',
+  'ide.chat.scripts.runNone': 'Még nincs mentett szkript. Nyisd meg a /scripts mappát, hogy létrehozz egyet.',
   'ide.chat.scripts.runNotFound': 'Nincs „{{name}}” nevű szkript. Elérhető: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} kilépett 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} kóddal lépett ki',
@@ -508,8 +467,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Projekt megosztása',
-  'ide.chat.share.subheading':
-    'Hozzon létre egy nyilvános linket. Aki rendelkezik a linkkel, az megkapja az Ön által kiválasztott szerepkört – a megtekintői link csak olvasásra szolgál.',
+  'ide.chat.share.subheading': 'Hozzon létre egy nyilvános linket. Aki rendelkezik a linkkel, az megkapja az Ön által kiválasztott szerepkört – a megtekintői link csak olvasásra szolgál.',
   'ide.chat.share.roleLabel': 'Szerep',
   'ide.chat.share.create': 'Link létrehozása',
   'ide.chat.share.creating': 'Készítés…',
@@ -521,27 +479,20 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Másolva',
   'ide.chat.share.openLink': 'Link megnyitása',
   'ide.chat.share.error': 'Nem sikerült létrehozni a megosztási linket. Kérjük, próbálja meg újra.',
-  'ide.chat.share.usage':
-    'Használat: /share [szerepkör] — nyilvános link létrehozása. Szerepkörök: {{roles}} (alapértelmezett: megtekintő).',
-  'ide.chat.share.notAllowed':
-    'A megosztási linkek kezeléséhez adminisztrátori szerep szükséges ebben a projektben.',
+  'ide.chat.share.usage': 'Használat: /share [szerepkör] — nyilvános link létrehozása. Szerepkörök: {{roles}} (alapértelmezett: megtekintő).',
+  'ide.chat.share.notAllowed': 'A megosztási linkek kezeléséhez adminisztrátori szerep szükséges ebben a projektben.',
   'ide.chat.skills.heading': 'Készségek',
   'ide.chat.skills.searchPlaceholder': 'Szűrőfunkciók…',
   'ide.chat.skills.load': 'Betöltés',
   'ide.chat.skills.loadTitle': 'Nyisd meg a szerkesztőben, és csatold kontextusként',
-  'ide.chat.skills.loaded':
-    'A „{{name}}” nevű készség betöltve – megnyitva a szerkesztőben, és a következő üzenetedhez kontextusként csatolva.',
+  'ide.chat.skills.loaded': 'A „{{name}}” nevű készség betöltve – megnyitva a szerkesztőben, és a következő üzenetedhez kontextusként csatolva.',
   'ide.chat.skills.loading': 'Készségek betöltése…',
   'ide.chat.skills.error': 'Nem sikerült betölteni a projekthez tartozó készségeket.',
-  'ide.chat.skills.empty':
-    'Ehhez a projekthez nem találhatóak készségek az .agents/skills/ mappában.',
+  'ide.chat.skills.empty': 'Ehhez a projekthez nem találhatóak készségek az .agents/skills/ mappában.',
   'ide.chat.skills.noMatch': 'Nincs olyan képesség, amely megfelelne a „{{query}}” kifejezésnek.',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -563,10 +514,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tippek',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'A jelentés elküldése nem sikerült. Kérjük, próbálja meg újra.',
-  'ide.chat.report.submitted':
-    'Köszönjük! Bejelentésedet továbbítottuk az {{productName}} csapatának.',
-  'ide.chat.report.submittedWithLink':
-    'Köszönjük! A bejelentésedet elküldtük – a kapcsolódó hibajelentésen követheted nyomon.',
+  'ide.chat.report.submitted': 'Köszönjük! Bejelentésedet továbbítottuk az {{productName}} csapatának.',
+  'ide.chat.report.submittedWithLink': 'Köszönjük! A bejelentésedet elküldtük – a kapcsolódó hibajelentésen követheted nyomon.',
   'ide.chat.settings.modelFollowsDefault': 'Az alapértelmezett modellt követi',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -580,8 +529,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Létrehozás',
   'ide.chat.skills.cancel': 'Mégse',
   'ide.chat.skills.createError': 'A készség létrehozása nem sikerült – kérjük, próbálja meg újra.',
-  'ide.chat.skills.created':
-    'Létrehoztam a „{{name}}” nevű feladatot – megnyitottam a szerkesztőben. Töltöttem ki a leírását és a lépéseket.',
+  'ide.chat.skills.created': 'Létrehoztam a „{{name}}” nevű feladatot – megnyitottam a szerkesztőben. Töltöttem ki a leírását és a lépéseket.',
   'ide.chat.autoCommit.on': 'Automatikus mentés bekapcsolva',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -589,12 +537,10 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Az előnézet itt nem tölthető be',
-  'ide.preview.loadFailedHint':
-    'Próbáld meg újra betölteni az oldalt, vagy nyisd meg az előnézetet egy új lapon.',
+  'ide.preview.loadFailedHint': 'Próbáld meg újra betölteni az oldalt, vagy nyisd meg az előnézetet egy új lapon.',
   'ide.preview.reloadPreview': 'Előnézet frissítése',
   'ide.preview.lastWorkingFrame': 'Utolsó működő előnézet',
-  'ide.chat.effort.notSupportedForModel':
-    '{{level}} {{model}}-on nem érhető el. Elérhető: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{level}} {{model}}-on nem érhető el. Elérhető: {{levels}}',
   'ide.chat.modelSortLabel': 'Rendezés',
   'ide.chat.modelSortDirection': 'Rendezés irányának váltása',
   'ide.chat.skills.loadedBadge': 'Betöltve',
@@ -605,32 +551,26 @@ export const hu: Partial<IdeTranslations> = {
   'ide.device.select': 'Készülékkeret',
   'ide.device.rotate': 'Forgatás',
   'ide.chat.closeOverlay': 'Bezárás',
-  'ide.chat.retryCountdown':
-    'Szerverhiba — újrakísérlet {{seconds}} másodperc múlva… ({{attempt}})',
+  'ide.chat.retryCountdown': 'Szerverhiba — újrakísérlet {{seconds}} másodperc múlva… ({{attempt}})',
   'ide.preview.blankTitle': 'Az előnézet üres',
-  'ide.preview.blankHint':
-    'Az alkalmazás betöltődött, de nem jelenített meg semmit — valószínűleg hiba történt. A Synthase-t már értesítettük. Újratöltheted az oldalt, vagy megnyithatod az előnézetet egy új lapon.',
+  'ide.preview.blankHint': 'Az alkalmazás betöltődött, de nem jelenített meg semmit — valószínűleg hiba történt. A Synthase-t már értesítettük. Újratöltheted az oldalt, vagy megnyithatod az előnézetet egy új lapon.',
   'ide.chat.previewLinkTitle': 'Nyissa meg a „{{path}}” fájlt az előnézetben',
-  'ide.chat.report.diagnosticsNote':
-    'Az alkalmazás verzióját, a böngészőt és a képernyő méretét csatoltuk, hogy segítsen nekünk a hibaelhárításban.',
+  'ide.chat.report.diagnosticsNote': 'Az alkalmazás verzióját, a böngészőt és a képernyő méretét csatoltuk, hogy segítsen nekünk a hibaelhárításban.',
   'ide.chat.skills.loadedCount': '🧠 Kiterjedt ismeretek a „{{count}}” témakörében',
   'ide.chat.skills.waitingForSandbox': 'Várom, amíg a sandbox befejezi az indítást…',
   'ide.chat.skills.resetDefaults': 'Alapértelmezés szerint mindet betölteni',
-  'ide.search.excludedDirs':
-    'Kizárt mappák (minden keresésre vonatkozik, beleértve az ügynököt is)',
+  'ide.search.excludedDirs': 'Kizárt mappák (minden keresésre vonatkozik, beleértve az ügynököt is)',
   'ide.chat.costStreamingNote': 'Futó összeg — tartalmazza a jelenleg streamelt választ is.',
   'ide.toolCall.packageCount': '{{count}} csomagok',
   'ide.toolCall.openPackageDoc': 'A csomag dokumentációjának megnyitása',
   'ide.chat.fastModeOn': 'Gyors üzemmód bekapcsolva — gyorsabb válaszok magasabb frekvencián',
   'ide.chat.fastModeOff': 'Gyors üzemmód kikapcsolva',
-  'ide.chat.fastModeEnable':
-    'Gyors üzemmód — akár 2,5-szer gyorsabb kimenet magasabb token-frekvencián',
+  'ide.chat.fastModeEnable': 'Gyors üzemmód — akár 2,5-szer gyorsabb kimenet magasabb token-frekvencián',
   'ide.chat.fastModeDisable': 'A gyors üzemmód kikapcsolása',
   'ide.chat.scripts.runWithOptions': 'Futtatás…',
   'ide.chat.scripts.required': '(kötelező)',
   'ide.chat.scripts.cancelRun': 'Mégse',
-  'ide.chat.scripts.runNeedsOptions':
-    'A(z) „{{name}}” beállításokat igényel — megnyílt a /scripts, hogy megadhassa őket és Futtathassa.',
+  'ide.chat.scripts.runNeedsOptions': 'A(z) „{{name}}” beállításokat igényel — megnyílt a /scripts, hogy megadhassa őket és Futtathassa.',
   'ide.chat.settings.effort.label': 'Érvelési erőfeszítés',
   'ide.chat.timestampsShown': 'Időbélyegek megjelenítve.',
   'ide.chat.timestampsHidden': 'Időbélyegek elrejtve.',
@@ -653,8 +593,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Alkalmazás',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Projekt',
-  'ide.tests.e2eHint':
-    'Ezek az élő előnézettel párhuzamosan futnak, ezért tartsd nyitva az előnézetet.',
+  'ide.tests.e2eHint': 'Ezek az élő előnézettel párhuzamosan futnak, ezért tartsd nyitva az előnézetet.',
   'ide.tests.showOutput': 'Kimenet megjelenítése',
   'ide.tests.hideOutput': 'Kimenet elrejtése',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -699,8 +638,8 @@ export const hu: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} kihagyott',
   'ide.tests.skippedByUser': 'A futtatás befejeződött. Az áthugyozott tesztek nem futottak le.',
   'ide.tests.viewerCannotSkip': 'Csak a szerkesztők hagyhatják ki ennek a projektnek a tesztjeit.',
-  'ide.toolCall.interruptedByRestart':
-    'Ezt a lépést egy újraindítás szakította félbe; a hatása ismeretlen.',
+  'ide.toolCall.interruptedByRestart': 'Ezt a lépést egy újraindítás szakította félbe; a hatása ismeretlen.',
   'ide.toolCall.statusInterrupted': 'Megszakított',
   'ide.chat.subagent.failedFallback': 'Ez az alügynök megállt, mielőtt befejezte volna.',
+  'ide.chat.viaDictation.badge': 'Hang által diktált',
 }

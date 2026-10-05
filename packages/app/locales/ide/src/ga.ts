@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for ga. */
 export const ga: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Smaoinigh go hachomair',
@@ -40,8 +36,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Lean ar aghaidh',
   'ide.chat.continuePrompt': 'Lean ort ag cur i bhfeidhm ón áit ar stop tú.',
   'upgrade.viewPlans': 'Uasghrádú',
-  'guest.reminder.message':
-    'Cláraigh nó logáil isteach chun do chuid oibre a choinneáil \\\\u2014 rachaidh seisiúin aoi in éag tar éis 72 uair an chloig.',
+  'guest.reminder.message': 'Cláraigh nó logáil isteach chun do chuid oibre a choinneáil \\\\u2014 rachaidh seisiúin aoi in éag tar éis 72 uair an chloig.',
   'upgrade.signUp': 'Cláraigh',
   'guest.reminder.logIn': 'Logáil isteach',
   'ide.chat.soundsError': 'Theip ar shocruithe fuaime a nuashonrú.',
@@ -54,26 +49,23 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Athraithe go mód pleanála',
   'ide.chat.switchedToExecute': 'Athraíodh go mód forghníomhaithe',
   'ide.chat.costError': 'Ní féidir sonraí úsáide a fháil.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'buaic ×{{multiplier}} anois',
   'ide.chat.models.peakLater': '×{{multiplier}} ag buaicuaireanta',
-  'ide.chat.models.peakHint':
-    'Cosnaíonn an tsamhail seo ×{{multiplier}} idir {{windows}}. Baineann an gnáthráta leis an gcuid eile den lá.',
+  'ide.chat.models.peakHint': 'Cosnaíonn an tsamhail seo ×{{multiplier}} idir {{windows}}. Baineann an gnáthráta leis an gcuid eile den lá.',
   'ide.chat.undoNoChanges': 'Gan aon athruithe ar chomhad le cealú.',
   'ide.chat.undoComplete': 'Theip ar na hathruithe a aisiompú.',
   'ide.chat.commitNoChanges': 'Gan aon athruithe le gealladh.',
@@ -81,15 +73,11 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Uath-cheartú cumasaithe.',
   'ide.chat.autoFixDisabled': 'Uath-cheartú díchumasaithe.',
   'ide.chat.autoFixError': 'Theip ar an socrú uath-cheartúcháin a nuashonrú.',
-  'ide.chat.autoApproveEnabled':
-    'Tá an t-uath-cheadú ar siúl — ritear orduithe millteacha gan cead a iarraidh. Iarrann an chosaint frithsceite cead fós. Múch le /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'Tá an t-uath-cheadú as — iarrann orduithe millteacha cead sula ritear iad.',
+  'ide.chat.autoApproveEnabled': 'Tá an t-uath-cheadú ar siúl — ritear orduithe millteacha gan cead a iarraidh. Iarrann an chosaint frithsceite cead fós. Múch le /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Tá an t-uath-cheadú as — iarrann orduithe millteacha cead sula ritear iad.',
   'ide.chat.autoApproveError': 'Theip ar an socrú uath-cheadaithe a nuashonrú.',
-  'ide.chat.modelUsage':
-    'Úsáid: /samhail<model-name> (m.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired':
-    '{{model}} ar fáil ar Pro. Uasghrádaigh chun rochtain a fháil ar gach samhail.',
+  'ide.chat.modelUsage': 'Úsáid: /samhail<model-name> (m.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired': '{{model}} ar fáil ar Pro. Uasghrádaigh chun rochtain a fháil ar gach samhail.',
   'ide.chat.maxLoopsReached': 'Uasmhéid na lúb sroichte.',
   'ide.chat.maxLoopsError': 'Theip ar uasmhéid athrá uirlisí a nuashonrú.',
   'ide.chat.dropFilesHere': 'Scaoil comhaid anseo',
@@ -258,11 +246,10 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Guth',
   'ide.chat.voiceUnavailable': 'Níl deachtú ar fáil sa bhrabhsálaí seo.',
   'ide.chat.voiceMicBlocked': 'Tá rochtain ar an micreafón blocáilte.',
-  'ide.chat.voicePreparing': "Deachtú á ullmhú — d'fhéadfadh sé nóiméad a thógáil an chéad uair.",
+  'ide.chat.voicePreparing': 'Deachtú á ullmhú — d\'fhéadfadh sé nóiméad a thógáil an chéad uair.',
   'ide.chat.voiceTranscribeFailed': 'Theip ar an trascríobh.',
   'ide.chat.voiceEngineTitle': 'Inneall deachtaithe',
-  'ide.chat.voiceEnginePrivacy':
-    'Ritheann gach rogha ar do ghléas — ní fhágann fuaim do bhrabhsálaí riamh.',
+  'ide.chat.voiceEnginePrivacy': 'Ritheann gach rogha ar do ghléas — ní fhágann fuaim do bhrabhsálaí riamh.',
   'ide.chat.voiceEngineNoDownload': 'gan íoslódáil',
   'ide.chat.voiceEngineDownload': 'íoslódáil ~{{mb}} MB, ansin i dtaisce',
   'ide.chat.voiceEngineDownloadRange': 'íoslódáil ~{{min}}–{{max}} MB, ansin i dtaisce',
@@ -313,8 +300,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Slán (HTTPS)',
   'ide.preview.address': 'Seoladh réamhamhairc',
   'ide.preview.updating': 'Nuashonrú',
-  'ide.preview.frozen':
-    'Stop an aip seo ag freagairt — reo lúb gan teorainn nó rindreáil theithiúil an réamhamharc. Níl aon tionchar ar an IDE.',
+  'ide.preview.frozen': 'Stop an aip seo ag freagairt — reo lúb gan teorainn nó rindreáil theithiúil an réamhamharc. Níl aon tionchar ar an IDE.',
   'ide.preview.frozenReload': 'Athlódáil an aip',
   'ide.search.results': '{{count}} mar thoradh air {{files}} comhaid',
   'ide.activity.cardAria': 'Féach ar ghníomhaíocht a gabhadh',
@@ -346,41 +332,29 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted':
-    'Leid: clóscríobh / chun gach ordú a fheiceáil, nó @ ainm comhaid chun é a thabhairt{{agentName}} comhad le hoibriú uaidh.',
-  'ide.chat.tip.mention':
-    'Leid: clóscríobh @filename chun comhad tionscadail a cheangal mar chomhthéacs —{{agentName}} léann sé go díreach é.',
-  'ide.chat.tip.slash':
-    'Leid: clóscríobh / chun gach ordú (commit, diff, model, agus tuilleadh) a bhrabhsáil.',
-  'ide.chat.tip.plan':
-    'Leid: bain úsáid as / pleanáil a bheith agat{{agentName}} taighde a dhéanamh agus plean a mholadh sula ndéanann sé aon chomhaid a chur in eagar.',
-  'ide.chat.tip.undo':
-    'Leid: bain úsáid as /undo chun athruithe comhaid an seal deireanach san AI a aisiompú láithreach má chuaigh sé sa treo mícheart.',
-  'ide.chat.tip.compact':
-    'Leid: comhrá fada? Comhbhrúnn /compact an comhthéacs ionas go mbeidh spás agat le hobair a dhéanamh.',
-  'ide.chat.tip.commit':
-    'Leid: bain úsáid as /commit chun do chuid athruithe a shábháil mar git commit ar féidir leat filleadh air i gcónaí.',
-  'ide.chat.tip.report':
-    'Leid: rud éigin as riocht? Seolann /report fabht nó aiseolas chuig an bhfoireann agus do chomhrá le déanaí ceangailte leis.',
+  'ide.chat.tip.getStarted': 'Leid: clóscríobh / chun gach ordú a fheiceáil, nó @ ainm comhaid chun é a thabhairt{{agentName}} comhad le hoibriú uaidh.',
+  'ide.chat.tip.mention': 'Leid: clóscríobh @filename chun comhad tionscadail a cheangal mar chomhthéacs —{{agentName}} léann sé go díreach é.',
+  'ide.chat.tip.slash': 'Leid: clóscríobh / chun gach ordú (commit, diff, model, agus tuilleadh) a bhrabhsáil.',
+  'ide.chat.tip.plan': 'Leid: bain úsáid as / pleanáil a bheith agat{{agentName}} taighde a dhéanamh agus plean a mholadh sula ndéanann sé aon chomhaid a chur in eagar.',
+  'ide.chat.tip.undo': 'Leid: bain úsáid as /undo chun athruithe comhaid an seal deireanach san AI a aisiompú láithreach má chuaigh sé sa treo mícheart.',
+  'ide.chat.tip.compact': 'Leid: comhrá fada? Comhbhrúnn /compact an comhthéacs ionas go mbeidh spás agat le hobair a dhéanamh.',
+  'ide.chat.tip.commit': 'Leid: bain úsáid as /commit chun do chuid athruithe a shábháil mar git commit ar féidir leat filleadh air i gcónaí.',
+  'ide.chat.tip.report': 'Leid: rud éigin as riocht? Seolann /report fabht nó aiseolas chuig an bhfoireann agus do chomhrá le déanaí ceangailte leis.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
-  'ide.chat.autoCommit.enabled':
-    'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.autoCommit.enabled': 'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
   'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -392,10 +366,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
-  'ide.chat.modelRemovedNoFallback':
-    'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+  'ide.chat.modelRemoved': 'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+  'ide.chat.modelRemovedNoFallback': 'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Select execute-mode model',
@@ -417,43 +389,32 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',
   'ide.chat.help.commandsHeading': '── Commands ──',
-  'ide.chat.help.intro':
-    "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
+  'ide.chat.help.intro': '{{agentName}} is {{productName}}\'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.',
   'ide.chat.help.introHeading': '── Getting Started ──',
-  'ide.chat.help.modeDiscovery':
-    'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
-  'ide.chat.help.modeExecute':
-    'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
-  'ide.chat.help.modePlan':
-    'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+  'ide.chat.help.modeDiscovery': 'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+  'ide.chat.help.modeExecute': 'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+  'ide.chat.help.modePlan': 'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
   'ide.chat.help.modesHeading': '── Modes ──',
-  'ide.chat.help.shortcuts':
-    'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+  'ide.chat.help.shortcuts': 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
   'ide.chat.help.tipCompact': '• Use /compact to compress context when the conversation gets long.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Use /plan to have {{agentName}} research before making changes.',
   'ide.chat.help.tipSlash': '• Type / to browse every command above.',
-  'ide.chat.help.tipSpecific':
-    '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
-  'ide.chat.help.tipUndo':
-    "• Use /undo to revert the last AI turn's file changes if it goes off track.",
+  'ide.chat.help.tipSpecific': '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
+  'ide.chat.help.tipUndo': '• Use /undo to revert the last AI turn\'s file changes if it goes off track.',
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Report a bug',
   'ide.chat.report.openReport': 'Report a bug',
-  'ide.chat.report.subheading':
-    'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+  'ide.chat.report.subheading': 'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
   'ide.chat.report.titleLabel': 'Title',
   'ide.chat.report.titlePlaceholder': 'Brief summary',
   'ide.chat.report.descriptionLabel': 'Description',
@@ -476,8 +437,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Saving…',
   'ide.chat.scripts.saveError': 'Could not save the script. Please try again.',
   'ide.chat.scripts.invalid': 'A script needs a name and a non-empty body.',
-  'ide.chat.scripts.empty':
-    'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
+  'ide.chat.scripts.empty': 'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
   'ide.chat.scripts.loading': 'Loading scripts…',
   'ide.chat.scripts.error': 'Could not load scripts for this project.',
   'ide.chat.scripts.noMatch': 'No scripts match “{{query}}”.',
@@ -511,8 +471,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Share project',
-  'ide.chat.share.subheading':
-    'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+  'ide.chat.share.subheading': 'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
   'ide.chat.share.roleLabel': 'Role',
   'ide.chat.share.create': 'Create link',
   'ide.chat.share.creating': 'Creating…',
@@ -524,16 +483,13 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Copied',
   'ide.chat.share.openLink': 'Open link',
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
-  'ide.chat.share.usage':
-    'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
-  'ide.chat.share.notAllowed':
-    'Teastaíonn ról riarthóra ar an tionscadal seo chun naisc chomhroinnte a bhainistiú.',
+  'ide.chat.share.usage': 'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed': 'Teastaíonn ról riarthóra ar an tionscadal seo chun naisc chomhroinnte a bhainistiú.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',
   'ide.chat.skills.loadTitle': 'Open in editor and attach as context',
-  'ide.chat.skills.loaded':
-    'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
+  'ide.chat.skills.loaded': 'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
@@ -558,9 +514,8 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Could not submit your report. Please try again.',
-  'ide.chat.report.submitted': "Thanks! Your report was submitted to {{productName}}'s team.",
-  'ide.chat.report.submittedWithLink':
-    'Thanks! Your report was submitted — track it on the linked issue.',
+  'ide.chat.report.submitted': 'Thanks! Your report was submitted to {{productName}}\'s team.',
+  'ide.chat.report.submittedWithLink': 'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -574,20 +529,18 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Create',
   'ide.chat.skills.cancel': 'Cancel',
   'ide.chat.skills.createError': 'Could not create the skill — please try again.',
-  'ide.chat.skills.created':
-    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+  'ide.chat.skills.created': 'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   'ide.chat.autoCommit.on': 'Auto-commit on',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
-  'ide.preview.loadFailed': "Preview can't load here",
+  'ide.preview.loadFailed': 'Preview can\'t load here',
   'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
-  'ide.chat.effort.notSupportedForModel':
-    "{{level}} isn't available for {{model}}. Available: {{levels}}",
+  'ide.chat.effort.notSupportedForModel': '{{level}} isn\'t available for {{model}}. Available: {{levels}}',
   'ide.chat.modelSortLabel': 'Sort',
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   'ide.chat.skills.loadedBadge': 'Loaded',
@@ -600,11 +553,9 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Close',
   'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.preview.blankTitle': 'The preview is blank',
-  'ide.preview.blankHint':
-    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
-  'ide.chat.report.diagnosticsNote':
-    'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
@@ -614,14 +565,12 @@ export const ga: Partial<IdeTranslations> = {
   'ide.toolCall.openPackageDoc': 'Open package docs',
   'ide.chat.fastModeOn': 'Mód tapa ar siúl — freagraí níos tapúla ag ráta níos airde',
   'ide.chat.fastModeOff': 'Mód tapa múchta',
-  'ide.chat.fastModeEnable':
-    'Mód tapa — aschur suas le 2.5× níos tapúla ag ráta comharthaí níos airde',
+  'ide.chat.fastModeEnable': 'Mód tapa — aschur suas le 2.5× níos tapúla ag ráta comharthaí níos airde',
   'ide.chat.fastModeDisable': 'Múch an mód tapa',
   'ide.chat.scripts.runWithOptions': 'Rith…',
   'ide.chat.scripts.required': '(riachtanach)',
   'ide.chat.scripts.cancelRun': 'Cealaigh',
-  'ide.chat.scripts.runNeedsOptions':
-    'Teastaíonn roghanna ó “{{name}}” — osclaíodh /scripts chun iad a shocrú agus Rith.',
+  'ide.chat.scripts.runNeedsOptions': 'Teastaíonn roghanna ó “{{name}}” — osclaíodh /scripts chun iad a shocrú agus Rith.',
   'ide.chat.settings.effort.label': 'Iarracht réasúnaíochta',
   'ide.chat.timestampsShown': 'Stampaí ama á dtaispeáint.',
   'ide.chat.timestampsHidden': 'Stampaí ama folaithe.',
@@ -644,8 +593,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Aip',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Tionscadal',
-  'ide.tests.e2eHint':
-    'Ritheann siad seo i gcoinne an réamhamhairc bheo, mar sin coinnigh an réamhamharc ar oscailt.',
+  'ide.tests.e2eHint': 'Ritheann siad seo i gcoinne an réamhamhairc bheo, mar sin coinnigh an réamhamharc ar oscailt.',
   'ide.tests.showOutput': 'Taispeáin an t-aschur',
   'ide.tests.hideOutput': 'Folaigh an t-aschur',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -670,8 +618,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.cancelled': 'Rith stoptha.',
   'ide.tests.listError': 'Níorbh fhéidir tástálacha an tionscadail seo a liostáil.',
   'ide.tests.runError': 'Níorbh fhéidir an rith tástála a thosú.',
-  'ide.tests.viewerCannotRun':
-    'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a rith.',
+  'ide.tests.viewerCannotRun': 'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a rith.',
   'ide.tests.needsSandbox': 'Tosaigh an tionscadal chun a thástálacha a rith.',
   'ide.tests.heading': 'Tástálacha',
   'ide.tests.searchPlaceholder': 'Tástálacha scagaire…',
@@ -690,10 +637,9 @@ export const ga: Partial<IdeTranslations> = {
   'ide.tests.skipping': 'Ag scipeáil…',
   'ide.tests.skippedCount': '{{count}} scipeáilte',
   'ide.tests.skippedByUser': 'Rith críochnaithe. Níor rith na tástálacha a scipeáil tú.',
-  'ide.tests.viewerCannotSkip':
-    'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a scipeáil.',
-  'ide.toolCall.interruptedByRestart':
-    'Cuireadh isteach ar an gcéim seo le hatosú; níl a éifeacht ar eolas.',
+  'ide.tests.viewerCannotSkip': 'Ní féidir ach le heagarthóirí tástálacha an tionscadail seo a scipeáil.',
+  'ide.toolCall.interruptedByRestart': 'Cuireadh isteach ar an gcéim seo le hatosú; níl a éifeacht ar eolas.',
   'ide.toolCall.statusInterrupted': 'Curtha isteach',
   'ide.chat.subagent.failedFallback': 'Stop an fo-ghníomhaire seo sular chríochnaigh sé.',
+  'ide.chat.viaDictation.badge': 'Deachtaithe ag guth',
 }

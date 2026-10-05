@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for ko. */
 export const ko: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': '요금제 보기',
   'ide.chat.commitLabel': '커밋',
   'ide.chat.fileCount': '{{count}}개 파일',
@@ -114,8 +110,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.changeModel': '모델 변경',
   'ide.chat.increaseLoops': '최대 반복 횟수를 늘리세요',
   'ide.chat.continuePrompt': '중단했던 부분부터 이어서 진행하세요.',
-  'guest.reminder.message':
-    '회원가입 또는 로그인하여 작업 내용을 저장하세요. 게스트 세션은 72시간 후에 만료됩니다.',
+  'guest.reminder.message': '회원가입 또는 로그인하여 작업 내용을 저장하세요. 게스트 세션은 72시간 후에 만료됩니다.',
   'guest.reminder.logIn': '로그인',
   'ide.chat.soundsError': '사운드 설정 업데이트에 실패했습니다.',
   'ide.chat.commitFailed': '커밋 실패',
@@ -127,26 +122,23 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': '계획 모드로 전환했습니다',
   'ide.chat.switchedToExecute': '실행 모드로 전환됨',
   'ide.chat.costError': '사용량 데이터를 가져올 수 없습니다.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': '현재 피크 ×{{multiplier}}',
   'ide.chat.models.peakLater': '피크 시간대 ×{{multiplier}}',
-  'ide.chat.models.peakHint':
-    '이 모델은 {{windows}} 사이에 ×{{multiplier}} 요금이 적용됩니다. 나머지 시간에는 일반 요금입니다.',
+  'ide.chat.models.peakHint': '이 모델은 {{windows}} 사이에 ×{{multiplier}} 요금이 적용됩니다. 나머지 시간에는 일반 요금입니다.',
   'ide.chat.undoNoChanges': '되돌릴 파일 변경 사항이 없습니다.',
   'ide.chat.undoComplete': '변경 사항을 되돌리는 데 실패했습니다.',
   'ide.chat.commitNoChanges': '커밋할 변경 사항이 없습니다.',
@@ -154,12 +146,10 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': '자동 수정 기능이 활성화되었습니다.',
   'ide.chat.autoFixDisabled': '자동 수정 기능이 비활성화되었습니다.',
   'ide.chat.autoFixError': '자동 수정 설정 업데이트에 실패했습니다.',
-  'ide.chat.autoApproveEnabled':
-    '자동 승인 켜짐 — 파괴적인 명령이 확인 없이 실행됩니다. 데이터 유출 방지 기능은 여전히 확인을 요청합니다. 끄려면 /autoapprove를 입력하세요.',
+  'ide.chat.autoApproveEnabled': '자동 승인 켜짐 — 파괴적인 명령이 확인 없이 실행됩니다. 데이터 유출 방지 기능은 여전히 확인을 요청합니다. 끄려면 /autoapprove를 입력하세요.',
   'ide.chat.autoApproveDisabled': '자동 승인 꺼짐 — 파괴적인 명령은 실행 전에 확인을 요청합니다.',
   'ide.chat.autoApproveError': '자동 승인 설정 업데이트에 실패했습니다.',
-  'ide.chat.modelUsage':
-    '사용법: /모델<model-name> (예: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': '사용법: /모델<model-name> (예: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': '최대 반복 횟수 제한에 도달했습니다.',
   'ide.chat.maxLoopsError': '최대 도구 반복 횟수를 업데이트하는 데 실패했습니다.',
   'ide.chat.dropFilesHere': '여기에 파일을 드롭하세요',
@@ -265,8 +255,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': '받아쓰기 준비 중 — 처음 사용할 때는 시간이 걸릴 수 있습니다.',
   'ide.chat.voiceTranscribeFailed': '전사에 실패했습니다.',
   'ide.chat.voiceEngineTitle': '받아쓰기 엔진',
-  'ide.chat.voiceEnginePrivacy':
-    '모든 옵션은 기기에서 실행됩니다 — 오디오는 브라우저를 절대 벗어나지 않습니다.',
+  'ide.chat.voiceEnginePrivacy': '모든 옵션은 기기에서 실행됩니다 — 오디오는 브라우저를 절대 벗어나지 않습니다.',
   'ide.chat.voiceEngineNoDownload': '다운로드 없음',
   'ide.chat.voiceEngineDownload': '약 {{mb}} MB 다운로드 후 캐시됨',
   'ide.chat.voiceEngineDownloadRange': '약 {{min}}–{{max}} MB 다운로드 후 캐시됨',
@@ -311,8 +300,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.preview.secure': '보안 연결 (HTTPS)',
   'ide.preview.address': '미리보기 주소',
   'ide.preview.updating': '업데이트 중',
-  'ide.preview.frozen':
-    '이 앱이 응답하지 않습니다. 무한 루프나 렌더링 오류로 인해 미리 보기가 멈췄습니다. IDE는 정상적으로 작동합니다.',
+  'ide.preview.frozen': '이 앱이 응답하지 않습니다. 무한 루프나 렌더링 오류로 인해 미리 보기가 멈췄습니다. IDE는 정상적으로 작동합니다.',
   'ide.preview.frozenReload': '앱 다시 불러오기',
   'ide.search.results': '{{count}} {{files}} 파일이 생성됩니다',
   'ide.activity.cardAria': '기록된 활동 보기',
@@ -344,31 +332,21 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '이력서',
   'ide.chat.openSettings': '설정',
   'ide.chat.tip.dismiss': '팁 닫기',
-  'ide.chat.tip.getStarted':
-    '팁: 모든 명령어를 보려면 /를 입력하거나, @와 파일 이름을 함께 입력하여 `{{agentName}}`에 처리할 파일을 지정하세요.',
-  'ide.chat.tip.mention':
-    '팁: @filename을 입력하면 프로젝트 파일을 컨텍스트로 첨부할 수 있습니다. — {{agentName}}에서 해당 파일을 직접 읽어옵니다.',
-  'ide.chat.tip.slash':
-    '팁: /을 입력하면 모든 명령어(commit, diff, model 등)를 확인할 수 있습니다.',
-  'ide.chat.tip.plan':
-    '팁: /plan 명령어를 사용하면 {{agentName}}가 파일을 수정하기 전에 계획을 조사하고 제안합니다.',
-  'ide.chat.tip.undo':
-    '팁: AI 턴에서 파일 변경 내용이 마음에 들지 않는다면 /undo 명령어를 사용해 즉시 되돌릴 수 있습니다.',
-  'ide.chat.tip.compact':
-    '팁: 대화가 길어지나요? /compact 명령어를 사용하면 대화 내용을 압축해 작업 공간을 확보할 수 있습니다.',
-  'ide.chat.tip.commit':
-    '팁: /commit 명령어를 사용하면 변경 내용을 Git 커밋으로 저장하여 나중에 언제든지 해당 커밋으로 되돌릴 수 있습니다.',
-  'ide.chat.tip.report':
-    '팁: 문제가 있나요? /report 명령어를 입력하면 최근 대화 내역이 첨부된 상태로 버그나 피드백이 팀에 전송됩니다.',
+  'ide.chat.tip.getStarted': '팁: 모든 명령어를 보려면 /를 입력하거나, @와 파일 이름을 함께 입력하여 `{{agentName}}`에 처리할 파일을 지정하세요.',
+  'ide.chat.tip.mention': '팁: @filename을 입력하면 프로젝트 파일을 컨텍스트로 첨부할 수 있습니다. — {{agentName}}에서 해당 파일을 직접 읽어옵니다.',
+  'ide.chat.tip.slash': '팁: /을 입력하면 모든 명령어(commit, diff, model 등)를 확인할 수 있습니다.',
+  'ide.chat.tip.plan': '팁: /plan 명령어를 사용하면 {{agentName}}가 파일을 수정하기 전에 계획을 조사하고 제안합니다.',
+  'ide.chat.tip.undo': '팁: AI 턴에서 파일 변경 내용이 마음에 들지 않는다면 /undo 명령어를 사용해 즉시 되돌릴 수 있습니다.',
+  'ide.chat.tip.compact': '팁: 대화가 길어지나요? /compact 명령어를 사용하면 대화 내용을 압축해 작업 공간을 확보할 수 있습니다.',
+  'ide.chat.tip.commit': '팁: /commit 명령어를 사용하면 변경 내용을 Git 커밋으로 저장하여 나중에 언제든지 해당 커밋으로 되돌릴 수 있습니다.',
+  'ide.chat.tip.report': '팁: 문제가 있나요? /report 명령어를 입력하면 최근 대화 내역이 첨부된 상태로 버그나 피드백이 팀에 전송됩니다.',
   'ide.chat.undoError': '변경 사항을 되돌리지 못했습니다.',
   'ide.chat.autoCommit.badge': '{{countdown}}의 자동 커밋',
   'ide.chat.autoCommit.cancel': '자동 커밋 취소',
   'ide.chat.autoCommit.cancelled': '자동 커밋이 취소되었습니다.',
-  'ide.chat.autoCommit.enabled':
-    '자동 커밋 활성화: 마지막 파일 변경 후 {{seconds}}초가 지나면 커밋합니다. 취소하려면 /autocommit 0을 입력하세요.',
+  'ide.chat.autoCommit.enabled': '자동 커밋 활성화: 마지막 파일 변경 후 {{seconds}}초가 지나면 커밋합니다. 취소하려면 /autocommit 0을 입력하세요.',
   'ide.chat.effort.error': '추론 작업 업데이트에 실패했습니다.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -383,14 +361,11 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ 무료',
   'ide.chat.models.sortBy': '{{column}} 기준으로 정렬',
   'ide.chat.modelsLoading': '모델 불러오는 중…',
-  'ide.chat.modelsNone':
-    '아직 사용할 수 있는 모델이 없습니다. 관리자에게 AI 서비스 제공업체를 연결해 달라고 요청하세요.',
+  'ide.chat.modelsNone': '아직 사용할 수 있는 모델이 없습니다. 관리자에게 AI 서비스 제공업체를 연결해 달라고 요청하세요.',
   'ide.chat.modelInUse': '현재 {{model}}을 사용하고 있습니다',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    '선택하신 모델 “{{removed}}”은 더 이상 사용할 수 없습니다. “{{fallback}}”으로 변경되었습니다. 다른 모델을 선택하려면 /model을 입력하세요.',
-  'ide.chat.modelRemovedNoFallback':
-    '선택하신 모델 “{{removed}}”은 더 이상 사용할 수 없으며, 서버에 대체 모델이 등록되어 있지 않습니다. 관리자에게 AI 제공자를 연결해 달라고 요청하십시오.',
+  'ide.chat.modelRemoved': '선택하신 모델 “{{removed}}”은 더 이상 사용할 수 없습니다. “{{fallback}}”으로 변경되었습니다. 다른 모델을 선택하려면 /model을 입력하세요.',
+  'ide.chat.modelRemovedNoFallback': '선택하신 모델 “{{removed}}”은 더 이상 사용할 수 없으며, 서버에 대체 모델이 등록되어 있지 않습니다. 관리자에게 AI 제공자를 연결해 달라고 요청하십시오.',
   'ide.chat.olderModelsCollapse': '구형 모델 ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': '구형 모델 ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': '실행 모드 모델 선택',
@@ -412,42 +387,31 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} 린트 오류',
   'ide.chat.lintWarningsCount': '{{count}} 경고',
   'ide.chat.typeErrorsCount': '{{count}} 유형 오류',
   'ide.chat.help.commandsHeading': '── 명령어 ──',
-  'ide.chat.help.intro':
-    '{{agentName}} {{productName}}의 AI 코딩 에이전트입니다. 만들고 싶은 것을 설명하기만 하면, 이 에이전트가 코드의 골격을 잡고, 코딩을 수행하며, 여러분과 함께 반복적으로 개선해 나갑니다.',
+  'ide.chat.help.intro': '{{agentName}} {{productName}}의 AI 코딩 에이전트입니다. 만들고 싶은 것을 설명하기만 하면, 이 에이전트가 코드의 골격을 잡고, 코딩을 수행하며, 여러분과 함께 반복적으로 개선해 나갑니다.',
   'ide.chat.help.introHeading': '── 시작하기 ──',
-  'ide.chat.help.modeDiscovery':
-    '디스커버리 — 새로운 대화가 여기서 시작됩니다. ‘{{agentName}}’는 코드를 작성하기 전에 요구 사항을 명확히 파악하기 위해 구체적인 질문을 던집니다.',
-  'ide.chat.help.modeExecute':
-    '실행 — 기본 작업 모드입니다. ‘{{agentName}}’ 명령어는 코드를 작성하고, 도구를 실행하며, 변경 사항을 적용한 후 이를 검증합니다.',
-  'ide.chat.help.modePlan':
-    '계획 — {{agentName}}는 코드베이스를 분석하여 파일을 수정하지 않고 계획을 제안합니다. /plan 명령어로 전환할 수 있습니다. 규모가 크거나 위험한 변경 사항에 가장 적합합니다.',
+  'ide.chat.help.modeDiscovery': '디스커버리 — 새로운 대화가 여기서 시작됩니다. ‘{{agentName}}’는 코드를 작성하기 전에 요구 사항을 명확히 파악하기 위해 구체적인 질문을 던집니다.',
+  'ide.chat.help.modeExecute': '실행 — 기본 작업 모드입니다. ‘{{agentName}}’ 명령어는 코드를 작성하고, 도구를 실행하며, 변경 사항을 적용한 후 이를 검증합니다.',
+  'ide.chat.help.modePlan': '계획 — {{agentName}}는 코드베이스를 분석하여 파일을 수정하지 않고 계획을 제안합니다. /plan 명령어로 전환할 수 있습니다. 규모가 크거나 위험한 변경 사항에 가장 적합합니다.',
   'ide.chat.help.modesHeading': '── 모드 ──',
-  'ide.chat.help.shortcuts':
-    '모든 키보드 단축키를 보려면 Cmd+/ (Windows/Linux의 경우 Ctrl+/)를 누르세요.',
+  'ide.chat.help.shortcuts': '모든 키보드 단축키를 보려면 Cmd+/ (Windows/Linux의 경우 Ctrl+/)를 누르세요.',
   'ide.chat.help.tipCompact': '• 대화가 길어지면 /compact 명령어를 사용하여 내용을 압축하세요.',
-  'ide.chat.help.tipPlan':
-    '• 변경을 적용하기 전에 /plan 명령어를 사용하여 {{agentName}}에서 사전 조사를 수행하십시오.',
+  'ide.chat.help.tipPlan': '• 변경을 적용하기 전에 /plan 명령어를 사용하여 {{agentName}}에서 사전 조사를 수행하십시오.',
   'ide.chat.help.tipSlash': '• /을 입력하면 위의 모든 명령어를 확인할 수 있습니다.',
-  'ide.chat.help.tipSpecific':
-    '• 구체적으로 작성하세요 — “이메일/비밀번호 및 Google OAuth를 지원하는 로그인 페이지 추가”가 “인증 기능 추가”보다 낫습니다.',
-  'ide.chat.help.tipUndo':
-    '• AI 턴이 예상과 다르게 진행될 경우, /undo 명령어를 사용하여 해당 턴에서 발생한 파일 변경 사항을 되돌릴 수 있습니다.',
+  'ide.chat.help.tipSpecific': '• 구체적으로 작성하세요 — “이메일/비밀번호 및 Google OAuth를 지원하는 로그인 페이지 추가”가 “인증 기능 추가”보다 낫습니다.',
+  'ide.chat.help.tipUndo': '• AI 턴이 예상과 다르게 진행될 경우, /undo 명령어를 사용하여 해당 턴에서 발생한 파일 변경 사항을 되돌릴 수 있습니다.',
   'ide.chat.help.tipsHeading': '── 팁 ──',
   'ide.chat.report.heading': '오류 신고',
   'ide.chat.report.openReport': '오류 신고',
-  'ide.chat.report.subheading':
-    '무엇이 문제였는지, 혹은 어떤 내용을 원하시는지 알려주세요. 이 내용은 {{productName}} 팀에 전달됩니다.',
+  'ide.chat.report.subheading': '무엇이 문제였는지, 혹은 어떤 내용을 원하시는지 알려주세요. 이 내용은 {{productName}} 팀에 전달됩니다.',
   'ide.chat.report.titleLabel': '제목',
   'ide.chat.report.titlePlaceholder': '간략한 요약',
   'ide.chat.report.descriptionLabel': '설명',
@@ -470,8 +434,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': '저장 중…',
   'ide.chat.scripts.saveError': '스크립트를 저장할 수 없습니다. 다시 시도해 주세요.',
   'ide.chat.scripts.invalid': '스크립트에는 이름과 비어 있지 않은 본문이 필요합니다.',
-  'ide.chat.scripts.empty':
-    '아직 저장된 스크립트가 없습니다. 위에서 직접 작성하거나, {{agentName}}에 문의하여 작성 및 저장을 요청하세요.',
+  'ide.chat.scripts.empty': '아직 저장된 스크립트가 없습니다. 위에서 직접 작성하거나, {{agentName}}에 문의하여 작성 및 저장을 요청하세요.',
   'ide.chat.scripts.loading': '스크립트 불러오는 중…',
   'ide.chat.scripts.error': '이 프로젝트의 스크립트를 불러올 수 없습니다.',
   'ide.chat.scripts.noMatch': '“{{query}}”와 일치하는 스크립트가 없습니다.',
@@ -479,8 +442,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': '이 스크립트를 샌드박스에서 실행하세요',
   'ide.chat.scripts.running': '달리기…',
   'ide.chat.scripts.runError': '스크립트 실행에 실패했습니다.',
-  'ide.chat.scripts.runNone':
-    '아직 저장된 스크립트가 없습니다. 스크립트를 만들려면 /scripts를 열어주세요.',
+  'ide.chat.scripts.runNone': '아직 저장된 스크립트가 없습니다. 스크립트를 만들려면 /scripts를 열어주세요.',
   'ide.chat.scripts.runNotFound': '“{{name}}”라는 이름의 스크립트가 없습니다. 이용 가능: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} 종료됨 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} {{code}} 오류 코드로 종료됨',
@@ -505,8 +467,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': '프로젝트 공유',
-  'ide.chat.share.subheading':
-    '공개 링크를 생성하세요. 링크를 가진 사람은 누구나 지정한 권한을 갖게 됩니다. ‘보기 전용’ 링크는 읽기 전용입니다.',
+  'ide.chat.share.subheading': '공개 링크를 생성하세요. 링크를 가진 사람은 누구나 지정한 권한을 갖게 됩니다. ‘보기 전용’ 링크는 읽기 전용입니다.',
   'ide.chat.share.roleLabel': '역할',
   'ide.chat.share.create': '링크 만들기',
   'ide.chat.share.creating': '생성 중…',
@@ -518,26 +479,20 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.share.copied': '복사됨',
   'ide.chat.share.openLink': '링크 열기',
   'ide.chat.share.error': '공유 링크를 생성할 수 없습니다. 다시 시도해 주세요.',
-  'ide.chat.share.usage':
-    '사용법: /share [역할] — 공개 링크 생성. 역할: {{roles}} (기본값: viewer).',
+  'ide.chat.share.usage': '사용법: /share [역할] — 공개 링크 생성. 역할: {{roles}} (기본값: viewer).',
   'ide.chat.share.notAllowed': '공유 링크를 관리하려면 이 프로젝트에서 관리자 역할이 필요합니다.',
   'ide.chat.skills.heading': '기술',
   'ide.chat.skills.searchPlaceholder': '필터 기술…',
   'ide.chat.skills.load': '로드',
   'ide.chat.skills.loadTitle': '편집기에서 열고 컨텍스트로 첨부',
-  'ide.chat.skills.loaded':
-    '“{{name}}” 스킬이 로드되었습니다. — 편집기에서 열려 있으며 다음 메시지의 컨텍스트로 연결되었습니다.',
+  'ide.chat.skills.loaded': '“{{name}}” 스킬이 로드되었습니다. — 편집기에서 열려 있으며 다음 메시지의 컨텍스트로 연결되었습니다.',
   'ide.chat.skills.loading': '스킬 불러오는 중…',
   'ide.chat.skills.error': '이 프로젝트의 스킬을 불러올 수 없습니다.',
-  'ide.chat.skills.empty':
-    '이 프로젝트의 .agents/skills/ 디렉토리에서 해당 스킬을 찾을 수 없습니다.',
+  'ide.chat.skills.empty': '이 프로젝트의 .agents/skills/ 디렉토리에서 해당 스킬을 찾을 수 없습니다.',
   'ide.chat.skills.noMatch': '“{{query}}”과 일치하는 기술이 없습니다.',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -560,8 +515,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': '보고서를 제출할 수 없습니다. 다시 시도해 주세요.',
   'ide.chat.report.submitted': '감사합니다! 귀하의 제보가 {{productName}} 팀에 전달되었습니다.',
-  'ide.chat.report.submittedWithLink':
-    '감사합니다! 신고가 접수되었습니다. 링크된 이슈에서 진행 상황을 확인하실 수 있습니다.',
+  'ide.chat.report.submittedWithLink': '감사합니다! 신고가 접수되었습니다. 링크된 이슈에서 진행 상황을 확인하실 수 있습니다.',
   'ide.chat.settings.modelFollowsDefault': '기본 모델을 따릅니다',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -575,8 +529,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.skills.create': '만들기',
   'ide.chat.skills.cancel': '취소',
   'ide.chat.skills.createError': '스킬을 생성할 수 없습니다. 다시 시도해 주세요.',
-  'ide.chat.skills.created':
-    '“{{name}}” 스킬을 생성했습니다. 편집기가 열렸습니다. 설명과 단계를 입력하세요.',
+  'ide.chat.skills.created': '“{{name}}” 스킬을 생성했습니다. 편집기가 열렸습니다. 설명과 단계를 입력하세요.',
   'ide.chat.autoCommit.on': '자동 커밋 켜기',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -587,8 +540,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.preview.loadFailedHint': '페이지를 새로 고침하거나 새 탭에서 미리 보기를 열어보세요.',
   'ide.preview.reloadPreview': '미리보기 새로 고침',
   'ide.preview.lastWorkingFrame': '최종 작업 미리보기',
-  'ide.chat.effort.notSupportedForModel':
-    '{{level}} {{model}}에서는 사용할 수 없습니다. 이용 가능: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{level}} {{model}}에서는 사용할 수 없습니다. 이용 가능: {{levels}}',
   'ide.chat.modelSortLabel': '정렬',
   'ide.chat.modelSortDirection': '정렬 방향 전환',
   'ide.chat.skills.loadedBadge': '로드됨',
@@ -601,11 +553,9 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': '닫기',
   'ide.chat.retryCountdown': '서버 오류 — {{seconds}} 초 후에 재시도 중… ({{attempt}} 시도 중)',
   'ide.preview.blankTitle': '미리보기가 비어 있습니다',
-  'ide.preview.blankHint':
-    '앱이 로드되었지만 아무것도 표시되지 않았습니다. 오류가 발생한 것일 수 있습니다. Synthase 측에 해당 사항이 전달되었습니다. 페이지를 다시 로드하거나 새 탭에서 미리보기를 열어보세요.',
+  'ide.preview.blankHint': '앱이 로드되었지만 아무것도 표시되지 않았습니다. 오류가 발생한 것일 수 있습니다. Synthase 측에 해당 사항이 전달되었습니다. 페이지를 다시 로드하거나 새 탭에서 미리보기를 열어보세요.',
   'ide.chat.previewLinkTitle': '{{path}}를 미리보기에서 열기',
-  'ide.chat.report.diagnosticsNote':
-    '디버깅에 도움이 되도록 귀하의 앱 버전, 브라우저 및 화면 크기를 첨부했습니다.',
+  'ide.chat.report.diagnosticsNote': '디버깅에 도움이 되도록 귀하의 앱 버전, 브라우저 및 화면 크기를 첨부했습니다.',
   'ide.chat.skills.loadedCount': '🧠{{count}} 관련 전문 기술 보유',
   'ide.chat.skills.waitingForSandbox': '샌드박스 시작이 완료되기를 기다리고 있습니다…',
   'ide.chat.skills.resetDefaults': '기본적으로 모두 불러오기',
@@ -620,8 +570,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': '실행…',
   'ide.chat.scripts.required': '(필수)',
   'ide.chat.scripts.cancelRun': '취소',
-  'ide.chat.scripts.runNeedsOptions':
-    '“{{name}}”에 옵션이 필요합니다 — 설정하고 실행할 수 있도록 /scripts를 열었습니다.',
+  'ide.chat.scripts.runNeedsOptions': '“{{name}}”에 옵션이 필요합니다 — 설정하고 실행할 수 있도록 /scripts를 열었습니다.',
   'ide.chat.settings.effort.label': '추론 과정',
   'ide.chat.timestampsShown': '타임스탬프를 표시합니다.',
   'ide.chat.timestampsHidden': '타임스탬프를 숨겼습니다.',
@@ -644,8 +593,7 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': '앱',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': '프로젝트',
-  'ide.tests.e2eHint':
-    '이 기능들은 실시간 미리보기와 연동되어 작동하므로, 미리보기를 계속 열어두시기 바랍니다.',
+  'ide.tests.e2eHint': '이 기능들은 실시간 미리보기와 연동되어 작동하므로, 미리보기를 계속 열어두시기 바랍니다.',
   'ide.tests.showOutput': '출력 결과 표시',
   'ide.tests.hideOutput': '출력 숨기기',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -690,8 +638,8 @@ export const ko: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} 건뜬',
   'ide.tests.skippedByUser': '실행이 완료되었습니다. 건너뛴 테스트는 실행되지 않았습니다.',
   'ide.tests.viewerCannotSkip': '이 프로젝트의 테스트를 건너뛸 수 있는 사람은 편집자뿐입니다.',
-  'ide.toolCall.interruptedByRestart':
-    '이 단계는 재시작으로 인해 중단되었으며, 그 영향은 알 수 없습니다.',
+  'ide.toolCall.interruptedByRestart': '이 단계는 재시작으로 인해 중단되었으며, 그 영향은 알 수 없습니다.',
   'ide.toolCall.statusInterrupted': '중단된',
   'ide.chat.subagent.failedFallback': '이 하위 요원은 작업을 완료하기 전에 멈췄습니다.',
+  'ide.chat.viaDictation.badge': '음성으로 받아쓰기',
 }

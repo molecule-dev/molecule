@@ -3,14 +3,10 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for nl. */
 export const nl: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly':
-    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly':
-    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
-  'ide.chat.viewerReadOnlyCommand':
-    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote':
-    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
+  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Abonnementen bekijken',
   'ide.chat.fileCount': '{{count}} bestanden',
   'common.cancel': 'Annuleren',
@@ -109,8 +105,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Wijzigingsmodel',
   'ide.chat.increaseLoops': 'Verhoog het maximale aantal lussen',
   'ide.chat.continuePrompt': 'Ga verder waar je gebleven was.',
-  'guest.reminder.message':
-    'Meld u aan of log in om uw werk te bewaren – gastsessies verlopen na 72 uur.',
+  'guest.reminder.message': 'Meld u aan of log in om uw werk te bewaren – gastsessies verlopen na 72 uur.',
   'guest.reminder.logIn': 'Inloggen',
   'ide.chat.soundsError': 'Het bijwerken van de geluidsinstellingen is mislukt.',
   'ide.chat.commitFailed': 'Commit mislukt',
@@ -122,26 +117,23 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Overgeschakeld naar planmodus',
   'ide.chat.switchedToExecute': 'Overgeschakeld naar uitvoeringsmodus',
   'ide.chat.costError': 'Gebruiksgegevens kunnen niet worden opgehaald.',
-  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
-  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
+  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
+  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine':
-    'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint':
-    'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'piek ×{{multiplier}} nu',
   'ide.chat.models.peakLater': '×{{multiplier}} tijdens piekuren',
-  'ide.chat.models.peakHint':
-    'Dit model kost ×{{multiplier}} tussen {{windows}}. De rest van de dag geldt het normale tarief.',
+  'ide.chat.models.peakHint': 'Dit model kost ×{{multiplier}} tussen {{windows}}. De rest van de dag geldt het normale tarief.',
   'ide.chat.undoNoChanges': 'Er zijn geen bestandswijzigingen die ongedaan gemaakt kunnen worden.',
   'ide.chat.undoComplete': 'Wijzigingen ongedaan maken is mislukt.',
   'ide.chat.commitNoChanges': 'Geen wijzigingen om door te voeren.',
@@ -149,14 +141,10 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatische correctie ingeschakeld.',
   'ide.chat.autoFixDisabled': 'Automatische correctie uitgeschakeld.',
   'ide.chat.autoFixError': 'Het bijwerken van de automatische herstelinstelling is mislukt.',
-  'ide.chat.autoApproveEnabled':
-    'Automatisch goedkeuren aan — destructieve opdrachten worden uitgevoerd zonder te vragen. De exfiltratiebeveiliging vraagt nog steeds om bevestiging. Zet uit met /autoapprove.',
-  'ide.chat.autoApproveDisabled':
-    'Automatisch goedkeuren uit — destructieve opdrachten vragen om bevestiging voordat ze worden uitgevoerd.',
-  'ide.chat.autoApproveError':
-    'Het bijwerken van de instelling voor automatisch goedkeuren is mislukt.',
-  'ide.chat.modelUsage':
-    'Gebruik: /model<model-name> (bijv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.autoApproveEnabled': 'Automatisch goedkeuren aan — destructieve opdrachten worden uitgevoerd zonder te vragen. De exfiltratiebeveiliging vraagt nog steeds om bevestiging. Zet uit met /autoapprove.',
+  'ide.chat.autoApproveDisabled': 'Automatisch goedkeuren uit — destructieve opdrachten vragen om bevestiging voordat ze worden uitgevoerd.',
+  'ide.chat.autoApproveError': 'Het bijwerken van de instelling voor automatisch goedkeuren is mislukt.',
+  'ide.chat.modelUsage': 'Gebruik: /model<model-name> (bijv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Het maximale aantal herhalingen is bereikt.',
   'ide.chat.maxLoopsError': 'Het bijwerken van het maximale aantal tooliteraties is mislukt.',
   'ide.chat.dropFilesHere': 'Sleep bestanden hierheen',
@@ -187,8 +175,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.contextMenu.copyRelativePath': 'Relatief pad kopiëren',
   'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': 'Toetsenbord sneltoetsen',
-  'ide.shortcuts.hint':
-    'Gebruik de pijltjestoetsen om te navigeren · Enter om te starten · Esc om te sluiten',
+  'ide.shortcuts.hint': 'Gebruik de pijltjestoetsen om te navigeren · Enter om te starten · Esc om te sluiten',
   'ide.preview.starting': 'Voorbeeldweergave laden...',
   'ide.preview.restarting': 'Voorbeeldweergave laden...',
   'ide.preview.retryCount': 'Opnieuw proberen {{count}}',
@@ -255,13 +242,11 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} reageerde niet meer',
   'ide.chat.soundEventDesc.error': 'Er is iets misgegaan tijdens een reactie.',
-  'ide.chat.soundEventDesc.tool_result':
-    'Een toolaanroep (bestand lezen, commando, enz.) is voltooid.',
+  'ide.chat.soundEventDesc.tool_result': 'Een toolaanroep (bestand lezen, commando, enz.) is voltooid.',
   'ide.chat.soundEventDesc.file_diff': 'Er is een bestand aangemaakt of gewijzigd.',
   'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} stelt bestanden voor om te committen',
   'ide.chat.soundEventDesc.mode': 'Geschakeld tussen planningsmodus en uitvoeringsmodus.',
-  'ide.chat.soundEventDesc.loop_limit_reached':
-    'Het maximale aantal iteraties van de tool is bereikt.',
+  'ide.chat.soundEventDesc.loop_limit_reached': 'Het maximale aantal iteraties van de tool is bereikt.',
   'ide.chat.soundEventDesc.verification_result': 'Lint- of typecontrole is voltooid.',
   'ide.chat.soundEventDesc.preview_error': 'Er is een fout opgetreden tijdens het livevoorbeeld.',
   'ide.chat.voice': 'Stem',
@@ -270,8 +255,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Dicteren wordt voorbereid — de eerste keer kan dit even duren.',
   'ide.chat.voiceTranscribeFailed': 'Transcriptie mislukt.',
   'ide.chat.voiceEngineTitle': 'Dicteermotor',
-  'ide.chat.voiceEnginePrivacy':
-    'Elke optie draait op je apparaat — audio verlaat nooit je browser.',
+  'ide.chat.voiceEnginePrivacy': 'Elke optie draait op je apparaat — audio verlaat nooit je browser.',
   'ide.chat.voiceEngineNoDownload': 'geen download',
   'ide.chat.voiceEngineDownload': '~{{mb}} MB download, daarna gecachet',
   'ide.chat.voiceEngineDownloadRange': '~{{min}}–{{max}} MB download, daarna gecachet',
@@ -309,16 +293,14 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tabs.close': 'Dichtbij {{fileName}}',
   'ide.search.caseSensitive': 'Lucifersdoosje',
   'ide.search.noResults': 'Geen resultaten gevonden',
-  'ide.search.resultsTruncated':
-    '{{count}} resulteert in bestanden met de extensie {{files}} (afgekort)',
+  'ide.search.resultsTruncated': '{{count}} resulteert in bestanden met de extensie {{files}} (afgekort)',
   'ide.preview.back': 'Terug',
   'ide.preview.forward': 'Doorsturen',
   'ide.preview.urlBar': 'Voorbeeld-URL',
   'ide.preview.secure': 'Beveiligd (HTTPS)',
   'ide.preview.address': 'Voorbeeldadres',
   'ide.preview.updating': 'Bijwerken',
-  'ide.preview.frozen':
-    'Deze app reageert niet meer — een eindeloze lus of een uit de hand gelopen weergave heeft het voorbeeld vastgelopen. De IDE ondervindt hier geen hinder van.',
+  'ide.preview.frozen': 'Deze app reageert niet meer — een eindeloze lus of een uit de hand gelopen weergave heeft het voorbeeld vastgelopen. De IDE ondervindt hier geen hinder van.',
   'ide.preview.frozenReload': 'App opnieuw laden',
   'ide.search.results': '{{count}} resulteert in bestanden met de extensie {{files}}',
   'ide.activity.cardAria': 'Geregistreerde activiteiten bekijken',
@@ -350,30 +332,21 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Instellingen',
   'ide.chat.tip.dismiss': 'Tip negeren',
-  'ide.chat.tip.getStarted':
-    'Tip: typ / om alle opdrachten te bekijken, of @ gevolgd door een bestandsnaam om `{{agentName}}` een bestand te geven om mee te werken.',
-  'ide.chat.tip.mention':
-    'Tip: typ @bestandsnaam om een projectbestand als context bij te voegen — {{agentName}} leest het direct.',
+  'ide.chat.tip.getStarted': 'Tip: typ / om alle opdrachten te bekijken, of @ gevolgd door een bestandsnaam om `{{agentName}}` een bestand te geven om mee te werken.',
+  'ide.chat.tip.mention': 'Tip: typ @bestandsnaam om een projectbestand als context bij te voegen — {{agentName}} leest het direct.',
   'ide.chat.tip.slash': 'Tip: typ / om alle commando’s te bekijken (commit, diff, model en meer).',
-  'ide.chat.tip.plan':
-    "Tip: gebruik /plan om '{{agentName}}' een plan te laten onderzoeken en voorstellen voordat het bestanden bewerkt.",
-  'ide.chat.tip.undo':
-    'Tip: gebruik /undo om de bestandswijzigingen van de laatste AI-beurt onmiddellijk ongedaan te maken als het mis is gegaan.',
-  'ide.chat.tip.compact':
-    'Tip: lang gesprek? /compact vouwt de context samen, zodat je ruimte overhoudt om te werken.',
-  'ide.chat.tip.commit':
-    'Tip: gebruik /commit om je wijzigingen op te slaan als een Git-commit waarnaar je altijd terug kunt gaan.',
-  'ide.chat.tip.report':
-    'Tip: klopt er iets niet? Met /report stuur je een bugmelding of feedback naar het team, waarbij je recente chatgesprek wordt bijgevoegd.',
+  'ide.chat.tip.plan': 'Tip: gebruik /plan om \'{{agentName}}\' een plan te laten onderzoeken en voorstellen voordat het bestanden bewerkt.',
+  'ide.chat.tip.undo': 'Tip: gebruik /undo om de bestandswijzigingen van de laatste AI-beurt onmiddellijk ongedaan te maken als het mis is gegaan.',
+  'ide.chat.tip.compact': 'Tip: lang gesprek? /compact vouwt de context samen, zodat je ruimte overhoudt om te werken.',
+  'ide.chat.tip.commit': 'Tip: gebruik /commit om je wijzigingen op te slaan als een Git-commit waarnaar je altijd terug kunt gaan.',
+  'ide.chat.tip.report': 'Tip: klopt er iets niet? Met /report stuur je een bugmelding of feedback naar het team, waarbij je recente chatgesprek wordt bijgevoegd.',
   'ide.chat.undoError': 'Het is niet gelukt om de wijzigingen ongedaan te maken.',
   'ide.chat.autoCommit.badge': 'Automatisch vastleggen in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Automatisch opslaan annuleren',
   'ide.chat.autoCommit.cancelled': 'Automatische bevestiging geannuleerd.',
-  'ide.chat.autoCommit.enabled':
-    'Automatisch vastleggen ingeschakeld: er wordt {{seconds}}en na de laatste bestandswijziging vastgelegd. Stel /autocommit 0 in om deze functie uit te schakelen.',
+  'ide.chat.autoCommit.enabled': 'Automatisch vastleggen ingeschakeld: er wordt {{seconds}}en na de laatste bestandswijziging vastgelegd. Stel /autocommit 0 in om deze functie uit te schakelen.',
   'ide.chat.effort.error': 'Het bijwerken van de redenering is mislukt.',
-  'ide.chat.effort.fixedForModel':
-    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -388,20 +361,17 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Gratis',
   'ide.chat.models.sortBy': 'Sorteren op {{column}}',
   'ide.chat.modelsLoading': 'Modellen worden geladen…',
-  'ide.chat.modelsNone':
-    'Er zijn nog geen modellen beschikbaar — vraag je beheerder om een AI-provider aan te sluiten.',
+  'ide.chat.modelsNone': 'Er zijn nog geen modellen beschikbaar — vraag je beheerder om een AI-provider aan te sluiten.',
   'ide.chat.modelInUse': 'Nu via {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved':
-    'Het door u geselecteerde model "{{removed}}" is niet meer beschikbaar. Er is overgeschakeld naar "{{fallback}}". Typ /model om een ander model te kiezen.',
-  'ide.chat.modelRemovedNoFallback':
-    'Het door u geselecteerde model "{{removed}}" is niet langer beschikbaar en er is geen vervangend model op de server gekoppeld. Vraag uw beheerder om een AI-provider aan te sluiten.',
+  'ide.chat.modelRemoved': 'Het door u geselecteerde model "{{removed}}" is niet meer beschikbaar. Er is overgeschakeld naar "{{fallback}}". Typ /model om een ander model te kiezen.',
+  'ide.chat.modelRemovedNoFallback': 'Het door u geselecteerde model "{{removed}}" is niet langer beschikbaar en er is geen vervangend model op de server gekoppeld. Vraag uw beheerder om een AI-provider aan te sluiten.',
   'ide.chat.olderModelsCollapse': 'Oudere modellen ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Oudere modellen ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Selecteer een model in uitvoermodus',
   'ide.chat.selectPlanModel': 'Selecteer een model in planmodus',
-  'ide.chat.executeModelSet': "Model in uitvoermodus ingesteld op '{{name}}'",
-  'ide.chat.planModelSet': "Model in planmodus ingesteld op '{{name}}'",
+  'ide.chat.executeModelSet': 'Model in uitvoermodus ingesteld op \'{{name}}\'',
+  'ide.chat.planModelSet': 'Model in planmodus ingesteld op \'{{name}}\'',
   'ide.chat.selectCommitModel': 'Select commit-message model',
   'ide.chat.selectCompactModel': 'Select compaction model',
   'ide.chat.commitModelSet': 'Commit-message model set to {{name}}',
@@ -417,43 +387,31 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit':
-    'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint':
-    'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} fouten in de code',
   'ide.chat.lintWarningsCount': '{{count}} waarschuwingen',
   'ide.chat.typeErrorsCount': '{{count}} typefouten',
-  'ide.chat.help.commandsHeading': "── Commando's ──",
-  'ide.chat.help.intro':
-    '{{agentName}} {{productName}} is een AI-codeeragent. Beschrijf wat je wilt bouwen en hij helpt je met het opzetten, coderen en bijwerken.',
+  'ide.chat.help.commandsHeading': '── Commando\'s ──',
+  'ide.chat.help.intro': '{{agentName}} {{productName}} is een AI-codeeragent. Beschrijf wat je wilt bouwen en hij helpt je met het opzetten, coderen en bijwerken.',
   'ide.chat.help.introHeading': '── Aan de slag ──',
-  'ide.chat.help.modeDiscovery':
-    'Ontdekking — hier beginnen nieuwe gesprekken. Bij ‘{{agentName}}’ worden verduidelijkende vragen gesteld om de vereisten vast te stellen voordat er ook maar één regel code wordt geschreven.',
-  'ide.chat.help.modeExecute':
-    'Uitvoeren — de standaardwerkmodus. De functie `{{agentName}}` schrijft code, voert tools uit, past wijzigingen toe en controleert deze vervolgens.',
-  'ide.chat.help.modePlan':
-    'Plan — {{agentName}} analyseert de codebase en stelt een plan voor ZONDER bestanden te bewerken. Schakel deze modus in met /plan. Het meest geschikt voor grote of risicovolle wijzigingen.',
+  'ide.chat.help.modeDiscovery': 'Ontdekking — hier beginnen nieuwe gesprekken. Bij ‘{{agentName}}’ worden verduidelijkende vragen gesteld om de vereisten vast te stellen voordat er ook maar één regel code wordt geschreven.',
+  'ide.chat.help.modeExecute': 'Uitvoeren — de standaardwerkmodus. De functie `{{agentName}}` schrijft code, voert tools uit, past wijzigingen toe en controleert deze vervolgens.',
+  'ide.chat.help.modePlan': 'Plan — {{agentName}} analyseert de codebase en stelt een plan voor ZONDER bestanden te bewerken. Schakel deze modus in met /plan. Het meest geschikt voor grote of risicovolle wijzigingen.',
   'ide.chat.help.modesHeading': '── Modi ──',
-  'ide.chat.help.shortcuts':
-    'Druk op Cmd+/ (Ctrl+/ op Windows/Linux) om alle sneltoetsen te bekijken.',
-  'ide.chat.help.tipCompact':
-    '• Gebruik /compact om de chat te comprimeren als het gesprek lang wordt.',
-  'ide.chat.help.tipPlan':
-    "• Gebruik /plan om eerst een analyse uit te voeren met de optie '{{agentName}}' voordat je wijzigingen doorvoert.",
+  'ide.chat.help.shortcuts': 'Druk op Cmd+/ (Ctrl+/ op Windows/Linux) om alle sneltoetsen te bekijken.',
+  'ide.chat.help.tipCompact': '• Gebruik /compact om de chat te comprimeren als het gesprek lang wordt.',
+  'ide.chat.help.tipPlan': '• Gebruik /plan om eerst een analyse uit te voeren met de optie \'{{agentName}}\' voordat je wijzigingen doorvoert.',
   'ide.chat.help.tipSlash': '• Typ / om alle bovenstaande opdrachten te bekijken.',
-  'ide.chat.help.tipSpecific':
-    '• Wees concreet — "Voeg een inlogpagina toe met e-mailadres/wachtwoord en Google OAuth" is beter dan "voeg authenticatie toe".',
-  'ide.chat.help.tipUndo':
-    '• Gebruik /undo om de bestandswijzigingen van de laatste AI-beurt ongedaan te maken als die uit de hand loopt.',
+  'ide.chat.help.tipSpecific': '• Wees concreet — "Voeg een inlogpagina toe met e-mailadres/wachtwoord en Google OAuth" is beter dan "voeg authenticatie toe".',
+  'ide.chat.help.tipUndo': '• Gebruik /undo om de bestandswijzigingen van de laatste AI-beurt ongedaan te maken als die uit de hand loopt.',
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Een fout melden',
   'ide.chat.report.openReport': 'Een fout melden',
-  'ide.chat.report.subheading':
-    'Laat ons weten wat er mis is gegaan of wat je graag zou willen zien. Je bericht wordt doorgestuurd naar het team van {{productName}}.',
+  'ide.chat.report.subheading': 'Laat ons weten wat er mis is gegaan of wat je graag zou willen zien. Je bericht wordt doorgestuurd naar het team van {{productName}}.',
   'ide.chat.report.titleLabel': 'Titel',
   'ide.chat.report.titlePlaceholder': 'Korte samenvatting',
   'ide.chat.report.descriptionLabel': 'Beschrijving',
@@ -476,8 +434,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Bezig met opslaan…',
   'ide.chat.scripts.saveError': 'Het script kon niet worden opgeslagen. Probeer het nog eens.',
   'ide.chat.scripts.invalid': 'Een script moet een naam hebben en een niet-lege inhoud.',
-  'ide.chat.scripts.empty':
-    'Er zijn nog geen scripts opgeslagen. Maak er hierboven een aan, of vraag {{agentName}} om er een te schrijven en op te slaan.',
+  'ide.chat.scripts.empty': 'Er zijn nog geen scripts opgeslagen. Maak er hierboven een aan, of vraag {{agentName}} om er een te schrijven en op te slaan.',
   'ide.chat.scripts.loading': 'Scripts worden geladen…',
   'ide.chat.scripts.error': 'De scripts voor dit project konden niet worden geladen.',
   'ide.chat.scripts.noMatch': 'Er zijn geen scripts gevonden die overeenkomen met "{{query}}".',
@@ -485,10 +442,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Voer dit script uit in de sandbox',
   'ide.chat.scripts.running': 'Rennen…',
   'ide.chat.scripts.runError': 'Het script kon niet worden uitgevoerd.',
-  'ide.chat.scripts.runNone':
-    'Er zijn nog geen scripts opgeslagen. Open /scripts om er een aan te maken.',
-  'ide.chat.scripts.runNotFound':
-    'Er is geen script met de naam „{{name}}“. Beschikbaar: {{names}}',
+  'ide.chat.scripts.runNone': 'Er zijn nog geen scripts opgeslagen. Open /scripts om er een aan te maken.',
+  'ide.chat.scripts.runNotFound': 'Er is geen script met de naam „{{name}}“. Beschikbaar: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} uitgestapt 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} afgesloten met fout{{code}}',
   'ide.chat.scripts.exitOk': 'Afsluiten 0',
@@ -512,8 +467,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Project delen',
-  'ide.chat.share.subheading':
-    'Maak een openbare link aan. Iedereen met de link krijgt de rol die je kiest — een kijkerlink is alleen-lezen.',
+  'ide.chat.share.subheading': 'Maak een openbare link aan. Iedereen met de link krijgt de rol die je kiest — een kijkerlink is alleen-lezen.',
   'ide.chat.share.roleLabel': 'Functie',
   'ide.chat.share.create': 'Link aanmaken',
   'ide.chat.share.creating': 'Bezig met laden…',
@@ -525,27 +479,20 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Gekopieerd',
   'ide.chat.share.openLink': 'Klik op de link',
   'ide.chat.share.error': 'De deelkoppeling kon niet worden aangemaakt. Probeer het nog eens.',
-  'ide.chat.share.usage':
-    'Gebruik: /share [rol] — maak een openbare link aan. Rollen: {{roles}} (standaard: viewer).',
-  'ide.chat.share.notAllowed':
-    'Voor het beheren van deellinks is een beheerdersrol in dit project vereist.',
+  'ide.chat.share.usage': 'Gebruik: /share [rol] — maak een openbare link aan. Rollen: {{roles}} (standaard: viewer).',
+  'ide.chat.share.notAllowed': 'Voor het beheren van deellinks is een beheerdersrol in dit project vereist.',
   'ide.chat.skills.heading': 'Vaardigheden',
   'ide.chat.skills.searchPlaceholder': 'Vaardigheden filteren…',
   'ide.chat.skills.load': 'Laden',
   'ide.chat.skills.loadTitle': 'Openen in editor en toevoegen als context',
-  'ide.chat.skills.loaded':
-    "De vaardigheid '{{name}}' is geladen — deze is geopend in de editor en toegevoegd als context voor je volgende bericht.",
+  'ide.chat.skills.loaded': 'De vaardigheid \'{{name}}\' is geladen — deze is geopend in de editor en toegevoegd als context voor je volgende bericht.',
   'ide.chat.skills.loading': 'Vaardigheden worden geladen…',
   'ide.chat.skills.error': 'De vaardigheden voor dit project konden niet worden geladen.',
-  'ide.chat.skills.empty':
-    'Er zijn geen vaardigheden gevonden in .agents/skills/ voor dit project.',
+  'ide.chat.skills.empty': 'Er zijn geen vaardigheden gevonden in .agents/skills/ voor dit project.',
   'ide.chat.skills.noMatch': 'Er zijn geen vaardigheden die overeenkomen met "{{query}}".',
-  'ide.chat.autoCommit.usage':
-    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage':
-    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention':
-    '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -562,15 +509,13 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.streaming.connecting': 'De verbanden leggen...',
   'ide.chat.streaming.almostThere': 'We zijn er bijna...',
   'ide.chat.help.card.heading': 'Help',
-  'ide.chat.help.card.commandsTitle': "Commando's",
+  'ide.chat.help.card.commandsTitle': 'Commando\'s',
   'ide.chat.help.card.modesTitle': 'Modi',
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Je melding kon niet worden verzonden. Probeer het nog eens.',
-  'ide.chat.report.submitted':
-    'Bedankt! Je melding is doorgestuurd naar het team van {{productName}}.',
-  'ide.chat.report.submittedWithLink':
-    'Bedankt! Je melding is verzonden — je kunt de voortgang volgen via de bijgevoegde link.',
+  'ide.chat.report.submitted': 'Bedankt! Je melding is doorgestuurd naar het team van {{productName}}.',
+  'ide.chat.report.submittedWithLink': 'Bedankt! Je melding is verzonden — je kunt de voortgang volgen via de bijgevoegde link.',
   'ide.chat.settings.modelFollowsDefault': 'Volgt het standaardmodel',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -583,10 +528,8 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.newPlaceholder': 'Nieuwe vaardigheidsnaam…',
   'ide.chat.skills.create': 'Maken',
   'ide.chat.skills.cancel': 'Annuleren',
-  'ide.chat.skills.createError':
-    'De vaardigheid kon niet worden aangemaakt — probeer het nog eens.',
-  'ide.chat.skills.created':
-    'De vaardigheid "{{name}}" is aangemaakt — deze is geopend in de editor. Vul de beschrijving en de stappen in.',
+  'ide.chat.skills.createError': 'De vaardigheid kon niet worden aangemaakt — probeer het nog eens.',
+  'ide.chat.skills.created': 'De vaardigheid "{{name}}" is aangemaakt — deze is geopend in de editor. Vul de beschrijving en de stappen in.',
   'ide.chat.autoCommit.on': 'Automatisch vastleggen ingeschakeld',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -594,12 +537,10 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Het voorbeeld kan hier niet worden geladen',
-  'ide.preview.loadFailedHint':
-    'Probeer de pagina opnieuw te laden, of open het voorbeeld in een nieuw tabblad.',
+  'ide.preview.loadFailedHint': 'Probeer de pagina opnieuw te laden, of open het voorbeeld in een nieuw tabblad.',
   'ide.preview.reloadPreview': 'Voorbeeld vernieuwen',
   'ide.preview.lastWorkingFrame': 'Laatste werkvoorbeeld',
-  'ide.chat.effort.notSupportedForModel':
-    '{{level}} is niet beschikbaar via {{model}}. Beschikbaar via: {{levels}}',
+  'ide.chat.effort.notSupportedForModel': '{{level}} is niet beschikbaar via {{model}}. Beschikbaar via: {{levels}}',
   'ide.chat.modelSortLabel': 'Sorteren',
   'ide.chat.modelSortDirection': 'Sorteerrichting wijzigen',
   'ide.chat.skills.loadedBadge': 'Geladen',
@@ -610,33 +551,26 @@ export const nl: Partial<IdeTranslations> = {
   'ide.device.select': 'Apparaatframe',
   'ide.device.rotate': 'Draaien',
   'ide.chat.closeOverlay': 'Sluiten',
-  'ide.chat.retryCountdown':
-    'Serverfout — wordt opnieuw geprobeerd over {{seconds}} s… (poging {{attempt}})',
+  'ide.chat.retryCountdown': 'Serverfout — wordt opnieuw geprobeerd over {{seconds}} s… (poging {{attempt}})',
   'ide.preview.blankTitle': 'Het voorbeeld is leeg',
-  'ide.preview.blankHint':
-    'De app is geladen, maar er wordt niets weergegeven — er is mogelijk een fout opgetreden. Synthase is hiervan op de hoogte gesteld. Je kunt de pagina opnieuw laden of het voorbeeld in een nieuw tabblad openen.',
+  'ide.preview.blankHint': 'De app is geladen, maar er wordt niets weergegeven — er is mogelijk een fout opgetreden. Synthase is hiervan op de hoogte gesteld. Je kunt de pagina opnieuw laden of het voorbeeld in een nieuw tabblad openen.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in het voorbeeldvenster',
-  'ide.chat.report.diagnosticsNote':
-    'De versie van je app, je browser en je schermgrootte zijn bijgevoegd om ons te helpen bij het opsporen van fouten.',
+  'ide.chat.report.diagnosticsNote': 'De versie van je app, je browser en je schermgrootte zijn bijgevoegd om ons te helpen bij het opsporen van fouten.',
   'ide.chat.skills.loadedCount': '🧠 Uitgebreide kennis v{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Wachten tot de sandbox is opgestart…',
   'ide.chat.skills.resetDefaults': 'Standaard alles laden',
-  'ide.search.excludedDirs':
-    'Uitgesloten mappen (geldt voor alle zoekopdrachten, inclusief die van de agent)',
-  'ide.chat.costStreamingNote':
-    'Lopend totaal — inclusief het antwoord dat momenteel wordt gestreamd.',
+  'ide.search.excludedDirs': 'Uitgesloten mappen (geldt voor alle zoekopdrachten, inclusief die van de agent)',
+  'ide.chat.costStreamingNote': 'Lopend totaal — inclusief het antwoord dat momenteel wordt gestreamd.',
   'ide.toolCall.packageCount': '{{count}} pakketten',
   'ide.toolCall.openPackageDoc': 'Documentatie van het pakket openen',
   'ide.chat.fastModeOn': 'Snelle modus ingeschakeld — snellere reacties bij een hogere snelheid',
   'ide.chat.fastModeOff': 'Snelle modus uitgeschakeld',
-  'ide.chat.fastModeEnable':
-    'Snelle modus — tot 2,5× snellere uitvoer bij een hogere tokenfrequentie',
+  'ide.chat.fastModeEnable': 'Snelle modus — tot 2,5× snellere uitvoer bij een hogere tokenfrequentie',
   'ide.chat.fastModeDisable': 'Schakel de snelle modus uit',
   'ide.chat.scripts.runWithOptions': 'Uitvoeren…',
   'ide.chat.scripts.required': '(vereist)',
   'ide.chat.scripts.cancelRun': 'Annuleren',
-  'ide.chat.scripts.runNeedsOptions':
-    '“{{name}}” heeft opties nodig — /scripts geopend zodat je ze kunt instellen en Uitvoeren.',
+  'ide.chat.scripts.runNeedsOptions': '“{{name}}” heeft opties nodig — /scripts geopend zodat je ze kunt instellen en Uitvoeren.',
   'ide.chat.settings.effort.label': 'Redeneringsinspanning',
   'ide.chat.timestampsShown': 'Tijdstempels weergegeven.',
   'ide.chat.timestampsHidden': 'Tijdstempels verborgen.',
@@ -659,8 +593,7 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'App',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Project',
-  'ide.tests.e2eHint':
-    'Deze worden naast het live-voorbeeld weergegeven, dus houd het voorbeeld open.',
+  'ide.tests.e2eHint': 'Deze worden naast het live-voorbeeld weergegeven, dus houd het voorbeeld open.',
   'ide.tests.showOutput': 'Weergave van de uitvoer',
   'ide.tests.hideOutput': 'Uitvoer verbergen',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -703,11 +636,10 @@ export const nl: Partial<IdeTranslations> = {
   'ide.tests.skip': 'Overslaan',
   'ide.tests.skipping': 'Overslaan…',
   'ide.tests.skippedCount': '{{count}} overgeslagen',
-  'ide.tests.skippedByUser':
-    'De uitvoering is voltooid. De tests die je hebt overgeslagen, zijn niet uitgevoerd.',
+  'ide.tests.skippedByUser': 'De uitvoering is voltooid. De tests die je hebt overgeslagen, zijn niet uitgevoerd.',
   'ide.tests.viewerCannotSkip': 'Alleen redacteuren kunnen de tests van dit project overslaan.',
-  'ide.toolCall.interruptedByRestart':
-    'Deze stap werd onderbroken door een herstart; het effect hiervan is onbekend.',
+  'ide.toolCall.interruptedByRestart': 'Deze stap werd onderbroken door een herstart; het effect hiervan is onbekend.',
   'ide.toolCall.statusInterrupted': 'Onderbroken',
   'ide.chat.subagent.failedFallback': 'Deze subagent is gestopt voordat hij klaar was.',
+  'ide.chat.viaDictation.badge': 'Gedicteerd door de stem',
 }
