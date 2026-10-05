@@ -66,6 +66,17 @@ export interface SubscriptionUpdateParams {
     quantity?: number
   }>
   cancel_at_period_end?: boolean
+  /**
+   * How Stripe bills the change. `'always_invoice'` charges (or credits) the prorated difference
+   * immediately instead of deferring it to the next renewal invoice.
+   */
+  proration_behavior?: 'create_prorations' | 'always_invoice' | 'none'
+  /**
+   * What Stripe does when the charge for the change fails. `'error_if_incomplete'` rejects the
+   * update, so nothing changes on the subscription.
+   */
+  payment_behavior?:
+    'allow_incomplete' | 'default_incomplete' | 'error_if_incomplete' | 'pending_if_incomplete'
 }
 
 /**

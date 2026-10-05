@@ -144,7 +144,16 @@ export function createMigrator(migrationsDir: string): () => Promise<void> {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error(`✗ Could not connect to database: ${msg}`)
-      console.error(`  Check DATABASE_URL in .env: ${databaseUrl}`)
+      // Never the URL itself: it carries the database password (and this output lands in CI and
+      // deploy logs). Host and database name are enough to find the setting.
+      let target = 'DATABASE_URL'
+      try {
+        const u = new URL(databaseUrl)
+        target = `DATABASE_URL (${u.host}${u.pathname})`
+      } catch (_error) {
+        // not a parseable URL: keep the generic name
+      }
+      console.error(`  Check ${target} in .env`)
       throw err
     }
 

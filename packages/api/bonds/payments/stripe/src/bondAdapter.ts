@@ -309,8 +309,35 @@ export const paymentProvider: PaymentProvider = {
           // Existing subscription found — update it with the new price.
           const subscription = await getSubscription(subscriptionId)
 
-          if (subscription?.items?.data?.[0]?.id) {
+          // A plan change is a purchase, so it needs a subscription that is paid up (R134-H1).
+          // A past-due, unpaid or incomplete one has a renewal that already failed (or a first
+          // payment that never landed): changing its price would hand the buyer the paid plan
+          // and a fresh period end without a payment. Refused — and NOT sent to a second
+          // checkout, which would start a second subscription beside the unpaid one. A
+          // subscription that is already over (canceled, incomplete_expired) falls through to a
+          // new checkout, as before.
+          const status = subscription?.status as string | undefined
+          if (
+            status &&
+            !['active', 'trialing', 'canceled', 'incomplete_expired'].includes(status)
+          ) {
+            logger.warn('Plan change refused: the subscription is not paid up', {
+              userId: params.userId,
+              status,
+            })
+            return { updated: false }
+          }
+
+          if (
+            subscription?.items?.data?.[0]?.id &&
+            (status === 'active' || status === 'trialing' || status === undefined)
+          ) {
             const updatedSubscription = await stripeUpdateSubscription(subscriptionId, {
+              // Charge (or credit) the difference NOW and fail the whole update if the charge fails:
+              // the default defers the prorated amount to the next renewal invoice, so an upgrade
+              // would be granted before anything was paid (R134-H1).
+              proration_behavior: 'always_invoice',
+              payment_behavior: 'error_if_incomplete',
               items: [
                 {
                   id: subscription.items.data[0].id,

@@ -1116,6 +1116,8 @@ describe('Stripe Bond Adapter', () => {
       expect(mockFindByUserId).toHaveBeenCalledWith('user_with_sub', 'stripe')
       expect(mockGetSubscription).toHaveBeenCalledWith('sub_existing')
       expect(mockStripeUpdateSubscription).toHaveBeenCalledWith('sub_existing', {
+        proration_behavior: 'always_invoice',
+        payment_behavior: 'error_if_incomplete',
         items: [
           {
             id: 'si_existing_item',
@@ -1149,6 +1151,8 @@ describe('Stripe Bond Adapter', () => {
       })
 
       expect(mockStripeUpdateSubscription).toHaveBeenCalledWith('sub_existing', {
+        proration_behavior: 'always_invoice',
+        payment_behavior: 'error_if_incomplete',
         items: [{ id: 'si_existing_item', price: 'price_team', quantity: 5 }],
       })
     })
@@ -1175,8 +1179,79 @@ describe('Stripe Bond Adapter', () => {
       })
 
       expect(mockStripeUpdateSubscription).toHaveBeenCalledWith('sub_existing', {
+        proration_behavior: 'always_invoice',
+        payment_behavior: 'error_if_incomplete',
         items: [{ id: 'si_existing_item', price: 'price_flat_plan', quantity: 1 }],
       })
+    })
+
+    describe('a plan change is a purchase (R134-H1)', () => {
+      const withStatus = (status: string): void => {
+        mockFindByUserId.mockResolvedValue({ data: { subscriptionId: 'sub_existing' } })
+        mockGetSubscription.mockResolvedValue({
+          ...mockSubscriptionResult,
+          id: 'sub_existing',
+          status,
+          items: { data: [{ id: 'si_existing_item', price: { product: 'prod_old_plan' } }] },
+        })
+        mockStripeUpdateSubscription.mockResolvedValue({
+          ...mockSubscriptionResult,
+          id: 'sub_existing',
+          items: { data: [{ id: 'si_existing_item' }] },
+          cancel_at_period_end: false,
+        })
+      }
+
+      it('charges the difference now and fails the update when the charge fails', async () => {
+        withStatus('active')
+        const { paymentProvider } = await import('../bondAdapter.js')
+        await paymentProvider.updateSubscription!({ userId: 'u', newProductId: 'price_up' })
+        const sent = mockStripeUpdateSubscription.mock.calls.at(-1)![1] as Record<string, unknown>
+        expect(sent.proration_behavior).toBe('always_invoice')
+        expect(sent.payment_behavior).toBe('error_if_incomplete')
+      })
+
+      it('also updates a trialing subscription', async () => {
+        withStatus('trialing')
+        const { paymentProvider } = await import('../bondAdapter.js')
+        expect(
+          (await paymentProvider.updateSubscription!({ userId: 'u', newProductId: 'p' })).updated,
+        ).toBe(true)
+      })
+
+      it.each(['past_due', 'unpaid', 'incomplete', 'paused'])(
+        'refuses to change a %s subscription — no update, and no second checkout beside it',
+        async (status) => {
+          withStatus(status)
+          mockStripeUpdateSubscription.mockClear()
+          mockCreateCheckoutSession.mockClear()
+          const { paymentProvider } = await import('../bondAdapter.js')
+          const result = await paymentProvider.updateSubscription!({
+            userId: 'u',
+            newProductId: 'price_up',
+          })
+          expect(result).toEqual({ updated: false })
+          expect(mockStripeUpdateSubscription).not.toHaveBeenCalled()
+          expect(mockCreateCheckoutSession).not.toHaveBeenCalled()
+        },
+      )
+
+      it.each(['canceled', 'incomplete_expired'])(
+        'a %s subscription is over: the buyer goes to a new checkout, nothing is updated',
+        async (status) => {
+          withStatus(status)
+          mockStripeUpdateSubscription.mockClear()
+          mockCreateCheckoutSession.mockClear()
+          const { paymentProvider } = await import('../bondAdapter.js')
+          const result = await paymentProvider.updateSubscription!({
+            userId: 'u',
+            newProductId: 'price_up',
+          })
+          expect(mockStripeUpdateSubscription).not.toHaveBeenCalled()
+          expect(mockCreateCheckoutSession).toHaveBeenCalled()
+          expect(result.checkoutUrl).toBeTruthy()
+        },
+      )
     })
 
     it('should return subscription details when updating an existing subscription', async () => {

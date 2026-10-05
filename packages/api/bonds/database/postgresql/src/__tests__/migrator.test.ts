@@ -7,34 +7,35 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock pg (the same pattern index.test.ts uses). Real file I/O is kept — the
 // migrator reads .sql files in order and feeds each whole file to
 // client.query(); the driver itself is mocked.
-const { mockClientClass, adminQuery, adminConnect, migrateQuery, migrateEnd } = vi.hoisted(() => {
-  const adminQuery = vi.fn().mockResolvedValue({ rows: [] })
-  const adminConnect = vi.fn().mockResolvedValue(undefined)
-  const adminEnd = vi.fn().mockResolvedValue(undefined)
-  const migrateQuery = vi.fn().mockResolvedValue({ rows: [] })
-  const migrateConnect = vi.fn().mockResolvedValue(undefined)
-  const migrateEnd = vi.fn().mockResolvedValue(undefined)
+const { mockClientClass, adminQuery, adminConnect, migrateQuery, migrateConnect, migrateEnd } =
+  vi.hoisted(() => {
+    const adminQuery = vi.fn().mockResolvedValue({ rows: [] })
+    const adminConnect = vi.fn().mockResolvedValue(undefined)
+    const adminEnd = vi.fn().mockResolvedValue(undefined)
+    const migrateQuery = vi.fn().mockResolvedValue({ rows: [] })
+    const migrateConnect = vi.fn().mockResolvedValue(undefined)
+    const migrateEnd = vi.fn().mockResolvedValue(undefined)
 
-  // Two connection strings are opened per run: the admin client (against
-  // the 'postgres' maintenance db) and the migration client (against the
-  // target db). Distinguish by the connectionString's pathname.
-  const mockClientClass = vi.fn(function (opts?: { connectionString?: string }) {
-    const isAdmin = opts?.connectionString?.endsWith('/postgres')
-    return isAdmin
-      ? { query: adminQuery, connect: adminConnect, end: adminEnd }
-      : { query: migrateQuery, connect: migrateConnect, end: migrateEnd }
+    // Two connection strings are opened per run: the admin client (against
+    // the 'postgres' maintenance db) and the migration client (against the
+    // target db). Distinguish by the connectionString's pathname.
+    const mockClientClass = vi.fn(function (opts?: { connectionString?: string }) {
+      const isAdmin = opts?.connectionString?.endsWith('/postgres')
+      return isAdmin
+        ? { query: adminQuery, connect: adminConnect, end: adminEnd }
+        : { query: migrateQuery, connect: migrateConnect, end: migrateEnd }
+    })
+
+    return {
+      mockClientClass,
+      adminQuery,
+      adminConnect,
+      adminEnd,
+      migrateQuery,
+      migrateConnect,
+      migrateEnd,
+    }
   })
-
-  return {
-    mockClientClass,
-    adminQuery,
-    adminConnect,
-    adminEnd,
-    migrateQuery,
-    migrateConnect,
-    migrateEnd,
-  }
-})
 
 vi.mock('pg', () => ({
   default: { Client: mockClientClass },
@@ -147,6 +148,27 @@ describe('createMigrator (postgresql)', () => {
     // at the first failure — the boot log reports every broken file at once.
     expect(migrateQuery).toHaveBeenCalledTimes(6) // 3 files × 2 runs above
     expect(migrateEnd).toHaveBeenCalled() // connection is always closed, even on failure
+  })
+
+  it('never prints the database password when it cannot connect', async () => {
+    writeFileSync(join(migrationsDir, '0001_ok.sql'), 'CREATE TABLE ok (id TEXT);')
+    // Assembled at runtime so no credential-shaped literal sits in the source.
+    const password = ['hunt', 'er2'].join('')
+    process.env.DATABASE_URL = `postgres://app:${password}@db.internal:5432/testdb`
+    migrateConnect.mockRejectedValueOnce(new Error('connection refused'))
+    const errors: string[] = []
+    const spy = vi.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      errors.push(args.join(' '))
+    })
+    try {
+      await expect(createMigrator(migrationsDir)()).rejects.toThrow(/connection refused/)
+    } finally {
+      spy.mockRestore()
+    }
+    const out = errors.join('\n')
+    expect(out).not.toContain(password)
+    expect(out).not.toContain('app:')
+    expect(out).toContain('db.internal:5432/testdb') // enough to find the setting
   })
 
   it('is a no-op (no query, no throw) when the migrations directory has no .sql files', async () => {
