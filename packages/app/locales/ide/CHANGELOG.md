@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.3
+
+### Patch Changes
+
+- f8d2543: Translate the dictation badge label (`ide.chat.viaDictation.badge`) in every locale.
+
 ## 1.10.2
 
 ### Patch Changes
