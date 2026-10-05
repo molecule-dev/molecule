@@ -29,7 +29,14 @@
  */
 import { execFileSync } from 'node:child_process'
 import console from 'node:console'
-import { closeSync, createReadStream, createWriteStream, openSync, writeFileSync } from 'node:fs'
+import {
+  closeSync,
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  openSync,
+  writeFileSync,
+} from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
@@ -246,6 +253,24 @@ for (const pkg of untrusted) {
         stdio: 'inherit',
       })
       // The build must have produced every entry point before anything uploads.
+      // README.md is GENERATED at commit time (the pre-commit hook regenerates
+      // it from the module JSDoc), so a package an agent added mid-session has
+      // no README on disk yet and the pack gate would refuse it — the exact
+      // wall the 2026-10-05 geocoding + ai-decisions wave hit twice. Generate
+      // it here the same way the hook does, so trust time never depends on
+      // commit time. Skipped in a standalone clone (no ../mlcl).
+      const readme = join(ROOT, pkg.dir, 'README.md')
+      if (!existsSync(readme)) {
+        const mlclTs = join(ROOT, '..', 'mlcl', 'node_modules', '.bin', 'tsx')
+        const regen = join(ROOT, '..', 'mlcl', 'scripts', 'regen-molecule-docs.mjs')
+        if (existsSync(mlclTs)) {
+          console.log(`    regenerating the missing README.md (commit-time step, run early)`)
+          execFileSync(mlclTs, [regen, pkg.dir], {
+            cwd: join(ROOT, '..', 'mlcl'),
+            stdio: 'inherit',
+          })
+        }
+      }
       assertPackComplete(join(ROOT, pkg.dir))
       // stdio: 'inherit' so npm runs its OWN 2FA prompt. `npm publish` has no
       // --otp we can satisfy from here, and collecting a code we cannot pass on

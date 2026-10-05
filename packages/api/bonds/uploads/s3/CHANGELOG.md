@@ -1,5 +1,11 @@
 # @molecule/api-uploads-s3
 
+## 1.1.1
+
+### Patch Changes
+
+- 40fb13e: `headFile` throws `NoSuchBucket` for a missing bucket instead of answering "no object"; `partSizeBytes` sets the multipart part size for bodies above the default ~48.8 GiB ceiling.
+
 ## 1.1.0
 
 ### Minor Changes

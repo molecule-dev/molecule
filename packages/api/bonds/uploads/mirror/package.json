@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-uploads-mirror",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Mirrored upload provider for molecule.dev — writes every file to several upload providers and reads it back from whichever has it.",
   "type": "module",
   "main": "dist/index.js",

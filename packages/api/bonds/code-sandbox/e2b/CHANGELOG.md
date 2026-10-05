@@ -1,5 +1,12 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.7
+
+### Patch Changes
+
+- 6e0d476: The README describes the import transfer as it works (spooled into the sandbox in pieces) and the AES and encrypted-uploads bonds declare the encryption core version they import from.
+- 40fb13e: `importFiles` spools in bounded pieces whatever the chunk size it is given; `exportFiles` removes its temporary archive on failure too and names it uniquely.
+
 ## 1.2.6
 
 ### Patch Changes

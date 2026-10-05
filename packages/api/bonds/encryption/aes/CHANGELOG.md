@@ -1,5 +1,11 @@
 # @molecule/api-encryption-aes
 
+## 1.1.1
+
+### Patch Changes
+
+- 40fb13e: `createProvider` refuses a key version outside the stream header's range and a prior key at the current version; `verify()` answers false instead of throwing for a candidate hash with multi-byte characters; `rotateKey()` takes the next free version (never one a prior key holds) and refuses to run past the stream header's range.
+
 ## 1.1.0
 
 ### Minor Changes

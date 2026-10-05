@@ -1,5 +1,11 @@
 # @molecule/api-uploads-encrypted
 
+## 1.1.1
+
+### Patch Changes
+
+- 40fb13e: A multipart size limit (`limit`) or a source that closes before it ends now fails the upload instead of sealing the truncated body as a complete object; the README says what the inner store sees.
+
 ## 1.1.0
 
 ### Minor Changes
