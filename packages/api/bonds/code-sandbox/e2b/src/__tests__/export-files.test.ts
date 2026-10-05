@@ -112,6 +112,37 @@ describe('E2B exportFiles / importFiles archive rooting', () => {
   })
 })
 
+describe('E2B importFiles spools the archive', () => {
+  it('spools a large archive into the sandbox in pieces — never the whole archive in memory at once', async () => {
+    const { sbx, commands, writes } = fakeSandbox('sbx-6')
+    const sandbox = await providerFor(sbx).get('sbx-6')
+    const piece = new Uint8Array(3 * 1024 * 1024)
+    await sandbox!.importFiles!(
+      '/workspace',
+      (async function* () {
+        for (let i = 0; i < 6; i++) yield piece // 18 MB in 3 MB chunks
+      })(),
+    )
+    // Two pieces (the 8 MB threshold is crossed after the 3rd and the 6th chunk)
+    // were written and appended, then one extract.
+    expect(writes).toHaveLength(2)
+    expect(writes.map((w) => w.size)).toEqual([9 * 1024 * 1024, 9 * 1024 * 1024])
+    expect(commands.filter((c) => /\.piece > \//.test(c)).length).toBe(1)
+    expect(commands.filter((c) => /\.piece >> \//.test(c)).length).toBe(1)
+    expect(commands.filter((c) => c.includes('tar xf ')).length).toBe(1)
+    // The spool file is removed afterwards, success or not.
+    expect(commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-import-/)
+  })
+
+  it('an empty archive still extracts (an empty tar) and leaves no spool file', async () => {
+    const { sbx, commands } = fakeSandbox('sbx-7')
+    const sandbox = await providerFor(sbx).get('sbx-7')
+    await sandbox!.importFiles!('/workspace', (async function* () {})())
+    expect(commands.some((c) => c.startsWith(': > /tmp/mol-import-'))).toBe(true)
+    expect(commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-import-/)
+  })
+})
+
 describe('E2B readFileBytes / writeFileBytes', () => {
   it('reads exact bytes through the file API, never command stdout', async () => {
     const bytes = new Uint8Array(300_000).map((_, i) => i % 251)

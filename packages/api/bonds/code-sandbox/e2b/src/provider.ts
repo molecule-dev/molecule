@@ -182,6 +182,9 @@ function bareSnapshotName(snapshot: E2BSnapshotLike): string {
   return withoutTag.includes('/') ? withoutTag.slice(withoutTag.lastIndexOf('/') + 1) : withoutTag
 }
 
+/** How much of an incoming archive `importFiles` holds before spooling it into the sandbox. */
+const IMPORT_PIECE_BYTES = 8 * 1024 * 1024
+
 /**
  * Single-quote a value for POSIX `sh` so an arbitrary path is one argument.
  *
@@ -736,16 +739,53 @@ class E2BSandbox implements Sandbox {
    * @param archive - POSIX tar byte stream to extract there.
    */
   async importFiles(path: string, archive: AsyncIterable<Uint8Array>): Promise<void> {
-    const chunks: Uint8Array[] = []
-    for await (const chunk of archive) chunks.push(chunk)
-    const tarPath = `/tmp/mol-import-${Date.now().toString(36)}.tar`
-    await this.sbx.files.write(tarPath, new Blob([Buffer.concat(chunks)]))
-    const r = await this.sbx.commands.run(
-      `mkdir -p ${shellQuote(path)} && tar xf ${tarPath} -C ${shellQuote(path)} --no-same-owner --no-same-permissions && rm -f ${tarPath}`,
-      { timeoutMs: 300_000 },
-    )
-    if (r.exitCode !== 0) {
-      throw new Error(`importFiles: tar extract failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
+    // Spooled into the sandbox in bounded pieces: the archive is never held
+    // whole in this process (an uploaded tarball can inflate to gigabytes, and
+    // this process is shared by every tenant).
+    const tag = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
+    const tarPath = `/tmp/mol-import-${tag}.tar`
+    const piecePath = `${tarPath}.piece`
+    let pending: Uint8Array[] = []
+    let pendingBytes = 0
+    let pieces = 0
+    const flush = async (): Promise<void> => {
+      if (pendingBytes === 0) return
+      const piece = Buffer.concat(pending)
+      pending = []
+      pendingBytes = 0
+      await this.sbx.files.write(piecePath, new Blob([piece]))
+      const r = await this.sbx.commands.run(
+        `cat ${piecePath} ${pieces === 0 ? '>' : '>>'} ${tarPath} && rm -f ${piecePath}`,
+        { timeoutMs: 120_000 },
+      )
+      if (r.exitCode !== 0) {
+        throw new Error(
+          `importFiles: spooling the archive failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`,
+        )
+      }
+      pieces++
+    }
+    try {
+      for await (const chunk of archive) {
+        pending.push(chunk)
+        pendingBytes += chunk.length
+        if (pendingBytes >= IMPORT_PIECE_BYTES) await flush()
+      }
+      await flush()
+      if (pieces === 0) await this.sbx.commands.run(`: > ${tarPath}`, { timeoutMs: 30_000 })
+      const r = await this.sbx.commands.run(
+        `mkdir -p ${shellQuote(path)} && tar xf ${tarPath} -C ${shellQuote(path)} --no-same-owner --no-same-permissions`,
+        { timeoutMs: 300_000 },
+      )
+      if (r.exitCode !== 0) {
+        throw new Error(
+          `importFiles: tar extract failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`,
+        )
+      }
+    } finally {
+      await this.sbx.commands
+        .run(`rm -f ${tarPath} ${piecePath}`, { timeoutMs: 30_000 })
+        .catch(() => undefined)
     }
   }
 
