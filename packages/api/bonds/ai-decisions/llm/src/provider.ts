@@ -34,6 +34,13 @@ export interface LlmDecisionsConfig {
   aiProvider?: string | AIProvider
   /** Default chat model id (per-call `model` wins). */
   model?: string
+  /**
+   * Sampling temperature. **OMITTED by default** — several catalog models
+   * (gpt-6-luna et al.) reject the parameter itself with a 400, which made
+   * every decide call fail (caught live 2026-10-05; the same fix api-ocr-llm
+   * shipped). Pass it only when you know the bonded model accepts it.
+   */
+  temperature?: number
 }
 
 /**
@@ -247,7 +254,12 @@ export function createProvider(config: LlmDecisionsConfig = {}): AIDecisionsProv
         messages: [{ role: 'user', content }],
         system,
         model: input.model ?? config.model,
-        temperature: 0,
+        // No default temperature: several catalog models (gpt-6-luna et al.)
+        // reject the PARAMETER itself with a 400, which made every hosted
+        // decide call fail (caught live 2026-10-05 — the same fix api-ocr-llm
+        // shipped). Callers who want pinning pass config.temperature and own
+        // the model-compatibility check.
+        ...(config.temperature !== undefined ? { temperature: config.temperature } : {}),
         signal: input.signal,
       })
 
