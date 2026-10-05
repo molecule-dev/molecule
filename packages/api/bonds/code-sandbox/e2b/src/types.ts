@@ -43,7 +43,7 @@ export interface E2BConfig {
    * time; everything else is denied (`denyOut: [ALL_TRAFFIC]`). Wildcards like
    * `*.npmjs.org` are supported. Empty/omitted means the bond does NOT
    * constrain egress — prod must supply this or `verifyEgress` observes `open`
-   * and the control plane refuses to boot (Rule 18).
+   * and the control plane refuses to boot.
    *
    * Verified against a live E2B sandbox: with `denyOut: [ALL_TRAFFIC]`, a
    * non-allowlisted host AND a raw destination IP are both blocked — a stronger

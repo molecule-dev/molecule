@@ -12,9 +12,8 @@
  * The design that makes it fast: a single golden SUPERSET template carries the
  * entire `@molecule` fleet node_modules + postgres + warmed Vite deps, so a boot
  * only copies the ONE selected app's source in and starts the dev servers — no
- * per-boot `npm install`. The 133 flagship template sources are NOT baked into
- * the image; they are copied from the control plane at boot, so templates and
- * `mlcl` stay private.
+ * per-boot `npm install`. The app template sources are not baked into the
+ * image; they are copied in at boot.
  *
  * @example
  * ```typescript
@@ -39,13 +38,14 @@
  * ```
  *
  * @remarks
+ * - `importFiles` spools an incoming archive into the sandbox in 8 MB pieces;
+ *   `exportFiles` reads the whole archive into memory once, so bound what you export.
  * **`verifyEgress` OBSERVES, it never attests.** It boots a throwaway sandbox,
  * applies `{ allowOut: [npm], denyOut: [ALL_TRAFFIC] }`, and curls an
  * allow-listed host, a non-allow-listed host AND a raw IP from inside it;
  * `filtered` requires the last two to be blocked while the first answers. Any
  * failure to run that probe is `inconclusive` — never `filtered`, because "I
- * could not look" must not reach a control plane as "I looked, and it is safe"
- * (Rule 18: never trade cost for security).
+ * could not look" must not reach a control plane as "I looked, and it is safe".
  *
  * **A probe that sees NO network is `inconclusive`, not `open`.** When the
  * allow-listed control host does not answer either, the probe sandbox itself has
@@ -126,8 +126,7 @@
  * must be booted fresh with it.
  *
  * **Volumes are a private beta on E2B.** An account without them answers
- * `403 use of volumes is not enabled` (measured on the production account,
- * 2026-08-16); ask E2B support to enable them. Every volume method throws in
+ * `403 use of volumes is not enabled`; ask E2B support to enable them. Every volume method throws in
  * that state rather than no-op-ing, because a control plane that believes it has
  * durable storage and does not is the failure this bond exists to prevent.
  *

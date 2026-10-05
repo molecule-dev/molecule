@@ -43,7 +43,7 @@
     "vitest": "4.1.11"
   },
   "peerDependencies": {
-    "@molecule/api-encryption": "^1.0.2",
+    "@molecule/api-encryption": "^1.1.0",
     "@molecule/api-uploads": "^1.0.1"
   },
   "repository": {

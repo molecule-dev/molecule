@@ -730,7 +730,8 @@ class E2BSandbox implements Sandbox {
    * Extract a POSIX tar stream into the sandbox at `path`.
    *
    * The transfer primitive the scaffold path uses to copy a project tree in.
-   * Buffers the stream, writes it as one blob, and `tar x`-tracts it.
+   * Spools the stream into the sandbox in 8 MB pieces, so the archive is never
+   * held whole in memory, then extracts it with `tar x`.
    * `--no-same-owner --no-same-permissions` enforces the contract that a
    * caller/tenant-authored archive's ownership + setuid/setgid bits are NOT
    * restored (they arrive owned by the sandbox user, no privilege bits).
@@ -801,9 +802,6 @@ class E2BSandbox implements Sandbox {
    * <name>`), so `exportFiles('/workspace/my-app')` yields `my-app/…` — the
    * shape Docker's archive endpoint produces and the shape every consumer
    * (`importFiles(<parent>)`, host-side unpackers with `strip: 1`) expects.
-   * The previous `tar -C <path> .` rooting yielded `./…`, which
-   * `importFiles('/')` extracted at the filesystem root instead of the
-   * directory it was taken from.
    *
    * @param path - Absolute path inside the sandbox to archive (not `/`).
    * @returns A POSIX tar byte stream of that path's contents.
@@ -861,8 +859,7 @@ class E2BSandbox implements Sandbox {
  * optionals are wired here; `verifyEgress` and `commitTemplate`/`getTemplate`
  * land in follow-up steps. Leaving `verifyEgress` UNimplemented is deliberate:
  * the control plane treats "unsupported" as `inconclusive` and refuses to boot
- * in prod, which is the correct safe default until egress observation is proven
- * (Rule 18 — never trade cost for security).
+ * in prod, which is the correct safe default until egress observation is proven.
  */
 export class E2BSandboxProvider implements SandboxProvider {
   readonly name = 'e2b'
@@ -1476,8 +1473,7 @@ export interface EgressProbeCodes {
  *   egress was OBSERVED;
  * - `inconclusive` whenever the allow-listed control host did not answer — a
  *   probe sandbox with no network at all blocks everything, which says nothing
- *   about the policy (2026-10-04: `host=000, rawIP=000, allowed=000` was read
- *   as open and production refused to boot);
+ *   about the policy;
  * - `filtered` only when the control host answered AND both denied probes were
  *   blocked (`000` / empty).
  *
