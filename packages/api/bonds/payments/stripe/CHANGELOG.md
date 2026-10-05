@@ -1,5 +1,11 @@
 # @molecule/api-payments-stripe
 
+## 1.2.6
+
+### Patch Changes
+
+- 5315e5b: Changing the plan of an existing subscription now charges the prorated difference immediately and fails the whole change if the charge fails, instead of deferring it to the next renewal invoice. A subscription that is past due, unpaid, incomplete or paused is no longer changed in place.
+
 ## 1.2.5
 
 ### Patch Changes

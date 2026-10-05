@@ -1,5 +1,11 @@
 # @molecule/api-database-postgresql
 
+## 1.0.5
+
+### Patch Changes
+
+- 5315e5b: The migrator no longer prints the full `DATABASE_URL` (and the password in it) when it cannot connect; it names the host and database only.
+
 ## 1.0.4
 
 ### Patch Changes
