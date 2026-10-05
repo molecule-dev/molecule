@@ -26,7 +26,48 @@ import {
 } from 'node:crypto'
 import { Transform } from 'node:stream'
 
-import { EncryptionStreamError } from '@molecule/api-encryption'
+import type { EncryptionStreamError, EncryptionStreamErrorCode } from '@molecule/api-encryption'
+
+/** The `name` every stream error carries — the core's contract. */
+const STREAM_ERROR_NAME = 'EncryptionStreamError'
+
+/**
+ * The error this bond's streams fail with. It satisfies the core's
+ * `EncryptionStreamError` contract (`name`, `code`, `cause`) — the core's
+ * `isEncryptionStreamError` recognizes it by name and code, never by
+ * `instanceof` — WITHOUT a runtime import of the core: this bond stays
+ * type-only coupled to `@molecule/api-encryption`, so a test that mocks the
+ * core with a factory that loads this bond does not deadlock on the cycle
+ * (seven molecule-dev suites do exactly that).
+ */
+class AesStreamError extends Error implements EncryptionStreamError {
+  /** Why the stream failed. */
+  readonly code: EncryptionStreamErrorCode
+
+  /**
+   * Creates the error.
+   *
+   * @param code - Why the stream failed.
+   * @param message - Plain-English description of what was wrong.
+   * @param options - Optional `cause`.
+   */
+  constructor(code: EncryptionStreamErrorCode, message: string, options?: { cause?: unknown }) {
+    super(message, options)
+    this.name = STREAM_ERROR_NAME
+    this.code = code
+  }
+}
+
+/**
+ * Recognizes a stream error by the core's contract (name + a string code).
+ *
+ * @param error - Any thrown value.
+ * @returns `true` for a stream error, whichever copy of the class threw it.
+ */
+const isStreamError = (error: unknown): error is EncryptionStreamError =>
+  error instanceof Error &&
+  error.name === STREAM_ERROR_NAME &&
+  typeof (error as { code?: unknown }).code === 'string'
 
 /** ASCII magic that opens every encrypted stream. */
 export const STREAM_MAGIC = Buffer.from('MOLAEAD2', 'ascii')
@@ -153,9 +194,9 @@ const validChunkBytes = (chunkBytes: number): boolean =>
  * @returns An `EncryptionStreamError`.
  */
 const asStreamError = (error: unknown): EncryptionStreamError =>
-  error instanceof EncryptionStreamError
+  isStreamError(error)
     ? error
-    : new EncryptionStreamError(
+    : new AesStreamError(
         'internal',
         `Unexpected error in the encryption stream: ${(error as Error)?.message ?? String(error)}`,
         { cause: error },
@@ -229,20 +270,20 @@ export interface EncryptStreamParams {
 export const createEncryptStream = (params: EncryptStreamParams): Transform => {
   const chunkBytes = params.chunkBytes ?? DEFAULT_STREAM_CHUNK_BYTES
   if (!validChunkBytes(chunkBytes)) {
-    throw new EncryptionStreamError(
+    throw new AesStreamError(
       'internal',
       `Stream chunk size must be a whole number of bytes between ${MIN_STREAM_CHUNK_BYTES} ` +
         `and ${MAX_STREAM_CHUNK_BYTES}; got ${chunkBytes}.`,
     )
   }
   if (!Number.isInteger(params.version) || params.version < 0 || params.version > MAX_KEY_VERSION) {
-    throw new EncryptionStreamError(
+    throw new AesStreamError(
       'internal',
       `Key version ${params.version} cannot be written into a stream header (0 to ${MAX_KEY_VERSION}).`,
     )
   }
   if (params.key.length !== KEY_BYTES) {
-    throw new EncryptionStreamError('internal', `Stream key must be ${KEY_BYTES} bytes.`)
+    throw new AesStreamError('internal', `Stream key must be ${KEY_BYTES} bytes.`)
   }
 
   const context = Buffer.from(params.context ?? '', 'utf-8')
@@ -261,7 +302,7 @@ export const createEncryptStream = (params: EncryptStreamParams): Transform => {
 
   const seal = (plaintext: Buffer, final: boolean): Buffer => {
     if (counter > MAX_COUNTER) {
-      throw new EncryptionStreamError(
+      throw new AesStreamError(
         'overflow',
         'The stream is too long to encrypt: it would need more than 2^32 chunks. Use a larger chunk size.',
       )
@@ -340,7 +381,7 @@ export const createDecryptStream = (params: DecryptStreamParams): Transform => {
 
   const parseHeader = (bytes: Buffer): void => {
     if (!bytes.subarray(0, 8).equals(STREAM_MAGIC)) {
-      throw new EncryptionStreamError(
+      throw new AesStreamError(
         'bad-header',
         'This is not an encrypted stream (its header does not start with MOLAEAD2).',
       )
@@ -348,19 +389,19 @@ export const createDecryptStream = (params: DecryptStreamParams): Transform => {
     const version = bytes.readUInt16BE(8)
     const chunkBytes = bytes.readUInt32BE(10)
     if (!validChunkBytes(chunkBytes)) {
-      throw new EncryptionStreamError(
+      throw new AesStreamError(
         'bad-header',
         `The encrypted stream's header names an invalid chunk size (${chunkBytes} bytes).`,
       )
     }
     const longKey = params.resolveKey(version)
     if (!longKey) {
-      throw new EncryptionStreamError('unknown-key-version', missingKeyMessage(version))
+      throw new AesStreamError('unknown-key-version', missingKeyMessage(version))
     }
     const expectedId = streamKeyId(longKey)
     const actualId = bytes.subarray(KEY_ID_OFFSET, KEY_ID_OFFSET + STREAM_KEY_ID_BYTES)
     if (!timingSafeEqual(expectedId, actualId)) {
-      throw new EncryptionStreamError(
+      throw new AesStreamError(
         'unknown-key',
         `The encrypted stream was written under a different key for key version ${version} ` +
           `than the one configured (key id mismatch). Check the encryption key configuration.`,
@@ -378,7 +419,7 @@ export const createDecryptStream = (params: DecryptStreamParams): Transform => {
 
   const open = (record: Buffer, final: boolean): Buffer => {
     if (counter > MAX_COUNTER) {
-      throw new EncryptionStreamError('overflow', 'The encrypted stream has more than 2^32 chunks.')
+      throw new AesStreamError('overflow', 'The encrypted stream has more than 2^32 chunks.')
     }
     const decipher = createDecipheriv(
       ALGORITHM,
@@ -395,7 +436,7 @@ export const createDecryptStream = (params: DecryptStreamParams): Transform => {
     try {
       tail = decipher.final()
     } catch (error) {
-      throw new EncryptionStreamError(
+      throw new AesStreamError(
         'auth',
         `Chunk ${counter} of the encrypted stream failed authentication: the data or header was ` +
           `altered, chunks were reordered or cut, or the context does not match.`,
@@ -427,14 +468,14 @@ export const createDecryptStream = (params: DecryptStreamParams): Transform => {
     flush(callback) {
       try {
         if (!key) {
-          throw new EncryptionStreamError(
+          throw new AesStreamError(
             'bad-header',
             `The encrypted stream ended before its ${STREAM_HEADER_BYTES}-byte header was complete ` +
               `(${pending.length} byte(s)).`,
           )
         }
         if (pending.length < TAG_BYTES) {
-          throw new EncryptionStreamError(
+          throw new AesStreamError(
             'truncated',
             `The encrypted stream was truncated: it ended after ${counter} chunk(s) without its final chunk.`,
           )
