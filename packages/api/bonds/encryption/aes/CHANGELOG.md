@@ -1,5 +1,11 @@
 # @molecule/api-encryption-aes
 
+## 1.1.0
+
+### Minor Changes
+
+- 182aed3: Add authenticated chunked AES-256-GCM stream encryption with a per-stream HKDF subkey and a key id, detecting tampering, reordering, a wrong context, a wrong key and truncation without holding the stream in memory.
+
 ## 1.0.1
 
 ### Patch Changes

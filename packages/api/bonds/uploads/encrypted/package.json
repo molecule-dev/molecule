@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-uploads-encrypted",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Encrypting upload provider for molecule.dev — encrypts every file before another upload provider stores it, decrypts on read.",
   "type": "module",
   "main": "dist/index.js",
@@ -35,8 +35,8 @@
     "@molecule/api-analytics": "1.1.0"
   },
   "devDependencies": {
-    "@molecule/api-encryption": "1.0.2",
-    "@molecule/api-encryption-aes": "1.0.2",
+    "@molecule/api-encryption": "1.1.0",
+    "@molecule/api-encryption-aes": "1.1.0",
     "@molecule/api-uploads": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

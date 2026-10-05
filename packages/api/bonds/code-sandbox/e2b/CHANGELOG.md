@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.6
+
+### Patch Changes
+
+- 9b635de: `importFiles` spools the archive into the sandbox in 8 MB pieces instead of holding the whole archive in memory.
+
 ## 1.2.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-encryption
 
+## 1.1.0
+
+### Minor Changes
+
+- 182aed3: Add optional `encryptStream()`/`decryptStream()` to `EncryptionProvider`, the shared `mol-aead-chunked-v2` stream format, `EncryptionStreamError` with a `code` that separates damaged ciphertext from a wrong key or a truncated stream, `isEncryptionStreamError()` and `hasStreamEncryption()`.
+
 ## 1.0.1
 
 ### Patch Changes
