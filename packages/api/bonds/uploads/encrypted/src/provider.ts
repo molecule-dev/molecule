@@ -28,6 +28,10 @@ export const ENCRYPTION_UNAVAILABLE_ERROR_NAME = 'EncryptionUnavailableError' as
 
 /** Error name used when `getFile`'s `expectContext` differs from the id's context. */
 export const ENCRYPTION_CONTEXT_MISMATCH_ERROR_NAME = 'EncryptionContextMismatchError' as const
+/** `error.name` when the multipart parser's size limit cut the upload (nothing stored). */
+export const UPLOAD_TOO_LARGE_ERROR_NAME = 'UploadTooLargeError' as const
+/** `error.name` when the upload stream closed before it ended (nothing stored). */
+export const UPLOAD_SOURCE_CLOSED_ERROR_NAME = 'UploadSourceClosedError' as const
 
 /** Error name used when the `context` function returns an unusable value. */
 export const INVALID_ENCRYPTION_CONTEXT_ERROR_NAME = 'InvalidEncryptionContextError' as const
@@ -239,6 +243,33 @@ export const createProvider = (config: EncryptedUploadsConfig): EncryptedUploadP
 
     stream.on('error', (error: Error) => {
       cipher.destroy(error)
+    })
+    // A multipart parser (busboy) that hits its size limit emits `limit` and
+    // then ENDS the stream normally: without this the truncated body would be
+    // sealed and stored as a complete, authenticated object (R93-B2).
+    stream.on('limit', () => {
+      cipher.destroy(
+        namedError(
+          UPLOAD_TOO_LARGE_ERROR_NAME,
+          'The upload exceeded the size limit; nothing was stored.',
+        ),
+      )
+    })
+    // A source destroyed without `end` (a dropped connection) would otherwise
+    // leave `uploadPromise` pending for ever (R93-B6).
+    let sourceEnded = false
+    stream.on('end', () => {
+      sourceEnded = true
+    })
+    stream.on('close', () => {
+      if (!sourceEnded && !settled) {
+        cipher.destroy(
+          namedError(
+            UPLOAD_SOURCE_CLOSED_ERROR_NAME,
+            'The upload stream closed before it ended; nothing was stored.',
+          ),
+        )
+      }
     })
     stream.pipe(cipher)
 

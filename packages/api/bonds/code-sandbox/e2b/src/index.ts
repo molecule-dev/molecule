@@ -38,8 +38,13 @@
  * ```
  *
  * @remarks
- * - `importFiles` spools an incoming archive into the sandbox in 8 MB pieces;
- *   `exportFiles` reads the whole archive into memory once, so bound what you export.
+ * - `importFiles` spools an incoming archive into the sandbox in 8 MB pieces
+ *   whatever the size of the chunks it is given; `exportFiles` reads the whole
+ *   archive into memory once, so bound what you export.
+ * - `importFiles` trusts the stream's length: an archive cut exactly between two
+ *   tar members extracts cleanly (tar exits 0) and is reported complete. Give it
+ *   a stream that errors on truncation (an authenticated encrypted stream does)
+ *   or check a length or hash yourself.
  * **`verifyEgress` OBSERVES, it never attests.** It boots a throwaway sandbox,
  * applies `{ allowOut: [npm], denyOut: [ALL_TRAFFIC] }`, and curls an
  * allow-listed host, a non-allow-listed host AND a raw IP from inside it;

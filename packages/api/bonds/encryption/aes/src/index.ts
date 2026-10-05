@@ -51,6 +51,9 @@
  *   so a rotation done in a prior process is not restored. For rotation that
  *   survives restarts, build with `createProvider({ key, priorKeys })`, seeding
  *   the historical `{ version, key }` entries from your secret store.
+ * - `createProvider` refuses a `keyVersion` outside 0–65535 (the stream header's
+ *   range) and a `priorKeys` entry at the current version, at construction.
+ *   `verify()` answers `false` (never throws) for a candidate hash of any shape.
  * - `hash()`/`verify()` are plain unsalted SHA-256 — integrity checks only.
  *   NEVER use them for passwords; use `@molecule/api-password` with a bond
  *   like `@molecule/api-password-bcrypt`.

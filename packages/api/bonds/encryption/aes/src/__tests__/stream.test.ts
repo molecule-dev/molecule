@@ -408,3 +408,15 @@ describe('AES-256-GCM stream encryption', () => {
     })
   })
 })
+
+describe('R93: one nonce per chunk', () => {
+  it('two identical plaintext chunks never seal to the same ciphertext bytes', async () => {
+    const provider = createProvider({ key: generateKey() })
+    const plain = Buffer.alloc(CHUNK * 2, 7)
+    const out = await run(provider.encryptStream({ chunkBytes: CHUNK }), split(plain, 1000))
+    const header = 54
+    const first = out.subarray(header, header + CHUNK)
+    const second = out.subarray(header + RECORD, header + RECORD + CHUNK)
+    expect(first.equals(second)).toBe(false)
+  })
+})

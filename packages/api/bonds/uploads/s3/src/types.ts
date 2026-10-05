@@ -134,6 +134,13 @@ export interface S3UploadsConfig {
    * `GLACIER_IR`). When unset the bucket's default class applies.
    */
   storageClass?: string
+  /**
+   * Multipart part size in bytes (the SDK's default is 5 MiB, its minimum). A
+   * multipart upload holds at most 10,000 parts, so the part size bounds the
+   * largest object: ~48.8 GiB at the default. Set it from your size ceiling
+   * (`ceil(maxBytes / 10000)`, at least 5 MiB) when streaming larger bodies.
+   */
+  partSizeBytes?: number
 
   /**
    * Prefix prepended to every object key this store mints (e.g. `backups/`).

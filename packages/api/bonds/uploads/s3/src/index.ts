@@ -24,7 +24,12 @@
  *   strip or re-add the prefix yourself.
  * - **`headFile(id)`** (on `createProvider` instances and the default `provider`) returns
  *   `{ bytes, etag?, lastModified? }` without downloading, `null` when the object does not
- *   exist, and throws on any other failure (bad credentials, missing bucket, network).
+ *   exist, and throws on any other failure (bad credentials, missing bucket, network). A
+ *   missing bucket is a bodiless 404 just like a missing object, so it is told apart with a
+ *   HEAD on the bucket and thrown as `NoSuchBucket`.
+ * - **Streams above ~48.8 GiB need `partSizeBytes`.** A multipart upload holds at most
+ *   10,000 parts of the part size (5 MiB by default); set `partSizeBytes` to
+ *   `ceil(maxBytes / 10000)` (at least 5 MiB) for a larger ceiling.
  *
  * - **Immutable (backup) buckets: `objectLock` + `describeBucketProtection()`.** Operator setup:
  *   create the bucket WITH Object Lock enabled (it cannot be added to most existing buckets),

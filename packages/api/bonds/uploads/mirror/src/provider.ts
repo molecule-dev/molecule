@@ -81,6 +81,12 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
   // abortUpload can hand each target the exact object it returned (bonds keep
   // their abort handle on it).
   const inFlight = new Map<string, { copies: MirrorCopy[]; files: UploadedFile[] }>()
+  // By the returned file too: two uploads whose targets answered empty ids
+  // would otherwise share one in-flight key (R93-B10).
+  const inFlightByFile = new WeakMap<
+    UploadedFile,
+    { copies: MirrorCopy[]; files: UploadedFile[] }
+  >()
   const aborted = new Set<string>()
 
   const report = (target: string, operation: MirrorOperation, error: unknown): void => {
@@ -123,11 +129,19 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
 
     const targetFiles: UploadedFile[] = []
     const settled: Array<Promise<void>> = []
+    // One per target: fails that target's copy from the SOURCE side (a source
+    // error, a size limit, a close before the end) — a target that only
+    // watches its own writes would otherwise never settle (R93-B2/B6).
+    const failTarget: Array<(error: Error) => void> = []
 
     targets.forEach((target, index) => {
       const branch = branches[index]
       let reported: Error | undefined
       let rejectReported: ((error: Error) => void) | undefined
+      failTarget.push((error: Error) => {
+        reported ??= error
+        rejectReported?.(error)
+      })
       let targetFile: UploadedFile
       try {
         targetFile = target.provider.upload(fieldname, branch, info, (error) => {
@@ -180,9 +194,35 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
     const id = encodeMirrorId(copies)
     inFlight.set(id, { copies, files: targetFiles })
 
-    // A source error ends every branch with that error.
-    stream.on('error', (error: Error) => {
+    // A failure on the SOURCE side fails every copy: the branches end with the
+    // error and each target's outcome is settled with it.
+    const failAll = (error: Error): void => {
+      for (const fail of failTarget) fail(error)
       for (const branch of branches) branch.destroy(error)
+    }
+    stream.on('error', (error: Error) => failAll(error))
+    // A multipart parser's size limit ends the stream normally after `limit`:
+    // every target would store the truncated body as complete (R93-B2).
+    stream.on('limit', () => {
+      const error = new Error(
+        'uploads-mirror: the upload exceeded the size limit; nothing was stored.',
+      )
+      error.name = 'UploadTooLargeError'
+      failAll(error)
+    })
+    // A source destroyed without `end` would leave every branch, and
+    // `uploadPromise`, pending for ever (R93-B6).
+    let sourceEnded = false
+    stream.on('end', () => {
+      sourceEnded = true
+    })
+    stream.on('close', () => {
+      if (sourceEnded) return
+      const error = new Error(
+        'uploads-mirror: the upload stream closed before it ended; nothing was stored.',
+      )
+      error.name = 'UploadSourceClosedError'
+      failAll(error)
     })
 
     let firstRequiredError: Error | undefined
@@ -257,6 +297,11 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
       uploaded: false,
     }
 
+    inFlightByFile.set(file, { copies, files: targetFiles })
+    // Marked handled: a caller that relies on `onError` alone must not trigger
+    // an unhandled rejection (R93-B10); the rejection still reaches whoever awaits.
+    uploadPromise.catch(() => undefined)
+
     stream.on('data', (chunk: Buffer | string) => {
       file.size += chunk.length
     })
@@ -265,7 +310,7 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
   }
 
   const abortUpload = async (file: UploadedFile): Promise<void> => {
-    const live = inFlight.get(file.id)
+    const live = inFlightByFile.get(file) ?? inFlight.get(file.id)
     if (live) aborted.add(file.id)
     const copies =
       live?.copies ??

@@ -7,7 +7,7 @@ vi.mock('@molecule/api-analytics', () => ({
   trackBondFailure: (...args: unknown[]) => trackBondFailure(...args),
 }))
 
-import type { UploadedFile, UploadProvider } from '@molecule/api-uploads'
+import type { FileInfo, UploadedFile, UploadProvider } from '@molecule/api-uploads'
 import { UploadAbortedError } from '@molecule/api-uploads'
 
 import { encodeMirrorId } from '../id.js'
@@ -552,5 +552,87 @@ describe('config validation', () => {
       { name: 'a', required: true },
       { name: 'b', required: false },
     ])
+  })
+})
+
+describe('R93: cut uploads, the drain, the in-flight map, locate and size', () => {
+  const big = (): FileInfo => ({
+    filename: 'big.bin',
+    encoding: 'binary',
+    mimeType: 'application/octet-stream',
+  })
+  const within = <T>(p: Promise<T>, ms = 3000): Promise<T> =>
+    Promise.race([
+      p,
+      new Promise<T>((_r, reject) => setTimeout(() => reject(new Error(`hung for ${ms} ms`)), ms)),
+    ])
+
+  it('a failed target that stops reading is drained, so the other copies of a 300 KB body finish', async () => {
+    const a = fake('a', { failUpload: new Error('boom'), highWaterMark: 16 })
+    const b = fake('b', { highWaterMark: 16 })
+    const mirror = createProvider({
+      targets: [
+        { name: 'a', provider: a, required: false },
+        { name: 'b', provider: b },
+      ],
+    })
+    const file = mirror.upload('f', Readable.from([Buffer.alloc(300 * 1024, 3)]), big(), vi.fn())
+    await within(file.uploadPromise!)
+    expect(b.store.size).toBe(1)
+    expect(file.size).toBe(300 * 1024)
+  })
+
+  it('a multipart size limit fails every copy instead of storing the truncated body', async () => {
+    const a = fake('a')
+    const b = fake('b')
+    const mirror = createProvider({
+      targets: [
+        { name: 'a', provider: a },
+        { name: 'b', provider: b },
+      ],
+    })
+    const source = new PassThrough()
+    const onError = vi.fn()
+    const file = mirror.upload('f', source, big(), onError)
+    source.write(Buffer.alloc(500, 1))
+    source.emit('limit')
+    source.end()
+    await expect(within(file.uploadPromise!)).rejects.toMatchObject({ name: 'UploadTooLargeError' })
+    expect(a.store.size + b.store.size).toBe(0)
+  })
+
+  it('a source that closes before it ends fails the upload instead of hanging, and an onError-only caller sees no unhandled rejection', async () => {
+    const unhandled = vi.fn()
+    process.on('unhandledRejection', unhandled)
+    try {
+      const a = fake('a')
+      const mirror = createProvider({ targets: [{ name: 'a', provider: a }] })
+      const source = new PassThrough()
+      const onError = vi.fn()
+      const file = mirror.upload('f', source, big(), onError)
+      // Taken now: the mirror drops `uploadPromise` from the file once it settled.
+      const outcome = file.uploadPromise!
+      source.write(Buffer.alloc(10, 1))
+      source.destroy()
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(onError).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'UploadSourceClosedError' }),
+      )
+      expect(unhandled).not.toHaveBeenCalled()
+      await expect(outcome).rejects.toMatchObject({ name: 'UploadSourceClosedError' })
+    } finally {
+      process.off('unhandledRejection', unhandled)
+    }
+  })
+
+  it('a headFile that throws reads as unknown, never as absent', async () => {
+    const a = fake('a', { withHead: true })
+    const mirror = createProvider({ targets: [{ name: 'a', provider: a }] })
+    const file = mirror.upload('f', Readable.from([Buffer.from('hi')]), big(), vi.fn())
+    await file.uploadPromise
+    a.headFile = async () => {
+      throw new Error('store down')
+    }
+    expect((await mirror.locate(file.id))[0].present).toBe('unknown')
   })
 })

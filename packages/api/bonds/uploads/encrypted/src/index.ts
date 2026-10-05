@@ -25,6 +25,15 @@
  *   object key (`backup:<projectId>`, the form fieldname) — never a secret. The
  *   context defaults to the fieldname; pass `context: (info) => string` to bind
  *   files to something more specific (the context must be non-empty).
+ * - **A cut upload is a failed upload.** A multipart parser's size limit
+ *   (busboy's `limit` event, after which the stream ends normally) and a source
+ *   that closes before it ends both fail the upload — `onError` with an
+ *   `UploadTooLargeError` / `UploadSourceClosedError`, `uploadPromise` rejects,
+ *   the partial ciphertext is removed — rather than sealing the truncated body
+ *   as a complete object.
+ * - **What the inner store sees.** The filename and MIME type travel to the inner
+ *   provider as given (an S3 store keeps the MIME type as the object's content
+ *   type); only the bytes are encrypted.
  * - **Reading.** `getFile(id)` returns a stream of plaintext. Plaintext is
  *   released one chunk at a time, only after that chunk's tag verifies; on
  *   tampering, a wrong context or truncation the returned stream is destroyed

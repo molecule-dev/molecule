@@ -28,6 +28,9 @@ vi.mock('@aws-sdk/client-s3', () => ({
   HeadObjectCommand: vi.fn(function (params: unknown) {
     return { params, type: 'HeadObjectCommand' }
   }),
+  HeadBucketCommand: vi.fn(function (params: unknown) {
+    return { params, type: 'HeadBucketCommand' }
+  }),
 }))
 
 // Mock @aws-sdk/lib-storage
@@ -1291,5 +1294,53 @@ describe('createProvider — independent S3 stores', () => {
         expect.objectContaining({ params: { Bucket: 'changed-bucket', Key: 'b' } }),
       )
     })
+  })
+})
+
+describe('R93: headFile and a missing bucket, the part size, a source that errors', () => {
+  it('headFile throws NoSuchBucket when the bucket itself is missing, null when only the object is', async () => {
+    const { createProvider } = await import('../provider.js')
+    const store = createProvider({ bucket: 'b' })
+    mockSend.mockImplementation(async (cmd: { type: string }) => {
+      if (cmd.type === 'HeadObjectCommand')
+        throw Object.assign(new Error('x'), { name: 'NotFound' })
+      if (cmd.type === 'HeadBucketCommand')
+        throw Object.assign(new Error('x'), { name: 'NotFound' })
+      return {}
+    })
+    await expect(store.headFile('k')).rejects.toMatchObject({ name: 'NoSuchBucket' })
+    mockSend.mockImplementation(async (cmd: { type: string }) => {
+      if (cmd.type === 'HeadObjectCommand')
+        throw Object.assign(new Error('x'), { name: 'NotFound' })
+      return {}
+    })
+    expect(await store.headFile('k')).toBeNull()
+    mockSend.mockReset()
+  })
+
+  it('partSizeBytes reaches the multipart upload; a source error tears the body down', async () => {
+    mockUploadDone.mockImplementation(() => new Promise(() => {}))
+    const { Upload } = await import('@aws-sdk/lib-storage')
+    const { createProvider } = await import('../provider.js')
+    const info = { filename: 'db.dump', encoding: '7bit', mimeType: 'application/octet-stream' }
+    createProvider({ bucket: 'b', partSizeBytes: 16 * 1024 * 1024 }).upload(
+      'file',
+      new PassThrough(),
+      info,
+      vi.fn(),
+    )
+    const sized = vi.mocked(Upload).mock.calls.at(-1)![0] as { partSize?: number }
+    expect(sized.partSize).toBe(16 * 1024 * 1024)
+    const source = new PassThrough()
+    const onError = vi.fn()
+    createProvider({ bucket: 'b' }).upload('file', source, info, onError)
+    const plain = vi.mocked(Upload).mock.calls.at(-1)![0] as {
+      partSize?: number
+      params: { Body: PassThrough }
+    }
+    expect(plain.partSize).toBeUndefined()
+    source.destroy(new Error('connection reset'))
+    await new Promise((resolve) => setImmediate(resolve))
+    expect(plain.params.Body.destroyed).toBe(true)
   })
 })

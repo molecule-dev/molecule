@@ -89,3 +89,11 @@ describe('stream encryption contract', () => {
     }
   })
 })
+
+describe('R93: isEncryptionStreamError checks the name too', () => {
+  it('an error with a known code under another name is not a stream error', () => {
+    const renamed = new EncryptionStreamError('truncated', 'x')
+    renamed.name = 'SomethingElse'
+    expect(isEncryptionStreamError(renamed)).toBe(false)
+  })
+})

@@ -123,12 +123,11 @@ describe('E2B importFiles spools the archive', () => {
         for (let i = 0; i < 6; i++) yield piece // 18 MB in 3 MB chunks
       })(),
     )
-    // Two pieces (the 8 MB threshold is crossed after the 3rd and the 6th chunk)
-    // were written and appended, then one extract.
-    expect(writes).toHaveLength(2)
-    expect(writes.map((w) => w.size)).toEqual([9 * 1024 * 1024, 9 * 1024 * 1024])
+    // Pieces of exactly 8 MB (chunks are sliced at the piece boundary, R93-B9),
+    // then the 2 MB rest, then one extract.
+    expect(writes.map((w) => w.size)).toEqual([8 * 1024 * 1024, 8 * 1024 * 1024, 2 * 1024 * 1024])
     expect(commands.filter((c) => /\.piece > \//.test(c)).length).toBe(1)
-    expect(commands.filter((c) => /\.piece >> \//.test(c)).length).toBe(1)
+    expect(commands.filter((c) => /\.piece >> \//.test(c)).length).toBe(2)
     expect(commands.filter((c) => c.includes('tar xf ')).length).toBe(1)
     // The spool file is removed afterwards, success or not.
     expect(commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-import-/)
@@ -159,5 +158,75 @@ describe('E2B readFileBytes / writeFileBytes', () => {
     await sandbox!.writeFileBytes!('/tmp/part', new Uint8Array(4096))
     expect(writes).toEqual([{ path: '/tmp/part', size: 4096 }])
     expect(commands).toHaveLength(0)
+  })
+})
+
+describe('R93: bounded pieces, failures that must fail, export cleanup', () => {
+  const failing = (sandboxId: string, match: (cmd: string) => boolean, exitCode = 2) => {
+    const made = fakeSandbox(sandboxId)
+    made.sbx.commands.run = async (cmd: string) => {
+      made.commands.push(cmd)
+      return match(cmd)
+        ? { stdout: '', stderr: 'boom', exitCode }
+        : { stdout: '', stderr: '', exitCode: 0 }
+    }
+    return made
+  }
+
+  it('one 20 MB chunk is spooled as 8 + 8 + 4 MB pieces, never one write', async () => {
+    const { sbx, writes } = fakeSandbox('sbx-p1')
+    const sandbox = await providerFor(sbx).get('sbx-p1')
+    await sandbox!.importFiles!(
+      '/workspace',
+      (async function* () {
+        yield new Uint8Array(20 * 1024 * 1024)
+      })(),
+    )
+    expect(writes.map((w) => w.size)).toEqual([8 * 1024 * 1024, 8 * 1024 * 1024, 4 * 1024 * 1024])
+  })
+
+  it('a failed spool and a failed extract both fail the import, and the spool file is still removed', async () => {
+    const spool = failing('sbx-p2', (c) => c.includes('.piece >'), 1)
+    const s1 = await providerFor(spool.sbx).get('sbx-p2')
+    await expect(
+      s1!.importFiles!(
+        '/workspace',
+        (async function* () {
+          yield new Uint8Array(10)
+        })(),
+      ),
+    ).rejects.toThrow(/spooling the archive failed/)
+    expect(spool.commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-import-/)
+    const extract = failing('sbx-p3', (c) => c.includes('tar xf '))
+    const s2 = await providerFor(extract.sbx).get('sbx-p3')
+    await expect(
+      s2!.importFiles!(
+        '/workspace',
+        (async function* () {
+          yield new Uint8Array(10)
+        })(),
+      ),
+    ).rejects.toThrow(/tar extract failed/)
+    expect(extract.commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-import-/)
+  })
+
+  it('exportFiles removes its archive when the tar or the read fails, and names it uniquely', async () => {
+    const tarFails = failing('sbx-e1', (c) => c.startsWith('tar cf '))
+    const s1 = await providerFor(tarFails.sbx).get('sbx-e1')
+    await expect(s1!.exportFiles!('/workspace/app')).rejects.toThrow(/tar create failed/)
+    expect(tarFails.commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-export-/)
+    const readFails = fakeSandbox('sbx-e2')
+    readFails.sbx.files.read = (async () => {
+      throw new Error('read failed')
+    }) as typeof readFails.sbx.files.read
+    const s2 = await providerFor(readFails.sbx).get('sbx-e2')
+    await expect(s2!.exportFiles!('/workspace/app')).rejects.toThrow('read failed')
+    expect(readFails.commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-export-/)
+    const two = fakeSandbox('sbx-e3')
+    const s3 = await providerFor(two.sbx).get('sbx-e3')
+    await s3!.exportFiles!('/workspace/app')
+    await s3!.exportFiles!('/workspace/app')
+    const tars = two.commands.filter((c) => c.startsWith('tar cf ')).map((c) => c.split(' ')[2])
+    expect(new Set(tars).size).toBe(2)
   })
 })

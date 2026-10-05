@@ -370,3 +370,31 @@ describe('AES-256-GCM encryption provider', () => {
     })
   })
 })
+
+describe('R93: construction and verify edges', () => {
+  const key = randomBytes(32).toString('hex')
+
+  it('refuses a keyVersion outside 0–65535 and a prior key at the current version', () => {
+    expect(() => createProvider({ key, keyVersion: 70_000 })).toThrow(/0 to 65535/)
+    expect(() => createProvider({ key, keyVersion: 1.5 })).toThrow(/0 to 65535/)
+    expect(() => createProvider({ key, keyVersion: 2, priorKeys: [{ version: 2, key }] })).toThrow(
+      /current keyVersion/,
+    )
+    expect(() =>
+      createProvider({ key, keyVersion: 2, priorKeys: [{ version: 1, key }] }),
+    ).not.toThrow()
+  })
+
+  it('verify() answers false, never throws, for a candidate of the same length in characters but more bytes', async () => {
+    const p = createProvider({ key })
+    const h = await p.hash('x')
+    await expect(p.verify('x', 'é'.repeat(h.length))).resolves.toBe(false)
+    await expect(p.verify('x', h)).resolves.toBe(true)
+  })
+
+  it('decrypt() rejects a ciphertext with extra segments', async () => {
+    const p = createProvider({ key })
+    const c = await p.encrypt('hello')
+    await expect(p.decrypt(`${c}:extra`)).rejects.toThrow('Invalid ciphertext format')
+  })
+})

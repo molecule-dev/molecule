@@ -768,9 +768,17 @@ class E2BSandbox implements Sandbox {
     }
     try {
       for await (const chunk of archive) {
-        pending.push(chunk)
-        pendingBytes += chunk.length
-        if (pendingBytes >= IMPORT_PIECE_BYTES) await flush()
+        // Sliced into the piece: a single chunk larger than a piece (a whole
+        // archive yielded at once) must not become one huge write (R93-B9).
+        let offset = 0
+        while (offset < chunk.length) {
+          const room = IMPORT_PIECE_BYTES - pendingBytes
+          const slice = chunk.subarray(offset, offset + room)
+          pending.push(slice)
+          pendingBytes += slice.length
+          offset += slice.length
+          if (pendingBytes >= IMPORT_PIECE_BYTES) await flush()
+        }
       }
       await flush()
       if (pieces === 0) await this.sbx.commands.run(`: > ${tarPath}`, { timeoutMs: 30_000 })
@@ -814,18 +822,24 @@ class E2BSandbox implements Sandbox {
     if (!trimmed.startsWith('/') || !name) {
       throw new Error(`exportFiles: path must be an absolute directory below "/" (got "${path}")`)
     }
-    const tarPath = `/tmp/mol-export-${Date.now().toString(36)}.tar`
-    const r = await this.sbx.commands.run(
-      `tar cf ${tarPath} -C ${shellQuote(parent)} ${shellQuote(name)}`,
-      { timeoutMs: 300_000 },
-    )
-    if (r.exitCode !== 0) {
-      throw new Error(`exportFiles: tar create failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
+    // A unique name (two exports in one millisecond collided on Date.now()
+    // alone), removed whether the tar or the read succeeds or not (R93-B8).
+    const tarPath = `/tmp/mol-export-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.tar`
+    let bytes: Uint8Array
+    try {
+      const r = await this.sbx.commands.run(
+        `tar cf ${tarPath} -C ${shellQuote(parent)} ${shellQuote(name)}`,
+        { timeoutMs: 300_000 },
+      )
+      if (r.exitCode !== 0) {
+        throw new Error(`exportFiles: tar create failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
+      }
+      bytes = await this.sbx.files.read(tarPath, { format: 'bytes' })
+    } finally {
+      await this.sbx.commands.run(`rm -f ${tarPath}`, { timeoutMs: 20_000 }).catch((_error) => {
+        // intentional noop — leftover /tmp tar is harmless; the sandbox is ephemeral.
+      })
     }
-    const bytes = await this.sbx.files.read(tarPath, { format: 'bytes' })
-    await this.sbx.commands.run(`rm -f ${tarPath}`, { timeoutMs: 20_000 }).catch((_error) => {
-      // intentional noop — leftover /tmp tar is harmless; the sandbox is ephemeral.
-    })
     return (async function* () {
       yield bytes
     })()

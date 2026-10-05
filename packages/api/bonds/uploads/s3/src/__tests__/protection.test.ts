@@ -279,6 +279,19 @@ describe('describeBucketProtection', () => {
     })
   })
 
+  it('throws on NoSuchBucket from the object-lock read too, even though it is a 404', async () => {
+    const missing = Object.assign(new Error('no bucket'), {
+      name: 'NoSuchBucket',
+      $metadata: { httpStatusCode: 404 },
+    })
+    answer({
+      GetBucketVersioningCommand: { Status: 'Enabled' },
+      GetObjectLockConfigurationCommand: missing,
+    })
+    const { createProvider } = await import('../provider.js')
+    await expect(createProvider({ bucket: 'b' }).describeBucketProtection()).rejects.toBe(missing)
+  })
+
   it('throws on NoSuchBucket even though it is a 404', async () => {
     const missing = Object.assign(new Error('no bucket'), {
       name: 'NoSuchBucket',

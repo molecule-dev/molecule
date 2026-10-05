@@ -15,6 +15,7 @@ import {
   GetBucketVersioningCommand,
   GetObjectCommand,
   GetObjectLockConfigurationCommand,
+  HeadBucketCommand,
   HeadObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3'
@@ -360,6 +361,9 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
           : undefined
     const s3Upload = new Upload({
       client: getClient(),
+      // The multipart part size bounds the largest object: 10,000 parts × the
+      // part size (5 MiB by default, ~48.8 GiB). Raise it for larger archives.
+      ...(config.partSizeBytes ? { partSize: config.partSizeBytes } : {}),
       params: {
         Bucket: bucket,
         Key: id,
@@ -543,10 +547,25 @@ function buildProvider(config: S3UploadsConfig, envDriven: boolean): S3UploadPro
       }
     } catch (error) {
       // A HEAD response has no body, so a missing key surfaces as `NotFound`
-      // rather than `NoSuchKey`; accept both. Everything else (missing bucket,
-      // auth, network) throws, exactly like getFile.
+      // rather than `NoSuchKey`; accept both — but a missing BUCKET is a 404
+      // with no body too (R93-B3), so it is told apart with a HEAD on the
+      // bucket and thrown, exactly like getFile and describeBucketProtection.
       const name = (error as { name?: string }).name
       if (name === 'NotFound' || name === 'NoSuchKey') {
+        try {
+          await getClient().send(new HeadBucketCommand({ Bucket: config.bucket }))
+        } catch (bucketError) {
+          const bucketName = (bucketError as { name?: string }).name
+          if (bucketName === 'NotFound' || bucketName === 'NoSuchBucket') {
+            const missing = Object.assign(
+              new Error(`The bucket "${config.bucket}" does not exist.`),
+              { name: 'NoSuchBucket', cause: bucketError },
+            )
+            trackBondFailure({ bond: 'uploads-s3', operation: 'head', error: missing })
+            throw missing
+          }
+          // Any other failure to look at the bucket: the object answer stands.
+        }
         return null
       }
       trackBondFailure({ bond: 'uploads-s3', operation: 'head', error })

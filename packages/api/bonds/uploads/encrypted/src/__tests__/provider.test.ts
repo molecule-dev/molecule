@@ -3,6 +3,12 @@ import { PassThrough, Readable } from 'node:stream'
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+const trackBondFailure = vi.hoisted(() => vi.fn())
+vi.mock('@molecule/api-analytics', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  trackBondFailure,
+}))
+
 import type { EncryptionProvider } from '@molecule/api-encryption'
 import { setProvider as setEncryptionProvider } from '@molecule/api-encryption'
 import { createProvider as createAesProvider } from '@molecule/api-encryption-aes'
@@ -309,5 +315,92 @@ describe('@molecule/api-uploads-encrypted', () => {
       name: 'InvalidEncryptionContextError',
     })
     expect(inner.received).toBe(0)
+  })
+})
+
+describe('R93: cut uploads, drains, aborts and the decrypt report', () => {
+  let inner: ReturnType<typeof createMemoryInner>
+  let provider: ReturnType<typeof createProvider>
+  beforeEach(() => {
+    inner = createMemoryInner()
+    provider = createProvider({
+      inner,
+      encryption: createAesProvider({ key: KEY }),
+      chunkBytes: CHUNK,
+    })
+    trackBondFailure.mockClear()
+  })
+
+  it('a multipart size limit fails the upload instead of sealing the truncated body', async () => {
+    const source = new PassThrough()
+    const onError = vi.fn()
+    const file = provider.upload('f', source, INFO, onError)
+    source.write(Buffer.alloc(5000, 1))
+    source.emit('limit')
+    source.end()
+    await expect(file.uploadPromise).rejects.toMatchObject({ name: 'UploadTooLargeError' })
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({ name: 'UploadTooLargeError' }))
+    expect(inner.store.size).toBe(0)
+  })
+
+  it('a source that closes before it ends fails the upload instead of hanging', async () => {
+    const source = new PassThrough()
+    const onError = vi.fn()
+    const file = provider.upload('f', source, INFO, onError)
+    source.write(Buffer.alloc(100, 1))
+    source.destroy()
+    await expect(file.uploadPromise).rejects.toMatchObject({ name: 'UploadSourceClosedError' })
+    expect(onError).toHaveBeenCalled()
+    expect(inner.store.size).toBe(0)
+  })
+
+  it('a refused upload drains its source; an abort of an upload it does not know is a no-op', async () => {
+    const refusing = createProvider({
+      inner,
+      encryption: createAesProvider({ key: KEY }),
+      context: () => '',
+    })
+    const source = new PassThrough()
+    refusing.upload('f', source, INFO, vi.fn())
+    expect(source.readableFlowing).toBe(true)
+    await expect(
+      provider.abortUpload({
+        id: 'nope',
+        fieldname: 'f',
+        filename: 'x',
+        encoding: '7bit',
+        mimetype: 'a/b',
+        size: 0,
+        uploaded: false,
+      } as UploadedFile),
+    ).resolves.toBeUndefined()
+  })
+
+  it('destroying the plaintext stream destroys the inner source; a tampered object is reported as a decrypt failure', async () => {
+    const src = new PassThrough()
+    const file = provider.upload('f', src, INFO, vi.fn())
+    src.end(Buffer.alloc(CHUNK * 3, 2))
+    await file.uploadPromise
+    const original = inner.getFile!.bind(inner)
+    let served: (NodeJS.ReadableStream & { destroyed?: boolean }) | null = null
+    inner.getFile = async (id: string) => {
+      served = (await original(id)) as NodeJS.ReadableStream & { destroyed?: boolean }
+      return served
+    }
+    const out = (await provider.getFile!(file.id)) as NodeJS.ReadableStream & {
+      destroy: () => void
+    }
+    out.destroy()
+    await new Promise((resolve) => setImmediate(resolve))
+    expect(served!.destroyed).toBe(true)
+    // Tamper: flip a byte of the stored ciphertext; the read fails and is reported.
+    const key = [...inner.store.keys()][0]
+    const bytes = Buffer.from(inner.store.get(key)!)
+    bytes[80] ^= 0xff
+    inner.store.set(key, bytes)
+    inner.getFile = original
+    const broken = (await provider.getFile!(file.id))!
+    await expect(collect(broken)).rejects.toBeInstanceOf(Error)
+    expect(trackBondFailure).toHaveBeenCalledWith(expect.objectContaining({ operation: 'decrypt' }))
   })
 })

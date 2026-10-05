@@ -89,13 +89,31 @@ const decodeKey = (key: string, label: string): Buffer => {
 export const createProvider = (config: AesConfig): AesEncryptionProvider => {
   let currentVersion = config.keyVersion ?? 1
   let currentKey = decodeKey(config.key, 'key')
+  // A version must fit the stream header (0–65535): checked here, not on the
+  // first encryptStream() call (R93).
+  if (!Number.isInteger(currentVersion) || currentVersion < 0 || currentVersion > 0xffff) {
+    throw new Error(
+      `keyVersion must be an integer from 0 to 65535 (got ${String(currentVersion)}).`,
+    )
+  }
 
   // Version -> key buffer. Rotation adds a new version and retains prior keys,
-  // so ciphertext tagged with an older `v{n}` still decrypts. Seed historical
-  // keys first, then set the current one so it wins on any version collision.
+  // so ciphertext tagged with an older `v{n}` still decrypts. A prior key at
+  // the CURRENT version would be silently overridden by it: refused.
   const keyring = new Map<number, Buffer>()
   for (const prior of config.priorKeys ?? []) {
-    keyring.set(prior.version, decodeKey(prior.key, `priorKeys[v${prior.version}]`))
+    const priorKey = decodeKey(prior.key, `priorKeys[v${prior.version}]`)
+    if (!Number.isInteger(prior.version) || prior.version < 0 || prior.version > 0xffff) {
+      throw new Error(
+        `priorKeys versions must be integers from 0 to 65535 (got ${String(prior.version)}).`,
+      )
+    }
+    if (prior.version === currentVersion) {
+      throw new Error(
+        `priorKeys[v${prior.version}] names the current keyVersion; prior versions must differ.`,
+      )
+    }
+    keyring.set(prior.version, priorKey)
   }
   keyring.set(currentVersion, currentKey)
 
@@ -154,13 +172,18 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
     },
 
     async verify(data: string, hashed: string): Promise<boolean> {
-      const computed = createHash('sha256').update(data, 'utf-8').digest('hex')
-
-      if (computed.length !== hashed.length) {
+      const computed = Buffer.from(
+        createHash('sha256').update(data, 'utf-8').digest('hex'),
+        'utf-8',
+      )
+      const given = Buffer.from(hashed, 'utf-8')
+      // Compared as BYTES: a candidate of the same character length but with
+      // multi-byte characters made timingSafeEqual throw a RangeError (R93).
+      if (computed.length !== given.length) {
         return false
       }
 
-      return timingSafeEqual(Buffer.from(computed, 'utf-8'), Buffer.from(hashed, 'utf-8'))
+      return timingSafeEqual(computed, given)
     },
 
     async rotateKey(oldKey: string, newKey: string): Promise<void> {
