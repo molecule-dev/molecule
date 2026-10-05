@@ -417,6 +417,16 @@ describe('R94: rotateKey picks a free version and the prior-key range is checked
     expect((await p.encrypt('new')).startsWith('v3:')).toBe(true)
   })
 
+  it('R95-O-L5: rotates to exactly 65535, then refuses one more', async () => {
+    const first = k()
+    const second = k()
+    const p = createProvider({ key: first, keyVersion: 65534 })
+    await p.rotateKey(first, second)
+    // 65535 is the last version the stream header can carry, and it is usable.
+    expect((await p.encrypt('last')).startsWith('v65535:')).toBe(true)
+    await expect(p.rotateKey(second, k())).rejects.toThrow(/no key version left/)
+  })
+
   it('refuses to rotate past the header range, and a prior version outside it at construction', async () => {
     const current = k()
     const p = createProvider({ key: current, keyVersion: 65535 })

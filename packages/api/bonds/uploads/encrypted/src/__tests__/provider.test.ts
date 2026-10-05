@@ -406,18 +406,17 @@ describe('R93: cut uploads, drains, aborts and the decrypt report', () => {
 })
 
 describe('R94: close after end is not a cut', () => {
-  it('a source that ends normally and then closes while the inner store is still finishing succeeds', async () => {
+  it('R95-O-L5: a source that ends and closes before the inner store has read anything is not failed as a cut', async () => {
     const inner = createMemoryInner()
-    // The inner store settles a tick late, so the source's close lands first.
+    // A SLOW inner store: it consumes the encrypted stream only on a later tick,
+    // after the source has already emitted `end` and then `close`. Without the
+    // `sourceEnded` check that close would destroy the cipher with the cut error
+    // before the store read a byte.
     const upload = inner.upload.bind(inner)
     inner.upload = (fieldname, stream, info, onError) => {
-      const file = upload(fieldname, stream, info, onError)
-      const done = file.uploadPromise!
-      file.uploadPromise = new Promise((resolve, reject) =>
-        setTimeout(() => done.then(resolve, reject), 20),
-      )
-      file.uploadPromise.catch(() => undefined)
-      return file
+      const late = new PassThrough()
+      setTimeout(() => stream.pipe(late), 30)
+      return upload(fieldname, late, info, onError)
     }
     const provider = createProvider({
       inner,
@@ -425,9 +424,13 @@ describe('R94: close after end is not a cut', () => {
       chunkBytes: CHUNK,
     })
     const source = new PassThrough()
+    const closed = new Promise<void>((resolve) => source.once('close', () => resolve()))
     const onError = vi.fn()
     const file = provider.upload('f', source, INFO, onError)
-    source.end(Buffer.alloc(CHUNK * 2, 5))
+    source.end(Buffer.alloc(100, 5))
+    // The source has fully closed while the inner store has still read nothing.
+    await closed
+    expect(inner.received).toBe(0)
     await expect(file.uploadPromise).resolves.toBeUndefined()
     expect(onError).not.toHaveBeenCalled()
     expect(inner.store.size).toBe(1)
