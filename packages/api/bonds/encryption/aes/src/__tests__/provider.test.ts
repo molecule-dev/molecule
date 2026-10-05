@@ -398,3 +398,31 @@ describe('R93: construction and verify edges', () => {
     await expect(p.decrypt(`${c}:extra`)).rejects.toThrow('Invalid ciphertext format')
   })
 })
+
+describe('R94: rotateKey picks a free version and the prior-key range is checked', () => {
+  const k = (): string => randomBytes(32).toString('hex')
+
+  it('rotates past a prior key that already holds the next version, so nothing is orphaned', async () => {
+    const current = k()
+    const prior = k()
+    const p = createProvider({
+      key: current,
+      keyVersion: 1,
+      priorKeys: [{ version: 2, key: prior }],
+    })
+    const sealedUnderPrior = await createProvider({ key: prior, keyVersion: 2 }).encrypt('old data')
+    await p.rotateKey(current, k())
+    // v2 still decrypts with the prior key; the new key took v3.
+    await expect(p.decrypt(sealedUnderPrior)).resolves.toBe('old data')
+    expect((await p.encrypt('new')).startsWith('v3:')).toBe(true)
+  })
+
+  it('refuses to rotate past the header range, and a prior version outside it at construction', async () => {
+    const current = k()
+    const p = createProvider({ key: current, keyVersion: 65535 })
+    await expect(p.rotateKey(current, k())).rejects.toThrow(/no key version left/)
+    expect(() =>
+      createProvider({ key: current, priorKeys: [{ version: 70_000, key: k() }] }),
+    ).toThrow(/0 to 65535/)
+  })
+})

@@ -576,7 +576,10 @@ describe('R93: cut uploads, the drain, the in-flight map, locate and size', () =
         { name: 'b', provider: b },
       ],
     })
-    const file = mirror.upload('f', Readable.from([Buffer.alloc(300 * 1024, 3)]), big(), vi.fn())
+    // 300 chunks of 1 KB against a 16-byte high-water mark: the failed branch
+    // fills and, without the drain, stalls the source and the other copy.
+    const chunks = Array.from({ length: 300 }, () => Buffer.alloc(1024, 3))
+    const file = mirror.upload('f', Readable.from(chunks), big(), vi.fn())
     await within(file.uploadPromise!)
     expect(b.store.size).toBe(1)
     expect(file.size).toBe(300 * 1024)
@@ -634,5 +637,33 @@ describe('R93: cut uploads, the drain, the in-flight map, locate and size', () =
       throw new Error('store down')
     }
     expect((await mirror.locate(file.id))[0].present).toBe('unknown')
+  })
+})
+
+describe('R94: two in-flight uploads whose targets answer empty ids', () => {
+  it('aborting one leaves the other alone', async () => {
+    const blankIds = (name: string): Fake => {
+      const inner = fake(name, { delayMs: 30 })
+      const upload = inner.upload.bind(inner)
+      inner.upload = (fieldname, stream, info, onError) => {
+        const file = upload(fieldname, stream, info, onError)
+        file.id = ''
+        return file
+      }
+      return inner
+    }
+    const a = blankIds('a')
+    const mirror = createProvider({ targets: [{ name: 'a', provider: a }] })
+    const info = { filename: 'x.bin', encoding: 'binary', mimeType: 'application/octet-stream' }
+    const first = mirror.upload('f', Readable.from([Buffer.alloc(64, 1)]), info, vi.fn())
+    const second = mirror.upload('f', Readable.from([Buffer.alloc(64, 2)]), info, vi.fn())
+    const secondOutcome = second.uploadPromise!
+    first.uploadPromise!.catch(() => undefined)
+    await mirror.abortUpload(first)
+    await expect(
+      first.uploadPromise ?? Promise.reject(new UploadAbortedError()),
+    ).rejects.toBeInstanceOf(UploadAbortedError)
+    await expect(secondOutcome).resolves.toBeUndefined()
+    expect(a.aborted).toHaveLength(1)
   })
 })

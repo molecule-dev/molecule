@@ -404,3 +404,32 @@ describe('R93: cut uploads, drains, aborts and the decrypt report', () => {
     expect(trackBondFailure).toHaveBeenCalledWith(expect.objectContaining({ operation: 'decrypt' }))
   })
 })
+
+describe('R94: close after end is not a cut', () => {
+  it('a source that ends normally and then closes while the inner store is still finishing succeeds', async () => {
+    const inner = createMemoryInner()
+    // The inner store settles a tick late, so the source's close lands first.
+    const upload = inner.upload.bind(inner)
+    inner.upload = (fieldname, stream, info, onError) => {
+      const file = upload(fieldname, stream, info, onError)
+      const done = file.uploadPromise!
+      file.uploadPromise = new Promise((resolve, reject) =>
+        setTimeout(() => done.then(resolve, reject), 20),
+      )
+      file.uploadPromise.catch(() => undefined)
+      return file
+    }
+    const provider = createProvider({
+      inner,
+      encryption: createAesProvider({ key: KEY }),
+      chunkBytes: CHUNK,
+    })
+    const source = new PassThrough()
+    const onError = vi.fn()
+    const file = provider.upload('f', source, INFO, onError)
+    source.end(Buffer.alloc(CHUNK * 2, 5))
+    await expect(file.uploadPromise).resolves.toBeUndefined()
+    expect(onError).not.toHaveBeenCalled()
+    expect(inner.store.size).toBe(1)
+  })
+})

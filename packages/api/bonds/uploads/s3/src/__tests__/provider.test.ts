@@ -1344,3 +1344,30 @@ describe('R93: headFile and a missing bucket, the part size, a source that error
     expect(plain.params.Body.destroyed).toBe(true)
   })
 })
+
+describe('R94: the bucket HEAD behind a missing object', () => {
+  it('NoSuchBucket by name throws; a forbidden bucket HEAD leaves the object answer (null)', async () => {
+    const { createProvider } = await import('../provider.js')
+    const store = createProvider({ bucket: 'b' })
+    mockSend.mockImplementation(async (cmd: { type: string }) => {
+      if (cmd.type === 'HeadObjectCommand')
+        throw Object.assign(new Error('x'), { name: 'NotFound' })
+      if (cmd.type === 'HeadBucketCommand')
+        throw Object.assign(new Error('x'), { name: 'NoSuchBucket' })
+      return {}
+    })
+    await expect(store.headFile('k')).rejects.toMatchObject({ name: 'NoSuchBucket' })
+    mockSend.mockImplementation(async (cmd: { type: string }) => {
+      if (cmd.type === 'HeadObjectCommand')
+        throw Object.assign(new Error('x'), { name: 'NotFound' })
+      if (cmd.type === 'HeadBucketCommand')
+        throw Object.assign(new Error('x'), {
+          name: 'AccessDenied',
+          $metadata: { httpStatusCode: 403 },
+        })
+      return {}
+    })
+    expect(await store.headFile('k')).toBeNull()
+    mockSend.mockReset()
+  })
+})

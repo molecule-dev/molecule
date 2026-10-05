@@ -197,11 +197,18 @@ export const createProvider = (config: AesConfig): AesEncryptionProvider => {
         throw new Error('Old key does not match the current encryption key')
       }
 
-      // Add the new key at the next version and make it current. The prior key
-      // stays in the keyring so ciphertext tagged with the old version still
-      // decrypts — rotation NEVER orphans existing data. Retire old keys
-      // explicitly with pruneKeyVersions() once their data is re-encrypted.
-      currentVersion += 1
+      // Add the new key at the next FREE version and make it current: a prior
+      // key may already hold currentVersion + 1 (a keyring seeded after a
+      // rollback), and writing over it would orphan everything sealed under it
+      // (R94). The prior key stays in the keyring so ciphertext tagged with the
+      // old version still decrypts — rotation NEVER orphans existing data.
+      // Retire old keys explicitly with pruneKeyVersions() once their data is
+      // re-encrypted. The stream header carries versions up to 65535.
+      const next = Math.max(currentVersion, ...keyring.keys()) + 1
+      if (next > 0xffff) {
+        throw new Error('rotateKey: no key version left below 65536; prune old versions first.')
+      }
+      currentVersion = next
       currentKey = newBuffer
       keyring.set(currentVersion, currentKey)
     },
