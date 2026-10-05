@@ -3,14 +3,20 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for yo. */
 export const yo: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.title': '\\u00CCj\\u00EDr\\u00F2r\\u00F2',
-  'ide.chat.placeholder': 'Fi \\u00ECfir\\u00E1n\\u1E63\\u1EB9\\u0301 r\\u00E1n\\u1E63\\u1EB9\\u0301...',
+  'ide.chat.placeholder':
+    'Fi \\u00ECfir\\u00E1n\\u1E63\\u1EB9\\u0301 r\\u00E1n\\u1E63\\u1EB9\\u0301...',
   'ide.chat.placeholderViewer': 'Message your team',
-  'ide.chat.emptyState': '\\u1E62\\u00E0p\\u00E8j\\u00FAwe ohun t\\u00ED o f\\u1EB9\\u0301 k\\u1ECD\\u0301...',
+  'ide.chat.emptyState':
+    '\\u1E62\\u00E0p\\u00E8j\\u00FAwe ohun t\\u00ED o f\\u1EB9\\u0301 k\\u1ECD\\u0301...',
   'ide.chat.you': '\\u00CCw\\u1ECD',
   'ide.chat.itemRenderError': 'A ò lè ṣàfihàn ìfìwéránṣẹ́ yìí.',
   'ide.chat.molecule': 'Molecule',
@@ -27,10 +33,12 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.retryCommit': 'Tun gb\\u00ECy\\u00E0nj\\u00FA',
   'ide.chat.thinking': 'N\\u0301 r\\u00F2n\\u00FA',
   'ide.chat.fileCount': 'f\\u00E1\\u00ECl\\u00EC {{count}}',
-  'ide.chat.uncommittedFileCount': 'f\\u00E1\\u00ECl\\u00EC {{count}} t\\u00ED k\\u00F2 t\\u00ED\\u00EC fi pam\\u1ECD\\u0301',
+  'ide.chat.uncommittedFileCount':
+    'f\\u00E1\\u00ECl\\u00EC {{count}} t\\u00ED k\\u00F2 t\\u00ED\\u00EC fi pam\\u1ECD\\u0301',
   'ide.chat.newChat': '\\u00CCj\\u00EDr\\u00F2r\\u00F2 t\\u00FAntun',
   'ide.chat.searchConversations': 'W\\u00E1 \\u00ECj\\u00EDr\\u00F2r\\u00F2\\u2026',
-  'ide.chat.askUserPlaceholder': 'T\\u00E0b\\u00ED t\\u00E0\\u00EDp\\u00F9 ti\\u1EB9 r\\u1EB9\\u2026',
+  'ide.chat.askUserPlaceholder':
+    'T\\u00E0b\\u00ED t\\u00E0\\u00EDp\\u00F9 ti\\u1EB9 r\\u1EB9\\u2026',
   'ide.chat.askUserMultiHint': 'You can choose more than one.',
   'ide.chat.askUserSelectedCount': '{{count}} selected',
   'ide.chat.askUserMultiConfirm': 'Confirm choice',
@@ -67,47 +75,65 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.attachFile': 'So f\\u00E1\\u00ECl\\u00EC p\\u00F2',
   'ide.chat.changeModel': 'Y\\u00ED m\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC pad\\u00E0',
   'ide.chat.continueButton': 'T\\u1EB9\\u0300s\\u00EDw\\u00E1j\\u00FA',
-  'ide.chat.continuePrompt': 'T\\u1EB9\\u0300s\\u00EDw\\u00E1j\\u00FA \\u00ECm\\u00FAs\\u1EB9\\u0300 l\\u00E1t\\u00EC ibi t\\u00ED o ti d\\u00FAr\\u00F3.',
+  'ide.chat.continuePrompt':
+    'T\\u1EB9\\u0300s\\u00EDw\\u00E1j\\u00FA \\u00ECm\\u00FAs\\u1EB9\\u0300 l\\u00E1t\\u00EC ibi t\\u00ED o ti d\\u00FAr\\u00F3.',
   'ide.chat.currentBadge': 'l\\u1ECD\\u0301w\\u1ECD\\u0301l\\u1ECD\\u0301w\\u1ECD\\u0301',
   'ide.chat.dropFilesHere': 'Ju f\\u00E1\\u00ECl\\u00EC s\\u00ED ib\\u00EC',
-  'ide.chat.fileTooLarge': 'F\\u00E1\\u00ECl\\u00EC n\\u00E1a t\\u00F3bi j\\u00F9. Iw\\u1ECDn t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD ni {{maxSize}}MB.',
-  'ide.chat.increaseLoops': 'Mu iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD p\\u00F2 s\\u00ED i',
-  'ide.chat.loopLimitReached': 'Ti d\\u00E9 iw\\u1ECDn t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD ti \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301 {{max}}.',
-  'ide.chat.maxLoopsError': 'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301.',
-  'ide.chat.maxLoopsSet': 'Iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301 ti y\\u00ED pad\\u00E0 s\\u00ED {{n}}',
+  'ide.chat.fileTooLarge':
+    'F\\u00E1\\u00ECl\\u00EC n\\u00E1a t\\u00F3bi j\\u00F9. Iw\\u1ECDn t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD ni {{maxSize}}MB.',
+  'ide.chat.increaseLoops':
+    'Mu iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD p\\u00F2 s\\u00ED i',
+  'ide.chat.loopLimitReached':
+    'Ti d\\u00E9 iw\\u1ECDn t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD ti \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301 {{max}}.',
+  'ide.chat.maxLoopsError':
+    'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301.',
+  'ide.chat.maxLoopsSet':
+    'Iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301 ti y\\u00ED pad\\u00E0 s\\u00ED {{n}}',
   'ide.chat.maxLoopsReached': 'A ti de opin awọn iyipo.',
-  'ide.chat.modelError': 'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n m\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC \\u00ECj\\u00EDr\\u00F2r\\u00F2.',
-  'ide.chat.modelSet': 'M\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC \\u00ECj\\u00EDr\\u00F2r\\u00F2 ti y\\u00ED pad\\u00E0 s\\u00ED {{name}}',
-  'ide.chat.modelUsage': 'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired': '{{model}} wa lori Pro. Ṣe igbesoke lati wọle si gbogbo awọn awoṣe.',
+  'ide.chat.modelError':
+    'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n m\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC \\u00ECj\\u00EDr\\u00F2r\\u00F2.',
+  'ide.chat.modelSet':
+    'M\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC \\u00ECj\\u00EDr\\u00F2r\\u00F2 ti y\\u00ED pad\\u00E0 s\\u00ED {{name}}',
+  'ide.chat.modelUsage':
+    'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} wa lori Pro. Ṣe igbesoke lati wọle si gbogbo awọn awoṣe.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Wa l\\u00E1\\u00EC\\u00ECn\\u00EC',
   'ide.chat.queuedCount': '{{count}} ní ìlà',
   'ide.chat.redoChange': 'Tun \\u00E0y\\u00EDpad\\u00E0 y\\u00EC\\u00ED \\u1E63e',
   'ide.chat.responseStopped': '\\u00CCd\\u00E1h\\u00F9n ti d\\u00FAr\\u00F3',
-  'ide.chat.revertFile': 'Pad\\u00E0 s\\u00ED \\u00ECpam\\u1ECD\\u0301 t\\u00F3 gb\\u1EB9\\u0300y\\u00ECn',
+  'ide.chat.revertFile':
+    'Pad\\u00E0 s\\u00ED \\u00ECpam\\u1ECD\\u0301 t\\u00F3 gb\\u1EB9\\u0300y\\u00ECn',
   'ide.chat.selectModel': 'Yan m\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC',
   'ide.chat.signUpRequired': 'Foruk\\u1ECD s\\u00EDl\\u1EB9\\u0300 l\\u00E1ti l\\u00F2',
   'ide.chat.undoChange': 'Fa \\u00E0y\\u00EDpad\\u00E0 y\\u00EC\\u00ED pad\\u00E0',
   'ide.chat.verificationPassed': '\\u00C0y\\u1EB9\\u0300w\\u00F2 k\\u1ECDj\\u00E1',
   'ide.chat.verificationFailed': 'A r\\u00ED \\u00E0\\u1E63\\u00ECse',
-  'ide.chat.verificationFixing': 'N\\u0301 \\u1E63e \\u00E0t\\u00FAn\\u1E63e \\u00E0\\u1E63\\u00ECse...',
+  'ide.chat.verificationFixing':
+    'N\\u0301 \\u1E63e \\u00E0t\\u00FAn\\u1E63e \\u00E0\\u1E63\\u00ECse...',
   'ide.chat.autoFixEnabled': 'At\\u00FAn\\u1E63e-a\\u00ED-f\\u00FAn-\\u00E0r\\u00E0 ti tan.',
   'ide.chat.autoFixDisabled': 'At\\u00FAn\\u1E63e-a\\u00ED-f\\u00FAn-\\u00E0r\\u00E0 ti pa.',
-  'ide.chat.autoFixError': 'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n \\u00E8t\\u00F2 at\\u00FAn\\u1E63e-a\\u00ED-f\\u00FAn-\\u00E0r\\u00E0.',
-  'ide.chat.autoApproveEnabled': 'Ìfọwọ́sí-láìfọwọ́yí ti tan — àwọn àṣẹ apanirun a máa ṣiṣẹ́ láìsí ìbéèrè. Ààbò lòdì sí jíjí dátà yóò ṣì máa béèrè. Lo /autoapprove láti pa á.',
-  'ide.chat.autoApproveDisabled': 'Ìfọwọ́sí-láìfọwọ́yí ti pa — àwọn àṣẹ apanirun a máa béèrè kí wọ́n tó ṣiṣẹ́.',
+  'ide.chat.autoFixError':
+    'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n \\u00E8t\\u00F2 at\\u00FAn\\u1E63e-a\\u00ED-f\\u00FAn-\\u00E0r\\u00E0.',
+  'ide.chat.autoApproveEnabled':
+    'Ìfọwọ́sí-láìfọwọ́yí ti tan — àwọn àṣẹ apanirun a máa ṣiṣẹ́ láìsí ìbéèrè. Ààbò lòdì sí jíjí dátà yóò ṣì máa béèrè. Lo /autoapprove láti pa á.',
+  'ide.chat.autoApproveDisabled':
+    'Ìfọwọ́sí-láìfọwọ́yí ti pa — àwọn àṣẹ apanirun a máa béèrè kí wọ́n tó ṣiṣẹ́.',
   'ide.chat.autoApproveError': 'Kò lè ṣe ìmúdójúìwọ̀n ètò ìfọwọ́sí-láìfọwọ́yí.',
   'ide.chat.viewPlans': 'Wo \\u00E0w\\u1ECDn \\u00E8t\\u00F2',
   'ide.chat.cancel': 'Fagi l\\u00E9',
   'ide.chat.save': 'Fi pam\\u1ECD\\u0301',
   'ide.chat.editQueued': '\\u1E62\\u00E0t\\u00FAn\\u1E63e',
   'ide.chat.deleteQueued': 'Pa r\\u1EB9\\u0301',
-  'ide.chat.soundsError': 'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n \\u00E8t\\u00F2 ohun.',
-  'ide.chat.notificationSounds': '\\u00C0w\\u1ECDn ohun \\u00ECf\\u00ECt\\u00F3nnil\\u1EB9\\u0301t\\u00EC',
+  'ide.chat.soundsError':
+    'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n \\u00E8t\\u00F2 ohun.',
+  'ide.chat.notificationSounds':
+    '\\u00C0w\\u1ECDn ohun \\u00ECf\\u00ECt\\u00F3nnil\\u1EB9\\u0301t\\u00EC',
   'ide.chat.soundAll': 'Gb\\u00F3gb\\u00F2',
   'ide.chat.soundMode.off': 'pip\\u00E1',
-  'ide.chat.soundMode.whenNotFocused': 'n\\u00EDgb\\u00E0 t\\u00ED k\\u00F2 s\\u00ED \\u00E0k\\u00EDy\\u00E8s\\u00ED',
+  'ide.chat.soundMode.whenNotFocused':
+    'n\\u00EDgb\\u00E0 t\\u00ED k\\u00F2 s\\u00ED \\u00E0k\\u00EDy\\u00E8s\\u00ED',
   'ide.chat.soundMode.always': 'n\\u00EDgb\\u00E0gb\\u00F3gb\\u00F2',
   'ide.chat.soundMode.mixed': '\\u00E0dap\\u00F2',
   'ide.chat.soundEvent.message': 'Team message',
@@ -117,26 +143,37 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.soundEvent.file_diff': 'F\\u00E1\\u00ECl\\u00EC y\\u00EDpad\\u00E0',
   'ide.chat.soundEvent.commit_suggestion': '\\u00CCpam\\u1ECD\\u0301 ni a d\\u00E1b\\u00E0',
   'ide.chat.soundEvent.mode': 'M\\u00F3\\u00F2d\\u00F9 y\\u00EDpad\\u00E0',
-  'ide.chat.soundEvent.loop_limit_reached': 'Iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ti d\\u00E9',
-  'ide.chat.soundEvent.verification_result': '\\u00C0b\\u00E1j\\u00E1de \\u00E0y\\u1EB9\\u0300w\\u00F2',
+  'ide.chat.soundEvent.loop_limit_reached':
+    'Iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ti d\\u00E9',
+  'ide.chat.soundEvent.verification_result':
+    '\\u00C0b\\u00E1j\\u00E1de \\u00E0y\\u1EB9\\u0300w\\u00F2',
   'ide.chat.soundEvent.preview_error': '\\u00C0\\u1E63\\u00ECse \\u00E0w\\u00F2\\u1E63e',
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} ti par\\u00ED \\u00ECd\\u00E1h\\u00F9n',
-  'ide.chat.soundEventDesc.error': 'N\\u1ECD\\u0301nkan k\\u00F2 l\\u1ECD n\\u00EDgb\\u00E0 \\u00ECd\\u00E1h\\u00F9n',
-  'ide.chat.soundEventDesc.tool_result': '\\u00CCP\\u00E8 ir\\u00EDn\\u1E63\\u1EB9\\u0301 kan (k\\u00EDk\\u00E0 f\\u00E1\\u00ECl\\u00EC, \\u00E0\\u1E63\\u1EB9, \\u00E0ti b\\u1EB9\\u0300\\u1EB9\\u0300 l\\u1ECD) ti par\\u00ED',
-  'ide.chat.soundEventDesc.file_diff': 'A ti \\u1E63\\u1EB9\\u0300d\\u00E1 f\\u00E1\\u00ECl\\u00EC kan t\\u00E0b\\u00ED a \\u1E63\\u00E0t\\u00FAn\\u1E63e r\\u1EB9\\u0300',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} n\\u0301 d\\u00E1b\\u00E0 \\u00E0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi pam\\u1ECD\\u0301',
-  'ide.chat.soundEventDesc.mode': 'Y\\u00ED pad\\u00E0 l\\u00E1\\u00E0r\\u00EDn m\\u00F3\\u00F2d\\u00F9 \\u00E8t\\u00F2 \\u00E0ti m\\u00F3\\u00F2d\\u00F9 \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300',
-  'ide.chat.soundEventDesc.loop_limit_reached': 'Ti d\\u00E9 iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301 t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD',
-  'ide.chat.soundEventDesc.verification_result': '\\u00C0y\\u1EB9\\u0300w\\u00F2 lint t\\u00E0b\\u00ED \\u00E0y\\u1EB9\\u0300w\\u00F2 ir\\u00FA ti par\\u00ED',
-  'ide.chat.soundEventDesc.preview_error': '\\u00C0w\\u00F2\\u1E63e al\\u00E1\\u00E0y\\u00E8 b\\u00E1 \\u00E0\\u1E63\\u00ECse kan p\\u00E0d\\u00E9',
+  'ide.chat.soundEventDesc.error':
+    'N\\u1ECD\\u0301nkan k\\u00F2 l\\u1ECD n\\u00EDgb\\u00E0 \\u00ECd\\u00E1h\\u00F9n',
+  'ide.chat.soundEventDesc.tool_result':
+    '\\u00CCP\\u00E8 ir\\u00EDn\\u1E63\\u1EB9\\u0301 kan (k\\u00EDk\\u00E0 f\\u00E1\\u00ECl\\u00EC, \\u00E0\\u1E63\\u1EB9, \\u00E0ti b\\u1EB9\\u0300\\u1EB9\\u0300 l\\u1ECD) ti par\\u00ED',
+  'ide.chat.soundEventDesc.file_diff':
+    'A ti \\u1E63\\u1EB9\\u0300d\\u00E1 f\\u00E1\\u00ECl\\u00EC kan t\\u00E0b\\u00ED a \\u1E63\\u00E0t\\u00FAn\\u1E63e r\\u1EB9\\u0300',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} n\\u0301 d\\u00E1b\\u00E0 \\u00E0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi pam\\u1ECD\\u0301',
+  'ide.chat.soundEventDesc.mode':
+    'Y\\u00ED pad\\u00E0 l\\u00E1\\u00E0r\\u00EDn m\\u00F3\\u00F2d\\u00F9 \\u00E8t\\u00F2 \\u00E0ti m\\u00F3\\u00F2d\\u00F9 \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300',
+  'ide.chat.soundEventDesc.loop_limit_reached':
+    'Ti d\\u00E9 iw\\u1ECDn \\u00EC\\u1E63\\u1EB9\\u0300l\\u1EB9\\u0300 ir\\u00EDn\\u1E63\\u1EB9\\u0301 t\\u00F3 p\\u1ECD\\u0300 j\\u00F9l\\u1ECD',
+  'ide.chat.soundEventDesc.verification_result':
+    '\\u00C0y\\u1EB9\\u0300w\\u00F2 lint t\\u00E0b\\u00ED \\u00E0y\\u1EB9\\u0300w\\u00F2 ir\\u00FA ti par\\u00ED',
+  'ide.chat.soundEventDesc.preview_error':
+    '\\u00C0w\\u00F2\\u1E63e al\\u00E1\\u00E0y\\u00E8 b\\u00E1 \\u00E0\\u1E63\\u00ECse kan p\\u00E0d\\u00E9',
   'ide.chat.voice': 'Oh\\u00F9n',
   'ide.chat.voiceUnavailable': 'Ìkọ̀rọ̀sílẹ̀ ohùn kò sí lórí aṣàwákiri yìí.',
   'ide.chat.voiceMicBlocked': 'A ti dí ìwọlé gbohùngbohùn.',
   'ide.chat.voicePreparing': 'Ń múra ìkọ̀rọ̀sílẹ̀ ohùn — ó lè gba ìṣẹ́jú díẹ̀ nígbà àkọ́kọ́.',
   'ide.chat.voiceTranscribeFailed': 'Ìkọsílẹ̀ kùnà.',
   'ide.chat.voiceEngineTitle': 'Ẹ́njìnnì ìkọ̀rọ̀sílẹ̀',
-  'ide.chat.voiceEnginePrivacy': 'Gbogbo àṣàyàn ń ṣiṣẹ́ lórí ẹ̀rọ rẹ — ohùn kò kúrò nínú aṣàwákiri rẹ láé.',
+  'ide.chat.voiceEnginePrivacy':
+    'Gbogbo àṣàyàn ń ṣiṣẹ́ lórí ẹ̀rọ rẹ — ohùn kò kúrò nínú aṣàwákiri rẹ láé.',
   'ide.chat.voiceEngineNoDownload': 'kò sí ìgbàsílẹ̀',
   'ide.chat.voiceEngineDownload': 'ìgbàsílẹ̀ ~{{mb}} MB, lẹ́yìn náà a fi pamọ́',
   'ide.chat.voiceEngineDownloadRange': 'ìgbàsílẹ̀ ~{{min}}–{{max}} MB, lẹ́yìn náà a fi pamọ́',
@@ -159,7 +196,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.models.colRegion': 'Àgbègbè',
   'ide.chat.modelInUseRegion': 'Ń lo {{model}} ({{region}}) báyìí',
   'ide.editor.title': 'Ol\\u00F3\\u00F2t\\u00FA',
-  'ide.editor.emptyState': '\\u1E62\\u00ED f\\u00E1\\u00ECl\\u00EC kan l\\u00E1ti b\\u1EB9\\u0300r\\u1EB9\\u0300 \\u00E0t\\u00FAn\\u1E63e',
+  'ide.editor.emptyState':
+    '\\u1E62\\u00ED f\\u00E1\\u00ECl\\u00EC kan l\\u00E1ti b\\u1EB9\\u0300r\\u1EB9\\u0300 \\u00E0t\\u00FAn\\u1E63e',
   'ide.files.empty': 'K\\u00F2 s\\u00ED f\\u00E1\\u00ECl\\u00EC',
   'ide.preview.title': '\\u00CCw\\u00F2ye',
   'ide.preview.refresh': 'M\\u00FA \\u00ECw\\u00F2ye d\\u00E0r\\u00E0',
@@ -214,30 +252,37 @@ export const yo: Partial<IdeTranslations> = {
   'ide.contextMenu.collapseAll': 'Pa gb\\u00F3gb\\u00F2 r\\u00E9',
   'ide.commandPalette.placeholder': 'T\\u00E0\\u00EDp\\u00F9 \\u00E0\\u1E63\\u1EB9 kan\\u2026',
   'ide.formatting': 'N\\u0301 \\u1E63e \\u00E0gb\\u00E9kal\\u1EB9\\u0300\\u2026',
-  'ide.quickOpen.placeholder': 'W\\u00E1 f\\u00E1\\u00ECl\\u00EC n\\u00EDp\\u00E0 or\\u00FAk\\u1ECD\\u2026',
+  'ide.quickOpen.placeholder':
+    'W\\u00E1 f\\u00E1\\u00ECl\\u00EC n\\u00EDp\\u00E0 or\\u00FAk\\u1ECD\\u2026',
   'ide.quickPicker.placeholder': 'T\\u00E0\\u00EDp\\u00F9 l\\u00E1ti w\\u00E1\\u2026',
   'ide.quickPicker.loading': 'N\\u0301 r\\u00F9\\u2026',
   'ide.quickPicker.noResults': 'K\\u00F2 s\\u00ED \\u00E0b\\u00E1j\\u00E1de t\\u00F3 b\\u00E1amu',
   'ide.search.placeholder': '\\u00CCw\\u00E1',
   'ide.search.replacePlaceholder': 'R\\u00F3p\\u00F2',
-  'ide.search.caseSensitive': 'B\\u00E1amu L\\u1EB9\\u0301t\\u00E0 Nl\\u00E1 \\u00E0ti K\\u00E9kere',
+  'ide.search.caseSensitive':
+    'B\\u00E1amu L\\u1EB9\\u0301t\\u00E0 Nl\\u00E1 \\u00E0ti K\\u00E9kere',
   'ide.search.wholeWord': 'B\\u00E1amu \\u1ECC\\u0300r\\u1ECD\\u0300 Odidi',
   'ide.search.regex': 'Lo \\u00C0p\\u1EB9j\\u00FAwe D\\u1EB9\\u1EB9\\u0300d\\u1EB9\\u1EB9\\u0301',
   'ide.search.toggleReplace': 'Tan/pa R\\u00EDr\\u00F3p\\u00F2',
   'ide.search.toggleFilters': 'Tan/pa \\u00C0w\\u1ECDn As\\u1EB9\\u0300',
   'ide.search.replaceAll': 'R\\u00F3p\\u00F2 Gb\\u00F3gb\\u00F2',
   'ide.search.replaceAllShort': 'Gb\\u00F3gb\\u00F2',
-  'ide.search.replaceInFile': 'R\\u00F3p\\u00F2 n\\u00EDn\\u00FA f\\u00E1\\u00ECl\\u00EC y\\u00EC\\u00ED',
+  'ide.search.replaceInFile':
+    'R\\u00F3p\\u00F2 n\\u00EDn\\u00FA f\\u00E1\\u00ECl\\u00EC y\\u00EC\\u00ED',
   'ide.search.confirm': 'J\\u1EB9\\u0301r\\u00ECs\\u00ED',
-  'ide.search.confirmReplaceAll': 'T\\u1EB9 l\\u1EB9\\u0301\\u1EB9\\u0300kan s\\u00ED l\\u00E1ti j\\u1EB9\\u0301r\\u00ECs\\u00ED',
+  'ide.search.confirmReplaceAll':
+    'T\\u1EB9 l\\u1EB9\\u0301\\u1EB9\\u0300kan s\\u00ED l\\u00E1ti j\\u1EB9\\u0301r\\u00ECs\\u00ED',
   'ide.search.clear': 'Pa\\u00E0r\\u1EB9\\u0301',
   'ide.search.noResults': 'K\\u00F2 r\\u00ED \\u00E0b\\u00E1j\\u00E1de kankan',
   'ide.search.searching': 'N\\u0301 w\\u00E1\\u2026',
-  'ide.search.includeFiles': '\\u00C0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi s\\u00ED (f.\\u00E0. *.ts)',
-  'ide.search.excludeFiles': '\\u00C0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti y\\u1ECD kuro (f.\\u00E0. *.min.js)',
+  'ide.search.includeFiles':
+    '\\u00C0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti fi s\\u00ED (f.\\u00E0. *.ts)',
+  'ide.search.excludeFiles':
+    '\\u00C0w\\u1ECDn f\\u00E1\\u00ECl\\u00EC l\\u00E1ti y\\u1ECD kuro (f.\\u00E0. *.min.js)',
   'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': '\\u00C0w\\u1ECDn \\u00C0b\\u00F9j\\u00E1 B\\u1ECD\\u0301t\\u00ECn\\u00EC',
-  'ide.shortcuts.hint': 'B\\u1ECD\\u0301t\\u00ECn\\u00EC \\u00E0m\\u00EC \\u00F2n\\u00E0 l\\u00E1ti l\\u00E8l\\u00F2 \\u00B7 Enter l\\u00E1ti \\u1E63e \\u00B7 Esc l\\u00E1ti pa',
+  'ide.shortcuts.hint':
+    'B\\u1ECD\\u0301t\\u00ECn\\u00EC \\u00E0m\\u00EC \\u00F2n\\u00E0 l\\u00E1ti l\\u00E8l\\u00F2 \\u00B7 Enter l\\u00E1ti \\u1E63e \\u00B7 Esc l\\u00E1ti pa',
   'ide.sidebar.tabs': 'Sidebar',
   'ide.sidebar.files': 'A\\u1E63\\u00E0w\\u00E1k\\u00EDr\\u00ED',
   'ide.sidebar.search': '\\u00CCw\\u00E1',
@@ -252,7 +297,8 @@ export const yo: Partial<IdeTranslations> = {
   'common.save': 'Fipamọ',
   'ide.chat.sendQueued': 'Firanṣẹ',
   'upgrade.viewPlans': 'Igbesoke',
-  'guest.reminder.message': 'Forúkọ sílẹ̀ tàbí wọlé láti jẹ́ kí iṣẹ́ rẹ \\\\u2014 àwọn ìpàdé àlejò parí lẹ́yìn wákàtí 72.',
+  'guest.reminder.message':
+    'Forúkọ sílẹ̀ tàbí wọlé láti jẹ́ kí iṣẹ́ rẹ \\\\u2014 àwọn ìpàdé àlejò parí lẹ́yìn wákàtí 72.',
   'upgrade.signUp': 'forukọsilẹ',
   'guest.reminder.logIn': 'Wo ile',
   'ide.chat.compacting': 'Ìjíròrò dídínkù...',
@@ -261,23 +307,26 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Yípadà sí ipò ètò',
   'ide.chat.switchedToExecute': 'Yípadà sí ipò ìṣe',
   'ide.chat.costError': 'Kò le gba data lilo.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'ìdí gíga ×{{multiplier}} báyìí',
   'ide.chat.models.peakLater': '×{{multiplier}} ní àwọn wákàtí gíga',
-  'ide.chat.models.peakHint': 'Àwòṣe yìí ná ×{{multiplier}} láàrin {{windows}}. Ìwọ̀n déédéé ni ó wà fún ìyókù ọjọ́.',
+  'ide.chat.models.peakHint':
+    'Àwòṣe yìí ná ×{{multiplier}} láàrin {{windows}}. Ìwọ̀n déédéé ni ó wà fún ìyókù ọjọ́.',
   'ide.chat.undoNoChanges': 'Kò sí àyípadà fáìlì láti dá a padà.',
   'ide.chat.undoComplete': 'Kò ṣeé ṣe láti dá àwọn àyípadà padà.',
   'ide.chat.commitNoChanges': 'Ko si awọn iyipada lati ṣe.',
@@ -300,7 +349,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Ààbò (HTTPS)',
   'ide.preview.address': 'Àdírẹ́sì àyẹ̀wò',
   'ide.preview.updating': 'Àtúnṣe',
-  'ide.preview.frozen': 'Àpù yìí kò dáhùn mọ́ — ìyípo àìlópin tàbí ìṣàn àtúnṣe tó sá lọ mú kí àwòkọ́ náà di ohun tó ń wò. Kò ní ipa kankan lórí IDE náà.',
+  'ide.preview.frozen':
+    'Àpù yìí kò dáhùn mọ́ — ìyípo àìlópin tàbí ìṣàn àtúnṣe tó sá lọ mú kí àwòkọ́ náà di ohun tó ń wò. Kò ní ipa kankan lórí IDE náà.',
   'ide.preview.frozenReload': 'Tún àpù gbé sórí ẹ̀rọ',
   'ide.search.results': '{{count}} awọn abajade ni {{files}} àwọn fáìlì',
   'ide.activity.cardAria': 'Wo ìgbòkègbodò tí a yàwòrán',
@@ -332,29 +382,40 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted': 'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ, tàbí @ orúkọ fáìlì láti fúnni{{agentName}} fáìlì láti ṣiṣẹ́ láti.',
-  'ide.chat.tip.mention': 'Àmọ̀ràn: tẹ @filename láti so fáìlì iṣẹ́ àgbékalẹ̀ kan mọ́ gẹ́gẹ́ bí ìtumọ̀ —{{agentName}} kà á tààrà.',
+  'ide.chat.tip.getStarted':
+    'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ, tàbí @ orúkọ fáìlì láti fúnni{{agentName}} fáìlì láti ṣiṣẹ́ láti.',
+  'ide.chat.tip.mention':
+    'Àmọ̀ràn: tẹ @filename láti so fáìlì iṣẹ́ àgbékalẹ̀ kan mọ́ gẹ́gẹ́ bí ìtumọ̀ —{{agentName}} kà á tààrà.',
   'ide.chat.tip.slash': 'Ìmọ̀ràn: tẹ / láti wo gbogbo àṣẹ (ìdámọ̀ràn, ìyàtọ̀, àwòṣe, àti bẹ́ẹ̀ bẹ́ẹ̀ lọ).',
-  'ide.chat.tip.plan': 'Ìmọ̀ràn: lo/gbero lati ni{{agentName}} ṣe ìwádìí kí o sì dábàá ètò kan kí ó tó ṣe àtúnṣe sí èyíkéyìí àwọn fáìlì.',
-  'ide.chat.tip.undo': 'Ìmọ̀ràn: lo /túnṣe láti dá àwọn àyípadà fáìlì AI tó kẹ́yìn padà lẹ́sẹ̀kẹsẹ̀ tí ó bá lọ lọ́nà tí kò tọ́.',
-  'ide.chat.tip.compact': 'Ìmọ̀ràn: ìjíròrò gígùn? /ìwọ̀n ìpele máa ń mú kí àyíká ọ̀rọ̀ náà rọ̀pọ̀ kí o lè máa ṣiṣẹ́ dáadáa.',
-  'ide.chat.tip.commit': 'Ìmọ̀ràn: lo /commit láti fi àwọn àtúnṣe rẹ pamọ́ gẹ́gẹ́ bí git commit tí o lè padà sí nígbà gbogbo.',
-  'ide.chat.tip.report': 'Ìmọ̀ràn: nǹkan kan ti bàjẹ́? /ìròyìn fi àṣìṣe tàbí èsì ránṣẹ́ sí ẹgbẹ́ náà pẹ̀lú ìfọ̀rọ̀wérọ̀ tuntun rẹ tí a so mọ́ ọn.',
+  'ide.chat.tip.plan':
+    'Ìmọ̀ràn: lo/gbero lati ni{{agentName}} ṣe ìwádìí kí o sì dábàá ètò kan kí ó tó ṣe àtúnṣe sí èyíkéyìí àwọn fáìlì.',
+  'ide.chat.tip.undo':
+    'Ìmọ̀ràn: lo /túnṣe láti dá àwọn àyípadà fáìlì AI tó kẹ́yìn padà lẹ́sẹ̀kẹsẹ̀ tí ó bá lọ lọ́nà tí kò tọ́.',
+  'ide.chat.tip.compact':
+    'Ìmọ̀ràn: ìjíròrò gígùn? /ìwọ̀n ìpele máa ń mú kí àyíká ọ̀rọ̀ náà rọ̀pọ̀ kí o lè máa ṣiṣẹ́ dáadáa.',
+  'ide.chat.tip.commit':
+    'Ìmọ̀ràn: lo /commit láti fi àwọn àtúnṣe rẹ pamọ́ gẹ́gẹ́ bí git commit tí o lè padà sí nígbà gbogbo.',
+  'ide.chat.tip.report':
+    'Ìmọ̀ràn: nǹkan kan ti bàjẹ́? /ìròyìn fi àṣìṣe tàbí èsì ránṣẹ́ sí ẹgbẹ́ náà pẹ̀lú ìfọ̀rọ̀wérọ̀ tuntun rẹ tí a so mọ́ ọn.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
-  'ide.chat.autoCommit.enabled': 'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.autoCommit.enabled':
+    'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
   'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -366,8 +427,10 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
-  'ide.chat.modelRemovedNoFallback': 'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+  'ide.chat.modelRemoved':
+    'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+  'ide.chat.modelRemovedNoFallback':
+    'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Select execute-mode model',
@@ -389,32 +452,43 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',
   'ide.chat.help.commandsHeading': '── Commands ──',
-  'ide.chat.help.intro': '{{agentName}} is {{productName}}\'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.',
+  'ide.chat.help.intro':
+    "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
   'ide.chat.help.introHeading': '── Getting Started ──',
-  'ide.chat.help.modeDiscovery': 'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
-  'ide.chat.help.modeExecute': 'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
-  'ide.chat.help.modePlan': 'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+  'ide.chat.help.modeDiscovery':
+    'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+  'ide.chat.help.modeExecute':
+    'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+  'ide.chat.help.modePlan':
+    'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
   'ide.chat.help.modesHeading': '── Modes ──',
-  'ide.chat.help.shortcuts': 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+  'ide.chat.help.shortcuts':
+    'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
   'ide.chat.help.tipCompact': '• Use /compact to compress context when the conversation gets long.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Use /plan to have {{agentName}} research before making changes.',
   'ide.chat.help.tipSlash': '• Type / to browse every command above.',
-  'ide.chat.help.tipSpecific': '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
-  'ide.chat.help.tipUndo': '• Use /undo to revert the last AI turn\'s file changes if it goes off track.',
+  'ide.chat.help.tipSpecific':
+    '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
+  'ide.chat.help.tipUndo':
+    "• Use /undo to revert the last AI turn's file changes if it goes off track.",
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Report a bug',
   'ide.chat.report.openReport': 'Report a bug',
-  'ide.chat.report.subheading': 'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+  'ide.chat.report.subheading':
+    'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
   'ide.chat.report.titleLabel': 'Title',
   'ide.chat.report.titlePlaceholder': 'Brief summary',
   'ide.chat.report.descriptionLabel': 'Description',
@@ -437,7 +511,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Saving…',
   'ide.chat.scripts.saveError': 'Could not save the script. Please try again.',
   'ide.chat.scripts.invalid': 'A script needs a name and a non-empty body.',
-  'ide.chat.scripts.empty': 'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
+  'ide.chat.scripts.empty':
+    'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
   'ide.chat.scripts.loading': 'Loading scripts…',
   'ide.chat.scripts.error': 'Could not load scripts for this project.',
   'ide.chat.scripts.noMatch': 'No scripts match “{{query}}”.',
@@ -471,7 +546,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Share project',
-  'ide.chat.share.subheading': 'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+  'ide.chat.share.subheading':
+    'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
   'ide.chat.share.roleLabel': 'Role',
   'ide.chat.share.create': 'Create link',
   'ide.chat.share.creating': 'Creating…',
@@ -483,13 +559,16 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Copied',
   'ide.chat.share.openLink': 'Open link',
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
-  'ide.chat.share.usage': 'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
-  'ide.chat.share.notAllowed': 'Ṣíṣàkóso àwọn ìjápọ̀ pínpín nílò ipa alábòójútó lórí iṣẹ́ akanṣe yìí.',
+  'ide.chat.share.usage':
+    'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed':
+    'Ṣíṣàkóso àwọn ìjápọ̀ pínpín nílò ipa alábòójútó lórí iṣẹ́ akanṣe yìí.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',
   'ide.chat.skills.loadTitle': 'Open in editor and attach as context',
-  'ide.chat.skills.loaded': 'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
+  'ide.chat.skills.loaded':
+    'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
@@ -514,8 +593,9 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Could not submit your report. Please try again.',
-  'ide.chat.report.submitted': 'Thanks! Your report was submitted to {{productName}}\'s team.',
-  'ide.chat.report.submittedWithLink': 'Thanks! Your report was submitted — track it on the linked issue.',
+  'ide.chat.report.submitted': "Thanks! Your report was submitted to {{productName}}'s team.",
+  'ide.chat.report.submittedWithLink':
+    'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,18 +609,20 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Create',
   'ide.chat.skills.cancel': 'Cancel',
   'ide.chat.skills.createError': 'Could not create the skill — please try again.',
-  'ide.chat.skills.created': 'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+  'ide.chat.skills.created':
+    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   'ide.chat.autoCommit.on': 'Auto-commit on',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
-  'ide.preview.loadFailed': 'Preview can\'t load here',
+  'ide.preview.loadFailed': "Preview can't load here",
   'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
-  'ide.chat.effort.notSupportedForModel': '{{level}} isn\'t available for {{model}}. Available: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
   'ide.chat.modelSortLabel': 'Sort',
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   'ide.chat.skills.loadedBadge': 'Loaded',
@@ -553,9 +635,11 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Close',
   'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.preview.blankTitle': 'The preview is blank',
-  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.preview.blankHint':
+    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
-  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.report.diagnosticsNote':
+    'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
@@ -570,7 +654,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': 'Ṣiṣẹ́…',
   'ide.chat.scripts.required': '(a nílò rẹ̀)',
   'ide.chat.scripts.cancelRun': 'Fagi l\\u00E9',
-  'ide.chat.scripts.runNeedsOptions': '“{{name}}” nílò àwọn àṣàyàn — ṣí /scripts kí o lè ṣètò wọn kí o sì Ṣiṣẹ́.',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” nílò àwọn àṣàyàn — ṣí /scripts kí o lè ṣètò wọn kí o sì Ṣiṣẹ́.',
   'ide.chat.settings.effort.label': 'Ìsapá ìrònú',
   'ide.chat.timestampsShown': 'A ń fi àmì àkókò hàn.',
   'ide.chat.timestampsHidden': 'A ti fi àmì àkókò pamọ́.',
@@ -593,7 +678,8 @@ export const yo: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Àpù',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Iṣẹ́ Àgbékalẹ̀',
-  'ide.tests.e2eHint': 'Àwọn wọ̀nyí ń ṣiṣẹ́ lòdì sí àwòkọ́wò láàyè, nítorí náà jẹ́ kí àwòkọ́wò náà ṣí sílẹ̀.',
+  'ide.tests.e2eHint':
+    'Àwọn wọ̀nyí ń ṣiṣẹ́ lòdì sí àwòkọ́wò láàyè, nítorí náà jẹ́ kí àwòkọ́wò náà ṣí sílẹ̀.',
   'ide.tests.showOutput': 'Fi ìjáde hàn',
   'ide.tests.hideOutput': 'Fi ìjáde pamọ́',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',

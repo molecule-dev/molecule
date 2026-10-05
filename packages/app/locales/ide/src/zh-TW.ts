@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for zh-TW. */
 export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': '簡要思考',
@@ -49,23 +53,26 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': '已切換到排程模式',
   'ide.chat.switchedToExecute': '已切換到執行模式',
   'ide.chat.costError': '無法取得使用情況資料。',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': '目前尖峰 ×{{multiplier}}',
   'ide.chat.models.peakLater': '尖峰時段 ×{{multiplier}}',
-  'ide.chat.models.peakHint': '此模型在 {{windows}} 期間的費用為 ×{{multiplier}}，其餘時段則為一般費率。',
+  'ide.chat.models.peakHint':
+    '此模型在 {{windows}} 期間的費用為 ×{{multiplier}}，其餘時段則為一般費率。',
   'ide.chat.undoNoChanges': '沒有可撤銷的文件變更。',
   'ide.chat.undoComplete': '撤銷更改失敗。',
   'ide.chat.commitNoChanges': '無需提交任何更改。',
@@ -73,10 +80,12 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': '已啟用自動修復功能。',
   'ide.chat.autoFixDisabled': '自動修復功能已停用。',
   'ide.chat.autoFixError': '自動修復設定更新失敗。',
-  'ide.chat.autoApproveEnabled': '已啟用自動核准——破壞性指令將無需確認即可執行。資料外洩防護仍會要求確認。使用 /autoapprove 關閉。',
+  'ide.chat.autoApproveEnabled':
+    '已啟用自動核准——破壞性指令將無需確認即可執行。資料外洩防護仍會要求確認。使用 /autoapprove 關閉。',
   'ide.chat.autoApproveDisabled': '自動核准已關閉——破壞性指令在執行前會要求確認。',
   'ide.chat.autoApproveError': '自動核准設定更新失敗。',
-  'ide.chat.modelUsage': '用法：/model<model-name> （如克勞德-opus-4-6、克勞德-十四行詩-4-6、克勞德-俳句-4-5-20251001）',
+  'ide.chat.modelUsage':
+    '用法：/model<model-name> （如克勞德-opus-4-6、克勞德-十四行詩-4-6、克勞德-俳句-4-5-20251001）',
   'ide.chat.modelUpgradeRequired': '{{model}}限專業版用戶使用。升級至專業版即可使用所有機型。',
   'ide.chat.maxLoopsReached': '已達到最大循環次數限制。',
   'ide.chat.maxLoopsError': '更新最大工具迭代次數失敗。',
@@ -300,7 +309,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.preview.secure': '安全連線 (HTTPS)',
   'ide.preview.address': '預覽網址',
   'ide.preview.updating': '更新中',
-  'ide.preview.frozen': '此應用程式已停止回應——可能是無限迴圈或渲染失控導致預覽畫面凍結。此情況不會影響 IDE。',
+  'ide.preview.frozen':
+    '此應用程式已停止回應——可能是無限迴圈或渲染失控導致預覽畫面凍結。此情況不會影響 IDE。',
   'ide.preview.frozenReload': '重新載入應用程式',
   'ide.search.results': '{{count}} 產生的檔案位於{{files}}目錄中',
   'ide.activity.cardAria': '檢視已記錄的活動',
@@ -332,21 +342,27 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': '履歷',
   'ide.chat.openSettings': '設定',
   'ide.chat.tip.dismiss': '關閉提示',
-  'ide.chat.tip.getStarted': '提示：輸入 / 可查看所有指令，或輸入 @ 加上檔案名稱，讓 `{{agentName}}` 從該檔案開始處理。',
-  'ide.chat.tip.mention': '提示：輸入 @filename 可將專案檔案作為參數附加 — {{agentName}} 會直接讀取該檔案。',
+  'ide.chat.tip.getStarted':
+    '提示：輸入 / 可查看所有指令，或輸入 @ 加上檔案名稱，讓 `{{agentName}}` 從該檔案開始處理。',
+  'ide.chat.tip.mention':
+    '提示：輸入 @filename 可將專案檔案作為參數附加 — {{agentName}} 會直接讀取該檔案。',
   'ide.chat.tip.slash': '提示：輸入 / 可瀏覽所有指令（commit、diff、model 等）。',
-  'ide.chat.tip.plan': '提示：使用 /plan 指令，可讓 {{agentName}} 在編輯任何檔案之前先進行研究並提出計畫。',
+  'ide.chat.tip.plan':
+    '提示：使用 /plan 指令，可讓 {{agentName}} 在編輯任何檔案之前先進行研究並提出計畫。',
   'ide.chat.tip.undo': '提示：若 AI 的上一次回合所做的檔案變更不理想，可使用 /undo 指令立即還原。',
   'ide.chat.tip.compact': '提示：對話太長？使用 /compact 指令可壓縮對話內容，讓您保留操作空間。',
   'ide.chat.tip.commit': '提示：使用 /commit 將變更儲存為 Git 提交，日後隨時都能回溯至該提交。',
-  'ide.chat.tip.report': '提示：發現問題嗎？使用 /report 指令即可將錯誤回報或意見回饋連同您最近的聊天記錄一併傳送給團隊。',
+  'ide.chat.tip.report':
+    '提示：發現問題嗎？使用 /report 指令即可將錯誤回報或意見回饋連同您最近的聊天記錄一併傳送給團隊。',
   'ide.chat.undoError': '無法還原變更。',
   'ide.chat.autoCommit.badge': '{{countdown}} 中的自動提交',
   'ide.chat.autoCommit.cancel': '取消自動提交',
   'ide.chat.autoCommit.cancelled': '自動提交已取消。',
-  'ide.chat.autoCommit.enabled': '已啟用自動提交：在最後一次檔案變更後，將提交 {{seconds}} 個檔案。若要取消，請設定 /autocommit 0。',
+  'ide.chat.autoCommit.enabled':
+    '已啟用自動提交：在最後一次檔案變更後，將提交 {{seconds}} 個檔案。若要取消，請設定 /autocommit 0。',
   'ide.chat.effort.error': '無法更新推理進度。',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -364,8 +380,10 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': '目前尚無可用模型——請聯絡您的系統管理員，以整合人工智慧服務供應商。',
   'ide.chat.modelInUse': '目前使用 {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': '您選取的模型「{{removed}}」已不再提供。已切換至「{{fallback}}」。請輸入 /model 來選擇其他模型。',
-  'ide.chat.modelRemovedNoFallback': '您選取的型號「{{removed}}」已不再提供，且伺服器上未綁定任何替代方案。請聯絡您的系統管理員，以設定 AI 服務供應商。',
+  'ide.chat.modelRemoved':
+    '您選取的模型「{{removed}}」已不再提供。已切換至「{{fallback}}」。請輸入 /model 來選擇其他模型。',
+  'ide.chat.modelRemovedNoFallback':
+    '您選取的型號「{{removed}}」已不再提供，且伺服器上未綁定任何替代方案。請聯絡您的系統管理員，以設定 AI 服務供應商。',
   'ide.chat.olderModelsCollapse': '舊款型號 ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': '舊款型號 ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': '選擇執行模式模型',
@@ -387,31 +405,40 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint 錯誤',
   'ide.chat.lintWarningsCount': '{{count}} 警告',
   'ide.chat.typeErrorsCount': '{{count}} 類型錯誤',
   'ide.chat.help.commandsHeading': '── 指令 ──',
-  'ide.chat.help.intro': '{{agentName}} 這是 {{productName}} 的 AI 程式設計助手。只需描述你想打造的內容，它便會協助你建立架構、編寫程式碼，並與你共同進行迭代。',
+  'ide.chat.help.intro':
+    '{{agentName}} 這是 {{productName}} 的 AI 程式設計助手。只需描述你想打造的內容，它便會協助你建立架構、編寫程式碼，並與你共同進行迭代。',
   'ide.chat.help.introHeading': '── 開始使用 ──',
-  'ide.chat.help.modeDiscovery': '探索 — 新的對話由此展開。在撰寫任何程式碼之前，{{agentName}} 會先提出釐清問題，以精準掌握需求。',
-  'ide.chat.help.modeExecute': '執行 — 預設工作模式。{{agentName}} 會編寫程式碼、執行工具、套用變更，然後進行驗證。',
-  'ide.chat.help.modePlan': '規劃 — {{agentName}} 會分析程式碼庫並提出規劃方案，過程中不會修改任何檔案。使用 /plan 切換此模式。最適合用於大規模或具風險的變更。',
+  'ide.chat.help.modeDiscovery':
+    '探索 — 新的對話由此展開。在撰寫任何程式碼之前，{{agentName}} 會先提出釐清問題，以精準掌握需求。',
+  'ide.chat.help.modeExecute':
+    '執行 — 預設工作模式。{{agentName}} 會編寫程式碼、執行工具、套用變更，然後進行驗證。',
+  'ide.chat.help.modePlan':
+    '規劃 — {{agentName}} 會分析程式碼庫並提出規劃方案，過程中不會修改任何檔案。使用 /plan 切換此模式。最適合用於大規模或具風險的變更。',
   'ide.chat.help.modesHeading': '── 模式 ──',
   'ide.chat.help.shortcuts': '按下 Cmd+/（Windows/Linux 系統請按 Ctrl+/）以查看所有鍵盤快捷鍵。',
   'ide.chat.help.tipCompact': '• 當對話內容過長時，請使用 /compact 來壓縮對話內容。',
   'ide.chat.help.tipPlan': '• 使用 /plan 指令，讓 {{agentName}} 在進行變更前先進行分析。',
   'ide.chat.help.tipSlash': '• 輸入 / 以瀏覽上述所有指令。',
-  'ide.chat.help.tipSpecific': '• 具體說明 — 「新增一個包含電子郵件／密碼及 Google OAuth 的登入頁面」比「新增驗證功能」更明確。',
-  'ide.chat.help.tipUndo': '• 若 AI 回合的檔案變更出現偏差，請使用 /undo 指令來還原上一次 AI 回合的檔案變更。',
+  'ide.chat.help.tipSpecific':
+    '• 具體說明 — 「新增一個包含電子郵件／密碼及 Google OAuth 的登入頁面」比「新增驗證功能」更明確。',
+  'ide.chat.help.tipUndo':
+    '• 若 AI 回合的檔案變更出現偏差，請使用 /undo 指令來還原上一次 AI 回合的檔案變更。',
   'ide.chat.help.tipsHeading': '── 小貼士 ──',
   'ide.chat.report.heading': '回報錯誤',
   'ide.chat.report.openReport': '回報錯誤',
-  'ide.chat.report.subheading': '請告訴我們出了什麼問題，或是您希望看到什麼內容。您的意見將轉交給 {{productName}} 的團隊。',
+  'ide.chat.report.subheading':
+    '請告訴我們出了什麼問題，或是您希望看到什麼內容。您的意見將轉交給 {{productName}} 的團隊。',
   'ide.chat.report.titleLabel': '標題',
   'ide.chat.report.titlePlaceholder': '簡要摘要',
   'ide.chat.report.descriptionLabel': '說明',
@@ -434,7 +461,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': '正在儲存……',
   'ide.chat.scripts.saveError': '無法儲存腳本。請重試。',
   'ide.chat.scripts.invalid': '一個腳本需要一個名稱和一個非空的主體。',
-  'ide.chat.scripts.empty': '目前尚未儲存任何腳本。請在上方建立一個，或請 {{agentName}} 代為撰寫並儲存。',
+  'ide.chat.scripts.empty':
+    '目前尚未儲存任何腳本。請在上方建立一個，或請 {{agentName}} 代為撰寫並儲存。',
   'ide.chat.scripts.loading': '正在載入腳本……',
   'ide.chat.scripts.error': '無法載入此專案的腳本。',
   'ide.chat.scripts.noMatch': '沒有任何腳本符合「{{query}}」。',
@@ -467,7 +495,8 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': '分享專案',
-  'ide.chat.share.subheading': '建立公開連結。任何擁有此連結的人都會獲得您指定的角色——瀏覽者連結僅限讀取。',
+  'ide.chat.share.subheading':
+    '建立公開連結。任何擁有此連結的人都會獲得您指定的角色——瀏覽者連結僅限讀取。',
   'ide.chat.share.roleLabel': '角色',
   'ide.chat.share.create': '建立連結',
   'ide.chat.share.creating': '正在建立……',
@@ -485,14 +514,18 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.skills.searchPlaceholder': '篩選技能……',
   'ide.chat.skills.load': '載入',
   'ide.chat.skills.loadTitle': '在編輯器中開啟並作為上下文附加',
-  'ide.chat.skills.loaded': '已載入技能「{{name}}」——已在編輯器中開啟，並作為您下一則訊息的背景資訊附加其中。',
+  'ide.chat.skills.loaded':
+    '已載入技能「{{name}}」——已在編輯器中開啟，並作為您下一則訊息的背景資訊附加其中。',
   'ide.chat.skills.loading': '正在載入技能……',
   'ide.chat.skills.error': '無法載入此專案的技能。',
   'ide.chat.skills.empty': '在 .agents/skills/ 目錄中未找到此專案的技能。',
   'ide.chat.skills.noMatch': '沒有任何技能與「{{query}}」相符。',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -553,9 +586,11 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': '關閉',
   'ide.chat.retryCountdown': '伺服器錯誤 — 將於 {{seconds}} 秒後重試……（嘗試 {{attempt}}）',
   'ide.preview.blankTitle': '預覽內容為空白',
-  'ide.preview.blankHint': '應用程式已載入，但未顯示任何內容——可能發生了錯誤。Synthase 已收到通知。您可以重新載入頁面，或在新的分頁中開啟預覽。',
+  'ide.preview.blankHint':
+    '應用程式已載入，但未顯示任何內容——可能發生了錯誤。Synthase 已收到通知。您可以重新載入頁面，或在新的分頁中開啟預覽。',
   'ide.chat.previewLinkTitle': '在「預覽」中開啟 {{path}}',
-  'ide.chat.report.diagnosticsNote': '已附上您的應用程式版本、瀏覽器及螢幕尺寸，以協助我們進行除錯。',
+  'ide.chat.report.diagnosticsNote':
+    '已附上您的應用程式版本、瀏覽器及螢幕尺寸，以協助我們進行除錯。',
   'ide.chat.skills.loadedCount': '🧠 精通{{count}}技能',
   'ide.chat.skills.waitingForSandbox': '正在等待沙盒完成啟動……',
   'ide.chat.skills.resetDefaults': '預設載入所有內容',

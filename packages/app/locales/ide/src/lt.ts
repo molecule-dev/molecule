@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for lt. */
 export const lt: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Trumpai pagalvojau',
@@ -36,7 +40,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Tęsti',
   'ide.chat.continuePrompt': 'Tęskite įgyvendinimą nuo ten, kur baigėte.',
   'upgrade.viewPlans': 'Atnaujinti',
-  'guest.reminder.message': 'Užsiregistruokite arba prisijunkite, kad jūsų darbo \\u2014 svečio sesijos nustotų galioti po 72 valandų.',
+  'guest.reminder.message':
+    'Užsiregistruokite arba prisijunkite, kad jūsų darbo \\u2014 svečio sesijos nustotų galioti po 72 valandų.',
   'upgrade.signUp': 'Registruotis',
   'guest.reminder.logIn': 'Prisijungti',
   'ide.chat.soundsError': 'Nepavyko atnaujinti garso nustatymų.',
@@ -49,23 +54,26 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Perjungta į planavimo režimą',
   'ide.chat.switchedToExecute': 'Perjungta į vykdymo režimą',
   'ide.chat.costError': 'Nepavyko gauti naudojimo duomenų.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'piko ×{{multiplier}} dabar',
   'ide.chat.models.peakLater': '×{{multiplier}} piko valandomis',
-  'ide.chat.models.peakHint': 'Šis modelis kainuoja ×{{multiplier}} laikotarpiu {{windows}}. Likusią dienos dalį taikomas įprastas tarifas.',
+  'ide.chat.models.peakHint':
+    'Šis modelis kainuoja ×{{multiplier}} laikotarpiu {{windows}}. Likusią dienos dalį taikomas įprastas tarifas.',
   'ide.chat.undoNoChanges': 'Nėra failų pakeitimų, kuriuos būtų galima anuliuoti.',
   'ide.chat.undoComplete': 'Nepavyko grąžinti pakeitimų.',
   'ide.chat.commitNoChanges': 'Nėra pakeitimų, kuriuos reikėtų atlikti.',
@@ -73,11 +81,15 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatinis taisymas įjungtas.',
   'ide.chat.autoFixDisabled': 'Automatinis taisymas išjungtas.',
   'ide.chat.autoFixError': 'Nepavyko atnaujinti automatinio taisymo nustatymo.',
-  'ide.chat.autoApproveEnabled': 'Automatinis patvirtinimas įjungtas — žalingos komandos vykdomos neklausiant. Apsauga nuo duomenų nutekėjimo vis tiek klaus. Išjunkite naudodami /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Automatinis patvirtinimas išjungtas — žalingos komandos klaus prieš vykdant.',
+  'ide.chat.autoApproveEnabled':
+    'Automatinis patvirtinimas įjungtas — žalingos komandos vykdomos neklausiant. Apsauga nuo duomenų nutekėjimo vis tiek klaus. Išjunkite naudodami /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatinis patvirtinimas išjungtas — žalingos komandos klaus prieš vykdant.',
   'ide.chat.autoApproveError': 'Nepavyko atnaujinti automatinio patvirtinimo nustatymo.',
-  'ide.chat.modelUsage': 'Naudojimas: /model<model-name> (pvz., claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired': '{{model}} galima įsigyti „Pro“ versijoje. Atnaujinkite, kad galėtumėte naudotis visais modeliais.',
+  'ide.chat.modelUsage':
+    'Naudojimas: /model<model-name> (pvz., claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} galima įsigyti „Pro“ versijoje. Atnaujinkite, kad galėtumėte naudotis visais modeliais.',
   'ide.chat.maxLoopsReached': 'Pasiektas maksimalus ciklų skaičius.',
   'ide.chat.maxLoopsError': 'Nepavyko atnaujinti maksimalaus įrankio iteracijų skaičiaus.',
   'ide.chat.dropFilesHere': 'Numeskite failus čia',
@@ -236,9 +248,11 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Atsakymo metu kažkas nepavyko',
-  'ide.chat.soundEventDesc.tool_result': 'Įrankio iškvietimas (failo nuskaitymas, komanda ir pan.) baigtas',
+  'ide.chat.soundEventDesc.tool_result':
+    'Įrankio iškvietimas (failo nuskaitymas, komanda ir pan.) baigtas',
   'ide.chat.soundEventDesc.file_diff': 'Failas buvo sukurtas arba modifikuotas',
-  'ide.chat.soundEventDesc.commit_suggestion': '„{{agentName}}“ siūlo failus, kuriuos reikia įkelti į komandą.',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '„{{agentName}}“ siūlo failus, kuriuos reikia įkelti į komandą.',
   'ide.chat.soundEventDesc.mode': 'Perjungta tarp planavimo režimo ir vykdymo režimo',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Pasiekta maksimali įrankio iteracijų riba',
   'ide.chat.soundEventDesc.verification_result': 'Lint arba tipo patikrinimas baigtas',
@@ -249,7 +263,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Ruošiamas diktavimas — pirmą kartą tai gali šiek tiek užtrukti.',
   'ide.chat.voiceTranscribeFailed': 'Transkripcija nepavyko.',
   'ide.chat.voiceEngineTitle': 'Diktavimo variklis',
-  'ide.chat.voiceEnginePrivacy': 'Kiekviena parinktis veikia jūsų įrenginyje — garsas niekada nepalieka naršyklės.',
+  'ide.chat.voiceEnginePrivacy':
+    'Kiekviena parinktis veikia jūsų įrenginyje — garsas niekada nepalieka naršyklės.',
   'ide.chat.voiceEngineNoDownload': 'be atsisiuntimo',
   'ide.chat.voiceEngineDownload': '~{{mb}} MB atsisiuntimas, tada talpykloje',
   'ide.chat.voiceEngineDownloadRange': '~{{min}}–{{max}} MB atsisiuntimas, tada talpykloje',
@@ -293,14 +308,16 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tabs.close': 'Uždaryti {{fileName}}',
   'ide.search.caseSensitive': 'Rungtynių atvejis',
   'ide.search.noResults': 'Nerasta jokių rezultatų',
-  'ide.search.resultsTruncated': '{{count}} rezultatai pateikiami failuose „{{files}}“ (sutrumpinta versija)',
+  'ide.search.resultsTruncated':
+    '{{count}} rezultatai pateikiami failuose „{{files}}“ (sutrumpinta versija)',
   'ide.preview.back': 'Atgal',
   'ide.preview.forward': 'Pirmyn',
   'ide.preview.urlBar': 'Peržiūros URL',
   'ide.preview.secure': 'Saugu (HTTPS)',
   'ide.preview.address': 'Peržiūros adresas',
   'ide.preview.updating': 'Atnaujinimas',
-  'ide.preview.frozen': 'Ši programa nustojo reaguoti – peržiūra įstrigo dėl begalinės kilpos arba nekontroliuojamo atvaizdavimo. Tai neturi įtakos IDE.',
+  'ide.preview.frozen':
+    'Ši programa nustojo reaguoti – peržiūra įstrigo dėl begalinės kilpos arba nekontroliuojamo atvaizdavimo. Tai neturi įtakos IDE.',
   'ide.preview.frozenReload': 'Atnaujinti programėlę',
   'ide.search.results': '{{count}} rezultatai pateikiami failuose „{{files}}“',
   'ide.activity.cardAria': 'Peržiūrėti užfiksuotą veiklą',
@@ -332,21 +349,31 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Gyvenimo aprašymas',
   'ide.chat.openSettings': 'Nustatymai',
   'ide.chat.tip.dismiss': 'Uždaryti patarimą',
-  'ide.chat.tip.getStarted': 'Patarimas: įveskite /, kad peržiūrėtumėte visas komandas, arba @ ir failo pavadinimą, kad nurodytumėte „{{agentName}}“ failą, su kuriuo dirbti.',
-  'ide.chat.tip.mention': 'Patarimas: įveskite @filename, kad pridėtumėte projekto failą kaip kontekstą – „{{agentName}}“ jį perskaitys tiesiogiai.',
-  'ide.chat.tip.slash': 'Patarimas: įveskite /, kad peržiūrėtumėte visas komandas (commit, diff, model ir kt.).',
-  'ide.chat.tip.plan': 'Patarimas: naudokite komandą /plan, kad „{{agentName}}“ išanalizuotų situaciją ir pasiūlytų planą prieš pradėdama redaguoti bet kokius failus.',
-  'ide.chat.tip.undo': 'Patarimas: jei paskutiniame AI ėjime padarėte klaidą, naudokite komandą /undo, kad iškart atšauktumėte failo pakeitimus.',
-  'ide.chat.tip.compact': 'Patarimas: ilgas pokalbis? Komanda /compact sutrumpina kontekstą, kad liktų vietos darbui.',
-  'ide.chat.tip.commit': 'Patarimas: naudokite komandą /commit, kad išsaugotumėte pakeitimus kaip „git“ įrašą, prie kurio visada galėsite grįžti.',
-  'ide.chat.tip.report': 'Patarimas: kažkas ne taip? /report – šiuo komandu komandai nusiųsite pranešimą apie klaidą arba atsiliepimą, pridėdami paskutinį pokalbio įrašą.',
+  'ide.chat.tip.getStarted':
+    'Patarimas: įveskite /, kad peržiūrėtumėte visas komandas, arba @ ir failo pavadinimą, kad nurodytumėte „{{agentName}}“ failą, su kuriuo dirbti.',
+  'ide.chat.tip.mention':
+    'Patarimas: įveskite @filename, kad pridėtumėte projekto failą kaip kontekstą – „{{agentName}}“ jį perskaitys tiesiogiai.',
+  'ide.chat.tip.slash':
+    'Patarimas: įveskite /, kad peržiūrėtumėte visas komandas (commit, diff, model ir kt.).',
+  'ide.chat.tip.plan':
+    'Patarimas: naudokite komandą /plan, kad „{{agentName}}“ išanalizuotų situaciją ir pasiūlytų planą prieš pradėdama redaguoti bet kokius failus.',
+  'ide.chat.tip.undo':
+    'Patarimas: jei paskutiniame AI ėjime padarėte klaidą, naudokite komandą /undo, kad iškart atšauktumėte failo pakeitimus.',
+  'ide.chat.tip.compact':
+    'Patarimas: ilgas pokalbis? Komanda /compact sutrumpina kontekstą, kad liktų vietos darbui.',
+  'ide.chat.tip.commit':
+    'Patarimas: naudokite komandą /commit, kad išsaugotumėte pakeitimus kaip „git“ įrašą, prie kurio visada galėsite grįžti.',
+  'ide.chat.tip.report':
+    'Patarimas: kažkas ne taip? /report – šiuo komandu komandai nusiųsite pranešimą apie klaidą arba atsiliepimą, pridėdami paskutinį pokalbio įrašą.',
   'ide.chat.undoError': 'Nepavyko atšaukti pakeitimų.',
   'ide.chat.autoCommit.badge': 'Automatinis įrašymas „{{countdown}}“',
   'ide.chat.autoCommit.cancel': 'Atšaukti automatinį įrašymą',
   'ide.chat.autoCommit.cancelled': 'Automatinis įrašymas atšauktas.',
-  'ide.chat.autoCommit.enabled': 'Įjungtas automatinis įrašymas: įrašoma praėjus {{seconds}}s po paskutinio failo pakeitimo. Norėdami atšaukti, nustatykite /autocommit 0.',
+  'ide.chat.autoCommit.enabled':
+    'Įjungtas automatinis įrašymas: įrašoma praėjus {{seconds}}s po paskutinio failo pakeitimo. Norėdami atšaukti, nustatykite /autocommit 0.',
   'ide.chat.effort.error': 'Nepavyko atnaujinti argumentacijos.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +388,14 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Nemokamai',
   'ide.chat.models.sortBy': 'Rūšiuoti pagal „{{column}}“',
   'ide.chat.modelsLoading': 'Įkeliami modeliai…',
-  'ide.chat.modelsNone': 'Kol kas modelių nėra — paprašykite administratoriaus prijungti dirbtinio intelekto paslaugų teikėją.',
+  'ide.chat.modelsNone':
+    'Kol kas modelių nėra — paprašykite administratoriaus prijungti dirbtinio intelekto paslaugų teikėją.',
   'ide.chat.modelInUse': 'Dabar naudojame „{{model}}“',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Jūsų pasirinktas modelis „{{removed}}“ nebėra prieinamas. Pakeistas į „{{fallback}}“. Įveskite /model, kad pasirinkite kitą.',
-  'ide.chat.modelRemovedNoFallback': 'Jūsų pasirinktas modelis „{{removed}}“ nebėra prieinamas, o serveryje nėra įdiegtas joks jo pakaitalas. Paprašykite savo administratoriaus prijungti AI teikėją.',
+  'ide.chat.modelRemoved':
+    'Jūsų pasirinktas modelis „{{removed}}“ nebėra prieinamas. Pakeistas į „{{fallback}}“. Įveskite /model, kad pasirinkite kitą.',
+  'ide.chat.modelRemovedNoFallback':
+    'Jūsų pasirinktas modelis „{{removed}}“ nebėra prieinamas, o serveryje nėra įdiegtas joks jo pakaitalas. Paprašykite savo administratoriaus prijungti AI teikėją.',
   'ide.chat.olderModelsCollapse': 'Senesni modeliai ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Senesni modeliai ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Pasirinkite vykdymo režimo modelį',
@@ -387,36 +417,49 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} „Lint“ klaidos',
   'ide.chat.lintWarningsCount': '{{count}} įspėjimai',
   'ide.chat.typeErrorsCount': '{{count}} tipų klaidos',
   'ide.chat.help.commandsHeading': '── Komandos ──',
-  'ide.chat.help.intro': '{{agentName}} tai „{{productName}}“ dirbtinio intelekto kodavimo asistentas. Apibūdinkite, ką norite sukurti, ir jis padės jums parengti struktūrą, parašyti kodą bei tobulinti projektą.',
+  'ide.chat.help.intro':
+    '{{agentName}} tai „{{productName}}“ dirbtinio intelekto kodavimo asistentas. Apibūdinkite, ką norite sukurti, ir jis padės jums parengti struktūrą, parašyti kodą bei tobulinti projektą.',
   'ide.chat.help.introHeading': '── Pradžia ──',
-  'ide.chat.help.modeDiscovery': '„Discovery“ – čia prasideda nauji pokalbiai. „{{agentName}}“ metodika remiasi išsamių klausimų uždavimu, siekiant tiksliai nustatyti reikalavimus dar prieš pradedant rašyti kodą.',
-  'ide.chat.help.modeExecute': '„Vykdyti“ — numatytasis darbo režimas. „{{agentName}}“ rašo kodą, paleidžia įrankius, įdiegia pakeitimus ir juos patikrina.',
-  'ide.chat.help.modePlan': 'Planas — „{{agentName}}“ išanalizuoja kodą ir pateikia planą NEREDAGUODAMAS failų. Įjunkite arba išjunkite komandą /plan. Tinka dideliems arba rizikingiems pakeitimams.',
+  'ide.chat.help.modeDiscovery':
+    '„Discovery“ – čia prasideda nauji pokalbiai. „{{agentName}}“ metodika remiasi išsamių klausimų uždavimu, siekiant tiksliai nustatyti reikalavimus dar prieš pradedant rašyti kodą.',
+  'ide.chat.help.modeExecute':
+    '„Vykdyti“ — numatytasis darbo režimas. „{{agentName}}“ rašo kodą, paleidžia įrankius, įdiegia pakeitimus ir juos patikrina.',
+  'ide.chat.help.modePlan':
+    'Planas — „{{agentName}}“ išanalizuoja kodą ir pateikia planą NEREDAGUODAMAS failų. Įjunkite arba išjunkite komandą /plan. Tinka dideliems arba rizikingiems pakeitimams.',
   'ide.chat.help.modesHeading': '── Režimai ──',
-  'ide.chat.help.shortcuts': 'Paspauskite „Cmd+/“ (Windows ir Linux sistemose – „Ctrl+/“), kad peržiūrėtumėte visus klavišų trumpinius.',
-  'ide.chat.help.tipCompact': '• Naudokite komandą /compact, kad sutrumpintumėte pokalbio tekstą, kai jis tampa per ilgas.',
-  'ide.chat.help.tipPlan': '• Prieš atliekant pakeitimus, naudokite komandą /plan, kad „{{agentName}}“ atliktų tyrimą.',
+  'ide.chat.help.shortcuts':
+    'Paspauskite „Cmd+/“ (Windows ir Linux sistemose – „Ctrl+/“), kad peržiūrėtumėte visus klavišų trumpinius.',
+  'ide.chat.help.tipCompact':
+    '• Naudokite komandą /compact, kad sutrumpintumėte pokalbio tekstą, kai jis tampa per ilgas.',
+  'ide.chat.help.tipPlan':
+    '• Prieš atliekant pakeitimus, naudokite komandą /plan, kad „{{agentName}}“ atliktų tyrimą.',
   'ide.chat.help.tipSlash': '• Įveskite /, kad peržiūrėtumėte visas aukščiau nurodytas komandas.',
-  'ide.chat.help.tipSpecific': '• Būkite konkretūs — „Įtraukite prisijungimo puslapį su el. paštu ir slaptažodžiu bei „Google OAuth““ yra geriau nei „įtraukite autentifikavimą“.',
-  'ide.chat.help.tipUndo': '• Naudokite komandą /undo, kad atšauktumėte paskutinio AI ėjimo metu atliktus failo pakeitimus, jei jis nukrypo nuo plano.',
+  'ide.chat.help.tipSpecific':
+    '• Būkite konkretūs — „Įtraukite prisijungimo puslapį su el. paštu ir slaptažodžiu bei „Google OAuth““ yra geriau nei „įtraukite autentifikavimą“.',
+  'ide.chat.help.tipUndo':
+    '• Naudokite komandą /undo, kad atšauktumėte paskutinio AI ėjimo metu atliktus failo pakeitimus, jei jis nukrypo nuo plano.',
   'ide.chat.help.tipsHeading': '── Patarimai ──',
   'ide.chat.report.heading': 'Pranešti apie klaidą',
   'ide.chat.report.openReport': 'Pranešti apie klaidą',
-  'ide.chat.report.subheading': 'Parašykite mums, kas nepavyko arba ko norėtumėte pamatyti. Jūsų laiškas bus perduotas „{{productName}}“ komandai.',
+  'ide.chat.report.subheading':
+    'Parašykite mums, kas nepavyko arba ko norėtumėte pamatyti. Jūsų laiškas bus perduotas „{{productName}}“ komandai.',
   'ide.chat.report.titleLabel': 'Pavadinimas',
   'ide.chat.report.titlePlaceholder': 'Trumpas apibendrinimas',
   'ide.chat.report.descriptionLabel': 'Aprašymas',
   'ide.chat.report.descriptionPlaceholder': 'Kas nutiko? Ko tikėjotės?',
-  'ide.chat.report.stepsLabel': 'Veiksmai, kuriuos reikia atlikti norint atkurti problemą (neprivaloma)',
+  'ide.chat.report.stepsLabel':
+    'Veiksmai, kuriuos reikia atlikti norint atkurti problemą (neprivaloma)',
   'ide.chat.report.stepsPlaceholder': '1. …\n2. …',
   'ide.chat.report.includeChat': 'Įtraukite naujausią pokalbį, kad būtų aiškus kontekstas',
   'ide.chat.report.submit': 'Pateikti ataskaitą',
@@ -434,7 +477,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Įrašoma…',
   'ide.chat.scripts.saveError': 'Nepavyko išsaugoti scenarijaus. Prašome bandyti dar kartą.',
   'ide.chat.scripts.invalid': 'Skriptui reikalingas pavadinimas ir ne tuščias tekstas.',
-  'ide.chat.scripts.empty': 'Kol kas nėra išsaugotų scenarijų. Sukurkite jį viršuje arba paprašykite „{{agentName}}“ jį parašyti ir išsaugoti.',
+  'ide.chat.scripts.empty':
+    'Kol kas nėra išsaugotų scenarijų. Sukurkite jį viršuje arba paprašykite „{{agentName}}“ jį parašyti ir išsaugoti.',
   'ide.chat.scripts.loading': 'Įkeliami skriptai…',
   'ide.chat.scripts.error': 'Nepavyko įkelti šio projekto skriptų.',
   'ide.chat.scripts.noMatch': 'Nėra scenarijų, atitinkančių „{{query}}“.',
@@ -442,8 +486,10 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Paleiskite šį scenarijų izoliuotoje aplinkoje',
   'ide.chat.scripts.running': 'Bėgimas…',
   'ide.chat.scripts.runError': 'Nepavyko paleisti scenarijaus.',
-  'ide.chat.scripts.runNone': 'Kol kas nėra išsaugotų scenarijų. Atidarykite /scripts, kad sukurtumėte scenarijų.',
-  'ide.chat.scripts.runNotFound': 'Nerasta scenarijaus pavadinimu „{{name}}“. Galima rasti: {{names}}',
+  'ide.chat.scripts.runNone':
+    'Kol kas nėra išsaugotų scenarijų. Atidarykite /scripts, kad sukurtumėte scenarijų.',
+  'ide.chat.scripts.runNotFound':
+    'Nerasta scenarijaus pavadinimu „{{name}}“. Galima rasti: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} baigta 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} baigėsi su kodu „{{code}}“',
   'ide.chat.scripts.exitOk': 'Išėjo 0',
@@ -467,7 +513,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Pasidalinti projektu',
-  'ide.chat.share.subheading': 'Sukurkite viešą nuorodą. Kiekvienas, turintis šią nuorodą, gaus jūsų pasirinktą vaidmenį – nuoroda, skirta peržiūrai, suteikia tik skaitymo teises.',
+  'ide.chat.share.subheading':
+    'Sukurkite viešą nuorodą. Kiekvienas, turintis šią nuorodą, gaus jūsų pasirinktą vaidmenį – nuoroda, skirta peržiūrai, suteikia tik skaitymo teises.',
   'ide.chat.share.roleLabel': 'Pareigos',
   'ide.chat.share.create': 'Sukurti nuorodą',
   'ide.chat.share.creating': 'Kuriama…',
@@ -479,20 +526,26 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Nukopijuota',
   'ide.chat.share.openLink': 'Atidaryti nuorodą',
   'ide.chat.share.error': 'Nepavyko sukurti nuorodos dalijimuisi. Prašome bandyti dar kartą.',
-  'ide.chat.share.usage': 'Naudojimas: /share [vaidmuo] — sukurti viešą nuorodą. Vaidmenys: {{roles}} (numatyta – peržiūrėtojas).',
-  'ide.chat.share.notAllowed': 'Bendrinimo nuorodoms tvarkyti šiame projekte reikia administratoriaus vaidmens.',
+  'ide.chat.share.usage':
+    'Naudojimas: /share [vaidmuo] — sukurti viešą nuorodą. Vaidmenys: {{roles}} (numatyta – peržiūrėtojas).',
+  'ide.chat.share.notAllowed':
+    'Bendrinimo nuorodoms tvarkyti šiame projekte reikia administratoriaus vaidmens.',
   'ide.chat.skills.heading': 'Įgūdžiai',
   'ide.chat.skills.searchPlaceholder': 'Filtruoti įgūdžius…',
   'ide.chat.skills.load': 'Įkelti',
   'ide.chat.skills.loadTitle': 'Atidaryti redaktoriuje ir pridėti kaip kontekstą',
-  'ide.chat.skills.loaded': 'Įkeltas įgūdis „{{name}}“ — atidarytas redaktoriuje ir pridėtas kaip kontekstas prie jūsų kito pranešimo.',
+  'ide.chat.skills.loaded':
+    'Įkeltas įgūdis „{{name}}“ — atidarytas redaktoriuje ir pridėtas kaip kontekstas prie jūsų kito pranešimo.',
   'ide.chat.skills.loading': 'Įkeliama įgūdžių informacija…',
   'ide.chat.skills.error': 'Nepavyko įkelti šio projekto įgūdžių.',
   'ide.chat.skills.empty': 'Šiame projekte kataloge .agents/skills/ nerasta jokių įgūdžių.',
   'ide.chat.skills.noMatch': 'Nėra įgūdžių, atitinkančių „{{query}}“.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -515,7 +568,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Nepavyko išsiųsti pranešimo. Prašome bandyti dar kartą.',
   'ide.chat.report.submitted': 'Ačiū! Jūsų pranešimas buvo perduotas „{{productName}}“ komandai.',
-  'ide.chat.report.submittedWithLink': 'Ačiū! Jūsų pranešimas buvo išsiųstas — jo eigą galite stebėti paspaudę nuorodą į šią problemą.',
+  'ide.chat.report.submittedWithLink':
+    'Ačiū! Jūsų pranešimas buvo išsiųstas — jo eigą galite stebėti paspaudę nuorodą į šią problemą.',
   'ide.chat.settings.modelFollowsDefault': 'Atitinka numatytąjį modelį',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +583,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Sukurti',
   'ide.chat.skills.cancel': 'Atšaukti',
   'ide.chat.skills.createError': 'Nepavyko sukurti įgūdžio — pabandykite dar kartą.',
-  'ide.chat.skills.created': 'Sukurtas įgūdis „{{name}}“ — atidarytas redaktoriuje. Užpildykite jo aprašymą ir veiksmus.',
+  'ide.chat.skills.created':
+    'Sukurtas įgūdis „{{name}}“ — atidarytas redaktoriuje. Užpildykite jo aprašymą ir veiksmus.',
   'ide.chat.autoCommit.on': 'Įjungti automatinį įrašymą',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -537,10 +592,12 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Čia peržiūros langas neatsidaro',
-  'ide.preview.loadFailedHint': 'Pabandykite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
+  'ide.preview.loadFailedHint':
+    'Pabandykite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
   'ide.preview.reloadPreview': 'Atnaujinti peržiūrą',
   'ide.preview.lastWorkingFrame': 'Paskutinė darbo versija',
-  'ide.chat.effort.notSupportedForModel': '{{level}} {{model}} versijoje nėra. Rasti galima: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}} versijoje nėra. Rasti galima: {{levels}}',
   'ide.chat.modelSortLabel': 'Rūšiuoti',
   'ide.chat.modelSortDirection': 'Pakeisti rūšiavimo kryptį',
   'ide.chat.skills.loadedBadge': 'Įkelta',
@@ -551,26 +608,32 @@ export const lt: Partial<IdeTranslations> = {
   'ide.device.select': 'Įrenginio rėmas',
   'ide.device.rotate': 'Pasukti',
   'ide.chat.closeOverlay': 'Uždaryti',
-  'ide.chat.retryCountdown': 'Serverio klaida — bandoma pakartoti po {{seconds}} s… (bandoma {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Serverio klaida — bandoma pakartoti po {{seconds}} s… (bandoma {{attempt}})',
   'ide.preview.blankTitle': 'Peržiūra yra tuščia',
-  'ide.preview.blankHint': 'Programėlė įkeliama, bet nieko nerodo — galbūt įvyko klaida. Apie tai pranešta „Synthase“. Galite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
+  'ide.preview.blankHint':
+    'Programėlė įkeliama, bet nieko nerodo — galbūt įvyko klaida. Apie tai pranešta „Synthase“. Galite atnaujinti puslapį arba atidaryti peržiūrą naujame skirtuke.',
   'ide.chat.previewLinkTitle': 'Atidarykite „{{path}}“ peržiūros lange',
-  'ide.chat.report.diagnosticsNote': 'Pridedame jūsų programėlės versiją, naršyklę ir ekrano dydį, kad galėtume ištaisyti klaidas.',
+  'ide.chat.report.diagnosticsNote':
+    'Pridedame jūsų programėlės versiją, naršyklę ir ekrano dydį, kad galėtume ištaisyti klaidas.',
   'ide.chat.skills.loadedCount': '🧠 Įgijau „{{count}}“ įgūdžių',
   'ide.chat.skills.waitingForSandbox': 'Laukiama, kol baigsis „sandbox“ paleidimas…',
   'ide.chat.skills.resetDefaults': 'Pagal numatytuosius nustatymus įkelti viską',
-  'ide.search.excludedDirs': 'Išskirtos aplankos (taikoma visoms paieškoms, įskaitant agento paiešką)',
+  'ide.search.excludedDirs':
+    'Išskirtos aplankos (taikoma visoms paieškoms, įskaitant agento paiešką)',
   'ide.chat.costStreamingNote': 'Bendras skaičius — įskaitant šiuo metu transliuojamą atsakymą.',
   'ide.toolCall.packageCount': '{{count}} pakuotės',
   'ide.toolCall.openPackageDoc': 'Atidaryti paketo dokumentaciją',
   'ide.chat.fastModeOn': 'Įjungtas greitasis režimas — greitesni atsakymai didesniu dažniu',
   'ide.chat.fastModeOff': 'Greitasis režimas išjungtas',
-  'ide.chat.fastModeEnable': 'Greitasis režimas — iki 2,5 kartų spartesnis duomenų išvedimas esant didesniam žetonų dažniui',
+  'ide.chat.fastModeEnable':
+    'Greitasis režimas — iki 2,5 kartų spartesnis duomenų išvedimas esant didesniam žetonų dažniui',
   'ide.chat.fastModeDisable': 'Išjunkite greitojo režimo funkciją',
   'ide.chat.scripts.runWithOptions': 'Vykdyti…',
   'ide.chat.scripts.required': '(privaloma)',
   'ide.chat.scripts.cancelRun': 'Atšaukti',
-  'ide.chat.scripts.runNeedsOptions': '„{{name}}“ reikia parinkčių — atidariau /scripts, kad galėtumėte jas nustatyti ir Vykdyti.',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ reikia parinkčių — atidariau /scripts, kad galėtumėte jas nustatyti ir Vykdyti.',
   'ide.chat.settings.effort.label': 'Mąstymo pastangos',
   'ide.chat.timestampsShown': 'Laiko žymos rodomos.',
   'ide.chat.timestampsHidden': 'Laiko žymos paslėptos.',
@@ -593,7 +656,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Programėlė',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Projektas',
-  'ide.tests.e2eHint': 'Šios funkcijos veikia kartu su tiesioginiu peržiūros langu, todėl palikite jį atidarytą.',
+  'ide.tests.e2eHint':
+    'Šios funkcijos veikia kartu su tiesioginiu peržiūros langu, todėl palikite jį atidarytą.',
   'ide.tests.showOutput': 'Rodyti rezultatą',
   'ide.tests.hideOutput': 'Paslėpti išvestį',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -638,7 +702,8 @@ export const lt: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} praleista',
   'ide.tests.skippedByUser': 'Vykdymas baigtas. Testai, kuriuos praleidote, nebuvo atlikti.',
   'ide.tests.viewerCannotSkip': 'Tik redaktoriai gali praleisti šio projekto testus.',
-  'ide.toolCall.interruptedByRestart': 'Šį veiksmą nutraukė paleidimas iš naujo; jo poveikis nežinomas.',
+  'ide.toolCall.interruptedByRestart':
+    'Šį veiksmą nutraukė paleidimas iš naujo; jo poveikis nežinomas.',
   'ide.toolCall.statusInterrupted': 'Pertrauktas',
   'ide.chat.subagent.failedFallback': 'Šis subagentas sustojo nespėjęs baigti.',
   'ide.chat.viaDictation.badge': 'Diktuojama balsu',

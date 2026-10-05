@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for fi. */
 export const fi: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Katso suunnitelmat',
   'ide.chat.fileCount': '{{count}} tiedostoa',
   'common.cancel': 'Peruuta',
@@ -99,7 +103,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Vaihda mallia',
   'ide.chat.increaseLoops': 'Lisää silmukoiden enimmäismäärää',
   'ide.chat.continuePrompt': 'Jatka toteutusta siitä, mihin jäit.',
-  'guest.reminder.message': 'Rekisteröidy tai kirjaudu sisään, jotta työvierailusi vanhenevat 72 tunnin kuluttua.',
+  'guest.reminder.message':
+    'Rekisteröidy tai kirjaudu sisään, jotta työvierailusi vanhenevat 72 tunnin kuluttua.',
   'guest.reminder.logIn': 'Kirjaudu sisään',
   'ide.chat.soundsError': 'Ääniasetusten päivittäminen epäonnistui.',
   'ide.chat.commitFailed': 'Vahvistus epäonnistui',
@@ -111,23 +116,26 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Vaihdettu suunnittelutilaan',
   'ide.chat.switchedToExecute': 'Vaihdettu suoritustilaan',
   'ide.chat.costError': 'Käyttötietojen noutaminen epäonnistui.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'ruuhka ×{{multiplier}} nyt',
   'ide.chat.models.peakLater': '×{{multiplier}} ruuhka-aikaan',
-  'ide.chat.models.peakHint': 'Tämä malli maksaa ×{{multiplier}} välillä {{windows}}. Muun osan päivästä käytössä on normaalihinta.',
+  'ide.chat.models.peakHint':
+    'Tämä malli maksaa ×{{multiplier}} välillä {{windows}}. Muun osan päivästä käytössä on normaalihinta.',
   'ide.chat.undoNoChanges': 'Ei kumoattavia tiedostomuutoksia.',
   'ide.chat.undoComplete': 'Muutosten palauttaminen epäonnistui.',
   'ide.chat.commitNoChanges': 'Ei muutoksia, joita voisi vahvistaa.',
@@ -135,10 +143,13 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automaattinen korjaus käytössä.',
   'ide.chat.autoFixDisabled': 'Automaattinen korjaus poistettu käytöstä.',
   'ide.chat.autoFixError': 'Automaattisen korjauksen asetuksen päivittäminen epäonnistui.',
-  'ide.chat.autoApproveEnabled': 'Automaattinen hyväksyntä käytössä — tuhoisat komennot suoritetaan kysymättä. Tietovuotosuoja kysyy silti vahvistusta. Poista käytöstä komennolla /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Automaattinen hyväksyntä pois käytöstä — tuhoisat komennot kysyvät vahvistusta ennen suorittamista.',
+  'ide.chat.autoApproveEnabled':
+    'Automaattinen hyväksyntä käytössä — tuhoisat komennot suoritetaan kysymättä. Tietovuotosuoja kysyy silti vahvistusta. Poista käytöstä komennolla /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automaattinen hyväksyntä pois käytöstä — tuhoisat komennot kysyvät vahvistusta ennen suorittamista.',
   'ide.chat.autoApproveError': 'Automaattisen hyväksynnän asetuksen päivittäminen epäonnistui.',
-  'ide.chat.modelUsage': 'Käyttö: /malli<model-name> (esim. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage':
+    'Käyttö: /malli<model-name> (esim. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Silmukoiden enimmäismäärä saavutettu.',
   'ide.chat.maxLoopsError': 'Työkalujen iteraatioiden enimmäismäärän päivittäminen epäonnistui.',
   'ide.chat.dropFilesHere': 'Pudota tiedostot tähän',
@@ -243,7 +254,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.error': 'Vastauksen aikana meni jotain pieleen',
   'ide.chat.soundEventDesc.tool_result': 'Työkalukutsu (tiedoston luku, komento jne.) suoritettu',
   'ide.chat.soundEventDesc.file_diff': 'Tiedosto luotiin tai sitä muokattiin',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} ehdottaa tiedostoja commit-tiedostoiksi.',
+  'ide.chat.soundEventDesc.commit_suggestion':
+    '{{agentName}} ehdottaa tiedostoja commit-tiedostoiksi.',
   'ide.chat.soundEventDesc.mode': 'Vaihdettu suunnittelutilan ja suoritustilan välillä',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Työkalun iteraatioiden enimmäisraja saavutettu',
   'ide.chat.soundEventDesc.verification_result': 'Nukka- tai tyyppitarkistus suoritettu loppuun',
@@ -251,10 +263,12 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.voice': 'Ääni',
   'ide.chat.voiceUnavailable': 'Sanelu ei ole käytettävissä tässä selaimessa.',
   'ide.chat.voiceMicBlocked': 'Mikrofonin käyttö on estetty.',
-  'ide.chat.voicePreparing': 'Valmistellaan sanelua — ensimmäisellä kerralla tämä voi kestää hetken.',
+  'ide.chat.voicePreparing':
+    'Valmistellaan sanelua — ensimmäisellä kerralla tämä voi kestää hetken.',
   'ide.chat.voiceTranscribeFailed': 'Litterointi epäonnistui.',
   'ide.chat.voiceEngineTitle': 'Sanelumoottori',
-  'ide.chat.voiceEnginePrivacy': 'Jokainen vaihtoehto toimii laitteellasi — ääni ei koskaan poistu selaimestasi.',
+  'ide.chat.voiceEnginePrivacy':
+    'Jokainen vaihtoehto toimii laitteellasi — ääni ei koskaan poistu selaimestasi.',
   'ide.chat.voiceEngineNoDownload': 'ei latausta',
   'ide.chat.voiceEngineDownload': '~{{mb}} Mt lataus, sitten välimuistissa',
   'ide.chat.voiceEngineDownloadRange': '~{{min}}–{{max}} Mt lataus, sitten välimuistissa',
@@ -300,7 +314,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Suojattu (HTTPS)',
   'ide.preview.address': 'Esikatseluosoite',
   'ide.preview.updating': 'Päivittäminen',
-  'ide.preview.frozen': 'Sovellus lakkasi vastaamasta — esikatselu jumittui loputtomaan silmukkaan tai hallitsemattomaan renderointiin. Tämä ei vaikuta kehitysympäristöön.',
+  'ide.preview.frozen':
+    'Sovellus lakkasi vastaamasta — esikatselu jumittui loputtomaan silmukkaan tai hallitsemattomaan renderointiin. Tämä ei vaikuta kehitysympäristöön.',
   'ide.preview.frozenReload': 'Lataa sovellus uudelleen',
   'ide.search.results': '{{count}} tulemukset tiedostoissa {{files}}',
   'ide.activity.cardAria': 'Tarkastele tallennettua toimintaa',
@@ -332,21 +347,31 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Ansioluettelo',
   'ide.chat.openSettings': 'Asetukset',
   'ide.chat.tip.dismiss': 'Hylkää vinkki',
-  'ide.chat.tip.getStarted': 'Vinkki: kirjoita / nähdäksesi kaikki komennot tai @ tiedostonimi, jotta {{agentName}} voi käyttää kyseistä tiedostoa.',
-  'ide.chat.tip.mention': 'Vinkki: kirjoita @tiedostonimi liittääksesi projektitiedoston kontekstiksi — {{agentName}} lukee sen suoraan.',
-  'ide.chat.tip.slash': 'Vinkki: kirjoita / nähdäksesi kaikki komennot (commit, diff, model ja muut).',
-  'ide.chat.tip.plan': 'Vinkki: käytä komentoa /plan, jotta {{agentName}} tutkii tilanteen ja ehdottaa toimintasuunnitelmaa ennen tiedostojen muokkaamista.',
-  'ide.chat.tip.undo': 'Vinkki: käytä komentoa /undo, jos haluat kumota viimeisen tekoälykierroksen tiedostomuutokset välittömästi, jos ne menivät pieleen.',
-  'ide.chat.tip.compact': 'Vinkki: Pitkä keskustelu? /compact tiivistää keskustelun, jotta sinulle jää tilaa työskennellä.',
-  'ide.chat.tip.commit': 'Vinkki: käytä komentoa /commit tallentaaksesi muutokset Git-komitoksi, johon voit palata milloin tahansa.',
-  'ide.chat.tip.report': 'Vinkki: huomasitko jotain outoa? /report-komennolla voit lähettää tiimille vikailmoituksen tai palautetta, johon liitetään viimeisimmät keskustelusi.',
+  'ide.chat.tip.getStarted':
+    'Vinkki: kirjoita / nähdäksesi kaikki komennot tai @ tiedostonimi, jotta {{agentName}} voi käyttää kyseistä tiedostoa.',
+  'ide.chat.tip.mention':
+    'Vinkki: kirjoita @tiedostonimi liittääksesi projektitiedoston kontekstiksi — {{agentName}} lukee sen suoraan.',
+  'ide.chat.tip.slash':
+    'Vinkki: kirjoita / nähdäksesi kaikki komennot (commit, diff, model ja muut).',
+  'ide.chat.tip.plan':
+    'Vinkki: käytä komentoa /plan, jotta {{agentName}} tutkii tilanteen ja ehdottaa toimintasuunnitelmaa ennen tiedostojen muokkaamista.',
+  'ide.chat.tip.undo':
+    'Vinkki: käytä komentoa /undo, jos haluat kumota viimeisen tekoälykierroksen tiedostomuutokset välittömästi, jos ne menivät pieleen.',
+  'ide.chat.tip.compact':
+    'Vinkki: Pitkä keskustelu? /compact tiivistää keskustelun, jotta sinulle jää tilaa työskennellä.',
+  'ide.chat.tip.commit':
+    'Vinkki: käytä komentoa /commit tallentaaksesi muutokset Git-komitoksi, johon voit palata milloin tahansa.',
+  'ide.chat.tip.report':
+    'Vinkki: huomasitko jotain outoa? /report-komennolla voit lähettää tiimille vikailmoituksen tai palautetta, johon liitetään viimeisimmät keskustelusi.',
   'ide.chat.undoError': 'Muutosten palauttaminen epäonnistui.',
   'ide.chat.autoCommit.badge': 'Automaattinen tallennus ({{countdown}})',
   'ide.chat.autoCommit.cancel': 'Peruuta automaattinen tallennus',
   'ide.chat.autoCommit.cancelled': 'Automaattinen tallennus peruutettu.',
-  'ide.chat.autoCommit.enabled': 'Automaattinen tallennus käytössä: tallennus tapahtuu {{seconds}} sekunnin kuluttua viimeisestä tiedostomuutoksesta. Peruuta asettamalla /autocommit 0.',
+  'ide.chat.autoCommit.enabled':
+    'Automaattinen tallennus käytössä: tallennus tapahtuu {{seconds}} sekunnin kuluttua viimeisestä tiedostomuutoksesta. Peruuta asettamalla /autocommit 0.',
   'ide.chat.effort.error': 'Päivitys epäonnistui.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +386,14 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Ilmainen',
   'ide.chat.models.sortBy': 'Lajittele seuraavien mukaan{{column}}',
   'ide.chat.modelsLoading': 'Malleja ladataan…',
-  'ide.chat.modelsNone': 'Malleja ei ole vielä saatavilla — pyydä järjestelmänvalvojaa ottamaan yhteyttä tekoälypalveluntarjoajaan.',
+  'ide.chat.modelsNone':
+    'Malleja ei ole vielä saatavilla — pyydä järjestelmänvalvojaa ottamaan yhteyttä tekoälypalveluntarjoajaan.',
   'ide.chat.modelInUse': 'Käytössä on nyt {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Valitsemasi malli ”{{removed}}” ei ole enää saatavilla. Siirryttiin malliin ”{{fallback}}”. Kirjoita /model valitaksesi toisen mallin.',
-  'ide.chat.modelRemovedNoFallback': 'Valitsemasi malli ”{{removed}}” ei ole enää saatavilla, eikä palvelimelle ole liitetty korvaavaa mallia. Pyydä järjestelmänvalvojaa liittämään tekoälypalveluntarjoaja.',
+  'ide.chat.modelRemoved':
+    'Valitsemasi malli ”{{removed}}” ei ole enää saatavilla. Siirryttiin malliin ”{{fallback}}”. Kirjoita /model valitaksesi toisen mallin.',
+  'ide.chat.modelRemovedNoFallback':
+    'Valitsemasi malli ”{{removed}}” ei ole enää saatavilla, eikä palvelimelle ole liitetty korvaavaa mallia. Pyydä järjestelmänvalvojaa liittämään tekoälypalveluntarjoaja.',
   'ide.chat.olderModelsCollapse': 'Vanhemmat mallit ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Vanhemmat mallit ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Valitse suoritusmuotoinen malli',
@@ -387,31 +415,43 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint-virheet',
   'ide.chat.lintWarningsCount': '{{count}} varoitukset',
   'ide.chat.typeErrorsCount': '{{count}} kirjoitusvirheet',
   'ide.chat.help.commandsHeading': '── Komennot ──',
-  'ide.chat.help.intro': '{{agentName}} on {{productName}}-sivuston tekoälypohjainen koodausavustaja. Kerro, mitä haluat rakentaa, niin se luo koodin rungon, kirjoittaa koodin ja kehittää sitä yhdessä kanssasi.',
+  'ide.chat.help.intro':
+    '{{agentName}} on {{productName}}-sivuston tekoälypohjainen koodausavustaja. Kerro, mitä haluat rakentaa, niin se luo koodin rungon, kirjoittaa koodin ja kehittää sitä yhdessä kanssasi.',
   'ide.chat.help.introHeading': '── Aloitus ──',
-  'ide.chat.help.modeDiscovery': 'Discovery — uudet keskustelut alkavat täältä. {{agentName}} esittää selventäviä kysymyksiä vaatimusten tarkentamiseksi ennen koodin kirjoittamista.',
-  'ide.chat.help.modeExecute': 'Suorita — oletustyötila. Ohjelmointiautomaatti ({{agentName}}) kirjoittaa koodia, suorittaa työkaluja, ottaa muutokset käyttöön ja tarkistaa ne.',
-  'ide.chat.help.modePlan': 'Suunnitelma — Komento {{agentName}} tutkii koodipohjaa ja ehdottaa suunnitelmaa ILMAN tiedostojen muokkaamista. Voit kytkeä toiminnon päälle tai pois päältä komennolla /plan. Sopii parhaiten suuriin tai riskialttiisiin muutoksiin.',
+  'ide.chat.help.modeDiscovery':
+    'Discovery — uudet keskustelut alkavat täältä. {{agentName}} esittää selventäviä kysymyksiä vaatimusten tarkentamiseksi ennen koodin kirjoittamista.',
+  'ide.chat.help.modeExecute':
+    'Suorita — oletustyötila. Ohjelmointiautomaatti ({{agentName}}) kirjoittaa koodia, suorittaa työkaluja, ottaa muutokset käyttöön ja tarkistaa ne.',
+  'ide.chat.help.modePlan':
+    'Suunnitelma — Komento {{agentName}} tutkii koodipohjaa ja ehdottaa suunnitelmaa ILMAN tiedostojen muokkaamista. Voit kytkeä toiminnon päälle tai pois päältä komennolla /plan. Sopii parhaiten suuriin tai riskialttiisiin muutoksiin.',
   'ide.chat.help.modesHeading': '── Tilat ──',
-  'ide.chat.help.shortcuts': 'Paina Cmd+/ (Ctrl+/ Windowsissa/Linuxissa) nähdäksesi kaikki pikanäppäimet.',
-  'ide.chat.help.tipCompact': '• Käytä komentoa /compact tiivistääksesi keskustelua, kun se pitenee.',
-  'ide.chat.help.tipPlan': '• Käytä komentoa /plan, jotta järjestelmä ({{agentName}}) voi suorittaa tarvittavat tarkistukset ennen muutosten tekemistä.',
+  'ide.chat.help.shortcuts':
+    'Paina Cmd+/ (Ctrl+/ Windowsissa/Linuxissa) nähdäksesi kaikki pikanäppäimet.',
+  'ide.chat.help.tipCompact':
+    '• Käytä komentoa /compact tiivistääksesi keskustelua, kun se pitenee.',
+  'ide.chat.help.tipPlan':
+    '• Käytä komentoa /plan, jotta järjestelmä ({{agentName}}) voi suorittaa tarvittavat tarkistukset ennen muutosten tekemistä.',
   'ide.chat.help.tipSlash': '• Kirjoita /, jos haluat selata kaikkia yllä olevia komentoja.',
-  'ide.chat.help.tipSpecific': '• Ole tarkka — ”Lisää kirjautumissivu, jossa on sähköpostiosoite/salasana ja Google OAuth” on parempi kuin ”lisää todennus”.',
-  'ide.chat.help.tipUndo': '• Käytä komentoa /undo, jos AI:n viimeisen vuoron aikana tehdyt tiedostomuutokset menevät pieleen.',
+  'ide.chat.help.tipSpecific':
+    '• Ole tarkka — ”Lisää kirjautumissivu, jossa on sähköpostiosoite/salasana ja Google OAuth” on parempi kuin ”lisää todennus”.',
+  'ide.chat.help.tipUndo':
+    '• Käytä komentoa /undo, jos AI:n viimeisen vuoron aikana tehdyt tiedostomuutokset menevät pieleen.',
   'ide.chat.help.tipsHeading': '── Vinkkejä ──',
   'ide.chat.report.heading': 'Ilmoita virheestä',
   'ide.chat.report.openReport': 'Ilmoita virheestä',
-  'ide.chat.report.subheading': 'Kerro meille, mikä meni pieleen tai mitä toivoisit sivustolta. Viesti välitetään {{productName}}-sivuston tiimille.',
+  'ide.chat.report.subheading':
+    'Kerro meille, mikä meni pieleen tai mitä toivoisit sivustolta. Viesti välitetään {{productName}}-sivuston tiimille.',
   'ide.chat.report.titleLabel': 'Otsikko',
   'ide.chat.report.titlePlaceholder': 'Lyhyt yhteenveto',
   'ide.chat.report.descriptionLabel': 'Kuvaus',
@@ -434,7 +474,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Tallennetaan…',
   'ide.chat.scripts.saveError': 'Skriptiä ei voitu tallentaa. Yritä uudelleen.',
   'ide.chat.scripts.invalid': 'Skriptillä on oltava nimi ja sisältöä.',
-  'ide.chat.scripts.empty': 'Tallennettuja skriptejä ei ole vielä. Luo sellainen yllä tai pyydä {{agentName}}:tä kirjoittamaan ja tallentamaan sellainen.',
+  'ide.chat.scripts.empty':
+    'Tallennettuja skriptejä ei ole vielä. Luo sellainen yllä tai pyydä {{agentName}}:tä kirjoittamaan ja tallentamaan sellainen.',
   'ide.chat.scripts.loading': 'Skriptejä ladataan…',
   'ide.chat.scripts.error': 'Tämän projektin skriptejä ei voitu ladata.',
   'ide.chat.scripts.noMatch': 'Mitään skriptiä ei löytynyt hakusanalle ”{{query}}”.',
@@ -442,8 +483,10 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Suorita tämä skripti hiekkalaatikossa',
   'ide.chat.scripts.running': 'Juoksu…',
   'ide.chat.scripts.runError': 'Skriptin suorittaminen epäonnistui.',
-  'ide.chat.scripts.runNone': 'Tallennettuja skriptejä ei ole vielä. Avaa /scripts luodaksesi uuden.',
-  'ide.chat.scripts.runNotFound': 'Käsikirjoitusta nimeltä ”{{name}}” ei löydy. Saatavilla: {{names}}',
+  'ide.chat.scripts.runNone':
+    'Tallennettuja skriptejä ei ole vielä. Avaa /scripts luodaksesi uuden.',
+  'ide.chat.scripts.runNotFound':
+    'Käsikirjoitusta nimeltä ”{{name}}” ei löydy. Saatavilla: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} päättyi 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} ohjelma päättyi virhekoodilla{{code}}',
   'ide.chat.scripts.exitOk': 'Lopetettu 0',
@@ -467,7 +510,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Jaa projekti',
-  'ide.chat.share.subheading': 'Luo julkinen linkki. Jokainen, jolla on linkki, saa valitsemasi roolin – katselulinkki on vain luku -oikeuksin.',
+  'ide.chat.share.subheading':
+    'Luo julkinen linkki. Jokainen, jolla on linkki, saa valitsemasi roolin – katselulinkki on vain luku -oikeuksin.',
   'ide.chat.share.roleLabel': 'Tehtävä',
   'ide.chat.share.create': 'Luo linkki',
   'ide.chat.share.creating': 'Luodaan…',
@@ -479,20 +523,26 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Kopioitu',
   'ide.chat.share.openLink': 'Avaa linkki',
   'ide.chat.share.error': 'Jakolinkkiä ei voitu luoda. Yritä uudelleen.',
-  'ide.chat.share.usage': 'Käyttö: /share [rooli] — luo julkinen linkki. Roolit: {{roles}} (oletus: katselija).',
-  'ide.chat.share.notAllowed': 'Jakolinkkien hallinta vaatii järjestelmänvalvojan roolin tässä projektissa.',
+  'ide.chat.share.usage':
+    'Käyttö: /share [rooli] — luo julkinen linkki. Roolit: {{roles}} (oletus: katselija).',
+  'ide.chat.share.notAllowed':
+    'Jakolinkkien hallinta vaatii järjestelmänvalvojan roolin tässä projektissa.',
   'ide.chat.skills.heading': 'Taidot',
   'ide.chat.skills.searchPlaceholder': 'Suodata taitoja…',
   'ide.chat.skills.load': 'Lataa',
   'ide.chat.skills.loadTitle': 'Avaa editorissa ja liitä kontekstina',
-  'ide.chat.skills.loaded': 'Taito ”{{name}}” on ladattu — se avautuu editorissa ja liitetään seuraavan viestisi kontekstiksi.',
+  'ide.chat.skills.loaded':
+    'Taito ”{{name}}” on ladattu — se avautuu editorissa ja liitetään seuraavan viestisi kontekstiksi.',
   'ide.chat.skills.loading': 'Taitoja ladataan…',
   'ide.chat.skills.error': 'Tämän projektin taitoja ei voitu ladata.',
   'ide.chat.skills.empty': 'Tälle projektille ei löytynyt taitoja kansiosta .agents/skills/.',
   'ide.chat.skills.noMatch': 'Mitään hakutulosta ei löytynyt hakusanalle ”{{query}}”.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -514,8 +564,10 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Vinkkejä',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ilmoitusta ei voitu lähettää. Yritä uudelleen.',
-  'ide.chat.report.submitted': 'Kiitos! Ilmoituksesi on välitetty {{productName}}-sivuston tiimille.',
-  'ide.chat.report.submittedWithLink': 'Kiitos! Ilmoituksesi on lähetetty — voit seurata sen käsittelyä linkitetyn ongelman kautta.',
+  'ide.chat.report.submitted':
+    'Kiitos! Ilmoituksesi on välitetty {{productName}}-sivuston tiimille.',
+  'ide.chat.report.submittedWithLink':
+    'Kiitos! Ilmoituksesi on lähetetty — voit seurata sen käsittelyä linkitetyn ongelman kautta.',
   'ide.chat.settings.modelFollowsDefault': 'Noudattaa oletusmallia',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +581,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Luo',
   'ide.chat.skills.cancel': 'Peruuta',
   'ide.chat.skills.createError': 'Taitoa ei voitu luoda – yritä uudelleen.',
-  'ide.chat.skills.created': 'Luotu taito ”{{name}}” — avattu editorissa. Täytä sen kuvaus ja vaiheet.',
+  'ide.chat.skills.created':
+    'Luotu taito ”{{name}}” — avattu editorissa. Täytä sen kuvaus ja vaiheet.',
   'ide.chat.autoCommit.on': 'Automaattinen tallennus päällä',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -537,10 +590,12 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Esikatselua ei voi ladata tässä',
-  'ide.preview.loadFailedHint': 'Kokeile ladata sivu uudelleen tai avaa esikatselu uudessa välilehdessä.',
+  'ide.preview.loadFailedHint':
+    'Kokeile ladata sivu uudelleen tai avaa esikatselu uudessa välilehdessä.',
   'ide.preview.reloadPreview': 'Lataa esikatselu uudelleen',
   'ide.preview.lastWorkingFrame': 'Viimeisin toimiva esikatselu',
-  'ide.chat.effort.notSupportedForModel': '{{level}} ei ole saatavilla osoitteessa {{model}}. Saatavilla: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} ei ole saatavilla osoitteessa {{model}}. Saatavilla: {{levels}}',
   'ide.chat.modelSortLabel': 'Lajittele',
   'ide.chat.modelSortDirection': 'Vaihda lajittelusuunta',
   'ide.chat.skills.loadedBadge': 'Ladattu',
@@ -551,26 +606,32 @@ export const fi: Partial<IdeTranslations> = {
   'ide.device.select': 'Laitteen runko',
   'ide.device.rotate': 'Kierrä',
   'ide.chat.closeOverlay': 'Sulje',
-  'ide.chat.retryCountdown': 'Palvelinvirhe — yritetään uudelleen {{seconds}} sekunnin kuluttua… (yritys {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Palvelinvirhe — yritetään uudelleen {{seconds}} sekunnin kuluttua… (yritys {{attempt}})',
   'ide.preview.blankTitle': 'Esikatselu on tyhjä',
-  'ide.preview.blankHint': 'Sovellus latautui, mutta ei näyttänyt mitään — siinä saattaa olla virhe. Asiasta on ilmoitettu Synthaselle. Voit ladata sivun uudelleen tai avata esikatselun uudessa välilehdessä.',
+  'ide.preview.blankHint':
+    'Sovellus latautui, mutta ei näyttänyt mitään — siinä saattaa olla virhe. Asiasta on ilmoitettu Synthaselle. Voit ladata sivun uudelleen tai avata esikatselun uudessa välilehdessä.',
   'ide.chat.previewLinkTitle': 'Avaa tiedosto {{path}} esikatselussa',
-  'ide.chat.report.diagnosticsNote': 'Sovelluksesi versio, selain ja näytön koko on liitetty mukaan, jotta voimme selvittää vian.',
+  'ide.chat.report.diagnosticsNote':
+    'Sovelluksesi versio, selain ja näytön koko on liitetty mukaan, jotta voimme selvittää vian.',
   'ide.chat.skills.loadedCount': '🧠 Laaja-alaiset taidot aiheesta ”{{count}}”',
   'ide.chat.skills.waitingForSandbox': 'Odotetaan, että hiekkalaatikon käynnistyminen päättyy…',
   'ide.chat.skills.resetDefaults': 'Lataa oletuksena kaikki',
   'ide.search.excludedDirs': 'Poissuljetut kansiot (koskee kaikkia hakuja, myös agenttia)',
-  'ide.chat.costStreamingNote': 'Kertynyt kokonaismäärä — sisältää parhaillaan lähetettävän vastauksen.',
+  'ide.chat.costStreamingNote':
+    'Kertynyt kokonaismäärä — sisältää parhaillaan lähetettävän vastauksen.',
   'ide.toolCall.packageCount': '{{count}} paketit',
   'ide.toolCall.openPackageDoc': 'Avaa paketin dokumentaatio',
   'ide.chat.fastModeOn': 'Nopea tila päällä — nopeammat vastaukset suuremmalla taajuudella',
   'ide.chat.fastModeOff': 'Pikatila pois päältä',
-  'ide.chat.fastModeEnable': 'Nopea tila — jopa 2,5-kertainen tulostusnopeus suuremmalla merkkitaajuudella',
+  'ide.chat.fastModeEnable':
+    'Nopea tila — jopa 2,5-kertainen tulostusnopeus suuremmalla merkkitaajuudella',
   'ide.chat.fastModeDisable': 'Sammuta pikamoodi',
   'ide.chat.scripts.runWithOptions': 'Suorita…',
   'ide.chat.scripts.required': '(pakollinen)',
   'ide.chat.scripts.cancelRun': 'Peruuta',
-  'ide.chat.scripts.runNeedsOptions': '”{{name}}” tarvitsee asetuksia — avattiin /scripts, jotta voit määrittää ne ja Suorittaa.',
+  'ide.chat.scripts.runNeedsOptions':
+    '”{{name}}” tarvitsee asetuksia — avattiin /scripts, jotta voit määrittää ne ja Suorittaa.',
   'ide.chat.settings.effort.label': 'Päättelytyö',
   'ide.chat.timestampsShown': 'Aikaleimat näytetään.',
   'ide.chat.timestampsHidden': 'Aikaleimat piilotettu.',
@@ -593,7 +654,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Sovellus',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Hanke',
-  'ide.tests.e2eHint': 'Nämä toimivat reaaliaikaisen esikatselun taustalla, joten pidä esikatselu auki.',
+  'ide.tests.e2eHint':
+    'Nämä toimivat reaaliaikaisen esikatselun taustalla, joten pidä esikatselu auki.',
   'ide.tests.showOutput': 'Näytä tuloste',
   'ide.tests.hideOutput': 'Piilota tulostus',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -638,7 +700,8 @@ export const fi: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} ohitettu',
   'ide.tests.skippedByUser': 'Suoritus on päättynyt. Ohittamasi testit eivät suorituneet.',
   'ide.tests.viewerCannotSkip': 'Vain toimittajat voivat ohittaa tämän projektin testit.',
-  'ide.toolCall.interruptedByRestart': 'Tämä vaihe keskeytettiin uudelleenkäynnistyksellä; sen vaikutusta ei tiedetä.',
+  'ide.toolCall.interruptedByRestart':
+    'Tämä vaihe keskeytettiin uudelleenkäynnistyksellä; sen vaikutusta ei tiedetä.',
   'ide.toolCall.statusInterrupted': 'Keskeytetty',
   'ide.chat.subagent.failedFallback': 'Tämä alasigentti pysähtyi ennen kuin se ehti valmistua.',
   'ide.chat.viaDictation.badge': 'Äänellä saneltu',

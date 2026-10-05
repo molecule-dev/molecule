@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for el. */
 export const el: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Προβολή πλάνων',
   'ide.chat.fileCount': '{{count}} αρχεία',
   'common.cancel': 'Ακύρωση',
@@ -99,7 +103,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Αλλαγή μοντέλου',
   'ide.chat.increaseLoops': 'Αύξηση μέγιστων βρόχων',
   'ide.chat.continuePrompt': 'Συνεχίστε την εφαρμογή από εκεί που σταματήσατε.',
-  'guest.reminder.message': 'Εγγραφείτε ή συνδεθείτε για να διατηρήσετε την εργασία σας \\\\u2014 οι συνεδρίες επισκεπτών να λήγουν μετά από 72 ώρες.',
+  'guest.reminder.message':
+    'Εγγραφείτε ή συνδεθείτε για να διατηρήσετε την εργασία σας \\\\u2014 οι συνεδρίες επισκεπτών να λήγουν μετά από 72 ώρες.',
   'guest.reminder.logIn': 'Σύνδεση',
   'ide.chat.soundsError': 'Αποτυχία ενημέρωσης ρυθμίσεων ήχου.',
   'ide.chat.commitFailed': 'Η ολοκλήρωση απέτυχε',
@@ -111,23 +116,26 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Έγινε εναλλαγή σε λειτουργία σχεδιασμού',
   'ide.chat.switchedToExecute': 'Έγινε εναλλαγή σε λειτουργία εκτέλεσης',
   'ide.chat.costError': 'Δεν είναι δυνατή η ανάκτηση δεδομένων χρήσης.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'αιχμή ×{{multiplier}} τώρα',
   'ide.chat.models.peakLater': '×{{multiplier}} σε ώρες αιχμής',
-  'ide.chat.models.peakHint': 'Αυτό το μοντέλο κοστίζει ×{{multiplier}} μεταξύ {{windows}}. Την υπόλοιπη ημέρα ισχύει η κανονική χρέωση.',
+  'ide.chat.models.peakHint':
+    'Αυτό το μοντέλο κοστίζει ×{{multiplier}} μεταξύ {{windows}}. Την υπόλοιπη ημέρα ισχύει η κανονική χρέωση.',
   'ide.chat.undoNoChanges': 'Δεν υπάρχουν αλλαγές αρχείου προς αναίρεση.',
   'ide.chat.undoComplete': 'Η επαναφορά των αλλαγών απέτυχε.',
   'ide.chat.commitNoChanges': 'Δεν υπάρχουν αλλαγές προς καταχώρηση.',
@@ -135,10 +143,13 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Η αυτόματη διόρθωση είναι ενεργοποιημένη.',
   'ide.chat.autoFixDisabled': 'Η αυτόματη διόρθωση είναι απενεργοποιημένη.',
   'ide.chat.autoFixError': 'Αποτυχία ενημέρωσης της ρύθμισης αυτόματης διόρθωσης.',
-  'ide.chat.autoApproveEnabled': 'Η αυτόματη έγκριση είναι ενεργοποιημένη — οι καταστροφικές εντολές εκτελούνται χωρίς ερώτηση. Η προστασία διαρροής δεδομένων εξακολουθεί να ρωτά. Απενεργοποιήστε με /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Η αυτόματη έγκριση είναι απενεργοποιημένη — οι καταστροφικές εντολές ζητούν επιβεβαίωση πριν την εκτέλεση.',
+  'ide.chat.autoApproveEnabled':
+    'Η αυτόματη έγκριση είναι ενεργοποιημένη — οι καταστροφικές εντολές εκτελούνται χωρίς ερώτηση. Η προστασία διαρροής δεδομένων εξακολουθεί να ρωτά. Απενεργοποιήστε με /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Η αυτόματη έγκριση είναι απενεργοποιημένη — οι καταστροφικές εντολές ζητούν επιβεβαίωση πριν την εκτέλεση.',
   'ide.chat.autoApproveError': 'Αποτυχία ενημέρωσης της ρύθμισης αυτόματης έγκρισης.',
-  'ide.chat.modelUsage': 'Χρήση: /μοντέλο<model-name> (π.χ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage':
+    'Χρήση: /μοντέλο<model-name> (π.χ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Έχει επιτευχθεί το μέγιστο όριο βρόχων.',
   'ide.chat.maxLoopsError': 'Αποτυχία ενημέρωσης του μέγιστου αριθμού επαναλήψεων εργαλείου.',
   'ide.chat.dropFilesHere': 'Αποθέστε αρχεία εδώ',
@@ -241,20 +252,25 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Κάτι πήγε στραβά κατά τη διάρκεια μιας απάντησης',
-  'ide.chat.soundEventDesc.tool_result': 'Ολοκληρώθηκε μια κλήση εργαλείου (ανάγνωση αρχείου, εντολή κ.λπ.)',
+  'ide.chat.soundEventDesc.tool_result':
+    'Ολοκληρώθηκε μια κλήση εργαλείου (ανάγνωση αρχείου, εντολή κ.λπ.)',
   'ide.chat.soundEventDesc.file_diff': 'Δημιουργήθηκε ή τροποποιήθηκε ένα αρχείο',
   'ide.chat.soundEventDesc.commit_suggestion': 'Το {{agentName}} προτείνει αρχεία για ολοκλήρωση',
-  'ide.chat.soundEventDesc.mode': 'Εναλλαγή μεταξύ λειτουργίας σχεδιασμού και λειτουργίας εκτέλεσης',
-  'ide.chat.soundEventDesc.loop_limit_reached': 'Συμπληρώστε το όριο μέγιστων επαναλήψεων εργαλείου',
+  'ide.chat.soundEventDesc.mode':
+    'Εναλλαγή μεταξύ λειτουργίας σχεδιασμού και λειτουργίας εκτέλεσης',
+  'ide.chat.soundEventDesc.loop_limit_reached':
+    'Συμπληρώστε το όριο μέγιστων επαναλήψεων εργαλείου',
   'ide.chat.soundEventDesc.verification_result': 'Ολοκληρώθηκε η εκτέλεση ελέγχου χνουδιών ή τύπου',
   'ide.chat.soundEventDesc.preview_error': 'Η ζωντανή προεπισκόπηση αντιμετώπισε σφάλμα',
   'ide.chat.voice': 'Φωνή',
   'ide.chat.voiceUnavailable': 'Η υπαγόρευση δεν είναι διαθέσιμη σε αυτό το πρόγραμμα περιήγησης.',
   'ide.chat.voiceMicBlocked': 'Η πρόσβαση στο μικρόφωνο έχει αποκλειστεί.',
-  'ide.chat.voicePreparing': 'Προετοιμασία υπαγόρευσης — την πρώτη φορά μπορεί να πάρει λίγο χρόνο.',
+  'ide.chat.voicePreparing':
+    'Προετοιμασία υπαγόρευσης — την πρώτη φορά μπορεί να πάρει λίγο χρόνο.',
   'ide.chat.voiceTranscribeFailed': 'Η μεταγραφή απέτυχε.',
   'ide.chat.voiceEngineTitle': 'Μηχανή υπαγόρευσης',
-  'ide.chat.voiceEnginePrivacy': 'Κάθε επιλογή τρέχει στη συσκευή σας — ο ήχος δεν φεύγει ποτέ από το πρόγραμμα περιήγησης.',
+  'ide.chat.voiceEnginePrivacy':
+    'Κάθε επιλογή τρέχει στη συσκευή σας — ο ήχος δεν φεύγει ποτέ από το πρόγραμμα περιήγησης.',
   'ide.chat.voiceEngineNoDownload': 'χωρίς λήψη',
   'ide.chat.voiceEngineDownload': 'λήψη ~{{mb}} MB, μετά αποθηκεύεται',
   'ide.chat.voiceEngineDownloadRange': 'λήψη ~{{min}}–{{max}} MB, μετά αποθηκεύεται',
@@ -300,7 +316,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Ασφαλές (HTTPS)',
   'ide.preview.address': 'Διεύθυνση προεπισκόπησης',
   'ide.preview.updating': 'Ενημέρωση',
-  'ide.preview.frozen': 'Η εφαρμογή σταμάτησε να ανταποκρίνεται — ένας ατέρμονος βρόχος ή μια ανεξέλεγκτη διαδικασία απόδοσης προκάλεσε το πάγωμα της προεπισκόπησης. Το IDE δεν επηρεάστηκε.',
+  'ide.preview.frozen':
+    'Η εφαρμογή σταμάτησε να ανταποκρίνεται — ένας ατέρμονος βρόχος ή μια ανεξέλεγκτη διαδικασία απόδοσης προκάλεσε το πάγωμα της προεπισκόπησης. Το IDE δεν επηρεάστηκε.',
   'ide.preview.frozenReload': 'Ανανέωση εφαρμογής',
   'ide.search.results': '{{count}} αποθηκεύονται στα αρχεία του φακέλου «{{files}}»',
   'ide.activity.cardAria': 'Προβολή καταγεγραμμένων δραστηριοτήτων',
@@ -325,28 +342,39 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.activity.writingPlan': 'Σύνταξη του σχεδίου',
   'ide.activity.defaultSummary': '{{type}} συλληφθεί',
   'ide.chat.askUserPlaceholderEmpty': 'Πληκτρολογήστε την απάντησή σας…',
-  'ide.chat.awaitingSandbox': 'Αναμονή για την ολοκλήρωση της εκκίνησης του περιβάλλοντος ανάπτυξης…',
+  'ide.chat.awaitingSandbox':
+    'Αναμονή για την ολοκλήρωση της εκκίνησης του περιβάλλοντος ανάπτυξης…',
   'ide.chat.compactNotNeeded': 'Η χρήση του χώρου είναι χαμηλή — δεν απαιτείται συμπύκνωση.',
   'ide.chat.phaseBuilding': '🔨 Δημιουργία της εφαρμογής σας',
   'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Βιογραφικό',
   'ide.chat.openSettings': 'Ρυθμίσεις',
   'ide.chat.tip.dismiss': 'Απόρριψη συμβουλής',
-  'ide.chat.tip.getStarted': 'Συμβουλή: πληκτρολογήστε / για να δείτε όλες τις εντολές ή @ ακολουθούμενο από ένα όνομα αρχείου για να ορίσετε ένα αρχείο ως βάση εργασίας για το «{{agentName}}».',
-  'ide.chat.tip.mention': 'Συμβουλή: πληκτρολογήστε @filename για να επισυνάψετε ένα αρχείο έργου ως πλαίσιο αναφοράς — το `{{agentName}}` το διαβάζει απευθείας.',
-  'ide.chat.tip.slash': 'Συμβουλή: πληκτρολογήστε / για να δείτε όλες τις εντολές (commit, diff, model κ.ά.).',
-  'ide.chat.tip.plan': 'Συμβουλή: Χρησιμοποιήστε την εντολή /plan για να ζητήσετε από το {{agentName}} να αναλύσει την κατάσταση και να προτείνει ένα σχέδιο πριν προχωρήσει σε οποιαδήποτε επεξεργασία αρχείων.',
-  'ide.chat.tip.undo': 'Συμβουλή: χρησιμοποιήστε την εντολή /undo για να επαναφέρετε αμέσως τις αλλαγές που έγιναν στο αρχείο κατά την τελευταία σειρά του AI, αν το αποτέλεσμα δεν ήταν το επιθυμητό.',
-  'ide.chat.tip.compact': 'Συμβουλή: μακρά συζήτηση; Η εντολή /compact συμπιέζει το πλαίσιο, ώστε να διατηρείς χώρο για να εργαστείς.',
-  'ide.chat.tip.commit': 'Συμβουλή: χρησιμοποιήστε την εντολή /commit για να αποθηκεύσετε τις αλλαγές σας ως git commit, στο οποίο μπορείτε πάντα να επιστρέψετε.',
-  'ide.chat.tip.report': 'Συμβουλή: κάτι δεν πάει καλά; Με την εντολή /report στέλνεις ένα σφάλμα ή τα σχόλιά σου στην ομάδα, με συνημμένη την πρόσφατη συνομιλία σου.',
+  'ide.chat.tip.getStarted':
+    'Συμβουλή: πληκτρολογήστε / για να δείτε όλες τις εντολές ή @ ακολουθούμενο από ένα όνομα αρχείου για να ορίσετε ένα αρχείο ως βάση εργασίας για το «{{agentName}}».',
+  'ide.chat.tip.mention':
+    'Συμβουλή: πληκτρολογήστε @filename για να επισυνάψετε ένα αρχείο έργου ως πλαίσιο αναφοράς — το `{{agentName}}` το διαβάζει απευθείας.',
+  'ide.chat.tip.slash':
+    'Συμβουλή: πληκτρολογήστε / για να δείτε όλες τις εντολές (commit, diff, model κ.ά.).',
+  'ide.chat.tip.plan':
+    'Συμβουλή: Χρησιμοποιήστε την εντολή /plan για να ζητήσετε από το {{agentName}} να αναλύσει την κατάσταση και να προτείνει ένα σχέδιο πριν προχωρήσει σε οποιαδήποτε επεξεργασία αρχείων.',
+  'ide.chat.tip.undo':
+    'Συμβουλή: χρησιμοποιήστε την εντολή /undo για να επαναφέρετε αμέσως τις αλλαγές που έγιναν στο αρχείο κατά την τελευταία σειρά του AI, αν το αποτέλεσμα δεν ήταν το επιθυμητό.',
+  'ide.chat.tip.compact':
+    'Συμβουλή: μακρά συζήτηση; Η εντολή /compact συμπιέζει το πλαίσιο, ώστε να διατηρείς χώρο για να εργαστείς.',
+  'ide.chat.tip.commit':
+    'Συμβουλή: χρησιμοποιήστε την εντολή /commit για να αποθηκεύσετε τις αλλαγές σας ως git commit, στο οποίο μπορείτε πάντα να επιστρέψετε.',
+  'ide.chat.tip.report':
+    'Συμβουλή: κάτι δεν πάει καλά; Με την εντολή /report στέλνεις ένα σφάλμα ή τα σχόλιά σου στην ομάδα, με συνημμένη την πρόσφατη συνομιλία σου.',
   'ide.chat.undoError': 'Δεν κατέστη δυνατή η επαναφορά των αλλαγών.',
   'ide.chat.autoCommit.badge': 'Αυτόματη αποθήκευση στο {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Ακύρωση αυτόματης αποθήκευσης',
   'ide.chat.autoCommit.cancelled': 'Η αυτόματη αποθήκευση ακυρώθηκε.',
-  'ide.chat.autoCommit.enabled': 'Ενεργοποίηση αυτόματης υποβολής: υποβολή {{seconds}}s μετά την τελευταία αλλαγή στο αρχείο. Πληκτρολογήστε /autocommit 0 για ακύρωση.',
+  'ide.chat.autoCommit.enabled':
+    'Ενεργοποίηση αυτόματης υποβολής: υποβολή {{seconds}}s μετά την τελευταία αλλαγή στο αρχείο. Πληκτρολογήστε /autocommit 0 για ακύρωση.',
   'ide.chat.effort.error': 'Δεν κατέστη δυνατή η ενημέρωση της προσπάθειας συλλογιστικής.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +389,14 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Δωρεάν',
   'ide.chat.models.sortBy': 'Ταξινόμηση κατά{{column}}',
   'ide.chat.modelsLoading': 'Φόρτωση μοντέλων…',
-  'ide.chat.modelsNone': 'Δεν υπάρχουν ακόμη διαθέσιμα μοντέλα — ζητήστε από τον διαχειριστή σας να συνδέσει έναν πάροχο τεχνητής νοημοσύνης.',
+  'ide.chat.modelsNone':
+    'Δεν υπάρχουν ακόμη διαθέσιμα μοντέλα — ζητήστε από τον διαχειριστή σας να συνδέσει έναν πάροχο τεχνητής νοημοσύνης.',
   'ide.chat.modelInUse': 'Τώρα χρησιμοποιώ το {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Το μοντέλο που επιλέξατε, «{{removed}}», δεν είναι πλέον διαθέσιμο. Έγινε αλλαγή στο «{{fallback}}». Πληκτρολογήστε /model για να επιλέξετε άλλο.',
-  'ide.chat.modelRemovedNoFallback': 'Το μοντέλο που επιλέξατε, «{{removed}}», δεν είναι πλέον διαθέσιμο και δεν υπάρχει αντικαταστάτης καταχωρημένος στον διακομιστή. Ζητήστε από τον διαχειριστή σας να συνδέσει έναν πάροχο τεχνητής νοημοσύνης.',
+  'ide.chat.modelRemoved':
+    'Το μοντέλο που επιλέξατε, «{{removed}}», δεν είναι πλέον διαθέσιμο. Έγινε αλλαγή στο «{{fallback}}». Πληκτρολογήστε /model για να επιλέξετε άλλο.',
+  'ide.chat.modelRemovedNoFallback':
+    'Το μοντέλο που επιλέξατε, «{{removed}}», δεν είναι πλέον διαθέσιμο και δεν υπάρχει αντικαταστάτης καταχωρημένος στον διακομιστή. Ζητήστε από τον διαχειριστή σας να συνδέσει έναν πάροχο τεχνητής νοημοσύνης.',
   'ide.chat.olderModelsCollapse': 'Παλαιότερα μοντέλα ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Παλαιότερα μοντέλα ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Επιλογή μοντέλου σε λειτουργία εκτέλεσης',
@@ -387,31 +418,43 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} σφάλματα lint',
   'ide.chat.lintWarningsCount': '{{count}} προειδοποιήσεις',
   'ide.chat.typeErrorsCount': '{{count}} σφάλματα τύπου',
   'ide.chat.help.commandsHeading': '── Εντολές ──',
-  'ide.chat.help.intro': '{{agentName}} είναι ο βοηθός προγραμματισμού με τεχνητή νοημοσύνη της{{productName}}. Περιγράψτε τι θέλετε να δημιουργήσετε και θα σας βοηθήσει στη δομή, τον προγραμματισμό και την βελτίωση του κώδικα.',
+  'ide.chat.help.intro':
+    '{{agentName}} είναι ο βοηθός προγραμματισμού με τεχνητή νοημοσύνη της{{productName}}. Περιγράψτε τι θέλετε να δημιουργήσετε και θα σας βοηθήσει στη δομή, τον προγραμματισμό και την βελτίωση του κώδικα.',
   'ide.chat.help.introHeading': '── Ξεκινώντας ──',
-  'ide.chat.help.modeDiscovery': 'Ανακάλυψη — εδώ ξεκινούν νέες συζητήσεις. Η μέθοδος «{{agentName}}» περιλαμβάνει την υποβολή διευκρινιστικών ερωτήσεων για τον ακριβή προσδιορισμό των απαιτήσεων πριν από τη συγγραφή οποιουδήποτε κώδικα.',
-  'ide.chat.help.modeExecute': 'Εκτέλεση — ο προεπιλεγμένος τρόπος λειτουργίας. Το «{{agentName}}» δημιουργεί κώδικα, εκτελεί εργαλεία, εφαρμόζει αλλαγές και στη συνέχεια τις επαληθεύει.',
-  'ide.chat.help.modePlan': 'Σχέδιο — Η εντολή `{{agentName}}` αναλύει τον κώδικα και προτείνει ένα σχέδιο ΧΩΡΙΣ να τροποποιήσει τα αρχεία. Ενεργοποιήστε τη λειτουργία με την εντολή `/plan`. Ιδανική για μεγάλες ή επικίνδυνες αλλαγές.',
+  'ide.chat.help.modeDiscovery':
+    'Ανακάλυψη — εδώ ξεκινούν νέες συζητήσεις. Η μέθοδος «{{agentName}}» περιλαμβάνει την υποβολή διευκρινιστικών ερωτήσεων για τον ακριβή προσδιορισμό των απαιτήσεων πριν από τη συγγραφή οποιουδήποτε κώδικα.',
+  'ide.chat.help.modeExecute':
+    'Εκτέλεση — ο προεπιλεγμένος τρόπος λειτουργίας. Το «{{agentName}}» δημιουργεί κώδικα, εκτελεί εργαλεία, εφαρμόζει αλλαγές και στη συνέχεια τις επαληθεύει.',
+  'ide.chat.help.modePlan':
+    'Σχέδιο — Η εντολή `{{agentName}}` αναλύει τον κώδικα και προτείνει ένα σχέδιο ΧΩΡΙΣ να τροποποιήσει τα αρχεία. Ενεργοποιήστε τη λειτουργία με την εντολή `/plan`. Ιδανική για μεγάλες ή επικίνδυνες αλλαγές.',
   'ide.chat.help.modesHeading': '── Λειτουργίες ──',
-  'ide.chat.help.shortcuts': 'Πατήστε Cmd+/ (Ctrl+/ σε Windows/Linux) για να δείτε όλες τις συντομεύσεις πληκτρολογίου.',
-  'ide.chat.help.tipCompact': '• Χρησιμοποιήστε την εντολή /compact για να συμπτύξετε το ιστορικό της συνομιλίας όταν αυτή γίνεται μεγάλη.',
-  'ide.chat.help.tipPlan': '• Χρησιμοποιήστε την εντολή /plan για να ζητήσετε από το{{agentName}}να πραγματοποιήσει έλεγχο πριν από την εφαρμογή αλλαγών.',
+  'ide.chat.help.shortcuts':
+    'Πατήστε Cmd+/ (Ctrl+/ σε Windows/Linux) για να δείτε όλες τις συντομεύσεις πληκτρολογίου.',
+  'ide.chat.help.tipCompact':
+    '• Χρησιμοποιήστε την εντολή /compact για να συμπτύξετε το ιστορικό της συνομιλίας όταν αυτή γίνεται μεγάλη.',
+  'ide.chat.help.tipPlan':
+    '• Χρησιμοποιήστε την εντολή /plan για να ζητήσετε από το{{agentName}}να πραγματοποιήσει έλεγχο πριν από την εφαρμογή αλλαγών.',
   'ide.chat.help.tipSlash': '• Πληκτρολογήστε / για να δείτε όλες τις παραπάνω εντολές.',
-  'ide.chat.help.tipSpecific': '• Να είστε συγκεκριμένοι — «Προσθέστε μια σελίδα σύνδεσης με email/κωδικό πρόσβασης και Google OAuth» είναι καλύτερο από το «προσθέστε έλεγχο ταυτότητας».',
-  'ide.chat.help.tipUndo': '• Χρησιμοποιήστε την εντολή /undo για να αναιρέσετε τις αλλαγές που έγιναν στο αρχείο κατά την τελευταία σειρά του AI, αν αυτό παρεκκλίνει από το σχέδιο.',
+  'ide.chat.help.tipSpecific':
+    '• Να είστε συγκεκριμένοι — «Προσθέστε μια σελίδα σύνδεσης με email/κωδικό πρόσβασης και Google OAuth» είναι καλύτερο από το «προσθέστε έλεγχο ταυτότητας».',
+  'ide.chat.help.tipUndo':
+    '• Χρησιμοποιήστε την εντολή /undo για να αναιρέσετε τις αλλαγές που έγιναν στο αρχείο κατά την τελευταία σειρά του AI, αν αυτό παρεκκλίνει από το σχέδιο.',
   'ide.chat.help.tipsHeading': '── Συμβουλές ──',
   'ide.chat.report.heading': 'Αναφορά σφάλματος',
   'ide.chat.report.openReport': 'Αναφορά σφάλματος',
-  'ide.chat.report.subheading': 'Πείτε μας τι δεν πήγε καλά ή τι θα θέλατε να δείτε. Τα σχόλιά σας θα σταλούν στην ομάδα του {{productName}}.',
+  'ide.chat.report.subheading':
+    'Πείτε μας τι δεν πήγε καλά ή τι θα θέλατε να δείτε. Τα σχόλιά σας θα σταλούν στην ομάδα του {{productName}}.',
   'ide.chat.report.titleLabel': 'Τίτλος',
   'ide.chat.report.titlePlaceholder': 'Σύντομη περίληψη',
   'ide.chat.report.descriptionLabel': 'Περιγραφή',
@@ -432,9 +475,11 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.scripts.searchPlaceholder': 'Φιλτράρισμα σεναρίων…',
   'ide.chat.scripts.save': 'Αποθήκευση σεναρίου',
   'ide.chat.scripts.saving': 'Αποθήκευση…',
-  'ide.chat.scripts.saveError': 'Δεν ήταν δυνατή η αποθήκευση του σεναρίου. Παρακαλώ δοκιμάστε ξανά.',
+  'ide.chat.scripts.saveError':
+    'Δεν ήταν δυνατή η αποθήκευση του σεναρίου. Παρακαλώ δοκιμάστε ξανά.',
   'ide.chat.scripts.invalid': 'Ένα σενάριο πρέπει να έχει όνομα και μη κενό σώμα.',
-  'ide.chat.scripts.empty': 'Δεν υπάρχουν ακόμη αποθηκευμένα σενάρια. Δημιουργήστε ένα παραπάνω ή ζητήστε από το {{agentName}} να συντάξει και να αποθηκεύσει ένα.',
+  'ide.chat.scripts.empty':
+    'Δεν υπάρχουν ακόμη αποθηκευμένα σενάρια. Δημιουργήστε ένα παραπάνω ή ζητήστε από το {{agentName}} να συντάξει και να αποθηκεύσει ένα.',
   'ide.chat.scripts.loading': 'Φόρτωση σεναρίων…',
   'ide.chat.scripts.error': 'Δεν ήταν δυνατή η φόρτωση των σкриπτών για αυτό το έργο.',
   'ide.chat.scripts.noMatch': 'Δεν υπάρχουν σενάρια που να ταιριάζουν με το «{{query}}».',
@@ -442,8 +487,10 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Εκτελέστε αυτό το σενάριο στο περιβάλλον δοκιμών',
   'ide.chat.scripts.running': 'Τρέχω…',
   'ide.chat.scripts.runError': 'Δεν κατέστη δυνατή η εκτέλεση του σεναρίου.',
-  'ide.chat.scripts.runNone': 'Δεν υπάρχουν αποθηκευμένα σενάρια ακόμα. Άνοιξε το /scripts για να δημιουργήσεις ένα.',
-  'ide.chat.scripts.runNotFound': 'Δεν υπάρχει σενάριο με το όνομα «{{name}}». Διαθέσιμο: {{names}}',
+  'ide.chat.scripts.runNone':
+    'Δεν υπάρχουν αποθηκευμένα σενάρια ακόμα. Άνοιξε το /scripts για να δημιουργήσεις ένα.',
+  'ide.chat.scripts.runNotFound':
+    'Δεν υπάρχει σενάριο με το όνομα «{{name}}». Διαθέσιμο: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} έξοδος 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} έξοδος με κωδικό{{code}}',
   'ide.chat.scripts.exitOk': 'Έξοδος 0',
@@ -467,7 +514,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Κοινή χρήση έργου',
-  'ide.chat.share.subheading': 'Δημιουργήστε έναν δημόσιο σύνδεσμο. Όποιος διαθέτει τον σύνδεσμο αποκτά τον ρόλο που επιλέγετε — ένας σύνδεσμος για θεατές είναι μόνο για ανάγνωση.',
+  'ide.chat.share.subheading':
+    'Δημιουργήστε έναν δημόσιο σύνδεσμο. Όποιος διαθέτει τον σύνδεσμο αποκτά τον ρόλο που επιλέγετε — ένας σύνδεσμος για θεατές είναι μόνο για ανάγνωση.',
   'ide.chat.share.roleLabel': 'Ρόλος',
   'ide.chat.share.create': 'Δημιουργία συνδέσμου',
   'ide.chat.share.creating': 'Δημιουργία…',
@@ -478,21 +526,28 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.share.copyShort': 'Αντιγραφή',
   'ide.chat.share.copied': 'Αντιγραφή',
   'ide.chat.share.openLink': 'Άνοιξε τον σύνδεσμο',
-  'ide.chat.share.error': 'Δεν ήταν δυνατή η δημιουργία συνδέσμου κοινοποίησης. Παρακαλώ δοκιμάστε ξανά.',
-  'ide.chat.share.usage': 'Χρήση: /share [ρόλος] — δημιουργία δημόσιου συνδέσμου. Ρόλοι: {{roles}} (προεπιλεγμένος χρήστης με δικαιώματα προβολής).',
-  'ide.chat.share.notAllowed': 'Η διαχείριση συνδέσμων κοινοποίησης απαιτεί ρόλο διαχειριστή σε αυτό το έργο.',
+  'ide.chat.share.error':
+    'Δεν ήταν δυνατή η δημιουργία συνδέσμου κοινοποίησης. Παρακαλώ δοκιμάστε ξανά.',
+  'ide.chat.share.usage':
+    'Χρήση: /share [ρόλος] — δημιουργία δημόσιου συνδέσμου. Ρόλοι: {{roles}} (προεπιλεγμένος χρήστης με δικαιώματα προβολής).',
+  'ide.chat.share.notAllowed':
+    'Η διαχείριση συνδέσμων κοινοποίησης απαιτεί ρόλο διαχειριστή σε αυτό το έργο.',
   'ide.chat.skills.heading': 'Δεξιότητες',
   'ide.chat.skills.searchPlaceholder': 'Φιλτράρισμα δεξιοτήτων…',
   'ide.chat.skills.load': 'Φόρτωση',
   'ide.chat.skills.loadTitle': 'Άνοιγμα στον επεξεργαστή και επισύναψη ως πλαίσιο',
-  'ide.chat.skills.loaded': 'Φορτώθηκε η δεξιότητα «{{name}}» — άνοιξε στον επεξεργαστή και προστέθηκε ως πλαίσιο αναφοράς για το επόμενο μήνυμά σας.',
+  'ide.chat.skills.loaded':
+    'Φορτώθηκε η δεξιότητα «{{name}}» — άνοιξε στον επεξεργαστή και προστέθηκε ως πλαίσιο αναφοράς για το επόμενο μήνυμά σας.',
   'ide.chat.skills.loading': 'Φόρτωση δεξιοτήτων…',
   'ide.chat.skills.error': 'Δεν ήταν δυνατή η φόρτωση των δεξιοτήτων για αυτό το έργο.',
   'ide.chat.skills.empty': 'Δεν βρέθηκαν δεξιότητες στο φάκελο .agents/skills/ για αυτό το έργο.',
   'ide.chat.skills.noMatch': 'Δεν υπάρχουν αποτελέσματα που να ταιριάζουν με το «{{query}}».',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -514,8 +569,10 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Συμβουλές',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Δεν ήταν δυνατή η αποστολή της αναφοράς σας. Παρακαλώ δοκιμάστε ξανά.',
-  'ide.chat.report.submitted': 'Ευχαριστούμε! Η αναφορά σας διαβιβάστηκε στην ομάδα του {{productName}}.',
-  'ide.chat.report.submittedWithLink': 'Ευχαριστούμε! Η αναφορά σας υποβλήθηκε — μπορείτε να παρακολουθήσετε την εξέλιξή της στο σχετικό θέμα.',
+  'ide.chat.report.submitted':
+    'Ευχαριστούμε! Η αναφορά σας διαβιβάστηκε στην ομάδα του {{productName}}.',
+  'ide.chat.report.submittedWithLink':
+    'Ευχαριστούμε! Η αναφορά σας υποβλήθηκε — μπορείτε να παρακολουθήσετε την εξέλιξή της στο σχετικό θέμα.',
   'ide.chat.settings.modelFollowsDefault': 'Ακολουθεί το προεπιλεγμένο μοντέλο',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -528,8 +585,10 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.newPlaceholder': 'Νέο όνομα δεξιότητας…',
   'ide.chat.skills.create': 'Δημιουργία',
   'ide.chat.skills.cancel': 'Ακύρωση',
-  'ide.chat.skills.createError': 'Δεν ήταν δυνατή η δημιουργία της δεξιότητας — παρακαλώ δοκιμάστε ξανά.',
-  'ide.chat.skills.created': 'Δημιουργήθηκε η δεξιότητα «{{name}}» — ανοίγει στον επεξεργαστή. Συμπληρώστε την περιγραφή και τα βήματα.',
+  'ide.chat.skills.createError':
+    'Δεν ήταν δυνατή η δημιουργία της δεξιότητας — παρακαλώ δοκιμάστε ξανά.',
+  'ide.chat.skills.created':
+    'Δημιουργήθηκε η δεξιότητα «{{name}}» — ανοίγει στον επεξεργαστή. Συμπληρώστε την περιγραφή και τα βήματα.',
   'ide.chat.autoCommit.on': 'Ενεργοποίηση αυτόματης αποθήκευσης',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -537,10 +596,12 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Η προεπισκόπηση δεν μπορεί να φορτωθεί εδώ',
-  'ide.preview.loadFailedHint': 'Δοκιμάστε να ανανεώσετε τη σελίδα ή ανοίξτε την προεπισκόπηση σε νέα καρτέλα.',
+  'ide.preview.loadFailedHint':
+    'Δοκιμάστε να ανανεώσετε τη σελίδα ή ανοίξτε την προεπισκόπηση σε νέα καρτέλα.',
   'ide.preview.reloadPreview': 'Ανανέωση προεπισκόπησης',
   'ide.preview.lastWorkingFrame': 'Τελευταία προεπισκόπηση εργασίας',
-  'ide.chat.effort.notSupportedForModel': '{{level}} δεν είναι διαθέσιμο στο {{model}}. Διαθέσιμο στο: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} δεν είναι διαθέσιμο στο {{model}}. Διαθέσιμο στο: {{levels}}',
   'ide.chat.modelSortLabel': 'Ταξινόμηση',
   'ide.chat.modelSortDirection': 'Αλλαγή κατεύθυνσης ταξινόμησης',
   'ide.chat.skills.loadedBadge': 'Φορτωμένο',
@@ -551,26 +612,34 @@ export const el: Partial<IdeTranslations> = {
   'ide.device.select': 'Πλαίσιο συσκευής',
   'ide.device.rotate': 'Περιστροφή',
   'ide.chat.closeOverlay': 'Κλείσιμο',
-  'ide.chat.retryCountdown': 'Σφάλμα διακομιστή — επανάληψη προσπάθειας σε {{seconds}} s… (προσπάθεια {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Σφάλμα διακομιστή — επανάληψη προσπάθειας σε {{seconds}} s… (προσπάθεια {{attempt}})',
   'ide.preview.blankTitle': 'Η προεπισκόπηση είναι κενή',
-  'ide.preview.blankHint': 'Η εφαρμογή φορτώθηκε, αλλά δεν εμφανίστηκε τίποτα — πιθανόν να υπάρχει κάποιο σφάλμα. Η Synthase έχει ενημερωθεί. Μπορείτε να ανανεώσετε τη σελίδα ή να ανοίξετε την προεπισκόπηση σε νέα καρτέλα.',
+  'ide.preview.blankHint':
+    'Η εφαρμογή φορτώθηκε, αλλά δεν εμφανίστηκε τίποτα — πιθανόν να υπάρχει κάποιο σφάλμα. Η Synthase έχει ενημερωθεί. Μπορείτε να ανανεώσετε τη σελίδα ή να ανοίξετε την προεπισκόπηση σε νέα καρτέλα.',
   'ide.chat.previewLinkTitle': 'Άνοιξε το αρχείο «{{path}}» στην προεπισκόπηση',
-  'ide.chat.report.diagnosticsNote': 'Συνημμένα θα βρείτε την έκδοση της εφαρμογής σας, το πρόγραμμα περιήγησης και το μέγεθος της οθόνης σας, ώστε να μας βοηθήσετε στον εντοπισμό σφαλμάτων.',
+  'ide.chat.report.diagnosticsNote':
+    'Συνημμένα θα βρείτε την έκδοση της εφαρμογής σας, το πρόγραμμα περιήγησης και το μέγεθος της οθόνης σας, ώστε να μας βοηθήσετε στον εντοπισμό σφαλμάτων.',
   'ide.chat.skills.loadedCount': '🧠 Διαθέτω εκτεταμένες δεξιότητες στο{{count}}',
   'ide.chat.skills.waitingForSandbox': 'Αναμονή μέχρι να ολοκληρωθεί η εκκίνηση του sandbox…',
   'ide.chat.skills.resetDefaults': 'Προεπιλεγμένη φόρτωση όλων',
-  'ide.search.excludedDirs': 'Φάκελοι που εξαιρούνται (ισχύει για όλες τις αναζητήσεις, συμπεριλαμβανομένου του πράκτορα)',
-  'ide.chat.costStreamingNote': 'Συνολικό άθροισμα — περιλαμβάνει την απάντηση που μεταδίδεται αυτή τη στιγμή.',
+  'ide.search.excludedDirs':
+    'Φάκελοι που εξαιρούνται (ισχύει για όλες τις αναζητήσεις, συμπεριλαμβανομένου του πράκτορα)',
+  'ide.chat.costStreamingNote':
+    'Συνολικό άθροισμα — περιλαμβάνει την απάντηση που μεταδίδεται αυτή τη στιγμή.',
   'ide.toolCall.packageCount': '{{count}} πακέτα',
   'ide.toolCall.openPackageDoc': 'Άνοιγμα εγγράφων πακέτου',
-  'ide.chat.fastModeOn': 'Ενεργοποίηση της λειτουργίας «Fast» — ταχύτερες απαντήσεις με υψηλότερο ρυθμό',
+  'ide.chat.fastModeOn':
+    'Ενεργοποίηση της λειτουργίας «Fast» — ταχύτερες απαντήσεις με υψηλότερο ρυθμό',
   'ide.chat.fastModeOff': 'Η γρήγορη λειτουργία είναι απενεργοποιημένη',
-  'ide.chat.fastModeEnable': 'Γρήγορη λειτουργία — έως και 2,5 φορές ταχύτερη παραγωγή με υψηλότερο ρυθμό έκδοσης token',
+  'ide.chat.fastModeEnable':
+    'Γρήγορη λειτουργία — έως και 2,5 φορές ταχύτερη παραγωγή με υψηλότερο ρυθμό έκδοσης token',
   'ide.chat.fastModeDisable': 'Απενεργοποίηση της γρήγορης λειτουργίας',
   'ide.chat.scripts.runWithOptions': 'Εκτέλεση…',
   'ide.chat.scripts.required': '(απαιτείται)',
   'ide.chat.scripts.cancelRun': 'Ακύρωση',
-  'ide.chat.scripts.runNeedsOptions': 'Το «{{name}}» χρειάζεται επιλογές — άνοιξα το /scripts για να τις ορίσετε και να Εκτελέσετε.',
+  'ide.chat.scripts.runNeedsOptions':
+    'Το «{{name}}» χρειάζεται επιλογές — άνοιξα το /scripts για να τις ορίσετε και να Εκτελέσετε.',
   'ide.chat.settings.effort.label': 'Προσπάθεια συλλογισμού',
   'ide.chat.timestampsShown': 'Οι χρονοσημάνσεις εμφανίζονται.',
   'ide.chat.timestampsHidden': 'Οι χρονοσημάνσεις αποκρύφθηκαν.',
@@ -593,7 +662,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Εφαρμογή',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Έργο',
-  'ide.tests.e2eHint': 'Αυτές εκτελούνται παράλληλα με την ζωντανή προεπισκόπηση, οπότε κρατήστε την προεπισκόπηση ανοιχτή.',
+  'ide.tests.e2eHint':
+    'Αυτές εκτελούνται παράλληλα με την ζωντανή προεπισκόπηση, οπότε κρατήστε την προεπισκόπηση ανοιχτή.',
   'ide.tests.showOutput': 'Εμφάνιση αποτελεσμάτων',
   'ide.tests.hideOutput': 'Απόκρυψη εξόδου',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -618,7 +688,8 @@ export const el: Partial<IdeTranslations> = {
   'ide.tests.cancelled': 'Η εκτέλεση διακόπηκε.',
   'ide.tests.listError': 'Δεν ήταν δυνατή η εμφάνιση της λίστας των δοκιμών αυτού του έργου.',
   'ide.tests.runError': 'Η δοκιμαστική εκτέλεση δεν μπόρεσε να ξεκινήσει.',
-  'ide.tests.viewerCannotRun': 'Μόνο οι συντάκτες μπορούν να εκτελέσουν τις δοκιμές αυτού του έργου.',
+  'ide.tests.viewerCannotRun':
+    'Μόνο οι συντάκτες μπορούν να εκτελέσουν τις δοκιμές αυτού του έργου.',
   'ide.tests.needsSandbox': 'Ξεκινήστε το έργο για να εκτελεστούν οι δοκιμές του.',
   'ide.tests.heading': 'Δοκιμές',
   'ide.tests.searchPlaceholder': 'Δοκιμές φίλτρων…',
@@ -636,9 +707,12 @@ export const el: Partial<IdeTranslations> = {
   'ide.tests.skip': 'Παράλειψη',
   'ide.tests.skipping': 'Παράλειψη…',
   'ide.tests.skippedCount': '{{count}} παραλείφθηκε',
-  'ide.tests.skippedByUser': 'Η εκτέλεση ολοκληρώθηκε. Οι δοκιμές που παραλείψατε δεν εκτελέστηκαν.',
-  'ide.tests.viewerCannotSkip': 'Μόνο οι συντάκτες μπορούν να παραλείψουν τις δοκιμές αυτού του έργου.',
-  'ide.toolCall.interruptedByRestart': 'Αυτό το βήμα διακόπηκε από επανεκκίνηση. Η επίδρασή του είναι άγνωστη.',
+  'ide.tests.skippedByUser':
+    'Η εκτέλεση ολοκληρώθηκε. Οι δοκιμές που παραλείψατε δεν εκτελέστηκαν.',
+  'ide.tests.viewerCannotSkip':
+    'Μόνο οι συντάκτες μπορούν να παραλείψουν τις δοκιμές αυτού του έργου.',
+  'ide.toolCall.interruptedByRestart':
+    'Αυτό το βήμα διακόπηκε από επανεκκίνηση. Η επίδρασή του είναι άγνωστη.',
   'ide.toolCall.statusInterrupted': 'Διακόπηκε',
   'ide.chat.subagent.failedFallback': 'Αυτός ο υποπράκτορας σταμάτησε πριν τελειώσει.',
   'ide.chat.viaDictation.badge': 'Υπαγορεύεται από φωνή',

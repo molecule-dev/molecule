@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for ro. */
 export const ro: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Vezi planuri',
   'ide.chat.fileCount': '{{count}} fișiere',
   'common.cancel': 'Anulați',
@@ -99,7 +103,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Schimbați modelul',
   'ide.chat.increaseLoops': 'Măriți numărul maxim de bucle',
   'ide.chat.continuePrompt': 'Continuă implementarea de unde ai rămas.',
-  'guest.reminder.message': 'Înregistrează-te sau conectează-te pentru a-ți păstra munca. Sesiunile de invitat expiră după 72 de ore.',
+  'guest.reminder.message':
+    'Înregistrează-te sau conectează-te pentru a-ți păstra munca. Sesiunile de invitat expiră după 72 de ore.',
   'guest.reminder.logIn': 'Log in',
   'ide.chat.soundsError': 'Setările de sunet nu au putut fi actualizate.',
   'ide.chat.commitFailed': 'Validarea a eșuat',
@@ -111,23 +116,26 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'A trecut la modul de planificare',
   'ide.chat.switchedToExecute': 'Comutat în modul de execuție',
   'ide.chat.costError': 'Nu se pot prelua datele de utilizare.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'vârf ×{{multiplier}} acum',
   'ide.chat.models.peakLater': '×{{multiplier}} la orele de vârf',
-  'ide.chat.models.peakHint': 'Acest model costă ×{{multiplier}} între {{windows}}. În restul zilei se aplică tariful normal.',
+  'ide.chat.models.peakHint':
+    'Acest model costă ×{{multiplier}} între {{windows}}. În restul zilei se aplică tariful normal.',
   'ide.chat.undoNoChanges': 'Nicio modificare a fișierului de anulat.',
   'ide.chat.undoComplete': 'Nu s-au putut anula modificările.',
   'ide.chat.commitNoChanges': 'Nicio modificare de confirmat.',
@@ -135,10 +143,13 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Corecția automată este activată.',
   'ide.chat.autoFixDisabled': 'Corecția automată este dezactivată.',
   'ide.chat.autoFixError': 'Setările de remediere automată nu au putut fi actualizate.',
-  'ide.chat.autoApproveEnabled': 'Aprobare automată activă — comenzile distructive se execută fără a cere confirmarea. Protecția împotriva exfiltrării cere în continuare confirmarea. Dezactivați cu /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Aprobare automată dezactivată — comenzile distructive cer confirmarea înainte de a fi executate.',
+  'ide.chat.autoApproveEnabled':
+    'Aprobare automată activă — comenzile distructive se execută fără a cere confirmarea. Protecția împotriva exfiltrării cere în continuare confirmarea. Dezactivați cu /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Aprobare automată dezactivată — comenzile distructive cer confirmarea înainte de a fi executate.',
   'ide.chat.autoApproveError': 'Setările de aprobare automată nu au putut fi actualizate.',
-  'ide.chat.modelUsage': 'Utilizare: /model<model-name> (de exemplu, claude-opus-4-6, claude-sonet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage':
+    'Utilizare: /model<model-name> (de exemplu, claude-opus-4-6, claude-sonet-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Limita maximă de bucle a fost atinsă.',
   'ide.chat.maxLoopsError': 'Nu s-a putut actualiza numărul maxim de iterații ale instrumentului.',
   'ide.chat.dropFilesHere': 'Plasați fișierele aici',
@@ -171,7 +182,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.contextMenu.copyRelativePath': 'Copiază calea relativă',
   'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': 'Comenzi rapide de la tastatură',
-  'ide.shortcuts.hint': 'Taste săgeată pentru navigare · Enter pentru rulare · Esc pentru închidere',
+  'ide.shortcuts.hint':
+    'Taste săgeată pentru navigare · Enter pentru rulare · Esc pentru închidere',
   'ide.preview.starting': 'Se încarcă previzualizarea...',
   'ide.preview.restarting': 'Se încarcă previzualizarea...',
   'ide.preview.retryCount': 'Reîncercare {{count}}',
@@ -241,11 +253,13 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Ceva nu a mers bine în timpul unui răspuns',
-  'ide.chat.soundEventDesc.tool_result': 'Un apel de instrument (citire fișier, comandă etc.) s-a finalizat',
+  'ide.chat.soundEventDesc.tool_result':
+    'Un apel de instrument (citire fișier, comandă etc.) s-a finalizat',
   'ide.chat.soundEventDesc.file_diff': 'Un fișier a fost creat sau modificat',
   'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} sugerează fișiere pentru comitere',
   'ide.chat.soundEventDesc.mode': 'Comutare între modul de planificare și modul de execuție',
-  'ide.chat.soundEventDesc.loop_limit_reached': 'Atingeți limita maximă de iterații ale instrumentului',
+  'ide.chat.soundEventDesc.loop_limit_reached':
+    'Atingeți limita maximă de iterații ale instrumentului',
   'ide.chat.soundEventDesc.verification_result': 'Verificarea tipului sau a lintului s-a încheiat',
   'ide.chat.soundEventDesc.preview_error': 'Previzualizarea live a întâmpinat o eroare',
   'ide.chat.voice': 'Voce',
@@ -254,7 +268,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Se pregătește dictarea — prima dată poate dura un moment.',
   'ide.chat.voiceTranscribeFailed': 'Transcrierea a eșuat.',
   'ide.chat.voiceEngineTitle': 'Motor de dictare',
-  'ide.chat.voiceEnginePrivacy': 'Fiecare opțiune rulează pe dispozitivul tău — audio nu părăsește niciodată browserul.',
+  'ide.chat.voiceEnginePrivacy':
+    'Fiecare opțiune rulează pe dispozitivul tău — audio nu părăsește niciodată browserul.',
   'ide.chat.voiceEngineNoDownload': 'fără descărcare',
   'ide.chat.voiceEngineDownload': 'descărcare de ~{{mb}} MB, apoi în cache',
   'ide.chat.voiceEngineDownloadRange': 'descărcare de ~{{min}}–{{max}} MB, apoi în cache',
@@ -300,7 +315,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Securizat (HTTPS)',
   'ide.preview.address': 'Adresa de previzualizare',
   'ide.preview.updating': 'Actualizare',
-  'ide.preview.frozen': 'Această aplicație nu mai răspunde — o buclă infinită sau o randare scăpată de sub control a blocat previzualizarea. IDE-ul nu este afectat.',
+  'ide.preview.frozen':
+    'Această aplicație nu mai răspunde — o buclă infinită sau o randare scăpată de sub control a blocat previzualizarea. IDE-ul nu este afectat.',
   'ide.preview.frozenReload': 'Reîncarcă aplicația',
   'ide.search.results': '{{count}} rezultă în fișiere de tip „{{files}}”',
   'ide.activity.cardAria': 'Vizualizați activitatea înregistrată',
@@ -332,21 +348,31 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Setări',
   'ide.chat.tip.dismiss': 'Ignoră sfatul',
-  'ide.chat.tip.getStarted': 'Sfat: tastează / pentru a vedea toate comenzile sau @ urmat de numele unui fișier pentru a-i indica programului „{{agentName}}” fișierul pe care să-l proceseze.',
-  'ide.chat.tip.mention': 'Sfat: tastează @numele_fișierului pentru a atașa un fișier de proiect ca context — {{agentName}} îl citește direct.',
-  'ide.chat.tip.slash': 'Sfat: tastează / pentru a vedea lista tuturor comenzilor (commit, diff, model și altele).',
-  'ide.chat.tip.plan': 'Sfat: folosește comanda /plan pentru ca programul „{{agentName}}” să analizeze situația și să propună un plan înainte de a modifica orice fișier.',
-  'ide.chat.tip.undo': 'Sfat: folosește comanda /undo pentru a anula instantaneu modificările aduse fișierului în ultima rundă a IA, în cazul în care lucrurile au luat o turnură neașteptată.',
-  'ide.chat.tip.compact': 'Sfat: ai o conversație lungă? Comanda /compact comprimă contextul, astfel încât să ai spațiu suficient pentru a lucra.',
-  'ide.chat.tip.commit': 'Sfat: folosește comanda /commit pentru a salva modificările sub forma unui commit Git la care poți reveni oricând.',
-  'ide.chat.tip.report': 'Sfat: ceva nu e în regulă? Comanda /report trimite o sesizare sau un feedback către echipă, împreună cu istoricul conversației tale recente.',
+  'ide.chat.tip.getStarted':
+    'Sfat: tastează / pentru a vedea toate comenzile sau @ urmat de numele unui fișier pentru a-i indica programului „{{agentName}}” fișierul pe care să-l proceseze.',
+  'ide.chat.tip.mention':
+    'Sfat: tastează @numele_fișierului pentru a atașa un fișier de proiect ca context — {{agentName}} îl citește direct.',
+  'ide.chat.tip.slash':
+    'Sfat: tastează / pentru a vedea lista tuturor comenzilor (commit, diff, model și altele).',
+  'ide.chat.tip.plan':
+    'Sfat: folosește comanda /plan pentru ca programul „{{agentName}}” să analizeze situația și să propună un plan înainte de a modifica orice fișier.',
+  'ide.chat.tip.undo':
+    'Sfat: folosește comanda /undo pentru a anula instantaneu modificările aduse fișierului în ultima rundă a IA, în cazul în care lucrurile au luat o turnură neașteptată.',
+  'ide.chat.tip.compact':
+    'Sfat: ai o conversație lungă? Comanda /compact comprimă contextul, astfel încât să ai spațiu suficient pentru a lucra.',
+  'ide.chat.tip.commit':
+    'Sfat: folosește comanda /commit pentru a salva modificările sub forma unui commit Git la care poți reveni oricând.',
+  'ide.chat.tip.report':
+    'Sfat: ceva nu e în regulă? Comanda /report trimite o sesizare sau un feedback către echipă, împreună cu istoricul conversației tale recente.',
   'ide.chat.undoError': 'Nu s-au putut reveni la modificările anterioare.',
   'ide.chat.autoCommit.badge': 'Auto-commit în{{countdown}}',
   'ide.chat.autoCommit.cancel': 'Anulează salvarea automată',
   'ide.chat.autoCommit.cancelled': 'Salvarea automată a fost anulată.',
-  'ide.chat.autoCommit.enabled': 'Activare automată a confirmării: se efectuează confirmarea la {{seconds}} s după ultima modificare a fișierului. Introduceți /autocommit 0 pentru a anula.',
+  'ide.chat.autoCommit.enabled':
+    'Activare automată a confirmării: se efectuează confirmarea la {{seconds}} s după ultima modificare a fișierului. Introduceți /autocommit 0 pentru a anula.',
   'ide.chat.effort.error': 'Nu s-a reușit actualizarea procesului de raționament.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +387,14 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Gratuit',
   'ide.chat.models.sortBy': 'Sortează după{{column}}',
   'ide.chat.modelsLoading': 'Se încarcă modelele…',
-  'ide.chat.modelsNone': 'Nu sunt încă disponibile modele — cereți administratorului să conecteze un furnizor de servicii de IA.',
+  'ide.chat.modelsNone':
+    'Nu sunt încă disponibile modele — cereți administratorului să conecteze un furnizor de servicii de IA.',
   'ide.chat.modelInUse': 'Acum folosim {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Modelul selectat, „{{removed}}”, nu mai este disponibil. S-a trecut la „{{fallback}}”. Tastați /model pentru a alege altul.',
-  'ide.chat.modelRemovedNoFallback': 'Modelul selectat de tine, „{{removed}}”, nu mai este disponibil, iar pe server nu este configurat niciun înlocuitor. Roagă-l pe administratorul tău să configureze un furnizor AI.',
+  'ide.chat.modelRemoved':
+    'Modelul selectat, „{{removed}}”, nu mai este disponibil. S-a trecut la „{{fallback}}”. Tastați /model pentru a alege altul.',
+  'ide.chat.modelRemovedNoFallback':
+    'Modelul selectat de tine, „{{removed}}”, nu mai este disponibil, iar pe server nu este configurat niciun înlocuitor. Roagă-l pe administratorul tău să configureze un furnizor AI.',
   'ide.chat.olderModelsCollapse': 'Modele mai vechi ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Modele mai vechi ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Selectați modelul în modul de execuție',
@@ -387,31 +416,43 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} erori de tip „lint”',
   'ide.chat.lintWarningsCount': '{{count}} avertismente',
   'ide.chat.typeErrorsCount': '{{count}} erori de tip',
   'ide.chat.help.commandsHeading': '── Comenzi ──',
-  'ide.chat.help.intro': '{{agentName}} este agentul de programare bazat pe IA al platformei „{{productName}}”. Descrie ce vrei să creezi, iar acesta va structura, va scrie codul și va itera alături de tine.',
+  'ide.chat.help.intro':
+    '{{agentName}} este agentul de programare bazat pe IA al platformei „{{productName}}”. Descrie ce vrei să creezi, iar acesta va structura, va scrie codul și va itera alături de tine.',
   'ide.chat.help.introHeading': '── Noțiuni introductive ──',
-  'ide.chat.help.modeDiscovery': 'Descoperire — aici încep noi discuții. Metodologia „{{agentName}}” pune întrebări clarificatoare pentru a stabili cerințele înainte de a scrie orice cod.',
-  'ide.chat.help.modeExecute': 'Executare — modul de lucru implicit. Funcția „{{agentName}}” generează cod, rulează instrumente și aplică modificările, apoi le verifică.',
-  'ide.chat.help.modePlan': 'Plan — Comanda „{{agentName}}” analizează codul sursă și propune un plan FĂRĂ a modifica fișierele. Se activează/dezactivează cu comanda /plan. Ideal pentru modificări ample sau riscante.',
+  'ide.chat.help.modeDiscovery':
+    'Descoperire — aici încep noi discuții. Metodologia „{{agentName}}” pune întrebări clarificatoare pentru a stabili cerințele înainte de a scrie orice cod.',
+  'ide.chat.help.modeExecute':
+    'Executare — modul de lucru implicit. Funcția „{{agentName}}” generează cod, rulează instrumente și aplică modificările, apoi le verifică.',
+  'ide.chat.help.modePlan':
+    'Plan — Comanda „{{agentName}}” analizează codul sursă și propune un plan FĂRĂ a modifica fișierele. Se activează/dezactivează cu comanda /plan. Ideal pentru modificări ample sau riscante.',
   'ide.chat.help.modesHeading': '── Moduri ──',
-  'ide.chat.help.shortcuts': 'Apăsați Cmd+/ (Ctrl+/ pe Windows/Linux) pentru a afișa toate comenzile rapide de la tastatură.',
-  'ide.chat.help.tipCompact': '• Folosește comanda /compact pentru a comprima conversația atunci când aceasta devine prea lungă.',
-  'ide.chat.help.tipPlan': '• Folosiți comanda /plan pentru a efectua o analiză d{{agentName}}ă înainte de a efectua modificări.',
+  'ide.chat.help.shortcuts':
+    'Apăsați Cmd+/ (Ctrl+/ pe Windows/Linux) pentru a afișa toate comenzile rapide de la tastatură.',
+  'ide.chat.help.tipCompact':
+    '• Folosește comanda /compact pentru a comprima conversația atunci când aceasta devine prea lungă.',
+  'ide.chat.help.tipPlan':
+    '• Folosiți comanda /plan pentru a efectua o analiză d{{agentName}}ă înainte de a efectua modificări.',
   'ide.chat.help.tipSlash': '• Tastați / pentru a parcurge toate comenzile de mai sus.',
-  'ide.chat.help.tipSpecific': '• Fii concret — „Adaugă o pagină de autentificare cu adresă de e-mail/parolă și Google OAuth” este mai bine decât „adaugă autentificare”.',
-  'ide.chat.help.tipUndo': '• Folosește comanda /undo pentru a anula modificările aduse fișierului în ultima rundă a IA, în cazul în care aceasta deviază de la plan.',
+  'ide.chat.help.tipSpecific':
+    '• Fii concret — „Adaugă o pagină de autentificare cu adresă de e-mail/parolă și Google OAuth” este mai bine decât „adaugă autentificare”.',
+  'ide.chat.help.tipUndo':
+    '• Folosește comanda /undo pentru a anula modificările aduse fișierului în ultima rundă a IA, în cazul în care aceasta deviază de la plan.',
   'ide.chat.help.tipsHeading': '── Sfaturi ──',
   'ide.chat.report.heading': 'Raportează o eroare',
   'ide.chat.report.openReport': 'Raportează o eroare',
-  'ide.chat.report.subheading': 'Spune-ne ce nu a funcționat sau ce ți-ar plăcea să vezi. Mesajul va fi transmis echipei {{productName}}.',
+  'ide.chat.report.subheading':
+    'Spune-ne ce nu a funcționat sau ce ți-ar plăcea să vezi. Mesajul va fi transmis echipei {{productName}}.',
   'ide.chat.report.titleLabel': 'Titlu',
   'ide.chat.report.titlePlaceholder': 'Scurt rezumat',
   'ide.chat.report.descriptionLabel': 'Descriere',
@@ -434,7 +475,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Se salvează…',
   'ide.chat.scripts.saveError': 'Nu s-a putut salva scriptul. Vă rugăm să încercați din nou.',
   'ide.chat.scripts.invalid': 'Un script trebuie să aibă un nume și un corp care să nu fie gol.',
-  'ide.chat.scripts.empty': 'Nu există încă scripturi salvate. Creează unul mai sus sau cere-i lui {{agentName}} să scrie și să salveze unul.',
+  'ide.chat.scripts.empty':
+    'Nu există încă scripturi salvate. Creează unul mai sus sau cere-i lui {{agentName}} să scrie și să salveze unul.',
   'ide.chat.scripts.loading': 'Se încarcă scripturile…',
   'ide.chat.scripts.error': 'Nu s-au putut încărca scripturile pentru acest proiect.',
   'ide.chat.scripts.noMatch': 'Nu există scripturi care să corespundă cu „{{query}}”.',
@@ -442,8 +484,10 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Execută acest script în mediul de testare',
   'ide.chat.scripts.running': 'Alerg…',
   'ide.chat.scripts.runError': 'Nu s-a putut rula scriptul.',
-  'ide.chat.scripts.runNone': 'Nu există încă scripturi salvate. Deschideți /scripts pentru a crea unul.',
-  'ide.chat.scripts.runNotFound': 'Nu există niciun script cu numele „{{name}}”. Disponibil la: {{names}}',
+  'ide.chat.scripts.runNone':
+    'Nu există încă scripturi salvate. Deschideți /scripts pentru a crea unul.',
+  'ide.chat.scripts.runNotFound':
+    'Nu există niciun script cu numele „{{name}}”. Disponibil la: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} a ieșit cu codul 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} s-a încheiat cu codul de eroare{{code}}',
   'ide.chat.scripts.exitOk': 'Ieșire 0',
@@ -467,7 +511,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Partajează proiectul',
-  'ide.chat.share.subheading': 'Creează un link public. Oricine are linkul va primi rolul pe care îl alegi — un link de vizualizare este doar pentru citire.',
+  'ide.chat.share.subheading':
+    'Creează un link public. Oricine are linkul va primi rolul pe care îl alegi — un link de vizualizare este doar pentru citire.',
   'ide.chat.share.roleLabel': 'Funcție',
   'ide.chat.share.create': 'Creează un link',
   'ide.chat.share.creating': 'Se creează…',
@@ -479,20 +524,27 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Copiat',
   'ide.chat.share.openLink': 'Deschide linkul',
   'ide.chat.share.error': 'Nu s-a putut crea un link de partajare. Vă rugăm să încercați din nou.',
-  'ide.chat.share.usage': 'Utilizare: /share [rol] — creează un link public. Roluri: {{roles}} (vizualizator implicit).',
-  'ide.chat.share.notAllowed': 'Gestionarea linkurilor de partajare necesită un rol de administrator în acest proiect.',
+  'ide.chat.share.usage':
+    'Utilizare: /share [rol] — creează un link public. Roluri: {{roles}} (vizualizator implicit).',
+  'ide.chat.share.notAllowed':
+    'Gestionarea linkurilor de partajare necesită un rol de administrator în acest proiect.',
   'ide.chat.skills.heading': 'Competențe',
   'ide.chat.skills.searchPlaceholder': 'Filtrează competențele…',
   'ide.chat.skills.load': 'Încărcare',
   'ide.chat.skills.loadTitle': 'Deschide în editor și atașează ca context',
-  'ide.chat.skills.loaded': 'S-a încărcat abilitatea „{{name}}“ — s-a deschis în editor și s-a atașat ca context pentru următorul tău mesaj.',
+  'ide.chat.skills.loaded':
+    'S-a încărcat abilitatea „{{name}}“ — s-a deschis în editor și s-a atașat ca context pentru următorul tău mesaj.',
   'ide.chat.skills.loading': 'Se încarcă abilitățile…',
   'ide.chat.skills.error': 'Nu s-au putut încărca competențele pentru acest proiect.',
-  'ide.chat.skills.empty': 'Nu s-au găsit competențe în directorul .agents/skills/ pentru acest proiect.',
+  'ide.chat.skills.empty':
+    'Nu s-au găsit competențe în directorul .agents/skills/ pentru acest proiect.',
   'ide.chat.skills.noMatch': 'Nu există abilități care să corespundă cu „{{query}}”.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -515,7 +567,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Nu s-a putut trimite raportul. Vă rugăm să încercați din nou.',
   'ide.chat.report.submitted': 'Mulțumim! Raportul tău a fost transmis echipei {{productName}}.',
-  'ide.chat.report.submittedWithLink': 'Mulțumesc! Raportul tău a fost trimis — poți urmări evoluția acestuia în problema la care face referire linkul.',
+  'ide.chat.report.submittedWithLink':
+    'Mulțumesc! Raportul tău a fost trimis — poți urmări evoluția acestuia în problema la care face referire linkul.',
   'ide.chat.settings.modelFollowsDefault': 'Urmează modelul implicit',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +582,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Creează',
   'ide.chat.skills.cancel': 'Anulează',
   'ide.chat.skills.createError': 'Nu s-a putut crea abilitatea — te rugăm să încerci din nou.',
-  'ide.chat.skills.created': 'Am creat abilitatea „{{name}}” — aceasta s-a deschis în editor. Completați descrierea și pașii.',
+  'ide.chat.skills.created':
+    'Am creat abilitatea „{{name}}” — aceasta s-a deschis în editor. Completați descrierea și pașii.',
   'ide.chat.autoCommit.on': 'Activare auto-commit',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -537,10 +591,12 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
   'ide.preview.loadFailed': 'Previzualizarea nu se poate încărca aici',
-  'ide.preview.loadFailedHint': 'Încearcă să reîncarci pagina sau deschide previzualizarea într-un filă nouă.',
+  'ide.preview.loadFailedHint':
+    'Încearcă să reîncarci pagina sau deschide previzualizarea într-un filă nouă.',
   'ide.preview.reloadPreview': 'Reîncarcă previzualizarea',
   'ide.preview.lastWorkingFrame': 'Ultima versiune de lucru',
-  'ide.chat.effort.notSupportedForModel': '{{level}} nu este disponibil la adresa {{model}}. Disponibil la adresa: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nu este disponibil la adresa {{model}}. Disponibil la adresa: {{levels}}',
   'ide.chat.modelSortLabel': 'Sortare',
   'ide.chat.modelSortDirection': 'Comută direcția de sortare',
   'ide.chat.skills.loadedBadge': 'Încărcat',
@@ -551,26 +607,32 @@ export const ro: Partial<IdeTranslations> = {
   'ide.device.select': 'Cadrul dispozitivului',
   'ide.device.rotate': 'Rotire',
   'ide.chat.closeOverlay': 'Închide',
-  'ide.chat.retryCountdown': 'Eroare de server — se încearcă din nou în {{seconds}} s… (încercare {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Eroare de server — se încearcă din nou în {{seconds}} s… (încercare {{attempt}})',
   'ide.preview.blankTitle': 'Previzualizarea este goală',
-  'ide.preview.blankHint': 'Aplicația s-a încărcat, dar nu a afișat nimic — este posibil să existe o eroare. Synthase a fost notificată. Poți reîncărca pagina sau deschide previzualizarea într-un filă nouă.',
+  'ide.preview.blankHint':
+    'Aplicația s-a încărcat, dar nu a afișat nimic — este posibil să existe o eroare. Synthase a fost notificată. Poți reîncărca pagina sau deschide previzualizarea într-un filă nouă.',
   'ide.chat.previewLinkTitle': 'Deschideți {{path}} în previzualizare',
-  'ide.chat.report.diagnosticsNote': 'Versiunea aplicației, browserul și dimensiunea ecranului sunt atașate pentru a ne ajuta la depanare.',
+  'ide.chat.report.diagnosticsNote':
+    'Versiunea aplicației, browserul și dimensiunea ecranului sunt atașate pentru a ne ajuta la depanare.',
   'ide.chat.skills.loadedCount': '🧠 Abilități avansate în „{{count}}”',
   'ide.chat.skills.waitingForSandbox': 'Se așteaptă finalizarea pornirii mediului de testare…',
   'ide.chat.skills.resetDefaults': 'Încărcare implicită a tuturor elementelor',
   'ide.search.excludedDirs': 'Dosare excluse (se aplică tuturor căutărilor, inclusiv agentului)',
-  'ide.chat.costStreamingNote': 'Total cumulativ — include răspunsul care se transmite în acest moment.',
+  'ide.chat.costStreamingNote':
+    'Total cumulativ — include răspunsul care se transmite în acest moment.',
   'ide.toolCall.packageCount': '{{count}} pachete',
   'ide.toolCall.openPackageDoc': 'Deschide documentația pachetului',
   'ide.chat.fastModeOn': 'Modul rapid activat — răspunsuri mai rapide la o frecvență mai mare',
   'ide.chat.fastModeOff': 'Modul rapid dezactivat',
-  'ide.chat.fastModeEnable': 'Modul rapid — viteză de ieșire de până la 2,5 ori mai mare, la o rată de token mai ridicată',
+  'ide.chat.fastModeEnable':
+    'Modul rapid — viteză de ieșire de până la 2,5 ori mai mare, la o rată de token mai ridicată',
   'ide.chat.fastModeDisable': 'Dezactivează modul rapid',
   'ide.chat.scripts.runWithOptions': 'Rulează…',
   'ide.chat.scripts.required': '(obligatoriu)',
   'ide.chat.scripts.cancelRun': 'Anulați',
-  'ide.chat.scripts.runNeedsOptions': '„{{name}}” necesită opțiuni — am deschis /scripts ca să le setați și să Rulați.',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}” necesită opțiuni — am deschis /scripts ca să le setați și să Rulați.',
   'ide.chat.settings.effort.label': 'Efortul de raționament',
   'ide.chat.timestampsShown': 'Marcajele de timp sunt afișate.',
   'ide.chat.timestampsHidden': 'Marcajele de timp sunt ascunse.',
@@ -593,7 +655,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Aplicație',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Proiect',
-  'ide.tests.e2eHint': 'Acestea se execută pe fundalul previzualizării în timp real, așa că păstrați previzualizarea deschisă.',
+  'ide.tests.e2eHint':
+    'Acestea se execută pe fundalul previzualizării în timp real, așa că păstrați previzualizarea deschisă.',
   'ide.tests.showOutput': 'Afișează rezultatul',
   'ide.tests.hideOutput': 'Ascunde rezultatul',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -638,7 +701,8 @@ export const ro: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} omise',
   'ide.tests.skippedByUser': 'Execuția s-a încheiat. Testele pe care le-ai omis nu au fost rulate.',
   'ide.tests.viewerCannotSkip': 'Doar editorii pot sări peste testele acestui proiect.',
-  'ide.toolCall.interruptedByRestart': 'Acest pas a fost întrerupt de o repornire; efectul său este necunoscut.',
+  'ide.toolCall.interruptedByRestart':
+    'Acest pas a fost întrerupt de o repornire; efectul său este necunoscut.',
   'ide.toolCall.statusInterrupted': 'Întrerupt',
   'ide.chat.subagent.failedFallback': 'Acest subagent s-a oprit înainte să termine.',
   'ide.chat.viaDictation.badge': 'Dictat cu voce',

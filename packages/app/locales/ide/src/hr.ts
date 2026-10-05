@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for hr. */
 export const hr: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Kratko razmišljanje',
@@ -36,7 +40,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Nastaviti',
   'ide.chat.continuePrompt': 'Nastavite s implementacijom tamo gdje ste stali.',
   'upgrade.viewPlans': 'Nadogradnja',
-  'guest.reminder.message': 'Registrirajte se ili prijavite kako biste zadržali svoj rad \\\\u2014 gostujuće sesije istječu nakon 72 sata.',
+  'guest.reminder.message':
+    'Registrirajte se ili prijavite kako biste zadržali svoj rad \\\\u2014 gostujuće sesije istječu nakon 72 sata.',
   'upgrade.signUp': 'Prijavi se',
   'guest.reminder.logIn': 'Prijava',
   'ide.chat.soundsError': 'Ažuriranje postavki zvuka nije uspjelo.',
@@ -49,23 +54,26 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Prebačeno na način plana',
   'ide.chat.switchedToExecute': 'Prebačeno u način izvršavanja',
   'ide.chat.costError': 'Nije moguće dohvatiti podatke o korištenju.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'vršno ×{{multiplier}} sada',
   'ide.chat.models.peakLater': '×{{multiplier}} u vršnim satima',
-  'ide.chat.models.peakHint': 'Ovaj model košta ×{{multiplier}} između {{windows}}. Ostatak dana vrijedi uobičajena cijena.',
+  'ide.chat.models.peakHint':
+    'Ovaj model košta ×{{multiplier}} između {{windows}}. Ostatak dana vrijedi uobičajena cijena.',
   'ide.chat.undoNoChanges': 'Nema promjena datoteke za poništavanje.',
   'ide.chat.undoComplete': 'Poništavanje promjena nije uspjelo.',
   'ide.chat.commitNoChanges': 'Nema promjena za potvrdu.',
@@ -73,11 +81,15 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatsko ispravljanje omogućeno.',
   'ide.chat.autoFixDisabled': 'Automatsko ispravljanje onemogućeno.',
   'ide.chat.autoFixError': 'Nije uspjelo ažuriranje postavke automatskog ispravljanja.',
-  'ide.chat.autoApproveEnabled': 'Automatsko odobravanje uključeno — destruktivne naredbe izvršavaju se bez pitanja. Zaštita od eksfiltracije i dalje traži potvrdu. Isključite s /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Automatsko odobravanje isključeno — destruktivne naredbe traže potvrdu prije izvršavanja.',
+  'ide.chat.autoApproveEnabled':
+    'Automatsko odobravanje uključeno — destruktivne naredbe izvršavaju se bez pitanja. Zaštita od eksfiltracije i dalje traži potvrdu. Isključite s /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatsko odobravanje isključeno — destruktivne naredbe traže potvrdu prije izvršavanja.',
   'ide.chat.autoApproveError': 'Nije uspjelo ažuriranje postavke automatskog odobravanja.',
-  'ide.chat.modelUsage': 'Upotreba: /model<model-name> (npr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired': '{{model}} dostupno je na Pro verziji. Nadogradite za pristup svim modelima.',
+  'ide.chat.modelUsage':
+    'Upotreba: /model<model-name> (npr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} dostupno je na Pro verziji. Nadogradite za pristup svim modelima.',
   'ide.chat.maxLoopsReached': 'Dosegnuto je maksimalno ograničenje petlji.',
   'ide.chat.maxLoopsError': 'Nije uspjelo ažuriranje maksimalnog broja iteracija alata.',
   'ide.chat.dropFilesHere': 'Ispustite datoteke ovdje',
@@ -117,7 +129,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.contextMenu.open': 'Otvoriti',
   'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': 'Prečaci na tipkovnici',
-  'ide.shortcuts.hint': 'Tipke sa strelicama za navigaciju · Enter za pokretanje · Esc za zatvaranje',
+  'ide.shortcuts.hint':
+    'Tipke sa strelicama za navigaciju · Enter za pokretanje · Esc za zatvaranje',
   'ide.preview.starting': 'Učitavanje pregleda...',
   'ide.preview.noPreview': 'Nema dostupnog pregleda',
   'ide.preview.restarting': 'Učitavanje pregleda...',
@@ -249,7 +262,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Priprema diktiranja — pri prvoj upotrebi može potrajati.',
   'ide.chat.voiceTranscribeFailed': 'Transkripcija nije uspjela.',
   'ide.chat.voiceEngineTitle': 'Motor za diktiranje',
-  'ide.chat.voiceEnginePrivacy': 'Svaka opcija radi na vašem uređaju — zvuk nikad ne napušta preglednik.',
+  'ide.chat.voiceEnginePrivacy':
+    'Svaka opcija radi na vašem uređaju — zvuk nikad ne napušta preglednik.',
   'ide.chat.voiceEngineNoDownload': 'bez preuzimanja',
   'ide.chat.voiceEngineDownload': 'preuzimanje ~{{mb}} MB, zatim u predmemoriji',
   'ide.chat.voiceEngineDownloadRange': 'preuzimanje ~{{min}}–{{max}} MB, zatim u predmemoriji',
@@ -300,7 +314,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Sigurno (HTTPS)',
   'ide.preview.address': 'Adresa pretpregleda',
   'ide.preview.updating': 'Ažuriranje',
-  'ide.preview.frozen': 'Ova je aplikacija prestala reagirati — beskonačna petlja ili nekontrolirano renderiranje zamrznuli su pregled. IDE nije pogođen.',
+  'ide.preview.frozen':
+    'Ova je aplikacija prestala reagirati — beskonačna petlja ili nekontrolirano renderiranje zamrznuli su pregled. IDE nije pogođen.',
   'ide.preview.frozenReload': 'Ponovno učitavanje aplikacije',
   'ide.search.results': '{{count}} rezultati u {{files}} datoteke',
   'ide.activity.cardAria': 'Pogledajte snimljenu aktivnost',
@@ -332,29 +347,41 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Resume',
   'ide.chat.openSettings': 'Settings',
   'ide.chat.tip.dismiss': 'Dismiss tip',
-  'ide.chat.tip.getStarted': 'Savjet: upišite / da biste vidjeli svaku naredbu ili @ u naziv datoteke da biste dali{{agentName}} datoteka s koje se može raditi.',
-  'ide.chat.tip.mention': 'Savjet: upišite @filename da biste priložili datoteku projekta kao kontekst —{{agentName}} čita ga izravno.',
-  'ide.chat.tip.slash': 'Savjet: upišite / za pregledavanje svake naredbe (commit, diff, model i ostale).',
-  'ide.chat.tip.plan': 'Savjet: koristite /planirajte imati{{agentName}} istražiti i predložiti plan prije nego što uredi bilo koje datoteke.',
-  'ide.chat.tip.undo': 'Savjet: upotrijebite /undo za trenutno vraćanje promjena datoteke posljednjeg poteza umjetne inteligencije ako je sve krenulo po zlu.',
-  'ide.chat.tip.compact': 'Savjet: dugi razgovor? /compact komprimira kontekst kako biste imali prostora za rad.',
-  'ide.chat.tip.commit': 'Savjet: koristite /commit za spremanje promjena kao git commit kojem se uvijek možete vratiti.',
-  'ide.chat.tip.report': 'Savjet: nešto nije u redu? /report šalje grešku ili povratne informacije timu s priloženim vašim nedavnim chatom.',
+  'ide.chat.tip.getStarted':
+    'Savjet: upišite / da biste vidjeli svaku naredbu ili @ u naziv datoteke da biste dali{{agentName}} datoteka s koje se može raditi.',
+  'ide.chat.tip.mention':
+    'Savjet: upišite @filename da biste priložili datoteku projekta kao kontekst —{{agentName}} čita ga izravno.',
+  'ide.chat.tip.slash':
+    'Savjet: upišite / za pregledavanje svake naredbe (commit, diff, model i ostale).',
+  'ide.chat.tip.plan':
+    'Savjet: koristite /planirajte imati{{agentName}} istražiti i predložiti plan prije nego što uredi bilo koje datoteke.',
+  'ide.chat.tip.undo':
+    'Savjet: upotrijebite /undo za trenutno vraćanje promjena datoteke posljednjeg poteza umjetne inteligencije ako je sve krenulo po zlu.',
+  'ide.chat.tip.compact':
+    'Savjet: dugi razgovor? /compact komprimira kontekst kako biste imali prostora za rad.',
+  'ide.chat.tip.commit':
+    'Savjet: koristite /commit za spremanje promjena kao git commit kojem se uvijek možete vratiti.',
+  'ide.chat.tip.report':
+    'Savjet: nešto nije u redu? /report šalje grešku ili povratne informacije timu s priloženim vašim nedavnim chatom.',
   'ide.chat.undoError': 'Failed to revert changes.',
   'ide.chat.autoCommit.badge': 'Auto-commit in {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Cancel auto-commit',
   'ide.chat.autoCommit.cancelled': 'Auto-commit cancelled.',
-  'ide.chat.autoCommit.enabled': 'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.autoCommit.enabled':
+    'Auto-commit on: committing {{seconds}}s after the last file change. /autocommit 0 to cancel.',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
   'ide.chat.effort.error': 'Failed to update reasoning effort.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
   'ide.chat.effort.setMode': 'Reasoning effort for {{mode}} set to {{level}} ({{model}}).',
   'ide.chat.setting.effort': 'Reasoning effort for {{mode}} set to {{level}}.',
   'ide.chat.settings.effortFixed': 'fixed',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
   'ide.chat.models.colContext': 'Context',
   'ide.chat.models.colCutoff': 'Cutoff',
   'ide.chat.models.colFree': 'Free',
@@ -366,8 +393,10 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.modelsNone': 'No models are available yet — ask your admin to wire an AI provider.',
   'ide.chat.modelInUse': 'Now using {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
-  'ide.chat.modelRemovedNoFallback': 'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
+  'ide.chat.modelRemoved':
+    'Your selected model "{{removed}}" is no longer available. Switched to "{{fallback}}". Type /model to pick another.',
+  'ide.chat.modelRemovedNoFallback':
+    'Your selected model "{{removed}}" is no longer available, and no replacement is bonded on the server. Ask your admin to wire an AI provider.',
   'ide.chat.olderModelsCollapse': 'Older models ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Older models ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Select execute-mode model',
@@ -389,32 +418,43 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint errors',
   'ide.chat.lintWarningsCount': '{{count}} warnings',
   'ide.chat.typeErrorsCount': '{{count}} type errors',
   'ide.chat.help.commandsHeading': '── Commands ──',
-  'ide.chat.help.intro': '{{agentName}} is {{productName}}\'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.',
+  'ide.chat.help.intro':
+    "{{agentName}} is {{productName}}'s AI coding agent. Describe what you want to build and it will scaffold, code, and iterate with you.",
   'ide.chat.help.introHeading': '── Getting Started ──',
-  'ide.chat.help.modeDiscovery': 'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
-  'ide.chat.help.modeExecute': 'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
-  'ide.chat.help.modePlan': 'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
+  'ide.chat.help.modeDiscovery':
+    'Discovery — new conversations start here. {{agentName}} asks clarifying questions to nail down requirements before writing any code.',
+  'ide.chat.help.modeExecute':
+    'Execute — the default working mode. {{agentName}} writes code, runs tools, and applies changes, then verifies them.',
+  'ide.chat.help.modePlan':
+    'Plan — {{agentName}} researches the codebase and proposes a plan WITHOUT editing files. Toggle with /plan. Best for big or risky changes.',
   'ide.chat.help.modesHeading': '── Modes ──',
-  'ide.chat.help.shortcuts': 'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
+  'ide.chat.help.shortcuts':
+    'Press Cmd+/ (Ctrl+/ on Windows/Linux) to view all keyboard shortcuts.',
   'ide.chat.help.tipCompact': '• Use /compact to compress context when the conversation gets long.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.help.tipPlan': '• Use /plan to have {{agentName}} research before making changes.',
   'ide.chat.help.tipSlash': '• Type / to browse every command above.',
-  'ide.chat.help.tipSpecific': '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
-  'ide.chat.help.tipUndo': '• Use /undo to revert the last AI turn\'s file changes if it goes off track.',
+  'ide.chat.help.tipSpecific':
+    '• Be specific — "Add a login page with email/password and Google OAuth" beats "add auth".',
+  'ide.chat.help.tipUndo':
+    "• Use /undo to revert the last AI turn's file changes if it goes off track.",
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Report a bug',
   'ide.chat.report.openReport': 'Report a bug',
-  'ide.chat.report.subheading': 'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
+  'ide.chat.report.subheading':
+    'Tell us what went wrong or what you’d like to see. Goes to {{productName}}’s team.',
   'ide.chat.report.titleLabel': 'Title',
   'ide.chat.report.titlePlaceholder': 'Brief summary',
   'ide.chat.report.descriptionLabel': 'Description',
@@ -437,7 +477,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Saving…',
   'ide.chat.scripts.saveError': 'Could not save the script. Please try again.',
   'ide.chat.scripts.invalid': 'A script needs a name and a non-empty body.',
-  'ide.chat.scripts.empty': 'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
+  'ide.chat.scripts.empty':
+    'No saved scripts yet. Create one above, or ask {{agentName}} to write and save one.',
   'ide.chat.scripts.loading': 'Loading scripts…',
   'ide.chat.scripts.error': 'Could not load scripts for this project.',
   'ide.chat.scripts.noMatch': 'No scripts match “{{query}}”.',
@@ -471,7 +512,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Share project',
-  'ide.chat.share.subheading': 'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
+  'ide.chat.share.subheading':
+    'Create a public link. Anyone with the link gets the role you choose — a viewer link is read-only.',
   'ide.chat.share.roleLabel': 'Role',
   'ide.chat.share.create': 'Create link',
   'ide.chat.share.creating': 'Creating…',
@@ -483,13 +525,16 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Copied',
   'ide.chat.share.openLink': 'Open link',
   'ide.chat.share.error': 'Could not create a share link. Please try again.',
-  'ide.chat.share.usage': 'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
-  'ide.chat.share.notAllowed': 'Upravljanje poveznicama za dijeljenje zahtijeva administratorsku ulogu na ovom projektu.',
+  'ide.chat.share.usage':
+    'Usage: /share [role] — create a public link. Roles: {{roles}} (default viewer).',
+  'ide.chat.share.notAllowed':
+    'Upravljanje poveznicama za dijeljenje zahtijeva administratorsku ulogu na ovom projektu.',
   'ide.chat.skills.heading': 'Skills',
   'ide.chat.skills.searchPlaceholder': 'Filter skills…',
   'ide.chat.skills.load': 'Load',
   'ide.chat.skills.loadTitle': 'Open in editor and attach as context',
-  'ide.chat.skills.loaded': 'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
+  'ide.chat.skills.loaded':
+    'Loaded skill “{{name}}” — opened in the editor and attached as context for your next message.',
   'ide.chat.skills.loading': 'Loading skills…',
   'ide.chat.skills.error': 'Could not load skills for this project.',
   'ide.chat.skills.empty': 'No skills found in .agents/skills/ for this project.',
@@ -514,8 +559,9 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Could not submit your report. Please try again.',
-  'ide.chat.report.submitted': 'Thanks! Your report was submitted to {{productName}}\'s team.',
-  'ide.chat.report.submittedWithLink': 'Thanks! Your report was submitted — track it on the linked issue.',
+  'ide.chat.report.submitted': "Thanks! Your report was submitted to {{productName}}'s team.",
+  'ide.chat.report.submittedWithLink':
+    'Thanks! Your report was submitted — track it on the linked issue.',
   'ide.chat.settings.modelFollowsDefault': 'Follows default model',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,18 +575,20 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Create',
   'ide.chat.skills.cancel': 'Cancel',
   'ide.chat.skills.createError': 'Could not create the skill — please try again.',
-  'ide.chat.skills.created': 'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
+  'ide.chat.skills.created':
+    'Created skill “{{name}}” — opened in the editor. Fill in its description and steps.',
   'ide.chat.autoCommit.on': 'Auto-commit on',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.skills.loadedPrefix': 'Loaded ',
   'ide.chat.skills.loadedSuffix': ' skill',
   'ide.chat.viewProfile': 'View profile',
-  'ide.preview.loadFailed': 'Preview can\'t load here',
+  'ide.preview.loadFailed': "Preview can't load here",
   'ide.preview.loadFailedHint': 'Try reloading, or open the preview in a new tab.',
   'ide.preview.reloadPreview': 'Reload preview',
   'ide.preview.lastWorkingFrame': 'Last working preview',
-  'ide.chat.effort.notSupportedForModel': '{{level}} isn\'t available for {{model}}. Available: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    "{{level}} isn't available for {{model}}. Available: {{levels}}",
   'ide.chat.modelSortLabel': 'Sort',
   'ide.chat.modelSortDirection': 'Toggle sort direction',
   'ide.chat.skills.loadedBadge': 'Loaded',
@@ -553,9 +601,11 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Close',
   'ide.chat.retryCountdown': 'Server error — retrying in {{seconds}}s… (attempt {{attempt}})',
   'ide.preview.blankTitle': 'The preview is blank',
-  'ide.preview.blankHint': 'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
+  'ide.preview.blankHint':
+    'The app loaded but didn’t render anything — it may have an error. Synthase has been notified. You can reload, or open the preview in a new tab.',
   'ide.chat.previewLinkTitle': 'Open {{path}} in the preview',
-  'ide.chat.report.diagnosticsNote': 'Your app version, browser, and screen size are attached to help us debug.',
+  'ide.chat.report.diagnosticsNote':
+    'Your app version, browser, and screen size are attached to help us debug.',
   'ide.chat.skills.loadedCount': '🧠 Loaded {{count}} skills',
   'ide.chat.skills.waitingForSandbox': 'Waiting for the sandbox to finish starting…',
   'ide.chat.skills.resetDefaults': 'Load all by default',
@@ -570,7 +620,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.scripts.runWithOptions': 'Pokreni…',
   'ide.chat.scripts.required': '(obavezno)',
   'ide.chat.scripts.cancelRun': 'Otkazati',
-  'ide.chat.scripts.runNeedsOptions': '„{{name}}“ zahtijeva opcije — otvoren /scripts da ih postavite i pokrenete.',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ zahtijeva opcije — otvoren /scripts da ih postavite i pokrenete.',
   'ide.chat.settings.effort.label': 'Napor rasuđivanja',
   'ide.chat.timestampsShown': 'Vremenske oznake prikazane.',
   'ide.chat.timestampsHidden': 'Vremenske oznake skrivene.',
@@ -638,7 +689,8 @@ export const hr: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} preskočeno',
   'ide.tests.skippedByUser': 'Izvršavanje završeno. Testovi koje ste preskočili nisu izvršeni.',
   'ide.tests.viewerCannotSkip': 'Samo urednici mogu preskočiti testove ovog projekta.',
-  'ide.toolCall.interruptedByRestart': 'Ovaj korak je prekinut ponovnim pokretanjem; njegov učinak nije poznat.',
+  'ide.toolCall.interruptedByRestart':
+    'Ovaj korak je prekinut ponovnim pokretanjem; njegov učinak nije poznat.',
   'ide.toolCall.statusInterrupted': 'Prekinuto',
   'ide.chat.subagent.failedFallback': 'Ovaj subagent se zaustavio prije nego što je završio.',
   'ide.chat.viaDictation.badge': 'Diktirano glasom',

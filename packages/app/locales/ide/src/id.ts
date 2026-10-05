@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for id. */
 export const id: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.viewPlans': 'Lihat paket',
   'ide.chat.fileCount': '{{count}} berkas',
   'common.cancel': 'Batal',
@@ -104,7 +108,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.changeModel': 'Ubah model',
   'ide.chat.increaseLoops': 'Tingkatkan jumlah putaran maksimum',
   'ide.chat.continuePrompt': 'Lanjutkan implementasi dari tempat Anda berhenti.',
-  'guest.reminder.message': 'Daftar atau masuk untuk menyimpan pekerjaan Anda – sesi tamu akan kedaluwarsa setelah 72 jam.',
+  'guest.reminder.message':
+    'Daftar atau masuk untuk menyimpan pekerjaan Anda – sesi tamu akan kedaluwarsa setelah 72 jam.',
   'guest.reminder.logIn': 'Masuk',
   'ide.chat.soundsError': 'Gagal memperbarui pengaturan suara.',
   'ide.chat.commitFailed': 'Komitmen gagal',
@@ -116,23 +121,26 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Beralih ke mode perencanaan',
   'ide.chat.switchedToExecute': 'Beralih ke mode eksekusi',
   'ide.chat.costError': 'Tidak dapat mengambil data penggunaan.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'puncak ×{{multiplier}} sekarang',
   'ide.chat.models.peakLater': '×{{multiplier}} pada jam sibuk',
-  'ide.chat.models.peakHint': 'Model ini dikenakan ×{{multiplier}} antara {{windows}}. Sisa hari lainnya berlaku tarif normal.',
+  'ide.chat.models.peakHint':
+    'Model ini dikenakan ×{{multiplier}} antara {{windows}}. Sisa hari lainnya berlaku tarif normal.',
   'ide.chat.undoNoChanges': 'Tidak ada perubahan file yang perlu dibatalkan.',
   'ide.chat.undoComplete': 'Gagal mengembalikan perubahan.',
   'ide.chat.commitNoChanges': 'Tidak ada perubahan yang perlu di-commit.',
@@ -140,10 +148,13 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Perbaikan otomatis diaktifkan.',
   'ide.chat.autoFixDisabled': 'Perbaikan otomatis dinonaktifkan.',
   'ide.chat.autoFixError': 'Gagal memperbarui pengaturan perbaikan otomatis.',
-  'ide.chat.autoApproveEnabled': 'Persetujuan otomatis aktif — perintah destruktif dijalankan tanpa konfirmasi. Perlindungan eksfiltrasi tetap meminta konfirmasi. Nonaktifkan dengan /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Persetujuan otomatis nonaktif — perintah destruktif meminta konfirmasi sebelum dijalankan.',
+  'ide.chat.autoApproveEnabled':
+    'Persetujuan otomatis aktif — perintah destruktif dijalankan tanpa konfirmasi. Perlindungan eksfiltrasi tetap meminta konfirmasi. Nonaktifkan dengan /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Persetujuan otomatis nonaktif — perintah destruktif meminta konfirmasi sebelum dijalankan.',
   'ide.chat.autoApproveError': 'Gagal memperbarui pengaturan persetujuan otomatis.',
-  'ide.chat.modelUsage': 'Penggunaan: /model<model-name> (misalnya claude-opus-4-6, claude-soneta-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage':
+    'Penggunaan: /model<model-name> (misalnya claude-opus-4-6, claude-soneta-4-6, claude-haiku-4-5-20251001)',
   'ide.chat.maxLoopsReached': 'Batas perulangan maksimum telah tercapai.',
   'ide.chat.maxLoopsError': 'Gagal memperbarui jumlah iterasi alat maksimum.',
   'ide.chat.dropFilesHere': 'Seret file ke sini',
@@ -173,7 +184,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.contextMenu.copyRelativePath': 'Salin Jalur Relatif',
   'ide.shortcuts.close': 'Close',
   'ide.shortcuts.title': 'Pintasan Keyboard',
-  'ide.shortcuts.hint': 'Gunakan tombol panah untuk bernavigasi · Tekan Enter untuk menjalankan · Tekan Esc untuk menutup',
+  'ide.shortcuts.hint':
+    'Gunakan tombol panah untuk bernavigasi · Tekan Enter untuk menjalankan · Tekan Esc untuk menutup',
   'ide.preview.starting': 'Memuat pratinjau...',
   'ide.preview.restarting': 'Memuat pratinjau...',
   'ide.preview.retryCount': 'Upaya percobaan ulang {{count}}',
@@ -244,7 +256,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} menyarankan file untuk di-commit.',
   'ide.chat.soundEventDesc.mode': 'Beralih antara mode perencanaan dan mode eksekusi',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Mencapai batas iterasi alat maksimum',
-  'ide.chat.soundEventDesc.verification_result': 'Pemeriksaan lint atau pengecekan tipe telah selesai dijalankan.',
+  'ide.chat.soundEventDesc.verification_result':
+    'Pemeriksaan lint atau pengecekan tipe telah selesai dijalankan.',
   'ide.chat.soundEventDesc.preview_error': 'Pratinjau langsung mengalami kesalahan.',
   'ide.chat.voice': 'Suara',
   'ide.chat.voiceUnavailable': 'Dikte tidak tersedia di browser ini.',
@@ -252,7 +265,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Menyiapkan dikte — mungkin butuh waktu sebentar saat pertama kali.',
   'ide.chat.voiceTranscribeFailed': 'Transkripsi gagal.',
   'ide.chat.voiceEngineTitle': 'Mesin dikte',
-  'ide.chat.voiceEnginePrivacy': 'Setiap opsi berjalan di perangkat Anda — audio tidak pernah meninggalkan browser.',
+  'ide.chat.voiceEnginePrivacy':
+    'Setiap opsi berjalan di perangkat Anda — audio tidak pernah meninggalkan browser.',
   'ide.chat.voiceEngineNoDownload': 'tanpa unduhan',
   'ide.chat.voiceEngineDownload': 'unduhan ~{{mb}} MB, lalu disimpan di cache',
   'ide.chat.voiceEngineDownloadRange': 'unduhan ~{{min}}–{{max}} MB, lalu disimpan di cache',
@@ -300,7 +314,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Aman (HTTPS)',
   'ide.preview.address': 'Alamat pratinjau',
   'ide.preview.updating': 'Pembaruan',
-  'ide.preview.frozen': 'Aplikasi ini tidak merespons — loop tak berujung atau proses rendering yang tidak terkendali telah membuat tampilan pratinjau macet. IDE tidak terpengaruh.',
+  'ide.preview.frozen':
+    'Aplikasi ini tidak merespons — loop tak berujung atau proses rendering yang tidak terkendali telah membuat tampilan pratinjau macet. IDE tidak terpengaruh.',
   'ide.preview.frozenReload': 'Muat ulang aplikasi',
   'ide.search.results': '{{count}} menghasilkan berkas-berkas di direktori `{{files}}`',
   'ide.activity.cardAria': 'Lihat riwayat aktivitas',
@@ -326,27 +341,38 @@ export const id: Partial<IdeTranslations> = {
   'ide.activity.defaultSummary': '{{type}} ditangkap',
   'ide.chat.askUserPlaceholderEmpty': 'Tuliskan jawaban Anda…',
   'ide.chat.awaitingSandbox': 'Menunggu lingkungan pengembangan selesai dimuat…',
-  'ide.chat.compactNotNeeded': 'Penggunaan ruang penyimpanan rendah — tidak perlu dilakukan pemadatan.',
+  'ide.chat.compactNotNeeded':
+    'Penggunaan ruang penyimpanan rendah — tidak perlu dilakukan pemadatan.',
   'ide.chat.phaseBuilding': '🔨 Membuat aplikasi Anda',
   'ide.chat.phasePlanning': '📝 Plan mode',
   'ide.chat.autoFixResume': 'Daftar Riwayat Hidup',
   'ide.chat.openSettings': 'Pengaturan',
   'ide.chat.tip.dismiss': 'Abaikan saran',
-  'ide.chat.tip.getStarted': 'Tips: ketik / untuk melihat semua perintah, atau @ diikuti nama file untuk memberi tahu `{{agentName}}` file mana yang akan diproses.',
-  'ide.chat.tip.mention': 'Tips: ketik @nama_file untuk melampirkan berkas proyek sebagai konteks — {{agentName}} akan membacanya secara langsung.',
-  'ide.chat.tip.slash': 'Tips: ketik / untuk melihat daftar semua perintah (commit, diff, model, dan lainnya).',
-  'ide.chat.tip.plan': 'Tips: gunakan perintah /plan agar{{agentName}}meneliti dan mengusulkan rencana sebelum mengedit berkas apa pun.',
-  'ide.chat.tip.undo': 'Tips: Gunakan perintah /undo untuk langsung membatalkan perubahan file pada giliran AI terakhir jika hasilnya tidak sesuai harapan.',
-  'ide.chat.tip.compact': 'Tips: Percakapan panjang? Perintah /compact akan meringkas konteksnya sehingga Anda tetap punya ruang untuk bekerja.',
-  'ide.chat.tip.commit': 'Tips: gunakan perintah /commit untuk menyimpan perubahan Anda sebagai commit Git yang dapat Anda akses kembali kapan saja.',
-  'ide.chat.tip.report': 'Tips: Ada yang aneh? /report akan mengirimkan laporan bug atau masukan kepada tim, lengkap dengan riwayat obrolan terbaru Anda.',
+  'ide.chat.tip.getStarted':
+    'Tips: ketik / untuk melihat semua perintah, atau @ diikuti nama file untuk memberi tahu `{{agentName}}` file mana yang akan diproses.',
+  'ide.chat.tip.mention':
+    'Tips: ketik @nama_file untuk melampirkan berkas proyek sebagai konteks — {{agentName}} akan membacanya secara langsung.',
+  'ide.chat.tip.slash':
+    'Tips: ketik / untuk melihat daftar semua perintah (commit, diff, model, dan lainnya).',
+  'ide.chat.tip.plan':
+    'Tips: gunakan perintah /plan agar{{agentName}}meneliti dan mengusulkan rencana sebelum mengedit berkas apa pun.',
+  'ide.chat.tip.undo':
+    'Tips: Gunakan perintah /undo untuk langsung membatalkan perubahan file pada giliran AI terakhir jika hasilnya tidak sesuai harapan.',
+  'ide.chat.tip.compact':
+    'Tips: Percakapan panjang? Perintah /compact akan meringkas konteksnya sehingga Anda tetap punya ruang untuk bekerja.',
+  'ide.chat.tip.commit':
+    'Tips: gunakan perintah /commit untuk menyimpan perubahan Anda sebagai commit Git yang dapat Anda akses kembali kapan saja.',
+  'ide.chat.tip.report':
+    'Tips: Ada yang aneh? /report akan mengirimkan laporan bug atau masukan kepada tim, lengkap dengan riwayat obrolan terbaru Anda.',
   'ide.chat.undoError': 'Gagal mengembalikan perubahan.',
   'ide.chat.autoCommit.badge': 'Auto-commit di {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Batalkan penyimpanan otomatis',
   'ide.chat.autoCommit.cancelled': 'Auto-commit dibatalkan.',
-  'ide.chat.autoCommit.enabled': 'Fitur Auto-commit diaktifkan: melakukan commit {{seconds}} s setelah perubahan file terakhir. Gunakan perintah /autocommit 0 untuk menonaktifkannya.',
+  'ide.chat.autoCommit.enabled':
+    'Fitur Auto-commit diaktifkan: melakukan commit {{seconds}} s setelah perubahan file terakhir. Gunakan perintah /autocommit 0 untuk menonaktifkannya.',
   'ide.chat.effort.error': 'Gagal memperbarui upaya penalaran.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +387,14 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Gratis',
   'ide.chat.models.sortBy': 'Urutkan berdasarkan{{column}}',
   'ide.chat.modelsLoading': 'Memuat model…',
-  'ide.chat.modelsNone': 'Belum ada model yang tersedia — mintalah admin Anda untuk mengintegrasikan penyedia AI.',
+  'ide.chat.modelsNone':
+    'Belum ada model yang tersedia — mintalah admin Anda untuk mengintegrasikan penyedia AI.',
   'ide.chat.modelInUse': 'Sekarang menggunakan {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Model yang Anda pilih, "{{removed}}", tidak lagi tersedia. Telah diganti dengan "{{fallback}}". Ketik /model untuk memilih yang lain.',
-  'ide.chat.modelRemovedNoFallback': 'Model yang Anda pilih, "{{removed}}", tidak lagi tersedia, dan tidak ada penggantinya yang terdaftar di server. Mohon minta admin Anda untuk menghubungkan penyedia AI.',
+  'ide.chat.modelRemoved':
+    'Model yang Anda pilih, "{{removed}}", tidak lagi tersedia. Telah diganti dengan "{{fallback}}". Ketik /model untuk memilih yang lain.',
+  'ide.chat.modelRemovedNoFallback':
+    'Model yang Anda pilih, "{{removed}}", tidak lagi tersedia, dan tidak ada penggantinya yang terdaftar di server. Mohon minta admin Anda untuk menghubungkan penyedia AI.',
   'ide.chat.olderModelsCollapse': 'Model lama ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Model lama ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Pilih model mode eksekusi',
@@ -387,31 +416,43 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} kesalahan lint',
   'ide.chat.lintWarningsCount': '{{count}} peringatan',
   'ide.chat.typeErrorsCount': '{{count}} kesalahan tipe',
   'ide.chat.help.commandsHeading': '── Perintah ──',
-  'ide.chat.help.intro': '{{agentName}} adalah asisten pemrograman berbasis AI dari {{productName}}. Jelaskan apa yang ingin Anda buat, dan asisten ini akan membantu merancang kerangka kerja, menulis kode, serta melakukan iterasi bersama Anda.',
+  'ide.chat.help.intro':
+    '{{agentName}} adalah asisten pemrograman berbasis AI dari {{productName}}. Jelaskan apa yang ingin Anda buat, dan asisten ini akan membantu merancang kerangka kerja, menulis kode, serta melakukan iterasi bersama Anda.',
   'ide.chat.help.introHeading': '── Memulai ──',
-  'ide.chat.help.modeDiscovery': 'Penemuan — percakapan baru dimulai di sini. Metode "{{agentName}}" mengajukan pertanyaan-pertanyaan klarifikasi untuk memastikan persyaratan telah jelas sebelum menulis kode apa pun.',
-  'ide.chat.help.modeExecute': 'Jalankan — mode kerja default. Fitur "{{agentName}}" menulis kode, menjalankan alat, menerapkan perubahan, lalu memverifikasinya.',
-  'ide.chat.help.modePlan': 'Rencana — Perintah `{{agentName}}` menganalisis basis kode dan mengusulkan rencana TANPA mengedit berkas. Aktifkan atau nonaktifkan dengan opsi `/plan`. Cocok untuk perubahan besar atau berisiko.',
+  'ide.chat.help.modeDiscovery':
+    'Penemuan — percakapan baru dimulai di sini. Metode "{{agentName}}" mengajukan pertanyaan-pertanyaan klarifikasi untuk memastikan persyaratan telah jelas sebelum menulis kode apa pun.',
+  'ide.chat.help.modeExecute':
+    'Jalankan — mode kerja default. Fitur "{{agentName}}" menulis kode, menjalankan alat, menerapkan perubahan, lalu memverifikasinya.',
+  'ide.chat.help.modePlan':
+    'Rencana — Perintah `{{agentName}}` menganalisis basis kode dan mengusulkan rencana TANPA mengedit berkas. Aktifkan atau nonaktifkan dengan opsi `/plan`. Cocok untuk perubahan besar atau berisiko.',
   'ide.chat.help.modesHeading': '── Mode ──',
-  'ide.chat.help.shortcuts': 'Tekan Cmd+/ (Ctrl+/ di Windows/Linux) untuk melihat semua pintasan keyboard.',
-  'ide.chat.help.tipCompact': '• Gunakan perintah /compact untuk memadatkan riwayat obrolan saat percakapan menjadi panjang.',
-  'ide.chat.help.tipPlan': '• Gunakan perintah /plan untuk melakukan penelusuran dengan fitur "{{agentName}}" sebelum melakukan perubahan.',
+  'ide.chat.help.shortcuts':
+    'Tekan Cmd+/ (Ctrl+/ di Windows/Linux) untuk melihat semua pintasan keyboard.',
+  'ide.chat.help.tipCompact':
+    '• Gunakan perintah /compact untuk memadatkan riwayat obrolan saat percakapan menjadi panjang.',
+  'ide.chat.help.tipPlan':
+    '• Gunakan perintah /plan untuk melakukan penelusuran dengan fitur "{{agentName}}" sebelum melakukan perubahan.',
   'ide.chat.help.tipSlash': '• Ketik / untuk melihat daftar semua perintah di atas.',
-  'ide.chat.help.tipSpecific': '• Jelaskan secara spesifik — "Tambahkan halaman login dengan kolom email/kata sandi dan Google OAuth" lebih baik daripada "tambahkan otentikasi".',
-  'ide.chat.help.tipUndo': '• Gunakan perintah /undo untuk membatalkan perubahan file pada giliran AI terakhir jika terjadi kesalahan.',
+  'ide.chat.help.tipSpecific':
+    '• Jelaskan secara spesifik — "Tambahkan halaman login dengan kolom email/kata sandi dan Google OAuth" lebih baik daripada "tambahkan otentikasi".',
+  'ide.chat.help.tipUndo':
+    '• Gunakan perintah /undo untuk membatalkan perubahan file pada giliran AI terakhir jika terjadi kesalahan.',
   'ide.chat.help.tipsHeading': '── Tips ──',
   'ide.chat.report.heading': 'Laporkan bug',
   'ide.chat.report.openReport': 'Laporkan bug',
-  'ide.chat.report.subheading': 'Beritahu kami apa yang salah atau apa yang ingin Anda lihat. Masukan Anda akan diteruskan ke tim {{productName}}.',
+  'ide.chat.report.subheading':
+    'Beritahu kami apa yang salah atau apa yang ingin Anda lihat. Masukan Anda akan diteruskan ke tim {{productName}}.',
   'ide.chat.report.titleLabel': 'Judul',
   'ide.chat.report.titlePlaceholder': 'Ringkasan singkat',
   'ide.chat.report.descriptionLabel': 'Deskripsi',
@@ -434,7 +475,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Menyimpan…',
   'ide.chat.scripts.saveError': 'Tidak dapat menyimpan skrip. Silakan coba lagi.',
   'ide.chat.scripts.invalid': 'Sebuah skrip memerlukan nama dan isi yang tidak kosong.',
-  'ide.chat.scripts.empty': 'Belum ada skrip yang disimpan. Buat skrip di atas, atau minta {{agentName}} untuk menulis dan menyimpannya.',
+  'ide.chat.scripts.empty':
+    'Belum ada skrip yang disimpan. Buat skrip di atas, atau minta {{agentName}} untuk menulis dan menyimpannya.',
   'ide.chat.scripts.loading': 'Memuat skrip…',
   'ide.chat.scripts.error': 'Tidak dapat memuat skrip untuk proyek ini.',
   'ide.chat.scripts.noMatch': 'Tidak ada skrip yang sesuai dengan "{{query}}".',
@@ -467,7 +509,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Bagikan proyek',
-  'ide.chat.share.subheading': 'Buat tautan publik. Siapa pun yang memiliki tautan tersebut akan mendapatkan peran yang Anda tentukan — tautan penonton hanya dapat dibaca.',
+  'ide.chat.share.subheading':
+    'Buat tautan publik. Siapa pun yang memiliki tautan tersebut akan mendapatkan peran yang Anda tentukan — tautan penonton hanya dapat dibaca.',
   'ide.chat.share.roleLabel': 'Peran',
   'ide.chat.share.create': 'Buat tautan',
   'ide.chat.share.creating': 'Sedang membuat…',
@@ -479,20 +522,25 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Disalin',
   'ide.chat.share.openLink': 'Buka tautan',
   'ide.chat.share.error': 'Tidak dapat membuat tautan berbagi. Silakan coba lagi.',
-  'ide.chat.share.usage': 'Cara penggunaan: /share [peran] — buat tautan publik. Peran: {{roles}} (pengguna default).',
+  'ide.chat.share.usage':
+    'Cara penggunaan: /share [peran] — buat tautan publik. Peran: {{roles}} (pengguna default).',
   'ide.chat.share.notAllowed': 'Mengelola tautan berbagi memerlukan peran admin di proyek ini.',
   'ide.chat.skills.heading': 'Keterampilan',
   'ide.chat.skills.searchPlaceholder': 'Saring keterampilan…',
   'ide.chat.skills.load': 'Muat',
   'ide.chat.skills.loadTitle': 'Buka di editor dan lampirkan sebagai konteks',
-  'ide.chat.skills.loaded': 'Keterampilan "{{name}}" telah dimuat — dibuka di editor dan disertakan sebagai konteks untuk pesan Anda berikutnya.',
+  'ide.chat.skills.loaded':
+    'Keterampilan "{{name}}" telah dimuat — dibuka di editor dan disertakan sebagai konteks untuk pesan Anda berikutnya.',
   'ide.chat.skills.loading': 'Memuat keterampilan…',
   'ide.chat.skills.error': 'Tidak dapat memuat keterampilan untuk proyek ini.',
   'ide.chat.skills.empty': 'Tidak ditemukan keterampilan di .agents/skills/ untuk proyek ini.',
   'ide.chat.skills.noMatch': 'Tidak ada keterampilan yang cocok dengan "{{query}}".',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -514,8 +562,10 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.help.card.tipsTitle': 'Tips',
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Laporan Anda tidak dapat dikirim. Silakan coba lagi.',
-  'ide.chat.report.submitted': 'Terima kasih! Laporan Anda telah diteruskan ke tim {{productName}}.',
-  'ide.chat.report.submittedWithLink': 'Terima kasih! Laporan Anda telah dikirim — Anda dapat melacaknya di tautan masalah tersebut.',
+  'ide.chat.report.submitted':
+    'Terima kasih! Laporan Anda telah diteruskan ke tim {{productName}}.',
+  'ide.chat.report.submittedWithLink':
+    'Terima kasih! Laporan Anda telah dikirim — Anda dapat melacaknya di tautan masalah tersebut.',
   'ide.chat.settings.modelFollowsDefault': 'Mengikuti model default',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +579,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Buat',
   'ide.chat.skills.cancel': 'Batal',
   'ide.chat.skills.createError': 'Tidak dapat membuat keterampilan — silakan coba lagi.',
-  'ide.chat.skills.created': 'Telah dibuat keterampilan "{{name}}" — terbuka di editor. Isi deskripsi dan langkah-langkahnya.',
+  'ide.chat.skills.created':
+    'Telah dibuat keterampilan "{{name}}" — terbuka di editor. Isi deskripsi dan langkah-langkahnya.',
   'ide.chat.autoCommit.on': 'Aktifkan auto-commit',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -540,37 +591,47 @@ export const id: Partial<IdeTranslations> = {
   'ide.preview.loadFailedHint': 'Coba muat ulang halaman, atau buka pratinjau di tab baru.',
   'ide.preview.reloadPreview': 'Muat ulang pratinjau',
   'ide.preview.lastWorkingFrame': 'Pratinjau terakhir',
-  'ide.chat.effort.notSupportedForModel': '{{level}} tidak tersedia di {{model}}. Tersedia di: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} tidak tersedia di {{model}}. Tersedia di: {{levels}}',
   'ide.chat.modelSortLabel': 'Urutkan',
   'ide.chat.modelSortDirection': 'Ubah arah pengurutan',
   'ide.chat.skills.loadedBadge': 'Sudah dimuat',
   'ide.chat.skills.defaultBadge': 'Standar',
   'ide.chat.skills.setDefault': 'Muat secara default',
   'ide.chat.skills.unsetDefault': 'Hentikan pemuatan secara default',
-  'ide.chat.skills.matchHint': 'Disarankan berdasarkan kata kunci dalam pesan-pesan Anda baru-baru ini',
+  'ide.chat.skills.matchHint':
+    'Disarankan berdasarkan kata kunci dalam pesan-pesan Anda baru-baru ini',
   'ide.device.select': 'Rangka perangkat',
   'ide.device.rotate': 'Putar',
   'ide.chat.closeOverlay': 'Tutup',
-  'ide.chat.retryCountdown': 'Kesalahan server — sedang mencoba kembali dalam {{seconds}} s… (upaya {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Kesalahan server — sedang mencoba kembali dalam {{seconds}} s… (upaya {{attempt}})',
   'ide.preview.blankTitle': 'Tampilan pratinjau kosong',
-  'ide.preview.blankHint': 'Aplikasi tersebut sudah dimuat tetapi tidak menampilkan apa pun — mungkin ada kesalahan. Synthase sudah diberi tahu. Anda bisa memuat ulang halaman, atau membuka pratinjau di tab baru.',
+  'ide.preview.blankHint':
+    'Aplikasi tersebut sudah dimuat tetapi tidak menampilkan apa pun — mungkin ada kesalahan. Synthase sudah diberi tahu. Anda bisa memuat ulang halaman, atau membuka pratinjau di tab baru.',
   'ide.chat.previewLinkTitle': 'Buka {{path}} di jendela pratinjau',
-  'ide.chat.report.diagnosticsNote': 'Versi aplikasi, browser, dan ukuran layar Anda telah dilampirkan untuk membantu kami melakukan debugging.',
+  'ide.chat.report.diagnosticsNote':
+    'Versi aplikasi, browser, dan ukuran layar Anda telah dilampirkan untuk membantu kami melakukan debugging.',
   'ide.chat.skills.loadedCount': '🧠 Menguasai keterampilan {{count}}',
   'ide.chat.skills.waitingForSandbox': 'Menunggu proses penyiapan sandbox selesai…',
   'ide.chat.skills.resetDefaults': 'Muat semuanya secara default',
-  'ide.search.excludedDirs': 'Folder yang dikecualikan (berlaku untuk semua pencarian, termasuk agen)',
-  'ide.chat.costStreamingNote': 'Jumlah kumulatif — termasuk respons yang sedang ditayangkan saat ini.',
+  'ide.search.excludedDirs':
+    'Folder yang dikecualikan (berlaku untuk semua pencarian, termasuk agen)',
+  'ide.chat.costStreamingNote':
+    'Jumlah kumulatif — termasuk respons yang sedang ditayangkan saat ini.',
   'ide.toolCall.packageCount': '{{count}} paket',
   'ide.toolCall.openPackageDoc': 'Buka dokumen paket',
-  'ide.chat.fastModeOn': 'Mode cepat aktif — respons lebih cepat dengan frekuensi yang lebih tinggi',
+  'ide.chat.fastModeOn':
+    'Mode cepat aktif — respons lebih cepat dengan frekuensi yang lebih tinggi',
   'ide.chat.fastModeOff': 'Mode cepat dinonaktifkan',
-  'ide.chat.fastModeEnable': 'Mode Cepat — kecepatan keluaran hingga 2,5 kali lebih cepat dengan tingkat token yang lebih tinggi',
+  'ide.chat.fastModeEnable':
+    'Mode Cepat — kecepatan keluaran hingga 2,5 kali lebih cepat dengan tingkat token yang lebih tinggi',
   'ide.chat.fastModeDisable': 'Nonaktifkan mode cepat',
   'ide.chat.scripts.runWithOptions': 'Jalankan…',
   'ide.chat.scripts.required': '(wajib)',
   'ide.chat.scripts.cancelRun': 'Batal',
-  'ide.chat.scripts.runNeedsOptions': '“{{name}}” memerlukan opsi — /scripts dibuka agar Anda dapat menyetelnya dan Menjalankan.',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” memerlukan opsi — /scripts dibuka agar Anda dapat menyetelnya dan Menjalankan.',
   'ide.chat.settings.effort.label': 'Upaya penalaran',
   'ide.chat.timestampsShown': 'Stempel waktu ditampilkan.',
   'ide.chat.timestampsHidden': 'Stempel waktu disembunyikan.',
@@ -593,7 +654,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Aplikasi',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Proyek',
-  'ide.tests.e2eHint': 'Fitur-fitur ini berjalan bersamaan dengan pratinjau langsung, jadi pastikan pratinjau tetap terbuka.',
+  'ide.tests.e2eHint':
+    'Fitur-fitur ini berjalan bersamaan dengan pratinjau langsung, jadi pastikan pratinjau tetap terbuka.',
   'ide.tests.showOutput': 'Tampilkan hasil',
   'ide.tests.hideOutput': 'Sembunyikan hasil',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -638,7 +700,8 @@ export const id: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} dilewati',
   'ide.tests.skippedByUser': 'Proses telah selesai. Tes yang Anda lewati tidak dijalankan.',
   'ide.tests.viewerCannotSkip': 'Hanya editor yang dapat melewati tes pada proyek ini.',
-  'ide.toolCall.interruptedByRestart': 'Langkah ini terhenti karena proses restart; dampaknya tidak diketahui.',
+  'ide.toolCall.interruptedByRestart':
+    'Langkah ini terhenti karena proses restart; dampaknya tidak diketahui.',
   'ide.toolCall.statusInterrupted': 'Terputus',
   'ide.chat.subagent.failedFallback': 'Subagen ini berhenti sebelum menyelesaikan tugasnya.',
   'ide.chat.viaDictation.badge': 'Didikte oleh suara',

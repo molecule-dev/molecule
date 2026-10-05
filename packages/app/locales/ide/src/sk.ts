@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for sk. */
 export const sk: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Krátko sa zamyslel',
@@ -36,7 +40,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Pokračovať',
   'ide.chat.continuePrompt': 'Pokračujte v implementácii od miesta, kde ste prestali.',
   'upgrade.viewPlans': 'Vylepšiť',
-  'guest.reminder.message': 'Zaregistrujte sa alebo prihláste, aby vaša práca \\\\uHosťovské relácie z roku 2014 vypršia po 72 hodinách.',
+  'guest.reminder.message':
+    'Zaregistrujte sa alebo prihláste, aby vaša práca \\\\uHosťovské relácie z roku 2014 vypršia po 72 hodinách.',
   'upgrade.signUp': 'Zaregistrovať sa',
   'guest.reminder.logIn': 'Prihlásiť sa',
   'ide.chat.soundsError': 'Nepodarilo sa aktualizovať nastavenia zvuku.',
@@ -49,23 +54,26 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Prepnuté do režimu plánovania',
   'ide.chat.switchedToExecute': 'Prepnuté do režimu vykonávania',
   'ide.chat.costError': 'Nepodarilo sa načítať údaje o používaní.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'špička ×{{multiplier}} teraz',
   'ide.chat.models.peakLater': '×{{multiplier}} v čase špičky',
-  'ide.chat.models.peakHint': 'Tento model stojí ×{{multiplier}} medzi {{windows}}. Po zvyšok dňa platí bežná sadzba.',
+  'ide.chat.models.peakHint':
+    'Tento model stojí ×{{multiplier}} medzi {{windows}}. Po zvyšok dňa platí bežná sadzba.',
   'ide.chat.undoNoChanges': 'Žiadne zmeny súboru na vrátenie späť.',
   'ide.chat.undoComplete': 'Zmeny sa nepodarilo vrátiť späť.',
   'ide.chat.commitNoChanges': 'Žiadne zmeny na potvrdenie.',
@@ -73,11 +81,15 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automatická oprava je povolená.',
   'ide.chat.autoFixDisabled': 'Automatická oprava je vypnutá.',
   'ide.chat.autoFixError': 'Nepodarilo sa aktualizovať nastavenie automatickej opravy.',
-  'ide.chat.autoApproveEnabled': 'Automatické schvaľovanie je zapnuté — deštruktívne príkazy sa spúšťajú bez potvrdenia. Ochrana proti úniku dát sa naďalej pýta na potvrdenie. Vypnite pomocou /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Automatické schvaľovanie je vypnuté — deštruktívne príkazy si pred spustením vyžiadajú potvrdenie.',
+  'ide.chat.autoApproveEnabled':
+    'Automatické schvaľovanie je zapnuté — deštruktívne príkazy sa spúšťajú bez potvrdenia. Ochrana proti úniku dát sa naďalej pýta na potvrdenie. Vypnite pomocou /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automatické schvaľovanie je vypnuté — deštruktívne príkazy si pred spustením vyžiadajú potvrdenie.',
   'ide.chat.autoApproveError': 'Nepodarilo sa aktualizovať nastavenie automatického schvaľovania.',
-  'ide.chat.modelUsage': 'Použitie: /model<model-name> (napr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired': '{{model}} je k dispozícii vo verzii Pro. Pre prístup ku všetkým modelom prejdite na vyššiu verziu.',
+  'ide.chat.modelUsage':
+    'Použitie: /model<model-name> (napr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} je k dispozícii vo verzii Pro. Pre prístup ku všetkým modelom prejdite na vyššiu verziu.',
   'ide.chat.maxLoopsReached': 'Dosiahnutý maximálny počet slučiek.',
   'ide.chat.maxLoopsError': 'Nepodarilo sa aktualizovať maximálny počet iterácií nástroja.',
   'ide.chat.dropFilesHere': 'Sem presuňte súbory',
@@ -236,12 +248,14 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Počas odpovede sa niečo pokazilo',
-  'ide.chat.soundEventDesc.tool_result': 'Volanie nástroja (čítanie súboru, príkaz atď.) bolo dokončené',
+  'ide.chat.soundEventDesc.tool_result':
+    'Volanie nástroja (čítanie súboru, príkaz atď.) bolo dokončené',
   'ide.chat.soundEventDesc.file_diff': 'Súbor bol vytvorený alebo upravený',
   'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} navrhuje súbory na commit',
   'ide.chat.soundEventDesc.mode': 'Prepínanie medzi režimom plánovania a režimom vykonávania',
   'ide.chat.soundEventDesc.loop_limit_reached': 'Dosiahnutie maximálneho limitu iterácií nástroja',
-  'ide.chat.soundEventDesc.verification_result': 'Kontrola typu alebo kontrola typu Lint bola dokončená',
+  'ide.chat.soundEventDesc.verification_result':
+    'Kontrola typu alebo kontrola typu Lint bola dokončená',
   'ide.chat.soundEventDesc.preview_error': 'V ukážke naživo sa vyskytla chyba',
   'ide.chat.voice': 'Hlas',
   'ide.chat.voiceUnavailable': 'Diktovanie nie je v tomto prehliadači k dispozícii.',
@@ -249,10 +263,12 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.voicePreparing': 'Príprava diktovania — pri prvom použití to môže chvíľu trvať.',
   'ide.chat.voiceTranscribeFailed': 'Prepis zlyhal.',
   'ide.chat.voiceEngineTitle': 'Diktovací engine',
-  'ide.chat.voiceEnginePrivacy': 'Každá možnosť beží na vašom zariadení — zvuk nikdy neopustí prehliadač.',
+  'ide.chat.voiceEnginePrivacy':
+    'Každá možnosť beží na vašom zariadení — zvuk nikdy neopustí prehliadač.',
   'ide.chat.voiceEngineNoDownload': 'bez sťahovania',
   'ide.chat.voiceEngineDownload': 'stiahnutie ~{{mb}} MB, potom vo vyrovnávacej pamäti',
-  'ide.chat.voiceEngineDownloadRange': 'stiahnutie ~{{min}}–{{max}} MB, potom vo vyrovnávacej pamäti',
+  'ide.chat.voiceEngineDownloadRange':
+    'stiahnutie ~{{min}}–{{max}} MB, potom vo vyrovnávacej pamäti',
   'ide.chat.voiceAccuracyBest': 'najlepšia presnosť',
   'ide.chat.voiceAccuracyGood': 'dobrá presnosť',
   'ide.chat.voiceAccuracyBasic': 'základná presnosť',
@@ -300,7 +316,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Zabezpečené (HTTPS)',
   'ide.preview.address': 'Adresa náhľadu',
   'ide.preview.updating': 'Aktualizácia',
-  'ide.preview.frozen': 'Táto aplikácia prestala reagovať – nekonečná slučka alebo nekontrolovateľné vykresľovanie spôsobili zamrznutie náhľadu. IDE to neovplyvnilo.',
+  'ide.preview.frozen':
+    'Táto aplikácia prestala reagovať – nekonečná slučka alebo nekontrolovateľné vykresľovanie spôsobili zamrznutie náhľadu. IDE to neovplyvnilo.',
   'ide.preview.frozenReload': 'Obnoviť aplikáciu',
   'ide.search.results': '{{count}} výsledky sú uložené v súboroch typu „{{files}}“',
   'ide.activity.cardAria': 'Zobraziť zaznamenanú aktivitu',
@@ -332,21 +349,31 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'Životopis',
   'ide.chat.openSettings': 'Nastavenia',
   'ide.chat.tip.dismiss': 'Zatvoriť tip',
-  'ide.chat.tip.getStarted': 'Tip: Zadajte znak /, ak chcete zobraziť všetky príkazy, alebo @ a názov súboru, ak chcete nastaviť súbor, s ktorým má program {{agentName}} pracovať.',
-  'ide.chat.tip.mention': 'Tip: napíšte @názov_súboru, aby ste priložili súbor projektu ako kontext – program {{agentName}} ho prečíta priamo.',
-  'ide.chat.tip.slash': 'Tip: Zadajte /, aby ste si prezreli všetky príkazy (commit, diff, model a ďalšie).',
-  'ide.chat.tip.plan': 'Tip: Použite príkaz /plan, aby program {{agentName}} najprv vyhodnotil situáciu a navrhol plán, než začne upravovať akékoľvek súbory.',
-  'ide.chat.tip.undo': 'Tip: Ak sa posledný ťah umelej inteligencie nepodaril, použite príkaz /undo, aby ste okamžite vrátili späť zmeny v súbore.',
-  'ide.chat.tip.compact': 'Tip: dlhá konverzácia? Príkaz /compact skráti kontext, aby ste mali dostatok miesta na prácu.',
-  'ide.chat.tip.commit': 'Tip: Použite príkaz /commit na uloženie zmien ako git commit, ku ktorému sa môžete kedykoľvek vrátiť.',
-  'ide.chat.tip.report': 'Tip: Niečo nefunguje? Pomocou príkazu /report môžete tímu nahlásiť chybu alebo poslať spätnú väzbu spolu s priloženým záznamom z posledného chatu.',
+  'ide.chat.tip.getStarted':
+    'Tip: Zadajte znak /, ak chcete zobraziť všetky príkazy, alebo @ a názov súboru, ak chcete nastaviť súbor, s ktorým má program {{agentName}} pracovať.',
+  'ide.chat.tip.mention':
+    'Tip: napíšte @názov_súboru, aby ste priložili súbor projektu ako kontext – program {{agentName}} ho prečíta priamo.',
+  'ide.chat.tip.slash':
+    'Tip: Zadajte /, aby ste si prezreli všetky príkazy (commit, diff, model a ďalšie).',
+  'ide.chat.tip.plan':
+    'Tip: Použite príkaz /plan, aby program {{agentName}} najprv vyhodnotil situáciu a navrhol plán, než začne upravovať akékoľvek súbory.',
+  'ide.chat.tip.undo':
+    'Tip: Ak sa posledný ťah umelej inteligencie nepodaril, použite príkaz /undo, aby ste okamžite vrátili späť zmeny v súbore.',
+  'ide.chat.tip.compact':
+    'Tip: dlhá konverzácia? Príkaz /compact skráti kontext, aby ste mali dostatok miesta na prácu.',
+  'ide.chat.tip.commit':
+    'Tip: Použite príkaz /commit na uloženie zmien ako git commit, ku ktorému sa môžete kedykoľvek vrátiť.',
+  'ide.chat.tip.report':
+    'Tip: Niečo nefunguje? Pomocou príkazu /report môžete tímu nahlásiť chybu alebo poslať spätnú väzbu spolu s priloženým záznamom z posledného chatu.',
   'ide.chat.undoError': 'Zrušenie zmien sa nepodarilo.',
   'ide.chat.autoCommit.badge': 'Automatické potvrdzovanie v {{countdown}}',
   'ide.chat.autoCommit.cancel': 'Zrušiť automatické potvrdzovanie',
   'ide.chat.autoCommit.cancelled': 'Automatické potvrdenie bolo zrušené.',
-  'ide.chat.autoCommit.enabled': 'Automatické potvrdzovanie zapnuté: potvrdzovanie {{seconds}} po poslednej zmene súboru. Zadajte /autocommit 0 pre zrušenie.',
+  'ide.chat.autoCommit.enabled':
+    'Automatické potvrdzovanie zapnuté: potvrdzovanie {{seconds}} po poslednej zmene súboru. Zadajte /autocommit 0 pre zrušenie.',
   'ide.chat.effort.error': 'Nepodarilo sa aktualizovať úsilie v oblasti odôvodňovania.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +388,14 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Zadarmo',
   'ide.chat.models.sortBy': 'Zoradiť podľa{{column}}',
   'ide.chat.modelsLoading': 'Načítavanie modelov…',
-  'ide.chat.modelsNone': 'Zatiaľ nie sú k dispozícii žiadne modely – požiadajte svojho správcu, aby pripojil poskytovateľa umelej inteligencie.',
+  'ide.chat.modelsNone':
+    'Zatiaľ nie sú k dispozícii žiadne modely – požiadajte svojho správcu, aby pripojil poskytovateľa umelej inteligencie.',
   'ide.chat.modelInUse': 'Teraz používame {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Vami vybraný model „{{removed}}“ už nie je k dispozícii. Bol nahradený modelom „{{fallback}}“. Zadajte typ/model, ak si chcete vybrať iný.',
-  'ide.chat.modelRemovedNoFallback': 'Vami vybraný model „{{removed}}“ už nie je k dispozícii a na serveri nie je nastavený žiadny náhradný model. Požiadajte svojho správcu, aby pripojil poskytovateľa umelej inteligencie.',
+  'ide.chat.modelRemoved':
+    'Vami vybraný model „{{removed}}“ už nie je k dispozícii. Bol nahradený modelom „{{fallback}}“. Zadajte typ/model, ak si chcete vybrať iný.',
+  'ide.chat.modelRemovedNoFallback':
+    'Vami vybraný model „{{removed}}“ už nie je k dispozícii a na serveri nie je nastavený žiadny náhradný model. Požiadajte svojho správcu, aby pripojil poskytovateľa umelej inteligencie.',
   'ide.chat.olderModelsCollapse': 'Staršie modely ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Staršie modely ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Vyberte model v režime vykonávania',
@@ -387,31 +417,43 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} chyby v kóde',
   'ide.chat.lintWarningsCount': '{{count}} upozornenia',
   'ide.chat.typeErrorsCount': '{{count}} chyby v type',
   'ide.chat.help.commandsHeading': '── Príkazy ──',
-  'ide.chat.help.intro': '{{agentName}} je agent pre programovanie umelej inteligencie od spoločnosti {{productName}}. Opíšte, čo chcete vytvoriť, a on vám pomôže s prípravou kódu, jeho napísaním a vylepšovaním.',
+  'ide.chat.help.intro':
+    '{{agentName}} je agent pre programovanie umelej inteligencie od spoločnosti {{productName}}. Opíšte, čo chcete vytvoriť, a on vám pomôže s prípravou kódu, jeho napísaním a vylepšovaním.',
   'ide.chat.help.introHeading': '── Ako začať ──',
-  'ide.chat.help.modeDiscovery': 'Objavovanie — tu začínajú nové diskusie. Metóda „{{agentName}}“ kladie objasňujúce otázky, aby sa presne stanovili požiadavky ešte pred napísaním akéhokoľvek kódu.',
-  'ide.chat.help.modeExecute': 'Spustiť — predvolený pracovný režim. Funkcia „{{agentName}}“ napíše kód, spustí nástroje, uplatní zmeny a následne ich overí.',
-  'ide.chat.help.modePlan': 'Plán — Príkaz `{{agentName}}` preskúma zdrojový kód a navrhne plán BEZ úpravy súborov. Prepínanie pomocou príkazu `/plan`. Najvhodnejšie pre rozsiahle alebo rizikové zmeny.',
+  'ide.chat.help.modeDiscovery':
+    'Objavovanie — tu začínajú nové diskusie. Metóda „{{agentName}}“ kladie objasňujúce otázky, aby sa presne stanovili požiadavky ešte pred napísaním akéhokoľvek kódu.',
+  'ide.chat.help.modeExecute':
+    'Spustiť — predvolený pracovný režim. Funkcia „{{agentName}}“ napíše kód, spustí nástroje, uplatní zmeny a následne ich overí.',
+  'ide.chat.help.modePlan':
+    'Plán — Príkaz `{{agentName}}` preskúma zdrojový kód a navrhne plán BEZ úpravy súborov. Prepínanie pomocou príkazu `/plan`. Najvhodnejšie pre rozsiahle alebo rizikové zmeny.',
   'ide.chat.help.modesHeading': '── Režimy ──',
-  'ide.chat.help.shortcuts': 'Stlačte klávesovú skratku Cmd+/ (Ctrl+/ vo Windows/Linux), aby ste zobrazenie všetky klávesové skratky.',
-  'ide.chat.help.tipCompact': '• Použite príkaz /compact na skrátenie konverzácie, ak sa príliš predĺži.',
-  'ide.chat.help.tipPlan': '• Pred vykonaním zmien použite príkaz /plan, aby ste si overili, či je všetko v poriadku ({{agentName}}).',
+  'ide.chat.help.shortcuts':
+    'Stlačte klávesovú skratku Cmd+/ (Ctrl+/ vo Windows/Linux), aby ste zobrazenie všetky klávesové skratky.',
+  'ide.chat.help.tipCompact':
+    '• Použite príkaz /compact na skrátenie konverzácie, ak sa príliš predĺži.',
+  'ide.chat.help.tipPlan':
+    '• Pred vykonaním zmien použite príkaz /plan, aby ste si overili, či je všetko v poriadku ({{agentName}}).',
   'ide.chat.help.tipSlash': '• Zadajte /, ak chcete prechádzať všetky vyššie uvedené príkazy.',
-  'ide.chat.help.tipSpecific': '• Buďte konkrétni – „Pridať prihlasovaciu stránku s e-mailom/heslom a Google OAuth“ je lepšie ako „pridať overenie“.',
-  'ide.chat.help.tipUndo': '• Použite príkaz /undo na vrátenie posledných zmien v súbore z posledného ťahu umelej inteligencie, ak sa niečo pokazilo.',
+  'ide.chat.help.tipSpecific':
+    '• Buďte konkrétni – „Pridať prihlasovaciu stránku s e-mailom/heslom a Google OAuth“ je lepšie ako „pridať overenie“.',
+  'ide.chat.help.tipUndo':
+    '• Použite príkaz /undo na vrátenie posledných zmien v súbore z posledného ťahu umelej inteligencie, ak sa niečo pokazilo.',
   'ide.chat.help.tipsHeading': '── Tipy ──',
   'ide.chat.report.heading': 'Nahlásiť chybu',
   'ide.chat.report.openReport': 'Nahlásiť chybu',
-  'ide.chat.report.subheading': 'Napíšte nám, čo sa nepodarilo alebo čo by ste radi videli. Správa sa odošle tímu {{productName}}.',
+  'ide.chat.report.subheading':
+    'Napíšte nám, čo sa nepodarilo alebo čo by ste radi videli. Správa sa odošle tímu {{productName}}.',
   'ide.chat.report.titleLabel': 'Názov',
   'ide.chat.report.titlePlaceholder': 'Stručné zhrnutie',
   'ide.chat.report.descriptionLabel': 'Popis',
@@ -434,7 +476,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Ukladá sa…',
   'ide.chat.scripts.saveError': 'Skript sa nepodarilo uložiť. Skúste to prosím znova.',
   'ide.chat.scripts.invalid': 'Skript musí mať názov a nesmie mať prázdne telo.',
-  'ide.chat.scripts.empty': 'Zatiaľ nie sú uložené žiadne skripty. Vytvorte si jeden vyššie alebo požiadajte {{agentName}}, aby vám jeden napísal a uložil.',
+  'ide.chat.scripts.empty':
+    'Zatiaľ nie sú uložené žiadne skripty. Vytvorte si jeden vyššie alebo požiadajte {{agentName}}, aby vám jeden napísal a uložil.',
   'ide.chat.scripts.loading': 'Načítavanie skriptov…',
   'ide.chat.scripts.error': 'Nepodarilo sa načítať skripty pre tento projekt.',
   'ide.chat.scripts.noMatch': 'Nenašli sa žiadne skripty zodpovedajúce výrazu „{{query}}“.',
@@ -442,8 +485,10 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Spustite tento skript v sandboxe',
   'ide.chat.scripts.running': 'Behám…',
   'ide.chat.scripts.runError': 'Skript sa nepodarilo spustiť.',
-  'ide.chat.scripts.runNone': 'Zatiaľ nie sú uložené žiadne skripty. Otvorte priečinok /scripts a vytvorte nový.',
-  'ide.chat.scripts.runNotFound': 'Skript s názvom „{{name}}“ nebol nájdený. K dispozícii: {{names}}',
+  'ide.chat.scripts.runNone':
+    'Zatiaľ nie sú uložené žiadne skripty. Otvorte priečinok /scripts a vytvorte nový.',
+  'ide.chat.scripts.runNotFound':
+    'Skript s názvom „{{name}}“ nebol nájdený. K dispozícii: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} ukončené s kódom 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} program sa ukončil s kódom chyby{{code}}',
   'ide.chat.scripts.exitOk': 'Ukončené 0',
@@ -467,7 +512,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Zdieľať projekt',
-  'ide.chat.share.subheading': 'Vytvorte verejný odkaz. Každý, kto má tento odkaz, získa rolu, ktorú určíte – odkaz pre divákov je určený len na čítanie.',
+  'ide.chat.share.subheading':
+    'Vytvorte verejný odkaz. Každý, kto má tento odkaz, získa rolu, ktorú určíte – odkaz pre divákov je určený len na čítanie.',
   'ide.chat.share.roleLabel': 'Úloha',
   'ide.chat.share.create': 'Vytvoriť odkaz',
   'ide.chat.share.creating': 'Vytváranie…',
@@ -479,20 +525,27 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Skopírované',
   'ide.chat.share.openLink': 'Otvoriť odkaz',
   'ide.chat.share.error': 'Nepodarilo sa vytvoriť odkaz na zdieľanie. Skúste to prosím znova.',
-  'ide.chat.share.usage': 'Použitie: /share [rola] — vytvorenie verejného odkazu. Role: {{roles}} (predvolená rola: viewer).',
-  'ide.chat.share.notAllowed': 'Správa odkazov na zdieľanie vyžaduje v tomto projekte rolu správcu.',
+  'ide.chat.share.usage':
+    'Použitie: /share [rola] — vytvorenie verejného odkazu. Role: {{roles}} (predvolená rola: viewer).',
+  'ide.chat.share.notAllowed':
+    'Správa odkazov na zdieľanie vyžaduje v tomto projekte rolu správcu.',
   'ide.chat.skills.heading': 'Schopnosti',
   'ide.chat.skills.searchPlaceholder': 'Filtrovať zručnosti…',
   'ide.chat.skills.load': 'Načítať',
   'ide.chat.skills.loadTitle': 'Otvoriť v editore a pridať ako kontext',
-  'ide.chat.skills.loaded': 'Načítala sa zručnosť „{{name}}“ – otvorila sa v editore a pripojila sa ako kontext k vašej ďalšej správe.',
+  'ide.chat.skills.loaded':
+    'Načítala sa zručnosť „{{name}}“ – otvorila sa v editore a pripojila sa ako kontext k vašej ďalšej správe.',
   'ide.chat.skills.loading': 'Načítavanie zručností…',
   'ide.chat.skills.error': 'Nepodarilo sa načítať zručnosti pre tento projekt.',
-  'ide.chat.skills.empty': 'V adresári .agents/skills/ neboli pre tento projekt nájdené žiadne zručnosti.',
+  'ide.chat.skills.empty':
+    'V adresári .agents/skills/ neboli pre tento projekt nájdené žiadne zručnosti.',
   'ide.chat.skills.noMatch': 'Žiadna zručnosť nezodpovedá položke „{{query}}“.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -515,7 +568,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Vaše hlásenie sa nepodarilo odoslať. Skúste to prosím znova.',
   'ide.chat.report.submitted': 'Ďakujeme! Vaše hlásenie bolo odoslané tímu {{productName}}.',
-  'ide.chat.report.submittedWithLink': 'Ďakujeme! Vaše hlásenie bolo odoslané – jeho stav môžete sledovať v príslušnej úlohe.',
+  'ide.chat.report.submittedWithLink':
+    'Ďakujeme! Vaše hlásenie bolo odoslané – jeho stav môžete sledovať v príslušnej úlohe.',
   'ide.chat.settings.modelFollowsDefault': 'Vychádza z predvoleného modelu',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +583,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Vytvoriť',
   'ide.chat.skills.cancel': 'Zrušiť',
   'ide.chat.skills.createError': 'Skill sa nepodarilo vytvoriť – skúste to prosím znova.',
-  'ide.chat.skills.created': 'Vytvorili ste zručnosť „{{name}}“ – otvorila sa v editore. Vyplňte jej popis a jednotlivé kroky.',
+  'ide.chat.skills.created':
+    'Vytvorili ste zručnosť „{{name}}“ – otvorila sa v editore. Vyplňte jej popis a jednotlivé kroky.',
   'ide.chat.autoCommit.on': 'Zapnúť automatické potvrdzovanie',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -540,7 +595,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.preview.loadFailedHint': 'Skúste stránku obnoviť alebo otvoriť náhľad v novej karte.',
   'ide.preview.reloadPreview': 'Obnoviť náhľad',
   'ide.preview.lastWorkingFrame': 'Posledná pracovná verzia',
-  'ide.chat.effort.notSupportedForModel': '{{level}} nie je k dispozícii na adrese {{model}}. K dispozícii: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nie je k dispozícii na adrese {{model}}. K dispozícii: {{levels}}',
   'ide.chat.modelSortLabel': 'Triediť',
   'ide.chat.modelSortDirection': 'Zmeniť smer triedenia',
   'ide.chat.skills.loadedBadge': 'Načítané',
@@ -553,9 +609,11 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Zatvoriť',
   'ide.chat.retryCountdown': 'Chyba servera — opakujem pokus za {{seconds}} s… ({{attempt}})',
   'ide.preview.blankTitle': 'Náhľad je prázdny',
-  'ide.preview.blankHint': 'Aplikácia sa načítala, ale nič sa nezobrazilo — pravdepodobne došlo k chybe. Spoločnosť Synthase bola o tom informovaná. Môžete stránku znovu načítať alebo otvoriť náhľad v novej karte.',
+  'ide.preview.blankHint':
+    'Aplikácia sa načítala, ale nič sa nezobrazilo — pravdepodobne došlo k chybe. Spoločnosť Synthase bola o tom informovaná. Môžete stránku znovu načítať alebo otvoriť náhľad v novej karte.',
   'ide.chat.previewLinkTitle': 'Otvorte súbor {{path}} v náhľade',
-  'ide.chat.report.diagnosticsNote': 'Prikladáme informácie o verzii vašej aplikácie, prehliadači a veľkosti obrazovky, ktoré nám pomôžu pri odstraňovaní chýb.',
+  'ide.chat.report.diagnosticsNote':
+    'Prikladáme informácie o verzii vašej aplikácie, prehliadači a veľkosti obrazovky, ktoré nám pomôžu pri odstraňovaní chýb.',
   'ide.chat.skills.loadedCount': '🧠 Rozvinuté zručnosti v oblasti „{{count}}“',
   'ide.chat.skills.waitingForSandbox': 'Čakám, kým sa spustí sandbox…',
   'ide.chat.skills.resetDefaults': 'V predvolenom nastavení načítať všetko',
@@ -565,12 +623,14 @@ export const sk: Partial<IdeTranslations> = {
   'ide.toolCall.openPackageDoc': 'Otvoriť dokumentáciu k balíku',
   'ide.chat.fastModeOn': 'Zapnutý rýchly režim — rýchlejšie reakcie pri vyššej frekvencii',
   'ide.chat.fastModeOff': 'Rýchly režim vypnutý',
-  'ide.chat.fastModeEnable': 'Rýchly režim — až 2,5× rýchlejší výstup pri vyššej frekvencii tokenov',
+  'ide.chat.fastModeEnable':
+    'Rýchly režim — až 2,5× rýchlejší výstup pri vyššej frekvencii tokenov',
   'ide.chat.fastModeDisable': 'Vypnúť rýchly režim',
   'ide.chat.scripts.runWithOptions': 'Spustiť…',
   'ide.chat.scripts.required': '(povinné)',
   'ide.chat.scripts.cancelRun': 'Zrušiť',
-  'ide.chat.scripts.runNeedsOptions': '„{{name}}“ vyžaduje voľby — otvoril som /scripts, aby ste ich nastavili a Spustili.',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ vyžaduje voľby — otvoril som /scripts, aby ste ich nastavili a Spustili.',
   'ide.chat.settings.effort.label': 'Úsilie zamerané na logické uvažovanie',
   'ide.chat.timestampsShown': 'Časové pečiatky zobrazené.',
   'ide.chat.timestampsHidden': 'Časové pečiatky skryté.',
@@ -593,7 +653,8 @@ export const sk: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Aplikácia',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Projekt',
-  'ide.tests.e2eHint': 'Tieto sa spúšťajú na pozadí živého náhľadu, takže nechajte náhľad otvorený.',
+  'ide.tests.e2eHint':
+    'Tieto sa spúšťajú na pozadí živého náhľadu, takže nechajte náhľad otvorený.',
   'ide.tests.showOutput': 'Zobraziť výstup',
   'ide.tests.hideOutput': 'Skryť výstup',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',
@@ -636,9 +697,11 @@ export const sk: Partial<IdeTranslations> = {
   'ide.tests.skip': 'Preskočiť',
   'ide.tests.skipping': 'Preskočiť…',
   'ide.tests.skippedCount': '{{count}} preskočené',
-  'ide.tests.skippedByUser': 'Spustenie bolo dokončené. Testy, ktoré ste preskočili, sa nespustili.',
+  'ide.tests.skippedByUser':
+    'Spustenie bolo dokončené. Testy, ktoré ste preskočili, sa nespustili.',
   'ide.tests.viewerCannotSkip': 'Testy tohto projektu môžu preskočiť iba redaktori.',
-  'ide.toolCall.interruptedByRestart': 'Tento krok bol prerušený reštartom; jeho účinok nie je známy.',
+  'ide.toolCall.interruptedByRestart':
+    'Tento krok bol prerušený reštartom; jeho účinok nie je známy.',
   'ide.toolCall.statusInterrupted': 'Prerušené',
   'ide.chat.subagent.failedFallback': 'Tento subagent sa zastavil pred dokončením.',
   'ide.chat.viaDictation.badge': 'Diktované hlasom',

@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for lv. */
 export const lv: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Īsi pārdomāju',
@@ -36,7 +40,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Turpināt',
   'ide.chat.continuePrompt': 'Turpiniet ieviešanu no vietas, kur pārtraucāt.',
   'upgrade.viewPlans': 'Jaunināt',
-  'guest.reminder.message': 'Reģistrējieties vai piesakieties, lai jūsu darba viesa sesijas beigtos pēc 72 stundām.',
+  'guest.reminder.message':
+    'Reģistrējieties vai piesakieties, lai jūsu darba viesa sesijas beigtos pēc 72 stundām.',
   'upgrade.signUp': 'Reģistrēties',
   'guest.reminder.logIn': 'Pieslēgties',
   'ide.chat.soundsError': 'Neizdevās atjaunināt skaņas iestatījumus.',
@@ -49,23 +54,26 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Pārslēgts uz plānošanas režīmu',
   'ide.chat.switchedToExecute': 'Pārslēgts izpildes režīmā',
   'ide.chat.costError': 'Nevar izgūt lietojuma datus.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'pīķa ×{{multiplier}} tagad',
   'ide.chat.models.peakLater': '×{{multiplier}} pīķa stundās',
-  'ide.chat.models.peakHint': 'Šis modelis maksā ×{{multiplier}} laikā no {{windows}}. Pārējā dienas daļā ir spēkā parastā likme.',
+  'ide.chat.models.peakHint':
+    'Šis modelis maksā ×{{multiplier}} laikā no {{windows}}. Pārējā dienas daļā ir spēkā parastā likme.',
   'ide.chat.undoNoChanges': 'Nav failu izmaiņu, ko atsaukt.',
   'ide.chat.undoComplete': 'Neizdevās atsaukt izmaiņas.',
   'ide.chat.commitNoChanges': 'Nav izmaiņu, ko apstiprināt.',
@@ -73,11 +81,15 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automātiskā labošana ir iespējota.',
   'ide.chat.autoFixDisabled': 'Automātiskā labošana ir atspējota.',
   'ide.chat.autoFixError': 'Neizdevās atjaunināt automātiskās labošanas iestatījumu.',
-  'ide.chat.autoApproveEnabled': 'Automātiskā apstiprināšana ir ieslēgta — destruktīvas komandas tiek izpildītas bez jautāšanas. Aizsardzība pret datu noplūdi joprojām jautā. Izslēdziet ar /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Automātiskā apstiprināšana ir izslēgta — destruktīvas komandas jautā pirms izpildes.',
+  'ide.chat.autoApproveEnabled':
+    'Automātiskā apstiprināšana ir ieslēgta — destruktīvas komandas tiek izpildītas bez jautāšanas. Aizsardzība pret datu noplūdi joprojām jautā. Izslēdziet ar /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automātiskā apstiprināšana ir izslēgta — destruktīvas komandas jautā pirms izpildes.',
   'ide.chat.autoApproveError': 'Neizdevās atjaunināt automātiskās apstiprināšanas iestatījumu.',
-  'ide.chat.modelUsage': 'Lietojums: /model<model-name> (piemēram, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired': '{{model}} ir pieejams Pro versijā. Jauniniet, lai piekļūtu visiem modeļiem.',
+  'ide.chat.modelUsage':
+    'Lietojums: /model<model-name> (piemēram, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} ir pieejams Pro versijā. Jauniniet, lai piekļūtu visiem modeļiem.',
   'ide.chat.maxLoopsReached': 'Sasniegts maksimālais ciklu skaits.',
   'ide.chat.maxLoopsError': 'Neizdevās atjaunināt maksimālo rīka iterāciju skaitu.',
   'ide.chat.dropFilesHere': 'Nometiet failus šeit',
@@ -236,7 +248,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Atbildes laikā kaut kas nogāja greizi',
-  'ide.chat.soundEventDesc.tool_result': 'Rīka izsaukums (faila nolasīšana, komanda utt.) ir pabeigts',
+  'ide.chat.soundEventDesc.tool_result':
+    'Rīka izsaukums (faila nolasīšana, komanda utt.) ir pabeigts',
   'ide.chat.soundEventDesc.file_diff': 'Fails tika izveidots vai modificēts',
   'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} iesaka failus, ko komentēt.',
   'ide.chat.soundEventDesc.mode': 'Pārslēgts starp plānošanas režīmu un izpildes režīmu',
@@ -300,7 +313,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Drošs (HTTPS)',
   'ide.preview.address': 'Priekšskatījuma adrese',
   'ide.preview.updating': 'Atjaunināšana',
-  'ide.preview.frozen': 'Šī lietotne vairs nereaģē — bezgalīga cilpa vai nekontrolējama renderēšana ir bloķējusi priekšskatījumu. Tas neietekmē IDE.',
+  'ide.preview.frozen':
+    'Šī lietotne vairs nereaģē — bezgalīga cilpa vai nekontrolējama renderēšana ir bloķējusi priekšskatījumu. Tas neietekmē IDE.',
   'ide.preview.frozenReload': 'Atjaunot lietotni',
   'ide.search.results': '{{count}} rezultāti atrodami failos „{{files}}“',
   'ide.activity.cardAria': 'Skatīt reģistrētās darbības',
@@ -332,21 +346,31 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Iestatījumi',
   'ide.chat.tip.dismiss': 'Aizvērt padomu',
-  'ide.chat.tip.getStarted': 'Padoms: ievadiet /, lai apskatītu visas komandas, vai @ faila nosaukumu, lai norādītu programmai „{{agentName}}“ failu, ar kuru strādāt.',
-  'ide.chat.tip.mention': 'Padoms: ievadiet @filename, lai pievienotu projekta failu kā kontekstu — komanda „{{agentName}}“ to nolasīs tieši.',
-  'ide.chat.tip.slash': 'Padoms: ievadiet /, lai apskatītu visas komandas (commit, diff, model un citas).',
-  'ide.chat.tip.plan': 'Padoms: izmantojiet komandu /plan, lai programma „{{agentName}}“ izpētītu situāciju un ieteiktu rīcības plānu, pirms tā sāk rediģēt failus.',
-  'ide.chat.tip.undo': 'Padoms: izmanto komandu /undo, lai nekavējoties atceltu pēdējā AI gājiena izmaiņas failā, ja tas izvēlējās nepareizo virzienu.',
-  'ide.chat.tip.compact': 'Padoms: gara saruna? Komanda /compact saspiež kontekstu, lai tev paliktu vieta darbam.',
-  'ide.chat.tip.commit': 'Padoms: izmanto komandu /commit, lai saglabātu izmaiņas kā Git komitu, uz kuru vienmēr vari atgriezties.',
-  'ide.chat.tip.report': 'Padoms: kaut kas ne kārtībā? /report nosūta komandai ziņojumu par kļūdu vai atsauksmi, pievienojot tavu pēdējo tērzēšanu.',
+  'ide.chat.tip.getStarted':
+    'Padoms: ievadiet /, lai apskatītu visas komandas, vai @ faila nosaukumu, lai norādītu programmai „{{agentName}}“ failu, ar kuru strādāt.',
+  'ide.chat.tip.mention':
+    'Padoms: ievadiet @filename, lai pievienotu projekta failu kā kontekstu — komanda „{{agentName}}“ to nolasīs tieši.',
+  'ide.chat.tip.slash':
+    'Padoms: ievadiet /, lai apskatītu visas komandas (commit, diff, model un citas).',
+  'ide.chat.tip.plan':
+    'Padoms: izmantojiet komandu /plan, lai programma „{{agentName}}“ izpētītu situāciju un ieteiktu rīcības plānu, pirms tā sāk rediģēt failus.',
+  'ide.chat.tip.undo':
+    'Padoms: izmanto komandu /undo, lai nekavējoties atceltu pēdējā AI gājiena izmaiņas failā, ja tas izvēlējās nepareizo virzienu.',
+  'ide.chat.tip.compact':
+    'Padoms: gara saruna? Komanda /compact saspiež kontekstu, lai tev paliktu vieta darbam.',
+  'ide.chat.tip.commit':
+    'Padoms: izmanto komandu /commit, lai saglabātu izmaiņas kā Git komitu, uz kuru vienmēr vari atgriezties.',
+  'ide.chat.tip.report':
+    'Padoms: kaut kas ne kārtībā? /report nosūta komandai ziņojumu par kļūdu vai atsauksmi, pievienojot tavu pēdējo tērzēšanu.',
   'ide.chat.undoError': 'Neizdevās atcelt izmaiņas.',
   'ide.chat.autoCommit.badge': 'Automātiskā apstiprināšana programmā „{{countdown}}“',
   'ide.chat.autoCommit.cancel': 'Atcelt automātisko apstiprināšanu',
   'ide.chat.autoCommit.cancelled': 'Automātiskā apstiprināšana atcelta.',
-  'ide.chat.autoCommit.enabled': 'Automātiskā fiksēšana ir ieslēgta: fiksēšana notiek pēc {{seconds}} s kopš pēdējās izmaiņas failā. Lai atceltu, iestatiet /autocommit 0.',
+  'ide.chat.autoCommit.enabled':
+    'Automātiskā fiksēšana ir ieslēgta: fiksēšana notiek pēc {{seconds}} s kopš pēdējās izmaiņas failā. Lai atceltu, iestatiet /autocommit 0.',
   'ide.chat.effort.error': 'Neizdevās atjaunināt argumentācijas procesu.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +385,14 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Bez maksas',
   'ide.chat.models.sortBy': 'Kārtot pēc „{{column}}“',
   'ide.chat.modelsLoading': 'Tiek ielādēti modeļi…',
-  'ide.chat.modelsNone': 'Šobrīd nav pieejami nekādi modeļi — lūdziet savu administratoru pieslēgt kādu mākslīgā intelekta pakalpojumu sniedzēju.',
+  'ide.chat.modelsNone':
+    'Šobrīd nav pieejami nekādi modeļi — lūdziet savu administratoru pieslēgt kādu mākslīgā intelekta pakalpojumu sniedzēju.',
   'ide.chat.modelInUse': 'Tagad izmantoju {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Jūsu izvēlētais modelis „{{removed}}“ vairs nav pieejams. Ir izvēlēts „{{fallback}}“. Ierakstiet /model, lai izvēlētos citu.',
-  'ide.chat.modelRemovedNoFallback': 'Jūsu izvēlētais modelis „{{removed}}“ vairs nav pieejams, un serverī nav pievienots nekāds aizstājējs. Lūdziet savu administratoru pieslēgt AI pakalpojumu sniedzēju.',
+  'ide.chat.modelRemoved':
+    'Jūsu izvēlētais modelis „{{removed}}“ vairs nav pieejams. Ir izvēlēts „{{fallback}}“. Ierakstiet /model, lai izvēlētos citu.',
+  'ide.chat.modelRemovedNoFallback':
+    'Jūsu izvēlētais modelis „{{removed}}“ vairs nav pieejams, un serverī nav pievienots nekāds aizstājējs. Lūdziet savu administratoru pieslēgt AI pakalpojumu sniedzēju.',
   'ide.chat.olderModelsCollapse': 'Vecāki modeļi ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Vecāki modeļi ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Izvēlieties izpildes režīma modeli',
@@ -387,31 +414,43 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} kļūdas saistībā ar lint',
   'ide.chat.lintWarningsCount': '{{count}} brīdinājumi',
   'ide.chat.typeErrorsCount': '{{count}} rakstīšanas kļūdas',
   'ide.chat.help.commandsHeading': '── Komandas ──',
-  'ide.chat.help.intro': '{{agentName}} {{productName}} mākslīgā intelekta programmēšanas palīgs. Aprakstiet, ko vēlaties izveidot, un tas palīdzēs izstrādāt struktūru, programmēt un veikt iterācijas kopā ar jums.',
+  'ide.chat.help.intro':
+    '{{agentName}} {{productName}} mākslīgā intelekta programmēšanas palīgs. Aprakstiet, ko vēlaties izveidot, un tas palīdzēs izstrādāt struktūru, programmēt un veikt iterācijas kopā ar jums.',
   'ide.chat.help.introHeading': '── Sākums ──',
-  'ide.chat.help.modeDiscovery': 'Atklājumi — šeit sākas jaunas sarunas. „{{agentName}}” pirms koda rakstīšanas uzdod precizējošus jautājumus, lai precīzi noskaidrotu prasības.',
-  'ide.chat.help.modeExecute': '„Izpildīt“ — noklusējuma darbības režīms. „{{agentName}}“ raksta kodu, palaista rīkus, piemēro izmaiņas un pēc tam tās pārbauda.',
-  'ide.chat.help.modePlan': 'Plāns — komanda „{{agentName}}“ izpēta kodu bāzi un izstrādā plānu, NEREDIGĒJOT failus. Aktivizējiet ar komandu /plan. Vispiemērotākais lielām vai riskantām izmaiņām.',
+  'ide.chat.help.modeDiscovery':
+    'Atklājumi — šeit sākas jaunas sarunas. „{{agentName}}” pirms koda rakstīšanas uzdod precizējošus jautājumus, lai precīzi noskaidrotu prasības.',
+  'ide.chat.help.modeExecute':
+    '„Izpildīt“ — noklusējuma darbības režīms. „{{agentName}}“ raksta kodu, palaista rīkus, piemēro izmaiņas un pēc tam tās pārbauda.',
+  'ide.chat.help.modePlan':
+    'Plāns — komanda „{{agentName}}“ izpēta kodu bāzi un izstrādā plānu, NEREDIGĒJOT failus. Aktivizējiet ar komandu /plan. Vispiemērotākais lielām vai riskantām izmaiņām.',
   'ide.chat.help.modesHeading': '── Režīmi ──',
-  'ide.chat.help.shortcuts': 'Nospiediet Cmd+/ (Ctrl+/ Windows/Linux sistēmās), lai apskatītu visus tastatūras saīsnes.',
-  'ide.chat.help.tipCompact': '• Ja saruna kļūst gara, izmantojiet komandu /compact, lai saspiestu sarunas saturu.',
-  'ide.chat.help.tipPlan': '• Pirms izmaiņu veikšanas izmantojiet komandu /plan, lai veiktu izpēti ar rīku „{{agentName}}“.',
+  'ide.chat.help.shortcuts':
+    'Nospiediet Cmd+/ (Ctrl+/ Windows/Linux sistēmās), lai apskatītu visus tastatūras saīsnes.',
+  'ide.chat.help.tipCompact':
+    '• Ja saruna kļūst gara, izmantojiet komandu /compact, lai saspiestu sarunas saturu.',
+  'ide.chat.help.tipPlan':
+    '• Pirms izmaiņu veikšanas izmantojiet komandu /plan, lai veiktu izpēti ar rīku „{{agentName}}“.',
   'ide.chat.help.tipSlash': '• Ierakstiet /, lai apskatītu visas iepriekš minētās komandas.',
-  'ide.chat.help.tipSpecific': '• Esiet konkrēti — „Pievienot pieteikšanās lapu ar e-pastu/paroli un Google OAuth“ ir labāk nekā „pievienot autentifikāciju“.',
-  'ide.chat.help.tipUndo': '• Izmantojiet komandu /undo, lai atceltu pēdējā AI gājiena izmaiņas failā, ja tas ir novirzījies no pareizā ceļa.',
+  'ide.chat.help.tipSpecific':
+    '• Esiet konkrēti — „Pievienot pieteikšanās lapu ar e-pastu/paroli un Google OAuth“ ir labāk nekā „pievienot autentifikāciju“.',
+  'ide.chat.help.tipUndo':
+    '• Izmantojiet komandu /undo, lai atceltu pēdējā AI gājiena izmaiņas failā, ja tas ir novirzījies no pareizā ceļa.',
   'ide.chat.help.tipsHeading': '── Padomi ──',
   'ide.chat.report.heading': 'Ziņot par kļūdu',
   'ide.chat.report.openReport': 'Ziņot par kļūdu',
-  'ide.chat.report.subheading': 'Pastāstiet mums, kas neizdevās vai ko jūs vēlētos redzēt. Jūsu atsauksmes tiks nosūtītas „{{productName}}“ komandai.',
+  'ide.chat.report.subheading':
+    'Pastāstiet mums, kas neizdevās vai ko jūs vēlētos redzēt. Jūsu atsauksmes tiks nosūtītas „{{productName}}“ komandai.',
   'ide.chat.report.titleLabel': 'Nosaukums',
   'ide.chat.report.titlePlaceholder': 'Īss kopsavilkums',
   'ide.chat.report.descriptionLabel': 'Apraksts',
@@ -434,7 +473,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Saglabāšana…',
   'ide.chat.scripts.saveError': 'Skriptu neizdevās saglabāt. Lūdzu, mēģiniet vēlreiz.',
   'ide.chat.scripts.invalid': 'Skriptam ir nepieciešams nosaukums un saturs, kas nav tukšs.',
-  'ide.chat.scripts.empty': 'Vēl nav saglabātu skriptu. Izveidojiet vienu augšā vai lūdziet {{agentName}} to uzrakstīt un saglabāt.',
+  'ide.chat.scripts.empty':
+    'Vēl nav saglabātu skriptu. Izveidojiet vienu augšā vai lūdziet {{agentName}} to uzrakstīt un saglabāt.',
   'ide.chat.scripts.loading': 'Skripti tiek ielādēti…',
   'ide.chat.scripts.error': 'Neizdevās ielādēt skriptus šim projektam.',
   'ide.chat.scripts.noMatch': 'Nav skriptu, kas atbilstu meklējumam „{{query}}“.',
@@ -442,8 +482,10 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Palaidiet šo skriptu izolētajā vidē',
   'ide.chat.scripts.running': 'Skrienot…',
   'ide.chat.scripts.runError': 'Skripta izpilde neizdevās.',
-  'ide.chat.scripts.runNone': 'Vēl nav saglabātu skriptu. Atveriet /scripts, lai izveidotu skriptu.',
-  'ide.chat.scripts.runNotFound': 'Nav atrasts skripts ar nosaukumu „{{name}}“. Pieejams: {{names}}',
+  'ide.chat.scripts.runNone':
+    'Vēl nav saglabātu skriptu. Atveriet /scripts, lai izveidotu skriptu.',
+  'ide.chat.scripts.runNotFound':
+    'Nav atrasts skripts ar nosaukumu „{{name}}“. Pieejams: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} izgāja ar kodu 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} izbeigta ar kodu „{{code}}“',
   'ide.chat.scripts.exitOk': 'Iziet 0',
@@ -467,7 +509,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Dalīties ar projektu',
-  'ide.chat.share.subheading': 'Izveidojiet publisku saiti. Ikvienam, kam ir šī saite, tiek piešķirta jūsu izvēlētā loma — skatītāja saite ir tikai lasāma.',
+  'ide.chat.share.subheading':
+    'Izveidojiet publisku saiti. Ikvienam, kam ir šī saite, tiek piešķirta jūsu izvēlētā loma — skatītāja saite ir tikai lasāma.',
   'ide.chat.share.roleLabel': 'Loma',
   'ide.chat.share.create': 'Izveidot saiti',
   'ide.chat.share.creating': 'Izveidošana…',
@@ -479,20 +522,26 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Kopēts',
   'ide.chat.share.openLink': 'Atvērt saiti',
   'ide.chat.share.error': 'Neizdevās izveidot kopīgošanas saiti. Lūdzu, mēģiniet vēlreiz.',
-  'ide.chat.share.usage': 'Lietošana: /share [loma] — izveido publisku saiti. Lomas: {{roles}} (noklusējuma skatītājs).',
-  'ide.chat.share.notAllowed': 'Kopīgošanas saišu pārvaldībai šajā projektā ir nepieciešama administratora loma.',
+  'ide.chat.share.usage':
+    'Lietošana: /share [loma] — izveido publisku saiti. Lomas: {{roles}} (noklusējuma skatītājs).',
+  'ide.chat.share.notAllowed':
+    'Kopīgošanas saišu pārvaldībai šajā projektā ir nepieciešama administratora loma.',
   'ide.chat.skills.heading': 'Prasmes',
   'ide.chat.skills.searchPlaceholder': 'Filtrēt prasmes…',
   'ide.chat.skills.load': 'Ielādēt',
   'ide.chat.skills.loadTitle': 'Atvērt redaktorā un pievienot kā kontekstu',
-  'ide.chat.skills.loaded': 'Ielādēta prasme „{{name}}“ — atvērta redaktorā un pievienota kā konteksts tavam nākamajam ziņojumam.',
+  'ide.chat.skills.loaded':
+    'Ielādēta prasme „{{name}}“ — atvērta redaktorā un pievienota kā konteksts tavam nākamajam ziņojumam.',
   'ide.chat.skills.loading': 'Ielādējas prasmes…',
   'ide.chat.skills.error': 'Neizdevās ielādēt šī projekta prasmes.',
   'ide.chat.skills.empty': 'Šim projektam mapē .agents/skills/ nav atrastas nekādas prasmes.',
   'ide.chat.skills.noMatch': 'Nav atbilstošu prasmju meklējumam „{{query}}“.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -515,7 +564,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Ziņojumu neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz.',
   'ide.chat.report.submitted': 'Paldies! Jūsu ziņojums ir nosūtīts „{{productName}}“ komandai.',
-  'ide.chat.report.submittedWithLink': 'Paldies! Jūsu ziņojums ir nosūtīts — tā statusu varat sekot saites norādītajā problēmā.',
+  'ide.chat.report.submittedWithLink':
+    'Paldies! Jūsu ziņojums ir nosūtīts — tā statusu varat sekot saites norādītajā problēmā.',
   'ide.chat.settings.modelFollowsDefault': 'Atbilst standarta modelim',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +579,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Izveidot',
   'ide.chat.skills.cancel': 'Atcelt',
   'ide.chat.skills.createError': 'Neizdevās izveidot prasmi — lūdzu, mēģiniet vēlreiz.',
-  'ide.chat.skills.created': 'Izveidota prasme „{{name}}“ — atvērta redaktorā. Aizpildiet tās aprakstu un soļus.',
+  'ide.chat.skills.created':
+    'Izveidota prasme „{{name}}“ — atvērta redaktorā. Aizpildiet tās aprakstu un soļus.',
   'ide.chat.autoCommit.on': 'Automātiskā apstiprināšana ieslēgta',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -540,7 +591,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.preview.loadFailedHint': 'Mēģiniet atjaunināt lapu vai atvērt priekšskatījumu jaunā cilnē.',
   'ide.preview.reloadPreview': 'Atjaunot priekšskatījumu',
   'ide.preview.lastWorkingFrame': 'Pēdējais darba priekšskatījums',
-  'ide.chat.effort.notSupportedForModel': '{{level}} nav pieejams vietnē {{model}}. Pieejams: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} nav pieejams vietnē {{model}}. Pieejams: {{levels}}',
   'ide.chat.modelSortLabel': 'Šķirot',
   'ide.chat.modelSortDirection': 'Mainīt šķirošanas virzienu',
   'ide.chat.skills.loadedBadge': 'Ielādēts',
@@ -551,26 +603,32 @@ export const lv: Partial<IdeTranslations> = {
   'ide.device.select': 'Ierīces rāmis',
   'ide.device.rotate': 'Pagriezt',
   'ide.chat.closeOverlay': 'Aizvērt',
-  'ide.chat.retryCountdown': 'Servera kļūda — atkārtoju mēģinājumu pēc {{seconds}} sekundēm… (mēģinājums {{attempt}})',
+  'ide.chat.retryCountdown':
+    'Servera kļūda — atkārtoju mēģinājumu pēc {{seconds}} sekundēm… (mēģinājums {{attempt}})',
   'ide.preview.blankTitle': 'Priekšskatījums ir tukšs',
-  'ide.preview.blankHint': 'Lietotne tika ielādēta, bet nekas netika parādīts — iespējams, ir radusies kļūda. Par to ir paziņots „Synthase“. Jūs varat atkārtoti ielādēt lapu vai atvērt priekšskatījumu jaunā cilnē.',
+  'ide.preview.blankHint':
+    'Lietotne tika ielādēta, bet nekas netika parādīts — iespējams, ir radusies kļūda. Par to ir paziņots „Synthase“. Jūs varat atkārtoti ielādēt lapu vai atvērt priekšskatījumu jaunā cilnē.',
   'ide.chat.previewLinkTitle': 'Atveriet failu „{{path}}” priekšskatījumā',
-  'ide.chat.report.diagnosticsNote': 'Lai palīdzētu mums novērst kļūdas, esam pievienojuši informāciju par jūsu lietotnes versiju, pārlūku un ekrāna izmēru.',
+  'ide.chat.report.diagnosticsNote':
+    'Lai palīdzētu mums novērst kļūdas, esam pievienojuši informāciju par jūsu lietotnes versiju, pārlūku un ekrāna izmēru.',
   'ide.chat.skills.loadedCount': '🧠 Apgūtas „{{count}}“ prasmes',
   'ide.chat.skills.waitingForSandbox': 'Gaidu, kamēr smilšu kaste pabeigs palaišanos…',
   'ide.chat.skills.resetDefaults': 'Pēc noklusējuma ielādēt visu',
   'ide.search.excludedDirs': 'Izslēgtās mapes (attiecas uz visām meklēšanām, ieskaitot aģentu)',
-  'ide.chat.costStreamingNote': 'Kopējais skaits — ietver arī atbildi, kas pašlaik tiek pārraidīta.',
+  'ide.chat.costStreamingNote':
+    'Kopējais skaits — ietver arī atbildi, kas pašlaik tiek pārraidīta.',
   'ide.toolCall.packageCount': '{{count}} iepakojumi',
   'ide.toolCall.openPackageDoc': 'Atvērt dokumentāciju par pakotni',
   'ide.chat.fastModeOn': 'Ieslēgts ātrdarbības režīms — ātrākas atbildes ar lielāku frekvenci',
   'ide.chat.fastModeOff': 'Ātrā režīma izslēgšana',
-  'ide.chat.fastModeEnable': 'Ātrs režīms — līdz pat 2,5 reizes ātrāka izvade ar augstāku žetonu apmaiņas ātrumu',
+  'ide.chat.fastModeEnable':
+    'Ātrs režīms — līdz pat 2,5 reizes ātrāka izvade ar augstāku žetonu apmaiņas ātrumu',
   'ide.chat.fastModeDisable': 'Izslēdziet ātrdarbības režīmu',
   'ide.chat.scripts.runWithOptions': 'Palaist…',
   'ide.chat.scripts.required': '(obligāti)',
   'ide.chat.scripts.cancelRun': 'Atcelt',
-  'ide.chat.scripts.runNeedsOptions': '“{{name}}” nepieciešamas opcijas — atvēru /scripts, lai varētu tās iestatīt un Palaist.',
+  'ide.chat.scripts.runNeedsOptions':
+    '“{{name}}” nepieciešamas opcijas — atvēru /scripts, lai varētu tās iestatīt un Palaist.',
   'ide.chat.settings.effort.label': 'Loģiskās domāšanas prasmes',
   'ide.chat.timestampsShown': 'Laika zīmogi parādīti.',
   'ide.chat.timestampsHidden': 'Laika zīmogi paslēpti.',
@@ -593,7 +651,8 @@ export const lv: Partial<IdeTranslations> = {
   'ide.tests.workspace.app': 'Lietotne',
   'ide.tests.workspace.api': 'API',
   'ide.tests.workspace.root': 'Projekts',
-  'ide.tests.e2eHint': 'Tie darbojas vienlaikus ar reāllaika priekšskatījumu, tāpēc atstājiet priekšskatījumu atvērtu.',
+  'ide.tests.e2eHint':
+    'Tie darbojas vienlaikus ar reāllaika priekšskatījumu, tāpēc atstājiet priekšskatījumu atvērtu.',
   'ide.tests.showOutput': 'Rādīt izvadi',
   'ide.tests.hideOutput': 'Paslēpt izvadi',
   'ide.testsBar.notRun_one': '{{count}} test not run yet',

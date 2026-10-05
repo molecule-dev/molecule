@@ -3,10 +3,14 @@ import type { IdeTranslations } from './types.js'
 /** Ide translations for et. */
 export const et: Partial<IdeTranslations> = {
   'ide.chat.teamOnly.badge': 'Team only — visible to your team; {{agentName}} will ignore it',
-  'ide.chat.tip.viewerTeamOnly': 'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
-  'ide.chat.viewerReadOnly': 'You have view-only access, so you can\'t run the assistant here. You can still read along and use /teamsay to message the team.',
-  'ide.chat.viewerReadOnlyCommand': 'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
-  'ide.chat.viewerReadOnlyNote': 'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.tip.viewerTeamOnly':
+    'View-only access — read along and /teamsay (or just /t) the team. This gold icon marks team-only messages ({{agentName}} ignores them). Running the assistant and changing the model or settings need editor access.',
+  'ide.chat.viewerReadOnly':
+    "You have view-only access, so you can't run the assistant here. You can still read along and use /teamsay to message the team.",
+  'ide.chat.viewerReadOnlyCommand':
+    'You have view-only access, so this command is unavailable. Ask an editor to make changes.',
+  'ide.chat.viewerReadOnlyNote':
+    'View-only access — read along and /teamsay (or just /t) the team. Running the assistant and changing the model or settings need editor access.',
   'ide.chat.soundAll': 'All',
   'ide.search.replaceAllShort': 'All',
   'ide.chat.thoughtBriefly': 'Mõtlesin lühidalt',
@@ -36,7 +40,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.continueButton': 'Jätka',
   'ide.chat.continuePrompt': 'Jätka rakendamist sealt, kus pooleli jäid.',
   'upgrade.viewPlans': 'Täienda',
-  'guest.reminder.message': 'Registreeru või logi sisse, et sinu töö külalisseansid aeguksid 72 tunni pärast.',
+  'guest.reminder.message':
+    'Registreeru või logi sisse, et sinu töö külalisseansid aeguksid 72 tunni pärast.',
   'upgrade.signUp': 'Registreeru',
   'guest.reminder.logIn': 'Logi sisse',
   'ide.chat.soundsError': 'Heli seadete värskendamine ebaõnnestus.',
@@ -49,23 +54,26 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.switchedToPlan': 'Lülituti plaanimisrežiimile',
   'ide.chat.switchedToExecute': 'Lülituti teostusrežiimi',
   'ide.chat.costError': 'Kasutusandmete toomine ebaõnnestus.',
-  'ide.chat.usageAllowanceTodayLine': '~{{percent}}% of today\'s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpLine': 'Today\'s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceTodayLine': "~{{percent}}% of today's AI allowance used.",
+  'ide.chat.usageAllowanceUsedUpLine': "Today's AI allowance is used up — refreshes {{when}}.",
   'ide.chat.usageAllowanceMonthlyLine': '~{{percent}}% of this month’s AI allowance used.',
-  'ide.chat.usageAllowanceUsedUpMonthlyLine': 'This month’s AI allowance is used up — refreshes {{when}}.',
+  'ide.chat.usageAllowanceUsedUpMonthlyLine':
+    'This month’s AI allowance is used up — refreshes {{when}}.',
   'ide.chat.resetSoon': 'soon',
   'ide.chat.resetUnderHour': 'in under an hour',
   'ide.chat.resetTomorrow': 'tomorrow',
   'ide.chat.resetInHours': 'in about {{hours}} hours',
   'ide.chat.resetInDays': 'in about {{days}} days',
   'ide.chat.models.colUsageRate': 'Usage rate',
-  'ide.chat.models.usageRateHint': 'How fast this model uses your AI allowance, relative to the most economical model',
+  'ide.chat.models.usageRateHint':
+    'How fast this model uses your AI allowance, relative to the most economical model',
   'ide.chat.models.usageRateValue': '×{{rate}} usage',
   'ide.chat.models.usageRateYourKey': 'your key',
   'ide.chat.models.usageRateYourKeyHint': 'Billed to your own provider key, not your plan.',
   'ide.chat.models.peakNow': 'tipptund ×{{multiplier}} praegu',
   'ide.chat.models.peakLater': '×{{multiplier}} tipptundidel',
-  'ide.chat.models.peakHint': 'See mudel maksab ×{{multiplier}} ajavahemikus {{windows}}. Ülejäänud päeval kehtib tavahind.',
+  'ide.chat.models.peakHint':
+    'See mudel maksab ×{{multiplier}} ajavahemikus {{windows}}. Ülejäänud päeval kehtib tavahind.',
   'ide.chat.undoNoChanges': 'Tagasivõetavaid failimuudatusi pole.',
   'ide.chat.undoComplete': 'Muudatuste tagasivõtmine ebaõnnestus.',
   'ide.chat.commitNoChanges': 'Muudatusi, mida kinnitada, pole.',
@@ -73,11 +81,15 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoFixEnabled': 'Automaatne parandamine on lubatud.',
   'ide.chat.autoFixDisabled': 'Automaatne parandamine on keelatud.',
   'ide.chat.autoFixError': 'Automaatse parandamise seade värskendamine ebaõnnestus.',
-  'ide.chat.autoApproveEnabled': 'Automaatne heakskiitmine on sees — hävitavad käsud käivituvad küsimata. Andmelekke kaitse küsib endiselt kinnitust. Väljalülitamiseks kasuta käsku /autoapprove.',
-  'ide.chat.autoApproveDisabled': 'Automaatne heakskiitmine on väljas — hävitavad käsud küsivad enne käivitamist kinnitust.',
+  'ide.chat.autoApproveEnabled':
+    'Automaatne heakskiitmine on sees — hävitavad käsud käivituvad küsimata. Andmelekke kaitse küsib endiselt kinnitust. Väljalülitamiseks kasuta käsku /autoapprove.',
+  'ide.chat.autoApproveDisabled':
+    'Automaatne heakskiitmine on väljas — hävitavad käsud küsivad enne käivitamist kinnitust.',
   'ide.chat.autoApproveError': 'Automaatse heakskiitmise seade värskendamine ebaõnnestus.',
-  'ide.chat.modelUsage': 'Kasutus: /mudel<model-name> (nt claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-  'ide.chat.modelUpgradeRequired': '{{model}} on saadaval Pro versioonis. Uuenda, et pääseda ligi kõigile mudelitele.',
+  'ide.chat.modelUsage':
+    'Kasutus: /mudel<model-name> (nt claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUpgradeRequired':
+    '{{model}} on saadaval Pro versioonis. Uuenda, et pääseda ligi kõigile mudelitele.',
   'ide.chat.maxLoopsReached': 'Tsüklite maksimaalne arv on saavutatud.',
   'ide.chat.maxLoopsError': 'Tööriista maksimaalse iteratsioonide arvu värskendamine ebaõnnestus.',
   'ide.chat.dropFilesHere': 'Lohista failid siia',
@@ -236,17 +248,20 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.soundEventDesc.message': 'A teammate posted a team-only note',
   'ide.chat.soundEventDesc.done': '{{agentName}} finished responding',
   'ide.chat.soundEventDesc.error': 'Vastamisel läks midagi valesti',
-  'ide.chat.soundEventDesc.tool_result': 'Tööriistakutse (faili lugemine, käsk jne) on lõpule viidud',
+  'ide.chat.soundEventDesc.tool_result':
+    'Tööriistakutse (faili lugemine, käsk jne) on lõpule viidud',
   'ide.chat.soundEventDesc.file_diff': 'Fail loodi või muudeti',
-  'ide.chat.soundEventDesc.commit_suggestion': '{{agentName}} soovitab faile commit\'imiseks',
+  'ide.chat.soundEventDesc.commit_suggestion': "{{agentName}} soovitab faile commit'imiseks",
   'ide.chat.soundEventDesc.mode': 'Vahetus planeerimisrežiimi ja teostusrežiimi vahel',
-  'ide.chat.soundEventDesc.loop_limit_reached': 'Tööriista iteratsioonide maksimaalne piir on saavutatud',
+  'ide.chat.soundEventDesc.loop_limit_reached':
+    'Tööriista iteratsioonide maksimaalne piir on saavutatud',
   'ide.chat.soundEventDesc.verification_result': 'Lint- või tüübikontrolli töö on lõppenud',
   'ide.chat.soundEventDesc.preview_error': 'Otseülekande eelvaates ilmnes viga',
   'ide.chat.voice': 'Hääl',
   'ide.chat.voiceUnavailable': 'Dikteerimine pole selles brauseris saadaval.',
   'ide.chat.voiceMicBlocked': 'Juurdepääs mikrofonile on blokeeritud.',
-  'ide.chat.voicePreparing': 'Dikteerimise ettevalmistamine — esimesel korral võib see hetke võtta.',
+  'ide.chat.voicePreparing':
+    'Dikteerimise ettevalmistamine — esimesel korral võib see hetke võtta.',
   'ide.chat.voiceTranscribeFailed': 'Transkriptsioon ebaõnnestus.',
   'ide.chat.voiceEngineTitle': 'Dikteerimismootor',
   'ide.chat.voiceEnginePrivacy': 'Iga valik töötab sinu seadmes — heli ei lahku kunagi brauserist.',
@@ -300,7 +315,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.preview.secure': 'Turvaline (HTTPS)',
   'ide.preview.address': 'Eelvaate aadress',
   'ide.preview.updating': 'Ajakohastamine',
-  'ide.preview.frozen': 'Rakendus ei vasta enam – eelvaade on hangunud lõputu tsükli või kontrolli alt väljunud renderdamise tõttu. See ei mõjuta IDE-d.',
+  'ide.preview.frozen':
+    'Rakendus ei vasta enam – eelvaade on hangunud lõputu tsükli või kontrolli alt väljunud renderdamise tõttu. See ei mõjuta IDE-d.',
   'ide.preview.frozenReload': 'Laadi rakendus uuesti',
   'ide.search.results': '{{count}} tulemuseks on failid „{{files}}“',
   'ide.activity.cardAria': 'Vaata salvestatud tegevust',
@@ -332,21 +348,30 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoFixResume': 'CV',
   'ide.chat.openSettings': 'Seaded',
   'ide.chat.tip.dismiss': 'Näpunäide sulgeda',
-  'ide.chat.tip.getStarted': 'Nõuanne: kirjuta /, et näha kõiki käske, või @ failinimi, et anda käskule „{{agentName}}“ töötamiseks vajalik fail.',
-  'ide.chat.tip.mention': 'Nõuanne: kirjuta @failinimi, et lisada projektifail kontekstina – käsk „{{agentName}}“ loeb seda otse.',
+  'ide.chat.tip.getStarted':
+    'Nõuanne: kirjuta /, et näha kõiki käske, või @ failinimi, et anda käskule „{{agentName}}“ töötamiseks vajalik fail.',
+  'ide.chat.tip.mention':
+    'Nõuanne: kirjuta @failinimi, et lisada projektifail kontekstina – käsk „{{agentName}}“ loeb seda otse.',
   'ide.chat.tip.slash': 'Nõuanne: kirjuta /, et vaadata kõiki käske (commit, diff, model jm).',
-  'ide.chat.tip.plan': 'Nõuanne: kasuta käsku /plan, et programm „{{agentName}}“ uuriks olukorda ja pakuks välja plaani enne failide muutmist.',
-  'ide.chat.tip.undo': 'Nõuanne: kasuta käsku /undo, et viimase AI käigu failimuudatused kohe tagasi võtta, kui need ei läinud plaanipäraselt.',
-  'ide.chat.tip.compact': 'Nõuanne: pikk vestlus? /compact tihendab konteksti, et sul jääks ruumi töötamiseks.',
-  'ide.chat.tip.commit': 'Nõuanne: kasuta käsku /commit, et salvestada muudatused Git-i kinnitusena, millele saad alati tagasi pöörduda.',
-  'ide.chat.tip.report': 'Nõuanne: midagi ei klapi? /report saadab meeskonnale veateate või tagasiside koos sinu viimase vestlusega.',
+  'ide.chat.tip.plan':
+    'Nõuanne: kasuta käsku /plan, et programm „{{agentName}}“ uuriks olukorda ja pakuks välja plaani enne failide muutmist.',
+  'ide.chat.tip.undo':
+    'Nõuanne: kasuta käsku /undo, et viimase AI käigu failimuudatused kohe tagasi võtta, kui need ei läinud plaanipäraselt.',
+  'ide.chat.tip.compact':
+    'Nõuanne: pikk vestlus? /compact tihendab konteksti, et sul jääks ruumi töötamiseks.',
+  'ide.chat.tip.commit':
+    'Nõuanne: kasuta käsku /commit, et salvestada muudatused Git-i kinnitusena, millele saad alati tagasi pöörduda.',
+  'ide.chat.tip.report':
+    'Nõuanne: midagi ei klapi? /report saadab meeskonnale veateate või tagasiside koos sinu viimase vestlusega.',
   'ide.chat.undoError': 'Muudatuste taastamine ebaõnnestus.',
   'ide.chat.autoCommit.badge': '{{countdown}}i automaatne salvestamine',
   'ide.chat.autoCommit.cancel': 'Tühista automaatne salvestamine',
   'ide.chat.autoCommit.cancelled': 'Automaatne salvestamine tühistati.',
-  'ide.chat.autoCommit.enabled': 'Automaatne kinnitamine on sisse lülitatud: kinnitamis{{seconds}}i möödumisel viimasest failimuutusest. Tühista käskuga /autocommit 0.',
+  'ide.chat.autoCommit.enabled':
+    'Automaatne kinnitamine on sisse lülitatud: kinnitamis{{seconds}}i möödumisel viimasest failimuutusest. Tühista käskuga /autocommit 0.',
   'ide.chat.effort.error': 'Põhjenduse uuendamine ebaõnnestus.',
-  'ide.chat.effort.fixedForModel': 'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
+  'ide.chat.effort.fixedForModel':
+    'Reasoning effort is fixed on {{model}} ({{mode}} mode) — nothing to set.',
   'ide.chat.effort.header': 'Reasoning effort per mode:',
   'ide.chat.effort.modeFixed': '  {{mode}} ({{model}}): fixed — this model has one reasoning mode',
   'ide.chat.effort.modeLine': '  {{mode}} ({{model}}): {{current}} — available: {{levels}}',
@@ -361,11 +386,14 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.models.freeYes': '✓ Tasuta',
   'ide.chat.models.sortBy': 'Järjesta järgi{{column}}',
   'ide.chat.modelsLoading': 'Mudeleid laaditakse…',
-  'ide.chat.modelsNone': 'Hetkel pole mudeleid saadaval – palun paluge oma administraatoril ühendada AI-teenusepakkuja.',
+  'ide.chat.modelsNone':
+    'Hetkel pole mudeleid saadaval – palun paluge oma administraatoril ühendada AI-teenusepakkuja.',
   'ide.chat.modelInUse': 'Kasutan nüüd veebisaiti {{model}}',
   'ide.chat.cardBy': '{{text}} — {{name}}',
-  'ide.chat.modelRemoved': 'Teie valitud mudel „{{removed}}“ ei ole enam saadaval. Valik on muudetud mudeliks „{{fallback}}“. Sisestage /mudel, et valida mõni teine.',
-  'ide.chat.modelRemovedNoFallback': 'Teie valitud mudel „{{removed}}“ ei ole enam saadaval ja serveris pole selle asendajat. Paluge oma administraatoril ühendada AI-teenusepakkuja.',
+  'ide.chat.modelRemoved':
+    'Teie valitud mudel „{{removed}}“ ei ole enam saadaval. Valik on muudetud mudeliks „{{fallback}}“. Sisestage /mudel, et valida mõni teine.',
+  'ide.chat.modelRemovedNoFallback':
+    'Teie valitud mudel „{{removed}}“ ei ole enam saadaval ja serveris pole selle asendajat. Paluge oma administraatoril ühendada AI-teenusepakkuja.',
   'ide.chat.olderModelsCollapse': 'Vanemad mudelid ⌃ ({{count}})',
   'ide.chat.olderModelsExpand': 'Vanemad mudelid ⌄ ({{count}})',
   'ide.chat.selectExecuteModel': 'Vali täitmisrežiimi mudel',
@@ -387,31 +415,43 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.freeInCommit': 'free in commit',
   'ide.chat.modeOnlyPlan': 'On the free plan, this model is used in plan mode.',
   'ide.chat.modeOnlyExecute': 'On the free plan, this model is used in execute mode.',
-  'ide.chat.modeOnlyCommit': 'On the free plan, this model is used for commit messages and compaction.',
+  'ide.chat.modeOnlyCommit':
+    'On the free plan, this model is used for commit messages and compaction.',
   'ide.chat.streamingOutputTokens': '~{{count}} tokens',
-  'ide.chat.streamingOutputTokensHint': 'Estimated output tokens this turn — /cost shows input and cached.',
+  'ide.chat.streamingOutputTokensHint':
+    'Estimated output tokens this turn — /cost shows input and cached.',
   'ide.chat.costSummary': 'Model: {{model}}\nInput: {{input}} tokens\nOutput: {{output}} tokens',
   'ide.chat.costCachedLine': 'Cached input: {{cached}} tokens (billed at a fraction of input)',
   'ide.chat.lintErrorsCount': '{{count}} lint-vead',
   'ide.chat.lintWarningsCount': '{{count}} hoiatused',
   'ide.chat.typeErrorsCount': '{{count}} tüübi vead',
   'ide.chat.help.commandsHeading': '── Käsklused ──',
-  'ide.chat.help.intro': '{{agentName}} {{productName}}i tehisintellekti programmeerimisagent. Kirjeldage, mida soovite luua, ja see loob teie jaoks raamistiku, kirjutab koodi ning arendab seda koos teiega edasi.',
+  'ide.chat.help.intro':
+    '{{agentName}} {{productName}}i tehisintellekti programmeerimisagent. Kirjeldage, mida soovite luua, ja see loob teie jaoks raamistiku, kirjutab koodi ning arendab seda koos teiega edasi.',
   'ide.chat.help.introHeading': '── Alustamine ──',
-  'ide.chat.help.modeDiscovery': 'Avastamine – siit algavad uued vestlused. „{{agentName}}” esitab selgitavaid küsimusi, et täpsustada nõuded enne koodi kirjutamist.',
-  'ide.chat.help.modeExecute': 'Käivita — vaikimisi kasutatav töörežiim. „{{agentName}}“ kirjutab koodi, käivitab tööriistu, rakendab muudatusi ja kontrollib neid seejärel.',
-  'ide.chat.help.modePlan': 'Kava — käsk „{{agentName}}“ uurib koodibaasi ja pakub välja kava, ILMA faile muutmata. Lülita sisse käskuga /plan. Sobib kõige paremini suurte või riskantsete muudatuste puhul.',
+  'ide.chat.help.modeDiscovery':
+    'Avastamine – siit algavad uued vestlused. „{{agentName}}” esitab selgitavaid küsimusi, et täpsustada nõuded enne koodi kirjutamist.',
+  'ide.chat.help.modeExecute':
+    'Käivita — vaikimisi kasutatav töörežiim. „{{agentName}}“ kirjutab koodi, käivitab tööriistu, rakendab muudatusi ja kontrollib neid seejärel.',
+  'ide.chat.help.modePlan':
+    'Kava — käsk „{{agentName}}“ uurib koodibaasi ja pakub välja kava, ILMA faile muutmata. Lülita sisse käskuga /plan. Sobib kõige paremini suurte või riskantsete muudatuste puhul.',
   'ide.chat.help.modesHeading': '── Režiimid ──',
-  'ide.chat.help.shortcuts': 'Vajuta klahvikombinatsiooni Cmd+/ (Ctrl+/ Windowsis/Linuxis), et vaadata kõiki klahvikombinatsioone.',
-  'ide.chat.help.tipCompact': '• Kasuta käsku /compact, et vestlust kokku suruda, kui see muutub liiga pikaks.',
-  'ide.chat.help.tipPlan': '• Kasutage käsku /plan, et enne muudatuste tegemist tutvuda failiga „{{agentName}}“.',
+  'ide.chat.help.shortcuts':
+    'Vajuta klahvikombinatsiooni Cmd+/ (Ctrl+/ Windowsis/Linuxis), et vaadata kõiki klahvikombinatsioone.',
+  'ide.chat.help.tipCompact':
+    '• Kasuta käsku /compact, et vestlust kokku suruda, kui see muutub liiga pikaks.',
+  'ide.chat.help.tipPlan':
+    '• Kasutage käsku /plan, et enne muudatuste tegemist tutvuda failiga „{{agentName}}“.',
   'ide.chat.help.tipSlash': '• Sisesta /, et vaadata kõiki eespool nimetatud käske.',
-  'ide.chat.help.tipSpecific': '• Ole konkreetne – „Lisa sisselogimisleht, kus saab sisse logida e-posti ja parooliga ning Google OAuthi abil” on parem kui „lisa autentimine”.',
-  'ide.chat.help.tipUndo': '• Kasuta käsku /undo, et tühistada viimase AI-käigu failimuudatused, kui see läheb valesti.',
+  'ide.chat.help.tipSpecific':
+    '• Ole konkreetne – „Lisa sisselogimisleht, kus saab sisse logida e-posti ja parooliga ning Google OAuthi abil” on parem kui „lisa autentimine”.',
+  'ide.chat.help.tipUndo':
+    '• Kasuta käsku /undo, et tühistada viimase AI-käigu failimuudatused, kui see läheb valesti.',
   'ide.chat.help.tipsHeading': '── Näpunäited ──',
   'ide.chat.report.heading': 'Teata veast',
   'ide.chat.report.openReport': 'Teata veast',
-  'ide.chat.report.subheading': 'Räägi meile, mis läks valesti või mida sa soovid näha. See edastatakse {{productName}} meeskonnale.',
+  'ide.chat.report.subheading':
+    'Räägi meile, mis läks valesti või mida sa soovid näha. See edastatakse {{productName}} meeskonnale.',
   'ide.chat.report.titleLabel': 'Pealkiri',
   'ide.chat.report.titlePlaceholder': 'Lühikokkuvõte',
   'ide.chat.report.descriptionLabel': 'Kirjeldus',
@@ -434,7 +474,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.scripts.saving': 'Salvestatakse…',
   'ide.chat.scripts.saveError': 'Skripti ei õnnestunud salvestada. Palun proovi uuesti.',
   'ide.chat.scripts.invalid': 'Skript peab sisaldama nime ja täidetud sisu.',
-  'ide.chat.scripts.empty': 'Salvestatud skripte pole veel. Loo skript ülalpool või palu {{agentName}}-l see kirjutada ja salvestada.',
+  'ide.chat.scripts.empty':
+    'Salvestatud skripte pole veel. Loo skript ülalpool või palu {{agentName}}-l see kirjutada ja salvestada.',
   'ide.chat.scripts.loading': 'Skripte laaditakse…',
   'ide.chat.scripts.error': 'Selle projekti skripte ei õnnestunud laadida.',
   'ide.chat.scripts.noMatch': 'Ühtegi skripti ei leitud, mis vastaks otsingule „{{query}}“.',
@@ -442,7 +483,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.scripts.runTitle': 'Käivita see skript liivakastis',
   'ide.chat.scripts.running': 'Jooksmine…',
   'ide.chat.scripts.runError': 'Skripti käivitamine ebaõnnestus.',
-  'ide.chat.scripts.runNone': 'Salvestatud skripte pole veel. Ava kataloog /scripts, et luua skript.',
+  'ide.chat.scripts.runNone':
+    'Salvestatud skripte pole veel. Ava kataloog /scripts, et luua skript.',
   'ide.chat.scripts.runNotFound': 'Skriptit nimega „{{name}}“ ei leitud. Saadaval: {{names}}',
   'ide.chat.scripts.cmdExitOk': '{{name}} väljus 0',
   'ide.chat.scripts.cmdExitFail': '{{name}} lõpetati koodiga{{code}}',
@@ -467,7 +509,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.share.revoking': 'Revoking…',
   'ide.chat.share.revokeFailed': 'Could not revoke that link. Please try again.',
   'ide.chat.share.openShare': 'Jaga projekti',
-  'ide.chat.share.subheading': 'Loo avalik link. Igaüks, kellel on see link, saab sinu valitud rolli – vaataja link on ainult lugemisõigusega.',
+  'ide.chat.share.subheading':
+    'Loo avalik link. Igaüks, kellel on see link, saab sinu valitud rolli – vaataja link on ainult lugemisõigusega.',
   'ide.chat.share.roleLabel': 'Amet',
   'ide.chat.share.create': 'Loo link',
   'ide.chat.share.creating': 'Loomine…',
@@ -479,20 +522,27 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.share.copied': 'Kopeeritud',
   'ide.chat.share.openLink': 'Ava link',
   'ide.chat.share.error': 'Jagamislingi loomine ebaõnnestus. Palun proovi uuesti.',
-  'ide.chat.share.usage': 'Kasutamine: /share [roll] — loo avalik link. Rollid: {{roles}} (vaikimisi vaataja).',
-  'ide.chat.share.notAllowed': 'Jagamislinkide haldamiseks on selles projektis vaja administraatori rolli.',
+  'ide.chat.share.usage':
+    'Kasutamine: /share [roll] — loo avalik link. Rollid: {{roles}} (vaikimisi vaataja).',
+  'ide.chat.share.notAllowed':
+    'Jagamislinkide haldamiseks on selles projektis vaja administraatori rolli.',
   'ide.chat.skills.heading': 'Oskused',
   'ide.chat.skills.searchPlaceholder': 'Filtreeri oskused…',
   'ide.chat.skills.load': 'Laadida',
   'ide.chat.skills.loadTitle': 'Ava redaktoris ja lisa kontekstina',
-  'ide.chat.skills.loaded': 'Laaditud oskus „{{name}}“ – avatud toimetajas ja lisatud järgmise sõnumi kontekstina.',
+  'ide.chat.skills.loaded':
+    'Laaditud oskus „{{name}}“ – avatud toimetajas ja lisatud järgmise sõnumi kontekstina.',
   'ide.chat.skills.loading': 'Oskuste laadimine…',
   'ide.chat.skills.error': 'Selle projekti oskusi ei õnnestunud laadida.',
-  'ide.chat.skills.empty': 'Selle projekti jaoks ei leitud kataloogist .agents/skills/ ühtegi oskust.',
+  'ide.chat.skills.empty':
+    'Selle projekti jaoks ei leitud kataloogist .agents/skills/ ühtegi oskust.',
   'ide.chat.skills.noMatch': 'Ühtegi oskust ei leitud, mis vastaks otsingule „{{query}}“.',
-  'ide.chat.autoCommit.usage': 'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
-  'ide.chat.effort.usage': 'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
-  'ide.chat.help.tipMention': '• Type @filename to attach a project file as context (or drag & drop any file).',
+  'ide.chat.autoCommit.usage':
+    'Usage: /autocommit <seconds> — auto-commit that many seconds after the last file change. /autocommit 0 cancels.',
+  'ide.chat.effort.usage':
+    'Usage: /effort <level> (current mode), /effort --plan|--execute <level>, /effort ? for status.',
+  'ide.chat.help.tipMention':
+    '• Type @filename to attach a project file as context (or drag & drop any file).',
   'ide.chat.scripts.runUsage': 'Usage: /run <name> — run a saved script. Use /scripts to see them.',
   'ide.chat.skills.relevant.label': 'Relevant skill',
   'ide.chat.skills.relevant.dismiss': 'Dismiss suggestion',
@@ -515,7 +565,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.help.card.usageHint': 'Usage: {{usage}}  ([…] optional, <…> required)',
   'ide.chat.report.failed': 'Teie aruannet ei õnnestunud saata. Palun proovige uuesti.',
   'ide.chat.report.submitted': 'Täname! Teie teade on edastatud „{{productName}}” meeskonnale.',
-  'ide.chat.report.submittedWithLink': 'Tänan! Teie teade on edastatud – jälgige selle käiku lingitud teemas.',
+  'ide.chat.report.submittedWithLink':
+    'Tänan! Teie teade on edastatud – jälgige selle käiku lingitud teemas.',
   'ide.chat.settings.modelFollowsDefault': 'Järgib vaikimisi mudelit',
   'ide.chat.settings.modelDefaultFast': 'Fast default',
   'ide.chat.settings.modelDefaultNamed': 'Default ({{model}})',
@@ -529,7 +580,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.skills.create': 'Loo',
   'ide.chat.skills.cancel': 'Tühista',
   'ide.chat.skills.createError': 'Oskust ei õnnestunud luua – palun proovi uuesti.',
-  'ide.chat.skills.created': 'Loodud oskus „{{name}}“ – avatud toimetajas. Täida selle kirjeldus ja sammud.',
+  'ide.chat.skills.created':
+    'Loodud oskus „{{name}}“ – avatud toimetajas. Täida selle kirjeldus ja sammud.',
   'ide.chat.autoCommit.on': 'Automaatne salvestamine sisse lülitatud',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
@@ -540,7 +592,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.preview.loadFailedHint': 'Proovi lehte uuesti laadida või ava eelvaade uues vahekaardis.',
   'ide.preview.reloadPreview': 'Laadi eelvaade uuesti',
   'ide.preview.lastWorkingFrame': 'Viimane töötav eelvaade',
-  'ide.chat.effort.notSupportedForModel': '{{level}} {{model}}-le pole kättesaadav. Kättesaadav: {{levels}}',
+  'ide.chat.effort.notSupportedForModel':
+    '{{level}} {{model}}-le pole kättesaadav. Kättesaadav: {{levels}}',
   'ide.chat.modelSortLabel': 'Sorteeri',
   'ide.chat.modelSortDirection': 'Vaheta sorteerimissuunda',
   'ide.chat.skills.loadedBadge': 'Laaditud',
@@ -553,24 +606,29 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.closeOverlay': 'Sulge',
   'ide.chat.retryCountdown': 'Serveriviga — proovin uuesti {{seconds}} s… (katse {{attempt}})',
   'ide.preview.blankTitle': 'Eelvaade on tühi',
-  'ide.preview.blankHint': 'Rakendus laaditi küll, kuid midagi ei kuvatud — võib-olla on tegemist veaga. Synthase’ile on sellest teatatud. Võid lehe uuesti laadida või avada eelvaate uues vahekaardis.',
+  'ide.preview.blankHint':
+    'Rakendus laaditi küll, kuid midagi ei kuvatud — võib-olla on tegemist veaga. Synthase’ile on sellest teatatud. Võid lehe uuesti laadida või avada eelvaate uues vahekaardis.',
   'ide.chat.previewLinkTitle': 'Ava fail „{{path}}“ eelvaates',
-  'ide.chat.report.diagnosticsNote': 'Oleme lisanud teie rakenduse versiooni, brauseri ja ekraani suuruse, et aidata meil vigu kõrvaldada.',
+  'ide.chat.report.diagnosticsNote':
+    'Oleme lisanud teie rakenduse versiooni, brauseri ja ekraani suuruse, et aidata meil vigu kõrvaldada.',
   'ide.chat.skills.loadedCount': '🧠 Omandanud „{{count}}“ oskused',
   'ide.chat.skills.waitingForSandbox': 'Oodatakse, kuni liivakasti käivitamine lõpeb…',
   'ide.chat.skills.resetDefaults': 'Laadi vaikimisi kõik',
-  'ide.search.excludedDirs': 'Välja jäetud kaustad (kehtib kõigi otsingute puhul, sealhulgas agendi puhul)',
+  'ide.search.excludedDirs':
+    'Välja jäetud kaustad (kehtib kõigi otsingute puhul, sealhulgas agendi puhul)',
   'ide.chat.costStreamingNote': 'Kogusumma — sisaldab hetkel edastatavat vastust.',
   'ide.toolCall.packageCount': '{{count}} paketid',
   'ide.toolCall.openPackageDoc': 'Ava paketi dokumentatsioon',
   'ide.chat.fastModeOn': 'Kiirrežiim sisse lülitatud — kiiremad vastused suurema sagedusega',
   'ide.chat.fastModeOff': 'Kiirrežiim välja lülitatud',
-  'ide.chat.fastModeEnable': 'Kiirrežiim — kuni 2,5 korda kiirem väljund suurema märkide sageduse juures',
+  'ide.chat.fastModeEnable':
+    'Kiirrežiim — kuni 2,5 korda kiirem väljund suurema märkide sageduse juures',
   'ide.chat.fastModeDisable': 'Lülita kiirrežiim välja',
   'ide.chat.scripts.runWithOptions': 'Käivita…',
   'ide.chat.scripts.required': '(kohustuslik)',
   'ide.chat.scripts.cancelRun': 'Tühista',
-  'ide.chat.scripts.runNeedsOptions': '„{{name}}“ vajab valikuid — avasin /scripts, et saaksite need määrata ja Käivitada.',
+  'ide.chat.scripts.runNeedsOptions':
+    '„{{name}}“ vajab valikuid — avasin /scripts, et saaksite need määrata ja Käivitada.',
   'ide.chat.settings.effort.label': 'Mõtlemisprotsess',
   'ide.chat.timestampsShown': 'Ajatemplid on nähtaval.',
   'ide.chat.timestampsHidden': 'Ajatemplid on peidetud.',
@@ -638,7 +696,8 @@ export const et: Partial<IdeTranslations> = {
   'ide.tests.skippedCount': '{{count}} vahele jäetud',
   'ide.tests.skippedByUser': 'Käivitus lõppes. Vahele jäetud testid ei käivitatud.',
   'ide.tests.viewerCannotSkip': 'Ainult toimetajad saavad selle projekti teste vahele jätta.',
-  'ide.toolCall.interruptedByRestart': 'See samm katkestati taaskäivitamise tõttu; selle mõju on teadmata.',
+  'ide.toolCall.interruptedByRestart':
+    'See samm katkestati taaskäivitamise tõttu; selle mõju on teadmata.',
   'ide.toolCall.statusInterrupted': 'Katkestatud',
   'ide.chat.subagent.failedFallback': 'See subagent peatus enne, kui lõpetas.',
   'ide.chat.viaDictation.badge': 'Häälega dikteeritud',
