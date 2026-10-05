@@ -69,7 +69,7 @@ describe('ai-decisions-llm', () => {
     // Temperature is OMITTED by default: several catalog models reject the
     // parameter itself with a 400 (caught live 2026-10-05).
     expect(lastParams?.temperature).toBeUndefined()
-    expect(String(lastParams?.messages[0]?.content)).toContain('"body": "charged twice"')
+    expect(String(lastParams?.messages[0]?.content)).toContain('"body":"charged twice"')
   })
 
   it('renormalizes and restricts to the option keys', async () => {
@@ -80,6 +80,19 @@ describe('ai-decisions-llm', () => {
     expect(r.answers.queue.probabilities).toEqual({ billing: 0.5, tech: 0.5 })
     expect(r.answers.urgency.probabilities).toEqual([1 / 3, 1 / 3, 1 / 3])
     expect(r.answers.refund.answer).toBe(false)
+  })
+
+  it('serialises an object state compactly — nesting does not multiply the prompt', async () => {
+    bondAI('{"queue":{"choice":"tech","probabilities":{"billing":0.1,"tech":0.9}}}')
+    let nested: unknown = [0]
+    for (let i = 0; i < 400; i++) nested = [nested]
+    const state = { deep: nested }
+    const compact = JSON.stringify(state)
+    await createProvider().decide({ state, questions: { queue: QUESTIONS.queue } })
+    const prompt = String(lastParams?.messages[0]?.content)
+    // The state appears once, as compact JSON; indentation would add hundreds of thousands of characters.
+    expect(prompt).toContain(compact)
+    expect(prompt.length).toBeLessThan(compact.length + 2_000)
   })
 
   it('throws on unparseable output', async () => {

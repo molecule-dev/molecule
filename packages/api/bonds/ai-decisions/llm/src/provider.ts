@@ -224,8 +224,10 @@ export function createProvider(config: LlmDecisionsConfig = {}): AIDecisionsProv
         'Use ONLY the given option keys and level indexes. Probabilities within one question sum to 1.',
         'Respond with ONLY one JSON object mapping every question id to its answer object. No prose, no code fences.',
       ].join('\n')
-      const state =
-        typeof input.state === 'string' ? input.state : JSON.stringify(input.state, null, 2)
+      // Compact, never indented: indentation grows with nesting depth x width, and 43 KB of
+      // nested arrays became a 64-million-character prompt (a request-sized input must not
+      // multiply by orders of magnitude on its way to the model).
+      const state = typeof input.state === 'string' ? input.state : JSON.stringify(input.state)
       const images = input.images ?? []
       const user = [
         'State:',
