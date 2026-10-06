@@ -150,6 +150,32 @@ const isTimeSeriesQuery = (q: AggregateQuery | TimeSeriesQuery): q is TimeSeries
 }
 
 /**
+ * Escapes one CSV cell (RFC 4180) and neutralises spreadsheet formulas.
+ *
+ * A cell beginning with `=`, `+`, `-`, `@`, a tab or a carriage return is
+ * executed as a formula by Excel, Sheets and LibreOffice when the exported
+ * file is opened (CWE-1236), so such cells are prefixed with a single quote
+ * to be read as text. Genuine numbers (a `number`, or a plain numeric string)
+ * are left untouched so negative values are not mangled.
+ *
+ * @param value - The cell value.
+ * @returns The escaped cell text.
+ */
+const escapeCSVField = (value: unknown): string => {
+  if (value === null || value === undefined) return ''
+  let str = String(value)
+  const isNumber =
+    typeof value === 'number' || (typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(str))
+  if (!isNumber && /^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`
+  }
+  if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
+/**
  * Converts rows to CSV format with proper escaping.
  *
  * @param rows - Data rows to convert.
@@ -159,18 +185,10 @@ const toCSV = (rows: Record<string, unknown>[]): Buffer => {
   if (rows.length === 0) return Buffer.from('')
 
   const headers = Object.keys(rows[0])
-  const lines = [headers.join(',')]
+  const lines = [headers.map(escapeCSVField).join(',')]
 
   for (const row of rows) {
-    const values = headers.map((h) => {
-      const val = row[h]
-      if (val === null || val === undefined) return ''
-      const str = String(val)
-      return str.includes(',') || str.includes('"') || str.includes('\n')
-        ? `"${str.replace(/"/g, '""')}"`
-        : str
-    })
-    lines.push(values.join(','))
+    lines.push(headers.map((h) => escapeCSVField(row[h])).join(','))
   }
 
   return Buffer.from(lines.join('\n'))

@@ -278,6 +278,41 @@ describe('database reporting provider', () => {
       expect(csv).toContain('Books,2000')
     })
 
+    it('neutralises spreadsheet formulas and quotes carriage returns in CSV cells', async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          { name: '=HYPERLINK("http://evil","x")', total: -5 },
+          { name: '+1+1', total: '-12.5' },
+          { name: '-2+3', total: 0 },
+          { name: '@SUM(A1)', total: 1 },
+          { name: '\tcmd', total: 2 },
+          { name: '\r=1', total: 3 },
+          { name: 'line\rbreak', total: 4 },
+        ],
+      })
+
+      const p = createProvider()
+      const buf = await p.export(
+        {
+          table: 'orders',
+          measures: [{ field: 'revenue', function: 'sum', alias: 'total' }],
+          dimensions: ['name'],
+        },
+        'csv',
+      )
+
+      expect(buf.toString().split('\n')).toEqual([
+        'name,total',
+        '"\'=HYPERLINK(""http://evil"",""x"")",-5',
+        "'+1+1,-12.5",
+        "'-2+3,0",
+        "'@SUM(A1),1",
+        "'\tcmd,2",
+        '"\'\r=1",3',
+        '"line\rbreak",4',
+      ])
+    })
+
     it('should export aggregate query as JSON', async () => {
       mockQuery.mockResolvedValueOnce({
         rows: [{ category: 'Electronics', total_revenue: 5000 }],
