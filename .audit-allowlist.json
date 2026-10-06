@@ -44,6 +44,26 @@
       "severity": "high",
       "expires": "2027-01-03",
       "reason": "Stack-exhaustion DoS in braces when compiling a deeply-nested glob pattern (advisory published 2026-09-18T18:31Z — CI went red on it before the 2026-10-03 app-ide-react release). NO upstream fix exists: the advisory range is braces <= 3.0.3 with first_patched_version null — every released version is vulnerable, and npm audit reports the only remediation as a DOWNGRADE of @changesets/cli 2.31.1 to 2.25.2 (2022), which is arborist picking an older tree that happens to lack micromatch, not a patched chain. Dev-only by reachability: the chain lives entirely in the repo-root devDependencies that run versioning/docs tooling locally and in CI; the --omit=dev audit does not contain braces, micromatch, globby, fast-glob or any @changesets package, and no @molecule package declares any of them, so nothing shipped or scaffolded carries the code. The DoS also requires feeding a crafted nested glob to the matcher — here the patterns are our own workspace globs, not attacker input. Residual risk: a future tooling change that passes external input as a glob would re-expose it; the gate goes red again at expiry so the decision gets remade. Re-check at expiry for a patched braces release or a changesets/micromatch chain without it, bump, and drop this entry."
+    },
+    {
+      "package": "seroval",
+      "advisories": [
+        "GHSA-p6vx-979v-rg4c",
+        "GHSA-jp82-f5mq-hwhp"
+      ],
+      "severity": "critical",
+      "expires": "2026-10-20",
+      "reason": "seroval (and solid-js, which depends on it) have two advisories: fromJSON() invoking plugin-produced callables, and memory exhaustion from an unchecked TypedArray length in JSON deserialization. Both are about DESERIALIZING UNTRUSTED seroval payloads. NO upstream fix reachable: the patched seroval is 1.6.3 or later, but solid-js 1.9.15, its LATEST release, still declares seroval ~1.5.4, and an override outside that range is not something solid-js is tested against. Exposure: solid-js and seroval are DEV dependencies of @molecule/app-frameworks-solid and @molecule/app-ui-solid (tests and type-checking only); the published packages declare solid-js as a peer, ship no seroval and never deserialize a seroval payload. Re-checked 2026-10-06. Re-check at expiry for a solid-js release that accepts seroval 1.6."
+    },
+    {
+      "package": "solid-js",
+      "advisories": [
+        "GHSA-p6vx-979v-rg4c",
+        "GHSA-jp82-f5mq-hwhp"
+      ],
+      "severity": "critical",
+      "expires": "2026-10-20",
+      "reason": "seroval (and solid-js, which depends on it) have two advisories: fromJSON() invoking plugin-produced callables, and memory exhaustion from an unchecked TypedArray length in JSON deserialization. Both are about DESERIALIZING UNTRUSTED seroval payloads. NO upstream fix reachable: the patched seroval is 1.6.3 or later, but solid-js 1.9.15, its LATEST release, still declares seroval ~1.5.4, and an override outside that range is not something solid-js is tested against. Exposure: solid-js and seroval are DEV dependencies of @molecule/app-frameworks-solid and @molecule/app-ui-solid (tests and type-checking only); the published packages declare solid-js as a peer, ship no seroval and never deserialize a seroval payload. Re-checked 2026-10-06. Re-check at expiry for a solid-js release that accepts seroval 1.6."
     }
   ]
 }
