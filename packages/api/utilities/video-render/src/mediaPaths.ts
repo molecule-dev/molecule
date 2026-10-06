@@ -12,6 +12,7 @@
  */
 
 import { randomUUID } from 'node:crypto'
+import { realpathSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 
 /** Matches a leading URL scheme such as `http:`, `file:` or `data:`. */
@@ -37,7 +38,8 @@ export function hasTraversalSegment(value: string): boolean {
  * @param label - Field name used in error messages.
  * @returns The absolute, confined path.
  * @throws {TypeError} If the source is not a string, carries a URL scheme,
- *   contains a `..` segment, or resolves outside `mediaRoot`.
+ *   contains a `..` segment, does not exist, or resolves (through a symlink or
+ *   not) outside `mediaRoot`.
  */
 export function resolveMediaSource(source: unknown, mediaRoot: string, label: string): string {
   if (typeof source !== 'string' || source.length === 0) {
@@ -55,7 +57,24 @@ export function resolveMediaSource(source: unknown, mediaRoot: string, label: st
   if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) {
     throw new TypeError(`${label} must resolve to a file inside the media root`)
   }
-  return resolved
+  // The check above is on the NAME. A symlink inside the root can point anywhere, and ffmpeg
+  // follows it, so the file the name really reaches must sit inside the real root too. The
+  // resolved real path is what is returned, so what is checked is what is opened.
+  let realRoot: string
+  let realTarget: string
+  try {
+    realRoot = realpathSync(root)
+    realTarget = realpathSync(resolved)
+  } catch (error) {
+    throw new TypeError(`${label} must be an existing file inside the media root`, {
+      cause: error,
+    })
+  }
+  const realRel = relative(realRoot, realTarget)
+  if (realRel === '' || realRel.startsWith('..') || isAbsolute(realRel)) {
+    throw new TypeError(`${label} must resolve to a file inside the media root`)
+  }
+  return realTarget
 }
 
 /**

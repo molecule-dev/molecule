@@ -20,8 +20,11 @@
 
 import type { spawn } from 'node:child_process'
 import { EventEmitter } from 'node:events'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { dirname, join } from 'node:path'
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type {
   MessageHandler,
@@ -48,6 +51,7 @@ import {
   resetJobStore,
   setAudioJobStore,
 } from '../jobStore.js'
+import { resolveMediaSource } from '../mediaPaths.js'
 import { cancelRender, getRenderStatus, renderAudio } from '../renderAudio.js'
 import { describeSpawnFailure, processAudioRenderJob, resolveFfmpegPath } from '../worker.js'
 
@@ -542,7 +546,37 @@ describe('createAudioRenderRoutes', () => {
     return res
   }
 
-  const paths = { mediaRoot: '/tmp', outputDir: '/srv/renders' }
+  // Sources must be existing files inside a REAL media root, so the handler tests use a temp one.
+  let MEDIA = ''
+  let OUTSIDE = ''
+  let paths: { mediaRoot: string; outputDir: string }
+  let handlerSession: AudioSession
+
+  beforeAll(() => {
+    MEDIA = realpathSync(mkdtempSync(join(tmpdir(), 'ar-media-')))
+    OUTSIDE = realpathSync(mkdtempSync(join(tmpdir(), 'ar-outside-')))
+    for (const name of ['drums.wav', 'lead-a.wav', 'lead-b.wav', 'loops/a.wav']) {
+      mkdirSync(dirname(join(MEDIA, name)), { recursive: true })
+      writeFileSync(join(MEDIA, name), '')
+    }
+    writeFileSync(join(OUTSIDE, 'secret.wav'), '')
+    paths = { mediaRoot: MEDIA, outputDir: '/srv/renders' }
+    handlerSession = {
+      ...sampleSession,
+      channels: sampleSession.channels.map((channel) => ({
+        ...channel,
+        clips: channel.clips.map((clip) => ({
+          ...clip,
+          audioUrl: join(MEDIA, clip.audioUrl.replace('/tmp/', '')),
+        })),
+      })),
+    }
+  })
+
+  afterAll(() => {
+    rmSync(MEDIA, { recursive: true, force: true })
+    rmSync(OUTSIDE, { recursive: true, force: true })
+  })
 
   const lastPayload = (): AudioRenderJobPayload => {
     const messages = getMockProvider().queues.get('audio-render')!.messages
@@ -565,7 +599,7 @@ describe('createAudioRenderRoutes', () => {
     await routes.enqueue(
       {
         body: {
-          session: sampleSession,
+          session: handlerSession,
           options: {
             format: 'flac',
             outputPath: '../../app/public/index.html',
@@ -594,7 +628,9 @@ describe('createAudioRenderRoutes', () => {
     }
     await routes.enqueue({ body: { session } }, res)
     expect(res.status).toBe(202)
-    expect(lastPayload().session.channels[0]!.clips[0]!.audioUrl).toBe('/tmp/loops/a.wav')
+    expect(lastPayload().session.channels[0]!.clips[0]!.audioUrl).toBe(
+      join(MEDIA, 'loops', 'a.wav'),
+    )
   })
 
   it.each([
@@ -603,7 +639,10 @@ describe('createAudioRenderRoutes', () => {
     ['a file URL', 'file:///etc/passwd'],
     ['an absolute path outside the root', '/etc/passwd'],
     ['a traversal path', 'loops/../../etc/passwd'],
-  ])('rejects %s as a clip source', async (_label, audioUrl) => {
+    ['the root itself', '<root>'],
+    ['a nonexistent file', 'loops/missing.wav'],
+  ])('rejects %s as a clip source', async (_label, source) => {
+    const audioUrl = source === '<root>' ? MEDIA : source
     const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     const session: AudioSession = {
@@ -619,7 +658,7 @@ describe('createAudioRenderRoutes', () => {
   it('rejects an unsupported format', async () => {
     const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
-    await routes.enqueue({ body: { session: sampleSession, options: { format: 'hls' } } }, res)
+    await routes.enqueue({ body: { session: handlerSession, options: { format: 'hls' } } }, res)
     expect(res.status).toBe(400)
     expect((res.body as { error: string }).error).toMatch(/format/)
   })
@@ -627,7 +666,9 @@ describe('createAudioRenderRoutes', () => {
   it('enqueues a session via POST', async () => {
     const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
-    const req: AudioRenderRequest = { body: { session: sampleSession, options: { format: 'wav' } } }
+    const req: AudioRenderRequest = {
+      body: { session: handlerSession, options: { format: 'wav' } },
+    }
     await routes.enqueue(req, res)
     expect(res.status).toBe(202)
     const body = res.body as { id: string; status: string; format: string }
@@ -651,9 +692,55 @@ describe('createAudioRenderRoutes', () => {
       },
     })
     const res = makeRes()
-    await routes.enqueue({ body: { session: sampleSession } }, res)
+    await routes.enqueue({ body: { session: handlerSession } }, res)
     expect(res.status).toBe(400)
     expect((res.body as { error: string }).error).toBe('forbidden session')
+  })
+
+  describe('symlinks and real paths', () => {
+    const sessionFor = (audioUrl: string): AudioSession => ({
+      duration: 1,
+      channels: [{ id: 'a', clips: [{ audioUrl, startTime: 0, duration: 1 }] }],
+    })
+
+    it('rejects a symlink to a file outside the media root (handler 400, resolver TypeError)', async () => {
+      symlinkSync(join(OUTSIDE, 'secret.wav'), join(MEDIA, 'escape.wav'))
+      const routes = createAudioRenderRoutes(paths)
+      const res = makeRes()
+      await routes.enqueue({ body: { session: sessionFor('escape.wav') } }, res)
+      expect(res.status).toBe(400)
+      expect((res.body as { error: string }).error).toMatch(/audioUrl/)
+      expect(getMockProvider().queues.get('audio-render')?.messages ?? []).toHaveLength(0)
+      expect(() => resolveMediaSource('escape.wav', MEDIA, 'audioUrl')).toThrow(TypeError)
+      expect(() => resolveMediaSource(join(MEDIA, 'escape.wav'), MEDIA, 'audioUrl')).toThrow(
+        /inside the media root/,
+      )
+    })
+
+    it('accepts a symlink to a file inside the root and queues the real target path', async () => {
+      symlinkSync(join(MEDIA, 'drums.wav'), join(MEDIA, 'alias.wav'))
+      const routes = createAudioRenderRoutes(paths)
+      const res = makeRes()
+      await routes.enqueue({ body: { session: sessionFor('alias.wav') } }, res)
+      expect(res.status).toBe(202)
+      expect(lastPayload().session.channels[0]!.clips[0]!.audioUrl).toBe(join(MEDIA, 'drums.wav'))
+      expect(resolveMediaSource('alias.wav', MEDIA, 'audioUrl')).toBe(join(MEDIA, 'drums.wav'))
+    })
+
+    it('rejects a nonexistent source with the existing-file message', () => {
+      expect(() => resolveMediaSource('nope.wav', MEDIA, 'audioUrl')).toThrow(
+        /must be an existing file inside the media root/,
+      )
+    })
+
+    it('works when the media root itself is a symlink and returns real paths', () => {
+      const linkRoot = join(OUTSIDE, 'root-link')
+      symlinkSync(MEDIA, linkRoot)
+      expect(resolveMediaSource('drums.wav', linkRoot, 'audioUrl')).toBe(join(MEDIA, 'drums.wav'))
+      expect(resolveMediaSource(join(linkRoot, 'loops', 'a.wav'), linkRoot, 'audioUrl')).toBe(
+        join(MEDIA, 'loops', 'a.wav'),
+      )
+    })
   })
 
   it('looks up status by id', async () => {

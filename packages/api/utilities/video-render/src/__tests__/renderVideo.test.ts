@@ -4,7 +4,11 @@
  * via `setProvider()` so tests don't need a real queue backend.
  */
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { dirname, join } from 'node:path'
+
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { Queue, QueueProvider } from '@molecule/api-queue'
 import { setProvider as setQueueProvider } from '@molecule/api-queue'
@@ -21,6 +25,7 @@ import type {
   VideoTimeline,
 } from '../index.js'
 import { setJobStore } from '../jobStore.js'
+import { resolveMediaSource } from '../mediaPaths.js'
 import { cancelRender, generateJobId, getRenderStatus, renderVideo } from '../renderVideo.js'
 
 interface MockQueueState {
@@ -196,7 +201,37 @@ describe('HTTP handlers', () => {
     } as unknown as VideoRenderResponse & { status: number; body: unknown }
   }
 
-  const paths = { mediaRoot: '/uploads', outputDir: '/srv/renders' }
+  // Sources must be existing files inside a REAL media root, so the handler tests use a temp one.
+  let MEDIA = ''
+  let OUTSIDE = ''
+  let paths: { mediaRoot: string; outputDir: string }
+  let handlerTimeline: VideoTimeline
+
+  beforeAll(() => {
+    MEDIA = realpathSync(mkdtempSync(join(tmpdir(), 'vr-media-')))
+    OUTSIDE = realpathSync(mkdtempSync(join(tmpdir(), 'vr-outside-')))
+    for (const name of ['x.mp4', 'clips/a.mp4']) {
+      mkdirSync(dirname(join(MEDIA, name)), { recursive: true })
+      writeFileSync(join(MEDIA, name), '')
+    }
+    writeFileSync(join(OUTSIDE, 'secret.mp4'), '')
+    paths = { mediaRoot: MEDIA, outputDir: '/srv/renders' }
+    handlerTimeline = {
+      ...baseTimeline,
+      tracks: baseTimeline.tracks.map((track) => ({
+        ...track,
+        clips: track.clips.map((clip) => ({
+          ...clip,
+          source: join(MEDIA, clip.source.replace('/uploads/', '')),
+        })),
+      })),
+    }
+  })
+
+  afterAll(() => {
+    rmSync(MEDIA, { recursive: true, force: true })
+    rmSync(OUTSIDE, { recursive: true, force: true })
+  })
 
   function sentOptions(): RenderVideoOptions {
     return (queueState.sent[0]!.message.body as { options: RenderVideoOptions }).options
@@ -210,12 +245,12 @@ describe('HTTP handlers', () => {
   it('POST /render/video returns 202 with a job handle', async () => {
     const handle = createEnqueueRenderHandler(paths)
     const req: VideoRenderRequest = {
-      body: { timeline: baseTimeline, options: baseOptions },
+      body: { timeline: handlerTimeline, options: baseOptions },
     }
     const res = fakeRes()
     await handle(req, res)
     expect(res.status).toBe(202)
-    expect(sentSources()).toEqual(['/uploads/x.mp4'])
+    expect(sentSources()).toEqual([join(MEDIA, 'x.mp4')])
     const body = res.body as { jobId: string; status: string }
     expect(body.status).toBe('queued')
     expect(body.jobId).toMatch(/^vrj_/)
@@ -233,7 +268,7 @@ describe('HTTP handlers', () => {
     expect(r2.status).toBe(400)
 
     const r3 = fakeRes()
-    await handle({ body: { timeline: baseTimeline, options: 'mp4' } }, r3)
+    await handle({ body: { timeline: handlerTimeline, options: 'mp4' } }, r3)
     expect(r3.status).toBe(400)
     expect(queueState.sent).toHaveLength(0)
   })
@@ -259,7 +294,7 @@ describe('HTTP handlers', () => {
     await handle(
       {
         body: {
-          timeline: baseTimeline,
+          timeline: handlerTimeline,
           options: {
             format: 'webm',
             outputPath: '../../app/public/index.html',
@@ -285,20 +320,18 @@ describe('HTTP handlers', () => {
   it('POST /render/video resolves relative sources inside the media root', async () => {
     const handle = createEnqueueRenderHandler(paths)
     const res = fakeRes()
-    const timeline: VideoTimeline = {
-      ...baseTimeline,
-      tracks: [
-        {
-          id: 'v0',
-          kind: 'video',
-          clips: [{ id: 'c0', source: 'clips/a.mp4', start: 0, duration: 4 }],
-        },
-      ],
-    }
+    const timeline = timelineFor('clips/a.mp4')
     await handle({ body: { timeline } }, res)
     expect(res.status).toBe(202)
-    expect(sentSources()).toEqual(['/uploads/clips/a.mp4'])
+    expect(sentSources()).toEqual([join(MEDIA, 'clips', 'a.mp4')])
   })
+
+  function timelineFor(source: string): VideoTimeline {
+    return {
+      ...baseTimeline,
+      tracks: [{ id: 'v0', kind: 'video', clips: [{ id: 'c0', source, start: 0, duration: 4 }] }],
+    }
+  }
 
   it.each([
     ['an http URL', 'http://169.254.169.254/latest/meta-data/'],
@@ -306,18 +339,57 @@ describe('HTTP handlers', () => {
     ['a file URL', 'file:///etc/passwd'],
     ['an absolute path outside the root', '/etc/passwd'],
     ['a traversal path', 'clips/../../etc/passwd'],
-    ['the root itself', '/uploads'],
-  ])('POST /render/video rejects %s as a clip source', async (_label, source) => {
+    ['the root itself', '<root>'],
+    ['a nonexistent file', 'clips/missing.mp4'],
+  ])('POST /render/video rejects %s as a clip source', async (_label, rawSource) => {
+    const source = rawSource === '<root>' ? MEDIA : rawSource
     const handle = createEnqueueRenderHandler(paths)
     const res = fakeRes()
-    const timeline: VideoTimeline = {
-      ...baseTimeline,
-      tracks: [{ id: 'v0', kind: 'video', clips: [{ id: 'c0', source, start: 0, duration: 4 }] }],
-    }
-    await handle({ body: { timeline } }, res)
+    await handle({ body: { timeline: timelineFor(source) } }, res)
     expect(res.status).toBe(400)
     expect((res.body as { error: string }).error).toMatch(/source/)
     expect(queueState.sent).toHaveLength(0)
+  })
+
+  describe('symlinks and real paths', () => {
+    it('rejects a symlink to a file outside the media root (handler 400, resolver TypeError)', async () => {
+      symlinkSync(join(OUTSIDE, 'secret.mp4'), join(MEDIA, 'escape.mp4'))
+      const handle = createEnqueueRenderHandler(paths)
+      const res = fakeRes()
+      await handle({ body: { timeline: timelineFor('escape.mp4') } }, res)
+      expect(res.status).toBe(400)
+      expect((res.body as { error: string }).error).toMatch(/source/)
+      expect(queueState.sent).toHaveLength(0)
+      expect(() => resolveMediaSource('escape.mp4', MEDIA, 'source')).toThrow(TypeError)
+      expect(() => resolveMediaSource(join(MEDIA, 'escape.mp4'), MEDIA, 'source')).toThrow(
+        /inside the media root/,
+      )
+    })
+
+    it('accepts a symlink to a file inside the root and queues the real target path', async () => {
+      symlinkSync(join(MEDIA, 'x.mp4'), join(MEDIA, 'alias.mp4'))
+      const handle = createEnqueueRenderHandler(paths)
+      const res = fakeRes()
+      await handle({ body: { timeline: timelineFor('alias.mp4') } }, res)
+      expect(res.status).toBe(202)
+      expect(sentSources()).toEqual([join(MEDIA, 'x.mp4')])
+      expect(resolveMediaSource('alias.mp4', MEDIA, 'source')).toBe(join(MEDIA, 'x.mp4'))
+    })
+
+    it('rejects a nonexistent source with the existing-file message', () => {
+      expect(() => resolveMediaSource('nope.mp4', MEDIA, 'source')).toThrow(
+        /must be an existing file inside the media root/,
+      )
+    })
+
+    it('works when the media root itself is a symlink and returns real paths', () => {
+      const linkRoot = join(OUTSIDE, 'root-link')
+      symlinkSync(MEDIA, linkRoot)
+      expect(resolveMediaSource('x.mp4', linkRoot, 'source')).toBe(join(MEDIA, 'x.mp4'))
+      expect(resolveMediaSource(join(linkRoot, 'clips', 'a.mp4'), linkRoot, 'source')).toBe(
+        join(MEDIA, 'clips', 'a.mp4'),
+      )
+    })
   })
 
   it('POST /render/video runs the optional validator', async () => {
@@ -328,7 +400,7 @@ describe('HTTP handlers', () => {
       },
     })
     const res = fakeRes()
-    await handle({ body: { timeline: baseTimeline, options: baseOptions } }, res)
+    await handle({ body: { timeline: handlerTimeline, options: baseOptions } }, res)
     expect(res.status).toBe(400)
     expect((res.body as { error: string }).error).toBe('Too long')
   })
@@ -336,12 +408,12 @@ describe('HTTP handlers', () => {
   it('POST /render/video maps render-time validation errors to 400', async () => {
     const handle = createEnqueueRenderHandler(paths)
     const res = fakeRes()
-    await handle({ body: { timeline: baseTimeline, options: { codec: 'evil' } } }, res)
+    await handle({ body: { timeline: handlerTimeline, options: { codec: 'evil' } } }, res)
     expect(res.status).toBe(400)
     expect((res.body as { error: string }).error).toMatch(/codec/)
 
     const res2 = fakeRes()
-    await handle({ body: { timeline: baseTimeline, options: { format: 'hls' } } }, res2)
+    await handle({ body: { timeline: handlerTimeline, options: { format: 'hls' } } }, res2)
     expect(res2.status).toBe(400)
     expect((res2.body as { error: string }).error).toMatch(/format/)
   })
