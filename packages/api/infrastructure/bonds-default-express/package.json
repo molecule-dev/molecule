@@ -75,7 +75,7 @@
     "@molecule/api-http-fetch": "1.0.2",
     "@molecule/api-i18n": "1.0.3",
     "@molecule/api-image": "1.0.2",
-    "@molecule/api-image-sharp": "1.0.3",
+    "@molecule/api-image-sharp": "1.0.4",
     "@molecule/api-import-export": "1.0.3",
     "@molecule/api-import-export-csv": "1.0.2",
     "@molecule/api-jwt": "1.0.3",

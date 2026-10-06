@@ -1,5 +1,11 @@
 # @molecule/api-image-sharp
 
+## 1.0.4
+
+### Patch Changes
+
+- 0bf7835: Updates sharp to 0.35.5, which fixes a vulnerability in its bundled librsvg.
+
 ## 1.0.2
 
 ### Patch Changes
