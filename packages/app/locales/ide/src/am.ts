@@ -683,4 +683,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'ተቋርጧል',
   'ide.chat.subagent.failedFallback': 'ይህ ንዑስ ወኪል ከመጠናቀቁ በፊት ቆሟል።',
   'ide.chat.viaDictation.badge': 'በድምጽ የተነገረ',
+  'ide.chat.inputLabel': 'መልእክት ጻፍ',
+  'ide.chat.messagesLabel': 'የውይይት መልዕክቶች',
 }

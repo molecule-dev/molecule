@@ -692,4 +692,6 @@ export const ur: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'خلل ڈالا۔',
   'ide.chat.subagent.failedFallback': 'یہ سبجینٹ ختم ہونے سے پہلے ہی رک گیا۔',
   'ide.chat.viaDictation.badge': 'آواز کے ذریعہ ترتیب دیا گیا۔',
+  'ide.chat.inputLabel': 'ایک پیغام لکھیں۔',
+  'ide.chat.messagesLabel': 'گفتگو کے پیغامات',
 }

@@ -693,4 +693,6 @@ export const fa: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'قطع شد',
   'ide.chat.subagent.failedFallback': 'این نماینده فرعی قبل از اینکه کارش تمام شود، ایستاد.',
   'ide.chat.viaDictation.badge': 'دیکته شده با صدا',
+  'ide.chat.inputLabel': 'یک پیام بنویسید',
+  'ide.chat.messagesLabel': 'پیام‌های مکالمه',
 }

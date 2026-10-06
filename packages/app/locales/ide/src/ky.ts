@@ -696,4 +696,6 @@ export const ky: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Үзгүлтүккө учурады',
   'ide.chat.subagent.failedFallback': 'Бул субагент бүтө электе эле токтоп калды.',
   'ide.chat.viaDictation.badge': 'Үн менен жазылган',
+  'ide.chat.inputLabel': 'Билдирүү жазыңыз',
+  'ide.chat.messagesLabel': 'Сүйлөшүү билдирүүлөрү',
 }

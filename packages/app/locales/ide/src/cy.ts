@@ -693,4 +693,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': "Wedi'i dorri ar draws",
   'ide.chat.subagent.failedFallback': 'Stopiodd yr is-asiant hwn cyn iddo orffen.',
   'ide.chat.viaDictation.badge': "Wedi'i arddweud gan lais",
+  'ide.chat.inputLabel': 'Ysgrifennu neges',
+  'ide.chat.messagesLabel': 'Negeseuon sgwrs',
 }

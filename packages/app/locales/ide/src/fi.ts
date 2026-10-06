@@ -705,4 +705,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Keskeytetty',
   'ide.chat.subagent.failedFallback': 'Tämä alasigentti pysähtyi ennen kuin se ehti valmistua.',
   'ide.chat.viaDictation.badge': 'Äänellä saneltu',
+  'ide.chat.inputLabel': 'Kirjoita viesti',
+  'ide.chat.messagesLabel': 'Keskusteluviestit',
 }

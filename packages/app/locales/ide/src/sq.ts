@@ -700,4 +700,6 @@ export const sq: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Ndërprerë',
   'ide.chat.subagent.failedFallback': 'Ky nën-agjent u ndal para se të mbaronte.',
   'ide.chat.viaDictation.badge': 'Diktuar nga zëri',
+  'ide.chat.inputLabel': 'Shkruaj një mesazh',
+  'ide.chat.messagesLabel': 'Mesazhet e bisedës',
 }

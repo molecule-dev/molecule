@@ -705,4 +705,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Terputus',
   'ide.chat.subagent.failedFallback': 'Subagen ini berhenti sebelum menyelesaikan tugasnya.',
   'ide.chat.viaDictation.badge': 'Didikte oleh suara',
+  'ide.chat.inputLabel': 'Tulis pesan',
+  'ide.chat.messagesLabel': 'Pesan percakapan',
 }

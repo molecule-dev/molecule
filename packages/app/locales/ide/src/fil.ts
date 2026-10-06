@@ -702,4 +702,6 @@ export const fil: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Naantala',
   'ide.chat.subagent.failedFallback': 'Tumigil ang subagent na ito bago pa man ito matapos.',
   'ide.chat.viaDictation.badge': 'Idinidikta ng boses',
+  'ide.chat.inputLabel': 'Sumulat ng mensahe',
+  'ide.chat.messagesLabel': 'Mga mensahe sa pag-uusap',
 }

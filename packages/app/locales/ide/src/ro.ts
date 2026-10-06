@@ -706,4 +706,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Întrerupt',
   'ide.chat.subagent.failedFallback': 'Acest subagent s-a oprit înainte să termine.',
   'ide.chat.viaDictation.badge': 'Dictat cu voce',
+  'ide.chat.inputLabel': 'Scrie un mesaj',
+  'ide.chat.messagesLabel': 'Mesaje de conversație',
 }

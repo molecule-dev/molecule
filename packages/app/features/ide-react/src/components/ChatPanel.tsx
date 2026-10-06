@@ -7738,7 +7738,12 @@ function ChatInner({
   useEffect(() => {
     const ta = textareaRef.current
     if (!ta) return
-    const handler = (e: KeyboardEvent): void => keyDownRef.current(e)
+    // A key that is part of an IME composition (Enter accepting a Japanese, Chinese or Korean
+    // candidate) must reach the input method, not send the message.
+    const handler = (e: KeyboardEvent): void => {
+      if (e.isComposing || e.keyCode === 229) return
+      keyDownRef.current(e)
+    }
     ta.addEventListener('keydown', handler)
     return () => ta.removeEventListener('keydown', handler)
   }, [])
@@ -8260,6 +8265,15 @@ function ChatInner({
       {/* ── Messages ── */}
       <div
         ref={messagesContainerRef}
+        // A live log: a new message or card is announced as it is added. `additions` only, so a
+        // reply that is still streaming (text changing inside an existing node) is not read out
+        // token by token.
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label={t('ide.chat.messagesLabel', undefined, {
+          defaultValue: 'Conversation messages',
+        })}
         className={cm.sp('p', 3)}
         // Symmetric padding on all four sides (P3-04) — the old asymmetric pr-1 hack
         // is gone. No scrollbar-gutter:stable reservation (it made the right padding
@@ -11587,6 +11601,7 @@ function ChatInner({
           <textarea
             ref={textareaRef}
             data-mol-chat-input=""
+            aria-label={t('ide.chat.inputLabel', undefined, { defaultValue: 'Write a message' })}
             defaultValue={inputRef.current as string}
             autoComplete="off"
             onChange={handleInputChange}
@@ -12146,6 +12161,7 @@ function ChatInner({
                   data-mol-id="chat-stop-button"
                   onClick={handleAbort}
                   title={t('ide.chat.stop', undefined, { defaultValue: 'Stop' })}
+                  aria-label={t('ide.chat.stop', undefined, { defaultValue: 'Stop' })}
                   // The composer's two action buttons (Stop, Send) are design-system
                   // buttons in the ERROR and PRIMARY semantics — same radius, height
                   // and states as every other action button in the panel. They were a
@@ -12171,6 +12187,7 @@ function ChatInner({
                 data-mol-id="chat-send-button"
                 onClick={() => void handleSubmit()}
                 title={t('ide.chat.send', undefined, { defaultValue: 'Send' })}
+                aria-label={t('ide.chat.send', undefined, { defaultValue: 'Send' })}
                 disabled={!hasInput && attachedFiles.length === 0}
                 // Stop's twin in the PRIMARY semantic. The real `disabled`
                 // attribute above carries the muted/inert look via the CVA

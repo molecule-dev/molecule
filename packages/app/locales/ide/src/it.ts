@@ -714,4 +714,6 @@ export const it: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Interrotto',
   'ide.chat.subagent.failedFallback': 'Questo subagente si è interrotto prima del completamento.',
   'ide.chat.viaDictation.badge': 'Dettato a voce',
+  'ide.chat.inputLabel': 'Scrivi un messaggio',
+  'ide.chat.messagesLabel': 'Messaggi di conversazione',
 }

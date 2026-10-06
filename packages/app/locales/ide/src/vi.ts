@@ -700,4 +700,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Bị gián đoạn',
   'ide.chat.subagent.failedFallback': 'Tác nhân phụ này đã dừng lại trước khi hoàn thành.',
   'ide.chat.viaDictation.badge': 'Được đọc chính tả bằng giọng nói',
+  'ide.chat.inputLabel': 'Viết một tin nhắn',
+  'ide.chat.messagesLabel': 'Tin nhắn hội thoại',
 }

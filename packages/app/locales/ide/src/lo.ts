@@ -690,4 +690,6 @@ export const lo: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'ຖືກຂັດຂວາງ',
   'ide.chat.subagent.failedFallback': 'ຕົວແທນຍ່ອຍນີ້ຢຸດກ່ອນທີ່ມັນຈະສຳເລັດ.',
   'ide.chat.viaDictation.badge': 'ຂຽນຕາມສຽງ',
+  'ide.chat.inputLabel': 'ຂຽນຂໍ້ຄວາມ',
+  'ide.chat.messagesLabel': 'ຂໍ້ຄວາມສົນທະນາ',
 }

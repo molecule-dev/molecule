@@ -696,4 +696,6 @@ export const eu: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Eten eginda',
   'ide.chat.subagent.failedFallback': 'Azpi-agente hau amaitu aurretik gelditu da.',
   'ide.chat.viaDictation.badge': 'Ahotsak diktatua.',
+  'ide.chat.inputLabel': 'Idatzi mezu bat',
+  'ide.chat.messagesLabel': 'Elkarrizketa-mezuak',
 }

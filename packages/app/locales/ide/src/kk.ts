@@ -693,4 +693,6 @@ export const kk: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Үзілді',
   'ide.chat.subagent.failedFallback': 'Бұл қосалқы агент аяқталмай тұрып тоқтады.',
   'ide.chat.viaDictation.badge': 'Дауыспен жазылған',
+  'ide.chat.inputLabel': 'Хабарлама жазу',
+  'ide.chat.messagesLabel': 'Әңгіме хабарламалары',
 }

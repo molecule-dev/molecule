@@ -250,6 +250,8 @@ export const en: IdeTranslations = {
   'ide.chat.automatic': 'Sent automatically',
   'ide.chat.stop': 'Stop',
   'ide.chat.send': 'Send',
+  'ide.chat.inputLabel': 'Write a message',
+  'ide.chat.messagesLabel': 'Conversation messages',
   'ide.chat.mention': 'Reference a file',
   'ide.chat.slashCommands': 'Slash commands',
   'ide.chat.code.copy': 'Copy',

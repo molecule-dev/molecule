@@ -697,4 +697,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'An katse',
   'ide.chat.subagent.failedFallback': 'Wannan wakilin ya tsaya kafin ya gama.',
   'ide.chat.viaDictation.badge': 'An furta ta hanyar murya',
+  'ide.chat.inputLabel': 'Rubuta saƙo',
+  'ide.chat.messagesLabel': 'Saƙonnin tattaunawa',
 }

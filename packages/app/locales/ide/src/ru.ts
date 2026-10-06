@@ -707,4 +707,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Прерванный',
   'ide.chat.subagent.failedFallback': 'Этот субагент остановился, не успев закончить свою работу.',
   'ide.chat.viaDictation.badge': 'Продиктовано голосом',
+  'ide.chat.inputLabel': 'Напишите сообщение',
+  'ide.chat.messagesLabel': 'Сообщения в чате',
 }

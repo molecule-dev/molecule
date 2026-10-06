@@ -702,4 +702,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'အနှောင့်အယှက်ဖြစ်သွားသည်',
   'ide.chat.subagent.failedFallback': 'ဤလက်အောက်ခံအေးဂျင့်သည် မပြီးမီ ရပ်သွားသည်။',
   'ide.chat.viaDictation.badge': 'အသံဖြင့် နှုတ်တိုက်ရေးသားထားသည်',
+  'ide.chat.inputLabel': 'မက်ဆေ့ချ်ရေးပါ',
+  'ide.chat.messagesLabel': 'စကားပြောဆိုမှု မက်ဆေ့ချ်များ',
 }

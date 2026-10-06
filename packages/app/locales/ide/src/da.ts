@@ -700,4 +700,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Afbrudt',
   'ide.chat.subagent.failedFallback': 'Denne underagent stoppede, før den var færdig.',
   'ide.chat.viaDictation.badge': 'Dikteret af stemmen',
+  'ide.chat.inputLabel': 'Skriv en besked',
+  'ide.chat.messagesLabel': 'Samtalebeskeder',
 }

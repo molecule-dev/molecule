@@ -695,4 +695,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'مقاطعة',
   'ide.chat.subagent.failedFallback': 'توقف هذا العميل الفرعي قبل أن ينهي مهمته.',
   'ide.chat.viaDictation.badge': 'تم إملاءها بالصوت',
+  'ide.chat.inputLabel': 'اكتب رسالة',
+  'ide.chat.messagesLabel': 'رسائل المحادثة',
 }

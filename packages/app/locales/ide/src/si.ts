@@ -694,4 +694,6 @@ export const si: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'බාධා කරන ලදී',
   'ide.chat.subagent.failedFallback': 'මෙම උප නියෝජිතයා එය අවසන් වීමට පෙර නතර විය.',
   'ide.chat.viaDictation.badge': 'කටහඬ අනුව කියවන ලදී',
+  'ide.chat.inputLabel': 'පණිවිඩයක් ලියන්න',
+  'ide.chat.messagesLabel': 'සංවාද පණිවිඩ',
 }

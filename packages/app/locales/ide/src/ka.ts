@@ -695,4 +695,6 @@ export const ka: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'შეწყვეტილია',
   'ide.chat.subagent.failedFallback': 'ეს ქვეაგენტი დასრულებამდე გაჩერდა.',
   'ide.chat.viaDictation.badge': 'ხმით კარნახით',
+  'ide.chat.inputLabel': 'დაწერეთ შეტყობინება',
+  'ide.chat.messagesLabel': 'საუბრის შეტყობინებები',
 }

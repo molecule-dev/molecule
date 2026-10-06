@@ -696,4 +696,6 @@ export const mk: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Прекинато',
   'ide.chat.subagent.failedFallback': 'Овој подагент застана пред да заврши.',
   'ide.chat.viaDictation.badge': 'Диктирано со глас',
+  'ide.chat.inputLabel': 'Напиши порака',
+  'ide.chat.messagesLabel': 'Пораки од разговор',
 }

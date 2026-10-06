@@ -697,4 +697,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Curtha isteach',
   'ide.chat.subagent.failedFallback': 'Stop an fo-ghníomhaire seo sular chríochnaigh sé.',
   'ide.chat.viaDictation.badge': 'Deachtaithe ag guth',
+  'ide.chat.inputLabel': 'Scríobh teachtaireacht',
+  'ide.chat.messagesLabel': 'Teachtaireachtaí comhrá',
 }

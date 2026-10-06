@@ -677,4 +677,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': '中斷',
   'ide.chat.subagent.failedFallback': '這個分包商在任務完成前就停止了。',
   'ide.chat.viaDictation.badge': '語音播報',
+  'ide.chat.inputLabel': '寫一則訊息',
+  'ide.chat.messagesLabel': '對話訊息',
 }

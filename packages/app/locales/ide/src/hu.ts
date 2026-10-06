@@ -704,4 +704,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Megszakított',
   'ide.chat.subagent.failedFallback': 'Ez az alügynök megállt, mielőtt befejezte volna.',
   'ide.chat.viaDictation.badge': 'Hang által diktált',
+  'ide.chat.inputLabel': 'Írj egy üzenetet',
+  'ide.chat.messagesLabel': 'Beszélgetési üzenetek',
 }

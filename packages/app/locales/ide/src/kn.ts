@@ -696,4 +696,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'ಅಡಚಣೆ ಉಂಟಾಗಿದೆ',
   'ide.chat.subagent.failedFallback': 'ಈ ಉಪ ಏಜೆಂಟ್ ಮುಗಿಯುವ ಮೊದಲೇ ನಿಂತುಹೋಯಿತು.',
   'ide.chat.viaDictation.badge': 'ಧ್ವನಿಯ ಮೂಲಕ ನಿರ್ದೇಶಿಸಲಾಗಿದೆ',
+  'ide.chat.inputLabel': 'ಸಂದೇಶ ಬರೆಯಿರಿ',
+  'ide.chat.messagesLabel': 'ಸಂಭಾಷಣೆ ಸಂದೇಶಗಳು',
 }

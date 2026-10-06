@@ -693,4 +693,6 @@ export const az: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Dayandırıldı',
   'ide.chat.subagent.failedFallback': 'Bu subagent bitməmişdən əvvəl dayandı.',
   'ide.chat.viaDictation.badge': 'Səslə diktə edildi',
+  'ide.chat.inputLabel': 'Mesaj yazın',
+  'ide.chat.messagesLabel': 'Söhbət mesajları',
 }

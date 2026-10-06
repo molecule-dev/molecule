@@ -704,4 +704,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Kesintiye uğradı',
   'ide.chat.subagent.failedFallback': 'Bu alt ajan işini bitirmeden durdu.',
   'ide.chat.viaDictation.badge': 'Sesle dikte edildi',
+  'ide.chat.inputLabel': 'Bir mesaj yazın',
+  'ide.chat.messagesLabel': 'Konuşma mesajları',
 }

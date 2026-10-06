@@ -691,4 +691,6 @@ export const gu: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'વિક્ષેપિત',
   'ide.chat.subagent.failedFallback': 'આ સબએજન્ટ કામ પૂરું થાય તે પહેલાં જ બંધ થઈ ગયો.',
   'ide.chat.viaDictation.badge': 'અવાજ દ્વારા ડિક્ટેડ',
+  'ide.chat.inputLabel': 'સંદેશ લખો',
+  'ide.chat.messagesLabel': 'વાતચીત સંદેશા',
 }

@@ -700,4 +700,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Kuphazanyisiwe',
   'ide.chat.subagent.failedFallback': 'Lo mthengisi omncane wama ngaphambi kokuba aqede.',
   'ide.chat.viaDictation.badge': 'Kuqondiswe ngezwi',
+  'ide.chat.inputLabel': 'Bhala umlayezo',
+  'ide.chat.messagesLabel': 'Imiyalezo yengxoxo',
 }

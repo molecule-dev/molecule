@@ -19,6 +19,8 @@ export type IdeTranslationKey =
   | 'ide.chat.automatic'
   | 'ide.chat.stop'
   | 'ide.chat.send'
+  | 'ide.chat.inputLabel'
+  | 'ide.chat.messagesLabel'
   | 'ide.chat.mention'
   | 'ide.chat.slashCommands'
   | 'ide.chat.code.copy'

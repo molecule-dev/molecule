@@ -707,4 +707,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Pertrauktas',
   'ide.chat.subagent.failedFallback': 'Šis subagentas sustojo nespėjęs baigti.',
   'ide.chat.viaDictation.badge': 'Diktuojama balsu',
+  'ide.chat.inputLabel': 'Parašykite žinutę',
+  'ide.chat.messagesLabel': 'Pokalbių pranešimai',
 }

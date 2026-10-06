@@ -693,4 +693,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'ਰੁਕਾਵਟ ਆਈ',
   'ide.chat.subagent.failedFallback': 'ਇਹ ਸਬ-ਏਜੰਟ ਆਪਣੇ ਕੰਮ ਖਤਮ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਹੀ ਰੁਕ ਗਿਆ।',
   'ide.chat.viaDictation.badge': 'ਅਵਾਜ਼ ਦੁਆਰਾ ਬੋਲਿਆ ਗਿਆ',
+  'ide.chat.inputLabel': 'ਸੁਨੇਹਾ ਲਿਖੋ',
+  'ide.chat.messagesLabel': 'ਗੱਲਬਾਤ ਸੁਨੇਹੇ',
 }

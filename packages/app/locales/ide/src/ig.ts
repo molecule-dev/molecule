@@ -691,4 +691,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Ekwusiri ya',
   'ide.chat.subagent.failedFallback': 'Ihe nnọchite anya a kwụsịrị tupu ọ gwụchaa.',
   'ide.chat.viaDictation.badge': 'E ji olu kwuo ya',
+  'ide.chat.inputLabel': 'Dee ozi',
+  'ide.chat.messagesLabel': 'Ozi mkparịta ụka',
 }

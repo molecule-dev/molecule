@@ -702,4 +702,6 @@ export const sv: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Avbruten',
   'ide.chat.subagent.failedFallback': 'Denna underagent slutade innan den var klar.',
   'ide.chat.viaDictation.badge': 'Dikterad med rösten',
+  'ide.chat.inputLabel': 'Skriv ett meddelande',
+  'ide.chat.messagesLabel': 'Konversationsmeddelanden',
 }

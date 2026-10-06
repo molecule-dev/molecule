@@ -693,4 +693,6 @@ export const bn: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'বাধাগ্রস্ত',
   'ide.chat.subagent.failedFallback': 'এই উপ-এজেন্টটি শেষ করার আগেই থেমে গেল।',
   'ide.chat.viaDictation.badge': 'কণ্ঠস্বর দ্বারা নির্দেশিত',
+  'ide.chat.inputLabel': 'একটি বার্তা লিখুন',
+  'ide.chat.messagesLabel': 'কথোপকথনের বার্তা',
 }

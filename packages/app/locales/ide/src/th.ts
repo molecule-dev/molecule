@@ -694,4 +694,6 @@ export const th: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'ถูกขัดจังหวะ',
   'ide.chat.subagent.failedFallback': 'ตัวแทนย่อยนี้หยุดทำงานก่อนที่จะเสร็จสิ้น',
   'ide.chat.viaDictation.badge': 'บันทึกเสียง',
+  'ide.chat.inputLabel': 'เขียนข้อความ',
+  'ide.chat.messagesLabel': 'ข้อความสนทนา',
 }

@@ -697,4 +697,6 @@ export const km: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'រំខាន',
   'ide.chat.subagent.failedFallback': 'ភ្នាក់ងាររងនេះបានឈប់មុនពេលវាបញ្ចប់។',
   'ide.chat.viaDictation.badge': 'សរសេរតាមសំឡេង',
+  'ide.chat.inputLabel': 'សរសេរសារ',
+  'ide.chat.messagesLabel': 'សារសន្ទនា',
 }

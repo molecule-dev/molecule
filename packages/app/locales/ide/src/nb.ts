@@ -698,4 +698,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Avbrutt',
   'ide.chat.subagent.failedFallback': 'Denne underagenten stoppet før den var ferdig.',
   'ide.chat.viaDictation.badge': 'Diktert med stemmen',
+  'ide.chat.inputLabel': 'Skriv en melding',
+  'ide.chat.messagesLabel': 'Samtalemeldinger',
 }

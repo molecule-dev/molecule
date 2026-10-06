@@ -705,4 +705,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Prerušené',
   'ide.chat.subagent.failedFallback': 'Tento subagent sa zastavil pred dokončením.',
   'ide.chat.viaDictation.badge': 'Diktované hlasom',
+  'ide.chat.inputLabel': 'Napíšte správu',
+  'ide.chat.messagesLabel': 'Správy z konverzácie',
 }

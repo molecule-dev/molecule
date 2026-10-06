@@ -699,4 +699,6 @@ export const ml: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'തടസ്സപ്പെട്ടു',
   'ide.chat.subagent.failedFallback': 'ഈ ഉപ ഏജന്റ് പൂർത്തിയാകുന്നതിന് മുമ്പ് നിർത്തി.',
   'ide.chat.viaDictation.badge': 'ശബ്‌ദം ഉപയോഗിച്ച് പറഞ്ഞുകൊടുക്കുന്നു',
+  'ide.chat.inputLabel': 'ഒരു സന്ദേശം എഴുതുക',
+  'ide.chat.messagesLabel': 'സംഭാഷണ സന്ദേശങ്ങൾ',
 }

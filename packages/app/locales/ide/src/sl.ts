@@ -704,4 +704,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Prekinjeno',
   'ide.chat.subagent.failedFallback': 'Ta podagent se je ustavil, preden je končal.',
   'ide.chat.viaDictation.badge': 'Narekuje glas',
+  'ide.chat.inputLabel': 'Napiši sporočilo',
+  'ide.chat.messagesLabel': 'Sporočila pogovora',
 }

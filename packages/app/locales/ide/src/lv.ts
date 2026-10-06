@@ -701,4 +701,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Pārtraukts',
   'ide.chat.subagent.failedFallback': 'Šis apakšaģents apstājās, pirms tas bija beidzies.',
   'ide.chat.viaDictation.badge': 'Diktēts ar balsi',
+  'ide.chat.inputLabel': 'Uzrakstīt ziņojumu',
+  'ide.chat.messagesLabel': 'Sarunu ziņojumi',
 }

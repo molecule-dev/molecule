@@ -695,4 +695,6 @@ export const bs: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Prekinuto',
   'ide.chat.subagent.failedFallback': 'Ovaj subagent se zaustavio prije nego što je završio.',
   'ide.chat.viaDictation.badge': 'Diktirano glasom',
+  'ide.chat.inputLabel': 'Napišite poruku',
+  'ide.chat.messagesLabel': 'Poruke u razgovoru',
 }

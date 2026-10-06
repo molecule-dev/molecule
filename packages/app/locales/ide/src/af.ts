@@ -692,4 +692,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Onderbreek',
   'ide.chat.subagent.failedFallback': 'Hierdie subagent het gestop voordat dit klaar was.',
   'ide.chat.viaDictation.badge': 'Deur stem gedikteer',
+  'ide.chat.inputLabel': "Skryf 'n boodskap",
+  'ide.chat.messagesLabel': 'Gesprekboodskappe',
 }

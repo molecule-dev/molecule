@@ -696,4 +696,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Imekatizwa',
   'ide.chat.subagent.failedFallback': 'Mhudumu huyu alisimama kabla hajamaliza.',
   'ide.chat.viaDictation.badge': 'Imeamriwa na sauti',
+  'ide.chat.inputLabel': 'Andika ujumbe',
+  'ide.chat.messagesLabel': 'Ujumbe wa mazungumzo',
 }

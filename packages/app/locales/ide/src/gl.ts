@@ -698,4 +698,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Interrompido',
   'ide.chat.subagent.failedFallback': 'Este subaxente parou antes de rematar.',
   'ide.chat.viaDictation.badge': 'Ditado por voz',
+  'ide.chat.inputLabel': 'Escribir unha mensaxe',
+  'ide.chat.messagesLabel': 'Mensaxes de conversa',
 }

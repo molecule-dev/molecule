@@ -701,4 +701,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Katkestatud',
   'ide.chat.subagent.failedFallback': 'See subagent peatus enne, kui lõpetas.',
   'ide.chat.viaDictation.badge': 'Häälega dikteeritud',
+  'ide.chat.inputLabel': 'Kirjutage sõnum',
+  'ide.chat.messagesLabel': 'Vestlussõnumid',
 }

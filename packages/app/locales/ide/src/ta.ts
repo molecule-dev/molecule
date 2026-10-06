@@ -698,4 +698,6 @@ export const ta: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'குறுக்கிடப்பட்டது',
   'ide.chat.subagent.failedFallback': 'இந்த துணை முகவர் தன் வேலையை முடிப்பதற்குள் நின்றுவிட்டது.',
   'ide.chat.viaDictation.badge': 'குரலால் சொல்லப்பட்டது',
+  'ide.chat.inputLabel': 'ஒரு செய்தி எழுது',
+  'ide.chat.messagesLabel': 'உரையாடல் செய்திகள்',
 }

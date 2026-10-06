@@ -692,4 +692,6 @@ export const mr: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'व्यत्यय आला',
   'ide.chat.subagent.failedFallback': 'हा उप-एजंट काम पूर्ण होण्याआधीच थांबला.',
   'ide.chat.viaDictation.badge': 'आवाजाने सांगितलेले',
+  'ide.chat.inputLabel': 'संदेश लिहा',
+  'ide.chat.messagesLabel': 'संभाषण संदेश',
 }

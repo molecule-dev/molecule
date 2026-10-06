@@ -697,4 +697,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Terganggu',
   'ide.chat.subagent.failedFallback': 'Subejen ini berhenti sebelum ia selesai.',
   'ide.chat.viaDictation.badge': 'Ditentukan oleh suara',
+  'ide.chat.inputLabel': 'Tulis mesej',
+  'ide.chat.messagesLabel': 'Mesej perbualan',
 }

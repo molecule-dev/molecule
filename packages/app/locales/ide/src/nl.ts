@@ -711,4 +711,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Onderbroken',
   'ide.chat.subagent.failedFallback': 'Deze subagent is gestopt voordat hij klaar was.',
   'ide.chat.viaDictation.badge': 'Gedicteerd door de stem',
+  'ide.chat.inputLabel': 'Schrijf een bericht',
+  'ide.chat.messagesLabel': 'Gespreksberichten',
 }

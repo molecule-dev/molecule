@@ -691,4 +691,6 @@ export const ne: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'अवरोध भयो',
   'ide.chat.subagent.failedFallback': 'यो सबएजेन्टले काम सकिनुभन्दा पहिले नै रोकियो।',
   'ide.chat.viaDictation.badge': 'आवाजद्वारा श्रुतलेखित',
+  'ide.chat.inputLabel': 'सन्देश लेख्नुहोस्',
+  'ide.chat.messagesLabel': 'कुराकानी सन्देशहरू',
 }

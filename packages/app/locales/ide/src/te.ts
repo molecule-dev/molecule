@@ -695,4 +695,6 @@ export const te: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'అంతరాయం కలిగింది',
   'ide.chat.subagent.failedFallback': 'ఈ ఉప-ఏజెంట్ పూర్తి కాకముందే ఆగిపోయింది.',
   'ide.chat.viaDictation.badge': 'స్వరం ద్వారా చెప్పబడింది',
+  'ide.chat.inputLabel': 'సందేశం రాయండి',
+  'ide.chat.messagesLabel': 'సంభాషణ సందేశాలు',
 }

@@ -694,4 +694,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Truflað',
   'ide.chat.subagent.failedFallback': 'Þessi undirfulltrúi hætti áður en hann kláraði.',
   'ide.chat.viaDictation.badge': 'Leiðbeint með rödd',
+  'ide.chat.inputLabel': 'Skrifa skilaboð',
+  'ide.chat.messagesLabel': 'Samtalsskilaboð',
 }

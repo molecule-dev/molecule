@@ -696,4 +696,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Ընդհատված',
   'ide.chat.subagent.failedFallback': 'Այս ենթագործակալը կանգ առավ նախքան ավարտը։',
   'ide.chat.viaDictation.badge': 'Ձայնով թելադրված',
+  'ide.chat.inputLabel': 'Գրեք հաղորդագրություն',
+  'ide.chat.messagesLabel': 'Զրույցի հաղորդագրություններ',
 }

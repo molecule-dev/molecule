@@ -698,4 +698,6 @@ export const mn: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Тасалдсан',
   'ide.chat.subagent.failedFallback': 'Энэ дэд агент дуусахаас өмнө зогссон.',
   'ide.chat.viaDictation.badge': 'Дуу хоолойгоор бичсэн',
+  'ide.chat.inputLabel': 'Зурвас бичих',
+  'ide.chat.messagesLabel': 'Харилцан ярианы мессежүүд',
 }

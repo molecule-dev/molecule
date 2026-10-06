@@ -695,4 +695,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Interrott',
   'ide.chat.subagent.failedFallback': 'Dan is-subaġent waqaf qabel ma spiċċa.',
   'ide.chat.viaDictation.badge': 'Iddettat bil-vuċi',
+  'ide.chat.inputLabel': 'Ikteb messaġġ',
+  'ide.chat.messagesLabel': "Messaġġi ta' konverżazzjoni",
 }

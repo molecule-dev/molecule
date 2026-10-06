@@ -679,4 +679,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': '中断',
   'ide.chat.subagent.failedFallback': '这个分包商在任务完成前就停止了。',
   'ide.chat.viaDictation.badge': '语音播报',
+  'ide.chat.inputLabel': '写一条消息',
+  'ide.chat.messagesLabel': '对话消息',
 }

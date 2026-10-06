@@ -708,4 +708,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Перервано',
   'ide.chat.subagent.failedFallback': 'Цей субагент зупинився, не дочекавшись завершення.',
   'ide.chat.viaDictation.badge': 'Продиктовано голосом',
+  'ide.chat.inputLabel': 'Напишіть повідомлення',
+  'ide.chat.messagesLabel': 'Повідомлення в розмовах',
 }

@@ -697,4 +697,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Перапынена',
   'ide.chat.subagent.failedFallback': 'Гэты падагент спыніўся, не дачакаўшыся свайго завяршэння.',
   'ide.chat.viaDictation.badge': 'Дыктавана голасам',
+  'ide.chat.inputLabel': 'Напішыце паведамленне',
+  'ide.chat.messagesLabel': 'Паведамленні ў размовах',
 }

@@ -703,4 +703,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': '中断',
   'ide.chat.subagent.failedFallback': 'このサブエージェントは完了する前に停止しました。',
   'ide.chat.viaDictation.badge': '音声で指示',
+  'ide.chat.inputLabel': 'メッセージを書く',
+  'ide.chat.messagesLabel': '会話メッセージ',
 }

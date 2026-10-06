@@ -728,4 +728,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Dídínà',
   'ide.chat.subagent.failedFallback': 'Alábòójútó yìí dúró kí ó tó parí.',
   'ide.chat.viaDictation.badge': 'Ohùn ló ń sọ ọ́',
+  'ide.chat.inputLabel': 'Kọ ifiranṣẹ kan',
+  'ide.chat.messagesLabel': 'Àwọn ìránṣẹ́ ìjíròrò',
 }

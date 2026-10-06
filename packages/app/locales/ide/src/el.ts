@@ -716,4 +716,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Διακόπηκε',
   'ide.chat.subagent.failedFallback': 'Αυτός ο υποπράκτορας σταμάτησε πριν τελειώσει.',
   'ide.chat.viaDictation.badge': 'Υπαγορεύεται από φωνή',
+  'ide.chat.inputLabel': 'Γράψτε ένα μήνυμα',
+  'ide.chat.messagesLabel': 'Μηνύματα συνομιλίας',
 }

@@ -710,4 +710,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'Прекъснато',
   'ide.chat.subagent.failedFallback': 'Тозият подагент спря преди да е завършил.',
   'ide.chat.viaDictation.badge': 'Диктувано с глас',
+  'ide.chat.inputLabel': 'Напишете съобщение',
+  'ide.chat.messagesLabel': 'Съобщения в разговора',
 }

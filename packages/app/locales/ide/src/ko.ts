@@ -695,4 +695,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': '중단된',
   'ide.chat.subagent.failedFallback': '이 하위 요원은 작업을 완료하기 전에 멈췄습니다.',
   'ide.chat.viaDictation.badge': '음성으로 받아쓰기',
+  'ide.chat.inputLabel': '메시지를 작성하세요',
+  'ide.chat.messagesLabel': '대화 메시지',
 }

@@ -687,4 +687,6 @@ export const he: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': 'מוּפרָע',
   'ide.chat.subagent.failedFallback': 'סוכן המשנה הזה עצר לפני שסיים.',
   'ide.chat.viaDictation.badge': 'מוכתב על ידי קול',
+  'ide.chat.inputLabel': 'כתוב הודעה',
+  'ide.chat.messagesLabel': 'הודעות שיחה',
 }

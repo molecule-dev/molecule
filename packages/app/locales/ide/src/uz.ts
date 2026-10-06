@@ -698,4 +698,6 @@ export const uz: Partial<IdeTranslations> = {
   'ide.toolCall.statusInterrupted': "To'xtatildi",
   'ide.chat.subagent.failedFallback': "Bu subagent tugashidan oldin to'xtadi.",
   'ide.chat.viaDictation.badge': 'Ovoz bilan aytilgan',
+  'ide.chat.inputLabel': 'Xabar yozing',
+  'ide.chat.messagesLabel': 'Suhbat xabarlari',
 }
