@@ -1,5 +1,11 @@
 # @molecule/api-resource-ai-conversation
 
+## 1.0.3
+
+### Patch Changes
+
+- 30b2c09: Clearing a chat deletes the conversation named by `?conversationId=` (looked up within the project) instead of whichever conversation the project listed first; with no id and several conversations it answers 400.
+
 ## 1.0.1
 
 ### Patch Changes

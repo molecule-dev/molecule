@@ -43,7 +43,7 @@
     "@molecule/app-client-search": "1.0.2",
     "@molecule/app-client-search-minisearch": "1.0.2",
     "@molecule/app-code-editor": "1.0.2",
-    "@molecule/app-code-editor-monaco": "1.0.2",
+    "@molecule/app-code-editor-monaco": "1.0.3",
     "@molecule/app-command-palette": "1.0.2",
     "@molecule/app-command-palette-cmdk": "1.0.2",
     "@molecule/app-drag-drop": "1.0.2",

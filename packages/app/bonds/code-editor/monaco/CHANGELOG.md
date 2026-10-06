@@ -1,5 +1,11 @@
 # @molecule/app-code-editor-monaco
 
+## 1.0.3
+
+### Patch Changes
+
+- 30b2c09: Documents over 250,000 characters are no longer sent to the language server, so one large open file can no longer push the language-server connection into a reconnect loop.
+
 ## 1.0.1
 
 ### Patch Changes
