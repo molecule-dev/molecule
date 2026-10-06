@@ -88,6 +88,28 @@ export function setupDatabasePostgresql(): void {
   setStore(dbStore)
 }
 
+/**
+ * Wires `@molecule/api-database-pglite` (real Postgres compiled to
+ * WebAssembly, in-process) to `@molecule/api-database` — the database half of
+ * the zero-server "browser" profile. Same SQL, placeholders and error codes as
+ * the postgresql bond, so app code and migrations do not change.
+ *
+ * Binds the pglite package's DEFAULT pool, whose data directory comes from
+ * `PGLITE_DATA_DIR` (`memory://`, `idb://<name>`, or a filesystem path; the
+ * bond's Node default is `./data/pglite`). Run migrations with
+ * {@link createMigratorPglite}, which targets the same default pool — an
+ * in-memory database exists only inside that one instance, so the migrator
+ * and the app must share it.
+ *
+ * `@molecule/api-database-pglite` is an OPTIONAL peer, imported lazily, so a
+ * postgres-only app never needs it installed.
+ */
+export async function setupDatabasePglite(): Promise<void> {
+  const { pool, store } = await import('@molecule/api-database-pglite')
+  setPool(pool)
+  setStore(store)
+}
+
 /** Wires `@molecule/api-jwt-jsonwebtoken` to `@molecule/api-jwt`. */
 export function setupJwtJsonwebtoken(): void {
   setJwt(jwtProvider)
@@ -141,9 +163,36 @@ export function setupEmailsMailgun(): void {
   setEmails(emailsMailgunProvider)
 }
 
+/**
+ * Wires `@molecule/api-emails-capture` to `@molecule/api-emails`
+ * unconditionally — every message is captured in memory instead of sent.
+ * Unlike {@link setupEmailsMailgun}'s development fallback, this does not
+ * depend on `NODE_ENV` or on which env vars are missing, so a profile that
+ * selects it always gets it.
+ */
+export function setupEmailsCapture(): void {
+  setEmails(emailsCaptureProvider)
+}
+
 /** Registers `@molecule/api-payments-stripe` as a named `'stripe'` payments provider. */
 export function setupPaymentsStripe(): void {
   bond('payments', 'stripe', stripePaymentProvider)
+}
+
+/**
+ * Registers `@molecule/api-payments-capture` (a payments vendor simulated in
+ * memory: checkouts complete at once, signed local webhooks) under the name
+ * `'stripe'` — the name {@link setupPaymentsStripe} uses — so the billing
+ * router, the `/users/:id/verify-payment/stripe` and
+ * `/users/payment-notification/stripe` routes, and the plan catalogue's
+ * `platformKey` work unchanged. Grants plans without taking money: bond it in
+ * a development / browser profile only, never in production.
+ *
+ * `@molecule/api-payments-capture` is an OPTIONAL peer, imported lazily.
+ */
+export async function setupPaymentsCapture(): Promise<void> {
+  const { provider } = await import('@molecule/api-payments-capture')
+  bond('payments', 'stripe', provider)
 }
 
 /** Registers the plan + paymentRecord services from `@molecule/api-resource-payment`. */

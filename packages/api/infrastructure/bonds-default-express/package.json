@@ -57,6 +57,7 @@
     "@molecule/api-cron": "1.0.3",
     "@molecule/api-cron-node-cron": "1.0.2",
     "@molecule/api-database": "1.0.2",
+    "@molecule/api-database-pglite": "1.0.0",
     "@molecule/api-database-postgresql": "1.0.5",
     "@molecule/api-emails": "1.0.2",
     "@molecule/api-emails-capture": "1.0.3",
@@ -94,6 +95,7 @@
     "@molecule/api-password": "1.0.2",
     "@molecule/api-password-bcrypt": "1.0.3",
     "@molecule/api-payments": "1.2.1",
+    "@molecule/api-payments-capture": "1.0.0",
     "@molecule/api-payments-stripe": "1.2.6",
     "@molecule/api-pdf": "1.0.2",
     "@molecule/api-pdf-pdfkit": "1.0.2",
@@ -159,6 +161,7 @@
     "@molecule/api-cron": "^1.0.1",
     "@molecule/api-cron-node-cron": "^1.0.1",
     "@molecule/api-database": "^1.0.1",
+    "@molecule/api-database-pglite": "^1.0.0",
     "@molecule/api-database-postgresql": "^1.0.1",
     "@molecule/api-emails": "^1.0.1",
     "@molecule/api-emails-capture": "^1.0.1",
@@ -196,6 +199,7 @@
     "@molecule/api-password": "^1.0.1",
     "@molecule/api-password-bcrypt": "^1.0.1",
     "@molecule/api-payments": "^1.0.1",
+    "@molecule/api-payments-capture": "^1.0.0",
     "@molecule/api-payments-stripe": "^1.0.1",
     "@molecule/api-pdf": "^1.0.1",
     "@molecule/api-pdf-pdfkit": "^1.0.1",
@@ -385,6 +389,12 @@
       "optional": true
     },
     "@molecule/api-media-streaming-hls": {
+      "optional": true
+    },
+    "@molecule/api-database-pglite": {
+      "optional": true
+    },
+    "@molecule/api-payments-capture": {
       "optional": true
     }
   }
