@@ -85,10 +85,13 @@ export const forgotPassword = ({ name: _name, tableName, schema: _schema }: type
         }
         if (emailProvider) {
           const appName = getConfig('APP_NAME', 'App') ?? 'App'
-          const siteOrigin = getConfig('SITE_ORIGIN', '')
+          // The site origin, or the app origin when only that one is configured: a deployment
+          // that sets just APP_ORIGIN must still get a link in the email, not a bare token.
+          const siteOrigin = getConfig('SITE_ORIGIN', '') || getConfig('APP_ORIGIN', '')
 
+          // The reset page prefills the address from the link: the follow-up login needs it.
           const resetUrl = siteOrigin
-            ? `${siteOrigin}/reset-password?token=${passwordResetToken}`
+            ? `${siteOrigin}/reset-password?token=${passwordResetToken}&email=${encodeURIComponent(user.email ?? email)}`
             : ''
 
           // Default the sender to the app's OWN domain (derived from SITE_ORIGIN),
