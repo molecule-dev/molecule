@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.5
+
+### Patch Changes
+
+- c5e8e42: The password-reset email now links to the reset page when only `APP_ORIGIN` is configured (it used to require `SITE_ORIGIN`), and the link carries the account's email so the reset page can prefill it.
+
 ## 1.4.4
 
 ### Patch Changes
