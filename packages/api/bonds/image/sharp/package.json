@@ -29,7 +29,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "sharp": "0.35.4"
+    "sharp": "0.35.5"
   },
   "peerDependencies": {
     "@molecule/api-image": "^1.0.1"
