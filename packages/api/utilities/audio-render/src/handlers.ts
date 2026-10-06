@@ -10,6 +10,13 @@
  * accept the same minimal request/response shim the canvas-render package
  * uses, so any framework adapter is a few lines of glue.
  *
+ * The request body is untrusted. `enqueue` never forwards a client's
+ * `outputPath`, `queueName` or `allowRemoteSources`: it mints the output
+ * path inside the configured `outputDir` from a random UUID and resolves
+ * every clip `audioUrl` against the configured `mediaRoot` (URLs, `..`
+ * segments and absolute paths outside the root are rejected with HTTP 400).
+ * Mount all three routes behind authentication.
+ *
  * @example
  * ```ts
  * // Express adapter
@@ -19,8 +26,12 @@
  * } from '@molecule/api-audio-render'
  *
  * const router = express.Router()
- * const routes = createAudioRenderRoutes()
+ * const routes = createAudioRenderRoutes({
+ *   mediaRoot: '/srv/app/uploads', // clip audioUrls must resolve inside this dir
+ *   outputDir: '/srv/app/renders', // output is written here as <uuid>.<format>
+ * })
  *
+ * // Mount behind your authentication middleware.
  * router.post('/render/audio', (req, res, next) =>
  *   routes.enqueue({ body: req.body }, expressShim(res)).catch(next),
  * )
@@ -35,8 +46,21 @@
  * @module
  */
 
-import { cancelRender, getRenderStatus, renderAudio } from './renderAudio.js'
-import type { AudioRenderOptions, AudioSession, RenderJob } from './types.js'
+import { createOutputPath, resolveMediaSource } from './mediaPaths.js'
+import {
+  assertAllowedAudioFormat,
+  cancelRender,
+  getRenderStatus,
+  renderAudio,
+} from './renderAudio.js'
+import type {
+  AudioChannel,
+  AudioClip,
+  AudioRenderFormat,
+  AudioRenderOptions,
+  AudioSession,
+  RenderJob,
+} from './types.js'
 
 /** Minimal request shape consumed by the handlers. */
 export interface AudioRenderRequest {
@@ -67,6 +91,13 @@ export interface AudioRenderRoutes {
 /** Options for {@link createAudioRenderRoutes}. */
 export interface CreateAudioRenderRoutesOptions {
   /**
+   * Directory every clip `audioUrl` must live under. Relative paths resolve
+   * against it; URLs, `..` segments and paths outside it are rejected.
+   */
+  mediaRoot: string
+  /** Directory rendered files are written to, as `<uuid>.<format>`. */
+  outputDir: string
+  /**
    * Optional pre-flight validator. Throw to reject the enqueue request;
    * the thrown error's `.message` becomes the JSON `error` field with
    * HTTP 400.
@@ -78,8 +109,20 @@ const isPlainObject = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+/**
+ * Parse the enqueue body into a confined session and server-built options.
+ * Only `format`, `sampleRate`, `channels` and `bitrate` are read from the
+ * client's `options`.
+ *
+ * @param body - Raw parsed JSON.
+ * @param mediaRoot - Directory clip sources must resolve inside.
+ * @param outputDir - Directory the output path is minted in.
+ * @returns The confined session and options, or an error message.
+ */
 const parseEnqueueBody = (
   body: unknown,
+  mediaRoot: string,
+  outputDir: string,
 ): { session: AudioSession; options: AudioRenderOptions } | { error: string } => {
   if (!isPlainObject(body)) {
     return { error: 'Request body must be a JSON object' }
@@ -91,25 +134,73 @@ const parseEnqueueBody = (
   if (!Array.isArray((session as Record<string, unknown>)['channels'])) {
     return { error: 'session.channels must be an array' }
   }
-  const options = isPlainObject(body['options']) ? (body['options'] as AudioRenderOptions) : {}
-  return {
-    session: session as unknown as AudioSession,
-    options,
+  const rawOptions = body['options'] ?? {}
+  if (!isPlainObject(rawOptions)) {
+    return { error: '`options` must be an object' }
+  }
+  const client = rawOptions as AudioRenderOptions
+  try {
+    const format: AudioRenderFormat =
+      client.format === undefined ? 'mp3' : assertAllowedAudioFormat(client.format)
+    const options: AudioRenderOptions = { format, outputPath: createOutputPath(outputDir, format) }
+    if (client.sampleRate !== undefined) options.sampleRate = client.sampleRate
+    if (client.channels !== undefined) options.channels = client.channels
+    if (client.bitrate !== undefined) options.bitrate = client.bitrate
+    return {
+      session: confineSession(session as unknown as AudioSession, mediaRoot),
+      options,
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Invalid request' }
   }
 }
 
 /**
+ * Copy a session with every clip `audioUrl` resolved inside `mediaRoot`.
+ * Structural validation is left to {@link renderAudio}.
+ *
+ * @param session - The untrusted session.
+ * @param mediaRoot - Directory clip sources must resolve inside.
+ * @returns A new session whose sources are absolute, confined paths.
+ */
+const confineSession = (session: AudioSession, mediaRoot: string): AudioSession => ({
+  ...session,
+  channels: session.channels.map((channel: AudioChannel) => {
+    if (!channel || !Array.isArray(channel.clips)) return channel
+    return {
+      ...channel,
+      clips: channel.clips.map((clip: AudioClip) => ({
+        ...clip,
+        audioUrl: resolveMediaSource(
+          clip?.audioUrl,
+          mediaRoot,
+          `channel ${channel.id} clip audioUrl`,
+        ),
+      })),
+    }
+  }),
+})
+
+/**
  * Build the audio-render HTTP route handlers.
  *
- * @param routeOptions - Optional pre-flight validator.
+ * @param routeOptions - Media root, output directory and optional validator.
  * @returns A bundle of three async handlers.
+ * @throws {TypeError} If `mediaRoot` or `outputDir` is missing.
  */
 export const createAudioRenderRoutes = (
-  routeOptions: CreateAudioRenderRoutesOptions = {},
+  routeOptions: CreateAudioRenderRoutesOptions,
 ): AudioRenderRoutes => {
+  const { mediaRoot, outputDir } = routeOptions ?? {}
+  if (typeof mediaRoot !== 'string' || mediaRoot.length === 0) {
+    throw new TypeError('createAudioRenderRoutes requires a mediaRoot directory')
+  }
+  if (typeof outputDir !== 'string' || outputDir.length === 0) {
+    throw new TypeError('createAudioRenderRoutes requires an outputDir directory')
+  }
   return {
     async enqueue(req, res) {
-      const parsed = parseEnqueueBody(req.body)
+      const parsed = parseEnqueueBody(req.body, mediaRoot, outputDir)
       if ('error' in parsed) {
         res.setStatus(400)
         res.sendJson({ error: parsed.error })

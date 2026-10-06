@@ -196,14 +196,26 @@ describe('HTTP handlers', () => {
     } as unknown as VideoRenderResponse & { status: number; body: unknown }
   }
 
+  const paths = { mediaRoot: '/uploads', outputDir: '/srv/renders' }
+
+  function sentOptions(): RenderVideoOptions {
+    return (queueState.sent[0]!.message.body as { options: RenderVideoOptions }).options
+  }
+
+  function sentSources(): string[] {
+    const body = queueState.sent[0]!.message.body as { timeline: VideoTimeline }
+    return body.timeline.tracks.flatMap((t) => t.clips.map((c) => c.source))
+  }
+
   it('POST /render/video returns 202 with a job handle', async () => {
-    const handle = createEnqueueRenderHandler()
+    const handle = createEnqueueRenderHandler(paths)
     const req: VideoRenderRequest = {
       body: { timeline: baseTimeline, options: baseOptions },
     }
     const res = fakeRes()
     await handle(req, res)
     expect(res.status).toBe(202)
+    expect(sentSources()).toEqual(['/uploads/x.mp4'])
     const body = res.body as { jobId: string; status: string }
     expect(body.status).toBe('queued')
     expect(body.jobId).toMatch(/^vrj_/)
@@ -211,22 +223,106 @@ describe('HTTP handlers', () => {
   })
 
   it('POST /render/video returns 400 on missing/malformed body', async () => {
-    const handle = createEnqueueRenderHandler()
+    const handle = createEnqueueRenderHandler(paths)
     const r1 = fakeRes()
     await handle({ body: null }, r1)
     expect(r1.status).toBe(400)
 
     const r2 = fakeRes()
-    await handle({ body: { timeline: baseTimeline } }, r2)
+    await handle({ body: { options: {} } }, r2)
     expect(r2.status).toBe(400)
 
     const r3 = fakeRes()
-    await handle({ body: { timeline: baseTimeline, options: { outputPath: 123 } } }, r3)
+    await handle({ body: { timeline: baseTimeline, options: 'mp4' } }, r3)
     expect(r3.status).toBe(400)
+    expect(queueState.sent).toHaveLength(0)
+  })
+
+  it('POST /render/video requires mediaRoot and outputDir', () => {
+    expect(() =>
+      createEnqueueRenderHandler({ outputDir: '/srv/renders' } as unknown as Parameters<
+        typeof createEnqueueRenderHandler
+      >[0]),
+    ).toThrow(/mediaRoot/)
+    expect(() =>
+      createEnqueueRenderHandler({ mediaRoot: '/uploads' } as unknown as Parameters<
+        typeof createEnqueueRenderHandler
+      >[0]),
+    ).toThrow(/outputDir/)
+  })
+
+  it('POST /render/video ignores a client outputPath, jobId, queueName and allowRemoteSources', async () => {
+    const victim = await renderVideo(baseTimeline, { ...baseOptions, jobId: 'vrj_victim' })
+    queueState.sent.length = 0
+    const handle = createEnqueueRenderHandler(paths)
+    const res = fakeRes()
+    await handle(
+      {
+        body: {
+          timeline: baseTimeline,
+          options: {
+            format: 'webm',
+            outputPath: '../../app/public/index.html',
+            jobId: 'vrj_victim',
+            queueName: 'other-queue',
+            allowRemoteSources: true,
+          },
+        },
+      },
+      res,
+    )
+    expect(res.status).toBe(202)
+    const body = res.body as { jobId: string; queueName: string }
+    expect(body.jobId).not.toBe('vrj_victim')
+    expect(body.queueName).toBe('video-render')
+    const options = sentOptions()
+    expect(options.outputPath).toMatch(/^\/srv\/renders\/[0-9a-f-]{36}\.webm$/)
+    expect(options.allowRemoteSources).toBeUndefined()
+    expect(queueState.sent[0]!.queueName).toBe('video-render')
+    expect((await getRenderStatus(victim.jobId)).status).toBe('queued')
+  })
+
+  it('POST /render/video resolves relative sources inside the media root', async () => {
+    const handle = createEnqueueRenderHandler(paths)
+    const res = fakeRes()
+    const timeline: VideoTimeline = {
+      ...baseTimeline,
+      tracks: [
+        {
+          id: 'v0',
+          kind: 'video',
+          clips: [{ id: 'c0', source: 'clips/a.mp4', start: 0, duration: 4 }],
+        },
+      ],
+    }
+    await handle({ body: { timeline } }, res)
+    expect(res.status).toBe(202)
+    expect(sentSources()).toEqual(['/uploads/clips/a.mp4'])
+  })
+
+  it.each([
+    ['an http URL', 'http://169.254.169.254/latest/meta-data/'],
+    ['an https URL', 'https://example.com/a.mp4'],
+    ['a file URL', 'file:///etc/passwd'],
+    ['an absolute path outside the root', '/etc/passwd'],
+    ['a traversal path', 'clips/../../etc/passwd'],
+    ['the root itself', '/uploads'],
+  ])('POST /render/video rejects %s as a clip source', async (_label, source) => {
+    const handle = createEnqueueRenderHandler(paths)
+    const res = fakeRes()
+    const timeline: VideoTimeline = {
+      ...baseTimeline,
+      tracks: [{ id: 'v0', kind: 'video', clips: [{ id: 'c0', source, start: 0, duration: 4 }] }],
+    }
+    await handle({ body: { timeline } }, res)
+    expect(res.status).toBe(400)
+    expect((res.body as { error: string }).error).toMatch(/source/)
+    expect(queueState.sent).toHaveLength(0)
   })
 
   it('POST /render/video runs the optional validator', async () => {
     const handle = createEnqueueRenderHandler({
+      ...paths,
       validate: (timeline) => {
         if (timeline.duration > 1) throw new Error('Too long')
       },
@@ -238,19 +334,16 @@ describe('HTTP handlers', () => {
   })
 
   it('POST /render/video maps render-time validation errors to 400', async () => {
-    const handle = createEnqueueRenderHandler()
+    const handle = createEnqueueRenderHandler(paths)
     const res = fakeRes()
-    await handle(
-      {
-        body: {
-          timeline: baseTimeline,
-          options: { outputPath: '/tmp/$(rm -rf /)' },
-        },
-      },
-      res,
-    )
+    await handle({ body: { timeline: baseTimeline, options: { codec: 'evil' } } }, res)
     expect(res.status).toBe(400)
-    expect((res.body as { error: string }).error).toMatch(/outputPath/)
+    expect((res.body as { error: string }).error).toMatch(/codec/)
+
+    const res2 = fakeRes()
+    await handle({ body: { timeline: baseTimeline, options: { format: 'hls' } } }, res2)
+    expect(res2.status).toBe(400)
+    expect((res2.body as { error: string }).error).toMatch(/format/)
   })
 
   it('GET /render/jobs/:id returns 200 with the status', async () => {

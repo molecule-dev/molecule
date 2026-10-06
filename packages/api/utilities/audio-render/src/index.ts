@@ -48,10 +48,24 @@
  *
  * @remarks
  * **Security:** Every caller-controlled string (clip `audioUrl`, output
- * path) is checked against {@link sanitizeAudioPath} before it reaches
- * ffmpeg's command line. ffmpeg itself is invoked via
- * `child_process.spawn` with an argv array — never via a shell — so
- * shell metacharacters in legitimate paths can't trigger interpretation.
+ * path) is checked against {@link sanitizeAudioPath} (no control characters,
+ * no leading `-`, no `..` segments) and every channel id against
+ * {@link assertSafeChannelId} before it reaches ffmpeg's command line.
+ * ffmpeg itself is invoked via `child_process.spawn` with an argv array —
+ * never via a shell — with `-nostdin`, and every input is opened with
+ * `-protocol_whitelist file`: a clip can only make ffmpeg fetch a URL when
+ * trusted server code passes `allowRemoteSources: true`.
+ *
+ * **HTTP routes: untrusted input, authentication required.**
+ * `createAudioRenderRoutes({ mediaRoot, outputDir })` requires both
+ * directories and must be mounted behind authentication — its routes enqueue,
+ * read and cancel any job by id. The client's `outputPath`, `queueName` and
+ * `allowRemoteSources` are ignored, the output path is minted inside
+ * `outputDir` from a random UUID, and every clip `audioUrl` must be a path
+ * that resolves inside `mediaRoot` (URLs, `..` segments and absolute paths
+ * outside it are rejected with HTTP 400). `outputPath`, `queueName` and
+ * `allowRemoteSources` on {@link renderAudio} are for trusted server code
+ * only — never copy them from a request.
  *
  * **Resource intensity:** ffmpeg can saturate CPU and IO for large
  * sessions. The package is queue-driven on purpose so flagship apps can
@@ -95,6 +109,7 @@ export * from './browser-guard.js'
 export * from './ffmpegCommand.js'
 export * from './handlers.js'
 export * from './jobStore.js'
+export * from './mediaPaths.js'
 export * from './renderAudio.js'
 export * from './types.js'
 export * from './worker.js'

@@ -28,9 +28,10 @@ export interface AudioClip {
   /** Stable clip id — appears in error messages and progress events. */
   id?: string
   /**
-   * Source audio. Either a local filesystem path or an `http(s):` URL.
-   * Strings containing NUL/newline/control characters are rejected so
-   * the value is always safe to pass to ffmpeg as a positional argument.
+   * Source audio: a local filesystem path. An `http(s):` URL is only opened
+   * when the trusted caller sets `allowRemoteSources`; the HTTP routes accept
+   * only paths inside their configured `mediaRoot`. Strings containing
+   * control characters, a leading `-` or `..` segments are rejected.
    */
   audioUrl: string
   /** Seconds from session t=0 at which this clip should begin playing. */
@@ -117,14 +118,22 @@ export interface AudioRenderOptions {
   bitrate?: string
   /**
    * Override the destination path. Defaults to a unique tmp path under the
-   * caller's `os.tmpdir()` with the format-appropriate extension.
+   * caller's `os.tmpdir()` with the format-appropriate extension. Trusted
+   * server code only — the HTTP routes ignore any client value and mint a
+   * path inside their configured `outputDir`.
    */
   outputPath?: string
   /**
    * Override the queue name jobs are dispatched to. Defaults to
-   * `'audio-render'`.
+   * `'audio-render'`. Trusted server code only — ignored by the HTTP routes.
    */
   queueName?: string
+  /**
+   * Let ffmpeg open `http:`/`https:` clip sources. Defaults to `false`,
+   * which passes `-protocol_whitelist file` so only local files can be read.
+   * Trusted server code only — the HTTP routes never set it.
+   */
+  allowRemoteSources?: boolean
 }
 
 /**
@@ -155,7 +164,9 @@ export interface RenderJob {
   /** Echo of the originating session — useful for re-rendering / diagnostics. */
   session: AudioSession
   /** Echo of the resolved options. */
-  options: Required<Omit<AudioRenderOptions, 'outputPath' | 'queueName' | 'bitrate'>> & {
+  options: Required<
+    Omit<AudioRenderOptions, 'outputPath' | 'queueName' | 'bitrate' | 'allowRemoteSources'>
+  > & {
     bitrate?: string
   }
   /** When the job was enqueued. */

@@ -7,8 +7,11 @@
  * - We never construct `-vf` filter strings from user input. The only filter
  *   tokens we emit come from a fixed allow-list keyed by `effect.kind`, with
  *   numeric parameters only.
- * - File paths must be plain strings without shell metacharacters or
- *   newlines. The argv is passed to `child_process.spawn` with `shell: false`
+ * - Inputs are opened with `-protocol_whitelist file` unless the trusted
+ *   caller set `allowRemoteSources`, so a source cannot make ffmpeg fetch a
+ *   URL by default. `-nostdin` keeps ffmpeg from reading the terminal.
+ * - File paths must be plain strings without shell metacharacters,
+ *   newlines or `..` segments. The argv is passed to `child_process.spawn` with `shell: false`
  *   so argv elements are NEVER interpreted by a shell, but we still reject
  *   suspicious paths to make malformed input fail loudly.
  *
@@ -56,6 +59,54 @@ export function assertSafePath(value: unknown, label: string): asserts value is 
   if (!SAFE_PATH_RE.test(value)) {
     throw new TypeError(`${label} contains characters outside the safe set [A-Za-z0-9_./:\\-+@%]`)
   }
+  if (value.split('/').some((segment) => segment === '..')) {
+    throw new TypeError(`${label} must not contain '..' path segments`)
+  }
+}
+
+/** Output container formats ffmpeg may be asked to mux. */
+const ALLOWED_FORMATS: ReadonlySet<string> = new Set(['mp4', 'webm'])
+
+/** Video encoders ffmpeg may be asked to use. */
+const ALLOWED_CODECS: ReadonlySet<string> = new Set([
+  'libx264',
+  'libx265',
+  'libvpx',
+  'libvpx-vp9',
+  'libaom-av1',
+])
+
+/**
+ * ffmpeg protocols allowed when reading inputs. Local files only, unless the
+ * trusted caller opted into remote sources with `allowRemoteSources`.
+ */
+const LOCAL_PROTOCOLS = 'file'
+const REMOTE_PROTOCOLS = 'file,http,https,tcp,tls,crypto'
+
+/**
+ * Validate an output format against the allow-list.
+ *
+ * @param value - The candidate format.
+ * @returns The format, unchanged.
+ */
+export function assertAllowedFormat(value: unknown): string {
+  if (typeof value !== 'string' || !ALLOWED_FORMATS.has(value)) {
+    throw new TypeError(`options.format must be one of: ${[...ALLOWED_FORMATS].join(', ')}`)
+  }
+  return value
+}
+
+/**
+ * Validate a video codec against the allow-list.
+ *
+ * @param value - The candidate codec.
+ * @returns The codec, unchanged.
+ */
+export function assertAllowedCodec(value: unknown): string {
+  if (typeof value !== 'string' || !ALLOWED_CODECS.has(value)) {
+    throw new TypeError(`options.codec must be one of: ${[...ALLOWED_CODECS].join(', ')}`)
+  }
+  return value
 }
 
 /**
@@ -241,8 +292,12 @@ export function buildFfmpegArgs(message: RenderJobMessage): readonly string[] {
   const { timeline, options } = message
   assertValidTimeline(timeline)
   assertSafePath(options.outputPath, 'options.outputPath')
+  assertAllowedFormat(options.format)
+  assertAllowedCodec(options.codec)
 
-  const args: string[] = []
+  // Never read from stdin; restrict which protocols inputs may be opened with.
+  const args: string[] = ['-nostdin']
+  const protocols = options.allowRemoteSources === true ? REMOTE_PROTOCOLS : LOCAL_PROTOCOLS
 
   // Per-clip inputs.
   let inputCount = 0
@@ -252,7 +307,7 @@ export function buildFfmpegArgs(message: RenderJobMessage): readonly string[] {
         args.push('-ss', String(clip.sourceStart))
       }
       args.push('-t', String(clip.duration))
-      args.push('-i', clip.source)
+      args.push('-protocol_whitelist', protocols, '-i', clip.source)
       inputCount++
     }
   }

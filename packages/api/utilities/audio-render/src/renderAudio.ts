@@ -9,12 +9,13 @@
  * @module
  */
 
+import { randomUUID } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 import { send } from '@molecule/api-queue'
 
-import { sanitizeAudioPath } from './ffmpegCommand.js'
+import { assertSafeChannelId, sanitizeAudioPath } from './ffmpegCommand.js'
 import { getJob, registerJob, updateJob } from './jobStore.js'
 import type {
   AudioRenderFormat,
@@ -44,19 +45,35 @@ const resolveOptions = (
   queueName: string
 } => {
   const format: AudioRenderFormat = options.format ?? 'mp3'
+  assertAllowedAudioFormat(format)
   const sampleRate = options.sampleRate ?? 44100
   const channels = options.channels ?? 2
   const bitrate = options.bitrate ?? (format === 'mp3' ? '192k' : undefined)
   const queueName = options.queueName ?? DEFAULT_AUDIO_RENDER_QUEUE
 
-  const id =
-    (globalThis.crypto?.randomUUID?.() as string | undefined) ??
-    `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  const id = randomUUID()
   const outputPath = options.outputPath
     ? sanitizeAudioPath(options.outputPath, 'options.outputPath')
     : join(tmpdir(), `audio-render-${id}.${format}`)
 
   return { format, sampleRate, channels, bitrate, outputPath, queueName }
+}
+
+/** Output formats the renderer can produce. */
+const AUDIO_RENDER_FORMATS: ReadonlySet<string> = new Set(['wav', 'mp3', 'flac'])
+
+/**
+ * Validate an output format against the supported set.
+ *
+ * @param value - The candidate format.
+ * @returns The format, typed.
+ * @throws {Error} If the format is not `wav`, `mp3` or `flac`.
+ */
+export const assertAllowedAudioFormat = (value: unknown): AudioRenderFormat => {
+  if (typeof value !== 'string' || !AUDIO_RENDER_FORMATS.has(value)) {
+    throw new Error('options.format must be one of: wav, mp3, flac')
+  }
+  return value as AudioRenderFormat
 }
 
 /**
@@ -83,6 +100,7 @@ const validateSession = (session: AudioSession): void => {
     if (!channel || typeof channel.id !== 'string' || channel.id.length === 0) {
       throw new Error('every channel requires a non-empty string id')
     }
+    assertSafeChannelId(channel.id)
     if (!Array.isArray(channel.clips)) {
       throw new Error(`channel ${channel.id}: clips must be an array`)
     }

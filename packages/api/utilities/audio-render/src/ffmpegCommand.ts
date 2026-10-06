@@ -7,7 +7,9 @@
  * to `child_process.spawn` — never to a shell. Even with that argv-style
  * call, paths still need sanitising because ffmpeg interprets a leading
  * `-` as a flag, and a path containing a literal newline can break our
- * `-filter_complex` script.
+ * `-filter_complex` script. Inputs are opened with `-protocol_whitelist file`
+ * unless the trusted caller set `allowRemoteSources`, and `-nostdin` keeps
+ * ffmpeg from reading the terminal.
  *
  * The builder is exported separately from {@link processAudioRenderJob}
  * so unit tests can assert the exact argv without spawning ffmpeg.
@@ -41,16 +43,25 @@ export interface FfmpegCommand {
 // eslint-disable-next-line no-control-regex
 const UNSAFE_PATH_CHARS = /[\x00-\x1f\x7f]/
 
+/** Channel ids become filter-graph link labels, so they stay a plain token. */
+const SAFE_CHANNEL_ID = /^[A-Za-z0-9_-]{1,64}$/
+
+/** ffmpeg protocols inputs may be opened with, by default and when opted in. */
+const LOCAL_PROTOCOLS = 'file'
+const REMOTE_PROTOCOLS = 'file,http,https,tcp,tls,crypto'
+
 /**
  * Reject paths/URLs containing NUL, newline, or any other control
- * character. These can't appear in legitimate filesystem paths or URLs;
- * if one shows up it's almost certainly an injection attempt or a bug
- * upstream, and ffmpeg's filter-graph parser would mis-tokenize it.
+ * character, a leading `-` (ffmpeg would read it as an option), or a `..`
+ * path segment. Control characters can't appear in legitimate filesystem
+ * paths or URLs; if one shows up it's almost certainly an injection attempt
+ * or a bug upstream, and ffmpeg's filter-graph parser would mis-tokenize it.
  *
  * @param value - The caller-supplied path or URL.
  * @param label - Diagnostic label used in the thrown error.
  * @returns The validated value, unchanged.
- * @throws {Error} If `value` contains a control character.
+ * @throws {Error} If `value` contains a control character, starts with `-`,
+ *   or contains a `..` segment.
  */
 export const sanitizeAudioPath = (value: unknown, label: string): string => {
   if (typeof value !== 'string' || value.length === 0) {
@@ -58,6 +69,27 @@ export const sanitizeAudioPath = (value: unknown, label: string): string => {
   }
   if (UNSAFE_PATH_CHARS.test(value)) {
     throw new Error(`${label}: contains a control character`)
+  }
+  if (value.startsWith('-')) {
+    throw new Error(`${label}: must not start with '-'`)
+  }
+  if (value.split(/[\\/]/).some((segment) => segment === '..')) {
+    throw new Error(`${label}: must not contain '..' path segments`)
+  }
+  return value
+}
+
+/**
+ * Validate a channel id. Ids are embedded in filter-graph link labels, so
+ * anything outside `[A-Za-z0-9_-]` could splice extra filters into the graph.
+ *
+ * @param value - The caller-supplied channel id.
+ * @returns The validated id, unchanged.
+ * @throws {Error} If the id is not a 1–64 character `[A-Za-z0-9_-]` token.
+ */
+export const assertSafeChannelId = (value: unknown): string => {
+  if (typeof value !== 'string' || !SAFE_CHANNEL_ID.test(value)) {
+    throw new Error('channel id must be 1-64 characters of [A-Za-z0-9_-]')
   }
   return value
 }
@@ -206,18 +238,21 @@ const buildChannelFilters = (
  * @param options - Resolved render options (caller has already merged defaults).
  * @param outputPath - Destination file path.
  * @returns The argv plus the filter-graph string for diagnostics.
- * @throws {Error} If any caller-controlled string contains a control char.
+ * @throws {Error} If any caller-controlled string is unsafe (see
+ *   {@link sanitizeAudioPath} and {@link assertSafeChannelId}).
  */
 export const buildFfmpegArgs = (
   session: AudioSession,
   options: Required<Pick<AudioRenderOptions, 'format' | 'sampleRate' | 'channels'>> & {
     bitrate?: string
+    allowRemoteSources?: boolean
   },
   outputPath: string,
 ): FfmpegCommand => {
   const safeOutput = sanitizeAudioPath(outputPath, 'outputPath')
+  const protocols = options.allowRemoteSources === true ? REMOTE_PROTOCOLS : LOCAL_PROTOCOLS
 
-  const args: string[] = ['-y', '-hide_banner', '-loglevel', 'error']
+  const args: string[] = ['-nostdin', '-y', '-hide_banner', '-loglevel', 'error']
 
   // Collect inputs in channel-then-clip order so indices line up with the filter graph.
   let inputIndex = 0
@@ -227,9 +262,15 @@ export const buildFfmpegArgs = (
   for (const channel of session.channels) {
     if (channel.muted) continue
     if (channel.clips.length === 0) continue
+    assertSafeChannelId(channel.id)
 
     for (const clip of channel.clips) {
-      args.push('-i', sanitizeAudioPath(clip.audioUrl, `channel ${channel.id} clip audioUrl`))
+      args.push(
+        '-protocol_whitelist',
+        protocols,
+        '-i',
+        sanitizeAudioPath(clip.audioUrl, `channel ${channel.id} clip audioUrl`),
+      )
     }
 
     const { filters, outLabel, inputCount } = buildChannelFilters(channel, inputIndex)

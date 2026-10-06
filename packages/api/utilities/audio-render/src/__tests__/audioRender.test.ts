@@ -333,7 +333,7 @@ describe('processAudioRenderJob', () => {
     expect(spawn).toHaveBeenCalledTimes(1)
     const [bin, args] = spawn.mock.calls[0]!
     expect(bin).toBe('ffmpeg')
-    expect(args[0]).toBe('-y')
+    expect(args.slice(0, 2)).toEqual(['-nostdin', '-y'])
     expect(getJob(job.id)?.status).toBe('completed')
     expect(getJob(job.id)?.startedAt).toBeInstanceOf(Date)
     expect(getJob(job.id)?.finishedAt).toBeInstanceOf(Date)
@@ -542,8 +542,90 @@ describe('createAudioRenderRoutes', () => {
     return res
   }
 
+  const paths = { mediaRoot: '/tmp', outputDir: '/srv/renders' }
+
+  const lastPayload = (): AudioRenderJobPayload => {
+    const messages = getMockProvider().queues.get('audio-render')!.messages
+    return messages[messages.length - 1]!.body as AudioRenderJobPayload
+  }
+
+  it('requires mediaRoot and outputDir', () => {
+    type RouteOptions = Parameters<typeof createAudioRenderRoutes>[0]
+    expect(() =>
+      createAudioRenderRoutes({ outputDir: '/srv/renders' } as unknown as RouteOptions),
+    ).toThrow(/mediaRoot/)
+    expect(() => createAudioRenderRoutes({ mediaRoot: '/tmp' } as unknown as RouteOptions)).toThrow(
+      /outputDir/,
+    )
+  })
+
+  it('ignores a client outputPath, queueName and allowRemoteSources', async () => {
+    const routes = createAudioRenderRoutes(paths)
+    const res = makeRes()
+    await routes.enqueue(
+      {
+        body: {
+          session: sampleSession,
+          options: {
+            format: 'flac',
+            outputPath: '../../app/public/index.html',
+            queueName: 'other-queue',
+            allowRemoteSources: true,
+          },
+        },
+      },
+      res,
+    )
+    expect(res.status).toBe(202)
+    const body = res.body as { outputPath: string; queueName: string }
+    expect(body.queueName).toBe('audio-render')
+    expect(body.outputPath).toMatch(/^\/srv\/renders\/[0-9a-f-]{36}\.flac$/)
+    expect(getMockProvider().queues.has('other-queue')).toBe(false)
+    expect(lastPayload().outputPath).toBe(body.outputPath)
+    expect(lastPayload().options.allowRemoteSources).toBeUndefined()
+  })
+
+  it('resolves relative clip paths inside the media root', async () => {
+    const routes = createAudioRenderRoutes(paths)
+    const res = makeRes()
+    const session: AudioSession = {
+      duration: 1,
+      channels: [{ id: 'a', clips: [{ audioUrl: 'loops/a.wav', startTime: 0, duration: 1 }] }],
+    }
+    await routes.enqueue({ body: { session } }, res)
+    expect(res.status).toBe(202)
+    expect(lastPayload().session.channels[0]!.clips[0]!.audioUrl).toBe('/tmp/loops/a.wav')
+  })
+
+  it.each([
+    ['an http URL', 'http://169.254.169.254/latest/meta-data/'],
+    ['an https URL', 'https://cdn.example/track.flac'],
+    ['a file URL', 'file:///etc/passwd'],
+    ['an absolute path outside the root', '/etc/passwd'],
+    ['a traversal path', 'loops/../../etc/passwd'],
+  ])('rejects %s as a clip source', async (_label, audioUrl) => {
+    const routes = createAudioRenderRoutes(paths)
+    const res = makeRes()
+    const session: AudioSession = {
+      duration: 1,
+      channels: [{ id: 'a', clips: [{ audioUrl, startTime: 0, duration: 1 }] }],
+    }
+    await routes.enqueue({ body: { session } }, res)
+    expect(res.status).toBe(400)
+    expect((res.body as { error: string }).error).toMatch(/audioUrl/)
+    expect(getMockProvider().queues.get('audio-render')?.messages ?? []).toHaveLength(0)
+  })
+
+  it('rejects an unsupported format', async () => {
+    const routes = createAudioRenderRoutes(paths)
+    const res = makeRes()
+    await routes.enqueue({ body: { session: sampleSession, options: { format: 'hls' } } }, res)
+    expect(res.status).toBe(400)
+    expect((res.body as { error: string }).error).toMatch(/format/)
+  })
+
   it('enqueues a session via POST', async () => {
-    const routes = createAudioRenderRoutes()
+    const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     const req: AudioRenderRequest = { body: { session: sampleSession, options: { format: 'wav' } } }
     await routes.enqueue(req, res)
@@ -555,7 +637,7 @@ describe('createAudioRenderRoutes', () => {
   })
 
   it('returns 400 for malformed body', async () => {
-    const routes = createAudioRenderRoutes()
+    const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     await routes.enqueue({ body: null }, res)
     expect(res.status).toBe(400)
@@ -563,6 +645,7 @@ describe('createAudioRenderRoutes', () => {
 
   it('returns 400 when validate() throws', async () => {
     const routes = createAudioRenderRoutes({
+      ...paths,
       validate: () => {
         throw new Error('forbidden session')
       },
@@ -575,7 +658,7 @@ describe('createAudioRenderRoutes', () => {
 
   it('looks up status by id', async () => {
     const job = await renderAudio(sampleSession)
-    const routes = createAudioRenderRoutes()
+    const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     await routes.status({ params: { id: job.id } }, res)
     expect(res.status).toBe(200)
@@ -583,7 +666,7 @@ describe('createAudioRenderRoutes', () => {
   })
 
   it('returns 404 for unknown ids', async () => {
-    const routes = createAudioRenderRoutes()
+    const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     await routes.status({ params: { id: 'does-not-exist' } }, res)
     expect(res.status).toBe(404)
@@ -591,7 +674,7 @@ describe('createAudioRenderRoutes', () => {
 
   it('cancels jobs via DELETE', async () => {
     const job = await renderAudio(sampleSession)
-    const routes = createAudioRenderRoutes()
+    const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     await routes.cancel({ params: { id: job.id } }, res)
     expect(res.status).toBe(200)
@@ -601,7 +684,7 @@ describe('createAudioRenderRoutes', () => {
   it('returns 409 when DELETE targets a terminal job', async () => {
     const job = await renderAudio(sampleSession)
     cancelRender(job.id)
-    const routes = createAudioRenderRoutes()
+    const routes = createAudioRenderRoutes(paths)
     const res = makeRes()
     await routes.cancel({ params: { id: job.id } }, res)
     expect(res.status).toBe(409)

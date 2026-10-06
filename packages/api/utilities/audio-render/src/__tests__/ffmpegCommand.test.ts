@@ -42,6 +42,17 @@ describe('sanitizeAudioPath', () => {
     )
   })
 
+  it('throws on .. path segments', () => {
+    expect(() => sanitizeAudioPath('../../app/public/index.html', 'p')).toThrow(/'\.\.'/)
+    expect(() => sanitizeAudioPath('/srv/renders/../x.wav', 'p')).toThrow(/'\.\.'/)
+    expect(() => sanitizeAudioPath('C:\\a\\..\\b.wav', 'p')).toThrow(/'\.\.'/)
+    expect(sanitizeAudioPath('/srv/a..b.wav', 'p')).toBe('/srv/a..b.wav')
+  })
+
+  it('throws on a leading dash (would be read as an ffmpeg option)', () => {
+    expect(() => sanitizeAudioPath('-evil.wav', 'p')).toThrow(/must not start with '-'/)
+  })
+
   it('allows path-like ASCII (slashes, dots, dashes, underscores)', () => {
     expect(sanitizeAudioPath('./local/file_01-final.wav', 'p')).toBe('./local/file_01-final.wav')
   })
@@ -212,13 +223,71 @@ describe('buildFfmpegArgs — format codecs', () => {
 })
 
 describe('buildFfmpegArgs — argv shape', () => {
-  it('starts with safe defaults (-y, -hide_banner, -loglevel error)', () => {
+  it('starts with safe defaults (-nostdin, -y, -hide_banner, -loglevel error)', () => {
     const cmd = buildFfmpegArgs(
       { channels: [], duration: 1 },
       { format: 'wav', sampleRate: 44100, channels: 2 },
       '/tmp/out.wav',
     )
-    expect(cmd.args.slice(0, 4)).toEqual(['-y', '-hide_banner', '-loglevel', 'error'])
+    expect(cmd.args.slice(0, 5)).toEqual(['-nostdin', '-y', '-hide_banner', '-loglevel', 'error'])
+  })
+
+  it('restricts every clip input to the file protocol by default', () => {
+    const cmd = buildFfmpegArgs(
+      {
+        channels: [
+          {
+            id: 'ch1',
+            clips: [
+              { audioUrl: '/a.wav', startTime: 0, duration: 1 },
+              { audioUrl: '/b.wav', startTime: 1, duration: 1 },
+            ],
+          },
+        ],
+        duration: 2,
+      },
+      { format: 'wav', sampleRate: 44100, channels: 2 },
+      '/tmp/out.wav',
+    )
+    const inputs = cmd.args.flatMap((arg, i) => (arg === '-i' ? [cmd.args.slice(i - 2, i)] : []))
+    expect(inputs).toEqual([
+      ['-protocol_whitelist', 'file'],
+      ['-protocol_whitelist', 'file'],
+    ])
+  })
+
+  it('allows network protocols only when allowRemoteSources is set', () => {
+    const cmd = buildFfmpegArgs(
+      {
+        channels: [
+          { id: 'ch1', clips: [{ audioUrl: 'https://cdn.x/a.mp3', startTime: 0, duration: 1 }] },
+        ],
+        duration: 1,
+      },
+      { format: 'wav', sampleRate: 44100, channels: 2, allowRemoteSources: true },
+      '/tmp/out.wav',
+    )
+    expect(cmd.args[cmd.args.indexOf('-protocol_whitelist') + 1]).toBe(
+      'file,http,https,tcp,tls,crypto',
+    )
+  })
+
+  it('rejects a channel id that would splice filters into the graph', () => {
+    expect(() =>
+      buildFfmpegArgs(
+        {
+          channels: [
+            {
+              id: 'x];amovie=/etc/passwd[y',
+              clips: [{ audioUrl: '/a.wav', startTime: 0, duration: 1 }],
+            },
+          ],
+          duration: 1,
+        },
+        { format: 'wav', sampleRate: 44100, channels: 2 },
+        '/tmp/out.wav',
+      ),
+    ).toThrow(/channel id/)
   })
 
   it('ends with the sanitized output path', () => {

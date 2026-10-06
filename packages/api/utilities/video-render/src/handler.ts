@@ -9,11 +9,27 @@
  * Each handler accepts a minimal request/response contract that any HTTP
  * framework can adapt (Express, Fastify, Koa, Hono).
  *
+ * The request body is untrusted. The enqueue handler never forwards a
+ * client's `outputPath`, `jobId`, `queueName` or `allowRemoteSources`: it
+ * mints the output path inside the configured `outputDir` from a random
+ * UUID, lets {@link renderVideo} generate the job id, and resolves every clip
+ * source against the configured `mediaRoot` (URLs, `..` segments and
+ * absolute paths outside the root are rejected with HTTP 400). All three
+ * handlers must be mounted behind authentication.
+ *
  * @module
  */
 
+import { assertAllowedFormat } from './buildFfmpegArgs.js'
+import { createOutputPath, resolveMediaSource } from './mediaPaths.js'
 import { cancelRender, getRenderStatus, renderVideo } from './renderVideo.js'
-import type { RenderVideoOptions, VideoTimeline } from './types.js'
+import type {
+  RenderVideoOptions,
+  VideoClip,
+  VideoRenderFormat,
+  VideoTimeline,
+  VideoTrack,
+} from './types.js'
 
 /**
  * Minimal request shape used by the render handlers.
@@ -36,26 +52,43 @@ export interface VideoRenderResponse {
 }
 
 /**
- * Options for {@link createEnqueueRenderHandler}. The optional `validate`
- * hook can reject requests pre-flight (e.g. tier limits, max duration).
+ * Options for {@link createEnqueueRenderHandler}. `mediaRoot` and
+ * `outputDir` are required; the optional `validate` hook can reject
+ * requests pre-flight (e.g. tier limits, max duration).
  */
 export interface CreateEnqueueRenderHandlerOptions {
+  /**
+   * Directory every clip source must live under. Relative sources resolve
+   * against it; URLs, `..` segments and paths outside it are rejected.
+   */
+  mediaRoot: string
+  /** Directory rendered files are written to, as `<uuid>.<format>`. */
+  outputDir: string
   /** Pre-flight validator — throw to reject with HTTP 400. */
   validate?: (timeline: VideoTimeline, options: RenderVideoOptions) => void | Promise<void>
 }
 
 /**
  * Build the `POST /render/video` handler. The request body must be
- * `{ timeline, options }` (or `{ video, options }`).
+ * `{ timeline, options? }` (or `{ video, options? }`). Only `format`,
+ * `resolution`, `fps`, `codec` and `crf` are read from `options`.
  *
- * @param handlerOptions - Optional validator hook.
+ * @param handlerOptions - Media root, output directory and optional validator.
  * @returns An async handler.
+ * @throws {TypeError} If `mediaRoot` or `outputDir` is missing.
  */
 export function createEnqueueRenderHandler(
-  handlerOptions: CreateEnqueueRenderHandlerOptions = {},
+  handlerOptions: CreateEnqueueRenderHandlerOptions,
 ): (req: VideoRenderRequest, res: VideoRenderResponse) => Promise<void> {
+  const { mediaRoot, outputDir } = handlerOptions ?? {}
+  if (typeof mediaRoot !== 'string' || mediaRoot.length === 0) {
+    throw new TypeError('createEnqueueRenderHandler requires a mediaRoot directory')
+  }
+  if (typeof outputDir !== 'string' || outputDir.length === 0) {
+    throw new TypeError('createEnqueueRenderHandler requires an outputDir directory')
+  }
   return async function handle(req, res) {
-    const parsed = parseEnqueueBody(req.body)
+    const parsed = parseEnqueueBody(req.body, mediaRoot, outputDir)
     if ('error' in parsed) {
       res.setStatus(400)
       res.sendJson({ error: parsed.error })
@@ -138,11 +171,19 @@ interface ParsedEnqueueBody {
 }
 
 /**
- * Parse and shape-check the enqueue request body.
+ * Parse the enqueue request body into a confined timeline and server-built
+ * options. Client fields outside the allow-list are dropped.
  *
  * @param body - Raw parsed JSON.
+ * @param mediaRoot - Directory clip sources must resolve inside.
+ * @param outputDir - Directory the output path is minted in.
+ * @returns The confined timeline and options, or an error message.
  */
-function parseEnqueueBody(body: unknown): ParsedEnqueueBody | { error: string } {
+function parseEnqueueBody(
+  body: unknown,
+  mediaRoot: string,
+  outputDir: string,
+): ParsedEnqueueBody | { error: string } {
   if (body === null || typeof body !== 'object') {
     return { error: 'Request body must be a JSON object' }
   }
@@ -151,16 +192,55 @@ function parseEnqueueBody(body: unknown): ParsedEnqueueBody | { error: string } 
   if (!timelineRaw || typeof timelineRaw !== 'object') {
     return { error: 'Request body must contain `timeline`' }
   }
-  const optionsRaw = obj['options']
-  if (!optionsRaw || typeof optionsRaw !== 'object') {
-    return { error: 'Request body must contain `options`' }
+  const optionsRaw = obj['options'] ?? {}
+  if (typeof optionsRaw !== 'object' || optionsRaw === null) {
+    return { error: '`options` must be an object' }
   }
-  const options = optionsRaw as Record<string, unknown>
-  if (typeof options['outputPath'] !== 'string') {
-    return { error: 'options.outputPath must be a string' }
+  const client = optionsRaw as Partial<RenderVideoOptions>
+  try {
+    const format: VideoRenderFormat =
+      client.format === undefined
+        ? 'mp4'
+        : (assertAllowedFormat(client.format) as VideoRenderFormat)
+    const options: RenderVideoOptions = { format, outputPath: createOutputPath(outputDir, format) }
+    if (client.resolution !== undefined) options.resolution = client.resolution
+    if (client.fps !== undefined) options.fps = client.fps
+    if (client.codec !== undefined) options.codec = client.codec
+    if (client.crf !== undefined) options.crf = client.crf
+    return {
+      timeline: confineTimeline(timelineRaw as VideoTimeline, mediaRoot),
+      options,
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Invalid request' }
   }
+}
+
+/**
+ * Copy a timeline with every clip source resolved inside `mediaRoot`.
+ * Structural validation is left to {@link renderVideo}.
+ *
+ * @param timeline - The untrusted timeline.
+ * @param mediaRoot - Directory clip sources must resolve inside.
+ * @returns A new timeline whose sources are absolute, confined paths.
+ */
+function confineTimeline(timeline: VideoTimeline, mediaRoot: string): VideoTimeline {
+  if (!Array.isArray(timeline.tracks)) return timeline
   return {
-    timeline: timelineRaw as unknown as VideoTimeline,
-    options: optionsRaw as unknown as RenderVideoOptions,
+    ...timeline,
+    tracks: timeline.tracks.map((track: VideoTrack) => {
+      if (!track || !Array.isArray(track.clips)) return track
+      return {
+        ...track,
+        clips: track.clips.map((clip: VideoClip) => ({
+          ...clip,
+          source: resolveMediaSource(
+            clip?.source,
+            mediaRoot,
+            `track[${track.id}].clip[${clip?.id}].source`,
+          ),
+        })),
+      }
+    }),
   }
 }

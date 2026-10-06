@@ -45,8 +45,9 @@ export type VideoCodec = 'libx264' | 'libx265' | 'libvpx' | 'libvpx-vp9' | 'liba
  * source from `[sourceStart, sourceStart + duration)` and places it at
  * `start` on the track timeline.
  *
- * `source` is a path or `https?:`/`file:` URL — never a user-controlled
- * argument-string. Filenames are escaped before being passed to ffmpeg.
+ * `source` is a local path. `https?:` URLs are only opened when the trusted
+ * caller sets `allowRemoteSources`; the HTTP handler accepts only paths inside
+ * its configured `mediaRoot`.
  */
 export interface VideoClip {
   /** Stable identifier for the clip (used for status / progress correlation). */
@@ -154,7 +155,8 @@ export interface RenderVideoOptions {
   crf?: number
   /**
    * Output destination path. The worker writes the rendered file here.
-   * Must be an absolute path; the worker validates this before opening it.
+   * Trusted server code only — the HTTP handler ignores any client value and
+   * mints a path inside its configured `outputDir`.
    */
   outputPath: string
   /**
@@ -163,9 +165,16 @@ export interface RenderVideoOptions {
   queueName?: string
   /**
    * Optional caller-supplied job ID. When omitted, an auto-generated random
-   * ID is used.
+   * ID is used. Trusted server code only — the HTTP handler never forwards a
+   * client-supplied value.
    */
   jobId?: string
+  /**
+   * Let ffmpeg open `http:`/`https:` sources. Defaults to `false`, which
+   * passes `-protocol_whitelist file` so only local files can be read.
+   * Trusted server code only — the HTTP handler never sets it.
+   */
+  allowRemoteSources?: boolean
 }
 
 /**

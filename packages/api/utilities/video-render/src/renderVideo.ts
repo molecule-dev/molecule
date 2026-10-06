@@ -12,7 +12,12 @@
 
 import { send as queueSend } from '@molecule/api-queue'
 
-import { assertSafePath, assertValidTimeline } from './buildFfmpegArgs.js'
+import {
+  assertAllowedCodec,
+  assertAllowedFormat,
+  assertSafePath,
+  assertValidTimeline,
+} from './buildFfmpegArgs.js'
 import { getJobStore } from './jobStore.js'
 import type {
   RenderJob,
@@ -76,7 +81,9 @@ export async function renderVideo(
   assertSafePath(options.outputPath, 'options.outputPath')
 
   const format = options.format ?? DEFAULT_FORMAT
+  assertAllowedFormat(format)
   const codec = options.codec ?? CODEC_DEFAULTS[format]
+  assertAllowedCodec(codec)
   const queueName = options.queueName ?? DEFAULT_QUEUE_NAME
   const jobId = options.jobId ?? generateJobId()
 

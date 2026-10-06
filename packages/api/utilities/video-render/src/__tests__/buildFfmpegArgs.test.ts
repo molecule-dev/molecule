@@ -53,6 +53,12 @@ describe('assertSafePath', () => {
     expect(() => assertSafePath('s3://bucket/key.mov', 'x')).not.toThrow()
   })
 
+  it('rejects .. path segments', () => {
+    expect(() => assertSafePath('../../app/public/index.html', 'x')).toThrow(/'\.\.'/)
+    expect(() => assertSafePath('/srv/renders/../app/index.html', 'x')).toThrow(/'\.\.'/)
+    expect(() => assertSafePath('/srv/renders/a..b.mp4', 'x')).not.toThrow()
+  })
+
   it('rejects values starting with -', () => {
     expect(() => assertSafePath('-rf', 'x')).toThrow(/must not start with '-'/)
   })
@@ -299,6 +305,39 @@ describe('buildFfmpegArgs', () => {
         options: { ...baseMessage.options, crf: 999 },
       }),
     ).toThrow(/crf/)
+  })
+
+  it('disables stdin and restricts every input to the file protocol by default', () => {
+    const args = buildFfmpegArgs(baseMessage)
+    expect(args[0]).toBe('-nostdin')
+    args.forEach((arg, i) => {
+      if (arg === '-i') {
+        expect(args.slice(i - 2, i)).toEqual(['-protocol_whitelist', 'file'])
+      }
+    })
+  })
+
+  it('allows network protocols only when allowRemoteSources is set', () => {
+    const args = buildFfmpegArgs({
+      ...baseMessage,
+      options: { ...baseMessage.options, allowRemoteSources: true },
+    })
+    expect(args[args.indexOf('-protocol_whitelist') + 1]).toBe('file,http,https,tcp,tls,crypto')
+  })
+
+  it('rejects formats and codecs outside the allow-list', () => {
+    expect(() =>
+      buildFfmpegArgs({
+        ...baseMessage,
+        options: { ...baseMessage.options, format: 'hls' as 'mp4' },
+      }),
+    ).toThrow(/format/)
+    expect(() =>
+      buildFfmpegArgs({
+        ...baseMessage,
+        options: { ...baseMessage.options, codec: 'copy' as 'libx264' },
+      }),
+    ).toThrow(/codec/)
   })
 
   it('returns a frozen array', () => {

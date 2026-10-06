@@ -48,7 +48,8 @@
  *
  * @example
  * ```ts
- * // Express adapter (POST /render/video, GET/DELETE /render/jobs/:id)
+ * // Express adapter (POST /render/video, GET/DELETE /render/jobs/:id).
+ * // Mount it behind your authentication middleware.
  * import express from 'express'
  * import {
  *   createEnqueueRenderHandler,
@@ -57,7 +58,10 @@
  * } from '@molecule/api-video-render'
  *
  * const router = express.Router()
- * const enqueue = createEnqueueRenderHandler()
+ * const enqueue = createEnqueueRenderHandler({
+ *   mediaRoot: '/srv/app/uploads', // clip sources must resolve inside this dir
+ *   outputDir: '/srv/app/renders', // output is written here as <uuid>.<format>
+ * })
  * const status = createGetRenderStatusHandler()
  * const cancel = createCancelRenderHandler()
  *
@@ -101,7 +105,22 @@
  * fixed filter strings keyed by `effect.kind`; arbitrary `-vf` filter
  * strings from user input are NEVER accepted. The default ffmpeg runner
  * uses `child_process.spawn(args, { shell: false })` so argv elements
- * cannot be reinterpreted by a shell.
+ * cannot be reinterpreted by a shell. ffmpeg runs with `-nostdin`, and every
+ * input is opened with `-protocol_whitelist file` — a source can only make
+ * ffmpeg fetch a URL when trusted server code passes
+ * `allowRemoteSources: true`. Paths containing `..` segments are rejected.
+ *
+ * **HTTP handlers: untrusted input, authentication required.** Mount
+ * `createEnqueueRenderHandler`, `createGetRenderStatusHandler` and
+ * `createCancelRenderHandler` behind authentication — they render, read and
+ * cancel any job by id. `createEnqueueRenderHandler({ mediaRoot, outputDir })`
+ * requires both directories: the client's `outputPath`, `jobId`,
+ * `queueName` and `allowRemoteSources` are ignored, the output path is
+ * minted inside `outputDir` from a random UUID, and every clip source must
+ * be a path that resolves inside `mediaRoot` (URLs, `..` segments and
+ * absolute paths outside it are rejected with HTTP 400). `outputPath`,
+ * `jobId` and `allowRemoteSources` on {@link renderVideo} are for trusted
+ * server code only — never copy them from a request.
  *
  * **Resource intensity.** Rendering even a short timeline can take
  * minutes and saturate a CPU core; the package is queue-driven by design.
@@ -141,6 +160,7 @@ export * from './buildFfmpegArgs.js'
 export * from './ffmpeg.js'
 export * from './handler.js'
 export * from './jobStore.js'
+export * from './mediaPaths.js'
 export * from './renderVideo.js'
 export * from './types.js'
 export * from './worker.js'

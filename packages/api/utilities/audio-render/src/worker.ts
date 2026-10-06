@@ -104,6 +104,7 @@ const resolveWorkerOptions = (
   sampleRate: number
   channels: number
   bitrate?: string
+  allowRemoteSources: boolean
 } => {
   const format = options.format ?? 'mp3'
   return {
@@ -111,6 +112,7 @@ const resolveWorkerOptions = (
     sampleRate: options.sampleRate ?? 44100,
     channels: options.channels ?? 2,
     bitrate: options.bitrate ?? (format === 'mp3' ? '192k' : undefined),
+    allowRemoteSources: options.allowRemoteSources === true,
   }
 }
 
