@@ -1,5 +1,11 @@
 # @molecule/api-video-render
 
+## 2.0.1
+
+### Patch Changes
+
+- 26d16d9: Media sources are checked against their real path, so a symlink inside the media root can no longer reach files outside it.
+
 ## 2.0.0
 
 ### Major Changes
