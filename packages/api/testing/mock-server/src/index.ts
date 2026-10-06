@@ -74,11 +74,25 @@
  * client gives up, which in an E2E harness reads as an inexplicable page
  * timeout rather than a mock misconfiguration.
  *
+ * **Static builds (no server).** `buildMockFixtureSet(config)` returns the exact
+ * fixture set a server would serve (directory fixtures + scanner-discovered
+ * endpoints); `serializeFixtureSet` flattens it to JSON. In the browser,
+ * `@molecule/api-mock-server/browser` answers `fetch` from that JSON —
+ * `installFixtureFetch({ fixtures })` replaces `window.fetch` before the app
+ * boots — through the SAME router the server dispatches with
+ * (`@molecule/api-mock-server/router`), plus an in-memory write overlay (POST
+ * adds to the list, PUT/PATCH merge, DELETE removes, a detail GET finds the
+ * record by id; a reload starts over) and a demo session (signed in as the
+ * first `users` record, or a sample user; any login succeeds, logout works).
+ * Import ONLY those two subpaths from browser code — this root entry is
+ * server-only and throws when bundled for a browser.
+ *
  * @module
  */
 
 export * from './browser-guard.js'
 export * from './fixtures/index.js'
+export * from './router/index.js'
 export * from './scanner/index.js'
 export * from './server/index.js'
 export * from './states/index.js'

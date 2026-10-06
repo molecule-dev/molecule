@@ -11,15 +11,15 @@ import type { Request, Response } from 'express'
 import express from 'express'
 
 import { buildFixtureSet, generateFixtures } from '../fixtures/app-fixtures.js'
+import type { FixtureResponse } from '../router/router.js'
+import {
+  compileFixtureRoutes,
+  fixtureResponse,
+  matchFixtureRoute,
+  unmatchedFixtureResponse,
+} from '../router/router.js'
 import { resolveHandlersPath, scanHandlers } from '../scanner/scanner.js'
-import { getResponseBody, getStatusCode } from '../states/states.js'
-import type {
-  AppFixtureSet,
-  EndpointFixture,
-  MockServer,
-  MockServerConfig,
-  ResponseState,
-} from '../types.js'
+import type { AppFixtureSet, MockServer, MockServerConfig, ResponseState } from '../types.js'
 import {
   applyDelay,
   corsMiddleware,
@@ -52,7 +52,6 @@ import {
 export async function createMockServer(config: MockServerConfig): Promise<MockServer> {
   const {
     appType,
-    fixturesPath,
     port = 4000,
     // Bind loopback ONLY by default. This server hands out fixture data with
     // permissive CORS and a `_delay` control — a LAN-wide default bind made
@@ -63,12 +62,154 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     defaultDelay = 0,
     defaultState = 'success',
     endpointStates = {},
-    handlersPath,
-    customFixtures,
     logging = true,
   } = config
 
-  // Build fixture set
+  const fixtures = buildMockFixtureSet(config)
+
+  // Per-endpoint state overrides (mutable at runtime)
+  const stateOverrides = new Map<string, ResponseState>(Object.entries(endpointStates))
+
+  let currentDefaultState: ResponseState = {
+    state: defaultState,
+    delay: defaultDelay,
+  }
+
+  // Create Express app
+  const app = express()
+  app.use(express.json())
+  app.use(corsMiddleware())
+  // Pass a getter, not the object: setDefaultState() reassigns
+  // currentDefaultState, and a captured object would freeze the default at
+  // its startup value (making setDefaultState a silent no-op).
+  app.use(stateControlMiddleware(() => currentDefaultState))
+  if (logging) {
+    app.use(loggingMiddleware())
+  }
+
+  // Health check endpoint
+  app.get('/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok', appType, endpoints: fixtures.endpoints.size })
+  })
+
+  // Every /api/* request dispatches through the shared fixture router (the
+  // same code a static build runs in the browser): static paths before
+  // `:param` siblings, so the dir-CRUD `GET /profile/:id` cannot shadow a
+  // scanner-discovered `GET /profile/me`.
+  const routes = compileFixtureRoutes(fixtures.endpoints.entries())
+  app.all('/api/{*path}', async (req: Request, res: Response) => {
+    const requestState = res.locals.mockState as ResponseState | undefined
+    const match = matchFixtureRoute(routes, req.method, req.path)
+
+    if (!match) {
+      // Unmatched routes intentionally return an empty SUCCESS (screenshot/E2E
+      // pages must render, not 404) — but that makes a typo'd endpoint look
+      // identical to legitimately-empty data. The X-Mock-Unmatched header (and
+      // a warn log) lets a caller/debugger tell "no such fixture endpoint"
+      // apart from "endpoint exists and its data is empty".
+      res.setHeader('X-Mock-Unmatched', 'true')
+      if (logging) {
+        console.warn(
+          `[mock-server] no fixture endpoint matches ${req.method} ${req.path} — serving default empty response (X-Mock-Unmatched: true)`,
+        )
+      }
+      sendFixtureResponse(res, unmatchedFixtureResponse(req.method, requestState))
+      return
+    }
+
+    const { key, method, fixture } = match.route
+    // Effective state: per-endpoint override > per-request > default. An
+    // override is looked up under every key form a caller may have used.
+    const apiKey = key.replace(/ \//, ' /api/').replace(' /api/api/', ' /api/')
+    const bareKey = key.replace(/ \/api\//, ' /')
+    const endpointOverride =
+      stateOverrides.get(key) ?? stateOverrides.get(apiKey) ?? stateOverrides.get(bareKey)
+
+    let state: ResponseState
+    if (endpointOverride) {
+      // Per-endpoint override wins, but inherit delay from request if not set
+      state = { ...requestState, ...endpointOverride }
+    } else if (requestState) {
+      state = requestState
+    } else {
+      state = currentDefaultState
+    }
+
+    await applyDelay(state)
+    sendFixtureResponse(res, fixtureResponse(fixture, method, state))
+  })
+
+  // Start server
+  const server = await startServer(app, port, host)
+  const actualPort = (server.address() as { port: number }).port
+
+  if (logging) {
+    console.log(`\n  Mock API server running at http://${host}:${actualPort}`)
+    console.log(`  App type: ${appType}`)
+    console.log(`  Endpoints: ${fixtures.endpoints.size}`)
+    console.log(`  Default state: ${defaultState}\n`)
+  }
+
+  return {
+    port: actualPort,
+    host,
+    appType,
+    setState(endpointKey: string, state: ResponseState) {
+      stateOverrides.set(endpointKey, state)
+    },
+    clearState(endpointKey: string) {
+      stateOverrides.delete(endpointKey)
+    },
+    setDefaultState(state: 'success' | 'empty' | 'error' | 'unauthorized') {
+      currentDefaultState = { state, delay: defaultDelay }
+    },
+    getFixtures() {
+      return fixtures
+    },
+    async close() {
+      return new Promise<void>((resolve, reject) => {
+        server.close((err) => {
+          if (err) reject(err)
+          else resolve()
+        })
+      })
+    },
+  }
+}
+
+/**
+ * Write a router response to Express: a `null` body (204, or a fixture that
+ * is literally `null`) ends the response with no body.
+ * @param res - The Express response.
+ * @param response - The status + body from the fixture router.
+ */
+function sendFixtureResponse(res: Response, response: FixtureResponse): void {
+  if (response.body === null) {
+    res.status(response.status).end()
+    return
+  }
+  res.status(response.status).json(response.body)
+}
+
+/**
+ * Build the complete fixture set a mock server serves for a config — the
+ * directory fixtures (or `customFixtures`), enriched with endpoints the
+ * handler scanner discovers that no fixture file covers. Node-only (it reads
+ * the filesystem). `createMockServer` serves exactly this set; a static build
+ * serializes it with {@link serializeFixtureSet} and answers `fetch` from it
+ * in the browser through the same router.
+ *
+ * @param config - The fixture-related fields of a server config.
+ * @returns The fixture set.
+ */
+export function buildMockFixtureSet(
+  config: Pick<
+    MockServerConfig,
+    'appType' | 'fixturesPath' | 'handlersPath' | 'customFixtures' | 'logging'
+  >,
+): AppFixtureSet {
+  const { appType, fixturesPath, handlersPath, customFixtures, logging = true } = config
+
   let fixtures: AppFixtureSet
 
   if (customFixtures) {
@@ -140,112 +281,7 @@ export async function createMockServer(config: MockServerConfig): Promise<MockSe
     }
   }
 
-  // Per-endpoint state overrides (mutable at runtime)
-  const stateOverrides = new Map<string, ResponseState>(Object.entries(endpointStates))
-
-  let currentDefaultState: ResponseState = {
-    state: defaultState,
-    delay: defaultDelay,
-  }
-
-  // Create Express app
-  const app = express()
-  app.use(express.json())
-  app.use(corsMiddleware())
-  // Pass a getter, not the object: setDefaultState() reassigns
-  // currentDefaultState, and a captured object would freeze the default at
-  // its startup value (making setDefaultState a silent no-op).
-  app.use(stateControlMiddleware(() => currentDefaultState))
-  if (logging) {
-    app.use(loggingMiddleware())
-  }
-
-  // Register routes from fixtures — static paths before `:param` siblings.
-  // Express matches in registration order, so the dir-CRUD `GET /profile/:id`
-  // route would otherwise shadow a scanner-discovered `GET /profile/me`
-  // (`:id` = 'me') and serve the raw fixture record instead of the handler's
-  // synthesized single-object response shape. Sort is stable, so ordering
-  // within the same param count is preserved.
-  const routeEntries = [...fixtures.endpoints.entries()].sort(
-    ([, a], [, b]) => paramCount(a.endpoint.path) - paramCount(b.endpoint.path),
-  )
-  for (const [key, fixture] of routeEntries) {
-    registerRoute(app, key, fixture, stateOverrides, () => currentDefaultState)
-  }
-
-  // Health check endpoint
-  app.get('/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', appType, endpoints: fixtures.endpoints.size })
-  })
-
-  // Catch-all for unmatched API routes (Express 5 path-to-regexp syntax).
-  // Unmatched routes intentionally return an empty SUCCESS (screenshot/E2E
-  // pages must render, not 404) — but that makes a typo'd endpoint look
-  // identical to legitimately-empty data. The X-Mock-Unmatched header (and a
-  // warn log) lets a caller/debugger tell "no such fixture endpoint" apart
-  // from "endpoint exists and its data is empty".
-  app.all('/api/{*path}', (req: Request, res: Response) => {
-    res.setHeader('X-Mock-Unmatched', 'true')
-    if (logging) {
-      console.warn(
-        `[mock-server] no fixture endpoint matches ${req.method} ${req.path} — serving default empty response (X-Mock-Unmatched: true)`,
-      )
-    }
-    const state = res.locals.mockState as ResponseState | undefined
-    if (state?.state === 'error') {
-      res.status(500).json({ error: 'Internal server error' })
-      return
-    }
-    if (state?.state === 'unauthorized') {
-      res.status(401).json({ error: 'Unauthorized' })
-      return
-    }
-    // Return empty success for unmatched routes
-    if (req.method === 'GET') {
-      res.json([])
-    } else if (req.method === 'DELETE') {
-      res.status(204).end()
-    } else {
-      res.json({})
-    }
-  })
-
-  // Start server
-  const server = await startServer(app, port, host)
-  const actualPort = (server.address() as { port: number }).port
-
-  if (logging) {
-    console.log(`\n  Mock API server running at http://${host}:${actualPort}`)
-    console.log(`  App type: ${appType}`)
-    console.log(`  Endpoints: ${fixtures.endpoints.size}`)
-    console.log(`  Default state: ${defaultState}\n`)
-  }
-
-  return {
-    port: actualPort,
-    host,
-    appType,
-    setState(endpointKey: string, state: ResponseState) {
-      stateOverrides.set(endpointKey, state)
-    },
-    clearState(endpointKey: string) {
-      stateOverrides.delete(endpointKey)
-    },
-    setDefaultState(state: 'success' | 'empty' | 'error' | 'unauthorized') {
-      currentDefaultState = { state, delay: defaultDelay }
-    },
-    getFixtures() {
-      return fixtures
-    },
-    async close() {
-      return new Promise<void>((resolve, reject) => {
-        server.close((err) => {
-          if (err) reject(err)
-          else resolve()
-        })
-      })
-    },
-  }
+  return fixtures
 }
 
 /**
@@ -278,93 +314,6 @@ function findWorkspaceRoot(): string | undefined {
     dir = parent
   }
   return undefined
-}
-
-/**
- * Number of `:param` segments in a route path — used to register static
- * paths before parameterized siblings that would otherwise shadow them.
- * @param path - The route path (e.g. '/profile/:id')
- */
-function paramCount(path: string): number {
-  return path.split('/').filter((segment) => segment.startsWith(':')).length
-}
-
-/**
- * Register an Express route for a fixture endpoint.
- * @param app
- * @param key
- * @param fixture
- * @param stateOverrides
- * @param getDefault
- */
-function registerRoute(
-  app: express.Express,
-  key: string,
-  fixture: EndpointFixture,
-  stateOverrides: Map<string, ResponseState>,
-  getDefault: () => ResponseState,
-): void {
-  const { method, path } = fixture.endpoint
-
-  // Prefix with /api if not already
-  const routePath = path.startsWith('/api') ? path : `/api${path}`
-
-  // Convert :paramName to Express param syntax (already correct format)
-  // Build both key forms for state override lookup
-  const apiKey = key.replace(/ \//, ' /api/').replace(' /api/api/', ' /api/')
-  const bareKey = key.replace(/ \/api\//, ' /')
-
-  const handler = async (_req: Request, res: Response): Promise<void> => {
-    // Determine effective state: per-endpoint override > per-request > default
-    const endpointOverride =
-      stateOverrides.get(key) ?? stateOverrides.get(apiKey) ?? stateOverrides.get(bareKey)
-    const requestState = res.locals.mockState as ResponseState | undefined
-
-    let state: ResponseState
-    if (endpointOverride) {
-      // Per-endpoint override wins, but inherit delay from request if not set
-      state = {
-        ...requestState,
-        ...endpointOverride,
-      }
-    } else if (requestState) {
-      state = requestState
-    } else {
-      state = getDefault()
-    }
-
-    // Apply delay
-    await applyDelay(state)
-
-    // Get status code and body
-    const statusCode = getStatusCode(state, method)
-    const body = getResponseBody(state, method, fixture)
-
-    if (statusCode === 204 || body === null) {
-      res.status(statusCode).end()
-      return
-    }
-
-    res.status(statusCode).json(body)
-  }
-
-  switch (method) {
-    case 'GET':
-      app.get(routePath, handler)
-      break
-    case 'POST':
-      app.post(routePath, handler)
-      break
-    case 'PUT':
-      app.put(routePath, handler)
-      break
-    case 'PATCH':
-      app.patch(routePath, handler)
-      break
-    case 'DELETE':
-      app.delete(routePath, handler)
-      break
-  }
 }
 
 /**
