@@ -273,6 +273,18 @@ describe('@molecule/api-resource-share — service', () => {
       expect(slug).toMatch(/^[0-9a-f]{32}$/)
     })
 
+    it('generateSlug draws from node:crypto, never Math.random', () => {
+      const random = vi.spyOn(Math, 'random')
+      vi.stubGlobal('crypto', undefined)
+      try {
+        expect(generateSlug()).toMatch(/^[0-9a-f]{32}$/)
+        expect(random).not.toHaveBeenCalled()
+      } finally {
+        vi.unstubAllGlobals()
+        random.mockRestore()
+      }
+    })
+
     it('generateSlug returns distinct values', () => {
       const a = generateSlug()
       const b = generateSlug()

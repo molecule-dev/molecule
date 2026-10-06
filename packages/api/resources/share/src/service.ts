@@ -9,6 +9,8 @@
  * @module
  */
 
+import { randomBytes } from 'node:crypto'
+
 import {
   count,
   create as dbCreate,
@@ -321,18 +323,9 @@ export async function canAccess(
  * @returns A 32-character lowercase alphanumeric slug.
  */
 export function generateSlug(): string {
-  // 16 random bytes -> 32 hex chars; readable, URL-safe, low collision risk.
-  const bytes = new Uint8Array(16)
-  // Cross-runtime: prefer crypto.getRandomValues, fall back to Math.random.
-  const cryptoObj: { getRandomValues?: (a: Uint8Array) => Uint8Array } | undefined = (
-    globalThis as { crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array } }
-  ).crypto
-  if (cryptoObj?.getRandomValues) {
-    cryptoObj.getRandomValues(bytes)
-  } else {
-    for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256)
-  }
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
+  // 16 bytes from the CSPRNG -> 32 hex chars. The slug alone grants access to
+  // the shared resource, so it must be unguessable.
+  return randomBytes(16).toString('hex')
 }
 
 /**
