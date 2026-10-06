@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-video-rooms",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Video rooms core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

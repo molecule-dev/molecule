@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-kyc",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "KYC / identity verification core interface for molecule.dev — provider-neutral contract for Stripe Identity, Persona, Onfido, Sumsub.",
   "type": "module",
   "main": "dist/index.js",

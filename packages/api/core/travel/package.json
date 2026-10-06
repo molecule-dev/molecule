@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-travel",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Travel trip-planning aggregator (flights + hotels + cars + activities) core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-multi-tenancy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Multi-tenant data isolation core interface for molecule.dev — tenant lifecycle, context switching, and middleware integration",
   "type": "module",
   "main": "dist/index.js",

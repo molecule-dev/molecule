@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-search",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Full-text search core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

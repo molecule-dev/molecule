@@ -1,5 +1,11 @@
 # @molecule/api-resource-share
 
+## 1.0.4
+
+### Patch Changes
+
+- 0d9654e: Public share-link slugs are now always generated with `node:crypto` `randomBytes`, with no `Math.random` fallback.
+
 ## 1.0.3
 
 ### Patch Changes

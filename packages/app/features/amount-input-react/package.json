@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-amount-input-react",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Large amount input with income/expense toggle + currency symbol",
   "homepage": "https://www.molecule.dev/packages/app-amount-input-react",
   "type": "module",

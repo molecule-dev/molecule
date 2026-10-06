@@ -1,5 +1,11 @@
 # @molecule/api-audio-render
 
+## 2.0.0
+
+### Major Changes
+
+- cd7d4ad: `createAudioRenderRoutes` now requires `mediaRoot` and `outputDir`, ignores client `outputPath`/`queueName`, confines clip sources to the media root, and ffmpeg opens only local files unless `allowRemoteSources` is set.
+
 ## 1.0.1
 
 ### Patch Changes

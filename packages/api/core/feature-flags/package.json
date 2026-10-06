@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-feature-flags",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Feature flag management core interface for molecule.dev — flag evaluation, targeting rules, and percentage rollouts",
   "type": "module",
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @molecule/app-safe-link-react
 
+## 1.0.3
+
+### Patch Changes
+
+- 8a0c6c3: Documentation now states the package imports from `react-router` and peer-depends on `react-router` `^7 || ^8`.
+
 ## 1.0.1
 
 ### Patch Changes

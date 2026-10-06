@@ -35,7 +35,7 @@
     "@molecule/api-analytics": "1.1.0"
   },
   "devDependencies": {
-    "@molecule/api-encryption": "1.1.0",
+    "@molecule/api-encryption": "1.1.1",
     "@molecule/api-encryption-aes": "1.1.1",
     "@molecule/api-uploads": "1.0.2",
     "@types/node": "26.1.2",

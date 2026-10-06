@@ -38,7 +38,7 @@
     "@molecule/api-realtime": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-realtime": "1.0.2",
+    "@molecule/api-realtime": "1.0.3",
     "@types/node": "26.1.2",
     "socket.io-client": "4.8.3",
     "typescript": "6.0.3",

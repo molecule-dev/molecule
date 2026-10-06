@@ -1,6 +1,6 @@
 {
   "name": "@molecule/app-webhook-inspector-react",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Webhook delivery log row with request/response JSON panels, status, and retry",
   "homepage": "https://www.molecule.dev/packages/app-webhook-inspector-react",
   "type": "module",

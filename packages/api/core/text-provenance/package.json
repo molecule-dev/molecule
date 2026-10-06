@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-text-provenance",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Attributes a document's paragraphs to the agent sessions that wrote them: human or AI, the prompt and model behind each, and the AI word share",
   "type": "module",
   "main": "dist/index.js",

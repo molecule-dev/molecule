@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-audit",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Audit trail core interface for molecule.dev — record, query, and export audit entries",
   "type": "module",
   "main": "dist/index.js",

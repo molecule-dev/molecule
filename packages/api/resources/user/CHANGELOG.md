@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.6
+
+### Patch Changes
+
+- 240411e: Declares its `uuid` dependency.
+
 ## 1.4.5
 
 ### Patch Changes

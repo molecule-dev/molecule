@@ -1,5 +1,11 @@
 # @molecule/api-bonds-default-express
 
+## 1.0.3
+
+### Patch Changes
+
+- 240411e: Declares `zod` as a dependency and `express` and `@molecule/api-server-default-express` as peer dependencies.
+
 ## 1.0.1
 
 ### Patch Changes

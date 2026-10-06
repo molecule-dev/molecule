@@ -1,5 +1,11 @@
 # @molecule/app-achievement-card-react
 
+## 1.0.3
+
+### Patch Changes
+
+- 240411e: Declares `@molecule/app-i18n` as a peer dependency.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-middleware-validation
 
+## 1.0.3
+
+### Patch Changes
+
+- 240411e: Declares `@types/express` for the Express types it imports.
+
 ## 1.0.1
 
 ### Patch Changes

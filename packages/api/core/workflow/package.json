@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-workflow",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Workflow/state machine core interface for molecule.dev — definitions, instances, transitions, and event history.",
   "homepage": "https://www.molecule.dev/packages/api-workflow",
   "type": "module",

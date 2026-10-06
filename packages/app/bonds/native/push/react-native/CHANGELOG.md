@@ -1,5 +1,11 @@
 # @molecule/app-push-react-native
 
+## 1.0.3
+
+### Patch Changes
+
+- 240411e: Declares `react-native` and `expo-constants` as optional peer dependencies.
+
 ## 1.0.1
 
 ### Patch Changes

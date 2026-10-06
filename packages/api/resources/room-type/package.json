@@ -38,7 +38,7 @@
     "@molecule/api-database": "1.0.2",
     "@molecule/api-i18n": "1.0.3",
     "@molecule/api-logger": "1.0.2",
-    "@molecule/api-permissions": "1.0.2",
+    "@molecule/api-permissions": "1.0.3",
     "@molecule/api-resource": "1.0.2",
     "@molecule/api-resource-property": "1.0.2",
     "@types/node": "26.1.2",

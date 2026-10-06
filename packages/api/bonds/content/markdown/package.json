@@ -37,7 +37,7 @@
     "@molecule/api-content": "^1.0.0"
   },
   "devDependencies": {
-    "@molecule/api-content": "1.0.2",
+    "@molecule/api-content": "1.0.3",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

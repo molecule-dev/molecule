@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-webhook",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Webhook core interface for molecule.dev",
   "homepage": "https://www.molecule.dev/packages/api-webhook",
   "type": "module",

@@ -1,5 +1,11 @@
 # @molecule/api-billing-routes
 
+## 1.1.2
+
+### Patch Changes
+
+- 240411e: Declares `@molecule/api-logger` as a peer dependency.
+
 ## 1.1.0
 
 ### Minor Changes

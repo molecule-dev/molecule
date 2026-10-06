@@ -1,5 +1,0 @@
----
-'@molecule/api-search': patch
----
-
-The missing-provider error now names the exact call to fix it: `bond('search', provider)`.

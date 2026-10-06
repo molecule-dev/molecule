@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-emails-inbound",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Inbound email core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

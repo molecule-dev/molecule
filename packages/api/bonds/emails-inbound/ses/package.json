@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@molecule/api-emails": "1.0.2",
-    "@molecule/api-emails-inbound": "1.0.2",
+    "@molecule/api-emails-inbound": "1.0.3",
     "@types/mailparser": "3.4.6",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

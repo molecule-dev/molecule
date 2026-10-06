@@ -1,5 +1,11 @@
 # @molecule/api-middleware-body-parser-express
 
+## 1.0.3
+
+### Patch Changes
+
+- 240411e: Declares `@types/express-serve-static-core`, whose types it augments.
+
 ## 1.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/api-webhook
 
+## 1.0.3
+
+### Patch Changes
+
+- a5728e8: The missing-provider error now names the exact call to fix it: `bond('webhook', provider)`.
+
 ## 1.0.1
 
 ### Patch Changes

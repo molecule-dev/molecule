@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-oauth-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "OAuth 2.0 client core interface for molecule.dev — consume external OAuth APIs with authorization, token exchange, refresh, and revocation",
   "type": "module",
   "main": "dist/index.js",

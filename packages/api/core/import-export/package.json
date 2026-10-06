@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-import-export",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Data import/export core interface for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

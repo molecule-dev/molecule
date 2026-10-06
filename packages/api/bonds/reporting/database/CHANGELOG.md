@@ -1,5 +1,11 @@
 # @molecule/api-reporting-database
 
+## 1.0.3
+
+### Patch Changes
+
+- 985d7b2: CSV exports now prefix cells that start with `=`, `+`, `-`, `@`, a tab or a carriage return with a single quote so spreadsheets read them as text, and quote cells containing carriage returns.
+
 ## 1.0.1
 
 ### Patch Changes

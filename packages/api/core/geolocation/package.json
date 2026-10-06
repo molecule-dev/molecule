@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-geolocation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Geolocation core interface for molecule.dev — geocoding, reverse geocoding, distance calculation, autocomplete, and timezone lookups",
   "type": "module",
   "main": "dist/index.js",

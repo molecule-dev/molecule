@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-cron",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Cron scheduling core interface for molecule.dev — schedule, pause, resume, and manage recurring jobs",
   "type": "module",
   "main": "dist/index.js",

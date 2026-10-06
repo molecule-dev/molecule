@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-media-streaming",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Media streaming core interface for molecule.dev — create adaptive streams, transcode, generate manifests, and retrieve segments",
   "type": "module",
   "main": "dist/index.js",
