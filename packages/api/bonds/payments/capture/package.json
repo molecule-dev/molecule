@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-payments-capture",
+  "version": "1.0.0",
+  "description": "In-memory payments capture provider for molecule.dev — simulates a hosted-checkout vendor with no network calls.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "payments",
+    "capture",
+    "dev",
+    "offline"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@molecule/api-payments": "^1.2.1"
+  },
+  "devDependencies": {
+    "@molecule/api-payments": "1.2.1",
+    "@types/node": "26.1.2",
+    "stripe": "22.4.0",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/payments/capture"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-payments-capture",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
