@@ -19,8 +19,11 @@
  *
  * @remarks
  * - Must render inside a react-router `<Router>` / `RouterProvider` —
- *   `useLocation()` throws otherwise. Peer-depends on `react-router-dom`
- *   v6/v7; do not use in apps on a different router.
+ *   `useLocation()` throws otherwise. Imports from `react-router` and
+ *   peer-depends on `react-router` `^7 || ^8` (v7's `react-router-dom`
+ *   re-exports it, so an app on either package works as long as both resolve
+ *   ONE `react-router` copy — dedupe it in the bundler). React Router v6 is
+ *   not supported; do not use in apps on a different router.
  * - `to` accepts a string path only (no partial-Path objects).
  * - Use the NAMED import (`import { SafeLink } from …`); the package barrel
  *   does not re-export the file's default export.
