@@ -46,7 +46,7 @@ describe('crypto-prices provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Crypto-prices provider not configured. Call setProvider() first.',
+        "Crypto-prices provider not configured. Bond one first using bond('crypto-prices', provider).",
       )
     })
 

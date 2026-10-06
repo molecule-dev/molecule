@@ -45,7 +45,8 @@ export const getProvider = (): ContentProvider => {
   } catch (error) {
     throw new Error(
       t('content.error.noProvider', undefined, {
-        defaultValue: 'Content provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Content provider not configured. Bond one first using bond('content', provider).",
       }),
       { cause: error },
     )

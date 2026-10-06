@@ -51,7 +51,7 @@ describe('multi-tenancy provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Multi-tenancy provider not configured. Call setProvider() first.',
+        "Multi-tenancy provider not configured. Bond one first using bond('multi-tenancy', provider).",
       )
     })
 

@@ -43,7 +43,8 @@ export const getProvider = (): WorkflowProvider => {
   } catch (error) {
     throw new Error(
       t('workflow.error.noProvider', undefined, {
-        defaultValue: 'Workflow provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Workflow provider not configured. Bond one first using bond('workflow', provider).",
       }),
       { cause: error },
     )

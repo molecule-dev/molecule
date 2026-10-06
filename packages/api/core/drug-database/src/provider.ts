@@ -49,7 +49,8 @@ export const getProvider = (): DrugDatabaseProvider => {
   } catch (error) {
     throw new Error(
       t('drugDatabase.error.noProvider', undefined, {
-        defaultValue: 'Drug-database provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Drug-database provider not configured. Bond one first using bond('drug-database', provider).",
       }),
       { cause: error },
     )

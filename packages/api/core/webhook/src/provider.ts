@@ -37,7 +37,8 @@ export const getProvider = (): WebhookProvider => {
   } catch (error) {
     throw new Error(
       t('webhook.error.noProvider', undefined, {
-        defaultValue: 'Webhook provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Webhook provider not configured. Bond one first using bond('webhook', provider).",
       }),
       { cause: error },
     )

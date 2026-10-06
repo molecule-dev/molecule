@@ -38,7 +38,8 @@ export const getProvider = (): EncryptionProvider => {
   } catch (error) {
     throw new Error(
       t('encryption.error.noProvider', undefined, {
-        defaultValue: 'Encryption provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Encryption provider not configured. Bond one first using bond('encryption', provider).",
       }),
       { cause: error },
     )

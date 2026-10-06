@@ -56,7 +56,7 @@ describe('media streaming provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Media streaming provider not configured. Call setProvider() first.',
+        "Media streaming provider not configured. Bond one first using bond('media-streaming', provider).",
       )
     })
 
@@ -129,7 +129,7 @@ describe('media streaming provider', () => {
   describe('error handling', () => {
     it('should throw on createStream when no provider is set', async () => {
       await expect(createStream('/path/to/video.mp4')).rejects.toThrow(
-        'Media streaming provider not configured. Call setProvider() first.',
+        "Media streaming provider not configured. Bond one first using bond('media-streaming', provider).",
       )
     })
 
@@ -144,18 +144,20 @@ describe('media streaming provider', () => {
             audioBitrate: 128_000,
           },
         ]),
-      ).rejects.toThrow('Media streaming provider not configured. Call setProvider() first.')
+      ).rejects.toThrow(
+        "Media streaming provider not configured. Bond one first using bond('media-streaming', provider).",
+      )
     })
 
     it('should throw on generateManifest when no provider is set', () => {
       expect(() => generateManifest([])).toThrow(
-        'Media streaming provider not configured. Call setProvider() first.',
+        "Media streaming provider not configured. Bond one first using bond('media-streaming', provider).",
       )
     })
 
     it('should throw on getSegment when no provider is set', async () => {
       await expect(getSegment('stream-1', 0)).rejects.toThrow(
-        'Media streaming provider not configured. Call setProvider() first.',
+        "Media streaming provider not configured. Bond one first using bond('media-streaming', provider).",
       )
     })
   })

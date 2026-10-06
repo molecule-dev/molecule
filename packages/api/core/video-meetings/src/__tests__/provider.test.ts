@@ -38,7 +38,7 @@ describe('video-meetings provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Video meetings provider not configured. Call setProvider() first.',
+        "Video meetings provider not configured. Bond one first using bond('video-meetings', provider).",
       )
     })
 

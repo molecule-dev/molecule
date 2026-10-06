@@ -39,7 +39,8 @@ export const getProvider = (): VideoMeetingsProvider => {
   } catch (error) {
     throw new Error(
       t('videoMeetings.error.noProvider', undefined, {
-        defaultValue: 'Video meetings provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Video meetings provider not configured. Bond one first using bond('video-meetings', provider).",
       }),
       { cause: error },
     )

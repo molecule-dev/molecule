@@ -45,7 +45,8 @@ export const getProvider = (): GeolocationProvider => {
   } catch (error) {
     throw new Error(
       t('geolocation.error.noProvider', undefined, {
-        defaultValue: 'Geolocation provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Geolocation provider not configured. Bond one first using bond('geolocation', provider).",
       }),
       { cause: error },
     )

@@ -53,7 +53,7 @@ describe('workflow provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Workflow provider not configured. Call setProvider() first.',
+        "Workflow provider not configured. Bond one first using bond('workflow', provider).",
       )
     })
 

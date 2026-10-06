@@ -48,7 +48,8 @@ export const getProvider = (): ErrorTrackingProvider => {
   } catch (error) {
     throw new Error(
       t('errorTracking.error.noProvider', undefined, {
-        defaultValue: 'Error tracking provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Error tracking provider not configured. Bond one first using bond('error-tracking', provider).",
       }),
       { cause: error },
     )

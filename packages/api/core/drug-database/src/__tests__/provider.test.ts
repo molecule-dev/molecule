@@ -65,7 +65,7 @@ describe('drug-database provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Drug-database provider not configured. Call setProvider() first.',
+        "Drug-database provider not configured. Bond one first using bond('drug-database', provider).",
       )
     })
 

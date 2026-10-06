@@ -49,7 +49,7 @@ describe('rate-limit provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Rate-limit provider not configured. Call setProvider() first.',
+        "Rate-limit provider not configured. Bond one first using bond('rate-limit', provider).",
       )
     })
 

@@ -59,7 +59,7 @@ describe('oauth-client provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'OAuth client provider not configured. Call setProvider() first.',
+        "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
       )
     })
 
@@ -133,31 +133,33 @@ describe('oauth-client provider', () => {
   describe('error handling', () => {
     it('should throw on getAuthorizationUrl when no provider is set', () => {
       expect(() => getAuthorizationUrl(mockConfig)).toThrow(
-        'OAuth client provider not configured. Call setProvider() first.',
+        "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
       )
     })
 
     it('should throw on getToken when no provider is set', async () => {
       await expect(getToken(mockConfig, 'code')).rejects.toThrow(
-        'OAuth client provider not configured. Call setProvider() first.',
+        "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
       )
     })
 
     it('should throw on refreshToken when no provider is set', async () => {
       await expect(refreshToken(mockConfig, 'token')).rejects.toThrow(
-        'OAuth client provider not configured. Call setProvider() first.',
+        "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
       )
     })
 
     it('should throw on request when no provider is set', async () => {
       await expect(
         request({ accessToken: 'a', tokenType: 'Bearer' }, 'https://example.com'),
-      ).rejects.toThrow('OAuth client provider not configured. Call setProvider() first.')
+      ).rejects.toThrow(
+        "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
+      )
     })
 
     it('should throw on revokeToken when no provider is set', async () => {
       await expect(revokeToken(mockConfig, 'token')).rejects.toThrow(
-        'OAuth client provider not configured. Call setProvider() first.',
+        "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
       )
     })
   })

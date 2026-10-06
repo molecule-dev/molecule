@@ -38,7 +38,7 @@ describe('encryption provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Encryption provider not configured. Call setProvider() first.',
+        "Encryption provider not configured. Bond one first using bond('encryption', provider).",
       )
     })
 

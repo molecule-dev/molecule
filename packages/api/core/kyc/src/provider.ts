@@ -46,7 +46,7 @@ export const getProvider = (): KycProvider => {
   } catch (error) {
     throw new Error(
       t('kyc.error.noProvider', undefined, {
-        defaultValue: 'KYC provider not configured. Call setProvider() first.',
+        defaultValue: "KYC provider not configured. Bond one first using bond('kyc', provider).",
       }),
       { cause: error },
     )

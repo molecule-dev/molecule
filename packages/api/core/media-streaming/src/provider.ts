@@ -44,7 +44,8 @@ export const getProvider = (): StreamingProvider => {
   } catch (error) {
     throw new Error(
       t('mediaStreaming.error.noProvider', undefined, {
-        defaultValue: 'Media streaming provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Media streaming provider not configured. Bond one first using bond('media-streaming', provider).",
       }),
       { cause: error },
     )

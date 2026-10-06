@@ -37,7 +37,7 @@ export const getProvider = (): SMSProvider => {
   } catch (error) {
     throw new Error(
       t('sms.error.noProvider', undefined, {
-        defaultValue: 'SMS provider not configured. Call setProvider() first.',
+        defaultValue: "SMS provider not configured. Bond one first using bond('sms', provider).",
       }),
       { cause: error },
     )

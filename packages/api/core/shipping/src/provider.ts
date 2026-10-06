@@ -37,7 +37,8 @@ export const getProvider = (): ShippingProvider => {
   } catch (error) {
     throw new Error(
       t('shipping.error.noProvider', undefined, {
-        defaultValue: 'Shipping provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Shipping provider not configured. Bond one first using bond('shipping', provider).",
       }),
       { cause: error },
     )

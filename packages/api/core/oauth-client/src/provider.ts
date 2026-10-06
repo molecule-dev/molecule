@@ -44,7 +44,8 @@ export const getProvider = (): OAuthClientProvider => {
   } catch (error) {
     throw new Error(
       t('oauthClient.error.noProvider', undefined, {
-        defaultValue: 'OAuth client provider not configured. Call setProvider() first.',
+        defaultValue:
+          "OAuth client provider not configured. Bond one first using bond('oauth-client', provider).",
       }),
       { cause: error },
     )

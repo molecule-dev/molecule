@@ -37,7 +37,8 @@ export const getProvider = (): RateLimitProvider => {
   } catch (error) {
     throw new Error(
       t('rateLimit.error.noProvider', undefined, {
-        defaultValue: 'Rate-limit provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Rate-limit provider not configured. Bond one first using bond('rate-limit', provider).",
       }),
       { cause: error },
     )

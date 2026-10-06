@@ -57,7 +57,7 @@ describe('realtime provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Realtime provider not configured. Call setProvider() first.',
+        "Realtime provider not configured. Bond one first using bond('realtime', provider).",
       )
     })
 

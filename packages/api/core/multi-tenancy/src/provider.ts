@@ -38,7 +38,8 @@ export const getProvider = (): TenancyProvider => {
   } catch (error) {
     throw new Error(
       t('multiTenancy.error.noProvider', undefined, {
-        defaultValue: 'Multi-tenancy provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Multi-tenancy provider not configured. Bond one first using bond('multi-tenancy', provider).",
       }),
       { cause: error },
     )

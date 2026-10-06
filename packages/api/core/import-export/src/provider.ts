@@ -43,7 +43,8 @@ export const getProvider = (): ImportExportProvider => {
   } catch (error) {
     throw new Error(
       t('importExport.error.noProvider', undefined, {
-        defaultValue: 'ImportExport provider not configured. Call setProvider() first.',
+        defaultValue:
+          "ImportExport provider not configured. Bond one first using bond('import-export', provider).",
       }),
       { cause: error },
     )

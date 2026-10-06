@@ -60,7 +60,7 @@ describe('nutrition-database provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Nutrition-database provider not configured. Call setProvider() first.',
+        "Nutrition-database provider not configured. Bond one first using bond('nutrition-database', provider).",
       )
     })
 

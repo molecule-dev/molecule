@@ -52,7 +52,7 @@ describe('emails-inbound provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Inbound-emails provider not configured. Call setProvider() first.',
+        "Inbound-emails provider not configured. Bond one first using bond('emails-inbound', provider).",
       )
     })
 

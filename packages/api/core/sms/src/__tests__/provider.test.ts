@@ -33,7 +33,9 @@ describe('sms provider', () => {
 
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
-      expect(() => getProvider()).toThrow('SMS provider not configured. Call setProvider() first.')
+      expect(() => getProvider()).toThrow(
+        "SMS provider not configured. Bond one first using bond('sms', provider).",
+      )
     })
 
     it('should report no provider via hasProvider', () => {

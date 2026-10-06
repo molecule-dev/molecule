@@ -38,7 +38,8 @@ export const getProvider = (): FeatureFlagProvider => {
   } catch (error) {
     throw new Error(
       t('featureFlags.error.noProvider', undefined, {
-        defaultValue: 'Feature flag provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Feature flag provider not configured. Bond one first using bond('feature-flags', provider).",
       }),
       { cause: error },
     )

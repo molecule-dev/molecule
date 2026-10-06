@@ -42,7 +42,9 @@ describe('cron provider', () => {
 
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
-      expect(() => getProvider()).toThrow('Cron provider not configured. Call setProvider() first.')
+      expect(() => getProvider()).toThrow(
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
+      )
     })
 
     it('should return false when no provider is configured', () => {
@@ -122,43 +124,43 @@ describe('cron provider', () => {
   describe('error handling', () => {
     it('should throw on schedule when no provider is set', async () => {
       await expect(schedule('test', '* * * * *', async () => {})).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
 
     it('should throw on cancel when no provider is set', async () => {
       await expect(cancel('job-1')).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
 
     it('should throw on list when no provider is set', async () => {
       await expect(list()).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
 
     it('should throw on pause when no provider is set', async () => {
       await expect(pause('job-1')).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
 
     it('should throw on resume when no provider is set', async () => {
       await expect(resume('job-1')).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
 
     it('should throw on runNow when no provider is set', async () => {
       await expect(runNow('job-1')).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
 
     it('should throw on close when no provider is set', async () => {
       await expect(close()).rejects.toThrow(
-        'Cron provider not configured. Call setProvider() first.',
+        "Cron provider not configured. Bond one first using bond('cron', provider).",
       )
     })
   })

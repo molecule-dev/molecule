@@ -64,7 +64,7 @@ describe('weather provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Weather provider not configured. Call setProvider() first.',
+        "Weather provider not configured. Bond one first using bond('weather', provider).",
       )
     })
 

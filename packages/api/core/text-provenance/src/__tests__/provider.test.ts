@@ -16,7 +16,7 @@ describe('text provenance provider', () => {
   it('throws a named error when no provider is bonded', () => {
     expect(mod.hasProvider()).toBe(false)
     expect(() => mod.attributeText({ paragraphs: [], sessions: [] })).toThrow(
-      'Text provenance provider not configured. Call setProvider() first.',
+      "Text provenance provider not configured. Bond one first using bond('text-provenance', provider).",
     )
   })
 

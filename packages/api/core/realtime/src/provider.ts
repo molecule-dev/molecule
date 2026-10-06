@@ -128,7 +128,8 @@ export const getProvider = (): RealtimeProvider => {
   } catch (error) {
     throw new Error(
       t('realtime.error.noProvider', undefined, {
-        defaultValue: 'Realtime provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Realtime provider not configured. Bond one first using bond('realtime', provider).",
       }),
       { cause: error },
     )

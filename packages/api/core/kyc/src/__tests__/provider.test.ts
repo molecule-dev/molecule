@@ -82,7 +82,9 @@ describe('kyc provider', () => {
 
   describe('setProvider / getProvider / hasProvider', () => {
     it('throws with i18n message when no provider is bonded', () => {
-      expect(() => getProvider()).toThrow('KYC provider not configured. Call setProvider() first.')
+      expect(() => getProvider()).toThrow(
+        "KYC provider not configured. Bond one first using bond('kyc', provider).",
+      )
     })
 
     it('bonds and retrieves a provider', () => {
@@ -107,7 +109,7 @@ describe('kyc provider', () => {
   describe('convenience wrappers', () => {
     it('createVerificationSession throws when no provider is bonded', async () => {
       await expect(async () => createVerificationSession(sessionOptions)).rejects.toThrow(
-        'KYC provider not configured. Call setProvider() first.',
+        "KYC provider not configured. Bond one first using bond('kyc', provider).",
       )
     })
 

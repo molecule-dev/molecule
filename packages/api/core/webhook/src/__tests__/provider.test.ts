@@ -40,7 +40,7 @@ describe('webhook provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Webhook provider not configured. Call setProvider() first.',
+        "Webhook provider not configured. Bond one first using bond('webhook', provider).",
       )
     })
 

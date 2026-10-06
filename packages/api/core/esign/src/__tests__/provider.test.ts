@@ -63,7 +63,7 @@ describe('esign provider accessor', () => {
 
   it('getProvider throws when no provider is bonded', () => {
     expect(() => getProvider()).toThrow(
-      'E-signature provider not configured. Call setProvider() first.',
+      "E-signature provider not configured. Bond one first using bond('esign', provider).",
     )
   })
 

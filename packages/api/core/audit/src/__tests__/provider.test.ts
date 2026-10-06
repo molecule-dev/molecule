@@ -59,7 +59,7 @@ describe('audit provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Audit provider not configured. Call setProvider() first.',
+        "Audit provider not configured. Bond one first using bond('audit', provider).",
       )
     })
 

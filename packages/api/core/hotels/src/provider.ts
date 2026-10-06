@@ -52,7 +52,8 @@ export const getProvider = (): HotelsProvider => {
   } catch (error) {
     throw new Error(
       t('hotels.error.noProvider', undefined, {
-        defaultValue: 'Hotels provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Hotels provider not configured. Bond one first using bond('hotels', provider).",
       }),
       { cause: error },
     )

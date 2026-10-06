@@ -50,7 +50,8 @@ export const getProvider = (): NutritionDatabaseProvider => {
   } catch (error) {
     throw new Error(
       t('nutritionDatabase.error.noProvider', undefined, {
-        defaultValue: 'Nutrition-database provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Nutrition-database provider not configured. Bond one first using bond('nutrition-database', provider).",
       }),
       { cause: error },
     )

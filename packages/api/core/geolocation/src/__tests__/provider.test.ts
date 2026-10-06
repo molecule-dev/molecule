@@ -51,7 +51,7 @@ describe('geolocation provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Geolocation provider not configured. Call setProvider() first.',
+        "Geolocation provider not configured. Bond one first using bond('geolocation', provider).",
       )
     })
 

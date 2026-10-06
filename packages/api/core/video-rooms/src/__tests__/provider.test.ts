@@ -38,7 +38,7 @@ describe('video-rooms provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Video rooms provider not configured. Call setProvider() first.',
+        "Video rooms provider not configured. Bond one first using bond('video-rooms', provider).",
       )
     })
 

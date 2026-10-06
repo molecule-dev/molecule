@@ -45,7 +45,8 @@ export const getProvider = (): AuditProvider => {
   } catch (error) {
     throw new Error(
       t('audit.error.noProvider', undefined, {
-        defaultValue: 'Audit provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Audit provider not configured. Bond one first using bond('audit', provider).",
       }),
       { cause: error },
     )

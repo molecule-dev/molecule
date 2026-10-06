@@ -38,7 +38,8 @@ export const getProvider = (): NotificationCenterProvider => {
   } catch (error) {
     throw new Error(
       t('notificationCenter.error.noProvider', undefined, {
-        defaultValue: 'Notification center provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Notification center provider not configured. Bond one first using bond('notification-center', provider).",
       }),
       { cause: error },
     )

@@ -46,7 +46,7 @@ describe('hotels provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Hotels provider not configured. Call setProvider() first.',
+        "Hotels provider not configured. Bond one first using bond('hotels', provider).",
       )
     })
 

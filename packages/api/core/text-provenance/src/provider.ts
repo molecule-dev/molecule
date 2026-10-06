@@ -37,7 +37,8 @@ export const getProvider = (): TextProvenanceProvider => {
   } catch (error) {
     throw new Error(
       t('textProvenance.error.noProvider', undefined, {
-        defaultValue: 'Text provenance provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Text provenance provider not configured. Bond one first using bond('text-provenance', provider).",
       }),
       { cause: error },
     )

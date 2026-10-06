@@ -37,7 +37,7 @@ export const getProvider = (): CronProvider => {
   } catch (error) {
     throw new Error(
       t('cron.error.noProvider', undefined, {
-        defaultValue: 'Cron provider not configured. Call setProvider() first.',
+        defaultValue: "Cron provider not configured. Bond one first using bond('cron', provider).",
       }),
       { cause: error },
     )

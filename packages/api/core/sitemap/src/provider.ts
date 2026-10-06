@@ -37,7 +37,8 @@ export const getProvider = (): SitemapProvider => {
   } catch (error) {
     throw new Error(
       t('sitemap.error.noProvider', undefined, {
-        defaultValue: 'Sitemap provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       }),
       { cause: error },
     )

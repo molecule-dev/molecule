@@ -56,7 +56,7 @@ describe('import-export provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'ImportExport provider not configured. Call setProvider() first.',
+        "ImportExport provider not configured. Bond one first using bond('import-export', provider).",
       )
     })
 

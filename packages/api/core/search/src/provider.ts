@@ -46,7 +46,8 @@ export const getProvider = (): SearchProvider => {
   } catch (error) {
     throw new Error(
       t('search.error.noProvider', undefined, {
-        defaultValue: 'Search provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Search provider not configured. Bond one first using bond('search', provider).",
       }),
       { cause: error },
     )

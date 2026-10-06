@@ -38,7 +38,8 @@ export const getProvider = (): PermissionsProvider => {
   } catch (error) {
     throw new Error(
       t('permissions.error.noProvider', undefined, {
-        defaultValue: 'Permissions provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Permissions provider not configured. Bond one first using bond('permissions', provider).",
       }),
       { cause: error },
     )

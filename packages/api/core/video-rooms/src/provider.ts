@@ -38,7 +38,8 @@ export const getProvider = (): VideoRoomsProvider => {
   } catch (error) {
     throw new Error(
       t('videoRooms.error.noProvider', undefined, {
-        defaultValue: 'Video rooms provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Video rooms provider not configured. Bond one first using bond('video-rooms', provider).",
       }),
       { cause: error },
     )

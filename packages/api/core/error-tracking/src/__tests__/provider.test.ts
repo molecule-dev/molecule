@@ -30,7 +30,7 @@ describe('error tracking provider accessor', () => {
 
   it('throws when no provider is set', () => {
     expect(() => getProvider()).toThrow(
-      'Error tracking provider not configured. Call setProvider() first.',
+      "Error tracking provider not configured. Bond one first using bond('error-tracking', provider).",
     )
   })
 

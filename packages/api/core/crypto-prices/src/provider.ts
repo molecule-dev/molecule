@@ -52,7 +52,8 @@ export const getProvider = (): CryptoPricesProvider => {
   } catch (error) {
     throw new Error(
       t('cryptoPrices.error.noProvider', undefined, {
-        defaultValue: 'Crypto-prices provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Crypto-prices provider not configured. Bond one first using bond('crypto-prices', provider).",
       }),
       { cause: error },
     )

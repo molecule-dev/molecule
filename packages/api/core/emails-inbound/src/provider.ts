@@ -47,7 +47,8 @@ export const getProvider = (): InboundEmailProvider => {
   } catch (error) {
     throw new Error(
       t('emailsInbound.error.noProvider', undefined, {
-        defaultValue: 'Inbound-emails provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Inbound-emails provider not configured. Bond one first using bond('emails-inbound', provider).",
       }),
       { cause: error },
     )

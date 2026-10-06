@@ -45,7 +45,7 @@ describe('notification center provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Notification center provider not configured. Call setProvider() first.',
+        "Notification center provider not configured. Bond one first using bond('notification-center', provider).",
       )
     })
 

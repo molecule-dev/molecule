@@ -50,7 +50,8 @@ export const getProvider = (): TravelProvider => {
   } catch (error) {
     throw new Error(
       t('travel.error.noProvider', undefined, {
-        defaultValue: 'Travel provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Travel provider not configured. Bond one first using bond('travel', provider).",
       }),
       { cause: error },
     )

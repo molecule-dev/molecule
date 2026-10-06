@@ -46,7 +46,8 @@ export const getProvider = (): WeatherProvider => {
   } catch (error) {
     throw new Error(
       t('weather.error.noProvider', undefined, {
-        defaultValue: 'Weather provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Weather provider not configured. Bond one first using bond('weather', provider).",
       }),
       { cause: error },
     )

@@ -47,7 +47,8 @@ export const getProvider = (): FlightsProvider => {
   } catch (error) {
     throw new Error(
       t('flights.error.noProvider', undefined, {
-        defaultValue: 'Flights provider not configured. Call setProvider() first.',
+        defaultValue:
+          "Flights provider not configured. Bond one first using bond('flights', provider).",
       }),
       { cause: error },
     )

@@ -64,7 +64,7 @@ describe('permissions provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Permissions provider not configured. Call setProvider() first.',
+        "Permissions provider not configured. Bond one first using bond('permissions', provider).",
       )
     })
 

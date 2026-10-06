@@ -38,7 +38,7 @@ describe('sitemap provider', () => {
   describe('provider management', () => {
     it('should throw when no provider is set', () => {
       expect(() => getProvider()).toThrow(
-        'Sitemap provider not configured. Call setProvider() first.',
+        "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       )
     })
 
@@ -114,31 +114,31 @@ describe('sitemap provider', () => {
   describe('error handling', () => {
     it('should throw on addUrl when no provider is set', () => {
       expect(() => addUrl({ loc: 'https://example.com/' })).toThrow(
-        'Sitemap provider not configured. Call setProvider() first.',
+        "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       )
     })
 
     it('should throw on generate when no provider is set', async () => {
       await expect(generate()).rejects.toThrow(
-        'Sitemap provider not configured. Call setProvider() first.',
+        "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       )
     })
 
     it('should throw on generateIndex when no provider is set', async () => {
       await expect(generateIndex([])).rejects.toThrow(
-        'Sitemap provider not configured. Call setProvider() first.',
+        "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       )
     })
 
     it('should throw on rss when no provider is set', async () => {
       await expect(rss({ title: '', description: '', link: '', items: [] })).rejects.toThrow(
-        'Sitemap provider not configured. Call setProvider() first.',
+        "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       )
     })
 
     it('should throw on atom when no provider is set', async () => {
       await expect(atom({ title: '', link: '', id: '', entries: [] })).rejects.toThrow(
-        'Sitemap provider not configured. Call setProvider() first.',
+        "Sitemap provider not configured. Bond one first using bond('sitemap', provider).",
       )
     })
   })
