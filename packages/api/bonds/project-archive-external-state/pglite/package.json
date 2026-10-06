@@ -1,0 +1,62 @@
+{
+  "name": "@molecule/api-project-archive-external-state-pglite",
+  "version": "1.0.0",
+  "description": "PGlite external-state provider for @molecule/api-project-archive — captures a project's PGlite data directory with PGlite's own dumpDataDir, proves the dump loads back with the same row counts before the caller destroys anything, and restores it byte-for-byte with loadDataDir after a checksum check. In-memory databases are declared, never inferred.",
+  "homepage": "https://www.molecule.dev/packages/api-project-archive-external-state-pglite",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "molecule",
+    "project",
+    "archive",
+    "pglite",
+    "postgres",
+    "backup"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/project-archive-external-state/pglite"
+  },
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@molecule/api-database-pglite": "^1.0.0",
+    "@molecule/api-project-archive": "^1.0.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-database-pglite": "1.0.0",
+    "@molecule/api-project-archive": "1.0.2",
+    "@molecule/api-secrets": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}

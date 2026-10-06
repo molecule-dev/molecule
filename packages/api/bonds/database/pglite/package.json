@@ -1,0 +1,63 @@
+{
+  "name": "@molecule/api-database-pglite",
+  "version": "1.0.0",
+  "description": "PGlite database provider for molecule.dev — real Postgres compiled to WebAssembly, in-process, in memory, on disk, or in the browser's IndexedDB.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "molecule",
+    "database",
+    "postgres",
+    "pglite",
+    "wasm",
+    "browser"
+  ],
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  },
+  "devDependencies": {
+    "@molecule/api-bond": "1.0.2",
+    "@molecule/api-database": "1.0.2",
+    "@molecule/api-secrets": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "peerDependencies": {
+    "@molecule/api-bond": "^1.0.1",
+    "@molecule/api-database": "^1.0.1",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/database/pglite"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-database-pglite",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
