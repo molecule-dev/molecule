@@ -261,7 +261,11 @@ export function createFixtureFetch(
     if (
       route.method === 'GET' &&
       route.paramNames.length === 0 &&
-      !lists.has(route.path.toLowerCase())
+      !lists.has(route.path.toLowerCase()) &&
+      // The overlay must hold the route a request for this path really reaches. When another
+      // fixture wins the match (a hand-written `dashboard/` beside the scanner's own sample for
+      // `dashboard`), the scanner's sample must not be served instead of it.
+      matchFixtureRoute(routes, 'GET', route.path)?.route === route
     ) {
       lists.set(route.path.toLowerCase(), route)
     }

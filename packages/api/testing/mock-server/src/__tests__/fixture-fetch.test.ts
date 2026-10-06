@@ -210,6 +210,44 @@ describe('defaultPersona', () => {
   })
 })
 
+describe('a hand-written fixture beats the scanner sample for the same endpoint', () => {
+  const dashboardFixtures = {
+    appType: 'app',
+    endpoints: [
+      [
+        'GET /api/dashboard/',
+        {
+          endpoint: { method: 'GET', path: '/api/dashboard/' },
+          successResponse: { total: 7, recent: [{ id: 'real-1' }, { id: 'real-2' }] },
+          emptyResponse: {},
+          errorResponse: { error: 'x' },
+        },
+      ],
+      [
+        'GET /api/dashboard',
+        {
+          endpoint: { method: 'GET', path: '/api/dashboard' },
+          // The scanner's own sample (listed after the hand-written fixture, as in a real set): an
+          // object with exactly one array field.
+          successResponse: { recent: [{ id: 'sample-1' }] },
+          emptyResponse: {},
+          errorResponse: { error: 'x' },
+        },
+      ],
+    ],
+  } as Parameters<typeof createFixtureFetch>[0]['fixtures']
+
+  it('serves the fixture, not a list rebuilt from the scanner sample', async () => {
+    const f = createFixtureFetch({ fixtures: dashboardFixtures, origin: ORIGIN })
+    const body = (await (await f('/api/dashboard')).json()) as {
+      total?: number
+      recent: { id: string }[]
+    }
+    expect(body.total).toBe(7)
+    expect(body.recent.map((r) => r.id)).toEqual(['real-1', 'real-2'])
+  })
+})
+
 describe('list-shaped writes (a cart)', () => {
   const cart = { items: [{ id: 'c1', qty: 1 }], subtotal: 10, total: 10 }
   const cartFixtures = {
