@@ -3,6 +3,9 @@
   "version": "1.0.2",
   "description": "Default API bond setup for Express-based apps. Provides setup functions for the 10 byte-identical bond wirings shared across the molecule fleet — config-env, database-postgresql, jwt-jsonwebtoken, middleware-{body-parser,cookie-parser,cors}-express, password-bcrypt, secrets-env, service-device, two-factor-otplib.",
   "homepage": "https://www.molecule.dev/packages/api-bonds-default-express",
+  "dependencies": {
+    "zod": "4.4.3"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -129,7 +132,9 @@
     "@molecule/api-webhook-http": "1.0.3",
     "@molecule/api-workflow": "1.0.2",
     "@molecule/api-workflow-database": "1.0.2",
+    "@types/express": "5.0.6",
     "@types/node": "26.1.2",
+    "express": "5.2.1",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
   },
@@ -219,6 +224,7 @@
     "@molecule/api-search-postgres": "^1.0.1",
     "@molecule/api-secrets": "^1.0.1",
     "@molecule/api-secrets-env": "^1.0.1",
+    "@molecule/api-server-default-express": "^1.0.1",
     "@molecule/api-two-factor": "^1.0.1",
     "@molecule/api-two-factor-otplib": "^1.0.1",
     "@molecule/api-uploads": "^1.0.1",
@@ -227,7 +233,8 @@
     "@molecule/api-webhook": "^1.0.1",
     "@molecule/api-webhook-http": "^1.0.1",
     "@molecule/api-workflow": "^1.0.1",
-    "@molecule/api-workflow-database": "^1.0.1"
+    "@molecule/api-workflow-database": "^1.0.1",
+    "express": "^4.0.0 || ^5.0.0"
   },
   "peerDependenciesMeta": {
     "@molecule/api-cron": {

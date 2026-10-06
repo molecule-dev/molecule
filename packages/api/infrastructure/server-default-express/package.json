@@ -43,7 +43,8 @@
     "@molecule/api-middleware-cookie-parser": "1.0.2",
     "@molecule/api-middleware-cors": "1.0.2",
     "express": "5.2.1",
-    "@types/express": "5.0.6"
+    "@types/express": "5.0.6",
+    "pem": "1.14.8"
   },
   "peerDependencies": {
     "@molecule/api-error-tracking": "^1.0.1",
@@ -52,6 +53,12 @@
     "@molecule/api-middleware-cookie-parser": "^1.0.1",
     "@molecule/api-middleware-cors": "^1.0.1",
     "@molecule/api-secrets": "^1.0.1",
-    "express": "^4.0.0 || ^5.0.0"
+    "express": "^4.0.0 || ^5.0.0",
+    "pem": ">=1.14.0"
+  },
+  "peerDependenciesMeta": {
+    "pem": {
+      "optional": true
+    }
   }
 }

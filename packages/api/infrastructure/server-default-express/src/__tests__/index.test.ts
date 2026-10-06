@@ -1,4 +1,5 @@
 import http from 'node:http'
+import type * as NodeModule from 'node:module'
 import type { AddressInfo } from 'node:net'
 
 import type express from 'express'
@@ -11,6 +12,23 @@ import {
   errorMiddleware,
   securityHeadersMiddleware,
 } from '../index.js'
+
+/**
+ * What `createRequire(…)('pem')` yields in these tests — swapped per test so the
+ * HTTPS path is exercised whether or not `pem` is installed in node_modules.
+ */
+const pemLoader = vi.hoisted(() => ({ load: (): unknown => undefined }))
+
+vi.mock('node:module', async (importOriginal) => {
+  const actual = await importOriginal<typeof NodeModule>()
+  return {
+    ...actual,
+    createRequire: (from: string | URL) => {
+      const real = actual.createRequire(from)
+      return Object.assign((id: string) => (id === 'pem' ? pemLoader.load() : real(id)), real)
+    },
+  }
+})
 
 /** Minimal Express `res` test double that records what the handler wrote. */
 function makeRes() {
@@ -158,6 +176,47 @@ describe('createServerFactory server (L1-1 — real /health response carries the
     expect(headers['x-content-type-options']).toBe('nosniff')
     expect(headers['x-frame-options']).toBe('DENY')
     expect(headers['content-security-policy']).toBe("frame-ancestors 'none'")
+  })
+
+  describe('HTTPS mode (optional pem dependency, loaded from ESM)', () => {
+    let prevHttps: string | undefined
+
+    beforeEach(() => {
+      prevHttps = process.env.HTTPS
+      process.env.HTTPS = '1'
+    })
+
+    afterEach(() => {
+      if (prevHttps === undefined) delete process.env.HTTPS
+      else process.env.HTTPS = prevHttps
+    })
+
+    const makeCreate = () =>
+      createServerFactory({
+        setupBonds: async () => {},
+        runMigrations: async () => {},
+        getRouter: async () => ({ router: expressLib.Router() }),
+      })
+
+    it('asks pem for a self-signed certificate', async () => {
+      const createCertificate = vi.fn(
+        (_options: unknown, callback: (error: Error | null, keys?: unknown) => void) =>
+          callback(new Error('openssl unavailable')),
+      )
+      pemLoader.load = () => ({ createCertificate })
+      await expect(makeCreate()(0)).rejects.toThrow('openssl unavailable')
+      expect(createCertificate).toHaveBeenCalledWith(
+        { days: 1, selfSigned: true },
+        expect.any(Function),
+      )
+    })
+
+    it('explains how to install pem when it is missing', async () => {
+      pemLoader.load = () => {
+        throw Object.assign(new Error("Cannot find module 'pem'"), { code: 'MODULE_NOT_FOUND' })
+      }
+      await expect(makeCreate()(0)).rejects.toThrow(/optional dependency `pem`/)
+    })
   })
 })
 
