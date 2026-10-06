@@ -126,6 +126,12 @@ export const createProvider = (config: MirrorUploadsConfig): MirrorUploadProvide
     // the whole file.
     const branches = targets.map(() => new PassThrough())
     for (const branch of branches) stream.pipe(branch)
+    for (const branch of branches) {
+      // failAll destroys a branch WITH an error, which emits `error` on it. A target that does not
+      // listen for it turned that into an uncaught exception that ends the process. Each target's
+      // failure is delivered through failTarget and onError, so the event has nothing left to say.
+      branch.on('error', (_error: Error) => {})
+    }
 
     const targetFiles: UploadedFile[] = []
     const settled: Array<Promise<void>> = []
