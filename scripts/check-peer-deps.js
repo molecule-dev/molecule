@@ -7,16 +7,20 @@
  * the pre-commit hook alongside check:lockfile.
  */
 
+import console from 'node:console'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import process from 'node:process'
 
 const PACKAGES_DIR = join(import.meta.dirname, '..', 'packages')
 
-/** @molecule/* packages are workspace-linked — always available, no devDep needed. */
+/** `@molecule/*` packages are workspace-linked — always available, no devDep needed. */
 const isMoleculePackage = (name) => name.startsWith('@molecule/')
 
-/** React Native native modules can't be installed from npm in a non-RN context.
- *  These packages are only built/tested with the RN toolchain. */
+/**
+ * React Native / Expo native modules can't be installed from npm in a non-RN
+ * context. These packages are only built/tested with the RN toolchain.
+ */
 const SKIP_PACKAGES = new Set([
   'react-native',
   '@react-native-clipboard/clipboard',
@@ -25,11 +29,17 @@ const SKIP_PACKAGES = new Set([
   '@react-navigation/native',
   'react-native-safe-area-context',
   'expo-notifications',
+  'expo-constants',
   'expo-splash-screen',
 ])
 
 let errors = 0
 
+/**
+ * Recursively check every package.json under a directory.
+ *
+ * @param dir - Directory to walk.
+ */
 function walk(dir) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry)
@@ -54,8 +64,9 @@ function walk(dir) {
             errors++
           }
         }
-      } catch {
-        // No package.json or parse error — recurse deeper
+      } catch (_error) {
+        // No package.json here (or it does not parse) — this is a grouping
+        // directory, so recurse deeper instead of reporting.
         walk(full)
         continue
       }

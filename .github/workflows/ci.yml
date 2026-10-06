@@ -110,6 +110,10 @@ jobs:
       # fleet). Cheaper than the build below and names the file instead of a
       # wall of follow-on errors; a `*/` in a JSDoc example is the known shape.
       - run: npm run check:syntax
+      # Every bare import in a package's shipped src is declared in its own
+      # package.json. npm workspaces hoist everything, so an undeclared import
+      # builds here and breaks for pnpm / Yarn PnP consumers.
+      - run: npm run check:undeclared-imports
       # Versioning is local and lands with the change; a changeset still under
       # .changeset/ on a pushed commit means a package was changed and never
       # versioned, and the Release workflow refuses to run while one exists.

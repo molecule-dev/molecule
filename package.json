@@ -42,6 +42,7 @@
     "check:publishable": "node scripts/check-publishable.mjs",
     "check:security-workflow": "node scripts/check-security-workflow.js",
     "check:syntax": "node scripts/check-syntax.mjs",
+    "check:undeclared-imports": "node scripts/check-undeclared-imports.mjs",
     "check:ws-floor": "node scripts/check-ws-floor.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
