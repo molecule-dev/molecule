@@ -165,6 +165,24 @@ interface MonacoModule {
 }
 
 /**
+ * The most characters of one document sent to the language server. The server’s WebSocket refuses
+ * a message over 1 MB with a close that the client answers by reconnecting, so a single large open
+ * file (a lockfile, a bundle) put the language server into an endless reconnect loop and stopped
+ * completions for every file. Such a file simply gets no language-server features.
+ */
+export const LSP_MAX_DOCUMENT_CHARS = 250_000
+
+/**
+ * Whether a document is small enough to send to the language server.
+ *
+ * @param text - The document text.
+ * @returns True when it can be sent.
+ */
+export function lspCanCarry(text: string): boolean {
+  return text.length <= LSP_MAX_DOCUMENT_CHARS
+}
+
+/**
  * Monaco Editor implementation of `EditorProvider`. Dynamically imports the Monaco Editor
  * library at runtime to avoid large bundle sizes. Manages multiple file tabs with
  * independent Monaco models, cursor tracking, and change event listeners.
@@ -546,7 +564,7 @@ export class MonacoEditorProvider implements EditorProvider {
       const uri = this.lspClient.toLspUri(file.path)
       const version = (this.documentVersions.get(file.path) ?? 0) + 1
       this.documentVersions.set(file.path, version)
-      if (!this.lspClient.isOpen(uri)) {
+      if (!this.lspClient.isOpen(uri) && lspCanCarry(file.content)) {
         this.lspClient.didOpen(uri, this.getLspLanguageId(file.path), version, file.content)
       }
     }
@@ -696,7 +714,7 @@ export class MonacoEditorProvider implements EditorProvider {
         const uri = this.lspClient.toLspUri(path)
         const docVersion = (this.documentVersions.get(path) ?? 0) + 1
         this.documentVersions.set(path, docVersion)
-        this.lspClient.didChange(uri, docVersion, content)
+        if (lspCanCarry(content)) this.lspClient.didChange(uri, docVersion, content)
       }
       return
     }
@@ -737,7 +755,7 @@ export class MonacoEditorProvider implements EditorProvider {
         const uri = this.lspClient.toLspUri(this.activeFile)
         const docVersion = (this.documentVersions.get(this.activeFile) ?? 0) + 1
         this.documentVersions.set(this.activeFile, docVersion)
-        this.lspClient.didChange(uri, docVersion, activeContent)
+        if (lspCanCarry(activeContent)) this.lspClient.didChange(uri, docVersion, activeContent)
       }
 
       // Restore cursor, clamped to valid bounds
@@ -1414,6 +1432,7 @@ export class MonacoEditorProvider implements EditorProvider {
 
     // Send didOpen for all currently open files
     for (const [path, stored] of this.fileContents) {
+      if (!lspCanCarry(stored.content)) continue
       const uri = client.toLspUri(path)
       const version = 1
       this.documentVersions.set(path, version)
@@ -1489,7 +1508,7 @@ export class MonacoEditorProvider implements EditorProvider {
         const uri = this.lspClient.toLspUri(this.activeFile)
         const docVersion = (this.documentVersions.get(this.activeFile) ?? 0) + 1
         this.documentVersions.set(this.activeFile, docVersion)
-        this.lspClient.didChange(uri, docVersion, content)
+        if (lspCanCarry(content)) this.lspClient.didChange(uri, docVersion, content)
       }
 
       // Mark tab dirty and promote preview tabs on edit

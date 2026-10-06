@@ -1,9 +1,12 @@
-const { mockCreate, mockFindOne, mockUpdateById, mockDeleteById } = vi.hoisted(() => ({
-  mockCreate: vi.fn(),
-  mockFindOne: vi.fn(),
-  mockUpdateById: vi.fn(),
-  mockDeleteById: vi.fn(),
-}))
+const { mockCreate, mockFindOne, mockFindMany, mockUpdateById, mockDeleteById } = vi.hoisted(
+  () => ({
+    mockCreate: vi.fn(),
+    mockFindOne: vi.fn(),
+    mockFindMany: vi.fn(),
+    mockUpdateById: vi.fn(),
+    mockDeleteById: vi.fn(),
+  }),
+)
 
 const { mockGetProvider } = vi.hoisted(() => ({
   mockGetProvider: vi.fn(),
@@ -12,6 +15,7 @@ const { mockGetProvider } = vi.hoisted(() => ({
 vi.mock('@molecule/api-database', () => ({
   create: mockCreate,
   findOne: mockFindOne,
+  findMany: mockFindMany,
   updateById: mockUpdateById,
   deleteById: mockDeleteById,
 }))
@@ -191,8 +195,8 @@ describe('@molecule/api-resource-ai-conversation handlers', () => {
   })
 
   describe('clear', () => {
-    it('should return 204 when no conversation exists', async () => {
-      withConversation(null)
+    it('should return 204 when the project has no conversation', async () => {
+      mockFindMany.mockResolvedValue([])
 
       const req = mockReq()
       const res = mockRes()
@@ -204,8 +208,8 @@ describe('@molecule/api-resource-ai-conversation handlers', () => {
       expect(mockDeleteById).not.toHaveBeenCalled()
     })
 
-    it('should delete conversation and return 204', async () => {
-      withConversation({ id: 'conv-1' })
+    it('should delete the only conversation when no id is given', async () => {
+      mockFindMany.mockResolvedValue([{ id: 'conv-1' }])
       mockDeleteById.mockResolvedValue(undefined)
 
       const req = mockReq()
@@ -216,6 +220,52 @@ describe('@molecule/api-resource-ai-conversation handlers', () => {
       expect(mockDeleteById).toHaveBeenCalledWith('conversations', 'conv-1')
       expect(res.status).toHaveBeenCalledWith(204)
       expect(res.end).toHaveBeenCalled()
+    })
+
+    it('refuses to guess among several conversations when no id is given (R140-H1)', async () => {
+      mockFindMany.mockResolvedValue([{ id: 'conv-1' }, { id: 'conv-2' }])
+
+      const req = mockReq()
+      const res = mockRes()
+
+      await clear(req, res)
+
+      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: 'conversation.error.idRequired' }),
+      )
+      expect(mockDeleteById).not.toHaveBeenCalled()
+    })
+
+    it('deletes the conversation named by ?conversationId=, looked up within the project (R140-H1)', async () => {
+      mockFindOne.mockImplementation(async (table: string) =>
+        table === 'projects' ? OWNED_PROJECT : { id: 'conv-2' },
+      )
+      mockDeleteById.mockResolvedValue(undefined)
+
+      const req = mockReq({ query: { conversationId: 'conv-2' } })
+      const res = mockRes()
+
+      await clear(req, res)
+
+      expect(mockFindOne).toHaveBeenCalledWith('conversations', [
+        { field: 'id', operator: '=', value: 'conv-2' },
+        { field: 'projectId', operator: '=', value: 'proj-1' },
+      ])
+      expect(mockDeleteById).toHaveBeenCalledWith('conversations', 'conv-2')
+      expect(res.status).toHaveBeenCalledWith(204)
+    })
+
+    it('answers 204 and deletes nothing when the named conversation is not in the project', async () => {
+      withConversation(null)
+
+      const req = mockReq({ query: { conversationId: 'conv-elsewhere' } })
+      const res = mockRes()
+
+      await clear(req, res)
+
+      expect(mockDeleteById).not.toHaveBeenCalled()
+      expect(res.status).toHaveBeenCalledWith(204)
     })
   })
 
