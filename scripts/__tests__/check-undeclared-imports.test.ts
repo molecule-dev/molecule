@@ -137,7 +137,8 @@ describe('findUndeclared', () => {
 })
 
 describe('the fleet', () => {
-  it('declares every package its shipped source imports', () => {
+  // Parses every source file of ~1000 packages: seconds locally, longer on a loaded CI runner.
+  it('declares every package its shipped source imports', { timeout: 120_000 }, () => {
     expect(scanFleet()).toEqual([])
   })
 })
