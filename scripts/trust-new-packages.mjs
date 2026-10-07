@@ -261,12 +261,32 @@ for (const pkg of untrusted) {
       // commit time. Skipped in a standalone clone (no ../mlcl).
       const readme = join(ROOT, pkg.dir, 'README.md')
       if (!existsSync(readme)) {
-        const mlclTs = join(ROOT, '..', 'mlcl', 'node_modules', '.bin', 'tsx')
-        const regen = join(ROOT, '..', 'mlcl', 'scripts', 'regen-molecule-docs.mjs')
-        if (existsSync(mlclTs)) {
+        // tsx lives at mlcl/node_modules/.bin in a STANDALONE mlcl clone, but
+        // this workspace makes mlcl a root npm-workspace member, which hoists
+        // it to the workspace root's .bin (mlcl/node_modules/.bin/tsx has not
+        // existed here since 2026-08-16 — a silent skip there sent the
+        // 2026-10-07 embeddings wave into the pack gate's README error).
+        const mlclDir = join(ROOT, '..', 'mlcl')
+        const regen = join(mlclDir, 'scripts', 'regen-molecule-docs.mjs')
+        const tsx = [
+          join(mlclDir, 'node_modules', '.bin', 'tsx'),
+          join(mlclDir, '..', 'node_modules', '.bin', 'tsx'),
+        ].find((p) => existsSync(p))
+        if (!existsSync(regen)) {
+          console.error(
+            '    ⚠ no ../mlcl checkout next to this repo — cannot regenerate the' +
+              ' missing README.md; the pack gate below will refuse this package',
+          )
+        } else if (!tsx) {
+          console.error(
+            '    ⚠ tsx not found (looked in mlcl/node_modules/.bin and the' +
+              ' workspace root) — cannot regenerate the missing README.md; the' +
+              ' pack gate below will refuse this package',
+          )
+        } else {
           console.log(`    regenerating the missing README.md (commit-time step, run early)`)
-          execFileSync(mlclTs, [regen, pkg.dir], {
-            cwd: join(ROOT, '..', 'mlcl'),
+          execFileSync(tsx, [regen, pkg.dir], {
+            cwd: mlclDir,
             stdio: 'inherit',
           })
         }
