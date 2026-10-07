@@ -35,6 +35,7 @@ import {
   createWriteStream,
   existsSync,
   openSync,
+  readFileSync,
   writeFileSync,
 } from 'node:fs'
 import { join } from 'node:path'
@@ -42,6 +43,7 @@ import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
+import { loadSeed, parseSecret, SEED_PATH, secondsLeftInWindow, storeSeed, totp } from './lib/npm-2fa.mjs'
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
@@ -198,26 +200,74 @@ const askOtp = async (label) => {
 }
 
 /**
- * Returns a usable code, prompting only when there is none or npm rejected it.
+ * The last TOTP code handed out from the stored seed, so a `force` retry can
+ * wait out the 30 s window instead of returning the code npm just spent.
  *
- * ONE code covers many packages: the trust endpoint takes it as an `npm-otp`
- * header, which is how 592 packages were trusted on a handful of codes on
- * 2026-08-05. Re-prompt only when npm says the held one is spent.
+ * @type {string | null}
+ */
+let lastSeedCode = null
+
+/**
+ * True once a stored seed is the code source: `otp` then merely mirrors the
+ * last generated code (the trust call after a publish reads it) and must not
+ * short-circuit the next ensureOtp into reusing it.
+ *
+ * @type {boolean}
+ */
+let seedMode = false
+
+/**
+ * Returns a usable code, self-served whenever possible.
+ *
+ * Order: the --otp argument, then the locally stored TOTP seed — after the
+ * one-time enrollment this is the whole story, because npm's trust endpoint
+ * wants a fresh `npm-otp` on EVERY call and the codes are single-use, which
+ * is what made a sweep over N packages cost N keystrokes. The terminal prompt
+ * doubles as the enrollment: answer with a 6-digit code for a one-time use,
+ * or paste the authenticator SECRET (base32 or the otpauth:// URI) to store
+ * it at SEED_PATH (0600) so every code after this is generated here and npm's
+ * 2FA never asks again.
  *
  * @param label - What the code is for.
- * @param force - Ask for a fresh one even if a code is held.
+ * @param force - Compute a fresh one even if a code is held (npm rejected
+ *   the held one as spent).
  * @returns A 6-digit code.
  */
 const ensureOtp = async (label, force = false) => {
-  if (otp && !force && /^\d{6}$/.test(otp)) return otp
-  const answer = await askOtp(label)
+  if (otp && !seedMode && !force && /^\d{6}$/.test(otp)) return otp
+  const seed = loadSeed()
+  if (seed) {
+    seedMode = true
+    let code = totp(seed)
+    if (force && code === lastSeedCode) {
+      const wait = secondsLeftInWindow()
+      console.error(`  code just spent — waiting ${wait}s for the next TOTP window`)
+      await new Promise((resolve) => setTimeout(resolve, wait * 1000))
+      code = totp(seed)
+    }
+    lastSeedCode = code
+    otp = code
+    return code
+  }
+  const answer = await askOtp(
+    `${label} — 6-digit code, or paste the authenticator SECRET (base32 / otpauth:// URI) to store it at ${SEED_PATH} and never be asked again`,
+  )
   if (answer === null) {
     console.error('No terminal for the 2FA prompt — skipping.')
     console.error('Run `npm run trust:new` from a shell to finish this.')
     process.exit(0)
   }
+  const secret = parseSecret(answer)
+  if (secret) {
+    storeSeed(secret)
+    console.error(
+      `\n  TOTP secret stored at ${SEED_PATH} (mode 0600) — codes are generated locally from now on.\n`,
+    )
+    lastSeedCode = totp(secret)
+    return lastSeedCode
+  }
   if (!/^\d{6}$/.test(answer)) {
-    console.error('That is not a 6-digit code. Run `npm run trust:new` to retry.')
+    console.error('That is not a 6-digit code or a TOTP secret. Run `npm run trust:new` to retry.')
     process.exit(1)
   }
   otp = answer
@@ -291,14 +341,54 @@ for (const pkg of untrusted) {
           })
         }
       }
+      if (!existsSync(readme)) {
+        // Still nothing: the regen path needs the package REGISTERED in mlcl's
+        // registry, and a package caught mid-authoring (registration not yet
+        // committed, or genuinely forgotten) cannot generate real docs. A
+        // minimal manifest-sourced README beats failing the whole sweep — the
+        // npm page shows name + description now, and the hook-generated full
+        // README ships with the authoring commit's next version. No code
+        // samples on purpose: README text travels inside the publish PUT
+        // body, and sample code is what trips npm's Cloudflare WAF (the
+        // 2026-09-24 app-margin-notes-react incident).
+        const manifest = JSON.parse(readFileSync(join(ROOT, pkg.dir, 'package.json'), 'utf8'))
+        console.error(
+          `    ⚠ ${manifest.name} is not in mlcl's registry yet (authoring session mid-flight, or registration forgotten) — writing a minimal README so the publish can proceed; full docs arrive with its commit`,
+        )
+        writeFileSync(
+          readme,
+          `# ${manifest.name}\n\n${manifest.description ?? ''}\n\n` +
+            `\`\`\`\nnpm install ${manifest.name}\n\`\`\`\n\n` +
+            `Part of the [Molecule](https://www.molecule.dev) package fleet. This page carries the ` +
+            `manifest summary; the full generated documentation ships with the package's first committed version.\n\n` +
+            `License: ${manifest.license ?? 'Apache-2.0'}\n`,
+        )
+      }
       assertPackComplete(join(ROOT, pkg.dir))
-      // stdio: 'inherit' so npm runs its OWN 2FA prompt. `npm publish` has no
-      // --otp we can satisfy from here, and collecting a code we cannot pass on
-      // is worse than not collecting one.
-      execFileSync('npm', ['publish', '--access', 'public'], {
-        cwd: join(ROOT, pkg.dir),
-        stdio: 'inherit',
-      })
+      // With a code we can self-serve (a held one or the stored seed), hand it
+      // to npm via --otp so the publish is unattended too; a TOTP window can
+      // roll between computing the code and npm using it, so one fresh-code
+      // retry before giving up. Without one, stdio: 'inherit' keeps npm's OWN
+      // 2FA prompt — a code collected on /dev/tty may already be spent by an
+      // earlier package's trust call, and asking the human for a code npm will
+      // not consume is worse than letting npm ask.
+      if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
+        const publishOnce = (code) =>
+          execFileSync('npm', ['publish', '--access', 'public', '--otp', code], {
+            cwd: join(ROOT, pkg.dir),
+            stdio: 'inherit',
+          })
+        try {
+          await publishOnce(await ensureOtp(`${pkg.name} publish`))
+        } catch {
+          await publishOnce(await ensureOtp(`${pkg.name} publish`, true))
+        }
+      } else {
+        execFileSync('npm', ['publish', '--access', 'public'], {
+          cwd: join(ROOT, pkg.dir),
+          stdio: 'inherit',
+        })
+      }
     } catch (error) {
       // `npm publish` with stdio: 'inherit' prints its own reason, so its
       // "Command failed" wrapper adds nothing — but the build and the
