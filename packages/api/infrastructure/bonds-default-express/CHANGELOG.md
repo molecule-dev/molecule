@@ -1,5 +1,11 @@
 # @molecule/api-bonds-default-express
 
+## 1.1.0
+
+### Minor Changes
+
+- 0b84110: Adds `setupDatabasePglite`, `setupPaymentsCapture`, `setupEmailsCapture` and `createMigratorPglite`, the setup functions for a zero-server browser profile; `@molecule/api-database-pglite` and `@molecule/api-payments-capture` are optional peers, loaded only when called.
+
 ## 1.0.3
 
 ### Patch Changes
