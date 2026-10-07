@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings
 
+## 1.1.0
+
+### Minor Changes
+
+- Adds optional `task` and `inputType` to `EmbedParams` for instruction-prefixed models, plus an optional `embedContent` method and `modalities` list for embedding images, audio and video alongside text.
+
 ## 1.0.1
 
 ### Patch Changes

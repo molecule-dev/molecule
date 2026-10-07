@@ -36,7 +36,7 @@
     "directory": "packages/api/utilities/semantic-search"
   },
   "devDependencies": {
-    "@molecule/api-ai-embeddings": "1.0.2",
+    "@molecule/api-ai-embeddings": "1.1.0",
     "@molecule/api-ai-vector-store": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

@@ -22,6 +22,14 @@
  * - **Server-side only, gated.** The provider key stays on the API; embedding is
  *   billed per token, so auth + rate-limit any endpoint that embeds caller-supplied
  *   text.
+ * - **`task` / `inputType` only matter to instruction-prefixed models**
+ *   (`@molecule/api-ai-embeddings-embeddinggemma`, `-gemini`); other bonds ignore
+ *   them. On those bonds `embedQuery` and `embedDocuments` already pick the right
+ *   side — use them rather than `embed()` for search.
+ * - **Images, audio and video go through the OPTIONAL `embedContent`.** Check
+ *   `provider.modalities?.includes('image')` before calling it — text-only bonds
+ *   (`-openai`, `-local`, `-molecule`) do not implement it. Each `inputs[i]` becomes
+ *   ONE vector, even when it combines text and media.
  * - Most apps shouldn't call this directly: `@molecule/api-semantic-search` composes
  *   this bond with `@molecule/api-ai-vector-store` (index + query in one call), and
  *   `@molecule/api-ai-rag` builds grounded Q&A on top of both.

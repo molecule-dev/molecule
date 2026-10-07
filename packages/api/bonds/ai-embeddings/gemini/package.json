@@ -1,8 +1,8 @@
 {
-  "name": "@molecule/api-ai-embeddings-molecule",
-  "version": "1.1.2",
-  "description": "molecule.dev hosted embeddings provider — embeddings billed to your molecule project, no vendor account",
-  "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-molecule",
+  "name": "@molecule/api-ai-embeddings-gemini",
+  "version": "1.0.0",
+  "description": "Gemini API ai-embeddings provider for molecule.dev — hosted gemini-embedding-2: text, images, audio and video in one vector space (REST via fetch, zero dependencies)",
+  "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-gemini",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,16 +25,19 @@
     "molecule",
     "ai",
     "embeddings",
-    "hosted"
+    "gemini",
+    "google",
+    "multimodal"
   ],
   "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/bonds/ai-embeddings/molecule"
+    "directory": "packages/api/bonds/ai-embeddings/gemini"
   },
   "peerDependencies": {
-    "@molecule/api-ai-embeddings": ">=1.0.1",
+    "@molecule/api-ai-embeddings": ">=1.1.0",
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
@@ -42,6 +45,5 @@
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"
-  },
-  "author": "Molecule Dev, Inc. (https://molecule.dev)"
+  }
 }

@@ -1,5 +1,11 @@
 # @molecule/api-ai-embeddings-openai
 
+## 1.0.5
+
+### Patch Changes
+
+- Documents serving self-hosted models such as EmbeddingGemma 2 on vLLM through `baseUrl` and `defaultModel`.
+
 ## 1.0.4
 
 ### Patch Changes

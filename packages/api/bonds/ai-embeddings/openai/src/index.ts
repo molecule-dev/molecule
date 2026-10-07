@@ -30,6 +30,17 @@
  * `bond('ai-embeddings', 'search', provider)` — and read it with
  * `get('ai-embeddings', 'search')` from `@molecule/api-bond`.
  *
+ * **Self-hosted models over the same wire format.** Any server that speaks
+ * OpenAI's `/v1/embeddings` works — e.g. EmbeddingGemma 2 on vLLM
+ * (`vllm serve google/embeddinggemma-2 --runner pooling --max-model-len 8192`):
+ * `createProvider({ baseUrl: 'http://localhost:8000', defaultModel:
+ * 'google/embeddinggemma-2', apiKey: 'unused' })`. The bond appends
+ * `/v1/embeddings` itself, so `baseUrl` must NOT end in `/v1`. This path sends
+ * text as-is: add the model's task prefixes yourself
+ * (`task: search result | query: …` for queries, `title: none | text: …` for
+ * documents) and truncate + re-normalize client-side for 512/256/128 dims — or
+ * use `@molecule/api-ai-embeddings-embeddinggemma`, which does both in-process.
+ *
  * Unlike the chat AI bonds, a missing `OPENAI_API_KEY` does NOT fail fast —
  * the first embed call fails with the upstream 401. Validate the key at boot
  * if you want an actionable startup error.

@@ -1,8 +1,8 @@
 {
-  "name": "@molecule/api-ai-embeddings-local",
-  "version": "1.0.2",
-  "description": "Local (offline) ai-embeddings provider for molecule.dev — runs a small sentence-embedding model in-process via Transformers.js (onnxruntime); no API key and no network at query time",
-  "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-local",
+  "name": "@molecule/api-ai-embeddings-embeddinggemma",
+  "version": "1.0.0",
+  "description": "EmbeddingGemma 2 ai-embeddings provider for molecule.dev — Google's open (Apache-2.0) multimodal embedding model run in-process via Transformers.js (ONNX): text, images and audio in one 768-d space, task prefixes applied for you, Matryoshka 512/256/128",
+  "homepage": "https://www.molecule.dev/packages/api-ai-embeddings-embeddinggemma",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -25,22 +25,26 @@
     "molecule",
     "ai",
     "embeddings",
+    "embeddinggemma",
+    "gemma",
+    "multimodal",
     "local",
     "offline",
     "transformers",
     "onnx"
   ],
   "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
   "repository": {
     "type": "git",
     "url": "https://github.com/molecule-dev/molecule.git",
-    "directory": "packages/api/bonds/ai-embeddings/local"
+    "directory": "packages/api/bonds/ai-embeddings/embeddinggemma"
   },
   "dependencies": {
-    "@huggingface/transformers": "4.3.0"
+    "@huggingface/transformers": "4.3.1"
   },
   "peerDependencies": {
-    "@molecule/api-ai-embeddings": ">=1.0.1"
+    "@molecule/api-ai-embeddings": ">=1.1.0"
   },
   "devDependencies": {
     "@molecule/api-ai-embeddings": "1.1.0",
