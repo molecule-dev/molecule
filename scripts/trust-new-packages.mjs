@@ -27,7 +27,7 @@
  *   node scripts/trust-new-packages.mjs            # publish + trust anything new
  *   node scripts/trust-new-packages.mjs --list     # report only, never prompt
  */
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import console from 'node:console'
 import {
   closeSync,
@@ -274,6 +274,33 @@ const ensureOtp = async (label, force = false) => {
   return otp
 }
 
+/**
+ * Runs `npm publish` with piped output so an OTP rejection can be told apart
+ * from every other failure — the interactive prompt is never needed in this
+ * branch (--otp is always set), and the output is echoed through either way
+ * so npm's own reason still reaches the terminal.
+ *
+ * @param {string[]} args - Full npm argv, including the --otp value.
+ * @param {string} cwd - The package directory to publish from.
+ * @returns {import('node:child_process').SpawnSyncReturns<string>} The result.
+ */
+const npmPublish = (args, cwd) => {
+  const result = spawnSync('npm', args, { cwd, encoding: 'utf8' })
+  if (result.stdout?.trim()) console.log(result.stdout)
+  if (result.stderr?.trim()) console.error(result.stderr)
+  return result
+}
+
+/**
+ * Whether npm's failure output says the code (not something else) was the
+ * problem — only then is it worth asking for a fresh one.
+ *
+ * @param {import('node:child_process').SpawnSyncReturns<string>} result
+ * @returns {boolean}
+ */
+const isOtpRejection = (result) =>
+  /one-time password|\be?otp\b|two-factor|2fa/i.test(`${result.stderr ?? ''}${result.stdout ?? ''}`)
+
 const ledger = readTrustLedger()
 const failed = []
 
@@ -365,23 +392,26 @@ for (const pkg of untrusted) {
         )
       }
       assertPackComplete(join(ROOT, pkg.dir))
-      // With a code we can self-serve (a held one or the stored seed), hand it
-      // to npm via --otp so the publish is unattended too; a TOTP window can
-      // roll between computing the code and npm using it, so one fresh-code
-      // retry before giving up. Without one, stdio: 'inherit' keeps npm's OWN
-      // 2FA prompt — a code collected on /dev/tty may already be spent by an
-      // earlier package's trust call, and asking the human for a code npm will
-      // not consume is worse than letting npm ask.
+      // ONE code per run is the contract: the up-front prompt (or --otp, or
+      // the stored seed) is reused for every publish and trust call — npm
+      // keeps accepting the same TOTP code until its window tolerance runs
+      // out, which is how 592 packages were trusted on a handful of codes on
+      // 2026-08-05. A fresh code is asked for ONLY when npm actually rejects
+      // one (long sweeps outliving the window), and non-OTP failures (WAF,
+      // network) surface immediately instead of triggering a prompt. Without
+      // any code available, stdio: 'inherit' keeps npm's OWN interactive
+      // prompt as the fallback.
       if ((otp && /^\d{6}$/.test(otp)) || loadSeed()) {
-        const publishOnce = (code) =>
-          execFileSync('npm', ['publish', '--access', 'public', '--otp', code], {
-            cwd: join(ROOT, pkg.dir),
-            stdio: 'inherit',
-          })
-        try {
-          await publishOnce(await ensureOtp(`${pkg.name} publish`))
-        } catch {
-          await publishOnce(await ensureOtp(`${pkg.name} publish`, true))
+        const attempt = async (force) => {
+          const code = await ensureOtp(`${pkg.name} publish`, force)
+          return npmPublish(['publish', '--access', 'public', '--otp', code], join(ROOT, pkg.dir))
+        }
+        let result = await attempt(false)
+        if (result.status !== 0 && isOtpRejection(result)) {
+          result = await attempt(true)
+        }
+        if (result.status !== 0) {
+          throw new Error('npm publish exited non-zero — npm printed the reason above')
         }
       } else {
         execFileSync('npm', ['publish', '--access', 'public'], {
