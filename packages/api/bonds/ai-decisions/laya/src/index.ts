@@ -40,9 +40,9 @@
  *   bearer token — without it the server is open to anyone who can reach it,
  *   so never expose an unauthenticated one publicly.
  * - **Any `/v1/systemone` server works.** `LAYA_URL` can point at another
- *   self-hosted server of the same protocol — e.g. Kev
- *   (github.com/jaredpalmer/kev, Apache-2.0 LoRA adapters on Qwen, 0.8B–27B,
- *   needs a GPU or Apple MLX) — with no code change.
+ *   self-hosted server of the same protocol with no code change. For Kev
+ *   (github.com/jaredpalmer/kev) bond `@molecule/api-ai-decisions-kev`
+ *   instead: it carries Kev's own defaults (port 8008, 255 options) and limits.
  * - **Checkpoints:** pass `model: 'english' | 'multilingual' | 'typed-decisions'`
  *   (per call or `createProvider({ model })`); omit it and the server routes by
  *   the input's script/language. Any other value (e.g. a Jev id) is ignored by

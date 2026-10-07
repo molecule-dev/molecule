@@ -13,7 +13,8 @@
  *
  * | Bond | What answers | When |
  * |---|---|---|
- * | `@molecule/api-ai-decisions-laya` | the open-weights Laya model (Apache-2.0) on a `laya-serve` host you run — or any other self-hosted `/v1/systemone` server, such as Kev (Qwen-based, GPU/MLX) | self-hosted, ~30–40 ms/question on a GPU (Laya), data stays with you |
+ * | `@molecule/api-ai-decisions-laya` | the open-weights Laya model (Apache-2.0) on a `laya-serve` host you run — or any other self-hosted `/v1/systemone` server | self-hosted, ~30–40 ms/question on a GPU (Laya), data stays with you |
+| `@molecule/api-ai-decisions-kev` | the open-weights Kev models (Apache-2.0; Qwen-based, 0.8B/4B/9B/27B) on a `kev.serve` host you run | self-hosted on a GPU or Apple MLX (Kev-4B ~42 ms on an L40S); text only; ≤255 options; calibrated probabilities |
  * | `@molecule/api-ai-decisions-jeff` | the open-weights Jeff models (Qwen3.5 0.8B/2B, Gemma 4 E2B fine-tunes) on a `jeff-serve` host you run | self-hosted on a GPU or Apple MLX, ~20–30 ms/request; English only; ≤26 options |
  * | `@molecule/api-ai-decisions-intern-decision` | the open-weights Intern-Decision models (0.8B/2B/4B) on the Intern-Decision FastAPI service you run | self-hosted on a GPU; the only bond here whose model also reads `images` besides the LLM bond |
  * | `@molecule/api-ai-decisions-jev` | TypeSafe's hosted Jev API | no model to host; English-first |
