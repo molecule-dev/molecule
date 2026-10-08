@@ -48,6 +48,14 @@ export const LIQUID_D1_IMAGE_TYPES: readonly string[] = [
   'image/gif',
 ]
 
+/** Resolved per-call configuration. */
+interface ResolvedConfig {
+  baseUrl: string
+  decisionsUrl: string
+  apiKey: string | undefined
+  model: string
+}
+
 /**
  * Refuses, before any request, what the API would reject with a bare 4xx.
  * Patch count (≤10,000 32×32 patches), aspect ratio (longer side ≤100× the
@@ -91,30 +99,19 @@ function checkLimits(questions: Record<string, DecisionQuestion>, images: Decisi
  */
 class LiquidD1DecisionsProvider implements AIDecisionsProvider {
   readonly name = 'liquid-d1'
-  private readonly baseUrl: string
-  private readonly decisionsUrl: string
-  private readonly apiKey: string | undefined
-  private readonly headers:
-    (() => Record<string, string> | Promise<Record<string, string>>) | undefined
-  private readonly model: string
+  private readonly config: LiquidD1Config
 
   /**
-   * Creates the provider.
+   * Creates the provider. Nothing is read from the environment here — every
+   * setting is resolved on each call, so secrets the runtime registry
+   * (`@molecule/api-secrets` `resolveAll()`) writes into `process.env`
+   * asynchronously at startup are honoured whenever they land, not only when
+   * they precede the first `decide()`.
    *
    * @param config - Provider configuration; env vars fill anything omitted.
    */
   constructor(config: LiquidD1Config = {}) {
-    this.baseUrl = (config.baseUrl || process.env.LIQUID_BASE_URL || DEFAULT_LIQUID_D1_URL).replace(
-      /\/+$/,
-      '',
-    )
-    this.decisionsUrl = (config.decisionsUrl || process.env.LIQUID_DECISIONS_URL || '').replace(
-      /\/+$/,
-      '',
-    )
-    this.apiKey = config.apiKey ?? (process.env.LIQUID_API_KEY || undefined)
-    this.headers = config.headers
-    this.model = config.model ?? DEFAULT_LIQUID_D1_MODEL
+    this.config = config
   }
 
   /**
@@ -133,7 +130,8 @@ class LiquidD1DecisionsProvider implements AIDecisionsProvider {
     if (!input.questions || Object.keys(input.questions).length === 0) {
       throw new Error('ai-decisions: decide() requires at least one question')
     }
-    const model = input.model ?? this.model
+    const cfg = this.resolveConfig()
+    const model = input.model ?? cfg.model
     const images = input.images ?? []
     if (images.length && model === 'd1:free') {
       throw new Error(
@@ -141,18 +139,18 @@ class LiquidD1DecisionsProvider implements AIDecisionsProvider {
       )
     }
     checkLimits(input.questions, images)
-    const selfHosted = this.decisionsUrl.length > 0
-    if (!selfHosted && !this.apiKey) {
+    const selfHosted = cfg.decisionsUrl.length > 0
+    if (!selfHosted && !cfg.apiKey) {
       throw new Error(
         'ai-decisions-liquid-d1: LIQUID_API_KEY is not set. Create a key at console.liquid.ai (Dashboard > API Keys), or set LIQUID_DECISIONS_URL to a llama-server running d1 (llama-server -hf LiquidAI/d1-3B-GGUF:Q8_0) to self-host without a key.',
       )
     }
     const body = await postSystemOne({
       url: selfHosted
-        ? `${this.decisionsUrl}${SELF_HOSTED_D1_PATH}`
-        : `${this.baseUrl}${HOSTED_LIQUID_D1_PATH}`,
-      apiKey: this.apiKey,
-      headers: this.headers,
+        ? `${cfg.decisionsUrl}${SELF_HOSTED_D1_PATH}`
+        : `${cfg.baseUrl}${HOSTED_LIQUID_D1_PATH}`,
+      apiKey: cfg.apiKey,
+      headers: this.config.headers,
       body: {
         model,
         state: input.state,
@@ -171,6 +169,27 @@ class LiquidD1DecisionsProvider implements AIDecisionsProvider {
     })
     return fromWireResponse(input.questions, body, input.minConfidence)
   }
+
+  /**
+   * Resolves configuration from overrides and env vars, at call time.
+   *
+   * @returns The resolved configuration.
+   */
+  private resolveConfig(): ResolvedConfig {
+    return {
+      baseUrl: (
+        this.config.baseUrl ||
+        process.env.LIQUID_BASE_URL ||
+        DEFAULT_LIQUID_D1_URL
+      ).replace(/\/+$/, ''),
+      decisionsUrl: (this.config.decisionsUrl || process.env.LIQUID_DECISIONS_URL || '').replace(
+        /\/+$/,
+        '',
+      ),
+      apiKey: this.config.apiKey ?? (process.env.LIQUID_API_KEY || undefined),
+      model: this.config.model ?? DEFAULT_LIQUID_D1_MODEL,
+    }
+  }
 }
 
 /**
@@ -183,17 +202,8 @@ export function createProvider(config?: LiquidD1Config): AIDecisionsProvider {
   return new LiquidD1DecisionsProvider(config)
 }
 
-let _provider: AIDecisionsProvider | null = null
 /**
- * The provider implementation — lazy, so env vars are read on first use.
+ * The default provider, configured from env vars on each call (wire with
+ * `setProvider`). Safe to import before secrets are loaded.
  */
-export const provider: AIDecisionsProvider = new Proxy({} as AIDecisionsProvider, {
-  get(_, prop, receiver) {
-    if (!_provider) _provider = createProvider()
-    return Reflect.get(_provider, prop, receiver)
-  },
-  set(_, prop, value) {
-    if (!_provider) _provider = createProvider()
-    return Reflect.set(_provider, prop, value)
-  },
-})
+export const provider: AIDecisionsProvider = createProvider()

@@ -376,7 +376,44 @@ describe('ai-decisions-liquid-d1', () => {
     }
   })
 
-  it('exposes the lazy provider proxy with its name', () => {
+  it('exposes the default provider with its name', () => {
     expect(provider.name).toBe('liquid-d1')
+  })
+
+  it('picks up LIQUID_API_KEY written to the environment after the provider was created', async () => {
+    // The runtime secrets registry (resolveAll()) fetches keys asynchronously
+    // and writes them into process.env at startup; a decide() that fires
+    // before it finishes must not cache the missing key forever — the next
+    // call has to see the key (same contract as the ltx/kandinsky bonds).
+    const early = createProvider()
+    await expect(
+      early.decide({ state: 's', questions: { refund: QUESTIONS.refund } }),
+    ).rejects.toThrow(/LIQUID_API_KEY/)
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-late')
+    mockFetch.mockResolvedValueOnce(ok(D1_RESPONSE))
+    await expect(early.decide({ state: 's', questions: QUESTIONS })).resolves.toBeTruthy()
+    expect(mockFetch.mock.calls[0]![1].headers.authorization).toBe('Bearer liquid-late')
+  })
+
+  it('picks up LIQUID_DECISIONS_URL written to the environment after the provider was created', async () => {
+    const early = createProvider()
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    vi.stubEnv('LIQUID_DECISIONS_URL', 'http://10.0.0.9:8080/')
+    mockFetch.mockResolvedValueOnce(ok(D1_RESPONSE))
+    await early.decide({ state: 's', questions: QUESTIONS })
+    expect(mockFetch.mock.calls[0]![0]).toBe('http://10.0.0.9:8080/v1/systemone')
+  })
+
+  it('honours secrets synced after the singleton was first used', async () => {
+    // The README wires `setProvider(provider)` at startup; touching the
+    // singleton (hasProvider()/a startup self-check reads .name) before
+    // resolveAll() lands must not pin it to the empty environment.
+    expect(provider.name).toBe('liquid-d1')
+    await expect(
+      provider.decide({ state: 's', questions: { refund: QUESTIONS.refund } }),
+    ).rejects.toThrow(/LIQUID_API_KEY/)
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-late')
+    mockFetch.mockResolvedValueOnce(ok(D1_RESPONSE))
+    await expect(provider.decide({ state: 's', questions: QUESTIONS })).resolves.toBeTruthy()
   })
 })

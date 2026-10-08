@@ -21,7 +21,7 @@
  * import { setProvider, requireProvider } from '@molecule/api-ai-decisions'
  * import { provider } from '@molecule/api-ai-decisions-liquid-d1'
  *
- * setProvider(provider) // reads LIQUID_API_KEY on first use
+ * setProvider(provider) // reads LIQUID_API_KEY on each call
  *
  * const { answers } = await requireProvider().decide({
  *   state: 'I was charged twice this month, please refund one of them.',
