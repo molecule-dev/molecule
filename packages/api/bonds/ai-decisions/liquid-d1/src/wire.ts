@@ -51,6 +51,22 @@ export interface WireResponse {
 }
 
 /**
+ * Sets `out[id]` as an OWN data property. Plain assignment (`out[id] = value`)
+ * routes an id of `"__proto__"` through the inherited prototype setter, so the
+ * entry is silently dropped from the record — the question never reaches the
+ * provider, or the answer never reaches the caller — and the call fails (or
+ * misreports) on the mismatch. `Object.defineProperty` bypasses the setter and
+ * creates the property whatever the key.
+ *
+ * @param out - The record being built.
+ * @param id - The key (may be any string, including `"__proto__"`).
+ * @param value - The value to store.
+ */
+function setOwn<T>(out: Record<string, T>, id: string, value: T): void {
+  Object.defineProperty(out, id, { value, enumerable: true, writable: true, configurable: true })
+}
+
+/**
  * Converts the core's questions into wire questions (`yesNo` → `noul`).
  *
  * @param questions - The questions keyed by id.
@@ -62,18 +78,18 @@ export function toWireQuestions(
   const out: Record<string, WireQuestion> = {}
   for (const [id, q] of Object.entries(questions)) {
     if (q.type === 'choice') {
-      out[id] = { type: 'choice', instructions: q.instructions, criteria: q.criteria }
+      setOwn(out, id, { type: 'choice', instructions: q.instructions, criteria: q.criteria })
     } else if (q.type === 'score') {
-      out[id] = { type: 'score', instructions: q.instructions, criteria: q.criteria }
+      setOwn(out, id, { type: 'score', instructions: q.instructions, criteria: q.criteria })
     } else if (q.type === 'yesNo') {
       const criteria: Record<string, string> = {}
       if (q.criteria?.yes) criteria.true = q.criteria.yes
       if (q.criteria?.no) criteria.false = q.criteria.no
-      out[id] = {
+      setOwn(out, id, {
         type: 'noul',
         instructions: q.instructions,
         ...(Object.keys(criteria).length ? { criteria } : {}),
-      }
+      })
     } else {
       throw new Error(
         `ai-decisions: question "${id}" has unknown type "${(q as { type: string }).type}"`,
@@ -108,7 +124,9 @@ export function fromWireAnswer(
   if (question.type === 'choice') {
     const labels = Object.keys(question.criteria)
     const probabilities: Record<string, number> = {}
-    for (const label of labels) probabilities[label] = clamp01(num(wire.probabilities?.[label]))
+    for (const label of labels) {
+      setOwn(probabilities, label, clamp01(num(wire.probabilities?.[label])))
+    }
     let top = labels[0] ?? ''
     for (const label of labels) if (probabilities[label]! > probabilities[top]!) top = label
     const choice =
@@ -166,7 +184,7 @@ export function fromWireResponse<Q extends Record<string, DecisionQuestion>>(
 ): DecideResult<Q> {
   const answers: Record<string, DecisionAnswer> = {}
   for (const [id, q] of Object.entries(questions)) {
-    answers[id] = fromWireAnswer(id, q, body.answers?.[id], minConfidence)
+    setOwn(answers, id, fromWireAnswer(id, q, body.answers?.[id], minConfidence))
   }
   return {
     answers: answers as DecideResult<Q>['answers'],

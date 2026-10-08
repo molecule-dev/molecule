@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { DecisionQuestion } from '@molecule/api-ai-decisions'
+
 import {
   createProvider,
   DEFAULT_LIQUID_D1_MODEL,
@@ -241,6 +243,84 @@ describe('ai-decisions-liquid-d1', () => {
       probabilities: [0.00001, 0.00002, 0.9996],
       confidence: 0.9996,
     })
+  })
+
+  it('sends and returns a question whose id is "__proto__" instead of dropping it', async () => {
+    // Plain `out[id] = …` assignment routes the key "__proto__" through the
+    // inherited prototype setter, so the question silently never reaches the
+    // provider and the call dies with a misleading "no answer for question"
+    // error. Externally-defined question ids (e.g. a rules engine passing
+    // ids parsed from JSON) can be any string, so the record building must
+    // create own properties. Both fixtures are built with JSON.parse — the
+    // exact shape a wire body and externally-defined ids arrive in (an
+    // object literal `{__proto__: …}` sets a prototype, not a key, so it
+    // cannot model this).
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    const questions = JSON.parse(
+      `{"__proto__":${JSON.stringify(QUESTIONS.refund)},"team":${JSON.stringify(QUESTIONS.team)}}`,
+    ) as Record<string, DecisionQuestion>
+    mockFetch.mockResolvedValueOnce(
+      ok(
+        JSON.parse(
+          `{"model":"d1","answers":{"__proto__":{"type":"noul","noul":0.9},"team":{"type":"choice","choice":"billing","probabilities":{"billing":0.9,"technical":0.05,"fraud":0.05}}},"usage":{"input_tokens":7,"output_tokens":0}}`,
+        ) as unknown,
+      ),
+    )
+
+    const result = await createProvider({ apiKey: 'k' }).decide({ state: 's', questions })
+
+    // The `__proto__` question actually left the process on the wire.
+    const sent = JSON.parse(mockFetch.mock.calls[0]![1].body as string) as {
+      questions: Record<string, { type: string }>
+    }
+    expect(Object.keys(sent.questions)).toEqual(['__proto__', 'team'])
+    expect(sent.questions['__proto__']).toMatchObject({ type: 'noul' })
+    // …and its answer came back, with the real probability — not the
+    // prototype object the inherited getter would have handed back.
+    expect(Object.keys(result.answers)).toEqual(['__proto__', 'team'])
+    expect(result.answers['__proto__']).toEqual({
+      type: 'yesNo',
+      probability: 0.9,
+      answer: true,
+      confidence: 0.9,
+    })
+    expect(result.answers.team).toMatchObject({ choice: 'billing' })
+  })
+
+  it('keeps a choice label of "__proto__" in the answer probabilities', async () => {
+    // The choice-answer probability record is built by the same dynamic-key
+    // assignment; a criteria label "__proto__" must land as an own property,
+    // or its probability is dropped and `confidence` reads the inherited
+    // getter (an Object.prototype, not a number).
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    const questions = JSON.parse(
+      '{"__proto__":{"type":"choice","instructions":"Which?","criteria":{"__proto__":"Yes","billing":"No"}}}',
+    ) as Record<string, DecisionQuestion>
+    mockFetch.mockResolvedValueOnce(
+      ok(
+        JSON.parse(
+          '{"answers":{"__proto__":{"type":"choice","choice":"__proto__","probabilities":{"__proto__":0.75,"billing":0.25}}}}',
+        ) as unknown,
+      ),
+    )
+
+    const result = await createProvider({ apiKey: 'k' }).decide({ state: 's', questions })
+
+    const answer = result.answers['__proto__'] as {
+      type: string
+      choice: string
+      probabilities: Record<string, number>
+      confidence: number
+    }
+    // (No `{ __proto__: … }` object literal can appear on the EXPECTED side
+    // either — the literal key sets a prototype, so the assertions below
+    // compare fields individually.)
+    expect(answer.type).toBe('choice')
+    expect(answer.choice).toBe('__proto__')
+    expect(answer.confidence).toBe(0.75)
+    expect(Object.keys(answer.probabilities)).toEqual(['__proto__', 'billing'])
+    expect(answer.probabilities['__proto__']).toBe(0.75)
+    expect(answer.probabilities.billing).toBe(0.25)
   })
 
   it('answers a 2xx non-JSON body with a status-carrying error, not a raw SyntaxError', async () => {
