@@ -263,6 +263,28 @@ describe('LtxVideoGenerationProvider', () => {
       })
     })
 
+    it('fails a completed job that carries no video_url, instead of completing empty', async () => {
+      // `result` is typed `Record<string, string> | null` — absent/empty is
+      // representable, and the output is never re-delivered (job status is
+      // kept ≤24 h): a silent `completed` with neither `url` nor `data` would
+      // end every poll loop with no video and no error.
+      mockFetch.mockResolvedValue(
+        mockJsonResponse({ id: 'job-9', status: 'completed', result: {} }),
+      )
+      await expect(bond.getStatus(jobId)).rejects.toMatchObject({
+        name: 'LtxVideoError',
+        status: 502,
+      })
+
+      mockFetch.mockResolvedValue(
+        mockJsonResponse({ id: 'job-9', status: 'completed', result: null }),
+      )
+      await expect(bond.getStatus(jobId)).rejects.toMatchObject({
+        name: 'LtxVideoError',
+        status: 502,
+      })
+    })
+
     it('carries a failed job error, including content-filter types', async () => {
       mockFetch.mockResolvedValue(
         mockJsonResponse({

@@ -284,10 +284,16 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
       ...(data.completed_at ? { completedAt: data.completed_at } : {}),
     }
     if (rawStatus === 'completed') {
-      status.result = {
-        ...(data.result?.video_url ? { url: data.result.video_url } : {}),
-        mimeType: 'video/mp4',
+      const url = data.result?.video_url
+      if (!url) {
+        // A completed job with no video URL is undeliverable — the API keeps
+        // job status for ≤24 h and the output is never re-delivered, so
+        // returning `completed` with an empty result would end every poll loop
+        // with no video and no error. Fail as the typed 502 like every other
+        // malformed-2xx answer instead.
+        throw new LtxVideoError('LTX API reported a completed job with no result.video_url.', 502)
       }
+      status.result = { url, mimeType: 'video/mp4' }
     } else if (rawStatus === 'failed') {
       status.error = {
         ...(data.error?.type ? { type: data.error.type } : {}),
