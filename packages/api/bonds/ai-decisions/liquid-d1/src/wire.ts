@@ -185,6 +185,39 @@ export function fromWireResponse<Q extends Record<string, DecisionQuestion>>(
 /** Statuses worth retrying: rate limit and busy/overloaded gateways. */
 const RETRYABLE = new Set([429, 502, 503, 504, 529])
 
+/**
+ * Sleeps for `ms`, ending early with `signal`'s reason if the caller aborts —
+ * so a caller's deadline bounds the retry backoff too. Without this the
+ * backoff sleeps its full window (up to the 10 s `Retry-After` cap) on an
+ * already-aborted signal, and the decision promise stays pending long past
+ * its deadline before the next `fetch` finally rejects.
+ *
+ * @param ms - How long to sleep.
+ * @param signal - The caller's abort signal, if any.
+ * @returns Resolved after the sleep, or rejected with the signal's reason.
+ */
+function sleepAbortable(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    if (!signal) {
+      setTimeout(resolve, ms)
+      return
+    }
+    if (signal.aborted) {
+      reject(signal.reason)
+      return
+    }
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort)
+      resolve()
+    }, ms)
+    const onAbort = (): void => {
+      clearTimeout(timer)
+      reject(signal.reason)
+    }
+    signal.addEventListener('abort', onAbort, { once: true })
+  })
+}
+
 /** Options for {@link postSystemOne}. */
 export interface PostOptions {
   /** Full endpoint URL. */
@@ -205,7 +238,8 @@ export interface PostOptions {
 
 /**
  * POSTs a systemone request with retry on 429/5xx-busy, honouring
- * `Retry-After`. Throws an Error carrying `status` on a non-2xx response.
+ * `Retry-After`; an aborting `signal` ends the backoff early with the
+ * signal's reason. Throws an Error carrying `status` on a non-2xx response.
  *
  * @param opts - Request options.
  * @returns The parsed response body.
@@ -229,7 +263,7 @@ export async function postSystemOne(opts: PostOptions): Promise<WireResponse> {
         Number.isFinite(retryAfter) && retryAfter > 0
           ? Math.min(retryAfter * 1000, 10_000)
           : 250 * 2 ** attempt
-      await new Promise((r) => setTimeout(r, waitMs))
+      await sleepAbortable(waitMs, signal)
       continue
     }
     const text = await response.text().catch(() => '')

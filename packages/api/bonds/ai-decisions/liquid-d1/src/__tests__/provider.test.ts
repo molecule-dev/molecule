@@ -17,10 +17,14 @@ const ok = (body: unknown): Record<string, unknown> => ({
   json: vi.fn().mockResolvedValue(body),
 })
 
-const fail = (status: number, body: string): Record<string, unknown> => ({
+const fail = (
+  status: number,
+  body: string,
+  headers?: Record<string, string>,
+): Record<string, unknown> => ({
   ok: false,
   status,
-  headers: new Headers(),
+  headers: new Headers(headers),
   text: vi.fn().mockResolvedValue(body),
 })
 
@@ -264,6 +268,24 @@ describe('ai-decisions-liquid-d1', () => {
       vi.useRealTimers()
     }
   })
+
+  it('ends the retry backoff when the caller aborts, instead of sleeping past the deadline', async () => {
+    // 429 + `retry-after: 10` arms a 10 s backoff; the caller's signal must cut
+    // it short, so decide() rejects at the caller's deadline with the same
+    // AbortError the aborted fetch itself would have thrown — not 10 s later.
+    const controller = new AbortController()
+    mockFetch.mockResolvedValueOnce(fail(429, 'rate limited', { 'retry-after': '10' }))
+    const started = Date.now()
+    const decision = createProvider({ apiKey: 'k' }).decide({
+      state: 's',
+      questions: QUESTIONS,
+      signal: controller.signal,
+    })
+    setTimeout(() => controller.abort(), 25)
+    await expect(decision).rejects.toMatchObject({ name: 'AbortError' })
+    expect(Date.now() - started).toBeLessThan(2_000)
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  }, 4_000)
 
   it('resolves the headers hook before each request and merges it over the defaults', async () => {
     vi.stubEnv('LIQUID_API_KEY', 'liquid-key')

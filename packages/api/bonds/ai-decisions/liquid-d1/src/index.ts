@@ -73,9 +73,9 @@
  *   `LIQUID_DECISIONS_URL` — a llama-server has NO authentication, so keep it
  *   on a private network or behind an authenticating proxy (set
  *   `LIQUID_API_KEY`/`apiKey` and it is sent as the bearer token).
- * - 429 (rate limit) and 5xx-busy are retried up to 3 times with backoff;
- *   other errors throw immediately with the API's message and a `status`
- *   property.
+ * - 429 (rate limit) and 5xx-busy are retried up to 3 times with backoff —
+ *   an aborting `signal` cuts the backoff short; other errors throw
+ *   immediately with the API's message and a `status` property.
  * - Use the core's `setProvider`, not `bond('ai-decisions', …)` directly.
  *
  * @module
