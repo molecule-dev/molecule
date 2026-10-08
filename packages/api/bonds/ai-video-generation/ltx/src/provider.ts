@@ -484,7 +484,8 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
    * @param body - Request body, if any.
    * @param hasBody - Whether a body is sent (sets the JSON content type).
    * @returns The parsed response.
-   * @throws {LtxVideoError} On a network failure, timeout or non-2xx status.
+   * @throws {LtxVideoError} On a network failure, timeout, non-2xx status, or
+   *   a 2xx response whose body is not JSON.
    */
   private async callJson(
     cfg: ResolvedConfig,
@@ -533,7 +534,23 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
       )
     }
 
-    return (await response.json()) as LtxSubmitResponse | LtxJobStatusResponse | LtxUploadResponse
+    try {
+      return (await response.json()) as LtxSubmitResponse | LtxJobStatusResponse | LtxUploadResponse
+    } catch (error) {
+      // A 2xx with a non-JSON body (a proxy/WAF interstitial, an empty 204)
+      // must still surface as the typed error the contract promises — a raw
+      // SyntaxError carries no `status`, so caller logic keyed on it (401 →
+      // reauth, 429 → backoff) never fires. 502 = "the upstream's answer is
+      // unusable", matching the malformed submit/upload handling above; the
+      // real upstream status rides in the message.
+      const reason = error instanceof Error ? error.message : String(error)
+      throw new LtxVideoError(
+        `LTX API error (502): 2xx response with a non-JSON body (HTTP ${response.status}): ${reason}`,
+        502,
+        undefined,
+        error,
+      )
+    }
   }
 }
 

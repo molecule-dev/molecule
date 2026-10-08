@@ -420,6 +420,30 @@ describe('LtxVideoGenerationProvider', () => {
         status: 0,
       })
     })
+
+    it('answers a 2xx with a non-JSON body as a typed error, not a raw SyntaxError', async () => {
+      // A proxy/WAF interstitial (or an empty 204 body) reaches the success
+      // path: the promise every caller made — failures arrive as LtxVideoError
+      // carrying a status — must hold, or logic keyed on `error.status` never
+      // fires.
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        json: vi
+          .fn()
+          .mockRejectedValue(
+            new SyntaxError(`Unexpected token '<', "<html>..." is not valid JSON`),
+          ),
+      })
+      const error = (await bond
+        .getStatus('ltx/text-to-video/ltx-2-5-fast/job-1')
+        .catch((e: unknown) => e)) as Error
+      expect(error).toBeInstanceOf(LtxVideoError)
+      expect(error).toMatchObject({ status: 502 })
+      expect(error.message).toContain('non-JSON body')
+      expect(error.message).toContain('HTTP 200')
+    })
   })
 })
 
