@@ -35,7 +35,8 @@
  * - **Handle every result shape, and persist what you must keep.** A
  *   completed job's `result` carries `url` and/or raw `data` bytes — provider
  *   URLs are typically short-lived (LTX's expire on their own; a self-hosted
- *   server may evict them), so download and store (e.g. via the uploads bond)
+ *   server may evict them; some providers report the deadline as
+ *   `result.expiresAt`), so download and store (e.g. via the uploads bond)
  *   anything the app needs to keep, promptly after completion.
  * - **Server-side only, gated and budgeted.** Keep the provider key on the
  *   API; require auth and rate-limit user-triggered generation — every clip

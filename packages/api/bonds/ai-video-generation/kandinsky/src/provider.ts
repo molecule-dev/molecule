@@ -18,6 +18,7 @@ import type {
   AIVideoGenerationProvider,
   VideoGenerateParams,
   VideoJob,
+  VideoJobResult,
   VideoJobState,
   VideoJobStatus,
 } from '@molecule/api-ai-video-generation'
@@ -259,9 +260,12 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
 
   /**
    * Fetch a job's status via `GET /v1/videos/{id}`. A completed job's result
-   * points at the server's download endpoint
+   * carries the video: when the server enforces API-key auth, the content
+   * URL answers 401 to anyone but this bond (only it holds the Bearer), so
+   * the MP4 is downloaded here and returned inline as `data`; without auth,
+   * `url` points at the server's download endpoint
    * (`GET /v1/videos/{id}/content`) — fetch it before the server evicts the
-   * output (`expires_at`).
+   * output (`expires_at`, surfaced as `expiresAt`).
    *
    * @param jobId - The job id returned by `generate()` (the server's own id).
    * @returns The normalized job status.
@@ -285,9 +289,15 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
       ...(toIso(data.completed_at) !== undefined ? { completedAt: toIso(data.completed_at) } : {}),
     }
     if (status === 'completed') {
+      // With a Bearer configured the bare content URL is useless to the
+      // caller — fetch the bytes with this bond's credentials instead.
+      const delivered: Pick<VideoJobResult, 'url' | 'data'> = cfg.apiKey
+        ? { data: await this.downloadContent(cfg, jobId) }
+        : { url: `${cfg.baseUrl}/v1/videos/${encodeURIComponent(jobId)}/content` }
       result.result = {
-        url: `${cfg.baseUrl}/v1/videos/${encodeURIComponent(jobId)}/content`,
+        ...delivered,
         mimeType: data.media_type ?? 'video/mp4',
+        ...(toIso(data.expires_at) !== undefined ? { expiresAt: toIso(data.expires_at) } : {}),
         ...(data.duration_s !== undefined && data.duration_s !== null
           ? { durationSeconds: data.duration_s }
           : {}),
@@ -351,25 +361,25 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
   }
 
   /**
-   * Sends one request. Nothing is retried: a video run is expensive and a
-   * 503 usually means the diffusion engine is still initialising, which a
-   * retry storm will not fix.
+   * Sends one request and returns the raw (2xx) response. Nothing is
+   * retried: a video run is expensive and a 503 usually means the diffusion
+   * engine is still initialising, which a retry storm will not fix.
    *
    * @param cfg - Resolved configuration.
    * @param path - Endpoint path.
    * @param method - HTTP method.
    * @param body - Request body (multipart form for POST, none for GET).
    * @param headers - Extra headers.
-   * @returns The parsed response.
+   * @returns The raw successful response.
    * @throws {KandinskyVideoError} On a network failure, timeout or non-2xx status.
    */
-  private async call(
+  private async send(
     cfg: ResolvedConfig,
     path: string,
     method: 'GET' | 'POST',
     body: FormData | undefined,
     headers: Record<string, string>,
-  ): Promise<KandinskySubmitResponse | KandinskyVideoResponse> {
+  ): Promise<Response> {
     const url = `${cfg.baseUrl}${path}`
     const allHeaders: Record<string, string> = { ...headers }
     if (cfg.apiKey) allHeaders.Authorization = `Bearer ${cfg.apiKey}`
@@ -420,7 +430,52 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
       )
     }
 
+    return response
+  }
+
+  /**
+   * Sends one request and parses its JSON body.
+   *
+   * @param cfg - Resolved configuration.
+   * @param path - Endpoint path.
+   * @param method - HTTP method.
+   * @param body - Request body (multipart form for POST, none for GET).
+   * @param headers - Extra headers.
+   * @returns The parsed response.
+   * @throws {KandinskyVideoError} On a network failure, timeout or non-2xx status.
+   */
+  private async call(
+    cfg: ResolvedConfig,
+    path: string,
+    method: 'GET' | 'POST',
+    body: FormData | undefined,
+    headers: Record<string, string>,
+  ): Promise<KandinskySubmitResponse | KandinskyVideoResponse> {
+    const response = await this.send(cfg, path, method, body, headers)
     return (await response.json()) as KandinskySubmitResponse | KandinskyVideoResponse
+  }
+
+  /**
+   * Downloads a completed job's MP4 from `GET /v1/videos/{id}/content` with
+   * this bond's Bearer token. Used when the server enforces API-key auth:
+   * the bare content URL would 401 for whoever consumes the job status, so
+   * the video is delivered inline instead.
+   *
+   * @param cfg - Resolved configuration.
+   * @param jobId - The job id (the server's own id).
+   * @returns The raw MP4 bytes.
+   * @throws {KandinskyVideoError} On a network failure, timeout or non-2xx
+   *   status — including when the server already evicted the output.
+   */
+  private async downloadContent(cfg: ResolvedConfig, jobId: string): Promise<Buffer> {
+    const response = await this.send(
+      cfg,
+      `/v1/videos/${encodeURIComponent(jobId)}/content`,
+      'GET',
+      undefined,
+      {},
+    )
+    return Buffer.from(await response.arrayBuffer())
   }
 }
 

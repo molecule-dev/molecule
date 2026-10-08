@@ -40,6 +40,18 @@ function mockErrorResponse(status: number, body: string): Record<string, unknown
   }
 }
 
+/** Creates a successful binary response (e.g. the finished MP4). */
+function mockBytesResponse(bytes: Uint8Array, type = 'video/mp4'): Record<string, unknown> {
+  const ab = new ArrayBuffer(bytes.byteLength)
+  new Uint8Array(ab).set(bytes)
+  return {
+    ok: true,
+    status: 200,
+    headers: new Headers({ 'content-type': type }),
+    arrayBuffer: vi.fn().mockResolvedValue(ab),
+  }
+}
+
 /** Returns the [url, init] of the nth fetch call. */
 function call(n = 0): [string, RequestInit] {
   return mockFetch.mock.calls[n] as [string, RequestInit]
@@ -224,6 +236,7 @@ describe('KandinskyVideoGenerationProvider', () => {
           created_at: 1760000000,
           completed_at: 1760000300,
           media_type: 'video/mp4',
+          expires_at: 1760003600,
           duration_s: 5.04,
         }),
       )
@@ -233,8 +246,58 @@ describe('KandinskyVideoGenerationProvider', () => {
       expect(status.result).toEqual({
         url: 'http://gpu.local:8091/v1/videos/video-123/content',
         mimeType: 'video/mp4',
+        expiresAt: '2025-10-09T09:53:20.000Z',
         durationSeconds: 5.04,
       })
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('downloads the finished MP4 itself when the server requires an API key', async () => {
+      // The content endpoint answers 401 without the Bearer — only this bond
+      // holds KANDINSKY_API_KEY, so a bare result.url would be unreachable
+      // for the caller. The bytes must arrive inline instead.
+      const MP4 = new Uint8Array([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70])
+      mockFetch
+        .mockResolvedValueOnce(
+          mockJsonResponse({
+            id: 'video-123',
+            status: 'completed',
+            media_type: 'video/mp4',
+            expires_at: 1760003600,
+            duration_s: 5.04,
+          }),
+        )
+        .mockResolvedValueOnce(mockBytesResponse(MP4))
+
+      const status = await createProvider({
+        baseUrl: 'http://gpu.local:8091',
+        apiKey: 'secret',
+      }).getStatus('video-123')
+
+      expect(status.status).toBe('completed')
+      expect(status.result).toEqual({
+        data: Buffer.from(MP4),
+        mimeType: 'video/mp4',
+        expiresAt: '2025-10-09T09:53:20.000Z',
+        durationSeconds: 5.04,
+      })
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      const [pollUrl, pollInit] = call(0)
+      expect(pollUrl).toBe('http://gpu.local:8091/v1/videos/video-123')
+      expect((pollInit.headers as Record<string, string>).Authorization).toBe('Bearer secret')
+      const [contentUrl, contentInit] = call(1)
+      expect(contentUrl).toBe('http://gpu.local:8091/v1/videos/video-123/content')
+      expect(contentInit.method).toBe('GET')
+      expect((contentInit.headers as Record<string, string>).Authorization).toBe('Bearer secret')
+    })
+
+    it('surfaces a download failure on a completed job behind auth instead of a dead URL', async () => {
+      mockFetch
+        .mockResolvedValueOnce(mockJsonResponse({ id: 'v', status: 'completed' }))
+        .mockResolvedValueOnce(mockErrorResponse(404, 'Not Found'))
+      await expect(
+        createProvider({ baseUrl: 'http://gpu.local:8091', apiKey: 'secret' }).getStatus('v'),
+      ).rejects.toMatchObject({ name: 'KandinskyVideoError', status: 404 })
     })
 
     it('carries the error payload of a failed job', async () => {

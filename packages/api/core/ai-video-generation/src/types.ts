@@ -89,7 +89,13 @@ export interface VideoJobError {
 export interface VideoJobResult {
   /** URL of the generated video. Often short-lived — download promptly. */
   url?: string
-  /** The raw video bytes, when the provider returns them inline. */
+  /** When the provider evicts `url` (ISO 8601), when it reports an expiry. */
+  expiresAt?: string
+  /**
+   * The raw video bytes, when the provider delivers the video inline instead
+   * of a fetchable URL (e.g. the download endpoint sits behind credentials
+   * only the provider holds).
+   */
   data?: Buffer
   /** MIME type of the video (e.g. 'video/mp4'). */
   mimeType?: string
