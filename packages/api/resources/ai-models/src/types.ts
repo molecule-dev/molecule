@@ -328,7 +328,16 @@ export interface ModelDefinition {
    * unchanged. To schedule the END of peak pricing, declare an explicit
    * `{ windows: [], multiplier: 1 }`.
    *
-   * Resolution is `effectiveBaseRates()` / `effectivePeakPricing()`, and every
+   * `longContextPricing` here, when declared, replaces the model's long-context
+   * band from the same instant; when omitted, the existing band carries through
+   * unchanged. The band that bills AFTER the instant (declared here, or the
+   * carried-through one) must stay strictly dearer than the scheduled base
+   * rates — the catalog invariant test enforces that at staging time, so a
+   * banded model's price change can never land with a stale band silently
+   * under-metering its most expensive prompts.
+   *
+   * Resolution is `effectiveBaseRates()` / `effectivePeakPricing()` /
+   * `effectiveLongContextPricing()`, and every
    * consumer reaches it through `modelRegionRates()` / `priceMultiplierAt()` /
    * the `withEffectivePricing()` projection the list handler serves — so a
    * scheduled change lands everywhere at once with no follow-up edit. Once the
@@ -353,6 +362,12 @@ export interface ModelDefinition {
       excludedDatesUtc?: string[]
       rule?: { url: string; text: string }
     }
+    /**
+     * Long-context band from `effectiveFrom` (omitted → the model's existing
+     * band carries through unchanged). Indexed off the model-level field so
+     * the two shapes can never drift apart.
+     */
+    longContextPricing?: ModelDefinition['longContextPricing']
     /** Where the change was announced, for the re-verify pass after it lands. */
     source?: string
   }
@@ -382,8 +397,9 @@ export interface ModelDefinition {
    * whose prompt (fresh input + cache read + cache write tokens) EXCEEDS `aboveInputTokens` bills ALL of its tokens at
    * these rates, not just the excess. Resolved by `modelRegionRates(model, region, at, promptTokens)`; callers must pass
    * ONE provider call's prompt size, never a multi-call sum. All four rates are required for the same never-under-meter
-   * reasons as the base rates. A model with a staged `scheduledPricing` change or a region override restates this band
-   * itself when the long-context rates move; today the band applies on top of the base rates only.
+   * reasons as the base rates. A staged `scheduledPricing` change can carry its own replacement band from the same
+   * instant (omitted → this band carries through) — resolved by `effectiveLongContextPricing()`. A `regionPricing`
+   * override is a different host's complete rate card, so the band never applies on top of an override.
    */
   longContextPricing?: {
     /** A prompt larger than this many tokens bills at the long-context rates. */

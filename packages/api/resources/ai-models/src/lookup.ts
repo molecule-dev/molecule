@@ -174,6 +174,33 @@ export function effectivePeakPricing(
 }
 
 /**
+ * A model's long-context band in effect at a given instant: the staged
+ * {@link ModelDefinition.scheduledPricing} `longContextPricing` once its
+ * `effectiveFrom` has passed (when that entry declares one — an omitted one
+ * leaves the model's existing band in force), else the model's own
+ * {@link ModelDefinition.longContextPricing}.
+ *
+ * This is what lets a banded model's price change move BOTH cards at once:
+ * resolving the static band against landed scheduled base rates would leave
+ * >threshold prompts on a stale card (possibly cheaper than the new base —
+ * silently under-metering the most expensive traffic).
+ *
+ * @param modelDef - The model definition.
+ * @param at - The instant to evaluate (defaults to now).
+ * @returns The long-context band in effect, or `undefined` when none is.
+ */
+export function effectiveLongContextPricing(
+  modelDef: ModelDefinition,
+  at: Date = new Date(),
+): ModelDefinition['longContextPricing'] {
+  const scheduled = modelDef.scheduledPricing
+  if (scheduled?.longContextPricing && scheduledPricingApplies(modelDef, at)) {
+    return scheduled.longContextPricing
+  }
+  return modelDef.longContextPricing
+}
+
+/**
  * A model projected onto the pricing in effect at a given instant: the staged
  * {@link ModelDefinition.scheduledPricing} rates folded into the base fields
  * (and its peak windows into `peakPricing`) once effective, with the staged
@@ -195,10 +222,12 @@ export function withEffectivePricing(
   if (!modelDef.scheduledPricing) return modelDef
   const { scheduledPricing: _scheduledPricing, ...rest } = modelDef
   const peakPricing = effectivePeakPricing(modelDef, at)
+  const longContextPricing = effectiveLongContextPricing(modelDef, at)
   return {
     ...rest,
     ...effectiveBaseRates(modelDef, at),
     ...(peakPricing ? { peakPricing } : {}),
+    ...(longContextPricing ? { longContextPricing } : {}),
   }
 }
 
@@ -307,7 +336,10 @@ export interface ModelTokenRates {
  *
  * A model priced by prompt length ({@link ModelDefinition.longContextPricing}) bills a request whose
  * `promptTokens` EXCEED the threshold at the long-context rates (all of its tokens, not the excess). Pass ONE
- * provider call's prompt size (fresh input + cache read + cache write); omit it and the base rates apply.
+ * provider call's prompt size (fresh input + cache read + cache write); omit it and the base rates apply. The
+ * band itself is resolved at `at` via {@link effectiveLongContextPricing} — a landed
+ * {@link ModelDefinition.scheduledPricing} change that declares its own band replaces the static one from
+ * the same instant (an omitted one carries the static band through).
  *
  * @param modelDef - The model definition.
  * @param requested - The user's per-model region choice, if any.
@@ -324,7 +356,7 @@ export function modelRegionRates(
   const region = effectiveModelRegion(modelDef, requested)
   const override = modelDef.regionPricing?.[region]
   if (!override) {
-    const longBand = modelDef.longContextPricing
+    const longBand = effectiveLongContextPricing(modelDef, at)
     if (longBand && typeof promptTokens === 'number' && promptTokens > longBand.aboveInputTokens) {
       return {
         inputPricePerMTok: longBand.inputPricePerMTok,

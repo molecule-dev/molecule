@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   effectiveBaseRates,
+  effectiveLongContextPricing,
   effectivePeakPricing,
   getAvailableModels,
   getModel,
@@ -385,6 +386,33 @@ describe('pricing integrity (spend accounting)', () => {
           expectValidPeakDays(w.daysOfWeekUtc, `${model.id} scheduled peak window`)
         }
       }
+      if (s.longContextPricing) {
+        const band = s.longContextPricing
+        expect(
+          band.aboveInputTokens,
+          `${model.id} scheduled band aboveInputTokens must be positive`,
+        ).toBeGreaterThan(0)
+        for (const field of [
+          'inputPricePerMTok',
+          'outputPricePerMTok',
+          'cacheReadPricePerMTok',
+          'cacheWritePricePerMTok',
+        ] as const) {
+          expect(
+            Number.isFinite(band[field]),
+            `${model.id} scheduled band.${field} must be finite`,
+          ).toBe(true)
+          expect(band[field], `${model.id} scheduled band.${field} must be > 0`).toBeGreaterThan(0)
+        }
+        expect(
+          band.cacheReadPricePerMTok,
+          `${model.id} scheduled band cache read must be <= band input`,
+        ).toBeLessThanOrEqual(band.inputPricePerMTok)
+        expect(
+          band.cacheWritePricePerMTok,
+          `${model.id} scheduled band cache write must be >= band input`,
+        ).toBeGreaterThanOrEqual(band.inputPricePerMTok)
+      }
     }
   })
 
@@ -652,6 +680,87 @@ describe('scheduledPricing (announced, dated price changes)', () => {
   it('returns models without a schedule unchanged', () => {
     const plain = MODELS.find((m) => m.id === 'claude-sonnet-5')!
     expect(withEffectivePricing(plain, AFTER)).toBe(plain)
+  })
+
+  // A banded model (claude-haiku-5-5, the 5×-above-100K card) with a staged
+  // change that moves BOTH cards — the case where a static-only band would go
+  // stale the instant the scheduled base rates land.
+  const bandedStaged = {
+    ...MODELS.find((m) => m.id === 'claude-haiku-5-5')!,
+    scheduledPricing: {
+      effectiveFrom: '2027-01-15T00:00:00Z',
+      inputPricePerMTok: 0.8,
+      outputPricePerMTok: 4,
+      cacheReadPricePerMTok: 0.08,
+      cacheWritePricePerMTok: 1,
+      longContextPricing: {
+        aboveInputTokens: 100_000,
+        inputPricePerMTok: 4,
+        outputPricePerMTok: 20,
+        cacheReadPricePerMTok: 0.4,
+        cacheWritePricePerMTok: 5,
+      },
+    },
+  }
+  const BAND_BEFORE = new Date('2027-01-14T23:59:59Z')
+  const BAND_AFTER = new Date('2027-01-15T00:00:01Z')
+
+  it('replaces the long-context band from the same instant when the staged entry declares one', () => {
+    // Before the instant, the static cards bill — short and long prompts alike.
+    expect(modelRegionRates(bandedStaged, undefined, BAND_BEFORE).inputPricePerMTok).toBe(0.1)
+    expect(modelRegionRates(bandedStaged, undefined, BAND_BEFORE, 100_001).inputPricePerMTok).toBe(
+      0.5,
+    )
+    // From the instant, the scheduled base bills short prompts …
+    expect(modelRegionRates(bandedStaged, undefined, BAND_AFTER)).toEqual({
+      inputPricePerMTok: 0.8,
+      outputPricePerMTok: 4,
+      cacheReadPricePerMTok: 0.08,
+      cacheWritePricePerMTok: 1,
+    })
+    // … and the scheduled band bills long ones — NOT the stale static band
+    // (which here would be CHEAPER than the landed base, silently
+    // under-metering the most expensive traffic).
+    expect(modelRegionRates(bandedStaged, undefined, BAND_AFTER, 100_001)).toEqual({
+      inputPricePerMTok: 4,
+      outputPricePerMTok: 20,
+      cacheReadPricePerMTok: 0.4,
+      cacheWritePricePerMTok: 5,
+    })
+  })
+
+  it('carries the existing band through when the staged entry omits one', () => {
+    const carry = {
+      ...MODELS.find((m) => m.id === 'claude-haiku-5-5')!,
+      scheduledPricing: {
+        effectiveFrom: '2027-01-15T00:00:00Z',
+        inputPricePerMTok: 0.08,
+        outputPricePerMTok: 0.4,
+        cacheReadPricePerMTok: 0.008,
+        cacheWritePricePerMTok: 0.1,
+      },
+    }
+    expect(effectiveLongContextPricing(carry, BAND_AFTER)).toBe(carry.longContextPricing)
+    expect(modelRegionRates(carry, undefined, BAND_AFTER, 100_001).inputPricePerMTok).toBe(0.5)
+  })
+
+  it('ignores an unparseable effectiveFrom for the band too — a typo never switches cards', () => {
+    const broken = {
+      ...bandedStaged,
+      scheduledPricing: { ...bandedStaged.scheduledPricing, effectiveFrom: 'not-a-date' },
+    }
+    expect(effectiveLongContextPricing(broken, BAND_AFTER)).toBe(broken.longContextPricing)
+  })
+
+  it('withEffectivePricing folds the landed band in and strips the schedule', () => {
+    const before = withEffectivePricing(bandedStaged, BAND_BEFORE)
+    expect(before.longContextPricing).toBe(bandedStaged.longContextPricing)
+    expect(before.scheduledPricing).toBeUndefined()
+
+    const after = withEffectivePricing(bandedStaged, BAND_AFTER)
+    expect(after.scheduledPricing).toBeUndefined()
+    expect(after.inputPricePerMTok).toBe(0.8)
+    expect(after.longContextPricing).toEqual(bandedStaged.scheduledPricing.longContextPricing)
   })
 })
 
@@ -1345,6 +1454,35 @@ describe('long-context pricing (models priced by prompt length)', () => {
       expect(band.aboveInputTokens, m.id).toBeGreaterThan(0)
       expect(band.inputPricePerMTok, m.id).toBeGreaterThan(m.inputPricePerMTok)
       expect(band.outputPricePerMTok, m.id).toBeGreaterThan(m.outputPricePerMTok)
+      expect(band.cacheReadPricePerMTok, m.id).toBeGreaterThan(0)
+      expect(band.cacheWritePricePerMTok, m.id).toBeGreaterThan(0)
+      // The band's own cache conventions mirror the base ones: a cache hit is
+      // never dearer than the band's fresh input, a write never cheaper.
+      expect(band.cacheReadPricePerMTok, m.id).toBeLessThanOrEqual(band.inputPricePerMTok)
+      expect(band.cacheWritePricePerMTok, m.id).toBeGreaterThanOrEqual(band.inputPricePerMTok)
+    }
+  })
+
+  it('a scheduled change can never land an inverted band — what bills after the instant stays dearer than the landing base rates', () => {
+    // The gate that makes a banded model's price change stageable: comparing
+    // only the static fields (the test above) would let a base-only schedule
+    // leave a band that is CHEAPER than the landed base — the long prompts
+    // silently under-meter while the freshness gate sees only base rates.
+    // Staging a base change on a banded model must declare a band that holds
+    // against the SCHEDULED base, or the static band must already hold.
+    for (const m of MODELS.filter((x) => x.scheduledPricing)) {
+      const s = m.scheduledPricing!
+      const band = s.longContextPricing ?? m.longContextPricing
+      if (!band) continue
+      expect(band.aboveInputTokens, `${m.id} post-instant band threshold`).toBeGreaterThan(0)
+      expect(
+        band.inputPricePerMTok,
+        `${m.id}: the band billing after ${s.effectiveFrom} is not dearer than the scheduled base input`,
+      ).toBeGreaterThan(s.inputPricePerMTok)
+      expect(
+        band.outputPricePerMTok,
+        `${m.id}: the band billing after ${s.effectiveFrom} is not dearer than the scheduled base output`,
+      ).toBeGreaterThan(s.outputPricePerMTok)
       expect(band.cacheReadPricePerMTok, m.id).toBeGreaterThan(0)
       expect(band.cacheWritePricePerMTok, m.id).toBeGreaterThan(0)
     }
