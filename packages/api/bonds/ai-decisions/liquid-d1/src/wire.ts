@@ -224,7 +224,7 @@ export interface PostOptions {
   url: string
   /** Bearer token, if any. */
   apiKey?: string
-  /** Extra headers resolved before the request (merged over the defaults). */
+  /** Extra headers resolved before each attempt, retries included (merged over the defaults). */
   headers?: () => Record<string, string> | Promise<Record<string, string>>
   /** Request body. */
   body: Record<string, unknown>
@@ -246,10 +246,13 @@ export interface PostOptions {
  */
 export async function postSystemOne(opts: PostOptions): Promise<WireResponse> {
   const { url, apiKey, body, signal, label, maxRetries = 3 } = opts
-  const headers: Record<string, string> = { 'content-type': 'application/json' }
-  if (apiKey) headers.authorization = `Bearer ${apiKey}`
-  if (opts.headers) Object.assign(headers, await opts.headers())
   for (let attempt = 0; ; attempt++) {
+    // Headers are rebuilt and the hook re-resolved on EVERY attempt: the hook
+    // exists for short-lived credentials (a Cloud Run ID token), which can
+    // expire while a retry backoff sleeps.
+    const headers: Record<string, string> = { 'content-type': 'application/json' }
+    if (apiKey) headers.authorization = `Bearer ${apiKey}`
+    if (opts.headers) Object.assign(headers, await opts.headers())
     const response = await fetch(url, {
       method: 'POST',
       headers,
@@ -258,6 +261,14 @@ export async function postSystemOne(opts: PostOptions): Promise<WireResponse> {
     })
     if (response.ok) return (await response.json()) as WireResponse
     if (RETRYABLE.has(response.status) && attempt < maxRetries) {
+      // Release the failed response's body (and with it its socket) before
+      // sleeping: the connection pool does not take a connection back until
+      // the body is consumed or cancelled, so every undrained retryable
+      // response would strand a socket until GC reclaims it.
+      await response.body?.cancel().catch((_error: unknown) => {
+        // Best-effort release only — the retry proceeds on the already-known
+        // status, and a failed cancel merely delays connection reuse.
+      })
       const retryAfter = Number(response.headers.get('retry-after'))
       const waitMs =
         Number.isFinite(retryAfter) && retryAfter > 0

@@ -305,6 +305,55 @@ describe('ai-decisions-liquid-d1', () => {
     expect(init.headers['content-type']).toBe('application/json')
   })
 
+  it('re-resolves the headers hook on every retry, so an expiring token is re-minted', async () => {
+    // The documented use of the hook is short-lived credentials (a Cloud Run
+    // ID token). The retry after a 429 backoff must carry a FRESH hook
+    // result, not the value resolved before the first attempt.
+    vi.useFakeTimers()
+    try {
+      let calls = 0
+      mockFetch
+        .mockResolvedValueOnce(fail(429, 'rate limited'))
+        .mockResolvedValueOnce(ok(D1_RESPONSE))
+      const decision = createProvider({
+        apiKey: 'k',
+        headers: async () => {
+          calls++
+          return { authorization: `Bearer token-${calls}` }
+        },
+      }).decide({ state: 's', questions: QUESTIONS })
+      await vi.advanceTimersByTimeAsync(300)
+      await expect(decision).resolves.toBeTruthy()
+      expect(calls).toBe(2)
+      expect(mockFetch.mock.calls[0]![1].headers.authorization).toBe('Bearer token-1')
+      expect(mockFetch.mock.calls[1]![1].headers.authorization).toBe('Bearer token-2')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('cancels a retryable response body instead of stranding its socket', async () => {
+    // undici does not return a connection to the pool until the response body
+    // is consumed or cancelled — an undrained 429/5xx left one socket pinned
+    // per retry, pending GC.
+    vi.useFakeTimers()
+    try {
+      const cancel = vi.fn().mockResolvedValue(undefined)
+      mockFetch
+        .mockResolvedValueOnce({ ...fail(429, 'rate limited'), body: { cancel } })
+        .mockResolvedValueOnce(ok(D1_RESPONSE))
+      const decision = createProvider({ apiKey: 'k' }).decide({
+        state: 's',
+        questions: QUESTIONS,
+      })
+      await vi.advanceTimersByTimeAsync(300)
+      await expect(decision).resolves.toBeTruthy()
+      expect(cancel).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('exposes the lazy provider proxy with its name', () => {
     expect(provider.name).toBe('liquid-d1')
   })
