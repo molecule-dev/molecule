@@ -84,8 +84,7 @@ export function totp(secret, { now = Date.now(), period = 30, digits = 6 } = {})
   msg.writeBigUInt64BE(BigInt(counter))
   const mac = createHmac('sha1', secret).update(msg).digest()
   const off = mac[mac.length - 1] & 0xf
-  const bin =
-    ((mac[off] & 0x7f) << 24) | (mac[off + 1] << 16) | (mac[off + 2] << 8) | mac[off + 3]
+  const bin = ((mac[off] & 0x7f) << 24) | (mac[off + 1] << 16) | (mac[off + 2] << 8) | mac[off + 3]
   return String(bin % 10 ** digits).padStart(digits, '0')
 }
 

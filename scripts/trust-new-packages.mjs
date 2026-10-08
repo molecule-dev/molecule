@@ -43,7 +43,14 @@ import process from 'node:process'
 import { createInterface } from 'node:readline/promises'
 
 import { assertPackComplete } from './lib/assert-pack-complete.mjs'
-import { loadSeed, parseSecret, SEED_PATH, secondsLeftInWindow, storeSeed, totp } from './lib/npm-2fa.mjs'
+import {
+  loadSeed,
+  parseSecret,
+  SEED_PATH,
+  secondsLeftInWindow,
+  storeSeed,
+  totp,
+} from './lib/npm-2fa.mjs'
 import { readNpmToken, trustPackage } from './lib/npm-trust.mjs'
 import {
   collectPackages,
