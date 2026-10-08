@@ -59,6 +59,23 @@ const DEFAULT_SPAWN_TIMEOUT_MS = 60 * 60 * 1000
  * this instead of the caller's whole timeout.
  */
 const SETTLE_PROBE_MS = 1_500
+/**
+ * How long to wait for the handle to REPORT the exit code after the started pid
+ * is confirmed gone. envd closes the output stream right behind a real exit, so
+ * a finished command's `end` event — the only thing that carries its exit code —
+ * lands within this window; only a stream held by a stranded descendant
+ * outlives it.
+ */
+const EXIT_REPORT_GRACE_MS = 2_000
+/**
+ * The exit code reported when a command's outcome cannot be observed at all:
+ * the started pid is gone but the stream it was reading is still held, so the
+ * SDK never delivers the `end` event that carries the real code. 128+SIGKILL
+ * (137), the conventional status of a killed process — because "unknown" must
+ * read as failure, never as the fabricated `0` that once reported a killed
+ * build (partial `dist/` and all) as a successful one.
+ */
+const EXIT_CODE_UNKNOWN = 137
 
 /** Default lifetime for a PTY session; same reasoning as {@link DEFAULT_SPAWN_TIMEOUT_MS}. */
 const DEFAULT_PTY_TIMEOUT_MS = 60 * 60 * 1000
@@ -383,6 +400,14 @@ class E2BSandbox implements Sandbox {
    * running and the caller's own timeout is the right bound. Never a guess from
    * the shape of the command.
    *
+   * But "over" is not "succeeded": the SDK delivers the exit code on the
+   * stream's `end` event, and the descendant holding the stream keeps that
+   * event from ever arriving. A gone pid therefore gets a bounded grace window
+   * for the handle to report the real code, and a handle that never does is
+   * reported as {@link EXIT_CODE_UNKNOWN} — failure — because an outcome that
+   * cannot be observed (a build OOM-killed mid-run) must never be fabricated
+   * into success.
+   *
    * @param handle - The started command.
    * @returns The command's result.
    */
@@ -401,11 +426,30 @@ class E2BSandbox implements Sandbox {
     const alive = await this.isProcessAlive(handle.pid)
     if (alive) return finished
 
-    // The process is gone; whatever still holds the stream is not it.
+    // The process is gone; whatever still holds the stream is not it. The real
+    // exit code rides the stream's `end` event, so give the handle a bounded
+    // window to deliver it — when the process truly finished, envd closes the
+    // stream right behind it and the result lands here.
+    const reported = await Promise.race([
+      finished,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), EXIT_REPORT_GRACE_MS)),
+    ])
+    if (reported) return reported
+    if (typeof handle.exitCode === 'number') {
+      return { stdout: handle.stdout ?? '', stderr: handle.stderr ?? '', exitCode: handle.exitCode }
+    }
+
+    // Still nothing: the exit code is UNKNOWN. Reporting `0` here used to
+    // fabricate success for exactly this shape — a killed build whose stranded
+    // daemon held the stream shipped its partial `dist/` as a finished site —
+    // so fail closed instead, with a line that says why the code is missing.
+    const unknownNote =
+      `e2b: exit code unknown — the started process (pid ${handle.pid}) is gone but its ` +
+      'output stream is still held, so its real outcome cannot be observed; reporting failure'
     return {
       stdout: handle.stdout ?? '',
-      stderr: handle.stderr ?? '',
-      exitCode: handle.exitCode ?? 0,
+      stderr: handle.stderr ? `${handle.stderr}\n${unknownNote}` : unknownNote,
+      exitCode: EXIT_CODE_UNKNOWN,
     }
   }
 

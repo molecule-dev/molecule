@@ -333,10 +333,15 @@ describe('exec() stops waiting once the COMMAND is over', () => {
    * timeout on a command that finished in milliseconds. So the bond asks whether
    * the started pid is still there instead of guessing from the command.
    *
-   * @param opts - What the in-sandbox liveness probe should answer.
+   * @param opts - What the in-sandbox liveness probe should answer, and whether
+   *   the handle ever reports an exit (`reported` settles `wait()` that many ms
+   *   after the start; omitting it models a stream held FOREVER).
    * @returns The fake sandbox and the commands it received.
    */
-  function fakeSandboxWithHeldStream(opts: { aliveProbe: string }): {
+  function fakeSandboxWithHeldStream(opts: {
+    aliveProbe: string
+    reported?: { afterMs: number; result: { stdout: string; stderr: string; exitCode: number } }
+  }): {
     sbx: E2BSandboxLike
     runs: RunCall[]
   } {
@@ -352,10 +357,15 @@ describe('exec() stops waiting once the COMMAND is over', () => {
             stdout: isProbe ? opts.aliveProbe : 'launched\n',
             stderr: '',
             exitCode: isProbe ? 0 : undefined,
-            wait: async () =>
-              isProbe
-                ? { stdout: opts.aliveProbe, stderr: '', exitCode: 0 }
-                : new Promise<never>(() => {}),
+            wait: async () => {
+              if (isProbe) return { stdout: opts.aliveProbe, stderr: '', exitCode: 0 }
+              if (!opts.reported) return new Promise<never>(() => {})
+              await new Promise((resolve) => setTimeout(resolve, opts.reported!.afterMs))
+              const { result } = opts.reported!
+              // The SDK's wait() REJECTS on a non-zero exit (CommandExitError).
+              if (result.exitCode !== 0) throw new FakeCommandExitError(result)
+              return result
+            },
             sendStdin: vi.fn(async () => {}),
             kill: vi.fn(async () => true),
           }
@@ -378,15 +388,52 @@ describe('exec() stops waiting once the COMMAND is over', () => {
     return { sbx, runs }
   }
 
-  it('returns the launch result when the started process is already gone', async () => {
+  it('fails closed when the process is gone and the handle never reports an exit', async () => {
     const { sbx, runs } = fakeSandboxWithHeldStream({ aliveProbe: 'MOL_GONE\n' })
     const sandbox = await handleFor(sbx)
 
     const result = await sandbox.exec(SIDECAR_LAUNCH, { timeout: 5_000 })
 
-    expect(result).toEqual({ stdout: 'launched\n', stderr: '', exitCode: 0 })
+    // An outcome that cannot be observed is FAILURE, never a fabricated
+    // success: the old `?? 0` here is what shipped a killed build's partial
+    // dist/ as a finished site.
+    expect(result.exitCode).toBe(137)
+    expect(result.stderr).toMatch(/exit code unknown/)
+    // The partial output that WAS captured still comes back for diagnosis.
+    expect(result.stdout).toBe('launched\n')
     // It ASKED, rather than inferring from the command's shape.
     expect(runs.some((r) => r.cmd.startsWith('kill -0 99'))).toBe(true)
+  }, 10_000)
+
+  it('resolves the real exit code when the handle reports it after the pid is gone', async () => {
+    // The stream closes just behind a real exit; the `end` event lands a beat
+    // after the pid probe says gone. That late report must WIN, not the
+    // fail-closed sentinel.
+    const { sbx } = fakeSandboxWithHeldStream({
+      aliveProbe: 'MOL_GONE\n',
+      reported: { afterMs: 1_600, result: { stdout: 'built\n', stderr: '', exitCode: 0 } },
+    })
+    const sandbox = await handleFor(sbx)
+
+    const result = await sandbox.exec('vite build', { timeout: 8_000 })
+
+    expect(result).toEqual({ stdout: 'built\n', stderr: '', exitCode: 0 })
+  }, 10_000)
+
+  it('resolves a late non-zero report through the same mapping as a live failure', async () => {
+    const { sbx } = fakeSandboxWithHeldStream({
+      aliveProbe: 'MOL_GONE\n',
+      reported: { afterMs: 1_600, result: { stdout: 'partial\n', stderr: 'oom\n', exitCode: 2 } },
+    })
+    const sandbox = await handleFor(sbx)
+
+    // wait() rejects with CommandExitError on non-zero; exec()'s catch maps
+    // `.result` back into data, so the caller reads the REAL code, not 137.
+    await expect(sandbox.exec('vite build', { timeout: 8_000 })).resolves.toEqual({
+      stdout: 'partial\n',
+      stderr: 'oom\n',
+      exitCode: 2,
+    })
   }, 10_000)
 
   it('keeps waiting when the process is genuinely still running', async () => {
