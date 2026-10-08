@@ -1,0 +1,54 @@
+{
+  "name": "@molecule/api-ai-decisions-liquid-d1",
+  "version": "1.0.0",
+  "description": "Liquid d1 decisions provider for molecule.dev — typed choice/score/yes-no answers with images from Liquid AI's d1 decision models, hosted or self-hosted via llama-server",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "decisions",
+    "liquid",
+    "liquid-ai",
+    "d1"
+  ],
+  "license": "Apache-2.0",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "peerDependencies": {
+    "@molecule/api-ai-decisions": "^1.0.0",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-decisions": "1.1.1",
+    "@molecule/api-secrets": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-decisions/liquid-d1"
+  },
+  "homepage": "https://www.molecule.dev/packages/api-ai-decisions-liquid-d1",
+  "bugs": "https://github.com/molecule-dev/molecule/issues",
+  "publishConfig": {
+    "access": "public"
+  }
+}
