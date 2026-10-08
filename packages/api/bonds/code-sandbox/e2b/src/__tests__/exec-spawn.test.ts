@@ -162,6 +162,66 @@ async function handleFor(sbx: E2BSandboxLike) {
   return sandbox
 }
 
+/**
+ * A fake sandbox whose `wait()` models a held output stream: `wait()` never
+ * settles on its own, and only reports an exit `reported.afterMs` after the
+ * start (`reported` omitted = the stream is held FOREVER). The in-sandbox
+ * liveness probe answers `opts.aliveProbe`.
+ *
+ * @param opts - What the liveness probe should answer, and whether the handle
+ *   ever reports an exit.
+ * @returns The fake sandbox and the commands it received.
+ */
+function fakeSandboxWithHeldStream(opts: {
+  aliveProbe: string
+  reported?: { afterMs: number; result: { stdout: string; stderr: string; exitCode: number } }
+}): {
+  sbx: E2BSandboxLike
+  runs: RunCall[]
+} {
+  const runs: RunCall[] = []
+  const sbx = {
+    sandboxId: 'sbx-held',
+    commands: {
+      run: (async (cmd: string, runOpts: Record<string, unknown> = {}) => {
+        runs.push({ cmd, opts: runOpts })
+        const isProbe = cmd.startsWith('kill -0')
+        return {
+          pid: 99,
+          stdout: isProbe ? opts.aliveProbe : 'launched\n',
+          stderr: '',
+          exitCode: isProbe ? 0 : undefined,
+          wait: async () => {
+            if (isProbe) return { stdout: opts.aliveProbe, stderr: '', exitCode: 0 }
+            if (!opts.reported) return new Promise<never>(() => {})
+            await new Promise((resolve) => setTimeout(resolve, opts.reported!.afterMs))
+            const { result } = opts.reported!
+            // The SDK's wait() REJECTS on a non-zero exit (CommandExitError).
+            if (result.exitCode !== 0) throw new FakeCommandExitError(result)
+            return result
+          },
+          sendStdin: vi.fn(async () => {}),
+          kill: vi.fn(async () => true),
+        }
+      }) as unknown as E2BSandboxLike['commands']['run'],
+    },
+    files: {
+      read: (async () => '') as E2BSandboxLike['files']['read'],
+      async write() {
+        return {}
+      },
+      async list() {
+        return []
+      },
+      async remove() {},
+    },
+    getHost: (port: number) => `${port}-sbx-held.e2b.app`,
+    async setTimeout() {},
+    async kill() {},
+  } as unknown as E2BSandboxLike
+  return { sbx, runs }
+}
+
 describe('exec() observes the process instead of classifying the command', () => {
   it('starts every command in the background and waits on the handle', async () => {
     const { sbx, runs } = fakeSandbox([
@@ -325,69 +385,6 @@ describe('spawn() — the capability LSP and a cancellable terminal need', () =>
 })
 
 describe('exec() stops waiting once the COMMAND is over', () => {
-  /**
-   * `wait()` resolves when the output STREAM ends, which is not the same event as
-   * the command finishing. A launch that strands anything holding the inherited
-   * stdio — measured on a live sandbox with the fleet's own sidecar launches —
-   * keeps that stream open indefinitely, and the caller then burns its whole
-   * timeout on a command that finished in milliseconds. So the bond asks whether
-   * the started pid is still there instead of guessing from the command.
-   *
-   * @param opts - What the in-sandbox liveness probe should answer, and whether
-   *   the handle ever reports an exit (`reported` settles `wait()` that many ms
-   *   after the start; omitting it models a stream held FOREVER).
-   * @returns The fake sandbox and the commands it received.
-   */
-  function fakeSandboxWithHeldStream(opts: {
-    aliveProbe: string
-    reported?: { afterMs: number; result: { stdout: string; stderr: string; exitCode: number } }
-  }): {
-    sbx: E2BSandboxLike
-    runs: RunCall[]
-  } {
-    const runs: RunCall[] = []
-    const sbx = {
-      sandboxId: 'sbx-held',
-      commands: {
-        run: (async (cmd: string, runOpts: Record<string, unknown> = {}) => {
-          runs.push({ cmd, opts: runOpts })
-          const isProbe = cmd.startsWith('kill -0')
-          return {
-            pid: 99,
-            stdout: isProbe ? opts.aliveProbe : 'launched\n',
-            stderr: '',
-            exitCode: isProbe ? 0 : undefined,
-            wait: async () => {
-              if (isProbe) return { stdout: opts.aliveProbe, stderr: '', exitCode: 0 }
-              if (!opts.reported) return new Promise<never>(() => {})
-              await new Promise((resolve) => setTimeout(resolve, opts.reported!.afterMs))
-              const { result } = opts.reported!
-              // The SDK's wait() REJECTS on a non-zero exit (CommandExitError).
-              if (result.exitCode !== 0) throw new FakeCommandExitError(result)
-              return result
-            },
-            sendStdin: vi.fn(async () => {}),
-            kill: vi.fn(async () => true),
-          }
-        }) as unknown as E2BSandboxLike['commands']['run'],
-      },
-      files: {
-        read: (async () => '') as E2BSandboxLike['files']['read'],
-        async write() {
-          return {}
-        },
-        async list() {
-          return []
-        },
-        async remove() {},
-      },
-      getHost: (port: number) => `${port}-sbx-held.e2b.app`,
-      async setTimeout() {},
-      async kill() {},
-    } as unknown as E2BSandboxLike
-    return { sbx, runs }
-  }
-
   it('fails closed when the process is gone and the handle never reports an exit', async () => {
     const { sbx, runs } = fakeSandboxWithHeldStream({ aliveProbe: 'MOL_GONE\n' })
     const sandbox = await handleFor(sbx)
@@ -447,4 +444,51 @@ describe('exec() stops waiting once the COMMAND is over', () => {
 
     expect(settled).toBe('still waiting')
   }, 10_000)
+})
+
+describe('exec() clears its race timers once they lose (no timer leak)', () => {
+  // Both races arm a one-shot timer; when the COMMAND wins instead, the losing
+  // timer must be CLEARED. Left armed, it resolves into an already-settled race
+  // (a no-op) but holds an otherwise-done short-lived process — a test worker,
+  // a CLI script — on the event loop for up to the whole window per call.
+  // Fake timers make the leak exactly countable, with no background handles.
+
+  it('clears the settle probe when the command finishes first', async () => {
+    const { sbx } = fakeSandbox([
+      { match: 'true', result: { stdout: '', stderr: '', exitCode: 0 } },
+    ])
+    const sandbox = await handleFor(sbx)
+
+    vi.useFakeTimers()
+    try {
+      // `wait()` settles on a microtask, so the 1.5 s settle probe loses.
+      const result = await sandbox.exec('true')
+      expect(result.exitCode).toBe(0)
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('clears the grace timer when the late exit report wins', async () => {
+    const { sbx } = fakeSandboxWithHeldStream({
+      aliveProbe: 'MOL_GONE\n',
+      reported: { afterMs: 1_600, result: { stdout: 'built\n', stderr: '', exitCode: 0 } },
+    })
+    const sandbox = await handleFor(sbx)
+
+    vi.useFakeTimers()
+    try {
+      const exec = sandbox.exec('vite build', { timeout: 8_000 })
+      // t=1.5 s: the settle probe fires, the pid probe says gone, the 2 s
+      // grace timer arms; t=1.6 s: the exit report wins the grace race.
+      await vi.advanceTimersByTimeAsync(1_600)
+      await expect(exec).resolves.toEqual({ stdout: 'built\n', stderr: '', exitCode: 0 })
+      // The grace timer lost at 1.6 s; without the clear it stays armed until
+      // t=3.5 s and the count here reads 1.
+      expect(vi.getTimerCount()).toBe(0)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })

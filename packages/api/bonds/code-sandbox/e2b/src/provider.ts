@@ -92,6 +92,32 @@ const EGRESS_PROBE_ALLOW = 'registry.npmjs.org'
 const EGRESS_PROBE_DENY = 'example.com'
 
 /**
+ * Race a promise against a one-shot timer, CLEARING the timer the moment the
+ * race settles — win, lose, or reject. The bare `Promise.race` leaves the
+ * losing timer armed: resolving into an already-settled race is a no-op, but
+ * the timer itself stays on the event loop for its whole window, so every
+ * call whose command finishes first kept an otherwise-done short-lived
+ * process (test worker, CLI script) alive up to the window per call.
+ *
+ * @param promise - The promise to wait on.
+ * @param ms - The timeout window in milliseconds.
+ * @returns The promise's value, or null when the window elapsed first.
+ */
+async function raceWithClearedTimer<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), ms)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/**
  * Adapt the real `e2b` SDK `Sandbox` class to {@link E2BSandboxClientLike}.
  * Imported lazily so the SDK is only required when the bond is actually used.
  */
@@ -416,10 +442,7 @@ class E2BSandbox implements Sandbox {
     const finished = handle.wait().finally(() => {
       settled = true
     })
-    const raced = await Promise.race([
-      finished,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), SETTLE_PROBE_MS)),
-    ])
+    const raced = await raceWithClearedTimer(finished, SETTLE_PROBE_MS)
     if (raced) return raced
     if (settled) return finished
 
@@ -430,10 +453,7 @@ class E2BSandbox implements Sandbox {
     // exit code rides the stream's `end` event, so give the handle a bounded
     // window to deliver it — when the process truly finished, envd closes the
     // stream right behind it and the result lands here.
-    const reported = await Promise.race([
-      finished,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), EXIT_REPORT_GRACE_MS)),
-    ])
+    const reported = await raceWithClearedTimer(finished, EXIT_REPORT_GRACE_MS)
     if (reported) return reported
     if (typeof handle.exitCode === 'number') {
       return { stdout: handle.stdout ?? '', stderr: handle.stderr ?? '', exitCode: handle.exitCode }
