@@ -300,12 +300,16 @@ describe('LtxVideoGenerationProvider', () => {
     })
 
     it('rejects a job id whose tail would traverse or re-shape the poll URL', async () => {
-      // The tail is interpolated into `/v2/${endpoint}/${apiId}` on an
-      // AUTHENTICATED GET: `..` walks out of the poll path (a hostile
+      // The tail is interpolated into `/v2/${endpoint}/…` on an AUTHENTICATED
+      // GET: a dot segment walks out of the poll path (a hostile
       // `ltx/text-to-video/m/../../v1/upload` would hit /v1/upload with the
       // Bearer key), `?`/`#` would start a query/fragment, and an empty
-      // segment is never a shape generate() built. All must be refused
-      // before any request leaves the process.
+      // segment is never a shape generate() built. The percent-encoded dot
+      // spellings matter because Node's fetch parses the URL with the WHATWG
+      // parser, which normalizes `%2e%2e`/`.%2e`/`%2e.`/`%2E%2E` exactly like
+      // `..` — `ltx/text-to-video/ltx-2-5-fast/%2e%2e/%2e%2e/v1/upload` would
+      // send `GET /v1/upload`. All must be refused before any request leaves
+      // the process.
       for (const hostile of [
         'ltx/text-to-video/ltx-2-5-fast/../../v1/upload',
         'ltx/text-to-video/ltx-2-5-fast/job/../..',
@@ -314,6 +318,11 @@ describe('LtxVideoGenerationProvider', () => {
         'ltx/text-to-video/ltx-2-5-fast/job-9?redirect=/v1/upload',
         'ltx/text-to-video/ltx-2-5-fast/job-9#fragment',
         'ltx/text-to-video/ltx-2-5-fast/job-9//extra',
+        'ltx/text-to-video/ltx-2-5-fast/%2e%2e/%2e%2e/v1/upload',
+        'ltx/text-to-video/ltx-2-5-fast/%2E%2E/v1/upload',
+        'ltx/text-to-video/ltx-2-5-fast/.%2e/%2e./v1/upload',
+        'ltx/text-to-video/ltx-2-5-fast/%2e',
+        'ltx/text-to-video/ltx-2-5-fast/job-9/%2e%2e',
       ]) {
         await expect(bond.getStatus(hostile)).rejects.toMatchObject({
           name: 'LtxVideoError',
@@ -321,6 +330,17 @@ describe('LtxVideoGenerationProvider', () => {
         })
       }
       expect(mockFetch).not.toHaveBeenCalled()
+    })
+
+    it('percent-encodes each tail segment, so shapes the guard cannot enumerate stay literal', async () => {
+      mockFetch.mockResolvedValue(mockJsonResponse({ id: 'x', status: 'pending' }))
+      // `job%2f..` is not a dot segment and carries no `?`/`#`, so the guard
+      // admits it — but its bytes must be re-encoded on the way out. Sent
+      // raw, a decoding server would read this segment as `job/../v1/upload`;
+      // sent encoded, it is one inert segment and the GET stays inside
+      // /v2/<endpoint>/.
+      await bond.getStatus('ltx/text-to-video/ltx-2-5-fast/job%2f..%2fv1%2fupload')
+      expect(call()[0]).toBe(`${DEFAULT_BASE_URL}/v2/text-to-video/job%252f..%252fv1%252fupload`)
     })
   })
 

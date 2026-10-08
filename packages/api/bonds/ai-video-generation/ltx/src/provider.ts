@@ -59,6 +59,17 @@ const SUBMIT_ENDPOINTS = ['text-to-video', 'image-to-video'] as const
 /** Prefix of every job id this bond hands out (it encodes the poll endpoint). */
 const JOB_ID_PREFIX = 'ltx'
 
+/**
+ * A whole path segment the WHATWG URL parser (what Node's `fetch` does with
+ * the URL string) treats as a dot segment: the literal single/double-dot
+ * forms plus every percent-encoded spelling, case-insensitive (URL Standard,
+ * path state: single-dot is `.`/`%2e`, double-dot is `..`/`.%2e`/`%2e.`/
+ * `%2e%2e`). A double-dot segment POPS a path segment during normalization,
+ * so `%2e%2e` traverses exactly like a literal `..` — the encoded spellings
+ * must be rejected just like the literal ones.
+ */
+const DOT_SEGMENT = /^(?:\.|%2e){1,2}$/i
+
 /** Shape of a V2 submit response (HTTP 202). */
 interface LtxSubmitResponse {
   id?: string | null
@@ -254,7 +265,12 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     const [endpoint, model, apiId] = this.parseJobId(jobId)
     const data = (await this.callJson(
       cfg,
-      `/v2/${endpoint}/${apiId}`,
+      // Each tail segment is percent-encoded on the way in: whatever the
+      // guard's shape list does not enumerate (`%2e%2e`, `%2f`, …) then
+      // travels as its literal bytes — the URL parser can no longer
+      // reinterpret it as a dot segment or a separator, so this
+      // authenticated GET can only ever address `/v2/<endpoint>/…`.
+      `/v2/${endpoint}/${apiId.split('/').map(encodeURIComponent).join('/')}`,
       'GET',
       undefined,
       false,
@@ -392,9 +408,10 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
   /**
    * Splits a job id this bond issued back into its poll endpoint, model and
    * the API's raw job id. The id tail is validated as a pure path tail: it is
-   * interpolated into the poll URL, so dot segments, query or fragment
-   * characters are rejected (they would aim this authenticated GET at another
-   * path on the host). Slash-separated ids remain intact.
+   * interpolated into the poll URL, so dot segments (literal or
+   * percent-encoded), query or fragment characters are rejected (they would
+   * aim this authenticated GET at another path on the host). Slash-separated
+   * ids remain intact.
    *
    * @param jobId - The id returned by `generate()`.
    * @returns The `[endpoint, model, apiId]` triple.
@@ -416,19 +433,21 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
         400,
       )
     }
-    // The tail goes straight into `/v2/${endpoint}/${apiId}`: a `..` segment
-    // would walk out of `/v2/<endpoint>` and redirect this Bearer-authenticated
-    // GET to any other path on the configured host (or a broker base URL), and
-    // `?`/`#` would start a query or fragment instead of a path. Only ids this
-    // bond's `generate()` could have built are accepted — those never contain
-    // these shapes.
+    // The tail goes into the `/v2/${endpoint}/…` poll path: a dot segment —
+    // literal `..` or its percent-encoded spellings, which the URL parser
+    // normalizes the same way — would walk out of `/v2/<endpoint>` and redirect
+    // this Bearer-authenticated GET to any other path on the configured host
+    // (or a broker base URL), and `?`/`#` would start a query or fragment
+    // instead of a path. Only ids this bond's `generate()` could have built are
+    // accepted — those never contain these shapes. Anything the list cannot
+    // enumerate is still inert: getStatus() percent-encodes each segment.
     if (
       apiId.includes('?') ||
       apiId.includes('#') ||
-      apiId.split('/').some((segment) => segment === '' || segment === '.' || segment === '..')
+      apiId.split('/').some((segment) => segment === '' || DOT_SEGMENT.test(segment))
     ) {
       throw new LtxVideoError(
-        `"${jobId}" is not a valid LTX job id — the id tail must not contain ".", "..", empty, "?" or "#" segments.`,
+        `"${jobId}" is not a valid LTX job id — the id tail must not contain dot segments (including "%2e" spellings), empty segments, "?" or "#".`,
         400,
       )
     }
