@@ -451,13 +451,16 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
    * the API's raw job id. The id tail is validated as a pure path tail: it is
    * interpolated into the poll URL, so dot segments (literal or
    * percent-encoded), query or fragment characters are rejected (they would
-   * aim this authenticated GET at another path on the host). Slash-separated
-   * ids remain intact.
+   * aim this authenticated GET at another path on the host). The model
+   * segment must be one `generate()` mints ({@link LTX_MODELS}) — it is
+   * echoed back verbatim as `status.model`. Slash-separated API ids remain
+   * intact.
    *
    * @param jobId - The id returned by `generate()`.
    * @returns The `[endpoint, model, apiId]` triple.
-   * @throws {LtxVideoError} When the id was not issued by this bond, or its
-   *   tail contains path-traversal / query / fragment characters.
+   * @throws {LtxVideoError} When the id was not issued by this bond (an
+   *   unknown endpoint or model segment), or its tail contains
+   *   path-traversal / query / fragment characters.
    */
   private parseJobId(jobId: string): [string, string, string] {
     const parts = jobId.split('/')
@@ -466,7 +469,7 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     if (
       prefix !== JOB_ID_PREFIX ||
       !(SUBMIT_ENDPOINTS as readonly string[]).includes(endpoint) ||
-      !model ||
+      !(LTX_MODELS as readonly string[]).includes(model) ||
       !apiId
     ) {
       throw new LtxVideoError(
@@ -479,10 +482,13 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     // normalizes the same way — would walk out of `/v2/<endpoint>` and redirect
     // this Bearer-authenticated GET to any other path on the configured host
     // (or a broker base URL), and `?`/`#` would start a query or fragment
-    // instead of a path. Only ids this bond's `generate()` could have built are
-    // accepted — generate() refuses to mint a handle whose tail has these
-    // shapes, so a handle it returned always round-trips. Anything the list
-    // cannot enumerate is still inert: getStatus() percent-encodes each
+    // instead of a path. The model segment must be one `generate()` mints — it
+    // is echoed back as `status.model` verbatim, so an arbitrary caller-chosen
+    // string would forge the model a consumer attributes or prices the job
+    // by. Only ids this bond's `generate()` could have built are accepted —
+    // generate() refuses to mint a handle whose model or tail has these
+    // shapes, so a handle it returned always round-trips. Anything the shape
+    // list cannot enumerate is still inert: getStatus() percent-encodes each
     // segment.
     if (!isPollableJobId(apiId)) {
       throw new LtxVideoError(

@@ -384,6 +384,25 @@ describe('LtxVideoGenerationProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
+    it('rejects a job id whose model segment is not one generate() mints', async () => {
+      // The model segment is echoed back verbatim as `status.model`, which a
+      // consumer may attribute or price the job by — an arbitrary
+      // caller-chosen string (even over a real, pollable API id) would forge
+      // it. Only the LTX_MODELS segments generate() emits are accepted.
+      for (const forged of [
+        'ltx/text-to-video/hostile-model/real-job-id',
+        'ltx/text-to-video/ltx-2-6-fast/job-9',
+        'ltx/image-to-video/LTX-2-5-FAST/job-9',
+        'ltx/text-to-video//job-9',
+      ]) {
+        await expect(bond.getStatus(forged)).rejects.toMatchObject({
+          name: 'LtxVideoError',
+          status: 400,
+        })
+      }
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
     it('percent-encodes each tail segment, so shapes the guard cannot enumerate stay literal', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'x', status: 'pending' }))
       // `job%2f..` is not a dot segment and carries no `?`/`#`, so the guard
