@@ -173,6 +173,23 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   hits are $0.10 — footnote 2 prices Opus 5.5 AND Sonnet 5.5 cache hits at
  *   0.05× input — not the $0.20 recorded at its add; catalog corrected. Every
  *   other cataloged Anthropic price on that page is unchanged.)
+ *   (verified 2026-10-08 — ADDED claude-haiku-5-5, released 2026-10-07 and
+ *   listed "Active (latest)" on /docs/en/models/haiku-5-5/overview, which
+ *   moves claude-haiku-4-5 to "Legacy models (still available)" → superseded.
+ *   Model page + pricing page: $0.10/$0.50 per MTok for prompts up to 100K
+ *   tokens — the first Anthropic model priced BY PROMPT LENGTH (over 100K:
+ *   $0.50/$2.50, cache read $0.05, 5m write $0.625; not modeled, same as the
+ *   Gemini/Grok >200K and GPT-6 >272K bands) — 5m cache write $0.125, cache
+ *   hits $0.01 (standard 0.1×), web search $10/1k. 1M ctx / 128K out, text +
+ *   image input, reliable knowledge cutoff Jun 2026. Effort page: all five
+ *   levels, default MEDIUM. Model page "Good to know": non-default
+ *   temperature/top_p/top_k → 400 (rejectsTemperature). Unlike
+ *   opus-5-5/sonnet-5.5, forced tool_choice any/tool still works — the
+ *   pricing page's tool-token table carries an any/tool count for it (406)
+ *   where those two have none — and thinking {type:"disabled"} is accepted at
+ *   high-or-below effort; Synthase sends neither disabled nor a temperature.
+ *   Adaptive thinking only, budget_tokens is the legacy path. Every other
+ *   Anthropic price on the pricing page is unchanged.)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -812,6 +829,55 @@ export const MODELS: readonly ModelDefinition[] = [
     supersededBy: 'claude-sonnet-5-5',
   },
   {
+    id: 'claude-haiku-5-5',
+    provider: 'anthropic',
+    // Model page "Good to know": omit temperature/top_p/top_k — a non-default
+    // value for ANY of them returns a 400 (verified 2026-10-08); callers omit
+    // it (request-shape.ts temperatureParam).
+    rejectsTemperature: true,
+    label: 'Claude Haiku 5.5',
+    description: 'Fastest Anthropic — high-volume classification, extraction & subagents',
+    contextWindow: 1_000_000,
+    maxOutputTokens: 128_000,
+    supportsThinking: true,
+    thinkingBudgetTokens: 16_000,
+    thinkingConfigurable: true,
+    supportedEffortLevels: ['low', 'medium', 'high', 'xhigh', 'max'],
+    defaultEffortLevel: 'medium',
+    // Adaptive thinking only — budget_tokens is the legacy Haiku-4.5 path;
+    // effort is the depth control, all five levels with API default MEDIUM
+    // (effort page, verified 2026-10-08). Two WAYS this differs from
+    // opus-5-5 / sonnet-5-5, both per first-party pages: thinking
+    // {type:"disabled"} is ACCEPTED here (at high-or-below effort) — the bond
+    // never sends it — and forced tool_choice any/tool still WORKS (the
+    // pricing page's tool-token table lists an any/tool count for Haiku 5.5,
+    // 406 tokens, where opus-5-5 / sonnet-5-5 have none), so NO
+    // rejectsForcedToolChoice pin — discovery/selection force their tool call.
+    supportsVision: true,
+    supportsPromptCaching: true,
+    supportsTools: true,
+    webSearchToolType: 'web_search_20260209',
+    webSearchPricePer1k: 10,
+    // Same server-tool versions as the rest of the 4.6+ Anthropic fleet —
+    // dynamic-filtering web search is "Claude 4.6 and later models" (web
+    // search docs, verified 2026-10-08; Haiku 4.5 predates 4.6, hence its
+    // basic variant). Not currently sent by Synthase beyond webSearchToolType.
+    codeExecutionToolType: 'code_execution_20260521',
+    webFetchToolType: 'web_fetch_20260209',
+    inputPricePerMTok: 0.1,
+    outputPricePerMTok: 0.5,
+    // Standard 0.1× cache read = $0.01; 5m cache write the usual 1.25× =
+    // $0.125 (pricing page, verified 2026-10-08). The FIRST Anthropic model
+    // priced BY PROMPT LENGTH: prompts over 100K tokens pay 5× ($0.50/$2.50,
+    // cache $0.05/$0.625). The catalog has no context-band dimension, so that
+    // band is NOT modeled — same precedent as the Gemini/Grok >200K and
+    // GPT-6 >272K tiers — and a >100K conversation under-charges its input.
+    cacheReadPricePerMTok: 0.01,
+    cacheWritePricePerMTok: 0.125,
+    // Reliable + training-data cutoff Jun 2026 (model page "Specifications").
+    knowledgeCutoff: '2026-06-01',
+  },
+  {
     id: 'claude-haiku-4-5-20251001',
     provider: 'anthropic',
     label: 'Claude Haiku 4.5',
@@ -839,6 +905,12 @@ export const MODELS: readonly ModelDefinition[] = [
     cacheReadPricePerMTok: 0.1,
     cacheWritePricePerMTok: 1.25,
     knowledgeCutoff: '2025-02-01',
+    // Superseded by claude-haiku-5-5 (released 2026-10-07, same Haiku tier at
+    // ~1/10 the price with 5× the context); the models overview now lists
+    // haiku-4-5 under "Legacy models (still available)". Still served and
+    // priceable, just not OFFERED.
+    deprecatedAt: '2026-10-07',
+    supersededBy: 'claude-haiku-5-5',
   },
 
   // ---------------------------------------------------------------------------

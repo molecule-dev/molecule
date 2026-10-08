@@ -53,10 +53,12 @@ describe('supportedEffortLevels catalog data', () => {
 
   it('current Anthropic adaptive-thinking models are native-effort (no budget map — budget_tokens would 400)', () => {
     // Fable 5 / Opus 4.8 / Sonnet 5 reject budget_tokens outright; the 4.6
-    // family deprecates it. Only Haiku 4.5 stays on the budget path.
+    // family deprecates it. Only Haiku 4.5 stays on the budget path — it
+    // predates the 4.6-generation adaptive-thinking surface; Haiku 5.5 is on
+    // it (effort param, budget_tokens a 400, per its model page 2026-10-08).
     for (const model of MODELS) {
       if (model.provider !== 'anthropic') continue
-      if (model.id.startsWith('claude-haiku-')) {
+      if (model.id === 'claude-haiku-4-5-20251001') {
         // Budget-configurable → carries a budget map, no native effort param.
         expect(model.effortBudgetTokens, model.id).toBeDefined()
       } else {

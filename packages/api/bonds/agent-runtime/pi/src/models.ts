@@ -46,6 +46,10 @@ export const DEFAULT_MODEL_MAP: Readonly<Record<string, string>> = {
   'claude-opus-4-7': 'anthropic/claude-opus-4-7',
   'claude-opus-4-6': 'anthropic/claude-opus-4-6',
   'claude-sonnet-4-6': 'anthropic/claude-sonnet-4-6',
+  // Released after pi 1.0.0's bundled catalog (above); a passthrough row —
+  // same anthropic provider/host as the rest of this family, so the runtime
+  // can resolve the id without Pi fuzzy-matching a bare string.
+  'claude-haiku-5-5': 'anthropic/claude-haiku-5-5',
   'claude-haiku-4-5-20251001': 'anthropic/claude-haiku-4-5-20251001',
   'gpt-6-astra': 'openai/gpt-6-astra',
   'gpt-6.1-sol': 'openai/gpt-6.1-sol',
