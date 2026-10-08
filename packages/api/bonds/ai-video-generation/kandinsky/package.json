@@ -1,0 +1,53 @@
+{
+  "name": "@molecule/api-ai-video-generation-kandinsky",
+  "version": "1.0.0",
+  "description": "Kandinsky 6.0 video generation provider for molecule.dev — self-hosted open-weight text/image-to-video-with-audio over a vLLM-Omni server's /v1/videos API",
+  "homepage": "https://www.molecule.dev/packages/api-ai-video-generation-kandinsky",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "video",
+    "generation",
+    "kandinsky",
+    "vllm",
+    "vllm-omni",
+    "text-to-video",
+    "self-hosted",
+    "open-weights"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/ai-video-generation/kandinsky"
+  },
+  "peerDependencies": {
+    "@molecule/api-ai-video-generation": ">=1.0.0",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-ai-video-generation": "1.0.0",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  }
+}
