@@ -1,6 +1,6 @@
 import { getAnalytics, getLogger } from '@molecule/api-bond'
 import { get } from '@molecule/api-config'
-import { findById, updateById } from '@molecule/api-database'
+import { findById, updateById, updateMany, type WhereCondition } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import type { MoleculeRequest } from '@molecule/api-resource'
 
@@ -107,15 +107,47 @@ export const verifyTwoFactor = ({ name: _name, tableName, schema: _schema }: typ
           }
         }
 
-        // Move pending secret to active and enable 2FA. Persist the consumed
-        // time step so the enabling code can't be replayed (single-use).
-        await updateById(`${tableName}Secrets`, id, {
-          twoFactorSecret: secrets.pendingTwoFactorSecret,
-          pendingTwoFactorSecret: null,
-          ...(verifyResult.timeStep !== undefined
-            ? { lastTwoFactorTimeStep: verifyResult.timeStep }
-            : {}),
-        })
+        // Move pending secret to active and enable 2FA, consuming the code's
+        // time step ATOMICALLY so the enabling code can't be replayed
+        // (single-use). The UPDATE only matches while the stored step is still
+        // OLDER than the one being consumed (or NULL — the first 2FA write),
+        // so of two concurrent requests replaying the same code — both read
+        // the same stale step, both pass verify() — exactly one wins the row;
+        // the loser's guarded write matches nothing and is refused as a replay.
+        if (verifyResult.timeStep !== undefined) {
+          // `?? null` also maps a runtime NULL (the column is NULL until the
+          // first 2FA write) to the is_null branch — SQL `NULL < step` matches
+          // no row, so a plain `<` comparison would refuse every FIRST use.
+          const previousStep = secrets.lastTwoFactorTimeStep ?? null
+          const stepWhere: WhereCondition[] = [{ field: 'id', operator: '=', value: id }]
+          if (previousStep === null) {
+            stepWhere.push({ field: 'lastTwoFactorTimeStep', operator: 'is_null' })
+          } else {
+            stepWhere.push({
+              field: 'lastTwoFactorTimeStep',
+              operator: '<',
+              value: verifyResult.timeStep,
+            })
+          }
+          const consumed = await updateMany(`${tableName}Secrets`, stepWhere, {
+            twoFactorSecret: secrets.pendingTwoFactorSecret,
+            pendingTwoFactorSecret: null,
+            lastTwoFactorTimeStep: verifyResult.timeStep,
+          })
+          if (consumed.affected !== 1) {
+            analytics.track({ name: 'user.two_factor_failed', userId: id }).catch(() => {})
+            return {
+              statusCode: 403,
+              body: { error: t('user.error.invalidToken'), errorKey: 'user.error.invalidToken' },
+            }
+          }
+        } else {
+          // Bond reports no time step — no replay counter to guard on.
+          await updateById(`${tableName}Secrets`, id, {
+            twoFactorSecret: secrets.pendingTwoFactorSecret,
+            pendingTwoFactorSecret: null,
+          })
+        }
 
         await updateById(tableName, id, {
           twoFactorEnabled: true,
@@ -160,15 +192,47 @@ export const verifyTwoFactor = ({ name: _name, tableName, schema: _schema }: typ
           }
         }
 
-        // Disable 2FA. Persist the consumed time step so the disabling code
-        // can't be replayed (single-use) within its validity window.
-        await updateById(`${tableName}Secrets`, id, {
-          twoFactorSecret: null,
-          pendingTwoFactorSecret: null,
-          ...(verifyResult.timeStep !== undefined
-            ? { lastTwoFactorTimeStep: verifyResult.timeStep }
-            : {}),
-        })
+        // Disable 2FA, consuming the code's time step ATOMICALLY so the
+        // disabling code can't be replayed (single-use) within its validity
+        // window. Same guarded UPDATE as enable: it only matches while the
+        // stored step is still OLDER than the one being consumed (or NULL —
+        // the first 2FA write), so of two concurrent requests replaying the
+        // same code exactly one wins the row; the loser sees 0 rows changed
+        // and is refused instead of disabling a second time.
+        if (verifyResult.timeStep !== undefined) {
+          // `?? null` also maps a runtime NULL (the column is NULL until the
+          // first 2FA write) to the is_null branch — SQL `NULL < step` matches
+          // no row, so a plain `<` comparison would refuse every FIRST use.
+          const previousStep = secrets.lastTwoFactorTimeStep ?? null
+          const stepWhere: WhereCondition[] = [{ field: 'id', operator: '=', value: id }]
+          if (previousStep === null) {
+            stepWhere.push({ field: 'lastTwoFactorTimeStep', operator: 'is_null' })
+          } else {
+            stepWhere.push({
+              field: 'lastTwoFactorTimeStep',
+              operator: '<',
+              value: verifyResult.timeStep,
+            })
+          }
+          const consumed = await updateMany(`${tableName}Secrets`, stepWhere, {
+            twoFactorSecret: null,
+            pendingTwoFactorSecret: null,
+            lastTwoFactorTimeStep: verifyResult.timeStep,
+          })
+          if (consumed.affected !== 1) {
+            analytics.track({ name: 'user.two_factor_failed', userId: id }).catch(() => {})
+            return {
+              statusCode: 403,
+              body: { error: t('user.error.invalidToken'), errorKey: 'user.error.invalidToken' },
+            }
+          }
+        } else {
+          // Bond reports no time step — no replay counter to guard on.
+          await updateById(`${tableName}Secrets`, id, {
+            twoFactorSecret: null,
+            pendingTwoFactorSecret: null,
+          })
+        }
 
         await updateById(tableName, id, {
           twoFactorEnabled: false,
