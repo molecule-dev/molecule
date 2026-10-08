@@ -391,11 +391,15 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
 
   /**
    * Splits a job id this bond issued back into its poll endpoint, model and
-   * the API's raw job id.
+   * the API's raw job id. The id tail is validated as a pure path tail: it is
+   * interpolated into the poll URL, so dot segments, query or fragment
+   * characters are rejected (they would aim this authenticated GET at another
+   * path on the host). Slash-separated ids remain intact.
    *
    * @param jobId - The id returned by `generate()`.
    * @returns The `[endpoint, model, apiId]` triple.
-   * @throws {LtxVideoError} When the id was not issued by this bond.
+   * @throws {LtxVideoError} When the id was not issued by this bond, or its
+   *   tail contains path-traversal / query / fragment characters.
    */
   private parseJobId(jobId: string): [string, string, string] {
     const parts = jobId.split('/')
@@ -409,6 +413,22 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     ) {
       throw new LtxVideoError(
         `"${jobId}" is not an LTX job id — pass the id exactly as generate() returned it.`,
+        400,
+      )
+    }
+    // The tail goes straight into `/v2/${endpoint}/${apiId}`: a `..` segment
+    // would walk out of `/v2/<endpoint>` and redirect this Bearer-authenticated
+    // GET to any other path on the configured host (or a broker base URL), and
+    // `?`/`#` would start a query or fragment instead of a path. Only ids this
+    // bond's `generate()` could have built are accepted — those never contain
+    // these shapes.
+    if (
+      apiId.includes('?') ||
+      apiId.includes('#') ||
+      apiId.split('/').some((segment) => segment === '' || segment === '.' || segment === '..')
+    ) {
+      throw new LtxVideoError(
+        `"${jobId}" is not a valid LTX job id — the id tail must not contain ".", "..", empty, "?" or "#" segments.`,
         400,
       )
     }

@@ -298,6 +298,30 @@ describe('LtxVideoGenerationProvider', () => {
       expect(call()[0]).toBe(`${DEFAULT_BASE_URL}/v2/image-to-video/a/b`)
       expect(status.model).toBe('ltx-2-5-pro')
     })
+
+    it('rejects a job id whose tail would traverse or re-shape the poll URL', async () => {
+      // The tail is interpolated into `/v2/${endpoint}/${apiId}` on an
+      // AUTHENTICATED GET: `..` walks out of the poll path (a hostile
+      // `ltx/text-to-video/m/../../v1/upload` would hit /v1/upload with the
+      // Bearer key), `?`/`#` would start a query/fragment, and an empty
+      // segment is never a shape generate() built. All must be refused
+      // before any request leaves the process.
+      for (const hostile of [
+        'ltx/text-to-video/ltx-2-5-fast/../../v1/upload',
+        'ltx/text-to-video/ltx-2-5-fast/job/../..',
+        'ltx/text-to-video/ltx-2-5-fast/./job-9',
+        'ltx/text-to-video/ltx-2-5-fast/job-9/.',
+        'ltx/text-to-video/ltx-2-5-fast/job-9?redirect=/v1/upload',
+        'ltx/text-to-video/ltx-2-5-fast/job-9#fragment',
+        'ltx/text-to-video/ltx-2-5-fast/job-9//extra',
+      ]) {
+        await expect(bond.getStatus(hostile)).rejects.toMatchObject({
+          name: 'LtxVideoError',
+          status: 400,
+        })
+      }
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
   })
 
   // =========================================================================
