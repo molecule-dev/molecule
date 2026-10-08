@@ -169,6 +169,10 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   pages: non-default temperature 400, tool_choice any/tool 400,
  *   thinking "disabled" replaced by "between_tools" — Synthase sends none of
  *   those. Every other Anthropic price on the pricing page is unchanged.)
+ *   (re-verified 2026-10-08 on /docs/en/about-claude/pricing: sonnet-5-5 cache
+ *   hits are $0.10 — footnote 2 prices Opus 5.5 AND Sonnet 5.5 cache hits at
+ *   0.05× input — not the $0.20 recorded at its add; catalog corrected. Every
+ *   other cataloged Anthropic price on that page is unchanged.)
  * - OpenAI: https://developers.openai.com/api/docs/pricing (GPT-5.6 family GA
  *   2026-07-09; REPRICED 2026-07-30: -luna cut 80% to $0.20/$1.20, -terra cut
  *   20% to $2/$12, -sol unchanged $5/$30; cache read 0.1× input; gpt-5.5/
@@ -638,9 +642,10 @@ export const MODELS: readonly ModelDefinition[] = [
     webFetchToolType: 'web_fetch_20260209',
     inputPricePerMTok: 2,
     outputPricePerMTok: 10,
-    // Standard Anthropic ratios (pricing page: $0.20 cache hits, $2.50 5m
-    // cache write, verified 2026-09-29).
-    cacheReadPricePerMTok: 0.2,
+    // Cache hits are 0.05× input = $0.10 (pricing page footnote 2, shared
+    // with Opus 5.5; re-verified 2026-10-08 — the 2026-09-29 add carried the
+    // standard 0.1× $0.20); 5m cache write is the usual 1.25× $2.50.
+    cacheReadPricePerMTok: 0.1,
     cacheWritePricePerMTok: 2.5,
     // Reliable knowledge cutoff Jun 2026 (model page "Specifications").
     knowledgeCutoff: '2026-06-01',
