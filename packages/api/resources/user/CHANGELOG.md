@@ -1,5 +1,11 @@
 # @molecule/api-resource-user
 
+## 1.4.7
+
+### Patch Changes
+
+- 9e6fca7: Login 2FA codes, 2FA enable/disable codes and password-reset links are now consumed atomically, so concurrent requests with the same code or link can no longer both succeed.
+
 ## 1.4.6
 
 ### Patch Changes

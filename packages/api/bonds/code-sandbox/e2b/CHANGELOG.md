@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.8
+
+### Patch Changes
+
+- 5091a16: A command whose process is gone while its output stream is still held now reports exit code 137 instead of a fabricated 0, so a killed build fails instead of shipping partial output.
+
 ## 1.2.7
 
 ### Patch Changes

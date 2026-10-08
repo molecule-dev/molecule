@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-video-generation-kandinsky",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Kandinsky 6.0 video generation provider for molecule.dev — self-hosted open-weight text/image-to-video-with-audio over a vLLM-Omni server's /v1/videos API",
   "homepage": "https://www.molecule.dev/packages/api-ai-video-generation-kandinsky",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
@@ -45,7 +45,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai-video-generation": "1.0.0",
+    "@molecule/api-ai-video-generation": "1.1.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

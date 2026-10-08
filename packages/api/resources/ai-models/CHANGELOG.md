@@ -1,5 +1,16 @@
 # @molecule/api-resource-ai-models
 
+## 1.14.0
+
+### Minor Changes
+
+- 2fe171d: Adds `longContextPricing` to model definitions and an optional `promptTokens` argument to `modelRegionRates`, so models priced by prompt length (Claude Haiku 5.5 above 100K tokens) bill the long-context rates.
+- cd92621: Adds claude-haiku-5-5 ($0.10/$0.50 per MTok, 1M context) and supersedes Claude Haiku 4.5 with it.
+
+### Patch Changes
+
+- 301690d: Corrects the Claude Sonnet 5.5 cache-read price to $0.10/MTok.
+
 ## 1.13.0
 
 ### Minor Changes

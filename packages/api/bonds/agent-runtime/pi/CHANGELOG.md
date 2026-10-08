@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-pi
 
+## 1.0.2
+
+### Patch Changes
+
+- cd92621: Maps the claude-haiku-5-5 catalog id to its Anthropic pi model id.
+
 ## 1.0.1
 
 ### Patch Changes
