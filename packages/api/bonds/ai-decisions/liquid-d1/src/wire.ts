@@ -239,7 +239,8 @@ export interface PostOptions {
 /**
  * POSTs a systemone request with retry on 429/5xx-busy, honouring
  * `Retry-After`; an aborting `signal` ends the backoff early with the
- * signal's reason. Throws an Error carrying `status` on a non-2xx response.
+ * signal's reason. Throws an Error carrying `status` on a non-2xx response or
+ * a 2xx response whose body is not JSON.
  *
  * @param opts - Request options.
  * @returns The parsed response body.
@@ -259,7 +260,25 @@ export async function postSystemOne(opts: PostOptions): Promise<WireResponse> {
       body: JSON.stringify(body),
       signal,
     })
-    if (response.ok) return (await response.json()) as WireResponse
+    if (response.ok) {
+      try {
+        return (await response.json()) as WireResponse
+      } catch (error) {
+        // A 2xx with a non-JSON body (a proxy/WAF interstitial, an empty 204)
+        // must fail the same way every other failure does — an Error carrying
+        // `status`. A raw SyntaxError would escape that contract, so caller
+        // logic keyed on `error.status` never fires. 502 = "the upstream's
+        // answer is unusable"; the real upstream status rides in the message.
+        const reason = error instanceof Error ? error.message : String(error)
+        throw Object.assign(
+          new Error(
+            `${label} decision request failed (502): 2xx response with a non-JSON body (HTTP ${response.status}): ${reason}`,
+            { cause: error },
+          ),
+          { status: 502 },
+        )
+      }
+    }
     if (RETRYABLE.has(response.status) && attempt < maxRetries) {
       // Release the failed response's body (and with it its socket) before
       // sleeping: the connection pool does not take a connection back until

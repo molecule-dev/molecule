@@ -243,6 +243,28 @@ describe('ai-decisions-liquid-d1', () => {
     })
   })
 
+  it('answers a 2xx non-JSON body with a status-carrying error, not a raw SyntaxError', async () => {
+    // A proxy/WAF interstitial (or an empty 204 body) reaches the success
+    // path: the contract is "an Error carrying status", and a raw SyntaxError
+    // would escape it — caller logic keyed on `error.status` never fires.
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: vi
+        .fn()
+        .mockRejectedValue(new SyntaxError(`Unexpected token '<', "<html>..." is not valid JSON`)),
+    })
+    const error = (await createProvider()
+      .decide({ state: 's', questions: { refund: QUESTIONS.refund } })
+      .catch((e: unknown) => e)) as Error & { status?: number }
+    expect(error.name).not.toBe('SyntaxError')
+    expect(error.status).toBe(502)
+    expect(error.message).toContain('non-JSON body')
+    expect(error.message).toContain('HTTP 200')
+  })
+
   it('throws immediately on 401 with the status attached', async () => {
     mockFetch.mockResolvedValueOnce(fail(401, '{"error":{"message":"invalid api key"}}'))
     await expect(
