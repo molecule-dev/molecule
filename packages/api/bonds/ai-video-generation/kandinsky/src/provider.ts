@@ -39,6 +39,14 @@ import type { KandinskyVideoGenerationConfig } from './types.js'
 /** Default per-request timeout: a busy GPU box can be slow to answer even a submit. */
 export const DEFAULT_TIMEOUT_MS = 300_000
 
+/**
+ * How many finished jobs' downloaded videos the provider keeps. Bounded so a
+ * long-lived instance cannot accumulate unbounded MP4 bytes (a few MB each at
+ * the production geometry); past it the oldest entry is dropped and a re-poll
+ * of that job simply downloads again.
+ */
+const CONTENT_CACHE_MAX = 8
+
 /** Shape of a vLLM-Omni `POST /v1/videos` response (only `id` is load-bearing). */
 interface KandinskySubmitResponse {
   id?: string | null
@@ -190,6 +198,11 @@ function extensionFor(blob: Blob): string {
 class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
   readonly name = 'kandinsky'
   private readonly config: KandinskyVideoGenerationConfig
+  /**
+   * Finished jobs' downloaded MP4s, keyed by job id. Insertion-ordered and
+   * bounded ({@link CONTENT_CACHE_MAX}) — see {@link downloadContentOnce}.
+   */
+  private readonly contentCache = new Map<string, Promise<Buffer>>()
 
   /**
    * Creates the provider. Nothing is read from the environment here — every
@@ -262,8 +275,9 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
    * Fetch a job's status via `GET /v1/videos/{id}`. A completed job's result
    * carries the video: when the server enforces API-key auth, the content
    * URL answers 401 to anyone but this bond (only it holds the Bearer), so
-   * the MP4 is downloaded here and returned inline as `data`; without auth,
-   * `url` points at the server's download endpoint
+   * the MP4 is downloaded here and returned inline as `data` — once per job,
+   * with later polls of the same finished job reusing the downloaded bytes;
+   * without auth, `url` points at the server's download endpoint
    * (`GET /v1/videos/{id}/content`) — fetch it before the server evicts the
    * output (`expires_at`, surfaced as `expiresAt`).
    *
@@ -292,7 +306,7 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
       // With a Bearer configured the bare content URL is useless to the
       // caller — fetch the bytes with this bond's credentials instead.
       const delivered: Pick<VideoJobResult, 'url' | 'data'> = cfg.apiKey
-        ? { data: await this.downloadContent(cfg, jobId) }
+        ? { data: await this.downloadContentOnce(cfg, jobId) }
         : { url: `${cfg.baseUrl}/v1/videos/${encodeURIComponent(jobId)}/content` }
       result.result = {
         ...delivered,
@@ -442,7 +456,8 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
    * @param body - Request body (multipart form for POST, none for GET).
    * @param headers - Extra headers.
    * @returns The parsed response.
-   * @throws {KandinskyVideoError} On a network failure, timeout or non-2xx status.
+   * @throws {KandinskyVideoError} On a network failure, timeout, non-2xx
+   *   status, or a 2xx response whose body is not JSON.
    */
   private async call(
     cfg: ResolvedConfig,
@@ -452,7 +467,23 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
     headers: Record<string, string>,
   ): Promise<KandinskySubmitResponse | KandinskyVideoResponse> {
     const response = await this.send(cfg, path, method, body, headers)
-    return (await response.json()) as KandinskySubmitResponse | KandinskyVideoResponse
+    try {
+      return (await response.json()) as KandinskySubmitResponse | KandinskyVideoResponse
+    } catch (error) {
+      // A 2xx with a non-JSON body (a proxy interstitial, an empty 204) must
+      // still surface as the typed error the contract promises — a raw
+      // SyntaxError carries no `status`, so caller logic keyed on it (401 →
+      // reauth, 429 → backoff) never fires. 502 = "the upstream's answer is
+      // unusable", matching the no-job-id handling; the real upstream status
+      // rides in the message.
+      const reason = error instanceof Error ? error.message : String(error)
+      throw new KandinskyVideoError(
+        `Kandinsky Videos API error (502): 2xx response with a non-JSON body (HTTP ${response.status}): ${reason}`,
+        502,
+        undefined,
+        error,
+      )
+    }
   }
 
   /**
@@ -476,6 +507,43 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
       {},
     )
     return Buffer.from(await response.arrayBuffer())
+  }
+
+  /**
+   * Downloads a completed job's MP4 at most ONCE per job: the first poll that
+   * observes `completed` transfers the bytes off the GPU box and every later
+   * poll of the same job (a UI re-poll, a reconciliation sweep over finished
+   * jobs) reuses them — without this, each re-poll re-transfers the full video
+   * on a fresh timeout-bounded connection and turns a completed job into a new
+   * failure point. Concurrent polls share one transfer (the in-flight promise
+   * is what gets cached).
+   *
+   * A failed transfer is evicted so the next poll retries it — an output the
+   * server already evicted keeps failing, exactly as before.
+   *
+   * @param cfg - Resolved configuration.
+   * @param jobId - The job id (the server's own id).
+   * @returns The raw MP4 bytes (a shared promise while a transfer runs).
+   * @throws {KandinskyVideoError} On a network failure, timeout or non-2xx
+   *   status — including when the server already evicted the output.
+   */
+  private downloadContentOnce(cfg: ResolvedConfig, jobId: string): Promise<Buffer> {
+    const cached = this.contentCache.get(jobId)
+    if (cached) return cached
+    const download = this.downloadContent(cfg, jobId)
+    if (this.contentCache.size >= CONTENT_CACHE_MAX) {
+      const oldest = this.contentCache.keys().next().value
+      if (oldest !== undefined) this.contentCache.delete(oldest)
+    }
+    this.contentCache.set(jobId, download)
+    // A rejected download must not poison the entry. The rejection still
+    // reaches the caller through `download` itself; this handler only evicts
+    // so a retried poll can succeed.
+    download.catch((_error: unknown) => {
+      // Evict only OUR entry — a later retry may already have replaced it.
+      if (this.contentCache.get(jobId) === download) this.contentCache.delete(jobId)
+    })
+    return download
   }
 }
 

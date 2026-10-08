@@ -317,6 +317,73 @@ describe('KandinskyVideoGenerationProvider', () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'v', status: 'cancelled' }))
       await expect(bond.getStatus('v')).rejects.toThrow(/unrecognized job status "cancelled"/)
     })
+
+    it('re-polling a finished job behind auth does not download the MP4 again', async () => {
+      // A status route that re-polls a completed job (or a reconciliation
+      // sweep over finished jobs) must not re-transfer the full video off the
+      // GPU box on every call — the bytes are downloaded once per job.
+      const MP4 = new Uint8Array([0, 0, 0, 24, 0x66, 0x74, 0x79, 0x70])
+      const authed = createProvider({ baseUrl: 'http://gpu.local:8091', apiKey: 'secret' })
+      mockFetch
+        .mockResolvedValueOnce(
+          mockJsonResponse({ id: 'v', status: 'completed', media_type: 'video/mp4' }),
+        )
+        .mockResolvedValueOnce(mockBytesResponse(MP4))
+        .mockResolvedValueOnce(
+          mockJsonResponse({ id: 'v', status: 'completed', media_type: 'video/mp4' }),
+        )
+        // Would only be fetched if the fix regressed — and its bytes differ,
+        // so the result comparison fails too.
+        .mockResolvedValueOnce(mockBytesResponse(new Uint8Array([9, 9, 9])))
+
+      const first = await authed.getStatus('v')
+      const second = await authed.getStatus('v')
+
+      // Two status polls, ONE content download.
+      expect(mockFetch).toHaveBeenCalledTimes(3)
+      expect(second.result).toEqual(first.result)
+      expect((second.result!.data as Buffer).equals(Buffer.from(MP4))).toBe(true)
+    })
+
+    it('retries a failed download on the next poll instead of poisoning the job', async () => {
+      const authed = createProvider({ baseUrl: 'http://gpu.local:8091', apiKey: 'secret' })
+      mockFetch
+        .mockResolvedValueOnce(mockJsonResponse({ id: 'v', status: 'completed' }))
+        .mockResolvedValueOnce(mockErrorResponse(404, 'Not Found'))
+        .mockResolvedValueOnce(mockJsonResponse({ id: 'v', status: 'completed' }))
+        .mockResolvedValueOnce(mockBytesResponse(new Uint8Array([5, 6, 7])))
+
+      await expect(authed.getStatus('v')).rejects.toMatchObject({
+        name: 'KandinskyVideoError',
+        status: 404,
+      })
+      const status = await authed.getStatus('v')
+      expect(status.result?.data).toEqual(Buffer.from([5, 6, 7]))
+    })
+
+    it('bounds the download cache — the oldest finished job re-downloads, recent ones do not', async () => {
+      // CONTENT_CACHE_MAX is 8: fill it with 9 finished jobs (the 9th evicts
+      // job-0), then a re-poll of the newest must not download while a
+      // re-poll of the evicted oldest must — a long-lived provider forgets
+      // old videos instead of growing without end.
+      const authed = createProvider({ baseUrl: 'http://gpu.local:8091', apiKey: 'secret' })
+      for (let i = 0; i < 9; i++) {
+        mockFetch
+          .mockResolvedValueOnce(mockJsonResponse({ id: `job-${i}`, status: 'completed' }))
+          .mockResolvedValueOnce(mockBytesResponse(new Uint8Array([i])))
+      }
+      for (let i = 0; i < 9; i++) await authed.getStatus(`job-${i}`)
+      expect(mockFetch).toHaveBeenCalledTimes(18)
+
+      mockFetch
+        .mockResolvedValueOnce(mockJsonResponse({ id: 'job-8', status: 'completed' }))
+        .mockResolvedValueOnce(mockJsonResponse({ id: 'job-0', status: 'completed' }))
+        .mockResolvedValueOnce(mockBytesResponse(new Uint8Array([0])))
+      await authed.getStatus('job-8')
+      expect(mockFetch).toHaveBeenCalledTimes(19) // poll only — cached bytes
+      await authed.getStatus('job-0')
+      expect(mockFetch).toHaveBeenCalledTimes(21) // poll + re-download
+    })
   })
 
   // =========================================================================
@@ -389,6 +456,27 @@ describe('KandinskyVideoGenerationProvider', () => {
         name: 'KandinskyVideoError',
         status: 0,
       })
+    })
+
+    it('answers a 2xx with a non-JSON body as a typed error, not a raw SyntaxError', async () => {
+      // A proxy interstitial (or an empty 204 body) reaches the success path:
+      // the promise that failures arrive as KandinskyVideoError carrying a
+      // status must hold, or logic keyed on `error.status` never fires.
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        json: vi
+          .fn()
+          .mockRejectedValue(
+            new SyntaxError(`Unexpected token '<', "<html>..." is not valid JSON`),
+          ),
+      })
+      const error = (await bond.generate({ prompt: 'p' }).catch((e: unknown) => e)) as Error
+      expect(error).toBeInstanceOf(KandinskyVideoError)
+      expect(error).toMatchObject({ status: 502 })
+      expect(error.message).toContain('non-JSON body')
+      expect(error.message).toContain('HTTP 200')
     })
   })
 })
