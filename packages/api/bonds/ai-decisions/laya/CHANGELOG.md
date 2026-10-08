@@ -1,5 +1,11 @@
 # @molecule/api-ai-decisions-laya
 
+## 1.1.1
+
+### Patch Changes
+
+- 3333b63: Docs: points Kev servers at @molecule/api-ai-decisions-kev, which carries Kev's own defaults and limits.
+
 ## 1.1.0
 
 ### Minor Changes

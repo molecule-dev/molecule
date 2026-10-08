@@ -1,5 +1,11 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.4
+
+### Patch Changes
+
+- get() now throws when the Fly API cannot be reached, so a transient failure is no longer reported as a missing sandbox.
+
 ## 1.2.3
 
 ### Patch Changes

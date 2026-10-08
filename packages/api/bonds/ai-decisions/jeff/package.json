@@ -35,7 +35,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai-decisions": "1.1.0",
+    "@molecule/api-ai-decisions": "1.1.1",
     "@molecule/api-secrets": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
