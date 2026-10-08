@@ -478,6 +478,42 @@ describe('KandinskyVideoGenerationProvider', () => {
       expect(error.message).toContain('non-JSON body')
       expect(error.message).toContain('HTTP 200')
     })
+
+    it('answers an error body that dies mid-stream as the typed error, not a raw TypeError', async () => {
+      // The server already answered non-2xx; the connection then resets while
+      // the error body streams, so `response.text()` rejects with a raw
+      // `TypeError: terminated`. That must not escape — the contract keys on
+      // KandinskyVideoError.status.
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 502,
+        headers: new Headers(),
+        text: vi.fn().mockRejectedValue(new TypeError('terminated')),
+      })
+      const error = (await bond.generate({ prompt: 'p' }).catch((e: unknown) => e)) as Error
+      expect(error).toBeInstanceOf(KandinskyVideoError)
+      expect(error).toMatchObject({ status: 502 })
+      expect(error.message).toContain('HTTP 502')
+    })
+
+    it('answers an MP4 download that dies mid-transfer as the typed error, not a raw TypeError', async () => {
+      // send() already handed back the 2xx — the transfer itself then resets
+      // mid-MP4. The raw `TypeError: terminated` from arrayBuffer() would
+      // escape every catch in the download path and break the typed-error
+      // contract; it must arrive as a status-0 KandinskyVideoError, like
+      // every other transfer failure.
+      mockFetch
+        .mockResolvedValueOnce(mockJsonResponse({ id: 'v', status: 'completed' }))
+        .mockResolvedValueOnce({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'video/mp4' }),
+          arrayBuffer: vi.fn().mockRejectedValue(new TypeError('terminated')),
+        })
+      await expect(
+        createProvider({ baseUrl: 'http://gpu.local:8091', apiKey: 'secret' }).getStatus('v'),
+      ).rejects.toMatchObject({ name: 'KandinskyVideoError', status: 0 })
+    })
   })
 })
 

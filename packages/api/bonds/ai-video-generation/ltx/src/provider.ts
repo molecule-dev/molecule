@@ -70,6 +70,27 @@ const JOB_ID_PREFIX = 'ltx'
  */
 const DOT_SEGMENT = /^(?:\.|%2e){1,2}$/i
 
+/**
+ * Whether a raw LTX job id can serve as this bond's job-id tail: the tail is
+ * interpolated into the `/v2/{endpoint}/…` poll path, so `?`/`#` would start
+ * a query or fragment, an empty `//` segment is not a shape the poll path
+ * carries, and a dot segment (literal or percent-encoded — see
+ * {@link DOT_SEGMENT}) would walk the authenticated GET out of the poll
+ * path. Both ends enforce it: `generate()` before minting a handle,
+ * `getStatus()` again on what the caller passes back — so every handle
+ * `generate()` returns round-trips.
+ *
+ * @param apiId - The raw job id the LTX API returned.
+ * @returns `true` when the id can be polled as a path tail.
+ */
+function isPollableJobId(apiId: string): boolean {
+  return (
+    !apiId.includes('?') &&
+    !apiId.includes('#') &&
+    !apiId.split('/').some((segment) => segment === '' || DOT_SEGMENT.test(segment))
+  )
+}
+
 /** Shape of a V2 submit response (HTTP 202). */
 interface LtxSubmitResponse {
   id?: string | null
@@ -243,6 +264,17 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     if (!data.id) {
       throw new LtxVideoError(`LTX API returned no job id from POST /v2/${endpoint}.`, 502)
     }
+    if (!isPollableJobId(data.id)) {
+      // Enforce at the mint what getStatus()'s guard demands on the way back:
+      // without this, an upstream id like "a?x" would spend the credits and
+      // hand out a handle every later getStatus() refuses — an un-pollable
+      // job whose error blames the caller for passing exactly what generate()
+      // returned.
+      throw new LtxVideoError(
+        `LTX API returned a job id from POST /v2/${endpoint} that this bond cannot poll back ("${data.id}") — job ids must not contain dot segments (including "%2e" spellings), empty segments, "?" or "#".`,
+        502,
+      )
+    }
     return {
       id: `${JOB_ID_PREFIX}/${endpoint}/${model}/${data.id}`,
       model,
@@ -402,7 +434,10 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
       throw new LtxVideoError(`LTX file upload to ${url} failed: ${reason}`, 0, undefined, error)
     }
     if (!response.ok) {
-      const text = await response.text()
+      // Best-effort body read (callJson's rationale): the PUT already failed
+      // with a status — a body read that dies mid-stream must not replace the
+      // typed error with a raw `TypeError: terminated`.
+      const text = await response.text().catch((_error: unknown) => '')
       throw new LtxVideoError(
         `LTX file upload failed (${response.status}): ${text.length < 300 ? text : 'HTTP ' + response.status}`,
         response.status,
@@ -445,13 +480,11 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     // this Bearer-authenticated GET to any other path on the configured host
     // (or a broker base URL), and `?`/`#` would start a query or fragment
     // instead of a path. Only ids this bond's `generate()` could have built are
-    // accepted — those never contain these shapes. Anything the list cannot
-    // enumerate is still inert: getStatus() percent-encodes each segment.
-    if (
-      apiId.includes('?') ||
-      apiId.includes('#') ||
-      apiId.split('/').some((segment) => segment === '' || DOT_SEGMENT.test(segment))
-    ) {
+    // accepted — generate() refuses to mint a handle whose tail has these
+    // shapes, so a handle it returned always round-trips. Anything the list
+    // cannot enumerate is still inert: getStatus() percent-encodes each
+    // segment.
+    if (!isPollableJobId(apiId)) {
       throw new LtxVideoError(
         `"${jobId}" is not a valid LTX job id — the id tail must not contain dot segments (including "%2e" spellings), empty segments, "?" or "#".`,
         400,
@@ -518,7 +551,11 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
     }
 
     if (!response.ok) {
-      const text = await response.text()
+      // Best-effort body read: the upstream already answered non-2xx, and a
+      // connection reset while that body streams must not upgrade the typed
+      // error to a raw `TypeError: terminated` — the status is what callers
+      // key on; an unreadable body only degrades the detail message.
+      const text = await response.text().catch((_error: unknown) => '')
       let detail = `HTTP ${response.status}`
       let code: string | undefined
       try {

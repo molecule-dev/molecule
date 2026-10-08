@@ -417,7 +417,11 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
     }
 
     if (!response.ok) {
-      const text = await response.text()
+      // Best-effort body read: the server already answered non-2xx, and a
+      // connection reset while that body streams must not upgrade the typed
+      // error to a raw `TypeError: terminated` — the status is what callers
+      // key on; an unreadable body only degrades the detail message.
+      const text = await response.text().catch((_error: unknown) => '')
       let detail = `HTTP ${response.status}`
       let code: string | undefined
       try {
@@ -506,7 +510,21 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
       undefined,
       {},
     )
-    return Buffer.from(await response.arrayBuffer())
+    try {
+      return Buffer.from(await response.arrayBuffer())
+    } catch (error) {
+      // send() already handed back the 2xx — the MP4 transfer itself can
+      // still die mid-stream (connection reset), and that raw
+      // `TypeError: terminated` must surface as the typed error carrying
+      // status 0, like every other transfer failure.
+      const reason = error instanceof Error ? error.message : String(error)
+      throw new KandinskyVideoError(
+        `Kandinsky video download for job ${jobId} failed: ${reason}`,
+        0,
+        undefined,
+        error,
+      )
+    }
   }
 
   /**

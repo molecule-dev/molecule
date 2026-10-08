@@ -53,6 +53,9 @@
  * - **Job ids this bond returns are prefixed** — `ltx/<endpoint>/<model>/<api id>`
  *   — because the poll path embeds the submit endpoint. Pass the id exactly
  *   as `generate()` returned it; a bare API id is rejected with a clear error.
+ *   An API id this bond could never poll back (dot segments, empty segments,
+ *   `?`, `#`) is refused at submit time instead of minted into a handle
+ *   `getStatus()` would reject.
  * - **Auth is `Authorization: Bearer` with `LTXV_API_KEY`** (the env-var name
  *   the LTX docs themselves use; create the key at console.ltx.video). A
  *   missing key throws the tagged `config.notConfigured` error. `LTX_BASE_URL`

@@ -219,6 +219,36 @@ describe('LtxVideoGenerationProvider', () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ created_at: '2026-10-08T12:00:00Z' }))
       await expect(bond.generate({ prompt: 'p' })).rejects.toMatchObject({ status: 502 })
     })
+
+    it('refuses to mint a handle whose id getStatus() could never poll back', async () => {
+      // generate() is the only place handles are minted, so the shape guard
+      // getStatus() enforces must hold THERE: an upstream id carrying a
+      // query, fragment, dot segment (literal or percent-encoded) or empty
+      // segment would otherwise spend the credits and hand back a handle
+      // every later getStatus() rejects as "not a valid LTX job id" — an
+      // un-pollable job whose error blames the caller for passing exactly
+      // what generate() returned.
+      for (const id of [
+        'job-9?redirect=/v1/upload',
+        'job-9#fragment',
+        'job-9//extra',
+        'a/../../v1/upload',
+        'job-9/%2e%2e',
+        '%2E%2E',
+        '.',
+        'job-9/.',
+      ]) {
+        mockFetch.mockResolvedValue(mockJsonResponse({ id }))
+        await expect(bond.generate({ prompt: 'p' })).rejects.toMatchObject({
+          name: 'LtxVideoError',
+          status: 502,
+        })
+      }
+      // A slash-carrying id is fine — getStatus() re-encodes each segment.
+      mockFetch.mockResolvedValue(mockJsonResponse({ id: 'a/b' }))
+      const job = await bond.generate({ prompt: 'p' })
+      expect(job.id).toBe(`ltx/text-to-video/${DEFAULT_MODEL}/a/b`)
+    })
   })
 
   // =========================================================================
@@ -465,6 +495,47 @@ describe('LtxVideoGenerationProvider', () => {
       expect(error).toMatchObject({ status: 502 })
       expect(error.message).toContain('non-JSON body')
       expect(error.message).toContain('HTTP 200')
+    })
+
+    it('answers an error body that dies mid-stream as the typed error, not a raw TypeError', async () => {
+      // The upstream already answered non-2xx; the connection then resets
+      // while the error body streams, so `response.text()` rejects with a
+      // raw `TypeError: terminated`. That must not escape — the contract
+      // (and the README's status table) keys on LtxVideoError.status.
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 502,
+        headers: new Headers(),
+        text: vi.fn().mockRejectedValue(new TypeError('terminated')),
+      })
+      const error = (await bond.generate({ prompt: 'p' }).catch((e: unknown) => e)) as Error
+      expect(error).toBeInstanceOf(LtxVideoError)
+      expect(error).toMatchObject({ status: 502 })
+      expect(error.message).toContain('HTTP 502')
+    })
+
+    it('answers a failed upload PUT whose error body dies mid-stream as the typed error', async () => {
+      mockFetch.mockImplementation(async (url: string | URL) => {
+        const u = url.toString()
+        if (u === 'https://api.ltx.io/v1/upload') {
+          return mockJsonResponse({
+            upload_url: 'https://storage.example/ltx-uploads/u1',
+            storage_uri: 'ltx://uploads/u1',
+          })
+        }
+        // The pre-signed PUT answers 500, then its body read dies mid-stream.
+        return {
+          ok: false,
+          status: 500,
+          headers: new Headers(),
+          text: vi.fn().mockRejectedValue(new TypeError('terminated')),
+        }
+      })
+      const error = (await bond
+        .generate({ prompt: 'p', image: PNG })
+        .catch((e: unknown) => e)) as Error
+      expect(error).toBeInstanceOf(LtxVideoError)
+      expect(error).toMatchObject({ status: 500 })
     })
   })
 })
