@@ -20,6 +20,7 @@ const {
   mockFindById,
   mockFindOne,
   mockUpdateById,
+  mockUpdateMany,
   mockStoreCreate,
   mockT,
   mockCompare,
@@ -28,6 +29,7 @@ const {
   mockResourceUpdate,
   mockSign,
   mockGetConfig,
+  mockTwoFactorVerify,
 } = vi.hoisted(() => ({
   mockGet: vi.fn(),
   mockGetAnalytics: vi.fn(() => ({
@@ -42,6 +44,7 @@ const {
   mockFindById: vi.fn(),
   mockFindOne: vi.fn(),
   mockUpdateById: vi.fn(),
+  mockUpdateMany: vi.fn(),
   mockStoreCreate: vi.fn(),
   mockT: vi.fn((key: string) => key),
   mockCompare: vi.fn(),
@@ -53,6 +56,7 @@ const {
     if (key === 'NODE_ENV') return 'production'
     return undefined
   }),
+  mockTwoFactorVerify: vi.fn(),
 }))
 
 vi.mock('@molecule/api-bond', () => ({
@@ -65,7 +69,12 @@ vi.mock('@molecule/api-database', () => ({
   findById: mockFindById,
   findOne: mockFindOne,
   updateById: mockUpdateById,
+  updateMany: mockUpdateMany,
   create: mockStoreCreate,
+}))
+
+vi.mock('@molecule/api-two-factor', () => ({
+  verify: mockTwoFactorVerify,
 }))
 
 vi.mock('@molecule/api-i18n', () => ({
@@ -531,7 +540,7 @@ describe('logIn handler — password reset token', () => {
     expect(crypto.timingSafeEqual).toHaveBeenCalledTimes(1)
   })
 
-  it('should clear the reset token BEFORE granting authentication', async () => {
+  it('should consume the reset token BEFORE granting authentication, WHERE-guarded on the verified value', async () => {
     const now = Date.now()
     const callOrder: string[] = []
 
@@ -541,9 +550,9 @@ describe('logIn handler — password reset token', () => {
       passwordResetToken: storedResetToken,
       passwordResetTokenAt: new Date(now - 1000 * 60 * 5).toISOString(),
     })
-    mockUpdateById.mockImplementation(async () => {
-      callOrder.push('updateById')
-      return { affected: 1 }
+    mockUpdateMany.mockImplementation(async () => {
+      callOrder.push('updateMany')
+      return { data: null, affected: 1 }
     })
     mockGet.mockReturnValue({
       createOrUpdate: vi.fn().mockImplementation(async () => {
@@ -564,22 +573,49 @@ describe('logIn handler — password reset token', () => {
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
     expect(result?.statusCode).toBe(200)
-    // updateById (clear token) must happen BEFORE authorization.set (grant auth).
-    const clearIndex = callOrder.indexOf('updateById')
+    // The guarded consume must happen BEFORE authorization.set (grant auth).
+    const clearIndex = callOrder.indexOf('updateMany')
     const authIndex = callOrder.indexOf('authorization.set')
     expect(clearIndex).toBeGreaterThanOrEqual(0)
     expect(authIndex).toBeGreaterThanOrEqual(0)
     expect(clearIndex).toBeLessThan(authIndex)
 
-    // The updateById call should set the token fields to null.
-    expect(mockUpdateById).toHaveBeenCalledWith(
+    // The clear is WHERE-guarded on the token value that was just verified, so
+    // only ONE concurrent request holding the token can ever match a row.
+    expect(mockUpdateMany).toHaveBeenCalledWith(
       'usersSecrets',
-      userId,
-      expect.objectContaining({
-        passwordResetToken: null,
-        passwordResetTokenAt: null,
-      }),
+      [
+        { field: 'id', operator: '=', value: userId },
+        { field: 'passwordResetToken', operator: '=', value: storedResetToken },
+      ],
+      { passwordResetToken: null, passwordResetTokenAt: null },
     )
+  })
+
+  it('refuses authentication when the guarded consume matches no row — another request spent the token first', async () => {
+    const now = Date.now()
+    mockFindOne.mockResolvedValue({ id: userId, username: 'testuser' })
+    mockFindById.mockResolvedValue({
+      id: userId,
+      passwordResetToken: storedResetToken,
+      passwordResetTokenAt: new Date(now - 1000 * 60 * 5).toISOString(),
+    })
+    // The WHERE-guarded UPDATE matched nothing: a concurrent request already
+    // flipped the stored token to NULL between this request's read and write.
+    // Pre-fix the unconditional clear "succeeded" and BOTH requests got in.
+    mockUpdateMany.mockResolvedValue({ data: null, affected: 0 })
+
+    const req = makeReq({
+      body: { username: 'testuser', passwordResetToken: resetToken },
+    })
+    const res = makeRes()
+
+    const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
+
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body?.errorKey).toBe('user.error.invalidCredentials')
+    // No session was minted for the loser of the race.
+    expect(mockGet).not.toHaveBeenCalled()
   })
 
   it('should reject expired reset tokens (older than 1 hour)', async () => {
@@ -619,6 +655,89 @@ describe('logIn handler — password reset token', () => {
     const result = await handler(req as MoleculeRequest, res as MoleculeResponse)
 
     expect(result?.statusCode).toBe(403)
+  })
+})
+
+// ===== 4b. Single-use consumption must be ATOMIC (logIn.ts) ==================
+//
+// Both the reset token and the 2FA time step were previously consumed with an
+// unconditional write after a read-check — two concurrent requests holding the
+// same token/code both passed the check, both wrote, and both minted sessions.
+
+describe('logIn handler — 2FA replay guard is atomic', () => {
+  const handler = logIn(testResource)
+  const userId = 'user-2fa'
+  const CONSUMED_STEP = 4242
+
+  /** Wire mocks for a 2FA-enabled user whose password is correct. */
+  function setUp2fa(secrets: Record<string, unknown>): void {
+    mockFindOne.mockResolvedValue({ id: userId, username: 'twofauser', twoFactorEnabled: true })
+    mockFindById.mockResolvedValue({ id: userId, passwordHash: 'hash', ...secrets })
+    mockCompare.mockResolvedValue(true)
+    mockTwoFactorVerify.mockResolvedValue({ valid: true, timeStep: CONSUMED_STEP })
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+  }
+
+  it('persists the consumed step with a WHERE-guarded update (stored step < consumed step)', async () => {
+    setUp2fa({ twoFactorSecret: 'SECRET', lastTwoFactorTimeStep: CONSUMED_STEP - 1 })
+    mockUpdateMany.mockResolvedValue({ data: null, affected: 1 })
+
+    const req = makeReq({
+      body: { username: 'twofauser', password: 'correct', twoFactorToken: '123456' },
+    })
+    const result = await handler(req as MoleculeRequest, makeRes())
+
+    expect(mockTwoFactorVerify).toHaveBeenCalledWith(
+      expect.objectContaining({ token: '123456', afterTimeStep: CONSUMED_STEP - 1 }),
+    )
+    expect(mockUpdateMany).toHaveBeenCalledWith(
+      'usersSecrets',
+      [
+        { field: 'id', operator: '=', value: userId },
+        { field: 'lastTwoFactorTimeStep', operator: '<', value: CONSUMED_STEP },
+      ],
+      { lastTwoFactorTimeStep: CONSUMED_STEP },
+    )
+    expect(result?.statusCode).toBe(200)
+  })
+
+  it('refuses the login when the guarded write matches no row — the same code was replayed concurrently', async () => {
+    setUp2fa({ twoFactorSecret: 'SECRET', lastTwoFactorTimeStep: CONSUMED_STEP - 1 })
+    // Both concurrent logins read the stale step, both pass verify() for the
+    // same code; the winner already wrote CONSUMED_STEP, so the loser's
+    // `stored < CONSUMED_STEP` matches nothing (affected 0). Pre-fix the
+    // unconditional write "succeeded" and BOTH sessions were minted.
+    mockUpdateMany.mockResolvedValue({ data: null, affected: 0 })
+
+    const req = makeReq({
+      body: { username: 'twofauser', password: 'correct', twoFactorToken: '123456' },
+    })
+    const result = await handler(req as MoleculeRequest, makeRes())
+
+    expect(result?.statusCode).toBe(403)
+    expect(result?.body?.errorKey).toBe('user.error.invalidTwoFactorToken')
+    // No session minted for the replay.
+    expect(mockGet).not.toHaveBeenCalled()
+  })
+
+  it('a first 2FA login (NULL stored step) consumes via is_null, not a < comparison', async () => {
+    setUp2fa({ twoFactorSecret: 'SECRET' }) // no lastTwoFactorTimeStep → NULL
+    mockUpdateMany.mockResolvedValue({ data: null, affected: 1 })
+
+    const req = makeReq({
+      body: { username: 'twofauser', password: 'correct', twoFactorToken: '123456' },
+    })
+    const result = await handler(req as MoleculeRequest, makeRes())
+
+    expect(mockUpdateMany).toHaveBeenCalledWith(
+      'usersSecrets',
+      [
+        { field: 'id', operator: '=', value: userId },
+        { field: 'lastTwoFactorTimeStep', operator: 'is_null' },
+      ],
+      { lastTwoFactorTimeStep: CONSUMED_STEP },
+    )
+    expect(result?.statusCode).toBe(200)
   })
 })
 

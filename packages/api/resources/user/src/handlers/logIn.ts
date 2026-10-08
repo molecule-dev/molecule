@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
-import { findById, findOne, updateById } from '@molecule/api-database'
+import { findById, findOne, updateMany, type WhereCondition } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import { compare, hash } from '@molecule/api-password'
 import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
@@ -138,13 +138,21 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
           if (secrets.passwordResetTokenAt) {
             const tokenAge = Date.now() - new Date(secrets.passwordResetTokenAt).getTime()
             if (tokenAge < 1000 * 60 * 60) {
-              // Clear the reset token BEFORE granting auth to prevent concurrent
-              // replay — two requests with the same token must not both succeed.
-              await updateById(`${tableName}Secrets`, user.id, {
-                passwordResetToken: null,
-                passwordResetTokenAt: null,
-              })
-              authenticated = true
+              // Consume the token ATOMICALLY: the clear is WHERE-guarded on the
+              // very token value that was just verified, so of two concurrent
+              // requests holding the same token only the one that flips it to
+              // NULL matches a row — the other sees affected 0 and is refused.
+              // (A plain updateById cleared "whatever is there", so both
+              // requests passed and both minted sessions.)
+              const consumed = await updateMany(
+                `${tableName}Secrets`,
+                [
+                  { field: 'id', operator: '=', value: user.id },
+                  { field: 'passwordResetToken', operator: '=', value: secrets.passwordResetToken },
+                ],
+                { passwordResetToken: null, passwordResetTokenAt: null },
+              )
+              if (consumed.affected === 1) authenticated = true
             }
           }
         }
@@ -190,12 +198,42 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
             }
           }
 
-          // Persist the consumed time step so the same code cannot be replayed
-          // on another session/endpoint within its validity window.
+          // Persist the consumed time step ATOMICALLY so the same code cannot
+          // be replayed on another session/endpoint within its validity window.
+          // The UPDATE only matches while the stored step is still OLDER than
+          // the one being consumed (or NULL — the first 2FA login), so of two
+          // concurrent logins replaying the same code — both read the same
+          // stale step, both pass verify() — exactly one wins the row; the
+          // loser's guarded write matches nothing and is refused as a replay.
           if (verifyResult.timeStep !== undefined) {
-            await updateById(`${tableName}Secrets`, user.id, {
+            // `?? null` also maps a runtime NULL (the column is NULL until the
+            // first 2FA login; logInOAuth writes it as null on creation) to the
+            // is_null branch — SQL `NULL < step` matches no row, so a plain `<`
+            // comparison would refuse every FIRST 2FA login.
+            const previousStep = secrets.lastTwoFactorTimeStep ?? null
+            const stepWhere: WhereCondition[] = [{ field: 'id', operator: '=', value: user.id }]
+            if (previousStep === null) {
+              stepWhere.push({ field: 'lastTwoFactorTimeStep', operator: 'is_null' })
+            } else {
+              stepWhere.push({
+                field: 'lastTwoFactorTimeStep',
+                operator: '<',
+                value: verifyResult.timeStep,
+              })
+            }
+            const consumed = await updateMany(`${tableName}Secrets`, stepWhere, {
               lastTwoFactorTimeStep: verifyResult.timeStep,
             })
+            if (consumed.affected !== 1) {
+              analytics.track({ name: 'user.two_factor_failed', userId: user.id }).catch(() => {})
+              return {
+                statusCode: 403,
+                body: {
+                  error: t('user.error.invalidTwoFactorToken'),
+                  errorKey: 'user.error.invalidTwoFactorToken',
+                },
+              }
+            }
           }
         } catch (error) {
           logger.error('2FA verification failed:', error)
