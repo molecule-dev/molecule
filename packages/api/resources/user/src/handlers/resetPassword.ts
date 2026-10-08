@@ -1,7 +1,7 @@
 import crypto from 'node:crypto'
 
 import { get, getAnalytics, getLogger } from '@molecule/api-bond'
-import { findOne, updateById } from '@molecule/api-database'
+import { findOne, updateMany } from '@molecule/api-database'
 import { t } from '@molecule/api-i18n'
 import { hash } from '@molecule/api-password'
 import type { MoleculeRequest } from '@molecule/api-resource'
@@ -33,6 +33,12 @@ export interface ResetPasswordRequest extends MoleculeRequest {
  *
  * On success, all existing device sessions are invalidated to force a fresh login,
  * mirroring the behavior of `updatePassword`.
+ *
+ * The new password and the token clear are written as ONE WHERE-guarded update
+ * matching the verified token hash, so the link is consumed atomically: of two
+ * concurrent requests holding the same link, only the one that flips the token
+ * to NULL matches a row — the other is refused with 401 and cannot overwrite
+ * the winner's password.
  *
  * @param resource - The user resource configuration (name, tableName, schema).
  * @param resource.tableName - The database table name for users.
@@ -140,11 +146,36 @@ export const resetPassword = ({ name: _name, tableName, schema: _schema }: types
       }
 
       const passwordHash = await hash(password)
-      await updateById(`${tableName}Secrets`, userId, {
-        passwordHash,
-        passwordResetToken: null,
-        passwordResetTokenAt: null,
-      })
+      // Consume the link ATOMICALLY: the password write and the token clear
+      // are one WHERE-guarded update matching the very token hash that was
+      // just verified, so of two concurrent requests holding the same link
+      // only the one that flips the token to NULL matches a row — the loser's
+      // write hits nothing and is refused below, instead of silently
+      // overwriting the winner's password with its own (a plain updateById
+      // let both requests "succeed": last write won and both got a 200).
+      const consumed = await updateMany(
+        `${tableName}Secrets`,
+        [
+          { field: 'id', operator: '=', value: userId },
+          { field: 'passwordResetToken', operator: '=', value: tokenHash },
+        ],
+        {
+          passwordHash,
+          passwordResetToken: null,
+          passwordResetTokenAt: null,
+        },
+      )
+
+      if (consumed.affected !== 1) {
+        // Another request spent this link between our read and this write.
+        return {
+          statusCode: 401,
+          body: {
+            error: t('user.error.invalidToken'),
+            errorKey: 'user.error.invalidToken',
+          },
+        }
+      }
 
       try {
         await get<{ deleteByUserId(userId: string): Promise<void> }>('device')?.deleteByUserId(

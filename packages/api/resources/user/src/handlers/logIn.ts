@@ -122,6 +122,15 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       let authenticated = false
+      // Whether authentication came from the one-time reset token (as opposed
+      // to a reusable password): its consumption is DEFERRED until every
+      // challenge that can still bounce the request (the 2FA challenge below)
+      // has passed, and then happens atomically before any session is minted.
+      // Consuming it up front burned the link on the 206 two-factor challenge,
+      // so the documented retry (same body plus `twoFactorToken`) always found
+      // a NULL token and could never complete the login — every attempt spent
+      // a fresh reset link for nothing.
+      let authenticatedByResetToken = false
 
       // Try password authentication.
       if (body.password && secrets.passwordHash) {
@@ -130,6 +139,7 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
 
       // Try password reset token (constant-time comparison to prevent timing
       // attacks). The stored value is sha256(token) — hash the incoming one.
+      // Read-only here: the TTL is checked, but the token is NOT consumed yet.
       if (!authenticated && body.passwordResetToken && secrets.passwordResetToken) {
         const a = Buffer.from(hashResetToken(body.passwordResetToken), 'utf-8')
         const b = Buffer.from(secrets.passwordResetToken, 'utf-8')
@@ -138,21 +148,8 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
           if (secrets.passwordResetTokenAt) {
             const tokenAge = Date.now() - new Date(secrets.passwordResetTokenAt).getTime()
             if (tokenAge < 1000 * 60 * 60) {
-              // Consume the token ATOMICALLY: the clear is WHERE-guarded on the
-              // very token value that was just verified, so of two concurrent
-              // requests holding the same token only the one that flips it to
-              // NULL matches a row — the other sees affected 0 and is refused.
-              // (A plain updateById cleared "whatever is there", so both
-              // requests passed and both minted sessions.)
-              const consumed = await updateMany(
-                `${tableName}Secrets`,
-                [
-                  { field: 'id', operator: '=', value: user.id },
-                  { field: 'passwordResetToken', operator: '=', value: secrets.passwordResetToken },
-                ],
-                { passwordResetToken: null, passwordResetTokenAt: null },
-              )
-              if (consumed.affected === 1) authenticated = true
+              authenticated = true
+              authenticatedByResetToken = true
             }
           }
         }
@@ -242,6 +239,39 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
             body: {
               error: t('user.error.twoFactorVerificationUnavailable'),
               errorKey: 'user.error.twoFactorVerificationUnavailable',
+            },
+          }
+        }
+      }
+
+      // Consume the one-time reset token ATOMICALLY, now that every challenge
+      // that can still refuse the request has passed: the clear is
+      // WHERE-guarded on the very token value that was verified above, so of
+      // two concurrent requests holding the same token only the one that
+      // flips it to NULL matches a row — the other sees affected 0 and is
+      // refused instead of minting a session. (A plain updateById cleared
+      // "whatever is there", so both requests passed and both minted
+      // sessions.) This must stay AFTER the 2FA gate — a 206 challenge must
+      // not burn the link, the retry needs it — and BEFORE any session is
+      // minted below.
+      if (authenticatedByResetToken) {
+        const consumed = await updateMany(
+          `${tableName}Secrets`,
+          [
+            { field: 'id', operator: '=', value: user.id },
+            { field: 'passwordResetToken', operator: '=', value: secrets.passwordResetToken },
+          ],
+          { passwordResetToken: null, passwordResetTokenAt: null },
+        )
+        if (consumed.affected !== 1) {
+          analytics
+            .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
+            .catch(() => {})
+          return {
+            statusCode: 403,
+            body: {
+              error: t('user.error.invalidCredentials'),
+              errorKey: 'user.error.invalidCredentials',
             },
           }
         }
