@@ -193,6 +193,35 @@ describe('KandinskyVideoGenerationProvider', () => {
         status: 502,
       })
     })
+
+    it('refuses to mint a handle whose id getStatus() could never poll back', async () => {
+      // generate() is the only place handles are minted, so the shape guard
+      // getStatus() enforces must hold THERE: an upstream id carrying a dot
+      // segment, empty segment, "?" or "#" would otherwise spend the GPU run
+      // and hand back a handle every later getStatus() rejects as "not a
+      // valid Kandinsky job id" — an un-pollable job whose error blames the
+      // caller for passing exactly what generate() returned.
+      for (const id of [
+        '..',
+        '.',
+        '%2e%2e',
+        '.%2e',
+        '%2E',
+        'job-9?redirect=/v1/upload',
+        'job-9#fragment',
+        'job-9//extra',
+        'job-9/.',
+      ]) {
+        mockFetch.mockResolvedValue(mockJsonResponse({ id }))
+        await expect(bond.generate({ prompt: 'p' })).rejects.toMatchObject({
+          name: 'KandinskyVideoError',
+          status: 502,
+        })
+      }
+      // A plain id still round-trips.
+      mockFetch.mockResolvedValue(mockJsonResponse({ id: 'video-123' }))
+      await expect(bond.generate({ prompt: 'p' })).resolves.toMatchObject({ id: 'video-123' })
+    })
   })
 
   // =========================================================================
@@ -316,6 +345,37 @@ describe('KandinskyVideoGenerationProvider', () => {
     it('throws on an unrecognized status word instead of polling forever', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'v', status: 'cancelled' }))
       await expect(bond.getStatus('v')).rejects.toThrow(/unrecognized job status "cancelled"/)
+    })
+
+    it('rejects a job id whose shape would traverse or re-shape the poll URL', async () => {
+      // The id is interpolated into `/v1/videos/{id}` on an AUTHENTICATED
+      // request (the Bearer rides along when an API key is configured), and
+      // `encodeURIComponent` does NOT encode `.`: a job id of `..` survives
+      // encoding whole and Node's WHATWG URL parser pops the segment —
+      // `/v1/videos/..` normalizes to `/v1/` — so the GET lands on another
+      // path of the configured host and whatever answers there rides back
+      // inside the typed error detail. The percent-encoded spellings matter
+      // equally (`%2e%2e`/`.%2e`/`%2e.` normalize exactly like `..`), and
+      // `?`/`#` would start a query or fragment. All must be refused before
+      // any request leaves the process.
+      for (const hostile of [
+        '..',
+        '.',
+        '%2e',
+        '%2E%2E',
+        '.%2e',
+        'job/../v1',
+        'job-9?redirect=/v1/upload',
+        'job-9#fragment',
+        'job-9//extra',
+        'job-9/%2e%2e',
+      ]) {
+        await expect(bond.getStatus(hostile)).rejects.toMatchObject({
+          name: 'KandinskyVideoError',
+          status: 400,
+        })
+      }
+      expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it('re-polling a finished job behind auth does not download the MP4 again', async () => {

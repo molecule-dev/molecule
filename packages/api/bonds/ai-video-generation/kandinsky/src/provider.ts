@@ -47,6 +47,39 @@ export const DEFAULT_TIMEOUT_MS = 300_000
  */
 const CONTENT_CACHE_MAX = 8
 
+/**
+ * A whole path segment the WHATWG URL parser (what Node's `fetch` does with
+ * the URL string) treats as a dot segment: the literal single/double-dot
+ * forms plus every percent-encoded spelling, case-insensitive (URL Standard,
+ * path state: single-dot is `.`/`%2e`, double-dot is `..`/`.%2e`/`%2e.`/
+ * `%2e%2e`). A double-dot segment POPS a path segment during normalization,
+ * so `%2e%2e` traverses exactly like a literal `..` — and `encodeURIComponent`
+ * encodes neither `.` nor `%`, so the encoded spellings must be rejected just
+ * like the literal ones.
+ */
+const DOT_SEGMENT = /^(?:\.|%2e){1,2}$/i
+
+/**
+ * Whether a job id can serve as the `/v1/videos/{id}` path tail this bond
+ * interpolates it into: `?`/`#` would start a query or fragment, an empty
+ * `//` segment is not a shape the poll path carries, and a dot segment
+ * (literal or percent-encoded — see {@link DOT_SEGMENT}) would walk the
+ * authenticated request out of the videos path with this bond's Bearer key.
+ * Both ends enforce it: `generate()` before minting a handle, `getStatus()`
+ * again on what the caller passes back — so every handle `generate()`
+ * returns round-trips.
+ *
+ * @param jobId - The job id to check.
+ * @returns `true` when the id can be used as a path tail.
+ */
+function isPollableJobId(jobId: string): boolean {
+  return (
+    !jobId.includes('?') &&
+    !jobId.includes('#') &&
+    !jobId.split('/').some((segment) => segment === '' || DOT_SEGMENT.test(segment))
+  )
+}
+
 /** Shape of a vLLM-Omni `POST /v1/videos` response (only `id` is load-bearing). */
 interface KandinskySubmitResponse {
   id?: string | null
@@ -268,6 +301,17 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
         502,
       )
     }
+    if (!isPollableJobId(data.id)) {
+      // Enforce at the mint what getStatus()'s guard demands on the way back:
+      // without this, an upstream id like ".." would spend the GPU run and
+      // hand out a handle every later getStatus() refuses — an un-pollable
+      // job whose error blames the caller for passing exactly what
+      // generate() returned.
+      throw new KandinskyVideoError(
+        `Kandinsky server returned a job id from POST /v1/videos that this bond cannot poll back ("${data.id}") — job ids must not contain dot segments (including "%2e" spellings), empty segments, "?" or "#".`,
+        502,
+      )
+    }
     return { id: data.id, model, createdAt: toIso(data.created_at) }
   }
 
@@ -283,8 +327,18 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
    *
    * @param jobId - The job id returned by `generate()` (the server's own id).
    * @returns The normalized job status.
+   * @throws {KandinskyVideoError} When the id could never have come from
+   *   `generate()` (a dot segment — the URL parser would walk this
+   *   authenticated GET out of the videos path — or a `?`/`#`/empty segment),
+   *   before any request leaves the process.
    */
   async getStatus(jobId: string): Promise<VideoJobStatus> {
+    if (!isPollableJobId(jobId)) {
+      throw new KandinskyVideoError(
+        `"${jobId}" is not a valid Kandinsky job id — the id must not contain dot segments (including "%2e" spellings), empty segments, "?" or "#".`,
+        400,
+      )
+    }
     const cfg = this.resolveConfig()
     const data = (await this.call(
       cfg,
