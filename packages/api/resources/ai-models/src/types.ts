@@ -377,6 +377,26 @@ export interface ModelDefinition {
     /** Fast-mode prompt-cache write price per million tokens in USD. */
     cacheWritePricePerMTok: number
   }
+  /**
+   * Long-context pricing — models priced BY PROMPT LENGTH (Claude Haiku 5.5: 5× above 100K prompt tokens). A request
+   * whose prompt (fresh input + cache read + cache write tokens) EXCEEDS `aboveInputTokens` bills ALL of its tokens at
+   * these rates, not just the excess. Resolved by `modelRegionRates(model, region, at, promptTokens)`; callers must pass
+   * ONE provider call's prompt size, never a multi-call sum. All four rates are required for the same never-under-meter
+   * reasons as the base rates. A model with a staged `scheduledPricing` change or a region override restates this band
+   * itself when the long-context rates move; today the band applies on top of the base rates only.
+   */
+  longContextPricing?: {
+    /** A prompt larger than this many tokens bills at the long-context rates. */
+    aboveInputTokens: number
+    /** Long-context input price per million uncached tokens in USD. */
+    inputPricePerMTok: number
+    /** Long-context output price per million tokens in USD. */
+    outputPricePerMTok: number
+    /** Long-context prompt-cache read price per million tokens in USD. */
+    cacheReadPricePerMTok: number
+    /** Long-context prompt-cache write price per million tokens in USD. */
+    cacheWritePricePerMTok: number
+  }
   /** Reliable knowledge cutoff date (YYYY-MM-DD). */
   knowledgeCutoff: string
   /**

@@ -1306,3 +1306,47 @@ describe('default processing region', () => {
     expect(k3.freeTierRegions).toBeUndefined()
   })
 })
+
+describe('long-context pricing (models priced by prompt length)', () => {
+  const haiku = MODELS.find((m) => m.id === 'claude-haiku-5-5')!
+
+  it('claude-haiku-5-5 declares the 5x band above 100K prompt tokens', () => {
+    expect(haiku.longContextPricing).toEqual({
+      aboveInputTokens: 100_000,
+      inputPricePerMTok: 0.5,
+      outputPricePerMTok: 2.5,
+      cacheReadPricePerMTok: 0.05,
+      cacheWritePricePerMTok: 0.625,
+    })
+  })
+
+  it('a prompt at the threshold bills the base rates; one token over bills the long band', () => {
+    expect(modelRegionRates(haiku, undefined, undefined, 100_000).inputPricePerMTok).toBe(0.1)
+    const over = modelRegionRates(haiku, undefined, undefined, 100_001)
+    expect(over).toEqual({
+      inputPricePerMTok: 0.5,
+      outputPricePerMTok: 2.5,
+      cacheReadPricePerMTok: 0.05,
+      cacheWritePricePerMTok: 0.625,
+    })
+  })
+
+  it('without a prompt size the base rates apply, and models without a band never change', () => {
+    expect(modelRegionRates(haiku).inputPricePerMTok).toBe(0.1)
+    const plain = MODELS.find((m) => !m.longContextPricing)!
+    expect(modelRegionRates(plain, undefined, undefined, 5_000_000)).toEqual(
+      modelRegionRates(plain),
+    )
+  })
+
+  it('every declared band is complete and strictly dearer than the base rates', () => {
+    for (const m of MODELS.filter((x) => x.longContextPricing)) {
+      const band = m.longContextPricing!
+      expect(band.aboveInputTokens, m.id).toBeGreaterThan(0)
+      expect(band.inputPricePerMTok, m.id).toBeGreaterThan(m.inputPricePerMTok)
+      expect(band.outputPricePerMTok, m.id).toBeGreaterThan(m.outputPricePerMTok)
+      expect(band.cacheReadPricePerMTok, m.id).toBeGreaterThan(0)
+      expect(band.cacheWritePricePerMTok, m.id).toBeGreaterThan(0)
+    }
+  })
+})

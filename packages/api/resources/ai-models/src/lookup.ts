@@ -305,19 +305,34 @@ export interface ModelTokenRates {
  * each request's own timestamp, the same way it must for
  * {@link priceMultiplierAt}.
  *
+ * A model priced by prompt length ({@link ModelDefinition.longContextPricing}) bills a request whose
+ * `promptTokens` EXCEED the threshold at the long-context rates (all of its tokens, not the excess). Pass ONE
+ * provider call's prompt size (fresh input + cache read + cache write); omit it and the base rates apply.
+ *
  * @param modelDef - The model definition.
  * @param requested - The user's per-model region choice, if any.
  * @param at - The instant to price at (defaults to now).
+ * @param promptTokens - The request's prompt size in tokens, when the caller knows it.
  * @returns The region-effective rates.
  */
 export function modelRegionRates(
   modelDef: ModelDefinition,
   requested?: string,
   at: Date = new Date(),
+  promptTokens?: number,
 ): ModelTokenRates {
   const region = effectiveModelRegion(modelDef, requested)
   const override = modelDef.regionPricing?.[region]
   if (!override) {
+    const longBand = modelDef.longContextPricing
+    if (longBand && typeof promptTokens === 'number' && promptTokens > longBand.aboveInputTokens) {
+      return {
+        inputPricePerMTok: longBand.inputPricePerMTok,
+        outputPricePerMTok: longBand.outputPricePerMTok,
+        cacheReadPricePerMTok: longBand.cacheReadPricePerMTok,
+        cacheWritePricePerMTok: longBand.cacheWritePricePerMTok,
+      }
+    }
     return effectiveBaseRates(modelDef, at)
   }
   return {

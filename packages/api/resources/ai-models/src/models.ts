@@ -869,11 +869,17 @@ export const MODELS: readonly ModelDefinition[] = [
     // Standard 0.1× cache read = $0.01; 5m cache write the usual 1.25× =
     // $0.125 (pricing page, verified 2026-10-08). The FIRST Anthropic model
     // priced BY PROMPT LENGTH: prompts over 100K tokens pay 5× ($0.50/$2.50,
-    // cache $0.05/$0.625). The catalog has no context-band dimension, so that
-    // band is NOT modeled — same precedent as the Gemini/Grok >200K and
-    // GPT-6 >272K tiers — and a >100K conversation under-charges its input.
+    // cache $0.05/$0.625) for the WHOLE request — modeled by longContextPricing,
+    // which metering applies from the call's prompt size.
     cacheReadPricePerMTok: 0.01,
     cacheWritePricePerMTok: 0.125,
+    longContextPricing: {
+      aboveInputTokens: 100_000,
+      inputPricePerMTok: 0.5,
+      outputPricePerMTok: 2.5,
+      cacheReadPricePerMTok: 0.05,
+      cacheWritePricePerMTok: 0.625,
+    },
     // Reliable + training-data cutoff Jun 2026 (model page "Specifications").
     knowledgeCutoff: '2026-06-01',
   },
