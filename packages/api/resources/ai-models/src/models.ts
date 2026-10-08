@@ -178,8 +178,9 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   moves claude-haiku-4-5 to "Legacy models (still available)" → superseded.
  *   Model page + pricing page: $0.10/$0.50 per MTok for prompts up to 100K
  *   tokens — the first Anthropic model priced BY PROMPT LENGTH (over 100K:
- *   $0.50/$2.50, cache read $0.05, 5m write $0.625; not modeled, same as the
- *   Gemini/Grok >200K and GPT-6 >272K bands) — 5m cache write $0.125, cache
+ *   $0.50/$2.50, cache read $0.05, 5m write $0.625 — modeled by
+ *   `longContextPricing`; the Gemini/Grok >200K and GPT-6 >272K bands are
+ *   NOT) — 5m cache write $0.125, cache
  *   hits $0.01 (standard 0.1×), web search $10/1k. 1M ctx / 128K out, text +
  *   image input, reliable knowledge cutoff Jun 2026. Effort page: all five
  *   levels, default MEDIUM. Model page "Good to know": non-default
