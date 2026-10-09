@@ -43,6 +43,40 @@ import { decodeWavToMono16k, FloatBlockResampler } from './wav.js'
 const STREAM_BLOCK_SAMPLES = WHISTLE_SAMPLE_RATE
 
 /**
+ * The engine keeps its streaming state (rolling audio, the two-pass agreement)
+ * inside ONE process-global wasm instance — `streamProcess` appends to it and
+ * `streamStop` ends it, with no session handle — so two concurrent
+ * `transcribeStream` calls would interleave their audio into that single
+ * state: one caller's words would be committed into the other's transcript,
+ * and the first `streamStop` would end the other's session mid-dictation.
+ * Since the engine is module-global (every provider instance shares it), the
+ * guard is module-global too: a stream session holds this FIFO gate from its
+ * FIRST block until its stop, and a concurrent session queues behind it
+ * instead of corrupting it. Taken lazily — at the first processed block, not
+ * at generator start — so a caller whose transport stalls before sending
+ * audio never blocks anyone.
+ */
+let engineStreamTail: Promise<void> = Promise.resolve()
+
+/**
+ * Waits until the engine's single stream session is free.
+ *
+ * @returns The session's release function — call exactly once, after this
+ *   session's last engine stream call (`streamProcess` or `streamStop`) has
+ *   been made.
+ */
+async function acquireEngineStreamSession(): Promise<() => void> {
+  const wait = engineStreamTail
+  let release!: () => void
+  const done = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  engineStreamTail = wait.then(() => done)
+  await wait
+  return release
+}
+
+/**
  * Maps a BCP-47 or ISO 639-1 language to Whistle's set, or null to detect.
  * @param language - The requested language, when given.
  * @returns The base code, or null for auto-detection.
@@ -146,6 +180,13 @@ class WhistleSpeechProvider implements AISpeechProvider {
   /**
    * Transcribe live PCM16 audio in-process.
    *
+   * The engine carries ONE stream session per process, so concurrent
+   * transcriptions are SERIALIZED through it (see {@link engineStreamTail}): a
+   * session holds the engine from its first processed block until its stop,
+   * and a concurrent caller's session queues behind it — audio already
+   * delivered to this generator waits in the resampler, and audio not yet
+   * pulled waits in the caller's transport.
+   *
    * @param audio - Raw PCM16 LE mono chunks at `params.sampleRate` Hz
    *   (resampled to 16 kHz here).
    * @param params - Streaming parameters. `language` forces one of the seven
@@ -192,6 +233,15 @@ class WhistleSpeechProvider implements AISpeechProvider {
     let lastPending: string | null = null
     let stopped = false
     let streamEnded = false
+    // This session's hold on the engine's single stream — null until the first
+    // block is actually processed (a transport that stalls before sending
+    // audio never takes the gate). `sessionStarted` distinguishes "holds the
+    // gate and HAS written to the engine's stream" from "holds the gate but
+    // was aborted before the first block": only the former may call
+    // streamStop(), or the cleanup would end whichever OTHER session now owns
+    // the engine's stream.
+    let releaseSession: (() => void) | null = null
+    let sessionStarted = false
     const onAbort = (): void => {
       stopped = true
     }
@@ -207,6 +257,11 @@ class WhistleSpeechProvider implements AISpeechProvider {
         }
         for (const block of resampler.push(pcm16ToFloat(bytes))) {
           if (stopped) break
+          if (releaseSession === null) releaseSession = await acquireEngineStreamSession()
+          // The abort may have landed while this session waited for the gate —
+          // do not write to the engine's stream on behalf of a dead consumer.
+          if (stopped) break
+          sessionStarted = true
           const pass = engine.streamProcess(block, { language, keywords })
           const text = pass.text.trim()
           if (text !== '') {
@@ -225,6 +280,8 @@ class WhistleSpeechProvider implements AISpeechProvider {
       if (stopped) return
       const tailBlock = resampler.flush()
       if (tailBlock !== null && tailBlock.length > 0) {
+        if (releaseSession === null) releaseSession = await acquireEngineStreamSession()
+        sessionStarted = true
         const pass = engine.streamProcess(tailBlock, { language, keywords })
         const text = pass.text.trim()
         if (text !== '') {
@@ -232,25 +289,31 @@ class WhistleSpeechProvider implements AISpeechProvider {
           yield { type: 'delta', text }
         }
       }
-      const stop = engine.streamStop()
-      streamEnded = true
-      const tail = stop.text.trim()
-      if (tail !== '') {
-        committed += committed === '' ? tail : ` ${tail}`
-        yield { type: 'delta', text: tail }
+      if (sessionStarted) {
+        const stop = engine.streamStop()
+        streamEnded = true
+        const tail = stop.text.trim()
+        if (tail !== '') {
+          committed += committed === '' ? tail : ` ${tail}`
+          yield { type: 'delta', text: tail }
+        }
       }
       if (committed !== '') yield { type: 'final', text: committed }
     } finally {
       params.signal?.removeEventListener('abort', onAbort)
-      if (!streamEnded) {
-        // Aborted or failed mid-stream: stop the engine's stream so its
-        // buffered state does not leak into the next session. The consumer
-        // stopped listening, so a failure here has nothing to report to.
-        try {
-          engine.streamStop()
-        } catch (_error) {
-          // Cleanup on an abandoned stream — nothing left to inform.
+      if (releaseSession !== null) {
+        if (sessionStarted && !streamEnded) {
+          // Aborted or failed mid-session: stop the engine's stream so its
+          // buffered state does not leak into the next session — which is
+          // waiting on this gate right now. The consumer stopped listening,
+          // so a failure here has nothing to report to.
+          try {
+            engine.streamStop()
+          } catch (_error) {
+            // Cleanup on an abandoned stream — nothing left to inform.
+          }
         }
+        releaseSession()
       }
     }
   }

@@ -168,4 +168,29 @@ describe('the SDK client adapter normalizes Sandbox.list() shapes', () => {
     const handles = await listing
     expect(handles.map((h) => h.id)).toEqual(ids)
   })
+
+  it('caps how many sandbox connects are in flight at once', async () => {
+    // Concurrency is bounded, not unbounded: every handle is a live websocket,
+    // and a sweep that puts ALL N in flight spends N sockets and file
+    // descriptors per poll on an account with N running sandboxes. 40
+    // sandboxes with the cap at 16: overlap must happen (the previous test
+    // pins that it is not serial) but never exceed the window — the old
+    // `Promise.all` over every listing row peaks at 40 and fails this.
+    const ids = Array.from({ length: 40 }, (_, i) => `sbx-${i}`)
+    listSandbox.mockResolvedValue(ids.map((sandboxId) => ({ sandboxId, state: 'running' })))
+    let inFlight = 0
+    let peak = 0
+    connectSandbox.mockImplementation(async (id: string) => {
+      inFlight++
+      peak = Math.max(peak, inFlight)
+      await new Promise((resolve) => setTimeout(resolve, 2))
+      inFlight--
+      return fakeSandbox(id)
+    })
+
+    const handles = await provider().list('user')
+    expect(handles.map((h) => h.id)).toEqual(ids)
+    expect(peak).toBeGreaterThan(1) // concurrent, not serialized
+    expect(peak).toBeLessThanOrEqual(16) // …but bounded
+  })
 })

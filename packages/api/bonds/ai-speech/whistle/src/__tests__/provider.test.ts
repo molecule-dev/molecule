@@ -23,7 +23,7 @@ const FAKE_GLUE = `
 var createNeedle = async function () {
   var bump = 16
   var lastJson = ''
-  return {
+  var mod = {
     HEAPU8: new Uint8Array(64 * 1024 * 1024),
     _malloc: function (n) {
       if (globalThis.__whistleFake.failMallocs) return 0
@@ -41,17 +41,25 @@ var createNeedle = async function () {
       var hook = globalThis.__whistleFake
       hook.counts[name] = (hook.counts[name] || 0) + 1
       var count = hook.counts[name]
-      hook.calls.push({ name: name, args: args, call: count })
+      // First float of the audio the call was handed — lets a test tell WHICH
+      // stream session a process call belonged to (the provider copies the
+      // caller's PCM into the heap at args[0] before every audio call).
+      var marker = null
+      if (name === 'needle_transcribe' || name === 'needle_stream_transcribe_process') {
+        marker = new Float32Array(mod.HEAPU8.buffer, args[0], 1)[0]
+      }
+      hook.calls.push({ name: name, args: args, call: count, marker: marker })
       var ret = hook.returnFor(name, count)
       lastJson = ret < 0 ? 'fake engine failure' : hook.jsonFor(name, count)
       return ret
     },
   }
+  return mod
 }
 `
 
 interface FakeEngineState {
-  calls: Array<{ name: string; args: unknown[]; call: number }>
+  calls: Array<{ name: string; args: unknown[]; call: number; marker: number | null }>
   counts: Record<string, number>
   loadCalls: Array<[number, number]>
   loadResult: number
@@ -472,6 +480,88 @@ describe('WhistleSpeechProvider', () => {
     expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_process')).toHaveLength(1)
     // the finally block stopped the engine's stream so the next one starts fresh
     expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_stop')).toHaveLength(1)
+  })
+
+  it('serializes concurrent stream sessions — the engine has one stream', async () => {
+    // The wasm engine keeps the live stream (rolling audio, two-pass
+    // agreement) in ONE process-global state with no session handle, and every
+    // provider instance shares that engine. Two concurrent transcribeStream
+    // calls must therefore take turns: every block of stream B may only reach
+    // the engine AFTER stream A's stop — otherwise A's and B's audio interleave
+    // in one transcript and A's stop ends B's session mid-dictation.
+    fake.jsonFor = (name) =>
+      name === 'needle_stream_transcribe_process'
+        ? JSON.stringify({
+            text: '',
+            words: [],
+            pending: 'Hi',
+            language: 'en',
+            received: 1,
+            pass_ms: 1,
+          })
+        : JSON.stringify({
+            text: '',
+            words: [],
+            pending: '',
+            language: 'en',
+            received: 2,
+            pass_ms: 1,
+          })
+
+    // PCM16 filled with ±16384 → first float ±0.5 — the marker the fake
+    // records, attributing every engine process call to its stream.
+    const pcm16Filled = (value: number): Uint8Array => {
+      const out = new Uint8Array(2 * WHISTLE_SAMPLE_RATE * 2) // 2 s, two 1 s blocks
+      const view = new DataView(out.buffer)
+      for (let i = 0; i < out.length / 2; i++) view.setInt16(i * 2, value, true)
+      return out
+    }
+    const pcmA = pcm16Filled(16384)
+    const pcmB = pcm16Filled(-16384)
+
+    let openGateA!: () => void
+    const gateA = new Promise<void>((resolve) => {
+      openGateA = resolve
+    })
+    // Stream A's second chunk is held back until B's first block is ready, so
+    // B has every opportunity to write into the engine's stream mid-session.
+    async function* gatedA(): AsyncGenerator<Uint8Array> {
+      yield pcmA.subarray(0, WHISTLE_SAMPLE_RATE * 2)
+      await gateA
+      yield pcmA.subarray(WHISTLE_SAMPLE_RATE * 2)
+    }
+    async function* straightB(): AsyncGenerator<Uint8Array> {
+      yield pcmB.subarray(0, WHISTLE_SAMPLE_RATE * 2)
+      yield pcmB.subarray(WHISTLE_SAMPLE_RATE * 2)
+    }
+    const drain = async (gen: AsyncGenerator<TranscriptionStreamEvent>): Promise<void> => {
+      for await (const event of gen) void event
+    }
+
+    const speechA = createProvider()
+    const speechB = createProvider()
+    const doneA = drain(speechA.transcribeStream!(gatedA()))
+    await new Promise((resolve) => setTimeout(resolve, 20)) // A takes the session, parks on its gate
+    const doneB = drain(speechB.transcribeStream!(straightB()))
+    await new Promise((resolve) => setTimeout(resolve, 20)) // B's first block is ready
+    openGateA()
+    await Promise.all([doneA, doneB])
+
+    const engineCalls = fake.calls.filter(
+      (c) =>
+        c.name === 'needle_stream_transcribe_process' || c.name === 'needle_stream_transcribe_stop',
+    )
+    const firstBWrite = engineCalls.findIndex(
+      (c) => c.name === 'needle_stream_transcribe_process' && (c.marker as number) < 0,
+    )
+    const aStop = engineCalls.findIndex((c) => c.name === 'needle_stream_transcribe_stop')
+    // Both sessions ran to completion: two blocks each, one stop each.
+    expect(engineCalls.filter((c) => c.marker === 0.5)).toHaveLength(2)
+    expect(engineCalls.filter((c) => c.marker === -0.5)).toHaveLength(2)
+    expect(engineCalls.filter((c) => c.name === 'needle_stream_transcribe_stop')).toHaveLength(2)
+    // THE point: stream B's first engine write came only after stream A ended.
+    expect(firstBWrite).toBeGreaterThan(-1)
+    expect(firstBWrite).toBeGreaterThan(aStop)
   })
 
   it('reads local weights from NEEDLE_WHISTLE_WEIGHTS instead of fetching', async () => {

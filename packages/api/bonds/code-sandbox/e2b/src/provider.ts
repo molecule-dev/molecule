@@ -77,6 +77,46 @@ const EXIT_REPORT_GRACE_MS = 2_000
  */
 const EXIT_CODE_UNKNOWN = 137
 
+/**
+ * How many sandbox connects {@link E2BSandboxProvider.list} keeps in flight at
+ * once. Each handle costs a full connect round trip — on the real SDK, a live
+ * websocket to the sandbox's envd — and `list()` is what a control-plane sweep
+ * polls, so putting ALL N running sandboxes in flight at once spends N sockets
+ * and file descriptors per poll and walks straight into the API's concurrency
+ * limits. A bounded window keeps the sweep concurrent (O(⌈N/16⌉) round trips
+ * deep, not N) without the per-poll fan-out growing with the fleet.
+ */
+const LIST_CONNECT_CONCURRENCY = 16
+
+/**
+ * Maps `items` through `fn` with at most `limit` calls in flight, preserving
+ * order in the result. The first rejection propagates (the remaining
+ * in-flight calls still run to completion, their results discarded) — the
+ * same fail-fast `Promise.all` gives, without its unbounded concurrency.
+ *
+ * @param items - The items to map.
+ * @param limit - Maximum concurrent `fn` calls.
+ * @param fn - The async mapping.
+ * @returns The results, in `items` order.
+ */
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const out = new Array<R>(items.length)
+  let next = 0
+  const worker = async (): Promise<void> => {
+    for (;;) {
+      const index = next++
+      if (index >= items.length) return
+      out[index] = await fn(items[index]!)
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))
+  return out
+}
+
 /** Default lifetime for a PTY session; same reasoning as {@link DEFAULT_SPAWN_TIMEOUT_MS}. */
 const DEFAULT_PTY_TIMEOUT_MS = 60 * 60 * 1000
 /**
@@ -1230,22 +1270,21 @@ export class E2BSandboxProvider implements SandboxProvider {
     const client = await this.client()
     const running = await client.list({})
     const items = Array.isArray(running) ? running : (running.sandboxes ?? [])
-    // All the per-sandbox connects are issued CONCURRENTLY, not one awaited
-    // after the next: each `get()` is a full connect round trip, and a fleet
-    // sweep over N running sandboxes must not serialize N of them (O(N)
-    // latency on a method the control plane polls). Same semantics as the
-    // serial loop — a paused sandbox is skipped, a gone sandbox contributes
-    // no handle, any other failure still throws — just in one round-trip
-    // depth instead of N.
-    const handles = await Promise.all(
-      items.map(async (it) => {
-        // A PAUSED sandbox is deliberately skipped: building its handle means
-        // connecting, and connecting resumes it. Enumerating an account would
-        // otherwise wake — and start billing — every hibernated project on it.
-        if (it.state === 'paused') return null
-        return this.get(it.sandboxId)
-      }),
-    )
+    // All the per-sandbox connects are issued through a bounded-concurrency
+    // window, not one awaited after the next: each `get()` is a full connect
+    // round trip, and a fleet sweep over N running sandboxes must not
+    // serialize N of them (O(N) latency on a method the control plane polls) —
+    // while still not putting all N sockets in flight at once (see
+    // {@link LIST_CONNECT_CONCURRENCY}). Same semantics as the serial loop —
+    // a paused sandbox is skipped, a gone sandbox contributes no handle, any
+    // other failure still throws — in ⌈N/16⌉ round-trip depth instead of N.
+    const handles = await mapWithConcurrency(items, LIST_CONNECT_CONCURRENCY, async (it) => {
+      // A PAUSED sandbox is deliberately skipped: building its handle means
+      // connecting, and connecting resumes it. Enumerating an account would
+      // otherwise wake — and start billing — every hibernated project on it.
+      if (it.state === 'paused') return null
+      return this.get(it.sandboxId)
+    })
     return handles.filter((h): h is Sandbox => h !== null)
   }
 
