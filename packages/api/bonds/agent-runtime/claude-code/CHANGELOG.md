@@ -1,5 +1,11 @@
 # @molecule/api-agent-runtime-claude-code
 
+## 1.1.3
+
+### Patch Changes
+
+- 22f9459: Importing this server-only package into a browser bundle now fails immediately with a message naming the package, instead of a confusing error from deep inside a dependency.
+
 ## 1.1.2
 
 ### Patch Changes

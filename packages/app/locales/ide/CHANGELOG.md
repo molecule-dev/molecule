@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.5
+
+### Patch Changes
+
+- 22f9459: The `/model` usage hint lists example model ids from the live model catalog instead of a fixed, outdated set.
+
 ## 1.10.4
 
 ### Patch Changes

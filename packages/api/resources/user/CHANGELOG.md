@@ -1,5 +1,12 @@
 # @molecule/api-resource-user
 
+## 1.4.8
+
+### Patch Changes
+
+- 4e6bd12: Logging in with a password reset link now applies the same one-hour validity gate as the reset confirmation itself (a future-dated timestamp is refused, so the login path is no longer the looser gate for the same credential), and the login analytics event reports the credential that actually authenticated when a request carries both a password and a reset token.
+- ab5eb98: Password resets submitted through the emailed link are consumed atomically, and logging in with a reset link no longer spends the link on the two-factor challenge, so the retried request with the 2FA code now succeeds.
+
 ## 1.4.7
 
 ### Patch Changes

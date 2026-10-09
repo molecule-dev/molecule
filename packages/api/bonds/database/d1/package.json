@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-database-d1",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Database provider for Cloudflare D1 — SQLite on Workers, reusing the SQLite dialect with a D1-backed pool instead of a native driver.",
   "homepage": "https://www.molecule.dev/packages/api-database-d1",
   "type": "module",

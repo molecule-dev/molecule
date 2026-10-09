@@ -1,13 +1,7 @@
-# @molecule/api-git-provider
+# @molecule/api-model-hosting-modal
 
-## 1.0.6
+## 1.0.1
 
 ### Patch Changes
 
 - 22f9459: Importing this server-only package into a browser bundle now fails immediately with a message naming the package, instead of a confusing error from deep inside a dependency.
-
-## 1.0.4
-
-### Patch Changes
-
-- bd0db0d: Docs: the illustrative fence in the module documentation is tagged as plain text so it is not read as an example to run.

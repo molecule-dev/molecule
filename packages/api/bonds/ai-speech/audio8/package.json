@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-speech-audio8",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Audio8-ASR-Infinite speech provider for molecule.dev — self-hosted low-latency streaming speech-to-text for Chinese and English",
   "homepage": "https://www.molecule.dev/packages/api-ai-speech-audio8",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",

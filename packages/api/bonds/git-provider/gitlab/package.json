@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-git-provider-gitlab",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Git hosting provider for GitLab (gitlab.com) — OAuth endpoints, token auth shape, repository listing and lookup.",
   "homepage": "https://www.molecule.dev/packages/api-git-provider-gitlab",
   "type": "module",
@@ -34,7 +34,7 @@
     "directory": "packages/api/bonds/git-provider/gitlab"
   },
   "devDependencies": {
-    "@molecule/api-git-provider": "1.0.5",
+    "@molecule/api-git-provider": "1.0.6",
     "@molecule/api-http": "1.0.2",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",

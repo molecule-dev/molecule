@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-video-generation-ltx",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "LTX video generation provider for molecule.dev — Lightricks' hosted LTX-2.5/LTX-2.3 text/image-to-video-with-audio over the async V2 job API",
   "homepage": "https://www.molecule.dev/packages/api-ai-video-generation-ltx",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",
@@ -44,7 +44,7 @@
     "@molecule/api-secrets": "^1.0.1"
   },
   "devDependencies": {
-    "@molecule/api-ai-video-generation": "1.1.0",
+    "@molecule/api-ai-video-generation": "1.2.0",
     "@types/node": "26.1.2",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

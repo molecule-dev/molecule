@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-speech-nemo-speech",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NVIDIA NeMo-Speech.cpp speech provider for molecule.dev — self-hosted batch and streaming speech-to-text with speaker diarization (Nemotron-3-Diarization)",
   "homepage": "https://www.molecule.dev/packages/api-ai-speech-nemo-speech",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",

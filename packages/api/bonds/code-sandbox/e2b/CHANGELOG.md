@@ -1,5 +1,15 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.9
+
+### Patch Changes
+
+- a4e488d: A failed `importFiles` spool/extract or `exportFiles` archive create now fails with the failing stage's name and the command's stderr instead of the SDK's bare "exit status N" error.
+- 9b6c584: exec() clears the timers its wait race armed, so a command that finished no longer holds the process's event loop open for the grace window.
+- d0ed83f: `list()` keeps at most 16 sandbox connects in flight instead of one per running sandbox at once — a fleet sweep stays concurrent without spending a socket and file descriptor per sandbox on every poll.
+- d5760f6: `list()` connects to all running sandboxes concurrently instead of one round trip at a time, so enumerating a fleet costs one connect latency rather than one per sandbox.
+- 5c16ad4: A sandbox listing the adapter cannot read (an SDK shape change — a new envelope or a null) is now a thrown error instead of an empty array, so no caller mistakes an unreadable listing for "no sandboxes exist", and volume/snapshot usage checks never act on that answer.
+
 ## 1.2.8
 
 ### Patch Changes

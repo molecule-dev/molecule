@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-ai-speech-confucius4",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Confucius4-R2T2 speech provider for molecule.dev — self-hosted append-only streaming speech-to-text",
   "homepage": "https://www.molecule.dev/packages/api-ai-speech-confucius4",
   "author": "Molecule Dev, Inc. (https://molecule.dev)",

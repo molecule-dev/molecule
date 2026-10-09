@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.19.11
+
+### Patch Changes
+
+- 22f9459: The `/model` usage hint lists example model ids from the live model catalog instead of a fixed, outdated set.
+
 ## 1.19.10
 
 ### Patch Changes
