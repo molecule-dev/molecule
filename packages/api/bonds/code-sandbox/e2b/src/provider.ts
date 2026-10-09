@@ -211,6 +211,26 @@ async function defaultClient(apiKey: string): Promise<E2BSandboxClientLike> {
         for await (const it of r as AsyncIterable<E2BSandboxListItem>) push([it])
       } else if (r && Array.isArray((r as { sandboxes?: unknown }).sandboxes)) {
         push((r as { sandboxes: E2BSandboxListItem[] }).sandboxes)
+      } else {
+        // An UNRECOGNIZED shape (a minor SDK change — a new pager wrapper, an
+        // `{ items: [...] }` envelope, a bare null) must THROW, never fall
+        // through to `[]`: every consumer of this listing reads EMPTINESS as
+        // ABSENCE (`list()`: no live sandboxes; `listVolumes()`: every volume
+        // unattached; `getTemplate`/`listTemplates()`: no template in use —
+        // and an eviction/reclamation sweep deletes on that answer, destroying
+        // resources live sandboxes are still using). An unreadable listing is
+        // a failure to LOOK, and this bond's contracts never deliver that as
+        // "looked, and nothing exists".
+        let seen: string
+        try {
+          seen = JSON.stringify(r) ?? String(r)
+        } catch (_error) {
+          // Unserializable (a cyclic wrapper) — the type is the diagnosable part.
+          seen = typeof r
+        }
+        throw new Error(
+          `e2b: Sandbox.list() returned a shape this adapter cannot read (${seen.slice(0, 200)}) — refusing to answer an empty listing, since every consumer of it reads emptiness as absence`,
+        )
       }
       return out
     },
@@ -882,7 +902,19 @@ class E2BSandbox implements Sandbox {
         }
       }
       await flush()
-      if (pieces === 0) await this.sbx.commands.run(`: > ${tarPath}`, { timeoutMs: 30_000 })
+      if (pieces === 0) {
+        // An archive that yielded nothing still gets its (empty) tar created
+        // so the extract below fails as BAD ARCHIVE DATA, not as a missing
+        // file — and through runCommand, so ITS failure (a full disk is the
+        // usual cause) reports its stage and stderr like the spool/extract
+        // failures do, never the SDK's bare exit-status error.
+        const created = await this.runCommand(`: > ${tarPath}`, 30_000)
+        if (created.exitCode !== 0) {
+          throw new Error(
+            `importFiles: creating the empty archive failed (${created.exitCode}): ${created.stderr.slice(0, 300)}`,
+          )
+        }
+      }
       const r = await this.runCommand(
         `mkdir -p ${shellQuote(path)} && tar xf ${tarPath} -C ${shellQuote(path)} --no-same-owner --no-same-permissions`,
         300_000,

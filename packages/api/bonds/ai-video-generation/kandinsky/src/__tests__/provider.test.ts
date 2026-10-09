@@ -350,6 +350,28 @@ describe('KandinskyVideoGenerationProvider', () => {
       ).rejects.toMatchObject({ name: 'KandinskyVideoError', status: 404 })
     })
 
+    it('degrades a corrupt numeric timestamp to absent instead of crashing with a RangeError', async () => {
+      // `Number.isFinite(1e300)` passes but `new Date(1e300 * 1000)` is an
+      // INVALID date, and calling toISOString() on it throws a raw RangeError
+      // — an untyped crash of the whole getStatus() call for one malformed
+      // server field. A timestamp that cannot be represented is absent.
+      mockFetch.mockResolvedValue(
+        mockJsonResponse({
+          id: 'v',
+          status: 'completed',
+          created_at: 1e300,
+          completed_at: Number.NaN,
+        }),
+      )
+
+      const status = await bond.getStatus('v')
+
+      expect(status.status).toBe('completed')
+      expect(status.createdAt).toBeUndefined()
+      expect(status.completedAt).toBeUndefined()
+      expect(status.result?.url).toBe('http://gpu.local:8091/v1/videos/v/content')
+    })
+
     it('carries the error payload of a failed job', async () => {
       mockFetch.mockResolvedValue(
         mockJsonResponse({

@@ -114,6 +114,33 @@ describe('the SDK client adapter normalizes Sandbox.list() shapes', () => {
     expect(handles.map((h) => h.id)).toEqual(['sbx-3'])
   })
 
+  it('still flattens the { sandboxes: [...] } envelope', async () => {
+    listSandbox.mockResolvedValue({
+      sandboxes: [{ sandboxId: 'sbx-4', state: 'running' }],
+    })
+    const handles = await provider().list('user')
+    expect(handles.map((h) => h.id)).toEqual(['sbx-4'])
+  })
+
+  it('refuses an unrecognized listing shape instead of answering an empty one', async () => {
+    // A minor SDK change (a new envelope — here `{ items: [...] }`) must not
+    // silently read as "no sandboxes exist". Every consumer of the flattened
+    // listing reads EMPTINESS as ABSENCE: `list()` reports no live sandboxes,
+    // `listVolumes()` marks every volume unattached, `getTemplate`/
+    // `listTemplates()` mark every snapshot not in use — and an eviction or
+    // reclamation sweep DELETES on those answers. An unreadable listing is a
+    // failure to look, and it must throw like every other failed lookup.
+    listSandbox.mockResolvedValue({ items: [{ sandboxId: 'sbx-9', state: 'running' }] })
+
+    await expect(provider().list('user')).rejects.toThrow(/shape this adapter cannot read.*items/s)
+  })
+
+  it('refuses a null listing instead of answering an empty one', async () => {
+    listSandbox.mockResolvedValue(null)
+
+    await expect(provider().list('user')).rejects.toThrow(/shape this adapter cannot read/)
+  })
+
   it('puts every running sandbox connect in flight together, not one serial round trip each', async () => {
     // list() builds one handle per running sandbox and each handle is a full
     // connect round trip. Awaited one after the next, a fleet sweep over N

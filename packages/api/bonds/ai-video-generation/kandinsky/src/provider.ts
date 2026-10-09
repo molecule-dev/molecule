@@ -187,7 +187,13 @@ function mapStatus(raw: string): VideoJobState {
  */
 function toIso(value: number | string | null | undefined): string | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) {
-    return new Date(value * 1000).toISOString()
+    const date = new Date(value * 1000)
+    // A finite-but-out-of-range epoch (a corrupt server field like 1e300
+    // passes the isFinite check) makes `new Date` INVALID, and calling
+    // toISOString() on it throws a raw RangeError no caller can classify.
+    // A malformed timestamp degrades to ABSENT — this function's contract —
+    // not to an untyped crash of the whole getStatus() call.
+    return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
   }
   if (typeof value === 'string' && value.trim().length > 0) return value
   return undefined

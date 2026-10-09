@@ -144,6 +144,29 @@ describe('importFiles / exportFiles failures under the real SDK contract', () =>
     expect(commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-export-/)
   })
 
+  it('names the failed empty-archive create when the archive yields nothing and the disk is full', async () => {
+    // An archive that yields zero chunks still creates its (empty) tar before
+    // extracting; when THAT command fails (a full /tmp is the usual cause) the
+    // error must name the stage and quote the stderr like the spool/extract/
+    // create failures do — not the SDK's bare `exit status N`.
+    const empty = (): AsyncIterable<Uint8Array> =>
+      (async function* () {
+        /* yields nothing */
+      })()
+    const { sbx, commands } = realContractSandbox((cmd) => cmd.startsWith(': > '), {
+      stdout: '',
+      stderr: 'bash: /tmp/mol-import-x.tar: No space left on device',
+      exitCode: 1,
+    })
+    const sandbox = await handleFor(sbx)
+
+    await expect(sandbox.importFiles!('/workspace', empty())).rejects.toThrow(
+      /importFiles: creating the empty archive failed \(1\): bash: \/tmp\/mol-import-x\.tar: No space left on device/,
+    )
+    // The spool files are still removed after the failure.
+    expect(commands.at(-1)).toMatch(/^rm -f \/tmp\/mol-import-/)
+  })
+
   it('propagates an infrastructure failure that carries no result untouched', async () => {
     // A timeout / connection loss has no `.result` — mapping it into an exit
     // code would fabricate an outcome. It must keep propagating as-is.
