@@ -86,6 +86,17 @@
  * setuid/setgid dropped by `--no-same-permissions` — were verified by running
  * GNU tar 1.35 against crafted archives rather than inferred from its manual.
  *
+ * **Absence vs failure: `get()` only answers `null` for a REAL absence.**
+ * `get()` (and each read shaped like it — `list()`, `find()`, `getTemplate()`)
+ * reserves `null`/`[]` for a positive not-found answer — Fly answered 404 for
+ * the app or the Machine — and THROWS for every other failure: 5xx, 429 past
+ * the client's retries, timeouts, network errors. A caller that reconciles
+ * from `null` (clearing sandbox ids, reaping Machines) must never read a
+ * transient Fly API blip as "the sandbox does not exist"; treat a rejection
+ * from these methods as "unknown", never as "gone". The thrown error carries
+ * the underlying `FlyApiError` (HTTP status, or 0 for a transport failure) as
+ * its `cause`.
+ *
  * **`sleep()` is suspend, not stop — that is the point of this bond.**
  * `sleep()` calls `POST /v1/apps/{app}/machines/{id}/suspend`, which "uses
  * Firecracker snapshots to capture the entire VM state: CPU registers, memory

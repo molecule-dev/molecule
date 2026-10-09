@@ -57,6 +57,23 @@ function queueCreate(double: ReturnType<typeof createFetchDouble>, machineId = '
     .on(`POST /apps/${APP}/machines`, { body: { id: machineId, state: 'started' } })
 }
 
+/**
+ * A double whose fetch NEVER settles a response — it fails at the transport
+ * level (like an aborted/timed-out request or a dead connection), so the client
+ * models it as status 0, retries it, and eventually throws.
+ * @param error - The error each fetch attempt rejects with.
+ * @returns A fetch double whose fetch always rejects.
+ */
+function transportFailureDouble(error: Error): ReturnType<typeof createFetchDouble> {
+  const double = createFetchDouble()
+  return {
+    ...double,
+    fetch: vi.fn(async () => {
+      throw error
+    }) as unknown as typeof fetch,
+  }
+}
+
 const ORIGINAL_ENV = { ...process.env }
 
 beforeEach(() => {
@@ -526,6 +543,61 @@ describe('get / list / destroy', () => {
     expect(mockLogger.warn).toHaveBeenCalled()
   })
 
+  it('returns the sandbox for a healthy Machine', async () => {
+    const double = createFetchDouble().on(`GET /apps/${APP}/machines/m1`, {
+      body: { id: 'm1', state: 'started' },
+    })
+
+    const sandbox = await makeProvider({}, double).get(`${APP}:m1`)
+
+    expect(sandbox).toMatchObject({ id: `${APP}:m1`, status: 'running' })
+  })
+
+  it('THROWS on a 5xx after the client’s retries, instead of answering null', async () => {
+    // Production 2026-10-07: a Fly 5xx made get() return null, the platform
+    // read that as absence and cleared live projects' sandbox ids while their
+    // Machines kept billing. null is reserved for a positive 404.
+    const double = createFetchDouble().fallback({ status: 500, text: 'boom' })
+
+    const attempt = makeProvider({}, double).get(`${APP}:m1`)
+    await expect(attempt).rejects.toThrow(/Cannot read Fly sandbox/)
+    const error = await attempt.then(
+      () => null,
+      (e) => e,
+    )
+    expect(error.cause).toMatchObject({ status: 500 })
+    // The transport retries a 5xx before giving up — get() throws only once
+    // the whole budget is spent, not on the first blip.
+    expect(double.matching(`GET /apps/${APP}/machines/m1`)).toHaveLength(4)
+  })
+
+  it('THROWS on a 429 that outlasts the retries, instead of answering null', async () => {
+    const double = createFetchDouble().fallback({
+      status: 429,
+      text: 'rate limited',
+      headers: { 'retry-after': '0' },
+    })
+
+    await expect(makeProvider({}, double).get(`${APP}:m1`)).rejects.toThrow(
+      /Cannot read Fly sandbox/,
+    )
+  })
+
+  it('THROWS on a timed-out request, instead of answering null', async () => {
+    await expect(
+      makeProvider(
+        {},
+        transportFailureDouble(new DOMException('This operation was aborted', 'AbortError')),
+      ).get(`${APP}:m1`),
+    ).rejects.toThrow(/Cannot read Fly sandbox/)
+  })
+
+  it('THROWS on a network error, instead of answering null', async () => {
+    await expect(
+      makeProvider({}, transportFailureDouble(new TypeError('fetch failed'))).get(`${APP}:m1`),
+    ).rejects.toThrow(/Cannot read Fly sandbox/)
+  })
+
   it('pages the org-wide listing and keeps only Machines this provider manages', async () => {
     const double = createFetchDouble()
       .on('GET /orgs/acme/machines', {
@@ -562,6 +634,16 @@ describe('get / list / destroy', () => {
     expect(sandboxes.map((s) => s.status)).toEqual(['running', 'sleeping'])
     expect(double.matching('GET /orgs/acme/machines')).toHaveLength(2)
     expect(double.calls[1].path).toContain('cursor=c2')
+  })
+
+  it('THROWS when the org listing fails, instead of answering an empty array', async () => {
+    // Same contract as get(): a failed enumeration must not read as "no
+    // sandboxes" — a reaper acting on [] would believe the fleet is clean.
+    const double = createFetchDouble().fallback({ status: 500, text: 'boom' })
+
+    await expect(makeProvider({}, double).list('user-1')).rejects.toThrow(
+      /Fly API GET \/orgs\/acme\/machines/,
+    )
   })
 
   it('WARNS when the org listing is truncated, instead of returning a short list silently', async () => {

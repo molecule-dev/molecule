@@ -1229,8 +1229,22 @@ class FlyioSandboxProvider implements SandboxProvider {
 
   /**
    * Retrieves an existing sandbox by its composite `<app>:<machineId>` id.
+   *
+   * `null` is reserved for a POSITIVE answer that the sandbox is gone: Fly
+   * answered 404 for the app or the Machine (the client's `nullOn: [404]`
+   * resolves that before this method sees an error), or the id is not in
+   * `<app>:<machineId>` form at all. Every OTHER failure — 5xx, 429, a timeout,
+   * a network error, anything the API call can still throw after its retries —
+   * THROWS. That split is the core's absence contract, and it is load-bearing:
+   * a caller that reconciles from `null` (clearing sandbox ids, reaping
+   * Machines) must never read a transient Fly blip as "the sandbox does not
+   * exist" — on 2026-10-07 exactly that orphaned live Machines that kept
+   * billing with no row left to name them.
    * @param id - The sandbox id returned by `create`.
-   * @returns The sandbox, or `null` when the id is malformed or the Machine is gone.
+   * @returns The sandbox, or `null` when the id is malformed or Fly positively
+   *   answered that the app or Machine does not exist.
+   * @throws {Error} When the lookup itself failed — with `cause` carrying the
+   *   `FlyApiError`. The Machine may still exist; this is not an absence answer.
    */
   async get(id: string): Promise<Sandbox | null> {
     let app: string
@@ -1248,8 +1262,23 @@ class FlyioSandboxProvider implements SandboxProvider {
       if (!machine) return null
       return this.buildSandbox(app, machine.id, mapMachineState(machine.state ?? 'created'))
     } catch (error) {
-      logger.debug('Failed to get Fly Machine', { id, error })
-      return null
+      // NOT an absence. Returning null here made molecule.dev's loss-recorder
+      // clear the sandbox ids of projects whose Machines were still running
+      // (2026-10-07, two leaked 2 vCPU / 4 GB Machines). Say the lookup failed
+      // and keep the cause, so the caller retries or surfaces it instead.
+      throw new Error(
+        t(
+          'codeSandbox.flyio.error.getFailed',
+          { id },
+          {
+            defaultValue:
+              `Cannot read Fly sandbox "${id}": the Fly API lookup failed, so whether it exists ` +
+              'is UNKNOWN — the Machine may still be running. This is not an absence answer; ' +
+              'retry or surface the error rather than treating the sandbox as gone.',
+          },
+        ),
+        { cause: error },
+      )
     }
   }
 
