@@ -252,6 +252,15 @@ export class FloatBlockResampler {
       block[i] = a + (b - a) * frac
     }
     this.produced += count
+    // Advance the window past the samples this flush consumed, exactly as
+    // push()'s `keepFrom` does for the samples IT consumes: `rawStart` is the
+    // absolute input index of `raw[0]`, and leaving it behind means a push()
+    // after this flush attributes its samples indices that were already used
+    // — `produced` has moved on, so no future block's `lastNeeded` can ever
+    // fall inside the buffer again and the resampler answers nothing forever
+    // (push emits no blocks, flush reports null), silently dropping every
+    // sample it is fed from then on.
+    this.rawStart += this.raw.length
     this.raw = new Float32Array(0)
     return block
   }

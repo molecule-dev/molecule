@@ -294,6 +294,46 @@ describe('FloatBlockResampler', () => {
     expect(resampler.flush()).toBeNull()
   })
 
+  it('keeps emitting for input pushed after a flush — the timeline continues, not restarts', () => {
+    // flush() consumes the buffered input, so it must advance the window
+    // (rawStart) past it the way push()'s keepFrom does: without that, input
+    // pushed after a flush is attributed absolute indices that were already
+    // used while `produced` has moved on — no future block's lastNeeded ever
+    // falls inside the buffer again, and the resampler answers NOTHING
+    // forever (push emits no blocks, flush reports null), silently dropping
+    // every sample it is fed from then on.
+    const continuous = new FloatBlockResampler(48000, 16000, 100)
+    const input = new Float32Array(2400) // 0.05 s → 800 outputs
+    for (let i = 0; i < input.length; i++) input[i] = i / 2400
+    // The same stream, split across a flush at a point where the flush
+    // actually consumes buffered input (1000 samples = 3 full blocks plus a
+    // 34-output remainder the blocks could not hold).
+    const split = new FloatBlockResampler(48000, 16000, 100)
+    const first = split.push(input.subarray(0, 1000))
+    const midTail = split.flush()
+    const second = split.push(input.subarray(1000))
+    const endTail = split.flush()
+
+    const joined = [
+      ...first,
+      ...(midTail ? [midTail] : []),
+      ...second,
+      ...(endTail ? [endTail] : []),
+    ]
+    const flatJoined = joined.flatMap((b) => Array.from(b))
+    const flatContinuous = continuous
+      .push(input)
+      .flatMap((b) => Array.from(b))
+      .concat(Array.from(continuous.flush() ?? new Float32Array(0)))
+    // The flushed-then-pushed stream must produce exactly what the same
+    // samples pushed in one go produce — in count and in value.
+    expect(flatJoined).toHaveLength(flatContinuous.length)
+    expect(flatJoined.length).toBeGreaterThan(0)
+    for (let i = 0; i < flatJoined.length; i++) {
+      expect(flatJoined[i]).toBeCloseTo(flatContinuous[i], 6)
+    }
+  })
+
   it('refuses a blockSize that would make push() emit blocks forever', () => {
     // A zero/negative blockSize never advances the identity path's `start`
     // and a NaN one never advances the resampling path's `produced`, so
