@@ -6821,11 +6821,19 @@ function ChatInner({
     if (modelCmdMatch) {
       const query = modelCmdMatch[1]?.trim()
       if (!query) {
+        // Examples come from the live catalog, never the translation: model ids
+        // are not translatable, and a hardcoded list goes stale the day a newer
+        // generation ships.
+        const examples = partitionByDeprecation(AVAILABLE_MODELS)
+          .current.slice(0, 3)
+          .map((m) => m.id)
+          .join(', ')
         addSystemCard(
-          t('ide.chat.modelUsage', undefined, {
-            defaultValue:
-              'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
-          }),
+          t(
+            'ide.chat.modelUsage',
+            { examples },
+            { defaultValue: 'Usage: /model <model-name>  (e.g. {{examples}})' },
+          ),
         )
       } else {
         // Resolve partial name to closest model
