@@ -57,7 +57,11 @@
  *   events carry words two consecutive passes agreed on (never revised);
  *   `partial` events carry the still-unconfirmed tail; one `final` with the
  *   full text ends the stream. Audio is PCM16 LE mono at `sampleRate` (default
- *   16 kHz, resampled here), buffered into ~1 s passes.
+ *   16 kHz, resampled here), buffered into ~1 s passes. A stream session HOLDS
+ *   the engine's one stream from its first block until its stop, so a
+ *   concurrent `transcribeStream` call queues behind the running one instead of
+ *   interleaving its audio into it (audio already delivered waits in the
+ *   resampler; audio not yet pulled waits in the caller's transport).
  * - **One model per process, not thread-safe**: the wasm engine is shared by
  *   every provider instance in the process; calls are synchronous and
  *   serialize naturally. The first in-flight call blocks the event loop for
