@@ -28,7 +28,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "handlebars": "4.7.9"
+    "handlebars": "4.7.10"
   },
   "peerDependencies": {
     "@molecule/api-templating": "^1.0.1"

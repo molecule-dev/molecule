@@ -68,7 +68,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-jsdoc": "63.3.2",
     "eslint-plugin-simple-import-sort": "14.0.0",
-    "handlebars": "4.7.9",
+    "handlebars": "4.7.10",
     "husky": "9.1.7",
     "jimp": "1.6.1",
     "jsdom": "30.0.1",
