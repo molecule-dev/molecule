@@ -159,11 +159,34 @@ class WhistleSpeechProvider implements AISpeechProvider {
     audio: AsyncIterable<Uint8Array>,
     params: TranscribeStreamParams = {},
   ): AsyncGenerator<TranscriptionStreamEvent> {
-    const engine = await this.loadEngine()
+    // Validate the caller's rate FIRST — before the engine download and before
+    // the resampler's arithmetic: a 0/negative/NaN rate makes the resampler's
+    // `lastNeeded` bound never advance, so its emit loop would spin forever
+    // inside the first `push()` (an event-loop hang with an unbounded block
+    // array, not a catchable error).
     const sourceRate = params.sampleRate ?? WHISTLE_SAMPLE_RATE
+    if (!Number.isFinite(sourceRate) || sourceRate <= 0) {
+      throw new Error(`Whistle streaming needs a finite, positive sampleRate (got ${sourceRate}).`)
+    }
+    const engine = await this.loadEngine()
     const language = resolveLanguage(params.language ?? this.config.defaultLanguage)
     const keywords = normalizeKeywords(params.prompt ?? this.config.defaultKeywords)
     const resampler = new FloatBlockResampler(sourceRate, WHISTLE_SAMPLE_RATE, STREAM_BLOCK_SAMPLES)
+
+    // A transport can split one PCM16 sample's two bytes across chunks (a
+    // frame boundary at an odd byte offset). `Int16Array` refuses an odd byte
+    // count, so the trailing byte is HELD here and prepended to the next chunk
+    // instead of crashing the stream. A half-sample still held at end of input
+    // is one truncated PCM16 sample of silence — dropped, nothing to play.
+    let heldByte: number | null = null
+    const rejoin = (chunk: Uint8Array): Uint8Array => {
+      if (heldByte === null) return chunk
+      const joined = new Uint8Array(chunk.length + 1)
+      joined[0] = heldByte
+      joined.set(chunk, 1)
+      heldByte = null
+      return joined
+    }
 
     let committed = ''
     let lastPending: string | null = null
@@ -177,7 +200,12 @@ class WhistleSpeechProvider implements AISpeechProvider {
     try {
       for await (const chunk of audio) {
         if (stopped) break
-        for (const block of resampler.push(pcm16ToFloat(chunk))) {
+        let bytes = rejoin(chunk)
+        if (bytes.length % 2 === 1) {
+          heldByte = bytes[bytes.length - 1]!
+          bytes = bytes.subarray(0, bytes.length - 1)
+        }
+        for (const block of resampler.push(pcm16ToFloat(bytes))) {
           if (stopped) break
           const pass = engine.streamProcess(block, { language, keywords })
           const text = pass.text.trim()

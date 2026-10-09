@@ -25,7 +25,10 @@ var createNeedle = async function () {
   var lastJson = ''
   return {
     HEAPU8: new Uint8Array(64 * 1024 * 1024),
-    _malloc: function (n) { var p = bump; bump += n; return p },
+    _malloc: function (n) {
+      if (globalThis.__whistleFake.failMallocs) return 0
+      var p = bump; bump += n; return p
+    },
     _free: function () {},
     _needle_load: function (ptr, n) {
       globalThis.__whistleFake.loadCalls.push([ptr, Number(n)])
@@ -53,6 +56,8 @@ interface FakeEngineState {
   loadCalls: Array<[number, number]>
   loadResult: number
   modelsResult: number
+  /** When true, the fake `_malloc` returns 0 — a wasm heap that cannot fit the allocation. */
+  failMallocs: boolean
   returnFor: (name: string, call: number) => number
   jsonFor: (name: string, call: number) => string
 }
@@ -64,6 +69,7 @@ function freshFake(): FakeEngineState {
     loadCalls: [],
     loadResult: 0,
     modelsResult: 2,
+    failMallocs: false,
     returnFor: () => 1,
     jsonFor: (name) =>
       name === 'needle_transcribe'
@@ -368,6 +374,66 @@ describe('WhistleSpeechProvider', () => {
     // 8000 inputs yield 15999 outputs: the 16000th needs one more input sample
     // as interpolation lookahead — the flush tail carries the difference.
     expect(processes[0].args[1]).toBe(15999)
+  })
+
+  it('rejects a non-finite or non-positive stream sampleRate instead of hanging the resampler', async () => {
+    // A 0/negative/NaN rate makes FloatBlockResampler's `lastNeeded` bound
+    // never advance, so its emit loop would spin forever inside the first
+    // `push()` — the generator must refuse the rate up front instead.
+    const speech = createProvider()
+    const pcm = new Uint8Array(3200) // 0.1 s of PCM16
+    for (const badRate of [0, -8000, Number.NaN]) {
+      await expect(
+        speech.transcribeStream!(chunksOf(pcm, 1600), { sampleRate: badRate }).next(),
+      ).rejects.toThrow(/sampleRate/)
+    }
+    // Nothing reached the engine: the refusal happens before any work.
+    expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_process')).toHaveLength(0)
+  })
+
+  it('reassembles a PCM16 sample split across chunks instead of crashing the stream', async () => {
+    // A transport frame boundary at an odd byte offset splits one PCM16
+    // sample's two bytes across chunks; Int16Array refuses an odd byte count,
+    // so the odd-sized stream used to die with a raw RangeError mid-stream.
+    // The engine must receive the SAME blocks it would have from even chunks.
+    const speech = createProvider()
+    const pcm = new Uint8Array(2 * WHISTLE_SAMPLE_RATE * 2) // 2 s of PCM16
+    for (let i = 0; i < pcm.length; i++) pcm[i] = (i * 7) & 0xff
+    const blockSizes = (): unknown[] =>
+      fake.calls.filter((c) => c.name === 'needle_stream_transcribe_process').map((c) => c.args[1])
+    const drain = async (split: number): Promise<void> => {
+      for await (const _event of speech.transcribeStream!(chunksOf(pcm, split))) void _event
+    }
+    await drain(16000) // even chunks
+    const even = blockSizes()
+    fake.calls = []
+    await drain(3333) // odd chunks — every boundary splits a sample
+    const odd = blockSizes()
+    expect(even).toEqual([16000, 16000])
+    expect(odd).toEqual(even)
+  })
+
+  it('fails as a typed engine error when a wasm allocation cannot fit', async () => {
+    // `_malloc` returns 0 when the heap cannot fit an allocation; writing
+    // anyway used to land the bytes at offset 0 — the engine's static area —
+    // corrupting it silently. Every allocation must fail as the typed error
+    // for its stage instead.
+    const weightsUrl = 'https://example.test/alloc-whistle.cact'
+    // Load-path allocations (weights, output buffer) fail the load.
+    fake.failMallocs = true
+    const speech = createProvider({ weightsUrl })
+    await expect(speech.transcribe!({ audio: silenceWav(1) })).rejects.toThrow(
+      /wasm heap could not fit the whistle weights/,
+    )
+    // After the load succeeds, a failed audio allocation fails the call —
+    // and the next call (allocation restored) works.
+    fake.failMallocs = false
+    await speech.transcribe!({ audio: silenceWav(1) })
+    fake.failMallocs = true
+    await expect(speech.transcribe!({ audio: silenceWav(1) })).rejects.toThrow(
+      /wasm heap could not fit the audio/,
+    )
+    fake.failMallocs = false
   })
 
   it('stops the engine stream when the consumer aborts mid-way', async () => {

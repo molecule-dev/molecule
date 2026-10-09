@@ -345,7 +345,21 @@ export function loadWhistleEngine(
       ) as ArrayBuffer,
     })
 
-    const weightsPtr = module._malloc(weightsBytes.byteLength)
+    // `_malloc` returns 0 when the wasm heap cannot fit the allocation (the C
+    // malloc convention). Writing anyway would land at offset 0 — the engine's
+    // static/stack area — and corrupt it silently, so every allocation is
+    // checked and a failure surfaces as the typed error for its stage.
+    const alloc = (bytes: number, what: string): number => {
+      const ptr = module._malloc(bytes)
+      if (!ptr) {
+        throw new WhistleEngineError(
+          'load-failed',
+          `the engine's wasm heap could not fit ${what} (${bytes} bytes)`,
+        )
+      }
+      return ptr
+    }
+    const weightsPtr = alloc(weightsBytes.byteLength, 'the whistle weights')
     module.HEAPU8.set(weightsBytes, weightsPtr)
     const loaded = module._needle_load(weightsPtr, BigInt(weightsBytes.byteLength))
     // The weights buffer stays allocated for the process lifetime: freeing it
@@ -364,7 +378,7 @@ export function loadWhistleEngine(
     }
     onProgress?.({ status: 'ready' })
 
-    const outPtr = module._malloc(OUT_CAPACITY_BYTES)
+    const outPtr = alloc(OUT_CAPACITY_BYTES, 'the transcript output buffer')
     const readOut = (): string => module.UTF8ToString(outPtr)
 
     const callEngine = (
@@ -383,8 +397,15 @@ export function loadWhistleEngine(
       return ret
     }
 
-    const withPcm = (pcm: Float32Array): number => {
-      const ptr = module._malloc(pcm.length * 4)
+    const withPcm = (pcm: Float32Array, failureCode: WhistleEngineError['code']): number => {
+      const bytes = pcm.length * 4
+      const ptr = module._malloc(bytes)
+      if (!ptr) {
+        throw new WhistleEngineError(
+          failureCode,
+          `the engine's wasm heap could not fit the audio (${bytes} bytes)`,
+        )
+      }
       new Float32Array(module.HEAPU8.buffer, ptr, pcm.length).set(pcm)
       return ptr
     }
@@ -397,7 +418,7 @@ export function loadWhistleEngine(
             `clip is ${pcm.length / WHISTLE_SAMPLE_RATE}s; Whistle transcribes at most ${WHISTLE_MAX_CLIP_SECONDS}s per pass — chunk the audio`,
           )
         }
-        const ptr = withPcm(pcm)
+        const ptr = withPcm(pcm, 'transcribe-failed')
         try {
           callEngine(
             'needle_transcribe',
@@ -419,7 +440,7 @@ export function loadWhistleEngine(
         }
       },
       streamProcess(pcm, options = {}) {
-        const ptr = withPcm(pcm)
+        const ptr = withPcm(pcm, 'stream-failed')
         try {
           callEngine(
             'needle_stream_transcribe_process',

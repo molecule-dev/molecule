@@ -147,12 +147,27 @@ export class FloatBlockResampler {
    * @param fromRate - Source sample rate in Hz.
    * @param toRate - Target sample rate in Hz.
    * @param blockSize - Output samples per emitted block.
+   * @throws {Error} When either rate is not a finite, positive number — the
+   *   emit loop's `lastNeeded` bound never advances for such a rate, so
+   *   `push()` would emit blocks forever inside a single call (an event-loop
+   *   hang with an unbounded block array, never a catchable error).
    */
   constructor(
     private readonly fromRate: number,
     private readonly toRate: number,
     private readonly blockSize: number,
-  ) {}
+  ) {
+    for (const [name, rate] of [
+      ['fromRate', fromRate],
+      ['toRate', toRate],
+    ] as const) {
+      if (!Number.isFinite(rate) || rate <= 0) {
+        throw new Error(
+          `FloatBlockResampler: ${name} must be a finite, positive sample rate (got ${rate})`,
+        )
+      }
+    }
+  }
 
   /**
    * Pushes one chunk of source-rate samples.
