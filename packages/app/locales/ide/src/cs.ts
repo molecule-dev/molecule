@@ -148,8 +148,7 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatické schvalování vypnuto – destruktivní příkazy se před spuštěním zeptají.',
   'ide.chat.autoApproveError': 'Nepodařilo se aktualizovat nastavení automatického schvalování.',
-  'ide.chat.modelUsage':
-    'Použití: /model<model-name> (např. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Použití: /model<model-name> (např. {{examples}})',
   'ide.chat.maxLoopsReached': 'Dosažen maximální počet smyček.',
   'ide.chat.maxLoopsError': 'Nepodařilo se aktualizovat maximální počet iterací nástroje.',
   'ide.chat.dropFilesHere': 'Sem přetáhněte soubory',

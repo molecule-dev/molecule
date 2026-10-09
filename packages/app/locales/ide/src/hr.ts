@@ -86,8 +86,7 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatsko odobravanje isključeno — destruktivne naredbe traže potvrdu prije izvršavanja.',
   'ide.chat.autoApproveError': 'Nije uspjelo ažuriranje postavke automatskog odobravanja.',
-  'ide.chat.modelUsage':
-    'Upotreba: /model<model-name> (npr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Upotreba: /model<model-name> (npr. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} dostupno je na Pro verziji. Nadogradite za pristup svim modelima.',
   'ide.chat.maxLoopsReached': 'Dosegnuto je maksimalno ograničenje petlji.',

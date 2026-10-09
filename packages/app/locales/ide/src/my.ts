@@ -86,8 +86,7 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'အလိုအလျောက်အတည်ပြုချက် ပိတ်ထားသည် — ဖျက်ဆီးနိုင်သော command များသည် မလုပ်ဆောင်မီ မေးမြန်းပါမည်။',
   'ide.chat.autoApproveError': 'အလိုအလျောက်အတည်ပြုမှုဆက်တင်ကို အပ်ဒိတ်လုပ်၍မရပါ။',
-  'ide.chat.modelUsage':
-    'အသုံးပြုမှု: /မော်ဒယ်<model-name> (ဥပမာ claude-opus-4-6၊ claude-sonnet-4-6၊ claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'အသုံးပြုမှု: /မော်ဒယ်<model-name> (ဥပမာ {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro မှာ ရနိုင်ပါတယ်။ မော်ဒယ်အားလုံးကို အသုံးပြုနိုင်ဖို့ အဆင့်မြှင့်တင်ပါ။',
   'ide.chat.maxLoopsReached': 'အများဆုံး ကွင်းဆက်ကန့်သတ်ချက်သို့ ရောက်ရှိပါပြီ။',

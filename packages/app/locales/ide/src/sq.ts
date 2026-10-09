@@ -86,8 +86,7 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Miratimi automatik është çaktivizuar — komandat shkatërruese kërkojnë konfirmim përpara ekzekutimit.',
   'ide.chat.autoApproveError': 'Dështoi në përditësimin e cilësimit të miratimit automatik.',
-  'ide.chat.modelUsage':
-    'Përdorimi: /model<model-name> (p.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Përdorimi: /model<model-name> (p.sh. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} është i disponueshëm në Pro. Përditësojeni për të pasur akses në të gjitha modelet.',
   'ide.chat.maxLoopsReached': 'U arrit limiti maksimal i sytheve.',

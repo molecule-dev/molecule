@@ -86,8 +86,7 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Tá an t-uath-cheadú as — iarrann orduithe millteacha cead sula ritear iad.',
   'ide.chat.autoApproveError': 'Theip ar an socrú uath-cheadaithe a nuashonrú.',
-  'ide.chat.modelUsage':
-    'Úsáid: /samhail<model-name> (m.sh. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Úsáid: /samhail<model-name> (m.sh. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ar fáil ar Pro. Uasghrádaigh chun rochtain a fháil ar gach samhail.',
   'ide.chat.maxLoopsReached': 'Uasmhéid na lúb sroichte.',

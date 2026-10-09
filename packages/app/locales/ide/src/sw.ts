@@ -86,8 +86,7 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Uidhinishaji kiotomatiki umezimwa — amri haribifu zinauliza ruhusa kabla ya kutekelezwa.',
   'ide.chat.autoApproveError': 'Imeshindwa kusasisha mpangilio wa uidhinishaji kiotomatiki.',
-  'ide.chat.modelUsage':
-    'Matumizi: /modeli<model-name> (km claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Matumizi: /modeli<model-name> (km {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} inapatikana kwenye Pro. Boresha ili ufikie mifumo yote.',
   'ide.chat.maxLoopsReached': 'Kikomo cha juu zaidi cha mizunguko kimefikiwa.',

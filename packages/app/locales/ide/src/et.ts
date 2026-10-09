@@ -86,8 +86,7 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automaatne heakskiitmine on väljas — hävitavad käsud küsivad enne käivitamist kinnitust.',
   'ide.chat.autoApproveError': 'Automaatse heakskiitmise seade värskendamine ebaõnnestus.',
-  'ide.chat.modelUsage':
-    'Kasutus: /mudel<model-name> (nt claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Kasutus: /mudel<model-name> (nt {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} on saadaval Pro versioonis. Uuenda, et pääseda ligi kõigile mudelitele.',
   'ide.chat.maxLoopsReached': 'Tsüklite maksimaalne arv on saavutatud.',

@@ -84,8 +84,7 @@ export const zhTW: Partial<IdeTranslations> = {
     '已啟用自動核准——破壞性指令將無需確認即可執行。資料外洩防護仍會要求確認。使用 /autoapprove 關閉。',
   'ide.chat.autoApproveDisabled': '自動核准已關閉——破壞性指令在執行前會要求確認。',
   'ide.chat.autoApproveError': '自動核准設定更新失敗。',
-  'ide.chat.modelUsage':
-    '用法：/model<model-name> （如克勞德-opus-4-6、克勞德-十四行詩-4-6、克勞德-俳句-4-5-20251001）',
+  'ide.chat.modelUsage': '用法：/model<model-name> （如{{examples}}）',
   'ide.chat.modelUpgradeRequired': '{{model}}限專業版用戶使用。升級至專業版即可使用所有機型。',
   'ide.chat.maxLoopsReached': '已達到最大循環次數限制。',
   'ide.chat.maxLoopsError': '更新最大工具迭代次數失敗。',

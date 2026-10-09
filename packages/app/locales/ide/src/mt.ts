@@ -86,8 +86,7 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'L-approvazzjoni awtomatika hija diżattivata — il-kmandi distruttivi jistaqsu qabel ma jitħaddmu.',
   'ide.chat.autoApproveError': 'Ma rnexxiex taġġorna s-setting tal-approvazzjoni awtomatika.',
-  'ide.chat.modelUsage':
-    'Użu: /mudell<model-name> (eż. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Użu: /mudell<model-name> (eż. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} huwa disponibbli fuq Pro. Aġġorna biex taċċessa l-mudelli kollha.',
   'ide.chat.maxLoopsReached': "Intlaħaq il-limitu massimu ta' loops.",

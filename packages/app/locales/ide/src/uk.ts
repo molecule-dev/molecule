@@ -148,8 +148,7 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Автоматичне підтвердження вимкнено — деструктивні команди запитують підтвердження перед виконанням.',
   'ide.chat.autoApproveError': 'Не вдалося оновити налаштування автоматичного підтвердження.',
-  'ide.chat.modelUsage':
-    'Використання: /модель<model-name> (наприклад, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Використання: /модель<model-name> (наприклад, {{examples}})',
   'ide.chat.maxLoopsReached': 'Досягнуто максимальної кількості циклів.',
   'ide.chat.maxLoopsError': 'Не вдалося оновити максимальну кількість ітерацій інструменту.',
   'ide.chat.dropFilesHere': 'Перетягніть файли сюди',

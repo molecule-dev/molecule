@@ -86,8 +86,7 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Onarpen automatikoa itzalita — komando suntsitzaileek exekutatu aurretik baimena eskatzen dute.',
   'ide.chat.autoApproveError': 'Huts egin du onarpen automatikoaren ezarpena eguneratzeak.',
-  'ide.chat.modelUsage':
-    'Erabilera: /eredua<model-name> (adibidez, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Erabilera: /eredua<model-name> (adibidez, {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro bertsioan eskuragarri dago. Eguneratu modelo guztietarako sarbidea izateko.',
   'ide.chat.maxLoopsReached': 'Gehienezko begiztaren mugara iritsi da.',

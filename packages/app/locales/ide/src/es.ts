@@ -155,8 +155,7 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Aprobación automática desactivada: los comandos destructivos piden confirmación antes de ejecutarse.',
   'ide.chat.autoApproveError': 'No se pudo actualizar la configuración de aprobación automática.',
-  'ide.chat.modelUsage':
-    'Uso: /modelo<model-name> (por ejemplo, claude-opus-4-6, claude-soneto-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Uso: /modelo<model-name> (por ejemplo, {{examples}})',
   'ide.chat.maxLoopsReached': 'Se ha alcanzado el límite máximo de bucles.',
   'ide.chat.maxLoopsError':
     'No se pudo actualizar el número máximo de iteraciones de la herramienta.',

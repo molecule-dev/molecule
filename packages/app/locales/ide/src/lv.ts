@@ -86,8 +86,7 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automātiskā apstiprināšana ir izslēgta — destruktīvas komandas jautā pirms izpildes.',
   'ide.chat.autoApproveError': 'Neizdevās atjaunināt automātiskās apstiprināšanas iestatījumu.',
-  'ide.chat.modelUsage':
-    'Lietojums: /model<model-name> (piemēram, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Lietojums: /model<model-name> (piemēram, {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ir pieejams Pro versijā. Jauniniet, lai piekļūtu visiem modeļiem.',
   'ide.chat.maxLoopsReached': 'Sasniegts maksimālais ciklu skaits.',

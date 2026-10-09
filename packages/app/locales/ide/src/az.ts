@@ -86,8 +86,7 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Avtomatik təsdiq deaktivdir — dağıdıcı əmrlər icra olunmadan əvvəl soruşur.',
   'ide.chat.autoApproveError': 'Avtomatik təsdiq ayarını yeniləmək alınmadı.',
-  'ide.chat.modelUsage':
-    'İstifadə: /model<model-name> (məsələn, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'İstifadə: /model<model-name> (məsələn, {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro versiyasında mövcuddur. Bütün modellərə daxil olmaq üçün yeniləyin.',
   'ide.chat.maxLoopsReached': 'Maksimum döngə limitinə çatdınız.',

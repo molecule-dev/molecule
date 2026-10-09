@@ -148,8 +148,7 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automaattinen hyväksyntä pois käytöstä — tuhoisat komennot kysyvät vahvistusta ennen suorittamista.',
   'ide.chat.autoApproveError': 'Automaattisen hyväksynnän asetuksen päivittäminen epäonnistui.',
-  'ide.chat.modelUsage':
-    'Käyttö: /malli<model-name> (esim. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Käyttö: /malli<model-name> (esim. {{examples}})',
   'ide.chat.maxLoopsReached': 'Silmukoiden enimmäismäärä saavutettu.',
   'ide.chat.maxLoopsError': 'Työkalujen iteraatioiden enimmäismäärän päivittäminen epäonnistui.',
   'ide.chat.dropFilesHere': 'Pudota tiedostot tähän',

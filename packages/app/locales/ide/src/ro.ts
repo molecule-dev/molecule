@@ -148,8 +148,7 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Aprobare automată dezactivată — comenzile distructive cer confirmarea înainte de a fi executate.',
   'ide.chat.autoApproveError': 'Setările de aprobare automată nu au putut fi actualizate.',
-  'ide.chat.modelUsage':
-    'Utilizare: /model<model-name> (de exemplu, claude-opus-4-6, claude-sonet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Utilizare: /model<model-name> (de exemplu, {{examples}})',
   'ide.chat.maxLoopsReached': 'Limita maximă de bucle a fost atinsă.',
   'ide.chat.maxLoopsError': 'Nu s-a putut actualiza numărul maxim de iterații ale instrumentului.',
   'ide.chat.dropFilesHere': 'Plasați fișierele aici',

@@ -86,8 +86,7 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Cymeradwyo awtomatig i ffwrdd — mae gorchmynion dinistriol yn gofyn caniatâd cyn rhedeg.',
   'ide.chat.autoApproveError': "Methwyd diweddaru'r gosodiad cymeradwyo awtomatig.",
-  'ide.chat.modelUsage':
-    'Defnydd: /model<model-name> (e.e. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Defnydd: /model<model-name> (e.e. {{examples}})',
   'ide.chat.modelUpgradeRequired': '{{model}} is available on Pro. Upgrade to access all models.',
   'ide.chat.maxLoopsReached': 'Cyrhaeddwyd terfyn uchaf y dolenni.',
   'ide.chat.maxLoopsError': "Methwyd diweddaru'r uchafswm o iteriadau offeryn.",

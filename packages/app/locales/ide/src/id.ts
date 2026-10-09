@@ -153,8 +153,7 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Persetujuan otomatis nonaktif — perintah destruktif meminta konfirmasi sebelum dijalankan.',
   'ide.chat.autoApproveError': 'Gagal memperbarui pengaturan persetujuan otomatis.',
-  'ide.chat.modelUsage':
-    'Penggunaan: /model<model-name> (misalnya claude-opus-4-6, claude-soneta-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Penggunaan: /model<model-name> (misalnya {{examples}})',
   'ide.chat.maxLoopsReached': 'Batas perulangan maksimum telah tercapai.',
   'ide.chat.maxLoopsError': 'Gagal memperbarui jumlah iterasi alat maksimum.',
   'ide.chat.dropFilesHere': 'Seret file ke sini',

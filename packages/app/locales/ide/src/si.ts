@@ -86,8 +86,7 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ස්වයංක්‍රීය අනුමැතිය අක්‍රියයි — විනාශකාරී විධාන ක්‍රියාත්මක වීමට පෙර විමසයි.',
   'ide.chat.autoApproveError': 'ස්වයංක්‍රීය-අනුමැතියේ සැකසීම යාවත්කාලීන කිරීමට අසමත් විය.',
-  'ide.chat.modelUsage':
-    'භාවිතය: /මාදිලිය<model-name> (උදා: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'භාවිතය: /මාදිලිය<model-name> (උදා: {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro හි ඇත. සියලුම මාදිලි වෙත ප්‍රවේශ වීමට උත්ශ්‍රේණි කරන්න.',
   'ide.chat.maxLoopsReached': 'උපරිම ලූප සීමාවට ළඟා විය.',

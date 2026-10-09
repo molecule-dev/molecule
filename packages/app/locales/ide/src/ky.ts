@@ -82,8 +82,7 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Максималдуу цикл чегине жетти.',
   'ide.chat.modelError': 'Чат моделин жаңыртуу ишке ашкан жок.',
   'ide.chat.modelSet': 'Чат модели {{name}} деп коюлду',
-  'ide.chat.modelUsage':
-    'Колдонуу: /model <модел-аты>  (мис. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Колдонуу: /model <модел-аты>  (мис. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro версиясында жеткиликтүү. Бардык моделдерге жетүү үчүн жаңыртыңыз.',
   'ide.chat.proRequired': 'Pro',

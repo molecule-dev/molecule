@@ -86,8 +86,7 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Outomatiese goedkeuring af — vernietigende opdragte vra voor uitvoering.',
   'ide.chat.autoApproveError': 'Kon nie outomatiese goedkeuringinstelling opdateer nie.',
-  'ide.chat.modelUsage':
-    'Gebruik: /model<model-name> (bv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Gebruik: /model<model-name> (bv. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} is beskikbaar op Pro. Gradeer op om toegang tot alle modelle te kry.',
   'ide.chat.maxLoopsReached': 'Maksimum lusselimiet bereik.',

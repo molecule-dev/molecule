@@ -94,8 +94,7 @@ export const yo: Partial<IdeTranslations> = {
     'K\\u00F2 l\\u00E8 \\u1E63e \\u00ECm\\u00FAd\\u00F2j\\u00FAtw\\u00F2n m\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC \\u00ECj\\u00EDr\\u00F2r\\u00F2.',
   'ide.chat.modelSet':
     'M\\u1ECD\\u0301d\\u1EB9\\u0300l\\u00EC \\u00ECj\\u00EDr\\u00F2r\\u00F2 ti y\\u00ED pad\\u00E0 s\\u00ED {{name}}',
-  'ide.chat.modelUsage':
-    'Usage: /model <model-name>  (e.g. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Usage: /model <model-name>  (e.g. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} wa lori Pro. Ṣe igbesoke lati wọle si gbogbo awọn awoṣe.',
   'ide.chat.proRequired': 'Pro',

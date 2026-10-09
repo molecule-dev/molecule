@@ -155,8 +155,7 @@ export const nl: Partial<IdeTranslations> = {
     'Automatisch goedkeuren uit — destructieve opdrachten vragen om bevestiging voordat ze worden uitgevoerd.',
   'ide.chat.autoApproveError':
     'Het bijwerken van de instelling voor automatisch goedkeuren is mislukt.',
-  'ide.chat.modelUsage':
-    'Gebruik: /model<model-name> (bijv. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Gebruik: /model<model-name> (bijv. {{examples}})',
   'ide.chat.maxLoopsReached': 'Het maximale aantal herhalingen is bereikt.',
   'ide.chat.maxLoopsError': 'Het bijwerken van het maximale aantal tooliteraties is mislukt.',
   'ide.chat.dropFilesHere': 'Sleep bestanden hierheen',

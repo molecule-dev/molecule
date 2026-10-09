@@ -86,8 +86,7 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'தானியங்கு ஒப்புதல் முடக்கப்பட்டுள்ளது — அழிவுகரமான கட்டளைகள் இயக்கும் முன் அனுமதி கேட்கும்.',
   'ide.chat.autoApproveError': 'தானியங்கு ஒப்புதல் அமைப்பைப் புதுப்பிக்க முடியவில்லை.',
-  'ide.chat.modelUsage':
-    'பயன்பாடு: /model<model-name> (எ.கா. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'பயன்பாடு: /model<model-name> (எ.கா. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ப்ரோ பதிப்பில் கிடைக்கிறது. அனைத்து மாடல்களையும் அணுக மேம்படுத்தவும்.',
   'ide.chat.maxLoopsReached': 'அதிகபட்ச சுழல்களின் வரம்பு எட்டப்பட்டது.',

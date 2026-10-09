@@ -86,8 +86,7 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ఆటో-అప్రూవ్ ఆఫ్‌లో ఉంది — విధ్వంసక ఆదేశాలు అమలు చేయడానికి ముందు అనుమతి అడుగుతాయి.',
   'ide.chat.autoApproveError': 'ఆటో-అప్రూవ్ సెట్టింగ్‌ను అప్‌డేట్ చేయడంలో విఫలమైంది.',
-  'ide.chat.modelUsage':
-    'వాడుక: /మోడల్<model-name> (ఉదా. క్లాడ్-ఓపస్-4-6, క్లాడ్-సోనెట్-4-6, క్లాడ్-హైకూ-4-5-20251001)',
+  'ide.chat.modelUsage': 'వాడుక: /మోడల్<model-name> (ఉదా. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ప్రోలో అందుబాటులో ఉంది. అన్ని మోడల్‌లను యాక్సెస్ చేయడానికి అప్‌గ్రేడ్ చేయండి.',
   'ide.chat.maxLoopsReached': 'గరిష్ట లూప్‌ల పరిమితికి చేరుకుంది.',

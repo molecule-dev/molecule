@@ -86,8 +86,7 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'स्वयंचलित मंजुरी बंद आहे — विध्वंसक कमांड्स चालवण्यापूर्वी विचारतात.',
   'ide.chat.autoApproveError': 'स्वयंचलित मंजुरी सेटिंग अद्ययावत करण्यात अयशस्वी झाले.',
-  'ide.chat.modelUsage':
-    'वापर: /model<model-name> (उदा. क्लॉड-ऑपस-4-6, क्लॉड-सॉनेट-4-6, क्लॉड-हायकू-4-5-20251001)',
+  'ide.chat.modelUsage': 'वापर: /model<model-name> (उदा. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} प्रो आवृत्तीवर उपलब्ध आहे. सर्व मॉडेल्स पाहण्यासाठी अपग्रेड करा.',
   'ide.chat.maxLoopsReached': 'कमाल फेऱ्यांची मर्यादा गाठली आहे.',

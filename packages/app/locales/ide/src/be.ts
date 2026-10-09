@@ -82,8 +82,7 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Дасягнуты ліміт цыклаў.',
   'ide.chat.modelError': 'Не ўдалося абнавіць мадэль чата.',
   'ide.chat.modelSet': 'Мадэль чата ўстаноўлена на {{name}}',
-  'ide.chat.modelUsage':
-    'Выкарыстанне: /model <назва-мадэлі>  (напр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Выкарыстанне: /model <назва-мадэлі>  (напр. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} даступна ў Pro. Абнавіце для доступу да ўсіх мадэляў.',
   'ide.chat.proRequired': 'Pro',

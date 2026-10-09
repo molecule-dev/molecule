@@ -155,8 +155,7 @@ export const sv: Partial<IdeTranslations> = {
     'Automatiskt godkännande av — destruktiva kommandon frågar innan de körs.',
   'ide.chat.autoApproveError':
     'Det gick inte att uppdatera inställningen för automatiskt godkännande.',
-  'ide.chat.modelUsage':
-    'Användning: /modell<model-name> (t.ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Användning: /modell<model-name> (t.ex. {{examples}})',
   'ide.chat.maxLoopsReached': 'Maxgränsen för loopar har uppnåtts.',
   'ide.chat.maxLoopsError': 'Misslyckades med att uppdatera maxantalet verktygsiterationer.',
   'ide.chat.dropFilesHere': 'Släpp filer här',

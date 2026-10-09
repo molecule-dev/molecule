@@ -156,8 +156,7 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatyczna akceptacja wyłączona — destrukcyjne polecenia pytają o potwierdzenie przed wykonaniem.',
   'ide.chat.autoApproveError': 'Nie udało się zaktualizować ustawień automatycznej akceptacji.',
-  'ide.chat.modelUsage':
-    'Użycie: /model<model-name> (np. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Użycie: /model<model-name> (np. {{examples}})',
   'ide.chat.maxLoopsReached': 'Osiągnięto limit maksymalnej liczby pętli.',
   'ide.chat.maxLoopsError': 'Nie udało się zaktualizować maksymalnej liczby iteracji narzędzia.',
   'ide.chat.dropFilesHere': 'Upuść pliki tutaj',

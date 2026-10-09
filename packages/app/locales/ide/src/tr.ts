@@ -159,8 +159,7 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Otomatik onay kapalı — yıkıcı komutlar çalıştırılmadan önce onay ister.',
   'ide.chat.autoApproveError': 'Otomatik onay ayarı güncellenemedi.',
-  'ide.chat.modelUsage':
-    'Kullanım: /model<model-name> (örneğin Claude-opus-4-6, Claude-sonnet-4-6, Claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Kullanım: /model<model-name> (örneğin {{examples}})',
   'ide.chat.maxLoopsReached': 'Maksimum döngü sınırı aşıldı.',
   'ide.chat.maxLoopsError': 'Maksimum araç yineleme sayısını güncelleme başarısız oldu.',
   'ide.chat.dropFilesHere': 'Dosyaları buraya sürükleyin',

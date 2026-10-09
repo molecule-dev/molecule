@@ -148,8 +148,7 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatikus jóváhagyás letiltva — a káros parancsok futtatás előtt megerősítést kérnek.',
   'ide.chat.autoApproveError': 'Nem sikerült frissíteni az automatikus jóváhagyás beállítását.',
-  'ide.chat.modelUsage':
-    'Használat: /modell<model-name> (pl. claude-opus-4-6, claude-szonett-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Használat: /modell<model-name> (pl. {{examples}})',
   'ide.chat.maxLoopsReached': 'Elérte a maximális ciklusszámot.',
   'ide.chat.maxLoopsError': 'Nem sikerült frissíteni a maximális eszköziterációk számát.',
   'ide.chat.dropFilesHere': 'Húzd ide a fájlokat',

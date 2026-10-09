@@ -86,8 +86,7 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatinis patvirtinimas išjungtas — žalingos komandos klaus prieš vykdant.',
   'ide.chat.autoApproveError': 'Nepavyko atnaujinti automatinio patvirtinimo nustatymo.',
-  'ide.chat.modelUsage':
-    'Naudojimas: /model<model-name> (pvz., claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Naudojimas: /model<model-name> (pvz., {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} galima įsigyti „Pro“ versijoje. Atnaujinkite, kad galėtumėte naudotis visais modeliais.',
   'ide.chat.maxLoopsReached': 'Pasiektas maksimalus ciklų skaičius.',

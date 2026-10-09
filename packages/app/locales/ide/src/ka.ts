@@ -86,8 +86,7 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ავტომატური დამტკიცება გამორთულია — დესტრუქციული ბრძანებები დადასტურებას ითხოვენ გაშვებამდე.',
   'ide.chat.autoApproveError': 'ავტომატური დამტკიცების პარამეტრის განახლება ვერ მოხერხდა.',
-  'ide.chat.modelUsage':
-    'გამოყენება: /მოდელი<model-name> (მაგ. კლოდ-ოპუს-4-6, კლოდ-სონეტი-4-6, კლოდ-ჰაიკუ-4-5-20251001)',
+  'ide.chat.modelUsage': 'გამოყენება: /მოდელი<model-name> (მაგ. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ხელმისაწვდომია Pro-ზე. განაახლეთ ყველა მოდელზე წვდომისთვის.',
   'ide.chat.maxLoopsReached': 'ციკლების მაქსიმალური ლიმიტი მიღწეულია.',

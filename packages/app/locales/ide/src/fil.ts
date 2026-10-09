@@ -144,8 +144,7 @@ export const fil: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Naka-off ang auto-approve — humihingi muna ng kumpirmasyon ang mga mapanirang command bago tumakbo.',
   'ide.chat.autoApproveError': 'Nabigong i-update ang setting ng auto-approve.',
-  'ide.chat.modelUsage':
-    'Paggamit: /modelo<model-name> (hal. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Paggamit: /modelo<model-name> (hal. {{examples}})',
   'ide.chat.maxLoopsReached': 'Naabot na ang limitasyon sa max loops.',
   'ide.chat.maxLoopsError': 'Nabigong i-update ang pinakamataas na mga iterasyon ng tool.',
   'ide.chat.dropFilesHere': 'I-drop ang mga file dito',

@@ -114,8 +114,7 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatisk godkjenning av — ødeleggende kommandoer spør før de kjøres.',
   'ide.chat.autoApproveError': 'Kunne ikke oppdatere innstillingen for automatisk godkjenning.',
-  'ide.chat.modelUsage':
-    'Bruk: /modell<model-name> (f.eks. claude-opus-4-6, claude-sonnett-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Bruk: /modell<model-name> (f.eks. {{examples}})',
   'ide.chat.maxLoopsReached': 'Maksimalt antall løkker er nådd.',
   'ide.chat.maxLoopsError': 'Kunne ikke oppdatere maksimalt antall verktøyiterasjoner.',
   'ide.chat.dropFilesHere': 'Slipp filer her',

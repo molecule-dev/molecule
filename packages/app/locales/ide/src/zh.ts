@@ -158,8 +158,7 @@ export const zh: Partial<IdeTranslations> = {
     '已启用自动批准——破坏性命令将无需确认即可执行。数据泄露防护仍会请求确认。使用 /autoapprove 关闭。',
   'ide.chat.autoApproveDisabled': '自动批准已关闭——破坏性命令在执行前会请求确认。',
   'ide.chat.autoApproveError': '自动批准设置更新失败。',
-  'ide.chat.modelUsage':
-    '用法：/model<model-name> （例如克劳德-opus-4-6、克劳德-十四行诗-4-6、克劳德-俳句-4-5-20251001）',
+  'ide.chat.modelUsage': '用法：/model<model-name> （例如{{examples}}）',
   'ide.chat.maxLoopsReached': '已达到最大循环次数限制。',
   'ide.chat.maxLoopsError': '更新最大工具迭代次数失败。',
   'ide.chat.dropFilesHere': '文件拖放到这里',

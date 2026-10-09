@@ -86,8 +86,7 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'স্বয়ংক্রিয়-অনুমোদন বন্ধ — ধ্বংসাত্মক কমান্ড চালানোর আগে জিজ্ঞাসা করে।',
   'ide.chat.autoApproveError': 'স্বয়ংক্রিয়-অনুমোদন সেটিং আপডেট করতে ব্যর্থ হয়েছে।',
-  'ide.chat.modelUsage':
-    'ব্যবহার: /মডেল<model-name> (যেমন claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'ব্যবহার: /মডেল<model-name> (যেমন {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} প্রো সংস্করণে উপলব্ধ। সব মডেল অ্যাক্সেস করতে আপগ্রেড করুন।',
   'ide.chat.maxLoopsReached': 'সর্বোচ্চ লুপের সীমায় পৌঁছেছেন।',

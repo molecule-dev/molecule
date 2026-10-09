@@ -90,8 +90,7 @@ export const he: Partial<IdeTranslations> = {
     'אישור אוטומטי מופעל — פקודות הרסניות פועלות ללא שאילת אישור. מנגנון ההגנה מפני הדלפת מידע עדיין שואל לאישור. כבה עם /autoapprove.',
   'ide.chat.autoApproveDisabled': 'אישור אוטומטי מושבת — פקודות הרסניות שואלות לאישור לפני ההרצה.',
   'ide.chat.autoApproveError': 'נכשל בעדכון הגדרת האישור האוטומטי.',
-  'ide.chat.modelUsage':
-    'שימוש: /דגם<model-name> (למשל קלאוד-אופוס-4-6, קלוד-סונט-4-6, קלוד-הייקו-4-5-20251001)',
+  'ide.chat.modelUsage': 'שימוש: /דגם<model-name> (למשל {{examples}})',
   'ide.chat.modelUpgradeRequired': '{{model}} זמין ב-Pro. שדרג כדי לגשת לכל הדגמים.',
   'ide.chat.maxLoopsReached': 'הגעת למגבלת הלולאות המקסימלית.',
   'ide.chat.maxLoopsError': 'נכשל בעדכון איטרציות הכלי המקסימליות.',

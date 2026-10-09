@@ -86,8 +86,7 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     "Aprovació automàtica desactivada: les ordres destructives pregunten abans d'executar-se.",
   'ide.chat.autoApproveError': "No s'ha pogut actualitzar la configuració d'aprovació automàtica.",
-  'ide.chat.modelUsage':
-    'Ús: /model<model-name> (p. ex. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Ús: /model<model-name> (p. ex. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} està disponible a Pro. Actualitza per accedir a tots els models.',
   'ide.chat.maxLoopsReached': "S'ha arribat al límit màxim de bucles.",

@@ -146,8 +146,7 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Kelulusan automatik dilumpuhkan — arahan yang merosakkan akan bertanya sebelum dijalankan.',
   'ide.chat.autoApproveError': 'Gagal mengemas kini tetapan kelulusan automatik.',
-  'ide.chat.modelUsage':
-    'Penggunaan: /model<model-name> (cth claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Penggunaan: /model<model-name> (cth {{examples}})',
   'ide.chat.maxLoopsReached': 'Had gelung maksimum dicapai.',
   'ide.chat.maxLoopsError': 'Gagal mengemas kini lelaran alat maksimum.',
   'ide.chat.dropFilesHere': 'Letak fail di sini',

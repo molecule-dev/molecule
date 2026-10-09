@@ -159,8 +159,7 @@ export const ja: Partial<IdeTranslations> = {
     '自動承認がオンです — 破壊的なコマンドは確認なしで実行されます。データ持ち出しを検知するガードは引き続き確認を求めます。オフにするには /autoapprove と入力してください。',
   'ide.chat.autoApproveDisabled': '自動承認がオフです — 破壊的なコマンドは実行前に確認を求めます。',
   'ide.chat.autoApproveError': '自動承認設定の更新に失敗しました。',
-  'ide.chat.modelUsage':
-    '使用方法: /model<model-name> (例: クロード-作品-4-6、クロード-ソネット-4-6、クロード-俳句-4-5-20251001)',
+  'ide.chat.modelUsage': '使用方法: /model<model-name> (例: {{examples}})',
   'ide.chat.maxLoopsReached': 'ループ回数の上限に達しました。',
   'ide.chat.maxLoopsError': '最大ツール反復回数の更新に失敗しました。',
   'ide.chat.dropFilesHere': 'ファイルをここにドロップしてください',

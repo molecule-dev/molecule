@@ -87,8 +87,7 @@ export const zu: Partial<IdeTranslations> = {
     'Ukuvuma ngokuzenzakalelayo kukhutshaziwe — imiyalo ebhubhisayo iyabuza ngaphambi kokusetshenziswa.',
   'ide.chat.autoApproveError':
     'Yehlulekile ukubuyekeza isilungiselelo sokuvuma ngokuzenzakalelayo.',
-  'ide.chat.modelUsage':
-    'Ukusetshenziswa: /imodeli<model-name> (isb. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Ukusetshenziswa: /imodeli<model-name> (isb. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} iyatholakala ku-Pro. Thuthukisa ukuze ufinyelele kuwo wonke amamodeli.',
   'ide.chat.maxLoopsReached': 'Umkhawulo ophezulu wama-loop ufinyelelwe.',

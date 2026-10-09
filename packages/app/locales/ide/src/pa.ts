@@ -86,8 +86,7 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ਆਟੋ-ਮਨਜ਼ੂਰੀ ਬੰਦ ਹੈ — ਵਿਨਾਸ਼ਕਾਰੀ ਕਮਾਂਡਾਂ ਚੱਲਣ ਤੋਂ ਪਹਿਲਾਂ ਪੁੱਛਦੀਆਂ ਹਨ।',
   'ide.chat.autoApproveError': 'ਆਟੋ-ਮਨਜ਼ੂਰੀ ਸੈਟਿੰਗ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
-  'ide.chat.modelUsage':
-    'ਵਰਤੋਂ: /ਮਾਡਲ<model-name> (ਉਦਾਹਰਨ ਲਈ ਕਲਾਉਡ-ਓਪਸ-4-6, ਕਲੌਡ-ਸੋਨੈੱਟ-4-6, ਕਲੌਡ-ਹਾਇਕੂ-4-5-20251001)',
+  'ide.chat.modelUsage': 'ਵਰਤੋਂ: /ਮਾਡਲ<model-name> (ਉਦਾਹਰਨ ਲਈ {{examples}})',
   'ide.chat.modelUpgradeRequired':
     "{{model}} ਪ੍ਰੋ 'ਤੇ ਉਪਲਬਧ ਹੈ। ਸਾਰੇ ਮਾਡਲਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਲਈ ਅੱਪਗ੍ਰੇਡ ਕਰੋ।",
   'ide.chat.maxLoopsReached': 'ਵੱਧ ਤੋਂ ਵੱਧ ਲੂਪਸ ਦੀ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ।',

@@ -86,8 +86,7 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Samodejna odobritev je onemogočena — uničujoči ukazi zahtevajo potrditev pred izvedbo.',
   'ide.chat.autoApproveError': 'Posodobitev nastavitve samodejne odobritve ni uspela.',
-  'ide.chat.modelUsage':
-    'Uporaba: /model<model-name> (npr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Uporaba: /model<model-name> (npr. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} je na voljo v različici Pro. Nadgradite za dostop do vseh modelov.',
   'ide.chat.maxLoopsReached': 'Dosežena je bila omejitev največjega števila zank.',

@@ -88,8 +88,7 @@ export const bg: Partial<IdeTranslations> = {
     'Автоматичното одобрение е изключено — деструктивните команди питат, преди да се изпълнят.',
   'ide.chat.autoApproveError':
     'Актуализирането на настройката за автоматично одобрение не бе успешно.',
-  'ide.chat.modelUsage':
-    'Употреба: /модел<model-name> (напр. клод-опус-4-6, клод-сонет-4-6, клод-хайку-4-5-20251001)',
+  'ide.chat.modelUsage': 'Употреба: /модел<model-name> (напр. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} е налично в Pro версия. Надстройте, за да получите достъп до всички модели.',
   'ide.chat.maxLoopsReached': 'Достигнат е максималният брой цикли.',

@@ -82,8 +82,7 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'An kai iyakar yawan zagaye.',
   'ide.chat.modelError': 'An kasa sabunta tsarin hira.',
   'ide.chat.modelSet': 'An saita tsarin hira zuwa {{name}}',
-  'ide.chat.modelUsage':
-    'Amfani: /model <model-name>  (misali claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Amfani: /model <model-name>  (misali {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} yana samuwa a Pro. Haɓaka don samun damar duk samfurori.',
   'ide.chat.proRequired': 'Pro',

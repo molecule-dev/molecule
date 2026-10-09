@@ -86,8 +86,7 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ಸ್ವಯಂ-ಅನುಮೋದನೆ ನಿಷ್ಕ್ರಿಯವಾಗಿದೆ — ವಿನಾಶಕಾರಿ ಆಜ್ಞೆಗಳು ಚಲಾಯಿಸುವ ಮೊದಲು ದೃಢೀಕರಣ ಕೇಳುತ್ತವೆ.',
   'ide.chat.autoApproveError': 'ಸ್ವಯಂ-ಅನುಮೋದನೆ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
-  'ide.chat.modelUsage':
-    'ಬಳಕೆ: /ಮಾದರಿ<model-name> (ಉದಾ ಕ್ಲಾಡ್-ಓಪಸ್-4-6, ಕ್ಲಾಡ್-ಸಾನೆಟ್-4-6, ಕ್ಲಾಡ್-ಹೈಕು-4-5-20251001)',
+  'ide.chat.modelUsage': 'ಬಳಕೆ: /ಮಾದರಿ<model-name> (ಉದಾ {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} ಪ್ರೊನಲ್ಲಿ ಲಭ್ಯವಿದೆ. ಎಲ್ಲಾ ಮಾದರಿಗಳನ್ನು ಪ್ರವೇಶಿಸಲು ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ.',
   'ide.chat.maxLoopsReached': 'ಗರಿಷ್ಠ ಲೂಪ್‌ಗಳ ಮಿತಿಯನ್ನು ತಲುಪಲಾಗಿದೆ.',

@@ -86,8 +86,7 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ഓട്ടോ-അപ്രൂവ് ഓഫാണ് — നാശകരമായ കമാൻഡുകൾ പ്രവർത്തിക്കുന്നതിന് മുമ്പ് ചോദിക്കും.',
   'ide.chat.autoApproveError': 'ഓട്ടോ-അപ്രൂവ് ക്രമീകരണം അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
-  'ide.chat.modelUsage':
-    'ഉപയോഗം: /മോഡൽ<model-name> (ഉദാ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'ഉപയോഗം: /മോഡൽ<model-name> (ഉദാ. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} പ്രോയിൽ ലഭ്യമാണ്. എല്ലാ മോഡലുകളും ആക്‌സസ് ചെയ്യാൻ അപ്‌ഗ്രേഡ് ചെയ്യുക.',
   'ide.chat.maxLoopsReached': 'പരമാവധി ലൂപ്പുകളുടെ പരിധി എത്തി.',

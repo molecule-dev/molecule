@@ -86,8 +86,7 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Автомат зөвшөөрлийг идэвхгүй болгосон — сүйтгэх командууд ажиллахын өмнө асууна.',
   'ide.chat.autoApproveError': 'Автомат зөвшөөрлийн тохиргоог шинэчилж чадсангүй.',
-  'ide.chat.modelUsage':
-    'Хэрэглээ: /загвар<model-name> (жишээ нь claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Хэрэглээ: /загвар<model-name> (жишээ нь {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro дээр боломжтой. Бүх загварт хандахын тулд шинэчилнэ үү.',
   'ide.chat.maxLoopsReached': 'Дээд давталтын хязгаарт хүрсэн.',

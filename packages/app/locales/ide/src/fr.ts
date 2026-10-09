@@ -157,8 +157,7 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     "Approbation automatique désactivée : les commandes destructrices demandent une confirmation avant de s'exécuter.",
   'ide.chat.autoApproveError': "Échec de la mise à jour du paramètre d'approbation automatique.",
-  'ide.chat.modelUsage':
-    'Utilisation : /model<model-name> (par exemple claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Utilisation : /model<model-name> (par exemple {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Disponible sur la version Pro. Passez à la version supérieure pour accéder à tous les modèles.',
   'ide.chat.maxLoopsReached': 'Nombre maximal de boucles atteint.',

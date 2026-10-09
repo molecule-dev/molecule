@@ -86,8 +86,7 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatické schvaľovanie je vypnuté — deštruktívne príkazy si pred spustením vyžiadajú potvrdenie.',
   'ide.chat.autoApproveError': 'Nepodarilo sa aktualizovať nastavenie automatického schvaľovania.',
-  'ide.chat.modelUsage':
-    'Použitie: /model<model-name> (napr. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Použitie: /model<model-name> (napr. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} je k dispozícii vo verzii Pro. Pre prístup ku všetkým modelom prejdite na vyššiu verziu.',
   'ide.chat.maxLoopsReached': 'Dosiahnutý maximálny počet slučiek.',

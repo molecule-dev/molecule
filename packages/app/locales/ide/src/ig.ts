@@ -80,8 +80,7 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Erugoro oke loop.',
   'ide.chat.modelError': 'Ịmelite ụdị nkata adaghị.',
   'ide.chat.modelSet': 'Ụdị nkata bụ {{name}}',
-  'ide.chat.modelUsage':
-    'Ojiji: /model <model-name>  (dịka claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Ojiji: /model <model-name>  (dịka {{examples}})',
   'ide.chat.modelUpgradeRequired': '{{model}} dị na Pro. Kwalite iji nweta ụdị niile.',
   'ide.chat.proRequired': 'Pro',
   'ide.chat.queued': 'Na-echere',

@@ -86,8 +86,7 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'ปิดใช้งานการอนุมัติอัตโนมัติแล้ว — คำสั่งที่ทำลายข้อมูลจะถามก่อนทำงานทุกครั้ง',
   'ide.chat.autoApproveError': 'ไม่สามารถอัปเดตการตั้งค่าการอนุมัติอัตโนมัติได้',
-  'ide.chat.modelUsage':
-    'วิธีใช้งาน: /model<model-name> (เช่น claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'วิธีใช้งาน: /model<model-name> (เช่น {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} มีให้บริการในรุ่น Pro เท่านั้น อัปเกรดเพื่อเข้าถึงทุกรุ่น',
   'ide.chat.maxLoopsReached': 'ถึงขีดจำกัดจำนวนลูปสูงสุดแล้ว',

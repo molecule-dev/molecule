@@ -86,8 +86,7 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Автоматското одобрување е исклучено — деструктивните команди прашуваат пред извршување.',
   'ide.chat.autoApproveError': 'Неуспешно ажурирање на поставката за автоматско одобрување.',
-  'ide.chat.modelUsage':
-    'Употреба: /модел<model-name> (на пр. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Употреба: /модел<model-name> (на пр. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} е достапно на Pro. Надградете за пристап до сите модели.',
   'ide.chat.maxLoopsReached': 'Достигнато е максималното ограничување на јамките.',

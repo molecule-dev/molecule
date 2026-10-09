@@ -86,8 +86,7 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Автоматты мақұлдау өшірулі — бүлдіруші командалар орындалу алдында растауды сұрайды.',
   'ide.chat.autoApproveError': 'Автоматты мақұлдау параметрін жаңарту сәтсіз аяқталды.',
-  'ide.chat.modelUsage':
-    'Қолданылуы: /модель<model-name> (мысалы, Клод-опус-4-6, Клод-сонет-4-6, Клод-хайку-4-5-20251001)',
+  'ide.chat.modelUsage': 'Қолданылуы: /модель<model-name> (мысалы, {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro нұсқасында қолжетімді. Барлық үлгілерге кіру үшін жаңартыңыз.',
   'ide.chat.maxLoopsReached': 'Циклдердің максималды саны шегіне жетті.',

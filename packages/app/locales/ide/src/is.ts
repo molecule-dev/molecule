@@ -86,8 +86,7 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Sjálfvirkt samþykki óvirkt — eyðileggjandi skipanir biðja um staðfestingu áður en þær keyra.',
   'ide.chat.autoApproveError': 'Mistókst að uppfæra stillingu fyrir sjálfvirkt samþykki.',
-  'ide.chat.modelUsage':
-    'Notkun: /líkan<model-name> (td claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Notkun: /líkan<model-name> (td {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} er í boði fyrir Pro. Uppfærðu til að fá aðgang að öllum gerðum.',
   'ide.chat.maxLoopsReached': 'Hámarksfjöldi lykkjur náð.',

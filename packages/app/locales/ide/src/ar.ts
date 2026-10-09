@@ -159,8 +159,7 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'الموافقة التلقائية معطّلة - تطلب الأوامر المدمرة التأكيد قبل التنفيذ.',
   'ide.chat.autoApproveError': 'فشل تحديث إعدادات الموافقة التلقائية.',
-  'ide.chat.modelUsage':
-    'طريقة الاستخدام: /model<model-name> (على سبيل المثال، كلود-أوبوس-4-6، كلود-سونيت-4-6، كلود-هايكو-4-5-20251001)',
+  'ide.chat.modelUsage': 'طريقة الاستخدام: /model<model-name> (على سبيل المثال، {{examples}})',
   'ide.chat.maxLoopsReached': 'تم الوصول إلى الحد الأقصى لعدد الحلقات.',
   'ide.chat.maxLoopsError': 'فشل تحديث الحد الأقصى لعدد تكرارات الأداة.',
   'ide.chat.dropFilesHere': 'قم بإسقاط الملفات هنا',

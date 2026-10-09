@@ -85,8 +85,7 @@ export const lo: Partial<IdeTranslations> = {
     'ອະນຸມັດອັດຕະໂນມັດເປີດຢູ່ — ຄຳສັ່ງທີ່ທຳລາຍຈະຖືກປະຕິບັດໂດຍບໍ່ຖາມ. ລະບົບປ້ອງກັນການຮົ່ວໄຫຼຂໍ້ມູນຍັງຄົງຖາມຢູ່. ປິດໄດ້ດ້ວຍ /autoapprove.',
   'ide.chat.autoApproveDisabled': 'ອະນຸມັດອັດຕະໂນມັດປິດຢູ່ — ຄຳສັ່ງທີ່ທຳລາຍຈະຖາມກ່ອນປະຕິບັດ.',
   'ide.chat.autoApproveError': 'ອັບເດດການຕັ້ງຄ່າອະນຸມັດອັດຕະໂນມັດບໍ່ສຳເລັດ.',
-  'ide.chat.modelUsage':
-    'ການນຳໃຊ້: /ຮູບແບບ<model-name> (ຕົວຢ່າງ: claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'ການນຳໃຊ້: /ຮູບແບບ<model-name> (ຕົວຢ່າງ: {{examples}})',
   'ide.chat.modelUpgradeRequired': '{{model}} ມີຢູ່ໃນ Pro. ອັບເກຣດເພື່ອເຂົ້າເຖິງທຸກລຸ້ນ.',
   'ide.chat.maxLoopsReached': 'ຮອດຂີດຈຳກັດສູງສຸດຂອງການຫຼຸບຮອບແລ້ວ.',
   'ide.chat.maxLoopsError': 'ອັບເດດເຄື່ອງມືຊ້ຳໆສູງສຸດບໍ່ສຳເລັດ.',

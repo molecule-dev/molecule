@@ -86,8 +86,7 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Ավտոմատ հաստատումը անջատված է — կործանարար հրամանները հարցնում են հաստատում գործարկումից առաջ։',
   'ide.chat.autoApproveError': 'Չհաջողվեց թարմացնել ավտոմատ հաստատման կարգավորումը։',
-  'ide.chat.modelUsage':
-    'Օգտագործումը՝ /մոդել<model-name> (օրինակ՝ claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Օգտագործումը՝ /մոդել<model-name> (օրինակ՝ {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Հասանելի է Pro տարբերակով։ Թարմացրեք՝ բոլոր մոդելներին մուտք գործելու համար։',
   'ide.chat.maxLoopsReached': 'Հասել է ցիկլերի առավելագույն սահմանաչափին։',

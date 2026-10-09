@@ -86,8 +86,7 @@ export const sr: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Аутоматско одобравање је онемогућено — деструктивне команде траже потврду пре извршавања.',
   'ide.chat.autoApproveError': 'Ажурирање подешавања аутоматског одобравања није успело.',
-  'ide.chat.modelUsage':
-    'Употреба: /модел<model-name> (нпр. цлауде-опус-4-6, цлауде-соннет-4-6, цлауде-хаику-4-5-20251001)',
+  'ide.chat.modelUsage': 'Употреба: /модел<model-name> (нпр. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} је доступно на Pro верзији. Надоградите да бисте приступили свим моделима.',
   'ide.chat.maxLoopsReached': 'Достигнут је максималан број петљи.',

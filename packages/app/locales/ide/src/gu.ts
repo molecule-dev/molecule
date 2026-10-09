@@ -85,8 +85,7 @@ export const gu: Partial<IdeTranslations> = {
     'સ્વતઃ-મંજૂરી ચાલુ છે — વિનાશક આદેશો પૂછ્યા વગર ચાલે છે. એક્સફિલ્ટ્રેશન ગાર્ડ હજુ પણ પૂછે છે. /autoapprove વડે બંધ કરો.',
   'ide.chat.autoApproveDisabled': 'સ્વતઃ-મંજૂરી બંધ છે — વિનાશક આદેશો ચાલતા પહેલા પૂછે છે.',
   'ide.chat.autoApproveError': 'સ્વતઃ-મંજૂરી સેટિંગ અપડેટ કરવામાં નિષ્ફળ.',
-  'ide.chat.modelUsage':
-    'ઉપયોગ: /મોડેલ<model-name> (દા.ત. ક્લાઉડ-ઓપસ-4-6, ક્લાઉડ-સોનેટ-4-6, ક્લાઉડ-હાઈકુ-4-5-20251001)',
+  'ide.chat.modelUsage': 'ઉપયોગ: /મોડેલ<model-name> (દા.ત. {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} પ્રો પર ઉપલબ્ધ છે. બધા મોડેલોને ઍક્સેસ કરવા માટે અપગ્રેડ કરો.',
   'ide.chat.maxLoopsReached': 'મહત્તમ લૂપ્સની મર્યાદા પહોંચી ગઈ.',

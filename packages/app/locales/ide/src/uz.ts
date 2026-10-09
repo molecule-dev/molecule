@@ -86,8 +86,7 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     "Avtomatik tasdiqlash o'chirilgan — halokatli buyruqlar bajarilishidan oldin so'raladi.",
   'ide.chat.autoApproveError': 'Avtomatik tasdiqlash sozlamasini yangilashda xatolik yuz berdi.',
-  'ide.chat.modelUsage':
-    'Foydalanish: /model<model-name> (masalan, claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Foydalanish: /model<model-name> (masalan, {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Pro’da mavjud. Barcha modellarga kirish uchun yangilang.',
   'ide.chat.maxLoopsReached': 'Maksimal sikllar soni chekloviga yetdi.',

@@ -87,8 +87,7 @@ export const km: Partial<IdeTranslations> = {
     'ការយល់ព្រមដោយស្វ័យប្រវត្តិបានបិទ — ពាក្យបញ្ជាបំផ្លិចបំផ្លាញសួរបញ្ជាក់មុននឹងដំណើរការ។',
   'ide.chat.autoApproveError':
     'បរាជ័យក្នុងការធ្វើបច្ចុប្បន្នភាពការកំណត់ការយល់ព្រមដោយស្វ័យប្រវត្តិ។',
-  'ide.chat.modelUsage':
-    'ការប្រើប្រាស់៖ /ម៉ូដែល<model-name> (ឧទាហរណ៍ claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'ការប្រើប្រាស់៖ /ម៉ូដែល<model-name> (ឧទាហរណ៍ {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} មាននៅលើ Pro។ ធ្វើឱ្យប្រសើរឡើងដើម្បីចូលប្រើម៉ូដែលទាំងអស់។',
   'ide.chat.maxLoopsReached': 'បានឈានដល់ដែនកំណត់រង្វិលជុំអតិបរមា។',

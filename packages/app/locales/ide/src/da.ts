@@ -112,8 +112,7 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Automatisk godkendelse slået fra — destruktive kommandoer spørger, før de køres.',
   'ide.chat.autoApproveError': 'Kunne ikke opdatere indstillingen for automatisk godkendelse.',
-  'ide.chat.modelUsage':
-    'Anvendelse: /model<model-name> (f.eks. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Anvendelse: /model<model-name> (f.eks. {{examples}})',
   'ide.chat.maxLoopsReached': 'Maksimalt antal loops er nået.',
   'ide.chat.maxLoopsError': 'Kunne ikke opdatere det maksimale antal værktøjsiterationer.',
   'ide.chat.dropFilesHere': 'Slip filer her',

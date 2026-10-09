@@ -84,8 +84,7 @@ export const am: Partial<IdeTranslations> = {
     'ራስ-ሰር ማጽደቅ በርቷል - አጥፊ ትዕዛዞች ሳይጠየቁ ይሰራሉ። የመረጃ ስርቆት መከላከያው አሁንም ይጠይቃል። በ/autoapprove ያጥፉት።',
   'ide.chat.autoApproveDisabled': 'ራስ-ሰር ማጽደቅ ጠፍቷል - አጥፊ ትዕዛዞች ከመሰራታቸው በፊት ይጠይቃሉ።',
   'ide.chat.autoApproveError': 'የራስ-ሰር ማጽደቅ ቅንብርን ማዘመን አልተሳካም።',
-  'ide.chat.modelUsage':
-    'አጠቃቀም: /ሞዴል<model-name> (ለምሳሌ claude-opus-4-6፣ claude-sonnet-4-6፣ claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'አጠቃቀም: /ሞዴል<model-name> (ለምሳሌ {{examples}})',
   'ide.chat.modelUpgradeRequired': '{{model}} በፕሮ ላይ ይገኛል። ሁሉንም ሞዴሎች ለመድረስ ያሻሽሉ።',
   'ide.chat.maxLoopsReached': 'ከፍተኛው የሉፕስ ገደብ ላይ ተደርሷል።',
   'ide.chat.maxLoopsError': 'ከፍተኛውን የመሳሪያ ድግግሞሽ ማዘመን አልተሳካም።',

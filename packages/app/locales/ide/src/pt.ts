@@ -154,8 +154,7 @@ export const pt: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Aprovação automática desativada — comandos destrutivos pedem confirmação antes de serem executados.',
   'ide.chat.autoApproveError': 'Falha ao atualizar a configuração de aprovação automática.',
-  'ide.chat.modelUsage':
-    'Utilização: /modelo<model-name> (por exemplo, claude-opus-4-6, claude-soneto-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Utilização: /modelo<model-name> (por exemplo, {{examples}})',
   'ide.chat.maxLoopsReached': 'Limite máximo de loops atingido.',
   'ide.chat.maxLoopsError': 'Falha ao atualizar as iterações da ferramenta max.',
   'ide.chat.dropFilesHere': 'Arraste os arquivos para cá.',

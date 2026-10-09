@@ -86,8 +86,7 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Автоматическое одобрение отключено — деструктивные команды запрашивают подтверждение перед выполнением.',
   'ide.chat.autoApproveError': 'Не удалось обновить настройки автоматического одобрения.',
-  'ide.chat.modelUsage':
-    'Использование: /model<model-name> (например, Клод-опус-4-6, Клод-Сонет-4-6, Клод-Хайку-4-5-20251001)',
+  'ide.chat.modelUsage': 'Использование: /model<model-name> (например, {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} Доступно в версии Pro. Для доступа ко всем моделям необходимо обновить подписку.',
   'ide.chat.maxLoopsReached': 'Достигнут лимит максимального количества циклов.',

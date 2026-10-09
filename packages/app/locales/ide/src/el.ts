@@ -148,8 +148,7 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Η αυτόματη έγκριση είναι απενεργοποιημένη — οι καταστροφικές εντολές ζητούν επιβεβαίωση πριν την εκτέλεση.',
   'ide.chat.autoApproveError': 'Αποτυχία ενημέρωσης της ρύθμισης αυτόματης έγκρισης.',
-  'ide.chat.modelUsage':
-    'Χρήση: /μοντέλο<model-name> (π.χ. claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Χρήση: /μοντέλο<model-name> (π.χ. {{examples}})',
   'ide.chat.maxLoopsReached': 'Έχει επιτευχθεί το μέγιστο όριο βρόχων.',
   'ide.chat.maxLoopsError': 'Αποτυχία ενημέρωσης του μέγιστου αριθμού επαναλήψεων εργαλείου.',
   'ide.chat.dropFilesHere': 'Αποθέστε αρχεία εδώ',

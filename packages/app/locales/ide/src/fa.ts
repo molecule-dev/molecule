@@ -86,8 +86,7 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'تأیید خودکار خاموش است — دستورهای مخرب پیش از اجرا سؤال می‌کنند.',
   'ide.chat.autoApproveError': 'به‌روزرسانی تنظیمات تأیید خودکار ناموفق بود.',
-  'ide.chat.modelUsage':
-    'کاربرد: /مدل<model-name> (به عنوان مثال claude-opus-4-6، claude-sonnet-4-6، claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'کاربرد: /مدل<model-name> (به عنوان مثال {{examples}})',
   'ide.chat.modelUpgradeRequired':
     '{{model}} در نسخه پرو موجود است. برای دسترسی به همه مدل‌ها، ارتقا دهید.',
   'ide.chat.maxLoopsReached': 'به حداکثر تعداد حلقه‌ها رسید.',

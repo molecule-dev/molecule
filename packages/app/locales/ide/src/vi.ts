@@ -156,8 +156,7 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.autoApproveDisabled':
     'Tính năng tự động phê duyệt đã bị tắt — các lệnh có tính phá hủy sẽ hỏi trước khi chạy.',
   'ide.chat.autoApproveError': 'Không thể cập nhật cài đặt tự động phê duyệt.',
-  'ide.chat.modelUsage':
-    'Cách sử dụng: /model<model-name> (ví dụ claude-opus-4-6, claude-sonnet-4-6, claude-haiku-4-5-20251001)',
+  'ide.chat.modelUsage': 'Cách sử dụng: /model<model-name> (ví dụ {{examples}})',
   'ide.chat.maxLoopsReached': 'Đã đạt giới hạn số vòng lặp tối đa.',
   'ide.chat.maxLoopsError': 'Không thể cập nhật số lần lặp tối đa của công cụ.',
   'ide.chat.dropFilesHere': 'Kéo thả tập tin vào đây',
