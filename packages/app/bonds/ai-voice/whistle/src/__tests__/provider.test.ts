@@ -436,6 +436,77 @@ describe('WhistleVoiceProvider', () => {
     voice.dispose()
   })
 
+  it('returns to "listening" after a transient transcription failure', async () => {
+    // The session deliberately survives a failed pass ("without stopping the
+    // session") — so the reported state must survive with it: stuck at
+    // 'error', a consumer keyed on state hides a mic that is live and
+    // transcribing again.
+    fake.returnFor = (name) => (name === 'needle_transcribe' ? -1 : 1)
+    const voice = createProvider()
+    await startAndWaitForCapture(voice, { onError: () => {} })
+    await vi.waitFor(() => expect(voice.getState()).toBe('listening'))
+    for (let i = 0; i < 3; i++) emitFrame(0.1)
+    for (let i = 0; i < 4; i++) emitFrame(0)
+    await vi.waitFor(() => expect(voice.getState()).toBe('error'))
+
+    // The failure was transient: the next pass succeeds and the session is live.
+    fake.returnFor = () => 1
+    for (let i = 0; i < 3; i++) emitFrame(0.1)
+    for (let i = 0; i < 4; i++) emitFrame(0)
+    await vi.waitFor(() => expect(voice.getState()).toBe('listening'))
+    voice.dispose()
+  })
+
+  it('reports idle after dispose, not the stale in-session state', async () => {
+    // dispose() tears the capture graph down and drops the queue; getState()
+    // used to keep saying 'listening' for a provider that can never listen
+    // again.
+    const voice = createProvider()
+    await startAndWaitForCapture(voice, {})
+    await vi.waitFor(() => expect(voice.getState()).toBe('listening'))
+    voice.dispose()
+    expect(voice.getState()).toBe('idle')
+  })
+
+  it('does not report start-failed for a session the user already stopped', async () => {
+    // startListening → stopListening while the engine download is still in
+    // flight → the download then FAILS. The failure path used to fire
+    // unconditionally: state idle → 'error' plus an onError for a start the
+    // user had already abandoned.
+    let releaseWeights: (() => void) | null = null
+    fake.loadResult = -1 // the load fails the moment it is allowed to finish
+    // A dedicated source: the default-URL engine is already cached by earlier
+    // tests in this file, and a cached load would never fetch (or fail) here.
+    const weightsUrl = 'https://example.test/abandoned-whistle.cact'
+    const originalFetch = mockFetch
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      if (String(input) === weightsUrl) {
+        return new Promise<Response>((resolve) => {
+          releaseWeights = () =>
+            resolve(
+              new Response(WEIGHTS_BYTES, {
+                headers: { 'content-length': String(WEIGHTS_BYTES.length) },
+              }),
+            )
+        }) as Promise<Response>
+      }
+      return originalFetch(input)
+    })
+    const voice = createProvider({ weightsUrl })
+    const onError = vi.fn()
+    voice.startListening(undefined, { onError })
+    await vi.waitFor(() => {
+      if (!mockProcessor) throw new Error('capture not started yet')
+    })
+    voice.stopListening()
+    expect(voice.getState()).toBe('idle')
+
+    releaseWeights!()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(onError).not.toHaveBeenCalled()
+    expect(voice.getState()).toBe('idle')
+  })
+
   it('reports start-failed when the weights cannot be loaded, and a retry works', async () => {
     fake.loadResult = -1
     const voice = createProvider({

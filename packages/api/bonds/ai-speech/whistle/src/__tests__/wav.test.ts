@@ -4,6 +4,26 @@ import { WHISTLE_SAMPLE_RATE } from '../engine.js'
 import { decodeWavToMono16k, FloatBlockResampler, WhistleWavError } from '../wav.js'
 
 /**
+ * Asserts `decode` throws a {@link WhistleWavError} with EXACTLY `code` — the
+ * `code` is the documented contract callers branch on. Asserting inside a bare
+ * `catch` block cannot fail when nothing is thrown at all, and asserting only
+ * the error CLASS cannot fail when the code is reclassified, so both halves
+ * live here.
+ * @param decode - The decode call expected to throw.
+ * @param code - The failure kind the input must produce.
+ */
+function expectWavError(decode: () => unknown, code: WhistleWavError['code']): void {
+  let caught: unknown
+  try {
+    decode()
+  } catch (error) {
+    caught = error
+  }
+  expect(caught).toBeInstanceOf(WhistleWavError)
+  expect((caught as WhistleWavError).code).toBe(code)
+}
+
+/**
  * Builds a minimal WAV file with per-channel float samples in [-1, 1].
  * @param options - Format and samples.
  * @returns WAV bytes.
@@ -139,12 +159,15 @@ describe('decodeWavToMono16k', () => {
   })
 
   it('throws not-wav for non-RIFF bytes', () => {
-    expect(() => decodeWavToMono16k(new Uint8Array([1, 2, 3, 4]))).toThrow(WhistleWavError)
-    try {
-      decodeWavToMono16k(new TextEncoder().encode('ID3 tag data here padding padding pad!'))
-    } catch (error) {
-      expect((error as WhistleWavError).code).toBe('not-wav')
-    }
+    // Both inputs are under the 44-byte RIFF floor. The second one used to be
+    // asserted only inside a `catch` block — which passes silently if the
+    // decoder ever stops throwing for it — so the throw and the code are both
+    // asserted, failably, here.
+    expectWavError(() => decodeWavToMono16k(new Uint8Array([1, 2, 3, 4])), 'not-wav')
+    expectWavError(
+      () => decodeWavToMono16k(new TextEncoder().encode('ID3 tag data here padding padding pad!')),
+      'not-wav',
+    )
   })
 
   it('throws unsupported-format for compressed WAV (μ-law)', () => {
@@ -156,11 +179,7 @@ describe('decodeWavToMono16k', () => {
       samples: [new Float32Array(8)],
     })
     expect(() => decodeWavToMono16k(wav)).toThrow(/μ-law/)
-    try {
-      decodeWavToMono16k(wav)
-    } catch (error) {
-      expect((error as WhistleWavError).code).toBe('unsupported-format')
-    }
+    expectWavError(() => decodeWavToMono16k(wav), 'unsupported-format')
   })
 
   it('throws truncated when the data chunk is missing', () => {
@@ -170,8 +189,19 @@ describe('decodeWavToMono16k', () => {
       bitsPerSample: 16,
       samples: [new Float32Array(4)],
     })
-    const headless = wav.subarray(0, 36) // cuts the data chunk header + body
-    expect(() => decodeWavToMono16k(headless)).toThrow(WhistleWavError)
+    // Cut INSIDE the container (past the 12-byte RIFF/WAVE header) rather than
+    // below it: the old `length < 44` floor classified every cut-off file as
+    // `not-wav`, so no input could reach the documented `truncated` code at
+    // all — this input (a valid header, chunks ending before any `data`) is
+    // the one the code contract promises as `truncated`.
+    const headless = wav.subarray(0, 36) // header + fmt chunk, no data chunk
+    expectWavError(() => decodeWavToMono16k(headless), 'truncated')
+
+    // A full-length file whose `data` chunk header was overwritten (a hostile
+    // or corrupt chunk list) is missing its data too, not its container.
+    const noDataChunk = new Uint8Array(wav)
+    noDataChunk.set([0x4a, 0x55, 0x4e, 0x4b], 36) // 'JUNK'
+    expectWavError(() => decodeWavToMono16k(noDataChunk), 'truncated')
   })
 
   it('advances past a chunk whose size field is 0xFFFFFFF8 instead of looping forever', () => {
@@ -223,10 +253,10 @@ describe('decodeWavToMono16k', () => {
       samples: [new Float32Array(4)],
     })
     expect(() => decodeWavToMono16k(wav)).toThrow(/sample rate/)
+    expectWavError(() => decodeWavToMono16k(wav), 'unsupported-format')
     try {
       decodeWavToMono16k(wav)
     } catch (error) {
-      expect((error as WhistleWavError).code).toBe('unsupported-format')
       expect(error).not.toBeInstanceOf(RangeError)
     }
   })

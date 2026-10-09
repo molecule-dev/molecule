@@ -272,8 +272,14 @@ export function decodeWavToMono16k(audio: Uint8Array | Buffer): DecodedWav {
   const bytes = new Uint8Array(
     audio.buffer.slice(audio.byteOffset, audio.byteOffset + audio.byteLength) as ArrayBuffer,
   )
+  // 12 bytes is the smallest readable RIFF/WAVE header ('RIFF' + size + 'WAVE');
+  // anything shorter cannot even name its container. A file that NAMES the
+  // container but ends inside it is 'truncated' (the documented code for
+  // missing chunks — the scan below produces it for every short/absent chunk),
+  // not 'not-wav': the old `length < 44` floor folded that case into 'not-wav'
+  // and left no input that could reach 'truncated' from a cut-off file.
   if (
-    bytes.length < 44 ||
+    bytes.length < 12 ||
     bytes[0] !== 0x52 ||
     bytes[1] !== 0x49 ||
     bytes[2] !== 0x46 ||

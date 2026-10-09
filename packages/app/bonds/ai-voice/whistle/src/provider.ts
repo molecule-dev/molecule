@@ -260,7 +260,13 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
         }
       } catch (error) {
         this.teardownCapture()
+        // A start the caller already ended (stopListening during the mic/engine
+        // setup, or dispose) is not a failed start: reporting 'error' + onError
+        // here moved the state machine idle → error for a session that no
+        // longer exists and nothing could ever acknowledge.
+        const abandoned = !this.listening || this.disposed
         this.listening = false
+        if (abandoned) return
         this.setState('error')
         const isPermission = error instanceof DOMException && error.name === 'NotAllowedError'
         this.handlers.onError?.({
@@ -362,6 +368,11 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
               confidence: averageProbability(result.words) ?? 1,
             })
           }
+          // A pass that succeeded after an earlier failure means the session is
+          // healthy again: capture is still live, so the state must say
+          // 'listening' — leaving it at 'error' reported a dead session while
+          // transcripts kept arriving.
+          if (this.listening) this.setState('listening')
         } catch (error) {
           this.setState('error')
           this.handlers.onError?.({
@@ -563,6 +574,10 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
     this.teardownCapture()
     this.transcribeQueue = []
     this.stopSpeaking()
+    // The provider is dead — capture torn down, queue dropped — so the
+    // reported state must not keep describing a live session ('listening' or
+    // 'processing') to whoever reads getState() afterwards.
+    this.setState('idle')
     this.handlers = {}
   }
 
