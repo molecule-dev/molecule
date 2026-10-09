@@ -1,6 +1,6 @@
 {
   "name": "@molecule/api-templating-mjml",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "MJML responsive email template provider for molecule.dev",
   "type": "module",
   "main": "dist/index.js",

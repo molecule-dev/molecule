@@ -1,5 +1,11 @@
 # @molecule/api-templating-handlebars
 
+## 1.0.3
+
+### Patch Changes
+
+- 65c673c: Updates handlebars to 4.7.10, which fixes three template-injection advisories.
+
 ## 1.0.1
 
 ### Patch Changes
