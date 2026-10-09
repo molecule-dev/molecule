@@ -9,6 +9,7 @@ import {
   HOSTED_LIQUID_D1_PATH,
   provider,
 } from '../provider.js'
+import { aiDecisionsLiquidD1SecretDefinitions } from '../secrets.js'
 
 const mockFetch = vi.fn()
 
@@ -149,6 +150,32 @@ describe('ai-decisions-liquid-d1', () => {
     mockFetch.mockResolvedValueOnce(ok(D1_RESPONSE))
     await createProvider().decide({ state: 's', questions: QUESTIONS })
     expect(mockFetch.mock.calls[0]![0]).toBe('http://192.168.1.10:8080/v1/systemone')
+  })
+
+  it('honours LIQUID_BASE_URL from the environment (gateway in front of the hosted API)', async () => {
+    // The third env var the provider reads — the gateway override for the
+    // HOSTED path (LIQUID_DECISIONS_URL replaces the hosted API entirely, this
+    // one keeps /decisions/v1/systemone). Trailing slashes are stripped.
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    vi.stubEnv('LIQUID_BASE_URL', 'https://liquid-gateway.example//')
+    mockFetch.mockResolvedValueOnce(ok(D1_RESPONSE))
+    await createProvider().decide({ state: 's', questions: QUESTIONS })
+    expect(mockFetch.mock.calls[0]![0]).toBe(
+      'https://liquid-gateway.example/decisions/v1/systemone',
+    )
+  })
+
+  it('registers every env var the provider reads with the secrets registry', () => {
+    // The boot-time configuration report is built from the registered
+    // definitions alone, so an env var the bond honours but does not register
+    // is invisible to it — exactly how LIQUID_BASE_URL went missing while its
+    // two siblings (LTX_BASE_URL, KANDINSKY_BASE_URL) were declared. Pin the
+    // whole declared set so the next env var cannot skip the registry.
+    expect(aiDecisionsLiquidD1SecretDefinitions.map((d) => [d.key, d.required])).toEqual([
+      ['LIQUID_API_KEY', false],
+      ['LIQUID_BASE_URL', false],
+      ['LIQUID_DECISIONS_URL', false],
+    ])
   })
 
   it('sends images as {content_type, base64} alongside the state', async () => {
@@ -366,6 +393,33 @@ describe('ai-decisions-liquid-d1', () => {
       await vi.advanceTimersByTimeAsync(300)
       await expect(p).resolves.toBeTruthy()
       expect(mockFetch).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('stops after maxRetries and throws the status-carrying error, not a retry loop', async () => {
+    // The README's contract: 429/5xx-busy are retried up to THREE times, then
+    // the failure surfaces as an Error carrying the upstream `status` — the
+    // bound and the final shape are two different promises, and only the bound
+    // is what keeps a persistently-busy server from pinning the caller forever.
+    vi.useFakeTimers()
+    try {
+      mockFetch.mockResolvedValue(fail(503, 'diffusion engine busy'))
+      const decision = createProvider({ apiKey: 'k' }).decide({
+        state: 's',
+        questions: QUESTIONS,
+      })
+      const assertion = expect(decision).rejects.toMatchObject({
+        status: 503,
+        message: expect.stringContaining('diffusion engine busy'),
+      })
+      // Backoff windows are 250/500/1000 ms; advance past all three.
+      await vi.advanceTimersByTimeAsync(1_850)
+      await assertion
+      // One initial attempt + three retries — a fifth call would mean the
+      // retry bound is not enforced.
+      expect(mockFetch).toHaveBeenCalledTimes(4)
     } finally {
       vi.useRealTimers()
     }

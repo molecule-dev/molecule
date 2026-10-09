@@ -20,6 +20,14 @@ export const aiDecisionsLiquidD1SecretDefinitions: SecretDefinition[] = [
     example: 'liquid_...',
   },
   {
+    key: 'LIQUID_BASE_URL',
+    description:
+      'Hosted Liquid API base URL — Override only to put a gateway in front of the hosted API (the route /decisions/v1/systemone is appended; LIQUID_DECISIONS_URL replaces the hosted API entirely). Defaults to https://api.liquid.ai.',
+    helpUrl: 'https://docs.liquid.ai/lfm/models/d1',
+    required: false,
+    example: 'https://liquid-gateway.internal',
+  },
+  {
     key: 'LIQUID_DECISIONS_URL',
     description:
       'Self-hosted d1 server URL — Base URL of a llama-server running the open d1 weights (llama-server -hf LiquidAI/d1-3B-GGUF:Q8_0 binds http://127.0.0.1:8080); the bond calls its /v1/systemone route with no API key. Leave unset to use the hosted Liquid API.',
