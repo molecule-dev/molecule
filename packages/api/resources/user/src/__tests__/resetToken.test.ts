@@ -100,7 +100,7 @@ import type { MoleculeRequest, MoleculeResponse } from '@molecule/api-resource'
 
 import * as authorization from '../authorization.js'
 import { logIn } from '../handlers/logIn.js'
-import { resetPassword } from '../handlers/resetPassword.js'
+import { RESET_TOKEN_TTL_MS, resetPassword } from '../handlers/resetPassword.js'
 import { propsSchema } from '../schema.js'
 import { hashResetToken } from '../utilities/hashResetToken.js'
 
@@ -263,6 +263,34 @@ describe('resetPassword — the reset link is consumed atomically', () => {
     // The race loser must not wipe the account's sessions either — only the
     // request whose write actually landed owns the password change.
     expect(deleteByUserId).not.toHaveBeenCalled()
+  })
+
+  it('still confirms a token aged EXACTLY the TTL — the boundary the login gate must match', async () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(new Date('2026-10-09T12:00:00.000Z'))
+      mockFindOne.mockResolvedValue({
+        id: USER_ID,
+        passwordResetToken: STORED_TOKEN,
+        // Issued exactly RESET_TOKEN_TTL_MS ago: the gate refuses only
+        // `tokenAge > TTL`, so the boundary age itself is still valid. This
+        // pins the reference behavior the logIn gate is claimed to equal.
+        passwordResetTokenAt: new Date(Date.now() - RESET_TOKEN_TTL_MS).toISOString(),
+      })
+      mockHash.mockResolvedValue('boundary-hash')
+      mockUpdateMany.mockResolvedValue({ data: null, affected: 1 })
+      mockGet.mockReturnValue({ deleteByUserId: vi.fn().mockResolvedValue(undefined) })
+
+      const result = await handler(
+        makeReq({ token: RESET_TOKEN, password: 'boundary-password' }) as MoleculeRequest & {
+          body: { token: string; password: string }
+        },
+      )
+
+      expect(result).toEqual({ statusCode: 200, body: { success: true } })
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('lets only ONE of two concurrent submissions of the same link succeed', async () => {
@@ -483,5 +511,39 @@ describe('logIn — the reset-token TTL gate matches resetPassword, and analytic
     expect(loginEvents()).toEqual([
       expect.objectContaining({ properties: { method: 'reset_token' } }),
     ])
+  })
+
+  it('accepts a token aged EXACTLY the TTL — the same boundary resetPassword applies', async () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(new Date('2026-10-09T12:00:00.000Z'))
+      const { row, wire } = inMemorySecretsRow({
+        passwordResetToken: STORED_TOKEN,
+        // Issued exactly RESET_TOKEN_TTL_MS ago. resetPassword's gate (the one
+        // this gate is documented to match) still accepts `tokenAge === TTL`
+        // — it refuses only `> TTL` — so the login path must accept it too.
+        // The old inline `< 1000 * 60 * 60` here refused the boundary age,
+        // making logIn STRICTER than the reset confirmation for the very same
+        // credential: a link that still confirmed a reset could not log in.
+        passwordResetTokenAt: new Date(Date.now() - RESET_TOKEN_TTL_MS).toISOString(),
+      })
+      wire()
+      mockFindOne.mockResolvedValue({ id: USER_ID, username: 'boundary' })
+      mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+      vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+
+      const result = await handler(
+        makeReq({ username: 'boundary', passwordResetToken: RESET_TOKEN }),
+        makeRes(),
+      )
+
+      expect(result?.statusCode).toBe(200)
+      expect(loginEvents()).toEqual([
+        expect.objectContaining({ properties: { method: 'reset_token' } }),
+      ])
+      expect(row.passwordResetToken).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

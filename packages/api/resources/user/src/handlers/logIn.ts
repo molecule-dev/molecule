@@ -12,6 +12,7 @@ import { hashResetToken } from '../utilities/hashResetToken.js'
 import { normalizeEmail } from '../utilities/normalizeEmail.js'
 import { notify } from '../utilities/notify.js'
 import { stripSensitiveUserColumns } from '../utilities/stripSensitiveUserColumns.js'
+import { RESET_TOKEN_TTL_MS } from './resetPassword.js'
 
 const analytics = getAnalytics()
 const logger = getLogger()
@@ -145,13 +146,15 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         const b = Buffer.from(secrets.passwordResetToken, 'utf-8')
         if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
           // Check if the token is still valid (within 1 hour). The SAME gate
-          // as resetPassword: an unparseable or future-dated timestamp is
-          // refused here too — this path mints an authenticated session, so
-          // it must not be looser than the reset path for the same
+          // as resetPassword — the same constant and the same boundary
+          // (`tokenAge` equal to the TTL is still valid, exactly as the reset
+          // confirmation treats it): an unparseable or future-dated timestamp
+          // is refused here too — this path mints an authenticated session,
+          // so it must not be looser than the reset path for the same
           // one-hour credential.
           if (secrets.passwordResetTokenAt) {
             const tokenAge = Date.now() - new Date(secrets.passwordResetTokenAt).getTime()
-            if (Number.isFinite(tokenAge) && tokenAge >= 0 && tokenAge < 1000 * 60 * 60) {
+            if (Number.isFinite(tokenAge) && tokenAge >= 0 && tokenAge <= RESET_TOKEN_TTL_MS) {
               authenticated = true
               authenticatedByResetToken = true
             }

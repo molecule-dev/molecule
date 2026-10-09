@@ -48,10 +48,13 @@ export function isKandinskyDistilled(model: string): boolean {
 /**
  * Snaps a pixel dimension to Kandinsky's 16-pixel grid (8× VAE compression
  * times a 2× patch). Non-multiples are rejected by the pipeline, so `481`
- * becomes `480` and `100` becomes `96`.
+ * becomes `480` and `100` becomes `96`; the grid has a FLOOR of 16
+ * (a dimension below it would not describe a video), so `0` or a negative
+ * value snaps UP to 16. `value` must be finite — the provider refuses a
+ * non-finite width/height before reaching here.
  *
- * @param value - The requested width or height in pixels.
- * @returns The nearest non-negative multiple of 16.
+ * @param value - The requested width or height in pixels (finite).
+ * @returns The nearest multiple of 16 that is at least 16.
  */
 export function kandinskyDimension(value: number): number {
   const multiple = KANDINSKY_6_DIMENSION_MULTIPLE

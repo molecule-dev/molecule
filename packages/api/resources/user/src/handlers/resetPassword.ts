@@ -13,7 +13,14 @@ import { hashResetToken } from '../utilities/hashResetToken.js'
 const analytics = getAnalytics()
 const logger = getLogger()
 
-const RESET_TOKEN_TTL_MS = 1000 * 60 * 60
+/**
+ * How long a password-reset token stays valid, in milliseconds. Shared with
+ * `logIn`, which accepts the same token as a login credential and must apply
+ * the SAME gate — the same constant AND the same boundary (`tokenAge` equal to
+ * the TTL is still valid in both), or one path becomes the looser way in for
+ * the other's one-hour credential.
+ */
+export const RESET_TOKEN_TTL_MS = 1000 * 60 * 60
 
 /** Request body for confirming a password reset using a token. */
 export interface ResetPasswordRequest extends MoleculeRequest {
