@@ -79,6 +79,7 @@
  */
 
 export * from './access-shim.js'
+export * from './browser-guard.js'
 export * from './names.js'
 export * from './provider.js'
 export * from './services.js'

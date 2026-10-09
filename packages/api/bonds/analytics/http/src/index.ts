@@ -56,6 +56,8 @@ import type {
   AnalyticsUserProps,
 } from '@molecule/api-analytics'
 
+export * from './browser-guard.js'
+
 /** Options for {@link createHttpAnalyticsProvider}. */
 export interface HttpAnalyticsProviderOptions {
   /** Endpoint that receives the POSTs. Defaults to $MOLECULE_ANALYTICS_URL; no-op when neither is set. */

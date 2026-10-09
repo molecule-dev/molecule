@@ -71,6 +71,7 @@
  */
 
 export { appSource, gpuFor, MODAL_GPUS, toPython } from './app-source.js'
+export * from './browser-guard.js'
 export { endpointUrl, MODAL_FUNCTION_NAME, ModalClient, resolveModalConfig } from './client.js'
 export {
   createProvider,
