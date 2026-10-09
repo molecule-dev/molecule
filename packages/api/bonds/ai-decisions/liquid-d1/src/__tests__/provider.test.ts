@@ -443,6 +443,57 @@ describe('ai-decisions-liquid-d1', () => {
     expect(mockFetch).toHaveBeenCalledTimes(1)
   }, 4_000)
 
+  it('arms its own request deadline when the caller passes no signal', async () => {
+    // The README's own quick start calls decide() with no signal. A connection
+    // that never answers (a black-holed route, a stalled proxy) must still end
+    // the call: without a deadline there is no retry (retries act on
+    // RESPONSES) and no error until the connection dies on its own — decide()
+    // pends forever. The default is 30 s; a configured timeoutMs proves the
+    // deadline is honored by firing at the configured value.
+    mockFetch.mockImplementation(
+      (_url: unknown, init: RequestInit) =>
+        // Model what real fetch does with the signal: a hung connection
+        // rejects the moment the signal aborts.
+        new Promise<never>((_resolve, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal!.reason), {
+            once: true,
+          })
+        }),
+    )
+    const started = Date.now()
+    const decision = createProvider({ apiKey: 'k', timeoutMs: 50 }).decide({
+      state: 's',
+      questions: QUESTIONS,
+    })
+    await expect(decision).rejects.toMatchObject({ name: 'TimeoutError' })
+    expect(Date.now() - started).toBeLessThan(2_000)
+    // The deadline reached the request as a real signal even with no caller
+    // signal — pre-fix, `init.signal` was undefined and the call never ended.
+    expect(mockFetch.mock.calls[0]![1].signal).toBeInstanceOf(AbortSignal)
+  }, 4_000)
+
+  it('both the caller signal and the configured deadline can end the request', async () => {
+    // The two signals are composed, not either/or: an aborting caller signal
+    // rejects even while the deadline is still armed (and vice versa).
+    const controller = new AbortController()
+    mockFetch.mockImplementation(
+      (_url: unknown, init: RequestInit) =>
+        new Promise<never>((_resolve, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal!.reason), {
+            once: true,
+          })
+        }),
+    )
+    const decision = createProvider({ apiKey: 'k', timeoutMs: 30_000 }).decide({
+      state: 's',
+      questions: QUESTIONS,
+      signal: controller.signal,
+    })
+    setTimeout(() => controller.abort(), 20)
+    const error = (await decision.catch((e: unknown) => e)) as { name?: string }
+    expect(error.name).toBe('AbortError')
+  }, 4_000)
+
   it('resolves the headers hook before each request and merges it over the defaults', async () => {
     vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
     mockFetch.mockResolvedValueOnce(ok(D1_RESPONSE))

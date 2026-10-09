@@ -31,6 +31,17 @@ export const SELF_HOSTED_D1_PATH = '/v1/systemone'
 /** Liquid's flagship model id. */
 export const DEFAULT_LIQUID_D1_MODEL = 'd1'
 
+/**
+ * Default per-request deadline (module-private: the public surface is the
+ * `timeoutMs` config field). A d1 decision is one forward pass — the hosted
+ * API answers in well under a second — so this bounds a hung connection, not a
+ * slow model. Without it a connection that never answers (a black-holed route,
+ * a stalled proxy) leaves `decide()` pending FOREVER: no retry fires (the
+ * retry loop only acts on responses), and an error only ever arrives when the
+ * connection dies on its own. Same shape as the sibling `ai-decisions` bonds.
+ */
+const DEFAULT_LIQUID_D1_TIMEOUT_MS = 30_000
+
 /** The hosted API's request limits (docs.liquid.ai/lfm/models/d1). */
 export const LIQUID_D1_LIMITS = {
   /** Images per request. */
@@ -54,6 +65,7 @@ interface ResolvedConfig {
   decisionsUrl: string
   apiKey: string | undefined
   model: string
+  timeoutMs: number
 }
 
 /**
@@ -164,7 +176,9 @@ class LiquidD1DecisionsProvider implements AIDecisionsProvider {
             }
           : {}),
       },
-      signal: input.signal,
+      signal: input.signal
+        ? AbortSignal.any([input.signal, AbortSignal.timeout(cfg.timeoutMs)])
+        : AbortSignal.timeout(cfg.timeoutMs),
       label: 'Liquid d1',
     })
     return fromWireResponse(input.questions, body, input.minConfidence)
@@ -188,6 +202,7 @@ class LiquidD1DecisionsProvider implements AIDecisionsProvider {
       ),
       apiKey: this.config.apiKey ?? (process.env.LIQUID_API_KEY || undefined),
       model: this.config.model ?? DEFAULT_LIQUID_D1_MODEL,
+      timeoutMs: this.config.timeoutMs ?? DEFAULT_LIQUID_D1_TIMEOUT_MS,
     }
   }
 }

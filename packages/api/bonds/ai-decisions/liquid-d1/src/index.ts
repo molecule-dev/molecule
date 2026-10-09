@@ -76,6 +76,9 @@
  * - 429 (rate limit) and 5xx-busy are retried up to 3 times with backoff —
  *   an aborting `signal` cuts the backoff short; other errors throw
  *   immediately with the API's message and a `status` property.
+ * - **Every request carries a deadline** (30 s by default, `timeoutMs` config)
+ *   so a hung connection fails instead of leaving `decide()` pending forever;
+ *   the caller's `signal` and the deadline both apply, whichever fires first.
  * - Use the core's `setProvider`, not `bond('ai-decisions', …)` directly.
  *
  * @module

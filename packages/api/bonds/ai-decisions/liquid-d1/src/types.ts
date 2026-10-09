@@ -38,4 +38,12 @@ export interface LiquidD1Config {
   decisionsUrl?: string
   /** Default model id: `'d1'` (text + images) or `'d1:free'` (text-only). Defaults to `'d1'`. */
   model?: string
+  /**
+   * Per-request deadline in milliseconds. Defaults to 30000 (a d1 decision is
+   * one forward pass; this bounds a hung connection, which no retry can fix).
+   * The caller's `signal`, when one is passed, and this deadline BOTH apply —
+   * whichever fires first. Retries share the one budget, like the sibling
+   * `ai-decisions` bonds.
+   */
+  timeoutMs?: number
 }
