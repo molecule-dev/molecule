@@ -564,6 +564,86 @@ describe('WhistleSpeechProvider', () => {
     expect(firstBWrite).toBeGreaterThan(aStop)
   })
 
+  it('drops a session that aborts while queued for the gate — its tail block included', async () => {
+    // The gate is taken LAZILY, at the first processed block — and the
+    // end-of-input `flush()` takes it too, for a caller whose audio never
+    // filled one block. That second await is a fresh chance for the caller to
+    // abort, and it is NOT covered by the loop's post-acquire check: without
+    // one, a consumer that already gave up still had its tail block written
+    // into the engine's single stream (and a delta/final yielded to it) —
+    // handing the session that was waiting on the gate another session's
+    // audio, and reporting a transcript for a dictation the caller cancelled.
+    fake.jsonFor = (name) =>
+      JSON.stringify({
+        text: name === 'needle_stream_transcribe_process' ? 'hi' : '',
+        words: [],
+        pending: '',
+        language: 'en',
+        received: 1,
+        pass_ms: 1,
+      })
+
+    // PCM16 filled with `value` — its first float (±0.5) is the marker stored
+    // on every process call, attributing the write to its session.
+    const pcm16 = (samples: number, value: number): Uint8Array => {
+      const out = new Uint8Array(samples * 2)
+      const view = new DataView(out.buffer)
+      for (let i = 0; i < samples; i++) view.setInt16(i * 2, value, true)
+      return out
+    }
+    const drain = async (gen: AsyncGenerator<TranscriptionStreamEvent>): Promise<void> => {
+      for await (const event of gen) void event
+    }
+
+    let openGateA!: () => void
+    const gateA = new Promise<void>((resolve) => {
+      openGateA = resolve
+    })
+    // A: two full 1 s blocks, so it takes the gate, then parks on its own gate.
+    async function* gatedA(): AsyncGenerator<Uint8Array> {
+      yield pcm16(WHISTLE_SAMPLE_RATE * 2, 16384)
+      await gateA
+    }
+    const doneA = drain(createProvider().transcribeStream!(gatedA()))
+    await vi.waitFor(() =>
+      expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_process')).toHaveLength(
+        2,
+      ),
+    )
+
+    // B: HALF a second — no complete block, so its entire audio IS the tail the
+    // flush hands to the engine … behind A's gate.
+    const controller = new AbortController()
+    const bEvents: TranscriptionStreamEvent[] = []
+    const doneB = (async (): Promise<void> => {
+      for await (const event of createProvider().transcribeStream!(
+        (async function* () {
+          yield pcm16(WHISTLE_SAMPLE_RATE / 2, -16384)
+        })(),
+        { signal: controller.signal },
+      )) {
+        bEvents.push(event)
+      }
+    })()
+
+    // B is parked awaiting the gate; abort it, then let A finish.
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    controller.abort()
+    openGateA()
+    await Promise.all([doneA, doneB])
+
+    // B's audio never reached the engine and its consumer saw nothing: no
+    // tail write for B, no streamStop for it (it never started a session), and
+    // exactly one stop — A's.
+    expect(
+      fake.calls.filter(
+        (c) => c.name === 'needle_stream_transcribe_process' && (c.marker as number) < 0,
+      ),
+    ).toHaveLength(0)
+    expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_stop')).toHaveLength(1)
+    expect(bEvents).toEqual([])
+  })
+
   it('reads local weights from NEEDLE_WHISTLE_WEIGHTS instead of fetching', async () => {
     tmpDir = mkdtempSync(join(tmpdir(), 'whistle-weights-'))
     const weightsPath = join(tmpDir, 'whistle.cact')

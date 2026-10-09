@@ -128,6 +128,17 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
   private listening = false
 
   /**
+   * Monotonic id of the capture setup that is allowed to finish. `listening`
+   * alone cannot answer "is the async setup still the live one?" — a
+   * stop-then-start inside one setup window flips it back to `true`, so a
+   * superseded setup's `getUserMedia` continuation would read the NEW
+   * session's `true` and build a second capture graph over the fields the new
+   * session owns, leaving its own microphone open forever. Every setup
+   * carries the id it started with and does nothing once superseded.
+   */
+  private sessionId = 0
+
+  /**
    * The utterance that currently owns the `speaking` state. A replaced or
    * stopped utterance's end event still fires a beat later; only the CURRENT
    * utterance's handlers may flip the shared state or report `onSpeakEnd`.
@@ -216,6 +227,9 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
     }
 
     this.listening = true
+    // Claim this setup: any earlier in-flight setup is now superseded and will
+    // release whatever it opened (see `sessionId`).
+    const session = ++this.sessionId
     // 'processing' until the engine is ready — consumers use the transition to
     // 'listening' to clear their "preparing dictation" indicator. Speech is
     // captured during the load and transcribed once the engine arrives.
@@ -234,7 +248,11 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
             autoGainControl: true,
           },
         })
-        if (!this.listening || this.disposed) {
+        if (this.sessionId !== session || this.disposed) {
+          // A stop (or another start) superseded this setup while the mic was
+          // opening: release the stream THIS call opened and touch nothing
+          // else — the capture fields now belong to the live session, and
+          // stopping ITS tracks here would kill the session the user can hear.
           for (const track of stream.getTracks()) track.stop()
           return
         }
@@ -255,18 +273,22 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
         this.processor.connect(context.destination)
 
         await engineReady
-        if (this.listening && !this.disposed) {
+        if (this.sessionId === session && !this.disposed) {
           this.setState('listening')
         }
       } catch (error) {
+        // A setup that is no longer current must not tear down the LIVE
+        // session's capture graph, clear its `listening` flag, or report its
+        // own failure as the live session's error. Everything it opened was
+        // either never assigned (it bailed above) or already released by the
+        // stop/dispose that superseded it.
+        if (this.sessionId !== session || this.disposed) return
         this.teardownCapture()
         // A start the caller already ended (stopListening during the mic/engine
         // setup, or dispose) is not a failed start: reporting 'error' + onError
         // here moved the state machine idle → error for a session that no
         // longer exists and nothing could ever acknowledge.
-        const abandoned = !this.listening || this.disposed
         this.listening = false
-        if (abandoned) return
         this.setState('error')
         const isPermission = error instanceof DOMException && error.name === 'NotAllowedError'
         this.handlers.onError?.({
@@ -395,6 +417,9 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
   stopListening(): void {
     if (!this.listening) return
     this.listening = false
+    // Supersede any in-flight setup: its getUserMedia/engine continuation is
+    // for a session the user has already ended.
+    this.sessionId++
 
     // Flush whatever speech was in progress at stop time.
     if (this.speechSamples > 0 && this.audioContext) {
@@ -571,6 +596,9 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
   dispose(): void {
     this.disposed = true
     this.listening = false
+    // Supersede any in-flight setup — its continuation must not rebuild a
+    // capture graph for a disposed provider.
+    this.sessionId++
     this.teardownCapture()
     this.transcribeQueue = []
     this.stopSpeaking()

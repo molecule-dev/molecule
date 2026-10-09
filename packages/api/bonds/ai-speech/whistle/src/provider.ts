@@ -281,6 +281,13 @@ class WhistleSpeechProvider implements AISpeechProvider {
       const tailBlock = resampler.flush()
       if (tailBlock !== null && tailBlock.length > 0) {
         if (releaseSession === null) releaseSession = await acquireEngineStreamSession()
+        // Same rule as the block loop above: the abort may have landed while
+        // this session waited for the gate (the tail flush is the OTHER place
+        // the gate is taken). Do not write the dead consumer's last block into
+        // the engine's stream — the session queued behind us would inherit its
+        // audio — and do not yield to it. Nothing was written yet, so the
+        // release in the `finally` is the whole cleanup.
+        if (stopped) return
         sessionStarted = true
         const pass = engine.streamProcess(tailBlock, { language, keywords })
         const text = pass.text.trim()

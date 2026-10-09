@@ -124,6 +124,7 @@ interface MockProcessor {
 
 let mockProcessor: MockProcessor | null = null
 let closedContexts = 0
+let createdContexts = 0
 let stoppedTracks = 0
 let contextSampleRate = 16000
 
@@ -131,6 +132,7 @@ class MockAudioContext {
   sampleRate: number
   destination = {}
   constructor(_options?: { sampleRate?: number }) {
+    createdContexts++
     // Ignores the requested sampleRate like some browsers do (Firefox with a
     // ScriptProcessor graph) — the provider must resample to 16 kHz itself.
     this.sampleRate = contextSampleRate
@@ -203,6 +205,7 @@ describe('WhistleVoiceProvider', () => {
     vi.clearAllMocks()
     mockProcessor = null
     closedContexts = 0
+    createdContexts = 0
     stoppedTracks = 0
     contextSampleRate = 16000
     fake = freshFake()
@@ -505,6 +508,46 @@ describe('WhistleVoiceProvider', () => {
     await new Promise((resolve) => setTimeout(resolve, 50))
     expect(onError).not.toHaveBeenCalled()
     expect(voice.getState()).toBe('idle')
+  })
+
+  it("releases a superseded start's own microphone instead of building a second capture graph", async () => {
+    // startListening → stopListening → startListening, ALL inside the first
+    // getUserMedia window. `listening` is one boolean shared by every session,
+    // so when the FIRST request's stream finally arrives the flag is already
+    // `true` again (the second start set it) and the abandoned continuation
+    // read that as "my session is still live": it built a SECOND capture graph
+    // over the fields the live session owns, and its microphone stream was
+    // never stopped — the browser's recording indicator stayed on for the rest
+    // of the page's life, with the orphaned mic's frames still feeding the
+    // transcription queue.
+    const pending: Array<(stream: unknown) => void> = []
+    getUserMediaImpl = () =>
+      new Promise((resolve) => {
+        pending.push(resolve as (stream: unknown) => void)
+      })
+    const voice = createProvider()
+
+    voice.startListening(undefined, {})
+    await vi.waitFor(() => expect(pending).toHaveLength(1))
+    voice.stopListening()
+    voice.startListening(undefined, {})
+    await vi.waitFor(() => expect(pending).toHaveLength(2))
+
+    // The abandoned request answers AFTER the new session claimed the slot: its
+    // stream is stopped by the abandoned setup itself, and NO capture graph is
+    // built for it (the live session owns those fields).
+    pending[0]!(makeStream())
+    await vi.waitFor(() => expect(stoppedTracks).toBe(1))
+    expect(createdContexts).toBe(0)
+
+    // The live request builds the one and only capture graph, then reports
+    // 'listening'.
+    pending[1]!(makeStream())
+    await vi.waitFor(() => expect(voice.getState()).toBe('listening'))
+    expect(createdContexts).toBe(1)
+
+    voice.dispose()
+    expect(stoppedTracks).toBe(2)
   })
 
   it('reports start-failed when the weights cannot be loaded, and a retry works', async () => {
