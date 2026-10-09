@@ -1,9 +1,16 @@
 /**
  * WAV decoding for the Whistle speech provider: parse a RIFF/WAVE container,
- * accept uncompressed integer and 32-bit float PCM at any sample rate and
- * channel count, mix down to mono, and linearly resample to the 16 kHz float
- * PCM Whistle transcribes. Compressed WAV (μ-law, ADPCM, extensible) is
- * rejected with a typed error — it is never passed through.
+ * accept uncompressed integer and 32-bit float PCM at the sample rates real
+ * audio equipment and codecs produce ({@link MIN_SOURCE_SAMPLE_RATE}–
+ * {@link MAX_SOURCE_SAMPLE_RATE} Hz) and any channel count, mix down to mono,
+ * and linearly resample to the 16 kHz float PCM Whistle transcribes.
+ * Compressed WAV (μ-law, ADPCM, extensible) is rejected with a typed error —
+ * it is never passed through.
+ *
+ * The parser treats the file as HOSTILE input: RIFF size fields are read
+ * unsigned, so a chunk header that declares `0xFFFFFFF8` bytes advances the
+ * scan instead of (as a signed int32, `-8`) re-reading the same header
+ * forever — a 44-byte file must never hang the event loop on `transcribe()`.
  *
  * @module
  */
@@ -55,6 +62,19 @@ const FORMAT_NAMES: Record<number, string> = {
 }
 
 /**
+ * Sample rates this decoder accepts, in Hz. The floor is below every rate a
+ * real speech source produces (telephone audio is 8 kHz) and the ceiling above
+ * every ADC/codec (DXD tops out at 352.8 kHz): anything outside the range is a
+ * corrupt or hostile header. The floor is also the memory bound — the 16 kHz
+ * resample below multiplies the decoded samples by `16000 / sourceRate`, so a
+ * header claiming 1 Hz would turn a few KB of upload into a multi-gigabyte
+ * allocation (a fatal OOM, not a catchable error) on `transcribe()`.
+ */
+const MIN_SOURCE_SAMPLE_RATE = 4000
+/** Highest source sample rate this decoder accepts, in Hz. */
+const MAX_SOURCE_SAMPLE_RATE = 384_000
+
+/**
  * Reads a little-endian u16.
  * @param bytes - The WAV bytes.
  * @param offset - Byte offset.
@@ -65,14 +85,22 @@ function u16(bytes: Uint8Array, offset: number): number {
 }
 
 /**
- * Reads a little-endian u32.
+ * Reads a little-endian u32 as UNSIGNED. RIFF length and rate fields are
+ * unsigned 32-bit; the `<< 24` term sign-extends the top byte, so without the
+ * `>>> 0` a size field of `0xFFFFFFF8` reads as `-8` and the chunk scan's
+ * `offset = body + size + pad` stops advancing — the same header is then
+ * re-parsed forever, an event-loop hang on hostile input.
  * @param bytes - The WAV bytes.
  * @param offset - Byte offset.
  * @returns The value.
  */
 function u32(bytes: Uint8Array, offset: number): number {
   return (
-    bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24)
+    (bytes[offset] |
+      (bytes[offset + 1] << 8) |
+      (bytes[offset + 2] << 16) |
+      (bytes[offset + 3] << 24)) >>>
+    0
   )
 }
 
@@ -205,7 +233,10 @@ export class FloatBlockResampler {
 
 /**
  * Decodes uncompressed WAV bytes (PCM integer or float) to mono 16 kHz float
- * samples for the Whistle engine.
+ * samples for the Whistle engine. Source sample rates outside
+ * {@link MIN_SOURCE_SAMPLE_RATE}–{@link MAX_SOURCE_SAMPLE_RATE} Hz are
+ * rejected: no real audio lives there, and a hostile rate would scale the
+ * 16 kHz resample into a fatal allocation.
  * @param audio - The WAV file bytes.
  * @returns The decoded audio.
  * @throws {WhistleWavError} When the bytes are not uncompressed WAV — decode
@@ -282,6 +313,16 @@ export function decodeWavToMono16k(audio: Uint8Array | Buffer): DecodedWav {
     throw new WhistleWavError(
       'unsupported-format',
       `unsupported PCM bit depth ${bitsPerSample} (8/16/24/32-bit integer or 32-bit float)`,
+    )
+  }
+  if (sampleRate < MIN_SOURCE_SAMPLE_RATE || sampleRate > MAX_SOURCE_SAMPLE_RATE) {
+    // A rate outside every real ADC/codec is a corrupt or hostile header, and
+    // trusting it is not harmless: the resample below scales the decoded
+    // samples by 16000/sourceRate, so a header claiming 1 Hz turns a tiny
+    // upload into a fatal out-of-memory allocation instead of the typed error.
+    throw new WhistleWavError(
+      'unsupported-format',
+      `WAV sample rate ${sampleRate} Hz is outside the supported range (${MIN_SOURCE_SAMPLE_RATE}–${MAX_SOURCE_SAMPLE_RATE} Hz)`,
     )
   }
 

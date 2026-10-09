@@ -173,6 +173,63 @@ describe('decodeWavToMono16k', () => {
     const headless = wav.subarray(0, 36) // cuts the data chunk header + body
     expect(() => decodeWavToMono16k(headless)).toThrow(WhistleWavError)
   })
+
+  it('advances past a chunk whose size field is 0xFFFFFFF8 instead of looping forever', () => {
+    // RIFF size fields are UNSIGNED 32-bit. Read as a signed int32, 0xFFFFFFF8
+    // is -8, and the scan's `offset = body + size + pad` then lands back on the
+    // same header — a 60-byte file hung `transcribe()`'s event loop forever.
+    // The JUNK chunk trails the data chunk, so decoding its samples proves the
+    // scan moved past the hostile header to the end of the file.
+    const bytes = new Uint8Array(60)
+    const view = new DataView(bytes.buffer)
+    const write = (text: string, at: number): void => {
+      for (let i = 0; i < text.length; i++) view.setUint8(at + i, text.charCodeAt(i))
+    }
+    write('RIFF', 0)
+    view.setUint32(4, 52, true) // 60 - 8
+    write('WAVE', 8)
+    write('fmt ', 12)
+    view.setUint32(16, 16, true)
+    view.setUint16(20, 0x0001, true) // PCM
+    view.setUint16(22, 1, true) // mono
+    view.setUint32(24, 16000, true)
+    view.setUint32(28, 32000, true)
+    view.setUint16(32, 2, true)
+    view.setUint16(34, 16, true)
+    write('data', 36)
+    view.setUint32(40, 8, true)
+    // 4 PCM16 samples: 0.5, -0.5, 1, 0
+    const values = [0.5, -0.5, 1, 0]
+    values.forEach((value, i) => view.setInt16(44 + i * 2, Math.round(value * 0x8000), true))
+    write('JUNK', 52)
+    view.setUint32(56, 0xfffffff8, true)
+
+    const decoded = decodeWavToMono16k(bytes)
+    expect(decoded.samples).toHaveLength(4)
+    expect(decoded.samples[0]).toBeCloseTo(0.5, 4)
+    expect(decoded.samples[1]).toBeCloseTo(-0.5, 4)
+  })
+
+  it('rejects a sample-rate field outside the real-audio range with unsupported-format', () => {
+    // 0xFFFFFFFF reads as -1 through a signed u32; the resampler then computed
+    // a negative output length and crashed with a raw RangeError instead of the
+    // typed error. Unsigned, it is 4294967295 Hz — no ADC produces that, and a
+    // low hostile rate (e.g. 1 Hz) would scale the 16 kHz resample into a
+    // fatal out-of-memory allocation. Either way: typed rejection, no decode.
+    const wav = buildWav({
+      channels: 1,
+      sampleRate: 0xffffffff,
+      bitsPerSample: 16,
+      samples: [new Float32Array(4)],
+    })
+    expect(() => decodeWavToMono16k(wav)).toThrow(/sample rate/)
+    try {
+      decodeWavToMono16k(wav)
+    } catch (error) {
+      expect((error as WhistleWavError).code).toBe('unsupported-format')
+      expect(error).not.toBeInstanceOf(RangeError)
+    }
+  })
 })
 
 describe('FloatBlockResampler', () => {
