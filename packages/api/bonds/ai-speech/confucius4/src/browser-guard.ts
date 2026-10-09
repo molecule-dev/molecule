@@ -15,7 +15,7 @@ const g = globalThis as {
 }
 if (g.window !== undefined && g.document !== undefined && !g.process?.versions?.node) {
   throw new Error(
-    '@molecule/api-ai-speech-openai is SERVER-ONLY: it was bundled into browser/client code. Import it only ' +
+    '@molecule/api-ai-speech-confucius4 is SERVER-ONLY: it was bundled into browser/client code. Import it only ' +
       'from server code (a server route/function or your API), or dynamic-import it inside ' +
       'the server handler — never from components or shared client modules, and never ' +
       'polyfill Buffer/process to silence this.',
