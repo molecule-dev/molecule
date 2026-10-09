@@ -1,0 +1,49 @@
+{
+  "name": "@molecule/app-ai-voice-whistle",
+  "version": "1.0.0",
+  "description": "On-device Whistle ai-voice provider for molecule.dev — Cactus Compute's 16.9 MB seven-language speech-to-text in the browser (CPU-only WASM, no WebGPU)",
+  "homepage": "https://www.molecule.dev/packages/app-ai-voice-whistle",
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "ai",
+    "voice",
+    "whistle",
+    "speech-to-text",
+    "on-device",
+    "cactus"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/app/bonds/ai-voice/whistle"
+  },
+  "devDependencies": {
+    "@molecule/app-ai-voice": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "peerDependencies": {
+    "@molecule/app-ai-voice": "^1.0.1"
+  }
+}
