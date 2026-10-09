@@ -156,6 +156,27 @@ describe('KandinskyVideoGenerationProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
+    it('refuses a non-finite numeric parameter before any request', async () => {
+      // Every numeric param is appended with String(): NaN/Infinity would ship
+      // as the literal strings "NaN"/"Infinity" (num_frames "NaN" —
+      // framesForDuration propagates NaN through Math.round/Math.max) for the
+      // GPU server to choke on after the upload. Refuse like the invalid
+      // input it is, before anything leaves the process.
+      for (const params of [
+        { durationSeconds: Number.NaN },
+        { durationSeconds: Infinity },
+        { fps: Number.NaN },
+        { seed: Infinity },
+        { steps: Number.NaN },
+        { guidanceScale: Number.NaN },
+        { width: Number.NaN },
+        { height: Infinity },
+      ]) {
+        await expect(bond.generate({ prompt: 'p', ...params })).rejects.toThrow(/must be a finite/)
+      }
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
     it('snaps width/height to the 16-pixel grid', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'v4' }))
       await bond.generate({ prompt: 'p', width: 481, height: 319 })

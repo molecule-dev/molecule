@@ -453,6 +453,37 @@ describe('WhistleSpeechProvider', () => {
     )
   })
 
+  it('fails a download that dies mid-stream as a typed download-failed error', async () => {
+    // A connection reset after the headers (a dead proxy, a flaky mirror)
+    // happens INSIDE the body transfer: it must surface as the same typed
+    // WhistleEngineError('download-failed') every other fetch failure
+    // produces, not escape as a raw TypeError no caller can classify.
+    const weightsUrl = 'https://example.test/truncated-whistle.cact'
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === weightsUrl) {
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array([1, 2, 3]))
+            controller.error(new Error('connection reset mid-body'))
+          },
+        })
+        return Promise.resolve(new Response(stream, { headers: { 'content-length': '128' } }))
+      }
+      return mockFetch(input)
+    })
+    const speech = createProvider({ weightsUrl })
+    const error = (await speech.transcribe!({ audio: silenceWav(1) }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(error!.message).toContain('mid-stream')
+    expect(error!.message).toContain('connection reset mid-body')
+  })
+
   it('surfaces a transcribe failure with the engine error text', async () => {
     fake.returnFor = (name) => (name === 'needle_transcribe' ? -1 : 1)
     const speech = createProvider()

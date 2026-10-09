@@ -520,4 +520,103 @@ describe('WhistleVoiceProvider', () => {
     voice1.dispose()
     voice2.dispose()
   })
+
+  it('fails a download that dies mid-stream as a typed download-failed error', async () => {
+    // A connection reset after the headers happens INSIDE the body transfer:
+    // it must surface as the same typed WhistleEngineError('download-failed')
+    // every other fetch failure produces, not a raw TypeError.
+    const weightsUrl = 'https://example.test/truncated-whistle.cact'
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === weightsUrl) {
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array([1, 2, 3]))
+            controller.error(new Error('connection reset mid-body'))
+          },
+        })
+        return Promise.resolve(new Response(stream, { headers: { 'content-length': '128' } }))
+      }
+      return mockFetch(input)
+    })
+    const error = (await loadWhistleEngine({
+      jsUrl: DEFAULT_WHISTLE_ENGINE_URL,
+      weightsUrl,
+    }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(error!.message).toContain('mid-stream')
+  })
+
+  it('refuses a non-ok glue fetch as download-failed instead of evaluating the body', async () => {
+    // The Node fallback path fetches the glue source itself; a mirror's 404
+    // HTML page must fail as the typed download error, never reach `new
+    // Function`.
+    const jsUrl = 'https://example.test/missing-needle.js'
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === jsUrl) {
+        return Promise.resolve(new Response('<html>not found</html>', { status: 404 }))
+      }
+      return mockFetch(input)
+    })
+    const error = (await loadWhistleEngine({
+      jsUrl,
+      weightsUrl: 'https://example.test/w.cact',
+    }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(error!.message).toContain('404')
+  })
+
+  it('a replaced utterance does not tear down the speaking state of its replacement', async () => {
+    // `speak()` calls synth.cancel() before starting the new utterance, and
+    // the UA fires the interrupted utterance's end event a beat later. The
+    // replaced utterance's handler used to flip the shared state to 'idle'
+    // while the NEW audio was still playing (and fire onSpeakEnd early).
+    class FakeUtterance {
+      lang = ''
+      rate = 1
+      pitch = 1
+      volume = 1
+      onend: (() => void) | null = null
+      onerror: ((event: { error: string }) => void) | null = null
+      constructor(public text: string) {}
+    }
+    const spoken: InstanceType<typeof FakeUtterance>[] = []
+    vi.stubGlobal('SpeechSynthesisUtterance', FakeUtterance)
+    vi.stubGlobal('speechSynthesis', {
+      getVoices: () => [],
+      cancel: () => {
+        // The UA reports the interruption asynchronously — the new utterance
+        // is already speaking when the old one's end event lands.
+        const previous = spoken[spoken.length - 1]
+        if (previous) queueMicrotask(() => previous.onend?.())
+      },
+      speak: (u: InstanceType<typeof FakeUtterance>) => {
+        spoken.push(u)
+      },
+    })
+
+    const voice = createProvider()
+    const p1 = voice.speak('one')
+    expect(voice.getState()).toBe('speaking')
+    const p2 = voice.speak('two')
+    // Drain microtasks so the replaced utterance's end event runs.
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await p1 // the interrupted utterance still settles (resolved, not rejected)
+    // The replacement must still be speaking — not idled by utterance one.
+    expect(voice.getState()).toBe('speaking')
+    spoken[1]!.onend?.()
+    await p2
+    expect(voice.getState()).toBe('idle')
+  })
 })

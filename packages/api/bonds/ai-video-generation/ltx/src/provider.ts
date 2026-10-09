@@ -241,7 +241,15 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
       duration: this.resolveDuration(params, model),
       resolution: this.resolveResolution(params),
     }
-    if (params.fps !== undefined) body.fps = Math.round(params.fps)
+    if (params.fps !== undefined) {
+      // Same rule as durationSeconds: `Math.round(NaN)` is still NaN, and
+      // JSON.stringify turns that into `null` — a broken number must fail
+      // here, not ride the wire wearing the shape of a valid one.
+      if (!Number.isFinite(params.fps)) {
+        throw new LtxVideoError(`"fps" must be a finite number (got ${params.fps}).`, 400)
+      }
+      body.fps = Math.round(params.fps)
+    }
     if (params.generateAudio !== undefined) body.generate_audio = params.generateAudio
     if (params.cameraMotion !== undefined) {
       if (!(LTX_CAMERA_MOTIONS as readonly string[]).includes(params.cameraMotion)) {

@@ -127,6 +127,13 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
 
   private listening = false
 
+  /**
+   * The utterance that currently owns the `speaking` state. A replaced or
+   * stopped utterance's end event still fires a beat later; only the CURRENT
+   * utterance's handlers may flip the shared state or report `onSpeakEnd`.
+   */
+  private currentUtterance: SpeechSynthesisUtterance | null = null
+
   /** Language forced for the current listening session (null = auto-detect). */
   private sessionLanguage: string | null = null
 
@@ -439,19 +446,36 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
     }
 
     this.setState('speaking')
+    // Only the utterance that is STILL the current one may drive the shared
+    // speaking state: `synth.cancel()` above fires the replaced utterance's
+    // end event a beat later, and letting it tear down state read `idle` (and
+    // fired `onSpeakEnd`) while the replacement's audio was still playing.
+    const current = utterance
+    this.currentUtterance = current
     return new Promise<void>((resolve, reject) => {
-      utterance.onend = () => {
-        if (this.state === 'speaking') this.setState('idle')
+      const finish = (): void => {
+        if (this.currentUtterance !== current) return
+        this.currentUtterance = null
+        this.setState('idle')
         this.handlers.onSpeakEnd?.()
+      }
+      utterance.onend = () => {
+        finish()
         resolve()
       }
       utterance.onerror = (event) => {
-        if (event.error === 'canceled') {
-          if (this.state === 'speaking') this.setState('idle')
+        // 'canceled' and its spec spelling 'interrupted' mean this utterance
+        // was replaced or explicitly stopped — not a failure. State is handled
+        // by the replacement (or stopSpeaking); this promise just settles.
+        if (event.error === 'canceled' || event.error === 'interrupted') {
+          finish()
           resolve()
           return
         }
-        this.setState('error')
+        if (this.currentUtterance === current) {
+          this.currentUtterance = null
+          this.setState('error')
+        }
         reject(new Error(`Speech synthesis error: ${event.error}`))
       }
       synth.speak(utterance)

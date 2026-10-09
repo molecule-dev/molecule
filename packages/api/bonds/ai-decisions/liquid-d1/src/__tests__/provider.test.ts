@@ -350,6 +350,31 @@ describe('ai-decisions-liquid-d1', () => {
     expect(answer.probabilities.billing).toBe(0.25)
   })
 
+  it('refuses a missing answer for a "__proto__" question instead of fabricating one', async () => {
+    // Reading `body.answers?.[id]` with a bracket hits the inherited
+    // `__proto__` getter when the key is ABSENT, returning Object.prototype —
+    // an object — which passed the "is there an answer" check and was
+    // fabricated into a zero-confidence choice answer instead of raising the
+    // "no answer for question" error every other missing answer produces.
+    vi.stubEnv('LIQUID_API_KEY', 'liquid-key')
+    const questions = JSON.parse(
+      `{"__proto__":${JSON.stringify(QUESTIONS.team)},"refund":${JSON.stringify(QUESTIONS.refund)}}`,
+    ) as Record<string, DecisionQuestion>
+    mockFetch.mockResolvedValueOnce(
+      ok(JSON.parse('{"answers":{"refund":{"type":"noul","noul":0.9}}}')),
+    )
+
+    const error = (await createProvider({ apiKey: 'k' })
+      .decide({ state: 's', questions })
+      .then(
+        () => null,
+        (e: unknown) => e,
+      )) as Error | null
+
+    expect(error).toBeInstanceOf(Error)
+    expect(error!.message).toContain('no answer for question "__proto__"')
+  })
+
   it('answers a 2xx non-JSON body with a status-carrying error, not a raw SyntaxError', async () => {
     // A proxy/WAF interstitial (or an empty 204 body) reaches the success
     // path: the contract is "an Error carrying status", and a raw SyntaxError

@@ -175,6 +175,20 @@ describe('LtxVideoGenerationProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
+    it('refuses a non-finite fps instead of serializing it as null', async () => {
+      // `Math.round(NaN)` is still NaN and JSON.stringify turns that into
+      // `null` — the same broken-number-rides-the-wire shape as duration,
+      // only without an automatic-duration sentinel to hide behind.
+      await expect(bond.generate({ prompt: 'p', fps: Number.NaN })).rejects.toThrow(
+        /"fps" must be a finite number/,
+      )
+      await expect(bond.generate({ prompt: 'p', fps: Infinity })).rejects.toMatchObject({
+        name: 'LtxVideoError',
+        status: 400,
+      })
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
     it('passes an image URI straight through to image-to-video', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'job-3' }))
       const job = await bond.generate({ prompt: 'p', image: 'https://cdn.example.com/first.png' })

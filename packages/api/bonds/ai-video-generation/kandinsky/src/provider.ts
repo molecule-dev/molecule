@@ -256,11 +256,31 @@ class KandinskyVideoGenerationProvider implements AIVideoGenerationProvider {
    * @param params - Prompt plus model, geometry and diffusion controls.
    * @returns The submitted job; poll `getStatus()` with its `id`.
    * @throws {Error} When a distilled checkpoint is combined with an explicit
-   *   `guidanceScale` other than 1 — before any request is sent.
+   *   `guidanceScale` other than 1, or a numeric parameter (`durationSeconds`,
+   *   `fps`, `seed`, `steps`, `guidanceScale`, `width`, `height`) is not
+   *   finite — both before any request is sent.
    */
   async generate(params: VideoGenerateParams): Promise<VideoJob> {
     const cfg = this.resolveConfig()
     const model = params.model ?? cfg.defaultModel
+    // A non-finite number must not ride the wire: every numeric param below is
+    // appended to the multipart form with String(), where NaN/Infinity would
+    // ship as the literal strings "NaN"/"Infinity" for the server to choke on
+    // (num_frames "NaN", fps "NaN") — the same refuse-before-send rule the ltx
+    // bond applies to durationSeconds.
+    for (const [field, value] of [
+      ['durationSeconds', params.durationSeconds],
+      ['fps', params.fps],
+      ['seed', params.seed],
+      ['steps', params.steps],
+      ['guidanceScale', params.guidanceScale],
+      ['width', params.width],
+      ['height', params.height],
+    ] as const) {
+      if (value !== undefined && !Number.isFinite(value)) {
+        throw new KandinskyVideoError(`"${field}" must be a finite number (got ${value}).`, 400)
+      }
+    }
     const distilled = isKandinskyDistilled(model)
     if (distilled && params.guidanceScale !== undefined && params.guidanceScale !== 1) {
       throw new Error(

@@ -170,6 +170,28 @@ export function fromWireAnswer(
 }
 
 /**
+ * Reads one answer out of the wire record as an OWN property. Plain bracket
+ * access (`answers[id]`) hits the inherited `__proto__` getter when the key is
+ * absent, returning `Object.prototype` — an object — so a missing answer wore
+ * the shape of a present one and was fabricated into a zero-confidence answer
+ * instead of the "no answer for question" error. (When the key IS present —
+ * `JSON.parse` creates own properties for every key, `__proto__` included —
+ * the own property shadows the getter and bracket access would work; the
+ * own-property check is what makes absent mean absent for every key.)
+ *
+ * @param answers - The wire `answers` record, when the response carried one.
+ * @param id - The question id (may be any string, including `"__proto__"`).
+ * @returns The wire answer, or `undefined` when the response has no such own key.
+ */
+function readOwnAnswer(
+  answers: Record<string, WireAnswer> | undefined,
+  id: string,
+): WireAnswer | undefined {
+  if (!answers || !Object.prototype.hasOwnProperty.call(answers, id)) return undefined
+  return (answers as { [key: string]: WireAnswer | undefined })[id]
+}
+
+/**
  * Converts a whole wire response into the core's result.
  *
  * @param questions - The questions that were asked.
@@ -184,7 +206,7 @@ export function fromWireResponse<Q extends Record<string, DecisionQuestion>>(
 ): DecideResult<Q> {
   const answers: Record<string, DecisionAnswer> = {}
   for (const [id, q] of Object.entries(questions)) {
-    setOwn(answers, id, fromWireAnswer(id, q, body.answers?.[id], minConfidence))
+    setOwn(answers, id, fromWireAnswer(id, q, readOwnAnswer(body.answers, id), minConfidence))
   }
   return {
     answers: answers as DecideResult<Q>['answers'],

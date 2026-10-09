@@ -189,31 +189,49 @@ async function fetchBytes(
       `Whistle engine file ${file} fetch failed: HTTP ${response.status} from ${url}`,
     )
   }
-  const total = Number(response.headers.get('content-length') ?? 0)
-  if (!response.body || total <= 0) {
-    return new Uint8Array(await response.arrayBuffer())
-  }
-  const reader = response.body.getReader()
-  const chunks: Uint8Array[] = []
-  let loaded = 0
-  for (;;) {
-    const { done, value } = await reader.read()
-    if (done) break
-    chunks.push(value)
-    loaded += value.length
-    onProgress?.({
-      status: 'downloading',
-      progress: Math.min(100, Math.round((loaded / total) * 100)),
-      file,
+  // The body transfer is part of the download: a connection that dies
+  // mid-stream must fail as the typed `download-failed` error every other
+  // fetch failure produces, not escape as a raw `TypeError: terminated` no
+  // caller can classify.
+  try {
+    const total = Number(response.headers.get('content-length') ?? 0)
+    if (!response.body || total <= 0) {
+      return new Uint8Array(await response.arrayBuffer())
+    }
+    const reader = response.body.getReader()
+    const chunks: Uint8Array[] = []
+    let loaded = 0
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      chunks.push(value)
+      loaded += value.length
+      onProgress?.({
+        status: 'downloading',
+        progress: Math.min(100, Math.round((loaded / total) * 100)),
+        file,
+      })
+    }
+    const all = new Uint8Array(loaded)
+    let offset = 0
+    for (const chunk of chunks) {
+      all.set(chunk, offset)
+      offset += chunk.length
+    }
+    return all
+  } catch (error) {
+    // Release the half-read body best-effort.
+    await response.body?.cancel().catch((_error: unknown) => {
+      // The typed error below is what matters.
     })
+    throw new WhistleEngineError(
+      'download-failed',
+      `Whistle engine file ${file} download failed mid-stream from ${url}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      error,
+    )
   }
-  const all = new Uint8Array(loaded)
-  let offset = 0
-  for (const chunk of chunks) {
-    all.set(chunk, offset)
-    offset += chunk.length
-  }
-  return all
 }
 
 /**
@@ -258,17 +276,50 @@ async function loadCreateNeedle(jsUrl: string): Promise<NeedleFactory> {
       `Whistle engine glue loaded from ${jsUrl} but exposed no createNeedle global`,
     )
   }
-  const source = await (await fetch(jsUrl, { signal: AbortSignal.timeout(120_000) })).text()
+  let source: string
+  try {
+    const response = await fetch(jsUrl, { signal: AbortSignal.timeout(120_000) })
+    if (!response.ok) {
+      throw new WhistleEngineError(
+        'download-failed',
+        `Whistle engine glue fetch failed: HTTP ${response.status} from ${jsUrl}`,
+      )
+    }
+    source = await response.text()
+  } catch (error) {
+    // Already typed (the !ok branch above) — pass through; anything else is a
+    // network/abort failure of this same download and must be typed as one.
+    if (error instanceof WhistleEngineError) throw error
+    throw new WhistleEngineError(
+      'download-failed',
+      `Whistle engine glue could not be fetched from ${jsUrl}: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      error,
+    )
+  }
   // Stub require: called eagerly (`require("node:fs")`) but its result is only
   // used by read paths we bypass by passing `wasmBinary`.
   const stubRequire = (): undefined => undefined
-  const evaluate = new Function(
-    'require',
-    '__dirname',
-    '__filename',
-    `${source};return createNeedle`,
-  ) as (req: () => undefined, dir: string, file: string) => NeedleFactory
-  return evaluate(stubRequire, '/whistle-shim', '/whistle-shim/needle.js')
+  try {
+    const evaluate = new Function(
+      'require',
+      '__dirname',
+      '__filename',
+      `${source};return createNeedle`,
+    ) as (req: () => undefined, dir: string, file: string) => NeedleFactory
+    return evaluate(stubRequire, '/whistle-shim', '/whistle-shim/needle.js')
+  } catch (error) {
+    // A 200 body that is not the glue (a mirror's HTML interstitial) dies here
+    // as a raw SyntaxError — surface it as the load failure it is.
+    throw new WhistleEngineError(
+      'load-failed',
+      `the fetched needle.js glue did not evaluate: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+      error,
+    )
+  }
 }
 
 /** Cache of loaded engines, keyed by `jsUrl + '\0' + weightsUrl`. */
