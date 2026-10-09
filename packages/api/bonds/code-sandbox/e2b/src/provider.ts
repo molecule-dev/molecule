@@ -791,6 +791,35 @@ class E2BSandbox implements Sandbox {
   }
 
   /**
+   * Run a short, self-contained command to completion and return its result as
+   * data. The SDK's inline `commands.run()` (no `background`) THROWS
+   * `CommandExitError` on a non-zero exit — it never returns one — so an
+   * `r.exitCode !== 0` check after a bare `await run()` is dead code in
+   * production: the caller saw a bare `CommandExitError` ("exit status N") with
+   * no stage name and no stderr, and only the test fakes (which return the
+   * result) made those checks look live. Mapping the thrown `.result` back to
+   * data here — the same mapping `exec()`'s catch applies — makes the callers'
+   * exit-code checks real on both shapes.
+   *
+   * @param cmd - The shell command to run.
+   * @param timeoutMs - Deadline for the command in milliseconds.
+   * @returns stdout, stderr and the exit code (even when non-zero).
+   */
+  private async runCommand(cmd: string, timeoutMs: number): Promise<E2BCommandResultLike> {
+    try {
+      return await this.sbx.commands.run(cmd, { timeoutMs })
+    } catch (error) {
+      // A non-zero exit arrives as CommandExitError carrying `.result` — map it
+      // to data so the caller's exit-code check owns the failure. Anything else
+      // (timeout, connection loss) is a genuine infrastructure failure and must
+      // propagate untouched.
+      const res = (error as { result?: E2BCommandResultLike } | null)?.result
+      if (res && typeof res.exitCode === 'number') return res
+      throw error
+    }
+  }
+
+  /**
    * Extract a POSIX tar stream into the sandbox at `path`.
    *
    * The transfer primitive the scaffold path uses to copy a project tree in.
@@ -819,9 +848,9 @@ class E2BSandbox implements Sandbox {
       pending = []
       pendingBytes = 0
       await this.sbx.files.write(piecePath, new Blob([piece]))
-      const r = await this.sbx.commands.run(
+      const r = await this.runCommand(
         `cat ${piecePath} ${pieces === 0 ? '>' : '>>'} ${tarPath} && rm -f ${piecePath}`,
-        { timeoutMs: 120_000 },
+        120_000,
       )
       if (r.exitCode !== 0) {
         throw new Error(
@@ -846,9 +875,9 @@ class E2BSandbox implements Sandbox {
       }
       await flush()
       if (pieces === 0) await this.sbx.commands.run(`: > ${tarPath}`, { timeoutMs: 30_000 })
-      const r = await this.sbx.commands.run(
+      const r = await this.runCommand(
         `mkdir -p ${shellQuote(path)} && tar xf ${tarPath} -C ${shellQuote(path)} --no-same-owner --no-same-permissions`,
-        { timeoutMs: 300_000 },
+        300_000,
       )
       if (r.exitCode !== 0) {
         throw new Error(
@@ -891,9 +920,9 @@ class E2BSandbox implements Sandbox {
     const tarPath = `/tmp/mol-export-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}.tar`
     let bytes: Uint8Array
     try {
-      const r = await this.sbx.commands.run(
+      const r = await this.runCommand(
         `tar cf ${tarPath} -C ${shellQuote(parent)} ${shellQuote(name)}`,
-        { timeoutMs: 300_000 },
+        300_000,
       )
       if (r.exitCode !== 0) {
         throw new Error(`exportFiles: tar create failed (${r.exitCode}): ${r.stderr.slice(0, 300)}`)
