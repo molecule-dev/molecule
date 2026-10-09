@@ -68,9 +68,10 @@
  * - **Diffusion controls do not exist here.** `negativePrompt`, `seed`,
  *   `steps` and `guidanceScale` are silently NOT forwarded — the V2 API has
  *   no such fields (they are Diffusers-pipeline knobs, not hosted-API ones).
- *   `fps` (default 24) and `generateAudio` (default true, → `generate_audio`)
- *   do forward, as does `cameraMotion` (→ `camera_motion`, validated against
- *   the eight documented motions).
+ *   `fps` and `generateAudio` (→ `generate_audio`) forward only when the
+ *   caller sets them — this bond sends no default of its own — as does
+ *   `cameraMotion` (→ `camera_motion`, validated against the eight documented
+ *   motions).
  * - **Errors are `LtxVideoError`** carrying the HTTP `status` (400 invalid,
  *   401 auth, 402 insufficient credits, 422 content filtered, 429
  *   concurrency, 500/503/504 server; 0 = unreachable/timeout) and the API's
