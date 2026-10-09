@@ -29,7 +29,10 @@ var createNeedle = async function () {
   var lastJson = ''
   return {
     HEAPU8: new Uint8Array(64 * 1024 * 1024),
-    _malloc: function (n) { var p = bump; bump += n; return p },
+    _malloc: function (n) {
+      if (globalThis.__whistleFake.failMallocs) return 0
+      var p = bump; bump += n; return p
+    },
     _free: function () {},
     _needle_load: function (ptr, n) {
       globalThis.__whistleFake.loadCalls.push([ptr, Number(n)])
@@ -53,6 +56,8 @@ interface FakeEngineState {
   loadCalls: Array<[number, number]>
   loadResult: number
   modelsResult: number
+  /** When true, the fake `_malloc` returns 0 — a wasm heap that cannot fit the allocation. */
+  failMallocs: boolean
   returnFor: (name: string) => number
   jsonFor: (name: string) => string
 }
@@ -63,6 +68,7 @@ function freshFake(): FakeEngineState {
     loadCalls: [],
     loadResult: 0,
     modelsResult: 2,
+    failMallocs: false,
     returnFor: () => 1,
     jsonFor: (name) =>
       name === 'needle_transcribe'
@@ -459,6 +465,47 @@ describe('WhistleVoiceProvider', () => {
     })
     voice.dispose()
     voice2.dispose()
+  })
+
+  it('fails a transcription whose audio allocation cannot fit as a typed engine error', async () => {
+    // `_malloc` returns 0 when the heap cannot fit an allocation; writing
+    // anyway used to land the audio at offset 0 — the engine's static area —
+    // corrupting it silently. The call must fail as the typed error instead.
+    const engine = await loadWhistleEngine({
+      jsUrl: DEFAULT_WHISTLE_ENGINE_URL,
+      weightsUrl: 'https://example.test/alloc-whistle.cact',
+    })
+    fake.failMallocs = true
+    expect(() => engine.transcribe(new Float32Array(1600))).toThrow(WhistleEngineError)
+    expect(() => engine.transcribe(new Float32Array(1600))).toThrow(/could not fit the audio/)
+    fake.failMallocs = false
+    expect(() => engine.transcribe(new Float32Array(1600))).not.toThrow()
+  })
+
+  it('recovers on the SAME provider when a failed engine load is retried', async () => {
+    // A transient download failure on first use must not poison this
+    // provider's engine memo: the loader evicts a failed load so the next
+    // call retries, and startListening on the same instance must ride that
+    // retry instead of failing forever with the stale rejection.
+    fake.loadResult = -1
+    const weightsUrl = 'https://example.test/retry-whistle.cact'
+    const voice = createProvider({ weightsUrl })
+    const onError = vi.fn()
+    voice.startListening(undefined, { onError })
+    await vi.waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(expect.objectContaining({ code: 'start-failed' }))
+    })
+    expect(voice.getState()).toBe('error')
+
+    // The failure is gone — the SAME provider listens on its next start.
+    fake.loadResult = 0
+    mockProcessor = null
+    voice.startListening(undefined, { onError })
+    await vi.waitFor(() => {
+      expect(voice.getState()).toBe('listening')
+    })
+    expect(onError).toHaveBeenCalledTimes(1)
+    voice.dispose()
   })
 
   it('refuses clips longer than 30 s per pass at the engine boundary', async () => {

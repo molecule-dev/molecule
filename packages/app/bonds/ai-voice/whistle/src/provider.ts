@@ -163,14 +163,23 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
    */
   private loadEngine(): Promise<WhistleEngine> {
     if (this.enginePromise) return this.enginePromise
-    this.enginePromise = loadWhistleEngine(
+    const promise = loadWhistleEngine(
       {
         jsUrl: this.config.engineUrl ?? DEFAULT_WHISTLE_ENGINE_URL,
         weightsUrl: this.config.weightsUrl ?? DEFAULT_WHISTLE_WEIGHTS_URL,
       },
       this.config.onModelProgress,
     )
-    return this.enginePromise
+    // The engine loader evicts a FAILED load so the next call retries; this
+    // per-provider memo must drop the rejected promise the same way, or the
+    // retry never happens for THIS provider — a transient download failure on
+    // first use would fail every later startListening until the page reloads.
+    // The rejection still reaches the current caller through `promise` itself.
+    promise.catch(() => {
+      if (this.enginePromise === promise) this.enginePromise = null
+    })
+    this.enginePromise = promise
+    return promise
   }
 
   /**
