@@ -263,4 +263,19 @@ describe('FloatBlockResampler', () => {
     expect(tail).toHaveLength(30)
     expect(resampler.flush()).toBeNull()
   })
+
+  it('refuses a blockSize that would make push() emit blocks forever', () => {
+    // A zero/negative blockSize never advances the identity path's `start`
+    // and a NaN one never advances the resampling path's `produced`, so
+    // push() would loop forever inside a single call — the same hang the
+    // rate guard exists for, one variable over. The constructor must reject
+    // it the way it rejects a non-positive rate, not leave the hang armed.
+    expect(() => new FloatBlockResampler(16000, 16000, 0)).toThrow(/blockSize/)
+    expect(() => new FloatBlockResampler(48000, 16000, 0)).toThrow(/blockSize/)
+    expect(() => new FloatBlockResampler(16000, 16000, -100)).toThrow(/blockSize/)
+    expect(() => new FloatBlockResampler(48000, 16000, Number.NaN)).toThrow(/blockSize/)
+    expect(() => new FloatBlockResampler(48000, 16000, Number.POSITIVE_INFINITY)).toThrow(
+      /blockSize/,
+    )
+  })
 })

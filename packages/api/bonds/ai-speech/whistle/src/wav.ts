@@ -147,10 +147,11 @@ export class FloatBlockResampler {
    * @param fromRate - Source sample rate in Hz.
    * @param toRate - Target sample rate in Hz.
    * @param blockSize - Output samples per emitted block.
-   * @throws {Error} When either rate is not a finite, positive number — the
-   *   emit loop's `lastNeeded` bound never advances for such a rate, so
-   *   `push()` would emit blocks forever inside a single call (an event-loop
-   *   hang with an unbounded block array, never a catchable error).
+   * @throws {Error} When either rate is not a finite, positive number, or
+   *   `blockSize` is not a finite, positive number — in every such case the
+   *   emit/identity loop's bound never advances, so `push()` would emit
+   *   blocks forever inside a single call (an event-loop hang with an
+   *   unbounded block array, never a catchable error).
    */
   constructor(
     private readonly fromRate: number,
@@ -166,6 +167,16 @@ export class FloatBlockResampler {
           `FloatBlockResampler: ${name} must be a finite, positive sample rate (got ${rate})`,
         )
       }
+    }
+    // The same hang the rate guard exists for, one variable over: a
+    // zero/negative blockSize never advances the identity path's `start`
+    // (`start += blockSize`) and a NaN one never advances `produced`
+    // (`produced += blockSize`), so `push()` emits blocks forever. The
+    // provider's own block size is a constant, but this class is exported.
+    if (!Number.isFinite(blockSize) || blockSize <= 0) {
+      throw new Error(
+        `FloatBlockResampler: blockSize must be a finite, positive number of samples (got ${blockSize})`,
+      )
     }
   }
 
