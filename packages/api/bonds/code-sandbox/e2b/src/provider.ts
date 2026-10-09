@@ -962,11 +962,14 @@ class E2BSandbox implements Sandbox {
 /**
  * E2B implementation of {@link SandboxProvider}.
  *
- * Only the required surface (`create`/`get`/`list`/`destroy`) plus the boot-path
- * optionals are wired here; `verifyEgress` and `commitTemplate`/`getTemplate`
- * land in follow-up steps. Leaving `verifyEgress` UNimplemented is deliberate:
- * the control plane treats "unsupported" as `inconclusive` and refuses to boot
- * in prod, which is the correct safe default until egress observation is proven.
+ * The required surface (`create`/`get`/`list`/`destroy`) plus the optionals the
+ * control plane uses are all wired here: `describe`, volumes
+ * (`createVolume`/`removeVolume`/`volumeExists`/`listVolumes`), snapshots
+ * (`commitTemplate`/`getTemplate`/`listTemplates`/`removeTemplate`) and
+ * `verifyEgress`. `verifyEgress` proves deny-by-default by OBSERVING a
+ * throwaway probe sandbox, and answers `inconclusive` whenever it cannot look —
+ * a failed create, a dead probe — so "could not observe" never wears the shape
+ * of the safe verdict.
  */
 export class E2BSandboxProvider implements SandboxProvider {
   readonly name = 'e2b'
