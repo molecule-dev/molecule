@@ -162,6 +162,19 @@ describe('LtxVideoGenerationProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
+    it('refuses a non-finite durationSeconds instead of sending the automatic-duration null', async () => {
+      // `duration: NaN` serializes to null, which on the 2.5 tiers is the
+      // AUTOMATIC-duration sentinel — the API would generate whatever length
+      // it picks instead of failing the invalid input.
+      await expect(
+        bond.generate({ prompt: 'p', model: 'ltx-2-5-fast', durationSeconds: Number.NaN }),
+      ).rejects.toMatchObject({ name: 'LtxVideoError', status: 400 })
+      await expect(
+        bond.generate({ prompt: 'p', model: 'ltx-2-5-pro', durationSeconds: Infinity }),
+      ).rejects.toThrow(/finite number of seconds/)
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
     it('passes an image URI straight through to image-to-video', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'job-3' }))
       const job = await bond.generate({ prompt: 'p', image: 'https://cdn.example.com/first.png' })

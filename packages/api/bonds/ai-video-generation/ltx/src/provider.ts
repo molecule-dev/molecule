@@ -355,7 +355,21 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
    * @returns The integer duration, or `null` for automatic duration.
    */
   private resolveDuration(params: VideoGenerateParams, model: string): number | null {
-    if (params.durationSeconds !== undefined) return Math.max(1, Math.round(params.durationSeconds))
+    if (params.durationSeconds !== undefined) {
+      // A non-finite value must not ride the wire: `duration: NaN`
+      // serializes to `null`, which on the 2.5 tiers is the AUTOMATIC-
+      // duration sentinel — a broken number would silently order whatever
+      // length the API picks instead of failing like the invalid input it
+      // is (the 2.3 tiers would reject the null server-side, but only after
+      // the request left).
+      if (!Number.isFinite(params.durationSeconds)) {
+        throw new LtxVideoError(
+          `"durationSeconds" must be a finite number of seconds (got ${params.durationSeconds}).`,
+          400,
+        )
+      }
+      return Math.max(1, Math.round(params.durationSeconds))
+    }
     if (isLtx25(model)) return null
     throw new LtxVideoError(
       `"durationSeconds" is required for ${model} — only the ltx-2-5 tiers support automatic duration (duration: null).`,

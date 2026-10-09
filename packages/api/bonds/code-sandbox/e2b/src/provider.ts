@@ -1198,16 +1198,23 @@ export class E2BSandboxProvider implements SandboxProvider {
     const client = await this.client()
     const running = await client.list({})
     const items = Array.isArray(running) ? running : (running.sandboxes ?? [])
-    const handles: Sandbox[] = []
-    for (const it of items) {
-      // A PAUSED sandbox is deliberately skipped: building its handle means
-      // connecting, and connecting resumes it. Enumerating an account would
-      // otherwise wake — and start billing — every hibernated project on it.
-      if (it.state === 'paused') continue
-      const h = await this.get(it.sandboxId)
-      if (h) handles.push(h)
-    }
-    return handles
+    // All the per-sandbox connects are issued CONCURRENTLY, not one awaited
+    // after the next: each `get()` is a full connect round trip, and a fleet
+    // sweep over N running sandboxes must not serialize N of them (O(N)
+    // latency on a method the control plane polls). Same semantics as the
+    // serial loop — a paused sandbox is skipped, a gone sandbox contributes
+    // no handle, any other failure still throws — just in one round-trip
+    // depth instead of N.
+    const handles = await Promise.all(
+      items.map(async (it) => {
+        // A PAUSED sandbox is deliberately skipped: building its handle means
+        // connecting, and connecting resumes it. Enumerating an account would
+        // otherwise wake — and start billing — every hibernated project on it.
+        if (it.state === 'paused') return null
+        return this.get(it.sandboxId)
+      }),
+    )
+    return handles.filter((h): h is Sandbox => h !== null)
   }
 
   /**

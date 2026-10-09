@@ -113,4 +113,32 @@ describe('the SDK client adapter normalizes Sandbox.list() shapes', () => {
     const handles = await provider().list('user')
     expect(handles.map((h) => h.id)).toEqual(['sbx-3'])
   })
+
+  it('puts every running sandbox connect in flight together, not one serial round trip each', async () => {
+    // list() builds one handle per running sandbox and each handle is a full
+    // connect round trip. Awaited one after the next, a fleet sweep over N
+    // sandboxes serializes N round trips per poll. The gate below only opens
+    // a connect once ALL of them have been CALLED — so list() can only finish
+    // when the connects are genuinely concurrent; the old serial loop stalls
+    // with one gate open and this test times out waiting for the rest.
+    const ids = ['sbx-a', 'sbx-b', 'sbx-c']
+    listSandbox.mockResolvedValue(ids.map((sandboxId) => ({ sandboxId, state: 'running' })))
+    const gates = new Map<string, () => void>()
+    connectSandbox.mockImplementation(
+      (id: string) =>
+        new Promise((resolve) => {
+          gates.set(id, () => resolve(fakeSandbox(id)))
+        }),
+    )
+
+    const listing = provider().list('user')
+    // Give a serial loop every chance to ( wrongly) advance: with the bug it
+    // has issued exactly ONE connect by now and is parked awaiting it.
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect([...gates.keys()].sort()).toEqual(['sbx-a', 'sbx-b', 'sbx-c'])
+
+    for (const open of gates.values()) open()
+    const handles = await listing
+    expect(handles.map((h) => h.id)).toEqual(ids)
+  })
 })
