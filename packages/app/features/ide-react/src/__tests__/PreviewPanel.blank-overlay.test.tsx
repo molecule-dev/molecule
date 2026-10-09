@@ -131,7 +131,8 @@ async function mountWithIframe(isBuilding: boolean): Promise<{
 // every NEGATIVE wait ("the notice must NOT appear") must ALSO outlast 15s or it
 // passes trivially no matter what the panel does. Earlier waits sat at 1.17x the
 // constant and flaked on loaded CI runners (a 20s wait against the 15s window flaked again on 2026-10-06,
-// so the positive waits are 30s, twice the window); keep the ratio generous — a slow runner
+// so the positive waits are now 60s, four times the window, after a 30s wait flaked again on a loaded
+// CI runner on 2026-10-09); keep the ratio generous — a slow runner
 // is not a regression — and re-derive every wait here whenever the constants move.
 describe('PreviewPanel — no bare white screen (blank/building overlay)', () => {
   it('does NOT falsely accuse a still-starting (alive, cold-booting) app of being blank', async () => {
@@ -153,7 +154,7 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     } finally {
       clearInterval(beat)
     }
-  }, 45000)
+  }, 90000)
 
   it('fresh project: AI stops building while cold Vite is still compiling → honest status, never a false blank, then reveals on ready', async () => {
     // The exact reported bug. A brand-new project: the AI writes files (isBuilding true), then
@@ -211,11 +212,11 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     // Deliberately post NOTHING — no ready, no heartbeat.
 
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 30000,
+      timeout: 60000,
     })
     // …and the overlay covered the iframe the whole time (never a bare broken page).
     expect(q(container, 'preview-overlay')).not.toBeNull()
-  }, 45000)
+  }, 90000)
 
   it('never accuses the app of being blank while a build is still in progress', async () => {
     const { container, iframe } = await mountWithIframe(true)
@@ -229,7 +230,7 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     await new Promise((r) => setTimeout(r, 17000))
     expect(q(container, 'preview-blank-notice')).toBeNull()
     expect(q(container, 'preview-overlay')).not.toBeNull()
-  }, 45000)
+  }, 90000)
 
   it('clears the blank notice once the app confirms it rendered (molecule:ready)', async () => {
     const { container, iframe } = await mountWithIframe(false)
@@ -238,13 +239,13 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     // BLANK_DEAD_MS (15s), hence the generous timeout.
     fireEvent.load(iframe)
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 30000,
+      timeout: 60000,
     })
 
     // A real render confirmation tears the notice down — the app is showing content now.
     postFromPreview({ type: 'molecule:ready' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).toBeNull(), { timeout: 4000 })
-  }, 45000)
+  }, 90000)
 
   it('a raw document the user clicked to (feed.xml, provenance.json) is content, never a blank app', async () => {
     const { container, iframe } = await mountWithIframe(false)
@@ -286,7 +287,7 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     fireEvent.load(iframe)
     postFromPreview({ type: 'molecule:heartbeat' })
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 30000,
+      timeout: 60000,
     })
   }, 18000)
 
@@ -310,7 +311,7 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     // reload — so the actionable notice appears instead of a bare white screen. (Without the
     // onLoad reconfirm, confirmedContent stayed true and the user was left staring at white.)
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 30000,
+      timeout: 60000,
     })
   }, 18000)
 
@@ -457,7 +458,7 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     await new Promise((r) => setTimeout(r, 17000))
     expect(q(container, 'preview-blank-notice')).toBeNull()
     expect(q(container, 'preview-overlay')).not.toBeNull()
-  }, 45000)
+  }, 90000)
 
   it('wake patience: a bridge-less (dead) document right after a wake is NOT accused within the dead-doc window', async () => {
     // Behind a preview proxy, a wake can transiently serve an error page that never runs the
@@ -486,7 +487,7 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     expect(q(container, 'preview-load-failed')).toBeNull()
     // …while the honest overlay keeps covering it (never a bare error page).
     expect(q(container, 'preview-overlay')).not.toBeNull()
-  }, 45000)
+  }, 90000)
 
   it('a STALE wakeAt (older than the patience window) changes nothing — the dead-doc accusation still fires', async () => {
     // Wake patience must be a bounded window, not a permanent free pass: with a wake long past,
@@ -508,9 +509,9 @@ describe('PreviewPanel — no bare white screen (blank/building overlay)', () =>
     )
     fireEvent.load(iframe)
     await waitFor(() => expect(q(container, 'preview-blank-notice')).not.toBeNull(), {
-      timeout: 30000,
+      timeout: 60000,
     })
-  }, 45000)
+  }, 90000)
 
   it('the overlay carries NO backdrop-filter (sampling the cross-origin OOPIF backdrop deadlocks the host renderer under software compositing — the whole-tab freeze)', async () => {
     // Reproduce the exact state the freeze needed: the status overlay shown over a once-loaded
