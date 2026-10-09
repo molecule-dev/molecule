@@ -138,6 +138,20 @@ const RESET_TOKEN = 'secure-reset-token-value-abc123'
 const STORED_TOKEN = hashResetToken(RESET_TOKEN)
 const FIVE_MIN_AGO = new Date(Date.now() - 1000 * 60 * 5).toISOString()
 
+// Every handler binds its analytics instance at module load (one `getAnalytics()`
+// call per imported handler), so the `user.login` event lands on one of these
+// track mocks. Collected per test (beforeEach clears all of them).
+const analyticsTracks = mockGetAnalytics.mock.results
+  .map((r) => r.value?.track)
+  .filter((t): t is ReturnType<typeof vi.fn> => typeof t === 'function')
+
+/** The recorded `user.login` analytics events across every handler's analytics instance. */
+function loginEvents(): Array<Record<string, unknown>> {
+  return analyticsTracks
+    .flatMap((track) => track.mock.calls.map((call) => call[0] as Record<string, unknown>))
+    .filter((event) => event?.name === 'user.login')
+}
+
 /** An in-memory row + a conditional updateMany that mirrors a real WHERE-guarded write. */
 function inMemorySecretsRow(initial: Record<string, unknown>): {
   row: Record<string, unknown>
@@ -390,5 +404,84 @@ describe('logIn — the reset token survives the 2FA challenge', () => {
       }),
     )
     expect(mockGet).not.toHaveBeenCalled()
+  })
+})
+
+// ===== logIn: TTL parity + analytics that reports the method actually used ====
+
+describe('logIn — the reset-token TTL gate matches resetPassword, and analytics reports the method used', () => {
+  const handler = logIn(testResource)
+
+  it('refuses a token whose timestamp is in the future, like resetPassword does', async () => {
+    const { wire } = inMemorySecretsRow({
+      passwordResetToken: STORED_TOKEN,
+      // An hour from NOW (a clock-skewed or tampered row): resetPassword's TTL
+      // gate refuses `tokenAge < 0`. logIn mints an authenticated SESSION for
+      // this same credential, so it must not be the looser of the two gates.
+      passwordResetTokenAt: new Date(Date.now() + 1000 * 60 * 60).toISOString(),
+    })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'skewed' })
+
+    const result = await handler(
+      makeReq({ username: 'skewed', passwordResetToken: RESET_TOKEN }),
+      makeRes(),
+    )
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 403,
+        body: expect.objectContaining({ errorKey: 'user.error.invalidCredentials' }),
+      }),
+    )
+    // Refused before anything was consumed or minted.
+    expect(mockUpdateMany).not.toHaveBeenCalled()
+    expect(mockGet).not.toHaveBeenCalled()
+  })
+
+  it('reports "password" — not "reset_token" — when both were sent and the password authenticated', async () => {
+    const { row, wire } = inMemorySecretsRow({
+      passwordResetToken: STORED_TOKEN,
+      passwordResetTokenAt: FIVE_MIN_AGO,
+      passwordHash: 'current-hash',
+    })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'both' })
+    mockCompare.mockResolvedValue(true)
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+
+    const result = await handler(
+      makeReq({ username: 'both', password: 'right-password', passwordResetToken: RESET_TOKEN }),
+      makeRes(),
+    )
+
+    expect(result?.statusCode).toBe(200)
+    // The password is what authenticated and the link was NOT spent, so the
+    // login event must not claim a reset_token login — that made the
+    // telemetry lie about which credential is still live.
+    expect(loginEvents()).toEqual([expect.objectContaining({ properties: { method: 'password' } })])
+    expect(row.passwordResetToken).toBe(STORED_TOKEN)
+  })
+
+  it('reports "reset_token" when the token is what authenticated', async () => {
+    const { wire } = inMemorySecretsRow({
+      passwordResetToken: STORED_TOKEN,
+      passwordResetTokenAt: FIVE_MIN_AGO,
+    })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'tokenonly' })
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+
+    const result = await handler(
+      makeReq({ username: 'tokenonly', passwordResetToken: RESET_TOKEN }),
+      makeRes(),
+    )
+
+    expect(result?.statusCode).toBe(200)
+    expect(loginEvents()).toEqual([
+      expect.objectContaining({ properties: { method: 'reset_token' } }),
+    ])
   })
 })

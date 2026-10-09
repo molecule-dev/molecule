@@ -144,10 +144,14 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         const a = Buffer.from(hashResetToken(body.passwordResetToken), 'utf-8')
         const b = Buffer.from(secrets.passwordResetToken, 'utf-8')
         if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
-          // Check if the token is still valid (within 1 hour).
+          // Check if the token is still valid (within 1 hour). The SAME gate
+          // as resetPassword: an unparseable or future-dated timestamp is
+          // refused here too — this path mints an authenticated session, so
+          // it must not be looser than the reset path for the same
+          // one-hour credential.
           if (secrets.passwordResetTokenAt) {
             const tokenAge = Date.now() - new Date(secrets.passwordResetTokenAt).getTime()
-            if (tokenAge < 1000 * 60 * 60) {
+            if (Number.isFinite(tokenAge) && tokenAge >= 0 && tokenAge < 1000 * 60 * 60) {
               authenticated = true
               authenticatedByResetToken = true
             }
@@ -315,7 +319,11 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         .track({
           name: 'user.login',
           userId: user.id,
-          properties: { method: body.passwordResetToken ? 'reset_token' : 'password' },
+          // What ACTUALLY authenticated the request: a body carrying both a
+          // valid password and a reset token authenticated by the password and
+          // did NOT spend the link — calling that a reset_token login makes
+          // the event lie about which credential is still live.
+          properties: { method: authenticatedByResetToken ? 'reset_token' : 'password' },
         })
         .catch(() => {})
 
