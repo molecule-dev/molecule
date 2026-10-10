@@ -95,9 +95,18 @@ async function emit(
         body: JSON.stringify(payload),
         signal: controller.signal,
       })
+      // The body is never read, so release it (and with it its socket) on EVERY
+      // path: an unconsumed body strands its connection in the pool until GC
+      // reclaims it, and emit() runs on every analytics call in a long-lived
+      // process — a dead/misconfigured endpoint would fail here forever, one
+      // stranded socket per call, until the pool ran dry (the same release the
+      // other bonds apply to discarded error-response bodies).
+      await response.body?.cancel().catch((_error: unknown) => {
+        // Best-effort release only — the status below is already known, and a
+        // failed cancel merely delays connection reuse.
+      })
       // 4xx/5xx: nothing useful to retry — surface to the observer and move on.
-      if (!response.ok && onError)
-        onError(new Error(`analytics endpoint responded ${response.status}`))
+      if (!response.ok) onError?.(new Error(`analytics endpoint responded ${response.status}`))
     } finally {
       clearTimeout(timer)
     }
