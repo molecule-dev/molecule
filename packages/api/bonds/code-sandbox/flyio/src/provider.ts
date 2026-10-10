@@ -2354,6 +2354,14 @@ class FlyioSandboxProvider implements SandboxProvider {
           try {
             const putUrl = await store.presignPut(key, IMPORT_PRESIGN_EXPIRY_SECONDS)
             const putRes = await fetch(putUrl, { method: 'PUT', body: gz })
+            // The PUT's body is never read (a presigned store answers an empty
+            // 2xx or a short error document): release it on EVERY path, or the
+            // connection stays stranded in the pool until GC reclaims it — the
+            // same release every other discarded response body here gets.
+            await putRes.body?.cancel().catch((_error: unknown) => {
+              // Best-effort release only; the fallback decision below runs on
+              // the already-known status.
+            })
             if (!putRes.ok) {
               throw new Error(`presigned PUT to the object store failed: ${putRes.status}`)
             }
@@ -2393,9 +2401,14 @@ class FlyioSandboxProvider implements SandboxProvider {
         // configured. The temp tar lives on the WORKSPACE VOLUME, not /tmp — the
         // chunked write and the extract are separate exec calls and a Machine
         // with autostop can cold-start between them, wiping /tmp (rootfs) while
-        // the ext4 volume at /workspace persists.
+        // the ext4 volume at /workspace persists. The name is unique per call
+        // (same shape as the store path's key): a fixed, machineId-only name
+        // made two concurrent imports to one sandbox interleave their `>>`
+        // appends into ONE file, so each extracted a mix of both archives.
         const base64 = gz.toString('base64')
-        const tmp = `${WORKSPACE_PATH}/.mol-import-${machineId}.tgz`
+        const tmp = `${WORKSPACE_PATH}/.mol-import-${machineId}-${Date.now().toString(36)}${Math.floor(
+          Math.random() * 1e9,
+        ).toString(36)}.tgz`
         const quotedTmp = shellQuote(tmp)
         failIfError(
           await this.exec(

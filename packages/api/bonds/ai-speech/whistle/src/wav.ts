@@ -233,7 +233,10 @@ export class FloatBlockResampler {
 
   /**
    * Emits the remaining output computable from what is buffered, as one
-   * final partial block (the last input sample is held for interpolation).
+   * final partial block. The WHOLE window is consumed: the last input sample
+   * is read for the final interpolation and then released with the buffer, so
+   * a `push()` after this flush attributes its samples from the next input
+   * position (see `rawStart` below).
    * @returns The partial block, or null when nothing is buffered.
    */
   flush(): Float32Array | null {

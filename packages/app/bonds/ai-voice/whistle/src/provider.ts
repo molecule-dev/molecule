@@ -393,8 +393,13 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
           // A pass that succeeded after an earlier failure means the session is
           // healthy again: capture is still live, so the state must say
           // 'listening' — leaving it at 'error' reported a dead session while
-          // transcripts kept arriving.
-          if (this.listening) this.setState('listening')
+          // transcripts kept arriving. Restored ONLY from 'error': this drain
+          // also runs for a STOPPED session's tail chunks, which can overlap a
+          // FRESH startListening — an unconditional set flipped that session's
+          // 'processing' (mic still opening, engine still loading) to
+          // 'listening' before anything was capturing, clearing the consumer's
+          // preparing indicator while the permission prompt was still up.
+          if (this.listening && this.state === 'error') this.setState('listening')
         } catch (error) {
           this.setState('error')
           this.handlers.onError?.({

@@ -90,9 +90,15 @@ const LIST_CONNECT_CONCURRENCY = 16
 
 /**
  * Maps `items` through `fn` with at most `limit` calls in flight, preserving
- * order in the result. The first rejection propagates (the remaining
- * in-flight calls still run to completion, their results discarded) — the
- * same fail-fast `Promise.all` gives, without its unbounded concurrency.
+ * order in the result. The first rejection propagates, and workers stop
+ * STARTING new items from that moment (the calls already in flight still run
+ * to completion, their results discarded) — the same fail-fast `Promise.all`
+ * gives, without its unbounded concurrency. Without that stop, the surviving
+ * workers would keep pulling from the shared cursor after `Promise.all` has
+ * already rejected: every remaining item would still be processed, and a
+ * `list()` item is a full sandbox connect — a side effect (it resumes/extends
+ * a live sandbox's deadline) issued on behalf of a call the caller already
+ * saw fail.
  *
  * @param items - The items to map.
  * @param limit - Maximum concurrent `fn` calls.
@@ -106,11 +112,18 @@ async function mapWithConcurrency<T, R>(
 ): Promise<R[]> {
   const out = new Array<R>(items.length)
   let next = 0
+  let failed = false
   const worker = async (): Promise<void> => {
     for (;;) {
+      if (failed) return
       const index = next++
       if (index >= items.length) return
-      out[index] = await fn(items[index]!)
+      try {
+        out[index] = await fn(items[index]!)
+      } catch (error) {
+        failed = true
+        throw error
+      }
     }
   }
   await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker))

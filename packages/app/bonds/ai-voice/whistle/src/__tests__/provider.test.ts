@@ -460,6 +460,67 @@ describe('WhistleVoiceProvider', () => {
     voice.dispose()
   })
 
+  it("a finished tail chunk does not report the NEXT session as 'listening' before its capture exists", async () => {
+    // Session A starts, queues a chunk, and parks in the drain on a gated
+    // engine load. The user stops (the drain still holds that tail) and
+    // immediately starts again — session B's getUserMedia is still pending,
+    // i.e. the permission prompt is up. When the gate opens, the tail chunk
+    // transcribes fine, and the drain's unconditional setState('listening')
+    // fired on B's behalf: B reported 'listening' while nothing was capturing.
+    // The restore belongs to a live session that FAILED a pass ('error' →
+    // 'listening'), not to a session that is still setting up.
+    let releaseEngine: (() => void) | null = null
+    const weightsUrl = 'https://example.test/tail-whistle.cact'
+    const originalFetch = mockFetch
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      if (String(input) === weightsUrl) {
+        return new Promise<Response>((resolve) => {
+          releaseEngine = () =>
+            resolve(
+              new Response(WEIGHTS_BYTES, {
+                headers: { 'content-length': String(WEIGHTS_BYTES.length) },
+              }),
+            )
+        }) as Promise<Response>
+      }
+      return originalFetch(input)
+    })
+
+    const voice = createProvider({ weightsUrl })
+    await startAndWaitForCapture(voice, {})
+    expect(voice.getState()).toBe('processing')
+
+    // Queue one chunk: its drain parks on the gated engine load.
+    for (let i = 0; i < 3; i++) emitFrame(0.1)
+    for (let i = 0; i < 4; i++) emitFrame(0)
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    expect(transcribeCalls()).toHaveLength(0)
+
+    voice.stopListening()
+    expect(voice.getState()).toBe('processing') // the tail is still queued
+
+    // Session B: its mic never answers yet.
+    const pendingMic: Array<(stream: unknown) => void> = []
+    getUserMediaImpl = () =>
+      new Promise((resolve) => {
+        pendingMic.push(resolve as (stream: unknown) => void)
+      })
+    voice.startListening(undefined, {})
+    expect(voice.getState()).toBe('processing')
+
+    // The gate opens and the tail transcribes — session B must still read as
+    // 'processing' (its mic is still opening), not 'listening'.
+    releaseEngine!()
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    expect(transcribeCalls()).toHaveLength(1) // the tail WAS transcribed
+    expect(voice.getState()).toBe('processing')
+
+    // B's mic answers: only now may the state say 'listening'.
+    pendingMic[0]!(makeStream())
+    await vi.waitFor(() => expect(voice.getState()).toBe('listening'))
+    voice.dispose()
+  })
+
   it('reports idle after dispose, not the stale in-session state', async () => {
     // dispose() tears the capture graph down and drops the queue; getState()
     // used to keep saying 'listening' for a provider that can never listen

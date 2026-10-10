@@ -193,4 +193,30 @@ describe('the SDK client adapter normalizes Sandbox.list() shapes', () => {
     expect(peak).toBeGreaterThan(1) // concurrent, not serialized
     expect(peak).toBeLessThanOrEqual(16) // …but bounded
   })
+
+  it('stops issuing connects once one listing row fails, instead of walking the rest', async () => {
+    // One connect rejects (a transient API blip). The rejection reaches the
+    // caller immediately — but each connect is a SIDE EFFECT (on the real SDK
+    // it resumes/extends a live sandbox's deadline), so the workers that never
+    // failed must not keep pulling from the shared cursor afterwards and
+    // connect every remaining row on behalf of a call that already threw.
+    // Without the stop flag the other 15 workers churn through all 40 rows
+    // after the failure; with it only the bounded window's in-flight connects
+    // ever happen. (Each connect takes one timer tick and sbx-0's fires first,
+    // so the flag is set before any survivor finishes its current item.)
+    const ids = Array.from({ length: 40 }, (_, i) => `sbx-${i}`)
+    listSandbox.mockResolvedValue(ids.map((sandboxId) => ({ sandboxId, state: 'running' })))
+    connectSandbox.mockImplementation(async (id: string) => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      if (id === 'sbx-0') throw new Error('connect ECONNRESET')
+      return fakeSandbox(id)
+    })
+
+    await expect(provider().list('user')).rejects.toThrow('connect ECONNRESET')
+    // Let every surviving worker quiesce before counting: the assertion must
+    // observe what the workers do AFTER the failure, not whatever had been
+    // issued by the microtask the rejection surfaced in.
+    await new Promise((resolve) => setTimeout(resolve, 25))
+    expect(connectSandbox.mock.calls.length).toBeLessThanOrEqual(16)
+  })
 })

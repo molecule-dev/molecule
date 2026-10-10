@@ -242,6 +242,31 @@ describe('LtxVideoGenerationProvider', () => {
       })
     })
 
+    it('releases the upload PUT success body it never reads', async () => {
+      // The pre-signed PUT's 2xx body is never consumed; an unconsumed body
+      // holds its connection in the pool until GC reclaims it. It must be
+      // cancelled before the storage URI is used.
+      const cancel = vi.fn().mockResolvedValue(undefined)
+      mockFetch.mockImplementation(async (url: string | URL) => {
+        const u = url.toString()
+        if (u === 'https://api.ltx.io/v1/upload') {
+          return mockJsonResponse({
+            upload_url: 'https://storage.example/ltx-uploads/u1',
+            storage_uri: 'ltx://uploads/u1',
+          })
+        }
+        if (u.startsWith('https://storage.example/')) {
+          return { ok: true, status: 200, headers: new Headers(), body: { cancel } }
+        }
+        return mockJsonResponse({ id: 'job-body-release' })
+      })
+
+      const job = await bond.generate({ prompt: 'p', image: PNG })
+
+      expect(job.id).toBe('ltx/image-to-video/ltx-2-5-fast/job-body-release')
+      expect(cancel).toHaveBeenCalledTimes(1)
+    })
+
     it('throws on a submit response with no id', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ created_at: '2026-10-08T12:00:00Z' }))
       await expect(bond.generate({ prompt: 'p' })).rejects.toMatchObject({ status: 502 })

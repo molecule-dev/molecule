@@ -902,6 +902,76 @@ describe('file operations', () => {
     expect(extract).not.toContain(' && rm -f ')
   })
 
+  it('importFiles gives each fallback import its own temp archive name', async () => {
+    // The fallback temp name used to be machineId-deterministic: two concurrent
+    // imports to one sandbox both opened the SAME file — the second's `>` write
+    // truncated the first mid-append, both `>>` appends interleaved into one
+    // archive, and each import extracted a mix of the two. The name must be
+    // unique per call.
+    const { sandbox, scripts } = await sandboxWithExec(() => ({ exit_code: 0 }))
+    async function* archive() {
+      yield new Uint8Array([1, 2, 3])
+    }
+    await sandbox.importFiles('/workspace/p', archive())
+    const firstWrite = scripts.find((s) => s.includes('base64 -d > '))
+    expect(firstWrite).toBeDefined()
+    const firstName = /base64 -d > (\S+)\s*$/.exec(firstWrite!)?.[1]
+    expect(firstName).toBeDefined()
+
+    await sandbox.importFiles('/workspace/p', archive())
+    const secondWrite = scripts.filter((s) => s.includes('base64 -d > ')).at(-1)!
+    const secondName = /base64 -d > (\S+)\s*$/.exec(secondWrite)?.[1]
+    expect(secondName).toBeDefined()
+    expect(secondName).not.toBe(firstName)
+  })
+
+  it('importFiles releases the presigned PUT response body it never reads', async () => {
+    // The upload's response body is never consumed; an unconsumed body holds
+    // its connection in the pool until GC reclaims it. It must be cancelled on
+    // the path that uses it.
+    const scripts: string[] = []
+    const fetchImpl = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/exec')) {
+        scripts.push(JSON.parse(String(init!.body)).command.at(-1))
+        return {
+          status: 200,
+          headers: { get: () => null },
+          text: async () => JSON.stringify({ exit_code: 0 }),
+        } as unknown as Response
+      }
+      return {
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ id: 'm1', state: 'started' }),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl,
+      sleep: async () => {},
+    })
+    const store = createStoreDouble()
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
+    if (!sandbox) throw new Error('expected a sandbox')
+
+    const cancels = vi.fn().mockResolvedValue(undefined)
+    const putFetch = vi.fn(
+      async () => ({ ok: true, status: 200, body: { cancel: cancels } }) as unknown as Response,
+    )
+    vi.stubGlobal('fetch', putFetch)
+    try {
+      async function* arch() {
+        yield new TextEncoder().encode('pretend-tar-bytes')
+      }
+      await sandbox.importFiles('/workspace/my-app', arch())
+    } finally {
+      vi.unstubAllGlobals()
+    }
+    expect(putFetch).toHaveBeenCalledTimes(1)
+    expect(cancels).toHaveBeenCalledTimes(1)
+  })
+
   it('importFiles via object store cleans the downloaded archive up even when the extract FAILS, then falls back', async () => {
     // Same leftover on the store path: under `set -e`, `tar …` followed by a
     // separate `rm` aborted before the cleanup whenever tar failed, leaving the

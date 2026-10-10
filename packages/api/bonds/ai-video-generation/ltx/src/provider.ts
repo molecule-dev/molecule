@@ -465,6 +465,12 @@ class LtxVideoGenerationProvider implements AIVideoGenerationProvider {
         response.status,
       )
     }
+    // The success body is never read (a pre-signed store answers an empty 2xx):
+    // release it so the connection returns to the pool instead of stranding
+    // until GC reclaims it — the same release every other unread body gets.
+    await response.body?.cancel().catch((_error: unknown) => {
+      // Best-effort release only; the upload already succeeded.
+    })
     return upload.storage_uri
   }
 
