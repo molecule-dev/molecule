@@ -217,7 +217,29 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       // Check for two-factor authentication.
-      if (user.twoFactorEnabled && secrets.twoFactorSecret) {
+      //
+      // Gated on `twoFactorEnabled` ALONE, then refused when the secret is
+      // missing — never `&& secrets.twoFactorSecret`. That `&&` made the state
+      // "2FA enabled, no secret stored" (a disable whose secret clear landed
+      // before its `twoFactorEnabled: false` write, a half-applied enable, or a
+      // repaired row) log the caller in on the password alone, silently
+      // dropping the very challenge the account turned on. `logInOAuth` refuses
+      // the same state outright ("an OAuth login must NOT issue a session on
+      // its own"), so this path must not be the looser way in for it.
+      if (user.twoFactorEnabled) {
+        if (!secrets.twoFactorSecret) {
+          logger.error(
+            '2FA is enabled for this account but no secret is stored; refusing the login rather than dropping the challenge',
+            { userId: user.id },
+          )
+          return {
+            statusCode: 500,
+            body: {
+              error: t('user.error.twoFactorVerificationUnavailable'),
+              errorKey: 'user.error.twoFactorVerificationUnavailable',
+            },
+          }
+        }
         if (!body.twoFactorToken) {
           analytics.track({ name: 'user.two_factor_required', userId: user.id }).catch(() => {})
           return { statusCode: 206, body: { twoFactorRequired: true } }

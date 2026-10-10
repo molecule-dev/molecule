@@ -435,6 +435,60 @@ describe('logIn — the reset token survives the 2FA challenge', () => {
   })
 })
 
+// ===== logIn: an enabled-but-secretless 2FA account is refused, not let in ====
+
+describe('logIn — 2FA is enforced from twoFactorEnabled alone', () => {
+  const handler = logIn(testResource)
+
+  it('refuses the login when 2FA is enabled but no secret is stored', async () => {
+    // A half-applied state: the user row says 2FA is on, the secrets row has no
+    // secret (a disable whose secret clear landed before its `twoFactorEnabled:
+    // false` write, a half-applied enable, a repaired row). Gating the
+    // challenge on `twoFactorEnabled && twoFactorSecret` made this state log the
+    // caller in on the password ALONE — the challenge the account turned on was
+    // silently dropped. `logInOAuth` refuses the same state outright, so this
+    // path must not be the looser way in for it.
+    const { wire } = inMemorySecretsRow({ passwordHash: 'real-hash' })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'half-2fa', twoFactorEnabled: true })
+    mockCompare.mockResolvedValue(true)
+
+    const result = await handler(
+      makeReq({ username: 'half-2fa', password: 'right-password' }),
+      makeRes(),
+    )
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 500,
+        body: expect.objectContaining({
+          errorKey: 'user.error.twoFactorVerificationUnavailable',
+        }),
+      }),
+    )
+    // No session was minted and no device was created: the password may well be
+    // correct, but an unverifiable 2FA challenge must fail CLOSED.
+    expect(mockGet).not.toHaveBeenCalled()
+    expect(loginEvents()).toEqual([])
+    expect(mockTwoFactorVerify).not.toHaveBeenCalled()
+  })
+
+  it('still challenges (206) a 2FA account whose secret IS stored', async () => {
+    const { wire } = inMemorySecretsRow({ passwordHash: 'real-hash', twoFactorSecret: 'SECRET' })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'real-2fa', twoFactorEnabled: true })
+    mockCompare.mockResolvedValue(true)
+
+    const result = await handler(
+      makeReq({ username: 'real-2fa', password: 'right-password' }),
+      makeRes(),
+    )
+
+    expect(result).toEqual({ statusCode: 206, body: { twoFactorRequired: true } })
+    expect(mockGet).not.toHaveBeenCalled()
+  })
+})
+
 // ===== logIn: every password-carrying refusal runs one KDF (no timing oracle) =
 
 describe('logIn — every password-carrying refusal runs one KDF', () => {
