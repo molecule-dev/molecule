@@ -608,6 +608,30 @@ describe('logIn — every password-carrying refusal runs one KDF', () => {
     // Refused before anything was consumed or minted.
     expect(mockGet).not.toHaveBeenCalled()
   })
+
+  it('derives the dummy hash ONCE for a burst of concurrent refusals', async () => {
+    // The dummy hash is cached so the KDF it needs runs per PROCESS, not per
+    // request. Handing the cache a value that is only assigned AFTER the await
+    // (a plain `??=` on the resolved hash) defeated that for the one window
+    // where it matters: a cold cache plus concurrent refusals — an
+    // invalid-login burst is caller-controlled — ran one full-cost bcrypt hash
+    // PER REQUEST instead of one in total.
+    mockFindOne.mockResolvedValue(null)
+    mockHash.mockResolvedValue('dummy-hash')
+    mockCompare.mockResolvedValue(false)
+
+    await Promise.all(
+      Array.from({ length: 8 }, (_, i) =>
+        handler(makeReq({ username: `ghost-${i}`, password: 'a-guess' }), makeRes()),
+      ),
+    )
+
+    // One hash for the whole burst; each request still pays its own compare, so
+    // every refusal keeps the same timing as a wrong-password attempt.
+    expect(mockHash).toHaveBeenCalledTimes(1)
+    expect(mockHash).toHaveBeenCalledWith('molecule-dummy-password')
+    expect(mockCompare).toHaveBeenCalledTimes(8)
+  })
 })
 
 // ===== logIn: TTL parity + analytics that reports the method actually used ====

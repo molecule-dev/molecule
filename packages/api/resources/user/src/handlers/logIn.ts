@@ -30,8 +30,16 @@ const logger = getLogger()
  * defeating the timing-equalization defense and reintroducing a user-enumeration
  * oracle. Deriving the dummy hash from the bond's `hash()` guarantees it is
  * valid and matches the exact work factor of real password hashes.
+ *
+ * The PROMISE is what is cached, not the resolved value: an invalid-login burst
+ * is caller-controlled, and `hash()` is awaited for the whole cost of a KDF, so
+ * caching only after it resolves meant every concurrent refusal arriving while
+ * the cache was cold ran its OWN full-cost hash — N bcrypt runs where the cache
+ * exists to make it one in total. A FAILED hash is never left cached (a
+ * rejected promise would make every later refusal reuse it and skip the
+ * compare entirely, which is the timing oracle this whole path exists to close).
  */
-let dummyHash: string | undefined
+let dummyHashPromise: Promise<string> | undefined
 
 /**
  * Runs one bcrypt compare against the cached dummy hash, for every request that
@@ -48,12 +56,16 @@ let dummyHash: string | undefined
  */
 async function compareDummyHash(password: string): Promise<void> {
   try {
-    dummyHash ??= await hash('molecule-dummy-password')
-    await compare(password, dummyHash)
+    dummyHashPromise ??= hash('molecule-dummy-password')
+    await compare(password, await dummyHashPromise)
   } catch (_error) {
     // Best-effort timing equalizer only: a hashing/compare failure must not
     // alter the response or surface an error — every caller answers the same
-    // generic invalid-credentials result below either way.
+    // generic invalid-credentials result below either way. Drop the cached
+    // promise too, so a hash that FAILED is retried by the next refusal
+    // instead of being reused (a rejected promise here would skip the compare
+    // for every later request, reopening the oracle this path closes).
+    dummyHashPromise = undefined
   }
 }
 
