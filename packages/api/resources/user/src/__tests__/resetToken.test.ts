@@ -492,7 +492,35 @@ describe('logIn — 2FA is enforced from twoFactorEnabled alone', () => {
 // ===== logIn: every password-carrying refusal runs one KDF (no timing oracle) =
 
 describe('logIn — every password-carrying refusal runs one KDF', () => {
-  const handler = logIn(testResource)
+  // logIn caches the dummy bcrypt hash in a MODULE-level variable, and this
+  // file used to share one imported instance across the whole suite: whether
+  // `hash()` was called at all — and therefore what the cached dummy hash was —
+  // depended on which test ran first. The OAuth-only test below failed under
+  // `--sequence.shuffle` as soon as another test had warmed the cache, and the
+  // secrets-row-missing test failed when run ALONE (`hash()` had no resolved
+  // value, so `compare(password, undefined)` never matched `expect.any(String)`).
+  // Re-importing the handler against a COLD module registry per test removes
+  // both order dependencies.
+  let handler: ReturnType<typeof logIn>
+  // The analytics instance THIS test's fresh module binds at import. The
+  // file-level `analyticsTracks` only holds the instances created by the
+  // initial import, which a reset registry no longer produces.
+  let tracks: Array<ReturnType<typeof vi.fn>>
+  /** The recorded `user.login` events on this test's fresh handler instance. */
+  const freshLoginEvents = (): Array<Record<string, unknown>> =>
+    tracks
+      .flatMap((track) => track.mock.calls.map((call) => call[0] as Record<string, unknown>))
+      .filter((event) => event?.name === 'user.login')
+
+  beforeEach(async () => {
+    vi.resetModules()
+    vi.clearAllMocks()
+    const fresh = await import('../handlers/logIn.js')
+    handler = fresh.logIn(testResource)
+    tracks = mockGetAnalytics.mock.results
+      .map((r) => r.value?.track)
+      .filter((t): t is ReturnType<typeof vi.fn> => typeof t === 'function')
+  })
 
   it('runs the dummy compare for an existing account that carries no password hash', async () => {
     // An OAuth-only account: no passwordHash was ever stored for it.
@@ -550,6 +578,10 @@ describe('logIn — every password-carrying refusal runs one KDF', () => {
     // from "wrong password" — each of which runs one KDF.
     mockFindOne.mockResolvedValue({ id: USER_ID, username: 'orphaned' })
     mockFindById.mockResolvedValue(undefined)
+    // The dummy hash is derived from the bond's `hash()`; give that call a
+    // value so the compare's second argument is deterministic whether this
+    // test warms the module's cache or another test already did.
+    mockHash.mockResolvedValue('dummy-hash')
 
     const result = await handler(
       makeReq({ username: 'orphaned', password: 'a-password-guess' }),
@@ -565,11 +597,11 @@ describe('logIn — every password-carrying refusal runs one KDF', () => {
     // One KDF ran — the dummy compare against the caller's password — putting
     // this refusal inside the timing band of its sibling refusals.
     expect(mockCompare).toHaveBeenCalledTimes(1)
-    expect(mockCompare).toHaveBeenCalledWith('a-password-guess', expect.any(String))
+    expect(mockCompare).toHaveBeenCalledWith('a-password-guess', 'dummy-hash')
     // Tracked like every other invalid-credentials refusal: a probe against
     // this account was refused either way.
-    expect(loginEvents().length).toBe(0)
-    const failed = analyticsTracks
+    expect(freshLoginEvents().length).toBe(0)
+    const failed = tracks
       .flatMap((track) => track.mock.calls.map((call) => call[0] as Record<string, unknown>))
       .filter((event) => event?.name === 'user.login_failed')
     expect(failed.length).toBeGreaterThan(0)
