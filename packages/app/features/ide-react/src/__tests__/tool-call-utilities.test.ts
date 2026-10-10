@@ -16,6 +16,7 @@ import {
   extractFilePath,
   fileDiffStats,
   moleculeDocPath,
+  parseJudgeVerdict,
   readFilePaths,
   toolLabel,
   toolSummary,
@@ -608,5 +609,52 @@ describe('moleculeDocPath', () => {
     expect(moleculeDocPath('@molecule/api cache')).toBeNull()
     expect(moleculeDocPath('')).toBeNull()
     expect(moleculeDocPath(undefined)).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// parseJudgeVerdict
+// ---------------------------------------------------------------------------
+
+describe('parseJudgeVerdict', () => {
+  it('collects EVERY bullet of the ISSUES block, not just the first', () => {
+    // The judge writes one `- ` bullet per failure. Treating a bullet as the
+    // block's terminator kept only the first: the card's FAIL list showed one
+    // of the three failures the judge named.
+    const verdict = parseJudgeVerdict(
+      [
+        'VERDICT: FAIL',
+        '',
+        'ISSUES:',
+        '- The build script does not exist.',
+        '- The acceptance test for the new route is missing.',
+        '- The README still documents the removed flag.',
+        '',
+        'EVIDENCE:',
+        '1. package.json has no build script.',
+      ].join('\n'),
+    )
+    expect(verdict?.verdict).toBe('FAIL')
+    expect(verdict?.issues).toEqual([
+      'The build script does not exist.',
+      'The acceptance test for the new route is missing.',
+      'The README still documents the removed flag.',
+    ])
+    // The heading after the block is not swallowed into the issue list.
+    expect(verdict?.issues.some((issue) => issue.includes('EVIDENCE'))).toBe(false)
+  })
+
+  it('keeps every bullet when the block runs to the end of the report', () => {
+    const verdict = parseJudgeVerdict('VERDICT: FAIL\n\nISSUES:\n- one\n- two\n')
+    expect(verdict?.issues).toEqual(['one', 'two'])
+  })
+
+  it('stops the block at a heading when there is no blank line before it', () => {
+    const verdict = parseJudgeVerdict('VERDICT: FAIL\nISSUES:\n- one\n- two\nEVIDENCE:\n- x\n')
+    expect(verdict?.issues).toEqual(['one', 'two'])
+  })
+
+  it('returns null when the report carries no verdict line', () => {
+    expect(parseJudgeVerdict('Everything looked fine to me.')).toBeNull()
   })
 })

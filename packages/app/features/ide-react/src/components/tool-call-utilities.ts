@@ -780,7 +780,14 @@ export function parseJudgeVerdict(report: string): JudgeVerdict | null {
   const withoutVerdict = report
     .slice(verdictMatch.index! + verdictMatch[0].length)
     .replace(/^\s*VERDICT:\s*(?:PASS|FAIL)\b.*$/im, '')
-  const issuesBlock = withoutVerdict.match(/ISSUES:\s*\n?([\s\S]*?)(?=\n\s*\n|\n[A-Z]|\n-[^-]|$)/i)
+  // The block ends at a blank line, at the next heading (a line opening with a
+  // capital, e.g. `EVIDENCE:`), or at the end of the report — NOT at a bullet.
+  // The judge writes one `- ` bullet PER failure, so treating a bullet as the
+  // block's end kept only the first failure and dropped the rest from the
+  // card's `issues` list (the report body still carried them). Sections after
+  // ISSUES are separated by a blank line or a heading, so neither terminator
+  // is lost by dropping that alternative.
+  const issuesBlock = withoutVerdict.match(/ISSUES:\s*\n?([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i)
   const issues = (issuesBlock?.[1] ?? '')
     .split('\n')
     .map((line) => line.replace(/^\s*[-•*]\s*/, '').trim())
