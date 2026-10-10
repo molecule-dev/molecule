@@ -320,16 +320,22 @@ class AnthropicAIProvider implements AIProvider {
             delayMs,
           })
           await new Promise<void>((resolve) => {
-            const timer = setTimeout(resolve, delayMs)
+            const timer = setTimeout(() => {
+              // The window elapsed normally: drop the abort listener. `{ once:
+              // true }` only removes it when abort FIRES, so a caller signal
+              // that outlives the request (one controller reused across turns
+              // — the shape `params.signal` invites) would otherwise
+              // accumulate a dead listener per rate-limited retry, all of them
+              // firing on the signal's eventual abort.
+              signal.removeEventListener('abort', onAbort)
+              resolve()
+            }, delayMs)
+            const onAbort = (): void => {
+              clearTimeout(timer)
+              resolve()
+            }
             // If aborted while waiting, resolve immediately
-            signal.addEventListener(
-              'abort',
-              () => {
-                clearTimeout(timer)
-                resolve()
-              },
-              { once: true },
-            )
+            signal.addEventListener('abort', onAbort, { once: true })
           })
           if (signal.aborted) break
           continue

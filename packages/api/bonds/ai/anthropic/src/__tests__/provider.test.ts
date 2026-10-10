@@ -1,3 +1,5 @@
+import { getEventListeners } from 'node:events'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // ---------------------------------------------------------------------------
@@ -406,6 +408,54 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(events[0].type).toBe('error')
       expect(events[0].message).toBe('AI rate limit exceeded. Please try again shortly.')
       expect(events[0].errorKey).toBe('ai.error.apiError')
+    })
+
+    it('drops the backoff abort listener once the backoff timer fires, so a reused caller signal accumulates none', async () => {
+      // Regression: the backoff sleep registered its abort listener with `{ once:
+      // true }` — which only removes the listener when abort FIRES. A caller that
+      // passes one long-lived controller's signal across turns (the shape
+      // `params.signal` invites) therefore kept one dead listener per
+      // rate-limited retry forever, all of them firing on the controller's
+      // eventual abort. The listener must be removed when the timer wins, the
+      // way the liquid-d1 bond's retry sleep does.
+      const controller = new AbortController()
+      let call = 0
+      mockFetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve({
+            ok: false,
+            status: 429,
+            statusText: 'Too Many Requests',
+            text: vi.fn().mockResolvedValue('{}'),
+            json: vi.fn().mockRejectedValue(new Error('not json')),
+            headers: new Headers(),
+            body: null,
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          body: {
+            getReader: () => ({
+              read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+              releaseLock: vi.fn(),
+            }),
+          },
+        })
+      })
+
+      const eventsPromise = collectEvents(
+        provider.chat({ ...minimalParams, signal: controller.signal }),
+      )
+      // Run out the whole backoff (the timer path, not the abort path) and let
+      // the retried request finish.
+      await vi.advanceTimersByTimeAsync(60_000)
+      await eventsPromise
+
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      expect(getEventListeners(controller.signal, 'abort')).toHaveLength(0)
     })
 
     it('invokes onRateLimit on every rate-limited response, including the exhausted one', async () => {
