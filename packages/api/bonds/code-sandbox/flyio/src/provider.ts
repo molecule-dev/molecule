@@ -2383,8 +2383,17 @@ class FlyioSandboxProvider implements SandboxProvider {
           const key = `${store.prefix}/.imports/${machineId}-${Date.now().toString(36)}${Math.floor(
             Math.random() * 1e9,
           ).toString(36)}.tar.gz`
+          // Whether the uploaded object may still exist. Every exit from this
+          // block removes it — not just the success one: the upload is the
+          // SECOND write of this import, and a throw after it (a failing
+          // `presignGet`, an exec that times out or loses the connection) used to
+          // fall straight into the chunked fallback below with a multi-MB object
+          // left in the bucket. The presigned URL expires on its own; the OBJECT
+          // does not, so "it expires anyway" was only ever true of the URL.
+          let uploaded = false
           try {
             const putUrl = await store.presignPut(key, IMPORT_PRESIGN_EXPIRY_SECONDS)
+            uploaded = true
             const putRes = await fetch(putUrl, { method: 'PUT', body: gz })
             // The PUT's body is never read (a presigned store answers an empty
             // 2xx or a short error document): release it on EVERY path, or the
@@ -2415,6 +2424,10 @@ class FlyioSandboxProvider implements SandboxProvider {
               { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
             )
             // Best-effort: the temp object expires anyway, but delete it promptly.
+            // Cleared first: past this point the removal is under way, so the
+            // catch below must not queue a second one for the same key (a non-zero
+            // extract exit still throws from `failIfError`).
+            uploaded = false
             store.remove([key]).catch((error) => {
               logger.debug('importFiles temp object cleanup failed', { key, error })
             })
@@ -2422,7 +2435,18 @@ class FlyioSandboxProvider implements SandboxProvider {
             return
           } catch (error) {
             // The store path is unavailable or failed — fall through to the
-            // chunked-exec transport rather than failing the whole import.
+            // chunked-exec transport rather than failing the whole import. Any
+            // object this attempt uploaded goes first: the fallback re-imports
+            // the same archive under a DIFFERENT key on the workspace volume, so
+            // nothing else would ever remove this one.
+            if (uploaded) {
+              await store.remove([key]).catch((cleanupError: unknown) => {
+                logger.warn(
+                  'Could not remove the uploaded import archive after a failed import — it stays in the object store',
+                  { key, error: cleanupError },
+                )
+              })
+            }
             logger.warn('importFiles via object store failed; falling back to chunked exec', {
               error,
             })

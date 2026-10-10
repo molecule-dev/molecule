@@ -948,7 +948,16 @@ class E2BSandbox implements Sandbox {
         while (offset < chunk.length) {
           const room = IMPORT_PIECE_BYTES - pendingBytes
           const slice = chunk.subarray(offset, offset + room)
-          pending.push(slice)
+          // COPIED, never referenced: a piece waits in `pending` across the next
+          // `for await` pull and the flush's own awaits, and an async-iterable
+          // producer is free to hand back ONE recycled buffer for every yield —
+          // the shape this suite's own spool test uses (`for (…) yield piece`).
+          // `subarray` is a view, so a recycled chunk would overwrite every
+          // earlier piece before it was spooled, silently corrupting the archive
+          // (`Buffer.concat` cannot undo that — it copies whatever the views hold
+          // at flush time). `Buffer.from` snapshots the bytes as they were
+          // yielded, the same copy the sibling flyio bond makes.
+          pending.push(Buffer.from(slice))
           pendingBytes += slice.length
           offset += slice.length
           if (pendingBytes >= IMPORT_PIECE_BYTES) await flush()

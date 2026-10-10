@@ -1007,6 +1007,64 @@ describe('file operations', () => {
     expect(cancels).toHaveBeenCalledTimes(1)
   })
 
+  it('importFiles removes the uploaded archive object when the store path throws after the PUT', async () => {
+    // The upload is the second write of this import, and the object store only
+    // expires the presigned URL — never the OBJECT. A throw after the PUT (here
+    // a failing `presignGet`; in the field an exec that times out or loses its
+    // connection) fell straight into the chunked fallback and left the multi-MB
+    // object in the bucket forever: the fallback re-imports the same archive
+    // under a different name on the workspace volume, so nothing else could
+    // ever remove it.
+    const scripts: string[] = []
+    const fetchImpl = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/exec')) {
+        scripts.push(JSON.parse(String(init!.body)).command.at(-1))
+        return {
+          status: 200,
+          headers: { get: () => null },
+          text: async () => JSON.stringify({ exit_code: 0 }),
+        } as unknown as Response
+      }
+      return {
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ id: 'm1', state: 'started' }),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl,
+      sleep: async () => {},
+    })
+    const store = createStoreDouble()
+    const remove = vi.spyOn(store, 'remove')
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
+    if (!sandbox) throw new Error('expected a sandbox')
+
+    const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
+    vi.stubGlobal('fetch', putFetch)
+    store.presignGet = async () => {
+      throw new Error('store credentials unavailable')
+    }
+    try {
+      async function* arch() {
+        yield new TextEncoder().encode('pretend-tar-bytes')
+      }
+      // The chunked fallback rescues the import, as documented.
+      await expect(sandbox.importFiles('/workspace/my-app', arch())).resolves.toBeUndefined()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+
+    const key = store.presigned.find((p) => p.startsWith('PUT '))?.slice('PUT '.length)
+    expect(key).toBeDefined()
+    expect(remove).toHaveBeenCalledWith([key])
+    // …and the fallback really ran (a base64 chunked write).
+    expect(scripts.some((s) => s.includes('base64 -d'))).toBe(true)
+  })
+
   it('importFiles via object store cleans the downloaded archive up even when the extract FAILS, then falls back', async () => {
     // Same leftover on the store path: under `set -e`, `tar …` followed by a
     // separate `rm` aborted before the cleanup whenever tar failed, leaving the
