@@ -15,7 +15,7 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useContext, useMemo, useState } from 'react'
 
 import { t } from '@molecule/app-i18n'
 import { useThemeMode } from '@molecule/app-react'
@@ -23,6 +23,7 @@ import { getClassMap } from '@molecule/app-ui'
 
 import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ToolCallCardProps } from '../types.js'
+import { BackgroundTaskCommandsContext } from './background-task-context.js'
 import { MarkdownContent } from './MarkdownContent.js'
 import type { ToolOutput } from './tool-call-utilities.js'
 import {
@@ -693,6 +694,7 @@ export const ToolCallCard = memo(function ToolCallCard({
   const isUndone = isUndoneProp ?? isUndoneLocal
   const [isReverting, setIsReverting] = useState(false)
   const [skipRequested, setSkipRequested] = useState(false)
+  const backgroundCommands = useContext(BackgroundTaskCommandsContext)
 
   // The person skipped this call. It is neither a success nor a failure, and
   // the row has to say so — a green dot on a command that never ran is exactly
@@ -731,6 +733,12 @@ export const ToolCallCard = memo(function ToolCallCard({
           : '#3fb950'
 
   const summary = toolSummary(name, output as Out, status)
+
+  // A wait names the command it waits on, not just the task id it was handed.
+  const waitedTaskId =
+    name === 'wait_for_task' ? str((input as Inp | undefined)?.taskId) : undefined
+  const waitedCommand = waitedTaskId ? backgroundCommands.get(waitedTaskId) : undefined
+  const labelInput = waitedCommand ? { ...(input as Inp), command: waitedCommand } : input
 
   // File path for the clickable filename <code> in the label. For load_skill the
   // path isn't in the input — the loaded skill's SKILL.md path comes back in the
@@ -1886,14 +1894,34 @@ export const ToolCallCard = memo(function ToolCallCard({
 
   return (
     <div className={className} style={{ marginBottom: '4px' }}>
-      {/* The row and its Skip are SIBLINGS: the row itself is a <button>, and a
-          real button nested inside one is invalid HTML (which is why the undo
-          control above has to be a role="button" span). Skip is an action the
+      {/* The row and its Skip are SIBLINGS: the row itself is a role="button" div (a real <button>
+          cannot have its text selected, and a button nested inside one is invalid
+          HTML, which is why the undo control is a role="button" span too). Skip is an action the
           person clicks, so it gets to be a genuine button. */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-        <button
-          type="button"
-          onClick={handleClick}
+        <div
+          role="button"
+          tabIndex={handleClick ? 0 : undefined}
+          onClick={
+            handleClick
+              ? () => {
+                  // Dragging across the label to copy it ends in a click: that is a
+                  // selection, not a request to expand or open the card.
+                  if (window.getSelection()?.toString()) return
+                  handleClick()
+                }
+              : undefined
+          }
+          onKeyDown={
+            handleClick
+              ? (e) => {
+                  if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault()
+                    handleClick()
+                  }
+                }
+              : undefined
+          }
           onDoubleClick={
             isNewFile && filePath && onFileDoubleClick
               ? () => {
@@ -1916,6 +1944,8 @@ export const ToolCallCard = memo(function ToolCallCard({
             gap: '6px',
             background: 'none',
             border: 'none',
+            // The text must stay selectable (a button's own text is not).
+            userSelect: 'text',
             cursor: handleClick ? 'pointer' : 'default',
             color: 'inherit',
             textAlign: 'left',
@@ -1946,7 +1976,7 @@ export const ToolCallCard = memo(function ToolCallCard({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {renderLabel(name, input, filePath, onFileOpen, onFileDoubleClick)}
+                {renderLabel(name, labelInput, filePath, onFileOpen, onFileDoubleClick)}
               </span>
               {/* One-line status ("Running…"/"Done"/error count), on the SAME row as the
                 label and pushed to the right edge by the label's flex:1. */}
@@ -2101,7 +2131,7 @@ export const ToolCallCard = memo(function ToolCallCard({
               />
             </svg>
           )}
-        </button>
+        </div>
         {canSkip && (
           <button
             type="button"

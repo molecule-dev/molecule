@@ -236,8 +236,14 @@ export function toolLabel(name: string, input: unknown): string {
       if (kind === 'build') return `Subagent — build${on}`
       return `Subagent — research${on}`
     }
-    case 'wait_for_task':
-      return `Wait for background task${code(truncate(str(inp.taskId) ?? ''))}`
+    case 'wait_for_task': {
+      // `command` is not part of the tool's input: the card fills it in from the
+      // exec_command that started the task, so the row says what is being waited on.
+      const command = str(inp.command)
+      return command
+        ? `Wait for${code(truncate(command, 80))}`
+        : `Wait for background task${code(truncate(str(inp.taskId) ?? ''))}`
+    }
     case 'list_sessions':
       return 'Other sessions on this project'
     case 'send_session_message':

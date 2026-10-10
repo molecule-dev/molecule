@@ -81,6 +81,7 @@ import type { Activity } from './activity-utilities.js'
 import { activityFromEvent } from './activity-utilities.js'
 import { ActivityCard } from './ActivityCard.js'
 import { AutoCommitBadge } from './AutoCommitBadge.js'
+import { backgroundTaskCommands, BackgroundTaskCommandsContext } from './background-task-context.js'
 import { BackgroundTasksStrip } from './BackgroundTasksStrip.js'
 import {
   AUTO_COMMIT_DISABLED,
@@ -8226,8 +8227,10 @@ function ChatInner({
     )
   }
 
+  const bgCommands = useMemo(() => backgroundTaskCommands(messages), [messages])
+
   // ── Render ─────────────────────────────────────────────────────────────────
-  return (
+  const root = (
     <div
       style={{
         display: 'flex',
@@ -12284,6 +12287,13 @@ function ChatInner({
         />
       )}
     </div>
+  )
+
+  // Lets a Wait card name the command it waits on (see background-task-context).
+  return (
+    <BackgroundTaskCommandsContext.Provider value={bgCommands}>
+      {root}
+    </BackgroundTaskCommandsContext.Provider>
   )
 }
 
