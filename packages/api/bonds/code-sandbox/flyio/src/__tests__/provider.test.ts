@@ -17,6 +17,7 @@ vi.mock('@molecule/api-i18n', () => ({
 }))
 
 const { FlyApiClient } = await import('../api.js')
+const { FLY_EXEC_MAX_ARG_BYTES } = await import('../exec.js')
 const { createProvider } = await import('../provider.js')
 const { shellQuote } = await import('../utilities.js')
 
@@ -841,7 +842,7 @@ describe('file operations', () => {
     expect(write[0]).toContain('> ')
   })
 
-  it('chunks a large file into truncate-then-append execs, under MAX_ARG_STRLEN', async () => {
+  it('chunks a large file into truncate-then-append execs, under the Fly exec payload limit', async () => {
     const { sandbox, scripts } = await sandboxWithExec(() => ({ exit_code: 0 }))
     await sandbox.writeFile('/workspace/big.txt', 'a'.repeat(120_000))
 
@@ -852,7 +853,7 @@ describe('file operations', () => {
       expect(script).toContain('>> ')
       expect(script).not.toContain('mkdir -p')
     }
-    for (const script of write) expect(script.length).toBeLessThan(128 * 1024)
+    for (const script of write) expect(script.length).toBeLessThan(FLY_EXEC_MAX_ARG_BYTES)
   })
 
   it('throws when a write fails instead of reporting success', async () => {
@@ -1276,6 +1277,24 @@ describe('file operations', () => {
     expect(scripts.some((s) => s.includes('base64 -d'))).toBe(false)
     expect(store.presigned.some((p) => p.startsWith('PUT'))).toBe(true)
     expect(store.presigned.some((p) => p.startsWith('GET'))).toBe(true)
+  })
+
+  it('importFiles cleans the downloaded archive up when the curl DOWNLOAD fails, not just the extract', async () => {
+    // The same leftover, one statement earlier: under `set -e`, a bare `curl`
+    // line aborted the script before the cleanup whenever the download failed
+    // (an expired presign, a reset mid-body), leaving its partial archive in
+    // the sandbox's /tmp — the extract guard fixed this shape for `tar` only.
+    // The download must carry the same `|| { … }` guard.
+    const { sandbox, scripts } = await storePathSandbox()
+
+    await importViaStore(sandbox)
+
+    const download = scripts.find((s) => s.includes('curl') && s.includes('tar -C'))
+    expect(download).toBeDefined()
+    const curlLine = download?.split('\n').find((line) => line.startsWith('curl '))
+    expect(curlLine).toBeDefined()
+    expect(curlLine).toContain('|| { rc=$?; rm -f "$archive"; exit $rc; }')
+    expect(curlLine).toContain('-o "$archive"')
   })
 
   it('parses readDir output, including symlink targets, and drops . and ..', async () => {
@@ -1708,5 +1727,37 @@ describe('private routes (Flycast)', () => {
     expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(1)
     // The app this call created is still discarded, as before.
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+  })
+
+  it('releases the addresses it allocated when the boot fails AFTER allocating them on an app that pre-existed', async () => {
+    // The window the allocation-loop guard above does not cover: the app
+    // already exists, its Machines recorded no routes, this boot allocates the
+    // missing ones, and the Machine create THEN fails (the org's Machine
+    // limit). The app survives — it may hold working Machines — so nothing is
+    // discarded; the Machine that would have recorded the new addresses in its
+    // metadata was never created, and Fly's listing cannot say which network
+    // an address belongs to. Only what THIS boot allocated is taken back.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      // recordedPrivateRoutes' listing, then destroyStaleMachines'.
+      .on(`GET /apps/${APP}/machines`, { body: [] })
+      .on(`GET /apps/${APP}/machines`, { body: [] })
+      .on('POST /apps/svc-db/ip_assignments', { body: { ip: 'fdaa::1' } })
+      .on(`POST /apps/${APP}/machines`, {
+        status: 422,
+        body: { error: 'Your organization has reached its machine limit.' },
+      })
+
+    await expect(
+      makeProvider({ privateServices: [{ app: 'svc-db', port: 5432 }] }, double).create({
+        projectId: PROJECT_ID,
+      }),
+    ).rejects.toThrow()
+
+    expect(double.matching('POST /apps/svc-db/ip_assignments')).toHaveLength(1)
+    expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(1)
+    // The pre-existing app is never touched (pinned above too, but it is the
+    // reason the release here is the address and not the app).
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 })

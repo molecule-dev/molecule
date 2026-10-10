@@ -214,8 +214,9 @@ const IMPORT_EXTRACT_TIMEOUT_MS = 55_000
  * sub-APIs asynchronously, so `POST /apps` can return before
  * `POST /apps/{app}/machines` sees the app — which 404s "app not found" for a
  * few seconds. Observed live during boot on 2026-08-08 (surfaced to the user as
- * "Failed to start sandbox"). Six attempts span the client's 1+2+4+8+16 s
- * backoff ≈ 31 s, comfortably past the observed window.
+ * "Failed to start sandbox"). Six attempts span the client's 1+2+4+8+10 s
+ * backoff ≈ 25 s (the fifth step is clamped at the client's 10 s cap),
+ * comfortably past the observed window.
  */
 const MACHINE_CREATE_ATTEMPTS = 6
 
@@ -462,13 +463,21 @@ class FlyioSandboxProvider implements SandboxProvider {
    *   is what the throwaway `verifyEgress()` app wants: it never connects to
    *   anything but the probe targets, and allocating for an app that is deleted
    *   seconds later would leak one address per probe on every target app.
-   * @returns Target app name → allocated private address, for recording in the
-   *   Machine's metadata. Empty when no private services are declared.
+   * @returns `routes`: target app name → allocated private address, for
+   *   recording in the Machine's metadata (empty when no private services are
+   *   declared); `allocated`: the subset of `routes` this call created, which
+   *   the caller releases when the boot fails and the app is NOT discarded
+   *   (an app that pre-existed is kept, and with it the addresses it already
+   *   held — only this call's own allocations are safe to take back).
    */
   private async ensureApp(
     app: string,
     options: { privateRoutes?: boolean } = {},
-  ): Promise<{ routes: Record<string, string>; created: boolean }> {
+  ): Promise<{
+    routes: Record<string, string>
+    allocated: Record<string, string>
+    created: boolean
+  }> {
     const existing = await this.client.request<{ name: string }>(`/apps/${app}`, { nullOn: [404] })
     let createdHere = false
 
@@ -498,9 +507,10 @@ class FlyioSandboxProvider implements SandboxProvider {
     try {
       if (createdHere && this.config.assignSharedIpv4) await this.assignSharedIpv4(app)
       await this.applyEgressPolicy(app)
-      if (options.privateRoutes === false) return { routes: {}, created: createdHere }
+      if (options.privateRoutes === false)
+        return { routes: {}, allocated: {}, created: createdHere }
       return {
-        routes: await this.ensurePrivateRoutes(app, Boolean(existing)),
+        ...(await this.ensurePrivateRoutes(app, Boolean(existing))),
         created: createdHere,
       }
     } catch (error) {
@@ -559,15 +569,18 @@ class FlyioSandboxProvider implements SandboxProvider {
    * @param app - The Fly app name (which is also its 6PN network name).
    * @param appExisted - Whether the app was already there, in which case its
    *   Machines may carry addresses allocated by an earlier boot.
-   * @returns Target app name → private address.
+   * @returns `routes`: target app name → private address (what the Machine's
+   *   metadata records); `allocated`: the subset of `routes` THIS call created —
+   *   the only addresses safe to release when the boot fails after allocation,
+   *   since the recorded ones belong to Machines an earlier boot may still run.
    */
   private async ensurePrivateRoutes(
     app: string,
     appExisted: boolean,
-  ): Promise<Record<string, string>> {
+  ): Promise<{ routes: Record<string, string>; allocated: Record<string, string> }> {
     const services = this.privateServices()
     const network = this.networkFor(app)
-    if (!services?.length || !network) return {}
+    if (!services?.length || !network) return { routes: {}, allocated: {} }
 
     const routes = appExisted ? await this.recordedPrivateRoutes(app) : {}
     // The addresses THIS call allocated, tracked apart from `routes` so a
@@ -594,7 +607,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       await this.releasePrivateRoutes(allocated)
       throw error
     }
-    return routes
+    return { routes, allocated }
   }
 
   /**
@@ -1119,11 +1132,24 @@ class FlyioSandboxProvider implements SandboxProvider {
     assertPrivateRoutesForEnv({ ...config.env, ...config.selfDeliveredEnv }, this.privateServices())
 
     const app = this.resolveApp(config.projectId)
-    const { routes: privateRoutes, created } = await this.ensureApp(app)
+    const { routes: privateRoutes, allocated, created } = await this.ensureApp(app)
     try {
       return await this.createInApp(app, privateRoutes, config, manifest)
     } catch (error) {
-      if (created && this.appPerProject()) await this.discardCreatedApp(app, privateRoutes)
+      if (created && this.appPerProject()) {
+        // The whole app goes, addresses included — discardCreatedApp releases
+        // every route it was handed (a created app holds only this call's).
+        await this.discardCreatedApp(app, privateRoutes)
+      } else {
+        // The app SURVIVES this failure (it pre-existed, or it is the shared
+        // app), so the addresses this call allocated would otherwise stay
+        // behind on their target apps with nothing recording them: the
+        // Machine that would have carried the metadata was never created, and
+        // Fly's listing cannot say which network an address belongs to. Take
+        // back exactly this call's own allocations — never the routes an
+        // earlier boot recorded, whose Machines may still be running.
+        await this.releasePrivateRoutes(allocated)
+      }
       throw error
     }
   }
@@ -2412,12 +2438,15 @@ class FlyioSandboxProvider implements SandboxProvider {
                 'set -e',
                 `mkdir -p ${quotedPath}`,
                 'archive=$(mktemp /tmp/mol-import-XXXXXX.tar.gz)',
-                `curl --fail-with-body -sS --retry 3 --retry-connrefused -o "$archive" ${shellQuote(getUrl)}`,
-                // The archive is removed whether the extract SUCCEEDS or fails:
-                // `&& rm` after tar (under `set -e`) left every failed extract's
-                // download behind in the sandbox's /tmp until the Machine died.
-                // The `|| { }` guard keeps `set -e` from aborting before the
-                // cleanup and re-raises the real exit code.
+                // The archive is removed whether the DOWNLOAD or the extract
+                // SUCCEEDS or fails: under `set -e`, a bare `curl`/`tar` line
+                // aborted the script before any cleanup — a failed curl (an
+                // expired presign, a reset mid-body) left its partial download
+                // in the sandbox's /tmp until the Machine died, exactly like
+                // the failed extracts `&& rm` used to leave. The `|| { }` guard
+                // keeps `set -e` from aborting before the cleanup and re-raises
+                // the real exit code.
+                `curl --fail-with-body -sS --retry 3 --retry-connrefused -o "$archive" ${shellQuote(getUrl)} || { rc=$?; rm -f "$archive"; exit $rc; }`,
                 `tar -C ${quotedPath} --no-same-owner --no-same-permissions -xzf "$archive" || { rc=$?; rm -f "$archive"; exit $rc; }`,
                 'rm -f "$archive"',
               ].join('\n'),
