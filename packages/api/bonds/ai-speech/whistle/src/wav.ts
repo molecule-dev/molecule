@@ -221,7 +221,22 @@ export class FloatBlockResampler {
         block[i] = a + (b - a) * frac
       }
       this.produced += this.blockSize
-      const keepFrom = Math.floor(this.produced * ratio) - this.rawStart
+      // The window may only be advanced as far as the data that actually
+      // exists: `rawStart + raw.length` is the absolute index of the NEXT
+      // input sample — the first one the next `push()` appends — and the
+      // block-emit bound above proves only that THIS block's last output had
+      // its right neighbour buffered, not that the next block's left
+      // neighbour exists yet. `floor(produced * ratio)` can therefore lie one
+      // or more samples PAST the end of the buffer (when a chunk boundary
+      // lands a sample or two short of a block's advance), and slicing the
+      // window there left `rawStart` larger than the next chunk's first
+      // absolute index: every later chunk was then attributed that many
+      // indices too high — a shifted timeline (wrong interpolated values) and
+      // a spurious extra output sample at the end. Clamping to `raw.length`
+      // drops exactly the samples that all sit before that position; the
+      // `rawStart + raw.length` invariant (`=== samples pushed`) is preserved,
+      // which also keeps the resampler from stalling on `lastNeeded`.
+      const keepFrom = Math.min(Math.floor(this.produced * ratio) - this.rawStart, this.raw.length)
       if (keepFrom > 0) {
         this.raw = this.raw.slice(keepFrom)
         this.rawStart += keepFrom

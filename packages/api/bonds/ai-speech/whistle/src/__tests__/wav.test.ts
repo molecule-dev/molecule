@@ -374,6 +374,58 @@ describe('FloatBlockResampler', () => {
     }
   })
 
+  it('keeps the timeline aligned across a mid-stream chunk boundary', () => {
+    // `push()`'s `keepFrom` advanced the window start to
+    // `floor(produced * ratio)` unconditionally, but that index can lie one or
+    // more samples PAST the end of the buffer: the block-emit bound proves
+    // only that the emitted block's last output had its right neighbour, not
+    // that the NEXT block's left neighbour has arrived. `slice()` past the end
+    // then left `rawStart` larger than the next chunk's first absolute index,
+    // so every later chunk was attributed that many indices too high — a
+    // shifted timeline and a spurious extra output sample — whenever a chunk
+    // boundary landed a sample or two short of a block's advance (44100 →
+    // 16000 reaches it at 274 samples for a 100-sample block, and at 44099 for
+    // the provider's own 16000-sample block). The identity path never used
+    // `keepFrom`, which is why a same-rate stream could not show it.
+    const ramp = (n: number): Float32Array => {
+      const input = new Float32Array(n)
+      for (let i = 0; i < input.length; i++) input[i] = (i + 1) / 1000
+      return input
+    }
+    // The end-of-stream flush is part of both sides: it is the path that turns
+    // the shifted window into the extra trailing sample.
+    const drain = (blocks: Float32Array[], tail: Float32Array | null): number[] => [
+      ...blocks.flatMap((b) => Array.from(b)),
+      ...(tail ? Array.from(tail) : []),
+    ]
+    const maxDiff = (a: number[], b: number[]): number => {
+      let worst = 0
+      for (let i = 0; i < Math.min(a.length, b.length); i++) {
+        worst = Math.max(worst, Math.abs(a[i]! - b[i]!))
+      }
+      return worst
+    }
+    // (from rate, block size, total samples, the boundary that used to shift)
+    const cases: Array<[number, number, number, number]> = [
+      [44100, 100, 800, 274],
+      [44100, 16000, 90_000, 44_099],
+      [48000, 100, 800, 299],
+    ]
+    for (const [from, block, total, splitAt] of cases) {
+      const input = ramp(total)
+      const continuous = new FloatBlockResampler(from, 16000, block)
+      const flat = drain(continuous.push(input), continuous.flush())
+      const split = new FloatBlockResampler(from, 16000, block)
+      const first = split.push(input.subarray(0, splitAt))
+      const second = split.push(input.subarray(splitAt))
+      const joined = drain([...first, ...second], split.flush())
+      // Same count — no spurious trailing sample — and the same values, so the
+      // second chunk was attributed the absolute indices it really has.
+      expect(joined).toHaveLength(flat.length)
+      expect(maxDiff(joined, flat)).toBeLessThan(1e-6)
+    }
+  })
+
   it('refuses a blockSize that would make push() emit blocks forever', () => {
     // A zero/negative blockSize never advances the identity path's `start`
     // and a NaN one never advances the resampling path's `produced`, so
