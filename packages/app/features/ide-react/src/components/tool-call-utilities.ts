@@ -827,12 +827,18 @@ const MAX_DIFF_CELLS = 1 << 22
 function lcsLength(a: readonly string[], b: readonly string[]): number {
   if (a.length === 0 || b.length === 0) return 0
   if (a.length * b.length > MAX_DIFF_CELLS) return multisetCommonLines(a, b)
-  // The recurrence needs only the previous row; keeping the SHORTER array on
-  // the row axis bounds each row by min(a, b) (≤ 2048 here, since
-  // min² ≤ a·b ≤ MAX_DIFF_CELLS).
+  // The recurrence needs only the previous row, and a row is `cols` wide — so
+  // the SHORTER array belongs on the `cols` axis, which bounds every row by
+  // min(a, b) (≤ 2048 here, since min² ≤ a·b ≤ MAX_DIFF_CELLS) and is what the
+  // memory claim above rests on. Putting the shorter array on the ROW axis
+  // instead bounds the row COUNT and leaves each of the two rows sized by the
+  // longer side — linear in a length the cell cap does not bound (a 1-line
+  // against a 4-million-line side is inside the cap and allocated two
+  // 4-million-slot arrays). Swapping the axes costs nothing: the recurrence is
+  // symmetric, so the length it returns is the same either way.
   let rows = a
   let cols = b
-  if (rows.length > cols.length) {
+  if (cols.length > rows.length) {
     rows = b
     cols = a
   }
