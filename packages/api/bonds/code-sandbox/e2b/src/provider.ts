@@ -1234,13 +1234,47 @@ export class E2BSandboxProvider implements SandboxProvider {
   /**
    * Resolve an existing sandbox by id.
    *
+   * This is the caller-is-about-to-USE-it lookup, so it connects WITH the
+   * configured timeout: E2B applies `timeoutMs` as the sandbox's new deadline
+   * (`POST /v2/sandboxes/{id}/connect` carries `timeout` once a timeout is
+   * given), which is what makes a `get()` of a paused sandbox both resume it
+   * and give it a working deadline. Callers that must not touch a sandbox's
+   * lifecycle read {@link describe} instead; enumeration goes through
+   * {@link connectHandle} with the deadline reset switched OFF.
+   *
    * @param id - The sandbox id.
    * @returns A live handle, or `null` if no sandbox has that id.
    */
   async get(id: string): Promise<Sandbox | null> {
+    return this.connectHandle(id, true)
+  }
+
+  /**
+   * Connect to `id` and wrap the live instance in a handle.
+   *
+   * `resetDeadline` decides whether the connect carries a `timeoutMs`, and with
+   * it whether E2B rewrites the sandbox's deadline. That distinction is the
+   * whole reason this helper exists: `list()` enumerates an account on a poll
+   * (a control-plane sweep), and connecting the way `get()` does there reset
+   * EVERY running sandbox's deadline on EVERY poll — a sandbox kept alive with
+   * `keepAlive(ms)` was pulled back to the provider default and paused under
+   * whatever was still using it, while an idle one that was about to pause on
+   * its own was pushed out and kept billing. Extending a deadline is a real
+   * activity signal's job (see the module doc's `keepAlive` note: "call it from
+   * a real activity signal ... never as a side effect of polling"), so an
+   * enumeration connects without one, which E2B treats as no deadline change.
+   *
+   * @param id - The sandbox id.
+   * @param resetDeadline - Whether this connect may rewrite the sandbox's deadline.
+   * @returns A live handle, or `null` if no sandbox has that id.
+   */
+  private async connectHandle(id: string, resetDeadline: boolean): Promise<Sandbox | null> {
     const client = await this.client()
     try {
-      const sbx = await client.connect(id, { timeoutMs: this.config.defaultTimeoutMs })
+      const sbx = await client.connect(
+        id,
+        resetDeadline ? { timeoutMs: this.config.defaultTimeoutMs } : undefined,
+      )
       return new E2BSandbox(sbx, client, {
         previewPort: this.config.defaultPreviewPort,
         timeoutMs: this.config.defaultTimeoutMs,
@@ -1310,6 +1344,12 @@ export class E2BSandboxProvider implements SandboxProvider {
   /**
    * List the caller's live sandboxes.
    *
+   * Enumeration must not change what it enumerates: a paused sandbox is skipped
+   * (connecting would resume it) and a running one is connected WITHOUT the
+   * timeout that would rewrite its deadline ({@link connectHandle}) — a sweep
+   * that reset every deadline it saw would pause a `keepAlive`d sandbox early
+   * and keep an idle one billing past the pause it asked for.
+   *
    * @param _userId - Unused; E2B scopes by API key, not per-user labels here.
    * @returns Live handles for every running sandbox.
    */
@@ -1318,7 +1358,7 @@ export class E2BSandboxProvider implements SandboxProvider {
     const running = await client.list({})
     const items = Array.isArray(running) ? running : (running.sandboxes ?? [])
     // All the per-sandbox connects are issued through a bounded-concurrency
-    // window, not one awaited after the next: each `get()` is a full connect
+    // window, not one awaited after the next: each handle is a full connect
     // round trip, and a fleet sweep over N running sandboxes must not
     // serialize N of them (O(N) latency on a method the control plane polls) —
     // while still not putting all N sockets in flight at once (see
@@ -1330,7 +1370,8 @@ export class E2BSandboxProvider implements SandboxProvider {
       // connecting, and connecting resumes it. Enumerating an account would
       // otherwise wake — and start billing — every hibernated project on it.
       if (it.state === 'paused') return null
-      return this.get(it.sandboxId)
+      // `false`: no deadline reset. A poll is not an activity signal.
+      return this.connectHandle(it.sandboxId, false)
     })
     return handles.filter((h): h is Sandbox => h !== null)
   }
