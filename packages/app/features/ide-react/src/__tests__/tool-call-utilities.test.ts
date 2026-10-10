@@ -93,6 +93,36 @@ describe('toolLabel', () => {
     expect(toolLabel('read_file', { paths: ['/'] })).toBe('Read +1 more')
   })
 
+  it('keeps a backtick in a file name from breaking the label markup', () => {
+    // Tool input is model-authored, and a backtick is a legal filename
+    // character. The label wraps each name in backtick MARKUP, which the card
+    // splits on `` `([^`]+)` `` to build the clickable code spans — a name
+    // carrying its own backtick closed its span early, shredded the label, and
+    // shifted the span→entry indexing so the SEPARATOR text (", ") became a
+    // clickable span that opened the NEXT file. Every value interpolated into
+    // the markup is therefore backtick-substituted, so one span survives per
+    // named file and the count of spans matches the entry list the click
+    // targets index.
+    const label = toolLabel('read_file', { paths: ['a/`weird`.ts', 'b/real.ts'] })
+    expect(label).toBe("Read `'weird'.ts`, `real.ts`")
+    // The property the click-target indexing rests on: splitting the label the
+    // way the card does yields exactly one code segment per named entry, in
+    // order — no separator text and no shredded fragment ever lands in a span.
+    const segments = label.split(new RegExp('`([^`]+)`')).filter((_part, i) => i % 2 === 1)
+    expect(segments).toEqual(["'weird'.ts", 'real.ts'])
+  })
+
+  it('keeps a backtick in a command from breaking the label markup', () => {
+    // Same split-safety for the shell text: command substitution in a command
+    // shredded the Bash label into spans (harmless-looking, since no file is
+    // clicked) and hid part of the command the user is being shown.
+    expect(toolLabel('exec_command', { command: 'echo `date`' })).toBe("Bash `echo 'date'`")
+  })
+
+  it('keeps a backtick in a plan name from breaking the label markup', () => {
+    expect(toolLabel('save_plan', { name: 'milestone `one`' })).toBe("Save plan `milestone 'one'`")
+  })
+
   it('opens the first file of a batch read_file', () => {
     expect(extractFilePath('read_file', { paths: ['x/a.ts', 'x/b.ts'] })).toBe('x/a.ts')
     expect(readFilePaths({ paths: ['x/a.ts', 7, ''] })).toEqual(['x/a.ts'])

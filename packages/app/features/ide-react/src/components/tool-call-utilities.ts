@@ -144,7 +144,18 @@ export function toolLabel(name: string, input: unknown): string {
   // created, so path/pattern/command are briefly undefined — emitting `Read ``
   // (empty backticks) flashed before the real filename. Drop the backticks
   // entirely until there's a value, so the label reads "Read" then "Read `x.ts`".
-  const code = (value: string): string => (value ? ` \`${value}\`` : '')
+  //
+  // The backticks are MARKUP: the card's label renderer splits the finished
+  // string on `` `([^`]+)` `` to turn each span into a clickable code segment
+  // (for a batch read_file, indexed against the very entries named here). A
+  // value carrying its own backtick — a file named `a`b.ts`, a command using
+  // command substitution — therefore closes the span early: the rendered label
+  // shreds, and the extra fragment pairs shift the entry indexing so a span
+  // holding SEPARATOR text became clickable and opened the next file. Backtick
+  // is not a character filenames or commands need rendered verbatim in a
+  // one-line label, so it is substituted (never dropped — the value stays one
+  // span, in position) and every label this module emits is split-safe.
+  const code = (value: string): string => (value ? ` \`${value.replace(/`/g, "'")}\`` : '')
 
   switch (name) {
     case 'list_files':
@@ -250,7 +261,10 @@ export function toolLabel(name: string, input: unknown): string {
       return `Search web${code(truncate(str(inp.query) ?? '', 40))}`
     case 'save_plan': {
       const planName = str(inp.name) ?? ''
-      return planName ? `Save plan \`${planName}\`` : 'Save plan'
+      // Same split-safety as {@link code} above: the name is interpolated into
+      // the label's backtick markup directly, so a backtick in it must be
+      // substituted here too.
+      return planName ? `Save plan \`${planName.replace(/`/g, "'")}\`` : 'Save plan'
     }
     case 'set_mode': {
       const targetMode = str(inp.mode) ?? ''
