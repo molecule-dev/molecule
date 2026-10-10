@@ -334,6 +334,46 @@ describe('FloatBlockResampler', () => {
     }
   })
 
+  it('keeps the interpolation continuous across a flush at a NON-integer ratio', () => {
+    // The 3:1 ratio above never interpolates (every output sample lands exactly
+    // on an input sample, `frac === 0`), so it cannot see the boundary case a
+    // real capture rate produces: at 44100 → 16000 the first output sample
+    // after a flush falls BETWEEN the last flushed input sample and the first
+    // of the next chunk. Releasing the whole window there interpolated it
+    // against a zero (the left neighbour was gone), so the flushed-then-pushed
+    // timeline no longer matched the same samples pushed in one go.
+    const from = 44100
+    const to = 16000
+    const input = new Float32Array(4000)
+    for (let i = 0; i < input.length; i++) input[i] = i / 4000
+
+    const continuous = new FloatBlockResampler(from, to, 100)
+    const flatContinuous = continuous
+      .push(input)
+      .flatMap((b) => Array.from(b))
+      .concat(Array.from(continuous.flush() ?? new Float32Array(0)))
+
+    // A sweep of split points: the divergence depends on where the flush
+    // boundary lands inside an input slot, so one split point cannot pin it.
+    for (const splitAt of [100, 111, 1500, 2003, 3000]) {
+      const split = new FloatBlockResampler(from, to, 100)
+      const firstBlocks = split.push(input.subarray(0, splitAt))
+      const midTail = split.flush()
+      const secondBlocks = split.push(input.subarray(splitAt))
+      const endTail = split.flush()
+      const joined = [
+        ...firstBlocks,
+        ...(midTail ? [midTail] : []),
+        ...secondBlocks,
+        ...(endTail ? [endTail] : []),
+      ].flatMap((b) => Array.from(b))
+      expect(joined).toHaveLength(flatContinuous.length)
+      for (let i = 0; i < joined.length; i++) {
+        expect(joined[i]).toBeCloseTo(flatContinuous[i], 6)
+      }
+    }
+  })
+
   it('refuses a blockSize that would make push() emit blocks forever', () => {
     // A zero/negative blockSize never advances the identity path's `start`
     // and a NaN one never advances the resampling path's `produced`, so

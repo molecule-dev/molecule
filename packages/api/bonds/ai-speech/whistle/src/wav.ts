@@ -233,11 +233,15 @@ export class FloatBlockResampler {
 
   /**
    * Emits the remaining output computable from what is buffered, as one
-   * final partial block. The WHOLE window is consumed: the last input sample
-   * is read for the final interpolation and then released with the buffer, so
-   * a `push()` after this flush attributes its samples from the next input
-   * position (see `rawStart` below).
-   * @returns The partial block, or null when nothing is buffered.
+   * final partial block. The consumed window is released (see `rawStart`
+   * below), so a `push()` after this flush attributes its samples from the
+   * next input position. In the resampling path the window's LAST sample is
+   * retained, because the next output sample's input position always lands in
+   * `(lastAbsolute, lastAbsolute + ratio]` — its left interpolation neighbour
+   * is that last sample, and dropping it would interpolate the first output
+   * sample after the flush against a zero.
+   * @returns The partial block, or null when no further output is computable
+   *   from what is buffered.
    */
   flush(): Float32Array | null {
     if (this.raw.length === 0) return null
@@ -263,8 +267,25 @@ export class FloatBlockResampler {
     // fall inside the buffer again and the resampler answers nothing forever
     // (push emits no blocks, flush reports null), silently dropping every
     // sample it is fed from then on.
-    this.rawStart += this.raw.length
-    this.raw = new Float32Array(0)
+    //
+    // The identity path consumes the whole window. The RESAMPLING path keeps
+    // its last sample: the next output sample's input position is
+    // `(produced) * ratio`, which lies in `(lastAbsolute, lastAbsolute + ratio]`,
+    // so its left interpolation neighbour is exactly the buffer's last sample.
+    // Releasing it made that sample (and, when it straddles the same input
+    // slot, the one after it) interpolate against a zero — the flushed-then-
+    // pushed timeline diverged from the same samples pushed in one go whenever
+    // `fromRate / toRate` is not an integer, which the 3:1 test ratio could
+    // not show. Keeping it here is what makes the timeline continuous; the
+    // anchor (`rawStart = lastAbsolute`) is its absolute index, so the next
+    // push still attributes its samples from the right position.
+    if (this.fromRate === this.toRate) {
+      this.rawStart += this.raw.length
+      this.raw = new Float32Array(0)
+    } else {
+      this.rawStart = lastAbsolute
+      this.raw = this.raw.slice(this.raw.length - 1)
+    }
     return block
   }
 }
