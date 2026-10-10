@@ -337,7 +337,12 @@ export function loadWhistleEngine(
   onProgress?: (event: ModelProgressEvent) => void,
   timeoutMs = 120_000,
 ): Promise<WhistleEngine> {
-  const key = `${source.enginePath ?? ''}\0${source.jsUrl}\0${source.wasmPath ?? ''}\0${source.weightsPath ?? source.weightsUrl}`
+  // Every field of the source is in the key, `wasmUrl` included: it is a
+  // REQUIRED input, so leaving it out made two different wasm builds (same
+  // glue, same weights) share one cached engine — the second caller's pinned
+  // binary was never fetched, and the loader's "one wasm instance per source
+  // combination" contract was false for the field most likely to be pinned.
+  const key = `${source.enginePath ?? ''}\0${source.jsUrl}\0${source.wasmPath ?? ''}\0${source.wasmUrl}\0${source.weightsPath ?? source.weightsUrl}`
   const cached = engineCache.get(key)
   if (cached) return cached
 

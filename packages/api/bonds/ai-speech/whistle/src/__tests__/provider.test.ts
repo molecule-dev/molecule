@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { TranscriptionStreamEvent } from '@molecule/api-ai-speech'
 
-import { DEFAULT_WHISTLE_ENGINE_URL, WhistleEngineError } from '../engine.js'
+import { DEFAULT_WHISTLE_ENGINE_URL, loadWhistleEngine, WhistleEngineError } from '../engine.js'
 import { WHISTLE_SAMPLE_RATE } from '../engine.js'
 import { createProvider, provider as lazyProvider } from '../provider.js'
 import { aiSpeechWhistleSecretDefinitions } from '../secrets.js'
@@ -686,6 +686,22 @@ describe('WhistleSpeechProvider', () => {
   it('rejects enginePath without wasmPath', async () => {
     const speech = createProvider({ enginePath: '/opt/needle.js' })
     await expect(speech.transcribe!({ audio: silenceWav(1) })).rejects.toThrow(/together/)
+  })
+
+  it('keys the engine cache by the wasm URL, not just the glue and weights', async () => {
+    // loadWhistleEngine documents "one wasm instance per source combination". A
+    // caller that pins a different needle.wasm build — same glue, same weights —
+    // is a DIFFERENT combination and must get an engine built from its own
+    // bytes; the cache key omitted the wasm URL, so the second call silently
+    // answered with the first engine (the pinned build never loaded).
+    const jsUrl = 'https://example.test/cache-key/needle.js'
+    const weightsUrl = 'https://example.test/cache-key/whistle.cact'
+    const wasmA = 'https://example.test/a/needle.wasm'
+    const wasmB = 'https://example.test/b/needle.wasm'
+    await loadWhistleEngine({ jsUrl, wasmUrl: wasmA, weightsUrl })
+    expect(fetchLog.filter((u) => u.endsWith('needle.wasm'))).toEqual([wasmA])
+    await loadWhistleEngine({ jsUrl, wasmUrl: wasmB, weightsUrl })
+    expect(fetchLog.filter((u) => u.endsWith('needle.wasm'))).toEqual([wasmA, wasmB])
   })
 
   it('surfaces engine failures as WhistleEngineError and retries on the next call', async () => {
