@@ -838,4 +838,28 @@ describe('parseJudgeVerdict', () => {
   it('returns null when the report carries no verdict line', () => {
     expect(parseJudgeVerdict('Everything looked fine to me.')).toBeNull()
   })
+
+  it('strips the ISSUES scaffold even when an issue line carries $ metasequences', () => {
+    // The scaffold is removed with `withoutVerdict.replace(scaffold, '')`, and
+    // the SCAFFOLD is the replacement string there — so a `$` metasequence in
+    // an issue line ($'…' is real bash ANSI-C quoting; $& is the whole match)
+    // was interpreted during the removal: the body was corrupted with the
+    // match's surroundings spliced in, and the issue lines stayed in the body
+    // they were supposed to be stripped from.
+    const verdict = parseJudgeVerdict(
+      [
+        'VERDICT: FAIL',
+        '',
+        'ISSUES:',
+        "- deploy.sh splits args on the $'\\n' separator (also try $&)",
+        '',
+        'EVIDENCE:',
+        '1. deploy.sh line 12.',
+      ].join('\n'),
+    )
+    expect(verdict?.issues).toEqual(["deploy.sh splits args on the $'\\n' separator (also try $&)"])
+    // The body is what remains once the exact block is removed — nothing more,
+    // nothing less, with the issue line gone from it.
+    expect(verdict?.rest).toBe('EVIDENCE:\n1. deploy.sh line 12.')
+  })
 })
