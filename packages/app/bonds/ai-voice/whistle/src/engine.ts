@@ -31,6 +31,16 @@ export const WHISTLE_MAX_CLIP_SECONDS = 30
 const OUT_CAPACITY_BYTES = 1 << 20
 
 /**
+ * Deadline for the `<script>`-tag glue load. Browsers impose NO time limit on
+ * a script load, and this is the one download path in the loader with no
+ * deadline of its own (every `fetch` here is `AbortSignal.timeout`-bounded) —
+ * a mirror that accepts the connection but never answers would otherwise leave
+ * `loadWhistleEngine()` pending forever, and every `startListening()` waiting
+ * on it stuck in `'processing'` until the page reloads.
+ */
+const SCRIPT_LOAD_TIMEOUT_MS = 120_000
+
+/**
  * Error thrown when the Whistle engine cannot be loaded or a call fails.
  * `code` names the stage: `download-failed`, `load-failed`,
  * `transcribe-failed`, `stream-failed`.
@@ -258,14 +268,34 @@ async function loadCreateNeedle(jsUrl: string): Promise<NeedleFactory> {
       const script = document.createElement('script')
       script.src = jsUrl
       script.async = true
-      script.onload = () => resolve()
-      script.onerror = () =>
+      // Bounded like every other download here (see SCRIPT_LOAD_TIMEOUT_MS):
+      // without a deadline a hung mirror never fires onerror — browsers impose
+      // no script-load limit — and the engine load never settles. The element
+      // is removed on failure so a load that lands after the caller gave up
+      // cannot keep a dead attempt's state around.
+      const timer = setTimeout(() => {
+        script.remove()
+        reject(
+          new WhistleEngineError(
+            'download-failed',
+            `Whistle engine glue load from ${jsUrl} timed out after ${SCRIPT_LOAD_TIMEOUT_MS} ms (script tag — check CSP script-src and the mirror)`,
+          ),
+        )
+      }, SCRIPT_LOAD_TIMEOUT_MS)
+      script.onload = () => {
+        clearTimeout(timer)
+        resolve()
+      }
+      script.onerror = () => {
+        clearTimeout(timer)
+        script.remove()
         reject(
           new WhistleEngineError(
             'download-failed',
             `Whistle engine glue could not be loaded from ${jsUrl} (script tag failed — check CSP script-src)`,
           ),
         )
+      }
       document.head.appendChild(script)
     })
     if (typeof globalScope.createNeedle === 'function') {

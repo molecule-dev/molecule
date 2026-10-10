@@ -738,6 +738,59 @@ describe('WhistleVoiceProvider', () => {
     expect(error!.message).toContain('404')
   })
 
+  it('fails a hung script-tag glue load as a typed error instead of pending forever', async () => {
+    // Browsers impose NO deadline on a <script> load, and this path was the
+    // one download in the loader with no bound (every fetch here is
+    // AbortSignal.timeout-bounded): a mirror that accepts the connection but
+    // never answers never fires onerror, the engine load never settles, and
+    // every startListening waiting on it sits in 'processing' until the page
+    // reloads. The deadline must fail the load as the typed download error.
+    vi.useFakeTimers()
+    interface FakeScript {
+      src: string
+      async: boolean
+      onload: (() => void) | null
+      onerror: (() => void) | null
+      removed: boolean
+      remove(): void
+    }
+    const scripts: FakeScript[] = []
+    vi.stubGlobal('document', {
+      createElement: () => {
+        const element: FakeScript = {
+          src: '',
+          async: false,
+          onload: null,
+          onerror: null,
+          removed: false,
+          remove() {
+            element.removed = true
+          },
+        }
+        scripts.push(element)
+        return element
+      },
+      head: { appendChild: () => {} },
+    })
+    try {
+      const loading = loadWhistleEngine({
+        jsUrl: 'https://example.test/hung-needle.js',
+        weightsUrl: 'https://example.test/hung-whistle.cact',
+      }).then(
+        () => null,
+        (e: unknown) => e,
+      )
+      await vi.advanceTimersByTimeAsync(120_000)
+      const error = (await loading) as WhistleEngineError | null
+      expect(error).toBeInstanceOf(WhistleEngineError)
+      expect(error!.code).toBe('download-failed')
+      expect(error!.message).toContain('timed out')
+      expect(scripts[0]!.removed).toBe(true)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('a replaced utterance does not tear down the speaking state of its replacement', async () => {
     // `speak()` calls synth.cancel() before starting the new utterance, and
     // the UA fires the interrupted utterance's end event a beat later. The
