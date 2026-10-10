@@ -177,6 +177,18 @@ describe('KandinskyVideoGenerationProvider', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
+    it('refuses a duration whose frame count overflows to Infinity before any request', async () => {
+      // A FINITE duration passes the finiteness guard above, but the value that
+      // ships is duration × fps: 1e308 s at 24 fps overflows to Infinity, and
+      // String(Infinity) would send the literal "Infinity" as num_frames — the
+      // exact wire value that guard exists to prevent, reached through inputs it
+      // accepts. Refuse it locally, before anything leaves the process.
+      await expect(bond.generate({ prompt: 'p', durationSeconds: 1e308 })).rejects.toThrow(
+        /finite frame count/,
+      )
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
     it('snaps width/height to the 16-pixel grid', async () => {
       mockFetch.mockResolvedValue(mockJsonResponse({ id: 'v4' }))
       await bond.generate({ prompt: 'p', width: 481, height: 319 })
@@ -632,6 +644,9 @@ describe('kandinsky helpers', () => {
     expect(framesForDuration(5.2, 24)).toBe(125)
     expect(framesForDuration(6, 24)).toBe(145)
     expect(framesForDuration(1, 24)).toBe(25)
+    // Finite in, non-finite out: the product overflows, and an Infinity frame
+    // count would ship as the literal string "Infinity".
+    expect(() => framesForDuration(1e308, 24)).toThrow(/finite frame count/)
   })
 
   it('snaps dimensions to multiples of 16', () => {

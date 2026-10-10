@@ -68,10 +68,20 @@ export function kandinskyDimension(value: number): number {
  * @param durationSeconds - The requested clip length in seconds.
  * @param fps - The effective frame rate (defaults to 24).
  * @returns A frame count of the form `1 + 4k`, at least 1.
+ * @throws {Error} When `durationSeconds * fps` overflows the finite range: a
+ *   finite duration and a finite rate can still multiply to `Infinity` (1e308 s
+ *   at 24 fps), and that would ride the multipart form as the literal string
+ *   `"Infinity"` — the exact wire value the provider's non-finite guard exists
+ *   to prevent, reached through inputs that guard accepts.
  */
 export function framesForDuration(durationSeconds: number, fps: number): number {
   const rate = fps > 0 ? fps : KANDINSKY_6_FPS
   const target = Math.max(1, Math.round(durationSeconds * rate))
+  if (!Number.isFinite(target)) {
+    throw new Error(
+      `Kandinsky clips need a finite frame count — ${durationSeconds} s at ${rate} fps overflows it.`,
+    )
+  }
   const k = Math.max(0, Math.round((target - 1) / 4))
   return 1 + 4 * k
 }
