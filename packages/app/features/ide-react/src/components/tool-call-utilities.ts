@@ -106,6 +106,27 @@ export function readFilePaths(input: unknown): string[] {
 }
 
 /**
+ * The `read_file` paths that contribute a NAME to the card label, each paired
+ * with the name it renders as. A path with no basename (`src/`, `/`) names
+ * nothing, so it is dropped here — and because the label's `code` segments and
+ * their click targets are indexed off the SAME list, dropping it here keeps
+ * them aligned. Deriving the click target from {@link readFilePaths} instead
+ * made every name after a nameless path open the wrong file (a batch of
+ * `['src/', 'App.tsx']` rendered `` `App.tsx` `` but opened `src/`).
+ *
+ * @param input - The raw `read_file` input payload.
+ * @returns The named entries, in request order (empty while input streams in).
+ */
+export function readFileLabelEntries(input: unknown): Array<{ name: string; path: string }> {
+  const entries: Array<{ name: string; path: string }> = []
+  for (const path of readFilePaths(input)) {
+    const name = basename(path)
+    if (name !== '') entries.push({ name, path })
+  }
+  return entries
+}
+
+/**
  * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
  * @param name - The tool name (e.g. "write_file", "exec_command").
  * @param input - The raw tool input payload.
@@ -133,10 +154,13 @@ export function toolLabel(name: string, input: unknown): string {
       // A path with no basename (`src/`, `/`) names nothing, so it must not
       // take one of the named slots: the old map-then-slice put the empty
       // string in the list and the label read "Read , `b.ts`". Those files are
-      // still counted in the "+N more" tally.
+      // still counted in the "+N more" tally. The named list comes from
+      // {@link readFileLabelEntries} so the card's click targets index the same
+      // entries this label spells out.
       const files = readFilePaths(input)
-      const names = files.map((p) => basename(p)).filter((n) => n !== '')
-      const named = names.slice(0, MAX_LABEL_FILES).map((n) => code(n).trim())
+      const named = readFileLabelEntries(input)
+        .slice(0, MAX_LABEL_FILES)
+        .map((entry) => code(entry.name).trim())
       const more = files.length - named.length
       return `Read${named.length ? ` ${named.join(', ')}` : ''}${more > 0 ? ` +${more} more` : ''}`
     }
@@ -792,8 +816,20 @@ export function parseJudgeVerdict(report: string): JudgeVerdict | null {
   // card's `issues` list (the report body still carried them). Sections after
   // ISSUES are separated by a blank line or a heading, so neither terminator
   // is lost by dropping that alternative.
-  const issuesBlock = withoutVerdict.match(/ISSUES:\s*\n?([\s\S]*?)(?=\n\s*\n|\n[A-Z]|$)/i)
-  const issues = (issuesBlock?.[1] ?? '')
+  // The label is matched case-insensitively (a judge may write `issues:`), but
+  // the block's END is matched in a SEPARATE, case-SENSITIVE pass: the `i` flag
+  // that tolerates a lowercase label also widens `[A-Z]` to any letter, so a
+  // single case-insensitive regex ended the block at the first line opening
+  // with a lowercase letter — a plain (unbulleted) issue list kept only its
+  // first line, the same "one failure out of many" bug the bullet fix removed.
+  const issuesLabel = withoutVerdict.match(/ISSUES:\s*\n?/i)
+  // A label at index 0 is legal, so "found" is the match itself, not a truthy index.
+  const blockStart = issuesLabel?.index ?? 0
+  const bodyStart = issuesLabel ? blockStart + issuesLabel[0].length : 0
+  const body = issuesLabel ? withoutVerdict.slice(bodyStart) : ''
+  const terminator = body.search(/\n\s*\n|\n[A-Z]/)
+  const blockEnd = issuesLabel ? bodyStart + (terminator === -1 ? body.length : terminator) : 0
+  const issues = (issuesLabel ? withoutVerdict.slice(bodyStart, blockEnd) : '')
     .split('\n')
     .map((line) => line.replace(/^\s*[-•*]\s*/, '').trim())
     .filter((line) => line.length > 0)
@@ -803,7 +839,8 @@ export function parseJudgeVerdict(report: string): JudgeVerdict | null {
   // TWICE — once in the verdict list and again at the top of the expandable
   // body (the previous replace stripped only the `ISSUES:` label). What is left
   // is the evidence the verdict was decided on.
-  const rest = (issuesBlock ? withoutVerdict.replace(issuesBlock[0], '') : withoutVerdict).trim()
+  const scaffold = issuesLabel ? withoutVerdict.slice(blockStart, blockEnd) : ''
+  const rest = (scaffold ? withoutVerdict.replace(scaffold, '') : withoutVerdict).trim()
   return { verdict, issues, rest }
 }
 

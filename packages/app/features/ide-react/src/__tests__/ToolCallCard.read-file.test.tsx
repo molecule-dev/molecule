@@ -125,4 +125,22 @@ describe('ToolCallCard — read_file', () => {
     })
     expect(container.textContent).toContain('AGENTS.md')
   })
+
+  it('opens the file a name belongs to even when an earlier path named nothing', () => {
+    // `src/` has no basename, so it gets no `code` segment in the label — but it
+    // is still the FIRST entry of the raw path list. Indexing that raw list by
+    // the label's segment position made `App.tsx` open `src/` instead of the
+    // file it names.
+    const opened: string[] = []
+    const container = renderRead({
+      input: { paths: ['src/', 'my-app/app/src/App.tsx'] },
+      onFileOpen: (p) => opened.push(p),
+    })
+    expect(container.textContent).toContain('App.tsx')
+    const code = Array.from(container.querySelectorAll('code')).find(
+      (c) => c.textContent === 'App.tsx',
+    ) as HTMLElement
+    fireEvent.click(code)
+    expect(opened).toEqual(['my-app/app/src/App.tsx'])
+  })
 })

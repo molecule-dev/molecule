@@ -38,7 +38,7 @@ import {
   normalizeTaskListInput,
   num,
   parseJudgeVerdict,
-  readFilePaths,
+  readFileLabelEntries,
   str,
   subagentErrorLine,
   toolLabel,
@@ -129,11 +129,14 @@ function renderLabel(
   const parts = text.split(new RegExp('`([^`]+)`'))
   if (parts.length === 1) return text
   // A batch read names several files: each one opens ITS file, not the first.
-  const readPaths = name === 'read_file' ? readFilePaths(input) : null
+  // The entries come from the same list `toolLabel` spelled the names from —
+  // indexing the raw path list instead shifted every target after a nameless
+  // path (`src/`), so the name rendered opened the wrong file.
+  const readEntries = name === 'read_file' ? readFileLabelEntries(input) : null
   return (
     <>
       {parts.map((part, i) => {
-        const target = readPaths ? (readPaths[(i - 1) / 2] ?? null) : filePath
+        const target = readEntries ? (readEntries[(i - 1) / 2]?.path ?? null) : filePath
         return i % 2 === 0 ? (
           part
         ) : target && onFileOpen ? (

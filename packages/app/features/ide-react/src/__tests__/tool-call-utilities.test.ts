@@ -17,6 +17,7 @@ import {
   fileDiffStats,
   moleculeDocPath,
   parseJudgeVerdict,
+  readFileLabelEntries,
   readFilePaths,
   toolLabel,
   toolSummary,
@@ -95,6 +96,18 @@ describe('toolLabel', () => {
   it('opens the first file of a batch read_file', () => {
     expect(extractFilePath('read_file', { paths: ['x/a.ts', 'x/b.ts'] })).toBe('x/a.ts')
     expect(readFilePaths({ paths: ['x/a.ts', 7, ''] })).toEqual(['x/a.ts'])
+  })
+
+  it('pairs each label name with the path it belongs to, dropping nameless paths', () => {
+    // The single list the label's names AND their click targets are indexed
+    // from: `src/` names nothing, so it must not occupy a slot (its presence in
+    // the raw path list is what made a name open the wrong file).
+    expect(readFileLabelEntries({ paths: ['src/', 'x/a.ts', 'y/b.ts'] })).toEqual([
+      { name: 'a.ts', path: 'x/a.ts' },
+      { name: 'b.ts', path: 'y/b.ts' },
+    ])
+    expect(readFileLabelEntries({ path: 'x/a.ts' })).toEqual([{ name: 'a.ts', path: 'x/a.ts' }])
+    expect(readFileLabelEntries({ paths: ['/'] })).toEqual([])
   })
 
   it('labels write_file with basename', () => {
@@ -715,6 +728,29 @@ describe('parseJudgeVerdict', () => {
   it('stops the block at a heading when there is no blank line before it', () => {
     const verdict = parseJudgeVerdict('VERDICT: FAIL\nISSUES:\n- one\n- two\nEVIDENCE:\n- x\n')
     expect(verdict?.issues).toEqual(['one', 'two'])
+  })
+
+  it('collects an unbulleted issue list too, instead of ending at its second line', () => {
+    // The block ends at a HEADING — a line opening with a CAPITAL. Matching
+    // `[A-Z]` under the same case-insensitive flag that tolerates a lowercase
+    // `issues:` also made it match any lowercase line, so a judge that wrote its
+    // issues as plain lines lost every one after the first.
+    const verdict = parseJudgeVerdict(
+      [
+        'VERDICT: FAIL',
+        'ISSUES:',
+        'the build script is missing',
+        'the acceptance test never runs',
+        '',
+        'EVIDENCE:',
+        'package.json has no build script.',
+      ].join('\n'),
+    )
+    expect(verdict?.issues).toEqual([
+      'the build script is missing',
+      'the acceptance test never runs',
+    ])
+    expect(verdict?.rest).toContain('EVIDENCE:')
   })
 
   it('returns null when the report carries no verdict line', () => {
