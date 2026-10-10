@@ -557,7 +557,7 @@ describe('fileDiffStats', () => {
     expect(fileDiffStats('edit_file', input, {})).toEqual({ added: 1, removed: 0 })
   })
 
-  it('returns null when all replacements have undefined strings', () => {
+  it('returns zero stats when a non-empty replacements list is entirely unreadable', () => {
     const input = {
       replacements: [{ old_string: undefined, new_string: undefined }],
     }
