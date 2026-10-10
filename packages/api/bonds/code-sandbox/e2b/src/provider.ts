@@ -1443,6 +1443,14 @@ export class E2BSandboxProvider implements SandboxProvider {
    * re-created — re-creating would either fail the boot or, worse, hand back an
    * empty volume in place of the user's files.
    *
+   * The lookup below is not enough on its own: two boots of one project can race
+   * it (a retried queue job next to the user's own Start — the same shape that
+   * makes `destroyStaleMachines` necessary), both see "no volume", and one
+   * CREATE then loses the race and throws. A refusal on the caller's own
+   * documented-retryable boot is the wrong answer for a volume that now exists,
+   * so a failed create re-checks: present ⇒ the loser of the race succeeded,
+   * absent ⇒ the failure was real and is rethrown untouched.
+   *
    * Volumes are a private beta on E2B: an account without them answers
    * `403 use of volumes is not enabled`, which surfaces here as a throw rather
    * than a silent no-op, because a caller that believes it has a durable volume
@@ -1456,7 +1464,18 @@ export class E2BSandboxProvider implements SandboxProvider {
       throw new Error('E2B client does not expose the volume API')
     }
     if (await this.findVolume(name)) return
-    await client.createVolume(name)
+    try {
+      await client.createVolume(name)
+    } catch (error) {
+      const existing = await this.findVolume(name).catch((_error: unknown) => {
+        // Documented noop: an unreadable re-check proves nothing about whether
+        // the volume exists, so it cannot rescue the create either. Fall through
+        // and rethrow the CREATE error — that one says what actually went wrong.
+        return null
+      })
+      if (existing) return
+      throw error
+    }
   }
 
   /**
