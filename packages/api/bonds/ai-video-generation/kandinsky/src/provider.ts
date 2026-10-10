@@ -53,9 +53,14 @@ const CONTENT_CACHE_MAX = 8
  * forms plus every percent-encoded spelling, case-insensitive (URL Standard,
  * path state: single-dot is `.`/`%2e`, double-dot is `..`/`.%2e`/`%2e.`/
  * `%2e%2e`). A double-dot segment POPS a path segment during normalization,
- * so `%2e%2e` traverses exactly like a literal `..` — and `encodeURIComponent`
- * encodes neither `.` nor `%`, so the encoded spellings must be rejected just
- * like the literal ones.
+ * so `%2e%2e` traverses exactly like a literal `..` — and since
+ * `encodeURIComponent` leaves a literal `.` untouched, the literal spellings
+ * survive the encoding getStatus() applies. The encoded `%2e` spellings are
+ * rejected too so every handle `generate()` mints round-trips through this
+ * guard on the way back (encoding would actually neutralize them — `%`
+ * becomes `%25` — but a handle the mint accepts and a poll rejects is an
+ * un-pollable job that blames the caller for passing exactly what
+ * generate() returned).
  */
 const DOT_SEGMENT = /^(?:\.|%2e){1,2}$/i
 

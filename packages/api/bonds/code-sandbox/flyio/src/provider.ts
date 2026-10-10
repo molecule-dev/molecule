@@ -2217,10 +2217,12 @@ class FlyioSandboxProvider implements SandboxProvider {
             )
           }
         }
-        // Chunked for the same reason as the Docker provider: the whole command
-        // is one `sh -c` argument, capped at MAX_ARG_STRLEN (128 KB). Each chunk
-        // is a multiple of 4 base64 characters (= 3 decoded bytes) so it decodes
-        // standalone and the bytes concatenate exactly.
+        // Chunked for the same reason as WRITE_CHUNK_BASE64 above: the whole
+        // command is one argument to Fly's exec API, which silently rejects
+        // anything over ~15 KB (FLY_EXEC_MAX_ARG_BYTES) — NOT the OS
+        // MAX_ARG_STRLEN (128 KB) a Docker-based provider is bounded by. Each
+        // chunk is a multiple of 4 base64 characters (= 3 decoded bytes) so it
+        // decodes standalone and the bytes concatenate exactly.
         failIfError(
           await this.exec(
             `mkdir -p "$(dirname ${quoted})" && printf %s ${shellQuote(base64.slice(0, WRITE_CHUNK_BASE64))} | base64 -d > ${quoted}`,
