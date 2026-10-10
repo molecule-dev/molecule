@@ -18,7 +18,9 @@ const analytics = getAnalytics()
 const logger = getLogger()
 
 /**
- * Cached, real bcrypt hash used for the dummy compare on the user-not-found path.
+ * Cached, real bcrypt hash used for the dummy compare on every
+ * invalid-credentials path that would otherwise run no KDF (see
+ * {@link compareDummyHash}).
  *
  * Computed lazily (not at import time) via the password bond — which honors the
  * configured cost (`SALT_ROUNDS`) — because the bond may not be wired when this
@@ -30,6 +32,30 @@ const logger = getLogger()
  * valid and matches the exact work factor of real password hashes.
  */
 let dummyHash: string | undefined
+
+/**
+ * Runs one bcrypt compare against the cached dummy hash, for every request that
+ * supplies a password but reaches an invalid-credentials answer WITHOUT having
+ * run a real compare — the user-not-found path, the found path whose secrets
+ * row is missing, and the found path for an account that carries no password
+ * hash (an OAuth-only account). Without these, the ~100-300ms KDF runs for
+ * "wrong password" but not for the refusals next to it, so response timing on a
+ * known email discloses exactly which accounts exist and which are passwordless
+ * — an account-existence oracle aimed at the users with no password attack
+ * surface.
+ *
+ * @param password - The password the caller supplied.
+ */
+async function compareDummyHash(password: string): Promise<void> {
+  try {
+    dummyHash ??= await hash('molecule-dummy-password')
+    await compare(password, dummyHash)
+  } catch (_error) {
+    // Best-effort timing equalizer only: a hashing/compare failure must not
+    // alter the response or surface an error — every caller answers the same
+    // generic invalid-credentials result below either way.
+  }
+}
 
 /** Request body for user login, supporting password, reset token, and 2FA flows. */
 export interface LogInRequest extends MoleculeRequest {
@@ -87,16 +113,7 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
         // and "wrong password" (bcrypt cost) reveals whether an account exists.
         // The dummy hash MUST be a real, correctly-costed hash so the KDF actually
         // runs at the same work factor as the wrong-password path (see dummyHash docs).
-        if (body.password) {
-          try {
-            dummyHash ??= await hash('molecule-dummy-password')
-            await compare(body.password, dummyHash)
-          } catch (_error) {
-            // Best-effort timing equalizer only: a hashing/compare failure must not
-            // alter the response or surface an error — the not-found path always
-            // returns the same generic invalid-credentials result below.
-          }
-        }
+        if (body.password) await compareDummyHash(body.password)
         analytics
           .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
           .catch(() => {})
@@ -113,6 +130,17 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       const secrets = await findById<types.SecretProps>(`${tableName}Secrets`, user.id)
 
       if (!secrets) {
+        // A user row whose secrets row is missing (logInOAuth logs-and-continues
+        // when the secrets insert fails) reached this refusal WITHOUT running any
+        // KDF, while "no such user" and "wrong password" each ran one — response
+        // timing on a known email then separated "this account exists" from both,
+        // the same oracle the other invalid-credentials paths fill (see
+        // {@link compareDummyHash}). The failure is tracked like them too: a
+        // probe against this account was refused either way.
+        if (body.password) await compareDummyHash(body.password)
+        analytics
+          .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
+          .catch(() => {})
         return {
           statusCode: 403,
           body: {
@@ -123,6 +151,11 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       let authenticated = false
+      // Whether a REAL bcrypt compare already ran for this request (a stored
+      // password hash existed and was compared against): the dummy compare in
+      // the refusal path below must fill only the paths where no KDF ran, not
+      // stack a second one on top of a real compare.
+      let ranPasswordCompare = false
       // Whether authentication came from the one-time reset token (as opposed
       // to a reusable password): its consumption is DEFERRED until every
       // challenge that can still bounce the request (the 2FA challenge below)
@@ -135,6 +168,7 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
 
       // Try password authentication.
       if (body.password && secrets.passwordHash) {
+        ranPasswordCompare = true
         authenticated = await compare(body.password, secrets.passwordHash)
       }
 
@@ -163,6 +197,13 @@ export const logIn = ({ name: _name, tableName, schema: _schema }: types.Resourc
       }
 
       if (!authenticated) {
+        // An account that exists but carries no password hash (an OAuth-only
+        // account) reached this refusal WITHOUT running any KDF, while "wrong
+        // password" and "no such user" each ran one — so response timing on a
+        // known email disclosed exactly which accounts are passwordless. Fill
+        // every no-KDF invalid-credentials path with the dummy compare (see
+        // {@link compareDummyHash}); never stack it on a real compare.
+        if (body.password && !ranPasswordCompare) await compareDummyHash(body.password)
         analytics
           .track({ name: 'user.login_failed', properties: { reason: 'invalid_credentials' } })
           .catch(() => {})

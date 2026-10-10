@@ -1193,6 +1193,53 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
     expect(events.some((e) => e.type === 'done')).toBe(false)
   })
 
+  it('CANCELS the response body when a mid-stream `error` event stops the stream early', async () => {
+    // The generator returns at the SSE `error` event while the body still has
+    // unread stream behind it. A live-but-unread body holds its connection out
+    // of the pool until GC reclaims it — every truncated-by-overload turn would
+    // strand one socket (the same release the retry loop applies to discarded
+    // 429 bodies).
+    const cancel = vi.fn().mockResolvedValue(undefined)
+    const releaseLock = vi.fn()
+    const text =
+      'data: ' +
+      JSON.stringify({ type: 'message_start', message: { usage: { input_tokens: 10 } } }) +
+      '\n' +
+      'data: ' +
+      JSON.stringify({
+        type: 'error',
+        error: { type: 'overloaded_error', message: 'Overloaded' },
+      }) +
+      '\n'
+    let sent = false
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: () => {
+            if (sent) return Promise.resolve({ done: true, value: undefined })
+            sent = true
+            return Promise.resolve({ done: false, value: new TextEncoder().encode(text) })
+          },
+          cancel,
+          releaseLock,
+        }),
+      },
+    })
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    expect(events.find((e) => e.type === 'error')).toBeDefined()
+    // The unread remainder of the body was released, then the lock dropped.
+    expect(cancel).toHaveBeenCalledTimes(1)
+    expect(releaseLock).toHaveBeenCalledTimes(1)
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+  })
+
   it('a body that dies MID-STREAM yields the error event instead of a raw TypeError escaping the generator', async () => {
     // A connection reset / proxy cut after the 200 OK rejects reader.read().
     // The HTTP-level and SSE-error paths both answer with the sanitized error

@@ -435,6 +435,95 @@ describe('logIn — the reset token survives the 2FA challenge', () => {
   })
 })
 
+// ===== logIn: every password-carrying refusal runs one KDF (no timing oracle) =
+
+describe('logIn — every password-carrying refusal runs one KDF', () => {
+  const handler = logIn(testResource)
+
+  it('runs the dummy compare for an existing account that carries no password hash', async () => {
+    // An OAuth-only account: no passwordHash was ever stored for it.
+    const { wire } = inMemorySecretsRow({})
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'oauth' })
+    mockHash.mockResolvedValue('dummy-hash')
+
+    const result = await handler(
+      makeReq({ username: 'oauth', password: 'a-password-guess' }),
+      makeRes(),
+    )
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 403,
+        body: expect.objectContaining({ errorKey: 'user.error.invalidCredentials' }),
+      }),
+    )
+    // The refusal must run ONE KDF against the caller's password — the dummy
+    // compare — so it costs the same as a wrong-password attempt on a password
+    // account. Pre-fix this account was refused with NO compare at all: the
+    // ~100-300ms KDF ran for "wrong password" and for "no such user" but not
+    // here, so response timing on a known email separated "OAuth-only account"
+    // from both — an account-existence oracle aimed at passwordless users.
+    expect(mockHash).toHaveBeenCalledWith('molecule-dummy-password')
+    expect(mockCompare).toHaveBeenCalledTimes(1)
+    expect(mockCompare).toHaveBeenCalledWith('a-password-guess', 'dummy-hash')
+    // Refused before anything was consumed or minted.
+    expect(mockGet).not.toHaveBeenCalled()
+  })
+
+  it('does not stack the dummy compare on top of a real compare for a wrong password', async () => {
+    const { wire } = inMemorySecretsRow({ passwordHash: 'real-hash' })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'passworded' })
+    mockCompare.mockResolvedValue(false)
+
+    const result = await handler(
+      makeReq({ username: 'passworded', password: 'wrong-password' }),
+      makeRes(),
+    )
+
+    expect(result?.statusCode).toBe(403)
+    // Exactly one KDF ran — the real compare. The dummy must fill only the
+    // paths where no compare ran, never double every wrong-password attempt.
+    expect(mockCompare).toHaveBeenCalledTimes(1)
+    expect(mockCompare).toHaveBeenCalledWith('wrong-password', 'real-hash')
+  })
+
+  it('runs the dummy compare when the account exists but its secrets row is missing', async () => {
+    // A user row whose secrets insert failed (logInOAuth logs-and-continues on
+    // that failure): the refusal used to return 403 with NO compare at all, so
+    // response timing separated "this account exists" from "no such user" and
+    // from "wrong password" — each of which runs one KDF.
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'orphaned' })
+    mockFindById.mockResolvedValue(undefined)
+
+    const result = await handler(
+      makeReq({ username: 'orphaned', password: 'a-password-guess' }),
+      makeRes(),
+    )
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 403,
+        body: expect.objectContaining({ errorKey: 'user.error.invalidCredentials' }),
+      }),
+    )
+    // One KDF ran — the dummy compare against the caller's password — putting
+    // this refusal inside the timing band of its sibling refusals.
+    expect(mockCompare).toHaveBeenCalledTimes(1)
+    expect(mockCompare).toHaveBeenCalledWith('a-password-guess', expect.any(String))
+    // Tracked like every other invalid-credentials refusal: a probe against
+    // this account was refused either way.
+    expect(loginEvents().length).toBe(0)
+    const failed = analyticsTracks
+      .flatMap((track) => track.mock.calls.map((call) => call[0] as Record<string, unknown>))
+      .filter((event) => event?.name === 'user.login_failed')
+    expect(failed.length).toBeGreaterThan(0)
+    // Refused before anything was consumed or minted.
+    expect(mockGet).not.toHaveBeenCalled()
+  })
+})
+
 // ===== logIn: TTL parity + analytics that reports the method actually used ====
 
 describe('logIn — the reset-token TTL gate matches resetPassword, and analytics reports the method used', () => {

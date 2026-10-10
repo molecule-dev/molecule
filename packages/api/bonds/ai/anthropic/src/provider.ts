@@ -661,6 +661,20 @@ class AnthropicAIProvider implements AIProvider {
         state.pendingTool = null
       }
     } finally {
+      // Cancel the body whenever this generator stops before the stream is
+      // exhausted — a mid-stream SSE `error` event (overloaded_error) or a
+      // consumer that stops iterating. A live-but-unread body holds its
+      // connection out of the pool until GC reclaims it — the same strand the
+      // retry loop's body release fixes for discarded 429s. Cancel is a no-op
+      // on an exhausted stream, and best-effort overall: a body already
+      // destroyed by a caller abort or a connection reset must not turn
+      // cleanup into a secondary failure.
+      try {
+        await reader.cancel()
+      } catch (_error) {
+        // Best-effort release only — the body may already be destroyed, or the
+        // transport may not expose cancel; the lock release below still runs.
+      }
       reader.releaseLock()
     }
 
