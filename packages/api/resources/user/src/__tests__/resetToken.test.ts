@@ -172,9 +172,19 @@ function inMemorySecretsRow(initial: Record<string, unknown>): {
           where: Array<{ field: string; operator: string; value?: unknown }>,
           patch: Record<string, unknown>,
         ) => {
-          const matched = where.every((c) =>
-            c.operator === 'is_null' ? row[c.field] == null : row[c.field] === c.value,
-          )
+          // The operators the handlers actually build: `=` and `is_null` for
+          // the identity/token guards, and `<` for the 2FA replay guard (a
+          // consumed code may only be replaced by a NEWER time step). Treating
+          // `<` as `=` made that guard untestable — a refused replay and an
+          // accepted fresh code looked identical to a fake that only compares.
+          const matched = where.every((c) => {
+            if (c.operator === 'is_null') return row[c.field] == null
+            if (c.operator === '<') {
+              const stored = row[c.field]
+              return typeof stored === 'number' && typeof c.value === 'number' && stored < c.value
+            }
+            return row[c.field] === c.value
+          })
           if (matched) Object.assign(row, patch)
           return { data: null, affected: matched ? 1 : 0 }
         },
@@ -744,5 +754,76 @@ describe('logIn — the reset-token TTL gate matches resetPassword, and analytic
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+// ===== logIn: the 2FA time step is consumed atomically (replay protection) ===
+
+describe('logIn — the 2FA time-step guard refuses a replayed code', () => {
+  const handler = logIn(testResource)
+
+  it('refuses a code whose time step was already consumed, and mints no session', async () => {
+    // The stored step is the guard's whole job: `verify()` re-accepts the SAME
+    // code for as long as its window lasts, so only the WHERE-guarded write
+    // (which matches solely while the stored step is still OLDER than the code
+    // being consumed) can refuse a replay. A fake that treats `<` as `=` could
+    // not express either half of that, which is why this branch had no test.
+    const { row, wire } = inMemorySecretsRow({
+      passwordHash: 'real-hash',
+      twoFactorSecret: 'SECRET',
+      lastTwoFactorTimeStep: 4242,
+    })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'twofa', twoFactorEnabled: true })
+    mockCompare.mockResolvedValue(true)
+    mockTwoFactorVerify.mockResolvedValue({ valid: true, timeStep: 4242 })
+
+    const result = await handler(
+      makeReq({ username: 'twofa', password: 'right-password', twoFactorToken: '123456' }),
+      makeRes(),
+    )
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        statusCode: 403,
+        body: expect.objectContaining({ errorKey: 'user.error.invalidTwoFactorToken' }),
+      }),
+    )
+    // No session was minted, and the consumed step is untouched — the loser's
+    // guarded write matched no row.
+    expect(mockGet).not.toHaveBeenCalled()
+    expect(row.lastTwoFactorTimeStep).toBe(4242)
+  })
+
+  it('accepts a NEWER time step and persists it', async () => {
+    const { row, wire } = inMemorySecretsRow({
+      passwordHash: 'real-hash',
+      twoFactorSecret: 'SECRET',
+      lastTwoFactorTimeStep: 4242,
+    })
+    wire()
+    mockFindOne.mockResolvedValue({ id: USER_ID, username: 'twofa', twoFactorEnabled: true })
+    mockCompare.mockResolvedValue(true)
+    mockTwoFactorVerify.mockResolvedValue({ valid: true, timeStep: 4243 })
+    mockGet.mockReturnValue({ createOrUpdate: vi.fn().mockResolvedValue('device-id') })
+    vi.spyOn(authorization, 'set').mockImplementation(() => 'mock-jwt-token')
+
+    const result = await handler(
+      makeReq({ username: 'twofa', password: 'right-password', twoFactorToken: '654321' }),
+      makeRes(),
+    )
+
+    expect(result?.statusCode).toBe(200)
+    // The step is only ever advanced: the guard matches a stored step STRICTLY
+    // older than the one being consumed.
+    expect(mockUpdateMany).toHaveBeenCalledWith(
+      'usersSecrets',
+      [
+        { field: 'id', operator: '=', value: USER_ID },
+        { field: 'lastTwoFactorTimeStep', operator: '<', value: 4243 },
+      ],
+      { lastTwoFactorTimeStep: 4243 },
+    )
+    expect(row.lastTwoFactorTimeStep).toBe(4243)
   })
 })
