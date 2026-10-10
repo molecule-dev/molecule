@@ -134,6 +134,48 @@ describe('create — app provisioning and tenant isolation', () => {
     expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(0)
   })
 
+  it('destroys the Machine it created when the boot never reaches started, then discards the app', async () => {
+    // The Machine was created but never came up (state `failed` on the
+    // re-read). Nothing else ever adopts it — the caller got a rejection, not
+    // a handle — and the created-app discard below can only delete an EMPTY
+    // app, so the Machine must be destroyed before the app is.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'created' } })
+      .on(`GET /apps/${APP}/machines/m1/wait`, { status: 500, body: {} })
+      .on(`GET /apps/${APP}/machines/m1`, { body: { id: 'm1', state: 'failed' } })
+      // Queued BEFORE the app delete: both route prefixes match the machine
+      // delete's path, and the queues answer in insertion order.
+      .on(`DELETE /apps/${APP}/machines/m1?force=true`, { status: 204, body: {} })
+      .on(`DELETE /apps/${APP}`, { status: 202, body: {} })
+
+    await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
+
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
+    // Exact path — `matching()` is a prefix match and the Machine delete's
+    // path starts with `/apps/${APP}` too.
+    expect(
+      double.calls.filter((c) => c.method === 'DELETE' && c.path === `/apps/${APP}`),
+    ).toHaveLength(1)
+  })
+
+  it('destroys the Machine on a failed boot but never the app that existed before it', async () => {
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { body: { name: APP, network: APP } })
+      .on(`POST /apps/${APP}/machines`, { body: { id: 'm1', state: 'created' } })
+      .on(`GET /apps/${APP}/machines/m1/wait`, { status: 500, body: {} })
+      .on(`GET /apps/${APP}/machines/m1`, { body: { id: 'm1', state: 'failed' } })
+      .on(`DELETE /apps/${APP}/machines/m1?force=true`, { status: 204, body: {} })
+
+    await expect(makeProvider({}, double).create({ projectId: PROJECT_ID })).rejects.toThrow()
+
+    expect(double.matching(`DELETE /apps/${APP}/machines/m1?force=true`)).toHaveLength(1)
+    expect(
+      double.calls.filter((c) => c.method === 'DELETE' && c.path === `/apps/${APP}`),
+    ).toHaveLength(0)
+  })
+
   it('waits for the Machine to reach started before returning, so the first exec is not 412', async () => {
     // POST .../machines returns as soon as the Machine is SCHEDULED (state
     // `created`), not running. Without the wait, the caller's first exec fails

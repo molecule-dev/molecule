@@ -1273,7 +1273,36 @@ class FlyioSandboxProvider implements SandboxProvider {
     // `412 failed_precondition: machine not running` until the Machine is up.
     // Wait for `started` here so `create` always hands back a live sandbox, as
     // the JSDoc promises — the template path already does this via restore.
-    await this.waitForStarted(app, machine.id)
+    try {
+      await this.waitForStarted(app, machine.id)
+    } catch (error) {
+      // The boot failed after the Machine existed. This call created it and
+      // handed it to NOBODY — the caller got a rejection, not a handle — so
+      // leaving it behind strands state nothing else ever cleans up: a Machine
+      // that reached `started` bills compute until it is reaped, and one that
+      // did not keeps the app's single-attach volume claimed (the next
+      // create's stale-Machine sweep only runs if this project is retried).
+      // The created-app failure path below cannot do this either: it deletes
+      // the APP, and `discardCreatedApp` deliberately has no Machine-delete
+      // step — an app delete that runs under a live Machine either fails or
+      // hides the Machine. Destroy the Machine first (the same order
+      // `restoreTemplate`'s failure path and `destroy()` use), then rethrow
+      // the boot failure. Best-effort: the boot failure is what the caller
+      // must see; a failed cleanup is logged like every other cleanup here.
+      try {
+        await this.client.request(`/apps/${app}/machines/${machine.id}?force=true`, {
+          method: 'DELETE',
+          nullOn: [404],
+        })
+      } catch (cleanupError) {
+        logger.warn(
+          'Failed to destroy the Fly Machine whose boot did not reach started — it will keep ' +
+            'billing (and holding its volume) until it is reaped',
+          { app, machineId: machine.id, error: cleanupError },
+        )
+      }
+      throw error
+    }
     return this.buildSandbox(app, machine.id, 'running')
   }
 
