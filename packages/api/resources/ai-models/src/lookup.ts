@@ -304,7 +304,13 @@ export function effectiveModelRegion(
   requested?: string,
 ): string {
   const regions = modelDef?.regions ?? ['us']
-  return requested && regions.includes(requested) ? requested : regions[0]
+  // `regions[0] ?? 'us'`: the return type is `string`, and an EMPTY list (a
+  // typo'd catalog entry, a caller-built definition) has no first entry — a
+  // bare `regions[0]` answered `undefined`, so dispatch looked up the named
+  // bond `<provider>-undefined` and the catalog served a region-less model.
+  // An empty list means the same thing an omitted one does (the platform
+  // default), which is what the `?? ['us']` above already says.
+  return requested && regions.includes(requested) ? requested : (regions[0] ?? 'us')
 }
 
 /** The four per-MTok token rates a turn bills at (USD). */

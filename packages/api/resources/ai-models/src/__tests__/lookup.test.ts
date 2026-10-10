@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   effectiveBaseRates,
   effectiveLongContextPricing,
+  effectiveModelRegion,
   effectivePeakPricing,
   getAvailableModels,
   getModel,
@@ -858,6 +859,31 @@ describe('DeepSeek native cards (V4.1-Flash era)', () => {
       const expected = model.regions![0] === 'cn' ? 2 : 1
       expect(priceMultiplierAt(model, AFTER_PEAK)).toBe(expected)
     }
+  })
+})
+
+describe('effectiveModelRegion', () => {
+  it('answers a region for an EMPTY regions list, the way an omitted one does', () => {
+    // The declared return type is `string` and every caller feeds the result
+    // into a lookup that a `undefined` silently changes the meaning of: the
+    // dispatch key becomes `<provider>-undefined`, and `regionPricing[undefined]`
+    // resolves nothing. The catalog's own `?? ['us']` already says an omitted
+    // list means the platform default, and an empty list omits one too.
+    const model = { ...MODELS[0]!, regions: [] as string[] }
+
+    expect(effectiveModelRegion(model, undefined)).toBe('us')
+    // A requested region cannot be honoured either — the list offers none — so
+    // the answer is the same default rather than the request.
+    expect(effectiveModelRegion(model, 'cn')).toBe('us')
+  })
+
+  it('keeps the first listed region as the default, and honours a listed request', () => {
+    const model = { ...MODELS[0]!, regions: ['cn', 'us'] }
+
+    expect(effectiveModelRegion(model, undefined)).toBe('cn')
+    expect(effectiveModelRegion(model, 'us')).toBe('us')
+    // An unlisted region falls back to the default.
+    expect(effectiveModelRegion(model, 'eu')).toBe('cn')
   })
 })
 
