@@ -1043,11 +1043,28 @@ class E2BSandbox implements Sandbox {
   /**
    * Apply a deny-by-default egress allow-list to this sandbox.
    *
-   * @param allowOut - Domains/CIDRs to permit; everything else denied. A no-op
-   *   when empty or when the SDK build lacks `updateNetwork`.
+   * An EMPTY list is a no-op — there is nothing to allow, so no policy is
+   * requested (that is also how the bond's config spells "unconstrained": an
+   * empty/omitted `defaultAllowOut`). A NON-EMPTY list that cannot be applied
+   * THROWS instead of reporting success: an SDK build with no
+   * `updateNetwork` would otherwise answer `void` while the sandbox kept
+   * unrestricted outbound traffic — the caller believing it holds a control it
+   * does not, which is the failure this bond refuses everywhere else (see
+   * `create()`, which destroys a sandbox whose policy fails to apply, and
+   * `verifyEgress()`, which never reports `filtered` for an unobserved policy).
+   *
+   * @param allowOut - Domains/CIDRs to permit; everything else denied.
+   * @throws {Error} When a non-empty `allowOut` cannot be enforced.
    */
   async applyNetwork(allowOut: string[]): Promise<void> {
-    if (!this.sbx.updateNetwork || allowOut.length === 0) return
+    if (allowOut.length === 0) return
+    if (!this.sbx.updateNetwork) {
+      throw new Error(
+        `e2b: this SDK build exposes no updateNetwork(), so the egress allow-list ` +
+          `(${allowOut.join(', ')}) CANNOT be applied — refusing to report success for a ` +
+          'sandbox whose outbound traffic is still unrestricted',
+      )
+    }
     await this.sbx.updateNetwork(denyByDefault(allowOut))
   }
 }
@@ -1635,12 +1652,25 @@ export class E2BSandboxProvider implements SandboxProvider {
    * @returns The observed verdict; any failure is `inconclusive`.
    */
   private async probeEgress(handle: Sandbox): Promise<EgressVerdict> {
+    // A policy that cannot be APPLIED is not a probe that cannot RUN: the
+    // sandbox is up, so the curls below still observe whatever policy is
+    // actually in force. The reason is carried into the verdict only when the
+    // observation is not itself conclusive — an `open` observation is the
+    // actionable answer (non-allow-listed egress was reachable) and must not be
+    // downgraded to "could not look"; a `filtered`-looking result without an
+    // applied policy would be an ATTESTATION of a control this call never put
+    // in place, so it is reported as inconclusive too.
+    let policyError: unknown
     try {
       // Force a KNOWN deny-default policy for the probe regardless of config.
       await (handle as E2BSandbox).applyNetwork([
         EGRESS_PROBE_ALLOW,
         `*.${EGRESS_PROBE_ALLOW.split('.').slice(-2).join('.')}`,
       ])
+    } catch (error) {
+      policyError = error
+    }
+    try {
       const code = async (host: string): Promise<string> =>
         (
           await handle.exec(
@@ -1655,7 +1685,17 @@ export class E2BSandboxProvider implements SandboxProvider {
         code(EGRESS_PROBE_DENY),
         code('1.1.1.1'),
       ])
-      return classifyEgressProbe({ allowed, deniedHost, deniedIp })
+      const verdict = classifyEgressProbe({ allowed, deniedHost, deniedIp })
+      if (policyError !== undefined && verdict.state !== 'open') {
+        const reason = policyError instanceof Error ? policyError.message : String(policyError)
+        return {
+          state: 'inconclusive',
+          detail: `Egress probe ran, but its deny-by-default policy could not be applied, so the observation cannot be attributed to one: ${reason}`,
+          remediation:
+            'Check the E2B account/SDK supports network policy (updateNetwork), then re-probe.',
+        }
+      }
+      return verdict
     } catch (error) {
       return {
         state: 'inconclusive',
