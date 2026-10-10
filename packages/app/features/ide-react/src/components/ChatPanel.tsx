@@ -205,6 +205,7 @@ import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
 import { TestStatusBar } from './TestStatusBar.js'
 import { TipCard } from './TipCard.js'
+import { readFilePaths } from './tool-call-utilities.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
 
@@ -931,8 +932,11 @@ function streamingActivityLabel(msg: {
   const base = (p?: string): string => (p ? (p.split('/').filter(Boolean).pop() ?? p) : '')
   const clip = (s?: string, n = 48): string => (s && s.length > n ? `${s.slice(0, n)}…` : (s ?? ''))
   switch (tc.name) {
-    case 'read_file':
-      return `${t('ide.chat.activity.reading', undefined, { defaultValue: 'Reading' })} ${base(inp.path)}`
+    case 'read_file': {
+      const files = readFilePaths(tc.input)
+      const more = files.length > 1 ? ` +${files.length - 1}` : ''
+      return `${t('ide.chat.activity.reading', undefined, { defaultValue: 'Reading' })} ${base(files[0])}${more}`
+    }
     case 'write_file':
       return `${t('ide.chat.activity.writing', undefined, { defaultValue: 'Writing' })} ${base(inp.path)}`
     case 'edit_file':

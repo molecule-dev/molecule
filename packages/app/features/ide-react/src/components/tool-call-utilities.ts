@@ -87,6 +87,24 @@ function truncate(value: string, max = 60): string {
   return value.length > max ? `${value.slice(0, max)}…` : value
 }
 
+/** How many file names a multi-file `read_file` label spells out before counting the rest. */
+const MAX_LABEL_FILES = 3
+
+/**
+ * The files a `read_file` call asked for. The tool takes either one `path` or
+ * several in `paths` (a batch read); every place that shows the call reads
+ * both through here so a batch never renders as a bare "Read".
+ * @param input - The raw `read_file` input payload.
+ * @returns The requested paths, in order (empty while the input is still streaming in).
+ */
+export function readFilePaths(input: unknown): string[] {
+  const inp = (input ?? {}) as Inp
+  if (Array.isArray(inp.paths))
+    return inp.paths.filter((p): p is string => typeof p === 'string' && p !== '')
+  const one = str(inp.path)
+  return one ? [one] : []
+}
+
 /**
  * Human-readable label for a tool call (e.g. "Edit `ChatPanel.tsx`").
  * @param name - The tool name (e.g. "write_file", "exec_command").
@@ -110,8 +128,13 @@ export function toolLabel(name: string, input: unknown): string {
   switch (name) {
     case 'list_files':
       return `List${code(basename(path) || 'project')}`
-    case 'read_file':
-      return `Read${code(basename(path))}`
+    case 'read_file': {
+      // One call can read several files (`paths`): name the first few, count the rest.
+      const files = readFilePaths(input)
+      const named = files.slice(0, MAX_LABEL_FILES).map((p) => code(basename(p)).trim())
+      const more = files.length - named.length
+      return `Read${named.length ? ` ${named.join(', ')}` : ''}${more > 0 ? ` +${more} more` : ''}`
+    }
     case 'write_file':
       return `Write${code(basename(path))}`
     case 'edit_file':
@@ -834,6 +857,7 @@ export function extractFilePath(name: string, input: unknown): string | null {
   const inp = (input ?? {}) as Record<string, unknown>
   switch (name) {
     case 'read_file':
+      return readFilePaths(input)[0] ?? null
     case 'write_file':
     case 'edit_file':
     case 'open_file':

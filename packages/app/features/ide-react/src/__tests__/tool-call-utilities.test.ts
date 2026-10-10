@@ -16,6 +16,7 @@ import {
   extractFilePath,
   fileDiffStats,
   moleculeDocPath,
+  readFilePaths,
   toolLabel,
   toolSummary,
 } from '../components/tool-call-utilities.js'
@@ -61,6 +62,28 @@ describe('toolLabel', () => {
 
   it('labels read_file with basename', () => {
     expect(toolLabel('read_file', { path: 'src/index.ts' })).toBe('Read `index.ts`')
+  })
+
+  it('labels a batch read_file with every file it read', () => {
+    expect(toolLabel('read_file', { paths: ['a/App.tsx', 'b/Home.tsx'] })).toBe(
+      'Read `App.tsx`, `Home.tsx`',
+    )
+  })
+
+  it('counts the files a long batch read_file does not spell out', () => {
+    expect(toolLabel('read_file', { paths: ['a.ts', 'b.ts', 'c.ts', 'd.ts', 'e.ts'] })).toBe(
+      'Read `a.ts`, `b.ts`, `c.ts` +2 more',
+    )
+  })
+
+  it('labels read_file with no backticks while its input is still streaming', () => {
+    expect(toolLabel('read_file', undefined)).toBe('Read')
+    expect(toolLabel('read_file', { paths: [] })).toBe('Read')
+  })
+
+  it('opens the first file of a batch read_file', () => {
+    expect(extractFilePath('read_file', { paths: ['x/a.ts', 'x/b.ts'] })).toBe('x/a.ts')
+    expect(readFilePaths({ paths: ['x/a.ts', 7, ''] })).toEqual(['x/a.ts'])
   })
 
   it('labels write_file with basename', () => {

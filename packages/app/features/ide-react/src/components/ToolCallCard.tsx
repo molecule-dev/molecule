@@ -37,6 +37,7 @@ import {
   normalizeTaskListInput,
   num,
   parseJudgeVerdict,
+  readFilePaths,
   str,
   subagentErrorLine,
   toolLabel,
@@ -126,15 +127,18 @@ function renderLabel(
   const text = toolLabel(name, input)
   const parts = text.split(new RegExp('`([^`]+)`'))
   if (parts.length === 1) return text
+  // A batch read names several files: each one opens ITS file, not the first.
+  const readPaths = name === 'read_file' ? readFilePaths(input) : null
   return (
     <>
-      {parts.map((part, i) =>
-        i % 2 === 0 ? (
+      {parts.map((part, i) => {
+        const target = readPaths ? (readPaths[(i - 1) / 2] ?? null) : filePath
+        return i % 2 === 0 ? (
           part
-        ) : filePath && onFileOpen ? (
+        ) : target && onFileOpen ? (
           <FileCodeLink
             key={i}
-            filePath={filePath}
+            filePath={target}
             onFileOpen={onFileOpen}
             onFileDoubleClick={onFileDoubleClick}
           >
@@ -144,8 +148,8 @@ function renderLabel(
           <code key={i} style={{ ...CODE_STYLE, opacity: 0.75 }}>
             {part}
           </code>
-        ),
-      )}
+        )
+      })}
     </>
   )
 }
