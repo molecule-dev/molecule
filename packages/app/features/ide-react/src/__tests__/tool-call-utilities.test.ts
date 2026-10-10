@@ -517,13 +517,21 @@ describe('diffLineCount', () => {
     // still found, and the count stays a change count rather than a claim of
     // sameness. `}`-heavy blocks are the shape — half the lines are identical
     // braces, so the matches that can be proven are the unique ones.
+    //
+    // The counts are pinned EXACTLY, not asserted `> 0`. `> 0` cannot fail for a
+    // wrong answer: the capped path returns a common-subsequence length, and any
+    // nonzero-but-wrong one (a broken patience run pairing a single line, a
+    // fallback to `Math.min(a, b)`) still leaves both counts positive while
+    // reporting a different pair of numbers on the card. Here the only provable
+    // in-order match is the 1050 unique `body i` lines (each appears once on the
+    // left, in the same relative order on the right; the 2100 braces repeat, so
+    // they are skipped rather than paired arbitrarily) — 3150 − 1050 = 2100 each
+    // side. That exact value is what says the unique-line patience pass ran.
     const braces = Array.from({ length: 2100 }, () => '}')
     const bodies = Array.from({ length: 2100 }, (_, i) => `body ${i}`)
     const oldLines = [...bodies.slice(0, 1050), ...braces]
     const newLines = [...braces, ...bodies.slice(0, 1050)]
-    const counts = diffLineCount(oldLines, newLines)
-    expect(counts.added).toBeGreaterThan(0)
-    expect(counts.removed).toBeGreaterThan(0)
+    expect(diffLineCount(oldLines, newLines)).toEqual({ added: 2100, removed: 2100 })
   })
 })
 
