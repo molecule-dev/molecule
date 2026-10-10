@@ -252,6 +252,12 @@ class AnthropicAIProvider implements AIProvider {
     // Retry with exponential backoff for rate limits (429) and overloaded (529/503)
     const MAX_RETRIES = 3
     let response: Response | null = null
+    // Set when THIS attempt's response body was cancelled as retry bookkeeping:
+    // the body is then disturbed, so reading it (`text()`) throws "Body is
+    // unusable" — the error path below must not try. Reached when the caller's
+    // signal aborts during the backoff sleep, which breaks out of this loop
+    // with the cancelled response still in `response`.
+    let releasedBody = false
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       response = await fetch(`${this.baseUrl}/v1/messages`, {
         method: 'POST',
@@ -259,6 +265,7 @@ class AnthropicAIProvider implements AIProvider {
         body: JSON.stringify(body),
         signal,
       })
+      releasedBody = false
 
       if (response.status === 429 || response.status === 529 || response.status === 503) {
         const willRetry = attempt < MAX_RETRIES
@@ -302,6 +309,7 @@ class AnthropicAIProvider implements AIProvider {
           // GC lifetime — under a sustained 429 storm the retries themselves
           // hold connections the pool needs for the next attempt (the same
           // fix the liquid-d1 bond's retry applies).
+          releasedBody = true
           await response.body?.cancel().catch((_error: unknown) => {
             // Best-effort release only — the retry proceeds on the already-
             // known status, and a failed cancel merely delays connection reuse.
@@ -331,7 +339,12 @@ class AnthropicAIProvider implements AIProvider {
     }
 
     if (!response!.ok) {
-      const errorBody = await response!.text()
+      // A body this call cancelled for the retry is disturbed — reading it
+      // throws "Body is unusable" and would replace the sanitized error event
+      // with a raw TypeError that reads as a crash, not an API answer (the
+      // only way a cancelled body is still `response` here is the caller's
+      // signal aborting during the backoff sleep).
+      const errorBody = releasedBody ? '' : await response!.text()
       let detail = `HTTP ${response!.status}`
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
@@ -372,8 +385,26 @@ class AnthropicAIProvider implements AIProvider {
     }
 
     if (params.stream === false) {
-      // Non-streaming: parse full response
-      const data = (await response!.json()) as Record<string, unknown>
+      // Non-streaming: parse full response. A 2xx body that is not JSON (a
+      // proxy/WAF interstitial, a captive portal) must yield the error event
+      // like every other failure — a raw SyntaxError thrown out of this
+      // generator carries no errorKey and surfaces as a crash, not an API
+      // error the caller can classify.
+      let data: Record<string, unknown>
+      try {
+        data = (await response!.json()) as Record<string, unknown>
+      } catch (error) {
+        logger.error('Anthropic API returned a non-JSON success body', {
+          status: response!.status,
+          error,
+        })
+        yield {
+          type: 'error',
+          message: 'AI service error. Please try again.',
+          errorKey: 'ai.error.apiError',
+        }
+        return
+      }
       yield* this.parseNonStreamingResponse(data)
       return
     }

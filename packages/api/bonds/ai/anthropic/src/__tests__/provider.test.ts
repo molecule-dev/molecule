@@ -227,6 +227,21 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
 
       expect(events[0].errorKey).toBe('ai.error.apiError')
     })
+
+    it('a 2xx body that is not JSON (stream:false) yields an error event, not a thrown SyntaxError', async () => {
+      // Regression: the non-streaming path parsed the success body with a bare
+      // json(), so a proxy/WAF interstitial on a 200 threw a raw SyntaxError
+      // out of the generator — no errorKey, no sanitized message, a crash
+      // instead of the error event every other failure yields.
+      mockFetch.mockResolvedValue(new Response('<html>proxy interstitial</html>', { status: 200 }))
+
+      const events = await collectEvents(provider.chat({ ...minimalParams, stream: false }))
+
+      expect(events).toHaveLength(1)
+      expect(events[0].type).toBe('error')
+      expect(events[0].message).toBe('AI service error. Please try again.')
+      expect(events[0].errorKey).toBe('ai.error.apiError')
+    })
   })
 
   // =========================================================================
@@ -361,6 +376,36 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       // The 429's body was cancelled BEFORE the retry fetch fired.
       expect(cancel).toHaveBeenCalledTimes(1)
       expect(cancel.mock.invocationCallOrder[0]).toBeLessThan(mockFetch.mock.invocationCallOrder[1])
+    })
+
+    it('an abort during the backoff sleep yields the sanitized error instead of crashing on the released body', async () => {
+      // Regression: the body-release above cancels the 429's body, which makes
+      // it DISTURBED — reading it afterwards throws "Body is unusable". The
+      // abort-during-backoff path broke out of the retry loop still holding
+      // that cancelled response, so the error handler's text() call threw a
+      // raw TypeError instead of yielding the sanitized rate-limit event.
+      const controller = new AbortController()
+      // A REAL Response: its cancel() genuinely disturbs the body, so a later
+      // text() really throws (a mock would silently permit the old bug).
+      mockFetch.mockImplementationOnce(async () => new Response('rate limited', { status: 429 }))
+      mockFetch.mockImplementation(async () => {
+        throw new Error('no retry fetch may follow the abort')
+      })
+
+      const eventsPromise = collectEvents(
+        provider.chat({ ...minimalParams, signal: controller.signal }),
+      )
+      // Let the provider take the 429, release its body and enter the backoff
+      // sleep, then abort the way a caller that gave up would.
+      await vi.advanceTimersByTimeAsync(0)
+      controller.abort()
+      const events = await eventsPromise
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(events).toHaveLength(1)
+      expect(events[0].type).toBe('error')
+      expect(events[0].message).toBe('AI rate limit exceeded. Please try again shortly.')
+      expect(events[0].errorKey).toBe('ai.error.apiError')
     })
 
     it('invokes onRateLimit on every rate-limited response, including the exhausted one', async () => {
