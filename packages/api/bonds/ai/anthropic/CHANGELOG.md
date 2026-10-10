@@ -1,5 +1,15 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.3
+
+### Patch Changes
+
+- 2b44616: A request aborted during a rate-limit backoff, and a non-streaming success body that is not JSON, now yield the sanitized error event instead of throwing a raw TypeError or SyntaxError out of the stream.
+- 79c9b9c: The retry backoff now removes its abort listener when the wait completes, so a caller signal reused across turns no longer accumulates a listener per rate-limited retry.
+- 123aa90: A streaming response body that dies mid-stream (connection reset, proxy cut, or the default timeout firing) now yields the sanitized error event instead of throwing a raw TypeError or TimeoutError out of the stream. A caller's own abort still propagates as before.
+- 86fec8e: Rate-limited and overloaded responses are now released before a retry, so sustained 429/529 handling no longer holds connections open until garbage collection.
+- 5c64d8f: API errors now say when the provider's credit balance is too low instead of reporting the request as invalid.
+
 ## 1.3.2
 
 ### Patch Changes

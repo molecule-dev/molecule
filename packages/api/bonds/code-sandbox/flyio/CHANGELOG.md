@@ -1,5 +1,12 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.6
+
+### Patch Changes
+
+- a9ef15a: A failed `importFiles` extract now removes the staged archive instead of leaving it behind — on the workspace volume for the chunked fallback, in the sandbox's `/tmp` for the object-store path — while still failing with tar's real exit code.
+- 26ae802: `start()`/`wake()` on a Machine that is still booting now waits until it is running instead of resolving early, so the first command after the call no longer fails with "machine not running".
+
 ## 1.2.5
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/app-ai-voice-whistle
 
+## 1.1.1
+
+### Patch Changes
+
+- 26ae802: The engine download now fails with a typed error when the glue script never loads (120 s deadline) instead of leaving recognition stuck in "preparing" forever.
+- 86fec8e: A failed engine or weights download now releases the error response before surfacing its typed error, instead of holding the connection until garbage collection.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @molecule/api-ai-video-generation-ltx
 
+## 1.1.2
+
+### Patch Changes
+
+- 800dd64: The upload response body is released after a successful upload, so the connection returns to the pool instead of waiting for garbage collection.
+
 ## 1.1.1
 
 ### Patch Changes

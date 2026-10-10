@@ -1,5 +1,11 @@
 # @molecule/api-ai-speech-whistle
 
+## 1.1.1
+
+### Patch Changes
+
+- 86fec8e: A failed engine or weights download now releases the error response before surfacing its typed error, instead of holding the connection until garbage collection.
+
 ## 1.1.0
 
 ### Minor Changes

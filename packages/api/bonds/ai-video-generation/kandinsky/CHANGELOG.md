@@ -1,5 +1,11 @@
 # @molecule/api-ai-video-generation-kandinsky
 
+## 1.2.1
+
+### Patch Changes
+
+- 800dd64: Corrects the documentation of how job ids with dot segments are encoded and rejected; behavior is unchanged.
+
 ## 1.2.0
 
 ### Minor Changes
