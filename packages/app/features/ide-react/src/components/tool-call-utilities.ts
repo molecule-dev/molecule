@@ -803,7 +803,91 @@ export function parseJudgeVerdict(report: string): JudgeVerdict | null {
 }
 
 /**
+ * Largest LCS table the exact diff may build, in cells (old × new). A full table
+ * for a whole-file edit — the shape an `edit_file` replacement takes when the
+ * model rewrites a file whole — is thousands of lines per side, i.e. tens of
+ * millions of cells: gigabytes of heap and seconds of frozen UI, on a path that
+ * runs inside render (for every edit card in a reloaded transcript, not just the
+ * live one). Above this cap the answer degrades to the linear line-multiset
+ * count in {@link multisetCommonLines}; below it the result is exact. 1 << 22
+ * cells is a few milliseconds, and the two-row table keeps memory at
+ * O(min(old, new)) — at most √(1 << 22) = 2048 numbers per row.
+ */
+const MAX_DIFF_CELLS = 1 << 22
+
+/**
+ * Longest common subsequence length of two line arrays, in bounded time and
+ * memory: two rows of the recurrence instead of the whole table, and the linear
+ * multiset estimate once the table would exceed {@link MAX_DIFF_CELLS}.
+ *
+ * @param a - The first line array.
+ * @param b - The second line array.
+ * @returns The common subsequence length (an estimate for the capped inputs).
+ */
+function lcsLength(a: readonly string[], b: readonly string[]): number {
+  if (a.length === 0 || b.length === 0) return 0
+  if (a.length * b.length > MAX_DIFF_CELLS) return multisetCommonLines(a, b)
+  // The recurrence needs only the previous row; keeping the SHORTER array on
+  // the row axis bounds each row by min(a, b) (≤ 2048 here, since
+  // min² ≤ a·b ≤ MAX_DIFF_CELLS).
+  let rows = a
+  let cols = b
+  if (rows.length > cols.length) {
+    rows = b
+    cols = a
+  }
+  let previous = new Array<number>(cols.length + 1).fill(0)
+  let current = new Array<number>(cols.length + 1).fill(0)
+  for (let i = 1; i <= rows.length; i++) {
+    const line = rows[i - 1]
+    for (let j = 1; j <= cols.length; j++) {
+      if (line === cols[j - 1]) {
+        current[j] = previous[j - 1] + 1
+      } else {
+        const above = previous[j]
+        const left = current[j - 1]
+        current[j] = above >= left ? above : left
+      }
+    }
+    const swap = previous
+    previous = current
+    current = swap
+  }
+  return previous[cols.length]
+}
+
+/**
+ * Lines the two arrays have in common counted as a multiset (order ignored) —
+ * the O(n + m) answer for inputs too large for the exact table. It agrees with
+ * the LCS on the shape that reaches it: a wholesale rewrite shares no line, and
+ * both then report every new line as added and every old one as removed.
+ *
+ * @param a - The first line array.
+ * @param b - The second line array.
+ * @returns The number of lines the two arrays share.
+ */
+function multisetCommonLines(a: readonly string[], b: readonly string[]): number {
+  const remaining = new Map<string, number>()
+  for (const line of a) remaining.set(line, (remaining.get(line) ?? 0) + 1)
+  let common = 0
+  for (const line of b) {
+    const left = remaining.get(line)
+    if (left === undefined || left === 0) continue
+    remaining.set(line, left - 1)
+    common++
+  }
+  return common
+}
+
+/**
  * Count truly added/removed lines between two line arrays using LCS.
+ *
+ * Bounded by construction, so a whole-file edit cannot allocate a quadratic
+ * table here: the longest common prefix and suffix are trimmed first (exact —
+ * those lines belong to every optimal diff, and on the usual small edit they
+ * shrink the table to the edited span), and what is left is capped
+ * (see {@link lcsLength}).
+ *
  * @param oldLines - The original lines array.
  * @param modifiedLines - The modified lines array.
  * @returns An object with the number of added and removed lines.
@@ -812,19 +896,28 @@ export function diffLineCount(
   oldLines: string[],
   newLines: string[],
 ): { added: number; removed: number } {
-  const n = oldLines.length
-  const m = newLines.length
-  const dp: number[][] = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0) as number[])
-  for (let i = 1; i <= n; i++) {
-    for (let j = 1; j <= m; j++) {
-      dp[i][j] =
-        oldLines[i - 1] === newLines[j - 1]
-          ? dp[i - 1][j - 1] + 1
-          : Math.max(dp[i - 1][j], dp[i][j - 1])
-    }
+  const oldLength = oldLines.length
+  const newLength = newLines.length
+  const shared = Math.min(oldLength, newLength)
+  // Longest common prefix / suffix. `suffix` is bounded by `shared - prefix`, so
+  // the two trimmed runs can never overlap each other.
+  let prefix = 0
+  while (prefix < shared && oldLines[prefix] === newLines[prefix]) prefix++
+  let suffix = 0
+  while (
+    suffix < shared - prefix &&
+    oldLines[oldLength - 1 - suffix] === newLines[newLength - 1 - suffix]
+  ) {
+    suffix++
   }
-  const common = dp[n][m]
-  return { added: m - common, removed: n - common }
+  const common =
+    prefix +
+    suffix +
+    lcsLength(
+      oldLines.slice(prefix, oldLength - suffix),
+      newLines.slice(prefix, newLength - suffix),
+    )
+  return { added: newLength - common, removed: oldLength - common }
 }
 
 /**

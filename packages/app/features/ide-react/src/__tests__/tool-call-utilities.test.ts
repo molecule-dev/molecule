@@ -452,6 +452,30 @@ describe('diffLineCount', () => {
   it('handles duplicate lines', () => {
     expect(diffLineCount(['a', 'a', 'a'], ['a', 'a'])).toEqual({ added: 0, removed: 1 })
   })
+
+  it('counts a moved line as added and removed, not as unchanged', () => {
+    expect(diffLineCount(['a', 'b', 'c'], ['b', 'c', 'a'])).toEqual({ added: 1, removed: 1 })
+  })
+
+  it('stays exact on a large file with a small edit in the middle', () => {
+    const oldLines = Array.from({ length: 3000 }, (_, i) => `line ${i}`)
+    const newLines = [...oldLines]
+    newLines[1500] = 'line 1500 edited'
+    newLines.splice(1501, 0, 'inserted')
+    expect(diffLineCount(oldLines, newLines)).toEqual({ added: 2, removed: 1 })
+  })
+
+  it('answers a whole-file rewrite of tens of thousands of lines in bounded time', () => {
+    // 20 000 × 20 000 lines is a 400-million-cell LCS table — the shape an
+    // `edit_file` replacement takes when a model rewrites a file whole, and the
+    // one that used to allocate gigabytes inside the card's render.
+    const oldLines = Array.from({ length: 20_000 }, (_, i) => `old line ${i}`)
+    const newLines = Array.from({ length: 20_000 }, (_, i) => `new line ${i}`)
+    const started = performance.now()
+    const counts = diffLineCount(oldLines, newLines)
+    expect(counts).toEqual({ added: 20_000, removed: 20_000 })
+    expect(performance.now() - started).toBeLessThan(2000)
+  })
 })
 
 // ---------------------------------------------------------------------------
