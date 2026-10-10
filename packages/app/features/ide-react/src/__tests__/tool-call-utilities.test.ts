@@ -649,6 +649,35 @@ describe('parseJudgeVerdict', () => {
     expect(verdict?.issues).toEqual(['one', 'two'])
   })
 
+  it('does not repeat the issue bullets in the card body', () => {
+    // The FAIL list renders `issues`; the body renders `rest`. Leaving the
+    // issue lines in `rest` (the old code stripped only the `ISSUES:` label)
+    // showed every failure twice on the same card. The body is what is LEFT
+    // once the verdict scaffold comes out — the evidence.
+    const verdict = parseJudgeVerdict(
+      [
+        'VERDICT: FAIL',
+        '',
+        'ISSUES:',
+        '- The build script does not exist.',
+        '- The acceptance test for the new route is missing.',
+        '',
+        'EVIDENCE:',
+        '1. package.json has no build script.',
+      ].join('\n'),
+    )
+    expect(verdict?.rest).not.toContain('The build script does not exist.')
+    expect(verdict?.rest).not.toContain('The acceptance test for the new route is missing.')
+    expect(verdict?.rest).toContain('EVIDENCE:')
+    expect(verdict?.rest).toContain('1. package.json has no build script.')
+  })
+
+  it('leaves a report with no ISSUES block untouched in the body', () => {
+    const verdict = parseJudgeVerdict('VERDICT: PASS\n\nEVIDENCE:\nEvery criterion met.\n')
+    expect(verdict?.issues).toEqual([])
+    expect(verdict?.rest).toBe('EVIDENCE:\nEvery criterion met.')
+  })
+
   it('stops the block at a heading when there is no blank line before it', () => {
     const verdict = parseJudgeVerdict('VERDICT: FAIL\nISSUES:\n- one\n- two\nEVIDENCE:\n- x\n')
     expect(verdict?.issues).toEqual(['one', 'two'])

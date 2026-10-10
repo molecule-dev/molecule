@@ -793,7 +793,12 @@ export function parseJudgeVerdict(report: string): JudgeVerdict | null {
     .map((line) => line.replace(/^\s*[-•*]\s*/, '').trim())
     .filter((line) => line.length > 0)
     .slice(0, 12)
-  const rest = withoutVerdict.replace(/^\s*ISSUES:\s*\n?/i, '').trim()
+  // The whole ISSUES block is scaffold, not report body: its bullet lines are
+  // already the card's FAIL list, so leaving them here rendered every failure
+  // TWICE — once in the verdict list and again at the top of the expandable
+  // body (the previous replace stripped only the `ISSUES:` label). What is left
+  // is the evidence the verdict was decided on.
+  const rest = (issuesBlock ? withoutVerdict.replace(issuesBlock[0], '') : withoutVerdict).trim()
   return { verdict, issues, rest }
 }
 
