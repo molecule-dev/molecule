@@ -244,6 +244,23 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(events[0].message).toBe('AI service error. Please try again.')
       expect(events[0].errorKey).toBe('ai.error.apiError')
     })
+
+    it('a non-2xx error body that dies mid-read yields an error event, not a thrown TypeError', async () => {
+      // The error path read the body with a bare `text()`: a connection reset
+      // while the error document streams rejected there and escaped the
+      // generator as a raw `TypeError: terminated` — no errorKey, so i18n and
+      // the caller's error classification never fired. The status is already
+      // known; an unreadable detail may only downgrade the message.
+      const response = mockErrorResponse(500, '')
+      ;(response.text as ReturnType<typeof vi.fn>).mockRejectedValue(new TypeError('terminated'))
+      mockFetch.mockResolvedValue(response)
+
+      const events = await collectEvents(provider.chat(minimalParams))
+
+      expect(events).toHaveLength(1)
+      expect(events[0].type).toBe('error')
+      expect(events[0].errorKey).toBe('ai.error.apiError')
+    })
   })
 
   // =========================================================================

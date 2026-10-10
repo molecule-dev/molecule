@@ -349,8 +349,23 @@ class AnthropicAIProvider implements AIProvider {
       // throws "Body is unusable" and would replace the sanitized error event
       // with a raw TypeError that reads as a crash, not an API answer (the
       // only way a cancelled body is still `response` here is the caller's
-      // signal aborting during the backoff sleep).
-      const errorBody = releasedBody ? '' : await response!.text()
+      // signal aborting during the backoff sleep). A body that dies MID-READ
+      // (a connection reset while the error document streams) fails the same
+      // way, so the read is guarded too: the status is already known, and an
+      // unreadable detail can only downgrade the message — it must never
+      // escape this generator as a raw `TypeError: terminated`, which carries
+      // no `errorKey` and so defeats the caller's error classification.
+      let errorBody = ''
+      if (!releasedBody) {
+        try {
+          errorBody = await response!.text()
+        } catch (error) {
+          logger.warn('Anthropic API error body could not be read', {
+            status: response!.status,
+            error,
+          })
+        }
+      }
       let detail = `HTTP ${response!.status}`
       try {
         const parsed = JSON.parse(errorBody) as { error?: { message?: string } }
