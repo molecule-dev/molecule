@@ -586,6 +586,24 @@ describe('fileDiffStats', () => {
     }
     expect(fileDiffStats('edit_file', input, {})).toEqual({ added: 0, removed: 0 })
   })
+
+  // The card calls this inside a useMemo in its RENDER path, so a replacement
+  // entry that is null/undefined (or a bare primitive) must be skipped, not
+  // read through — `entry.old_string` on null throws a TypeError that takes the
+  // whole IDE down, the same hazard renderIn() guards with `entry ?? {}`.
+  it('skips a null replacement entry instead of throwing, and counts the readable ones', () => {
+    const input = {
+      replacements: [null, { old_string: 'a', new_string: 'a\nb' }],
+    }
+    expect(fileDiffStats('edit_file', input, {})).toEqual({ added: 1, removed: 0 })
+  })
+
+  it('skips undefined and primitive replacement entries instead of throwing', () => {
+    const input = {
+      replacements: [undefined, 'not-an-entry', 42],
+    }
+    expect(fileDiffStats('edit_file', input, {})).toEqual({ added: 0, removed: 0 })
+  })
 })
 
 // ---------------------------------------------------------------------------

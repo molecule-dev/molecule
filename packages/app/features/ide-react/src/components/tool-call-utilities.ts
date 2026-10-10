@@ -982,15 +982,21 @@ export function fileDiffStats(
 ): { added: number; removed: number } | null {
   if (name === 'edit_file') {
     const inp = (input ?? {}) as Inp
-    const replacements = Array.isArray(inp.replacements)
-      ? (inp.replacements as Array<{ old_string: string; new_string: string }>)
-      : []
+    const replacements = Array.isArray(inp.replacements) ? inp.replacements : []
     if (replacements.length === 0) return null
     let added = 0
     let removed = 0
-    for (const r of replacements) {
-      if (typeof r.old_string !== 'string' || typeof r.new_string !== 'string') continue
-      const d = diffLineCount(r.old_string.split('\n'), r.new_string.split('\n'))
+    for (const entry of replacements) {
+      // `replacements` is model-authored, so an entry may be null/undefined or a
+      // bare primitive (`[null]`, `["a"]`) — reading `.old_string` off one of
+      // those throws a TypeError, and this runs inside a useMemo in the card's
+      // RENDER path, so the throw takes down the whole IDE rather than one card
+      // (the same hazard `renderIn` guards with `entry ?? {}`). Skip anything
+      // that is not an object; a well-formed entry is unaffected.
+      if (entry === null || typeof entry !== 'object') continue
+      const record = entry as { old_string?: unknown; new_string?: unknown }
+      if (typeof record.old_string !== 'string' || typeof record.new_string !== 'string') continue
+      const d = diffLineCount(record.old_string.split('\n'), record.new_string.split('\n'))
       added += d.added
       removed += d.removed
     }

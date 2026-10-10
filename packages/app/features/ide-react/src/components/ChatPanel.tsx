@@ -206,7 +206,7 @@ import type { TestsStatus } from './TestsCard.js'
 import { TestsCard } from './TestsCard.js'
 import { TestStatusBar } from './TestStatusBar.js'
 import { TipCard } from './TipCard.js'
-import { readFilePaths } from './tool-call-utilities.js'
+import { readFilePaths, str } from './tool-call-utilities.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
 
@@ -917,7 +917,7 @@ function formatThinkingDuration(ms: number): string {
  * @param msg.toolCalls - The message's tool calls, looked up by block id.
  * @returns A short activity label, or undefined.
  */
-function streamingActivityLabel(msg: {
+export function streamingActivityLabel(msg: {
   blocks?: Array<{ type: string; id?: string }>
   toolCalls?: Array<{ id: string; name: string; input?: unknown }>
 }): string | undefined {
@@ -929,7 +929,17 @@ function streamingActivityLabel(msg: {
   if (last.type !== 'tool_use') return undefined
   const tc = msg.toolCalls?.find((c) => c.id === last.id)
   if (!tc) return undefined
-  const inp = (tc.input ?? {}) as { path?: string; query?: string; command?: string; url?: string }
+  // `tc.input` is model-authored, so each field is read through `str()` rather
+  // than trusted from the cast: a field the schema declares `string` can arrive
+  // as a number or object (the shape that blanked production on 2026-08-14 —
+  // see `str()`'s docs), and `base()` calls `.split` on it, which throws a
+  // TypeError from inside this render — taking the whole IDE down, not one row.
+  const inp = (tc.input ?? {}) as {
+    path?: unknown
+    query?: unknown
+    command?: unknown
+    url?: unknown
+  }
   const base = (p?: string): string => (p ? (p.split('/').filter(Boolean).pop() ?? p) : '')
   const clip = (s?: string, n = 48): string => (s && s.length > n ? `${s.slice(0, n)}…` : (s ?? ''))
   switch (tc.name) {
@@ -939,20 +949,20 @@ function streamingActivityLabel(msg: {
       return `${t('ide.chat.activity.reading', undefined, { defaultValue: 'Reading' })} ${base(files[0])}${more}`
     }
     case 'write_file':
-      return `${t('ide.chat.activity.writing', undefined, { defaultValue: 'Writing' })} ${base(inp.path)}`
+      return `${t('ide.chat.activity.writing', undefined, { defaultValue: 'Writing' })} ${base(str(inp.path))}`
     case 'edit_file':
-      return `${t('ide.chat.activity.editing', undefined, { defaultValue: 'Editing' })} ${base(inp.path)}`
+      return `${t('ide.chat.activity.editing', undefined, { defaultValue: 'Editing' })} ${base(str(inp.path))}`
     case 'search_files':
-      return `${t('ide.chat.activity.searching', undefined, { defaultValue: 'Searching' })} ${clip(inp.query)}`
+      return `${t('ide.chat.activity.searching', undefined, { defaultValue: 'Searching' })} ${clip(str(inp.query))}`
     case 'list_files':
     case 'find_files':
       return t('ide.chat.activity.exploring', undefined, { defaultValue: 'Exploring files' })
     case 'exec_command':
-      return `${t('ide.chat.activity.running', undefined, { defaultValue: 'Running' })} ${clip(inp.command)}`
+      return `${t('ide.chat.activity.running', undefined, { defaultValue: 'Running' })} ${clip(str(inp.command))}`
     case 'save_plan':
       return t('ide.chat.activity.writingPlan', undefined, { defaultValue: 'Writing the plan' })
     case 'sandbox_fetch':
-      return `${t('ide.chat.activity.fetching', undefined, { defaultValue: 'Fetching' })} ${clip(inp.url)}`
+      return `${t('ide.chat.activity.fetching', undefined, { defaultValue: 'Fetching' })} ${clip(str(inp.url))}`
     case 'set_mode':
       return t('ide.chat.activity.switching', undefined, { defaultValue: 'Switching mode' })
     default:
