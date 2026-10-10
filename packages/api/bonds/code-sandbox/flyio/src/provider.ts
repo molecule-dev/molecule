@@ -2423,13 +2423,20 @@ class FlyioSandboxProvider implements SandboxProvider {
               ].join('\n'),
               { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
             )
-            // Best-effort: the temp object expires anyway, but delete it promptly.
-            // Cleared first: past this point the removal is under way, so the
-            // catch below must not queue a second one for the same key (a non-zero
+            // Best-effort, but a failure is not silent: only the presigned URL
+            // expires on its own — the OBJECT does not (see the comment above
+            // the `uploaded` flag), so a failed removal here strands the
+            // archive in the bucket exactly like the failure path below does,
+            // and is logged at the same level so it is findable. Cleared
+            // first: past this point the removal is under way, so the catch
+            // below must not queue a second one for the same key (a non-zero
             // extract exit still throws from `failIfError`).
             uploaded = false
             store.remove([key]).catch((error) => {
-              logger.debug('importFiles temp object cleanup failed', { key, error })
+              logger.warn('importFiles temp object cleanup failed — it stays in the object store', {
+                key,
+                error,
+              })
             })
             failIfError(result, 'download')
             return
