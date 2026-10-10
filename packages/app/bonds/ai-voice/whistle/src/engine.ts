@@ -194,6 +194,12 @@ async function fetchBytes(
     )
   }
   if (!response.ok) {
+    // Release the error response's body (and with it its socket): an
+    // unconsumed body holds its connection until GC reclaims it, and a
+    // misconfigured URL fails here on EVERY load attempt until fixed.
+    await response.body?.cancel().catch((_error: unknown) => {
+      // The typed error below is what matters.
+    })
     throw new WhistleEngineError(
       'download-failed',
       `Whistle engine file ${file} fetch failed: HTTP ${response.status} from ${url}`,
@@ -310,6 +316,11 @@ async function loadCreateNeedle(jsUrl: string): Promise<NeedleFactory> {
   try {
     const response = await fetch(jsUrl, { signal: AbortSignal.timeout(120_000) })
     if (!response.ok) {
+      // Same release as fetchBytes: an unconsumed error body strands its
+      // connection until GC reclaims it.
+      await response.body?.cancel().catch((_error: unknown) => {
+        // The typed error below is what matters.
+      })
       throw new WhistleEngineError(
         'download-failed',
         `Whistle engine glue fetch failed: HTTP ${response.status} from ${jsUrl}`,

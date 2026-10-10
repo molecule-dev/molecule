@@ -319,6 +319,50 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(mockFetch).toHaveBeenCalledTimes(2)
     })
 
+    it('releases the rejected response body before retrying, so the socket is not stranded', async () => {
+      // Regression: the retry loop discarded each 429/529/503 response without
+      // consuming or cancelling its body — and the connection pool does not
+      // take a connection back until the body is consumed or cancelled, so
+      // every retry under a sustained rate-limit storm held one socket for its
+      // GC lifetime (the same leak the liquid-d1 bond's retry fixed).
+      const cancel = vi.fn().mockResolvedValue(undefined)
+      let call = 0
+      mockFetch.mockImplementation(() => {
+        call += 1
+        if (call === 1) {
+          return Promise.resolve({
+            ok: false,
+            status: 429,
+            statusText: 'Too Many Requests',
+            text: vi.fn().mockResolvedValue('{}'),
+            json: vi.fn().mockRejectedValue(new Error('not json')),
+            headers: new Headers(),
+            body: { cancel },
+          })
+        }
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers(),
+          body: {
+            getReader: () => ({
+              read: vi.fn().mockResolvedValue({ done: true, value: undefined }),
+              releaseLock: vi.fn(),
+            }),
+          },
+        })
+      })
+
+      const eventsPromise = collectEvents(provider.chat(minimalParams))
+      await vi.advanceTimersByTimeAsync(60_000)
+      await eventsPromise
+
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      // The 429's body was cancelled BEFORE the retry fetch fired.
+      expect(cancel).toHaveBeenCalledTimes(1)
+      expect(cancel.mock.invocationCallOrder[0]).toBeLessThan(mockFetch.mock.invocationCallOrder[1])
+    })
+
     it('invokes onRateLimit on every rate-limited response, including the exhausted one', async () => {
       mockFetch.mockResolvedValue(mockErrorResponse(429, '{}'))
       const hits: AiRateLimitEvent[] = []

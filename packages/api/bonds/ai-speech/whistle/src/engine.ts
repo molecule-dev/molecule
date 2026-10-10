@@ -218,6 +218,14 @@ async function readEngineFile(
     )
   }
   if (!response.ok) {
+    // Release the error response's body (and with it its socket): an
+    // unconsumed body strands its connection in the pool until GC reclaims
+    // it, and a misconfigured URL fails here on EVERY transcription call
+    // until someone fixes it — a slow socket drip on a long-lived process.
+    await response.body?.cancel().catch((_error: unknown) => {
+      // The typed error below is what matters; a failed cancel only delays
+      // connection reuse.
+    })
     throw new WhistleEngineError(
       'download-failed',
       `Whistle engine file ${file} fetch failed: HTTP ${response.status} from ${url}`,

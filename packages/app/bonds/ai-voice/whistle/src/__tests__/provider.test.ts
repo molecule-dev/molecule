@@ -713,10 +713,41 @@ describe('WhistleVoiceProvider', () => {
     expect(error!.message).toContain('mid-stream')
   })
 
+  it('releases a failed download error response body before surfacing the typed error', async () => {
+    // An unconsumed error body holds its connection until GC reclaims it —
+    // and a misconfigured URL fails here on every load attempt until fixed.
+    // All three engine files answer 403; each body must be released.
+    const cancels = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      fetchLog.push(String(input))
+      return Promise.resolve({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+        headers: new Headers(),
+        body: { cancel: cancels },
+      } as unknown as Response)
+    })
+    const error = (await loadWhistleEngine({
+      jsUrl: 'https://example.test/forbidden-needle.js',
+      weightsUrl: 'https://example.test/forbidden-whistle.cact',
+    }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(error!.message).toContain('403')
+    // glue + needle.wasm + whistle.cact — every fetched-then-rejected body.
+    expect(cancels).toHaveBeenCalledTimes(3)
+  })
+
   it('refuses a non-ok glue fetch as download-failed instead of evaluating the body', async () => {
     // The Node fallback path fetches the glue source itself; a mirror's 404
     // HTML page must fail as the typed download error, never reach `new
-    // Function`.
+    // Function`. The weights URL is one the harness SERVES, so the glue's 404
+    // is the only rejection — the assertion must not depend on which of two
+    // concurrent failures happens to reject first.
     const jsUrl = 'https://example.test/missing-needle.js'
     vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
       const url = String(input)
@@ -728,7 +759,7 @@ describe('WhistleVoiceProvider', () => {
     })
     const error = (await loadWhistleEngine({
       jsUrl,
-      weightsUrl: 'https://example.test/w.cact',
+      weightsUrl: 'https://example.test/served-whistle.cact',
     }).then(
       () => null,
       (e: unknown) => e,

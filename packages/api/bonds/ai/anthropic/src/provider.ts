@@ -295,6 +295,17 @@ class AnthropicAIProvider implements AIProvider {
           logger.warn('onRateLimit callback threw', { error })
         }
         if (willRetry) {
+          // Release the rejected response's body (and with it its socket)
+          // before retrying: the connection pool does not take a connection
+          // back until the body is consumed or cancelled, so every discarded
+          // rate-limited response would otherwise strand one socket for its
+          // GC lifetime — under a sustained 429 storm the retries themselves
+          // hold connections the pool needs for the next attempt (the same
+          // fix the liquid-d1 bond's retry applies).
+          await response.body?.cancel().catch((_error: unknown) => {
+            // Best-effort release only — the retry proceeds on the already-
+            // known status, and a failed cancel merely delays connection reuse.
+          })
           logger.warn('Anthropic API rate limited, retrying', {
             status: response.status,
             attempt: attempt + 1,

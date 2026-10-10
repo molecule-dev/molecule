@@ -720,6 +720,37 @@ describe('WhistleSpeechProvider', () => {
     expect(error!.message).toContain('connection reset mid-body')
   })
 
+  it('releases a failed download error response body before surfacing the typed error', async () => {
+    // An unconsumed error body holds its connection in the pool until GC
+    // reclaims it — and a misconfigured URL fails here on EVERY transcription
+    // call until fixed, a slow socket drip on a long-lived process.
+    const weightsUrl = 'https://example.test/forbidden-whistle.cact'
+    const cancel = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === weightsUrl) {
+        return Promise.resolve({
+          ok: false,
+          status: 403,
+          statusText: 'Forbidden',
+          headers: new Headers(),
+          body: { cancel },
+        } as unknown as Response)
+      }
+      return mockFetch(input)
+    })
+    const speech = createProvider({ weightsUrl })
+    const error = (await speech.transcribe!({ audio: silenceWav(1) }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(error!.message).toContain('403')
+    expect(cancel).toHaveBeenCalledTimes(1)
+  })
+
   it('surfaces a transcribe failure with the engine error text', async () => {
     fake.returnFor = (name) => (name === 'needle_transcribe' ? -1 : 1)
     const speech = createProvider()
