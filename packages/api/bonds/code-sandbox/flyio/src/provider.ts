@@ -2364,7 +2364,12 @@ class FlyioSandboxProvider implements SandboxProvider {
                 `mkdir -p ${quotedPath}`,
                 'archive=$(mktemp /tmp/mol-import-XXXXXX.tar.gz)',
                 `curl --fail-with-body -sS --retry 3 --retry-connrefused -o "$archive" ${shellQuote(getUrl)}`,
-                `tar -C ${quotedPath} --no-same-owner --no-same-permissions -xzf "$archive"`,
+                // The archive is removed whether the extract SUCCEEDS or fails:
+                // `&& rm` after tar (under `set -e`) left every failed extract's
+                // download behind in the sandbox's /tmp until the Machine died.
+                // The `|| { }` guard keeps `set -e` from aborting before the
+                // cleanup and re-raises the real exit code.
+                `tar -C ${quotedPath} --no-same-owner --no-same-permissions -xzf "$archive" || { rc=$?; rm -f "$archive"; exit $rc; }`,
                 'rm -f "$archive"',
               ].join('\n'),
               { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
@@ -2410,7 +2415,14 @@ class FlyioSandboxProvider implements SandboxProvider {
         }
         failIfError(
           await this.exec(
-            `mkdir -p ${quotedPath} && tar -xzf ${quotedTmp} -C ${quotedPath} --no-same-owner --no-same-permissions && rm -f ${quotedTmp}`,
+            // The temp archive is removed whether the extract SUCCEEDS or fails:
+            // `&& rm` after tar left a failed extract's multi-MB archive behind
+            // on the WORKSPACE VOLUME — the durable path this fallback
+            // deliberately writes to — until the next import overwrote it.
+            // `; rc=$?; rm …; exit $rc` cleans up unconditionally and still
+            // reports tar's real exit code (the same shape exec.ts's script
+            // spill uses).
+            `mkdir -p ${quotedPath} && tar -xzf ${quotedTmp} -C ${quotedPath} --no-same-owner --no-same-permissions; rc=$?; rm -f ${quotedTmp}; exit $rc`,
             { timeout: IMPORT_EXTRACT_TIMEOUT_MS },
           ),
           'extract',

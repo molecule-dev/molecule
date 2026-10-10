@@ -878,6 +878,92 @@ describe('file operations', () => {
     )
   })
 
+  it('importFiles removes the temp archive even when the fallback extract FAILS — no leftover on the volume', async () => {
+    // The extract writes to the WORKSPACE VOLUME (deliberately — /tmp does not
+    // survive a cold start between the write and the extract), so a cleanup
+    // chained with `&&` after tar left every failed import's multi-MB archive
+    // sitting in the user's project tree. The removal must be unconditional
+    // while tar's real exit code is still what fails the call.
+    const { sandbox, scripts } = await sandboxWithExec((s) =>
+      s.includes('tar -xzf') ? { stderr: 'tar: corrupt', exit_code: 2 } : { exit_code: 0 },
+    )
+    async function* archive() {
+      yield new Uint8Array([1, 2, 3])
+    }
+    await expect(sandbox.importFiles('/workspace/p', archive())).rejects.toThrow(/tar: corrupt/)
+
+    const extract = scripts.find((s) => s.includes('tar -xzf'))
+    expect(extract).toBeDefined()
+    // Unconditional cleanup with the exit code preserved (`rc=$? … exit $rc` —
+    // the same shape exec.ts's script spill uses). Without it the command is a
+    // bare `… && rm -f` chain that never runs on failure.
+    expect(extract).toContain('; rc=$?; rm -f ')
+    expect(extract).toContain('; exit $rc')
+    expect(extract).not.toContain(' && rm -f ')
+  })
+
+  it('importFiles via object store cleans the downloaded archive up even when the extract FAILS, then falls back', async () => {
+    // Same leftover on the store path: under `set -e`, `tar …` followed by a
+    // separate `rm` aborted before the cleanup whenever tar failed, leaving the
+    // downloaded archive in the sandbox's /tmp. The cleanup must be guarded
+    // INTO the tar statement (`|| { … }`), and a failed store extract then
+    // falls through to the chunked-exec transport, as documented.
+    const scripts: string[] = []
+    const fetchImpl = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/exec')) {
+        const script = JSON.parse(String(init!.body)).command.at(-1)
+        scripts.push(script)
+        return {
+          status: 200,
+          headers: { get: () => null },
+          text: async () =>
+            JSON.stringify(
+              script.includes('tar -C')
+                ? { stderr: 'tar: corrupt', exit_code: 2 }
+                : { exit_code: 0 },
+            ),
+        } as unknown as Response
+      }
+      return {
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ id: 'm1', state: 'started' }),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl,
+      sleep: async () => {},
+    })
+    const store = createStoreDouble()
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
+    if (!sandbox) throw new Error('expected a sandbox')
+
+    const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
+    vi.stubGlobal('fetch', putFetch)
+    try {
+      async function* arch() {
+        yield new TextEncoder().encode('pretend-tar-bytes')
+      }
+      // The store extract failed; the chunked fallback rescued the import.
+      await expect(sandbox.importFiles('/workspace/my-app', arch())).resolves.toBeUndefined()
+    } finally {
+      vi.unstubAllGlobals()
+    }
+
+    const storeExtract = scripts.find((s) => s.includes('tar -C'))
+    expect(storeExtract).toBeDefined()
+    // The guard removes the archive BEFORE the failure escapes into the
+    // fallback, and re-raises tar's real status inside the guard.
+    expect(storeExtract).toContain('|| { rc=$?; rm -f "$archive"; exit $rc; }')
+    expect(storeExtract).toContain('set -e')
+    // The fallback ran (a base64 chunked write, then its own extract).
+    expect(scripts.some((s) => s.includes('base64 -d'))).toBe(true)
+    expect(scripts.some((s) => s.includes('tar -xzf'))).toBe(true)
+  })
+
   it('importFiles uploads to the object store and pulls with ONE curl (no exec chunk storm)', async () => {
     // With a store configured, the archive is uploaded once (presigned PUT) and
     // the Machine downloads it with a single curl — NOT streamed as base64 chunks
