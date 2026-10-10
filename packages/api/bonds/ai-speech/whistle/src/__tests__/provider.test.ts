@@ -541,9 +541,24 @@ describe('WhistleSpeechProvider', () => {
     const speechA = createProvider()
     const speechB = createProvider()
     const doneA = drain(speechA.transcribeStream!(gatedA()))
-    await new Promise((resolve) => setTimeout(resolve, 20)) // A takes the session, parks on its gate
+    // Wait until A HOLDS the session rather than sleeping a fixed 20 ms: the
+    // gate is taken immediately before the first engine write, so one recorded
+    // process call proves A owns it (it then parks on `gateA`). The assertion
+    // below — B's first write after the first stop — is FALSE whenever B takes
+    // the session first, so a wall-clock wait that only usually lets A get
+    // there first made this test fail on a stalled runner for a reason that has
+    // nothing to do with the code under test.
+    await vi.waitFor(() =>
+      expect(fake.calls.filter((c) => c.name === 'needle_stream_transcribe_process')).toHaveLength(
+        1,
+      ),
+    )
     const doneB = drain(speechB.transcribeStream!(straightB()))
-    await new Promise((resolve) => setTimeout(resolve, 20)) // B's first block is ready
+    // Best-effort only, and not load-bearing: B is queued behind A's gate
+    // either way, so B's writes land after A's stop whether or not B reached
+    // the gate within this window (only A-first ordering matters, guaranteed
+    // above). This just gives B the chance to be mid-session while A holds it.
+    await new Promise((resolve) => setTimeout(resolve, 20))
     openGateA()
     await Promise.all([doneA, doneB])
 
