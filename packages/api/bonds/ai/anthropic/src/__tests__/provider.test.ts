@@ -1358,6 +1358,67 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
     })
   })
 
+  it('yields the sanitized error event when the request fails before any response arrives', async () => {
+    // A transport failure BEFORE the headers — DNS, TLS, ECONNREFUSED, a proxy
+    // cut — rejects `fetch` itself. Every other failure of chat() answers with
+    // this sanitized event (HTTP errors, a mid-stream body death, a non-JSON 2xx
+    // body); the raw `TypeError: fetch failed` was the one phase that escaped the
+    // generator instead, carrying no errorKey.
+    mockFetch.mockRejectedValue(new TypeError('fetch failed'))
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    expect(events).toHaveLength(1)
+    expect(events[0]).toMatchObject({
+      type: 'error',
+      message: 'AI service error. Please try again.',
+      errorKey: 'ai.error.apiError',
+    })
+    // One attempt: a request that never reached the API is not a retryable
+    // rate-limit answer, and the retry loop never sees its status.
+    expect(mockFetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('types the provider DEFAULT timeout firing before the response as the sanitized error event', async () => {
+    // The same provider-owned 5-minute AbortSignal.timeout the mid-stream test
+    // above covers, firing one phase earlier: while awaiting the response
+    // headers. `params.signal` is unset, so this is the bond's own deadline, not
+    // the caller's abort — it must answer with the error event, never a raw
+    // TimeoutError.
+    mockFetch.mockRejectedValue(
+      new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
+    )
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    expect(events.find((e) => e.type === 'error')).toMatchObject({
+      type: 'error',
+      errorKey: 'ai.error.apiError',
+    })
+  })
+
+  it('rethrows when the CALLER aborted before any response arrived', async () => {
+    // The caller's own abort stays the caller's to handle in this phase too,
+    // exactly as it is mid-stream: the bond never converts it into an API-error
+    // event on their behalf.
+    const controller = new AbortController()
+    controller.abort()
+    mockFetch.mockRejectedValue(new DOMException('This operation was aborted', 'AbortError'))
+
+    await expect(
+      collectEvents(
+        provider.chat({
+          messages: [{ role: 'user' as const, content: 'go' }],
+          signal: controller.signal,
+        }),
+      ),
+    ).rejects.toThrow(/aborted/)
+  })
+
   it('rethrows when the CALLER signal aborted mid-stream (the caller owns that abort)', async () => {
     const controller = new AbortController()
     mockFetch.mockResolvedValue({

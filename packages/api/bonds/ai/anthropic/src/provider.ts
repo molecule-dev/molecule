@@ -259,12 +259,33 @@ class AnthropicAIProvider implements AIProvider {
     // with the cancelled response still in `response`.
     let releasedBody = false
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-      response = await fetch(`${this.baseUrl}/v1/messages`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-        signal,
-      })
+      try {
+        response = await fetch(`${this.baseUrl}/v1/messages`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+          signal,
+        })
+      } catch (error) {
+        // The CALLER's own abort is theirs to see — the same exception the
+        // mid-stream path deliberately keeps. Everything else reaching here is
+        // a transport failure BEFORE any response arrived: DNS, TLS, a
+        // connection reset, or this bond's own 5-minute default timeout firing
+        // while awaiting the headers (the identical provider-owned timeout the
+        // mid-stream path answers with a sanitized event). A raw `TypeError:
+        // fetch failed` / `TimeoutError` escaping this generator carries no
+        // `errorKey`, so the caller's error classification never fires for that
+        // whole phase — answer with the sanitized event every other failure of
+        // this method yields.
+        if (params.signal?.aborted) throw error
+        logger.error('Anthropic request failed before a response arrived', { error })
+        yield {
+          type: 'error',
+          message: 'AI service error. Please try again.',
+          errorKey: 'ai.error.apiError',
+        }
+        return
+      }
       releasedBody = false
 
       if (response.status === 429 || response.status === 529 || response.status === 503) {

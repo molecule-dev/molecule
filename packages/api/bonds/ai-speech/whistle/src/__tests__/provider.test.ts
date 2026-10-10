@@ -735,6 +735,46 @@ describe('WhistleSpeechProvider', () => {
     expect(error!.message).toContain('connection reset mid-body')
   })
 
+  it('releases a mid-stream failed body through its READER, which is what owns the locked stream', async () => {
+    // `response.body.cancel()` on a body that `getReader()` locked rejects with
+    // `ReadableStream is locked`, and the `.catch` that used to swallow it made
+    // the "release the half-read body" comment false: the socket stayed checked
+    // out of the pool. The reader is the handle that can actually cancel it.
+    const weightsUrl = 'https://example.test/locked-whistle.cact'
+    const bodyCancel = vi.fn().mockResolvedValue(undefined)
+    const readerCancel = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === weightsUrl) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-length': '128' }),
+          body: {
+            cancel: bodyCancel,
+            getReader: () => ({
+              read: () => Promise.reject(new TypeError('connection reset mid-body')),
+              cancel: readerCancel,
+            }),
+          },
+        } as unknown as Response)
+      }
+      return mockFetch(input)
+    })
+    const speech = createProvider({ weightsUrl })
+
+    const error = (await speech.transcribe!({ audio: silenceWav(1) }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(readerCancel).toHaveBeenCalledTimes(1)
+    expect(bodyCancel).not.toHaveBeenCalled()
+  })
+
   it('releases a failed download error response body before surfacing the typed error', async () => {
     // An unconsumed error body holds its connection in the pool until GC
     // reclaims it — and a misconfigured URL fails here on EVERY transcription

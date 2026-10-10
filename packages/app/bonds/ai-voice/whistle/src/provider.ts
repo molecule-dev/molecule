@@ -401,6 +401,14 @@ export class WhistleVoiceProvider implements AIVoiceProvider {
           // preparing indicator while the permission prompt was still up.
           if (this.listening && this.state === 'error') this.setState('listening')
         } catch (error) {
+          // A drain that outlives dispose() must not move the dead provider's
+          // state: dispose() drops the queue, clears the handlers and sets
+          // 'idle', and this drain can still hold the one chunk it already
+          // shifted. Reporting 'error' here read as a live failure on a
+          // provider that can never listen again — and with the handlers gone
+          // nothing could ever clear it. The same rule the success path above
+          // follows for a session it no longer owns.
+          if (this.disposed) return
           this.setState('error')
           this.handlers.onError?.({
             code: 'transcription-failed',

@@ -209,12 +209,13 @@ async function fetchBytes(
   // mid-stream must fail as the typed `download-failed` error every other
   // fetch failure produces, not escape as a raw `TypeError: terminated` no
   // caller can classify.
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
   try {
     const total = Number(response.headers.get('content-length') ?? 0)
     if (!response.body || total <= 0) {
       return new Uint8Array(await response.arrayBuffer())
     }
-    const reader = response.body.getReader()
+    reader = response.body.getReader()
     const chunks: Uint8Array[] = []
     let loaded = 0
     for (;;) {
@@ -236,9 +237,16 @@ async function fetchBytes(
     }
     return all
   } catch (error) {
-    // Release the half-read body best-effort.
-    await response.body?.cancel().catch((_error: unknown) => {
-      // The typed error below is what matters.
+    // Release the half-read body best-effort. The READER is the handle that
+    // owns the stream: `response.body.cancel()` on a body locked by
+    // `getReader()` — which is every path reaching here — rejects with
+    // `ReadableStream is locked`, and the `.catch` that used to sit here
+    // swallowed exactly that, so the release the old comment promised never
+    // happened and a healthy-but-locked body kept its connection until GC.
+    const release = reader ? reader.cancel() : response.body?.cancel()
+    await release?.catch((_error: unknown) => {
+      // The typed error below is what matters; a failed cancel only delays
+      // connection reuse.
     })
     throw new WhistleEngineError(
       'download-failed',

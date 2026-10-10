@@ -460,6 +460,29 @@ describe('WhistleVoiceProvider', () => {
     voice.dispose()
   })
 
+  it('a transcription failure after dispose leaves the provider idle, never error', async () => {
+    // dispose() drops the queue, sets 'idle' and clears the handlers — the
+    // contract for a provider that can never listen again (see the idle test
+    // below). The drain can still hold the one chunk it already shifted, and
+    // its failure used to call setState('error') unconditionally, so getState()
+    // read 'error' for a dead provider and its onStateChange consumers saw a
+    // live-looking failure state that could never be cleared.
+    fake.returnFor = (name) => (name === 'needle_transcribe' ? -1 : 1)
+    const voice = createProvider()
+    await startAndWaitForCapture(voice, { onError: () => {} })
+    await vi.waitFor(() => expect(voice.getState()).toBe('listening'))
+
+    // Queue one chunk, then dispose in the same tick: the drain has shifted the
+    // chunk and is parked on `await this.loadEngine()`, so it still runs.
+    for (let i = 0; i < 3; i++) emitFrame(0.1)
+    for (let i = 0; i < 4; i++) emitFrame(0)
+    voice.dispose()
+
+    // The chunk WAS transcribed (and failed) — the drain outlived the dispose.
+    await vi.waitFor(() => expect(transcribeCalls()).toHaveLength(1))
+    expect(voice.getState()).toBe('idle')
+  })
+
   it("a finished tail chunk does not report the NEXT session as 'listening' before its capture exists", async () => {
     // Session A starts, queues a chunk, and parks in the drain on a gated
     // engine load. The user stops (the drain still holds that tail) and
@@ -772,6 +795,48 @@ describe('WhistleVoiceProvider', () => {
     expect(error).toBeInstanceOf(WhistleEngineError)
     expect(error!.code).toBe('download-failed')
     expect(error!.message).toContain('mid-stream')
+  })
+
+  it('releases a mid-stream failed body through its READER, which is what owns the locked stream', async () => {
+    // `response.body.cancel()` on a body that `getReader()` locked rejects with
+    // `ReadableStream is locked`, and the `.catch` that used to swallow it made
+    // the "release the half-read body" comment false: the connection stayed
+    // checked out until GC. The reader is the handle that can actually cancel it.
+    const weightsUrl = 'https://example.test/locked-whistle.cact'
+    const bodyCancel = vi.fn().mockResolvedValue(undefined)
+    const readerCancel = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === weightsUrl) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-length': '128' }),
+          body: {
+            cancel: bodyCancel,
+            getReader: () => ({
+              read: () => Promise.reject(new TypeError('connection reset mid-body')),
+              cancel: readerCancel,
+            }),
+          },
+        } as unknown as Response)
+      }
+      return mockFetch(input)
+    })
+
+    const error = (await loadWhistleEngine({
+      jsUrl: DEFAULT_WHISTLE_ENGINE_URL,
+      weightsUrl,
+    }).then(
+      () => null,
+      (e: unknown) => e,
+    )) as WhistleEngineError | null
+
+    expect(error).toBeInstanceOf(WhistleEngineError)
+    expect(error!.code).toBe('download-failed')
+    expect(readerCancel).toHaveBeenCalledTimes(1)
+    expect(bodyCancel).not.toHaveBeenCalled()
   })
 
   it('releases a failed download error response body before surfacing the typed error', async () => {

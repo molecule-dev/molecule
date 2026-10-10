@@ -235,12 +235,13 @@ async function readEngineFile(
   // mid-stream (reset, proxy timeout) must fail as the typed
   // `download-failed` error every other fetch failure produces, not escape
   // as a raw `TypeError: terminated` no caller can classify.
+  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined
   try {
     const total = Number(response.headers.get('content-length') ?? 0)
     if (!response.body || total <= 0) {
       return new Uint8Array(await response.arrayBuffer())
     }
-    const reader = response.body.getReader()
+    reader = response.body.getReader()
     const chunks: Uint8Array[] = []
     let loaded = 0
     for (;;) {
@@ -262,8 +263,16 @@ async function readEngineFile(
     }
     return all
   } catch (error) {
-    // Release the half-read body (and with it its socket) best-effort.
-    await response.body?.cancel().catch((_error: unknown) => {
+    // Release the half-read body (and with it its socket) best-effort. The
+    // READER is the handle that owns the stream: `response.body.cancel()` on a
+    // locked body rejects with `ReadableStream is locked`, and the `.catch`
+    // that used to sit here swallowed exactly that — so the release this
+    // comment promises never happened, and a body that is healthy but locked
+    // (the progress sink throwing, a failed buffer allocation) kept its
+    // connection checked out of the pool until GC reclaimed it. Cancelling an
+    // already-errored stream rejects with that error, hence the catch.
+    const release = reader ? reader.cancel() : response.body?.cancel()
+    await release?.catch((_error: unknown) => {
       // The typed error below is what matters; a failed cancel only delays
       // connection reuse.
     })
