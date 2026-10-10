@@ -1491,3 +1491,37 @@ describe('selfDeliveredEnv', () => {
     expect(double.matching(`POST /apps/${APP}/machines`)).toHaveLength(0)
   })
 })
+
+describe('private routes (Flycast)', () => {
+  it('releases the address it already allocated when a later service cannot be allocated', async () => {
+    // The addresses live on OTHER apps (the tenant database, the egress proxy),
+    // not on the sandbox app being discarded — and Fly's own listing does not
+    // report which network an address belongs to, so one left behind at this
+    // point can never be found again: it points into a 6PN with no apps in it,
+    // forever. The second service allocates NOTHING (the allocation it cannot
+    // verify is refused), which is what strands the first service's address.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}`, { status: 404, body: {} })
+      .on('POST /apps', { status: 201, body: {} })
+      .on('POST /apps/svc-db/ip_assignments', { body: { ip: 'fdaa::1' } })
+      .on('POST /apps/svc-proxy/ip_assignments', { body: {} })
+      .on(`DELETE /apps/${APP}`, { status: 202, body: {} })
+
+    await expect(
+      makeProvider(
+        {
+          privateServices: [
+            { app: 'svc-db', port: 5432 },
+            { app: 'svc-proxy', port: 3128 },
+          ],
+        },
+        double,
+      ).create({ projectId: PROJECT_ID }),
+    ).rejects.toThrow(/no address|private/i)
+
+    expect(double.matching('POST /apps/svc-db/ip_assignments')).toHaveLength(1)
+    expect(double.matching('DELETE /apps/svc-db/ip_assignments')).toHaveLength(1)
+    // The app this call created is still discarded, as before.
+    expect(double.matching(`DELETE /apps/${APP}`)).toHaveLength(1)
+  })
+})

@@ -551,6 +551,11 @@ class FlyioSandboxProvider implements SandboxProvider {
    * allocated. Fly's own `IPAssignment` carries no network, so a listing on the
    * target app cannot answer "does this project already have a route" — the
    * Machine metadata this provider wrote is the only record.
+   *
+   * A failure part-way down the list RELEASES the addresses this call had
+   * already allocated before rethrowing: the caller's own failure path discards
+   * the app, which is a different resource on a different app than the addresses
+   * (see the allocation loop).
    * @param app - The Fly app name (which is also its 6PN network name).
    * @param appExisted - Whether the app was already there, in which case its
    *   Machines may carry addresses allocated by an earlier boot.
@@ -565,10 +570,29 @@ class FlyioSandboxProvider implements SandboxProvider {
     if (!services?.length || !network) return {}
 
     const routes = appExisted ? await this.recordedPrivateRoutes(app) : {}
-    for (const service of services) {
-      if (routes[service.app]) continue
-      const ip = await this.allocatePrivateAddress(service, network)
-      if (ip) routes[service.app] = ip
+    // The addresses THIS call allocated, tracked apart from `routes` so a
+    // failure part-way down the next list can release exactly them. The caller's
+    // failure path can only discard the APP (`discardCreatedApp(app, {})`), and
+    // these addresses live on OTHER apps — so without this, an address already
+    // allocated for an earlier service stays behind on its target app, inside a
+    // 6PN whose app is gone, and Fly's listing does not report which network an
+    // address belongs to: nothing could ever find it there to release it.
+    const allocated: Record<string, string> = {}
+    try {
+      for (const service of services) {
+        if (routes[service.app]) continue
+        const ip = await this.allocatePrivateAddress(service, network)
+        if (ip) {
+          routes[service.app] = ip
+          allocated[service.app] = ip
+        }
+      }
+    } catch (error) {
+      // Only what this call allocated. An address recorded by an EARLIER boot
+      // (`appExisted`) is left alone: the app survived this failure and may
+      // still hold a Machine reaching through that route.
+      await this.releasePrivateRoutes(allocated)
+      throw error
     }
     return routes
   }
