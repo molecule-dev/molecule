@@ -397,12 +397,14 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(cancel.mock.invocationCallOrder[0]).toBeLessThan(mockFetch.mock.invocationCallOrder[1])
     })
 
-    it('an abort during the backoff sleep yields the sanitized error instead of crashing on the released body', async () => {
-      // Regression: the body-release above cancels the 429's body, which makes
-      // it DISTURBED — reading it afterwards throws "Body is unusable". The
-      // abort-during-backoff path broke out of the retry loop still holding
-      // that cancelled response, so the error handler's text() call threw a
-      // raw TypeError instead of yielding the sanitized rate-limit event.
+    it("rethrows the CALLER's abort during the backoff sleep, without reading the released body", async () => {
+      // Two regressions pin this path. (1) The body-release above cancels the
+      // 429's body, which makes it DISTURBED — reading it afterwards throws
+      // "Body is unusable", so the abort must never fall through to the error
+      // path's text() call. (2) Falling through also answered a CANCELLED
+      // request with the discarded 429's message ("AI rate limit exceeded.
+      // Please try again shortly."), hiding the cancel: this phase rethrows the
+      // caller's abort like the pre-response and mid-stream phases do.
       const controller = new AbortController()
       // A REAL Response: its cancel() genuinely disturbs the body, so a later
       // text() really throws (a mock would silently permit the old bug).
@@ -414,17 +416,37 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       const eventsPromise = collectEvents(
         provider.chat({ ...minimalParams, signal: controller.signal }),
       )
+      // The assertion is attached BEFORE the abort: the rejection lands during
+      // the timer advance below, and an unwatched rejection is reported as an
+      // unhandled error even though the test then passes.
+      const aborting = expect(eventsPromise).rejects.toThrow(/aborted/i)
       // Let the provider take the 429, release its body and enter the backoff
       // sleep, then abort the way a caller that gave up would.
       await vi.advanceTimersByTimeAsync(0)
       controller.abort()
-      const events = await eventsPromise
 
+      // The abort itself, not a rate-limit event and not a raw TypeError from
+      // the disturbed body.
+      await aborting
+      // One attempt: the abort ended the retry instead of issuing another fetch.
       expect(mockFetch).toHaveBeenCalledTimes(1)
-      expect(events).toHaveLength(1)
-      expect(events[0].type).toBe('error')
-      expect(events[0].message).toBe('AI rate limit exceeded. Please try again shortly.')
-      expect(events[0].errorKey).toBe('ai.error.apiError')
+    })
+
+    it("surfaces the caller's OWN abort reason, not a synthesized one", async () => {
+      const controller = new AbortController()
+      mockFetch.mockImplementationOnce(async () => new Response('rate limited', { status: 429 }))
+      mockFetch.mockImplementation(async () => {
+        throw new Error('no retry fetch may follow the abort')
+      })
+
+      const eventsPromise = collectEvents(
+        provider.chat({ ...minimalParams, signal: controller.signal }),
+      )
+      const aborting = expect(eventsPromise).rejects.toThrow('the user pressed Stop')
+      await vi.advanceTimersByTimeAsync(0)
+      controller.abort(new Error('the user pressed Stop'))
+
+      await aborting
     })
 
     it('drops the backoff abort listener once the backoff timer fires, so a reused caller signal accumulates none', async () => {
@@ -501,20 +523,19 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       const eventsPromise = collectEvents(
         provider.chat({ ...minimalParams, signal: controller.signal }),
       )
+      // Watched before the timer advance, which is when the rejection lands
+      // (an unwatched rejection is reported as an unhandled error even though
+      // the test then passes).
+      const aborting = expect(eventsPromise).rejects.toThrow(/aborted/i)
       // Let the provider take the 429, release its body (aborting) and reach
       // the sleep — without advancing either fake timer.
       await vi.advanceTimersByTimeAsync(0)
       // Nothing may be counting down for a signal that has already aborted.
       expect(vi.getTimerCount()).toBe(0)
 
-      const events = await eventsPromise
+      // The caller's abort, not the discarded 429's rate-limit message.
+      await aborting
       expect(mockFetch).toHaveBeenCalledTimes(1)
-      expect(events).toHaveLength(1)
-      expect(events[0]).toMatchObject({
-        type: 'error',
-        message: 'AI rate limit exceeded. Please try again shortly.',
-        errorKey: 'ai.error.apiError',
-      })
     })
 
     it('invokes onRateLimit on every rate-limited response, including the exhausted one', async () => {

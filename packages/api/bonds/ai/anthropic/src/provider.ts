@@ -370,6 +370,18 @@ class AnthropicAIProvider implements AIProvider {
             // If aborted while waiting, resolve immediately
             signal.addEventListener('abort', onAbort, { once: true })
           })
+          // The CALLER's own abort ends the retry and stays the caller's to
+          // see, exactly as it is in this method's other two phases (the
+          // pre-response catch rethrows it, and so does the mid-stream path:
+          // "rethrowing its reason is what every abort-aware consumer
+          // expects"). Fall through to the error path below instead and a
+          // CANCELLED request is answered with the DISCARDED response's
+          // message — "AI rate limit exceeded. Please try again shortly." — so
+          // a user who pressed Stop saw a rate-limit error and the caller's
+          // abort/retry handling never fired. Only the caller's signal is
+          // rethrown: this bond's own 5-minute default timeout is a deadline,
+          // not a cancellation, and keeps answering with the error event.
+          if (params.signal?.aborted) throw params.signal.reason
           if (signal.aborted) break
           continue
         }
