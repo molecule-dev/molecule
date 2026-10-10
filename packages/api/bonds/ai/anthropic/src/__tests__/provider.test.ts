@@ -1033,8 +1033,22 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
         },
       })
 
-      await collectEvents(provider.chat(minimalParams))
+      // The signal's own deadline is not observable (`AbortSignal.timeout` does
+      // not expose its delay, and it is not driven by the faked setTimeout), so
+      // asserting only that SOME signal exists would pass for any duration —
+      // including one that aborts mid-turn. Watching the call is the only way
+      // to pin the 5 minutes the name claims; the delays are copied out before
+      // the spy is restored, which clears its record.
+      const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
+      let timeoutDelays: unknown[]
+      try {
+        await collectEvents(provider.chat(minimalParams))
+        timeoutDelays = timeoutSpy.mock.calls.map((call) => call[0])
+      } finally {
+        timeoutSpy.mockRestore()
+      }
 
+      expect(timeoutDelays).toEqual([5 * 60 * 1000])
       expect(mockFetch).toHaveBeenCalledTimes(1)
       const callArgs = mockFetch.mock.calls[0] as [string, RequestInit]
       const init = callArgs[1]

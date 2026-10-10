@@ -498,8 +498,10 @@ describe('LtxVideoGenerationProvider', () => {
 
     it('exposes a typed provider object', () => {
       expect(provider.name).toBe('ltx')
-      expect(typeof provider.generate).toBe('function')
-      expect(typeof provider.getStatus).toBe('function')
+      // `generate`/`getStatus` are REQUIRED members of the interface, so their
+      // presence is already guaranteed by the type annotation on `provider` —
+      // a `typeof … === 'function'` check here could never fail. What is worth
+      // pinning is the OPTIONAL surface this bond deliberately leaves out.
       expect(provider.upscale).toBeUndefined()
     })
   })

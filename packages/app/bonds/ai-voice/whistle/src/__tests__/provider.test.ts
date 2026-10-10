@@ -27,7 +27,7 @@ const FAKE_GLUE = `
 var createNeedle = async function () {
   var bump = 16
   var lastJson = ''
-  return {
+  var mod = {
     HEAPU8: new Uint8Array(64 * 1024 * 1024),
     _malloc: function (n) {
       if (globalThis.__whistleFake.failMallocs) return 0
@@ -35,7 +35,15 @@ var createNeedle = async function () {
     },
     _free: function () {},
     _needle_load: function (ptr, n) {
-      globalThis.__whistleFake.loadCalls.push([ptr, Number(n)])
+      var bytes = Number(n)
+      globalThis.__whistleFake.loadCalls.push([ptr, bytes])
+      // Snapshot what the loader COPIED to that pointer: the real engine reads
+      // its model from those heap bytes, so a loader that skipped the
+      // HEAPU8.set(weights, ptr) would hand it uninitialised memory. Recording
+      // only (ptr, n) — as this fake used to — cannot tell the two apart.
+      globalThis.__whistleFake.loadedBytes = Array.prototype.slice.call(
+        mod.HEAPU8.subarray(ptr, ptr + bytes),
+      )
       return globalThis.__whistleFake.loadResult
     },
     _needle_models: function () { return globalThis.__whistleFake.modelsResult },
@@ -48,12 +56,15 @@ var createNeedle = async function () {
       return ret
     },
   }
+  return mod
 }
 `
 
 interface FakeEngineState {
   calls: Array<{ name: string; args: unknown[] }>
   loadCalls: Array<[number, number]>
+  /** The heap bytes the loader copied to the `_needle_load` pointer, in order. */
+  loadedBytes: number[]
   loadResult: number
   modelsResult: number
   /** When true, the fake `_malloc` returns 0 — a wasm heap that cannot fit the allocation. */
@@ -66,6 +77,7 @@ function freshFake(): FakeEngineState {
   return {
     calls: [],
     loadCalls: [],
+    loadedBytes: [],
     loadResult: 0,
     modelsResult: 2,
     failMallocs: false,
@@ -90,7 +102,13 @@ function freshFake(): FakeEngineState {
 }
 
 const WASM_BYTES = new Uint8Array(64)
-const WEIGHTS_BYTES = new Uint8Array(128)
+/**
+ * The weights file's bytes. NON-ZERO on purpose: the loader copies them into
+ * the wasm heap, whose every byte starts at zero, so an all-zero fixture would
+ * make "the bytes reached the heap" indistinguishable from "nothing was
+ * copied".
+ */
+const WEIGHTS_BYTES = Uint8Array.from({ length: 128 }, (_, i) => (i * 7 + 1) & 0xff)
 
 let fake: FakeEngineState
 let fetchLog: string[]
@@ -396,9 +414,27 @@ describe('WhistleVoiceProvider', () => {
   })
 
   it('reports engine download progress through onModelProgress', async () => {
+    // The weights response advertises DOUBLE the bytes it delivers. Progress is
+    // `loaded / content-length`, so a computed percentage lands on 50 here —
+    // serving the exact length (what mockFetch does) made every event 100, and
+    // an assertion that all of them are 100 cannot tell a computation from a
+    // hardcoded constant.
+    const weightsUrl = 'https://example.test/progress-whistle.cact'
+    vi.stubGlobal('fetch', (input: RequestInfo | URL) => {
+      const url = String(input)
+      fetchLog.push(url)
+      if (url === weightsUrl) {
+        return Promise.resolve(
+          new Response(WEIGHTS_BYTES, {
+            headers: { 'content-length': String(WEIGHTS_BYTES.length * 2) },
+          }),
+        )
+      }
+      return mockFetch(input)
+    })
     const events: Array<{ status: string; progress?: number; file?: string }> = []
     const voice = createProvider({
-      weightsUrl: 'https://example.test/progress-whistle.cact',
+      weightsUrl,
       onModelProgress: (e) => events.push(e),
     })
     await startAndWaitForCapture(voice, {})
@@ -411,7 +447,10 @@ describe('WhistleVoiceProvider', () => {
     expect(downloading.every((e) => e.file === 'needle.wasm' || e.file === 'whistle.cact')).toBe(
       true,
     )
-    expect(downloading.every((e) => e.progress === 100)).toBe(true)
+    const progressFor = (file: string): Array<number | undefined> =>
+      downloading.filter((e) => e.file === file).map((e) => e.progress)
+    expect(progressFor('whistle.cact')).toEqual([50])
+    expect(progressFor('needle.wasm')).toEqual([100])
     voice.dispose()
   })
 
@@ -768,6 +807,9 @@ describe('WhistleVoiceProvider', () => {
     expect(fetchLog.filter((u) => u === DEFAULT_WHISTLE_ENGINE_URL)).toHaveLength(1)
     expect(fake.loadCalls).toHaveLength(1)
     expect(fake.loadCalls[0][1]).toBe(WEIGHTS_BYTES.length)
+    // The weights really are IN the heap the engine reads: the byte count alone
+    // passes even if the loader never ran HEAPU8.set.
+    expect(fake.loadedBytes).toEqual(Array.from(WEIGHTS_BYTES))
     voice1.dispose()
     voice2.dispose()
   })

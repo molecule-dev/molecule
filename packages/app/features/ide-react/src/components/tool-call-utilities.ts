@@ -850,25 +850,26 @@ export function parseJudgeVerdict(report: string): JudgeVerdict | null {
  * model rewrites a file whole — is thousands of lines per side, i.e. tens of
  * millions of cells: gigabytes of heap and seconds of frozen UI, on a path that
  * runs inside render (for every edit card in a reloaded transcript, not just the
- * live one). Above this cap the answer degrades to the linear line-multiset
- * count in {@link multisetCommonLines}; below it the result is exact. 1 << 22
- * cells is a few milliseconds, and the two-row table keeps memory at
- * O(min(old, new)) — at most √(1 << 22) = 2048 numbers per row.
+ * live one). Above this cap the answer comes from {@link orderedCommonLines} —
+ * a provable, order-respecting common subsequence in O(n log n); below it the
+ * result is exact. 1 << 22 cells is a few milliseconds, and the two-row table
+ * keeps memory at O(min(old, new)) — at most √(1 << 22) = 2048 numbers per row.
  */
 const MAX_DIFF_CELLS = 1 << 22
 
 /**
  * Longest common subsequence length of two line arrays, in bounded time and
- * memory: two rows of the recurrence instead of the whole table, and the linear
- * multiset estimate once the table would exceed {@link MAX_DIFF_CELLS}.
+ * memory: two rows of the recurrence instead of the whole table, and — once the
+ * table would exceed {@link MAX_DIFF_CELLS} — the order-respecting lower bound
+ * from {@link orderedCommonLines}.
  *
  * @param a - The first line array.
  * @param b - The second line array.
- * @returns The common subsequence length (an estimate for the capped inputs).
+ * @returns The common subsequence length (a lower bound for the capped inputs).
  */
 function lcsLength(a: readonly string[], b: readonly string[]): number {
   if (a.length === 0 || b.length === 0) return 0
-  if (a.length * b.length > MAX_DIFF_CELLS) return multisetCommonLines(a, b)
+  if (a.length * b.length > MAX_DIFF_CELLS) return orderedCommonLines(a, b)
   // The recurrence needs only the previous row, and a row is `cols` wide — so
   // the SHORTER array belongs on the `cols` axis, which bounds every row by
   // min(a, b) (≤ 2048 here, since min² ≤ a·b ≤ MAX_DIFF_CELLS) and is what the
@@ -905,26 +906,50 @@ function lcsLength(a: readonly string[], b: readonly string[]): number {
 }
 
 /**
- * Lines the two arrays have in common counted as a multiset (order ignored) —
- * the O(n + m) answer for inputs too large for the exact table. It agrees with
- * the LCS on the shape that reaches it: a wholesale rewrite shares no line, and
- * both then report every new line as added and every old one as removed.
+ * How many lines the two arrays share IN ORDER, for inputs too large for the
+ * exact table: the longest run of lines that appear in the same relative order
+ * on both sides, found among the lines that occur exactly once in `a` (their
+ * position is unambiguous) by reducing their `b` positions to a longest
+ * strictly increasing run — the standard patience LIS, O(n log n).
+ *
+ * Order is the whole point. Counting the lines as a multiset (order thrown
+ * away) is only an UPPER bound on the LCS, so it under-reports changes: a
+ * 3000-line file whose two halves were swapped shares every line, and the
+ * multiset count then reported the replacement as `+0 −0` — a card claiming a
+ * real edit changed nothing. Every line counted here is a real in-order match,
+ * so the answer is a LOWER bound on the LCS and the change count it feeds can
+ * only ever be over-stated, never denied. (A shared line that repeats on the
+ * left is skipped rather than paired arbitrarily, which makes the bound
+ * conservative on those inputs; it is exact for the shapes that reach it here —
+ * a wholesale rewrite, and a block move whose lines are distinct.)
  *
  * @param a - The first line array.
  * @param b - The second line array.
- * @returns The number of lines the two arrays share.
+ * @returns A common subsequence length.
  */
-function multisetCommonLines(a: readonly string[], b: readonly string[]): number {
-  const remaining = new Map<string, number>()
-  for (const line of a) remaining.set(line, (remaining.get(line) ?? 0) + 1)
-  let common = 0
+function orderedCommonLines(a: readonly string[], b: readonly string[]): number {
+  const occurrences = new Map<string, number>()
+  for (const line of a) occurrences.set(line, (occurrences.get(line) ?? 0) + 1)
+  const position = new Map<string, number>()
+  a.forEach((line, index) => {
+    if (occurrences.get(line) === 1) position.set(line, index)
+  })
+  // Patience: `tails[i]` is the smallest `b`-position that ends an increasing
+  // run of length `i + 1`.
+  const tails: number[] = []
   for (const line of b) {
-    const left = remaining.get(line)
-    if (left === undefined || left === 0) continue
-    remaining.set(line, left - 1)
-    common++
+    const at = position.get(line)
+    if (at === undefined) continue
+    let lo = 0
+    let hi = tails.length
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (tails[mid] < at) lo = mid + 1
+      else hi = mid
+    }
+    tails[lo] = at
   }
-  return common
+  return tails.length
 }
 
 /**

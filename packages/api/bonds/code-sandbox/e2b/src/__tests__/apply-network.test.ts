@@ -151,13 +151,16 @@ describe('applyNetwork — an unenforceable allow-list is refused, never dropped
     ])
   })
 
-  it('keeps an EMPTY list a no-op even when the sandbox cannot enforce one', async () => {
+  it('keeps an EMPTY list a no-op even when the sandbox CAN enforce one', async () => {
+    // The sandbox here is fully capable (`updateNetwork` is present, so the
+    // recorder below is actually wired): the assertion is that nothing was
+    // applied, not merely that nothing could be. Handing E2B an empty
+    // `allowOut` + `denyOut: 0.0.0.0/0` would deny ALL traffic, so the no-op
+    // is the behaviour that keeps "unconstrained" honest.
     const networkCalls: NetworkCall[] = []
-    const provider = providerWith(fakeSandbox('sbx-a', { hasUpdateNetwork: false, networkCalls }))
+    const provider = providerWith(fakeSandbox('sbx-a', { networkCalls }))
     const handle = (await provider.get('sbx-a')) as unknown as NetworkCapableHandle
 
-    // Nothing was asked to be allowed, so there is no control to enforce and no
-    // failure to report.
     await expect(handle.applyNetwork([])).resolves.toBeUndefined()
     expect(networkCalls).toEqual([])
   })
@@ -166,18 +169,42 @@ describe('applyNetwork — an unenforceable allow-list is refused, never dropped
 describe('create() — a sandbox it cannot constrain is destroyed, not handed back', () => {
   it('refuses the create and kills the sandbox when the allow-list cannot be applied', async () => {
     const killed: string[] = []
-    const networkCalls: NetworkCall[] = []
     const provider = providerWith(
-      fakeSandbox('sbx-a', { hasUpdateNetwork: false, networkCalls }),
+      // No `updateNetwork`: an incapable sandbox has nowhere to record a
+      // policy, so an assertion on a payload sink here could never fail — the
+      // load-bearing assertions are the refusal and the kill.
+      fakeSandbox('sbx-a', { hasUpdateNetwork: false }),
       killed,
       ['registry.npmjs.org'],
     )
 
     await expect(provider.create({ projectId: 'proj-1', env: {} })).rejects.toThrow(/updateNetwork/)
 
-    // The policy was never applied, and the sandbox the caller never received
-    // was destroyed rather than left running (and billing) unconstrained.
-    expect(networkCalls).toEqual([])
+    // The sandbox the caller never received was destroyed rather than left
+    // running (and billing) unconstrained.
+    expect(killed).toEqual(['sbx-a'])
+  })
+
+  it('destroys the sandbox when the sandbox REJECTS the policy, showing what it tried to apply', async () => {
+    // The other half of the refusal: the SDK build HAS `updateNetwork` and the
+    // API refuses the payload (an entry E2B will not accept). The policy is
+    // then not in force either, so the same rule applies — no handle, and the
+    // sandbox is destroyed. The recorded payload also proves the deny-by-default
+    // pairing was what the provider attempted.
+    const killed: string[] = []
+    const attempted: NetworkCall[] = []
+    const sbx = fakeSandbox('sbx-a')
+    sbx.updateNetwork = async (payload) => {
+      attempted.push(payload)
+      throw new Error('invalid allow_out entry')
+    }
+    const provider = providerWith(sbx, killed, ['registry.npmjs.org'])
+
+    await expect(provider.create({ projectId: 'proj-1', env: {} })).rejects.toThrow(
+      /invalid allow_out entry/,
+    )
+
+    expect(attempted).toEqual([{ allowOut: ['registry.npmjs.org'], denyOut: ['0.0.0.0/0'] }])
     expect(killed).toEqual(['sbx-a'])
   })
 

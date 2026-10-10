@@ -1312,6 +1312,14 @@ class FlyioSandboxProvider implements SandboxProvider {
    * In per-project mode the Machines live in many apps, so this pages through
    * `GET /v1/orgs/{org}/machines` and keeps the ones carrying this provider's
    * `managed` metadata. In shared-app mode it lists that app directly.
+   *
+   * Only the APP-scoped 404 is an absence (`nullOn: [404]` on
+   * `/apps/{app}/machines` — the app is gone, so its Machines are too). A 404
+   * from the ORG-scoped listing is not: an org with no Machines answers 200
+   * with an empty list, so a 404 there means the org is unknown to the token —
+   * a failed query. Swallowing it as `[]` would tell a reaper the fleet is
+   * clean when nothing had been looked at, the same conflation
+   * `appsToEnumerate()` refuses for the org's app listing.
    * @param _userId - Reserved for future per-user filtering; currently ignored,
    *   matching the Docker provider.
    * @returns Every managed sandbox.
@@ -1339,7 +1347,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       const response = await this.client.request<{
         machines?: FlyOrgMachine[]
         next_cursor?: string
-      }>(`/orgs/${this.orgSlug()}/machines?${query.toString()}`, { nullOn: [404] })
+      }>(`/orgs/${this.orgSlug()}/machines?${query.toString()}`)
 
       for (const machine of response?.machines ?? []) {
         if (machine.config?.metadata?.[managedKey] !== 'true') continue

@@ -669,6 +669,19 @@ describe('get / list / destroy', () => {
     )
   })
 
+  it('THROWS on a 404 from the org listing too — an unknown org is not an empty fleet', async () => {
+    // A 404 here is the org-scoped listing saying it does not know the org (a
+    // mistyped slug, a token that lost org access), not "this org has no
+    // Machines" — an empty org answers 200 with an empty list. Treating it as
+    // an absence answered [] for a query that never looked, which is exactly
+    // what `appsToEnumerate()` refuses to do for the org's app listing.
+    const double = createFetchDouble().fallback({ status: 404, text: 'org not found' })
+
+    await expect(makeProvider({}, double).list('user-1')).rejects.toThrow(
+      /Fly API GET \/orgs\/acme\/machines/,
+    )
+  })
+
   it('WARNS when the org listing is truncated, instead of returning a short list silently', async () => {
     // Fly keeps handing back a cursor: a caller reaping from a truncated list
     // would leave the unseen Machines running and billing forever.
@@ -1431,26 +1444,42 @@ describe('find()', () => {
   })
 
   it('treats a 404 app as a real absence — it was deleted between the two calls', async () => {
-    const double = queueFind({ [PROD_APP]: [] })
+    // The org listing still names the app; the PER-APP Machine listing is what
+    // 404s (the client turns that into a positive `null`, which this sweep reads
+    // as "the app was deleted", not as a failed query).
+    //
+    // Only the FIRST response queued for a route is ever consumed, so the 404
+    // must be the only one queued for it: `queueFind(...)` queues the Machine
+    // listing itself, and adding a 404 behind that entry left it in the queue
+    // forever — the test resolved through the empty-list path and never reached
+    // the 404 branch it claims to pin.
+    const double = createFetchDouble()
+    double.on(`GET /apps?org_slug=${ORG}`, {
+      body: { total_apps: 2, apps: [{ name: 'molecule-api' }, { name: PROD_APP }] },
+    })
     double.on(`GET /apps/${PROD_APP}/machines`, { status: 404, body: { error: 'not found' } })
     const provider = makeProvider({}, double)
 
     expect(await provider.find?.()).toEqual([])
+    expect(double.matching(`GET /apps/${PROD_APP}/machines`)).toHaveLength(1)
   })
 
   it('refuses a sweep bigger than the cap instead of doing half of it', async () => {
-    const apps: Record<string, unknown[]> = {}
-    for (let i = 0; i < 6; i++) apps[`mol-sandbox-proj-${i}`] = [managedMachine(`m${i}`)]
-    const double = queueFind(apps)
-    process.env.FLY_FIND_MAX_APPS = '2'
-    try {
-      // The cap is read once at module load, so this asserts the SHIPPED default
-      // rather than the override — 6 apps is well under 500.
-      const provider = makeProvider({}, double)
-      expect(await provider.find?.()).toHaveLength(6)
-    } finally {
-      delete process.env.FLY_FIND_MAX_APPS
-    }
+    // `FLY_FIND_MAX_APPS` is read ONCE at module load, so a test cannot move the
+    // cap by setting the env var after import (the old version of this test did
+    // exactly that, then asserted the sweep SUCCEEDED — the opposite of the
+    // refusal its name claims). Drive the sweep past the shipped default
+    // instead. No per-app Machine listing is queued: the refusal must happen
+    // while enumerating the apps, so reaching for one means the cap was not
+    // applied.
+    const apps = Array.from({ length: 501 }, (_, i) => ({ name: `mol-sandbox-proj-${i}` }))
+    const double = createFetchDouble()
+    double.on(`GET /apps?org_slug=${ORG}`, { body: { total_apps: apps.length, apps } })
+
+    const provider = makeProvider({}, double)
+
+    await expect(provider.find?.()).rejects.toThrow(/Refusing to enumerate 501 Fly sandbox apps/)
+    expect(double.calls.filter((call) => call.path.endsWith('/machines'))).toHaveLength(0)
   })
 })
 

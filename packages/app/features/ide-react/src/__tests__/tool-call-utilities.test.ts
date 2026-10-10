@@ -499,6 +499,32 @@ describe('diffLineCount', () => {
     expect(counts).toEqual({ added: 20_000, removed: 20_000 })
     expect(performance.now() - started).toBeLessThan(2000)
   })
+
+  it('never reports a capped (too-large for the exact table) reordering as unchanged', () => {
+    // 3000 × 3000 lines is above the LCS cell cap, so the exact table is not
+    // built — but only the ORDER of the lines changed, and the count of shared
+    // lines must not ignore order: the order-ignoring multiset this used to
+    // fall back on found all 3000 lines on both sides and answered
+    // `{ added: 0, removed: 0 }`, i.e. a card claiming a real 1500-line move
+    // changed nothing.
+    const oldLines = Array.from({ length: 3000 }, (_, i) => `line ${i}`)
+    const newLines = [...oldLines.slice(1500), ...oldLines.slice(0, 1500)]
+    expect(diffLineCount(oldLines, newLines)).toEqual({ added: 1500, removed: 1500 })
+  })
+
+  it('still counts a capped rewrite whose sides share lines in a different order', () => {
+    // The same cap, with duplicate lines on the left: the in-order matches are
+    // still found, and the count stays a change count rather than a claim of
+    // sameness. `}`-heavy blocks are the shape — half the lines are identical
+    // braces, so the matches that can be proven are the unique ones.
+    const braces = Array.from({ length: 2100 }, () => '}')
+    const bodies = Array.from({ length: 2100 }, (_, i) => `body ${i}`)
+    const oldLines = [...bodies.slice(0, 1050), ...braces]
+    const newLines = [...braces, ...bodies.slice(0, 1050)]
+    const counts = diffLineCount(oldLines, newLines)
+    expect(counts.added).toBeGreaterThan(0)
+    expect(counts.removed).toBeGreaterThan(0)
+  })
 })
 
 // ---------------------------------------------------------------------------

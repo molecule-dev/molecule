@@ -89,9 +89,10 @@ function wrap(children: ReactNode): ReactElement {
 }
 
 /**
- * Wrong-typed values a model can produce where a string is declared — the same
- * set `malformed-tool-input.test.tsx` uses, so both suites agree on what
- * "hostile" means.
+ * Wrong-typed values a model can produce where a string is declared. A subset of
+ * the array `malformed-tool-input.test.tsx` uses — that one also feeds
+ * `{ label, value }`, `{ title }`, `{ text }` and `{ name }` objects, all of
+ * which these readers coerce exactly like the `{}` entry below.
  */
 const HOSTILE_VALUES: readonly unknown[] = [
   { label: 'Recipe box' },
@@ -150,8 +151,14 @@ describe('an edit_file card whose replacements array holds a malformed entry', (
       ),
     )
     // The stat the readable replacement contributes — proof the card both
-    // survived the null entry and still counted the good one.
-    expect(container.textContent).toContain('+1')
+    // survived the null entry and still counted the good one. The rendered
+    // value is pinned EXACTLY: a substring match on '+1' also accepts '+11',
+    // '+101'…, so it could not tell a correct count from an order-of-magnitude
+    // mis-count.
+    const added = Array.from(container.querySelectorAll('span'))
+      .map((span) => span.textContent ?? '')
+      .find((text) => /^\+\d+$/.test(text))
+    expect(added).toBe('+1')
   })
 })
 
