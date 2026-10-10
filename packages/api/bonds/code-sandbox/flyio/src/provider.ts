@@ -2410,21 +2410,46 @@ class FlyioSandboxProvider implements SandboxProvider {
           Math.random() * 1e9,
         ).toString(36)}.tgz`
         const quotedTmp = shellQuote(tmp)
-        failIfError(
-          await this.exec(
-            `printf %s ${shellQuote(base64.slice(0, IMPORT_WRITE_CHUNK_BASE64))} | base64 -d > ${quotedTmp}`,
-            { timeout: FILE_OP_TIMEOUT_MS },
-          ),
-          'write',
-        )
-        for (let i = IMPORT_WRITE_CHUNK_BASE64; i < base64.length; i += IMPORT_WRITE_CHUNK_BASE64) {
+        // A failed WRITE step leaves a partial archive behind on the durable
+        // workspace volume — the chunked transport is the fallback for a
+        // multi-MB archive, so a mid-write failure (a 429, a full disk) used to
+        // strand every byte written so far until the Machine died. Removed
+        // best-effort on any write failure; the extract step below cleans up
+        // after ITSELF (inside the sandbox), so it needs no outer cleanup.
+        const discardTempArchive = async (): Promise<void> => {
+          try {
+            await this.exec(`rm -f ${quotedTmp}`, { timeout: FILE_OP_TIMEOUT_MS })
+          } catch (cleanupError) {
+            logger.warn(
+              'Could not remove the temp import archive after a failed import — it stays on the workspace volume',
+              { tmp, error: cleanupError },
+            )
+          }
+        }
+        try {
           failIfError(
             await this.exec(
-              `printf %s ${shellQuote(base64.slice(i, i + IMPORT_WRITE_CHUNK_BASE64))} | base64 -d >> ${quotedTmp}`,
+              `printf %s ${shellQuote(base64.slice(0, IMPORT_WRITE_CHUNK_BASE64))} | base64 -d > ${quotedTmp}`,
               { timeout: FILE_OP_TIMEOUT_MS },
             ),
             'write',
           )
+          for (
+            let i = IMPORT_WRITE_CHUNK_BASE64;
+            i < base64.length;
+            i += IMPORT_WRITE_CHUNK_BASE64
+          ) {
+            failIfError(
+              await this.exec(
+                `printf %s ${shellQuote(base64.slice(i, i + IMPORT_WRITE_CHUNK_BASE64))} | base64 -d >> ${quotedTmp}`,
+                { timeout: FILE_OP_TIMEOUT_MS },
+              ),
+              'write',
+            )
+          }
+        } catch (error) {
+          await discardTempArchive()
+          throw error
         }
         failIfError(
           await this.exec(

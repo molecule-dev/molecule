@@ -902,6 +902,28 @@ describe('file operations', () => {
     expect(extract).not.toContain(' && rm -f ')
   })
 
+  it('importFiles removes the temp archive when a chunk WRITE fails — no leftover on the volume', async () => {
+    // The chunked fallback writes the archive onto the WORKSPACE VOLUME in
+    // pieces, so a write step that fails (a 429 storm, a full disk) returned
+    // early with every byte written so far still sitting in the user's project
+    // tree until the Machine died. The failed import must clean up its own temp
+    // file — the extract step's inline `rm` never runs when a write throws.
+    const { sandbox, scripts } = await sandboxWithExec((s) =>
+      s.includes('base64 -d > ')
+        ? { stderr: 'No space left on device', exit_code: 1 }
+        : { exit_code: 0 },
+    )
+    async function* archive() {
+      yield new Uint8Array([1, 2, 3])
+    }
+    await expect(sandbox.importFiles('/workspace/p', archive())).rejects.toThrow(
+      /Failed to import files.*No space left on device/,
+    )
+
+    const cleanup = scripts.find((s) => s.includes('rm -f') && s.includes('.mol-import-'))
+    expect(cleanup).toBeDefined()
+  })
+
   it('importFiles gives each fallback import its own temp archive name', async () => {
     // The fallback temp name used to be machineId-deterministic: two concurrent
     // imports to one sandbox both opened the SAME file — the second's `>` write
