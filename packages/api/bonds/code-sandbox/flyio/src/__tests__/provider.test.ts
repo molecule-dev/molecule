@@ -1127,6 +1127,104 @@ describe('file operations', () => {
     expect(scripts.some((s) => s.includes('tar -xzf'))).toBe(true)
   })
 
+  /**
+   * A sandbox whose provider has an object store wired, with the store-path
+   * dependencies doubled: exec answers exit 0 (the curl download + extract
+   * succeed), the presigned PUT goes through the global fetch stub the caller
+   * installs, and `store.remove` is spied so the uploaded archive's cleanup is
+   * observable.
+   * @param removeImpl - Replacement `remove` implementation (default: really removes).
+   * @returns The sandbox handle, the exec scripts, the store double, the remove spy.
+   */
+  async function storePathSandbox(removeImpl?: (keys: string[]) => Promise<void>) {
+    const scripts: string[] = []
+    const fetchImpl = vi.fn(async (input: string | URL, init?: RequestInit) => {
+      if (String(input).endsWith('/exec')) {
+        scripts.push(JSON.parse(String(init!.body)).command.at(-1))
+        return {
+          status: 200,
+          headers: { get: () => null },
+          text: async () => JSON.stringify({ exit_code: 0 }),
+        } as unknown as Response
+      }
+      return {
+        status: 200,
+        headers: { get: () => null },
+        text: async () => JSON.stringify({ id: 'm1', state: 'started' }),
+      } as unknown as Response
+    }) as unknown as typeof fetch
+    const client = new FlyApiClient({
+      token: () => 'tok',
+      baseUrl: 'https://api.machines.dev/v1',
+      fetchImpl,
+      sleep: async () => {},
+    })
+    const store = createStoreDouble()
+    const remove = vi.spyOn(store, 'remove')
+    if (removeImpl) remove.mockImplementation(removeImpl)
+    const sandbox = await createProvider({ orgSlug: 'acme' }, client, store).get(`${APP}:m1`)
+    if (!sandbox) throw new Error('expected a sandbox')
+    return { sandbox, scripts, store, remove }
+  }
+
+  /** Stubs the global fetch the presigned PUT uses, runs one import, unstubs. */
+  async function importViaStore(sandbox: Awaited<ReturnType<typeof storePathSandbox>>['sandbox']) {
+    const putFetch = vi.fn(async () => ({ ok: true, status: 200 }) as unknown as Response)
+    vi.stubGlobal('fetch', putFetch)
+    try {
+      async function* arch() {
+        yield new TextEncoder().encode('pretend-tar-bytes')
+      }
+      await sandbox.importFiles('/workspace/my-app', arch())
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  }
+
+  it('importFiles via object store removes the uploaded archive on the SUCCESS path too', async () => {
+    // The failure-path removal is pinned above; the success path must remove
+    // the object as well — the comment on the `uploaded` flag promises "every
+    // exit from this block removes it". A successful import that strands its
+    // multi-MB archive in the bucket is the leak the failure path fixed, once
+    // per import instead of once per failed one, and nothing else can remove
+    // it: no fallback ran (the store exec succeeded), the presigned URL alone
+    // expires, and the key is unique per call.
+    const { sandbox, scripts, store, remove } = await storePathSandbox()
+
+    await importViaStore(sandbox)
+
+    // The import went through the store (no chunked fallback), so the uploaded
+    // object is this attempt's only leftover.
+    expect(scripts.some((s) => s.includes('base64 -d'))).toBe(false)
+    const key = store.presigned.find((p) => p.startsWith('PUT '))?.slice('PUT '.length)
+    expect(key).toBeDefined()
+    expect(remove).toHaveBeenCalledWith([key])
+  })
+
+  it('importFiles logs a success-path archive cleanup that fails instead of stranding the object silently', async () => {
+    // The success-path removal is best-effort, but not SILENTLY best-effort:
+    // an object whose removal failed stays in the bucket (the URL expires, the
+    // object does not), so the warning names the key — the same log the failure
+    // path's refused cleanup gets. The import itself still resolves: the
+    // extract succeeded, and cleanup is not the caller's problem to retry.
+    const { sandbox, store } = await storePathSandbox(async () => {
+      throw new Error('bucket unavailable')
+    })
+
+    await expect(importViaStore(sandbox)).resolves.toBeUndefined()
+
+    const key = store.presigned.find((p) => p.startsWith('PUT '))?.slice('PUT '.length)
+    expect(key).toBeDefined()
+    // The rejection is observed (no unhandled rejection escapes) and logged
+    // with the key that stays behind.
+    await vi.waitFor(() => {
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'importFiles temp object cleanup failed — it stays in the object store',
+        { key, error: expect.any(Error) },
+      )
+    })
+  })
+
   it('importFiles uploads to the object store and pulls with ONE curl (no exec chunk storm)', async () => {
     // With a store configured, the archive is uploaded once (presigned PUT) and
     // the Machine downloads it with a single curl — NOT streamed as base64 chunks
