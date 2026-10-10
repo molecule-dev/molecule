@@ -1109,6 +1109,14 @@ export class E2BSandboxProvider implements SandboxProvider {
   /**
    * Resolve the SDK client, memoized. Throws when no API key is configured.
    *
+   * A FAILED load is never left cached: `defaultClient` awaits `import('e2b')`,
+   * and memoizing its rejected promise made one transient load failure
+   * permanent — every later call (`create`, `get`, `list`, `destroy`, …) awaited
+   * the same rejection for the life of the process, with no path back. The
+   * cache is dropped on rejection so the next call retries, the same eviction
+   * the other long-lived caches in this tree apply (the Whistle engine cache,
+   * and that package's per-provider engine memo).
+   *
    * @returns The E2B client (injected override or real SDK adapter).
    */
   private async client(): Promise<E2BSandboxClientLike> {
@@ -1116,8 +1124,17 @@ export class E2BSandboxProvider implements SandboxProvider {
     if (!this.config.apiKey) {
       throw new Error('E2B provider requires an API key (config.apiKey or E2B_API_KEY)')
     }
-    if (!this.clientPromise) this.clientPromise = defaultClient(this.config.apiKey)
-    return this.clientPromise
+    const cached = this.clientPromise
+    if (cached) return cached
+    const promise = defaultClient(this.config.apiKey)
+    this.clientPromise = promise
+    // The rejection still reaches the caller through `promise` itself; this
+    // handler only evicts. Evict only OUR entry — a later retry may already have
+    // replaced it.
+    promise.catch((_error: unknown) => {
+      if (this.clientPromise === promise) this.clientPromise = null
+    })
+    return promise
   }
 
   /**
