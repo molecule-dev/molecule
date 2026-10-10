@@ -347,6 +347,12 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   / 131,072 out, Image+Text+Video input, tools, hybrid thinking ON by default
  *   with thinking_budget. It is cn-region-only — api.deepinfra.com has no
  *   Qwen/Qwen3.8-Flash — so ALIBABA_US_MODEL_MAP needs no entry.)
+ *   (re-verified 2026-10-10: DashScope RETIRED qwen3-coder-plus — the native
+ *   compatible-mode endpoint 404s "Model not exist." on every request shape
+ *   and the id is gone from its own /v1/models list, while the help-center
+ *   model page still describes it (docs lag the endpoint). The catalog entry
+ *   dropped its cn region and is now US/DeepInfra-only, whose rates re-verified
+ *   unchanged the same day: $0.30/$1, cache read 0.3333× input.)
  * - Zhipu: https://docs.z.ai/guides/overview/pricing + docs.z.ai/guides/llm/
  *   glm-5.3 (verified 2026-08-26: glm-5.3 shipped 2026-08-14 and IS in the
  *   catalog — $1.40/$4.40, cached $0.26, i.e. glm-5.2's card unchanged, 1M ctx,
@@ -2519,14 +2525,23 @@ export const MODELS: readonly ModelDefinition[] = [
     supportsPromptCaching: true,
     supportsTools: true,
     // DashScope international list rate, flat across input tiers (the old
-    // $0.65/$3.25 was OpenRouter's promo rate).
+    // $0.65/$3.25 was OpenRouter's promo rate). Unreachable for dispatch since
+    // the native retirement below — kept as the native reference the re-host
+    // rates in regionPricing are read against.
     inputPricePerMTok: 1,
     outputPricePerMTok: 5,
     // Implicit context cache: read 0.2× input, no write premium.
     cacheReadPricePerMTok: 0.2,
     cacheWritePricePerMTok: 1,
-    // US default (DeepInfra bills well below native). Verified 2026-08-01.
-    regions: ['us', 'cn'],
+    // US re-host ONLY since 2026-10-10: DashScope RETIRED the id — the native
+    // compatible-mode endpoint 404s "Model not exist." on every request shape
+    // and the id is absent from the endpoint's own /v1/models list (only
+    // qwen3-coder-flash remains of the coder family; the help-center model page
+    // still describes the id — docs lag the endpoint). A saved cn region
+    // choice now falls back to us (effectiveModelRegion). DeepInfra rates
+    // re-verified 2026-10-10 against api.deepinfra.com/models: in $0.30,
+    // out $1, cache read 0.3333× input = $0.10.
+    regions: ['us'],
     regionPricing: {
       us: { inputPricePerMTok: 0.3, outputPricePerMTok: 1, cacheReadPricePerMTok: 0.1 },
     },
