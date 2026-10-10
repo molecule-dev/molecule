@@ -409,8 +409,26 @@ class AnthropicAIProvider implements AIProvider {
       return
     }
 
-    // Streaming: parse SSE events
-    yield* this.parseStreamingResponse(response!)
+    // Streaming: parse SSE events. A body that dies MID-STREAM (a connection
+    // reset, a proxy cut, the transport's own timeout firing) rejects
+    // `reader.read()` and the raw TypeError/DOMException would escape this
+    // generator — no `errorKey`, so i18n and the caller's error classification
+    // never fire, and the consumer sees a crash where every other failure of
+    // this method yields the sanitized error event (the same contract the
+    // HTTP-level path and the mid-stream SSE `error` path keep). The CALLER's
+    // own abort is the one exception: it is the caller's act, and rethrowing
+    // its reason is what every abort-aware consumer expects.
+    try {
+      yield* this.parseStreamingResponse(response!)
+    } catch (error) {
+      if (params.signal?.aborted) throw error
+      logger.error('Anthropic stream body died mid-response', { error })
+      yield {
+        type: 'error',
+        message: 'AI service error. Please try again.',
+        errorKey: 'ai.error.apiError',
+      }
+    }
   }
 
   /**

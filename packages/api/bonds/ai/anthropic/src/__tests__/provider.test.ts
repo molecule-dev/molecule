@@ -1142,6 +1142,93 @@ describe('AnthropicAIProvider — tool-input streaming events', () => {
     expect(errorEvent!.message).toBe('AI service error. Please try again.')
     expect(events.some((e) => e.type === 'done')).toBe(false)
   })
+
+  it('a body that dies MID-STREAM yields the error event instead of a raw TypeError escaping the generator', async () => {
+    // A connection reset / proxy cut after the 200 OK rejects reader.read().
+    // The HTTP-level and SSE-error paths both answer with the sanitized error
+    // event; the mid-stream body death used to be the one failure that threw
+    // raw out of chat() — no errorKey, an internal "terminated" message, and
+    // caller logic keyed on error events never fired.
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: () => Promise.reject(new TypeError('terminated')),
+          releaseLock: () => {},
+        }),
+      },
+    })
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    expect(events.find((e) => e.type === 'error')).toMatchObject({
+      type: 'error',
+      message: 'AI service error. Please try again.',
+      errorKey: 'ai.error.apiError',
+    })
+    // No misleading done after the failure.
+    expect(events.some((e) => e.type === 'done')).toBe(false)
+  })
+
+  it('the provider default timeout firing mid-stream yields the error event (the caller never aborted)', async () => {
+    // Same shape as the network death, driven by the provider's OWN 5-minute
+    // timeout (no caller signal passed): the raw TimeoutError must not escape.
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: () =>
+            Promise.reject(
+              new DOMException('The operation was aborted due to timeout', 'TimeoutError'),
+            ),
+          releaseLock: () => {},
+        }),
+      },
+    })
+
+    const events = await collectEvents(
+      provider.chat({ messages: [{ role: 'user' as const, content: 'go' }] }),
+    )
+
+    expect(events.find((e) => e.type === 'error')).toMatchObject({
+      type: 'error',
+      errorKey: 'ai.error.apiError',
+    })
+  })
+
+  it('rethrows when the CALLER signal aborted mid-stream (the caller owns that abort)', async () => {
+    const controller = new AbortController()
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      body: {
+        getReader: () => ({
+          read: () => {
+            controller.abort()
+            return Promise.reject(new DOMException('This operation was aborted', 'AbortError'))
+          },
+          releaseLock: () => {},
+        }),
+      },
+    })
+
+    await expect(
+      collectEvents(
+        provider.chat({
+          messages: [{ role: 'user' as const, content: 'go' }],
+          signal: controller.signal,
+        }),
+      ),
+    ).rejects.toThrow()
+    // The caller's abort is not reported as an API error event on top.
+  })
 })
 
 describe('secret registration', () => {
