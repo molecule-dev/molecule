@@ -2033,7 +2033,12 @@ class FlyioSandboxProvider implements SandboxProvider {
    *
    * A Machine that is already `started` may reject a redundant start. Rather
    * than pattern-matching an error string, the state is re-read and the call
-   * treated as successful when the Machine is in fact running.
+   * treated as successful when the Machine is in fact running. A Machine still
+   * `starting` (its own start lost to a concurrent one — the proxy's autostart
+   * racing a `wake()`) is NOT that case: only `waitForStarted` may end this
+   * call, or it resolves against a Machine that is still booting and the
+   * caller's first `exec` fails with 412 "machine not running" — the exact
+   * failure this method's wait exists to prevent.
    * @param app - The Fly app name.
    * @param machineId - The Fly Machine id.
    */
@@ -2044,7 +2049,7 @@ class FlyioSandboxProvider implements SandboxProvider {
       const machine = await this.client
         .request<FlyMachine>(`/apps/${app}/machines/${machineId}`, { nullOn: [404] })
         .catch(() => null)
-      if (machine && (machine.state === 'started' || machine.state === 'starting')) {
+      if (machine?.state === 'started') {
         logger.debug('Fly Machine start rejected but the Machine is already running', {
           app,
           machineId,
@@ -2052,7 +2057,11 @@ class FlyioSandboxProvider implements SandboxProvider {
         })
         return
       }
-      throw error
+      if (machine?.state !== 'starting') throw error
+      logger.debug(
+        'Fly Machine start rejected but the Machine is already starting — waiting for started',
+        { app, machineId },
+      )
     }
     await this.waitForStarted(app, machineId)
   }

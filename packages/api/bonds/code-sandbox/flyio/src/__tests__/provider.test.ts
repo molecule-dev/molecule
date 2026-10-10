@@ -509,6 +509,29 @@ describe('lifecycle mapping', () => {
     expect(sandbox?.status).toBe('running')
   })
 
+  it('start() that loses to a concurrent start WAITS for started when the Machine is still STARTING', async () => {
+    // The proxy's autostart racing a wake() rejects the POST while the Machine
+    // boots. `starting` is not running: returning there resolved start()
+    // against a Machine still booting and the caller's first exec failed with
+    // 412 "machine not running" — waitForStarted must be the only early exit.
+    // The wait route is queued FIRST: the double matches by path prefix, and
+    // `/machines/m1` is a prefix of `/machines/m1/wait`.
+    const double = createFetchDouble()
+      .on(`GET /apps/${APP}/machines/m1/wait`, { body: {} })
+      .on(`GET /apps/${APP}/machines/m1`, { body: { id: 'm1', state: 'starting' } })
+      .on(`POST /apps/${APP}/machines/m1/start`, {
+        status: 409,
+        body: { error: 'machine is starting' },
+      })
+      .on(`GET /apps/${APP}/machines/m1`, { body: { id: 'm1', state: 'starting' } })
+
+    const sandbox = await makeProvider({}, double).get(`${APP}:m1`)
+    await expect(sandbox?.start()).resolves.toBeUndefined()
+
+    expect(double.matching(`GET /apps/${APP}/machines/m1/wait`)).toHaveLength(1)
+    expect(sandbox?.status).toBe('running')
+  })
+
   it('rethrows a start failure when the Machine really is not running', async () => {
     const double = createFetchDouble().fallback({
       status: 200,
