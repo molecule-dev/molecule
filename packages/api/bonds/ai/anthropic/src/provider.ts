@@ -340,16 +340,22 @@ class AnthropicAIProvider implements AIProvider {
             : response!.status === 400 &&
                 /prompt is too long|too many tokens|token.*limit|context.*length/i.test(detail)
               ? "Conversation too long for the model's context window. Use /compact to free space, or start a new conversation."
-              : response!.status === 400
-                ? // A permanently-invalid request (bad param, e.g. temperature on a
-                  // model that rejects sampling params, a malformed tool schema)
-                  // is NOT retryable — distinguish it from the generic fallback so
-                  // a caller (or an executor retrying blindly) doesn't loop on a
-                  // request that can never succeed.
-                  'AI request was invalid — check the model and request parameters.'
-                : response!.status === 529 || response!.status === 503
-                  ? 'AI service is temporarily overloaded. Please try again in a moment.'
-                  : 'AI service error. Please try again.'
+              : response!.status === 400 && /credit balance|billing/i.test(detail)
+                ? // An exhausted account is a platform billing condition, not a
+                  // request problem — it must not read as "invalid request"
+                  // (2026-10-10: an out-of-credit key made the dispatch gate
+                  // report every Anthropic model as a bad request).
+                  'AI service is unavailable — provider credit balance too low.'
+                : response!.status === 400
+                  ? // A permanently-invalid request (bad param, e.g. temperature on a
+                    // model that rejects sampling params, a malformed tool schema)
+                    // is NOT retryable — distinguish it from the generic fallback so
+                    // a caller (or an executor retrying blindly) doesn't loop on a
+                    // request that can never succeed.
+                    'AI request was invalid — check the model and request parameters.'
+                  : response!.status === 529 || response!.status === 503
+                    ? 'AI service is temporarily overloaded. Please try again in a moment.'
+                    : 'AI service error. Please try again.'
       yield { type: 'error', message: clientMessage, errorKey: 'ai.error.apiError' }
       return
     }

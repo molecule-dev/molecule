@@ -157,6 +157,33 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(events[0].message).not.toBe('AI service error. Please try again.')
     })
 
+    it('a credit-balance 400 yields a billing message, not "invalid request"', async () => {
+      // Regression (2026-10-10): an out-of-credit platform key returned this
+      // Anthropic body on every request and the generic 400 branch reported it
+      // as "AI request was invalid", misdirecting triage toward request
+      // parameters that were perfectly fine.
+      mockFetch.mockResolvedValue(
+        mockErrorResponse(
+          400,
+          JSON.stringify({
+            error: {
+              message:
+                'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.',
+            },
+          }),
+        ),
+      )
+
+      const events = await collectEvents(provider.chat(minimalParams))
+
+      expect(events).toHaveLength(1)
+      expect(events[0].type).toBe('error')
+      expect(events[0].message).toBe('AI service is unavailable — provider credit balance too low.')
+      expect(events[0].message).not.toBe(
+        'AI request was invalid — check the model and request parameters.',
+      )
+    })
+
     it('raw API error body is NOT leaked to the client', async () => {
       const sensitiveBody = JSON.stringify({
         error: {
@@ -1042,13 +1069,21 @@ describe('createProvider — fail-fast on a missing API key', () => {
     // empty key, surfacing only as a sanitized 401 "AI service configuration
     // error." — the env var name was never surfaced, so the caller had to
     // guess which secret was missing.
-    const prev = process.env.ANTHROPIC_API_KEY
+    // ANTHROPIC_BASE_URL must be cleared too: a custom endpoint suppresses the
+    // fail-fast (proxy auth can come another way), and GLM agent processes
+    // inherit a base URL pointing at their own z.ai endpoint — without this
+    // the test silently passes in those shells.
+    const prevKey = process.env.ANTHROPIC_API_KEY
+    const prevBase = process.env.ANTHROPIC_BASE_URL
     delete process.env.ANTHROPIC_API_KEY
+    delete process.env.ANTHROPIC_BASE_URL
     try {
       expect(() => createProvider()).toThrow(/ANTHROPIC_API_KEY/)
     } finally {
-      if (prev === undefined) delete process.env.ANTHROPIC_API_KEY
-      else process.env.ANTHROPIC_API_KEY = prev
+      if (prevKey === undefined) delete process.env.ANTHROPIC_API_KEY
+      else process.env.ANTHROPIC_API_KEY = prevKey
+      if (prevBase === undefined) delete process.env.ANTHROPIC_BASE_URL
+      else process.env.ANTHROPIC_BASE_URL = prevBase
     }
   })
 
