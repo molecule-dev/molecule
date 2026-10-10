@@ -475,6 +475,48 @@ describe('AnthropicAIProvider — error sanitization and timeout', () => {
       expect(getEventListeners(controller.signal, 'abort')).toHaveLength(0)
     })
 
+    it('does not arm the backoff timer when the caller aborted before the sleep began', async () => {
+      // A signal that aborted BEFORE the sleep registers its listener never
+      // fires another `abort` event, so the sleep must check `signal.aborted`
+      // up front instead of waiting for an event that cannot come. The window
+      // is the `await response.body.cancel()` between the 429 arriving and the
+      // sleep: here the abort fires inside that release, so by the time the
+      // sleep starts the signal is already aborted — with the timer armed
+      // anyway, the caller waits out the whole backoff (up to the 60 s
+      // Retry-After cap) before the error event is yielded.
+      const controller = new AbortController()
+      mockFetch.mockImplementationOnce(async () => {
+        const response = new Response('rate limited', { status: 429 })
+        const cancel = response.body!.cancel.bind(response.body)
+        response.body!.cancel = async () => {
+          controller.abort()
+          await cancel()
+        }
+        return response
+      })
+      mockFetch.mockImplementation(async () => {
+        throw new Error('no retry fetch may follow the abort')
+      })
+
+      const eventsPromise = collectEvents(
+        provider.chat({ ...minimalParams, signal: controller.signal }),
+      )
+      // Let the provider take the 429, release its body (aborting) and reach
+      // the sleep — without advancing either fake timer.
+      await vi.advanceTimersByTimeAsync(0)
+      // Nothing may be counting down for a signal that has already aborted.
+      expect(vi.getTimerCount()).toBe(0)
+
+      const events = await eventsPromise
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(events).toHaveLength(1)
+      expect(events[0]).toMatchObject({
+        type: 'error',
+        message: 'AI rate limit exceeded. Please try again shortly.',
+        errorKey: 'ai.error.apiError',
+      })
+    })
+
     it('invokes onRateLimit on every rate-limited response, including the exhausted one', async () => {
       mockFetch.mockResolvedValue(mockErrorResponse(429, '{}'))
       const hits: AiRateLimitEvent[] = []

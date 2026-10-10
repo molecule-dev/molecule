@@ -320,6 +320,18 @@ class AnthropicAIProvider implements AIProvider {
             delayMs,
           })
           await new Promise<void>((resolve) => {
+            // A signal that aborted BEFORE this wait began never fires another
+            // `abort` event — the DOM dispatches it once — so a listener
+            // registered now would never run and the caller would sit out the
+            // whole backoff (up to the 60 s Retry-After cap) before the
+            // `signal.aborted` check below notices. The window is real: the
+            // body release two statements up (`await response.body?.cancel()`)
+            // is an await point between the 429 arriving and this sleep. The
+            // liquid-d1 retry sleep carries the same pre-check.
+            if (signal.aborted) {
+              resolve()
+              return
+            }
             const timer = setTimeout(() => {
               // The window elapsed normally: drop the abort listener. `{ once:
               // true }` only removes it when abort FIRES, so a caller signal
