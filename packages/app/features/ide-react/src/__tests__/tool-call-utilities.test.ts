@@ -82,6 +82,16 @@ describe('toolLabel', () => {
     expect(toolLabel('read_file', { paths: [] })).toBe('Read')
   })
 
+  it('never leaves a dangling comma for a path whose basename is empty', () => {
+    // `src/` has no basename, so it names nothing — spending a named slot on it
+    // rendered `Read , \`Home.tsx\``. It must not, and it still counts as a
+    // file read in the "+N more" tally.
+    expect(toolLabel('read_file', { paths: ['src/', 'b/Home.tsx'] })).toBe(
+      'Read `Home.tsx` +1 more',
+    )
+    expect(toolLabel('read_file', { paths: ['/'] })).toBe('Read +1 more')
+  })
+
   it('opens the first file of a batch read_file', () => {
     expect(extractFilePath('read_file', { paths: ['x/a.ts', 'x/b.ts'] })).toBe('x/a.ts')
     expect(readFilePaths({ paths: ['x/a.ts', 7, ''] })).toEqual(['x/a.ts'])

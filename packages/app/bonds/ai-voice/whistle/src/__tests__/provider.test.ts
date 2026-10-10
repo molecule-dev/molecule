@@ -534,8 +534,14 @@ describe('WhistleVoiceProvider', () => {
     // The gate opens and the tail transcribes — session B must still read as
     // 'processing' (its mic is still opening), not 'listening'.
     releaseEngine!()
-    await new Promise((resolve) => setTimeout(resolve, 30))
-    expect(transcribeCalls()).toHaveLength(1) // the tail WAS transcribed
+    // Wait for the observable (the tail WAS transcribed) rather than sleeping a
+    // fixed 30 ms: opening the gate resolves the weights fetch and the pass has
+    // to run through several awaits after it, so on a stalled runner 30 ms
+    // elapsed before the transcription landed and the assertion below failed
+    // for a reason unrelated to the code under test. This wait is stable while
+    // B stays 'processing' — B's mic is still pending, so nothing else can move
+    // the state while it settles.
+    await vi.waitFor(() => expect(transcribeCalls()).toHaveLength(1))
     expect(voice.getState()).toBe('processing')
 
     // B's mic answers: only now may the state say 'listening'.

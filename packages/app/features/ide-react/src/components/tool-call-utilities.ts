@@ -130,8 +130,13 @@ export function toolLabel(name: string, input: unknown): string {
       return `List${code(basename(path) || 'project')}`
     case 'read_file': {
       // One call can read several files (`paths`): name the first few, count the rest.
+      // A path with no basename (`src/`, `/`) names nothing, so it must not
+      // take one of the named slots: the old map-then-slice put the empty
+      // string in the list and the label read "Read , `b.ts`". Those files are
+      // still counted in the "+N more" tally.
       const files = readFilePaths(input)
-      const named = files.slice(0, MAX_LABEL_FILES).map((p) => code(basename(p)).trim())
+      const names = files.map((p) => basename(p)).filter((n) => n !== '')
+      const named = names.slice(0, MAX_LABEL_FILES).map((n) => code(n).trim())
       const more = files.length - named.length
       return `Read${named.length ? ` ${named.join(', ')}` : ''}${more > 0 ? ` +${more} more` : ''}`
     }
