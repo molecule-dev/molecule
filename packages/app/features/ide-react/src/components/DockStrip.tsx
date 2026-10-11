@@ -176,6 +176,8 @@ export interface DockStripProps {
   hint?: ReactNode
   /** Right-hand readout and action buttons; clicks must stop propagation. */
   actions?: ReactNode
+  /** Secondary actions: at the top of the open detail in the tray, beside `actions` when standalone. */
+  detailActions?: ReactNode
   /** Extra attributes for the root (e.g. a tone `data-*`). */
   rootProps?: Record<string, string>
   /** The detail shown when expanded. */
@@ -198,6 +200,7 @@ export function DockStrip({
   chipTitle,
   hint,
   actions,
+  detailActions,
   rootProps,
   children,
 }: DockStripProps): JSX.Element | null {
@@ -252,9 +255,14 @@ export function DockStrip({
           </div>,
           tray.headerEl,
         )}
-        {open && children && tray.detailEl
+        {open && (children || detailActions) && tray.detailEl
           ? createPortal(
               <div data-mol-id={`${molId}-detail`} style={{ padding: '2px 10px 8px' }}>
+                {detailActions ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                    {detailActions}
+                  </div>
+                ) : null}
                 {children}
               </div>,
               tray.detailEl,
@@ -336,9 +344,10 @@ export function DockStrip({
             </span>
           ) : null}
         </div>
-        {actions ? (
+        {actions || detailActions ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
             {actions}
+            {detailActions}
           </div>
         ) : null}
       </div>

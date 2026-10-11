@@ -7,7 +7,9 @@
  * @module
  */
 
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { createSimpleI18nProvider, setProvider } from '@molecule/app-i18n'
@@ -18,6 +20,7 @@ import { classMap } from '@molecule/app-ui-tailwind'
 
 import { BackgroundTasksStrip } from '../components/BackgroundTasksStrip.js'
 import { latestPlan, PlanCard } from '../components/PlanCard.js'
+import { TestStatusBar } from '../components/TestStatusBar.js'
 import { WorkCard } from '../components/WorkCard.js'
 
 /** A minimal light theme so `useThemeMode` resolves. */
@@ -107,5 +110,57 @@ describe('WorkCard', () => {
     expect(frames).toHaveLength(1)
     expect(frames[0].querySelector('[data-mol-id="task-list-card"]')).not.toBeNull()
     expect(frames[0].querySelector('[data-mol-id="chat-background-tasks"]')).not.toBeNull()
+  })
+
+  it('shows the tests as one short chip; the counts and the Tests button live in the opened detail', () => {
+    const run = {
+      runId: 'r1',
+      running: false,
+      queued: ['a', 'b'],
+      currentId: null,
+      output: [],
+      results: {
+        a: { status: 'passed', durationMs: 1, passed: 3, failed: 0, skipped: 0 },
+        b: { status: 'failed', durationMs: 1, passed: 0, failed: 1, skipped: 0 },
+      },
+      cases: {},
+      skipPending: false,
+      skipUnavailable: false,
+      outcome: 'completed',
+      error: null,
+      startedAt: 0,
+      durationMs: 5,
+    }
+    const tests = [
+      { id: 'a', file: 'a.test.ts', kind: 'unit', workspace: '.' },
+      { id: 'b', file: 'e2e/b.spec.ts', kind: 'e2e', workspace: '.' },
+    ]
+    const Harness = (): ReactElement => {
+      const [open, setOpen] = useState(false)
+      return (
+        <WorkCard>
+          <TestStatusBar
+            run={run as never}
+            tests={tests as never}
+            expanded={open}
+            onToggle={() => setOpen((v) => !v)}
+            onOpen={() => {}}
+          />
+        </WorkCard>
+      )
+    }
+    const { container, getByText } = render(
+      <I18nProvider provider={createSimpleI18nProvider('en')}>
+        <ThemeProvider provider={buildThemeProvider()}>
+          <Harness />
+        </ThemeProvider>
+      </I18nProvider>,
+    )
+    expect(container.textContent).toContain('1 failing')
+    expect(container.querySelector('[data-mol-id="tests-bar-counts"]')).toBeNull()
+    expect(container.querySelector('[data-mol-id="tests-bar-open"]')).toBeNull()
+    fireEvent.click(getByText('1 failing'))
+    expect(container.querySelector('[data-mol-id="tests-bar-open"]')).not.toBeNull()
+    expect(container.querySelector('[data-mol-id="tests-bar-passed"]')).not.toBeNull()
   })
 })

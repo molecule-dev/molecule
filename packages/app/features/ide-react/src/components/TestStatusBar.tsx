@@ -29,7 +29,7 @@ import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TestItem } from '../types.js'
-import { DockStrip } from './DockStrip.js'
+import { DockStrip, StatusMark, type StatusMarkState } from './DockStrip.js'
 import type { TestsBarSummary, TestsBarTone } from './tests-bar-utilities.js'
 import { summariseTestsBar } from './tests-bar-utilities.js'
 import type { TestsRunState } from './tests-card-utilities.js'
@@ -94,6 +94,34 @@ export function testsBarLabel(summary: TestsBarSummary): string {
   )
 }
 
+/** The shared status mark each tone wears on the chip. */
+const TONE_MARK: Record<TestsBarTone, StatusMarkState> = {
+  idle: 'todo',
+  running: 'active',
+  passing: 'done',
+  failing: 'failed',
+  stopped: 'stopped',
+  error: 'failed',
+}
+
+/**
+ * The short label the tray chip wears: one figure, not the sentence — the counts
+ * and the running file are in the opened detail.
+ *
+ * @param summary - The derived run summary.
+ * @returns The label.
+ */
+export function testsChipLabel(summary: TestsBarSummary): string {
+  const { tone, passed, failed } = summary
+  if (tone === 'running')
+    return t('ide.testsBar.runningLast', undefined, { defaultValue: 'Running tests' })
+  if (tone === 'failing')
+    return `${failed} ${t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}`
+  if (tone === 'passing')
+    return `${passed} ${t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}`
+  return testsBarLabel(summary)
+}
+
 /** What the bar needs from its host. */
 export interface TestStatusBarProps {
   /** The live run state. */
@@ -126,7 +154,6 @@ export function TestStatusBar({
 }: TestStatusBarProps): JSX.Element {
   const cm = getClassMap()
   const summary = summariseTestsBar(run, tests)
-  const hasResults = summary.passed + summary.failed + summary.skipped > 0
   const label = testsBarLabel(summary)
 
   return (
@@ -143,59 +170,43 @@ export function TestStatusBar({
         ) : undefined
       }
       actions={
-        <>
-          {hasResults ? (
-            <span
-              data-mol-id="tests-bar-counts"
-              className={cm.textSize('xs')}
-              role="img"
-              aria-label={t(
-                'ide.testsBar.counts',
-                { passed: summary.passed, failed: summary.failed, skipped: summary.skipped },
-                { defaultValue: '{{passed}} passing, {{failed}} failing, {{skipped}} skipped' },
-              )}
-              style={{ fontWeight: 600, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}
-            >
-              <span style={{ color: TONE_COLOR.passing }}>{summary.passed}</span>
-              <span style={{ opacity: 0.4 }}>{' / '}</span>
-              <span style={{ color: TONE_COLOR.failing }}>{summary.failed}</span>
-              <span style={{ opacity: 0.4 }}>{' / '}</span>
-              <span style={{ color: TONE_COLOR.stopped }}>{summary.skipped}</span>
-            </span>
-          ) : null}
-          {run.running && onStop ? (
-            <button
-              type="button"
-              data-mol-id="tests-bar-stop"
-              className={cm.cn(
-                cm.button({ variant: 'solid', color: 'error', size: 'xs' }),
-                cm.touchTargetCompact,
-              )}
-              onClick={(e) => {
-                e.stopPropagation()
-                onStop()
-              }}
-            >
-              {t('ide.testsBar.stop', undefined, { defaultValue: 'Stop' })}
-            </button>
-          ) : (
-            <button
-              type="button"
-              data-mol-id="tests-bar-open"
-              className={cm.cn(
-                cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-                cm.touchTargetCompact,
-              )}
-              onClick={(e) => {
-                e.stopPropagation()
-                onOpen()
-              }}
-            >
-              {t('ide.testsBar.open', undefined, { defaultValue: 'Tests' })}
-            </button>
-          )}
-        </>
+        run.running && onStop ? (
+          <button
+            type="button"
+            data-mol-id="tests-bar-stop"
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'error', size: 'xs' }),
+              cm.touchTargetCompact,
+            )}
+            onClick={(e) => {
+              e.stopPropagation()
+              onStop()
+            }}
+          >
+            {t('ide.testsBar.stop', undefined, { defaultValue: 'Stop' })}
+          </button>
+        ) : undefined
       }
+      detailActions={
+        run.running && onStop ? undefined : (
+          <button
+            type="button"
+            data-mol-id="tests-bar-open"
+            className={cm.cn(
+              cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+              cm.touchTargetCompact,
+            )}
+            onClick={(e) => {
+              e.stopPropagation()
+              onOpen()
+            }}
+          >
+            {t('ide.testsBar.open', undefined, { defaultValue: 'Tests' })}
+          </button>
+        )
+      }
+      icon={<StatusMark state={TONE_MARK[summary.tone]} size={14} />}
+      chipLabel={testsChipLabel(summary)}
     >
       <div
         data-mol-id="tests-bar-detail"
