@@ -1,5 +1,13 @@
 # @molecule/api-resource-user
 
+## 1.4.9
+
+### Patch Changes
+
+- 0dbfaff: Login now refuses the request, instead of issuing a session, when two-factor authentication is enabled for an account but no two-factor secret is stored.
+- 5844509: Log in now runs the same dummy password comparison (and records the failure) when an account exists but its secrets row is missing.
+- be066d7: Log in now derives its dummy password hash once per process even when several invalid-credential requests arrive at the same time, instead of running one full-cost hash per concurrent request.
+
 ## 1.4.8
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @molecule/api-resource-ai-models
 
+## 1.15.1
+
+### Patch Changes
+
+- adf0162: A model whose `regions` list is empty now resolves to the platform default region instead of no region at all.
+- 757fc8d: Qwen3 Coder Plus now runs on its US re-host only, at unchanged rates ($0.30/$1, cached reads $0.10) — DashScope retired the model.
+
 ## 1.15.0
 
 ### Minor Changes

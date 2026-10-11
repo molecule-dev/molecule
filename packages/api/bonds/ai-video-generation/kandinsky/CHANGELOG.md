@@ -1,5 +1,11 @@
 # @molecule/api-ai-video-generation-kandinsky
 
+## 1.2.2
+
+### Patch Changes
+
+- 39649ed: A clip duration whose frame count overflows the finite range is now refused before the request is sent, instead of sending a non-numeric frame count to the server.
+
 ## 1.2.1
 
 ### Patch Changes

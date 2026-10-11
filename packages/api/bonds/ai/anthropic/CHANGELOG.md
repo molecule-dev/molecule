@@ -1,5 +1,15 @@
 # @molecule/api-ai-anthropic
 
+## 1.3.4
+
+### Patch Changes
+
+- b4292dc: The retry backoff no longer waits when the request was already aborted, so a cancelled request returns its error immediately instead of after the delay.
+- 5844509: Cancel the response body when streaming stops before the body is exhausted, so a truncated turn does not strand its connection.
+- 61a6907: A request that fails before any response arrives (DNS, TLS, a dropped connection, or the provider's own request deadline) now surfaces as the provider's error event instead of a raw transport error.
+- c8f92a0: Cancelling a chat request while it is waiting to retry a rate-limited response now surfaces the caller's own abort, instead of reporting the discarded response as a rate-limit error.
+- 3ec8970: An error response whose body cannot be read now yields the same sanitized error event as every other API failure instead of throwing out of the stream.
+
 ## 1.3.3
 
 ### Patch Changes

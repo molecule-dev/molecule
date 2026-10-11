@@ -1,5 +1,12 @@
 # @molecule/app-ai-voice-whistle
 
+## 1.1.2
+
+### Patch Changes
+
+- 61a6907: A voice provider that is disposed while a queued chunk is still transcribing now stays in the idle state instead of reporting a failure it can never clear.
+- 61a6907: An engine-file download that dies mid-transfer now releases its connection by cancelling the reader that holds the stream, so a failed download no longer leaves a connection open.
+
 ## 1.1.1
 
 ### Patch Changes

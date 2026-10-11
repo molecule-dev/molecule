@@ -1,5 +1,15 @@
 # @molecule/api-code-sandbox-e2b
 
+## 1.2.11
+
+### Patch Changes
+
+- fa529a6: Applying a non-empty egress allow-list to a sandbox that cannot enforce one now fails with an error instead of silently leaving the sandbox with unrestricted outbound traffic.
+- 4c23657: An archive import spools the bytes each chunk carried when it was yielded, so a producer that reuses one buffer no longer corrupts the imported tree.
+- 2553431: `list()` no longer resets the deadline of the sandboxes it enumerates: polling an account used to rewrite every running sandbox's timeout to the provider default, which paused sandboxes that had been kept alive and kept idle ones billing.
+- 0e7fbc2: Retry loading the E2B SDK client after a failed load instead of caching the failure for the life of the process.
+- 4e937e8: Creating a named volume is idempotent across concurrent boots: a create that loses the race to another boot now reports success once the volume exists, instead of failing the boot.
+
 ## 1.2.10
 
 ### Patch Changes

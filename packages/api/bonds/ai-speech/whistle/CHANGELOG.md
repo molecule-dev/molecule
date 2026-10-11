@@ -1,5 +1,14 @@
 # @molecule/api-ai-speech-whistle
 
+## 1.1.2
+
+### Patch Changes
+
+- 19c9ca2: Loading the speech engine with a different `needle.wasm` URL now loads that build instead of reusing an engine already loaded for another wasm URL.
+- 1fbc648: The streaming resampler keeps the last buffered input sample across a flush, so audio pushed after a flush is interpolated continuously instead of starting with a sample computed against silence.
+- 61a6907: An engine-file download that dies mid-transfer now releases its connection by cancelling the reader that holds the stream, so a failed download no longer leaves a connection open.
+- 5a8278e: The streaming resampler no longer shifts its timeline when a chunk boundary lands just before a block's advance, so audio pushed in chunks is resampled to the same samples and the same count as the same audio pushed at once.
+
 ## 1.1.1
 
 ### Patch Changes

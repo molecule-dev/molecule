@@ -1,5 +1,18 @@
 # @molecule/api-code-sandbox-flyio
 
+## 1.2.7
+
+### Patch Changes
+
+- 2fdf4a1: A create whose Machine never reaches the running state now destroys that Machine before failing, so a failed boot no longer leaves a billed Machine behind holding the app's volume.
+- 58a626d: A sandbox boot that fails while allocating its Flycast private routes now releases the addresses it had already allocated, instead of leaving them behind on the target apps.
+- c35c4b9: A failed archive import no longer leaves its partial download in the sandbox, and a boot that fails after allocating its Flycast private routes on an existing app now releases those addresses instead of stranding them.
+- 4c23657: A file import that fails after uploading its archive removes that object from the object store instead of leaving it behind.
+- eb9de0a: Test coverage for the import archive's success-path cleanup: the uploaded object is removed after a successful object-store import, and a removal that fails is logged with its key.
+- 1f3a826: A failed cleanup of an uploaded import archive now logs a warning naming the object left behind, matching the failure path, instead of a debug line.
+- 2e76b61: A file import that fails while writing the archive now removes its temporary archive from the workspace instead of leaving it behind.
+- e913685: `list()` now reports a 404 from the org-wide Machine listing as a failed query instead of answering an empty list, so a caller reconciling from the result cannot read an unknown org as "no sandboxes".
+
 ## 1.2.6
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @molecule/app-ide-react
 
+## 1.19.13
+
+### Patch Changes
+
+- eec0529: The added/removed line count on an edit card is now computed in bounded time and memory, so an edit that replaces a whole large file no longer freezes the IDE.
+- e913685: The added/removed line count on an edit card now keeps the order of the lines in view when a replacement is too large for the exact diff, so a big reordering shows its line changes instead of `+0 −0`.
+- 137e6f7: The edit-card line-diff bound is now enforced on the axis it documents: the two LCS rows are sized by the shorter of the two line lists, so the diff's memory stays bounded by the cell cap instead of growing with the longer side.
+- e0996dd: Tool-call cards no longer crash the whole IDE when model-authored input is malformed at the element level: an `edit_file` replacement entry that is null or a non-object is skipped instead of read, and the live activity label reads each declared-string tool-input field through the same string coercion the cards use.
+- a11aae9: An acceptance-judge card now lists every failure the judge reported, not only the first, and the failures are no longer repeated in the card's report body.
+- 0c36ae1: An acceptance-judge card now lists every failure the judge reported when the judge wrote them as plain lines instead of bullets, rather than only the first.
+- ed24d0f: No runtime change — a test pins that a judge card's ISSUES block is stripped from the report body literally, including issue lines that contain `$` characters.
+- 74c7ea7: A backtick in a model-supplied file name, command or plan name no longer splits a tool card's clickable code spans apart — it is rendered as a quote, so a card label can no longer turn separator text into a link that opens the wrong file.
+- 0c36ae1: A batch `read_file` card now opens the file each listed name belongs to when one of the requested paths has no file name (a trailing-slash path like `src/`), instead of opening that path.
+- 99ee466: A batch `read_file` card no longer renders a dangling comma when one of the requested paths has no file name (a trailing-slash path like `src/`).
+
 ## 1.19.12
 
 ### Patch Changes
