@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.20.1
+
+### Patch Changes
+
+- 8f29d12: The working-plan card marks tasks with a check icon, the molecule spinner or an empty ring, and drops the "!" priority marker.
+
 ## 1.20.0
 
 ### Minor Changes
