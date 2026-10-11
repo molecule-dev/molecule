@@ -246,6 +246,11 @@ export const TOOL_SCHEMAS: Record<string, ToolSchema> = {
           type: 'string',
           description: 'Shell command to execute.',
         },
+        description: {
+          type: 'string',
+          description:
+            'One short sentence saying WHY you are running this (e.g. "Run the unit tests to confirm the fix"). Shown to the person watching in place of the raw command.',
+        },
         cwd: {
           type: 'string',
           description: 'Working directory. Defaults to project root.',

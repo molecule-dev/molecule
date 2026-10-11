@@ -212,6 +212,13 @@ export function toolLabel(name: string, input: unknown): string {
     case 'exec_command': {
       // A detached command has no result to show here — the card would read as
       // finished the moment it started. Say which it is.
+      // The executor's own one-line reason, when it gave one, says more than the raw
+      // command (which the expanded card shows in full). Backticks are label markup.
+      const why = str(inp.description)?.replace(/`/g, "'")
+      if (why)
+        return inp.run_in_background === true
+          ? `${truncate(why, 90)} (background)`
+          : truncate(why, 90)
       return inp.run_in_background === true
         ? `Bash (background)${code(truncate(cmd ?? ''))}`
         : `Bash${code(truncate(cmd ?? ''))}`

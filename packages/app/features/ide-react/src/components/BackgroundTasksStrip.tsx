@@ -3,7 +3,8 @@ import { type JSX, useEffect, useState } from 'react'
 import type { BackgroundTaskState } from '@molecule/app-ai-chat'
 import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
-import { Icon } from '@molecule/app-ui-react'
+
+import { DockStrip, StatusMark } from './DockStrip.js'
 
 /**
  * The commands running in the sandbox that outlived the tool call that started
@@ -12,13 +13,16 @@ import { Icon } from '@molecule/app-ui-react'
  * `exec_command` with `run_in_background` returns a handle immediately, so the
  * tool call's own card goes green while the command is still running — a test
  * suite can be four minutes from its verdict with nothing on screen saying so.
- * This strip is the one place that state is visible: what is running, how long
- * it has been running, and how each one ended.
+ * This strip is the one place that state is visible: what each one is for, how
+ * long it has been running, and how it ended.
+ *
+ * @param props - Component props.
+ * @param props.tasks - Every background command of the current turn, newest last.
+ * @returns The strip, or nothing when no task was started.
  */
 export function BackgroundTasksStrip({
   tasks,
 }: {
-  /** Every background command of the current turn, newest last. */
   tasks: BackgroundTaskState[]
 }): JSX.Element | null {
   const cm = getClassMap()
@@ -54,68 +58,68 @@ export function BackgroundTasksStrip({
             { defaultValue: '{{count}} background task finished' },
           )
 
-  return (
-    <div
-      data-mol-id="chat-background-tasks"
-      className={cm.cn(cm.shrink0, cm.borderT)}
-      style={{ padding: '6px 12px', fontSize: 12 }}
-    >
-      <button
-        type="button"
-        data-mol-id="chat-background-tasks-toggle"
-        onClick={() => setExpanded((open) => !open)}
-        className={cm.cn(cm.button({ color: 'secondary', size: 'sm' }), cm.touchTargetCompact)}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%' }}
-      >
-        <Icon
-          name={running.length > 0 ? 'sync' : failed.length > 0 ? 'x-circle' : 'check-circle'}
-          size={14}
-          className={
-            running.length > 0 ? cm.textMuted : failed.length > 0 ? cm.textError : cm.textSuccess
-          }
-        />
-        <span className={cm.textMuted}>{summary}</span>
-        <Icon
-          name={expanded ? 'chevron-up' : 'chevron-down'}
-          size={12}
-          className={cm.textMuted}
-          style={{ marginLeft: 'auto' }}
-        />
-      </button>
+  // Collapsed, name what the strip is about: the purpose of the task in flight.
+  const lead = running[0] ?? failed[0]
 
-      {expanded && (
-        <ul style={{ listStyle: 'none', margin: '6px 0 0', padding: 0 }}>
-          {tasks.map((task) => (
-            <li
-              key={task.id}
-              data-mol-id="chat-background-task"
-              style={{ display: 'flex', alignItems: 'baseline', gap: 8, padding: '2px 0' }}
-            >
-              <Icon
-                name={task.kind === 'agent' ? 'search' : 'chevron-right'}
-                size={11}
-                className={cm.textMuted}
+  return (
+    <DockStrip
+      molId="chat-background-tasks"
+      toggleMolId="chat-background-tasks-toggle"
+      expanded={expanded}
+      onToggle={() => setExpanded((open) => !open)}
+      icon={
+        <StatusMark
+          state={running.length > 0 ? 'active' : failed.length > 0 ? 'failed' : 'done'}
+          size={14}
+        />
+      }
+      label={summary}
+      hint={!expanded && lead ? `· ${purpose(lead)}` : undefined}
+    >
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        {tasks.map((task) => (
+          <li
+            key={task.id}
+            data-mol-id="chat-background-task"
+            className={cm.textSize('xs')}
+            style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '3px 0' }}
+          >
+            <span style={{ flexShrink: 0, display: 'inline-flex', paddingTop: 1 }}>
+              <StatusMark
+                state={
+                  task.status === 'running'
+                    ? 'active'
+                    : task.status === 'failed'
+                      ? 'failed'
+                      : 'done'
+                }
+                size={14}
               />
-              <code
-                className={cm.textMuted}
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-                title={task.command}
-              >
-                {task.command}
-              </code>
-              <span className={cm.textMuted}>{describe(task)}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div>{purpose(task)}</div>
+              {task.description ? (
+                <code
+                  className={cm.textMuted}
+                  style={{ display: 'block', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
+                >
+                  {task.command}
+                </code>
+              ) : null}
+            </div>
+            <span className={cm.textMuted} style={{ flexShrink: 0, whiteSpace: 'nowrap' }}>
+              {describe(task)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </DockStrip>
   )
+}
+
+/** What a task is for: the executor's own reason, else the command itself. */
+function purpose(task: BackgroundTaskState): string {
+  return task.description ?? task.command
 }
 
 /** The right-hand status for one command: how long it ran, and how it ended. */

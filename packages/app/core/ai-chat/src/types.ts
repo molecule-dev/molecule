@@ -22,6 +22,8 @@ export interface BackgroundTaskState {
   kind?: 'command' | 'agent'
   /** The command as the executor wrote it, or the subagent's task. */
   command: string
+  /** Why the executor started it, in its own words; absent when it gave none. */
+  description?: string
   status: 'running' | 'succeeded' | 'failed'
   /** Present once it has finished. */
   exitCode?: number

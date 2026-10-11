@@ -25,7 +25,6 @@ import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ToolCallCardProps } from '../types.js'
 import { BackgroundTaskCommandsContext } from './background-task-context.js'
 import { MarkdownContent } from './MarkdownContent.js'
-import { PlanStatusIcon } from './PlanStatusIcon.js'
 import type { ToolOutput } from './tool-call-utilities.js'
 import {
   basename,
@@ -36,7 +35,6 @@ import {
   isSkippedByUser,
   moleculeDocPath,
   normalizeAskUserInput,
-  normalizeTaskListInput,
   num,
   parseJudgeVerdict,
   readFileLabelEntries,
@@ -302,6 +300,16 @@ const PRE: React.CSSProperties = {
   lineHeight: 1.5,
 }
 
+// A shell command or its output is read whole: wrap it instead of scrolling sideways,
+// and cap tall output with a vertical scroll.
+const WRAP_PRE: React.CSSProperties = {
+  ...PRE,
+  whiteSpace: 'pre-wrap',
+  overflowWrap: 'anywhere',
+  overflowX: 'visible',
+}
+const OUTPUT_PRE: React.CSSProperties = { ...WRAP_PRE, maxHeight: '320px', overflowY: 'auto' }
+
 /**
  * Render the input section for a tool call.
  * @param name - The tool name.
@@ -314,7 +322,7 @@ function renderIn(name: string, input: unknown): ReactNode {
   switch (name) {
     case 'exec_command':
       return (
-        <pre style={PRE}>
+        <pre style={WRAP_PRE}>
           <span style={{ opacity: 0.5 }}>$ </span>
           {str(inp.command) ?? ''}
         </pre>
@@ -433,9 +441,11 @@ function renderOut(name: string, output: unknown): ReactNode {
       const exitCode = num(out.exitCode)
       return (
         <div>
-          {stdout && <pre style={PRE}>{stdout}</pre>}
+          {stdout && <pre style={OUTPUT_PRE}>{stdout}</pre>}
           {stderr && (
-            <pre style={{ ...PRE, color: '#f47067', marginTop: stdout ? '4px' : 0 }}>{stderr}</pre>
+            <pre style={{ ...OUTPUT_PRE, color: '#f47067', marginTop: stdout ? '4px' : 0 }}>
+              {stderr}
+            </pre>
           )}
           {exitCode != null && exitCode !== 0 && (
             <div style={{ marginTop: '4px', color: '#f47067', fontSize: '10px' }}>
@@ -845,82 +855,9 @@ export const ToolCallCard = memo(function ToolCallCard({
             }
           : undefined
 
-  // ── update_task_list: the working checklist the user watches ───────────────
-  if (name === 'update_task_list') {
-    const todos = normalizeTaskListInput(input)
-    const completed = todos.filter((todo) => todo.status === 'completed').length
-    const borderClr = isLight ? '#d0d7de' : '#3d444d'
-    return (
-      <div
-        className={className}
-        data-mol-id="task-list-card"
-        style={{
-          marginBottom: '8px',
-          marginTop: '8px',
-          borderRadius: '8px',
-          border: `1px solid ${borderClr}`,
-          background: isLight ? '#f6f8fa' : 'rgba(255,255,255,0.04)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '8px',
-            padding: '6px 12px',
-            borderBottom: todos.length > 0 ? `1px solid ${borderClr}` : 'none',
-            fontSize: '12px',
-            fontWeight: 600,
-          }}
-        >
-          <span>{t('ide.chat.taskListTitle', undefined, { defaultValue: 'Working plan' })}</span>
-          {todos.length > 0 && (
-            <span style={{ fontWeight: 400, opacity: 0.65 }}>
-              {t(
-                'ide.chat.taskListProgress',
-                { done: completed, total: todos.length },
-                {
-                  defaultValue: '{{done}} of {{total}} done',
-                },
-              )}
-            </span>
-          )}
-        </div>
-        {todos.map((todo, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '8px',
-              padding: '4px 12px',
-              borderTop:
-                i > 0 ? `1px solid ${isLight ? '#eaeef2' : 'rgba(255,255,255,0.06)'}` : 'none',
-              fontSize: '12.5px',
-              ...(todo.status === 'completed'
-                ? { opacity: 0.55, textDecoration: 'line-through' }
-                : {}),
-            }}
-          >
-            <span
-              style={{
-                flexShrink: 0,
-                width: 16,
-                height: 17,
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
-            >
-              <PlanStatusIcon status={todo.status} isLight={isLight} />
-            </span>
-            <span style={{ flex: 1, minWidth: 0 }}>{todo.content}</span>
-          </div>
-        ))}
-      </div>
-    )
-  }
+  // ── update_task_list: drawn once, pinned above the composer (PlanCard) — not
+  // repeated in the transcript on every update.
+  if (name === 'update_task_list') return null
 
   // ── spawn_agent: subagent card — explore report / judge verdict / build summary ──
   if (name === 'spawn_agent') {
@@ -2156,7 +2093,9 @@ export const ToolCallCard = memo(function ToolCallCard({
                       fontWeight: 600,
                     }}
                   >
-                    IN
+                    {name === 'exec_command'
+                      ? t('ide.toolCall.command', undefined, { defaultValue: 'Command' })
+                      : t('ide.toolCall.request', undefined, { defaultValue: 'Request' })}
                   </div>
                   {inContent}
                 </div>
@@ -2178,7 +2117,9 @@ export const ToolCallCard = memo(function ToolCallCard({
                       fontWeight: 600,
                     }}
                   >
-                    OUT
+                    {name === 'exec_command'
+                      ? t('ide.toolCall.output', undefined, { defaultValue: 'Output' })
+                      : t('ide.toolCall.response', undefined, { defaultValue: 'Response' })}
                   </div>
                   {outContent}
                 </div>

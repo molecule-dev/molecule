@@ -29,6 +29,7 @@ import { t } from '@molecule/app-i18n'
 import { getClassMap } from '@molecule/app-ui'
 
 import type { TestItem } from '../types.js'
+import { DockStrip } from './DockStrip.js'
 import type { TestsBarSummary, TestsBarTone } from './tests-bar-utilities.js'
 import { summariseTestsBar } from './tests-bar-utilities.js'
 import type { TestsRunState } from './tests-card-utilities.js'
@@ -129,85 +130,20 @@ export function TestStatusBar({
   const label = testsBarLabel(summary)
 
   return (
-    <div
-      data-mol-id="tests-bar"
-      data-tests-tone={summary.tone}
-      style={{
-        borderTop: '1px solid rgba(128,128,128,0.15)',
-        padding: '8px 8px 8px 10px',
-      }}
-    >
-      <div
-        role="button"
-        tabIndex={0}
-        data-mol-id="tests-bar-toggle"
-        aria-expanded={expanded}
-        onClick={onToggle}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onToggle()
-          }
-        }}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          cursor: 'pointer',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            width="12"
-            height="12"
-            style={{
-              transform: expanded ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 120ms',
-              opacity: 0.5,
-              flexShrink: 0,
-            }}
-          >
-            <path
-              d="M6 4l4 4-4 4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span
-            data-mol-id="tests-bar-label"
-            className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {label}
-          </span>
-          {/* The running test, on the same line when there is room — this is the
-              half that explains a preview moving by itself. */}
-          {summary.tone === 'running' && (summary.currentTest ?? summary.currentFile) ? (
-            <span
-              data-mol-id="tests-bar-current"
-              className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-              style={{
-                opacity: 0.75,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                minWidth: 0,
-              }}
-            >
-              {`· ${summary.currentTest ?? summary.currentFile}`}
-            </span>
-          ) : null}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+    <DockStrip
+      molId="tests-bar"
+      toggleMolId="tests-bar-toggle"
+      rootProps={{ 'data-tests-tone': summary.tone }}
+      expanded={expanded}
+      onToggle={onToggle}
+      label={<span data-mol-id="tests-bar-label">{label}</span>}
+      hint={
+        summary.tone === 'running' && (summary.currentTest ?? summary.currentFile) ? (
+          <span data-mol-id="tests-bar-current">{`· ${summary.currentTest ?? summary.currentFile}`}</span>
+        ) : undefined
+      }
+      actions={
+        <>
           {hasResults ? (
             <span
               data-mol-id="tests-bar-counts"
@@ -258,56 +194,52 @@ export function TestStatusBar({
               {t('ide.testsBar.open', undefined, { defaultValue: 'Tests' })}
             </button>
           )}
-        </div>
-      </div>
-
-      {expanded ? (
-        <div
-          data-mol-id="tests-bar-detail"
-          className={cm.cn(cm.textMuted, cm.textSize('xs'))}
-          style={{
-            marginTop: 6,
-            paddingLeft: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-          }}
-        >
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <span data-mol-id="tests-bar-passed">
-              <span style={{ color: TONE_COLOR.passing, fontWeight: 600 }}>{summary.passed}</span>{' '}
-              {t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}
+        </>
+      }
+    >
+      <div
+        data-mol-id="tests-bar-detail"
+        className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <span data-mol-id="tests-bar-passed">
+            <span style={{ color: TONE_COLOR.passing, fontWeight: 600 }}>{summary.passed}</span>{' '}
+            {t('ide.testsBar.passedLabel', undefined, { defaultValue: 'passing' })}
+          </span>
+          <span data-mol-id="tests-bar-failed">
+            <span style={{ color: TONE_COLOR.failing, fontWeight: 600 }}>{summary.failed}</span>{' '}
+            {t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}
+          </span>
+          <span data-mol-id="tests-bar-skipped">
+            <span style={{ color: TONE_COLOR.stopped, fontWeight: 600 }}>{summary.skipped}</span>{' '}
+            {t('ide.testsBar.skippedLabel', undefined, { defaultValue: 'skipped' })}
+          </span>
+          {summary.tone === 'running' ? (
+            <span data-mol-id="tests-bar-remaining">
+              <span style={{ color: TONE_COLOR.running, fontWeight: 600 }}>
+                {summary.remaining}
+              </span>{' '}
+              {t('ide.testsBar.remainingLabel', undefined, { defaultValue: 'to go' })}
             </span>
-            <span data-mol-id="tests-bar-failed">
-              <span style={{ color: TONE_COLOR.failing, fontWeight: 600 }}>{summary.failed}</span>{' '}
-              {t('ide.testsBar.failedLabel', undefined, { defaultValue: 'failing' })}
-            </span>
-            <span data-mol-id="tests-bar-skipped">
-              <span style={{ color: TONE_COLOR.stopped, fontWeight: 600 }}>{summary.skipped}</span>{' '}
-              {t('ide.testsBar.skippedLabel', undefined, { defaultValue: 'skipped' })}
-            </span>
-            {summary.tone === 'running' ? (
-              <span data-mol-id="tests-bar-remaining">
-                <span style={{ color: TONE_COLOR.running, fontWeight: 600 }}>
-                  {summary.remaining}
-                </span>{' '}
-                {t('ide.testsBar.remainingLabel', undefined, { defaultValue: 'to go' })}
-              </span>
-            ) : null}
-          </div>
-          {summary.currentFile ? (
-            <div data-mol-id="tests-bar-current-file">
-              {t(
-                'ide.testsBar.currentFile',
-                { file: summary.currentFile },
-                { defaultValue: 'Running {{file}}' },
-              )}
-              {summary.currentTest ? ` › ${summary.currentTest}` : ''}
-            </div>
           ) : null}
-          {run.error ? <div data-mol-id="tests-bar-error">{run.error}</div> : null}
         </div>
-      ) : null}
-    </div>
+        {summary.currentFile ? (
+          <div data-mol-id="tests-bar-current-file">
+            {t(
+              'ide.testsBar.currentFile',
+              { file: summary.currentFile },
+              { defaultValue: 'Running {{file}}' },
+            )}
+            {summary.currentTest ? ` › ${summary.currentTest}` : ''}
+          </div>
+        ) : null}
+        {run.error ? <div data-mol-id="tests-bar-error">{run.error}</div> : null}
+      </div>
+    </DockStrip>
   )
 }
