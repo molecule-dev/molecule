@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.20.4
+
+### Patch Changes
+
+- 9435d09: The plan, background tasks, tests and uncommitted files are one row of chips in a full-width tray under the composer's top edge, and a plan step stops spinning when no turn is running (it says whether it is waiting for you or stopped).
+
 ## 1.20.3
 
 ### Patch Changes

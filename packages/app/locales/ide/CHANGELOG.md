@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.8
+
+### Patch Changes
+
+- 9435d09: Adds the work-tray chip labels and the waiting/stopped plan-step notes.
+
 ## 1.10.7
 
 ### Patch Changes
