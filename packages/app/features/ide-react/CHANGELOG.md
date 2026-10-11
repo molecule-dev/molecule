@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.20.5
+
+### Patch Changes
+
+- a9b594b: The work tray's tests chip is one short figure; the counts and the Tests button are in its opened detail.
+
 ## 1.20.4
 
 ### Patch Changes
