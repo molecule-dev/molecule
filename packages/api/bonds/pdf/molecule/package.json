@@ -1,0 +1,52 @@
+{
+  "name": "@molecule/api-pdf-molecule",
+  "version": "1.0.0",
+  "description": "molecule.dev hosted PDF — HTML-to-PDF rendering, merge and watermark billed to your molecule project, no vendor account",
+  "homepage": "https://www.molecule.dev/packages/api-pdf-molecule",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "molecule",
+    "pdf",
+    "hosted"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/molecule-dev/molecule.git",
+    "directory": "packages/api/bonds/pdf/molecule"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1"
+  },
+  "peerDependencies": {
+    "@molecule/api-pdf": ">=1.0.2",
+    "@molecule/api-secrets": "^1.0.1"
+  },
+  "devDependencies": {
+    "@molecule/api-pdf": "1.0.2",
+    "@types/node": "26.1.2",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "author": "Molecule Dev, Inc. (https://molecule.dev)",
+  "publishConfig": {
+    "access": "public"
+  }
+}
