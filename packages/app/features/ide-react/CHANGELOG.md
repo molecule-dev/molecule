@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.20.3
+
+### Patch Changes
+
+- 6c803a7: The plan, background tasks, tests and uncommitted files now share one card above the composer.
+
 ## 1.20.2
 
 ### Patch Changes
