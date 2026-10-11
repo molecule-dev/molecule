@@ -312,6 +312,12 @@ const CHINA_PUBLIC_HOLIDAYS = [
  *   (re-verified 2026-09-10 on platform.kimi.ai/docs/models: kimi-k2.5 was
  *   officially discontinued 2026-08-31 — calls 404 — so its entry is now
  *   `disabled: true`. kimi-k3 / kimi-k2.6 / kimi-k2.7-code all still Active.)
+ *   (re-verified 2026-10-11 on api.deepinfra.com/models/: the US re-host
+ *   DEPRECATED moonshotai/Kimi-K2.7-Code on 2026-09-29 with replaced_by
+ *   Kimi-K3 — a live probe sat 221 s with no content, then streamed chunks
+ *   labeled Kimi-K3 — so kimi-k2.7-code is native-only (regions ['cn']) and
+ *   its US modelMap entry is gone. kimi-k3's US re-host is healthy, rates
+ *   unchanged.)
  * - MiniMax: https://platform.minimax.io/docs/guides/pricing-paygo (unchanged;
  *   minimax-m3 $0.30/$1.20 is a "permanent 50% off" list rate)
  * - Alibaba: https://www.alibabacloud.com/help/en/model-studio/deep-thinking
@@ -2124,7 +2130,9 @@ export const MODELS: readonly ModelDefinition[] = [
     // 0.000285 → $2.85/MTok, cents_per_output_token 0.001425 → $14.25/MTok,
     // rate_per_input_token_cached 0.1 → cache read $0.285/MTok, and
     // rate_per_input_token_cache_write null → no write premium (the omitted
-    // cache-write field falls back to the region's input rate). Cheaper than
+    // cache-write field falls back to the region's input rate).
+    // Re-verified 2026-10-11 on the same page: rates unchanged, deployment
+    // NOT deprecated (unlike Kimi-K2.7-Code — see that entry). Cheaper than
     // Moonshot native on every axis, which is why US leads (see the
     // cheapest-default-region invariant in __tests__/lookup.test.ts).
     // The host serves the full 1M context, unquantized, and returns
@@ -2164,15 +2172,16 @@ export const MODELS: readonly ModelDefinition[] = [
     // Automatic context cache: absolute cache-hit price ($0.19/M = 0.2× input).
     cacheReadPricePerMTok: 0.19,
     cacheWritePricePerMTok: 0.95,
-    // US default (DeepInfra bills below native here). Re-verified 2026-08-13
-    // against api.deepinfra.com/models/moonshotai/Kimi-K2.7-Code — the host
-    // repriced since 2026-08-01 ($0.74/$3.50/$0.15): cents_per_input_token
-    // 0.000068, cents_per_output_token 0.00034, rate_per_input_token_cached
-    // 0.2 → cache read $0.136, no write premium.
-    regions: ['us', 'cn'],
-    regionPricing: {
-      us: { inputPricePerMTok: 0.68, outputPricePerMTok: 3.4, cacheReadPricePerMTok: 0.136 },
-    },
+    // Native-only since 2026-10-11. DeepInfra DEPRECATED the K2.7-Code
+    // deployment on 2026-09-29 (its own model page: replaced_by
+    // moonshotai/Kimi-K3) and it rotted exactly the way re-host ids do: a live
+    // 2026-10-11 probe got HTTP 200 in under a second, then NO content for
+    // 221 s, and the chunks came back labeled model "moonshotai/Kimi-K3" —
+    // the replacement served under the deprecated id. Dropped, not remapped:
+    // silently serving the 4× -pricier flagship under the coding model's name
+    // and rate card is worse than not offering US. Native (cn) verified live
+    // the same day — all three Synthase request shapes OK.
+    regions: ['cn'],
     // Not published — best-effort estimate.
     knowledgeCutoff: '2025-10-01',
     // kimi-k3 is the Moonshot pick, but this is NOT superseded: the coding
