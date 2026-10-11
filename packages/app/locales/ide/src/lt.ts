@@ -92,7 +92,6 @@ export const lt: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Pasiektas maksimalus ciklų skaičius.',
   'ide.chat.maxLoopsError': 'Nepavyko atnaujinti maksimalaus įrankio iteracijų skaičiaus.',
   'ide.chat.dropFilesHere': 'Numeskite failus čia',
-  'ide.chat.showEarlier': 'Rodyti ankstesnius pranešimus',
   'ide.chat.autoFixPaused': 'Automatinis taisymas pristabdytas',
   'ide.chat.autoFixCountdown': 'Gyvenimo aprašymas',
   'ide.chat.autoFixPause': 'Pauzė',

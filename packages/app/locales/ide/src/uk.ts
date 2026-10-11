@@ -152,7 +152,6 @@ export const uk: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Досягнуто максимальної кількості циклів.',
   'ide.chat.maxLoopsError': 'Не вдалося оновити максимальну кількість ітерацій інструменту.',
   'ide.chat.dropFilesHere': 'Перетягніть файли сюди',
-  'ide.chat.showEarlier': 'Показати попередні повідомлення',
   'ide.chat.autoFixPaused': 'Автоматичне виправлення призупинено',
   'ide.chat.version': '{{productName}} версії 0.1.0',
   'ide.chat.selectModel': 'Виберіть модель',

@@ -92,7 +92,6 @@ export const et: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Tsüklite maksimaalne arv on saavutatud.',
   'ide.chat.maxLoopsError': 'Tööriista maksimaalse iteratsioonide arvu värskendamine ebaõnnestus.',
   'ide.chat.dropFilesHere': 'Lohista failid siia',
-  'ide.chat.showEarlier': 'Kuva varasemad sõnumid',
   'ide.chat.autoFixPaused': 'Automaatne parandamine on peatatud',
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Paus',

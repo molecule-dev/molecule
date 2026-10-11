@@ -163,7 +163,6 @@ export const tr: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maksimum döngü sınırı aşıldı.',
   'ide.chat.maxLoopsError': 'Maksimum araç yineleme sayısını güncelleme başarısız oldu.',
   'ide.chat.dropFilesHere': 'Dosyaları buraya sürükleyin',
-  'ide.chat.showEarlier': 'Önceki mesajları göster',
   'ide.chat.autoFixPaused': 'Otomatik düzeltme duraklatıldı',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Model seçin',

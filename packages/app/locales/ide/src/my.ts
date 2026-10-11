@@ -92,7 +92,6 @@ export const my: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'အများဆုံး ကွင်းဆက်ကန့်သတ်ချက်သို့ ရောက်ရှိပါပြီ။',
   'ide.chat.maxLoopsError': 'ကိရိယာ ဗားရှင်းအများဆုံးကို အပ်ဒိတ်လုပ်၍မရပါ။',
   'ide.chat.dropFilesHere': 'ဖိုင်များကို ဤနေရာတွင် ချပါ',
-  'ide.chat.showEarlier': 'ယခင် မက်ဆေ့ချ်များကို ပြပါ',
   'ide.chat.autoFixPaused': 'အလိုအလျောက်ပြင်ဆင်ခြင်းကို ခေတ္တရပ်ထားသည်',
   'ide.chat.autoFixCountdown': 'ကိုယ်ရေးအကျဥ်း',
   'ide.chat.autoFixPause': 'ခေတ္တရပ်ပါ',

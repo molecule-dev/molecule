@@ -92,7 +92,6 @@ export const ca: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': "S'ha arribat al límit màxim de bucles.",
   'ide.chat.maxLoopsError': "No s'ha pogut actualitzar el nombre màxim d'iteracions de l'eina.",
   'ide.chat.dropFilesHere': 'Deixa anar els fitxers aquí',
-  'ide.chat.showEarlier': 'Mostra els missatges anteriors',
   'ide.chat.autoFixPaused': 'Correcció automàtica en pausa',
   'ide.chat.autoFixCountdown': 'Currículum vitae',
   'ide.chat.autoFixPause': 'Pausa',

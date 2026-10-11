@@ -95,7 +95,6 @@ export const he: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'הגעת למגבלת הלולאות המקסימלית.',
   'ide.chat.maxLoopsError': 'נכשל בעדכון איטרציות הכלי המקסימליות.',
   'ide.chat.dropFilesHere': 'שחררו קבצים כאן',
-  'ide.chat.showEarlier': 'הצג הודעות קודמות',
   'ide.chat.autoFixPaused': 'תיקון אוטומטי הושהה',
   'ide.chat.autoFixCountdown': 'קוֹרוֹת חַיִים',
   'ide.chat.autoFixPause': 'הַפסָקָה',

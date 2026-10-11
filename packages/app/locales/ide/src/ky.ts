@@ -296,7 +296,6 @@ export const ky: Partial<IdeTranslations> = {
   'ide.chat.undoComplete': 'Өзгөртүүлөр кайтарылган жок.',
   'ide.chat.commitNoChanges': 'Милдеттенмеге өзгөртүүлөр киргизилбейт.',
   'ide.chat.commitError': 'Өзгөртүүлөр киргизилген жок.',
-  'ide.chat.showEarlier': 'Мурунку билдирүүлөрдү көрсөтүү',
   'ide.chat.autoFixPaused': 'Автоматтык түрдө оңдоо тындырылды',
   'ide.chat.autoFixCountdown': 'Резюме',
   'ide.chat.autoFixPause': 'Тыным',

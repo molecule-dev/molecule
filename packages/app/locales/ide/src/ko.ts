@@ -162,7 +162,6 @@ export const ko: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': '최대 반복 횟수 제한에 도달했습니다.',
   'ide.chat.maxLoopsError': '최대 도구 반복 횟수를 업데이트하는 데 실패했습니다.',
   'ide.chat.dropFilesHere': '여기에 파일을 드롭하세요',
-  'ide.chat.showEarlier': '이전 메시지 보기',
   'ide.chat.autoFixPaused': '자동 수정이 일시 중지되었습니다',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': '모델을 선택하세요',

@@ -157,7 +157,6 @@ export const id: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Batas perulangan maksimum telah tercapai.',
   'ide.chat.maxLoopsError': 'Gagal memperbarui jumlah iterasi alat maksimum.',
   'ide.chat.dropFilesHere': 'Seret file ke sini',
-  'ide.chat.showEarlier': 'Tampilkan pesan sebelumnya',
   'ide.chat.autoFixPaused': 'Perbaikan otomatis dijeda',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',

@@ -92,7 +92,6 @@ export const ru: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Достигнут лимит максимального количества циклов.',
   'ide.chat.maxLoopsError': 'Не удалось обновить максимальное количество итераций инструмента.',
   'ide.chat.dropFilesHere': 'Перетащите файлы сюда',
-  'ide.chat.showEarlier': 'Показать предыдущие сообщения',
   'ide.chat.autoFixPaused': 'Автоматическое исправление приостановлено',
   'ide.chat.autoFixCountdown': 'Резюме',
   'ide.chat.autoFixPause': 'Пауза',

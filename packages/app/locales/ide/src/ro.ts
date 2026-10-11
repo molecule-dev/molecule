@@ -152,7 +152,6 @@ export const ro: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Limita maximă de bucle a fost atinsă.',
   'ide.chat.maxLoopsError': 'Nu s-a putut actualiza numărul maxim de iterații ale instrumentului.',
   'ide.chat.dropFilesHere': 'Plasați fișierele aici',
-  'ide.chat.showEarlier': 'Afișează mesajele anterioare',
   'ide.chat.autoFixPaused': 'Corecția automată a fost întreruptă',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selectați modelul',

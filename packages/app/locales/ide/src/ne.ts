@@ -91,7 +91,6 @@ export const ne: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'अधिकतम लूप सीमा पुग्यो।',
   'ide.chat.maxLoopsError': 'अधिकतम उपकरण पुनरावृत्तिहरू अद्यावधिक गर्न असफल भयो।',
   'ide.chat.dropFilesHere': 'फाइलहरू यहाँ छोड्नुहोस्',
-  'ide.chat.showEarlier': 'पहिलेका सन्देशहरू देखाउनुहोस्',
   'ide.chat.autoFixPaused': 'स्वतः समाधान रोकियो',
   'ide.chat.autoFixCountdown': 'पुनःसुरु गर्नुहोस्',
   'ide.chat.autoFixPause': 'पज गर्नुहोस्',

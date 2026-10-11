@@ -92,7 +92,6 @@ export const bn: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'সর্বোচ্চ লুপের সীমায় পৌঁছেছেন।',
   'ide.chat.maxLoopsError': 'সর্বোচ্চ টুল পুনরাবৃত্তি আপডেট করতে ব্যর্থ হয়েছে।',
   'ide.chat.dropFilesHere': 'এখানে ফাইলগুলো রাখুন',
-  'ide.chat.showEarlier': 'পূর্ববর্তী বার্তাগুলি দেখান',
   'ide.chat.autoFixPaused': 'স্বয়ংক্রিয়-সমাধান স্থগিত করা হয়েছে',
   'ide.chat.autoFixCountdown': 'জীবনবৃত্তান্ত',
   'ide.chat.autoFixPause': 'বিরতি',

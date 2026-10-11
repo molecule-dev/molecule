@@ -152,7 +152,6 @@ export const hu: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Elérte a maximális ciklusszámot.',
   'ide.chat.maxLoopsError': 'Nem sikerült frissíteni a maximális eszköziterációk számát.',
   'ide.chat.dropFilesHere': 'Húzd ide a fájlokat',
-  'ide.chat.showEarlier': 'Korábbi üzenetek megjelenítése',
   'ide.chat.autoFixPaused': 'Automatikus javítás szünetel',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Válasszon modellt',

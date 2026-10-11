@@ -92,7 +92,6 @@ export const ur: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'لوپس کی زیادہ سے زیادہ حد تک پہنچ گئی۔',
   'ide.chat.maxLoopsError': 'ٹول کی زیادہ سے زیادہ تکرار کو اپ ڈیٹ کرنے میں ناکام۔',
   'ide.chat.dropFilesHere': 'فائلیں یہاں ڈراپ کریں۔',
-  'ide.chat.showEarlier': 'پہلے کے پیغامات دکھائیں۔',
   'ide.chat.autoFixPaused': 'آٹو فکس موقوف ہے۔',
   'ide.chat.autoFixCountdown': 'دوبارہ شروع کریں۔',
   'ide.chat.autoFixPause': 'توقف',

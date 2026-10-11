@@ -296,7 +296,6 @@ export const be: Partial<IdeTranslations> = {
   'ide.chat.undoComplete': 'Не атрымалася адмяніць змены.',
   'ide.chat.commitNoChanges': 'Няма змен для фіксацыі.',
   'ide.chat.commitError': 'Не атрымалася захаваць змены.',
-  'ide.chat.showEarlier': 'Паказаць папярэднія паведамленні',
   'ide.chat.autoFixPaused': 'Аўтаматычнае выпраўленне прыпынена',
   'ide.chat.autoFixCountdown': 'Рэзюмэ',
   'ide.chat.autoFixPause': 'Паўза',

@@ -91,7 +91,6 @@ export const cy: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Cyrhaeddwyd terfyn uchaf y dolenni.',
   'ide.chat.maxLoopsError': "Methwyd diweddaru'r uchafswm o iteriadau offeryn.",
   'ide.chat.dropFilesHere': 'Gollwng ffeiliau yma',
-  'ide.chat.showEarlier': 'Dangos negeseuon cynharach',
   'ide.chat.autoFixPaused': "Atgyweiriad awtomatig wedi'i oedi",
   'ide.chat.autoFixCountdown': 'Ail-ddechrau',
   'ide.chat.autoFixPause': 'Oedi',

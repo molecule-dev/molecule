@@ -162,7 +162,6 @@ export const zh: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': '已达到最大循环次数限制。',
   'ide.chat.maxLoopsError': '更新最大工具迭代次数失败。',
   'ide.chat.dropFilesHere': '文件拖放到这里',
-  'ide.chat.showEarlier': '显示更早的消息',
   'ide.chat.autoFixPaused': '自动修复功能已暂停',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': '选择模型',

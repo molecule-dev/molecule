@@ -116,7 +116,6 @@ export const da: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maksimalt antal loops er nået.',
   'ide.chat.maxLoopsError': 'Kunne ikke opdatere det maksimale antal værktøjsiterationer.',
   'ide.chat.dropFilesHere': 'Slip filer her',
-  'ide.chat.showEarlier': 'Vis tidligere beskeder',
   'ide.chat.autoFixPaused': 'Automatisk rettelse sat på pause',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vælg model',

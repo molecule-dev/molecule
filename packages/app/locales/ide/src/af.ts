@@ -92,7 +92,6 @@ export const af: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maksimum lusselimiet bereik.',
   'ide.chat.maxLoopsError': 'Kon nie maksimum gereedskapiterasies opdateer nie.',
   'ide.chat.dropFilesHere': 'Laat lêers hier val',
-  'ide.chat.showEarlier': 'Wys vorige boodskappe',
   'ide.chat.autoFixPaused': 'Outomatiese regstelling onderbreek',
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Pouseer',

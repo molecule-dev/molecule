@@ -92,7 +92,6 @@ export const eu: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Gehienezko begiztaren mugara iritsi da.',
   'ide.chat.maxLoopsError': 'Huts egin da tresnaren gehienezko iterazio kopurua eguneratzean.',
   'ide.chat.dropFilesHere': 'Jaregin fitxategiak hemen',
-  'ide.chat.showEarlier': 'Erakutsi aurreko mezuak',
   'ide.chat.autoFixPaused': 'Konponketa automatikoa pausatuta',
   'ide.chat.autoFixCountdown': 'Curriculuma',
   'ide.chat.autoFixPause': 'Pausatu',

@@ -93,7 +93,6 @@ export const zu: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Umkhawulo ophezulu wama-loop ufinyelelwe.',
   'ide.chat.maxLoopsError': 'Yehlulekile ukubuyekeza ukuphindaphinda kwamathuluzi okuphezulu.',
   'ide.chat.dropFilesHere': 'Lahla amafayela lapha',
-  'ide.chat.showEarlier': 'Bonisa imiyalezo yangaphambilini',
   'ide.chat.autoFixPaused': 'Ukulungisa okuzenzakalelayo kumiswe okwesikhashana',
   'ide.chat.autoFixCountdown': 'Qalisa kabusha',
   'ide.chat.autoFixPause': 'Misa isikhashana',

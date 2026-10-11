@@ -160,7 +160,6 @@ export const vi: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Đã đạt giới hạn số vòng lặp tối đa.',
   'ide.chat.maxLoopsError': 'Không thể cập nhật số lần lặp tối đa của công cụ.',
   'ide.chat.dropFilesHere': 'Kéo thả tập tin vào đây',
-  'ide.chat.showEarlier': 'Hiển thị các tin nhắn trước đó',
   'ide.chat.autoFixPaused': 'Tự động sửa lỗi tạm dừng',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Chọn mẫu',

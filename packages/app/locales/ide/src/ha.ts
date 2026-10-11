@@ -295,7 +295,6 @@ export const ha: Partial<IdeTranslations> = {
   'ide.chat.undoComplete': 'An kasa dawo da canje-canje.',
   'ide.chat.commitNoChanges': 'Babu canje-canje da za a yi don aiwatarwa.',
   'ide.chat.commitError': 'An kasa aiwatar da canje-canje.',
-  'ide.chat.showEarlier': 'Nuna saƙonnin da suka gabata',
   'ide.chat.autoFixPaused': 'An dakatar da gyara ta atomatik',
   'ide.chat.autoFixCountdown': 'Ci gaba da karatu',
   'ide.chat.autoFixPause': 'Dakatar da',

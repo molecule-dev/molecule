@@ -92,7 +92,6 @@ export const ml: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'പരമാവധി ലൂപ്പുകളുടെ പരിധി എത്തി.',
   'ide.chat.maxLoopsError': 'പരമാവധി ടൂൾ ആവർത്തനങ്ങൾ അപ്‌ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു.',
   'ide.chat.dropFilesHere': 'ഫയലുകൾ ഇവിടെ ഇടുക',
-  'ide.chat.showEarlier': 'മുൻ സന്ദേശങ്ങൾ കാണിക്കുക',
   'ide.chat.autoFixPaused': 'ഓട്ടോ-ഫിക്സ് താൽക്കാലികമായി നിർത്തി',
   'ide.chat.autoFixCountdown': 'പുനരാരംഭിക്കുക',
   'ide.chat.autoFixPause': 'താൽക്കാലികമായി നിർത്തുക',

@@ -92,7 +92,6 @@ export const uz: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maksimal sikllar soni chekloviga yetdi.',
   'ide.chat.maxLoopsError': 'Maksimal vosita iteratsiyalarini yangilashda xatolik yuz berdi.',
   'ide.chat.dropFilesHere': 'Fayllarni bu yerga tashlang',
-  'ide.chat.showEarlier': "Avvalgi xabarlarni ko'rsatish",
   'ide.chat.autoFixPaused': "Avtomatik tuzatish to'xtatildi",
   'ide.chat.autoFixCountdown': 'Rezyume; qayta boshlash',
   'ide.chat.autoFixPause': "To'xtatib turish",

@@ -92,7 +92,6 @@ export const sq: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'U arrit limiti maksimal i sytheve.',
   'ide.chat.maxLoopsError': 'Dështoi në përditësimin e përsëritjeve maksimale të mjetit.',
   'ide.chat.dropFilesHere': 'Lësho skedarët këtu',
-  'ide.chat.showEarlier': 'Shfaq mesazhet e mëparshme',
   'ide.chat.autoFixPaused': 'Rregullimi automatik u ndalua',
   'ide.chat.autoFixCountdown': 'Rezyme',
   'ide.chat.autoFixPause': 'Pauzë',

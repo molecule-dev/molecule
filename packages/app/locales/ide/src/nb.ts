@@ -118,7 +118,6 @@ export const nb: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maksimalt antall løkker er nådd.',
   'ide.chat.maxLoopsError': 'Kunne ikke oppdatere maksimalt antall verktøyiterasjoner.',
   'ide.chat.dropFilesHere': 'Slipp filer her',
-  'ide.chat.showEarlier': 'Vis tidligere meldinger',
   'ide.chat.autoFixPaused': 'Autoreparasjon satt på pause',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Velg modell',

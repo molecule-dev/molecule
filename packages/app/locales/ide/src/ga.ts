@@ -92,7 +92,6 @@ export const ga: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Uasmhéid na lúb sroichte.',
   'ide.chat.maxLoopsError': 'Theip ar uasmhéid athrá uirlisí a nuashonrú.',
   'ide.chat.dropFilesHere': 'Scaoil comhaid anseo',
-  'ide.chat.showEarlier': 'Taispeáin teachtaireachtaí níos luaithe',
   'ide.chat.autoFixPaused': 'Uath-cheartú curtha ar sos',
   'ide.chat.autoFixCountdown': 'Atosú',
   'ide.chat.autoFixPause': 'Sos',

@@ -109,7 +109,6 @@ export const en: IdeTranslations = {
   'ide.chat.maxLoopsReached': 'Max loops limit reached.',
   'ide.chat.maxLoopsError': 'Failed to update max tool iterations.',
   'ide.chat.dropFilesHere': 'Drop files here',
-  'ide.chat.showEarlier': 'Show earlier messages',
   'ide.chat.autoFixPaused': 'Auto-fix paused',
   'ide.chat.autoFixCountdown': 'Resume',
   'ide.chat.autoFixPause': 'Pause',

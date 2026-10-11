@@ -150,7 +150,6 @@ export const ms: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Had gelung maksimum dicapai.',
   'ide.chat.maxLoopsError': 'Gagal mengemas kini lelaran alat maksimum.',
   'ide.chat.dropFilesHere': 'Letak fail di sini',
-  'ide.chat.showEarlier': 'Tunjukkan mesej terdahulu',
   'ide.chat.autoFixPaused': 'Pembetulan automatik dijeda',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Pilih model',

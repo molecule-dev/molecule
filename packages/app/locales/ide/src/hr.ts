@@ -92,7 +92,6 @@ export const hr: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Dosegnuto je maksimalno ograničenje petlji.',
   'ide.chat.maxLoopsError': 'Nije uspjelo ažuriranje maksimalnog broja iteracija alata.',
   'ide.chat.dropFilesHere': 'Ispustite datoteke ovdje',
-  'ide.chat.showEarlier': 'Prikaži ranije poruke',
   'ide.chat.autoFixPaused': 'Automatsko ispravljanje pauzirano',
   'ide.chat.autoFixCountdown': 'Životopis',
   'ide.chat.autoFixPause': 'Pauza',

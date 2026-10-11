@@ -91,7 +91,6 @@ export const gu: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'મહત્તમ લૂપ્સની મર્યાદા પહોંચી ગઈ.',
   'ide.chat.maxLoopsError': 'મહત્તમ ટૂલ પુનરાવર્તનો અપડેટ કરવામાં નિષ્ફળ.',
   'ide.chat.dropFilesHere': 'ફાઇલો અહીં મૂકો',
-  'ide.chat.showEarlier': 'પહેલાના સંદેશા બતાવો',
   'ide.chat.autoFixPaused': 'સ્વતઃ-સુધારણા થોભાવવામાં આવી',
   'ide.chat.autoFixCountdown': 'ફરી શરૂ કરો',
   'ide.chat.autoFixPause': 'થોભો',

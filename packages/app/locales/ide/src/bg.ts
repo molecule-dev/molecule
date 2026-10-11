@@ -95,7 +95,6 @@ export const bg: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError':
     'Актуализирането на максималния брой итерации на инструмента не бе успешно.',
   'ide.chat.dropFilesHere': 'Пуснете файлове тук',
-  'ide.chat.showEarlier': 'Показване на по-ранни съобщения',
   'ide.chat.autoFixPaused': 'Автоматичното коригиране е поставено на пауза',
   'ide.chat.autoFixCountdown': 'Автобиография',
   'ide.chat.autoFixPause': 'Пауза',

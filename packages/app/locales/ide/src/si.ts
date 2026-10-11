@@ -92,7 +92,6 @@ export const si: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'උපරිම ලූප සීමාවට ළඟා විය.',
   'ide.chat.maxLoopsError': 'උපරිම මෙවලම් පුනරාවර්තන යාවත්කාලීන කිරීමට අසමත් විය.',
   'ide.chat.dropFilesHere': 'ගොනු මෙතනට දමන්න',
-  'ide.chat.showEarlier': 'පෙර පණිවිඩ පෙන්වන්න',
   'ide.chat.autoFixPaused': 'ස්වයංක්‍රීය නිවැරදි කිරීම විරාම කරන ලදී',
   'ide.chat.autoFixCountdown': 'අරඹන්න',
   'ide.chat.autoFixPause': 'විරාමය',

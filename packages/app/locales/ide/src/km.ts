@@ -93,7 +93,6 @@ export const km: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'បានឈានដល់ដែនកំណត់រង្វិលជុំអតិបរមា។',
   'ide.chat.maxLoopsError': 'មិនអាចធ្វើបច្ចុប្បន្នភាពចំនួនឧបករណ៍អតិបរមាបានទេ។',
   'ide.chat.dropFilesHere': 'ទម្លាក់ឯកសារនៅទីនេះ',
-  'ide.chat.showEarlier': 'បង្ហាញសារមុនៗ',
   'ide.chat.autoFixPaused': 'ការជួសជុលដោយស្វ័យប្រវត្តិត្រូវបានផ្អាក',
   'ide.chat.autoFixCountdown': 'ប្រវត្តិរូបសង្ខេប',
   'ide.chat.autoFixPause': 'ផ្អាក',

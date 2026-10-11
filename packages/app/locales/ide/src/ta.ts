@@ -92,7 +92,6 @@ export const ta: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'அதிகபட்ச சுழல்களின் வரம்பு எட்டப்பட்டது.',
   'ide.chat.maxLoopsError': 'அதிகபட்ச கருவி மறுசெயல்களைப் புதுப்பிக்க முடியவில்லை.',
   'ide.chat.dropFilesHere': 'கோப்புகளை இங்கே இடவும்',
-  'ide.chat.showEarlier': 'முந்தைய செய்திகளைக் காட்டு',
   'ide.chat.autoFixPaused': 'தானியங்கு சரிசெய்தல் இடைநிறுத்தப்பட்டது',
   'ide.chat.autoFixCountdown': 'சுயவிவரம்',
   'ide.chat.autoFixPause': 'இடைநிறுத்தம்',

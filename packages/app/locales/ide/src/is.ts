@@ -92,7 +92,6 @@ export const is: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Hámarksfjöldi lykkjur náð.',
   'ide.chat.maxLoopsError': 'Mistókst að uppfæra hámarksfjölda ítrekana á tólinu.',
   'ide.chat.dropFilesHere': 'Sleppa skrám hér',
-  'ide.chat.showEarlier': 'Sýna fyrri skilaboð',
   'ide.chat.autoFixPaused': 'Sjálfvirk viðgerð sett í bið',
   'ide.chat.autoFixCountdown': 'Ferilskrá',
   'ide.chat.autoFixPause': 'Gera hlé',

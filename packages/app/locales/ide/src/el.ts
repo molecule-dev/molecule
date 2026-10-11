@@ -152,7 +152,6 @@ export const el: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Έχει επιτευχθεί το μέγιστο όριο βρόχων.',
   'ide.chat.maxLoopsError': 'Αποτυχία ενημέρωσης του μέγιστου αριθμού επαναλήψεων εργαλείου.',
   'ide.chat.dropFilesHere': 'Αποθέστε αρχεία εδώ',
-  'ide.chat.showEarlier': 'Εμφάνιση προηγούμενων μηνυμάτων',
   'ide.chat.autoFixPaused': 'Η αυτόματη διόρθωση τέθηκε σε παύση',
   'ide.chat.version': '{{productName}} έκδοση 0.1.0',
   'ide.chat.selectModel': 'Επιλέξτε μοντέλο',

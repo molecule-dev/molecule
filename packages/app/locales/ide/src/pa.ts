@@ -92,7 +92,6 @@ export const pa: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ਵੱਧ ਤੋਂ ਵੱਧ ਲੂਪਸ ਦੀ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ।',
   'ide.chat.maxLoopsError': 'ਵੱਧ ਤੋਂ ਵੱਧ ਟੂਲ ਦੁਹਰਾਓ ਨੂੰ ਅੱਪਡੇਟ ਕਰਨ ਵਿੱਚ ਅਸਫਲ।',
   'ide.chat.dropFilesHere': 'ਫਾਈਲਾਂ ਇੱਥੇ ਸੁੱਟੋ',
-  'ide.chat.showEarlier': 'ਪੁਰਾਣੇ ਸੁਨੇਹੇ ਦਿਖਾਓ',
   'ide.chat.autoFixPaused': 'ਆਟੋ-ਫਿਕਸ ਰੋਕਿਆ ਗਿਆ',
   'ide.chat.autoFixCountdown': 'ਰੈਜ਼ਿਊਮੇ',
   'ide.chat.autoFixPause': 'ਵਿਰਾਮ',

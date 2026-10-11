@@ -92,7 +92,6 @@ export const az: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maksimum döngə limitinə çatdınız.',
   'ide.chat.maxLoopsError': 'Maksimum alət təkrarlamalarını yeniləmək alınmadı.',
   'ide.chat.dropFilesHere': 'Faylları bura atın',
-  'ide.chat.showEarlier': 'Əvvəlki mesajları göstər',
   'ide.chat.autoFixPaused': 'Avtomatik düzəliş dayandırıldı',
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Fasilə',

@@ -90,7 +90,6 @@ export const lo: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ຮອດຂີດຈຳກັດສູງສຸດຂອງການຫຼຸບຮອບແລ້ວ.',
   'ide.chat.maxLoopsError': 'ອັບເດດເຄື່ອງມືຊ້ຳໆສູງສຸດບໍ່ສຳເລັດ.',
   'ide.chat.dropFilesHere': 'ວາງໄຟລ໌ລົງບ່ອນນີ້',
-  'ide.chat.showEarlier': 'ສະແດງຂໍ້ຄວາມກ່ອນໜ້ານີ້',
   'ide.chat.autoFixPaused': 'ຢຸດການແກ້ໄຂອັດຕະໂນມັດຊົ່ວຄາວ',
   'ide.chat.autoFixCountdown': 'ປະຫວັດຫຍໍ້',
   'ide.chat.autoFixPause': 'ຢຸດຊົ່ວຄາວ',

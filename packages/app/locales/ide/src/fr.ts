@@ -164,7 +164,6 @@ export const fr: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError':
     "Impossible de mettre à jour le nombre maximal d'itérations de l'outil.",
   'ide.chat.dropFilesHere': 'Déposez vos fichiers ici',
-  'ide.chat.showEarlier': 'Afficher les messages précédents',
   'ide.chat.autoFixPaused': 'Correction automatique suspendue',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Sélectionner le modèle',

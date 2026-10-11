@@ -163,7 +163,6 @@ export const ja: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ループ回数の上限に達しました。',
   'ide.chat.maxLoopsError': '最大ツール反復回数の更新に失敗しました。',
   'ide.chat.dropFilesHere': 'ファイルをここにドロップしてください',
-  'ide.chat.showEarlier': '以前のメッセージを表示',
   'ide.chat.autoFixPaused': '自動修復が一時停止されました',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'モデルを選択',

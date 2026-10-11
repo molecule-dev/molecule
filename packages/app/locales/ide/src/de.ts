@@ -162,7 +162,6 @@ export const de: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Maximale Schleifenanzahl erreicht.',
   'ide.chat.maxLoopsError': 'Fehler beim Aktualisieren der maximalen Werkzeugiterationen.',
   'ide.chat.dropFilesHere': 'Dateien hier ablegen',
-  'ide.chat.showEarlier': 'Frühere Nachrichten anzeigen',
   'ide.chat.autoFixPaused': 'Automatische Fehlerbehebung pausiert',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Modell auswählen',

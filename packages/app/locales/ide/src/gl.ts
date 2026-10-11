@@ -92,7 +92,6 @@ export const gl: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Alcanzouse o límite máximo de bucles.',
   'ide.chat.maxLoopsError': 'Non se puido actualizar o número máximo de iteracións da ferramenta.',
   'ide.chat.dropFilesHere': 'Soltar ficheiros aquí',
-  'ide.chat.showEarlier': 'Mostrar mensaxes anteriores',
   'ide.chat.autoFixPaused': 'Corrección automática en pausa',
   'ide.chat.autoFixCountdown': 'Currículo',
   'ide.chat.autoFixPause': 'Pausa',

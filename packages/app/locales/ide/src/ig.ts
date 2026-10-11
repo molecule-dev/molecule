@@ -290,7 +290,6 @@ export const ig: Partial<IdeTranslations> = {
   'ide.chat.undoComplete': 'Emeghị mgbanwe ndị ahụ.',
   'ide.chat.commitNoChanges': 'Enweghị mgbanwe ọ bụla iji mee ihe.',
   'ide.chat.commitError': 'Emeghị mgbanwe ndị ahụ.',
-  'ide.chat.showEarlier': 'Gosi ozi ndị gara aga',
   'ide.chat.autoFixPaused': 'Akwụsịtụla ndozi akpaghị aka',
   'ide.chat.autoFixCountdown': 'Ọmụmụ ihe malitegharịa',
   'ide.chat.autoFixPause': 'Kwụsịtụ',

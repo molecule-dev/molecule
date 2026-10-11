@@ -89,7 +89,6 @@ export const am: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ከፍተኛው የሉፕስ ገደብ ላይ ተደርሷል።',
   'ide.chat.maxLoopsError': 'ከፍተኛውን የመሳሪያ ድግግሞሽ ማዘመን አልተሳካም።',
   'ide.chat.dropFilesHere': 'ፋይሎችን እዚህ ይጣሉ',
-  'ide.chat.showEarlier': 'ቀደም ያሉ መልዕክቶችን አሳይ',
   'ide.chat.autoFixPaused': 'ራስ-ሰር ጥገና ለአፍታ ቆሟል',
   'ide.chat.autoFixCountdown': 'የስራ ልምድ ማስረጃ',
   'ide.chat.autoFixPause': 'ለአፍታ አቁም',

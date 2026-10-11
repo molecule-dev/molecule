@@ -92,7 +92,6 @@ export const ka: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ციკლების მაქსიმალური ლიმიტი მიღწეულია.',
   'ide.chat.maxLoopsError': 'ხელსაწყოს მაქსიმალური იტერაციების განახლება ვერ მოხერხდა.',
   'ide.chat.dropFilesHere': 'ფაილების აქ ჩაგდება',
-  'ide.chat.showEarlier': 'ადრინდელი შეტყობინებების ჩვენება',
   'ide.chat.autoFixPaused': 'ავტომატური შესწორება შეჩერებულია',
   'ide.chat.autoFixCountdown': 'რეზიუმე',
   'ide.chat.autoFixPause': 'პაუზა',

@@ -160,7 +160,6 @@ export const pl: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Osiągnięto limit maksymalnej liczby pętli.',
   'ide.chat.maxLoopsError': 'Nie udało się zaktualizować maksymalnej liczby iteracji narzędzia.',
   'ide.chat.dropFilesHere': 'Upuść pliki tutaj',
-  'ide.chat.showEarlier': 'Pokaż wcześniejsze wiadomości',
   'ide.chat.autoFixPaused': 'Wstrzymano automatyczną naprawę',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Wybierz model',

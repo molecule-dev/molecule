@@ -163,7 +163,6 @@ export const hi: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'अधिकतम लूप सीमा तक पहुँच गया है।',
   'ide.chat.maxLoopsError': 'अधिकतम टूल पुनरावृत्तियों को अपडेट करने में विफलता।',
   'ide.chat.dropFilesHere': 'फ़ाइल यहां छोड़ें',
-  'ide.chat.showEarlier': 'पहले के संदेश दिखाएँ',
   'ide.chat.autoFixPaused': 'ऑटो-फिक्स रुका हुआ है',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'मॉडल चुनें',

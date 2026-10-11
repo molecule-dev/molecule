@@ -92,7 +92,6 @@ export const te: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'గరిష్ట లూప్‌ల పరిమితికి చేరుకుంది.',
   'ide.chat.maxLoopsError': 'గరిష్ట టూల్ పునరావృతాలను నవీకరించడంలో విఫలమైంది.',
   'ide.chat.dropFilesHere': 'ఫైళ్లను ఇక్కడ వదలండి',
-  'ide.chat.showEarlier': 'మునుపటి సందేశాలను చూపించు',
   'ide.chat.autoFixPaused': 'ఆటో-ఫిక్స్ పాజ్ చేయబడింది',
   'ide.chat.autoFixCountdown': 'పునఃప్రారంభం',
   'ide.chat.autoFixPause': 'విరామం',

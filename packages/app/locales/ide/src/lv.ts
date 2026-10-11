@@ -92,7 +92,6 @@ export const lv: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Sasniegts maksimālais ciklu skaits.',
   'ide.chat.maxLoopsError': 'Neizdevās atjaunināt maksimālo rīka iterāciju skaitu.',
   'ide.chat.dropFilesHere': 'Nometiet failus šeit',
-  'ide.chat.showEarlier': 'Rādīt iepriekšējos ziņojumus',
   'ide.chat.autoFixPaused': 'Automātiskā labošana ir apturēta',
   'ide.chat.autoFixCountdown': 'CV',
   'ide.chat.autoFixPause': 'Pauze',

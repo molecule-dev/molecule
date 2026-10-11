@@ -163,7 +163,6 @@ export const ar: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'تم الوصول إلى الحد الأقصى لعدد الحلقات.',
   'ide.chat.maxLoopsError': 'فشل تحديث الحد الأقصى لعدد تكرارات الأداة.',
   'ide.chat.dropFilesHere': 'قم بإسقاط الملفات هنا',
-  'ide.chat.showEarlier': 'عرض الرسائل السابقة',
   'ide.chat.autoFixPaused': 'تم إيقاف التصحيح التلقائي مؤقتًا',
   'ide.chat.version': '{{productName}} الإصدار 0.1.0',
   'ide.chat.selectModel': 'اختر الطراز',

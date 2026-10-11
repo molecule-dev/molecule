@@ -92,7 +92,6 @@ export const mr: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'कमाल फेऱ्यांची मर्यादा गाठली आहे.',
   'ide.chat.maxLoopsError': 'कमाल टूल पुनरावृत्ती अद्ययावत करण्यात अयशस्वी.',
   'ide.chat.dropFilesHere': 'येथे फाईल्स टाका',
-  'ide.chat.showEarlier': 'पूर्वीचे संदेश दाखवा',
   'ide.chat.autoFixPaused': 'स्वयंचलित दुरुस्ती थांबवली',
   'ide.chat.autoFixCountdown': 'सारांश',
   'ide.chat.autoFixPause': 'थांबा',

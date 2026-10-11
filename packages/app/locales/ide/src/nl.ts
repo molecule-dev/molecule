@@ -159,7 +159,6 @@ export const nl: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Het maximale aantal herhalingen is bereikt.',
   'ide.chat.maxLoopsError': 'Het bijwerken van het maximale aantal tooliteraties is mislukt.',
   'ide.chat.dropFilesHere': 'Sleep bestanden hierheen',
-  'ide.chat.showEarlier': 'Eerdere berichten weergeven',
   'ide.chat.autoFixPaused': 'Automatische correctie gepauzeerd',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Selecteer model',

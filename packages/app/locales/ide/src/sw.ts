@@ -92,7 +92,6 @@ export const sw: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Kikomo cha juu zaidi cha mizunguko kimefikiwa.',
   'ide.chat.maxLoopsError': 'Imeshindwa kusasisha marudio ya juu zaidi ya zana.',
   'ide.chat.dropFilesHere': 'Weka faili hapa',
-  'ide.chat.showEarlier': 'Onyesha jumbe za awali',
   'ide.chat.autoFixPaused': 'Kurekebisha kiotomatiki kumesitishwa',
   'ide.chat.autoFixCountdown': 'Wasifu',
   'ide.chat.autoFixPause': 'Sitisha',

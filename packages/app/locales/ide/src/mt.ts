@@ -92,7 +92,6 @@ export const mt: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': "Intlaħaq il-limitu massimu ta' loops.",
   'ide.chat.maxLoopsError': 'Ma rnexxiex jiġi aġġornat l-iterazzjonijiet massimi tal-għodda.',
   'ide.chat.dropFilesHere': 'Poġġi l-fajls hawn',
-  'ide.chat.showEarlier': 'Uri messaġġi preċedenti',
   'ide.chat.autoFixPaused': 'It-tiswija awtomatika waqfet',
   'ide.chat.autoFixCountdown': 'Sommarju',
   'ide.chat.autoFixPause': 'Pawża',

@@ -330,7 +330,6 @@ export const yo: Partial<IdeTranslations> = {
   'ide.chat.undoComplete': 'Kò ṣeé ṣe láti dá àwọn àyípadà padà.',
   'ide.chat.commitNoChanges': 'Ko si awọn iyipada lati ṣe.',
   'ide.chat.commitError': 'Kò ṣeé ṣe láti ṣe àwọn àyípadà.',
-  'ide.chat.showEarlier': 'Fi awọn ifiranṣẹ ti tẹlẹ han',
   'ide.chat.autoFixPaused': 'A ti daduro atunṣe-laifọwọyi',
   'ide.chat.autoFixCountdown': 'Ìbẹ̀rẹ̀ iṣẹ́-ṣíwájú',
   'ide.chat.autoFixPause': 'Dúró díẹ̀',

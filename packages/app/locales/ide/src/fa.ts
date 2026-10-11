@@ -92,7 +92,6 @@ export const fa: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'به حداکثر تعداد حلقه‌ها رسید.',
   'ide.chat.maxLoopsError': 'به‌روزرسانی حداکثر تکرارهای ابزار ناموفق بود.',
   'ide.chat.dropFilesHere': 'فایل‌ها را اینجا رها کنید',
-  'ide.chat.showEarlier': 'نمایش پیام‌های قبلی',
   'ide.chat.autoFixPaused': 'رفع خودکار متوقف شد',
   'ide.chat.autoFixCountdown': 'رزومه',
   'ide.chat.autoFixPause': 'مکث',

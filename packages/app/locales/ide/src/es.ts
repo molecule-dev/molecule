@@ -160,7 +160,6 @@ export const es: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsError':
     'No se pudo actualizar el número máximo de iteraciones de la herramienta.',
   'ide.chat.dropFilesHere': 'Arrastra los archivos aquí',
-  'ide.chat.showEarlier': 'Mostrar mensajes anteriores',
   'ide.chat.autoFixPaused': 'La corrección automática se ha pausado.',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Seleccione el modelo',

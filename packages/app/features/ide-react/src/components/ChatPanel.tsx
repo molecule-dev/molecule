@@ -22,6 +22,7 @@ import {
   memo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useReducer,
   useRef,
@@ -1077,6 +1078,14 @@ function ThinkingBlock({
 
 /** Height threshold (px) above which user messages get collapsed. */
 const USER_MSG_COLLAPSE_HEIGHT = 150
+
+/**
+ * Distance from the top (px) at which scrolling up pages in older timeline
+ * items. Same idea as the 80px bottom threshold of the stick-to-bottom
+ * detector: a margin, so the trigger fires while the user is still moving,
+ * not only pinned exactly at scrollTop 0.
+ */
+const LOAD_EARLIER_THRESHOLD_PX = 120
 
 // ---------------------------------------------------------------------------
 // App version (P4-08)
@@ -3341,7 +3350,11 @@ function ChatInner({
   // The tests strip sits above the commit bar and starts collapsed, like it.
   const [testsBarExpanded, setTestsBarExpanded] = useState(false)
   const [commitCards, setCommitCards] = useState<CommitCard[]>([])
-  /** Number of timeline items rendered in the DOM. Increases when user clicks "Show earlier". */
+  /**
+   * Number of timeline items rendered in the DOM. Starts at the most recent
+   * page and grows as the user scrolls toward the top of the conversation
+   * (auto-load of earlier history — no button to click).
+   */
   const [maxVisibleItems, setMaxVisibleItems] = useState(60)
 
   // ── Undo tracking ───────────────────────────────────────────────────────────
@@ -4943,6 +4956,33 @@ function ChatInner({
   const userScrolledUpRef = useRef(false)
   const sentInitialRef = useRef<string | null>(null)
 
+  // ── Auto-load earlier history on scroll-up ─────────────────────────────────
+  // The timeline only mounts the most recent `maxVisibleItems` items; when the
+  // user scrolls near the top, the next older page is mounted in and the scroll
+  // position is anchored (see the layout effect below) so the reading place
+  // stays put across the prepend. Replaces the old "Show earlier messages"
+  // button (2026-10-11): paging happens as you approach the top, not on click.
+  //
+  // The once-registered `scroll` listener reads both values through refs —
+  // `timeline` does not exist yet where the listener is declared, and the
+  // listener must not re-register on every streamed item.
+  /** scrollHeight captured when a page load was triggered; consumed by the anchor effect. */
+  const pendingAnchorHeightRef = useRef<number | null>(null)
+  /** Whether older items are currently held back (assigned during render). */
+  const hasHiddenEarlierRef = useRef(false)
+
+  // Keeps the viewport still across a prepend. Native scroll anchoring is
+  // disabled on the container (overflowAnchor: 'none') so this is the only
+  // mechanism adjusting the offset — otherwise both would fire and double-jump.
+  useLayoutEffect(() => {
+    const anchor = pendingAnchorHeightRef.current
+    if (anchor === null) return
+    pendingAnchorHeightRef.current = null
+    const el = messagesContainerRef.current
+    if (!el) return
+    el.scrollTop += el.scrollHeight - anchor
+  }, [maxVisibleItems])
+
   // "Should we stick to the bottom?" — derived ONLY from the actual scroll
   // position after a scroll event, never from touch direction or content size.
   //
@@ -4962,6 +5002,12 @@ function ChatInner({
     if (!el) return
     const onScroll = (): void => {
       userScrolledUpRef.current = el.scrollHeight - el.scrollTop - el.clientHeight > 80
+      // Near the top with older history held back: mount the next page in. The
+      // anchor effect above keeps the viewport still across the prepend.
+      if (el.scrollTop <= LOAD_EARLIER_THRESHOLD_PX && hasHiddenEarlierRef.current) {
+        pendingAnchorHeightRef.current = el.scrollHeight
+        setMaxVisibleItems((n) => n + 40)
+      }
     }
     el.addEventListener('scroll', onScroll, { passive: true })
     return () => el.removeEventListener('scroll', onScroll)
@@ -8147,6 +8193,10 @@ function ChatInner({
 
   const renderedTimeline =
     timeline.length > maxVisibleItems ? timeline.slice(-maxVisibleItems) : timeline
+  // Read by the once-registered scroll listener (declared with the other scroll
+  // refs, before `timeline` exists) to decide whether scrolling near the top
+  // should mount the next older page.
+  hasHiddenEarlierRef.current = timeline.length > maxVisibleItems
 
   /**
    * Where (if anywhere) a timeline item carries its time. Typed user messages and
@@ -8304,7 +8354,15 @@ function ChatInner({
         // is gone. No scrollbar-gutter:stable reservation (it made the right padding
         // visibly larger than the left); the thin scrollbar just overlays when the
         // timeline overflows.
-        style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'thin' }}
+        // overflowAnchor off: prepending an older page above the viewport is
+        // compensated by ChatPanel's own anchor effect — native scroll anchoring
+        // must not adjust the offset on top of it (double correction = jump).
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          scrollbarWidth: 'thin',
+          overflowAnchor: 'none',
+        }}
       >
         {/* Empty-conversation hint — rendered ONLY when there is literally nothing
             else to show: no timeline items, no local/remote streaming, no sandbox-boot
@@ -8340,27 +8398,9 @@ function ChatInner({
               </span>
             </div>
           )}
-        {timeline.length > maxVisibleItems && (
-          <div style={{ textAlign: 'center', padding: '8px 0' }}>
-            <button
-              type="button"
-              data-mol-id="chat-show-earlier"
-              onClick={() => setMaxVisibleItems((n) => n + 40)}
-              // A quiet, non-committal timeline action — SECONDARY, the semantic
-              // DESIGN.md reserves for what sits beside the real CTAs. Box model,
-              // type scale and hover come from the ClassMap instead of the
-              // hand-rolled 4px-radius currentColor frame this used to be.
-              className={cm.cn(
-                cm.button({ variant: 'solid', color: 'secondary', size: 'xs' }),
-                cm.touchTargetCompact,
-              )}
-            >
-              {t('ide.chat.showEarlier', undefined, {
-                defaultValue: 'Show earlier messages',
-              })}
-            </button>
-          </div>
-        )}
+        {/* Older history mounts in as the user scrolls near the top — see the
+            auto-load-earlier section by the scroll refs. There is deliberately
+            no "Show earlier" button: paging happens on scroll, not on click. */}
         {/* Every item renders inside its own boundary: the timeline is built from
             model-authored data, so one malformed payload must cost one inline
             notice, never the whole IDE. See ChatItemBoundary. */}

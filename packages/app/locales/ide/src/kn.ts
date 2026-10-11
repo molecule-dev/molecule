@@ -92,7 +92,6 @@ export const kn: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ಗರಿಷ್ಠ ಲೂಪ್‌ಗಳ ಮಿತಿಯನ್ನು ತಲುಪಲಾಗಿದೆ.',
   'ide.chat.maxLoopsError': 'ಗರಿಷ್ಠ ಪರಿಕರ ಪುನರಾವರ್ತನೆಗಳನ್ನು ನವೀಕರಿಸಲು ವಿಫಲವಾಗಿದೆ.',
   'ide.chat.dropFilesHere': 'ಫೈಲ್‌ಗಳನ್ನು ಇಲ್ಲಿ ಬಿಡಿ',
-  'ide.chat.showEarlier': 'ಹಿಂದಿನ ಸಂದೇಶಗಳನ್ನು ತೋರಿಸಿ',
   'ide.chat.autoFixPaused': 'ಸ್ವಯಂ-ಸರಿಪಡಿಸುವಿಕೆಯನ್ನು ವಿರಾಮಗೊಳಿಸಲಾಗಿದೆ',
   'ide.chat.autoFixCountdown': 'ಪುನರಾರಂಭ',
   'ide.chat.autoFixPause': 'ವಿರಾಮಗೊಳಿಸಿ',

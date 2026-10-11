@@ -89,7 +89,6 @@ export const zhTW: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': '已達到最大循環次數限制。',
   'ide.chat.maxLoopsError': '更新最大工具迭代次數失敗。',
   'ide.chat.dropFilesHere': '文件拖放到這裡',
-  'ide.chat.showEarlier': '顯示更早的訊息',
   'ide.chat.autoFixPaused': '自動修復功能已暫停',
   'ide.chat.autoFixCountdown': '恢復',
   'ide.chat.autoFixPause': '暫停',

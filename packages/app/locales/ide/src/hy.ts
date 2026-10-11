@@ -92,7 +92,6 @@ export const hy: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Հասել է ցիկլերի առավելագույն սահմանաչափին։',
   'ide.chat.maxLoopsError': 'Չհաջողվեց թարմացնել գործիքի առավելագույն իտերացիաները։',
   'ide.chat.dropFilesHere': 'Ֆայլերը գցեք այստեղ',
-  'ide.chat.showEarlier': 'Ցուցադրել նախորդ հաղորդագրությունները',
   'ide.chat.autoFixPaused': 'Ավտոմատ ուղղումը դադարեցված է',
   'ide.chat.autoFixCountdown': 'Ռեզյումե',
   'ide.chat.autoFixPause': 'Դադար',

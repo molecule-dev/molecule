@@ -92,7 +92,6 @@ export const sk: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Dosiahnutý maximálny počet slučiek.',
   'ide.chat.maxLoopsError': 'Nepodarilo sa aktualizovať maximálny počet iterácií nástroja.',
   'ide.chat.dropFilesHere': 'Sem presuňte súbory',
-  'ide.chat.showEarlier': 'Zobraziť staršie správy',
   'ide.chat.autoFixPaused': 'Automatická oprava pozastavená',
   'ide.chat.autoFixCountdown': 'Životopis',
   'ide.chat.autoFixPause': 'Pozastaviť',

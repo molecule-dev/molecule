@@ -92,7 +92,6 @@ export const mk: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Достигнато е максималното ограничување на јамките.',
   'ide.chat.maxLoopsError': 'Неуспешно ажурирање на максималниот број итерации на алатката.',
   'ide.chat.dropFilesHere': 'Пушти датотеки тука',
-  'ide.chat.showEarlier': 'Прикажи претходни пораки',
   'ide.chat.autoFixPaused': 'Автоматското поправање е паузирано',
   'ide.chat.autoFixCountdown': 'Резиме',
   'ide.chat.autoFixPause': 'Пауза',

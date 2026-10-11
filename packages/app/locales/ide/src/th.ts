@@ -92,7 +92,6 @@ export const th: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'ถึงขีดจำกัดจำนวนลูปสูงสุดแล้ว',
   'ide.chat.maxLoopsError': 'ไม่สามารถอัปเดตจำนวนรอบการทำงานของเครื่องมือสูงสุดได้',
   'ide.chat.dropFilesHere': 'วางไฟล์ที่นี่',
-  'ide.chat.showEarlier': 'แสดงข้อความก่อนหน้า',
   'ide.chat.autoFixPaused': 'การแก้ไขอัตโนมัติหยุดชั่วคราว',
   'ide.chat.autoFixCountdown': 'ประวัติย่อ',
   'ide.chat.autoFixPause': 'หยุดชั่วคราว',

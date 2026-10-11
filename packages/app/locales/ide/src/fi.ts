@@ -152,7 +152,6 @@ export const fi: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Silmukoiden enimmäismäärä saavutettu.',
   'ide.chat.maxLoopsError': 'Työkalujen iteraatioiden enimmäismäärän päivittäminen epäonnistui.',
   'ide.chat.dropFilesHere': 'Pudota tiedostot tähän',
-  'ide.chat.showEarlier': 'Näytä aiemmat viestit',
   'ide.chat.autoFixPaused': 'Automaattinen korjaus keskeytetty',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Valitse malli',

@@ -92,7 +92,6 @@ export const sl: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Dosežena je bila omejitev največjega števila zank.',
   'ide.chat.maxLoopsError': 'Posodobitev največjega števila iteracij orodja ni uspela.',
   'ide.chat.dropFilesHere': 'Spustite datoteke sem',
-  'ide.chat.showEarlier': 'Prikaži prejšnja sporočila',
   'ide.chat.autoFixPaused': 'Samodejno popravljanje začasno ustavljeno',
   'ide.chat.autoFixCountdown': 'Življenjepis',
   'ide.chat.autoFixPause': 'Začasno ustavi',

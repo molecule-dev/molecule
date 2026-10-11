@@ -152,7 +152,6 @@ export const cs: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Dosažen maximální počet smyček.',
   'ide.chat.maxLoopsError': 'Nepodařilo se aktualizovat maximální počet iterací nástroje.',
   'ide.chat.dropFilesHere': 'Sem přetáhněte soubory',
-  'ide.chat.showEarlier': 'Zobrazit starší zprávy',
   'ide.chat.autoFixPaused': 'Automatická oprava pozastavena',
   'ide.chat.version': '{{productName}} v0.1.0',
   'ide.chat.selectModel': 'Vyberte model',

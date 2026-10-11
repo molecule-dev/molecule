@@ -287,7 +287,6 @@ export type IdeTranslationKey =
   | 'ide.chat.undoComplete'
   | 'ide.chat.commitNoChanges'
   | 'ide.chat.commitError'
-  | 'ide.chat.showEarlier'
   | 'ide.chat.autoFixPaused'
   | 'ide.chat.autoFixCountdown'
   | 'ide.chat.autoFixPause'

@@ -92,7 +92,6 @@ export const kk: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Циклдердің максималды саны шегіне жетті.',
   'ide.chat.maxLoopsError': 'Құралдың максималды итерацияларын жаңарту сәтсіз аяқталды.',
   'ide.chat.dropFilesHere': 'Файлдарды осы жерге тастаңыз',
-  'ide.chat.showEarlier': 'Алдыңғы хабарламаларды көрсету',
   'ide.chat.autoFixPaused': 'Автоматты түзету кідіртілді',
   'ide.chat.autoFixCountdown': 'Түйіндеме',
   'ide.chat.autoFixPause': 'Кідірту',

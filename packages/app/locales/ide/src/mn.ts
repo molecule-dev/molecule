@@ -92,7 +92,6 @@ export const mn: Partial<IdeTranslations> = {
   'ide.chat.maxLoopsReached': 'Дээд давталтын хязгаарт хүрсэн.',
   'ide.chat.maxLoopsError': 'Хамгийн их хэрэгслийн давталтыг шинэчилж чадсангүй.',
   'ide.chat.dropFilesHere': 'Файлуудыг энд буулгана уу',
-  'ide.chat.showEarlier': 'Өмнөх мессежүүдийг харуулах',
   'ide.chat.autoFixPaused': 'Автоматаар засахыг түр зогсоосон',
   'ide.chat.autoFixCountdown': 'Анкет',
   'ide.chat.autoFixPause': 'Түр зогсоох',
