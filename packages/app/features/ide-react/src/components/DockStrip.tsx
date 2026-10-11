@@ -9,7 +9,8 @@
  */
 
 import type { JSX, ReactNode } from 'react'
-import { useId } from 'react'
+import { createContext, useContext, useId } from 'react'
+import { createPortal } from 'react-dom'
 
 import { useThemeMode } from '@molecule/app-react'
 import { getClassMap } from '@molecule/app-ui'
@@ -17,8 +18,28 @@ import { moleculeSpinnerMarkSvg } from '@molecule/app-ui'
 
 const MARK_SIZE = 16
 
+/**
+ * The slots of the one-row work tray (see WorkCard). When a {@link DockStrip}
+ * sits inside it, the strip draws a compact chip into `headerEl` and, while it
+ * is the open one, its detail into `detailEl` — so every section shares a
+ * single row instead of stacking one bar each.
+ */
+export interface WorkTrayValue {
+  /** Where the chips go. Null until the tray has mounted. */
+  headerEl: HTMLElement | null
+  /** Where the open section's detail goes. */
+  detailEl: HTMLElement | null
+  /** The open section's `molId`, if any. */
+  openId: string | null
+  /** Open this section (or close it, when it is already the open one). */
+  toggle: (id: string) => void
+}
+
+/** Provided by the work tray; absent when a strip stands alone. */
+export const WorkTrayContext = createContext<WorkTrayValue | null>(null)
+
 /** The states a strip row can be in. */
-export type StatusMarkState = 'done' | 'active' | 'todo' | 'failed'
+export type StatusMarkState = 'done' | 'active' | 'todo' | 'failed' | 'waiting' | 'stopped'
 
 /**
  * One status icon for every strip row: the landing page's green check circle
@@ -61,6 +82,34 @@ export function StatusMark({
           border: `1.5px solid ${isLight ? '#afb8c1' : '#6e7681'}`,
         }}
       />
+    )
+  }
+  if (state === 'waiting' || state === 'stopped') {
+    // Not running: a still ring that says why — a question mark when the person
+    // has to answer, a dash when the work simply stopped.
+    const ink =
+      state === 'waiting' ? (isLight ? '#9a6700' : '#e3b341') : isLight ? '#6e7781' : '#8b949e'
+    return (
+      <span
+        aria-hidden
+        style={{
+          display: 'inline-flex',
+          flexShrink: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxSizing: 'border-box',
+          width: size,
+          height: size,
+          borderRadius: '50%',
+          border: `1px solid ${ink}`,
+          color: ink,
+          fontSize: size * 0.7,
+          fontWeight: 700,
+          lineHeight: 1,
+        }}
+      >
+        {state === 'waiting' ? '?' : '–'}
+      </span>
     )
   }
   const failed = state === 'failed'
@@ -119,6 +168,10 @@ export interface DockStripProps {
   icon?: ReactNode
   /** The strip's one-line summary. */
   label: ReactNode
+  /** A shorter label for the tray chip (defaults to `label`). */
+  chipLabel?: ReactNode
+  /** Hover text for the tray chip. */
+  chipTitle?: string
   /** Quieter text after the label (the thing in flight). */
   hint?: ReactNode
   /** Right-hand readout and action buttons; clicks must stop propagation. */
@@ -141,12 +194,75 @@ export function DockStrip({
   onToggle,
   icon,
   label,
+  chipLabel,
+  chipTitle,
   hint,
   actions,
   rootProps,
   children,
-}: DockStripProps): JSX.Element {
+}: DockStripProps): JSX.Element | null {
   const cm = getClassMap()
+  const tray = useContext(WorkTrayContext)
+  if (tray) {
+    if (!tray.headerEl) return null
+    const open = tray.openId === molId
+    return (
+      <>
+        {createPortal(
+          <div
+            data-mol-id={molId}
+            {...rootProps}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, maxWidth: '100%' }}
+          >
+            <div
+              role="button"
+              tabIndex={0}
+              data-mol-id={toggleMolId}
+              aria-expanded={open}
+              title={chipTitle}
+              onClick={() => tray.toggle(molId)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  tray.toggle(molId)
+                }
+              }}
+              /* mol-bespoke-button: a work-tray CHIP — status icon and short label that
+                 opens its section's detail; a disclosure toggle, not a CTA. */
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                minWidth: 0,
+                padding: '2px 8px',
+                borderRadius: 6,
+                cursor: 'pointer',
+                background: open ? 'rgba(128,128,128,0.18)' : 'rgba(128,128,128,0.08)',
+              }}
+            >
+              {icon}
+              <span
+                className={cm.cn(cm.textMuted, cm.textSize('xs'))}
+                style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+              >
+                {chipLabel ?? label}
+              </span>
+            </div>
+            {actions}
+          </div>,
+          tray.headerEl,
+        )}
+        {open && children && tray.detailEl
+          ? createPortal(
+              <div data-mol-id={`${molId}-detail`} style={{ padding: '2px 10px 8px' }}>
+                {children}
+              </div>,
+              tray.detailEl,
+            )
+          : null}
+      </>
+    )
+  }
   return (
     <div
       data-mol-id={molId}

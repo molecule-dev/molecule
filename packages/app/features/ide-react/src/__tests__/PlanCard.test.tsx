@@ -19,8 +19,10 @@ import type { Theme, ThemeProvider as ThemeProviderType } from '@molecule/app-th
 import { setClassMap } from '@molecule/app-ui'
 import { classMap } from '@molecule/app-ui-tailwind'
 
+import { BackgroundTasksStrip } from '../components/BackgroundTasksStrip.js'
 import { latestPlan, PlanCard } from '../components/PlanCard.js'
 import { ToolCallCard } from '../components/ToolCallCard.js'
+import { WorkCard } from '../components/WorkCard.js'
 
 /** A minimal light theme so `useThemeMode` resolves. */
 function buildThemeProvider(): ThemeProviderType {
@@ -109,29 +111,30 @@ describe('latestPlan', () => {
   })
 })
 
-describe('PlanCard', () => {
-  it('lists every task with progress and no text glyphs or priority marker', () => {
-    const { container } = render(
-      inProviders(
-        <PlanCard
-          todos={latestPlan([{ toolCalls: [{ name: 'update_task_list', input: { todos } }] }])}
-        />,
-      ),
-    )
+const plan = latestPlan([{ toolCalls: [{ name: 'update_task_list', input: { todos } }] }])
+
+function inTray(list: typeof plan): ReactElement {
+  return inProviders(
+    <WorkCard>
+      <PlanCard todos={list} />
+    </WorkCard>,
+  )
+}
+
+describe('PlanCard in the work tray', () => {
+  it('is one chip with progress, and opens to list every task with no text glyphs or priority marker', () => {
+    const { container, getByText } = render(inTray(plan))
+    expect(container.textContent).toContain('Plan 1/3')
+    expect(container.textContent).not.toContain('Ship it')
+    fireEvent.click(getByText('Plan 1/3'))
     const text = container.textContent ?? ''
-    for (const label of ['Write tests', 'Fix the card', 'Ship it', '1 of 3 done'])
-      expect(text).toContain(label)
+    for (const label of ['Write tests', 'Fix the card', 'Ship it']) expect(text).toContain(label)
     for (const glyph of ['✓', '◐', '○', '!']) expect(text).not.toContain(glyph)
   })
 
   it('marks done with a tick, in progress with the spinner, to do with an empty ring', () => {
-    const { container } = render(
-      inProviders(
-        <PlanCard
-          todos={latestPlan([{ toolCalls: [{ name: 'update_task_list', input: { todos } }] }])}
-        />,
-      ),
-    )
+    const { container, getByText } = render(inTray(plan))
+    fireEvent.click(getByText('Plan 1/3'))
     const rows = container.querySelectorAll('[data-mol-id="task-list-row"]')
     expect(rows).toHaveLength(3)
     expect(rows[0].querySelector('svg path')?.getAttribute('d')).toBe('M2 5.2 4 7.2 8 3')
@@ -140,21 +143,65 @@ describe('PlanCard', () => {
     expect(rows[2].querySelector('svg')).toBeNull()
   })
 
-  it('collapses to the header when clicked', () => {
-    const { container, getByText } = render(
-      inProviders(
-        <PlanCard
-          todos={latestPlan([{ toolCalls: [{ name: 'update_task_list', input: { todos } }] }])}
-        />,
-      ),
-    )
-    fireEvent.click(getByText('Working plan'))
+  it('closes again when its chip is clicked a second time', () => {
+    const { container, getByText } = render(inTray(plan))
+    fireEvent.click(getByText('Plan 1/3'))
+    fireEvent.click(getByText('Plan 1/3'))
     expect(container.textContent).not.toContain('Ship it')
-    expect(container.textContent).toContain('1 of 3 done')
+    expect(container.textContent).toContain('Plan 1/3')
   })
 
-  it('renders nothing for an empty plan', () => {
-    const { container } = render(inProviders(<PlanCard todos={[]} />))
+  it('opening another section closes this one', () => {
+    const { container, getByText } = render(
+      inProviders(
+        <WorkCard>
+          <PlanCard todos={plan} />
+          <BackgroundTasksStrip
+            tasks={[
+              { id: 'mol-bg-1', command: 'npm test', status: 'running', startedAt: Date.now() },
+            ]}
+          />
+        </WorkCard>,
+      ),
+    )
+    fireEvent.click(getByText('Plan 1/3'))
+    expect(container.textContent).toContain('Ship it')
+    fireEvent.click(getByText('1 running'))
+    expect(container.textContent).not.toContain('Ship it')
+    expect(container.textContent).toContain('npm test')
+  })
+
+  it('does not spin a step when no turn is running: it says the work stopped', () => {
+    const { container, getByText } = render(
+      inProviders(
+        <WorkCard>
+          <PlanCard todos={plan} live={false} />
+        </WorkCard>,
+      ),
+    )
+    fireEvent.click(getByText('Plan 1/3'))
+    const rows = container.querySelectorAll('[data-mol-id="task-list-row"]')
+    expect(rows[1].textContent).toContain('Stopped before finishing')
+    expect(rows[1].textContent).not.toContain('Waiting for your answer')
+    // The stopped mark is plain text in a ring, not the spinner's svg.
+    expect(rows[1].querySelector('svg')).toBeNull()
+  })
+
+  it('says it is waiting for the person when the turn is paused on a question', () => {
+    const { container, getByText } = render(
+      inProviders(
+        <WorkCard>
+          <PlanCard todos={plan} live={false} awaitingUser />
+        </WorkCard>,
+      ),
+    )
+    fireEvent.click(getByText('Plan 1/3'))
+    const rows = container.querySelectorAll('[data-mol-id="task-list-row"]')
+    expect(rows[1].textContent).toContain('Waiting for your answer')
+  })
+
+  it('draws nothing for an empty plan', () => {
+    const { container } = render(inTray([]))
     expect(container.textContent).toBe('')
   })
 })

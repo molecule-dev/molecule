@@ -8292,6 +8292,19 @@ function ChatInner({
 
   const bgCommands = useMemo(() => backgroundTaskCommands(messages), [messages])
   const plan = useMemo(() => latestPlan(messages), [messages])
+  // A plan step only spins while a turn is running; otherwise it says it is waiting
+  // on the person (an unanswered ask_user) or that the work stopped.
+  const planLive = isLoading || isRemoteStreaming
+  const planAwaitingUser = useMemo(
+    () =>
+      (messages[messages.length - 1]?.toolCalls ?? []).some(
+        (tc) =>
+          tc.output != null &&
+          typeof tc.output === 'object' &&
+          (tc.output as { status?: string }).status === 'awaiting_response',
+      ),
+    [messages],
+  )
   // Everything about the work in flight shares one card above the composer. The
   // tests strip also shows for a read-only viewer (watching is not editing); the
   // files strip does not (committing is editor work). Popups hide the card.
@@ -11370,7 +11383,7 @@ function ChatInner({
           <WorkCard>
             {/* The plan and the background commands (a detached command outlives
                 its tool call, so its own card goes green while it still runs). */}
-            <PlanCard todos={plan} />
+            <PlanCard todos={plan} live={planLive} awaitingUser={planAwaitingUser} />
             <BackgroundTasksStrip tasks={backgroundTasks} />
             {showTests && (
               <TestStatusBar
@@ -11616,6 +11629,9 @@ function ChatInner({
             borderRadius: discovery ? 8 : '8px 8px 0 0',
             padding: '8px 10px',
             cursor: 'text',
+            // With the work tray open above, the composer is drawn OVER the tray's
+            // lower edge (the tray tucks 8px under it).
+            ...(workVisible ? { position: 'relative' as const, zIndex: 1 } : {}),
             // View-only mode: the composer IS the team-chat box, so it wears the
             // team-message gold border (and the box is pre-filled with /teamsay).
             ...(canEdit === false ? { border: `1px solid ${NOTICE_TONE.gold.accent}` } : {}),

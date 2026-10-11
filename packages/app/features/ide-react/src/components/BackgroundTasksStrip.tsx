@@ -74,6 +74,14 @@ export function BackgroundTasksStrip({
         />
       }
       label={summary}
+      chipLabel={
+        running.length > 0
+          ? t('ide.work.running', { count: running.length }, { defaultValue: '{{count}} running' })
+          : failed.length > 0
+            ? t('ide.work.failed', { count: failed.length }, { defaultValue: '{{count}} failed' })
+            : t('ide.work.finished', { count: tasks.length }, { defaultValue: '{{count}} done' })
+      }
+      chipTitle={lead ? purpose(lead) : undefined}
       hint={!expanded && lead ? `· ${purpose(lead)}` : undefined}
     >
       <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>

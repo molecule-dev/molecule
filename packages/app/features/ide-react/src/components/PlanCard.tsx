@@ -13,6 +13,11 @@ const MARK: Record<TaskListRow['status'], 'done' | 'active' | 'todo'> = {
   pending: 'todo',
 }
 
+/** The mark for a step still in progress: a spinner only while a turn is actually running. */
+function inProgressMark(live: boolean, awaitingUser: boolean): 'active' | 'waiting' | 'stopped' {
+  return live ? 'active' : awaitingUser ? 'waiting' : 'stopped'
+}
+
 /**
  * The working plan, one of the strips above the composer. It is not part of the
  * transcript: every `update_task_list` call re-draws this one strip instead of
@@ -21,13 +26,29 @@ const MARK: Record<TaskListRow['status'], 'done' | 'active' | 'todo'> = {
  * @param props.todos - The latest task list.
  * @returns The plan strip, or nothing when the list is empty.
  */
-export function PlanCard({ todos }: { todos: ReadonlyArray<TaskListRow> }): JSX.Element | null {
+export function PlanCard({
+  todos,
+  live = true,
+  awaitingUser = false,
+}: {
+  todos: ReadonlyArray<TaskListRow>
+  /** Whether a turn is running. A step still "in progress" with no turn running is not progressing. */
+  live?: boolean
+  /** Whether the turn is paused on a question to the person. */
+  awaitingUser?: boolean
+}): JSX.Element | null {
   const cm = getClassMap()
   const [expanded, setExpanded] = useState(true)
   if (todos.length === 0) return null
 
   const completed = todos.filter((todo) => todo.status === 'completed').length
   const current = todos.find((todo) => todo.status === 'in_progress')
+  const stuckMark = inProgressMark(live, awaitingUser)
+  const stuckNote = live
+    ? undefined
+    : awaitingUser
+      ? t('ide.work.waiting', undefined, { defaultValue: 'Waiting for your answer' })
+      : t('ide.work.stopped', undefined, { defaultValue: 'Stopped before finishing' })
 
   return (
     <DockStrip
@@ -37,14 +58,17 @@ export function PlanCard({ todos }: { todos: ReadonlyArray<TaskListRow> }): JSX.
       onToggle={() => setExpanded((open) => !open)}
       label={t('ide.chat.taskListTitle', undefined, { defaultValue: 'Working plan' })}
       hint={!expanded && current ? `· ${current.content}` : undefined}
-      actions={
-        <span className={cm.cn(cm.textMuted, cm.textSize('xs'))} style={{ whiteSpace: 'nowrap' }}>
-          {t(
-            'ide.chat.taskListProgress',
-            { done: completed, total: todos.length },
-            { defaultValue: '{{done}} of {{total}} done' },
-          )}
-        </span>
+      chipLabel={t(
+        'ide.work.plan',
+        { done: completed, total: todos.length },
+        { defaultValue: 'Plan {{done}}/{{total}}' },
+      )}
+      chipTitle={current ? [current.content, stuckNote].filter(Boolean).join(' — ') : undefined}
+      icon={
+        <StatusMark
+          state={current ? stuckMark : completed === todos.length ? 'done' : 'todo'}
+          size={14}
+        />
       }
     >
       <div style={{ maxHeight: '168px', overflowY: 'auto' }}>
@@ -62,7 +86,7 @@ export function PlanCard({ todos }: { todos: ReadonlyArray<TaskListRow> }): JSX.
             }}
           >
             <span style={{ flexShrink: 0, display: 'inline-flex', paddingTop: 1 }}>
-              <StatusMark state={MARK[todo.status]} />
+              <StatusMark state={todo.status === 'in_progress' ? stuckMark : MARK[todo.status]} />
             </span>
             <span
               style={{
@@ -72,6 +96,9 @@ export function PlanCard({ todos }: { todos: ReadonlyArray<TaskListRow> }): JSX.
               }}
             >
               {todo.content}
+              {todo.status === 'in_progress' && stuckNote ? (
+                <span className={cm.textMuted}>{` — ${stuckNote}`}</span>
+              ) : null}
             </span>
           </div>
         ))}
