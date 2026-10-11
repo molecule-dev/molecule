@@ -1,5 +1,11 @@
 # @molecule/api-ai-tools
 
+## 1.4.3
+
+### Patch Changes
+
+- b525227: `exec_command` accepts an optional `description`: a one-line reason shown in place of the raw command.
+
 ## 1.4.2
 
 ### Patch Changes

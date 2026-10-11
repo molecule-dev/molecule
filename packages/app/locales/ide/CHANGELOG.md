@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.7
+
+### Patch Changes
+
+- b525227: Adds the Command, Request and Response labels for tool-call cards.
+
 ## 1.10.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @molecule/app-ai-chat
 
+## 1.5.2
+
+### Patch Changes
+
+- b525227: `BackgroundTaskState` carries an optional `description`, the reason a background command was started.
+
 ## 1.5.1
 
 ### Patch Changes
