@@ -1808,8 +1808,15 @@ describe('logInOAuth handler — pre-account-hijacking defense (M1-1)', () => {
 
     expect(loginResult?.statusCode).toBe(403)
     expect(loginResult?.body?.errorKey).toBe('user.error.invalidCredentials')
-    // The wiped hash means compare is never even consulted for a password match.
-    expect(mockCompare).not.toHaveBeenCalled()
+    // The wiped hash means the attacker's stored secret is never consulted: the
+    // only compare this refusal runs is the dummy-KDF timing fill (logIn runs it
+    // for every invalid-credentials answer that got no real compare), which is
+    // derived from the bond's hash('molecule-dummy-password') and cannot match.
+    // Never the wiped 'attacker-known-hash' — that is the hijack this test exists
+    // to forbid.
+    expect(mockCompare).not.toHaveBeenCalledWith('attacker-password', 'attacker-known-hash')
+    expect(mockCompare).not.toHaveBeenCalledWith('attacker-password', null)
+    expect(mockCompare).not.toHaveBeenCalledWith('attacker-password', undefined)
   })
 })
 
