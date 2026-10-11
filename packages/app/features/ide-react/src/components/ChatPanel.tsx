@@ -212,6 +212,7 @@ import { TipCard } from './TipCard.js'
 import { readFilePaths, str } from './tool-call-utilities.js'
 import { ToolCallCard } from './ToolCallCard.js'
 import { UserAvatar } from './UserAvatar.js'
+import { WorkCard } from './WorkCard.js'
 
 const logger = getLogger('chat-panel')
 
@@ -8291,6 +8292,17 @@ function ChatInner({
 
   const bgCommands = useMemo(() => backgroundTaskCommands(messages), [messages])
   const plan = useMemo(() => latestPlan(messages), [messages])
+  // Everything about the work in flight shares one card above the composer. The
+  // tests strip also shows for a read-only viewer (watching is not editing); the
+  // files strip does not (committing is editor work). Popups hide the card.
+  const showTests = testsBarVisible && shouldShowTestsBar(testsRun, testsList)
+  const showFiles = canEdit !== false && pendingFiles != null && pendingFiles.length > 0
+  const workVisible =
+    !commandMenu &&
+    !modelPicker &&
+    !effortPicker &&
+    !panelOverlay &&
+    (plan.length > 0 || backgroundTasks.length > 0 || showTests || showFiles)
 
   // ── Render ─────────────────────────────────────────────────────────────────
   const root = (
@@ -8845,13 +8857,6 @@ function ChatInner({
 
         <div ref={messagesEndRef} />
       </div>
-
-      {/* ── Background commands ── a detached command outlives its tool call,
-          so its card goes green while the command is still running. This is the
-          one place that state is visible. */}
-      <PlanCard todos={plan} />
-
-      <BackgroundTasksStrip tasks={backgroundTasks} />
 
       {/* ── Auto-fix countdown banner ── */}
       {autoFixCountdown && (
@@ -11361,50 +11366,45 @@ function ChatInner({
             A project with no tests yet gets no bar at all — there is nothing for
             it to account for, and it appears on its own as soon as discovery
             finds the first spec. */}
-        {testsBarVisible &&
-          shouldShowTestsBar(testsRun, testsList) &&
-          !commandMenu &&
-          !modelPicker &&
-          !effortPicker &&
-          !panelOverlay && (
-            <TestStatusBar
-              run={testsRun}
-              tests={testsList}
-              expanded={testsBarExpanded}
-              onToggle={() => setTestsBarExpanded((v) => !v)}
-              onOpen={() => openTestsBrowser('')}
-              onStop={testsRun.running ? cancelTestsRun : undefined}
-            />
-          )}
-        {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
+        {workVisible && (
+          <WorkCard>
+            {/* The plan and the background commands (a detached command outlives
+                its tool call, so its own card goes green while it still runs). */}
+            <PlanCard todos={plan} />
+            <BackgroundTasksStrip tasks={backgroundTasks} />
+            {showTests && (
+              <TestStatusBar
+                run={testsRun}
+                tests={testsList}
+                expanded={testsBarExpanded}
+                onToggle={() => setTestsBarExpanded((v) => !v)}
+                onOpen={() => openTestsBrowser('')}
+                onStop={testsRun.running ? cancelTestsRun : undefined}
+              />
+            )}
+            {/* Commit bar — anchored above the textarea (hidden when a popup menu is open).
             Hidden entirely for a read-only VIEWER: committing/reverting is editor work,
             so the bar is a dead control for them. */}
-        {canEdit !== false &&
-          pendingFiles != null &&
-          pendingFiles.length > 0 &&
-          !commandMenu &&
-          !modelPicker &&
-          !effortPicker &&
-          !panelOverlay && (
-            <DockStrip
-              molId="chat-commit-bar"
-              toggleMolId="chat-commit-toggle"
-              expanded={commitBarExpanded}
-              onToggle={() => setCommitBarExpanded((v) => !v)}
-              label={
-                commitState?.status === 'committed'
-                  ? stripCommitCoauthorTrailer(commitState.message ?? '')
-                  : commitState?.status === 'error'
-                    ? t('ide.chat.commitFailed')
-                    : t(
-                        'ide.chat.uncommittedFileCount',
-                        { count: pendingFiles.length },
-                        { defaultValue: '{{count}} uncommitted files' },
-                      )
-              }
-              actions={
-                <>
-                  {/* When auto-commit is enabled, the GREEN commit button occupies this
+            {showFiles && pendingFiles != null && (
+              <DockStrip
+                molId="chat-commit-bar"
+                toggleMolId="chat-commit-toggle"
+                expanded={commitBarExpanded}
+                onToggle={() => setCommitBarExpanded((v) => !v)}
+                label={
+                  commitState?.status === 'committed'
+                    ? stripCommitCoauthorTrailer(commitState.message ?? '')
+                    : commitState?.status === 'error'
+                      ? t('ide.chat.commitFailed')
+                      : t(
+                          'ide.chat.uncommittedFileCount',
+                          { count: pendingFiles.length },
+                          { defaultValue: '{{count}} uncommitted files' },
+                        )
+                }
+                actions={
+                  <>
+                    {/* When auto-commit is enabled, the GREEN commit button occupies this
                   slot (P3-15): a labeled "Commit" (click = commit now) that morphs
                   into the live "Auto-commit in Ns" countdown for the debounce's
                   final seconds. The blue button remains for auto-commit-off and for
@@ -11413,184 +11413,190 @@ function ChatInner({
                   committing mid-turn would stage a half-written tree and race the
                   chat stream's own conversation writes — so the commit waits until
                   the turn finishes. */}
-                  {isAutoCommitEnabled(autoCommit) &&
-                  commitState?.status !== 'committing' &&
-                  commitState?.status !== 'committed' ? (
-                    <AutoCommitBadge
-                      state={autoCommit}
-                      disabled={autoCommitHeld}
-                      onCommitNow={() => {
-                        // Pause the countdown before committing so a due auto-fire
-                        // doesn't race the manual commit onto a freshly clean tree
-                        // (which would drop a noisy "No changes to commit" card).
-                        dispatchAutoCommit({ type: 'fired' })
-                        void handleCommit()
+                    {isAutoCommitEnabled(autoCommit) &&
+                    commitState?.status !== 'committing' &&
+                    commitState?.status !== 'committed' ? (
+                      <AutoCommitBadge
+                        state={autoCommit}
+                        disabled={autoCommitHeld}
+                        onCommitNow={() => {
+                          // Pause the countdown before committing so a due auto-fire
+                          // doesn't race the manual commit onto a freshly clean tree
+                          // (which would drop a noisy "No changes to commit" card).
+                          dispatchAutoCommit({ type: 'fired' })
+                          void handleCommit()
+                        }}
+                        inline
+                      />
+                    ) : (
+                      (() => {
+                        const commitBusy =
+                          commitState?.status === 'committing' ||
+                          commitState?.status === 'committed' ||
+                          autoCommitHeld
+                        return (
+                          <button
+                            type="button"
+                            data-mol-id="chat-commit-button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (commitBusy) return
+                              handleCommit()
+                            }}
+                            disabled={commitBusy}
+                            // The SAME design-system button as the tests bar's action
+                            // one strip above (and as the green AutoCommitBadge that
+                            // replaces this one when auto-commit is on) — only the
+                            // semantic colour differs. The CVA owns hover/active/focus
+                            // and the disabled look, so there is nothing to hand-roll:
+                            // this used to be an inline 12px/6px-radius button with
+                            // hardcoded rgba(64,112,224,*) and hand-written hover, and
+                            // it visibly mismatched the 13px/3px tests-bar button.
+                            className={cm.cn(
+                              cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
+                              cm.touchTargetCompact,
+                            )}
+                          >
+                            {commitState?.status === 'committing'
+                              ? t('ide.chat.committing')
+                              : t('ide.chat.commit')}
+                          </button>
+                        )
+                      })()
+                    )}
+                  </>
+                }
+              >
+                <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  {pendingFiles.map((f) => (
+                    <button
+                      /* mol-bespoke-button: pending file row — dense monospace row that opens a diff, one of a list */
+                      key={f.path}
+                      type="button"
+                      onClick={() => onFileDiff?.(f.path)}
+                      onMouseEnter={(e) => {
+                        // Theme PRIMARY token, not a literal blue — the row sits in
+                        // the same bar as the commit button, which is now primary.
+                        e.currentTarget.style.color = 'var(--mol-color-primary, #4070e0)'
                       }}
-                      inline
-                    />
-                  ) : (
-                    (() => {
-                      const commitBusy =
-                        commitState?.status === 'committing' ||
-                        commitState?.status === 'committed' ||
-                        autoCommitHeld
-                      return (
-                        <button
-                          type="button"
-                          data-mol-id="chat-commit-button"
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = ''
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        background: 'none',
+                        border: 'none',
+                        padding: '1px 0',
+                        // Touch: ~15px rows are untappable — 32px is the floor for
+                        // these dense file rows.
+                        ...(isCoarse ? { minHeight: 32 } : {}),
+                        cursor: onFileDiff ? 'pointer' : 'default',
+                        fontFamily: "'SF Mono', 'Fira Code', monospace",
+                        fontSize: 11,
+                        color: 'inherit',
+                        opacity: 0.7,
+                        textAlign: 'left',
+                        width: '100%',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                      }}
+                      className={cm.textMuted}
+                    >
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.path}</span>
+                      {(!!f.additions || !!f.deletions) && (
+                        <span
+                          style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 10, opacity: 0.8 }}
+                        >
+                          {!!f.additions && (
+                            <span style={{ color: '#3fb950' }}>+{f.additions}</span>
+                          )}
+                          {!!f.additions && !!f.deletions && ' '}
+                          {!!f.deletions && (
+                            <span style={{ color: '#f85149' }}>-{f.deletions}</span>
+                          )}
+                        </span>
+                      )}
+                      {onFileRevert && (
+                        <span
+                          /* mol-bespoke-button: icon-only per-file revert affordance — 18px (32px coarse) hit box on a dense file row */
+                          role="button"
+                          tabIndex={0}
+                          title={t('ide.chat.revertFile', undefined, {
+                            defaultValue: 'Revert to last commit',
+                          })}
                           onClick={(e) => {
                             e.stopPropagation()
-                            if (commitBusy) return
-                            handleCommit()
+                            // Revert file to last committed state (handles modified, new, and deleted files)
+                            http
+                              .post(`/projects/${projectId}/git-revert`, { path: f.path })
+                              .then(() => {
+                                refreshGitStatus()
+                                // Refresh editor if the file is open — fetch fresh content for modified/restored,
+                                // or close if it was a new file that got deleted
+                                if (f.status === 'untracked' || f.status === 'added') {
+                                  onFileDeleted?.(f.path)
+                                } else {
+                                  // Re-fetch file content from sandbox to update editor
+                                  http
+                                    .get<{ content: string }>(
+                                      `/projects/${projectId}/files/${f.path}`,
+                                    )
+                                    .then((res) => onFileChange?.(f.path, res.data.content))
+                                    .catch(() => {
+                                      /* ignore */
+                                    })
+                                }
+                              })
+                              .catch(() => {
+                                /* ignore */
+                              })
                           }}
-                          disabled={commitBusy}
-                          // The SAME design-system button as the tests bar's action
-                          // one strip above (and as the green AutoCommitBadge that
-                          // replaces this one when auto-commit is on) — only the
-                          // semantic colour differs. The CVA owns hover/active/focus
-                          // and the disabled look, so there is nothing to hand-roll:
-                          // this used to be an inline 12px/6px-radius button with
-                          // hardcoded rgba(64,112,224,*) and hand-written hover, and
-                          // it visibly mismatched the 13px/3px tests-bar button.
-                          className={cm.cn(
-                            cm.button({ variant: 'solid', color: 'primary', size: 'xs' }),
-                            cm.touchTargetCompact,
-                          )}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click()
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
+                            e.currentTarget.style.opacity = '1'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent'
+                            e.currentTarget.style.opacity = '0.5'
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            // Touch: 32px hit box (dense-row floor); glyph unchanged.
+                            width: isCoarse ? 32 : 18,
+                            height: isCoarse ? 32 : 18,
+                            borderRadius: 3,
+                            flexShrink: 0,
+                            cursor: 'pointer',
+                            opacity: 0.5,
+                            transition: 'opacity 100ms, background 100ms',
+                            ...(!(f.additions || f.deletions) ? { marginLeft: 'auto' } : {}),
+                          }}
                         >
-                          {commitState?.status === 'committing'
-                            ? t('ide.chat.committing')
-                            : t('ide.chat.commit')}
-                        </button>
-                      )
-                    })()
-                  )}
-                </>
-              }
-            >
-              <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                {pendingFiles.map((f) => (
-                  <button
-                    /* mol-bespoke-button: pending file row — dense monospace row that opens a diff, one of a list */
-                    key={f.path}
-                    type="button"
-                    onClick={() => onFileDiff?.(f.path)}
-                    onMouseEnter={(e) => {
-                      // Theme PRIMARY token, not a literal blue — the row sits in
-                      // the same bar as the commit button, which is now primary.
-                      e.currentTarget.style.color = 'var(--mol-color-primary, #4070e0)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = ''
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      background: 'none',
-                      border: 'none',
-                      padding: '1px 0',
-                      // Touch: ~15px rows are untappable — 32px is the floor for
-                      // these dense file rows.
-                      ...(isCoarse ? { minHeight: 32 } : {}),
-                      cursor: onFileDiff ? 'pointer' : 'default',
-                      fontFamily: "'SF Mono', 'Fira Code', monospace",
-                      fontSize: 11,
-                      color: 'inherit',
-                      opacity: 0.7,
-                      textAlign: 'left',
-                      width: '100%',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                    }}
-                    className={cm.textMuted}
-                  >
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{f.path}</span>
-                    {(!!f.additions || !!f.deletions) && (
-                      <span
-                        style={{ marginLeft: 'auto', flexShrink: 0, fontSize: 10, opacity: 0.8 }}
-                      >
-                        {!!f.additions && <span style={{ color: '#3fb950' }}>+{f.additions}</span>}
-                        {!!f.additions && !!f.deletions && ' '}
-                        {!!f.deletions && <span style={{ color: '#f85149' }}>-{f.deletions}</span>}
-                      </span>
-                    )}
-                    {onFileRevert && (
-                      <span
-                        /* mol-bespoke-button: icon-only per-file revert affordance — 18px (32px coarse) hit box on a dense file row */
-                        role="button"
-                        tabIndex={0}
-                        title={t('ide.chat.revertFile', undefined, {
-                          defaultValue: 'Revert to last commit',
-                        })}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          // Revert file to last committed state (handles modified, new, and deleted files)
-                          http
-                            .post(`/projects/${projectId}/git-revert`, { path: f.path })
-                            .then(() => {
-                              refreshGitStatus()
-                              // Refresh editor if the file is open — fetch fresh content for modified/restored,
-                              // or close if it was a new file that got deleted
-                              if (f.status === 'untracked' || f.status === 'added') {
-                                onFileDeleted?.(f.path)
-                              } else {
-                                // Re-fetch file content from sandbox to update editor
-                                http
-                                  .get<{ content: string }>(
-                                    `/projects/${projectId}/files/${f.path}`,
-                                  )
-                                  .then((res) => onFileChange?.(f.path, res.data.content))
-                                  .catch(() => {
-                                    /* ignore */
-                                  })
-                              }
-                            })
-                            .catch(() => {
-                              /* ignore */
-                            })
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') e.currentTarget.click()
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'rgba(128,128,128,0.2)'
-                          e.currentTarget.style.opacity = '1'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'transparent'
-                          e.currentTarget.style.opacity = '0.5'
-                        }}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          // Touch: 32px hit box (dense-row floor); glyph unchanged.
-                          width: isCoarse ? 32 : 18,
-                          height: isCoarse ? 32 : 18,
-                          borderRadius: 3,
-                          flexShrink: 0,
-                          cursor: 'pointer',
-                          opacity: 0.5,
-                          transition: 'opacity 100ms, background 100ms',
-                          ...(!(f.additions || f.deletions) ? { marginLeft: 'auto' } : {}),
-                        }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 16 16"
-                          width="12"
-                          height="12"
-                          fill="currentColor"
-                        >
-                          <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
-                        </svg>
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </DockStrip>
-          )}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 16 16"
+                            width="12"
+                            height="12"
+                            fill="currentColor"
+                          >
+                            <path d="M1.22 6.28a.749.749 0 0 1 0-1.06l3.5-3.5a.749.749 0 1 1 1.06 1.06L3.561 5h7.188l.001.007L10.749 5c.058 0 .116.007.171.019A4.501 4.501 0 0 1 10.5 14H8.796a.75.75 0 0 1 0-1.5H10.5a3 3 0 1 0 0-6H3.561L5.78 8.72a.749.749 0 1 1-1.06 1.06l-3.5-3.5Z" />
+                          </svg>
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </DockStrip>
+            )}
+          </WorkCard>
+        )}
 
         {/* Input container — matches user message card style. data-mol-viewer
             marks view-only mode for HOST CSS: molecule-dev's composer ring
