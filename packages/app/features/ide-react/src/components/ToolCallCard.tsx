@@ -25,6 +25,7 @@ import { useCoarsePointer, useNarrowViewport } from '../hooks/useViewport.js'
 import type { ToolCallCardProps } from '../types.js'
 import { BackgroundTaskCommandsContext } from './background-task-context.js'
 import { MarkdownContent } from './MarkdownContent.js'
+import { PlanStatusIcon } from './PlanStatusIcon.js'
 import type { ToolOutput } from './tool-call-utilities.js'
 import {
   basename,
@@ -849,19 +850,6 @@ export const ToolCallCard = memo(function ToolCallCard({
     const todos = normalizeTaskListInput(input)
     const completed = todos.filter((todo) => todo.status === 'completed').length
     const borderClr = isLight ? '#d0d7de' : '#3d444d'
-    const statusGlyph = (status: string): string =>
-      status === 'completed' ? '✓' : status === 'in_progress' ? '◐' : '○'
-    const statusColor = (status: string): string =>
-      status === 'completed'
-        ? '#3fb950'
-        : status === 'in_progress'
-          ? isLight
-            ? '#2563eb'
-            : '#60a5fa'
-          : isLight
-            ? '#848d97'
-            : '#6e7681'
-
     return (
       <div
         className={className}
@@ -917,32 +905,17 @@ export const ToolCallCard = memo(function ToolCallCard({
             }}
           >
             <span
-              aria-hidden
               style={{
                 flexShrink: 0,
                 width: 16,
-                fontSize: '12px',
-                lineHeight: '17px',
-                color: statusColor(todo.status),
-                fontWeight: 600,
+                height: 17,
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
             >
-              {statusGlyph(todo.status)}
+              <PlanStatusIcon status={todo.status} isLight={isLight} />
             </span>
-            <span style={{ flex: 1, minWidth: 0 }}>
-              {todo.priority === 'high' && todo.status !== 'completed' && (
-                <span
-                  style={{
-                    color: isLight ? '#d63a2f' : '#f87171',
-                    fontWeight: 600,
-                    marginRight: '4px',
-                  }}
-                >
-                  !
-                </span>
-              )}
-              {todo.content}
-            </span>
+            <span style={{ flex: 1, minWidth: 0 }}>{todo.content}</span>
           </div>
         ))}
       </div>
