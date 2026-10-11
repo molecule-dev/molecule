@@ -1,5 +1,11 @@
 # @molecule/app-ide-react
 
+## 1.20.0
+
+### Minor Changes
+
+- 8849096: Scrolling toward the top of the IDE conversation now loads earlier messages automatically, holding the scroll position steady as each page mounts in. The separate "Show earlier messages" button is gone.
+
 ## 1.19.13
 
 ### Patch Changes

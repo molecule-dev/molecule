@@ -1,5 +1,11 @@
 # @molecule/app-locales-ide
 
+## 1.10.6
+
+### Patch Changes
+
+- 8849096: Removed the unused `ide.chat.showEarlier` translation key.
+
 ## 1.10.5
 
 ### Patch Changes
